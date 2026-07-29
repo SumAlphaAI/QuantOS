@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1Fill.schema.json",
+  "title": "v1Fill",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "fill_id": {
+      "type": "string"
+    },
+    "order_id": {
+      "type": "string"
+    },
+    "venue_fill_id": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "quantity": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "price": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "fee": {
+      "$ref": "#/definitions/v1MoneyValue"
+    },
+    "filled_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "metadata",
+    "fill_id",
+    "order_id",
+    "symbol",
+    "quantity",
+    "price",
+    "filled_at"
+  ]
+}

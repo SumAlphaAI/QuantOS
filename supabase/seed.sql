@@ -1,0 +1,2 @@
+-- Seed entrypoint for controlled non-production DATABASE_URL targets.
+-- Keep this file deterministic and free of production secrets.

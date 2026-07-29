@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1ExecuteRequest.schema.json",
+  "title": "v1ExecuteRequest",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "workflow_run_id": {
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string"
+    },
+    "capability": {
+      "type": "string"
+    },
+    "input_schema_version": {
+      "type": "string"
+    },
+    "data_snapshot_ref": {
+      "type": "string"
+    },
+    "policy_context_ref": {
+      "type": "string"
+    },
+    "input": {
+      "$ref": "#/definitions/v1JsonDocument"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "metadata",
+    "workflow_run_id",
+    "idempotency_key",
+    "capability",
+    "input_schema_version",
+    "data_snapshot_ref",
+    "policy_context_ref",
+    "input",
+    "deadline"
+  ]
+}

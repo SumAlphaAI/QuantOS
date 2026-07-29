@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1TradeProposal.schema.json",
+  "title": "v1TradeProposal",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "proposal_id": {
+      "type": "string"
+    },
+    "account_id": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "action": {
+      "$ref": "#/definitions/v1ProposalAction"
+    },
+    "quantity": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "notional": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "limit_price": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "stop_price": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "signal": {
+      "$ref": "#/definitions/v1Signal"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "#/definitions/v1EvidenceRef"
+      }
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "confidence": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "executable": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "metadata",
+    "proposal_id",
+    "account_id",
+    "symbol",
+    "action",
+    "quantity",
+    "notional",
+    "signal",
+    "rationale",
+    "confidence",
+    "expires_at",
+    "executable"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1StreamExecuteResponse.schema.json",
+  "title": "v1StreamExecuteResponse",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "execution_id": {
+      "type": "string"
+    },
+    "sequence_id": {
+      "type": "string"
+    },
+    "delta": {
+      "$ref": "#/definitions/v1JsonDocument"
+    },
+    "artifact_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "#/definitions/v1ArtifactRef"
+      }
+    },
+    "done": {
+      "type": "boolean"
+    },
+    "emitted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "metadata",
+    "execution_id",
+    "sequence_id",
+    "done",
+    "emitted_at"
+  ]
+}

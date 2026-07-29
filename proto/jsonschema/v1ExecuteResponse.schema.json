@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1ExecuteResponse.schema.json",
+  "title": "v1ExecuteResponse",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "execution_id": {
+      "type": "string"
+    },
+    "engine_version": {
+      "type": "string"
+    },
+    "input_hash": {
+      "type": "string"
+    },
+    "artifact_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "#/definitions/v1ArtifactRef"
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "#/definitions/v1EvidenceRef"
+      }
+    },
+    "output": {
+      "$ref": "#/definitions/v1JsonDocument"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "metadata",
+    "execution_id",
+    "engine_version",
+    "input_hash",
+    "output",
+    "completed_at"
+  ]
+}

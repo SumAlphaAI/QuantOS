@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package quantos.research.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "quantos/common/v1/common.proto";
+
+option go_package = "github.com/sumalpha/quantos/gen/go/quantos/research/v1;researchv1";
+option java_multiple_files = true;
+option java_package = "ai.sumalpha.quantos.research.v1";
+
+message DataSnapshot {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string snapshot_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string schema_version = 3 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.TimeWindow window = 4 [(google.api.field_behavior) = REQUIRED];
+  repeated quantos.common.v1.DataSourceRef sources = 5 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DataQuality quality = 6 [(google.api.field_behavior) = REQUIRED];
+  string content_hash = 7 [(google.api.field_behavior) = REQUIRED];
+  string license_label = 8 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp captured_at = 9 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Duration max_age = 10 [(google.api.field_behavior) = REQUIRED];
+  repeated string symbols = 11;
+  repeated quantos.common.v1.ArtifactRef artifact_refs = 12;
+}
+
+message ResearchArtifact {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string artifact_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string title = 3 [(google.api.field_behavior) = REQUIRED];
+  string hypothesis = 4 [(google.api.field_behavior) = REQUIRED];
+  string summary = 5 [(google.api.field_behavior) = REQUIRED];
+  string content_hash = 6 [(google.api.field_behavior) = REQUIRED];
+  string engine_version = 7 [(google.api.field_behavior) = REQUIRED];
+  string prompt_version = 8 [(google.api.field_behavior) = REQUIRED];
+  string code_version = 9 [(google.api.field_behavior) = REQUIRED];
+  string environment_hash = 10 [(google.api.field_behavior) = REQUIRED];
+  string data_snapshot_id = 11 [(google.api.field_behavior) = REQUIRED];
+  repeated quantos.common.v1.EvidenceRef evidence_refs = 12;
+  repeated quantos.common.v1.ArtifactRef attachments = 13;
+  google.protobuf.Timestamp created_at = 14 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp expires_at = 15;
+  quantos.common.v1.AuditTags audit_tags = 16;
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1DataSnapshot.schema.json",
+  "title": "v1DataSnapshot",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "snapshot_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "window": {
+      "$ref": "#/definitions/v1TimeWindow"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "#/definitions/v1DataSourceRef"
+      }
+    },
+    "quality": {
+      "$ref": "#/definitions/v1DataQuality"
+    },
+    "content_hash": {
+      "type": "string"
+    },
+    "license_label": {
+      "type": "string"
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "max_age": {
+      "type": "string"
+    },
+    "symbols": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "artifact_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "#/definitions/v1ArtifactRef"
+      }
+    }
+  },
+  "required": [
+    "metadata",
+    "snapshot_id",
+    "schema_version",
+    "window",
+    "sources",
+    "quality",
+    "content_hash",
+    "license_label",
+    "captured_at",
+    "max_age"
+  ]
+}

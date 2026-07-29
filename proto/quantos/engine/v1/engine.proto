@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package quantos.engine.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "quantos/common/v1/common.proto";
+
+option go_package = "github.com/sumalpha/quantos/gen/go/quantos/engine/v1;enginev1";
+option java_multiple_files = true;
+option java_package = "ai.sumalpha.quantos.engine.v1";
+
+message Capability {
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  string version = 2 [(google.api.field_behavior) = REQUIRED];
+  string description = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetMetadataRequest {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetMetadataResponse {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string engine_name = 2 [(google.api.field_behavior) = REQUIRED];
+  string engine_version = 3 [(google.api.field_behavior) = REQUIRED];
+  repeated Capability capabilities = 4 [(google.api.field_behavior) = REQUIRED];
+  repeated string supported_schema_versions = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message HealthRequest {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message HealthResponse {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  bool ready = 2 [(google.api.field_behavior) = REQUIRED];
+  string status = 3 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp observed_at = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ExecuteRequest {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string workflow_run_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+  string capability = 4 [(google.api.field_behavior) = REQUIRED];
+  string input_schema_version = 5 [(google.api.field_behavior) = REQUIRED];
+  string data_snapshot_ref = 6 [(google.api.field_behavior) = REQUIRED];
+  string policy_context_ref = 7 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.JsonDocument input = 8 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp deadline = 9 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ExecuteResponse {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string execution_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string engine_version = 3 [(google.api.field_behavior) = REQUIRED];
+  string input_hash = 4 [(google.api.field_behavior) = REQUIRED];
+  repeated quantos.common.v1.ArtifactRef artifact_refs = 5;
+  repeated quantos.common.v1.EvidenceRef evidence_refs = 6;
+  quantos.common.v1.JsonDocument output = 7 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp completed_at = 8 [(google.api.field_behavior) = REQUIRED];
+}
+
+message StreamExecuteRequest {
+  ExecuteRequest request = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message StreamExecuteResponse {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string execution_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string sequence_id = 3 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.JsonDocument delta = 4;
+  repeated quantos.common.v1.ArtifactRef artifact_refs = 5;
+  bool done = 6 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp emitted_at = 7 [(google.api.field_behavior) = REQUIRED];
+}
+
+message CancelRequest {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string execution_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string reason = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message CancelResponse {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string execution_id = 2 [(google.api.field_behavior) = REQUIRED];
+  bool cancelled = 3 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp cancelled_at = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+service EngineService {
+  rpc GetMetadata(GetMetadataRequest) returns (GetMetadataResponse) {
+    option (google.api.http) = {get: "/v1/engines:metadata"};
+  }
+
+  rpc Health(HealthRequest) returns (HealthResponse) {
+    option (google.api.http) = {get: "/v1/engines:health"};
+  }
+
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse) {
+    option (google.api.http) = {
+      post: "/v1/engines:execute"
+      body: "*"
+    };
+  }
+
+  rpc StreamExecute(StreamExecuteRequest) returns (stream StreamExecuteResponse) {
+    option (google.api.http) = {
+      post: "/v1/engines:streamExecute"
+      body: "*"
+    };
+  }
+
+  rpc Cancel(CancelRequest) returns (CancelResponse) {
+    option (google.api.http) = {
+      post: "/v1/engines:cancel"
+      body: "*"
+    };
+  }
+}

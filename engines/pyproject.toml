@@ -1,0 +1,26 @@
+[project]
+name = "quantos-engines-workspace"
+version = "0.1.0"
+description = "QuantOS Python engine workspace"
+requires-python = ">=3.9,<3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+  "pytest==8.4.1",
+  "ruff==0.12.7",
+]
+
+[tool.uv.workspace]
+members = [
+  "engine-sdk",
+  "mock-engine",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+extend-exclude = [
+  "engine-sdk/src/google",
+  "engine-sdk/src/quantos",
+]

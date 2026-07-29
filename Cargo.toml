@@ -1,0 +1,41 @@
+[workspace]
+members = [
+  "crates/quantos-core",
+  "crates/quantos-event",
+  "crates/quantos-proto",
+  "crates/quantos-storage",
+  "services/replay-cli",
+  "services/runtime-gateway",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+license = "UNLICENSED"
+authors = ["SumAlpha"]
+rust-version = "1.91"
+
+[workspace.dependencies]
+anyhow = "1.0.100"
+async-nats = "0.50.0"
+bytes = "1.11.0"
+clap = { version = "4.5.53", features = ["derive"] }
+chrono = { version = "0.4.42", features = ["clock", "serde"] }
+futures-util = "0.3.33"
+hex = "0.4.3"
+native-tls = "0.2.14"
+pbjson-types = "0.7.0"
+postgres = { version = "0.19.12", features = ["with-chrono-0_4", "with-uuid-1", "with-serde_json-1"] }
+postgres-native-tls = "0.5.2"
+prost = "0.13.5"
+reqwest = { version = "0.13.4", default-features = false, features = ["blocking", "json", "rustls"] }
+rust_decimal = { version = "1.39.0", features = ["serde-with-str"] }
+semver = { version = "1.0.27", features = ["serde"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+sha2 = "0.10.9"
+thiserror = "2.0.17"
+tokio = { version = "1.48.0", features = ["rt-multi-thread", "macros"] }
+tonic = { version = "0.12.3", default-features = false, features = ["codegen", "transport", "prost"] }
+url = "2.5.7"
+uuid = { version = "1.18.1", features = ["serde", "v7"] }

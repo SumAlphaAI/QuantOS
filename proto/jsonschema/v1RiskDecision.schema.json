@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1RiskDecision.schema.json",
+  "title": "v1RiskDecision",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "decision_id": {
+      "type": "string"
+    },
+    "proposal_id": {
+      "type": "string"
+    },
+    "verdict": {
+      "$ref": "#/definitions/v1RiskVerdict"
+    },
+    "hit_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "limit_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "signer": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "metadata",
+    "decision_id",
+    "proposal_id",
+    "verdict",
+    "hit_rules",
+    "signer",
+    "reason",
+    "decided_at"
+  ]
+}

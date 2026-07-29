@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package quantos.strategy.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "quantos/common/v1/common.proto";
+
+option go_package = "github.com/sumalpha/quantos/gen/go/quantos/strategy/v1;strategyv1";
+option java_multiple_files = true;
+option java_package = "ai.sumalpha.quantos.strategy.v1";
+
+enum SignalDirection {
+  SIGNAL_DIRECTION_UNSPECIFIED = 0;
+  SIGNAL_DIRECTION_LONG = 1;
+  SIGNAL_DIRECTION_SHORT = 2;
+  SIGNAL_DIRECTION_FLAT = 3;
+}
+
+enum DeploymentTarget {
+  DEPLOYMENT_TARGET_UNSPECIFIED = 0;
+  DEPLOYMENT_TARGET_RESEARCH = 1;
+  DEPLOYMENT_TARGET_PAPER = 2;
+  DEPLOYMENT_TARGET_SHADOW = 3;
+  DEPLOYMENT_TARGET_ASSISTED_LIVE = 4;
+}
+
+message StrategyRelease {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string release_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string strategy_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string name = 4 [(google.api.field_behavior) = REQUIRED];
+  string source_digest = 5 [(google.api.field_behavior) = REQUIRED];
+  string image_digest = 6 [(google.api.field_behavior) = REQUIRED];
+  string parameter_hash = 7 [(google.api.field_behavior) = REQUIRED];
+  string backtest_report_artifact_id = 8 [(google.api.field_behavior) = REQUIRED];
+  string data_snapshot_id = 9 [(google.api.field_behavior) = REQUIRED];
+  repeated quantos.common.v1.EvidenceRef evidence_refs = 10;
+  repeated DeploymentTarget allowed_targets = 11 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp approved_at = 12;
+  google.protobuf.Timestamp created_at = 13 [(google.api.field_behavior) = REQUIRED];
+}
+
+message Signal {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string signal_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string strategy_release_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string symbol = 4 [(google.api.field_behavior) = REQUIRED];
+  SignalDirection direction = 5 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue strength = 6 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue confidence = 7 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.JsonDocument diagnostics = 8;
+  google.protobuf.Timestamp generated_at = 9 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp valid_until = 10 [(google.api.field_behavior) = REQUIRED];
+  repeated quantos.common.v1.EvidenceRef evidence_refs = 11;
+}

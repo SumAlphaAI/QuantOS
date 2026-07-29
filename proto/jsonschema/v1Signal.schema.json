@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1Signal.schema.json",
+  "title": "v1Signal",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "signal_id": {
+      "type": "string"
+    },
+    "strategy_release_id": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "direction": {
+      "$ref": "#/definitions/v1SignalDirection"
+    },
+    "strength": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "confidence": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "diagnostics": {
+      "$ref": "#/definitions/v1JsonDocument"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "#/definitions/v1EvidenceRef"
+      }
+    }
+  },
+  "required": [
+    "metadata",
+    "signal_id",
+    "strategy_release_id",
+    "symbol",
+    "direction",
+    "strength",
+    "confidence",
+    "generated_at",
+    "valid_until"
+  ]
+}

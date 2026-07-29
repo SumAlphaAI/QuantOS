@@ -1,0 +1,42 @@
+version: v2
+clean: true
+plugins:
+  - remote: buf.build/community/neoeinstein-prost:v0.4.0
+    out: crates/quantos-proto/src/generated
+    opt:
+      - compile_well_known_types
+      - file_descriptor_set
+      - enable_type_names
+
+  - remote: buf.build/community/neoeinstein-tonic:v0.4.1
+    out: crates/quantos-proto/src/generated
+    opt:
+      - no_server
+      - compile_well_known_types
+
+  - remote: buf.build/protocolbuffers/python:v29.2
+    out: engines/engine-sdk/src
+    include_imports: true
+
+  - remote: buf.build/protocolbuffers/pyi:v29.2
+    out: engines/engine-sdk/src
+    include_imports: true
+
+  - remote: buf.build/bufbuild/es:v2.13.0
+    out: packages/api-client/src/gen
+    include_imports: true
+    opt:
+      - target=ts
+      - import_extension=js
+      - json_types=true
+
+  - remote: buf.build/grpc-ecosystem/openapiv2
+    out: proto/openapi
+    opt:
+      - allow_merge=true
+      - merge_file_name=quantos
+      - use_go_templates=false
+      - json_names_for_fields=false
+      - generate_unbound_methods=true
+inputs:
+  - directory: proto

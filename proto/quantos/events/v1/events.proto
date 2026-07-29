@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package quantos.events.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "quantos/common/v1/common.proto";
+import "quantos/research/v1/research.proto";
+import "quantos/strategy/v1/strategy.proto";
+import "quantos/trading/v1/trading.proto";
+
+option go_package = "github.com/sumalpha/quantos/gen/go/quantos/events/v1;eventsv1";
+option java_multiple_files = true;
+option java_package = "ai.sumalpha.quantos.events.v1";
+
+enum EventKind {
+  EVENT_KIND_UNSPECIFIED = 0;
+  EVENT_KIND_DATA_SNAPSHOT = 1;
+  EVENT_KIND_RESEARCH_ARTIFACT = 2;
+  EVENT_KIND_SIGNAL = 3;
+  EVENT_KIND_TRADE_PROPOSAL = 4;
+  EVENT_KIND_RISK_DECISION = 5;
+  EVENT_KIND_TRADE_COMMAND = 6;
+  EVENT_KIND_ORDER = 7;
+  EVENT_KIND_FILL = 8;
+  EVENT_KIND_POSITION = 9;
+}
+
+message EventEnvelope {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string event_id = 2 [(google.api.field_behavior) = REQUIRED];
+  EventKind kind = 3 [(google.api.field_behavior) = REQUIRED];
+  string aggregate_id = 4 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp occurred_at = 5 [(google.api.field_behavior) = REQUIRED];
+
+  oneof payload {
+    quantos.research.v1.DataSnapshot data_snapshot = 10;
+    quantos.research.v1.ResearchArtifact research_artifact = 11;
+    quantos.strategy.v1.Signal signal = 12;
+    quantos.trading.v1.TradeProposal trade_proposal = 13;
+    quantos.trading.v1.RiskDecision risk_decision = 14;
+    quantos.trading.v1.TradeCommand trade_command = 15;
+    quantos.trading.v1.Order order = 16;
+    quantos.trading.v1.Fill fill = 17;
+    quantos.trading.v1.Position position = 18;
+  }
+}
+
+message GetEventRequest {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string event_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message GetEventResponse {
+  EventEnvelope event = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListEventsRequest {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string aggregate_id = 2;
+  string correlation_id = 3;
+  EventKind kind = 4;
+  google.protobuf.Timestamp start_at = 5;
+  google.protobuf.Timestamp end_at = 6;
+}
+
+message ListEventsResponse {
+  repeated EventEnvelope events = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+service EventLedgerService {
+  rpc GetEvent(GetEventRequest) returns (GetEventResponse) {
+    option (google.api.http) = {get: "/v1/events/{event_id}"};
+  }
+
+  rpc ListEvents(ListEventsRequest) returns (ListEventsResponse) {
+    option (google.api.http) = {get: "/v1/events"};
+  }
+}

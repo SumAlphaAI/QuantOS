@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1Order.schema.json",
+  "title": "v1Order",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "order_id": {
+      "type": "string"
+    },
+    "command_id": {
+      "type": "string"
+    },
+    "venue_order_id": {
+      "type": "string"
+    },
+    "account_id": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "side": {
+      "$ref": "#/definitions/v1OrderSide"
+    },
+    "intent": {
+      "$ref": "#/definitions/v1OrderIntentType"
+    },
+    "quantity": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "filled_quantity": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "average_fill_price": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "status": {
+      "$ref": "#/definitions/v1OrderStatus"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "metadata",
+    "order_id",
+    "command_id",
+    "account_id",
+    "symbol",
+    "side",
+    "intent",
+    "quantity",
+    "filled_quantity",
+    "status",
+    "updated_at"
+  ]
+}

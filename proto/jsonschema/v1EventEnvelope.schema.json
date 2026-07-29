@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1EventEnvelope.schema.json",
+  "title": "v1EventEnvelope",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/definitions/v1EventKind"
+    },
+    "aggregate_id": {
+      "type": "string"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data_snapshot": {
+      "$ref": "#/definitions/v1DataSnapshot"
+    },
+    "research_artifact": {
+      "$ref": "#/definitions/v1ResearchArtifact"
+    },
+    "signal": {
+      "$ref": "#/definitions/v1Signal"
+    },
+    "trade_proposal": {
+      "$ref": "#/definitions/v1TradeProposal"
+    },
+    "risk_decision": {
+      "$ref": "#/definitions/v1RiskDecision"
+    },
+    "trade_command": {
+      "$ref": "#/definitions/v1TradeCommand"
+    },
+    "order": {
+      "$ref": "#/definitions/v1Order"
+    },
+    "fill": {
+      "$ref": "#/definitions/v1Fill"
+    },
+    "position": {
+      "$ref": "#/definitions/v1Position"
+    }
+  },
+  "required": [
+    "metadata",
+    "event_id",
+    "kind",
+    "aggregate_id",
+    "occurred_at"
+  ]
+}

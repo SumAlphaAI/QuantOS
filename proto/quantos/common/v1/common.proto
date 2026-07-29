@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package quantos.common.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/sumalpha/quantos/gen/go/quantos/common/v1;commonv1";
+option java_multiple_files = true;
+option java_package = "ai.sumalpha.quantos.common.v1";
+
+enum ActorKind {
+  ACTOR_KIND_UNSPECIFIED = 0;
+  ACTOR_KIND_USER = 1;
+  ACTOR_KIND_SERVICE = 2;
+  ACTOR_KIND_AUTOMATION = 3;
+}
+
+enum RuntimeMode {
+  RUNTIME_MODE_UNSPECIFIED = 0;
+  RUNTIME_MODE_RESEARCH = 1;
+  RUNTIME_MODE_PAPER = 2;
+  RUNTIME_MODE_SHADOW = 3;
+  RUNTIME_MODE_ASSISTED_LIVE = 4;
+  RUNTIME_MODE_GUARDED_LIVE = 5;
+}
+
+enum Environment {
+  ENVIRONMENT_UNSPECIFIED = 0;
+  ENVIRONMENT_LOCAL = 1;
+  ENVIRONMENT_TEST = 2;
+  ENVIRONMENT_STAGING = 3;
+  ENVIRONMENT_PRODUCTION = 4;
+}
+
+enum DataClassification {
+  DATA_CLASSIFICATION_UNSPECIFIED = 0;
+  DATA_CLASSIFICATION_PUBLIC = 1;
+  DATA_CLASSIFICATION_INTERNAL = 2;
+  DATA_CLASSIFICATION_CONFIDENTIAL = 3;
+  DATA_CLASSIFICATION_RESTRICTED = 4;
+}
+
+enum DataQuality {
+  DATA_QUALITY_UNSPECIFIED = 0;
+  DATA_QUALITY_PENDING = 1;
+  DATA_QUALITY_PASSED = 2;
+  DATA_QUALITY_DEGRADED = 3;
+  DATA_QUALITY_FAILED = 4;
+}
+
+message ActorRef {
+  string actor_id = 1 [(google.api.field_behavior) = REQUIRED];
+  ActorKind actor_kind = 2 [(google.api.field_behavior) = REQUIRED];
+  string display_name = 3;
+  repeated string capabilities = 4;
+}
+
+message CommandMetadata {
+  string request_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string workspace_id = 3 [(google.api.field_behavior) = REQUIRED];
+  ActorRef actor = 4 [(google.api.field_behavior) = REQUIRED];
+  string correlation_id = 5 [(google.api.field_behavior) = REQUIRED];
+  string causation_id = 6;
+  RuntimeMode mode = 7 [(google.api.field_behavior) = REQUIRED];
+  Environment environment = 8 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp issued_at = 9 [(google.api.field_behavior) = REQUIRED];
+}
+
+message TimeWindow {
+  google.protobuf.Timestamp start_at = 1 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp end_at = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DecimalValue {
+  string value = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message MoneyValue {
+  string currency_code = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 units = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 nanos = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message DataSourceRef {
+  string source_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string provider = 2 [(google.api.field_behavior) = REQUIRED];
+  string dataset = 3 [(google.api.field_behavior) = REQUIRED];
+  string license_label = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ArtifactRef {
+  string artifact_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string uri = 2 [(google.api.field_behavior) = REQUIRED];
+  string media_type = 3 [(google.api.field_behavior) = REQUIRED];
+  string sha256 = 4 [(google.api.field_behavior) = REQUIRED];
+  DataClassification classification = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message EvidenceRef {
+  string evidence_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string artifact_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string summary = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message VersionRef {
+  string version = 1 [(google.api.field_behavior) = REQUIRED];
+  string digest = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message FeatureWindow {
+  string symbol = 1 [(google.api.field_behavior) = REQUIRED];
+  TimeWindow window = 2 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Duration freshness_sla = 3;
+}
+
+message AuditTags {
+  repeated string values = 1;
+}
+
+message JsonDocument {
+  google.protobuf.Struct value = 1;
+}

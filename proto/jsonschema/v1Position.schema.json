@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1Position.schema.json",
+  "title": "v1Position",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "position_id": {
+      "type": "string"
+    },
+    "account_id": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "side": {
+      "$ref": "#/definitions/v1PositionSide"
+    },
+    "quantity": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "average_entry_price": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "mark_value": {
+      "$ref": "#/definitions/v1MoneyValue"
+    },
+    "unrealized_pnl": {
+      "$ref": "#/definitions/v1MoneyValue"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "metadata",
+    "position_id",
+    "account_id",
+    "symbol",
+    "side",
+    "quantity",
+    "average_entry_price",
+    "as_of"
+  ]
+}

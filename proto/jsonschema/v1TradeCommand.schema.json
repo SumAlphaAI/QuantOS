@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1TradeCommand.schema.json",
+  "title": "v1TradeCommand",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "command_id": {
+      "type": "string"
+    },
+    "decision_id": {
+      "type": "string"
+    },
+    "account_id": {
+      "type": "string"
+    },
+    "venue": {
+      "type": "string"
+    },
+    "venue_kind": {
+      "$ref": "#/definitions/v1VenueKind"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "intent": {
+      "$ref": "#/definitions/v1OrderIntentType"
+    },
+    "side": {
+      "$ref": "#/definitions/v1OrderSide"
+    },
+    "quantity": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "limit_price": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "stop_price": {
+      "$ref": "#/definitions/v1DecimalValue"
+    },
+    "idempotency_key": {
+      "type": "string"
+    },
+    "approval_signature": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "metadata",
+    "command_id",
+    "decision_id",
+    "account_id",
+    "venue",
+    "venue_kind",
+    "symbol",
+    "intent",
+    "side",
+    "quantity",
+    "idempotency_key",
+    "expires_at"
+  ]
+}

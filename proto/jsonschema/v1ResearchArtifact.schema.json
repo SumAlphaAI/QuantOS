@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sumalpha.ai/schemas/v1ResearchArtifact.schema.json",
+  "title": "v1ResearchArtifact",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/v1CommandMetadata"
+    },
+    "artifact_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "hypothesis": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "content_hash": {
+      "type": "string"
+    },
+    "engine_version": {
+      "type": "string"
+    },
+    "prompt_version": {
+      "type": "string"
+    },
+    "code_version": {
+      "type": "string"
+    },
+    "environment_hash": {
+      "type": "string"
+    },
+    "data_snapshot_id": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "#/definitions/v1EvidenceRef"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "#/definitions/v1ArtifactRef"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "audit_tags": {
+      "$ref": "#/definitions/v1AuditTags"
+    }
+  },
+  "required": [
+    "metadata",
+    "artifact_id",
+    "title",
+    "hypothesis",
+    "summary",
+    "content_hash",
+    "engine_version",
+    "prompt_version",
+    "code_version",
+    "environment_hash",
+    "data_snapshot_id",
+    "created_at"
+  ]
+}

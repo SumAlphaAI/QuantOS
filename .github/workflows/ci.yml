@@ -1,0 +1,113 @@
+name: QuantOS CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+  security-events: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.91.0
+          components: rustfmt, clippy
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.7.0"
+
+      - name: Install cargo-deny
+        run: cargo install cargo-deny --version 0.18.4 --locked
+
+      - name: Enable Corepack
+        run: corepack enable pnpm
+
+      - name: Bootstrap workspace
+        run: make bootstrap
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .gitleaks.toml
+
+      - name: Validate lockfiles
+        run: make lockfile-check
+
+      - name: Validate proto workspace
+        run: make proto-check
+
+      - name: Validate migration baseline
+        run: make db-migration-check
+
+      - name: Lint workspace
+        run: make lint
+
+      - name: Test workspace
+        run: make test
+
+      - name: Check licenses
+        run: make license-check
+
+      - name: Check SCA waivers
+        run: make waiver-check
+
+      - name: Run SCA checks
+        run: make sca-check
+
+      - name: Check remote schema drift
+        if: ${{ secrets.DATABASE_URL != '' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: make db-schema-diff
+
+      - name: Check remote RLS policies
+        if: ${{ secrets.DATABASE_URL != '' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: make rls-policy-test
+
+      - name: Generate SBOM
+        run: make sbom
+
+      - name: Generate build manifest
+        run: make build-manifest
+
+      - name: Sign build artifacts
+        env:
+          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
+        run: make sign-artifacts
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: quantos-build-artifacts
+          path: artifacts/
+          if-no-files-found: error

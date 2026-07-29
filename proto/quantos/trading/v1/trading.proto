@@ -1,0 +1,156 @@
+syntax = "proto3";
+
+package quantos.trading.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "quantos/common/v1/common.proto";
+import "quantos/strategy/v1/strategy.proto";
+
+option go_package = "github.com/sumalpha/quantos/gen/go/quantos/trading/v1;tradingv1";
+option java_multiple_files = true;
+option java_package = "ai.sumalpha.quantos.trading.v1";
+
+enum VenueKind {
+  VENUE_KIND_UNSPECIFIED = 0;
+  VENUE_KIND_CEX = 1;
+  VENUE_KIND_DEX = 2;
+}
+
+enum ProposalAction {
+  PROPOSAL_ACTION_UNSPECIFIED = 0;
+  PROPOSAL_ACTION_BUY = 1;
+  PROPOSAL_ACTION_SELL = 2;
+  PROPOSAL_ACTION_HOLD = 3;
+  PROPOSAL_ACTION_REDUCE = 4;
+}
+
+enum RiskVerdict {
+  RISK_VERDICT_UNSPECIFIED = 0;
+  RISK_VERDICT_ALLOW = 1;
+  RISK_VERDICT_DENY = 2;
+  RISK_VERDICT_APPROVAL_REQUIRED = 3;
+}
+
+enum OrderIntentType {
+  ORDER_INTENT_TYPE_UNSPECIFIED = 0;
+  ORDER_INTENT_TYPE_MARKET = 1;
+  ORDER_INTENT_TYPE_LIMIT = 2;
+  ORDER_INTENT_TYPE_STOP = 3;
+  ORDER_INTENT_TYPE_STOP_LIMIT = 4;
+}
+
+enum OrderSide {
+  ORDER_SIDE_UNSPECIFIED = 0;
+  ORDER_SIDE_BUY = 1;
+  ORDER_SIDE_SELL = 2;
+}
+
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_DRAFT = 1;
+  ORDER_STATUS_SUBMITTED = 2;
+  ORDER_STATUS_ACCEPTED = 3;
+  ORDER_STATUS_REJECTED = 4;
+  ORDER_STATUS_PARTIALLY_FILLED = 5;
+  ORDER_STATUS_FILLED = 6;
+  ORDER_STATUS_CANCELLED = 7;
+  ORDER_STATUS_EXPIRED = 8;
+}
+
+enum PositionSide {
+  POSITION_SIDE_UNSPECIFIED = 0;
+  POSITION_SIDE_NET = 1;
+  POSITION_SIDE_LONG = 2;
+  POSITION_SIDE_SHORT = 3;
+}
+
+message TradeProposal {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string proposal_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string account_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string symbol = 4 [(google.api.field_behavior) = REQUIRED];
+  ProposalAction action = 5 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue quantity = 6 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue notional = 7 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue limit_price = 8;
+  quantos.common.v1.DecimalValue stop_price = 9;
+  quantos.strategy.v1.Signal signal = 10 [(google.api.field_behavior) = REQUIRED];
+  repeated quantos.common.v1.EvidenceRef evidence_refs = 11;
+  string rationale = 12 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue confidence = 13 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp expires_at = 14 [(google.api.field_behavior) = REQUIRED];
+  bool executable = 15 [(google.api.field_behavior) = REQUIRED];
+}
+
+message RiskDecision {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string decision_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string proposal_id = 3 [(google.api.field_behavior) = REQUIRED];
+  RiskVerdict verdict = 4 [(google.api.field_behavior) = REQUIRED];
+  repeated string hit_rules = 5 [(google.api.field_behavior) = REQUIRED];
+  repeated string limit_ids = 6;
+  string signer = 7 [(google.api.field_behavior) = REQUIRED];
+  string reason = 8 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp decided_at = 9 [(google.api.field_behavior) = REQUIRED];
+}
+
+message TradeCommand {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string command_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string decision_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string account_id = 4 [(google.api.field_behavior) = REQUIRED];
+  string venue = 5 [(google.api.field_behavior) = REQUIRED];
+  VenueKind venue_kind = 6 [(google.api.field_behavior) = REQUIRED];
+  string symbol = 7 [(google.api.field_behavior) = REQUIRED];
+  OrderIntentType intent = 8 [(google.api.field_behavior) = REQUIRED];
+  OrderSide side = 9 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue quantity = 10 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue limit_price = 11;
+  quantos.common.v1.DecimalValue stop_price = 12;
+  string idempotency_key = 13 [(google.api.field_behavior) = REQUIRED];
+  string approval_signature = 14;
+  google.protobuf.Timestamp expires_at = 15 [(google.api.field_behavior) = REQUIRED];
+}
+
+message Order {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string order_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string command_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string venue_order_id = 4;
+  string account_id = 5 [(google.api.field_behavior) = REQUIRED];
+  string symbol = 6 [(google.api.field_behavior) = REQUIRED];
+  OrderSide side = 7 [(google.api.field_behavior) = REQUIRED];
+  OrderIntentType intent = 8 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue quantity = 9 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue filled_quantity = 10 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue average_fill_price = 11;
+  OrderStatus status = 12 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp submitted_at = 13;
+  google.protobuf.Timestamp updated_at = 14 [(google.api.field_behavior) = REQUIRED];
+}
+
+message Fill {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string fill_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string order_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string venue_fill_id = 4;
+  string symbol = 5 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue quantity = 6 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue price = 7 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.MoneyValue fee = 8;
+  google.protobuf.Timestamp filled_at = 9 [(google.api.field_behavior) = REQUIRED];
+}
+
+message Position {
+  quantos.common.v1.CommandMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string position_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string account_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string symbol = 4 [(google.api.field_behavior) = REQUIRED];
+  PositionSide side = 5 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue quantity = 6 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.DecimalValue average_entry_price = 7 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.MoneyValue mark_value = 8;
+  quantos.common.v1.MoneyValue unrealized_pnl = 9;
+  google.protobuf.Timestamp as_of = 10 [(google.api.field_behavior) = REQUIRED];
+}
