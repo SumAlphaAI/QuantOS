@@ -31,6 +31,7 @@ Polyglot monorepo baseline for the QuantOS platform.
 - `make proto-check`
 - `make lint`
 - `make test`
+- `pnpm build`
 - `make test-f05-live`
 - `make test-supabase-storage-live`
 - `make waiver-check`
