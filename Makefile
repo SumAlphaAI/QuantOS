@@ -10,7 +10,7 @@ include .env.local
 export
 endif
 
-.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff rls-policy-test license-check sca-check waiver-check build-manifest sbom sign-artifacts ci-local
+.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff rls-policy-test license-check sca-check waiver-check build-manifest sbom sign-artifacts observability-check f09-adr-input ci-local
 
 bootstrap: bootstrap-rust bootstrap-python bootstrap-node
 
@@ -58,6 +58,9 @@ build-web:
 
 test-rust:
 	cargo test --workspace
+
+observability-check:
+        cargo test -p quantos-observability
 
 test-f05-live:
 	cargo test -p quantos-event --test postgres_persistence -- --nocapture
@@ -112,5 +115,8 @@ sbom:
 
 sign-artifacts:
 	bash ./scripts/sign-artifacts.sh artifacts/build/build-manifest.json artifacts/sbom/quantos.spdx.json
+
+f09-adr-input: ensure-node
+        node ./scripts/generate-f09-adr-input.mjs --input artifacts/observability/f09-alerts.json --output artifacts/observability/f09-capacity-adr.md
 
 ci-local: lockfile-check proto-check db-migration-check lint test build

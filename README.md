@@ -53,6 +53,7 @@ Polyglot monorepo baseline for the QuantOS platform.
 - F06 adds `quantos-auth` / `quantos-policy`, `auth.users`-anchored actor/workspace/account mappings, deterministic capability checks, and service-only secret allowlist functions for Execution Gateway.
 - F07 adds `quantos-runtime`, persistent workflow runs/sessions/checkpoints, leased task claiming, cancellation/timeout audit hooks, and Artifact bindings that deduplicate recovery paths after worker restarts.
 - F08 adds `quantos-engine-manager`, Python engine SDK gRPC helpers, a UDS-backed `mock-engine`, cross-language contract tests for `GetMetadata/Health/Execute/StreamExecute/Cancel`, crash backoff recovery, and deterministic deadline handling.
+- F09 adds `quantos-observability`, local trace/metrics/structured-log primitives, fault injection coverage, capacity alert evaluation, and ADR evidence templates for outbox, read model, storage, and secret health.
 - `replay-cli` now supports direct PostgreSQL replay via `DATABASE_URL`, with JSONL replay kept as a fallback for local fixtures.
 - Root `.env` and `.env.local` are loaded automatically by `Makefile`; see [`.env.example`](./.env.example) and [`supabase/OPERATIONS.md`](./supabase/OPERATIONS.md).
 - Realtime is treated as an optional wakeup or projection notification path only; workers must always recover by rescanning PostgreSQL outbox rows after missed notifications, disconnects, or restarts.

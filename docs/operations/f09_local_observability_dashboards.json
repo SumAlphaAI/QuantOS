@@ -1,0 +1,48 @@
+{
+  "title": "QuantOS F09 Local Observability",
+  "description": "Local dashboard definitions for event flow, runtime read models, storage, secrets, and engine fault recovery.",
+  "panels": [
+    {
+      "id": "event_flow",
+      "title": "Event Flow Health",
+      "metrics": [
+        "quantos.outbox.oldest_age_secs",
+        "quantos.outbox.dead_letter_ratio",
+        "quantos.realtime.projection_delay_secs",
+        "quantos.realtime.quota_utilization"
+      ],
+      "visualization": "timeseries"
+    },
+    {
+      "id": "read_models",
+      "title": "Read Model Freshness and Latency",
+      "metrics": [
+        "quantos.read_model.risk_query_p95_ms",
+        "quantos.read_model.portfolio_query_p95_ms",
+        "quantos.read_model.risk_mv_freshness_secs",
+        "quantos.read_model.ops_aggregate_freshness_secs"
+      ],
+      "visualization": "timeseries"
+    },
+    {
+      "id": "storage_and_secrets",
+      "title": "Storage and Secrets",
+      "metrics": [
+        "quantos.storage.error_rate",
+        "quantos.secret.rotation_failed",
+        "quantos.secret.read_failed"
+      ],
+      "visualization": "stat"
+    },
+    {
+      "id": "fault_recovery",
+      "title": "Fault Injection Recovery",
+      "metrics": [
+        "quantos.fault_proxy.injected_total",
+        "quantos.trace.recovery_complete_total",
+        "quantos.trace.redacted_secret_total"
+      ],
+      "visualization": "table"
+    }
+  ]
+}

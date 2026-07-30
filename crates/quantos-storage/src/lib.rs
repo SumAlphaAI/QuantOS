@@ -123,6 +123,32 @@ impl InMemorySchemaRegistry {
     }
 }
 
+#[derive(Debug, Default, Clone)]
+pub struct InMemoryArtifactCatalog {
+    manifests: BTreeMap<(TenantId, ContentHash), ArtifactManifest>,
+}
+
+impl InMemoryArtifactCatalog {
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn upsert(&mut self, manifest: ArtifactManifest) -> &ArtifactManifest {
+        let key = (manifest.tenant_id, manifest.content_hash.clone());
+        self.manifests.entry(key).or_insert(manifest)
+    }
+
+    #[must_use]
+    pub fn find_by_hash(
+        &self,
+        tenant_id: TenantId,
+        content_hash: &ContentHash,
+    ) -> Option<&ArtifactManifest> {
+        self.manifests.get(&(tenant_id, content_hash.clone()))
+    }
+}
+
 #[must_use]
 pub fn object_key_for_content(tenant_id: &TenantId, content_hash: &ContentHash) -> String {
     let digest = content_hash
@@ -138,7 +164,9 @@ mod tests {
     use chrono::{TimeZone, Utc};
     use serde_json::json;
 
-    use super::{ArtifactManifest, InMemorySchemaRegistry, object_key_for_content};
+    use super::{
+        ArtifactManifest, InMemoryArtifactCatalog, InMemorySchemaRegistry, object_key_for_content,
+    };
     use quantos_core::{ContentHash, SchemaVersion, TenantId};
 
     #[test]
@@ -216,5 +244,39 @@ mod tests {
                 .get(tenant_id, "events", "TradeCommand", &version)
                 .is_some()
         );
+    }
+
+    #[test]
+    fn artifact_catalog_deduplicates_by_tenant_and_hash() {
+        let tenant_id = TenantId::new();
+        let hash = ContentHash::sha256_bytes(br#"artifact"#);
+        let created_at = Utc
+            .with_ymd_and_hms(2026, 7, 30, 16, 0, 0)
+            .single()
+            .expect("valid timestamp");
+        let mut catalog = InMemoryArtifactCatalog::new();
+        let first = catalog
+            .upsert(ArtifactManifest::new(
+                tenant_id,
+                "application/json",
+                hash.clone(),
+                "quantos-artifacts",
+                8,
+                created_at,
+            ))
+            .clone();
+        let second = catalog
+            .upsert(ArtifactManifest::new(
+                tenant_id,
+                "application/json",
+                hash.clone(),
+                "quantos-artifacts",
+                8,
+                created_at,
+            ))
+            .clone();
+
+        assert_eq!(first.artifact_id, second.artifact_id);
+        assert!(catalog.find_by_hash(tenant_id, &hash).is_some());
     }
 }

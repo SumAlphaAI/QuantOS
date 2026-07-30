@@ -1,0 +1,58 @@
+groups:
+  - name: quantos-f09-capacity
+    rules:
+      - id: outbox_oldest_age
+        expr: quantos.outbox.oldest_age_secs > 60
+        for: 15m
+        severity: critical
+        summary: Outbox oldest event exceeded 60 seconds for 15 minutes
+      - id: dead_letter_ratio
+        expr: quantos.outbox.dead_letter_ratio > 0.001
+        for: 0m
+        severity: critical
+        summary: Dead letter ratio exceeded 0.1%
+      - id: realtime_projection_delay
+        expr: quantos.realtime.projection_delay_secs > 5
+        for: 15m
+        severity: warning
+        summary: Realtime projection delay exceeded 5 seconds for 15 minutes
+      - id: realtime_quota_utilization
+        expr: quantos.realtime.quota_utilization > 0.7
+        for: 15m
+        severity: warning
+        summary: Realtime quota utilization exceeded 70% for 15 minutes
+      - id: risk_query_p95_ms
+        expr: quantos.read_model.risk_query_p95_ms > 300
+        for: 15m
+        severity: critical
+        summary: Risk query P95 exceeded 300ms for 15 minutes
+      - id: portfolio_query_p95_ms
+        expr: quantos.read_model.portfolio_query_p95_ms > 300
+        for: 15m
+        severity: critical
+        summary: Portfolio query P95 exceeded 300ms for 15 minutes
+      - id: risk_mv_freshness
+        expr: quantos.read_model.risk_mv_freshness_secs > 60
+        consecutive: 3
+        severity: critical
+        summary: Risk MV freshness exceeded 60 seconds for 3 consecutive checks
+      - id: ops_aggregate_freshness
+        expr: quantos.read_model.ops_aggregate_freshness_secs > 300
+        consecutive: 3
+        severity: critical
+        summary: Operations aggregate freshness exceeded 300 seconds for 3 consecutive checks
+      - id: storage_error_rate
+        expr: quantos.storage.error_rate > 0.01
+        for: 0m
+        severity: critical
+        summary: Storage error rate exceeded 1%
+      - id: secret_rotation_failed
+        expr: quantos.secret.rotation_failed == 1
+        for: 0m
+        severity: critical
+        summary: Secret rotation failed
+      - id: secret_read_failed
+        expr: quantos.secret.read_failed == 1
+        for: 0m
+        severity: critical
+        summary: Secret read failed
