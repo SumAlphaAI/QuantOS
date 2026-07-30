@@ -1,7 +1,7 @@
 # SumAlpha QuantOS 技术方案
 
-> 版本：1.0  
-> 日期：2026-07-21  
+> 版本：1.1  
+> 日期：2026-07-30  
 > 依据：[SumAlpha-QuantOS-Architecture.md](./SumAlpha-QuantOS-Architecture.md)  
 > 状态：实施基线
 
@@ -273,19 +273,27 @@ sequenceDiagram
 | 类别 | 推荐起点 | 主要用途 |
 |---|---|---|
 | 事务与配置 | Supabase PostgreSQL | 租户、策略元数据、审批、任务、outbox、RLS 策略与身份映射 |
-| 事件传递 | Supabase PostgreSQL outbox/inbox + Supabase Realtime（早期默认） | 领域事件、重放、worker 分发、实时订阅 |
+| 事件传递 | Supabase PostgreSQL outbox/inbox + Supabase Realtime（早期默认） | outbox/inbox 可靠消费、重放；Realtime 仅用于 worker 唤醒与实时投影 |
 | 时序/分析 | Supabase PostgreSQL 受控 schema、物化视图与聚合表（早期默认） | 行情、指标、P&L、延迟分析 |
 | 对象存储 | Supabase Storage | 快照、回测、模型、报告和证据 |
-| 协调/短缓存 | Supabase Realtime + PostgreSQL advisory lock（早期默认） | worker 唤醒、投影协调、短期状态同步 |
-| 密钥 | Supabase Vault 与平台托管 secrets | 短期租约与交易/API/模型密钥引用 |
+| 协调/瞬时通知 | Supabase Realtime + PostgreSQL advisory lock（早期默认） | worker 唤醒、投影协调、瞬时状态通知；不作为通用缓存 |
+| 密钥 | Supabase Vault 与平台托管 secrets | 交易/API/模型密钥静态存储与引用；短期授权由执行边界控制 |
 
-采用 Supabase PostgreSQL 中的 transactional outbox/inbox、schema registry、死信队列、projection checkpoint 与幂等消费者作为事件传递基线，并以 Supabase Realtime 作为 worker 唤醒和实时订阅通道；早期不在核心方案中引入 Supabase 生态之外的独立事件总线、缓存系统、时序数据库或秘密基础设施。事件 schema 带版本；破坏性变更以新版本事件迁移，不修改历史语义。审计链应能完整回答：谁发起、用哪些数据/模型/提示词、调用何引擎和版本、命中何规则、谁批准、向何 venue 提交何请求及其实际结果。
+采用 Supabase PostgreSQL 中的 transactional outbox/inbox、schema registry、死信队列、projection checkpoint 与幂等消费者作为事件传递基线，并以 Supabase Realtime 作为 worker 唤醒和实时订阅通道；Realtime 不是可靠队列、事件真相源或唯一 worker 分发机制。早期不在核心方案中引入 Supabase 生态之外的独立事件总线、缓存系统、时序数据库或秘密基础设施。事件 schema 带版本；破坏性变更以新版本事件迁移，不修改历史语义。审计链应能完整回答：谁发起、用哪些数据/模型/提示词、调用何引擎和版本、命中何规则、谁批准、向何 venue 提交何请求及其实际结果。
 
-### 7.2 数据模型与事件协同
+### 7.2 可靠消费、协调与秘密访问实现
+
+- `outbox_event` 必须与领域写操作在同一 PostgreSQL 事务提交，包含 event/aggregate/schema/payload/occurred/available/attempt/lease/status/correlation/causation 字段；worker 以数据库轮询和 `FOR UPDATE SKIP LOCKED` 等行级租约领取事件。
+- Supabase Realtime 仅用于缩短 worker 唤醒延迟和向已授权客户端投影状态；任何断连、漏通知或重连后，worker 都必须回到 outbox 数据库扫描。高订阅量 UI 更新使用最小投影与受权频道，并优先采用 Supabase Realtime Broadcast；客户端不得订阅原始 outbox、审计或秘密表。
+- `inbox_receipt` 必须以 consumer + event ID 去重；指数退避、最大尝试、dead letter、人工重放和 projection checkpoint 均在 Supabase PostgreSQL 中持久化。advisory lock 只用于短临界区、leader election 或投影协调，不能承担缓存或可靠消息语义。
+- 业务读缓存只能是服务/浏览器的短生命周期查询缓存，数据库仍是唯一领域真相；不得缓存 `TradeCommand` 或任何可执行凭证。
+- Supabase Vault 仅作为加密静态存储。只有 Execution Gateway 专用受控角色可通过 allowlist 函数读取指定 secret；UI、Engine、普通 BFF 角色不得访问解密视图。短期有效性由审批上下文、secret reference、服务会话和轮换策略实现，不将 Vault 视为自动租约服务。
+
+### 7.3 数据模型与事件协同
 
 - `auth.users` 只保存认证主身份；QuantOS 业务表负责 tenant、workspace、account、actor capability、审批职责分离和模式上下文。
 - 事件 outbox/inbox、审计索引、读模型 checkpoint 与任务状态存储在 Supabase PostgreSQL 中，并通过事务边界与领域写操作一起提交；早期默认不依赖独立消息中间件即可完成重放、投影和 worker 分发。
-- 若后续出现超出 Supabase PostgreSQL + Supabase Realtime 方案舒适区间的规模化需求，必须通过单独 ADR 与容量评审后再决定是否增加额外基础设施，而不是在一期基础设施阶段预先引入独立技术体系。
+- 若出现下列任一信号，必须先优化 Supabase 原生索引、分区、聚合、批处理或 Realtime 模式；仍不达标时再通过单独 ADR 与容量评审决定是否增加基础设施：outbox 最老待处理事件连续 15 分钟超过 60 秒或死信率超过 0.1%；实时投影延迟连续 15 分钟超过 5 秒或配额使用率超过 70%；关键风险/组合查询 P95 连续 15 分钟超过 300ms；风险物化视图超过 1 分钟、运营聚合超过 5 分钟且连续三次违反 SLO；Storage 错误率超过 1% 或 secret 轮换/受控读取失败。
 - append-only 审计表必须记录 `tenant_id`、`actor_id`、`correlation_id`、`causation_id`，其中用户型 `actor_id` 可追溯到 `auth.users.id`，服务型 actor 则通过显式 service principal 表达。
 - 对外接口只暴露 QuantOS 自有协议和 BFF 查询模型，不直接暴露 `auth.users`、RLS policy 名称或 Supabase 自动生成 API 作为产品契约。
 

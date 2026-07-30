@@ -1,7 +1,7 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：2.0  
-> 日期：2026-07-26  
+> 版本：2.1  
+> 日期：2026-07-30  
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
@@ -60,6 +60,11 @@
 3. 凡是用户可见且承载 tenant/workspace/account 数据的业务表，默认启用 RLS 且默认拒绝；服务端只可通过受控 backend role/service role 执行跨租户维护、重放和运维任务。
 4. 所有业务表主键与跨表引用统一使用 UUID，数据库默认值采用 `gen_random_uuid()`；`created_at`、`updated_at`、`occurred_at`、`expires_at` 等时间字段统一使用 `timestamptz`。
 5. 每个数据库任务都必须提供 migration、RLS policy、索引、回滚说明和自动化验证；CI 必须覆盖本地重建、schema drift、RLS policy 测试与权限负向用例。
+6. `outbox_event`、`inbox_receipt`、`dead_letter_event` 与 `projection_checkpoint` 是可靠事件闭环的受控表；生产消费者必须以 PostgreSQL 轮询、租约和 `FOR UPDATE SKIP LOCKED` 领取事件，`inbox_receipt` 的幂等唯一约束、指数退避、死信和 checkpoint 均须持久化。
+7. Supabase Realtime 仅用于消费者唤醒与已授权 UI 实时投影，不得充当可靠队列、事件事实来源或唯一 worker 调度器；断连、漏通知或订阅恢复后，消费者必须以数据库扫描补偿并最终处理全部已提交 outbox 事件。
+8. PostgreSQL advisory lock 只用于短时互斥协调；不得把其或 Realtime 作为通用缓存。可重建读模型、任务状态和命令事实均以 PostgreSQL 为真相源，缓存失效不得改变交易或风控结论。
+9. Supabase Vault 与平台托管 secrets 仅保存静态加密秘密/引用；解密访问仅授予 Execution Gateway 的受控数据库角色并经 allowlist 数据库函数，UI、Engine、普通 BFF 与用户角色必须无法读取解密视图。短时授权由执行边界的服务会话、命令过期时间与轮换状态表达，而非将 Vault 误作动态租约系统。
+10. 在未完成 ADR 和容量评审前，不得预置 Supabase 生态外的独立事件、缓存、时序或秘密基础设施；仅当达到第 F09/L04 定义的阈值，方可比较 Supabase 原生索引/分区/聚合/批处理/Realtime Broadcast/可选 Queues 与外部方案。
 
 ## 3. 阶段与依赖图
 
@@ -95,11 +100,11 @@ flowchart LR
 | F02 | CI、制品与供应链门禁 | PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest | CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本 | 任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免 | F01 |
 | F03 | 领域协议 v1 与 SDK 生成 | 定义 `DataSnapshot`、`ResearchArtifact`、`StrategyRelease`、`Signal`、`TradeProposal`、`RiskDecision`、`TradeCommand`、Order/Fill/Position、Engine/Event API；Buf + OpenAPI 生成 | `proto/*/v1`、JSON schema、Rust/Python/TS SDK、兼容性测试 | SDK 三语言编译；100% 必填元数据（tenant/actor/correlation 等）测试；Buf breaking check 阻止破坏性变更；序列化往返 1,000 组 fixture 无差异 | F01 |
 | F04 | Core、错误、时钟与 ID | 实现强类型 ID、UTC clock、领域错误码、金额/数量精度、版本与 hash primitives | `quantos-core`、fixture builder | 金额/精度边界与时区测试分支覆盖 ≥90%；任意错误可映射为稳定机器码；相同 fixture hash 100% 一致 | F03 |
-| F05 | 事件、存储与审计账本 | Supabase PostgreSQL migration、业务 schema、RLS 基线、Supabase Storage、transactional outbox/inbox、schema registry、append-only audit；早期默认由 PostgreSQL outbox/inbox + Supabase Realtime 唤醒通知承担事件传递，不引入 Supabase 生态外的独立消息、缓存或时序基础设施；核心表主键默认 `gen_random_uuid()`，业务时间统一 `timestamptz`；数据库操作通过 `DATABASE_URL` 指向线上 Supabase PostgreSQL | `quantos-event`、`quantos-storage`、`supabase/migrations/*`、policy/sql、replay CLI | 重复/乱序/重启/死信四类测试全过；隔离 Supabase 线上项目或数据库分支可由 migration 重建 `quantos` schema；所有 tenant 表 RLS 默认拒绝且负向权限测试全过；1万条测试事件无丢失、消费者最终一致；按 correlation ID 在 ≤5 秒取回完整事件链；数据库轮询消费者、Realtime 唤醒通知、checkpoint 与重放链路在单服务部署下可闭环验证 | F03、F04 |
-| F06 | 身份、授权、秘密引用与主上下文 | Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝 | `quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration | 缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；一期固定 Primary workspace 无切换 API；鉴权读 P95 <100ms | F03、F05 |
+| F05 | 事件、存储与审计账本 | Supabase PostgreSQL migration、业务 schema、RLS 基线、Supabase Storage、transactional outbox/inbox、schema registry、append-only audit；建立 `outbox_event`、`inbox_receipt`、`dead_letter_event`、`projection_checkpoint` 与基于租约/`FOR UPDATE SKIP LOCKED` 的轮询消费者。Realtime 只发送唤醒/投影通知，绝不作为事件真相或唯一调度；早期不引入 Supabase 生态外的独立消息、缓存或时序基础设施 | `quantos-event`、`quantos-storage`、`supabase/migrations/*`、policy/sql、replay CLI、消费者恢复 Runbook | 重复/乱序/重启/死信四类测试全过；隔离 Supabase 线上项目或数据库分支可由 migration 重建 `quantos` schema；所有 tenant 表 RLS 默认拒绝且负向权限测试全过；1 万条测试事件无丢失、消费者最终一致；模拟 Realtime 漏通知、断连和重连后，数据库扫描在测试 deadline 内处理全部已提交事件；1,000 次同事件并发投递只产生一次业务副作用；按 correlation ID 在 ≤5 秒取回完整事件链 | F03、F04 |
+| F06 | 身份、授权、秘密引用与主上下文 | Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝；Vault 仅存静态加密秘密，Execution Gateway 通过受控角色与 allowlist 函数取得所需引用，短时授权由服务会话/命令过期/轮换状态控制 | `quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration、Vault 访问 policy/函数 | 缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API；鉴权读 P95 <100ms | F03、F05 |
 | F07 | Runtime 最小可恢复工作流 | session、持久任务、tool registry、deadline、cancel、retry、checkpoint、Artifact API、成本/速率限额 | `quantos-runtime`、workflow fixtures | worker 强杀后 100 个任务均从 checkpoint 恢复且不重复创建 Artifact；cancel/timeout 事件均带 audit；任务调度 P95 <200ms | F04–F06 |
 | F08 | Engine SDK、Manager 与 Mock Engine | Engine manifest 审核、UDS gRPC、health/readiness、routing、限流、熔断、退避、资源配额、contract harness | `quantos-engine-manager`、Python common SDK、mock engine | `GetMetadata/Health/Execute/StreamExecute/Cancel` 100% contract 通过；连续 3 次崩溃触发退避且不丢请求；deadline 超时 ≤2 秒返回确定性错误 | F03、F06、F07 |
-| F09 | 本地可观测性与故障注入 | trace、metrics、结构化日志、健康检查、test fault proxy | dashboards、alert rules、fault tests | 每个 F0 写操作可从 trace 查到 correlation ID；注入 DB/事件消费者/Engine 故障时无秘密泄露，恢复后事件链完整 | F05–F08 |
+| F09 | 本地可观测性、容量阈值与故障注入 | trace、metrics、结构化日志、健康检查、test fault proxy；为 outbox 年龄/DLQ、Realtime 投影延迟与配额、读模型查询/MV 新鲜度、Storage 错误与秘密轮换配置可执行告警和 ADR 证据采集 | dashboards、alert rules、fault tests、容量 ADR 模板 | 每个 F0 写操作可从 trace 查到 correlation ID；注入 DB/事件消费者/Engine 故障时无秘密泄露，恢复后事件链完整；以下阈值均自动告警并生成 ADR 输入：outbox 最老事件 >60 秒持续 15 分钟或 DLQ >0.1%，Realtime 投影延迟 >5 秒持续 15 分钟或配额 >70%，风险/组合查询 P95 >300ms 持续 15 分钟，风险 MV >1 分钟或运营聚合 >5 分钟连续 3 次，Storage 错误 >1% 或秘密轮换/读取失败 | F05–F08 |
 
 ## 5. TP：第三方工程评估、适配与依赖治理
 
@@ -203,7 +208,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | ID | 任务与开发范围 | 技术要求 | 交付物 | 量化验收标准 | 依赖 |
 |---|---|---|---|---|---|
 | L01 | 优先 venue testnet 适配 | 仅接入已批准的单一 venue；订单意图/精度/限流映射；永不在 CI 使用生产 key | venue plugin、testnet fixtures、compat report | 200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品 | X04、TP07 |
-| L02 | Supabase Vault、mTLS 与受限执行区 | secret reference、短期租约元数据、网络 allowlist、mTLS、最少 egress、轮换/撤销 | secret integration、network policy、rotation runbook | secret scan 0 泄露；研究 Engine/UI 无法解析执行 secret；证书/secret 轮换后 ≤5 分钟恢复；未允许域名 egress 100% 阻断 | F06、L01 |
+| L02 | Supabase Vault、mTLS 与受限执行区 | Vault 静态秘密/引用、Execution Gateway 专用受控数据库角色与 allowlist 函数、服务会话/命令 TTL、网络 allowlist、mTLS、最少 egress、轮换/撤销；不实现 Vault 动态租约 | secret integration、database grants/function、network policy、rotation runbook | secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断 | F06、L01 |
 | L03 | 双人审批、MFA 与 Assisted Live UI Gate | 仅在服务端 feature/capability 返回时显示 Assisted Live；双人职责分离、额度与白名单 | approval policy、P10/P11 M5 UI、E2E | M5 flag 关闭时 UI/API 100% 不可达；开启 testnet flag 后 50 次双人审批均写签名审计；自批/额度超限/过期 100% 拒绝 | X02、X03、L02 |
 | L04 | 容量、恢复、安全与上线证据包 | 压测、混沌、DB/事件恢复、订单对账、告警、回滚；生成不可篡改测试证据 | SLO report、drill report、release checklist | 目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0 | X05、X06、L01–L03 |
 
@@ -213,6 +218,8 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 - [ ] F01–F09 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。
 - [ ] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
+- [ ] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
+- [ ] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量阈值告警与 ADR 证据模板已启用。
 - [ ] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
 - [ ] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
 - [ ] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。
@@ -240,6 +247,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 - [ ] L01–L04 完成；仅 testnet 证明通过，不自动产生生产实盘权限。
 - [ ] venue、秘密、MFA、审批、网络、容量、恢复、对账和安全证据全部归档。
+- [ ] 任一容量阈值触发时，先完成 Supabase 原生优化和容量 ADR；未获 ADR 批准时不得增加 Supabase 生态外的事件、缓存、时序或秘密基础设施。
 - [ ] 是否开启小额 Assisted Live 必须在本计划之外，由单独批准决定。
 
 ### 10.6 建议的自动执行命令
