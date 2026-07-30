@@ -50,6 +50,7 @@ Polyglot monorepo baseline for the QuantOS platform.
 - F02 adds CI, SBOM generation, build manifest generation, supply-chain checks, and artifact signing entrypoints.
 - Database commands target the hosted Supabase PostgreSQL instance referenced by `DATABASE_URL`; no local Supabase stack is required.
 - F05 adds append-only event ledger, `outbox_event` / `inbox_receipt` / `dead_letter_event` / `projection_checkpoint`, PostgreSQL polling consumers with row leases, audit, artifact, schema-registry, and Supabase Storage adapter baselines through Rust crates plus Supabase migrations.
+- F06 adds `quantos-auth` / `quantos-policy`, `auth.users`-anchored actor/workspace/account mappings, deterministic capability checks, and service-only secret allowlist functions for Execution Gateway.
 - `replay-cli` now supports direct PostgreSQL replay via `DATABASE_URL`, with JSONL replay kept as a fallback for local fixtures.
 - Root `.env` and `.env.local` are loaded automatically by `Makefile`; see [`.env.example`](./.env.example) and [`supabase/OPERATIONS.md`](./supabase/OPERATIONS.md).
 - Realtime is treated as an optional wakeup or projection notification path only; workers must always recover by rescanning PostgreSQL outbox rows after missed notifications, disconnects, or restarts.

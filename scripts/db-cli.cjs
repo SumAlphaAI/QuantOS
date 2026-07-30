@@ -230,6 +230,31 @@ async function liveRlsCheck() {
       );
     }
 
+    const secretFunctionName =
+      "quantos.resolve_execution_secret_reference(text, text, text)";
+    const secretFunctionPrivileges = await client.query(
+      `
+        select
+          has_function_privilege('authenticated', $1, 'EXECUTE') as authenticated_execute,
+          has_function_privilege('anon', $1, 'EXECUTE') as anon_execute,
+          has_function_privilege('service_role', $1, 'EXECUTE') as service_role_execute
+      `,
+      [secretFunctionName],
+    );
+
+    const privilegeRow = secretFunctionPrivileges.rows[0];
+    if (privilegeRow.authenticated_execute || privilegeRow.anon_execute) {
+      throw new Error(
+        `Secret allowlist function ${secretFunctionName} must not be executable by authenticated or anon roles.`,
+      );
+    }
+
+    if (!privilegeRow.service_role_execute) {
+      throw new Error(
+        `Secret allowlist function ${secretFunctionName} must remain executable by service_role.`,
+      );
+    }
+
     console.log("Remote RLS checks passed for quantos schema.");
   });
 }
