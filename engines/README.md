@@ -2,6 +2,6 @@
 
 Python engine workspace and contract test harness live here.
 
-- `engine-sdk`: shared Python types and helpers for QuantOS engines.
-- `mock-engine`: deterministic mock engine used for workspace verification.
-- `tests/`: workspace-level Python tests.
+- `engine-sdk`: shared Python manifest types, UDS gRPC server/client helpers, JSON helpers, and timestamp utilities for QuantOS engines.
+- `mock-engine`: deterministic mock engine that exposes all five Engine RPCs over UDS gRPC.
+- `tests/`: workspace-level contract tests that verify `GetMetadata/Health/Execute/StreamExecute/Cancel`.
