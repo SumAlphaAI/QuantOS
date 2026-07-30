@@ -10,6 +10,8 @@ for relative in (
     "engines/engine-sdk/sdk_src",
     "engines/engine-sdk/src",
     "engines/mock-engine/src",
+    "engines/rd-agent/src",
+    "engines/vibe-adapter/src",
 ):
     candidate = str(ROOT / relative)
     if candidate not in sys.path:

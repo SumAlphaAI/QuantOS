@@ -1,0 +1,46 @@
+{
+  "fixtures": [
+    {
+      "fixture_name": "hypothesis_regime_shift",
+      "artifact_kind": "hypothesis",
+      "title": "Liquidity regime shift hypothesis",
+      "summary": "Form a deterministic hypothesis about liquidity regime changes in a fixed snapshot.",
+      "hypothesis": "If liquidity dispersion widens while breadth weakens, short-horizon trend continuation quality degrades.",
+      "experiment_plan": [
+        "Measure breadth and dispersion over the supplied snapshot window.",
+        "Compare the observed regime to the previous fixed benchmark bucket.",
+        "Record evidence and next-step experiment criteria."
+      ],
+      "findings": [
+        "The fixture signals a widening dispersion regime.",
+        "Breadth weakness aligns with lower confidence in continuation setups."
+      ],
+      "evidence": [
+        "snapshot:breadth-series",
+        "snapshot:dispersion-series",
+        "artifact:benchmark-regime-bucket"
+      ]
+    },
+    {
+      "fixture_name": "experiment_factor_stability",
+      "artifact_kind": "experiment",
+      "title": "Factor stability experiment",
+      "summary": "Run a deterministic factor stability experiment against a fixed data snapshot.",
+      "hypothesis": "A factor with stable cross-sectional rank persistence should keep its explanatory power across adjacent windows.",
+      "experiment_plan": [
+        "Partition the snapshot into calibration and verification windows.",
+        "Compute rank persistence and evidence hashes.",
+        "Summarize the pass or fail criteria without issuing trade instructions."
+      ],
+      "findings": [
+        "The fixture preserves stable rank persistence across adjacent windows.",
+        "Evidence quality is sufficient for a follow-up signal engine run."
+      ],
+      "evidence": [
+        "snapshot:factor-panel",
+        "snapshot:verification-window",
+        "artifact:stability-metric-report"
+      ]
+    }
+  ]
+}

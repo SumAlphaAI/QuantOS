@@ -8,6 +8,8 @@ Polyglot monorepo baseline for the QuantOS platform.
 - `crates/`: Rust domain crates and shared core libraries.
 - `services/`: Rust service binaries built on top of the shared crates.
 - `engines/`: Python engine SDK, mock engines, and engine contract tests.
+- `third_party/`: locked upstream intake ledgers and read-only reference evidence.
+- `forks/`: controlled fork governance baselines and patch-queue policy.
 - `plugins/`: future venue, data, notification, and tool plugins.
 - `apps/website/`: public-facing website shell for `sumalpha.ai`.
 - `apps/terminal/`: shared web Terminal application for `app.sumalpha.ai`.
@@ -37,6 +39,7 @@ Polyglot monorepo baseline for the QuantOS platform.
 - `make test-supabase-storage-live`
 - `make waiver-check`
 - `make build-manifest`
+- `make tp01-vibe-monitor`
 - `make db-apply`
 - `make db-reset`
 - `make db-migration-check`

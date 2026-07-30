@@ -10,7 +10,7 @@ include .env.local
 export
 endif
 
-.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff rls-policy-test license-check sca-check waiver-check build-manifest sbom sign-artifacts observability-check f09-adr-input ci-local
+.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff rls-policy-test license-check sca-check waiver-check build-manifest sbom sign-artifacts observability-check f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: bootstrap-rust bootstrap-python bootstrap-node
 
@@ -118,5 +118,17 @@ sign-artifacts:
 
 f09-adr-input: ensure-node
         node ./scripts/generate-f09-adr-input.mjs --input artifacts/observability/f09-alerts.json --output artifacts/observability/f09-capacity-adr.md
+
+tp01-vibe-monitor: ensure-node
+	node ./scripts/check-vibe-upstream.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --json-output ./artifacts/third_party/vibe-trading/upstream-candidates.json --markdown-output ./artifacts/third_party/vibe-trading/upstream-candidates.md
+
+tp01-vibe-sync: ensure-node
+	node ./scripts/sync-vibe.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --patch-queue ./forks/vibe-trading/patch-queue/queue.json --candidate-report ./artifacts/third_party/vibe-trading/upstream-candidates.json --json-output ./artifacts/third_party/vibe-trading/sync-vibe/summary.json --markdown-output ./artifacts/third_party/vibe-trading/sync-vibe/summary.md --decision-dir ./artifacts/third_party/vibe-trading/sync-vibe/decisions --issue-dir ./artifacts/third_party/vibe-trading/sync-vibe/issues
+
+tp01-vibe-canary: ensure-node build-manifest
+	node ./scripts/tp01-vibe-canary.mjs --policy ./third_party/vibe-trading/canary-policy.json --scenario ./scripts/fixtures/tp01-vibe-canary/healthy-7d.json --output-dir ./artifacts/third_party/vibe-trading/canary/current --build-manifest ./artifacts/build/build-manifest.json && bash ./scripts/sign-artifacts.sh ./artifacts/third_party/vibe-trading/canary/current/release-manifest.json ./artifacts/third_party/vibe-trading/canary/current/drill-report.md
+
+tp01-vibe-rollback: ensure-node
+	node ./scripts/tp01-vibe-rollback.mjs --state ./artifacts/third_party/vibe-trading/canary/current/rollout-state.json --action rollback --reason "operator initiated rollback" --output-state ./artifacts/third_party/vibe-trading/canary/current/rollout-state.json --output-report ./artifacts/third_party/vibe-trading/canary/current/rollback-action.md
 
 ci-local: lockfile-check proto-check db-migration-check lint test build

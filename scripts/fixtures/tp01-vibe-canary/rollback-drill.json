@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "rollback-drill",
+  "title": "rollback drill completes within five minutes",
+  "operation": "rollback_drill",
+  "candidateRelease": {
+    "releaseId": "vibe-adapter-canary-r2",
+    "artifactDigest": "sha256:vibe-adapter-r2",
+    "imageDigest": "sha256:image-r2",
+    "upstreamRef": "v0.1.13@deadbeef0001",
+    "adapterVersion": "0.1.1"
+  },
+  "previousRelease": {
+    "releaseId": "vibe-adapter-canary-r1",
+    "artifactDigest": "sha256:vibe-adapter-r1"
+  },
+  "observations": {
+    "canaryDaysObserved": 7,
+    "shadowTasksCompleted": 500,
+    "unexplainedP1": 0,
+    "executeP95Ms": 450,
+    "cancelConfirmSecs": 1.2,
+    "errorRate": 0.001,
+    "shadowMismatchRate": 0.0,
+    "unauthorizedEgress": 0,
+    "secretOrVenueViolations": 0,
+    "signedArtifactsPresent": true,
+    "auditComplete": true,
+    "runtimeIsolationVerified": true,
+    "rollbackCompletedSecs": 240
+  },
+  "expected": {
+    "outcome": "rolled_back",
+    "blocked": false,
+    "flagState": "rolled_back"
+  }
+}

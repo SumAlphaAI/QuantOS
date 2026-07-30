@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "component": "vibe-adapter",
+  "capabilityFlag": {
+    "name": "research.vibe_adapter.canary",
+    "defaultState": "disabled",
+    "states": ["disabled", "canary", "enabled", "rolled_back"]
+  },
+  "rolloutPolicy": {
+    "canaryDaysRequired": 7,
+    "canaryTrafficPercent": 5,
+    "shadowTaskWindowHours": 24,
+    "maxUnexplainedP1": 0,
+    "maxExecuteP95Ms": 1000,
+    "maxCancelConfirmSecs": 2,
+    "maxErrorRate": 0.01,
+    "maxShadowMismatchRate": 0.02,
+    "maxUnauthorizedEgress": 0,
+    "maxSecretOrVenueViolations": 0,
+    "rollbackSlaSecs": 300,
+    "requireSignedArtifacts": true,
+    "requireAuditCompleteness": true,
+    "requireRuntimeIsolation": true
+  },
+  "dashboards": [
+    "docs/operations/tp01_vibe_canary_dashboards.json"
+  ],
+  "alertRules": [
+    "docs/operations/tp01_vibe_canary_alert_rules.yaml"
+  ]
+}

@@ -1,0 +1,23 @@
+[project]
+name = "quantos-rd-agent"
+version = "0.1.0"
+description = "Controlled RD-Agent research engine for QuantOS"
+requires-python = ">=3.9,<3.10"
+dependencies = [
+  "quantos-engine-sdk",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+quantos-engine-sdk = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rd_agent"]
+
+[tool.hatch.build]
+include = [
+  "src/rd_agent/fixtures/*.json",
+]

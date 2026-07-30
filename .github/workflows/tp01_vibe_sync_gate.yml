@@ -1,0 +1,97 @@
+name: TP01 Vibe Sync Gate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "27 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  tp01-vibe-sync-simulations:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario:
+          - api-break
+          - license-change
+          - cve-high
+          - patch-conflict
+          - planned-sync
+          - research-drift
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Verify sync-vibe unit tests
+        if: matrix.scenario == 'api-break'
+        run: node --test ./scripts/tests/sync-vibe.test.mjs
+
+      - name: Evaluate simulation scenario
+        run: >
+          node ./scripts/sync-vibe.mjs
+          --baseline ./third_party/vibe-trading/baseline.lock.json
+          --patch-queue ./forks/vibe-trading/patch-queue/queue.json
+          --scenario ./scripts/fixtures/tp01-vibe-sync/${{ matrix.scenario }}.json
+          --json-output ./artifacts/third_party/vibe-trading/sync-vibe/${{ matrix.scenario }}/summary.json
+          --markdown-output ./artifacts/third_party/vibe-trading/sync-vibe/${{ matrix.scenario }}/summary.md
+          --decision-dir ./artifacts/third_party/vibe-trading/sync-vibe/${{ matrix.scenario }}/decisions
+          --issue-dir ./artifacts/third_party/vibe-trading/sync-vibe/${{ matrix.scenario }}/issues
+          --verify-expected
+
+      - name: Upload simulation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tp01-vibe-sync-${{ matrix.scenario }}
+          path: artifacts/third_party/vibe-trading/sync-vibe/${{ matrix.scenario }}/
+          if-no-files-found: error
+
+  tp01-vibe-sync-live:
+    runs-on: ubuntu-latest
+    needs: tp01-vibe-sync-simulations
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Generate upstream candidate report
+        run: >
+          node ./scripts/check-vibe-upstream.mjs
+          --baseline ./third_party/vibe-trading/baseline.lock.json
+          --json-output ./artifacts/third_party/vibe-trading/upstream-candidates.json
+          --markdown-output ./artifacts/third_party/vibe-trading/upstream-candidates.md
+
+      - name: Evaluate live sync candidates
+        run: >
+          node ./scripts/sync-vibe.mjs
+          --baseline ./third_party/vibe-trading/baseline.lock.json
+          --patch-queue ./forks/vibe-trading/patch-queue/queue.json
+          --candidate-report ./artifacts/third_party/vibe-trading/upstream-candidates.json
+          --json-output ./artifacts/third_party/vibe-trading/sync-vibe/live-summary.json
+          --markdown-output ./artifacts/third_party/vibe-trading/sync-vibe/live-summary.md
+          --decision-dir ./artifacts/third_party/vibe-trading/sync-vibe/live-decisions
+          --issue-dir ./artifacts/third_party/vibe-trading/sync-vibe/live-issues
+          --fail-on-block
+
+      - name: Publish workflow summary
+        run: cat ./artifacts/third_party/vibe-trading/sync-vibe/live-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload live sync artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tp01-vibe-sync-live
+          path: artifacts/third_party/vibe-trading/sync-vibe/
+          if-no-files-found: error

@@ -1,0 +1,50 @@
+{
+  "title": "TP01 Vibe Canary Rollout",
+  "description": "Canary, shadow-task, signed-release, and rollback drill dashboards for the controlled Vibe adapter.",
+  "panels": [
+    {
+      "id": "rollout_state",
+      "title": "Rollout State",
+      "metrics": [
+        "quantos.tp01.vibe.capability_enabled",
+        "quantos.tp01.vibe.rollout_percent",
+        "quantos.tp01.vibe.shadow_tasks_completed_total",
+        "quantos.tp01.vibe.unsigned_release_artifacts"
+      ],
+      "visualization": "stat"
+    },
+    {
+      "id": "canary_health",
+      "title": "Canary Health",
+      "metrics": [
+        "quantos.tp01.vibe.execute_p95_ms",
+        "quantos.tp01.vibe.cancel_confirmation_secs",
+        "quantos.tp01.vibe.error_rate",
+        "quantos.tp01.vibe.unexplained_p1_total"
+      ],
+      "visualization": "timeseries"
+    },
+    {
+      "id": "shadow_consistency",
+      "title": "Shadow Tasks And Safety Rejections",
+      "metrics": [
+        "quantos.tp01.vibe.shadow_mismatch_rate",
+        "quantos.tp01.vibe.unauthorized_egress_total",
+        "quantos.tp01.vibe.secret_or_venue_violation_total",
+        "quantos.tp01.vibe.policy_denied_total"
+      ],
+      "visualization": "timeseries"
+    },
+    {
+      "id": "rollback_drill",
+      "title": "Rollback Drill And Audit Completeness",
+      "metrics": [
+        "quantos.tp01.vibe.rollback_duration_secs",
+        "quantos.tp01.vibe.audit_incomplete",
+        "quantos.tp01.vibe.runtime_isolation_verified",
+        "quantos.tp01.vibe.signed_release_artifacts"
+      ],
+      "visualization": "table"
+    }
+  ]
+}

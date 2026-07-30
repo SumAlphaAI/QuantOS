@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "healthy-7d",
+  "title": "seven day healthy canary window",
+  "operation": "canary",
+  "candidateRelease": {
+    "releaseId": "vibe-adapter-canary-r1",
+    "artifactDigest": "sha256:vibe-adapter-r1",
+    "imageDigest": "sha256:image-r1",
+    "upstreamRef": "v0.1.12@43331c3221be37c5cc1ed8dddc4c7988bcddc5cd",
+    "adapterVersion": "0.1.0"
+  },
+  "previousRelease": {
+    "releaseId": "vibe-adapter-disabled-baseline",
+    "artifactDigest": "sha256:vibe-adapter-baseline"
+  },
+  "observations": {
+    "canaryDaysObserved": 7,
+    "shadowTasksCompleted": 480,
+    "unexplainedP1": 0,
+    "executeP95Ms": 420,
+    "cancelConfirmSecs": 1.4,
+    "errorRate": 0.002,
+    "shadowMismatchRate": 0.0,
+    "unauthorizedEgress": 0,
+    "secretOrVenueViolations": 0,
+    "signedArtifactsPresent": true,
+    "auditComplete": true,
+    "runtimeIsolationVerified": true,
+    "rollbackCompletedSecs": 240
+  },
+  "expected": {
+    "outcome": "canary_passed",
+    "blocked": false,
+    "flagState": "enabled"
+  }
+}

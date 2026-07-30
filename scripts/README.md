@@ -18,6 +18,12 @@ F02 supply-chain and CI scripts:
 - `check-proto.sh`: validates the `proto/` workspace shape and protects future contract onboarding.
 - `check-node-licenses.mjs`: enforces the npm license allowlist in `security/node-license-allowlist.json`.
 - `check-python-audit.sh`: runs Python dependency vulnerability checks from the uv workspace export.
+- `check-vibe-upstream.mjs`: checks TP01's locked `HKUDS/Vibe-Trading` baseline against upstream `main` and release tags, then writes candidate reports without updating dependencies.
+- `sync-vibe-lib.mjs`: shared classification and rendering helpers for TP01-E sync decisions.
+- `sync-vibe.mjs`: classifies TP01 sync candidates into `S0`-`S3`, writes decision records and candidate issue drafts, and can block CI when required.
+- `tp01-vibe-rollout-lib.mjs`: shared canary, alert, drill, and rollback helpers for TP01-F.
+- `tp01-vibe-canary.mjs`: evaluates TP01 canary scenarios, writes rollout state and release manifests, and emits drill evidence.
+- `tp01-vibe-rollback.mjs`: performs a one-command disable or rollback transition for the current TP01 rollout state.
 - `check-sca-waivers.mjs`: validates waiver schema and expiry in `security/sca-waivers.json`.
 - `generate-build-manifest.mjs`: writes a traceable build manifest with commit, toolchain, and lockfile digests.
 - `generate-sbom.sh`: generates the repository SBOM artifact entrypoint used by CI.

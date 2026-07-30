@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "repository": "sumalpha-controlled/vibe-trading",
+  "appliesWhenProvisioned": true,
+  "protectedBranches": [
+    {
+      "name": "sumalpha/tp01-base",
+      "allowForcePushes": false,
+      "allowDeletions": false,
+      "requiredLinearHistory": true,
+      "requiredConversationResolution": true,
+      "requiredPullRequestReviews": 2,
+      "dismissStaleApprovals": true,
+      "requiredStatusChecks": [
+        "tp01-vibe-upstream-monitor",
+        "license-review",
+        "patch-queue-diff",
+        "adapter-contract-gate"
+      ]
+    },
+    {
+      "name": "sumalpha/tp01-integration",
+      "allowForcePushes": false,
+      "allowDeletions": false,
+      "requiredLinearHistory": true,
+      "requiredConversationResolution": true,
+      "requiredPullRequestReviews": 2,
+      "dismissStaleApprovals": true,
+      "requiredStatusChecks": [
+        "tp01-vibe-upstream-monitor",
+        "adapter-contract-gate",
+        "adapter-negative-security-gate",
+        "adapter-replay-gate",
+        "adapter-rollback-gate"
+      ]
+    }
+  ],
+  "candidateBranchPattern": "candidate/s[0-3]-*",
+  "notes": [
+    "Candidate branches may exist without protection, but they must merge only through protected integration branches.",
+    "No automation may merge or update production dependencies directly from upstream tags or upstream main."
+  ]
+}

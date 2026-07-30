@@ -1,0 +1,53 @@
+groups:
+  - name: quantos-tp01-vibe-canary
+    rules:
+      - id: tp01_vibe_unexplained_p1
+        expr: quantos.tp01.vibe.unexplained_p1_total > 0
+        for: 0m
+        severity: critical
+        summary: TP01 vibe-adapter canary observed an unexplained P1
+      - id: tp01_vibe_execute_p95_ms
+        expr: quantos.tp01.vibe.execute_p95_ms > 1000
+        for: 15m
+        severity: critical
+        summary: TP01 vibe-adapter execute P95 exceeded 1000ms for 15 minutes
+      - id: tp01_vibe_cancel_confirmation_secs
+        expr: quantos.tp01.vibe.cancel_confirmation_secs > 2
+        for: 0m
+        severity: critical
+        summary: TP01 vibe-adapter cancel confirmation exceeded 2 seconds
+      - id: tp01_vibe_error_rate
+        expr: quantos.tp01.vibe.error_rate > 0.01
+        for: 10m
+        severity: critical
+        summary: TP01 vibe-adapter error rate exceeded 1%
+      - id: tp01_vibe_shadow_mismatch_rate
+        expr: quantos.tp01.vibe.shadow_mismatch_rate > 0.02
+        for: 10m
+        severity: warning
+        summary: TP01 vibe-adapter shadow mismatch rate exceeded 2%
+      - id: tp01_vibe_unauthorized_egress_total
+        expr: quantos.tp01.vibe.unauthorized_egress_total > 0
+        for: 0m
+        severity: critical
+        summary: TP01 vibe-adapter attempted unauthorized egress
+      - id: tp01_vibe_secret_or_venue_violation_total
+        expr: quantos.tp01.vibe.secret_or_venue_violation_total > 0
+        for: 0m
+        severity: critical
+        summary: TP01 vibe-adapter touched a secret or venue surface
+      - id: tp01_vibe_unsigned_release_artifacts
+        expr: quantos.tp01.vibe.unsigned_release_artifacts == 1
+        for: 0m
+        severity: critical
+        summary: TP01 vibe-adapter release manifest or drill report is unsigned
+      - id: tp01_vibe_rollback_duration_secs
+        expr: quantos.tp01.vibe.rollback_duration_secs > 300
+        for: 0m
+        severity: critical
+        summary: TP01 vibe-adapter rollback exceeded the five-minute SLA
+      - id: tp01_vibe_audit_incomplete
+        expr: quantos.tp01.vibe.audit_incomplete == 1
+        for: 0m
+        severity: critical
+        summary: TP01 vibe-adapter audit evidence is incomplete

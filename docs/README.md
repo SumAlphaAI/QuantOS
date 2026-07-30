@@ -9,3 +9,5 @@ Current baseline documents:
 - `SumAlpha-QuantOS-Development-Plan.md`
 - `SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md`
 - `SumAlpha-QuantOS-Web-and-Terminal-Design.md`
+- `adr/`: architecture decision records such as TP01 controlled-fork boundaries
+- `operations/`: runbooks, alert definitions, and TP01 inventory / progress trackers

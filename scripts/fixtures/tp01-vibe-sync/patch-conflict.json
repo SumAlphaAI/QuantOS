@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "patch-conflict",
+  "title": "patch queue overlap with upstream workflow changes",
+  "candidateRef": "v0.1.15@deadbeef0004",
+  "releaseTag": "v0.1.15",
+  "changedPaths": [
+    "agent/src/session/service.py",
+    "engines/vibe-adapter/src/vibe_adapter/workflow.py"
+  ],
+  "patchConflict": true,
+  "patchQueueOverlaps": [
+    {
+      "queueId": "0001",
+      "path": "engines/vibe-adapter/src/vibe_adapter/workflow.py",
+      "reason": "workflow shape rewrite overlaps the approved patch queue entry"
+    }
+  ],
+  "expectedSeverity": "S1",
+  "expectedBlocked": true
+}

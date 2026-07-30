@@ -1,0 +1,39 @@
+name: TP01 Vibe Upstream Monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  tp01-vibe-upstream-monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Generate upstream candidate report
+        run: >
+          node ./scripts/check-vibe-upstream.mjs
+          --baseline ./third_party/vibe-trading/baseline.lock.json
+          --json-output ./artifacts/third_party/vibe-trading/upstream-candidates.json
+          --markdown-output ./artifacts/third_party/vibe-trading/upstream-candidates.md
+
+      - name: Publish workflow summary
+        run: cat ./artifacts/third_party/vibe-trading/upstream-candidates.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload TP01 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tp01-vibe-upstream-monitor
+          path: artifacts/third_party/vibe-trading/
+          if-no-files-found: error

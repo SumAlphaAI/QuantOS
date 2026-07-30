@@ -7,6 +7,8 @@ members = [
     "quantos-engine-sdk",
     "quantos-engines-workspace",
     "quantos-mock-engine",
+    "quantos-rd-agent",
+    "quantos-vibe-adapter",
 ]
 
 [[package]]
@@ -156,6 +158,28 @@ dev = [
 name = "quantos-mock-engine"
 version = "0.1.0"
 source = { editable = "mock-engine" }
+dependencies = [
+    { name = "quantos-engine-sdk" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "quantos-engine-sdk", editable = "engine-sdk" }]
+
+[[package]]
+name = "quantos-rd-agent"
+version = "0.1.0"
+source = { editable = "rd-agent" }
+dependencies = [
+    { name = "quantos-engine-sdk" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "quantos-engine-sdk", editable = "engine-sdk" }]
+
+[[package]]
+name = "quantos-vibe-adapter"
+version = "0.1.0"
+source = { editable = "vibe-adapter" }
 dependencies = [
     { name = "quantos-engine-sdk" },
 ]

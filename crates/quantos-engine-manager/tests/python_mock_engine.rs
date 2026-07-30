@@ -245,3 +245,36 @@ async fn python_mock_engine_deadline_timeout_is_deterministic() -> anyhow::Resul
     shutdown_child(child, &socket_path).await;
     result
 }
+
+#[tokio::test]
+async fn missing_vibe_adapter_does_not_block_mock_workflow_routing() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let child = spawn_python_mock_engine(&socket_path, 0, 0).await?;
+
+    let result = async {
+        let mut manager = EngineManager::new(BackoffPolicy::default());
+        manager.register_engine(manifest_for_socket(socket_path.clone()))?;
+
+        let execute = manager
+            .execute("research.execute", execute_request("adapter-absent"))
+            .await?;
+        assert_eq!(
+            execute.execution_id,
+            "run-adapter-absent:idem-adapter-absent"
+        );
+
+        let error = manager
+            .execute(
+                "research.vibe_adapter.execute",
+                execute_request("missing-vibe-adapter"),
+            )
+            .await
+            .expect_err("unregistered vibe capability should stay isolated");
+        assert_eq!(error.machine_code(), "ENGINE_CAPABILITY_NOT_ROUTED");
+        Ok::<(), anyhow::Error>(())
+    }
+    .await;
+
+    shutdown_child(child, &socket_path).await;
+    result
+}

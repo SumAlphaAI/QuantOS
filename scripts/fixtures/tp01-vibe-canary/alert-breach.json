@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "alert-breach",
+  "title": "critical breach requires immediate disable",
+  "operation": "canary",
+  "candidateRelease": {
+    "releaseId": "vibe-adapter-canary-r2",
+    "artifactDigest": "sha256:vibe-adapter-r2",
+    "imageDigest": "sha256:image-r2",
+    "upstreamRef": "v0.1.13@deadbeef0001",
+    "adapterVersion": "0.1.1"
+  },
+  "previousRelease": {
+    "releaseId": "vibe-adapter-canary-r1",
+    "artifactDigest": "sha256:vibe-adapter-r1"
+  },
+  "observations": {
+    "canaryDaysObserved": 2,
+    "shadowTasksCompleted": 36,
+    "unexplainedP1": 1,
+    "executeP95Ms": 1630,
+    "cancelConfirmSecs": 3.5,
+    "errorRate": 0.08,
+    "shadowMismatchRate": 0.06,
+    "unauthorizedEgress": 1,
+    "secretOrVenueViolations": 1,
+    "signedArtifactsPresent": false,
+    "auditComplete": false,
+    "runtimeIsolationVerified": true,
+    "rollbackCompletedSecs": 420
+  },
+  "expected": {
+    "outcome": "disabled",
+    "blocked": true,
+    "flagState": "disabled"
+  }
+}

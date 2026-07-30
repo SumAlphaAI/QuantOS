@@ -1,0 +1,76 @@
+name: TP01 Vibe Canary Gate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tp01-vibe-canary:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario:
+          - healthy-7d
+          - alert-breach
+          - rollback-drill
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Generate build manifest
+        run: node ./scripts/generate-build-manifest.mjs --output ./artifacts/build/build-manifest.json
+
+      - name: Run TP01-F rollout unit tests
+        if: matrix.scenario == 'healthy-7d'
+        run: node --test ./scripts/tests/tp01-vibe-rollout.test.mjs
+
+      - name: Evaluate TP01-F canary scenario
+        run: >
+          node ./scripts/tp01-vibe-canary.mjs
+          --policy ./third_party/vibe-trading/canary-policy.json
+          --scenario ./scripts/fixtures/tp01-vibe-canary/${{ matrix.scenario }}.json
+          --output-dir ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}
+          --build-manifest ./artifacts/build/build-manifest.json
+          --verify-expected
+
+      - name: Sign canary artifacts
+        run: >
+          bash ./scripts/sign-artifacts.sh
+          ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/release-manifest.json
+          ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/drill-report.md
+
+      - name: Apply one-click disable
+        if: matrix.scenario == 'alert-breach'
+        run: >
+          node ./scripts/tp01-vibe-rollback.mjs
+          --state ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/rollout-state.json
+          --action disable
+          --reason "critical canary alert"
+          --output-state ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/rollout-state.json
+          --output-report ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/rollback-action.md
+
+      - name: Apply one-click rollback
+        if: matrix.scenario == 'rollback-drill'
+        run: >
+          node ./scripts/tp01-vibe-rollback.mjs
+          --state ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/rollout-state.json
+          --action rollback
+          --reason "scheduled rollback drill"
+          --output-state ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/rollout-state.json
+          --output-report ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/rollback-action.md
+
+      - name: Upload canary artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tp01-vibe-canary-${{ matrix.scenario }}
+          path: artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/
+          if-no-files-found: error
