@@ -10,7 +10,7 @@ include .env.local
 export
 endif
 
-.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-f05-live test-jetstream-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff rls-policy-test license-check sca-check waiver-check build-manifest sbom sign-artifacts ci-local
+.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff rls-policy-test license-check sca-check waiver-check build-manifest sbom sign-artifacts ci-local
 
 bootstrap: bootstrap-rust bootstrap-python bootstrap-node
 
@@ -54,9 +54,6 @@ test-rust:
 test-f05-live:
 	cargo test -p quantos-event --test postgres_persistence -- --nocapture
 	cargo test -p quantos-storage --test postgres_persistence -- --nocapture
-
-test-jetstream-live:
-	cargo test -p quantos-event --test jetstream_integration -- --nocapture
 
 test-supabase-storage-live:
 	cargo test -p quantos-storage --test supabase_storage_integration -- --nocapture

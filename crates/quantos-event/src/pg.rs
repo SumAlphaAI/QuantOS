@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
 use postgres::{
     Client, NoTls, Row, Transaction,
@@ -13,20 +13,48 @@ use crate::{
     AuditEntry, DeadLetterEntry, EventError, OutboxEntry, ProjectionCheckpoint, RecordedEvent,
 };
 use quantos_core::{
-    AuditEntryId, ContentHash, CoreError, CorrelationId, DeadLetterId, EventId, OutboxEntryId,
-    SchemaVersion, TenantId,
+    AuditEntryId, ContentHash, CoreError, CorrelationId, DeadLetterId, EventId, InboxEntryId,
+    OutboxEntryId, SchemaVersion, TenantId,
 };
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct PersistedOutboxEntry {
+pub struct LeasedOutboxEntry {
     pub outbox: OutboxEntry,
     pub event: RecordedEvent,
+    pub lease_owner: String,
+    pub lease_expires_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct InboxProcessingClaim {
+    pub inbox_entry_id: InboxEntryId,
+    pub consumer_name: String,
+    pub attempts: u32,
+    pub lease_owner: String,
+    pub lease_expires_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum InboxClaimDecision {
+    Claimed(InboxProcessingClaim),
+    AlreadyApplied,
+    Busy,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InboxFailureOutcome {
     pub attempts: u32,
     pub dead_lettered: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct PollingDispatchReport {
+    pub claimed: usize,
+    pub processed: usize,
+    pub duplicate_skipped: usize,
+    pub retried: usize,
+    pub dead_lettered: usize,
+    pub notify_failures: usize,
 }
 
 #[derive(Debug, Error)]
@@ -116,7 +144,7 @@ impl PgEventStore {
             .ok_or(PgEventStoreError::MissingEvent(event.event_id))?;
 
         tx.execute_typed(
-            "insert into quantos.event_outbox (
+            "insert into quantos.outbox_event (
                 tenant_id, event_log_id, topic, status, attempts, available_at
             ) values ($1,$2,$3,'pending',0,$4)",
             &[
@@ -150,26 +178,67 @@ impl PgEventStore {
         rows.iter().map(row_to_recorded_event).collect()
     }
 
-    pub fn pending_outbox(
+    pub fn claim_outbox_events(
         &mut self,
+        worker_name: &str,
         limit: i64,
-    ) -> Result<Vec<PersistedOutboxEntry>, PgEventStoreError> {
+        observed_at: DateTime<Utc>,
+        lease_duration: ChronoDuration,
+    ) -> Result<Vec<LeasedOutboxEntry>, PgEventStoreError> {
+        let lease_expires_at = observed_at + lease_duration;
         let rows = self.client.query_typed(
-            "select o.id as outbox_id, o.tenant_id as outbox_tenant_id, o.topic, o.available_at,
-                    o.attempts, o.dispatched_at,
-                    e.event_id, e.tenant_id, e.correlation_id, e.aggregate_type, e.aggregate_id,
-                    e.sequence, e.event_kind, e.schema_version, e.occurred_at, e.payload, e.payload_hash
-             from quantos.event_outbox as o
-             join quantos.event_log as e on e.id = o.event_log_id
-             where o.status = 'pending'
-             order by o.available_at asc
-             limit $1",
-            &[(&limit, Type::INT8)],
+            "with candidate as (
+                select o.id
+                from quantos.outbox_event as o
+                where o.available_at <= $3
+                  and (
+                    o.status = 'pending'
+                    or (
+                      o.status = 'leased'
+                      and coalesce(o.lease_expires_at, '-infinity'::timestamptz) <= $3
+                    )
+                  )
+                order by o.available_at asc, o.id asc
+                for update skip locked
+                limit $4
+            ),
+            claimed as (
+                update quantos.outbox_event as o
+                set status = 'leased',
+                    attempts = o.attempts + 1,
+                    lease_owner = $1,
+                    lease_expires_at = $2,
+                    updated_at = $3
+                from candidate
+                where o.id = candidate.id
+                returning o.id as outbox_id,
+                          o.tenant_id as outbox_tenant_id,
+                          o.event_log_id,
+                          o.topic,
+                          o.available_at,
+                          o.attempts,
+                          o.dispatched_at,
+                          o.lease_owner,
+                          o.lease_expires_at
+            )
+            select c.outbox_id, c.outbox_tenant_id, c.topic, c.available_at, c.attempts,
+                   c.dispatched_at, c.lease_owner, c.lease_expires_at,
+                   e.event_id, e.tenant_id, e.correlation_id, e.aggregate_type, e.aggregate_id,
+                   e.sequence, e.event_kind, e.schema_version, e.occurred_at, e.payload, e.payload_hash
+            from claimed as c
+            join quantos.event_log as e on e.id = c.event_log_id
+            order by c.available_at asc, c.outbox_id asc",
+            &[
+                (&worker_name, Type::TEXT),
+                (&lease_expires_at, Type::TIMESTAMPTZ),
+                (&observed_at, Type::TIMESTAMPTZ),
+                (&limit, Type::INT8),
+            ],
         )?;
 
         rows.iter()
             .map(|row| {
-                Ok(PersistedOutboxEntry {
+                Ok(LeasedOutboxEntry {
                     outbox: OutboxEntry {
                         outbox_entry_id: OutboxEntryId::from_uuid(row.get("outbox_id")),
                         tenant_id: TenantId::from_uuid(row.get("outbox_tenant_id")),
@@ -180,6 +249,8 @@ impl PgEventStore {
                         delivered_at: row.get("dispatched_at"),
                     },
                     event: row_to_recorded_event(row)?,
+                    lease_owner: row.get("lease_owner"),
+                    lease_expires_at: row.get("lease_expires_at"),
                 })
             })
             .collect()
@@ -191,8 +262,13 @@ impl PgEventStore {
         dispatched_at: DateTime<Utc>,
     ) -> Result<(), PgEventStoreError> {
         self.client.execute_typed(
-            "update quantos.event_outbox
-             set status = 'dispatched', dispatched_at = $2
+            "update quantos.outbox_event
+             set status = 'dispatched',
+                 dispatched_at = $2,
+                 lease_owner = null,
+                 lease_expires_at = null,
+                 last_error = null,
+                 updated_at = $2
              where id = $1",
             &[
                 (outbox_entry_id.as_uuid(), Type::UUID),
@@ -205,34 +281,50 @@ impl PgEventStore {
     pub fn record_outbox_failure(
         &mut self,
         outbox_entry_id: OutboxEntryId,
+        worker_name: &str,
         reason: &str,
         max_attempts: u32,
         observed_at: DateTime<Utc>,
     ) -> Result<bool, PgEventStoreError> {
         let mut tx = self.client.transaction()?;
         let row = tx.query_typed_one(
-            "update quantos.event_outbox as o
-             set attempts = o.attempts + 1,
-                 status = case when o.attempts + 1 >= $2 then 'dead_letter' else 'pending' end
+            "update quantos.outbox_event as o
+             set status = case
+                    when o.attempts >= $2 then 'dead_letter'
+                    else 'pending'
+                 end,
+                 available_at = case
+                    when o.attempts >= $2 then o.available_at
+                    else $3 + make_interval(
+                        secs => cast(power(2, greatest(least(o.attempts - 1, 6), 0)) as integer)
+                    )
+                 end,
+                 lease_owner = null,
+                 lease_expires_at = null,
+                 last_error = $4,
+                 updated_at = $5
              from quantos.event_log as e
              where o.id = $1 and e.id = o.event_log_id
-             returning o.tenant_id, e.event_id, e.correlation_id, e.sequence, o.attempts, e.payload",
+             returning o.tenant_id, e.event_id, e.correlation_id, e.sequence, o.attempts, o.status, e.payload",
             &[
                 (outbox_entry_id.as_uuid(), Type::UUID),
                 (&(max_attempts as i32), Type::INT4),
+                (&observed_at, Type::TIMESTAMPTZ),
+                (&reason, Type::TEXT),
+                (&observed_at, Type::TIMESTAMPTZ),
             ],
         )?;
 
-        let attempts = row.get::<_, i32>("attempts") as u32;
-        let dead_lettered = attempts >= max_attempts;
+        let dead_lettered = row.get::<_, String>("status") == "dead_letter";
         if dead_lettered {
             let dead_payload = Json(&row.get::<_, serde_json::Value>("payload"));
             tx.execute_typed(
-                "insert into quantos.event_dead_letters (
-                    tenant_id, source, event_id, correlation_id, sequence, reason, payload, created_at
-                ) values ($1, 'outbox', $2, $3, $4, $5, $6, $7)",
+                "insert into quantos.dead_letter_event (
+                    tenant_id, source, consumer_name, event_id, correlation_id, sequence, reason, payload, created_at
+                ) values ($1, 'outbox', $2, $3, $4, $5, $6, $7, $8)",
                 &[
                     (&row.get::<_, Uuid>("tenant_id"), Type::UUID),
+                    (&worker_name, Type::TEXT),
                     (&row.get::<_, Uuid>("event_id"), Type::UUID),
                     (&row.get::<_, Uuid>("correlation_id"), Type::UUID),
                     (&row.get::<_, i64>("sequence"), Type::INT8),
@@ -247,30 +339,116 @@ impl PgEventStore {
         Ok(dead_lettered)
     }
 
-    pub fn record_inbox_success(
+    pub fn claim_inbox_processing(
         &mut self,
         consumer_name: &str,
+        worker_name: &str,
         event: &RecordedEvent,
-        processed_at: DateTime<Utc>,
-    ) -> Result<(), PgEventStoreError> {
+        observed_at: DateTime<Utc>,
+        lease_duration: ChronoDuration,
+    ) -> Result<InboxClaimDecision, PgEventStoreError> {
         let mut tx = self.client.transaction()?;
         let event_log_id = find_event_log_uuid(&mut tx, event.event_id)?
             .ok_or(PgEventStoreError::MissingEvent(event.event_id))?;
+        let lease_expires_at = observed_at + lease_duration;
 
         tx.execute_typed(
-            "insert into quantos.event_inbox (
-                tenant_id, consumer_name, event_log_id, event_id, status, attempts, received_at, processed_at
-            ) values ($1,$2,$3,$4,'applied',1,$5,$5)
+            "insert into quantos.inbox_receipt (
+                tenant_id, consumer_name, event_log_id, event_id, status, attempts,
+                first_received_at, last_attempt_at, next_attempt_at
+            ) values ($1,$2,$3,$4,'pending',0,$5,$5,$5)
             on conflict (tenant_id, consumer_name, event_id)
-            do update set
-                status = 'applied',
-                attempts = quantos.event_inbox.attempts + 1,
-                processed_at = excluded.processed_at",
+            do nothing",
             &[
                 (event.tenant_id.as_uuid(), Type::UUID),
                 (&consumer_name, Type::TEXT),
                 (&event_log_id, Type::UUID),
                 (event.event_id.as_uuid(), Type::UUID),
+                (&observed_at, Type::TIMESTAMPTZ),
+            ],
+        )?;
+
+        let claimed = tx.query_typed_opt(
+            "with candidate as (
+                select i.id
+                from quantos.inbox_receipt as i
+                where i.tenant_id = $1
+                  and i.consumer_name = $2
+                  and i.event_id = $3
+                  and i.status <> 'applied'
+                  and i.next_attempt_at <= $4
+                  and coalesce(i.lease_expires_at, '-infinity'::timestamptz) <= $4
+                for update skip locked
+            )
+            update quantos.inbox_receipt as i
+            set status = 'processing',
+                attempts = i.attempts + 1,
+                lease_owner = $5,
+                lease_expires_at = $6,
+                last_attempt_at = $4,
+                last_error = null
+            from candidate
+            where i.id = candidate.id
+            returning i.id, i.attempts, i.lease_owner, i.lease_expires_at",
+            &[
+                (event.tenant_id.as_uuid(), Type::UUID),
+                (&consumer_name, Type::TEXT),
+                (event.event_id.as_uuid(), Type::UUID),
+                (&observed_at, Type::TIMESTAMPTZ),
+                (&worker_name, Type::TEXT),
+                (&lease_expires_at, Type::TIMESTAMPTZ),
+            ],
+        )?;
+
+        let decision = if let Some(row) = claimed {
+            InboxClaimDecision::Claimed(InboxProcessingClaim {
+                inbox_entry_id: InboxEntryId::from_uuid(row.get("id")),
+                consumer_name: consumer_name.to_owned(),
+                attempts: row.get::<_, i32>("attempts") as u32,
+                lease_owner: row.get("lease_owner"),
+                lease_expires_at: row.get("lease_expires_at"),
+            })
+        } else {
+            let row = tx.query_typed_one(
+                "select status
+                 from quantos.inbox_receipt
+                 where tenant_id = $1 and consumer_name = $2 and event_id = $3",
+                &[
+                    (event.tenant_id.as_uuid(), Type::UUID),
+                    (&consumer_name, Type::TEXT),
+                    (event.event_id.as_uuid(), Type::UUID),
+                ],
+            )?;
+            let status: String = row.get("status");
+            if status == "applied" {
+                InboxClaimDecision::AlreadyApplied
+            } else {
+                InboxClaimDecision::Busy
+            }
+        };
+
+        tx.commit()?;
+        Ok(decision)
+    }
+
+    pub fn record_inbox_success(
+        &mut self,
+        claim: &InboxProcessingClaim,
+        event: &RecordedEvent,
+        processed_at: DateTime<Utc>,
+    ) -> Result<(), PgEventStoreError> {
+        let mut tx = self.client.transaction()?;
+        tx.execute_typed(
+            "update quantos.inbox_receipt
+             set status = 'applied',
+                 processed_at = $2,
+                 next_attempt_at = $2,
+                 lease_owner = null,
+                 lease_expires_at = null,
+                 last_error = null
+             where id = $1",
+            &[
+                (claim.inbox_entry_id.as_uuid(), Type::UUID),
                 (&processed_at, Type::TIMESTAMPTZ),
             ],
         )?;
@@ -278,7 +456,7 @@ impl PgEventStore {
         save_checkpoint_tx(
             &mut tx,
             &ProjectionCheckpoint {
-                consumer_name: consumer_name.to_owned(),
+                consumer_name: claim.consumer_name.clone(),
                 tenant_id: event.tenant_id,
                 stream_key: event.stream_key(),
                 next_sequence: event.sequence + 1,
@@ -291,60 +469,54 @@ impl PgEventStore {
 
     pub fn record_inbox_failure(
         &mut self,
-        consumer_name: &str,
+        claim: &InboxProcessingClaim,
         event: &RecordedEvent,
         reason: &str,
         max_attempts: u32,
         observed_at: DateTime<Utc>,
     ) -> Result<InboxFailureOutcome, PgEventStoreError> {
+        let retry_at = observed_at + retry_backoff(claim.attempts);
         let mut tx = self.client.transaction()?;
-        let event_log_id = find_event_log_uuid(&mut tx, event.event_id)?
-            .ok_or(PgEventStoreError::MissingEvent(event.event_id))?;
-
         let row = tx.query_typed_one(
-            "insert into quantos.event_inbox (
-                tenant_id, consumer_name, event_log_id, event_id, status, attempts, received_at
-            ) values ($1,$2,$3,$4,'pending',1,$5)
-            on conflict (tenant_id, consumer_name, event_id)
-            do update set
-                attempts = quantos.event_inbox.attempts + 1,
-                status = case
-                    when quantos.event_inbox.attempts + 1 >= $6 then 'dead_letter'
+            "update quantos.inbox_receipt as i
+             set status = case
+                    when i.attempts >= $2 then 'dead_letter'
                     else 'pending'
-                end
-            returning id, attempts, status",
+                 end,
+                 next_attempt_at = case
+                    when i.attempts >= $2 then $3
+                    else $4
+                 end,
+                 processed_at = case
+                    when i.attempts >= $2 then $3
+                    else i.processed_at
+                 end,
+                 lease_owner = null,
+                 lease_expires_at = null,
+                 last_error = $5
+             where i.id = $1
+             returning i.attempts, i.status",
             &[
-                (event.tenant_id.as_uuid(), Type::UUID),
-                (&consumer_name, Type::TEXT),
-                (&event_log_id, Type::UUID),
-                (event.event_id.as_uuid(), Type::UUID),
-                (&observed_at, Type::TIMESTAMPTZ),
+                (claim.inbox_entry_id.as_uuid(), Type::UUID),
                 (&(max_attempts as i32), Type::INT4),
+                (&observed_at, Type::TIMESTAMPTZ),
+                (&retry_at, Type::TIMESTAMPTZ),
+                (&reason, Type::TEXT),
             ],
         )?;
 
         let attempts = row.get::<_, i32>("attempts") as u32;
-        let status: String = row.get("status");
-        let dead_lettered = status == "dead_letter";
+        let dead_lettered = row.get::<_, String>("status") == "dead_letter";
 
         if dead_lettered {
-            tx.execute_typed(
-                "update quantos.event_inbox
-                 set processed_at = $2
-                 where id = $1",
-                &[
-                    (&row.get::<_, Uuid>("id"), Type::UUID),
-                    (&observed_at, Type::TIMESTAMPTZ),
-                ],
-            )?;
             let dead_payload = Json(&event.payload);
             tx.execute_typed(
-                "insert into quantos.event_dead_letters (
+                "insert into quantos.dead_letter_event (
                     tenant_id, source, consumer_name, event_id, correlation_id, sequence, reason, payload, created_at
                 ) values ($1, 'inbox', $2, $3, $4, $5, $6, $7, $8)",
                 &[
                     (event.tenant_id.as_uuid(), Type::UUID),
-                    (&consumer_name, Type::TEXT),
+                    (&claim.consumer_name, Type::TEXT),
                     (event.event_id.as_uuid(), Type::UUID),
                     (event.correlation_id.as_uuid(), Type::UUID),
                     (&(event.sequence as i64), Type::INT8),
@@ -356,7 +528,7 @@ impl PgEventStore {
             save_checkpoint_tx(
                 &mut tx,
                 &ProjectionCheckpoint {
-                    consumer_name: consumer_name.to_owned(),
+                    consumer_name: claim.consumer_name.clone(),
                     tenant_id: event.tenant_id,
                     stream_key: event.stream_key(),
                     next_sequence: event.sequence + 1,
@@ -371,6 +543,85 @@ impl PgEventStore {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
+    pub fn poll_outbox_once<F, N>(
+        &mut self,
+        worker_name: &str,
+        consumer_name: &str,
+        limit: i64,
+        observed_at: DateTime<Utc>,
+        lease_duration: ChronoDuration,
+        max_attempts: u32,
+        mut handler: F,
+        mut notifier: N,
+    ) -> Result<PollingDispatchReport, PgEventStoreError>
+    where
+        F: FnMut(&RecordedEvent) -> Result<(), String>,
+        N: FnMut(&RecordedEvent) -> Result<(), String>,
+    {
+        let claimed = self.claim_outbox_events(worker_name, limit, observed_at, lease_duration)?;
+        let mut report = PollingDispatchReport {
+            claimed: claimed.len(),
+            ..PollingDispatchReport::default()
+        };
+
+        for entry in claimed {
+            match self.claim_inbox_processing(
+                consumer_name,
+                worker_name,
+                &entry.event,
+                observed_at,
+                lease_duration,
+            )? {
+                InboxClaimDecision::AlreadyApplied => {
+                    self.mark_outbox_dispatched(entry.outbox.outbox_entry_id, observed_at)?;
+                    report.duplicate_skipped += 1;
+                }
+                InboxClaimDecision::Busy => {
+                    self.release_outbox_claim(
+                        entry.outbox.outbox_entry_id,
+                        observed_at + ChronoDuration::seconds(1),
+                        observed_at,
+                    )?;
+                    report.retried += 1;
+                }
+                InboxClaimDecision::Claimed(claim) => match handler(&entry.event) {
+                    Ok(()) => {
+                        self.record_inbox_success(&claim, &entry.event, observed_at)?;
+                        self.mark_outbox_dispatched(entry.outbox.outbox_entry_id, observed_at)?;
+                        if notifier(&entry.event).is_err() {
+                            report.notify_failures += 1;
+                        }
+                        report.processed += 1;
+                    }
+                    Err(detail) => {
+                        let inbox_outcome = self.record_inbox_failure(
+                            &claim,
+                            &entry.event,
+                            &detail,
+                            max_attempts,
+                            observed_at,
+                        )?;
+                        let outbox_dead_lettered = self.record_outbox_failure(
+                            entry.outbox.outbox_entry_id,
+                            worker_name,
+                            &detail,
+                            max_attempts,
+                            observed_at,
+                        )?;
+                        if inbox_outcome.dead_lettered || outbox_dead_lettered {
+                            report.dead_lettered += 1;
+                        } else {
+                            report.retried += 1;
+                        }
+                    }
+                },
+            }
+        }
+
+        Ok(report)
+    }
+
     pub fn load_checkpoint(
         &mut self,
         tenant_id: TenantId,
@@ -379,7 +630,7 @@ impl PgEventStore {
     ) -> Result<Option<ProjectionCheckpoint>, PgEventStoreError> {
         let row = self.client.query_typed_opt(
             "select last_sequence
-             from quantos.projection_checkpoints
+             from quantos.projection_checkpoint
              where tenant_id = $1 and consumer_name = $2 and stream_key = $3",
             &[
                 (tenant_id.as_uuid(), Type::UUID),
@@ -428,7 +679,7 @@ impl PgEventStore {
     ) -> Result<Vec<DeadLetterEntry>, PgEventStoreError> {
         let rows = self.client.query_typed(
             "select id, tenant_id, consumer_name, event_id, correlation_id, sequence, reason, created_at
-             from quantos.event_dead_letters
+             from quantos.dead_letter_event
              where tenant_id = $1 and coalesce(consumer_name, '') = $2
              order by created_at asc",
             &[
@@ -438,6 +689,29 @@ impl PgEventStore {
         )?;
 
         Ok(rows.iter().map(row_to_dead_letter_entry).collect())
+    }
+
+    fn release_outbox_claim(
+        &mut self,
+        outbox_entry_id: OutboxEntryId,
+        available_at: DateTime<Utc>,
+        observed_at: DateTime<Utc>,
+    ) -> Result<(), PgEventStoreError> {
+        self.client.execute_typed(
+            "update quantos.outbox_event
+             set status = 'pending',
+                 available_at = $2,
+                 lease_owner = null,
+                 lease_expires_at = null,
+                 updated_at = $3
+             where id = $1",
+            &[
+                (outbox_entry_id.as_uuid(), Type::UUID),
+                (&available_at, Type::TIMESTAMPTZ),
+                (&observed_at, Type::TIMESTAMPTZ),
+            ],
+        )?;
+        Ok(())
     }
 }
 
@@ -506,18 +780,23 @@ fn find_event_log_uuid(
         .map(|row| row.get("id")))
 }
 
+fn retry_backoff(attempts: u32) -> ChronoDuration {
+    let exponent = attempts.saturating_sub(1).min(6);
+    ChronoDuration::seconds(1_i64 << exponent)
+}
+
 fn save_checkpoint_tx(
     tx: &mut Transaction<'_>,
     checkpoint: &ProjectionCheckpoint,
 ) -> Result<(), PgEventStoreError> {
     let last_sequence = checkpoint.next_sequence.saturating_sub(1) as i64;
     tx.execute_typed(
-        "insert into quantos.projection_checkpoints (
+        "insert into quantos.projection_checkpoint (
             tenant_id, consumer_name, stream_key, last_sequence, updated_at
         ) values ($1,$2,$3,$4,now())
         on conflict (tenant_id, consumer_name, stream_key)
         do update set
-            last_sequence = greatest(quantos.projection_checkpoints.last_sequence, excluded.last_sequence),
+            last_sequence = greatest(quantos.projection_checkpoint.last_sequence, excluded.last_sequence),
             updated_at = now()",
         &[
             (checkpoint.tenant_id.as_uuid(), Type::UUID),

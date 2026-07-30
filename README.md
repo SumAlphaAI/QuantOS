@@ -32,7 +32,6 @@ Polyglot monorepo baseline for the QuantOS platform.
 - `make lint`
 - `make test`
 - `make test-f05-live`
-- `make test-jetstream-live`
 - `make test-supabase-storage-live`
 - `make waiver-check`
 - `make build-manifest`
@@ -48,9 +47,10 @@ Polyglot monorepo baseline for the QuantOS platform.
 - The current baseline intentionally keeps each language surface minimal so F01 can verify workspace wiring quickly.
 - F02 adds CI, SBOM generation, build manifest generation, supply-chain checks, and artifact signing entrypoints.
 - Database commands target the hosted Supabase PostgreSQL instance referenced by `DATABASE_URL`; no local Supabase stack is required.
-- F05 adds append-only event ledger, outbox/inbox, audit, artifact, schema-registry, JetStream, and Supabase Storage adapter baselines through Rust crates plus Supabase migrations.
+- F05 adds append-only event ledger, `outbox_event` / `inbox_receipt` / `dead_letter_event` / `projection_checkpoint`, PostgreSQL polling consumers with row leases, audit, artifact, schema-registry, and Supabase Storage adapter baselines through Rust crates plus Supabase migrations.
 - `replay-cli` now supports direct PostgreSQL replay via `DATABASE_URL`, with JSONL replay kept as a fallback for local fixtures.
 - Root `.env` and `.env.local` are loaded automatically by `Makefile`; see [`.env.example`](./.env.example) and [`supabase/OPERATIONS.md`](./supabase/OPERATIONS.md).
+- Realtime is treated as an optional wakeup or projection notification path only; workers must always recover by rescanning PostgreSQL outbox rows after missed notifications, disconnects, or restarts.
 - Supabase Storage live verification requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`, and `QUANTOS_RUN_SUPABASE_STORAGE_TESTS=1`.
 - `make db-reset` is destructive for the remote `quantos` schema and requires `QUANTOS_DB_RESET_CONFIRM=reset_remote_schema`.
 - `node` is required for remote database commands.

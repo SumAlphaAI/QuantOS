@@ -1,4 +1,3 @@
-pub mod jetstream;
 pub mod pg;
 
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};

@@ -1,11 +1,22 @@
-use std::env;
+use std::{
+    env,
+    sync::{
+        Arc, Barrier,
+        atomic::{AtomicUsize, Ordering},
+    },
+    thread,
+    time::{Duration, Instant},
+};
 
-use chrono::Utc;
+use chrono::{Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
 use postgres::{Client, NoTls, types::Type};
 use postgres_native_tls::MakeTlsConnector;
 use quantos_core::{CorrelationId, SchemaVersion, TenantId};
-use quantos_event::{NewRecordedEvent, RecordedEvent, pg::PgEventStore};
+use quantos_event::{
+    NewRecordedEvent, RecordedEvent,
+    pg::{InboxClaimDecision, PgEventStore},
+};
 use serde_json::json;
 use url::Url;
 
@@ -26,7 +37,69 @@ impl Drop for TenantCleanup {
 }
 
 #[test]
-fn postgres_event_store_persists_event_chain_outbox_inbox_and_replay() {
+fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
+    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
+        return;
+    };
+
+    let tenant_id = TenantId::new();
+    let correlation_id = CorrelationId::new();
+    let _cleanup = seed_tenant(&database_url, tenant_id);
+    let observed_at = Utc::now();
+
+    let mut seed_store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
+    let events = vec![
+        build_event(tenant_id, correlation_id, 1),
+        build_event(tenant_id, correlation_id, 2),
+    ];
+    for event in &events {
+        seed_store.append_event(event).expect("event appends");
+    }
+
+    let mut worker_a = PgEventStore::connect(&database_url).expect("worker A connects");
+    let mut worker_b = PgEventStore::connect(&database_url).expect("worker B connects");
+    let mut worker_c = PgEventStore::connect(&database_url).expect("worker C connects");
+    let mut worker_d = PgEventStore::connect(&database_url).expect("worker D connects");
+
+    let claimed_a = worker_a
+        .claim_outbox_events("worker-a", 1, observed_at, ChronoDuration::seconds(30))
+        .expect("worker A claims one row");
+    let claimed_b = worker_b
+        .claim_outbox_events("worker-b", 1, observed_at, ChronoDuration::seconds(30))
+        .expect("worker B claims next row");
+    let claimed_c = worker_c
+        .claim_outbox_events("worker-c", 1, observed_at, ChronoDuration::seconds(30))
+        .expect("worker C sees no remaining rows");
+
+    assert_eq!(claimed_a.len(), 1);
+    assert_eq!(claimed_b.len(), 1);
+    assert!(claimed_c.is_empty());
+    assert_ne!(
+        claimed_a[0].outbox.outbox_entry_id,
+        claimed_b[0].outbox.outbox_entry_id
+    );
+    assert_eq!(claimed_a[0].event.sequence, 1);
+    assert_eq!(claimed_b[0].event.sequence, 2);
+
+    let recovered = worker_d
+        .claim_outbox_events(
+            "worker-d",
+            1,
+            observed_at + ChronoDuration::seconds(31),
+            ChronoDuration::seconds(30),
+        )
+        .expect("expired lease is claimable again");
+    assert_eq!(recovered.len(), 1);
+    assert_eq!(
+        recovered[0].outbox.outbox_entry_id,
+        claimed_a[0].outbox.outbox_entry_id
+    );
+    assert_eq!(recovered[0].outbox.attempts, 2);
+}
+
+#[test]
+fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correlation() {
     let Some(database_url) = env::var("DATABASE_URL").ok() else {
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
         return;
@@ -41,90 +114,41 @@ fn postgres_event_store_persists_event_chain_outbox_inbox_and_replay() {
         build_event(tenant_id, correlation_id, 2),
         build_event(tenant_id, correlation_id, 3),
     ];
-
     for event in &events {
         store.append_event(event).expect("event appends");
     }
+
+    let mut applied = Vec::new();
+    let started_at = Instant::now();
+    let report = store
+        .poll_outbox_once(
+            "f05-worker",
+            "projection-risk",
+            50,
+            Utc::now(),
+            ChronoDuration::seconds(30),
+            3,
+            |event| {
+                applied.push(event.sequence);
+                Ok(())
+            },
+            |_| Err("realtime wakeup dropped".to_owned()),
+        )
+        .expect("database polling consumer closes the loop");
+
+    assert_eq!(report.claimed, 3);
+    assert_eq!(report.processed, 3);
+    assert_eq!(report.notify_failures, 3);
+    assert_eq!(applied, vec![1, 2, 3]);
 
     let replayed = store
         .events_by_correlation_id(correlation_id)
         .expect("replay query succeeds");
     assert_eq!(replayed.len(), 3);
-    assert_eq!(
-        replayed
-            .iter()
-            .map(|event| event.sequence)
-            .collect::<Vec<_>>(),
-        vec![1, 2, 3]
+    assert!(
+        started_at.elapsed() <= Duration::from_secs(5),
+        "correlation replay should stay within the F05 budget"
     );
-
-    let audit_entries = store
-        .audit_entries_by_correlation_id(correlation_id)
-        .expect("audit query succeeds");
-    assert_eq!(audit_entries.len(), 3);
-
-    let pending_before = store
-        .pending_outbox(50)
-        .expect("outbox query succeeds")
-        .into_iter()
-        .filter(|entry| entry.outbox.tenant_id == tenant_id)
-        .collect::<Vec<_>>();
-    assert_eq!(pending_before.len(), 3);
-
-    store
-        .mark_outbox_dispatched(pending_before[0].outbox.outbox_entry_id, Utc::now())
-        .expect("outbox dispatch updates");
-
-    let outbox_first_failure = store
-        .record_outbox_failure(
-            pending_before[1].outbox.outbox_entry_id,
-            "jetstream unavailable",
-            2,
-            Utc::now(),
-        )
-        .expect("first outbox failure persists");
-    assert!(!outbox_first_failure);
-
-    let outbox_second_failure = store
-        .record_outbox_failure(
-            pending_before[1].outbox.outbox_entry_id,
-            "jetstream unavailable",
-            2,
-            Utc::now(),
-        )
-        .expect("second outbox failure persists");
-    assert!(outbox_second_failure);
-
-    store
-        .record_inbox_success("projection-risk", &events[0], Utc::now())
-        .expect("inbox success persists");
-    store
-        .record_inbox_success("projection-risk", &events[1], Utc::now())
-        .expect("second inbox success persists");
-
-    let inbox_first_failure = store
-        .record_inbox_failure(
-            "projection-risk",
-            &events[2],
-            "projection panic",
-            2,
-            Utc::now(),
-        )
-        .expect("first inbox failure persists");
-    assert_eq!(inbox_first_failure.attempts, 1);
-    assert!(!inbox_first_failure.dead_lettered);
-
-    let inbox_second_failure = store
-        .record_inbox_failure(
-            "projection-risk",
-            &events[2],
-            "projection panic",
-            2,
-            Utc::now(),
-        )
-        .expect("second inbox failure persists");
-    assert_eq!(inbox_second_failure.attempts, 2);
-    assert!(inbox_second_failure.dead_lettered);
 
     let checkpoint = store
         .load_checkpoint(tenant_id, "projection-risk", &events[2].stream_key())
@@ -132,58 +156,208 @@ fn postgres_event_store_persists_event_chain_outbox_inbox_and_replay() {
         .expect("checkpoint should exist");
     assert_eq!(checkpoint.next_sequence, 4);
 
+    let second_scan = store
+        .poll_outbox_once(
+            "f05-worker",
+            "projection-risk",
+            50,
+            Utc::now(),
+            ChronoDuration::seconds(30),
+            3,
+            |_| Ok(()),
+            |_| Ok(()),
+        )
+        .expect("follow-up scan succeeds");
+    assert_eq!(second_scan.claimed, 0);
+
+    let mut client = connect_client(&database_url).expect("connects for direct verification");
+    let dispatched = client
+        .query_typed_one(
+            "select count(*) as count
+             from quantos.outbox_event
+             where tenant_id = $1 and status = 'dispatched'",
+            &[(tenant_id.as_uuid(), Type::UUID)],
+        )
+        .expect("dispatched count query succeeds")
+        .get::<_, i64>("count");
+    assert_eq!(dispatched, 3);
+}
+
+#[test]
+fn postgres_polling_worker_dead_letters_poison_events_after_retry_budget() {
+    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
+        return;
+    };
+
+    let tenant_id = TenantId::new();
+    let correlation_id = CorrelationId::new();
+    let _cleanup = seed_tenant(&database_url, tenant_id);
+    let mut store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
+    let event = build_event(tenant_id, correlation_id, 1);
+    store.append_event(&event).expect("event appends");
+
+    let first = store
+        .poll_outbox_once(
+            "f05-worker",
+            "projection-risk",
+            10,
+            Utc::now(),
+            ChronoDuration::seconds(30),
+            2,
+            |_| Err("projection panic".to_owned()),
+            |_| Ok(()),
+        )
+        .expect("first failure persists");
+    assert_eq!(first.retried, 1);
+    assert_eq!(first.dead_lettered, 0);
+
+    let second = store
+        .poll_outbox_once(
+            "f05-worker",
+            "projection-risk",
+            10,
+            Utc::now() + ChronoDuration::seconds(2),
+            ChronoDuration::seconds(30),
+            2,
+            |_| Err("projection panic".to_owned()),
+            |_| Ok(()),
+        )
+        .expect("second failure dead-letters");
+    assert_eq!(second.dead_lettered, 1);
+
+    let checkpoint = store
+        .load_checkpoint(tenant_id, "projection-risk", &event.stream_key())
+        .expect("checkpoint query succeeds")
+        .expect("checkpoint should exist after dead-letter");
+    assert_eq!(checkpoint.next_sequence, 2);
+
     let dead_letters = store
         .dead_letters(tenant_id, "projection-risk")
         .expect("dead letter query succeeds");
     assert_eq!(dead_letters.len(), 1);
-    assert_eq!(dead_letters[0].sequence, 3);
+    assert_eq!(dead_letters[0].sequence, 1);
 
     let mut client = connect_client(&database_url).expect("connects for direct verification");
-    let outbox_row = client
+    let outbox_status = client
         .query_typed_one(
-            "select status, attempts
-             from quantos.event_outbox
+            "select status
+             from quantos.outbox_event
              where tenant_id = $1 and event_log_id = (
                select id from quantos.event_log where event_id = $2
              )",
             &[
                 (tenant_id.as_uuid(), Type::UUID),
-                (events[1].event_id.as_uuid(), Type::UUID),
+                (event.event_id.as_uuid(), Type::UUID),
             ],
         )
-        .expect("outbox row exists");
-    assert_eq!(outbox_row.get::<_, String>("status"), "dead_letter");
-    assert_eq!(outbox_row.get::<_, i32>("attempts"), 2);
-
-    let inbox_row = client
-        .query_typed_one(
-            "select status, attempts
-             from quantos.event_inbox
-             where tenant_id = $1 and consumer_name = $2 and event_id = $3",
-            &[
-                (tenant_id.as_uuid(), Type::UUID),
-                (&"projection-risk", Type::TEXT),
-                (events[2].event_id.as_uuid(), Type::UUID),
-            ],
-        )
-        .expect("inbox row exists");
-    assert_eq!(inbox_row.get::<_, String>("status"), "dead_letter");
-    assert_eq!(inbox_row.get::<_, i32>("attempts"), 2);
+        .expect("outbox row exists")
+        .get::<_, String>("status");
+    assert_eq!(outbox_status, "dead_letter");
 
     let dead_letter_count = client
         .query_typed_one(
             "select count(*) as count
-             from quantos.event_dead_letters
-             where tenant_id = $1 and event_id in ($2, $3)",
+             from quantos.dead_letter_event
+             where tenant_id = $1 and event_id = $2",
             &[
                 (tenant_id.as_uuid(), Type::UUID),
-                (events[1].event_id.as_uuid(), Type::UUID),
-                (events[2].event_id.as_uuid(), Type::UUID),
+                (event.event_id.as_uuid(), Type::UUID),
             ],
         )
-        .expect("dead letter rows count")
+        .expect("dead letter count query succeeds")
         .get::<_, i64>("count");
     assert_eq!(dead_letter_count, 2);
+}
+
+#[test]
+fn postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_attempts() {
+    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
+        return;
+    };
+
+    let tenant_id = TenantId::new();
+    let correlation_id = CorrelationId::new();
+    let _cleanup = seed_tenant(&database_url, tenant_id);
+    let mut store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
+    let event = build_event(tenant_id, correlation_id, 1);
+    store.append_event(&event).expect("event appends");
+
+    let parallelism = 32;
+    let attempts = 1_000;
+    let barrier = Arc::new(Barrier::new(parallelism));
+    let side_effect_count = Arc::new(AtomicUsize::new(0));
+    let attempt_counter = Arc::new(AtomicUsize::new(0));
+    let observed_at = Utc::now();
+
+    thread::scope(|scope| {
+        for worker_index in 0..parallelism {
+            let database_url = database_url.clone();
+            let barrier = Arc::clone(&barrier);
+            let side_effect_count = Arc::clone(&side_effect_count);
+            let attempt_counter = Arc::clone(&attempt_counter);
+            let event = event.clone();
+
+            scope.spawn(move || {
+                let worker_name = format!("worker-{worker_index}");
+                let mut store =
+                    PgEventStore::connect(&database_url).expect("worker store connects");
+                barrier.wait();
+
+                loop {
+                    let attempt = attempt_counter.fetch_add(1, Ordering::SeqCst);
+                    if attempt >= attempts {
+                        break;
+                    }
+
+                    match store
+                        .claim_inbox_processing(
+                            "projection-idempotent",
+                            &worker_name,
+                            &event,
+                            observed_at,
+                            ChronoDuration::seconds(30),
+                        )
+                        .expect("claim query succeeds")
+                    {
+                        InboxClaimDecision::Claimed(claim) => {
+                            let previous = side_effect_count.fetch_add(1, Ordering::SeqCst);
+                            assert_eq!(previous, 0, "only one worker may apply side effects");
+                            store
+                                .record_inbox_success(&claim, &event, observed_at)
+                                .expect("winning claim commits");
+                        }
+                        InboxClaimDecision::AlreadyApplied | InboxClaimDecision::Busy => {}
+                    }
+                }
+            });
+        }
+    });
+
+    assert_eq!(side_effect_count.load(Ordering::SeqCst), 1);
+
+    let mut verify_store = PgEventStore::connect(&database_url).expect("verification store");
+    let checkpoint = verify_store
+        .load_checkpoint(tenant_id, "projection-idempotent", &event.stream_key())
+        .expect("checkpoint query succeeds")
+        .expect("checkpoint should exist");
+    assert_eq!(checkpoint.next_sequence, 2);
+
+    let mut client = connect_client(&database_url).expect("connects for direct verification");
+    let inbox_row = client
+        .query_typed_one(
+            "select status
+             from quantos.inbox_receipt
+             where tenant_id = $1 and consumer_name = $2 and event_id = $3",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&"projection-idempotent", Type::TEXT),
+                (event.event_id.as_uuid(), Type::UUID),
+            ],
+        )
+        .expect("inbox row exists");
+    assert_eq!(inbox_row.get::<_, String>("status"), "applied");
 }
 
 fn build_event(tenant_id: TenantId, correlation_id: CorrelationId, sequence: u64) -> RecordedEvent {
