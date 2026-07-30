@@ -1,7 +1,7 @@
 # SumAlpha QuantOS Terminal 全量前端页面设计规格
 
-> 版本：1.0  
-> 日期：2026-07-26  
+> 版本：1.1  
+> 日期：2026-07-30  
 > 适用产品：QuantOS Terminal 桌面端、`app.sumalpha.ai` Terminal 网页版  
 > 交付对象：产品、UX/UI、前端、BFF、QA、安全与风控团队  
 > 上游依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[开发计划](./SumAlpha-QuantOS-Development-Plan.md)、[网站与终端设计](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)
@@ -15,7 +15,7 @@
 | A01 | 平台服务专业量化研究与交易团队，而非面向大众的投资建议产品 | 不出现收益承诺、跟单、社区喊单、收益排行榜或“自动赚钱”文案 | 内容审核清单与页面截图 |
 | A02 | Agent 只能产出研究结论、Signal 或不可执行的 `TradeProposal` | Proposal 始终标记“不可执行建议”；聊天/研究页没有下单入口 | E2E 权限与 DOM 检查 |
 | A03 | 交易必须经过 RiskDecision、必要的人类审批、短时有效且幂等的 TradeCommand、Execution Gateway | 订单入口只消费服务端签发的有效 Command；客户端不能拼装交易命令 | BFF 契约、命令路径测试 |
-| A04 | 当前项目仅交付单主租户、单主工作区、单优先 venue、Paper + Shadow Beta | 顶栏显示主工作区但不提供 workspace 切换；仅展示被授权的单一 venue 与有限订单意图 | 路由、菜单和 RBAC 测试 |
+| A04 | 当前项目仅交付单主租户、单主工作区、单优先 venue、Paper + Shadow Beta；未来可接入多个受控 venue | 顶栏显示主工作区但不提供 workspace 切换；交易页仅展示服务端返回的已连接、已授权且健康的 venue。当前只有一个可用 venue 时，选择器只读 | 路由、菜单、capability 与 RBAC 测试 |
 | A05 | M3/M4 仅允许部署到 Paper/Shadow；M5 Gate 后才可能 Assisted Live | Strategy Release 的目标选择器按服务端 capability 收敛；未满足 M5 时不显示 Assisted Live 选项 | Feature flag / policy 测试 |
 | A06 | 证据、数据快照、版本与审计是领域真相的一部分 | 研究、策略、建议、订单和审批均可跳转至证据链，显示时间、hash、版本和关联 ID | 抽样追溯验收 |
 | A07 | 秘密仅由执行边界持有 | 任意 UI、错误、日志、导出和桌面缓存均不得展示 venue/API/模型密钥 | 安全审查与敏感字段测试 |
@@ -62,6 +62,9 @@ flowchart TB
   C --> R["Research"]
   C --> S["Strategy"]
   C --> P["Portfolio & Risk"]
+  C --> K["Markets & K-line"]
+  C --> X["Trade Ticket"]
+  C --> Y["Performance & Reports"]
   C --> T["Proposals / Approvals / Orders"]
   C --> A["Audit"]
   C --> O["Operations"]
@@ -91,10 +94,16 @@ Web 基址为 `https://app.sumalpha.ai`。桌面端使用同一路径语义，�
 | Backtest | `/backtests/:runId` | 同路径 | 量化开发、风控只读 | Lab 运行结果 | 回测与验证详情 |
 | Release | `/releases`、`/releases/:releaseId` | 同路径 | 量化开发；审批人只读/审批 | Strategy 二级页 | 发布物、部署目标和审批 |
 | Portfolio | `/portfolio` | `quantos://portfolio` | 交易员、风控、已授权研究员只读 | 侧栏 | 仓位、P&L、敞口 |
+| Markets | `/markets`、`/markets/:symbol` | 同路径 | 已登录用户按市场数据授权 | 侧栏 | 自选、已接入 venue 行情、标的详情与交易入口上下文 |
+| K-line | `/markets/:symbol/chart` | 同路径 | 已登录用户按市场数据授权 | 标的详情、深链 | 指定标的历史 K 线、成交量、技术指标与订单标记 |
+| Trade Ticket | `/trade`、`/trade/:symbol` | `quantos://trade` | 交易员；风控/审批人只读 | 侧栏主入口、Markets、Proposal、Portfolio | 从授权行情和有效命令发起受控订单；不直接调用 venue |
+| Performance | `/performance`、`/performance/reports/:reportId` | 同路径 | 交易员、风控、已授权研究员只读 | 侧栏 | 整体收益、归因、周期收益报表与受控导出 |
 | Risk | `/risk`、`/risk/rules/:ruleId` | 同路径 | 风控；交易员只读 | Portfolio 二级导航 | 风险预算、规则、异常 |
 | Proposals | `/proposals`、`/proposals/:proposalId` | 同路径 | 交易员、风控、审批人；资源级 | 侧栏二级 / Command | 不可执行建议与风险评估入口 |
 | Approvals | `/approvals`、`/approvals/:approvalId` | 同路径 | 审批人、风控 | 侧栏 | 待办、签名、拒绝 |
 | Orders | `/orders`、`/orders/:orderId` | 同路径 | 交易员、运维、风控只读 | 侧栏 | Paper/Shadow 订单与成交 |
+| Reconciliation | `/reconciliation`、`/reconciliation/:runId` | 同路径 | 交易员、风控、运维；资源级只读 | Orders 二级页、Operations | 账本、订单/成交与 venue 回报的对账差异 |
+| Alerts | `/alerts`、`/alerts/:alertId` | 同路径 | 已登录用户按事件授权 | 顶栏 Alerts、Command | 告警收件箱、确认、订阅与关联对象跳转 |
 | Audit | `/audit`、`/audit/:correlationId`、`/exports/:exportId` | 同路径 | 审计员、管理员、资源级授权者 | 侧栏 | 证据链与受控导出 |
 | Operations | `/operations`、`/operations/incidents/:incidentId` | 同路径 | 运维/SRE、管理员 | 侧栏 | 健康、告警、Runbook |
 | Admin | `/admin/members`、`/admin/policies`、`/admin/capabilities`、`/admin/flags` | 同路径 | 管理员 | 侧栏底部 | 主工作区受控管理 |
@@ -111,8 +120,9 @@ flowchart LR
   W["/login / MFA / access-request"] --> C["/command"]
   C --> R["/research → /research/:runId → /artifacts/:id"]
   C --> S["/strategies → Lab → Backtests → Releases"]
-  C --> P["/portfolio → /risk → /proposals"]
-  C --> E["/approvals → /orders → /audit"]
+  C --> P["/portfolio → /performance → /risk → /proposals"]
+  C --> K["/markets → /markets/:symbol/chart → /trade"]
+  C --> E["/approvals → /orders → /reconciliation → /audit"]
   C --> O["/operations /admin* /settings"]
   W --> X["/offline /unauthorized /not-found"]
 ```
@@ -121,8 +131,8 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  D["主窗口：同一业务路由"] --> B["业务工作区\nCommand / Research / Strategy / Portfolio / Risk"]
-  D --> E["执行与治理\nProposals / Approvals / Orders / Audit / Operations / Admin*"]
+  D["主窗口：同一业务路由"] --> B["业务工作区\nCommand / Research / Strategy / Portfolio / Markets / Performance / Risk"]
+  D --> E["执行与治理\nTrade / Proposals / Approvals / Orders / Reconciliation / Audit / Operations / Admin*"]
   D --> S["设置\nProfile / Security / Notifications / Desktop"]
   B --> W["新窗口\nResearch、Release、Order、Audit 详情"]
   D --> L["深链 quantos://...\n经重新鉴权后打开"]
@@ -152,6 +162,9 @@ flowchart LR
 │ Research     ├──────────────────────────────────────────────────────────────────┤
 │ Strategy     │                                                                  │
 │ Portfolio    │                         page canvas                              │
+│ Markets      │                                                                  │
+│ Trade        │                                                                  │
+│ Performance  │                                                                  │
 │ Proposals    │                                                                  │
 │ Approvals    │                                                                  │
 │ Orders       │                                                                  │
@@ -177,7 +190,7 @@ flowchart LR
 |---|---|
 | 色彩 | `surface` 深炭/浅灰；主操作 `brand` 蓝绿；`success` 仅表示已完成；`warning` 表示需关注；`danger` 仅表示拒绝、故障、紧急停止。颜色必须配合图标和文字。 |
 | 排版 | 中文正文 14px/20px，表格 13px/18px，页面标题 24px/32px；金融数字采用等宽数字。 |
-| 状态标签 | 统一枚举：任务 `Queued/Running/Succeeded/Failed/Cancelled`；风险 `Allowed/Denied/Approval required`；订单 `Submitted/Accepted/Partially filled/Filled/Cancelled/Rejected/Expired`。 |
+| 状态标签 | 统一枚举：任务 `Queued/Running/Succeeded/Failed/Cancelled`；风险 `Allowed/Denied/Approval required`；订单 `Draft/Risk checking/Awaiting approval/Command ready/Submitted/Accepted/Partially filled/Filled/Cancelled/Rejected/Expired`；行情 `Live/Delayed/Stale/Unavailable`；对账 `Matched/Investigating/Resolved`。 |
 | 表格 | `DataGrid` 支持列固定、列显隐、服务端筛选/排序、虚拟滚动、URL 同步筛选；导出必须走异步受控任务。 |
 | 时间线 | `EvidenceTimeline` 固定显示发生时间、主体、事件名、状态、correlation ID；详情可展开 hash 和原始结构化字段。 |
 | 空状态 | 使用“下一步 + 原因”，不使用模糊插画。例如“暂无待处理审批。新的审批请求出现后会显示在这里。” |
@@ -196,6 +209,10 @@ flowchart LR
 | 无权限 | `你没有访问此资源的权限。若认为这是错误，请联系主工作区管理员。` |
 | 不可执行建议 | `这是交易建议，不是订单。请先完成确定性风险评估和必要审批。` |
 | 命令失效 | `该交易命令已失效，无法提交。请重新进行风险评估。` |
+| 无可用交易所 | `当前没有可用于该标的的已授权健康交易所。请检查连接状态或联系管理员。` |
+| 价格已变化 | `报价已变化，订单尚未提交。请复核最新价格和预计成本后继续。` |
+| 收益口径 | `收益基于已确认的账本与估值快照，不代表未来表现。` |
+| 对账差异 | `发现账本与外部回报差异。该差异正在调查中，不应据此调整交易决策。` |
 | 网络断开 | `连接已断开。只读缓存仍可用；创建、审批和交易操作已暂停。` |
 | 重新认证 | `此操作会影响交易风险。请完成身份验证后继续。` |
 | 审批成功 | `审批已记录。系统将继续执行后续确定性校验。` |
@@ -412,6 +429,75 @@ flowchart LR
 | 辅助功能 | 显示快捷键、主题、语言、支持浏览器检测。 |
 | 异常/数据流 | 浏览器 API 不可用时降级为页面内通知；业务页均 `noindex`，SEO 仅适用于官网；小屏幕隐藏所有高风险主操作并保留只读上下文。 |
 
+### P18 Markets 市场总览与标的详情
+
+| 项目 | 规格 |
+|---|---|
+| 路由/权限 | `/markets`、`/markets/:symbol`；所有登录用户按市场数据许可证、账户和 venue capability 获得只读行情。 |
+| 核心价值 | 在一个明确带时间戳和来源的工作区中发现已授权标的、比较已接入交易所报价，并进入分析或受控交易流程。不是面向公众的行情广场，也不展示收益排名或投资推荐。 |
+| 布局/组件 | 左侧 `WatchlistPanel`（自选、最近访问、搜索）；中央 `MarketGrid`（最新价、24h 变化、成交量、价差、数据状态）；标的详情顶部为 `InstrumentHeader`，含规范化 symbol、计价货币、行情 `as_of`、数据许可证与交易状态；下方为 `VenueQuoteTable`，逐 venue 展示 bid/ask、mid、24h 量、预估费用/滑点区间、最小下单单位、连接健康和更新时间。 |
+| 规范文案 | 标题：`Markets`；详情动作：`查看 K 线`、`打开交易单`；来源说明：`价格来自已授权数据源，更新时间为 [time]。`；只有一个 venue 时：`当前账户仅有一家可用交易所。`；不可用时使用“无可用交易所”通用文案。 |
+| 核心功能 | 标的搜索和自选、按资产类别/报价币/venue/数据状态筛选、在同一规范化交易对下比较报价、跳转 K 线和预填标的的 Trade Ticket。报价表只能给出信息和服务端估算，不能据此声称最优执行。 |
+| 辅助功能 | 保存筛选和列布局、复制规范化 symbol、订阅价格/数据陈旧告警；个人自选仅保存偏好，不形成交易信号。 |
+| 异常/数据流 | BFF 以 `MarketCatalogView` 和按权限裁剪的 `VenueQuoteView` 提供数据；每行必须有 source、`as_of`、延迟和状态。延迟/陈旧的 venue 仍可展示但不得作为默认交易 venue；不同 lot size、币种或产品类型不能被前端直接横向合并。 |
+
+### P19 K 线与市场分析页
+
+| 项目 | 规格 |
+|---|---|
+| 路由/权限 | `/markets/:symbol/chart?venue=&interval=&from=&to=`；继承市场数据授权。`venue`、时间范围和指标仅是显示参数，加载后仍经 BFF 校验。 |
+| 核心价值 | 可靠地查看指定代币在指定 venue、时间粒度和时区下的历史 OHLCV，并把已发生订单、成交和数据缺口置于同一时间坐标中。 |
+| 布局/组件 | 顶部 `ChartContextBar`：symbol、venue、现货/合约产品、时区、数据质量、时间范围和 1m/5m/15m/1h/4h/1D/1W；主体为 `CandlestickChart`，下方成交量；右侧 `IndicatorPanel`（MA、EMA、VWAP、RSI 等受控内置指标）与 `EventMarkers` 开关；底部 `OHLCVTable` 和数据缺口列表。 |
+| 规范文案 | 标题：`K 线`；说明：`历史 K 线用于分析，不构成交易建议。`；数据缺口：`此时间段存在数据缺口或质量限制，图表不应被视为连续市场记录。`；订单标记：`订单与成交标记来自当前授权账户。` |
+| 核心功能 | 切换已授权 venue、粒度、时区和历史区间；缩放、十字准星、查看 OHLCV；叠加受控指标和当前账户订单/成交标记；从选定 candle 打开 Trade Ticket，但不把图表点击作为下单动作。 |
+| 辅助功能 | 保存分析视图、导出受控数据片段/图像（带来源、参数、生成时间）、复制安全深链。自定义脚本指标仅可来自已批准能力，不在客户端执行任意代码。 |
+| 异常/数据流 | 查询返回完整 `CandleSeries` 元数据（venue、产品、interval、timezone、source、quality、`as_of`）；实时 candle 仅在数据订阅有效时增量更新，断流后固定为最后确认时间。切换 venue 或产品时清除旧 series，防止跨市场拼接。 |
+
+### P20 Trade Ticket 受控下单页
+
+| 项目 | 规格 |
+|---|---|
+| 路由/权限 | `/trade`、`/trade/:symbol`；交易员可操作，风控/审批人按权限只读。进入页面不自动创建订单，也不授予交易权限。 |
+| 核心价值 | 让交易员在一个交易单内比较已连接交易所当前报价、选择合规 venue 与订单意图，并严格经过风险评估、必要审批、短时有效 TradeCommand 和 Execution Gateway 后提交。 |
+| 布局/组件 | 三栏：左 `OrderForm`（账户、symbol、方向、订单类型、数量、限价/触发价、有效期、reduce-only 等由 capability 定义的字段）；中部 `ExecutionContext`（所选 venue 最佳 bid/ask、深度摘要、费用/滑点/名义金额估算、最小单位）；右 `PreTradeCheck`（数据时效、余额/仓位、风险限额影响、关联 Proposal/Strategy/证据）。顶部常驻 `ModeBanner` 和 `VenueSelector`，选项展示健康、数据时间与支持的订单类型。 |
+| 规范文案 | 标题：`Trade Ticket`；主流程按钮依状态为：`运行风险评估` → `提交审批` → `提交已批准命令`；确认页：`你将向 [venue] 提交一笔 [mode] 订单。系统将在提交前再次校验价格、权限、风险和命令有效期。`；价格变化使用通用文案。 |
+| 核心功能 | 从 Markets/K 线/Portfolio/有效 Proposal 预填上下文；选择服务端返回的可用 venue；录入允许的订单意图；请求 RiskDecision；在需要时进入 Approvals；仅提交服务端签发且未过期的 `TradeCommand` 引用；提交后跳转订单详情。仅在用户明确选择时才使用该 venue，不做隐式智能路由。 |
+| 关键约束 | 客户端不得计算“可下单”结论、生成 command、持有密钥或直连交易所。`TradeProposal` 只能预填或关联，不能绕过风险链路；来自图表和报价的数据仅供复核。当前一期若仅一个优先 venue 可用，`VenueSelector` 必须锁定并说明原因；多 venue 可用时也只显示已连接、授权、健康且支持当前标的/订单类型的选项。 |
+| 异常/数据流 | 每次风险评估、审批或提交前重新拉取报价快照、余额、限额、venue 健康、对象版本和 mode；任一变化导致 command 失效即回到对应步骤。服务端返回的估算必须标为估算；订单确认使用幂等键并显示 correlation ID，绝不乐观显示“已成交”。离线、数据陈旧、kill switch、venue 不健康或没有可用 venue 时，所有提交入口禁用并解释原因。 |
+
+### P21 Performance 收益查看与报表页
+
+| 项目 | 规格 |
+|---|---|
+| 路由/权限 | `/performance`、`/performance/reports/:reportId`；交易员、风控和获授权研究员只读，受账户、账本和数据权限裁剪。 |
+| 核心价值 | 以可解释、可追溯且不承诺未来表现的方式查看个人/账户整体收益，并按周、月、季度、年生成标准化收益报表。 |
+| 布局/组件 | 顶部 `PerformanceContextBar`：账户、基准货币、估值方法、时区、`as_of` 和范围；KPI 为累计 P&L、已实现/未实现 P&L、收益率、最大回撤、费用；主体包含权益曲线、周期收益柱状图、回撤、资产/策略/venue 归因及 `PeriodReturnTable`。右侧 `ReportBuilder` 选择周/月/季度/年、自然或滚动周期、账户范围、基准、报告语言与受控导出格式。 |
+| 规范文案 | 标题：`Performance`；顶部说明使用收益口径通用文案；报告按钮：`生成收益报表`；报表说明：`报表将固定本次计算口径、账本版本、估值快照和生成时间。`；无历史：`当前筛选范围内没有已确认的收益数据。` |
+| 核心功能 | 按账户、策略、标的、venue、模式和时间筛选；查看净值、收益、回撤、费用与归因；在周、月、季度、年粒度生成异步报表；从图表/报表跳转相关订单、成交、估值快照、对账和审计。年度化、TWR/MWR 等指标必须清楚标注方法与适用条件。 |
+| 辅助功能 | 保存个人视图、对比两个已确认时间段、下载已完成的受控报告、订阅周期报表完成通知。禁止公开排名、复制策略或任何“保证收益”表达。 |
+| 异常/数据流 | 后端 `PerformanceView` 返回计算方法、基准货币、估值来源、账本/快照版本和覆盖区间；尚未对账或估值陈旧的值醒目标为 provisional，不混入“已确认”总计。报告由异步 `ReportJob` 生成，结果短时授权、导出留审计；期间发生回补/修正时旧报表保留版本并注明 superseded。 |
+
+### P22 Reconciliation 对账与资金账本页
+
+| 项目 | 规格 |
+|---|---|
+| 路由/权限 | `/reconciliation`、`/reconciliation/:runId`；交易员、风控、运维按资源授权，默认只读。 |
+| 核心价值 | 使订单、成交、手续费、余额和内部账本与接入交易所回报可核对，避免未确认差异被误解为可用仓位或已实现收益。 |
+| 布局/组件 | 顶部显示账户、venue、账本区间、最近运行和状态；中部 `ReconciliationSummary`（matched、待调查、已解决、缺失数据）；下方 `BreakGrid` 展示内部/外部数量、价格、费用、时间和差异原因，详情含关联 Order/Fill、原始脱敏回报与处置时间线。 |
+| 规范文案 | 标题：`Reconciliation`；匹配：`当前范围内未发现待处理差异。`；差异使用“对账差异”通用文案；动作：`查看差异证据`、`请求重新对账`。 |
+| 核心功能 | 筛选范围和状态、查看差异证据、跳转 Orders/Performance/Audit；有权限的运维只可按 Runbook 请求受控重新对账或标记调查说明，不能在 UI 手工修改余额或成交。 |
+| 异常/数据流 | 对账运行由服务端计划或受控请求产生；外部回报和内部账本版本均不可由前端改写。待调查差异实时推送到 Alerts，并使 Performance 相关数值标为 provisional；修正或解决必须记录主体、原因、证据和 correlation ID。 |
+
+### P23 Alerts 告警收件箱与处置页
+
+| 项目 | 规格 |
+|---|---|
+| 路由/权限 | `/alerts`、`/alerts/:alertId`；所有登录用户仅见其被授权查看的事件。 |
+| 核心价值 | 把散落在顶栏、通知和业务页的风险、订单、行情、对账和报告事件收敛为可确认、可追溯的工作队列。 |
+| 布局/组件 | 左侧按严重性/未确认/领域/账户/venue 筛选；中央 `AlertFeed` 显示摘要、时间、数据新鲜度和关联对象；右侧详情展示影响、建议的下一步、确认记录、订阅规则和 Audit 链接。 |
+| 核心功能 | 确认/取消确认（若策略允许）、按严重性订阅、跳转关联对象；告警只能提示和导航，不能在收件箱内提供绕过风控的修复或交易动作。 |
+| 异常/数据流 | BFF 进行事件授权、去重与速率限制；确认仅代表已阅读，不代表问题已解决。重大风险、kill switch、订单拒绝、对账差异和报表完成事件保留关联 ID；离线时显示最后同步时间并禁止确认写操作。 |
+
 ## 5. 功能需求清单与数据流
 
 ### 5.1 核心功能优先级
@@ -423,6 +509,11 @@ flowchart LR
 | F03 | 策略草稿、回测、Release 与审批候选 | P06–P07 | P0 | Strategy、Backtest、Approval API | 未验证/未审批不可部署 |
 | F04 | 组合、风险决定、审批与 kill switch | P08–P10 | P0 | Portfolio、Risk、Policy、Approval | Agent/前端不能绕过规则 |
 | F05 | Paper/Shadow 订单、成交、对账与证据 | P11–P12 | P0 | Execution Gateway、OMS、Audit | 订单全链路可重建 |
+| F10 | 授权市场目录、跨 venue 报价比较与历史 K 线 | P18–P19 | P0 | Market Data Gateway、Instrument Catalog、数据许可证策略 | 每个报价/K 线均可追溯来源、时间、venue 与质量；禁止跨 venue 拼接 |
+| F11 | 多 venue 受控下单工作流 | P20、P09–P11 | P0 | Venue capability、Risk、Approval、Execution Gateway | 只能选择服务端返回的健康授权 venue；不能绕过 RiskDecision/TradeCommand |
+| F12 | 收益分析、周期报表和版本化导出 | P21 | P1 | Portfolio Ledger、Valuation、Performance/Report API | 周/月/季/年报表固定口径、快照与版本，未对账数据明确标识 |
+| F13 | 账本对账与差异处置 | P22 | P0 | OMS、Ledger、Venue reconciliation、Audit | 差异能关联订单/成交/证据，前端不能手工改账 |
+| F14 | 告警收件箱与跨域处置导航 | P23 | P1 | Alert/Notification API、Realtime、Audit | 用户只看到有权事件；确认行为可审计且不等同解决 |
 | F06 | 运行健康与受控 Runbook | P13 | P1 | Telemetry、Incident API | 无任意命令执行路径 |
 | F07 | 成员、策略、能力、开关治理 | P14 | P1 | Auth、Policy、Engine registry | 变更全量审计、职责分离 |
 | F08 | 桌面平台能力 | P16 | P1 | Tauri platform adapter | 仅平台能力差异，不分叉业务 |
@@ -476,7 +567,7 @@ sequenceDiagram
 
 | 维度 | Web | Desktop |
 |---|---|---|
-| 业务功能 | 所有 P02–P15 共享实现、共享 BFF 契约和 E2E 用例 | 同上 |
+| 业务功能 | 所有 P02–P15、P18–P23 共享实现、共享 BFF 契约和 E2E 用例 | 同上 |
 | 通知 | 用户手势授权；拒绝后页面内告警 | 原生通知；可按系统设置关闭 |
 | 文件 | 浏览器选择/下载；上传后统一扫描 | 系统文件选择/保存；上传后统一扫描，禁止直接传给 Engine |
 | 窗口 | 单窗口/标签页，URL 恢复 | 多窗口/多显示器；同一路由可打开新窗口，布局本地加密保存 |
@@ -490,7 +581,7 @@ sequenceDiagram
 | 交付物 | UI 设计团队输出 | 前端团队输出 | 验收人 |
 |---|---|---|---|
 | 信息架构 | 本文第 2 节站点地图、导航层级、空状态 | 路由表、守卫、中英文路由测试 | 产品 + 架构 |
-| 高保真页面 | P01–P17 的 Figma 页面：默认、加载、空、错误、无权、离线、危险确认状态 | 共享组件实现与 Storybook | UX + 前端 |
+| 高保真页面 | P01–P23 的 Figma 页面：默认、加载、空、错误、无权、离线、危险确认状态 | 共享组件实现与 Storybook | UX + 前端 |
 | 组件库 | token、组件状态、交互与可访问性注释 | `packages/ui` 与 `packages/domain-ui` | Design System owner |
 | 文案 | 第 3.3 节与各页面规范；变量字典 | i18n key、文案测试、禁用词检查 | 产品 + 合规 |
 | BFF 契约 | 页面字段、权限/错误状态、实时事件需求 | OpenAPI/Protobuf client、Query key、MSW mock | BFF + 前端 |
@@ -499,9 +590,13 @@ sequenceDiagram
 
 ## 8. 设计交付完成标准
 
-- [ ] P01–P17 均具备默认、加载、空、错误、无权限、数据陈旧及离线/断线状态设计稿。
+- [ ] P01–P23 均具备默认、加载、空、错误、无权限、数据陈旧及离线/断线状态设计稿。
 - [ ] 所有高风险动作包含对象摘要、影响、重新认证、服务端最终校验和审计反馈。
 - [ ] `TradeProposal` 在任何页面均不会出现“下单”或等效执行入口。
+- [ ] Trade Ticket 只可选择 BFF 返回的已连接、已授权、健康且支持当前标的/订单类型的 venue；当前仅一个 venue 可用时选择器为只读。
+- [ ] 每根 K 线、每个报价、每项收益指标和每份收益报表均显示或可追溯其来源、时间、数据质量、账本/估值版本与计算口径。
+- [ ] 收益页面可在周、月、季度、年四种粒度创建版本化受控报表；待对账数据不被显示为已确认收益。
+- [ ] 对账差异可从 Performance、Orders、Alerts 和 Audit 交叉定位，且不存在前端手工改账入口。
 - [ ] M3/M4 页面不会显示 Assisted Live 可选目标；该能力只在 M5 Gate 后由服务端策略返回。
 - [ ] Web 与桌面端共享页面/组件/BFF 契约与核心 E2E；平台差异只存在于 `packages/platform`。
 - [ ] 小屏 Web 不提供审批、签发、撤单、策略发布等高风险操作；桌面离线不提供任何写操作。
