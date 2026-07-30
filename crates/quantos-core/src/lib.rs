@@ -10,8 +10,8 @@ pub use error::{CoreError, ErrorCode};
 pub use fixture::{Fixture, FixtureBuilder, canonical_json_bytes};
 pub use id::{
     AccountId, ActorId, ArtifactId, AuditEntryId, CommandId, CorrelationId, DeadLetterId,
-    DecisionId, EventId, FixtureId, InboxEntryId, OutboxEntryId, ProposalId, SchemaEntryId,
-    TenantId, WorkspaceId,
+    DecisionId, EventId, FixtureId, InboxEntryId, OutboxEntryId, ProposalId, RuntimeSessionId,
+    SchemaEntryId, TaskAttemptId, TenantId, WorkflowRunId, WorkspaceId,
 };
 pub use precision::{MAX_MONEY_SCALE, MAX_QUANTITY_SCALE, Money, Quantity};
 pub use versioning::{BuildVersion, ContentHash, SchemaVersion};
