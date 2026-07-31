@@ -9,7 +9,7 @@ Rust shared crates live here.
 - `quantos-market`: approved-provider registry, symbol normalization, market tick ingestion, replay dataset generation, and `MarketEvent` emission with freshness/quality anomaly detection.
 - `quantos-observability`: local trace, metrics threshold evaluation, structured logging, fault injection, health reporting, and ADR evidence generation.
 - `quantos-policy`: deterministic RBAC, capability, mode, and secret-resolution policy decisions.
-- `quantos-runtime`: persistent workflow runs, research orchestration, stream capture, artifact bindings, deadlines, cancellation, and restart recovery.
+- `quantos-runtime`: persistent workflow runs, research orchestration, signal/proposal orchestration, stream capture, artifact bindings, deadlines, cancellation, expiry gates, and restart recovery.
 - `quantos-storage`: artifact manifests, `DataSnapshot` metadata and quality gates, object key derivation, schema registry primitives, and PostgreSQL-backed storage repositories.
 
 Future F0 tasks will add protocol, auth, event, runtime, and risk crates here.

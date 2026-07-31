@@ -1,5 +1,6 @@
 pub mod pg;
 pub mod research;
+pub mod signal_proposal;
 
 use std::collections::{BTreeMap, BTreeSet};
 
