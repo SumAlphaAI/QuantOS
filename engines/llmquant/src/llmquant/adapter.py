@@ -46,6 +46,7 @@ class SignalExecutionContext:
     policy_context_ref: str
     fixture_name: str
     requested_tools: tuple[str, ...]
+    data_query_context: dict | None
 
 
 @dataclass(frozen=True)
@@ -108,6 +109,13 @@ class LlmQuantRequestAdapter:
                 "feature snapshot must match request data_snapshot_ref",
             )
 
+        data_query_context = payload.get("data_query")
+        if data_query_context is not None and not isinstance(data_query_context, dict):
+            raise RequestBoundaryError(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "`data_query` must be a JSON object when provided",
+            )
+
         fixture_name = str(payload.get("fixture", fixture_names()[0])).strip() or fixture_names()[0]
         context = SignalExecutionContext(
             capability=request.capability,
@@ -120,6 +128,7 @@ class LlmQuantRequestAdapter:
             policy_context_ref=request.policy_context_ref,
             fixture_name=fixture_name,
             requested_tools=requested_tools,
+            data_query_context=data_query_context,
         )
         return TranslatedRequest(context=context, payload=payload)
 

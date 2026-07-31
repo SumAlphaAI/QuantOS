@@ -71,7 +71,7 @@ def build_model_provenance(
 ) -> dict:
     """Build deterministic diagnostics/model provenance for a Signal."""
 
-    return {
+    diagnostics = {
         "engine": "llmquant",
         "runtime": "python-sidecar",
         "deterministic_fixture": True,
@@ -93,6 +93,9 @@ def build_model_provenance(
             "data_version": fixture.data_version,
         },
     }
+    if context.data_query_context is not None:
+        diagnostics["data_query_context"] = build_data_query_context(context.data_query_context)
+    return diagnostics
 
 
 def build_model_artifact(
@@ -142,6 +145,25 @@ def build_stream_events(signal_payload: dict, model_artifact: dict) -> tuple[dic
             "summary": model_artifact["diagnostics"]["summary"],
         },
     )
+
+
+def build_data_query_context(data_query: dict) -> dict:
+    """Extract the stable TP05 fields that should flow into Signal diagnostics."""
+
+    license_payload = data_query.get("license", {})
+    lineage_payload = data_query.get("lineage", {})
+    return {
+        "provider": data_query.get("provider"),
+        "dataset": data_query.get("dataset"),
+        "schema_ref": data_query.get("schema_ref"),
+        "query_id": data_query.get("query_id"),
+        "response_hash": data_query.get("response_hash"),
+        "license_label": license_payload.get("label"),
+        "approved_for_production": bool(license_payload.get("approved_for_production", False)),
+        "content_hash": lineage_payload.get("content_hash"),
+        "schema_hash": lineage_payload.get("schema_hash"),
+        "trading_approved": bool(data_query.get("usage", {}).get("trading_approved", False)),
+    }
 
 
 def _deterministic_window(

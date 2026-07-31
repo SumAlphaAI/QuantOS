@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use chrono::{DateTime, Duration as ChronoDuration, Utc};
+use chrono::{DateTime, Duration as ChronoDuration, TimeZone, Utc};
 use pbjson_types::{ListValue, Struct, Timestamp, Value as ProtoValue, value::Kind};
 use quantos_core::{ContentHash, CoreError, CorrelationId, SnapshotId, canonical_json_bytes};
 use quantos_engine_manager::{EngineManager, EngineManagerError};
@@ -28,6 +28,9 @@ pub struct SignalProposalWorkflowInput {
     pub correlation_id: CorrelationId,
     pub feature_snapshot_id: SnapshotId,
     pub policy_context_ref: String,
+    pub data_query_input_schema_version: Option<String>,
+    pub data_query_input: Option<Value>,
+    pub provided_data_query: Option<Value>,
     pub signal_input_schema_version: String,
     pub signal_input: Value,
     pub provided_signal: Option<Value>,
@@ -55,9 +58,28 @@ pub struct WorkflowStreamEvent {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DataQueryRecord {
+    pub workflow_run_id: quantos_core::WorkflowRunId,
+    pub artifact_manifest: ArtifactManifest,
+    pub auxiliary_artifact_manifests: Vec<ArtifactManifest>,
+    pub capability: String,
+    pub provider: String,
+    pub dataset: String,
+    pub schema_ref: String,
+    pub response_hash: ContentHash,
+    pub trading_approved: bool,
+    pub engine_artifact_ids: Vec<String>,
+    pub output: Value,
+    pub evidence_refs: Vec<WorkflowEvidenceRecord>,
+    pub stream_events: Vec<WorkflowStreamEvent>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SignalRecord {
     pub workflow_run_id: quantos_core::WorkflowRunId,
     pub artifact_manifest: ArtifactManifest,
+    pub auxiliary_artifact_manifests: Vec<ArtifactManifest>,
     pub engine_artifact_id: String,
     pub data_snapshot_id: SnapshotId,
     pub capability: String,
@@ -76,6 +98,7 @@ pub struct SignalRecord {
 pub struct TradeProposalRecord {
     pub workflow_run_id: quantos_core::WorkflowRunId,
     pub artifact_manifest: ArtifactManifest,
+    pub auxiliary_artifact_manifests: Vec<ArtifactManifest>,
     pub capability: String,
     pub proposal_id: String,
     pub account_id: String,
@@ -95,6 +118,7 @@ pub struct TradeProposalRecord {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SignalProposalRunResult {
     pub run: WorkflowRun,
+    pub data_query: Option<DataQueryRecord>,
     pub signal: SignalRecord,
     pub proposal: TradeProposalRecord,
 }
@@ -170,6 +194,11 @@ impl InMemorySignalProposalRepository {
 pub struct SignalProposalSchemaValidator;
 
 impl SignalProposalSchemaValidator {
+    pub fn validate_data_query(value: &Value) -> Result<(), SignalProposalWorkflowError> {
+        let _ = ParsedDataQuery::try_from(value)?;
+        Ok(())
+    }
+
     pub fn validate_signal(value: &Value) -> Result<(), SignalProposalWorkflowError> {
         let _ = ParsedSignal::try_from(value)?;
         Ok(())
@@ -217,10 +246,14 @@ pub enum SignalProposalWorkflowError {
     MissingCheckpoint { run_id: quantos_core::WorkflowRunId },
     #[error("SIGNAL_OUTPUT_MISSING: engine did not return a final signal document")]
     MissingSignalOutput,
+    #[error("DATA_QUERY_OUTPUT_MISSING: engine did not return a final data query document")]
+    MissingDataQueryOutput,
     #[error("SIGNAL_ARTIFACT_REF_MISSING: engine did not return a signal artifact reference")]
     MissingSignalArtifactRef,
     #[error("PROPOSAL_OUTPUT_MISSING: engine did not return a final proposal document")]
     MissingProposalOutput,
+    #[error("DATA_QUERY_SCHEMA_INVALID: {detail}")]
+    InvalidDataQuery { detail: String },
     #[error("SIGNAL_SCHEMA_INVALID: {detail}")]
     InvalidSignal { detail: String },
     #[error("PROPOSAL_SCHEMA_INVALID: {detail}")]
@@ -239,6 +272,9 @@ pub enum SignalProposalWorkflowError {
 struct SignalProposalCheckpointPayload {
     feature_snapshot_id: String,
     policy_context_ref: String,
+    data_query_input_schema_version: Option<String>,
+    data_query_input: Option<Value>,
+    provided_data_query: Option<Value>,
     signal_input_schema_version: String,
     signal_input: Value,
     provided_signal: Option<Value>,
@@ -255,6 +291,7 @@ pub struct SignalProposalWorkflowCoordinator<'a> {
     worker_name: String,
     lease_duration: ChronoDuration,
     storage_bucket: String,
+    data_query_capability: String,
     signal_capability: String,
     proposal_capability: String,
 }
@@ -264,6 +301,7 @@ pub struct SignalProposalWorkflowCoordinatorConfig {
     pub worker_name: String,
     pub lease_duration: ChronoDuration,
     pub storage_bucket: String,
+    pub data_query_capability: String,
     pub signal_capability: String,
     pub proposal_capability: String,
 }
@@ -287,6 +325,7 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             worker_name: config.worker_name,
             lease_duration: config.lease_duration,
             storage_bucket: config.storage_bucket,
+            data_query_capability: config.data_query_capability,
             signal_capability: config.signal_capability,
             proposal_capability: config.proposal_capability,
         }
@@ -299,6 +338,9 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
     ) -> Result<WorkflowRun, SignalProposalWorkflowError> {
         let input_hash = ContentHash::sha256_bytes(&canonical_json_bytes(&json!({
             "feature_snapshot_id": input.feature_snapshot_id.to_string(),
+            "data_query_input_schema_version": input.data_query_input_schema_version,
+            "data_query_input": input.data_query_input,
+            "provided_data_query": input.provided_data_query,
             "signal_input_schema_version": input.signal_input_schema_version,
             "signal_input": input.signal_input,
             "provided_signal": input.provided_signal,
@@ -322,6 +364,9 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         let checkpoint = SignalProposalCheckpointPayload {
             feature_snapshot_id: input.feature_snapshot_id.to_string(),
             policy_context_ref: input.policy_context_ref,
+            data_query_input_schema_version: input.data_query_input_schema_version,
+            data_query_input: input.data_query_input,
+            provided_data_query: input.provided_data_query,
             signal_input_schema_version: input.signal_input_schema_version,
             signal_input: input.signal_input,
             provided_signal: input.provided_signal,
@@ -383,6 +428,122 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             observed_at,
         )?;
 
+        let (data_query_record, data_query_payload_value) = match payload
+            .provided_data_query
+            .clone()
+        {
+            Some(data_query_value) => {
+                let data_query_record = self.build_provided_data_query_record(
+                    &lease.run,
+                    snapshot.snapshot_id,
+                    data_query_value,
+                )?;
+                let data_query_output = data_query_record.output.clone();
+                self.runtime.save_checkpoint(
+                    run_id,
+                    "signal_proposal.data_query_ready",
+                    2,
+                    json!({
+                        "data_query_artifact_id": data_query_record.artifact_manifest.artifact_id.to_string(),
+                        "dataset": data_query_record.dataset,
+                        "provider": data_query_record.provider,
+                    }),
+                    data_query_record.created_at,
+                )?;
+                (Some(data_query_record), Some(data_query_output))
+            }
+            None => match (
+                payload.data_query_input_schema_version.as_deref(),
+                payload.data_query_input.as_ref(),
+            ) {
+                (Some(schema_version), Some(data_query_input)) => {
+                    let data_query_execute_request = build_engine_execute_request(
+                        &lease.run,
+                        &self.data_query_capability,
+                        schema_version,
+                        &payload.feature_snapshot_id,
+                        &payload.policy_context_ref,
+                        data_query_input,
+                        "data-query",
+                    );
+                    let data_query_stream = match self
+                        .engine_manager
+                        .stream_execute_collect(
+                            &self.data_query_capability,
+                            StreamExecuteRequest {
+                                request: Some(data_query_execute_request.clone()),
+                            },
+                        )
+                        .await
+                    {
+                        Ok(messages) => messages,
+                        Err(error) => {
+                            let _ = self.runtime.fail_and_retry(
+                                run_id,
+                                &self.worker_name,
+                                error.to_string().as_str(),
+                                observed_at,
+                            )?;
+                            return Err(error.into());
+                        }
+                    };
+                    let data_query_execute = match self
+                        .engine_manager
+                        .execute(&self.data_query_capability, data_query_execute_request)
+                        .await
+                    {
+                        Ok(response) => response,
+                        Err(error) => {
+                            let _ = self.runtime.fail_and_retry(
+                                run_id,
+                                &self.worker_name,
+                                error.to_string().as_str(),
+                                observed_at,
+                            )?;
+                            return Err(error.into());
+                        }
+                    };
+                    let data_query_output = json_document_to_value(
+                        data_query_execute
+                            .output
+                            .as_ref()
+                            .ok_or(SignalProposalWorkflowError::MissingDataQueryOutput)?,
+                    )?;
+                    let data_query_record = self.build_engine_data_query_record(
+                        &lease.run,
+                        snapshot.snapshot_id,
+                        data_query_output.clone(),
+                        &data_query_execute,
+                        &data_query_stream,
+                        observed_at,
+                    )?;
+                    self.runtime.save_checkpoint(
+                        run_id,
+                        "signal_proposal.data_query_ready",
+                        2,
+                        json!({
+                            "data_query_artifact_id": data_query_record.artifact_manifest.artifact_id.to_string(),
+                            "dataset": data_query_record.dataset,
+                            "provider": data_query_record.provider,
+                            "engine_artifact_ids": data_query_record.engine_artifact_ids,
+                        }),
+                        data_query_record.created_at,
+                    )?;
+                    (Some(data_query_record), Some(data_query_output))
+                }
+                _ => (None, None),
+            },
+        };
+
+        let signal_input = match data_query_payload_value.as_ref() {
+            Some(data_query_payload) => inject_named_object(
+                payload.signal_input.clone(),
+                "data_query",
+                data_query_payload.clone(),
+            )?,
+            None => payload.signal_input.clone(),
+        };
+
         let (signal_record, signal_payload_value) = match payload.provided_signal.clone() {
             Some(signal_value) => {
                 let signal_record = self.build_provided_signal_record(
@@ -401,7 +562,7 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
                     &payload.signal_input_schema_version,
                     &payload.feature_snapshot_id,
                     &payload.policy_context_ref,
-                    &payload.signal_input,
+                    &signal_input,
                     "signal",
                 );
                 let signal_stream = match self
@@ -459,7 +620,7 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
                 self.runtime.save_checkpoint(
                     run_id,
                     "signal_proposal.signal_ready",
-                    2,
+                    3,
                     json!({
                         "signal_artifact_id": signal_record.artifact_manifest.artifact_id.to_string(),
                         "signal_id": signal_record.signal_id,
@@ -472,6 +633,12 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         };
 
         let proposal_input = inject_signal(payload.proposal_input.clone(), signal_payload_value)?;
+        let proposal_input = match data_query_payload_value {
+            Some(data_query_payload) => {
+                inject_named_object(proposal_input, "data_query", data_query_payload)?
+            }
+            None => proposal_input,
+        };
         let proposal_execute_request = build_engine_execute_request(
             &lease.run,
             &self.proposal_capability,
@@ -537,8 +704,9 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         self.runtime.save_checkpoint(
             run_id,
             "signal_proposal.completed",
-            3,
+            4,
             json!({
+                "data_query_artifact_id": data_query_record.as_ref().map(|record| record.artifact_manifest.artifact_id.to_string()),
                 "signal_artifact_id": signal_record.artifact_manifest.artifact_id.to_string(),
                 "proposal_artifact_id": proposal_record.artifact_manifest.artifact_id.to_string(),
                 "proposal_id": proposal_record.proposal_id,
@@ -556,8 +724,122 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             .ok_or(RuntimeError::run_not_found(run_id))?;
         Ok(SignalProposalRunResult {
             run,
+            data_query: data_query_record,
             signal: signal_record,
             proposal: proposal_record,
+        })
+    }
+
+    fn build_provided_data_query_record(
+        &mut self,
+        run: &WorkflowRun,
+        snapshot_id: SnapshotId,
+        data_query_output: Value,
+    ) -> Result<DataQueryRecord, SignalProposalWorkflowError> {
+        SignalProposalSchemaValidator::validate_data_query(&data_query_output)?;
+        let parsed = ParsedDataQuery::try_from(&data_query_output)?;
+        let completed_at = run.created_at;
+        let output_bytes = canonical_json_bytes(&data_query_output)?;
+        let content_hash = ContentHash::sha256_bytes(&output_bytes);
+        let manifest = ArtifactManifest::new(
+            run.tenant_id,
+            "application/json",
+            content_hash,
+            self.storage_bucket.as_str(),
+            output_bytes.len() as u64,
+            completed_at,
+        )
+        .with_metadata("workflow_run_id", run.workflow_run_id.to_string())
+        .with_metadata("data_snapshot_id", snapshot_id.to_string())
+        .with_metadata("capability", self.data_query_capability.as_str())
+        .with_metadata("data_query_source", "provided_input")
+        .with_metadata("dataset", parsed.dataset.as_str())
+        .with_metadata("provider", parsed.provider.as_str());
+        let stored_manifest =
+            self.runtime
+                .record_artifact(run.workflow_run_id, manifest, completed_at)?;
+
+        Ok(DataQueryRecord {
+            workflow_run_id: run.workflow_run_id,
+            artifact_manifest: stored_manifest,
+            auxiliary_artifact_manifests: vec![],
+            capability: self.data_query_capability.clone(),
+            provider: parsed.provider,
+            dataset: parsed.dataset,
+            schema_ref: parsed.schema_ref,
+            response_hash: parsed.response_hash,
+            trading_approved: parsed.trading_approved,
+            engine_artifact_ids: vec!["provided-data-query".to_owned()],
+            output: data_query_output,
+            evidence_refs: parsed.evidence_refs,
+            stream_events: vec![],
+            created_at: completed_at,
+        })
+    }
+
+    fn build_engine_data_query_record(
+        &mut self,
+        run: &WorkflowRun,
+        snapshot_id: SnapshotId,
+        data_query_output: Value,
+        execute: &quantos_proto::quantos::engine::v1::ExecuteResponse,
+        stream: &[quantos_proto::quantos::engine::v1::StreamExecuteResponse],
+        observed_at: DateTime<Utc>,
+    ) -> Result<DataQueryRecord, SignalProposalWorkflowError> {
+        SignalProposalSchemaValidator::validate_data_query(&data_query_output)?;
+        let parsed = ParsedDataQuery::try_from(&data_query_output)?;
+        let completed_at =
+            timestamp_to_datetime(execute.completed_at.as_ref()).unwrap_or(observed_at);
+        let output_bytes = canonical_json_bytes(&data_query_output)?;
+        let content_hash = ContentHash::sha256_bytes(&output_bytes);
+        let manifest = ArtifactManifest::new(
+            run.tenant_id,
+            "application/json",
+            content_hash,
+            self.storage_bucket.as_str(),
+            output_bytes.len() as u64,
+            completed_at,
+        )
+        .with_metadata("workflow_run_id", run.workflow_run_id.to_string())
+        .with_metadata("data_snapshot_id", snapshot_id.to_string())
+        .with_metadata("capability", self.data_query_capability.as_str())
+        .with_metadata("dataset", parsed.dataset.as_str())
+        .with_metadata("provider", parsed.provider.as_str())
+        .with_metadata("response_hash", parsed.response_hash.as_str());
+        let stored_manifest =
+            self.runtime
+                .record_artifact(run.workflow_run_id, manifest, completed_at)?;
+        let data_query_capability = self.data_query_capability.clone();
+        let auxiliary_artifact_manifests = self.record_engine_artifact_manifests(
+            run,
+            snapshot_id,
+            data_query_capability.as_str(),
+            &execute.artifact_refs,
+            completed_at,
+        )?;
+
+        Ok(DataQueryRecord {
+            workflow_run_id: run.workflow_run_id,
+            artifact_manifest: stored_manifest,
+            auxiliary_artifact_manifests,
+            capability: self.data_query_capability.clone(),
+            provider: parsed.provider,
+            dataset: parsed.dataset,
+            schema_ref: parsed.schema_ref,
+            response_hash: parsed.response_hash,
+            trading_approved: parsed.trading_approved,
+            engine_artifact_ids: execute
+                .artifact_refs
+                .iter()
+                .map(|artifact| artifact.artifact_id.clone())
+                .collect(),
+            output: data_query_output,
+            evidence_refs: parsed.evidence_refs,
+            stream_events: stream
+                .iter()
+                .map(stream_event_from_proto)
+                .collect::<Result<Vec<_>, _>>()?,
+            created_at: completed_at,
         })
     }
 
@@ -591,6 +873,7 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         Ok(SignalRecord {
             workflow_run_id: run.workflow_run_id,
             artifact_manifest: stored_manifest,
+            auxiliary_artifact_manifests: vec![],
             engine_artifact_id: "provided-signal".to_owned(),
             data_snapshot_id: snapshot_id,
             capability: self.signal_capability.clone(),
@@ -645,10 +928,19 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         let stored_manifest =
             self.runtime
                 .record_artifact(run.workflow_run_id, manifest, completed_at)?;
+        let signal_capability = self.signal_capability.clone();
+        let auxiliary_artifact_manifests = self.record_engine_artifact_manifests(
+            run,
+            snapshot_id,
+            signal_capability.as_str(),
+            &execute.artifact_refs[1..],
+            completed_at,
+        )?;
 
         Ok(SignalRecord {
             workflow_run_id: run.workflow_run_id,
             artifact_manifest: stored_manifest,
+            auxiliary_artifact_manifests,
             engine_artifact_id: artifact_ref.artifact_id.clone(),
             data_snapshot_id: snapshot_id,
             capability: self.signal_capability.clone(),
@@ -720,10 +1012,19 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         let stored_manifest =
             self.runtime
                 .record_artifact(run.workflow_run_id, manifest, completed_at)?;
+        let proposal_capability = self.proposal_capability.clone();
+        let auxiliary_artifact_manifests = self.record_engine_artifact_manifests(
+            run,
+            signal_record.data_snapshot_id,
+            proposal_capability.as_str(),
+            &execute.artifact_refs,
+            completed_at,
+        )?;
 
         Ok(TradeProposalRecord {
             workflow_run_id: run.workflow_run_id,
             artifact_manifest: stored_manifest,
+            auxiliary_artifact_manifests,
             capability: self.proposal_capability.clone(),
             proposal_id: parsed.proposal_id,
             account_id: parsed.account_id,
@@ -746,6 +1047,42 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
                 .collect::<Result<Vec<_>, _>>()?,
             created_at: completed_at,
         })
+    }
+
+    fn record_engine_artifact_manifests(
+        &mut self,
+        run: &WorkflowRun,
+        snapshot_id: SnapshotId,
+        capability: &str,
+        artifact_refs: &[quantos_proto::quantos::common::v1::ArtifactRef],
+        recorded_at: DateTime<Utc>,
+    ) -> Result<Vec<ArtifactManifest>, SignalProposalWorkflowError> {
+        artifact_refs
+            .iter()
+            .map(|artifact_ref| {
+                let content_hash = if artifact_ref.sha256.trim().is_empty() {
+                    ContentHash::sha256_bytes(artifact_ref.artifact_id.as_bytes())
+                } else {
+                    ContentHash::parse(artifact_ref.sha256.as_str())?
+                };
+                let manifest = ArtifactManifest::new(
+                    run.tenant_id,
+                    artifact_ref.media_type.as_str(),
+                    content_hash,
+                    self.storage_bucket.as_str(),
+                    0,
+                    recorded_at,
+                )
+                .with_metadata("workflow_run_id", run.workflow_run_id.to_string())
+                .with_metadata("data_snapshot_id", snapshot_id.to_string())
+                .with_metadata("capability", capability)
+                .with_metadata("engine_artifact_id", artifact_ref.artifact_id.as_str())
+                .with_metadata("engine_artifact_uri", artifact_ref.uri.as_str());
+                self.runtime
+                    .record_artifact(run.workflow_run_id, manifest, recorded_at)
+                    .map_err(SignalProposalWorkflowError::from)
+            })
+            .collect()
     }
 }
 
@@ -793,7 +1130,7 @@ fn build_engine_execute_request(
 ) -> ExecuteRequest {
     ExecuteRequest {
         metadata: Some(build_command_metadata(run, capability, request_prefix)),
-        workflow_run_id: run.workflow_run_id.to_string(),
+        workflow_run_id: deterministic_engine_workflow_run_id(run, capability, request_prefix),
         idempotency_key: format!("{request_prefix}-{}", run.idempotency_key),
         capability: capability.to_owned(),
         input_schema_version: input_schema_version.to_owned(),
@@ -809,8 +1146,9 @@ fn build_command_metadata(
     capability: &str,
     request_prefix: &str,
 ) -> CommandMetadata {
+    let request_token = deterministic_request_token(run, capability, request_prefix);
     CommandMetadata {
-        request_id: format!("{request_prefix}-{}", run.workflow_run_id),
+        request_id: format!("{request_prefix}-{request_token}"),
         tenant_id: run.tenant_id.to_string(),
         workspace_id: run.workspace_id.to_string(),
         actor: Some(ActorRef {
@@ -820,11 +1158,66 @@ fn build_command_metadata(
             capabilities: vec![capability.to_owned()],
         }),
         correlation_id: run.correlation_id.to_string(),
-        causation_id: format!("workflow-run:{}", run.workflow_run_id),
+        causation_id: format!("workflow-input:{request_token}"),
         mode: 1,
         environment: 2,
-        issued_at: Some(datetime_to_timestamp(Utc::now())),
+        issued_at: Some(datetime_to_timestamp(deterministic_issued_at(
+            run,
+            capability,
+            request_prefix,
+        ))),
     }
+}
+
+fn deterministic_engine_workflow_run_id(
+    run: &WorkflowRun,
+    capability: &str,
+    request_prefix: &str,
+) -> String {
+    format!(
+        "{request_prefix}-{}",
+        deterministic_request_token(run, capability, request_prefix)
+    )
+}
+
+fn deterministic_request_token(
+    run: &WorkflowRun,
+    capability: &str,
+    request_prefix: &str,
+) -> String {
+    let seed = format!(
+        "{}|{}|{}",
+        run.input_hash.as_str(),
+        capability,
+        request_prefix,
+    );
+    let digest = ContentHash::sha256_bytes(seed.as_bytes());
+    digest
+        .as_str()
+        .trim_start_matches("sha256:")
+        .chars()
+        .take(16)
+        .collect()
+}
+
+fn deterministic_issued_at(
+    run: &WorkflowRun,
+    capability: &str,
+    request_prefix: &str,
+) -> DateTime<Utc> {
+    let seed = format!(
+        "{}|{}|{}",
+        run.input_hash.as_str(),
+        capability,
+        request_prefix,
+    );
+    let digest = ContentHash::sha256_bytes(seed.as_bytes());
+    let offset_seed = &digest.as_str()["sha256:".len()..][..8];
+    let offset_minutes = u32::from_str_radix(offset_seed, 16).unwrap_or(0) % (366 * 24 * 60);
+    Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0)
+        .single()
+        .expect("fixed deterministic timestamp is valid")
+        + ChronoDuration::minutes(i64::from(offset_minutes))
 }
 
 fn inject_signal(
@@ -846,6 +1239,20 @@ fn inject_signal(
         root.insert("symbol".to_owned(), Value::String(symbol.to_owned()));
     }
     Ok(proposal_input)
+}
+
+fn inject_named_object(
+    mut input: Value,
+    field_name: &str,
+    injected_value: Value,
+) -> Result<Value, SignalProposalWorkflowError> {
+    let Some(root) = input.as_object_mut() else {
+        return Err(SignalProposalWorkflowError::InvalidDataQuery {
+            detail: "workflow input must be a JSON object".to_owned(),
+        });
+    };
+    root.insert(field_name.to_owned(), injected_value);
+    Ok(input)
 }
 
 fn stream_event_from_proto(
@@ -958,6 +1365,117 @@ struct EvidenceRefPayload {
     evidence_id: String,
     artifact_id: String,
     summary: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct DataQueryLicensePayload {
+    label: String,
+    approved_for_production: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct DataQueryLineagePayload {
+    schema_hash: String,
+    content_hash: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct DataQueryUsagePayload {
+    trading_approved: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+struct DataQueryPayload {
+    response_type: String,
+    provider: String,
+    query_id: String,
+    dataset: String,
+    schema_ref: String,
+    sources: Vec<Value>,
+    license: DataQueryLicensePayload,
+    lineage: DataQueryLineagePayload,
+    usage: DataQueryUsagePayload,
+    response_hash: String,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct ParsedDataQuery {
+    provider: String,
+    dataset: String,
+    schema_ref: String,
+    response_hash: ContentHash,
+    trading_approved: bool,
+    evidence_refs: Vec<WorkflowEvidenceRecord>,
+}
+
+impl TryFrom<&Value> for ParsedDataQuery {
+    type Error = SignalProposalWorkflowError;
+
+    fn try_from(value: &Value) -> Result<Self, Self::Error> {
+        let payload: DataQueryPayload = serde_json::from_value(value.clone()).map_err(|error| {
+            SignalProposalWorkflowError::InvalidDataQuery {
+                detail: error.to_string(),
+            }
+        })?;
+        if payload.response_type.trim() != "DataQueryResponse" {
+            return Err(SignalProposalWorkflowError::InvalidDataQuery {
+                detail: "response_type must equal `DataQueryResponse`".to_owned(),
+            });
+        }
+        if payload.provider.trim().is_empty()
+            || payload.dataset.trim().is_empty()
+            || payload.schema_ref.trim().is_empty()
+            || payload.query_id.trim().is_empty()
+        {
+            return Err(SignalProposalWorkflowError::InvalidDataQuery {
+                detail: "provider/dataset/schema_ref/query_id are required".to_owned(),
+            });
+        }
+        if payload.sources.is_empty() {
+            return Err(SignalProposalWorkflowError::InvalidDataQuery {
+                detail: "sources must not be empty".to_owned(),
+            });
+        }
+        if payload.license.label.trim().is_empty() {
+            return Err(SignalProposalWorkflowError::InvalidDataQuery {
+                detail: "license.label is required".to_owned(),
+            });
+        }
+        let response_hash = ContentHash::parse(payload.response_hash.as_str())?;
+        let _ = ContentHash::parse(payload.lineage.schema_hash.as_str())?;
+        let _ = ContentHash::parse(payload.lineage.content_hash.as_str())?;
+        if payload.usage.trading_approved {
+            return Err(SignalProposalWorkflowError::InvalidDataQuery {
+                detail: "TP05 data_query must keep trading_approved=false".to_owned(),
+            });
+        }
+        let evidence_refs = vec![
+            WorkflowEvidenceRecord {
+                evidence_id: format!("data-query-evidence:{}:1", payload.query_id),
+                artifact_id: format!(
+                    "data-lineage:{}",
+                    payload.query_id.trim_start_matches("query:")
+                ),
+                summary: format!("license: {}", payload.license.label),
+            },
+            WorkflowEvidenceRecord {
+                evidence_id: format!("data-query-evidence:{}:2", payload.query_id),
+                artifact_id: format!(
+                    "data-lineage:{}",
+                    payload.query_id.trim_start_matches("query:")
+                ),
+                summary: format!("source_count: {}", payload.sources.len()),
+            },
+        ];
+        Ok(Self {
+            provider: payload.provider,
+            dataset: payload.dataset,
+            schema_ref: payload.schema_ref,
+            response_hash,
+            trading_approved: payload.usage.trading_approved,
+            evidence_refs,
+        })
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
