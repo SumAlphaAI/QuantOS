@@ -12,6 +12,7 @@ for relative in (
     "engines/llmquant/src",
     "engines/mock-engine/src",
     "engines/rd-agent/src",
+    "engines/trading-agents/src",
     "engines/vibe-adapter/src",
 ):
     candidate = str(ROOT / relative)

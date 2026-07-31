@@ -1,0 +1,145 @@
+{
+  "fixtures": [
+    {
+      "fixture_name": "committee_bull_breakout",
+      "symbol": "BTCUSDT",
+      "action": "buy",
+      "quantity": "1.25",
+      "notional": "81250.00",
+      "limit_price": "65000.00",
+      "stop_price": "63250.00",
+      "proposal_confidence": "0.74",
+      "signal_direction": "long",
+      "signal_strength": "0.82",
+      "signal_confidence": "0.77",
+      "validity_minutes": 25,
+      "signal_validity_minutes": 45,
+      "strategy_release_id": "strategy.trend.v3.release.primary",
+      "signal_id": "signal:btc-breakout-primary",
+      "signal_strategy_version": "strategy.trend.v3",
+      "signal_model_version": "llmquant-factor-2026.07.31",
+      "signal_model_digest": "sha256:llmquant-model-trend-long",
+      "signal_data_version": "feature-snapshot-2026-07-31-a",
+      "signal_summary": "Trend and breadth factors align for a long-biased research signal.",
+      "rationale": "The committee favors a controlled long entry because trend, liquidity, and breadth all remain supportive under the current release and policy envelope.",
+      "supporting_views": [
+        "Momentum committee sees sustained participation across spot and perp liquidity.",
+        "Risk monitor notes the position fits current concentration limits when staged through a capped size."
+      ],
+      "counter_views": [
+        "Counterpoint: a sharp macro reversal could invalidate the breakout before the next rebalance window.",
+        "Counterpoint: volatility expansion above the current stop range would weaken reward-to-risk."
+      ],
+      "evidence": [
+        "signal:trend-breakout",
+        "artifact:committee-notes",
+        "snapshot:portfolio-risk-window"
+      ],
+      "policy_snapshot_id": "policy-snapshot-btc-breakout",
+      "portfolio_snapshot_id": "portfolio-snapshot-btc-breakout",
+      "policy_rules": [
+        "net-exposure-within-threshold",
+        "single-position-concentration-under-cap"
+      ],
+      "risk_flags": [
+        "non_executable",
+        "paper_only",
+        "requires_risk_evaluation"
+      ]
+    },
+    {
+      "fixture_name": "committee_reduce_overheat",
+      "symbol": "ETHUSDT",
+      "action": "reduce",
+      "quantity": "4.00",
+      "notional": "10400.00",
+      "limit_price": "2600.00",
+      "stop_price": "2685.00",
+      "proposal_confidence": "0.69",
+      "signal_direction": "short",
+      "signal_strength": "0.69",
+      "signal_confidence": "0.73",
+      "validity_minutes": 20,
+      "signal_validity_minutes": 30,
+      "strategy_release_id": "strategy.reversion.v2.release.primary",
+      "signal_id": "signal:eth-overheat-primary",
+      "signal_strategy_version": "strategy.reversion.v2",
+      "signal_model_version": "llmquant-factor-2026.07.31",
+      "signal_model_digest": "sha256:llmquant-model-reversion-short",
+      "signal_data_version": "feature-snapshot-2026-07-31-b",
+      "signal_summary": "Overextension and weakening liquidity support a short-biased reversion signal.",
+      "rationale": "The committee recommends reducing exposure instead of flipping outright because liquidity is thinning while existing inventory still carries favorable basis.",
+      "supporting_views": [
+        "Mean reversion desk sees stretched intraday positioning and fading taker demand.",
+        "Portfolio committee prefers de-risking because total ETH exposure is near the soft cap."
+      ],
+      "counter_views": [
+        "Counterpoint: if funding normalizes quickly, trimming too early could forfeit carry.",
+        "Counterpoint: price may consolidate instead of reverting, making an aggressive reduction unnecessary."
+      ],
+      "evidence": [
+        "signal:liquidity-reversion",
+        "artifact:committee-notes",
+        "snapshot:eth-risk-window"
+      ],
+      "policy_snapshot_id": "policy-snapshot-eth-reduce",
+      "portfolio_snapshot_id": "portfolio-snapshot-eth-reduce",
+      "policy_rules": [
+        "soft-exposure-cap-near-limit",
+        "drawdown-buffer-preserved-after-reduction"
+      ],
+      "risk_flags": [
+        "non_executable",
+        "paper_only",
+        "requires_risk_evaluation"
+      ]
+    },
+    {
+      "fixture_name": "committee_hold_crosscurrents",
+      "symbol": "SOLUSDT",
+      "action": "hold",
+      "quantity": "0",
+      "notional": "0",
+      "limit_price": null,
+      "stop_price": null,
+      "proposal_confidence": "0.58",
+      "signal_direction": "flat",
+      "signal_strength": "0.31",
+      "signal_confidence": "0.58",
+      "validity_minutes": 15,
+      "signal_validity_minutes": 20,
+      "strategy_release_id": "strategy.neutral.v1.release.primary",
+      "signal_id": "signal:sol-flat-primary",
+      "signal_strategy_version": "strategy.neutral.v1",
+      "signal_model_version": "llmquant-factor-2026.07.31",
+      "signal_model_digest": "sha256:llmquant-model-neutral-flat",
+      "signal_data_version": "feature-snapshot-2026-07-31-c",
+      "signal_summary": "Conflicting factors reduce conviction and keep the signal flat.",
+      "rationale": "The committee keeps the book flat because regime, carry, and breadth disagree, so a wait state preserves optionality without forcing a low-conviction move.",
+      "supporting_views": [
+        "Regime committee sees mixed leadership and unstable follow-through.",
+        "Risk monitor prefers zero new exposure while signal confidence remains below escalation thresholds."
+      ],
+      "counter_views": [
+        "Counterpoint: a fast leadership rotation could make the flat stance overly conservative.",
+        "Counterpoint: holding flat may miss a short-lived mean-reversion opportunity."
+      ],
+      "evidence": [
+        "signal:regime-neutral",
+        "artifact:committee-notes",
+        "snapshot:sol-risk-window"
+      ],
+      "policy_snapshot_id": "policy-snapshot-sol-hold",
+      "portfolio_snapshot_id": "portfolio-snapshot-sol-hold",
+      "policy_rules": [
+        "low-conviction-blocks-new-position",
+        "wait-state-preserves-portfolio-balance"
+      ],
+      "risk_flags": [
+        "non_executable",
+        "paper_only",
+        "requires_risk_evaluation"
+      ]
+    }
+  ]
+}
