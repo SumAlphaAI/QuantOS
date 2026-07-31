@@ -11,9 +11,11 @@ use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
 
-use crate::{ArtifactManifest, SchemaRegistryEntry};
+use crate::{
+    ArtifactManifest, DataSnapshotRecord, SchemaRegistryEntry, SnapshotError, SnapshotQualityRule,
+};
 use quantos_core::{
-    ArtifactId, ContentHash, CoreError, SchemaEntryId, SchemaVersion, TenantId,
+    ArtifactId, ContentHash, CoreError, SchemaEntryId, SchemaVersion, SnapshotId, TenantId,
     canonical_json_bytes,
 };
 
@@ -29,6 +31,8 @@ pub enum PgStorageError {
     Core(#[from] CoreError),
     #[error(transparent)]
     Json(#[from] serde_json::Error),
+    #[error(transparent)]
+    Snapshot(#[from] SnapshotError),
 }
 
 pub struct PgStorageStore {
@@ -155,6 +159,182 @@ impl PgStorageStore {
         row.map(|row| row_to_schema_registry_entry(&row))
             .transpose()
     }
+
+    pub fn upsert_data_snapshot(
+        &mut self,
+        snapshot: &DataSnapshotRecord,
+    ) -> Result<DataSnapshotRecord, PgStorageError> {
+        let symbols = serde_json::to_value(&snapshot.symbols)?;
+        let sources = serde_json::to_value(&snapshot.sources)?;
+        let artifact_refs = serde_json::to_value(&snapshot.artifact_refs)?;
+        let lineage = serde_json::to_value(&snapshot.lineage)?;
+        let quality_findings = serde_json::to_value(&snapshot.quality_findings)?;
+        let row = self.client.query_typed_one(
+            "insert into quantos.data_snapshots (
+                id, tenant_id, schema_entry_id, schema_name, schema_version,
+                window_start_at, window_end_at, captured_at, max_age_secs, expires_at,
+                quality, license_label, content_hash, symbols, sources, artifact_refs,
+                lineage, quality_findings, created_at
+            ) values (
+                $1,$2,$3,$4,$5,
+                $6,$7,$8,$9,$10,
+                $11,$12,$13,$14,$15,$16,
+                $17,$18,$19
+            )
+            on conflict (tenant_id, content_hash)
+            do update set
+                content_hash = quantos.data_snapshots.content_hash
+            returning id, tenant_id, schema_entry_id, schema_name, schema_version,
+                      window_start_at, window_end_at, captured_at, max_age_secs, expires_at,
+                      quality, license_label, content_hash, symbols, sources, artifact_refs,
+                      lineage, quality_findings, created_at",
+            &[
+                (snapshot.snapshot_id.as_uuid(), Type::UUID),
+                (snapshot.tenant_id.as_uuid(), Type::UUID),
+                (
+                    &snapshot.schema_entry_id.map(|value| *value.as_uuid()),
+                    Type::UUID,
+                ),
+                (&snapshot.schema_name, Type::TEXT),
+                (&snapshot.schema_version.as_str(), Type::TEXT),
+                (&snapshot.window.start_at, Type::TIMESTAMPTZ),
+                (&snapshot.window.end_at, Type::TIMESTAMPTZ),
+                (&snapshot.captured_at, Type::TIMESTAMPTZ),
+                (&snapshot.max_age_secs, Type::INT8),
+                (&snapshot.expires_at, Type::TIMESTAMPTZ),
+                (&snapshot.quality.as_str(), Type::TEXT),
+                (&snapshot.license_label, Type::TEXT),
+                (&snapshot.content_hash.as_str(), Type::TEXT),
+                (&Json(&symbols), Type::JSONB),
+                (&Json(&sources), Type::JSONB),
+                (&Json(&artifact_refs), Type::JSONB),
+                (&Json(&lineage), Type::JSONB),
+                (&Json(&quality_findings), Type::JSONB),
+                (&snapshot.created_at, Type::TIMESTAMPTZ),
+            ],
+        )?;
+
+        row_to_data_snapshot(&row)
+    }
+
+    pub fn get_data_snapshot(
+        &mut self,
+        tenant_id: TenantId,
+        snapshot_id: SnapshotId,
+    ) -> Result<Option<DataSnapshotRecord>, PgStorageError> {
+        let row = self.client.query_typed_opt(
+            "select id, tenant_id, schema_entry_id, schema_name, schema_version,
+                    window_start_at, window_end_at, captured_at, max_age_secs, expires_at,
+                    quality, license_label, content_hash, symbols, sources, artifact_refs,
+                    lineage, quality_findings, created_at
+             from quantos.data_snapshots
+             where tenant_id = $1 and id = $2",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (snapshot_id.as_uuid(), Type::UUID),
+            ],
+        )?;
+
+        row.map(|row| row_to_data_snapshot(&row)).transpose()
+    }
+
+    pub fn find_data_snapshot_by_hash(
+        &mut self,
+        tenant_id: TenantId,
+        content_hash: &ContentHash,
+    ) -> Result<Option<DataSnapshotRecord>, PgStorageError> {
+        let row = self.client.query_typed_opt(
+            "select id, tenant_id, schema_entry_id, schema_name, schema_version,
+                    window_start_at, window_end_at, captured_at, max_age_secs, expires_at,
+                    quality, license_label, content_hash, symbols, sources, artifact_refs,
+                    lineage, quality_findings, created_at
+             from quantos.data_snapshots
+             where tenant_id = $1 and content_hash = $2",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&content_hash.as_str(), Type::TEXT),
+            ],
+        )?;
+
+        row.map(|row| row_to_data_snapshot(&row)).transpose()
+    }
+
+    pub fn list_data_snapshots_for_symbol(
+        &mut self,
+        tenant_id: TenantId,
+        symbol: &str,
+        limit: i64,
+    ) -> Result<Vec<DataSnapshotRecord>, PgStorageError> {
+        let symbol_filter = Json(&serde_json::json!([symbol]));
+        let rows = self.client.query_typed(
+            "select id, tenant_id, schema_entry_id, schema_name, schema_version,
+                    window_start_at, window_end_at, captured_at, max_age_secs, expires_at,
+                    quality, license_label, content_hash, symbols, sources, artifact_refs,
+                    lineage, quality_findings, created_at
+             from quantos.data_snapshots
+             where tenant_id = $1
+               and symbols @> $2
+             order by captured_at desc
+             limit $3",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&symbol_filter, Type::JSONB),
+                (&limit, Type::INT8),
+            ],
+        )?;
+
+        rows.iter().map(row_to_data_snapshot).collect()
+    }
+
+    pub fn upsert_snapshot_quality_rule(
+        &mut self,
+        rule: &SnapshotQualityRule,
+    ) -> Result<SnapshotQualityRule, PgStorageError> {
+        let row = self.client.query_typed_one(
+            "insert into quantos.data_snapshot_quality_rules (
+                tenant_id, usage_scope, allow_pending, allow_degraded, allow_failed,
+                require_license, require_freshness, updated_at
+            ) values ($1,$2,$3,$4,$5,$6,$7,$8)
+            on conflict (tenant_id, usage_scope)
+            do update set
+                allow_pending = excluded.allow_pending,
+                allow_degraded = excluded.allow_degraded,
+                allow_failed = excluded.allow_failed,
+                require_license = excluded.require_license,
+                require_freshness = excluded.require_freshness,
+                updated_at = excluded.updated_at
+            returning tenant_id, usage_scope, allow_pending, allow_degraded, allow_failed,
+                      require_license, require_freshness, updated_at",
+            &[
+                (rule.tenant_id.as_uuid(), Type::UUID),
+                (&rule.usage.as_str(), Type::TEXT),
+                (&rule.allow_pending, Type::BOOL),
+                (&rule.allow_degraded, Type::BOOL),
+                (&rule.allow_failed, Type::BOOL),
+                (&rule.require_license, Type::BOOL),
+                (&rule.require_freshness, Type::BOOL),
+                (&rule.updated_at, Type::TIMESTAMPTZ),
+            ],
+        )?;
+
+        row_to_snapshot_quality_rule(&row)
+    }
+
+    pub fn list_snapshot_quality_rules(
+        &mut self,
+        tenant_id: TenantId,
+    ) -> Result<Vec<SnapshotQualityRule>, PgStorageError> {
+        let rows = self.client.query_typed(
+            "select tenant_id, usage_scope, allow_pending, allow_degraded, allow_failed,
+                    require_license, require_freshness, updated_at
+             from quantos.data_snapshot_quality_rules
+             where tenant_id = $1
+             order by usage_scope asc",
+            &[(tenant_id.as_uuid(), Type::UUID)],
+        )?;
+
+        rows.iter().map(row_to_snapshot_quality_rule).collect()
+    }
 }
 
 fn connect_client(database_url: &str) -> Result<Client, PgStorageError> {
@@ -208,5 +388,46 @@ fn row_to_schema_registry_entry(row: &Row) -> Result<SchemaRegistryEntry, PgStor
         content_hash: ContentHash::parse(row.get::<_, String>("content_hash").as_str())?,
         schema_document: row.get("schema_document"),
         created_at: row.get("created_at"),
+    })
+}
+
+fn row_to_data_snapshot(row: &Row) -> Result<DataSnapshotRecord, PgStorageError> {
+    Ok(DataSnapshotRecord {
+        snapshot_id: SnapshotId::from_uuid(row.get::<_, Uuid>("id")),
+        tenant_id: TenantId::from_uuid(row.get("tenant_id")),
+        schema_name: row.get("schema_name"),
+        schema_version: SchemaVersion::parse(row.get::<_, String>("schema_version").as_str())?,
+        schema_entry_id: row
+            .get::<_, Option<Uuid>>("schema_entry_id")
+            .map(SchemaEntryId::from_uuid),
+        window: crate::SnapshotWindow {
+            start_at: row.get("window_start_at"),
+            end_at: row.get("window_end_at"),
+        },
+        sources: serde_json::from_value(row.get("sources"))?,
+        quality: crate::SnapshotQuality::parse(row.get::<_, String>("quality").as_str())?,
+        quality_findings: serde_json::from_value(row.get("quality_findings"))?,
+        license_label: row.get("license_label"),
+        captured_at: row.get("captured_at"),
+        max_age_secs: row.get("max_age_secs"),
+        expires_at: row.get("expires_at"),
+        symbols: serde_json::from_value(row.get("symbols"))?,
+        artifact_refs: serde_json::from_value(row.get("artifact_refs"))?,
+        lineage: serde_json::from_value(row.get("lineage"))?,
+        content_hash: ContentHash::parse(row.get::<_, String>("content_hash").as_str())?,
+        created_at: row.get("created_at"),
+    })
+}
+
+fn row_to_snapshot_quality_rule(row: &Row) -> Result<SnapshotQualityRule, PgStorageError> {
+    Ok(SnapshotQualityRule {
+        tenant_id: TenantId::from_uuid(row.get("tenant_id")),
+        usage: crate::SnapshotUsage::parse(row.get::<_, String>("usage_scope").as_str())?,
+        allow_pending: row.get("allow_pending"),
+        allow_degraded: row.get("allow_degraded"),
+        allow_failed: row.get("allow_failed"),
+        require_license: row.get("require_license"),
+        require_freshness: row.get("require_freshness"),
+        updated_at: row.get("updated_at"),
     })
 }

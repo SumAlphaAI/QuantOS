@@ -73,7 +73,10 @@ fn build_actor_metadata(
         actor_id: "actor-primary".to_owned(),
         actor_kind: 1,
         display_name: "QuantOS Tester".to_owned(),
-        capabilities: capabilities.iter().map(|value| (*value).to_owned()).collect(),
+        capabilities: capabilities
+            .iter()
+            .map(|value| (*value).to_owned())
+            .collect(),
     });
     metadata.mode = 1;
     metadata

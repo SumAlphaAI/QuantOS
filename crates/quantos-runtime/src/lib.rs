@@ -1,4 +1,5 @@
 pub mod pg;
+pub mod research;
 
 use std::collections::{BTreeMap, BTreeSet};
 

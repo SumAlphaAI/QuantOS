@@ -66,6 +66,7 @@ define_uuid_id!(RuntimeSessionId);
 define_uuid_id!(WorkflowRunId);
 define_uuid_id!(TaskAttemptId);
 define_uuid_id!(ArtifactId);
+define_uuid_id!(SnapshotId);
 define_uuid_id!(AuditEntryId);
 define_uuid_id!(ProposalId);
 define_uuid_id!(DecisionId);

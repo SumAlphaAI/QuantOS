@@ -57,6 +57,9 @@ Polyglot monorepo baseline for the QuantOS platform.
 - F07 adds `quantos-runtime`, persistent workflow runs/sessions/checkpoints, leased task claiming, cancellation/timeout audit hooks, and Artifact bindings that deduplicate recovery paths after worker restarts.
 - F08 adds `quantos-engine-manager`, Python engine SDK gRPC helpers, a UDS-backed `mock-engine`, cross-language contract tests for `GetMetadata/Health/Execute/StreamExecute/Cancel`, crash backoff recovery, and deterministic deadline handling.
 - F09 adds `quantos-observability`, local trace/metrics/structured-log primitives, fault injection coverage, capacity alert evaluation, and ADR evidence templates for outbox, read model, storage, and secret health.
+- R01 adds `quantos-market` and `market-ingestor`, approved-provider gating, normalized market tick contracts, deterministic replay dataset generation, duplicate/out-of-order deduplication, and freshness/quality anomaly events written as `MarketEvent`.
+- R02 extends `quantos-storage` with immutable `DataSnapshot` metadata, lineage capture, PostgreSQL-backed quality rules, snapshot hash deduplication, and snapshot queries guarded by Supabase RLS.
+- R03 extends `quantos-runtime` with research orchestration over Engine Manager, snapshot quality gating, stream-event capture, deterministic `ResearchArtifact` repository records, fast cancel confirmation, and replay-friendly checkpointing.
 - `replay-cli` now supports direct PostgreSQL replay via `DATABASE_URL`, with JSONL replay kept as a fallback for local fixtures.
 - Root `.env` and `.env.local` are loaded automatically by `Makefile`; see [`.env.example`](./.env.example) and [`supabase/OPERATIONS.md`](./supabase/OPERATIONS.md).
 - Realtime is treated as an optional wakeup or projection notification path only; workers must always recover by rescanning PostgreSQL outbox rows after missed notifications, disconnects, or restarts.

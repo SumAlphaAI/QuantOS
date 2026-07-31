@@ -1,4 +1,5 @@
 pub mod pg;
+pub mod snapshot;
 pub mod supabase_storage;
 
 use std::collections::BTreeMap;
@@ -10,6 +11,14 @@ use quantos_core::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+
+pub use snapshot::{
+    DataSnapshotInput, DataSnapshotRecord, InMemoryDataSnapshotCatalog, SnapshotArtifactRef,
+    SnapshotError, SnapshotGateDecision, SnapshotGateViolation, SnapshotLineageEntry,
+    SnapshotQuality, SnapshotQualityFinding, SnapshotQualityGate, SnapshotQualityRule,
+    SnapshotQualityRuleset, SnapshotSourceRef, SnapshotUsage, SnapshotWindow,
+    default_quality_rules,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ArtifactManifest {

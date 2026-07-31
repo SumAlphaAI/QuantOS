@@ -340,6 +340,15 @@ impl EngineManager {
         }
     }
 
+    pub async fn cancel_capability(
+        &mut self,
+        capability: &str,
+        request: CancelRequest,
+    ) -> Result<CancelResponse, EngineManagerError> {
+        let engine_name = self.route_engine_name(capability)?.to_owned();
+        self.cancel(&engine_name, request).await
+    }
+
     async fn client_for_engine(
         &self,
         engine_name: &str,
