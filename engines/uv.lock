@@ -6,6 +6,7 @@ requires-python = "==3.9.*"
 members = [
     "quantos-engine-sdk",
     "quantos-engines-workspace",
+    "quantos-llmquant",
     "quantos-mock-engine",
     "quantos-rd-agent",
     "quantos-vibe-adapter",
@@ -153,6 +154,17 @@ dev = [
     { name = "pytest", specifier = "==8.4.1" },
     { name = "ruff", specifier = "==0.12.7" },
 ]
+
+[[package]]
+name = "quantos-llmquant"
+version = "0.1.0"
+source = { editable = "llmquant" }
+dependencies = [
+    { name = "quantos-engine-sdk" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "quantos-engine-sdk", editable = "engine-sdk" }]
 
 [[package]]
 name = "quantos-mock-engine"

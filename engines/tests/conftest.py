@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 for relative in (
     "engines/engine-sdk/sdk_src",
     "engines/engine-sdk/src",
+    "engines/llmquant/src",
     "engines/mock-engine/src",
     "engines/rd-agent/src",
     "engines/vibe-adapter/src",

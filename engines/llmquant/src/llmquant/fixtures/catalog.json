@@ -1,0 +1,52 @@
+{
+  "fixtures": [
+    {
+      "fixture_name": "trend_long_quality",
+      "symbol": "BTCUSDT",
+      "direction": "long",
+      "strength": "0.82",
+      "confidence": "0.77",
+      "validity_minutes": 45,
+      "strategy_version": "strategy.trend.v3",
+      "model_version": "llmquant-factor-2026.07.31",
+      "model_digest": "sha256:llmquant-model-trend-long",
+      "data_version": "feature-snapshot-2026-07-31-a",
+      "summary": "Trend and breadth factors align for a long-biased research signal.",
+      "factor_family": ["trend", "breadth", "volatility"],
+      "diagnostics_tags": ["research_only", "feature_snapshot_locked", "no_trade_path"],
+      "evidence": ["snapshot:trend-window", "snapshot:breadth-window", "artifact:model-card"]
+    },
+    {
+      "fixture_name": "mean_reversion_short",
+      "symbol": "ETHUSDT",
+      "direction": "short",
+      "strength": "0.69",
+      "confidence": "0.73",
+      "validity_minutes": 30,
+      "strategy_version": "strategy.reversion.v2",
+      "model_version": "llmquant-factor-2026.07.31",
+      "model_digest": "sha256:llmquant-model-reversion-short",
+      "data_version": "feature-snapshot-2026-07-31-b",
+      "summary": "Overextension and weakening liquidity support a short-biased reversion signal.",
+      "factor_family": ["reversion", "liquidity", "dispersion"],
+      "diagnostics_tags": ["research_only", "feature_snapshot_locked", "no_trade_path"],
+      "evidence": ["snapshot:reversion-window", "snapshot:liquidity-window", "artifact:model-card"]
+    },
+    {
+      "fixture_name": "neutral_flat_wait",
+      "symbol": "SOLUSDT",
+      "direction": "flat",
+      "strength": "0.31",
+      "confidence": "0.58",
+      "validity_minutes": 20,
+      "strategy_version": "strategy.neutral.v1",
+      "model_version": "llmquant-factor-2026.07.31",
+      "model_digest": "sha256:llmquant-model-neutral-flat",
+      "data_version": "feature-snapshot-2026-07-31-c",
+      "summary": "Conflicting factors reduce conviction and keep the signal flat.",
+      "factor_family": ["carry", "breadth", "regime"],
+      "diagnostics_tags": ["research_only", "feature_snapshot_locked", "no_trade_path"],
+      "evidence": ["snapshot:carry-window", "snapshot:regime-window", "artifact:model-card"]
+    }
+  ]
+}
