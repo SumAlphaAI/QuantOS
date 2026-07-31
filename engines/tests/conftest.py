@@ -11,6 +11,7 @@ for relative in (
     "engines/engine-sdk/src",
     "engines/llmquant/src",
     "engines/mock-engine/src",
+    "engines/openbb-adapter/src",
     "engines/rd-agent/src",
     "engines/trading-agents/src",
     "engines/vibe-adapter/src",

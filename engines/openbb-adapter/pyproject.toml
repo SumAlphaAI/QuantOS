@@ -1,0 +1,24 @@
+[project]
+name = "quantos-openbb-adapter"
+version = "0.1.0"
+description = "Controlled OpenBB data query adapter for QuantOS"
+requires-python = ">=3.9,<3.10"
+dependencies = [
+  "quantos-engine-sdk",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+quantos-engine-sdk = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/openbb_adapter"]
+
+[tool.hatch.build]
+include = [
+  "src/openbb_adapter/fixtures/*.json",
+  "src/openbb_adapter/policy/*.json",
+]

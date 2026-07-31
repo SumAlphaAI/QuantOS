@@ -1,5 +1,6 @@
 from llmquant import run as llmquant_run
 from mock_engine import run
+from openbb_adapter import run as openbb_adapter_run
 from quantos_engine_sdk import workspace_name
 from rd_agent import run as rd_run
 from trading_agents import run as trading_agents_run
@@ -12,6 +13,10 @@ def test_workspace_name_is_stable() -> None:
 
 def test_mock_engine_is_deterministic() -> None:
     assert run() == "sumalpha-quantos:mock-engine"
+
+
+def test_openbb_adapter_is_deterministic() -> None:
+    assert openbb_adapter_run() == "sumalpha-quantos:openbb-adapter"
 
 
 def test_llmquant_is_deterministic() -> None:

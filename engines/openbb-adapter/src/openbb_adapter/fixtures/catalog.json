@@ -1,0 +1,122 @@
+{
+  "fixtures": [
+    {
+      "fixture_name": "crypto_market_btc",
+      "dataset": "crypto.market.snapshot",
+      "schema_ref": "schema.crypto.market.v1",
+      "symbols": ["BTCUSDT"],
+      "window": {
+        "start_at": "2026-07-31T00:00:00Z",
+        "end_at": "2026-07-31T01:00:00Z"
+      },
+      "records": [
+        {
+          "symbol": "BTCUSDT",
+          "open": "64125.10",
+          "high": "64580.55",
+          "low": "63980.40",
+          "close": "64410.25",
+          "volume": "1850.11"
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "source-openbb-crypto-btc",
+          "provider": "openbb",
+          "dataset": "crypto.market.snapshot",
+          "license_label": "AGPL-3.0-only"
+        }
+      ],
+      "license_label": "AGPL-3.0-only",
+      "cache_ttl_secs": 45,
+      "lineage_tags": [
+        "research_only",
+        "provider_isolated",
+        "no_trading_path"
+      ],
+      "allowed_workflows": [
+        "research",
+        "evaluation"
+      ]
+    },
+    {
+      "fixture_name": "equity_fundamentals_nvda",
+      "dataset": "equity.fundamentals.snapshot",
+      "schema_ref": "schema.equity.fundamentals.v1",
+      "symbols": ["NVDA"],
+      "window": {
+        "start_at": "2026-07-31T00:00:00Z",
+        "end_at": "2026-07-31T00:00:00Z"
+      },
+      "records": [
+        {
+          "symbol": "NVDA",
+          "market_cap": "3950000000000",
+          "pe_ratio": "58.30",
+          "eps_ttm": "2.94",
+          "revenue_growth_yoy": "0.42"
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "source-openbb-fundamentals-nvda",
+          "provider": "openbb",
+          "dataset": "equity.fundamentals.snapshot",
+          "license_label": "AGPL-3.0-only"
+        }
+      ],
+      "license_label": "AGPL-3.0-only",
+      "cache_ttl_secs": 300,
+      "lineage_tags": [
+        "research_only",
+        "provider_isolated",
+        "no_trading_path"
+      ],
+      "allowed_workflows": [
+        "research",
+        "evaluation"
+      ]
+    },
+    {
+      "fixture_name": "macro_research_rates",
+      "dataset": "macro.research.snapshot",
+      "schema_ref": "schema.macro.rates.v1",
+      "symbols": ["US10Y", "DXY"],
+      "window": {
+        "start_at": "2026-07-31T00:00:00Z",
+        "end_at": "2026-07-31T12:00:00Z"
+      },
+      "records": [
+        {
+          "series": "US10Y",
+          "value": "4.12",
+          "unit": "percent"
+        },
+        {
+          "series": "DXY",
+          "value": "103.41",
+          "unit": "index"
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "source-openbb-macro-rates",
+          "provider": "openbb",
+          "dataset": "macro.research.snapshot",
+          "license_label": "AGPL-3.0-only"
+        }
+      ],
+      "license_label": "AGPL-3.0-only",
+      "cache_ttl_secs": 120,
+      "lineage_tags": [
+        "research_only",
+        "provider_isolated",
+        "no_trading_path"
+      ],
+      "allowed_workflows": [
+        "research",
+        "evaluation"
+      ]
+    }
+  ]
+}

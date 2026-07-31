@@ -105,7 +105,10 @@ fn proposal_input(spec: ProposalInputSpec<'_>) -> JsonDocument {
         ("fixture", string_value(spec.fixture)),
         ("account_id", string_value(spec.account_id)),
         ("policy_snapshot_id", string_value(spec.policy_snapshot_id)),
-        ("portfolio_snapshot_id", string_value(spec.portfolio_snapshot_id)),
+        (
+            "portfolio_snapshot_id",
+            string_value(spec.portfolio_snapshot_id),
+        ),
         (
             "signal",
             struct_value([
@@ -138,7 +141,10 @@ fn proposal_input(spec: ProposalInputSpec<'_>) -> JsonDocument {
                     "signal_id",
                     string_value(&format!("signal:{}", spec.signal_request_id)),
                 ),
-                ("strategy_release_id", string_value(spec.strategy_release_id)),
+                (
+                    "strategy_release_id",
+                    string_value(spec.strategy_release_id),
+                ),
                 ("symbol", string_value(spec.symbol)),
                 ("direction", string_value(spec.direction)),
                 ("strength", struct_value([("value", string_value("0.82"))])),
