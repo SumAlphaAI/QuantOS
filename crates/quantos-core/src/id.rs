@@ -78,6 +78,8 @@ define_uuid_id!(FixtureId);
 define_uuid_id!(InboxEntryId);
 define_uuid_id!(OutboxEntryId);
 define_uuid_id!(SchemaEntryId);
+define_uuid_id!(StrategyDraftId);
+define_uuid_id!(DraftVersionId);
 
 #[cfg(test)]
 mod tests {

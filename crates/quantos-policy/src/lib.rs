@@ -74,6 +74,7 @@ impl Capability {
     pub const RESEARCH_READ: &'static str = "research.read";
     pub const RESEARCH_WRITE: &'static str = "research.write";
     pub const STRATEGY_APPROVE: &'static str = "strategy.approve";
+    pub const STRATEGY_WRITE: &'static str = "strategy.write";
     pub const EXECUTION_OPERATE: &'static str = "execution.operate";
     pub const ACCOUNT_READ: &'static str = "account.read";
     pub const SECRET_RESOLVE: &'static str = "secret.resolve";

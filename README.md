@@ -61,6 +61,7 @@ Polyglot monorepo baseline for the QuantOS platform.
 - R02 extends `quantos-storage` with immutable `DataSnapshot` metadata, lineage capture, PostgreSQL-backed quality rules, snapshot hash deduplication, and snapshot queries guarded by Supabase RLS.
 - R03 extends `quantos-runtime` with research orchestration over Engine Manager, snapshot quality gating, stream-event capture, deterministic `ResearchArtifact` repository records, fast cancel confirmation, and replay-friendly checkpointing.
 - R04 extends `quantos-runtime` with Signal and TradeProposal orchestration over `llmquant` and `trading-agents`, schema validation, counter-view capture, proposal expiry gates, and replay-safe proposal records with no order-side effects.
+- S01 adds `quantos-strategy`, versioned strategy drafts with optimistic-concurrency conflict detection, manual/autosave versioning, approved DataSnapshot/Artifact reference gating, validation handoff rules, and Supabase migration `20260801090000_strategy_drafts` with default-deny RLS and `auth.users` audit columns.
 - `replay-cli` now supports direct PostgreSQL replay via `DATABASE_URL`, with JSONL replay kept as a fallback for local fixtures.
 - Root `.env` and `.env.local` are loaded automatically by `Makefile`; see [`.env.example`](./.env.example) and [`supabase/OPERATIONS.md`](./supabase/OPERATIONS.md).
 - Realtime is treated as an optional wakeup or projection notification path only; workers must always recover by rescanning PostgreSQL outbox rows after missed notifications, disconnects, or restarts.
