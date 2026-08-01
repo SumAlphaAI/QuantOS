@@ -1,0 +1,52 @@
+{
+  "fixtures": [
+    {
+      "fixture_name": "trend_momentum_btc",
+      "strategy_name": "trend.momentum.btc",
+      "rule": "momentum",
+      "lookback": 24,
+      "entry_threshold_bps": 25,
+      "exit_threshold_bps": -12,
+      "max_position_notional": "25000",
+      "universe": ["BTCUSDT"],
+      "summary": "Momentum continuation on BTCUSDT with fixed lookback.",
+      "rule_source": "momentum(close, lookback=24)",
+      "evidence": [
+        "research: hypothesis_momentum_continuation",
+        "artifact: factor-library/momentum.v1"
+      ]
+    },
+    {
+      "fixture_name": "range_reversion_eth",
+      "strategy_name": "range.reversion.eth",
+      "rule": "momentum",
+      "lookback": 12,
+      "entry_threshold_bps": -18,
+      "exit_threshold_bps": 9,
+      "max_position_notional": "15000",
+      "universe": ["ETHUSDT"],
+      "summary": "Short-horizon reversion expressed through the momentum rule DSL.",
+      "rule_source": "momentum(close, lookback=12)",
+      "evidence": [
+        "research: hypothesis_range_bound_eth",
+        "artifact: factor-library/reversion.v1"
+      ]
+    },
+    {
+      "fixture_name": "peek_ahead_alpha",
+      "strategy_name": "peek.ahead.alpha",
+      "rule": "momentum",
+      "lookback": 24,
+      "entry_threshold_bps": 25,
+      "exit_threshold_bps": -12,
+      "max_position_notional": "25000",
+      "universe": ["BTCUSDT"],
+      "summary": "Adversarial fixture whose rule source reads future bars.",
+      "rule_source": "momentum(close, lookback=24) + future_close(1)",
+      "evidence": [
+        "research: hypothesis_static_check_block",
+        "artifact: fixtures/peek-ahead-alpha"
+      ]
+    }
+  ]
+}

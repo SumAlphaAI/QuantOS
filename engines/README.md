@@ -3,6 +3,7 @@
 Python engine workspace and contract test harness live here.
 
 - `engine-sdk`: shared Python manifest types, UDS gRPC server/client helpers, JSON helpers, and timestamp utilities for QuantOS engines.
+- `strategy-lab`: TP06 controlled strategy generator that emits deterministic `StrategyDraftArtifact`/`StaticCheckArtifact` payloads with bounded prompts and release-blocking static checks.
 - `llmquant`: TP03 controlled signal engine that emits deterministic `quant.signal.v1` payloads plus model diagnostics provenance.
 - `mock-engine`: deterministic mock engine that exposes all five Engine RPCs over UDS gRPC.
 - `openbb-adapter`: TP05 controlled data query adapter that emits lineage-rich Data Contract responses behind a production license gate.

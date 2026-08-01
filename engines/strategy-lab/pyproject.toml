@@ -1,0 +1,23 @@
+[project]
+name = "quantos-strategy-lab"
+version = "0.1.0"
+description = "Controlled TP06 strategy generation engine for QuantOS"
+requires-python = ">=3.9,<3.10"
+dependencies = [
+  "quantos-engine-sdk",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+quantos-engine-sdk = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/strategy_lab"]
+
+[tool.hatch.build]
+include = [
+  "src/strategy_lab/fixtures/*.json",
+]

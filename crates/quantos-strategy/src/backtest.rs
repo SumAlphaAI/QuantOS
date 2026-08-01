@@ -149,6 +149,7 @@ pub trait StrategyAdapter {
 }
 
 /// Honest momentum rule: only reads bars at or before the decision index.
+#[derive(Debug)]
 pub struct MomentumAdapter {
     lookback: usize,
     entry_threshold_bps: i64,

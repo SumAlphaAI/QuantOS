@@ -10,6 +10,7 @@ members = [
     "quantos-mock-engine",
     "quantos-openbb-adapter",
     "quantos-rd-agent",
+    "quantos-strategy-lab",
     "quantos-trading-agents",
     "quantos-vibe-adapter",
 ]
@@ -194,6 +195,17 @@ requires-dist = [{ name = "quantos-engine-sdk", editable = "engine-sdk" }]
 name = "quantos-rd-agent"
 version = "0.1.0"
 source = { editable = "rd-agent" }
+dependencies = [
+    { name = "quantos-engine-sdk" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "quantos-engine-sdk", editable = "engine-sdk" }]
+
+[[package]]
+name = "quantos-strategy-lab"
+version = "0.1.0"
+source = { editable = "strategy-lab" }
 dependencies = [
     { name = "quantos-engine-sdk" },
 ]
