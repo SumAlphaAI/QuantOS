@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "component": "loong",
+  "recordedAt": "2026-07-31T00:00:00Z",
+  "upstream": {
+    "owner": "eastreams",
+    "repo": "loong",
+    "repositoryUrl": "https://github.com/eastreams/loong.git",
+    "browseUrl": "https://github.com/eastreams/loong",
+    "defaultBranch": "dev",
+    "tag": null,
+    "commit": "3ab7936638e4772c1db95ebee7f5f643852697c2",
+    "commitDate": "2026-07-07T02:32:09Z",
+    "note": "Rust base for vertical AI agents (formerly LoongClaw); crates workspace with kernel/protocol/contracts/app/spec/daemon/tui/ops"
+  },
+  "license": {
+    "spdx": "MIT",
+    "concluded": "MIT",
+    "licenseFile": {
+      "path": "LICENSE-MIT",
+      "sha256": "cdd3e303bcbdecbaf9bc16c4b00d5e673754780d53b1ff5aba33cb59fe982daf"
+    },
+    "noticeFile": null,
+    "consequence": "permissive license; boundary decision is architectural (no upstream types in QuantOS protocol/core), not legal"
+  },
+  "dependencyDigests": {
+    "projectDescriptor": {
+      "path": "Cargo.toml",
+      "sha256": "431459cf2fb3e1ec3444fdc190a5453d4cdfc194f67ff78536840bd3d4e5e86c"
+    }
+  },
+  "policy": {
+    "readOnlyReference": true,
+    "decision": "reference_only",
+    "allowedAbsorptionModes": [
+      "design or test reference only",
+      "candidate adoption of design patterns (restricted tool views, build-time tool gating, approval replay records, audit sink abstraction)"
+    ],
+    "forbiddenSurfaces": [
+      "any upstream type or schema inside QuantOS proto/ or crates/quantos-core",
+      "any runtime dependency or lockfile entry",
+      "Loong ACP/MCP backend integration",
+      "Loong channel integrations (Telegram etc.)",
+      "Loong TUI reused as QuantOS terminal"
+    ]
+  },
+  "cveAudit": {
+    "status": "not_run",
+    "reason": "evaluation is reference-only with no dependency adoption; audit only if a future re-evaluation proposes adoption"
+  }
+}
