@@ -311,7 +311,7 @@ async fn python_trading_agents_contracts_round_trip_over_uds() -> anyhow::Result
             .await?;
         assert_eq!(execute.execution_id, "run-exec:idem-exec");
         assert_eq!(execute.artifact_refs.len(), 2);
-        assert_eq!(execute.evidence_refs.len(), 3);
+        assert_eq!(execute.evidence_refs.len(), 4);
 
         let stream = manager
             .stream_execute_collect(

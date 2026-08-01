@@ -187,18 +187,23 @@ def _build_evidence_refs(
             evidence_id=f"proposal-evidence:{context.workflow_run_id}:1",
             artifact_id=committee_artifact_id,
             summary=fixture.evidence[0],
-        ),
+        )
+    ]
+    for index, counter_view in enumerate(fixture.counter_views, start=2):
+        evidence_refs.append(
+            common_pb2.EvidenceRef(
+                evidence_id=f"proposal-evidence:{context.workflow_run_id}:{index}",
+                artifact_id=committee_artifact_id,
+                summary=counter_view,
+            )
+        )
+    evidence_refs.append(
         common_pb2.EvidenceRef(
-            evidence_id=f"proposal-evidence:{context.workflow_run_id}:2",
-            artifact_id=committee_artifact_id,
-            summary=fixture.counter_views[0],
-        ),
-        common_pb2.EvidenceRef(
-            evidence_id=f"proposal-evidence:{context.workflow_run_id}:3",
+            evidence_id=f"proposal-evidence:{context.workflow_run_id}:{len(fixture.counter_views) + 2}",
             artifact_id=policy_artifact_id,
             summary=f"policy fixture: {fixture.policy_rules[0]}",
-        ),
-    ]
+        )
+    )
     return tuple(evidence_refs)
 
 

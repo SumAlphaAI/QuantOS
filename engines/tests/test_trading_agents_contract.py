@@ -127,7 +127,10 @@ def test_trading_agents_contract_all_rpcs() -> None:
         assert proposal.account_id == "paper-account-primary"
         assert proposal.symbol == "BTCUSDT"
         assert proposal.executable is False
-        assert proposal.evidence_refs[1].summary.startswith("Counterpoint:")
+        counter_summaries = [
+            ref.summary for ref in proposal.evidence_refs if ref.summary.startswith("Counterpoint:")
+        ]
+        assert counter_summaries == list(fixture.counter_views)
 
         stream = client.stream_execute(
             engine_pb2.StreamExecuteRequest(request=execute_request),
@@ -294,7 +297,10 @@ def test_trading_agents_validates_100_fixed_inputs_against_trade_proposal_proto(
             assert required.issubset(payload.keys())
             assert proposal.executable is False
             assert proposal.expires_at.seconds > 0
-            assert any(ref.summary.startswith("Counterpoint:") for ref in proposal.evidence_refs)
+            counter_summaries = [
+                ref.summary for ref in proposal.evidence_refs if ref.summary.startswith("Counterpoint:")
+            ]
+            assert counter_summaries == list(load_fixture(case.fixture_name).counter_views)
     finally:
         client.close()
         server.stop(grace=0)

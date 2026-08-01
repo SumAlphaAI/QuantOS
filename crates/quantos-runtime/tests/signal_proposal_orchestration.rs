@@ -461,7 +461,14 @@ async fn signal_proposal_workflow_runs_hundred_cases_with_evidence_expiry_and_no
                 assert!(!result.signal.evidence_refs.is_empty());
                 assert_eq!(result.signal.auxiliary_artifact_manifests.len(), 1);
                 assert!(!result.proposal.evidence_refs.is_empty());
-                assert!(!result.proposal.counter_views.is_empty());
+                assert_eq!(result.proposal.counter_views.len(), 2);
+                assert!(
+                    result
+                        .proposal
+                        .counter_views
+                        .iter()
+                        .all(|view| view.starts_with("Counterpoint:"))
+                );
                 assert_eq!(result.proposal.auxiliary_artifact_manifests.len(), 2);
                 assert!(!result.proposal.executable);
                 assert!(
