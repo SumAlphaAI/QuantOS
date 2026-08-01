@@ -1,6 +1,7 @@
 pub mod backtest;
 pub mod generated;
 pub mod pg;
+pub mod release;
 
 use std::collections::BTreeMap;
 

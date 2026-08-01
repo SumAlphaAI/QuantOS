@@ -12,8 +12,10 @@ Strategy draft and parameter model for QuantOS.
 - PostgreSQL persistence with `FOR UPDATE` head locking and Supabase migration `20260801090000_strategy_drafts` (RLS default deny, `auth.users` audit columns)
 - deterministic backtest adapter with fixed `DataSnapshot` binding, fixed clock, fee/slippage cost model, and access-logged decision contexts
 - look-ahead and data-leakage detection plus environment/input hashing for replayable `BacktestValidationReport` records
+- immutable `StrategyRelease` publishing with content-hash dedupe, deterministic conflicts, and M3/M4 deployment policy limited to Paper/Shadow (unverified or unapproved releases can never deploy)
+- Supabase migration `20260801100000_strategy_releases` for release/deployment persistence with RLS default deny and `auth.users` audit columns
 
 ## Validation
 
 - `cargo test -p quantos-strategy`
-- `DATABASE_URL=... cargo test -p quantos-strategy --test postgres_drafts`
+- `DATABASE_URL=... cargo test -p quantos-strategy --test postgres_drafts --test postgres_releases`
