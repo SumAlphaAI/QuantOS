@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "component": "qlib",
+  "recordedAt": "2026-07-31T00:00:00Z",
+  "upstream": {
+    "owner": "microsoft",
+    "repo": "qlib",
+    "repositoryUrl": "https://github.com/microsoft/qlib.git",
+    "browseUrl": "https://github.com/microsoft/qlib",
+    "defaultBranch": "main",
+    "tag": null,
+    "describe": "v0.9.7-31-gd5379c52",
+    "commit": "d5379c520f66a39953bad76234a7019a72796fd0",
+    "commitDate": "2026-04-22T15:08:01+08:00"
+  },
+  "license": {
+    "spdx": "MIT",
+    "concluded": "MIT",
+    "licenseFile": {
+      "path": "LICENSE",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+    },
+    "noticeFile": null
+  },
+  "dependencyDigests": {
+    "pythonLock": null,
+    "projectDescriptor": {
+      "path": "pyproject.toml",
+      "sha256": "fc9d1d6f2e66aacb5eb074aa2baf9d1678b0bf5986000ed06af98649ae8200c7"
+    },
+    "setupScript": {
+      "path": "setup.py",
+      "sha256": "d4c91c0c581513eb23832e0491a3fd78be635bfa94bd690f4d47ed9b5eafc1b2"
+    },
+    "uvLock": null,
+    "pnpmLock": null
+  },
+  "policy": {
+    "readOnlyReference": true,
+    "productionArtifactSource": "engines/llmquant",
+    "decision": "reference_only",
+    "allowedAbsorptionModes": [
+      "design or test reference only",
+      "offline experiment mapping samples into QuantOS contracts"
+    ],
+    "forbiddenSurfaces": [
+      "second Quant Core inside QuantOS runtime",
+      "qlib data provider as production data source",
+      "mlflow recorder as QuantOS artifact store",
+      "qlib backtest or execution stack",
+      "redis/mongo client-server data infra"
+    ]
+  },
+  "cveAudit": {
+    "status": "blocked",
+    "tool": "pip-audit (uvx, Python 3.12)",
+    "lastAttemptedAt": "2026-07-31T00:00:00Z",
+    "reason": "Local audit host aborted during virtualenv bootstrap (ensurepip SIGABRT) while resolving the unpinned pyqlib dependency set; upstream ships no lockfile, so no trustworthy resolved dependency list exists yet."
+  }
+}

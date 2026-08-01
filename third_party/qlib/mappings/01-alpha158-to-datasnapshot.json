@@ -1,0 +1,68 @@
+{
+  "mapping_id": "tp08-qlib-01-alpha158-datasnapshot",
+  "purpose": "Map a Qlib Alpha158 handler dataset definition (csi300, 2020 calendar year) into a QuantOS DataSnapshot contract.",
+  "qlib_source": {
+    "commit": "d5379c520f66a39953bad76234a7019a72796fd0",
+    "surface": "qlib.contrib.data.handler.Alpha158",
+    "experiment_config": "examples/benchmarks/LightGBM/workflow_config_lightgbm_Alpha158.yaml",
+    "universe": "csi300",
+    "calendar": {
+      "start": "2020-01-01",
+      "end": "2020-12-31"
+    },
+    "feature_set": "Alpha158: 158 price/volume/rolling-window expressions over OHLCV"
+  },
+  "quantos_data_snapshot": {
+    "metadata": {
+      "tenant_id": "tenant-primary",
+      "workspace_id": "workspace-primary",
+      "actor_id": "actor-tp08-mapping",
+      "correlation_id": "corr-tp08-qlib-01",
+      "causation_id": "cause-tp08-qlib-01",
+      "mode": "RUNTIME_MODE_RESEARCH",
+      "environment": "ENVIRONMENT_TEST",
+      "issued_at": "2026-07-31T00:00:00Z"
+    },
+    "snapshot_id": "snapshot-tp08-qlib-alpha158-csi300-2020",
+    "schema_version": "v1",
+    "window": {
+      "start_at": "2020-01-01T00:00:00Z",
+      "end_at": "2020-12-31T23:59:59Z"
+    },
+    "sources": [
+      {
+        "source_id": "qlib-community-dump-csi300",
+        "provider": "qlib-community-data",
+        "dataset": "qlib-bin/cn_data/csi300@2020",
+        "license_label": "unlicensed-community-dump-research-only"
+      }
+    ],
+    "quality": {
+      "status": "passed",
+      "findings": []
+    },
+    "license_label": "unlicensed-community-dump-research-only",
+    "captured_at": "2026-07-31T00:00:00Z",
+    "max_age": "2592000s",
+    "symbols": [
+      "SH600000",
+      "SH600519",
+      "SZ000001"
+    ],
+    "artifact_refs": [
+      {
+        "artifact_id": "artifact-tp08-alpha158-feature-matrix",
+        "media_type": "application/x-parquet",
+        "content_hash": "sha256:placeholder-feature-matrix",
+        "storage_bucket": "quantos-artifacts",
+        "object_key": "tp08/alpha158-csi300-2020/features.parquet"
+      }
+    ]
+  },
+  "boundary_notes": [
+    "snapshot stays research-only because the community dump has no production-grade license",
+    "qlib binary cache and expression cache are not imported; only the handler definition is mapped",
+    "symbols list is truncated to three sample instruments for the offline sample"
+  ],
+  "content_hash": "sha256:25509a58908befc8e1610c190a06771b8980a65dd51bfd400969a19485ba4049"
+}

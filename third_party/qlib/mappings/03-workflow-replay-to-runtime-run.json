@@ -1,0 +1,39 @@
+{
+  "mapping_id": "tp08-qlib-03-workflow-replay-to-runtime-run",
+  "purpose": "Map Qlib's experiment-recorder reproducibility model (qrun config + recorder rerun) into QuantOS runtime run/replay semantics.",
+  "qlib_source": {
+    "commit": "d5379c520f66a39953bad76234a7019a72796fd0",
+    "surface": "qlib.workflow (R, ExperimentManager, Recorder) + qlib.workflow.task",
+    "reproducibility_model": "rerun a frozen qrun YAML against the same qlib data directory; recorder metrics/params are re-logged under a new mlflow run id"
+  },
+  "quantos_run_record": {
+    "runtime_session_id": "session-tp08-replay",
+    "tool_name": "research.experiment.workflow",
+    "capability": "research.experiment.v1",
+    "workflow_kind": "research_experiment",
+    "idempotency_key": "tp08-qlib-lgbm-alpha158-csi300-2020",
+    "correlation_id": "corr-tp08-qlib-03",
+    "input_hash": "sha256:stable-hash-of-frozen-experiment-input",
+    "status": "succeeded",
+    "artifact_manifests": [
+      {
+        "artifact_id": "artifact-tp08-replay-run-manifest",
+        "media_type": "application/json",
+        "content_hash": "sha256:placeholder-run-manifest",
+        "storage_bucket": "quantos-artifacts",
+        "object_key": "tp08/replay/run-manifest.json"
+      }
+    ]
+  },
+  "replay_semantics": {
+    "same_input_same_hash": "rescheduling with the same frozen input must reproduce the same input_hash and deduplicate artifacts instead of creating new physical copies",
+    "artifact_dedup": "physical artifact count stays at 1 across replays, matching quantos-runtime kernel recovery semantics",
+    "evidence_locatable": "every evidence ref must resolve to a recorded artifact manifest, not to an external mlflow run id",
+    "contrast_with_qlib": "qlib reruns mint a new mlflow run id per execution; QuantOS deduplicates by content hash and idempotency key"
+  },
+  "boundary_notes": [
+    "this sample documents semantics only; no qlib workflow code runs inside quantos-runtime",
+    "R03 research orchestration already enforces stable input hash and locatable evidence; this sample proves the qlib model can be expressed inside those semantics"
+  ],
+  "content_hash": "sha256:48ac94341664ae504b1e37004e11d59b49b312d41b2090b48a64f137c0395691"
+}
