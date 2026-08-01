@@ -1,0 +1,86 @@
+{
+  "mapping_id": "tp09-trendradar-01-hotlist-theme-signal",
+  "purpose": "Map a TrendRadar-style hot-list theme cluster (AI semiconductor theme across three platforms) into a QuantOS Signal contract.",
+  "trendradar_input": {
+    "commit": "8ee26026ba6c11dec41a95fb3895a7162876caa1",
+    "input_class": "hot_list_aggregation",
+    "captured_at": "2026-07-30T09:00:00Z",
+    "items": [
+      {
+        "platform": "weibo",
+        "rank": 3,
+        "title": "国产AI芯片量产提速",
+        "url": "https://s.weibo.com/weibo?q=example-ai-chip",
+        "source_id": "weibo-hot-20260730-003",
+        "license_label": "unlicensed-hotlist-research-only"
+      },
+      {
+        "platform": "zhihu",
+        "rank": 7,
+        "title": "如何看待新一代AI加速卡发布",
+        "url": "https://www.zhihu.com/question/example",
+        "source_id": "zhihu-hot-20260730-007",
+        "license_label": "unlicensed-hotlist-research-only"
+      },
+      {
+        "platform": "baidu",
+        "rank": 5,
+        "title": "半导体板块异动拉升",
+        "url": "https://top.baidu.com/board?tab=example",
+        "source_id": "baidu-hot-20260730-005",
+        "license_label": "unlicensed-hotlist-research-only"
+      }
+    ]
+  },
+  "quantos_signal": {
+    "metadata": {
+      "tenant_id": "tenant-primary",
+      "workspace_id": "workspace-primary",
+      "actor_id": "actor-tp09-mapping",
+      "correlation_id": "corr-tp09-trendradar-01",
+      "causation_id": "cause-tp09-trendradar-01",
+      "mode": "RUNTIME_MODE_RESEARCH",
+      "environment": "ENVIRONMENT_TEST",
+      "issued_at": "2026-07-31T00:00:00Z"
+    },
+    "signal_id": "signal:tp09-hotlist-ai-semiconductor-20260730",
+    "strategy_release_id": "strategy.trend-theme.v1.mapping",
+    "symbol": "SECTOR:SEMICONDUCTOR",
+    "direction": "SIGNAL_DIRECTION_LONG",
+    "strength": {"value": "0.58"},
+    "confidence": {"value": "0.44"},
+    "diagnostics": {
+      "value": {
+        "engine": "trendradar-reference-mapping",
+        "mapping_only": true,
+        "theme": "ai-semiconductor",
+        "platform_count": 3,
+        "max_rank": 3,
+        "trading_approved": false,
+        "diagnostics_tags": ["research_only", "not_tradable", "unlicensed_source", "trend_mapping_sample"],
+        "provenance": {
+          "input_class": "hot_list_aggregation",
+          "sources": [
+            {"source_id": "weibo-hot-20260730-003", "platform": "weibo", "license_label": "unlicensed-hotlist-research-only"},
+            {"source_id": "zhihu-hot-20260730-007", "platform": "zhihu", "license_label": "unlicensed-hotlist-research-only"},
+            {"source_id": "baidu-hot-20260730-005", "platform": "baidu", "license_label": "unlicensed-hotlist-research-only"}
+          ]
+        },
+        "rejection_reasons": ["hot-list inputs carry no redistributable license"]
+      }
+    },
+    "generated_at": "2026-07-30T09:05:00Z",
+    "valid_until": "2026-07-31T09:05:00Z",
+    "evidence_refs": [
+      {"evidence_id": "tp09-01-evidence-1", "artifact_id": "artifact:tp09-hotlist-cluster", "summary": "weibo hot item rank 3: 国产AI芯片量产提速"},
+      {"evidence_id": "tp09-01-evidence-2", "artifact_id": "artifact:tp09-hotlist-cluster", "summary": "zhihu hot item rank 7: 如何看待新一代AI加速卡发布"},
+      {"evidence_id": "tp09-01-evidence-3", "artifact_id": "artifact:tp09-hotlist-cluster", "summary": "baidu hot item rank 5: 半导体板块异动拉升"}
+    ]
+  },
+  "boundary_notes": [
+    "strength/confidence stay low because hot-list ranks are attention metrics, not licensed market data",
+    "the symbol is a sector proxy theme, not a tradable instrument reference",
+    "trading_approved=false is mandatory because every input source is unlicensed"
+  ],
+  "content_hash": "sha256:1ea5b484c5eaaf03365f50b6104d2eff6f26aad5d3e7134fc2efc5dcc9d31838"
+}

@@ -1,0 +1,87 @@
+{
+  "mapping_id": "tp09-trendradar-03-missing-license-non-tradable",
+  "purpose": "Map a degraded TrendRadar-style input (missing license labels and missing source attribution on some items) into a QuantOS Signal that is unconditionally marked non-tradable.",
+  "trendradar_input": {
+    "commit": "8ee26026ba6c11dec41a95fb3895a7162876caa1",
+    "input_class": "hot_list_aggregation",
+    "captured_at": "2026-07-30T18:00:00Z",
+    "items": [
+      {
+        "platform": "douyin",
+        "rank": 2,
+        "title": "某新能源车企突发消息",
+        "url": "https://www.douyin.com/hot/example",
+        "source_id": "douyin-hot-20260730-002",
+        "license_label": null
+      },
+      {
+        "platform": "toutiao",
+        "rank": 9,
+        "title": "锂电池产业链异动",
+        "url": null,
+        "source_id": null,
+        "license_label": "unlicensed-hotlist-research-only"
+      },
+      {
+        "platform": "unknown-aggregator",
+        "rank": 4,
+        "title": "新能源车补贴政策传闻",
+        "url": null,
+        "source_id": null,
+        "license_label": null
+      }
+    ]
+  },
+  "quantos_signal": {
+    "metadata": {
+      "tenant_id": "tenant-primary",
+      "workspace_id": "workspace-primary",
+      "actor_id": "actor-tp09-mapping",
+      "correlation_id": "corr-tp09-trendradar-03",
+      "causation_id": "cause-tp09-trendradar-03",
+      "mode": "RUNTIME_MODE_RESEARCH",
+      "environment": "ENVIRONMENT_TEST",
+      "issued_at": "2026-07-31T00:00:00Z"
+    },
+    "signal_id": "signal:tp09-degraded-ev-theme-20260730",
+    "strategy_release_id": "strategy.trend-theme.v1.mapping",
+    "symbol": "SECTOR:NEW_ENERGY_VEHICLE",
+    "direction": "SIGNAL_DIRECTION_FLAT",
+    "strength": {"value": "0.22"},
+    "confidence": {"value": "0.18"},
+    "diagnostics": {
+      "value": {
+        "engine": "trendradar-reference-mapping",
+        "mapping_only": true,
+        "theme": "ev-policy-rumor",
+        "trading_approved": false,
+        "diagnostics_tags": ["research_only", "not_tradable", "missing_license", "missing_source", "trend_mapping_sample"],
+        "provenance": {
+          "input_class": "hot_list_aggregation",
+          "sources": [
+            {"source_id": "douyin-hot-20260730-002", "platform": "douyin", "license_label": null},
+            {"source_id": null, "platform": "toutiao", "license_label": "unlicensed-hotlist-research-only"},
+            {"source_id": null, "platform": "unknown-aggregator", "license_label": null}
+          ]
+        },
+        "rejection_reasons": [
+          "item 1 lacks a license label",
+          "item 2 lacks source attribution",
+          "item 3 lacks both source attribution and a license label"
+        ]
+      }
+    },
+    "generated_at": "2026-07-30T18:05:00Z",
+    "valid_until": "2026-07-31T18:05:00Z",
+    "evidence_refs": [
+      {"evidence_id": "tp09-03-evidence-1", "artifact_id": "artifact:tp09-degraded-cluster", "summary": "douyin hot item rank 2: 某新能源车企突发消息 (license missing)"},
+      {"evidence_id": "tp09-03-evidence-2", "artifact_id": "artifact:tp09-degraded-cluster", "summary": "toutiao hot item rank 9: 锂电池产业链异动 (source attribution missing)"}
+    ]
+  },
+  "boundary_notes": [
+    "any missing license or missing source attribute forces trading_approved=false and the not_tradable tag",
+    "confidence is floored because rumor-grade inputs cannot support conviction",
+    "this sample is the regression anchor for the rule: degraded inputs never become tradable signals"
+  ],
+  "content_hash": "sha256:a64d31f2fde1c7dcb0662a882ccba1640040ac3677cd52a2aad41f2369c4896e"
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "component": "trendradar",
+  "recordedAt": "2026-07-31T00:00:00Z",
+  "upstream": {
+    "owner": "sansan0",
+    "repo": "TrendRadar",
+    "repositoryUrl": "https://github.com/sansan0/TrendRadar.git",
+    "browseUrl": "https://github.com/sansan0/TrendRadar",
+    "defaultBranch": "master",
+    "tag": null,
+    "describe": "mcp-v3.2.0-38-g8ee26026",
+    "commit": "8ee26026ba6c11dec41a95fb3895a7162876caa1",
+    "commitDate": "2026-07-17T21:53:35+08:00",
+    "versionField": "pyproject.toml version=6.10.0"
+  },
+  "license": {
+    "spdx": "GPL-3.0-only",
+    "concluded": "GPL-3.0-only",
+    "licenseFile": {
+      "path": "LICENSE",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    "noticeFile": null,
+    "copyleft": true,
+    "consequence": "no code absorption into QuantOS (MIT/Apache mixed codebase); reference and mapping samples only"
+  },
+  "dependencyDigests": {
+    "pythonLock": null,
+    "projectDescriptor": {
+      "path": "pyproject.toml",
+      "sha256": "891068fbf8bd9421f02bc71f74943704942a62a540868e3ee68222eb7b7f143c"
+    },
+    "uvLock": null,
+    "pnpmLock": null,
+    "note": "all 10 runtime dependencies are exactly pinned in pyproject.toml; uv.lock exists upstream but is not required for the reference baseline"
+  },
+  "policy": {
+    "readOnlyReference": true,
+    "productionArtifactSource": "engines/llmquant",
+    "decision": "reference_only",
+    "allowedAbsorptionModes": [
+      "design or test reference only",
+      "offline trend signal mapping samples into the QuantOS Signal contract"
+    ],
+    "forbiddenSurfaces": [
+      "any production dependency or lockfile entry",
+      "hot-list crawling via newsnow API as a QuantOS data provider",
+      "RSS crawling or storage layer",
+      "notification/push pipeline",
+      "MCP server exposure of trend data",
+      "litellm-based AI analysis runtime"
+    ]
+  },
+  "cveAudit": {
+    "status": "blocked",
+    "tool": "pip-audit (uvx, Python 3.12)",
+    "lastAttemptedAt": "2026-07-31T00:00:00Z",
+    "reason": "Local audit host aborted during virtualenv bootstrap (ensurepip SIGABRT) while resolving the pinned dependency set."
+  }
+}
