@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "component": "nautilus-agents",
+  "recordedAt": "2026-07-31T00:00:00Z",
+  "upstream": {
+    "owner": "nautechsystems",
+    "repo": "nautilus_agents",
+    "repositoryUrl": "https://github.com/nautechsystems/nautilus_agents.git",
+    "browseUrl": "https://github.com/nautechsystems/nautilus_agents",
+    "defaultBranch": "master",
+    "tag": null,
+    "commit": "8d79877380f8617b45dff2b8c8b3790c2f9d963a",
+    "commitDate": "2026-07-27T12:25:03+10:00",
+    "versionField": "Cargo.toml version=0.2.0",
+    "protocolVersion": "1.0"
+  },
+  "license": {
+    "spdx": "LGPL-3.0-or-later",
+    "concluded": "LGPL-3.0-or-later",
+    "licenseFile": {
+      "path": "LICENSE",
+      "sha256": "ee907919ec88c9c017b1f8b608db20960b6598aefcc4fe58820bde955d65ed3c"
+    },
+    "noticeFile": null,
+    "consequence": "reference only; per TP07 ADR, any Nautilus-family code stays outside QuantOS processes"
+  },
+  "dependencyDigests": {
+    "projectDescriptor": {
+      "path": "Cargo.toml",
+      "sha256": "82800a4a27209e63e10ba3ce7b20d1eabe32e5ef38f786cba9c53b18e79cdd89"
+    },
+    "cargoLock": {
+      "path": "Cargo.lock",
+      "present": true,
+      "note": "upstream ships a Cargo.lock; dependencies are crates.io-only per upstream supply-chain policy"
+    }
+  },
+  "policy": {
+    "readOnlyReference": true,
+    "decision": "reference_only",
+    "allowedAbsorptionModes": [
+      "design or test reference only",
+      "candidate adoption of assurance patterns (retention classes, field ownership metadata, advisory-vs-authoritative naming)"
+    ],
+    "forbiddenSurfaces": [
+      "any runtime dependency or lockfile entry",
+      "agent processes holding venue authority or credentials",
+      "agent-side advisory checks treated as production decisions",
+      "agent traces treated as production evidence"
+    ]
+  },
+  "cveAudit": {
+    "status": "not_run",
+    "reason": "evaluation is reference-only and the crate has a small crates.io-only dependency set (futures-timer, futures-util, schemars, serde, serde_json, serde_json_canonicalizer, sha2, thiserror, uuid); run cargo-audit against the pinned Cargo.lock only if a future re-evaluation proposes adoption"
+  }
+}

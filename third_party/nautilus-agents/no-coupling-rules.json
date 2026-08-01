@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "component": "nautilus-agents",
+  "upstreamCommit": "8d79877380f8617b45dff2b8c8b3790c2f9d963a",
+  "boundaryStatement": "The nautilus_agents authority model (agents propose narrow semantic intents over engine-owned observations; the engine owns every production decision; agent processes hold no venue authority) confirms and does not change the QuantOS boundary: an Agent never connects to a venue directly. These rules keep it that way.",
+  "rules": [
+    {
+      "id": "NC-01",
+      "rule": "Agent processes must never hold venue credentials or invoke venue/exchange/order APIs, directly or through tools.",
+      "enforcement": "TP04 adapter rejects order/order_tool/trade_command/venue/secret/network fields; engine UDS boundary carries no venue material",
+      "evidence": [
+        {"path": "engines/trading-agents/src/trading_agents/adapter.py", "symbol": "order_tool"},
+        {"path": "crates/quantos-runtime/tests/signal_proposal_orchestration.rs", "symbol": "signal_proposal_workflow_rejects_forbidden_order_tools"}
+      ]
+    },
+    {
+      "id": "NC-02",
+      "rule": "Agent output may only be a TradeProposal with executable=false; any executable=true output is rejected.",
+      "enforcement": "TP04 proposal mapper hard-codes executable=False; R04 runtime gate rejects executable proposals",
+      "evidence": [
+        {"path": "engines/trading-agents/src/trading_agents/proposal_mapper.py", "symbol": "executable=False"},
+        {"path": "crates/quantos-runtime/src/signal_proposal.rs", "symbol": "proposal must keep executable=false"}
+      ]
+    },
+    {
+      "id": "NC-03",
+      "rule": "No TradeCommand may be issued from agent output without an authoritative RiskDecision (and approval when required); agent-side checks are advisory only.",
+      "enforcement": "quantos-execution CommandIssuer requires a RiskDecision and enforces the approval state machine",
+      "evidence": [
+        {"path": "crates/quantos-execution/src/lib.rs", "symbol": "RiskVerdict::ApprovalRequired"},
+        {"path": "crates/quantos-execution/README.md", "symbol": "seven deterministic rejection classes"}
+      ]
+    },
+    {
+      "id": "NC-04",
+      "rule": "Execution kernels receive only sanitized BoundaryCommand values; tenant, actor, session, decision, approval, and signature material must never cross the kernel boundary.",
+      "enforcement": "TP07 ExecutionGateway sanitizes before kernel submit; isolation test enforces the key allowlist and forbidden terms",
+      "evidence": [
+        {"path": "crates/quantos-execution/src/gateway.rs", "symbol": "BoundaryCommand"},
+        {"path": "crates/quantos-execution/src/gateway.rs", "symbol": "boundary_command_carries_no_session_or_identity_material"}
+      ]
+    },
+    {
+      "id": "NC-05",
+      "rule": "Agent-side traces and local evidence are advisory; production evidence must be recorded by the runtime/kernel artifact path, never by the agent process alone.",
+      "enforcement": "R03/R04 runtime records artifact manifests with content hashes; agent engine outputs only feed runtime records",
+      "evidence": [
+        {"path": "crates/quantos-runtime/src/signal_proposal.rs", "symbol": "record_artifact"},
+        {"path": "crates/quantos-runtime/src/signal_proposal.rs", "symbol": "artifact_manifest"}
+      ]
+    },
+    {
+      "id": "NC-06",
+      "rule": "Expired proposals must be 100% rejected before evaluation, issuance, and kernel submission.",
+      "enforcement": "R04 TradeProposalEvaluationGate at evaluation, X02 issuer proposal-expiry check, TP07 gateway CommandExpired rejection",
+      "evidence": [
+        {"path": "crates/quantos-runtime/src/signal_proposal.rs", "symbol": "TradeProposalEvaluationGate"},
+        {"path": "crates/quantos-execution/src/gateway.rs", "symbol": "CommandExpired"}
+      ]
+    },
+    {
+      "id": "NC-07",
+      "rule": "The nautilus-agents crate (and any Nautilus-family code) must never enter a QuantOS lockfile or runtime dependency graph; collaboration happens at design/protocol level only.",
+      "enforcement": "TP12 baseline policy + TP07 LGPL ADR process-boundary decision",
+      "evidence": [
+        {"path": "third_party/nautilus-agents/baseline.lock.json", "symbol": "reference_only"},
+        {"path": "docs/adr/20260731-tp07-nautilus-license-compliance.md", "symbol": "Process boundary, not linking"}
+      ]
+    }
+  ]
+}
