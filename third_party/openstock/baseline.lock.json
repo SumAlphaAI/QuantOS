@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "component": "openstock",
+  "recordedAt": "2026-07-31T00:00:00Z",
+  "upstream": {
+    "owner": "Open-Dev-Society",
+    "repo": "OpenStock",
+    "repositoryUrl": "https://github.com/Open-Dev-Society/OpenStock.git",
+    "browseUrl": "https://github.com/Open-Dev-Society/OpenStock",
+    "defaultBranch": "main",
+    "tag": null,
+    "describe": "4597c9a",
+    "commit": "4597c9a668118844b588f95eddb9342eed31c41d",
+    "commitDate": "2026-07-04T10:49:30+05:30",
+    "versionField": "package.json version=0.1.0"
+  },
+  "license": {
+    "spdx": "AGPL-3.0-only",
+    "concluded": "AGPL-3.0-only",
+    "licenseFile": {
+      "path": "LICENSE",
+      "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+    },
+    "noticeFile": null,
+    "copyleft": true,
+    "networkCopyleft": true,
+    "consequence": "no code absorption and no hosted-service reuse; reference and fixture samples only"
+  },
+  "dependencyDigests": {
+    "npmLock": {
+      "path": "package-lock.json",
+      "sha256": "7382e61a209483dfe676ca164d40aa45702186a364b5e85ca51459011ba9a6fe"
+    },
+    "projectDescriptor": {
+      "path": "package.json",
+      "sha256": "bb1080f59cce0ea6725bcce03314df64e5ffc6ff7c347c229ccf46b13e59c0b9"
+    },
+    "pythonLock": null,
+    "uvLock": null
+  },
+  "policy": {
+    "readOnlyReference": true,
+    "productionArtifactSource": "engines/openbb-adapter (data.query.v1)",
+    "decision": "reference_only",
+    "allowedAbsorptionModes": [
+      "design or test reference only",
+      "offline provider Data Contract fixtures into the QuantOS Data Contract"
+    ],
+    "forbiddenSurfaces": [
+      "any Day-1 or production dependency or lockfile entry",
+      "Finnhub client code or API key handling",
+      "TradingView widget embedding as a data source",
+      "Inngest event pipeline",
+      "MongoDB persistence layer",
+      "Better Auth integration"
+    ]
+  },
+  "cveAudit": {
+    "status": "completed_with_findings",
+    "tool": "npm audit --omit=dev (npm 11)",
+    "lastAttemptedAt": "2026-07-31T00:00:00Z",
+    "summary": {
+      "critical": 2,
+      "high": 13,
+      "moderate": 24,
+      "total": 39,
+      "allTransitive": true,
+      "dominantChain": "inngest -> @opentelemetry/* -> @grpc/grpc-js"
+    },
+    "rawEvidence": "cve-audit-npm-audit.json"
+  }
+}

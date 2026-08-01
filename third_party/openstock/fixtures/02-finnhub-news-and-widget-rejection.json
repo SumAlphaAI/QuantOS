@@ -1,0 +1,66 @@
+{
+  "fixture_id": "tp11-openstock-02-finnhub-company-news",
+  "purpose": "Map a Finnhub company-news dataset (as consumed by OpenStock news panels) into the QuantOS TP05 Data Contract with lineage and quality mapping, plus the TradingView-widget rejection case that can never produce a usable DataSnapshot.",
+  "upstream": {
+    "commit": "4597c9a668118844b588f95eddb9342eed31c41d",
+    "surface": "OpenStock market news panels -> finnhub.io/api/v1 company-news endpoint; charts -> TradingView widgets"
+  },
+  "data_contract": {
+    "response_type": "DataQueryResponse",
+    "provider": "finnhub",
+    "query_id": "query:tp11-finnhub-news-aapl-20260730",
+    "dataset": "finnhub/company-news",
+    "schema_ref": "quantos.data.market_news.v1",
+    "query_text": "company news for AAPL, 2026-07-29..2026-07-30",
+    "symbols": ["AAPL"],
+    "window": {"start": "2026-07-29T00:00:00Z", "end": "2026-07-30T23:59:59Z"},
+    "records": [
+      {"symbol": "AAPL", "ts": "2026-07-30T13:30:00Z", "headline": "Example headline: AAPL supplier expands capacity", "url": "https://example.com/news/1", "source": "example-newswire"},
+      {"symbol": "AAPL", "ts": "2026-07-30T09:15:00Z", "headline": "Example headline: Analysts preview earnings", "url": "https://example.com/news/2", "source": "example-finpress"}
+    ],
+    "sources": [
+      {"source_id": "finnhub-news-aapl-20260729-30", "provider": "finnhub", "dataset": "finnhub/company-news", "license_label": "finnhub-free-attribution-research-only"}
+    ],
+    "license": {
+      "label": "finnhub-free-attribution-research-only",
+      "status": "evaluation_only",
+      "approved_for_production": false,
+      "decision_ref": "docs/adr/20260731-tp11-openstock-evaluation.md"
+    },
+    "cache": {"strategy": "short_lived_query_cache", "ttl_secs": 600, "cache_key": "finnhub/company-news/AAPL/2026-07-29_2026-07-30"},
+    "lineage": {
+      "snapshot_id": "data-query-snapshot:tp11-finnhub-news-20260730",
+      "schema_hash": "sha256:tp11-schema-market-news-v1",
+      "content_hash": "sha256:tp11-content-finnhub-news-aapl-20260730",
+      "lineage_tags": ["tp11", "provider-fixture", "news"],
+      "artifact_hash": "sha256:tp11-lineage-finnhub-news"
+    },
+    "usage": {"intended_use": "research", "trading_approved": false, "allowed_workflows": ["research"]}
+  },
+  "quality_mapping": {
+    "status": "passed",
+    "findings": [],
+    "note": "news items carry per-record source attribution inside the payload; freshness satisfied for research use"
+  },
+  "snapshot_gate": {
+    "ruleset": "F05 SnapshotQualityRule defaults (research: allow_degraded, no freshness; strategy/trading: strict + freshness + license)",
+    "decisions": [
+      {"usage": "research", "allowed": true, "reason": "passed quality; license label present; freshness not required for research"},
+      {"usage": "strategy", "allowed": false, "reason": "trading_approved=false and free-tier terms forbid derived trading products"},
+      {"usage": "trading", "allowed": false, "reason": "trading_approved=false and free-tier terms forbid derived trading products"}
+    ]
+  },
+  "rejected_widget_case": {
+    "description": "TradingView widget market view treated as a data source: no API, no per-source attribution, display-only embed license",
+    "attempted_sources": [
+      {"source_id": null, "provider": "tradingview-widget", "dataset": "widget/market-overview", "license_label": null}
+    ],
+    "license": {"label": null, "status": "display_only_no_redistribution", "approved_for_production": false, "decision_ref": null},
+    "gate_decisions": [
+      {"usage": "research", "allowed": false, "reason": "require_license: display-only embed license grants no data rights; no per-source attribution"},
+      {"usage": "strategy", "allowed": false, "reason": "require_license: display-only embed license grants no data rights; no per-source attribution"},
+      {"usage": "trading", "allowed": false, "reason": "require_license: display-only embed license grants no data rights; no per-source attribution"}
+    ]
+  },
+  "content_hash": "sha256:fdab4c43e5856f1854e82f7e22b48b72787dc82791c0364201a2e5f69e2c22cc"
+}

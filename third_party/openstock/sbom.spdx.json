@@ -1,0 +1,90 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "sumalpha-quantos-tp11-openstock-baseline",
+  "documentNamespace": "https://sumalpha.ai/spdx/tp11/openstock/4597c9a6",
+  "creationInfo": {
+    "created": "2026-07-31T00:00:00Z",
+    "creators": [
+      "Tool: TP11 baseline intake"
+    ]
+  },
+  "packages": [
+    {
+      "name": "Open-Dev-Society/OpenStock",
+      "SPDXID": "SPDXRef-OpenStock",
+      "versionInfo": "0.1.0 (4597c9a)",
+      "downloadLocation": "git+https://github.com/Open-Dev-Society/OpenStock.git@4597c9a668118844b588f95eddb9342eed31c41d",
+      "licenseConcluded": "AGPL-3.0-only",
+      "licenseDeclared": "AGPL-3.0-only",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4597c9a668118844b588f95eddb9342eed31c41d"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/Open-Dev-Society/OpenStock@4597c9a668118844b588f95eddb9342eed31c41d"
+        }
+      ]
+    },
+    {
+      "name": "LICENSE",
+      "SPDXID": "SPDXRef-OpenStockLicenseFile",
+      "downloadLocation": "https://raw.githubusercontent.com/Open-Dev-Society/OpenStock/4597c9a668118844b588f95eddb9342eed31c41d/LICENSE",
+      "licenseConcluded": "AGPL-3.0-only",
+      "licenseDeclared": "AGPL-3.0-only",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+        }
+      ]
+    },
+    {
+      "name": "package-lock.json",
+      "SPDXID": "SPDXRef-OpenStockNpmLock",
+      "downloadLocation": "https://raw.githubusercontent.com/Open-Dev-Society/OpenStock/4597c9a668118844b588f95eddb9342eed31c41d/package-lock.json",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "7382e61a209483dfe676ca164d40aa45702186a364b5e85ca51459011ba9a6fe"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-OpenStock"
+    },
+    {
+      "spdxElementId": "SPDXRef-OpenStock",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-OpenStockLicenseFile"
+    },
+    {
+      "spdxElementId": "SPDXRef-OpenStock",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-OpenStockNpmLock"
+    }
+  ],
+  "annotations": [
+    {
+      "annotationType": "OTHER",
+      "annotator": "Tool: TP11 baseline intake",
+      "annotationDate": "2026-07-31T00:00:00Z",
+      "comment": "Direct runtime dependencies from package.json: next 15.5.7, react 19.1.0, react-dom 19.1.0, better-auth, inngest, mongodb, mongoose, nodemailer, @vercel/analytics, radix-ui family, sonner, cmdk, date-fns, and supporting UI utilities. npm audit (2026-07-31) reports 2 critical / 13 high / 24 moderate findings, all transitive, dominated by inngest -> @opentelemetry/* -> @grpc/grpc-js. Upstream is AGPL-3.0-only; no package from this baseline may enter a QuantOS lockfile."
+    }
+  ]
+}
