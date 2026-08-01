@@ -60,7 +60,7 @@ test-rust:
 	cargo test --workspace
 
 observability-check:
-        cargo test -p quantos-observability
+	cargo test -p quantos-observability
 
 test-f05-live:
 	cargo test -p quantos-event --test postgres_persistence -- --nocapture
@@ -117,7 +117,7 @@ sign-artifacts:
 	bash ./scripts/sign-artifacts.sh artifacts/build/build-manifest.json artifacts/sbom/quantos.spdx.json
 
 f09-adr-input: ensure-node
-        node ./scripts/generate-f09-adr-input.mjs --input artifacts/observability/f09-alerts.json --output artifacts/observability/f09-capacity-adr.md
+	node ./scripts/generate-f09-adr-input.mjs --input artifacts/observability/f09-alerts.json --output artifacts/observability/f09-capacity-adr.md
 
 tp01-vibe-monitor: ensure-node
 	node ./scripts/check-vibe-upstream.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --json-output ./artifacts/third_party/vibe-trading/upstream-candidates.json --markdown-output ./artifacts/third_party/vibe-trading/upstream-candidates.md
