@@ -6,6 +6,7 @@ Rust shared crates live here.
 - `quantos-auth`: tenant/user/service identity mapping, primary workspace context, and gateway authorization helpers.
 - `quantos-engine-manager`: manifest review, UDS gRPC routing, crash backoff, deadline enforcement, and engine contract harnesses.
 - `quantos-event`: append-only event ledger, replay helpers, and PostgreSQL-backed outbox/inbox/checkpoint repositories.
+- `quantos-execution`: short-lived, signed, idempotent `TradeCommand` issuance with approval verification, self-approval bans, and deterministic rejection classes.
 - `quantos-market`: approved-provider registry, symbol normalization, market tick ingestion, replay dataset generation, and `MarketEvent` emission with freshness/quality anomaly detection.
 - `quantos-observability`: local trace, metrics threshold evaluation, structured logging, fault injection, health reporting, and ADR evidence generation.
 - `quantos-policy`: deterministic RBAC, capability, mode, and secret-resolution policy decisions.
