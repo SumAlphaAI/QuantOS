@@ -10,6 +10,8 @@ Strategy draft and parameter model for QuantOS.
 - draft references restricted to approved `DataSnapshot` and Artifact records
 - validation handoff gating: unauthorized actors, missing snapshots, missing artifacts, or failed strategy quality gates cannot initiate validation
 - PostgreSQL persistence with `FOR UPDATE` head locking and Supabase migration `20260801090000_strategy_drafts` (RLS default deny, `auth.users` audit columns)
+- deterministic backtest adapter with fixed `DataSnapshot` binding, fixed clock, fee/slippage cost model, and access-logged decision contexts
+- look-ahead and data-leakage detection plus environment/input hashing for replayable `BacktestValidationReport` records
 
 ## Validation
 
