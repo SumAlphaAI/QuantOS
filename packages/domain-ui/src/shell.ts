@@ -22,7 +22,25 @@ export type TerminalRoute =
   | "/strategies/:strategyId/lab"
   | "/backtests/:runId"
   | "/releases"
-  | "/releases/:releaseId";
+  | "/releases/:releaseId"
+  | "/portfolio"
+  | "/risk"
+  | "/risk/rules/:ruleId"
+  | "/proposals"
+  | "/proposals/:proposalId"
+  | "/approvals"
+  | "/approvals/:approvalId"
+  | "/orders"
+  | "/orders/:orderId"
+  | "/audit"
+  | "/audit/:correlationId"
+  | "/exports/:exportId"
+  | "/operations"
+  | "/operations/incidents/:incidentId"
+  | "/admin/members"
+  | "/admin/policies"
+  | "/admin/capabilities"
+  | "/admin/flags";
 
 export type RiskActionKind =
   | "start_research"
@@ -32,7 +50,12 @@ export type RiskActionKind =
   | "request_access"
   | "submit_release"
   | "approve_release"
-  | "select_deployment_target";
+  | "select_deployment_target"
+  | "engage_kill_switch"
+  | "approve_decision"
+  | "cancel_order"
+  | "run_runbook_action"
+  | "deactivate_member";
 
 export interface PageMeta {
   route: TerminalRoute;
@@ -152,6 +175,114 @@ export const PAGE_REGISTRY: PageMeta[] = [
     robots: "noindex",
     highRiskActions: ["approve_release", "select_deployment_target"],
   },
+  {
+    route: "/portfolio",
+    title: "Portfolio & Risk",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/risk",
+    title: "Risk",
+    robots: "noindex",
+    highRiskActions: ["engage_kill_switch"],
+  },
+  {
+    route: "/risk/rules/:ruleId",
+    title: "风险规则详情",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/proposals",
+    title: "TradeProposals",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/proposals/:proposalId",
+    title: "建议详情",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/approvals",
+    title: "Approvals",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/approvals/:approvalId",
+    title: "审批详情",
+    robots: "noindex",
+    highRiskActions: ["approve_decision"],
+  },
+  {
+    route: "/orders",
+    title: "Orders",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/orders/:orderId",
+    title: "订单详情",
+    robots: "noindex",
+    highRiskActions: ["cancel_order"],
+  },
+  {
+    route: "/audit",
+    title: "Audit Explorer",
+    robots: "noindex",
+    highRiskActions: ["export_artifact"],
+  },
+  {
+    route: "/audit/:correlationId",
+    title: "证据链",
+    robots: "noindex",
+    highRiskActions: ["export_artifact"],
+  },
+  {
+    route: "/exports/:exportId",
+    title: "导出任务",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/operations",
+    title: "Operations",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/operations/incidents/:incidentId",
+    title: "Incident 详情",
+    robots: "noindex",
+    highRiskActions: ["run_runbook_action"],
+  },
+  {
+    route: "/admin/members",
+    title: "成员与角色",
+    robots: "noindex",
+    highRiskActions: ["deactivate_member"],
+  },
+  {
+    route: "/admin/policies",
+    title: "策略与限额",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/admin/capabilities",
+    title: "能力批准",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/admin/flags",
+    title: "功能开关",
+    robots: "noindex",
+    highRiskActions: [],
+  },
 ];
 
 export type ViewportSize = "small" | "regular";
@@ -197,6 +328,9 @@ export function buildAppShell(
       { route: "/command", label: "Command Center" },
       { route: "/research", label: "Research" },
       { route: "/strategies", label: "Strategies" },
+      { route: "/portfolio", label: "Portfolio & Risk" },
+      { route: "/orders", label: "Orders" },
+      { route: "/audit", label: "Audit Explorer" },
       { route: "/data-snapshots", label: "数据快照" },
     ],
   };
