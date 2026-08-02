@@ -18,17 +18,17 @@ fi
 
 cat "${migration_files[@]}" > "${bundle_file}"
 
-if ! rg -n "references[[:space:]]+auth\\.users" "${bundle_file}" >/dev/null; then
+if ! grep -nE "references[[:space:]]+auth\.users" "${bundle_file}" >/dev/null; then
   echo "Expected at least one Supabase auth.users reference in migrations." >&2
   exit 1
 fi
 
-if ! rg -n "gen_random_uuid\\(" "${bundle_file}" >/dev/null; then
+if ! grep -nE "gen_random_uuid\(" "${bundle_file}" >/dev/null; then
   echo "Expected gen_random_uuid() defaults in migrations." >&2
   exit 1
 fi
 
-if ! rg -n "timestamptz" "${bundle_file}" >/dev/null; then
+if ! grep -nE "timestamptz" "${bundle_file}" >/dev/null; then
   echo "Expected timestamptz columns in migrations." >&2
   exit 1
 fi
@@ -50,17 +50,17 @@ fi
 for table in "${quantos_tables[@]}"; do
   table_pattern="${table//./\\.}"
 
-  if ! rg -n -i "alter table( only)?[[:space:]]+${table_pattern}[[:space:]]+enable row level security" "${bundle_file}" >/dev/null; then
+  if ! grep -inE "alter table( only)?[[:space:]]+${table_pattern}[[:space:]]+enable row level security" "${bundle_file}" >/dev/null; then
     echo "Missing RLS enablement for ${table}" >&2
     exit 1
   fi
 
-  if ! rg -n -i "alter table( only)?[[:space:]]+${table_pattern}[[:space:]]+force row level security" "${bundle_file}" >/dev/null; then
+  if ! grep -inE "alter table( only)?[[:space:]]+${table_pattern}[[:space:]]+force row level security" "${bundle_file}" >/dev/null; then
     echo "Missing FORCE RLS for ${table}" >&2
     exit 1
   fi
 
-  if ! rg -n -i "on[[:space:]]+${table_pattern}" "${bundle_file}" >/dev/null; then
+  if ! grep -inE "on[[:space:]]+${table_pattern}" "${bundle_file}" >/dev/null; then
     echo "Missing RLS policy for ${table}" >&2
     exit 1
   fi
