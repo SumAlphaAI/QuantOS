@@ -15,5 +15,6 @@ Rust shared crates live here.
 - `quantos-runtime`: persistent workflow runs, research orchestration, signal/proposal orchestration, stream capture, artifact bindings, deadlines, cancellation, expiry gates, and restart recovery.
 - `quantos-storage`: artifact manifests, `DataSnapshot` metadata and quality gates, object key derivation, schema registry primitives, and PostgreSQL-backed storage repositories.
 - `quantos-strategy`: versioned strategy drafts and parameter models, optimistic-concurrency conflict detection, approved snapshot/artifact reference gating, validation handoff rules, the deterministic backtest adapter with look-ahead/data-leakage detection, and immutable `StrategyRelease` publishing with Paper/Shadow-only deployment policy.
+- `quantos-reconcile`: shadow running without venue submission, end-of-day order/fill/position/ledger reconciliation, and the anomaly exception queue.
 
 Future F0 tasks will add protocol, auth, event, runtime, and risk crates here.
