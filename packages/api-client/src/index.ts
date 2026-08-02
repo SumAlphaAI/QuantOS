@@ -3,6 +3,7 @@ export function createApiClientName(): string {
 }
 
 export * from "./terminal.js";
+export * from "./strategy.js";
 export * from "./gen/quantos/common/v1/common_pb.js";
 export * from "./gen/quantos/research/v1/research_pb.js";
 export * from "./gen/quantos/strategy/v1/strategy_pb.js";

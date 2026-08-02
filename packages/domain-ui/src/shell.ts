@@ -16,14 +16,23 @@ export type TerminalRoute =
   | "/research/:runId"
   | "/artifacts/:artifactId"
   | "/data-snapshots"
-  | "/data-snapshots/:snapshotId";
+  | "/data-snapshots/:snapshotId"
+  | "/strategies"
+  | "/strategies/new"
+  | "/strategies/:strategyId/lab"
+  | "/backtests/:runId"
+  | "/releases"
+  | "/releases/:releaseId";
 
 export type RiskActionKind =
   | "start_research"
   | "cancel_run"
   | "create_strategy_draft"
   | "export_artifact"
-  | "request_access";
+  | "request_access"
+  | "submit_release"
+  | "approve_release"
+  | "select_deployment_target";
 
 export interface PageMeta {
   route: TerminalRoute;
@@ -107,6 +116,42 @@ export const PAGE_REGISTRY: PageMeta[] = [
     robots: "noindex",
     highRiskActions: ["start_research"],
   },
+  {
+    route: "/strategies",
+    title: "Strategies",
+    robots: "noindex",
+    highRiskActions: ["create_strategy_draft"],
+  },
+  {
+    route: "/strategies/new",
+    title: "新建策略",
+    robots: "noindex",
+    highRiskActions: ["create_strategy_draft"],
+  },
+  {
+    route: "/strategies/:strategyId/lab",
+    title: "Strategy Lab",
+    robots: "noindex",
+    highRiskActions: ["submit_release"],
+  },
+  {
+    route: "/backtests/:runId",
+    title: "回测详情",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/releases",
+    title: "Strategy Releases",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/releases/:releaseId",
+    title: "Release 详情",
+    robots: "noindex",
+    highRiskActions: ["approve_release", "select_deployment_target"],
+  },
 ];
 
 export type ViewportSize = "small" | "regular";
@@ -151,6 +196,7 @@ export function buildAppShell(
     navigation: [
       { route: "/command", label: "Command Center" },
       { route: "/research", label: "Research" },
+      { route: "/strategies", label: "Strategies" },
       { route: "/data-snapshots", label: "数据快照" },
     ],
   };
