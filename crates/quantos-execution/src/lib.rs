@@ -1,5 +1,7 @@
 pub mod gateway;
 
+pub mod paper;
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};

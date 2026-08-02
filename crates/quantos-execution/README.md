@@ -9,6 +9,8 @@ TradeCommand issuance and approval state machine for QuantOS.
 - seven deterministic rejection classes: expired proposal, duplicate approval, self approval, stale data, kill switch, invalid strategy release, missing/denied approval
 - command expiry is the minimum of proposal expiry, issuer TTL, and data freshness
 - issuance is idempotent per tenant-scoped key: replays return the already-issued command
+- order state machine with a legality table (`OrderStatus::can_transition_to`), append-only order facts, and `FillFact` records traceable to the issuing Command
+- `paper::ExecutionGateway` over the `VenueAdapter` boundary (TP07 Nautilus attaches here): duplicate submits hit the downstream kernel exactly once, and cancel latency/rejections produce `CancelAudit` records
 
 ## TP07 execution gateway (`gateway` module)
 
