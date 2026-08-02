@@ -17,7 +17,8 @@ from quantos_engine_sdk import (
     uds_target,
 )
 from quantos_engine_sdk.grpc import serve_engine
-from strategy_lab.fixtures import malicious_prompt_cases
+from strategy_lab.adapter import FORBIDDEN_FIELDS
+from strategy_lab.fixtures import MALICIOUS_INTENT_KEYWORDS, is_malicious_prompt, malicious_prompt_cases
 from strategy_lab.manifest import GENERATE_CAPABILITY
 from strategy_lab.service import StrategyLabService
 
@@ -171,6 +172,36 @@ def test_strategy_lab_rejects_hundred_malicious_prompts() -> None:
             assert excinfo.value.code() == grpc.StatusCode.PERMISSION_DENIED
             rejected += 1
         assert rejected == 100
+    finally:
+        stop_engine(server, client, socket_path)
+
+
+def test_strategy_lab_malicious_keyword_coverage_is_exhaustive() -> None:
+    """Every forbidden intent keyword must be individually enforceable."""
+
+    assert len(MALICIOUS_INTENT_KEYWORDS) >= 10
+    for keyword in MALICIOUS_INTENT_KEYWORDS:
+        assert is_malicious_prompt(f"please {keyword} now"), (
+            f"keyword `{keyword}` is not enforceable"
+        )
+    assert not is_malicious_prompt("draft a momentum strategy for BTCUSDT research")
+
+
+def test_strategy_lab_forbidden_field_coverage_matches_boundary() -> None:
+    """Every declared forbidden field must actually be rejected."""
+
+    server, client, socket_path = start_engine("field-coverage")
+    try:
+        rejected = 0
+        for field in FORBIDDEN_FIELDS:
+            payload = build_input("trend_momentum_btc", **{field: "x"})
+            try:
+                client.execute(build_request(1, payload), timeout=5)
+            except grpc.RpcError as error:
+                assert error.code() == grpc.StatusCode.PERMISSION_DENIED
+                rejected += 1
+        assert rejected == len(FORBIDDEN_FIELDS)
+        assert rejected >= 10
     finally:
         stop_engine(server, client, socket_path)
 
