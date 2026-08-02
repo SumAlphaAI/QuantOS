@@ -50,3 +50,28 @@ Runs both layers of RLS validation:
 ## CI Usage
 
 The repository workflow reads `DATABASE_URL` from GitHub Actions secrets when available. Static migration checks always run; live drift and RLS checks run only when the secret is configured.
+
+## L02 Execution Secret Zone Rotation Runbook
+
+Applies to the restricted execution zone (`quantos_execution_gateway` role, `quantos.execution_secret_refs`, L01 venue credentials, and mTLS identities).
+
+### Rules
+
+- Secret material lives only in Supabase Vault. Code, fixtures, migrations, and reports must carry `vault://` / `secret://` references only — never key material. Dynamic Vault leases are intentionally not used.
+- Only the Execution Gateway resolves Vault references, via `quantos.resolve_execution_secret_ref`. Research engines, UI sessions, and ordinary BFF roles have no EXECUTE grant.
+- Egress from the execution zone is limited to the approved testnet venue host and the platform control plane (`EgressPolicy::execution_default`). Adding a host requires a reviewed change to the allowlist.
+- Service sessions and issued commands carry TTLs; expired ones are rejected without retry.
+
+### Credential rotation (target recovery ≤ 5 minutes)
+
+1. Issue the new credential (certificate or Vault entry version) and register its fingerprint with the gateway out of band.
+2. Deploy the new credential to the gateway; the previous credential remains valid for up to 5 minutes (`ROTATION_RECOVERY_WINDOW`) while connections drain.
+3. Verify the gateway reports the new credential version as active and venue smoke checks pass.
+4. Update `quantos.execution_secret_refs.rotated_at` for the rotated entry.
+5. After at most 5 minutes, revoke the previous credential and set `revoked_at` if the entry is retired. Stale credentials are rejected automatically.
+
+### Revocation (incident)
+
+1. Set `quantos.execution_secret_refs.revoked_at = now()` for the compromised entry and revoke the matching mTLS identity.
+2. All subsequent resolutions fail closed (`ZONE_SECRET_REVOKED` / `ZONE_MTLS_INVALID`); no cache path bypasses this.
+3. Rotate in a fresh credential using the steps above, then clear the incident per the Operations runbook.

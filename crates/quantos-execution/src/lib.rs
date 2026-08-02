@@ -1,6 +1,7 @@
 pub mod gateway;
 pub mod paper;
 pub mod venue;
+pub mod zone;
 
 use std::collections::{BTreeMap, BTreeSet};
 
