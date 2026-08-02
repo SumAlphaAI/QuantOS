@@ -55,9 +55,11 @@ jobs:
         run: make bootstrap
 
       - name: Secret scan
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          config-path: .gitleaks.toml
+        env:
+          GITLEAKS_VERSION: "8.28.0"
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz -C /tmp gitleaks
+          /tmp/gitleaks git --config .gitleaks.toml --redact --verbose .
 
       - name: Validate lockfiles
         run: make lockfile-check
