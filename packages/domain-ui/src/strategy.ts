@@ -207,6 +207,38 @@ export interface ApprovalActionVisibility {
   canReject: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// M5 Assisted Live UI gate (P10/P11): reachable only when the server-side
+// feature flag says so; the UI never infers it from anything else.
+// ---------------------------------------------------------------------------
+
+export interface AssistedLiveGateModel {
+  reachable: boolean;
+  banner: string | null;
+  /** Deployment targets the UI may render inside the gate. */
+  visibleTargets: string[];
+}
+
+export function assistedLiveGate(
+  testnetFlagEnabled: boolean,
+  options: DeploymentTargetOption[],
+): AssistedLiveGateModel {
+  if (!testnetFlagEnabled) {
+    return {
+      reachable: false,
+      banner: "Assisted Live 尚未开放。需完成 M5 Gate 并获得单独批准。",
+      visibleTargets: options
+        .filter((option) => option.enabled && option.target !== "assisted_live")
+        .map((option) => option.target),
+    };
+  }
+  return {
+    reachable: true,
+    banner: "Assisted Live（testnet）已开放，需双人审批与 MFA。",
+    visibleTargets: options.filter((option) => option.enabled).map((option) => option.target),
+  };
+}
+
 export function approvalActionVisibility(
   capabilities: readonly string[],
   approvalState: StrategyReleaseView["approvalState"],

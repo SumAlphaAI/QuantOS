@@ -1,3 +1,4 @@
+pub mod dual;
 pub mod gateway;
 pub mod paper;
 pub mod venue;

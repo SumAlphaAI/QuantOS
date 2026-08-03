@@ -86,6 +86,8 @@ export interface StrategyReleaseView {
 }
 
 export interface StrategyBackend {
+  /** Server-side M5 feature flag; the frontend never derives it locally. */
+  getAssistedLiveTestnetFlag(): Promise<boolean>;
   listStrategies(): Promise<StrategySummary[]>;
   getStrategyDraft(strategyId: string): Promise<StrategyDraftDetail>;
   runStaticCheck(strategyId: string): Promise<StaticCheckResult>;
@@ -98,18 +100,25 @@ export interface StrategyBackend {
   rejectRelease(releaseId: string, actor: string, note: string): Promise<StrategyReleaseView>;
 }
 
-const M4_TARGETS: DeploymentTargetOption[] = [
-  { target: "paper", enabled: true, reason: null },
-  { target: "shadow", enabled: true, reason: null },
-  {
-    target: "assisted_live",
-    enabled: false,
-    reason: "Assisted Live 尚未开放。需完成 M5 Gate 并获得单独批准。",
-  },
-];
-
-function copyTargets(): DeploymentTargetOption[] {
-  return M4_TARGETS.map((option) => ({ ...option }));
+function deploymentTargetsFor(assistedLiveTestnet: boolean): DeploymentTargetOption[] {
+  const base: DeploymentTargetOption[] = [
+    { target: "paper", enabled: true, reason: null },
+    { target: "shadow", enabled: true, reason: null },
+  ];
+  if (assistedLiveTestnet) {
+    base.push({
+      target: "assisted_live",
+      enabled: true,
+      reason: "Assisted Live（testnet）已按 M5 flag 开放。",
+    });
+  } else {
+    base.push({
+      target: "assisted_live",
+      enabled: false,
+      reason: "Assisted Live 尚未开放。需完成 M5 Gate 并获得单独批准。",
+    });
+  }
+  return base;
 }
 
 /** Deterministic strategy backend with 20 full-lifecycle fixtures. */
@@ -120,6 +129,7 @@ export class InMemoryStrategyBackend implements StrategyBackend {
   private nextBacktest = 0;
   private nextRelease = 0;
   private nextTimeline = 0;
+  private assistedLiveTestnet = false;
   private readonly now = "2026-08-01T00:00:00Z";
 
   constructor() {
@@ -141,6 +151,15 @@ export class InMemoryStrategyBackend implements StrategyBackend {
         evidenceRefs: [`evidence-research-${index + 1}`],
       });
     }
+  }
+
+  async getAssistedLiveTestnetFlag(): Promise<boolean> {
+    return this.assistedLiveTestnet;
+  }
+
+  /** Test hook: flip the server-side M5 testnet flag. */
+  setAssistedLiveTestnet(enabled: boolean): void {
+    this.assistedLiveTestnet = enabled;
   }
 
   async listStrategies(): Promise<StrategySummary[]> {
@@ -237,7 +256,7 @@ export class InMemoryStrategyBackend implements StrategyBackend {
       contentHash: `sha256:release-${draft.strategyId}-v${draft.draftVersion}`,
       backtestReportHash: backtest.reportHash,
       approvalState: "pending",
-      allowedTargets: copyTargets(),
+      allowedTargets: deploymentTargetsFor(this.assistedLiveTestnet),
       timeline: [this.timelineEntry("submitted", "strategy-owner", "发布候选已提交审批")],
       createdAt: this.now,
     };
