@@ -3,7 +3,7 @@ use std::{collections::BTreeMap, env};
 use bytes::Bytes;
 use chrono::Utc;
 use native_tls::TlsConnector;
-use postgres::{Client, NoTls};
+use postgres::{Client, NoTls, types::Type};
 use postgres_native_tls::MakeTlsConnector;
 use quantos_core::{ContentHash, TenantId};
 use quantos_storage::{
@@ -21,9 +21,9 @@ struct TenantCleanup {
 impl Drop for TenantCleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
-            let _ = client.execute(
+            let _ = client.execute_typed(
                 "delete from quantos.tenants where id = $1",
-                &[self.tenant_id.as_uuid()],
+                &[(self.tenant_id.as_uuid(), Type::UUID)],
             );
         }
     }
@@ -42,20 +42,12 @@ fn supabase_storage_adapter_round_trips_artifacts_and_registers_manifest() {
         return;
     }
 
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
-        eprintln!("skipping Supabase Storage integration test: DATABASE_URL is not set");
-        return;
-    };
-    let Some(project_url) = env::var("SUPABASE_URL").ok() else {
-        eprintln!("skipping Supabase Storage integration test: SUPABASE_URL is not set");
-        return;
-    };
-    let Some(service_role_key) = env::var("SUPABASE_SERVICE_ROLE_KEY").ok() else {
-        eprintln!(
-            "skipping Supabase Storage integration test: SUPABASE_SERVICE_ROLE_KEY is not set"
-        );
-        return;
-    };
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL is required when QUANTOS_RUN_SUPABASE_STORAGE_TESTS=1");
+    let project_url = env::var("SUPABASE_URL")
+        .expect("SUPABASE_URL is required when QUANTOS_RUN_SUPABASE_STORAGE_TESTS=1");
+    let service_role_key = env::var("SUPABASE_SERVICE_ROLE_KEY")
+        .expect("SUPABASE_SERVICE_ROLE_KEY is required when QUANTOS_RUN_SUPABASE_STORAGE_TESTS=1");
 
     let bucket_name =
         env::var("SUPABASE_STORAGE_BUCKET").unwrap_or_else(|_| "quantos-artifacts".to_owned());
@@ -114,10 +106,14 @@ fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
     let mut client = connect_client(database_url).expect("connects for setup");
     let slug = format!("f05-supabase-storage-{}", tenant_id);
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.tenants (id, slug, name) values ($1, $2, $3)
              on conflict (id) do nothing",
-            &[tenant_id.as_uuid(), &slug, &slug],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&slug, Type::TEXT),
+                (&slug, Type::TEXT),
+            ],
         )
         .expect("tenant inserts");
 

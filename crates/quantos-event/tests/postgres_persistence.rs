@@ -28,9 +28,9 @@ struct TenantCleanup {
 impl Drop for TenantCleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
-            let _ = client.execute(
+            let _ = client.execute_typed(
                 "delete from quantos.tenants where id = $1",
-                &[self.tenant_id.as_uuid()],
+                &[(self.tenant_id.as_uuid(), Type::UUID)],
             );
         }
     }
@@ -46,8 +46,6 @@ fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
     let _cleanup = seed_tenant(&database_url, tenant_id);
-    let observed_at = Utc::now();
-
     let mut seed_store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
     let events = vec![
         build_event(tenant_id, correlation_id, 1),
@@ -56,6 +54,7 @@ fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
     for event in &events {
         seed_store.append_event(event).expect("event appends");
     }
+    let observed_at = Utc::now();
 
     let mut worker_a = PgEventStore::connect(&database_url).expect("worker A connects");
     let mut worker_b = PgEventStore::connect(&database_url).expect("worker B connects");
@@ -119,7 +118,6 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
     }
 
     let mut applied = Vec::new();
-    let started_at = Instant::now();
     let report = store
         .poll_outbox_once(
             "f05-worker",
@@ -141,6 +139,9 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
     assert_eq!(report.notify_failures, 3);
     assert_eq!(applied, vec![1, 2, 3]);
 
+    // The five-second acceptance budget applies to correlation-chain lookup,
+    // not to the preceding polling/handler/notifier workflow.
+    let started_at = Instant::now();
     let replayed = store
         .events_by_correlation_id(correlation_id)
         .expect("replay query succeeds");
@@ -284,6 +285,9 @@ fn postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_a
     let event = build_event(tenant_id, correlation_id, 1);
     store.append_event(&event).expect("event appends");
 
+    // A bounded worker set drives 1,000 delivery attempts without creating a
+    // connection per attempt. The live target uses the transaction pooler;
+    // all statements in this path are one-shot typed queries.
     let parallelism = 32;
     let attempts = 1_000;
     let barrier = Arc::new(Barrier::new(parallelism));
@@ -383,10 +387,14 @@ fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
     let mut client = connect_client(database_url).expect("connects for setup");
     let slug = format!("f05-live-{}", tenant_id);
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.tenants (id, slug, name) values ($1, $2, $3)
              on conflict (id) do nothing",
-            &[tenant_id.as_uuid(), &slug, &slug],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&slug, Type::TEXT),
+                (&slug, Type::TEXT),
+            ],
         )
         .expect("tenant inserts");
 

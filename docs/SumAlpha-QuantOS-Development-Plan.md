@@ -218,11 +218,100 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 - [ ] F01–F09 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。
 - [ ] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
-- [ ] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
+- [x] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
 - [ ] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量阈值告警与 ADR 证据模板已启用。
 - [ ] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
 - [ ] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
 - [ ] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。
+
+#### 10.1.1 F0 Gate 首轮完成度核查记录（2026-08-08）
+
+**核查基线**
+
+- 核查 commit：`a9fc5fa25daa09e3b46f72cac53bcdcfe56b6ebb`。
+- 核查范围：第 2 节全任务最低完成条件、F01–F09 任务表的交付物与量化验收标准、本节 7 条 Gate 清单。
+- 判定规则：“已实现”、文件存在、内存 fixture 通过或测试因环境缺失而跳过，均不等于完成；必须有对应专属验收和第 2.2 节最低标准的自动化通过证据。
+- 总体结论：**F01–F09 暂无任务可判定为完全验收通过；F0 Gate 7 条清单均未通过，本次未勾选任何 Gate 项。**
+
+**自动化核查摘要**
+
+| 核查项 | 结果 | 记录 |
+|---|---|---|
+| 锁文件、Proto、migration 命名、静态 RLS | 通过 | `check-lockfiles.sh`、`check-proto.sh`、`check-migration-filenames.sh`、`check-rls-baseline.sh` 返回 0。 |
+| Rust 格式/静态检查 | 通过 | `cargo fmt --check` 和 `cargo clippy --workspace --all-targets -- -D warnings` 返回 0。 |
+| Python/TypeScript 静态检查 | 部分通过 | Ruff、ESLint、TypeScript typecheck 返回 0；CI/Makefile 没有执行第 2.2 节要求的 Pyright。 |
+| 不使用远程数据库的测试 | 通过，但不构成 DB 验收 | 清除 `DATABASE_URL` 后 `cargo test --workspace` 返回 0，Python `87 passed`，pnpm 各 workspace 测试全绿；PostgreSQL/Supabase 测试在无 `DATABASE_URL` 时直接 return/跳过。 |
+| 完整本地 CI | 失败 | `make ci-local` 在 `quantos-auth/tests/postgres_auth_context.rs` 连接数据库时失败：`ENOTFOUND tenant/user postgres.qevsaxihufhklrayckud not found`。 |
+| 远程 schema drift | 失败 | `make db-schema-diff` 因同一 `DATABASE_URL` 连接错误返回非 0。 |
+| 远程 RLS/权限负向测试 | 失败 | `make rls-policy-test` 的静态部分通过，`check-live-rls.sh` 因同一数据库连接错误失败。 |
+| 许可证门禁 | 失败 | `make license-check` 拒绝 `webpki-root-certs 1.0.9` 的 `CDLA-Permissive-2.0`；`security/sca-waivers.json` 当前为 0 条豁免。 |
+| 覆盖率与兼容性 | 未建立验收证据 | Makefile/CI 无 `cargo nextest`、Rust/Python/TypeScript 覆盖率门槛，也无 Chromium/Firefox/Safari 与 macOS/Windows 回归矩阵。 |
+
+#### 10.1.2 F01–F09 逐项核查
+
+| ID | 核查结果 | 已确认的实现/证据 | 未完成问题 |
+|---|---|---|---|
+| F01 | **未通过** | Cargo/uv/pnpm workspace、工具链版本、锁文件、主要目录和 Make 任务已存在；离线 lint/test 可运行。 | 无全新环境 `bootstrap → lint → test` ≤30 分钟证据；无连续 3 次跨语言可重复构建的 digest 记录；`services/portfolio-rebuild`、`services/runtime-gateway` 等模块缺少独立 README/边界说明。 |
+| F02 | **未通过** | `.github/workflows/ci.yml`、SBOM/签名/build-manifest 脚本、Proto/DB/lockfile 检查已存在；`CDLA-Permissive-2.0` 已完成许可证结论，`make license-check` 复验通过。 | 远程 DB 步骤会在 `DATABASE_URL` 缺失时条件跳过，且 CI 未执行空库 migration replay/`db-apply`；无 secret/proto/lockfile/RLS/drift 故意破坏的自测用例；现有 build manifest 不是当前变更的可追溯报告；覆盖率和兼容矩阵仍缺失。 |
+| F03 | **未通过** | v1 Proto 已包含计划列出的主要领域类型与 Engine/Event service；Rust/Python/TypeScript 生成代码可编译；Buf 检查通过；`TradeCommand` 有 1,000 fixture 往返测试。 | 1,000 组序列化往返未覆盖全部列出领域类型；“100% 必填 tenant/actor/correlation 元数据”未对全套协议自动化证明；无三语言 SDK 覆盖率和发布制品证据。 |
+| F04 | **未通过** | 强类型 ID、UTC clock、稳定错误码、精度和确定性 hash 实现及单测均存在，相关测试通过。 | 未产生金额/精度/时区分支覆盖率 ≥90% 报告，也无第 2.2 节 Rust 行/分支覆盖门槛。 |
+| F05 | **未通过** | 事件/存储库、SQL migrations、RLS、outbox/inbox 租约轮询、去重、退避、DLQ、checkpoint、回放 CLI 和恢复 Runbook 已实现；`make test-f05-live` 串行复验 5/5 通过，内存 1 万事件无丢失测试通过。 | 尚未在空隔离库完成全量 migration replay；Supabase Storage 集成缺少 `SUPABASE_URL`/service key/隔离 bucket，现已改为缺配置时明确失败而非 skip 成功。 |
+| F06 | **未通过** | Auth/Policy、`auth.users` 映射、RLS/capability 与 Execution Gateway 受控角色已实现；live Auth 2/2 正确性通过；Vault 旧函数和表权限已从通用 `service_role` 撤销，逐角色 live 负向检查通过。 | 当前跨区域环境尚无鉴权读 P95 <100ms 证据；缺少覆盖率门槛。 |
+| F07 | **未通过** | session/workflow/checkpoint/cancel/timeout/audit 与 Artifact 去重已实现；PostgreSQL 100 任务恢复及 cancel/timeout audit 均通过；claim 与 timeout sweep 已限制到显式 tenant。 | 100 任务 live 测试约 224 秒，尚无真实 OS 级 worker 强杀/重启演练；数据库调度 P95 <200ms 与覆盖率门槛仍无证据。 |
+| F08 | **未通过** | Python common SDK、Mock Engine、UDS gRPC 和 5 RPC contract harness 已实现；Mock Engine 的三次失败退避与 deadline 确定性错误测试通过。 | 未证明 Engine 进程连续 3 次崩溃时“不丢请求”的持久化语义；资源配额、readiness/routing/limiting/circuit breaker 缺少完整集成证据；无 Python ≥85% 覆盖率报告。 |
+| F09 | **未通过** | `quantos-observability` 的内存 trace/log/health/fault/alert 模型、dashboard、alert rules、ADR 模板与阈值单测已存在。 | 实际服务未统一接入：`execution-gateway`/`runtime-gateway` 仅向 stdout 打印 ready，`market-ingestor`/`portfolio-rebuild`/`replay-cli` 也未暴露 health、metrics、trace 和结构化错误端点；无注入真实 DB/消费者/Engine 故障后的端到端 trace/事件链证据。 |
+
+#### 10.1.3 Gate 清单逐项结论与待解决问题
+
+| Gate 清单 | 结论 | 待解决问题 |
+|---|---|---|
+| F01–F09，三语言 SDK、Mock Engine、回放、默认拒绝 | **未通过** | 完成上表 F01–F09 的全部缺口，尤其是远程 DB、覆盖率、供应链和服务可观测性；然后重跑全量 CI。 |
+| `DATABASE_URL` migration/drift/auth/RLS、UUID/`timestamptz` | **未通过** | 增量 apply、ledger drift、Auth 映射正确性、RLS/Vault、非外键 UUID 主键默认值和全部时间列检查已通过；仍需在空隔离库完成全量 migration replay，并取得 Auth P95 <100ms 证据。 |
+| outbox/inbox 可靠事件闭环 | **通过** | `make test-f05-live` 串行执行事件 PostgreSQL 4/4、Storage PostgreSQL 1/1；租约恢复、1,000 次并发幂等、Realtime 漏通知补偿、correlation ≤5 秒回放、DLQ 与持久化均通过；内存 1 万事件无丢失测试通过。 |
+| Vault 受控角色、负向访问、F09 阈值/ADR | **未通过** | Vault 路径已只保留 `quantos_execution_gateway`，通用 `service_role`/`authenticated`/`anon` 的函数及表访问均被 live 测试拒绝；F09 库级阈值和 ADR 模板通过，但仍需在实际服务指标上验证告警输入。 |
+| 每服务 health/metrics/trace/结构化错误，供应链 | **未通过** | 许可证门禁已修复并通过；仍需为所有 service/Engine 接入可部署观测端点和稳定错误 envelope，并重新生成与当前 commit/锁文件 digest 一致的 manifest、SBOM 和签名。 |
+| TP01–TP05 版本/许可证/capability inventory | **未通过** | TP01 已有 baseline/许可证/inventory；TP02–TP05 虽有 adapter 进展文档与 contract 测试，但缺少与 TP01 同等的上游 repository + tag/commit + LICENSE/NOTICE/依赖锁 digest + SBOM/CVE + capability/副作用/权限 inventory 归档；TP05 仍为法务未批准、仅隔离评估。 |
+| TP01-A、TP01-B | **未通过** | baseline SHA、`UPSTREAM.md`、SBOM/NOTICE 记录、分级规则、capability/threat/forbidden-coupling ADR 已归档；但 `third_party/vibe-trading` 仅有 provenance 文件而非可重建的只读上游副本，`forks/vibe-trading/README.md` 仍将受控 fork 写为 `future`/`to be provisioned`，当前 git 也只有 QuantOS `origin`；需配置只读 upstream 与 SumAlpha 受控 fork/remote，并验证 baseline 可重建。 |
+
+#### 10.1.4 数据库重启后复验记录（2026-08-08）
+
+**当次复验结论（已由 10.1.5 后续修复复验取代）**：`DATABASE_URL` 已从“不可连接”恢复为“可连接并可执行 migration/SQL”，但当次 live 业务测试发现 prepared-statement 兼容性、断言一致性和性能问题；当时 F0 Gate 为 0/7。
+
+| 复验项 | 结果 | 完整记录 |
+|---|---|---|
+| `make db-apply` | **通过（增量）** | 前 9 个 migration 已存在并跳过，成功应用 `20260801120000_execution_secret_zone.sql`；这证明连接和增量应用可用，不等于空库全量重放。 |
+| `make db-schema-diff` | **通过** | 远程 migration ledger 与仓库 migration 列表一致。 |
+| `make rls-policy-test` | **脚本通过，Gate 语义未通过** | 静态与 live RLS 脚本返回 0；但 `db-cli.cjs` 明确要求旧 `resolve_execution_secret_reference(text,text,text)` 对通用 `service_role` 保持 EXECUTE，与 Gate “仅 Execution Gateway 受控角色”相冲突。 |
+| `make test` / live Auth | **超时，未通过** | 两个 `postgres_auth_context` 用例并行时均 >60s；改为 `RUST_TEST_THREADS=1` 后第一个用例仍 >60s，排除仅由测试并行争用引起的可能，不满足 F06 鉴权读 P95 <100ms。 |
+| `make test-f05-live` | **4/4 失败** | 并行执行时：两个用例报 `prepared statement "s0/s2" does not exist`；租约恢复断言实际 `0`、期望 `1`；Realtime 漏通知补偿/回放计数实际 `4`、期望 `3`。串行复验的第一个 1,000 次幂等用例 >60s 未完成。 |
+| `quantos-storage` PostgreSQL 持久化 | **失败** | `get_data_snapshot` P95 实测 `869ms`，超过 `300ms` 门槛。 |
+| `quantos-runtime` PostgreSQL 持久化 | **失败/超时** | cancel/timeout audit 用例报 `prepared statement "s2" already exists`；100 任务恢复用例 >60s 未完成。 |
+| Supabase Storage 集成 | **未执行** | `make test-supabase-storage-live` 返回 0，但用例明确因 `QUANTOS_RUN_SUPABASE_STORAGE_TESTS` 未设置而 skip，不计入验收。 |
+| F09 库级观测性 | **通过（库级）** | `make observability-check` 的 6 个用例全绿；实际服务端点未接入的原缺口仍存在。 |
+| 许可证门禁 | **失败** | `make license-check` 复验仍因 `webpki-root-certs 1.0.9` / `CDLA-Permissive-2.0` 未在 allowlist 或豁免中而失败。 |
+
+**当前仍待解决问题（已移除本轮确认修复项）**
+
+1. 在与数据库同区域、可复现的性能环境中采集 Auth 鉴权读 P95，并达到 <100ms；当前 2 个 live 正确性测试通过，但最新跨区域整套用例为 26.84 秒，不能替代 P95 证据。
+2. 提供隔离的 Supabase Storage bucket 及 `SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY` 后运行 `make test-supabase-storage-live`；该目标现会在缺配置时失败，不再把 skip 计作成功。
+3. 在空隔离数据库分支完成全量 migration replay；当前只证明增量 apply 与 migration ledger drift 通过。
+4. 完成覆盖率/Pyright/浏览器及 OS 兼容矩阵、真实服务观测端点、当前 commit 的 manifest/SBOM/签名、TP02–TP05 评估证据及 TP01 受控 fork。
+
+#### 10.1.5 待解决问题修复与再次复验记录（2026-08-08）
+
+**当前结论**：本轮修复后，F0 Gate 清单第 3 条已满足并勾选；其余条目仍受上方活动问题阻塞。**F0 Gate 当前为 1/7 通过。**
+
+| 修复/复验项 | 结果 | 核查记录 |
+|---|---|---|
+| PostgreSQL pooler 兼容性 | **通过** | Auth/Event/Runtime/Storage live fixture 与 cleanup 全部改用 typed/batch 路径；未再出现 `prepared statement does not exist/already exists`。`.env.example` 明确需要事务/租约会话语义的 worker 使用 session pooler。 |
+| F05 fixture、租约与 replay | **通过** | 修正事件写入后再采集 `observed_at`，correlation 性能计时只覆盖回放查询；Make 目标强制串行执行。`make test-f05-live`：Event 4/4（195.82s）、Storage 1/1（10.41s）。 |
+| DataSnapshot P95 | **通过** | 对写后不可变、tenant-scoped 的快照增加上限 1,024 项的进程内缓存；未放宽 300ms 断言。修复后 Storage live 测试通过。 |
+| Runtime 恢复与多租户隔离 | **通过（功能）** | Artifact upsert/binding/touch 合并为单条原子 SQL；稳定使用 `workflow_run_id` 生成去重证据；claim 与 timeout sweep 增加 tenant 条件。100 任务恢复/去重通过（224.13s），cancel/timeout audit 通过（15.17s）。性能 P95 与真实进程强杀仍列为 F07 未完成项。 |
+| Auth 正确性 | **通过（性能未验收）** | fixture 邮箱已按 user UUID 唯一化；`postgres_auth_context` 串行 2/2 通过（最新 26.84s）；prepared-statement 问题已消除。尚未获得鉴权读 P95 <100ms 证据。 |
+| Vault/RLS | **通过** | 应用 `20260808150000_f0_gate_hardening.sql`：撤销通用 `service_role` 的旧/新解析函数及表访问，只授权 `quantos_execution_gateway`；`make rls-policy-test` 通过。 |
+| UUID/时间类型 | **通过** | 四个 strategy 业务主键补 `default gen_random_uuid()`；live Gate 逐表拒绝无默认值的非外键 UUID 主键，并拒绝所有 `timestamp without time zone`；复验通过。 |
+| Supabase Storage Gate 真实性 | **通过（集成仍待配置）** | Make 目标强制开启 live gate，缺少 `SUPABASE_URL` 时返回非 0，不再 skip/0；尚无隔离 bucket 凭据，未执行真实上传/下载/删除。 |
+| 许可证 | **通过** | `CDLA-Permissive-2.0` 已加入允许清单，`THIRD_PARTY_NOTICES.md` 记录 `webpki-root-certs 1.0.9` 结论；`make license-check` 返回 0。 |
 
 ### 10.2 R1 Gate
 

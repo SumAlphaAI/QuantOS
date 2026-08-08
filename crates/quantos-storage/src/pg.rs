@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 
 use chrono::{DateTime, Utc};
 use native_tls::TlsConnector;
@@ -37,12 +37,14 @@ pub enum PgStorageError {
 
 pub struct PgStorageStore {
     client: Client,
+    snapshot_cache: HashMap<(TenantId, SnapshotId), DataSnapshotRecord>,
 }
 
 impl PgStorageStore {
     pub fn connect(database_url: &str) -> Result<Self, PgStorageError> {
         Ok(Self {
             client: connect_client(database_url)?,
+            snapshot_cache: HashMap::new(),
         })
     }
 
@@ -214,7 +216,9 @@ impl PgStorageStore {
             ],
         )?;
 
-        row_to_data_snapshot(&row)
+        let snapshot = row_to_data_snapshot(&row)?;
+        self.cache_snapshot(&snapshot);
+        Ok(snapshot)
     }
 
     pub fn get_data_snapshot(
@@ -222,6 +226,10 @@ impl PgStorageStore {
         tenant_id: TenantId,
         snapshot_id: SnapshotId,
     ) -> Result<Option<DataSnapshotRecord>, PgStorageError> {
+        if let Some(snapshot) = self.snapshot_cache.get(&(tenant_id, snapshot_id)) {
+            return Ok(Some(snapshot.clone()));
+        }
+
         let row = self.client.query_typed_opt(
             "select id, tenant_id, schema_entry_id, schema_name, schema_version,
                     window_start_at, window_end_at, captured_at, max_age_secs, expires_at,
@@ -235,7 +243,11 @@ impl PgStorageStore {
             ],
         )?;
 
-        row.map(|row| row_to_data_snapshot(&row)).transpose()
+        let snapshot = row.map(|row| row_to_data_snapshot(&row)).transpose()?;
+        if let Some(snapshot) = &snapshot {
+            self.cache_snapshot(snapshot);
+        }
+        Ok(snapshot)
     }
 
     pub fn find_data_snapshot_by_hash(
@@ -256,7 +268,24 @@ impl PgStorageStore {
             ],
         )?;
 
-        row.map(|row| row_to_data_snapshot(&row)).transpose()
+        let snapshot = row.map(|row| row_to_data_snapshot(&row)).transpose()?;
+        if let Some(snapshot) = &snapshot {
+            self.cache_snapshot(snapshot);
+        }
+        Ok(snapshot)
+    }
+
+    fn cache_snapshot(&mut self, snapshot: &DataSnapshotRecord) {
+        const SNAPSHOT_CACHE_CAPACITY: usize = 1_024;
+        if self.snapshot_cache.len() >= SNAPSHOT_CACHE_CAPACITY
+            && !self
+                .snapshot_cache
+                .contains_key(&(snapshot.tenant_id, snapshot.snapshot_id))
+        {
+            self.snapshot_cache.clear();
+        }
+        self.snapshot_cache
+            .insert((snapshot.tenant_id, snapshot.snapshot_id), snapshot.clone());
     }
 
     pub fn list_data_snapshots_for_symbol(

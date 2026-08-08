@@ -63,11 +63,11 @@ observability-check:
 	cargo test -p quantos-observability
 
 test-f05-live:
-	cargo test -p quantos-event --test postgres_persistence -- --nocapture
-	cargo test -p quantos-storage --test postgres_persistence -- --nocapture
+	cargo test -p quantos-event --test postgres_persistence -- --test-threads=1 --nocapture
+	cargo test -p quantos-storage --test postgres_persistence -- --test-threads=1 --nocapture
 
 test-supabase-storage-live:
-	cargo test -p quantos-storage --test supabase_storage_integration -- --nocapture
+	QUANTOS_RUN_SUPABASE_STORAGE_TESTS=1 cargo test -p quantos-storage --test supabase_storage_integration -- --nocapture
 
 test-python:
 	uv run --project engines --all-packages pytest

@@ -214,6 +214,54 @@ async function liveRlsCheck() {
       );
     }
 
+    const uuidPrimaryKeysWithoutDefaults = await client.query(`
+      select cols.table_name, cols.column_name
+      from information_schema.table_constraints as constraints
+      join information_schema.key_column_usage as keys
+        on keys.constraint_schema = constraints.constraint_schema
+       and keys.constraint_name = constraints.constraint_name
+      join information_schema.columns as cols
+        on cols.table_schema = keys.table_schema
+       and cols.table_name = keys.table_name
+       and cols.column_name = keys.column_name
+      where constraints.table_schema = 'quantos'
+        and constraints.constraint_type = 'PRIMARY KEY'
+        and cols.data_type = 'uuid'
+        and cols.column_default is null
+        and not exists (
+          select 1
+          from information_schema.table_constraints as foreign_constraints
+          join information_schema.key_column_usage as foreign_keys
+            on foreign_keys.constraint_schema = foreign_constraints.constraint_schema
+           and foreign_keys.constraint_name = foreign_constraints.constraint_name
+          where foreign_constraints.table_schema = cols.table_schema
+            and foreign_constraints.table_name = cols.table_name
+            and foreign_constraints.constraint_type = 'FOREIGN KEY'
+            and foreign_keys.column_name = cols.column_name
+        )
+      order by cols.table_name, cols.column_name;
+    `);
+
+    if (uuidPrimaryKeysWithoutDefaults.rowCount > 0) {
+      throw new Error(
+        `UUID primary-key columns must define database defaults: ${uuidPrimaryKeysWithoutDefaults.rows.map((row) => `${row.table_name}.${row.column_name}`).join(", ")}`,
+      );
+    }
+
+    const timestampsWithoutTimezone = await client.query(`
+      select table_name, column_name
+      from information_schema.columns
+      where table_schema = 'quantos'
+        and data_type = 'timestamp without time zone'
+      order by table_name, column_name;
+    `);
+
+    if (timestampsWithoutTimezone.rowCount > 0) {
+      throw new Error(
+        `Timestamp columns must use timestamptz: ${timestampsWithoutTimezone.rows.map((row) => `${row.table_name}.${row.column_name}`).join(", ")}`,
+      );
+    }
+
     const unsafeWritePolicies = await client.query(`
       select schemaname || '.' || tablename as table_name, policyname, cmd
       from pg_policies
@@ -230,28 +278,44 @@ async function liveRlsCheck() {
       );
     }
 
-    const secretFunctionName =
+    const legacySecretFunctionName =
       "quantos.resolve_execution_secret_reference(text, text, text)";
+    const restrictedSecretFunctionName =
+      "quantos.resolve_execution_secret_ref(text)";
     const secretFunctionPrivileges = await client.query(
       `
         select
-          has_function_privilege('authenticated', $1, 'EXECUTE') as authenticated_execute,
-          has_function_privilege('anon', $1, 'EXECUTE') as anon_execute,
-          has_function_privilege('service_role', $1, 'EXECUTE') as service_role_execute
+          has_function_privilege('authenticated', $1, 'EXECUTE') as authenticated_legacy,
+          has_function_privilege('anon', $1, 'EXECUTE') as anon_legacy,
+          has_function_privilege('service_role', $1, 'EXECUTE') as service_role_legacy,
+          has_function_privilege('quantos_execution_gateway', $1, 'EXECUTE') as gateway_legacy,
+          has_function_privilege('authenticated', $2, 'EXECUTE') as authenticated_restricted,
+          has_function_privilege('anon', $2, 'EXECUTE') as anon_restricted,
+          has_function_privilege('service_role', $2, 'EXECUTE') as service_role_restricted,
+          has_function_privilege('quantos_execution_gateway', $2, 'EXECUTE') as gateway_restricted,
+          has_table_privilege('service_role', 'quantos.execution_secret_refs', 'SELECT') as service_role_table_select
       `,
-      [secretFunctionName],
+      [legacySecretFunctionName, restrictedSecretFunctionName],
     );
 
     const privilegeRow = secretFunctionPrivileges.rows[0];
-    if (privilegeRow.authenticated_execute || privilegeRow.anon_execute) {
+    if (
+      privilegeRow.authenticated_legacy ||
+      privilegeRow.anon_legacy ||
+      privilegeRow.service_role_legacy ||
+      privilegeRow.authenticated_restricted ||
+      privilegeRow.anon_restricted ||
+      privilegeRow.service_role_restricted ||
+      privilegeRow.service_role_table_select
+    ) {
       throw new Error(
-        `Secret allowlist function ${secretFunctionName} must not be executable by authenticated or anon roles.`,
+        "Vault reference paths must be unreachable from authenticated, anon, and generic service roles.",
       );
     }
 
-    if (!privilegeRow.service_role_execute) {
+    if (!privilegeRow.gateway_legacy || !privilegeRow.gateway_restricted) {
       throw new Error(
-        `Secret allowlist function ${secretFunctionName} must remain executable by service_role.`,
+        "Both execution secret allowlist functions must remain executable by quantos_execution_gateway.",
       );
     }
 

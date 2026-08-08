@@ -12,7 +12,14 @@ This repository tracks third-party dependency obligations here.
 ## Current Status
 
 - F02 baseline created the notice registry.
-- Dependency-specific notice entries will be appended as packages are introduced beyond the F01 starter toolchain.
+- Dependency-specific notice entries are appended as packages are introduced beyond the F01 starter toolchain.
+
+## TLS trust-store data
+
+- Package: `webpki-root-certs 1.0.9`
+- License: `CDLA-Permissive-2.0`
+- Use: transitive TLS trust-store data through `reqwest` / `rustls-platform-verifier`.
+- Conclusion: approved permissive data license; attribution is retained in the generated SBOM and this notice.
 
 ## TP01: Vibe-Trading (`HKUDS/Vibe-Trading`)
 

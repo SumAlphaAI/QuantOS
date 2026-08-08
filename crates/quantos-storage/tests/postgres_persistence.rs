@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, env, time::Instant};
 
 use chrono::Utc;
 use native_tls::TlsConnector;
-use postgres::{Client, NoTls};
+use postgres::{Client, NoTls, types::Type};
 use postgres_native_tls::MakeTlsConnector;
 use quantos_core::{ContentHash, SchemaVersion, TenantId};
 use quantos_storage::{
@@ -21,9 +21,9 @@ struct TenantCleanup {
 impl Drop for TenantCleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
-            let _ = client.execute(
+            let _ = client.execute_typed(
                 "delete from quantos.tenants where id = $1",
-                &[self.tenant_id.as_uuid()],
+                &[(self.tenant_id.as_uuid(), Type::UUID)],
             );
         }
     }
@@ -186,10 +186,14 @@ fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
     let mut client = connect_client(database_url).expect("connects for setup");
     let slug = format!("f05-storage-{}", tenant_id);
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.tenants (id, slug, name) values ($1, $2, $3)
              on conflict (id) do nothing",
-            &[tenant_id.as_uuid(), &slug, &slug],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&slug, Type::TEXT),
+                (&slug, Type::TEXT),
+            ],
         )
         .expect("tenant inserts");
 

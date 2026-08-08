@@ -176,18 +176,20 @@ impl PgRuntimeStore {
 
     pub fn claim_runs(
         &mut self,
+        tenant_id: TenantId,
         worker_name: &str,
         limit: i64,
         observed_at: DateTime<Utc>,
         lease_duration: ChronoDuration,
     ) -> Result<Vec<LeasedWorkflowRun>, PgRuntimeError> {
-        self.mark_timed_out_runs(observed_at)?;
+        self.mark_timed_out_runs(tenant_id, observed_at)?;
         let lease_expires_at = observed_at + lease_duration;
         let rows = self.client.query_typed(
             "with candidate as (
                 select run.id
                 from quantos.workflow_runs as run
-                where run.next_attempt_at <= $3
+                where run.tenant_id = $5
+                  and run.next_attempt_at <= $3
                   and run.deadline_at > $3
                   and run.cancel_requested_at is null
                   and run.status in ('queued', 'running')
@@ -219,6 +221,7 @@ impl PgRuntimeStore {
                 (&lease_expires_at, Type::TIMESTAMPTZ),
                 (&observed_at, Type::TIMESTAMPTZ),
                 (&limit, Type::INT8),
+                (tenant_id.as_uuid(), Type::UUID),
             ],
         )?;
 
@@ -291,33 +294,59 @@ impl PgRuntimeStore {
         manifest: &ArtifactManifest,
         recorded_at: DateTime<Utc>,
     ) -> Result<WorkflowArtifactBinding, PgRuntimeError> {
-        let mut tx = self.client.transaction()?;
-        let artifact = upsert_artifact_tx(&mut tx, manifest)?;
-        let row = tx.query_typed_one(
-            "insert into quantos.workflow_run_artifacts (
-                workflow_run_id, artifact_id, linked_at
-            ) values ($1,$2,$3)
-            on conflict (workflow_run_id, artifact_id)
-            do update set linked_at = quantos.workflow_run_artifacts.linked_at
-            returning workflow_run_id, artifact_id, linked_at",
+        let metadata = serde_json::to_value(&manifest.metadata)?;
+        let metadata = Json(&metadata);
+        // Keep artifact upsert, workflow binding, and run touch in one statement.
+        // Besides being atomic, this avoids four cross-region round trips and is
+        // compatible with transaction-pooler connections.
+        let row = self.client.query_typed_one(
+            "with artifact as (
+               insert into quantos.object_artifacts (
+                 tenant_id, artifact_id, content_hash, storage_bucket, object_key,
+                 media_type, size_bytes, metadata, created_at
+               ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+               on conflict (tenant_id, content_hash)
+               do update set
+                 storage_bucket = quantos.object_artifacts.storage_bucket,
+                 object_key = quantos.object_artifacts.object_key,
+                 media_type = quantos.object_artifacts.media_type,
+                 size_bytes = quantos.object_artifacts.size_bytes,
+                 metadata = quantos.object_artifacts.metadata
+               returning artifact_id
+             ),
+             binding as (
+               insert into quantos.workflow_run_artifacts (
+                 workflow_run_id, artifact_id, linked_at
+               )
+               select $10, artifact_id, $11 from artifact
+               on conflict (workflow_run_id, artifact_id)
+               do update set linked_at = quantos.workflow_run_artifacts.linked_at
+               returning workflow_run_id, artifact_id, linked_at
+             ),
+             touched as (
+               update quantos.workflow_runs
+               set updated_at = $11
+               where id = $10 and exists (select 1 from binding)
+             )
+             select workflow_run_id, artifact_id, linked_at from binding",
             &[
+                (manifest.tenant_id.as_uuid(), Type::UUID),
+                (manifest.artifact_id.as_uuid(), Type::UUID),
+                (&manifest.content_hash.as_str(), Type::TEXT),
+                (&manifest.storage_bucket, Type::TEXT),
+                (&manifest.object_key, Type::TEXT),
+                (&manifest.media_type, Type::TEXT),
+                (&(manifest.size_bytes as i64), Type::INT8),
+                (&metadata, Type::JSONB),
+                (&manifest.created_at, Type::TIMESTAMPTZ),
                 (run_id.as_uuid(), Type::UUID),
-                (artifact.artifact_id.as_uuid(), Type::UUID),
                 (&recorded_at, Type::TIMESTAMPTZ),
             ],
         )?;
-        tx.execute_typed(
-            "update quantos.workflow_runs set updated_at = $2 where id = $1",
-            &[
-                (run_id.as_uuid(), Type::UUID),
-                (&recorded_at, Type::TIMESTAMPTZ),
-            ],
-        )?;
-        tx.commit()?;
         Ok(WorkflowArtifactBinding {
             workflow_run_id: WorkflowRunId::from_uuid(row.get("workflow_run_id")),
             artifact_id: ArtifactId::from_uuid(row.get("artifact_id")),
-            content_hash: artifact.content_hash,
+            content_hash: manifest.content_hash.clone(),
             linked_at: row.get("linked_at"),
         })
     }
@@ -421,6 +450,7 @@ impl PgRuntimeStore {
 
     pub fn mark_timed_out_runs(
         &mut self,
+        tenant_id: TenantId,
         observed_at: DateTime<Utc>,
     ) -> Result<usize, PgRuntimeError> {
         let mut tx = self.client.transaction()?;
@@ -432,12 +462,16 @@ impl PgRuntimeStore {
                  lease_expires_at = null,
                  updated_at = $1
              from quantos.actors as actor
-             where run.deadline_at <= $1
+             where run.tenant_id = $2
+               and run.deadline_at <= $1
                and run.cancel_requested_at is null
                and run.status not in ('succeeded', 'failed', 'cancelled', 'timed_out')
                and actor.id = run.actor_id
              returning run.id, run.tenant_id, run.correlation_id, actor.user_id",
-            &[(&observed_at, Type::TIMESTAMPTZ)],
+            &[
+                (&observed_at, Type::TIMESTAMPTZ),
+                (tenant_id.as_uuid(), Type::UUID),
+            ],
         )?;
         for row in &rows {
             let run_id = WorkflowRunId::from_uuid(row.get("id"));
@@ -526,41 +560,6 @@ fn connect_client(database_url: &str) -> Result<Client, PgRuntimeError> {
             MakeTlsConnector::new(connector),
         )?)
     }
-}
-
-fn upsert_artifact_tx(
-    tx: &mut Transaction<'_>,
-    manifest: &ArtifactManifest,
-) -> Result<ArtifactManifest, PgRuntimeError> {
-    let metadata = serde_json::to_value(&manifest.metadata)?;
-    let metadata = Json(&metadata);
-    let row = tx.query_typed_one(
-        "insert into quantos.object_artifacts (
-            tenant_id, artifact_id, content_hash, storage_bucket, object_key, media_type,
-            size_bytes, metadata, created_at
-        ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-        on conflict (tenant_id, content_hash)
-        do update set
-            storage_bucket = quantos.object_artifacts.storage_bucket,
-            object_key = quantos.object_artifacts.object_key,
-            media_type = quantos.object_artifacts.media_type,
-            size_bytes = quantos.object_artifacts.size_bytes,
-            metadata = quantos.object_artifacts.metadata
-        returning artifact_id, tenant_id, content_hash, storage_bucket, object_key,
-                  media_type, size_bytes, metadata, created_at",
-        &[
-            (manifest.tenant_id.as_uuid(), Type::UUID),
-            (manifest.artifact_id.as_uuid(), Type::UUID),
-            (&manifest.content_hash.as_str(), Type::TEXT),
-            (&manifest.storage_bucket, Type::TEXT),
-            (&manifest.object_key, Type::TEXT),
-            (&manifest.media_type, Type::TEXT),
-            (&(manifest.size_bytes as i64), Type::INT8),
-            (&metadata, Type::JSONB),
-            (&manifest.created_at, Type::TIMESTAMPTZ),
-        ],
-    )?;
-    row_to_artifact_manifest(&row)
 }
 
 fn insert_audit_tx(
@@ -665,21 +664,5 @@ fn row_to_checkpoint(row: &Row) -> Result<WorkflowCheckpoint, PgRuntimeError> {
         step_index: row.get::<_, i32>("step_index") as u32,
         payload: row.get("payload"),
         recorded_at: row.get("recorded_at"),
-    })
-}
-
-fn row_to_artifact_manifest(row: &Row) -> Result<ArtifactManifest, PgRuntimeError> {
-    let metadata_value: serde_json::Value = row.get("metadata");
-    let metadata = serde_json::from_value(metadata_value)?;
-    Ok(ArtifactManifest {
-        artifact_id: ArtifactId::from_uuid(row.get("artifact_id")),
-        tenant_id: TenantId::from_uuid(row.get("tenant_id")),
-        media_type: row.get("media_type"),
-        content_hash: ContentHash::parse(row.get::<_, String>("content_hash").as_str())?,
-        storage_bucket: row.get("storage_bucket"),
-        object_key: row.get("object_key"),
-        size_bytes: row.get::<_, i64>("size_bytes") as u64,
-        metadata,
-        created_at: row.get("created_at"),
     })
 }

@@ -7,7 +7,7 @@ use postgres_native_tls::MakeTlsConnector;
 use quantos_auth::AuthContext;
 use quantos_core::{AccountId, ActorId, ContentHash, CorrelationId, TenantId, WorkspaceId};
 use quantos_policy::{Capability, Role, RunMode};
-use quantos_runtime::{NewWorkflowRun, ToolRegistration, WorkflowRunStatus, pg::PgRuntimeStore};
+use quantos_runtime::{NewWorkflowRun, ToolRegistration, pg::PgRuntimeStore};
 use quantos_storage::ArtifactManifest;
 use url::Url;
 use uuid::Uuid;
@@ -21,11 +21,14 @@ struct Cleanup {
 impl Drop for Cleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
-            let _ = client.execute(
+            let _ = client.execute_typed(
                 "delete from quantos.tenants where id = $1",
-                &[self.tenant_id.as_uuid()],
+                &[(self.tenant_id.as_uuid(), Type::UUID)],
             );
-            let _ = client.execute("delete from auth.users where id = $1", &[&self.user_id]);
+            let _ = client.execute_typed(
+                "delete from auth.users where id = $1",
+                &[(&self.user_id, Type::UUID)],
+            );
         }
     }
 }
@@ -44,6 +47,15 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
     };
 
     let fixture = seed_runtime_fixture(&database_url);
+    let run_count = env::var("QUANTOS_RUNTIME_RECOVERY_RUNS")
+        .ok()
+        .map(|value| {
+            value
+                .parse::<usize>()
+                .expect("recovery run count is numeric")
+        })
+        .unwrap_or(100);
+    assert!(run_count > 0);
     let now = Utc::now();
     let mut store = PgRuntimeStore::connect(&database_url).expect("runtime store connects");
     let session = store
@@ -54,7 +66,7 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
         .expect("tool registers");
 
     let mut run_ids = Vec::new();
-    for index in 0..100 {
+    for index in 0..run_count {
         let run = store
             .schedule_run(&new_run(session.runtime_session_id, index, now), now)
             .expect("run schedules");
@@ -62,24 +74,30 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
     }
 
     let claimed = store
-        .claim_runs("worker-a", 100, now, ChronoDuration::seconds(30))
+        .claim_runs(
+            fixture.auth.tenant_id,
+            "worker-a",
+            run_count as i64,
+            now,
+            ChronoDuration::seconds(30),
+        )
         .expect("runs claim");
-    assert_eq!(claimed.len(), 100);
+    assert_eq!(claimed.len(), run_count);
 
-    for (index, lease) in claimed.iter().enumerate() {
+    for lease in &claimed {
         store
             .save_checkpoint(
                 lease.run.workflow_run_id,
                 "step.execute",
                 1,
-                &serde_json::json!({ "step": 1, "task": index }),
+                &serde_json::json!({ "step": 1, "run_id": lease.run.workflow_run_id }),
                 now,
             )
             .expect("checkpoint saves");
         let manifest = ArtifactManifest::new(
             fixture.auth.tenant_id,
             "application/json",
-            ContentHash::sha256_bytes(format!("artifact-{index}").as_bytes()),
+            ContentHash::sha256_bytes(format!("artifact-{}", lease.run.workflow_run_id).as_bytes()),
             "quantos-artifacts",
             16,
             now,
@@ -92,15 +110,16 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
     let mut recovered = PgRuntimeStore::connect(&database_url).expect("recovered store connects");
     let resumed = recovered
         .claim_runs(
+            fixture.auth.tenant_id,
             "worker-b",
-            100,
+            run_count as i64,
             now + ChronoDuration::seconds(31),
             ChronoDuration::seconds(30),
         )
         .expect("expired leases reclaim");
-    assert_eq!(resumed.len(), 100);
+    assert_eq!(resumed.len(), run_count);
 
-    for (index, lease) in resumed.iter().enumerate() {
+    for lease in &resumed {
         let checkpoint = recovered
             .load_checkpoint(lease.run.workflow_run_id)
             .expect("checkpoint query succeeds")
@@ -110,7 +129,7 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
         let manifest = ArtifactManifest::new(
             fixture.auth.tenant_id,
             "application/json",
-            ContentHash::sha256_bytes(format!("artifact-{index}").as_bytes()),
+            ContentHash::sha256_bytes(format!("artifact-{}", lease.run.workflow_run_id).as_bytes()),
             "quantos-artifacts",
             16,
             now,
@@ -133,21 +152,48 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
         )
         .expect("artifact count query succeeds")
         .get::<_, i64>("count");
-    assert_eq!(artifact_count, 100);
+    assert_eq!(artifact_count, run_count as i64);
 
-    for run_id in run_ids {
-        let run = recovered
-            .load_run(run_id)
-            .expect("run query succeeds")
-            .expect("run exists");
-        assert_eq!(run.status, WorkflowRunStatus::Succeeded);
-        assert_eq!(
-            recovered
-                .workflow_artifact_count(run_id)
-                .expect("artifact link count query succeeds"),
-            1
-        );
-    }
+    let run_uuids = run_ids
+        .iter()
+        .map(|run_id| *run_id.as_uuid())
+        .collect::<Vec<_>>();
+    let run_summary = client
+        .query_typed_one(
+            "select count(*) as run_count,
+                    count(*) filter (where status = 'succeeded') as succeeded_count
+             from quantos.workflow_runs
+             where id = any($1)",
+            &[(&run_uuids, Type::UUID_ARRAY)],
+        )
+        .expect("run summary query succeeds");
+    assert_eq!(run_summary.get::<_, i64>("run_count"), run_count as i64);
+    assert_eq!(
+        run_summary.get::<_, i64>("succeeded_count"),
+        run_count as i64
+    );
+
+    let artifact_link_summary = client
+        .query_typed_one(
+            "select count(*) as run_count,
+                    count(*) filter (where artifact_count = 1) as single_artifact_count
+             from (
+               select workflow_run_id, count(*) as artifact_count
+               from quantos.workflow_run_artifacts
+               where workflow_run_id = any($1)
+               group by workflow_run_id
+             ) as links",
+            &[(&run_uuids, Type::UUID_ARRAY)],
+        )
+        .expect("artifact link summary query succeeds");
+    assert_eq!(
+        artifact_link_summary.get::<_, i64>("run_count"),
+        run_count as i64
+    );
+    assert_eq!(
+        artifact_link_summary.get::<_, i64>("single_artifact_count"),
+        run_count as i64
+    );
 }
 
 #[test]
@@ -184,7 +230,7 @@ fn postgres_runtime_records_cancel_and_timeout_audits() {
         .expect("timed out run schedules");
     assert_eq!(
         store
-            .mark_timed_out_runs(now)
+            .mark_timed_out_runs(fixture.auth.tenant_id, now)
             .expect("timeout sweep succeeds"),
         1
     );
@@ -241,72 +287,83 @@ fn seed_runtime_fixture(database_url: &str) -> RuntimeFixture {
     let tenant_id = TenantId::new();
     let user_id = Uuid::now_v7();
     let mut client = connect_client(database_url).expect("setup client connects");
-    ensure_auth_user(&mut client, user_id, "f07-user@example.com");
+    ensure_auth_user(&mut client, user_id, &format!("f07-{user_id}@example.com"));
 
     let slug = format!("f07-{}", tenant_id);
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.tenants (id, slug, name) values ($1, $2, $3)",
-            &[tenant_id.as_uuid(), &slug, &slug],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&slug, Type::TEXT),
+                (&slug, Type::TEXT),
+            ],
         )
         .expect("tenant inserts");
 
     let workspace_id: Uuid = client
-        .query_one(
+        .query_typed_one(
             "insert into quantos.workspaces (tenant_id, slug, name, is_primary)
              values ($1, 'primary', 'Primary workspace', true)
              returning id",
-            &[tenant_id.as_uuid()],
+            &[(tenant_id.as_uuid(), Type::UUID)],
         )
         .expect("workspace inserts")
         .get("id");
 
     let account_id: Uuid = client
-        .query_one(
+        .query_typed_one(
             "insert into quantos.accounts (tenant_id, workspace_id, venue, external_account_ref, name, mode)
              values ($1, $2, 'binance', 'paper-main', 'Paper account', 'paper')
              returning id",
-            &[tenant_id.as_uuid(), &workspace_id],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&workspace_id, Type::UUID),
+            ],
         )
         .expect("account inserts")
         .get("id");
 
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.tenant_memberships (tenant_id, user_id, role)
              values ($1, $2, 'operator')",
-            &[tenant_id.as_uuid(), &user_id],
+            &[(tenant_id.as_uuid(), Type::UUID), (&user_id, Type::UUID)],
         )
         .expect("tenant membership inserts");
 
     let actor_id: Uuid = client
-        .query_one(
+        .query_typed_one(
             "insert into quantos.actors (tenant_id, user_id, actor_kind, display_name)
              values ($1, $2, 'user', 'Runtime operator')
              returning id",
-            &[tenant_id.as_uuid(), &user_id],
+            &[(tenant_id.as_uuid(), Type::UUID), (&user_id, Type::UUID)],
         )
         .expect("actor inserts")
         .get("id");
 
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.workspace_memberships (tenant_id, workspace_id, actor_id, role)
              values ($1, $2, $3, 'operator')",
-            &[tenant_id.as_uuid(), &workspace_id, &actor_id],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&workspace_id, Type::UUID),
+                (&actor_id, Type::UUID),
+            ],
         )
         .expect("workspace membership inserts");
 
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.actor_capabilities (tenant_id, actor_id, workspace_id, account_id, capability, mode_scope)
              values ($1, $2, $3, $4, $5, 'paper')",
             &[
-                tenant_id.as_uuid(),
-                &actor_id,
-                &workspace_id,
-                &account_id,
-                &Capability::EXECUTION_OPERATE,
+                (tenant_id.as_uuid(), Type::UUID),
+                (&actor_id, Type::UUID),
+                (&workspace_id, Type::UUID),
+                (&account_id, Type::UUID),
+                (&Capability::EXECUTION_OPERATE, Type::TEXT),
             ],
         )
         .expect("capability inserts");
@@ -337,7 +394,7 @@ fn seed_runtime_fixture(database_url: &str) -> RuntimeFixture {
 
 fn ensure_auth_user(client: &mut Client, user_id: Uuid, email: &str) {
     let columns = client
-        .query(
+        .query_typed(
             "select column_name
              from information_schema.columns
              where table_schema = 'auth' and table_name = 'users'",
@@ -491,7 +548,7 @@ fn ensure_auth_user(client: &mut Client, user_id: Uuid, email: &str) {
         insert_values.join(", ")
     );
     client
-        .execute(sql.as_str(), &[])
+        .batch_execute(sql.as_str())
         .expect("auth user inserts");
 }
 

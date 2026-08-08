@@ -2,7 +2,7 @@ use std::{collections::HashSet, env};
 
 use chrono::{Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
-use postgres::{Client, NoTls};
+use postgres::{Client, NoTls, types::Type};
 use postgres_native_tls::MakeTlsConnector;
 use quantos_auth::GatewayAuthMiddleware;
 use quantos_core::{AccountId, TenantId};
@@ -19,11 +19,14 @@ struct Cleanup {
 impl Drop for Cleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
-            let _ = client.execute(
+            let _ = client.execute_typed(
                 "delete from quantos.tenants where id = $1",
-                &[self.tenant_id.as_uuid()],
+                &[(self.tenant_id.as_uuid(), Type::UUID)],
             );
-            let _ = client.execute("delete from auth.users where id = $1", &[&self.user_id]);
+            let _ = client.execute_typed(
+                "delete from auth.users where id = $1",
+                &[(&self.user_id, Type::UUID)],
+            );
         }
     }
 }
@@ -117,134 +120,149 @@ struct SeededFixture {
 
 fn seed_auth_fixture(database_url: &str, tenant_id: TenantId, user_id: Uuid) -> SeededFixture {
     let mut client = connect_client(database_url).expect("connects for setup");
-    ensure_auth_user(&mut client, user_id, "f06-user@example.com");
+    ensure_auth_user(&mut client, user_id, &format!("f06-{user_id}@example.com"));
 
     let slug = format!("f06-{}", tenant_id);
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.tenants (id, slug, name) values ($1, $2, $3)",
-            &[tenant_id.as_uuid(), &slug, &slug],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&slug, Type::TEXT),
+                (&slug, Type::TEXT),
+            ],
         )
         .expect("tenant inserts");
 
     let workspace_id: Uuid = client
-        .query_one(
+        .query_typed_one(
             "insert into quantos.workspaces (tenant_id, slug, name, is_primary)
              values ($1, 'primary', 'Primary workspace', true)
              returning id",
-            &[tenant_id.as_uuid()],
+            &[(tenant_id.as_uuid(), Type::UUID)],
         )
         .expect("workspace inserts")
         .get("id");
 
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.tenant_memberships (tenant_id, user_id, role)
              values ($1, $2, 'operator')",
-            &[tenant_id.as_uuid(), &user_id],
+            &[(tenant_id.as_uuid(), Type::UUID), (&user_id, Type::UUID)],
         )
         .expect("tenant membership inserts");
 
     let actor_id: Uuid = client
-        .query_one(
+        .query_typed_one(
             "insert into quantos.actors (tenant_id, user_id, actor_kind, display_name)
              values ($1, $2, 'user', 'Primary operator')
              returning id",
-            &[tenant_id.as_uuid(), &user_id],
+            &[(tenant_id.as_uuid(), Type::UUID), (&user_id, Type::UUID)],
         )
         .expect("user actor inserts")
         .get("id");
 
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.workspace_memberships (tenant_id, workspace_id, actor_id, role)
              values ($1, $2, $3, 'operator')",
-            &[tenant_id.as_uuid(), &workspace_id, &actor_id],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&workspace_id, Type::UUID),
+                (&actor_id, Type::UUID),
+            ],
         )
         .expect("workspace membership inserts");
 
     let account_uuid: Uuid = client
-        .query_one(
+        .query_typed_one(
             "insert into quantos.accounts (tenant_id, workspace_id, venue, external_account_ref, name, mode)
              values ($1, $2, 'binance', 'paper-main', 'Paper account', 'paper')
              returning id",
-            &[tenant_id.as_uuid(), &workspace_id],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&workspace_id, Type::UUID),
+            ],
         )
         .expect("account inserts")
         .get("id");
 
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.actor_capabilities (tenant_id, actor_id, workspace_id, account_id, capability, mode_scope)
              values ($1, $2, $3, $4, $5, 'paper')",
             &[
-                tenant_id.as_uuid(),
-                &actor_id,
-                &workspace_id,
-                &account_uuid,
-                &Capability::EXECUTION_OPERATE,
+                (tenant_id.as_uuid(), Type::UUID),
+                (&actor_id, Type::UUID),
+                (&workspace_id, Type::UUID),
+                (&account_uuid, Type::UUID),
+                (&Capability::EXECUTION_OPERATE, Type::TEXT),
             ],
         )
         .expect("user execution capability inserts");
 
     let service_actor_id: Uuid = client
-        .query_one(
+        .query_typed_one(
             "insert into quantos.actors (tenant_id, actor_kind, display_name, service_name)
              values ($1, 'service', 'Execution Gateway', 'execution-gateway')
              returning id",
-            &[tenant_id.as_uuid()],
+            &[(tenant_id.as_uuid(), Type::UUID)],
         )
         .expect("service actor inserts")
         .get("id");
 
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.workspace_memberships (tenant_id, workspace_id, actor_id, role)
              values ($1, $2, $3, 'service')",
-            &[tenant_id.as_uuid(), &workspace_id, &service_actor_id],
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&workspace_id, Type::UUID),
+                (&service_actor_id, Type::UUID),
+            ],
         )
         .expect("service workspace membership inserts");
 
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.actor_capabilities (tenant_id, actor_id, workspace_id, account_id, capability, mode_scope)
              values ($1, $2, $3, $4, $5, 'paper'),
                     ($1, $2, $3, $4, $6, 'paper')",
             &[
-                tenant_id.as_uuid(),
-                &service_actor_id,
-                &workspace_id,
-                &account_uuid,
-                &Capability::EXECUTION_OPERATE,
-                &Capability::SECRET_RESOLVE,
+                (tenant_id.as_uuid(), Type::UUID),
+                (&service_actor_id, Type::UUID),
+                (&workspace_id, Type::UUID),
+                (&account_uuid, Type::UUID),
+                (&Capability::EXECUTION_OPERATE, Type::TEXT),
+                (&Capability::SECRET_RESOLVE, Type::TEXT),
             ],
         )
         .expect("service capabilities insert");
 
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.secret_references (tenant_id, workspace_id, account_id, secret_name, vault_path, required_capability, rotation_state)
              values ($1, $2, $3, 'venue.binance.paper', 'vault://venue/binance/paper', $4, 'active')",
             &[
-                tenant_id.as_uuid(),
-                &workspace_id,
-                &account_uuid,
-                &Capability::EXECUTION_OPERATE,
+                (tenant_id.as_uuid(), Type::UUID),
+                (&workspace_id, Type::UUID),
+                (&account_uuid, Type::UUID),
+                (&Capability::EXECUTION_OPERATE, Type::TEXT),
             ],
         )
         .expect("secret reference inserts");
 
     let session_token_hash = format!("session-{}", Uuid::now_v7());
     client
-        .execute(
+        .execute_typed(
             "insert into quantos.execution_service_sessions (tenant_id, actor_id, session_token_hash, allowed_capability, expires_at)
              values ($1, $2, $3, $4, $5)",
             &[
-                tenant_id.as_uuid(),
-                &service_actor_id,
-                &session_token_hash,
-                &Capability::EXECUTION_OPERATE,
-                &(Utc::now() + ChronoDuration::minutes(15)),
+                (tenant_id.as_uuid(), Type::UUID),
+                (&service_actor_id, Type::UUID),
+                (&session_token_hash, Type::TEXT),
+                (&Capability::EXECUTION_OPERATE, Type::TEXT),
+                (&(Utc::now() + ChronoDuration::minutes(15)), Type::TIMESTAMPTZ),
             ],
         )
         .expect("service session inserts");
@@ -264,7 +282,7 @@ fn seed_auth_fixture(database_url: &str, tenant_id: TenantId, user_id: Uuid) -> 
 
 fn ensure_auth_user(client: &mut Client, user_id: Uuid, email: &str) {
     let columns = client
-        .query(
+        .query_typed(
             "select column_name
              from information_schema.columns
              where table_schema = 'auth' and table_name = 'users'",
@@ -418,7 +436,7 @@ fn ensure_auth_user(client: &mut Client, user_id: Uuid, email: &str) {
         insert_values.join(", ")
     );
     client
-        .execute(sql.as_str(), &[])
+        .batch_execute(sql.as_str())
         .expect("auth user inserts");
 }
 
