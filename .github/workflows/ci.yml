@@ -123,11 +123,22 @@ jobs:
       - name: Generate build manifest
         run: make build-manifest
 
-      - name: Sign build artifacts
+      - name: Generate pull-request integrity signatures
+        if: ${{ github.event_name == 'pull_request' }}
+        run: make sign-artifacts
+
+      - name: Sign main build artifacts
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         env:
           QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
           QUANTOS_REQUIRE_FORMAL_SIGNATURE: "1"
         run: make sign-artifacts
+
+      - name: Verify formal artifact signatures
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        env:
+          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
+        run: make verify-artifact-signatures
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

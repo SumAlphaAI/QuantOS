@@ -10,7 +10,7 @@ include .env.local
 export
 endif
 
-.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check quality-gate-self-test db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts observability-check f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check quality-gate-self-test f01-reproducibility-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: bootstrap-rust bootstrap-python bootstrap-node
 
@@ -18,7 +18,7 @@ bootstrap-rust:
 	cargo fetch --locked
 
 bootstrap-python:
-	uv sync --project engines --all-packages
+	uv sync --frozen --project engines --all-packages
 
 bootstrap-node:
 	corepack enable pnpm
@@ -36,6 +36,9 @@ proto-check:
 quality-gate-self-test:
 	node ./scripts/check-secrets.mjs
 	node ./scripts/test-quality-gates.mjs
+
+f01-reproducibility-check:
+	node ./scripts/verify-reproducible-builds.mjs --runs 3 --output artifacts/reproducibility/f01-build-digests.json
 
 lint: lint-rust lint-python lint-web
 
@@ -139,6 +142,9 @@ sbom:
 
 sign-artifacts:
 	bash ./scripts/sign-artifacts.sh artifacts/build/build-manifest.json artifacts/sbom/quantos.spdx.json
+
+verify-artifact-signatures:
+	bash ./scripts/verify-artifact-signatures.sh artifacts/build/build-manifest.json artifacts/sbom/quantos.spdx.json
 
 f09-adr-input: ensure-node
 	node ./scripts/generate-f09-adr-input.mjs --input artifacts/observability/f09-alerts.json --output artifacts/observability/f09-capacity-adr.md

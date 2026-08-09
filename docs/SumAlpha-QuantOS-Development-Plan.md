@@ -251,8 +251,8 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 | ID | 核查结果 | 已确认的实现/证据 | 未完成问题 |
 |---|---|---|---|
-| F01 | **未通过** | Cargo/uv/pnpm workspace、工具链版本、锁文件、主要目录、各 service README/边界说明和 Make 任务已存在；离线 lint/test 可运行。 | 无全新环境 `bootstrap → lint → test` ≤30 分钟证据；无连续 3 次跨语言可重复构建的 digest 记录。 |
-| F02 | **未通过** | CI、Proto/DB/lockfile、许可证、隔离 migration replay、三语言覆盖率，以及 Chromium/Firefox/WebKit + Ubuntu/macOS/Windows 兼容矩阵门禁已建立；secret/proto/lockfile/migration/RLS/schema drift 六类故意破坏自测均确认被实际 Gate 拒绝并已接入 CI；build manifest/SBOM 可由当前锁文件重建。 | Firefox/WebKit 与 macOS/Windows 矩阵仍需首次 CI 运行结果；正式发布签名仍依赖 CI signing secret。 |
+| F01 | **未通过（自动化完成，待首次 clean-room CI）** | Cargo/uv/pnpm workspace、工具链和锁文件已固定；本机 `bootstrap → lint → test` 全绿、耗时 97.17 秒。三个独立临时构建环境分别生成 5 个 Rust release 二进制、8 组 TypeScript dist 和 8 个 Python wheel，三轮总 digest 均为 `045d8b357ad98f6d17fd0cccd74266736c4a265563281fe189126ea9aa26c431`。独立 `F01 Clean Room` workflow 已设置 30 分钟硬门槛并上传 JSON 证据。 | 代码推送后需取得一次全新 GitHub-hosted runner 的 `bootstrap → lint → test` 成功记录；本机已有依赖缓存，不冒充“全新环境”证据。 |
+| F02 | **未通过** | CI、Proto/DB/lockfile、许可证、隔离 migration replay、三语言覆盖率，以及 Chromium/Firefox/WebKit + Ubuntu/macOS/Windows 兼容矩阵门禁已建立；六类故意破坏自测均确认被实际 Gate 拒绝；用户已在 GitHub 配置名为 `QUANTOS_SIGNING_KEY` 的 Secret，名称与 workflow 完全匹配；CI 现会在正式签名后立即执行 HMAC 回验。 | Firefox/WebKit 与 macOS/Windows 矩阵仍需首次 CI 结果；正式签名需下一次 `main` push CI 的 `Sign main build artifacts` 与 `Verify formal artifact signatures` 均成功后形成最终证据。 |
 | F03 | **未通过** | v1 Proto 已包含计划列出的主要领域类型与 Engine/Event service；Rust/Python/TypeScript 生成代码可编译；Buf 检查通过；`TradeCommand` 有 1,000 fixture 往返测试。 | 1,000 组序列化往返未覆盖全部列出领域类型；“100% 必填 tenant/actor/correlation 元数据”未对全套协议自动化证明；无三语言 SDK 覆盖率和发布制品证据。 |
 | F04 | **通过** | 强类型 ID、UTC clock、稳定错误码、精度和确定性 hash 实现及边界测试通过；core/risk/execution 的 cargo-llvm-cov 行覆盖率 92.75%、region 覆盖率 92.38%，均超过 90%/85% 门槛。 | 无。 |
 | F05 | **通过** | `make test-f05-live` 5/5、内存 1 万事件无丢失、RLS、随机隔离 schema 全量 migration replay，以及 Supabase Storage 上传/下载/manifest/删除均通过；轮询租约、幂等、DLQ、checkpoint、Realtime 补偿和 correlation 回放证据齐全。 | 无。 |
@@ -358,12 +358,12 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 **复验后仍待解决问题**
 
 1. 仓库内可继续推进：把真实 outbox/DLQ、Realtime、risk/portfolio P95、MV freshness、Storage/Vault 指标送入持续窗口告警和 ADR 生成。
-2. 需要 CI/外部资源：观察 Firefox/WebKit、macOS/Windows 矩阵；配置正式 signing key；创建 SumAlpha 受控 fork/remote 并验证 TP01 baseline 可重建。
+2. 需要 CI/外部资源：观察 Firefox/WebKit、macOS/Windows 矩阵及正式签名回验结果；创建 SumAlpha 受控 fork/remote 并验证 TP01 baseline 可重建。
 3. 需要部署环境：验证 JSONL ship/rotation/retention，同区域 Auth `<100ms`、Runtime 调度 `<200ms`，以及真实 DB/消费者/Engine 故障下的端到端 trace、告警与事件链恢复。
 
 #### 10.1.9 F02 故意破坏与 F07/F08 故障/性能/配额复验记录（2026-08-09）
 
-**当前结论**：F02 的故意破坏代码缺口已关闭，但首次跨浏览器/跨 OS CI 与正式签名仍是外部环境事项，因此 F02 仍未完全通过。F07 在已批准的跨区开发门槛下通过，F08 的量化验收和代码级配额/熔断证据通过。F0 Gate 顶层清单未新增勾选，仍为 **4/7**。
+**当前结论**：F02 的故意破坏代码缺口已关闭，正式 signing Secret 已由用户配置且 CI 增加签名后 HMAC 回验，但首次跨浏览器/跨 OS CI 与正式签名成功记录仍是外部环境事项，因此 F02 仍未完全通过。F07 在已批准的跨区开发门槛下通过，F08 的量化验收和代码级配额/熔断证据通过。F0 Gate 顶层清单未新增勾选，仍为 **4/7**。
 
 | 推进项 | 结果 | 核查记录 |
 |---|---|---|
@@ -376,9 +376,26 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 **复验后仍待解决问题**
 
-1. F02 仅剩首次 Firefox/WebKit、macOS/Windows CI 结果与正式 signing secret，均不是当前代码实现缺口。
+1. F02 仅剩首次 Firefox/WebKit、macOS/Windows CI 结果，以及正式签名与 HMAC 回验的成功运行记录；Secret 名称和仓库侧验证链路均已配置。
 2. F07 同区域生产 `<200ms`、F08 容器/cgroup RSS 采样与资源告警仍需部署环境验证；仓库内的门禁、强杀、恢复、限流与熔断实现不再列为待修复问题。
 3. F09 仍需真实容量指标的持续窗口告警，以及 DB/消费者/Engine 故障下端到端 trace 与事件链恢复证据。
+
+#### 10.1.10 正式签名配置与 F01 可重复构建复验记录（2026-08-09）
+
+**当前结论**：`QUANTOS_SIGNING_KEY` 的配置名称与 CI 引用一致，仓库侧已从“只生成签名”加强为“生成后立即回验”；配置问题可判定已处理，最终有效性以代码推送后的成功 CI 为准。F01 的三轮可重复构建已取得本机真实制品证据，全新环境自动化已完成，但严格验收仍等待首次 GitHub-hosted clean-room 运行。F0 Gate 仍为 **4/7**。
+
+| 推进项 | 结果 | 核查记录 |
+|---|---|---|
+| Signing Secret 配置匹配 | **通过（配置）** | 用户确认 GitHub Repository Secret 名称为 `QUANTOS_SIGNING_KEY`；仅受保护的 `main` push CI 以 `${{ secrets.QUANTOS_SIGNING_KEY }}` 注入，且 `QUANTOS_REQUIRE_FORMAL_SIGNATURE=1`。PR 只生成无密钥 SHA-256 完整性摘要，避免未合并脚本接触正式 key，也避免 fork PR 因拿不到 Secret 失败。main 上空值时签名脚本 fail-closed，不会降级。GitHub 不提供 Secret 值读取，因此不记录也不尝试回显密钥。 |
+| 正式签名回验 | **通过（代码级）** | 新增 `verify-artifact-signatures.sh` 与 `make verify-artifact-signatures`；CI 对 build manifest 和 SPDX SBOM 生成 HMAC-SHA256 后立即重新计算并使用 `cmp` 比较，缺文件、空签名、无 key 或摘要不一致均返回非零。本机使用临时非生产 key 的正向生成/回验通过。 |
+| F01 三轮独立构建 | **通过** | `make f01-reproducibility-check` 每轮使用全新的临时 `CARGO_TARGET_DIR` 和 Python wheel 输出目录，TypeScript build 每次清空 dist；固定 commit `6b1066bfe62d19f3ed57a28b6484c8815c4416c3` 的三轮 Rust digest 均为 `f3e4281b...19435`、TypeScript 均为 `a744646d...cb3fc`、Python wheel 均为 `ae9e5a8a...e0ac2`，组合 digest 三次均为 `045d8b35...c431`。JSON 记录包含逐文件 hash、大小和各轮汇总。 |
+| F01 bootstrap/lint/test | **代码与本机序列通过，clean-room 待 CI** | 本机以空 `DATABASE_URL` 顺序执行 `make -e bootstrap lint test`，Rust/Python/TypeScript 全绿，耗时 97.17 秒。新增 `F01 Clean Room` workflow 在全新 GitHub-hosted Ubuntu runner 顺序执行相同命令，job `timeout-minutes: 30` 且脚本再次断言 elapsed ≤1800 秒，成功后上传 `f01-clean-room.json`。本机存在依赖缓存，故不据此提前把 F01 判为完全通过。 |
+
+**复验后仍待解决问题**
+
+1. 推送本次代码并确认 `QuantOS CI` 的正式签名及 HMAC 回验步骤成功。
+2. 确认 `F01 Clean Room` 两个 job 首次通过并下载归档的 clean-room、三轮构建 JSON 证据；通过后可把 F01 标记完成。
+3. F02 仍需跨浏览器/跨 OS 矩阵首次全绿；F03、F09 与 TP01 的既有缺口不受本次结论影响。
 
 ### 10.2 R1 Gate
 
