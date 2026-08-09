@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 from vibe_adapter.context import VibeExecutionContext
 from vibe_adapter.protocols import ResearchExecutionContract
@@ -22,7 +23,9 @@ class WorkflowPlan:
     policy_context_ref: str
     provenance: dict[str, object]
 
-    def to_output(self, *, engine_name: str, capability: str, workflow_run_id: str) -> dict:
+    def to_output(
+        self, *, engine_name: str, capability: str, workflow_run_id: str
+    ) -> dict[str, object]:
         return {
             "engine": engine_name,
             "capability": capability,
@@ -35,7 +38,9 @@ class WorkflowPlan:
             "provenance": self.provenance,
             # Compatibility aliases kept until TP01 deprecation plan is executed.
             "upstream_surface": str(self.provenance["source_surface"]),
-            "absorbed_designs": list(self.provenance["absorbed_designs"]),
+            "absorbed_designs": list(
+                cast(list[str], self.provenance["absorbed_designs"])
+            ),
             "tool_allowlist": list(self.tool_allowlist),
             "prompt": self.prompt,
             "artifact_api": "quantos-artifact-api",

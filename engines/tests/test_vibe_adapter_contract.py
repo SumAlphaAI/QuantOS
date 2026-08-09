@@ -159,7 +159,7 @@ def test_vibe_adapter_rejects_forbidden_tool_requests() -> None:
             client.execute(request, timeout=5)
         except grpc.RpcError as error:
             assert error.code() == grpc.StatusCode.PERMISSION_DENIED
-            assert "forbidden" in error.details()
+            assert "forbidden" in (error.details() or "")
         else:
             raise AssertionError("forbidden tool request should be denied")
     finally:
@@ -328,7 +328,7 @@ def test_vibe_adapter_rejects_unsupported_capability() -> None:
             client.execute(request, timeout=5)
         except grpc.RpcError as error:
             assert error.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert "unsupported capability" in error.details()
+            assert "unsupported capability" in (error.details() or "")
         else:
             raise AssertionError("unsupported capability should be rejected")
     finally:

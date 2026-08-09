@@ -10,6 +10,7 @@ Current database checks:
 - `db-apply.sh`: applies pending migrations to the remote PostgreSQL target.
 - `db-reset.sh`: recreates the remote `quantos` schema and reapplies repository migrations.
 - `db-schema-diff.sh`: compares the remote migration ledger with repository migrations.
+- `node scripts/db-cli.cjs replay-check`: replays every migration inside a transaction against a randomized isolated schema, validates that tables were created, and always rolls back.
 - `db-cli.cjs`: shared Node/PostgreSQL runner for all remote database commands.
 
 F02 supply-chain and CI scripts:

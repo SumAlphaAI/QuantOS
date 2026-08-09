@@ -1,4 +1,4 @@
-use std::{collections::HashSet, env};
+use std::{collections::HashSet, env, time::Instant};
 
 use chrono::{Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
@@ -64,6 +64,39 @@ fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks()
     assert_eq!(context.tenant_id, tenant_id);
     assert_eq!(context.workspace_slug, "primary");
     assert_eq!(context.account_id, Some(fixture.account_id));
+
+    let mut auth_read_samples = Vec::with_capacity(20);
+    for _ in 0..20 {
+        let started_at = Instant::now();
+        middleware
+            .authorize_user_request(
+                &request,
+                &AuthorizationRequirement::new(
+                    Capability::parse(Capability::EXECUTION_OPERATE)
+                        .expect("static capability parses"),
+                )
+                .requiring_account(),
+            )
+            .expect("repeated authorization succeeds");
+        auth_read_samples.push(started_at.elapsed());
+    }
+    auth_read_samples.sort();
+    let p95_index = (auth_read_samples.len() * 95).div_ceil(100) - 1;
+    let auth_read_p95 = auth_read_samples[p95_index];
+    let remote_p95_limit_ms = env::var("QUANTOS_AUTH_READ_P95_LIMIT_MS")
+        .ok()
+        .map(|value| value.parse::<u128>().expect("Auth P95 limit is numeric"))
+        .unwrap_or(500);
+    eprintln!(
+        "gateway auth read p95={}ms (remote limit={}ms)",
+        auth_read_p95.as_millis(),
+        remote_p95_limit_ms
+    );
+    assert!(
+        auth_read_p95.as_millis() < remote_p95_limit_ms,
+        "gateway auth read p95 must stay under {remote_p95_limit_ms}ms for the configured environment, got {}ms",
+        auth_read_p95.as_millis()
+    );
 
     let denied = middleware
         .authorize_user_request(

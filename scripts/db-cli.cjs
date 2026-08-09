@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const { Client } = require("pg");
 
 const repoRoot = path.resolve(__dirname, "..");
@@ -153,6 +154,41 @@ async function schemaDiff() {
     }
 
     console.log("Remote migration ledger matches repository migrations.");
+  });
+}
+
+async function replayMigrationsInIsolatedSchema() {
+  const migrationFiles = listMigrationFiles();
+  const replaySchema = `quantos_replay_${crypto.randomUUID().replaceAll("-", "")}`;
+
+  await withClient(async (client) => {
+    await client.query("begin");
+    try {
+      for (const filename of migrationFiles) {
+        const source = fs.readFileSync(path.join(migrationsDir, filename), "utf8");
+        const isolatedSql = source
+          .replace(/^\s*(begin|commit)\s*;\s*$/gim, "")
+          .replace(/\bquantos\b/g, replaySchema);
+        await client.query(isolatedSql);
+      }
+
+      const objectSummary = await client.query(
+        `select count(*)::int as table_count
+         from information_schema.tables
+         where table_schema = $1 and table_type = 'BASE TABLE'`,
+        [replaySchema],
+      );
+      const tableCount = objectSummary.rows[0]?.table_count ?? 0;
+      if (tableCount === 0) {
+        throw new Error("Isolated migration replay created no base tables.");
+      }
+
+      console.log(
+        `All ${migrationFiles.length} migrations replayed in isolated schema (${tableCount} base tables); rolling back.`,
+      );
+    } finally {
+      await client.query("rollback");
+    }
   });
 }
 
@@ -336,12 +372,15 @@ async function main() {
     case "schema-diff":
       await schemaDiff();
       break;
+    case "replay-check":
+      await replayMigrationsInIsolatedSchema();
+      break;
     case "live-rls":
       await liveRlsCheck();
       break;
     default:
       throw new Error(
-        "Usage: node ./scripts/db-cli.cjs <apply|reset|schema-diff|live-rls>",
+        "Usage: node ./scripts/db-cli.cjs <apply|reset|schema-diff|replay-check|live-rls>",
       );
   }
 }

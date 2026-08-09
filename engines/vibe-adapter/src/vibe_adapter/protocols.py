@@ -33,6 +33,8 @@ class ResearchContractProvider(Protocol):
 
     def list_fixture_names(self) -> tuple[str, ...]:
         """Return the supported fixture names."""
+        ...
 
     def load_contract(self, fixture_name: str) -> ResearchExecutionContract:
         """Load one deterministic research execution contract."""
+        ...

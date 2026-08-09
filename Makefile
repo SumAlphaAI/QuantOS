@@ -10,7 +10,7 @@ include .env.local
 export
 endif
 
-.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff rls-policy-test license-check sca-check waiver-check build-manifest sbom sign-artifacts observability-check f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check build-manifest sbom sign-artifacts observability-check f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: bootstrap-rust bootstrap-python bootstrap-node
 
@@ -41,6 +41,16 @@ lint-rust:
 
 lint-python:
 	uv run --project engines --all-packages ruff check .
+	uv run --project engines --all-packages pyright --project engines
+
+coverage-python:
+	uv run --project engines --all-packages pytest --cov=engines --cov-config=engines/pyproject.toml --cov-report=term-missing
+
+coverage-web:
+	pnpm coverage:web
+
+coverage-rust:
+	cargo llvm-cov --package quantos-core --package quantos-risk --package quantos-execution --all-features --fail-under-lines 90 --fail-under-regions 85 --summary-only
 
 lint-web:
 	pnpm lint
@@ -90,6 +100,9 @@ db-migration-check:
 
 db-schema-diff: ensure-node
 	bash ./scripts/db-schema-diff.sh
+
+db-replay-check: ensure-node
+	node ./scripts/db-cli.cjs replay-check
 
 rls-policy-test: ensure-node
 	bash ./scripts/check-rls-baseline.sh

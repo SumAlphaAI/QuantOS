@@ -48,6 +48,11 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny --version 0.18.4 --locked
 
+      - name: Install Rust coverage tooling
+        run: |
+          rustup component add llvm-tools-preview
+          cargo install cargo-llvm-cov --version 0.8.7 --locked
+
       - name: Enable Corepack
         run: corepack enable pnpm
 
@@ -76,6 +81,15 @@ jobs:
       - name: Test workspace
         run: make test
 
+      - name: Check Python coverage
+        run: make coverage-python
+
+      - name: Check TypeScript coverage
+        run: make coverage-web
+
+      - name: Check Rust coverage
+        run: make coverage-rust
+
       - name: Check licenses
         run: make license-check
 
@@ -88,6 +102,10 @@ jobs:
       - name: Check remote schema drift
         if: ${{ env.DATABASE_URL != '' }}
         run: make db-schema-diff
+
+      - name: Replay migrations in isolated schema
+        if: ${{ env.DATABASE_URL != '' }}
+        run: make db-replay-check
 
       - name: Check remote RLS policies
         if: ${{ env.DATABASE_URL != '' }}

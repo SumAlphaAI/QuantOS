@@ -32,6 +32,10 @@ Drops and recreates the remote `quantos` schema, then reapplies all repository m
 
 Compares the repository migration filenames with the remote `quantos.schema_migrations` ledger. This is a read-only drift check and fails if the ledger is missing or differs from the repository.
 
+### `make db-replay-check`
+
+Rewrites the repository migrations to a randomized `quantos_replay_*` schema, executes all migrations inside one database transaction, verifies that base tables were created, and always rolls the transaction back. This provides an empty-schema replay check without dropping or mutating the active `quantos` schema.
+
 ### `make rls-policy-test`
 
 Runs both layers of RLS validation:
