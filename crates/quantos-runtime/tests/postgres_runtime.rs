@@ -47,7 +47,10 @@ struct RuntimeFixture {
 
 #[test]
 fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL runtime test: DATABASE_URL is not set");
         return;
     };
@@ -278,7 +281,10 @@ fn postgres_runtime_worker_child_claims_checkpoints_and_waits() {
 
 #[test]
 fn postgres_runtime_records_cancel_and_timeout_audits() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL runtime test: DATABASE_URL is not set");
         return;
     };

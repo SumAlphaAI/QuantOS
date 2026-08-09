@@ -33,7 +33,10 @@ impl Drop for Cleanup {
 
 #[test]
 fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL auth test: DATABASE_URL is not set");
         return;
     };
@@ -111,7 +114,10 @@ fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks()
 
 #[test]
 fn gateway_auth_only_allows_service_secret_resolution_via_allowlist_session() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL auth test: DATABASE_URL is not set");
         return;
     };

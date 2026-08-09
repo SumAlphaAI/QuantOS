@@ -38,7 +38,10 @@ impl Drop for TenantCleanup {
 
 #[test]
 fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
         return;
     };
@@ -99,7 +102,10 @@ fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
 
 #[test]
 fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correlation() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
         return;
     };
@@ -186,7 +192,10 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
 
 #[test]
 fn postgres_polling_worker_dead_letters_poison_events_after_retry_budget() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
         return;
     };
@@ -273,7 +282,10 @@ fn postgres_polling_worker_dead_letters_poison_events_after_retry_budget() {
 
 #[test]
 fn postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_attempts() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
         return;
     };

@@ -34,7 +34,8 @@ fn run() -> Result<()> {
         .with_context(|| format!("invalid correlation id `{}`", cli.correlation_id))?;
     let database_url = cli
         .database_url
-        .or_else(|| std::env::var("DATABASE_URL").ok());
+        .or_else(|| std::env::var("DATABASE_URL").ok())
+        .filter(|value| !value.trim().is_empty());
 
     let events = if let Some(database_url) = database_url.as_deref() {
         let mut store =

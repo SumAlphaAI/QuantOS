@@ -161,7 +161,10 @@ fn release_fixture(
 
 #[test]
 fn postgres_release_store_enforces_dedupe_conflict_and_deployment_gate() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
         return;
     };

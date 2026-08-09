@@ -31,7 +31,10 @@ impl Drop for TenantCleanup {
 
 #[test]
 fn postgres_storage_store_persists_artifacts_and_schema_registry() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
         return;
     };

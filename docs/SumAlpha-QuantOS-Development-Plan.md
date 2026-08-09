@@ -372,6 +372,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | F07 worker 强杀恢复 | **通过** | 验收测试启动独立测试进程作为 worker，真实 claim 100 个任务并逐项写 checkpoint/Artifact；marker 确认持久化后父进程调用 OS kill，退出状态必须失败；worker-b 使用新 PostgreSQL 连接在租约到期后回收 100/100，checkpoint 100% 存在，任务 100% succeeded，Artifact 与 binding 均严格每任务一份。完整 live 测试 220.74s 通过。 |
 | F08 并发/RSS 配额 | **通过（仓库侧）** | manifest 的 `max_concurrency` 由共享 Tokio semaphore 强制执行，第二个并发 Execute 返回稳定码 `ENGINE_CONCURRENCY_QUOTA`；supervisor 报告 RSS 超过 `max_rss_mb` 后分派前返回 `ENGINE_RSS_QUOTA`。真实 Python Mock Engine 集成测试通过。 |
 | F08 三次进程崩溃与熔断 | **通过** | Mock Engine 增加仅用于故障注入的 `--exit-on-execute`；测试观察前 3 个独立 Python 子进程均以退出码 70 结束。Manager 将 UDS transport 中断计入连续失败，达到阈值后打开退避窗口并重连；同一个 `workflow_run_id + idempotency_key` 请求最终由第 4 个健康进程完成，未由调用方重新提交。6/6 Mock Engine 集成测试通过。 |
+| GitHub CI 空数据库配置 | **通过** | GitHub Actions 未配置 repository secret 时会把 job 级 `DATABASE_URL` 设为空字符串；原 live 测试仅判断环境变量是否存在，导致 `Url::parse("")` 报 `RelativeUrlWithoutBase`。Auth、Event、Runtime、Storage、Strategy、Portfolio 的可选 PostgreSQL 测试现统一过滤空白值，`replay-cli` 同步处理；`DATABASE_URL='' cargo test --workspace` 全绿。需要真实数据库的独立 CI steps 仍由非空条件控制，Storage 强制 live Gate 仍 fail-fast。 |
 
 **复验后仍待解决问题**
 

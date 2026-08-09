@@ -81,7 +81,10 @@ fn seed_context(database_url: &str, tenant_id: TenantId) -> (TenantCleanup, Acco
 
 #[test]
 fn postgres_portfolio_store_persists_and_reads_projection() {
-    let Some(database_url) = env::var("DATABASE_URL").ok() else {
+    let Some(database_url) = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
         return;
     };
