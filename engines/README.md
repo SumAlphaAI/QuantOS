@@ -11,3 +11,10 @@ Python engine workspace and contract test harness live here.
 - `trading-agents`: TP04 controlled decision engine that emits deterministic non-executable `TradeProposal` payloads plus committee and policy artifacts.
 - `vibe-adapter`: TP01 controlled adapter skeleton with context translation, tool allowlist, Artifact API facade, and replay fixture.
 - `tests/`: workspace-level contract tests that verify `GetMetadata/Health/Execute/StreamExecute/Cancel`.
+
+All Engine gRPC servers inherit the shared SDK observability contract. Set
+`QUANTOS_TRACE_EXPORT_PATH` to append real JSONL RPC traces and
+`QUANTOS_OBSERVABILITY_ADDR=host:port` to expose `/healthz`, `/readyz`,
+Prometheus `/metrics`, correlation-addressable `/trace/<uuid>`, and stable JSON
+errors. Instrumentation is registered centrally by `serve_engine`; individual
+Engine implementations cannot accidentally omit one of the five RPCs.

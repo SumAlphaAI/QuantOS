@@ -8,6 +8,7 @@ use anyhow::{Context, Result, bail};
 use clap::Parser;
 use quantos_core::CorrelationId;
 use quantos_event::{RecordedEvent, pg::PgEventStore, replay_by_correlation};
+use quantos_observability::service::run_observed_command;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -23,8 +24,12 @@ struct Cli {
     input: Option<PathBuf>,
 }
 
-fn main() -> Result<()> {
-    let cli = Cli::parse();
+fn main() -> std::process::ExitCode {
+    run_observed_command("replay-cli", "event.replay", run)
+}
+
+fn run() -> Result<()> {
+    let cli = Cli::try_parse().context("invalid replay-cli arguments")?;
     let correlation_id = CorrelationId::parse_str(&cli.correlation_id)
         .with_context(|| format!("invalid correlation id `{}`", cli.correlation_id))?;
     let database_url = cli

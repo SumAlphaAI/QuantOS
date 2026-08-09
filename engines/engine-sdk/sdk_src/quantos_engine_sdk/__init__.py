@@ -14,11 +14,14 @@ from quantos_engine_sdk.grpc import (
     workspace_name,
 )
 from quantos_engine_sdk.manifest import EngineCapability, EngineManifest
+from quantos_engine_sdk.observability import EngineObservability, JsonlTraceExporter
 
 __all__ = [
     "EngineCapability",
     "EngineClient",
     "EngineManifest",
+    "EngineObservability",
+    "JsonlTraceExporter",
     "add_engine_service",
     "generated_package",
     "input_hash",

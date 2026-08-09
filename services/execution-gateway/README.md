@@ -18,6 +18,8 @@ Gateway logic lives in `crates/quantos-execution/src/gateway.rs`; this service i
 Set `QUANTOS_OBSERVABILITY_ADDR=0.0.0.0:9090` to run the deployable operations
 surface. It exposes `/healthz`, `/readyz`, Prometheus `/metrics`, and
 `/trace/<correlation-uuid>`; invalid routes use the shared structured error envelope.
+Set a per-replica `QUANTOS_TRACE_EXPORT_PATH` on durable storage; readiness fails
+closed when that exporter is absent or unwritable.
 
 ## Validation
 

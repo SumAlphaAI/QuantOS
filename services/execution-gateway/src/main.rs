@@ -12,7 +12,7 @@ fn main() -> Result<()> {
         .filter(|value| !value.trim().is_empty())
     {
         let address = address.parse()?;
-        return Ok(ServiceObservability::new("execution-gateway").serve(address)?);
+        return Ok(ServiceObservability::from_env("execution-gateway")?.serve(address)?);
     }
     let report = HealthReport::ready("execution-gateway");
     println!(

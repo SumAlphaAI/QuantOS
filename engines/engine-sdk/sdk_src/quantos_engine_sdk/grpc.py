@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable, Protocol
+from typing import Callable, Iterable, Protocol
 
 import grpc
 from google.protobuf import json_format
@@ -18,6 +19,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from quantos.common.v1 import common_pb2
 from quantos.engine.v1 import engine_pb2
 from quantos_engine_sdk.manifest import EngineManifest
+from quantos_engine_sdk.observability import EngineObservability
 
 
 def workspace_name() -> str:
@@ -108,32 +110,65 @@ class EngineServiceProtocol(Protocol):
         ...
 
 
-def add_engine_service(server: grpc.Server, service: EngineServiceProtocol) -> None:
+def add_engine_service(
+    server: grpc.Server,
+    service: EngineServiceProtocol,
+    observability: EngineObservability | None = None,
+) -> None:
     """Register a generic QuantOS EngineService implementation."""
+
+    observer = observability or EngineObservability(service.manifest.engine_name)
+
+    def unary(operation: str, method: Callable):
+        def observed(request, context):
+            correlation_id = observer.correlation_id(request)
+            observer.record(correlation_id, operation, "started", {"transport": "grpc"})
+            try:
+                response = method(request, context)
+            except BaseException:
+                observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
+                raise
+            observer.record(correlation_id, operation, "succeeded", {"transport": "grpc"})
+            return response
+
+        return observed
+
+    def unary_stream(operation: str, method: Callable):
+        def observed(request, context):
+            correlation_id = observer.correlation_id(request)
+            observer.record(correlation_id, operation, "started", {"transport": "grpc"})
+            try:
+                yield from method(request, context)
+            except BaseException:
+                observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
+                raise
+            observer.record(correlation_id, operation, "succeeded", {"transport": "grpc"})
+
+        return observed
 
     handlers = {
         "GetMetadata": grpc.unary_unary_rpc_method_handler(
-            service.get_metadata,
+            unary("engine.get_metadata", service.get_metadata),
             request_deserializer=engine_pb2.GetMetadataRequest.FromString,
             response_serializer=engine_pb2.GetMetadataResponse.SerializeToString,
         ),
         "Health": grpc.unary_unary_rpc_method_handler(
-            service.health,
+            unary("engine.health", service.health),
             request_deserializer=engine_pb2.HealthRequest.FromString,
             response_serializer=engine_pb2.HealthResponse.SerializeToString,
         ),
         "Execute": grpc.unary_unary_rpc_method_handler(
-            service.execute,
+            unary("engine.execute", service.execute),
             request_deserializer=engine_pb2.ExecuteRequest.FromString,
             response_serializer=engine_pb2.ExecuteResponse.SerializeToString,
         ),
         "StreamExecute": grpc.unary_stream_rpc_method_handler(
-            service.stream_execute,
+            unary_stream("engine.stream_execute", service.stream_execute),
             request_deserializer=engine_pb2.StreamExecuteRequest.FromString,
             response_serializer=engine_pb2.StreamExecuteResponse.SerializeToString,
         ),
         "Cancel": grpc.unary_unary_rpc_method_handler(
-            service.cancel,
+            unary("engine.cancel", service.cancel),
             request_deserializer=engine_pb2.CancelRequest.FromString,
             response_serializer=engine_pb2.CancelResponse.SerializeToString,
         ),
@@ -150,11 +185,20 @@ def serve_engine(
     service: EngineServiceProtocol,
     *,
     max_workers: int = 4,
+    observability: EngineObservability | None = None,
 ) -> grpc.Server:
     """Start a QuantOS engine server on a Unix domain socket."""
 
+    observer = observability or EngineObservability.from_env(service.manifest.engine_name)
+    observer.start_http_from_env()
+    observer.record(
+        str(uuid.uuid4()),
+        "engine.server",
+        "started",
+        {"transport": "uds"},
+    )
     server = grpc.server(ThreadPoolExecutor(max_workers=max_workers))
-    add_engine_service(server, service)
+    add_engine_service(server, service, observer)
     bound = server.add_insecure_port(uds_target(socket_path))
     if bound == 0:
         raise RuntimeError(f"failed to bind engine UDS socket: {socket_path}")

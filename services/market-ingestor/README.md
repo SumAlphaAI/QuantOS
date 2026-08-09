@@ -13,3 +13,7 @@ Examples:
 cargo run -p market-ingestor -- generate-replay --output /tmp/market-replay.jsonl --count 100000
 cargo run -p market-ingestor -- ingest-replay --input /tmp/market-replay.jsonl
 ```
+
+Set `QUANTOS_TRACE_EXPORT_PATH` during normal batch execution to persist
+started/succeeded/failed trace records. Set `QUANTOS_OBSERVABILITY_ADDR` to run
+the shared health, metrics, correlation-trace, and structured-error HTTP surface.

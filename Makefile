@@ -71,6 +71,7 @@ test-rust:
 
 observability-check:
 	cargo test -p quantos-observability
+	uv run --project engines --all-packages pytest engines/tests/test_engine_observability.py
 
 test-f05-live:
 	cargo test -p quantos-event --test postgres_persistence -- --test-threads=1 --nocapture

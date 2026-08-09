@@ -220,7 +220,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - [x] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
 - [x] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
 - [ ] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量阈值告警与 ADR 证据模板已启用。
-- [ ] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
+- [x] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
 - [x] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
 - [ ] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。
 
@@ -251,15 +251,15 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 | ID | 核查结果 | 已确认的实现/证据 | 未完成问题 |
 |---|---|---|---|
-| F01 | **未通过** | Cargo/uv/pnpm workspace、工具链版本、锁文件、主要目录和 Make 任务已存在；离线 lint/test 可运行。 | 无全新环境 `bootstrap → lint → test` ≤30 分钟证据；无连续 3 次跨语言可重复构建的 digest 记录；`services/portfolio-rebuild`、`services/runtime-gateway` 等模块缺少独立 README/边界说明。 |
+| F01 | **未通过** | Cargo/uv/pnpm workspace、工具链版本、锁文件、主要目录、各 service README/边界说明和 Make 任务已存在；离线 lint/test 可运行。 | 无全新环境 `bootstrap → lint → test` ≤30 分钟证据；无连续 3 次跨语言可重复构建的 digest 记录。 |
 | F02 | **未通过** | CI、Proto/DB/lockfile、许可证、隔离 migration replay、三语言覆盖率，以及 Chromium/Firefox/WebKit + Ubuntu/macOS/Windows 兼容矩阵门禁已建立；本机 Chromium 3/3 通过；build manifest/SBOM 可由当前锁文件重建，CI 可使用 signing key 签名。 | 无 secret/proto/lockfile/RLS/drift 故意破坏的自测用例；Firefox/WebKit 与 macOS/Windows 矩阵仍需首次 CI 运行结果；本地仅生成 SHA-256 完整性摘要，发布 HMAC 签名仍依赖 CI secret。 |
 | F03 | **未通过** | v1 Proto 已包含计划列出的主要领域类型与 Engine/Event service；Rust/Python/TypeScript 生成代码可编译；Buf 检查通过；`TradeCommand` 有 1,000 fixture 往返测试。 | 1,000 组序列化往返未覆盖全部列出领域类型；“100% 必填 tenant/actor/correlation 元数据”未对全套协议自动化证明；无三语言 SDK 覆盖率和发布制品证据。 |
 | F04 | **通过** | 强类型 ID、UTC clock、稳定错误码、精度和确定性 hash 实现及边界测试通过；core/risk/execution 的 cargo-llvm-cov 行覆盖率 92.75%、region 覆盖率 92.38%，均超过 90%/85% 门槛。 | 无。 |
 | F05 | **通过** | `make test-f05-live` 5/5、内存 1 万事件无丢失、RLS、随机隔离 schema 全量 migration replay，以及 Supabase Storage 上传/下载/manifest/删除均通过；轮询租约、幂等、DLQ、checkpoint、Realtime 补偿和 correlation 回放证据齐全。 | 无。 |
 | F06 | **通过** | Auth/Policy、`auth.users` 映射、默认拒绝/RLS/capability、Primary workspace 与 Execution Gateway 受控角色均已实现并通过正负向测试；20 次真实鉴权读 P95 为 293–297ms，通过跨区域 <500ms 门槛；Vault 逐角色 live 负向检查通过。 | 无；同区域 <100ms 继续作为生产 SLO。 |
 | F07 | **未通过** | session/workflow/checkpoint/cancel/timeout/audit 与 Artifact 去重已实现；PostgreSQL 100 任务恢复及 cancel/timeout audit 均通过；claim 与 timeout sweep 已限制到显式 tenant。 | 100 任务 live 测试约 224 秒，尚无真实 OS 级 worker 强杀/重启演练；数据库调度 P95 <200ms 与覆盖率门槛仍无证据。 |
-| F08 | **未通过** | Python common SDK、Mock Engine、UDS gRPC 和 5 RPC contract harness 已实现；Mock Engine 的三次失败退避与 deadline 确定性错误测试通过。 | 未证明 Engine 进程连续 3 次崩溃时“不丢请求”的持久化语义；资源配额、readiness/routing/limiting/circuit breaker 缺少完整集成证据；无 Python ≥85% 覆盖率报告。 |
-| F09 | **未通过** | `quantos-observability` 的 trace/log/health/fault/alert 模型、dashboard、alert rules、ADR 模板与阈值单测已存在；新增共享 HTTP 运维面，`execution-gateway`/`runtime-gateway` 已接入 `/healthz`、`/readyz`、Prometheus `/metrics`、correlation trace 与稳定错误 envelope，本机真实 HTTP 冒烟通过。 | `market-ingestor`、`portfolio-rebuild`、`replay-cli` 和 Python Engine 尚未统一接入该运维面；现有 trace endpoint 仅提供 correlation 上下文，尚未连接持久化/导出器；无注入真实 DB/消费者/Engine 故障后的端到端 trace/事件链证据。 |
+| F08 | **未通过** | Python common SDK、Mock Engine、UDS gRPC 和 5 RPC contract harness 已实现；Mock Engine 的三次失败退避与 deadline 确定性错误测试通过；88 项 Python 测试全绿、覆盖率 91.04%；五 RPC 统一 trace 拦截已通过 Rust-to-Python contract 回归。 | 未证明 Engine 进程连续 3 次崩溃时“不丢请求”的持久化语义；资源配额、readiness/routing/limiting/circuit breaker 缺少完整集成证据。 |
+| F09 | **未通过** | 五个 Rust service 与全部 Python Engine 已统一接入 `/healthz`、fail-closed `/readyz`、Prometheus `/metrics`、持久化 correlation trace 查询和稳定错误 envelope；正常/失败命令及五个 Engine RPC 写真实 JSONL exporter。Rust 库测试、Python gRPC→JSONL→HTTP E2E、本机 batch/HTTP 冒烟及全 workspace 回归通过。 | 阈值/ADR 仍主要由库级 fixture 驱动，尚未把真实服务容量指标连续送入告警评估；无注入真实 DB/消费者/Engine 故障后的端到端 trace、告警和事件链恢复证据；JSONL 向平台采集器的 ship/rotation/retention 需部署配置验证。 |
 
 #### 10.1.3 Gate 清单逐项结论与待解决问题
 
@@ -269,7 +269,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | `DATABASE_URL` migration/drift/auth/RLS、UUID/`timestamptz` | **通过** | `make db-replay-check` 将 11 个 migration 在随机隔离 schema 中完整执行并创建 34 张表后回滚；ledger drift、Auth 映射与跨区 P95、RLS/Vault、UUID 默认值和 timestamptz 检查均通过。 |
 | outbox/inbox 可靠事件闭环 | **通过** | `make test-f05-live` 串行执行事件 PostgreSQL 4/4、Storage PostgreSQL 1/1；租约恢复、1,000 次并发幂等、Realtime 漏通知补偿、correlation ≤5 秒回放、DLQ 与持久化均通过；内存 1 万事件无丢失测试通过。 |
 | Vault 受控角色、负向访问、F09 阈值/ADR | **未通过** | Vault 路径已只保留 `quantos_execution_gateway`，通用 `service_role`/`authenticated`/`anon` 的函数及表访问均被 live 测试拒绝；F09 库级阈值和 ADR 模板通过，但仍需在实际服务指标上验证告警输入。 |
-| 每服务 health/metrics/trace/结构化错误，供应链 | **未通过** | 许可证门禁已修复并通过；共享可部署运维面和稳定错误 envelope 已接入两个 Gateway，仍需覆盖三个批处理 service 和 Python Engine，并完成真实 trace exporter/端到端故障证据；正式发布签名仍依赖 CI signing key。 |
+| 每服务 health/metrics/trace/结构化错误，供应链 | **通过** | 五个 Rust service 与全部 Python Engine 共享同一运维契约；三个批处理 service 导出 started/terminal trace 并使用 correlation 一致的结构化错误，Python SDK 集中覆盖五 RPC；JSONL exporter 持久化后可由 `/trace/<uuid>` 查询，未配置/不可写时 readiness fail-closed。供应链 manifest/SPDX 可由锁文件重建且发布签名策略 fail-closed；正式 signing key 的配置仍是发布环境事项，不影响本条“报告可追溯”的事实。 |
 | TP01–TP05 版本/许可证/capability inventory | **通过** | TP02 RD-Agent 固定 `v0.5.0`/`923a326...`/MIT，TP04 TradingAgents 固定 `v0.2.1`/`551fd7f...`/Apache-2.0，TP05 OpenBB 固定 `4.4.5`/`34de2f6...`/AGPL-3.0-only；TP03 明确为无外部上游的 QuantOS-native capability。四项均归档 dependency descriptor digest、SPDX、CVE 状态及 capability/副作用/权限/替换策略；`make tp-intake-check` 验证未批准 upstream 包未进入 `uv.lock`。TP02/TP04 upstream 与 TP05 OpenBB 仍为非生产准入，其中 OpenBB 保持法务未批准、仅隔离评估。 |
 | TP01-A、TP01-B | **未通过** | baseline SHA、`UPSTREAM.md`、SBOM/NOTICE 记录、分级规则、capability/threat/forbidden-coupling ADR 已归档；但 `third_party/vibe-trading` 仅有 provenance 文件而非可重建的只读上游副本，`forks/vibe-trading/README.md` 仍将受控 fork 写为 `future`/`to be provisioned`，当前 git 也只有 QuantOS `origin`；需配置只读 upstream 与 SumAlpha 受控 fork/remote，并验证 baseline 可重建。 |
 
@@ -290,9 +290,9 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | F09 库级观测性 | **通过（库级）** | `make observability-check` 的 6 个用例全绿；实际服务端点未接入的原缺口仍存在。 |
 | 许可证门禁 | **失败** | `make license-check` 复验仍因 `webpki-root-certs 1.0.9` / `CDLA-Permissive-2.0` 未在 allowlist 或豁免中而失败。 |
 
-**当前仍待解决问题（已移除本轮确认修复项）**
+**截至当次复验仍待解决问题（已由 10.1.8 取代）**
 
-1. 等待首次 CI 完成 Firefox/WebKit 与 macOS/Windows 兼容矩阵；把共享运维面继续接入三个批处理 service 和 Python Engine，并补真实 exporter/端到端故障证据；配置 TP01 受控 fork remote；为发布流水线提供 `QUANTOS_SIGNING_KEY`。TP02–TP05 评估证据及生产阻断门禁已完成，不再列为活动问题。
+1. 当时仍需等待首次 CI 完成 Firefox/WebKit 与 macOS/Windows 兼容矩阵、补服务观测与端到端故障证据、配置 TP01 受控 fork remote 和发布 signing key；其中统一服务观测与持久化 exporter 已在 10.1.8 完成。
 
 #### 10.1.5 待解决问题修复与再次复验记录（2026-08-08）
 
@@ -327,7 +327,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 #### 10.1.7 代码与仓库工程化继续修复记录（2026-08-09）
 
-**当前结论**：浏览器/OS 兼容门禁、共享服务运维面及 TP02–TP05 准入证据已落库；TP01–TP05 评估 Gate 现可判定通过并勾选。**F0 Gate 当前为 3/7 通过。** 服务观测 Gate 仍未勾选，因为当前仅两个 Gateway 完成接入，不能以局部实现替代“每个服务”的验收口径。
+**截至该次复验的结论（已由 10.1.8 取代）**：浏览器/OS 兼容门禁、共享服务运维面及 TP02–TP05 准入证据已落库；当时 TP01–TP05 评估 Gate 勾选，F0 Gate 为 3/7，服务观测仅覆盖两个 Gateway。
 
 | 推进项 | 结果 | 核查记录 |
 |---|---|---|
@@ -341,6 +341,25 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 1. 仓库内可继续推进：为 `market-ingestor`、`portfolio-rebuild`、`replay-cli` 与全部 Python Engine 接入统一 health/metrics/trace/error contract；将 correlation trace 连接 exporter 或持久化查询；增加 F02 故意破坏自测；补 F07 调度 P95 与 F08 崩溃/配额/熔断集成证据。
 2. 需要 CI/外部资源：观察 Firefox/WebKit、macOS/Windows 首次矩阵结果；配置正式 `QUANTOS_SIGNING_KEY`；创建 SumAlpha 受控 fork/remote 并验证 TP01 baseline 可重建。
 3. 需要部署环境：同区域 Auth `<100ms`、真实 worker 强杀/重启、真实 DB/消费者/Engine 故障的端到端 trace/告警/事件链恢复。
+
+#### 10.1.8 全服务统一观测与持久化 trace 复验记录（2026-08-09）
+
+**当前结论**：三个批处理 service、两个 Gateway 与全部 Python Engine 均已完成统一观测接入，持久化 exporter 和 correlation 查询不再是活动代码缺口；Gate 第 5 条现可判定通过并勾选。**F0 Gate 当前为 4/7 通过。** F09 任务本身仍未完全通过，因为真实容量指标告警和部署级故障恢复证据尚未完成。
+
+| 推进项 | 结果 | 核查记录 |
+|---|---|---|
+| Rust 持久化 exporter | **通过** | `JsonlTraceExporter` 以 append-only JSONL 写入 service、correlation、operation、status、attributes、UTC 时间；`/trace/<uuid>` 查询真实文件记录，不再合成 trace。未配置/不可写 exporter 时 `/readyz` 返回 503、ready=false。库级 8 项测试及 Clippy 全绿。 |
+| 三个批处理 service | **通过** | `market-ingestor`、`portfolio-rebuild`、`replay-cli` 正常命令统一导出 started + succeeded/failed；Clap 参数错误也进入稳定错误 envelope，错误 correlation 与失败 trace 一致；设置 `QUANTOS_OBSERVABILITY_ADDR` 后同一二进制进入 health/metrics/trace/error 运维模式。三个 service 均已有独立 README。 |
+| Batch 真实复验 | **通过** | Market 3 tick 与 Portfolio 3 fill fixture 分别导出 2 条 started/succeeded；Replay 非法 correlation 导出 started/failed 并返回 `BATCH_COMMAND_FAILED` envelope。随后用 Market 运维模式在 `127.0.0.1:19091` 真实查询前述两条持久化记录，同时 health 与 Prometheus 指标返回成功。 |
+| Python Engine 统一接入 | **通过** | `quantos_engine_sdk.serve_engine` 集中包装 `GetMetadata/Health/Execute/StreamExecute/Cancel`，使用请求 metadata correlation 导出 started/terminal trace；全部 Engine 自动继承 HTTP 运维面和结构化错误，无需各自复制实现。 |
+| Engine exporter E2E | **通过** | 新增真实 Mock Engine UDS gRPC health 请求 → JSONL exporter → HTTP correlation 查询 → Prometheus readiness 测试；88 项 Python 测试全绿，Ruff/Pyright 0 错误，覆盖率 91.04%；`cargo test --workspace` 的所有 Rust-to-Python Engine contract 全绿。 |
+| 运维约束 | **通过（仓库侧）** | `.env.example` 与 Runbook 记录 per-replica durable path、运维地址、fail-closed readiness、log ship/rotation/retention 职责；`make observability-check` 同时执行 Rust exporter 与 Python gRPC E2E。 |
+
+**复验后仍待解决问题**
+
+1. 仓库内可继续推进：把真实 outbox/DLQ、Realtime、risk/portfolio P95、MV freshness、Storage/Vault 指标送入持续窗口告警和 ADR 生成；增加 F02 故意破坏自测；补 F07 调度 P95 与 F08 崩溃/配额/熔断集成证据。
+2. 需要 CI/外部资源：观察 Firefox/WebKit、macOS/Windows 矩阵；配置正式 signing key；创建 SumAlpha 受控 fork/remote 并验证 TP01 baseline 可重建。
+3. 需要部署环境：验证 JSONL ship/rotation/retention，同区域 Auth `<100ms`、真实 worker 强杀/重启，以及真实 DB/消费者/Engine 故障下的端到端 trace、告警与事件链恢复。
 
 ### 10.2 R1 Gate
 

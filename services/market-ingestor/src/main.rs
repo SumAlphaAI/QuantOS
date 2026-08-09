@@ -12,6 +12,7 @@ use quantos_market::{
     MarketIngestor, default_approved_providers, default_replay_spec, generate_replay_dataset,
     read_ticks_jsonl, write_ticks_jsonl,
 };
+use quantos_observability::service::run_observed_command;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -37,8 +38,15 @@ enum Command {
     },
 }
 
-fn main() -> Result<()> {
-    match Cli::parse().command {
+fn main() -> std::process::ExitCode {
+    run_observed_command("market-ingestor", "market.command", run)
+}
+
+fn run() -> Result<()> {
+    match Cli::try_parse()
+        .context("invalid market-ingestor arguments")?
+        .command
+    {
         Command::GenerateReplay { output, count } => generate_replay(output, count),
         Command::IngestReplay { input } => ingest_replay(input),
     }
