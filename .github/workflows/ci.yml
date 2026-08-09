@@ -75,6 +75,9 @@ jobs:
       - name: Validate migration baseline
         run: make db-migration-check
 
+      - name: Deliberately break quality gates
+        run: make quality-gate-self-test
+
       - name: Lint workspace
         run: make lint
 

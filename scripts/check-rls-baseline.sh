@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="${QUANTOS_GATE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 migrations_dir="${repo_root}/supabase/migrations"
 bundle_file="$(mktemp)"
 trap 'rm -f "${bundle_file}"' EXIT

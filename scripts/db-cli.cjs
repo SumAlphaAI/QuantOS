@@ -147,14 +147,18 @@ async function schemaDiff() {
     const local = migrationFiles;
     const remoteFiles = remote.rows.map((row) => row.filename);
 
-    if (JSON.stringify(remoteFiles) !== JSON.stringify(local)) {
-      throw new Error(
-        `Remote migration ledger does not match repository migrations.\nRemote: ${remoteFiles.join(", ")}\nLocal: ${local.join(", ")}`,
-      );
-    }
+    assertMigrationLedgerMatches(local, remoteFiles);
 
     console.log("Remote migration ledger matches repository migrations.");
   });
+}
+
+function assertMigrationLedgerMatches(localFiles, remoteFiles) {
+  if (JSON.stringify(remoteFiles) !== JSON.stringify(localFiles)) {
+    throw new Error(
+      `Remote migration ledger does not match repository migrations.\nRemote: ${remoteFiles.join(", ")}\nLocal: ${localFiles.join(", ")}`,
+    );
+  }
 }
 
 async function replayMigrationsInIsolatedSchema() {
@@ -408,11 +412,15 @@ function connectionHint(error) {
   return null;
 }
 
-main().catch((error) => {
-  const hint = connectionHint(error);
-  console.error(error.message);
-  if (hint) {
-    console.error(hint);
-  }
-  process.exit(1);
-});
+module.exports = { assertMigrationLedgerMatches };
+
+if (require.main === module) {
+  main().catch((error) => {
+    const hint = connectionHint(error);
+    console.error(error.message);
+    if (hint) {
+      console.error(hint);
+    }
+    process.exit(1);
+  });
+}

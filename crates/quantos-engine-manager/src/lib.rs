@@ -20,7 +20,10 @@ use quantos_proto::quantos::{
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use tokio::net::UnixStream;
+use tokio::{
+    net::UnixStream,
+    sync::{OwnedSemaphorePermit, Semaphore},
+};
 use tonic::transport::{Channel, Endpoint};
 use tower::service_fn;
 
@@ -91,6 +94,16 @@ pub enum EngineManagerError {
     Transport(String),
     #[error("ENGINE_RPC: {0}")]
     Rpc(String),
+    #[error("ENGINE_CONCURRENCY_QUOTA: engine `{0}` has no execution slot available")]
+    ConcurrencyQuota(String),
+    #[error(
+        "ENGINE_RSS_QUOTA: engine `{engine_name}` reports {reported_mb} MiB, limit is {limit_mb} MiB"
+    )]
+    RssQuota {
+        engine_name: String,
+        reported_mb: u32,
+        limit_mb: u32,
+    },
 }
 
 impl EngineManagerError {
@@ -116,6 +129,8 @@ impl EngineManagerError {
             Self::DeadlineExceeded => "ENGINE_DEADLINE_EXCEEDED",
             Self::Transport(_) => "ENGINE_TRANSPORT",
             Self::Rpc(_) => "ENGINE_RPC",
+            Self::ConcurrencyQuota(_) => "ENGINE_CONCURRENCY_QUOTA",
+            Self::RssQuota { .. } => "ENGINE_RSS_QUOTA",
         }
     }
 }
@@ -143,6 +158,7 @@ impl Default for BackoffPolicy {
 pub struct EngineCircuitState {
     pub consecutive_failures: u32,
     pub backoff_until: Option<DateTime<Utc>>,
+    pub reported_rss_mb: u32,
 }
 
 impl EngineCircuitState {
@@ -150,6 +166,7 @@ impl EngineCircuitState {
         Self {
             consecutive_failures: 0,
             backoff_until: None,
+            reported_rss_mb: 0,
         }
     }
 }
@@ -158,6 +175,7 @@ impl EngineCircuitState {
 struct ManagedEngine {
     manifest: EngineManifest,
     state: EngineCircuitState,
+    execution_slots: Arc<Semaphore>,
 }
 
 #[derive(Debug, Clone)]
@@ -183,11 +201,13 @@ impl EngineManager {
             self.capability_routes
                 .insert(capability.name.clone(), manifest.engine_name.clone());
         }
+        let max_concurrency = manifest.quota.max_concurrency;
         self.engines.insert(
             manifest.engine_name.clone(),
             ManagedEngine {
                 manifest,
                 state: EngineCircuitState::new(),
+                execution_slots: Arc::new(Semaphore::new(max_concurrency as usize)),
             },
         );
         Ok(())
@@ -201,6 +221,21 @@ impl EngineManager {
 
     pub fn circuit_state(&self, engine_name: &str) -> Option<EngineCircuitState> {
         self.engines.get(engine_name).map(|managed| managed.state)
+    }
+
+    /// Updates the latest supervisor-observed resident set size. Dispatch is
+    /// rejected while the reported value exceeds the manifest quota.
+    pub fn report_rss_mb(
+        &mut self,
+        engine_name: &str,
+        rss_mb: u32,
+    ) -> Result<(), EngineManagerError> {
+        let managed = self
+            .engines
+            .get_mut(engine_name)
+            .ok_or_else(|| EngineManagerError::EngineNotFound(engine_name.to_owned()))?;
+        managed.state.reported_rss_mb = rss_mb;
+        Ok(())
     }
 
     pub async fn get_metadata(
@@ -247,6 +282,8 @@ impl EngineManager {
         request: ExecuteRequest,
     ) -> Result<ExecuteResponse, EngineManagerError> {
         let engine_name = self.route_engine_name(capability)?.to_owned();
+        self.enforce_rss_quota(&engine_name)?;
+        let _execution_permit = self.acquire_execution_slot(&engine_name)?;
         let deadline = request
             .deadline
             .ok_or(EngineManagerError::DeadlineExceeded)?;
@@ -256,7 +293,18 @@ impl EngineManager {
         loop {
             attempts += 1;
             self.await_backoff(&engine_name).await?;
-            let mut client = self.client_for_engine(&engine_name).await?;
+            let mut client = match self.client_for_engine(&engine_name).await {
+                Ok(client) => client,
+                Err(error @ EngineManagerError::Transport(_)) => {
+                    self.record_failure(&engine_name)?;
+                    if attempts < self.policy.max_dispatch_attempts && deadline_at > Utc::now() {
+                        tokio::time::sleep(self.policy.base_backoff).await;
+                        continue;
+                    }
+                    return Err(error);
+                }
+                Err(error) => return Err(error),
+            };
             let timeout = remaining_time(deadline_at)?;
 
             match tokio::time::timeout(timeout, client.execute(request.clone())).await {
@@ -368,6 +416,36 @@ impl EngineManager {
             .ok_or_else(|| EngineManagerError::CapabilityNotRouted(capability.to_owned()))
     }
 
+    fn acquire_execution_slot(
+        &self,
+        engine_name: &str,
+    ) -> Result<OwnedSemaphorePermit, EngineManagerError> {
+        let managed = self
+            .engines
+            .get(engine_name)
+            .ok_or_else(|| EngineManagerError::EngineNotFound(engine_name.to_owned()))?;
+        managed
+            .execution_slots
+            .clone()
+            .try_acquire_owned()
+            .map_err(|_| EngineManagerError::ConcurrencyQuota(engine_name.to_owned()))
+    }
+
+    fn enforce_rss_quota(&self, engine_name: &str) -> Result<(), EngineManagerError> {
+        let managed = self
+            .engines
+            .get(engine_name)
+            .ok_or_else(|| EngineManagerError::EngineNotFound(engine_name.to_owned()))?;
+        if managed.state.reported_rss_mb > managed.manifest.quota.max_rss_mb {
+            return Err(EngineManagerError::RssQuota {
+                engine_name: engine_name.to_owned(),
+                reported_mb: managed.state.reported_rss_mb,
+                limit_mb: managed.manifest.quota.max_rss_mb,
+            });
+        }
+        Ok(())
+    }
+
     async fn await_backoff(&self, engine_name: &str) -> Result<(), EngineManagerError> {
         let state = self
             .circuit_state(engine_name)
@@ -385,7 +463,8 @@ impl EngineManager {
             .engines
             .get_mut(engine_name)
             .ok_or_else(|| EngineManagerError::EngineNotFound(engine_name.to_owned()))?;
-        managed.state = EngineCircuitState::new();
+        managed.state.consecutive_failures = 0;
+        managed.state.backoff_until = None;
         Ok(())
     }
 

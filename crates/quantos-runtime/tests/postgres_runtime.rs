@@ -1,4 +1,10 @@
-use std::{collections::HashSet, env};
+use std::{
+    collections::HashSet,
+    env, fs,
+    process::{Command, Stdio},
+    thread,
+    time::{Duration, Instant},
+};
 
 use chrono::{Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
@@ -66,54 +72,76 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
         .expect("tool registers");
 
     let mut run_ids = Vec::new();
+    let mut scheduling_samples = Vec::with_capacity(run_count);
     for index in 0..run_count {
+        let started_at = Instant::now();
         let run = store
             .schedule_run(&new_run(session.runtime_session_id, index, now), now)
             .expect("run schedules");
+        scheduling_samples.push(started_at.elapsed());
         run_ids.push(run.workflow_run_id);
     }
+    scheduling_samples.sort_unstable();
+    let p95_index = ((scheduling_samples.len() * 95).div_ceil(100)).saturating_sub(1);
+    let scheduling_p95 = scheduling_samples[p95_index];
+    let p95_limit_ms = env::var("QUANTOS_RUNTIME_SCHEDULE_P95_LIMIT_MS")
+        .ok()
+        .map(|value| value.parse::<u64>().expect("P95 limit is numeric"))
+        .unwrap_or(1_500);
+    eprintln!(
+        "runtime schedule direct PostgreSQL P95: {:.2} ms (limit: {p95_limit_ms} ms, samples: {run_count})",
+        scheduling_p95.as_secs_f64() * 1_000.0
+    );
+    assert!(
+        scheduling_p95 <= Duration::from_millis(p95_limit_ms),
+        "schedule P95 {:.2} ms exceeds configured limit {p95_limit_ms} ms",
+        scheduling_p95.as_secs_f64() * 1_000.0
+    );
 
-    let claimed = store
-        .claim_runs(
-            fixture.auth.tenant_id,
-            "worker-a",
-            run_count as i64,
-            now,
-            ChronoDuration::seconds(30),
+    let marker_dir = tempfile::tempdir().expect("worker marker tempdir creates");
+    let marker_path = marker_dir.path().join("checkpointed");
+    let mut worker = Command::new(env::current_exe().expect("current test executable resolves"))
+        .arg("--exact")
+        .arg("postgres_runtime_worker_child_claims_checkpoints_and_waits")
+        .arg("--ignored")
+        .arg("--nocapture")
+        .env("QUANTOS_WORKER_CHILD", "1")
+        .env(
+            "QUANTOS_WORKER_TENANT_ID",
+            fixture.auth.tenant_id.to_string(),
         )
-        .expect("runs claim");
-    assert_eq!(claimed.len(), run_count);
-
-    for lease in &claimed {
-        store
-            .save_checkpoint(
-                lease.run.workflow_run_id,
-                "step.execute",
-                1,
-                &serde_json::json!({ "step": 1, "run_id": lease.run.workflow_run_id }),
-                now,
-            )
-            .expect("checkpoint saves");
-        let manifest = ArtifactManifest::new(
-            fixture.auth.tenant_id,
-            "application/json",
-            ContentHash::sha256_bytes(format!("artifact-{}", lease.run.workflow_run_id).as_bytes()),
-            "quantos-artifacts",
-            16,
-            now,
+        .env("QUANTOS_WORKER_RUN_COUNT", run_count.to_string())
+        .env("QUANTOS_WORKER_MARKER", &marker_path)
+        .stdout(Stdio::null())
+        .stderr(Stdio::inherit())
+        .spawn()
+        .expect("worker child spawns");
+    let marker_deadline = Instant::now() + Duration::from_secs(600);
+    while !marker_path.exists() {
+        assert!(
+            Instant::now() < marker_deadline,
+            "worker did not checkpoint in time"
         );
-        store
-            .record_artifact(lease.run.workflow_run_id, &manifest, now)
-            .expect("artifact records");
+        if let Some(status) = worker.try_wait().expect("worker status reads") {
+            panic!("worker exited before forced kill: {status}");
+        }
+        thread::sleep(Duration::from_millis(100));
     }
+    worker.kill().expect("worker receives OS-level kill");
+    let killed_status = worker.wait().expect("killed worker reaps");
+    assert!(
+        !killed_status.success(),
+        "forced worker kill must be observable"
+    );
 
+    let recovery_at = Utc::now() + ChronoDuration::seconds(31);
     let mut recovered = PgRuntimeStore::connect(&database_url).expect("recovered store connects");
     let resumed = recovered
         .claim_runs(
             fixture.auth.tenant_id,
             "worker-b",
             run_count as i64,
-            now + ChronoDuration::seconds(31),
+            recovery_at,
             ChronoDuration::seconds(30),
         )
         .expect("expired leases reclaim");
@@ -135,10 +163,10 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
             now,
         );
         recovered
-            .record_artifact(lease.run.workflow_run_id, &manifest, now)
+            .record_artifact(lease.run.workflow_run_id, &manifest, recovery_at)
             .expect("artifact dedupe holds");
         recovered
-            .complete_run(lease.run.workflow_run_id, "worker-b", now)
+            .complete_run(lease.run.workflow_run_id, "worker-b", recovery_at)
             .expect("run completes");
     }
 
@@ -194,6 +222,58 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
         artifact_link_summary.get::<_, i64>("single_artifact_count"),
         run_count as i64
     );
+}
+
+#[test]
+#[ignore = "helper process invoked by the PostgreSQL recovery test"]
+fn postgres_runtime_worker_child_claims_checkpoints_and_waits() {
+    assert_eq!(env::var("QUANTOS_WORKER_CHILD").as_deref(), Ok("1"));
+    let database_url = env::var("DATABASE_URL").expect("child DATABASE_URL exists");
+    let tenant_uuid =
+        Uuid::parse_str(&env::var("QUANTOS_WORKER_TENANT_ID").expect("child tenant ID exists"))
+            .expect("child tenant ID parses");
+    let tenant_id = TenantId::from_uuid(tenant_uuid);
+    let run_count = env::var("QUANTOS_WORKER_RUN_COUNT")
+        .expect("child run count exists")
+        .parse::<usize>()
+        .expect("child run count parses");
+    let marker_path = env::var("QUANTOS_WORKER_MARKER").expect("child marker path exists");
+    let now = Utc::now();
+    let mut store = PgRuntimeStore::connect(&database_url).expect("child runtime store connects");
+    let claimed = store
+        .claim_runs(
+            tenant_id,
+            "worker-a",
+            run_count as i64,
+            now,
+            ChronoDuration::seconds(30),
+        )
+        .expect("child claims runs");
+    assert_eq!(claimed.len(), run_count);
+    for lease in &claimed {
+        store
+            .save_checkpoint(
+                lease.run.workflow_run_id,
+                "step.execute",
+                1,
+                &serde_json::json!({ "step": 1, "run_id": lease.run.workflow_run_id }),
+                now,
+            )
+            .expect("child checkpoint saves");
+        let manifest = ArtifactManifest::new(
+            tenant_id,
+            "application/json",
+            ContentHash::sha256_bytes(format!("artifact-{}", lease.run.workflow_run_id).as_bytes()),
+            "quantos-artifacts",
+            16,
+            now,
+        );
+        store
+            .record_artifact(lease.run.workflow_run_id, &manifest, now)
+            .expect("child artifact records");
+    }
+    fs::write(marker_path, format!("checkpointed={run_count}\n")).expect("child marker writes");
+    thread::sleep(Duration::from_secs(3_600));
 }
 
 #[test]

@@ -19,6 +19,11 @@ def parse_args() -> argparse.Namespace:
         help="Return UNAVAILABLE for the first N Execute calls",
     )
     parser.add_argument(
+        "--exit-on-execute",
+        action="store_true",
+        help="Terminate the process immediately when Execute is received",
+    )
+    parser.add_argument(
         "--default-sleep-ms",
         type=int,
         default=0,
@@ -39,6 +44,7 @@ def main() -> None:
         MockEngineService(
             failures_before_success=args.failures_before_success,
             default_sleep_ms=args.default_sleep_ms,
+            exit_on_execute=args.exit_on_execute,
         ),
     )
     try:

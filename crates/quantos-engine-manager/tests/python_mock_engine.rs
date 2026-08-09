@@ -81,7 +81,11 @@ async fn spawn_python_mock_engine(
     socket_path: &Path,
     failures_before_success: u32,
     default_sleep_ms: u32,
+    exit_on_execute: bool,
 ) -> anyhow::Result<Child> {
+    if socket_path.exists() {
+        std::fs::remove_file(socket_path)?;
+    }
     let mut command = Command::new("uv");
     command
         .arg("run")
@@ -100,6 +104,9 @@ async fn spawn_python_mock_engine(
         .arg(default_sleep_ms.to_string())
         .stdout(Stdio::null())
         .stderr(Stdio::null());
+    if exit_on_execute {
+        command.arg("--exit-on-execute");
+    }
     let child = command.spawn()?;
 
     for _ in 0..100 {
@@ -127,7 +134,7 @@ async fn shutdown_child(mut child: Child, socket_path: &Path) {
 #[tokio::test]
 async fn python_mock_engine_contracts_round_trip_over_uds() -> anyhow::Result<()> {
     let socket_path = short_socket_path();
-    let child = spawn_python_mock_engine(&socket_path, 0, 0).await?;
+    let child = spawn_python_mock_engine(&socket_path, 0, 0, false).await?;
 
     let result = async {
         let mut manager = EngineManager::new(BackoffPolicy::default());
@@ -195,7 +202,7 @@ async fn python_mock_engine_contracts_round_trip_over_uds() -> anyhow::Result<()
 #[tokio::test]
 async fn python_mock_engine_recovers_after_three_unavailable_failures() -> anyhow::Result<()> {
     let socket_path = short_socket_path();
-    let child = spawn_python_mock_engine(&socket_path, 3, 0).await?;
+    let child = spawn_python_mock_engine(&socket_path, 3, 0, false).await?;
 
     let result = async {
         let mut manager = EngineManager::new(BackoffPolicy {
@@ -223,7 +230,7 @@ async fn python_mock_engine_recovers_after_three_unavailable_failures() -> anyho
 #[tokio::test]
 async fn python_mock_engine_deadline_timeout_is_deterministic() -> anyhow::Result<()> {
     let socket_path = short_socket_path();
-    let child = spawn_python_mock_engine(&socket_path, 0, 3_000).await?;
+    let child = spawn_python_mock_engine(&socket_path, 0, 3_000, false).await?;
 
     let result = async {
         let mut manager = EngineManager::new(BackoffPolicy::default());
@@ -249,7 +256,7 @@ async fn python_mock_engine_deadline_timeout_is_deterministic() -> anyhow::Resul
 #[tokio::test]
 async fn missing_vibe_adapter_does_not_block_mock_workflow_routing() -> anyhow::Result<()> {
     let socket_path = short_socket_path();
-    let child = spawn_python_mock_engine(&socket_path, 0, 0).await?;
+    let child = spawn_python_mock_engine(&socket_path, 0, 0, false).await?;
 
     let result = async {
         let mut manager = EngineManager::new(BackoffPolicy::default());
@@ -277,4 +284,82 @@ async fn missing_vibe_adapter_does_not_block_mock_workflow_routing() -> anyhow::
 
     shutdown_child(child, &socket_path).await;
     result
+}
+
+#[tokio::test]
+async fn execution_concurrency_and_rss_quotas_reject_excess_work() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let child = spawn_python_mock_engine(&socket_path, 0, 500, false).await?;
+
+    let result = async {
+        let mut manifest = manifest_for_socket(socket_path.clone());
+        manifest.quota.max_concurrency = 1;
+        manifest.quota.max_rss_mb = 64;
+        let mut manager = EngineManager::new(BackoffPolicy::default());
+        manager.register_engine(manifest)?;
+
+        let mut first = manager.clone();
+        let first_call = tokio::spawn(async move {
+            first
+                .execute("research.execute", execute_request("quota-first"))
+                .await
+        });
+        sleep(Duration::from_millis(100)).await;
+        let concurrency_error = manager
+            .execute("research.execute", execute_request("quota-second"))
+            .await
+            .expect_err("second concurrent call must be rejected");
+        assert_eq!(concurrency_error.machine_code(), "ENGINE_CONCURRENCY_QUOTA");
+        first_call.await??;
+
+        manager.report_rss_mb("mock-engine", 65)?;
+        let rss_error = manager
+            .execute("research.execute", execute_request("rss-over-limit"))
+            .await
+            .expect_err("reported RSS above quota must be rejected");
+        assert_eq!(rss_error.machine_code(), "ENGINE_RSS_QUOTA");
+        Ok::<(), anyhow::Error>(())
+    }
+    .await;
+
+    shutdown_child(child, &socket_path).await;
+    result
+}
+
+#[tokio::test]
+async fn one_request_survives_three_real_engine_process_crashes() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let first_child = spawn_python_mock_engine(&socket_path, 0, 0, true).await?;
+    let mut manager = EngineManager::new(BackoffPolicy {
+        crash_threshold: 3,
+        base_backoff: Duration::from_millis(100),
+        max_backoff: Duration::from_millis(200),
+        max_dispatch_attempts: 30,
+    });
+    manager.register_engine(manifest_for_socket(socket_path.clone()))?;
+
+    let request_task = tokio::spawn(async move {
+        manager
+            .execute("research.execute", execute_request("three-process-crashes"))
+            .await
+    });
+
+    let mut child = first_child;
+    for crash_index in 0..3 {
+        let status = tokio::time::timeout(Duration::from_secs(3), child.wait()).await??;
+        assert_eq!(
+            status.code(),
+            Some(70),
+            "crash {crash_index} must be intentional"
+        );
+        child = spawn_python_mock_engine(&socket_path, 0, 0, crash_index < 2).await?;
+    }
+
+    let response = tokio::time::timeout(Duration::from_secs(5), request_task).await???;
+    assert_eq!(
+        response.execution_id,
+        "run-three-process-crashes:idem-three-process-crashes"
+    );
+    shutdown_child(child, &socket_path).await;
+    Ok(())
 }

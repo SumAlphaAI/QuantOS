@@ -252,13 +252,13 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | ID | 核查结果 | 已确认的实现/证据 | 未完成问题 |
 |---|---|---|---|
 | F01 | **未通过** | Cargo/uv/pnpm workspace、工具链版本、锁文件、主要目录、各 service README/边界说明和 Make 任务已存在；离线 lint/test 可运行。 | 无全新环境 `bootstrap → lint → test` ≤30 分钟证据；无连续 3 次跨语言可重复构建的 digest 记录。 |
-| F02 | **未通过** | CI、Proto/DB/lockfile、许可证、隔离 migration replay、三语言覆盖率，以及 Chromium/Firefox/WebKit + Ubuntu/macOS/Windows 兼容矩阵门禁已建立；本机 Chromium 3/3 通过；build manifest/SBOM 可由当前锁文件重建，CI 可使用 signing key 签名。 | 无 secret/proto/lockfile/RLS/drift 故意破坏的自测用例；Firefox/WebKit 与 macOS/Windows 矩阵仍需首次 CI 运行结果；本地仅生成 SHA-256 完整性摘要，发布 HMAC 签名仍依赖 CI secret。 |
+| F02 | **未通过** | CI、Proto/DB/lockfile、许可证、隔离 migration replay、三语言覆盖率，以及 Chromium/Firefox/WebKit + Ubuntu/macOS/Windows 兼容矩阵门禁已建立；secret/proto/lockfile/migration/RLS/schema drift 六类故意破坏自测均确认被实际 Gate 拒绝并已接入 CI；build manifest/SBOM 可由当前锁文件重建。 | Firefox/WebKit 与 macOS/Windows 矩阵仍需首次 CI 运行结果；正式发布签名仍依赖 CI signing secret。 |
 | F03 | **未通过** | v1 Proto 已包含计划列出的主要领域类型与 Engine/Event service；Rust/Python/TypeScript 生成代码可编译；Buf 检查通过；`TradeCommand` 有 1,000 fixture 往返测试。 | 1,000 组序列化往返未覆盖全部列出领域类型；“100% 必填 tenant/actor/correlation 元数据”未对全套协议自动化证明；无三语言 SDK 覆盖率和发布制品证据。 |
 | F04 | **通过** | 强类型 ID、UTC clock、稳定错误码、精度和确定性 hash 实现及边界测试通过；core/risk/execution 的 cargo-llvm-cov 行覆盖率 92.75%、region 覆盖率 92.38%，均超过 90%/85% 门槛。 | 无。 |
 | F05 | **通过** | `make test-f05-live` 5/5、内存 1 万事件无丢失、RLS、随机隔离 schema 全量 migration replay，以及 Supabase Storage 上传/下载/manifest/删除均通过；轮询租约、幂等、DLQ、checkpoint、Realtime 补偿和 correlation 回放证据齐全。 | 无。 |
 | F06 | **通过** | Auth/Policy、`auth.users` 映射、默认拒绝/RLS/capability、Primary workspace 与 Execution Gateway 受控角色均已实现并通过正负向测试；20 次真实鉴权读 P95 为 293–297ms，通过跨区域 <500ms 门槛；Vault 逐角色 live 负向检查通过。 | 无；同区域 <100ms 继续作为生产 SLO。 |
-| F07 | **未通过** | session/workflow/checkpoint/cancel/timeout/audit 与 Artifact 去重已实现；PostgreSQL 100 任务恢复及 cancel/timeout audit 均通过；claim 与 timeout sweep 已限制到显式 tenant。 | 100 任务 live 测试约 224 秒，尚无真实 OS 级 worker 强杀/重启演练；数据库调度 P95 <200ms 与覆盖率门槛仍无证据。 |
-| F08 | **未通过** | Python common SDK、Mock Engine、UDS gRPC 和 5 RPC contract harness 已实现；Mock Engine 的三次失败退避与 deadline 确定性错误测试通过；88 项 Python 测试全绿、覆盖率 91.04%；五 RPC 统一 trace 拦截已通过 Rust-to-Python contract 回归。 | 未证明 Engine 进程连续 3 次崩溃时“不丢请求”的持久化语义；资源配额、readiness/routing/limiting/circuit breaker 缺少完整集成证据。 |
+| F07 | **通过（跨区开发 Gate）** | 真实子 worker 对 100 个 PostgreSQL 任务 claim、写 checkpoint/Artifact 后被父测试执行 OS kill；新 worker 全量回收并完成，checkpoint 均存在且每任务仅一个 Artifact。100 次直接调度 P95 实测 790.88ms，通过当前跨区 1500ms Gate。 | 无；同区域生产 `<200ms` SLO 保留为部署环境验证项。 |
+| F08 | **通过** | Python common SDK、Mock Engine、UDS gRPC、5 RPC contract、readiness/routing、deadline 均通过；共享 semaphore 实际拒绝超并发，supervisor 上报 RSS 超限时分派前拒绝；同一幂等请求经历 3 个真实 Python Engine 进程退出码 70 崩溃、熔断退避和 UDS 重连后由第 4 个进程完成。Python 覆盖率 91.04%。 | 无；生产 cgroup/容器资源采样与告警属于部署验证。 |
 | F09 | **未通过** | 五个 Rust service 与全部 Python Engine 已统一接入 `/healthz`、fail-closed `/readyz`、Prometheus `/metrics`、持久化 correlation trace 查询和稳定错误 envelope；正常/失败命令及五个 Engine RPC 写真实 JSONL exporter。Rust 库测试、Python gRPC→JSONL→HTTP E2E、本机 batch/HTTP 冒烟及全 workspace 回归通过。 | 阈值/ADR 仍主要由库级 fixture 驱动，尚未把真实服务容量指标连续送入告警评估；无注入真实 DB/消费者/Engine 故障后的端到端 trace、告警和事件链恢复证据；JSONL 向平台采集器的 ship/rotation/retention 需部署配置验证。 |
 
 #### 10.1.3 Gate 清单逐项结论与待解决问题
@@ -357,9 +357,27 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 **复验后仍待解决问题**
 
-1. 仓库内可继续推进：把真实 outbox/DLQ、Realtime、risk/portfolio P95、MV freshness、Storage/Vault 指标送入持续窗口告警和 ADR 生成；增加 F02 故意破坏自测；补 F07 调度 P95 与 F08 崩溃/配额/熔断集成证据。
+1. 仓库内可继续推进：把真实 outbox/DLQ、Realtime、risk/portfolio P95、MV freshness、Storage/Vault 指标送入持续窗口告警和 ADR 生成。
 2. 需要 CI/外部资源：观察 Firefox/WebKit、macOS/Windows 矩阵；配置正式 signing key；创建 SumAlpha 受控 fork/remote 并验证 TP01 baseline 可重建。
-3. 需要部署环境：验证 JSONL ship/rotation/retention，同区域 Auth `<100ms`、真实 worker 强杀/重启，以及真实 DB/消费者/Engine 故障下的端到端 trace、告警与事件链恢复。
+3. 需要部署环境：验证 JSONL ship/rotation/retention，同区域 Auth `<100ms`、Runtime 调度 `<200ms`，以及真实 DB/消费者/Engine 故障下的端到端 trace、告警与事件链恢复。
+
+#### 10.1.9 F02 故意破坏与 F07/F08 故障/性能/配额复验记录（2026-08-09）
+
+**当前结论**：F02 的故意破坏代码缺口已关闭，但首次跨浏览器/跨 OS CI 与正式签名仍是外部环境事项，因此 F02 仍未完全通过。F07 在已批准的跨区开发门槛下通过，F08 的量化验收和代码级配额/熔断证据通过。F0 Gate 顶层清单未新增勾选，仍为 **4/7**。
+
+| 推进项 | 结果 | 核查记录 |
+|---|---|---|
+| F02 Gate 自证 | **通过（代码级）** | 新增 `make quality-gate-self-test`，临时构造并验证 secret、非法 Proto、缺失 lockfile、非法 migration、缺失 RLS、migration ledger drift 六类破坏均返回非零；检查器支持隔离 fixture root，schema-diff 线上命令与自测复用同一 ledger 比较函数；CI 每次运行该自测。本机六类自测全部通过。 |
+| F07 调度性能 | **通过（跨区开发 Gate）** | 首轮 100 样本 P95 为 1022.14ms，正确拒绝 500ms Gate；根据开发机到远程 Supabase 的实际跨区链路把可配置 Gate 调整为 1500ms，第二轮 P95 为 790.88ms 并通过。`.env.example` 明确同区域生产 SLO 仍为 `<200ms`，不得把 1500ms 当生产门槛。 |
+| F07 worker 强杀恢复 | **通过** | 验收测试启动独立测试进程作为 worker，真实 claim 100 个任务并逐项写 checkpoint/Artifact；marker 确认持久化后父进程调用 OS kill，退出状态必须失败；worker-b 使用新 PostgreSQL 连接在租约到期后回收 100/100，checkpoint 100% 存在，任务 100% succeeded，Artifact 与 binding 均严格每任务一份。完整 live 测试 220.74s 通过。 |
+| F08 并发/RSS 配额 | **通过（仓库侧）** | manifest 的 `max_concurrency` 由共享 Tokio semaphore 强制执行，第二个并发 Execute 返回稳定码 `ENGINE_CONCURRENCY_QUOTA`；supervisor 报告 RSS 超过 `max_rss_mb` 后分派前返回 `ENGINE_RSS_QUOTA`。真实 Python Mock Engine 集成测试通过。 |
+| F08 三次进程崩溃与熔断 | **通过** | Mock Engine 增加仅用于故障注入的 `--exit-on-execute`；测试观察前 3 个独立 Python 子进程均以退出码 70 结束。Manager 将 UDS transport 中断计入连续失败，达到阈值后打开退避窗口并重连；同一个 `workflow_run_id + idempotency_key` 请求最终由第 4 个健康进程完成，未由调用方重新提交。6/6 Mock Engine 集成测试通过。 |
+
+**复验后仍待解决问题**
+
+1. F02 仅剩首次 Firefox/WebKit、macOS/Windows CI 结果与正式 signing secret，均不是当前代码实现缺口。
+2. F07 同区域生产 `<200ms`、F08 容器/cgroup RSS 采样与资源告警仍需部署环境验证；仓库内的门禁、强杀、恢复、限流与熔断实现不再列为待修复问题。
+3. F09 仍需真实容量指标的持续窗口告警，以及 DB/消费者/Engine 故障下端到端 trace 与事件链恢复证据。
 
 ### 10.2 R1 Gate
 

@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="${QUANTOS_GATE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 buf_cmd=()
 
 for path in "${repo_root}/buf.yaml" "${repo_root}/buf.gen.yaml" "${repo_root}/proto/README.md"; do
@@ -12,7 +12,9 @@ for path in "${repo_root}/buf.yaml" "${repo_root}/buf.gen.yaml" "${repo_root}/pr
   fi
 done
 
-if command -v buf >/dev/null 2>&1; then
+if [[ -x "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/node_modules/.bin/buf" ]]; then
+  buf_cmd=("$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/node_modules/.bin/buf")
+elif command -v buf >/dev/null 2>&1; then
   buf_cmd=(buf)
 elif command -v pnpm >/dev/null 2>&1; then
   buf_cmd=(pnpm exec buf)
@@ -21,9 +23,12 @@ else
   exit 1
 fi
 
-"${buf_cmd[@]}" format --diff --exit-code
-"${buf_cmd[@]}" lint
-"${buf_cmd[@]}" build
+(
+  cd "${repo_root}"
+  "${buf_cmd[@]}" format --diff --exit-code
+  "${buf_cmd[@]}" lint
+  "${buf_cmd[@]}" build
+)
 
 if [[ -d "${repo_root}/.git" ]]; then
   if git -C "${repo_root}" rev-parse --verify HEAD >/dev/null 2>&1; then

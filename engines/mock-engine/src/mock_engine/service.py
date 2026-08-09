@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+import os
 from dataclasses import dataclass, field
 
 import grpc
@@ -39,6 +40,7 @@ class MockEngineService:
     )
     failures_before_success: int = 0
     default_sleep_ms: int = 0
+    exit_on_execute: bool = False
     _cancelled: set[str] = field(default_factory=set)
     _remaining_failures: int = field(init=False)
 
@@ -71,6 +73,8 @@ class MockEngineService:
         request: engine_pb2.ExecuteRequest,
         context: grpc.ServicerContext,
     ) -> engine_pb2.ExecuteResponse:
+        if self.exit_on_execute:
+            os._exit(70)
         if self._remaining_failures > 0:
             self._remaining_failures -= 1
             context.abort(grpc.StatusCode.UNAVAILABLE, "engine crash")

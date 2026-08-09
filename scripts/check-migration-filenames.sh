@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="${QUANTOS_GATE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 migrations_dir="${repo_root}/supabase/migrations"
 pattern='^[0-9]{14}_[a-z0-9][a-z0-9_]*\.sql$'
 
