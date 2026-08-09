@@ -7,6 +7,7 @@ Current baseline documents:
 - `SumAlpha-QuantOS-Architecture.md`
 - `SumAlpha-QuantOS-Technical-Solution.md`
 - `SumAlpha-QuantOS-Development-Plan.md`
+- `SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md`
 - `SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md`
 - `SumAlpha-QuantOS-Web-and-Terminal-Design.md`
 - `adr/`: architecture decision records such as TP01 controlled-fork boundaries
