@@ -3,14 +3,21 @@ use quantos_core::HealthReport;
 use quantos_execution::gateway::{
     ExecutionGateway, GatewayLimits, NautilusBoundaryAdapter, PaperKernel,
 };
+use quantos_observability::service::ServiceObservability;
 use rust_decimal::Decimal;
 
 fn main() -> Result<()> {
+    if let Some(address) = std::env::var("QUANTOS_OBSERVABILITY_ADDR")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    {
+        let address = address.parse()?;
+        return Ok(ServiceObservability::new("execution-gateway").serve(address)?);
+    }
     let report = HealthReport::ready("execution-gateway");
     println!(
-        "{} ready={}",
-        report.service,
-        if report.ready { "true" } else { "false" }
+        "{{\"service\":\"{}\",\"ready\":{}}}",
+        report.service, report.ready
     );
     Ok(())
 }

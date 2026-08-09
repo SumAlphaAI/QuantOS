@@ -27,5 +27,11 @@ F02 supply-chain and CI scripts:
 - `tp01-vibe-rollback.mjs`: performs a one-command disable or rollback transition for the current TP01 rollout state.
 - `check-sca-waivers.mjs`: validates waiver schema and expiry in `security/sca-waivers.json`.
 - `generate-build-manifest.mjs`: writes a traceable build manifest with commit, toolchain, and lockfile digests.
+- `check-tp-intake.mjs`: validates TP02-TP05 immutable baseline/license/dependency
+  evidence and capability inventories, and rejects unapproved upstream packages
+  from the Python production lock.
+- `sign-artifacts.sh`: emits local SHA-256 integrity files by default; release CI
+  sets `QUANTOS_REQUIRE_FORMAL_SIGNATURE=1` and fails closed unless
+  `QUANTOS_SIGNING_KEY` is available for HMAC-SHA256.
 - `generate-sbom.sh`: generates the repository SBOM artifact entrypoint used by CI.
 - `sign-artifacts.sh`: signs generated build artifacts with either a configured key or deterministic SHA-256 fallback.

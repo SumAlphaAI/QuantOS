@@ -1,0 +1,15 @@
+{
+  "task": "TP05",
+  "capabilities": [
+    {
+      "name": "data.query.v1",
+      "input": "allowlisted provider query",
+      "output": "QuantOS Data Contract with source, license, schema, lineage and hash",
+      "sideEffects": ["bounded cache write", "lineage write"],
+      "permissions": ["provider.query", "lineage.write"],
+      "forbidden": ["trade_workflow", "venue", "secret", "arbitrary_network"],
+      "replacement": "built-in mock Data Contract provider",
+      "productionCondition": "OpenBB provider remains disabled until legal approval"
+    }
+  ]
+}

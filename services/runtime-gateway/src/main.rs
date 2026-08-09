@@ -1,14 +1,21 @@
 use anyhow::Result;
 use quantos_auth::GatewayAuthMiddleware;
 use quantos_core::HealthReport;
+use quantos_observability::service::ServiceObservability;
 use quantos_runtime::pg::PgRuntimeStore;
 
 fn main() -> Result<()> {
+    if let Some(address) = std::env::var("QUANTOS_OBSERVABILITY_ADDR")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    {
+        let address = address.parse()?;
+        return Ok(ServiceObservability::new("runtime-gateway").serve(address)?);
+    }
     let report = HealthReport::ready("runtime-gateway");
     println!(
-        "{} ready={}",
-        report.service,
-        if report.ready { "true" } else { "false" }
+        "{{\"service\":\"{}\",\"ready\":{}}}",
+        report.service, report.ready
     );
     Ok(())
 }

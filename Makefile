@@ -10,7 +10,7 @@ include .env.local
 export
 endif
 
-.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check build-manifest sbom sign-artifacts observability-check f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts observability-check f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: bootstrap-rust bootstrap-python bootstrap-node
 
@@ -85,6 +85,9 @@ test-python:
 test-web:
 	pnpm test
 
+test-browser:
+	pnpm test:browser
+
 ensure-node:
 	@command -v node >/dev/null 2>&1 || (echo "node is required for DATABASE_URL-driven PostgreSQL commands." >&2; exit 1)
 
@@ -119,6 +122,9 @@ sca-check:
 
 waiver-check:
 	node ./scripts/check-sca-waivers.mjs
+
+tp-intake-check:
+	node ./scripts/check-tp-intake.mjs
 
 build-manifest:
 	node ./scripts/generate-build-manifest.mjs --output artifacts/build/build-manifest.json

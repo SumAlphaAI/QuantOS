@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+pub mod service;
+
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use quantos_core::CorrelationId;
 use quantos_event::{AppendOnlyLedger, EventError, RecordedEvent};

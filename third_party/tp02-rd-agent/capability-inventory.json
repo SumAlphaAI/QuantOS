@@ -1,0 +1,23 @@
+{
+  "task": "TP02",
+  "capabilities": [
+    {
+      "name": "research.hypothesis.v1",
+      "input": "versioned DataSnapshot and QuantOS actor metadata",
+      "output": "QuantOS ResearchArtifact",
+      "sideEffects": ["Artifact API write"],
+      "permissions": ["snapshot.read", "artifact.write"],
+      "forbidden": ["venue", "secret", "order", "arbitrary_network"],
+      "replacement": "fixture-backed QuantOS native research provider"
+    },
+    {
+      "name": "research.experiment.v1",
+      "input": "approved hypothesis and fixed experiment fixture",
+      "output": "deterministic QuantOS ResearchArtifact",
+      "sideEffects": ["Artifact API write"],
+      "permissions": ["snapshot.read", "artifact.write"],
+      "forbidden": ["venue", "secret", "order", "arbitrary_network"],
+      "replacement": "fixture-backed QuantOS native experiment provider"
+    }
+  ]
+}

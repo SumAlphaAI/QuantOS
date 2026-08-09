@@ -96,6 +96,9 @@ jobs:
       - name: Check SCA waivers
         run: make waiver-check
 
+      - name: Check TP02-TP05 intake and production topology
+        run: make tp-intake-check
+
       - name: Run SCA checks
         run: make sca-check
 
@@ -120,6 +123,7 @@ jobs:
       - name: Sign build artifacts
         env:
           QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
+          QUANTOS_REQUIRE_FORMAL_SIGNATURE: "1"
         run: make sign-artifacts
 
       - name: Upload build artifacts

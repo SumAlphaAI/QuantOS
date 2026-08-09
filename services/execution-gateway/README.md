@@ -15,6 +15,10 @@ TP07 execution boundary service for QuantOS.
 
 Gateway logic lives in `crates/quantos-execution/src/gateway.rs`; this service is the deployable bootstrap.
 
+Set `QUANTOS_OBSERVABILITY_ADDR=0.0.0.0:9090` to run the deployable operations
+surface. It exposes `/healthz`, `/readyz`, Prometheus `/metrics`, and
+`/trace/<correlation-uuid>`; invalid routes use the shared structured error envelope.
+
 ## Validation
 
 - `cargo test -p quantos-execution`
