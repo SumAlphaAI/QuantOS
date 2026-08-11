@@ -10,7 +10,7 @@ include .env.local
 export
 endif
 
-.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check quality-gate-self-test f01-reproducibility-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check quality-gate-self-test f01-reproducibility-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: bootstrap-rust bootstrap-python bootstrap-node
 
@@ -155,6 +155,16 @@ f09-capacity-snapshot:
 
 f09-adr-input: ensure-node
 	node ./scripts/generate-f09-adr-input.mjs --input artifacts/observability/f09-alerts.json --output artifacts/observability/f09-capacity-adr.md
+
+tp01-vibe-readonly-check: ensure-node
+	node ./scripts/check-vibe-repositories.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --remote-lock ./forks/vibe-trading/repository.lock.json --readonly ./third_party/vibe-trading/upstream-src --allow-missing-fork 1
+	node ./scripts/test-vibe-repository-gate.mjs
+
+tp01-vibe-repository-check: ensure-node
+	node ./scripts/check-vibe-repositories.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --remote-lock ./forks/vibe-trading/repository.lock.json --readonly ./third_party/vibe-trading/upstream-src --fork "$${QUANTOS_VIBE_FORK_PATH:-artifacts/third_party/vibe-trading/controlled-fork}"
+
+tp01-vibe-bootstrap: ensure-node
+	node ./scripts/bootstrap-vibe-repositories.mjs
 
 tp01-vibe-monitor: ensure-node
 	node ./scripts/check-vibe-upstream.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --json-output ./artifacts/third_party/vibe-trading/upstream-candidates.json --markdown-output ./artifacts/third_party/vibe-trading/upstream-candidates.md

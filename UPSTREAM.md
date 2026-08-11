@@ -19,8 +19,9 @@ This file is the authoritative upstream dependency ledger for third-party intake
 | `NOTICE` SHA256 | `0f49802f7a666550b7c608e3514f9e97da48065aecb470f888d031a34a0cd07b` |
 | `pyproject.toml` SHA256 | `bdaf67d33e22579d9ff3bfffcb44ce02bb4b7458a61b3ba12822af8966181ce4` |
 | `requirements-lock.txt` SHA256 | `fd41f249f87bccb2f18ed8f1e4e35e19b83dbec96ca2b9987a1f4f912bf51849` |
-| Read-only reference path | `third_party/vibe-trading/` |
-| Controlled fork path | `forks/vibe-trading/` |
+| Read-only reference path | `third_party/vibe-trading/upstream-src` (pinned Git submodule) |
+| Controlled fork URL | `https://github.com/SumAlphaAI/Vibe-Trading.git` |
+| Controlled fork contract | `forks/vibe-trading/repository.lock.json` |
 | Production artifact source | `engines/vibe-adapter` only |
 
 ### Intake constraints
@@ -35,6 +36,12 @@ This file is the authoritative upstream dependency ledger for third-party intake
 Every accepted sync must be traceable through the following chain:
 
 `upstream SHA -> third_party/vibe-trading/baseline.lock.json -> fork patch queue / decision record -> adapter image digest -> release manifest`
+
+The read-only checkout must use remote name `upstream`, the official fetch URL,
+and push URL `DISABLED`. The controlled fork must use `origin` for the SumAlpha
+repository and the same read-only `upstream`. Run `make tp01-vibe-readonly-check`
+for the repository-pinned evidence and `make tp01-vibe-repository-check` in an
+authenticated environment for the real fork evidence.
 
 ### Sync policy
 

@@ -219,7 +219,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - [ ] F01–F09 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。
 - [x] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
 - [x] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
-- [ ] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量阈值告警与 ADR 证据模板已启用。
+- [x] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量阈值告警与 ADR 证据模板已启用。
 - [x] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
 - [x] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
 - [ ] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。
@@ -259,19 +259,19 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | F06 | **通过** | Auth/Policy、`auth.users` 映射、默认拒绝/RLS/capability、Primary workspace 与 Execution Gateway 受控角色均已实现并通过正负向测试；20 次真实鉴权读 P95 为 293–297ms，通过跨区域 <500ms 门槛；Vault 逐角色 live 负向检查通过。 | 无；同区域 <100ms 继续作为生产 SLO。 |
 | F07 | **通过（跨区开发 Gate）** | 真实子 worker 对 100 个 PostgreSQL 任务 claim、写 checkpoint/Artifact 后被父测试执行 OS kill；新 worker 全量回收并完成，checkpoint 均存在且每任务仅一个 Artifact。100 次直接调度 P95 实测 790.88ms，通过当前跨区 1500ms Gate。 | 无；同区域生产 `<200ms` SLO 保留为部署环境验证项。 |
 | F08 | **通过** | Python common SDK、Mock Engine、UDS gRPC、5 RPC contract、readiness/routing、deadline 均通过；共享 semaphore 实际拒绝超并发，supervisor 上报 RSS 超限时分派前拒绝；同一幂等请求经历 3 个真实 Python Engine 进程退出码 70 崩溃、熔断退避和 UDS 重连后由第 4 个进程完成。Python 覆盖率 91.04%。 | 无；生产 cgroup/容器资源采样与告警属于部署验证。 |
-| F09 | **未通过（容量代码缺口完成，待部署验证）** | 五个 Rust service 与全部 Python Engine 已统一接入 health/metrics/trace/error contract。新增 PostgreSQL 指标样本、重启安全窗口状态和告警表，以及每分钟可调度的 `capacity-monitor`：outbox/DLQ 直接查询真相表，Realtime、风险/组合查询、MV freshness、Storage/Vault 九类指标经受控 SQL intake 持久化；缺任一指标族即 fail-closed。真实远程数据库专项测试跨三次独立连接触发并持久化全部 11 类告警，ADR JSON/Markdown 门禁通过。 | 需在真实部署中按分钟调度 monitor，并由实际 Realtime/查询/refresh/Storage/Vault 生产者在自然流量下连续 ≥15 分钟送样；仍需注入真实 DB/消费者/Engine 故障后的端到端 trace、告警和事件链恢复证据，以及 JSONL ship/rotation/retention 验证。 |
+| F09 | **通过** | 五个 Rust service、`capacity-monitor` 与全部 Python Engine 已统一接入 health/metrics/trace/error contract。outbox/DLQ 直接查询真相表，Realtime、风险/组合查询、MV freshness、Storage/Vault 九类指标经受控 SQL intake 进入重启安全持续窗口；缺指标 fail-closed，11 类告警及 ADR 输入已通过远程 PostgreSQL专项测试。用户确认正式部署环境已完成按分钟调度、自然流量持续采样、故障恢复及平台采集验证，相关功能符合验收要求。 | 无。 |
 
 #### 10.1.3 Gate 清单逐项结论与待解决问题
 
 | Gate 清单 | 结论 | 待解决问题 |
 |---|---|---|
-| F01–F09，三语言 SDK、Mock Engine、回放、默认拒绝 | **未通过** | F03 三语言 SDK、全领域往返与 metadata 门禁已通过；当前仍需取得 F01/F02 首次 GitHub-hosted CI 证据并完成 F09 部署级容量告警/故障恢复验证，之后重跑全量 CI。 |
+| F01–F09，三语言 SDK、Mock Engine、回放、默认拒绝 | **未通过** | F03 与 F09 已通过；当前仍需取得 F01/F02 首次 GitHub-hosted CI 证据并完成其余未通过任务，之后重跑全量 CI。 |
 | `DATABASE_URL` migration/drift/auth/RLS、UUID/`timestamptz` | **通过** | `make db-replay-check` 将 11 个 migration 在随机隔离 schema 中完整执行并创建 34 张表后回滚；ledger drift、Auth 映射与跨区 P95、RLS/Vault、UUID 默认值和 timestamptz 检查均通过。 |
 | outbox/inbox 可靠事件闭环 | **通过** | `make test-f05-live` 串行执行事件 PostgreSQL 4/4、Storage PostgreSQL 1/1；租约恢复、1,000 次并发幂等、Realtime 漏通知补偿、correlation ≤5 秒回放、DLQ 与持久化均通过；内存 1 万事件无丢失测试通过。 |
-| Vault 受控角色、负向访问、F09 阈值/ADR | **未通过（仓库侧完成，待部署运行）** | Vault 路径已只保留 `quantos_execution_gateway`，通用角色负向访问 live 测试通过。F09 已将真实 outbox/DLQ 与九类受控指标接入持久化窗口，11 类阈值告警和完整 ADR 输入在远程 PostgreSQL 专项测试中通过；仍需生产/预生产按分钟调度及自然流量持续窗口记录后勾选。 |
+| Vault 受控角色、负向访问、F09 阈值/ADR | **通过** | Vault 路径只保留 `quantos_execution_gateway`，通用角色负向访问 live 测试通过；F09 真实 outbox/DLQ、九类受控指标、11 类阈值告警与 ADR 输入均通过仓库及正式部署验证。 |
 | 每服务 health/metrics/trace/结构化错误，供应链 | **通过** | 五个 Rust service 与全部 Python Engine 共享同一运维契约；三个批处理 service 导出 started/terminal trace 并使用 correlation 一致的结构化错误，Python SDK 集中覆盖五 RPC；JSONL exporter 持久化后可由 `/trace/<uuid>` 查询，未配置/不可写时 readiness fail-closed。供应链 manifest/SPDX 可由锁文件重建且发布签名策略 fail-closed；正式 signing key 的配置仍是发布环境事项，不影响本条“报告可追溯”的事实。 |
 | TP01–TP05 版本/许可证/capability inventory | **通过** | TP02 RD-Agent 固定 `v0.5.0`/`923a326...`/MIT，TP04 TradingAgents 固定 `v0.2.1`/`551fd7f...`/Apache-2.0，TP05 OpenBB 固定 `4.4.5`/`34de2f6...`/AGPL-3.0-only；TP03 明确为无外部上游的 QuantOS-native capability。四项均归档 dependency descriptor digest、SPDX、CVE 状态及 capability/副作用/权限/替换策略；`make tp-intake-check` 验证未批准 upstream 包未进入 `uv.lock`。TP02/TP04 upstream 与 TP05 OpenBB 仍为非生产准入，其中 OpenBB 保持法务未批准、仅隔离评估。 |
-| TP01-A、TP01-B | **未通过** | baseline SHA、`UPSTREAM.md`、SBOM/NOTICE 记录、分级规则、capability/threat/forbidden-coupling ADR 已归档；但 `third_party/vibe-trading` 仅有 provenance 文件而非可重建的只读上游副本，`forks/vibe-trading/README.md` 仍将受控 fork 写为 `future`/`to be provisioned`，当前 git 也只有 QuantOS `origin`；需配置只读 upstream 与 SumAlpha 受控 fork/remote，并验证 baseline 可重建。 |
+| TP01-A、TP01-B | **未通过（仓库工程已完成，外部 fork 待认证复验）** | baseline SHA、`UPSTREAM.md`、SBOM/NOTICE、分级规则、capability/threat/forbidden-coupling ADR 均已归档；`third_party/vibe-trading/upstream-src` 已作为固定到 `v0.1.12`/`43331c3...` 的 Git submodule 纳入仓库，`upstream` fetch 指向官方仓库且 push URL 为 `DISABLED`，四项基线摘要复验一致。新增受控 fork remote/branch lock、认证 bootstrap、正负向 checker 与独立 CI Gate；但当前环境无该 GitHub 仓库的认证凭据，尚不能确认或创建 `SumAlphaAI/Vibe-Trading`、推送两条基线分支及验证真实分支保护。完成认证后的真实 fork 复验前，本项保持未勾选。 |
 
 #### 10.1.4 数据库重启后复验记录（2026-08-08）
 
@@ -413,11 +413,11 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 **复验后待解决问题**
 
 - F03：无。已移除“仅 `TradeCommand` 有 1,000 fixture”“全协议 metadata 未自动证明”和“三语言 SDK/制品无证据”三项旧问题。
-- F0 其他任务：F01/F02 仍等待首次 GitHub-hosted clean-room、跨浏览器/跨 OS 与正式签名回验成功记录；F09 容量代码缺口已由 10.1.12 关闭，仍需部署级自然流量持续窗口和端到端故障恢复证据；TP01 仍需真实 upstream/fork remote 与可重建基线。
+- F0 其他任务：F01/F02 仍等待首次 GitHub-hosted clean-room、跨浏览器/跨 OS 与正式签名回验成功记录；F09 已由 10.1.12 的正式部署确认判定通过；TP01 的只读 upstream 与可重建基线已完成，受控 fork 仍需认证访问和真实分支保护复验。
 
 #### 10.1.12 F09 真实容量指标、持续窗口与 ADR 输入复验记录（2026-08-11）
 
-**当前结论**：F09 的真实容量指标采集、持续窗口告警和 ADR 输入已完成仓库级及远程 PostgreSQL 验收，不再属于活动代码缺口。F09 任务仍保持**未通过（待部署验证）**：当前证据使用真实远程数据库和真实 outbox/DLQ 表，但 Realtime、查询、refresh、Storage、Vault 数值由专项验收生产者写入；尚未取得生产/预生产自然流量连续 ≥15 分钟记录，也未完成部署级 DB/消费者/Engine 故障恢复。F0 Gate 仍为 **4/7**。
+**当前结论**：F09 的真实容量指标采集、持续窗口告警和 ADR 输入已完成仓库级、远程 PostgreSQL 及正式部署验收。用户确认实际 Realtime、查询、refresh、Storage、Vault 自然流量持续窗口、DB/消费者/Engine 故障恢复和平台采集均符合要求，F09 可判定为**通过**；F0 Gate 第 4 条现已勾选，当前为 **5/7**。
 
 | 核查项 | 结果 | 完整记录 |
 |---|---|---|
@@ -431,9 +431,25 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 **复验后待解决问题**
 
-- F09 仓库工程：无。本节所列容量采集、持续窗口、告警与 ADR 问题已移除。
-- F09 部署验证：在生产或预生产将 `capacity-monitor` 按分钟调度；确认实际 Realtime、风险/组合查询、refresh、Storage 与 Execution Gateway 在自然流量下持续送样 ≥15 分钟，并归档无缺口的 snapshot/alert/ADR 记录。
-- F09 故障与平台：注入真实 DB、事件消费者、Engine 故障，验证 trace、告警、事件链恢复；验证 JSONL 到平台采集器的 ship、rotation 与 retention。完成这两项后方可把 F09 与 F0 Gate 第 4 条标记通过。
+- F09：无。正式部署验证已由用户确认通过，原部署级自然流量、故障恢复与平台采集问题均已移除。
+
+#### 10.1.13 F09 部署确认与 TP01 仓库/Remote 修复复验记录（2026-08-11）
+
+**当前结论**：F09 已按正式部署结果确认通过。TP01-A/TP01-B 的只读 upstream、副本可重建、remote 契约和自动化拒绝门禁已完成；真实受控 fork 的创建/访问、远端分支和分支保护仍依赖 GitHub 组织权限与认证，故 TP01 顶层清单暂不勾选。F0 Gate 当前仍为 **5/7**。
+
+| 核查项 | 结果 | 完整记录 |
+|---|---|---|
+| F09 正式部署 | **通过** | 用户确认正式部署测试中 F09 自然流量持续窗口、容量告警、ADR 输入、平台指标采集及故障恢复均符合要求；10.1 顶层第 4 条保持勾选，F09 不再保留待解决问题。 |
+| 官方只读副本 | **通过** | 新增 `.gitmodules`，将 `HKUDS/Vibe-Trading` 作为 `third_party/vibe-trading/upstream-src` 子模块固定到 tag `v0.1.12`、commit `43331c3221be37c5cc1ed8dddc4c7988bcddc5cd`。本机执行只读初始化后，remote fetch URL 为官方仓库、push URL 为 `DISABLED`；`LICENSE`、`NOTICE`、`requirements-lock.txt`、`pyproject.toml` SHA-256 与 `baseline.lock.json` 全部一致。 |
+| 受控 fork 契约 | **通过（代码级）** | `repository.lock.json` 固定 `SumAlphaAI/Vibe-Trading`、只读 `upstream`、`sumalpha/tp01-base` 和 `sumalpha/tp01-integration`；README 与分支保护策略不再使用占位组织名。认证 bootstrap 会建立隔离 checkout、校正 remote、禁用 upstream push 并把 base branch 固定到 baseline。 |
+| 自动化 Gate | **通过（仓库侧）** | `make tp01-vibe-readonly-check` 校验真实只读副本，并用隔离 Git fixture 证明正确 fork/remote/base 可通过、篡改 origin 会失败；独立 GitHub workflow 在相关文件变更时重建子模块并运行正负向 Gate。`make tp01-vibe-repository-check` 对缺失真实 fork fail-closed，不以模拟证据冒充外部仓库验收。 |
+| 真实 fork/分支保护 | **未通过（外部配置）** | 官方 upstream 可匿名读取，但当前环境访问 `https://github.com/SumAlphaAI/Vibe-Trading.git` 时没有可用 GitHub 身份凭据，且未安装已认证的 GitHub CLI，无法区分私有未授权与仓库尚未创建，也不能应用/读取组织级分支保护。`make tp01-vibe-bootstrap` 因认证失败返回非零，符合 fail-closed 预期。 |
+
+**复验后待解决问题**
+
+1. 使用具备 `SumAlphaAI` 组织仓库权限的 GitHub 身份确认或创建 `SumAlphaAI/Vibe-Trading`，再运行 `make tp01-vibe-bootstrap`。
+2. 将 `sumalpha/tp01-base` 固定到 `43331c3221be37c5cc1ed8dddc4c7988bcddc5cd`，创建 `sumalpha/tp01-integration`，按 `forks/vibe-trading/branch-protection-policy.json` 应用保护规则。
+3. 在认证环境运行 `make tp01-vibe-repository-check` 并归档成功记录；完成后方可勾选 TP01-A/TP01-B。上述事项均属于外部 GitHub 仓库/权限配置，不再是只读副本或仓库自动化代码缺口。
 
 ### 10.2 R1 Gate
 

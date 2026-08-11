@@ -1,6 +1,6 @@
 # TP01 Controlled Fork Baseline
 
-This directory defines the governance baseline for the future controlled fork of `HKUDS/Vibe-Trading`.
+This directory defines the governance baseline for the SumAlpha-controlled fork of `HKUDS/Vibe-Trading`.
 
 ## Scope
 
@@ -13,7 +13,7 @@ This directory defines the governance baseline for the future controlled fork of
 | Remote name | Purpose | URL |
 | --- | --- | --- |
 | `upstream` | read-only source of truth | `https://github.com/HKUDS/Vibe-Trading.git` |
-| `origin` | SumAlpha-controlled fork | to be provisioned in the private repository namespace before TP01-C |
+| `origin` | SumAlpha-controlled fork | `https://github.com/SumAlphaAI/Vibe-Trading.git` |
 
 ## Branch model
 
@@ -36,6 +36,13 @@ This directory defines the governance baseline for the future controlled fork of
 ## Patch queue
 
 The current minimal patch queue lives under `patch-queue/` and records the approved TP01-D selective absorption entries for research workflow shape and streaming phase projection.
+
+`repository.lock.json` is the authoritative remote and branch contract. Run
+`node ./scripts/bootstrap-vibe-repositories.mjs` with authenticated GitHub
+access to create the ignored operational checkout, add the read-only
+`upstream` remote, disable upstream push, and pin `sumalpha/tp01-base` to the
+locked baseline. The checker fails closed when the private fork cannot be
+fetched or the remote/branch model differs.
 
 ## Evolution records
 

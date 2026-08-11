@@ -13,16 +13,17 @@ This directory holds the V0 governance baseline for `HKUDS/Vibe-Trading`.
 - `baseline.lock.json`: authoritative baseline metadata for TP01 monitoring.
 - `sbom.spdx.json`: initial SPDX document for the locked upstream baseline.
 - `cve-audit.md`: initial CVE scan record and current scan limitations.
+- `upstream-src/`: read-only Git submodule pinned to the baseline commit. Its
+  checkout may be sparse, but Git can retrieve any source blob from the fixed
+  object without following upstream `main`.
 
 ## Rebuild procedure
 
-Use an isolated workspace outside the QuantOS runtime tree:
+Initialize the repository-pinned read-only copy:
 
 ```bash
-git init vibe-trading-readonly
-git -C vibe-trading-readonly remote add upstream https://github.com/HKUDS/Vibe-Trading.git
-git -C vibe-trading-readonly fetch --tags upstream v0.1.12
-git -C vibe-trading-readonly checkout --detach 43331c3221be37c5cc1ed8dddc4c7988bcddc5cd
+git submodule update --init --depth 1 third_party/vibe-trading/upstream-src
+node ./scripts/bootstrap-vibe-repositories.mjs
 ```
 
 Validate the digests against `baseline.lock.json` before using the snapshot for any review or fixture extraction.
