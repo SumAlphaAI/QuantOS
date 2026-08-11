@@ -54,6 +54,7 @@ message GetEventRequest {
 
 message GetEventResponse {
   EventEnvelope event = 1 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.CommandMetadata metadata = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 message ListEventsRequest {
@@ -67,6 +68,7 @@ message ListEventsRequest {
 
 message ListEventsResponse {
   repeated EventEnvelope events = 1 [(google.api.field_behavior) = REQUIRED];
+  quantos.common.v1.CommandMetadata metadata = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 service EventLedgerService {

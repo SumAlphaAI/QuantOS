@@ -77,10 +77,12 @@ class GetEventRequest(_message.Message):
     def __init__(self, metadata: _Optional[_Union[_common_pb2.CommandMetadata, _Mapping]] = ..., event_id: _Optional[str] = ...) -> None: ...
 
 class GetEventResponse(_message.Message):
-    __slots__ = ("event",)
+    __slots__ = ("event", "metadata")
     EVENT_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
     event: EventEnvelope
-    def __init__(self, event: _Optional[_Union[EventEnvelope, _Mapping]] = ...) -> None: ...
+    metadata: _common_pb2.CommandMetadata
+    def __init__(self, event: _Optional[_Union[EventEnvelope, _Mapping]] = ..., metadata: _Optional[_Union[_common_pb2.CommandMetadata, _Mapping]] = ...) -> None: ...
 
 class ListEventsRequest(_message.Message):
     __slots__ = ("metadata", "aggregate_id", "correlation_id", "kind", "start_at", "end_at")
@@ -99,7 +101,9 @@ class ListEventsRequest(_message.Message):
     def __init__(self, metadata: _Optional[_Union[_common_pb2.CommandMetadata, _Mapping]] = ..., aggregate_id: _Optional[str] = ..., correlation_id: _Optional[str] = ..., kind: _Optional[_Union[EventKind, str]] = ..., start_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., end_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
 
 class ListEventsResponse(_message.Message):
-    __slots__ = ("events",)
+    __slots__ = ("events", "metadata")
     EVENTS_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
     events: _containers.RepeatedCompositeFieldContainer[EventEnvelope]
-    def __init__(self, events: _Optional[_Iterable[_Union[EventEnvelope, _Mapping]]] = ...) -> None: ...
+    metadata: _common_pb2.CommandMetadata
+    def __init__(self, events: _Optional[_Iterable[_Union[EventEnvelope, _Mapping]]] = ..., metadata: _Optional[_Union[_common_pb2.CommandMetadata, _Mapping]] = ...) -> None: ...

@@ -253,7 +253,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 |---|---|---|---|
 | F01 | **未通过（自动化完成，待首次 clean-room CI）** | Cargo/uv/pnpm workspace、工具链和锁文件已固定；本机 `bootstrap → lint → test` 全绿、耗时 97.17 秒。三个独立临时构建环境分别生成 5 个 Rust release 二进制、8 组 TypeScript dist 和 8 个 Python wheel，三轮总 digest 均为 `045d8b357ad98f6d17fd0cccd74266736c4a265563281fe189126ea9aa26c431`。独立 `F01 Clean Room` workflow 已设置 30 分钟硬门槛并上传 JSON 证据。 | 代码推送后需取得一次全新 GitHub-hosted runner 的 `bootstrap → lint → test` 成功记录；本机已有依赖缓存，不冒充“全新环境”证据。 |
 | F02 | **未通过** | CI、Proto/DB/lockfile、许可证、隔离 migration replay、三语言覆盖率，以及 Chromium/Firefox/WebKit + Ubuntu/macOS/Windows 兼容矩阵门禁已建立；六类故意破坏自测均确认被实际 Gate 拒绝；用户已在 GitHub 配置名为 `QUANTOS_SIGNING_KEY` 的 Secret，名称与 workflow 完全匹配；CI 现会在正式签名后立即执行 HMAC 回验。 | Firefox/WebKit 与 macOS/Windows 矩阵仍需首次 CI 结果；正式签名需下一次 `main` push CI 的 `Sign main build artifacts` 与 `Verify formal artifact signatures` 均成功后形成最终证据。 |
-| F03 | **未通过** | v1 Proto 已包含计划列出的主要领域类型与 Engine/Event service；Rust/Python/TypeScript 生成代码可编译；Buf 检查通过；`TradeCommand` 有 1,000 fixture 往返测试。 | 1,000 组序列化往返未覆盖全部列出领域类型；“100% 必填 tenant/actor/correlation 元数据”未对全套协议自动化证明；无三语言 SDK 覆盖率和发布制品证据。 |
+| F03 | **通过** | v1 Proto 已覆盖计划列出的 11 类领域消息与 Engine/Event API；每类消息均执行 1,000 组 fixture 精确序列化往返，共 11,000 次无差异。描述符门禁证明 11 类领域消息和 14 种 RPC 输入/输出均存在 `REQUIRED` metadata 路径，且 `CommandMetadata` 的 tenant/actor/correlation 等审计字段及 `ActorRef` 身份字段全部为必填。Buf、生成漂移、Rust/Python/TypeScript SDK 编译及全工作区回归通过；Python wheel 与 TypeScript dist 已纳入 F01 可重复制品构建。 | 无。 |
 | F04 | **通过** | 强类型 ID、UTC clock、稳定错误码、精度和确定性 hash 实现及边界测试通过；core/risk/execution 的 cargo-llvm-cov 行覆盖率 92.75%、region 覆盖率 92.38%，均超过 90%/85% 门槛。 | 无。 |
 | F05 | **通过** | `make test-f05-live` 5/5、内存 1 万事件无丢失、RLS、随机隔离 schema 全量 migration replay，以及 Supabase Storage 上传/下载/manifest/删除均通过；轮询租约、幂等、DLQ、checkpoint、Realtime 补偿和 correlation 回放证据齐全。 | 无。 |
 | F06 | **通过** | Auth/Policy、`auth.users` 映射、默认拒绝/RLS/capability、Primary workspace 与 Execution Gateway 受控角色均已实现并通过正负向测试；20 次真实鉴权读 P95 为 293–297ms，通过跨区域 <500ms 门槛；Vault 逐角色 live 负向检查通过。 | 无；同区域 <100ms 继续作为生产 SLO。 |
@@ -265,7 +265,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 | Gate 清单 | 结论 | 待解决问题 |
 |---|---|---|
-| F01–F09，三语言 SDK、Mock Engine、回放、默认拒绝 | **未通过** | 完成上表 F01–F09 的全部缺口，尤其是远程 DB、覆盖率、供应链和服务可观测性；然后重跑全量 CI。 |
+| F01–F09，三语言 SDK、Mock Engine、回放、默认拒绝 | **未通过** | F03 三语言 SDK、全领域往返与 metadata 门禁已通过；当前仍需取得 F01/F02 首次 GitHub-hosted CI 证据并完成 F09 部署级容量告警/故障恢复验证，之后重跑全量 CI。 |
 | `DATABASE_URL` migration/drift/auth/RLS、UUID/`timestamptz` | **通过** | `make db-replay-check` 将 11 个 migration 在随机隔离 schema 中完整执行并创建 34 张表后回滚；ledger drift、Auth 映射与跨区 P95、RLS/Vault、UUID 默认值和 timestamptz 检查均通过。 |
 | outbox/inbox 可靠事件闭环 | **通过** | `make test-f05-live` 串行执行事件 PostgreSQL 4/4、Storage PostgreSQL 1/1；租约恢复、1,000 次并发幂等、Realtime 漏通知补偿、correlation ≤5 秒回放、DLQ 与持久化均通过；内存 1 万事件无丢失测试通过。 |
 | Vault 受控角色、负向访问、F09 阈值/ADR | **未通过** | Vault 路径已只保留 `quantos_execution_gateway`，通用 `service_role`/`authenticated`/`anon` 的函数及表访问均被 live 测试拒绝；F09 库级阈值和 ADR 模板通过，但仍需在实际服务指标上验证告警输入。 |
@@ -395,7 +395,25 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 1. 推送本次代码并确认 `QuantOS CI` 的正式签名及 HMAC 回验步骤成功。
 2. 确认 `F01 Clean Room` 两个 job 首次通过并下载归档的 clean-room、三轮构建 JSON 证据；通过后可把 F01 标记完成。
-3. F02 仍需跨浏览器/跨 OS 矩阵首次全绿；F03、F09 与 TP01 的既有缺口不受本次结论影响。
+3. F02 仍需跨浏览器/跨 OS 矩阵首次全绿；F09 与 TP01 的既有缺口不受本次结论影响。F03 原缺口已由 10.1.11 的后续修复关闭。
+
+#### 10.1.11 F03 全领域协议与元数据完整性复验记录（2026-08-11）
+
+**当前结论**：F03 的两项活动代码缺口均已关闭，可判定为**通过**。全领域协议往返已从单一 `TradeCommand` 扩展至计划列出的全部 11 类领域消息；全协议 tenant/actor/correlation 必填约束已形成描述符级自动化门禁。F01–F09 尚未全部完成，因此 F0 Gate 顶层清单第 1 条仍不勾选，F0 Gate 仍为 **4/7**。
+
+| 核查项 | 结果 | 完整记录 |
+|---|---|---|
+| 计划领域类型覆盖 | **通过** | 专属 Rust 测试显式构造 `DataSnapshot`、`ResearchArtifact`、`StrategyRelease`、`Signal`、`TradeProposal`、`RiskDecision`、`TradeCommand`、`Order`、`Fill`、`Position`、`EventEnvelope` 共 11 类消息；每类对 1,000 组带完整 metadata 的 fixture 执行 Prost encode/decode 后精确相等断言，共 11,000 次往返无差异。 |
+| 领域消息 metadata | **通过** | 新增 Python 描述符门禁，枚举并锁定上述 11 类消息，逐项断言存在类型为 `CommandMetadata` 且带 `google.api.field_behavior = REQUIRED` 的直接 `metadata` 字段；固定集合断言可防止遗漏既有类型。 |
+| tenant/actor/correlation 必填 | **通过** | 描述符门禁逐项断言 `CommandMetadata.request_id`、`tenant_id`、`workspace_id`、`actor`、`correlation_id`、`mode`、`environment`、`issued_at` 均为 `REQUIRED`，并继续断言 `ActorRef.actor_id`、`actor_kind` 为 `REQUIRED`。 |
+| Engine/Event API 全覆盖 | **通过** | 自动遍历 `EngineService` 与 `EventLedgerService` 的全部 method input/output，并锁定 14 种消息集合；要求每种消息具有直接或经 `REQUIRED` 单值请求包装到达的 metadata 路径。补齐 `GetEventResponse`、`ListEventsResponse` 的必填 metadata 后，所有请求与响应均通过；未来新增 RPC 消息但未纳入证明时测试会失败。 |
+| 生成物与兼容性 | **通过** | `make proto-generate` 同步更新 Rust、Python、TypeScript、OpenAPI 与 JSON Schema；`make proto-check`（含 Buf lint/breaking 与生成漂移）返回 0。新增响应字段使用新 tag，为向后兼容变更。 |
+| 三语言 SDK 与回归 | **通过** | `cargo test --workspace` 全绿，F03 Rust 专属 4/4；Python 全量 91/91、metadata 专属 3/3、Pyright 0 error/0 warning、Ruff 通过；`pnpm typecheck` 与 `pnpm test` 全 workspace 通过。生成代码不以人工行覆盖率作为质量指标，其可编译性、描述符语义和序列化兼容性由上述门禁直接验证；Python wheel 与 TypeScript dist 继续由 F01 三轮可重复构建产出。 |
+
+**复验后待解决问题**
+
+- F03：无。已移除“仅 `TradeCommand` 有 1,000 fixture”“全协议 metadata 未自动证明”和“三语言 SDK/制品无证据”三项旧问题。
+- F0 其他任务：F01/F02 仍等待首次 GitHub-hosted clean-room、跨浏览器/跨 OS 与正式签名回验成功记录；F09 仍需真实部署环境的持续容量告警和端到端故障恢复证据；TP01 仍需真实 upstream/fork remote 与可重建基线。
 
 ### 10.2 R1 Gate
 
