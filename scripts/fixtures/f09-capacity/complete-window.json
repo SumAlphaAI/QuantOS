@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-08-11T12:00:00Z",
+  "incident_window": "2026-08-11T11:45:00Z/2026-08-11T12:00:00Z",
+  "snapshot": {
+    "outbox_oldest_age_secs": 75,
+    "dead_letter_ratio": 0.002,
+    "realtime_projection_delay_secs": 8,
+    "realtime_quota_utilization": 0.8,
+    "risk_query_p95_ms": 350,
+    "portfolio_query_p95_ms": 340,
+    "risk_mv_freshness_secs": 90,
+    "ops_aggregate_freshness_secs": 360,
+    "storage_error_rate": 0.02,
+    "secret_rotation_failed": true,
+    "secret_read_failed": true
+  },
+  "alerts": [
+    {
+      "rule_id": "outbox_oldest_age",
+      "severity": "critical",
+      "summary": "fixture breach",
+      "observed_value": 75,
+      "threshold": 60,
+      "triggered_at": "2026-08-11T12:00:00Z"
+    }
+  ],
+  "correlation_ids": ["018f47d2-4c96-7a1c-8f42-3fb0fdace111"],
+  "summary": "complete F09 fixture",
+  "metric_sources": ["event-worker", "realtime-worker", "risk-api", "portfolio-api", "refresh-worker", "storage-adapter", "execution-gateway"],
+  "db_fault_result": "passed",
+  "event_consumer_fault_result": "passed",
+  "engine_fault_result": "passed",
+  "secret_redaction_verified": true,
+  "traceEvidence": [],
+  "recommended_actions": ["inspect outbox backlog and worker liveness"]
+}

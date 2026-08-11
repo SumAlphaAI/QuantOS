@@ -1,0 +1,20 @@
+{
+  "title": "QuantOS F09 Capacity Gate",
+  "refresh": "1m",
+  "dataSources": [
+    "quantos.operational_metric_samples",
+    "quantos.outbox_event",
+    "quantos.dead_letter_event",
+    "quantos.capacity_alerts"
+  ],
+  "panels": [
+    { "title": "Outbox oldest age", "metric": "outbox_oldest_age_secs", "unit": "seconds" },
+    { "title": "Dead-letter ratio", "metric": "dead_letter_ratio", "unit": "ratio" },
+    { "title": "Realtime projection / quota", "metrics": ["realtime_projection_delay_secs", "realtime_quota_utilization"] },
+    { "title": "Risk / portfolio query P95", "metrics": ["risk_query_p95_ms", "portfolio_query_p95_ms"], "unit": "milliseconds" },
+    { "title": "Read-model freshness", "metrics": ["risk_mv_freshness_secs", "ops_aggregate_freshness_secs"], "unit": "seconds" },
+    { "title": "Storage errors", "metric": "storage_error_rate", "unit": "ratio" },
+    { "title": "Vault failures", "metrics": ["secret_rotation_failed", "secret_read_failed"] },
+    { "title": "Active capacity alerts", "table": "quantos.capacity_alerts" }
+  ]
+}

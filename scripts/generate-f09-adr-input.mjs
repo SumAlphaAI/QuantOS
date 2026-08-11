@@ -41,10 +41,24 @@ const templatePath = path.resolve(
 const template = fs.readFileSync(templatePath, "utf8");
 const payload = JSON.parse(fs.readFileSync(inputPath, "utf8"));
 
-const metricRows = (payload.alerts ?? [])
+const snapshotThresholds = {
+  outbox_oldest_age_secs: "> 60s for 15m",
+  dead_letter_ratio: "> 0.001",
+  realtime_projection_delay_secs: "> 5s for 15m",
+  realtime_quota_utilization: "> 0.70 for 15m",
+  risk_query_p95_ms: "> 300ms for 15m",
+  portfolio_query_p95_ms: "> 300ms for 15m",
+  risk_mv_freshness_secs: "> 60s for 3 checks",
+  ops_aggregate_freshness_secs: "> 300s for 3 checks",
+  storage_error_rate: "> 0.01",
+  secret_rotation_failed: "must be false",
+  secret_read_failed: "must be false",
+};
+
+const metricRows = Object.entries(payload.snapshot ?? {})
   .map(
-    (alert) =>
-      `| ${alert.rule_id} | ${JSON.stringify(alert.observed_value)} | ${JSON.stringify(alert.threshold)} |`,
+    ([name, value]) =>
+      `| ${name} | ${JSON.stringify(value)} | ${snapshotThresholds[name] ?? "review"} |`,
   )
   .join("\n");
 
@@ -72,6 +86,7 @@ const content = template
     "{{secret_redaction_verified}}",
     String(payload.secret_redaction_verified ?? false),
   )
+  .replace("{{metric_sources}}", renderList(payload.metric_sources ?? []))
   .replace("{{trace_rows}}", traceRows || "- none")
   .replace(
     "{{recommended_actions}}",

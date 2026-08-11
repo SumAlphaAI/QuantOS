@@ -10,7 +10,7 @@ include .env.local
 export
 endif
 
-.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check quality-gate-self-test f01-reproducibility-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check quality-gate-self-test f01-reproducibility-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: bootstrap-rust bootstrap-python bootstrap-node
 
@@ -79,6 +79,10 @@ test-rust:
 observability-check:
 	cargo test -p quantos-observability
 	uv run --project engines --all-packages pytest engines/tests/test_engine_observability.py
+	node ./scripts/test-f09-adr-input.mjs
+
+test-f09-live:
+	cargo test -p quantos-observability --test postgres_capacity_monitor -- --test-threads=1 --nocapture
 
 test-f05-live:
 	cargo test -p quantos-event --test postgres_persistence -- --test-threads=1 --nocapture
@@ -145,6 +149,9 @@ sign-artifacts:
 
 verify-artifact-signatures:
 	bash ./scripts/verify-artifact-signatures.sh artifacts/build/build-manifest.json artifacts/sbom/quantos.spdx.json
+
+f09-capacity-snapshot:
+	cargo run -p capacity-monitor -- --lookback-seconds 900
 
 f09-adr-input: ensure-node
 	node ./scripts/generate-f09-adr-input.mjs --input artifacts/observability/f09-alerts.json --output artifacts/observability/f09-capacity-adr.md

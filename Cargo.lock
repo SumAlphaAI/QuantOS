@@ -321,6 +321,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
 
 [[package]]
+name = "capacity-monitor"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "quantos-observability",
+ "serde_json",
+]
+
+[[package]]
 name = "cc"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1822,6 +1833,9 @@ name = "quantos-observability"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "native-tls",
+ "postgres",
+ "postgres-native-tls",
  "quantos-auth",
  "quantos-core",
  "quantos-event",
@@ -1831,6 +1845,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
+ "url",
  "uuid",
 ]
 

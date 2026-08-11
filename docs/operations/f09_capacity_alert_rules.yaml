@@ -1,0 +1,59 @@
+version: 1
+evaluation_interval_seconds: 60
+state_store: quantos.capacity_alert_window_state
+alert_store: quantos.capacity_alerts
+rules:
+  - id: outbox_oldest_age
+    source: quantos.outbox_event
+    condition: value > 60
+    for_seconds: 900
+    severity: critical
+  - id: dead_letter_ratio
+    source: quantos.dead_letter_event / quantos.event_log
+    condition: value > 0.001
+    severity: critical
+  - id: realtime_projection_delay
+    source: realtime_projection_delay_secs
+    condition: value > 5
+    for_seconds: 900
+    severity: warning
+  - id: realtime_quota_utilization
+    source: realtime_quota_utilization
+    condition: value > 0.70
+    for_seconds: 900
+    severity: warning
+  - id: risk_query_p95_ms
+    source: risk_query_latency_ms
+    aggregation: p95
+    condition: value > 300
+    for_seconds: 900
+    severity: critical
+  - id: portfolio_query_p95_ms
+    source: portfolio_query_latency_ms
+    aggregation: p95
+    condition: value > 300
+    for_seconds: 900
+    severity: critical
+  - id: risk_mv_freshness
+    source: risk_mv_freshness_secs
+    condition: value > 60
+    consecutive_checks: 3
+    severity: critical
+  - id: ops_aggregate_freshness
+    source: ops_aggregate_freshness_secs
+    condition: value > 300
+    consecutive_checks: 3
+    severity: critical
+  - id: storage_error_rate
+    source: storage_operation_error
+    aggregation: average
+    condition: value > 0.01
+    severity: critical
+  - id: secret_rotation_failed
+    source: secret_rotation_failure
+    condition: value > 0
+    severity: critical
+  - id: secret_read_failed
+    source: secret_read_failure
+    condition: value > 0
+    severity: critical

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+pub mod capacity;
 pub mod service;
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
@@ -81,7 +82,7 @@ pub struct ServiceHealthReport {
     pub checked_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CapacitySnapshot {
     pub outbox_oldest_age_secs: f64,
     pub dead_letter_ratio: f64,

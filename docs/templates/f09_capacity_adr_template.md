@@ -17,6 +17,10 @@
 | --- | --- | --- |
 {{metric_rows}}
 
+## Metric Sources
+
+{{metric_sources}}
+
 ## Fault Injection Evidence
 
 - Database fault recovery: `{{db_fault_result}}`
