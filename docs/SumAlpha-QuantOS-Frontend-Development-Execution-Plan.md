@@ -1,7 +1,7 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：1.0  
-> 日期：2026-08-09  
+> 版本：1.1
+> 日期：2026-08-13
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：交付官网、`app.sumalpha.ai` 与 Tauri 桌面端共享的 QuantOS Terminal 前端；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。
@@ -31,6 +31,15 @@
 当前仓库已经具备 `apps/website`、`apps/terminal`、`apps/terminal-desktop`、`packages/ui`、`packages/domain-ui`、`packages/api-client`、`packages/platform` 骨架，已生成 QuantOS TypeScript Protobuf 类型，并有 U01/S04/X06/L03 场景测试。当前应用仍是 TypeScript 骨架：尚未落地 Next.js/React 页面运行时、Tailwind/Radix 设计系统、TanStack Query/Table/Virtual、图表、表单、i18n、MSW、Storybook 和真实 BFF HTTP transport；`InMemory*Backend` 只能作为场景 fixture，不能作为生产接口契约。
 
 因此第一个里程碑不是直接铺页面，而是冻结 OpenAPI/BFF 页面契约、建立真实应用运行时，并把已有 fixture 转成由同一 schema 驱动的 mock。
+
+### 1.4 2026-08-13 设计稿与页面 API 覆盖核查结论
+
+本次以 `design/` 中 P01–P23 的 23 组高保真设计稿为核查范围，结论如下：
+
+1. 本计划原版本已在阶段范围、P01–P23 页面台账、UI-101–UI-604 和 C01–C17 逻辑契约包中覆盖全部页面，但任务粒度主要按业务域聚合，**没有把“以指定高保真设计稿为内容与视觉基准制作实际 React 页面”逐页列为可关闭任务**。因此新增第 4.2 节逐稿实现矩阵和 `UI-VIS-000`、`UI-P01`–`UI-P23` 执行任务。
+2. 《QuantOS 可执行开发计划》已定义 F03 领域协议、F06 身份授权、F07 Runtime、R01–R04、S01–S04、X01–X06、L01–L03 等服务能力与安全时序，但**没有给出 P01–P23 完整的页面级 BFF HTTP 路径、method、统一响应 envelope、分页、异步任务和实时订阅 OpenAPI**。
+3. 本计划原第 5 节已用 C01–C17 覆盖页面所需逻辑能力，因此页面层没有无归属接口；但 C02、C11–C17 以及部分 C01/C10 的“页面聚合、设置、报告、告警、运维治理、平台能力”仍缺少明确的后端补齐任务与 Gate。新增第 5.6 节 `BFF-FE-000`–`BFF-FE-011`，负责把逻辑契约转成可生成客户端的版本化 OpenAPI。
+4. 在相关 BFF 契约达到 `Implemented` 前，前端可以使用由同一 OpenAPI 生成的 MSW fixture 完成 `UI Complete`，但不得标记 `Integrated` 或通过阶段 Gate；不得以页面自定义 DTO、静态 JSON 或 `InMemory*Backend` 替代接口交付。
 
 ## 2. 技术栈与工程决策
 
@@ -152,6 +161,39 @@
 | UI-603 | Alerts 收件箱 | C16 | BFF 授权/去重/限速；ack 仅代表已读，不代表解决；离线禁写 |
 | UI-604 | Tauri adapter 与 P16 | C17、平台接口 | 业务组件无 `isDesktop` 分叉；离线只读；深链重新鉴权；签名更新验证 |
 
+### 4.2 P01–P23 高保真设计稿落地任务矩阵（新增，强制执行）
+
+以下任务不是“补充参考”，而是各阶段 UI 任务的交付子任务。`design/` 中列出的有效稿是页面默认态的内容结构与视觉基准；若同一页面存在多个版本，以本表指定版本为准，旧版本仅保留追溯。开发必须将设计稿制作成可运行、可路由、可鉴权、可访问且接入生成式 BFF client 的 React 页面，同时按设计规范补齐加载、空、错误、无权、陈旧、离线/断线和危险确认状态。设计稿中的示例数据只能进入 Storybook/MSW fixture，不能硬编码进生产页面。
+
+| 任务 | 页面与有效设计稿 | 实际页面/路由交付 | 契约绑定 | 所属阶段 | 页面级完成标准 |
+|---|---|---|---|---|---|
+| UI-VIS-000 | P01–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准 | App Shell、导航、顶栏、状态条、栅格、token、边框、表格、表单、图表、Badge、危险确认与状态语义 | C01、C16、C17 | FEP-0/1 | 抽取为 `packages/ui`/`domain-ui`，禁止逐页复制样式；1440 基准视觉回归由设计签署；语义色不得挪作装饰色 |
+| UI-P01 | `P01-Identity-Access-Recovery-High-Fidelity-v1.png` | `/login`、`/mfa`、`/access-request`、`/unauthorized`、`/offline` | C01 | FEP-1 | 登录、MFA、访问申请、恢复与返回安全路由均可运行；错误不泄露账户存在性 |
+| UI-P02 | `P02-Command-Center-High-Fidelity-v1.png` | `/command` | C02、C06、C16 | FEP-1 | 卡片按 capability 裁剪；汇总状态、待办、健康与最近活动来自 BFF；无静态业务数据 |
+| UI-P03 | `P03-Research-List-and-New-Research-High-Fidelity-v1.png` | `/research`、`/research/new` | C03、C04 | FEP-2 | 列表分页/筛选与创建表单落地；预算、deadline、snapshot、capability 校验与 202 受理正确 |
+| UI-P04 | `P04-Research-and-Artifact-Detail-High-Fidelity-v1.png` | `/research/:runId`、`/artifacts/:artifactId` | C03、C04、C10 | FEP-2 | SSE 续传/去重、取消受理、Artifact/Evidence/Audit 跳转及全部终态落地 |
+| UI-P05 | `P05-Data-Snapshot-Catalog-and-Detail-High-Fidelity-v1.png` | `/data-snapshots`、`/data-snapshots/:snapshotId` | C04 | FEP-2 | 目录、详情、血缘、质量、许可、时效与阻断状态均由接口驱动 |
+| UI-P06 | `P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png` | `/strategies`、`/strategies/new`、`/strategies/:strategyId/lab` | C05 | FEP-3 | 目录、Lab、版本化草稿、自动保存、校验与 409 diff 可用 |
+| UI-P07 | `P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png` | `/backtests/:runId`、`/releases`、`/releases/:releaseId` | C05、C08、C10 | FEP-3 | 回测详情、校验报告、不可变 Release、审批时间线和 allowedTargets 落地 |
+| UI-P08 | `P08-Portfolio-and-Risk-High-Fidelity-v1.png` | `/portfolio`、`/risk`、`/risk/rules/:ruleId` | C06 | FEP-5 | 仓位、估值、P&L、敞口、规则、stale 与 kill switch 状态可验证；陈旧时禁写 |
+| UI-P09 | `P09-TradeProposal-List-and-Detail-High-Fidelity-v1.png` | `/proposals`、`/proposals/:proposalId` | C07、C10 | FEP-5 | 列表/详情/证据/反方观点/失效时间落地；始终显示不可执行语义 |
+| UI-P10 | `P10-Approvals-and-RiskDecision-Detail-High-Fidelity-v1.png` | `/approvals`、`/approvals/:approvalId` | C07、C08、C10 | FEP-5 | RiskDecision、规则命中、MFA、职责分离、同意/拒绝/过期/冲突状态落地 |
+| UI-P11 | `P11-Orders-and-Execution-Detail-High-Fidelity-v1.png` | `/orders`、`/orders/:orderId` | C09、C10、C15 | FEP-5 | Order/Fill 时间线、部分成交、拒绝、撤单请求、断流回补与证据链落地 |
+| UI-P12 | `P12-Audit-Explorer-and-Export-Jobs-High-Fidelity-v1.png` | `/audit`、`/audit/:correlationId`、`/exports/:exportId` | C10 | FEP-5 | 服务端搜索/分页、因果链、脱敏载荷、异步导出和短时下载状态落地 |
+| UI-P13 | `P13-Operations-and-Incident-Detail-High-Fidelity-v2.png` | `/operations`、`/operations/incidents/:incidentId` | C11、C16 | FEP-6 | 7 个服务健康视图、告警、incident 时间线、Runbook 检查与受控 actionId 调用落地 |
+| UI-P14 | `P14-Admin-Governance-High-Fidelity-v2.png` | `/admin/members`、`/admin/policies`、`/admin/capabilities`、`/admin/flags` | C01、C11 | FEP-6 | 成员/角色/策略/能力/开关、版本冲突、职责分离、签名与审计落地 |
+| UI-P15 | `P15-Profile-Security-and-Notification-Settings-High-Fidelity-v2.png` | `/settings/profile`、`/settings/notifications`、`/settings/security` | C01、C17 | FEP-1 | 资料、区域、通知矩阵、MFA、会话、可信设备和安全操作全部接入接口 |
+| UI-P16 | `P16-Desktop-Control-Center-High-Fidelity-v2.png` | `/settings/desktop` | C17、PlatformCapabilities | FEP-6 | 通知、窗口/显示器、文件导入、加密缓存、更新与诊断通过 Tauri adapter；Web 显示受限态 |
+| UI-P17 | `P17-Web-Browser-Capability-High-Fidelity-v2.png` | `/settings/browser` | C17、BrowserCapabilities | FEP-1 | 浏览器权限、下载、存储、深链、兼容性与响应式能力检测落地；Desktop 不显示入口 |
+| UI-P18 | `P18-Markets-Overview-and-Instrument-Detail-High-Fidelity-v2.png` | `/markets`、`/markets/:symbol` | C12、C16 | FEP-4 | 市场目录、自选、报价比较、标的详情、许可/质量/as_of 与告警偏好接口化 |
+| UI-P19 | `P19-Candlestick-and-Market-Analysis-High-Fidelity-v4.png` | `/markets/:symbol/chart` | C09、C12 | FEP-4 | Symbol/Venue/Product/Timezone/Quality 可选；周期仅 1m/5m/15m/1h/4h/1D/1W/自定义；K 线、指标、事件、数据缺口和元数据落地 |
+| UI-P20 | `P20-Trade-Ticket-Controlled-Order-Entry-High-Fidelity-v3.png` | `/trade`、`/trade/:symbol` | C07–C09、C12、C13 | FEP-5 | 订单意图、执行上下文、preflight、证据关联、风险评估、审批与 command ref 提交严格按服务端时序实现 |
+| UI-P21 | `P21-Performance-and-Reports-High-Fidelity-v1.png` | `/performance`、`/performance/reports/:reportId` | C14、C15 | FEP-4 | 收益、归因、回撤、费用、口径、provisional 和报表生成/下载落地 |
+| UI-P22 | `P22-Reconciliation-and-Funds-Ledger-High-Fidelity-v1.png` | `/reconciliation`、`/reconciliation/:runId` | C09、C10、C15 | FEP-5 | 对账运行、差异、资金账本、证据、重跑请求与状态流落地；无手工改账入口 |
+| UI-P23 | `P23-Alerts-Inbox-and-Response-High-Fidelity-v1.png` | `/alerts`、`/alerts/:alertId` | C10、C11、C16 | FEP-6 | 授权收件箱、详情、ack/unack、处置导航、订阅与实时状态落地；ack 不等于 resolved |
+
+每个 `UI-Pxx` 任务关闭时必须附：设计稿对照截图、路由与权限测试、七态 Storybook、MSW 契约用例、staging 接口证据、键盘/axe 结果、1440 视觉回归、至少一个目标浏览器 E2E；有 Desktop 差异的页面还需 Tauri E2E。仅提交静态 HTML、截图复刻或无接口组件不视为完成。
+
 ## 5. 接口对接清单与契约基线
 
 ### 5.1 契约状态说明
@@ -215,6 +257,43 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 **策略发布：** 加载 draft + objectVersion → 保存携带 expectedVersion → static check → 固定 DataSnapshot 发起 backtest → 校验环境/成本/泄漏报告 → 创建不可变 Release → 服务端返回 allowedTargets → 提交审批 → 审批通过后才可显示 Paper/Shadow 部署动作；任何 409/版本变化退回复核。
 
 **建议到订单：** Proposal（不可执行）→ 刷新 proposal/snapshot/quote/account/venue/mode → request RiskDecision → deny 时终止；approval_required 时 MFA/审批且禁止自批 → 服务端签发短时 TradeCommand → 提交仅传 command ref + Idempotency-Key → Execution Gateway 再校验 → 返回受理/订单 ref → 订阅 Order/Fill 事实；过期、陈旧、kill switch、venue 异常或版本变化均退回相应前置步骤。
+
+### 5.6 前端页面 API 缺口关闭任务（新增，纳入排期与 Gate）
+
+对《QuantOS 可执行开发计划》的核查表明：F03 已冻结 11 类领域消息和 Engine/Event API，R/S/X 任务也规定了核心服务能力，但这些内容不能直接替代页面 BFF 契约。下表把尚未明确到页面级 OpenAPI 的部分纳入本计划。表中的 operation 名称表达能力，不预设 URL；最终 path、method、request/response schema、分页和 envelope 必须由 BFF 在版本化 OpenAPI 中发布，前端只使用生成 client。
+
+| 任务 | 总开发计划现状 | 必须补齐的页面 BFF operation | 覆盖契约/页面 | 目标阶段与验收 |
+|---|---|---|---|---|
+| BFF-FE-000 | F03 有领域 Proto/OpenAPI 生成，但无 P01–P23 完整页面 API 清单 | 建立页面 BFF OpenAPI 基线；统一 session 注入、错误 envelope、cursor 分页、sort/filter、202 job、Idempotency-Key、ETag/objectVersion、correlation ID、SSE event envelope；生成 TS client/Zod/MSW | C01–C17；P01–P23 | FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI |
+| BFF-FE-001 | F06 定义 Auth/RBAC/主上下文；未定义完整登录恢复、个人资料、会话、可信设备、通知偏好页面 API | session/context/reauth/MFA/logout/access request；profile/locale/theme；active sessions revoke；trusted devices revoke；notification preferences/subscriptions；安全操作与审计引用 | C01、C17；P01/P15 | FEP-1/G1：401/403/404、CSRF、recent-auth、最后有效因素保护与撤销后实时失效测试通过 |
+| BFF-FE-002 | F09、R/X 有指标和事件，未定义 Command Center 聚合页面模型 | authorized command summary、priority queue、system health、risk/data/order/run counters、recent activity；返回 sampledAt/asOf、source 和资源级跳转引用 | C02；P02 | FEP-1/G1：单次聚合或受控并发预算达标；不同角色字段裁剪和无权对象负向测试通过 |
+| BFF-FE-003 | R02–R04/F07 已定义 Snapshot/Research/Artifact 服务能力，缺页面级列表/筛选/详情/流式封装 | Research list/create/get/cancel；stream subscribe/replay；Artifact/Evidence get；Snapshot list/get；统一 cursor/filter、sequence/afterSequence 和 202 状态引用 | C03/C04；P03–P05 | FEP-2/G2：创建、取消、断线续传、重复/乱序、质量/许可阻断与 Audit 关联 contract 全绿 |
+| BFF-FE-004 | S01–S04 有 Strategy/Backtest/Release 能力，缺完整页面 API 与编辑冲突模型 | strategy list/draft get/save；static check；backtest create/get/stream；release create/list/get；allowedTargets；approval timeline；expectedVersion/409 diff | C05/C08；P06/P07 | FEP-3/G3：并发编辑无静默覆盖；校验失败、未审批及非法 target 均由服务端拒绝 |
+| BFF-FE-005 | R01/R02 定义行情与快照，未定义市场目录、跨 venue 报价、K 线与图表元数据页面 API | instrument catalog/watchlist；authorized VenueQuote；candle series/history/realtime；series metadata、quality/gaps/event markers；symbol/venue/product/timezone/interval capability | C12/C16；P18/P19/P20 | FEP-4/G4：报价和 candle 均含 source/venue/asOf/quality/license；切换维度不混用缓存，断流可回补且不拼接 |
+| BFF-FE-006 | X01–X04 定义风险和执行服务，缺 Portfolio/Proposal/Approval/Trade Ticket/Order 页面组合契约 | portfolio/risk projection；proposal list/get/evaluate；preflight/order capabilities；approval list/get/decide/MFA；command-ref submit；order list/get/cancel request/stream | C06–C09/C13；P08–P11/P20 | FEP-5/G5：七类拒绝、职责分离、重复 1,000 次幂等、202 受理和订单事实流全部通过 |
+| BFF-FE-007 | F05/X06 有审计账本目标，未定义 Explorer 搜索、证据链和安全导出页面 API | audit search/get chain；correlation/causation pagination；redacted payload；export create/status/cancel/download metadata；短时 URL、水印、retention | C10；P04/P07/P09–P14/P22/P23 | FEP-5/G5：按 correlation ID ≤5 分钟还原；越权/过期下载拒绝；导出全过程有审计事件 |
+| BFF-FE-008 | X01/X05 提供 Portfolio/对账基础；总计划未定义 Performance/Report API，原 C14 已标记“需 BFF 新增页面模型” | performance summary/time series/attribution/drawdown/fees；valuation and ledger versions；report create/status/get/download；period/method/currency/coverage/provisional | C14/C15；P21 | FEP-4/G4：所有结果含 account/currency/method/asOf/ledgerVersion/valuationSnapshotId；未对账数据强制 provisional |
+| BFF-FE-009 | X05 定义 reconciliation worker/ledger，但未定义完整页面读写契约 | reconciliation list/get；break list/get；ledger entries；request rerun/re-evaluation；status stream；Order/Fill/Audit/Alert evidence refs；禁止任何 edit-ledger operation | C15/C09/C10/C16；P22/P11/P21 | FEP-5/G5：差异状态跨页面一致；重跑幂等；schema 和权限负向测试证明前端无法改账 |
+| BFF-FE-010 | F09/X06 有观测、运维目标；F06 有策略能力，未定义 Incident/Admin/Alert 页面 API | service health/metrics projection；incident list/get/timeline；approved Runbook actions/prechecks；member/role/policy/capability/flag CRUD with versioning；alert list/get/ack/unack/subscriptions/stream | C11/C16；P13/P14/P23/P02 | FEP-6/G6：无任意命令参数；最后管理员和职责分离保护；ack 不改变 resolved；所有治理变更可审计 |
+| BFF-FE-011 | L02/L03 与平台方案定义安全边界，但未定义 Desktop/Web capability 与下载/诊断页面模型 | server-visible PlatformCapabilities；desktop update manifest/diagnostic job/download record；browser capability policy/permission state；deep-link exchange；平台降级说明；不得返回 token/secret/本地敏感缓存内容 | C17；P16/P17 | FEP-6/G6：Web/Desktop capability contract 一致；深链重新鉴权；签名更新、短时下载、离线只读与敏感字段负向测试通过 |
+
+#### 5.6.1 API 缺口任务执行规则
+
+- `BFF-FE-000` 由 BFF TL 主责，Frontend TL、QA、安全和领域 owner 联合签署；其余任务必须在对应页面进入 Sprint 前一个 Sprint 达到 `Reviewed + Mocked`。
+- 每项 operation 必须提供：权限/capability、请求/响应示例、字段 required/nullable、枚举、分页/排序、缓存与 `asOf`、错误码、幂等、对象版本、审计、限流、实时恢复和敏感字段说明。
+- 对总开发计划已经存在的服务接口，BFF 只能做授权、裁剪、聚合和页面模型转换，不复制领域规则；风险结论、审批状态、订单事实和账本状态仍由原服务权威产生。
+- 新增页面 API 不得扩展产品范围：不增加 workspace 切换、生产 Assisted Live、Guarded Live、任意 Runbook 命令、手工改账、客户端 command 构造或 venue 直连。
+- BFF 契约未实现时允许同 schema mock；如果契约仍为 Draft、页面使用手写 DTO、provider contract 未通过或 staging 行为与 mock 不一致，对应 `UI-Pxx` 一律不能进入 `Integrated/Done`。
+
+### 5.7 逐页接口覆盖 Gate
+
+每个页面开始开发前建立一行 `Page API Coverage` 记录，最少包含：页面 ID、有效设计稿、路由、query operationId、command operationId、realtime channel/operationId、权限/capability、错误码集合、数据新鲜度字段、OpenAPI 版本、mock 版本、BFF owner 和最后验证时间。满足以下条件才算接口覆盖完成：
+
+1. 页面展示的每个服务端字段都能追溯到 OpenAPI/领域 schema；不存在仅见于设计稿而无契约来源的业务字段。
+2. 页面每个按钮均映射为明确的本地 UI 动作、BFF command 或平台 adapter 动作；危险按钮必须有服务端可操作性与版本校验。
+3. 列表、详情、异步任务和实时事件分别有分页、终态、断线恢复和错误契约；不能用轮询/本地状态暗中替代未定义时序。
+4. 默认、加载、空、错误、无权、陈旧、离线和危险确认状态均有 fixture，并至少一次在 staging 用真实 BFF 验证。
+5. 契约变更报告能从 operationId 反查所有受影响的 `UI-Pxx` 任务和视觉/E2E 基线。
 
 ## 6. 联调与一致性校验机制
 
@@ -355,4 +434,3 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 - [ ] 每笔抽样订单可在 5 分钟内还原完整证据链；每个错误可凭 correlation ID 定位。
 - [ ] Paper/Shadow 清晰区分；M5 flag 关闭时 Assisted Live UI/API 100% 不可达；Guarded Live 不存在。
 - [ ] 发布、灰度、回滚、桌面签名更新、告警与 Runbook 均已演练并归档。
-
