@@ -39,9 +39,14 @@
 | R6 | P16/P17 平台互斥渲染 | 中 | Web 访问 `/settings/desktop` 渲染受限页、桌面端隐藏 `/settings/browser`，易在共享路由实现中遗漏 | 矩阵第 2 节注 2 与 ACC-P16-S5/ACC-P17-S5 已冻结验收；实现时归入 packages/platform 差异层 | FE TL |
 | R7 | 小屏只读档遗漏高风险入口 | 高 | <768px 必须隐藏审批/下单/撤单/发布等操作，逐页易漏 | 矩阵"高风险操作"统一定义 + ACC-FLOW-10 专项场景 + boundary lint | QA |
 
-## 4. 遗留项（进入 FEP-0 backlog）
+## 4. 评审与遗留项状态
 
-1. BFF-FE-000 冻结后，将每个 `UI-Pxx` 回填 operationId 到台账与场景表第 6 节。
+- 评审提交：四份产出物已于 2026-08-14 提交联合评审，签署记录见 [G0-PRE-01-review-record](./gate-records/G0-PRE-01-review-record.md)，当前状态"待联合评审签署"（产品、前端、BFF、QA、安全、风控六方）。
+- operationId 回填：已核查仓库，现有 [quantos.swagger.json](./proto/openapi/quantos.swagger.json) 仅含 F03 生成的 7 个 `EngineService_*`/`EventLedgerService_*` operation，页面级 BFF OpenAPI 不存在，BFF-FE-000 未冻结。已建立 [Page API Coverage 登记表](./PRE-01-page-api-coverage-register.md) 作为回填基线（24 行，含权限/错误码/新鲜度字段预登记），冻结后按表执行回填。
+
+遗留项（进入 FEP-0 backlog）：
+
+1. ~~BFF-FE-000 冻结后回填 operationId~~ → 已建立回填机制与登记表，待 BFF-FE-000 冻结（R2 跟踪）。
 2. 设计 owner 补齐 23 页七态高保真稿后，验收场景表补充设计稿链接。
 3. PRE-02 设计 token ADR 签署后，场景表"语义色/文案"引用切换为 token/i18n key。
 4. 台账需经产品、前端、BFF、QA、安全与风控联合评审签署，作为 G0 记录的一部分。
