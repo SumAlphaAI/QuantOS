@@ -58,8 +58,10 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install chromium --with-deps
 
+      # 本 job 仅安装 Chromium，必须限定 --project=chromium；
+      # playwright test 不带 --project 会运行全部浏览器项目（firefox/webkit 全矩阵由 compatibility.yml 负责）
       - name: Playwright E2E + axe + visual baseline
-        run: pnpm exec playwright test
+        run: pnpm exec playwright test --project=chromium
 
       - name: Sabotage self-test (schema/permission/sensitive-field/visual must fail the gates)
         run: node scripts/pre06-sabotage-check.mjs
