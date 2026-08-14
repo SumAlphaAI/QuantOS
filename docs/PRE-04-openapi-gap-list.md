@@ -7,15 +7,15 @@
 
 | Gap ID | 契约 | 必须新增的页面 operation（Query/Command/Realtime） | 覆盖页面 | 后端任务 | 优先级 | 目标阶段 | BFF-FE | 状态 |
 |---|---|---|---|---|---|---|---|---|
-| GAP-01 | C01 | Q: getSession、getContext（workspace/account/capabilities）；C: reauth、mfaChallenge、logout、submitAccessRequest；R: 权限变更断开 | P01、GS、P15、官网访问申请 | F06、L03 | P0 | FEP-0/G0 冻结 | BFF-FE-000/001 | Open |
+| GAP-01 | C01 | Q: getSession、getContext（workspace/account/capabilities）；C: reauth、mfaChallenge、logout、submitAccessRequest；R: 权限变更断开 | P01、GS、P15、官网访问申请 | F06、L03 | P0 | FEP-0/G0 冻结 | BFF-FE-000/001 | In Design（BFF-FE-000 提案） |
 | GAP-02 | C02 | Q: getCommandSummary（riskPosture/dataFreshness/pendingApprovals/failedRuns/orderSummary/alerts/sampledAt）；R: command event projection | P02 | F09、R03、X01–X06 | P0 | FEP-1/G1 | BFF-FE-002 | Open |
-| GAP-03 | C03 | Q: listResearchRuns、getResearchRun；C: createResearchRun（202+runId）、cancelResearchRun（cancel_requested）；R: subscribeRunStream（sequence/afterSequence replay） | P03、P04 | F07/F08、R03、U01 | P0 | FEP-2/G2 | BFF-FE-003 | Open |
-| GAP-04 | C04 | Q: listDataSnapshots、getDataSnapshot、getArtifact、getArtifactAttachment | P04、P05 | R02/R03、F05 | P0 | FEP-2/G2 | BFF-FE-003 | Open |
-| GAP-05 | C05 | Q: listStrategies、getDraft、getBacktest、listReleases、getRelease；C: saveDraft（expectedVersion→409 diff）、runStaticCheck、createBacktest、createRelease、submitReleaseApproval、requestRollback；R: backtest run stream | P06、P07 | S01–S04 | P0 | FEP-3/G3 | BFF-FE-004 | Open |
-| GAP-06 | C06 | Q: getPortfolio、getRiskView（asOf/stale）；C: engageKillSwitch、releaseKillSwitch（MFA+签名）；R: portfolio/risk projection、kill switch broadcast | P02、P08 | X01/X02 | P0 | FEP-5/G5 | BFF-FE-006 | Open |
-| GAP-07 | C07 | Q: listProposals、getProposal；C: requestRiskEvaluation（proposal/version/context hash）；R: proposal status stream。**proto 缺口：TradeProposal 无 counter_views 字段（R04 强制反方观点），需 proto v1 增补或 BFF ProposalView 承载** | P09、P20 | R04、X02 | P0 | FEP-5/G5 | BFF-FE-006 | Open |
-| GAP-08 | C08 | Q: listApprovals、getApproval；C: decideApproval（signature+mfaChallengeRef）、reauth；MFA challenge 生命周期 | P07、P10、P20 | F06、X03、L03 | P0 | FEP-5/G5 | BFF-FE-006 | Open |
-| GAP-09 | C09 | Q: listOrders、getOrder；C: submitCommandRef（Idempotency-Key）、requestCancel；R: order event stream | P11、P19（标记）、P20 | X03/X04、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Open |
+| GAP-03 | C03 | Q: listResearchRuns、getResearchRun；C: createResearchRun（202+runId）、cancelResearchRun（cancel_requested）；R: subscribeRunStream（sequence/afterSequence replay） | P03、P04 | F07/F08、R03、U01 | P0 | FEP-2/G2 | BFF-FE-003 | In Design（BFF-FE-000 提案） |
+| GAP-04 | C04 | Q: listDataSnapshots、getDataSnapshot、getArtifact、getArtifactAttachment | P04、P05 | R02/R03、F05 | P0 | FEP-2/G2 | BFF-FE-003 | In Design（BFF-FE-000 提案） |
+| GAP-05 | C05 | Q: listStrategies、getDraft、getBacktest、listReleases、getRelease；C: saveDraft（expectedVersion→409 diff）、runStaticCheck、createBacktest、createRelease、submitReleaseApproval、requestRollback；R: backtest run stream | P06、P07 | S01–S04 | P0 | FEP-3/G3 | BFF-FE-004 | In Design（BFF-FE-000 提案） |
+| GAP-06 | C06 | Q: getPortfolio、getRiskView（asOf/stale）；C: engageKillSwitch、releaseKillSwitch（MFA+签名）；R: portfolio/risk projection、kill switch broadcast | P02、P08 | X01/X02 | P0 | FEP-5/G5 | BFF-FE-006 | In Design（BFF-FE-000 提案） |
+| GAP-07 | C07 | Q: listProposals、getProposal；C: requestRiskEvaluation（proposal/version/context hash）；R: proposal status stream。**proto 缺口：TradeProposal 无 counter_views 字段（R04 强制反方观点），需 proto v1 增补或 BFF ProposalView 承载** | P09、P20 | R04、X02 | P0 | FEP-5/G5 | BFF-FE-006 | In Design（BFF-FE-000 提案） |
+| GAP-08 | C08 | Q: listApprovals、getApproval；C: decideApproval（signature+mfaChallengeRef）、reauth；MFA challenge 生命周期 | P07、P10、P20 | F06、X03、L03 | P0 | FEP-5/G5 | BFF-FE-006 | In Design（BFF-FE-000 提案） |
+| GAP-09 | C09 | Q: listOrders、getOrder；C: submitCommandRef（Idempotency-Key）、requestCancel；R: order event stream | P11、P19（标记）、P20 | X03/X04、L01 | P0 | FEP-5/G5 | BFF-FE-006 | In Design（BFF-FE-000 提案） |
 | GAP-10 | C10 | Q: searchAuditEvents、getEvidenceChain（correlation/causation 分页）；C: createExport、getExportStatus、getExportDownload（短时签名 URL） | P12 及全部领域页跳转 | F05、X06 | P0 | FEP-5/G5 | BFF-FE-007 | Open |
 | GAP-11 | C11 | Q: getServiceHealth、listIncidents、getIncident、admin 四类 query；C: runApprovedRunbookAction（仅 actionId+precheck）、member/policy/capability/flag 版本化 CRUD | P13、P14 | F06/F09、X06 | P1 | FEP-6/G6 | BFF-FE-010 | Open |
 | GAP-12 | C12 | Q: getMarketCatalog、getWatchlist、getVenueQuotes、getCandleSeries（history）；C: saveWatchlist；R: quote stream、candle stream（断流定格） | P18、P19、P20 | R01/R02、L01 | P0 | FEP-4/G4 | BFF-FE-005 | Open |

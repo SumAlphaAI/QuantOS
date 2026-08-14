@@ -1,0 +1,1237 @@
+openapi: 3.1.0
+info:
+  title: QuantOS Terminal BFF API
+  version: 0.1.0-draft
+  description: |
+    BFF-FE-000 基线提案（2026-08-14，Frontend 起草，待 BFF TL 评审冻结）。
+
+    范围：GAP-00 统一基线 + C01 会话/上下文、C03 Research Runtime、C04 Snapshot/Artifact、
+    C05 Strategy、C06 Portfolio/Risk、C07 Proposal/Evaluation、C08 Approval/MFA、C09 Command/Order
+    （对应 G0 条件 1 最低冻结面）。C02/C10–C17 在后续 minor 版本追加，不在本草案。
+
+    统一约定：
+    - 成功响应：单资源直接返回；列表返回 Page<T>（items + nextCursor）。
+    - 错误响应：一律 ErrorEnvelope（code/message/correlationId[/fieldErrors/retryAfter/currentVersion]）。
+    - 分页：cursor + pageSize（默认 50，上限 200）；游标不透明，不作为领域数据。
+    - 命令：POST 动作风格；异步一律 202 + AsyncAccepted；写操作必须携带 Idempotency-Key 头；
+      可变对象写必须携带 If-Match（objectVersion），冲突返回 409 + currentVersion，客户端保留草稿不覆盖。
+    - 实时：GET + Accept: text/event-stream，afterSequence 续传；事件信封 StreamEvent
+      （与 packages/api-client/src/sse.ts PoC 一致）；权限撤销以 payload.type=permission_revoked
+      或重连 403 终态关闭。
+    - 所有响应携带 X-Correlation-Id 头；BFF 注入 tenant/workspace/actor，客户端不发送。
+    - 数值：decimal 以字符串序列化（十进制定点，禁 IEEE-754 交易计算）；时间 RFC 3339 UTC。
+servers:
+  - url: https://bff.staging.sumalpha.ai
+    description: staging
+  - url: http://localhost:8080
+    description: local-integrated
+  - url: http://localhost:4010
+    description: local-mock（MSW 拦截）
+tags:
+  - name: session
+    description: C01 会话与上下文
+  - name: research
+    description: C03 Research Runtime
+  - name: data
+    description: C04 数据快照与 Artifact
+  - name: strategy
+    description: C05 策略草稿/回测/Release
+  - name: risk
+    description: C06 Portfolio 与 Risk
+  - name: proposal
+    description: C07 TradeProposal 与风险评估
+  - name: approval
+    description: C08 审批与 MFA
+  - name: execution
+    description: C09 TradeCommand 与 Order
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ==================== C01 Session/Context ====================
+  /v1/session:
+    get:
+      operationId: getSession
+      tags: [session]
+      summary: 当前会话与 MFA 状态
+      responses:
+        "200":
+          description: 会话信息
+          headers:
+            X-Correlation-Id: { $ref: "#/components/headers/X-Correlation-Id" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SessionContext" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /v1/context:
+    get:
+      operationId: getContext
+      tags: [session]
+      summary: 主工作区/账户上下文与 capability 集合（权限裁剪的唯一来源）
+      responses:
+        "200":
+          description: 上下文
+          headers:
+            X-Correlation-Id: { $ref: "#/components/headers/X-Correlation-Id" }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SessionContext" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /v1/auth/reauth:
+    post:
+      operationId: reauth
+      tags: [session]
+      summary: 近期登录再认证（高风险操作前置）
+      responses:
+        "200":
+          description: 再认证通过，返回新的 reauthTokenRef（短时）
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [reauthTokenRef, expiresAt]
+                properties:
+                  reauthTokenRef: { type: string, format: uuid }
+                  expiresAt: { $ref: "#/components/schemas/DateTime" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+  /v1/auth/mfa/challenges:
+    post:
+      operationId: mfaChallenge
+      tags: [session]
+      summary: 发起/完成 MFA challenge（失败限流且不泄露账户存在性）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [purpose]
+              properties:
+                purpose: { type: string, enum: [login, approval, kill_switch, security_change] }
+                code: { type: string, description: 完成 challenge 时提交；发起时缺省 }
+      responses:
+        "200":
+          description: challenge 状态
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [challengeRef, status]
+                properties:
+                  challengeRef: { type: string, format: uuid }
+                  status: { type: string, enum: [pending, verified, failed] }
+        "429": { $ref: "#/components/responses/RateLimited" }
+  /v1/auth/logout:
+    post:
+      operationId: logout
+      tags: [session]
+      summary: 注销并服务端吊销会话
+      responses:
+        "204": { description: 已注销 }
+  /v1/access-requests:
+    post:
+      operationId: submitAccessRequest
+      tags: [session]
+      summary: 访问申请（访客；防滥用限速 + 隐私告知版本）
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [teamName, contactEmail, purpose, markets, expectedMode, privacyNoticeVersion]
+              properties:
+                teamName: { type: string }
+                contactEmail: { type: string, format: email }
+                purpose: { type: string }
+                markets: { type: array, items: { type: string } }
+                expectedMode: { $ref: "#/components/schemas/RuntimeMode" }
+                privacyNoticeVersion: { type: string }
+      responses:
+        "202":
+          description: 受理
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+
+  # ==================== C03 Research Runtime ====================
+  /v1/research-runs:
+    get:
+      operationId: listResearchRuns
+      tags: [research]
+      summary: 研究任务列表（服务端分页/筛选/排序）
+      parameters:
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/PageSize" }
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/TaskStatus" } }
+        - { name: dataSnapshotId, in: query, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 任务页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Page" }
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/ResearchRun" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      operationId: createResearchRun
+      tags: [research]
+      summary: 创建研究任务（幂等；capability/快照/预算/deadline 服务端校验）
+      parameters:
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [capability, dataSnapshotId, question, budget, deadlineAt]
+              properties:
+                capability: { type: string }
+                dataSnapshotId: { type: string, format: uuid }
+                question: { type: string }
+                budget: { $ref: "#/components/schemas/DecimalValue" }
+                deadlineAt: { $ref: "#/components/schemas/DateTime" }
+                attachments: { type: array, items: { type: string, format: uuid }, description: 已上传扫描后的 Artifact 引用 }
+      responses:
+        "202":
+          description: 受理（不代表完成）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+  /v1/research-runs/{runId}:
+    get:
+      operationId: getResearchRun
+      tags: [research]
+      summary: 任务详情（含 Evidence：快照/Engine/hash/成本/correlationId）
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 任务
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResearchRun" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/research-runs/{runId}/cancel:
+    post:
+      operationId: cancelResearchRun
+      tags: [research]
+      summary: 请求取消（202 受理；终态以流/详情为准，不伪造已取消）
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      responses:
+        "202":
+          description: 取消已受理（cancel_requested）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/research-runs/{runId}/stream:
+    get:
+      operationId: subscribeResearchRun
+      tags: [research]
+      summary: 任务事件流（SSE；sequence 去重，afterSequence 回补）
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/AfterSequence" }
+      responses:
+        "200":
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema: { $ref: "#/components/schemas/StreamEvent" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  # ==================== C04 Snapshot/Artifact ====================
+  /v1/data-snapshots:
+    get:
+      operationId: listDataSnapshots
+      tags: [data]
+      parameters:
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/PageSize" }
+        - { name: quality, in: query, schema: { $ref: "#/components/schemas/DataQuality" } }
+      responses:
+        "200":
+          description: 快照页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Page" }
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/DataSnapshot" }
+  /v1/data-snapshots/{snapshotId}:
+    get:
+      operationId: getDataSnapshot
+      tags: [data]
+      summary: 快照详情（质量/血缘/许可；质量受限由服务端返回阻断标识，前端不可覆盖）
+      parameters:
+        - { name: snapshotId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 快照
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DataSnapshot" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/artifacts/{artifactId}:
+    get:
+      operationId: getArtifact
+      tags: [data]
+      summary: Artifact 详情（版本/环境 hash/血缘；资源级授权，无权按 404）
+      parameters:
+        - { name: artifactId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Artifact
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Artifact" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  # ==================== C05 Strategy ====================
+  /v1/strategies:
+    get:
+      operationId: listStrategies
+      tags: [strategy]
+      parameters:
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/PageSize" }
+      responses:
+        "200":
+          description: 策略页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Page" }
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/StrategySummary" }
+  /v1/strategies/{strategyId}/draft:
+    get:
+      operationId: getStrategyDraft
+      tags: [strategy]
+      parameters:
+        - { name: strategyId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 草稿（携带 objectVersion/ETag）
+          headers:
+            ETag: { schema: { type: string }, description: objectVersion }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StrategyDraft" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    put:
+      operationId: saveStrategyDraft
+      tags: [strategy]
+      summary: 保存草稿（If-Match=expectedVersion；409 返回 currentVersion，客户端保留草稿不覆盖）
+      parameters:
+        - { name: strategyId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/IfMatch" }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [files, parameters]
+              properties:
+                files: { type: object, additionalProperties: { type: string } }
+                parameters: { type: object }
+      responses:
+        "200":
+          description: 已保存，返回新 objectVersion
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StrategyDraft" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/strategies/{strategyId}/static-checks:
+    post:
+      operationId: runStaticCheck
+      tags: [strategy]
+      summary: 静态检查（look-ahead/依赖/数据快照阻断原因）
+      parameters:
+        - { name: strategyId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      responses:
+        "202":
+          description: 受理
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+  /v1/backtests:
+    post:
+      operationId: createBacktest
+      tags: [strategy]
+      summary: 发起回测（固定快照与 clock；202 受理）
+      parameters:
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [strategyId, objectVersion, dataSnapshotId]
+              properties:
+                strategyId: { type: string, format: uuid }
+                objectVersion: { type: string }
+                dataSnapshotId: { type: string, format: uuid }
+      responses:
+        "202":
+          description: 受理
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/backtests/{runId}:
+    get:
+      operationId: getBacktest
+      tags: [strategy]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 回测报告（指标/泄漏检查/验证结果）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BacktestReport" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/releases:
+    get:
+      operationId: listReleases
+      tags: [strategy]
+      parameters:
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/PageSize" }
+      responses:
+        "200":
+          description: Release 页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Page" }
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/StrategyRelease" }
+    post:
+      operationId: createRelease
+      tags: [strategy]
+      summary: 创建不可变 Release（泄漏检查失败阻断；返回 content hash）
+      parameters:
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [strategyId, objectVersion, backtestRunId, parameters]
+              properties:
+                strategyId: { type: string, format: uuid }
+                objectVersion: { type: string }
+                backtestRunId: { type: string, format: uuid }
+                parameters: { type: object }
+      responses:
+        "201":
+          description: 已创建
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StrategyRelease" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+  /v1/releases/{releaseId}:
+    get:
+      operationId: getRelease
+      tags: [strategy]
+      summary: Release 详情（allowedTargets 由服务端返回；M3/M4 仅 paper/shadow）
+      parameters:
+        - { name: releaseId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: Release
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StrategyRelease" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/releases/{releaseId}/approval-submissions:
+    post:
+      operationId: submitReleaseApproval
+      tags: [strategy]
+      parameters:
+        - { name: releaseId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/IfMatch" }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      responses:
+        "202":
+          description: 已进入审批
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/releases/{releaseId}/rollback-requests:
+    post:
+      operationId: requestReleaseRollback
+      tags: [strategy]
+      parameters:
+        - { name: releaseId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetReleaseId]
+              properties:
+                targetReleaseId: { type: string, format: uuid }
+      responses:
+        "202":
+          description: 受理
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+
+  # ==================== C06 Portfolio/Risk ====================
+  /v1/portfolio:
+    get:
+      operationId: getPortfolio
+      tags: [risk]
+      summary: 组合视图（asOf/stale；陈旧时命令类操作由服务端拒绝）
+      parameters:
+        - { name: accountId, in: query, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 组合视图
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PortfolioView" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/risk:
+    get:
+      operationId: getRiskView
+      tags: [risk]
+      parameters:
+        - { name: accountId, in: query, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 风险视图（预算/命中规则/kill switch 状态）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RiskView" }
+  /v1/risk/kill-switch/engage:
+    post:
+      operationId: engageKillSwitch
+      tags: [risk]
+      summary: 触发 kill switch（DangerConfirm + MFA + reauthTokenRef + 服务端签名）
+      parameters:
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accountId, reason, mfaChallengeRef, reauthTokenRef, confirmPhrase]
+              properties:
+                accountId: { type: string, format: uuid }
+                reason: { type: string }
+                mfaChallengeRef: { type: string, format: uuid }
+                reauthTokenRef: { type: string, format: uuid }
+                confirmPhrase: { type: string, description: 客户端 DangerConfirm 输入的确认短语 }
+      responses:
+        "200":
+          description: 已触发（含审计 correlationId）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RiskView" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/risk/kill-switch/release:
+    post:
+      operationId: releaseKillSwitch
+      tags: [risk]
+      summary: 解除 kill switch（同 engage 约束）
+      parameters:
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accountId, reason, mfaChallengeRef, reauthTokenRef]
+              properties:
+                accountId: { type: string, format: uuid }
+                reason: { type: string }
+                mfaChallengeRef: { type: string, format: uuid }
+                reauthTokenRef: { type: string, format: uuid }
+      responses:
+        "200":
+          description: 已解除
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RiskView" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /v1/portfolio/stream:
+    get:
+      operationId: subscribePortfolio
+      tags: [risk]
+      summary: 组合/风险授权投影流（含 kill switch 广播）
+      parameters:
+        - { name: accountId, in: query, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/AfterSequence" }
+      responses:
+        "200":
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema: { $ref: "#/components/schemas/StreamEvent" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  # ==================== C07 Proposal/Evaluation ====================
+  /v1/proposals:
+    get:
+      operationId: listProposals
+      tags: [proposal]
+      parameters:
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/PageSize" }
+        - { name: status, in: query, schema: { type: string } }
+        - { name: symbol, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: 建议页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Page" }
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/TradeProposal" }
+  /v1/proposals/{proposalId}:
+    get:
+      operationId: getProposal
+      tags: [proposal]
+      summary: 建议详情（executable 恒 false；无下单语义）
+      parameters:
+        - { name: proposalId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 建议
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TradeProposal" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/proposals/{proposalId}/risk-evaluations:
+    post:
+      operationId: requestRiskEvaluation
+      tags: [proposal]
+      summary: 请求风险评估（携带 proposal/version/context hash；过期/陈旧/未发布/无权限服务端拒绝）
+      parameters:
+        - { name: proposalId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/IfMatch" }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contextHash]
+              properties:
+                contextHash: { type: string, description: quoteRef/accountRef/mode/版本组合 hash }
+      responses:
+        "202":
+          description: 受理
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+  /v1/proposals/{proposalId}/stream:
+    get:
+      operationId: subscribeProposal
+      tags: [proposal]
+      parameters:
+        - { name: proposalId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/AfterSequence" }
+      responses:
+        "200":
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema: { $ref: "#/components/schemas/StreamEvent" }
+
+  # ==================== C08 Approval/MFA ====================
+  /v1/approvals:
+    get:
+      operationId: listApprovals
+      tags: [approval]
+      summary: 待办列表（仅审批人可见；禁自批由服务端强制）
+      parameters:
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/PageSize" }
+      responses:
+        "200":
+          description: 审批页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Page" }
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/Approval" }
+  /v1/approvals/{approvalId}:
+    get:
+      operationId: getApproval
+      tags: [approval]
+      summary: 审批详情（操作前客户端必须重取以刷新版本/有效期）
+      parameters:
+        - { name: approvalId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 审批
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Approval" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/approvals/{approvalId}/decisions:
+    post:
+      operationId: decideApproval
+      tags: [approval]
+      summary: 批准/拒绝/需要更多信息（MFA 签名；并发/过期/额度变化 409 强制刷新）
+      parameters:
+        - { name: approvalId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/IfMatch" }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision, mfaChallengeRef]
+              properties:
+                decision: { type: string, enum: [approve, reject, request_info] }
+                reason: { type: string, description: decision≠approve 时必填，写入审计 }
+                mfaChallengeRef: { type: string, format: uuid }
+                reauthTokenRef: { type: string, format: uuid }
+      responses:
+        "200":
+          description: 已记录（批准时含 commandRef，服务端最终校验仍可在提交时拒绝）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Approval" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+
+  # ==================== C09 Command/Order ====================
+  /v1/commands:
+    post:
+      operationId: submitTradeCommand
+      tags: [execution]
+      summary: 提交已批准的 command ref（客户端不构造命令体；202 受理，成交以 Order 事件为准）
+      parameters:
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [commandRef]
+              properties:
+                commandRef: { type: string, format: uuid, description: 服务端签发的短时 TradeCommand 引用 }
+      responses:
+        "202":
+          description: 受理（Execution Gateway 二次校验仍可能拒绝）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+  /v1/orders:
+    get:
+      operationId: listOrders
+      tags: [execution]
+      parameters:
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/PageSize" }
+        - { name: accountId, in: query, required: true, schema: { type: string, format: uuid } }
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/OrderStatus" } }
+        - { name: symbol, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: 订单页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Page" }
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/Order" }
+  /v1/orders/{orderId}:
+    get:
+      operationId: getOrder
+      tags: [execution]
+      parameters:
+        - { name: orderId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: 订单（状态机/成交/关联 proposal/decision/release）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/orders/{orderId}/cancel-requests:
+    post:
+      operationId: requestOrderCancel
+      tags: [execution]
+      summary: 撤单请求（仅传服务端验证过的 command ref + 幂等键；202 受理）
+      parameters:
+        - { name: orderId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [commandRef]
+              properties:
+                commandRef: { type: string, format: uuid }
+      responses:
+        "202":
+          description: 受理
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/orders/{orderId}/stream:
+    get:
+      operationId: subscribeOrder
+      tags: [execution]
+      summary: 订单事件流（sequence 去重；断流回补；ack 前不得显示成交）
+      parameters:
+        - { name: orderId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { $ref: "#/components/parameters/AfterSequence" }
+      responses:
+        "200":
+          description: SSE 事件流
+          content:
+            text/event-stream:
+              schema: { $ref: "#/components/schemas/StreamEvent" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: BFF 颁发的会话令牌（OIDC 交换在 BFF 完成；浏览器不持久化长期 token）
+
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+      description: 不透明分页游标
+    PageSize:
+      name: pageSize
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+      description: 同一业务意图重试必须复用同一键；服务端按（actor, key）去重
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema: { type: string }
+      description: expectedVersion（objectVersion）；不匹配返回 409 + currentVersion
+    AfterSequence:
+      name: afterSequence
+      in: query
+      schema: { type: integer, format: int64, minimum: 0, default: 0 }
+      description: 只推送 sequence 严格大于该值的事件（断线回补）
+
+  headers:
+    X-Correlation-Id:
+      schema: { type: string, format: uuid }
+      description: 全链路追踪 ID；错误页可复制提交支持
+
+  responses:
+    Unauthorized:
+      description: 会话失效/未认证；客户端清空内存态并跳登录（不泄露细节）
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+          example: { code: UNAUTHENTICATED, message: 会话已失效，请重新登录。, correlationId: 9a1c4e60-2d3b-4c5f-8a9e-1b2c3d4e5f60 }
+    Forbidden:
+      description: 无权限（规范文案；涉密钥/受限审计/高风险不返回内容）
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+          example: { code: FORBIDDEN, message: 你没有访问此资源的权限。若认为这是错误，请联系主工作区管理员。, correlationId: 4d5e6f70-8a9b-4c1d-2e3f-5a6b7c8d9e0f }
+    NotFound:
+      description: 不存在或未授权（不区分，防存在性泄露）
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+          example: { code: NOT_FOUND, message: 未找到该资源。, correlationId: 4d5e6f70-8a9b-4c1d-2e3f-5a6b7c8d9e0f }
+    Conflict:
+      description: 版本/状态/有效期冲突；返回 currentVersion，客户端保留本地草稿并刷新
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    Unprocessable:
+      description: 校验失败（字段级 fieldErrors；含超预算/过期数据/未批准 capability 等原因）
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    RateLimited:
+      description: 限流（retryAfter 秒；不泄露账户存在性）
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  schemas:
+    # ---------- 基元 ----------
+    UUID: { type: string, format: uuid }
+    DateTime: { type: string, format: date-time, description: RFC 3339 UTC }
+    DecimalValue:
+      type: string
+      pattern: "^-?\\d+(\\.\\d+)?$"
+      description: 十进制定点字符串（proto DecimalValue.value；禁 IEEE-754 交易计算）
+    MoneyValue:
+      type: object
+      required: [currencyCode, units, nanos]
+      properties:
+        currencyCode: { type: string, pattern: "^[A-Z]{3}$" }
+        units: { type: string, format: int64 }
+        nanos: { type: integer, minimum: -999999999, maximum: 999999999 }
+    RuntimeMode:
+      type: string
+      enum: [research, paper, shadow, assisted_live]
+      description: assisted_live 仅 M5+ 且服务端 flag/capability 放行才可见；客户端不得硬编码可用性
+    Environment: { type: string, enum: [dev, staging, prod] }
+    DataQuality:
+      type: string
+      enum: [verified, provisional, degraded, failed, expired, license_missing]
+      description: 未知值客户端显示"未知/需升级"并阻断高风险动作
+    TaskStatus:
+      type: string
+      enum: [queued, running, succeeded, failed, cancelled, cancel_requested]
+    OrderStatus:
+      type: string
+      enum: [draft, risk_checking, awaiting_approval, command_ready, submitted, accepted, partially_filled, filled, cancelled, rejected, expired]
+    TimeWindow:
+      type: object
+      required: [start, end]
+      properties:
+        start: { $ref: "#/components/schemas/DateTime" }
+        end: { $ref: "#/components/schemas/DateTime" }
+
+    # ---------- 统一基线 ----------
+    ErrorEnvelope:
+      type: object
+      required: [code, message, correlationId]
+      properties:
+        code: { type: string, description: 稳定机器码，如 FORBIDDEN/VERSION_CONFLICT/COMMAND_EXPIRED/DATA_STALE }
+        message: { type: string, description: 安全可展示文案（i18n key 由客户端映射） }
+        correlationId: { $ref: "#/components/schemas/UUID" }
+        fieldErrors: { type: object, additionalProperties: { type: string } }
+        retryAfter: { type: integer, minimum: 0, description: 秒 }
+        currentVersion: { type: string, description: 409 时返回，供客户端 diff }
+    Page:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: {} }
+        nextCursor: { type: string, description: 缺省表示末页 }
+    AsyncAccepted:
+      type: object
+      required: [jobId, status, correlationId]
+      properties:
+        jobId: { $ref: "#/components/schemas/UUID" }
+        status: { type: string, enum: [accepted, cancel_requested] }
+        correlationId: { $ref: "#/components/schemas/UUID" }
+    StreamEvent:
+      type: object
+      required: [streamId, sequence, eventId, occurredAt, correlationId, payloadVersion, payload]
+      properties:
+        streamId: { $ref: "#/components/schemas/UUID" }
+        sequence: { type: integer, format: int64, minimum: 1 }
+        eventId: { $ref: "#/components/schemas/UUID" }
+        occurredAt: { $ref: "#/components/schemas/DateTime" }
+        correlationId: { $ref: "#/components/schemas/UUID" }
+        payloadVersion: { type: string, description: 载荷 schema 版本（未知版本客户端 fail closed） }
+        payload:
+          type: object
+          description: 领域事件载荷；payload.type=permission_revoked 为终态语义
+
+    # ---------- C01 ----------
+    SessionContext:
+      type: object
+      required: [actorId, tenantId, workspaceId, accountId, mode, environment, capabilities, mfaState, expiresAt]
+      properties:
+        actorId: { $ref: "#/components/schemas/UUID" }
+        tenantId: { $ref: "#/components/schemas/UUID" }
+        workspaceId: { $ref: "#/components/schemas/UUID" }
+        accountId: { $ref: "#/components/schemas/UUID" }
+        mode: { $ref: "#/components/schemas/RuntimeMode" }
+        environment: { $ref: "#/components/schemas/Environment" }
+        capabilities: { type: array, items: { type: string }, description: capability key 全集（权限裁剪唯一来源） }
+        mfaState: { type: string, enum: [unenrolled, enrolled, challenged, verified] }
+        expiresAt: { $ref: "#/components/schemas/DateTime" }
+
+    # ---------- C03/C04 ----------
+    ResearchRun:
+      type: object
+      required: [runId, capability, dataSnapshotId, budget, deadlineAt, status, inputHash, engineVersion, evidenceRefs, correlationId, createdAt]
+      properties:
+        runId: { $ref: "#/components/schemas/UUID" }
+        capability: { type: string }
+        dataSnapshotId: { $ref: "#/components/schemas/UUID" }
+        budget: { $ref: "#/components/schemas/DecimalValue" }
+        costUnits: { $ref: "#/components/schemas/DecimalValue" }
+        deadlineAt: { $ref: "#/components/schemas/DateTime" }
+        status: { $ref: "#/components/schemas/TaskStatus" }
+        inputHash: { type: string }
+        engineVersion: { type: string }
+        artifactRefs: { type: array, items: { $ref: "#/components/schemas/UUID" } }
+        evidenceRefs: { type: array, items: { $ref: "#/components/schemas/UUID" } }
+        correlationId: { $ref: "#/components/schemas/UUID" }
+        createdAt: { $ref: "#/components/schemas/DateTime" }
+    DataSnapshot:
+      type: object
+      required: [snapshotId, schemaVersion, window, quality, contentHash, licenseLabel, capturedAt, maxAgeSeconds]
+      properties:
+        snapshotId: { $ref: "#/components/schemas/UUID" }
+        schemaVersion: { type: string }
+        window: { $ref: "#/components/schemas/TimeWindow" }
+        sources: { type: array, items: { type: string } }
+        quality: { $ref: "#/components/schemas/DataQuality" }
+        qualityBlocked: { type: boolean, description: 质量受限阻断标识（服务端权威，前端不可覆盖） }
+        contentHash: { type: string }
+        licenseLabel: { type: string }
+        capturedAt: { $ref: "#/components/schemas/DateTime" }
+        maxAgeSeconds: { type: integer, format: int64 }
+    Artifact:
+      type: object
+      required: [artifactId, hypothesis, summary, engineVersion, promptVersion, codeVersion, environmentHash, dataSnapshotId, contentHash, createdAt]
+      properties:
+        artifactId: { $ref: "#/components/schemas/UUID" }
+        hypothesis: { type: string }
+        summary: { type: string }
+        engineVersion: { type: string }
+        promptVersion: { type: string }
+        codeVersion: { type: string }
+        environmentHash: { type: string }
+        dataSnapshotId: { $ref: "#/components/schemas/UUID" }
+        contentHash: { type: string }
+        lineageRefs: { type: array, items: { $ref: "#/components/schemas/UUID" } }
+        createdAt: { $ref: "#/components/schemas/DateTime" }
+
+    # ---------- C05 ----------
+    StrategySummary:
+      type: object
+      required: [strategyId, name, updatedAt]
+      properties:
+        strategyId: { $ref: "#/components/schemas/UUID" }
+        name: { type: string }
+        updatedAt: { $ref: "#/components/schemas/DateTime" }
+    StrategyDraft:
+      type: object
+      required: [strategyId, objectVersion, files, parameters, updatedAt]
+      properties:
+        strategyId: { $ref: "#/components/schemas/UUID" }
+        objectVersion: { type: string }
+        files: { type: object, additionalProperties: { type: string } }
+        parameters: { type: object }
+        updatedAt: { $ref: "#/components/schemas/DateTime" }
+    BacktestReport:
+      type: object
+      required: [runId, strategyId, dataSnapshotId, status, metrics, leakViolations, reportArtifactId]
+      properties:
+        runId: { $ref: "#/components/schemas/UUID" }
+        strategyId: { $ref: "#/components/schemas/UUID" }
+        dataSnapshotId: { $ref: "#/components/schemas/UUID" }
+        status: { $ref: "#/components/schemas/TaskStatus" }
+        metrics: { type: object, additionalProperties: { $ref: "#/components/schemas/DecimalValue" } }
+        leakViolations: { type: array, items: { type: string }, description: 泄漏检查失败规则码（非空阻断 Release） }
+        reportArtifactId: { $ref: "#/components/schemas/UUID" }
+    StrategyRelease:
+      type: object
+      required: [releaseId, strategyId, backtestReportArtifactId, sourceDigest, imageDigest, parameterHash, parameters, snapshotId, allowedTargets, approvalState, createdAt]
+      properties:
+        releaseId: { $ref: "#/components/schemas/UUID" }
+        strategyId: { $ref: "#/components/schemas/UUID" }
+        backtestReportArtifactId: { $ref: "#/components/schemas/UUID" }
+        sourceDigest: { type: string }
+        imageDigest: { type: string }
+        parameterHash: { type: string }
+        parameters: { type: object }
+        snapshotId: { $ref: "#/components/schemas/UUID" }
+        allowedTargets:
+          type: array
+          items: { type: string, enum: [paper, shadow, assisted_live] }
+          description: 服务端权威；M3/M4 仅 paper/shadow；assisted_live 出现需 flag 放行
+        approvalState: { type: string, enum: [none, pending, approved, rejected, expired] }
+        createdAt: { $ref: "#/components/schemas/DateTime" }
+
+    # ---------- C06 ----------
+    Position:
+      type: object
+      required: [symbol, side, quantity, avgPrice]
+      properties:
+        symbol: { type: string }
+        side: { type: string, enum: [long, short] }
+        quantity: { $ref: "#/components/schemas/DecimalValue" }
+        avgPrice: { $ref: "#/components/schemas/DecimalValue" }
+    PortfolioView:
+      type: object
+      required: [accountId, asOf, stale, positions, pnl, exposure]
+      properties:
+        accountId: { $ref: "#/components/schemas/UUID" }
+        asOf: { $ref: "#/components/schemas/DateTime" }
+        stale: { type: boolean, description: true 时命令类操作由服务端拒绝 }
+        positions: { type: array, items: { $ref: "#/components/schemas/Position" } }
+        pnl: { $ref: "#/components/schemas/MoneyValue" }
+        exposure: { $ref: "#/components/schemas/DecimalValue" }
+    RiskView:
+      type: object
+      required: [accountId, asOf, hitRules, limitIds, killSwitch]
+      properties:
+        accountId: { $ref: "#/components/schemas/UUID" }
+        asOf: { $ref: "#/components/schemas/DateTime" }
+        hitRules: { type: array, items: { type: string } }
+        limitIds: { type: array, items: { $ref: "#/components/schemas/UUID" } }
+        killSwitch:
+          type: object
+          required: [state]
+          properties:
+            state: { type: string, enum: [disengaged, engaged] }
+            actor: { type: string }
+            at: { $ref: "#/components/schemas/DateTime" }
+
+    # ---------- C07/C08 ----------
+    Signal:
+      type: object
+      required: [signalId, strategyReleaseId, symbol, direction, strength, confidence, generatedAt, validUntil]
+      properties:
+        signalId: { $ref: "#/components/schemas/UUID" }
+        strategyReleaseId: { $ref: "#/components/schemas/UUID" }
+        symbol: { type: string }
+        direction: { type: string, enum: [long, short, flat] }
+        strength: { $ref: "#/components/schemas/DecimalValue" }
+        confidence: { $ref: "#/components/schemas/DecimalValue" }
+        generatedAt: { $ref: "#/components/schemas/DateTime" }
+        validUntil: { $ref: "#/components/schemas/DateTime" }
+    TradeProposal:
+      type: object
+      required: [proposalId, accountId, symbol, action, quantity, notional, signal, rationale, counterViews, evidenceRefs, confidence, expiresAt, executable, objectVersion]
+      properties:
+        proposalId: { $ref: "#/components/schemas/UUID" }
+        accountId: { $ref: "#/components/schemas/UUID" }
+        symbol: { type: string }
+        action: { type: string, enum: [buy, sell, reduce, close] }
+        quantity: { $ref: "#/components/schemas/DecimalValue" }
+        notional: { $ref: "#/components/schemas/DecimalValue" }
+        signal: { $ref: "#/components/schemas/Signal" }
+        rationale: { type: string }
+        counterViews:
+          type: array
+          items: { type: string }
+          minItems: 1
+          description: 反方观点（R04 强制；proto trading.v1.TradeProposal.counter_views）
+        evidenceRefs: { type: array, items: { $ref: "#/components/schemas/UUID" } }
+        confidence: { $ref: "#/components/schemas/DecimalValue" }
+        expiresAt: { $ref: "#/components/schemas/DateTime" }
+        executable: { type: boolean, enum: [false], description: 恒 false（A02；schema 层强制） }
+        objectVersion: { type: string }
+    Approval:
+      type: object
+      required: [approvalId, originator, objectVersion, status, expiresAt, correlationId]
+      properties:
+        approvalId: { $ref: "#/components/schemas/UUID" }
+        originator: { type: string, description: 发起人 actorId（禁自批判定） }
+        objectVersion: { type: string }
+        status: { type: string, enum: [pending, approved, rejected, expired, conflict] }
+        expiresAt: { $ref: "#/components/schemas/DateTime" }
+        signature: { type: string, description: 批准后服务端签名 }
+        commandRef: { $ref: "#/components/schemas/UUID", description: 批准后签发的短时 TradeCommand 引用 }
+        correlationId: { $ref: "#/components/schemas/UUID" }
+
+    # ---------- C09 ----------
+    Fill:
+      type: object
+      required: [fillId, quantity, price, at]
+      properties:
+        fillId: { $ref: "#/components/schemas/UUID" }
+        quantity: { $ref: "#/components/schemas/DecimalValue" }
+        price: { $ref: "#/components/schemas/DecimalValue" }
+        at: { $ref: "#/components/schemas/DateTime" }
+    Order:
+      type: object
+      required: [orderId, commandId, accountId, venue, venueKind, symbol, intent, side, quantity, status, filledQuantity, averageFillPrice, fills, mode, correlationId, submittedAt]
+      properties:
+        orderId: { $ref: "#/components/schemas/UUID" }
+        commandId: { $ref: "#/components/schemas/UUID" }
+        decisionId: { $ref: "#/components/schemas/UUID" }
+        proposalId: { $ref: "#/components/schemas/UUID" }
+        releaseId: { $ref: "#/components/schemas/UUID" }
+        accountId: { $ref: "#/components/schemas/UUID" }
+        venue: { type: string }
+        venueKind: { type: string, enum: [binance, okx, coinbase, ibkr, alpine, mock] }
+        symbol: { type: string }
+        intent: { type: string, enum: [open, increase, reduce, close] }
+        side: { type: string, enum: [buy, sell] }
+        quantity: { $ref: "#/components/schemas/DecimalValue" }
+        prices: { type: array, items: { $ref: "#/components/schemas/DecimalValue" } }
+        status: { $ref: "#/components/schemas/OrderStatus" }
+        filledQuantity: { $ref: "#/components/schemas/DecimalValue" }
+        averageFillPrice: { $ref: "#/components/schemas/DecimalValue" }
+        fills: { type: array, items: { $ref: "#/components/schemas/Fill" } }
+        mode: { $ref: "#/components/schemas/RuntimeMode" }
+        correlationId: { $ref: "#/components/schemas/UUID" }
+        submittedAt: { $ref: "#/components/schemas/DateTime" }

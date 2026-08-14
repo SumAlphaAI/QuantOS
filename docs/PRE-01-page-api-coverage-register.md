@@ -7,6 +7,7 @@
 ## 1. 回填前提与当前状态
 
 - 执行计划 5.7 要求：每个页面开发前建立一行 Page API Coverage 记录；每个 `UI-Pxx` 必须可追踪到 operationId。
+- **进展（2026-08-14）**：BFF-FE-000 基线提案已起草——[quantos-bff.v1.yaml](../bff/openapi/quantos-bff.v1.yaml)，42 个 operationId 已可用于 G0 冻结域（C01/C03–C09）的映射评审；**冻结前本表"待回填"状态不变**，冻结后按提案 operationId 直接回填。
 - 仓库现状核查（2026-08-14）：[quantos.swagger.json](../proto/openapi/quantos.swagger.json) 仅含 F03 领域协议生成的 7 个 operation（`EngineService_*`、`EventLedgerService_*`），**不存在 P01–P23 页面级 BFF OpenAPI**。BFF-FE-000 未冻结，全部 operationId 字段标记 `待回填`。
 - 回填规则：BFF 发布版本化 OpenAPI 后，按下表逐页填入 operationId、OpenAPI 版本、mock 版本与验证时间；任何一行 operationId 为空时，对应 `UI-Pxx` 不得进入 Sprint（DoR 阻断）。
 - 权限/capability、错误码集合、数据新鲜度字段已按 C01–C17 与设计规格预登记，供 BFF 契约评审对照。

@@ -19,13 +19,12 @@
 
 ## 2. 逐项结论
 
-### 条件 1：BFF 发布版本化 OpenAPI（会话/上下文、Research、DataSnapshot、Strategy、Portfolio/Risk、Proposal/Approval/Order、统一错误模型）——❌ 未达成
+### 条件 1：BFF 发布版本化 OpenAPI（会话/上下文、Research、DataSnapshot、Strategy、Portfolio/Risk、Proposal/Approval/Order、统一错误模型）——❌ 未达成（提案已起草，待 BFF TL 评审冻结）
 
 证据：
 - 仓库现有 [quantos.swagger.json](../../proto/openapi/quantos.swagger.json) 仅含 7 个服务级 operation（`EngineService_*`、`EventLedgerService_*`），无页面级 BFF OpenAPI。
-- [PRE-04 gap list](../PRE-04-openapi-gap-list.md)：GAP-01–17 全部 Open，覆盖条件要求的全部域（C01 会话、C03 Research、C04 Snapshot、C05 Strategy、C06 Portfolio/Risk、C07–C09 Proposal/Approval/Order、统一错误模型 GAP-00）。
-- 新发现 proto 缺口：`TradeProposal` 缺 `counter_views` 字段（R04 强制），需 proto 增补。
-- 统一错误模型目前仅以[字段字典](../PRE-04-field-dictionary.md)与[自著 fixture schema](../../tests/contract/schemas/error-envelope.schema.json)存在，非 BFF 发布物。
+- **进展（2026-08-14）**：BFF-FE-000 基线提案已起草——[quantos-bff.v1.yaml](../../bff/openapi/quantos-bff.v1.yaml)（OpenAPI 3.1，42 operations，覆盖 C01/C03–C09 + 统一错误模型），结构校验通过（[提案说明](../BFF-FE-000-openapi-proposal.md)）；GAP-01/03–09 转 In Design。**冻结与发布属 BFF TL 职责，未冻结前条件仍不满足。**
+- ~~新发现 proto 缺口：`TradeProposal` 缺 `counter_views` 字段~~ → 已增补 field 16（见进展记录 #2）。
 
 要求："未实现接口允许 mock，但 schema 不允许另起一套"——当前 mock schema 为过渡自著版，已在 PRE-06 遗留项 1 登记替换义务，合规；但 BFF 版本化 OpenAPI 本体不存在，条件不满足。
 
@@ -57,7 +56,7 @@
 
 | # | 未冻结项 | 责任人 | 建议截止 | 兼容策略 |
 |---|---|---|---|---|
-| 1 | BFF-FE-000 版本化 OpenAPI 基线（GAP-00 统一基线 + C01/C03–C07/C09 优先） | BFF TL（Frontend TL/QA/安全/领域 owner 联签） | FEP-0 W2 末 | 未实现接口用同 schema MSW mock；页面只可标记 UI Complete，不得 Integrated |
+| 1 | BFF-FE-000 版本化 OpenAPI 基线（GAP-00 统一基线 + C01/C03–C07/C09 优先）——**提案已起草（42 ops，校验通过），待 BFF TL 评审冻结** | BFF TL（Frontend TL/QA/安全/领域 owner 联签） | FEP-0 W2 末 | 未实现接口用同 schema MSW mock；页面只可标记 UI Complete，不得 Integrated |
 | ~~2~~ | ~~counter_views proto 增补~~ ✅ 已关闭（2026-08-14） | Risk owner（X02）+ BFF TL | – | 已按兼容策略执行：proto field 16 非破坏新增，Buf breaking 通过 |
 | ~~3~~ | ~~InMemory*Backend 标记~~ ✅ 已关闭（2026-08-14） | Frontend TL | – | 已标记 @deprecated；迁移/删除随 BFF-FE-000 |
 | ~~4~~ | ~~OIDC callback PoC（mock）~~ ✅ PoC 已通过；真实 IdP 验证移交 P01 | Auth owner（F06）+ Frontend TL | FEP-1 W3（真实 IdP） | mock PoC 已锁定语义；staging 真实 IdP + 桌面回跳随 P01 验收 |
