@@ -23,6 +23,8 @@ members = [
   "services/replay-cli",
   "services/runtime-gateway",
 ]
+# Tauri 桌面壳独立于领域 workspace：GUI/平台依赖不进入 cargo check/clippy --workspace
+exclude = ["apps/terminal-desktop/src-tauri"]
 resolver = "2"
 
 [workspace.package]

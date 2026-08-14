@@ -1,4 +1,6 @@
-import tokens from "../tokens/tokens.json";
+import designTokens from "../../tokens/index";
+
+const tokens = designTokens;
 
 /**
  * StateBadge —— 状态标签基准组件。

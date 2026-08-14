@@ -5,14 +5,36 @@
   "type": "module",
   "exports": "./src/index.ts",
   "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
     "lint": "eslint src tests --ext .ts",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "test": "vitest run",
-    "build": "rm -rf dist && tsc --project tsconfig.build.json"
+    "test": "vitest run"
   },
   "dependencies": {
     "@sumalpha/api-client": "workspace:*",
     "@sumalpha/domain-ui": "workspace:*",
-    "@sumalpha/platform": "workspace:*"
+    "@sumalpha/platform": "workspace:*",
+    "@sumalpha/ui": "workspace:*",
+    "@tanstack/react-query": "^5.90.22",
+    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.23",
+    "echarts": "^6.1.0",
+    "lightweight-charts": "^5.1.1",
+    "next": "^15.5.23",
+    "next-intl": "^4.12.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-hook-form": "^7.71.2",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "msw": "^2.13.2",
+    "tailwindcss": "^4.2.2"
   }
 }

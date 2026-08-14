@@ -5,13 +5,24 @@
   "type": "module",
   "exports": "./src/index.ts",
   "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
     "lint": "eslint src tests --ext .ts",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "test": "vitest run",
-    "build": "rm -rf dist && tsc --project tsconfig.build.json"
+    "test": "vitest run"
   },
   "dependencies": {
     "@sumalpha/config": "workspace:*",
-    "@sumalpha/ui": "workspace:*"
+    "@sumalpha/ui": "workspace:*",
+    "next": "^15.5.23",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.2.2"
   }
 }
