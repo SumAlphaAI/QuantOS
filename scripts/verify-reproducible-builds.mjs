@@ -31,8 +31,9 @@ const rustBinaries = [
 ];
 const webRoots = [
   "apps/terminal-desktop/dist",
-  "apps/terminal/dist",
-  "apps/website/dist",
+  // Next.js 静态导出（output: "export"）产物输出到 out/ 而非 dist/
+  "apps/terminal/out",
+  "apps/website/out",
   "packages/api-client/dist",
   "packages/config/dist",
   "packages/domain-ui/dist",
