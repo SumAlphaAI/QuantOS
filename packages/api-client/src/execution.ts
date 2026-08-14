@@ -155,7 +155,10 @@ export interface ExecutionBackend {
 
 const NOW = "2026-08-01T00:00:00Z";
 
-/** Deterministic execution backend with a fully linked evidence chain. */
+/**
+ * @deprecated G0 未冻结项 #3：手写 InMemory backend 明确标记为待删除（执行计划 1.3/3.2）。
+ * 仅允许作为场景 fixture 使用；BFF-FE-000 OpenAPI 冻结后须迁移为生成接口的测试 adapter 或删除。页面组件禁止引用。
+ */
 export class InMemoryExecutionBackend implements ExecutionBackend {
   private killSwitch = false;
   private readonly proposal: ProposalDetail = {

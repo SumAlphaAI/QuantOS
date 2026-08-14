@@ -115,7 +115,7 @@ SSE 事件信封（bff:StreamEvent）：`streamId:uuid`(req)、`sequence:int64`(
 | quantity / notional | decimal / decimal | 是 | proto:trading.v1.TradeProposal（均为 DecimalValue） |
 | signal | Signal（direction:enum:SignalDirection, strength:decimal） | 是 | proto:strategy.v1.Signal |
 | rationale | string | 是 | proto:trading.v1.TradeProposal.rationale |
-| counterViews | string[]（反方观点，R04 强制） | 是 | **bff:ProposalView（proto 缺口：TradeProposal 无 counter_views 字段，需 R04/proto 补齐后改锚 proto）** |
+| counterViews | string[]（反方观点，R04 强制） | 是 | proto:trading.v1.TradeProposal.counter_views（2026-08-14 非破坏增补 field 16） |
 | evidenceRefs | EvidenceRef[] | 是 | proto:common.v1.EvidenceRef |
 | expiresAt | rfc3339 | 是 | proto:trading.v1.TradeProposal |
 | executable | bool（恒 false） | 是 | proto:trading.v1.TradeProposal.executable |

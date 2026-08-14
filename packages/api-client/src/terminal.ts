@@ -95,7 +95,12 @@ export interface TerminalBackend {
   getDataSnapshot(snapshotId: string): Promise<DataSnapshotSummary>;
 }
 
-/** Deterministic in-memory backend used by scenario tests and offline shells. */
+/**
+ * @deprecated G0 未冻结项 #3：手写 InMemory backend 明确标记为待删除（执行计划 1.3/3.2）。
+ * 仅允许作为场景 fixture 使用；BFF-FE-000 OpenAPI 冻结后，本类必须迁移为实现
+ * 生成接口的测试 adapter，或随生成式 MSW（tests/contract/handlers.ts）上线而删除。
+ * 页面组件禁止引用。
+ */
 export class InMemoryTerminalBackend implements TerminalBackend {
   private readonly session: TerminalSession = {
     actorId: "actor-primary",

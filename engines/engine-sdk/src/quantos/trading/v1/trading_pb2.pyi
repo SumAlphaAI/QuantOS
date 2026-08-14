@@ -98,7 +98,7 @@ POSITION_SIDE_LONG: PositionSide
 POSITION_SIDE_SHORT: PositionSide
 
 class TradeProposal(_message.Message):
-    __slots__ = ("metadata", "proposal_id", "account_id", "symbol", "action", "quantity", "notional", "limit_price", "stop_price", "signal", "evidence_refs", "rationale", "confidence", "expires_at", "executable")
+    __slots__ = ("metadata", "proposal_id", "account_id", "symbol", "action", "quantity", "notional", "limit_price", "stop_price", "signal", "evidence_refs", "rationale", "confidence", "expires_at", "executable", "counter_views")
     METADATA_FIELD_NUMBER: _ClassVar[int]
     PROPOSAL_ID_FIELD_NUMBER: _ClassVar[int]
     ACCOUNT_ID_FIELD_NUMBER: _ClassVar[int]
@@ -114,6 +114,7 @@ class TradeProposal(_message.Message):
     CONFIDENCE_FIELD_NUMBER: _ClassVar[int]
     EXPIRES_AT_FIELD_NUMBER: _ClassVar[int]
     EXECUTABLE_FIELD_NUMBER: _ClassVar[int]
+    COUNTER_VIEWS_FIELD_NUMBER: _ClassVar[int]
     metadata: _common_pb2.CommandMetadata
     proposal_id: str
     account_id: str
@@ -129,7 +130,8 @@ class TradeProposal(_message.Message):
     confidence: _common_pb2.DecimalValue
     expires_at: _timestamp_pb2.Timestamp
     executable: bool
-    def __init__(self, metadata: _Optional[_Union[_common_pb2.CommandMetadata, _Mapping]] = ..., proposal_id: _Optional[str] = ..., account_id: _Optional[str] = ..., symbol: _Optional[str] = ..., action: _Optional[_Union[ProposalAction, str]] = ..., quantity: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., notional: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., limit_price: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., stop_price: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., signal: _Optional[_Union[_strategy_pb2.Signal, _Mapping]] = ..., evidence_refs: _Optional[_Iterable[_Union[_common_pb2.EvidenceRef, _Mapping]]] = ..., rationale: _Optional[str] = ..., confidence: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., expires_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., executable: bool = ...) -> None: ...
+    counter_views: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, metadata: _Optional[_Union[_common_pb2.CommandMetadata, _Mapping]] = ..., proposal_id: _Optional[str] = ..., account_id: _Optional[str] = ..., symbol: _Optional[str] = ..., action: _Optional[_Union[ProposalAction, str]] = ..., quantity: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., notional: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., limit_price: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., stop_price: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., signal: _Optional[_Union[_strategy_pb2.Signal, _Mapping]] = ..., evidence_refs: _Optional[_Iterable[_Union[_common_pb2.EvidenceRef, _Mapping]]] = ..., rationale: _Optional[str] = ..., confidence: _Optional[_Union[_common_pb2.DecimalValue, _Mapping]] = ..., expires_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., executable: bool = ..., counter_views: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class RiskDecision(_message.Message):
     __slots__ = ("metadata", "decision_id", "proposal_id", "verdict", "hit_rules", "limit_ids", "signer", "reason", "decided_at")

@@ -121,7 +121,10 @@ function deploymentTargetsFor(assistedLiveTestnet: boolean): DeploymentTargetOpt
   return base;
 }
 
-/** Deterministic strategy backend with 20 full-lifecycle fixtures. */
+/**
+ * @deprecated G0 未冻结项 #3：手写 InMemory backend 明确标记为待删除（执行计划 1.3/3.2）。
+ * 仅允许作为场景 fixture 使用；BFF-FE-000 OpenAPI 冻结后须迁移为生成接口的测试 adapter 或删除。页面组件禁止引用。
+ */
 export class InMemoryStrategyBackend implements StrategyBackend {
   private drafts = new Map<string, StrategyDraftDetail>();
   private backtests = new Map<string, BacktestReport>();

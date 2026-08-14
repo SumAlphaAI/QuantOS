@@ -81,6 +81,9 @@ message TradeProposal {
   quantos.common.v1.DecimalValue confidence = 13 [(google.api.field_behavior) = REQUIRED];
   google.protobuf.Timestamp expires_at = 14 [(google.api.field_behavior) = REQUIRED];
   bool executable = 15 [(google.api.field_behavior) = REQUIRED];
+  // 反方观点（R04 强制）：生成 Proposal 时必须附至少一条可证伪的对立论证。
+  // 非破坏新增（2026-08-14，G0 未冻结项 #2，Buf breaking check 验证）。
+  repeated string counter_views = 16;
 }
 
 message RiskDecision {
