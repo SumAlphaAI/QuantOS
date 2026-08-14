@@ -43,4 +43,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @sumalpha/terminal build
       - run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+      # 验证浏览器可真实启动（可执行文件缺失/版本错配时在此步失败并给出证据，而非到测试阶段才暴露）
+      - name: Verify browser launches
+        run: |
+          pnpm exec playwright --version
+          pnpm exec playwright install --dry-run ${{ matrix.browser }}
+          ls -la "$HOME/.cache/ms-playwright" || true
+          pnpm exec playwright screenshot --browser ${{ matrix.browser }} --viewport-size=1280,720 about:blank /tmp/pw-verify-${{ matrix.browser }}.png
       - run: pnpm test:browser --project=${{ matrix.browser }}
