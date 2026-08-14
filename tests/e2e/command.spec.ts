@@ -27,6 +27,23 @@ test.describe("Command Center（/command）", () => {
     expect(blocking).toEqual([]);
   });
 
+  test("优先级筛选与侧栏折叠可交互", async ({ page }) => {
+    await page.goto("/command");
+    await page.getByRole("button", { name: "信息 0" }).click();
+    await expect(page.getByText("当前没有需要你处理的事项。")).toBeVisible();
+    await page.getByRole("button", { name: "折叠侧栏" }).click();
+    await expect(page.locator("[data-ui101-shell]")).toHaveClass(/sidebar-collapsed/);
+    await expect(page.getByRole("button", { name: "展开侧栏" })).toBeVisible();
+  });
+
+  test("390px 小屏保持只读监控并隐藏高风险入口", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/command");
+    await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible();
+    await expect(page.locator(".high-risk-action").first()).toBeHidden();
+    await expect(page.getByLabel("连接状态")).toBeVisible();
+  });
+
   test("视觉基线：1440 深主题", async ({ page }, testInfo) => {
     const snapshot = "command-1440-dark";
     testInfo.skip(
