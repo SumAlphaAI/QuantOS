@@ -10,8 +10,8 @@ import { AxeBuilder } from "@axe-core/playwright";
  * 由 QA 在对应平台 runner 生成并提交基线（见 docs/PRE-06-summary.md 遗留项 3）。
  * 视觉门禁有效性由 scripts/pre06-sabotage-check.mjs 独立保证。
  */
-const baselinePath = (name: string) =>
-  join(process.cwd(), "tests/e2e/command.spec.ts-snapshots", `${name}-chromium-${process.platform}.png`);
+const baselinePath = (name: string, project: string) =>
+  join(process.cwd(), "tests/e2e/command.spec.ts-snapshots", `${name}-${project}-${process.platform}.png`);
 
 test.describe("Command Center（/command）", () => {
   test("路由可打开且渲染共享壳标记", async ({ page }) => {
@@ -30,8 +30,8 @@ test.describe("Command Center（/command）", () => {
   test("视觉基线：1440 深主题", async ({ page }, testInfo) => {
     const snapshot = "command-1440-dark";
     testInfo.skip(
-      !existsSync(baselinePath(snapshot)),
-      `本平台（${process.platform}）视觉基线未入库，由 QA 在该平台 runner 生成并提交后启用`,
+      !existsSync(baselinePath(snapshot, testInfo.project.name)),
+      `本项目/平台（${testInfo.project.name}/${process.platform}）视觉基线未入库，由 QA 在对应平台 runner 生成并提交后启用`,
     );
     await page.goto("/command");
     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });

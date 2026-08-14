@@ -15,9 +15,13 @@ function mockIdp(page: import("@playwright/test").Page, captured: { tokenBody?: 
       expect(url.searchParams.get("code_challenge")).toBeTruthy();
       const redirectUri = url.searchParams.get("redirect_uri")!;
       const state = url.searchParams.get("state")!;
+      // 模拟 IdP 认证成功回跳。WebKit 不允许 route.fulfill 使用 302 状态，
+      // 统一用 200 + meta refresh/script 重定向（三浏览器行为一致）。
+      const target = `${redirectUri}?code=mock-auth-code&state=${encodeURIComponent(state)}`;
       await route.fulfill({
-        status: 302,
-        headers: { location: `${redirectUri}?code=mock-auth-code&state=${state}` },
+        status: 200,
+        contentType: "text/html",
+        body: `<!doctype html><html><head><meta http-equiv="refresh" content="0;url=${target}"></head><body><script>location.replace(${JSON.stringify(target)});</script></body></html>`,
       });
     }),
     page.route(`${IDP}/token`, async (route) => {
