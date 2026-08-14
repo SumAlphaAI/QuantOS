@@ -2,12 +2,11 @@ import { defineConfig, devices } from "@playwright/test";
 
 /**
  * PRE-06 Playwright project：
- * - PR：仅 Chromium（执行计划 8.1：每 PR 跑 Chromium）；
- * - 夜间/全矩阵：FULL_MATRIX=1 追加 Firefox/WebKit。
- * - webServer 直接服务 apps/terminal/out（PRE-03 构建产物，需先 build）。
+ * - 三浏览器项目常驻注册；执行范围由 CI 任务以 --project 选择
+ *   （ci.yml 每 PR 仅 chromium；compatibility.yml 跑 chromium/firefox/webkit 全矩阵）。
+ * - webServer 直接服务 apps/terminal/out（PRE-03 构建产物，需先 build；
+ *   ci.yml 与 compatibility.yml 均已前置构建步骤）。
  */
-const fullMatrix = process.env.FULL_MATRIX === "1";
-
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -27,11 +26,7 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    ...(fullMatrix
-      ? [
-          { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-          { name: "webkit", use: { ...devices["Desktop Safari"] } },
-        ]
-      : []),
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
 });

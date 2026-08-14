@@ -41,5 +41,6 @@ jobs:
           node-version: "24.12.0"
       - run: corepack enable pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @sumalpha/terminal build
       - run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
       - run: pnpm test:browser --project=${{ matrix.browser }}
