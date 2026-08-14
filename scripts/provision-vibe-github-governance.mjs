@@ -76,7 +76,11 @@ async function github(method, apiPath, token, body) {
   });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(`GitHub ${method} ${apiPath} failed (${response.status}): ${payload.message}`);
+    const acceptedPermissions = response.headers.get("x-accepted-github-permissions");
+    throw new Error(
+      `GitHub ${method} ${apiPath} failed (${response.status}): ${payload.message}` +
+        (acceptedPermissions ? `; required permissions: ${acceptedPermissions}` : ""),
+    );
   }
   return payload;
 }
@@ -158,6 +162,11 @@ const repositoryPath = `/repos/${owner}/${repository}`;
 const metadata = await github("GET", repositoryPath, token);
 assertEqual(metadata.fork, true, "GitHub fork flag");
 assertEqual(metadata.parent?.full_name?.toLowerCase(), "hkuds/vibe-trading", "GitHub fork parent");
+if (apply && (!metadata.permissions?.admin || !metadata.permissions?.push)) {
+  throw new Error(
+    `token repository access is insufficient: admin=${Boolean(metadata.permissions?.admin)}, push=${Boolean(metadata.permissions?.push)}; select sumalphai/Vibe-Trading and grant Administration + Contents + Workflows read/write`,
+  );
+}
 
 if (apply) {
   for (const branch of [remoteLock.fork.baseBranch, remoteLock.fork.integrationBranch]) {

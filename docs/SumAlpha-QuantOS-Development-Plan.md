@@ -222,7 +222,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - [x] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量阈值告警与 ADR 证据模板已启用。
 - [x] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
 - [x] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
-- [ ] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。
+- [x] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。
 
 #### 10.1.1 F0 Gate 首轮完成度核查记录（2026-08-08）
 
@@ -271,7 +271,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | Vault 受控角色、负向访问、F09 阈值/ADR | **通过** | Vault 路径只保留 `quantos_execution_gateway`，通用角色负向访问 live 测试通过；F09 真实 outbox/DLQ、九类受控指标、11 类阈值告警与 ADR 输入均通过仓库及正式部署验证。 |
 | 每服务 health/metrics/trace/结构化错误，供应链 | **通过** | 五个 Rust service 与全部 Python Engine 共享同一运维契约；三个批处理 service 导出 started/terminal trace 并使用 correlation 一致的结构化错误，Python SDK 集中覆盖五 RPC；JSONL exporter 持久化后可由 `/trace/<uuid>` 查询，未配置/不可写时 readiness fail-closed。供应链 manifest/SPDX 可由锁文件重建且发布签名策略 fail-closed；正式 signing key 的配置仍是发布环境事项，不影响本条“报告可追溯”的事实。 |
 | TP01–TP05 版本/许可证/capability inventory | **通过** | TP02 RD-Agent 固定 `v0.5.0`/`923a326...`/MIT，TP04 TradingAgents 固定 `v0.2.1`/`551fd7f...`/Apache-2.0，TP05 OpenBB 固定 `4.4.5`/`34de2f6...`/AGPL-3.0-only；TP03 明确为无外部上游的 QuantOS-native capability。四项均归档 dependency descriptor digest、SPDX、CVE 状态及 capability/副作用/权限/替换策略；`make tp-intake-check` 验证未批准 upstream 包未进入 `uv.lock`。TP02/TP04 upstream 与 TP05 OpenBB 仍为非生产准入，其中 OpenBB 保持法务未批准、仅隔离评估。 |
-| TP01-A、TP01-B | **未通过（仅剩远程治理配置）** | `sumalphai/Vibe-Trading` 已确认是 `HKUDS/Vibe-Trading` 的真实公开 fork；已批准基线、只读 submodule、repository lock、`UPSTREAM.md`、SBOM、NOTICE、dependency digest 与 CVE 证据全部统一到 `v0.1.13`/`c33133f...`，185 个锁定依赖的 `pip-audit` 结果为 0 known vulnerabilities。checker 已加强为校验远程两分支 SHA，GitHub governance Gate 校验 fork parent 和完整保护参数；但当前命令行和应用内浏览器均无 GitHub 管理身份，远程仍只有未保护的 `main`，尚未创建 `sumalphai/tp01-base`、`sumalphai/tp01-integration` 或应用保护策略。完成认证后的远程 Gate 前保持未勾选。 |
+| TP01-A、TP01-B | **通过** | `sumalphai/Vibe-Trading` 已确认是 `HKUDS/Vibe-Trading` 的真实公开 fork；已批准基线、只读 submodule、repository lock、`UPSTREAM.md`、SBOM、NOTICE、dependency digest 与 CVE 证据全部统一到 `v0.1.13`/`c33133f...`，185 个锁定依赖的 `pip-audit` 结果为 0 known vulnerabilities。远程 `sumalphai/tp01-base`、`sumalphai/tp01-integration` 均固定到批准 SHA；GitHub API 回读证明两条分支的 strict checks、管理员约束、两人审批、过期批准撤销、最后 push 批准、线性历史、禁止 force-push/delete 与会话解决设置均和策略文件一致。capability/threat/forbidden-coupling、S0–S3 规则与 candidate-only monitor 已归档，完整 `make tp01-vibe-repository-check` 返回 0。 |
 
 #### 10.1.4 数据库重启后复验记录（2026-08-08）
 
@@ -453,7 +453,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 #### 10.1.14 TP01-A v0.1.13 基线与真实 Fork 治理复验记录（2026-08-14）
 
-**当前结论**：真实受控 fork 已创建，v0.1.13 的仓库证据与自动化 Gate 已统一并通过本地部分；但远程治理分支和保护策略尚未因缺少 GitHub Administration 认证而落地，TP01-A 仍为**未通过**，10.1 顶层 TP01-A/TP01-B 清单保持未勾选。F0 Gate 仍为 **5/7**。
+**当前结论**：真实受控 fork、v0.1.13 全部基线证据、两条远程治理分支和完整 GitHub 分支保护均已落地并通过独立回读验证；TP01-A 与此前已完成的 TP01-B 均判定为**通过**，10.1 顶层 TP01-A/TP01-B 清单已勾选。F0 Gate 当前为 **6/7**。
 
 | 核查项 | 结果 | 完整记录 |
 |---|---|---|
@@ -462,14 +462,12 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | CVE 证据 | **通过** | `pip-audit 2.9.0 --disable-pip` 在 Python 3.12 下直接审计完整固定版本锁文件，185 个 dependency entry、0 known vulnerabilities；原始 JSON 归档为 `third_party/vibe-trading/cve-audit-pip-audit.json`。普通 resolver 模式仍触发本机 `ensurepip` SIGABRT，仅作为工具兼容备注，不再阻止固定锁文件审计。 |
 | 本地 remote/checkout | **通过** | bootstrap 改为纯 Git ref 模式，不展开大型 upstream 工作树；`origin` 指向受控 fork，`upstream` 指向官方仓库且 push URL 为 `DISABLED`，本地 `sumalphai/tp01-base` 与 `sumalphai/tp01-integration` 均指向批准基线。 |
 | 自动化 Gate 加强 | **通过（代码级）** | repository checker 新增 baseline/repository lock、SBOM、CVE 原始证据一致性检查，并在完整模式通过 `ls-remote` 验证两条远程分支存在且 SHA 精确匹配。新增 GitHub governance 工具，验证 fork parent、branch protected flag、strict status checks、管理员约束、两人审批、过期批准撤销、最后 push 批准、线性历史、禁止 force-push/delete 和会话解决；支持显式 `--apply` 幂等创建缺失分支并应用策略。 |
-| 远程治理分支 | **未通过（认证阻塞）** | 公开分支查询仍只返回未保护的 `main`；`sumalphai/tp01-base` 与 `sumalphai/tp01-integration` 尚不存在。命令行无 `GH_TOKEN`/`GITHUB_TOKEN` 且 macOS Git credential helper 未返回凭据，应用内 GitHub 页面也未登录。脚本按预期在 5 秒内 fail-closed，不产生部分配置。 |
-| 远程分支保护 | **未通过（认证阻塞）** | GitHub protection API 匿名访问返回 401，必须由具备该仓库 Administration write 权限的身份执行。新增 `make tp01-vibe-provision` 和 workflow-dispatch 的 `TP01_FORK_ADMIN_TOKEN` 接入，但尚无真实 API 成功记录。 |
+| 远程治理分支 | **通过** | 补齐 fine-grained token 的 Administration、Contents、Workflows read/write 后，幂等 provisioning 通过 GitHub API 创建 `sumalphai/tp01-base` 与 `sumalphai/tp01-integration`；独立匿名 `git ls-remote` 与完整 checker 均确认两条引用精确指向 `c33133f4fd5e978d21d2a61fdd8787fb352b4687`。 |
+| 远程分支保护 | **通过** | `make tp01-vibe-provision` 成功应用策略并在同次运行回读验证；随后独立执行 `make tp01-vibe-repository-check` 再次通过。两条分支均启用 strict required checks、enforce admins、2 approvals、dismiss stale approvals、last-push approval、linear history、conversation resolution，并禁用 force push 与 deletion。 |
 
 **复验后待解决问题**
 
-1. 配置一次具备 `sumalphai/Vibe-Trading` Administration write 权限的 `GH_TOKEN`，或在 GitHub Actions 配置 `TP01_FORK_ADMIN_TOKEN`。
-2. 执行 `make tp01-vibe-provision`；该命令将幂等创建两条固定 SHA 分支并应用 `branch-protection-policy.json`。
-3. 执行 `make tp01-vibe-repository-check`，确认本地证据、远程分支和 GitHub 保护参数全部通过；仅在该结果为 0 后勾选 TP01-A/TP01-B。
+- TP01-A、TP01-B：无。远程管理令牌仅用于显式 provisioning/verification，不进入制品、日志或 Git；日常只读 upstream 与 candidate monitor 不依赖该令牌。
 
 ### 10.2 R1 Gate
 

@@ -47,7 +47,7 @@ checker fails closed when remote branches or GitHub protection settings differ.
 
 `TP01_FORK_ADMIN_TOKEN` is required only for provisioning and exact protection
 verification. Use a fine-grained token restricted to this fork with
-Administration read/write and Contents write; never commit the value.
+Administration, Contents, and Workflows read/write; never commit the value.
 
 ## Evolution records
 
