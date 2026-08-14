@@ -59,6 +59,15 @@ jobs:
       - name: Bootstrap workspace
         run: make bootstrap
 
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium
+
+      - name: Build Terminal app (Playwright webServer serves apps/terminal/out)
+        run: pnpm --filter @sumalpha/terminal build
+
+      - name: Run browser automation suite
+        run: pnpm test:browser --project=chromium
+
       - name: Secret scan
         env:
           GITLEAKS_VERSION: "8.28.0"

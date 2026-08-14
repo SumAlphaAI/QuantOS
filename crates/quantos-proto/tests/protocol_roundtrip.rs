@@ -209,6 +209,7 @@ fn every_planned_domain_type_roundtrips_across_one_thousand_fixture_sets() {
             confidence: Some(decimal("0.9")),
             expires_at: Some(timestamp(index, 365)),
             executable: false,
+            counter_views: vec!["fixture counter-view: momentum may be exhausted".to_owned()],
         };
         let decision = RiskDecision {
             metadata: Some(metadata.clone()),
@@ -339,6 +340,7 @@ fn trade_proposal_verdict_values_are_stable() {
             nanos: 0,
         }),
         executable: false,
+        counter_views: vec!["Counter-view: thin liquidity invalidates the setup".to_string()],
     };
 
     assert_eq!(proposal.action, 1);
