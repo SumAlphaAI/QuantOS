@@ -1,0 +1,65 @@
+name: Frontend Baseline (FEP-0)
+
+# PRE-06 测试基线 CI：设计 token / 环境配置 / contract fixtures / 构建 / 双端 smoke /
+# 性能预算 / Playwright+axe+视觉基线 / 破坏自检。故意破坏 schema、权限、敏感字段或
+# 视觉基线必须使本工作流失败。
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+
+      - name: Enable Corepack
+        run: corepack enable pnpm
+
+      - name: Bootstrap workspace
+        run: pnpm install --frozen-lockfile
+
+      - name: Design token & i18n checks (PRE-02)
+        run: pnpm --filter @sumalpha/ui check:design
+
+      - name: Environment config checks (PRE-05)
+        run: pnpm --filter @sumalpha/config check:env
+
+      - name: Contract fixture tests (PRE-06)
+        run: pnpm exec vitest run tests/contract
+
+      - name: Lint & typecheck frontend packages
+        run: pnpm --filter @sumalpha/ui --filter @sumalpha/config --filter @sumalpha/terminal --filter @sumalpha/website lint && pnpm --filter @sumalpha/ui --filter @sumalpha/config --filter @sumalpha/terminal --filter @sumalpha/website typecheck
+
+      - name: Unit tests
+        run: pnpm --filter @sumalpha/terminal --filter @sumalpha/website --filter @sumalpha/ui --filter @sumalpha/config test
+
+      - name: Build website & terminal
+        run: pnpm --filter @sumalpha/website build && pnpm --filter @sumalpha/terminal build
+
+      - name: Dual-end smoke (PRE-03)
+        run: pnpm smoke:pre03
+
+      - name: Performance budget
+        run: node scripts/check-perf-budget.mjs
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Playwright E2E + axe + visual baseline
+        run: pnpm exec playwright test
+
+      - name: Sabotage self-test (schema/permission/sensitive-field/visual must fail the gates)
+        run: node scripts/pre06-sabotage-check.mjs

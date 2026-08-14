@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quantos.sumalpha.ai/schemas/command-center-view.json",
+  "description": "C02 Command Center 页面聚合模型（PRE-04 字段字典第 3 节）",
+  "type": "object",
+  "required": ["riskPosture", "dataFreshness", "asOf", "pendingApprovals", "failedRuns", "openRiskAlerts", "orderSummary", "alerts", "sampledAt"],
+  "additionalProperties": false,
+  "properties": {
+    "riskPosture": { "type": "string", "enum": ["normal", "elevated", "halted"] },
+    "dataFreshness": { "type": "string", "enum": ["fresh", "delayed", "stale"] },
+    "asOf": { "type": "string", "format": "date-time" },
+    "pendingApprovals": { "type": "integer", "minimum": 0 },
+    "failedRuns": { "type": "integer", "minimum": 0 },
+    "openRiskAlerts": { "type": "integer", "minimum": 0 },
+    "orderSummary": {
+      "type": "object",
+      "required": ["mode", "submitted", "filled", "rejected"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "type": "string", "enum": ["research", "paper", "shadow"] },
+        "submitted": { "type": "integer", "minimum": 0 },
+        "filled": { "type": "integer", "minimum": 0 },
+        "rejected": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["alertId", "severity", "domain", "occurredAt", "correlationId"],
+        "additionalProperties": false,
+        "properties": {
+          "alertId": { "type": "string", "format": "uuid" },
+          "severity": { "type": "string", "enum": ["info", "warning", "critical"] },
+          "domain": { "type": "string", "enum": ["risk", "order", "market", "reconciliation", "report", "system"] },
+          "occurredAt": { "type": "string", "format": "date-time" },
+          "correlationId": { "type": "string", "format": "uuid" }
+        }
+      }
+    },
+    "sampledAt": { "type": "string", "format": "date-time" }
+  }
+}
