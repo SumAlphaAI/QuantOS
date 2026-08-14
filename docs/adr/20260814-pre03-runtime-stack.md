@@ -41,7 +41,7 @@
 ### 3. 验证机制
 
 - 双端 smoke：`scripts/pre03-smoke.mjs` 验证 ①Terminal `/command` 可打开 ②官网首页可打开 ③Tauri 配置加载同一产物 + 深链 + 窗口约束 ④`quantos://command ↔ /command` 路由一致。
-- 真实 Tauri 窗口冒烟（`pnpm --filter @sumalpha/terminal-desktop tauri dev` 或等价命令）需 GUI 会话，列为 G0 前人工验证项；自动化侧由 `cargo check`（Rust 壳编译）+ 配置 smoke 覆盖。
+- Tauri 深链现由 Rust 壳消费冷启动/运行中事件，白名单消毒后进入 BFF session 重新鉴权 Gate；自动化证据为 Rust、Playwright 与 PRE-03 smoke。每个签名桌面候选包仍执行 OS/GUI 持续回归，失败时关闭桌面深链能力。
 
 ## 后果
 

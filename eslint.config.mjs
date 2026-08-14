@@ -7,7 +7,7 @@ export default tseslint.config(
     ignores: ["dist/**", "coverage/**", "node_modules/**"],
   },
   {
-    files: ["packages/api-client/src/gen/**/*.ts"],
+    files: ["packages/api-client/src/gen/**/*.ts", "packages/api-client/src/bff-gen/**/*.ts"],
     linterOptions: {
       reportUnusedDisableDirectives: "off",
     },

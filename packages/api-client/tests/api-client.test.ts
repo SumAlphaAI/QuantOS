@@ -8,6 +8,7 @@ import {
   CommandMetadataSchema,
   TradeCommandSchema,
   createApiClientName,
+  createBffClient,
 } from "../src/index.js";
 
 describe("api-client", () => {
@@ -80,5 +81,34 @@ describe("api-client", () => {
     );
 
     expect(CommandMetadataSchema.typeName).toBe("quantos.common.v1.CommandMetadata");
+  });
+
+  it("uses the generated BFF contract with cookie credentials", async () => {
+    const requests: Request[] = [];
+    const client = createBffClient({
+      baseUrl: "https://bff.test.invalid",
+      fetch: async (input, init) => {
+        const request = input instanceof Request ? input : new Request(input, init);
+        requests.push(request);
+        return Response.json({
+          actorId: "11111111-2222-4333-8444-555555555555",
+          tenantId: "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+          workspaceId: "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff",
+          accountId: "6f708192-a3b4-4d5e-8f6a-7b8c9d0e1f2a",
+          mode: "paper",
+          environment: "staging",
+          capabilities: [],
+          mfaState: "verified",
+          expiresAt: "2026-08-14T06:00:00Z",
+        });
+      },
+    });
+
+    const { data, error } = await client.GET("/v1/session");
+
+    expect(error).toBeUndefined();
+    expect(data?.mode).toBe("paper");
+    expect(requests[0]?.url).toBe("https://bff.test.invalid/v1/session");
+    expect(requests[0]?.credentials).toBe("include");
   });
 });

@@ -13,7 +13,7 @@
 | `proto/jsonschema/v1*.schema.json`（48 个） | 由 proto 提取 | 字段字典与 fixture validator 输入 |
 | `packages/api-client/src/gen/*` | Buf 生成 TS 类型（三语言 SDK 之一） | 生成层；页面不得手写重复 DTO |
 | `packages/api-client/src/{terminal,strategy,execution,ops}.ts` | 手写 4 组 `InMemory*Backend`（TerminalBackend 5 能力、StrategyBackend、ExecutionBackend、OpsBackend 9 方法） | **fixture 级**，执行计划 1.3 明确不能作生产接口契约；G0 前须迁移为实现生成接口的测试 adapter 或标记删除 |
-| 页面级 BFF OpenAPI | **不存在**（执行计划 1.4 核查结论 2） | BFF-FE-000–011 关闭 |
+| `bff/openapi/quantos-bff.v1.yaml` | 1.0.0 已冻结，42 operations，覆盖 G0 最低冻结面 C01/C03–C09 | 由同一契约生成 TS client、组件 JSON Schema、MSW handlers；C02/C10–C17 待 minor 版本 |
 
 ## 2. 契约台账（C01–C17）
 
@@ -90,6 +90,6 @@
 
 | mock 形态 | 契约 | 状态与迁移要求 |
 |---|---|---|
-| 手写 InMemory fixture（已存在） | C02–C09、C10、C11 部分 | 仅作场景 fixture；BFF-FE-000 冻结后须由同一 OpenAPI 生成 MSW 替换；InMemory*Backend 迁移为生成接口的测试 adapter 或标记删除（G0 条件） |
+| OpenAPI 生成 MSW + 数据 fixture | C01/C03–C09 | 42 个 handler 与组件 schema 均由 1.0.0 生成；fixture 仅保存场景数据；生成漂移和页面覆盖由 CI 阻断 |
 | 服务级 swagger（可作 fixture 参考） | C03、C10 部分（Engine/EventLedger 7 operation） | 仅覆盖服务层，不代表页面 BFF；页面 mock 仍需页面级 schema |
 | 无 fixture（需新建） | C01、C12、C13、C14、C15、C16、C17 | BFF-FE-000 冻结 schema 后由生成式 MSW 提供成功/拒绝/冲突/限流/断流/陈旧/权限场景（执行计划 6.1） |

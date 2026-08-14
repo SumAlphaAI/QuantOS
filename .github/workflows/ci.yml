@@ -81,6 +81,9 @@ jobs:
       - name: Validate proto workspace
         run: make proto-check
 
+      - name: Validate BFF OpenAPI and generated contracts
+        run: make bff-contract-check
+
       - name: Validate migration baseline
         run: make db-migration-check
 

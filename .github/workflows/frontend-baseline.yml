@@ -37,6 +37,18 @@ jobs:
       - name: Environment config checks (PRE-05)
         run: pnpm --filter @sumalpha/config check:env
 
+      - name: Frozen BFF OpenAPI structure
+        run: pnpm check:bff-openapi
+
+      - name: Generated BFF client, schema and MSW drift
+        run: pnpm check:bff-generated
+
+      - name: BFF page contract coverage
+        run: pnpm check:bff-contract-coverage
+
+      - name: G0 signed record and compatibility ledger
+        run: pnpm check:g0-records
+
       - name: Contract fixture tests (PRE-06)
         run: pnpm exec vitest run tests/contract
 

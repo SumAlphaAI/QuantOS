@@ -28,7 +28,31 @@ fi
   "${buf_cmd[@]}" format --diff --exit-code
   "${buf_cmd[@]}" lint
   "${buf_cmd[@]}" build
+  "${buf_cmd[@]}" generate
+  node ./scripts/extract-json-schemas.mjs
 )
+
+generated_paths=(
+  "crates/quantos-proto/src/generated"
+  "engines/engine-sdk/src"
+  "packages/api-client/src/gen"
+  "proto/openapi"
+  "proto/jsonschema"
+)
+
+if [[ -d "${repo_root}/.git" ]]; then
+  if ! git -C "${repo_root}" diff --exit-code -- "${generated_paths[@]}"; then
+    echo "Proto/SDK/OpenAPI/JSON Schema generated artifacts drifted. Run: pnpm proto:generate" >&2
+    exit 1
+  fi
+  untracked="$(git -C "${repo_root}" ls-files --others --exclude-standard -- "${generated_paths[@]}")"
+  if [[ -n "${untracked}" ]]; then
+    echo "Untracked generated Proto artifacts detected:" >&2
+    echo "${untracked}" >&2
+    echo "Run: pnpm proto:generate and commit the generated artifacts." >&2
+    exit 1
+  fi
+fi
 
 if [[ -d "${repo_root}/.git" ]]; then
   if git -C "${repo_root}" rev-parse --verify HEAD >/dev/null 2>&1; then

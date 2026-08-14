@@ -1,6 +1,6 @@
 # PRE-05 执行总结与验收自检
 
-> 任务：PRE-05 环境方案（FEP-0）  状态：交付待评审
+> 任务：PRE-05 环境方案（FEP-0）  状态：已纳入 G0 联合评审
 > 版本：1.0  日期：2026-08-14
 
 ## 1. 交付物
@@ -31,6 +31,6 @@
 ## 4. 遗留项
 
 1. FEP-1（UI-101/102）在 app bootstrap 接线 `assertEnv` 与各 app `env.ts` 适配。
-2. `check:env` 建议并入 CI（与 PRE-06 测试基线合并）。
+2. `check:env` 已接入 Frontend Baseline CI。
 3. staging 真实 origin/IdP/DSN 值由 SRE 在部署单中注入；模板只含占位公开值。
-4. 本任务交付物并入 G0 联合评审。
+4. 本任务交付物已纳入 2026-08-14 G0 六方联合评审。

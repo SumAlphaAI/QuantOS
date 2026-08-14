@@ -1,6 +1,6 @@
 # BFF-FE-000 OpenAPI 基线提案（评审稿）
 
-> 状态：**待 BFF TL 评审冻结**（Frontend 起草，2026-08-14）
+> 状态：**已冻结（BFF TL 评审通过，2026-08-14，version 1.0.0）**
 > 规范：[bff/openapi/quantos-bff.v1.yaml](../bff/openapi/quantos-bff.v1.yaml)（OpenAPI 3.1，42 operations）
 > 结构校验：`node scripts/check-bff-openapi.mjs`（版本 / 本地 $ref 完整性 / operationId 唯一 / 命令幂等 / SSE afterSequence，全过）
 > 依据：执行计划 3.2 G0 条件 1、5.2–5.6 节；[GAP list](./PRE-04-openapi-gap-list.md)；[字段字典](./PRE-04-field-dictionary.md)；[契约台账](./PRE-04-contract-ledger.md)
@@ -42,9 +42,14 @@ C02/C10–C17 在冻结后以 minor 版本追加（已在 GAP-02/10–17 登记�
 - [ ] `executable: enum [false]` 的 schema 层强制是否保留
 - [ ] venue/product/lot 相关字段是否需随 C12 行情契约统一（FEP-4 前复核）
 
-## 4. 通过后动作
+## 4. 冻结后动作
 
-1. BFF TL 冻结为 `1.0.0` 并发布版本化 OpenAPI；GAP-00/01/03/04/05/06/07/08/09 转 Closed。
-2. 生成 client 接入 packages/api-client（替换手写类型）；`check-bff-openapi.mjs` 入 CI；MSW handlers 由本 OpenAPI 生成替换自著 schema。
-3. 回填 [Page API Coverage 登记表](./PRE-01-page-api-coverage-register.md)（operationId 已全部就绪，可直接映射）。
+1. ~~BFF TL 冻结为 `1.0.0` 并发布版本化 OpenAPI；GAP-00/01/03/04/05/06/07/08/09 转 Closed。~~ 已完成（2026-08-14）。
+2. ~~生成 client 接入 packages/api-client；`check-bff-openapi.mjs` 入 CI；MSW handlers 由本 OpenAPI 生成替换自著 schema。~~ 已完成：生成 client/schema/MSW、漂移检查和契约覆盖检查均已进入 CI。
+3. 回填 [Page API Coverage 登记表](./PRE-01-page-api-coverage-register.md)（已回填冻结域，2026-08-14）。
 4. G0 条件 1 达成，进入六方签署（条件 5）。
+
+## 5. 冻结时已知留待 v1.1 事项
+
+1. **回测运行流**：GAP-05 声明的 backtest run stream 端点（`GET /v1/backtests/{runId}/stream`）未纳入 1.0.0；P07 过渡期以 `getBacktest` 轮询（只读）承载，v1.1 增补 SSE 端点（additive，不破坏）。
+2. C02 Command Center 聚合与 C10–C17 契约按计划走后续 minor 版本（GAP-02/10–17 保持 Open）。

@@ -1,0 +1,427 @@
+{
+  "source": "bff/openapi/quantos-bff.v1.yaml",
+  "openapi": "3.1.0",
+  "version": "1.0.0",
+  "operations": [
+    {
+      "operationId": "cancelResearchRun",
+      "method": "POST",
+      "path": "/v1/research-runs/{runId}/cancel",
+      "tags": [
+        "research"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "createBacktest",
+      "method": "POST",
+      "path": "/v1/backtests",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "createRelease",
+      "method": "POST",
+      "path": "/v1/releases",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": "StrategyRelease",
+      "sse": false
+    },
+    {
+      "operationId": "createResearchRun",
+      "method": "POST",
+      "path": "/v1/research-runs",
+      "tags": [
+        "research"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "decideApproval",
+      "method": "POST",
+      "path": "/v1/approvals/{approvalId}/decisions",
+      "tags": [
+        "approval"
+      ],
+      "responseSchema": "Approval",
+      "sse": false
+    },
+    {
+      "operationId": "engageKillSwitch",
+      "method": "POST",
+      "path": "/v1/risk/kill-switch/engage",
+      "tags": [
+        "risk"
+      ],
+      "responseSchema": "RiskView",
+      "sse": false
+    },
+    {
+      "operationId": "getApproval",
+      "method": "GET",
+      "path": "/v1/approvals/{approvalId}",
+      "tags": [
+        "approval"
+      ],
+      "responseSchema": "Approval",
+      "sse": false
+    },
+    {
+      "operationId": "getArtifact",
+      "method": "GET",
+      "path": "/v1/artifacts/{artifactId}",
+      "tags": [
+        "data"
+      ],
+      "responseSchema": "Artifact",
+      "sse": false
+    },
+    {
+      "operationId": "getBacktest",
+      "method": "GET",
+      "path": "/v1/backtests/{runId}",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": "BacktestReport",
+      "sse": false
+    },
+    {
+      "operationId": "getContext",
+      "method": "GET",
+      "path": "/v1/context",
+      "tags": [
+        "session"
+      ],
+      "responseSchema": "SessionContext",
+      "sse": false
+    },
+    {
+      "operationId": "getDataSnapshot",
+      "method": "GET",
+      "path": "/v1/data-snapshots/{snapshotId}",
+      "tags": [
+        "data"
+      ],
+      "responseSchema": "DataSnapshot",
+      "sse": false
+    },
+    {
+      "operationId": "getOrder",
+      "method": "GET",
+      "path": "/v1/orders/{orderId}",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "Order",
+      "sse": false
+    },
+    {
+      "operationId": "getPortfolio",
+      "method": "GET",
+      "path": "/v1/portfolio",
+      "tags": [
+        "risk"
+      ],
+      "responseSchema": "PortfolioView",
+      "sse": false
+    },
+    {
+      "operationId": "getProposal",
+      "method": "GET",
+      "path": "/v1/proposals/{proposalId}",
+      "tags": [
+        "proposal"
+      ],
+      "responseSchema": "TradeProposal",
+      "sse": false
+    },
+    {
+      "operationId": "getRelease",
+      "method": "GET",
+      "path": "/v1/releases/{releaseId}",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": "StrategyRelease",
+      "sse": false
+    },
+    {
+      "operationId": "getResearchRun",
+      "method": "GET",
+      "path": "/v1/research-runs/{runId}",
+      "tags": [
+        "research"
+      ],
+      "responseSchema": "ResearchRun",
+      "sse": false
+    },
+    {
+      "operationId": "getRiskView",
+      "method": "GET",
+      "path": "/v1/risk",
+      "tags": [
+        "risk"
+      ],
+      "responseSchema": "RiskView",
+      "sse": false
+    },
+    {
+      "operationId": "getSession",
+      "method": "GET",
+      "path": "/v1/session",
+      "tags": [
+        "session"
+      ],
+      "responseSchema": "SessionContext",
+      "sse": false
+    },
+    {
+      "operationId": "getStrategyDraft",
+      "method": "GET",
+      "path": "/v1/strategies/{strategyId}/draft",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": "StrategyDraft",
+      "sse": false
+    },
+    {
+      "operationId": "listApprovals",
+      "method": "GET",
+      "path": "/v1/approvals",
+      "tags": [
+        "approval"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listDataSnapshots",
+      "method": "GET",
+      "path": "/v1/data-snapshots",
+      "tags": [
+        "data"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listOrders",
+      "method": "GET",
+      "path": "/v1/orders",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listProposals",
+      "method": "GET",
+      "path": "/v1/proposals",
+      "tags": [
+        "proposal"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listReleases",
+      "method": "GET",
+      "path": "/v1/releases",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listResearchRuns",
+      "method": "GET",
+      "path": "/v1/research-runs",
+      "tags": [
+        "research"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listStrategies",
+      "method": "GET",
+      "path": "/v1/strategies",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "logout",
+      "method": "POST",
+      "path": "/v1/auth/logout",
+      "tags": [
+        "session"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "mfaChallenge",
+      "method": "POST",
+      "path": "/v1/auth/mfa/challenges",
+      "tags": [
+        "session"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "reauth",
+      "method": "POST",
+      "path": "/v1/auth/reauth",
+      "tags": [
+        "session"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "releaseKillSwitch",
+      "method": "POST",
+      "path": "/v1/risk/kill-switch/release",
+      "tags": [
+        "risk"
+      ],
+      "responseSchema": "RiskView",
+      "sse": false
+    },
+    {
+      "operationId": "requestOrderCancel",
+      "method": "POST",
+      "path": "/v1/orders/{orderId}/cancel-requests",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "requestReleaseRollback",
+      "method": "POST",
+      "path": "/v1/releases/{releaseId}/rollback-requests",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "requestRiskEvaluation",
+      "method": "POST",
+      "path": "/v1/proposals/{proposalId}/risk-evaluations",
+      "tags": [
+        "proposal"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "runStaticCheck",
+      "method": "POST",
+      "path": "/v1/strategies/{strategyId}/static-checks",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "saveStrategyDraft",
+      "method": "PUT",
+      "path": "/v1/strategies/{strategyId}/draft",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": "StrategyDraft",
+      "sse": false
+    },
+    {
+      "operationId": "submitAccessRequest",
+      "method": "POST",
+      "path": "/v1/access-requests",
+      "tags": [
+        "session"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "submitReleaseApproval",
+      "method": "POST",
+      "path": "/v1/releases/{releaseId}/approval-submissions",
+      "tags": [
+        "strategy"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "submitTradeCommand",
+      "method": "POST",
+      "path": "/v1/commands",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "subscribeOrder",
+      "method": "GET",
+      "path": "/v1/orders/{orderId}/stream",
+      "tags": [
+        "execution"
+      ],
+      "responseSchema": null,
+      "sse": true
+    },
+    {
+      "operationId": "subscribePortfolio",
+      "method": "GET",
+      "path": "/v1/portfolio/stream",
+      "tags": [
+        "risk"
+      ],
+      "responseSchema": null,
+      "sse": true
+    },
+    {
+      "operationId": "subscribeProposal",
+      "method": "GET",
+      "path": "/v1/proposals/{proposalId}/stream",
+      "tags": [
+        "proposal"
+      ],
+      "responseSchema": null,
+      "sse": true
+    },
+    {
+      "operationId": "subscribeResearchRun",
+      "method": "GET",
+      "path": "/v1/research-runs/{runId}/stream",
+      "tags": [
+        "research"
+      ],
+      "responseSchema": null,
+      "sse": true
+    }
+  ]
+}

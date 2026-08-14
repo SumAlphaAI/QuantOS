@@ -18,19 +18,23 @@ const expectDetected = (label, detected, detail = "") => {
 
 // 1) schema 破坏：缺 required 字段
 {
-  const issues = validateFixture(loadFixture("sabotage/schema-broken.json"), { schema: "command-center-view" });
+  const issues = validateFixture(loadFixture("sabotage/schema-broken.json"), { schema: "SessionContext" });
   expectDetected("schema 破坏（缺 required 字段）", issues.length > 0, issues[0]);
 }
 
 // 2) 权限破坏：TradeProposal executable=true（违反 A02 不变量）
 {
-  const issues = validateFixture(loadFixture("sabotage/permission-executable.json"));
-  expectDetected("权限破坏（executable=true）", issues.some((i) => i.includes("executable")), issues[0]);
+  const issues = validateFixture(
+    { ...loadFixture("proposal/default.json"), executable: true },
+    { schema: "TradeProposal" },
+  );
+  const executableIssue = issues.find((issue) => issue.includes("executable"));
+  expectDetected("权限破坏（executable=true）", Boolean(executableIssue), executableIssue);
 }
 
 // 3) 敏感字段破坏：注入 venueApiKey
 {
-  const issues = validateFixture(loadFixture("sabotage/sensitive-field.json"), { schema: "command-center-view" });
+  const issues = validateFixture(loadFixture("sabotage/sensitive-field.json"), { schema: "SessionContext" });
   expectDetected("敏感字段破坏（venueApiKey）", issues.some((i) => i.includes("venueApiKey")), issues[0]);
 }
 

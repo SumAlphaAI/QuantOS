@@ -2,6 +2,14 @@
 
 Shared repository automation scripts live here so local commands and CI use the same checks.
 
+BFF contract generation and gates:
+
+- `generate-bff-contracts.mjs`: generates the typed BFF client contract, bundled component JSON Schema, operation manifest, and MSW handlers from `bff/openapi/quantos-bff.v1.yaml`.
+- `check-bff-generated.mjs`: regenerates those artifacts in a temporary directory and fails on any byte-level drift.
+- `check-bff-openapi.mjs`: validates the frozen OpenAPI structure, local references, operation IDs, command idempotency headers, and SSE resume parameters.
+- `check-bff-contract-coverage.mjs`: verifies every frozen operation and component is represented in generated artifacts and every operation is referenced by the page API coverage register.
+- `check-g0-records.mjs`: rejects stale G0 contradictions, an unchecked six-party decision, or post-G0 ledger rows without owner, calendar date, and compatibility strategy.
+
 Current database checks:
 
 - `check-migration-filenames.sh`: validates Supabase migration naming and ordering.

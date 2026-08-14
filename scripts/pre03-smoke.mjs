@@ -49,6 +49,8 @@ async function checkPage(name, dir, port, path, marker) {
 
 // 1) Web：Terminal /command
 await checkPage("terminal-web", join(root, "apps/terminal/out"), 3190, "/command", 'data-smoke="route-/command"');
+// Deep-link reauthorization gate is part of the same shared artifact.
+await checkPage("terminal-deep-link-gate", join(root, "apps/terminal/out"), 3192, "/auth/deep-link", "static/chunks/app/auth/deep-link");
 // 2) 官网首页
 await checkPage("website", join(root, "apps/website/out"), 3191, "/", 'data-smoke="website-home"');
 
@@ -71,6 +73,19 @@ const pairs = [["quantos://command", "/command"]];
 for (const [link, route] of pairs) {
   if (deepLinkToRoute(link) === route) pass(`路由一致: ${link} ↔ ${route}`);
   else fail(`路由不一致: ${link} -> ${deepLinkToRoute(link)}，期望 ${route}`);
+}
+
+// 5) The shell consumes both cold-start and already-running deep-link deliveries.
+const rustMain = readFileSync(join(root, "apps/terminal-desktop/src-tauri/src/main.rs"), "utf8");
+if (rustMain.includes("get_current()") && rustMain.includes("on_open_url")) {
+  pass("desktop: 冷启动与运行中深链接收器均已接线");
+} else {
+  fail("desktop: 缺 get_current/on_open_url 深链接收器");
+}
+if (rustMain.includes("sanitize_deep_link") && rustMain.includes("window.navigate")) {
+  pass("desktop: 深链先消毒再导航本地授权 Gate");
+} else {
+  fail("desktop: 缺 URL 消毒或目标导航接线");
 }
 
 if (failures > 0) { console.error(`\n${failures} 项 smoke 失败`); process.exit(1); }

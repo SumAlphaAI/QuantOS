@@ -1,6 +1,6 @@
 # PRE-01 执行总结、风险登记与验收自检
 
-> 任务：PRE-01 需求拆解（FEP-0）  状态：交付待评审
+> 任务：PRE-01 需求拆解（FEP-0）  状态：已纳入 G0 联合评审
 > 版本：1.0  日期：2026-08-14
 > 产出物：[页面台账与 Story 拆解](./PRE-01-page-ledger-and-stories.md)、[路由/权限矩阵](./PRE-01-route-permission-matrix.md)、[验收场景表](./PRE-01-acceptance-scenarios.md)
 
@@ -32,7 +32,7 @@
 | # | 风险点 | 等级 | 说明 | 缓解措施 | Owner |
 |---|---|---|---|---|---|
 | R1 | 七态设计稿不全 | 高 | 执行计划第 8 节已列"设计稿状态不全"风险：design/ 中 23 组高保真稿主要为默认态，缺错误/无权/陈旧/离线稿 | 本场景表已先用文字冻结七态行为；G0 前设计 owner 必须补齐七态稿，未补齐页面不进 Sprint | Design owner |
-| R2 | 页面级 BFF OpenAPI 未冻结 | 高 | 台账契约列为 C01–C17 逻辑契约包，非已发布 HTTP 路径；路由/operationId 可能变化 | 路由与权限矩阵只绑定页面语义不绑定 URL 细节；BFF-FE-000 冻结后回填 operationId，走契约变更机制 | BFF TL |
+| R2 | 后续页面域 OpenAPI 未冻结 | 中 | G0 最低面 C01/C03–C09 已冻结；C02/C10–C17 仍按阶段冻结 | 冻结域由生成/覆盖 CI 保护；未冻结域按 G0 签署后遗留台账的日历日期和兼容策略执行 | BFF TL |
 | R3 | P08–P12/P20/P22 高风险页验收依赖后端 Gate | 高 | 七类高风险用例（G5）依赖 X01–X06、L 系列后端能力，mock 不能代验收 | 按执行计划 8.1 调整页面顺序而不缩减安全测试；P0 command 不以 mock 代验收 | FE TL + BFF TL |
 | R4 | 官网合规文案边界 | 中 | 禁用词（收益承诺/跟单/排行榜）需在内容编写期拦截，否则 FEP-1 返工 | ST-WEB-08 已列禁用词扫描与 Lighthouse 门槛；合规在 Sprint 前签署文案 | Product + 合规 |
 | R5 | 角色口径在文档间存在细微差异 | 低 | 设计规格含"审计员"独立表述，网站设计方案未单列；本台账按 8 角色统一 | 已在矩阵第 1 节统一缩写口径；如 RBAC 模型落地时合并/拆分角色，需同步修订矩阵 | FE TL |
@@ -41,12 +41,12 @@
 
 ## 4. 评审与遗留项状态
 
-- 评审提交：四份产出物已于 2026-08-14 提交联合评审，签署记录见 [G0-PRE-01-review-record](./gate-records/G0-PRE-01-review-record.md)，当前状态"待联合评审签署"（产品、前端、BFF、QA、安全、风控六方）。
-- operationId 回填：已核查仓库，现有 [quantos.swagger.json](./proto/openapi/quantos.swagger.json) 仅含 F03 生成的 7 个 `EngineService_*`/`EventLedgerService_*` operation，页面级 BFF OpenAPI 不存在，BFF-FE-000 未冻结。已建立 [Page API Coverage 登记表](./PRE-01-page-api-coverage-register.md) 作为回填基线（24 行，含权限/错误码/新鲜度字段预登记），冻结后按表执行回填。
+- 联合评审：产品、前端、BFF、QA、安全、风控六方组织责任人已于 2026-08-14 完成确认，见 [G0-PRE-01-review-record](./gate-records/G0-PRE-01-review-record.md)。
+- operationId 回填：BFF OpenAPI 1.0.0 的 C01/C03–C09 共 42 个 operation 已回填并由 `check:bff-contract-coverage` 在 CI 校验；C02/C10–C17 按签署后遗留台账冻结。
 
 遗留项（进入 FEP-0 backlog）：
 
-1. ~~BFF-FE-000 冻结后回填 operationId~~ → 已建立回填机制与登记表，待 BFF-FE-000 冻结（R2 跟踪）。
-2. 设计 owner 补齐 23 页七态高保真稿后，验收场景表补充设计稿链接。
+1. ~~BFF-FE-000 冻结并回填 G0 最低面 operationId~~ → 已完成，42/42 覆盖检查进入 CI。
+2. Design owner 按 G0 评审记录中的日历期限补齐相应阶段页面七态高保真稿并回填链接。
 3. PRE-02 设计 token ADR 签署后，场景表"语义色/文案"引用切换为 token/i18n key。
-4. 台账需经产品、前端、BFF、QA、安全与风控联合评审签署，作为 G0 记录的一部分。
+4. ~~六方联合评审签署~~ → 已于 2026-08-14 完成。

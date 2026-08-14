@@ -1,0 +1,1022 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.0.0/components.json",
+  "title": "QuantOS Terminal BFF API component schemas",
+  "$defs": {
+    "UUID": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "DateTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC"
+    },
+    "DecimalValue": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$",
+      "description": "十进制定点字符串（proto DecimalValue.value；禁 IEEE-754 交易计算）"
+    },
+    "MoneyValue": {
+      "type": "object",
+      "required": [
+        "currencyCode",
+        "units",
+        "nanos"
+      ],
+      "properties": {
+        "currencyCode": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "units": {
+          "type": "string",
+          "format": "int64"
+        },
+        "nanos": {
+          "type": "integer",
+          "minimum": -999999999,
+          "maximum": 999999999
+        }
+      }
+    },
+    "RuntimeMode": {
+      "type": "string",
+      "enum": [
+        "research",
+        "paper",
+        "shadow",
+        "assisted_live"
+      ],
+      "description": "assisted_live 仅 M5+ 且服务端 flag/capability 放行才可见；客户端不得硬编码可用性"
+    },
+    "Environment": {
+      "type": "string",
+      "enum": [
+        "dev",
+        "staging",
+        "prod"
+      ]
+    },
+    "DataQuality": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "provisional",
+        "degraded",
+        "failed",
+        "expired",
+        "license_missing"
+      ],
+      "description": "未知值客户端显示\"未知/需升级\"并阻断高风险动作"
+    },
+    "TaskStatus": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "cancel_requested"
+      ]
+    },
+    "OrderStatus": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "risk_checking",
+        "awaiting_approval",
+        "command_ready",
+        "submitted",
+        "accepted",
+        "partially_filled",
+        "filled",
+        "cancelled",
+        "rejected",
+        "expired"
+      ]
+    },
+    "TimeWindow": {
+      "type": "object",
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "end": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "ErrorEnvelope": {
+      "type": "object",
+      "required": [
+        "code",
+        "message",
+        "correlationId"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "稳定机器码，如 FORBIDDEN/VERSION_CONFLICT/COMMAND_EXPIRED/DATA_STALE"
+        },
+        "message": {
+          "type": "string",
+          "description": "安全可展示文案（i18n key 由客户端映射）"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "fieldErrors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "retryAfter": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "秒"
+        },
+        "currentVersion": {
+          "type": "string",
+          "description": "409 时返回，供客户端 diff"
+        }
+      }
+    },
+    "Page": {
+      "type": "object",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {}
+        },
+        "nextCursor": {
+          "type": "string",
+          "description": "缺省表示末页"
+        }
+      }
+    },
+    "AsyncAccepted": {
+      "type": "object",
+      "required": [
+        "jobId",
+        "status",
+        "correlationId"
+      ],
+      "properties": {
+        "jobId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "accepted",
+            "cancel_requested"
+          ]
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "StreamEvent": {
+      "type": "object",
+      "required": [
+        "streamId",
+        "sequence",
+        "eventId",
+        "occurredAt",
+        "correlationId",
+        "payloadVersion",
+        "payload"
+      ],
+      "properties": {
+        "streamId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "sequence": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "eventId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "payloadVersion": {
+          "type": "string",
+          "description": "载荷 schema 版本（未知版本客户端 fail closed）"
+        },
+        "payload": {
+          "type": "object",
+          "description": "领域事件载荷；payload.type=permission_revoked 为终态语义"
+        }
+      }
+    },
+    "SessionContext": {
+      "type": "object",
+      "required": [
+        "actorId",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "environment",
+        "capabilities",
+        "mfaState",
+        "expiresAt"
+      ],
+      "properties": {
+        "actorId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "$ref": "#/$defs/RuntimeMode"
+        },
+        "environment": {
+          "$ref": "#/$defs/Environment"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "capability key 全集（权限裁剪唯一来源）"
+        },
+        "mfaState": {
+          "type": "string",
+          "enum": [
+            "unenrolled",
+            "enrolled",
+            "challenged",
+            "verified"
+          ]
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "ResearchRun": {
+      "type": "object",
+      "required": [
+        "runId",
+        "capability",
+        "dataSnapshotId",
+        "budget",
+        "deadlineAt",
+        "status",
+        "inputHash",
+        "engineVersion",
+        "evidenceRefs",
+        "correlationId",
+        "createdAt"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "capability": {
+          "type": "string"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "budget": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "costUnits": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "deadlineAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "status": {
+          "$ref": "#/$defs/TaskStatus"
+        },
+        "inputHash": {
+          "type": "string"
+        },
+        "engineVersion": {
+          "type": "string"
+        },
+        "artifactRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UUID"
+          }
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UUID"
+          }
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "DataSnapshot": {
+      "type": "object",
+      "required": [
+        "snapshotId",
+        "schemaVersion",
+        "window",
+        "quality",
+        "contentHash",
+        "licenseLabel",
+        "capturedAt",
+        "maxAgeSeconds"
+      ],
+      "properties": {
+        "snapshotId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "schemaVersion": {
+          "type": "string"
+        },
+        "window": {
+          "$ref": "#/$defs/TimeWindow"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quality": {
+          "$ref": "#/$defs/DataQuality"
+        },
+        "qualityBlocked": {
+          "type": "boolean",
+          "description": "质量受限阻断标识（服务端权威，前端不可覆盖）"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "licenseLabel": {
+          "type": "string"
+        },
+        "capturedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "maxAgeSeconds": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Artifact": {
+      "type": "object",
+      "required": [
+        "artifactId",
+        "hypothesis",
+        "summary",
+        "engineVersion",
+        "promptVersion",
+        "codeVersion",
+        "environmentHash",
+        "dataSnapshotId",
+        "contentHash",
+        "createdAt"
+      ],
+      "properties": {
+        "artifactId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "hypothesis": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "engineVersion": {
+          "type": "string"
+        },
+        "promptVersion": {
+          "type": "string"
+        },
+        "codeVersion": {
+          "type": "string"
+        },
+        "environmentHash": {
+          "type": "string"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "lineageRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UUID"
+          }
+        },
+        "createdAt": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "StrategySummary": {
+      "type": "object",
+      "required": [
+        "strategyId",
+        "name",
+        "updatedAt"
+      ],
+      "properties": {
+        "strategyId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "name": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "StrategyDraft": {
+      "type": "object",
+      "required": [
+        "strategyId",
+        "objectVersion",
+        "files",
+        "parameters",
+        "updatedAt"
+      ],
+      "properties": {
+        "strategyId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "BacktestReport": {
+      "type": "object",
+      "required": [
+        "runId",
+        "strategyId",
+        "dataSnapshotId",
+        "status",
+        "metrics",
+        "leakViolations",
+        "reportArtifactId"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "strategyId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "status": {
+          "$ref": "#/$defs/TaskStatus"
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/DecimalValue"
+          }
+        },
+        "leakViolations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "泄漏检查失败规则码（非空阻断 Release）"
+        },
+        "reportArtifactId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "StrategyRelease": {
+      "type": "object",
+      "required": [
+        "releaseId",
+        "strategyId",
+        "backtestReportArtifactId",
+        "sourceDigest",
+        "imageDigest",
+        "parameterHash",
+        "parameters",
+        "snapshotId",
+        "allowedTargets",
+        "approvalState",
+        "createdAt"
+      ],
+      "properties": {
+        "releaseId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "strategyId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "backtestReportArtifactId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "sourceDigest": {
+          "type": "string"
+        },
+        "imageDigest": {
+          "type": "string"
+        },
+        "parameterHash": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "snapshotId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "allowedTargets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "paper",
+              "shadow",
+              "assisted_live"
+            ]
+          },
+          "description": "服务端权威；M3/M4 仅 paper/shadow；assisted_live 出现需 flag 放行"
+        },
+        "approvalState": {
+          "type": "string",
+          "enum": [
+            "none",
+            "pending",
+            "approved",
+            "rejected",
+            "expired"
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "Position": {
+      "type": "object",
+      "required": [
+        "symbol",
+        "side",
+        "quantity",
+        "avgPrice"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "long",
+            "short"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "avgPrice": {
+          "$ref": "#/$defs/DecimalValue"
+        }
+      }
+    },
+    "PortfolioView": {
+      "type": "object",
+      "required": [
+        "accountId",
+        "asOf",
+        "stale",
+        "positions",
+        "pnl",
+        "exposure"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "asOf": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "stale": {
+          "type": "boolean",
+          "description": "true 时命令类操作由服务端拒绝"
+        },
+        "positions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Position"
+          }
+        },
+        "pnl": {
+          "$ref": "#/$defs/MoneyValue"
+        },
+        "exposure": {
+          "$ref": "#/$defs/DecimalValue"
+        }
+      }
+    },
+    "RiskView": {
+      "type": "object",
+      "required": [
+        "accountId",
+        "asOf",
+        "hitRules",
+        "limitIds",
+        "killSwitch"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "asOf": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "hitRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UUID"
+          }
+        },
+        "killSwitch": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "disengaged",
+                "engaged"
+              ]
+            },
+            "actor": {
+              "type": "string"
+            },
+            "at": {
+              "$ref": "#/$defs/DateTime"
+            }
+          }
+        }
+      }
+    },
+    "Signal": {
+      "type": "object",
+      "required": [
+        "signalId",
+        "strategyReleaseId",
+        "symbol",
+        "direction",
+        "strength",
+        "confidence",
+        "generatedAt",
+        "validUntil"
+      ],
+      "properties": {
+        "signalId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "strategyReleaseId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "long",
+            "short",
+            "flat"
+          ]
+        },
+        "strength": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "confidence": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "generatedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "validUntil": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "TradeProposal": {
+      "type": "object",
+      "required": [
+        "proposalId",
+        "accountId",
+        "symbol",
+        "action",
+        "quantity",
+        "notional",
+        "signal",
+        "rationale",
+        "counterViews",
+        "evidenceRefs",
+        "confidence",
+        "expiresAt",
+        "executable",
+        "objectVersion"
+      ],
+      "properties": {
+        "proposalId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell",
+            "reduce",
+            "close"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "notional": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "signal": {
+          "$ref": "#/$defs/Signal"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "counterViews": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "反方观点（R04 强制；proto trading.v1.TradeProposal.counter_views）"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UUID"
+          }
+        },
+        "confidence": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "executable": {
+          "type": "boolean",
+          "enum": [
+            false
+          ],
+          "description": "恒 false（A02；schema 层强制）"
+        },
+        "objectVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "Approval": {
+      "type": "object",
+      "required": [
+        "approvalId",
+        "originator",
+        "objectVersion",
+        "status",
+        "expiresAt",
+        "correlationId"
+      ],
+      "properties": {
+        "approvalId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "originator": {
+          "type": "string",
+          "description": "发起人 actorId（禁自批判定）"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected",
+            "expired",
+            "conflict"
+          ]
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "signature": {
+          "type": "string",
+          "description": "批准后服务端签名"
+        },
+        "commandRef": {
+          "$ref": "#/$defs/UUID",
+          "description": "批准后签发的短时 TradeCommand 引用"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "Fill": {
+      "type": "object",
+      "required": [
+        "fillId",
+        "quantity",
+        "price",
+        "at"
+      ],
+      "properties": {
+        "fillId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "price": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "at": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "Order": {
+      "type": "object",
+      "required": [
+        "orderId",
+        "commandId",
+        "accountId",
+        "venue",
+        "venueKind",
+        "symbol",
+        "intent",
+        "side",
+        "quantity",
+        "status",
+        "filledQuantity",
+        "averageFillPrice",
+        "fills",
+        "mode",
+        "correlationId",
+        "submittedAt"
+      ],
+      "properties": {
+        "orderId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "commandId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "decisionId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "proposalId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "releaseId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "venue": {
+          "type": "string"
+        },
+        "venueKind": {
+          "type": "string",
+          "enum": [
+            "binance",
+            "okx",
+            "coinbase",
+            "ibkr",
+            "alpine",
+            "mock"
+          ]
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "intent": {
+          "type": "string",
+          "enum": [
+            "open",
+            "increase",
+            "reduce",
+            "close"
+          ]
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "prices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DecimalValue"
+          }
+        },
+        "status": {
+          "$ref": "#/$defs/OrderStatus"
+        },
+        "filledQuantity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "averageFillPrice": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "fills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Fill"
+          }
+        },
+        "mode": {
+          "$ref": "#/$defs/RuntimeMode"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "submittedAt": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    }
+  }
+}
