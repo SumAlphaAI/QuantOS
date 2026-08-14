@@ -38,6 +38,8 @@ function checkFork(expectSuccess) {
         "./third_party/vibe-trading/upstream-src",
         "--fork",
         fixtureFork,
+        "--skip-remote-governance",
+        "1",
       ],
       { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
     );

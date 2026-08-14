@@ -33,3 +33,9 @@ jobs:
 
       - name: Prove controlled fork remote gate
         run: node ./scripts/test-vibe-repository-gate.mjs
+
+      - name: Verify real fork branches and protection
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.TP01_FORK_ADMIN_TOKEN }}
+        run: node ./scripts/provision-vibe-github-governance.mjs

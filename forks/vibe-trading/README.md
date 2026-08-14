@@ -13,14 +13,14 @@ This directory defines the governance baseline for the SumAlpha-controlled fork 
 | Remote name | Purpose | URL |
 | --- | --- | --- |
 | `upstream` | read-only source of truth | `https://github.com/HKUDS/Vibe-Trading.git` |
-| `origin` | SumAlpha-controlled fork | `https://github.com/SumAlphaAI/Vibe-Trading.git` |
+| `origin` | SumAlpha-controlled fork | `https://github.com/sumalphai/Vibe-Trading.git` |
 
 ## Branch model
 
 | Branch | Purpose |
 | --- | --- |
-| `sumalpha/tp01-base` | immutable branch matching the locked upstream baseline |
-| `sumalpha/tp01-integration` | reviewed cherry-picks and patch queue |
+| `sumalphai/tp01-base` | immutable branch matching the locked upstream baseline |
+| `sumalphai/tp01-integration` | reviewed cherry-picks and patch queue |
 | `candidate/s0-*` | emergency security response candidates |
 | `candidate/s1-*` | compatibility or license response candidates |
 | `candidate/s2-*` | planned sync candidates |
@@ -40,9 +40,14 @@ The current minimal patch queue lives under `patch-queue/` and records the appro
 `repository.lock.json` is the authoritative remote and branch contract. Run
 `node ./scripts/bootstrap-vibe-repositories.mjs` with authenticated GitHub
 access to create the ignored operational checkout, add the read-only
-`upstream` remote, disable upstream push, and pin `sumalpha/tp01-base` to the
-locked baseline. The checker fails closed when the private fork cannot be
-fetched or the remote/branch model differs.
+`upstream` remote, disable upstream push, and pin both governed branches to the
+locked baseline. Run `node ./scripts/provision-vibe-github-governance.mjs` to
+push missing governed branches and apply the checked-in protection policy. The
+checker fails closed when remote branches or GitHub protection settings differ.
+
+`TP01_FORK_ADMIN_TOKEN` is required only for provisioning and exact protection
+verification. Use a fine-grained token restricted to this fork with
+Administration read/write and Contents write; never commit the value.
 
 ## Evolution records
 

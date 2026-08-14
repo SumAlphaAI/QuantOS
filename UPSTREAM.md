@@ -10,17 +10,17 @@ This file is the authoritative upstream dependency ledger for third-party intake
 | --- | --- |
 | Upstream repository | `https://github.com/HKUDS/Vibe-Trading.git` |
 | Browse URL | `https://github.com/HKUDS/Vibe-Trading` |
-| Locked tag | `v0.1.12` |
-| Locked commit | `43331c3221be37c5cc1ed8dddc4c7988bcddc5cd` |
-| Observed upstream `main` at capture | `261f007c410f7a6ff015a17f6830c8f809cd7413` |
-| Baseline recorded at | `2026-07-30` |
+| Locked tag | `v0.1.13` |
+| Locked commit | `c33133f4fd5e978d21d2a61fdd8787fb352b4687` |
+| Observed upstream `main` at capture | `69b41987de76e04e92786adec3d4efa29e719a5a` |
+| Baseline recorded at | `2026-08-13` |
 | License conclusion | `MIT` |
 | `LICENSE` SHA256 | `b155549b8bc4e43a9b96b2288dbf4eb1bc0c697f14b3f5ec6b36bf64d5a18679` |
-| `NOTICE` SHA256 | `0f49802f7a666550b7c608e3514f9e97da48065aecb470f888d031a34a0cd07b` |
-| `pyproject.toml` SHA256 | `bdaf67d33e22579d9ff3bfffcb44ce02bb4b7458a61b3ba12822af8966181ce4` |
-| `requirements-lock.txt` SHA256 | `fd41f249f87bccb2f18ed8f1e4e35e19b83dbec96ca2b9987a1f4f912bf51849` |
+| `NOTICE` SHA256 | `a898503c041b27d1046748144666a1309b6b25fa4d75a1b0a06ce2f8acd3b07c` |
+| `pyproject.toml` SHA256 | `1ac63259fd6e94173c41f7e956c6310183861d31ab33743d646c16d5a39c3b64` |
+| `requirements-lock.txt` SHA256 | `ccb225f8ae17888dc181cb788f46564ee1b9e930cc69cfc8eac8087871cc23ec` |
 | Read-only reference path | `third_party/vibe-trading/upstream-src` (pinned Git submodule) |
-| Controlled fork URL | `https://github.com/SumAlphaAI/Vibe-Trading.git` |
+| Controlled fork URL | `https://github.com/sumalphai/Vibe-Trading.git` |
 | Controlled fork contract | `forks/vibe-trading/repository.lock.json` |
 | Production artifact source | `engines/vibe-adapter` only |
 

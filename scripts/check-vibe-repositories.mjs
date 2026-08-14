@@ -26,7 +26,35 @@ function git(repository, ...args) {
   return execFileSync("git", ["-C", repository, ...args], {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    timeout: 15_000,
   }).trim();
+}
+
+function publicRemoteBranch(remoteUrl, branch) {
+  try {
+    return execFileSync(
+      "git",
+      [
+        "-c",
+        "credential.helper=",
+        "ls-remote",
+        "--exit-code",
+        remoteUrl,
+        `refs/heads/${branch}`,
+      ],
+      {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+        timeout: 15_000,
+        env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GCM_INTERACTIVE: "Never" },
+      },
+    ).trim();
+  } catch (error) {
+    if (error.status === 2) {
+      throw new Error(`required remote branch ${branch} is missing from ${remoteUrl}`);
+    }
+    throw error;
+  }
 }
 
 function sha256(file) {
@@ -45,8 +73,35 @@ const remoteLockPath = required(args, "remote-lock");
 const readonlyPath = required(args, "readonly");
 const forkPath = args.get("fork") ? path.resolve(args.get("fork")) : null;
 const allowMissingFork = args.get("allow-missing-fork") === "1";
+const skipRemoteGovernance = args.get("skip-remote-governance") === "1";
 const baseline = JSON.parse(fs.readFileSync(baselinePath, "utf8"));
 const remoteLock = JSON.parse(fs.readFileSync(remoteLockPath, "utf8"));
+const evidenceDirectory = path.dirname(baselinePath);
+const sbom = JSON.parse(fs.readFileSync(path.join(evidenceDirectory, "sbom.spdx.json"), "utf8"));
+const cveEvidence = JSON.parse(
+  fs.readFileSync(path.join(evidenceDirectory, baseline.cveAudit.rawEvidence), "utf8"),
+);
+
+assertEqual(
+  remoteLock.upstream.baselineCommit,
+  baseline.upstream.commit,
+  "remote lock baseline commit",
+);
+assertEqual(remoteLock.upstream.baselineTag, baseline.upstream.tag, "remote lock baseline tag");
+const upstreamPackage = sbom.packages.find((entry) => entry.SPDXID === "SPDXRef-VibeTrading");
+assertEqual(upstreamPackage?.versionInfo, baseline.upstream.tag, "SBOM baseline tag");
+assertEqual(
+  upstreamPackage?.downloadLocation,
+  `git+${baseline.upstream.repositoryUrl}@${baseline.upstream.commit}`,
+  "SBOM baseline source",
+);
+assertEqual(baseline.cveAudit.status, "passed", "CVE audit status");
+assertEqual(cveEvidence.dependencies.length, baseline.cveAudit.dependencyCount, "CVE dependency count");
+assertEqual(
+  cveEvidence.dependencies.flatMap((dependency) => dependency.vulns).length,
+  baseline.cveAudit.vulnerabilityCount,
+  "CVE vulnerability count",
+);
 
 assertEqual(git(readonlyPath, "rev-parse", "HEAD"), baseline.upstream.commit, "readonly HEAD");
 assertEqual(
@@ -84,6 +139,13 @@ if (forkPath && fs.existsSync(path.join(forkPath, ".git"))) {
     "controlled fork base branch",
   );
   git(forkPath, "cat-file", "-e", `${baseline.upstream.commit}^{commit}`);
+  if (!skipRemoteGovernance) {
+    for (const branch of [remoteLock.fork.baseBranch, remoteLock.fork.integrationBranch]) {
+      const output = publicRemoteBranch(remoteLock.fork.url, branch);
+      const [remoteCommit] = output.split(/\s+/);
+      assertEqual(remoteCommit, baseline.upstream.commit, `remote branch ${branch}`);
+    }
+  }
   forkVerified = true;
 } else if (!allowMissingFork) {
   throw new Error(

@@ -1,6 +1,7 @@
 # TP01 Read-Only Reference
 
-This directory holds the V0 governance baseline for `HKUDS/Vibe-Trading`.
+This directory holds the V0 governance baseline for `HKUDS/Vibe-Trading`
+tag `v0.1.13` at `c33133f4fd5e978d21d2a61fdd8787fb352b4687`.
 
 ## Purpose
 
