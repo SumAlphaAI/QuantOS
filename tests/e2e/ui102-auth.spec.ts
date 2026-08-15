@@ -1,5 +1,12 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
+
+// 视觉基线按平台入库（<name>-<project>-<platform>.png）；本平台基线缺失时跳过并告警，
+// 由 QA 在对应平台 runner 生成并提交基线（同 command.spec.ts，见 docs/PRE-06-summary.md 遗留项 3）
+const baselinePath = (name: string, project: string) =>
+  join(process.cwd(), "tests/e2e/ui102-auth.spec.ts-snapshots", `${name}-${project}-${process.platform}.png`);
 
 const BFF = "http://localhost:4010";
 const corsHeaders = {
@@ -96,8 +103,13 @@ test.describe("UI-102 identity, access and recovery", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
 
-  test("P01 1440 深色视觉基线", async ({ page }) => {
+  test("P01 1440 深色视觉基线", async ({ page }, testInfo) => {
+    const snapshot = "ui102-login-1440-dark";
+    testInfo.skip(
+      !existsSync(baselinePath(snapshot, testInfo.project.name)),
+      `本项目/平台（${testInfo.project.name}/${process.platform}）视觉基线未入库，由 QA 在对应平台 runner 生成并提交后启用`,
+    );
     await page.goto("/login");
-    await expect(page).toHaveScreenshot("ui102-login-1440-dark.png", { maxDiffPixelRatio: 0.005 });
+    await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });
   });
 });
