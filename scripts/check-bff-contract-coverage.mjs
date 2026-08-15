@@ -11,7 +11,7 @@ const manifest = JSON.parse(readFileSync(resolve(root, "tests/contract/generated
 const schemas = JSON.parse(readFileSync(resolve(root, "tests/contract/generated/quantos-bff.components.schema.json"), "utf8"));
 const coverage = readFileSync(resolve(root, "docs/PRE-01-page-api-coverage-register.md"), "utf8");
 
-const requiredTags = ["session", "research", "data", "strategy", "risk", "proposal", "approval", "execution"];
+const requiredTags = ["session", "research", "data", "strategy", "risk", "proposal", "approval", "execution", "settings"];
 const sourceOperations = [];
 for (const [path, pathItem] of Object.entries(openapi.paths ?? {})) {
   for (const [method, operation] of Object.entries(pathItem ?? {})) {
@@ -34,9 +34,9 @@ for (const name of Object.keys(openapi.components?.schemas ?? {})) {
 }
 
 const referencedIds = new Set();
-const operationToken = /\b(?:get|list|create|save|run|submit|request|engage|release|decide|cancel|subscribe)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
+const operationToken = /\b(?:get|list|create|save|run|submit|request|engage|release|decide|cancel|subscribe|revoke|setup|clear|check)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
 for (const line of coverage.split("\n")) {
-  if (!line.startsWith("|") || (!line.includes("| 1.0.0 |") && !line.includes("| 部分 1.0.0 |"))) continue;
+  if (!line.startsWith("|") || (!line.includes("| 1.0.0 |") && !line.includes("| 1.1.0 |") && !line.includes("| 部分 1.0.0 |"))) continue;
   const operationCells = line.split("|").slice(3, 6).join(" ");
   for (const token of operationCells.match(operationToken) ?? []) {
     referencedIds.add(token);

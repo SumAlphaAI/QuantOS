@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "operations": [
     {
       "operationId": "cancelResearchRun",
@@ -114,6 +114,16 @@
       "sse": false
     },
     {
+      "operationId": "getNotificationPrefs",
+      "method": "GET",
+      "path": "/v1/settings/notification-preferences",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": "NotificationPreferences",
+      "sse": false
+    },
+    {
       "operationId": "getOrder",
       "method": "GET",
       "path": "/v1/orders/{orderId}",
@@ -124,6 +134,16 @@
       "sse": false
     },
     {
+      "operationId": "getPlatformCapabilities",
+      "method": "GET",
+      "path": "/v1/platform/browser-capabilities",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": "BrowserCapabilityPolicy",
+      "sse": false
+    },
+    {
       "operationId": "getPortfolio",
       "method": "GET",
       "path": "/v1/portfolio",
@@ -131,6 +151,16 @@
         "risk"
       ],
       "responseSchema": "PortfolioView",
+      "sse": false
+    },
+    {
+      "operationId": "getProfile",
+      "method": "GET",
+      "path": "/v1/settings/profile",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": "ProfileSettings",
       "sse": false
     },
     {
@@ -174,6 +204,16 @@
       "sse": false
     },
     {
+      "operationId": "getSecuritySettings",
+      "method": "GET",
+      "path": "/v1/settings/security",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": "SecuritySettings",
+      "sse": false
+    },
+    {
       "operationId": "getSession",
       "method": "GET",
       "path": "/v1/session",
@@ -214,6 +254,26 @@
       "sse": false
     },
     {
+      "operationId": "listDevices",
+      "method": "GET",
+      "path": "/v1/settings/trusted-devices",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listDownloads",
+      "method": "GET",
+      "path": "/v1/settings/downloads",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
       "operationId": "listOrders",
       "method": "GET",
       "path": "/v1/orders",
@@ -249,6 +309,16 @@
       "path": "/v1/research-runs",
       "tags": [
         "research"
+      ],
+      "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listSessions",
+      "method": "GET",
+      "path": "/v1/settings/sessions",
+      "tags": [
+        "settings"
       ],
       "responseSchema": null,
       "sse": false
@@ -334,6 +404,26 @@
       "sse": false
     },
     {
+      "operationId": "revokeDevice",
+      "method": "DELETE",
+      "path": "/v1/settings/trusted-devices/{deviceId}",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "revokeSession",
+      "method": "DELETE",
+      "path": "/v1/settings/sessions/{sessionId}",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
       "operationId": "runStaticCheck",
       "method": "POST",
       "path": "/v1/strategies/{strategyId}/static-checks",
@@ -344,6 +434,26 @@
       "sse": false
     },
     {
+      "operationId": "saveNotificationPrefs",
+      "method": "PUT",
+      "path": "/v1/settings/notification-preferences",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": "NotificationPreferences",
+      "sse": false
+    },
+    {
+      "operationId": "saveProfile",
+      "method": "PUT",
+      "path": "/v1/settings/profile",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": "ProfileSettings",
+      "sse": false
+    },
+    {
       "operationId": "saveStrategyDraft",
       "method": "PUT",
       "path": "/v1/strategies/{strategyId}/draft",
@@ -351,6 +461,16 @@
         "strategy"
       ],
       "responseSchema": "StrategyDraft",
+      "sse": false
+    },
+    {
+      "operationId": "setupMfa",
+      "method": "POST",
+      "path": "/v1/settings/mfa/setup",
+      "tags": [
+        "settings"
+      ],
+      "responseSchema": "AsyncAccepted",
       "sse": false
     },
     {
@@ -419,6 +539,16 @@
       "path": "/v1/research-runs/{runId}/stream",
       "tags": [
         "research"
+      ],
+      "responseSchema": null,
+      "sse": true
+    },
+    {
+      "operationId": "subscribeSessionRevocations",
+      "method": "GET",
+      "path": "/v1/settings/sessions/stream",
+      "tags": [
+        "settings"
       ],
       "responseSchema": null,
       "sse": true

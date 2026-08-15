@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.0.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.1.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -276,6 +276,505 @@
         },
         "expiresAt": {
           "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "ProfileSettingsInput": {
+      "type": "object",
+      "required": [
+        "displayName",
+        "locale",
+        "timezone",
+        "theme",
+        "numberFormat",
+        "timeDisplay",
+        "defaultRoute",
+        "density",
+        "highContrast",
+        "reducedMotion"
+      ],
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "team": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "locale": {
+          "type": "string",
+          "enum": [
+            "zh-CN",
+            "en"
+          ]
+        },
+        "timezone": {
+          "type": "string",
+          "description": "IANA timezone"
+        },
+        "theme": {
+          "type": "string",
+          "enum": [
+            "system",
+            "dark",
+            "light"
+          ]
+        },
+        "numberFormat": {
+          "type": "string",
+          "enum": [
+            "comma_dot",
+            "space_comma"
+          ]
+        },
+        "timeDisplay": {
+          "type": "string",
+          "enum": [
+            "utc_local",
+            "local"
+          ]
+        },
+        "defaultRoute": {
+          "type": "string",
+          "enum": [
+            "/command",
+            "/research",
+            "/portfolio",
+            "/markets"
+          ]
+        },
+        "density": {
+          "type": "string",
+          "enum": [
+            "compact",
+            "comfortable"
+          ]
+        },
+        "highContrast": {
+          "type": "boolean"
+        },
+        "reducedMotion": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ProfileSettings": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ProfileSettingsInput"
+        },
+        {
+          "type": "object",
+          "required": [
+            "memberId",
+            "email",
+            "emailVerified",
+            "roleLabels",
+            "objectVersion"
+          ],
+          "properties": {
+            "memberId": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "readOnly": true
+            },
+            "emailVerified": {
+              "type": "boolean",
+              "readOnly": true
+            },
+            "roleLabels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "readOnly": true
+            },
+            "objectVersion": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "NotificationRule": {
+      "type": "object",
+      "required": [
+        "key",
+        "severity",
+        "inApp",
+        "desktop",
+        "email",
+        "browser"
+      ],
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "warning",
+            "info"
+          ]
+        },
+        "inApp": {
+          "type": "boolean"
+        },
+        "desktop": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "boolean"
+        },
+        "browser": {
+          "type": "boolean"
+        }
+      }
+    },
+    "NotificationPreferencesInput": {
+      "type": "object",
+      "required": [
+        "rules",
+        "quietHoursEnabled",
+        "quietHoursStart",
+        "quietHoursEnd",
+        "criticalBypass",
+        "digestFrequency"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/NotificationRule"
+          }
+        },
+        "quietHoursEnabled": {
+          "type": "boolean"
+        },
+        "quietHoursStart": {
+          "type": "string",
+          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+        },
+        "quietHoursEnd": {
+          "type": "string",
+          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+        },
+        "criticalBypass": {
+          "type": "boolean",
+          "description": "Critical 可绕过静默但仍受服务端授权策略约束"
+        },
+        "digestFrequency": {
+          "type": "string",
+          "enum": [
+            "off",
+            "daily",
+            "weekly"
+          ]
+        }
+      }
+    },
+    "NotificationPreferences": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/NotificationPreferencesInput"
+        },
+        {
+          "type": "object",
+          "required": [
+            "objectVersion",
+            "browserPermission"
+          ],
+          "properties": {
+            "objectVersion": {
+              "type": "string"
+            },
+            "browserPermission": {
+              "type": "string",
+              "enum": [
+                "granted",
+                "denied",
+                "default",
+                "unsupported"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MfaFactor": {
+      "type": "object",
+      "required": [
+        "factorId",
+        "method",
+        "label",
+        "createdAt",
+        "lastUsedAt",
+        "currentDevice"
+      ],
+      "properties": {
+        "factorId": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "passkey",
+            "authenticator",
+            "recovery_codes"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "lastUsedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "currentDevice": {
+          "type": "boolean"
+        }
+      }
+    },
+    "SecuritySettings": {
+      "type": "object",
+      "required": [
+        "posture",
+        "score",
+        "mfaEnabled",
+        "factors",
+        "recoveryCodesRemaining",
+        "lastVerifiedAt",
+        "correlationId"
+      ],
+      "properties": {
+        "posture": {
+          "type": "string",
+          "enum": [
+            "strong",
+            "attention_required",
+            "unknown"
+          ]
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "mfaEnabled": {
+          "type": "boolean"
+        },
+        "factors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MfaFactor"
+          }
+        },
+        "recoveryCodesRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lastVerifiedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "ActiveSession": {
+      "type": "object",
+      "required": [
+        "sessionId",
+        "client",
+        "platform",
+        "location",
+        "lastActiveAt",
+        "ipMasked",
+        "current"
+      ],
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "client": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "lastActiveAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "ipMasked": {
+          "type": "string",
+          "description": "仅脱敏 IP，禁止返回完整地址"
+        },
+        "current": {
+          "type": "boolean"
+        }
+      }
+    },
+    "TrustedDevice": {
+      "type": "object",
+      "required": [
+        "deviceId",
+        "label",
+        "verificationMethod",
+        "trustedUntil",
+        "current"
+      ],
+      "properties": {
+        "deviceId": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "verificationMethod": {
+          "type": "string",
+          "enum": [
+            "passkey",
+            "biometric",
+            "authenticator"
+          ]
+        },
+        "trustedUntil": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "current": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DownloadRecord": {
+      "type": "object",
+      "required": [
+        "downloadId",
+        "objectLabel",
+        "format",
+        "requestedAt",
+        "status"
+      ],
+      "properties": {
+        "downloadId": {
+          "type": "string"
+        },
+        "objectLabel": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "requestedAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "preparing",
+            "ready",
+            "downloaded",
+            "expired",
+            "failed"
+          ]
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "downloadUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "BFF 短时签名 URL；不得写入日志或持久化"
+        },
+        "watermarked": {
+          "type": "boolean"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "BrowserCapabilityPolicy": {
+      "type": "object",
+      "required": [
+        "kind",
+        "authFlow",
+        "notifications",
+        "localFileImport",
+        "deepLinkScheme",
+        "downloadsViaBff",
+        "offlineDomainActions",
+        "businessPagesNoIndex",
+        "cspEnforced",
+        "sessionProtected"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "web"
+          ]
+        },
+        "authFlow": {
+          "type": "string",
+          "enum": [
+            "browser_redirect"
+          ]
+        },
+        "notifications": {
+          "type": "string",
+          "enum": [
+            "browser"
+          ]
+        },
+        "localFileImport": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "deepLinkScheme": {
+          "type": "string",
+          "format": "uri"
+        },
+        "downloadsViaBff": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "offlineDomainActions": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "businessPagesNoIndex": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "cspEnforced": {
+          "type": "boolean"
+        },
+        "sessionProtected": {
+          "type": "boolean"
         }
       }
     },

@@ -1,14 +1,14 @@
 # Page API Coverage 登记表（operationId 回填基线）
 
 > 任务：PRE-01 遗留项 1 / 执行计划第 5.7 节"逐页接口覆盖 Gate"
-> 版本：1.1  日期：2026-08-14（1.1：BFF-FE-000 冻结后回填冻结域）
-> 状态：**冻结域（C01/C03–C09）已按 OpenAPI 1.0.0 回填；C02/C10–C17 待后续 minor 版本**
+> 版本：1.2  日期：2026-08-15（1.2：UI-104 回填 C17 P15/P17 additive 候选面）
+> 状态：**C01/C03–C09 已冻结；C17 P15/P17 为 OpenAPI 1.1.0 Contract Mocked，BFF staging 签署待完成**
 
 ## 1. 回填前提与当前状态
 
 - 执行计划 5.7 要求：每个页面开发前建立一行 Page API Coverage 记录；每个 `UI-Pxx` 必须可追踪到 operationId。
 - **BFF-FE-000 已冻结为 [quantos-bff.v1.yaml](../bff/openapi/quantos-bff.v1.yaml) 1.0.0（2026-08-14，BFF TL 评审通过）**，42 个 operationId 生效；本表已回填冻结域页面。
-- 未冻结域（C02 聚合、C10–C17）保持 `待回填`，对应 UI 任务不得进 Sprint（DoR 阻断）；C02/C10–C17 随 BFF minor 版本发布后回填。
+- 未冻结域（C02 聚合、C10–C16 及 C17 Desktop 面）保持 `待回填`。C17 P15/P17 已有 additive 候选契约和同源 mock，但 BFF staging 签署前不得标记 Integrated。
 - 任何一行 operationId 为空时，对应 `UI-Pxx` 不得进入 Sprint（DoR 阻断）。
 
 错误码集合统一基线（各页均适用，页面特有补充在备注列）：`401 / 403 / 404 / 409 / 422 / 429 / 5xx / stream-abort`。
@@ -33,9 +33,9 @@
 | P12 | `/audit`、`/:correlationId`、`/exports/:exportId` | 待回填（C10 search/chain） | 待回填（export create/poll/download） | 无（异步 job 轮询） | 审/管/资源级；脱敏 | occurredAt、retention、export expiresAt | 待回填 | 待回填 | BFF TL | – |
 | P13 | `/operations`、`/operations/incidents/:incidentId` | 待回填（C11 health/incident） | 待回填（runbook actionId） | 待回填（health/alert broadcast） | 运/管 | sampledAt、latency | 待回填 | 待回填 | BFF TL | – |
 | P14 | `/admin/members`、`/policies`、`/capabilities`、`/flags` | 待回填（C11 admin query） | 待回填（治理 CRUD w/ versioning、双人审批） | – | 管；最后管理员保护 | configVersion、objectVersion、effectiveAt | 待回填 | 待回填 | BFF TL | – |
-| P15 | `/settings/profile`、`/notifications`、`/security` | 待回填（C17 profile/session/device） | 待回填（save/revoke/MFA setup） | 待回填（会话撤销推送） | 已登录本人 | session expiresAt | 待回填 | 待回填 | BFF TL | – |
+| P15 | `/settings/profile`、`/notifications`、`/security` | getProfile、getNotificationPrefs、getSecuritySettings、listSessions、listDevices | saveProfile、saveNotificationPrefs、revokeSession、revokeDevice、setupMfa | subscribeSessionRevocations | 已登录本人 | session expiresAt、lastActiveAt、trustedUntil | 1.1.0 | 1.1.0 | BFF TL（待签署） | 2026-08-15 |
 | P16 | `/settings/desktop` | 待回填（platform capabilities） | 待回填（cache clear、update、diagnostic） | – | DT 已登录；Web 受限态 | update manifest version | 待回填 | 待回填 | BFF TL | – |
-| P17 | `/settings/browser` | 待回填（browser capability/download record） | 待回填（notification permission 记录） | – | Web 已登录 | – | 待回填 | 待回填 | BFF TL | – |
+| P17 | `/settings/browser` | getPlatformCapabilities、listDownloads | 无（浏览器授权仅由用户手势调用 Browser API；BFF 不扩大本地权限） | – | Web 已登录；Desktop 隐藏入口 | download expiresAt | 1.1.0 | 1.1.0 | BFF TL（待签署） | 2026-08-15 |
 | P18 | `/markets`、`/markets/:symbol` | 待回填（C12 catalog/quote） | 待回填（watchlist save） | 待回填（quote stream） | 行情许可证级 | source、asOf、latency、quality | 待回填 | 待回填 | BFF TL | – |
 | P19 | `/markets/:symbol/chart` | 待回填（candle series/history） | 无（只读；受控导出经 C10） | 待回填（candle stream） | 行情许可证级 | asOf、quality、gaps | 待回填 | 待回填 | BFF TL | – |
 | P20 | `/trade`、`/trade/:symbol` | 待回填（C13 capabilities/preflight） | requestRiskEvaluation（C07）、submitTradeCommand（C09，已冻结） | 待回填（preflight refresh；报价经 C12） | 交；风/审批只读 | quoteRef、asOf、objectVersion、mode、expiresAt | 部分 1.0.0 | 1.0.0 | BFF TL | 2026-08-14 |
@@ -43,7 +43,7 @@
 | P22 | `/reconciliation`、`/:runId` | 待回填（C15 recon/break/ledger） | 待回填（requestReconRerun） | 待回填（recon status stream） | 交/风/运；资源级只读 | ledgerVersion、window、asOf | 待回填 | 待回填 | BFF TL | – |
 | P23 | `/alerts`、`/alerts/:alertId` | 待回填（C16 alert list/get） | 待回填（ack/unack、subscriptions） | 待回填（alert stream） | 事件授权级 | occurredAt、asOf | 待回填 | 待回填 | BFF TL | – |
 
-mock 版本说明：冻结域统一使用 OpenAPI `1.0.0` 生成的 TypeScript client、JSON Schema 与 MSW handlers；`pnpm check:bff-generated` 在 CI 中阻止生成漂移，不再维护 transition 自著 schema。
+mock 版本说明：生成 TypeScript client、JSON Schema 与 MSW handlers 与 OpenAPI 同源；当前版本 `1.1.0`。C17 是 UI-104 additive 候选面，需 BFF-FE-001/011 staging 签署后才能从 Contract Mocked 升级为 Integrated。
 
 ## 3. 回填执行流程（已完成首轮）
 

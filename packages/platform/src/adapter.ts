@@ -5,6 +5,7 @@
  */
 
 import type { PlatformKind } from "./index.js";
+export type { PlatformKind } from "./index.js";
 
 export interface PlatformCapabilities {
   kind: PlatformKind;
@@ -48,4 +49,9 @@ export function bindAuthCallback(kind: PlatformKind): AuthCallbackBinding {
     scheme: capabilities.deepLinkScheme,
     carriesTokensInUrl: false,
   };
+}
+
+/** P17 is a Web capability surface and must not appear in the Desktop shell. */
+export function shouldExposeBrowserSettings(kind: PlatformKind): boolean {
+  return kind === "web";
 }

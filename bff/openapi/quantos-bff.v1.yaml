@@ -1,14 +1,13 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.0.0
+  version: 1.1.0
   description: |
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
 
-    范围：GAP-00 统一基线 + C01 会话/上下文、C03 Research Runtime、C04 Snapshot/Artifact、
-    C05 Strategy、C06 Portfolio/Risk、C07 Proposal/Evaluation、C08 Approval/MFA、C09 Command/Order
-    （对应 G0 条件 1 最低冻结面）。C02/C10–C17 在后续 minor 版本追加，不在本草案。
+    范围：GAP-00 统一基线 + C01、C03–C09，以及 UI-104 所需 C17 Settings/Web Platform additive 候选面。
+    C17 当前为 Contract Mocked，需 BFF-FE-001/011 staging 签署后方可标记 Integrated。
 
     统一约定：
     - 成功响应：单资源直接返回；列表返回 Page<T>（items + nextCursor）。
@@ -45,6 +44,8 @@ tags:
     description: C08 审批与 MFA
   - name: execution
     description: C09 TradeCommand 与 Order
+  - name: settings
+    description: C17 资料、安全、通知与 Web 平台能力
 
 security:
   - bearerAuth: []
@@ -159,6 +160,200 @@ paths:
               schema: { $ref: "#/components/schemas/AsyncAccepted" }
         "422": { $ref: "#/components/responses/Unprocessable" }
         "429": { $ref: "#/components/responses/RateLimited" }
+
+  # ==================== C17 Settings / Web Platform (1.1 additive candidate) ====================
+  /v1/settings/profile:
+    get:
+      operationId: getProfile
+      tags: [settings]
+      summary: 当前成员资料与区域显示偏好
+      responses:
+        "200":
+          description: 资料设置
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProfileSettings" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    put:
+      operationId: saveProfile
+      tags: [settings]
+      summary: 保存资料与区域显示偏好；不得改变角色、权限或风险规则
+      parameters:
+        - { $ref: "#/components/parameters/IfMatch" }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileSettingsInput" }
+      responses:
+        "200":
+          description: 已保存
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProfileSettings" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+  /v1/settings/notification-preferences:
+    get:
+      operationId: getNotificationPrefs
+      tags: [settings]
+      responses:
+        "200":
+          description: 通知偏好矩阵
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NotificationPreferences" }
+    put:
+      operationId: saveNotificationPrefs
+      tags: [settings]
+      parameters:
+        - { $ref: "#/components/parameters/IfMatch" }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NotificationPreferencesInput" }
+      responses:
+        "200":
+          description: 已保存
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NotificationPreferences" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/settings/security:
+    get:
+      operationId: getSecuritySettings
+      tags: [settings]
+      responses:
+        "200":
+          description: MFA 与安全姿态
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SecuritySettings" }
+  /v1/settings/sessions:
+    get:
+      operationId: listSessions
+      tags: [settings]
+      responses:
+        "200":
+          description: 活跃会话（IP 必须脱敏）
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ActiveSession" }
+  /v1/settings/sessions/{sessionId}:
+    delete:
+      operationId: revokeSession
+      tags: [settings]
+      summary: 撤销单个非当前会话；要求近期认证并写审计
+      parameters:
+        - { name: sessionId, in: path, required: true, schema: { type: string } }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+        - { name: X-Reauth-Token-Ref, in: header, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "202":
+          description: 撤销已受理
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/settings/sessions/stream:
+    get:
+      operationId: subscribeSessionRevocations
+      tags: [settings]
+      parameters:
+        - { $ref: "#/components/parameters/AfterSequence" }
+      responses:
+        "200":
+          description: 会话撤销/失效 SSE；当前会话被撤销为终态并清空内存认证态
+          content:
+            text/event-stream:
+              schema: { $ref: "#/components/schemas/StreamEvent" }
+  /v1/settings/trusted-devices:
+    get:
+      operationId: listDevices
+      tags: [settings]
+      responses:
+        "200":
+          description: 可信设备
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/TrustedDevice" }
+  /v1/settings/trusted-devices/{deviceId}:
+    delete:
+      operationId: revokeDevice
+      tags: [settings]
+      summary: 撤销设备信任；不得撤销最后有效 MFA 因素
+      parameters:
+        - { name: deviceId, in: path, required: true, schema: { type: string } }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+        - { name: X-Reauth-Token-Ref, in: header, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "202":
+          description: 撤销已受理
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/settings/mfa/setup:
+    post:
+      operationId: setupMfa
+      tags: [settings]
+      parameters:
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+        - { name: X-Reauth-Token-Ref, in: header, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [method]
+              properties:
+                method: { type: string, enum: [passkey, authenticator] }
+      responses:
+        "202":
+          description: MFA 设置流程已受理
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AsyncAccepted" }
+  /v1/settings/downloads:
+    get:
+      operationId: listDownloads
+      tags: [settings]
+      parameters:
+        - { $ref: "#/components/parameters/Cursor" }
+        - { $ref: "#/components/parameters/PageSize" }
+      responses:
+        "200":
+          description: 下载记录；URL 必须短时、签名且服务端鉴权
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: "#/components/schemas/Page" }
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items: { $ref: "#/components/schemas/DownloadRecord" }
+  /v1/platform/browser-capabilities:
+    get:
+      operationId: getPlatformCapabilities
+      tags: [settings]
+      summary: Web adapter 服务端约束；客户端本地检测只能缩小能力，不得扩大授权
+      responses:
+        "200":
+          description: Web 平台能力策略
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BrowserCapabilityPolicy" }
 
   # ==================== C03 Research Runtime ====================
   /v1/research-runs:
@@ -1024,6 +1219,131 @@ components:
         capabilities: { type: array, items: { type: string }, description: capability key 全集（权限裁剪唯一来源） }
         mfaState: { type: string, enum: [unenrolled, enrolled, challenged, verified] }
         expiresAt: { $ref: "#/components/schemas/DateTime" }
+
+    # ---------- C17 Settings / Web Platform ----------
+    ProfileSettingsInput:
+      type: object
+      required: [displayName, locale, timezone, theme, numberFormat, timeDisplay, defaultRoute, density, highContrast, reducedMotion]
+      properties:
+        displayName: { type: string, minLength: 1, maxLength: 80 }
+        title: { type: string, maxLength: 120 }
+        team: { type: string, maxLength: 120 }
+        locale: { type: string, enum: [zh-CN, en] }
+        timezone: { type: string, description: IANA timezone }
+        theme: { type: string, enum: [system, dark, light] }
+        numberFormat: { type: string, enum: [comma_dot, space_comma] }
+        timeDisplay: { type: string, enum: [utc_local, local] }
+        defaultRoute: { type: string, enum: [/command, /research, /portfolio, /markets] }
+        density: { type: string, enum: [compact, comfortable] }
+        highContrast: { type: boolean }
+        reducedMotion: { type: boolean }
+    ProfileSettings:
+      allOf:
+        - { $ref: "#/components/schemas/ProfileSettingsInput" }
+        - type: object
+          required: [memberId, email, emailVerified, roleLabels, objectVersion]
+          properties:
+            memberId: { type: string }
+            email: { type: string, format: email, readOnly: true }
+            emailVerified: { type: boolean, readOnly: true }
+            roleLabels: { type: array, items: { type: string }, readOnly: true }
+            objectVersion: { type: string }
+    NotificationRule:
+      type: object
+      required: [key, severity, inApp, desktop, email, browser]
+      properties:
+        key: { type: string }
+        severity: { type: string, enum: [critical, warning, info] }
+        inApp: { type: boolean }
+        desktop: { type: boolean }
+        email: { type: boolean }
+        browser: { type: boolean }
+    NotificationPreferencesInput:
+      type: object
+      required: [rules, quietHoursEnabled, quietHoursStart, quietHoursEnd, criticalBypass, digestFrequency]
+      properties:
+        rules: { type: array, items: { $ref: "#/components/schemas/NotificationRule" } }
+        quietHoursEnabled: { type: boolean }
+        quietHoursStart: { type: string, pattern: "^([01]\\d|2[0-3]):[0-5]\\d$" }
+        quietHoursEnd: { type: string, pattern: "^([01]\\d|2[0-3]):[0-5]\\d$" }
+        criticalBypass: { type: boolean, description: Critical 可绕过静默但仍受服务端授权策略约束 }
+        digestFrequency: { type: string, enum: [off, daily, weekly] }
+    NotificationPreferences:
+      allOf:
+        - { $ref: "#/components/schemas/NotificationPreferencesInput" }
+        - type: object
+          required: [objectVersion, browserPermission]
+          properties:
+            objectVersion: { type: string }
+            browserPermission: { type: string, enum: [granted, denied, default, unsupported] }
+    MfaFactor:
+      type: object
+      required: [factorId, method, label, createdAt, lastUsedAt, currentDevice]
+      properties:
+        factorId: { type: string }
+        method: { type: string, enum: [passkey, authenticator, recovery_codes] }
+        label: { type: string }
+        createdAt: { $ref: "#/components/schemas/DateTime" }
+        lastUsedAt: { $ref: "#/components/schemas/DateTime" }
+        currentDevice: { type: boolean }
+    SecuritySettings:
+      type: object
+      required: [posture, score, mfaEnabled, factors, recoveryCodesRemaining, lastVerifiedAt, correlationId]
+      properties:
+        posture: { type: string, enum: [strong, attention_required, unknown] }
+        score: { type: integer, minimum: 0, maximum: 100 }
+        mfaEnabled: { type: boolean }
+        factors: { type: array, items: { $ref: "#/components/schemas/MfaFactor" } }
+        recoveryCodesRemaining: { type: integer, minimum: 0 }
+        lastVerifiedAt: { $ref: "#/components/schemas/DateTime" }
+        correlationId: { $ref: "#/components/schemas/UUID" }
+    ActiveSession:
+      type: object
+      required: [sessionId, client, platform, location, lastActiveAt, ipMasked, current]
+      properties:
+        sessionId: { type: string }
+        client: { type: string }
+        platform: { type: string }
+        location: { type: string }
+        lastActiveAt: { $ref: "#/components/schemas/DateTime" }
+        ipMasked: { type: string, description: 仅脱敏 IP，禁止返回完整地址 }
+        current: { type: boolean }
+    TrustedDevice:
+      type: object
+      required: [deviceId, label, verificationMethod, trustedUntil, current]
+      properties:
+        deviceId: { type: string }
+        label: { type: string }
+        verificationMethod: { type: string, enum: [passkey, biometric, authenticator] }
+        trustedUntil: { $ref: "#/components/schemas/DateTime" }
+        current: { type: boolean }
+    DownloadRecord:
+      type: object
+      required: [downloadId, objectLabel, format, requestedAt, status]
+      properties:
+        downloadId: { type: string }
+        objectLabel: { type: string }
+        format: { type: string }
+        requestedAt: { $ref: "#/components/schemas/DateTime" }
+        status: { type: string, enum: [preparing, ready, downloaded, expired, failed] }
+        expiresAt: { $ref: "#/components/schemas/DateTime" }
+        downloadUrl: { type: string, format: uri, description: BFF 短时签名 URL；不得写入日志或持久化 }
+        watermarked: { type: boolean }
+        correlationId: { $ref: "#/components/schemas/UUID" }
+    BrowserCapabilityPolicy:
+      type: object
+      required: [kind, authFlow, notifications, localFileImport, deepLinkScheme, downloadsViaBff, offlineDomainActions, businessPagesNoIndex, cspEnforced, sessionProtected]
+      properties:
+        kind: { type: string, enum: [web] }
+        authFlow: { type: string, enum: [browser_redirect] }
+        notifications: { type: string, enum: [browser] }
+        localFileImport: { type: boolean, enum: [false] }
+        deepLinkScheme: { type: string, format: uri }
+        downloadsViaBff: { type: boolean, enum: [true] }
+        offlineDomainActions: { type: boolean, enum: [false] }
+        businessPagesNoIndex: { type: boolean, enum: [true] }
+        cspEnforced: { type: boolean }
+        sessionProtected: { type: boolean }
 
     # ---------- C03/C04 ----------
     ResearchRun:

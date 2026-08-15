@@ -6,7 +6,7 @@ import type { StorybookConfig } from "@storybook/react-vite";
  * 本配置先行冻结目录与约定，安装后可直接运行。
  */
 const config: StorybookConfig = {
-  stories: ["../src/**/*.stories.@(ts|tsx)", "../../domain-ui/src/**/*.stories.@(ts|tsx)"],
+  stories: ["../src/**/*.stories.@(ts|tsx)", "../../domain-ui/src/**/*.stories.@(ts|tsx)", "../../../apps/terminal/app/**/*.stories.@(ts|tsx)"],
   addons: [
     "@storybook/addon-essentials",
     "@storybook/addon-a11y", // axe：严重/高等级问题为 0（执行计划 7.1）

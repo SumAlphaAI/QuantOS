@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.0.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.1.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -22,20 +22,27 @@ export type BffOperationId =
   | "getBacktest"
   | "getContext"
   | "getDataSnapshot"
+  | "getNotificationPrefs"
   | "getOrder"
+  | "getPlatformCapabilities"
   | "getPortfolio"
+  | "getProfile"
   | "getProposal"
   | "getRelease"
   | "getResearchRun"
   | "getRiskView"
+  | "getSecuritySettings"
   | "getSession"
   | "getStrategyDraft"
   | "listApprovals"
   | "listDataSnapshots"
+  | "listDevices"
+  | "listDownloads"
   | "listOrders"
   | "listProposals"
   | "listReleases"
   | "listResearchRuns"
+  | "listSessions"
   | "listStrategies"
   | "logout"
   | "mfaChallenge"
@@ -44,15 +51,21 @@ export type BffOperationId =
   | "requestOrderCancel"
   | "requestReleaseRollback"
   | "requestRiskEvaluation"
+  | "revokeDevice"
+  | "revokeSession"
   | "runStaticCheck"
+  | "saveNotificationPrefs"
+  | "saveProfile"
   | "saveStrategyDraft"
+  | "setupMfa"
   | "submitAccessRequest"
   | "submitReleaseApproval"
   | "submitTradeCommand"
   | "subscribeOrder"
   | "subscribePortfolio"
   | "subscribeProposal"
-  | "subscribeResearchRun";
+  | "subscribeResearchRun"
+  | "subscribeSessionRevocations";
 
 function missingResolver(operationId: BffOperationId): Response {
   return HttpResponse.json(
@@ -121,15 +134,30 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getDataSnapshot");
   }),
+  http.get(`${baseUrl}/v1/settings/notification-preferences`, async ({ request, params }) => {
+    const resolver = resolvers.getNotificationPrefs;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getNotificationPrefs");
+  }),
   http.get(`${baseUrl}/v1/orders/:orderId`, async ({ request, params }) => {
     const resolver = resolvers.getOrder;
     if (resolver) return resolver({ request, params });
     return missingResolver("getOrder");
   }),
+  http.get(`${baseUrl}/v1/platform/browser-capabilities`, async ({ request, params }) => {
+    const resolver = resolvers.getPlatformCapabilities;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getPlatformCapabilities");
+  }),
   http.get(`${baseUrl}/v1/portfolio`, async ({ request, params }) => {
     const resolver = resolvers.getPortfolio;
     if (resolver) return resolver({ request, params });
     return missingResolver("getPortfolio");
+  }),
+  http.get(`${baseUrl}/v1/settings/profile`, async ({ request, params }) => {
+    const resolver = resolvers.getProfile;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getProfile");
   }),
   http.get(`${baseUrl}/v1/proposals/:proposalId`, async ({ request, params }) => {
     const resolver = resolvers.getProposal;
@@ -151,6 +179,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getRiskView");
   }),
+  http.get(`${baseUrl}/v1/settings/security`, async ({ request, params }) => {
+    const resolver = resolvers.getSecuritySettings;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getSecuritySettings");
+  }),
   http.get(`${baseUrl}/v1/session`, async ({ request, params }) => {
     const resolver = resolvers.getSession;
     if (resolver) return resolver({ request, params });
@@ -171,6 +204,16 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("listDataSnapshots");
   }),
+  http.get(`${baseUrl}/v1/settings/trusted-devices`, async ({ request, params }) => {
+    const resolver = resolvers.listDevices;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listDevices");
+  }),
+  http.get(`${baseUrl}/v1/settings/downloads`, async ({ request, params }) => {
+    const resolver = resolvers.listDownloads;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listDownloads");
+  }),
   http.get(`${baseUrl}/v1/orders`, async ({ request, params }) => {
     const resolver = resolvers.listOrders;
     if (resolver) return resolver({ request, params });
@@ -190,6 +233,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.listResearchRuns;
     if (resolver) return resolver({ request, params });
     return missingResolver("listResearchRuns");
+  }),
+  http.get(`${baseUrl}/v1/settings/sessions`, async ({ request, params }) => {
+    const resolver = resolvers.listSessions;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listSessions");
   }),
   http.get(`${baseUrl}/v1/strategies`, async ({ request, params }) => {
     const resolver = resolvers.listStrategies;
@@ -231,15 +279,40 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("requestRiskEvaluation");
   }),
+  http.delete(`${baseUrl}/v1/settings/trusted-devices/:deviceId`, async ({ request, params }) => {
+    const resolver = resolvers.revokeDevice;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("revokeDevice");
+  }),
+  http.delete(`${baseUrl}/v1/settings/sessions/:sessionId`, async ({ request, params }) => {
+    const resolver = resolvers.revokeSession;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("revokeSession");
+  }),
   http.post(`${baseUrl}/v1/strategies/:strategyId/static-checks`, async ({ request, params }) => {
     const resolver = resolvers.runStaticCheck;
     if (resolver) return resolver({ request, params });
     return missingResolver("runStaticCheck");
   }),
+  http.put(`${baseUrl}/v1/settings/notification-preferences`, async ({ request, params }) => {
+    const resolver = resolvers.saveNotificationPrefs;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("saveNotificationPrefs");
+  }),
+  http.put(`${baseUrl}/v1/settings/profile`, async ({ request, params }) => {
+    const resolver = resolvers.saveProfile;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("saveProfile");
+  }),
   http.put(`${baseUrl}/v1/strategies/:strategyId/draft`, async ({ request, params }) => {
     const resolver = resolvers.saveStrategyDraft;
     if (resolver) return resolver({ request, params });
     return missingResolver("saveStrategyDraft");
+  }),
+  http.post(`${baseUrl}/v1/settings/mfa/setup`, async ({ request, params }) => {
+    const resolver = resolvers.setupMfa;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("setupMfa");
   }),
   http.post(`${baseUrl}/v1/access-requests`, async ({ request, params }) => {
     const resolver = resolvers.submitAccessRequest;
@@ -275,6 +348,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.subscribeResearchRun;
     if (resolver) return resolver({ request, params });
     return missingResolver("subscribeResearchRun");
+  }),
+  http.get(`${baseUrl}/v1/settings/sessions/stream`, async ({ request, params }) => {
+    const resolver = resolvers.subscribeSessionRevocations;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("subscribeSessionRevocations");
   }),
   ];
 }

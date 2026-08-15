@@ -121,7 +121,7 @@ export function CommandCenter() {
         <label className="global-search"><span aria-hidden="true">⌕</span><input aria-label="全局搜索" placeholder="搜索  ⌘K" /></label>
         <button className="icon-button notification-button" type="button" aria-label="通知，3 条未读">♧<span>3</span></button>
         <button className="icon-button help-button" type="button" aria-label="帮助">?</button>
-        <button className="avatar" type="button" aria-label="个人菜单">{localMockProjection.session.actorInitials}</button>
+        <a className="avatar" href="/settings/profile" aria-label="打开个人设置">{localMockProjection.session.actorInitials}</a>
       </header>
 
       <aside className="terminal-sidebar" aria-label="主导航">

@@ -106,6 +106,187 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/settings/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 当前成员资料与区域显示偏好 */
+        get: operations["getProfile"];
+        /** 保存资料与区域显示偏好；不得改变角色、权限或风险规则 */
+        put: operations["saveProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/settings/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getNotificationPrefs"];
+        put: operations["saveNotificationPrefs"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/settings/security": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSecuritySettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/settings/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/settings/sessions/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** 撤销单个非当前会话；要求近期认证并写审计 */
+        delete: operations["revokeSession"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/settings/sessions/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["subscribeSessionRevocations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/settings/trusted-devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listDevices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/settings/trusted-devices/{deviceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** 撤销设备信任；不得撤销最后有效 MFA 因素 */
+        delete: operations["revokeDevice"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/settings/mfa/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["setupMfa"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/settings/downloads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listDownloads"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/platform/browser-capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Web adapter 服务端约束；客户端本地检测只能缩小能力，不得扩大授权 */
+        get: operations["getPlatformCapabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/research-runs": {
         parameters: {
             query?: never;
@@ -747,6 +928,132 @@ export interface components {
             mfaState: "unenrolled" | "enrolled" | "challenged" | "verified";
             expiresAt: components["schemas"]["DateTime"];
         };
+        ProfileSettingsInput: {
+            displayName: string;
+            title?: string;
+            team?: string;
+            /** @enum {string} */
+            locale: "zh-CN" | "en";
+            /** @description IANA timezone */
+            timezone: string;
+            /** @enum {string} */
+            theme: "system" | "dark" | "light";
+            /** @enum {string} */
+            numberFormat: "comma_dot" | "space_comma";
+            /** @enum {string} */
+            timeDisplay: "utc_local" | "local";
+            /** @enum {string} */
+            defaultRoute: "/command" | "/research" | "/portfolio" | "/markets";
+            /** @enum {string} */
+            density: "compact" | "comfortable";
+            highContrast: boolean;
+            reducedMotion: boolean;
+        };
+        ProfileSettings: components["schemas"]["ProfileSettingsInput"] & {
+            memberId: string;
+            /** Format: email */
+            readonly email: string;
+            readonly emailVerified: boolean;
+            readonly roleLabels: string[];
+            objectVersion: string;
+        };
+        NotificationRule: {
+            key: string;
+            /** @enum {string} */
+            severity: "critical" | "warning" | "info";
+            inApp: boolean;
+            desktop: boolean;
+            email: boolean;
+            browser: boolean;
+        };
+        NotificationPreferencesInput: {
+            rules: components["schemas"]["NotificationRule"][];
+            quietHoursEnabled: boolean;
+            quietHoursStart: string;
+            quietHoursEnd: string;
+            /** @description Critical 可绕过静默但仍受服务端授权策略约束 */
+            criticalBypass: boolean;
+            /** @enum {string} */
+            digestFrequency: "off" | "daily" | "weekly";
+        };
+        NotificationPreferences: components["schemas"]["NotificationPreferencesInput"] & {
+            objectVersion: string;
+            /** @enum {string} */
+            browserPermission: "granted" | "denied" | "default" | "unsupported";
+        };
+        MfaFactor: {
+            factorId: string;
+            /** @enum {string} */
+            method: "passkey" | "authenticator" | "recovery_codes";
+            label: string;
+            createdAt: components["schemas"]["DateTime"];
+            lastUsedAt: components["schemas"]["DateTime"];
+            currentDevice: boolean;
+        };
+        SecuritySettings: {
+            /** @enum {string} */
+            posture: "strong" | "attention_required" | "unknown";
+            score: number;
+            mfaEnabled: boolean;
+            factors: components["schemas"]["MfaFactor"][];
+            recoveryCodesRemaining: number;
+            lastVerifiedAt: components["schemas"]["DateTime"];
+            correlationId: components["schemas"]["UUID"];
+        };
+        ActiveSession: {
+            sessionId: string;
+            client: string;
+            platform: string;
+            location: string;
+            lastActiveAt: components["schemas"]["DateTime"];
+            /** @description 仅脱敏 IP，禁止返回完整地址 */
+            ipMasked: string;
+            current: boolean;
+        };
+        TrustedDevice: {
+            deviceId: string;
+            label: string;
+            /** @enum {string} */
+            verificationMethod: "passkey" | "biometric" | "authenticator";
+            trustedUntil: components["schemas"]["DateTime"];
+            current: boolean;
+        };
+        DownloadRecord: {
+            downloadId: string;
+            objectLabel: string;
+            format: string;
+            requestedAt: components["schemas"]["DateTime"];
+            /** @enum {string} */
+            status: "preparing" | "ready" | "downloaded" | "expired" | "failed";
+            expiresAt?: components["schemas"]["DateTime"];
+            /**
+             * Format: uri
+             * @description BFF 短时签名 URL；不得写入日志或持久化
+             */
+            downloadUrl?: string;
+            watermarked?: boolean;
+            correlationId?: components["schemas"]["UUID"];
+        };
+        BrowserCapabilityPolicy: {
+            /** @enum {string} */
+            kind: "web";
+            /** @enum {string} */
+            authFlow: "browser_redirect";
+            /** @enum {string} */
+            notifications: "browser";
+            /** @enum {boolean} */
+            localFileImport: false;
+            /** Format: uri */
+            deepLinkScheme: string;
+            /** @enum {boolean} */
+            downloadsViaBff: true;
+            /** @enum {boolean} */
+            offlineDomainActions: false;
+            /** @enum {boolean} */
+            businessPagesNoIndex: true;
+            cspEnforced: boolean;
+            sessionProtected: boolean;
+        };
         ResearchRun: {
             runId: components["schemas"]["UUID"];
             capability: string;
@@ -1189,6 +1496,323 @@ export interface operations {
             };
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
+        };
+    };
+    getProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 资料设置 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileSettings"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+        };
+    };
+    saveProfile: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileSettingsInput"];
+            };
+        };
+        responses: {
+            /** @description 已保存 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileSettings"];
+                };
+            };
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+        };
+    };
+    getNotificationPrefs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 通知偏好矩阵 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferences"];
+                };
+            };
+        };
+    };
+    saveNotificationPrefs: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationPreferencesInput"];
+            };
+        };
+        responses: {
+            /** @description 已保存 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferences"];
+                };
+            };
+            409: components["responses"]["Conflict"];
+        };
+    };
+    getSecuritySettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description MFA 与安全姿态 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecuritySettings"];
+                };
+            };
+        };
+    };
+    listSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 活跃会话（IP 必须脱敏） */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActiveSession"][];
+                };
+            };
+        };
+    };
+    revokeSession: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "X-Reauth-Token-Ref": string;
+            };
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 撤销已受理 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AsyncAccepted"];
+                };
+            };
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    subscribeSessionRevocations: {
+        parameters: {
+            query?: {
+                /** @description 只推送 sequence 严格大于该值的事件（断线回补） */
+                afterSequence?: components["parameters"]["AfterSequence"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 会话撤销/失效 SSE；当前会话被撤销为终态并清空内存认证态 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["StreamEvent"];
+                };
+            };
+        };
+    };
+    listDevices: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 可信设备 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrustedDevice"][];
+                };
+            };
+        };
+    };
+    revokeDevice: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "X-Reauth-Token-Ref": string;
+            };
+            path: {
+                deviceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 撤销已受理 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AsyncAccepted"];
+                };
+            };
+            409: components["responses"]["Conflict"];
+        };
+    };
+    setupMfa: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "X-Reauth-Token-Ref": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    method: "passkey" | "authenticator";
+                };
+            };
+        };
+        responses: {
+            /** @description MFA 设置流程已受理 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AsyncAccepted"];
+                };
+            };
+        };
+    };
+    listDownloads: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 下载记录；URL 必须短时、签名且服务端鉴权 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page"] & {
+                        items?: components["schemas"]["DownloadRecord"][];
+                    };
+                };
+            };
+        };
+    };
+    getPlatformCapabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Web 平台能力策略 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrowserCapabilityPolicy"];
+                };
+            };
         };
     };
     listResearchRuns: {

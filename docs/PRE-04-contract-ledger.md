@@ -37,7 +37,7 @@
 | C14 Performance/Report | performance summary/series/attribution | report create/poll/download（异步 job） | 报表完成通知（经 C16） | X01/X05，需 BFF 新增页面模型 | 无（缺 Performance/Report 消息；MoneyValue/DecimalValue 可复用） | GAP-14 | BFF TL + Portfolio owner（X01） | Draft；无 fixture（需新建） |
 | C15 Reconciliation | recon list/get、break list/get、ledger entries | request rerun（幂等；无 edit-ledger operation） | recon status stream | X05 | 无（缺 ReconRun/Break/LedgerEntry 消息） | GAP-15 | BFF TL + Recon owner（X05） | Draft；无 fixture（需新建） |
 | C16 Alert/Notification | alert list/get、subscriptions | ack/unack（不代表 resolved）、subscription save | alert stream（授权/去重/限速） | F09、X05/X06 | 无（缺 Alert 消息；EventKind 可参考） | GAP-16 | BFF TL + Observability owner（F09） | Draft；无 fixture（需新建） |
-| C17 Settings/Platform | profile/session/device/notification/download query、platform capabilities | profile save、session/device revoke、MFA setup、cache clear、update check、diagnostic job | session 撤销实时失效推送 | F06、F09、L02/L03 | 无（缺 Profile/Session/Device/PlatformCapability 消息） | GAP-17 | BFF TL + Auth owner（F06）+ Platform owner（L02） | Draft；无 fixture（需新建） |
+| C17 Settings/Platform | profile/session/device/notification/download query、platform capabilities | profile save、session/device revoke、MFA setup、cache clear、update check、diagnostic job | session 撤销实时失效推送 | F06、F09、L02/L03 | OpenAPI 1.1.0 additive candidate 已覆盖 P15/P17；P16 cache/update/diagnostic 仍缺 | GAP-17 | BFF TL + Auth owner（F06）+ Platform owner（L02） | Contract Mocked；同源生成 client/schema/MSW + fixture；staging 签署待完成 |
 
 ## 3. P0 页面 Query/Command/Realtime 依赖完备性矩阵
 
