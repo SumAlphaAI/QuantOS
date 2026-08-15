@@ -121,7 +121,9 @@
 - UI-102：`UI Complete / Contract Integrated`。无遗留问题；staging IdP/MFA 联调签署为晋级 G1 Done 的外部前置条件（详见 UI-102 实施记录）。
 - UI-103：`UI Complete / Storybook Verified`。无遗留问题。
 - UI-104：`UI Complete / Contract Mocked`。无遗留问题；BFF-FE-001/011 staging 签署及 P16 cache/update/diagnostic operation 补齐为升级 Integrated 的外部前置条件。
-- WEB-101：未启动，不在本次核查范围。
+- WEB-101：`UI Complete / Contract Mocked`（2026-08-15 交付，同日审查整改复验通过）。官网首期七页（首页/产品/架构安全/使用场景/文档中心/访问申请/登录）按冻结路由静态导出，其中使用场景为 `/use-cases`、文档中心为 `/docs`；复用冻结 design token（深色默认 + 浅色媒体查询）。访问申请复用 C01 `submitAccessRequest` 生成类型，覆盖团队、用途、市场、预期模式与隐私说明版本，含 honeypot、客户端校验、pending 防重复、离线禁用/中止、429 限速文案及错误后输入保留，202 仅显示“已受理”；未配置 BFF origin 时使用同源 `/v1/access-requests`，不再错误请求访客本机 localhost。登录页仅作 Terminal 受控入口，不内嵌认证。
+  - 审查修复：补齐遗漏的文档中心及搜索空态；将 `/scenarios` 对齐为台账冻结的 `/use-cases`；补足首页文档入口和可展开的版本化文档正文；修复离线仍可点击提交、表单缺少 expectedMode、生产默认 origin 指向 localhost、首页 title template 重复风险及官网 lint 未覆盖 App Router TSX 等问题。
+  - 复验证据：官网单测 7 项、Chromium E2E 18 项全部通过，覆盖七页 axe WCAG2A/AA、390px 无横向溢出、文档无结果恢复、honeypot、C01 payload、202/429/离线、禁用词、登录边界、canonical/robots/sitemap；lint、typecheck、Next.js 静态构建（12 个静态输出）通过，真实浏览器桌面/390px 核验无控制台告警。Lighthouse 首页既有交付基线为 performance 93 / accessibility 100 / best-practices 100 / SEO 100；生产发布前仍须在目标 CDN origin 复跑。待 Terminal Auth/BFF staging 联调后切换真实 BFF origin 并晋级 G1。
 
 #### FEP-2：Research、Artifact 与 DataSnapshot
 
