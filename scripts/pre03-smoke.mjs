@@ -48,7 +48,9 @@ async function checkPage(name, dir, port, path, marker) {
 }
 
 // 1) Web：Terminal /command
-await checkPage("terminal-web", join(root, "apps/terminal/out"), 3190, "/command", 'data-smoke="route-/command"');
+// /command 首屏为客户端守卫屏（data-guard-state="checking"），data-smoke 标记在守卫放行后才渲染，
+// 静态 smoke 校验路由 HTML 引用其 page chunk；DOM 标记由 Playwright（command.spec.ts）在真实浏览器中验收
+await checkPage("terminal-web", join(root, "apps/terminal/out"), 3190, "/command", "static/chunks/app/command");
 // Deep-link reauthorization gate is part of the same shared artifact.
 await checkPage("terminal-deep-link-gate", join(root, "apps/terminal/out"), 3192, "/auth/deep-link", "static/chunks/app/auth/deep-link");
 // 2) 官网首页
