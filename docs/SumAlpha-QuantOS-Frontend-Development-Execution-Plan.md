@@ -115,6 +115,14 @@
 | UI-104 | Profile/安全/通知/浏览器能力 | C17 | 会话撤销、通知降级、下载说明可用；小屏无高风险按钮 |
 | WEB-101 | 官网首页、产品、架构安全、场景、访问申请、登录 | Access Request/Auth | Lighthouse、SEO、隐私、防滥用和禁用词检查通过 |
 
+**FEP-1 交付核查记录（2026-08-15）**：UI-101–UI-104 已按实施记录交付并复核（typecheck/lint/单测 87 项、Next.js 17 页静态构建、Chromium E2E 28 项含 axe 与视觉基线、BFF 契约 55 operations/41 schemas 生成与覆盖检查、Storybook 静态构建、i18n 双语 19 key 一致，全部通过）。
+
+- UI-101：`UI Complete / Mocked`。守卫顺序与 fail-closed 语义在 `packages/domain-ui/ui101` 实现并单测覆盖。**待整改**：守卫链尚未接入 `apps/terminal` 运行时（页面渲染前未实际执行守卫）；`/command` 数据为页内硬编码 mock 投影，且 freshness/risk 指示未复用 UI-103 domain-ui 组件。接入 BFF-FE-002 时须在 App Shell 实际执行守卫并替换为同 schema MSW/生成 client。
+- UI-102：`UI Complete / Contract Integrated`。验收要点全部实现；401 清内存态、403/404 存在性隐藏、return path 消毒均有单测与 E2E 证据。待 staging IdP/MFA 联调签署后方可晋级 G1 Done（详见 UI-102 实施记录）。
+- UI-103：`UI Complete / Storybook Verified`。无遗留问题。
+- UI-104：`UI Complete / Contract Mocked`。验收要点全部实现；须完成 BFF-FE-001/011 staging 签署并补 P16 cache/update/diagnostic operation 后方可升级 Integrated。
+- WEB-101：未启动，不在本次核查范围。
+
 #### FEP-2：Research、Artifact 与 DataSnapshot
 
 | ID | 任务 | 接口绑定 | 验收重点 |
