@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { beginAuth, type OidcConfig } from "../../src/auth/flow";
+import { AuthBrand, AuthCard, AuthPageShell } from "../_components/auth-surface";
 
 const config: OidcConfig = {
   issuer: process.env.NEXT_PUBLIC_QUANTOS_OIDC_ISSUER ?? "https://mock.idp.local",
@@ -31,19 +32,7 @@ function LoginForm() {
     }
   };
 
-  return (
-    <main data-smoke="route-/login" style={{ maxWidth: 480, margin: "80px auto", fontFamily: "sans-serif" }}>
-      <h1>进入 QuantOS Terminal</h1>
-      <p>使用你的组织账户继续。所有受控操作都会记录到审计轨迹。</p>
-      <button type="button" onClick={startLogin} disabled={pending}>
-        {pending ? "正在跳转…" : "使用组织账户继续（SSO）"}
-      </button>
-      {error ? <p role="alert">{error}</p> : null}
-      <p>
-        <small>安全 · 审计 · Paper/Shadow</small>
-      </p>
-    </main>
-  );
+  return <AuthPageShell facts><AuthCard className="login-card"><div data-smoke="route-/login"><AuthBrand /><h1>进入 QuantOS Terminal</h1><p className="auth-lead">使用你的组织账户继续。所有受控操作都会记录到审计轨迹。</p><button className="auth-primary" type="button" onClick={startLogin} disabled={pending}>{pending ? <><span className="button-spinner" />正在跳转…</> : "使用组织账户继续"}</button>{error ? <p className="auth-error" role="alert">{error}</p> : null}<div className="auth-separator"><span />或<span /></div><div className="login-links"><a href="/access-request">申请访问 ›</a><a href="#support">需要帮助？ ›</a></div><div className="auth-assurance">▣ OIDC + PKCE · 安全会话</div></div></AuthCard></AuthPageShell>;
 }
 
 export default function LoginPage() {

@@ -9,6 +9,7 @@ import {
   type OidcConfig,
   type PendingAuth,
 } from "../../../src/auth/flow";
+import { AuthBrand, AuthCard, AuthPageShell } from "../../_components/auth-surface";
 
 const config: OidcConfig = {
   issuer: process.env.NEXT_PUBLIC_QUANTOS_OIDC_ISSUER ?? "https://mock.idp.local",
@@ -26,6 +27,7 @@ function CallbackHandler() {
   useEffect(() => {
     const run = async () => {
       const authError = searchParams.get("error");
+      window.history.replaceState({}, "", "/auth/callback");
       if (authError) {
         // 回调错误写认证审计（服务端）；客户端不展示敏感细节，URL 不含 token
         setError("登录未完成或已取消。请重新尝试登录。");
@@ -39,10 +41,17 @@ function CallbackHandler() {
         setError("认证会话已失效，请重新登录。");
         return;
       }
-      const pending = JSON.parse(raw) as PendingAuth;
+      let pending: PendingAuth;
       try {
-        await exchangeCode(config, pending, code, state);
-        router.replace(sanitizeReturnPath(pending.returnTo));
+        pending = JSON.parse(raw) as PendingAuth;
+      } catch {
+        setError("认证会话已失效，请重新登录。");
+        return;
+      }
+      try {
+        const session = await exchangeCode(config, pending, code, state);
+        const safeReturn = sanitizeReturnPath(pending.returnTo);
+        router.replace(session.mfaRequired ? `/mfa?return_to=${encodeURIComponent(safeReturn)}` : safeReturn);
       } catch (e) {
         setError(e instanceof AuthError ? e.message : "登录交换失败，请重试。");
       }
@@ -50,19 +59,7 @@ function CallbackHandler() {
     void run();
   }, []);
 
-  return (
-    <main data-smoke="route-/auth/callback" style={{ maxWidth: 480, margin: "80px auto", fontFamily: "sans-serif" }}>
-      {error ? (
-        <>
-          <h1>登录失败</h1>
-          <p role="alert">{error}</p>
-          <a href="/login">返回登录</a>
-        </>
-      ) : (
-        <p>正在完成登录…</p>
-      )}
-    </main>
-  );
+  return <AuthPageShell><AuthCard className="status-auth-card"><div data-smoke="route-/auth/callback"><AuthBrand />{error ? <><div className="status-icon danger" aria-hidden="true">×</div><h1>登录失败</h1><p className="auth-lead" role="alert">{error}</p><a className="auth-primary auth-link-button" href="/login">返回登录</a></> : <><div className="auth-loader" aria-hidden="true" /><h1>正在完成登录</h1><p className="auth-lead" role="status">正在建立安全会话，请勿关闭此页面…</p></>}</div></AuthCard></AuthPageShell>;
 }
 
 export default function AuthCallbackPage() {

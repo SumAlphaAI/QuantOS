@@ -5,6 +5,7 @@ import {
   AuthError,
   buildAuthorizeUrl,
   exchangeCode,
+  handleAuthHttpStatus,
   sanitizeReturnPath,
   sessionStore,
   type PendingAuth,
@@ -63,6 +64,14 @@ describe("OIDC callback PoC（G0 #4）", () => {
     expect(sessionStore.get()).toBeNull();
   });
 
+  it("保留服务端 MFA 必需信号但不接收任何长期 token", async () => {
+    const fetchImpl = (async () => new Response(JSON.stringify({ subject: "user-1", expires_in: 300, mfa_required: true }), { status: 200 })) as typeof fetch;
+    const session = await exchangeCode(config, pending, "code-1", "s", fetchImpl);
+    expect(session.mfaRequired).toBe(true);
+    expect(JSON.stringify(session)).not.toContain("access_token");
+    sessionStore.clear();
+  });
+
   it("state 不匹配拒绝且不发起交换", async () => {
     let called = false;
     const fetchImpl = (async () => {
@@ -82,5 +91,19 @@ describe("OIDC callback PoC（G0 #4）", () => {
     expect(err).toBeInstanceOf(AuthError);
     expect((err as AuthError).message).not.toContain("secret-detail");
     expect((err as AuthError).correlationId).toBe("9a1c4e60-2d3b-4c5f-8a9e-1b2c3d4e5f60");
+  });
+
+  it("401 清理内存会话并只保留安全 return path", () => {
+    sessionStore.set({ subject: "actor", establishedAt: "2026-08-15T00:00:00Z", expiresIn: 300 });
+    expect(handleAuthHttpStatus(401, "/orders?token=secret")).toEqual({
+      kind: "login",
+      route: "/login?return_to=%2Fcommand",
+    });
+    expect(sessionStore.get()).toBeNull();
+  });
+
+  it("403/404 收敛为同一不可探测资源页面", () => {
+    expect(handleAuthHttpStatus(403, "/orders/known")).toEqual({ kind: "concealed", route: "/unauthorized" });
+    expect(handleAuthHttpStatus(404, "/orders/missing")).toEqual({ kind: "concealed", route: "/unauthorized" });
   });
 });

@@ -9,6 +9,8 @@ export type TerminalRoute =
   | "/mfa"
   | "/access-request"
   | "/unauthorized"
+  | "/not-found"
+  | "/maintenance"
   | "/offline"
   | "/command"
   | "/research"
@@ -88,6 +90,18 @@ export const PAGE_REGISTRY: PageMeta[] = [
   {
     route: "/unauthorized",
     title: "访问受限",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/not-found",
+    title: "未找到或无权访问此资源",
+    robots: "noindex",
+    highRiskActions: [],
+  },
+  {
+    route: "/maintenance",
+    title: "系统维护中",
     robots: "noindex",
     highRiskActions: [],
   },

@@ -16,6 +16,7 @@ export interface Session {
   subject: string;
   establishedAt: string;
   expiresIn: number;
+  mfaRequired?: boolean;
 }
 
 /** 会话仅内存持有（401 清内存态；浏览器不持久化长期 token）。 */
@@ -29,6 +30,35 @@ export const sessionStore = {
     currentSession = null;
   },
 };
+
+export type AuthHttpDecision =
+  | { kind: "continue" }
+  | { kind: "login"; route: string }
+  | { kind: "concealed"; route: "/unauthorized" }
+  | { kind: "maintenance"; route: "/maintenance" };
+
+/**
+ * Global HTTP auth policy. A 401 always clears the only client-side session
+ * state before returning a sanitized login route. 403 and 404 deliberately
+ * collapse to one surface so object existence is never disclosed.
+ */
+export function handleAuthHttpStatus(
+  status: number,
+  rawReturnPath?: string | null,
+): AuthHttpDecision {
+  if (status === 401) {
+    sessionStore.clear();
+    const target = sanitizeReturnPath(rawReturnPath);
+    return { kind: "login", route: `/login?return_to=${encodeURIComponent(target)}` };
+  }
+  if (status === 403 || status === 404) {
+    return { kind: "concealed", route: "/unauthorized" };
+  }
+  if (status >= 500) {
+    return { kind: "maintenance", route: "/maintenance" };
+  }
+  return { kind: "continue" };
+}
 
 /** return path 仅允许站内路径，拒绝协议/宿主跳转与查询串中的敏感参数。 */
 export function sanitizeReturnPath(path: string | null | undefined): string {
@@ -105,11 +135,12 @@ export async function exchangeCode(
     }
     throw new AuthError("登录交换失败，请重试；若持续失败请联系支持", correlationId);
   }
-  const body = (await res.json()) as { subject?: string; expires_in?: number };
+  const body = (await res.json()) as { subject?: string; expires_in?: number; mfa_required?: boolean };
   const session: Session = {
     subject: body.subject ?? "unknown",
     establishedAt: new Date().toISOString(),
     expiresIn: body.expires_in ?? 300,
+    mfaRequired: body.mfa_required === true,
   };
   sessionStore.set(session);
   return session;

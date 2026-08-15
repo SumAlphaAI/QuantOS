@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { authorizeDeepLinkTarget } from "../../../src/auth/deep-link";
+import { handleAuthHttpStatus } from "../../../src/auth/flow";
 
 function DeepLinkAuthorizationGate() {
   const router = useRouter();
@@ -20,6 +21,11 @@ function DeepLinkAuthorizationGate() {
           headers: { accept: "application/json" },
         });
         if (!active) return;
+        if (response.status === 401) {
+          const auth = handleAuthHttpStatus(401, searchParams.get("return_to"));
+          if (auth.kind === "login") router.replace(auth.route);
+          return;
+        }
         const decision = authorizeDeepLinkTarget(searchParams.get("return_to"), response.status);
         if (decision.kind === "allow" || decision.kind === "login") {
           router.replace(decision.route);
