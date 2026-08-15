@@ -1,5 +1,5 @@
-import { CommandCenter } from "./ui101-command-center";
+import { CommandRoute } from "./ui101-command-route";
 
 export default function CommandPage() {
-  return <CommandCenter />;
+  return <CommandRoute />;
 }
