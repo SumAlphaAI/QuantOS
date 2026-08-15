@@ -8,13 +8,20 @@
     "./ui101": "./src/ui101.ts"
   },
   "scripts": {
-    "lint": "eslint src tests --ext .ts",
+    "lint": "eslint src tests --ext .ts,.tsx",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "vitest run",
     "build": "rm -rf dist && tsc --project tsconfig.build.json"
   },
   "dependencies": {
     "@sumalpha/api-client": "workspace:*",
-    "@sumalpha/ui": "workspace:*"
+    "@sumalpha/ui": "workspace:*",
+    "react": "^19.2.8"
+  },
+  "devDependencies": {
+    "@storybook/react": "^8.6.18",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "react-dom": "^19.2.8"
   }
 }

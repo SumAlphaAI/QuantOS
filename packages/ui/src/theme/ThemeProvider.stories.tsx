@@ -1,0 +1,3 @@
+import type { Meta, StoryObj } from "@storybook/react"; import { ThemeProvider } from "./ThemeProvider"; import { InlineAlert } from "../components/InlineAlert/InlineAlert";
+const meta = { title: "foundation/ThemeProvider", component: ThemeProvider, tags: ["autodocs"], args: { children: <InlineAlert title="主题 Token">界面颜色、焦点与密度均来自冻结 token。</InlineAlert> } } satisfies Meta<typeof ThemeProvider>; export default meta; type Story = StoryObj<typeof meta>;
+export const Dark: Story = { args: { theme: "dark" }, parameters: { backgrounds: { default: "dark" } } }; export const Light: Story = { args: { theme: "light" }, parameters: { backgrounds: { default: "light" } } };

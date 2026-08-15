@@ -1,0 +1,56 @@
+.quantos-theme {
+  color: var(--q-text-primary); background: var(--q-surface-0); font-family: var(--q-font-sans);
+  font-size: var(--q-font-body-size); line-height: var(--q-font-body-line); color-scheme: var(--q-color-scheme);
+}
+.quantos-theme *, .quantos-theme *::before, .quantos-theme *::after { box-sizing: border-box; }
+.quantos-theme :focus-visible { outline: var(--q-focus-width) solid var(--q-focus); outline-offset: var(--q-space-1); }
+.q-stack { display: grid; gap: var(--q-space-3); }
+.q-row { display: flex; align-items: center; gap: var(--q-space-2); flex-wrap: wrap; }
+.q-mono { font-family: var(--q-font-mono); font-variant-numeric: tabular-nums; }
+.q-muted { color: var(--q-text-secondary); }
+.q-button { min-height: var(--q-control-height); padding: 0 var(--q-space-3); border: 1px solid var(--q-border-strong); border-radius: var(--q-radius-md); background: var(--q-surface-2); color: var(--q-text-primary); font: inherit; font-weight: 600; cursor: pointer; }
+.q-button:hover:not(:disabled) { border-color: var(--q-focus); }
+.q-button--primary { color: var(--q-brand-fg); background: var(--q-brand); border-color: var(--q-brand); }
+.q-button--primary:hover:not(:disabled) { background: var(--q-brand-hover); }
+.q-button--danger { color: var(--q-danger); background: transparent; border-color: var(--q-danger); }
+.q-button:disabled { color: var(--q-text-disabled); cursor: not-allowed; opacity: .72; }
+.q-alert { padding: var(--q-space-3); border: 1px solid var(--q-alert-color); border-radius: var(--q-radius-md); background: var(--q-surface-1); }
+.q-alert__title { margin: 0; color: var(--q-alert-color); font-weight: 700; }
+.q-alert__message { margin: var(--q-space-1) 0 0; color: var(--q-text-secondary); }
+.q-panel { width: 100%; min-width: 0; border: 1px solid var(--q-border); border-radius: var(--q-radius-lg); background: var(--q-surface-1); overflow: hidden; }
+.q-panel__header { display: flex; justify-content: space-between; gap: var(--q-space-3); align-items: center; padding: var(--q-space-3); border-bottom: 1px solid var(--q-border); }
+.q-panel__title { margin: 0; font-size: var(--q-font-body-size); line-height: var(--q-font-body-line); }
+.q-state { display: grid; min-height: calc(var(--q-row-height) * 4); place-items: center; padding: var(--q-space-5); text-align: center; }
+.q-state__content { max-width: 42rem; }
+.q-state__title { margin: 0; font-weight: 700; }
+.q-state__message { margin: var(--q-space-1) 0 0; color: var(--q-text-secondary); }
+.q-table-wrap { width: 100%; min-width: 0; max-width: 100%; overflow: auto; }
+.q-table { width: 100%; border-collapse: collapse; font-size: var(--q-font-table-size); line-height: var(--q-font-table-line); }
+.q-table th, .q-table td { min-height: var(--q-row-height); padding: var(--q-space-2) var(--q-space-3); border-bottom: 1px solid var(--q-border); text-align: left; white-space: nowrap; }
+.q-table th { position: sticky; top: 0; background: var(--q-surface-2); color: var(--q-text-secondary); z-index: 1; }
+.q-sort { appearance: none; padding: 0; border: 0; color: inherit; background: transparent; font: inherit; font-weight: 700; cursor: pointer; }
+.q-table tbody tr:hover { background: var(--q-surface-2); }
+.q-pagination { display: flex; justify-content: flex-end; align-items: center; gap: var(--q-space-2); padding: var(--q-space-2) var(--q-space-3); }
+.q-filters { display: flex; gap: var(--q-space-2); padding: var(--q-space-2) var(--q-space-3); border-bottom: 1px solid var(--q-border); overflow-x: auto; }
+.q-field--inline { min-width: 12rem; margin-top: 0; }
+.q-column-menu { position: relative; }
+.q-column-menu summary { cursor: pointer; font-weight: 600; }
+.q-column-menu__body { position: absolute; right: 0; display: grid; min-width: 12rem; gap: var(--q-space-2); padding: var(--q-space-3); border: 1px solid var(--q-border-strong); border-radius: var(--q-radius-md); background: var(--q-surface-1); z-index: 4; }
+.q-table-wrap--virtual { overflow: auto; }
+.q-timeline { list-style: none; margin: 0; padding: var(--q-space-3); }
+.q-timeline__item { position: relative; display: grid; grid-template-columns: 8rem 1fr; gap: var(--q-space-3); padding: 0 0 var(--q-space-4) var(--q-space-4); }
+.q-timeline__item::before { content: ''; position: absolute; left: var(--q-space-1); top: var(--q-space-2); bottom: 0; width: 1px; background: var(--q-border-strong); }
+.q-timeline__item::after { content: ''; position: absolute; left: 0; top: var(--q-space-1); width: var(--q-space-2); height: var(--q-space-2); border-radius: 50%; background: var(--q-info); }
+.q-timeline__time { color: var(--q-text-secondary); font-variant-numeric: tabular-nums; }
+.q-timeline__event { margin: 0; font-weight: 700; }
+.q-timeline__meta { margin: var(--q-space-1) 0 0; color: var(--q-text-secondary); }
+.q-timeline details { margin-top: var(--q-space-2); }
+.q-timeline pre { overflow: auto; padding: var(--q-space-2); background: var(--q-surface-2); border-radius: var(--q-radius-sm); }
+.q-dialog-overlay { position: fixed; inset: 0; background: rgb(0 0 0 / 66%); }
+.q-dialog-content { position: fixed; left: 50%; top: 50%; width: min(calc(100vw - var(--q-space-5)), 34rem); max-height: calc(100vh - var(--q-space-5)); overflow: auto; transform: translate(-50%, -50%); padding: var(--q-space-4); border: 1px solid var(--q-danger); border-radius: var(--q-radius-lg); background: var(--q-surface-1); box-shadow: 0 var(--q-space-2) var(--q-space-5) rgb(0 0 0 / 35%); }
+.q-dialog-title { margin: 0; font-size: var(--q-font-page-size); line-height: var(--q-font-page-line); }
+.q-dialog-description { margin: var(--q-space-2) 0 var(--q-space-3); color: var(--q-text-secondary); }
+.q-field { display: grid; gap: var(--q-space-1); margin-top: var(--q-space-3); font-weight: 600; }
+.q-input { min-height: var(--q-control-height); padding: 0 var(--q-space-2); border: 1px solid var(--q-border-strong); border-radius: var(--q-radius-md); background: var(--q-surface-0); color: var(--q-text-primary); font: inherit; }
+.q-dialog-actions { display: flex; justify-content: flex-end; gap: var(--q-space-2); margin-top: var(--q-space-4); }
+@media (max-width: 767px) { .q-timeline__item { grid-template-columns: 1fr; gap: 0; } .q-panel__header { align-items: flex-start; flex-direction: column; } .q-dialog-actions { flex-direction: column-reverse; } .q-dialog-actions .q-button { width: 100%; } }

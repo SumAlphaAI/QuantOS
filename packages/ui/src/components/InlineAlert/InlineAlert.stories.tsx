@@ -1,0 +1,3 @@
+import type { Meta, StoryObj } from "@storybook/react"; import { InlineAlert } from "./InlineAlert";
+const meta = { title: "ui/InlineAlert", component: InlineAlert, tags: ["autodocs"], args: { title: "状态说明", children: "说明文字同时提供图标语义与文本，不依赖颜色表达状态。" } } satisfies Meta<typeof InlineAlert>; export default meta; type Story = StoryObj<typeof meta>;
+export const Info: Story = {}; export const Success: Story = { args: { tone: "success", title: "校验通过" } }; export const Warning: Story = { args: { tone: "warning", title: "数据已陈旧" } }; export const Danger: Story = { args: { tone: "danger", title: "高风险操作已阻断" } };
