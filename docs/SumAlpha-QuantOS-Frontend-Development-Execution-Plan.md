@@ -1,10 +1,16 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：1.1
-> 日期：2026-08-13
+> 版本：2.0
+> 更新时间：2026-09-09
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：交付官网、`app.sumalpha.ai` 与 Tauri 桌面端共享的 QuantOS Terminal 前端；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。
+
+## 版本变更说明
+
+- `2.0`：页面 API 与前端功能独立排期；先完成全量页面 API 开发与 provider 验证，再依业务依赖推进前端。原 FEP/Gate、UI、WEB、PRE、BFF-FE、C01–C17 与 P01–P23 标识保持稳定。
+- FEP-1 及 UI-101–UI-104、WEB-101 标记已开发完成，保留集成晋级条件，清除历史复验证据；为 GPT-6 Astra 设置全新复审入口。
+- 采用[核心计划字段约定](./SumAlpha-QuantOS-Development-Plan.md#plan-review-schema) `quantos-plan-review/v1`。校验：`node scripts/check-development-plans.mjs`；结构通过不等于 Codex 平台加载、模型调用或真实联调验收通过。
 
 ## 1. 执行原则、范围与当前基线
 
@@ -26,20 +32,18 @@
 | Terminal Desktop | 与 Web 相同的业务页面；P16 平台能力、深链、通知、多窗口、布局恢复、签名更新验证 | 独立业务状态机、离线写队列、本地交易能力 |
 | 模式 | Research、Paper、Shadow；M5 testnet 条件入口 | 默认生产实盘、Guarded Live |
 
-### 1.3 仓库现状与目标差距
+### 1.3 工程基线与实施要求
 
-当前仓库已经具备 `apps/website`、`apps/terminal`、`apps/terminal-desktop`、`packages/ui`、`packages/domain-ui`、`packages/api-client`、`packages/platform` 骨架，已生成 QuantOS TypeScript Protobuf 类型，并有 U01/S04/X06/L03 场景测试。当前应用仍是 TypeScript 骨架：尚未落地 Next.js/React 页面运行时、Tailwind/Radix 设计系统、TanStack Query/Table/Virtual、图表、表单、i18n、MSW、Storybook 和真实 BFF HTTP transport；`InMemory*Backend` 只能作为场景 fixture，不能作为生产接口契约。
+`apps/website`、`apps/terminal`、`apps/terminal-desktop`、`packages/ui`、`packages/domain-ui`、`packages/api-client`、`packages/platform` 承载共享应用；QuantOS TypeScript Protobuf 类型和 U01/S04/X06/L03 场景测试继续作为契约与场景输入。目标运行时、设计系统、查询/表格/图表/表单、i18n、MSW、Storybook 与真实 BFF HTTP transport 按第 2 节实施。`InMemory*Backend` 只能作为场景 fixture，不能作为生产接口契约。
 
-因此第一个里程碑不是直接铺页面，而是冻结 OpenAPI/BFF 页面契约、建立真实应用运行时，并把已有 fixture 转成由同一 schema 驱动的 mock。
+先冻结 OpenAPI/BFF 页面契约、建立真实应用运行时，并把已有 fixture 转成由同一 schema 驱动的 mock。FEP-1 的开发状态见第 4.2 节，不将初始工程骨架描述当作当前完成度结论。
 
-### 1.4 2026-08-13 设计稿与页面 API 覆盖核查结论
+### 1.4 设计稿与页面 API 覆盖要求
 
-本次以 `design/` 中 P01–P23 的 23 组高保真设计稿为核查范围，结论如下：
-
-1. 本计划原版本已在阶段范围、P01–P23 页面台账、UI-101–UI-604 和 C01–C17 逻辑契约包中覆盖全部页面，但任务粒度主要按业务域聚合，**没有把“以指定高保真设计稿为内容与视觉基准制作实际 React 页面”逐页列为可关闭任务**。因此新增第 4.2 节逐稿实现矩阵和 `UI-VIS-000`、`UI-P01`–`UI-P23` 执行任务。
-2. 《QuantOS 可执行开发计划》已定义 F03 领域协议、F06 身份授权、F07 Runtime、R01–R04、S01–S04、X01–X06、L01–L03 等服务能力与安全时序，但**没有给出 P01–P23 完整的页面级 BFF HTTP 路径、method、统一响应 envelope、分页、异步任务和实时订阅 OpenAPI**。
-3. 本计划原第 5 节已用 C01–C17 覆盖页面所需逻辑能力，因此页面层没有无归属接口；但 C02、C11–C17 以及部分 C01/C10 的“页面聚合、设置、报告、告警、运维治理、平台能力”仍缺少明确的后端补齐任务与 Gate。新增第 5.6 节 `BFF-FE-000`–`BFF-FE-011`，负责把逻辑契约转成可生成客户端的版本化 OpenAPI。
-4. 在相关 BFF 契约达到 `Implemented` 前，前端可以使用由同一 OpenAPI 生成的 MSW fixture 完成 `UI Complete`，但不得标记 `Integrated` 或通过阶段 Gate；不得以页面自定义 DTO、静态 JSON 或 `InMemory*Backend` 替代接口交付。
+1. `design/` 中 P01–P23 的 23 组高保真设计稿均须形成实际 React 页面；`UI-VIS-000`、`UI-P01`–`UI-P23` 是第 4.2 节可独立关闭的交付子任务。
+2. F03、F06、F07、R01–R04、S01–S04、X01–X06、L01–L03 的服务能力与安全时序不能替代页面级 BFF HTTP 路径、method、响应 envelope、分页、异步任务与实时订阅 OpenAPI。
+3. C01–C17 逻辑契约通过第 4.1 节 `BFF-FE-000`–`BFF-FE-011` 转为可生成客户端的版本化 OpenAPI，覆盖页面聚合、设置、报告、告警、运维治理与平台能力。
+4. 同 schema MSW 仅支持 `UI Complete`；契约达到 `Implemented` 且 staging 真实权限、实时、错误、审计与 provider/consumer contract 通过后方可 `Integrated`。页面自定义 DTO、静态 JSON 或 `InMemory*Backend` 不得替代接口交付。本轮新增页面工作还须遵守第 4 节全量 API 前置门槛。
 
 ## 2. 技术栈与工程决策
 
@@ -66,16 +70,177 @@
 
 ## 3. 前期准备阶段（FEP-0，建议 2 周）
 
+<a id="task-fep-0"></a>
+### FEP-0：准备与契约
+
+- task_id: `FEP-0`
+- task_type: `MILESTONE`
+- iteration: `P0`
+- depends_on: ["CORE:F01", "CORE:F02", "CORE:F03", "CORE:F04", "CORE:F05", "CORE:F06"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-0)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：工程运行时、设计系统、接口台账、环境、测试底座
+- 主要后端依赖：F01–F06，尤其 F03/F06
+- 交付节点与放行条件：G0：栈、OpenAPI、会话、错误、mock、双端 PoC 冻结
+- 范围说明：PRE-01–PRE-06 的准备里程碑；契约冻结与 PoC 不替代 A1–A6 的全量 API 开发及 provider Gate。
+
+<a id="review-fep-0"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
 ### 3.1 工作包与产出
 
-| ID | 任务 | 主要动作 | 产出 | 完成标准 |
-|---|---|---|---|---|
-| PRE-01 | 需求拆解 | 将官网页面、P01–P23、全局壳、角色、状态和关键流程拆为 story；每项标注 P0/P1、角色、路由、平台和风险级别 | 页面台账、路由/权限矩阵、验收场景表 | 页面覆盖率 100%；每页至少有默认/加载/空/错误/无权/陈旧/离线状态 |
-| PRE-02 | 设计系统预研 | 固化 token、密度、断点、主题、状态枚举、金融数值、图表、表格、危险动作模式 | Design token ADR、组件清单、Storybook 骨架 | WCAG 2.2 AA 基础检查通过；通用安全文案全部入 i18n |
-| PRE-03 | 技术栈落地 | 在现有 workspace 引入并验证目标依赖；建立 Next.js Web/Terminal 与 Tauri 加载 PoC | 运行时 ADR、依赖锁、最小构建与双端 smoke | 新环境 ≤30 分钟完成 bootstrap/build/test；Web 与 Desktop 打开同一路由 |
-| PRE-04 | 接口盘点 | 对照 F03、F05–F09、R02–R04、S01–S04、X01–X06、L01–L03 与现有 Proto/API client，建立本计划第 5 节契约台账 | OpenAPI gap list、字段字典、接口责任人、mock 状态 | 每个 P0 页面有 Query/Command/Realtime 依赖；无“待开发时再定”字段 |
-| PRE-05 | 环境方案 | 建立 local/mock、local-integrated、staging、desktop 四套配置，定义 BFF origin、OIDC callback、feature flags、观测和测试账号 | `.env.example`、配置校验、开发说明 | 缺必需变量 fail-fast；客户端 bundle 不含 server secret；环境/mode 明确分离 |
-| PRE-06 | 测试基线 | 建立 MSW contract fixtures、Playwright project、axe、视觉基线、性能预算 | 测试目录与 CI job | 故意破坏 schema、权限、敏感字段或视觉基线能使 CI 失败 |
+迭代 `P0`（W1–W2）只安排需求、设计、工程、接口盘点、环境和测试底座；PoC/fixture 不属于业务页面交付，PRE-04 只盘点接口，不承担页面 API 实现。按下列依赖顺序执行。
+
+<a id="task-pre-01"></a>
+#### PRE-01：需求拆解
+
+- task_id: `PRE-01`
+- task_type: `PREPARATION`
+- iteration: `P0`
+- depends_on: []
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-pre-01)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：需求拆解
+- 主要动作：将官网页面、P01–P23、全局壳、角色、状态和关键流程拆为 story；每项标注 P0/P1、角色、路由、平台和风险级别
+- 产出：页面台账、路由/权限矩阵、验收场景表
+- 完成标准：页面覆盖率 100%；每页至少有默认/加载/空/错误/无权/陈旧/离线状态
+
+<a id="review-pre-01"></a>
+##### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-pre-02"></a>
+#### PRE-02：设计系统预研
+
+- task_id: `PRE-02`
+- task_type: `PREPARATION`
+- iteration: `P0`
+- depends_on: ["PRE-01"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-pre-02)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：设计系统预研
+- 主要动作：固化 token、密度、断点、主题、状态枚举、金融数值、图表、表格、危险动作模式
+- 产出：Design token ADR、组件清单、Storybook 骨架
+- 完成标准：WCAG 2.2 AA 基础检查通过；通用安全文案全部入 i18n
+
+<a id="review-pre-02"></a>
+##### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-pre-03"></a>
+#### PRE-03：技术栈落地
+
+- task_id: `PRE-03`
+- task_type: `PREPARATION`
+- iteration: `P0`
+- depends_on: ["PRE-02", "CORE:F01"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-pre-03)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：技术栈落地
+- 主要动作：在现有 workspace 引入并验证目标依赖；建立 Next.js Web/Terminal 与 Tauri 加载 PoC
+- 产出：运行时 ADR、依赖锁、最小构建与双端 smoke
+- 完成标准：新环境 ≤30 分钟完成 bootstrap/build/test；Web 与 Desktop 打开同一路由
+
+<a id="review-pre-03"></a>
+##### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-pre-04"></a>
+#### PRE-04：接口盘点
+
+- task_id: `PRE-04`
+- task_type: `PREPARATION`
+- iteration: `P0`
+- depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-pre-04)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：接口盘点
+- 主要动作：对照 F03、F05–F09、R02–R04、S01–S04、X01–X06、L01–L03 与现有 Proto/API client，建立本计划第 5 节契约台账
+- 产出：OpenAPI gap list、字段字典、接口责任人、mock 状态
+- 完成标准：每个 P0 页面有 Query/Command/Realtime 依赖；无“待开发时再定”字段
+
+<a id="review-pre-04"></a>
+##### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-pre-05"></a>
+#### PRE-05：环境方案
+
+- task_id: `PRE-05`
+- task_type: `PREPARATION`
+- iteration: `P0`
+- depends_on: ["PRE-03", "PRE-04"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-pre-05)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：环境方案
+- 主要动作：建立 local/mock、local-integrated、staging、desktop 四套配置，定义 BFF origin、OIDC callback、feature flags、观测和测试账号
+- 产出：`.env.example`、配置校验、开发说明
+- 完成标准：缺必需变量 fail-fast；客户端 bundle 不含 server secret；环境/mode 明确分离
+
+<a id="review-pre-05"></a>
+##### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-pre-06"></a>
+#### PRE-06：测试基线
+
+- task_id: `PRE-06`
+- task_type: `PREPARATION`
+- iteration: `P0`
+- depends_on: ["PRE-04", "PRE-05"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-pre-06)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：测试基线
+- 主要动作：建立 MSW contract fixtures、Playwright project、axe、视觉基线、性能预算
+- 产出：测试目录与 CI job
+- 完成标准：故意破坏 schema、权限、敏感字段或视觉基线能使 CI 失败
+
+<a id="review-pre-06"></a>
+##### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
 
 ### 3.2 前期 Gate G0
 
@@ -87,122 +252,1766 @@
 - Web/Desktop 共享页面 PoC、OIDC callback PoC、SSE 断线续传 PoC、Tauri 深链 PoC 均通过。
 - 产品、前端、BFF、QA、安全与风控签署 G0 记录；未冻结项有责任人、截止日和兼容策略。
 
-## 4. 阶段化开发计划与里程碑
+## 4. 页面 API 前置与前端迭代计划
 
-排期基准为 3–4 名前端、1 名 BFF 联调接口人、1 名 QA，2 周一个 Sprint。后端依赖未达到对应 Gate 时，该阶段先用同 schema mock 完成 UI，但不能标记“联调完成”。总建议周期为 18 周；官网工作可与 Terminal 阶段并行。
+排期基准为 3–4 名前端、1 名 BFF 联调接口人、1 名 QA，2 周一个 Sprint。以下为依赖满足后的相对建议窗口，不是已完成记录或固定交付承诺；外部核心服务未就绪时顺延所有依赖窗口。新增全量 API 前置阶段后不再沿用原 18 周总周期。官网可与同一前端迭代的 Terminal 工作并行。
 
-| 阶段 | 周期 | 页面/范围 | 主要后端依赖 | 交付节点与放行条件 |
-|---|---:|---|---|---|
-| FEP-0 准备与契约 | W1–W2 | 工程运行时、设计系统、接口台账、环境、测试底座 | F01–F06，尤其 F03/F06 | G0：栈、OpenAPI、会话、错误、mock、双端 PoC 冻结 |
-| FEP-1 壳与官网 | W3–W4 | 官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态 | F06、F09 | G1：认证/RBAC/模式/陈旧/离线/响应式可用，官网内容合规 |
-| FEP-2 研究闭环 | W5–W7 | P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot | R02–R04、F07/F08、TP01–TP05、U01 | G2：固定输入可追溯与重放；取消 ≤2s；Web/Desktop 同用例全绿 |
-| FEP-3 策略治理 | W8–W9 | P06–P07；草稿、静态检查、回测、Release、审批时间线 | S01–S04、R02、F06 | G3：未验证/未审批不可部署；M3/M4 仅 Paper/Shadow |
-| FEP-4 市场与分析 | W10–W11 | P18–P19、P21；市场目录、报价、K 线、订单标记、收益与报表 | R01/R02、X01、Performance/Valuation/Report API | G4：来源/venue/as_of/quality/口径完整；断流不拼接；provisional 正确 |
-| FEP-5 风险与执行闭环 | W12–W14 | P08–P12、P20、P22；Portfolio/Risk、Proposal、Trade Ticket、Approval、Order、Reconciliation、Audit | X01–X06、TP07 | G5：七类高风险用例全绿；完整证据链 ≤5 分钟还原；无直连 venue |
-| FEP-6 运维治理与跨端 | W15–W16 | P13、P14、P16、P23；Operations、Admin、Alerts、桌面能力 | F09、X05/X06、Auth/Policy/Incident/Alert API | G6：受控 Runbook、职责分离、通知/深链/窗口/离线安全通过 |
-| FEP-7 硬化与 Beta | W17 | 全量回归、兼容、性能、可访问性、安全、视觉、故障恢复 | R1/S2/X3 Gate | G7：Paper + Shadow Beta 验收通过，阻断级缺陷为 0 |
-| FEP-8 M5 评审准备 | W18 | P10/P11/P16 的 testnet 条件入口、MFA、双人审批、签名更新 | L01–L04，且仅 testnet | G8：flag 关闭时 UI/API 不可达；只形成评审证据，不开启生产实盘 |
+- 执行顺序：`P0 → A1 → A2 → A3 → A4 → A5 → A6 → I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I9 → I10`。
+- P0 完成准备工作后进入 A1；G0 中的正式 OpenAPI 冻结项由 A1 交付后关闭。G0 的最小冻结面与 A6 的全量 provider Gate 分别验证，二者都必须在新页面开发前满足。
+- `A1–A6` 独立完成全部页面 API 的 OpenAPI、生成 client、实现、授权、安全/错误/幂等/实时恢复及 staging provider 验证；全部 API `review_status=ACCEPTED` 后才启动新的前端页面实现与既有页面真实联调。consumer/UI E2E 和 G1–G8 仍在前端迭代验证，不以前端尚未交付阻塞 provider Gate。
+- `Reviewed + Mocked` 至少领先页面一个 Sprint 的要求保留；本轮排期进一步要求全量 API 已实现且 provider 验证通过。mock 可用于契约/组件 fixture 与复审，不能绕过全量 API 前置门槛。
+- `CORE:<ID>` 是核心计划中服务部分的准入依赖。U01/S04/X06 等包含页面的总任务保留在契约追溯中，API 阶段只依赖其领域服务/审计/运维能力，页面验收回到对应 FEP，避免 API 等待其消费页面形成循环。L01–L03 仅为原有 testnet/平台安全范围。
+- 同一迭代内按条目顺序与 `depends_on` 拓扑执行；不同任务类型分别排期。FEP 是稳定的业务范围/Gate 编号，不表示数字大小即执行先后。FEP-5 的审计基础先于 Research/Release 证据跳转交付；FEP-4 的市场先行，订单标记及收益报表放在订单/对账之后。跨页面导航引用保留在契约/路由验收中，不把双向跳转误作循环开发依赖。
+- FEP-1 已完成开发的事实保留；本轮 I1 安排重新复审、集成与其逐页验收，不要求重复开发。未明确完成的任务使用 `UNSPECIFIED`，执行前盘点。
 
-### 4.1 分阶段任务拆解
-
-#### FEP-1：壳、认证、官网与通用能力
-
-| ID | 任务 | 接口绑定 | 验收重点 |
+| 迭代 | 建议窗口 | 任务类型 | 范围 |
 |---|---|---|---|
-| UI-101 | App Shell、路由守卫、主工作区/账户/mode/数据新鲜度/风险/连接状态 | C01、C02、C16 | 守卫严格按 session → tenant/workspace → RBAC/capability → resource → mode → data 顺序；任一步失败停止后续请求 |
-| UI-102 | OIDC、callback、MFA、401/403/404/maintenance/offline | C01、C08 | 401 清内存态；403/404 不泄露对象存在性；return path 不含敏感参数 |
-| UI-103 | QuantOS UI/domain-ui、主题、i18n、表格/时间线/确认框 | 无业务接口 | 所有组件状态进 Storybook；键盘、焦点、200% 缩放和读屏通过 |
-| UI-104 | Profile/安全/通知/浏览器能力 | C17 | 会话撤销、通知降级、下载说明可用；小屏无高风险按钮 |
-| WEB-101 | 官网首页、产品、架构安全、场景、访问申请、登录 | Access Request/Auth | Lighthouse、SEO、隐私、防滥用和禁用词检查通过 |
+| P0 | W1–W2 | PREPARATION | PRE-01–PRE-06，工程与契约盘点 |
+| A1 | W3–W4 | PAGE_API | BFF-FE-000 |
+| A2 | W5–W6 | PAGE_API | BFF-FE-001、007 |
+| A3 | W7–W8 | PAGE_API | BFF-FE-003、005 |
+| A4 | W9–W10 | PAGE_API | BFF-FE-006、004 |
+| A5 | W11–W12 | PAGE_API | BFF-FE-009、008、010 |
+| A6 | W13–W14 | PAGE_API | BFF-FE-002、011；全量 provider Gate |
+| I1 | W15–W16 | FRONTEND / WEBSITE | FEP-1：共享壳、认证、设置、官网及重新复审 |
+| I2 | W17–W18 | FRONTEND | FEP-5 审计基础；FEP-2：Snapshot → Research → Artifact |
+| I3 | W19–W20 | FRONTEND | FEP-3：草稿 → 回测 → Release |
+| I4 | W21–W22 | FRONTEND | FEP-4 市场部分；FEP-5 组合与建议 |
+| I5 | W23–W24 | FRONTEND | FEP-5：preflight → 审批 → Command/Order |
+| I6 | W25–W26 | FRONTEND | FEP-5：对账；完成 G5 |
+| I7 | W27–W28 | FRONTEND | FEP-4：订单标记、Performance/报表；完成 G4 |
+| I8 | W29–W30 | FRONTEND | FEP-6：Alerts → Operations/Admin → Desktop |
+| I9 | W31–W32 | MILESTONE | FEP-7：全量硬化与 Beta |
+| I10 | W33–W34 | MILESTONE | FEP-8：M5 testnet 评审准备 |
 
-**FEP-1 交付核查记录（2026-08-15，复验通过）**：UI-101–UI-104 已完成交付核查与修复复验，四项任务均无遗留问题。复验证据：typecheck/lint/单测 91 项、Next.js 17 页静态构建、Chromium E2E 30 项（含守卫首屏与六步顺序断言、axe、视觉基线）、BFF 契约 55 operations/41 schemas 生成与覆盖检查、Storybook 静态构建、i18n 双语 19 key 一致，全部通过。
+### 4.1 页面 API 开发任务（先行）
 
-- UI-101：`UI Complete / Mocked`。运行时守卫接线、mock 外置（C01 生成 `SessionContext` 类型约束）、domain-ui 指标组件复用三项整改已复验通过，未引入回归。BFF-FE-002 发布后须将 Contract Mock source 替换为生成 client + 同 schema MSW，完成 staging 签署前不得升级 Integrated。
-- UI-102：`UI Complete / Contract Integrated`。无遗留问题；staging IdP/MFA 联调签署为晋级 G1 Done 的外部前置条件（详见 UI-102 实施记录）。
-- UI-103：`UI Complete / Storybook Verified`。无遗留问题。
-- UI-104：`UI Complete / Contract Mocked`。无遗留问题；BFF-FE-001/011 staging 签署及 P16 cache/update/diagnostic operation 补齐为升级 Integrated 的外部前置条件。
-- WEB-101：`UI Complete / Contract Mocked`（2026-08-15 交付，同日审查整改复验通过）。官网首期七页（首页/产品/架构安全/使用场景/文档中心/访问申请/登录）按冻结路由静态导出，其中使用场景为 `/use-cases`、文档中心为 `/docs`；复用冻结 design token（深色默认 + 浅色媒体查询）。访问申请复用 C01 `submitAccessRequest` 生成类型，覆盖团队、用途、市场、预期模式与隐私说明版本，含 honeypot、客户端校验、pending 防重复、离线禁用/中止、429 限速文案及错误后输入保留，202 仅显示“已受理”；未配置 BFF origin 时使用同源 `/v1/access-requests`，不再错误请求访客本机 localhost。登录页仅作 Terminal 受控入口，不内嵌认证。
-  - 审查修复：补齐遗漏的文档中心及搜索空态；将 `/scenarios` 对齐为台账冻结的 `/use-cases`；补足首页文档入口和可展开的版本化文档正文；修复离线仍可点击提交、表单缺少 expectedMode、生产默认 origin 指向 localhost、首页 title template 重复风险及官网 lint 未覆盖 App Router TSX 等问题。
-  - 复验证据：官网单测 7 项、Chromium E2E 18 项全部通过，覆盖七页 axe WCAG2A/AA、390px 无横向溢出、文档无结果恢复、honeypot、C01 payload、202/429/离线、禁用词、登录边界、canonical/robots/sitemap；lint、typecheck、Next.js 静态构建（12 个静态输出）通过，真实浏览器桌面/390px 核验无控制台告警。Lighthouse 首页既有交付基线为 performance 93 / accessibility 100 / best-practices 100 / SEO 100；生产发布前仍须在目标 CDN origin 复跑。待 Terminal Auth/BFF staging 联调后切换真实 BFF origin 并晋级 G1。
+F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 operation 名称表达能力，不预设 URL；最终 path、method、request/response schema、分页和 envelope 必须由 BFF 在版本化 OpenAPI 中发布，前端只使用生成 client。每项“目标阶段与验收”保持原业务 Gate 绑定，实际 API 开发窗口以前置 A 迭代为准。
 
-#### FEP-2：Research、Artifact 与 DataSnapshot
+#### 迭代 A1：页面契约基线
 
-| ID | 任务 | 接口绑定 | 验收重点 |
-|---|---|---|---|
-| UI-201 | Research 列表、新建与表单校验 | C03、C04 | 请求含 capability、snapshot、budget、deadline；后端拒绝字段原位显示 |
-| UI-202 | Research 详情、SSE 流、取消与恢复 | C03 | 以 sequence/cursor 去重；断线从最后确认游标回补；取消返回受理态而非伪造已取消 |
-| UI-203 | Artifact/Evidence 详情与交叉跳转 | C04、C10 | 显示 input/content/environment hash、Engine/prompt/code 版本、证据与 correlation ID |
-| UI-204 | DataSnapshot 目录/详情、质量/许可/时效 | C04 | `failed/degraded/expired/license missing` 明确阻断后续策略/交易用途 |
+<a id="task-bff-fe-000"></a>
+##### BFF-FE-000：页面 BFF OpenAPI 基线
 
-#### FEP-3：Strategy、Backtest 与 Release
+- task_id: `BFF-FE-000`
+- task_type: `PAGE_API`
+- iteration: `A1`
+- depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-000)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：建立页面 BFF OpenAPI 基线；统一 session 注入、错误 envelope、cursor 分页、sort/filter、202 job、Idempotency-Key、ETag/objectVersion、correlation ID、SSE event envelope；生成 TS client/Zod/MSW
+- 领域接口背景：F03 有领域 Proto/OpenAPI 生成，但无 P01–P23 完整页面 API 清单
+- 覆盖契约/页面：C01–C17；P01–P23
+- 目标阶段与验收：FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI
 
-| ID | 任务 | 接口绑定 | 验收重点 |
-|---|---|---|---|
-| UI-301 | Strategy 目录与 Lab 草稿 | C05 | 自动保存带版本；409 保留草稿并提供 diff，不覆盖服务端 |
-| UI-302 | 静态检查、回测队列与报告 | C05 | 固定 snapshot/clock/cost/slippage/environment hash；泄漏检查失败阻断 Release |
-| UI-303 | 不可变 Release、审批申请与目标选择 | C05、C08 | hash/参数/回测/数据/证据齐全；目标完全取自后端 `allowedTargets` |
+<a id="review-bff-fe-000"></a>
+###### GPT-6 Astra 功能复审
 
-#### FEP-4：Markets、K 线、Performance
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
 
-| ID | 任务 | 接口绑定 | 验收重点 |
-|---|---|---|---|
-| UI-401 | Market Catalog、Watchlist、VenueQuote | C12 | 每行含 source、venue、asOf、latency、quality、capability；不同产品不前端合并 |
-| UI-402 | OHLCV/K 线、指标、订单/成交标记 | C12、C09 | series 元数据完整；切 venue/product 清空旧 series；断流停在最后确认时间 |
-| UI-403 | Performance、归因、周期报表 | C14、C15 | 金额/币种/估值/账本版本/口径齐全；未对账数据标为 provisional |
+#### 迭代 A2：身份与审计
 
-#### FEP-5：Portfolio、Risk、Trade 与审计
+<a id="task-bff-fe-001"></a>
+##### BFF-FE-001：身份、会话与设置 API
 
-| ID | 任务 | 接口绑定 | 验收重点 |
-|---|---|---|---|
-| UI-501 | Portfolio 与 Risk | C06、C16 | asOf/stale、仓位、P&L、敞口、规则命中、kill switch 常驻；陈旧即阻断写操作 |
-| UI-502 | Proposal 与风险评估 | C07 | 永久显示 `executable=false` 语义；过期 Proposal 不允许评估 |
-| UI-503 | Trade Ticket preflight | C12、C13、C07 | 每一步重新取报价、余额、限额、venue 健康、对象版本和 mode；只预填 intent，不生成 command |
-| UI-504 | Approval、MFA、职责分离 | C08 | 自批/过期/冲突/额度变化明确拒绝；不采用乐观更新 |
-| UI-505 | Command 提交、Order/Fill 时间线、撤单请求 | C09 | 提交只传服务端 command ref 与 Idempotency-Key；重复提交只产生一笔下游订单 |
-| UI-506 | Reconciliation 与账本差异 | C15、C16 | 不能手工改账；差异贯通 Order/Fill/Performance/Alert/Audit |
-| UI-507 | Audit Explorer 与受控导出 | C10 | correlation/causation 链完整；导出异步、短时 URL、授权和审计 |
+- task_id: `BFF-FE-001`
+- task_type: `PAGE_API`
+- iteration: `A2`
+- depends_on: ["BFF-FE-000", "CORE:F06"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-001)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：session/context/reauth/MFA/logout/access request；profile/locale/theme；active sessions revoke；trusted devices revoke；notification preferences/subscriptions；安全操作与审计引用
+- 领域接口背景：F06 定义 Auth/RBAC/主上下文；未定义完整登录恢复、个人资料、会话、可信设备、通知偏好页面 API
+- 覆盖契约/页面：C01、C17；P01/P15
+- 目标阶段与验收：FEP-1/G1：401/403/404、CSRF、recent-auth、最后有效因素保护与撤销后实时失效测试通过
 
-#### FEP-6：Operations、Admin、Alerts 与 Desktop
+<a id="review-bff-fe-001"></a>
+###### GPT-6 Astra 功能复审
 
-| ID | 任务 | 接口绑定 | 验收重点 |
-|---|---|---|---|
-| UI-601 | Operations/Incident/Runbook | C11、C16 | 只能触发服务端批准 actionId；无任意命令/脚本入口 |
-| UI-602 | Admin 治理 | C11、C01 | 成员、角色、policy、capability、flag 全量审计；最后管理员保护；职责分离 |
-| UI-603 | Alerts 收件箱 | C16 | BFF 授权/去重/限速；ack 仅代表已读，不代表解决；离线禁写 |
-| UI-604 | Tauri adapter 与 P16 | C17、平台接口 | 业务组件无 `isDesktop` 分叉；离线只读；深链重新鉴权；签名更新验证 |
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
 
-### 4.2 P01–P23 高保真设计稿落地任务矩阵（新增，强制执行）
+<a id="task-bff-fe-007"></a>
+##### BFF-FE-007：Audit 与导出 API
 
-以下任务不是“补充参考”，而是各阶段 UI 任务的交付子任务。`design/` 中列出的有效稿是页面默认态的内容结构与视觉基准；若同一页面存在多个版本，以本表指定版本为准，旧版本仅保留追溯。开发必须将设计稿制作成可运行、可路由、可鉴权、可访问且接入生成式 BFF client 的 React 页面，同时按设计规范补齐加载、空、错误、无权、陈旧、离线/断线和危险确认状态。设计稿中的示例数据只能进入 Storybook/MSW fixture，不能硬编码进生产页面。
+- task_id: `BFF-FE-007`
+- task_type: `PAGE_API`
+- iteration: `A2`
+- depends_on: ["BFF-FE-001", "CORE:F05"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-007)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：audit search/get chain；correlation/causation pagination；redacted payload；export create/status/cancel/download metadata；短时 URL、水印、retention
+- 领域接口背景：F05/X06 有审计账本目标，未定义 Explorer 搜索、证据链和安全导出页面 API
+- 覆盖契约/页面：C10；P04/P07/P09–P14/P22/P23
+- 目标阶段与验收：FEP-5/G5：按 correlation ID ≤5 分钟还原；越权/过期下载拒绝；导出全过程有审计事件
 
-| 任务 | 页面与有效设计稿 | 实际页面/路由交付 | 契约绑定 | 所属阶段 | 页面级完成标准 |
-|---|---|---|---|---|---|
-| UI-VIS-000 | P01–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准 | App Shell、导航、顶栏、状态条、栅格、token、边框、表格、表单、图表、Badge、危险确认与状态语义 | C01、C16、C17 | FEP-0/1 | 抽取为 `packages/ui`/`domain-ui`，禁止逐页复制样式；1440 基准视觉回归由设计签署；语义色不得挪作装饰色 |
-| UI-P01 | `P01-Identity-Access-Recovery-High-Fidelity-v1.png` | `/login`、`/mfa`、`/access-request`、`/unauthorized`、`/offline` | C01 | FEP-1 | 登录、MFA、访问申请、恢复与返回安全路由均可运行；错误不泄露账户存在性 |
-| UI-P02 | `P02-Command-Center-High-Fidelity-v1.png` | `/command` | C02、C06、C16 | FEP-1 | 卡片按 capability 裁剪；汇总状态、待办、健康与最近活动来自 BFF；无静态业务数据 |
-| UI-P03 | `P03-Research-List-and-New-Research-High-Fidelity-v1.png` | `/research`、`/research/new` | C03、C04 | FEP-2 | 列表分页/筛选与创建表单落地；预算、deadline、snapshot、capability 校验与 202 受理正确 |
-| UI-P04 | `P04-Research-and-Artifact-Detail-High-Fidelity-v1.png` | `/research/:runId`、`/artifacts/:artifactId` | C03、C04、C10 | FEP-2 | SSE 续传/去重、取消受理、Artifact/Evidence/Audit 跳转及全部终态落地 |
-| UI-P05 | `P05-Data-Snapshot-Catalog-and-Detail-High-Fidelity-v1.png` | `/data-snapshots`、`/data-snapshots/:snapshotId` | C04 | FEP-2 | 目录、详情、血缘、质量、许可、时效与阻断状态均由接口驱动 |
-| UI-P06 | `P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png` | `/strategies`、`/strategies/new`、`/strategies/:strategyId/lab` | C05 | FEP-3 | 目录、Lab、版本化草稿、自动保存、校验与 409 diff 可用 |
-| UI-P07 | `P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png` | `/backtests/:runId`、`/releases`、`/releases/:releaseId` | C05、C08、C10 | FEP-3 | 回测详情、校验报告、不可变 Release、审批时间线和 allowedTargets 落地 |
-| UI-P08 | `P08-Portfolio-and-Risk-High-Fidelity-v1.png` | `/portfolio`、`/risk`、`/risk/rules/:ruleId` | C06 | FEP-5 | 仓位、估值、P&L、敞口、规则、stale 与 kill switch 状态可验证；陈旧时禁写 |
-| UI-P09 | `P09-TradeProposal-List-and-Detail-High-Fidelity-v1.png` | `/proposals`、`/proposals/:proposalId` | C07、C10 | FEP-5 | 列表/详情/证据/反方观点/失效时间落地；始终显示不可执行语义 |
-| UI-P10 | `P10-Approvals-and-RiskDecision-Detail-High-Fidelity-v1.png` | `/approvals`、`/approvals/:approvalId` | C07、C08、C10 | FEP-5 | RiskDecision、规则命中、MFA、职责分离、同意/拒绝/过期/冲突状态落地 |
-| UI-P11 | `P11-Orders-and-Execution-Detail-High-Fidelity-v1.png` | `/orders`、`/orders/:orderId` | C09、C10、C15 | FEP-5 | Order/Fill 时间线、部分成交、拒绝、撤单请求、断流回补与证据链落地 |
-| UI-P12 | `P12-Audit-Explorer-and-Export-Jobs-High-Fidelity-v1.png` | `/audit`、`/audit/:correlationId`、`/exports/:exportId` | C10 | FEP-5 | 服务端搜索/分页、因果链、脱敏载荷、异步导出和短时下载状态落地 |
-| UI-P13 | `P13-Operations-and-Incident-Detail-High-Fidelity-v2.png` | `/operations`、`/operations/incidents/:incidentId` | C11、C16 | FEP-6 | 7 个服务健康视图、告警、incident 时间线、Runbook 检查与受控 actionId 调用落地 |
-| UI-P14 | `P14-Admin-Governance-High-Fidelity-v2.png` | `/admin/members`、`/admin/policies`、`/admin/capabilities`、`/admin/flags` | C01、C11 | FEP-6 | 成员/角色/策略/能力/开关、版本冲突、职责分离、签名与审计落地 |
-| UI-P15 | `P15-Profile-Security-and-Notification-Settings-High-Fidelity-v2.png` | `/settings/profile`、`/settings/notifications`、`/settings/security` | C01、C17 | FEP-1 | 资料、区域、通知矩阵、MFA、会话、可信设备和安全操作全部接入接口 |
-| UI-P16 | `P16-Desktop-Control-Center-High-Fidelity-v2.png` | `/settings/desktop` | C17、PlatformCapabilities | FEP-6 | 通知、窗口/显示器、文件导入、加密缓存、更新与诊断通过 Tauri adapter；Web 显示受限态 |
-| UI-P17 | `P17-Web-Browser-Capability-High-Fidelity-v2.png` | `/settings/browser` | C17、BrowserCapabilities | FEP-1 | 浏览器权限、下载、存储、深链、兼容性与响应式能力检测落地；Desktop 不显示入口 |
-| UI-P18 | `P18-Markets-Overview-and-Instrument-Detail-High-Fidelity-v2.png` | `/markets`、`/markets/:symbol` | C12、C16 | FEP-4 | 市场目录、自选、报价比较、标的详情、许可/质量/as_of 与告警偏好接口化 |
-| UI-P19 | `P19-Candlestick-and-Market-Analysis-High-Fidelity-v4.png` | `/markets/:symbol/chart` | C09、C12 | FEP-4 | Symbol/Venue/Product/Timezone/Quality 可选；周期仅 1m/5m/15m/1h/4h/1D/1W/自定义；K 线、指标、事件、数据缺口和元数据落地 |
-| UI-P20 | `P20-Trade-Ticket-Controlled-Order-Entry-High-Fidelity-v3.png` | `/trade`、`/trade/:symbol` | C07–C09、C12、C13 | FEP-5 | 订单意图、执行上下文、preflight、证据关联、风险评估、审批与 command ref 提交严格按服务端时序实现 |
-| UI-P21 | `P21-Performance-and-Reports-High-Fidelity-v1.png` | `/performance`、`/performance/reports/:reportId` | C14、C15 | FEP-4 | 收益、归因、回撤、费用、口径、provisional 和报表生成/下载落地 |
-| UI-P22 | `P22-Reconciliation-and-Funds-Ledger-High-Fidelity-v1.png` | `/reconciliation`、`/reconciliation/:runId` | C09、C10、C15 | FEP-5 | 对账运行、差异、资金账本、证据、重跑请求与状态流落地；无手工改账入口 |
-| UI-P23 | `P23-Alerts-Inbox-and-Response-High-Fidelity-v1.png` | `/alerts`、`/alerts/:alertId` | C10、C11、C16 | FEP-6 | 授权收件箱、详情、ack/unack、处置导航、订阅与实时状态落地；ack 不等于 resolved |
+<a id="review-bff-fe-007"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 A3：研究与市场数据
+
+<a id="task-bff-fe-003"></a>
+##### BFF-FE-003：Research、Snapshot 与 Artifact API
+
+- task_id: `BFF-FE-003`
+- task_type: `PAGE_API`
+- iteration: `A3`
+- depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-003)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Research list/create/get/cancel；stream subscribe/replay；Artifact/Evidence get；Snapshot list/get；统一 cursor/filter、sequence/afterSequence 和 202 状态引用
+- 领域接口背景：R02–R04/F07 已定义 Snapshot/Research/Artifact 服务能力，缺页面级列表/筛选/详情/流式封装
+- 覆盖契约/页面：C03/C04；P03–P05
+- 目标阶段与验收：FEP-2/G2：创建、取消、断线续传、重复/乱序、质量/许可阻断与 Audit 关联 contract 全绿
+
+<a id="review-bff-fe-003"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-bff-fe-005"></a>
+##### BFF-FE-005：市场目录、报价与 K 线 API
+
+- task_id: `BFF-FE-005`
+- task_type: `PAGE_API`
+- iteration: `A3`
+- depends_on: ["BFF-FE-001", "CORE:R01", "CORE:R02"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-005)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：instrument catalog/watchlist；authorized VenueQuote；candle series/history/realtime；series metadata、quality/gaps/event markers；symbol/venue/product/timezone/interval capability
+- 领域接口背景：R01/R02 定义行情与快照，未定义市场目录、跨 venue 报价、K 线与图表元数据页面 API
+- 覆盖契约/页面：C12/C16；P18/P19/P20
+- 目标阶段与验收：FEP-4/G4：报价和 candle 均含 source/venue/asOf/quality/license；切换维度不混用缓存，断流可回补且不拼接
+
+<a id="review-bff-fe-005"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 A4：风险执行与策略
+
+<a id="task-bff-fe-006"></a>
+##### BFF-FE-006：Portfolio、Risk、Proposal、Approval 与 Order API
+
+- task_id: `BFF-FE-006`
+- task_type: `PAGE_API`
+- iteration: `A4`
+- depends_on: ["BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-006)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：portfolio/risk projection；proposal list/get/evaluate；preflight/order capabilities；approval list/get/decide/MFA；command-ref submit；order list/get/cancel request/stream
+- 领域接口背景：X01–X04 定义风险和执行服务，缺 Portfolio/Proposal/Approval/Trade Ticket/Order 页面组合契约
+- 覆盖契约/页面：C06–C09/C13；P08–P11/P20
+- 目标阶段与验收：FEP-5/G5：七类拒绝、职责分离、重复 1,000 次幂等、202 受理和订单事实流全部通过
+
+<a id="review-bff-fe-006"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-bff-fe-004"></a>
+##### BFF-FE-004：Strategy、Backtest 与 Release API
+
+- task_id: `BFF-FE-004`
+- task_type: `PAGE_API`
+- iteration: `A4`
+- depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-007", "CORE:S01", "CORE:S02", "CORE:S03"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-004)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：strategy list/draft get/save；static check；backtest create/get/stream；release create/list/get；allowedTargets；approval timeline；expectedVersion/409 diff
+- 领域接口背景：S01–S04 有 Strategy/Backtest/Release 能力，缺完整页面 API 与编辑冲突模型
+- 覆盖契约/页面：C05/C08；P06/P07
+- 目标阶段与验收：FEP-3/G3：并发编辑无静默覆盖；校验失败、未审批及非法 target 均由服务端拒绝
+
+<a id="review-bff-fe-004"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 A5：对账、分析与治理
+
+<a id="task-bff-fe-009"></a>
+##### BFF-FE-009：Reconciliation 与账本 API
+
+- task_id: `BFF-FE-009`
+- task_type: `PAGE_API`
+- iteration: `A5`
+- depends_on: ["BFF-FE-006", "BFF-FE-007", "CORE:X05"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-009)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：reconciliation list/get；break list/get；ledger entries；request rerun/re-evaluation；status stream；Order/Fill/Audit/Alert evidence refs；禁止任何 edit-ledger operation
+- 领域接口背景：X05 定义 reconciliation worker/ledger，但未定义完整页面读写契约
+- 覆盖契约/页面：C15/C09/C10/C16；P22/P11/P21
+- 目标阶段与验收：FEP-5/G5：差异状态跨页面一致；重跑幂等；schema 和权限负向测试证明前端无法改账
+
+<a id="review-bff-fe-009"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-bff-fe-008"></a>
+##### BFF-FE-008：Performance 与报表 API
+
+- task_id: `BFF-FE-008`
+- task_type: `PAGE_API`
+- iteration: `A5`
+- depends_on: ["BFF-FE-009", "CORE:X01", "CORE:X05"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-008)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：performance summary/time series/attribution/drawdown/fees；valuation and ledger versions；report create/status/get/download；period/method/currency/coverage/provisional
+- 领域接口背景：X01/X05 提供 Portfolio/对账基础；总计划未定义 Performance/Report API，原 C14 已标记“需 BFF 新增页面模型”
+- 覆盖契约/页面：C14/C15；P21
+- 目标阶段与验收：FEP-4/G4：所有结果含 account/currency/method/asOf/ledgerVersion/valuationSnapshotId；未对账数据强制 provisional
+
+<a id="review-bff-fe-008"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-bff-fe-010"></a>
+##### BFF-FE-010：Operations、Admin 与 Alert API
+
+- task_id: `BFF-FE-010`
+- task_type: `PAGE_API`
+- iteration: `A5`
+- depends_on: ["BFF-FE-001", "BFF-FE-007", "BFF-FE-009", "CORE:F09"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-010)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：service health/metrics projection；incident list/get/timeline；approved Runbook actions/prechecks；member/role/policy/capability/flag CRUD with versioning；alert list/get/ack/unack/subscriptions/stream
+- 领域接口背景：F09/X06 有观测、运维目标；F06 有策略能力，未定义 Incident/Admin/Alert 页面 API
+- 覆盖契约/页面：C11/C16；P13/P14/P23/P02
+- 目标阶段与验收：FEP-6/G6：无任意命令参数；最后管理员和职责分离保护；ack 不改变 resolved；所有治理变更可审计
+
+<a id="review-bff-fe-010"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 A6：汇总与平台能力
+
+<a id="task-bff-fe-002"></a>
+##### BFF-FE-002：Command Center 聚合 API
+
+- task_id: `BFF-FE-002`
+- task_type: `PAGE_API`
+- iteration: `A6`
+- depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-010", "CORE:F09"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-002)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：authorized command summary、priority queue、system health、risk/data/order/run counters、recent activity；返回 sampledAt/asOf、source 和资源级跳转引用
+- 领域接口背景：F09、R/X 有指标和事件，未定义 Command Center 聚合页面模型
+- 覆盖契约/页面：C02；P02
+- 目标阶段与验收：FEP-1/G1：单次聚合或受控并发预算达标；不同角色字段裁剪和无权对象负向测试通过
+
+<a id="review-bff-fe-002"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-bff-fe-011"></a>
+##### BFF-FE-011：Web/Desktop 平台能力 API
+
+- task_id: `BFF-FE-011`
+- task_type: `PAGE_API`
+- iteration: `A6`
+- depends_on: ["BFF-FE-001", "BFF-FE-010", "CORE:L02", "CORE:L03"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-011)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：server-visible PlatformCapabilities；desktop update manifest/diagnostic job/download record；browser capability policy/permission state；deep-link exchange；平台降级说明；不得返回 token/secret/本地敏感缓存内容
+- 领域接口背景：L02/L03 与平台方案定义安全边界，但未定义 Desktop/Web capability 与下载/诊断页面模型
+- 覆盖契约/页面：C17；P16/P17
+- 目标阶段与验收：FEP-6/G6：Web/Desktop capability contract 一致；深链重新鉴权；签名更新、短时下载、离线只读与敏感字段负向测试通过
+
+<a id="review-bff-fe-011"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+### 4.2 前端功能与逐页设计稿交付（后行）
+
+以下 `UI-Pxx` 是各阶段 UI 任务的交付子任务。`design/` 中列出的有效稿是页面默认态的内容结构与视觉基准；若同一页面存在多个版本，以本节指定版本为准，旧版本仅保留追溯。开发必须将设计稿制作成可运行、可路由、可鉴权、可访问且接入生成式 BFF client 的 React 页面，同时按设计规范补齐加载、空、错误、无权、陈旧、离线/断线和危险确认状态。设计稿中的示例数据只能进入 Storybook/MSW fixture，不能硬编码进生产页面。
 
 每个 `UI-Pxx` 任务关闭时必须附：设计稿对照截图、路由与权限测试、七态 Storybook、MSW 契约用例、staging 接口证据、键盘/axe 结果、1440 视觉回归、至少一个目标浏览器 E2E；有 Desktop 差异的页面还需 Tauri E2E。仅提交静态 HTML、截图复刻或无接口组件不视为完成。
+
+开发-复审流转：开发产物与测试齐备后 `REVIEW_READY → IN_REVIEW`；有问题进入 `CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW`，验证失败返回修复节点；无问题或问题全部验证关闭后 `ACCEPTED`，缺环境/依赖为 `BLOCKED`。`UI Complete → Integrated → Done` 保留原第 7.5 节定义，`ACCEPTED` 不能越过 staging 与所属 Gate；原接口状态链保持独立。
+
+#### 迭代 I1：W15–W16
+
+<a id="task-fep-1"></a>
+##### FEP-1：壳与官网
+
+- task_id: `FEP-1`
+- task_type: `MILESTONE`
+- iteration: `I1`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PRE-06"]
+- development_status: `COMPLETED`
+- 状态范围：已开发完成范围为 UI-101–UI-104、WEB-101；逐页 UI-Pxx 与 G1 的集成验收仍按独立条目判定。
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-1)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态
+- 主要后端依赖：F06、F09
+- 交付节点与放行条件：G1：认证/RBAC/模式/陈旧/离线/响应式可用，官网内容合规
+- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+
+<a id="review-fep-1"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-103"></a>
+##### UI-103：QuantOS UI/domain-ui、主题、i18n、表格/时间线/确认框
+
+- task_id: `UI-103`
+- task_type: `FRONTEND`
+- iteration: `I1`
+- depends_on: ["PRE-02", "PRE-03", "PRE-06", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `COMPLETED`
+- 状态范围：已开发完成；UI Complete。组件及 Storybook 属于交付范围，本轮复审从空白开始。
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-103)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：QuantOS UI/domain-ui、主题、i18n、表格/时间线/确认框
+- 接口绑定：无业务接口
+- 验收重点：所有组件状态进 Storybook；键盘、焦点、200% 缩放和读屏通过
+
+<a id="review-ui-103"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-vis-000"></a>
+##### UI-VIS-000：P01–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准
+
+- task_id: `UI-VIS-000`
+- task_type: `FRONTEND`
+- iteration: `I1`
+- depends_on: ["UI-103", "BFF-FE-001", "BFF-FE-010", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-vis-000)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P01–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准
+- 实际页面/路由交付：App Shell、导航、顶栏、状态条、栅格、token、边框、表格、表单、图表、Badge、危险确认与状态语义
+- 契约绑定：C01、C16、C17
+- 所属阶段：FEP-0/1
+- 页面级完成标准：抽取为 `packages/ui`/`domain-ui`，禁止逐页复制样式；1440 基准视觉回归由设计签署；语义色不得挪作装饰色
+
+<a id="review-ui-vis-000"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-102"></a>
+##### UI-102：OIDC、callback、MFA、401/403/404/maintenance/offline
+
+- task_id: `UI-102`
+- task_type: `FRONTEND`
+- iteration: `I1`
+- depends_on: ["UI-VIS-000", "BFF-FE-001", "BFF-FE-006", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `COMPLETED`
+- 状态范围：已开发完成；UI Complete / Contract Integrated。staging IdP/MFA 联调签署是晋级 G1 Done 的前置条件。
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-102)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：OIDC、callback、MFA、401/403/404/maintenance/offline
+- 接口绑定：C01、C08
+- 验收重点：401 清内存态；403/404 不泄露对象存在性；return path 不含敏感参数
+
+<a id="review-ui-102"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-101"></a>
+##### UI-101：App Shell、路由守卫、主工作区/账户/mode/数据新鲜度/风险/连接状态
+
+- task_id: `UI-101`
+- task_type: `FRONTEND`
+- iteration: `I1`
+- depends_on: ["UI-102", "BFF-FE-001", "BFF-FE-002", "BFF-FE-010", "BFF-FE-000", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `COMPLETED`
+- 状态范围：已开发完成；UI Complete / Mocked。BFF-FE-002 发布后使用生成 client + 同 schema MSW，staging 签署前不得升级 Integrated。
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-101)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：App Shell、路由守卫、主工作区/账户/mode/数据新鲜度/风险/连接状态
+- 接口绑定：C01、C02、C16
+- 验收重点：守卫严格按 session → tenant/workspace → RBAC/capability → resource → mode → data 顺序；任一步失败停止后续请求
+
+<a id="review-ui-101"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-104"></a>
+##### UI-104：Profile/安全/通知/浏览器能力
+
+- task_id: `UI-104`
+- task_type: `FRONTEND`
+- iteration: `I1`
+- depends_on: ["UI-101", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
+- development_status: `COMPLETED`
+- 状态范围：已开发完成；UI Complete / Contract Mocked。BFF-FE-001/011 staging 签署及 P16 cache/update/diagnostic operation 补齐后才可 Integrated。
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-104)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Profile/安全/通知/浏览器能力
+- 接口绑定：C17
+- 验收重点：会话撤销、通知降级、下载说明可用；小屏无高风险按钮
+
+<a id="review-ui-104"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-web-101"></a>
+##### WEB-101：官网首页、产品、架构安全、场景、访问申请、登录
+
+- task_id: `WEB-101`
+- task_type: `WEBSITE`
+- iteration: `I1`
+- depends_on: ["UI-103", "UI-102", "BFF-FE-001", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `COMPLETED`
+- 状态范围：已开发完成；UI Complete / Contract Mocked。Terminal Auth/BFF staging 联调后配置真实 BFF origin 并晋级 G1；生产发布前在目标 CDN origin 验证 Lighthouse。
+- review_entry: [GPT-6 Astra 复审入口](#review-web-101)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：官网首页、产品、架构安全、场景、访问申请、登录
+- 接口绑定：Access Request/Auth
+- 验收重点：Lighthouse、SEO、隐私、防滥用和禁用词检查通过
+- 官网功能细则：首期七页为首页、产品、架构安全、使用场景、文档中心、访问申请、登录；使用场景 `/use-cases`、文档中心 `/docs`。复用冻结 design token（深色默认 + 浅色媒体查询）；文档中心支持搜索空态、首页文档入口及可展开的版本化正文。访问申请使用 C01 `submitAccessRequest` 生成类型，包含团队、用途、市场、预期模式（expectedMode）与隐私说明版本；支持 honeypot、客户端校验、pending 防重复、离线禁用/中止、429 文案及错误后输入保留，202 仅显示“已受理”。未配置 BFF origin 时使用同源 `/v1/access-requests`；登录页仅作 Terminal 受控入口，不内嵌认证。首页 title template 避免重复，官网 lint 覆盖 App Router TSX；SEO 包含 canonical/robots/sitemap。
+
+<a id="review-web-101"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p01"></a>
+##### UI-P01：P01-Identity-Access-Recovery-High-Fidelity-v1.png
+
+- task_id: `UI-P01`
+- task_type: `FRONTEND`
+- iteration: `I1`
+- depends_on: ["UI-102", "UI-VIS-000", "BFF-FE-001", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p01)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P01-Identity-Access-Recovery-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/login`、`/mfa`、`/access-request`、`/unauthorized`、`/offline`
+- 契约绑定：C01
+- 所属阶段：FEP-1
+- 页面级完成标准：登录、MFA、访问申请、恢复与返回安全路由均可运行；错误不泄露账户存在性
+
+<a id="review-ui-p01"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p02"></a>
+##### UI-P02：P02-Command-Center-High-Fidelity-v1.png
+
+- task_id: `UI-P02`
+- task_type: `FRONTEND`
+- iteration: `I1`
+- depends_on: ["UI-101", "UI-VIS-000", "BFF-FE-002", "BFF-FE-006", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p02)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P02-Command-Center-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/command`
+- 契约绑定：C02、C06、C16
+- 所属阶段：FEP-1
+- 页面级完成标准：卡片按 capability 裁剪；汇总状态、待办、健康与最近活动来自 BFF；无静态业务数据
+
+<a id="review-ui-p02"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p15"></a>
+##### UI-P15：P15-Profile-Security-and-Notification-Settings-High-Fidelity-v2.png
+
+- task_id: `UI-P15`
+- task_type: `FRONTEND`
+- iteration: `I1`
+- depends_on: ["UI-104", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p15)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P15-Profile-Security-and-Notification-Settings-High-Fidelity-v2.png`
+- 实际页面/路由交付：`/settings/profile`、`/settings/notifications`、`/settings/security`
+- 契约绑定：C01、C17
+- 所属阶段：FEP-1
+- 页面级完成标准：资料、区域、通知矩阵、MFA、会话、可信设备和安全操作全部接入接口
+
+<a id="review-ui-p15"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p17"></a>
+##### UI-P17：P17-Web-Browser-Capability-High-Fidelity-v2.png
+
+- task_id: `UI-P17`
+- task_type: `FRONTEND`
+- iteration: `I1`
+- depends_on: ["UI-104", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p17)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P17-Web-Browser-Capability-High-Fidelity-v2.png`
+- 实际页面/路由交付：`/settings/browser`
+- 契约绑定：C17、BrowserCapabilities
+- 所属阶段：FEP-1
+- 页面级完成标准：浏览器权限、下载、存储、深链、兼容性与响应式能力检测落地；Desktop 不显示入口
+
+<a id="review-ui-p17"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 I2：W17–W18
+
+<a id="task-fep-2"></a>
+##### FEP-2：研究闭环
+
+- task_id: `FEP-2`
+- task_type: `MILESTONE`
+- iteration: `I2`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P17"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-2)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot
+- 主要后端依赖：R02–R04、F07/F08、TP01–TP05、U01
+- 交付节点与放行条件：G2：固定输入可追溯与重放；取消 ≤2s；Web/Desktop 同用例全绿
+- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+
+<a id="review-fep-2"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-507"></a>
+##### UI-507：Audit Explorer 与受控导出
+
+- task_id: `UI-507`
+- task_type: `FRONTEND`
+- iteration: `I2`
+- depends_on: ["UI-101", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-507)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Audit Explorer 与受控导出
+- 接口绑定：C10
+- 验收重点：correlation/causation 链完整；导出异步、短时 URL、授权和审计
+
+<a id="review-ui-507"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p12"></a>
+##### UI-P12：P12-Audit-Explorer-and-Export-Jobs-High-Fidelity-v1.png
+
+- task_id: `UI-P12`
+- task_type: `FRONTEND`
+- iteration: `I2`
+- depends_on: ["UI-507", "UI-VIS-000", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p12)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P12-Audit-Explorer-and-Export-Jobs-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/audit`、`/audit/:correlationId`、`/exports/:exportId`
+- 契约绑定：C10
+- 所属阶段：FEP-5
+- 页面级完成标准：服务端搜索/分页、因果链、脱敏载荷、异步导出和短时下载状态落地
+
+<a id="review-ui-p12"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-204"></a>
+##### UI-204：DataSnapshot 目录/详情、质量/许可/时效
+
+- task_id: `UI-204`
+- task_type: `FRONTEND`
+- iteration: `I2`
+- depends_on: ["UI-101", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-204)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：DataSnapshot 目录/详情、质量/许可/时效
+- 接口绑定：C04
+- 验收重点：`failed/degraded/expired/license missing` 明确阻断后续策略/交易用途
+
+<a id="review-ui-204"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p05"></a>
+##### UI-P05：P05-Data-Snapshot-Catalog-and-Detail-High-Fidelity-v1.png
+
+- task_id: `UI-P05`
+- task_type: `FRONTEND`
+- iteration: `I2`
+- depends_on: ["UI-204", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p05)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P05-Data-Snapshot-Catalog-and-Detail-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/data-snapshots`、`/data-snapshots/:snapshotId`
+- 契约绑定：C04
+- 所属阶段：FEP-2
+- 页面级完成标准：目录、详情、血缘、质量、许可、时效与阻断状态均由接口驱动
+
+<a id="review-ui-p05"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-201"></a>
+##### UI-201：Research 列表、新建与表单校验
+
+- task_id: `UI-201`
+- task_type: `FRONTEND`
+- iteration: `I2`
+- depends_on: ["UI-204", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-201)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Research 列表、新建与表单校验
+- 接口绑定：C03、C04
+- 验收重点：请求含 capability、snapshot、budget、deadline；后端拒绝字段原位显示
+
+<a id="review-ui-201"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p03"></a>
+##### UI-P03：P03-Research-List-and-New-Research-High-Fidelity-v1.png
+
+- task_id: `UI-P03`
+- task_type: `FRONTEND`
+- iteration: `I2`
+- depends_on: ["UI-201", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p03)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P03-Research-List-and-New-Research-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/research`、`/research/new`
+- 契约绑定：C03、C04
+- 所属阶段：FEP-2
+- 页面级完成标准：列表分页/筛选与创建表单落地；预算、deadline、snapshot、capability 校验与 202 受理正确
+
+<a id="review-ui-p03"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-202"></a>
+##### UI-202：Research 详情、SSE 流、取消与恢复
+
+- task_id: `UI-202`
+- task_type: `FRONTEND`
+- iteration: `I2`
+- depends_on: ["UI-201", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-202)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Research 详情、SSE 流、取消与恢复
+- 接口绑定：C03
+- 验收重点：以 sequence/cursor 去重；断线从最后确认游标回补；取消返回受理态而非伪造已取消
+
+<a id="review-ui-202"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-203"></a>
+##### UI-203：Artifact/Evidence 详情与交叉跳转
+
+- task_id: `UI-203`
+- task_type: `FRONTEND`
+- iteration: `I2`
+- depends_on: ["UI-202", "UI-507", "BFF-FE-003", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-203)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Artifact/Evidence 详情与交叉跳转
+- 接口绑定：C04、C10
+- 验收重点：显示 input/content/environment hash、Engine/prompt/code 版本、证据与 correlation ID
+
+<a id="review-ui-203"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p04"></a>
+##### UI-P04：P04-Research-and-Artifact-Detail-High-Fidelity-v1.png
+
+- task_id: `UI-P04`
+- task_type: `FRONTEND`
+- iteration: `I2`
+- depends_on: ["UI-202", "UI-203", "UI-VIS-000", "BFF-FE-003", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p04)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P04-Research-and-Artifact-Detail-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/research/:runId`、`/artifacts/:artifactId`
+- 契约绑定：C03、C04、C10
+- 所属阶段：FEP-2
+- 页面级完成标准：SSE 续传/去重、取消受理、Artifact/Evidence/Audit 跳转及全部终态落地
+
+<a id="review-ui-p04"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 I3：W19–W20
+
+<a id="task-fep-3"></a>
+##### FEP-3：策略治理
+
+- task_id: `FEP-3`
+- task_type: `MILESTONE`
+- iteration: `I3`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P04"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-3)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P06–P07；草稿、静态检查、回测、Release、审批时间线
+- 主要后端依赖：S01–S04、R02、F06
+- 交付节点与放行条件：G3：未验证/未审批不可部署；M3/M4 仅 Paper/Shadow
+- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+
+<a id="review-fep-3"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-301"></a>
+##### UI-301：Strategy 目录与 Lab 草稿
+
+- task_id: `UI-301`
+- task_type: `FRONTEND`
+- iteration: `I3`
+- depends_on: ["UI-203", "UI-204", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-301)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Strategy 目录与 Lab 草稿
+- 接口绑定：C05
+- 验收重点：自动保存带版本；409 保留草稿并提供 diff，不覆盖服务端
+
+<a id="review-ui-301"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p06"></a>
+##### UI-P06：P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png
+
+- task_id: `UI-P06`
+- task_type: `FRONTEND`
+- iteration: `I3`
+- depends_on: ["UI-301", "UI-VIS-000", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p06)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/strategies`、`/strategies/new`、`/strategies/:strategyId/lab`
+- 契约绑定：C05
+- 所属阶段：FEP-3
+- 页面级完成标准：目录、Lab、版本化草稿、自动保存、校验与 409 diff 可用
+
+<a id="review-ui-p06"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-302"></a>
+##### UI-302：静态检查、回测队列与报告
+
+- task_id: `UI-302`
+- task_type: `FRONTEND`
+- iteration: `I3`
+- depends_on: ["UI-301", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-302)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：静态检查、回测队列与报告
+- 接口绑定：C05
+- 验收重点：固定 snapshot/clock/cost/slippage/environment hash；泄漏检查失败阻断 Release
+
+<a id="review-ui-302"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-303"></a>
+##### UI-303：不可变 Release、审批申请与目标选择
+
+- task_id: `UI-303`
+- task_type: `FRONTEND`
+- iteration: `I3`
+- depends_on: ["UI-302", "UI-507", "BFF-FE-004", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-303)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：不可变 Release、审批申请与目标选择
+- 接口绑定：C05、C08
+- 验收重点：hash/参数/回测/数据/证据齐全；目标完全取自后端 `allowedTargets`
+
+<a id="review-ui-303"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p07"></a>
+##### UI-P07：P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png
+
+- task_id: `UI-P07`
+- task_type: `FRONTEND`
+- iteration: `I3`
+- depends_on: ["UI-302", "UI-303", "UI-VIS-000", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p07)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/backtests/:runId`、`/releases`、`/releases/:releaseId`
+- 契约绑定：C05、C08、C10
+- 所属阶段：FEP-3
+- 页面级完成标准：回测详情、校验报告、不可变 Release、审批时间线和 allowedTargets 落地
+
+<a id="review-ui-p07"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 I4：W21–W22
+
+<a id="task-fep-4"></a>
+##### FEP-4：市场与分析
+
+- task_id: `FEP-4`
+- task_type: `MILESTONE`
+- iteration: `I4`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-4)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P18–P19、P21；市场目录、报价、K 线、订单标记、收益与报表
+- 主要后端依赖：R01/R02、X01、Performance/Valuation/Report API
+- 交付节点与放行条件：G4：来源/venue/as_of/quality/口径完整；断流不拼接；provisional 正确
+- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+
+<a id="review-fep-4"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-fep-5"></a>
+##### FEP-5：风险与执行闭环
+
+- task_id: `FEP-5`
+- task_type: `MILESTONE`
+- iteration: `I4`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-5)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P08–P12、P20、P22；Portfolio/Risk、Proposal、Trade Ticket、Approval、Order、Reconciliation、Audit
+- 主要后端依赖：X01–X06、TP07
+- 交付节点与放行条件：G5：七类高风险用例全绿；完整证据链 ≤5 分钟还原；无直连 venue
+- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+
+<a id="review-fep-5"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-401"></a>
+##### UI-401：Market Catalog、Watchlist、VenueQuote
+
+- task_id: `UI-401`
+- task_type: `FRONTEND`
+- iteration: `I4`
+- depends_on: ["UI-101", "UI-204", "BFF-FE-005", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-401)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Market Catalog、Watchlist、VenueQuote
+- 接口绑定：C12
+- 验收重点：每行含 source、venue、asOf、latency、quality、capability；不同产品不前端合并
+
+<a id="review-ui-401"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p18"></a>
+##### UI-P18：P18-Markets-Overview-and-Instrument-Detail-High-Fidelity-v2.png
+
+- task_id: `UI-P18`
+- task_type: `FRONTEND`
+- iteration: `I4`
+- depends_on: ["UI-401", "UI-VIS-000", "BFF-FE-005", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p18)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P18-Markets-Overview-and-Instrument-Detail-High-Fidelity-v2.png`
+- 实际页面/路由交付：`/markets`、`/markets/:symbol`
+- 契约绑定：C12、C16
+- 所属阶段：FEP-4
+- 页面级完成标准：市场目录、自选、报价比较、标的详情、许可/质量/as_of 与告警偏好接口化
+
+<a id="review-ui-p18"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-501"></a>
+##### UI-501：Portfolio 与 Risk
+
+- task_id: `UI-501`
+- task_type: `FRONTEND`
+- iteration: `I4`
+- depends_on: ["UI-101", "BFF-FE-006", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-501)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Portfolio 与 Risk
+- 接口绑定：C06、C16
+- 验收重点：asOf/stale、仓位、P&L、敞口、规则命中、kill switch 常驻；陈旧即阻断写操作
+
+<a id="review-ui-501"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p08"></a>
+##### UI-P08：P08-Portfolio-and-Risk-High-Fidelity-v1.png
+
+- task_id: `UI-P08`
+- task_type: `FRONTEND`
+- iteration: `I4`
+- depends_on: ["UI-501", "UI-VIS-000", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p08)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P08-Portfolio-and-Risk-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/portfolio`、`/risk`、`/risk/rules/:ruleId`
+- 契约绑定：C06
+- 所属阶段：FEP-5
+- 页面级完成标准：仓位、估值、P&L、敞口、规则、stale 与 kill switch 状态可验证；陈旧时禁写
+
+<a id="review-ui-p08"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-502"></a>
+##### UI-502：Proposal 与风险评估
+
+- task_id: `UI-502`
+- task_type: `FRONTEND`
+- iteration: `I4`
+- depends_on: ["UI-203", "UI-501", "UI-507", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-502)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Proposal 与风险评估
+- 接口绑定：C07
+- 验收重点：永久显示 `executable=false` 语义；过期 Proposal 不允许评估
+
+<a id="review-ui-502"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p09"></a>
+##### UI-P09：P09-TradeProposal-List-and-Detail-High-Fidelity-v1.png
+
+- task_id: `UI-P09`
+- task_type: `FRONTEND`
+- iteration: `I4`
+- depends_on: ["UI-502", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p09)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P09-TradeProposal-List-and-Detail-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/proposals`、`/proposals/:proposalId`
+- 契约绑定：C07、C10
+- 所属阶段：FEP-5
+- 页面级完成标准：列表/详情/证据/反方观点/失效时间落地；始终显示不可执行语义
+
+<a id="review-ui-p09"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 I5：W23–W24
+
+<a id="task-ui-503"></a>
+##### UI-503：Trade Ticket preflight
+
+- task_id: `UI-503`
+- task_type: `FRONTEND`
+- iteration: `I5`
+- depends_on: ["UI-401", "UI-501", "UI-502", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-503)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Trade Ticket preflight
+- 接口绑定：C12、C13、C07
+- 验收重点：每一步重新取报价、余额、限额、venue 健康、对象版本和 mode；只预填 intent，不生成 command
+
+<a id="review-ui-503"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-504"></a>
+##### UI-504：Approval、MFA、职责分离
+
+- task_id: `UI-504`
+- task_type: `FRONTEND`
+- iteration: `I5`
+- depends_on: ["UI-503", "UI-102", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-504)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Approval、MFA、职责分离
+- 接口绑定：C08
+- 验收重点：自批/过期/冲突/额度变化明确拒绝；不采用乐观更新
+
+<a id="review-ui-504"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p10"></a>
+##### UI-P10：P10-Approvals-and-RiskDecision-Detail-High-Fidelity-v1.png
+
+- task_id: `UI-P10`
+- task_type: `FRONTEND`
+- iteration: `I5`
+- depends_on: ["UI-504", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p10)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P10-Approvals-and-RiskDecision-Detail-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/approvals`、`/approvals/:approvalId`
+- 契约绑定：C07、C08、C10
+- 所属阶段：FEP-5
+- 页面级完成标准：RiskDecision、规则命中、MFA、职责分离、同意/拒绝/过期/冲突状态落地
+
+<a id="review-ui-p10"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-505"></a>
+##### UI-505：Command 提交、Order/Fill 时间线、撤单请求
+
+- task_id: `UI-505`
+- task_type: `FRONTEND`
+- iteration: `I5`
+- depends_on: ["UI-504", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-505)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Command 提交、Order/Fill 时间线、撤单请求
+- 接口绑定：C09
+- 验收重点：提交只传服务端 command ref 与 Idempotency-Key；重复提交只产生一笔下游订单
+
+<a id="review-ui-505"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p20"></a>
+##### UI-P20：P20-Trade-Ticket-Controlled-Order-Entry-High-Fidelity-v3.png
+
+- task_id: `UI-P20`
+- task_type: `FRONTEND`
+- iteration: `I5`
+- depends_on: ["UI-503", "UI-504", "UI-505", "UI-VIS-000", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p20)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P20-Trade-Ticket-Controlled-Order-Entry-High-Fidelity-v3.png`
+- 实际页面/路由交付：`/trade`、`/trade/:symbol`
+- 契约绑定：C07–C09、C12、C13
+- 所属阶段：FEP-5
+- 页面级完成标准：订单意图、执行上下文、preflight、证据关联、风险评估、审批与 command ref 提交严格按服务端时序实现
+
+<a id="review-ui-p20"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p11"></a>
+##### UI-P11：P11-Orders-and-Execution-Detail-High-Fidelity-v1.png
+
+- task_id: `UI-P11`
+- task_type: `FRONTEND`
+- iteration: `I5`
+- depends_on: ["UI-505", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p11)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P11-Orders-and-Execution-Detail-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/orders`、`/orders/:orderId`
+- 契约绑定：C09、C10、C15
+- 所属阶段：FEP-5
+- 页面级完成标准：Order/Fill 时间线、部分成交、拒绝、撤单请求、断流回补与证据链落地
+
+<a id="review-ui-p11"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 I6：W25–W26
+
+<a id="task-ui-506"></a>
+##### UI-506：Reconciliation 与账本差异
+
+- task_id: `UI-506`
+- task_type: `FRONTEND`
+- iteration: `I6`
+- depends_on: ["UI-505", "UI-507", "BFF-FE-009", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-506)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Reconciliation 与账本差异
+- 接口绑定：C15、C16
+- 验收重点：不能手工改账；差异贯通 Order/Fill/Performance/Alert/Audit
+
+<a id="review-ui-506"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p22"></a>
+##### UI-P22：P22-Reconciliation-and-Funds-Ledger-High-Fidelity-v1.png
+
+- task_id: `UI-P22`
+- task_type: `FRONTEND`
+- iteration: `I6`
+- depends_on: ["UI-506", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p22)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P22-Reconciliation-and-Funds-Ledger-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/reconciliation`、`/reconciliation/:runId`
+- 契约绑定：C09、C10、C15
+- 所属阶段：FEP-5
+- 页面级完成标准：对账运行、差异、资金账本、证据、重跑请求与状态流落地；无手工改账入口
+
+<a id="review-ui-p22"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 I7：W27–W28
+
+<a id="task-ui-402"></a>
+##### UI-402：OHLCV/K 线、指标、订单/成交标记
+
+- task_id: `UI-402`
+- task_type: `FRONTEND`
+- iteration: `I7`
+- depends_on: ["UI-401", "UI-505", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-402)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：OHLCV/K 线、指标、订单/成交标记
+- 接口绑定：C12、C09
+- 验收重点：series 元数据完整；切 venue/product 清空旧 series；断流停在最后确认时间
+
+<a id="review-ui-402"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p19"></a>
+##### UI-P19：P19-Candlestick-and-Market-Analysis-High-Fidelity-v4.png
+
+- task_id: `UI-P19`
+- task_type: `FRONTEND`
+- iteration: `I7`
+- depends_on: ["UI-402", "UI-VIS-000", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p19)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P19-Candlestick-and-Market-Analysis-High-Fidelity-v4.png`
+- 实际页面/路由交付：`/markets/:symbol/chart`
+- 契约绑定：C09、C12
+- 所属阶段：FEP-4
+- 页面级完成标准：Symbol/Venue/Product/Timezone/Quality 可选；周期仅 1m/5m/15m/1h/4h/1D/1W/自定义；K 线、指标、事件、数据缺口和元数据落地
+
+<a id="review-ui-p19"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-403"></a>
+##### UI-403：Performance、归因、周期报表
+
+- task_id: `UI-403`
+- task_type: `FRONTEND`
+- iteration: `I7`
+- depends_on: ["UI-506", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-403)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Performance、归因、周期报表
+- 接口绑定：C14、C15
+- 验收重点：金额/币种/估值/账本版本/口径齐全；未对账数据标为 provisional
+
+<a id="review-ui-403"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p21"></a>
+##### UI-P21：P21-Performance-and-Reports-High-Fidelity-v1.png
+
+- task_id: `UI-P21`
+- task_type: `FRONTEND`
+- iteration: `I7`
+- depends_on: ["UI-403", "UI-VIS-000", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p21)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P21-Performance-and-Reports-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/performance`、`/performance/reports/:reportId`
+- 契约绑定：C14、C15
+- 所属阶段：FEP-4
+- 页面级完成标准：收益、归因、回撤、费用、口径、provisional 和报表生成/下载落地
+
+<a id="review-ui-p21"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 I8：W29–W30
+
+<a id="task-fep-6"></a>
+##### FEP-6：运维治理与跨端
+
+- task_id: `FEP-6`
+- task_type: `MILESTONE`
+- iteration: `I8`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P21"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-6)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P13、P14、P16、P23；Operations、Admin、Alerts、桌面能力
+- 主要后端依赖：F09、X05/X06、Auth/Policy/Incident/Alert API
+- 交付节点与放行条件：G6：受控 Runbook、职责分离、通知/深链/窗口/离线安全通过
+- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+
+<a id="review-fep-6"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-603"></a>
+##### UI-603：Alerts 收件箱
+
+- task_id: `UI-603`
+- task_type: `FRONTEND`
+- iteration: `I8`
+- depends_on: ["UI-506", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-603)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Alerts 收件箱
+- 接口绑定：C16
+- 验收重点：BFF 授权/去重/限速；ack 仅代表已读，不代表解决；离线禁写
+
+<a id="review-ui-603"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p23"></a>
+##### UI-P23：P23-Alerts-Inbox-and-Response-High-Fidelity-v1.png
+
+- task_id: `UI-P23`
+- task_type: `FRONTEND`
+- iteration: `I8`
+- depends_on: ["UI-603", "UI-VIS-000", "BFF-FE-007", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p23)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P23-Alerts-Inbox-and-Response-High-Fidelity-v1.png`
+- 实际页面/路由交付：`/alerts`、`/alerts/:alertId`
+- 契约绑定：C10、C11、C16
+- 所属阶段：FEP-6
+- 页面级完成标准：授权收件箱、详情、ack/unack、处置导航、订阅与实时状态落地；ack 不等于 resolved
+
+<a id="review-ui-p23"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-601"></a>
+##### UI-601：Operations/Incident/Runbook
+
+- task_id: `UI-601`
+- task_type: `FRONTEND`
+- iteration: `I8`
+- depends_on: ["UI-603", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-601)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Operations/Incident/Runbook
+- 接口绑定：C11、C16
+- 验收重点：只能触发服务端批准 actionId；无任意命令/脚本入口
+
+<a id="review-ui-601"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p13"></a>
+##### UI-P13：P13-Operations-and-Incident-Detail-High-Fidelity-v2.png
+
+- task_id: `UI-P13`
+- task_type: `FRONTEND`
+- iteration: `I8`
+- depends_on: ["UI-601", "UI-VIS-000", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p13)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P13-Operations-and-Incident-Detail-High-Fidelity-v2.png`
+- 实际页面/路由交付：`/operations`、`/operations/incidents/:incidentId`
+- 契约绑定：C11、C16
+- 所属阶段：FEP-6
+- 页面级完成标准：7 个服务健康视图、告警、incident 时间线、Runbook 检查与受控 actionId 调用落地
+
+<a id="review-ui-p13"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-602"></a>
+##### UI-602：Admin 治理
+
+- task_id: `UI-602`
+- task_type: `FRONTEND`
+- iteration: `I8`
+- depends_on: ["UI-601", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-602)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Admin 治理
+- 接口绑定：C11、C01
+- 验收重点：成员、角色、policy、capability、flag 全量审计；最后管理员保护；职责分离
+
+<a id="review-ui-602"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p14"></a>
+##### UI-P14：P14-Admin-Governance-High-Fidelity-v2.png
+
+- task_id: `UI-P14`
+- task_type: `FRONTEND`
+- iteration: `I8`
+- depends_on: ["UI-602", "UI-VIS-000", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p14)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P14-Admin-Governance-High-Fidelity-v2.png`
+- 实际页面/路由交付：`/admin/members`、`/admin/policies`、`/admin/capabilities`、`/admin/flags`
+- 契约绑定：C01、C11
+- 所属阶段：FEP-6
+- 页面级完成标准：成员/角色/策略/能力/开关、版本冲突、职责分离、签名与审计落地
+
+<a id="review-ui-p14"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-604"></a>
+##### UI-604：Tauri adapter 与 P16
+
+- task_id: `UI-604`
+- task_type: `FRONTEND`
+- iteration: `I8`
+- depends_on: ["UI-602", "UI-104", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-604)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：Tauri adapter 与 P16
+- 接口绑定：C17、平台接口
+- 验收重点：业务组件无 `isDesktop` 分叉；离线只读；深链重新鉴权；签名更新验证
+
+<a id="review-ui-604"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-ui-p16"></a>
+##### UI-P16：P16-Desktop-Control-Center-High-Fidelity-v2.png
+
+- task_id: `UI-P16`
+- task_type: `FRONTEND`
+- iteration: `I8`
+- depends_on: ["UI-604", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-ui-p16)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：`P16-Desktop-Control-Center-High-Fidelity-v2.png`
+- 实际页面/路由交付：`/settings/desktop`
+- 契约绑定：C17、PlatformCapabilities
+- 所属阶段：FEP-6
+- 页面级完成标准：通知、窗口/显示器、文件导入、加密缓存、更新与诊断通过 Tauri adapter；Web 显示受限态
+
+<a id="review-ui-p16"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 I9：W31–W32
+
+<a id="task-fep-7"></a>
+##### FEP-7：硬化与 Beta
+
+- task_id: `FEP-7`
+- task_type: `MILESTONE`
+- iteration: `I9`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P01", "UI-P02", "UI-P03", "UI-P04", "UI-P05", "UI-P06", "UI-P07", "UI-P08", "UI-P09", "UI-P10", "UI-P11", "UI-P12", "UI-P13", "UI-P14", "UI-P15", "UI-P16", "UI-P17", "UI-P18", "UI-P19", "UI-P20", "UI-P21", "UI-P22", "UI-P23", "WEB-101"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-7)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：全量回归、兼容、性能、可访问性、安全、视觉、故障恢复
+- 主要后端依赖：R1/S2/X3 Gate
+- 交付节点与放行条件：G7：Paper + Shadow Beta 验收通过，阻断级缺陷为 0
+- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+
+<a id="review-fep-7"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 I10：W33–W34
+
+<a id="task-fep-8"></a>
+##### FEP-8：M5 评审准备
+
+- task_id: `FEP-8`
+- task_type: `MILESTONE`
+- iteration: `I10`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "FEP-7"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-8)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P10/P11/P16 的 testnet 条件入口、MFA、双人审批、签名更新
+- 主要后端依赖：L01–L04，且仅 testnet
+- 交付节点与放行条件：G8：flag 关闭时 UI/API 不可达；只形成评审证据，不开启生产实盘
+- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+
+<a id="review-fep-8"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
 
 ## 5. 接口对接清单与契约基线
 
@@ -268,24 +2077,9 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 
 **建议到订单：** Proposal（不可执行）→ 刷新 proposal/snapshot/quote/account/venue/mode → request RiskDecision → deny 时终止；approval_required 时 MFA/审批且禁止自批 → 服务端签发短时 TradeCommand → 提交仅传 command ref + Idempotency-Key → Execution Gateway 再校验 → 返回受理/订单 ref → 订阅 Order/Fill 事实；过期、陈旧、kill switch、venue 异常或版本变化均退回相应前置步骤。
 
-### 5.6 前端页面 API 缺口关闭任务（新增，纳入排期与 Gate）
+### 5.6 页面 API 任务入口与执行规则
 
-对《QuantOS 可执行开发计划》的核查表明：F03 已冻结 11 类领域消息和 Engine/Event API，R/S/X 任务也规定了核心服务能力，但这些内容不能直接替代页面 BFF 契约。下表把尚未明确到页面级 OpenAPI 的部分纳入本计划。表中的 operation 名称表达能力，不预设 URL；最终 path、method、request/response schema、分页和 envelope 必须由 BFF 在版本化 OpenAPI 中发布，前端只使用生成 client。
-
-| 任务 | 总开发计划现状 | 必须补齐的页面 BFF operation | 覆盖契约/页面 | 目标阶段与验收 |
-|---|---|---|---|---|
-| BFF-FE-000 | F03 有领域 Proto/OpenAPI 生成，但无 P01–P23 完整页面 API 清单 | 建立页面 BFF OpenAPI 基线；统一 session 注入、错误 envelope、cursor 分页、sort/filter、202 job、Idempotency-Key、ETag/objectVersion、correlation ID、SSE event envelope；生成 TS client/Zod/MSW | C01–C17；P01–P23 | FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI |
-| BFF-FE-001 | F06 定义 Auth/RBAC/主上下文；未定义完整登录恢复、个人资料、会话、可信设备、通知偏好页面 API | session/context/reauth/MFA/logout/access request；profile/locale/theme；active sessions revoke；trusted devices revoke；notification preferences/subscriptions；安全操作与审计引用 | C01、C17；P01/P15 | FEP-1/G1：401/403/404、CSRF、recent-auth、最后有效因素保护与撤销后实时失效测试通过 |
-| BFF-FE-002 | F09、R/X 有指标和事件，未定义 Command Center 聚合页面模型 | authorized command summary、priority queue、system health、risk/data/order/run counters、recent activity；返回 sampledAt/asOf、source 和资源级跳转引用 | C02；P02 | FEP-1/G1：单次聚合或受控并发预算达标；不同角色字段裁剪和无权对象负向测试通过 |
-| BFF-FE-003 | R02–R04/F07 已定义 Snapshot/Research/Artifact 服务能力，缺页面级列表/筛选/详情/流式封装 | Research list/create/get/cancel；stream subscribe/replay；Artifact/Evidence get；Snapshot list/get；统一 cursor/filter、sequence/afterSequence 和 202 状态引用 | C03/C04；P03–P05 | FEP-2/G2：创建、取消、断线续传、重复/乱序、质量/许可阻断与 Audit 关联 contract 全绿 |
-| BFF-FE-004 | S01–S04 有 Strategy/Backtest/Release 能力，缺完整页面 API 与编辑冲突模型 | strategy list/draft get/save；static check；backtest create/get/stream；release create/list/get；allowedTargets；approval timeline；expectedVersion/409 diff | C05/C08；P06/P07 | FEP-3/G3：并发编辑无静默覆盖；校验失败、未审批及非法 target 均由服务端拒绝 |
-| BFF-FE-005 | R01/R02 定义行情与快照，未定义市场目录、跨 venue 报价、K 线与图表元数据页面 API | instrument catalog/watchlist；authorized VenueQuote；candle series/history/realtime；series metadata、quality/gaps/event markers；symbol/venue/product/timezone/interval capability | C12/C16；P18/P19/P20 | FEP-4/G4：报价和 candle 均含 source/venue/asOf/quality/license；切换维度不混用缓存，断流可回补且不拼接 |
-| BFF-FE-006 | X01–X04 定义风险和执行服务，缺 Portfolio/Proposal/Approval/Trade Ticket/Order 页面组合契约 | portfolio/risk projection；proposal list/get/evaluate；preflight/order capabilities；approval list/get/decide/MFA；command-ref submit；order list/get/cancel request/stream | C06–C09/C13；P08–P11/P20 | FEP-5/G5：七类拒绝、职责分离、重复 1,000 次幂等、202 受理和订单事实流全部通过 |
-| BFF-FE-007 | F05/X06 有审计账本目标，未定义 Explorer 搜索、证据链和安全导出页面 API | audit search/get chain；correlation/causation pagination；redacted payload；export create/status/cancel/download metadata；短时 URL、水印、retention | C10；P04/P07/P09–P14/P22/P23 | FEP-5/G5：按 correlation ID ≤5 分钟还原；越权/过期下载拒绝；导出全过程有审计事件 |
-| BFF-FE-008 | X01/X05 提供 Portfolio/对账基础；总计划未定义 Performance/Report API，原 C14 已标记“需 BFF 新增页面模型” | performance summary/time series/attribution/drawdown/fees；valuation and ledger versions；report create/status/get/download；period/method/currency/coverage/provisional | C14/C15；P21 | FEP-4/G4：所有结果含 account/currency/method/asOf/ledgerVersion/valuationSnapshotId；未对账数据强制 provisional |
-| BFF-FE-009 | X05 定义 reconciliation worker/ledger，但未定义完整页面读写契约 | reconciliation list/get；break list/get；ledger entries；request rerun/re-evaluation；status stream；Order/Fill/Audit/Alert evidence refs；禁止任何 edit-ledger operation | C15/C09/C10/C16；P22/P11/P21 | FEP-5/G5：差异状态跨页面一致；重跑幂等；schema 和权限负向测试证明前端无法改账 |
-| BFF-FE-010 | F09/X06 有观测、运维目标；F06 有策略能力，未定义 Incident/Admin/Alert 页面 API | service health/metrics projection；incident list/get/timeline；approved Runbook actions/prechecks；member/role/policy/capability/flag CRUD with versioning；alert list/get/ack/unack/subscriptions/stream | C11/C16；P13/P14/P23/P02 | FEP-6/G6：无任意命令参数；最后管理员和职责分离保护；ack 不改变 resolved；所有治理变更可审计 |
-| BFF-FE-011 | L02/L03 与平台方案定义安全边界，但未定义 Desktop/Web capability 与下载/诊断页面模型 | server-visible PlatformCapabilities；desktop update manifest/diagnostic job/download record；browser capability policy/permission state；deep-link exchange；平台降级说明；不得返回 token/secret/本地敏感缓存内容 | C17；P16/P17 | FEP-6/G6：Web/Desktop capability contract 一致；深链重新鉴权；签名更新、短时下载、离线只读与敏感字段负向测试通过 |
+`BFF-FE-000`–`BFF-FE-011` 的唯一任务定义及全量排期已前置到第 4.1 节。本节保留契约规则入口；C01–C17 仅为接口映射，不与前端任务混排。
 
 #### 5.6.1 API 缺口任务执行规则
 
@@ -412,6 +2206,8 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 
 ### 8.1 排期控制规则
 
+本节 DoR 为最低要求；本轮新增页面还必须满足第 4 节全量 API 前置准入，不能仅凭 Reviewed/Mocked 开始。
+
 - 每个阶段开始前满足 DoR：设计七态齐全、契约 Reviewed/Mocked、依赖后端 Gate 明确、验收 fixture 可用、owner 与估算已确认。
 - Sprint 预留 20% 容量处理联调、可访问性、性能与缺陷；不得把这些工作推迟到最后一周。
 - 阻塞超过 1 个工作日升级给 BFF/产品 owner；超过 2 个工作日由 PM 调整依赖顺序；不得通过硬编码返回值绕过。
@@ -430,7 +2226,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 | Risk/Compliance | Proposal/Risk/Approval/Command 时序、模式/限额/kill switch、审计与导出 |
 | SRE | staging、观测、性能采样、故障注入、Runbook 与发布回滚 |
 
-每个看板任务必须包含：`页面 ID`、`前端任务 ID`、`契约 ID`、`后端计划 ID`、`风险级别`、`设计链接`、`测试用例`、`owner`、`依赖`、`目标 Sprint`、`契约状态`、`联调状态`、`Gate 证据`。
+每个看板任务首先包含 `task_id`、`task_type`、`iteration`、`depends_on`、`development_status`、`review_entry`、`workflow` 和四个复审字段，并必须包含：`页面 ID`、`前端任务 ID`、`契约 ID`、`后端计划 ID`、`风险级别`、`设计链接`、`测试用例`、`owner`、`依赖`、`目标 Sprint`、`契约状态`、`联调状态`、`Gate 证据`。
 
 ## 10. 最终发布检查表
 
