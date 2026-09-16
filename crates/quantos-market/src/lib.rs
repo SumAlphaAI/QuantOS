@@ -6,6 +6,7 @@ use std::{
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use quantos_core::{CoreError, CorrelationId, Quantity, SchemaVersion, TenantId};
 use quantos_event::{AppendOnlyLedger, EventError, NewRecordedEvent, RecordedEvent};
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use thiserror::Error;
@@ -218,10 +219,8 @@ impl MarketIngestor {
     ) -> Result<MarketIngestionOutcome, MarketError> {
         let provider = self.approvals.approved_provider(&tick.provider)?.clone();
         let normalized_symbol = normalize_symbol(&tick.provider_symbol)?;
-        if !self
-            .seen_tick_ids
-            .insert((tick.provider.clone(), tick.source_tick_id.clone()))
-        {
+        let deduplication_key = (tick.provider.clone(), tick.source_tick_id.clone());
+        if self.seen_tick_ids.contains(&deduplication_key) {
             return Ok(MarketIngestionOutcome {
                 duplicate: true,
                 market_events: Vec::new(),
@@ -238,8 +237,9 @@ impl MarketIngestor {
             > ChronoDuration::seconds(provider.freshness_sla_secs);
         let future_skew_breached = tick.event_time - tick.received_at
             > ChronoDuration::seconds(provider.max_future_skew_secs);
-        let quality_failed =
-            price.value().is_zero() || volume.value().is_zero() || future_skew_breached;
+        let quality_failed = price.value() <= Decimal::ZERO
+            || volume.value() <= Decimal::ZERO
+            || future_skew_breached;
         let tick_quality = if quality_failed {
             MarketDataQuality::Failed
         } else if freshness_breached {
@@ -247,6 +247,10 @@ impl MarketIngestor {
         } else {
             MarketDataQuality::Passed
         };
+
+        // A malformed tick must not poison the deduplication key. Only validated ticks become
+        // durable members of the provider/source-id set.
+        self.seen_tick_ids.insert(deduplication_key);
 
         let mut market_events = Vec::new();
         market_events.push(MarketEvent {
@@ -425,17 +429,25 @@ impl MarketError {
 }
 
 pub fn normalize_symbol(provider_symbol: &str) -> Result<String, MarketError> {
-    let normalized = provider_symbol
-        .chars()
-        .filter(|character| character.is_ascii_alphanumeric())
-        .collect::<String>()
-        .to_ascii_uppercase();
-    if normalized.is_empty() {
+    let raw = provider_symbol.trim();
+    let valid = !raw.is_empty()
+        && raw.chars().all(|character| {
+            character.is_ascii_alphanumeric() || matches!(character, '/' | '-' | '_')
+        });
+    let parts = raw.split(['/', '-', '_']).collect::<Vec<_>>();
+    if !valid
+        || parts.iter().any(|part| part.is_empty())
+        || parts.iter().any(|part| {
+            !part
+                .chars()
+                .all(|character| character.is_ascii_alphanumeric())
+        })
+    {
         Err(MarketError::InvalidSymbol {
             symbol: provider_symbol.to_owned(),
         })
     } else {
-        Ok(normalized)
+        Ok(parts.concat().to_ascii_uppercase())
     }
 }
 
@@ -524,7 +536,10 @@ pub fn read_ticks_jsonl(reader: impl BufRead) -> Result<Vec<RawMarketTick>, Mark
 
 #[cfg(test)]
 mod tests {
-    use std::io::Cursor;
+    use std::{
+        io::Cursor,
+        time::{Duration, Instant},
+    };
 
     use anyhow::Result;
 
@@ -615,6 +630,7 @@ mod tests {
         };
 
         let mut ingestor = MarketIngestor::new(default_approved_providers());
+        let started_at = Instant::now();
         let stale = ingestor.ingest_tick(TenantId::new(), CorrelationId::new(), stale_tick)?;
         let quality = ingestor.ingest_tick(TenantId::new(), CorrelationId::new(), quality_tick)?;
 
@@ -629,9 +645,7 @@ mod tests {
             .find(|event| event.event_kind == MarketEventKind::QualityFailed)
             .expect("quality anomaly emitted");
 
-        assert!(
-            stale_anomaly.received_at - stale_anomaly.event_time <= ChronoDuration::seconds(10)
-        );
+        assert!(started_at.elapsed() <= Duration::from_secs(5));
         assert_eq!(
             quality_anomaly.anomaly_reason.as_deref(),
             Some("non_positive_price_or_volume")
@@ -670,5 +684,87 @@ mod tests {
             normalize_symbol("btc/usdt").expect("symbol normalizes"),
             "BTCUSDT"
         );
+        assert_eq!(
+            normalize_symbol("btc-usdt").expect("hyphenated symbol normalizes"),
+            "BTCUSDT"
+        );
+        assert_eq!(
+            normalize_symbol("btc_usdt").expect("underscored symbol normalizes"),
+            "BTCUSDT"
+        );
+        assert_eq!(
+            normalize_symbol("btc@@usdt")
+                .expect_err("unexpected punctuation must fail closed")
+                .machine_code(),
+            "MARKET_INVALID_SYMBOL"
+        );
+    }
+
+    #[test]
+    fn invalid_ticks_do_not_poison_deduplication_and_negative_values_fail_quality() -> Result<()> {
+        let tenant_id = TenantId::new();
+        let correlation_id = CorrelationId::new();
+        let base_time = Utc::now();
+        let mut ingestor = MarketIngestor::new(default_approved_providers());
+        let mut tick = RawMarketTick {
+            provider: "approved.binance.spot".to_owned(),
+            source_tick_id: "correctable-1".to_owned(),
+            provider_symbol: "BTC/USDT".to_owned(),
+            event_time: base_time,
+            received_at: base_time,
+            price: "invalid".to_owned(),
+            volume: "1".to_owned(),
+        };
+
+        assert_eq!(
+            ingestor
+                .ingest_tick(tenant_id, correlation_id, tick.clone())
+                .expect_err("invalid price is rejected")
+                .machine_code(),
+            "MARKET_INVALID_PRICE"
+        );
+        tick.price = "100.1250".to_owned();
+        let corrected = ingestor.ingest_tick(tenant_id, correlation_id, tick)?;
+        assert!(!corrected.duplicate);
+        assert_eq!(
+            corrected.market_events[0].price.value().to_string(),
+            "100.1250"
+        );
+
+        let zero = ingestor.ingest_tick(
+            tenant_id,
+            correlation_id,
+            RawMarketTick {
+                provider: "approved.binance.spot".to_owned(),
+                source_tick_id: "zero-1".to_owned(),
+                provider_symbol: "ETH-USDT".to_owned(),
+                event_time: base_time,
+                received_at: base_time,
+                price: "0".to_owned(),
+                volume: "2".to_owned(),
+            },
+        )?;
+        assert!(zero.market_events.iter().any(|event| {
+            event.event_kind == MarketEventKind::QualityFailed
+                && event.anomaly_reason.as_deref() == Some("non_positive_price_or_volume")
+        }));
+
+        let negative_error = ingestor
+            .ingest_tick(
+                tenant_id,
+                correlation_id,
+                RawMarketTick {
+                    provider: "approved.binance.spot".to_owned(),
+                    source_tick_id: "negative-1".to_owned(),
+                    provider_symbol: "SOL_USDT".to_owned(),
+                    event_time: base_time,
+                    received_at: base_time,
+                    price: "-1".to_owned(),
+                    volume: "2".to_owned(),
+                },
+            )
+            .expect_err("negative price is rejected");
+        assert_eq!(negative_error.machine_code(), "MARKET_INVALID_PRICE");
+        Ok(())
     }
 }

@@ -1,13 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.0
-> 更新时间：2026-09-09
+> 版本：3.1
+> 更新时间：2026-09-16
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
 
+- `3.1`：完成 CORE:R01 当前仓库交付复核与加固；批准 provider、严格 symbol 归一化、精度/时间/来源/质量契约、10 万条 replay、乱序/重复去重、五秒异常发出与 `MarketEvent` append-only ledger 写入均纳入可破坏 Gate。真实 provider、消息基础设施和目标环境吞吐仍需独立验收。
 - `3.0`：为 GPT-6 Astra 对全量已开发核心功能重新复审重构文档，移除历史核查、复验结论与过程记录；保留业务需求、功能定义、量化标准、依赖和已开发状态标记。
 - 每项核心功能及 TP01 子任务均配置独立复审入口；新一轮复审状态统一为 `NOT_STARTED`，结论、问题和修复追踪保持空白。
 - 格式约定：`quantos-plan-review/v1`；本次仅重构计划，不执行功能复审、不重新判定开发或部署验收结果。
@@ -829,7 +830,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 - task_id: `R01`
 - task_type: `CORE`
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r01)
 - 需求描述：Market ingestion 与标准化行情契约
 - 技术要求：归一化 symbol、时间、精度、来源、质量；只允许已批准 provider；写 `MarketEvent`
