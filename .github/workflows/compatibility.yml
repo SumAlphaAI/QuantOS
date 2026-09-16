@@ -10,28 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  os-regression:
-    name: Desktop contract (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24.12.0"
-      - run: corepack enable pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm test
-      - name: Tauri deep-link sanitizer and routing gate
-        if: runner.os == 'macOS'
-        run: pnpm test:tauri-deep-link
-
   browser-regression:
-    name: Browser contract (${{ matrix.browser }})
+    name: Web contract (${{ matrix.browser }})
     strategy:
       fail-fast: false
       matrix:
@@ -39,12 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_QUANTOS_ENV: local-mock
-      NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
-      NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: http://localhost:3100
+      NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai
+      NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: http://localhost:3190
       NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: http://localhost:4010
       NEXT_PUBLIC_QUANTOS_OIDC_ISSUER: https://mock.idp.local
       NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: quantos-terminal-ci
-      NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: http://localhost:3100/auth/callback
+      NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: http://localhost:3190/auth/callback
       NEXT_PUBLIC_QUANTOS_DEFAULT_MODE: paper
       NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: "true"
       NEXT_PUBLIC_QUANTOS_OBS_ENABLED: "false"
@@ -56,7 +36,7 @@ jobs:
           node-version: "24.12.0"
       - run: corepack enable pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @sumalpha/terminal build
+      - run: pnpm --filter @sumalpha/website build && pnpm --filter @sumalpha/terminal build
       - run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
       # 验证浏览器可真实启动（可执行文件缺失/版本错配时在此步失败并给出证据，而非到测试阶段才暴露）
       - name: Verify browser launches
@@ -66,3 +46,4 @@ jobs:
           ls -la "$HOME/.cache/ms-playwright" || true
           pnpm exec playwright screenshot --browser ${{ matrix.browser }} --viewport-size=1280,720 about:blank /tmp/pw-verify-${{ matrix.browser }}.png
       - run: pnpm test:browser --project=${{ matrix.browser }}
+      - run: pnpm test:browser:website --project=${{ matrix.browser }}

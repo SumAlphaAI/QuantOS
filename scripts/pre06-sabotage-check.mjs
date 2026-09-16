@@ -5,7 +5,13 @@
  */
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
+import { readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadFixture, validateFixture } from "../tests/contract/validate.mjs";
+import { validateVisualBaselines } from "./check-visual-baselines.mjs";
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 let undetected = 0;
 const expectDetected = (label, detected, detail = "") => {
@@ -38,25 +44,28 @@ const expectDetected = (label, detected, detail = "") => {
   expectDetected("敏感字段破坏（venueApiKey）", issues.some((i) => i.includes("venueApiKey")), issues[0]);
 }
 
-// 4) 视觉基线破坏：构造与基线差异 >0.5% 的图像，pixelmatch 必须检出
+// 4) 视觉基线破坏：篡改真实入库 PNG 的 5% 像素；完整性与像素差异 Gate 都必须检出
 {
-  const w = 1440, h = 900;
-  const make = (fill) => {
-    const png = new PNG({ width: w, height: h });
-    for (let i = 0; i < png.data.length; i += 4) {
-      png.data[i] = fill[0]; png.data[i + 1] = fill[1]; png.data[i + 2] = fill[2]; png.data[i + 3] = 255;
-    }
-    return png;
-  };
-  const baseline = make([14, 20, 32]); // surface.0 深炭
-  const sabotaged = make([14, 20, 32]);
-  // 破坏 5% 像素（模拟视觉回归）
+  const manifest = JSON.parse(readFileSync(join(repoRoot, "tests/e2e/visual-baselines.json"), "utf8"));
+  const targetPath = join(repoRoot, manifest.entries[0].path);
+  const originalBytes = readFileSync(targetPath);
+  const baseline = PNG.sync.read(originalBytes);
+  const sabotaged = PNG.sync.read(originalBytes);
   for (let i = 0; i < sabotaged.data.length * 0.05; i += 4) {
     sabotaged.data[i] = 248; sabotaged.data[i + 1] = 113; sabotaged.data[i + 2] = 113;
   }
-  const diff = pixelmatch(baseline.data, sabotaged.data, null, w, h, { threshold: 0.1 });
-  const ratio = diff / (w * h);
-  expectDetected("视觉基线破坏（5% 像素变更）", ratio > 0.005, `diff=${(ratio * 100).toFixed(2)}% > 阈值 0.5%`);
+  const sabotagedBytes = PNG.sync.write(sabotaged);
+  const integrity = validateVisualBaselines(repoRoot, {
+    readFile: (path) => resolve(path) === resolve(targetPath) ? sabotagedBytes : readFileSync(path),
+  });
+  expectDetected(
+    "视觉基线完整性破坏",
+    integrity.issues.some((issue) => issue.startsWith("sha256 mismatch:")),
+    integrity.issues[0],
+  );
+  const diff = pixelmatch(baseline.data, sabotaged.data, null, baseline.width, baseline.height, { threshold: 0.1 });
+  const ratio = diff / (baseline.width * baseline.height);
+  expectDetected("视觉基线像素破坏（5% 像素变更）", ratio > manifest.maxDiffPixelRatio, `diff=${(ratio * 100).toFixed(2)}% > 阈值 0.5%`);
 }
 
 if (undetected > 0) {

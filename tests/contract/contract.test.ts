@@ -39,6 +39,11 @@ describe("PRE-06 contract fixtures：schema 驱动", () => {
     const issues = validateFixture(loadFixture("sabotage/sensitive-field.json"), { schema: "SessionContext" });
     expect(issues.some((i) => i.includes("venueApiKey"))).toBe(true);
   });
+
+  it("409 conflict 与 429 rate-limit fixtures 通过统一 ErrorEnvelope", () => {
+    expect(validateFixture(loadFixture("errors/conflict.json"), { schema: "ErrorEnvelope" })).toEqual([]);
+    expect(validateFixture(loadFixture("errors/rate-limited.json"), { schema: "ErrorEnvelope" })).toEqual([]);
+  });
 });
 
 describe("PRE-06 MSW contract handlers", () => {
@@ -54,5 +59,34 @@ describe("PRE-06 MSW contract handlers", () => {
     const res = await fetch("http://localhost:4010/v1/session");
     expect(res.status).toBe(403);
     expect(validateFixture(await res.json(), { schema: "ErrorEnvelope" })).toEqual([]);
+  });
+
+  it("未配置 operation 默认返回 501 且不伪造成功 fixture", async () => {
+    const res = await fetch("http://localhost:4010/v1/orders");
+    expect(res.status).toBe(501);
+    const payload = await res.json();
+    expect(payload.code).toBe("MOCK_NOT_CONFIGURED");
+    expect(validateFixture(payload, { schema: "ErrorEnvelope" })).toEqual([]);
+  });
+
+  it("版本冲突返回 409/currentVersion，客户端不得静默覆盖", async () => {
+    const res = await fetch("http://localhost:4010/v1/strategies/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee/draft", {
+      method: "PUT",
+      headers: { "content-type": "application/json", "if-match": "draft-v2" },
+      body: JSON.stringify({ name: "stale draft" }),
+    });
+    expect(res.status).toBe(409);
+    const payload = await res.json();
+    expect(payload.currentVersion).toBe("draft-v3");
+    expect(validateFixture(payload, { schema: "ErrorEnvelope" })).toEqual([]);
+  });
+
+  it("MFA 限流返回 429/retryAfter 且不泄露账户存在性", async () => {
+    const res = await fetch("http://localhost:4010/v1/auth/mfa/challenges", { method: "POST" });
+    expect(res.status).toBe(429);
+    const payload = await res.json();
+    expect(payload.retryAfter).toBe(60);
+    expect(JSON.stringify(payload)).not.toMatch(/account exists|用户存在/i);
+    expect(validateFixture(payload, { schema: "ErrorEnvelope" })).toEqual([]);
   });
 });

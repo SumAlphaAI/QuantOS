@@ -31,6 +31,13 @@ test.describe("UI-104 profile, security, notifications and browser settings", ()
     await expect(browserToggles.first()).toBeVisible();
   });
 
+  test("scrollable browser download history is keyboard focusable", async ({ page }) => {
+    await page.goto("/settings/browser");
+    const downloads = page.getByRole("region", { name: "最近下载记录" });
+    await downloads.focus();
+    await expect(downloads).toBeFocused();
+  });
+
   test("session revocation requires phrase and six-digit MFA, with cancel focused first", async ({ page }) => {
     await page.goto("/settings/security");
     await page.getByRole("button", { name: "撤销会话" }).first().click();

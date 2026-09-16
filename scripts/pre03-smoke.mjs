@@ -37,21 +37,24 @@ function cargoPackageVersion(lock, name) {
   return "";
 }
 
-export function loadRuntimeInputs(root = repoRoot) {
-  return {
+export function loadRuntimeInputs(root = repoRoot, { webOnly = false } = {}) {
+  const inputs = {
     rootPackage: JSON.parse(readFileSync(join(root, "package.json"), "utf8")),
     nodeVersion: readFileSync(join(root, ".nvmrc"), "utf8").trim(),
     rustToolchain: readFileSync(join(root, "rust-toolchain.toml"), "utf8"),
     pnpmLock: parseYaml(readFileSync(join(root, "pnpm-lock.yaml"), "utf8")),
-    tauriCargoLock: readFileSync(join(root, "apps/terminal-desktop/src-tauri/Cargo.lock"), "utf8"),
-    tauriConfig: JSON.parse(readFileSync(join(root, "apps/terminal-desktop/src-tauri/tauri.conf.json"), "utf8")),
-    rustMain: readFileSync(join(root, "apps/terminal-desktop/src-tauri/src/main.rs"), "utf8"),
     terminalNextConfig: readFileSync(join(root, "apps/terminal/next.config.ts"), "utf8"),
     websiteNextConfig: readFileSync(join(root, "apps/website/next.config.ts"), "utf8"),
   };
+  if (!webOnly) {
+    inputs.tauriCargoLock = readFileSync(join(root, "apps/terminal-desktop/src-tauri/Cargo.lock"), "utf8");
+    inputs.tauriConfig = JSON.parse(readFileSync(join(root, "apps/terminal-desktop/src-tauri/tauri.conf.json"), "utf8"));
+    inputs.rustMain = readFileSync(join(root, "apps/terminal-desktop/src-tauri/src/main.rs"), "utf8");
+  }
+  return inputs;
 }
 
-export function validateRuntimeContract(inputs) {
+export function validateRuntimeContract(inputs, { webOnly = false } = {}) {
   const failures = [];
   const checks = [];
   const check = (condition, message) => (condition ? checks : failures).push(message);
@@ -71,20 +74,21 @@ export function validateRuntimeContract(inputs) {
       }
     }
   }
-  check(cargoPackageVersion(inputs.tauriCargoLock, "tauri") === "2.11.5", "Tauri is locked at 2.11.5");
-  check(cargoPackageVersion(inputs.tauriCargoLock, "tauri-plugin-deep-link") === "2.4.9", "Tauri deep-link plugin is locked at 2.4.9");
-
   check(inputs.terminalNextConfig.includes('output: "export"'), "Terminal uses static export");
   check(inputs.websiteNextConfig.includes('output: "export"'), "Website uses static export");
-  check(inputs.tauriConfig.build?.frontendDist === "../terminal/out", "Desktop loads the shared Terminal out directory");
-  check(inputs.tauriConfig.build?.devUrl === "http://localhost:3100", "Desktop dev URL matches Terminal port 3100");
-  check(inputs.tauriConfig.plugins?.["deep-link"]?.desktop?.schemes?.includes("quantos"), "quantos deep-link scheme is registered");
-  const window = inputs.tauriConfig.app?.windows?.[0];
-  check(window?.minWidth === 1180 && window?.minHeight === 760, "desktop minimum window is 1180x760");
-  check(inputs.rustMain.includes("get_current()") && inputs.rustMain.includes("on_open_url"), "cold and warm deep-link receivers are wired");
-  check(inputs.rustMain.includes("sanitize_deep_link") && inputs.rustMain.includes("window.navigate"), "deep links are sanitized before local navigation");
+  if (!webOnly) {
+    check(cargoPackageVersion(inputs.tauriCargoLock, "tauri") === "2.11.5", "Tauri is locked at 2.11.5");
+    check(cargoPackageVersion(inputs.tauriCargoLock, "tauri-plugin-deep-link") === "2.4.9", "Tauri deep-link plugin is locked at 2.4.9");
+    check(inputs.tauriConfig.build?.frontendDist === "../terminal/out", "Desktop loads the shared Terminal out directory");
+    check(inputs.tauriConfig.build?.devUrl === "http://localhost:3100", "Desktop dev URL matches Terminal port 3100");
+    check(inputs.tauriConfig.plugins?.["deep-link"]?.desktop?.schemes?.includes("quantos"), "quantos deep-link scheme is registered");
+    const window = inputs.tauriConfig.app?.windows?.[0];
+    check(window?.minWidth === 1180 && window?.minHeight === 760, "desktop minimum window is 1180x760");
+    check(inputs.rustMain.includes("get_current()") && inputs.rustMain.includes("on_open_url"), "cold and warm deep-link receivers are wired");
+    check(inputs.rustMain.includes("sanitize_deep_link") && inputs.rustMain.includes("window.navigate"), "deep links are sanitized before local navigation");
+  }
 
-  return { schema: "quantos-pre03/v1", status: failures.length === 0 ? "PASS" : "FAIL", checks, failures, locked_dependencies: Object.values(expectedLockedVersions).reduce((total, sections) => total + Object.values(sections).reduce((count, dependencies) => count + Object.keys(dependencies).length, 0), 0), runtime_contract_checks: checks.length + failures.length };
+  return { schema: "quantos-pre03/v1", scope: webOnly ? "web-only" : "web-and-desktop", status: failures.length === 0 ? "PASS" : "FAIL", checks, failures, locked_dependencies: Object.values(expectedLockedVersions).reduce((total, sections) => total + Object.values(sections).reduce((count, dependencies) => count + Object.keys(dependencies).length, 0), 0), runtime_contract_checks: checks.length + failures.length };
 }
 
 function serve(directory) {
@@ -127,20 +131,24 @@ async function checkPage(root, { name, directory, path, marker }) {
   }
 }
 
-export async function runPre03(root = repoRoot) {
-  const contract = validateRuntimeContract(loadRuntimeInputs(root));
-  const pages = await Promise.all([
+export async function runPre03(root = repoRoot, { webOnly = false } = {}) {
+  const contract = validateRuntimeContract(loadRuntimeInputs(root, { webOnly }), { webOnly });
+  const pageChecks = [
     checkPage(root, { name: "terminal-web", directory: "apps/terminal/out", path: "/command", marker: "static/chunks/app/command" }),
-    checkPage(root, { name: "terminal-deep-link-gate", directory: "apps/terminal/out", path: "/auth/deep-link", marker: "static/chunks/app/auth/deep-link" }),
     checkPage(root, { name: "website", directory: "apps/website/out", path: "/", marker: 'data-smoke="website-home"' }),
-  ]);
+  ];
+  if (!webOnly) {
+    pageChecks.push(checkPage(root, { name: "terminal-deep-link-gate", directory: "apps/terminal/out", path: "/auth/deep-link", marker: "static/chunks/app/auth/deep-link" }));
+  }
+  const pages = await Promise.all(pageChecks);
   const failures = [...contract.failures, ...pages.filter((page) => !page.ok).map((page) => page.message)];
   return { ...contract, status: failures.length === 0 ? "PASS" : "FAIL", failures, built_route_checks: pages.length, checks: [...contract.checks, ...pages.filter((page) => page.ok).map((page) => page.message)] };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
-    const report = await runPre03();
+    const webOnly = process.argv.includes("--web-only");
+    const report = await runPre03(repoRoot, { webOnly });
     if (report.status === "FAIL") {
       for (const failure of report.failures) console.error(`FAIL  ${failure}`);
       process.exitCode = 1;

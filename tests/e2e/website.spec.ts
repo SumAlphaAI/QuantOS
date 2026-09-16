@@ -67,8 +67,10 @@ test.describe("WEB-101 website", () => {
     await expect(page.getByRole("status").getByRole("link", { name: "联系支持" })).toHaveAttribute("href", "mailto:support@sumalpha.ai");
     await page.getByRole("button", { name: "清除搜索条件" }).click();
     await expect(page.locator(".docs-grid > li")).toHaveCount(6);
-    await page.getByText("阅读当前版本", { exact: true }).first().click();
-    await expect(page.getByText("浏览器只访问 Gateway/BFF", { exact: false })).toBeVisible();
+    const architectureDetails = page.locator("#architecture details");
+    await architectureDetails.getByText("阅读当前版本", { exact: true }).click();
+    await expect(architectureDetails).toHaveAttribute("open", "");
+    await expect(architectureDetails.getByText("浏览器只访问 Gateway/BFF", { exact: false })).toBeVisible();
   });
 
   test("访问申请表单：校验、honeypot 与受理语义", async ({ page }) => {

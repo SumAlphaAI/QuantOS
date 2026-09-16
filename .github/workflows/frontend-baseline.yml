@@ -1,8 +1,7 @@
 name: Frontend Baseline (FEP-0)
 
-# PRE-06 测试基线 CI：设计 token / 环境配置 / contract fixtures / 构建 / 双端 smoke /
-# 性能预算 / Playwright+axe+视觉基线 / 破坏自检。故意破坏 schema、权限、敏感字段或
-# 视觉基线必须使本工作流失败。
+# PRE-06 Web-only 测试基线 CI：设计 token / 环境配置 / contract fixtures / Web 构建 smoke /
+# 性能预算 / 官网与 Terminal Playwright+axe / 视觉基线完整性 / 破坏自检。
 
 on:
   pull_request:
@@ -18,12 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_QUANTOS_ENV: local-mock
-      NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
-      NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: http://localhost:3100
+      NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai
+      NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: http://localhost:3190
       NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: http://localhost:4010
       NEXT_PUBLIC_QUANTOS_OIDC_ISSUER: https://mock.idp.local
       NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: quantos-terminal-ci
-      NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: http://localhost:3100/auth/callback
+      NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: http://localhost:3190/auth/callback
       NEXT_PUBLIC_QUANTOS_DEFAULT_MODE: paper
       NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: "true"
       NEXT_PUBLIC_QUANTOS_OBS_ENABLED: "false"
@@ -64,6 +63,9 @@ jobs:
       - name: Interface inventory (PRE-04)
         run: pnpm check:pre04 && pnpm test:pre04
 
+      - name: PRE-06 structure and negative gates
+        run: pnpm check:pre06 && pnpm test:pre06
+
       - name: G0 signed record and compatibility ledger
         run: pnpm check:g0-records
 
@@ -79,19 +81,25 @@ jobs:
       - name: Build website & terminal
         run: pnpm --filter @sumalpha/website build && pnpm --filter @sumalpha/terminal build
 
-      - name: Dual-end smoke (PRE-03)
-        run: pnpm check:pre03 && pnpm test:pre03
+      - name: Web build smoke (PRE-03 Web-only)
+        run: pnpm check:pre03:web
 
       - name: Performance budget
         run: node scripts/check-perf-budget.mjs
+
+      - name: Visual baseline integrity
+        run: pnpm check:visual-baselines
 
       - name: Install Playwright Chromium
         run: pnpm exec playwright install chromium --with-deps
 
       # 本 job 仅安装 Chromium，必须限定 --project=chromium；
       # playwright test 不带 --project 会运行全部浏览器项目（firefox/webkit 全矩阵由 compatibility.yml 负责）
-      - name: Playwright E2E + axe + visual baseline
+      - name: Terminal Playwright E2E + axe + available platform visuals
         run: pnpm exec playwright test --project=chromium
+
+      - name: Website Playwright E2E + axe
+        run: pnpm test:browser:website --project=chromium
 
       - name: Sabotage self-test (schema/permission/sensitive-field/visual must fail the gates)
         run: node scripts/pre06-sabotage-check.mjs
