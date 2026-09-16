@@ -1,95 +1,155 @@
 #!/usr/bin/env node
-/**
- * PRE-03 双端 smoke：
- * 1) Terminal 构建产物存在且 /command 路由可打开（Web 侧）；
- * 2) 官网构建产物存在且首页可打开；
- * 3) Tauri 桌面壳配置加载同一份 Terminal 产物、注册 quantos:// 深链、最小窗口 1180×760；
- * 4) 路由一致性：Web /command ↔ quantos://command 指向同一受权资源。
- *
- * 运行：node scripts/pre03-smoke.mjs（需先 pnpm --filter @sumalpha/terminal|website build）
- */
-import { readFileSync, existsSync, statSync } from "node:fs";
+
 import { createServer } from "node:http";
-import { join, extname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { dirname, extname, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { parse as parseYaml } from "yaml";
 
-const root = join(fileURLToPath(import.meta.url), "../..");
-let failures = 0;
-const fail = (m) => { failures += 1; console.error(`FAIL  ${m}`); };
-const pass = (m) => console.log(`ok    ${m}`);
-
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain", ".woff2": "font/woff2" };
 
-function serve(dir, port) {
-  const server = createServer((req, res) => {
-    const url = new URL(req.url, "http://x");
-    let p = join(dir, url.pathname === "/" ? "index.html" : url.pathname);
-    if (!existsSync(p)) p = `${p}.html`;
-    if (!existsSync(p) || statSync(p).isDirectory()) p = join(dir, url.pathname, "index.html");
-    if (!existsSync(p)) p = join(dir, "404.html");
-    if (!existsSync(p)) { res.writeHead(404); res.end("not found"); return; }
-    res.writeHead(200, { "content-type": MIME[extname(p)] ?? "application/octet-stream" });
-    res.end(readFileSync(p));
-  });
-  return new Promise((resolve) => server.listen(port, () => resolve(server)));
+const expectedLockedVersions = {
+  "apps/terminal": {
+    dependencies: {
+      "@tanstack/react-query": "5.101.4", "@tanstack/react-table": "8.21.3", "@tanstack/react-virtual": "3.14.9",
+      echarts: "6.1.0", "lightweight-charts": "5.2.1", next: "15.5.23", "next-intl": "4.13.6",
+      react: "19.2.8", "react-dom": "19.2.8", "react-hook-form": "7.85.0", zod: "4.4.3", zustand: "5.0.15",
+    },
+    devDependencies: { msw: "2.15.0", tailwindcss: "4.3.3", "@tailwindcss/postcss": "4.3.3" },
+  },
+  "apps/website": {
+    dependencies: { next: "15.5.23", react: "19.2.8", "react-dom": "19.2.8" },
+    devDependencies: { tailwindcss: "4.3.3", "@tailwindcss/postcss": "4.3.3" },
+  },
+  "packages/ui": {
+    dependencies: { "@radix-ui/react-dialog": "1.1.23", "@radix-ui/react-tabs": "1.1.21" },
+    devDependencies: { storybook: "8.6.18", vite: "6.4.3", react: "19.2.8", "react-dom": "19.2.8" },
+  },
+};
+
+const normalizedVersion = (value) => /^\d+\.\d+\.\d+/.exec(String(value ?? ""))?.[0] ?? "";
+
+function cargoPackageVersion(lock, name) {
+  for (const block of lock.split("[[package]]").slice(1)) {
+    if (new RegExp(`^\\s*name = "${name}"$`, "m").test(block)) return /^\s*version = "([^"]+)"$/m.exec(block)?.[1] ?? "";
+  }
+  return "";
 }
 
-async function checkPage(name, dir, port, path, marker) {
-  if (!existsSync(dir)) { fail(`${name}: 构建产物不存在 ${dir}（先运行 build）`); return; }
-  const server = await serve(dir, port);
+export function loadRuntimeInputs(root = repoRoot) {
+  return {
+    rootPackage: JSON.parse(readFileSync(join(root, "package.json"), "utf8")),
+    nodeVersion: readFileSync(join(root, ".nvmrc"), "utf8").trim(),
+    rustToolchain: readFileSync(join(root, "rust-toolchain.toml"), "utf8"),
+    pnpmLock: parseYaml(readFileSync(join(root, "pnpm-lock.yaml"), "utf8")),
+    tauriCargoLock: readFileSync(join(root, "apps/terminal-desktop/src-tauri/Cargo.lock"), "utf8"),
+    tauriConfig: JSON.parse(readFileSync(join(root, "apps/terminal-desktop/src-tauri/tauri.conf.json"), "utf8")),
+    rustMain: readFileSync(join(root, "apps/terminal-desktop/src-tauri/src/main.rs"), "utf8"),
+    terminalNextConfig: readFileSync(join(root, "apps/terminal/next.config.ts"), "utf8"),
+    websiteNextConfig: readFileSync(join(root, "apps/website/next.config.ts"), "utf8"),
+  };
+}
+
+export function validateRuntimeContract(inputs) {
+  const failures = [];
+  const checks = [];
+  const check = (condition, message) => (condition ? checks : failures).push(message);
+
+  check(inputs.rootPackage.packageManager === "pnpm@10.20.0", "pnpm is pinned to 10.20.0");
+  check(inputs.nodeVersion === "24.12.0", "Node is pinned to 24.12.0");
+  check(/channel = "1\.91\.0"/.test(inputs.rustToolchain), "Rust is pinned to 1.91.0");
+  check(inputs.pnpmLock.lockfileVersion === "9.0", "pnpm lockfile format is 9.0");
+
+  for (const [importerName, sections] of Object.entries(expectedLockedVersions)) {
+    const importer = inputs.pnpmLock.importers?.[importerName];
+    check(Boolean(importer), `${importerName} exists in pnpm lock importers`);
+    for (const [section, dependencies] of Object.entries(sections)) {
+      for (const [name, expected] of Object.entries(dependencies)) {
+        const actual = normalizedVersion(importer?.[section]?.[name]?.version);
+        check(actual === expected, `${importerName} ${name} locked at ${expected}`);
+      }
+    }
+  }
+  check(cargoPackageVersion(inputs.tauriCargoLock, "tauri") === "2.11.5", "Tauri is locked at 2.11.5");
+  check(cargoPackageVersion(inputs.tauriCargoLock, "tauri-plugin-deep-link") === "2.4.9", "Tauri deep-link plugin is locked at 2.4.9");
+
+  check(inputs.terminalNextConfig.includes('output: "export"'), "Terminal uses static export");
+  check(inputs.websiteNextConfig.includes('output: "export"'), "Website uses static export");
+  check(inputs.tauriConfig.build?.frontendDist === "../terminal/out", "Desktop loads the shared Terminal out directory");
+  check(inputs.tauriConfig.build?.devUrl === "http://localhost:3100", "Desktop dev URL matches Terminal port 3100");
+  check(inputs.tauriConfig.plugins?.["deep-link"]?.desktop?.schemes?.includes("quantos"), "quantos deep-link scheme is registered");
+  const window = inputs.tauriConfig.app?.windows?.[0];
+  check(window?.minWidth === 1180 && window?.minHeight === 760, "desktop minimum window is 1180x760");
+  check(inputs.rustMain.includes("get_current()") && inputs.rustMain.includes("on_open_url"), "cold and warm deep-link receivers are wired");
+  check(inputs.rustMain.includes("sanitize_deep_link") && inputs.rustMain.includes("window.navigate"), "deep links are sanitized before local navigation");
+
+  return { schema: "quantos-pre03/v1", status: failures.length === 0 ? "PASS" : "FAIL", checks, failures, locked_dependencies: Object.values(expectedLockedVersions).reduce((total, sections) => total + Object.values(sections).reduce((count, dependencies) => count + Object.keys(dependencies).length, 0), 0), runtime_contract_checks: checks.length + failures.length };
+}
+
+function serve(directory) {
+  const server = createServer((request, response) => {
+    const url = new URL(request.url, "http://127.0.0.1");
+    let path = join(directory, url.pathname === "/" ? "index.html" : url.pathname);
+    if (!existsSync(path)) path = `${path}.html`;
+    if (!existsSync(path) || statSync(path).isDirectory()) path = join(directory, url.pathname, "index.html");
+    if (!existsSync(path)) {
+      response.writeHead(404, { "content-type": "text/plain" });
+      response.end("not found");
+      return;
+    }
+    response.writeHead(200, { "content-type": MIME[extname(path)] ?? "application/octet-stream" });
+    response.end(readFileSync(path));
+  });
+  return new Promise((resolvePromise, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => resolvePromise(server));
+  });
+}
+
+async function close(server) {
+  await new Promise((resolvePromise, reject) => server.close((error) => error ? reject(error) : resolvePromise()));
+}
+
+async function checkPage(root, { name, directory, path, marker }) {
+  const absoluteDirectory = join(root, directory);
+  if (!existsSync(absoluteDirectory)) return { ok: false, message: `${name}: missing build output ${directory}` };
+  const server = await serve(absoluteDirectory);
   try {
-    const res = await fetch(`http://localhost:${port}${path}`);
-    const body = await res.text();
-    if (res.status === 200 && body.includes(marker)) pass(`${name}: ${path} 可打开且含 smoke 标记`);
-    else fail(`${name}: ${path} status=${res.status} 标记缺失（${marker}）`);
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}${path}`);
+    const body = await response.text();
+    return response.status === 200 && body.includes(marker)
+      ? { ok: true, message: `${name}: ${path} is served from built output` }
+      : { ok: false, message: `${name}: ${path} status=${response.status}, marker missing (${marker})` };
   } finally {
-    server.close();
+    await close(server);
   }
 }
 
-// 1) Web：Terminal /command
-// /command 首屏为客户端守卫屏（data-guard-state="checking"），data-smoke 标记在守卫放行后才渲染，
-// 静态 smoke 校验路由 HTML 引用其 page chunk；DOM 标记由 Playwright（command.spec.ts）在真实浏览器中验收
-await checkPage("terminal-web", join(root, "apps/terminal/out"), 3190, "/command", "static/chunks/app/command");
-// Deep-link reauthorization gate is part of the same shared artifact.
-await checkPage("terminal-deep-link-gate", join(root, "apps/terminal/out"), 3192, "/auth/deep-link", "static/chunks/app/auth/deep-link");
-// 2) 官网首页
-await checkPage("website", join(root, "apps/website/out"), 3191, "/", 'data-smoke="website-home"');
-
-// 3) Desktop：Tauri 配置加载同一产物 + 深链 + 窗口约束
-const conf = JSON.parse(readFileSync(join(root, "apps/terminal-desktop/src-tauri/tauri.conf.json"), "utf8"));
-if (conf.build.frontendDist === "../terminal/out") pass("desktop: frontendDist 指向共享 Terminal 产物 ../terminal/out");
-else fail(`desktop: frontendDist=${conf.build.frontendDist}，应为 ../terminal/out`);
-if (conf.build.devUrl === "http://localhost:3100") pass("desktop: devUrl 与 terminal dev 端口一致（3100）");
-else fail(`desktop: devUrl=${conf.build.devUrl}`);
-const schemes = conf.plugins?.["deep-link"]?.desktop?.schemes ?? [];
-if (schemes.includes("quantos")) pass("desktop: quantos:// 深链已注册");
-else fail(`desktop: 深链 schemes=${schemes}`);
-const win = conf.app.windows[0];
-if (win.minWidth === 1180 && win.minHeight === 760) pass("desktop: 最小窗口 1180×760 符合设计规格");
-else fail(`desktop: 最小窗口 ${win.minWidth}×${win.minHeight}`);
-
-// 4) 路由一致性：quantos://command ↔ /command
-const deepLinkToRoute = (link) => link.replace(/^quantos:\/\//, "/");
-const pairs = [["quantos://command", "/command"]];
-for (const [link, route] of pairs) {
-  if (deepLinkToRoute(link) === route) pass(`路由一致: ${link} ↔ ${route}`);
-  else fail(`路由不一致: ${link} -> ${deepLinkToRoute(link)}，期望 ${route}`);
+export async function runPre03(root = repoRoot) {
+  const contract = validateRuntimeContract(loadRuntimeInputs(root));
+  const pages = await Promise.all([
+    checkPage(root, { name: "terminal-web", directory: "apps/terminal/out", path: "/command", marker: "static/chunks/app/command" }),
+    checkPage(root, { name: "terminal-deep-link-gate", directory: "apps/terminal/out", path: "/auth/deep-link", marker: "static/chunks/app/auth/deep-link" }),
+    checkPage(root, { name: "website", directory: "apps/website/out", path: "/", marker: 'data-smoke="website-home"' }),
+  ]);
+  const failures = [...contract.failures, ...pages.filter((page) => !page.ok).map((page) => page.message)];
+  return { ...contract, status: failures.length === 0 ? "PASS" : "FAIL", failures, built_route_checks: pages.length, checks: [...contract.checks, ...pages.filter((page) => page.ok).map((page) => page.message)] };
 }
 
-// 5) The shell consumes both cold-start and already-running deep-link deliveries.
-const rustMain = readFileSync(join(root, "apps/terminal-desktop/src-tauri/src/main.rs"), "utf8");
-if (rustMain.includes("get_current()") && rustMain.includes("on_open_url")) {
-  pass("desktop: 冷启动与运行中深链接收器均已接线");
-} else {
-  fail("desktop: 缺 get_current/on_open_url 深链接收器");
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  try {
+    const report = await runPre03();
+    if (report.status === "FAIL") {
+      for (const failure of report.failures) console.error(`FAIL  ${failure}`);
+      process.exitCode = 1;
+    } else {
+      const { checks: _checks, failures: _failures, ...summary } = report;
+      process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+    }
+  } catch (error) {
+    console.error(`PRE-03 smoke failed: ${error.message}`);
+    process.exitCode = 1;
+  }
 }
-if (rustMain.includes("sanitize_deep_link") && rustMain.includes("window.navigate")) {
-  pass("desktop: 深链先消毒再导航本地授权 Gate");
-} else {
-  fail("desktop: 缺 URL 消毒或目标导航接线");
-}
-
-if (failures > 0) { console.error(`\n${failures} 项 smoke 失败`); process.exit(1); }
-console.log("\nPRE-03 双端 smoke 全部通过");
-process.exit(0);

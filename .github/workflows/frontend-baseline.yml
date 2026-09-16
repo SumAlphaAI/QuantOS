@@ -65,7 +65,7 @@ jobs:
         run: pnpm --filter @sumalpha/website build && pnpm --filter @sumalpha/terminal build
 
       - name: Dual-end smoke (PRE-03)
-        run: pnpm smoke:pre03
+        run: pnpm check:pre03 && pnpm test:pre03
 
       - name: Performance budget
         run: node scripts/check-perf-budget.mjs

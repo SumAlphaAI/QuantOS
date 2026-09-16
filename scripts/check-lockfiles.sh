@@ -6,8 +6,10 @@ repo_root="${QUANTOS_GATE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 required_files=(
   "${repo_root}/Cargo.lock"
+  "${repo_root}/buf.lock"
   "${repo_root}/pnpm-lock.yaml"
   "${repo_root}/engines/uv.lock"
+  "${repo_root}/apps/terminal-desktop/src-tauri/Cargo.lock"
 )
 
 for path in "${required_files[@]}"; do
