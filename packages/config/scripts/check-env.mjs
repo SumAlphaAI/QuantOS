@@ -3,7 +3,7 @@
  * PRE-05 配置校验 CLI。
  * 用法：
  *   node packages/config/scripts/check-env.mjs <env-file> [<env-file>...]   校验指定 env 文件
- *   node packages/config/scripts/check-env.mjs --examples                    校验 env/ 下四套示例
+ *   node packages/config/scripts/check-env.mjs --examples                    校验 env/ 下三套 Web 示例
  * 任一文件不通过即非零退出（fail-fast，供 CI 与启动前检查使用）。
  */
 import { readFileSync } from "node:fs";
@@ -14,7 +14,7 @@ import { validateEnv, parseEnvText } from "../src/env.ts";
 const root = join(fileURLToPath(import.meta.url), "../../../..");
 const args = process.argv.slice(2);
 const files = args.includes("--examples")
-  ? ["env/local-mock.env.example", "env/local-integrated.env.example", "env/staging.env.example", "env/desktop.env.example"]
+  ? ["env/local-mock.env.example", "env/local-integrated.env.example", "env/staging.env.example"]
   : args;
 
 if (files.length === 0) {

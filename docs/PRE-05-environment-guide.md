@@ -1,46 +1,88 @@
-# PRE-05 环境方案：开发说明
+# PRE-05 Web 环境方案与开发说明
 
-> 任务：PRE-05 环境方案（FEP-0）  版本：1.0  日期：2026-08-14
-> 校验器：[packages/config/src/env.ts](../packages/config/src/env.ts)；CLI：`pnpm --filter @sumalpha/config check:env` 或 `node packages/config/scripts/check-env.mjs <file>`
+> 任务：FEP-0 / PRE-05 环境方案
+> 版本：2.0
+> 日期：2026-09-16
+> 范围：第一期官网与 Web Terminal；Desktop 环境迁入[第二期计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)
 
-## 1. 四套环境
+## 1. 三套 Web 环境
 
-| 环境 | 用途 | BFF | 认证 | mock | 模板 |
-|---|---|---|---|---|---|
-| local/mock | 纯本地开发，零后端依赖 | MSW 浏览器侧拦截（origin 仅标识 `http://localhost:4010`） | MSW 伪认证流 | 强制开 | [env/local-mock.env.example](../env/local-mock.env.example) |
-| local-integrated | 本地前端 + 本机真实 BFF 联调 | `http://localhost:8080` | 开发/staging IdP，本地回调 | 关 | [env/local-integrated.env.example](../env/local-integrated.env.example) |
-| staging | 部署验收 | `https://bff.staging.sumalpha.ai`（强制 https） | staging IdP | 禁 mock | [env/staging.env.example](../env/staging.env.example) |
-| desktop | Tauri 壳 | 复用上三种部署环境之一；壳层仅加平台/深链变量 | 系统浏览器 + `quantos://auth/callback` 深链回跳（回跳重新鉴权） | 随部署环境 | [env/desktop.env.example](../env/desktop.env.example) |
+| profile | 用途 | BFF / 认证 | mock | 模板 |
+|---|---|---|---|---|
+| `local-mock` | 无后端依赖的本地 UI、Story 与 E2E | MSW 拦截；mock OIDC | 必须开启 | [`env/local-mock.env.example`](../env/local-mock.env.example) |
+| `local-integrated` | 本地 Web 对接本机 BFF 与开发/测试 IdP | `http://localhost:8080`；Web callback | 必须关闭 | [`env/local-integrated.env.example`](../env/local-integrated.env.example) |
+| `staging` | 目标 Web 集成与验收 | HTTPS BFF、IdP、官网、Terminal 与 callback | 禁止开启 | [`env/staging.env.example`](../env/staging.env.example) |
 
-浏览器与桌面端只访问 Gateway/BFF，不直连 Supabase 数据库、Realtime 原始表、NATS、Engine、Execution Gateway 或 venue（执行计划 1.1）。
+Desktop 不是第四套一期环境。`env/desktop.env.example` 只保留为第二期未授权草案，不进入 `check:pre05`、一期构建矩阵或 PRE-05 Gate。
 
-## 2. 变量约定
+## 2. 配置契约
 
-- **进入客户端 bundle 的变量一律 `NEXT_PUBLIC_` 前缀**，且只允许公开值（OIDC client id、Sentry 公网 DSN 等）。service role key、venue/API/模型密钥、JWT、私钥永远禁止；校验器对 key 与 value 做双向 secret 指纹扫描。
-- **环境/mode 分离**：`NEXT_PUBLIC_QUANTOS_ENV`（部署环境：local-mock/local-integrated/staging）与 `NEXT_PUBLIC_QUANTOS_DEFAULT_MODE`（运行模式：research/paper/shadow）独立校验；Assisted/Guarded Live 不可作默认 mode。
-- **feature flag**：`NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET` 仅 off/on，默认 off；即使 on，UI/API 也须由服务端 flag/capability 放行（L03）。客户端 flag 只是显示条件，不是授权。
-- **观测**：`NEXT_PUBLIC_QUANTOS_OBS_ENABLED` + `NEXT_PUBLIC_QUANTOS_SENTRY_DSN`（公网 DSN）；staging 开启观测时 DSN 必填；token、密钥、完整敏感载荷不上报。
-- **测试账号**：staging 模板尾部四个 `QUANTOS_E2E_ACCOUNT_*`（无 `NEXT_PUBLIC_` 前缀，不进 bundle），口令存 CI secret，不落库到任何 env 文件。
+### 2.1 公开变量 allowlist
 
-## 3. 启动流程（fail-fast）
+以下变量可以进入浏览器 bundle；新增任何 `NEXT_PUBLIC_*` 必须先修改 allowlist、威胁模型与测试，否则校验失败：
 
-1. 复制模板：`cp env/local-mock.env.example apps/terminal/.env.local`
-2. 启动前校验：`node packages/config/scripts/check-env.mjs apps/terminal/.env.local`
-3. 应用启动时 `assertEnv(process.env)`（FEP-1 接线进 app bootstrap）：缺任一必需变量即抛出完整缺失清单，拒绝启动——不允许"带病运行"。
+| 变量 | 约束 |
+|---|---|
+| `NEXT_PUBLIC_QUANTOS_ENV` | 仅 `local-mock`、`local-integrated`、`staging` |
+| `NEXT_PUBLIC_SITE_ORIGIN` | 官网绝对 origin；staging 必须 HTTPS |
+| `NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN` | Terminal 绝对 origin；staging 必须 HTTPS |
+| `NEXT_PUBLIC_QUANTOS_BFF_ORIGIN` | Gateway/BFF 绝对 origin；浏览器不得直连内部服务 |
+| `NEXT_PUBLIC_QUANTOS_OIDC_ISSUER` | OIDC issuer；staging 必须 HTTPS |
+| `NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID` | 公开 client id，不是 client secret |
+| `NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI` | 必须精确等于 `<Terminal origin>/auth/callback`；一期拒绝自定义 scheme |
+| `NEXT_PUBLIC_QUANTOS_DEFAULT_MODE` | 仅 `research`、`paper`、`shadow` |
+| `NEXT_PUBLIC_QUANTOS_MOCK_ENABLED` | 仅字符串 `true/false`；与 profile 强绑定 |
+| `NEXT_PUBLIC_QUANTOS_OBS_ENABLED` | 仅字符串 `true/false` |
+| `NEXT_PUBLIC_QUANTOS_SENTRY_DSN` | 可选公开 DSN；观测开启时必填 |
+| `NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET` | 仅 `off/on`；`on` 仍不能替代服务端 flag/capability |
 
-## 4. 桌面端差异
+所有 URL 拒绝嵌入用户名、密码、query 或 fragment。`staging` 的官网、Terminal、BFF、OIDC issuer 和 callback 全部强制 HTTPS。
 
-- dev：`tauri dev` 经 `devUrl=http://localhost:3100` 加载 terminal dev server；prod：壳嵌入 `apps/terminal/out`（同一产物，PRE-03 smoke 验证）。
-- `NEXT_PUBLIC_QUANTOS_PLATFORM=desktop` 供 `packages/platform` 选择 desktop adapter；业务代码禁止 `isDesktop` 分叉。
-- OIDC redirect 使用 `quantos://auth/callback`，深链在 BFF 重新鉴权后加载，URL 不放 token/资源数据。
+### 2.2 服务器秘密和测试身份
 
-## 5. 常见校验失败对照
+- service-role key、venue/API/模型密钥、JWT、refresh token、私钥、签名密钥与口令不得使用 `NEXT_PUBLIC_`，也不得写入三个模板。
+- 校验器对公开变量 key、value 和 allowlist 做负向扫描；公开变量中的 secret 形态直接阻断构建。
+- `QUANTOS_E2E_ACCOUNT_*` 仅是 staging 测试身份的非敏感标识，永不进入 bundle；模板值是占位格式，不代表账号已创建。
+- 测试账号口令、MFA seed 和会话令牌只能由受控 CI/staging secret 注入。本任务未创建或使用真实账号。
 
-| 报错 | 含义 | 处理 |
-|---|---|---|
-| 缺少必需变量（fail-fast） | 8 个必需 `NEXT_PUBLIC_` 变量不全 | 对照所用环境模板补齐 |
-| 非法环境 / 非法默认 mode | env 或 mode 拼写或越界 | env ∈ local-mock/local-integrated/staging；mode ∈ research/paper/shadow |
-| staging 禁止开启 mock | staging 模板被改动 | staging 必须 `MOCK_ENABLED=false` |
-| staging BFF/callback 必须 https | 协议降级 | 改回 https |
-| key/value 命中 server-secret 指纹 | 把秘密写进了公开变量 | 移出客户端变量；secret 只属于 BFF/Vault |
-| staging 观测开启必须配 DSN | OBS_ENABLED=true 但 DSN 空 | 配公网 DSN 或关观测 |
+### 2.3 环境与业务 mode 分离
+
+部署 profile 只回答“连接哪套 Web 环境”，默认 mode 只回答“以 Research/Paper/Shadow 哪种业务模式进入”。Assisted Live 与 Guarded Live 都不能成为客户端默认 mode；客户端 feature flag 不是授权来源。
+
+## 3. 启动与构建
+
+本地运行前，把同一个 profile 放入对应 Web 应用：
+
+```bash
+cp env/local-mock.env.example apps/website/.env.local
+cp env/local-mock.env.example apps/terminal/.env.local
+pnpm check:pre05
+pnpm --filter @sumalpha/website dev
+pnpm --filter @sumalpha/terminal dev
+```
+
+`apps/website/next.config.ts` 与 `apps/terminal/next.config.ts` 在 Next.js 配置加载时调用 `assertEnv(process.env)`。缺变量、非法值、非同源 callback、staging HTTP、mock/profile 冲突或公开变量越过 allowlist 时，`dev` 和 `build` 都会在产物生成前失败。
+
+CI 以显式的 `local-mock` job environment 构建，不依赖开发者机器上的 `.env.local`。staging 应由部署平台注入已审批的公开配置；不得把真实值提交回模板。
+
+## 4. 校验与故障定位
+
+| 命令 | 作用 |
+|---|---|
+| `pnpm check:pre05` | 校验三套 Web 模板 |
+| `pnpm test:pre05` | 运行正向与 fail-closed 单元测试 |
+| `node packages/config/scripts/check-env.mjs <file>` | 校验指定 env 文件 |
+
+常见失败：
+
+| 失败 | 处理 |
+|---|---|
+| 缺少必需变量 | 对照所选 Web profile 补齐，不增加代码 fallback |
+| 未审核的 `NEXT_PUBLIC_*` | 先完成数据分类、allowlist 和测试评审 |
+| callback 与 Terminal origin 不同源 | 注册并使用精确的 `<Terminal origin>/auth/callback` |
+| staging 使用 HTTP 或启用 mock | 修正部署配置；不得绕过校验 |
+| 命中 secret 指纹 | 从浏览器配置移除并轮换可能已暴露的凭据 |
+
+## 5. 验收边界
+
+PRE-05 repository Gate 证明配置模型、模板、应用启动 fail-fast 和 CI 接线在当前源码中可重放；它不证明 staging DNS、TLS、OIDC client、测试账号、Sentry 项目或 BFF 已实际配置。真实 staging 联调必须另行提供绑定精确提交和部署环境的证据。

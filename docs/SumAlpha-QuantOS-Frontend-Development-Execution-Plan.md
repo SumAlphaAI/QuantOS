@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：2.5
+> 版本：2.6
 > 更新时间：2026-09-16
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `2.6`：PRE-05 按 Web-only 边界完成当前仓库复核；冻结 local-mock、local-integrated、staging 三套 profile，将公开变量 allowlist、URL/callback、环境/mode、secret 负向扫描接入官网与 Terminal 的构建期 fail-fast，并从一期 Gate 排除 Desktop 环境。仓库 Gate 完成不代表 staging 基础设施或账号已配置。
 - `2.5`：产品阶段调整为第一期仅交付 Web；迁出 Tauri、P16、桌面环境、原生测试、签名更新与 Desktop Gate 至独立第二期计划。第一期保留浏览器平台能力 P17 和 C17 Web 契约，不以已有桌面 PoC 扩大一期范围。
 - `2.4`：PRE-04 接口盘点完成当前仓库复核；同步 BFF OpenAPI 1.1.0、55 operations、41 schemas 与 Proto 38 messages/15 enums 的实际基线，以 PRE-01 动态 P0 页面集合校验 C01–C17、GAP-01–17、144 行字段字典、owner 和 mock 状态，并新增六类可破坏 Gate。开发状态与接口实现状态、GPT-6 Astra 复审状态继续分开记录。
 - `2.3`：PRE-03 技术栈落地完成当前仓库复核；固定 Node 24.12.0，按实际锁文件校验前端依赖，强化构建路由的可破坏 Gate，并以隔离环境重放 bootstrap/build/test。开发状态与 GPT-6 Astra 复审状态继续分开记录。
@@ -204,7 +205,7 @@
 - task_type: `PREPARATION`
 - iteration: `P0`
 - depends_on: ["PRE-03", "PRE-04"]
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-05)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：环境方案

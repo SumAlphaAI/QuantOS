@@ -16,6 +16,18 @@ permissions:
 jobs:
   frontend-baseline:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_QUANTOS_ENV: local-mock
+      NEXT_PUBLIC_SITE_ORIGIN: http://localhost:3000
+      NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: http://localhost:3100
+      NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: http://localhost:4010
+      NEXT_PUBLIC_QUANTOS_OIDC_ISSUER: https://mock.idp.local
+      NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: quantos-terminal-ci
+      NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: http://localhost:3100/auth/callback
+      NEXT_PUBLIC_QUANTOS_DEFAULT_MODE: paper
+      NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: "true"
+      NEXT_PUBLIC_QUANTOS_OBS_ENABLED: "false"
+      NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET: "off"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,7 +47,7 @@ jobs:
         run: pnpm check:pre02 && pnpm test:pre02
 
       - name: Environment config checks (PRE-05)
-        run: pnpm --filter @sumalpha/config check:env
+        run: pnpm check:pre05 && pnpm test:pre05
 
       - name: PRE-01 page, permission, state and traceability contract
         run: pnpm check:pre01 && pnpm test:pre01

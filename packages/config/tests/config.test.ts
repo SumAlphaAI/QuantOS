@@ -9,6 +9,8 @@ const loadExample = (name: string) => parseEnvText(readFileSync(join(repoRoot, "
 
 const validBase: Record<string, string> = {
   NEXT_PUBLIC_QUANTOS_ENV: "local-mock",
+  NEXT_PUBLIC_SITE_ORIGIN: "http://localhost:3000",
+  NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: "http://localhost:3100",
   NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: "http://localhost:4010",
   NEXT_PUBLIC_QUANTOS_OIDC_ISSUER: "https://mock.idp.local",
   NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: "quantos-terminal-local",
@@ -16,6 +18,7 @@ const validBase: Record<string, string> = {
   NEXT_PUBLIC_QUANTOS_DEFAULT_MODE: "paper",
   NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: "true",
   NEXT_PUBLIC_QUANTOS_OBS_ENABLED: "false",
+  NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET: "off",
 };
 
 describe("config", () => {
@@ -25,8 +28,8 @@ describe("config", () => {
 });
 
 describe("PRE-05 环境配置校验", () => {
-  it.each(["local-mock.env.example", "local-integrated.env.example", "staging.env.example", "desktop.env.example"])(
-    "四套环境示例均通过校验：%s",
+  it.each(["local-mock.env.example", "local-integrated.env.example", "staging.env.example"])(
+    "三套 Web 环境示例均通过校验：%s",
     (name) => {
       const result = validateEnv(loadExample(name));
       expect(result.issues).toEqual([]);
@@ -57,15 +60,38 @@ describe("PRE-05 环境配置校验", () => {
     expect(result.ok).toBe(false);
   });
 
+  it("拒绝 allowlist 外的公开变量", () => {
+    const result = validateEnv({ ...validBase, NEXT_PUBLIC_UNREVIEWED_VALUE: "public-looking" });
+    expect(result.ok).toBe(false);
+    expect(result.issues).toContainEqual(expect.objectContaining({ key: "NEXT_PUBLIC_UNREVIEWED_VALUE" }));
+  });
+
   it("环境/mode 分离：非法环境与 assisted_live 默认 mode 均拒绝", () => {
     expect(validateEnv({ ...validBase, NEXT_PUBLIC_QUANTOS_ENV: "prod" }).ok).toBe(false);
     expect(validateEnv({ ...validBase, NEXT_PUBLIC_QUANTOS_DEFAULT_MODE: "assisted_live" }).ok).toBe(false);
+  });
+
+  it("布尔值与 Web callback 同源关系均 fail closed", () => {
+    expect(validateEnv({ ...validBase, NEXT_PUBLIC_QUANTOS_OBS_ENABLED: "yes" }).ok).toBe(false);
+    expect(
+      validateEnv({ ...validBase, NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: "https://attacker.example/auth/callback" }).ok,
+    ).toBe(false);
+    expect(validateEnv({ ...validBase, NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: "quantos://auth/callback" }).ok).toBe(false);
+    expect(validateEnv({ ...validBase, NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: "http://localhost:4010/v1" }).ok).toBe(false);
+  });
+
+  it("local-integrated 禁 mock", () => {
+    expect(
+      validateEnv({ ...validBase, NEXT_PUBLIC_QUANTOS_ENV: "local-integrated", NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: "true" }).ok,
+    ).toBe(false);
   });
 
   it("staging 约束：禁 mock、必须 https、观测开启必须配 DSN", () => {
     const staging = {
       ...validBase,
       NEXT_PUBLIC_QUANTOS_ENV: "staging",
+      NEXT_PUBLIC_SITE_ORIGIN: "https://staging.sumalpha.ai",
+      NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: "https://app.staging.sumalpha.ai",
       NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: "false",
       NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: "https://bff.staging.sumalpha.ai",
       NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: "https://app.staging.sumalpha.ai/auth/callback",
@@ -76,5 +102,6 @@ describe("PRE-05 环境配置校验", () => {
     expect(validateEnv({ ...staging, NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: "true" }).ok).toBe(false);
     expect(validateEnv({ ...staging, NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: "http://bff.staging.sumalpha.ai" }).ok).toBe(false);
     expect(validateEnv({ ...staging, NEXT_PUBLIC_QUANTOS_SENTRY_DSN: "" }).ok).toBe(false);
+    expect(validateEnv({ ...staging, NEXT_PUBLIC_QUANTOS_SENTRY_DSN: "not-a-dsn" }).ok).toBe(false);
   });
 });
