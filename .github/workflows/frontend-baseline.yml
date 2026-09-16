@@ -32,7 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Design token & i18n checks (PRE-02)
-        run: pnpm --filter @sumalpha/ui check:design
+        run: pnpm check:pre02 && pnpm test:pre02
 
       - name: Environment config checks (PRE-05)
         run: pnpm --filter @sumalpha/config check:env

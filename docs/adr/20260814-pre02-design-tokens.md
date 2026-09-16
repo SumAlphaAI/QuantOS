@@ -1,7 +1,8 @@
 # ADR: QuantOS 设计系统 token 冻结（PRE-02）
 
-- 状态：已冻结（待 G0 联合评审签署）
+- 状态：已冻结；仓库 Gate 于 2026-09-16 重验证通过（GPT-6 Astra 复审仍为 `NOT_STARTED`）
 - 日期：2026-08-14
+- 最近复核：2026-09-16
 - 关联：PRE-02 设计系统预研；[设计规格 3.2/7 节](../SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)；[执行计划第 2 节](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md)
 - 事实来源：[`packages/ui/src/tokens/tokens.json`](../../packages/ui/src/tokens/tokens.json)
 
@@ -17,7 +18,7 @@ FEP-0 必须在页面开发前冻结设计系统决策，避免逐页复制样�
 - 色板：surface 三级（页面/面板/浮层）、border 两级、text 四级（primary/secondary/disabled/inverse）、brand（蓝绿 #0F766E 系）、语义四色（success/warning/danger/info）。
 - 语义约束：success 仅表示"已完成"；warning 表示"需关注"；danger 仅用于拒绝、故障、紧急停止；颜色必须配合图标和文字，不能单独传达含义。
 - 运行模式色常驻且带文字：research=info 蓝、paper=success 绿、shadow=紫、assistedLive=danger 红（M5 前不开放）。
-- WCAG 2.2 AA：全部文字配对 ≥4.5:1，图形/大字 ≥3:1，由脚本强制校验（本次 36/36 通过）。
+- WCAG 2.2 AA：正文/安全状态文案配对 ≥4.5:1，图表与焦点环非文本对比度 ≥3:1，由脚本强制校验（双主题 36/36 通过）。
 
 ### 2. 排版
 
@@ -68,10 +69,10 @@ FEP-0 必须在页面开发前冻结设计系统决策，避免逐页复制样�
 
 ### 10. i18n 与文案
 
-- 通用安全文案 18 条全部入库：`packages/ui/src/i18n/{en,zh-CN}.json`，key 前缀 `safety.*`；页面仅替换变量，不得改写安全含义；中英文 key 集合一致性由脚本强制。
+- 通用安全文案 18 条全部入库：`packages/ui/src/i18n/{en,zh-CN}.json`，key 前缀 `safety.*`；页面仅替换变量，不得改写安全含义；Gate 强制 key 精确集合、规范中文原文、中英文非空与占位符一致。
 
 ## 后果
 
 - 正向：token 单一事实来源；WCAG 与 i18n 完整性可 CI 强制；Storybook/视觉回归有统一基准。
 - 约束：组件禁止硬编码色值/字号/状态文案；新语义色或新状态枚举必须走 ADR 修订。
-- 验证：`node packages/ui/scripts/pre02-checks.mjs`（对比度 + i18n）；PRE-03 落地依赖后接入 CI 与 Storybook axe 面板。
+- 验证：`pnpm check:pre02 && pnpm test:pre02`（token/状态、对比度、i18n、组件清单、Storybook 骨架及负向破坏回归）；已接入 Frontend Baseline CI。Storybook axe 面板是交互审查工具，其配置存在不等于全量页面 axe 验收完成。

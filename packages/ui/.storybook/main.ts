@@ -1,9 +1,8 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 
 /**
- * PRE-02 Storybook 骨架。
- * 依赖（@storybook/react-vite、axe 面板、MSW addon 等）由 PRE-03 技术栈落地引入并锁定版本；
- * 本配置先行冻结目录与约定，安装后可直接运行。
+ * PRE-02 Storybook 骨架；依赖版本已由 PRE-03 落地并进入 pnpm 锁文件。
+ * 本配置冻结 UI、domain-ui 与 Terminal story 的扫描范围和可访问性插件基线。
  */
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)", "../../domain-ui/src/**/*.stories.@(ts|tsx)", "../../../apps/terminal/app/**/*.stories.@(ts|tsx)"],
