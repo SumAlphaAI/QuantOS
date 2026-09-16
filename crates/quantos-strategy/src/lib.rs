@@ -333,6 +333,9 @@ fn gate_violation_detail(violation: &SnapshotGateViolation) -> String {
         SnapshotGateViolation::RuleMissing { usage } => {
             format!("missing rule for usage `{}`", usage.as_str())
         }
+        SnapshotGateViolation::MetadataIncomplete { field } => {
+            format!("snapshot metadata `{field}` is incomplete")
+        }
     }
 }
 

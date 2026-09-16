@@ -291,6 +291,7 @@ pub enum SnapshotGateViolation {
     Expired,
     QualityInsufficient { quality: SnapshotQuality },
     RuleMissing { usage: SnapshotUsage },
+    MetadataIncomplete { field: &'static str },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -309,7 +310,10 @@ impl SnapshotQualityGate {
         observed_at: DateTime<Utc>,
         rules: &SnapshotQualityRuleset,
     ) -> SnapshotGateDecision {
-        let Some(rule) = rules.rule_for(usage) else {
+        let Some(rule) = rules
+            .rule_for(usage)
+            .filter(|rule| rule.tenant_id == snapshot.tenant_id)
+        else {
             return SnapshotGateDecision {
                 allowed: false,
                 violations: vec![SnapshotGateViolation::RuleMissing { usage }],
@@ -319,6 +323,21 @@ impl SnapshotQualityGate {
         let mut violations = Vec::new();
         if rule.require_license && snapshot.license_label.trim().is_empty() {
             violations.push(SnapshotGateViolation::LicenseMissing);
+        }
+        if snapshot.sources.is_empty() {
+            violations.push(SnapshotGateViolation::MetadataIncomplete { field: "sources" });
+        } else if rule.require_license
+            && snapshot
+                .sources
+                .iter()
+                .any(|source| source.license_label.trim().is_empty())
+        {
+            violations.push(SnapshotGateViolation::MetadataIncomplete {
+                field: "source_license",
+            });
+        }
+        if snapshot.lineage.is_empty() {
+            violations.push(SnapshotGateViolation::MetadataIncomplete { field: "lineage" });
         }
         if rule.require_freshness && snapshot.is_expired(observed_at) {
             violations.push(SnapshotGateViolation::Expired);
@@ -694,7 +713,11 @@ mod tests {
                     .expect("valid timestamp"),
             )
             .expect("snapshot builds");
-            let observed_at = snapshot.expires_at + ChronoDuration::seconds(1);
+            let observed_at = if index < 100 {
+                snapshot.expires_at + ChronoDuration::seconds(1)
+            } else {
+                snapshot.captured_at
+            };
 
             for usage in [SnapshotUsage::Strategy, SnapshotUsage::Trading] {
                 let decision = SnapshotQualityGate::evaluate(&snapshot, usage, observed_at, &rules);
@@ -750,5 +773,66 @@ mod tests {
             &rules,
         );
         assert!(decision.allowed);
+    }
+
+    #[test]
+    fn snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage() {
+        let tenant_id = TenantId::new();
+        let other_tenant_id = TenantId::new();
+        let now = Utc
+            .with_ymd_and_hms(2026, 7, 31, 1, 0, 10)
+            .single()
+            .expect("valid timestamp");
+        let snapshot =
+            DataSnapshotRecord::new(tenant_id, baseline_input(), now).expect("snapshot builds");
+        let cross_tenant_rules =
+            SnapshotQualityRuleset::from_rules(default_quality_rules(other_tenant_id, now));
+        let cross_tenant = SnapshotQualityGate::evaluate(
+            &snapshot,
+            SnapshotUsage::Trading,
+            snapshot.captured_at,
+            &cross_tenant_rules,
+        );
+        assert_eq!(
+            cross_tenant.violations,
+            vec![SnapshotGateViolation::RuleMissing {
+                usage: SnapshotUsage::Trading,
+            }]
+        );
+
+        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(tenant_id, now));
+        for (field, mutate) in [
+            (
+                "sources",
+                (|input: &mut DataSnapshotInput| input.sources.clear())
+                    as fn(&mut DataSnapshotInput),
+            ),
+            (
+                "source_license",
+                (|input: &mut DataSnapshotInput| input.sources[0].license_label.clear())
+                    as fn(&mut DataSnapshotInput),
+            ),
+            (
+                "lineage",
+                (|input: &mut DataSnapshotInput| input.lineage.clear())
+                    as fn(&mut DataSnapshotInput),
+            ),
+        ] {
+            let mut input = baseline_input();
+            mutate(&mut input);
+            let incomplete = DataSnapshotRecord::new(tenant_id, input, now)
+                .expect("incomplete snapshot remains inspectable");
+            let decision = SnapshotQualityGate::evaluate(
+                &incomplete,
+                SnapshotUsage::Trading,
+                incomplete.captured_at,
+                &rules,
+            );
+            assert!(
+                decision
+                    .violations
+                    .contains(&SnapshotGateViolation::MetadataIncomplete { field })
+            );
+        }
     }
 }

@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.1
+> 版本：3.2
 > 更新时间：2026-09-16
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.2`：完成 CORE:R02 当前仓库交付复核与加固；确定性不可变 hash、时间窗、schema、来源、许可证、血缘、对象存储 hash 校验、租户绑定质量 Gate、300 个拒绝 fixture、PostgreSQL/RLS migration 与数据库更新拒绝触发器均纳入可破坏 Gate。真实 PostgreSQL 查询 P95、目标 RLS 与 Supabase Storage 仍需独立凭据和目标环境验收。
 - `3.1`：完成 CORE:R01 当前仓库交付复核与加固；批准 provider、严格 symbol 归一化、精度/时间/来源/质量契约、10 万条 replay、乱序/重复去重、五秒异常发出与 `MarketEvent` append-only ledger 写入均纳入可破坏 Gate。真实 provider、消息基础设施和目标环境吞吐仍需独立验收。
 - `3.0`：为 GPT-6 Astra 对全量已开发核心功能重新复审重构文档，移除历史核查、复验结论与过程记录；保留业务需求、功能定义、量化标准、依赖和已开发状态标记。
 - 每项核心功能及 TP01 子任务均配置独立复审入口；新一轮复审状态统一为 `NOT_STARTED`，结论、问题和修复追踪保持空白。
@@ -852,7 +853,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 - task_id: `R02`
 - task_type: `CORE`
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r02)
 - 需求描述：DataSnapshot、血缘与质量 Gate
 - 技术要求：不可变 hash、时间窗、schema、质量、许可证、来源；快照元数据与质量 Gate 存于 Supabase PostgreSQL，并通过 RLS 保护租户可见性；交易相关调用必须检查质量/时效

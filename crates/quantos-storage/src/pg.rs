@@ -33,6 +33,8 @@ pub enum PgStorageError {
     Json(#[from] serde_json::Error),
     #[error(transparent)]
     Snapshot(#[from] SnapshotError),
+    #[error("SNAPSHOT_PERSISTENCE_INVARIANT: conflict row is missing after immutable insert")]
+    SnapshotPersistenceInvariant,
 }
 
 pub struct PgStorageStore {
@@ -171,7 +173,7 @@ impl PgStorageStore {
         let artifact_refs = serde_json::to_value(&snapshot.artifact_refs)?;
         let lineage = serde_json::to_value(&snapshot.lineage)?;
         let quality_findings = serde_json::to_value(&snapshot.quality_findings)?;
-        let row = self.client.query_typed_one(
+        let row = self.client.query_typed_opt(
             "insert into quantos.data_snapshots (
                 id, tenant_id, schema_entry_id, schema_name, schema_version,
                 window_start_at, window_end_at, captured_at, max_age_secs, expires_at,
@@ -183,9 +185,7 @@ impl PgStorageStore {
                 $11,$12,$13,$14,$15,$16,
                 $17,$18,$19
             )
-            on conflict (tenant_id, content_hash)
-            do update set
-                content_hash = quantos.data_snapshots.content_hash
+            on conflict (tenant_id, content_hash) do nothing
             returning id, tenant_id, schema_entry_id, schema_name, schema_version,
                       window_start_at, window_end_at, captured_at, max_age_secs, expires_at,
                       quality, license_label, content_hash, symbols, sources, artifact_refs,
@@ -216,9 +216,14 @@ impl PgStorageStore {
             ],
         )?;
 
-        let snapshot = row_to_data_snapshot(&row)?;
-        self.cache_snapshot(&snapshot);
-        Ok(snapshot)
+        let persisted = match row {
+            Some(row) => row_to_data_snapshot(&row)?,
+            None => self
+                .find_data_snapshot_by_hash(snapshot.tenant_id, &snapshot.content_hash)?
+                .ok_or(PgStorageError::SnapshotPersistenceInvariant)?,
+        };
+        self.cache_snapshot(&persisted);
+        Ok(persisted)
     }
 
     pub fn get_data_snapshot(
