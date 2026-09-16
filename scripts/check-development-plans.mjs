@@ -10,6 +10,7 @@ const filenames = [
   "docs/SumAlpha-QuantOS-Development-Plan.md",
   "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md",
 ];
+const desktopPlanFilename = "docs/SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md";
 const range = (prefix, from, to, width = 2) =>
   Array.from({ length: to - from + 1 }, (_, i) => `${prefix}${String(from + i).padStart(width, "0")}`);
 const coreIds = [
@@ -23,7 +24,8 @@ const frontendIds = [
   ...range("BFF-FE-", 0, 11, 3), ...range("UI-", 101, 104, 3),
   ...range("UI-", 201, 204, 3), ...range("UI-", 301, 303, 3),
   ...range("UI-", 401, 403, 3), ...range("UI-", 501, 507, 3),
-  ...range("UI-", 601, 604, 3), "WEB-101", "UI-VIS-000", ...range("UI-P", 1, 23),
+  ...range("UI-", 601, 603, 3), "WEB-101", "UI-VIS-000",
+  ...range("UI-P", 1, 15), ...range("UI-P", 17, 23),
 ];
 const iterations = ["P0", ...range("A", 1, 6, 1), ...range("I", 1, 10, 1)];
 const workflow = "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED";
@@ -154,6 +156,14 @@ function parseTasks(text, expected, freshReview) {
 
 export function validatePlans(coreText, frontendText, { root = projectRoot, freshReview = false } = {}) {
   const texts = [coreText, frontendText];
+  const desktopPlanPath = resolve(root, desktopPlanFilename);
+  assert(existsSync(desktopPlanPath), `missing ${desktopPlanFilename}`);
+  const desktopText = readFileSync(desktopPlanPath, "utf8");
+  assert(!frontendText.includes('<a id="task-ui-604"></a>'), "UI-604 must not return to the phase-one Web plan");
+  assert(!frontendText.includes('<a id="task-ui-p16"></a>'), "UI-P16 must not return to the phase-one Web plan");
+  for (const marker of ["UI-604", "UI-P16", "BFF-DESKTOP-001", "## 7. Desktop Gate"]) {
+    assert(desktopText.includes(marker), `${desktopPlanFilename}: missing migrated Desktop marker ${marker}`);
+  }
   const anchorSets = texts.map((text, i) => checkMarkdown(text, filenames[i]));
   const core = parseTasks(coreText, coreIds, freshReview);
   const frontend = parseTasks(frontendText, frontendIds, freshReview);
@@ -201,7 +211,7 @@ export function validatePlans(coreText, frontendText, { root = projectRoot, fres
       }
     }
   }
-  return { schema: "quantos-plan-review/v1", structure: "PASS", platform_load: "NOT_RUN", model_review: "NOT_RUN", core_tasks: core.length, frontend_tasks: frontend.length, page_api_tasks: apis.length, page_tasks: ui.filter((r) => /^UI-P\d+$/.test(r.task_id)).length, tasks: [...core, ...frontend] };
+  return { schema: "quantos-plan-review/v1", structure: "PASS", desktop_scope_split: "PASS", platform_load: "NOT_RUN", model_review: "NOT_RUN", core_tasks: core.length, frontend_tasks: frontend.length, page_api_tasks: apis.length, page_tasks: ui.filter((r) => /^UI-P\d+$/.test(r.task_id)).length, tasks: [...core, ...frontend] };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

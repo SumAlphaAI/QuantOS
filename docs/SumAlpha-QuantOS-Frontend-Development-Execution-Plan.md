@@ -1,18 +1,19 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：2.4
+> 版本：2.5
 > 更新时间：2026-09-16
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
-> 目标：交付官网、`app.sumalpha.ai` 与 Tauri 桌面端共享的 QuantOS Terminal 前端；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。
+> 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
 
+- `2.5`：产品阶段调整为第一期仅交付 Web；迁出 Tauri、P16、桌面环境、原生测试、签名更新与 Desktop Gate 至独立第二期计划。第一期保留浏览器平台能力 P17 和 C17 Web 契约，不以已有桌面 PoC 扩大一期范围。
 - `2.4`：PRE-04 接口盘点完成当前仓库复核；同步 BFF OpenAPI 1.1.0、55 operations、41 schemas 与 Proto 38 messages/15 enums 的实际基线，以 PRE-01 动态 P0 页面集合校验 C01–C17、GAP-01–17、144 行字段字典、owner 和 mock 状态，并新增六类可破坏 Gate。开发状态与接口实现状态、GPT-6 Astra 复审状态继续分开记录。
-- `2.3`：PRE-03 技术栈落地完成当前仓库复核；固定 Node 24.12.0，按实际锁文件校验 26 项前端依赖及 Tauri 依赖，强化共享产物、深链和构建路由的可破坏 Gate，并以隔离离线环境重放 bootstrap/build/test。开发状态与 GPT-6 Astra 复审状态继续分开记录。
+- `2.3`：PRE-03 技术栈落地完成当前仓库复核；固定 Node 24.12.0，按实际锁文件校验前端依赖，强化构建路由的可破坏 Gate，并以隔离环境重放 bootstrap/build/test。开发状态与 GPT-6 Astra 复审状态继续分开记录。
 - `2.2`：PRE-02 设计系统预研完成当前仓库复核；强化 token/状态映射、36 组 WCAG 对比度、18 条规范安全文案、组件清单和 Storybook 骨架的可破坏 Gate。开发状态与 GPT-6 Astra 复审状态继续分开记录。
 - `2.1`：PRE-01 需求拆解完成当前仓库复核；官网七页由聚合七态改为逐页七态，新增可执行的页面/Story/权限/场景/追踪完整性 Gate。开发状态与 GPT-6 Astra 复审状态继续分开记录。
-- `2.0`：页面 API 与前端功能独立排期；先完成全量页面 API 开发与 provider 验证，再依业务依赖推进前端。原 FEP/Gate、UI、WEB、PRE、BFF-FE、C01–C17 与 P01–P23 标识保持稳定。
+- `2.0`：页面 API 与前端功能独立排期；先完成全量页面 API 开发与 provider 验证，再依业务依赖推进前端。FEP/Gate、UI、WEB、PRE、BFF-FE 与 C01–C17 标识保持稳定；P16 自 2.5 起迁入第二期。
 - FEP-1 及 UI-101–UI-104、WEB-101 标记已开发完成，保留集成晋级条件，清除历史复验证据；为 GPT-6 Astra 设置全新复审入口。
 - 采用[核心计划字段约定](./SumAlpha-QuantOS-Development-Plan.md#plan-review-schema) `quantos-plan-review/v1`。校验：`node scripts/check-development-plans.mjs`；结构通过不等于 Codex 平台加载、模型调用或真实联调验收通过。
 
@@ -20,8 +21,8 @@
 
 ### 1.1 不可变原则
 
-1. Web 与 Desktop 复用 `apps/terminal`、领域组件、BFF client、路由、权限判断和核心 E2E；平台差异只进入 `packages/platform`。
-2. 浏览器和桌面端只访问 Gateway/BFF，不直连 Supabase 数据库、Realtime 原始表、NATS、Engine、Execution Gateway 或 venue。
+1. 第一期只交付 Web；业务实现集中在 `apps/terminal`、领域组件、BFF client、路由和权限判断，不引入原生平台分支。
+2. 浏览器只访问 Gateway/BFF，不直连 Supabase 数据库、Realtime 原始表、NATS、Engine、Execution Gateway 或 venue。
 3. 服务端是领域状态、权限、capability、mode、数据时效与风险结论的唯一权威；前端只保留查询缓存、布局、偏好和未提交草稿。
 4. `TradeProposal` 永远显示为“不可执行建议”；前端不得创建或修改 `RiskDecision`、拼装 `TradeCommand`、持有交易密钥或乐观展示订单成功。
 5. 当前交付仅覆盖单主租户、单主工作区、单优先 venue、Research/Paper/Shadow。Assisted Live 只做 M5 testnet 评审准备，必须由服务端 flag/capability 放行；Guarded Live 不进入本计划。
@@ -32,19 +33,18 @@
 | 产品面 | 本计划交付 | 不交付 |
 |---|---|---|
 | 官网 | 首页、产品、架构与安全、使用场景、文档、访问申请、登录；后续补开发者与状态页 | 收益宣传、公众投资推荐、社区/跟单 |
-| Terminal Web | P01–P15、P17–P23 全部页面与全局状态 | 移动端高风险操作、浏览器内回测/任意脚本 |
-| Terminal Desktop | 与 Web 相同的业务页面；P16 平台能力、深链、通知、多窗口、布局恢复、签名更新验证 | 独立业务状态机、离线写队列、本地交易能力 |
+| Terminal Web | P01–P15、P17–P23 全部页面与全局状态 | P16、原生平台能力、移动端高风险操作、浏览器内回测/任意脚本 |
 | 模式 | Research、Paper、Shadow；M5 testnet 条件入口 | 默认生产实盘、Guarded Live |
 
 ### 1.3 工程基线与实施要求
 
-`apps/website`、`apps/terminal`、`apps/terminal-desktop`、`packages/ui`、`packages/domain-ui`、`packages/api-client`、`packages/platform` 承载共享应用；QuantOS TypeScript Protobuf 类型和 U01/S04/X06/L03 场景测试继续作为契约与场景输入。目标运行时、设计系统、查询/表格/图表/表单、i18n、MSW、Storybook 与真实 BFF HTTP transport 按第 2 节实施。`InMemory*Backend` 只能作为场景 fixture，不能作为生产接口契约。
+`apps/website`、`apps/terminal`、`packages/ui`、`packages/domain-ui`、`packages/api-client` 承载第一期 Web 应用；QuantOS TypeScript Protobuf 类型和 U01/S04/X06/L03 场景测试继续作为契约与场景输入。目标运行时、设计系统、查询/表格/图表/表单、i18n、MSW、Storybook 与真实 BFF HTTP transport 按第 2 节实施。`InMemory*Backend` 只能作为场景 fixture，不能作为生产接口契约。
 
 先冻结 OpenAPI/BFF 页面契约、建立真实应用运行时，并把已有 fixture 转成由同一 schema 驱动的 mock。FEP-1 的开发状态见第 4.2 节，不将初始工程骨架描述当作当前完成度结论。
 
 ### 1.4 设计稿与页面 API 覆盖要求
 
-1. `design/` 中 P01–P23 的 23 组高保真设计稿均须形成实际 React 页面；`UI-VIS-000`、`UI-P01`–`UI-P23` 是第 4.2 节可独立关闭的交付子任务。
+1. `design/` 中除 P16 外的 22 组高保真设计稿均须形成实际 React Web 页面；`UI-VIS-000`、`UI-P01`–`UI-P15`、`UI-P17`–`UI-P23` 是第 4.2 节可独立关闭的交付子任务。P16 迁入第二期计划。
 2. F03、F06、F07、R01–R04、S01–S04、X01–X06、L01–L03 的服务能力与安全时序不能替代页面级 BFF HTTP 路径、method、响应 envelope、分页、异步任务与实时订阅 OpenAPI。
 3. C01–C17 逻辑契约通过第 4.1 节 `BFF-FE-000`–`BFF-FE-011` 转为可生成客户端的版本化 OpenAPI，覆盖页面聚合、设置、报告、告警、运维治理与平台能力。
 4. 同 schema MSW 仅支持 `UI Complete`；契约达到 `Implemented` 且 staging 真实权限、实时、错误、审计与 provider/consumer contract 通过后方可 `Integrated`。页面自定义 DTO、静态 JSON 或 `InMemory*Backend` 不得替代接口交付。本轮新增页面工作还须遵守第 4 节全量 API 前置门槛。
@@ -56,8 +56,7 @@
 | 层 | 选型 | 执行约束 |
 |---|---|---|
 | 官网 | Next.js App Router + React + TypeScript | SSG/SSR、SEO、内容安全、访问申请；与 Terminal 分应用构建 |
-| Terminal | Next.js App Router + React + TypeScript | 同一共享应用供 Web 与 Tauri 加载；业务路由全部 `noindex, nofollow` |
-| 桌面壳 | Tauri 2 + Rust | 只实现 `PlatformCapabilities`；最小 capability、签名制品、受控更新 |
+| Terminal Web | Next.js App Router + React + TypeScript | 业务路由全部 `noindex, nofollow`；第一期不包含原生壳与本地平台能力 |
 | 样式与无障碍 | Tailwind CSS + Radix UI + QuantOS Design System | token 集中管理；状态必须有文字、图标、语义色和读屏标签 |
 | 服务端状态 | TanStack Query | 统一 query key、缓存、失效、重试和实时投影合并；领域真相不进 Zustand |
 | 本地 UI 状态 | Zustand | 仅布局、抽屉、筛选偏好和未提交草稿；交易命令和权限禁止持久化 |
@@ -67,10 +66,10 @@
 | 国际化 | next-intl | 首发中英文；时间、币种、数字格式统一；安全文案不可随意改写 |
 | 契约 | OpenAPI + 生成式 TypeScript client；Proto/JSON Schema 为领域事实来源 | 禁止页面手写重复 DTO；Buf breaking 与 client generation diff 进入 CI |
 | 实时 | SSE 为任务/事件流默认方案，WebSocket 仅用于确需双向或聚合频道的场景 | 必须支持游标续传、乱序/重复去重、断线回补和权限变更断开 |
-| 测试 | Vitest + React Testing Library + MSW + Playwright + axe + 视觉回归 | fixture 固定 clock/ID；Web/Desktop 共享业务用例 |
+| 测试 | Vitest + React Testing Library + MSW + Playwright + axe + 视觉回归 | fixture 固定 clock/ID；覆盖目标 Web 浏览器 |
 | 组件文档 | Storybook | 覆盖默认、加载、空、错误、无权、陈旧、离线、危险确认状态 |
 | 观测 | Sentry/OTel Web SDK（按隐私策略启用） | 错误含 correlation ID；token、密钥、完整敏感载荷不得上报 |
-| 包管理/构建 | 现有 pnpm workspace；Next.js 构建；Tauri build | 锁文件、Node/pnpm 版本固定；正式制品生成 manifest、SBOM 与签名 |
+| 包管理/构建 | 现有 pnpm workspace；Next.js 构建 | 锁文件、Node/pnpm 版本固定；Web 制品生成 manifest 与 SBOM |
 
 ## 3. 前期准备阶段（FEP-0，建议 2 周）
 
@@ -86,7 +85,7 @@
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：工程运行时、设计系统、接口台账、环境、测试底座
 - 主要后端依赖：F01–F06，尤其 F03/F06
-- 交付节点与放行条件：G0：栈、OpenAPI、会话、错误、mock、双端 PoC 冻结
+- 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结
 - 范围说明：PRE-01–PRE-06 的准备里程碑；契约冻结与 PoC 不替代 A1–A6 的全量 API 开发及 provider Gate。
 
 <a id="review-fep-0"></a>
@@ -113,7 +112,7 @@
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-01)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：需求拆解
-- 主要动作：将官网页面、P01–P23、全局壳、角色、状态和关键流程拆为 story；每项标注 P0/P1、角色、路由、平台和风险级别
+- 主要动作：将官网页面、P01–P15/P17–P23、全局壳、角色、状态和关键流程拆为 Web story；每项标注 P0/P1、角色、路由和风险级别
 - 产出：页面台账、路由/权限矩阵、验收场景表
 - 完成标准：页面覆盖率 100%；每页至少有默认/加载/空/错误/无权/陈旧/离线状态
 
@@ -161,9 +160,9 @@
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-03)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：技术栈落地
-- 主要动作：在现有 workspace 引入并验证目标依赖；建立 Next.js Web/Terminal 与 Tauri 加载 PoC
-- 产出：运行时 ADR、依赖锁、最小构建与双端 smoke
-- 完成标准：新环境 ≤30 分钟完成 bootstrap/build/test；Web 与 Desktop 打开同一路由
+- 主要动作：在现有 workspace 引入并验证目标依赖；建立 Next.js 官网与 Web Terminal PoC
+- 产出：运行时 ADR、依赖锁、最小 Web 构建与路由 smoke
+- 完成标准：新环境 ≤30 分钟完成 bootstrap/build/test；官网与 Web Terminal 目标路由可打开
 
 <a id="review-pre-03"></a>
 ##### GPT-6 Astra 功能复审
@@ -209,7 +208,7 @@
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-05)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：环境方案
-- 主要动作：建立 local/mock、local-integrated、staging、desktop 四套配置，定义 BFF origin、OIDC callback、feature flags、观测和测试账号
+- 主要动作：建立 local/mock、local-integrated、staging 三套 Web 配置，定义 BFF origin、OIDC callback、feature flags、观测和测试账号
 - 产出：`.env.example`、配置校验、开发说明
 - 完成标准：缺必需变量 fail-fast；客户端 bundle 不含 server secret；环境/mode 明确分离
 
@@ -253,7 +252,7 @@
 - BFF 发布版本化 OpenAPI，至少冻结会话/上下文、Research、DataSnapshot、Strategy、Portfolio/Risk、Proposal/Approval/Order 与统一错误模型；未实现接口允许 mock，但 schema 不允许另起一套。
 - 生成 client 与 Proto/JSON Schema 一致性检查进入 CI；现有手写 `InMemory*Backend` 已迁移为实现生成接口的测试 adapter，或明确标记为待删除。
 - 页面台账能追踪到 `页面 → 前端任务 → BFF 契约 → 后端计划任务 → 测试用例 → Gate`。
-- Web/Desktop 共享页面 PoC、OIDC callback PoC、SSE 断线续传 PoC、Tauri 深链 PoC 均通过。
+- Web 页面 PoC、OIDC callback PoC、SSE 断线续传 PoC 均通过。
 - 产品、前端、BFF、QA、安全与风控签署 G0 记录；未冻结项有责任人、截止日和兼容策略。
 
 ## 4. 页面 API 前置与前端迭代计划
@@ -284,7 +283,7 @@
 | I5 | W23–W24 | FRONTEND | FEP-5：preflight → 审批 → Command/Order |
 | I6 | W25–W26 | FRONTEND | FEP-5：对账；完成 G5 |
 | I7 | W27–W28 | FRONTEND | FEP-4：订单标记、Performance/报表；完成 G4 |
-| I8 | W29–W30 | FRONTEND | FEP-6：Alerts → Operations/Admin → Desktop |
+| I8 | W29–W30 | FRONTEND | FEP-6：Alerts → Operations/Admin |
 | I9 | W31–W32 | MILESTONE | FEP-7：全量硬化与 Beta |
 | I10 | W33–W34 | MILESTONE | FEP-8：M5 testnet 评审准备 |
 
@@ -305,8 +304,8 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-000)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：建立页面 BFF OpenAPI 基线；统一 session 注入、错误 envelope、cursor 分页、sort/filter、202 job、Idempotency-Key、ETag/objectVersion、correlation ID、SSE event envelope；生成 TS client/Zod/MSW
-- 领域接口背景：F03 有领域 Proto/OpenAPI 生成，但无 P01–P23 完整页面 API 清单
-- 覆盖契约/页面：C01–C17；P01–P23
+- 领域接口背景：F03 有领域 Proto/OpenAPI 生成，但无第一期 22 个 Web Terminal 页面完整 API 清单
+- 覆盖契约/页面：C01–C17；P01–P15/P17–P23
 - 目标阶段与验收：FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI
 
 <a id="review-bff-fe-000"></a>
@@ -569,19 +568,19 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - fix_tracking: []
 
 <a id="task-bff-fe-011"></a>
-##### BFF-FE-011：Web/Desktop 平台能力 API
+##### BFF-FE-011：Web 浏览器平台能力 API
 
 - task_id: `BFF-FE-011`
 - task_type: `PAGE_API`
 - iteration: `A6`
-- depends_on: ["BFF-FE-001", "BFF-FE-010", "CORE:L02", "CORE:L03"]
+- depends_on: ["BFF-FE-001", "BFF-FE-010"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-011)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：server-visible PlatformCapabilities；desktop update manifest/diagnostic job/download record；browser capability policy/permission state；deep-link exchange；平台降级说明；不得返回 token/secret/本地敏感缓存内容
-- 领域接口背景：L02/L03 与平台方案定义安全边界，但未定义 Desktop/Web capability 与下载/诊断页面模型
-- 覆盖契约/页面：C17；P16/P17
-- 目标阶段与验收：FEP-6/G6：Web/Desktop capability contract 一致；深链重新鉴权；签名更新、短时下载、离线只读与敏感字段负向测试通过
+- 需求描述：server-visible BrowserCapabilities、浏览器权限策略/permission state、下载记录与平台降级说明；不得返回 token、secret 或本地敏感内容
+- 领域接口背景：浏览器权限和下载策略需要页面级 BFF 模型，不能直接暴露内部会话或存储实现
+- 覆盖契约/页面：C17；P17
+- 目标阶段与验收：FEP-1/G1：浏览器 capability、permission state、短时下载与敏感字段负向测试通过
 
 <a id="review-bff-fe-011"></a>
 ###### GPT-6 Astra 功能复审
@@ -596,7 +595,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 
 以下 `UI-Pxx` 是各阶段 UI 任务的交付子任务。`design/` 中列出的有效稿是页面默认态的内容结构与视觉基准；若同一页面存在多个版本，以本节指定版本为准，旧版本仅保留追溯。开发必须将设计稿制作成可运行、可路由、可鉴权、可访问且接入生成式 BFF client 的 React 页面，同时按设计规范补齐加载、空、错误、无权、陈旧、离线/断线和危险确认状态。设计稿中的示例数据只能进入 Storybook/MSW fixture，不能硬编码进生产页面。
 
-每个 `UI-Pxx` 任务关闭时必须附：设计稿对照截图、路由与权限测试、七态 Storybook、MSW 契约用例、staging 接口证据、键盘/axe 结果、1440 视觉回归、至少一个目标浏览器 E2E；有 Desktop 差异的页面还需 Tauri E2E。仅提交静态 HTML、截图复刻或无接口组件不视为完成。
+每个 `UI-Pxx` 任务关闭时必须附：设计稿对照截图、路由与权限测试、七态 Storybook、MSW 契约用例、staging 接口证据、键盘/axe 结果、1440 视觉回归、至少一个目标浏览器 E2E。仅提交静态 HTML、截图复刻或无接口组件不视为完成。
 
 开发-复审流转：开发产物与测试齐备后 `REVIEW_READY → IN_REVIEW`；有问题进入 `CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW`，验证失败返回修复节点；无问题或问题全部验证关闭后 `ACCEPTED`，缺环境/依赖为 `BLOCKED`。`UI Complete → Integrated → Done` 保留原第 7.5 节定义，`ACCEPTED` 不能越过 staging 与所属 Gate；原接口状态链保持独立。
 
@@ -652,7 +651,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - fix_tracking: []
 
 <a id="task-ui-vis-000"></a>
-##### UI-VIS-000：P01–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准
+##### UI-VIS-000：第一期 Web Terminal 共用视觉体系；以 P02 与 P20 v3 为全局基准
 
 - task_id: `UI-VIS-000`
 - task_type: `FRONTEND`
@@ -661,7 +660,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-vis-000)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：P01–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准
+- 需求描述：P01–P15/P17–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准
 - 实际页面/路由交付：App Shell、导航、顶栏、状态条、栅格、token、边框、表格、表单、图表、Badge、危险确认与状态语义
 - 契约绑定：C01、C16、C17
 - 所属阶段：FEP-0/1
@@ -732,7 +731,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - iteration: `I1`
 - depends_on: ["UI-101", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete / Contract Mocked。BFF-FE-001/011 staging 签署及 P16 cache/update/diagnostic operation 补齐后才可 Integrated。
+- 状态范围：已开发完成；UI Complete / Contract Mocked。BFF-FE-001/011 Web 契约完成 staging 签署后才可 Integrated。
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-104)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：Profile/安全/通知/浏览器能力
@@ -862,7 +861,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - 实际页面/路由交付：`/settings/browser`
 - 契约绑定：C17、BrowserCapabilities
 - 所属阶段：FEP-1
-- 页面级完成标准：浏览器权限、下载、存储、深链、兼容性与响应式能力检测落地；Desktop 不显示入口
+- 页面级完成标准：浏览器权限、下载、存储、兼容性与响应式能力检测落地；非浏览器能力不进入一期范围
 
 <a id="review-ui-p17"></a>
 ###### GPT-6 Astra 功能复审
@@ -887,7 +886,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot
 - 主要后端依赖：R02–R04、F07/F08、TP01–TP05、U01
-- 交付节点与放行条件：G2：固定输入可追溯与重放；取消 ≤2s；Web/Desktop 同用例全绿
+- 交付节点与放行条件：G2：固定输入可追溯与重放；取消 ≤2s；目标 Web 浏览器同用例全绿
 - 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
 
 <a id="review-fep-2"></a>
@@ -1750,7 +1749,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 #### 迭代 I8：W29–W30
 
 <a id="task-fep-6"></a>
-##### FEP-6：运维治理与跨端
+##### FEP-6：Web 运维治理
 
 - task_id: `FEP-6`
 - task_type: `MILESTONE`
@@ -1759,9 +1758,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-fep-6)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：P13、P14、P16、P23；Operations、Admin、Alerts、桌面能力
+- 需求描述：P13、P14、P23；Operations、Admin、Alerts
 - 主要后端依赖：F09、X05/X06、Auth/Policy/Incident/Alert API
-- 交付节点与放行条件：G6：受控 Runbook、职责分离、通知/深链/窗口/离线安全通过
+- 交付节点与放行条件：G6：受控 Runbook、职责分离、Web 通知、权限与离线禁写通过
 - 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
 
 <a id="review-fep-6"></a>
@@ -1917,54 +1916,6 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
-<a id="task-ui-604"></a>
-##### UI-604：Tauri adapter 与 P16
-
-- task_id: `UI-604`
-- task_type: `FRONTEND`
-- iteration: `I8`
-- depends_on: ["UI-602", "UI-104", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-ui-604)
-- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：Tauri adapter 与 P16
-- 接口绑定：C17、平台接口
-- 验收重点：业务组件无 `isDesktop` 分叉；离线只读；深链重新鉴权；签名更新验证
-
-<a id="review-ui-604"></a>
-###### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-ui-p16"></a>
-##### UI-P16：P16-Desktop-Control-Center-High-Fidelity-v2.png
-
-- task_id: `UI-P16`
-- task_type: `FRONTEND`
-- iteration: `I8`
-- depends_on: ["UI-604", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-ui-p16)
-- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：`P16-Desktop-Control-Center-High-Fidelity-v2.png`
-- 实际页面/路由交付：`/settings/desktop`
-- 契约绑定：C17、PlatformCapabilities
-- 所属阶段：FEP-6
-- 页面级完成标准：通知、窗口/显示器、文件导入、加密缓存、更新与诊断通过 Tauri adapter；Web 显示受限态
-
-<a id="review-ui-p16"></a>
-###### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
 #### 迭代 I9：W31–W32
 
 <a id="task-fep-7"></a>
@@ -1973,7 +1924,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `FEP-7`
 - task_type: `MILESTONE`
 - iteration: `I9`
-- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P01", "UI-P02", "UI-P03", "UI-P04", "UI-P05", "UI-P06", "UI-P07", "UI-P08", "UI-P09", "UI-P10", "UI-P11", "UI-P12", "UI-P13", "UI-P14", "UI-P15", "UI-P16", "UI-P17", "UI-P18", "UI-P19", "UI-P20", "UI-P21", "UI-P22", "UI-P23", "WEB-101"]
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P01", "UI-P02", "UI-P03", "UI-P04", "UI-P05", "UI-P06", "UI-P07", "UI-P08", "UI-P09", "UI-P10", "UI-P11", "UI-P12", "UI-P13", "UI-P14", "UI-P15", "UI-P17", "UI-P18", "UI-P19", "UI-P20", "UI-P21", "UI-P22", "UI-P23", "WEB-101"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-fep-7)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -2003,7 +1954,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-fep-8)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：P10/P11/P16 的 testnet 条件入口、MFA、双人审批、签名更新
+- 需求描述：P10/P11 的 testnet 条件入口、MFA 与双人审批
 - 主要后端依赖：L01–L04，且仅 testnet
 - 交付节点与放行条件：G8：flag 关闭时 UI/API 不可达；只形成评审证据，不开启生产实盘
 - 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
@@ -2021,7 +1972,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 
 ### 5.1 契约状态说明
 
-《可执行开发计划》冻结的是领域对象、协议元数据、错误稳定性、幂等/审计要求和业务时序，并没有给出 P01–P23 完整 REST URL 与统一 JSON envelope。下表中的 C01–C17 是前端需要 BFF 冻结的**逻辑契约包**，不是对尚未发布 HTTP 路径的臆造。实际路径、method、分页格式和 envelope 必须以版本化 OpenAPI 为准；页面只能引用生成 client。
+《可执行开发计划》冻结的是领域对象、协议元数据、错误稳定性、幂等/审计要求和业务时序，并没有给出第一期 22 个 Web Terminal 页面完整 REST URL 与统一 JSON envelope。下表中的 C01–C17 是前端需要 BFF 冻结的**逻辑契约包**，不是对尚未发布 HTTP 路径的臆造。实际路径、method、分页格式和 envelope 必须以版本化 OpenAPI 为准；页面只能引用生成 client。
 
 ### 5.2 页面—接口—后端任务映射
 
@@ -2043,7 +1994,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 | C14 Performance/Report | P21 | performance query、create/poll/download report | accountId、currency、method、ledgerVersion、valuationSnapshotId、coverage、asOf、P&L/return/drawdown/fees、provisional；period/reportVersion | X01/X05，需 BFF 新增页面模型 |
 | C15 Reconciliation | P22/P21/P11 | list/get/request rerun、status realtime | runId、accountId、venue、window、ledgerVersion、matched/investigating/resolved、breakId、internal/external values、reason、evidenceRefs | X05 |
 | C16 Alert/Notification | P02/P13/P23、全局 | list/get/ack/unack/subscriptions、authorized realtime | alertId、severity、domain、account/venue、status、occurredAt、asOf、objectRef、correlationId、ackActor/At | F09、X05/X06 |
-| C17 Settings/Platform | P15/P16/P17 | profile/session/device/notification/download query/commands | locale、timezone、theme、session/device、notification permission、download record；不得包含领域秘密 | F06、F09、L02/L03 |
+| C17 Settings/Browser Platform | P15/P17 | profile/session/device/notification/download query/commands | locale、timezone、theme、session/device、browser notification permission、download record；不得包含领域秘密 | F06、F09 |
 
 ### 5.3 字段与序列化规则
 
@@ -2057,7 +2008,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 | hash/version | content/source/image/parameter/input/environment/report hash 与 objectVersion/ETag | 完整保留；危险动作前刷新并携带 expected version，409 不自动覆盖 |
 | 可空性 | OpenAPI `required`/nullable 与 Proto field behavior 对齐 | 不用空字符串代替缺失；新增可选字段向后兼容，移除/改义属于 breaking |
 | 分页/排序 | BFF 必须统一 cursor、pageSize、sort、filter 结构 | 大表只做服务端分页/排序/筛选；游标不持久化为领域数据 |
-| 敏感字段 | BFF 先脱敏；Vault/venue/model secret 永不进入 schema | 日志、URL、analytics、Sentry、导出与桌面缓存均做负向检查 |
+| 敏感字段 | BFF 先脱敏；Vault/venue/model secret 永不进入 schema | 日志、URL、analytics、Sentry、导出与浏览器存储均做负向检查 |
 
 JSON 字段命名以 OpenAPI 生成结果为准。若采用 Proto JSON 映射，应统一输出 lowerCamelCase；任何 snake_case ↔ camelCase 转换只能集中在生成/transport 层，页面组件不得自行映射。
 
@@ -2098,7 +2049,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 每个页面开始开发前建立一行 `Page API Coverage` 记录，最少包含：页面 ID、有效设计稿、路由、query operationId、command operationId、realtime channel/operationId、权限/capability、错误码集合、数据新鲜度字段、OpenAPI 版本、mock 版本、BFF owner 和最后验证时间。满足以下条件才算接口覆盖完成：
 
 1. 页面展示的每个服务端字段都能追溯到 OpenAPI/领域 schema；不存在仅见于设计稿而无契约来源的业务字段。
-2. 页面每个按钮均映射为明确的本地 UI 动作、BFF command 或平台 adapter 动作；危险按钮必须有服务端可操作性与版本校验。
+2. 页面每个按钮均映射为明确的本地 UI 动作或 BFF command；危险按钮必须有服务端可操作性与版本校验。
 3. 列表、详情、异步任务和实时事件分别有分页、终态、断线恢复和错误契约；不能用轮询/本地状态暗中替代未定义时序。
 4. 默认、加载、空、错误、无权、陈旧、离线和危险确认状态均有 fixture，并至少一次在 staging 用真实 BFF 验证。
 5. 契约变更报告能从 operationId 反查所有受影响的 `UI-Pxx` 任务和视觉/E2E 基线。
@@ -2111,7 +2062,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 2. **生成与 mock：** CI 生成 TS client、Zod/fixture 类型；MSW 从同一契约提供成功、拒绝、冲突、限流、断流、陈旧与权限场景。
 3. **Provider contract：** BFF 对 OpenAPI 示例运行响应校验；前端 consumer contract 对 staging BFF 运行，不允许仅 mock 通过。
 4. **功能联调：** 按“单接口 smoke → 页面 query → command → realtime → 审计链 → 故障恢复”的顺序，每个接口记录 owner、环境、版本、证据和遗留项。
-5. **Gate 回归：** 每阶段结束运行该阶段全部场景、全局安全回归、Web/Desktop 共用 E2E；契约未通过则阶段不能标为完成。
+5. **Gate 回归：** 每阶段结束运行该阶段全部场景、全局安全回归和目标浏览器 E2E；契约未通过则阶段不能标为完成。
 
 ### 6.2 一致性自动校验
 
@@ -2120,7 +2071,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 - 前端禁止直接 import 内部数据库 DTO 或第三方 Engine/venue 类型；ESLint boundary rule 强制 `page → api-client/domain-ui`。
 - 所有 command 测试断言 Idempotency-Key、request ID、correlation ID、expectedVersion 和审计事件。
 - Realtime 测试覆盖重复、乱序、断连、漏通知、权限撤销和 schema version 不兼容。
-- 敏感字段字典对网络响应、前端日志、监控事件、URL、下载和桌面缓存做自动扫描。
+- 敏感字段字典对网络响应、前端日志、监控事件、URL、下载和浏览器存储做自动扫描。
 
 ### 6.3 跨域与浏览器安全配置
 
@@ -2128,7 +2079,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 |---|---|
 | 同源优先 | 生产通过同站 BFF 路由；若必须跨域，仅允许明确的 Web/预览 origin allowlist，禁止 `*` + credentials |
 | CORS | 限定 methods/headers；允许 `Idempotency-Key`、request/correlation/trace headers；预检缓存有版本化变更测试 |
-| Cookie/CSRF | Secure、HttpOnly、SameSite；所有有副作用请求校验 CSRF token/origin；Tauri 使用受控回调与短时会话 |
+| Cookie/CSRF | Secure、HttpOnly、SameSite；所有有副作用请求校验 CSRF token/origin |
 | CSP | 默认拒绝；script/style/connect/img/font/frame 分别 allowlist；Sentry/WS/SSE 域名单独审计 |
 | 下载/上传 | 短时签名 URL、内容类型/大小限制、恶意内容扫描、水印与导出审计；不让 Engine 直接读取本地文件 |
 | 缓存 | 会话/受限响应 `no-store`；静态制品内容寻址；Service Worker 不缓存命令响应或敏感审计数据 |
@@ -2148,13 +2099,13 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 | 层级 | 覆盖要求 | 阻断标准 |
 |---|---|---|
 | 单元 | 领域组件/状态/格式化/权限解释/错误映射/stream reducer；TypeScript 新增领域代码行覆盖率 ≥80%，关键风险状态分支 100% | 任一 P0 状态分支缺失或覆盖率下降则阻断 |
-| 组件 | P01–P23 的默认、加载、空、错误、无权、陈旧、离线、危险确认；Storybook + RTL + axe | 严重/高等级 a11y 问题为 0 |
+| 组件 | P01–P15/P17–P23 的默认、加载、空、错误、无权、陈旧、离线、危险确认；Storybook + RTL + axe | 严重/高等级 a11y 问题为 0 |
 | 契约 | OpenAPI schema、错误码、枚举、字段精度、分页、幂等、版本冲突、实时事件 | consumer/provider 任一不一致则阻断联调完成 |
 | 集成 | TanStack Query 缓存/失效、OIDC、MFA、MSW/staging、SSE/WS、平台 adapter | mock 与 staging 行为不同或丢 correlation ID 则阻断 |
-| E2E | 每角色关键旅程；研究、策略、风险审批、订单、审计、对账、运维；Web/Desktop 共用场景 | P0 旅程通过率 100%，不得以重跑掩盖 flaky |
+| E2E | 每角色关键 Web 旅程；研究、策略、风险审批、订单、审计、对账、运维 | P0 旅程通过率 100%，不得以重跑掩盖 flaky |
 | 视觉 | 1280/1440 宽屏、768 折叠、390 只读、深浅主题、关键危险状态 | 关键页面无未批准差异；其余像素差异阈值 ≤0.5% |
-| 兼容 | Chromium/Firefox/Safari 当前稳定版；Desktop macOS/Windows；200% 缩放 | P0 功能/布局/键盘任一失败则阻断发布 |
-| 安全 | 越权、IDOR、CSRF/CSP/CORS、XSS、敏感字段、缓存、深链、离线、依赖与 secret scan | 高危=0；未豁免中危=0；交易边界绕过=0 |
+| 兼容 | Chromium/Firefox/Safari 当前稳定版；200% 缩放 | P0 功能/布局/键盘任一失败则阻断发布 |
+| 安全 | 越权、IDOR、CSRF/CSP/CORS、XSS、敏感字段、浏览器缓存、离线、依赖与 secret scan | 高危=0；未豁免中危=0；交易边界绕过=0 |
 
 ### 7.2 必测 E2E 场景
 
@@ -2165,11 +2116,11 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 5. 已批准 command 重复提交 1,000 次仅产生一个命令/订单事实；页面不在 ack 前显示成交。
 6. 订单部分成交、拒绝、撤单延迟、断流回补；每个 Fill 可追溯 Proposal、RiskDecision、Approval、Command、Release 和 Snapshot。
 7. 对账注入差异后，Orders/Performance/Alerts/Audit 一致显示 provisional/Investigating，且 UI 无改账入口。
-8. 断网后 Web 与 Desktop 全部写操作禁用；Desktop 仅显示加密非敏感只读缓存，恢复后不自动提交旧意图。
+8. 断网后 Web 全部写操作禁用；恢复连接后不自动提交旧意图。
 
 ### 7.3 页面还原度与功能完整性
 
-- P01–P23 页面、路由、角色、主操作、文案、字段和状态与设计规格逐项对照，需求覆盖率 100%。
+- P01–P15、P17–P23 页面、路由、角色、主操作、文案、字段和状态与设计规格逐项对照，第一期 Web 需求覆盖率 100%。
 - 关键组件（App Shell、ModeBanner、DataGrid、EvidenceTimeline、RiskDecision、OrderStateMachine、DangerConfirmDialog）视觉基线由设计 owner 签署；关键页面设计验收评分 ≥95/100。
 - 所有金融数值显示币种、精度、时区、`as_of` 与口径；所有证据对象显示 hash/版本/关联 ID。
 - 所有危险动作只有一个明确主按钮，默认不获焦；状态变化来自服务端事实。
@@ -2201,11 +2152,10 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 | 设计变更 | 已开发页面结构/安全文案变化 | 视觉和交互返工 | token/组件优先；设计在 Sprint 前签署；安全含义变更需产品+风控复审 | Product + Design |
 | 设计稿状态不全 | 缺错误/无权/陈旧/离线稿 | 边界状态临时发挥 | G0 必须补齐七态；未补齐页面不进 Sprint | Design owner |
 | 实时链路不稳定 | 断线、重复、乱序、quota >70% | 状态错乱、重复提示 | cursor 回补、eventId 去重、轮询降级、只读降级；事实始终回查 BFF | BFF + FE |
-| 权限/交易边界缺陷 | UI 可见越权数据或可绕过 Risk | 高危安全风险 | 默认拒绝、服务端权威、七类 E2E、IDOR/深链/缓存扫描；立即阻断发布 | Security + Risk |
-| Web/Desktop 分叉 | 出现 `isDesktop` 业务判断或重复页面 | 双端语义不一致 | boundary lint、共享 E2E、平台接口评审；业务逻辑 PR 拒绝平台分叉 | FE TL |
+| 权限/交易边界缺陷 | UI 可见越权数据或可绕过 Risk | 高危安全风险 | 默认拒绝、服务端权威、七类 E2E、IDOR/缓存扫描；立即阻断发布 | Security + Risk |
 | 图表/大表性能 | 10k+ 行或高频 candle 卡顿 | 专业使用不可用 | 虚拟化、服务端聚合、增量更新、路由拆包；阶段内做性能基线 | FE Performance owner |
 | 第三方/许可问题 | CVE、许可证或上游 breaking | 构建/发布阻断 | 锁版本、SBOM、许可 Gate、adapter 隔离和替代方案；不让上游类型进入 UI | Supply-chain owner |
-| 跨浏览器/OS CI 晚暴露 | Firefox/WebKit/macOS/Windows 失败 | Beta 延期 | 从 FEP-1 起每 PR 跑 Chromium，夜间跑全矩阵；每阶段至少一次完整矩阵 | QA |
+| 跨浏览器 CI 晚暴露 | Firefox/WebKit 失败 | Beta 延期 | 从 FEP-1 起每 PR 跑 Chromium，夜间跑浏览器矩阵；每阶段至少一次完整矩阵 | QA |
 | 人员/估算偏差 | Sprint burn-up 偏差 >20% | 里程碑滑动 | P0/P1 分层；锁定安全与契约任务，不删测试；官网/P1 报表或平台增强可后移 | PM + FE TL |
 
 ### 8.1 排期控制规则
@@ -2226,7 +2176,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 | BFF TL | OpenAPI、错误 envelope、权限裁剪、幂等、实时回补、correlation/审计 |
 | Product/Design | 页面台账、优先级、七态设计、文案、还原度 |
 | QA | fixture、契约/E2E/视觉/兼容矩阵、缺陷出口标准 |
-| Security | OIDC/MFA、CSP/CORS/CSRF、敏感字段、Tauri capability、供应链 |
+| Security | OIDC/MFA、CSP/CORS/CSRF、敏感字段、浏览器权限、供应链 |
 | Risk/Compliance | Proposal/Risk/Approval/Command 时序、模式/限额/kill switch、审计与导出 |
 | SRE | staging、观测、性能采样、故障注入、Runbook 与发布回滚 |
 
@@ -2234,13 +2184,12 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 
 ## 10. 最终发布检查表
 
-- [ ] 官网首期页面与 Terminal P01–P23 的范围、角色、路由和七态全部交付。
+- [ ] 官网首期页面与 Web Terminal P01–P15、P17–P23 的范围、角色、路由和七态全部交付。
 - [ ] OpenAPI/Proto/JSON Schema/TS client 无未解释 diff，provider/consumer contract 全绿。
 - [ ] Research、Strategy、Proposal → Risk → Approval → Command → Order → Reconciliation → Audit 全链路均有真实 BFF E2E 证据。
-- [ ] Web/Desktop 共享业务代码和 E2E；平台差异只存在于 `packages/platform`。
 - [ ] Proposal 无执行入口；客户端无 command 构造、venue 直连、密钥、离线写或乐观成交。
 - [ ] 401/403/404/409/422/429/5xx、断线、陈旧、权限撤销和未知枚举均 fail closed。
 - [ ] WCAG 2.2 AA、视觉、性能、兼容、安全和供应链 Gate 达标。
 - [ ] 每笔抽样订单可在 5 分钟内还原完整证据链；每个错误可凭 correlation ID 定位。
 - [ ] Paper/Shadow 清晰区分；M5 flag 关闭时 Assisted Live UI/API 100% 不可达；Guarded Live 不存在。
-- [ ] 发布、灰度、回滚、桌面签名更新、告警与 Runbook 均已演练并归档。
+- [ ] Web 发布、灰度、回滚、告警与 Runbook 均已演练并归档。
