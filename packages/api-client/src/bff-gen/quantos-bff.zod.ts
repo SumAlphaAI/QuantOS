@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.2.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.3.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -187,6 +187,86 @@ export const BrowserCapabilityPolicySchema = z.object({
   "businessPagesNoIndex": z.literal(true),
   "cspEnforced": z.boolean(),
   "sessionProtected": z.boolean(),
+});
+
+export const AuditEventSchema = z.object({
+  "eventId": z.lazy(() => UUIDSchema),
+  "correlationId": z.lazy(() => UUIDSchema),
+  "causationId": z.lazy(() => UUIDSchema).optional(),
+  "sequence": z.number().int().min(1),
+  "kind": z.string(),
+  "actor": z.string().describe("已脱敏的 actor 显示名或服务主体"),
+  "objectRef": z.string(),
+  "occurredAt": z.lazy(() => DateTimeSchema),
+  "redactionApplied": z.literal(true),
+  "redactedPayload": z.object({
+
+}).describe("只允许服务端脱敏后输出；密钥、token、完整账户标识禁止出现"),
+  "payloadHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "retentionUntil": z.lazy(() => DateTimeSchema),
+});
+
+export const AuditEventPageSchema = z.intersection(z.lazy(() => PageSchema), z.object({
+  "items": z.array(z.lazy(() => AuditEventSchema)),
+}));
+
+export const EvidenceNodeSchema = z.object({
+  "eventId": z.lazy(() => UUIDSchema),
+  "causationId": z.lazy(() => UUIDSchema).optional(),
+  "sequence": z.number().int().min(1),
+  "kind": z.string(),
+  "objectRef": z.string(),
+  "occurredAt": z.lazy(() => DateTimeSchema),
+  "payloadHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "route": z.string().regex(new RegExp("^/")).describe("只含资源引用，不含 token"),
+  "retentionUntil": z.lazy(() => DateTimeSchema),
+});
+
+export const EvidenceChainPageSchema = z.object({
+  "correlationId": z.lazy(() => UUIDSchema),
+  "items": z.array(z.lazy(() => EvidenceNodeSchema)),
+  "nextCursor": z.string().optional(),
+  "complete": z.boolean().describe("true 仅表示当前授权范围内证据链完整"),
+});
+
+export const ExportScopeSchema = z.object({
+  "correlationIds": z.array(z.lazy(() => UUIDSchema)).min(1).max(100),
+  "eventKinds": z.array(z.string()).max(50).optional(),
+  "startAt": z.lazy(() => DateTimeSchema).optional(),
+  "endAt": z.lazy(() => DateTimeSchema).optional(),
+}).strict();
+
+export const ExportRequestSchema = z.object({
+  "scope": z.lazy(() => ExportScopeSchema),
+  "format": z.enum(["jsonl","csv","pdf"]),
+  "reason": z.string().min(8).max(500),
+  "watermark": z.string().min(3).max(120),
+  "retentionDays": z.number().int().min(1).max(30),
+}).strict();
+
+export const ExportJobSchema = z.object({
+  "exportId": z.lazy(() => UUIDSchema),
+  "status": z.enum(["queued","generating","ready","cancel_requested","cancelled","expired","failed"]),
+  "format": z.enum(["jsonl","csv","pdf"]),
+  "requestedBy": z.string(),
+  "requestedAt": z.lazy(() => DateTimeSchema),
+  "completedAt": z.lazy(() => DateTimeSchema).optional(),
+  "watermark": z.string(),
+  "retentionUntil": z.lazy(() => DateTimeSchema),
+  "correlationId": z.lazy(() => UUIDSchema),
+  "auditRef": z.lazy(() => UUIDSchema),
+});
+
+export const ExportDownloadMetadataSchema = z.object({
+  "exportId": z.lazy(() => UUIDSchema),
+  "downloadUrl": z.string().url().describe("一次性不透明签名 URL，最长 5 分钟"),
+  "expiresAt": z.lazy(() => DateTimeSchema),
+  "sha256": z.string().regex(new RegExp("^[a-f0-9]{64}$")),
+  "sizeBytes": z.number().int().min(1),
+  "mediaType": z.string(),
+  "watermarked": z.literal(true),
+  "retentionUntil": z.lazy(() => DateTimeSchema),
+  "auditRef": z.lazy(() => UUIDSchema),
 });
 
 export const ResearchRunSchema = z.object({
@@ -400,6 +480,14 @@ export const bffZodSchemas = {
   TrustedDevice: TrustedDeviceSchema,
   DownloadRecord: DownloadRecordSchema,
   BrowserCapabilityPolicy: BrowserCapabilityPolicySchema,
+  AuditEvent: AuditEventSchema,
+  AuditEventPage: AuditEventPageSchema,
+  EvidenceNode: EvidenceNodeSchema,
+  EvidenceChainPage: EvidenceChainPageSchema,
+  ExportScope: ExportScopeSchema,
+  ExportRequest: ExportRequestSchema,
+  ExportJob: ExportJobSchema,
+  ExportDownloadMetadata: ExportDownloadMetadataSchema,
   ResearchRun: ResearchRunSchema,
   DataSnapshot: DataSnapshotSchema,
   Artifact: ArtifactSchema,

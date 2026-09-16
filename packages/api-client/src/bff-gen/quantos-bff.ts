@@ -856,6 +856,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/audit/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 服务端搜索已授权且字段级脱敏的审计事件 */
+        get: operations["searchAuditEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/audit/evidence-chains/{correlationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 按 correlation ID 分页还原 causation 证据链 */
+        get: operations["getEvidenceChain"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 创建受控导出；范围、理由、水印和 retention 全部写审计 */
+        post: operations["createExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/exports/{exportId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 查询导出状态；不在状态响应中携带签名 URL */
+        get: operations["getExportStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/exports/{exportId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 取消未过期导出；终态作业返回 409 */
+        post: operations["cancelExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/exports/{exportId}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 为 ready 导出签发一次性短时下载元数据 */
+        get: operations["getExportDownload"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1076,6 +1178,94 @@ export interface components {
             businessPagesNoIndex: true;
             cspEnforced: boolean;
             sessionProtected: boolean;
+        };
+        AuditEvent: {
+            eventId: components["schemas"]["UUID"];
+            correlationId: components["schemas"]["UUID"];
+            causationId?: components["schemas"]["UUID"];
+            /** Format: int64 */
+            sequence: number;
+            kind: string;
+            /** @description 已脱敏的 actor 显示名或服务主体 */
+            actor: string;
+            objectRef: string;
+            occurredAt: components["schemas"]["DateTime"];
+            /** @enum {boolean} */
+            redactionApplied: true;
+            /** @description 只允许服务端脱敏后输出；密钥、token、完整账户标识禁止出现 */
+            redactedPayload: {
+                [key: string]: unknown;
+            };
+            payloadHash: string;
+            retentionUntil: components["schemas"]["DateTime"];
+        };
+        AuditEventPage: components["schemas"]["Page"] & {
+            items: components["schemas"]["AuditEvent"][];
+        };
+        EvidenceNode: {
+            eventId: components["schemas"]["UUID"];
+            causationId?: components["schemas"]["UUID"];
+            /** Format: int64 */
+            sequence: number;
+            kind: string;
+            objectRef: string;
+            occurredAt: components["schemas"]["DateTime"];
+            payloadHash: string;
+            /** @description 只含资源引用，不含 token */
+            route: string;
+            retentionUntil: components["schemas"]["DateTime"];
+        };
+        EvidenceChainPage: {
+            correlationId: components["schemas"]["UUID"];
+            items: components["schemas"]["EvidenceNode"][];
+            nextCursor?: string;
+            /** @description true 仅表示当前授权范围内证据链完整 */
+            complete: boolean;
+        };
+        ExportScope: {
+            correlationIds: components["schemas"]["UUID"][];
+            eventKinds?: string[];
+            startAt?: components["schemas"]["DateTime"];
+            endAt?: components["schemas"]["DateTime"];
+        };
+        ExportRequest: {
+            scope: components["schemas"]["ExportScope"];
+            /** @enum {string} */
+            format: "jsonl" | "csv" | "pdf";
+            reason: string;
+            watermark: string;
+            retentionDays: number;
+        };
+        ExportJob: {
+            exportId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            status: "queued" | "generating" | "ready" | "cancel_requested" | "cancelled" | "expired" | "failed";
+            /** @enum {string} */
+            format: "jsonl" | "csv" | "pdf";
+            requestedBy: string;
+            requestedAt: components["schemas"]["DateTime"];
+            completedAt?: components["schemas"]["DateTime"];
+            watermark: string;
+            retentionUntil: components["schemas"]["DateTime"];
+            correlationId: components["schemas"]["UUID"];
+            auditRef: components["schemas"]["UUID"];
+        };
+        ExportDownloadMetadata: {
+            exportId: components["schemas"]["UUID"];
+            /**
+             * Format: uri
+             * @description 一次性不透明签名 URL，最长 5 分钟
+             */
+            downloadUrl: string;
+            expiresAt: components["schemas"]["DateTime"];
+            sha256: string;
+            /** Format: int64 */
+            sizeBytes: number;
+            mediaType: string;
+            /** @enum {boolean} */
+            watermarked: true;
+            retentionUntil: components["schemas"]["DateTime"];
+            auditRef: components["schemas"]["UUID"];
         };
         ResearchRun: {
             runId: components["schemas"]["UUID"];
@@ -1341,6 +1531,16 @@ export interface components {
         };
         /** @description 限流（retryAfter 秒；不泄露账户存在性） */
         RateLimited: {
+            headers: {
+                "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["ErrorEnvelope"];
+            };
+        };
+        /** @description 受控资源已过期并不再可用；需重新创建导出 */
+        Gone: {
             headers: {
                 "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
                 [name: string]: unknown;
@@ -2952,6 +3152,185 @@ export interface operations {
                 };
             };
             403: components["responses"]["Forbidden"];
+        };
+    };
+    searchAuditEvents: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                correlationId?: string;
+                causationId?: string;
+                objectRef?: string;
+                kind?: string;
+                startAt?: components["schemas"]["DateTime"];
+                endAt?: components["schemas"]["DateTime"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 事件页；payload 已由服务端脱敏，不返回原始密钥、token 或完整账户标识 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventPage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
+        };
+    };
+    getEvidenceChain: {
+        parameters: {
+            query?: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+            };
+            header?: never;
+            path: {
+                correlationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 证据链页；哈希用于完整性校验，不代替 Artifact 授权 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceChainPage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createExport: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                "X-Reauth-Token-Ref": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportRequest"];
+            };
+        };
+        responses: {
+            /** @description 导出作业已受理，不代表已生成文件 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportJob"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
+        };
+    };
+    getExportStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exportId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 导出作业状态 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportJob"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    cancelExport: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                "X-Reauth-Token-Ref": string;
+            };
+            path: {
+                exportId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 取消已受理并记录审计 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportJob"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    getExportDownload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exportId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 短时签名 URL；不得写入日志或持久化到客户端 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportDownloadMetadata"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            410: components["responses"]["Gone"];
         };
     };
 }

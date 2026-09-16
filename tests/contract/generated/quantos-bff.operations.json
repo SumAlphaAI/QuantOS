@@ -1,8 +1,18 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "operations": [
+    {
+      "operationId": "cancelExport",
+      "method": "POST",
+      "path": "/v1/exports/{exportId}/cancel",
+      "tags": [
+        "audit"
+      ],
+      "responseSchema": "ExportJob",
+      "sse": false
+    },
     {
       "operationId": "cancelResearchRun",
       "method": "POST",
@@ -21,6 +31,16 @@
         "strategy"
       ],
       "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "createExport",
+      "method": "POST",
+      "path": "/v1/exports",
+      "tags": [
+        "audit"
+      ],
+      "responseSchema": "ExportJob",
       "sse": false
     },
     {
@@ -111,6 +131,36 @@
         "data"
       ],
       "responseSchema": "DataSnapshot",
+      "sse": false
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "method": "GET",
+      "path": "/v1/audit/evidence-chains/{correlationId}",
+      "tags": [
+        "audit"
+      ],
+      "responseSchema": "EvidenceChainPage",
+      "sse": false
+    },
+    {
+      "operationId": "getExportDownload",
+      "method": "GET",
+      "path": "/v1/exports/{exportId}/download",
+      "tags": [
+        "audit"
+      ],
+      "responseSchema": "ExportDownloadMetadata",
+      "sse": false
+    },
+    {
+      "operationId": "getExportStatus",
+      "method": "GET",
+      "path": "/v1/exports/{exportId}",
+      "tags": [
+        "audit"
+      ],
+      "responseSchema": "ExportJob",
       "sse": false
     },
     {
@@ -471,6 +521,16 @@
         "strategy"
       ],
       "responseSchema": "StrategyDraft",
+      "sse": false
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "method": "GET",
+      "path": "/v1/audit/events",
+      "tags": [
+        "audit"
+      ],
+      "responseSchema": "AuditEventPage",
       "sse": false
     },
     {

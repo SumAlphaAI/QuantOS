@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.2.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.3.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -11,8 +11,10 @@ export type BffMockResolver = (context: BffMockResolverContext) => Response | Pr
 export type BffMockResolvers = Partial<Record<BffOperationId, BffMockResolver>>;
 
 export type BffOperationId =
+  | "cancelExport"
   | "cancelResearchRun"
   | "createBacktest"
+  | "createExport"
   | "createRelease"
   | "createResearchRun"
   | "decideApproval"
@@ -22,6 +24,9 @@ export type BffOperationId =
   | "getBacktest"
   | "getContext"
   | "getDataSnapshot"
+  | "getEvidenceChain"
+  | "getExportDownload"
+  | "getExportStatus"
   | "getNotificationPrefs"
   | "getOrder"
   | "getPlatformCapabilities"
@@ -58,6 +63,7 @@ export type BffOperationId =
   | "saveNotificationPrefs"
   | "saveProfile"
   | "saveStrategyDraft"
+  | "searchAuditEvents"
   | "setupMfa"
   | "submitAccessRequest"
   | "submitReleaseApproval"
@@ -80,6 +86,11 @@ export function createGeneratedBffHandlers(
   baseUrl = "http://localhost:4010",
 ) {
   return [
+  http.post(`${baseUrl}/v1/exports/:exportId/cancel`, async ({ request, params }) => {
+    const resolver = resolvers.cancelExport;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("cancelExport");
+  }),
   http.post(`${baseUrl}/v1/research-runs/:runId/cancel`, async ({ request, params }) => {
     const resolver = resolvers.cancelResearchRun;
     if (resolver) return resolver({ request, params });
@@ -89,6 +100,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.createBacktest;
     if (resolver) return resolver({ request, params });
     return missingResolver("createBacktest");
+  }),
+  http.post(`${baseUrl}/v1/exports`, async ({ request, params }) => {
+    const resolver = resolvers.createExport;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("createExport");
   }),
   http.post(`${baseUrl}/v1/releases`, async ({ request, params }) => {
     const resolver = resolvers.createRelease;
@@ -134,6 +150,21 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getDataSnapshot;
     if (resolver) return resolver({ request, params });
     return missingResolver("getDataSnapshot");
+  }),
+  http.get(`${baseUrl}/v1/audit/evidence-chains/:correlationId`, async ({ request, params }) => {
+    const resolver = resolvers.getEvidenceChain;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getEvidenceChain");
+  }),
+  http.get(`${baseUrl}/v1/exports/:exportId/download`, async ({ request, params }) => {
+    const resolver = resolvers.getExportDownload;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getExportDownload");
+  }),
+  http.get(`${baseUrl}/v1/exports/:exportId`, async ({ request, params }) => {
+    const resolver = resolvers.getExportStatus;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getExportStatus");
   }),
   http.get(`${baseUrl}/v1/settings/notification-preferences`, async ({ request, params }) => {
     const resolver = resolvers.getNotificationPrefs;
@@ -314,6 +345,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.saveStrategyDraft;
     if (resolver) return resolver({ request, params });
     return missingResolver("saveStrategyDraft");
+  }),
+  http.get(`${baseUrl}/v1/audit/events`, async ({ request, params }) => {
+    const resolver = resolvers.searchAuditEvents;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("searchAuditEvents");
   }),
   http.post(`${baseUrl}/v1/settings/mfa/setup`, async ({ request, params }) => {
     const resolver = resolvers.setupMfa;

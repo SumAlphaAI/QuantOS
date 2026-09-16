@@ -34,7 +34,7 @@
 | # | 风险点 | 等级 | 说明 | 缓解措施 | Owner |
 |---|---|---|---|---|---|
 | R1 | 七态设计稿不全 | 高 | 执行计划第 8 节已列"设计稿状态不全"风险：design/ 中 23 组高保真稿主要为默认态，缺错误/无权/陈旧/离线稿 | 本场景表已先用文字冻结七态行为；G0 前设计 owner 必须补齐七态稿，未补齐页面不进 Sprint | Design owner |
-| R2 | 后续页面域 OpenAPI 未冻结 | 中 | G0 最低面 C01/C03–C09 已冻结；C02/C10–C17 仍按阶段冻结 | 冻结域由生成/覆盖 CI 保护；未冻结域按 G0 签署后遗留台账的日历日期和兼容策略执行 | BFF TL |
+| R2 | 后续页面域 OpenAPI 未冻结 | 中 | G0 最低面 C01/C03–C10 已冻结；C02/C11–C17 仍按阶段冻结（C17 P15/P17 面已冻结） | 冻结域由生成/覆盖 CI 保护；未冻结域按 G0 签署后遗留台账的日历日期和兼容策略执行 | BFF TL |
 | R3 | P08–P12/P20/P22 高风险页验收依赖后端 Gate | 高 | 七类高风险用例（G5）依赖 X01–X06、L 系列后端能力，mock 不能代验收 | 按执行计划 8.1 调整页面顺序而不缩减安全测试；P0 command 不以 mock 代验收 | FE TL + BFF TL |
 | R4 | 官网合规文案边界 | 中 | 禁用词（收益承诺/跟单/排行榜）需在内容编写期拦截，否则 FEP-1 返工 | ST-WEB-08 已列禁用词扫描与 Lighthouse 门槛；合规在 Sprint 前签署文案 | Product + 合规 |
 | R5 | 角色口径在文档间存在细微差异 | 低 | 设计规格含"审计员"独立表述，网站设计方案未单列；本台账按 8 角色统一 | 已在矩阵第 1 节统一缩写口径；如 RBAC 模型落地时合并/拆分角色，需同步修订矩阵 | FE TL |
@@ -44,7 +44,7 @@
 ## 4. 评审与遗留项状态
 
 - 联合评审：产品、前端、BFF、QA、安全、风控六方组织责任人已于 2026-08-14 完成确认，见 [G0-PRE-01-review-record](./gate-records/G0-PRE-01-review-record.md)。
-- operationId 回填：BFF OpenAPI 1.0.0 的 C01/C03–C09 共 42 个 operation 已回填并由 `check:bff-contract-coverage` 在 CI 校验；C02/C10–C17 按签署后遗留台账冻结。
+- operationId 回填：BFF OpenAPI 1.3.0 的 C01/C03–C10 与 C17 P15/P17 面共 62 个 operation 已回填并由 `check:bff-contract-coverage` 在 CI 校验；C02/C11–C16 与 C17 Desktop 面按签署后遗留台账冻结。
 - 当前复核：2026-09-16 的仓库内 PRE-01 Gate 已通过；该结论不冒充新的六方签署、GPT-6 Astra 复审、设计稿视觉验收或真实 BFF/provider 联调。
 
 遗留项（进入 FEP-0 backlog）：

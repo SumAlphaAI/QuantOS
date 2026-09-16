@@ -8,7 +8,7 @@ const current = loadBffFe000Inputs();
 test("current BFF-FE-000 repository Gate passes", () => {
   const report = validateBffFe000(current);
   assert.equal(report.status, "PASS", report.failures.join("\n"));
-  assert.deepEqual([report.contracts, report.pages, report.publishedOperations], [17, 22, 56]);
+  assert.deepEqual([report.contracts, report.pages, report.publishedOperations], [17, 22, 62]);
 });
 
 test("missing phase-one page mapping is rejected", () => {

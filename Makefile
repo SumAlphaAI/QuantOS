@@ -41,6 +41,8 @@ bff-contract-check:
 	pnpm test:bff-fe-000
 	pnpm check:bff-fe-001
 	pnpm test:bff-fe-001
+	pnpm check:bff-fe-007
+	pnpm test:bff-fe-007
 
 bff-provider-test:
 	cargo test -p bff-gateway

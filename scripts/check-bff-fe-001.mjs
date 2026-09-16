@@ -65,7 +65,7 @@ export function validateBffFe001(inputs) {
   fail(taskStatus(inputs.frontendPlan, "BFF-FE-000") === "COMPLETED", "dependency BFF-FE-000 is COMPLETED");
   fail(taskStatus(inputs.corePlan, "F06") === "COMPLETED", "dependency F06 is COMPLETED");
   fail(taskStatus(inputs.frontendPlan, "BFF-FE-001") === "COMPLETED", "BFF-FE-001 development status is COMPLETED");
-  fail(inputs.openapi.info?.version === "1.2.0", "BFF-FE-001 publishes OpenAPI 1.2.0");
+  fail(Number(inputs.openapi.info?.version?.split(".")[0]) === 1 && Number(inputs.openapi.info?.version?.split(".")[1]) >= 2, "OpenAPI retains the BFF-FE-001 1.2.0 baseline");
   fail(inputs.openapi.components?.securitySchemes?.cookieAuth?.in === "cookie", "session auth uses an HttpOnly-compatible cookie security scheme");
   fail(JSON.stringify(inputs.openapi.security) === JSON.stringify([{ cookieAuth: [] }]), "authenticated operations default to cookieAuth");
 

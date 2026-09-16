@@ -13,7 +13,7 @@
 | `proto/jsonschema/v1*.schema.json` | 由 proto 提取，共 48 个 JSON Schema | 字段字典与 fixture validator 输入 |
 | `packages/api-client/src/gen/*` | Buf 生成 TS 类型（三语言 SDK 之一） | 生成层；页面不得手写重复 DTO |
 | `packages/api-client/src/{terminal,strategy,execution,ops}.ts` | 手写 4 组 `InMemory*Backend`（TerminalBackend 5 能力、StrategyBackend、ExecutionBackend、OpsBackend 9 方法） | **fixture 级**，执行计划 1.3 明确不能作生产接口契约；G0 前须迁移为实现生成接口的测试 adapter 或标记删除 |
-| `bff/openapi/quantos-bff.v1.yaml` | 1.2.0，56 个 operation、43 个 schema；覆盖 C01/C03–C09，并覆盖 C17 的 P15/P17 面 | 由同一契约生成 TS client、组件 JSON Schema、56-operation manifest 与 MSW handlers；C01/C17 P15 有本地参考 provider，C02/C10–C16、C17 Desktop 面仍待后续 minor 版本 |
+| `bff/openapi/quantos-bff.v1.yaml` | 1.3.0，62 个 operation、51 个 schema；覆盖 C01/C03–C10，并覆盖 C17 的 P15/P17 面 | 由同一契约生成 TS client、组件 JSON Schema、62-operation manifest 与 MSW handlers；C01/C10/C17 P15 有本地参考 provider，C02/C11–C16、C17 Desktop 面仍待后续 minor 版本 |
 
 ## 2. 契约台账（C01–C17）
 
@@ -30,7 +30,7 @@
 | C07 Proposal/Risk Evaluation | proposal list/get | request evaluation（proposal/version/context hash） | proposal 状态 stream | R04、X02 | 对象级（TradeProposal/RiskDecision/RiskVerdict；counter_views 已增补） | GAP-07 | BFF TL + Risk owner（X02） | Contract Mocked；同源生成 client/schema/MSW + proposal fixture |
 | C08 Approval/MFA | approval list/get | decide（签名+MFA challenge ref）、reauth | 无（拉取式，决策：操作前强制刷新版本/有效期） | F06、X03、L03 | 部分（RiskDecision；缺 Approval 消息） | GAP-08 | BFF TL + Auth owner（F06） | Contract Mocked；同源生成 client/schema/MSW，无专用数据 fixture |
 | C09 Command/Order | order list/get | submit command ref（Idempotency-Key）、cancel request | order event stream（sequence） | X03/X04、L01 | 对象级（TradeCommand/Order/Fill/OrderStatus） | GAP-09 | BFF TL + Execution owner（X03/X04） | Contract Mocked；同源生成 client/schema/MSW，无专用数据 fixture |
-| C10 Audit/Export | audit search、evidence chain get | export create/poll/download（异步 job，轮询契约） | 无（轮询，设计决策） | F05、X06 | 部分（EventEnvelope/EventLedgerService 为服务级；缺搜索/导出页面模型） | GAP-10 | BFF TL + Audit owner（F05/X06） | Draft；InMemory audit/export fixture；events swagger 仅服务级 |
+| C10 Audit/Export | audit search、correlation/causation evidence chain get | export create/status/cancel/download metadata（异步 job，轮询契约） | 无（轮询，设计决策） | F05、X06 | 部分（EventEnvelope/EventLedgerService 为服务级；页面模型由 OpenAPI 1.3.0 补齐） | GAP-10 | BFF TL + Audit owner（F05/X06） | Implemented（本地参考 provider）；脱敏、短时 URL、水印、retention 与全过程审计已覆盖，真实 Postgres/对象存储和 staging 签署待完成 |
 | C11 Ops/Admin | service health、incident list/get、member/policy/capability/flag query | approved runbook actionId、治理 CRUD（版本化、双人审批） | health/alert 广播 | F06/F09、X06 | 无（页面模型新增；Capability 可复用 engine.v1） | GAP-11 | BFF TL + Ops owner（F09） | Draft；InMemory ops/admin fixture |
 | C12 Market/Candle | catalog/watchlist、venue quote、candle series/history | watchlist save、告警订阅（经 C16） | quote/candle realtime（断流定格回补） | R01/R02、L01 | 无（缺 Instrument/VenueQuote/Candle 消息） | GAP-12 | BFF TL + Market data owner（R01/R02） | Draft；无 fixture（需新建） |
 | C13 Trade Preflight | order capabilities、preflight/risk refresh | 无（preflight 为查询；提交走 C07/C08/C09，决策） | quote/preflight refresh push | X01–X03、L01 | 部分（复用 trading.v1 对象；缺 preflight 模型） | GAP-13 | BFF TL + Execution owner（X03） | Draft；无 fixture（需新建） |
@@ -90,7 +90,7 @@
 
 | mock 形态 | 契约 | 状态与迁移要求 |
 |---|---|---|
-| OpenAPI 生成 client/schema/MSW | C01/C03–C09/C17（P15/P17） | 56 个 handler 与 43 个组件 schema 均由 1.2.0 生成；生成漂移和页面覆盖由 CI 阻断 |
+| OpenAPI 生成 client/schema/MSW | C01/C03–C10/C17（P15/P17） | 62 个 handler 与 51 个组件 schema 均由 1.3.0 生成；生成漂移和页面覆盖由 CI 阻断 |
 | 服务级 swagger（可作 fixture 参考） | C03、C10 部分（Engine/EventLedger 7 operation） | 仅覆盖服务层，不代表页面 BFF；页面 mock 仍需页面级 schema |
 | 独立场景数据 fixture | C01 session、C02 command-center、C07 proposal | 共 5 个有效场景文件；C02 仅 Inventory Fixture，不能冒充已冻结 OpenAPI |
 | 无专用数据 fixture | C03–C06、C08–C17 | 已冻结域可由生成式 MSW 承载结构，但仍需按 PRE-06 补成功/拒绝/冲突/限流/断流/陈旧/权限场景；未冻结域先冻结 OpenAPI |

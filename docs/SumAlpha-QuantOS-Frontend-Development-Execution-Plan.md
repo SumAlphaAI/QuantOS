@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：2.9
+> 版本：3.0
 > 更新时间：2026-09-16
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.0`：完成 A2/BFF-FE-007 仓库交付；发布 OpenAPI 1.3.0 的 Audit 搜索/证据链分页与受控导出 create/status/cancel/download 契约，增加 Rust 本地参考 provider、Terminal typed gateway、可破坏 Gate 及验收证据。真实 Postgres 审计读模型、对象存储签名 URL、staging 消费者/provider 签署与 GPT-6 Astra 复审仍为独立未执行项。
 - `2.9`：完成 A2/BFF-FE-001 仓库交付；发布 OpenAPI 1.2.0 的 cookie session、CSRF、recent-auth、MFA 因素保护与 auditRef 契约，增加 Rust 本地参考 provider、撤销 SSE、前端 client 与可破坏 Gate。真实 IdP/Postgres、staging 消费者/provider 签署、GitHub CI 与 GPT-6 Astra 复审仍为独立未执行项。
 - `2.8`：完成 A1/BFF-FE-000 仓库交付；冻结 C01–C17、一期 22 页的 published/planned operationId catalog，补齐 sort/filter、ETag、错误 correlation header 基线，并将依赖、生成漂移、页面追踪、CI 接线和负向破坏检查纳入可重放 Gate。A2–A6 provider 实现、staging 回执与 GPT-6 Astra 复审未据此提前完成。
 - `2.7`：PRE-06 按 Web-only 边界完成当前仓库复核；将 Terminal 与官网的 Chromium/Firefox/WebKit、axe、真实入库视觉基线完整性、性能预算、BFF 1.1.0 contract fixture 与可破坏 Gate 接入 CI；Desktop 原生/深链测试迁至二期手动 workflow。本地 macOS 浏览器验收不代表 GitHub Actions、Linux 视觉或 staging 已运行。
@@ -354,7 +355,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_type: `PAGE_API`
 - iteration: `A2`
 - depends_on: ["BFF-FE-001", "CORE:F05"]
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-007)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：audit search/get chain；correlation/causation pagination；redacted payload；export create/status/cancel/download metadata；短时 URL、水印、retention

@@ -257,4 +257,4 @@ SSE 事件信封（bff:StreamEvent）：`streamId:uuid`(req)、`sequence:int64`(
 ## 19. 完备性声明
 
 - 全部 17 个契约的关键字段均有类型、required 与权威来源；无"待开发时再定"字段。
-- `bff:` 页面模型覆盖全部 C01–C17 字段组；其中已冻结部分以当前 OpenAPI 1.2.0 和生成 client 为准，未冻结部分由对应 BFF-FE-000–011 任务发布后同步字典。proto 已有对象字段以 proto 为唯一事实来源，页面不手写重复 DTO。
+- `bff:` 页面模型覆盖全部 C01–C17 字段组；其中已冻结部分以当前 OpenAPI 1.3.0 和生成 client 为准，未冻结部分由对应 BFF-FE-000–011 任务发布后同步字典。proto 已有对象字段以 proto 为唯一事实来源，页面不手写重复 DTO。
