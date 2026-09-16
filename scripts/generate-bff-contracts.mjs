@@ -10,6 +10,7 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = join(repoRoot, "bff/openapi/quantos-bff.v1.yaml");
 const GENERATED_FILES = {
   types: "packages/api-client/src/bff-gen/quantos-bff.ts",
+  zod: "packages/api-client/src/bff-gen/quantos-bff.zod.ts",
   schemas: "tests/contract/generated/quantos-bff.components.schema.json",
   operations: "tests/contract/generated/quantos-bff.operations.json",
   handlers: "tests/contract/generated/quantos-bff.msw.ts",
@@ -34,6 +35,80 @@ function rewriteComponentRefs(value) {
     }
     return [key, rewriteComponentRefs(child)];
   }));
+}
+
+function zodSchema(schema) {
+  if (!schema || Object.keys(schema).length === 0) return "z.unknown()";
+  if (schema.$ref) return `z.lazy(() => ${schema.$ref.split("/").at(-1)}Schema)`;
+
+  let expression;
+  if (schema.allOf?.length) {
+    expression = schema.allOf.map(zodSchema).reduce((left, right) => `z.intersection(${left}, ${right})`);
+  } else if (schema.oneOf?.length || schema.anyOf?.length) {
+    const alternatives = (schema.oneOf ?? schema.anyOf).map(zodSchema);
+    expression = alternatives.length === 1 ? alternatives[0] : `z.union([${alternatives.join(", ")}])`;
+  } else if (schema.enum?.length) {
+    expression = schema.enum.every((value) => typeof value === "string")
+      ? schema.enum.length === 1
+        ? `z.literal(${JSON.stringify(schema.enum[0])})`
+        : `z.enum(${JSON.stringify(schema.enum)})`
+      : schema.enum.length === 1
+        ? `z.literal(${JSON.stringify(schema.enum[0])})`
+        : `z.union([${schema.enum.map((value) => `z.literal(${JSON.stringify(value)})`).join(", ")}])`;
+  } else if (schema.type === "string") {
+    expression = "z.string()";
+    if (schema.format === "uuid") expression += ".uuid()";
+    else if (schema.format === "date-time") expression += ".datetime({ offset: true })";
+    else if (schema.format === "email") expression += ".email()";
+    else if (schema.format === "uri") expression += ".url()";
+    if (schema.pattern) expression += `.regex(new RegExp(${JSON.stringify(schema.pattern)}))`;
+    if (schema.minLength !== undefined) expression += `.min(${schema.minLength})`;
+    if (schema.maxLength !== undefined) expression += `.max(${schema.maxLength})`;
+  } else if (schema.type === "integer" || schema.type === "number") {
+    expression = schema.type === "integer" ? "z.number().int()" : "z.number()";
+    if (schema.minimum !== undefined) expression += `.min(${schema.minimum})`;
+    if (schema.maximum !== undefined) expression += `.max(${schema.maximum})`;
+  } else if (schema.type === "boolean") {
+    expression = "z.boolean()";
+  } else if (schema.type === "array") {
+    expression = `z.array(${zodSchema(schema.items)})`;
+    if (schema.minItems !== undefined) expression += `.min(${schema.minItems})`;
+    if (schema.maxItems !== undefined) expression += `.max(${schema.maxItems})`;
+  } else if (schema.type === "object" || schema.properties || schema.additionalProperties) {
+    const required = new Set(schema.required ?? []);
+    const properties = Object.entries(schema.properties ?? {}).map(([name, property]) => {
+      const rendered = zodSchema(property);
+      return `  ${JSON.stringify(name)}: ${required.has(name) ? rendered : `${rendered}.optional()`},`;
+    });
+    if (properties.length === 0 && schema.additionalProperties && typeof schema.additionalProperties === "object") {
+      expression = `z.record(z.string(), ${zodSchema(schema.additionalProperties)})`;
+    } else {
+      expression = `z.object({\n${properties.join("\n")}\n})`;
+      if (schema.additionalProperties && typeof schema.additionalProperties === "object") {
+        expression += `.catchall(${zodSchema(schema.additionalProperties)})`;
+      } else if (schema.additionalProperties === false) {
+        expression += ".strict()";
+      }
+    }
+  } else {
+    expression = "z.unknown()";
+  }
+
+  if (schema.nullable) expression = `${expression}.nullable()`;
+  if (schema.description) expression += `.describe(${JSON.stringify(schema.description)})`;
+  return expression;
+}
+
+function renderZod(schemas, version) {
+  const declarations = Object.entries(schemas).map(([name, schema]) =>
+    `export const ${name}Schema = ${zodSchema(schema)};`,
+  );
+  const registry = Object.keys(schemas).map((name) => `  ${name}: ${name}Schema,`).join("\n");
+  return `/* eslint-disable */\n` +
+    `// Generated from bff/openapi/quantos-bff.v1.yaml (${version}). Do not edit.\n` +
+    `import { z } from "zod";\n\n` +
+    `${declarations.join("\n\n")}\n\n` +
+    `export const bffZodSchemas = {\n${registry}\n} as const;\n`;
 }
 
 function responseSchemaName(operation) {
@@ -116,6 +191,7 @@ export function generateBffContracts(outputRoot = repoRoot) {
   };
 
   const outputs = {
+    [GENERATED_FILES.zod]: renderZod(doc.components?.schemas ?? {}, doc.info.version),
     [GENERATED_FILES.schemas]: json(schemaDocument),
     [GENERATED_FILES.operations]: json({
       source: "bff/openapi/quantos-bff.v1.yaml",

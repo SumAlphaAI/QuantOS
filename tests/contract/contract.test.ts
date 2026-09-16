@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { setupServer } from "msw/node";
+import { bffZodSchemas } from "../../packages/api-client/src/bff-gen/quantos-bff.zod";
 
 import { handlers } from "./handlers";
 import { loadFixture, validateFixture } from "./validate.mjs";
@@ -10,6 +11,13 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe("PRE-06 contract fixtures：schema 驱动", () => {
+  it("OpenAPI 同源生成的 Zod schema 校验 session/error/proposal fixtures", () => {
+    expect(bffZodSchemas.SessionContext.safeParse(loadFixture("session/default.json")).success).toBe(true);
+    expect(bffZodSchemas.ErrorEnvelope.safeParse(loadFixture("errors/conflict.json")).success).toBe(true);
+    expect(bffZodSchemas.TradeProposal.safeParse(loadFixture("proposal/default.json")).success).toBe(true);
+    expect(bffZodSchemas.TradeProposal.safeParse({ ...loadFixture("proposal/default.json"), executable: true }).success).toBe(false);
+  });
+
   it("session fixture 通过 OpenAPI 生成的 schema 校验", () => {
     expect(validateFixture(loadFixture("session/default.json"), { schema: "SessionContext" })).toEqual([]);
   });

@@ -1248,6 +1248,7 @@ export interface components {
         /** @description 会话失效/未认证；客户端清空内存态并跳登录（不泄露细节） */
         Unauthorized: {
             headers: {
+                "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
                 [name: string]: unknown;
             };
             content: {
@@ -1264,6 +1265,7 @@ export interface components {
         /** @description 无权限（规范文案；涉密钥/受限审计/高风险不返回内容） */
         Forbidden: {
             headers: {
+                "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
                 [name: string]: unknown;
             };
             content: {
@@ -1280,6 +1282,7 @@ export interface components {
         /** @description 不存在或未授权（不区分，防存在性泄露） */
         NotFound: {
             headers: {
+                "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
                 [name: string]: unknown;
             };
             content: {
@@ -1296,6 +1299,7 @@ export interface components {
         /** @description 版本/状态/有效期冲突；返回 currentVersion，客户端保留本地草稿并刷新 */
         Conflict: {
             headers: {
+                "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
                 [name: string]: unknown;
             };
             content: {
@@ -1305,6 +1309,7 @@ export interface components {
         /** @description 校验失败（字段级 fieldErrors；含超预算/过期数据/未批准 capability 等原因） */
         Unprocessable: {
             headers: {
+                "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
                 [name: string]: unknown;
             };
             content: {
@@ -1314,6 +1319,7 @@ export interface components {
         /** @description 限流（retryAfter 秒；不泄露账户存在性） */
         RateLimited: {
             headers: {
+                "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
                 [name: string]: unknown;
             };
             content: {
@@ -1325,6 +1331,10 @@ export interface components {
         /** @description 不透明分页游标 */
         Cursor: string;
         PageSize: number;
+        /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+        Sort: string;
+        /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+        Filter: string;
         /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
         IdempotencyKey: string;
         /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
@@ -1336,6 +1346,8 @@ export interface components {
     headers: {
         /** @description 全链路追踪 ID；错误页可复制提交支持 */
         "X-Correlation-Id": string;
+        /** @description 当前对象版本；后续可变写使用 If-Match 原样回传 */
+        ETag: string;
     };
     pathItems: never;
 }

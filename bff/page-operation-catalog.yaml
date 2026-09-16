@@ -1,0 +1,95 @@
+schema: quantos-bff-page-operation-catalog/v1
+openapiSource: bff/openapi/quantos-bff.v1.yaml
+scope:
+  pages: [P01, P02, P03, P04, P05, P06, P07, P08, P09, P10, P11, P12, P13, P14, P15, P17, P18, P19, P20, P21, P22, P23]
+  excludedPages:
+    P16: Desktop phase two; not part of the phase-one Web Gate.
+statusSemantics:
+  published: Present in the versioned OpenAPI and generated client/schema/MSW artifacts.
+  planned: Stable operationId reserved by BFF-FE-000; schema/path/provider delivery remains owned by the named follow-up task.
+contracts:
+  C01:
+    ownerTask: BFF-FE-001
+    pages: [P01, P15]
+    publishedOperations: [getSession, getContext, reauth, mfaChallenge, logout, submitAccessRequest]
+    plannedOperations: []
+  C02:
+    ownerTask: BFF-FE-002
+    pages: [P02]
+    publishedOperations: []
+    plannedOperations: [getCommandSummary, subscribeCommandEvents]
+  C03:
+    ownerTask: BFF-FE-003
+    pages: [P03, P04]
+    publishedOperations: [listResearchRuns, createResearchRun, getResearchRun, cancelResearchRun, subscribeResearchRun]
+    plannedOperations: []
+  C04:
+    ownerTask: BFF-FE-003
+    pages: [P04, P05]
+    publishedOperations: [listDataSnapshots, getDataSnapshot, getArtifact]
+    plannedOperations: [getArtifactAttachment]
+  C05:
+    ownerTask: BFF-FE-004
+    pages: [P06, P07]
+    publishedOperations: [listStrategies, getStrategyDraft, saveStrategyDraft, runStaticCheck, createBacktest, getBacktest, listReleases, createRelease, getRelease, submitReleaseApproval, requestReleaseRollback]
+    plannedOperations: [subscribeBacktestRun]
+  C06:
+    ownerTask: BFF-FE-006
+    pages: [P02, P08]
+    publishedOperations: [getPortfolio, getRiskView, engageKillSwitch, releaseKillSwitch, subscribePortfolio]
+    plannedOperations: []
+  C07:
+    ownerTask: BFF-FE-006
+    pages: [P09, P20]
+    publishedOperations: [listProposals, getProposal, requestRiskEvaluation, subscribeProposal]
+    plannedOperations: []
+  C08:
+    ownerTask: BFF-FE-006
+    pages: [P07, P10, P20]
+    publishedOperations: [listApprovals, getApproval, decideApproval]
+    plannedOperations: []
+  C09:
+    ownerTask: BFF-FE-006
+    pages: [P11, P19, P20]
+    publishedOperations: [submitTradeCommand, listOrders, getOrder, requestOrderCancel, subscribeOrder]
+    plannedOperations: []
+  C10:
+    ownerTask: BFF-FE-007
+    pages: [P04, P07, P09, P10, P11, P12, P13]
+    publishedOperations: []
+    plannedOperations: [searchAuditEvents, getEvidenceChain, createExport, getExportStatus, getExportDownload]
+  C11:
+    ownerTask: BFF-FE-010
+    pages: [P13, P14]
+    publishedOperations: []
+    plannedOperations: [getServiceHealth, listIncidents, getIncident, listMembers, listPolicies, listCapabilities, listFeatureFlags, runApprovedRunbookAction, updateMember, savePolicy, saveCapability, saveFeatureFlag]
+  C12:
+    ownerTask: BFF-FE-005
+    pages: [P18, P19, P20]
+    publishedOperations: []
+    plannedOperations: [getMarketCatalog, getWatchlist, getVenueQuotes, getCandleSeries, saveWatchlist, subscribeQuotes, subscribeCandles]
+  C13:
+    ownerTask: BFF-FE-006
+    pages: [P20]
+    publishedOperations: []
+    plannedOperations: [getOrderCapabilities, getTradePreflight, subscribeTradePreflight]
+  C14:
+    ownerTask: BFF-FE-008
+    pages: [P21]
+    publishedOperations: []
+    plannedOperations: [getPerformanceSummary, getPerformanceSeries, getPerformanceAttribution, createPerformanceReport, getReportStatus, getReportDownload]
+  C15:
+    ownerTask: BFF-FE-009
+    pages: [P11, P21, P22]
+    publishedOperations: []
+    plannedOperations: [listReconciliationRuns, getReconciliationRun, listReconciliationBreaks, getReconciliationBreak, listLedgerEntries, requestReconciliationRerun, subscribeReconciliationRun]
+  C16:
+    ownerTask: BFF-FE-010
+    pages: [P02, P13, P23]
+    publishedOperations: []
+    plannedOperations: [listAlerts, getAlert, getAlertSubscriptions, ackAlert, unackAlert, saveAlertSubscriptions, subscribeAlerts]
+  C17:
+    ownerTask: BFF-FE-011
+    pages: [P15, P17]
+    publishedOperations: [getProfile, saveProfile, getNotificationPrefs, saveNotificationPrefs, getSecuritySettings, listSessions, revokeSession, subscribeSessionRevocations, listDevices, revokeDevice, setupMfa, listDownloads, getPlatformCapabilities]
+    plannedOperations: []

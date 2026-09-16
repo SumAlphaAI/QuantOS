@@ -7,6 +7,7 @@ import YAML from "yaml";
 
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const openapi = YAML.parse(readFileSync(resolve(root, "bff/openapi/quantos-bff.v1.yaml"), "utf8"));
+const catalog = YAML.parse(readFileSync(resolve(root, "bff/page-operation-catalog.yaml"), "utf8"));
 const manifest = JSON.parse(readFileSync(resolve(root, "tests/contract/generated/quantos-bff.operations.json"), "utf8"));
 const schemas = JSON.parse(readFileSync(resolve(root, "tests/contract/generated/quantos-bff.components.schema.json"), "utf8"));
 const coverage = readFileSync(resolve(root, "docs/PRE-01-page-api-coverage-register.md"), "utf8");
@@ -34,13 +35,14 @@ for (const name of Object.keys(openapi.components?.schemas ?? {})) {
 }
 
 const referencedIds = new Set();
+const plannedIds = new Set(Object.values(catalog.contracts ?? {}).flatMap((entry) => entry.plannedOperations ?? []));
 const operationToken = /\b(?:get|list|create|save|run|submit|request|engage|release|decide|cancel|subscribe|revoke|setup|clear|check)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
 for (const line of coverage.split("\n")) {
-  if (!line.startsWith("|") || (!line.includes("| 1.0.0 |") && !line.includes("| 1.1.0 |") && !line.includes("| 部分 1.0.0 |"))) continue;
+  if (!/^\| (?:GS|官网|P\d{2}) \|/.test(line)) continue;
   const operationCells = line.split("|").slice(3, 6).join(" ");
   for (const token of operationCells.match(operationToken) ?? []) {
-    referencedIds.add(token);
-    if (!operationIds.has(token)) failures.push(`page coverage references unknown operationId: ${token}`);
+    if (operationIds.has(token)) referencedIds.add(token);
+    else if (!plannedIds.has(token)) failures.push(`page coverage references unknown operationId: ${token}`);
   }
 }
 

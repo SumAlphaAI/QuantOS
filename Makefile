@@ -37,6 +37,8 @@ bff-contract-check:
 	pnpm check:bff-openapi
 	pnpm check:bff-generated
 	pnpm check:bff-contract-coverage
+	pnpm check:bff-fe-000
+	pnpm test:bff-fe-000
 
 quality-gate-self-test:
 	node ./scripts/check-secrets.mjs

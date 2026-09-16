@@ -8,6 +8,8 @@ info:
 
     范围：GAP-00 统一基线 + C01、C03–C09，以及 UI-104 所需 C17 Settings/Web Platform additive 候选面。
     C17 当前为 Contract Mocked，需 BFF-FE-001/011 staging 签署后方可标记 Integrated。
+    C02/C10–C16 与未发布补充 operationId 由 bff/page-operation-catalog.yaml 冻结命名，
+    但在后续 BFF-FE owner 任务发布 path/schema/provider 前不得视为本 OpenAPI 已实现。
 
     统一约定：
     - 成功响应：单资源直接返回；列表返回 Page<T>（items + nextCursor）。
@@ -1072,6 +1074,16 @@ components:
       name: pageSize
       in: query
       schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+    Sort:
+      name: sort
+      in: query
+      schema: { type: string }
+      description: 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422
+    Filter:
+      name: filter
+      in: query
+      schema: { type: string }
+      description: 服务端过滤表达式；仅接受具体 operation allowlist 中的字段
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -1094,38 +1106,53 @@ components:
     X-Correlation-Id:
       schema: { type: string, format: uuid }
       description: 全链路追踪 ID；错误页可复制提交支持
+    ETag:
+      schema: { type: string }
+      description: 当前对象版本；后续可变写使用 If-Match 原样回传
 
   responses:
     Unauthorized:
       description: 会话失效/未认证；客户端清空内存态并跳登录（不泄露细节）
+      headers:
+        X-Correlation-Id: { $ref: "#/components/headers/X-Correlation-Id" }
       content:
         application/json:
           schema: { $ref: "#/components/schemas/ErrorEnvelope" }
           example: { code: UNAUTHENTICATED, message: 会话已失效，请重新登录。, correlationId: 9a1c4e60-2d3b-4c5f-8a9e-1b2c3d4e5f60 }
     Forbidden:
       description: 无权限（规范文案；涉密钥/受限审计/高风险不返回内容）
+      headers:
+        X-Correlation-Id: { $ref: "#/components/headers/X-Correlation-Id" }
       content:
         application/json:
           schema: { $ref: "#/components/schemas/ErrorEnvelope" }
           example: { code: FORBIDDEN, message: 你没有访问此资源的权限。若认为这是错误，请联系主工作区管理员。, correlationId: 4d5e6f70-8a9b-4c1d-2e3f-5a6b7c8d9e0f }
     NotFound:
       description: 不存在或未授权（不区分，防存在性泄露）
+      headers:
+        X-Correlation-Id: { $ref: "#/components/headers/X-Correlation-Id" }
       content:
         application/json:
           schema: { $ref: "#/components/schemas/ErrorEnvelope" }
           example: { code: NOT_FOUND, message: 未找到该资源。, correlationId: 4d5e6f70-8a9b-4c1d-2e3f-5a6b7c8d9e0f }
     Conflict:
       description: 版本/状态/有效期冲突；返回 currentVersion，客户端保留本地草稿并刷新
+      headers:
+        X-Correlation-Id: { $ref: "#/components/headers/X-Correlation-Id" }
       content:
         application/json:
           schema: { $ref: "#/components/schemas/ErrorEnvelope" }
     Unprocessable:
       description: 校验失败（字段级 fieldErrors；含超预算/过期数据/未批准 capability 等原因）
+      headers:
+        X-Correlation-Id: { $ref: "#/components/headers/X-Correlation-Id" }
       content:
         application/json:
           schema: { $ref: "#/components/schemas/ErrorEnvelope" }
     RateLimited:
       description: 限流（retryAfter 秒；不泄露账户存在性）
+      headers:
+        X-Correlation-Id: { $ref: "#/components/headers/X-Correlation-Id" }
       content:
         application/json:
           schema: { $ref: "#/components/schemas/ErrorEnvelope" }
