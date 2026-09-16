@@ -1,7 +1,7 @@
 # PRE-01 产出物二：路由/权限矩阵
 
 > 任务：PRE-01 需求拆解（FEP-0）
-> 版本：1.0  日期：2026-08-14
+> 版本：1.1  日期：2026-09-16
 > 依据：设计规格第 1.2、2.2、2.3、6.3 节；网站与终端设计方案第 6 节；执行计划第 1.1、4.2 节
 > 配套文件：[页面台账与 Story 拆解](./PRE-01-page-ledger-and-stories.md)、[验收场景表](./PRE-01-acceptance-scenarios.md)
 
@@ -61,13 +61,13 @@
 
 | 路由 | 页面 | 访客 | 已登录用户 | SEO | 优先级 | 风险 |
 |---|---|---|---|---|---|---|
-| `/` | 首页 | ✔ | ✔ | index | P0 | 低 |
-| `/product` | 产品 | ✔ | ✔ | index | P0 | 低 |
-| `/architecture-security` | 架构与安全 | ✔ | ✔ | index | P0 | 低 |
-| `/use-cases` | 使用场景 | ✔ | ✔ | index | P1 | 低 |
-| `/docs` | 文档中心 | ✔ | ✔ | index | P1 | 低 |
-| `/access-request` | 访问申请（防滥用+隐私告知） | ✔ | ✔ | 受限元数据 | P0 | 中 |
-| `/login` | 登录入口（跳 Terminal SSO） | ✔ | ✔ | 受限元数据 | P0 | 中 |
+| `/` | WEB-01 首页 | ✔ | ✔ | index | P0 | 低 |
+| `/product` | WEB-02 产品 | ✔ | ✔ | index | P0 | 低 |
+| `/architecture-security` | WEB-03 架构与安全 | ✔ | ✔ | index | P0 | 低 |
+| `/use-cases` | WEB-04 使用场景 | ✔ | ✔ | index | P1 | 低 |
+| `/docs` | WEB-05 文档中心 | ✔ | ✔ | index | P1 | 低 |
+| `/access-request` | WEB-06 访问申请（防滥用+隐私告知） | ✔ | ✔ | 受限元数据 | P0 | 中 |
+| `/login` | WEB-07 登录入口（跳 Terminal SSO） | ✔ | ✔ | 受限元数据 | P0 | 中 |
 | `/developers`、`/status` | 开发者/状态页 | 后续阶段（M2+/M4+），本期不交付 | – | – | – | – |
 
 ## 4. 角色 × 领域权限矩阵（默认范围）

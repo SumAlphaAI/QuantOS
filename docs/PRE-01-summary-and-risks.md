@@ -1,7 +1,7 @@
 # PRE-01 执行总结、风险登记与验收自检
 
-> 任务：PRE-01 需求拆解（FEP-0）  状态：已纳入 G0 联合评审
-> 版本：1.0  日期：2026-08-14
+> 任务：PRE-01 需求拆解（FEP-0）  开发状态：`COMPLETED`  模型复审：`NOT_STARTED`
+> 版本：1.1  日期：2026-09-16
 > 产出物：[页面台账与 Story 拆解](./PRE-01-page-ledger-and-stories.md)、[路由/权限矩阵](./PRE-01-route-permission-matrix.md)、[验收场景表](./PRE-01-acceptance-scenarios.md)
 
 ## 1. PRE-01 完成标准自检
@@ -16,9 +16,11 @@
 | 每项标注风险级别 | 达成 | 高/中/低三级，口径见台账第 1 节 |
 | 产出：页面台账 | 达成 | PRE-01-page-ledger-and-stories.md 第 2 节（31/31 页面） |
 | 产出：路由/权限矩阵 | 达成 | PRE-01-route-permission-matrix.md（38 条 Terminal 路由 × 8 角色 + 官网路由 + 领域权限矩阵） |
-| 产出：验收场景表 | 达成 | PRE-01-acceptance-scenarios.md（217 条七态场景 + 10 条流程场景） |
+| 产出：验收场景表 | 达成 | PRE-01-acceptance-scenarios.md（31 个页面单元各自 7 态，共 217 条独立场景 + 10 条流程场景） |
 | 页面覆盖率 100% | 达成 | 官网 7 + P01–P23 23 + 全局壳 1 = 31/31；官网"开发者/状态页"按 1.2 节属后续范围，已显式标注不进本期 |
-| 每页至少有默认/加载/空/错误/无权/陈旧/离线状态 | 达成 | 31 页 × 7 态 = 217 条场景，无缺口 |
+| 每页至少有默认/加载/空/错误/无权/陈旧/离线状态 | 达成 | 31 页 × 7 态 = 217 条场景，无缺口；官网 WEB-01–WEB-07 不再共用聚合场景 |
+
+自动验收：`pnpm check:pre01` 校验 31 个页面、130 条页面 Story、217 条七态场景、31 条逐页追踪映射；`pnpm test:pre01` 以缺状态、非法优先级、缺追踪行三个破坏用例证明 Gate 会失败。当前执行证据见 [PRE-01 acceptance evidence（2026-09-16）](./audit/PRE-01-acceptance-evidence-2026-09-16.md)。
 
 ## 2. 与 G0 / 下游任务的衔接
 
@@ -43,6 +45,7 @@
 
 - 联合评审：产品、前端、BFF、QA、安全、风控六方组织责任人已于 2026-08-14 完成确认，见 [G0-PRE-01-review-record](./gate-records/G0-PRE-01-review-record.md)。
 - operationId 回填：BFF OpenAPI 1.0.0 的 C01/C03–C09 共 42 个 operation 已回填并由 `check:bff-contract-coverage` 在 CI 校验；C02/C10–C17 按签署后遗留台账冻结。
+- 当前复核：2026-09-16 的仓库内 PRE-01 Gate 已通过；该结论不冒充新的六方签署、GPT-6 Astra 复审、设计稿视觉验收或真实 BFF/provider 联调。
 
 遗留项（进入 FEP-0 backlog）：
 

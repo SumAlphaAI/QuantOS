@@ -1,7 +1,7 @@
 # PRE-01 产出物一：页面台账与 Story 拆解
 
 > 任务：PRE-01 需求拆解（FEP-0）
-> 版本：1.0  日期：2026-08-14
+> 版本：1.1  日期：2026-09-16
 > 依据：[前端开发执行计划](./SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md)（第 1、3.1、4、5 节）、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)（第 1–6 节）、[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)（第 4–6 节）
 > 配套文件：[路由/权限矩阵](./PRE-01-route-permission-matrix.md)、[验收场景表](./PRE-01-acceptance-scenarios.md)、[执行总结与风险登记](./PRE-01-summary-and-risks.md)
 
@@ -328,4 +328,4 @@
 
 ## 5. 台账追踪性
 
-每行页面均可按 `页面 ID → 前端任务（UI-1xx–6xx / UI-P01–P23）→ 契约（C01–C17）→ BFF 任务（BFF-FE-000–011）→ 后端计划（F/R/S/X/L）→ 测试用例（验收场景表）→ Gate（G0–G8）` 追踪，满足 G0 条件"页面台账能追踪到 页面 → 前端任务 → BFF 契约 → 后端计划任务 → 测试用例 → Gate"。映射明细见验收场景表第 4 节。
+每行页面均可按 `页面 ID → 前端任务（UI-1xx–6xx / UI-P01–P23）→ 契约（C01–C17）→ BFF 任务（BFF-FE-000–011）→ 后端计划（F/R/S/X/L）→ 测试用例（验收场景表）→ Gate（G0–G8）` 追踪，满足 G0 条件"页面台账能追踪到 页面 → 前端任务 → BFF 契约 → 后端计划任务 → 测试用例 → Gate"。映射明细见验收场景表第 6 节，并由 `pnpm check:pre01` 校验页面、Story 字段、权限矩阵、七态与追踪行不回退。

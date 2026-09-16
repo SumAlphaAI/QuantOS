@@ -1,13 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：2.0
-> 更新时间：2026-09-09
+> 版本：2.1
+> 更新时间：2026-09-16
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：交付官网、`app.sumalpha.ai` 与 Tauri 桌面端共享的 QuantOS Terminal 前端；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。
 
 ## 版本变更说明
 
+- `2.1`：PRE-01 需求拆解完成当前仓库复核；官网七页由聚合七态改为逐页七态，新增可执行的页面/Story/权限/场景/追踪完整性 Gate。开发状态与 GPT-6 Astra 复审状态继续分开记录。
 - `2.0`：页面 API 与前端功能独立排期；先完成全量页面 API 开发与 provider 验证，再依业务依赖推进前端。原 FEP/Gate、UI、WEB、PRE、BFF-FE、C01–C17 与 P01–P23 标识保持稳定。
 - FEP-1 及 UI-101–UI-104、WEB-101 标记已开发完成，保留集成晋级条件，清除历史复验证据；为 GPT-6 Astra 设置全新复审入口。
 - 采用[核心计划字段约定](./SumAlpha-QuantOS-Development-Plan.md#plan-review-schema) `quantos-plan-review/v1`。校验：`node scripts/check-development-plans.mjs`；结构通过不等于 Codex 平台加载、模型调用或真实联调验收通过。
@@ -105,7 +106,7 @@
 - task_type: `PREPARATION`
 - iteration: `P0`
 - depends_on: []
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-01)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：需求拆解

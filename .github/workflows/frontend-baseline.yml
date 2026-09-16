@@ -37,6 +37,9 @@ jobs:
       - name: Environment config checks (PRE-05)
         run: pnpm --filter @sumalpha/config check:env
 
+      - name: PRE-01 page, permission, state and traceability contract
+        run: pnpm check:pre01 && pnpm test:pre01
+
       - name: Frozen BFF OpenAPI structure
         run: pnpm check:bff-openapi
 
