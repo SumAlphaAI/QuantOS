@@ -1,6 +1,6 @@
 # PRE-04 OpenAPI Gap List
 
-> 任务：PRE-04 接口盘点  版本：1.0  日期：2026-08-14
+> 任务：PRE-04 接口盘点  版本：1.1  日期：2026-08-14；复核：2026-09-16
 > 口径：operation 名称表达能力需求，不预设 URL；最终 path/method/schema/envelope 以 BFF 版本化 OpenAPI 为准（执行计划 5.6 节）。
 > 追踪：每条 gap 对应契约台账一行与 BFF-FE 任务；状态 `Open → In Design（BFF-FE-000）→ Closed（OpenAPI 发布）`。
 > 共性要求（每条 gap 必须满足，不重复列出）：统一错误 envelope（code/message/correlationId/fieldErrors/retryAfter/currentVersion）、cursor 分页、Idempotency-Key（command）、ETag/objectVersion（可变对象）、correlation ID、权限/capability 裁剪、敏感字段脱敏、202 异步受理引用。
@@ -13,7 +13,7 @@
 | GAP-04 | C04 | Q: listDataSnapshots、getDataSnapshot、getArtifact、getArtifactAttachment | P04、P05 | R02/R03、F05 | P0 | FEP-2/G2 | BFF-FE-003 | Closed（OpenAPI 1.0.0 冻结） |
 | GAP-05 | C05 | Q: listStrategies、getDraft、getBacktest、listReleases、getRelease；C: saveDraft（expectedVersion→409 diff）、runStaticCheck、createBacktest、createRelease、submitReleaseApproval、requestRollback；R: backtest run stream | P06、P07 | S01–S04 | P0 | FEP-3/G3 | BFF-FE-004 | Closed（OpenAPI 1.0.0 冻结） |
 | GAP-06 | C06 | Q: getPortfolio、getRiskView（asOf/stale）；C: engageKillSwitch、releaseKillSwitch（MFA+签名）；R: portfolio/risk projection、kill switch broadcast | P02、P08 | X01/X02 | P0 | FEP-5/G5 | BFF-FE-006 | Closed（OpenAPI 1.0.0 冻结） |
-| GAP-07 | C07 | Q: listProposals、getProposal；C: requestRiskEvaluation（proposal/version/context hash）；R: proposal status stream。**proto 缺口：TradeProposal 无 counter_views 字段（R04 强制反方观点），需 proto v1 增补或 BFF ProposalView 承载** | P09、P20 | R04、X02 | P0 | FEP-5/G5 | BFF-FE-006 | Closed（OpenAPI 1.0.0 冻结） |
+| GAP-07 | C07 | Q: listProposals、getProposal；C: requestRiskEvaluation（proposal/version/context hash）；R: proposal status stream。`TradeProposal.counter_views` proto 缺口已以 additive 字段关闭 | P09、P20 | R04、X02 | P0 | FEP-5/G5 | BFF-FE-006 | Closed（OpenAPI 1.0.0 冻结） |
 | GAP-08 | C08 | Q: listApprovals、getApproval；C: decideApproval（signature+mfaChallengeRef）、reauth；MFA challenge 生命周期 | P07、P10、P20 | F06、X03、L03 | P0 | FEP-5/G5 | BFF-FE-006 | Closed（OpenAPI 1.0.0 冻结） |
 | GAP-09 | C09 | Q: listOrders、getOrder；C: submitCommandRef（Idempotency-Key）、requestCancel；R: order event stream | P11、P19（标记）、P20 | X03/X04、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Closed（OpenAPI 1.0.0 冻结） |
 | GAP-10 | C10 | Q: searchAuditEvents、getEvidenceChain（correlation/causation 分页）；C: createExport、getExportStatus、getExportDownload（短时签名 URL） | P12 及全部领域页跳转 | F05、X06 | P0 | FEP-5/G5 | BFF-FE-007 | Open |

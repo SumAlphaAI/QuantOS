@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：2.3
+> 版本：2.4
 > 更新时间：2026-09-16
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `2.4`：PRE-04 接口盘点完成当前仓库复核；同步 BFF OpenAPI 1.1.0、55 operations、41 schemas 与 Proto 38 messages/15 enums 的实际基线，以 PRE-01 动态 P0 页面集合校验 C01–C17、GAP-01–17、144 行字段字典、owner 和 mock 状态，并新增六类可破坏 Gate。开发状态与接口实现状态、GPT-6 Astra 复审状态继续分开记录。
 - `2.3`：PRE-03 技术栈落地完成当前仓库复核；固定 Node 24.12.0，按实际锁文件校验 26 项前端依赖及 Tauri 依赖，强化共享产物、深链和构建路由的可破坏 Gate，并以隔离离线环境重放 bootstrap/build/test。开发状态与 GPT-6 Astra 复审状态继续分开记录。
 - `2.2`：PRE-02 设计系统预研完成当前仓库复核；强化 token/状态映射、36 组 WCAG 对比度、18 条规范安全文案、组件清单和 Storybook 骨架的可破坏 Gate。开发状态与 GPT-6 Astra 复审状态继续分开记录。
 - `2.1`：PRE-01 需求拆解完成当前仓库复核；官网七页由聚合七态改为逐页七态，新增可执行的页面/Story/权限/场景/追踪完整性 Gate。开发状态与 GPT-6 Astra 复审状态继续分开记录。
@@ -180,7 +181,7 @@
 - task_type: `PREPARATION`
 - iteration: `P0`
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-04)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：接口盘点

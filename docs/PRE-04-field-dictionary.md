@@ -1,6 +1,6 @@
 # PRE-04 字段字典
 
-> 任务：PRE-04 接口盘点  版本：1.0  日期：2026-08-14
+> 任务：PRE-04 接口盘点  版本：1.1  日期：2026-08-14；复核：2026-09-16
 > 规则：每个字段必须有 名称 / 类型与序列化 / required / 权威来源 四项，禁止"待开发时再定"。
 > 来源标注：`proto:xxx` = 已有 F03 proto 锚；`bff:xxx` = BFF 页面模型新增字段（由 BFF-FE-000–011 在 OpenAPI 定义，proto 无对应对象时以领域服务读模型为权威）。
 > JSON 命名 lowerCamelCase；snake_case ↔ camelCase 转换只在生成/transport 层（执行计划 5.3）。
@@ -257,4 +257,4 @@ SSE 事件信封（bff:StreamEvent）：`streamId:uuid`(req)、`sequence:int64`(
 ## 19. 完备性声明
 
 - 全部 17 个契约的关键字段均有类型、required 与权威来源；无"待开发时再定"字段。
-- 新增 bff: 页面模型字段共 9 组（SessionContext、CommandCenterView、ResearchRun、SnapshotView/ArtifactView、StrategyDraft/BacktestReport/ReleaseView、PortfolioView/RiskView、Approval、PreflightView、PerformanceView/ReportJob、ReconRun/Break、Alert、Profile/PlatformCapabilities），由 BFF-FE-000–011 在 OpenAPI 定义并生成 client；proto 已有对象字段以 proto 为唯一事实来源，页面不手写重复 DTO。
+- `bff:` 页面模型覆盖全部 C01–C17 字段组；其中已冻结部分以当前 OpenAPI 1.1.0 和生成 client 为准，未冻结部分由对应 BFF-FE-000–011 任务发布后同步字典。proto 已有对象字段以 proto 为唯一事实来源，页面不手写重复 DTO。
