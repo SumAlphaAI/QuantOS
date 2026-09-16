@@ -22,6 +22,7 @@ members = [
   "services/portfolio-rebuild",
   "services/replay-cli",
   "services/runtime-gateway",
+  "services/bff-gateway",
 ]
 # Tauri 桌面壳独立于领域 workspace：GUI/平台依赖不进入 cargo check/clippy --workspace
 exclude = ["apps/terminal-desktop/src-tauri"]
@@ -35,6 +36,7 @@ rust-version = "1.91"
 
 [workspace.dependencies]
 anyhow = "1.0.100"
+axum = "0.7.9"
 bytes = "1.11.0"
 clap = { version = "4.5.53", features = ["derive"] }
 chrono = { version = "0.4.42", features = ["clock", "serde"] }

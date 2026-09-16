@@ -254,6 +254,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/settings/mfa/factors/{factorId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** 撤销 MFA 因素；最后有效因素必须返回 409 且不得修改状态 */
+        delete: operations["revokeMfaFactor"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/settings/downloads": {
         parameters: {
             query?: never;
@@ -903,6 +920,12 @@ export interface components {
             status: "accepted" | "cancel_requested";
             correlationId: components["schemas"]["UUID"];
         };
+        AuditedAsyncAccepted: components["schemas"]["AsyncAccepted"] & {
+            auditRef: components["schemas"]["UUID"];
+        };
+        ReauthRequest: {
+            challengeRef: components["schemas"]["UUID"];
+        };
         StreamEvent: {
             streamId: components["schemas"]["UUID"];
             /** Format: int64 */
@@ -1341,6 +1364,8 @@ export interface components {
         IfMatch: string;
         /** @description 只推送 sequence 严格大于该值的事件（断线回补） */
         AfterSequence: number;
+        /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+        CsrfToken: string;
     };
     requestBodies: never;
     headers: {
@@ -1400,11 +1425,18 @@ export interface operations {
     reauth: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+            };
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReauthRequest"];
+            };
+        };
         responses: {
             /** @description 再认证通过，返回新的 reauthTokenRef（短时） */
             200: {
@@ -1426,7 +1458,10 @@ export interface operations {
     mfaChallenge: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1461,7 +1496,10 @@ export interface operations {
     logout: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1503,7 +1541,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AsyncAccepted"];
+                    "application/json": components["schemas"]["AuditedAsyncAccepted"];
                 };
             };
             422: components["responses"]["Unprocessable"];
@@ -1539,6 +1577,8 @@ export interface operations {
                 "If-Match": components["parameters"]["IfMatch"];
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
             };
             path?: never;
             cookie?: never;
@@ -1558,6 +1598,8 @@ export interface operations {
                     "application/json": components["schemas"]["ProfileSettings"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
             422: components["responses"]["Unprocessable"];
         };
@@ -1590,6 +1632,8 @@ export interface operations {
                 "If-Match": components["parameters"]["IfMatch"];
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
             };
             path?: never;
             cookie?: never;
@@ -1609,6 +1653,8 @@ export interface operations {
                     "application/json": components["schemas"]["NotificationPreferences"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
         };
     };
@@ -1630,6 +1676,8 @@ export interface operations {
                     "application/json": components["schemas"]["SecuritySettings"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listSessions: {
@@ -1650,6 +1698,8 @@ export interface operations {
                     "application/json": components["schemas"]["ActiveSession"][];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     revokeSession: {
@@ -1658,6 +1708,8 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
                 "X-Reauth-Token-Ref": string;
             };
             path: {
@@ -1673,10 +1725,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AsyncAccepted"];
+                    "application/json": components["schemas"]["AuditedAsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
         };
     };
@@ -1701,6 +1755,8 @@ export interface operations {
                     "text/event-stream": components["schemas"]["StreamEvent"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listDevices: {
@@ -1721,6 +1777,8 @@ export interface operations {
                     "application/json": components["schemas"]["TrustedDevice"][];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     revokeDevice: {
@@ -1729,6 +1787,8 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
                 "X-Reauth-Token-Ref": string;
             };
             path: {
@@ -1744,9 +1804,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AsyncAccepted"];
+                    "application/json": components["schemas"]["AuditedAsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
         };
     };
@@ -1756,6 +1819,8 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
                 "X-Reauth-Token-Ref": string;
             };
             path?: never;
@@ -1776,9 +1841,44 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AsyncAccepted"];
+                    "application/json": components["schemas"]["AuditedAsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            409: components["responses"]["Conflict"];
+        };
+    };
+    revokeMfaFactor: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                "X-Reauth-Token-Ref": string;
+            };
+            path: {
+                factorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 因素撤销已受理；auditRef 可追踪安全审计记录 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditedAsyncAccepted"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
         };
     };
     listDownloads: {
@@ -1805,6 +1905,8 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     getPlatformCapabilities: {
@@ -1825,6 +1927,8 @@ export interface operations {
                     "application/json": components["schemas"]["BrowserCapabilityPolicy"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
         };
     };
     listResearchRuns: {

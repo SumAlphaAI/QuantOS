@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.1.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.2.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -186,6 +186,36 @@
           "$ref": "#/$defs/UUID"
         }
       }
+    },
+    "AuditedAsyncAccepted": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/AsyncAccepted"
+        },
+        {
+          "type": "object",
+          "required": [
+            "auditRef"
+          ],
+          "properties": {
+            "auditRef": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        }
+      ]
+    },
+    "ReauthRequest": {
+      "type": "object",
+      "required": [
+        "challengeRef"
+      ],
+      "properties": {
+        "challengeRef": {
+          "$ref": "#/$defs/UUID"
+        }
+      },
+      "additionalProperties": false
     },
     "StreamEvent": {
       "type": "object",

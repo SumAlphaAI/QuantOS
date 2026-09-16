@@ -16,7 +16,7 @@
 
 | 基线 | 实现 | Gate |
 |---|---|---|
-| BFF/MSW contract | OpenAPI `1.1.0`，55 operations / 41 schemas；未配置 operation 默认 501；覆盖 403、409、429、可执行性不变量与敏感字段 | `pnpm test:contract`、`check:bff-generated`、`check:bff-contract-coverage` |
+| BFF/MSW contract | OpenAPI `1.2.0`，56 operations / 43 schemas；未配置 operation 默认 501；覆盖 403、409、429、可执行性不变量与敏感字段 | `pnpm test:contract`、`check:bff-generated`、`check:bff-contract-coverage` |
 | 浏览器 E2E | Terminal 与官网各注册 Chromium / Firefox / WebKit，固定 1440×900 桌面 viewport，同时覆盖 390px 与 200% 缩放场景 | `test:browser`、`test:browser:website` |
 | 无障碍 | axe WCAG 2 A/AA，serious/critical 为阻断；可滚动下载区域可键盘聚焦 | Playwright spec |
 | 视觉 | 5 个入库 PNG 由 manifest 冻结 SHA-256、尺寸、scope 与 `0.5%` 差异阈值 | `pnpm check:visual-baselines`、`pnpm sabotage:pre06` |
@@ -38,7 +38,7 @@
 
 ## 4. 当前实测基线
 
-- contract：12/12 通过；BFF 生成与 coverage Gate 为 55 operations / 41 schemas。
+- contract：13/13 通过；BFF 生成与 coverage Gate 为 56 operations / 43 schemas。
 - Terminal：Chromium 27/27；Firefox 24 通过、3 个缺失对应平台快照的视觉用例跳过；WebKit 25 通过、2 个缺失对应平台快照的视觉用例跳过。
 - 官网：Chromium、Firefox、WebKit 各 18/18 通过。
 - 视觉：5 个入库快照的 hash、尺寸与 inventory 通过；文件名中的 `1440` 与实际 1440px 宽一致。

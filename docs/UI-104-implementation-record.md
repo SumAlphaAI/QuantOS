@@ -1,6 +1,6 @@
 # UI-104 实施记录
 
-> 阶段：FEP-1（W3–W4）  状态：UI Complete / Contract Mocked  日期：2026-08-15
+> 阶段：FEP-1（W3–W4）  状态：UI Complete / Local Provider Implemented  日期：2026-09-16
 
 ## 需求拆解与交付
 
@@ -10,17 +10,17 @@
 | 通知设置 | `/settings/notifications`：严重性/渠道矩阵、静默时段、Critical 绕过与摘要频率 | 浏览器权限 denied/default/unsupported 均降级至站内通知；不重复请求权限 |
 | 安全与 MFA | `/settings/security`：安全评分、MFA、活跃会话、可信设备和安全操作 | 当前会话不可撤销；最后有效因素保护；撤销需要确认短语、六位 MFA、服务端最终校验提示与 correlation ID |
 | Web 浏览器能力 | `/settings/browser`：通知、下载、存储、授权深链、兼容性、响应式限制与能力状态 | 权限只由点击触发；下载说明短时签名/过期/审计；Desktop 通过平台 adapter 隐藏 P17 入口 |
-| C17 契约 | OpenAPI 1.1.0 additive candidate，13 个 settings/platform operation，生成 client、JSON Schema 与 MSW | 55 operations / 41 schemas 全量生成与覆盖检查通过；页面标识 `Contract Mocked`，不误报 Integrated |
+| C17 契约 | OpenAPI 1.2.0，14 个 settings/platform operation，生成 client、JSON Schema 与 MSW | 56 operations / 43 schemas 全量生成与覆盖检查通过；Rust 本地参考 provider 实现 P15/P17，不误报 staging Integrated |
 | 多端适配 | 1440 完整态；768–1365 折叠导航/双栏；390 单栏只读；200% 回流 | 小于 768px 隐藏撤销会话/设备等高风险按钮；文档无横向溢出，宽表仅组件内滚动 |
 
 ## 架构与安全边界
 
 - 页面只消费 `@sumalpha/api-client` 生成类型；样例数据集中于 `src/settings/fixture.ts`，业务组件不声明页面 DTO。
-- `SettingsGateway` 首先调用 `GET /v1/session`，失败时不发起任何 C17 并行请求；写接口携带 `If-Match`、`Idempotency-Key`，撤销接口另携带 `X-Reauth-Token-Ref`。
+- `SettingsGateway` 首先调用 `GET /v1/session`，失败时不发起任何 C17 并行请求；写接口携带 `If-Match`、`Idempotency-Key`、`X-CSRF-Token`，撤销接口另携带 `X-Reauth-Token-Ref`。
 - 会话撤销在 UI 中只显示“已受理”，最终状态由撤销事件确认；本地不伪造服务端完成状态。
 - 浏览器深链只含资源引用，进入后重新鉴权；token、领域秘密与本地敏感缓存不进入 URL 或浏览器存储。
 - `shouldExposeBrowserSettings()` 位于 platform adapter；业务组件没有 `isDesktop` 分叉。
-- GAP-17 保持 Open：P15/P17 具备同构 Contract Mocked，BFF-FE-001/011 staging 签署及 P16 cache/update/diagnostic 仍待后续阶段。
+- GAP-17 保持 Partial：P15/P17 具备 OpenAPI 1.2.0 与本地参考 provider，BFF-FE-001/011 staging 签署及 P16 cache/update/diagnostic 仍待后续阶段。
 
 ## 状态与交互验收
 
@@ -46,4 +46,4 @@
 
 - W3：C17 additive candidate、生成物、settings 模型/gateway 与 P15 页面完成。
 - W4：P17、平台降级、七态 Story、响应式/200%、单测、axe、E2E、视觉与浏览器验收完成。
-- UI-104 可按 `UI Complete / Contract Mocked` 交付；升级为 `Integrated` 前必须完成 BFF-FE-001/011 staging contract/provider verification，并补 P16 所需的 cache/update/diagnostic operation。
+- UI-104 可按 `UI Complete / Local Provider Implemented` 交付；升级为 `Integrated` 前必须完成 BFF-FE-001/011 staging contract/provider verification，并补 P16 所需的 cache/update/diagnostic operation。

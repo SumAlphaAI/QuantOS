@@ -63,9 +63,9 @@ export function validatePre06(inputs) {
   }
   check(inputs.terminalPlaywright.includes('"deep-link-reauth.spec.ts"'), "phase-one Terminal excludes the Desktop deep-link spec");
 
-  check(inputs.operations.version === "1.1.0", "BFF fixture manifest is version 1.1.0");
-  check(inputs.operations.operations?.length === 55, "BFF fixture manifest covers 55 operations");
-  check(Object.keys(inputs.schemas.$defs ?? {}).length === 41, "BFF fixture schema bundle covers 41 schemas");
+  check(inputs.operations.version === "1.2.0", "BFF fixture manifest is version 1.2.0");
+  check(inputs.operations.operations?.length === 56, "BFF fixture manifest covers 56 operations");
+  check(Object.keys(inputs.schemas.$defs ?? {}).length === 43, "BFF fixture schema bundle covers 43 schemas");
   for (const marker of ["MOCK_NOT_CONFIGURED", "currentVersion", "retryAfter", "venueApiKey", "executable=true"]) {
     check(inputs.contractTests.includes(marker), `contract tests cover ${marker}`);
   }

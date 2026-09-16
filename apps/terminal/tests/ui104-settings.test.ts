@@ -7,7 +7,7 @@ import {
   notificationFallback,
 } from "../src/settings/c17";
 import { ui104SettingsFixture } from "../src/settings/fixture";
-import { loadSettingsBundle, SettingsGatewayError } from "../src/settings/gateway";
+import { loadSettingsBundle, revokeMfaFactor, SettingsGatewayError } from "../src/settings/gateway";
 
 describe("UI-104 settings safety rules", () => {
   it("never exposes session revocation for the current session, offline mode, or small screens", () => {
@@ -57,5 +57,24 @@ describe("UI-104 C17 gateway guard", () => {
     expect(error).toBeInstanceOf(SettingsGatewayError);
     expect((error as SettingsGatewayError).operation).toBe("getSession");
     expect(calls).toBe(1);
+  });
+
+  it("forwards idempotency, CSRF and recent-auth headers when revoking an MFA factor", async () => {
+    let capturedHeaders = new Headers();
+    const fetchImpl = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      capturedHeaders = input instanceof Request ? input.headers : new Headers(init?.headers);
+      return new Response(JSON.stringify({
+        jobId: "11111111-2222-4333-8444-555555555555",
+        status: "accepted",
+        correlationId: "66666666-7777-4888-8999-000000000000",
+        auditRef: "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+      }), { status: 202, headers: { "content-type": "application/json" } });
+    }) as typeof fetch;
+
+    const result = await revokeMfaFactor("https://bff.example", "factor-passkey", "reauth-ref", "idem-1", "csrf-1", fetchImpl);
+    expect(result.auditRef).toBe("aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee");
+    expect(capturedHeaders.get("idempotency-key")).toBe("idem-1");
+    expect(capturedHeaders.get("x-csrf-token")).toBe("csrf-1");
+    expect(capturedHeaders.get("x-reauth-token-ref")).toBe("reauth-ref");
   });
 });

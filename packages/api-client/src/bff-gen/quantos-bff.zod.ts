@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.1.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.2.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -48,6 +48,14 @@ export const AsyncAcceptedSchema = z.object({
   "status": z.enum(["accepted","cancel_requested"]),
   "correlationId": z.lazy(() => UUIDSchema),
 });
+
+export const AuditedAsyncAcceptedSchema = z.intersection(z.lazy(() => AsyncAcceptedSchema), z.object({
+  "auditRef": z.lazy(() => UUIDSchema),
+}));
+
+export const ReauthRequestSchema = z.object({
+  "challengeRef": z.lazy(() => UUIDSchema),
+}).strict();
 
 export const StreamEventSchema = z.object({
   "streamId": z.lazy(() => UUIDSchema),
@@ -377,6 +385,8 @@ export const bffZodSchemas = {
   ErrorEnvelope: ErrorEnvelopeSchema,
   Page: PageSchema,
   AsyncAccepted: AsyncAcceptedSchema,
+  AuditedAsyncAccepted: AuditedAsyncAcceptedSchema,
+  ReauthRequest: ReauthRequestSchema,
   StreamEvent: StreamEventSchema,
   SessionContext: SessionContextSchema,
   ProfileSettingsInput: ProfileSettingsInputSchema,

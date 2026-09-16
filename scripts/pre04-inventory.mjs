@@ -9,6 +9,7 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const contractIds = Array.from({ length: 17 }, (_, index) => `C${String(index + 1).padStart(2, "0")}`);
 const gapIds = contractIds.map((id) => `GAP-${id.slice(1)}`);
 const frozenContracts = new Set(["C01", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C17"]);
+const implementedContracts = new Set(["C01", "C17"]);
 const forbiddenPlaceholder = /待开发时再定|待定义|待补充|\bTBD\b|\bTODO\b/i;
 
 function section(markdown, heading, nextHeading) {
@@ -66,7 +67,8 @@ export function validatePre04Inventory(inputs) {
     check(row[6]?.includes(`GAP-${id.slice(1)}`), `${id} links its matching OpenAPI gap`);
     check(row[7]?.includes("BFF TL") && row[7]?.includes("owner"), `${id} has BFF and domain role owners`);
     check(Boolean(row[8]) && !forbiddenPlaceholder.test(row[8]), `${id} has an explicit mock status`);
-    if (frozenContracts.has(id)) check(row[8]?.includes("Contract Mocked"), `${id} frozen contract is recorded as Contract Mocked`);
+    if (implementedContracts.has(id)) check(row[8]?.includes("Implemented"), `${id} delivered contract is recorded as locally Implemented`);
+    else if (frozenContracts.has(id)) check(row[8]?.includes("Contract Mocked"), `${id} frozen contract is recorded as Contract Mocked`);
   }
 
   const gapRows = tableRows(section(inputs.gaps, "| Gap ID", "## 统一基线"))
@@ -130,11 +132,11 @@ export function validatePre04Inventory(inputs) {
   }
   const sourceIds = sourceOperations.map((operation) => operation.operationId).sort();
   const manifestIds = (inputs.manifest.operations ?? []).map((operation) => operation.operationId).sort();
-  check(inputs.openapi.info?.version === "1.1.0", "BFF OpenAPI inventory version is 1.1.0");
-  check(sourceOperations.length === 55, "BFF OpenAPI inventory has 55 operations");
-  check(Object.keys(inputs.openapi.components?.schemas ?? {}).length === 41, "BFF OpenAPI inventory has 41 schemas");
+  check(inputs.openapi.info?.version === "1.2.0", "BFF OpenAPI inventory version is 1.2.0");
+  check(sourceOperations.length === 56, "BFF OpenAPI inventory has 56 operations");
+  check(Object.keys(inputs.openapi.components?.schemas ?? {}).length === 43, "BFF OpenAPI inventory has 43 schemas");
   check(JSON.stringify(sourceIds) === JSON.stringify(manifestIds), "generated operation manifest exactly matches OpenAPI");
-  check(inputs.ledger.includes("55 个 operation") && inputs.ledger.includes("41 个 schema"), "ledger records current BFF operation/schema counts");
+  check(inputs.ledger.includes("56 个 operation") && inputs.ledger.includes("43 个 schema"), "ledger records current BFF operation/schema counts");
 
   const protoMetrics = {
     files: inputs.protoSources.length,

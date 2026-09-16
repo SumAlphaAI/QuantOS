@@ -3,6 +3,8 @@ import type { BffComponents, BffOperations } from "@sumalpha/api-client";
 type ErrorEnvelope = BffComponents["schemas"]["ErrorEnvelope"];
 type MfaRequest = BffOperations["mfaChallenge"]["requestBody"]["content"]["application/json"];
 type MfaResponse = BffOperations["mfaChallenge"]["responses"][200]["content"]["application/json"];
+type ReauthRequest = BffOperations["reauth"]["requestBody"]["content"]["application/json"];
+type ReauthResponse = BffOperations["reauth"]["responses"][200]["content"]["application/json"];
 type AccessRequest = BffOperations["submitAccessRequest"]["requestBody"]["content"]["application/json"];
 type AccessAccepted = BffOperations["submitAccessRequest"]["responses"][202]["content"]["application/json"];
 
@@ -42,12 +44,15 @@ async function postJson<TResponse>(
   path: string,
   body: unknown,
   acceptedStatus: number,
+  csrfToken: string | undefined,
   fetchImpl: typeof fetch,
 ): Promise<TResponse> {
+  const headers: Record<string, string> = { accept: "application/json", "content-type": "application/json" };
+  if (csrfToken) headers["x-csrf-token"] = csrfToken;
   const response = await fetchImpl(`${origin}${path}`, {
     method: "POST",
     credentials: "include",
-    headers: { accept: "application/json", "content-type": "application/json" },
+    headers,
     body: JSON.stringify(body),
   });
   if (response.status !== acceptedStatus) throw await parseError(response);
@@ -57,10 +62,21 @@ async function postJson<TResponse>(
 export function completeLoginMfa(
   origin: string,
   code: string,
+  csrfToken: string,
   fetchImpl: typeof fetch = fetch,
 ): Promise<MfaResponse> {
   const body: MfaRequest = { purpose: "login", code };
-  return postJson<MfaResponse>(origin, "/v1/auth/mfa/challenges", body, 200, fetchImpl);
+  return postJson<MfaResponse>(origin, "/v1/auth/mfa/challenges", body, 200, csrfToken, fetchImpl);
+}
+
+export function completeRecentAuth(
+  origin: string,
+  challengeRef: string,
+  csrfToken: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<ReauthResponse> {
+  const body: ReauthRequest = { challengeRef };
+  return postJson<ReauthResponse>(origin, "/v1/auth/reauth", body, 200, csrfToken, fetchImpl);
 }
 
 export function submitAccessRequest(
@@ -68,5 +84,5 @@ export function submitAccessRequest(
   input: AccessRequest,
   fetchImpl: typeof fetch = fetch,
 ): Promise<AccessAccepted> {
-  return postJson<AccessAccepted>(origin, "/v1/access-requests", input, 202, fetchImpl);
+  return postJson<AccessAccepted>(origin, "/v1/access-requests", input, 202, undefined, fetchImpl);
 }

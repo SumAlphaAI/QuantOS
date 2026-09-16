@@ -40,9 +40,9 @@ test("generated manifest drift is rejected", () => {
   assert(report.failures.includes("generated operation manifest exactly matches OpenAPI"));
 });
 
-test("frozen contract mock status regression is rejected", () => {
-  const ledger = current.ledger.replace("Contract Mocked；同源生成 client/schema/MSW + session fixture", "Draft；无 fixture");
+test("delivered contract implementation status regression is rejected", () => {
+  const ledger = current.ledger.replace("Implemented（本地参考 provider）；同源生成 client/schema/MSW + session fixture", "Draft；无 fixture");
   const report = validatePre04Inventory({ ...current, ledger });
   assert.equal(report.status, "FAIL");
-  assert(report.failures.includes("C01 frozen contract is recorded as Contract Mocked"));
+  assert(report.failures.includes("C01 delivered contract is recorded as locally Implemented"));
 });

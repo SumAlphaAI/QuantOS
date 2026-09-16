@@ -32,7 +32,9 @@ function MfaForm() {
     setPending(true); setError("");
     try {
       const origin = process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN ?? "http://localhost:4010";
-      const result = await completeLoginMfa(origin, code);
+      const csrfToken = document.cookie.match(/(?:^|; )quantos_csrf=([^;]+)/)?.[1];
+      if (!csrfToken) throw new AuthBffError("安全会话已失效，请重新登录。", 403);
+      const result = await completeLoginMfa(origin, code, decodeURIComponent(csrfToken));
       if (result.status !== "verified") {
         setError("验证码无效或已失效，请重新获取后再试。");
         setDigits(["", "", "", "", "", ""]);

@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.1.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.2.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -52,6 +52,7 @@ export type BffOperationId =
   | "requestReleaseRollback"
   | "requestRiskEvaluation"
   | "revokeDevice"
+  | "revokeMfaFactor"
   | "revokeSession"
   | "runStaticCheck"
   | "saveNotificationPrefs"
@@ -283,6 +284,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.revokeDevice;
     if (resolver) return resolver({ request, params });
     return missingResolver("revokeDevice");
+  }),
+  http.delete(`${baseUrl}/v1/settings/mfa/factors/:factorId`, async ({ request, params }) => {
+    const resolver = resolvers.revokeMfaFactor;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("revokeMfaFactor");
   }),
   http.delete(`${baseUrl}/v1/settings/sessions/:sessionId`, async ({ request, params }) => {
     const resolver = resolvers.revokeSession;

@@ -13,7 +13,7 @@
 | `proto/jsonschema/v1*.schema.json` | 由 proto 提取，共 48 个 JSON Schema | 字段字典与 fixture validator 输入 |
 | `packages/api-client/src/gen/*` | Buf 生成 TS 类型（三语言 SDK 之一） | 生成层；页面不得手写重复 DTO |
 | `packages/api-client/src/{terminal,strategy,execution,ops}.ts` | 手写 4 组 `InMemory*Backend`（TerminalBackend 5 能力、StrategyBackend、ExecutionBackend、OpsBackend 9 方法） | **fixture 级**，执行计划 1.3 明确不能作生产接口契约；G0 前须迁移为实现生成接口的测试 adapter 或标记删除 |
-| `bff/openapi/quantos-bff.v1.yaml` | 1.1.0，55 个 operation、41 个 schema；覆盖 C01/C03–C09，并 additive 覆盖 C17 的 P15/P17 面 | 由同一契约生成 TS client、组件 JSON Schema、55-operation manifest 与 MSW handlers；C02/C10–C16、C17 Desktop 面仍待后续 minor 版本 |
+| `bff/openapi/quantos-bff.v1.yaml` | 1.2.0，56 个 operation、43 个 schema；覆盖 C01/C03–C09，并覆盖 C17 的 P15/P17 面 | 由同一契约生成 TS client、组件 JSON Schema、56-operation manifest 与 MSW handlers；C01/C17 P15 有本地参考 provider，C02/C10–C16、C17 Desktop 面仍待后续 minor 版本 |
 
 ## 2. 契约台账（C01–C17）
 
@@ -21,7 +21,7 @@
 
 | 契约 | Query | Command | Realtime | 后端任务 | proto 覆盖 | OpenAPI gap | 责任人 | mock 状态 |
 |---|---|---|---|---|---|---|---|---|
-| C01 Session/Context | session、workspace/account context、capabilities | reauth、MFA challenge、logout、access request | 权限/capability 变更断开通知 | F06、L03 | 部分（CommandMetadata/ActorRef/RuntimeMode；缺 Session/Context 消息） | GAP-01 | BFF TL + Auth owner（F06） | Contract Mocked；同源生成 client/schema/MSW + session fixture |
+| C01 Session/Context | session、workspace/account context、capabilities | reauth、MFA challenge、logout、access request | 权限/capability 变更断开通知 | F06、L03 | 部分（CommandMetadata/ActorRef/RuntimeMode；缺 Session/Context 消息） | GAP-01 | BFF TL + Auth owner（F06） | Implemented（本地参考 provider）；同源生成 client/schema/MSW + session fixture |
 | C02 Command Center | command summary 聚合 | 无（只读聚合页，设计决策） | authorized event projection | F09、R03、X01–X06 | 无（页面聚合模型新增） | GAP-02 | BFF TL + Observability owner（F09） | Inventory Fixture；3 个 command-center 场景，OpenAPI 未冻结 |
 | C03 Research Runtime | research list/get | create（幂等）、cancel | SSE stream/replay（sequence/afterSequence） | F07/F08、R03、U01 | 部分（ResearchArtifact；EngineService 流为服务级） | GAP-03 | BFF TL + Runtime owner（F07） | Contract Mocked；同源生成 client/schema/MSW，无专用数据 fixture |
 | C04 Snapshot/Artifact | snapshot list/get、artifact/attachment get | 无（只读，设计决策；导出走 C10） | 无（快照不可变，设计决策） | R02/R03、F05 | 对象级（DataSnapshot/ResearchArtifact/DataSourceRef/DataQuality） | GAP-04 | BFF TL + Data owner（R02） | Contract Mocked；同源生成 client/schema/MSW，无专用数据 fixture |
@@ -37,7 +37,7 @@
 | C14 Performance/Report | performance summary/series/attribution | report create/poll/download（异步 job） | 报表完成通知（经 C16） | X01/X05，需 BFF 新增页面模型 | 无（缺 Performance/Report 消息；MoneyValue/DecimalValue 可复用） | GAP-14 | BFF TL + Portfolio owner（X01） | Draft；无 fixture（需新建） |
 | C15 Reconciliation | recon list/get、break list/get、ledger entries | request rerun（幂等；无 edit-ledger operation） | recon status stream | X05 | 无（缺 ReconRun/Break/LedgerEntry 消息） | GAP-15 | BFF TL + Recon owner（X05） | Draft；无 fixture（需新建） |
 | C16 Alert/Notification | alert list/get、subscriptions | ack/unack（不代表 resolved）、subscription save | alert stream（授权/去重/限速） | F09、X05/X06 | 无（缺 Alert 消息；EventKind 可参考） | GAP-16 | BFF TL + Observability owner（F09） | Draft；无 fixture（需新建） |
-| C17 Settings/Platform | profile/session/device/notification/download query、platform capabilities | profile save、session/device revoke、MFA setup、cache clear、update check、diagnostic job | session 撤销实时失效推送 | F06、F09、L02/L03 | OpenAPI 1.1.0 additive candidate 已覆盖 P15/P17；P16 cache/update/diagnostic 仍缺 | GAP-17 | BFF TL + Auth owner（F06）+ Platform owner（L02） | Contract Mocked；同源生成 client/schema/MSW；P15/P17 无专用数据 fixture，staging 签署待完成 |
+| C17 Settings/Platform | profile/session/device/notification/download query、platform capabilities | profile save、session/device revoke、MFA setup/revoke、cache clear、update check、diagnostic job | session 撤销实时失效推送 | F06、F09、L02/L03 | OpenAPI 1.2.0 与本地参考 provider 已覆盖 P15/P17；P16 cache/update/diagnostic 仍缺 | GAP-17 | BFF TL + Auth owner（F06）+ Platform owner（L02） | Implemented（本地参考 provider）；同源生成 client/schema/MSW；staging 签署待完成 |
 
 ## 3. P0 页面 Query/Command/Realtime 依赖完备性矩阵
 
@@ -90,7 +90,7 @@
 
 | mock 形态 | 契约 | 状态与迁移要求 |
 |---|---|---|
-| OpenAPI 生成 client/schema/MSW | C01/C03–C09/C17（P15/P17） | 55 个 handler 与 41 个组件 schema 均由 1.1.0 生成；生成漂移和页面覆盖由 CI 阻断 |
+| OpenAPI 生成 client/schema/MSW | C01/C03–C09/C17（P15/P17） | 56 个 handler 与 43 个组件 schema 均由 1.2.0 生成；生成漂移和页面覆盖由 CI 阻断 |
 | 服务级 swagger（可作 fixture 参考） | C03、C10 部分（Engine/EventLedger 7 operation） | 仅覆盖服务层，不代表页面 BFF；页面 mock 仍需页面级 schema |
 | 独立场景数据 fixture | C01 session、C02 command-center、C07 proposal | 共 5 个有效场景文件；C02 仅 Inventory Fixture，不能冒充已冻结 OpenAPI |
 | 无专用数据 fixture | C03–C06、C08–C17 | 已冻结域可由生成式 MSW 承载结构，但仍需按 PRE-06 补成功/拒绝/冲突/限流/断流/陈旧/权限场景；未冻结域先冻结 OpenAPI |

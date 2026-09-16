@@ -23,7 +23,7 @@
 | GAP-14 | C14 | Q: getPerformanceSummary、getPerformanceSeries、getAttribution；C: createReport、getReportStatus、getReportDownload | P21 | X01/X05（BFF 新增页面模型） | P1 | FEP-4/G4 | BFF-FE-008 | Open |
 | GAP-15 | C15 | Q: listReconRuns、getReconRun、listBreaks、getBreak、listLedgerEntries；C: requestReconRerun（幂等）；R: recon status stream；禁止 edit-ledger operation | P22、P11、P21 | X05 | P0 | FEP-5/G5 | BFF-FE-009 | Open |
 | GAP-16 | C16 | Q: listAlerts、getAlert、getSubscriptions；C: ackAlert、unackAlert、saveSubscription；R: alert stream（授权/去重/限速） | P23、P02、P13、全局 | F09、X05/X06 | P1 | FEP-6/G6 | BFF-FE-010 | Open |
-| GAP-17 | C17 | Q: getProfile、listSessions、listDevices、getNotificationPrefs、listDownloads、getPlatformCapabilities；C: saveProfile、revokeSession、revokeDevice、setupMfa、clearOfflineCache、checkUpdate、createDiagnosticJob；R: session 撤销推送 | P15、P16、P17 | F06、F09、L02/L03 | P0 | FEP-1/G1（P15）、FEP-6/G6（P16/P17） | BFF-FE-001/011 | Open（P15/P17 已有 OpenAPI 1.1.0 Contract Mocked；P16 与 staging 签署待完成） |
+| GAP-17 | C17 | Q: getProfile、listSessions、listDevices、getNotificationPrefs、listDownloads、getPlatformCapabilities；C: saveProfile、revokeSession、revokeDevice、setupMfa、revokeMfaFactor、clearOfflineCache、checkUpdate、createDiagnosticJob；R: session 撤销推送 | P15、P16、P17 | F06、F09、L02/L03 | P0 | FEP-1/G1（P15）、FEP-6/G6（P16/P17） | BFF-FE-001/011 | Partial（P15/P17 已有 OpenAPI 1.2.0 与本地参考 provider；P16 与 staging 签署待完成） |
 
 ## 统一基线（GAP-00，BFF-FE-000 本体）
 

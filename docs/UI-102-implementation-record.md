@@ -1,6 +1,6 @@
 # UI-102 实施记录
 
-> 阶段：FEP-1（W3–W4）  状态：UI Complete / Contract Integrated  日期：2026-08-15
+> 阶段：FEP-1（W3–W4）  状态：UI Complete / Local Provider Implemented  日期：2026-09-16
 
 ## 需求与交付映射
 
@@ -19,7 +19,7 @@
 
 - W3：OIDC/PKCE、安全 callback、统一 HTTP auth policy 完成。
 - W4：P01 页面、MFA、错误/维护/离线状态、多端适配、unit/E2E/axe/视觉验证完成。
-- C01/C08 的本任务所需 operation 已使用冻结 OpenAPI 类型；provider staging 与真实 IdP/MFA 联调仍需在 G1 环境签署。
+- C01/C08 的本任务所需 operation 已使用 OpenAPI 1.2.0 生成类型；C01 已有本地 Rust 参考 provider，provider staging 与真实 IdP/MFA 联调仍需在 G1 环境签署。
 
 ## G1 待联调项
 

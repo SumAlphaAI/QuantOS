@@ -38,7 +38,7 @@ test("generated operation coverage drift is rejected", () => {
   const operations = structuredClone(current.operations);
   operations.operations.pop();
   const report = validatePre06({ ...current, operations });
-  assert(report.failures.includes("BFF fixture manifest covers 55 operations"));
+  assert(report.failures.includes("BFF fixture manifest covers 56 operations"));
 });
 
 test("visual baseline integrity failure is rejected", () => {

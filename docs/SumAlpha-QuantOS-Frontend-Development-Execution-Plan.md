@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：2.8
+> 版本：2.9
 > 更新时间：2026-09-16
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `2.9`：完成 A2/BFF-FE-001 仓库交付；发布 OpenAPI 1.2.0 的 cookie session、CSRF、recent-auth、MFA 因素保护与 auditRef 契约，增加 Rust 本地参考 provider、撤销 SSE、前端 client 与可破坏 Gate。真实 IdP/Postgres、staging 消费者/provider 签署、GitHub CI 与 GPT-6 Astra 复审仍为独立未执行项。
 - `2.8`：完成 A1/BFF-FE-000 仓库交付；冻结 C01–C17、一期 22 页的 published/planned operationId catalog，补齐 sort/filter、ETag、错误 correlation header 基线，并将依赖、生成漂移、页面追踪、CI 接线和负向破坏检查纳入可重放 Gate。A2–A6 provider 实现、staging 回执与 GPT-6 Astra 复审未据此提前完成。
 - `2.7`：PRE-06 按 Web-only 边界完成当前仓库复核；将 Terminal 与官网的 Chromium/Firefox/WebKit、axe、真实入库视觉基线完整性、性能预算、BFF 1.1.0 contract fixture 与可破坏 Gate 接入 CI；Desktop 原生/深链测试迁至二期手动 workflow。本地 macOS 浏览器验收不代表 GitHub Actions、Linux 视觉或 staging 已运行。
 - `2.6`：PRE-05 按 Web-only 边界完成当前仓库复核；冻结 local-mock、local-integrated、staging 三套 profile，将公开变量 allowlist、URL/callback、环境/mode、secret 负向扫描接入官网与 Terminal 的构建期 fail-fast，并从一期 Gate 排除 Desktop 环境。仓库 Gate 完成不代表 staging 基础设施或账号已配置。
@@ -329,7 +330,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_type: `PAGE_API`
 - iteration: `A2`
 - depends_on: ["BFF-FE-000", "CORE:F06"]
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-001)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：session/context/reauth/MFA/logout/access request；profile/locale/theme；active sessions revoke；trusted devices revoke；notification preferences/subscriptions；安全操作与审计引用
@@ -734,7 +735,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - iteration: `I1`
 - depends_on: ["UI-101", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete / Contract Mocked。BFF-FE-001/011 Web 契约完成 staging 签署后才可 Integrated。
+- 状态范围：已开发完成；UI Complete / Local Provider Implemented。BFF-FE-001/011 Web 契约完成 staging 签署后才可 Integrated。
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-104)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：Profile/安全/通知/浏览器能力
@@ -758,7 +759,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - iteration: `I1`
 - depends_on: ["UI-103", "UI-102", "BFF-FE-001", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete / Contract Mocked。Terminal Auth/BFF staging 联调后配置真实 BFF origin 并晋级 G1；生产发布前在目标 CDN origin 验证 Lighthouse。
+- 状态范围：已开发完成；UI Complete / Local Provider Implemented。Terminal Auth/BFF staging 联调后配置真实 BFF origin 并晋级 G1；生产发布前在目标 CDN origin 验证 Lighthouse。
 - review_entry: [GPT-6 Astra 复审入口](#review-web-101)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：官网首页、产品、架构安全、场景、访问申请、登录

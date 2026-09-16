@@ -24,26 +24,32 @@ export async function loadSettingsBundle(origin: string, fetchImpl: typeof fetch
   };
 }
 
-export async function saveProfileSettings(origin: string, profile: ProfileSettingsInput, version: string, idempotencyKey: string, fetchImpl: typeof fetch = fetch) {
+export async function saveProfileSettings(origin: string, profile: ProfileSettingsInput, version: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
   const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
-  const result = await client.PUT("/v1/settings/profile", { body: profile, params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey } } });
+  const result = await client.PUT("/v1/settings/profile", { body: profile, params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey, "X-CSRF-Token": csrfToken } } });
   return required(result.data, "saveProfile");
 }
 
-export async function saveNotificationSettings(origin: string, preferences: NotificationPreferencesInput, version: string, idempotencyKey: string, fetchImpl: typeof fetch = fetch) {
+export async function saveNotificationSettings(origin: string, preferences: NotificationPreferencesInput, version: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
   const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
-  const result = await client.PUT("/v1/settings/notification-preferences", { body: preferences, params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey } } });
+  const result = await client.PUT("/v1/settings/notification-preferences", { body: preferences, params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey, "X-CSRF-Token": csrfToken } } });
   return required(result.data, "saveNotificationPrefs");
 }
 
-export async function revokeSettingsSession(origin: string, sessionId: string, reauthTokenRef: string, idempotencyKey: string, fetchImpl: typeof fetch = fetch) {
+export async function revokeSettingsSession(origin: string, sessionId: string, reauthTokenRef: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
   const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
-  const result = await client.DELETE("/v1/settings/sessions/{sessionId}", { params: { path: { sessionId }, header: { "Idempotency-Key": idempotencyKey, "X-Reauth-Token-Ref": reauthTokenRef } } });
+  const result = await client.DELETE("/v1/settings/sessions/{sessionId}", { params: { path: { sessionId }, header: { "Idempotency-Key": idempotencyKey, "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } } });
   return required(result.data, "revokeSession");
 }
 
-export async function revokeTrustedDevice(origin: string, deviceId: string, reauthTokenRef: string, idempotencyKey: string, fetchImpl: typeof fetch = fetch) {
+export async function revokeTrustedDevice(origin: string, deviceId: string, reauthTokenRef: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
   const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
-  const result = await client.DELETE("/v1/settings/trusted-devices/{deviceId}", { params: { path: { deviceId }, header: { "Idempotency-Key": idempotencyKey, "X-Reauth-Token-Ref": reauthTokenRef } } });
+  const result = await client.DELETE("/v1/settings/trusted-devices/{deviceId}", { params: { path: { deviceId }, header: { "Idempotency-Key": idempotencyKey, "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } } });
   return required(result.data, "revokeDevice");
+}
+
+export async function revokeMfaFactor(origin: string, factorId: string, reauthTokenRef: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
+  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
+  const result = await client.DELETE("/v1/settings/mfa/factors/{factorId}", { params: { path: { factorId }, header: { "Idempotency-Key": idempotencyKey, "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } } });
+  return required(result.data, "revokeMfaFactor");
 }
