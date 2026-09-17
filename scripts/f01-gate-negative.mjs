@@ -132,14 +132,20 @@ function lockFixture(p) {
 }
 for (const [name, mutate, pattern] of [
     ['Cargo manifest drift', p => { const f = path.join(p, 'Cargo.toml'); fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace('anyhow = "1.0.100"', 'anyhow = "=0.0.0"')); }, /anyhow|lock/i],
-    ['uv manifest drift', p => { const f = path.join(p, 'engines/pyproject.toml'); fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace('ruff==0.12.7', 'ruff==0.12.6')); }, /lock|ruff/i],
+    ['uv manifest drift', p => { const f = path.join(p, 'engines/pyproject.toml'); fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace('ruff==0.12.7', 'ruff==0.12.6')); }, /lock|ruff|No solution found/i],
     ['pnpm manifest drift', p => { const f = path.join(p, 'package.json'); const j = JSON.parse(fs.readFileSync(f)); j.devDependencies.typescript = '0.0.0'; fs.writeFileSync(f, JSON.stringify(j)); }, /OUTDATED_LOCKFILE|doesn.t match|typescript/i],
     ['malformed Buf lock', p => write(path.join(p, 'buf.lock'), 'not a lock'), /Invalid Buf lock/],
 ])
     test(`${name} is rejected by actual lock gate`, () => fixture(p => {
         lockFixture(p);
+        const env = { ...process.env, QUANTOS_GATE_ROOT: p, CARGO_NET_OFFLINE: 'true', UV_OFFLINE: 'true' };
+        // A frozen install may populate wheels without the resolver index.
+        // Prove the unchanged fixture passes even with a fresh uv cache.
+        if (name === 'uv manifest drift') env.UV_CACHE_DIR = path.join(p, 'empty-uv-cache');
+        const baseline = spawnSync('bash', [path.join(root, 'scripts/check-lockfiles.sh')], { env, encoding: 'utf8' });
+        assert.equal(baseline.status, 0, baseline.stdout + baseline.stderr);
         mutate(p);
-        const r = spawnSync('bash', [path.join(root, 'scripts/check-lockfiles.sh')], { env: { ...process.env, QUANTOS_GATE_ROOT: p, CARGO_NET_OFFLINE: 'true', UV_OFFLINE: 'true' }, encoding: 'utf8' });
+        const r = spawnSync('bash', [path.join(root, 'scripts/check-lockfiles.sh')], { env, encoding: 'utf8' });
         assert.notEqual(r.status, 0);
         assert.match(r.stdout + r.stderr, pattern);
     }));
