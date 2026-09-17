@@ -16,7 +16,7 @@
 
 `make lockfile-check f01-check lint test` 在干净源码副本中整体通过，另有工作区分批复验。16 个负向/隔离测试通过：产物变化与缺失、额外产物、空输出、目录清单漂移、脏/未跟踪输入、README 删除、uv 漂移、无效锁、三语言 manifest 漂移、Buf 无效锁、TSX lint 注入、旧回执失效、Desktop 损坏隔离。Python 91 项、一期 TypeScript 115 项通过；Rust 工作区通过（无凭据提前返回的测试不是目标数据库验收）。
 
-证据总入口：[summary.json](./evidence/F01-remediation-2026-09-17/summary.json)，含文件哈希。PRE-06 回归检查通过；初审探针已固定历史源码 SHA 并成功重放，修复后的负向门禁另见本次测试日志。
+证据总入口：[summary.json](./evidence/F01-remediation-2026-09-17/summary.json)，含文件哈希。归档日志仅去除行尾空白；原始日志 SHA-256 另存于摘要的 `logNormalization` 字段。PRE-06 回归检查通过；初审探针已固定历史源码 SHA 并成功重放，修复后的负向门禁另见本次测试日志。
 
 初始新增审计探针存在 Ruff 格式问题，已格式化并复验。生产凭据与真实业务环境未使用。
 
