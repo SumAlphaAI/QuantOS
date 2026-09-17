@@ -52,7 +52,11 @@ export function validateOutputs(root, expected) {
     const binaries = fs.readdirSync(rustRoot, { withFileTypes: true }).filter(e => e.isFile() && (fs.statSync(path.join(rustRoot, e.name)).mode & 0o111)).map(e => e.name);
     exact(binaries, expected.rustBinaries, 'Rust executable outputs');
     const pythonRoot = path.join(root, 'artifacts/python');
-    const wheels = files(pythonRoot);
+    const wheels = files(pythonRoot).filter(p => {
+        if (path.basename(p) !== '.gitignore') return true;
+        if (fs.readFileSync(p, 'utf8').trim() !== '*') throw new Error('Unexpected Python output metadata');
+        return false;
+    });
     exact(wheels.map(p => path.basename(p)), expected.python.map(p => `${p.name.replaceAll('-', '_')}-${p.version}-py3-none-any.whl`), 'Python wheel outputs');
     const typescript = expected.js.map(p => ({ directory: p.directory, ...digest(files(path.join(root, p.output)), path.join(root, p.output)) }));
     const result = { rust: digest(expected.rustBinaries.map(n => path.join(rustRoot, n)), rustRoot), python: digest(wheels, pythonRoot), typescript };

@@ -149,3 +149,11 @@ test('broken Desktop is outside phase-one pnpm frozen check', () => fixture(p =>
     const r = spawnSync('node', ['scripts/check-node-lock.mjs'], { cwd: p, env: process.env, encoding: 'utf8' });
     assert.equal(r.status, 0, r.stdout + r.stderr);
 }));
+
+test('uv output marker is metadata, other unexpected files still fail', () => fixture(p => {
+    const inv = outputs(p);
+    write(path.join(p, 'artifacts/python/.gitignore'), '*\n');
+    assert.equal(validateOutputs(p, inv).python.files.length, 1);
+    write(path.join(p, 'artifacts/python/extra.txt'));
+    assert.throws(() => validateOutputs(p, inv), /mismatch/);
+}));
