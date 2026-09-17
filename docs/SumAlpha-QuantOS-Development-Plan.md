@@ -1,13 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.2
-> 更新时间：2026-09-16
+> 版本：3.3
+> 更新时间：2026-09-17
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
 
+- `3.3`：第一期范围收敛为官网与 Web Terminal；移除 Desktop 开发、原生测试、双端回归与 Desktop Gate 要求，统一迁入 [Desktop 第二期开发执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 - `3.2`：完成 CORE:R02 当前仓库交付复核与加固；确定性不可变 hash、时间窗、schema、来源、许可证、血缘、对象存储 hash 校验、租户绑定质量 Gate、300 个拒绝 fixture、PostgreSQL/RLS migration 与数据库更新拒绝触发器均纳入可破坏 Gate。真实 PostgreSQL 查询 P95、目标 RLS 与 Supabase Storage 仍需独立凭据和目标环境验收。
 - `3.1`：完成 CORE:R01 当前仓库交付复核与加固；批准 provider、严格 symbol 归一化、精度/时间/来源/质量契约、10 万条 replay、乱序/重复去重、五秒异常发出与 `MarketEvent` append-only ledger 写入均纳入可破坏 Gate。真实 provider、消息基础设施和目标环境吞吐仍需独立验收。
 - `3.0`：为 GPT-6 Astra 对全量已开发核心功能重新复审重构文档，移除历史核查、复验结论与过程记录；保留业务需求、功能定义、量化标准、依赖和已开发状态标记。
@@ -22,7 +23,7 @@
 |---|---|---|
 | 产品 | 单主租户、单主工作区、单优先 venue、有限现货/永续订单意图 | 多租户产品体验、多工作区切换、多 venue 智能路由 |
 | 模式 | Research、Paper、Shadow；M5 完成 Assisted Live 的 testnet/上线评审准备 | 无审批自动实盘、Guarded Live 生产上线 |
-| 客户端 | `app.sumalpha.ai` 与 Tauri 桌面端共享 Terminal；官网、BFF | 移动交易 App、浏览器内量化回测 |
+| 客户端 | 官网与 `app.sumalpha.ai` Web Terminal；BFF | Desktop、移动交易 App、浏览器内量化回测 |
 | 交易边界 | `TradeProposal → RiskDecision → Approval（如需）→ TradeCommand → Execution Gateway` | Agent、Engine、前端或插件绕过该链路直连 venue |
 
 ### 1.2 开发不变量
@@ -30,9 +31,9 @@
 1. Rust 负责核心领域、事件、权限、策略、风控、命令与执行边界；Python 仅作为受控 Engine，通过版本化 Engine Protocol 接入。
 2. `TradeProposal` 永远不可执行；`TradeCommand` 必须已批准、短时有效、可审计且幂等。
 3. 每个研究、策略、风险、命令和订单事实必须带 `tenant_id`、`actor`、`correlation_id`；一期只创建一个主租户和主工作区。
-4. 研究 Engine、浏览器和桌面端不持有 venue 密钥；秘密只在执行边界以引用或短期租约使用。
+4. 研究 Engine 和 Web 客户端不持有 venue 密钥；秘密只在执行边界以引用或短期租约使用。
 5. M3/M4 的 `StrategyRelease` 仅可部署至 Paper/Shadow；只有 M5 Gate 与单独批准后才可出现 Assisted Live 目标。
-6. Web 与桌面端共享业务页面、领域组件、BFF client、路由和权限测试；桌面壳不得复制或旁路领域逻辑。
+6. 第一期 UI 只以 Web Terminal 为交付和验收载体；Desktop 的共享业务产物、平台适配与发布边界由第二期计划管理，不纳入本计划 Gate。
 
 ## 2. 任务编写与自动验收规范
 
@@ -50,7 +51,7 @@
 | 代码质量 | `cargo fmt --check`、Clippy（禁止 warning）、Rust `cargo nextest`；Python Ruff、Pyright、pytest；TypeScript lint、typecheck、Vitest 全绿。 |
 | 覆盖率 | 新增 Rust 核心领域/风险/执行代码行覆盖率 ≥90%；稳定 Rust/LLVM CI 以 region 覆盖率 ≥85% 作为分支代理，nightly 发布验证仍要求分支覆盖率 ≥85%；Python Engine 适配新增代码行覆盖率 ≥85%；TypeScript 领域组件/状态代码行覆盖率 ≥80%。不能覆盖的代码须在报告中逐项豁免。 |
 | 性能 | 测试环境中纯领域计算 P95 <50ms；BFF 授权读查询同区域 P95 <100ms，跨区域开发机连接托管数据库时 P95 <500ms；命令校验（不含外部 venue 往返）P95 <200ms。异步任务必须在 deadline 内返回受理或确定性错误。 |
-| 兼容性 | 协议变更通过 Buf breaking check；Rust/Python/TypeScript 生成 SDK 可编译；Web Chromium/Firefox/Safari 当前稳定版与桌面 macOS/Windows 回归通过。 |
+| 兼容性 | 协议变更通过 Buf breaking check；Rust/Python/TypeScript 生成 SDK 可编译；Web Chromium/Firefox/Safari 当前稳定版回归通过。 |
 | 安全与审计 | 无高危依赖/secret scan 未豁免项；所有写操作写入 actor、tenant、correlation、causation；错误、日志和导出不含秘密。 |
 | 可运维性 | 关键路径提供结构化日志、trace、指标、健康检查和失败说明；部署/回滚/已知限制写入 Runbook 或任务文档。 |
 
@@ -110,7 +111,7 @@ flowchart LR
   R --> S["S2 策略治理闭环"]
   S --> X["X3 Paper + Shadow 执行闭环"]
   X --> L["L4 Assisted Live 评审准备"]
-  F --> U["U 共享 Terminal"]
+  F --> U["U Web Terminal"]
   R --> U
   S --> U
   X --> U
@@ -139,7 +140,7 @@ flowchart LR
 - 状态范围：已实现；外部 CI/兼容矩阵及制品验收须按本任务标准单独验证。
 - review_entry: [GPT-6 Astra 复审入口](#review-f01)
 - 需求描述：初始化 Polyglot Monorepo
-- 技术要求：建立 Cargo workspace、`proto/`、`crates/`、`services/`、`engines/`、`apps/website`、共享 `apps/terminal`、`apps/terminal-desktop`、`packages/*`、`supabase/`；固定 Rust、uv、Node 工具链
+- 技术要求：建立 Cargo workspace、`proto/`、`crates/`、`services/`、`engines/`、`apps/website`、`apps/terminal`、`packages/*`、`supabase/`；固定 Rust、uv、Node 工具链
 - 交付物：目录树、锁文件、Make 任务、本地开发环境基线、`DATABASE_URL` 约定
 - 量化验收标准：新环境在 ≤30 分钟内运行 `bootstrap`、`lint`、`test`；所有目录有 README 与明确模块边界；跨语言构建连续 3 次可重复
 - 依赖：无
@@ -358,7 +359,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | 可复现性 | 连续 3 次独立构建得到相同 `uv.lock`、制品 digest 与 SBOM；`UPSTREAM.md` 能反向追溯 `upstream SHA → fork patch set → adapter image digest → release manifest`。 |
 | 契约与功能 | `GetMetadata/Health/Execute/StreamExecute/Cancel` 100% contract 通过；20 个代表性 workflow fixture 可回放；取消 ≤2 秒确认；重启无重复 Artifact。 |
 | 安全负向 | 至少 100 个 fixture 覆盖 secret、venue、shell、文件、未授权网络、跨 tenant 数据；全部必须被拒绝并写审计。 |
-| 兼容与 UX | Web/Desktop 共享 Research E2E 全绿；上游故障只允许暴露受控错误，不泄露内部堆栈、路径或凭证。 |
+| 兼容与 UX | Web Research E2E 全绿；上游故障只允许暴露受控错误，不泄露内部堆栈、路径或凭证。 |
 | 发布与回滚 | canary 观察期内无未解释 P1；能力禁用或回滚在 ≤5 分钟完成，且 in-flight 请求有确定性取消或重试语义。 |
 
 ### 5.2 采用/封装工程任务
@@ -915,16 +916,16 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - fix_tracking: []
 
 <a id="task-u01"></a>
-### U01：共享 Terminal 壳、认证与 Research 页面
+### U01：Web Terminal 壳、认证与 Research 页面
 
 - task_id: `U01`
 - task_type: `CORE`
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-u01)
-- 需求描述：共享 Terminal 壳、认证与 Research 页面
-- 技术要求：建立共享 React/Next 应用、BFF typed client、OIDC/MFA、App Shell、P01–P05 页面；桌面仅 Tauri adapter
-- 交付物：`apps/terminal`、`packages/ui/domain-ui/api-client/platform`、P01–P05
-- 量化验收标准：Web/桌面同一 Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作
+- 需求描述：Web Terminal 壳、认证与 Research 页面
+- 技术要求：建立 React/Next Web 应用、BFF typed client、OIDC/MFA、App Shell、P01–P05 页面
+- 交付物：`apps/terminal`、`packages/ui/domain-ui/api-client`、P01–P05
+- 量化验收标准：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作
 - 依赖：F06–F09、R02–R04
 
 <a id="review-u01"></a>
@@ -1015,7 +1016,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - 需求描述：策略审批与 Terminal Strategy 页面
 - 技术要求：实现策略目录、Lab、Backtest、Release、审批时间线；前端通过 capability 显示目标
 - 交付物：P06–P07、approval integration、E2E
-- 量化验收标准：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web/Desktop 视觉与功能回归通过
+- 量化验收标准：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过
 - 依赖：S01–S03、U01
 
 <a id="review-s04"></a>
@@ -1149,8 +1150,8 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - review_entry: [GPT-6 Astra 复审入口](#review-x06)
 - 需求描述：执行/审计/运维 Terminal 页面
 - 技术要求：实现 P08–P14；实时事件投影、危险操作确认、MFA、导出与 Runbook 入口
-- 交付物：Portfolio/Risk/Proposal/Approval/Order/Audit/Ops UI、desktop notifications
-- 量化验收标准：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web/Desktop 双端回归通过
+- 交付物：Portfolio/Risk/Proposal/Approval/Order/Audit/Ops Web UI
+- 量化验收标准：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web 回归通过
 - 依赖：X01–X05、U01
 
 <a id="review-x06"></a>
@@ -1270,7 +1271,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 - [ ] R01–R04、U01 完成；研究、Signal、Proposal 全部可回放且无交易副作用。
 - [ ] RD-Agent、LLMQuant、TradingAgents 的 contract/权限/重放测试通过；OpenBB 仅在许可证 Gate 允许时启用。
-- [ ] Web 与桌面端 Research 用例完全一致；所有 Artifact/数据快照可进入 Audit。
+- [ ] Web Research 用例全绿；所有 Artifact/数据快照可进入 Audit。
 - [ ] TP01-C、TP01-D 完成；`vibe_adapter` 的 contract、负向安全、回放与隔离运行测试通过，且移除 adapter 不影响其他 workflow 启动。
 
 ### 10.3 S2 Gate
@@ -1302,7 +1303,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 | 协议与契约 | `proto-check`、`sdk-generate-check`、`engine-contract-test` |
 | 集成与回放 | `integration-test`、`event-replay-test`、`market-replay-test`、`order-state-test` |
 | 安全与供应链 | `sbom`、`license-check`、`sca`、`secret-scan`、`artifact-sign-verify`、`sync-vibe-check` |
-| 双端界面 | `e2e-web`、`e2e-desktop`、`visual-regression`、`a11y-test` |
+| Web 界面 | `e2e-web`、`visual-regression`、`a11y-test` |
 | 性能与演练 | `bench-domain`、`load-bff`、`chaos-drill`、`reconciliation-test` |
 
 ## 11. 任务完成定义与禁止项
@@ -1311,7 +1312,6 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 - 以真实账户、真实生产密钥或不可重放公网数据作为测试唯一依据；
 - 将第三方内部类型、数据库或 SDK API 泄漏到 QuantOS 的核心领域、协议或 UI；
-- 让 Agent、Engine、插件、Web 或桌面客户端绕过 Risk/Approval/Execution Gateway；
+- 让 Agent、Engine、插件或 Web 客户端绕过 Risk/Approval/Execution Gateway；
 - 以未固定 commit/tag 的上游依赖、未完成许可证结论的 OpenBB、或无 SBOM 的制品进入生产拓扑；
 - 在 M5 Gate 前显示或启用 Assisted Live，在任何阶段启用 Guarded Live；
-- 为桌面端复制业务页面/状态机，或让离线缓存产生可提交命令。
