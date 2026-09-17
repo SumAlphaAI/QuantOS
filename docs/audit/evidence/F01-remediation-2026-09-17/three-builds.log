@@ -1,0 +1,1389 @@
+node scripts/check-toolchains.mjs
+{
+  "node": "24.12.0",
+  "uv": "0.7.0",
+  "pnpm": "10.20.0",
+  "rustc": "1.91.0"
+}
+/Library/Developer/CommandLineTools/usr/bin/make -j3 bootstrap-rust bootstrap-python bootstrap-node
+cargo fetch --locked
+uv sync --locked --project engines --all-packages --group build
+pnpm install --frozen-lockfile
+warning: a `-j` argument was passed to Cargo but Cargo is also configured with an external jobserver in its environment, ignoring the `-j` parameter
+Scope: all 8 workspace projects
+Using CPython 3.9.6 interpreter at: /Library/Developer/CommandLineTools/usr/bin/python3
+Creating virtual environment at: engines/.venv
+Resolved 28 packages in 1ms
+   Building quantos-engine-sdk @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/engine-sdk
+   Building quantos-llmquant @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/llmquant
+   Building quantos-mock-engine @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/mock-engine
+   Building quantos-openbb-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/openbb-adapter
+   Building quantos-rd-agent @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/rd-agent
+   Building quantos-strategy-lab @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/strategy-lab
+   Building quantos-trading-agents @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/trading-agents
+   Building quantos-vibe-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/vibe-adapter
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +600
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 600, reused 600, downloaded 0, added 461
+      Built quantos-strategy-lab @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/strategy-lab
+      Built quantos-vibe-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/vibe-adapter
+      Built quantos-engine-sdk @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/engine-sdk
+      Built quantos-rd-agent @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/rd-agent
+      Built quantos-trading-agents @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/trading-agents
+      Built quantos-openbb-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/openbb-adapter
+      Built quantos-llmquant @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/llmquant
+      Built quantos-mock-engine @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/mock-engine
+Prepared 8 packages in 1.51s
+Installed 26 packages in 172ms
+ + coverage==7.10.7
+ + exceptiongroup==1.3.1
+ + grpcio==1.74.0
+ + hatchling==1.27.0
+ + iniconfig==2.1.0
+ + nodeenv==1.10.0
+ + packaging==26.2
+ + pathspec==1.1.1
+ + pluggy==1.6.0
+ + protobuf==5.29.6
+ + pygments==2.20.0
+ + pyright==1.1.403
+ + pytest==8.4.1
+ + pytest-cov==6.2.1
+ + quantos-engine-sdk==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/engine-sdk)
+ + quantos-llmquant==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/llmquant)
+ + quantos-mock-engine==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/mock-engine)
+ + quantos-openbb-adapter==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/openbb-adapter)
+ + quantos-rd-agent==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/rd-agent)
+ + quantos-strategy-lab==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/strategy-lab)
+ + quantos-trading-agents==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/trading-agents)
+ + quantos-vibe-adapter==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/vibe-adapter)
+ + ruff==0.12.7
+ + tomli==2.2.1
+ + trove-classifiers==2026.6.1.19
+ + typing-extensions==4.16.0
+Progress: resolved 600, reused 600, downloaded 0, added 599
+Progress: resolved 600, reused 600, downloaded 0, added 600, done
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @bufbuild/buf 1.72.0
++ @bufbuild/protobuf 2.13.0
++ @eslint/js 9.33.0
++ @playwright/test 1.62.1
++ @types/node 24.3.0
++ @types/pngjs 6.0.5
++ @vitest/coverage-v8 3.2.4
++ ajv 8.20.0
++ ajv-formats 3.0.1
++ eslint 9.33.0
++ globals 16.3.0
++ license-checker-rseidelsohn 4.4.2
++ msw 2.15.0
++ openapi-typescript 7.13.0
++ pg 8.16.3
++ pixelmatch 7.2.0
++ pngjs 7.0.0
++ typescript 5.9.2
++ typescript-eslint 8.39.1
++ vitest 3.2.4
++ yaml 2.9.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @bufbuild/buf, @parcel/watcher, @swc/core,          │
+│   esbuild, msw.                                                              │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 2.7s using pnpm v10.20.0
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling libc v0.2.189
+   Compiling bytes v1.12.1
+   Compiling cfg-if v1.0.4
+   Compiling pin-project-lite v0.2.17
+   Compiling itoa v1.0.18
+   Compiling futures-core v0.3.33
+   Compiling once_cell v1.21.4
+   Compiling serde_core v1.0.229
+   Compiling memchr v2.8.3
+   Compiling futures-sink v0.3.33
+   Compiling autocfg v1.5.1
+   Compiling smallvec v1.15.2
+   Compiling log v0.4.33
+   Compiling serde v1.0.229
+   Compiling slab v0.4.12
+   Compiling core-foundation-sys v0.8.7
+   Compiling typenum v1.20.1
+   Compiling futures-io v0.3.33
+   Compiling futures-task v0.3.33
+   Compiling percent-encoding v2.3.2
+   Compiling getrandom v0.4.3
+   Compiling rand_core v0.10.1
+   Compiling zmij v1.0.23
+   Compiling num-traits v0.2.19
+   Compiling serde_json v1.0.151
+   Compiling stable_deref_trait v1.2.1
+   Compiling rustix v1.1.4
+   Compiling base64 v0.22.1
+   Compiling futures-channel v0.3.33
+   Compiling bitflags v2.13.1
+   Compiling tracing-core v0.1.36
+   Compiling http v1.4.2
+   Compiling iana-time-zone v0.1.65
+   Compiling hybrid-array v0.4.13
+   Compiling anyhow v1.0.104
+   Compiling form_urlencoded v1.2.2
+   Compiling shlex v2.0.1
+   Compiling tower-service v0.3.3
+   Compiling http-body v1.1.0
+   Compiling find-msvc-tools v0.1.9
+   Compiling cmov v0.5.4
+   Compiling crypto-common v0.2.2
+   Compiling ctutils v0.4.2
+   Compiling block-buffer v0.12.1
+   Compiling const-oid v0.10.2
+   Compiling httparse v1.10.1
+   Compiling litemap v0.8.2
+   Compiling hashbrown v0.17.1
+   Compiling equivalent v1.0.2
+   Compiling version_check v0.9.5
+   Compiling writeable v0.6.3
+   Compiling atomic-waker v1.1.2
+   Compiling icu_normalizer_data v2.2.0
+   Compiling generic-array v0.14.7
+   Compiling fnv v1.0.7
+   Compiling fs_extra v1.3.0
+   Compiling pkg-config v0.3.33
+   Compiling try-lock v0.2.5
+   Compiling digest v0.11.3
+   Compiling indexmap v2.14.0
+   Compiling dunce v1.0.5
+   Compiling icu_properties_data v2.2.0
+   Compiling utf8_iter v1.0.4
+   Compiling tinyvec_macros v0.1.1
+   Compiling want v0.3.1
+   Compiling tinyvec v1.12.0
+   Compiling either v1.17.0
+   Compiling httpdate v1.0.3
+   Compiling tower-layer v0.3.3
+   Compiling unicode-normalization v0.1.25
+   Compiling jobserver v0.1.35
+   Compiling chacha20 v0.10.1
+   Compiling errno v0.3.14
+   Compiling socket2 v0.6.5
+   Compiling signal-hook-registry v1.4.8
+   Compiling mio v1.2.2
+   Compiling cc v1.4.0
+   Compiling core-foundation v0.10.1
+   Compiling cpufeatures v0.3.0
+   Compiling security-framework-sys v2.17.0
+   Compiling sync_wrapper v1.0.2
+   Compiling unicode-properties v0.1.4
+   Compiling uuid v1.24.0
+   Compiling parking_lot_core v0.9.12
+   Compiling unicode-bidi v0.3.18
+   Compiling ipnet v2.12.0
+   Compiling security-framework v3.7.0
+   Compiling sha2 v0.11.0
+   Compiling rand v0.10.2
+   Compiling syn v2.0.119
+   Compiling syn v3.0.3
+   Compiling cmake v0.1.58
+   Compiling stringprep v0.1.5
+   Compiling itertools v0.14.0
+   Compiling hmac v0.13.0
+   Compiling md-5 v0.11.0
+   Compiling objc2-core-foundation v0.3.2
+   Compiling scopeguard v1.2.0
+   Compiling thiserror v2.0.19
+   Compiling fallible-iterator v0.2.0
+   Compiling aws-lc-sys v0.43.0
+   Compiling byteorder v1.5.0
+   Compiling siphasher v1.0.3
+   Compiling aws-lc-rs v1.17.3
+   Compiling postgres-protocol v0.6.12
+   Compiling phf_shared v0.13.1
+   Compiling objc2-system-configuration v0.3.2
+   Compiling lock_api v0.4.14
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling http-body-util v0.1.4
+   Compiling zeroize v1.9.0
+   Compiling fastrand v2.5.0
+   Compiling rust_decimal v1.42.1
+   Compiling native-tls v0.2.18
+   Compiling parking_lot v0.12.5
+   Compiling digest v0.10.7
+   Compiling phf v0.13.1
+   Compiling whoami v2.1.2
+   Compiling semver v1.0.28
+   Compiling cpufeatures v0.2.17
+   Compiling arrayvec v0.7.8
+   Compiling sha2 v0.10.9
+   Compiling rustls-pki-types v1.15.1
+   Compiling untrusted v0.9.0
+   Compiling rustversion v1.0.23
+   Compiling tempfile v3.27.0
+   Compiling rustls v0.23.42
+   Compiling heck v0.5.0
+   Compiling zerocopy v0.8.55
+   Compiling hex v0.4.3
+   Compiling synstructure v0.13.2
+   Compiling prettyplease v0.2.37
+   Compiling serde_derive v1.0.229
+   Compiling async-trait v0.1.91
+   Compiling thiserror-impl v2.0.19
+   Compiling subtle v2.6.1
+   Compiling regex-syntax v0.8.11
+   Compiling getrandom v0.2.17
+   Compiling fixedbitset v0.5.7
+   Compiling mime v0.3.17
+   Compiling ryu v1.0.23
+   Compiling petgraph v0.7.1
+   Compiling rand_core v0.6.4
+   Compiling tokio-macros v2.7.1
+   Compiling futures-macro v0.3.33
+   Compiling zerofrom-derive v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling tracing-attributes v0.1.31
+   Compiling zerovec-derive v0.11.3
+   Compiling displaydoc v0.2.6
+   Compiling prost-derive v0.13.5
+   Compiling regex-automata v0.4.16
+   Compiling tokio v1.53.1
+   Compiling futures-util v0.3.33
+   Compiling zerofrom v0.1.8
+   Compiling serde_path_to_error v0.1.20
+   Compiling itertools v0.13.0
+   Compiling tracing v0.1.44
+   Compiling indexmap v1.9.3
+   Compiling multimap v0.10.1
+   Compiling regex v1.13.1
+   Compiling matchit v0.7.3
+   Compiling prost v0.13.5
+   Compiling pin-project-internal v1.1.13
+   Compiling hashbrown v0.12.3
+   Compiling yoke v0.8.3
+   Compiling async-stream-impl v0.3.6
+   Compiling base64 v0.21.7
+   Compiling socket2 v0.5.10
+   Compiling async-stream v0.3.6
+   Compiling pin-project v1.1.13
+   Compiling utf8parse v0.2.2
+   Compiling prost-types v0.13.5
+   Compiling anstyle-parse v1.0.0
+   Compiling anstyle-query v1.1.5
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling colorchoice v1.0.5
+   Compiling anstyle v1.0.14
+   Compiling zerovec v0.11.6
+   Compiling zerotrie v0.2.4
+   Compiling strsim v0.11.1
+   Compiling clap_lex v1.1.0
+   Compiling chrono v0.4.45
+   Compiling serde_urlencoded v0.7.1
+   Compiling pbjson v0.7.0
+   Compiling prost-build v0.13.5
+   Compiling pbjson-build v0.7.0
+   Compiling anstream v1.0.0
+   Compiling clap_derive v4.6.4
+   Compiling axum-core v0.4.5
+   Compiling ppv-lite86 v0.2.21
+   Compiling clap_builder v4.6.2
+   Compiling rand_chacha v0.3.1
+   Compiling postgres-types v0.2.14
+   Compiling tinystr v0.8.3
+   Compiling icu_locale_core v2.2.0
+   Compiling potential_utf v0.1.5
+   Compiling icu_collections v2.2.0
+   Compiling quantos-core v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-core)
+   Compiling pbjson-types v0.7.0
+   Compiling rand v0.8.7
+   Compiling tokio-util v0.7.19
+   Compiling icu_provider v2.2.0
+   Compiling tower v0.5.3
+   Compiling h2 v0.4.15
+   Compiling icu_properties v2.2.0
+   Compiling icu_normalizer v2.2.0
+   Compiling tokio-postgres v0.7.18
+   Compiling tokio-native-tls v0.3.1
+   Compiling tower v0.4.13
+   Compiling quantos-policy v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-policy)
+   Compiling tokio-stream v0.1.19
+   Compiling clap v4.6.4
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling url v2.5.8
+   Compiling postgres-native-tls v0.5.3
+   Compiling postgres v0.19.14
+   Compiling tower-http v0.6.11
+   Compiling hyper v1.11.0
+   Compiling quantos-auth v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-auth)
+   Compiling quantos-event v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-event)
+   Compiling quantos-portfolio v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-portfolio)
+   Compiling hyper-util v0.1.20
+   Compiling quantos-market v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-market)
+   Compiling axum v0.7.9
+   Compiling hyper-timeout v0.5.2
+   Compiling tonic v0.12.3
+   Compiling bff-gateway v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/bff-gateway)
+   Compiling quantos-proto v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-engine-manager)
+   Compiling rustls-webpki v0.103.13
+   Compiling tokio-rustls v0.26.4
+   Compiling rustls-platform-verifier v0.7.0
+   Compiling hyper-rustls v0.27.9
+   Compiling reqwest v0.13.4
+   Compiling quantos-storage v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-runtime)
+   Compiling quantos-strategy v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-strategy)
+   Compiling quantos-risk v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-risk)
+   Compiling quantos-observability v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-observability)
+   Compiling quantos-execution v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-execution)
+   Compiling quantos-reconcile v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-reconcile)
+   Compiling quantos-evidence v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-evidence)
+   Compiling runtime-gateway v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/runtime-gateway)
+   Compiling portfolio-rebuild v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/portfolio-rebuild)
+   Compiling execution-gateway v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/execution-gateway)
+   Compiling replay-cli v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/replay-cli)
+   Compiling market-ingestor v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/market-ingestor)
+   Compiling capacity-monitor v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/capacity-monitor)
+    Finished `release` profile [optimized] target(s) in 34.42s
+
+> @sumalpha/quantos@ build /private/tmp/quantos-f01-7cqzcs/workspace
+> pnpm -r build
+
+Scope: 7 of 8 workspace projects
+packages/config build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/ui build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/config build: Done
+packages/ui build: Done
+packages/api-client build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/platform build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/platform build: Done
+packages/api-client build: Done
+apps/website build$ next build
+packages/domain-ui build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/domain-ui build: Done
+apps/website build:    ▲ Next.js 15.5.23
+apps/website build:    Creating an optimized production build ...
+apps/website build:  ✓ Compiled successfully in 3.8s
+apps/website build:    Linting and checking validity of types ...
+apps/website build:  ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+apps/website build:    Collecting page data ...
+apps/website build:    Generating static pages (0/12) ...
+apps/website build:    Generating static pages (3/12) 
+apps/website build:    Generating static pages (6/12) 
+apps/website build:    Generating static pages (9/12) 
+apps/website build:  ✓ Generating static pages (12/12)
+apps/website build:    Finalizing page optimization ...
+apps/website build:    Collecting build traces ...
+apps/website build:    Exporting (0/2) ...
+apps/website build:  ✓ Exporting (2/2)
+apps/website build: Route (app)                                 Size  First Load JS
+apps/website build: ┌ ○ /                                      139 B         102 kB
+apps/website build: ├ ○ /_not-found                            989 B         103 kB
+apps/website build: ├ ○ /access-request                      2.31 kB         105 kB
+apps/website build: ├ ○ /architecture-security                 139 B         102 kB
+apps/website build: ├ ○ /docs                                2.28 kB         105 kB
+apps/website build: ├ ○ /login                                 139 B         102 kB
+apps/website build: ├ ○ /product                               139 B         102 kB
+apps/website build: ├ ○ /robots.txt                            139 B         102 kB
+apps/website build: ├ ○ /sitemap.xml                           139 B         102 kB
+apps/website build: └ ○ /use-cases                             139 B         102 kB
+apps/website build: + First Load JS shared by all             102 kB
+apps/website build:   ├ chunks/692-8e367d638c62dcca.js       46.2 kB
+apps/website build:   ├ chunks/dbfa0c24-e34d78d9a8aa1e3f.js  54.2 kB
+apps/website build:   └ other shared chunks (total)          1.84 kB
+apps/website build: ○  (Static)  prerendered as static content
+apps/website build: Done
+apps/terminal build$ next build
+apps/terminal build:    ▲ Next.js 15.5.23
+apps/terminal build:    Creating an optimized production build ...
+apps/terminal build:  ✓ Compiled successfully in 2.5s
+apps/terminal build:    Linting and checking validity of types ...
+apps/terminal build:  ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+apps/terminal build:    Collecting page data ...
+apps/terminal build:    Generating static pages (0/17) ...
+apps/terminal build:    Generating static pages (4/17) 
+apps/terminal build:    Generating static pages (8/17) 
+apps/terminal build:    Generating static pages (12/17) 
+apps/terminal build:  ✓ Generating static pages (17/17)
+apps/terminal build:    Finalizing page optimization ...
+apps/terminal build:    Collecting build traces ...
+apps/terminal build:    Exporting (0/2) ...
+apps/terminal build:  ✓ Exporting (2/2)
+apps/terminal build: Route (app)                                 Size  First Load JS
+apps/terminal build: ┌ ○ /                                      133 B         102 kB
+apps/terminal build: ├ ○ /_not-found                            133 B         102 kB
+apps/terminal build: ├ ○ /access-request                      2.77 kB         105 kB
+apps/terminal build: ├ ○ /auth/callback                       3.08 kB         105 kB
+apps/terminal build: ├ ○ /auth/deep-link                      2.15 kB         104 kB
+apps/terminal build: ├ ○ /command                             6.72 kB         126 kB
+apps/terminal build: ├ ○ /login                               3.11 kB         105 kB
+apps/terminal build: ├ ○ /maintenance                           133 B         102 kB
+apps/terminal build: ├ ○ /mfa                                 3.96 kB         106 kB
+apps/terminal build: ├ ○ /offline                             1.57 kB         104 kB
+apps/terminal build: ├ ○ /settings/browser                      128 B         128 kB
+apps/terminal build: ├ ○ /settings/notifications                127 B         128 kB
+apps/terminal build: ├ ○ /settings/profile                      128 B         128 kB
+apps/terminal build: ├ ○ /settings/security                     128 B         128 kB
+apps/terminal build: └ ○ /unauthorized                        1.71 kB         104 kB
+apps/terminal build: + First Load JS shared by all             102 kB
+apps/terminal build:   ├ chunks/692-8e367d638c62dcca.js       46.2 kB
+apps/terminal build:   ├ chunks/dbfa0c24-e34d78d9a8aa1e3f.js  54.2 kB
+apps/terminal build:   └ other shared chunks (total)          1.87 kB
+apps/terminal build: ○  (Static)  prerendered as static content
+apps/terminal build: Done
+uv sync --locked --project engines --all-packages --group build
+Resolved 28 packages in 2ms
+Audited 26 packages in 0.29ms
+uv build --project engines --python engines/.venv/bin/python --all-packages --wheel --no-build-isolation --out-dir artifacts/python
+[quantos-engine-sdk] Building wheel...
+[quantos-llmquant] Building wheel...
+[quantos-mock-engine] Building wheel...
+[quantos-openbb-adapter] Building wheel...
+[quantos-rd-agent] Building wheel...
+[quantos-strategy-lab] Building wheel...
+[quantos-trading-agents] Building wheel...
+[quantos-vibe-adapter] Building wheel...
+Successfully built artifacts/python/quantos_engine_sdk-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_llmquant-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_mock_engine-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_openbb_adapter-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_rd_agent-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_strategy_lab-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_trading_agents-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_vibe_adapter-0.1.0-py3-none-any.whl
+node scripts/check-toolchains.mjs
+{
+  "node": "24.12.0",
+  "uv": "0.7.0",
+  "pnpm": "10.20.0",
+  "rustc": "1.91.0"
+}
+/Library/Developer/CommandLineTools/usr/bin/make -j3 bootstrap-rust bootstrap-python bootstrap-node
+cargo fetch --locked
+uv sync --locked --project engines --all-packages --group build
+pnpm install --frozen-lockfile
+warning: a `-j` argument was passed to Cargo but Cargo is also configured with an external jobserver in its environment, ignoring the `-j` parameter
+Scope: all 8 workspace projects
+Using CPython 3.9.6 interpreter at: /Library/Developer/CommandLineTools/usr/bin/python3
+Creating virtual environment at: engines/.venv
+Resolved 28 packages in 3ms
+Lockfile is up to date, resolution step is skipped
+   Building quantos-engine-sdk @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/engine-sdk
+   Building quantos-llmquant @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/llmquant
+   Building quantos-mock-engine @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/mock-engine
+   Building quantos-openbb-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/openbb-adapter
+   Building quantos-rd-agent @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/rd-agent
+   Building quantos-strategy-lab @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/strategy-lab
+   Building quantos-trading-agents @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/trading-agents
+   Building quantos-vibe-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/vibe-adapter
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +600
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      Built quantos-mock-engine @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/mock-engine
+      Built quantos-llmquant @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/llmquant
+      Built quantos-engine-sdk @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/engine-sdk
+      Built quantos-rd-agent @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/rd-agent
+      Built quantos-openbb-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/openbb-adapter
+      Built quantos-vibe-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/vibe-adapter
+      Built quantos-strategy-lab @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/strategy-lab
+      Built quantos-trading-agents @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/trading-agents
+Prepared 8 packages in 655ms
+Installed 26 packages in 107ms
+ + coverage==7.10.7
+ + exceptiongroup==1.3.1
+ + grpcio==1.74.0
+ + hatchling==1.27.0
+ + iniconfig==2.1.0
+ + nodeenv==1.10.0
+ + packaging==26.2
+ + pathspec==1.1.1
+ + pluggy==1.6.0
+ + protobuf==5.29.6
+ + pygments==2.20.0
+ + pyright==1.1.403
+ + pytest==8.4.1
+ + pytest-cov==6.2.1
+ + quantos-engine-sdk==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/engine-sdk)
+ + quantos-llmquant==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/llmquant)
+ + quantos-mock-engine==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/mock-engine)
+ + quantos-openbb-adapter==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/openbb-adapter)
+ + quantos-rd-agent==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/rd-agent)
+ + quantos-strategy-lab==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/strategy-lab)
+ + quantos-trading-agents==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/trading-agents)
+ + quantos-vibe-adapter==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/vibe-adapter)
+ + ruff==0.12.7
+ + tomli==2.2.1
+ + trove-classifiers==2026.6.1.19
+ + typing-extensions==4.16.0
+Progress: resolved 600, reused 600, downloaded 0, added 353
+Progress: resolved 600, reused 600, downloaded 0, added 599
+Progress: resolved 600, reused 600, downloaded 0, added 600, done
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @bufbuild/buf 1.72.0
++ @bufbuild/protobuf 2.13.0
++ @eslint/js 9.33.0
++ @playwright/test 1.62.1
++ @types/node 24.3.0
++ @types/pngjs 6.0.5
++ @vitest/coverage-v8 3.2.4
++ ajv 8.20.0
++ ajv-formats 3.0.1
++ eslint 9.33.0
++ globals 16.3.0
++ license-checker-rseidelsohn 4.4.2
++ msw 2.15.0
++ openapi-typescript 7.13.0
++ pg 8.16.3
++ pixelmatch 7.2.0
++ pngjs 7.0.0
++ typescript 5.9.2
++ typescript-eslint 8.39.1
++ vitest 3.2.4
++ yaml 2.9.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @bufbuild/buf, @parcel/watcher, @swc/core,          │
+│   esbuild, msw.                                                              │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 2.9s using pnpm v10.20.0
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling libc v0.2.189
+   Compiling bytes v1.12.1
+   Compiling cfg-if v1.0.4
+   Compiling pin-project-lite v0.2.17
+   Compiling itoa v1.0.18
+   Compiling futures-core v0.3.33
+   Compiling once_cell v1.21.4
+   Compiling serde_core v1.0.229
+   Compiling memchr v2.8.3
+   Compiling futures-sink v0.3.33
+   Compiling autocfg v1.5.1
+   Compiling log v0.4.33
+   Compiling smallvec v1.15.2
+   Compiling core-foundation-sys v0.8.7
+   Compiling serde v1.0.229
+   Compiling slab v0.4.12
+   Compiling typenum v1.20.1
+   Compiling futures-io v0.3.33
+   Compiling futures-task v0.3.33
+   Compiling percent-encoding v2.3.2
+   Compiling zmij v1.0.23
+   Compiling rand_core v0.10.1
+   Compiling getrandom v0.4.3
+   Compiling num-traits v0.2.19
+   Compiling stable_deref_trait v1.2.1
+   Compiling serde_json v1.0.151
+   Compiling base64 v0.22.1
+   Compiling rustix v1.1.4
+   Compiling futures-channel v0.3.33
+   Compiling bitflags v2.13.1
+   Compiling tracing-core v0.1.36
+   Compiling iana-time-zone v0.1.65
+   Compiling anyhow v1.0.104
+   Compiling form_urlencoded v1.2.2
+   Compiling cmov v0.5.4
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.9
+   Compiling http v1.4.2
+   Compiling tower-service v0.3.3
+   Compiling ctutils v0.4.2
+   Compiling hashbrown v0.17.1
+   Compiling writeable v0.6.3
+   Compiling litemap v0.8.2
+   Compiling version_check v0.9.5
+   Compiling httparse v1.10.1
+   Compiling const-oid v0.10.2
+   Compiling equivalent v1.0.2
+   Compiling tinyvec_macros v0.1.1
+   Compiling generic-array v0.14.7
+   Compiling atomic-waker v1.1.2
+   Compiling syn v2.0.119
+   Compiling syn v3.0.3
+   Compiling utf8_iter v1.0.4
+   Compiling fs_extra v1.3.0
+   Compiling icu_normalizer_data v2.2.0
+   Compiling fnv v1.0.7
+   Compiling errno v0.3.14
+   Compiling mio v1.2.2
+   Compiling socket2 v0.6.5
+   Compiling signal-hook-registry v1.4.8
+   Compiling jobserver v0.1.35
+   Compiling icu_properties_data v2.2.0
+   Compiling hybrid-array v0.4.13
+   Compiling pkg-config v0.3.33
+   Compiling try-lock v0.2.5
+   Compiling dunce v1.0.5
+   Compiling want v0.3.1
+   Compiling cc v1.4.0
+   Compiling tinyvec v1.12.0
+   Compiling httpdate v1.0.3
+   Compiling tower-layer v0.3.3
+   Compiling either v1.17.0
+   Compiling indexmap v2.14.0
+   Compiling security-framework-sys v2.17.0
+   Compiling cpufeatures v0.3.0
+   Compiling core-foundation v0.10.1
+   Compiling chacha20 v0.10.1
+   Compiling sync_wrapper v1.0.2
+   Compiling parking_lot_core v0.9.12
+   Compiling unicode-bidi v0.3.18
+   Compiling http-body v1.1.0
+   Compiling unicode-normalization v0.1.25
+   Compiling ipnet v2.12.0
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling unicode-properties v0.1.4
+   Compiling security-framework v3.7.0
+   Compiling rand v0.10.2
+   Compiling stringprep v0.1.5
+   Compiling itertools v0.14.0
+   Compiling objc2-core-foundation v0.3.2
+   Compiling cmake v0.1.58
+   Compiling aws-lc-rs v1.17.3
+   Compiling byteorder v1.5.0
+   Compiling thiserror v2.0.19
+   Compiling scopeguard v1.2.0
+   Compiling siphasher v1.0.3
+   Compiling fallible-iterator v0.2.0
+   Compiling lock_api v0.4.14
+   Compiling aws-lc-sys v0.43.0
+   Compiling phf_shared v0.13.1
+   Compiling objc2-system-configuration v0.3.2
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling http-body-util v0.1.4
+   Compiling rust_decimal v1.42.1
+   Compiling native-tls v0.2.18
+   Compiling zeroize v1.9.0
+   Compiling fastrand v2.5.0
+   Compiling digest v0.11.3
+   Compiling parking_lot v0.12.5
+   Compiling digest v0.10.7
+   Compiling hmac v0.13.0
+   Compiling md-5 v0.11.0
+   Compiling sha2 v0.11.0
+   Compiling phf v0.13.1
+   Compiling whoami v2.1.2
+   Compiling cpufeatures v0.2.17
+   Compiling arrayvec v0.7.8
+   Compiling sha2 v0.10.9
+   Compiling rustls-pki-types v1.15.1
+   Compiling uuid v1.24.0
+   Compiling semver v1.0.28
+   Compiling hex v0.4.3
+   Compiling postgres-protocol v0.6.12
+   Compiling heck v0.5.0
+   Compiling rustversion v1.0.23
+   Compiling untrusted v0.9.0
+   Compiling zerocopy v0.8.55
+   Compiling tempfile v3.27.0
+   Compiling rustls v0.23.42
+   Compiling prettyplease v0.2.37
+   Compiling subtle v2.6.1
+   Compiling regex-syntax v0.8.11
+   Compiling getrandom v0.2.17
+   Compiling fixedbitset v0.5.7
+   Compiling mime v0.3.17
+   Compiling ryu v1.0.23
+   Compiling serde_derive v1.0.229
+   Compiling async-trait v0.1.91
+   Compiling thiserror-impl v2.0.19
+   Compiling rand_core v0.6.4
+   Compiling serde_path_to_error v0.1.20
+   Compiling itertools v0.13.0
+   Compiling indexmap v1.9.3
+   Compiling matchit v0.7.3
+   Compiling multimap v0.10.1
+   Compiling hashbrown v0.12.3
+   Compiling base64 v0.21.7
+   Compiling socket2 v0.5.10
+   Compiling utf8parse v0.2.2
+   Compiling synstructure v0.13.2
+   Compiling petgraph v0.7.1
+   Compiling regex-automata v0.4.16
+   Compiling anstyle-parse v1.0.0
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling colorchoice v1.0.5
+   Compiling anstyle-query v1.1.5
+   Compiling anstyle v1.0.14
+   Compiling strsim v0.11.1
+   Compiling clap_lex v1.1.0
+   Compiling clap_derive v4.6.4
+   Compiling anstream v1.0.0
+   Compiling clap_builder v4.6.2
+   Compiling tokio-macros v2.7.1
+   Compiling futures-macro v0.3.33
+   Compiling zerofrom-derive v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling zerovec-derive v0.11.3
+   Compiling tracing-attributes v0.1.31
+   Compiling displaydoc v0.2.6
+   Compiling tokio v1.53.1
+   Compiling futures-util v0.3.33
+   Compiling prost-derive v0.13.5
+   Compiling zerofrom v0.1.8
+   Compiling pin-project-internal v1.1.13
+   Compiling async-stream-impl v0.3.6
+   Compiling yoke v0.8.3
+   Compiling tracing v0.1.44
+   Compiling async-stream v0.3.6
+   Compiling zerovec v0.11.6
+   Compiling zerotrie v0.2.4
+   Compiling regex v1.13.1
+   Compiling pin-project v1.1.13
+   Compiling prost v0.13.5
+   Compiling chrono v0.4.45
+   Compiling serde_urlencoded v0.7.1
+   Compiling pbjson v0.7.0
+   Compiling tinystr v0.8.3
+   Compiling potential_utf v0.1.5
+   Compiling icu_locale_core v2.2.0
+   Compiling prost-types v0.13.5
+   Compiling icu_collections v2.2.0
+   Compiling ppv-lite86 v0.2.21
+   Compiling rand_chacha v0.3.1
+   Compiling rand v0.8.7
+   Compiling clap v4.6.4
+   Compiling pbjson-build v0.7.0
+   Compiling prost-build v0.13.5
+   Compiling icu_provider v2.2.0
+   Compiling icu_properties v2.2.0
+   Compiling icu_normalizer v2.2.0
+   Compiling postgres-types v0.2.14
+   Compiling quantos-core v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-core)
+   Compiling axum-core v0.4.5
+   Compiling pbjson-types v0.7.0
+   Compiling quantos-policy v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-policy)
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling url v2.5.8
+   Compiling tokio-util v0.7.19
+   Compiling tower v0.5.3
+   Compiling tokio-native-tls v0.3.1
+   Compiling tokio-stream v0.1.19
+   Compiling tower-http v0.6.11
+   Compiling h2 v0.4.15
+   Compiling tokio-postgres v0.7.18
+   Compiling tower v0.4.13
+   Compiling postgres v0.19.14
+   Compiling postgres-native-tls v0.5.3
+   Compiling quantos-auth v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-auth)
+   Compiling quantos-event v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-event)
+   Compiling quantos-portfolio v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-portfolio)
+   Compiling quantos-market v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-market)
+   Compiling hyper v1.11.0
+   Compiling hyper-util v0.1.20
+   Compiling axum v0.7.9
+   Compiling hyper-timeout v0.5.2
+   Compiling tonic v0.12.3
+   Compiling bff-gateway v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/bff-gateway)
+   Compiling quantos-proto v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-engine-manager)
+   Compiling rustls-webpki v0.103.13
+   Compiling tokio-rustls v0.26.4
+   Compiling rustls-platform-verifier v0.7.0
+   Compiling hyper-rustls v0.27.9
+   Compiling reqwest v0.13.4
+   Compiling quantos-storage v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-runtime)
+   Compiling quantos-strategy v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-strategy)
+   Compiling quantos-observability v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-observability)
+   Compiling quantos-risk v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-execution)
+   Compiling quantos-reconcile v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-reconcile)
+   Compiling quantos-evidence v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-evidence)
+   Compiling execution-gateway v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/execution-gateway)
+   Compiling replay-cli v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/replay-cli)
+   Compiling runtime-gateway v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/runtime-gateway)
+   Compiling portfolio-rebuild v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/portfolio-rebuild)
+   Compiling market-ingestor v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/market-ingestor)
+   Compiling capacity-monitor v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/capacity-monitor)
+    Finished `release` profile [optimized] target(s) in 44.85s
+
+> @sumalpha/quantos@ build /private/tmp/quantos-f01-7cqzcs/workspace
+> pnpm -r build
+
+Scope: 7 of 8 workspace projects
+packages/config build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/ui build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/config build: Done
+packages/ui build: Done
+packages/platform build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/api-client build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/platform build: Done
+packages/api-client build: Done
+apps/website build$ next build
+packages/domain-ui build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/domain-ui build: Done
+apps/website build:    ▲ Next.js 15.5.23
+apps/website build:    Creating an optimized production build ...
+apps/website build:  ✓ Compiled successfully in 2.6s
+apps/website build:    Linting and checking validity of types ...
+apps/website build:  ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+apps/website build:    Collecting page data ...
+apps/website build:    Generating static pages (0/12) ...
+apps/website build:    Generating static pages (3/12) 
+apps/website build:    Generating static pages (6/12) 
+apps/website build:    Generating static pages (9/12) 
+apps/website build:  ✓ Generating static pages (12/12)
+apps/website build:    Finalizing page optimization ...
+apps/website build:    Collecting build traces ...
+apps/website build:    Exporting (0/2) ...
+apps/website build:  ✓ Exporting (2/2)
+apps/website build: Route (app)                                 Size  First Load JS
+apps/website build: ┌ ○ /                                      139 B         102 kB
+apps/website build: ├ ○ /_not-found                            989 B         103 kB
+apps/website build: ├ ○ /access-request                      2.31 kB         105 kB
+apps/website build: ├ ○ /architecture-security                 139 B         102 kB
+apps/website build: ├ ○ /docs                                2.28 kB         105 kB
+apps/website build: ├ ○ /login                                 139 B         102 kB
+apps/website build: ├ ○ /product                               139 B         102 kB
+apps/website build: ├ ○ /robots.txt                            139 B         102 kB
+apps/website build: ├ ○ /sitemap.xml                           139 B         102 kB
+apps/website build: └ ○ /use-cases                             139 B         102 kB
+apps/website build: + First Load JS shared by all             102 kB
+apps/website build:   ├ chunks/692-8e367d638c62dcca.js       46.2 kB
+apps/website build:   ├ chunks/dbfa0c24-e34d78d9a8aa1e3f.js  54.2 kB
+apps/website build:   └ other shared chunks (total)          1.84 kB
+apps/website build: ○  (Static)  prerendered as static content
+apps/website build: Done
+apps/terminal build$ next build
+apps/terminal build:    ▲ Next.js 15.5.23
+apps/terminal build:    Creating an optimized production build ...
+apps/terminal build:  ✓ Compiled successfully in 2.4s
+apps/terminal build:    Linting and checking validity of types ...
+apps/terminal build:  ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+apps/terminal build:    Collecting page data ...
+apps/terminal build:    Generating static pages (0/17) ...
+apps/terminal build:    Generating static pages (4/17) 
+apps/terminal build:    Generating static pages (8/17) 
+apps/terminal build:    Generating static pages (12/17) 
+apps/terminal build:  ✓ Generating static pages (17/17)
+apps/terminal build:    Finalizing page optimization ...
+apps/terminal build:    Collecting build traces ...
+apps/terminal build:    Exporting (0/2) ...
+apps/terminal build:  ✓ Exporting (2/2)
+apps/terminal build: Route (app)                                 Size  First Load JS
+apps/terminal build: ┌ ○ /                                      133 B         102 kB
+apps/terminal build: ├ ○ /_not-found                            133 B         102 kB
+apps/terminal build: ├ ○ /access-request                      2.77 kB         105 kB
+apps/terminal build: ├ ○ /auth/callback                       3.08 kB         105 kB
+apps/terminal build: ├ ○ /auth/deep-link                      2.15 kB         104 kB
+apps/terminal build: ├ ○ /command                             6.72 kB         126 kB
+apps/terminal build: ├ ○ /login                               3.11 kB         105 kB
+apps/terminal build: ├ ○ /maintenance                           133 B         102 kB
+apps/terminal build: ├ ○ /mfa                                 3.96 kB         106 kB
+apps/terminal build: ├ ○ /offline                             1.57 kB         104 kB
+apps/terminal build: ├ ○ /settings/browser                      128 B         128 kB
+apps/terminal build: ├ ○ /settings/notifications                127 B         128 kB
+apps/terminal build: ├ ○ /settings/profile                      128 B         128 kB
+apps/terminal build: ├ ○ /settings/security                     128 B         128 kB
+apps/terminal build: └ ○ /unauthorized                        1.71 kB         104 kB
+apps/terminal build: + First Load JS shared by all             102 kB
+apps/terminal build:   ├ chunks/692-8e367d638c62dcca.js       46.2 kB
+apps/terminal build:   ├ chunks/dbfa0c24-e34d78d9a8aa1e3f.js  54.2 kB
+apps/terminal build:   └ other shared chunks (total)          1.87 kB
+apps/terminal build: ○  (Static)  prerendered as static content
+apps/terminal build: Done
+uv sync --locked --project engines --all-packages --group build
+Resolved 28 packages in 1ms
+Audited 26 packages in 0.26ms
+uv build --project engines --python engines/.venv/bin/python --all-packages --wheel --no-build-isolation --out-dir artifacts/python
+[quantos-engine-sdk] Building wheel...
+[quantos-llmquant] Building wheel...
+[quantos-mock-engine] Building wheel...
+[quantos-openbb-adapter] Building wheel...
+[quantos-rd-agent] Building wheel...
+[quantos-strategy-lab] Building wheel...
+[quantos-trading-agents] Building wheel...
+[quantos-vibe-adapter] Building wheel...
+Successfully built artifacts/python/quantos_engine_sdk-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_llmquant-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_mock_engine-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_openbb_adapter-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_rd_agent-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_strategy_lab-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_trading_agents-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_vibe_adapter-0.1.0-py3-none-any.whl
+node scripts/check-toolchains.mjs
+{
+  "node": "24.12.0",
+  "uv": "0.7.0",
+  "pnpm": "10.20.0",
+  "rustc": "1.91.0"
+}
+/Library/Developer/CommandLineTools/usr/bin/make -j3 bootstrap-rust bootstrap-python bootstrap-node
+cargo fetch --locked
+uv sync --locked --project engines --all-packages --group build
+pnpm install --frozen-lockfile
+warning: a `-j` argument was passed to Cargo but Cargo is also configured with an external jobserver in its environment, ignoring the `-j` parameter
+Scope: all 8 workspace projects
+Lockfile is up to date, resolution step is skipped
+Using CPython 3.9.6 interpreter at: /Library/Developer/CommandLineTools/usr/bin/python3
+Creating virtual environment at: engines/.venv
+Resolved 28 packages in 1ms
+   Building quantos-engine-sdk @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/engine-sdk
+Progress: resolved 1, reused 0, downloaded 0, added 0
+   Building quantos-llmquant @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/llmquant
+   Building quantos-mock-engine @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/mock-engine
+   Building quantos-openbb-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/openbb-adapter
+   Building quantos-rd-agent @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/rd-agent
+   Building quantos-strategy-lab @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/strategy-lab
+   Building quantos-trading-agents @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/trading-agents
+   Building quantos-vibe-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/vibe-adapter
+Packages: +600
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      Built quantos-trading-agents @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/trading-agents
+      Built quantos-strategy-lab @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/strategy-lab
+      Built quantos-llmquant @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/llmquant
+      Built quantos-rd-agent @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/rd-agent
+      Built quantos-vibe-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/vibe-adapter
+      Built quantos-openbb-adapter @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/openbb-adapter
+      Built quantos-mock-engine @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/mock-engine
+      Built quantos-engine-sdk @ file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/engine-sdk
+Prepared 8 packages in 642ms
+Installed 26 packages in 102ms
+ + coverage==7.10.7
+ + exceptiongroup==1.3.1
+ + grpcio==1.74.0
+ + hatchling==1.27.0
+ + iniconfig==2.1.0
+ + nodeenv==1.10.0
+ + packaging==26.2
+ + pathspec==1.1.1
+ + pluggy==1.6.0
+ + protobuf==5.29.6
+ + pygments==2.20.0
+ + pyright==1.1.403
+ + pytest==8.4.1
+ + pytest-cov==6.2.1
+ + quantos-engine-sdk==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/engine-sdk)
+ + quantos-llmquant==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/llmquant)
+ + quantos-mock-engine==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/mock-engine)
+ + quantos-openbb-adapter==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/openbb-adapter)
+ + quantos-rd-agent==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/rd-agent)
+ + quantos-strategy-lab==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/strategy-lab)
+ + quantos-trading-agents==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/trading-agents)
+ + quantos-vibe-adapter==0.1.0 (from file:///private/tmp/quantos-f01-7cqzcs/workspace/engines/vibe-adapter)
+ + ruff==0.12.7
+ + tomli==2.2.1
+ + trove-classifiers==2026.6.1.19
+ + typing-extensions==4.16.0
+Progress: resolved 600, reused 600, downloaded 0, added 350
+Progress: resolved 600, reused 600, downloaded 0, added 599
+Progress: resolved 600, reused 600, downloaded 0, added 600, done
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @bufbuild/buf 1.72.0
++ @bufbuild/protobuf 2.13.0
++ @eslint/js 9.33.0
++ @playwright/test 1.62.1
++ @types/node 24.3.0
++ @types/pngjs 6.0.5
++ @vitest/coverage-v8 3.2.4
++ ajv 8.20.0
++ ajv-formats 3.0.1
++ eslint 9.33.0
++ globals 16.3.0
++ license-checker-rseidelsohn 4.4.2
++ msw 2.15.0
++ openapi-typescript 7.13.0
++ pg 8.16.3
++ pixelmatch 7.2.0
++ pngjs 7.0.0
++ typescript 5.9.2
++ typescript-eslint 8.39.1
++ vitest 3.2.4
++ yaml 2.9.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @bufbuild/buf, @parcel/watcher, @swc/core,          │
+│   esbuild, msw.                                                              │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 2.8s using pnpm v10.20.0
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling libc v0.2.189
+   Compiling bytes v1.12.1
+   Compiling cfg-if v1.0.4
+   Compiling pin-project-lite v0.2.17
+   Compiling itoa v1.0.18
+   Compiling futures-core v0.3.33
+   Compiling serde_core v1.0.229
+   Compiling once_cell v1.21.4
+   Compiling memchr v2.8.3
+   Compiling futures-sink v0.3.33
+   Compiling log v0.4.33
+   Compiling autocfg v1.5.1
+   Compiling smallvec v1.15.2
+   Compiling slab v0.4.12
+   Compiling core-foundation-sys v0.8.7
+   Compiling serde v1.0.229
+   Compiling typenum v1.20.1
+   Compiling futures-task v0.3.33
+   Compiling futures-io v0.3.33
+   Compiling percent-encoding v2.3.2
+   Compiling rand_core v0.10.1
+   Compiling zmij v1.0.23
+   Compiling getrandom v0.4.3
+   Compiling num-traits v0.2.19
+   Compiling base64 v0.22.1
+   Compiling serde_json v1.0.151
+   Compiling stable_deref_trait v1.2.1
+   Compiling rustix v1.1.4
+   Compiling futures-channel v0.3.33
+   Compiling bitflags v2.13.1
+   Compiling tracing-core v0.1.36
+   Compiling http v1.4.2
+   Compiling iana-time-zone v0.1.65
+   Compiling hybrid-array v0.4.13
+   Compiling anyhow v1.0.104
+   Compiling form_urlencoded v1.2.2
+   Compiling tower-service v0.3.3
+   Compiling cmov v0.5.4
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.9
+   Compiling httparse v1.10.1
+   Compiling ctutils v0.4.2
+   Compiling jobserver v0.1.35
+   Compiling const-oid v0.10.2
+   Compiling syn v2.0.119
+   Compiling errno v0.3.14
+   Compiling syn v3.0.3
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.2
+   Compiling crypto-common v0.2.2
+   Compiling signal-hook-registry v1.4.8
+   Compiling cc v1.4.0
+   Compiling block-buffer v0.12.1
+   Compiling equivalent v1.0.2
+   Compiling version_check v0.9.5
+   Compiling hashbrown v0.17.1
+   Compiling litemap v0.8.2
+   Compiling http-body v1.1.0
+   Compiling writeable v0.6.3
+   Compiling generic-array v0.14.7
+   Compiling icu_normalizer_data v2.2.0
+   Compiling fs_extra v1.3.0
+   Compiling dunce v1.0.5
+   Compiling atomic-waker v1.1.2
+   Compiling tinyvec_macros v0.1.1
+   Compiling fnv v1.0.7
+   Compiling try-lock v0.2.5
+   Compiling pkg-config v0.3.33
+   Compiling utf8_iter v1.0.4
+   Compiling icu_properties_data v2.2.0
+   Compiling want v0.3.1
+   Compiling tinyvec v1.12.0
+   Compiling indexmap v2.14.0
+   Compiling cmake v0.1.58
+   Compiling digest v0.11.3
+   Compiling tower-layer v0.3.3
+   Compiling either v1.17.0
+   Compiling httpdate v1.0.3
+   Compiling unicode-normalization v0.1.25
+   Compiling security-framework-sys v2.17.0
+   Compiling cpufeatures v0.3.0
+   Compiling core-foundation v0.10.1
+   Compiling chacha20 v0.10.1
+   Compiling sync_wrapper v1.0.2
+   Compiling parking_lot_core v0.9.12
+   Compiling aws-lc-sys v0.43.0
+   Compiling uuid v1.24.0
+   Compiling ipnet v2.12.0
+   Compiling unicode-properties v0.1.4
+   Compiling unicode-bidi v0.3.18
+   Compiling security-framework v3.7.0
+   Compiling rand v0.10.2
+   Compiling sha2 v0.11.0
+   Compiling itertools v0.14.0
+   Compiling hmac v0.13.0
+   Compiling md-5 v0.11.0
+   Compiling stringprep v0.1.5
+   Compiling objc2-core-foundation v0.3.2
+   Compiling thiserror v2.0.19
+   Compiling siphasher v1.0.3
+   Compiling fallible-iterator v0.2.0
+   Compiling scopeguard v1.2.0
+   Compiling aws-lc-rs v1.17.3
+   Compiling byteorder v1.5.0
+   Compiling objc2-system-configuration v0.3.2
+   Compiling lock_api v0.4.14
+   Compiling phf_shared v0.13.1
+   Compiling postgres-protocol v0.6.12
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling http-body-util v0.1.4
+   Compiling synstructure v0.13.2
+   Compiling rust_decimal v1.42.1
+   Compiling native-tls v0.2.18
+   Compiling zeroize v1.9.0
+   Compiling fastrand v2.5.0
+   Compiling parking_lot v0.12.5
+   Compiling serde_derive v1.0.229
+   Compiling async-trait v0.1.91
+   Compiling thiserror-impl v2.0.19
+   Compiling digest v0.10.7
+   Compiling phf v0.13.1
+   Compiling whoami v2.1.2
+   Compiling tempfile v3.27.0
+   Compiling semver v1.0.28
+   Compiling cpufeatures v0.2.17
+   Compiling arrayvec v0.7.8
+   Compiling sha2 v0.10.9
+   Compiling rustls-pki-types v1.15.1
+   Compiling zerocopy v0.8.55
+   Compiling tokio-macros v2.7.1
+   Compiling futures-macro v0.3.33
+   Compiling zerofrom-derive v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling tracing-attributes v0.1.31
+   Compiling zerovec-derive v0.11.3
+   Compiling displaydoc v0.2.6
+   Compiling prost-derive v0.13.5
+   Compiling tokio v1.53.1
+   Compiling futures-util v0.3.33
+   Compiling rustls v0.23.42
+   Compiling rustversion v1.0.23
+   Compiling heck v0.5.0
+   Compiling untrusted v0.9.0
+   Compiling hex v0.4.3
+   Compiling zerofrom v0.1.8
+   Compiling tracing v0.1.44
+   Compiling regex-syntax v0.8.11
+   Compiling prettyplease v0.2.37
+   Compiling subtle v2.6.1
+   Compiling prost v0.13.5
+   Compiling yoke v0.8.3
+   Compiling getrandom v0.2.17
+   Compiling ryu v1.0.23
+   Compiling mime v0.3.17
+   Compiling fixedbitset v0.5.7
+   Compiling rand_core v0.6.4
+   Compiling regex-automata v0.4.16
+   Compiling zerovec v0.11.6
+   Compiling zerotrie v0.2.4
+   Compiling petgraph v0.7.1
+   Compiling serde_path_to_error v0.1.20
+   Compiling itertools v0.13.0
+   Compiling prost-types v0.13.5
+   Compiling indexmap v1.9.3
+   Compiling chrono v0.4.45
+   Compiling serde_urlencoded v0.7.1
+   Compiling matchit v0.7.3
+   Compiling multimap v0.10.1
+   Compiling tinystr v0.8.3
+   Compiling potential_utf v0.1.5
+   Compiling axum-core v0.4.5
+   Compiling icu_locale_core v2.2.0
+   Compiling icu_collections v2.2.0
+   Compiling regex v1.13.1
+   Compiling pin-project-internal v1.1.13
+   Compiling prost-build v0.13.5
+   Compiling hashbrown v0.12.3
+   Compiling pbjson-build v0.7.0
+   Compiling async-stream-impl v0.3.6
+   Compiling postgres-types v0.2.14
+   Compiling icu_provider v2.2.0
+   Compiling quantos-core v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-core)
+   Compiling base64 v0.21.7
+   Compiling pin-project v1.1.13
+   Compiling icu_properties v2.2.0
+   Compiling icu_normalizer v2.2.0
+   Compiling pbjson-types v0.7.0
+   Compiling quantos-policy v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-policy)
+   Compiling pbjson v0.7.0
+   Compiling async-stream v0.3.6
+   Compiling socket2 v0.5.10
+   Compiling tokio-util v0.7.19
+   Compiling tower v0.5.3
+   Compiling tokio-native-tls v0.3.1
+   Compiling ppv-lite86 v0.2.21
+   Compiling rand_chacha v0.3.1
+   Compiling tokio-stream v0.1.19
+   Compiling rand v0.8.7
+   Compiling h2 v0.4.15
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling tokio-postgres v0.7.18
+   Compiling utf8parse v0.2.2
+   Compiling anstyle-parse v1.0.0
+   Compiling anstyle-query v1.1.5
+   Compiling anstyle v1.0.14
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling colorchoice v1.0.5
+   Compiling clap_lex v1.1.0
+   Compiling strsim v0.11.1
+   Compiling clap_derive v4.6.4
+   Compiling url v2.5.8
+   Compiling anstream v1.0.0
+   Compiling tower v0.4.13
+   Compiling clap_builder v4.6.2
+   Compiling tower-http v0.6.11
+   Compiling postgres v0.19.14
+   Compiling postgres-native-tls v0.5.3
+   Compiling quantos-auth v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-auth)
+   Compiling quantos-event v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-event)
+   Compiling quantos-portfolio v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-portfolio)
+   Compiling clap v4.6.4
+   Compiling hyper v1.11.0
+   Compiling quantos-market v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-market)
+   Compiling hyper-util v0.1.20
+   Compiling axum v0.7.9
+   Compiling hyper-timeout v0.5.2
+   Compiling tonic v0.12.3
+   Compiling bff-gateway v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/bff-gateway)
+   Compiling quantos-proto v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-engine-manager)
+   Compiling rustls-webpki v0.103.13
+   Compiling tokio-rustls v0.26.4
+   Compiling rustls-platform-verifier v0.7.0
+   Compiling hyper-rustls v0.27.9
+   Compiling reqwest v0.13.4
+   Compiling quantos-storage v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-runtime)
+   Compiling quantos-strategy v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-strategy)
+   Compiling quantos-observability v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-observability)
+   Compiling quantos-risk v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-execution)
+   Compiling quantos-evidence v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-evidence)
+   Compiling quantos-reconcile v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/crates/quantos-reconcile)
+   Compiling market-ingestor v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/market-ingestor)
+   Compiling runtime-gateway v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/runtime-gateway)
+   Compiling capacity-monitor v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/capacity-monitor)
+   Compiling portfolio-rebuild v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/portfolio-rebuild)
+   Compiling replay-cli v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/replay-cli)
+   Compiling execution-gateway v0.1.0 (/private/tmp/quantos-f01-7cqzcs/workspace/services/execution-gateway)
+    Finished `release` profile [optimized] target(s) in 35.71s
+
+> @sumalpha/quantos@ build /private/tmp/quantos-f01-7cqzcs/workspace
+> pnpm -r build
+
+Scope: 7 of 8 workspace projects
+packages/config build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/ui build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/config build: Done
+packages/ui build: Done
+packages/api-client build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/platform build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/platform build: Done
+packages/api-client build: Done
+apps/website build$ next build
+packages/domain-ui build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/domain-ui build: Done
+apps/website build:    ▲ Next.js 15.5.23
+apps/website build:    Creating an optimized production build ...
+apps/website build:  ✓ Compiled successfully in 2.5s
+apps/website build:    Linting and checking validity of types ...
+apps/website build:  ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+apps/website build:    Collecting page data ...
+apps/website build:    Generating static pages (0/12) ...
+apps/website build:    Generating static pages (3/12) 
+apps/website build:    Generating static pages (6/12) 
+apps/website build:    Generating static pages (9/12) 
+apps/website build:  ✓ Generating static pages (12/12)
+apps/website build:    Finalizing page optimization ...
+apps/website build:    Collecting build traces ...
+apps/website build:    Exporting (0/2) ...
+apps/website build:  ✓ Exporting (2/2)
+apps/website build: Route (app)                                 Size  First Load JS
+apps/website build: ┌ ○ /                                      139 B         102 kB
+apps/website build: ├ ○ /_not-found                            989 B         103 kB
+apps/website build: ├ ○ /access-request                      2.31 kB         105 kB
+apps/website build: ├ ○ /architecture-security                 139 B         102 kB
+apps/website build: ├ ○ /docs                                2.28 kB         105 kB
+apps/website build: ├ ○ /login                                 139 B         102 kB
+apps/website build: ├ ○ /product                               139 B         102 kB
+apps/website build: ├ ○ /robots.txt                            139 B         102 kB
+apps/website build: ├ ○ /sitemap.xml                           139 B         102 kB
+apps/website build: └ ○ /use-cases                             139 B         102 kB
+apps/website build: + First Load JS shared by all             102 kB
+apps/website build:   ├ chunks/692-8e367d638c62dcca.js       46.2 kB
+apps/website build:   ├ chunks/dbfa0c24-e34d78d9a8aa1e3f.js  54.2 kB
+apps/website build:   └ other shared chunks (total)          1.84 kB
+apps/website build: ○  (Static)  prerendered as static content
+apps/website build: Done
+apps/terminal build$ next build
+apps/terminal build:    ▲ Next.js 15.5.23
+apps/terminal build:    Creating an optimized production build ...
+apps/terminal build:  ✓ Compiled successfully in 2.4s
+apps/terminal build:    Linting and checking validity of types ...
+apps/terminal build:  ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+apps/terminal build:    Collecting page data ...
+apps/terminal build:    Generating static pages (0/17) ...
+apps/terminal build:    Generating static pages (4/17) 
+apps/terminal build:    Generating static pages (8/17) 
+apps/terminal build:    Generating static pages (12/17) 
+apps/terminal build:  ✓ Generating static pages (17/17)
+apps/terminal build:    Finalizing page optimization ...
+apps/terminal build:    Collecting build traces ...
+apps/terminal build:    Exporting (0/2) ...
+apps/terminal build:  ✓ Exporting (2/2)
+apps/terminal build: Route (app)                                 Size  First Load JS
+apps/terminal build: ┌ ○ /                                      133 B         102 kB
+apps/terminal build: ├ ○ /_not-found                            133 B         102 kB
+apps/terminal build: ├ ○ /access-request                      2.77 kB         105 kB
+apps/terminal build: ├ ○ /auth/callback                       3.08 kB         105 kB
+apps/terminal build: ├ ○ /auth/deep-link                      2.15 kB         104 kB
+apps/terminal build: ├ ○ /command                             6.72 kB         126 kB
+apps/terminal build: ├ ○ /login                               3.11 kB         105 kB
+apps/terminal build: ├ ○ /maintenance                           133 B         102 kB
+apps/terminal build: ├ ○ /mfa                                 3.96 kB         106 kB
+apps/terminal build: ├ ○ /offline                             1.57 kB         104 kB
+apps/terminal build: ├ ○ /settings/browser                      128 B         128 kB
+apps/terminal build: ├ ○ /settings/notifications                127 B         128 kB
+apps/terminal build: ├ ○ /settings/profile                      128 B         128 kB
+apps/terminal build: ├ ○ /settings/security                     128 B         128 kB
+apps/terminal build: └ ○ /unauthorized                        1.71 kB         104 kB
+apps/terminal build: + First Load JS shared by all             102 kB
+apps/terminal build:   ├ chunks/692-8e367d638c62dcca.js       46.2 kB
+apps/terminal build:   ├ chunks/dbfa0c24-e34d78d9a8aa1e3f.js  54.2 kB
+apps/terminal build:   └ other shared chunks (total)          1.87 kB
+apps/terminal build: ○  (Static)  prerendered as static content
+apps/terminal build: Done
+uv sync --locked --project engines --all-packages --group build
+Resolved 28 packages in 1ms
+Audited 26 packages in 0.26ms
+uv build --project engines --python engines/.venv/bin/python --all-packages --wheel --no-build-isolation --out-dir artifacts/python
+[quantos-engine-sdk] Building wheel...
+[quantos-llmquant] Building wheel...
+[quantos-mock-engine] Building wheel...
+[quantos-openbb-adapter] Building wheel...
+[quantos-rd-agent] Building wheel...
+[quantos-strategy-lab] Building wheel...
+[quantos-trading-agents] Building wheel...
+[quantos-vibe-adapter] Building wheel...
+Successfully built artifacts/python/quantos_engine_sdk-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_llmquant-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_mock_engine-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_openbb_adapter-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_rd_agent-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_strategy_lab-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_trading_agents-0.1.0-py3-none-any.whl
+Successfully built artifacts/python/quantos_vibe_adapter-0.1.0-py3-none-any.whl

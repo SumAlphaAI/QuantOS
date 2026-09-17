@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.4
+> 版本：3.5
 > 更新时间：2026-09-17
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.5`：完成 F01 全部 10 项整改；20/20 检查点、3/3 量化验收通过。已取得绑定修复源码提交的新环境时限与三次构建真实回执；F01 更新为 `COMPLETED / ACCEPTED`，F0 总体 Gate 保持原状态。详见 [F01 修复与验收记录](./audit/F01-remediation-2026-09-17.md)。
 
 - `3.4`：完成 F01 全面复审；严格检查点完成率 60%（12/20），三项量化验收完整通过 0/3；发现高危 2、中危 7、低危 1，状态调整为 `PARTIAL / CHANGES_REQUESTED`。本地质量检查通过不替代新环境与当前提交三次构建验收，详见 [F01 复审报告](./audit/F01-comprehensive-review-2026-09-17.md)。
 
@@ -15,7 +17,7 @@
 - `3.1`：完成 CORE:R01 当前仓库交付复核与加固；批准 provider、严格 symbol 归一化、精度/时间/来源/质量契约、10 万条 replay、乱序/重复去重、五秒异常发出与 `MarketEvent` append-only ledger 写入均纳入可破坏 Gate。真实 provider、消息基础设施和目标环境吞吐仍需独立验收。
 - `3.0`：为 GPT-6 Astra 对全量已开发核心功能重新复审重构文档，移除历史核查、复验结论与过程记录；保留业务需求、功能定义、量化标准、依赖和已开发状态标记。
 - 每项核心功能及 TP01 子任务均配置独立复审入口；v3.0 初始化为 `NOT_STARTED`，后续按实际复审结果更新各任务记录。
-- 格式约定：`quantos-plan-review/v1`；v3.0 仅重构计划，v3.4 的 F01 复审与重新判定见对应记录。
+- 格式约定：`quantos-plan-review/v1`；v3.0 仅重构计划，v3.5 的 F01 整改验收与重新判定见对应记录。
 
 ## 1. 执行范围与不可变约束
 
@@ -138,8 +140,8 @@ flowchart LR
 
 - task_id: `F01`
 - task_type: `CORE`
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
-- 状态范围：初审 12/20（60%）；整改后本地门禁通过，等待绑定修复提交的 clean-room 与三次完整构建回执。正式完成率随回执验证更新；不以已有缓存测试替代验收。
+- development_status: `COMPLETED`
+- 状态范围：2026-09-17 整改验收：20/20（100%）检查点、3/3 量化验收通过；10 个问题 CLOSED。macOS 空缓存初始化 948.682 秒，独立三次产物一致；源码 6059310c4f3a2159f04e951a9308a5aae4d0366b。不替代其他任务的远程 CI、浏览器或数据库验收。
 - review_entry: [GPT-6 Astra 复审入口](#review-f01)
 - 需求描述：初始化 Polyglot Monorepo
 - 技术要求：建立 Cargo workspace、`proto/`、`crates/`、`services/`、`engines/`、`apps/website`、`apps/terminal`、`packages/*`、`supabase/`；固定 Rust、uv、Node 工具链
@@ -151,118 +153,118 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `FIX_VALIDATION`
-- review_conclusion: A02–A10 已完成实现整改及本地验证（15 个负向测试、三语言 lint/test 通过）；A01 进入干净源码提交的新环境与三次构建回执验证，详见 [修复记录](./audit/F01-remediation-2026-09-17.md)。
+- review_status: `ACCEPTED`
+- review_conclusion: 全部整改与真实本地新环境验收通过；当前实现提交的 clean-room 与三次构建回执已归档，详见 [F01 修复记录](./audit/F01-remediation-2026-09-17.md)。
 - issues:
   - issue_id: F01-A01
     severity: HIGH
     description: 当前提交缺少 clean-room 与三次构建验收回执
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
   - issue_id: F01-A02
     severity: HIGH
     description: 构建验证器遗漏服务产物并允许陈旧输出与不足三次的成功标记
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
   - issue_id: F01-A03
     severity: MEDIUM
     description: 本地 uv 未固定和校验版本，开发说明不完整
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
   - issue_id: F01-A04
     severity: MEDIUM
     description: Python 隔离构建后端 hatchling 未锁定
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
   - issue_id: F01-A05
     severity: MEDIUM
     description: 三个模块缺少 README
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
   - issue_id: F01-A06
     severity: MEDIUM
     description: 锁文件检查仅验证非空，无效锁仍通过
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
   - issue_id: F01-A07
     severity: MEDIUM
     description: 一期 F01 检查仍强制依赖二期 Desktop
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
   - issue_id: F01-A08
     severity: MEDIUM
     description: Terminal 默认 lint 未覆盖 app/TSX 页面
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
   - issue_id: F01-A09
     severity: MEDIUM
     description: Rust 测试执行器未满足计划 nextest 要求
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
   - issue_id: F01-A10
     severity: LOW
     description: 服务 README 的数量与目录索引漂移
     evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
-    status: OPEN
+    status: CLOSED
 - fix_tracking:
   - issue_id: F01-A01
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_status: PENDING
+    verification_status: PASS
   - issue_id: F01-A02
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
     verification_status: PASS
   - issue_id: F01-A03
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
     verification_status: PASS
   - issue_id: F01-A04
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
     verification_status: PASS
   - issue_id: F01-A05
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
     verification_status: PASS
   - issue_id: F01-A06
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
     verification_status: PASS
   - issue_id: F01-A07
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
     verification_status: PASS
   - issue_id: F01-A08
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
     verification_status: PASS
   - issue_id: F01-A09
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
     verification_status: PASS
   - issue_id: F01-A10
     fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
-    verification_command: make lockfile-check f01-check lint test
-    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_command: make f01-clean-room-check f01-reproducibility-check
+    verification_environment: macOS arm64 干净源码副本；新环境空下载缓存；目标数据库未运行
     verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
     verification_status: PASS
 

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 2,
+  "mode": "clean-room",
+  "status": "FAIL",
+  "passed": false,
+  "reproducible": false,
+  "startedAt": "2026-09-17T03:15:50.027Z",
+  "environment": {
+    "os": "darwin",
+    "release": "27.0.0",
+    "arch": "arm64",
+    "ciRunId": null,
+    "ciRunUrl": null
+  },
+  "runs": [
+    {
+      "run": 1,
+      "startedAt": "2026-09-17T03:15:50.515Z",
+      "commands": [
+        {
+          "binary": "make",
+          "args": [
+            "bootstrap"
+          ],
+          "exitCode": 0,
+          "seconds": 935.815
+        },
+        {
+          "binary": "make",
+          "args": [
+            "lockfile-check",
+            "f01-check",
+            "lint",
+            "test"
+          ],
+          "exitCode": 2,
+          "seconds": 4.805
+        }
+      ]
+    }
+  ],
+  "source": {
+    "commit": "49c9d33b8a7591b811b73ea0fba988739cfab937",
+    "tree": "e2977138c56c9184fc4f94f8ff82a122f9ac4fe2",
+    "dirty": false
+  },
+  "toolchains": {
+    "node": "24.12.0",
+    "uv": "0.7.0",
+    "pnpm": "10.20.0",
+    "rustc": "1.91.0"
+  },
+  "sourceDateEpoch": 1789614945,
+  "directoryPolicy": "fixed physical build prefix; source/install/output directory removed and recreated for every run",
+  "cachePolicy": "empty package download caches; empty install and build directories; preinstalled pinned toolchains",
+  "error": "Command failed: make lockfile-check f01-check lint test",
+  "completedAt": "2026-09-17T03:31:31.135Z"
+}

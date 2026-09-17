@@ -1,5 +1,7 @@
 # SumAlpha QuantOS Desktop 第二期开发执行计划
 
+> F01 整改后，Desktop 不在一期默认 pnpm workspace 中。第二期请在独立 checkout 将根目录 `pnpm-workspace.desktop.yaml`、`pnpm-lock.desktop.yaml` 分别复制为默认文件名，再执行 frozen install；手动 Desktop CI 已使用此入口。不要在一期活动工作区替换配置。
+
 > 版本：1.1
 > 更新时间：2026-09-17
 > 状态：第二期范围已拆分，尚未授权启动开发或发布

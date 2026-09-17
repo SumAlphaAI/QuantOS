@@ -7,14 +7,24 @@ import os
 import pathlib
 import subprocess
 import tempfile
-import shutil
 import json
 
 ROOT = pathlib.Path(__file__).resolve().parents[4]
+BASE_COMMIT = "a44220d26ffa9fa7ae5efd0e8e2c56e60eebd183"
+
+
+def baseline(name):
+    return subprocess.check_output(
+        ["git", "show", f"{BASE_COMMIT}:scripts/{name}"], cwd=ROOT, text=True
+    )
+
+
 results = []
 with tempfile.TemporaryDirectory(prefix="quantos-f01-probes-") as td:
     root = pathlib.Path(td)
     locks = root / "locks"
+    original_lock_gate = root / "check-lockfiles.sh"
+    original_lock_gate.write_text(baseline("check-lockfiles.sh"))
     for f in [
         "Cargo.lock",
         "buf.lock",
@@ -26,7 +36,7 @@ with tempfile.TemporaryDirectory(prefix="quantos-f01-probes-") as td:
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text("not a lockfile\n")
     p = subprocess.run(
-        ["bash", str(ROOT / "scripts/check-lockfiles.sh")],
+        ["bash", str(original_lock_gate)],
         env={**os.environ, "QUANTOS_GATE_ROOT": str(locks)},
         capture_output=True,
         text=True,
@@ -41,7 +51,9 @@ with tempfile.TemporaryDirectory(prefix="quantos-f01-probes-") as td:
     )
     repo = root / "repo"
     (repo / "scripts").mkdir(parents=True)
-    shutil.copy(ROOT / "scripts/verify-reproducible-builds.mjs", repo / "scripts")
+    (repo / "scripts/verify-reproducible-builds.mjs").write_text(
+        baseline("verify-reproducible-builds.mjs")
+    )
     binpath = root / "bin"
     binpath.mkdir()
     fake = """#!/usr/bin/env python3

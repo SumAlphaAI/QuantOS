@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 2,
+  "mode": "reproducibility",
+  "status": "FAIL",
+  "passed": false,
+  "reproducible": false,
+  "startedAt": "2026-09-17T02:43:24.120Z",
+  "environment": {
+    "os": "darwin",
+    "release": "27.0.0",
+    "arch": "arm64",
+    "ciRunId": null,
+    "ciRunUrl": null
+  },
+  "runs": [
+    {
+      "run": 1,
+      "startedAt": "2026-09-17T02:43:24.494Z",
+      "commands": [
+        {
+          "binary": "make",
+          "args": [
+            "bootstrap"
+          ],
+          "exitCode": 0,
+          "seconds": 5.071
+        },
+        {
+          "binary": "cargo",
+          "args": [
+            "build",
+            "--workspace",
+            "--release",
+            "--locked"
+          ],
+          "exitCode": 0,
+          "seconds": 31.599
+        },
+        {
+          "binary": "pnpm",
+          "args": [
+            "build"
+          ],
+          "exitCode": 0,
+          "seconds": 21.563
+        },
+        {
+          "binary": "make",
+          "args": [
+            "build-python"
+          ],
+          "exitCode": 0,
+          "seconds": 0.467
+        }
+      ]
+    }
+  ],
+  "source": {
+    "commit": "21c1e37e7c59c2b9a4d2819ac5283901e54efc63",
+    "tree": "cff9b47a385e7f854bc95015a9d226c60f6afe86",
+    "dirty": false
+  },
+  "toolchains": {
+    "node": "24.12.0",
+    "uv": "0.7.0",
+    "pnpm": "10.20.0",
+    "rustc": "1.91.0"
+  },
+  "sourceDateEpoch": 1789612976,
+  "cachePolicy": "shared package downloads only; fresh source/install/build directories for every run",
+  "error": "Python wheel outputs: inventory mismatch: {\"actual\":[\".gitignore\",\"quantos_engine_sdk-0.1.0-py3-none-any.whl\",\"quantos_llmquant-0.1.0-py3-none-any.whl\",\"quantos_mock_engine-0.1.0-py3-none-any.whl\",\"quantos_openbb_adapter-0.1.0-py3-none-any.whl\",\"quantos_rd_agent-0.1.0-py3-none-any.whl\",\"quantos_strategy_lab-0.1.0-py3-none-any.whl\",\"quantos_trading_agents-0.1.0-py3-none-any.whl\",\"quantos_vibe_adapter-0.1.0-py3-none-any.whl\"],\"expected\":[\"quantos_engine_sdk-0.1.0-py3-none-any.whl\",\"quantos_llmquant-0.1.0-py3-none-any.whl\",\"quantos_mock_engine-0.1.0-py3-none-any.whl\",\"quantos_openbb_adapter-0.1.0-py3-none-any.whl\",\"quantos_rd_agent-0.1.0-py3-none-any.whl\",\"quantos_strategy_lab-0.1.0-py3-none-any.whl\",\"quantos_trading_agents-0.1.0-py3-none-any.whl\",\"quantos_vibe_adapter-0.1.0-py3-none-any.whl\"]}",
+  "completedAt": "2026-09-17T02:44:23.441Z"
+}

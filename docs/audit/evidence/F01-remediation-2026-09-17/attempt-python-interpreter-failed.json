@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 2,
+  "mode": "reproducibility",
+  "status": "FAIL",
+  "passed": false,
+  "reproducible": false,
+  "startedAt": "2026-09-17T02:40:22.226Z",
+  "environment": {
+    "os": "darwin",
+    "release": "27.0.0",
+    "arch": "arm64",
+    "ciRunId": null,
+    "ciRunUrl": null
+  },
+  "runs": [
+    {
+      "run": 1,
+      "startedAt": "2026-09-17T02:40:22.642Z",
+      "commands": [
+        {
+          "binary": "make",
+          "args": [
+            "bootstrap"
+          ],
+          "exitCode": 0,
+          "seconds": 3.6
+        },
+        {
+          "binary": "cargo",
+          "args": [
+            "build",
+            "--workspace",
+            "--release",
+            "--locked"
+          ],
+          "exitCode": 0,
+          "seconds": 33.961
+        },
+        {
+          "binary": "pnpm",
+          "args": [
+            "build"
+          ],
+          "exitCode": 0,
+          "seconds": 21.37
+        },
+        {
+          "binary": "make",
+          "args": [
+            "build-python"
+          ],
+          "exitCode": 2,
+          "seconds": 1.226
+        }
+      ]
+    }
+  ],
+  "source": {
+    "commit": "2e1952787eb0508fba10a0ed6140376fef22bb58",
+    "tree": "548071ac5237b595457f31befc349b217eb229c1",
+    "dirty": false
+  },
+  "toolchains": {
+    "node": "24.12.0",
+    "uv": "0.7.0",
+    "pnpm": "10.20.0",
+    "rustc": "1.91.0"
+  },
+  "sourceDateEpoch": 1789612773,
+  "cachePolicy": "shared package downloads only; fresh source/install/build directories for every run",
+  "error": "Command failed: make build-python",
+  "completedAt": "2026-09-17T02:41:22.800Z"
+}

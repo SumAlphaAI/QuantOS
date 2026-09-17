@@ -1,0 +1,1452 @@
+node scripts/check-toolchains.mjs
+{
+  "node": "24.12.0",
+  "uv": "0.7.0",
+  "pnpm": "10.20.0",
+  "rustc": "1.91.0"
+}
+/Library/Developer/CommandLineTools/usr/bin/make -j3 bootstrap-rust bootstrap-python bootstrap-node
+cargo fetch --locked
+uv sync --locked --project engines --all-packages --group build
+pnpm install --frozen-lockfile
+warning: a `-j` argument was passed to Cargo but Cargo is also configured with an external jobserver in its environment, ignoring the `-j` parameter
+Using CPython 3.9.6 interpreter at: /Library/Developer/CommandLineTools/usr/bin/python3
+Creating virtual environment at: engines/.venv
+Resolved 28 packages in 2ms
+Scope: all 8 workspace projects
+   Building quantos-engine-sdk @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/engine-sdk
+   Building quantos-mock-engine @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/mock-engine
+   Building quantos-openbb-adapter @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/openbb-adapter
+   Building quantos-rd-agent @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/rd-agent
+   Building quantos-llmquant @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/llmquant
+   Building quantos-strategy-lab @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/strategy-lab
+   Building quantos-vibe-adapter @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/vibe-adapter
+   Building quantos-trading-agents @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/trading-agents
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +600
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      Built quantos-trading-agents @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/trading-agents
+      Built quantos-llmquant @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/llmquant
+      Built quantos-strategy-lab @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/strategy-lab
+      Built quantos-vibe-adapter @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/vibe-adapter
+      Built quantos-openbb-adapter @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/openbb-adapter
+      Built quantos-engine-sdk @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/engine-sdk
+      Built quantos-mock-engine @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/mock-engine
+      Built quantos-rd-agent @ file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/rd-agent
+Prepared 8 packages in 601ms
+Installed 26 packages in 122ms
+ + coverage==7.10.7
+ + exceptiongroup==1.3.1
+ + grpcio==1.74.0
+ + hatchling==1.27.0
+ + iniconfig==2.1.0
+ + nodeenv==1.10.0
+ + packaging==26.2
+ + pathspec==1.1.1
+ + pluggy==1.6.0
+ + protobuf==5.29.6
+ + pygments==2.20.0
+ + pyright==1.1.403
+ + pytest==8.4.1
+ + pytest-cov==6.2.1
+ + quantos-engine-sdk==0.1.0 (from file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/engine-sdk)
+ + quantos-llmquant==0.1.0 (from file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/llmquant)
+ + quantos-mock-engine==0.1.0 (from file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/mock-engine)
+ + quantos-openbb-adapter==0.1.0 (from file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/openbb-adapter)
+ + quantos-rd-agent==0.1.0 (from file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/rd-agent)
+ + quantos-strategy-lab==0.1.0 (from file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/strategy-lab)
+ + quantos-trading-agents==0.1.0 (from file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/trading-agents)
+ + quantos-vibe-adapter==0.1.0 (from file:///private/tmp/f01-fresh-quality-a7xy2ngc/workspace/engines/vibe-adapter)
+ + ruff==0.12.7
+ + tomli==2.2.1
+ + trove-classifiers==2026.6.1.19
+ + typing-extensions==4.16.0
+Progress: resolved 600, reused 600, downloaded 0, added 312
+Progress: resolved 600, reused 600, downloaded 0, added 598
+Progress: resolved 600, reused 600, downloaded 0, added 599
+Progress: resolved 600, reused 600, downloaded 0, added 600, done
+
+devDependencies:
++ @axe-core/playwright 4.13.0
++ @bufbuild/buf 1.72.0
++ @bufbuild/protobuf 2.13.0
++ @eslint/js 9.33.0
++ @playwright/test 1.62.1
++ @types/node 24.3.0
++ @types/pngjs 6.0.5
++ @vitest/coverage-v8 3.2.4
++ ajv 8.20.0
++ ajv-formats 3.0.1
++ eslint 9.33.0
++ globals 16.3.0
++ license-checker-rseidelsohn 4.4.2
++ msw 2.15.0
++ openapi-typescript 7.13.0
++ pg 8.16.3
++ pixelmatch 7.2.0
++ pngjs 7.0.0
++ typescript 5.9.2
++ typescript-eslint 8.39.1
++ vitest 3.2.4
++ yaml 2.9.0
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @bufbuild/buf, @parcel/watcher, @swc/core,          │
+│   esbuild, msw.                                                              │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 3.8s using pnpm v10.20.0
+bash ./scripts/check-lockfiles.sh
+Resolved 28 packages in 2ms
+Scope: all 8 workspace projects
+Done in 284ms using pnpm v10.20.0
+All phase-1 locks parse and match their manifests.
+node scripts/check-f01.mjs
+{
+  "status": "PASS",
+  "toolchains": {
+    "node": "24.12.0",
+    "uv": "0.7.0",
+    "pnpm": "10.20.0",
+    "rustc": "1.91.0"
+  },
+  "moduleReadmes": 45,
+  "inventory": {
+    "rustBinaries": [
+      "bff-gateway",
+      "capacity-monitor",
+      "execution-gateway",
+      "market-ingestor",
+      "portfolio-rebuild",
+      "replay-cli",
+      "runtime-gateway"
+    ],
+    "rustDirectories": [
+      "crates/quantos-auth",
+      "crates/quantos-core",
+      "crates/quantos-engine-manager",
+      "crates/quantos-event",
+      "crates/quantos-evidence",
+      "crates/quantos-execution",
+      "crates/quantos-market",
+      "crates/quantos-observability",
+      "crates/quantos-policy",
+      "crates/quantos-portfolio",
+      "crates/quantos-proto",
+      "crates/quantos-reconcile",
+      "crates/quantos-risk",
+      "crates/quantos-runtime",
+      "crates/quantos-storage",
+      "crates/quantos-strategy",
+      "services/bff-gateway",
+      "services/capacity-monitor",
+      "services/execution-gateway",
+      "services/market-ingestor",
+      "services/portfolio-rebuild",
+      "services/replay-cli",
+      "services/runtime-gateway"
+    ],
+    "js": [
+      {
+        "directory": "apps/terminal",
+        "name": "@sumalpha/terminal",
+        "output": "apps/terminal/out"
+      },
+      {
+        "directory": "apps/website",
+        "name": "@sumalpha/website",
+        "output": "apps/website/out"
+      },
+      {
+        "directory": "packages/api-client",
+        "name": "@sumalpha/api-client",
+        "output": "packages/api-client/dist"
+      },
+      {
+        "directory": "packages/config",
+        "name": "@sumalpha/config",
+        "output": "packages/config/dist"
+      },
+      {
+        "directory": "packages/domain-ui",
+        "name": "@sumalpha/domain-ui",
+        "output": "packages/domain-ui/dist"
+      },
+      {
+        "directory": "packages/platform",
+        "name": "@sumalpha/platform",
+        "output": "packages/platform/dist"
+      },
+      {
+        "directory": "packages/ui",
+        "name": "@sumalpha/ui",
+        "output": "packages/ui/dist"
+      }
+    ],
+    "python": [
+      {
+        "directory": "engines/engine-sdk",
+        "name": "quantos-engine-sdk",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/llmquant",
+        "name": "quantos-llmquant",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/mock-engine",
+        "name": "quantos-mock-engine",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/openbb-adapter",
+        "name": "quantos-openbb-adapter",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/rd-agent",
+        "name": "quantos-rd-agent",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/strategy-lab",
+        "name": "quantos-strategy-lab",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/trading-agents",
+        "name": "quantos-trading-agents",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/vibe-adapter",
+        "name": "quantos-vibe-adapter",
+        "version": "0.1.0"
+      }
+    ],
+    "buildClosure": {
+      "hatchling": "1.27.0",
+      "packaging": "26.2",
+      "pathspec": "1.1.1",
+      "pluggy": "1.6.0",
+      "tomli": "2.2.1",
+      "trove-classifiers": "2026.6.1.19"
+    }
+  }
+}
+node --test scripts/f01-gate-negative.mjs
+✔ formal gate rejects zero, one, two and noninteger runs (0.537291ms)
+✔ all binaries participate in digest and omitted binary fails (5.063959ms)
+✔ extra binary, missing wheel and stale/empty Web cannot pass output inventory (7.684125ms)
+✔ manifest inventory cannot omit or add members (0.2525ms)
+✔ dirty and untracked source rejected (115.706791ms)
+✔ deleted module README is rejected (4.739417ms)
+✔ wrong uv version fails toolchain preflight (31.790125ms)
+✔ invalid locks fail real lock entrypoint (76.7375ms)
+✔ Terminal default lint rejects a page TSX violation (1813.536583ms)
+✔ invalid run revokes old successful receipt (29.553334ms)
+✔ Cargo manifest drift is rejected by actual lock gate (1299.014125ms)
+✔ uv manifest drift is rejected by actual lock gate (1028.605583ms)
+✔ pnpm manifest drift is rejected by actual lock gate (1319.42775ms)
+✔ malformed Buf lock is rejected by actual lock gate (1023.589333ms)
+✔ broken Desktop is outside phase-one pnpm frozen check (335.518583ms)
+✔ uv output marker is metadata, other unexpected files still fail (2.582959ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7138.817125
+cargo fmt --check
+cargo clippy --workspace --all-targets -- -D warnings
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.24
+   Compiling libc v0.2.189
+    Checking bytes v1.12.1
+    Checking cfg-if v1.0.4
+    Checking pin-project-lite v0.2.17
+    Checking itoa v1.0.18
+   Compiling serde_core v1.0.229
+    Checking futures-core v0.3.33
+    Checking memchr v2.8.3
+    Checking once_cell v1.21.4
+   Compiling autocfg v1.5.1
+    Checking core-foundation-sys v0.8.7
+    Checking futures-sink v0.3.33
+   Compiling serde v1.0.229
+    Checking smallvec v1.15.2
+    Checking log v0.4.33
+    Checking slab v0.4.12
+   Compiling zmij v1.0.23
+    Checking futures-task v0.3.33
+    Checking futures-io v0.3.33
+    Checking percent-encoding v2.3.2
+   Compiling serde_json v1.0.151
+   Compiling getrandom v0.4.3
+    Checking rand_core v0.10.1
+    Checking base64 v0.22.1
+    Checking iana-time-zone v0.1.65
+   Compiling num-traits v0.2.19
+    Checking futures-channel v0.3.33
+    Checking form_urlencoded v1.2.2
+   Compiling rustix v1.1.4
+    Checking bitflags v2.13.1
+    Checking typenum v1.20.1
+    Checking tracing-core v0.1.36
+    Checking http v1.4.2
+    Checking tower-service v0.3.3
+    Checking equivalent v1.0.2
+    Checking hashbrown v0.17.1
+   Compiling httparse v1.10.1
+   Compiling anyhow v1.0.104
+    Checking http-body v1.1.0
+    Checking indexmap v2.14.0
+    Checking fnv v1.0.7
+    Checking atomic-waker v1.1.2
+    Checking stable_deref_trait v1.2.1
+    Checking try-lock v0.2.5
+   Compiling thiserror v2.0.19
+    Checking want v0.3.1
+    Checking tower-layer v0.3.3
+    Checking httpdate v1.0.3
+    Checking sync_wrapper v1.0.2
+    Checking ipnet v2.12.0
+    Checking fastrand v2.5.0
+    Checking hybrid-array v0.4.13
+    Checking http-body-util v0.1.4
+   Compiling version_check v0.9.5
+    Checking cmov v0.5.4
+    Checking const-oid v0.10.2
+    Checking errno v0.3.14
+    Checking socket2 v0.6.5
+    Checking mio v1.2.2
+    Checking ctutils v0.4.2
+    Checking signal-hook-registry v1.4.8
+   Compiling generic-array v0.14.7
+   Compiling syn v2.0.119
+   Compiling syn v3.0.3
+    Checking writeable v0.6.3
+    Checking crypto-common v0.2.2
+    Checking block-buffer v0.12.1
+    Checking litemap v0.8.2
+    Checking tinyvec_macros v0.1.1
+   Compiling icu_properties_data v2.2.0
+   Compiling icu_normalizer_data v2.2.0
+    Checking utf8_iter v1.0.4
+    Checking tinyvec v1.12.0
+    Checking cpufeatures v0.3.0
+    Checking core-foundation v0.10.1
+    Checking security-framework-sys v2.17.0
+    Checking chacha20 v0.10.1
+    Checking unicode-properties v0.1.4
+   Compiling rust_decimal v1.42.1
+    Checking unicode-bidi v0.3.18
+   Compiling parking_lot_core v0.9.12
+    Checking security-framework v3.7.0
+    Checking unicode-normalization v0.1.25
+    Checking rand v0.10.2
+    Checking cpufeatures v0.2.17
+    Checking objc2-core-foundation v0.3.2
+    Checking tempfile v3.27.0
+    Checking digest v0.11.3
+    Checking stringprep v0.1.5
+    Checking uuid v1.24.0
+    Checking semver v1.0.28
+    Checking sha2 v0.11.0
+    Checking md-5 v0.11.0
+    Checking hmac v0.13.0
+    Checking fallible-iterator v0.2.0
+    Checking arrayvec v0.7.8
+    Checking byteorder v1.5.0
+    Checking scopeguard v1.2.0
+    Checking siphasher v1.0.3
+    Checking objc2-system-configuration v0.3.2
+    Checking lock_api v0.4.14
+   Compiling native-tls v0.2.18
+    Checking hex v0.4.3
+    Checking phf_shared v0.13.1
+    Checking whoami v2.1.2
+   Compiling jobserver v0.1.35
+   Compiling find-msvc-tools v0.1.9
+    Checking crypto-common v0.1.7
+    Checking block-buffer v0.10.4
+   Compiling either v1.17.0
+   Compiling shlex v2.0.1
+    Checking digest v0.10.7
+   Compiling rustversion v1.0.23
+    Checking phf v0.13.1
+    Checking postgres-protocol v0.6.12
+   Compiling cc v1.4.0
+    Checking parking_lot v0.12.5
+    Checking sha2 v0.10.9
+   Compiling itertools v0.14.0
+   Compiling fs_extra v1.3.0
+   Compiling dunce v1.0.5
+   Compiling pkg-config v0.3.33
+    Checking ryu v1.0.23
+    Checking mime v0.3.17
+    Checking serde_path_to_error v0.1.20
+    Checking matchit v0.7.3
+   Compiling aws-lc-rs v1.17.3
+   Compiling heck v0.5.0
+   Compiling zerocopy v0.8.55
+    Checking zeroize v1.9.0
+   Compiling regex-syntax v0.8.11
+   Compiling prettyplease v0.2.37
+    Checking getrandom v0.2.17
+   Compiling fixedbitset v0.5.7
+   Compiling cmake v0.1.58
+    Checking rand_core v0.6.4
+    Checking rustls-pki-types v1.15.1
+   Compiling itertools v0.13.0
+   Compiling indexmap v1.9.3
+    Checking untrusted v0.9.0
+   Compiling multimap v0.10.1
+   Compiling rustls v0.23.42
+    Checking hashbrown v0.12.3
+    Checking subtle v2.6.1
+    Checking base64 v0.21.7
+    Checking socket2 v0.5.10
+   Compiling aws-lc-sys v0.43.0
+   Compiling petgraph v0.7.1
+    Checking utf8parse v0.2.2
+    Checking anstyle-query v1.1.5
+   Compiling regex-automata v0.4.16
+    Checking anstyle v1.0.14
+    Checking colorchoice v1.0.5
+    Checking anstyle-parse v1.0.0
+    Checking is_terminal_polyfill v1.70.2
+    Checking clap_lex v1.1.0
+    Checking strsim v0.11.1
+    Checking anstream v1.0.0
+    Checking clap_builder v4.6.2
+   Compiling synstructure v0.13.2
+   Compiling serde_derive v1.0.229
+   Compiling async-trait v0.1.91
+   Compiling thiserror-impl v2.0.19
+   Compiling clap_derive v4.6.4
+   Compiling tokio-macros v2.7.1
+   Compiling futures-macro v0.3.33
+   Compiling tracing-attributes v0.1.31
+   Compiling zerofrom-derive v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling zerovec-derive v0.11.3
+   Compiling displaydoc v0.2.6
+    Checking tokio v1.53.1
+    Checking futures-util v0.3.33
+   Compiling prost-derive v0.13.5
+   Compiling regex v1.13.1
+   Compiling pin-project-internal v1.1.13
+   Compiling async-stream-impl v0.3.6
+    Checking clap v4.6.4
+    Checking tracing v0.1.44
+    Checking zerofrom v0.1.8
+    Checking async-stream v0.3.6
+    Checking pin-project v1.1.13
+   Compiling prost v0.13.5
+    Checking ppv-lite86 v0.2.21
+    Checking rand_chacha v0.3.1
+    Checking yoke v0.8.3
+    Checking rand v0.8.7
+    Checking chrono v0.4.45
+    Checking serde_urlencoded v0.7.1
+    Checking pbjson v0.7.0
+   Compiling prost-types v0.13.5
+    Checking zerovec v0.11.6
+    Checking zerotrie v0.2.4
+    Checking axum-core v0.4.5
+   Compiling prost-build v0.13.5
+   Compiling pbjson-build v0.7.0
+    Checking postgres-types v0.2.14
+    Checking quantos-core v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-core)
+    Checking tinystr v0.8.3
+    Checking potential_utf v0.1.5
+    Checking quantos-policy v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-policy)
+    Checking icu_collections v2.2.0
+    Checking icu_locale_core v2.2.0
+   Compiling pbjson-types v0.7.0
+    Checking tokio-util v0.7.19
+    Checking tower v0.5.3
+    Checking tokio-native-tls v0.3.1
+    Checking tokio-stream v0.1.19
+    Checking h2 v0.4.15
+    Checking tokio-postgres v0.7.18
+    Checking tower v0.4.13
+    Checking icu_provider v2.2.0
+    Checking icu_properties v2.2.0
+    Checking icu_normalizer v2.2.0
+    Checking idna_adapter v1.2.2
+    Checking idna v1.1.0
+    Checking postgres v0.19.14
+    Checking postgres-native-tls v0.5.3
+    Checking url v2.5.8
+    Checking tower-http v0.6.11
+    Checking quantos-auth v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-auth)
+    Checking quantos-event v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-event)
+    Checking quantos-portfolio v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-portfolio)
+    Checking quantos-market v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-market)
+    Checking hyper v1.11.0
+    Checking hyper-util v0.1.20
+    Checking axum v0.7.9
+    Checking hyper-timeout v0.5.2
+    Checking tonic v0.12.3
+    Checking bff-gateway v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/bff-gateway)
+    Checking quantos-proto v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-proto)
+    Checking quantos-engine-manager v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-engine-manager)
+    Checking rustls-webpki v0.103.13
+    Checking tokio-rustls v0.26.4
+    Checking rustls-platform-verifier v0.7.0
+    Checking hyper-rustls v0.27.9
+    Checking reqwest v0.13.4
+    Checking quantos-storage v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-storage)
+    Checking quantos-runtime v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-runtime)
+    Checking quantos-strategy v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-strategy)
+    Checking quantos-risk v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-risk)
+    Checking quantos-observability v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-observability)
+    Checking quantos-execution v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-execution)
+    Checking market-ingestor v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/market-ingestor)
+    Checking runtime-gateway v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/runtime-gateway)
+    Checking replay-cli v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/replay-cli)
+    Checking capacity-monitor v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/capacity-monitor)
+    Checking portfolio-rebuild v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/portfolio-rebuild)
+    Checking execution-gateway v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/execution-gateway)
+    Checking quantos-reconcile v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-reconcile)
+    Checking quantos-evidence v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-evidence)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 16.59s
+uv run --locked --project engines --all-packages ruff check .
+All checks passed!
+uv run --locked --project engines --all-packages pyright --project engines
+0 errors, 0 warnings, 0 informations 
+WARNING: there is a new pyright version available (v1.1.403 -> v1.1.414).
+Please install the new version or set PYRIGHT_PYTHON_FORCE_VERSION to `latest`
+
+pnpm lint
+
+> @sumalpha/quantos@ lint /private/tmp/f01-fresh-quality-a7xy2ngc/workspace
+> pnpm -r lint
+
+Scope: 7 of 8 workspace projects
+packages/config lint$ eslint src tests --ext .ts
+packages/ui lint$ eslint src tests --ext .ts,.tsx
+packages/config lint: Done
+packages/ui lint: Done
+packages/api-client lint$ eslint src tests --ext .ts
+packages/platform lint$ eslint src tests --ext .ts
+packages/platform lint: Done
+packages/api-client lint: Done
+apps/website lint$ eslint app src tests
+packages/domain-ui lint$ eslint src tests --ext .ts,.tsx
+apps/website lint: Done
+packages/domain-ui lint: Done
+apps/terminal lint$ eslint app src tests --ext .ts,.tsx
+apps/terminal lint: Done
+pnpm typecheck
+
+> @sumalpha/quantos@ typecheck /private/tmp/f01-fresh-quality-a7xy2ngc/workspace
+> pnpm -r typecheck
+
+Scope: 7 of 8 workspace projects
+packages/config typecheck$ tsc --project tsconfig.json --noEmit
+packages/ui typecheck$ tsc --project tsconfig.json --noEmit
+packages/config typecheck: Done
+packages/ui typecheck: Done
+packages/api-client typecheck$ tsc --project tsconfig.json --noEmit
+packages/platform typecheck$ tsc --project tsconfig.json --noEmit
+packages/platform typecheck: Done
+packages/api-client typecheck: Done
+apps/website typecheck$ tsc --project tsconfig.json --noEmit
+packages/domain-ui typecheck$ tsc --project tsconfig.json --noEmit
+packages/domain-ui typecheck: Done
+apps/website typecheck: Done
+apps/terminal typecheck$ tsc --project tsconfig.json --noEmit
+apps/terminal typecheck: Done
+cargo test --workspace --locked
+   Compiling cfg-if v1.0.4
+   Compiling bytes v1.12.1
+   Compiling once_cell v1.21.4
+   Compiling itoa v1.0.18
+   Compiling pin-project-lite v0.2.17
+   Compiling memchr v2.8.3
+   Compiling futures-core v0.3.33
+   Compiling log v0.4.33
+   Compiling core-foundation-sys v0.8.7
+   Compiling libc v0.2.189
+   Compiling serde_core v1.0.229
+   Compiling futures-sink v0.3.33
+   Compiling smallvec v1.15.2
+   Compiling slab v0.4.12
+   Compiling zmij v1.0.23
+   Compiling futures-task v0.3.33
+   Compiling futures-io v0.3.33
+   Compiling num-traits v0.2.19
+   Compiling rand_core v0.10.1
+   Compiling percent-encoding v2.3.2
+   Compiling bitflags v2.13.1
+   Compiling iana-time-zone v0.1.65
+   Compiling base64 v0.22.1
+   Compiling futures-channel v0.3.33
+   Compiling typenum v1.20.1
+   Compiling fastrand v2.5.0
+   Compiling form_urlencoded v1.2.2
+   Compiling equivalent v1.0.2
+   Compiling hashbrown v0.17.1
+   Compiling tracing-core v0.1.36
+   Compiling thiserror v2.0.19
+   Compiling tower-service v0.3.3
+   Compiling zerofrom v0.1.8
+   Compiling stable_deref_trait v1.2.1
+   Compiling atomic-waker v1.1.2
+   Compiling try-lock v0.2.5
+   Compiling yoke v0.8.3
+   Compiling fnv v1.0.7
+   Compiling httparse v1.10.1
+   Compiling futures-util v0.3.33
+   Compiling want v0.3.1
+   Compiling httpdate v1.0.3
+   Compiling tower-layer v0.3.3
+   Compiling zerovec v0.11.6
+   Compiling anyhow v1.0.104
+   Compiling sync_wrapper v1.0.2
+   Compiling ipnet v2.12.0
+   Compiling tracing v0.1.44
+   Compiling http v1.4.2
+   Compiling cmov v0.5.4
+   Compiling ctutils v0.4.2
+   Compiling writeable v0.6.3
+   Compiling litemap v0.8.2
+   Compiling errno v0.3.14
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.2
+   Compiling getrandom v0.4.3
+   Compiling signal-hook-registry v1.4.8
+   Compiling rustix v1.1.4
+   Compiling const-oid v0.10.2
+   Compiling zerotrie v0.2.4
+   Compiling tinyvec_macros v0.1.1
+   Compiling utf8_iter v1.0.4
+   Compiling cpufeatures v0.2.17
+   Compiling tinyvec v1.12.0
+   Compiling arrayvec v0.7.8
+   Compiling icu_properties_data v2.2.0
+   Compiling icu_normalizer_data v2.2.0
+   Compiling indexmap v2.14.0
+   Compiling cpufeatures v0.3.0
+   Compiling security-framework-sys v2.17.0
+   Compiling core-foundation v0.10.1
+   Compiling chacha20 v0.10.1
+   Compiling unicode-properties v0.1.4
+   Compiling hex v0.4.3
+   Compiling unicode-bidi v0.3.18
+   Compiling tinystr v0.8.3
+   Compiling potential_utf v0.1.5
+   Compiling tokio v1.53.1
+   Compiling icu_collections v2.2.0
+   Compiling icu_locale_core v2.2.0
+   Compiling rand v0.10.2
+   Compiling hybrid-array v0.4.13
+   Compiling generic-array v0.14.7
+   Compiling unicode-normalization v0.1.25
+   Compiling security-framework v3.7.0
+   Compiling http-body v1.1.0
+   Compiling objc2-core-foundation v0.3.2
+   Compiling http-body-util v0.1.4
+   Compiling stringprep v0.1.5
+   Compiling siphasher v1.0.3
+   Compiling scopeguard v1.2.0
+   Compiling byteorder v1.5.0
+   Compiling fallible-iterator v0.2.0
+   Compiling phf_shared v0.13.1
+   Compiling lock_api v0.4.14
+   Compiling parking_lot_core v0.9.12
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling parking_lot v0.12.5
+   Compiling phf v0.13.1
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling objc2-system-configuration v0.3.2
+   Compiling jobserver v0.1.35
+   Compiling ryu v1.0.23
+   Compiling mime v0.3.17
+   Compiling digest v0.10.7
+   Compiling whoami v2.1.2
+   Compiling prost-derive v0.13.5
+   Compiling sha2 v0.10.9
+   Compiling cc v1.4.0
+   Compiling matchit v0.7.3
+   Compiling zeroize v1.9.0
+   Compiling zerocopy v0.8.55
+   Compiling tempfile v3.27.0
+   Compiling rustls-pki-types v1.15.1
+   Compiling icu_provider v2.2.0
+   Compiling icu_properties v2.2.0
+   Compiling icu_normalizer v2.2.0
+   Compiling getrandom v0.2.17
+   Compiling untrusted v0.9.0
+   Compiling petgraph v0.7.1
+   Compiling rand_core v0.6.4
+   Compiling subtle v2.6.1
+   Compiling hashbrown v0.12.3
+   Compiling pin-project v1.1.13
+   Compiling base64 v0.21.7
+   Compiling native-tls v0.2.18
+   Compiling async-stream v0.3.6
+   Compiling socket2 v0.5.10
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling uuid v1.24.0
+   Compiling semver v1.0.28
+   Compiling cmake v0.1.58
+   Compiling serde_path_to_error v0.1.20
+   Compiling digest v0.11.3
+   Compiling prost v0.13.5
+   Compiling hmac v0.13.0
+   Compiling sha2 v0.11.0
+   Compiling md-5 v0.11.0
+   Compiling aws-lc-sys v0.43.0
+   Compiling chrono v0.4.45
+   Compiling rust_decimal v1.42.1
+   Compiling serde_urlencoded v0.7.1
+   Compiling indexmap v1.9.3
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling pbjson v0.7.0
+   Compiling axum-core v0.4.5
+   Compiling prost-types v0.13.5
+   Compiling utf8parse v0.2.2
+   Compiling colorchoice v1.0.5
+   Compiling anstyle-parse v1.0.0
+   Compiling url v2.5.8
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling anstyle-query v1.1.5
+   Compiling anstyle v1.0.14
+   Compiling strsim v0.11.1
+   Compiling clap_lex v1.1.0
+   Compiling postgres-protocol v0.6.12
+   Compiling anstream v1.0.0
+   Compiling clap_builder v4.6.2
+   Compiling quantos-core v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-core)
+   Compiling postgres-types v0.2.14
+   Compiling prost-build v0.13.5
+   Compiling pbjson-build v0.7.0
+   Compiling quantos-policy v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-policy)
+   Compiling pbjson-types v0.7.0
+   Compiling tokio-util v0.7.19
+   Compiling tower v0.5.3
+   Compiling tokio-native-tls v0.3.1
+   Compiling tokio-stream v0.1.19
+   Compiling ppv-lite86 v0.2.21
+   Compiling clap v4.6.4
+   Compiling rand_chacha v0.3.1
+   Compiling rand v0.8.7
+   Compiling tower-http v0.6.11
+   Compiling h2 v0.4.15
+   Compiling tokio-postgres v0.7.18
+   Compiling tower v0.4.13
+   Compiling postgres-native-tls v0.5.3
+   Compiling postgres v0.19.14
+   Compiling quantos-auth v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-auth)
+   Compiling quantos-portfolio v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-portfolio)
+   Compiling quantos-event v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-event)
+   Compiling quantos-market v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-market)
+   Compiling hyper v1.11.0
+   Compiling hyper-util v0.1.20
+   Compiling aws-lc-rs v1.17.3
+   Compiling rustls v0.23.42
+   Compiling axum v0.7.9
+   Compiling hyper-timeout v0.5.2
+   Compiling rustls-webpki v0.103.13
+   Compiling tonic v0.12.3
+   Compiling bff-gateway v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/bff-gateway)
+   Compiling tokio-rustls v0.26.4
+   Compiling rustls-platform-verifier v0.7.0
+   Compiling hyper-rustls v0.27.9
+   Compiling reqwest v0.13.4
+   Compiling quantos-proto v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-proto)
+   Compiling quantos-storage v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-storage)
+   Compiling quantos-engine-manager v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-runtime)
+   Compiling quantos-strategy v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-strategy)
+   Compiling quantos-risk v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-risk)
+   Compiling quantos-observability v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-observability)
+   Compiling quantos-execution v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-execution)
+   Compiling quantos-reconcile v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-reconcile)
+   Compiling quantos-evidence v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/crates/quantos-evidence)
+   Compiling market-ingestor v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/market-ingestor)
+   Compiling portfolio-rebuild v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/portfolio-rebuild)
+   Compiling execution-gateway v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/execution-gateway)
+   Compiling replay-cli v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/replay-cli)
+   Compiling capacity-monitor v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/capacity-monitor)
+   Compiling runtime-gateway v0.1.0 (/private/tmp/f01-fresh-quality-a7xy2ngc/workspace/services/runtime-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 33.62s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-da731158c828bbaf)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/bff_gateway-552eedd7809cfd97)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/audit_export_provider.rs (target/debug/deps/audit_export_provider-8a017242beb39958)
+
+running 4 tests
+test evidence_chain_preserves_causation_order_and_hides_missing_resources ... ok
+test export_cancel_expiry_and_validation_fail_closed ... ok
+test audit_search_is_capability_guarded_redacted_and_cursor_paginated ... ok
+test export_lifecycle_is_idempotent_watermarked_short_lived_and_audited ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/auth_settings_provider.rs (target/debug/deps/auth_settings_provider-19578b84d9f4b028)
+
+running 8 tests
+test logout_expires_secure_http_only_same_site_cookie ... ok
+test public_access_request_validates_origin_and_body_and_writes_audit ... ok
+test stale_settings_write_returns_current_version_without_mutation ... ok
+test notification_save_is_idempotent_and_audited ... ok
+test authentication_csrf_and_resource_failures_fail_closed ... ok
+test mfa_rate_limit_is_account_neutral ... ok
+test session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit ... ok
+test current_session_and_last_mfa_factor_are_protected ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/capacity_monitor-fc5f3b423df4e0bd)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/execution_gateway-959259954a100c0e)
+
+running 2 tests
+test tests::nautilus_gateway_builder_is_available_for_bootstrap ... ok
+test tests::paper_gateway_builder_is_available_for_bootstrap ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/market_ingestor-db0c505121670650)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/portfolio_rebuild-2066533cb7a12c3e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_auth-0c42167fb97fd646)
+
+running 2 tests
+test tests::user_request_context_can_represent_primary_workspace_session ... ok
+test tests::auth_context_projects_policy_context ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/postgres_auth_context.rs (target/debug/deps/postgres_auth_context-16425549cac8e0cd)
+
+running 2 tests
+test gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks ... ok
+test gateway_auth_only_allows_service_secret_resolution_via_allowlist_session ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_core-a89a67db9c52d109)
+
+running 21 tests
+test clock::tests::fixed_clock_always_returns_same_utc_value ... ok
+test clock::tests::parser_normalizes_positive_offset_to_utc ... ok
+test clock::tests::parser_normalizes_negative_offset_to_utc ... ok
+test id::tests::invalid_ids_return_stable_machine_code ... ok
+test precision::tests::money_rejects_invalid_currency_codes ... ok
+test precision::tests::quantity_accepts_zero_and_high_precision_boundaries ... ok
+test precision::tests::quantity_rejects_negative_values ... ok
+test clock::tests::invalid_timestamps_return_stable_machine_codes ... ok
+test error::tests::every_error_maps_to_stable_machine_code ... ok
+test precision::tests::money_rejects_excess_scale ... ok
+test precision::tests::quantity_rejects_excess_precision ... ok
+test precision::tests::money_accepts_max_supported_scale ... ok
+test id::tests::typed_ids_roundtrip_from_strings ... ok
+test tests::build_version_uses_semver_primitives ... ok
+test fixture::tests::canonicalization_sorts_nested_objects_consistently ... ok
+test tests::ready_report_marks_service_ready ... ok
+test tests::workspace_name_is_stable ... ok
+test tests::fixture_hash_is_stable_for_same_payload ... ok
+test versioning::tests::build_versions_use_semver ... ok
+test versioning::tests::content_hashes_are_lowercase_sha256 ... ok
+test versioning::tests::schema_versions_require_v_prefix ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_engine_manager-752bab394f024cbf)
+
+running 3 tests
+test tests::remaining_time_rejects_expired_deadlines ... ok
+test tests::review_manifest_rejects_duplicate_capabilities ... ok
+test tests::manager_opens_backoff_window_after_three_recorded_failures ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/python_llmquant.rs (target/debug/deps/python_llmquant-c3766982fe12b164)
+
+running 2 tests
+test python_llmquant_rejects_forbidden_boundary_fields ... ok
+test python_llmquant_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.03s
+
+     Running tests/python_mock_engine.rs (target/debug/deps/python_mock_engine-7578587b3f97b379)
+
+running 6 tests
+test missing_vibe_adapter_does_not_block_mock_workflow_routing ... ok
+test python_mock_engine_contracts_round_trip_over_uds ... ok
+test python_mock_engine_recovers_after_three_unavailable_failures ... ok
+test python_mock_engine_deadline_timeout_is_deterministic ... ok
+test execution_concurrency_and_rss_quotas_reject_excess_work ... ok
+test one_request_survives_three_real_engine_process_crashes ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.05s
+
+     Running tests/python_openbb_adapter.rs (target/debug/deps/python_openbb_adapter-2f72fcbbffb3eab0)
+
+running 2 tests
+test python_openbb_adapter_blocks_production_license_enablement ... ok
+test python_openbb_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s
+
+     Running tests/python_rd_agent.rs (target/debug/deps/python_rd_agent-eb627723770852db)
+
+running 2 tests
+test python_rd_agent_rejects_forbidden_boundary_fields ... ok
+test python_rd_agent_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/python_strategy_lab.rs (target/debug/deps/python_strategy_lab-a65c38c7ae1466a8)
+
+running 4 tests
+test python_strategy_lab_static_check_failure_blocks_release ... ok
+test python_strategy_lab_rejects_forbidden_boundary_fields ... ok
+test python_strategy_lab_contracts_round_trip_over_uds ... ok
+test python_strategy_lab_rejects_hundred_malicious_prompts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+     Running tests/python_trading_agents.rs (target/debug/deps/python_trading_agents-1bfdb8f6617878dd)
+
+running 2 tests
+test python_trading_agents_rejects_forbidden_boundary_fields ... ok
+test python_trading_agents_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/python_vibe_adapter.rs (target/debug/deps/python_vibe_adapter-83638384dde1a606)
+
+running 2 tests
+test python_vibe_adapter_rejects_forbidden_boundary_fields ... ok
+test python_vibe_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_event-59ac692bfaf9fd22)
+
+running 7 tests
+test tests::append_rejects_sequence_gaps ... ok
+test tests::projection_buffers_out_of_order_events_and_replays_in_sequence ... ok
+test tests::duplicate_events_are_rejected_at_append_time ... ok
+test tests::projection_sends_poison_messages_to_dead_letter_after_max_attempts ... ok
+test tests::projection_ignores_duplicate_deliveries ... ok
+test tests::projection_can_resume_after_restart_from_checkpoint ... ok
+test tests::ledger_replays_ten_thousand_events_without_loss ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/postgres_persistence.rs (target/debug/deps/postgres_persistence-4394364d744a461c)
+
+running 4 tests
+test postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry ... ok
+test postgres_polling_worker_dead_letters_poison_events_after_retry_budget ... ok
+test postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_attempts ... ok
+test postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correlation ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_evidence-588b7ff528e3b43f)
+
+running 1 test
+test tests::evidence_package_is_go_ready_and_tamper_evident ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_execution-57d5b06a2505cca4)
+
+running 31 tests
+test gateway::tests::limit_intent_without_price_is_rejected_before_the_kernel ... ok
+test paper::tests::duplicate_submit_only_calls_downstream_once ... ok
+test paper::tests::cancel_latency_and_rejections_are_auditable ... ok
+test gateway::tests::nautilus_adapter_replay_also_produces_one_outbox_entry ... ok
+test dual::tests::m5_flag_off_makes_assisted_live_unreachable ... ok
+test gateway::tests::boundary_command_carries_no_session_or_identity_material ... ok
+test gateway::tests::nautilus_events_map_back_to_owned_schema_through_the_gateway ... ok
+test gateway::tests::order_and_fill_events_map_back_to_owned_schema ... ok
+test gateway::tests::all_six_boundary_rejection_classes_are_enforced_before_the_kernel ... ok
+test gateway::tests::nautilus_adapter_maps_wire_shape_and_client_order_id_is_stable ... ok
+test paper::tests::illegal_transitions_are_rejected_by_the_state_machine ... ok
+test dual::tests::self_approval_cap_expiry_and_allowlist_are_all_rejected ... ok
+test venue::tests::venue_config_rejects_production_endpoints_and_keys ... ok
+test gateway::tests::thousand_replays_with_same_key_produce_exactly_one_downstream_submission ... ok
+test venue::tests::network_and_authentication_failures_are_classified ... ok
+test tests::approved_command_carries_approval_signature ... ok
+test venue::tests::precision_and_rate_limits_are_mapped ... ok
+test zone::tests::mtls_identity_enforces_expiry_and_revocation ... ok
+test zone::tests::expired_sessions_and_commands_are_rejected ... ok
+test zone::tests::only_execution_gateway_can_resolve_vault_references ... ok
+test zone::tests::rotation_recovers_within_five_minutes_then_stales ... ok
+test zone::tests::unlisted_egress_hosts_are_blocked ... ok
+test zone::tests::zone_fixtures_contain_no_secret_material ... ok
+test paper::tests::every_fill_is_traceable_to_a_command ... ok
+test tests::seven_rejection_classes_are_all_enforced ... ok
+test gateway::tests::hundred_precision_and_limit_variants_are_fully_intercepted ... ok
+test venue::tests::two_hundred_testnet_scenarios_map_fully_to_internal_schema ... ok
+test tests::thousand_concurrent_issuances_with_same_key_emit_exactly_one_command ... ok
+test dual::tests::fifty_dual_approvals_all_write_signed_audit_entries ... ok
+test tests::issuance_stays_under_two_hundred_millis_p95_and_is_short_lived ... ok
+test paper::tests::one_hundred_thousand_order_events_all_transition_legally ... ok
+
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.75s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_market-189270dabe223716)
+
+running 5 tests
+test tests::rejects_unapproved_providers_and_normalizes_symbols ... ok
+test tests::invalid_ticks_do_not_poison_deduplication_and_negative_values_fail_quality ... ok
+test tests::freshness_and_quality_anomalies_emit_events_within_five_seconds ... ok
+test tests::out_of_order_and_duplicate_ticks_are_deduplicated ... ok
+test tests::replay_dataset_ingests_one_hundred_thousand_ticks_without_parse_failures ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.17s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_observability-64df2425f8b69a8b)
+
+running 10 tests
+test capacity::tests::required_external_metric_inventory_is_complete_and_unique ... ok
+test tests::health_report_requires_all_components_ready ... ok
+test tests::telemetry_redacts_secret_fields ... ok
+test service::tests::returns_stable_structured_errors ... ok
+test tests::fault_proxy_redacts_secrets_and_preserves_recovery_trace ... ok
+test capacity::tests::capacity_evidence_serializes_for_the_adr_generator ... ok
+test tests::capacity_alerts_cover_required_thresholds_and_adr_inputs ... ok
+test tests::db_event_consumer_and_engine_faults_recover_without_secret_leaks ... ok
+test tests::observable_writes_are_indexed_by_correlation_id ... ok
+test service::tests::exposes_health_metrics_and_correlation_trace ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/postgres_capacity_monitor.rs (target/debug/deps/postgres_capacity_monitor-adc4d1ddcbd344d5)
+
+running 1 test
+test live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_policy-c4d491a6c94594f0)
+
+running 4 tests
+test tests::owner_role_is_allowed_without_explicit_capability_row ... ok
+test tests::secret_resolution_rejects_non_service_roles ... ok
+test tests::explicit_capability_can_unlock_service_secret_resolution ... ok
+test tests::viewer_role_cannot_execute_without_explicit_capability ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_portfolio-1f2982b8de6f8ec1)
+
+running 4 tests
+test tests::out_of_order_and_duplicate_events_are_rejected ... ok
+test tests::ten_thousand_event_replay_matches_golden_snapshot ... ok
+test tests::rebuild_is_fully_repeatable ... ok
+test tests::portfolio_queries_stay_under_three_hundred_millis_p95 ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/postgres_portfolio.rs (target/debug/deps/postgres_portfolio-7a18f561d924a852)
+
+running 1 test
+test postgres_portfolio_store_persists_and_reads_projection ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_proto-0949fdb7c0a51897)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/protocol_roundtrip.rs (target/debug/deps/protocol_roundtrip-a2618732cdccab82)
+
+running 4 tests
+test trade_proposal_verdict_values_are_stable ... ok
+test command_metadata_schema_requires_audit_fields ... ok
+test trade_command_roundtrips_across_one_thousand_fixtures ... ok
+test every_planned_domain_type_roundtrips_across_one_thousand_fixture_sets ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_reconcile-2e1ea9d7920aadf7)
+
+running 3 tests
+test tests::exception_queue_enforces_acknowledge_then_close_lifecycle ... ok
+test tests::ten_consecutive_shadow_days_reconcile_with_zero_unexplained_breaks ... ok
+test tests::twenty_injected_breaks_are_detected_and_located_within_sla ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_risk-f095f13261d223a2)
+
+running 5 tests
+test tests::post_trade_rules_catch_daily_loss_and_leverage_breach ... ok
+test tests::fifty_allow_fixtures_all_pass ... ok
+test tests::fifty_approval_required_fixtures_all_route_to_approval ... ok
+test tests::fifty_deny_fixtures_cover_every_rule_and_include_limits_and_signature ... ok
+test tests::kill_switch_rejects_new_commands_under_one_second_p95 ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_runtime-8d9ac4bfd5ac4656)
+
+running 5 tests
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/postgres_runtime.rs (target/debug/deps/postgres_runtime-c65e8eb774bdba62)
+
+running 3 tests
+test postgres_runtime_worker_child_claims_checkpoints_and_waits ... ignored, helper process invoked by the PostgreSQL recovery test
+test postgres_runtime_records_cancel_and_timeout_audits ... ok
+test postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+
+test result: ok. 2 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/research_orchestration.rs (target/debug/deps/research_orchestration-7b6871d16779a87f)
+
+running 2 tests
+test research_workflow_cancel_confirms_within_two_seconds ... ok
+test research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+     Running tests/signal_proposal_orchestration.rs (target/debug/deps/signal_proposal_orchestration-2ded5fdbd7c174af)
+
+running 3 tests
+test signal_proposal_workflow_rejects_forbidden_order_tools ... ok
+test signal_proposal_workflow_replay_keeps_signal_and_proposal_hashes_stable ... ok
+test signal_proposal_workflow_runs_hundred_cases_with_evidence_expiry_and_non_executable_proposals ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.67s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_storage-cd140a6d3bd328a8)
+
+running 10 tests
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/postgres_persistence.rs (target/debug/deps/postgres_persistence-1f4005ebce4c9193)
+
+running 1 test
+test postgres_storage_store_persists_artifacts_and_schema_registry ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/supabase_storage_integration.rs (target/debug/deps/supabase_storage_integration-e85be689ca7b00f8)
+
+running 1 test
+test supabase_storage_adapter_round_trips_artifacts_and_registers_manifest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-c192e4a6bbb2cdba)
+
+running 16 tests
+test generated::tests::unsupported_rules_are_rejected ... ok
+test release::tests::assisted_live_is_not_representable_before_m5 ... ok
+test release::tests::approved_release_deploys_to_paper_and_shadow_and_stays_immutable ... ok
+test release::tests::duplicate_publish_returns_same_hash_and_modified_content_conflicts ... ok
+test tests::unapproved_references_are_rejected_at_save_time ... ok
+test tests::unauthorized_actor_cannot_save_or_initiate_validation ... ok
+test release::tests::hundred_unverified_or_unapproved_deployments_are_all_rejected ... ok
+test tests::drafts_without_snapshot_or_artifacts_cannot_initiate_validation ... ok
+test generated::tests::hundred_static_check_failures_all_block_release_path ... ok
+test backtest::tests::validation_report_contains_costs_environment_and_input_hash ... ok
+test generated::tests::clean_generated_draft_replays_through_backtest_pipeline ... ok
+test backtest::tests::series_not_bound_to_snapshot_is_rejected ... ok
+test backtest::tests::ten_replays_produce_identical_metrics_and_hashes ... ok
+test tests::draft_saves_stay_under_three_hundred_millis_p95 ... ok
+test tests::fifty_concurrent_editors_never_silently_overwrite ... ok
+test backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/postgres_drafts.rs (target/debug/deps/postgres_drafts-096cd3ad7480dcc5)
+
+running 1 test
+test postgres_strategy_store_persists_versions_and_rejects_conflicts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/postgres_releases.rs (target/debug/deps/postgres_releases-3970ebbe8c16964a)
+
+running 1 test
+test postgres_release_store_enforces_dedupe_conflict_and_deployment_gate ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/replay_cli-25fa0269b817038d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/runtime_gateway-e25ff0ecf90223ea)
+
+running 2 tests
+test tests::runtime_store_builder_is_available_for_gateway_bootstrap ... ok
+test tests::auth_middleware_builder_is_available_for_gateway_bootstrap ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests bff_gateway
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_auth
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_engine_manager
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_event
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_evidence
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_execution
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_market
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_observability
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_policy
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_portfolio
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_proto
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_reconcile
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_risk
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_runtime
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_storage
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests quantos_strategy
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+uv run --locked --project engines --all-packages pytest
+============================= test session starts ==============================
+platform darwin -- Python 3.9.6, pytest-8.4.1, pluggy-1.6.0
+rootdir: /private/tmp/f01-fresh-quality-a7xy2ngc/workspace
+plugins: cov-6.2.1
+collected 91 items
+
+engines/tests/test_engine_contract.py .                                  [  1%]
+engines/tests/test_engine_observability.py .                             [  2%]
+engines/tests/test_llmquant_contract.py .......                          [  9%]
+engines/tests/test_openbb_adapter_contract.py .........                  [ 19%]
+engines/tests/test_proto_sdk.py ..                                       [ 21%]
+engines/tests/test_protocol_metadata_completeness.py ...                 [ 25%]
+engines/tests/test_rd_agent_contract.py .....                            [ 30%]
+engines/tests/test_strategy_lab_contract.py .......                      [ 38%]
+engines/tests/test_tp08_qlib_mapping_samples.py .....                    [ 43%]
+engines/tests/test_tp09_trendradar_mapping_samples.py ......             [ 50%]
+engines/tests/test_tp10_valuecell_evaluation.py .......                  [ 58%]
+engines/tests/test_tp11_openstock_fixtures.py .....                      [ 63%]
+engines/tests/test_tp12_nautilus_agents_rules.py .......                 [ 71%]
+engines/tests/test_tp13_loong_evaluation.py ......                       [ 78%]
+engines/tests/test_trading_agents_contract.py .......                    [ 85%]
+engines/tests/test_vibe_adapter_contract.py ......                       [ 92%]
+engines/tests/test_workspace.py .......                                  [100%]
+
+============================== 91 passed in 3.86s ==============================
+pnpm test
+
+> @sumalpha/quantos@ test /private/tmp/f01-fresh-quality-a7xy2ngc/workspace
+> pnpm -r test
+
+Scope: 7 of 8 workspace projects
+packages/config test$ vitest run
+packages/ui test$ vitest run
+packages/config test:  RUN  v3.2.4 /private/tmp/f01-fresh-quality-a7xy2ngc/workspace/packages/config
+packages/ui test:  RUN  v3.2.4 /private/tmp/f01-fresh-quality-a7xy2ngc/workspace/packages/ui
+packages/config test:  ✓ tests/config.test.ts (12 tests) 11ms
+packages/config test:  Test Files  1 passed (1)
+packages/config test:       Tests  12 passed (12)
+packages/config test:    Start at  11:39:33
+packages/config test:    Duration  933ms (transform 450ms, setup 0ms, collect 463ms, tests 11ms, environment 0ms, prepare 124ms)
+packages/ui test:  ✓ tests/ui.test.ts (1 test) 3ms
+packages/ui test:  ✓ tests/ui103.test.tsx (6 tests) 17ms
+packages/config test: Done
+packages/ui test:  Test Files  2 passed (2)
+packages/ui test:       Tests  7 passed (7)
+packages/ui test:    Start at  11:39:33
+packages/ui test:    Duration  1.10s (transform 898ms, setup 0ms, collect 1.25s, tests 20ms, environment 0ms, prepare 160ms)
+packages/ui test: Done
+packages/platform test$ vitest run
+packages/api-client test$ vitest run
+packages/platform test:  RUN  v3.2.4 /private/tmp/f01-fresh-quality-a7xy2ngc/workspace/packages/platform
+packages/api-client test:  RUN  v3.2.4 /private/tmp/f01-fresh-quality-a7xy2ngc/workspace/packages/api-client
+packages/platform test:  ✓ tests/platform.test.ts (2 tests) 3ms
+packages/platform test:  Test Files  1 passed (1)
+packages/platform test:       Tests  2 passed (2)
+packages/platform test:    Start at  11:39:35
+packages/platform test:    Duration  624ms (transform 36ms, setup 0ms, collect 53ms, tests 3ms, environment 0ms, prepare 135ms)
+packages/api-client test:  ✓ tests/sse-poc.test.ts (7 tests) 55ms
+packages/platform test: Done
+packages/api-client test:  ✓ tests/api-client.test.ts (4 tests) 7ms
+packages/api-client test:  Test Files  2 passed (2)
+packages/api-client test:       Tests  11 passed (11)
+packages/api-client test:    Start at  11:39:35
+packages/api-client test:    Duration  907ms (transform 160ms, setup 0ms, collect 413ms, tests 63ms, environment 0ms, prepare 115ms)
+packages/api-client test: Done
+apps/website test$ vitest run
+packages/domain-ui test$ vitest run
+apps/website test:  RUN  v3.2.4 /private/tmp/f01-fresh-quality-a7xy2ngc/workspace/apps/website
+packages/domain-ui test:  RUN  v3.2.4 /private/tmp/f01-fresh-quality-a7xy2ngc/workspace/packages/domain-ui
+packages/domain-ui test:  ✓ tests/ui101.test.ts (12 tests) 3ms
+packages/domain-ui test:  ✓ tests/domain-ui.test.ts (1 test) 1ms
+packages/domain-ui test:  ✓ tests/indicators.test.tsx (3 tests) 9ms
+packages/domain-ui test:  Test Files  3 passed (3)
+packages/domain-ui test:       Tests  16 passed (16)
+packages/domain-ui test:    Start at  11:39:36
+packages/domain-ui test:    Duration  720ms (transform 161ms, setup 0ms, collect 393ms, tests 14ms, environment 0ms, prepare 319ms)
+packages/domain-ui test: Done
+apps/website test:  ✓ tests/website.test.ts (1 test) 2ms
+apps/website test:  ✓ tests/website-compliance.test.ts (6 tests) 9ms
+apps/website test:  Test Files  2 passed (2)
+apps/website test:       Tests  7 passed (7)
+apps/website test:    Start at  11:39:36
+apps/website test:    Duration  1.94s (transform 142ms, setup 0ms, collect 317ms, tests 11ms, environment 0ms, prepare 2.87s)
+apps/website test: Done
+apps/terminal test$ vitest run
+apps/terminal test:  RUN  v3.2.4 /private/tmp/f01-fresh-quality-a7xy2ngc/workspace/apps/terminal
+apps/terminal test:  ✓ tests/auth-bff.test.ts (4 tests) 4ms
+apps/terminal test:  ✓ tests/deep-link-auth.test.ts (3 tests) 1ms
+apps/terminal test:  ✓ tests/auth-poc.test.ts (10 tests) 9ms
+apps/terminal test:  ✓ tests/ui101-runtime.test.ts (4 tests) 5ms
+apps/terminal test:  ✓ tests/ui104-settings.test.ts (6 tests) 11ms
+apps/terminal test:  ✓ tests/audit-gateway.test.ts (3 tests) 7ms
+apps/terminal test:  ✓ tests/terminal.test.ts (1 test) 1ms
+apps/terminal test:  ✓ tests/l03-scenarios.test.ts (6 tests) 4ms
+apps/terminal test:  ✓ tests/x06-scenarios.test.ts (8 tests) 8ms
+apps/terminal test:  ✓ tests/u01-scenarios.test.ts (9 tests) 8ms
+apps/terminal test:  ✓ tests/s04-scenarios.test.ts (6 tests) 18ms
+apps/terminal test:  Test Files  11 passed (11)
+apps/terminal test:       Tests  60 passed (60)
+apps/terminal test:    Start at  11:39:38
+apps/terminal test:    Duration  937ms (transform 644ms, setup 0ms, collect 3.93s, tests 76ms, environment 1ms, prepare 993ms)
+apps/terminal test: Done
