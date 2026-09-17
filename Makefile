@@ -63,7 +63,7 @@ f01-check:
 
 build-python:
 	uv sync --locked --project engines --all-packages --group build
-	uv build --project engines --all-packages --wheel --no-build-isolation --out-dir artifacts/python
+	uv build --project engines --python engines/.venv/bin/python --all-packages --wheel --no-build-isolation --out-dir artifacts/python
 
 f01-clean-room-check:
 	node scripts/verify-reproducible-builds.mjs --mode clean-room --output artifacts/reproducibility/f01-clean-room.json
