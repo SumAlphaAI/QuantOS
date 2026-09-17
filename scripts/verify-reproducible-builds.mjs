@@ -24,7 +24,8 @@ try {
     evidence.source = cleanSource(root);
     evidence.toolchains = checkToolchains(root);
     evidence.sourceDateEpoch = Number(run(root, 'git', ['show', '-s', '--format=%ct', evidence.source.commit], process.env, true).trim());
-    scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'quantos-f01-'));
+    scratch = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'quantos-f01-')));
+    if (process.argv.includes('--keep-workdirs')) evidence.retainedWorkdir = scratch;
     const archive = path.join(scratch, 'source.tar');
     execFileSync('git', ['archive', '--format=tar', `--output=${archive}`, evidence.source.commit], { cwd: root });
     evidence.cachePolicy = mode === 'clean-room' ? 'empty package download caches; empty install and build directories; preinstalled pinned toolchains' : 'shared package downloads only; fresh source/install/build directories for every run';
@@ -73,7 +74,7 @@ try {
         }
         result.completedAt = new Date().toISOString();
         save();
-        fs.rmSync(workspace, { recursive: true, force: true });
+        if (!process.argv.includes('--keep-workdirs')) fs.rmSync(workspace, { recursive: true, force: true });
     }
     if (mode === 'reproducibility') {
         requireMatching(evidence.runs);
@@ -94,6 +95,6 @@ catch (error) {
 finally {
     evidence.completedAt = new Date().toISOString();
     save();
-    if (scratch)
+    if (scratch && !process.argv.includes('--keep-workdirs'))
         fs.rmSync(scratch, { recursive: true, force: true });
 }
