@@ -16,7 +16,8 @@ endif
 
 .PHONY: toolchain-check f01-check f01-clean-room-check build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
-bootstrap: toolchain-check bootstrap-rust bootstrap-python bootstrap-node
+bootstrap: toolchain-check
+	$(MAKE) -j3 bootstrap-rust bootstrap-python bootstrap-node
 
 toolchain-check:
 	node scripts/check-toolchains.mjs

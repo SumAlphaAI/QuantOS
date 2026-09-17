@@ -87,7 +87,8 @@ Polyglot monorepo baseline for the QuantOS platform.
 ## F01 reproducible baseline
 
 Run `make bootstrap`, then `make lockfile-check f01-check lint test`.
-`bootstrap` checks tool versions before fetching frozen dependencies. Python
+`bootstrap` checks tool versions, then installs the three independent language
+workspaces concurrently. Python
 build tooling and its transitive closure are pinned in `engines/uv.lock` and
 `engines/build-constraints.txt`; `make build-python` uses that installed closure.
 The committed Rust test-runner decision is in
