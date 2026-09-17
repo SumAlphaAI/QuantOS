@@ -20,7 +20,7 @@ test.describe("UI-104 profile, security, notifications and browser settings", ()
       await page.goto(route);
       await expect(page.locator(`[data-smoke="route-${route}"]`)).toBeVisible();
       await expect(page.getByRole("heading", { name: heading })).toBeVisible();
-      await expect(page.getByText(/C17 Contract Mocked/)).toBeVisible();
+      await expect(page.getByText(/C17 Local Mock/)).toBeVisible();
     }
   });
 

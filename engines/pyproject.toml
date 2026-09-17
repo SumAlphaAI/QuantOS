@@ -2,14 +2,15 @@
 name = "quantos-engines-workspace"
 version = "0.1.0"
 description = "QuantOS Python engine workspace"
-requires-python = ">=3.9,<3.10"
+requires-python = ">=3.12,<3.13"
 dependencies = []
 
 [dependency-groups]
+security = ["pip-audit==2.9.0"]
 build = ["hatchling==1.27.0", "tomli==2.2.1"]
 dev = [
   "pyright==1.1.403",
-  "pytest==8.4.1",
+  "pytest==9.0.3",
   "pytest-cov==6.2.1",
   "ruff==0.12.7",
 ]
@@ -28,14 +29,14 @@ members = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py312"
 extend-exclude = [
   "engine-sdk/src/google",
   "engine-sdk/src/quantos",
 ]
 
 [tool.pyright]
-pythonVersion = "3.9"
+pythonVersion = "3.12"
 typeCheckingMode = "standard"
 include = ["*/src", "tests"]
 exclude = ["**/engine-sdk/src/google", "**/engine-sdk/src/quantos"]

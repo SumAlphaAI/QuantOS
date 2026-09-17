@@ -1,0 +1,53 @@
+{
+  "kind": "SOURCE_MOCK_NEGATIVE_PROBES",
+  "results": [
+    {
+      "probe": "RLS positive baseline",
+      "exitCode": 0,
+      "stdout": "Supabase RLS baseline checks passed.\n",
+      "stderr": ""
+    },
+    {
+      "probe": "no policy but index on table",
+      "exitCode": 0,
+      "stdout": "Supabase RLS baseline checks passed.\n",
+      "stderr": ""
+    },
+    {
+      "probe": "RLS disabled by later statement",
+      "exitCode": 0,
+      "stdout": "Supabase RLS baseline checks passed.\n",
+      "stderr": ""
+    },
+    {
+      "probe": "schema diff: same ledger with altered SQL and disabled RLS (mock PG)",
+      "exitCode": 0,
+      "stdout": "QUERY: select to_regclass($1) as regclass;\nQUERY: select filename from quantos.schema_migrations order by filename;\nRemote migration ledger matches repository migrations.\n",
+      "stderr": ""
+    },
+    {
+      "probe": "sign metadata positive",
+      "exitCode": 0,
+      "stdout": "Wrote HMAC-SHA256 signature /tmp/f02-probes-yu6z3iky/artifacts/signatures/manifest.json.sig\nWrote HMAC-SHA256 signature /tmp/f02-probes-yu6z3iky/artifacts/signatures/sbom.json.sig\n",
+      "stderr": ""
+    },
+    {
+      "probe": "verify metadata positive",
+      "exitCode": 0,
+      "stdout": "Verified HMAC-SHA256 signature for /tmp/f02-probes-yu6z3iky/artifacts/manifest.json\nVerified HMAC-SHA256 signature for /tmp/f02-probes-yu6z3iky/artifacts/sbom.json\n",
+      "stderr": ""
+    },
+    {
+      "probe": "runtime changed, metadata verification",
+      "exitCode": 0,
+      "stdout": "Verified HMAC-SHA256 signature for /tmp/f02-probes-yu6z3iky/artifacts/manifest.json\nVerified HMAC-SHA256 signature for /tmp/f02-probes-yu6z3iky/artifacts/sbom.json\n",
+      "stderr": ""
+    },
+    {
+      "probe": "signed metadata tamper rejected",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "Formal signature verification failed for /tmp/f02-probes-yu6z3iky/artifacts/manifest.json\n"
+    }
+  ]
+}

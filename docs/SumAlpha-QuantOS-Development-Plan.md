@@ -159,6 +159,7 @@ flowchart LR
 - review_conclusion: 全部问题已解决；本次锁检查、16 项负向测试、8 个后端漂移探针及既有验收回执核验通过，实现相对验收源码无变更。详见 [F01 全面复审报告](./audit/F01-comprehensive-review-2026-09-17.md)。
 - issues: []
 - fix_tracking: []
+- 后续基线变更：F02 经用户批准升级 Python 至 3.12；原 F01 冷启动与三次构建回执仍仅适用于其记录源码，新基线结果另见 F02 整改记录。
 - 历史追溯：已关闭问题及逐项验证已归档至 [F01 整改记录](./audit/F01-remediation-2026-09-17.md)；本任务活动清单只保留未解决问题。
 
 <a id="task-f02"></a>
@@ -167,7 +168,7 @@ flowchart LR
 - task_id: `F02`
 - task_type: `CORE`
 - development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
-- 状态范围：已实现；外部 CI/兼容矩阵及制品验收须按本任务标准单独验证。
+- 状态范围：2026-09-17 按 F02 全面复审整改；本地验证与远程验收分开记录，远程 CI、主干正式制品、required checks 仍需回执。
 - review_entry: [GPT-6 Astra 复审入口](#review-f02)
 - 需求描述：CI、制品与供应链门禁
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest
@@ -179,9 +180,14 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
+- review_status: `FIX_VALIDATION`
+- review_conclusion: 真实扫描、数据库门禁、制品交付链及全量依赖策略已整改；最终证据见 [F02 整改记录](./audit/F02-remediation-2026-09-17.md)。外部验收未完成，不将实现或本地测试视为 F02 完整放行。
+- issues:
+  - issue_id: F02-A11
+    severity: MEDIUM
+    description: 当前源码缺少远程 CI、主干正式制品下载验签、required checks 及完整平台视觉基线回执。
+    evidence: docs/audit/F02-remediation-2026-09-17.md
+    status: OPEN
 - fix_tracking: []
 
 <a id="task-f03"></a>

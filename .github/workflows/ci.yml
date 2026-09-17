@@ -14,9 +14,22 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.10
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     env:
+      QUANTOS_SKIP_ENV: "1"
+      F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres
+      GITLEAKS_BIN: ${{ github.workspace }}/artifacts/tools/gitleaks
+      QUANTOS_PROTO_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
       CARGO_TERM_COLOR: always
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       NEXT_PUBLIC_QUANTOS_ENV: local-mock
       NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai
       NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: http://localhost:3190
@@ -44,7 +57,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.12.10"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -79,12 +92,11 @@ jobs:
       - name: Run browser automation suite
         run: pnpm test:browser --project=chromium
 
+      - name: Install checksum-verified secret scanner
+        run: bash scripts/install-gitleaks.sh
+
       - name: Secret scan
-        env:
-          GITLEAKS_VERSION: "8.28.0"
-        run: |
-          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz -C /tmp gitleaks
-          /tmp/gitleaks git --config .gitleaks.toml --redact --verbose .
+        run: bash scripts/check-secrets.sh
 
       - name: Validate lockfiles
         run: make lockfile-check
@@ -137,23 +149,14 @@ jobs:
       - name: Run SCA checks
         run: make sca-check
 
-      - name: Check remote schema drift
-        if: ${{ env.DATABASE_URL != '' }}
-        run: make db-schema-diff
+      - name: Rebuild isolated databases and test drift and RLS
+        run: make f02-db-check
 
-      - name: Replay migrations in isolated schema
-        if: ${{ env.DATABASE_URL != '' }}
-        run: make db-replay-check
+      - name: Check F02 rejection and recovery paths
+        run: make f02-check
 
-      - name: Check remote RLS policies
-        if: ${{ env.DATABASE_URL != '' }}
-        run: make rls-policy-test
-
-      - name: Generate SBOM
-        run: make sbom
-
-      - name: Generate build manifest
-        run: make build-manifest
+      - name: Build and package all runtime artifacts
+        run: make f02-package
 
       - name: Generate pull-request integrity signatures
         if: ${{ github.event_name == 'pull_request' }}
@@ -176,5 +179,44 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: quantos-build-artifacts
-          path: artifacts/
+          path: |
+            artifacts/release/
+            artifacts/signatures/
+          if-no-files-found: error
+
+      - name: Archive F02 validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f02-validation-evidence
+          path: artifacts/f02/
+          if-no-files-found: error
+
+  verify-download:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - uses: actions/download-artifact@v4
+        with:
+          name: quantos-build-artifacts
+          path: artifacts
+      - name: Verify downloaded payload inventory and source
+        run: node scripts/verify-release.mjs artifacts/release "${{ github.sha }}"
+      - name: Verify downloaded main signature
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        env:
+          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
+        run: bash scripts/verify-artifact-signatures.sh artifacts/release/manifest.json
+      - name: Record downloaded artifact receipt
+        env:
+          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
+        run: node scripts/write-f02-ci-receipt.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f02-download-receipt
+          path: artifacts/f02/download-receipt.json
           if-no-files-found: error

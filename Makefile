@@ -26,7 +26,7 @@ bootstrap-rust:
 	cargo fetch --locked
 
 bootstrap-python:
-	uv sync --locked --project engines --all-packages --group build
+	uv sync --locked --project engines --all-packages --all-groups
 
 bootstrap-node:
 	pnpm install --frozen-lockfile
@@ -55,7 +55,7 @@ bff-provider-test:
 	cargo test -p bff-gateway
 
 quality-gate-self-test:
-	node ./scripts/check-secrets.mjs
+	bash ./scripts/check-secrets.sh
 	node ./scripts/test-quality-gates.mjs
 
 f01-check:
@@ -63,7 +63,7 @@ f01-check:
 	node --test scripts/f01-gate-negative.mjs
 
 build-python:
-	uv sync --locked --project engines --all-packages --group build
+	uv sync --locked --project engines --all-packages --all-groups
 	uv build --project engines --python engines/.venv/bin/python --all-packages --wheel --no-build-isolation --out-dir artifacts/python
 
 f01-clean-room-check:
@@ -172,13 +172,13 @@ rls-policy-test: ensure-node
 	bash ./scripts/check-live-rls.sh
 
 license-check:
-	cargo deny check licenses bans sources
+	@test "$$(cargo deny --version)" = "cargo-deny 0.20.2" || (echo "cargo-deny 0.20.2 required" >&2; exit 1)
+	cargo deny --locked check licenses bans sources
 	node ./scripts/check-node-licenses.mjs
+	uv run --locked --project engines --all-packages --all-groups python scripts/check-python-licenses.py
 
 sca-check:
-	cargo deny check advisories
-	bash ./scripts/check-python-audit.sh
-	pnpm audit --prod --audit-level=high
+	node scripts/check-sca.mjs
 
 waiver-check:
 	node ./scripts/check-sca-waivers.mjs
@@ -187,16 +187,17 @@ tp-intake-check:
 	node ./scripts/check-tp-intake.mjs
 
 build-manifest:
-	node ./scripts/generate-build-manifest.mjs --output artifacts/build/build-manifest.json
+	node ./scripts/generate-build-manifest.mjs --output artifacts/release/manifest.json
 
 sbom:
 	bash ./scripts/generate-sbom.sh
 
 sign-artifacts:
-	bash ./scripts/sign-artifacts.sh artifacts/build/build-manifest.json artifacts/sbom/quantos.spdx.json
+	bash ./scripts/sign-artifacts.sh artifacts/release/manifest.json
 
 verify-artifact-signatures:
-	bash ./scripts/verify-artifact-signatures.sh artifacts/build/build-manifest.json artifacts/sbom/quantos.spdx.json
+	bash ./scripts/verify-artifact-signatures.sh artifacts/release/manifest.json
+	node scripts/verify-release.mjs artifacts/release "$$(git rev-parse HEAD)"
 
 f09-capacity-snapshot:
 	cargo run -p capacity-monitor -- --lookback-seconds 900
@@ -224,10 +225,25 @@ tp01-vibe-monitor: ensure-node
 tp01-vibe-sync: ensure-node
 	node ./scripts/sync-vibe.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --patch-queue ./forks/vibe-trading/patch-queue/queue.json --candidate-report ./artifacts/third_party/vibe-trading/upstream-candidates.json --json-output ./artifacts/third_party/vibe-trading/sync-vibe/summary.json --markdown-output ./artifacts/third_party/vibe-trading/sync-vibe/summary.md --decision-dir ./artifacts/third_party/vibe-trading/sync-vibe/decisions --issue-dir ./artifacts/third_party/vibe-trading/sync-vibe/issues
 
-tp01-vibe-canary: ensure-node build-manifest
+tp01-vibe-canary: ensure-node
+	node scripts/generate-build-manifest.mjs --metadata-only --output artifacts/build/build-manifest.json
 	node ./scripts/tp01-vibe-canary.mjs --policy ./third_party/vibe-trading/canary-policy.json --scenario ./scripts/fixtures/tp01-vibe-canary/healthy-7d.json --output-dir ./artifacts/third_party/vibe-trading/canary/current --build-manifest ./artifacts/build/build-manifest.json && bash ./scripts/sign-artifacts.sh ./artifacts/third_party/vibe-trading/canary/current/release-manifest.json ./artifacts/third_party/vibe-trading/canary/current/drill-report.md
 
 tp01-vibe-rollback: ensure-node
 	node ./scripts/tp01-vibe-rollback.mjs --state ./artifacts/third_party/vibe-trading/canary/current/rollout-state.json --action rollback --reason "operator initiated rollback" --output-state ./artifacts/third_party/vibe-trading/canary/current/rollout-state.json --output-report ./artifacts/third_party/vibe-trading/canary/current/rollback-action.md
 
 ci-local: lockfile-check proto-check bff-contract-check db-migration-check lint test build
+
+.PHONY: f02-db-check f02-package f02-check
+f02-db-check:
+	node scripts/f02-db-gate.cjs
+
+f02-package:
+	cargo build --workspace --release --locked
+	pnpm build
+	$(MAKE) build-python sbom
+	node scripts/package-release.mjs
+	$(MAKE) build-manifest
+
+f02-check:
+	node --test scripts/f02-gate-negative.mjs

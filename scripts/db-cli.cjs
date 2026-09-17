@@ -5,7 +5,8 @@ const path = require("path");
 const crypto = require("crypto");
 const { Client } = require("pg");
 
-const repoRoot = path.resolve(__dirname, "..");
+const repoRoot = process.env.QUANTOS_GATE_ROOT || path.resolve(__dirname, "..");
+const { schemaState } = require("./db-schema-state.cjs");
 const migrationsDir = path.join(repoRoot, "supabase", "migrations");
 const migrationsTable = "quantos.schema_migrations";
 
@@ -74,8 +75,10 @@ async function ensureMigrationLedger(client) {
     create schema if not exists quantos;
     create table if not exists ${migrationsTable} (
       filename text primary key,
+      sha256 text,
       applied_at timestamptz not null default now()
     );
+    alter table quantos.schema_migrations add column if not exists sha256 text;
   `);
 }
 
@@ -95,11 +98,13 @@ async function applyMigrations() {
 
     for (const filename of migrationFiles) {
       const applied = await client.query(
-        `select 1 from ${migrationsTable} where filename = $1 limit 1;`,
+        `select sha256 from ${migrationsTable} where filename = $1 limit 1;`,
         [filename],
       );
 
+      const checksum = crypto.createHash("sha256").update(fs.readFileSync(path.join(migrationsDir, filename))).digest("hex");
       if (applied.rowCount > 0) {
+        if (applied.rows[0].sha256 !== checksum) throw new Error(`MIGRATION_CHECKSUM: ${filename} differs or has no trusted checksum`);
         console.log(`Skipping already applied migration: ${filename}`);
         continue;
       }
@@ -108,8 +113,8 @@ async function applyMigrations() {
       console.log(`Applying migration: ${filename}`);
       await client.query(sql);
       await client.query(
-        `insert into ${migrationsTable} (filename) values ($1);`,
-        [filename],
+        `insert into ${migrationsTable} (filename, sha256) values ($1,$2);`,
+        [filename, checksum],
       );
     }
   });
@@ -142,14 +147,31 @@ async function schemaDiff() {
     }
 
     const remote = await client.query(
-      `select filename from ${migrationsTable} order by filename;`,
+      `select filename, sha256 from ${migrationsTable} order by filename;`,
     );
     const local = migrationFiles;
     const remoteFiles = remote.rows.map((row) => row.filename);
 
     assertMigrationLedgerMatches(local, remoteFiles);
 
-    console.log("Remote migration ledger matches repository migrations.");
+    for (const row of remote.rows) {
+      const expected = crypto.createHash("sha256").update(fs.readFileSync(path.join(migrationsDir,row.filename))).digest("hex");
+      if (row.sha256 !== expected) throw new Error(`MIGRATION_CHECKSUM: ${row.filename}`);
+    }
+    if (!process.env.QUANTOS_REFERENCE_DATABASE_URL) throw new Error("A freshly rebuilt QUANTOS_REFERENCE_DATABASE_URL is required for schema drift validation");
+    if (process.env.QUANTOS_REFERENCE_DATABASE_URL === process.env.DATABASE_URL) throw new Error("Schema reference must be independent of target");
+    const reference = new Client({connectionString:process.env.QUANTOS_REFERENCE_DATABASE_URL});
+    await reference.connect();
+    try {
+      const identity = "select current_database() as database, inet_server_addr()::text as address, inet_server_port() as port";
+      const targetIdentity = (await client.query(identity)).rows[0];
+      const referenceIdentity = (await reference.query(identity)).rows[0];
+      if (JSON.stringify(targetIdentity) === JSON.stringify(referenceIdentity)) throw new Error("Schema reference must be independent of target");
+      const actual = await schemaState(client), expected = await schemaState(reference);
+      if (!expected.tables.length) throw new Error("Empty schema reference");
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error("SCHEMA_DRIFT: catalog differs from rebuilt reference");
+    } finally { await reference.end(); }
+    console.log("Migration checksums and schema catalog match rebuilt reference.");
   });
 }
 

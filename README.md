@@ -23,7 +23,7 @@ Polyglot monorepo baseline for the QuantOS platform.
 ## Toolchain baseline
 
 - Rust: pinned via `rust-toolchain.toml`
-- Python: `.python-version`; uv **0.7.0** via `.uv-version` (enforced by `make toolchain-check`). Install with `python3 -m pip install uv==0.7.0`.
+- Python: **3.12.10** (`.python-version`; F02 security remediation approved 2026-09-17); uv **0.7.0** via `.uv-version` (enforced by `make toolchain-check`). Install with `python3 -m pip install uv==0.7.0`.
 - Node **24.12.0** via `.nvmrc`; run `nvm install && nvm use`, then `corepack enable pnpm` for `packageManager`-pinned pnpm **10.20.0**.
 
 ## Common commands
@@ -112,3 +112,5 @@ CI uses `pnpm-workspace.desktop.yaml` and `pnpm-lock.desktop.yaml` in a separate
 checkout; copy them to the default names there before a frozen install. Do not
 replace the phase-1 files in your active checkout. Update both locks explicitly
 when changing shared dependencies needed by both phases.
+
+F02 supply-chain and isolated database commands: [runbook](docs/runbooks/f02-supply-chain.md).

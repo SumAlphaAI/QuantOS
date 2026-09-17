@@ -27,7 +27,7 @@ jobs:
           node-version: "24.12.0"
 
       - name: Generate build manifest
-        run: node ./scripts/generate-build-manifest.mjs --output ./artifacts/build/build-manifest.json
+        run: node ./scripts/generate-build-manifest.mjs --metadata-only --output ./artifacts/build/build-manifest.json
 
       - name: Run TP01-F rollout unit tests
         if: matrix.scenario == 'healthy-7d'

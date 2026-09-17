@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {verifyRelease} from './verify-release.mjs';
+const sha=process.env.GITHUB_SHA;
+if(process.env.GITHUB_ACTIONS!=='true'||!process.env.GITHUB_RUN_ID)throw Error('Remote receipt requires GitHub Actions context');
+verifyRelease('artifacts/release',sha);
+const formal=process.env.GITHUB_EVENT_NAME==='push'&&process.env.GITHUB_REF==='refs/heads/main';
+if(formal)execFileSync('bash',['scripts/verify-artifact-signatures.sh','artifacts/release/manifest.json'],{stdio:'inherit'});
+fs.mkdirSync('artifacts/f02',{recursive:true});
+fs.writeFileSync('artifacts/f02/download-receipt.json',JSON.stringify({status:'PASS',commit:sha,run:`${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,attempt:process.env.GITHUB_RUN_ATTEMPT,artifact:'quantos-build-artifacts',downloadVerified:true,formalSignatureVerified:formal,completedAt:new Date().toISOString()},null,2)+'\n');

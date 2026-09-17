@@ -1,0 +1,173 @@
+{
+  "sourceCommit": "daf81d2f057c6b0c2d8c368f0c2b3930de91c704",
+  "date": "2026-09-17",
+  "verdict": "CHANGES_REQUESTED",
+  "completion": {
+    "pass": 9,
+    "partial": 6,
+    "fail": 8,
+    "noReceipt": 1,
+    "total": 24,
+    "strictPercent": 37.5
+  },
+  "acceptance": {
+    "passed": 0,
+    "total": 3
+  },
+  "issues": {
+    "blocking": 0,
+    "high": 6,
+    "medium": 6,
+    "low": 0
+  },
+  "commands": [
+    {
+      "command": "node scripts/test-quality-gates.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "make db-migration-check waiver-check",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/check-node-licenses.mjs",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm exec license-checker-rseidelsohn --json",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm audit --prod --audit-level=high --json",
+      "exitCode": 1
+    },
+    {
+      "command": "check-python-audit.sh (isolated source copy)",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm exec vitest run tests/contract",
+      "exitCode": 0
+    },
+    {
+      "command": "make lockfile-check f01-check",
+      "exitCode": 0
+    },
+    {
+      "command": "generate-sbom.mjs --output <tmp>",
+      "exitCode": 0
+    },
+    {
+      "command": "generate-build-manifest.mjs --output <tmp>",
+      "exitCode": 0
+    }
+  ],
+  "nodeVulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 1,
+    "critical": 2
+  },
+  "gitleaks": {
+    "version": "8.28.0",
+    "archiveSha256": "d942f3ad147250c9edbaab3fed9e482f98d3b59ba10ae97b8d75647e3ade492c",
+    "officialChecksumVerified": true
+  },
+  "notRun": [
+    "Remote CI and artifact retrieval",
+    "Live PostgreSQL/Supabase drift, replay and RLS",
+    "Full browser matrix",
+    "Pinned cargo-deny 0.20.2 Rust SCA/license run"
+  ],
+  "files": [
+    {
+      "path": "baseline.json",
+      "sha256": "133063c2b12f63824cbd7bef191f09dd47a6193ca3019425e428693b19a40e18"
+    },
+    {
+      "path": "contracts.log",
+      "sha256": "38d56bd29111680b49f0b0988c62ea99d7edd859602701774a265c5ac66c2212"
+    },
+    {
+      "path": "gitleaks-checksums.txt",
+      "sha256": "4ea55cd2e433edbe3151e0ff49b044df310e29967a38f38b68b1434a3660dcb8"
+    },
+    {
+      "path": "gitleaks-probe.json",
+      "sha256": "c408cfcbdc2df3e1c352c8690b5d2d2e99bc0664c5b853003861df82a3eb1553"
+    },
+    {
+      "path": "gitleaks-probe.py",
+      "sha256": "0834c3327be26db963e9f96ba4bb65aa32d840cfa30159d459e084d0cfad39e2"
+    },
+    {
+      "path": "lock-gates.log",
+      "sha256": "65c8c6271b6ec2d29a043fd296a05b982cd645816f5c3ebf672ac4fc42a67b40"
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "73a5cf32cf185a3b8872da6ceb8f0fb6212e498bc09b9684cb5d58463c11f3eb"
+    },
+    {
+      "path": "node-audit.json",
+      "sha256": "0d54193fe7ba78b8ea8c352e3f07995ae3d87b7913d19c0152746d914c88c859"
+    },
+    {
+      "path": "node-audit.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "node-license-inventory.json",
+      "sha256": "5e276040047b02c6accfe2351de3d28f2cde4426f7374f5e932d3ceb314817e1"
+    },
+    {
+      "path": "node-license.log",
+      "sha256": "fc48992b778332d8f84a7ee7099b69a0aca3d97604db4d1c645a5d0a72f7786b"
+    },
+    {
+      "path": "probes.json",
+      "sha256": "905c1f9b924831eaecdd58c77809af32214133dbf2a27be7c2acc0dd3b9c207a"
+    },
+    {
+      "path": "probes.py",
+      "sha256": "fdbc944dc3255d479795cbe8d5407ef21ce698cb179839ab70d2fc8856a2919b"
+    },
+    {
+      "path": "proto-probe.json",
+      "sha256": "259f0a4a71af98895ae3740b0497a5d12472299fcf116c9488c4b3d0c723415b"
+    },
+    {
+      "path": "proto-probe.py",
+      "sha256": "8e188d69e7a4f2926949b889c0f4e8eb9d2676bb50119f15e82d31cc5e29f95f"
+    },
+    {
+      "path": "python-audit.log",
+      "sha256": "6ffae59c86c6602831b1b59b2f7688a17d21d45c7950a4aa8afa866c486382af"
+    },
+    {
+      "path": "sbom.json",
+      "sha256": "186119e9e958250ffc7062fc108371fb9908d73270762fe27c98df9316c8d310"
+    },
+    {
+      "path": "self-test-probe.json",
+      "sha256": "4f8dffac7c6ee75429cd6dbc2a78499208700eb1460fa820ed6598df74295d29"
+    },
+    {
+      "path": "self-test-probe.py",
+      "sha256": "01def6f4de94077c44a259258187b6f7f5b60f753402c2acc09da65a6eeabd68"
+    },
+    {
+      "path": "self-test.log",
+      "sha256": "0bd055c82bf10f4ce71fc7117c4f08e19b104fc9908858fd93bbcfee3ed8c946"
+    },
+    {
+      "path": "static-checks.log",
+      "sha256": "2c6b0c0cb0622697a693df1ab9226a2ec2599db9dae47724d975dcc5df675c42"
+    },
+    {
+      "path": "waiver-probe.json",
+      "sha256": "186e96d34b52a921ef1b13b743f026fca4e78ee2ed5816f49bf4e0ae5e2ee703"
+    }
+  ]
+}

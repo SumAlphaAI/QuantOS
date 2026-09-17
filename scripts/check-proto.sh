@@ -54,13 +54,6 @@ if [[ -d "${repo_root}/.git" ]]; then
   fi
 fi
 
-if [[ -d "${repo_root}/.git" ]]; then
-  if git -C "${repo_root}" rev-parse --verify HEAD >/dev/null 2>&1; then
-    "${buf_cmd[@]}" breaking --against '.git#branch=main' || {
-      echo "Buf breaking check failed against main." >&2
-      exit 1
-    }
-  fi
-fi
+QUANTOS_GATE_ROOT="${repo_root}" node "$(dirname "${BASH_SOURCE[0]}")/check-proto-breaking.mjs"
 
 echo "Proto checks passed."

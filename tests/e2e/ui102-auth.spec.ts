@@ -12,7 +12,7 @@ const BFF = "http://localhost:4010";
 const corsHeaders = {
   "access-control-allow-origin": "http://localhost:3190",
   "access-control-allow-credentials": "true",
-  "access-control-allow-headers": "content-type",
+  "access-control-allow-headers": "content-type, x-csrf-token",
   "access-control-allow-methods": "POST, OPTIONS",
 };
 
@@ -29,7 +29,8 @@ test.describe("UI-102 identity, access and recovery", () => {
     expect(results.violations.filter((entry) => ["critical", "serious"].includes(entry.impact ?? ""))).toEqual([]);
   });
 
-  test("MFA 成功后只返回消毒后的安全路由", async ({ page }) => {
+  test("MFA 成功后只返回消毒后的安全路由", async ({ page, context }) => {
+    await context.addCookies([{ name: "quantos_csrf", value: "e2e-csrf-fixture", url: "http://localhost:3190" }]);
     await page.route(`${BFF}/v1/auth/mfa/challenges`, async (route) => {
       if (route.request().method() === "OPTIONS") {
         await route.fulfill({ status: 204, headers: corsHeaders });
@@ -45,7 +46,8 @@ test.describe("UI-102 identity, access and recovery", () => {
     expect(page.url()).not.toContain("code=");
   });
 
-  test("MFA 429 文案不泄露账户存在性并展示等待时间", async ({ page }) => {
+  test("MFA 429 文案不泄露账户存在性并展示等待时间", async ({ page, context }) => {
+    await context.addCookies([{ name: "quantos_csrf", value: "e2e-csrf-fixture", url: "http://localhost:3190" }]);
     await page.route(`${BFF}/v1/auth/mfa/challenges`, async (route) => {
       if (route.request().method() === "OPTIONS") await route.fulfill({ status: 204, headers: corsHeaders });
       else await route.fulfill({ status: 429, contentType: "application/json", headers: corsHeaders, body: JSON.stringify({ code: "RATE_LIMITED", message: "internal account exists", correlationId: "11111111-2222-4333-8444-555555555555", retryAfter: 60 }) });
