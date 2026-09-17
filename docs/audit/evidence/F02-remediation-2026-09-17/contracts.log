@@ -1,0 +1,121 @@
+bash ./scripts/check-proto.sh
+Extracted 48 JSON schema documents.
+Proto compatibility checked against 194c854c9c68043baedfa0f7f73aa0f1b6dce6b9
+Proto checks passed.
+pnpm check:bff-openapi
+
+> @sumalpha/quantos@ check:bff-openapi /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-openapi.mjs
+
+ok    OpenAPI 版本 3.1.0
+ok    全部本地 $ref 可解析
+ok    operation 数 62，operationId 全局唯一
+
+BFF OpenAPI 基线结构校验通过
+pnpm check:bff-generated
+
+> @sumalpha/quantos@ check:bff-generated /Users/anray/Documents/project/SumAlpha/QuantOS
+> node ./scripts/check-bff-generated.mjs
+
+✨ openapi-typescript 7.13.0
+🚀 /Users/anray/Documents/project/SumAlpha/QuantOS/bff/openapi/quantos-bff.v1.yaml → /tmp/quantos-bff-generated-aloyiB/packages/api-client/src/bff-gen/quantos-bff.ts [59.2ms]
+Generated BFF 1.3.0: 62 operations, 51 schemas.
+ok    packages/api-client/src/bff-gen/quantos-bff.ts
+ok    packages/api-client/src/bff-gen/quantos-bff.zod.ts
+ok    tests/contract/generated/quantos-bff.components.schema.json
+ok    tests/contract/generated/quantos-bff.operations.json
+ok    tests/contract/generated/quantos-bff.msw.ts
+
+BFF generated artifacts match the frozen OpenAPI.
+pnpm check:bff-contract-coverage
+
+> @sumalpha/quantos@ check:bff-contract-coverage /Users/anray/Documents/project/SumAlpha/QuantOS
+> node ./scripts/check-bff-contract-coverage.mjs
+
+BFF contract coverage passed: 62 operations, 51 schemas, 62 page references.
+pnpm check:bff-fe-000
+
+> @sumalpha/quantos@ check:bff-fe-000 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-fe-000.mjs
+
+BFF-FE-000 Gate PASS: 17 contracts, 22 phase-one pages, 62 published + 46 planned operationIds.
+pnpm test:bff-fe-000
+
+> @sumalpha/quantos@ test:bff-fe-000 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-000-gate-negative.mjs
+
+✔ current BFF-FE-000 repository Gate passes (1.4645ms)
+✔ missing phase-one page mapping is rejected (0.524417ms)
+✔ published operation drift is rejected (0.980541ms)
+✔ planned operation traceability deletion is rejected (0.427959ms)
+✔ shared idempotency baseline deletion is rejected (1.092208ms)
+✔ dependency regression is rejected (0.372459ms)
+✔ error correlation header deletion is rejected (0.81275ms)
+✔ generated Zod export deletion is rejected (0.275458ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 92.861333
+pnpm check:bff-fe-001
+
+> @sumalpha/quantos@ check:bff-fe-001 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-fe-001.mjs
+
+BFF-FE-001 Gate PASS: 20 C01/C17 operations, cookie session, CSRF, recent-auth, MFA protection, audit and revocation stream checks.
+pnpm test:bff-fe-001
+
+> @sumalpha/quantos@ test:bff-fe-001 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-001-gate-negative.mjs
+
+✔ current BFF-FE-001 repository Gate passes (0.868292ms)
+✔ CSRF deletion is rejected (1.491916ms)
+✔ bearer session regression is rejected (0.699708ms)
+✔ recent-auth deletion is rejected (0.698917ms)
+✔ idempotency deletion is rejected (0.707833ms)
+✔ last-factor protection deletion is rejected (0.639917ms)
+✔ resource-hiding 404 deletion is rejected (0.695375ms)
+✔ revocation replay deletion is rejected (1.034542ms)
+✔ security audit reference deletion is rejected (0.674208ms)
+✔ dependency regression is rejected (0.2745ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 93.595291
+pnpm check:bff-fe-007
+
+> @sumalpha/quantos@ check:bff-fe-007 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-fe-007.mjs
+
+BFF-FE-007 Gate PASS: 6 C10 operations, redacted evidence pagination, controlled export lifecycle and fail-closed download checks.
+pnpm test:bff-fe-007
+
+> @sumalpha/quantos@ test:bff-fe-007 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-007-gate-negative.mjs
+
+✔ current BFF-FE-007 repository Gate passes (0.889125ms)
+✔ redaction attestation deletion is rejected (1.590875ms)
+✔ evidence cursor deletion is rejected (0.674542ms)
+✔ export capability regression is rejected (0.695792ms)
+✔ CSRF deletion is rejected (0.623583ms)
+✔ recent-auth deletion is rejected (0.630917ms)
+✔ idempotency deletion is rejected (0.759042ms)
+✔ expired download response deletion is rejected (1.026334ms)
+✔ download URL leakage through status is rejected (0.761541ms)
+✔ watermark deletion is rejected (0.763042ms)
+✔ dependency regression is rejected (0.205166ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 94.444542

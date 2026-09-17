@@ -181,7 +181,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 真实扫描、数据库门禁、制品交付链及全量依赖策略已整改；最终证据见 [F02 整改记录](./audit/F02-remediation-2026-09-17.md)。外部验收未完成，不将实现或本地测试视为 F02 完整放行。
+- review_conclusion: 原 12 个问题已关闭 11 个（高危 6/6、中危 5/6）；严格检查点 20/24（83.3%），本地 Gate PASS，A11 远程回执及平台视觉缺口仍开放。证据见 [F02 整改记录](./audit/F02-remediation-2026-09-17.md)。外部验收未完成，不将实现或本地测试视为 F02 完整放行。
 - issues:
   - issue_id: F02-A11
     severity: MEDIUM

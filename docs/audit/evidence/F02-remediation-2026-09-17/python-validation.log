@@ -1,0 +1,114 @@
+uv run --locked --project engines --all-packages ruff check .
+All checks passed!
+uv run --locked --project engines --all-packages pyright --project engines
+0 errors, 0 warnings, 0 informations
+uv run --locked --project engines --all-packages pytest
+============================= test session starts ==============================
+platform darwin -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/anray/Documents/project/SumAlpha/QuantOS
+plugins: cov-6.2.1
+collected 91 items
+
+engines/tests/test_engine_contract.py .                                  [  1%]
+engines/tests/test_engine_observability.py .                             [  2%]
+engines/tests/test_llmquant_contract.py .......                          [  9%]
+engines/tests/test_openbb_adapter_contract.py .........                  [ 19%]
+engines/tests/test_proto_sdk.py ..                                       [ 21%]
+engines/tests/test_protocol_metadata_completeness.py ...                 [ 25%]
+engines/tests/test_rd_agent_contract.py .....                            [ 30%]
+engines/tests/test_strategy_lab_contract.py .......                      [ 38%]
+engines/tests/test_tp08_qlib_mapping_samples.py .....                    [ 43%]
+engines/tests/test_tp09_trendradar_mapping_samples.py ......             [ 50%]
+engines/tests/test_tp10_valuecell_evaluation.py .......                  [ 58%]
+engines/tests/test_tp11_openstock_fixtures.py .....                      [ 63%]
+engines/tests/test_tp12_nautilus_agents_rules.py .......                 [ 71%]
+engines/tests/test_tp13_loong_evaluation.py ......                       [ 78%]
+engines/tests/test_trading_agents_contract.py .......                    [ 85%]
+engines/tests/test_vibe_adapter_contract.py ......                       [ 92%]
+engines/tests/test_workspace.py .......                                  [100%]
+
+============================= 91 passed in 11.87s ==============================
+uv run --locked --project engines --all-packages pytest --cov=engines --cov-config=engines/pyproject.toml --cov-report=term-missing
+============================= test session starts ==============================
+platform darwin -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/anray/Documents/project/SumAlpha/QuantOS
+plugins: cov-6.2.1
+collected 91 items
+
+engines/tests/test_engine_contract.py .                                  [  1%]
+engines/tests/test_engine_observability.py .                             [  2%]
+engines/tests/test_llmquant_contract.py .......                          [  9%]
+engines/tests/test_openbb_adapter_contract.py .........                  [ 19%]
+engines/tests/test_proto_sdk.py ..                                       [ 21%]
+engines/tests/test_protocol_metadata_completeness.py ...                 [ 25%]
+engines/tests/test_rd_agent_contract.py .....                            [ 30%]
+engines/tests/test_strategy_lab_contract.py .......                      [ 38%]
+engines/tests/test_tp08_qlib_mapping_samples.py .....                    [ 43%]
+engines/tests/test_tp09_trendradar_mapping_samples.py ......             [ 50%]
+engines/tests/test_tp10_valuecell_evaluation.py .......                  [ 58%]
+engines/tests/test_tp11_openstock_fixtures.py .....                      [ 63%]
+engines/tests/test_tp12_nautilus_agents_rules.py .......                 [ 71%]
+engines/tests/test_tp13_loong_evaluation.py ......                       [ 78%]
+engines/tests/test_trading_agents_contract.py .......                    [ 85%]
+engines/tests/test_vibe_adapter_contract.py ......                       [ 92%]
+engines/tests/test_workspace.py .......                                  [100%]
+
+================================ tests coverage ================================
+______________ coverage: platform darwin, python 3.12.10-final-0 _______________
+
+Name                                                             Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------------------------------
+engines/engine-sdk/sdk_src/quantos_engine_sdk/__init__.py            4      0      0      0   100%
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py              107      3      4      2    95%   30, 59, 204
+engines/engine-sdk/sdk_src/quantos_engine_sdk/manifest.py           21      1      2      1    91%   41
+engines/engine-sdk/sdk_src/quantos_engine_sdk/observability.py     141     18     26      5    85%   51, 61-62, 119-122, 142-152, 184, 189-196, 198-205, 224-226
+engines/llmquant/src/llmquant/__init__.py                            5      0      0      0   100%
+engines/llmquant/src/llmquant/adapter.py                            70      6     24      6    87%   63, 68, 75, 80, 102, 114
+engines/llmquant/src/llmquant/fixtures.py                           53      2      8      2    93%   78, 86
+engines/llmquant/src/llmquant/manifest.py                            5      0      0      0   100%
+engines/llmquant/src/llmquant/service.py                            78      2     10      1    97%   161, 164, 189->exit
+engines/llmquant/src/llmquant/signal_mapper.py                      64      6      4      1    90%   97, 153-155, 226-227
+engines/mock-engine/src/mock_engine/__init__.py                      5      0      0      0   100%
+engines/mock-engine/src/mock_engine/service.py                      56      6     10      5    83%   77, 79-80, 85, 128, 189
+engines/openbb-adapter/src/openbb_adapter/__init__.py                5      0      0      0   100%
+engines/openbb-adapter/src/openbb_adapter/adapter.py                75      6     22      6    88%   65, 70, 77, 90, 102, 116
+engines/openbb-adapter/src/openbb_adapter/fixtures.py               59      2      8      2    94%   91, 99
+engines/openbb-adapter/src/openbb_adapter/license_gate.py           59      5     10      4    87%   59, 61, 73, 116, 120
+engines/openbb-adapter/src/openbb_adapter/manifest.py                5      0      0      0   100%
+engines/openbb-adapter/src/openbb_adapter/providers.py              72      0      4      0   100%
+engines/openbb-adapter/src/openbb_adapter/service.py                85      3     10      1    96%   191, 193, 198, 223->exit
+engines/rd-agent/src/rd_agent/__init__.py                            5      0      0      0   100%
+engines/rd-agent/src/rd_agent/adapter.py                            55      2     14      2    94%   60, 65
+engines/rd-agent/src/rd_agent/fixtures.py                           28      1      4      1    94%   53
+engines/rd-agent/src/rd_agent/manifest.py                            6      0      0      0   100%
+engines/rd-agent/src/rd_agent/research_artifact.py                  10      0      0      0   100%
+engines/rd-agent/src/rd_agent/service.py                            65      5      8      3    89%   63, 101, 146, 149, 159
+engines/strategy-lab/src/strategy_lab/__init__.py                    0      0      0      0   100%
+engines/strategy-lab/src/strategy_lab/adapter.py                    60      5     18      5    87%   65, 70, 77, 90, 127
+engines/strategy-lab/src/strategy_lab/fixtures.py                   47      2      8      2    93%   59, 104
+engines/strategy-lab/src/strategy_lab/generator.py                  33      0      0      0   100%
+engines/strategy-lab/src/strategy_lab/manifest.py                    5      0      0      0   100%
+engines/strategy-lab/src/strategy_lab/service.py                    81     10     10      3    84%   98, 133, 136, 186-191, 195
+engines/strategy-lab/src/strategy_lab/static_checks.py              30      5     16      5    78%   48, 52, 54, 59, 61
+engines/trading-agents/src/trading_agents/__init__.py                5      0      0      0   100%
+engines/trading-agents/src/trading_agents/adapter.py                80     10     28      8    83%   65, 70, 77, 90, 104, 119-120, 126, 131, 136
+engines/trading-agents/src/trading_agents/fixtures.py               86      4      8      2    94%   109, 174, 224-225
+engines/trading-agents/src/trading_agents/manifest.py                5      0      0      0   100%
+engines/trading-agents/src/trading_agents/proposal_mapper.py        66      2      6      0    97%   219-220
+engines/trading-agents/src/trading_agents/service.py                78      2     10      1    97%   161, 164, 189->exit
+engines/vibe-adapter/src/vibe_adapter/__init__.py                    8      0      0      0   100%
+engines/vibe-adapter/src/vibe_adapter/allowlist.py                  24      3     10      3    82%   43, 50, 56
+engines/vibe-adapter/src/vibe_adapter/artifact_api.py               21      0      0      0   100%
+engines/vibe-adapter/src/vibe_adapter/audit.py                       5      0      0      0   100%
+engines/vibe-adapter/src/vibe_adapter/context.py                    63      4     16      4    90%   57, 61, 65, 78
+engines/vibe-adapter/src/vibe_adapter/fixtures.py                   26      2      4      1    90%   53, 66
+engines/vibe-adapter/src/vibe_adapter/manifest.py                    7      0      0      0   100%
+engines/vibe-adapter/src/vibe_adapter/protocols.py                  20      0      0      0   100%
+engines/vibe-adapter/src/vibe_adapter/providers.py                  13      2      4      2    76%   17, 21->20, 23
+engines/vibe-adapter/src/vibe_adapter/service.py                    71      5      8      3    90%   70, 99, 155, 158, 168
+engines/vibe-adapter/src/vibe_adapter/streaming.py                  10      0      0      0   100%
+engines/vibe-adapter/src/vibe_adapter/workflow.py                   20      0      0      0   100%
+------------------------------------------------------------------------------------------------------------
+TOTAL                                                             2002    124    314     81    91%
+Required test coverage of 85.0% reached. Total coverage: 90.98%
+============================= 91 passed in 13.05s ==============================

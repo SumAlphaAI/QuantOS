@@ -1,13 +1,18 @@
 # F02 整改与复验记录
 
 > 日期：2026-09-17。基线：[F02 全面复审报告](./F02-comprehensive-review-2026-09-17.md)，原审计源码 `daf81d2f057c6b0c2d8c368f0c2b3930de91c704`。
-> 状态：本地修复验证进行中；远程 CI/主干正式制品验收仍为 `NOT RUN / NO RECEIPT`。
+> 状态：本地整改与复验完成；原问题 **11/12 已关闭（91.7%）**，A11 仍开放。远程 CI/主干正式制品验收仍为 `NOT RUN / NO RECEIPT`。
+> 修复源码提交：`bb76f99255cc13ff9bbaca62f70dbad3c22d9617`。后续文档/证据提交不改变该源码验收对象。
 
 ## 一、任务完成概况
 
 本轮按原 12 个问题补齐真实 secret 扫描、数据库重建及权限隔离、迁移内容与目录漂移、全量许可证/SCA、到期豁免裁决、Proto 历史基线、完整运行时打包和下载验签入口。用户分别批准精确版本 LGPL 构建工具的有条件准入，以及 Python 3.12 基线升级。未新增漏洞豁免、未使用生产凭据、未推送或发布。
 
-最终提交和验证结果见本报告完成后的证据统计；未完成的远程验收不计为已关闭。
+问题关闭统计：高危 **6/6**，中危 **5/6**，阻塞/低危均为 0。A01–A10、A12 的实现与本地复验已关闭；A05 的远程主干交付部分统一保留在 A11，不据此宣称发布成功。
+
+原 24 项严格检查点复核：**PASS 20、PARTIAL 3、NO RECEIPT 1，完成率 83.3%（20/24）**。C06（完整兼容/视觉）、C18（远程主干交付）、C23（真实远程 CI 破坏运行）为 PARTIAL，C24 为 NO RECEIPT，其余为 PASS。三项量化验收中“高危为零或有效豁免”通过，其余两项本地实现通过但缺远程回执，完整通过率 **1/3**。
+
+证据入口：[summary.json](./evidence/F02-remediation-2026-09-17/summary.json)，逐文件记录 SHA-256。DB、SCA、制品、门禁在干净修复提交上复验；其他测试在提交前相同实现/锁文件上运行。
 
 ## 二、逐项整改明细
 
@@ -26,8 +31,26 @@
 | A11 | 中危 | 外部验收 | 增加下载制品复验和带 SHA/run URL 的机器回执；本地执行覆盖率与浏览器 | 仍需远程运行、主干正式签名、required checks；5 个平台视觉基线缺口 |
 | A12 | 中危 | 扫描范围 | Node 移除 prod-only；Python 运行/dev/build/security 均扫描；Rust 保留 dev | 完整锁文件范围扫描 |
 
+### 实际验证结果
+
+| 检查 | 结果 | 证据 |
+|---|---|---|
+| Rust fmt/Clippy/全工作区测试 | 186 passed、1 ignored；退出 0 | [日志](./evidence/F02-remediation-2026-09-17/rust-validation.log) |
+| Rust 覆盖率 | 行 92.75%、region 92.38%，达到 ≥90%/≥85% | 同上；region 是现行稳定工具链分支代理 |
+| Python Ruff/Pyright/pytest | 91 passed；覆盖率 90.98% | [日志](./evidence/F02-remediation-2026-09-17/python-validation.log) |
+| Web lint/typecheck/unit | 工作区 115 tests passed；覆盖率套件另有 107 tests，行覆盖率 90.89% | [日志](./evidence/F02-remediation-2026-09-17/web-validation.log) |
+| 浏览器 | Chromium 27 passed；Firefox/WebKit 49 passed、5 skipped | [Chromium](./evidence/F02-remediation-2026-09-17/chromium.log)、[矩阵](./evidence/F02-remediation-2026-09-17/firefox-webkit.log) |
+| 真实门禁与锁文件 | 24/24 负向/对照测试通过；Gitleaks 122 commits 无未豁免命中；四类锁有效 | [日志](./evidence/F02-remediation-2026-09-17/gates.log) |
+| Proto / BFF 契约 | 真实 Buf 历史基线、生成检查及 11 项 BFF 契约负向测试通过 | [日志](./evidence/F02-remediation-2026-09-17/contracts.log) |
+| PostgreSQL 17.10 | 36 表基线、独立重建、回放、同库别名拒绝、漂移/RLS 变异、跨身份访问通过 | [回执](./evidence/F02-remediation-2026-09-17/database.json) |
+| 许可证 | Rust 固定扫描器通过；Node 726 个锁包；Python 42 个本平台激活依赖 | [日志](./evidence/F02-remediation-2026-09-17/licenses.log) |
+| 全量 SCA | Node high/critical=0；Python/Rust 已知阻断漏洞=0；豁免=0 | [回执](./evidence/F02-remediation-2026-09-17/sca-npm-pypi-cargo.json) |
+| 完整制品 | 7 Rust、8 wheels、7 Web/package 输出；共 234 文件、25,049,687 字节；SBOM 含 1,125 锁包 | [manifest](./evidence/F02-remediation-2026-09-17/release-manifest.json)、[构建日志](./evidence/F02-remediation-2026-09-17/package.log) |
+| 签名与篡改 | 本地测试密钥 HMAC、独立本地复制复验、payload/manifest 篡改及错误密钥拒绝，恢复通过 | [回执](./evidence/F02-remediation-2026-09-17/local-artifact-verification.json)；不是远程下载/正式主干签名 |
+
 ## 三、问题与风险边界
 
+- Node 还存在 3 条中危告警：`uuid@9.0.1`（GHSA-w5hq-g745-h8pq）、`vitest@3.2.6` 与 `@vitest/mocker@3.2.6`（GHSA-82fw-gwwq-j7x9）。现行策略只阻断 Node high/critical，未将这些告警隐去或声明为零；后续需对 uuid ≥11.1.1、Vitest ≥4.1.11 的主版本兼容升级单独验证。
 - A11 仍开放。未执行远程 push、主干签名、制品下载或分支保护设置验证。CI 源码存在不等于实际跑通。
 - Firefox/WebKit 5 项现有视觉测试因缺基线跳过；功能测试通过也不代表真实 Safari 发布验收。
 - 旧数据库 ledger 缺少 SHA 时拒绝；不得以当前 SQL 自动补写而冒充历史证据。迁移流程见 [运行手册](../runbooks/f02-supply-chain.md)。
@@ -37,6 +60,6 @@
 
 ## 四、后续整改与验收
 
-1. 完成本地源码、测试、制品签验的 Git 提交及绑定源码的证据归档。
+1. 已完成本地源码提交、测试、制品签验和绑定源码的证据归档；本地 Gate 为 PASS，F02 整体 Gate 为 PENDING_EXTERNAL_ACCEPTANCE。
 2. 取得推送授权后在远程运行 PR/main 全门禁，取得同 SHA 的成功运行、覆盖率、兼容矩阵及下载复验回执。
 3. 补齐缺失平台视觉基线、核对 required checks 和主干签名配置；证据齐全后复审 A11，再决定 F02 整体验收。

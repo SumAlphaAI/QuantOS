@@ -1,0 +1,48 @@
+bash ./scripts/check-secrets.sh
+1:32PM INF 122 commits scanned.
+1:32PM INF scanned ~10085029 bytes (10.09 MB) in 662ms
+1:32PM INF no leaks found
+node ./scripts/test-quality-gates.mjs
+✔ formal gate rejects zero, one, two and noninteger runs (0.614875ms)
+✔ all binaries participate in digest and omitted binary fails (4.163ms)
+✔ extra binary, missing wheel and stale/empty Web cannot pass output inventory (2.707ms)
+✔ manifest inventory cannot omit or add members (0.0995ms)
+✔ dirty and untracked source rejected (196.552584ms)
+✔ deleted module README is rejected (3.106625ms)
+✔ wrong uv version fails toolchain preflight (26.119708ms)
+✔ invalid locks fail real lock entrypoint (96.97125ms)
+✔ Terminal default lint rejects a page TSX violation (1098.830416ms)
+✔ invalid run revokes old successful receipt (34.041167ms)
+✔ Cargo manifest drift is rejected by actual lock gate (644.099458ms)
+✔ uv manifest drift is rejected by actual lock gate (710.481041ms)
+✔ pnpm manifest drift is rejected by actual lock gate (992.656292ms)
+✔ malformed Buf lock is rejected by actual lock gate (716.1635ms)
+✔ broken Desktop is outside phase-one pnpm frozen check (318.463167ms)
+✔ uv output marker is metadata, other unexpected files still fail (2.272708ms)
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+✔ real Gitleaks positive control and GitHub/Slack leaks (1886.3825ms)
+✔ RLS baseline rejects policy deletion and late disabling with recovery (202.230625ms)
+✔ migration filename control, rejection and recovery (22.149708ms)
+✔ waivers only authorize exact advisory/ecosystem/package/version before expiry (1.265583ms)
+✔ license expression policy does not globally allow LGPL or unknown licenses (0.474875ms)
+✔ release binds complete payload and SBOM to source; rejects corruption and build-only native files (4.14075ms)
+✔ Buf compares against distinct historical source and detects removed fields (881.264625ms)
+✔ SCA scanner adapter consumes exact waivers and never waives scanner failures (741.800084ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4896.781
+bash ./scripts/check-lockfiles.sh
+Resolved 52 packages in 2ms
+Scope: all 8 workspace projects
+Done in 151ms using pnpm v10.20.0
+All phase-1 locks parse and match their manifests.
+bash ./scripts/check-migration-filenames.sh
+Supabase migration filenames are valid.
+bash ./scripts/check-rls-baseline.sh
+RLS static preflight passed for 36 tables; database execution is separately mandatory.
