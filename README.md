@@ -99,7 +99,8 @@ tracked-source archives, omit ignored environment files, use mock-only public
 configuration, and never load database credentials. Clean-room uses empty
 package download caches and must complete bootstrap/lint/test within 1800
 seconds; toolchain installation is a prerequisite. Reproducibility uses three
-fresh install/build directories, allows shared downloads, and compares every
+fresh install/build directories at a fixed physical prefix (Next/Webpack module
+IDs depend on that input), allows shared downloads, and compares every
 Rust binary, Python wheel and phase-1 Web/package output. Receipts include the
 source commit/tree, platform, tool versions, command exits, timestamps and
 file hashes. Failure replaces any stale success receipt. Local results do not

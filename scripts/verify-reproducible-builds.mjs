@@ -28,9 +28,11 @@ try {
     if (process.argv.includes('--keep-workdirs')) evidence.retainedWorkdir = scratch;
     const archive = path.join(scratch, 'source.tar');
     execFileSync('git', ['archive', '--format=tar', `--output=${archive}`, evidence.source.commit], { cwd: root });
+    evidence.directoryPolicy = 'fixed physical build prefix; source/install/output directory removed and recreated for every run';
     evidence.cachePolicy = mode === 'clean-room' ? 'empty package download caches; empty install and build directories; preinstalled pinned toolchains' : 'shared package downloads only; fresh source/install/build directories for every run';
     for (let i = 1; i <= (mode === 'clean-room' ? 1 : runs); i++) {
-        const workspace = path.join(scratch, `run-${i}`);
+        const workspace = path.join(scratch, 'workspace');
+        if (fs.existsSync(workspace)) throw new Error('Previous build directory was not removed');
         fs.mkdirSync(workspace);
         execFileSync('tar', ['-xf', archive, '-C', workspace]);
         // The archive contains tracked source only: no ignored env, dist, target, node_modules, or .venv.
@@ -74,7 +76,8 @@ try {
         }
         result.completedAt = new Date().toISOString();
         save();
-        if (!process.argv.includes('--keep-workdirs')) fs.rmSync(workspace, { recursive: true, force: true });
+        if (process.argv.includes('--keep-workdirs')) fs.renameSync(workspace, path.join(scratch, `run-${i}`));
+        else fs.rmSync(workspace, { recursive: true, force: true });
     }
     if (mode === 'reproducibility') {
         requireMatching(evidence.runs);
