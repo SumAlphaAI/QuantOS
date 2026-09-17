@@ -1,0 +1,164 @@
+bash ./scripts/check-lockfiles.sh
+Resolved 28 packages in 1ms
+Scope: all 8 workspace projects
+Done in 157ms using pnpm v10.20.0
+All phase-1 locks parse and match their manifests.
+node scripts/check-f01.mjs
+{
+  "status": "PASS",
+  "toolchains": {
+    "node": "24.12.0",
+    "uv": "0.7.0",
+    "pnpm": "10.20.0",
+    "rustc": "1.91.0"
+  },
+  "moduleReadmes": 45,
+  "inventory": {
+    "rustBinaries": [
+      "bff-gateway",
+      "capacity-monitor",
+      "execution-gateway",
+      "market-ingestor",
+      "portfolio-rebuild",
+      "replay-cli",
+      "runtime-gateway"
+    ],
+    "rustDirectories": [
+      "crates/quantos-auth",
+      "crates/quantos-core",
+      "crates/quantos-engine-manager",
+      "crates/quantos-event",
+      "crates/quantos-evidence",
+      "crates/quantos-execution",
+      "crates/quantos-market",
+      "crates/quantos-observability",
+      "crates/quantos-policy",
+      "crates/quantos-portfolio",
+      "crates/quantos-proto",
+      "crates/quantos-reconcile",
+      "crates/quantos-risk",
+      "crates/quantos-runtime",
+      "crates/quantos-storage",
+      "crates/quantos-strategy",
+      "services/bff-gateway",
+      "services/capacity-monitor",
+      "services/execution-gateway",
+      "services/market-ingestor",
+      "services/portfolio-rebuild",
+      "services/replay-cli",
+      "services/runtime-gateway"
+    ],
+    "js": [
+      {
+        "directory": "apps/terminal",
+        "name": "@sumalpha/terminal",
+        "output": "apps/terminal/out"
+      },
+      {
+        "directory": "apps/website",
+        "name": "@sumalpha/website",
+        "output": "apps/website/out"
+      },
+      {
+        "directory": "packages/api-client",
+        "name": "@sumalpha/api-client",
+        "output": "packages/api-client/dist"
+      },
+      {
+        "directory": "packages/config",
+        "name": "@sumalpha/config",
+        "output": "packages/config/dist"
+      },
+      {
+        "directory": "packages/domain-ui",
+        "name": "@sumalpha/domain-ui",
+        "output": "packages/domain-ui/dist"
+      },
+      {
+        "directory": "packages/platform",
+        "name": "@sumalpha/platform",
+        "output": "packages/platform/dist"
+      },
+      {
+        "directory": "packages/ui",
+        "name": "@sumalpha/ui",
+        "output": "packages/ui/dist"
+      }
+    ],
+    "python": [
+      {
+        "directory": "engines/engine-sdk",
+        "name": "quantos-engine-sdk",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/llmquant",
+        "name": "quantos-llmquant",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/mock-engine",
+        "name": "quantos-mock-engine",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/openbb-adapter",
+        "name": "quantos-openbb-adapter",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/rd-agent",
+        "name": "quantos-rd-agent",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/strategy-lab",
+        "name": "quantos-strategy-lab",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/trading-agents",
+        "name": "quantos-trading-agents",
+        "version": "0.1.0"
+      },
+      {
+        "directory": "engines/vibe-adapter",
+        "name": "quantos-vibe-adapter",
+        "version": "0.1.0"
+      }
+    ],
+    "buildClosure": {
+      "hatchling": "1.27.0",
+      "packaging": "26.2",
+      "pathspec": "1.1.1",
+      "pluggy": "1.6.0",
+      "tomli": "2.2.1",
+      "trove-classifiers": "2026.6.1.19"
+    }
+  }
+}
+node --test scripts/f01-gate-negative.mjs
+✔ formal gate rejects zero, one, two and noninteger runs (0.496833ms)
+✔ all binaries participate in digest and omitted binary fails (3.655333ms)
+✔ extra binary, missing wheel and stale/empty Web cannot pass output inventory (2.3745ms)
+✔ manifest inventory cannot omit or add members (0.075084ms)
+✔ dirty and untracked source rejected (75.091208ms)
+✔ deleted module README is rejected (2.4075ms)
+✔ wrong uv version fails toolchain preflight (20.903292ms)
+✔ invalid locks fail real lock entrypoint (62.869333ms)
+✔ Terminal default lint rejects a page TSX violation (957.868834ms)
+✔ invalid run revokes old successful receipt (28.520375ms)
+✔ Cargo manifest drift is rejected by actual lock gate (778.948458ms)
+✔ uv manifest drift is rejected by actual lock gate (1012.483708ms)
+✔ pnpm manifest drift is rejected by actual lock gate (1293.371042ms)
+✔ malformed Buf lock is rejected by actual lock gate (1044.32025ms)
+✔ broken Desktop is outside phase-one pnpm frozen check (340.372292ms)
+✔ uv output marker is metadata, other unexpected files still fail (2.475917ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5666.251792
