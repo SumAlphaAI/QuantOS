@@ -3,16 +3,20 @@ name: F01 Clean Room
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
 
 permissions:
   contents: read
 
 jobs:
-  bootstrap-lint-test:
+  acceptance:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [clean-room, reproducibility]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -21,58 +25,19 @@ jobs:
           components: rustfmt, clippy
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.9.6"
       - uses: actions/setup-node@v4
         with:
           node-version: "24.12.0"
       - uses: astral-sh/setup-uv@v5
         with:
           version: "0.7.0"
-      - name: Enable Corepack
-        run: corepack enable pnpm
-      - name: Fresh bootstrap, lint, and test
-        run: |
-          started_at="$(date +%s)"
-          make bootstrap
-          make lint
-          make test
-          elapsed_seconds="$(( $(date +%s) - started_at ))"
-          test "${elapsed_seconds}" -le 1800
-          mkdir -p artifacts/reproducibility
-          node -e 'const fs=require("fs"); const elapsed=Number(process.argv[1]); fs.writeFileSync("artifacts/reproducibility/f01-clean-room.json", JSON.stringify({schemaVersion:1, environment:"github-hosted-ubuntu", sequence:["bootstrap","lint","test"], elapsedSeconds:elapsed, limitSeconds:1800, passed:true}, null, 2)+"\n")' "${elapsed_seconds}"
-      - name: Upload clean-room evidence
-        uses: actions/upload-artifact@v4
+      - run: corepack enable pnpm
+      - name: Verify isolated source snapshot
+        run: node scripts/verify-reproducible-builds.mjs --mode ${{ matrix.mode }} --runs 3 --output artifacts/reproducibility/f01-${{ matrix.mode }}.json
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: f01-clean-room-evidence
-          path: artifacts/reproducibility/f01-clean-room.json
-          if-no-files-found: error
-
-  reproducible-builds:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: 1.91.0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24.12.0"
-      - uses: astral-sh/setup-uv@v5
-        with:
-          version: "0.7.0"
-      - name: Enable Corepack and bootstrap
-        run: |
-          corepack enable pnpm
-          make bootstrap
-      - name: Verify three independent cross-language builds
-        run: make f01-reproducibility-check
-      - name: Upload reproducibility evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: f01-reproducibility-evidence
-          path: artifacts/reproducibility/f01-build-digests.json
+          name: f01-${{ matrix.mode }}-evidence
+          path: artifacts/reproducibility/f01-${{ matrix.mode }}.json
           if-no-files-found: error

@@ -23,8 +23,8 @@ Polyglot monorepo baseline for the QuantOS platform.
 ## Toolchain baseline
 
 - Rust: pinned via `rust-toolchain.toml`
-- Python package management: pinned via `uv`
-- Node package management: pinned via `packageManager` and Corepack-managed `pnpm`
+- Python: `.python-version`; uv **0.7.0** via `.uv-version` (enforced by `make toolchain-check`). Install with `python3 -m pip install uv==0.7.0`.
+- Node **24.12.0** via `.nvmrc`; run `nvm install && nvm use`, then `corepack enable pnpm` for `packageManager`-pinned pnpm **10.20.0**.
 
 ## Common commands
 
@@ -83,3 +83,30 @@ Polyglot monorepo baseline for the QuantOS platform.
 - Supabase Storage live verification requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`, and `QUANTOS_RUN_SUPABASE_STORAGE_TESTS=1`.
 - `make db-reset` is destructive for the remote `quantos` schema and requires `QUANTOS_DB_RESET_CONFIRM=reset_remote_schema`.
 - `node` is required for remote database commands.
+
+## F01 reproducible baseline
+
+Run `make bootstrap`, then `make lockfile-check f01-check lint test`.
+`bootstrap` checks tool versions before fetching frozen dependencies. Python
+build tooling and its transitive closure are pinned in `engines/uv.lock` and
+`engines/build-constraints.txt`; `make build-python` uses that installed closure.
+The committed Rust test-runner decision is in
+[the F01 ADR](docs/adr/20260917-f01-rust-test-runner.md).
+
+Formal acceptance requires a clean committed checkout. Run
+`make f01-clean-room-check f01-reproducibility-check`. These create independent
+tracked-source archives, omit ignored environment files, use mock-only public
+configuration, and never load database credentials. Clean-room uses empty
+package download caches and must complete bootstrap/lint/test within 1800
+seconds; toolchain installation is a prerequisite. Reproducibility uses three
+fresh install/build directories, allows shared downloads, and compares every
+Rust binary, Python wheel and phase-1 Web/package output. Receipts include the
+source commit/tree, platform, tool versions, command exits, timestamps and
+file hashes. Failure replaces any stale success receipt. Local results do not
+assert remote CI, browser or live database acceptance.
+
+Desktop is deferred and excluded from the default pnpm workspace. Its manual
+CI uses `pnpm-workspace.desktop.yaml` and `pnpm-lock.desktop.yaml` in a separate
+checkout; copy them to the default names there before a frozen install. Do not
+replace the phase-1 files in your active checkout. Update both locks explicitly
+when changing shared dependencies needed by both phases.

@@ -1,0 +1,63 @@
+[
+  {
+    "name": "rust-version",
+    "command": [
+      "rustc",
+      "--version"
+    ],
+    "exitCode": 0,
+    "seconds": 0.07
+  },
+  {
+    "name": "cargo-metadata",
+    "command": [
+      "cargo",
+      "metadata",
+      "--offline",
+      "--locked",
+      "--no-deps",
+      "--format-version",
+      "1"
+    ],
+    "exitCode": 0,
+    "seconds": 0.08
+  },
+  {
+    "name": "rust-fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--check"
+    ],
+    "exitCode": 0,
+    "seconds": 0.29
+  },
+  {
+    "name": "rust-clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--workspace",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exitCode": 0,
+    "seconds": 0.29
+  },
+  {
+    "name": "rust-test",
+    "command": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--locked",
+      "--offline"
+    ],
+    "exitCode": 0,
+    "seconds": 46.59
+  }
+]

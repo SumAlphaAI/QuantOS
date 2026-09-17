@@ -1,5 +1,7 @@
 SHELL := /bin/bash
+export UV_BUILD_CONSTRAINT := $(CURDIR)/engines/build-constraints.txt
 
+ifneq ($(QUANTOS_SKIP_ENV),1)
 ifneq (,$(wildcard .env))
 include .env
 export
@@ -10,18 +12,22 @@ include .env.local
 export
 endif
 
-.PHONY: bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+endif
 
-bootstrap: bootstrap-rust bootstrap-python bootstrap-node
+.PHONY: toolchain-check f01-check f01-clean-room-check build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-generate proto-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+
+bootstrap: toolchain-check bootstrap-rust bootstrap-python bootstrap-node
+
+toolchain-check:
+	node scripts/check-toolchains.mjs
 
 bootstrap-rust:
 	cargo fetch --locked
 
 bootstrap-python:
-	uv sync --frozen --project engines --all-packages
+	uv sync --locked --project engines --all-packages --group build
 
 bootstrap-node:
-	corepack enable pnpm
 	pnpm install --frozen-lockfile
 
 lockfile-check:
@@ -51,6 +57,17 @@ quality-gate-self-test:
 	node ./scripts/check-secrets.mjs
 	node ./scripts/test-quality-gates.mjs
 
+f01-check:
+	node scripts/check-f01.mjs
+	node --test scripts/f01-gate-negative.mjs
+
+build-python:
+	uv sync --locked --project engines --all-packages --group build
+	uv build --project engines --all-packages --wheel --no-build-isolation --out-dir artifacts/python
+
+f01-clean-room-check:
+	node scripts/verify-reproducible-builds.mjs --mode clean-room --output artifacts/reproducibility/f01-clean-room.json
+
 f01-reproducibility-check:
 	node ./scripts/verify-reproducible-builds.mjs --runs 3 --output artifacts/reproducibility/f01-build-digests.json
 
@@ -77,11 +94,11 @@ lint-rust:
 	cargo clippy --workspace --all-targets -- -D warnings
 
 lint-python:
-	uv run --project engines --all-packages ruff check .
-	uv run --project engines --all-packages pyright --project engines
+	uv run --locked --project engines --all-packages ruff check .
+	uv run --locked --project engines --all-packages pyright --project engines
 
 coverage-python:
-	uv run --project engines --all-packages pytest --cov=engines --cov-config=engines/pyproject.toml --cov-report=term-missing
+	uv run --locked --project engines --all-packages pytest --cov=engines --cov-config=engines/pyproject.toml --cov-report=term-missing
 
 coverage-web:
 	pnpm coverage:web
@@ -95,20 +112,20 @@ lint-web:
 
 test: test-rust test-python test-web
 
-build: build-rust build-web
+build: build-rust build-web build-python
 
 build-rust:
-	cargo build --workspace
+	cargo build --workspace --locked
 
 build-web:
 	pnpm build
 
 test-rust:
-	cargo test --workspace
+	cargo test --workspace --locked
 
 observability-check:
 	cargo test -p quantos-observability
-	uv run --project engines --all-packages pytest engines/tests/test_engine_observability.py
+	uv run --locked --project engines --all-packages pytest engines/tests/test_engine_observability.py
 	node ./scripts/test-f09-adr-input.mjs
 
 test-f09-live:
@@ -122,7 +139,7 @@ test-supabase-storage-live:
 	QUANTOS_RUN_SUPABASE_STORAGE_TESTS=1 cargo test -p quantos-storage --test supabase_storage_integration -- --nocapture
 
 test-python:
-	uv run --project engines --all-packages pytest
+	uv run --locked --project engines --all-packages pytest
 
 test-web:
 	pnpm test

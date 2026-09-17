@@ -1,0 +1,62 @@
+[
+  {
+    "name": "uv-version",
+    "command": [
+      "uv",
+      "--version"
+    ],
+    "exitCode": 0,
+    "seconds": 0.01
+  },
+  {
+    "name": "python-version",
+    "command": [
+      "engines/.venv/bin/python",
+      "--version"
+    ],
+    "exitCode": 0,
+    "seconds": 0.01
+  },
+  {
+    "name": "uv-lock",
+    "command": [
+      "uv",
+      "lock",
+      "--check",
+      "--offline",
+      "--project",
+      "engines"
+    ],
+    "exitCode": 0,
+    "seconds": 0.19
+  },
+  {
+    "name": "python-ruff",
+    "command": [
+      "engines/.venv/bin/ruff",
+      "check",
+      "."
+    ],
+    "exitCode": 0,
+    "seconds": 0.02
+  },
+  {
+    "name": "python-pyright",
+    "command": [
+      "engines/.venv/bin/pyright",
+      "--project",
+      "engines"
+    ],
+    "exitCode": 0,
+    "seconds": 2.36
+  },
+  {
+    "name": "python-test",
+    "command": [
+      "engines/.venv/bin/pytest",
+      "engines"
+    ],
+    "exitCode": 0,
+    "seconds": 1.89
+  }
+]

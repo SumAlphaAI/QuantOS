@@ -1,22 +1,13 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
-
 repo_root="${QUANTOS_GATE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-
-required_files=(
-  "${repo_root}/Cargo.lock"
-  "${repo_root}/buf.lock"
-  "${repo_root}/pnpm-lock.yaml"
-  "${repo_root}/engines/uv.lock"
-  "${repo_root}/apps/terminal-desktop/src-tauri/Cargo.lock"
-)
-
-for path in "${required_files[@]}"; do
-  if [[ ! -s "${path}" ]]; then
-    echo "Missing required lockfile: ${path}" >&2
-    exit 1
-  fi
+cd "$repo_root"
+for file in Cargo.lock buf.lock pnpm-lock.yaml engines/uv.lock; do
+  test -s "$file" || { echo "Missing required lockfile: $file" >&2; exit 1; }
 done
-
-echo "All required lockfiles are present."
+# --locked (not --frozen) checks manifest drift without rewriting a lock.
+cargo metadata --locked --format-version 1 > /dev/null
+uv lock --check --project engines
+# Isolate pnpm's lock-only operation from the user's install tree.
+node scripts/check-node-lock.mjs
+printf '%s\n' 'All phase-1 locks parse and match their manifests.'

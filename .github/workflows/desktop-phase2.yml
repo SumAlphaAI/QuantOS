@@ -21,7 +21,11 @@ jobs:
         with:
           node-version: "24.12.0"
       - run: corepack enable pnpm
-      - run: pnpm install --frozen-lockfile
+      # Dedicated second-phase workspace and lock, never used by F01.
+      - run: |
+          cp pnpm-workspace.desktop.yaml pnpm-workspace.yaml
+          cp pnpm-lock.desktop.yaml pnpm-lock.yaml
+          pnpm install --frozen-lockfile
       - run: pnpm --filter @sumalpha/terminal-desktop typecheck
       - run: pnpm --filter @sumalpha/terminal-desktop test
       - name: Tauri deep-link sanitizer and routing gate

@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.3
+> 版本：3.4
 > 更新时间：2026-09-17
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
@@ -8,12 +8,14 @@
 
 ## 版本变更说明
 
+- `3.4`：完成 F01 全面复审；严格检查点完成率 60%（12/20），三项量化验收完整通过 0/3；发现高危 2、中危 7、低危 1，状态调整为 `PARTIAL / CHANGES_REQUESTED`。本地质量检查通过不替代新环境与当前提交三次构建验收，详见 [F01 复审报告](./audit/F01-comprehensive-review-2026-09-17.md)。
+
 - `3.3`：第一期范围收敛为官网与 Web Terminal；移除 Desktop 开发、原生测试、双端回归与 Desktop Gate 要求，统一迁入 [Desktop 第二期开发执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 - `3.2`：完成 CORE:R02 当前仓库交付复核与加固；确定性不可变 hash、时间窗、schema、来源、许可证、血缘、对象存储 hash 校验、租户绑定质量 Gate、300 个拒绝 fixture、PostgreSQL/RLS migration 与数据库更新拒绝触发器均纳入可破坏 Gate。真实 PostgreSQL 查询 P95、目标 RLS 与 Supabase Storage 仍需独立凭据和目标环境验收。
 - `3.1`：完成 CORE:R01 当前仓库交付复核与加固；批准 provider、严格 symbol 归一化、精度/时间/来源/质量契约、10 万条 replay、乱序/重复去重、五秒异常发出与 `MarketEvent` append-only ledger 写入均纳入可破坏 Gate。真实 provider、消息基础设施和目标环境吞吐仍需独立验收。
 - `3.0`：为 GPT-6 Astra 对全量已开发核心功能重新复审重构文档，移除历史核查、复验结论与过程记录；保留业务需求、功能定义、量化标准、依赖和已开发状态标记。
-- 每项核心功能及 TP01 子任务均配置独立复审入口；新一轮复审状态统一为 `NOT_STARTED`，结论、问题和修复追踪保持空白。
-- 格式约定：`quantos-plan-review/v1`；本次仅重构计划，不执行功能复审、不重新判定开发或部署验收结果。
+- 每项核心功能及 TP01 子任务均配置独立复审入口；v3.0 初始化为 `NOT_STARTED`，后续按实际复审结果更新各任务记录。
+- 格式约定：`quantos-plan-review/v1`；v3.0 仅重构计划，v3.4 的 F01 复审与重新判定见对应记录。
 
 ## 1. 执行范围与不可变约束
 
@@ -48,7 +50,7 @@
 | 维度 | 最低标准 |
 |---|---|
 | 功能完整性 | 所有列出的输入、成功、拒绝和恢复路径都有自动化测试；不得以手工验证替代。 |
-| 代码质量 | `cargo fmt --check`、Clippy（禁止 warning）、Rust `cargo nextest`；Python Ruff、Pyright、pytest；TypeScript lint、typecheck、Vitest 全绿。 |
+| 代码质量 | `cargo fmt --check`、Clippy（禁止 warning）、Rust `cargo test --workspace --locked`（含 doctest；见 [F01 测试执行器 ADR](./adr/20260917-f01-rust-test-runner.md)）；Python Ruff、Pyright、pytest；TypeScript lint、typecheck、Vitest 全绿。 |
 | 覆盖率 | 新增 Rust 核心领域/风险/执行代码行覆盖率 ≥90%；稳定 Rust/LLVM CI 以 region 覆盖率 ≥85% 作为分支代理，nightly 发布验证仍要求分支覆盖率 ≥85%；Python Engine 适配新增代码行覆盖率 ≥85%；TypeScript 领域组件/状态代码行覆盖率 ≥80%。不能覆盖的代码须在报告中逐项豁免。 |
 | 性能 | 测试环境中纯领域计算 P95 <50ms；BFF 授权读查询同区域 P95 <100ms，跨区域开发机连接托管数据库时 P95 <500ms；命令校验（不含外部 venue 往返）P95 <200ms。异步任务必须在 deadline 内返回受理或确定性错误。 |
 | 兼容性 | 协议变更通过 Buf breaking check；Rust/Python/TypeScript 生成 SDK 可编译；Web Chromium/Firefox/Safari 当前稳定版回归通过。 |
@@ -101,7 +103,7 @@
 
 `node scripts/check-development-plans.mjs --fresh-review` 额外检查所有复审入口已清空；后续填写复审记录后使用不带此参数的结构校验。加 `--json` 可输出解析后的任务清单，供任务编排读取；它不自动调用模型或启动平台任务。
 
-开发完成标记仅迁移原文状态；F01/F02 的开发状态与外部验收状态分开，TP01 的子任务完成不等于整个 adapter 完成，TP02–TP05 的评估完成不等于生产准入。第 10 节原有 Gate 勾选保留为交付状态标记，不作为本轮复审结论；所有任务均从空白复审入口重新开始。
+开发完成标记仅迁移原文状态；F01/F02 的开发状态与外部验收状态分开，TP01 的子任务完成不等于整个 adapter 完成，TP02–TP05 的评估完成不等于生产准入。第 10 节原有 Gate 勾选保留为交付状态标记，不作为本轮复审结论；v3.0 从空白复审入口开始，后续复审以各任务当前记录为准。
 
 ## 3. 阶段与依赖图
 
@@ -137,7 +139,7 @@ flowchart LR
 - task_id: `F01`
 - task_type: `CORE`
 - development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
-- 状态范围：已实现；外部 CI/兼容矩阵及制品验收须按本任务标准单独验证。
+- 状态范围：初审 12/20（60%）；整改后本地门禁通过，等待绑定修复提交的 clean-room 与三次完整构建回执。正式完成率随回执验证更新；不以已有缓存测试替代验收。
 - review_entry: [GPT-6 Astra 复审入口](#review-f01)
 - 需求描述：初始化 Polyglot Monorepo
 - 技术要求：建立 Cargo workspace、`proto/`、`crates/`、`services/`、`engines/`、`apps/website`、`apps/terminal`、`packages/*`、`supabase/`；固定 Rust、uv、Node 工具链
@@ -149,10 +151,120 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- review_status: `FIX_VALIDATION`
+- review_conclusion: A02–A10 已完成实现整改及本地验证（15 个负向测试、三语言 lint/test 通过）；A01 进入干净源码提交的新环境与三次构建回执验证，详见 [修复记录](./audit/F01-remediation-2026-09-17.md)。
+- issues:
+  - issue_id: F01-A01
+    severity: HIGH
+    description: 当前提交缺少 clean-room 与三次构建验收回执
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+  - issue_id: F01-A02
+    severity: HIGH
+    description: 构建验证器遗漏服务产物并允许陈旧输出与不足三次的成功标记
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+  - issue_id: F01-A03
+    severity: MEDIUM
+    description: 本地 uv 未固定和校验版本，开发说明不完整
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+  - issue_id: F01-A04
+    severity: MEDIUM
+    description: Python 隔离构建后端 hatchling 未锁定
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+  - issue_id: F01-A05
+    severity: MEDIUM
+    description: 三个模块缺少 README
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+  - issue_id: F01-A06
+    severity: MEDIUM
+    description: 锁文件检查仅验证非空，无效锁仍通过
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+  - issue_id: F01-A07
+    severity: MEDIUM
+    description: 一期 F01 检查仍强制依赖二期 Desktop
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+  - issue_id: F01-A08
+    severity: MEDIUM
+    description: Terminal 默认 lint 未覆盖 app/TSX 页面
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+  - issue_id: F01-A09
+    severity: MEDIUM
+    description: Rust 测试执行器未满足计划 nextest 要求
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+  - issue_id: F01-A10
+    severity: LOW
+    description: 服务 README 的数量与目录索引漂移
+    evidence: [F01 复审报告问题清单](./audit/F01-comprehensive-review-2026-09-17.md#三问题清单及风险分析)
+    status: OPEN
+- fix_tracking:
+  - issue_id: F01-A01
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PENDING
+  - issue_id: F01-A02
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PASS
+  - issue_id: F01-A03
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PASS
+  - issue_id: F01-A04
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PASS
+  - issue_id: F01-A05
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PASS
+  - issue_id: F01-A06
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PASS
+  - issue_id: F01-A07
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PASS
+  - issue_id: F01-A08
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PASS
+  - issue_id: F01-A09
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PASS
+  - issue_id: F01-A10
+    fix_ref: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_command: make lockfile-check f01-check lint test
+    verification_environment: macOS 本地无业务凭据；目标数据库未运行
+    verification_evidence: [F01 修复记录](./audit/F01-remediation-2026-09-17.md)
+    verification_status: PASS
 
 <a id="task-f02"></a>
 ### F02：CI、制品与供应链门禁
