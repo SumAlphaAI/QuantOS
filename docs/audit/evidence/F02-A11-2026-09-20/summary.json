@@ -1,0 +1,54 @@
+{
+  "schema": "quantos-f02-remote-review/v1",
+  "date": "2026-09-20",
+  "commit": "15727feee3018de6f5dc97621241319bea505552",
+  "branch": "main",
+  "event": "push",
+  "a11": "OPEN",
+  "source": "authenticated GitHub UI; manually transcribed observations; downloaded F01 receipt",
+  "runs": [
+    {
+      "id": "35500118075",
+      "workflow": "Frontend Baseline",
+      "status": "FAILURE",
+      "step": "Web build smoke",
+      "diagnostic": "Next pin expects 15.5.23 but lock contains 15.5.24"
+    },
+    {
+      "id": "35500118034",
+      "workflow": "QuantOS Compatibility",
+      "status": "SUCCESS",
+      "passed": 126,
+      "skipped": 9
+    },
+    {
+      "id": "35500117978",
+      "workflow": "QuantOS CI",
+      "status": "FAILURE",
+      "job": "106050279794",
+      "step": "Test workspace",
+      "diagnostic": "runtime-gateway 2 assertions result.is_err() failed; verify-download skipped"
+    },
+    {
+      "id": "35500118019",
+      "workflow": "F01 Clean Room",
+      "status": "IN_PROGRESS",
+      "cleanRoomReceipt": "PASS",
+      "reproducibilityReceipt": "PENDING"
+    }
+  ],
+  "rules": {
+    "rulesets": "none configured",
+    "classicBranchProtection": "none configured",
+    "privateRulesEnforcement": "UI requires organization upgrade to GitHub Team"
+  },
+  "formalSignatureReceipt": "NO_RECEIPT",
+  "files": {
+    "development-plan-check.json": "2147e4619774f17aa4330c8de77735f95a6cb2982bc2ff639c16fdda15445775",
+    "f01-clean-room-evidence.zip": "ac08c6da2bb3def6de0660f8239eddc09f39f545374158a22d433645441b9337",
+    "f01-clean-room.json": "d12ff72fa309129189d8c1e33514960aa92c9ab667b8b31acc0d807db9c1ff1d",
+    "pre03-smoke.json": "5a73a1ddb8c94ae904cf54dc59dc8d59473ccb7356a77e41f9888cc827e63c93",
+    "pre03-tests.txt": "86c68e264dbf5f14d81d611ef8b0e2645053c0f51a2907a6eab518bbd85e3637",
+    "runtime-gateway-tests.txt": "136f86f83db6edf1786850a85a2f14640a3c4d8db28b4fc5620ca98113030778"
+  }
+}

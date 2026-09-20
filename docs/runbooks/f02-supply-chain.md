@@ -65,4 +65,4 @@ CI 上传 payload 后由独立 `verify-download` job 下载复验，生成带 SH
 
 只有上述证据齐全且匹配实际验收 SHA、失败/跳过项处理完成后，才更新整改报告和开发计划，将 A11 标为 CLOSED，并生成本地文档提交。该关闭记录仍由人工通过 GitHub Desktop 推送。WebKit 结果不得表述为真实 Safari 已验收。
 
-当前状态：**WAITING_MANUAL_PUSH**（用户于 2026-09-20 确认尚未推送）。A11 保持 OPEN，下一动作的执行人是人工；本地准备完成不代表远程验收完成。
+当前状态：**REMOTE_REVIEW / FIX_VALIDATION**。2026-09-20 已在 GitHub 确认 main push `15727feee3018de6f5dc97621241319bea505552`；发现前端版本校验及 Rust 测试环境依赖问题，修复后再次交由人工推送。A11 保持 OPEN；远程结果、规则缺口和本轮修复见 [A11 远程检查记录](../audit/F02-A11-remote-review-2026-09-20.md)。

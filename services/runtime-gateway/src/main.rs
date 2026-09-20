@@ -34,19 +34,26 @@ fn build_runtime_store(database_url: &str) -> Result<PgRuntimeStore> {
 mod tests {
     use super::{build_auth_middleware, build_runtime_store};
 
+    // Invalid URLs fail before network access, even when CI has PostgreSQL on 5432.
     #[test]
-    fn auth_middleware_builder_is_available_for_gateway_bootstrap() {
-        let result = build_auth_middleware(
-            "postgresql://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable",
-        );
-        assert!(result.is_err());
+    fn auth_middleware_builder_propagates_invalid_database_url() {
+        let error = build_auth_middleware("not-a-database-url")
+            .err()
+            .expect("invalid URL must fail");
+        assert!(matches!(
+            error.downcast_ref::<quantos_auth::AuthError>(),
+            Some(quantos_auth::AuthError::Url(_))
+        ));
     }
 
     #[test]
-    fn runtime_store_builder_is_available_for_gateway_bootstrap() {
-        let result = build_runtime_store(
-            "postgresql://postgres:postgres@127.0.0.1:5432/postgres?sslmode=disable",
-        );
-        assert!(result.is_err());
+    fn runtime_store_builder_propagates_invalid_database_url() {
+        let error = build_runtime_store("not-a-database-url")
+            .err()
+            .expect("invalid URL must fail");
+        assert!(matches!(
+            error.downcast_ref::<quantos_runtime::pg::PgRuntimeError>(),
+            Some(quantos_runtime::pg::PgRuntimeError::Url(_))
+        ));
     }
 }

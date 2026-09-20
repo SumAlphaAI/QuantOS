@@ -174,7 +174,7 @@ flowchart LR
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest
 - 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本
 - 量化验收标准：任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免
-- 执行流程：本地修复与提交 → 人工通过 GitHub Desktop 推送 → GitHub Actions 执行 → 收集同 SHA 回执 → 关闭 A11；2026-09-20 当前为 `WAITING_MANUAL_PUSH`，A11 保持 OPEN。详见 [F02 运行手册](./runbooks/f02-supply-chain.md)。
+- 执行流程：本地修复与提交 → 人工通过 GitHub Desktop 推送 → GitHub Actions 执行 → 收集同 SHA 回执 → 关闭 A11；2026-09-20 已确认 `15727fe` 推送并进入 `REMOTE_REVIEW / FIX_VALIDATION`；工作流失败修复后再人工推送，A11 保持 OPEN。详见 [F02 运行手册](./runbooks/f02-supply-chain.md)。
 - 依赖：F01
 
 <a id="review-f02"></a>
@@ -186,8 +186,8 @@ flowchart LR
 - issues:
   - issue_id: F02-A11
     severity: MEDIUM
-    description: 当前源码缺少远程 CI、主干正式制品下载验签、required checks 及完整平台视觉基线回执。
-    evidence: docs/audit/F02-remediation-2026-09-17.md
+    description: 已确认 main push 15727fe；远程前端门禁失败，修复待新 SHA 验证；主干正式制品验签未完成，Rulesets/分支保护未配置，三浏览器共 9 项视觉测试跳过。
+    evidence: docs/audit/F02-A11-remote-review-2026-09-20.md
     status: OPEN
 - fix_tracking: []
 

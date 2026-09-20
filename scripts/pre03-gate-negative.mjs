@@ -11,13 +11,17 @@ test("current PRE-03 runtime contract passes", () => {
   assert.equal(report.locked_dependencies, 26);
 });
 
-test("runtime dependency drift is rejected", () => {
-  const pnpmLock = structuredClone(current.pnpmLock);
-  pnpmLock.importers["apps/terminal"].dependencies.next.version = "16.0.0";
-  const report = validateRuntimeContract({ ...current, pnpmLock });
-  assert.equal(report.status, "FAIL");
-  assert(report.failures.includes("apps/terminal next locked at 15.5.23"));
-});
+for (const importer of ["apps/terminal", "apps/website"]) {
+  for (const version of ["15.5.23", "16.0.0"]) {
+    test(`${importer} Next.js drift to ${version} is rejected`, () => {
+      const pnpmLock = structuredClone(current.pnpmLock);
+      pnpmLock.importers[importer].dependencies.next.version = version;
+      const report = validateRuntimeContract({ ...current, pnpmLock });
+      assert.equal(report.status, "FAIL");
+      assert(report.failures.includes(`${importer} next locked at 15.5.24`));
+    });
+  }
+}
 
 test("desktop artifact fork is rejected", () => {
   const tauriConfig = structuredClone(current.tauriConfig);
