@@ -32,6 +32,10 @@ fi
   "${buf_cmd[@]}" lint
   "${buf_cmd[@]}" build
   "${buf_cmd[@]}" generate
+  descriptor_file="$(mktemp)"
+  trap 'rm -f "$descriptor_file"' EXIT
+  "${buf_cmd[@]}" build -o "$descriptor_file"
+  cargo run --locked --quiet -p quantos-proto --example generate_json -- "$descriptor_file"
   node ./scripts/extract-json-schemas.mjs
   node ./scripts/check-json-schemas.mjs
   node --test ./scripts/tests/check-json-schemas.test.mjs

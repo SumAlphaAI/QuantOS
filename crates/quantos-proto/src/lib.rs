@@ -1,6 +1,7 @@
 #![allow(clippy::derive_partial_eq_without_eq)]
 
 pub mod generated;
+mod protojson;
 mod validation;
 
 pub use generated::quantos;

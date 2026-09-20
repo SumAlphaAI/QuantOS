@@ -190,3 +190,49 @@ def test_runtime_validator_rejects_every_security_identity_gap() -> None:
             raise AssertionError(f"validator accepted invalid {field}")
 
     validate_command_metadata(valid_metadata())
+
+
+def test_all_25_types_reject_each_identity_gap() -> None:
+    import pytest
+    from google.protobuf.message_factory import GetMessageClass
+    types: dict[str, Any] = {t.DESCRIPTOR.full_name: t for t in DOMAIN_MESSAGES}
+    for file in PROTOCOL_FILES:
+        for service in file.services_by_name.values():
+            for method in service.methods:
+                for descriptor in (method.input_type, method.output_type):
+                    types[descriptor.full_name] = GetMessageClass(descriptor)
+    assert len(types) == 25
+    for cls in types.values():
+        for missing in ["metadata", "request_id", "tenant_id", "workspace_id", "correlation_id", "actor", "actor.actor_id", "actor.actor_kind", "mode", "environment", "issued_at", None]:
+            message: Any = cls()
+            target = message.request if cls.DESCRIPTOR.full_name == "quantos.engine.v1.StreamExecuteRequest" else message
+            target.metadata.CopyFrom(valid_metadata())
+            if cls.DESCRIPTOR.full_name == "quantos.trading.v1.TradeProposal":
+                message.signal.metadata.CopyFrom(valid_metadata())
+            if cls.DESCRIPTOR.full_name == "quantos.events.v1.GetEventResponse":
+                message.event.metadata.CopyFrom(valid_metadata())
+            if missing == "metadata":
+                target.ClearField("metadata")
+            elif missing:
+                parts = missing.split(".")
+                field = target.metadata.actor if len(parts) == 2 else target.metadata
+                field.ClearField(parts[-1])
+            if missing:
+                with pytest.raises(MetadataValidationError):
+                    validate_message_metadata(message)
+            else:
+                validate_message_metadata(message)
+
+
+def test_all_event_branches_and_lists_reject_missing_nested_metadata() -> None:
+    import pytest
+    for field in events_pb2.EventEnvelope.DESCRIPTOR.oneofs_by_name["payload"].fields:
+        event = events_pb2.EventEnvelope(metadata=valid_metadata())
+        getattr(event, field.name).SetInParent()
+        for message in [event, events_pb2.GetEventResponse(metadata=valid_metadata(), event=event), events_pb2.ListEventsResponse(metadata=valid_metadata(), events=[event])]:
+            with pytest.raises(MetadataValidationError):
+                validate_message_metadata(message)
+    with pytest.raises(MetadataValidationError):
+        validate_message_metadata(trading_pb2.TradeProposal(metadata=valid_metadata()))
+    with pytest.raises(MetadataValidationError):
+        validate_message_metadata(events_pb2.GetEventResponse(metadata=valid_metadata()))

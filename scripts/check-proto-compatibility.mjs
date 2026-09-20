@@ -1,7 +1,8 @@
 import {spawnSync} from "node:child_process";
 import path from "node:path";
+import {readFileSync} from "node:fs";
 
-import {create, equals, fromBinary, toBinary} from "@bufbuild/protobuf";
+import {create, equals, fromBinary, toBinary, fromJson, toJson} from "@bufbuild/protobuf";
 import {timestampFromDate} from "@bufbuild/protobuf/wkt";
 
 import {validateProtocolMessage} from "../packages/api-client/dist/src/proto-validation.js";
@@ -68,7 +69,7 @@ const fixtureTypes = [
   })],
   ["StrategyRelease", StrategyReleaseSchema, (index) => ({
     metadata: metadata(index), releaseId: `release-${index}`, strategyId: `strategy-${index}`,
-    name: "compatibility strategy", allowedTargets: [2],
+    name: "compatibility strategy", allowedTargets: [2, 12345],
     createdAt: timestampFromDate(new Date((1_700_000_100 + index) * 1000)),
   })],
   ["Signal", SignalSchema, (index) => ({
@@ -77,6 +78,7 @@ const fixtureTypes = [
   })],
   ["TradeProposal", TradeProposalSchema, (index) => ({
     metadata: metadata(index), proposalId: `proposal-${index}`, accountId: "paper-account",
+    signal: {metadata: metadata(index), signalId: `signal-${index}`},
     symbol: "BTCUSDT", action: 1, quantity: {value: String(index + 1)}, executable: false,
   })],
   ["RiskDecision", RiskDecisionSchema, (index) => ({
@@ -109,6 +111,12 @@ const fixtureTypes = [
   })],
 ];
 
+const eventTypes = fixtureTypes.filter(([name]) => !["StrategyRelease", "EventEnvelope"].includes(name));
+fixtureTypes[10][2] = index => {
+  const [name, , build] = eventTypes[index % 9];
+  return {metadata: metadata(index), eventId: `event-${index}`, kind: index % 9 + 1,
+    payload: {case: name[0].toLowerCase() + name.slice(1), value: build(index)}};
+};
 for (let index = 0; index < 1000 * fixtureTypes.length; index += 1) {
   const [typeName, schema, build] = fixtureTypes[index % fixtureTypes.length];
   const message = create(schema, build(index));
@@ -117,6 +125,13 @@ for (let index = 0; index < 1000 * fixtureTypes.length; index += 1) {
 }
 
 const schemasByName = new Map(fixtureTypes.map(([name, schema]) => [name, schema]));
+const golden = JSON.parse(readFileSync(new URL("./fixtures/proto-compat/v1/golden.json", import.meta.url), "utf8"));
+if (golden.version !== 1 || golden.cases.length !== 3) throw new Error("golden corpus changed unexpectedly");
+for (const sample of golden.cases) {
+  const schema = schemasByName.get(sample.type);
+  if (!equals(schema, fromBinary(schema, Buffer.from(sample.hex, "hex")), fromJson(schema, sample.json))) throw new Error("golden binary/JSON mismatch");
+  fixtures.push(`${sample.type}\t${sample.hex}`);
+}
 const consumers = [
   {
     name: "Python",
@@ -138,16 +153,16 @@ const consumers = [
   },
 ];
 
-function exchange(consumer, source, inputFixtures) {
-  const result = spawnSync(consumer.command, consumer.args, {
+function exchange(consumer, source, inputFixtures, jsonMode = false) {
+  const result = spawnSync(consumer.command, [...consumer.args, ...(jsonMode ? (consumer.name === "Rust" ? ["--", "--json"] : ["--json"]) : [])], {
     cwd: root,
     encoding: "utf8",
     input: `${inputFixtures.join("\n")}\n`,
-    maxBuffer: 16 * 1024 * 1024,
+    maxBuffer: 64 * 1024 * 1024,
   });
   if (result.status !== 0) {
     throw new Error(
-      `${consumer.name} compatibility consumer failed (${result.status}): ${result.error?.message ?? result.stderr}`,
+      `${consumer.name} compatibility consumer failed (${result.status}): ${`${result.error?.message ?? ""} ${result.stderr}`}`,
     );
   }
   const returned = result.stdout.trim().split("\n");
@@ -166,7 +181,7 @@ function exchange(consumer, source, inputFixtures) {
       );
     }
     const expected = fromBinary(schema, Buffer.from(expectedHex, "hex"));
-    const actual = fromBinary(schema, Buffer.from(returnedHex, "hex"));
+    const actual = jsonMode ? fromJson(schema, JSON.parse(returnedHex)) : fromBinary(schema, Buffer.from(returnedHex, "hex"));
     if (!equals(schema, expected, actual)) {
       throw new Error(`${source} -> ${consumer.name} fixture ${index} changed normalized protobuf semantics`);
     }
@@ -180,3 +195,32 @@ const outputs = consumers.map(consumer => exchange(consumer, "TypeScript", fixtu
 exchange(consumers[0], "Rust", outputs[1]);
 exchange(consumers[1], "Python", outputs[0]);
 console.log("Validated 11,000 fixtures (1,000 per domain message) across all six binary language directions.");
+
+const jsonFixtures = fixtures.map(line => {
+  const [name, hex] = line.split("\t");
+  const schema = schemasByName.get(name);
+  return `${name}\t${JSON.stringify(toJson(schema, fromBinary(schema, Buffer.from(hex, "hex"))))}`;
+});
+const jsonOutputs = consumers.map(consumer => exchange(consumer, "TypeScript", jsonFixtures, true));
+exchange(consumers[0], "Rust", jsonOutputs[1], true);
+exchange(consumers[1], "Python", jsonOutputs[0], true);
+console.log("Validated all six ProtoJSON directions, including all nine event payloads.");
+
+for (const [name, json] of [
+  ["Position", {...golden.cases[0].json, futureField: true}],
+  ["Position", {...golden.cases[0].json, side: "FUTURE_UNKNOWN_NAME"}],
+  ["Position", {...golden.cases[0].json, side: 2147483648}],
+  ["Position", {...golden.cases[0].json, asOf: "not-a-timestamp"}],
+  ["EventEnvelope", {metadata: golden.cases[0].json.metadata, position: golden.cases[0].json, fill: {}}],
+]) {
+  const schema = schemasByName.get(name);
+  let rejected = false;
+  try { fromJson(schema, json); } catch { rejected = true; }
+  if (!rejected) throw new Error(`TypeScript accepted invalid ProtoJSON: ${JSON.stringify(json)}`);
+  for (const consumer of consumers) {
+    const args = [...consumer.args, ...(consumer.name === "Rust" ? ["--", "--json"] : ["--json"])];
+    const result = spawnSync(consumer.command, args, {cwd: root, encoding: "utf8", input: `${name}\t${JSON.stringify(json)}\n`});
+    if (result.error || result.status === null || result.status === 0 || !result.stderr.trim()) throw new Error(`${consumer.name} failed invalid-JSON rejection probe`);
+  }
+}
+console.log("Three frozen Python golden fixtures: unknown binary field, open enums, timestamp extrema, decimal and int64 boundaries; 15 invalid-JSON rejection probes passed.");

@@ -1,73 +1,63 @@
 # F03 领域协议 v1 与 SDK 生成全面复审报告
 
-> 更新：2026-09-20；本轮复核基线：`9aea0b5fa01c7c1824efac5610483005fc1d7958`。
+> 更新：2026-09-20；本轮修复基线：`180e36ecefb66aef132ca6a4d54f8e8c39d85710`。
 > 依据：[开发计划 F03](../SumAlpha-QuantOS-Development-Plan.md#task-f03)。
-> 结论：**并非全部解决。A01、A03、A05、A06保持关闭；A02、A04重新开放，状态为 FIX_VALIDATION / IMPLEMENTED_PENDING_ACCEPTANCE。** 上轮“20/20、4/4、ACCEPTED”结论撤回。
+> 结论：**原六项问题全部关闭；19/20 检查点通过（95%），4/4 量化标准通过。C12 全项目远程重生成仍待验，F03 保持 IMPLEMENTED_PENDING_ACCEPTANCE / FIX_VALIDATION。**
 
 ## 一、任务完成概况
 
-协议定义、三语言构建、50份独立Schema、固定生成器及显式依赖更新已实现。本轮重新检查实现、执行负向探针并补修响应校验、TypeScript嵌套请求校验和互操作方向，未以历史绿色测试直接确认全部关闭。
+领域协议、三语言 SDK、50 份独立 Schema、固定生成器及依赖更新入口已实现。本轮完成 A02 的递归元数据约束和 A04 的完整跨语言兼容测试，并修复边界测试发现的 Rust ProtoJSON 未知枚举拒绝问题。
 
 | 原始等级 | 原问题数 | 已关闭 | 当前开放 |
 |---|---:|---:|---:|
 | 阻塞级 | 0 | 0 | 0 |
-| 高危 | 2 | 1 | 1（A02） |
-| 中危 | 3 | 2 | 1（A04） |
+| 高危 | 2 | 2 | 0 |
+| 中危 | 3 | 3 | 0 |
 | 低危 | 1 | 1 | 0 |
-| 合计 | 6 | 4 | 2 |
+| 合计 | 6 | 6 | 0 |
 
-原问题关闭率 **4/6（66.7%）**。沿用20个检查点：PASS 17、PARTIAL 3，严格完成率 **17/20（85.0%）**。四项量化标准中3项通过、必填元数据测试1项部分通过；两种统计分母不同。
+原问题关闭率 **100%**；检查点 PASS 19、PARTIAL 1，严格完成率 **95%**。问题关闭率不等同阶段完成率，C12 的远程生成回执不能以本地测试替代。
 
 ## 二、完成情况明细统计
 
-| 检查点 | 状态 | 本轮结论 |
+| 检查点 | 状态 | 复核依据 |
 |---|---|---|
-| C01–C04 包、领域对象、Engine/Event API | PASS | 六个v1包、计划对象和RPC定义保留；不等同真实Event服务上线 |
-| C05–C06 Buf入口、OpenAPI交付 | PASS（实现） | 入口和既有生成物存在；本轮本地lint/build通过 |
-| C07–C09 三语言SDK | PASS | Rust6项测试；Python95项；TS12项及构建通过 |
-| C10–C11 Schema覆盖和独立编译 | PASS | 50/50编译通过，11/11计划领域消息存在；缺文件与悬空引用均被门禁拒绝 |
-| C12 重新生成及漂移验证 | PARTIAL | 漂移检查代码保留；固定OpenAPI版本后的全项目远程重生成未执行，不能以Ping/Pong探针替代 |
-| C13 生成版本与依赖锁 | PASS（配置） | 六个plugin有精确版本；常规生成不再更新buf.lock；正反配置测试通过 |
-| C14–C16 Rust/Python/TS编译测试 | PASS | Rust6/6、Python95/95、TS12/12；PythonRuff/Pyright及TS类型检查通过 |
-| C17 元数据声明覆盖 | PASS | 既有描述符测试验证11类消息及14种RPC输入输出类型的REQUIRED路径 |
-| C18 元数据执行约束 | PARTIAL | 请求及响应校验有补修，但嵌套领域对象未递归验证，见A02 |
-| C19 breaking阻断 | PASS | 本地历史基线比较通过；真实删除字段/恢复/自比较拒绝测试通过 |
-| C20 往返及三语言兼容性 | PARTIAL | 11类各1,000组、全部六个二进制方向通过；原整改建议的ProtoJSON和完整边界覆盖仍缺失 |
+| C01–C04 包、领域对象、Engine/Event API | PASS | 六个 v1 包、11 类领域对象、14 种 RPC 输入输出类型；不代表 Event 服务已上线 |
+| C05–C06 Buf 入口、OpenAPI 交付 | PASS（实现） | 入口和既有生成物存在；本地 Buf lint/build 通过 |
+| C07–C09 三语言 SDK | PASS | Rust、Python、TypeScript 构建/测试和运行时校验通过 |
+| C10–C11 Schema 覆盖和独立编译 | PASS | 50/50 编译，11/11 领域消息覆盖；缺文件和悬空引用负向测试通过 |
+| C12 重新生成及漂移验证 | PARTIAL | 本轮新增 Rust ProtoJSON 代码可由本地 descriptor 重现；全部远程插件的全项目重生成仍无回执 |
+| C13 生成版本与依赖锁 | PASS（配置） | 六个远程插件固定版本；pbjson/build 锁定 0.7.0；生成入口和漂移入口均接入本地 ProtoJSON 生成 |
+| C14–C16 Rust/Python/TS 编译测试 | PASS | Rust 8 项、Python 127 项、TS 46 项；Ruff/Pyright、TS lint/typecheck 通过 |
+| C17 元数据声明覆盖 | PASS | 描述符验证 11 类领域对象、14 种 RPC 类型的 REQUIRED 路径 |
+| C18 元数据执行约束 | PASS | 三语言覆盖 25 类类型的缺失 metadata、10 类身份字段缺口和完整正例；全部九个事件分支、单事件/事件列表递归拒绝；Python 实际 unary/stream 入站拒绝 INVALID_ARGUMENT，出站拒绝 INTERNAL |
+| C19 breaking 阻断 | PASS | 本轮历史基线比较通过；删除字段阻断及恢复已有负向回执保持有效 |
+| C20 往返及三语言兼容性 | PASS | 11 类各 1,000 组 + 3 组独立冻结黄金样本；全部六个二进制和六个 ProtoJSON 方向语义一致；15 个非法 JSON 拒绝探针通过 |
 
-量化标准：三语言编译PASS；100%必填元数据测试PARTIAL；Buf breaking阻断PASS；1,000组往返PASS。C20还包含“兼容性测试”交付物的完整性，不能仅以往返数量充足关闭。
+四项量化标准全部通过：三语言编译、必填元数据测试、breaking 阻断、至少 1,000 组序列化往返。
 
-### 已关闭项索引
+本轮证据：[修复验证摘要](./evidence/F03-A02-A04-2026-09-20/summary.json)。历次初审及整改记录保留在 evidence 和 Git 历史中，当前结论以本报告为准。
 
-| ID | 等级 | 复核依据 |
+## 三、问题关闭依据与剩余风险
+
+| ID | 等级 | 关闭依据 |
 |---|---|---|
-| A01 | 高危 | Schema内联引用保留；50份AJV编译和删除引用负向测试通过 |
-| A03 | 中危 | StrategyRelease及DeploymentTarget文件存在，缺计划Schema会被拒绝；当前提取实现读取Proto源码，不是通用descriptor生成器 |
-| A05 | 中危 | openapiv2固定v2.29.0，全部六项plugin有版本；配置负向测试通过。关闭的是未固定版本缺陷，全项目输出重现性另归C12 |
-| A06 | 低危 | 独立proto-deps-update保留；常规脚本无dep update，重新注入会被拒绝 |
+| A01 | 高危 | 50 份独立 Schema 编译与缺引用拒绝通过 |
+| A02 | 高危 | Rust/TS 完整领域关系映射、Python 描述符遍历；TradeProposal.signal、GetEventResponse.event、StreamExecuteRequest.request 必须存在；子对象元数据递归验证，测试覆盖外层和内层拒绝 |
+| A03 | 中危 | StrategyRelease/DeploymentTarget 已交付，计划 Schema 缺失会被门禁拒绝 |
+| A04 | 中危 | 二进制和 ProtoJSON 双向交换覆盖全部语言组合、九个 oneof 分支；未知二进制字段、未知枚举数值/名称、非法 JSON 字段、重复 oneof、时间极值、int64 极值、高精度 Decimal 均有测试 |
+| A05 | 中危 | 所有远程插件固定版本，配置负向测试通过 |
+| A06 | 低危 | 常规生成不更新 buf.lock；依赖更新为显式独立操作 |
 
-本轮证据见 [复核记录](./evidence/F03-recheck-2026-09-20/summary.json)。[初审摘要](./evidence/F03-review-2026-09-20/summary.json)和[上轮整改摘要](./evidence/F03-remediation-2026-09-20/summary.json)保留历史原文；后者的ACCEPTED结论已被本报告取代，不能继续作为当前全量验收依据。
+当前无活动代码缺陷。以下验收边界仍需保留：
 
-## 三、当前问题清单及风险分析
+- **C12 未完成**：未执行向公共 Buf 发送内部协议的全项目远程重生成；既往自动审批拒绝仍有效，本轮未重试。需要人工推送后的同 SHA CI 无漂移回执，或另行明确授权的生成环境。
+- 黄金语料在本轮建立，由人工定义 ProtoJSON、Python 独立编码后冻结，不宣称已验证历史发布版本 SDK。未来协议演进必须保留 v1 语料。
+- 未知二进制字段允许被 prost 丢弃；验证的是已知字段语义保持，不能用于保证未知字段透传。未知枚举数值必须保留；未知 JSON 字段/枚举名称默认拒绝。
+- 本地 gRPC 回执来自真实套接字上的 SDK/测试引擎，不代表生产部署或远程 CI 验收；F02 A11 不在本轮关闭范围。
 
-### F03-A02：嵌套消息元数据执行边界不完整（高危，OPEN）
+## 四、后续验收建议
 
-- 模块：三语言SDK元数据校验、Engine/Event协议边界。
-- 已补修：Python unary/stream响应返回前校验元数据，无效响应返回INTERNAL；无效请求仍为INVALID_ARGUMENT。TypeScript支持StreamExecuteRequest的嵌套request路径。
-- 剩余表现：`validate_message_metadata`验证外层元数据后即返回。合成EventEnvelope含有效外层metadata、内嵌Position仅含position_id时，Python负向探针仍输出`ACCEPTED nested Position without metadata`。Rust/TS当前也只提取本层或request路径，未遍历所有领域子消息。
-- 影响：事件、提案等组合对象可能携带没有租户/主体/关联标识的子对象。当前单测不足以证明全部RPC和领域嵌套路径均拒绝缺失元数据；不能从validator存在推导出所有实际边界已接线。
-
-### F03-A04：兼容性验收范围未完整覆盖（中危，OPEN）
-
-- 模块：`check-proto-compatibility.mjs`及Rust/Python消费者。
-- 已补修：从11类轮转共1,000组扩展到每类1,000组（共11,000组）；TypeScript、Python、Rust全部六个二进制方向均已执行并比较规范化语义。packed与unpacked的合法字节差异不会被误判。
-- 剩余表现：没有三语言ProtoJSON互换；事件fixture只使用Position oneof，缺其余分支和未知字段/枚举/时间边界矩阵；样本仍由单个TS构造器播种，并非独立历史版本黄金语料。
-- 影响：二进制互通通过仍不能证明JSON字段映射、全部oneof、协议演进与边界值的兼容性。
-
-此外，C12缺固定版本后全项目重生成回执；它是验证缺口，未额外新增第七个问题。上轮自动审批曾拒绝向公共Buf发送内部协议，本轮没有重试该外发操作，也没有将未来GitHub Actions执行写成已通过。
-
-## 四、整改建议与后续验收
-
-1. A02：基于描述符或完整领域类型映射递归校验嵌套消息；对全部11类领域对象及14种RPC输入输出类型，覆盖缺失外层/内层metadata、逐项缺失身份字段，验证业务处理及响应发送均被阻断。
-2. A04：补齐三语言ProtoJSON、全部事件oneof、未知字段/枚举、时间和数值边界；保留历史语料及各编码方独立构造的数据，避免同源fixture掩盖共同错误。
-3. C12：经明确授权后运行全项目Buf远程重生成，或由用户人工推送后收集同SHA CI日志与生成物无漂移回执；当前不得记为已验证。
-4. 仅在上述缺口通过后关闭A02/A04并重新计算完成率；已关闭的四项保留索引，不再展示为活动缺陷。
+1. 人工通过 GitHub Desktop 推送本轮提交，收集同 SHA 的 `proto-check`、生成物无漂移及 CI 回执，再核定 C12。
+2. CI 持续执行 `make proto-compat-check` 和三语言元数据测试；Rust ProtoJSON 必须由生成入口维护，禁止只手改生成物。
+3. 新增领域嵌套字段、RPC 或枚举时同步扩展关系映射与负向测试；保留冻结黄金语料，防止同源生成掩盖回归。

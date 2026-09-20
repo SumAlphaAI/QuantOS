@@ -33,5 +33,17 @@ export function validateProtocolMessage(message: {
   metadata?: CommandMetadata | undefined;
   request?: { metadata?: CommandMetadata | undefined } | undefined;
 }): void {
-  validateCommandMetadata(message.metadata ?? message.request?.metadata);
+  const value = message as typeof message & { $typeName?: string; signal?: typeof message; event?: typeof message; events?: (typeof message)[]; payload?: { value?: typeof message } };
+  if (value.$typeName === "quantos.engine.v1.StreamExecuteRequest" || "request" in value) {
+    if (!value.request) throw new MetadataValidationError("request");
+    validateProtocolMessage(value.request);
+    return;
+  }
+  validateCommandMetadata(value.metadata);
+  for (const [type, field] of [["quantos.trading.v1.TradeProposal", "signal"], ["quantos.events.v1.GetEventResponse", "event"]] as const) {
+    if (value.$typeName === type && value[field] === undefined) throw new MetadataValidationError(field);
+  }
+  for (const child of [value.signal, value.event, value.payload?.value, ...(value.events ?? [])]) {
+    if (child !== undefined) validateProtocolMessage(child);
+  }
 }

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from google.protobuf.json_format import Parse, MessageToJson
 
 from quantos.events.v1 import events_pb2
 from quantos.research.v1 import research_pb2
@@ -27,6 +28,9 @@ MESSAGE_TYPES = {
 
 for source_line in sys.stdin:
     type_name, encoded = source_line.strip().split("\t", 1)
-    message = MESSAGE_TYPES[type_name].FromString(bytes.fromhex(encoded))
+    message = (Parse(encoded, MESSAGE_TYPES[type_name]()) if "--json" in sys.argv
+               else MESSAGE_TYPES[type_name].FromString(bytes.fromhex(encoded)))
     validate_message_metadata(message)
-    print(f"{type_name}\t{message.SerializeToString(deterministic=True).hex()}")
+    output = (MessageToJson(message, indent=None) if "--json" in sys.argv
+              else message.SerializeToString(deterministic=True).hex())
+    print(f"{type_name}\t{output}")

@@ -47,12 +47,23 @@ def validate_command_metadata(metadata: common_pb2.CommandMetadata) -> None:
 
 
 def validate_message_metadata(message: Any) -> None:
-    if "metadata" in message.DESCRIPTOR.fields_by_name and message.HasField("metadata"):
+    """Validate identity at every domain-message boundary, including oneofs and lists."""
+    fields = message.DESCRIPTOR.fields_by_name
+    if "metadata" in fields:
+        if not message.HasField("metadata"):
+            raise MetadataValidationError("required command metadata field: metadata")
         validate_command_metadata(message.metadata)
-        return
-    if "request" in message.DESCRIPTOR.fields_by_name and message.HasField("request"):
-        validate_message_metadata(message.request)
-        return
-    raise MetadataValidationError(
-        "required command metadata field is missing or invalid: metadata"
-    )
+    elif message.DESCRIPTOR.full_name != "quantos.engine.v1.StreamExecuteRequest":
+        raise MetadataValidationError("message does not carry command metadata")
+    required_children = {
+        "quantos.engine.v1.StreamExecuteRequest": "request",
+        "quantos.trading.v1.TradeProposal": "signal",
+        "quantos.events.v1.GetEventResponse": "event",
+    }
+    required = required_children.get(message.DESCRIPTOR.full_name)
+    if required and not message.HasField(required):
+        raise MetadataValidationError(f"required domain message: {required}")
+    for field, value in message.ListFields():
+        if field.message_type and "metadata" in field.message_type.fields_by_name:
+            for child in value if field.label == field.LABEL_REPEATED else [value]:
+                validate_message_metadata(child)

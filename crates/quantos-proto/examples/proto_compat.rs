@@ -33,12 +33,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for line in io::stdin().lock().lines() {
         let line = line?;
         let (type_name, encoded) = line.split_once('\t').ok_or("missing fixture type")?;
-        let bytes = decode_hex(encoded)?;
+        let json_mode = std::env::args().any(|arg| arg == "--json");
         macro_rules! roundtrip {
             ($type:ty) => {{
-                let message = <$type>::decode(bytes.as_slice())?;
+                let message = if json_mode {
+                    serde_json::from_str::<$type>(encoded)?
+                } else {
+                    <$type>::decode(decode_hex(encoded)?.as_slice())?
+                };
                 validate_message_metadata(&message)?;
-                message.encode_to_vec()
+                if json_mode {
+                    serde_json::to_string(&message)?
+                } else {
+                    encode_hex(&message.encode_to_vec())
+                }
             }};
         }
         let output = match type_name {
@@ -55,7 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "EventEnvelope" => roundtrip!(EventEnvelope),
             _ => return Err(format!("unknown fixture type: {type_name}").into()),
         };
-        println!("{type_name}\t{}", encode_hex(&output));
+        println!("{type_name}\t{}", output);
     }
     Ok(())
 }

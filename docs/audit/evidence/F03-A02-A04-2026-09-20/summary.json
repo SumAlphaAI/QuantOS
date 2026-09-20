@@ -1,0 +1,101 @@
+{
+  "schema": "quantos-f03-remediation/v1",
+  "date": "2026-09-20",
+  "sourceBase": "180e36ecefb66aef132ca6a4d54f8e8c39d85710",
+  "scope": [
+    "F03-A02",
+    "F03-A04"
+  ],
+  "findings": {
+    "F03-A02": "CLOSED",
+    "F03-A04": "CLOSED"
+  },
+  "acceptance": {
+    "passedCheckpoints": 19,
+    "totalCheckpoints": 20,
+    "completionPercent": 95,
+    "quantitativePassed": 4,
+    "quantitativeTotal": 4,
+    "remaining": "C12 full-project remote regeneration NOT RUN / NO RECEIPT"
+  },
+  "tests": {
+    "rust": {
+      "passed": 8,
+      "log": "rust.log"
+    },
+    "python": {
+      "passed": 127,
+      "log": "python.log"
+    },
+    "typescript": {
+      "passed": 46,
+      "log": "typescript.log"
+    },
+    "pyright": {
+      "errors": 0,
+      "log": "pyright.log"
+    },
+    "ruff": {
+      "result": "PASS",
+      "log": "ruff.log"
+    },
+    "typescriptLintAndTypecheck": "PASS",
+    "metadata": {
+      "typesPerLanguage": 25,
+      "missingIdentityFieldsPerType": 10,
+      "eventPayloadBranches": 9,
+      "realGrpcInboundAndOutbound": "PASS: unary/streaming, eight fields each"
+    },
+    "compatibility": {
+      "generatedFixtures": 11000,
+      "frozenIndependentPythonFixtures": 3,
+      "binaryDirections": 6,
+      "protojsonDirections": 6,
+      "invalidJsonProbes": 15,
+      "log": "compatibility.log"
+    },
+    "localProtojsonRegeneration": {
+      "files": 6,
+      "drift": false
+    },
+    "standaloneSchemas": 50,
+    "schemaAndConfigNegativeTests": 6,
+    "bufLintBuild": "PASS",
+    "bufBreaking": "PASS against 9aea0b5",
+    "developmentPlanStructure": "PASS"
+  },
+  "limitations": [
+    "No remote generation or CI execution this turn",
+    "Unknown binary fields may be discarded; known-field semantics are preserved",
+    "Golden v1 introduced in this change; no historical released SDK claim",
+    "F02 A11 unchanged"
+  ],
+  "sourceSha256": {
+    "Cargo.lock": "488bd9b62f409f51c0768de59cfe207de7f63638c101cdb8ba67d2a218e56b22",
+    "crates/quantos-proto/Cargo.toml": "90c9258a41e9f35750045f491c56980618b8bb381a9819782bf495644299d5ec",
+    "crates/quantos-proto/examples/generate_json.rs": "13be73a3ec8e5be6c714ee7ccdd49e41f9f0376e5d4f0914b52901b1ceee5874",
+    "crates/quantos-proto/examples/proto_compat.rs": "c59798bb97cea31ed3a9285564dc4d427d210bf24802a99e2e9982fd80a81553",
+    "crates/quantos-proto/src/generated.rs": "9d88b2e5cfb0a45f2c921099de598f86bd0576a514ddf06a44ba3c648f3acff3",
+    "crates/quantos-proto/src/generated/quantos.common.v1.serde.rs": "e5222a34791d6d5b35c9a846c1614651f7877eb4ecd20071ed8c8f9883f55779",
+    "crates/quantos-proto/src/generated/quantos.engine.v1.serde.rs": "05a9f5a604ce0d2fac474de0930893c587396eaec8ae2b644278af91bd9add8a",
+    "crates/quantos-proto/src/generated/quantos.events.v1.serde.rs": "c41776ddf1d8bface137db76640424231a2a304640181b6326b0bdf260358f3a",
+    "crates/quantos-proto/src/generated/quantos.research.v1.serde.rs": "4ba7825031d89dc8e7a08545fcb5accaa5747943cc0409f5d74aabdc6292646e",
+    "crates/quantos-proto/src/generated/quantos.strategy.v1.serde.rs": "7523a251f52a6d7eae5f5713c61d03457b38dc654e8518e59ae74b3f8eb1f5d1",
+    "crates/quantos-proto/src/generated/quantos.trading.v1.serde.rs": "474089bbe9bc2f68d5becfab433ca42153bb73a0427f24e4e7d3fddc5b874476",
+    "crates/quantos-proto/src/lib.rs": "47aa3446a6590ecb3b459ae4ccd0e5bef7bdd0cd8f9675e3bd210e442a74325e",
+    "crates/quantos-proto/src/protojson.rs": "7396c33af406a7330851828f8236a0c1207b3a78aadada889782818d44ad98cb",
+    "crates/quantos-proto/src/validation.rs": "73f2663d15724977143589339c08fa38c0bd0cacdc83568da91a0441273ea4a9",
+    "engines/engine-sdk/sdk_src/quantos_engine_sdk/validation.py": "b2d902cd31e8c4b4ffdb7e7d031549f96412e1de5430eaac820d8b2fca0d0373",
+    "engines/tests/test_engine_contract.py": "0fecf3703d67fd2e0c37d189202a2012267272fcb4f1c9e4fe9e5f653f34528a",
+    "engines/tests/test_protocol_metadata_completeness.py": "1c30422838edf384d47e8877fa62733d8536b474a4f6f101cf89250a4fab20af",
+    "packages/api-client/src/proto-validation.ts": "6659b2bb6679906cb0623c79bbcf53728caa7ac777b0f8745fa6d0503a7c0cd6",
+    "packages/api-client/tests/proto-metadata.test.ts": "fd5520cf8c177e3035533c0ff679a4204de5a398b96999b3ac4255f35d16475b",
+    "proto/README.md": "e908fc158fd1a6f48bd87575136c150047c7433873dc772f5c90f1b2a805199d",
+    "scripts/check-proto-compatibility.mjs": "27c98b49646d5dde8fc32e9e10ec20bd57433ef6c50b0429775742885432a47b",
+    "scripts/check-proto.sh": "41124c0abc329d5fb61b7677b2e5fd9d8e1e944e2a675c2d7469fadf5f15046f",
+    "scripts/fixtures/proto-compat/v1/golden.json": "1cff0c3dcfe6d7ff607abf579475b84f10dc7c82fe7c6a50ef91f0e06ecec053",
+    "scripts/generate-proto.sh": "faa94ee40f6b21f3c8d180290d2a101437765fe9c2caa29b6cbf1e044abb1f6c",
+    "scripts/patch-protojson.py": "b176e0ea0f5dbe3d49ef007108de32bce683e0b130078857fe432967825554b4",
+    "scripts/proto-compat-python.py": "74e533c2ae4153a7d42b9c84d38703bf9d9c3fd25fcd224c59b6c894a47e3b4b"
+  }
+}
