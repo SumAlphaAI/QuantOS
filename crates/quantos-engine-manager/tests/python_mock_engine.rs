@@ -11,7 +11,7 @@ use quantos_engine_manager::{
 };
 use quantos_proto::generated::google::protobuf::Timestamp;
 use quantos_proto::quantos::{
-    common::v1::JsonDocument,
+    common::v1::{ActorRef, CommandMetadata, JsonDocument},
     engine::v1::{
         CancelRequest, ExecuteRequest, GetMetadataRequest, HealthRequest, StreamExecuteRequest,
     },
@@ -57,7 +57,7 @@ fn manifest_for_socket(socket_path: PathBuf) -> EngineManifest {
 
 fn execute_request(request_id: &str) -> ExecuteRequest {
     ExecuteRequest {
-        metadata: Some(build_metadata(request_id)),
+        metadata: Some(valid_metadata(request_id)),
         workflow_run_id: format!("run-{request_id}"),
         idempotency_key: format!("idem-{request_id}"),
         capability: "research.execute".to_owned(),
@@ -67,6 +67,18 @@ fn execute_request(request_id: &str) -> ExecuteRequest {
         input: Some(JsonDocument::default()),
         deadline: Some(timestamp_after(Duration::from_secs(5))),
     }
+}
+
+fn valid_metadata(request_id: &str) -> CommandMetadata {
+    let mut metadata = build_metadata(request_id);
+    metadata.actor = Some(ActorRef {
+        actor_id: "actor-primary".to_owned(),
+        actor_kind: 1,
+        display_name: "QuantOS Tester".to_owned(),
+        capabilities: vec!["research.execute".to_owned()],
+    });
+    metadata.mode = 1;
+    metadata
 }
 
 fn timestamp_after(duration: Duration) -> Timestamp {
@@ -144,7 +156,7 @@ async fn python_mock_engine_contracts_round_trip_over_uds() -> anyhow::Result<()
             .get_metadata(
                 "mock-engine",
                 GetMetadataRequest {
-                    metadata: Some(build_metadata("contract")),
+                    metadata: Some(valid_metadata("contract")),
                 },
             )
             .await?;
@@ -155,7 +167,7 @@ async fn python_mock_engine_contracts_round_trip_over_uds() -> anyhow::Result<()
             .health(
                 "mock-engine",
                 HealthRequest {
-                    metadata: Some(build_metadata("health")),
+                    metadata: Some(valid_metadata("health")),
                 },
             )
             .await?;
@@ -183,7 +195,7 @@ async fn python_mock_engine_contracts_round_trip_over_uds() -> anyhow::Result<()
             .cancel(
                 "mock-engine",
                 CancelRequest {
-                    metadata: Some(build_metadata("cancel")),
+                    metadata: Some(valid_metadata("cancel")),
                     execution_id: execute.execution_id,
                     reason: "operator-request".to_owned(),
                 },

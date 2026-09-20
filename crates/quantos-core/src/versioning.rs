@@ -1,12 +1,12 @@
 use std::{fmt, str::FromStr};
 
 use semver::Version;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, de};
 use sha2::{Digest, Sha256};
 
 use crate::CoreError;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 #[serde(transparent)]
 pub struct SchemaVersion(String);
 
@@ -50,7 +50,17 @@ impl FromStr for SchemaVersion {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+impl<'de> Deserialize<'de> for SchemaVersion {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        Self::parse(&value).map_err(de::Error::custom)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 #[serde(transparent)]
 pub struct BuildVersion(Version);
 
@@ -81,7 +91,17 @@ impl FromStr for BuildVersion {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+impl<'de> Deserialize<'de> for BuildVersion {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        Self::parse(&value).map_err(de::Error::custom)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize)]
 #[serde(transparent)]
 pub struct ContentHash(String);
 
@@ -127,53 +147,12 @@ impl FromStr for ContentHash {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::{BuildVersion, ContentHash, SchemaVersion};
-
-    #[test]
-    fn schema_versions_require_v_prefix() {
-        let version = SchemaVersion::parse("v1").expect("schema version parses");
-
-        assert_eq!(version.as_str(), "v1");
-        assert_eq!(
-            SchemaVersion::parse("1")
-                .expect_err("version should fail")
-                .machine_code(),
-            "CORE_INVALID_SCHEMA_VERSION"
-        );
-    }
-
-    #[test]
-    fn build_versions_use_semver() {
-        assert_eq!(
-            BuildVersion::parse("1.2.3")
-                .expect("version parses")
-                .to_string(),
-            "1.2.3"
-        );
-        assert_eq!(
-            BuildVersion::parse("2026-07-28")
-                .expect_err("semver should fail")
-                .machine_code(),
-            "CORE_INVALID_BUILD_VERSION"
-        );
-    }
-
-    #[test]
-    fn content_hashes_are_lowercase_sha256() {
-        let hash = ContentHash::sha256_bytes(br#"{"a":1}"#);
-
-        assert!(hash.as_str().starts_with("sha256:"));
-        assert_eq!(
-            ContentHash::parse(hash.as_str()).expect("hash parses"),
-            hash
-        );
-        assert_eq!(
-            ContentHash::parse("sha256:ABC")
-                .expect_err("uppercase hash should fail")
-                .machine_code(),
-            "CORE_INVALID_CONTENT_HASH"
-        );
+impl<'de> Deserialize<'de> for ContentHash {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        Self::parse(&value).map_err(de::Error::custom)
     }
 }

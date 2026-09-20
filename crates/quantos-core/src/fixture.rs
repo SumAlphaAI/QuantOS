@@ -1,17 +1,17 @@
 use std::collections::BTreeMap;
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, de};
 use serde_json::Value;
 
 use crate::{ContentHash, CoreError, FixtureId, SchemaVersion};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Fixture {
-    pub fixture_id: FixtureId,
-    pub kind: String,
-    pub schema_version: SchemaVersion,
-    pub fields: BTreeMap<String, Value>,
-    pub hash: ContentHash,
+    fixture_id: FixtureId,
+    kind: String,
+    schema_version: SchemaVersion,
+    fields: BTreeMap<String, Value>,
+    hash: ContentHash,
 }
 
 impl Fixture {
@@ -20,6 +20,76 @@ impl Fixture {
 
         canonical_json_string(&document).expect("fixture canonicalization should not fail")
     }
+
+    pub fn verify(&self) -> Result<(), CoreError> {
+        let actual = ContentHash::sha256_bytes(self.canonical_json().as_bytes());
+        if actual == self.hash {
+            Ok(())
+        } else {
+            Err(CoreError::fixture_hash_mismatch(
+                self.hash.as_str(),
+                actual.as_str(),
+            ))
+        }
+    }
+
+    #[must_use]
+    pub const fn fixture_id(&self) -> FixtureId {
+        self.fixture_id
+    }
+
+    #[must_use]
+    pub fn kind(&self) -> &str {
+        &self.kind
+    }
+
+    #[must_use]
+    pub fn schema_version(&self) -> &SchemaVersion {
+        &self.schema_version
+    }
+
+    #[must_use]
+    pub fn fields(&self) -> &BTreeMap<String, Value> {
+        &self.fields
+    }
+
+    #[must_use]
+    pub fn hash(&self) -> &ContentHash {
+        &self.hash
+    }
+}
+
+impl<'de> Deserialize<'de> for Fixture {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let Value::Object(mut fields) = Value::deserialize(deserializer)? else {
+            return Err(de::Error::custom("fixture must be a JSON object"));
+        };
+        let fixture = Self {
+            fixture_id: take_field(&mut fields, "fixture_id").map_err(de::Error::custom)?,
+            kind: take_field(&mut fields, "kind").map_err(de::Error::custom)?,
+            schema_version: take_field(&mut fields, "schema_version").map_err(de::Error::custom)?,
+            fields: take_field(&mut fields, "fields").map_err(de::Error::custom)?,
+            hash: take_field(&mut fields, "hash").map_err(de::Error::custom)?,
+        };
+        if !fields.is_empty() {
+            return Err(de::Error::custom("fixture contains unknown fields"));
+        }
+        fixture.verify().map_err(de::Error::custom)?;
+        Ok(fixture)
+    }
+}
+
+fn take_field<T>(fields: &mut serde_json::Map<String, Value>, name: &str) -> Result<T, String>
+where
+    T: serde::de::DeserializeOwned,
+{
+    let value = fields
+        .remove(name)
+        .ok_or_else(|| format!("fixture is missing `{name}`"))?;
+    serde_json::from_value(value).map_err(|error| format!("invalid fixture `{name}`: {error}"))
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -130,29 +200,4 @@ fn write_canonical_json(value: &Value, output: &mut String) -> Result<(), CoreEr
         }
     }
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use serde_json::json;
-
-    use crate::{FixtureBuilder, SchemaVersion};
-
-    #[test]
-    fn canonicalization_sorts_nested_objects_consistently() {
-        let version = SchemaVersion::parse("v1").expect("schema version parses");
-        let fixture_a = FixtureBuilder::new("snapshot", version.clone())
-            .with_field("payload", json!({ "z": 2, "a": { "y": 1, "x": 0 } }))
-            .expect("field serializes")
-            .build()
-            .expect("fixture builds");
-        let fixture_b = FixtureBuilder::new("snapshot", version)
-            .with_field("payload", json!({ "a": { "x": 0, "y": 1 }, "z": 2 }))
-            .expect("field serializes")
-            .build()
-            .expect("fixture builds");
-
-        assert_eq!(fixture_a.canonical_json(), fixture_b.canonical_json());
-        assert_eq!(fixture_a.hash, fixture_b.hash);
-    }
 }

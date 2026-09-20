@@ -319,7 +319,6 @@ mod exhaustive_tests {
                 ..Default::default()
             }),
             metadata: Some(metadata),
-            ..Default::default()
         });
         check(|metadata| crate::quantos::events::v1::ListEventsRequest {
             metadata: Some(metadata),
@@ -331,7 +330,6 @@ mod exhaustive_tests {
         });
         check(|metadata| crate::quantos::engine::v1::GetMetadataRequest {
             metadata: Some(metadata),
-            ..Default::default()
         });
         check(|metadata| crate::quantos::engine::v1::GetMetadataResponse {
             metadata: Some(metadata),
@@ -339,7 +337,6 @@ mod exhaustive_tests {
         });
         check(|metadata| crate::quantos::engine::v1::HealthRequest {
             metadata: Some(metadata),
-            ..Default::default()
         });
         check(|metadata| crate::quantos::engine::v1::HealthResponse {
             metadata: Some(metadata),
@@ -359,7 +356,6 @@ mod exhaustive_tests {
                     metadata: Some(metadata),
                     ..Default::default()
                 }),
-                ..Default::default()
             },
         );
         check(

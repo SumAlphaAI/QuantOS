@@ -14,7 +14,7 @@ endif
 
 endif
 
-.PHONY: toolchain-check f01-check f01-clean-room-check build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-deps-update proto-generate proto-check proto-compat-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+.PHONY: toolchain-check f01-check f01-clean-room-check f04-check build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-rust-branch coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-deps-update proto-generate proto-check proto-compat-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: toolchain-check
 	$(MAKE) -j3 bootstrap-rust bootstrap-python bootstrap-node
@@ -113,7 +113,17 @@ coverage-web:
 	pnpm coverage:web
 
 coverage-rust:
+	cargo llvm-cov --package quantos-core --all-features --release --fail-under-lines 90 --fail-under-regions 90 --summary-only
 	cargo llvm-cov --package quantos-core --package quantos-risk --package quantos-execution --all-features --fail-under-lines 90 --fail-under-regions 85 --summary-only
+
+coverage-rust-branch:
+	cargo llvm-cov --package quantos-core --all-features --release --branch --json --output-path target/f04-branch-coverage.json
+	node scripts/check-f04-branch.mjs target/f04-branch-coverage.json
+
+f04-check:
+	cargo test -p quantos-core -p quantos-testkit --locked
+	node scripts/check-f04.mjs
+	cargo llvm-cov --package quantos-core --all-features --release --fail-under-lines 90 --fail-under-regions 90 --summary-only
 
 lint-web:
 	pnpm lint

@@ -80,25 +80,3 @@ define_uuid_id!(OutboxEntryId);
 define_uuid_id!(SchemaEntryId);
 define_uuid_id!(StrategyDraftId);
 define_uuid_id!(DraftVersionId);
-
-#[cfg(test)]
-mod tests {
-    use super::{CorrelationId, TenantId};
-
-    #[test]
-    fn typed_ids_roundtrip_from_strings() {
-        let tenant = TenantId::new();
-        let correlation = CorrelationId::parse_str(&tenant.to_string())
-            .expect("uuid parses even for different typed id");
-
-        assert_eq!(tenant.to_string().len(), 36);
-        assert_eq!(correlation.to_string(), tenant.to_string());
-    }
-
-    #[test]
-    fn invalid_ids_return_stable_machine_code() {
-        let error = TenantId::parse_str("not-a-uuid").expect_err("invalid id should fail");
-
-        assert_eq!(error.machine_code(), "CORE_INVALID_ID");
-    }
-}

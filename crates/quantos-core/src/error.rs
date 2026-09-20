@@ -11,6 +11,7 @@ pub enum ErrorCode {
     InvalidSchemaVersion,
     InvalidBuildVersion,
     InvalidContentHash,
+    FixtureHashMismatch,
     SerializationFailure,
 }
 
@@ -27,6 +28,7 @@ impl ErrorCode {
             Self::InvalidSchemaVersion => "CORE_INVALID_SCHEMA_VERSION",
             Self::InvalidBuildVersion => "CORE_INVALID_BUILD_VERSION",
             Self::InvalidContentHash => "CORE_INVALID_CONTENT_HASH",
+            Self::FixtureHashMismatch => "CORE_FIXTURE_HASH_MISMATCH",
             Self::SerializationFailure => "CORE_SERIALIZATION_FAILURE",
         }
     }
@@ -143,6 +145,14 @@ impl CoreError {
     }
 
     #[must_use]
+    pub fn fixture_hash_mismatch(expected: &str, actual: &str) -> Self {
+        Self::new(
+            ErrorCode::FixtureHashMismatch,
+            format!("fixture hash mismatch: expected `{expected}`, got `{actual}`"),
+        )
+    }
+
+    #[must_use]
     pub fn serialization_failure(context: &'static str, detail: &str) -> Self {
         Self::new(
             ErrorCode::SerializationFailure,
@@ -158,17 +168,3 @@ impl fmt::Display for CoreError {
 }
 
 impl std::error::Error for CoreError {}
-
-#[cfg(test)]
-mod tests {
-    use super::{CoreError, ErrorCode};
-
-    #[test]
-    fn every_error_maps_to_stable_machine_code() {
-        let error = CoreError::invalid_money_scale("12.1234567891", 9);
-
-        assert_eq!(error.code(), ErrorCode::InvalidMoneyScale);
-        assert_eq!(error.machine_code(), "CORE_INVALID_MONEY_SCALE");
-        assert!(error.to_string().contains("CORE_INVALID_MONEY_SCALE"));
-    }
-}

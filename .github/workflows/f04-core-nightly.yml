@@ -1,0 +1,34 @@
+name: F04 Core Branch Coverage
+
+on:
+  pull_request:
+    paths:
+      - "crates/quantos-core/**"
+      - "crates/quantos-testkit/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "Makefile"
+      - ".github/workflows/f04-core-nightly.yml"
+  push:
+    branches: [main]
+    paths:
+      - "crates/quantos-core/**"
+      - "crates/quantos-testkit/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "Makefile"
+      - ".github/workflows/f04-core-nightly.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  branch-coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: llvm-tools-preview
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - run: make coverage-rust-branch

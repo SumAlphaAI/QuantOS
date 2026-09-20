@@ -1,17 +1,18 @@
 use std::str::FromStr;
 
 use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, de};
+use serde_json::Value;
 
 use crate::CoreError;
 
 pub const MAX_MONEY_SCALE: u32 = 9;
 pub const MAX_QUANTITY_SCALE: u32 = 12;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Money {
-    pub currency: String,
-    pub amount: Decimal,
+    currency: String,
+    amount: Decimal,
 }
 
 impl Money {
@@ -28,9 +29,42 @@ impl Money {
             .map_err(|_| CoreError::invalid_money_scale(amount, MAX_MONEY_SCALE))?;
         Self::new(currency, amount)
     }
+
+    #[must_use]
+    pub fn currency(&self) -> &str {
+        &self.currency
+    }
+
+    #[must_use]
+    pub const fn amount(&self) -> Decimal {
+        self.amount
+    }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+impl<'de> Deserialize<'de> for Money {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let Value::Object(mut fields) = Value::deserialize(deserializer)? else {
+            return Err(de::Error::custom("money must be a JSON object"));
+        };
+        let currency = fields
+            .remove("currency")
+            .and_then(|value| value.as_str().map(str::to_owned))
+            .ok_or_else(|| de::Error::custom("money currency must be a string"))?;
+        let amount = fields
+            .remove("amount")
+            .ok_or_else(|| de::Error::missing_field("amount"))?;
+        if !fields.is_empty() {
+            return Err(de::Error::custom("money contains unknown fields"));
+        }
+        let amount = serde_json::from_value::<Decimal>(amount).map_err(de::Error::custom)?;
+        Self::new(currency, amount).map_err(de::Error::custom)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(transparent)]
 pub struct Quantity(Decimal);
 
@@ -55,6 +89,16 @@ impl Quantity {
     }
 }
 
+impl<'de> Deserialize<'de> for Quantity {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value = <Decimal as Deserialize>::deserialize(deserializer)?;
+        Self::new(value).map_err(de::Error::custom)
+    }
+}
+
 fn validate_currency_code(value: &str) -> Result<(), CoreError> {
     if value.len() == 3 && value.chars().all(|ch| ch.is_ascii_uppercase()) {
         Ok(())
@@ -72,59 +116,5 @@ fn validate_scale(
         Ok(())
     } else {
         Err(error(&value.to_string(), max_scale))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use rust_decimal::Decimal;
-
-    use super::{MAX_MONEY_SCALE, MAX_QUANTITY_SCALE, Money, Quantity};
-
-    #[test]
-    fn money_accepts_max_supported_scale() {
-        let amount = Decimal::from_str_exact("1.123456789").expect("decimal parses");
-        let money = Money::new("USD", amount).expect("money should parse");
-
-        assert_eq!(money.amount.scale(), MAX_MONEY_SCALE);
-    }
-
-    #[test]
-    fn money_rejects_excess_scale() {
-        let error = Money::parse_str("USD", "1.1234567891").expect_err("money should fail");
-
-        assert_eq!(error.machine_code(), "CORE_INVALID_MONEY_SCALE");
-    }
-
-    #[test]
-    fn money_rejects_invalid_currency_codes() {
-        let error = Money::parse_str("usd", "1.25").expect_err("currency should fail");
-
-        assert_eq!(error.machine_code(), "CORE_INVALID_CURRENCY_CODE");
-    }
-
-    #[test]
-    fn quantity_accepts_zero_and_high_precision_boundaries() {
-        let zero = Quantity::parse_str("0").expect("zero quantity should be valid");
-        let high_precision =
-            Quantity::parse_str("42.123456789012").expect("boundary quantity should parse");
-
-        assert_eq!(zero.value().to_string(), "0");
-        assert_eq!(high_precision.value().scale(), MAX_QUANTITY_SCALE);
-    }
-
-    #[test]
-    fn quantity_rejects_negative_values() {
-        let error = Quantity::parse_str("-0.01").expect_err("negative quantity should fail");
-
-        assert_eq!(error.machine_code(), "CORE_INVALID_QUANTITY");
-    }
-
-    #[test]
-    fn quantity_rejects_excess_precision() {
-        let error =
-            Quantity::parse_str("0.1234567890123").expect_err("quantity precision should fail");
-
-        assert_eq!(error.machine_code(), "CORE_INVALID_QUANTITY_SCALE");
     }
 }
