@@ -84,7 +84,8 @@ jobs:
         run: make bootstrap
 
       - name: Install Playwright Chromium
-        run: pnpm exec playwright install chromium
+        # Match baseline capture and compatibility: system dependencies include fonts.
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Build Terminal app (Playwright webServer serves apps/terminal/out)
         run: pnpm --filter @sumalpha/terminal build
@@ -92,8 +93,27 @@ jobs:
       - name: Require complete Linux visual baselines
         run: node scripts/check-visual-baselines.mjs --platform linux
 
+      - name: Record browser rendering environment
+        run: |
+          mkdir -p artifacts/browser
+          pnpm exec playwright --version > artifacts/browser/playwright-version.txt
+          pnpm exec playwright install --dry-run chromium > artifacts/browser/browser-install.txt
+          fc-list | sort > artifacts/browser/fonts.txt
+
       - name: Run browser automation suite
-        run: pnpm test:browser --project=chromium
+        run: pnpm test:browser --project=chromium --reporter=github,json
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: artifacts/browser/terminal.json
+
+      - name: Archive browser comparison evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-browser-comparison-${{ github.sha }}
+          path: |
+            artifacts/browser/
+            test-results/
+          if-no-files-found: warn
 
       - name: Install checksum-verified secret scanner
         run: bash scripts/install-gitleaks.sh

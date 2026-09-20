@@ -232,7 +232,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-20 独立复核：原 9 项问题均已本地解决，追加验收门禁修复通过；23/23 本地检查点 PASS，line 97.74%、region 96.73%、branch 97.73%，precision branch 91.67%；clock branch N/A、行为测试及 line/region 100%。P95 31μs；workspace Clippy 与测试通过。2026-09-21 已核验 b34a352 同 SHA 远端回执：F04 branch Run 35518613741 成功（97.73%），主 CI Run 35518613742 因 3 个前端视觉测试失败，后续 stable F04 Gate 未执行；整体远端验收未通过。详见 [远端验收记录](audit/F04-remote-acceptance-2026-09-21.md)。详见 [F04 全面复审报告](audit/F04-comprehensive-review-2026-09-20.md)。
+- review_conclusion: 2026-09-20 独立复核：原 9 项问题均已本地解决，追加验收门禁修复通过；23/23 本地检查点 PASS，line 97.74%、region 96.73%、branch 97.73%，precision branch 91.67%；clock branch N/A、行为测试及 line/region 100%。P95 31μs；workspace Clippy 与测试通过。2026-09-21 已核验 b34a352 同 SHA 远端回执：F04 branch Run 35518613741 成功（97.73%），主 CI Run 35518613742 因 3 个前端视觉测试失败，后续 stable F04 Gate 未执行；整体远端验收未通过。已本地对齐主 CI 的 Playwright 系统依赖并增加诊断制品归档，视觉测试 3/3 本地通过，修复提交待人工推送和同 SHA 核验。详见 [视觉阻断整改](audit/F04-visual-remediation-2026-09-21.md) 与 [远端验收记录](audit/F04-remote-acceptance-2026-09-21.md)。详见 [F04 全面复审报告](audit/F04-comprehensive-review-2026-09-20.md)。
 - issues: []
 - fix_tracking: []
 

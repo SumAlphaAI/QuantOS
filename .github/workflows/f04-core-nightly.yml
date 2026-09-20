@@ -1,6 +1,7 @@
 name: F04 Core Branch Coverage
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - "crates/quantos-core/**"
@@ -11,6 +12,7 @@ on:
       - "scripts/check-f04*.mjs"
       - "scripts/f04-*.mjs"
       - ".github/workflows/f04-core-nightly.yml"
+      - ".github/workflows/ci.yml"
   push:
     branches: [main]
     paths:
@@ -22,6 +24,7 @@ on:
       - "scripts/check-f04*.mjs"
       - "scripts/f04-*.mjs"
       - ".github/workflows/f04-core-nightly.yml"
+      - ".github/workflows/ci.yml"
 
 permissions:
   contents: read

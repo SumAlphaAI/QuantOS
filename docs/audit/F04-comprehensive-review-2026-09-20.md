@@ -67,6 +67,8 @@
 - 本地 branch instrumentation 使用 nightly rustc，reporting 使用已安装 Rust 1.91 LLVM tools；远端 nightly 已执行成功，Linux 回执 line 97.75%、region 95.52%、branch 97.73%，不与本地 stable 指标混用。
 - canonical JSON 仅面向 QuantOS 的 `serde_json::Value` 合约，不声明为 RFC 8785；FixtureId 按设计不进入内容 hash。
 
+已完成主 CI 系统依赖安装对齐与诊断制品归档配置；本地视觉测试 3/3 通过，Linux 效果待人工推送后核验。见 [视觉阻断整改](F04-visual-remediation-2026-09-21.md)。
+
 ## 四、后续维护建议
 
 1. 每次修改 core primitive、serde 边界或 fixture canonicalization 时执行 `make f04-check`；不得以聚合 coverage 代替独立 core threshold。
