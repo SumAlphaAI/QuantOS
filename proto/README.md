@@ -24,7 +24,10 @@ All remote plugins in `buf.gen.yaml` are version-pinned. The generated JSON Sche
 ### ProtoJSON compatibility
 
 Rust ProtoJSON implementations are generated locally from `buf build` descriptors with
-pinned `pbjson-build 0.7.0`. `scripts/patch-protojson.py` adapts enum fields to proto3
+pinned `pbjson-build 0.7.0` in the independent `tools/proto-json-codegen` binary.
+It must not depend on the SDK: Buf cleans SDK output before generation.
+`node scripts/check-proto-json-bootstrap.mjs` verifies startup without SDK generated
+files using an isolated workspace and empty Cargo target directory. `scripts/patch-protojson.py` adapts enum fields to proto3
 open-enum semantics: known values retain names, unknown i32 values retain numbers.
 Both generation and drift checks run this step. `make proto-compat-check` exchanges
 11,000 fixtures and three frozen v1 golden fixtures across all six binary and six

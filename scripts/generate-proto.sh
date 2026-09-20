@@ -20,7 +20,7 @@ fi
 descriptor_file="$(mktemp)"
 trap 'rm -f "$descriptor_file"' EXIT
 "${buf_cmd[@]}" build -o "$descriptor_file"
-cargo run --locked --quiet -p quantos-proto --example generate_json -- "$descriptor_file"
+cargo run --locked --quiet -p quantos-proto-json-codegen -- "$descriptor_file"
 python3 - <<'PY'
 from pathlib import Path
 

@@ -38,6 +38,8 @@ jobs:
           uv sync --locked --project engines --all-packages
       - name: Test receipt rejection rules
         run: node --test scripts/tests/record-f03-receipt.test.mjs
+      - name: Verify generator bootstraps without SDK generated files
+        run: node scripts/check-proto-json-bootstrap.mjs
       - name: Validate proto workspace and cross-language compatibility
         id: protocol
         shell: bash

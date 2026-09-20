@@ -1,0 +1,29 @@
+{
+  "schema": "quantos-f03-artifact-download/v1",
+  "runUrl": "https://github.com/SumAlphaAI/QuantOS/actions/runs/35512326148",
+  "jobId": 106082266095,
+  "artifactId": 10605327271,
+  "artifactSha256": "23ebd416a0ede75039813ac8a004645de68c98ad5826f8b0a76747cd5316fc5f",
+  "downloadDigestVerified": true,
+  "logDigestVerified": true,
+  "sourceSha": "55c7d3a59ce8ef83ad234f8763299f31350bede1",
+  "result": "FAIL",
+  "generatedFiles": 92,
+  "missingGeneratedFiles": [
+    "crates/quantos-proto/src/generated/quantos.common.v1.serde.rs",
+    "crates/quantos-proto/src/generated/quantos.engine.v1.serde.rs",
+    "crates/quantos-proto/src/generated/quantos.events.v1.serde.rs",
+    "crates/quantos-proto/src/generated/quantos.research.v1.serde.rs",
+    "crates/quantos-proto/src/generated/quantos.strategy.v1.serde.rs",
+    "crates/quantos-proto/src/generated/quantos.trading.v1.serde.rs"
+  ],
+  "rootCause": "buf clean:true deletes serde outputs; SDK-owned generator example cannot compile while SDK include files are absent.",
+  "localFix": "Move generator to independent tools/proto-json-codegen workspace binary; verify regeneration in isolated workspace without SDK generated files and with fresh Cargo target.",
+  "c12": "OPEN pending successful exact-SHA remote rerun after manual push",
+  "unchangedRemoteFilesMatchingLocal": 86,
+  "localValidation": {
+    "isolatedBootstrap": "PASS: six identical files, no SDK generated files, fresh Cargo target",
+    "configAndReceiptTests": 5,
+    "remoteAcceptanceAfterFix": "NOT_RUN"
+  }
+}
