@@ -8,13 +8,30 @@ if (!reportPath) {
 const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
 const totals = report?.data?.[0]?.totals;
 const branches = totals?.branches;
-if (!branches || branches.count <= 0) {
+if (!branches || !Number.isSafeInteger(branches.count) || branches.count <= 0 ||
+    !Number.isSafeInteger(branches.covered) || branches.covered < 0 ||
+    branches.covered > branches.count) {
   throw new Error("F04 branch report contains no instrumented branches");
 }
-if (branches.percent < 90) {
+const percent = branches.covered / branches.count * 100;
+if (!Number.isFinite(branches.percent) || Math.abs(branches.percent - percent) > 0.01) {
+  throw new Error("F04 branch percentage does not match its counters");
+}
+if (percent < 90) {
   throw new Error(
     `F04 branch coverage ${branches.percent.toFixed(2)}% is below 90% (${branches.covered}/${branches.count})`,
   );
+}
+
+// The F04 precision threshold must not be hidden by unrelated branches.
+const precision = report.data[0].files?.find((file) =>
+  file.filename.replaceAll("\\", "/").endsWith("/quantos-core/src/precision.rs"));
+const precisionBranches = precision?.summary?.branches;
+if (!precisionBranches || !Number.isSafeInteger(precisionBranches.count) ||
+    precisionBranches.count <= 0 || !Number.isSafeInteger(precisionBranches.covered) ||
+    precisionBranches.covered < 0 || precisionBranches.covered > precisionBranches.count ||
+    precisionBranches.covered / precisionBranches.count < 0.9) {
+  throw new Error("F04 precision.rs requires at least 90% measured branch coverage");
 }
 
 console.log(

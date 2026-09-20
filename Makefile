@@ -121,6 +121,7 @@ coverage-rust-branch:
 	node scripts/check-f04-branch.mjs target/f04-branch-coverage.json
 
 f04-check:
+	node --test scripts/f04-gate-negative.mjs
 	cargo test -p quantos-core -p quantos-testkit --locked
 	node scripts/check-f04.mjs
 	cargo llvm-cov --package quantos-core --all-features --release --fail-under-lines 90 --fail-under-regions 90 --summary-only

@@ -1,0 +1,31 @@
+cargo llvm-cov --package quantos-core --all-features --release --branch --json --output-path target/f04-branch-coverage.json
+warning: --branch option is unstable
+info: cargo-llvm-cov currently setting cfg(coverage) and cfg(coverage_nightly); you can opt-out it by passing --no-cfg-coverage and --no-cfg-coverage-nightly
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+    Finished `release` profile [optimized] target(s) in 0.83s
+     Running unittests src/lib.rs (target/llvm-cov-target/release/deps/quantos_core-144f83ce4f4db2aa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/core_contract.rs (target/llvm-cov-target/release/deps/core_contract-eef2b3beaade9117)
+
+running 10 tests
+test clocks_are_utc_fixed_and_strictly_parsed ... ok
+test every_error_code_and_constructor_is_stable ... ok
+test workspace_health_contract_is_stable ... ok
+test typed_ids_cover_all_public_construction_paths ... ok
+test money_and_quantity_enforce_constructor_and_serde_boundaries ... ok
+test money_deserialization_rejects_every_malformed_shape ... ok
+test versions_and_hashes_cover_valid_and_invalid_wire_forms ... ok
+test fixtures_are_canonical_verified_and_serde_safe ... ok
+test fixture_rejects_hash_tampering_and_malformed_shapes ... ok
+test builder_maps_serialization_failures_and_fixture_hashes_are_repeatable ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+    Finished report saved to target/f04-branch-coverage.json
+node scripts/check-f04-branch.mjs target/f04-branch-coverage.json
+{"acceptance":"PASS","branchPercent":97.73,"coveredBranches":43,"totalBranches":44,"linePercent":97.73,"regionPercent":96.65}

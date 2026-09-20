@@ -219,7 +219,7 @@ flowchart LR
 
 - task_id: `F04`
 - task_type: `CORE`
-- development_status: `COMPLETED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - review_entry: [GPT-6 Astra 复审入口](#review-f04)
 - 需求描述：Core、错误、时钟与 ID
 - 技术要求：实现强类型 ID、UTC clock、领域错误码、金额/数量精度、版本与 hash primitives
@@ -231,8 +231,8 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
+- review_status: `FIX_VALIDATION`
+- review_conclusion: 2026-09-20 独立复核：原 9 项问题均已本地解决，追加验收门禁修复通过；23/23 本地检查点 PASS，line 97.74%、region 96.73%、branch 97.73%，precision branch 91.67%；clock branch N/A、行为测试及 line/region 100%。P95 31μs；workspace Clippy 与测试通过。人工推送后仍需收集同 SHA QuantOS CI 和 F04 Core Branch Coverage 回执，尚未远端验收。详见 [F04 全面复审报告](audit/F04-comprehensive-review-2026-09-20.md)。
 - issues: []
 - fix_tracking: []
 

@@ -8,6 +8,8 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "Makefile"
+      - "scripts/check-f04*.mjs"
+      - "scripts/f04-*.mjs"
       - ".github/workflows/f04-core-nightly.yml"
   push:
     branches: [main]
@@ -17,6 +19,8 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "Makefile"
+      - "scripts/check-f04*.mjs"
+      - "scripts/f04-*.mjs"
       - ".github/workflows/f04-core-nightly.yml"
 
 permissions:
@@ -25,10 +29,21 @@ permissions:
 jobs:
   branch-coverage:
     runs-on: ubuntu-24.04
+    env:
+      RUSTUP_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: llvm-tools-preview
-      - uses: taiki-e/install-action@cargo-llvm-cov
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - run: cargo install cargo-llvm-cov --version 0.8.7 --locked
       - run: make coverage-rust-branch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f04-branch-${{ github.sha }}
+          path: target/f04-branch-coverage.json
+          if-no-files-found: error

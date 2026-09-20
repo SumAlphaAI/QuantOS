@@ -1,4 +1,4 @@
-use std::{str::FromStr, time::Duration};
+use std::str::FromStr;
 
 use chrono::{TimeZone, Utc};
 use quantos_core::{
@@ -271,6 +271,20 @@ fn fixture_rejects_hash_tampering_and_malformed_shapes() {
     );
 
     let valid = serde_json::to_value(&fixture).unwrap();
+    for (field, value) in [
+        ("kind", json!("modified")),
+        ("schema_version", json!("v2")),
+        ("fields", json!({"payload": "modified"})),
+    ] {
+        let mut modified = valid.clone();
+        modified[field] = value;
+        assert!(
+            serde_json::from_value::<Fixture>(modified)
+                .unwrap_err()
+                .to_string()
+                .contains("CORE_FIXTURE_HASH_MISMATCH")
+        );
+    }
     assert!(serde_json::from_value::<Fixture>(json!(null)).is_err());
     for field in ["fixture_id", "kind", "schema_version", "fields", "hash"] {
         let mut missing = valid.clone();
@@ -327,5 +341,4 @@ fn workspace_health_contract_is_stable() {
     let report = HealthReport::ready("runtime-gateway");
     assert_eq!(report.service, "runtime-gateway");
     assert!(report.ready);
-    assert!(Duration::from_millis(1) < Duration::from_millis(50));
 }

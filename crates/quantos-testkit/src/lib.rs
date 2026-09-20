@@ -2,7 +2,8 @@ use std::time::Instant;
 
 use chrono::{DateTime, Utc};
 use quantos_core::{
-    ContentHash, CorrelationId, FixedUtcClock, FixtureBuilder, FixtureId, SchemaVersion, TenantId,
+    ContentHash, CorrelationId, FixedUtcClock, FixtureBuilder, FixtureId, Money, Quantity,
+    SchemaVersion, TenantId, parse_utc_rfc3339,
 };
 use serde_json::json;
 use uuid::Uuid;
@@ -58,6 +59,8 @@ pub fn fixture_corpus_digest(count: usize) -> ContentHash {
                     "label": format!("fixture-{index:04}-量化"),
                     "escaped": "line\nquote\"slash\\",
                     "nested": {"z": index + 1, "a": [true, false, null]},
+                    "numeric_edges": [i64::MIN, i64::MAX, 0, -1],
+                    "decimal_edges": ["0.000000000001", "79228162514264337593543950335"],
                 }),
             )
             .expect("corpus field serializes")
@@ -76,6 +79,10 @@ pub fn domain_operation_p95(samples: usize) -> std::time::Duration {
     let mut durations = Vec::with_capacity(samples);
     for index in 0..samples {
         let started = Instant::now();
+        std::hint::black_box(TenantId::new());
+        std::hint::black_box(parse_utc_rfc3339("2026-09-20T08:00:00+08:00").unwrap());
+        std::hint::black_box(Money::parse_str("USD", "123.123456789").unwrap());
+        std::hint::black_box(Quantity::parse_str("123.123456789012").unwrap());
         let fixture = FixtureBuilder::new("f04-performance", version.clone())
             .with_field("index", index)
             .expect("sample serializes")

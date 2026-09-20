@@ -16,12 +16,12 @@ Fields that carry invariants are private. Use constructors and read-only accesso
 
 ## Test assets and Gates
 
-`quantos-testkit` supplies fixed clocks, deterministic ID sequences, the 1,000-fixture corpus, and the domain-operation P95 check. Run the complete local F04 Gate with:
+`quantos-testkit` supplies fixed clocks, deterministic ID sequences, the 1,000-fixture corpus, and the domain-operation P95 check (UUID generation, timestamp parsing, money/quantity parsing, and fixture build/hash/verify). Run the complete local F04 Gate with:
 
 ```sh
 make f04-check
 ```
 
-Stable CI enforces independent `quantos-core` line and region coverage. The `F04 Core Branch Coverage` workflow uses nightly LLVM branch instrumentation and requires at least 90% branch coverage. `make coverage-rust` also retains the repository-wide core/risk/execution coverage check.
+Stable CI enforces independent `quantos-core` line and region coverage. The `F04 Core Branch Coverage` workflow uses nightly LLVM branch instrumentation and requires at least 90% branch coverage both overall and for precision.rs. Clock wrappers have no instrumentable branches; timezone behavior is tested explicitly. Run it locally with `RUSTUP_TOOLCHAIN=nightly make coverage-rust-branch` after installing nightly llvm-tools-preview. The gate validates branch counters and rejects absent or invalid P95 measurements. `make coverage-rust` also retains the repository-wide core/risk/execution coverage check.
 
 Canonical JSON is defined for `serde_json::Value` and is intended for QuantOS-owned fixture and content-addressing contracts. A `FixtureId` is intentionally excluded from the hash document so independently built fixtures with the same kind, schema, and fields have the same content hash.
