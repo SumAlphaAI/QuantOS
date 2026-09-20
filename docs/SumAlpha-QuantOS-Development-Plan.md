@@ -174,7 +174,7 @@ flowchart LR
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest
 - 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本
 - 量化验收标准：任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免
-- 执行流程：本地修复与提交 → 人工通过 GitHub Desktop 推送 → GitHub Actions 执行 → 收集同 SHA 回执 → 关闭 A11；2026-09-20 已确认 `6179d22` 推送；管理员授权后已保存 main-only 签名环境及8项 Ruleset，规则仍受套餐限制不执行。12张Linux基线已导入，待人工推送后比较及正式验签；A11 OPEN。详见 [F02 运行手册](./runbooks/f02-supply-chain.md)。
+- 执行流程：本地修复与提交 → 人工通过 GitHub Desktop 推送 → GitHub Actions 执行 → 收集同 SHA 回执 → 关闭 A11；已确认 `1d94edc` 推送，用户已录入环境签名密钥。主 CI #92 因3项视觉比较失败，签名尚未执行；Ruleset已保存但套餐限制不执行，A11 OPEN。详见 [F02 当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)。
 - 依赖：F01
 
 <a id="review-f02"></a>
@@ -182,12 +182,12 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 原 12 个问题已关闭 11 个（高危 6/6、中危 5/6）；严格检查点 20/24（83.3%），本地 Gate PASS，A11 远程回执及平台视觉缺口仍开放。证据见 [F02 整改记录](./audit/F02-remediation-2026-09-17.md)。外部验收未完成，不将实现或本地测试视为 F02 完整放行。
+- review_conclusion: 2026-09-20复核确认A01–A10、A12保持关闭，非A11为11/11（100%），全部为11/12（91.7%）；活动清单仅A11。24项严格验收仍按20/24（83.3%）的已归档范围记录，不代表今日全量重跑。本轮20/21回归通过，1项缺固定Gitleaks；npm/Python新扫描通过，固定Rust扫描未运行。历史核心源码/锁及23份证据哈希一致。详见 [F02 当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)，整体外部验收未完成。
 - issues:
   - issue_id: F02-A11
     severity: MEDIUM
-    description: 6179d22 候选采集与 F01 冷启动/三次可复现构建通过；主 CI 因缺12张Linux基线失败。基线已审阅导入并通过本地完整性检查，待新SHA比较。f02-signing已限制main，密钥待管理员录入；8项Ruleset已保存但套餐限制不执行。正式签名、完整远程比较、有效分支阻断/恢复回执仍缺失。
-    evidence: docs/audit/F02-A11-remote-review-2026-09-20.md
+    description: 1d94edc主CI因3项Chromium视觉比较失败，正式签名job未执行；用户已录入f02-signing密钥。12张Linux基线已入库，兼容/前端绿色不能抵消主CI失败。8项Ruleset受未升级套餐限制不执行，完整同SHA验签、供应链及有效分支阻断/恢复回执仍缺失。
+    evidence: docs/audit/F02-comprehensive-review-2026-09-17.md
     status: OPEN
 - fix_tracking: []
 

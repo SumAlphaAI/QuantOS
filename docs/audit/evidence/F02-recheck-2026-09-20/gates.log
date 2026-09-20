@@ -1,0 +1,55 @@
+✔ complete Linux matrix passes; deletion and pixel tampering fail (397.823875ms)
+✔ acceptance never updates snapshots or skips missing snapshots (0.873833ms)
+✔ only main signing and verification jobs receive the signing environment (9.603209ms)
+✔ signing policy rejects missing protection, wildcards, tags and extra branches (0.216083ms)
+✔ candidate import rejects tampering and stale source before writing, then imports the reviewed matrix (361.238708ms)
+✔ required download check rejects skipped or failed event-specific verification (21.856417ms)
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+✖ real Gitleaks positive control and GitHub/Slack leaks (40.964417ms)
+✔ RLS baseline rejects policy deletion and late disabling with recovery (191.528375ms)
+✔ migration filename control, rejection and recovery (16.969875ms)
+✔ waivers only authorize exact advisory/ecosystem/package/version before expiry (2.783584ms)
+✔ license expression policy does not globally allow LGPL or unknown licenses (0.359042ms)
+✔ release binds complete payload and SBOM to source; rejects corruption and build-only native files (3.544792ms)
+✔ Buf compares against distinct historical source and detects removed fields (672.699209ms)
+✔ SCA scanner adapter consumes exact waivers and never waives scanner failures (1291.934209ms)
+✔ current PRE-06 Web baseline passes (0.721625ms)
+✔ website browser Gate deletion is rejected (0.081084ms)
+✔ Desktop coupling in phase-one compatibility is rejected (0.071708ms)
+✔ Desktop deep-link inclusion in phase-one Terminal is rejected (0.061ms)
+✔ generated operation coverage drift is rejected (1.598417ms)
+✔ visual baseline integrity failure is rejected (0.098208ms)
+✔ performance budget weakening is rejected (0.077792ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 20
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2266.960667
+
+✖ failing tests:
+
+test at scripts/f02-gate-negative.mjs:16:1
+✖ real Gitleaks positive control and GitHub/Slack leaks (40.964417ms)
+  AssertionError [ERR_ASSERTION]: /Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-secrets.sh: line 5: gitleaks: command not found
+  Expected Gitleaks 8.28.0
+  
+  
+  2 !== 0
+  
+      at pass (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:14:25)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:22:2)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
