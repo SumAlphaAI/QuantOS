@@ -1,12 +1,8 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 
-// 视觉基线按平台入库（<name>-<project>-<platform>.png）；本平台基线缺失时跳过并告警，
+// 视觉基线按平台入库（<name>-<project>-<platform>.png）；本平台基线缺失时测试失败，
 // 由 QA 在对应平台 runner 生成并提交基线（同 command.spec.ts，见 docs/PRE-06-summary.md 遗留项 3）
-const baselinePath = (name: string, project: string) =>
-  join(process.cwd(), "tests/e2e/ui104-settings.spec.ts-snapshots", `${name}-${project}-${process.platform}.png`);
 
 test.describe("UI-104 profile, security, notifications and browser settings", () => {
   test("P15/P17 routes render the shared settings workspace", async ({ page }) => {
@@ -80,16 +76,13 @@ test.describe("UI-104 profile, security, notifications and browser settings", ()
     }
   });
 
-  test("P15 security and P17 browser 1440 dark visual baselines", async ({ page }, testInfo) => {
+  test("P15 security and P17 browser 1440 dark visual baselines", async ({ page }) => {
     const snapshots = ["ui104-security-1440-dark", "ui104-browser-1440-dark"];
-    const missing = snapshots.filter((name) => !existsSync(baselinePath(name, testInfo.project.name)));
-    testInfo.skip(
-      missing.length > 0,
-      `本项目/平台（${testInfo.project.name}/${process.platform}）视觉基线未入库（${missing.join("、")}），由 QA 在对应平台 runner 生成并提交后启用`,
-    );
     await page.goto("/settings/security");
+    await expect(page.getByRole("heading", { name: "Security & MFA" })).toBeVisible();
     await expect(page).toHaveScreenshot(`${snapshots[0]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });
     await page.goto("/settings/browser");
+    await expect(page.getByRole("heading", { name: "Browser settings" })).toBeVisible();
     await expect(page).toHaveScreenshot(`${snapshots[1]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });
   });
 });

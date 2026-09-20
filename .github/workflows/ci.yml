@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:17.10
@@ -89,6 +89,9 @@ jobs:
       - name: Build Terminal app (Playwright webServer serves apps/terminal/out)
         run: pnpm --filter @sumalpha/terminal build
 
+      - name: Require complete Linux visual baselines
+        run: node scripts/check-visual-baselines.mjs --platform linux
+
       - name: Run browser automation suite
         run: pnpm test:browser --project=chromium
 
@@ -158,27 +161,13 @@ jobs:
       - name: Build and package all runtime artifacts
         run: make f02-package
 
-      - name: Generate pull-request integrity signatures
-        if: ${{ github.event_name == 'pull_request' }}
+      - name: Generate unsigned build integrity digest
         run: make sign-artifacts
-
-      - name: Sign main build artifacts
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        env:
-          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
-          QUANTOS_REQUIRE_FORMAL_SIGNATURE: "1"
-        run: make sign-artifacts
-
-      - name: Verify formal artifact signatures
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        env:
-          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
-        run: make verify-artifact-signatures
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: quantos-build-artifacts
+          name: quantos-build-inputs
           path: |
             artifacts/release/
             artifacts/signatures/
@@ -192,9 +181,52 @@ jobs:
           path: artifacts/f02/
           if-no-files-found: error
 
-  verify-download:
+  signing-policy:
     needs: verify
-    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      # Read-only preflight prevents implicit creation of an unprotected Environment.
+      - run: node scripts/check-f02-signing-policy.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  sign-main:
+    needs: [verify, signing-policy]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: f02-signing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: quantos-build-inputs
+          path: artifacts
+      - name: Sign main build artifacts
+        env:
+          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
+          QUANTOS_REQUIRE_FORMAL_SIGNATURE: "1"
+        run: bash scripts/sign-artifacts.sh artifacts/release/manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quantos-build-artifacts
+          path: |
+            artifacts/release/
+            artifacts/signatures/
+          if-no-files-found: error
+
+  verify-download-main:
+    needs: sign-main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: f02-signing
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -204,14 +236,7 @@ jobs:
         with:
           name: quantos-build-artifacts
           path: artifacts
-      - name: Verify downloaded payload inventory and source
-        run: node scripts/verify-release.mjs artifacts/release "${{ github.sha }}"
-      - name: Verify downloaded main signature
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        env:
-          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
-        run: bash scripts/verify-artifact-signatures.sh artifacts/release/manifest.json
-      - name: Record downloaded artifact receipt
+      - name: Verify downloaded payload and formal signature; record receipt
         env:
           QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
         run: node scripts/write-f02-ci-receipt.mjs
@@ -220,3 +245,45 @@ jobs:
           name: f02-download-receipt
           path: artifacts/f02/download-receipt.json
           if-no-files-found: error
+
+  verify-download-pr:
+    needs: verify
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - uses: actions/download-artifact@v4
+        with:
+          name: quantos-build-inputs
+          path: artifacts
+      - name: Verify PR payload without signing credentials
+        env:
+          QUANTOS_DOWNLOADED_ARTIFACT: quantos-build-inputs
+        run: node scripts/write-f02-ci-receipt.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f02-download-receipt
+          path: artifacts/f02/download-receipt.json
+          if-no-files-found: error
+
+  # Stable required-check name: a skipped upstream job never counts as acceptance.
+  verify-download:
+    needs: [verify-download-main, verify-download-pr]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require the event-specific download verification
+        env:
+          MAIN_RESULT: ${{ needs.verify-download-main.result }}
+          PR_RESULT: ${{ needs.verify-download-pr.result }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+            test "$MAIN_RESULT" = success
+          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            test "$PR_RESULT" = success
+          else
+            exit 1
+          fi

@@ -19,7 +19,17 @@ function pngInventory(directory, root, out = []) {
   return out;
 }
 
-export function validateVisualBaselines(root = repoRoot, { readFile = readFileSync } = {}) {
+export const visualCases = [
+  ["command", "command-1440-dark"],
+  ["ui102-auth", "ui102-login-1440-dark"],
+  ["ui104-settings", "ui104-security-1440-dark"],
+  ["ui104-settings", "ui104-browser-1440-dark"],
+];
+export const requiredVisualPaths = (platform) => ["chromium", "firefox", "webkit"].flatMap(
+  (browser) => visualCases.map(([spec, name]) => `tests/e2e/${spec}.spec.ts-snapshots/${name}-${browser}-${platform}.png`),
+);
+
+export function validateVisualBaselines(root = repoRoot, { readFile = readFileSync, platform } = {}) {
   const issues = [];
   const manifestPath = join(root, manifestRelativePath);
   if (!existsSync(manifestPath)) return { status: "FAIL", issues: [`missing ${manifestRelativePath}`], entries: 0 };
@@ -37,6 +47,11 @@ export function validateVisualBaselines(root = repoRoot, { readFile = readFileSy
   const entries = manifest.entries ?? [];
   const declared = entries.map((entry) => entry.path);
   if (new Set(declared).size !== declared.length) issues.push("duplicate visual baseline path");
+  if (platform) {
+    for (const path of requiredVisualPaths(platform)) {
+      if (!declared.includes(path)) issues.push(`missing required platform baseline: ${path}`);
+    }
+  }
   const actual = pngInventory(join(root, "tests/e2e"), root).sort();
   if (JSON.stringify([...declared].sort()) !== JSON.stringify(actual)) {
     issues.push("visual baseline manifest inventory does not match tracked PNG files");
@@ -73,7 +88,10 @@ export function validateVisualBaselines(root = repoRoot, { readFile = readFileSy
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  const report = validateVisualBaselines();
+  const platformIndex = process.argv.indexOf("--platform");
+  const platform = platformIndex < 0 ? undefined : process.argv[platformIndex + 1];
+  if (platformIndex >= 0 && !["linux", "darwin", "win32"].includes(platform)) throw Error("--platform requires linux, darwin, or win32");
+  const report = validateVisualBaselines(repoRoot, { platform });
   if (report.status === "FAIL") {
     for (const issue of report.issues) console.error(`FAIL  ${issue}`);
     process.exitCode = 1;

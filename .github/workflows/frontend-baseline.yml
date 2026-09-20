@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   frontend-baseline:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       NEXT_PUBLIC_QUANTOS_ENV: local-mock
       NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai
@@ -97,7 +97,7 @@ jobs:
         run: node scripts/check-perf-budget.mjs
 
       - name: Visual baseline integrity
-        run: pnpm check:visual-baselines
+        run: pnpm check:visual-baselines --platform linux
 
       - name: Install Playwright Chromium
         run: pnpm exec playwright install chromium --with-deps

@@ -40,3 +40,31 @@
 - 证据文件：[本地验证目录](./evidence/F02-A11-2026-09-20/)。这些结果适用于本轮本地修改；旧 SHA 的 Actions 不能验证新修改。
 
 下一步由人工推送本轮提交，再收集新 SHA 的工作流结果。A11 关闭前仍必须取得主干正式签名的 `f02-download-receipt`（`status=PASS`、同 SHA、`downloadVerified=true`、`formalSignatureVerified=true`）、供应链及数据库回执、完整视觉矩阵、远程负向门禁拒绝与恢复记录、实际生效的 required checks 证据。套餐升级属于管理员决定，本轮不代为购买或调整仓库可见性。
+
+
+## 5. 后续推进：51ffc1e 已推送，A11 按用户决定保持 OPEN
+
+2026-09-20 16:55 的 main push 为 `51ffc1e8aa179c4c0d342342c6d3556a9c1dab7b`。下列回执不能替代前述 `15727fe`，也不能验证本轮尚待推送的新实现：
+
+| 工作流 | 运行 | 已观察结论 |
+|---|---|---|
+| Frontend Baseline #33 | [35500904518](https://github.com/SumAlphaAI/QuantOS/actions/runs/35500904518) | SUCCESS，3m7s；上一轮 Next.js 版本断言修复生效，但 Terminal 仍 24 passed / 3 skipped |
+| QuantOS Compatibility #54 | [35500904511](https://github.com/SumAlphaAI/QuantOS/actions/runs/35500904511) | SUCCESS，3m23s；三浏览器共 126 passed / 9 skipped，完整视觉验收仍未完成 |
+| QuantOS CI #90 | [35500904510](https://github.com/SumAlphaAI/QuantOS/actions/runs/35500904510) | FAILURE，15m6s；TypeScript coverage 错纳第二期 Desktop 测试，无法解析 @sumalpha/platform；verify-download 跳过，未取得正式签名回执 |
+| F01 Clean Room #48 | [35500904502](https://github.com/SumAlphaAI/QuantOS/actions/runs/35500904502) | 已触发；未在本轮归档其最终机器回执 |
+
+用户明确选择“暂不升级，保留 A11 开放”。Ruleset 仍受当前私有仓库套餐限制，签名 Environment 尚未配置。自动审批拒绝创建 `f02-signing`（原因：持久化仓库设置变更授权不足）；本轮未绕过审批、未写入密钥、未变更套餐或规则。
+
+本轮完成可提交的准备工作：
+
+- 签名独立为 `sign-main` / `verify-download-main`，仅 main push 使用受分支限制的 Environment；PR 构建/下载无签名凭据；签名前只读校验已存在的精确 main 分支策略。最终 `verify-download` required check 拒绝上游 skipped/failure。
+- Linux 视觉门禁要求 Chromium/Firefox/WebKit × 4 页面共 12 张基线；移除缺基线 skip；正常比较与候选采集均固定 Ubuntu 24.04。
+- 新增只读仓库权限的候选采集 workflow，以及 SHA/图片哈希校验、过期渲染输入拒绝、人工审阅后导入工具。候选产出不计验收；需下载审图、本地提交、人工再推送并比较通过。
+- 修复 `vitest.coverage.config.ts` 将第二期 Desktop 纳入 Web 覆盖率的范围错误：显式匹配 apps/website、apps/terminal 和共享 packages；保持原 80% 行覆盖率门槛，避免依赖本机残留 Desktop node_modules。
+- 提供无 bypass、main 目标、8 项 required checks 的本地规则草案，未应用。具体设置与人工交接命令见 [运行手册](../runbooks/f02-supply-chain.md#a11-补齐流程2026-09-20本轮实现待人工推送)。
+
+本地验证：新增 A11 门禁 6 项 + PRE-06 回归 7 项全部通过；Web 覆盖率 106/106 测试通过、行覆盖率 90.92%（SSE 回环监听获准后复验）；macOS Chromium 3 项视觉测试通过（0 skipped）；现有 5 张已跟踪图的清单/哈希检查通过。Linux 完整性检查按预期退出 1，逐项报告 12 张缺失基线，证明未将缺口静默放行。脚本语法、Playwright 用例发现、开发计划结构及 diff 检查通过。证据见 [准备验证目录](./evidence/F02-A11-preparation-2026-09-20/)。
+
+验证限制：扩展运行原 F02 套件时 7 项通过，真实 Gitleaks 用例因本机缺少固定扫描器失败；终端下载未完成后已中止，官方发布包在浏览器也无法下载。未将该用例标为通过；下一次 GitHub CI 必须重新通过完整 `make f02-check`。本机没有 Linux 容器运行时，未伪造或改名生成 Linux 基线；正式签名和有效分支保护仍为 NO RECEIPT。
+
+当前下一动作：人工推送本轮本地提交，先取得 `linux-visual-baseline-candidates`；基线入库前正常 CI 明确失败是预期行为。即使视觉比较补齐，套餐与签名环境问题未解决前，A11 仍不得关闭。

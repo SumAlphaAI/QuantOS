@@ -7,4 +7,4 @@ verifyRelease('artifacts/release',sha);
 const formal=process.env.GITHUB_EVENT_NAME==='push'&&process.env.GITHUB_REF==='refs/heads/main';
 if(formal)execFileSync('bash',['scripts/verify-artifact-signatures.sh','artifacts/release/manifest.json'],{stdio:'inherit'});
 fs.mkdirSync('artifacts/f02',{recursive:true});
-fs.writeFileSync('artifacts/f02/download-receipt.json',JSON.stringify({status:'PASS',commit:sha,run:`${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,attempt:process.env.GITHUB_RUN_ATTEMPT,artifact:'quantos-build-artifacts',downloadVerified:true,formalSignatureVerified:formal,completedAt:new Date().toISOString()},null,2)+'\n');
+fs.writeFileSync('artifacts/f02/download-receipt.json',JSON.stringify({status:'PASS',commit:sha,run:`${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,attempt:process.env.GITHUB_RUN_ATTEMPT,artifact:formal?'quantos-build-artifacts':process.env.QUANTOS_DOWNLOADED_ARTIFACT||'quantos-build-inputs',downloadVerified:true,formalSignatureVerified:formal,completedAt:new Date().toISOString()},null,2)+'\n');

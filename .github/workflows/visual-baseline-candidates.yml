@@ -1,0 +1,50 @@
+name: Visual Baseline Candidates
+
+# Produces review candidates only; never commits, pushes, or counts as acceptance.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/visual-baseline-candidates.yml
+      - scripts/visual-baseline-candidates.mjs
+      - tests/e2e/*.spec.ts
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_QUANTOS_ENV: local-mock
+      NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai
+      NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: http://localhost:3190
+      NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: http://localhost:4010
+      NEXT_PUBLIC_QUANTOS_OIDC_ISSUER: https://mock.idp.local
+      NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: quantos-terminal-ci
+      NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: http://localhost:3190/auth/callback
+      NEXT_PUBLIC_QUANTOS_DEFAULT_MODE: paper
+      NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: "true"
+      NEXT_PUBLIC_QUANTOS_OBS_ENABLED: "false"
+      NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET: "off"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - run: corepack enable pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @sumalpha/terminal build
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - name: Capture all twelve Linux visual candidates
+        run: pnpm exec playwright test --grep '视觉基线|visual baselines' --update-snapshots
+      - name: Bind candidate hashes to capture SHA
+        run: node scripts/visual-baseline-candidates.mjs capture
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-visual-baseline-candidates
+          path: artifacts/visual-candidates/
+          if-no-files-found: error

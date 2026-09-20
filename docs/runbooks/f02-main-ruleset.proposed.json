@@ -1,0 +1,55 @@
+{
+  "name": "F02 main required gates",
+  "target": "branch",
+  "enforcement": "active",
+  "bypass_actors": [],
+  "conditions": {
+    "ref_name": {
+      "include": [
+        "refs/heads/main"
+      ],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          {
+            "context": "verify"
+          },
+          {
+            "context": "verify-download"
+          },
+          {
+            "context": "frontend-baseline"
+          },
+          {
+            "context": "Web contract (chromium)"
+          },
+          {
+            "context": "Web contract (firefox)"
+          },
+          {
+            "context": "Web contract (webkit)"
+          },
+          {
+            "context": "acceptance (clean-room)"
+          },
+          {
+            "context": "acceptance (reproducibility)"
+          }
+        ]
+      }
+    }
+  ]
+}

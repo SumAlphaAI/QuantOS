@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       NEXT_PUBLIC_QUANTOS_ENV: local-mock
       NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai
@@ -45,5 +45,17 @@ jobs:
           pnpm exec playwright install --dry-run ${{ matrix.browser }}
           ls -la "$HOME/.cache/ms-playwright" || true
           pnpm exec playwright screenshot --browser ${{ matrix.browser }} --viewport-size=1280,720 about:blank /tmp/pw-verify-${{ matrix.browser }}.png
-      - run: pnpm test:browser --project=${{ matrix.browser }}
-      - run: pnpm test:browser:website --project=${{ matrix.browser }}
+      - run: node scripts/check-visual-baselines.mjs --platform linux
+      - run: pnpm test:browser --project=${{ matrix.browser }} --reporter=github,json
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: artifacts/browser/terminal.json
+      - run: pnpm test:browser:website --project=${{ matrix.browser }} --reporter=github,json
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: artifacts/browser/website.json
+      - name: Archive browser comparison evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-comparison-${{ matrix.browser }}
+          path: artifacts/browser/
+          if-no-files-found: warn

@@ -246,4 +246,4 @@ f02-package:
 	$(MAKE) build-manifest
 
 f02-check:
-	node --test scripts/f02-gate-negative.mjs
+	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs
