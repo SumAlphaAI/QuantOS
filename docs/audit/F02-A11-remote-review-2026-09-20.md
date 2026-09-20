@@ -1,5 +1,7 @@
 # F02 A11 远程回执检查（2026-09-20）
 
+> 最新状态：见第 6 节。已保存签名环境和规则集、导入 Linux 12 张基线；A11 OPEN，待新 SHA 验收及套餐限制解除。第 1–5 节保留历史时间点。
+
 ## 1. 完成概况
 
 用户已通过 GitHub Desktop 人工推送；在已登录 GitHub 页面确认 `main` 的 push 运行绑定完整 SHA `15727feee3018de6f5dc97621241319bea505552`（2026-09-20 16:38，Asia/Shanghai）。本轮只读检查 Actions 和仓库规则，修复失败原因后生成本地提交，再交由人工推送。**A11 保持 OPEN**，不将兼容性工作流绿色状态当作完整验收。
@@ -61,10 +63,32 @@
 - Linux 视觉门禁要求 Chromium/Firefox/WebKit × 4 页面共 12 张基线；移除缺基线 skip；正常比较与候选采集均固定 Ubuntu 24.04。
 - 新增只读仓库权限的候选采集 workflow，以及 SHA/图片哈希校验、过期渲染输入拒绝、人工审阅后导入工具。候选产出不计验收；需下载审图、本地提交、人工再推送并比较通过。
 - 修复 `vitest.coverage.config.ts` 将第二期 Desktop 纳入 Web 覆盖率的范围错误：显式匹配 apps/website、apps/terminal 和共享 packages；保持原 80% 行覆盖率门槛，避免依赖本机残留 Desktop node_modules。
-- 提供无 bypass、main 目标、8 项 required checks 的本地规则草案，未应用。具体设置与人工交接命令见 [运行手册](../runbooks/f02-supply-chain.md#a11-补齐流程2026-09-20本轮实现待人工推送)。
+- 提供无 bypass、main 目标、8 项 required checks 的本地规则草案，未应用。具体设置与人工交接命令见 [运行手册](../runbooks/f02-supply-chain.md)。
 
 本地验证：新增 A11 门禁 6 项 + PRE-06 回归 7 项全部通过；Web 覆盖率 106/106 测试通过、行覆盖率 90.92%（SSE 回环监听获准后复验）；macOS Chromium 3 项视觉测试通过（0 skipped）；现有 5 张已跟踪图的清单/哈希检查通过。Linux 完整性检查按预期退出 1，逐项报告 12 张缺失基线，证明未将缺口静默放行。脚本语法、Playwright 用例发现、开发计划结构及 diff 检查通过。证据见 [准备验证目录](./evidence/F02-A11-preparation-2026-09-20/)。
 
 验证限制：扩展运行原 F02 套件时 7 项通过，真实 Gitleaks 用例因本机缺少固定扫描器失败；终端下载未完成后已中止，官方发布包在浏览器也无法下载。未将该用例标为通过；下一次 GitHub CI 必须重新通过完整 `make f02-check`。本机没有 Linux 容器运行时，未伪造或改名生成 Linux 基线；正式签名和有效分支保护仍为 NO RECEIPT。
 
 当前下一动作：人工推送本轮本地提交，先取得 `linux-visual-baseline-candidates`；基线入库前正常 CI 明确失败是预期行为。即使视觉比较补齐，套餐与签名环境问题未解决前，A11 仍不得关闭。
+
+
+## 6. 管理员授权后的设置落地与完整基线导入
+
+2026-09-20 用户明确授权持久化仓库设置变更，此前“设置授权不足”已解除。未升级套餐、未改变私有仓库可见性、未写入或读取密钥、未代理 push。
+
+- 已创建 [f02-signing Environment](https://github.com/SumAlphaAI/QuantOS/settings/environments/22328533109/edit)，ID `22328533109`。保存 Selected branches and tags，精确 **Branch: main**；页面确认 1 branch、0 tags，当前无 Secrets。运行时 `signing-policy` 尚未执行，不能把 UI 保存当作正式签名回执。
+- 已创建并保存 [F02 main required gates](https://github.com/SumAlphaAI/QuantOS/settings/rules/23727075)，ID `23727075`。Active、只匹配 main、无 bypass、严格更新检查、禁止删除与强推；全部 8 项检查来源均限定 GitHub Actions。页面仍明确显示私有仓库套餐不执行规则，故 **CONFIGURED / NOT ENFORCED**，有效分支保护仍未验收。
+
+`6179d22502bb0b35d42ef1897932b4cc81c8b62e` 已由人工于 17:17 推送，记录如下：
+
+| 工作流 | 运行 | 结果与范围 |
+|---|---|---|
+| Visual Baseline Candidates #1 | [35501909750](https://github.com/SumAlphaAI/QuantOS/actions/runs/35501909750) | SUCCESS，2m12s；9 passed，12 张候选，Ubuntu 24.04 / Playwright 1.62.1；仅采集 |
+| F01 Clean Room #49 | [35501909756](https://github.com/SumAlphaAI/QuantOS/actions/runs/35501909756) | SUCCESS，14m27s；两份下载 JSON 已核对 ZIP 哈希、source SHA、run ID；冷启动 PASS，3 次可重复构建 PASS |
+| QuantOS CI #91 | [35501909723](https://github.com/SumAlphaAI/QuantOS/actions/runs/35501909723) | FAIL，6m20s；step14 明确拒绝全部12张缺失 Linux 基线；signing-policy/sign-main/download-main 未执行，最终 verify-download 失败，未静默放行 |
+| Frontend Baseline #34 | [35501909780](https://github.com/SumAlphaAI/QuantOS/actions/runs/35501909780) | FAIL，1m54s；不计前端验收 PASS |
+| QuantOS Compatibility #55 | [35501909748](https://github.com/SumAlphaAI/QuantOS/actions/runs/35501909748) | FAIL，2m6s；三个 job 均失败，无 browser-comparison artifacts，不计视觉比较 PASS |
+
+候选 ZIP 与 GitHub SHA-256 一致，12 张 PNG 已逐图审阅并通过导入工具校验，存入 tests/e2e 对应 snapshots；清单含原5张Darwin及12张Linux，完整 Linux 门禁 PASS。A11/PRE-06 负向回归13/13通过、0 skipped。审阅范围、各引擎差异、机器回执和设置转录见 [本轮证据](./evidence/F02-A11-6179d22-2026-09-20/README.md)。这补齐了基线文件，不等于新 SHA 比较通过。
+
+**后续交接**：管理员亲自在上述 Environment 添加 `QUANTOS_SIGNING_KEY`（至少32字节随机值，不发送至聊天、不放入仓库）。凭据录入按浏览器工具规则须由用户完成；其他持久化设置授权已落实。随后由人工 GitHub Desktop 推送本轮基线/文档提交，收集新 SHA 的完整 CI、三浏览器比较与正式制品回执。若 Environment API/部署限制因套餐不可用，保留失败记录，不能改用 PR 可见的仓库级密钥。用户仍决定不升级套餐，因此即使签名与视觉补齐，**有效分支保护及其阻断/恢复证据未完成，A11 继续 OPEN**。

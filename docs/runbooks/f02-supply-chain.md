@@ -28,7 +28,7 @@ CI 上传 payload 后由独立 `verify-download-main` / `verify-download-pr` job
 
 ## 人工推送与 A11 交接流程（2026-09-20 确认）
 
-固定流程：**本地修复与提交 → 人工推送 → GitHub Actions 执行 → 收集回执 → 关闭 A11**。所有代码由人工通过 GitHub Desktop 推送；代理负责本地修复、验证、提交与推送后的只读验收。代理不执行 push，不代操作 GitHub Desktop 上传，也不因缺少回执而自动修改仓库设置。
+固定流程：**本地修复与提交 → 人工推送 → GitHub Actions 执行 → 收集回执 → 关闭 A11**。所有代码由人工通过 GitHub Desktop 推送；代理负责本地修复、验证、提交与推送后验收。代理不执行 push，不代操作 GitHub Desktop 上传。2026-09-20 用户另行明确授权持久化设置变更，已按第 6 节回执配置 Environment 与 Ruleset；套餐升级仍未授权。
 
 ### 1. 本地修复与提交
 
@@ -65,11 +65,11 @@ CI 上传 payload 后由独立 `verify-download-main` / `verify-download-pr` job
 
 只有上述证据齐全且匹配实际验收 SHA、失败/跳过项处理完成后，才更新整改报告和开发计划，将 A11 标为 CLOSED，并生成本地文档提交。该关闭记录仍由人工通过 GitHub Desktop 推送。WebKit 结果不得表述为真实 Safari 已验收。
 
-当前状态：**LOCAL_PREPARATION / PENDING_EXTERNAL_ACCEPTANCE**。2026-09-20 已确认修复提交 `51ffc1e` 人工推送，前端工作流成功；用户决定暂不升级套餐。签名隔离、视觉候选流程及规则草案完成本地准备，待人工推送。A11 保持 OPEN；远程结果、规则缺口和本轮修复见 [A11 远程检查记录](../audit/F02-A11-remote-review-2026-09-20.md)。
+当前状态：**REMOTE_REVIEW / PENDING_EXTERNAL_ACCEPTANCE**。`6179d22` 已人工推送；本地已导入12张Linux候选基线，待新提交人工推送并比较。Environment 与 Ruleset 已保存；密钥未录入、规则受套餐限制不执行，A11 OPEN。最新回执见 [A11 远程检查第 6 节](../audit/F02-A11-remote-review-2026-09-20.md#6-管理员授权后的设置落地与完整基线导入)。
 
-## A11 补齐流程（2026-09-20，本轮实现待人工推送）
+## A11 补齐流程（2026-09-20，设置与基线已准备）
 
-用户已决定暂不升级 GitHub Team，A11 保持 OPEN。当前私有仓库页面显示 Ruleset 不会生效，且没有 Environment；创建 `f02-signing` 的浏览器操作被自动审批拒绝（持久化设置变更授权不足），本轮未通过其他入口创建。以下步骤是待执行方案，不是已生效配置。
+用户不升级 GitHub Team 的决定仍有效。管理员授权后，已创建 main-only 的 f02-signing 和8项检查的 Ruleset；此前自动审批授权不足已解除。设置保存结果不替代运行时隔离、正式验签和实际分支阻断回执。
 
 ### 正式签名与独立下载复验
 
@@ -77,9 +77,9 @@ CI 上传 payload 后由独立 `verify-download-main` / `verify-download-pr` job
 
 `sign-main` 和 `verify-download-main` 是两个独立 runner，均只对 main push 运行并使用 `f02-signing`。前者签名并上传 `quantos-build-artifacts`，后者下载、校验完整 payload 和 HMAC，写入 `f02-download-receipt`。PR 使用无 Environment、无密钥的 `verify-download-pr`，只验证完整性。稳定 required check `verify-download` 对上游失败/跳过均拒绝，不把 skipped 当作成功。
 
-在套餐满足条件并获得明确设置授权后：
+当前执行状态及下一步：
 
-1. 创建 `f02-signing` Environment，Deployment branches 选择 Selected branches and tags，仅添加 **Branch: main**，不添加 tag 或通配符。
+1. 已创建 `f02-signing` Environment，Deployment branches 选择 Selected branches and tags，仅添加 **Branch: main**，不添加 tag 或通配符。
 2. 管理员在该 Environment 的 Secrets 中录入随机生成的 `QUANTOS_SIGNING_KEY`（建议至少 32 字节随机值）；密钥不得发送到聊天、写入仓库或审计回执。若已有同名仓库级密钥，先由管理员核对使用方后迁移，避免 PR 可获得仓库级密钥。
 3. 新的同 SHA main push 必须完整通过上述 job；下载回执中的 `formalSignatureVerified=true` 才能作为验收依据。
 
@@ -104,6 +104,6 @@ GitHub 官方说明：私有仓库使用 Environment、Environment secrets 和 d
 
 ### 有效分支保护
 
-[规则草案](./f02-main-ruleset.proposed.json) 是待配置输入，不是生效回执。它仅匹配 `refs/heads/main`，没有 bypass，禁止删除和 force push，并要求最新基线上的 8 项 status checks：`verify`、`verify-download`、`frontend-baseline`、三项 `Web contract (...)`、两项 `acceptance (...)`。候选采集 job 不得作为 required acceptance check。
+[规则草案](./f02-main-ruleset.proposed.json) 已导入规则集23727075，并在UI把8项来源全部限定为GitHub Actions；保存为Active，但受套餐限制未生效。此JSON不含UI后续选择的来源ID，不是最终设置导出或生效回执。它仅匹配 `refs/heads/main`，没有 bypass，禁止删除和 force push，并要求最新基线上的 8 项 status checks：`verify`、`verify-download`、`frontend-baseline`、三项 `Web contract (...)`、两项 `acceptance (...)`。候选采集 job 不得作为 required acceptance check。
 
-套餐升级并获得设置授权后，通过 GitHub UI 导入或按该清单创建规则，确认 Active、目标 main 和检查名称与真实 check run 完全一致；从 UI 选择 GitHub Actions 为检查来源。之后重新读取规则页面/API，并用 PR 的失败检查验证不能合并、恢复通过后才允许合并。未执行该验证前不填写“有效分支保护 PASS”。严格 required checks 要求提交先在其他 ref 上通过检查；人工工作流应使用 GitHub Desktop 推送工作分支，再创建 PR 运行检查，不能通过为管理员添加 bypass 绕过验收。[GitHub required checks 说明](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)
+规则集已保存。未来用户决定升级且套餐具备条件后，重新读取规则页面/API，并用 PR 的失败检查验证不能合并、恢复通过后才允许合并。未执行该验证前不填写“有效分支保护 PASS”。严格 required checks 要求提交先在其他 ref 上通过检查；人工工作流应使用 GitHub Desktop 推送工作分支，再创建 PR 运行检查，不能通过为管理员添加 bypass 绕过验收。[GitHub required checks 说明](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)
