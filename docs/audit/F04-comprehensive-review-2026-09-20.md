@@ -1,9 +1,9 @@
 # F04 Core、错误、时钟与 ID 全面复审报告
 
-> 初次复审日期：2026-09-20；整改复核日期：2026-09-20。
+> 初次复审日期：2026-09-20；整改复核日期：2026-09-20；远端验收核验：2026-09-21。
 > 初次复审基线：`db2e51f4c37fdced7cf22d0b939e8277c73d959c`。
 > 依据：[开发计划 F04](../SumAlpha-QuantOS-Development-Plan.md#task-f04)、开发计划第 2.2 节最低完成条件及第 2.3 节测试资产规则。
-> 当前结论：**原 9 项问题经独立复核均已本地解决，追加门禁修复已通过；23/23 本地检查点 PASS，本地完成率 100%，远端验收待回执。本地 F04 Gate、nightly branch 覆盖率、workspace Clippy 和完整 Rust workspace 测试均通过。新提交的 GitHub Actions 回执需在人工推送后另行收集。**
+> 当前结论：**原 9 项问题经独立复核均已本地解决，追加门禁修复已通过；23/23 本地检查点 PASS，本地完成率 100%，远端 branch 已通过，主 CI 因前端视觉测试失败，整体远端验收未通过。本地 F04 Gate、nightly branch 覆盖率、workspace Clippy 和完整 Rust workspace 测试均通过。同 SHA `b34a352` 的已核验回执见 [远端验收记录](F04-remote-acceptance-2026-09-21.md)。**
 
 ## 一、任务完成概况
 
@@ -62,9 +62,9 @@
 
 剩余验收边界：
 
-- **远端回执待收集**：本轮结果来自本地工作树，不能代替新提交同 SHA 的 `QuantOS CI` 和 `F04 Core Branch Coverage`。F04 保持 `IMPLEMENTED_PENDING_ACCEPTANCE` / `FIX_VALIDATION`。
+- **远端主 CI 未通过**：`b34a352` 的 F04 branch Run `35518613741` 已通过（43/44，97.73%）；主 CI Run `35518613742` 在 Command Center、UI-102、UI-104 三个视觉测试失败，阻断后续 stable F04 Gate。F04 保持 `IMPLEMENTED_PENDING_ACCEPTANCE` / `FIX_VALIDATION`；具体差异及链接见 [远端验收记录](F04-remote-acceptance-2026-09-21.md)。
 - `clock.rs` 自身没有 LLVM 可计数的分支，branch 为 N/A；时区正负 offset、UTC 归一化及非法输入通过行为测试验证，line/region 均为 100%。不将依赖 chrono 的内部覆盖率计为本项目覆盖率。
-- 本地 branch instrumentation 使用 nightly rustc，reporting 使用已安装 Rust 1.91 LLVM tools；远端 workflow 配置 nightly 对应工具，仍须等待实际运行回执。
+- 本地 branch instrumentation 使用 nightly rustc，reporting 使用已安装 Rust 1.91 LLVM tools；远端 nightly 已执行成功，Linux 回执 line 97.75%、region 95.52%、branch 97.73%，不与本地 stable 指标混用。
 - canonical JSON 仅面向 QuantOS 的 `serde_json::Value` 合约，不声明为 RFC 8785；FixtureId 按设计不进入内容 hash。
 
 ## 四、后续维护建议
@@ -72,4 +72,4 @@
 1. 每次修改 core primitive、serde 边界或 fixture canonicalization 时执行 `make f04-check`；不得以聚合 coverage 代替独立 core threshold。
 2. 新增 `ErrorCode` 时必须同步扩展 11/11 表驱动契约；新增受约束 value object 时必须提供构造和反序列化的同一不变量测试。
 3. 保持 `scripts/check-f04.mjs` 的双进程 1,000 fixture 比较和 P95 阈值；依赖升级后摘要变化必须经过明确兼容性评审。
-4. 人工推送本提交后收集同 SHA 的 `QuantOS CI` 与 `F04 Core Branch Coverage` 回执。两项成功后，才把开发计划 F04 的 `review_status` 更新为 `ACCEPTED`。
+4. 修复远端记录中的前端视觉差异，人工推送后收集修复提交同 SHA 的 `QuantOS CI` 与 `F04 Core Branch Coverage` 成功回执，确认 stable F04 Gate 实际执行通过，再将 `review_status` 更新为 `ACCEPTED`。
