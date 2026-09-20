@@ -115,3 +115,31 @@ def test_mock_engine_contract_all_rpcs(tmp_path: Path) -> None:
         server.stop(grace=0)
         if socket_path.exists():
             socket_path.unlink()
+
+
+@pytest.mark.parametrize("streaming", [False, True])
+def test_engine_rejects_invalid_response_metadata(streaming: bool) -> None:
+    class InvalidResponseEngine(MockEngineService):
+        def health(self, request, context):
+            return engine_pb2.HealthResponse(ready=True)
+
+        def stream_execute(self, request, context):
+            yield engine_pb2.StreamExecuteResponse(done=True)
+
+    socket_path = Path("/tmp") / f"quantos-invalid-response-{uuid4().hex}.sock"
+    server = serve_engine(socket_path, InvalidResponseEngine())
+    client = EngineClient(uds_target(socket_path))
+    try:
+        with pytest.raises(grpc.RpcError) as invalid:
+            if streaming:
+                client.stream_execute(engine_pb2.StreamExecuteRequest(
+                    request=engine_pb2.ExecuteRequest(metadata=build_metadata(1)),
+                ), timeout=5)
+            else:
+                client.health(engine_pb2.HealthRequest(metadata=build_metadata(1)), timeout=5)
+        assert invalid.value.code() == grpc.StatusCode.INTERNAL
+        assert "invalid engine response" in (invalid.value.details() or "")
+    finally:
+        client.close()
+        server.stop(grace=0).wait()
+        socket_path.unlink(missing_ok=True)

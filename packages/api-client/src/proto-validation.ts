@@ -31,6 +31,7 @@ export function validateCommandMetadata(
 
 export function validateProtocolMessage(message: {
   metadata?: CommandMetadata | undefined;
+  request?: { metadata?: CommandMetadata | undefined } | undefined;
 }): void {
-  validateCommandMetadata(message.metadata);
+  validateCommandMetadata(message.metadata ?? message.request?.metadata);
 }

@@ -120,13 +120,20 @@ def add_engine_service(
 
     observer = observability or EngineObservability(service.manifest.engine_name)
 
+    def checked_response(response, context):
+        try:
+            validate_message_metadata(response)
+        except MetadataValidationError as error:
+            context.abort(grpc.StatusCode.INTERNAL, f"invalid engine response: {error}")
+        return response
+
     def unary(operation: str, method: Callable):
         def observed(request, context):
             correlation_id = observer.correlation_id(request)
             observer.record(correlation_id, operation, "started", {"transport": "grpc"})
             try:
                 validate_message_metadata(request)
-                response = method(request, context)
+                response = checked_response(method(request, context), context)
             except MetadataValidationError as error:
                 observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(error))
@@ -144,7 +151,8 @@ def add_engine_service(
             observer.record(correlation_id, operation, "started", {"transport": "grpc"})
             try:
                 validate_message_metadata(request)
-                yield from method(request, context)
+                for response in method(request, context):
+                    yield checked_response(response, context)
             except MetadataValidationError as error:
                 observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(error))

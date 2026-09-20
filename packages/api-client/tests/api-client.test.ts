@@ -102,6 +102,8 @@ describe("api-client", () => {
       },
     });
     expect(() => validateProtocolMessage(complete)).not.toThrow();
+    expect(() => validateProtocolMessage({ request: complete })).not.toThrow();
+    expect(() => validateProtocolMessage({ request: {} })).toThrowError("metadata");
 
     const fields = [
       ["requestId", "metadata.request_id"],

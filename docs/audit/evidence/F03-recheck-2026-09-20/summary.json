@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "quantos-f03-recheck/v1",
+  "date": "2026-09-20",
+  "sourceBaseCommit": "9aea0b5fa01c7c1824efac5610483005fc1d7958",
+  "scope": "Current working-tree fixes plus independent recheck of A01-A06",
+  "supersedesAcceptance": "../F03-remediation-2026-09-20/summary.json",
+  "result": "IMPLEMENTED_PENDING_ACCEPTANCE",
+  "closed": ["A01", "A03", "A05", "A06"],
+  "open": ["A02", "A04"],
+  "checkpoints": {"total": 20, "pass": 17, "partial": 3, "strictPercent": 85},
+  "partialCheckpoints": ["C12", "C18", "C20"],
+  "quantitativeAcceptance": {"total": 4, "pass": 3, "partial": 1},
+  "runs": [
+    {"command": "cargo test -p quantos-proto --locked", "passed": 6},
+    {"command": "uv run --locked --project engines --all-packages pytest -q", "passed": 95},
+    {"command": "uv run --locked --project engines --all-packages ruff check .", "result": "PASS"},
+    {"command": "uv run --locked --project engines --all-packages pyright --project engines", "result": "PASS"},
+    {"command": "pnpm --filter @sumalpha/api-client test", "passed": 12},
+    {"command": "pnpm --filter @sumalpha/api-client typecheck", "result": "PASS"},
+    {"command": "pnpm --filter @sumalpha/api-client build", "result": "PASS"},
+    {"command": "node scripts/check-proto-compatibility.mjs", "result": "PASS", "fixtures": 11000, "perType": 1000, "binaryDirections": 6},
+    {"command": "node scripts/check-json-schemas.mjs", "compiled": 50, "plannedTypes": 11},
+    {"command": "node --test scripts/tests/check-json-schemas.test.mjs scripts/tests/check-proto-config.test.mjs", "passed": 6},
+    {"command": "node_modules/.bin/buf lint && node_modules/.bin/buf build && node scripts/check-proto-breaking.mjs", "result": "PASS"},
+    {"command": "node --test --test-name-pattern='Buf compares' scripts/f02-gate-negative.mjs", "passed": 1}
+  ],
+  "remainingNegativeProbe": "Python accepted EventEnvelope with valid outer metadata and nested Position without metadata",
+  "notRun": ["Full-project remote Buf regeneration", "Three-language ProtoJSON matrix", "Complete oneof and unknown-field boundary matrix"],
+  "environmentRetry": "Initial compatibility attempt lacked uv in its restricted PATH; rerun with normal PATH passed. No environment error counted as product failure."
+}

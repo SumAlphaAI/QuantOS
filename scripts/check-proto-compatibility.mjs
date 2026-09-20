@@ -109,14 +109,13 @@ const fixtureTypes = [
   })],
 ];
 
-for (let index = 0; index < 1000; index += 1) {
+for (let index = 0; index < 1000 * fixtureTypes.length; index += 1) {
   const [typeName, schema, build] = fixtureTypes[index % fixtureTypes.length];
   const message = create(schema, build(index));
   validateProtocolMessage(message);
   fixtures.push(`${typeName}\t${Buffer.from(toBinary(schema, message)).toString("hex")}`);
 }
 
-const input = `${fixtures.join("\n")}\n`;
 const schemasByName = new Map(fixtureTypes.map(([name, schema]) => [name, schema]));
 const consumers = [
   {
@@ -139,16 +138,16 @@ const consumers = [
   },
 ];
 
-for (const consumer of consumers) {
+function exchange(consumer, source, inputFixtures) {
   const result = spawnSync(consumer.command, consumer.args, {
     cwd: root,
     encoding: "utf8",
-    input,
+    input: `${inputFixtures.join("\n")}\n`,
     maxBuffer: 16 * 1024 * 1024,
   });
   if (result.status !== 0) {
     throw new Error(
-      `${consumer.name} compatibility consumer failed (${result.status}): ${result.stderr}`,
+      `${consumer.name} compatibility consumer failed (${result.status}): ${result.error?.message ?? result.stderr}`,
     );
   }
   const returned = result.stdout.trim().split("\n");
@@ -169,9 +168,15 @@ for (const consumer of consumers) {
     const expected = fromBinary(schema, Buffer.from(expectedHex, "hex"));
     const actual = fromBinary(schema, Buffer.from(returnedHex, "hex"));
     if (!equals(schema, expected, actual)) {
-      throw new Error(`${consumer.name} fixture ${index} changed normalized protobuf semantics`);
+      throw new Error(`${source} -> ${consumer.name} fixture ${index} changed normalized protobuf semantics`);
     }
   }
+  return returned;
 }
 
-console.log("Validated 1,000 canonical fixtures for 11 domain messages across TypeScript, Python, and Rust.");
+const outputs = consumers.map(consumer => exchange(consumer, "TypeScript", fixtures));
+// The checks above decode both native outputs in TypeScript. Also feed each native
+// encoder's output to the other native decoder, completing all six binary directions.
+exchange(consumers[0], "Rust", outputs[1]);
+exchange(consumers[1], "Python", outputs[0]);
+console.log("Validated 11,000 fixtures (1,000 per domain message) across all six binary language directions.");

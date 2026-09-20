@@ -196,8 +196,8 @@ flowchart LR
 
 - task_id: `F03`
 - task_type: `CORE`
-- development_status: `COMPLETED`
-- 状态范围：2026-09-20 全面复审整改完成；20/20（100%）检查点、4/4量化验收通过，初审6个问题全部关闭，当前未解决问题为0。
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- 状态范围：2026-09-20再次复核撤回全部通过结论；A01/A03/A05/A06关闭，A02/A04开放。17/20（85%）检查点、3/4量化标准通过，完整远程重生成未验证。
 - review_entry: [GPT-6 Astra 复审入口](#review-f03)
 - 需求描述：领域协议 v1 与 SDK 生成
 - 技术要求：定义 `DataSnapshot`、`ResearchArtifact`、`StrategyRelease`、`Signal`、`TradeProposal`、`RiskDecision`、`TradeCommand`、Order/Fill/Position、Engine/Event API；Buf + OpenAPI 生成
@@ -209,9 +209,19 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: 2026-09-20复审及整改确认20/20检查点、4/4量化验收通过；50份独立Schema、三语言元数据运行时拒绝、11类1,000组互操作、固定生成器及锁更新分离均已验证。详见 [F03 全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)。
-- issues: []
+- review_status: `FIX_VALIDATION`
+- review_conclusion: 本轮补修响应元数据、TS嵌套请求和六方向二进制互操作；Python95项、Rust6项、TS12项及11000组互操作通过。嵌套领域元数据和完整ProtoJSON/边界矩阵仍缺失，A02/A04重新开放。详见 [F03 全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)。
+- issues:
+  - issue_id: F03-A02
+    severity: HIGH
+    description: 外层元数据有效时嵌套领域对象缺少元数据仍被接受，完整递归边界拒绝尚未验证。
+    evidence: docs/audit/F03-comprehensive-review-2026-09-20.md
+    status: OPEN
+  - issue_id: F03-A04
+    severity: MEDIUM
+    description: 六方向二进制互操作通过，但三语言ProtoJSON、全部oneof和未知字段等边界矩阵尚未覆盖。
+    evidence: docs/audit/F03-comprehensive-review-2026-09-20.md
+    status: OPEN
 - fix_tracking: []
 
 <a id="task-f04"></a>
