@@ -1,0 +1,73 @@
+{
+  "schema": "quantos-f03-remote-receipt/v1",
+  "sourceSha": "a9f367a217c74b5b48a98df5b176a7947aef8df3",
+  "branch": "main",
+  "event": "push",
+  "collectionMethod": "Authenticated GitHub Actions browser UI; workflow definitions cross-checked at local exact SHA",
+  "runs": {
+    "ci": {
+      "id": 35511749116,
+      "url": "https://github.com/SumAlphaAI/QuantOS/actions/runs/35511749116",
+      "jobId": 106080738688,
+      "status": "FAILURE",
+      "protoCheck": "NOT_RUN: skipped after browser automation failed",
+      "duration": "6m 39s",
+      "generatedArtifactDrift": "NOT_RUN",
+      "failedStep": "Run browser automation suite",
+      "observedError": "command-1440-dark.png: 53873 pixels (ratio 0.05) differ",
+      "additionalError": "Archive F02 validation evidence: artifacts/f02/ contains no files"
+    },
+    "frontend": {
+      "id": 35511749097,
+      "url": "https://github.com/SumAlphaAI/QuantOS/actions/runs/35511749097",
+      "jobId": 106080738602,
+      "status": "FAILURE",
+      "step": "A1 BFF-FE-000 operation baseline and negative probes",
+      "error": "FAIL  dependency F03 is COMPLETED",
+      "explanation": "F03 intentionally remains IMPLEMENTED_PENDING_ACCEPTANCE until C12 receipt is obtained."
+    },
+    "browserCompatibility": {
+      "id": 35511749081,
+      "url": "https://github.com/SumAlphaAI/QuantOS/actions/runs/35511749081",
+      "status": "SUCCESS",
+      "duration": "3m 37s",
+      "matrix": {
+        "chromium": {
+          "jobId": 106080738426,
+          "terminalPassed": 27,
+          "websitePassed": 18
+        },
+        "firefox": {
+          "jobId": 106080738505,
+          "terminalPassed": 27,
+          "websitePassed": 18
+        },
+        "webkit": {
+          "jobId": 106080738679,
+          "terminalPassed": 27,
+          "websitePassed": 18
+        }
+      },
+      "scope": "Web browser contracts, not protobuf generation or SDK language compatibility"
+    }
+  },
+  "c12": "OPEN",
+  "nextAction": "Manually push follow-up commit; collect exact-SHA F03 Protocol Acceptance artifact and successful proto-check before closing C12.",
+  "localFollowUp": {
+    "workflow": ".github/workflows/f03-protocol.yml",
+    "receipt": "scripts/record-f03-receipt.mjs",
+    "tests": "scripts/tests/record-f03-receipt.test.mjs",
+    "remoteExecution": "NOT_RUN: local follow-up not pushed",
+    "validation": {
+      "tests": 2,
+      "status": "PASS",
+      "negativeCases": 10,
+      "developmentPlanStructure": "PASS"
+    },
+    "sha256": {
+      ".github/workflows/f03-protocol.yml": "b24aab808655d6b16fc6f168f2b0d3e245de0d8b04da240a1a0c2a513de521e4",
+      "scripts/record-f03-receipt.mjs": "b568158798fd612dfa6176e250aa211c3cbfcf9e903aa2145e227a6b7dafcc44",
+      "scripts/tests/record-f03-receipt.test.mjs": "5f30581de77f8b3a62303751ee078fd0b90bffdd6bd8ab414aab001db427203c"
+    }
+  }
+}

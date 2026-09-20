@@ -197,7 +197,7 @@ flowchart LR
 - task_id: `F03`
 - task_type: `CORE`
 - development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
-- 状态范围：2026-09-20完成A02/A04修复，原六项问题全部关闭。19/20（95%）检查点、4/4量化标准通过；C12全项目远程重生成仍待回执。
+- 状态范围：2026-09-20完成A02/A04修复，原六项问题全部关闭。19/20（95%）检查点、4/4量化标准通过；C12在a9f367a主CI中因前置浏览器测试失败而未执行；独立协议验收作业已本地补齐，待人工推送及同SHA回执。
 - review_entry: [GPT-6 Astra 复审入口](#review-f03)
 - 需求描述：领域协议 v1 与 SDK 生成
 - 技术要求：定义 `DataSnapshot`、`ResearchArtifact`、`StrategyRelease`、`Signal`、`TradeProposal`、`RiskDecision`、`TradeCommand`、Order/Fill/Position、Engine/Event API；Buf + OpenAPI 生成
@@ -210,7 +210,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: A02递归元数据校验与A04跨语言ProtoJSON/边界兼容修复通过。Rust8项、Python127项、TS46项；11000组及3组冻结黄金样本覆盖全部六个二进制与六个ProtoJSON方向。六项问题均关闭，保留C12远程生成验收缺口。详见 [F03 全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)。
+- review_conclusion: A02递归元数据校验与A04跨语言ProtoJSON/边界兼容修复通过。Rust8项、Python127项、TS46项；11000组及3组冻结黄金样本覆盖全部六个二进制与六个ProtoJSON方向。六项问题均关闭。a9f367a主CI #95在浏览器步骤失败后跳过proto-check，Frontend Baseline因F03待验状态失败；独立F03验收作业与同SHA回执记录已补齐本地实现，远端尚未执行，C12保持待验。详见 [F03 全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)。
 - issues: []
 - fix_tracking: []
 
