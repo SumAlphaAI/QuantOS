@@ -15,6 +15,7 @@ from quantos_engine_sdk import (
     EngineObservability,
     JsonlTraceExporter,
     serve_engine,
+    timestamp_now,
     uds_target,
 )
 
@@ -35,8 +36,15 @@ def test_engine_rpc_exports_queryable_trace_and_operational_metrics(tmp_path: Pa
                     request_id="observability-health",
                     tenant_id=str(uuid.uuid4()),
                     workspace_id=str(uuid.uuid4()),
+                    actor=common_pb2.ActorRef(
+                        actor_id=str(uuid.uuid4()),
+                        actor_kind=common_pb2.ACTOR_KIND_SERVICE,
+                    ),
                     correlation_id=correlation_id,
                     causation_id=str(uuid.uuid4()),
+                    mode=common_pb2.RUNTIME_MODE_PAPER,
+                    environment=common_pb2.ENVIRONMENT_TEST,
+                    issued_at=timestamp_now(),
                 )
             ),
             timeout=2,

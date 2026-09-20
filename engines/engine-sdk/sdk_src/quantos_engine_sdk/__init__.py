@@ -15,6 +15,11 @@ from quantos_engine_sdk.grpc import (
 )
 from quantos_engine_sdk.manifest import EngineCapability, EngineManifest
 from quantos_engine_sdk.observability import EngineObservability, JsonlTraceExporter
+from quantos_engine_sdk.validation import (
+    MetadataValidationError,
+    validate_command_metadata,
+    validate_message_metadata,
+)
 
 __all__ = [
     "EngineCapability",
@@ -22,6 +27,7 @@ __all__ = [
     "EngineManifest",
     "EngineObservability",
     "JsonlTraceExporter",
+    "MetadataValidationError",
     "add_engine_service",
     "generated_package",
     "input_hash",
@@ -31,5 +37,7 @@ __all__ = [
     "timestamp_from_datetime",
     "timestamp_now",
     "uds_target",
+    "validate_command_metadata",
+    "validate_message_metadata",
     "workspace_name",
 ]

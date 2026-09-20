@@ -20,6 +20,7 @@ from quantos.common.v1 import common_pb2
 from quantos.engine.v1 import engine_pb2
 from quantos_engine_sdk.manifest import EngineManifest
 from quantos_engine_sdk.observability import EngineObservability
+from quantos_engine_sdk.validation import MetadataValidationError, validate_message_metadata
 
 
 def workspace_name() -> str:
@@ -124,7 +125,11 @@ def add_engine_service(
             correlation_id = observer.correlation_id(request)
             observer.record(correlation_id, operation, "started", {"transport": "grpc"})
             try:
+                validate_message_metadata(request)
                 response = method(request, context)
+            except MetadataValidationError as error:
+                observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(error))
             except BaseException:
                 observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
                 raise
@@ -138,7 +143,11 @@ def add_engine_service(
             correlation_id = observer.correlation_id(request)
             observer.record(correlation_id, operation, "started", {"transport": "grpc"})
             try:
+                validate_message_metadata(request)
                 yield from method(request, context)
+            except MetadataValidationError as error:
+                observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
+                context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(error))
             except BaseException:
                 observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
                 raise

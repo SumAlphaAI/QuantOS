@@ -64,5 +64,147 @@
     "quantity",
     "idempotency_key",
     "expires_at"
-  ]
+  ],
+  "definitions": {
+    "v1DecimalValue": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ]
+    },
+    "v1OrderSide": {
+      "type": "string",
+      "enum": [
+        "ORDER_SIDE_UNSPECIFIED",
+        "ORDER_SIDE_BUY",
+        "ORDER_SIDE_SELL"
+      ],
+      "default": "ORDER_SIDE_UNSPECIFIED"
+    },
+    "v1OrderIntentType": {
+      "type": "string",
+      "enum": [
+        "ORDER_INTENT_TYPE_UNSPECIFIED",
+        "ORDER_INTENT_TYPE_MARKET",
+        "ORDER_INTENT_TYPE_LIMIT",
+        "ORDER_INTENT_TYPE_STOP",
+        "ORDER_INTENT_TYPE_STOP_LIMIT"
+      ],
+      "default": "ORDER_INTENT_TYPE_UNSPECIFIED"
+    },
+    "v1VenueKind": {
+      "type": "string",
+      "enum": [
+        "VENUE_KIND_UNSPECIFIED",
+        "VENUE_KIND_CEX",
+        "VENUE_KIND_DEX"
+      ],
+      "default": "VENUE_KIND_UNSPECIFIED"
+    },
+    "v1CommandMetadata": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "workspace_id": {
+          "type": "string"
+        },
+        "actor": {
+          "$ref": "#/definitions/v1ActorRef"
+        },
+        "correlation_id": {
+          "type": "string"
+        },
+        "causation_id": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/definitions/v1RuntimeMode"
+        },
+        "environment": {
+          "$ref": "#/definitions/v1Environment"
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "request_id",
+        "tenant_id",
+        "workspace_id",
+        "actor",
+        "correlation_id",
+        "mode",
+        "environment",
+        "issued_at"
+      ]
+    },
+    "v1Environment": {
+      "type": "string",
+      "enum": [
+        "ENVIRONMENT_UNSPECIFIED",
+        "ENVIRONMENT_LOCAL",
+        "ENVIRONMENT_TEST",
+        "ENVIRONMENT_STAGING",
+        "ENVIRONMENT_PRODUCTION"
+      ],
+      "default": "ENVIRONMENT_UNSPECIFIED"
+    },
+    "v1RuntimeMode": {
+      "type": "string",
+      "enum": [
+        "RUNTIME_MODE_UNSPECIFIED",
+        "RUNTIME_MODE_RESEARCH",
+        "RUNTIME_MODE_PAPER",
+        "RUNTIME_MODE_SHADOW",
+        "RUNTIME_MODE_ASSISTED_LIVE",
+        "RUNTIME_MODE_GUARDED_LIVE"
+      ],
+      "default": "RUNTIME_MODE_UNSPECIFIED"
+    },
+    "v1ActorRef": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "string"
+        },
+        "actor_kind": {
+          "$ref": "#/definitions/v1ActorKind"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "actor_id",
+        "actor_kind"
+      ]
+    },
+    "v1ActorKind": {
+      "type": "string",
+      "enum": [
+        "ACTOR_KIND_UNSPECIFIED",
+        "ACTOR_KIND_USER",
+        "ACTOR_KIND_SERVICE",
+        "ACTOR_KIND_AUTOMATION"
+      ],
+      "default": "ACTOR_KIND_UNSPECIFIED"
+    }
+  }
 }

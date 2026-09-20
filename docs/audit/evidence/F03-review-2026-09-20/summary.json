@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "quantos-f03-review/v1",
+  "reviewedAt": "2026-09-20",
+  "sourceCommit": "4ff0331ba3a13e204201b69ec787bac86c6b5b0a",
+  "scope": "F03 domain protocol v1 and SDK generation",
+  "result": "IMPLEMENTED_PENDING_REMEDIATION",
+  "completion": {
+    "checkpoints": 20,
+    "passed": 15,
+    "partial": 2,
+    "failed": 3,
+    "noReceipt": 0,
+    "strictCompletionPercent": 75.0
+  },
+  "findings": {
+    "blocker": 0,
+    "high": 2,
+    "medium": 3,
+    "low": 1
+  },
+  "verification": [
+    {
+      "command": "make proto-check",
+      "result": "PASS",
+      "detail": "48 JSON schema documents generated; Buf compatibility checked against 1d94edc2e79ac562b6407063ce4a7bd83026dc99"
+    },
+    {
+      "command": "cargo test -p quantos-proto --test protocol_roundtrip",
+      "result": "PASS",
+      "detail": "4 tests passed, including 1,000 fixture sets across 11 planned domain messages"
+    },
+    {
+      "command": "uv run --locked --project engines --all-packages pytest engines/tests/test_proto_sdk.py engines/tests/test_protocol_metadata_completeness.py -q",
+      "result": "PASS",
+      "detail": "5 tests passed; Python TradeCommand completed 1,000 roundtrips"
+    },
+    {
+      "command": "uv build --project engines/engine-sdk --wheel --out-dir /tmp/quantos-f03-python-dist",
+      "result": "PASS",
+      "detail": "quantos_engine_sdk-0.1.0-py3-none-any.whl built and generated protocol modules imported"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/api-client typecheck && pnpm --filter @sumalpha/api-client build && pnpm --filter @sumalpha/api-client test",
+      "result": "PASS",
+      "detail": "TypeScript typecheck and build passed; 11 tests passed"
+    },
+    {
+      "command": "node --test --test-name-pattern='Buf compares against distinct historical source and detects removed fields' scripts/f02-gate-negative.mjs",
+      "result": "PASS",
+      "detail": "A removed protobuf field was rejected and the distinct historical baseline requirement was exercised"
+    },
+    {
+      "probe": "standalone JSON schema local-reference resolution",
+      "result": "FAIL",
+      "detail": "24 of 48 schema files contain 86 unresolved #/definitions references; AJV cannot compile v1TradeCommand.schema.json"
+    },
+    {
+      "probe": "planned domain schema coverage",
+      "result": "FAIL",
+      "detail": "v1StrategyRelease.schema.json is absent because the extractor only exports OpenAPI-reachable definitions"
+    },
+    {
+      "probe": "missing required metadata serialization",
+      "result": "FAIL",
+      "detail": "Python and TypeScript both serialized and decoded TradeCommand(command_id='only-id') without metadata into 9 bytes"
+    }
+  ],
+  "evidenceBoundary": {
+    "remoteCi": "NO RECEIPT",
+    "crossLanguageCanonicalFixtureExchange": "NOT IMPLEMENTED",
+    "note": "Local results establish the stated source and local toolchain behavior only."
+  }
+}

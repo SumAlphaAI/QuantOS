@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "quantos-f03-remediation/v1",
+  "validatedAt": "2026-09-20",
+  "sourceBaseCommit": "4ff0331ba3a13e204201b69ec787bac86c6b5b0a",
+  "result": "ACCEPTED",
+  "completion": {
+    "checkpoints": 20,
+    "passed": 20,
+    "partial": 0,
+    "failed": 0,
+    "strictCompletionPercent": 100.0
+  },
+  "findings": {
+    "original": 6,
+    "closed": 6,
+    "open": 0,
+    "bySeverity": {
+      "blocker": 0,
+      "high": 2,
+      "medium": 3,
+      "low": 1
+    }
+  },
+  "verification": [
+    {
+      "scope": "local Buf source checks",
+      "result": "PASS",
+      "detail": "buf format, lint, build and breaking check passed; baseline 1d94edc2e79ac562b6407063ce4a7bd83026dc99"
+    },
+    {
+      "scope": "standalone JSON Schema",
+      "result": "PASS",
+      "detail": "50 of 50 schemas compiled with AJV 2020-12; all 11 planned domain schemas present"
+    },
+    {
+      "scope": "schema and generator negative gates",
+      "result": "PASS",
+      "detail": "6 of 6 tests passed: missing domain schema, unresolved reference, unpinned plugin and implicit dependency update were rejected"
+    },
+    {
+      "scope": "Rust SDK",
+      "result": "PASS",
+      "detail": "cargo test -p quantos-proto: 6 tests passed; Clippy and rustfmt passed"
+    },
+    {
+      "scope": "Python SDK and engines",
+      "result": "PASS",
+      "detail": "93 tests passed; Ruff and Pyright passed"
+    },
+    {
+      "scope": "TypeScript SDK",
+      "result": "PASS",
+      "detail": "12 tests passed; ESLint, typecheck and build passed"
+    },
+    {
+      "scope": "cross-language compatibility",
+      "result": "PASS",
+      "detail": "1,000 fixtures rotating across 11 domain messages were encoded by TypeScript and decoded, validated and re-encoded by Python and Rust without normalized semantic differences"
+    },
+    {
+      "scope": "pinned OpenAPI plugin",
+      "result": "PASS",
+      "detail": "All 6 remote plugins are pinned; public v2.29.0 availability was verified with a non-project Ping/Pong probe"
+    }
+  ],
+  "externalBoundary": {
+    "quantosSourceSentToPublicRemotePlugin": false,
+    "postPushGithubActionsReceipt": "PENDING_MANUAL_PUSH"
+  }
+}

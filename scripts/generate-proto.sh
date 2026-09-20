@@ -14,7 +14,6 @@ else
   exit 1
 fi
 
-"${buf_cmd[@]}" dep update
 "${buf_cmd[@]}" format -w
 "${buf_cmd[@]}" lint
 "${buf_cmd[@]}" generate

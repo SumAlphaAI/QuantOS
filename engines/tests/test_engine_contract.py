@@ -4,6 +4,9 @@ from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from pathlib import Path
 
+import grpc
+import pytest
+
 from quantos.common.v1 import common_pb2
 from quantos.engine.v1 import engine_pb2
 from quantos_engine_sdk import (
@@ -102,6 +105,11 @@ def test_mock_engine_contract_all_rpcs(tmp_path: Path) -> None:
         )
         assert cancel_response.cancelled is True
         assert cancel_response.execution_id == execute_response.execution_id
+
+        with pytest.raises(grpc.RpcError) as invalid:
+            client.health(engine_pb2.HealthRequest(), timeout=5)
+        assert invalid.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+        assert "metadata" in (invalid.value.details() or "")
     finally:
         client.close()
         server.stop(grace=0)

@@ -18,5 +18,959 @@
   "required": [
     "events",
     "metadata"
-  ]
+  ],
+  "definitions": {
+    "v1CommandMetadata": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "workspace_id": {
+          "type": "string"
+        },
+        "actor": {
+          "$ref": "#/definitions/v1ActorRef"
+        },
+        "correlation_id": {
+          "type": "string"
+        },
+        "causation_id": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/definitions/v1RuntimeMode"
+        },
+        "environment": {
+          "$ref": "#/definitions/v1Environment"
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "request_id",
+        "tenant_id",
+        "workspace_id",
+        "actor",
+        "correlation_id",
+        "mode",
+        "environment",
+        "issued_at"
+      ]
+    },
+    "v1Environment": {
+      "type": "string",
+      "enum": [
+        "ENVIRONMENT_UNSPECIFIED",
+        "ENVIRONMENT_LOCAL",
+        "ENVIRONMENT_TEST",
+        "ENVIRONMENT_STAGING",
+        "ENVIRONMENT_PRODUCTION"
+      ],
+      "default": "ENVIRONMENT_UNSPECIFIED"
+    },
+    "v1RuntimeMode": {
+      "type": "string",
+      "enum": [
+        "RUNTIME_MODE_UNSPECIFIED",
+        "RUNTIME_MODE_RESEARCH",
+        "RUNTIME_MODE_PAPER",
+        "RUNTIME_MODE_SHADOW",
+        "RUNTIME_MODE_ASSISTED_LIVE",
+        "RUNTIME_MODE_GUARDED_LIVE"
+      ],
+      "default": "RUNTIME_MODE_UNSPECIFIED"
+    },
+    "v1ActorRef": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "type": "string"
+        },
+        "actor_kind": {
+          "$ref": "#/definitions/v1ActorKind"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "actor_id",
+        "actor_kind"
+      ]
+    },
+    "v1ActorKind": {
+      "type": "string",
+      "enum": [
+        "ACTOR_KIND_UNSPECIFIED",
+        "ACTOR_KIND_USER",
+        "ACTOR_KIND_SERVICE",
+        "ACTOR_KIND_AUTOMATION"
+      ],
+      "default": "ACTOR_KIND_UNSPECIFIED"
+    },
+    "v1EventEnvelope": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "event_id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/definitions/v1EventKind"
+        },
+        "aggregate_id": {
+          "type": "string"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data_snapshot": {
+          "$ref": "#/definitions/v1DataSnapshot"
+        },
+        "research_artifact": {
+          "$ref": "#/definitions/v1ResearchArtifact"
+        },
+        "signal": {
+          "$ref": "#/definitions/v1Signal"
+        },
+        "trade_proposal": {
+          "$ref": "#/definitions/v1TradeProposal"
+        },
+        "risk_decision": {
+          "$ref": "#/definitions/v1RiskDecision"
+        },
+        "trade_command": {
+          "$ref": "#/definitions/v1TradeCommand"
+        },
+        "order": {
+          "$ref": "#/definitions/v1Order"
+        },
+        "fill": {
+          "$ref": "#/definitions/v1Fill"
+        },
+        "position": {
+          "$ref": "#/definitions/v1Position"
+        }
+      },
+      "required": [
+        "metadata",
+        "event_id",
+        "kind",
+        "aggregate_id",
+        "occurred_at"
+      ]
+    },
+    "v1Position": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "position_id": {
+          "type": "string"
+        },
+        "account_id": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "side": {
+          "$ref": "#/definitions/v1PositionSide"
+        },
+        "quantity": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "average_entry_price": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "mark_value": {
+          "$ref": "#/definitions/v1MoneyValue"
+        },
+        "unrealized_pnl": {
+          "$ref": "#/definitions/v1MoneyValue"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "metadata",
+        "position_id",
+        "account_id",
+        "symbol",
+        "side",
+        "quantity",
+        "average_entry_price",
+        "as_of"
+      ]
+    },
+    "v1MoneyValue": {
+      "type": "object",
+      "properties": {
+        "currency_code": {
+          "type": "string"
+        },
+        "units": {
+          "type": "string",
+          "format": "int64"
+        },
+        "nanos": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "currency_code",
+        "units",
+        "nanos"
+      ]
+    },
+    "v1DecimalValue": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ]
+    },
+    "v1PositionSide": {
+      "type": "string",
+      "enum": [
+        "POSITION_SIDE_UNSPECIFIED",
+        "POSITION_SIDE_NET",
+        "POSITION_SIDE_LONG",
+        "POSITION_SIDE_SHORT"
+      ],
+      "default": "POSITION_SIDE_UNSPECIFIED"
+    },
+    "v1Fill": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "fill_id": {
+          "type": "string"
+        },
+        "order_id": {
+          "type": "string"
+        },
+        "venue_fill_id": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "price": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "fee": {
+          "$ref": "#/definitions/v1MoneyValue"
+        },
+        "filled_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "metadata",
+        "fill_id",
+        "order_id",
+        "symbol",
+        "quantity",
+        "price",
+        "filled_at"
+      ]
+    },
+    "v1Order": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "order_id": {
+          "type": "string"
+        },
+        "command_id": {
+          "type": "string"
+        },
+        "venue_order_id": {
+          "type": "string"
+        },
+        "account_id": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "side": {
+          "$ref": "#/definitions/v1OrderSide"
+        },
+        "intent": {
+          "$ref": "#/definitions/v1OrderIntentType"
+        },
+        "quantity": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "filled_quantity": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "average_fill_price": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "status": {
+          "$ref": "#/definitions/v1OrderStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "metadata",
+        "order_id",
+        "command_id",
+        "account_id",
+        "symbol",
+        "side",
+        "intent",
+        "quantity",
+        "filled_quantity",
+        "status",
+        "updated_at"
+      ]
+    },
+    "v1OrderStatus": {
+      "type": "string",
+      "enum": [
+        "ORDER_STATUS_UNSPECIFIED",
+        "ORDER_STATUS_DRAFT",
+        "ORDER_STATUS_SUBMITTED",
+        "ORDER_STATUS_ACCEPTED",
+        "ORDER_STATUS_REJECTED",
+        "ORDER_STATUS_PARTIALLY_FILLED",
+        "ORDER_STATUS_FILLED",
+        "ORDER_STATUS_CANCELLED",
+        "ORDER_STATUS_EXPIRED"
+      ],
+      "default": "ORDER_STATUS_UNSPECIFIED"
+    },
+    "v1OrderIntentType": {
+      "type": "string",
+      "enum": [
+        "ORDER_INTENT_TYPE_UNSPECIFIED",
+        "ORDER_INTENT_TYPE_MARKET",
+        "ORDER_INTENT_TYPE_LIMIT",
+        "ORDER_INTENT_TYPE_STOP",
+        "ORDER_INTENT_TYPE_STOP_LIMIT"
+      ],
+      "default": "ORDER_INTENT_TYPE_UNSPECIFIED"
+    },
+    "v1OrderSide": {
+      "type": "string",
+      "enum": [
+        "ORDER_SIDE_UNSPECIFIED",
+        "ORDER_SIDE_BUY",
+        "ORDER_SIDE_SELL"
+      ],
+      "default": "ORDER_SIDE_UNSPECIFIED"
+    },
+    "v1TradeCommand": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "command_id": {
+          "type": "string"
+        },
+        "decision_id": {
+          "type": "string"
+        },
+        "account_id": {
+          "type": "string"
+        },
+        "venue": {
+          "type": "string"
+        },
+        "venue_kind": {
+          "$ref": "#/definitions/v1VenueKind"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "intent": {
+          "$ref": "#/definitions/v1OrderIntentType"
+        },
+        "side": {
+          "$ref": "#/definitions/v1OrderSide"
+        },
+        "quantity": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "limit_price": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "stop_price": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "idempotency_key": {
+          "type": "string"
+        },
+        "approval_signature": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "metadata",
+        "command_id",
+        "decision_id",
+        "account_id",
+        "venue",
+        "venue_kind",
+        "symbol",
+        "intent",
+        "side",
+        "quantity",
+        "idempotency_key",
+        "expires_at"
+      ]
+    },
+    "v1VenueKind": {
+      "type": "string",
+      "enum": [
+        "VENUE_KIND_UNSPECIFIED",
+        "VENUE_KIND_CEX",
+        "VENUE_KIND_DEX"
+      ],
+      "default": "VENUE_KIND_UNSPECIFIED"
+    },
+    "v1RiskDecision": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "decision_id": {
+          "type": "string"
+        },
+        "proposal_id": {
+          "type": "string"
+        },
+        "verdict": {
+          "$ref": "#/definitions/v1RiskVerdict"
+        },
+        "hit_rules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limit_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "signer": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "decided_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "metadata",
+        "decision_id",
+        "proposal_id",
+        "verdict",
+        "hit_rules",
+        "signer",
+        "reason",
+        "decided_at"
+      ]
+    },
+    "v1RiskVerdict": {
+      "type": "string",
+      "enum": [
+        "RISK_VERDICT_UNSPECIFIED",
+        "RISK_VERDICT_ALLOW",
+        "RISK_VERDICT_DENY",
+        "RISK_VERDICT_APPROVAL_REQUIRED"
+      ],
+      "default": "RISK_VERDICT_UNSPECIFIED"
+    },
+    "v1TradeProposal": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "proposal_id": {
+          "type": "string"
+        },
+        "account_id": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "action": {
+          "$ref": "#/definitions/v1ProposalAction"
+        },
+        "quantity": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "notional": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "limit_price": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "stop_price": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "signal": {
+          "$ref": "#/definitions/v1Signal"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EvidenceRef"
+          }
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "executable": {
+          "type": "boolean"
+        },
+        "counter_views": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "反方观点（R04 强制）：生成 Proposal 时必须附至少一条可证伪的对立论证。\n非破坏新增（2026-08-14，G0 未冻结项 #2，Buf breaking check 验证）。"
+        }
+      },
+      "required": [
+        "metadata",
+        "proposal_id",
+        "account_id",
+        "symbol",
+        "action",
+        "quantity",
+        "notional",
+        "signal",
+        "rationale",
+        "confidence",
+        "expires_at",
+        "executable"
+      ]
+    },
+    "v1EvidenceRef": {
+      "type": "object",
+      "properties": {
+        "evidence_id": {
+          "type": "string"
+        },
+        "artifact_id": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "artifact_id",
+        "summary"
+      ]
+    },
+    "v1Signal": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "signal_id": {
+          "type": "string"
+        },
+        "strategy_release_id": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/definitions/v1SignalDirection"
+        },
+        "strength": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "confidence": {
+          "$ref": "#/definitions/v1DecimalValue"
+        },
+        "diagnostics": {
+          "$ref": "#/definitions/v1JsonDocument"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EvidenceRef"
+          }
+        }
+      },
+      "required": [
+        "metadata",
+        "signal_id",
+        "strategy_release_id",
+        "symbol",
+        "direction",
+        "strength",
+        "confidence",
+        "generated_at",
+        "valid_until"
+      ]
+    },
+    "v1JsonDocument": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "object"
+        }
+      }
+    },
+    "v1SignalDirection": {
+      "type": "string",
+      "enum": [
+        "SIGNAL_DIRECTION_UNSPECIFIED",
+        "SIGNAL_DIRECTION_LONG",
+        "SIGNAL_DIRECTION_SHORT",
+        "SIGNAL_DIRECTION_FLAT"
+      ],
+      "default": "SIGNAL_DIRECTION_UNSPECIFIED"
+    },
+    "v1ProposalAction": {
+      "type": "string",
+      "enum": [
+        "PROPOSAL_ACTION_UNSPECIFIED",
+        "PROPOSAL_ACTION_BUY",
+        "PROPOSAL_ACTION_SELL",
+        "PROPOSAL_ACTION_HOLD",
+        "PROPOSAL_ACTION_REDUCE"
+      ],
+      "default": "PROPOSAL_ACTION_UNSPECIFIED"
+    },
+    "v1ResearchArtifact": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "artifact_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "hypothesis": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "content_hash": {
+          "type": "string"
+        },
+        "engine_version": {
+          "type": "string"
+        },
+        "prompt_version": {
+          "type": "string"
+        },
+        "code_version": {
+          "type": "string"
+        },
+        "environment_hash": {
+          "type": "string"
+        },
+        "data_snapshot_id": {
+          "type": "string"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EvidenceRef"
+          }
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ArtifactRef"
+          }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "audit_tags": {
+          "$ref": "#/definitions/v1AuditTags"
+        }
+      },
+      "required": [
+        "metadata",
+        "artifact_id",
+        "title",
+        "hypothesis",
+        "summary",
+        "content_hash",
+        "engine_version",
+        "prompt_version",
+        "code_version",
+        "environment_hash",
+        "data_snapshot_id",
+        "created_at"
+      ]
+    },
+    "v1AuditTags": {
+      "type": "object",
+      "properties": {
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "v1ArtifactRef": {
+      "type": "object",
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "media_type": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "classification": {
+          "$ref": "#/definitions/v1DataClassification"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "uri",
+        "media_type",
+        "sha256",
+        "classification"
+      ]
+    },
+    "v1DataClassification": {
+      "type": "string",
+      "enum": [
+        "DATA_CLASSIFICATION_UNSPECIFIED",
+        "DATA_CLASSIFICATION_PUBLIC",
+        "DATA_CLASSIFICATION_INTERNAL",
+        "DATA_CLASSIFICATION_CONFIDENTIAL",
+        "DATA_CLASSIFICATION_RESTRICTED"
+      ],
+      "default": "DATA_CLASSIFICATION_UNSPECIFIED"
+    },
+    "v1DataSnapshot": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/v1CommandMetadata"
+        },
+        "snapshot_id": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "window": {
+          "$ref": "#/definitions/v1TimeWindow"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1DataSourceRef"
+          }
+        },
+        "quality": {
+          "$ref": "#/definitions/v1DataQuality"
+        },
+        "content_hash": {
+          "type": "string"
+        },
+        "license_label": {
+          "type": "string"
+        },
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "max_age": {
+          "type": "string"
+        },
+        "symbols": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "artifact_refs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ArtifactRef"
+          }
+        }
+      },
+      "required": [
+        "metadata",
+        "snapshot_id",
+        "schema_version",
+        "window",
+        "sources",
+        "quality",
+        "content_hash",
+        "license_label",
+        "captured_at",
+        "max_age"
+      ]
+    },
+    "v1DataQuality": {
+      "type": "string",
+      "enum": [
+        "DATA_QUALITY_UNSPECIFIED",
+        "DATA_QUALITY_PENDING",
+        "DATA_QUALITY_PASSED",
+        "DATA_QUALITY_DEGRADED",
+        "DATA_QUALITY_FAILED"
+      ],
+      "default": "DATA_QUALITY_UNSPECIFIED"
+    },
+    "v1DataSourceRef": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "dataset": {
+          "type": "string"
+        },
+        "license_label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "provider",
+        "dataset",
+        "license_label"
+      ]
+    },
+    "v1TimeWindow": {
+      "type": "object",
+      "properties": {
+        "start_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "start_at",
+        "end_at"
+      ]
+    },
+    "v1EventKind": {
+      "type": "string",
+      "enum": [
+        "EVENT_KIND_UNSPECIFIED",
+        "EVENT_KIND_DATA_SNAPSHOT",
+        "EVENT_KIND_RESEARCH_ARTIFACT",
+        "EVENT_KIND_SIGNAL",
+        "EVENT_KIND_TRADE_PROPOSAL",
+        "EVENT_KIND_RISK_DECISION",
+        "EVENT_KIND_TRADE_COMMAND",
+        "EVENT_KIND_ORDER",
+        "EVENT_KIND_FILL",
+        "EVENT_KIND_POSITION"
+      ],
+      "default": "EVENT_KIND_UNSPECIFIED"
+    }
+  }
 }

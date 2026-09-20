@@ -9,6 +9,8 @@ import {
   TradeCommandSchema,
   createApiClientName,
   createBffClient,
+  MetadataValidationError,
+  validateProtocolMessage,
 } from "../src/index.js";
 
 describe("api-client", () => {
@@ -81,6 +83,38 @@ describe("api-client", () => {
     );
 
     expect(CommandMetadataSchema.typeName).toBe("quantos.common.v1.CommandMetadata");
+  });
+
+  it("rejects protocol messages without complete security metadata", () => {
+    const command = create(TradeCommandSchema, { commandId: "only-id" });
+    expect(() => validateProtocolMessage(command)).toThrowError(MetadataValidationError);
+
+    const complete = create(TradeCommandSchema, {
+      metadata: {
+        requestId: "request-1",
+        tenantId: "tenant-1",
+        workspaceId: "workspace-1",
+        actor: { actorId: "actor-1", actorKind: 1 },
+        correlationId: "correlation-1",
+        mode: 2,
+        environment: 2,
+        issuedAt: timestampFromDate(new Date("2026-01-01T00:00:00Z")),
+      },
+    });
+    expect(() => validateProtocolMessage(complete)).not.toThrow();
+
+    const fields = [
+      ["requestId", "metadata.request_id"],
+      ["tenantId", "metadata.tenant_id"],
+      ["workspaceId", "metadata.workspace_id"],
+      ["correlationId", "metadata.correlation_id"],
+    ] as const;
+    const completeBytes = toBinary(TradeCommandSchema, complete);
+    for (const [field, expected] of fields) {
+      const invalid = fromBinary(TradeCommandSchema, completeBytes);
+      invalid.metadata![field] = "";
+      expect(() => validateProtocolMessage(invalid)).toThrowError(expected);
+    }
   });
 
   it("uses the generated BFF contract with cookie credentials", async () => {

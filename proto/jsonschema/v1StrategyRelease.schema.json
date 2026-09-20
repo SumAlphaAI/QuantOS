@@ -1,30 +1,101 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://sumalpha.ai/schemas/v1CancelResponse.schema.json",
-  "title": "v1CancelResponse",
+  "$id": "https://sumalpha.ai/schemas/v1StrategyRelease.schema.json",
+  "title": "v1StrategyRelease",
   "type": "object",
   "properties": {
     "metadata": {
       "$ref": "#/definitions/v1CommandMetadata"
     },
-    "execution_id": {
+    "release_id": {
       "type": "string"
     },
-    "cancelled": {
-      "type": "boolean"
+    "strategy_id": {
+      "type": "string"
     },
-    "cancelled_at": {
+    "name": {
+      "type": "string"
+    },
+    "source_digest": {
+      "type": "string"
+    },
+    "image_digest": {
+      "type": "string"
+    },
+    "parameter_hash": {
+      "type": "string"
+    },
+    "backtest_report_artifact_id": {
+      "type": "string"
+    },
+    "data_snapshot_id": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/v1EvidenceRef"
+      }
+    },
+    "allowed_targets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/v1DeploymentTarget"
+      }
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "created_at": {
       "type": "string",
       "format": "date-time"
     }
   },
   "required": [
     "metadata",
-    "execution_id",
-    "cancelled",
-    "cancelled_at"
+    "release_id",
+    "strategy_id",
+    "name",
+    "source_digest",
+    "image_digest",
+    "parameter_hash",
+    "backtest_report_artifact_id",
+    "data_snapshot_id",
+    "allowed_targets",
+    "created_at"
   ],
   "definitions": {
+    "v1DeploymentTarget": {
+      "type": "string",
+      "enum": [
+        "DEPLOYMENT_TARGET_UNSPECIFIED",
+        "DEPLOYMENT_TARGET_RESEARCH",
+        "DEPLOYMENT_TARGET_PAPER",
+        "DEPLOYMENT_TARGET_SHADOW",
+        "DEPLOYMENT_TARGET_ASSISTED_LIVE"
+      ],
+      "default": "DEPLOYMENT_TARGET_UNSPECIFIED"
+    },
+    "v1EvidenceRef": {
+      "type": "object",
+      "properties": {
+        "evidence_id": {
+          "type": "string"
+        },
+        "artifact_id": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "artifact_id",
+        "summary"
+      ]
+    },
     "v1CommandMetadata": {
       "type": "object",
       "properties": {

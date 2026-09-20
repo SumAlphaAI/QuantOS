@@ -12,6 +12,9 @@ for path in "${repo_root}/buf.yaml" "${repo_root}/buf.gen.yaml" "${repo_root}/pr
   fi
 done
 
+node "$(dirname "${BASH_SOURCE[0]}")/check-proto-config.mjs"
+node --test "$(dirname "${BASH_SOURCE[0]}")/tests/check-proto-config.test.mjs"
+
 if [[ -x "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/node_modules/.bin/buf" ]]; then
   buf_cmd=("$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/node_modules/.bin/buf")
 elif command -v buf >/dev/null 2>&1; then
@@ -30,6 +33,8 @@ fi
   "${buf_cmd[@]}" build
   "${buf_cmd[@]}" generate
   node ./scripts/extract-json-schemas.mjs
+  node ./scripts/check-json-schemas.mjs
+  node --test ./scripts/tests/check-json-schemas.test.mjs
 )
 
 generated_paths=(

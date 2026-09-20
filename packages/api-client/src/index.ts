@@ -8,6 +8,7 @@ export * from "./execution.js";
 export * from "./ops.js";
 export * from "./sse.js";
 export * from "./bff.js";
+export * from "./proto-validation.js";
 export type { components as BffComponents, operations as BffOperations, paths as BffPaths } from "./bff-gen/quantos-bff.js";
 export { bffZodSchemas } from "./bff-gen/quantos-bff.zod.js";
 export * from "./gen/quantos/common/v1/common_pb.js";

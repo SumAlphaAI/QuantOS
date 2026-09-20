@@ -4,8 +4,9 @@
   "packageManager": "pnpm@10.20.0",
   "scripts": {
     "bootstrap": "pnpm install --frozen-lockfile",
-    "proto:generate": "pnpm exec buf generate && node ./scripts/extract-json-schemas.mjs",
-    "proto:check": "bash ./scripts/check-proto.sh",
+    "proto:deps:update": "buf dep update",
+    "proto:generate": "bash ./scripts/generate-proto.sh",
+    "proto:check": "make proto-check",
     "generate:bff": "node ./scripts/generate-bff-contracts.mjs",
     "check:bff-generated": "node ./scripts/check-bff-generated.mjs",
     "check:bff-contract-coverage": "node ./scripts/check-bff-contract-coverage.mjs",
