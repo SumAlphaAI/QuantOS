@@ -174,6 +174,7 @@ flowchart LR
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest
 - 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本
 - 量化验收标准：任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免
+- 执行流程：本地修复与提交 → 人工通过 GitHub Desktop 推送 → GitHub Actions 执行 → 收集同 SHA 回执 → 关闭 A11；2026-09-20 当前为 `WAITING_MANUAL_PUSH`，A11 保持 OPEN。详见 [F02 运行手册](./runbooks/f02-supply-chain.md)。
 - 依赖：F01
 
 <a id="review-f02"></a>
