@@ -1,0 +1,44 @@
+bash ./scripts/check-proto.sh
+Validated 6 pinned Buf plugins and locked generation workflow.
+✔ proto generation configuration is pinned and lock-preserving (79.72899ms)
+✔ proto generation configuration rejects an unpinned remote plugin (74.49041ms)
+✔ proto generation configuration rejects implicit dependency updates (76.971918ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 304.072407
+info: syncing channel updates for 1.91.0-x86_64-unknown-linux-gnu
+info: latest update on 2025-10-30 for version 1.91.0 (f8297e351 2025-10-28)
+info: component cargo is up to date
+info: downloading 2 components
+Extracted 50 JSON schema documents.
+Validated 50 standalone JSON schemas and 11 planned domain schemas.
+✔ standalone JSON schema gate passes the complete generated catalog (399.551888ms)
+✔ standalone JSON schema gate rejects a missing planned domain schema (78.647833ms)
+✔ standalone JSON schema gate rejects an unresolved reference (375.819282ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 919.110566
+Proto compatibility checked against 55c7d3a59ce8ef83ad234f8763299f31350bede1
+Proto checks passed.
+make proto-compat-check
+make[1]: Entering directory '/home/runner/work/QuantOS/QuantOS'
+pnpm --filter @sumalpha/api-client build
+
+> @sumalpha/api-client@0.1.0 build /home/runner/work/QuantOS/QuantOS/packages/api-client
+> rm -rf dist && tsc --project tsconfig.build.json
+
+node scripts/check-proto-compatibility.mjs
+Validated 11,000 fixtures (1,000 per domain message) across all six binary language directions.
+Validated all six ProtoJSON directions, including all nine event payloads.
+Three frozen Python golden fixtures: unknown binary field, open enums, timestamp extrema, decimal and int64 boundaries; 15 invalid-JSON rejection probes passed.
+make[1]: Leaving directory '/home/runner/work/QuantOS/QuantOS'

@@ -1,12 +1,12 @@
 # F03 领域协议 v1 与 SDK 生成全面复审报告
 
-> 更新：2026-09-20；本轮远端复核基线：`55c7d3a59ce8ef83ad234f8763299f31350bede1`。
+> 更新：2026-09-20；本轮远端复核基线：`c3be28d862dd17b6d1ee88cc0378659326abbe0a`。
 > 依据：[开发计划 F03](../SumAlpha-QuantOS-Development-Plan.md#task-f03)。
-> 结论：**原六项问题全部关闭；19/20 检查点通过（95%），4/4 量化标准通过。C12 独立作业已执行，但生成器循环依赖导致失败；本地已修复，远端仍待验，F03 保持 IMPLEMENTED_PENDING_ACCEPTANCE / FIX_VALIDATION。**
+> 结论：**原六项问题全部关闭；20/20 检查点通过（100%），4/4 量化标准通过。C12 已取得同 SHA 远端成功回执，F03 更新为 COMPLETED / ACCEPTED。**
 
 ## 一、任务完成概况
 
-领域协议、三语言 SDK、50 份独立 Schema、固定生成器及依赖更新入口已实现。A02/A04 的既有修复和本地测试保持有效。本轮核对独立协议作业，下载同 SHA 回执并验证摘要，定位并修复 Rust ProtoJSON 生成器对自身 SDK 生成物的循环依赖。
+领域协议、三语言 SDK、50 份独立 Schema、固定生成器及依赖更新入口已实现。A02/A04 的既有修复和本地测试保持有效。本轮独立协议验收成功，核验下载包、原始日志与回执，并确认全部 92 份生成文件与验收提交哈希一致，关闭 C12。
 
 | 原始等级 | 原问题数 | 已关闭 | 当前开放 |
 |---|---:|---:|---:|
@@ -16,7 +16,7 @@
 | 低危 | 1 | 1 | 0 |
 | 合计 | 6 | 6 | 0 |
 
-原问题关闭率 **100%**；检查点 PASS 19、PARTIAL 1，严格完成率 **95%**。问题关闭率不等同阶段完成率，C12 的远程生成回执不能以本地测试替代。
+原问题关闭率 **100%**；检查点 PASS 20、PARTIAL 0，严格完成率 **100%**。结论限定于 F03 计划范围，不代表仓库全部 CI、生产部署或 F02 A11 已验收。
 
 ## 二、完成情况明细统计
 
@@ -26,17 +26,19 @@
 | C05–C06 Buf 入口、OpenAPI 交付 | PASS（实现） | 入口和既有生成物存在；本地 Buf lint/build 通过 |
 | C07–C09 三语言 SDK | PASS | Rust、Python、TypeScript 构建/测试和运行时校验通过 |
 | C10–C11 Schema 覆盖和独立编译 | PASS | 50/50 编译，11/11 领域消息覆盖；缺文件和悬空引用负向测试通过 |
-| C12 重新生成及漂移验证 | PARTIAL | `55c7d3a` 独立作业 #1 实际执行，Buf 清理六份 serde 文件后 SDK 内的生成器无法编译；已移为独立工具，空输出/空构建目录重建六份文件且哈希一致；修复后远端回执待收集 |
+| C12 重新生成及漂移验证 | PASS | `c3be28d` 独立作业 #2 成功；完整 `make proto-check` 通过，生成文件无漂移；下载包/日志摘要一致，92/92 份文件哈希与验收提交相同 |
 | C13 生成版本与依赖锁 | PASS（配置） | 六个远程插件固定版本；pbjson/build 锁定 0.7.0；生成入口和漂移入口均接入本地 ProtoJSON 生成 |
 | C14–C16 Rust/Python/TS 编译测试 | PASS | Rust 8 项、Python 127 项、TS 46 项；Ruff/Pyright、TS lint/typecheck 通过 |
 | C17 元数据声明覆盖 | PASS | 描述符验证 11 类领域对象、14 种 RPC 类型的 REQUIRED 路径 |
 | C18 元数据执行约束 | PASS | 三语言覆盖 25 类类型的缺失 metadata、10 类身份字段缺口和完整正例；全部九个事件分支、单事件/事件列表递归拒绝；Python 实际 unary/stream 入站拒绝 INVALID_ARGUMENT，出站拒绝 INTERNAL |
-| C19 breaking 阻断 | PASS | 本轮历史基线比较通过；删除字段阻断及恢复已有负向回执保持有效 |
+| C19 breaking 阻断 | PASS | 远端与 `55c7d3a` 基线比较通过；删除字段阻断及恢复已有负向回执保持有效 |
 | C20 往返及三语言兼容性 | PASS | 11 类各 1,000 组 + 3 组独立冻结黄金样本；全部六个二进制和六个 ProtoJSON 方向语义一致；15 个非法 JSON 拒绝探针通过 |
 
 四项量化标准全部通过：三语言编译、必填元数据测试、breaking 阻断、至少 1,000 组序列化往返。
 
-本地修复证据：[修复验证摘要](./evidence/F03-A02-A04-2026-09-20/summary.json)。同 SHA 远端回执见 [C12 收集记录](./evidence/F03-C12-remote-2026-09-20/receipt.json)：主 CI #95 失败、Frontend Baseline #38 因 F03 尚未 COMPLETED 失败；Compatibility #59 三浏览器通过，但不执行协议生成。该记录仅描述历史 `a9f367a`。最新 `55c7d3a` 独立作业已执行并失败，见 [下载校验记录](./evidence/F03-C12-55c7d3a-2026-09-20/download-verification.json)、[原始回执](./evidence/F03-C12-55c7d3a-2026-09-20/receipt.json)和[原始日志](./evidence/F03-C12-55c7d3a-2026-09-20/proto-check.log)。ZIP 摘要与 GitHub 展示值一致，日志摘要与回执一致；92 份文件中六份 serde 缺失，其余 86 份远端摘要与本地相同。历次初审及整改记录保留在 evidence 和 Git 历史中，当前结论以本报告为准。
+当前证据：[下载校验记录](./evidence/F03-C12-c3be28d-2026-09-20/download-verification.json)、[原始回执](./evidence/F03-C12-c3be28d-2026-09-20/receipt.json)、[原始日志](./evidence/F03-C12-c3be28d-2026-09-20/proto-check.log)。GitHub [F03 Protocol Acceptance #2](https://github.com/SumAlphaAI/QuantOS/actions/runs/35514230105) 成功，用时 2m 33s；`sourceSha` 与 `expectedSha` 均为 `c3be28d862dd17b6d1ee88cc0378659326abbe0a`，`protocolStepOutcome=success`、`acceptance=PASS`、`generatedChanges` 为空。
+
+三语言单测与元数据拒绝测试沿用 [已验证的本地修复证据](./evidence/F03-A02-A04-2026-09-20/summary.json)，不表述为本轮远端重新执行。历史 [a9f367a 前置步骤阻断记录](./evidence/F03-C12-remote-2026-09-20/receipt.json)和 [55c7d3a 生成循环依赖失败记录](./evidence/F03-C12-55c7d3a-2026-09-20/receipt.json)保留，不再作为当前活动缺口。
 
 ## 三、问题关闭依据与剩余风险
 
@@ -49,16 +51,15 @@
 | A05 | 中危 | 所有远程插件固定版本，配置负向测试通过 |
 | A06 | 低危 | 常规生成不更新 buf.lock；依赖更新为显式独立操作 |
 
-原六项缺陷保持关闭；新增生成启动缺陷已本地修复，归入 C12 修复验证。以下验收边界仍需保留：
+当前无活动 F03 问题。C12 的生成循环依赖已通过独立生成工具和隔离启动回归修复，并获远端完整生成、漂移检查及兼容测试成功回执。保留以下边界：
 
-- **C12 未完成**：独立作业 [#1](https://github.com/SumAlphaAI/QuantOS/actions/runs/35512326148) 的 sourceSha/expectedSha 均为 `55c7d3a59ce8ef83ad234f8763299f31350bede1`，`protocolStepOutcome=failure`、`acceptance=FAIL`。`buf.gen.yaml` 的 `clean: true` 删除 serde 输出后，原 `quantos-proto` example 编译 SDK 时找不到 include 文件。生成器现已拆为 `tools/proto-json-codegen`，不依赖 SDK；生成和漂移入口均已切换，CI 增加隔离启动回归。没有关闭清理选项、降低漂移检查或将失败回执改为成功。
 - 黄金语料在本轮建立，由人工定义 ProtoJSON、Python 独立编码后冻结，不宣称已验证历史发布版本 SDK。未来协议演进必须保留 v1 语料。
 - 未知二进制字段允许被 prost 丢弃；验证的是已知字段语义保持，不能用于保证未知字段透传。未知枚举数值必须保留；未知 JSON 字段/枚举名称默认拒绝。
 - 本地 gRPC 回执来自真实套接字上的 SDK/测试引擎，不代表生产部署或远程 CI 验收；F02 A11 不在本轮关闭范围。
 
-## 四、后续验收建议
+## 四、验收后维护建议
 
-1. 人工通过 GitHub Desktop 推送本轮生成器修复提交，运行独立 `F03 Protocol Acceptance / proto-check` 作业；该作业不依赖浏览器任务，仍完整执行 `make proto-check`。归档 `f03-protocol-<SHA>` 包中的日志、`receipt.json`、生成物 SHA-256 清单。仅在同 SHA、步骤 success、工作树无生成物漂移且日志包含完整兼容测试完成标记时记录 PASS。
-2. 收集该回执后再将 C12 改为 PASS、F03 改为 COMPLETED/ACCEPTED，并复验 BFF 的 F03 完成状态依赖。当前不得为消除 Frontend Baseline 失败而提前修改状态。
-3. CI 持续执行 `make proto-compat-check` 和三语言元数据测试；Rust ProtoJSON 必须由生成入口维护，禁止只手改生成物。
-4. 新增领域嵌套字段、RPC 或枚举时同步扩展关系映射与负向测试；保留冻结黄金语料，防止同源生成掩盖回归。
+1. 持续执行独立 `F03 Protocol Acceptance / proto-check`，按提交 SHA 归档日志、回执和生成文件清单；协议或工具链变更须重新验收。
+2. 保留生成器独立性及隔离启动回归，维持 `clean: true` 和生成漂移失败门禁。
+3. 新增领域嵌套字段、RPC 或枚举时同步扩展关系映射与负向测试；保留冻结黄金语料，防止同源生成掩盖回归。
+4. 本轮验收文档提交需由用户通过 GitHub Desktop 推送。新文档提交的 CI 状态以其自身运行结果为准，不能把 `c3be28d` 的回执标为新提交的远端回执。F02 A11 保持原有状态。
