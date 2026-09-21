@@ -638,7 +638,7 @@ fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
             .poll_outbox_once(
                 "f05-volume-worker",
                 "projection-volume",
-                10,
+                250,
                 Utc::now(),
                 ChronoDuration::seconds(30),
                 3,

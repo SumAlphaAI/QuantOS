@@ -495,6 +495,130 @@ impl PgEventStore {
         Ok(decision)
     }
 
+    fn claim_inbox_processing_batch(
+        &mut self,
+        consumer_name: &str,
+        worker_name: &str,
+        entries: &[LeasedOutboxEntry],
+        observed_at: DateTime<Utc>,
+        lease_duration: ChronoDuration,
+    ) -> Result<Vec<InboxClaimDecision>, PgEventStoreError> {
+        let input = Json(
+            &entries
+                .iter()
+                .enumerate()
+                .map(|(ordinal, entry)| {
+                    serde_json::json!({
+                        "ordinal": ordinal,
+                        "tenant_id": entry.event.tenant_id,
+                        "event_id": entry.event.event_id,
+                    })
+                })
+                .collect::<Vec<_>>(),
+        );
+        let lease_expires_at = observed_at + lease_duration;
+        let mut tx = self.client.transaction()?;
+        tx.execute_typed(
+            "with input as (
+                select * from jsonb_to_recordset($1::jsonb)
+                    as x(ordinal bigint, tenant_id uuid, event_id uuid)
+             )
+             insert into quantos.inbox_receipt (
+                tenant_id, consumer_name, event_log_id, event_id, status, attempts,
+                first_received_at, last_attempt_at, next_attempt_at
+             )
+             select input.tenant_id, $2, e.id, input.event_id, 'pending', 0, $3, $3, $3
+             from input
+             join quantos.event_log e
+               on e.tenant_id = input.tenant_id and e.event_id = input.event_id
+             on conflict (tenant_id, consumer_name, event_id) do nothing",
+            &[
+                (&input, Type::JSONB),
+                (&consumer_name, Type::TEXT),
+                (&observed_at, Type::TIMESTAMPTZ),
+            ],
+        )?;
+        let rows = tx.query_typed(
+            "with input as (
+                select * from jsonb_to_recordset($1::jsonb)
+                    as x(ordinal bigint, tenant_id uuid, event_id uuid)
+             ), candidate as (
+                select i.id, input.ordinal
+                from input
+                join quantos.inbox_receipt i
+                  on i.tenant_id = input.tenant_id
+                 and i.consumer_name = $2
+                 and i.event_id = input.event_id
+                where i.status in ('pending', 'processing')
+                  and i.next_attempt_at <= $3
+                  and coalesce(i.lease_expires_at, '-infinity'::timestamptz) <= $3
+                for update of i skip locked
+             ), claimed as (
+                update quantos.inbox_receipt i
+                set status = 'processing', attempts = i.attempts + 1,
+                    lease_owner = $4, lease_token = gen_random_uuid(),
+                    lease_expires_at = $5, last_attempt_at = $3, last_error = null
+                from candidate c where i.id = c.id
+                returning c.ordinal, i.id, i.attempts, i.lease_owner,
+                          i.lease_token, i.lease_expires_at
+             )
+             select input.ordinal, receipt.status, claimed.id, claimed.attempts,
+                    claimed.lease_owner, claimed.lease_token, claimed.lease_expires_at
+             from input
+             join quantos.inbox_receipt receipt
+               on receipt.tenant_id = input.tenant_id
+              and receipt.consumer_name = $2
+              and receipt.event_id = input.event_id
+             left join claimed on claimed.ordinal = input.ordinal
+             order by input.ordinal",
+            &[
+                (&input, Type::JSONB),
+                (&consumer_name, Type::TEXT),
+                (&observed_at, Type::TIMESTAMPTZ),
+                (&worker_name, Type::TEXT),
+                (&lease_expires_at, Type::TIMESTAMPTZ),
+            ],
+        )?;
+        if rows.len() != entries.len() {
+            let missing = entries
+                .iter()
+                .find(|entry| {
+                    !rows.iter().any(|row| {
+                        row.get::<_, i64>("ordinal") as usize
+                            == entries
+                                .iter()
+                                .position(|candidate| {
+                                    candidate.event.event_id == entry.event.event_id
+                                })
+                                .unwrap_or(usize::MAX)
+                    })
+                })
+                .unwrap_or(&entries[0]);
+            return Err(PgEventStoreError::MissingEvent(missing.event.event_id));
+        }
+        let decisions = rows
+            .into_iter()
+            .map(|row| {
+                if let Some(id) = row.get::<_, Option<Uuid>>("id") {
+                    InboxClaimDecision::Claimed(InboxProcessingClaim {
+                        inbox_entry_id: InboxEntryId::from_uuid(id),
+                        consumer_name: consumer_name.to_owned(),
+                        attempts: row.get::<_, i32>("attempts") as u32,
+                        lease_owner: row.get("lease_owner"),
+                        lease_token: row.get("lease_token"),
+                        lease_expires_at: row.get("lease_expires_at"),
+                    })
+                } else if row.get::<_, String>("status") == "applied" {
+                    InboxClaimDecision::AlreadyApplied
+                } else {
+                    InboxClaimDecision::Busy
+                }
+            })
+            .collect();
+        tx.commit()?;
+        Ok(decisions)
+    }
+
     pub fn record_inbox_success(
         &mut self,
         claim: &InboxProcessingClaim,
@@ -544,63 +668,84 @@ impl PgEventStore {
         Ok(())
     }
 
-    fn record_inbox_success_and_dispatch(
+    fn record_inbox_success_and_dispatch_batch(
         &mut self,
-        inbox_claim: &InboxProcessingClaim,
-        event: &RecordedEvent,
-        outbox_claim: &LeasedOutboxEntry,
-        completed_at: DateTime<Utc>,
+        successes: &[(LeasedOutboxEntry, InboxProcessingClaim, DateTime<Utc>)],
     ) -> Result<(), PgEventStoreError> {
+        if successes.is_empty() {
+            return Ok(());
+        }
+        let input = Json(
+            &successes
+                .iter()
+                .map(|(outbox, inbox, completed_at)| {
+                    serde_json::json!({
+                        "inbox_id": inbox.inbox_entry_id,
+                        "inbox_owner": inbox.lease_owner,
+                        "inbox_token": inbox.lease_token,
+                        "outbox_id": outbox.outbox.outbox_entry_id,
+                        "outbox_owner": outbox.lease_owner,
+                        "outbox_token": outbox.lease_token,
+                        "tenant_id": outbox.event.tenant_id,
+                        "consumer_name": inbox.consumer_name,
+                        "stream_key": outbox.event.stream_key(),
+                        "next_sequence": outbox.event.sequence + 1,
+                        "completed_at": completed_at,
+                    })
+                })
+                .collect::<Vec<_>>(),
+        );
         let mut tx = self.client.transaction()?;
-        let inbox_updated = tx.execute_typed(
-            "update quantos.inbox_receipt
-             set status = 'applied', processed_at = $2, next_attempt_at = $2,
+        let counts = tx.query_typed_one(
+            "with input as (
+                select * from jsonb_to_recordset($1::jsonb) as x(
+                    inbox_id uuid, inbox_owner text, inbox_token uuid,
+                    outbox_id uuid, outbox_owner text, outbox_token uuid,
+                    tenant_id uuid, consumer_name text, stream_key text,
+                    next_sequence bigint, completed_at timestamptz)
+             ), inbox_updated as (
+                update quantos.inbox_receipt i
+                set status = 'applied', processed_at = input.completed_at,
+                    next_attempt_at = input.completed_at,
                  lease_owner = null, lease_expires_at = null, lease_token = null,
                  last_error = null
-             where id = $1 and status = 'processing'
-               and lease_owner = $3 and lease_token = $4
-               and lease_expires_at >= $2",
-            &[
-                (inbox_claim.inbox_entry_id.as_uuid(), Type::UUID),
-                (&completed_at, Type::TIMESTAMPTZ),
-                (&inbox_claim.lease_owner, Type::TEXT),
-                (&inbox_claim.lease_token, Type::UUID),
-            ],
+                from input where i.id = input.inbox_id and i.status = 'processing'
+                  and i.lease_owner = input.inbox_owner and i.lease_token = input.inbox_token
+                  and i.lease_expires_at >= input.completed_at
+                returning i.id
+             ), outbox_updated as (
+                update quantos.outbox_event o
+                set status = 'dispatched', dispatched_at = input.completed_at,
+                    lease_owner = null, lease_expires_at = null, lease_token = null,
+                    last_error = null, updated_at = input.completed_at
+                from input where o.id = input.outbox_id and o.status = 'leased'
+                  and o.lease_owner = input.outbox_owner and o.lease_token = input.outbox_token
+                  and o.lease_expires_at >= input.completed_at
+                returning o.id
+             ), checkpoints as (
+                insert into quantos.projection_checkpoint (
+                    tenant_id, consumer_name, stream_key, next_sequence, updated_at)
+                select tenant_id, consumer_name, stream_key, max(next_sequence), max(completed_at)
+                from input group by tenant_id, consumer_name, stream_key
+                on conflict (tenant_id, consumer_name, stream_key) do update
+                set next_sequence = greatest(quantos.projection_checkpoint.next_sequence, excluded.next_sequence),
+                    updated_at = greatest(quantos.projection_checkpoint.updated_at, excluded.updated_at)
+                returning id
+             )
+             select (select count(*) from inbox_updated)::bigint as inbox_count,
+                    (select count(*) from outbox_updated)::bigint as outbox_count",
+            &[(&input, Type::JSONB)],
         )?;
-        if inbox_updated != 1 {
+        if counts.get::<_, i64>("inbox_count") != successes.len() as i64 {
             return Err(PgEventStoreError::StaleLease {
                 kind: "inbox",
-                id: *inbox_claim.inbox_entry_id.as_uuid(),
+                id: *successes[0].1.inbox_entry_id.as_uuid(),
             });
         }
-        save_checkpoint_tx(
-            &mut tx,
-            &ProjectionCheckpoint {
-                consumer_name: inbox_claim.consumer_name.clone(),
-                tenant_id: event.tenant_id,
-                stream_key: event.stream_key(),
-                next_sequence: event.sequence + 1,
-            },
-        )?;
-        let outbox_updated = tx.execute_typed(
-            "update quantos.outbox_event
-             set status = 'dispatched', dispatched_at = $2,
-                 lease_owner = null, lease_expires_at = null, lease_token = null,
-                 last_error = null, updated_at = $2
-             where id = $1 and status = 'leased'
-               and lease_owner = $3 and lease_token = $4
-               and lease_expires_at >= $2",
-            &[
-                (outbox_claim.outbox.outbox_entry_id.as_uuid(), Type::UUID),
-                (&completed_at, Type::TIMESTAMPTZ),
-                (&outbox_claim.lease_owner, Type::TEXT),
-                (&outbox_claim.lease_token, Type::UUID),
-            ],
-        )?;
-        if outbox_updated != 1 {
+        if counts.get::<_, i64>("outbox_count") != successes.len() as i64 {
             return Err(PgEventStoreError::StaleLease {
                 kind: "outbox",
-                id: *outbox_claim.outbox.outbox_entry_id.as_uuid(),
+                id: *successes[0].0.outbox.outbox_entry_id.as_uuid(),
             });
         }
         tx.commit()?;
@@ -719,15 +864,17 @@ impl PgEventStore {
             claimed: claimed.len(),
             ..PollingDispatchReport::default()
         };
+        let decisions = self.claim_inbox_processing_batch(
+            consumer_name,
+            worker_name,
+            &claimed,
+            observed_at,
+            lease_duration,
+        )?;
+        let mut successes = Vec::new();
 
-        for entry in claimed {
-            match self.claim_inbox_processing(
-                consumer_name,
-                worker_name,
-                &entry.event,
-                observed_at,
-                lease_duration,
-            )? {
+        for (entry, decision) in claimed.into_iter().zip(decisions) {
+            match decision {
                 InboxClaimDecision::AlreadyApplied => {
                     let completed_at = std::cmp::max(Utc::now(), observed_at);
                     self.mark_outbox_dispatched(&entry, completed_at)?;
@@ -753,16 +900,7 @@ impl PgEventStore {
                     match handler(&entry.event, &claim) {
                         Ok(()) => {
                             let completed_at = std::cmp::max(Utc::now(), observed_at);
-                            self.record_inbox_success_and_dispatch(
-                                &claim,
-                                &entry.event,
-                                &entry,
-                                completed_at,
-                            )?;
-                            if notifier(&entry.event).is_err() {
-                                report.notify_failures += 1;
-                            }
-                            report.processed += 1;
+                            successes.push((entry, claim, completed_at));
                         }
                         Err(detail) => {
                             let completed_at = std::cmp::max(Utc::now(), observed_at);
@@ -790,6 +928,14 @@ impl PgEventStore {
                 }
             }
         }
+
+        self.record_inbox_success_and_dispatch_batch(&successes)?;
+        for (entry, _, _) in &successes {
+            if notifier(&entry.event).is_err() {
+                report.notify_failures += 1;
+            }
+        }
+        report.processed += successes.len();
 
         Ok(report)
     }
