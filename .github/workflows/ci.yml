@@ -142,6 +142,9 @@ jobs:
       - name: Validate F04 core primitives and deterministic fixtures
         run: make f04-check
 
+      - name: Validate F05 event, storage and audit source Gate
+        run: make f05-check
+
       - name: Validate migration baseline
         run: make db-migration-check
 
@@ -177,6 +180,9 @@ jobs:
 
       - name: Rebuild isolated databases and test drift and RLS
         run: make f02-db-check
+
+      - name: Run F05 disposable PostgreSQL acceptance Gate
+        run: make f05-db-check
 
       - name: Check F02 rejection and recovery paths
         run: make f02-check

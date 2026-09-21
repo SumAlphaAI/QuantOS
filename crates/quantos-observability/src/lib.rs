@@ -1072,7 +1072,9 @@ mod tests {
             .expect("valid timestamp");
         let event = RecordedEvent::new(NewRecordedEvent {
             tenant_id,
+            actor_id: quantos_core::ActorId::new(),
             correlation_id,
+            causation_id: None,
             aggregate_type: "workflow".to_owned(),
             aggregate_id: "run-1".to_owned(),
             sequence: 1,
@@ -1256,7 +1258,9 @@ mod tests {
         for sequence in [1_u64, 2_u64] {
             let event = RecordedEvent::new(NewRecordedEvent {
                 tenant_id,
+                actor_id: quantos_core::ActorId::new(),
                 correlation_id,
+                causation_id: None,
                 aggregate_type: "workflow".to_owned(),
                 aggregate_id: "run-f09".to_owned(),
                 sequence,
@@ -1281,7 +1285,7 @@ mod tests {
         assert_eq!(
             ledger
                 .inner()
-                .events_by_correlation_id(correlation_id)
+                .events_by_correlation_id(tenant_id, correlation_id)
                 .len(),
             2
         );

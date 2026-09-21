@@ -4,7 +4,7 @@ use std::{
 };
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
-use quantos_core::{CoreError, CorrelationId, Quantity, SchemaVersion, TenantId};
+use quantos_core::{ActorId, CoreError, CorrelationId, Quantity, SchemaVersion, TenantId};
 use quantos_event::{AppendOnlyLedger, EventError, NewRecordedEvent, RecordedEvent};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -146,12 +146,15 @@ impl MarketEvent {
     pub fn to_recorded_event(
         &self,
         tenant_id: TenantId,
+        actor_id: ActorId,
         correlation_id: CorrelationId,
         occurred_at: DateTime<Utc>,
     ) -> Result<RecordedEvent, MarketError> {
         Ok(RecordedEvent::new(NewRecordedEvent {
             tenant_id,
+            actor_id,
             correlation_id,
+            causation_id: None,
             aggregate_type: "market".to_owned(),
             aggregate_id: self.normalized_symbol.clone(),
             sequence: self.sequence,
@@ -197,6 +200,7 @@ pub struct MarketIngestionOutcome {
 #[derive(Debug, Clone)]
 pub struct MarketIngestor {
     approvals: ApprovedProviderRegistry,
+    actor_id: ActorId,
     seen_tick_ids: BTreeSet<(String, String)>,
     next_sequence: BTreeMap<(TenantId, String), u64>,
 }
@@ -206,6 +210,7 @@ impl MarketIngestor {
     pub fn new(approvals: ApprovedProviderRegistry) -> Self {
         Self {
             approvals,
+            actor_id: ActorId::new(),
             seen_tick_ids: BTreeSet::new(),
             next_sequence: BTreeMap::new(),
         }
@@ -315,7 +320,9 @@ impl MarketIngestor {
 
         let recorded_events = market_events
             .iter()
-            .map(|event| event.to_recorded_event(tenant_id, correlation_id, event.received_at))
+            .map(|event| {
+                event.to_recorded_event(tenant_id, self.actor_id, correlation_id, event.received_at)
+            })
             .collect::<Result<Vec<_>, _>>()?;
 
         Ok(MarketIngestionOutcome {
@@ -566,7 +573,9 @@ mod tests {
         assert!(summary.unique_ticks > 90_000);
         assert!(summary.anomaly_events > 0);
         assert_eq!(
-            ledger.events_by_correlation_id(correlation_id).len(),
+            ledger
+                .events_by_correlation_id(tenant_id, correlation_id)
+                .len(),
             summary.recorded_events
         );
         Ok(())
@@ -600,7 +609,9 @@ mod tests {
         assert_eq!(summary.duplicate_ticks, 5);
         assert_eq!(summary.unique_ticks, 19);
         assert_eq!(
-            ledger.events_by_correlation_id(correlation_id).len(),
+            ledger
+                .events_by_correlation_id(tenant_id, correlation_id)
+                .len(),
             summary.recorded_events
         );
         Ok(())

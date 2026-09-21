@@ -12,47 +12,27 @@ use chrono::{Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
 use postgres::{Client, NoTls, types::Type};
 use postgres_native_tls::MakeTlsConnector;
-use quantos_core::{CorrelationId, SchemaVersion, TenantId};
+use quantos_core::{ActorId, CorrelationId, SchemaVersion, TenantId};
 use quantos_event::{
     NewRecordedEvent, RecordedEvent,
-    pg::{InboxClaimDecision, PgEventStore},
+    pg::{InboxClaimDecision, PgEventStore, PgEventStoreError},
 };
 use serde_json::json;
 use url::Url;
 
-struct TenantCleanup {
-    database_url: String,
-    tenant_id: TenantId,
-}
-
-impl Drop for TenantCleanup {
-    fn drop(&mut self) {
-        if let Ok(mut client) = connect_client(&self.database_url) {
-            let _ = client.execute_typed(
-                "delete from quantos.tenants where id = $1",
-                &[(self.tenant_id.as_uuid(), Type::UUID)],
-            );
-        }
-    }
-}
-
 #[test]
 fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
-    let Some(database_url) = env::var("DATABASE_URL")
-        .ok()
-        .filter(|value| !value.trim().is_empty())
-    else {
-        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
+    let Some(database_url) = live_database_url() else {
         return;
     };
 
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
-    let _cleanup = seed_tenant(&database_url, tenant_id);
+    let actor_id = seed_tenant(&database_url, tenant_id);
     let mut seed_store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
     let events = vec![
-        build_event(tenant_id, correlation_id, 1),
-        build_event(tenant_id, correlation_id, 2),
+        build_event(tenant_id, actor_id, correlation_id, 1),
+        build_event(tenant_id, actor_id, correlation_id, 2),
     ];
     for event in &events {
         seed_store.append_event(event).expect("event appends");
@@ -102,22 +82,18 @@ fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
 
 #[test]
 fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correlation() {
-    let Some(database_url) = env::var("DATABASE_URL")
-        .ok()
-        .filter(|value| !value.trim().is_empty())
-    else {
-        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
+    let Some(database_url) = live_database_url() else {
         return;
     };
 
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
-    let _cleanup = seed_tenant(&database_url, tenant_id);
+    let actor_id = seed_tenant(&database_url, tenant_id);
     let mut store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
-    let events = vec![
-        build_event(tenant_id, correlation_id, 1),
-        build_event(tenant_id, correlation_id, 2),
-        build_event(tenant_id, correlation_id, 3),
+    let mut events = vec![
+        build_event(tenant_id, actor_id, correlation_id, 1),
+        build_event(tenant_id, actor_id, correlation_id, 2),
+        build_event(tenant_id, actor_id, correlation_id, 3),
     ];
     for event in &events {
         store.append_event(event).expect("event appends");
@@ -132,7 +108,7 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
             Utc::now(),
             ChronoDuration::seconds(30),
             3,
-            |event| {
+            |event, _claim| {
                 applied.push(event.sequence);
                 Ok(())
             },
@@ -145,23 +121,52 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
     assert_eq!(report.notify_failures, 3);
     assert_eq!(applied, vec![1, 2, 3]);
 
+    // Realtime is considered disconnected here. New committed rows remain in
+    // PostgreSQL and the reconnect scan must drain them within the deadline.
+    for sequence in 4..=5 {
+        let event = build_event(tenant_id, actor_id, correlation_id, sequence);
+        store
+            .append_event(&event)
+            .expect("disconnected event appends");
+        events.push(event);
+    }
+    let reconnect_started = Instant::now();
+    let reconnect = store
+        .poll_outbox_once(
+            "f05-worker",
+            "projection-risk",
+            50,
+            Utc::now(),
+            ChronoDuration::seconds(30),
+            3,
+            |event, _claim| {
+                applied.push(event.sequence);
+                Ok(())
+            },
+            |_| Ok(()),
+        )
+        .expect("reconnect database scan succeeds");
+    assert_eq!(reconnect.processed, 2);
+    assert!(reconnect_started.elapsed() <= Duration::from_secs(5));
+    assert_eq!(applied, vec![1, 2, 3, 4, 5]);
+
     // The five-second acceptance budget applies to correlation-chain lookup,
     // not to the preceding polling/handler/notifier workflow.
     let started_at = Instant::now();
     let replayed = store
-        .events_by_correlation_id(correlation_id)
+        .events_by_correlation_id(tenant_id, correlation_id)
         .expect("replay query succeeds");
-    assert_eq!(replayed.len(), 3);
+    assert_eq!(replayed.len(), 5);
     assert!(
         started_at.elapsed() <= Duration::from_secs(5),
         "correlation replay should stay within the F05 budget"
     );
 
     let checkpoint = store
-        .load_checkpoint(tenant_id, "projection-risk", &events[2].stream_key())
+        .load_checkpoint(tenant_id, "projection-risk", &events[4].stream_key())
         .expect("checkpoint query succeeds")
         .expect("checkpoint should exist");
-    assert_eq!(checkpoint.next_sequence, 4);
+    assert_eq!(checkpoint.next_sequence, 6);
 
     let second_scan = store
         .poll_outbox_once(
@@ -171,7 +176,7 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
             Utc::now(),
             ChronoDuration::seconds(30),
             3,
-            |_| Ok(()),
+            |_, _claim| Ok(()),
             |_| Ok(()),
         )
         .expect("follow-up scan succeeds");
@@ -192,19 +197,15 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
 
 #[test]
 fn postgres_polling_worker_dead_letters_poison_events_after_retry_budget() {
-    let Some(database_url) = env::var("DATABASE_URL")
-        .ok()
-        .filter(|value| !value.trim().is_empty())
-    else {
-        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
+    let Some(database_url) = live_database_url() else {
         return;
     };
 
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
-    let _cleanup = seed_tenant(&database_url, tenant_id);
+    let actor_id = seed_tenant(&database_url, tenant_id);
     let mut store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
-    let event = build_event(tenant_id, correlation_id, 1);
+    let event = build_event(tenant_id, actor_id, correlation_id, 1);
     store.append_event(&event).expect("event appends");
 
     let first = store
@@ -215,7 +216,7 @@ fn postgres_polling_worker_dead_letters_poison_events_after_retry_budget() {
             Utc::now(),
             ChronoDuration::seconds(30),
             2,
-            |_| Err("projection panic".to_owned()),
+            |_, _claim| Err("projection panic".to_owned()),
             |_| Ok(()),
         )
         .expect("first failure persists");
@@ -230,7 +231,7 @@ fn postgres_polling_worker_dead_letters_poison_events_after_retry_budget() {
             Utc::now() + ChronoDuration::seconds(2),
             ChronoDuration::seconds(30),
             2,
-            |_| Err("projection panic".to_owned()),
+            |_, _claim| Err("projection panic".to_owned()),
             |_| Ok(()),
         )
         .expect("second failure dead-letters");
@@ -245,7 +246,7 @@ fn postgres_polling_worker_dead_letters_poison_events_after_retry_budget() {
     let dead_letters = store
         .dead_letters(tenant_id, "projection-risk")
         .expect("dead letter query succeeds");
-    assert_eq!(dead_letters.len(), 1);
+    assert_eq!(dead_letters.len(), 2);
     assert_eq!(dead_letters[0].sequence, 1);
 
     let mut client = connect_client(&database_url).expect("connects for direct verification");
@@ -278,23 +279,77 @@ fn postgres_polling_worker_dead_letters_poison_events_after_retry_budget() {
         .expect("dead letter count query succeeds")
         .get::<_, i64>("count");
     assert_eq!(dead_letter_count, 2);
+
+    let other_tenant = TenantId::new();
+    let other_actor = seed_tenant(&database_url, other_tenant);
+    assert!(matches!(
+        store.requeue_dead_letter(
+            tenant_id,
+            dead_letters[0].dead_letter_id,
+            other_actor,
+            Utc::now() + ChronoDuration::seconds(3),
+        ),
+        Err(PgEventStoreError::ActorNotAuthorized { .. })
+    ));
+
+    store
+        .requeue_dead_letter(
+            tenant_id,
+            dead_letters[0].dead_letter_id,
+            actor_id,
+            Utc::now() + ChronoDuration::seconds(3),
+        )
+        .expect("operator requeues pending dead letter");
+    assert!(matches!(
+        store.requeue_dead_letter(
+            tenant_id,
+            dead_letters[0].dead_letter_id,
+            actor_id,
+            Utc::now() + ChronoDuration::seconds(4),
+        ),
+        Err(PgEventStoreError::DeadLetterNotReplayable(_))
+    ));
+    assert!(
+        store
+            .dead_letters(tenant_id, "projection-risk")
+            .expect("pending dead letter query succeeds")
+            .is_empty()
+    );
+    let replay = store
+        .poll_outbox_once(
+            "f05-replay-worker",
+            "projection-risk",
+            10,
+            Utc::now() + ChronoDuration::seconds(5),
+            ChronoDuration::seconds(30),
+            2,
+            |_, _claim| Ok(()),
+            |_| Ok(()),
+        )
+        .expect("requeued event processes through the normal path");
+    assert_eq!(replay.processed, 1);
+    assert_eq!(
+        store
+            .audit_entries_by_correlation_id(tenant_id, correlation_id)
+            .expect("audit chain loads")
+            .iter()
+            .filter(|entry| entry.action == "event.dead_letter.requeued")
+            .count(),
+        1
+    );
 }
 
 #[test]
 fn postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_attempts() {
-    let Some(database_url) = env::var("DATABASE_URL")
-        .ok()
-        .filter(|value| !value.trim().is_empty())
-    else {
-        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
+    let Some(database_url) = live_database_url() else {
         return;
     };
 
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
-    let _cleanup = seed_tenant(&database_url, tenant_id);
+    let actor_id = seed_tenant(&database_url, tenant_id);
     let mut store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
-    let event = build_event(tenant_id, correlation_id, 1);
+    let event = build_event(tenant_id, actor_id, correlation_id, 1);
     store.append_event(&event).expect("event appends");
 
     // A bounded worker set drives 1,000 delivery attempts without creating a
@@ -376,10 +431,210 @@ fn postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_a
     assert_eq!(inbox_row.get::<_, String>("status"), "applied");
 }
 
-fn build_event(tenant_id: TenantId, correlation_id: CorrelationId, sequence: u64) -> RecordedEvent {
+#[test]
+fn stale_outbox_and_inbox_lease_tokens_cannot_commit_after_reclaim() {
+    let Some(database_url) = live_database_url() else {
+        return;
+    };
+    let tenant_id = TenantId::new();
+    let actor_id = seed_tenant(&database_url, tenant_id);
+    let event = build_event(tenant_id, actor_id, CorrelationId::new(), 1);
+    let mut seed = PgEventStore::connect(&database_url).expect("seed store connects");
+    seed.append_event(&event).expect("event appends");
+    let started_at = Utc::now();
+
+    let original_outbox = seed
+        .claim_outbox_events("worker-a", 1, started_at, ChronoDuration::seconds(1))
+        .expect("original outbox claim succeeds")
+        .remove(0);
+    let mut replacement = PgEventStore::connect(&database_url).expect("replacement connects");
+    let replacement_outbox = replacement
+        .claim_outbox_events(
+            "worker-b",
+            1,
+            started_at + ChronoDuration::seconds(2),
+            ChronoDuration::seconds(30),
+        )
+        .expect("expired outbox claim is reclaimed")
+        .remove(0);
+    assert_ne!(original_outbox.lease_token, replacement_outbox.lease_token);
+    assert!(matches!(
+        seed.mark_outbox_dispatched(&original_outbox, started_at + ChronoDuration::seconds(2)),
+        Err(PgEventStoreError::StaleLease { kind: "outbox", .. })
+    ));
+
+    let original_inbox = match seed
+        .claim_inbox_processing(
+            "projection-fenced",
+            "worker-a",
+            &event,
+            started_at,
+            ChronoDuration::seconds(1),
+        )
+        .expect("original inbox claim succeeds")
+    {
+        InboxClaimDecision::Claimed(claim) => claim,
+        other => panic!("expected original claim, got {other:?}"),
+    };
+    let replacement_inbox = match replacement
+        .claim_inbox_processing(
+            "projection-fenced",
+            "worker-b",
+            &event,
+            started_at + ChronoDuration::seconds(2),
+            ChronoDuration::seconds(30),
+        )
+        .expect("expired inbox claim is reclaimed")
+    {
+        InboxClaimDecision::Claimed(claim) => claim,
+        other => panic!("expected replacement claim, got {other:?}"),
+    };
+    assert_ne!(original_inbox.lease_token, replacement_inbox.lease_token);
+    assert!(matches!(
+        seed.record_inbox_success(
+            &original_inbox,
+            &event,
+            started_at + ChronoDuration::seconds(2)
+        ),
+        Err(PgEventStoreError::StaleLease { kind: "inbox", .. })
+    ));
+    replacement
+        .record_inbox_success(
+            &replacement_inbox,
+            &event,
+            started_at + ChronoDuration::seconds(2),
+        )
+        .expect("current inbox token commits");
+    replacement
+        .mark_outbox_dispatched(&replacement_outbox, started_at + ChronoDuration::seconds(2))
+        .expect("current outbox token commits");
+}
+
+#[test]
+fn correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation() {
+    let Some(database_url) = live_database_url() else {
+        return;
+    };
+    let correlation_id = CorrelationId::new();
+    let tenant_a = TenantId::new();
+    let tenant_b = TenantId::new();
+    let actor_a = seed_tenant(&database_url, tenant_a);
+    let actor_b = seed_tenant(&database_url, tenant_b);
+    let event_a = build_event(tenant_a, actor_a, correlation_id, 1);
+    let event_b = build_event(tenant_b, actor_b, correlation_id, 1);
+    let mut store = PgEventStore::connect(&database_url).expect("event store connects");
+    store
+        .append_event(&event_a)
+        .expect("tenant A event appends");
+    store
+        .append_event(&event_b)
+        .expect("tenant B event appends");
+
+    let replay_a = store
+        .events_by_correlation_id(tenant_a, correlation_id)
+        .expect("tenant A replay succeeds");
+    let replay_b = store
+        .events_by_correlation_id(tenant_b, correlation_id)
+        .expect("tenant B replay succeeds");
+    assert_eq!(replay_a.len(), 1);
+    assert_eq!(replay_b.len(), 1);
+    assert_eq!(replay_a[0].tenant_id, tenant_a);
+    assert_eq!(replay_b[0].tenant_id, tenant_b);
+    assert_eq!(
+        store
+            .audit_entries_by_correlation_id(tenant_a, correlation_id)
+            .expect("tenant A audit query succeeds")
+            .len(),
+        1
+    );
+
+    let mut direct = connect_client(&database_url).expect("direct client connects");
+    for sql in [
+        "update quantos.event_log set event_kind = 'tampered' where event_id = $1",
+        "delete from quantos.event_log where event_id = $1",
+        "update quantos.audit_entries set action = 'tampered' where event_id = $1",
+        "delete from quantos.audit_entries where event_id = $1",
+    ] {
+        let error = direct
+            .execute_typed(sql, &[(event_a.event_id.as_uuid(), Type::UUID)])
+            .expect_err("append-only mutation must fail");
+        assert_eq!(error.code().map(|code| code.code()), Some("55000"));
+    }
+    for sql in [
+        "truncate table quantos.event_log cascade",
+        "truncate table quantos.audit_entries",
+    ] {
+        let error = direct
+            .batch_execute(sql)
+            .expect_err("append-only truncate must fail");
+        assert_eq!(error.code().map(|code| code.code()), Some("55000"));
+    }
+}
+
+#[test]
+fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
+    let Some(database_url) = live_database_url() else {
+        return;
+    };
+    let tenant_id = TenantId::new();
+    let actor_id = seed_tenant(&database_url, tenant_id);
+    let correlation_id = CorrelationId::new();
+    let mut store = PgEventStore::connect(&database_url).expect("event store connects");
+    for sequence in 1..=10_000 {
+        store
+            .append_event(&build_event(tenant_id, actor_id, correlation_id, sequence))
+            .expect("event appends without loss");
+    }
+
+    let mut processed = 0_usize;
+    loop {
+        let report = store
+            .poll_outbox_once(
+                "f05-volume-worker",
+                "projection-volume",
+                500,
+                Utc::now(),
+                ChronoDuration::seconds(60),
+                3,
+                |_, _claim| Ok(()),
+                |_| Ok(()),
+            )
+            .expect("volume poll succeeds");
+        processed += report.processed;
+        if report.claimed == 0 {
+            break;
+        }
+    }
+    assert_eq!(processed, 10_000);
+
+    let lookup_started = Instant::now();
+    assert_eq!(
+        store
+            .events_by_correlation_id(tenant_id, correlation_id)
+            .expect("10,000 event correlation chain loads")
+            .len(),
+        10_000
+    );
+    assert!(lookup_started.elapsed() <= Duration::from_secs(5));
+    let health = store
+        .health_snapshot(tenant_id, Utc::now())
+        .expect("health snapshot loads");
+    assert_eq!(health.pending_outbox, 0);
+    assert_eq!(health.pending_inbox, 0);
+    assert_eq!(health.pending_dead_letters, 0);
+}
+
+fn build_event(
+    tenant_id: TenantId,
+    actor_id: ActorId,
+    correlation_id: CorrelationId,
+    sequence: u64,
+) -> RecordedEvent {
     RecordedEvent::new(NewRecordedEvent {
         tenant_id,
+        actor_id,
         correlation_id,
+        causation_id: None,
         aggregate_type: "trade".to_owned(),
         aggregate_id: "btc-usdt".to_owned(),
         sequence,
@@ -395,7 +650,7 @@ fn build_event(tenant_id: TenantId, correlation_id: CorrelationId, sequence: u64
     .expect("event builds")
 }
 
-fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
+fn seed_tenant(database_url: &str, tenant_id: TenantId) -> ActorId {
     let mut client = connect_client(database_url).expect("connects for setup");
     let slug = format!("f05-live-{}", tenant_id);
     client
@@ -409,11 +664,20 @@ fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
             ],
         )
         .expect("tenant inserts");
-
-    TenantCleanup {
-        database_url: database_url.to_owned(),
-        tenant_id,
-    }
+    let actor_id = ActorId::new();
+    client
+        .execute_typed(
+            "insert into quantos.actors (
+               id, tenant_id, actor_kind, display_name, service_name
+             ) values ($1,$2,'service',$3,$3)",
+            &[
+                (actor_id.as_uuid(), Type::UUID),
+                (tenant_id.as_uuid(), Type::UUID),
+                (&format!("f05-test-{actor_id}"), Type::TEXT),
+            ],
+        )
+        .expect("actor inserts");
+    actor_id
 }
 
 fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
@@ -435,4 +699,19 @@ fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
         let connector = builder.build().expect("TLS connector builds");
         Client::connect(database_url, MakeTlsConnector::new(connector))
     }
+}
+
+fn live_database_url() -> Option<String> {
+    let required = env::var("QUANTOS_RUN_F05_POSTGRES_TESTS").ok().as_deref() == Some("1");
+    let database_url = env::var("DATABASE_URL")
+        .ok()
+        .filter(|value| !value.trim().is_empty());
+    assert!(
+        database_url.is_some() || !required,
+        "DATABASE_URL is required when QUANTOS_RUN_F05_POSTGRES_TESTS=1"
+    );
+    if database_url.is_none() {
+        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
+    }
+    database_url
 }

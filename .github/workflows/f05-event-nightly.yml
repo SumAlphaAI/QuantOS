@@ -1,0 +1,54 @@
+name: F05 Event Nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 18 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  branch-and-database:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17.10
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      QUANTOS_SKIP_ENV: "1"
+      F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres
+      RUSTUP_TOOLCHAIN: nightly
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: llvm-tools-preview
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - run: corepack enable pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: cargo install cargo-llvm-cov --version 0.8.7 --locked
+      - name: Run disposable PostgreSQL acceptance
+        run: make f05-db-check
+      - name: Measure core branch coverage
+        run: >-
+          cargo llvm-cov --package quantos-event --package quantos-storage --lib --branch
+          --ignore-filename-regex '(pg|supabase_storage)\.rs'
+          --json --output-path target/f05-branch-coverage.json
+      - run: node scripts/check-f05-branch.mjs target/f05-branch-coverage.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f05-nightly-${{ github.sha }}
+          path: |
+            artifacts/f05/
+            target/f05-branch-coverage.json
+          if-no-files-found: error

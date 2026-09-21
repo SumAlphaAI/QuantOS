@@ -15,7 +15,7 @@ use crate::{
 };
 use quantos_auth::AuthContext;
 use quantos_core::{
-    ArtifactId, AuditEntryId, ContentHash, CoreError, CorrelationId, RuntimeSessionId,
+    ActorId, ArtifactId, AuditEntryId, ContentHash, CoreError, CorrelationId, RuntimeSessionId,
     TaskAttemptId, TenantId, WorkflowRunId,
 };
 use quantos_policy::{Capability, RunMode};
@@ -394,7 +394,7 @@ impl PgRuntimeStore {
              from quantos.actors as actor
              where run.id = $1
                and actor.id = run.actor_id
-             returning run.tenant_id, run.correlation_id, actor.user_id",
+             returning run.tenant_id, run.correlation_id, actor.id as actor_id",
             &[
                 (run_id.as_uuid(), Type::UUID),
                 (&requested_at, Type::TIMESTAMPTZ),
@@ -403,8 +403,8 @@ impl PgRuntimeStore {
         insert_audit_tx(
             &mut tx,
             TenantId::from_uuid(row.get("tenant_id")),
+            ActorId::from_uuid(row.get("actor_id")),
             CorrelationId::from_uuid(row.get("correlation_id")),
-            row.get("user_id"),
             "runtime.cancel_requested",
             &serde_json::json!({ "workflow_run_id": run_id.to_string() }),
             requested_at,
@@ -429,7 +429,7 @@ impl PgRuntimeStore {
              from quantos.actors as actor
              where run.id = $1
                and actor.id = run.actor_id
-             returning run.tenant_id, run.correlation_id, actor.user_id",
+             returning run.tenant_id, run.correlation_id, actor.id as actor_id",
             &[
                 (run_id.as_uuid(), Type::UUID),
                 (&cancelled_at, Type::TIMESTAMPTZ),
@@ -438,8 +438,8 @@ impl PgRuntimeStore {
         insert_audit_tx(
             &mut tx,
             TenantId::from_uuid(row.get("tenant_id")),
+            ActorId::from_uuid(row.get("actor_id")),
             CorrelationId::from_uuid(row.get("correlation_id")),
-            row.get("user_id"),
             "runtime.cancelled",
             &serde_json::json!({ "workflow_run_id": run_id.to_string() }),
             cancelled_at,
@@ -467,7 +467,7 @@ impl PgRuntimeStore {
                and run.cancel_requested_at is null
                and run.status not in ('succeeded', 'failed', 'cancelled', 'timed_out')
                and actor.id = run.actor_id
-             returning run.id, run.tenant_id, run.correlation_id, actor.user_id",
+             returning run.id, run.tenant_id, run.correlation_id, actor.id as actor_id",
             &[
                 (&observed_at, Type::TIMESTAMPTZ),
                 (tenant_id.as_uuid(), Type::UUID),
@@ -478,8 +478,8 @@ impl PgRuntimeStore {
             insert_audit_tx(
                 &mut tx,
                 TenantId::from_uuid(row.get("tenant_id")),
+                ActorId::from_uuid(row.get("actor_id")),
                 CorrelationId::from_uuid(row.get("correlation_id")),
-                row.get("user_id"),
                 "runtime.timed_out",
                 &serde_json::json!({ "workflow_run_id": run_id.to_string() }),
                 observed_at,
@@ -565,8 +565,8 @@ fn connect_client(database_url: &str) -> Result<Client, PgRuntimeError> {
 fn insert_audit_tx(
     tx: &mut Transaction<'_>,
     tenant_id: TenantId,
+    actor_id: ActorId,
     correlation_id: CorrelationId,
-    actor_user_id: Option<Uuid>,
     action: &str,
     details: &serde_json::Value,
     recorded_at: DateTime<Utc>,
@@ -574,13 +574,13 @@ fn insert_audit_tx(
     let details = Json(details);
     let row = tx.query_typed_one(
         "insert into quantos.audit_entries (
-            tenant_id, correlation_id, actor_user_id, action, details, recorded_at
-        ) values ($1,$2,$3,$4,$5,$6)
+            tenant_id, actor_id, correlation_id, causation_id, action, details, recorded_at
+        ) values ($1,$2,$3,$3,$4,$5,$6)
         returning id",
         &[
             (tenant_id.as_uuid(), Type::UUID),
+            (actor_id.as_uuid(), Type::UUID),
             (correlation_id.as_uuid(), Type::UUID),
-            (&actor_user_id, Type::UUID),
             (&action, Type::TEXT),
             (&details, Type::JSONB),
             (&recorded_at, Type::TIMESTAMPTZ),

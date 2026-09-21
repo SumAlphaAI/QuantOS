@@ -31,15 +31,19 @@ impl Drop for TenantCleanup {
 
 #[test]
 fn postgres_storage_store_persists_artifacts_and_schema_registry() {
-    let explicitly_required =
-        env::var("QUANTOS_RUN_R02_POSTGRES_TESTS").ok().as_deref() == Some("1");
+    let explicitly_required = [
+        "QUANTOS_RUN_R02_POSTGRES_TESTS",
+        "QUANTOS_RUN_F05_POSTGRES_TESTS",
+    ]
+    .iter()
+    .any(|name| env::var(name).ok().as_deref() == Some("1"));
     let Some(database_url) = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.trim().is_empty())
     else {
         assert!(
             !explicitly_required,
-            "DATABASE_URL is required when QUANTOS_RUN_R02_POSTGRES_TESTS=1"
+            "DATABASE_URL is required when a PostgreSQL acceptance Gate is enabled"
         );
         eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
         return;

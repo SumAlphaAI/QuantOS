@@ -4,8 +4,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use chrono::{DateTime, Utc};
 use quantos_core::{
-    AuditEntryId, ContentHash, CorrelationId, DeadLetterId, EventId, InboxEntryId, OutboxEntryId,
-    SchemaVersion, TenantId, canonical_json_bytes,
+    ActorId, AuditEntryId, ContentHash, CorrelationId, DeadLetterId, EventId, InboxEntryId,
+    OutboxEntryId, SchemaVersion, TenantId, canonical_json_bytes,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -79,7 +79,9 @@ impl EventError {
 pub struct RecordedEvent {
     pub event_id: EventId,
     pub tenant_id: TenantId,
+    pub actor_id: ActorId,
     pub correlation_id: CorrelationId,
+    pub causation_id: EventId,
     pub aggregate_type: String,
     pub aggregate_id: String,
     pub sequence: u64,
@@ -93,7 +95,10 @@ pub struct RecordedEvent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct NewRecordedEvent {
     pub tenant_id: TenantId,
+    pub actor_id: ActorId,
     pub correlation_id: CorrelationId,
+    /// The direct parent event. Root events use their own generated event ID.
+    pub causation_id: Option<EventId>,
     pub aggregate_type: String,
     pub aggregate_id: String,
     pub sequence: u64,
@@ -105,15 +110,18 @@ pub struct NewRecordedEvent {
 
 impl RecordedEvent {
     pub fn new(input: NewRecordedEvent) -> Result<Self, EventError> {
+        let event_id = EventId::new();
         let payload_hash = ContentHash::sha256_bytes(
             &canonical_json_bytes(&input.payload)
                 .map_err(|error| EventError::handler_failure(EventId::new(), error.message()))?,
         );
 
         Ok(Self {
-            event_id: EventId::new(),
+            event_id,
             tenant_id: input.tenant_id,
+            actor_id: input.actor_id,
             correlation_id: input.correlation_id,
+            causation_id: input.causation_id.unwrap_or(event_id),
             aggregate_type: input.aggregate_type,
             aggregate_id: input.aggregate_id,
             sequence: input.sequence,
@@ -135,7 +143,9 @@ impl RecordedEvent {
 pub struct AuditEntry {
     pub audit_entry_id: AuditEntryId,
     pub tenant_id: TenantId,
+    pub actor_id: ActorId,
     pub correlation_id: CorrelationId,
+    pub causation_id: EventId,
     pub event_id: Option<EventId>,
     pub action: String,
     pub details: Value,
@@ -218,7 +228,9 @@ impl AppendOnlyLedger {
         self.audit_entries.push(AuditEntry {
             audit_entry_id: AuditEntryId::new(),
             tenant_id: event.tenant_id,
+            actor_id: event.actor_id,
             correlation_id: event.correlation_id,
+            causation_id: event.causation_id,
             event_id: Some(event.event_id),
             action: "event.appended".to_owned(),
             details: json!({
@@ -242,11 +254,15 @@ impl AppendOnlyLedger {
     }
 
     #[must_use]
-    pub fn events_by_correlation_id(&self, correlation_id: CorrelationId) -> Vec<&RecordedEvent> {
+    pub fn events_by_correlation_id(
+        &self,
+        tenant_id: TenantId,
+        correlation_id: CorrelationId,
+    ) -> Vec<&RecordedEvent> {
         let mut events = self
             .events
             .iter()
-            .filter(|event| event.correlation_id == correlation_id)
+            .filter(|event| event.tenant_id == tenant_id && event.correlation_id == correlation_id)
             .collect::<Vec<_>>();
         events.sort_by_key(|event| (event.occurred_at, event.sequence));
         events
@@ -444,11 +460,12 @@ impl ProjectionEngine {
 
 pub fn replay_by_correlation<'a>(
     events: impl IntoIterator<Item = &'a RecordedEvent>,
+    tenant_id: TenantId,
     correlation_id: CorrelationId,
 ) -> Vec<&'a RecordedEvent> {
     let mut filtered = events
         .into_iter()
-        .filter(|event| event.correlation_id == correlation_id)
+        .filter(|event| event.tenant_id == tenant_id && event.correlation_id == correlation_id)
         .collect::<Vec<_>>();
     filtered.sort_by_key(|event| (event.occurred_at, event.sequence));
     filtered
@@ -457,13 +474,13 @@ pub fn replay_by_correlation<'a>(
 #[cfg(test)]
 mod tests {
     use chrono::{TimeZone, Utc};
-    use quantos_core::{CorrelationId, SchemaVersion, TenantId};
+    use quantos_core::{ActorId, CorrelationId, SchemaVersion, TenantId};
     use serde_json::json;
     use std::time::{Duration, Instant};
 
     use super::{
         AppendOnlyLedger, DeliveryStatus, EventError, NewRecordedEvent, ProjectionEngine,
-        RecordedEvent,
+        RecordedEvent, replay_by_correlation,
     };
 
     fn event_fixture(sequence: u64) -> RecordedEvent {
@@ -473,7 +490,10 @@ mod tests {
             .expect("correlation id parses");
         RecordedEvent::new(NewRecordedEvent {
             tenant_id,
+            actor_id: ActorId::parse_str("018f52f9-34bf-7da6-a81b-b0a6b5ab4f03")
+                .expect("actor id parses"),
             correlation_id,
+            causation_id: None,
             aggregate_type: "trade".to_owned(),
             aggregate_id: "btc-usdt".to_owned(),
             sequence,
@@ -500,6 +520,39 @@ mod tests {
             .expect_err("duplicate append should fail");
 
         assert_eq!(error.machine_code(), "EVENT_DUPLICATE_EVENT");
+    }
+
+    #[test]
+    fn provenance_is_required_and_replay_filters_the_tenant_boundary() {
+        let root = event_fixture(1);
+        assert_eq!(root.causation_id, root.event_id);
+        let child = RecordedEvent::new(NewRecordedEvent {
+            tenant_id: root.tenant_id,
+            actor_id: root.actor_id,
+            correlation_id: root.correlation_id,
+            causation_id: Some(root.event_id),
+            aggregate_type: root.aggregate_type.clone(),
+            aggregate_id: root.aggregate_id.clone(),
+            sequence: 2,
+            event_kind: "TradeCommandApplied".to_owned(),
+            schema_version: root.schema_version.clone(),
+            occurred_at: root.occurred_at,
+            payload: json!({ "sequence": 2 }),
+        })
+        .expect("child event builds");
+        assert_eq!(child.causation_id, root.event_id);
+
+        let mut other_tenant = child.clone();
+        other_tenant.tenant_id = TenantId::new();
+        let events = [other_tenant, child.clone(), root.clone()];
+        let replayed = replay_by_correlation(events.iter(), root.tenant_id, root.correlation_id);
+        assert_eq!(replayed, vec![&root, &child]);
+
+        let mut ledger = AppendOnlyLedger::new();
+        ledger.append(root.clone()).expect("root appends");
+        let audit = &ledger.audit_entries()[0];
+        assert_eq!(audit.actor_id, root.actor_id);
+        assert_eq!(audit.causation_id, root.event_id);
     }
 
     #[test]
@@ -550,6 +603,48 @@ mod tests {
         assert_eq!(first, DeliveryStatus::Applied);
         assert_eq!(second, DeliveryStatus::DuplicateIgnored);
         assert_eq!(applied, 1);
+    }
+
+    #[test]
+    fn projection_ignores_old_sequences_and_keeps_first_buffered_delivery() {
+        let tenant_id = event_fixture(1).tenant_id;
+        let mut engine = ProjectionEngine::new("inbox", tenant_id, "trade:btc-usdt", 3);
+        let first = event_fixture(1);
+
+        engine
+            .deliver(first, &mut |_| Ok(()))
+            .expect("first event applies");
+
+        let old_sequence = event_fixture(1);
+        assert_eq!(
+            engine
+                .deliver(old_sequence, &mut |_| {
+                    panic!("old sequence must not be applied")
+                })
+                .expect("old sequence is ignored"),
+            DeliveryStatus::DuplicateIgnored
+        );
+
+        let first_buffered = event_fixture(3);
+        let first_buffered_id = first_buffered.event_id;
+        let replacement = event_fixture(3);
+        engine
+            .deliver(first_buffered, &mut |_| Ok(()))
+            .expect("future event buffers");
+        engine
+            .deliver(replacement, &mut |_| Ok(()))
+            .expect("duplicate future sequence remains buffered");
+
+        let mut applied = Vec::new();
+        engine
+            .deliver(event_fixture(2), &mut |event| {
+                applied.push(event.event_id);
+                Ok(())
+            })
+            .expect("sequence gap closes");
+
+        assert_eq!(applied.len(), 2);
+        assert_eq!(applied[1], first_buffered_id);
     }
 
     #[test]
@@ -608,6 +703,33 @@ mod tests {
     }
 
     #[test]
+    fn projection_continues_with_buffered_event_after_dead_letter() {
+        let tenant_id = event_fixture(1).tenant_id;
+        let mut engine = ProjectionEngine::new("audit", tenant_id, "trade:btc-usdt", 1);
+
+        engine
+            .deliver(event_fixture(2), &mut |_| Ok(()))
+            .expect("future event buffers");
+
+        let mut applied = Vec::new();
+        let status = engine
+            .deliver(event_fixture(1), &mut |event| {
+                if event.sequence == 1 {
+                    Err("invalid payload".to_owned())
+                } else {
+                    applied.push(event.sequence);
+                    Ok(())
+                }
+            })
+            .expect("dead-lettering advances to buffered event");
+
+        assert_eq!(status, DeliveryStatus::Applied);
+        assert_eq!(engine.dead_letters().len(), 1);
+        assert_eq!(applied, vec![2]);
+        assert_eq!(engine.checkpoint().next_sequence, 3);
+    }
+
+    #[test]
     fn ledger_replays_ten_thousand_events_without_loss() {
         let mut ledger = AppendOnlyLedger::new();
         let tenant_id = event_fixture(1).tenant_id;
@@ -627,7 +749,7 @@ mod tests {
         }
 
         let started_at = Instant::now();
-        let replayed = ledger.events_by_correlation_id(correlation_id);
+        let replayed = ledger.events_by_correlation_id(tenant_id, correlation_id);
 
         assert_eq!(ledger.audit_entries().len(), 10_000);
         assert_eq!(ledger.outbox_entries().len(), 10_000);

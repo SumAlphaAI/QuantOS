@@ -4,7 +4,7 @@ use chrono::{Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
 use postgres::{Client, NoTls, types::Type};
 use postgres_native_tls::MakeTlsConnector;
-use quantos_core::{CorrelationId, SchemaVersion, TenantId};
+use quantos_core::{ActorId, CorrelationId, SchemaVersion, TenantId};
 use quantos_event::{NewRecordedEvent, RecordedEvent, pg::PgEventStore};
 use quantos_observability::capacity::{
     CapacityMonitorError, OperationalMetricSample, PgCapacityMonitor, REQUIRED_EXTERNAL_METRICS,
@@ -24,15 +24,18 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
 
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
+    let actor_id = ActorId::new();
     let scope = format!("f09-live-{tenant_id}");
     let final_observation = Utc::now();
     let first_observation = final_observation - ChronoDuration::minutes(17);
     let second_observation = final_observation - ChronoDuration::minutes(8);
-    let _cleanup = Cleanup::seed(&database_url, tenant_id, &scope);
+    let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
 
     let event = RecordedEvent::new(NewRecordedEvent {
         tenant_id,
+        actor_id,
         correlation_id,
+        causation_id: None,
         aggregate_type: "f09-capacity".to_owned(),
         aggregate_id: scope.clone(),
         sequence: 1,
@@ -51,13 +54,15 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
     direct
         .execute_typed(
             "insert into quantos.dead_letter_event (
-                tenant_id, source, consumer_name, event_id, correlation_id, sequence,
-                reason, payload, created_at
-             ) values ($1,'outbox','f09-capacity',$2,$3,1,'injected poison',$4,$5)",
+                tenant_id, source, consumer_name, event_id, actor_id, correlation_id,
+                causation_id, sequence, reason, payload, created_at
+             ) values ($1,'outbox','f09-capacity',$2,$3,$4,$5,1,'injected poison',$6,$7)",
             &[
                 (tenant_id.as_uuid(), Type::UUID),
                 (event.event_id.as_uuid(), Type::UUID),
+                (actor_id.as_uuid(), Type::UUID),
                 (correlation_id.as_uuid(), Type::UUID),
+                (event.causation_id.as_uuid(), Type::UUID),
                 (&json!({"redacted": true}), Type::JSONB),
                 (
                     &(final_observation - ChronoDuration::minutes(1)),
@@ -182,7 +187,7 @@ struct Cleanup {
 }
 
 impl Cleanup {
-    fn seed(database_url: &str, tenant_id: TenantId, scope: &str) -> Self {
+    fn seed(database_url: &str, tenant_id: TenantId, actor_id: ActorId, scope: &str) -> Self {
         let mut client = connect_client(database_url).expect("setup client connects");
         client
             .execute_typed(
@@ -190,6 +195,18 @@ impl Cleanup {
                 &[(tenant_id.as_uuid(), Type::UUID), (&scope, Type::TEXT)],
             )
             .expect("tenant fixture inserts");
+        client
+            .execute_typed(
+                "insert into quantos.actors (
+                   id, tenant_id, actor_kind, display_name, service_name
+                 ) values ($1,$2,'service',$3,$3)",
+                &[
+                    (actor_id.as_uuid(), Type::UUID),
+                    (tenant_id.as_uuid(), Type::UUID),
+                    (&format!("f09-test-{actor_id}"), Type::TEXT),
+                ],
+            )
+            .expect("actor fixture inserts");
         Self {
             database_url: database_url.to_owned(),
             tenant_id,

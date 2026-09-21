@@ -579,9 +579,9 @@ mod tests {
 
     use super::{
         DataSnapshotInput, DataSnapshotRecord, InMemoryDataSnapshotCatalog, SnapshotArtifactRef,
-        SnapshotGateViolation, SnapshotLineageEntry, SnapshotQuality, SnapshotQualityFinding,
-        SnapshotQualityGate, SnapshotQualityRuleset, SnapshotSourceRef, SnapshotUsage,
-        SnapshotWindow, default_quality_rules,
+        SnapshotError, SnapshotGateViolation, SnapshotLineageEntry, SnapshotQuality,
+        SnapshotQualityFinding, SnapshotQualityGate, SnapshotQualityRuleset, SnapshotSourceRef,
+        SnapshotUsage, SnapshotWindow, default_quality_rules,
     };
     use quantos_core::{ArtifactId, ContentHash, SchemaVersion, TenantId};
 
@@ -658,6 +658,35 @@ mod tests {
     }
 
     #[test]
+    fn quality_and_usage_wire_values_round_trip_and_reject_unknown_values() {
+        for (quality, wire) in [
+            (SnapshotQuality::Pending, "pending"),
+            (SnapshotQuality::Passed, "passed"),
+            (SnapshotQuality::Degraded, "degraded"),
+            (SnapshotQuality::Failed, "failed"),
+        ] {
+            assert_eq!(quality.as_str(), wire);
+            assert_eq!(
+                SnapshotQuality::parse(wire).expect("quality parses"),
+                quality
+            );
+        }
+        let quality_error = SnapshotQuality::parse("unknown").expect_err("unknown quality fails");
+        assert_eq!(quality_error.machine_code(), "SNAPSHOT_INVALID_QUALITY");
+
+        for (usage, wire) in [
+            (SnapshotUsage::Research, "research"),
+            (SnapshotUsage::Strategy, "strategy"),
+            (SnapshotUsage::Trading, "trading"),
+        ] {
+            assert_eq!(usage.as_str(), wire);
+            assert_eq!(SnapshotUsage::parse(wire).expect("usage parses"), usage);
+        }
+        let usage_error = SnapshotUsage::parse("unknown").expect_err("unknown usage fails");
+        assert_eq!(usage_error.machine_code(), "SNAPSHOT_INVALID_USAGE");
+    }
+
+    #[test]
     fn data_snapshot_hash_is_stable_for_equivalent_inputs() {
         let tenant_id = TenantId::new();
         let created_at = Utc
@@ -682,6 +711,36 @@ mod tests {
         let stored_first = catalog.upsert(first).clone();
         let stored_second = catalog.upsert(second).clone();
         assert_eq!(stored_first.snapshot_id, stored_second.snapshot_id);
+    }
+
+    #[test]
+    fn data_snapshot_rejects_invalid_window_age_and_schema() {
+        let tenant_id = TenantId::new();
+        let created_at = Utc
+            .with_ymd_and_hms(2026, 7, 31, 1, 0, 10)
+            .single()
+            .expect("valid timestamp");
+
+        let mut invalid_window = baseline_input();
+        invalid_window.window.end_at = invalid_window.window.start_at - ChronoDuration::seconds(1);
+        assert!(matches!(
+            DataSnapshotRecord::new(tenant_id, invalid_window, created_at),
+            Err(SnapshotError::InvalidWindow)
+        ));
+
+        let mut invalid_age = baseline_input();
+        invalid_age.max_age_secs = -1;
+        assert!(matches!(
+            DataSnapshotRecord::new(tenant_id, invalid_age, created_at),
+            Err(SnapshotError::InvalidMaxAge { max_age_secs: -1 })
+        ));
+
+        let mut invalid_schema = baseline_input();
+        invalid_schema.schema_name = "  ".to_owned();
+        assert!(matches!(
+            DataSnapshotRecord::new(tenant_id, invalid_schema, created_at),
+            Err(SnapshotError::InvalidSchemaName)
+        ));
     }
 
     #[test]

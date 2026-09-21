@@ -14,7 +14,7 @@ endif
 
 endif
 
-.PHONY: toolchain-check f01-check f01-clean-room-check f04-check build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-rust-branch coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-deps-update proto-generate proto-check proto-compat-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+.PHONY: toolchain-check f01-check f01-clean-room-check f04-check f05-check f05-db-check f05-target-check f05-coverage build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-rust-branch coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-deps-update proto-generate proto-check proto-compat-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: toolchain-check
 	$(MAKE) -j3 bootstrap-rust bootstrap-python bootstrap-node
@@ -126,6 +126,22 @@ f04-check:
 	node scripts/check-f04.mjs
 	cargo llvm-cov --package quantos-core --all-features --release --fail-under-lines 90 --fail-under-regions 90 --summary-only
 
+f05-coverage:
+	cargo llvm-cov --package quantos-event --package quantos-storage --lib --ignore-filename-regex '(pg|supabase_storage)\.rs' --fail-under-lines 90 --fail-under-regions 85 --summary-only
+
+f05-check:
+	node scripts/check-f05.mjs
+	node --test scripts/f05-gate-negative.mjs
+	cargo test -p quantos-event -p quantos-storage --lib --locked
+	$(MAKE) f05-coverage
+
+f05-db-check:
+	@test -n "$$F02_PG_ADMIN_URL" || (echo "F02_PG_ADMIN_URL is required for the disposable F05 PostgreSQL Gate." >&2; exit 1)
+	node scripts/f05-db-gate.cjs
+
+f05-target-check:
+	node scripts/f05-target-gate.cjs
+
 lint-web:
 	pnpm lint
 	pnpm typecheck
@@ -152,10 +168,14 @@ test-f09-live:
 	cargo test -p quantos-observability --test postgres_capacity_monitor -- --test-threads=1 --nocapture
 
 test-f05-live:
-	cargo test -p quantos-event --test postgres_persistence -- --test-threads=1 --nocapture
-	cargo test -p quantos-storage --test postgres_persistence -- --test-threads=1 --nocapture
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F05 PostgreSQL acceptance Gate." >&2; exit 1)
+	QUANTOS_RUN_F05_POSTGRES_TESTS=1 cargo test -p quantos-event --test postgres_persistence --locked -- --test-threads=1 --nocapture
+	QUANTOS_RUN_F05_POSTGRES_TESTS=1 cargo test -p quantos-storage --test postgres_persistence --locked -- --test-threads=1 --nocapture
 
 test-supabase-storage-live:
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F05 Supabase Storage acceptance Gate." >&2; exit 1)
+	@test -n "$$SUPABASE_URL" || (echo "SUPABASE_URL is required for the F05 Supabase Storage acceptance Gate." >&2; exit 1)
+	@test -n "$$SUPABASE_SERVICE_ROLE_KEY" || (echo "SUPABASE_SERVICE_ROLE_KEY is required for the F05 Supabase Storage acceptance Gate." >&2; exit 1)
 	QUANTOS_RUN_SUPABASE_STORAGE_TESTS=1 cargo test -p quantos-storage --test supabase_storage_integration -- --nocapture
 
 test-python:

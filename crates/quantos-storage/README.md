@@ -17,3 +17,6 @@ Storage primitives for QuantOS artifacts, immutable `DataSnapshot` metadata, Pos
 - `cargo test -p quantos-storage --lib`: deterministic hash, storage adapter, and 300 invalid-fixture checks
 - `make r02-check`: source-contract, destructive negative, storage, strategy, and runtime checks
 - `make r02-live-check`: opt-in PostgreSQL persistence, RLS-backed access, and query P95 check; requires `DATABASE_URL`
+- `make f05-check`: event/storage source Gate and core coverage threshold
+- `make f05-db-check`: storage, schema-registry and snapshot persistence against a fresh disposable PostgreSQL database
+- `make test-supabase-storage-live`: fail-closed upload/download/delete round-trip against an explicitly configured Supabase project
