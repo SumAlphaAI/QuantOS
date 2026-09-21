@@ -10,7 +10,7 @@
 |---|---|---|
 | `proto/quantos/{common,research,strategy,trading,engine,events}/v1` | 6 个 proto 文件：38 个领域 message、15 个枚举、2 个 service、7 个 RPC | 领域对象事实来源；字段字典以 proto 为锚。缺：会话/上下文、页面聚合、市场/K线、Performance/Report、对账页面模型、告警、运维/Admin、设置/平台消息 |
 | `proto/openapi/quantos.swagger.json` | 仅 7 个 operation（EngineService_*、EventLedgerService_*） | 服务级契约，**不是** P01–P23 页面 BFF OpenAPI |
-| `proto/jsonschema/v1*.schema.json` | 由 proto 提取，共 48 个 JSON Schema | 字段字典与 fixture validator 输入 |
+| `proto/jsonschema/v1*.schema.json` | 由 proto 提取，共 50 个 JSON Schema（F03 新增 DeploymentTarget、StrategyRelease） | 字段字典与 fixture validator 输入 |
 | `packages/api-client/src/gen/*` | Buf 生成 TS 类型（三语言 SDK 之一） | 生成层；页面不得手写重复 DTO |
 | `packages/api-client/src/{terminal,strategy,execution,ops}.ts` | 手写 4 组 `InMemory*Backend`（TerminalBackend 5 能力、StrategyBackend、ExecutionBackend、OpsBackend 9 方法） | **fixture 级**，执行计划 1.3 明确不能作生产接口契约；G0 前须迁移为实现生成接口的测试 adapter 或标记删除 |
 | `bff/openapi/quantos-bff.v1.yaml` | 1.3.0，62 个 operation、51 个 schema；覆盖 C01/C03–C10，并覆盖 C17 的 P15/P17 面 | 由同一契约生成 TS client、组件 JSON Schema、62-operation manifest 与 MSW handlers；C01/C10/C17 P15 有本地参考 provider，C02/C11–C16、C17 Desktop 面仍待后续 minor 版本 |

@@ -46,3 +46,13 @@ test("delivered contract implementation status regression is rejected", () => {
   assert.equal(report.status, "FAIL");
   assert(report.failures.includes("C01 delivered contract is recorded as locally Implemented"));
 });
+
+
+test("removed proto declaration or generated schema fails inventory drift check", () => {
+  for (const changed of [
+    { ...current, protoSources: current.protoSources.map(source => source.replace(/^message\s+\w+/m, "// removed declaration")) },
+    { ...current, jsonSchemaCount: current.jsonSchemaCount - 1 },
+  ]) {
+    assert(validatePre04Inventory(changed).failures.includes("proto inventory matches the current generated baseline"));
+  }
+});

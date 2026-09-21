@@ -146,8 +146,8 @@ export function validatePre04Inventory(inputs) {
     rpcs: declarations(inputs.protoSources, /^\s*rpc\s+/gm),
     jsonSchemas: inputs.jsonSchemaCount,
   };
-  check(JSON.stringify(protoMetrics) === JSON.stringify({ files: 6, messages: 38, enums: 15, services: 2, rpcs: 7, jsonSchemas: 48 }), "proto inventory matches the current generated baseline");
-  check(inputs.ledger.includes("38 个领域 message") && inputs.ledger.includes("15 个枚举") && inputs.ledger.includes("48 个 JSON Schema"), "ledger records current proto/schema counts");
+  check(JSON.stringify(protoMetrics) === JSON.stringify({ files: 6, messages: 38, enums: 15, services: 2, rpcs: 7, jsonSchemas: 50 }), "proto inventory matches the current generated baseline");
+  check(inputs.ledger.includes("38 个领域 message") && inputs.ledger.includes("15 个枚举") && inputs.ledger.includes("50 个 JSON Schema"), "ledger records current proto/schema counts");
 
   return {
     schema: "quantos-pre04/v1",

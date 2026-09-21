@@ -27,9 +27,11 @@ export function inventory(root) {
     exact(js.map(p => p.directory), disk, 'JS workspace');
     const pythonDisk = fs.readdirSync(path.join(root, 'engines')).filter(d => fs.existsSync(path.join(root, 'engines', d, 'pyproject.toml'))).map(d => `engines/${d}`);
     exact(python.python.map(p => p.directory), pythonDisk, 'Python workspace');
-    const rustDisk = ['crates', 'services'].flatMap(d => fs.readdirSync(path.join(root, d)).filter(n => fs.existsSync(path.join(root, d, n, 'Cargo.toml'))).map(n => `${d}/${n}`));
+    const rustDisk = ['crates', 'services', 'tools'].flatMap(d => fs.readdirSync(path.join(root, d)).filter(n => fs.existsSync(path.join(root, d, n, 'Cargo.toml'))).map(n => `${d}/${n}`));
     exact(rust.map(p => path.relative(root, path.dirname(p.manifest_path))), rustDisk, 'Rust workspace');
-    return { rustBinaries: rust.flatMap(p => p.targets.filter(t => t.kind.includes('bin')).map(t => t.name)).sort(), rustDirectories: rustDisk, js, ...python };
+    const binaries = packages => packages.flatMap(p => p.targets.filter(t => t.kind.includes('bin')).map(t => t.name)).sort();
+    // Build tools participate in reproducibility, but are not runtime release payloads.
+    return { rustBinaries: binaries(rust.filter(p => path.relative(root, p.manifest_path).startsWith('services/'))), rustBuildBinaries: binaries(rust), rustDirectories: rustDisk, js, ...python };
 }
 export function files(root) {
     if (!fs.existsSync(root))
@@ -50,7 +52,8 @@ export function digest(paths, root) {
 export function validateOutputs(root, expected) {
     const rustRoot = path.join(root, 'target/release');
     const binaries = fs.readdirSync(rustRoot, { withFileTypes: true }).filter(e => e.isFile() && (fs.statSync(path.join(rustRoot, e.name)).mode & 0o111)).map(e => e.name);
-    exact(binaries, expected.rustBinaries, 'Rust executable outputs');
+    const buildBinaries = expected.rustBuildBinaries ?? expected.rustBinaries;
+    exact(binaries, buildBinaries, 'Rust executable outputs');
     const pythonRoot = path.join(root, 'artifacts/python');
     const wheels = files(pythonRoot).filter(p => {
         if (path.basename(p) !== '.gitignore') return true;
@@ -59,7 +62,7 @@ export function validateOutputs(root, expected) {
     });
     exact(wheels.map(p => path.basename(p)), expected.python.map(p => `${p.name.replaceAll('-', '_')}-${p.version}-py3-none-any.whl`), 'Python wheel outputs');
     const typescript = expected.js.map(p => ({ directory: p.directory, ...digest(files(path.join(root, p.output)), path.join(root, p.output)) }));
-    const result = { rust: digest(expected.rustBinaries.map(n => path.join(rustRoot, n)), rustRoot), python: digest(wheels, pythonRoot), typescript };
+    const result = { rust: digest(buildBinaries.map(n => path.join(rustRoot, n)), rustRoot), python: digest(wheels, pythonRoot), typescript };
     return { ...result, combinedSha256: sha(JSON.stringify(result)) };
 }
 export function requireThree(runs) { if (!Number.isInteger(runs) || runs < 3)

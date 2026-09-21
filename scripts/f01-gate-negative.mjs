@@ -164,3 +164,17 @@ test('uv output marker is metadata, other unexpected files still fail', () => fi
     write(path.join(p, 'artifacts/python/extra.txt'));
     assert.throws(() => validateOutputs(p, inv), /mismatch/);
 }));
+
+
+test('build-only tool is required in output inventory without becoming a runtime binary', () => fixture(p => {
+    const inv = outputs(p);
+    inv.rustBuildBinaries = [...inv.rustBinaries, 'quantos-proto-json-codegen'];
+    assert.throws(() => validateOutputs(p, inv), /mismatch/);
+    const tool = path.join(p, 'target/release/quantos-proto-json-codegen');
+    write(tool, 'generator'); fs.chmodSync(tool, 0o755);
+    const first = validateOutputs(p, inv);
+    assert.equal(first.rust.files.length, 3);
+    assert.equal(inv.rustBinaries.includes('quantos-proto-json-codegen'), false);
+    write(tool, 'changed generator');
+    assert.throws(() => requireMatching([first, first, validateOutputs(p, inv)]), /differ/);
+}));
