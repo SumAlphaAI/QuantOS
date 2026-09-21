@@ -110,7 +110,8 @@ test('invalid run revokes old successful receipt', () => fixture(p => {
 function lockFixture(p) {
     for (const f of ['Cargo.toml', 'Cargo.lock', 'buf.lock', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', '.python-version'])
         fs.copyFileSync(path.join(root, f), path.join(p, f));
-    for (const directory of ['crates', 'services'])
+    // Cargo workspace members also include the protocol generator under tools/.
+    for (const directory of ['crates', 'services', 'tools'])
         fs.cpSync(path.join(root, directory), path.join(p, directory), { recursive: true });
     for (const directory of ['engines', 'apps', 'packages']) {
         fs.mkdirSync(path.join(p, directory), { recursive: true });
