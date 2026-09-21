@@ -37,6 +37,12 @@ check(inputs.postgres.includes('where tenant_id = $1 and correlation_id = $2'), 
 check(inputs.replay.includes('tenant_id') && inputs.replay.includes('DeadLetterRequeue'), 'replay CLI requires tenant context and supports dead-letter requeue');
 check(inputs.postgres.includes('pub fn requeue_dead_letter') && inputs.postgres.includes('event.dead_letter.requeued'), 'dead-letter replay is auditable');
 check(inputs.postgres.includes('pub fn health_snapshot'), 'F05 operational health snapshot is implemented');
+// Capacity acceptance must exercise the production consumer, not manufacture
+// successful receipts with bulk SQL. Query timing includes full client retrieval.
+const volumeTest = inputs.test.split('fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent()')[1]?.split('\nfn seed_volume_event_chain(')[0] ?? '';
+check(volumeTest.includes('.poll_outbox_once(') && volumeTest.includes('applied.insert(event.event_id)'), 'capacity acceptance consumes events through the production polling path');
+check(volumeTest.includes('let lookup_started = Instant::now()') && volumeTest.includes('let lookup_elapsed = lookup_started.elapsed()'), 'capacity acceptance times complete client retrieval');
+check(!inputs.test.includes('fn drain_volume_event_chain(') && !inputs.test.includes('fn correlation_query_execution_time('), 'capacity acceptance cannot substitute direct SQL finalization or EXPLAIN timing');
 for (const marker of [
   'stale_outbox_and_inbox_lease_tokens_cannot_commit_after_reclaim',
   'correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation',

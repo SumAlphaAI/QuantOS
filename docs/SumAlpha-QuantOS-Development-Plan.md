@@ -253,9 +253,19 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: 2026-09-21 最终验收通过：原 A01–A11 全部关闭；隔离 Supabase 从空 schema 应用 15/15 migration，e0520da 的事件 PostgreSQL 7/7、Storage PostgreSQL 1/1、Storage live 1/1、36 表 RLS 与本地 F05 Gate 全部通过。完整提交 6b06a90de275fb38f5efb7982fd2e09dd5963581 的 QuantOS CI Run 35574043608 attempt 2 与 F05 Event Nightly Run 35590560951 均 SUCCESS；nightly branch coverage 85.00%（51/60），一次性 PostgreSQL 回执、正式打包、236 个发布文件及 HMAC-SHA256 下载验签全部成功。30/30 检查点通过，F05-V01 关闭。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)、[目标验收回执](./audit/F05-target-acceptance-e0520da-2026-09-21.md)及[同 SHA 远端验收回执](./audit/F05-remote-acceptance-6b06a90-2026-09-21.md)。
-- issues: []
+- review_status: `FIX_VALIDATION`
+- review_conclusion: 2026-09-21 再复验纠正上轮 ACCEPTED：原 11 项问题中 9 项已解决；A07 的持久化适配器被覆盖率统计排除，A09 的旧万条测试直接写完成状态且仅计 PostgreSQL 执行时间。已修正容量测试，改为正式消费者及完整查询计时，待新 SHA 数据库/目标回执。30 项检查点为 27 PASS / 3 PARTIAL，严格完成率 90%。历史 CI、nightly、Supabase 和正式验签成功记录保留其实际证明范围。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)。
+- issues:
+  - issue_id: F05-A07
+    severity: MEDIUM
+    description: F05 line/region与branch覆盖率排除PostgreSQL和Supabase Storage适配器，缺少持久化路径覆盖率证据。
+    evidence: docs/audit/F05-comprehensive-review-2026-09-21.md
+    status: OPEN
+  - issue_id: F05-A09
+    severity: MEDIUM
+    description: 旧万条测试绕过正式消费者且五秒断言仅计服务端执行；已修订测试，待新SHA运行回执。
+    evidence: docs/audit/F05-comprehensive-review-2026-09-21.md
+    status: OPEN
 - fix_tracking: []
 
 <a id="task-f06"></a>

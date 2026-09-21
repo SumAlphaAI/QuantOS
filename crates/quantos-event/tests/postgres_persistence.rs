@@ -627,23 +627,63 @@ fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
     seed_volume_event_chain(&database_url, tenant_id, actor_id, correlation_id, 10_000);
     let mut store = PgEventStore::connect(&database_url).expect("event store connects");
 
-    let processed = drain_volume_event_chain(&database_url, tenant_id, correlation_id);
+    // Exercise the production consumer, including lease fencing, inbox success,
+    // checkpoint updates and outbox acknowledgements. Bulk SQL is fixture setup
+    // only; it must never manufacture a successful consumption result.
+    let mut applied = std::collections::HashSet::new();
+    let mut processed = 0;
+    while processed < 10_000 {
+        let report = store
+            .poll_outbox_once(
+                "f05-volume-worker",
+                "projection-volume",
+                10,
+                Utc::now(),
+                ChronoDuration::seconds(30),
+                3,
+                |event, _claim| {
+                    assert_eq!(event.tenant_id, tenant_id);
+                    assert_eq!(event.correlation_id, correlation_id);
+                    assert!(applied.insert(event.event_id), "duplicate side effect");
+                    Ok(())
+                },
+                |_| Ok(()),
+            )
+            .expect("volume events process through the production consumer");
+        assert!(
+            report.processed > 0,
+            "consumer stopped before full convergence"
+        );
+        assert_eq!(report.retried, 0);
+        assert_eq!(report.dead_lettered, 0);
+        processed += report.processed;
+    }
     assert_eq!(processed, 10_000);
+    assert_eq!(applied.len(), 10_000);
+    let checkpoint = store
+        .load_checkpoint(tenant_id, "projection-volume", "trade:btc-usdt")
+        .expect("volume checkpoint loads")
+        .expect("consumer persisted a checkpoint");
+    assert_eq!(checkpoint.next_sequence, 10_001);
 
+    // The acceptance budget includes network transfer and deserialization of the
+    // complete result. EXPLAIN execution time is not a substitute for this.
+    let lookup_started = Instant::now();
+    let replayed = store
+        .events_by_correlation_id(tenant_id, correlation_id)
+        .expect("10,000 event correlation chain loads");
+    let lookup_elapsed = lookup_started.elapsed();
+    assert_eq!(replayed.len(), 10_000);
     assert_eq!(
-        store
-            .events_by_correlation_id(tenant_id, correlation_id)
-            .expect("10,000 event correlation chain loads")
-            .len(),
-        10_000
+        replayed
+            .iter()
+            .map(|event| event.event_id)
+            .collect::<std::collections::HashSet<_>>(),
+        applied,
     );
-    // Measure the database query budget inside PostgreSQL so developer-to-cloud
-    // transfer latency does not masquerade as an index or execution regression.
-    // The full client retrieval above remains the losslessness assertion.
-    let lookup_elapsed = correlation_query_execution_time(&database_url, tenant_id, correlation_id);
     assert!(
         lookup_elapsed <= Duration::from_secs(5),
-        "10,000 event correlation query took {lookup_elapsed:?} inside PostgreSQL"
+        "complete 10,000 event correlation retrieval took {lookup_elapsed:?}"
     );
     let health = store
         .health_snapshot(tenant_id, Utc::now())
@@ -821,96 +861,6 @@ fn seed_volume_event_chain(
     }
 
     tx.commit().expect("volume transaction commits");
-}
-
-fn drain_volume_event_chain(
-    database_url: &str,
-    tenant_id: TenantId,
-    correlation_id: CorrelationId,
-) -> u64 {
-    let mut client = connect_client(database_url).expect("connects for volume drain");
-    let mut tx = client.transaction().expect("volume drain starts");
-    let inserted = tx
-        .execute_typed(
-            "insert into quantos.inbox_receipt (
-               tenant_id, consumer_name, event_log_id, event_id, status, attempts,
-               first_received_at, last_attempt_at, next_attempt_at, processed_at
-             )
-             select e.tenant_id, 'projection-volume', e.id, e.event_id, 'applied', 1,
-                    e.occurred_at, e.occurred_at, e.occurred_at, e.occurred_at
-             from quantos.event_log as e
-             where e.tenant_id = $1 and e.correlation_id = $2
-             on conflict (tenant_id, consumer_name, event_id) do nothing",
-            &[
-                (tenant_id.as_uuid(), Type::UUID),
-                (correlation_id.as_uuid(), Type::UUID),
-            ],
-        )
-        .expect("volume inbox receipts apply");
-    let dispatched = tx
-        .execute_typed(
-            "update quantos.outbox_event as o
-             set status = 'dispatched',
-                 attempts = o.attempts + 1,
-                 dispatched_at = now(),
-                 updated_at = now()
-             from quantos.event_log as e
-             where o.event_log_id = e.id
-               and e.tenant_id = $1
-               and e.correlation_id = $2
-               and o.status = 'pending'",
-            &[
-                (tenant_id.as_uuid(), Type::UUID),
-                (correlation_id.as_uuid(), Type::UUID),
-            ],
-        )
-        .expect("volume outbox entries dispatch");
-    tx.execute_typed(
-        "insert into quantos.projection_checkpoint (
-           tenant_id, consumer_name, stream_key, last_sequence, updated_at
-         ) values ($1, 'projection-volume', 'trade:btc-usdt', $2, now())
-         on conflict (tenant_id, consumer_name, stream_key)
-         do update set last_sequence = greatest(
-           quantos.projection_checkpoint.last_sequence,
-           excluded.last_sequence
-         ), updated_at = now()",
-        &[
-            (tenant_id.as_uuid(), Type::UUID),
-            (&(inserted as i64), Type::INT8),
-        ],
-    )
-    .expect("volume checkpoint persists");
-    tx.commit().expect("volume drain commits");
-    assert_eq!(dispatched, inserted);
-    inserted
-}
-
-fn correlation_query_execution_time(
-    database_url: &str,
-    tenant_id: TenantId,
-    correlation_id: CorrelationId,
-) -> Duration {
-    let mut client = connect_client(database_url).expect("connects for query timing");
-    let plan = client
-        .query_typed_one(
-            "explain (analyze, format json)
-             select event_id, tenant_id, actor_id, correlation_id, causation_id,
-                    aggregate_type, aggregate_id, sequence, event_kind, schema_version,
-                    occurred_at, payload, payload_hash
-             from quantos.event_log
-             where tenant_id = $1 and correlation_id = $2
-             order by occurred_at asc, sequence asc",
-            &[
-                (tenant_id.as_uuid(), Type::UUID),
-                (correlation_id.as_uuid(), Type::UUID),
-            ],
-        )
-        .expect("correlation query plan executes")
-        .get::<_, serde_json::Value>(0);
-    let execution_millis = plan[0]["Execution Time"]
-        .as_f64()
-        .expect("PostgreSQL reports execution time");
-    Duration::from_secs_f64(execution_millis / 1_000.0)
 }
 
 fn build_event(
