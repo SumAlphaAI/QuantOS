@@ -52,7 +52,7 @@ for (const marker of [
 ]) check(inputs.test.includes(marker), `F05 acceptance test includes ${marker}`);
 check(inputs.makefile.includes('f05-check:') && inputs.makefile.includes('f05-db-check:') && inputs.makefile.includes('f05-target-check:'), 'Makefile exposes local, disposable-db and target F05 Gates');
 check(inputs.workflow.includes('make f05-check') && inputs.workflow.includes('make f05-db-check'), 'main CI runs both F05 Gates');
-check(inputs.nightly.includes('RUSTUP_TOOLCHAIN: nightly') && inputs.nightly.includes('--branch') && inputs.nightly.includes('check-f05-branch.mjs'), 'nightly F05 workflow enforces measured branch coverage');
+check(inputs.nightly.includes('RUSTUP_TOOLCHAIN: nightly') && inputs.nightly.includes('QUANTOS_F05_BRANCH') && inputs.nightly.includes('make f05-db-coverage'), 'nightly F05 workflow enforces measured branch coverage');
 check(inputs.runbook.includes('dead-letter-requeue') && inputs.runbook.includes('lease_token'), 'Runbook documents fenced dead-letter recovery');
 
 if (failures.length) {

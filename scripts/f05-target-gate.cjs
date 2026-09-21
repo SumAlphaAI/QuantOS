@@ -5,6 +5,8 @@ const { spawnSync, execFileSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'artifacts/f05/target.json');
+const measurementsPath = path.join(root, 'artifacts/f05/measurements.json');
+process.env.QUANTOS_F05_MEASUREMENTS_PATH = measurementsPath;
 const migrationDirectory = path.join(root, 'supabase/migrations');
 const migrationDigest = crypto.createHash('sha256');
 for (const filename of fs.readdirSync(migrationDirectory).filter((name) => name.endsWith('.sql')).sort()) {
@@ -38,6 +40,7 @@ function run(target) {
 
 try {
   save();
+  fs.rmSync(measurementsPath, { force: true });
   if (receipt.dirty) throw new Error('F05 target acceptance requires a clean exact-SHA checkout');
   if (process.env.QUANTOS_F05_TARGET_ISOLATED !== '1') {
     throw new Error('QUANTOS_F05_TARGET_ISOLATED=1 is required to confirm a disposable Supabase target');
@@ -45,8 +48,19 @@ try {
   for (const name of ['DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']) {
     if (!process.env[name]) throw new Error(`${name} is required for F05 target acceptance`);
   }
-  run('test-f05-live');
-  run('test-supabase-storage-live');
+  if (process.env.QUANTOS_F05_COVERAGE === '1') {
+    const coverage = require('./f05-coverage.cjs');
+    coverage.start();
+    coverage.tests('quantos-event', process.env.DATABASE_URL);
+    coverage.tests('quantos-storage', process.env.DATABASE_URL);
+    coverage.storageLive();
+    receipt.coverage = coverage.finish();
+    receipt.checks.push('instrumented PostgreSQL, HTTP faults and Supabase Storage live');
+  } else {
+    run('test-f05-live');
+    run('test-supabase-storage-live');
+  }
+  receipt.measurements = require('./f05-measurements.cjs')(measurementsPath);
   receipt.status = 'PASS';
   receipt.passed = true;
 } catch (error) {

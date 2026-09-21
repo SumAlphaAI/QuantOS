@@ -3,9 +3,12 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync, execFileSync } = require('node:child_process');
 const { Client } = require('pg');
+const coverage = process.env.QUANTOS_F05_COVERAGE === '1' ? require('./f05-coverage.cjs') : null;
 
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'artifacts/f05/database.json');
+const measurementsPath = path.join(root, 'artifacts/f05/measurements.json');
+process.env.QUANTOS_F05_MEASUREMENTS_PATH = measurementsPath;
 const migrationDirectory = path.join(root, 'supabase/migrations');
 const migrationDigest = crypto.createHash('sha256');
 for (const filename of fs.readdirSync(migrationDirectory).filter((name) => name.endsWith('.sql')).sort()) {
@@ -50,6 +53,7 @@ function run(command, args, env = {}) {
 
 async function main() {
   save();
+  fs.rmSync(measurementsPath, { force: true });
   if (receipt.dirty) throw new Error('F05 database acceptance requires a clean exact-SHA checkout');
   const url = new URL(process.env.F02_PG_ADMIN_URL ?? '');
   if (!['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) {
@@ -77,17 +81,22 @@ async function main() {
     run(process.execPath, ['scripts/db-cli.cjs', 'live-rls'], { DATABASE_URL: target.toString() });
     receipt.checks.push('RLS, FORCE RLS, policy and privileged-path catalog checks');
 
-    run('cargo', ['test', '-p', 'quantos-event', '--test', 'postgres_persistence', '--locked', '--', '--test-threads=1', '--nocapture'], {
+    if (coverage) coverage.start();
+    if (coverage) coverage.tests('quantos-event', target.toString());
+    else run('cargo', ['test', '-p', 'quantos-event', '--test', 'postgres_persistence', '--locked', '--', '--test-threads=1', '--nocapture'], {
       DATABASE_URL: target.toString(),
       QUANTOS_RUN_F05_POSTGRES_TESTS: '1',
     });
     receipt.checks.push('fencing, tenant replay, append-only, dead-letter replay, realtime recovery, 1,000 concurrency and 10,000-event consistency');
 
-    run('cargo', ['test', '-p', 'quantos-storage', '--test', 'postgres_persistence', '--locked', '--', '--test-threads=1', '--nocapture'], {
+    if (coverage) coverage.tests('quantos-storage', target.toString());
+    else run('cargo', ['test', '-p', 'quantos-storage', '--test', 'postgres_persistence', '--locked', '--', '--test-threads=1', '--nocapture'], {
       DATABASE_URL: target.toString(),
       QUANTOS_RUN_F05_POSTGRES_TESTS: '1',
     });
     receipt.checks.push('PostgreSQL artifact, schema-registry and snapshot persistence');
+    if (coverage) receipt.coverage = coverage.finish();
+    receipt.measurements = require('./f05-measurements.cjs')(measurementsPath);
     receipt.status = 'PASS';
     receipt.passed = true;
   } finally {

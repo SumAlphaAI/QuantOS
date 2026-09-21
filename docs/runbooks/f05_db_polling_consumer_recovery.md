@@ -112,3 +112,20 @@ receipt does not establish that target result.
 - Do not subscribe clients directly to raw outbox, audit, or secret-bearing tables.
 - Do not delete `inbox_receipt` rows to force a retry; use the normal replay path so idempotency evidence stays intact.
 - Do not UPDATE, DELETE or TRUNCATE `event_log` or `audit_entries`; the database rejects these operations by design.
+
+## Coverage and capacity acceptance
+
+- Run `make f05-db-coverage` for full persistence coverage against a fresh
+  loopback database. Nightly sets `RUSTUP_TOOLCHAIN=nightly` and
+  `QUANTOS_F05_BRANCH=1` and enforces 85% measured branches.
+- For the already approved isolated Supabase target, run
+  `make QUANTOS_F05_TARGET_ISOLATED=1 f05-target-coverage`. Keep the credentials
+  in `.env.local`; never copy them into receipts. This includes the live Storage
+  round-trip as well as the local HTTP fault-injection suite.
+- Capacity consumption uses the production polling API for 10,000 events.
+  Keep the 30-second leases and five-second complete-query budget unchanged;
+  a slow cross-region run is a failed measurement, not grounds to replace it
+  with EXPLAIN timing or direct SQL acknowledgements.
+- Archive `database.json` or `target.json`, `measurements.json`, `coverage.json`
+  and `coverage-summary.json` from the same clean SHA. Core-only coverage or
+  mock HTTP success cannot replace a full persistence/target receipt.

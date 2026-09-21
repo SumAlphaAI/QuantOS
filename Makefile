@@ -14,7 +14,7 @@ endif
 
 endif
 
-.PHONY: toolchain-check f01-check f01-clean-room-check f04-check f05-check f05-db-check f05-target-check f05-coverage build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-rust-branch coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-deps-update proto-generate proto-check proto-compat-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+.PHONY: f05-db-coverage f05-target-coverage toolchain-check f01-check f01-clean-room-check f04-check f05-check f05-db-check f05-target-check f05-coverage build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-rust-branch coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-deps-update proto-generate proto-check proto-compat-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: toolchain-check
 	$(MAKE) -j3 bootstrap-rust bootstrap-python bootstrap-node
@@ -131,9 +131,15 @@ f05-coverage:
 
 f05-check:
 	node scripts/check-f05.mjs
-	node --test scripts/f05-gate-negative.mjs
+	node --test scripts/f05-gate-negative.mjs scripts/f05-coverage.test.mjs
 	cargo test -p quantos-event -p quantos-storage --lib --locked
 	$(MAKE) f05-coverage
+
+f05-db-coverage:
+	QUANTOS_F05_COVERAGE=1 $(MAKE) f05-db-check
+
+f05-target-coverage:
+	QUANTOS_F05_COVERAGE=1 $(MAKE) f05-target-check
 
 f05-db-check:
 	@test -n "$$F02_PG_ADMIN_URL" || (echo "F02_PG_ADMIN_URL is required for the disposable F05 PostgreSQL Gate." >&2; exit 1)

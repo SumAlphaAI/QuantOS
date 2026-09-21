@@ -20,3 +20,14 @@ Storage primitives for QuantOS artifacts, immutable `DataSnapshot` metadata, Pos
 - `make f05-check`: event/storage source Gate and core coverage threshold
 - `make f05-db-check`: storage, schema-registry and snapshot persistence against a fresh disposable PostgreSQL database
 - `make test-supabase-storage-live`: fail-closed upload/download/delete round-trip against an explicitly configured Supabase project
+
+## Persistence coverage
+
+`make f05-db-coverage` includes `pg.rs` and `supabase_storage.rs` in measured
+coverage. `tests/storage_http.rs` injects HTTP success, authorization/server
+errors, corrupt downloads and database registration failure with compensating
+DELETE. These local protocol tests are separate from live Supabase acceptance.
+For an authorized isolated project, `make f05-target-coverage` also instruments
+`supabase_storage_integration` against the actual service. Both coverage Gates
+require a clean checkout and export per-file coverage plus the source-bound
+acceptance receipt under `artifacts/f05/`.

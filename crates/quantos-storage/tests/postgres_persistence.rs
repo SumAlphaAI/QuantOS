@@ -178,6 +178,62 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
     assert_eq!(listed.len(), 1);
     assert_eq!(listed[0].snapshot_id, persisted_snapshot.snapshot_id);
 
+    // Read through a fresh adapter so database mapping, absence and tenant
+    // isolation are tested rather than only the write-through cache.
+    let mut cold = PgStorageStore::connect(&database_url).unwrap();
+    assert!(
+        cold.get_data_snapshot(tenant_id, persisted_snapshot.snapshot_id)
+            .unwrap()
+            .is_some()
+    );
+    let other = TenantId::new();
+    assert!(
+        cold.get_data_snapshot(other, persisted_snapshot.snapshot_id)
+            .unwrap()
+            .is_none()
+    );
+    assert!(
+        cold.find_data_snapshot_by_hash(other, &persisted_snapshot.content_hash)
+            .unwrap()
+            .is_none()
+    );
+    assert!(cold.find_artifact_by_hash(other, &hash).unwrap().is_none());
+    assert!(
+        cold.get_schema(other, "events", "TradeCommand", &schema_version)
+            .unwrap()
+            .is_none()
+    );
+    assert!(PgStorageStore::connect("invalid URL").is_err());
+    let parsed = Url::parse(&database_url).unwrap();
+    // Only exercise plaintext/TLS rejection on an explicitly plaintext loopback fixture.
+    if matches!(parsed.host_str(), Some("127.0.0.1" | "localhost"))
+        && parsed
+            .query_pairs()
+            .any(|(k, v)| k == "sslmode" && v == "disable")
+    {
+        for mode in [
+            None,
+            Some("disable"),
+            Some("prefer"),
+            Some("require"),
+            Some("verify-full"),
+        ] {
+            let mut candidate = parsed.clone();
+            candidate
+                .query_pairs_mut()
+                .clear()
+                .append_pair("application_name", "f05-coverage");
+            if let Some(mode) = mode {
+                candidate.query_pairs_mut().append_pair("sslmode", mode);
+            }
+            let result = PgStorageStore::connect(candidate.as_str());
+            assert_eq!(
+                result.is_ok(),
+                !matches!(mode, Some("require" | "verify-full"))
+            );
+        }
+    }
+
     let mut samples = Vec::new();
     for _ in 0..25 {
         let started_at = Instant::now();

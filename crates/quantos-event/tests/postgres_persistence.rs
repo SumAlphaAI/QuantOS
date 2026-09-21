@@ -631,6 +631,7 @@ fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
     // checkpoint updates and outbox acknowledgements. Bulk SQL is fixture setup
     // only; it must never manufacture a successful consumption result.
     let mut applied = std::collections::HashSet::new();
+    let consumption_started = Instant::now();
     let mut processed = 0;
     while processed < 10_000 {
         let report = store
@@ -658,6 +659,7 @@ fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
         assert_eq!(report.dead_lettered, 0);
         processed += report.processed;
     }
+    let consumption_elapsed = consumption_started.elapsed();
     assert_eq!(processed, 10_000);
     assert_eq!(applied.len(), 10_000);
     let checkpoint = store
@@ -691,6 +693,32 @@ fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
     assert_eq!(health.pending_outbox, 0);
     assert_eq!(health.pending_inbox, 0);
     assert_eq!(health.pending_dead_letters, 0);
+    let mut db = connect_client(&database_url).expect("final persisted counts connect");
+    let row = db.query_one(
+        "select (select count(*) from quantos.outbox_event where tenant_id=$1 and status='dispatched'),
+                (select count(*) from quantos.inbox_receipt where tenant_id=$1 and consumer_name='projection-volume' and status='applied')",
+        &[tenant_id.as_uuid()],
+    ).expect("final persisted counts load");
+    assert_eq!(row.get::<_, i64>(0), 10_000);
+    assert_eq!(row.get::<_, i64>(1), 10_000);
+    if let Ok(path) = env::var("QUANTOS_F05_MEASUREMENTS_PATH") {
+        std::fs::write(
+            path,
+            serde_json::to_vec_pretty(&json!({
+                "eventCount": processed,
+                "uniqueSideEffects": applied.len(),
+                "dispatched": row.get::<_, i64>(0),
+                "appliedReceipts": row.get::<_, i64>(1),
+                "checkpointNextSequence": checkpoint.next_sequence,
+                "consumptionMillis": consumption_elapsed.as_millis(),
+                "correlationLookupMillis": lookup_elapsed.as_secs_f64() * 1000.0,
+                "lookupScope": "complete-client-retrieval",
+                "consumerPath": "PgEventStore::poll_outbox_once",
+            }))
+            .unwrap(),
+        )
+        .expect("measured acceptance evidence writes");
+    }
 }
 
 fn seed_volume_event_chain(
@@ -861,6 +889,148 @@ fn seed_volume_event_chain(
     }
 
     tx.commit().expect("volume transaction commits");
+}
+
+#[test]
+fn postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts() {
+    let Some(url) = live_database_url() else {
+        return;
+    };
+    let tenant = TenantId::new();
+    let actor = seed_tenant(&url, tenant);
+    let correlation = CorrelationId::new();
+    let mut store = PgEventStore::connect(&url).unwrap();
+    let event = build_event(tenant, actor, correlation, 1);
+    // Invalid actor fails after stream creation; the transaction must roll back.
+    let invalid = build_event(tenant, ActorId::new(), correlation, 1);
+    assert!(store.append_event(&invalid).is_err());
+    assert!(
+        store
+            .events_by_correlation_id(tenant, correlation)
+            .unwrap()
+            .is_empty()
+    );
+    store.append_event(&event).unwrap();
+    assert!(matches!(
+        store.append_event(&event),
+        Err(PgEventStoreError::Event(_))
+    ));
+    assert!(matches!(
+        store.append_event(&build_event(tenant, actor, correlation, 3)),
+        Err(PgEventStoreError::Event(_))
+    ));
+    let now = Utc::now();
+    let original = match store
+        .claim_inbox_processing(
+            "coverage",
+            "owner",
+            &event,
+            now,
+            ChronoDuration::seconds(30),
+        )
+        .unwrap()
+    {
+        InboxClaimDecision::Claimed(claim) => claim,
+        other => panic!("{other:?}"),
+    };
+    let busy = store
+        .poll_outbox_once(
+            "other",
+            "coverage",
+            1,
+            now,
+            ChronoDuration::seconds(30),
+            2,
+            |_, _| panic!("busy receipt must not invoke handler"),
+            |_| Ok(()),
+        )
+        .unwrap();
+    assert_eq!(busy.retried, 1);
+    let mut stale = original.clone();
+    stale.lease_token = Uuid::now_v7();
+    assert!(matches!(
+        store.record_inbox_failure(&stale, &event, "stale", 2, now),
+        Err(PgEventStoreError::StaleLease { .. })
+    ));
+    store.record_inbox_success(&original, &event, now).unwrap();
+    let duplicate = store
+        .poll_outbox_once(
+            "other",
+            "coverage",
+            1,
+            now + ChronoDuration::seconds(2),
+            ChronoDuration::seconds(30),
+            2,
+            |_, _| panic!("applied receipt must not invoke handler"),
+            |_| Ok(()),
+        )
+        .unwrap();
+    assert_eq!(duplicate.duplicate_skipped, 1);
+    let checkpoint = store
+        .load_checkpoint(tenant, "coverage", &event.stream_key())
+        .unwrap()
+        .unwrap();
+    store.save_checkpoint(&checkpoint).unwrap();
+    assert!(
+        store
+            .load_checkpoint(tenant, "missing", &event.stream_key())
+            .unwrap()
+            .is_none()
+    );
+    assert!(matches!(
+        store.claim_inbox_processing(
+            "missing",
+            "owner",
+            &build_event(tenant, actor, correlation, 2),
+            now,
+            ChronoDuration::seconds(30)
+        ),
+        Err(PgEventStoreError::MissingEvent(_))
+    ));
+    // Exercise failure acknowledgement fencing before a valid completion.
+    let next = build_event(tenant, actor, correlation, 2);
+    store.append_event(&next).unwrap();
+    let current = store
+        .claim_outbox_events("owner", 1, Utc::now(), ChronoDuration::seconds(30))
+        .unwrap()
+        .remove(0);
+    let mut stale = current.clone();
+    stale.lease_token = Uuid::now_v7();
+    assert!(matches!(
+        store.record_outbox_failure(&stale, "coverage", "stale", 2, Utc::now()),
+        Err(PgEventStoreError::StaleLease { .. })
+    ));
+    store.mark_outbox_dispatched(&current, Utc::now()).unwrap();
+    assert!(PgEventStore::connect("invalid URL").is_err());
+    let parsed = Url::parse(&url).unwrap();
+    // Only exercise plaintext/TLS rejection on an explicitly plaintext loopback fixture.
+    if matches!(parsed.host_str(), Some("127.0.0.1" | "localhost"))
+        && parsed
+            .query_pairs()
+            .any(|(k, v)| k == "sslmode" && v == "disable")
+    {
+        for mode in [
+            None,
+            Some("disable"),
+            Some("prefer"),
+            Some("require"),
+            Some("verify-full"),
+        ] {
+            let mut candidate = parsed.clone();
+            candidate
+                .query_pairs_mut()
+                .clear()
+                .append_pair("application_name", "f05-coverage");
+            if let Some(mode) = mode {
+                candidate.query_pairs_mut().append_pair("sslmode", mode);
+            }
+            let result = PgEventStore::connect(candidate.as_str());
+            assert_eq!(
+                result.is_ok(),
+                !matches!(mode, Some("require" | "verify-full"))
+            );
+        }
+    }
 }
 
 fn build_event(

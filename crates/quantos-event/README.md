@@ -32,3 +32,20 @@ consumer inbox, dead-letter lifecycle and projection checkpoints.
 
 Operational thresholds and recovery commands are maintained in
 `docs/runbooks/f05_db_polling_consumer_recovery.md`.
+
+## Full persistence coverage and quantitative receipts
+
+`make f05-db-coverage` runs unit tests and real PostgreSQL integration tests in
+one fresh coverage session, including the storage HTTP fault suite. It requires
+a clean checkout and a disposable loopback `F02_PG_ADMIN_URL`. Set
+`QUANTOS_F05_BRANCH=1 RUSTUP_TOOLCHAIN=nightly` for the nightly branch Gate.
+The report inventories every Rust source file under both F05 crates; adapters
+cannot be excluded. Each PostgreSQL/Storage adapter must reach 90% line and 85%
+region coverage, as must the combined scope; nightly branch coverage is 85%.
+`make f05-check` remains the fast core-only check and does not close this Gate.
+
+`artifacts/f05/measurements.json` records production-consumer processing,
+unique side effects, persisted applied/dispatched rows, checkpoint progress and
+full client correlation lookup time. The Gate validates the measurements and
+embeds them in its exact-SHA database/target receipt. Bulk COPY only prepares
+pending fixtures; completion always uses `PgEventStore::poll_outbox_once`.

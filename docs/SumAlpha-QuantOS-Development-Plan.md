@@ -254,16 +254,16 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-21 再复验纠正上轮 ACCEPTED：原 11 项问题中 9 项已解决；A07 的持久化适配器被覆盖率统计排除，A09 的旧万条测试直接写完成状态且仅计 PostgreSQL 执行时间。已修正容量测试，改为正式消费者及完整查询计时，待新 SHA 数据库/目标回执。30 项检查点为 27 PASS / 3 PARTIAL，严格完成率 90%。历史 CI、nightly、Supabase 和正式验签成功记录保留其实际证明范围。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)。
+- review_conclusion: 2026-09-21 A07、A09 本地修复完成：完整 6 个源文件覆盖率 line 95.10%、region 92.33%、branch 86.51%，三个持久化适配器分别达标；正式消费者万条消费、持久化计数及完整客户端查询通过。nightly 已切换完整覆盖率 Gate，数据库与目标 Gate 强制读取实际测量。待修复 SHA 的远端 CI/nightly 和隔离 Supabase 新回执，保持 FIX_VALIDATION、27 PASS / 3 PARTIAL、严格完成率 90%。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md) 与 [整改记录](./audit/F05-A07-A09-remediation-2026-09-21.md)。
 - issues:
   - issue_id: F05-A07
     severity: MEDIUM
-    description: F05 line/region与branch覆盖率排除PostgreSQL和Supabase Storage适配器，缺少持久化路径覆盖率证据。
+    description: 已补齐完整源文件覆盖率及适配器独立阈值，本机达标；待同 SHA nightly 与 Supabase 目标新回执。
     evidence: docs/audit/F05-comprehensive-review-2026-09-21.md
     status: OPEN
   - issue_id: F05-A09
     severity: MEDIUM
-    description: 旧万条测试绕过正式消费者且五秒断言仅计服务端执行；已修订测试，待新SHA运行回执。
+    description: 正式消费者万条消费及完整客户端查询已在本机通过，回执强制校验测量；待同 SHA 远端和目标新回执。
     evidence: docs/audit/F05-comprehensive-review-2026-09-21.md
     status: OPEN
 - fix_tracking: []

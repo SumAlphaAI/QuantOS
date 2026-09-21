@@ -550,6 +550,20 @@ mod tests {
 
         let mut ledger = AppendOnlyLedger::new();
         ledger.append(root.clone()).expect("root appends");
+        assert!(
+            ledger
+                .events_by_correlation_id(TenantId::new(), root.correlation_id)
+                .is_empty()
+        );
+        assert!(
+            ledger
+                .events_by_correlation_id(root.tenant_id, CorrelationId::new())
+                .is_empty()
+        );
+        assert_eq!(
+            ledger.events_by_correlation_id(root.tenant_id, root.correlation_id),
+            vec![&root]
+        );
         let audit = &ledger.audit_entries()[0];
         assert_eq!(audit.actor_id, root.actor_id);
         assert_eq!(audit.causation_id, root.event_id);

@@ -23,7 +23,7 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       QUANTOS_SKIP_ENV: "1"
-      F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres
+      F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres?sslmode=disable
       RUSTUP_TOOLCHAIN: nightly
     steps:
       - uses: actions/checkout@v4
@@ -36,19 +36,14 @@ jobs:
       - run: corepack enable pnpm
       - run: pnpm install --frozen-lockfile
       - run: cargo install cargo-llvm-cov --version 0.8.7 --locked
-      - name: Run disposable PostgreSQL acceptance
-        run: make f05-db-check
-      - name: Measure core branch coverage
-        run: >-
-          cargo llvm-cov --package quantos-event --package quantos-storage --lib --branch
-          --ignore-filename-regex '(pg|supabase_storage)\.rs'
-          --json --output-path target/f05-branch-coverage.json
-      - run: node scripts/check-f05-branch.mjs target/f05-branch-coverage.json
+      - name: Measure complete F05 coverage with PostgreSQL and HTTP fault tests
+        run: make f05-db-coverage
+        env:
+          QUANTOS_F05_BRANCH: "1"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: f05-nightly-${{ github.sha }}
           path: |
             artifacts/f05/
-            target/f05-branch-coverage.json
           if-no-files-found: error

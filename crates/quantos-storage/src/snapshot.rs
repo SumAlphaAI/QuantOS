@@ -808,6 +808,26 @@ mod tests {
     }
 
     #[test]
+    fn optional_license_rule_accepts_complete_unlicensed_metadata() {
+        let tenant = TenantId::new();
+        let mut input = baseline_input();
+        input.license_label.clear();
+        for source in &mut input.sources {
+            source.license_label.clear();
+        }
+        let observed = input.captured_at;
+        let snapshot = DataSnapshotRecord::new(tenant, input, observed).unwrap();
+        let mut rules = default_quality_rules(tenant, observed);
+        for rule in &mut rules {
+            rule.require_license = false;
+        }
+        let rules = SnapshotQualityRuleset::from_rules(rules);
+        for usage in [SnapshotUsage::Strategy, SnapshotUsage::Trading] {
+            assert!(SnapshotQualityGate::evaluate(&snapshot, usage, observed, &rules).allowed);
+        }
+    }
+
+    #[test]
     fn research_gate_allows_degraded_non_expired_snapshots() {
         let tenant_id = TenantId::new();
         let mut input = baseline_input();
