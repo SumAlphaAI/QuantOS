@@ -3,7 +3,7 @@
 > 初次复审日期：2026-09-20；整改复核日期：2026-09-20；远端验收核验：2026-09-21。
 > 初次复审基线：`db2e51f4c37fdced7cf22d0b939e8277c73d959c`。
 > 依据：[开发计划 F04](../SumAlpha-QuantOS-Development-Plan.md#task-f04)、开发计划第 2.2 节最低完成条件及第 2.3 节测试资产规则。
-> 当前结论：**原 9 项问题经独立复核均已本地解决，追加门禁修复已通过；23/23 本地检查点 PASS，本地完成率 100%，9737362 远端视觉、F04 Gate、锁文件自检、workspace lint/test 与覆盖率已完成；主 CI 最终在 cargo-deny bans 失败，整体远端验收未通过。本地 F04 Gate、nightly branch 覆盖率、workspace Clippy 和完整 Rust workspace 测试均通过。最新回执见 [9737362 完整 CI 核验](F04-remote-acceptance-9737362-2026-09-21.md)。**
+> 当前结论：**原问题与后续三个 CI 阻断已完成本地修复；b73eead 的三轮隔离构建、clean-room、cargo-deny、协议无漂移和 F04 Gate 均 PASS。修复后的同 SHA Linux CI 待人工推送验证，F04 保持待验收。** 详见 [本轮整改与回执](F04-ci-blockers-remediation-2026-09-21.md)。
 
 ## 一、任务完成概况
 
@@ -62,7 +62,7 @@
 
 剩余验收边界：
 
-- **远端主 CI 未通过**：`9737362` 的 F04 nightly 成功，主 CI 已通过此前锁文件自检并完成 lint/test/coverage，但 cargo-deny bans 因 testkit 的 quantos-core 路径依赖缺少版本而失败。F01 正式 inventory 遗漏 tools、PRE-04 协议清单不匹配也仍存在，见最新回执。
+- **修复后远端回执待验证**：9737362 的失败记录保留为历史；依赖声明、F01 tools 清单、PRE-04 Schema 数量已在 b73eead 本地修复并通过隔离构建与门禁，仍需人工推送后验证 Linux 全部工作流。
 - `clock.rs` 自身没有 LLVM 可计数的分支，branch 为 N/A；时区正负 offset、UTC 归一化及非法输入通过行为测试验证，line/region 均为 100%。不将依赖 chrono 的内部覆盖率计为本项目覆盖率。
 - 本地 branch instrumentation 使用 nightly rustc，reporting 使用已安装 Rust 1.91 LLVM tools；远端 nightly 已执行成功，Linux 回执 line 97.75%、region 95.52%、branch 97.73%，不与本地 stable 指标混用。
 - canonical JSON 仅面向 QuantOS 的 `serde_json::Value` 合约，不声明为 RFC 8785；FixtureId 按设计不进入内容 hash。
