@@ -45,9 +45,16 @@ try {
   if (process.env.QUANTOS_F05_TARGET_ISOLATED !== '1') {
     throw new Error('QUANTOS_F05_TARGET_ISOLATED=1 is required to confirm a disposable Supabase target');
   }
+  if (process.env.QUANTOS_DB_RESET_CONFIRM !== 'reset_remote_schema') {
+    throw new Error('QUANTOS_DB_RESET_CONFIRM=reset_remote_schema is required for a repeatable F05 target acceptance');
+  }
   for (const name of ['DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']) {
     if (!process.env[name]) throw new Error(`${name} is required for F05 target acceptance`);
   }
+  // A target run must start from the repository migration baseline. This is
+  // intentionally guarded by both the isolated-target and reset confirmations.
+  run('db-reset');
+  receipt.checks.push('isolated target reset and complete migration rebuild');
   if (process.env.QUANTOS_F05_COVERAGE === '1') {
     const coverage = require('./f05-coverage.cjs');
     coverage.start();

@@ -15,6 +15,7 @@ const inputs = {
   makefile: text('Makefile'),
   workflow: text('.github/workflows/ci.yml'),
   nightly: text('.github/workflows/f05-event-nightly.yml'),
+  targetGate: text('scripts/f05-target-gate.cjs'),
   runbook: text('docs/runbooks/f05_db_polling_consumer_recovery.md'),
 };
 
@@ -53,6 +54,7 @@ for (const marker of [
 check(inputs.makefile.includes('f05-check:') && inputs.makefile.includes('f05-db-check:') && inputs.makefile.includes('f05-target-check:'), 'Makefile exposes local, disposable-db and target F05 Gates');
 check(inputs.workflow.includes('make f05-check') && inputs.workflow.includes('make f05-db-check'), 'main CI runs both F05 Gates');
 check(inputs.nightly.includes('RUSTUP_TOOLCHAIN: nightly') && inputs.nightly.includes('QUANTOS_F05_BRANCH') && inputs.nightly.includes('make f05-db-coverage'), 'nightly F05 workflow enforces measured branch coverage');
+check(inputs.targetGate.includes("QUANTOS_F05_TARGET_ISOLATED !== '1'") && inputs.targetGate.includes("QUANTOS_DB_RESET_CONFIRM !== 'reset_remote_schema'") && inputs.targetGate.includes("run('db-reset')"), 'target F05 Gate requires two explicit isolation/reset confirmations and rebuilds migrations');
 check(inputs.runbook.includes('dead-letter-requeue') && inputs.runbook.includes('lease_token'), 'Runbook documents fenced dead-letter recovery');
 
 if (failures.length) {

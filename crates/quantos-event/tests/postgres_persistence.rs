@@ -953,12 +953,16 @@ fn postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts() {
         Err(PgEventStoreError::StaleLease { .. })
     ));
     store.record_inbox_success(&original, &event, now).unwrap();
+    // Retry availability is based on the actual completion timestamp inside
+    // poll_outbox_once. A hosted database round trip can take longer than the
+    // original test's fixed clock offset, so observe from a fresh wall clock.
+    let retry_observed_at = Utc::now() + ChronoDuration::seconds(2);
     let duplicate = store
         .poll_outbox_once(
             "other",
             "coverage",
             1,
-            now + ChronoDuration::seconds(2),
+            retry_observed_at,
             ChronoDuration::seconds(30),
             2,
             |_, _| panic!("applied receipt must not invoke handler"),
@@ -1001,6 +1005,42 @@ fn postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts() {
         Err(PgEventStoreError::StaleLease { .. })
     ));
     store.mark_outbox_dispatched(&current, Utc::now()).unwrap();
+
+    // A claim that is already expired before handler dispatch must fail
+    // closed, then be recoverable by a later worker without leaving a fixture
+    // in the shared target queue.
+    let expired = build_event(tenant, actor, correlation, 3);
+    store.append_event(&expired).unwrap();
+    let expired_at = Utc::now();
+    assert!(matches!(
+        store.poll_outbox_once(
+            "expired-owner",
+            "coverage-expired",
+            1,
+            expired_at,
+            ChronoDuration::milliseconds(-1),
+            2,
+            |_, _| panic!("expired lease must fail before handler dispatch"),
+            |_| Ok(()),
+        ),
+        Err(PgEventStoreError::StaleLease { kind: "inbox", .. })
+    ));
+    let recovered = store
+        .poll_outbox_once(
+            "recovery-owner",
+            "coverage-expired",
+            1,
+            Utc::now() + ChronoDuration::seconds(2),
+            ChronoDuration::seconds(30),
+            2,
+            |event, _| {
+                assert_eq!(event.event_id, expired.event_id);
+                Ok(())
+            },
+            |_| Ok(()),
+        )
+        .unwrap();
+    assert_eq!(recovered.processed, 1);
     assert!(PgEventStore::connect("invalid URL").is_err());
     let parsed = Url::parse(&url).unwrap();
     // Only exercise plaintext/TLS rejection on an explicitly plaintext loopback fixture.
