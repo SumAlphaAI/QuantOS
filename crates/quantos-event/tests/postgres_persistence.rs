@@ -78,6 +78,12 @@ fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
         claimed_a[0].outbox.outbox_entry_id
     );
     assert_eq!(recovered[0].outbox.attempts, 2);
+    worker_b
+        .mark_outbox_dispatched(&claimed_b[0], observed_at)
+        .expect("worker B completes its lease");
+    worker_d
+        .mark_outbox_dispatched(&recovered[0], observed_at + ChronoDuration::seconds(31))
+        .expect("recovery worker completes reclaimed lease");
 }
 
 #[test]
@@ -569,6 +575,20 @@ fn correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation(
             .expect_err("append-only truncate must fail");
         assert_eq!(error.code().map(|code| code.code()), Some("55000"));
     }
+
+    let drained = store
+        .poll_outbox_once(
+            "f05-tenant-boundary-worker",
+            "projection-tenant-boundary",
+            10,
+            Utc::now(),
+            ChronoDuration::seconds(30),
+            3,
+            |_, _claim| Ok(()),
+            |_| Ok(()),
+        )
+        .expect("tenant boundary fixtures drain through the normal consumer path");
+    assert_eq!(drained.processed, 2);
 }
 
 #[test]
