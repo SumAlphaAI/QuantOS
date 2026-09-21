@@ -83,4 +83,4 @@ make QUANTOS_F05_TARGET_ISOLATED=1 f05-target-check
 
 本回执证明上述完整 SHA 在隔离 Supabase 目标上的数据库、RLS 与 Storage 行为。correlation 的五秒结果测量 PostgreSQL 服务端执行；本地开发机到 Supabase 的公网传输不作为同区域应用延迟证据，部署后的应用端 P95 由 F09 监控继续验证。
 
-本轮提交尚未人工推送，因此 GitHub Actions 对最新代码的主 CI、一次性 PostgreSQL Gate 与 F05 branch coverage 回执仍待收集。完成推送并取得同 SHA 成功回执后，F05 才转为最终 `ACCEPTED`。
+文档子提交 `45d1413314462deec7bda86679ada446b6163e33` 已人工推送。主 CI Run [35571309219](https://github.com/SumAlphaAI/QuantOS/actions/runs/35571309219) 与手动 F05 Event Nightly Run [35571811178](https://github.com/SumAlphaAI/QuantOS/actions/runs/35571811178) 均因 GitHub 账户近期付款失败或 spending limit 不足而未启动 job。远端结果属于 `NOT RUN`，不影响本报告已经取得的目标 Supabase `PASS`，但在账户状态修复并取得成功同 SHA 回执前，F05 不转为最终 `ACCEPTED`。

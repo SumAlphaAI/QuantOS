@@ -254,12 +254,12 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-21 复验确认原 A01–A11 全部关闭；隔离 Supabase 从空 schema 应用 15/15 migration，e0520da 的事件 PostgreSQL 7/7、Storage PostgreSQL 1/1、Storage live 1/1、36 表 RLS 与本地 F05 Gate 全部通过。30 项检查点为 29 PASS / 1 PARTIAL，唯一缺口是修复尚未人工推送，缺最新 GitHub Actions 与 F05 nightly 同 SHA 回执。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)及[目标验收回执](./audit/F05-target-acceptance-e0520da-2026-09-21.md)。
+- review_conclusion: 2026-09-21 复验确认原 A01–A11 全部关闭；隔离 Supabase 从空 schema 应用 15/15 migration，e0520da 的事件 PostgreSQL 7/7、Storage PostgreSQL 1/1、Storage live 1/1、36 表 RLS 与本地 F05 Gate 全部通过。文档子提交 45d1413 已推送，但主 CI 与手动 F05 nightly 均因 GitHub 账户付款/额度状态未启动 job；30 项检查点保持 29 PASS / 1 PARTIAL。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)、[目标验收回执](./audit/F05-target-acceptance-e0520da-2026-09-21.md)及[远端核验报告](./audit/F05-remote-acceptance-45d1413-2026-09-21.md)。
 - issues:
   - issue_id: F05-V01
     severity: MEDIUM
-    description: e0520da及其后续文档提交尚未通过GitHub Desktop人工推送，缺少最新完整SHA的QuantOS CI、一次性PostgreSQL Gate及F05 branch coverage回执。
-    evidence: docs/audit/F05-target-acceptance-e0520da-2026-09-21.md
+    description: 45d1413已推送；主CI Run 35571309219、手动F05 nightly Run 35571811178及其他push工作流均因GitHub账户近期付款失败或spending limit不足而未启动job，仍缺一次性PostgreSQL Gate和branch coverage成功回执。
+    evidence: docs/audit/F05-remote-acceptance-45d1413-2026-09-21.md
     status: OPEN
 - fix_tracking: []
 
