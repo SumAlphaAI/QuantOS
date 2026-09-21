@@ -254,19 +254,32 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-21 A07、A09 本地修复完成：完整 6 个源文件覆盖率 line 95.10%、region 92.33%、branch 86.51%，三个持久化适配器分别达标；正式消费者万条消费、持久化计数及完整客户端查询通过。nightly 已切换完整覆盖率 Gate，数据库与目标 Gate 强制读取实际测量。待修复 SHA 的远端 CI/nightly 和隔离 Supabase 新回执，保持 FIX_VALIDATION、27 PASS / 3 PARTIAL、严格完成率 90%。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md) 与 [整改记录](./audit/F05-A07-A09-remediation-2026-09-21.md)。
+- review_conclusion: 2026-09-21 原 11 项问题均已完成修复，未修复代码问题为 0。A07、A09 在干净 SHA 28437b782499e1c840261ae2a73b5d9a629f9c9b 上通过完整本机数据库 Gate；全部 6 个源文件覆盖率 line 95.10%、region 92.33%、branch 86.51%，10,000 条消费 9.698s、完整链查询 89.95ms。回执归档提交 208919e。修复完成率 11/11，最终验收关闭率仍为 9/11；待新 SHA 远端 CI/nightly 和隔离 Supabase 回执，保持 FIX_VALIDATION、27 PASS / 3 PARTIAL、严格验收完成率 90%。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)。
 - issues:
   - issue_id: F05-A07
     severity: MEDIUM
-    description: 已补齐完整源文件覆盖率及适配器独立阈值，本机达标；待同 SHA nightly 与 Supabase 目标新回执。
-    evidence: docs/audit/F05-comprehensive-review-2026-09-21.md
-    status: OPEN
+    description: 完整源文件覆盖率与适配器独立阈值已修复、本机达标；待远端 nightly 和 Supabase 新回执后最终关闭。
+    evidence: docs/audit/evidence/F05-A07-A09-local-28437b7.json
+    status: FIXED_LOCAL
   - issue_id: F05-A09
     severity: MEDIUM
-    description: 正式消费者万条消费及完整客户端查询已在本机通过，回执强制校验测量；待同 SHA 远端和目标新回执。
-    evidence: docs/audit/F05-comprehensive-review-2026-09-21.md
-    status: OPEN
-- fix_tracking: []
+    description: 正式消费者万条消费、持久化计数及完整客户端查询已通过本机验证；待远端和目标新回执后最终关闭。
+    evidence: docs/audit/evidence/F05-A07-A09-local-28437b7.json
+    status: FIXED_LOCAL
+- fix_tracking:
+  - issue_id: F05-A07
+    fix_ref: 28437b782499e1c840261ae2a73b5d9a629f9c9b
+    verification_command: make f05-db-coverage
+    verification_environment: disposable-loopback-postgresql 17.11; nightly; QUANTOS_F05_BRANCH=1; clean SHA
+    verification_evidence: docs/audit/evidence/F05-A07-A09-local-28437b7.json
+    verification_status: PASS
+  - issue_id: F05-A09
+    fix_ref: 28437b782499e1c840261ae2a73b5d9a629f9c9b
+    verification_command: make f05-db-coverage
+    verification_environment: disposable-loopback-postgresql 17.11; clean SHA
+    verification_evidence: docs/audit/evidence/F05-A07-A09-local-28437b7.json
+    verification_status: PASS
+- 验证范围：上列 PASS 仅指同 SHA 本机验证，FIXED_LOCAL 不代表最终验收关闭；未取得的远端和目标回执不得以本机结果替代。
 
 <a id="task-f06"></a>
 ### F06：身份、授权、秘密引用与主上下文
