@@ -232,7 +232,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-21 续检：原 9 项本地问题已解决，23/23 本地检查点 PASS。49e61d6 同 SHA 主 CI 的 Linux Chromium 27/27 通过，stable F04 Gate 已执行，nightly Run 35545816674 成功；主 CI Run 35545816717 随后因锁文件自检 fixture 遗漏 tools 成员失败。本地补齐后自检 16/16 PASS，待人工推送修复并收集同 SHA 完整成功回执，尚未 ACCEPTED。详见 [最新远端回执](audit/F04-remote-acceptance-49e61d6-2026-09-21.md) 与 [F04 复审报告](audit/F04-comprehensive-review-2026-09-20.md)。
+- review_conclusion: 2026-09-21 核验 9737362：F04 nightly 成功；主 CI 视觉 27/27、stable F04、质量门禁自检及 workspace lint/test/coverage 已完成，最终在 cargo-deny bans 失败（testkit 内部路径依赖缺少版本）。另有 F01 inventory 遗漏 tools 和 PRE-04 协议清单不匹配。整体 CI 未通过，保持待验收；本轮未修改代码或放宽门禁。详见 [完整 CI 核验](audit/F04-remote-acceptance-9737362-2026-09-21.md) 与 [F04 复审报告](audit/F04-comprehensive-review-2026-09-20.md)。
 - issues: []
 - fix_tracking: []
 
