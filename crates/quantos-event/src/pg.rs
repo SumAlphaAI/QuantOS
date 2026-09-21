@@ -680,18 +680,18 @@ impl PgEventStore {
                 .iter()
                 .map(|(outbox, inbox, completed_at)| {
                     serde_json::json!({
-                        "inbox_id": inbox.inbox_entry_id,
-                        "inbox_owner": inbox.lease_owner,
-                        "inbox_token": inbox.lease_token,
-                        "outbox_id": outbox.outbox.outbox_entry_id,
-                        "outbox_owner": outbox.lease_owner,
-                        "outbox_token": outbox.lease_token,
-                        "tenant_id": outbox.event.tenant_id,
-                        "consumer_name": inbox.consumer_name,
-                        "stream_key": outbox.event.stream_key(),
-                        "next_sequence": outbox.event.sequence + 1,
-                        "completed_at": completed_at,
-                    })
+                            "inbox_id": inbox.inbox_entry_id,
+                            "inbox_owner": inbox.lease_owner,
+                            "inbox_token": inbox.lease_token,
+                            "outbox_id": outbox.outbox.outbox_entry_id,
+                            "outbox_owner": outbox.lease_owner,
+                            "outbox_token": outbox.lease_token,
+                            "tenant_id": outbox.event.tenant_id,
+                            "consumer_name": inbox.consumer_name,
+                            "stream_key": outbox.event.stream_key(),
+                    "last_sequence": outbox.event.sequence,
+                            "completed_at": completed_at,
+                        })
                 })
                 .collect::<Vec<_>>(),
         );
@@ -702,7 +702,7 @@ impl PgEventStore {
                     inbox_id uuid, inbox_owner text, inbox_token uuid,
                     outbox_id uuid, outbox_owner text, outbox_token uuid,
                     tenant_id uuid, consumer_name text, stream_key text,
-                    next_sequence bigint, completed_at timestamptz)
+                    last_sequence bigint, completed_at timestamptz)
              ), inbox_updated as (
                 update quantos.inbox_receipt i
                 set status = 'applied', processed_at = input.completed_at,
@@ -724,11 +724,11 @@ impl PgEventStore {
                 returning o.id
              ), checkpoints as (
                 insert into quantos.projection_checkpoint (
-                    tenant_id, consumer_name, stream_key, next_sequence, updated_at)
-                select tenant_id, consumer_name, stream_key, max(next_sequence), max(completed_at)
+                    tenant_id, consumer_name, stream_key, last_sequence, updated_at)
+                select tenant_id, consumer_name, stream_key, max(last_sequence), max(completed_at)
                 from input group by tenant_id, consumer_name, stream_key
                 on conflict (tenant_id, consumer_name, stream_key) do update
-                set next_sequence = greatest(quantos.projection_checkpoint.next_sequence, excluded.next_sequence),
+                set last_sequence = greatest(quantos.projection_checkpoint.last_sequence, excluded.last_sequence),
                     updated_at = greatest(quantos.projection_checkpoint.updated_at, excluded.updated_at)
                 returning id
              )
