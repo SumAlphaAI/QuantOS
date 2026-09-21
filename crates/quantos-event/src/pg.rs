@@ -193,19 +193,65 @@ impl PgEventStore {
         tenant_id: TenantId,
         correlation_id: CorrelationId,
     ) -> Result<Vec<RecordedEvent>, PgEventStoreError> {
-        let rows = self.client.query_typed(
-            "select event_id, tenant_id, actor_id, correlation_id, causation_id, aggregate_type, aggregate_id,
-                    sequence, event_kind, schema_version, occurred_at, payload, payload_hash
-             from quantos.event_log
-             where tenant_id = $1 and correlation_id = $2
-             order by occurred_at asc, sequence asc",
-            &[
-                (tenant_id.as_uuid(), Type::UUID),
-                (correlation_id.as_uuid(), Type::UUID),
-            ],
-        )?;
+        const PAGE_SIZE: i64 = 1_000;
+        let mut events = Vec::new();
+        let mut cursor: Option<(DateTime<Utc>, i64, Uuid)> = None;
 
-        rows.iter().map(row_to_recorded_event).collect()
+        loop {
+            let rows = if let Some((occurred_at, sequence, event_id)) = cursor {
+                self.client.query_typed(
+                    "select event_id, tenant_id, actor_id, correlation_id, causation_id, aggregate_type, aggregate_id,
+                            sequence, event_kind, schema_version, occurred_at, payload, payload_hash
+                     from quantos.event_log
+                     where tenant_id = $1
+                       and correlation_id = $2
+                       and (occurred_at, sequence, event_id) > ($3, $4, $5)
+                     order by occurred_at asc, sequence asc, event_id asc
+                     limit $6",
+                    &[
+                        (tenant_id.as_uuid(), Type::UUID),
+                        (correlation_id.as_uuid(), Type::UUID),
+                        (&occurred_at, Type::TIMESTAMPTZ),
+                        (&sequence, Type::INT8),
+                        (&event_id, Type::UUID),
+                        (&PAGE_SIZE, Type::INT8),
+                    ],
+                )?
+            } else {
+                self.client.query_typed(
+                    "select event_id, tenant_id, actor_id, correlation_id, causation_id, aggregate_type, aggregate_id,
+                            sequence, event_kind, schema_version, occurred_at, payload, payload_hash
+                     from quantos.event_log
+                     where tenant_id = $1 and correlation_id = $2
+                     order by occurred_at asc, sequence asc, event_id asc
+                     limit $3",
+                    &[
+                        (tenant_id.as_uuid(), Type::UUID),
+                        (correlation_id.as_uuid(), Type::UUID),
+                        (&PAGE_SIZE, Type::INT8),
+                    ],
+                )?
+            };
+
+            let page_len = rows.len();
+            if let Some(row) = rows.last() {
+                cursor = Some((
+                    row.get("occurred_at"),
+                    row.get("sequence"),
+                    row.get("event_id"),
+                ));
+            }
+            events.extend(
+                rows.iter()
+                    .map(row_to_recorded_event)
+                    .collect::<Result<Vec<_>, _>>()?,
+            );
+            if page_len < PAGE_SIZE as usize {
+                break;
+            }
+        }
+
+        Ok(events)
     }
 
     pub fn claim_outbox_events(
