@@ -208,7 +208,7 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
         )
         .expect("dispatched count query succeeds")
         .get::<_, i64>("count");
-    assert_eq!(dispatched, 3);
+    assert_eq!(dispatched, events.len() as i64);
 }
 
 #[test]
