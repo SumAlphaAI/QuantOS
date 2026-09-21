@@ -86,3 +86,5 @@ Nightly 制品：[`f05-nightly-dcc2e1ec540f15be6291a057ad74dd6815e615f7`](https:
 5. 三项均成功后再将 A07、A09 从 `FIXED_LOCAL` 更新为最终 `CLOSED`。
 
 后续执行还确认：隔离 schema 重建完成后，Supabase pooler 可能在短暂传播窗口内关闭首次 TLS 连接。整改为测试辅助客户端最多重试三次、每次间隔一秒；这不会放宽业务重试、TLS 校验或验收断言。
+
+首次修复后的目标复验进一步测得 Realtime 补偿处理两条事件耗时 15.577s，超过既定 10s。整改将 polling 成功路径的 inbox applied、checkpoint 和 outbox dispatched 合并到同一事务；除减少远端往返外，还使三项状态以同一原子提交生效。10 秒阈值保持不变。

@@ -544,6 +544,69 @@ impl PgEventStore {
         Ok(())
     }
 
+    fn record_inbox_success_and_dispatch(
+        &mut self,
+        inbox_claim: &InboxProcessingClaim,
+        event: &RecordedEvent,
+        outbox_claim: &LeasedOutboxEntry,
+        completed_at: DateTime<Utc>,
+    ) -> Result<(), PgEventStoreError> {
+        let mut tx = self.client.transaction()?;
+        let inbox_updated = tx.execute_typed(
+            "update quantos.inbox_receipt
+             set status = 'applied', processed_at = $2, next_attempt_at = $2,
+                 lease_owner = null, lease_expires_at = null, lease_token = null,
+                 last_error = null
+             where id = $1 and status = 'processing'
+               and lease_owner = $3 and lease_token = $4
+               and lease_expires_at >= $2",
+            &[
+                (inbox_claim.inbox_entry_id.as_uuid(), Type::UUID),
+                (&completed_at, Type::TIMESTAMPTZ),
+                (&inbox_claim.lease_owner, Type::TEXT),
+                (&inbox_claim.lease_token, Type::UUID),
+            ],
+        )?;
+        if inbox_updated != 1 {
+            return Err(PgEventStoreError::StaleLease {
+                kind: "inbox",
+                id: *inbox_claim.inbox_entry_id.as_uuid(),
+            });
+        }
+        save_checkpoint_tx(
+            &mut tx,
+            &ProjectionCheckpoint {
+                consumer_name: inbox_claim.consumer_name.clone(),
+                tenant_id: event.tenant_id,
+                stream_key: event.stream_key(),
+                next_sequence: event.sequence + 1,
+            },
+        )?;
+        let outbox_updated = tx.execute_typed(
+            "update quantos.outbox_event
+             set status = 'dispatched', dispatched_at = $2,
+                 lease_owner = null, lease_expires_at = null, lease_token = null,
+                 last_error = null, updated_at = $2
+             where id = $1 and status = 'leased'
+               and lease_owner = $3 and lease_token = $4
+               and lease_expires_at >= $2",
+            &[
+                (outbox_claim.outbox.outbox_entry_id.as_uuid(), Type::UUID),
+                (&completed_at, Type::TIMESTAMPTZ),
+                (&outbox_claim.lease_owner, Type::TEXT),
+                (&outbox_claim.lease_token, Type::UUID),
+            ],
+        )?;
+        if outbox_updated != 1 {
+            return Err(PgEventStoreError::StaleLease {
+                kind: "outbox",
+                id: *outbox_claim.outbox.outbox_entry_id.as_uuid(),
+            });
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
     pub fn record_inbox_failure(
         &mut self,
         claim: &InboxProcessingClaim,
@@ -690,8 +753,12 @@ impl PgEventStore {
                     match handler(&entry.event, &claim) {
                         Ok(()) => {
                             let completed_at = std::cmp::max(Utc::now(), observed_at);
-                            self.record_inbox_success(&claim, &entry.event, completed_at)?;
-                            self.mark_outbox_dispatched(&entry, completed_at)?;
+                            self.record_inbox_success_and_dispatch(
+                                &claim,
+                                &entry.event,
+                                &entry,
+                                completed_at,
+                            )?;
                             if notifier(&entry.event).is_err() {
                                 report.notify_failures += 1;
                             }
