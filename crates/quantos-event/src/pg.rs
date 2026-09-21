@@ -2,7 +2,6 @@ use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
 use postgres::{
     Client, NoTls, Row, Transaction,
-    fallible_iterator::FallibleIterator,
     types::{Json, Type},
 };
 use postgres_native_tls::MakeTlsConnector;
@@ -200,21 +199,45 @@ impl PgEventStore {
         // transport so a stale or partially consumed TLS stream cannot corrupt
         // the complete correlation response.
         let mut replay_client = connect_client(&self.database_url)?;
-        let mut rows = replay_client.query_typed_raw(
-            "select event_id, tenant_id, actor_id, correlation_id, causation_id, aggregate_type, aggregate_id,
-                    sequence, event_kind, schema_version, occurred_at, payload, payload_hash
-             from quantos.event_log
-             where tenant_id = $1 and correlation_id = $2
-             order by occurred_at asc, sequence asc",
-            [
+        let rows = replay_client.query_typed(
+            "with ordered_events as (
+                select event_id, tenant_id, actor_id, correlation_id, causation_id,
+                       aggregate_type, aggregate_id, sequence, event_kind, schema_version,
+                       occurred_at, payload, payload_hash,
+                       (row_number() over (order by occurred_at asc, sequence asc) - 1) / 250 as batch_number
+                from quantos.event_log
+                where tenant_id = $1 and correlation_id = $2
+             )
+             select jsonb_agg(
+                 jsonb_build_object(
+                     'event_id', event_id,
+                     'tenant_id', tenant_id,
+                     'actor_id', actor_id,
+                     'correlation_id', correlation_id,
+                     'causation_id', causation_id,
+                     'aggregate_type', aggregate_type,
+                     'aggregate_id', aggregate_id,
+                     'sequence', sequence,
+                     'event_kind', event_kind,
+                     'schema_version', schema_version,
+                     'occurred_at', occurred_at,
+                     'payload', payload,
+                     'payload_hash', payload_hash
+                 ) order by occurred_at asc, sequence asc
+             ) as events
+             from ordered_events
+             group by batch_number
+             order by batch_number",
+            &[
                 (tenant_id.as_uuid(), Type::UUID),
                 (correlation_id.as_uuid(), Type::UUID),
             ],
         )?;
 
-        let mut events = Vec::new();
-        while let Some(row) = rows.next()? {
-            events.push(row_to_recorded_event(&row)?);
+        let mut events = Vec::with_capacity(rows.len() * 250);
+        for row in rows {
+            let Json(mut batch) = row.try_get::<_, Json<Vec<RecordedEvent>>>("events")?;
+            events.append(&mut batch);
         }
         Ok(events)
     }
