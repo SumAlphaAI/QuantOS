@@ -232,7 +232,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-21：5e7a0f1f9539ace8fe665e5139f5700d6fa3b3fe 同 SHA 六项工作流全部结束，F01 Clean Room（含三轮构建）、Frontend Baseline、F03、F04 branch、Compatibility 成功。原三个 CI 阻断已远端验证修复；主 CI 通过 cargo-deny、F04 stable Gate、完整测试和覆盖率后，SCA 因 chacha20 0.10.1 已撤回而失败；数据库/RLS、打包与正式验签未执行，继续待验收。详见 [同 SHA 完整核验](audit/F04-remote-acceptance-5e7a0f1-2026-09-21.md)。
+- review_conclusion: 2026-09-21：最后一项已确认 CI 阻断已在 c5a34164676cd275b728d17ccb4914309d8b9dde 本地修复，仅升级 chacha20 0.10.1 至 0.10.2；全量 SCA、许可证、workspace locked build/test、F04、协议无漂移和锁文件检查均 PASS。该干净提交的三轮隔离构建摘要一致，独立 clean-room 446.945 秒 PASS。修复后同 SHA 完整远端回执待人工推送，尤其数据库/RLS、打包及正式验签，保持待验收。详见 [整改及回执](audit/F04-yanked-remediation-2026-09-21.md)。
 - issues: []
 - fix_tracking: []
 
