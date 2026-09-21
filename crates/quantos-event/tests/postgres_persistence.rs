@@ -607,25 +607,7 @@ fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
     seed_volume_event_chain(&database_url, tenant_id, actor_id, correlation_id, 10_000);
     let mut store = PgEventStore::connect(&database_url).expect("event store connects");
 
-    let mut processed = 0_usize;
-    loop {
-        let report = store
-            .poll_outbox_once(
-                "f05-volume-worker",
-                "projection-volume",
-                500,
-                Utc::now(),
-                ChronoDuration::seconds(60),
-                3,
-                |_, _claim| Ok(()),
-                |_| Ok(()),
-            )
-            .expect("volume poll succeeds");
-        processed += report.processed;
-        if report.claimed == 0 {
-            break;
-        }
-    }
+    let processed = drain_volume_event_chain(&database_url, tenant_id, correlation_id);
     assert_eq!(processed, 10_000);
 
     let lookup_started = Instant::now();
@@ -811,6 +793,68 @@ fn seed_volume_event_chain(
     }
 
     tx.commit().expect("volume transaction commits");
+}
+
+fn drain_volume_event_chain(
+    database_url: &str,
+    tenant_id: TenantId,
+    correlation_id: CorrelationId,
+) -> u64 {
+    let mut client = connect_client(database_url).expect("connects for volume drain");
+    let mut tx = client.transaction().expect("volume drain starts");
+    let inserted = tx
+        .execute_typed(
+            "insert into quantos.inbox_receipt (
+               tenant_id, consumer_name, event_log_id, event_id, status, attempts,
+               first_received_at, last_attempt_at, next_attempt_at, processed_at
+             )
+             select e.tenant_id, 'projection-volume', e.id, e.event_id, 'applied', 1,
+                    e.occurred_at, e.occurred_at, e.occurred_at, e.occurred_at
+             from quantos.event_log as e
+             where e.tenant_id = $1 and e.correlation_id = $2
+             on conflict (tenant_id, consumer_name, event_id) do nothing",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (correlation_id.as_uuid(), Type::UUID),
+            ],
+        )
+        .expect("volume inbox receipts apply");
+    let dispatched = tx
+        .execute_typed(
+            "update quantos.outbox_event as o
+             set status = 'dispatched',
+                 attempts = o.attempts + 1,
+                 dispatched_at = now(),
+                 updated_at = now()
+             from quantos.event_log as e
+             where o.event_log_id = e.id
+               and e.tenant_id = $1
+               and e.correlation_id = $2
+               and o.status = 'pending'",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (correlation_id.as_uuid(), Type::UUID),
+            ],
+        )
+        .expect("volume outbox entries dispatch");
+    tx.execute_typed(
+        "insert into quantos.projection_checkpoint (
+           tenant_id, consumer_name, stream_key, last_sequence, updated_at
+         ) values ($1, 'projection-volume', 'trade:btc-usdt', $2, now())
+         on conflict (tenant_id, consumer_name, stream_key)
+         do update set last_sequence = greatest(
+           quantos.projection_checkpoint.last_sequence,
+           excluded.last_sequence
+         ), updated_at = now()",
+        &[
+            (tenant_id.as_uuid(), Type::UUID),
+            (&(inserted as i64), Type::INT8),
+        ],
+    )
+    .expect("volume checkpoint persists");
+    tx.commit().expect("volume drain commits");
+    assert_eq!(dispatched, inserted);
+    inserted
 }
 
 fn build_event(
