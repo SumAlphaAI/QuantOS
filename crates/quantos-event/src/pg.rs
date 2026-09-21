@@ -512,16 +512,20 @@ impl PgEventStore {
                         "ordinal": ordinal,
                         "tenant_id": entry.event.tenant_id,
                         "event_id": entry.event.event_id,
+                        "outbox_id": entry.outbox.outbox_entry_id,
+                        "outbox_owner": entry.lease_owner,
+                        "outbox_token": entry.lease_token,
                     })
                 })
                 .collect::<Vec<_>>(),
         );
-        let lease_expires_at = observed_at + lease_duration;
+        let lease_seconds = lease_duration.num_seconds();
         let mut tx = self.client.transaction()?;
         tx.execute_typed(
             "with input as (
                 select * from jsonb_to_recordset($1::jsonb)
-                    as x(ordinal bigint, tenant_id uuid, event_id uuid)
+                    as x(ordinal bigint, tenant_id uuid, event_id uuid,
+                         outbox_id uuid, outbox_owner text, outbox_token uuid)
              )
              insert into quantos.inbox_receipt (
                 tenant_id, consumer_name, event_log_id, event_id, status, attempts,
@@ -541,7 +545,17 @@ impl PgEventStore {
         let rows = tx.query_typed(
             "with input as (
                 select * from jsonb_to_recordset($1::jsonb)
-                    as x(ordinal bigint, tenant_id uuid, event_id uuid)
+                    as x(ordinal bigint, tenant_id uuid, event_id uuid,
+                         outbox_id uuid, outbox_owner text, outbox_token uuid)
+             ), outbox_renewed as (
+                update quantos.outbox_event o
+                set lease_expires_at = clock_timestamp() + make_interval(secs => $5::integer),
+                    updated_at = clock_timestamp()
+                from input
+                where o.id = input.outbox_id and o.status = 'leased'
+                  and o.lease_owner = input.outbox_owner
+                  and o.lease_token = input.outbox_token
+                returning o.id
              ), candidate as (
                 select i.id, input.ordinal
                 from input
@@ -557,7 +571,8 @@ impl PgEventStore {
                 update quantos.inbox_receipt i
                 set status = 'processing', attempts = i.attempts + 1,
                     lease_owner = $4, lease_token = gen_random_uuid(),
-                    lease_expires_at = $5, last_attempt_at = $3, last_error = null
+                    lease_expires_at = clock_timestamp() + make_interval(secs => $5::integer),
+                    last_attempt_at = clock_timestamp(), last_error = null
                 from candidate c where i.id = c.id
                 returning c.ordinal, i.id, i.attempts, i.lease_owner,
                           i.lease_token, i.lease_expires_at
@@ -576,7 +591,7 @@ impl PgEventStore {
                 (&consumer_name, Type::TEXT),
                 (&observed_at, Type::TIMESTAMPTZ),
                 (&worker_name, Type::TEXT),
-                (&lease_expires_at, Type::TIMESTAMPTZ),
+                (&lease_seconds, Type::INT8),
             ],
         )?;
         if rows.len() != entries.len() {
