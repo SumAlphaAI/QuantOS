@@ -1,5 +1,7 @@
 # F05 远端验收回执核验（4e6f784）
 
+> 历史失败回执：该问题已在后续提交中修复。隔离 Supabase 的成功验收见 [`F05-target-acceptance-e0520da-2026-09-21.md`](./F05-target-acceptance-e0520da-2026-09-21.md)；最新 GitHub Actions 同 SHA 回执仍待人工推送后收集。
+
 - 核验日期：2026-09-21
 - 完整提交：`4e6f7843b2dcb60d907c2dc957dba4e708282eea`
 - 分支：`main`
