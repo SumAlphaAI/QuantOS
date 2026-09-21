@@ -3,7 +3,7 @@
 > 初次复审日期：2026-09-20；整改复核日期：2026-09-20；远端验收核验：2026-09-21。
 > 初次复审基线：`db2e51f4c37fdced7cf22d0b939e8277c73d959c`。
 > 依据：[开发计划 F04](../SumAlpha-QuantOS-Development-Plan.md#task-f04)、开发计划第 2.2 节最低完成条件及第 2.3 节测试资产规则。
-> 当前结论：**最后一项已确认 CI 阻断已在 c5a3416 本地修复：chacha20 升至 0.10.2，全量 SCA、许可证、工作区构建/测试、协议门禁、三轮隔离构建和 clean-room 均 PASS。修复后同 SHA 远端 CI 待人工推送验证，F04 保持待验收。** 详见 [整改与新回执](F04-yanked-remediation-2026-09-21.md)。
+> 当前结论：**F04 验收通过。c769897de9b1f94fbd6dd9ac3e35b6aca2e8945a 的六项远端工作流全部 SUCCESS；打包、正式签名、236 个发布文件下载校验及 HMAC-SHA256 验签成功。状态更新为 COMPLETED / ACCEPTED。** 详见 [同 SHA 完整验收](F04-remote-acceptance-c769897-2026-09-21.md)。
 
 ## 一、任务完成概况
 
@@ -19,7 +19,7 @@
 | 低危 | 1 | 1 | 0 |
 | **合计** | **9** | **9** | **0** |
 
-原问题本地关闭率 **100%**；本地检查点 PASS 23、PARTIAL 0、FAIL 0，完成率 **100%**。该比例不代表远端验收完成。
+原问题关闭率 **100%**；检查点 PASS 23、PARTIAL 0、FAIL 0，完成率 **100%**。2026-09-21 已补齐 c769897 同 SHA 六项远端工作流成功回执，F04 验收完成。
 
 ## 二、完成情况明细统计
 
@@ -60,11 +60,11 @@
 
 本次独立复核还补齐了 nightly 工具链覆盖、branch 计数与百分比交叉校验、金额精度模块独立阈值、P95 无效输入拒绝，并扩充了纯领域性能样本、数值边界 corpus 和 fixture 元数据篡改测试。相关负向门禁测试 3/3 通过。
 
-剩余验收边界：
+验收与维护边界：
 
-- **修复后远端回执待验证**：5e7a0f1 的 SCA 失败保留为历史。c5a3416 已最小升级 chacha20 0.10.2 并通过本地完整验收；仍需人工推送后收集修复提交同 SHA 的完整 CI，尤其数据库/RLS、打包与正式验签。
+- **远端验收已完成**：c769897 的全量 SCA、数据库/RLS、运行时打包、签名环境检查、正式签名和下载验签均成功。F02 A11 的分支保护等剩余要求独立保留，不随 F04 自动关闭。
 - `clock.rs` 自身没有 LLVM 可计数的分支，branch 为 N/A；时区正负 offset、UTC 归一化及非法输入通过行为测试验证，line/region 均为 100%。不将依赖 chrono 的内部覆盖率计为本项目覆盖率。
-- 本地 branch instrumentation 使用 nightly rustc，reporting 使用已安装 Rust 1.91 LLVM tools；远端 nightly 已执行成功，Linux 回执 line 97.75%、region 95.52%、branch 97.73%，不与本地 stable 指标混用。
+- 本地 branch instrumentation 使用 nightly rustc，reporting 使用已安装 Rust 1.91 LLVM tools；本次 c769897 远端 nightly 门禁成功。上文精确覆盖率属于原复验测量，不冒充本次远端数值。
 - canonical JSON 仅面向 QuantOS 的 `serde_json::Value` 合约，不声明为 RFC 8785；FixtureId 按设计不进入内容 hash。
 
 主 CI 系统依赖安装对齐已使 Linux 视觉测试 27/27 通过，诊断制品已归档。见 [视觉阻断整改](F04-visual-remediation-2026-09-21.md)。
@@ -74,4 +74,4 @@
 1. 每次修改 core primitive、serde 边界或 fixture canonicalization 时执行 `make f04-check`；不得以聚合 coverage 代替独立 core threshold。
 2. 新增 `ErrorCode` 时必须同步扩展 11/11 表驱动契约；新增受约束 value object 时必须提供构造和反序列化的同一不变量测试。
 3. 保持 `scripts/check-f04.mjs` 的双进程 1,000 fixture 比较和 P95 阈值；依赖升级后摘要变化必须经过明确兼容性评审。
-4. 人工推送 chacha20 修复及回执文档后，收集最新完整 SHA 的所有必需 CI 成功回执，再将 `review_status` 更新为 `ACCEPTED`；继续保留禁止 yanked 策略。
+4. 后续依赖或代码变化继续保留禁止 yanked 策略，并收集对应新 SHA 的完整 CI 回执；本次验收源码固定为 c769897。

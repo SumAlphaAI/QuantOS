@@ -219,7 +219,7 @@ flowchart LR
 
 - task_id: `F04`
 - task_type: `CORE`
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f04)
 - 需求描述：Core、错误、时钟与 ID
 - 技术要求：实现强类型 ID、UTC clock、领域错误码、金额/数量精度、版本与 hash primitives
@@ -231,8 +231,8 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-21：最后一项已确认 CI 阻断已在 c5a34164676cd275b728d17ccb4914309d8b9dde 本地修复，仅升级 chacha20 0.10.1 至 0.10.2；全量 SCA、许可证、workspace locked build/test、F04、协议无漂移和锁文件检查均 PASS。该干净提交的三轮隔离构建摘要一致，独立 clean-room 446.945 秒 PASS。修复后同 SHA 完整远端回执待人工推送，尤其数据库/RLS、打包及正式验签，保持待验收。详见 [整改及回执](audit/F04-yanked-remediation-2026-09-21.md)。
+- review_status: `ACCEPTED`
+- review_conclusion: 2026-09-21 验收通过：c769897de9b1f94fbd6dd9ac3e35b6aca2e8945a 同 SHA 的 QuantOS CI、F01 Clean Room、Frontend Baseline、F03、F04 branch 和 Compatibility 全部 SUCCESS。chacha20 阻断经远端 SCA 验证关闭；数据库/RLS、F02 recovery、运行时打包、main-only 签名策略、正式签名及独立下载验签全部成功，236 个发布文件与 HMAC-SHA256 签名验证通过。原九项问题及 23 个检查点全部完成，F02 A11 独立保持开放。详见 [完整远端验收回执](audit/F04-remote-acceptance-c769897-2026-09-21.md)。
 - issues: []
 - fix_tracking: []
 
