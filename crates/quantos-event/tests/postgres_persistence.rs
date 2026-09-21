@@ -359,9 +359,9 @@ fn postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_a
     store.append_event(&event).expect("event appends");
 
     // A bounded worker set drives 1,000 delivery attempts without creating a
-    // connection per attempt. The live target uses the transaction pooler;
-    // all statements in this path are one-shot typed queries.
-    let parallelism = 32;
+    // connection per attempt. Eight workers remain below the smallest supported
+    // Supabase session-pool limit while still exercising concurrent claims.
+    let parallelism = 8;
     let attempts = 1_000;
     let barrier = Arc::new(Barrier::new(parallelism));
     let side_effect_count = Arc::new(AtomicUsize::new(0));
