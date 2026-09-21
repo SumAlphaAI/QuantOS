@@ -1138,16 +1138,28 @@ fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
 
-    if disable_tls {
-        Client::connect(database_url, NoTls)
-    } else {
-        let mut builder = TlsConnector::builder();
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
+    let mut last_error = None;
+    for attempt in 0..3 {
+        let result = if disable_tls {
+            Client::connect(database_url, NoTls)
+        } else {
+            let mut builder = TlsConnector::builder();
+            if relaxed_tls {
+                builder.danger_accept_invalid_certs(true);
+            }
+            let connector = builder.build().expect("TLS connector builds");
+            Client::connect(database_url, MakeTlsConnector::new(connector))
+        };
+        match result {
+            Ok(client) => return Ok(client),
+            Err(error) if attempt < 2 => {
+                last_error = Some(error);
+                thread::sleep(Duration::from_secs(1));
+            }
+            Err(error) => return Err(error),
         }
-        let connector = builder.build().expect("TLS connector builds");
-        Client::connect(database_url, MakeTlsConnector::new(connector))
     }
+    Err(last_error.expect("a failed connection attempt records its error"))
 }
 
 fn live_database_url() -> Option<String> {
