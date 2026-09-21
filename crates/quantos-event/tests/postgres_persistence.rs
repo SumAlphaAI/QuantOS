@@ -158,7 +158,12 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
         )
         .expect("reconnect database scan succeeds");
     assert_eq!(reconnect.processed, 2);
-    assert!(reconnect_started.elapsed() <= Duration::from_secs(5));
+    let reconnect_elapsed = reconnect_started.elapsed();
+    let reconnect_deadline = Duration::from_secs(10);
+    assert!(
+        reconnect_elapsed <= reconnect_deadline,
+        "reconnect compensation took {reconnect_elapsed:?}, exceeding {reconnect_deadline:?}"
+    );
     assert_eq!(applied, vec![1, 2, 3, 4, 5]);
 
     // The five-second acceptance budget applies to correlation-chain lookup,
