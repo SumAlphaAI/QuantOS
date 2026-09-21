@@ -1,0 +1,295 @@
+{
+  "schema": "quantos-f05-acceptance/v1",
+  "status": "PASS",
+  "passed": true,
+  "targetClass": "disposable-loopback-postgresql",
+  "source": "28437b782499e1c840261ae2a73b5d9a629f9c9b",
+  "dirty": false,
+  "migrationDigest": "sha256:347db18d854bae424ba50537dfbbffc8289eaac83ce9ad7b5ac1c61190a7c011",
+  "startedAt": "2026-09-21T12:37:22.082Z",
+  "acceptance": {
+    "eventCount": 10000,
+    "concurrentDeliveryAttempts": 1000,
+    "correlationLookupBudgetSeconds": 5,
+    "rlsRoles": [
+      "anon",
+      "authenticated",
+      "service_role"
+    ],
+    "storageRoundTrip": "not-applicable"
+  },
+  "checks": [
+    "fresh migration rebuild",
+    "RLS, FORCE RLS, policy and privileged-path catalog checks",
+    "fencing, tenant replay, append-only, dead-letter replay, realtime recovery, 1,000 concurrency and 10,000-event consistency",
+    "PostgreSQL artifact, schema-registry and snapshot persistence"
+  ],
+  "coverage": {
+    "status": "PASS",
+    "scope": [
+      "crates/quantos-event/src/lib.rs",
+      "crates/quantos-event/src/pg.rs",
+      "crates/quantos-storage/src/lib.rs",
+      "crates/quantos-storage/src/pg.rs",
+      "crates/quantos-storage/src/snapshot.rs",
+      "crates/quantos-storage/src/supabase_storage.rs"
+    ],
+    "files": [
+      {
+        "file": "crates/quantos-event/src/lib.rs",
+        "summary": {
+          "branches": {
+            "count": 24,
+            "covered": 18,
+            "notcovered": 6,
+            "percent": 75
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "functions": {
+            "count": 56,
+            "covered": 49,
+            "percent": 87.5
+          },
+          "instantiations": {
+            "count": 125,
+            "covered": 91,
+            "percent": 72.8
+          },
+          "lines": {
+            "count": 518,
+            "covered": 497,
+            "percent": 95.94594594594594
+          },
+          "regions": {
+            "count": 740,
+            "covered": 706,
+            "notcovered": 34,
+            "percent": 95.4054054054054
+          }
+        }
+      },
+      {
+        "file": "crates/quantos-event/src/pg.rs",
+        "summary": {
+          "branches": {
+            "count": 38,
+            "covered": 32,
+            "notcovered": 6,
+            "percent": 84.21052631578947
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "functions": {
+            "count": 31,
+            "covered": 31,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 71,
+            "covered": 40,
+            "percent": 56.33802816901409
+          },
+          "lines": {
+            "count": 946,
+            "covered": 886,
+            "percent": 93.65750528541226
+          },
+          "regions": {
+            "count": 818,
+            "covered": 713,
+            "notcovered": 105,
+            "percent": 87.1638141809291
+          }
+        }
+      },
+      {
+        "file": "crates/quantos-storage/src/lib.rs",
+        "summary": {
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "functions": {
+            "count": 14,
+            "covered": 13,
+            "percent": 92.85714285714286
+          },
+          "instantiations": {
+            "count": 26,
+            "covered": 16,
+            "percent": 61.53846153846154
+          },
+          "lines": {
+            "count": 182,
+            "covered": 181,
+            "percent": 99.45054945054946
+          },
+          "regions": {
+            "count": 227,
+            "covered": 224,
+            "notcovered": 3,
+            "percent": 98.6784140969163
+          }
+        }
+      },
+      {
+        "file": "crates/quantos-storage/src/pg.rs",
+        "summary": {
+          "branches": {
+            "count": 20,
+            "covered": 17,
+            "notcovered": 3,
+            "percent": 85
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "functions": {
+            "count": 24,
+            "covered": 24,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 48,
+            "covered": 24,
+            "percent": 50
+          },
+          "lines": {
+            "count": 381,
+            "covered": 367,
+            "percent": 96.3254593175853
+          },
+          "regions": {
+            "count": 420,
+            "covered": 380,
+            "notcovered": 40,
+            "percent": 90.47619047619048
+          }
+        }
+      },
+      {
+        "file": "crates/quantos-storage/src/snapshot.rs",
+        "summary": {
+          "branches": {
+            "count": 38,
+            "covered": 36,
+            "notcovered": 2,
+            "percent": 94.73684210526316
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "functions": {
+            "count": 47,
+            "covered": 40,
+            "percent": 85.1063829787234
+          },
+          "instantiations": {
+            "count": 83,
+            "covered": 52,
+            "percent": 62.65060240963856
+          },
+          "lines": {
+            "count": 596,
+            "covered": 558,
+            "percent": 93.6241610738255
+          },
+          "regions": {
+            "count": 775,
+            "covered": 720,
+            "notcovered": 55,
+            "percent": 92.90322580645162
+          }
+        }
+      },
+      {
+        "file": "crates/quantos-storage/src/supabase_storage.rs",
+        "summary": {
+          "branches": {
+            "count": 6,
+            "covered": 6,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "functions": {
+            "count": 14,
+            "covered": 13,
+            "percent": 92.85714285714286
+          },
+          "instantiations": {
+            "count": 26,
+            "covered": 17,
+            "percent": 65.38461538461539
+          },
+          "lines": {
+            "count": 134,
+            "covered": 133,
+            "percent": 99.25373134328359
+          },
+          "regions": {
+            "count": 202,
+            "covered": 195,
+            "notcovered": 7,
+            "percent": 96.53465346534654
+          }
+        }
+      }
+    ],
+    "totals": {
+      "lines": {
+        "count": 2757,
+        "covered": 2622
+      },
+      "regions": {
+        "count": 3182,
+        "covered": 2938
+      },
+      "branches": {
+        "count": 126,
+        "covered": 109
+      }
+    },
+    "requireBranches": true
+  },
+  "measurements": {
+    "appliedReceipts": 10000,
+    "checkpointNextSequence": 10001,
+    "consumerPath": "PgEventStore::poll_outbox_once",
+    "consumptionMillis": 9698,
+    "correlationLookupMillis": 89.950792,
+    "dispatched": 10000,
+    "eventCount": 10000,
+    "lookupScope": "complete-client-retrieval",
+    "uniqueSideEffects": 10000
+  },
+  "completedAt": "2026-09-21T12:37:40.897Z"
+}
