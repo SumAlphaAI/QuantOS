@@ -10,7 +10,11 @@ use std::{
 
 use chrono::{Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
-use postgres::{Client, NoTls, types::Type};
+use postgres::{
+    Client, NoTls,
+    binary_copy::BinaryCopyInWriter,
+    types::{Json, Type},
+};
 use postgres_native_tls::MakeTlsConnector;
 use quantos_core::{ActorId, CorrelationId, SchemaVersion, TenantId};
 use quantos_event::{
@@ -19,6 +23,7 @@ use quantos_event::{
 };
 use serde_json::json;
 use url::Url;
+use uuid::Uuid;
 
 #[test]
 fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
@@ -599,12 +604,8 @@ fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
     let tenant_id = TenantId::new();
     let actor_id = seed_tenant(&database_url, tenant_id);
     let correlation_id = CorrelationId::new();
+    seed_volume_event_chain(&database_url, tenant_id, actor_id, correlation_id, 10_000);
     let mut store = PgEventStore::connect(&database_url).expect("event store connects");
-    for sequence in 1..=10_000 {
-        store
-            .append_event(&build_event(tenant_id, actor_id, correlation_id, sequence))
-            .expect("event appends without loss");
-    }
 
     let mut processed = 0_usize;
     loop {
@@ -642,6 +643,174 @@ fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
     assert_eq!(health.pending_outbox, 0);
     assert_eq!(health.pending_inbox, 0);
     assert_eq!(health.pending_dead_letters, 0);
+}
+
+fn seed_volume_event_chain(
+    database_url: &str,
+    tenant_id: TenantId,
+    actor_id: ActorId,
+    correlation_id: CorrelationId,
+    event_count: u64,
+) {
+    let events = (1..=event_count)
+        .map(|sequence| {
+            (
+                Uuid::now_v7(),
+                build_event(tenant_id, actor_id, correlation_id, sequence),
+            )
+        })
+        .collect::<Vec<_>>();
+    let mut client = connect_client(database_url).expect("connects for volume setup");
+    let mut tx = client.transaction().expect("volume transaction starts");
+    let stream_id: Uuid = tx
+        .query_typed(
+            "insert into quantos.event_streams (tenant_id, aggregate_type, aggregate_id)
+             values ($1,$2,$3) returning id",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&"trade", Type::TEXT),
+                (&"btc-usdt", Type::TEXT),
+            ],
+        )
+        .expect("volume stream inserts")[0]
+        .get(0);
+
+    {
+        let sink = tx
+            .copy_in(
+                "copy quantos.event_log (
+                   id, tenant_id, stream_id, event_id, actor_id, correlation_id, causation_id,
+                   aggregate_type, aggregate_id, sequence, event_kind, schema_version, payload,
+                   payload_hash, occurred_at
+                 ) from stdin binary",
+            )
+            .expect("event copy starts");
+        let mut writer = BinaryCopyInWriter::new(
+            sink,
+            &[
+                Type::UUID,
+                Type::UUID,
+                Type::UUID,
+                Type::UUID,
+                Type::UUID,
+                Type::UUID,
+                Type::UUID,
+                Type::TEXT,
+                Type::TEXT,
+                Type::INT8,
+                Type::TEXT,
+                Type::TEXT,
+                Type::JSONB,
+                Type::TEXT,
+                Type::TIMESTAMPTZ,
+            ],
+        );
+        for (event_log_id, event) in &events {
+            let sequence = event.sequence as i64;
+            let payload = Json(&event.payload);
+            writer
+                .write(&[
+                    event_log_id,
+                    event.tenant_id.as_uuid(),
+                    &stream_id,
+                    event.event_id.as_uuid(),
+                    event.actor_id.as_uuid(),
+                    event.correlation_id.as_uuid(),
+                    event.causation_id.as_uuid(),
+                    &event.aggregate_type,
+                    &event.aggregate_id,
+                    &sequence,
+                    &event.event_kind,
+                    &event.schema_version.as_str(),
+                    &payload,
+                    &event.payload_hash.as_str(),
+                    &event.occurred_at,
+                ])
+                .expect("event copies");
+        }
+        assert_eq!(writer.finish().expect("event copy completes"), event_count);
+    }
+
+    {
+        let sink = tx
+            .copy_in(
+                "copy quantos.audit_entries (
+                   tenant_id, actor_id, correlation_id, causation_id, event_id, action, details,
+                   recorded_at
+                 ) from stdin binary",
+            )
+            .expect("audit copy starts");
+        let mut writer = BinaryCopyInWriter::new(
+            sink,
+            &[
+                Type::UUID,
+                Type::UUID,
+                Type::UUID,
+                Type::UUID,
+                Type::UUID,
+                Type::TEXT,
+                Type::JSONB,
+                Type::TIMESTAMPTZ,
+            ],
+        );
+        for (_, event) in &events {
+            let details = Json(json!({
+                "event_kind": event.event_kind,
+                "payload_hash": event.payload_hash.as_str(),
+                "sequence": event.sequence,
+            }));
+            writer
+                .write(&[
+                    event.tenant_id.as_uuid(),
+                    event.actor_id.as_uuid(),
+                    event.correlation_id.as_uuid(),
+                    event.causation_id.as_uuid(),
+                    event.event_id.as_uuid(),
+                    &"event.appended",
+                    &details,
+                    &event.occurred_at,
+                ])
+                .expect("audit entry copies");
+        }
+        assert_eq!(writer.finish().expect("audit copy completes"), event_count);
+    }
+
+    {
+        let sink = tx
+            .copy_in(
+                "copy quantos.outbox_event (
+                   tenant_id, event_log_id, topic, status, attempts, available_at
+                 ) from stdin binary",
+            )
+            .expect("outbox copy starts");
+        let mut writer = BinaryCopyInWriter::new(
+            sink,
+            &[
+                Type::UUID,
+                Type::UUID,
+                Type::TEXT,
+                Type::TEXT,
+                Type::INT4,
+                Type::TIMESTAMPTZ,
+            ],
+        );
+        for (event_log_id, event) in &events {
+            let topic = format!("{}.{}", event.aggregate_type, event.event_kind);
+            writer
+                .write(&[
+                    event.tenant_id.as_uuid(),
+                    event_log_id,
+                    &topic,
+                    &"pending",
+                    &0_i32,
+                    &event.occurred_at,
+                ])
+                .expect("outbox entry copies");
+        }
+        assert_eq!(writer.finish().expect("outbox copy completes"), event_count);
+    }
+
+    tx.commit().expect("volume transaction commits");
 }
 
 fn build_event(
