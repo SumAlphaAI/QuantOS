@@ -6,28 +6,29 @@
 - 目标环境验收基线：`e0520da0dd6ff04bbac9269be54db776f6129c38`
 - 需求来源：[`SumAlpha-QuantOS-Development-Plan.md`](../SumAlpha-QuantOS-Development-Plan.md#task-f05)
 - 详细目标回执：[`F05-target-acceptance-e0520da-2026-09-21.md`](./F05-target-acceptance-e0520da-2026-09-21.md)
-- 结论：**原 11 项问题全部关闭，代码与隔离 Supabase 目标验收通过；最新同 SHA GitHub Actions 因账户付款/额度状态未启动，V01 保持开放**
+- 远端验收回执：[`F05-remote-acceptance-6b06a90-2026-09-21.md`](./F05-remote-acceptance-6b06a90-2026-09-21.md)
+- 结论：**ACCEPTED；原 11 项问题与 V01 全部关闭，30/30 检查点通过**
 
 ## 一、任务完成概况
 
 F05 已形成事件与审计不可变账本、带 fencing token 的 outbox/inbox 租约、tenant-scoped correlation replay、可审计死信重放、schema registry、checkpoint、Supabase Storage、恢复 Runbook、可观测性与失败关闭 Gate。隔离 Supabase 项目已从空 `quantos` schema 顺序应用 15 个 migration，并完成 PostgreSQL、RLS 和 Storage 正式验收。
 
-本轮在目标项目中进一步修复了测试夹具的会话池并发、跨用例 outbox 污染、10,000 条容量准备/投影方式、数据库端查询计时和 Realtime 重连数量断言。最终结构化回执绑定干净提交 `e0520da0dd6ff04bbac9269be54db776f6129c38`，状态为 `PASS`。
+本轮在目标项目中进一步修复了测试夹具的会话池并发、跨用例 outbox 污染、10,000 条容量准备/投影方式、数据库端查询计时和 Realtime 重连数量断言。隔离 Supabase 结构化回执绑定干净提交 `e0520da0dd6ff04bbac9269be54db776f6129c38`，状态为 `PASS`；随后完整提交 `6b06a90de275fb38f5efb7982fd2e09dd5963581` 的 QuantOS CI 与 F05 Event Nightly 均成功，补齐主干回归、一次性 PostgreSQL、branch coverage、打包和正式验签回执。
 
 ### 1.1 完成率
 
 | 指标 | 初审 | 最新复验 |
 |---|---:|---:|
 | 检查点总数 | 30 | 30 |
-| PASS | 15 | 29 |
-| PARTIAL | 8 | 1 |
+| PASS | 15 | 30 |
+| PARTIAL | 8 | 0 |
 | FAIL | 7 | 0 |
-| **严格完成率** | **50.0%（15/30）** | **96.7%（29/30）** |
-| 加权实现进度（PARTIAL=0.5） | 63.3% | 98.3% |
+| **严格完成率** | **50.0%（15/30）** | **100%（30/30）** |
+| 加权实现进度（PARTIAL=0.5） | 63.3% | 100% |
 | 原问题关闭率 | 0/11 | **11/11（100%）** |
 | 阻塞级 / 高危 / 中危 / 低危产品问题 | 0 / 6 / 4 / 1 | **0 / 0 / 0 / 0** |
 
-唯一 `PARTIAL` 是提交 `45d1413314462deec7bda86679ada446b6163e33` 推送后，全部 GitHub Actions job 因账户近期付款失败或 spending limit 不足而未启动。该项是外部验收证据缺口，不是已确认的产品缺陷。详见 [`F05-remote-acceptance-45d1413-2026-09-21.md`](./F05-remote-acceptance-45d1413-2026-09-21.md)。
+历史提交 `45d1413314462deec7bda86679ada446b6163e33` 的首次 GitHub Actions 执行曾被账户付款/额度状态阻止。阻断解除后，`6b06a90de275fb38f5efb7982fd2e09dd5963581` 上的两项必需工作流均实际执行成功，V01 已关闭。
 
 ### 1.2 最新验证
 
@@ -40,7 +41,7 @@ F05 已形成事件与审计不可变账本、带 fencing token 的 outbox/inbox
 | F05 核心覆盖率 | PASS | line 95.03%，region 94.29%；均超过 90% / 85% 门槛 |
 | 目标容量与一致性 | PASS | 10,000 条链完整读回，outbox open=0，1,000 次投递仅 1 个 applied receipt |
 | correlation 查询 | PASS | PostgreSQL 同一 10,000 行完整查询使用 Index Scan；复核执行时间 8.452ms，低于 5 秒 |
-| GitHub Actions 最新同 SHA | PARTIAL | 推送已完成；主 CI Run 35571309219 与手动 nightly Run 35571811178 均因账户付款/额度问题未启动 job |
+| GitHub Actions 最新同 SHA | PASS | QuantOS CI Run [35574043608](https://github.com/SumAlphaAI/QuantOS/actions/runs/35574043608) attempt 2 与 F05 Event Nightly Run [35590560951](https://github.com/SumAlphaAI/QuantOS/actions/runs/35590560951) 均绑定 `6b06a90...` 成功 |
 
 ## 二、完成情况明细统计
 
@@ -72,7 +73,7 @@ F05 已形成事件与审计不可变账本、带 fencing token 的 outbox/inbox
 | C24 | append-only 数据库强制约束 | PASS | UPDATE/DELETE/TRUNCATE/父级级联均有负向测试 |
 | C25 | actor/tenant/correlation/causation | PASS | 模型、migration、持久化与回放均完整 |
 | C26 | tenant-scoped correlation replay | PASS | API、CLI 与双租户负向测试通过 |
-| C27 | 覆盖率及 nightly branch Gate | PARTIAL | line/region 门槛本地通过，branch Gate 已配置；nightly Run 35571811178 在 job 启动前被账户付款/额度状态阻止 |
+| C27 | 覆盖率及 nightly branch Gate | PASS | 本地 line/region 门槛通过；nightly Run 35590560951 实测 branch 85.00%（51/60）并上传同 SHA 制品 |
 | C28 | 格式、Clippy、单元质量门禁 | PASS | 本轮编译、格式、Clippy、22 个库测试通过 |
 | C29 | 可观测性与运维说明 | PASS | backlog/lease/retry/dead-letter/checkpoint 健康信息和恢复 Runbook 已交付 |
 | C30 | 独立、失败关闭、绑定 SHA 的 Gate | PASS | 目标 Gate 缺变量/脏树时失败；本轮产生精确 SHA 结构化 PASS 回执 |
@@ -87,11 +88,11 @@ F05 已形成事件与审计不可变账本、带 fencing token 的 outbox/inbox
 | A07–A10 | 中危 | CLOSED | 覆盖率、Realtime deadline、容量一致性、健康信息和 Runbook 均通过本地或目标验收 |
 | A11 | 低危 | CLOSED | README、恢复 Runbook、测试矩阵与验收边界已补齐 |
 
-### 3.2 当前开放验收项
+### 3.2 验收项关闭记录
 
-| 编号 | 等级 | 所属模块 | 具体表现 | 影响范围 |
-|---|---|---|---|---|
-| V01 | 中危 | GitHub Actions / F05 nightly | `45d1413` 已推送；主 CI Run 35571309219、nightly Run 35571811178 及其他 push 工作流均在 job 启动前被 GitHub 账户付款失败或 spending limit 状态阻止 | 没有执行一次性 PostgreSQL Gate、branch coverage 或主干回归；在成功重跑前保持 `FIX_VALIDATION` |
+| 编号 | 原等级 | 状态 | 关闭依据 |
+|---|---|---|---|
+| V01 | 中危 | CLOSED | 同一完整 SHA `6b06a90...` 的 QuantOS CI 与 F05 Event Nightly 均成功；一次性 PostgreSQL Gate、85% branch coverage、正式打包和下载验签已有远端回执 |
 
 ### 3.3 风险边界
 
@@ -99,6 +100,8 @@ F05 已形成事件与审计不可变账本、带 fencing token 的 outbox/inbox
 
 ## 四、整改建议
 
-1. 在 GitHub 账户的 Billing & plans 中修复付款失败或提高 Actions spending limit。
-2. 对最新完整 SHA 重新运行 QuantOS CI 与 F05 Event Nightly，确认一次性 PostgreSQL Gate 和 branch coverage ≥85% 实际执行并成功。
-3. 两项成功后关闭 V01，将 F05 `review_status` 从 `FIX_VALIDATION` 更新为 `ACCEPTED`；账户级失败不回退已取得的目标 Supabase 回执。
+本轮无未完成整改项。后续维护要求如下：
+
+1. 任何影响 F05 事件、存储、migration 或 CI Gate 的变更，继续要求 QuantOS CI 与 F05 Event Nightly 绑定同一最新完整 SHA 成功。
+2. 保持 nightly branch coverage ≥85%、结构化数据库回执 `dirty=false`，并归档绑定 SHA 的双文件制品。
+3. correlation 的五秒验收继续区分 PostgreSQL 服务端执行时间与部署后的应用端 P95；应用侧指标由 F09 持续验证。
