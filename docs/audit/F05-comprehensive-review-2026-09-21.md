@@ -5,6 +5,8 @@
 - 需求来源：[开发计划 F05](../SumAlpha-QuantOS-Development-Plan.md#task-f05)
 - 结论：**原 11 项问题的修复均已完成；A07、A09 已通过干净 SHA 本机验收。整体保持 FIX_VALIDATION，等待新 SHA 的远端及隔离 Supabase 回执后最终关闭。**
 
+> 2026-09-23 复验更新：`b4f1c9a2333e1b847070e0851f5afdecaab6b003` 的 [三项回执](./F05-acceptance-b4f1c9a-2026-09-23.md)显示 CI 成功，但 Nightly 单文件 region 84.31% 与隔离 Supabase 完整载荷传输失败；下文 2026-09-21 的本机统计是历史基线，不能作为当前最终验收。A07、A09 继续开放，新 SHA 须重跑三项。
+
 ## 一、任务完成概况
 
 重新对照初审 A01–A11、当前实现、测试代码和既有回执核查后，确认租约 fencing、append-only 约束、actor/causation、租户隔离回放、死信恢复、失败关闭门禁、Realtime 补偿以及运行文档已完成。已解决问题不再列入活动问题清单，历史描述可通过 Git 中 `4e6f784` 版本追溯。

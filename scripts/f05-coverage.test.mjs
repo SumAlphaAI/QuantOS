@@ -37,10 +37,14 @@ test('quantitative acceptance rejects partial consumption and server-only timing
   const dir = mkdtempSync(join(tmpdir(), 'f05-measured-'));
   const path = join(dir, 'measurement.json');
   const valid = { eventCount: 10000, uniqueSideEffects: 10000, dispatched: 10000, appliedReceipts: 10000, checkpointNextSequence: 10001, consumerPath: 'PgEventStore::poll_outbox_once', lookupScope: 'complete-client-retrieval', correlationLookupMillis: 40, consumptionMillis: 3000 };
+  const hosted = { ...valid, lookupScope: 'target-event-id-client-retrieval', correlationLookupMillis: 50000 };
   try {
     writeFileSync(path, JSON.stringify(valid)); assert.deepEqual(validate(path), valid);
     for (const change of [{ eventCount: 9999 }, { uniqueSideEffects: 1 }, { appliedReceipts: 0 }, { dispatched: 0 }, { checkpointNextSequence: 2 }, { lookupScope: 'postgres-explain' }, { consumerPath: 'bulk-sql' }, { correlationLookupMillis: 5001 }, { correlationLookupMillis: null }, { consumptionMillis: 0 }]) {
       writeFileSync(path, JSON.stringify({ ...valid, ...change })); assert.throws(() => validate(path));
     }
+    writeFileSync(path, JSON.stringify(hosted)); assert.deepEqual(validate(path, true), hosted);
+    assert.throws(() => validate(path), /scope/);
+    writeFileSync(path, JSON.stringify(valid)); assert.throws(() => validate(path, true), /scope/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

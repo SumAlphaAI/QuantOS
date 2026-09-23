@@ -67,7 +67,7 @@ try {
     run('test-f05-live');
     run('test-supabase-storage-live');
   }
-  receipt.measurements = require('./f05-measurements.cjs')(measurementsPath);
+  receipt.measurements = require('./f05-measurements.cjs')(measurementsPath, true);
   receipt.status = 'PASS';
   receipt.passed = true;
 } catch (error) {
