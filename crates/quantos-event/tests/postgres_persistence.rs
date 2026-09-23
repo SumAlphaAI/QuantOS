@@ -26,6 +26,23 @@ use url::Url;
 use uuid::Uuid;
 
 #[test]
+fn postgres_connection_failures_are_closed_for_plain_and_tls_clients() {
+    for sslmode in ["disable", "require"] {
+        let url = format!(
+            "postgresql://postgres@127.0.0.1:1/postgres?connect_timeout=1&sslmode={sslmode}"
+        );
+        assert!(matches!(
+            PgEventStore::connect(&url),
+            Err(PgEventStoreError::Postgres(_))
+        ));
+    }
+    assert!(matches!(
+        PgEventStore::connect("not a PostgreSQL URL"),
+        Err(PgEventStoreError::Url(_))
+    ));
+}
+
+#[test]
 fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
     let Some(database_url) = live_database_url() else {
         return;

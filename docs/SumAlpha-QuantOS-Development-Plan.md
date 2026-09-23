@@ -254,7 +254,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-23 同 SHA b4f1c9a2333e1b847070e0851f5afdecaab6b003 的 QuantOS CI 与正式验签通过；远端 Nightly 的万条完整链取回 117.336603ms，但 PostgreSQL 适配器 region 84.31% 未达 85%，隔离 Supabase 目标回放也因跨区域 pooler 完整载荷传输中断而失败。A07、A09 仍待修复后同 SHA 三项复验；当前保持 FIX_VALIDATION、27 PASS / 3 PARTIAL，严格验收完成率 90%。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)及[本轮验收记录](./audit/F05-acceptance-b4f1c9a-2026-09-23.md)。
+- review_conclusion: 2026-09-23 同 SHA 88cf19fb83f518d6f7bc739068434c738fac5c8d 的 QuantOS CI、正式签名/下载验签和隔离 Supabase 目标 Gate 均通过；远端 Nightly 的万条完整链取回 155.790293ms，满足 ≤5 秒，但 PostgreSQL 适配器 region 606/714=84.87%，未达 85%，因此 Nightly 整体失败。A07、A09 仍待下一修复 SHA 的同 SHA 三项复验；当前保持 FIX_VALIDATION、27 PASS / 3 PARTIAL，严格验收完成率 90%。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)及[本轮验收记录](./audit/F05-acceptance-88cf19f-2026-09-23.md)。
 - issues:
   - issue_id: F05-A07
     severity: MEDIUM

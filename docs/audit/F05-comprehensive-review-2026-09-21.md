@@ -7,6 +7,8 @@
 
 > 2026-09-23 复验更新：`b4f1c9a2333e1b847070e0851f5afdecaab6b003` 的 [三项回执](./F05-acceptance-b4f1c9a-2026-09-23.md)显示 CI 成功，但 Nightly 单文件 region 84.31% 与隔离 Supabase 完整载荷传输失败；下文 2026-09-21 的本机统计是历史基线，不能作为当前最终验收。A07、A09 继续开放，新 SHA 须重跑三项。
 
+> 同日后续复验：`88cf19fb83f518d6f7bc739068434c738fac5c8d` 的 [三项回执](./F05-acceptance-88cf19f-2026-09-23.md)显示 CI 和隔离 Supabase 均 PASS；Nightly 万条正式消费与完整链查询达标，但 Linux `pg.rs` region 606/714=84.87%，仍低于 85%。A07、A09 仍保持开放，待下一修复 SHA 的 Nightly 及同 SHA 三项终态通过。
+
 ## 一、任务完成概况
 
 重新对照初审 A01–A11、当前实现、测试代码和既有回执核查后，确认租约 fencing、append-only 约束、actor/causation、租户隔离回放、死信恢复、失败关闭门禁、Realtime 补偿以及运行文档已完成。已解决问题不再列入活动问题清单，历史描述可通过 Git 中 `4e6f784` 版本追溯。
