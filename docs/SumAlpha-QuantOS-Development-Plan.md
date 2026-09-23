@@ -253,33 +253,10 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-23 同 SHA 88cf19fb83f518d6f7bc739068434c738fac5c8d 的 QuantOS CI、正式签名/下载验签和隔离 Supabase 目标 Gate 均通过；远端 Nightly 的万条完整链取回 155.790293ms，满足 ≤5 秒，但 PostgreSQL 适配器 region 606/714=84.87%，未达 85%，因此 Nightly 整体失败。A07、A09 仍待下一修复 SHA 的同 SHA 三项复验；当前保持 FIX_VALIDATION、27 PASS / 3 PARTIAL，严格验收完成率 90%。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)及[本轮验收记录](./audit/F05-acceptance-88cf19f-2026-09-23.md)。
-- issues:
-  - issue_id: F05-A07
-    severity: MEDIUM
-    description: 完整源文件覆盖率与适配器独立阈值已修复、本机达标；待远端 nightly 和 Supabase 新回执后最终关闭。
-    evidence: docs/audit/evidence/F05-A07-A09-local-28437b7.json
-    status: FIXED_LOCAL
-  - issue_id: F05-A09
-    severity: MEDIUM
-    description: 正式消费者万条消费、持久化计数及完整客户端查询已通过本机验证；待远端和目标新回执后最终关闭。
-    evidence: docs/audit/evidence/F05-A07-A09-local-28437b7.json
-    status: FIXED_LOCAL
-- fix_tracking:
-  - issue_id: F05-A07
-    fix_ref: 28437b782499e1c840261ae2a73b5d9a629f9c9b
-    verification_command: make f05-db-coverage
-    verification_environment: disposable-loopback-postgresql 17.11; nightly; QUANTOS_F05_BRANCH=1; clean SHA
-    verification_evidence: docs/audit/evidence/F05-A07-A09-local-28437b7.json
-    verification_status: PASS
-  - issue_id: F05-A09
-    fix_ref: 28437b782499e1c840261ae2a73b5d9a629f9c9b
-    verification_command: make f05-db-coverage
-    verification_environment: disposable-loopback-postgresql 17.11; clean SHA
-    verification_evidence: docs/audit/evidence/F05-A07-A09-local-28437b7.json
-    verification_status: PASS
-- 验证范围：上列 PASS 仅指同 SHA 本机验证，FIXED_LOCAL 不代表最终验收关闭；未取得的远端和目标回执不得以本机结果替代。
+- review_status: `ACCEPTED`
+- review_conclusion: 2026-09-23 以完整 SHA 48d837692b81e56bd88e13189f0cf15ee34976d3 完成三项同 SHA 验收：QuantOS CI #117 整体 SUCCESS，正式签名与独立下载验签确认 236 个发布文件；F05 Event Nightly #7 SUCCESS，10,000 条正式消费和唯一副作用全部对齐、完整事件链取回 160.233317ms，Linux pg.rs region 607/714=85.014%；隔离 Supabase 目标 Gate PASS，15 项 migration、RLS、真实 Storage 及万条一致性通过。30/30 检查点 PASS，初审 11/11 问题关闭。目标 Supabase 的跨区域 ID 链时延仅作完整性观测，不能外推为该环境完整载荷 ≤5 秒。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)及[同 SHA 正式验收](./audit/F05-acceptance-48d8376-2026-09-23.md)。
+- issues: []
+- fix_tracking: []
 
 <a id="task-f06"></a>
 ### F06：身份、授权、秘密引用与主上下文
