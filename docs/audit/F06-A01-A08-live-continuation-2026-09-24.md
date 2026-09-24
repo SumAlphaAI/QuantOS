@@ -35,3 +35,7 @@
 - **A01/A08 仍为 `OPEN`，F06 保持 `FIX_VALIDATION`。** live router 仍只挂载 F06 身份路由，正式页面 API 的 capability/403/404、MFA challenge/reauth、跨页面会话撤销流未接真实 provider；不能挂入参考 provider 固定夹具。
 - 当前没有实际 HTTPS Terminal Origin。合成 Origin 烟测不等于浏览器验收。需要可访问的本地 HTTPS Terminal 或 staging Terminal 后再设置 `QUANTOS_TERMINAL_ORIGIN`，执行浏览器登录与 AAL2 MFA。
 - 在正式页面路由落地后，针对同一完整 `sourceCommit` 重新收集目标 HTTP 四类拒绝计数、角色/SQLSTATE、会话撤销和页面 capability 回执；本轮隔离库与本机服务验证不能直接关闭 A01/A08。
+
+## 提交后同 SHA 复验
+
+代码提交 `f1c27bfc4f10cc6ab0d1f2ba821254f8c1abddda` 上重新运行：`make f06-bff-login-check` PASS、`make f06-bff-live-smoke` 9 项 PASS、`make f06-denial-matrix` 4/4 PASS、`make f06-bff-session-check` PASS、`make f06-vault-check` 8/8 PASS。Vault Gate 的第一次尝试在连接阶段报 `Connection terminated unexpectedly`，未计结果；第二次在同一 SHA 完整运行并通过。这些是隔离项目和本机 live 进程的复验，仍不是已部署 Terminal/全部页面 API 的正式目标回执。
