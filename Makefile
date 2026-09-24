@@ -233,6 +233,10 @@ f06-runtime-login-check:
 	@test -n "$$QUANTOS_RUNTIME_DATABASE_URL" || (echo "QUANTOS_RUNTIME_DATABASE_URL is required." >&2; exit 1)
 	@node scripts/f06-runtime-login-check.cjs
 
+f06-runtime-live-smoke:
+	cargo build -p bff-gateway -p runtime-gateway --locked
+	@node scripts/f06-runtime-live-smoke.cjs
+
 f06-bff-login-check:
 	@test -n "$$QUANTOS_BFF_DATABASE_URL" || (echo "QUANTOS_BFF_DATABASE_URL is required." >&2; exit 1)
 	QUANTOS_RUN_F06_BFF_LOGIN_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context dedicated_bff_login_uses_verified_tls_and_narrow_role --locked -- --exact --nocapture
