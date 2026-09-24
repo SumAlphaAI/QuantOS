@@ -2,9 +2,11 @@
 
 > 2026-09-24。仅用于已确认的隔离 Supabase 项目。`.env.local` 已被 Git 忽略，须保持权限 `0600`；不要在聊天或提交中粘贴数据库口令、API key、访问令牌或测试用户口令。
 
+> 状态更新：独立 BFF 登录、CA、publishable key 与隔离测试身份已完成配置和复验，见 [live 续修记录](./F06-A01-A08-live-continuation-2026-09-24.md)。以下角色与身份创建脚本是一次性操作，当前项目不要重复运行。
+
 ## 已自动完成
 
-- `make f06-bff-preflight` 已只读确认：`DATABASE_URL` 与 `SUPABASE_URL` 属于同一项目；`quantos_bff` 组角色存在；operator 有创建角色权限；尚无 `quantos_bff_login`、publishable key、BFF URL 和 Terminal Origin。
+- 初始 `make f06-bff-preflight` 只读确认：`DATABASE_URL` 与 `SUPABASE_URL` 属于同一项目；`quantos_bff` 组角色存在；operator 有创建角色权限。当时尚无独立登录、publishable key、BFF URL 和 Terminal Origin；前三项现已配置并通过 Gate，Terminal Origin 仍待真实 HTTPS 入口。
 - `.env.local` 权限已收紧为 `0600`。
 - `make f06-bff-provision` 已准备好：只在设置 `QUANTOS_F06_ISOLATED_PROJECT=1` 且项目 CA 严格校验通过后，为确认过的隔离项目创建 `quantos_bff_login`，只授予 `quantos_bff`，生成独立随机口令，并把 `sslmode=verify-full` 的 `QUANTOS_BFF_DATABASE_URL` 写入本机 `.env.local`。脚本拒绝覆盖现有登录或 URL，不输出口令。
 
@@ -14,7 +16,7 @@
 2. **Publishable key**：在相同项目的 **Settings → API Keys** 复制 `sb_publishable_...`，本机 `.env.local` 加 `SUPABASE_PUBLISHABLE_KEY=...`。不要使用 `SUPABASE_SERVICE_ROLE_KEY` 或 `sb_secret_...`。若项目尚无 publishable key，先在该页面创建。[Supabase API key 文档](https://supabase.com/docs/guides/getting-started/api-keys)。
 3. **Terminal Origin（启动 live BFF 时才需要）**：目前 Terminal 尚未部署，仓库 `local-integrated` 开发入口是 `http://localhost:3100`，而 live BFF 要求 HTTPS Origin，因此**现在不要填 `QUANTOS_TERMINAL_ORIGIN`**，也不要把 staging 示例域名冒充真实入口。这不阻止独立数据库登录的预检与创建。实际通过 HTTPS 启动本地 Terminal 后，填 `QUANTOS_TERMINAL_ORIGIN=https://localhost:3100`；或在 staging Terminal 真正上线后，填其实际 HTTPS origin（只有 scheme、host、可选端口；无路径或尾斜杠）。同时设置 `QUANTOS_BFF_ENVIRONMENT=dev` 或 `staging`，与运行环境一致。
 
-完成 CA 证书配置并确认项目确属隔离测试环境后，即可告知“CA 已配置”，无需把值发到聊天。我会运行 `make f06-bff-preflight`、`QUANTOS_F06_ISOLATED_PROJECT=1 make f06-bff-provision`，随后用新登录执行严格 TLS 和角色权限验证。Publishable key 与 Terminal Origin 可以在启动 live BFF 前再配置。新登录的 Supabase shared session pooler 用户名格式是 `quantos_bff_login.<project-ref>`；脚本自动生成该 URL。必须使用 `5432` session pooler 或可达的 direct 连接，不能用 `6543` transaction pooler承载进程级 `SET ROLE`。[Supabase 连接文档](https://supabase.com/docs/guides/database/connecting-to-postgres)。
+在新的隔离项目首次配置时，完成 CA 证书并确认项目用途后才运行 `make f06-bff-preflight` 和 `QUANTOS_F06_ISOLATED_PROJECT=1 make f06-bff-provision`。**当前项目已经完成，不要再次运行 provision。** Publishable key 与 Terminal Origin 在启动 live BFF 前配置。新登录的 Supabase shared session pooler 用户名格式是 `quantos_bff_login.<project-ref>`；脚本自动生成该 URL。必须使用 `5432` session pooler 或可达的 direct 连接，不能用 `6543` transaction pooler承载进程级 `SET ROLE`。[Supabase 连接文档](https://supabase.com/docs/guides/database/connecting-to-postgres)。
 
 ## 测试身份
 

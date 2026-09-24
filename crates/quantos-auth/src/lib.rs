@@ -3,8 +3,10 @@ use std::collections::BTreeSet;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{DateTime, Utc};
 use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{Client, NoTls, Row, types::Type};
 use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector as MakeOpenSslConnector;
 use quantos_core::{AccountId, ActorId, TenantId, WorkspaceId};
 use quantos_policy::{
     AuthorizationRequirement, Capability, PolicyContext, PolicyEngine, PolicyError, Role, RunMode,
@@ -71,6 +73,8 @@ pub enum AuthError {
     Url(#[from] url::ParseError),
     #[error(transparent)]
     Tls(#[from] native_tls::Error),
+    #[error(transparent)]
+    OpenSsl(#[from] openssl::error::ErrorStack),
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]
@@ -501,11 +505,20 @@ fn require_narrow_login(client: &mut Client, expected: ApplicationRole) -> Resul
                 pg_has_role(session_user, 'pg_write_all_data', 'MEMBER') as write_all,
                 pg_has_role(session_user, 'quantos_bff', 'SET') as can_set_bff,
                 pg_has_role(session_user, 'quantos_execution_gateway', 'SET') as can_set_execution,
-                case when to_regclass('vault.decrypted_secrets') is null then true
+                case when not exists (
+                       select 1 from pg_class as vault_view
+                       join pg_namespace as vault_schema on vault_schema.oid = vault_view.relnamespace
+                       where vault_schema.nspname = 'vault'
+                         and vault_view.relname = 'decrypted_secrets'
+                     ) then true
                      else exists (
                        select 1 from pg_roles as reachable
+                       cross join pg_class as vault_view
+                       join pg_namespace as vault_schema on vault_schema.oid = vault_view.relnamespace
                        where pg_has_role(session_user::regrole::oid, reachable.oid, 'SET')
-                         and has_table_privilege(reachable.oid, 'vault.decrypted_secrets', 'SELECT')
+                         and vault_schema.nspname = 'vault'
+                         and vault_view.relname = 'decrypted_secrets'
+                         and has_table_privilege(reachable.oid, vault_view.oid, 'SELECT')
                      )
                 end as vault_reader
          from pg_roles as r where r.rolname = session_user",
@@ -639,6 +652,17 @@ impl GatewayAuthMiddleware {
         self.store.load_bff_session_context(raw_session, account_id)
     }
 
+    pub fn authorize_bff_session(
+        &mut self,
+        raw_session: &str,
+        account_id: Option<AccountId>,
+        requirement: &AuthorizationRequirement,
+    ) -> Result<BffSessionContext, AuthError> {
+        let context = self.load_bff_session_context(raw_session, account_id)?;
+        PolicyEngine::authorize_action(&context.auth.policy_context(), requirement)?;
+        Ok(context)
+    }
+
     pub fn revoke_bff_session(&mut self, raw_session: &str) -> Result<(), AuthError> {
         self.store.revoke_bff_session(raw_session)
     }
@@ -656,12 +680,29 @@ fn connect_client(database_url: &str) -> Result<Client, AuthError> {
     let relaxed_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
+    // The connector performs CA and hostname verification. The postgres URL
+    // parser does not accept libpq's verify-full or sslrootcert options, so
+    // remove only those options before building its connection configuration.
+    let remaining_options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+        .map(|(key, value)| (key.into_owned(), value.into_owned()))
+        .collect::<Vec<_>>();
+    let mut connection_url = url.clone();
+    connection_url.set_query(None);
+    if !remaining_options.is_empty() {
+        connection_url
+            .query_pairs_mut()
+            .extend_pairs(remaining_options);
+    }
+    let mut config: postgres::Config = connection_url.as_str().parse()?;
     if disable_tls {
         if !matches!(url.host_str(), Some("localhost" | "127.0.0.1" | "::1")) {
             return Err(AuthError::InsecureDatabaseTransport);
         }
-        Ok(Client::connect(database_url, NoTls)?)
-    } else {
+        config.ssl_mode(postgres::config::SslMode::Disable);
+        Ok(config.connect(NoTls)?)
+    } else if relaxed_tls {
         let mut builder = TlsConnector::builder();
         if let Some(root_path) = url
             .query_pairs()
@@ -671,14 +712,28 @@ fn connect_client(database_url: &str) -> Result<Client, AuthError> {
             let root = native_tls::Certificate::from_pem(&std::fs::read(root_path)?)?;
             builder.add_root_certificate(root);
         }
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
-        }
+        builder.danger_accept_invalid_certs(true);
         let connector = builder.build()?;
-        Ok(Client::connect(
-            database_url,
-            MakeTlsConnector::new(connector),
-        )?)
+        config.ssl_mode(postgres::config::SslMode::Require);
+        Ok(config.connect(MakeTlsConnector::new(connector))?)
+    } else {
+        // macOS native TLS rejects some Supabase pooler certificates because
+        // of Apple's leaf lifetime policy even when their CA and hostname
+        // verify. OpenSSL performs standards-based verification for the live
+        // application path, with no certificate or hostname bypass.
+        let mut builder = SslConnector::builder(SslMethod::tls())?;
+        builder.set_verify(SslVerifyMode::PEER);
+        if let Some(root_path) = url
+            .query_pairs()
+            .find(|(key, _)| key == "sslrootcert")
+            .map(|(_, value)| value.into_owned())
+        {
+            builder.set_ca_file(root_path)?;
+        } else {
+            builder.set_default_verify_paths()?;
+        }
+        config.ssl_mode(postgres::config::SslMode::Require);
+        Ok(config.connect(MakeOpenSslConnector::new(builder.build()))?)
     }
 }
 

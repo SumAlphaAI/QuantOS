@@ -279,7 +279,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-24 F06 初审 3/18 完成，10 项问题继续修复验证；隔离 PostgreSQL/Vault Gate 已建立，续修后开发机跨区域鉴权读 100 次 P95 为 651ms（要求 <500ms），同区域、正式 OIDC/BFF 与 Execution 运行回执及可验证 TLS 服务连接缺失，暂不验收。详见 [F06 续修记录](./audit/F06-continuation-2026-09-24.md)。
+- review_conclusion: 2026-09-24 F06 初审 3/18 完成，10 项问题继续修复验证；隔离库独立 BFF 登录、真实 Supabase Auth 身份、严格 TLS 和 live 身份路由烟测已通过，四类拒绝 4/4 与四角色 Vault SQL 拒绝 8/8。正式页面 API、浏览器 Terminal Origin、MFA AAL2、同 SHA 目标回执仍缺；开发机跨区域鉴权读 P95 651ms（要求 <500ms），同区域与 Execution 闭环未验收。详见 [F06 live 续修](./audit/F06-A01-A08-live-continuation-2026-09-24.md)及[前次记录](./audit/F06-continuation-2026-09-24.md)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER

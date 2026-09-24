@@ -469,6 +469,26 @@ fn bff_session_is_bound_to_its_primary_account_and_revocation() {
         .expect("load primary account");
     assert_eq!(context.auth.account_id, Some(fixture_a.account_id));
     assert!(!context.mfa_verified);
+    middleware
+        .authorize_bff_session(
+            &raw,
+            None,
+            &AuthorizationRequirement::new(
+                Capability::parse(Capability::EXECUTION_OPERATE).unwrap(),
+            )
+            .requiring_account(),
+        )
+        .expect("primary BFF session has its scoped capability");
+    assert!(matches!(
+        middleware.authorize_bff_session(
+            &raw,
+            None,
+            &AuthorizationRequirement::new(
+                Capability::parse(Capability::STRATEGY_APPROVE).unwrap()
+            ),
+        ),
+        Err(quantos_auth::AuthError::Policy(_))
+    ));
     assert!(matches!(
         middleware.load_bff_session_context(&raw, Some(fixture_b.account_id)),
         Err(quantos_auth::AuthError::HiddenAccount)
@@ -506,6 +526,35 @@ fn operator_connection_cannot_be_reused_without_verified_tls() {
     assert!(
         ExecutionSecretStore::connect(&database_url).is_err(),
         "operator URL without verify-full must not become an Execution connection"
+    );
+}
+
+#[test]
+fn dedicated_bff_login_uses_verified_tls_and_narrow_role() {
+    let database_url = match env::var("QUANTOS_BFF_DATABASE_URL")
+        .ok()
+        .filter(|v| !v.is_empty())
+    {
+        Some(url) => url,
+        None => {
+            assert_ne!(
+                env::var("QUANTOS_RUN_F06_BFF_LOGIN_TESTS").as_deref(),
+                Ok("1"),
+                "F06 dedicated BFF login check requires QUANTOS_BFF_DATABASE_URL"
+            );
+            eprintln!("NOT RUN: dedicated BFF login is not configured");
+            return;
+        }
+    };
+    let mut store = PgAuthStore::connect_as_bff(&database_url)
+        .expect("dedicated BFF login must connect with verified TLS and assume only quantos_bff");
+    let missing = store.load_user_context(Uuid::now_v7(), TenantId::new(), RunMode::Paper, None);
+    assert!(
+        matches!(
+            missing,
+            Err(quantos_auth::AuthError::MissingIdentityMapping { .. })
+        ),
+        "BFF login must read scoped identity tables without broad privileges"
     );
 }
 

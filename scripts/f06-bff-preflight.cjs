@@ -50,14 +50,15 @@ async function main() {
         verifiedTls = true;
       } catch (error) {
         verifiedTls = false;
-        verifiedTlsError = error.code || error.message;
+        verifiedTlsError = error.code || error.name;
       } finally {
         await strict.end().catch(() => {});
       }
     }
     console.log(JSON.stringify({
-      status: sameProject && row.bff_group_exists && row.can_create_roles
-        ? 'READY_FOR_CONFIGURATION' : 'BLOCKED',
+      status: sameProject && row.bff_group_exists && row.can_create_roles && verifiedTls
+        ? (row.bff_login_exists ? 'READY_FOR_LIVE_VALIDATION' : 'READY_FOR_CONFIGURATION')
+        : 'BLOCKED',
       sameProject,
       databaseConnectionMode: database.port === '6543' ? 'transaction_pooler' : 'session_or_direct',
       databaseSslMode: sslmode,
@@ -65,13 +66,15 @@ async function main() {
       bffGroupExists: row.bff_group_exists,
       bffLoginExists: row.bff_login_exists,
       postgresMajor: Math.floor(row.server_version_num / 10000),
+      verifiedTls,
       hasPublishableKey: Boolean(process.env.SUPABASE_PUBLISHABLE_KEY),
       hasBffDatabaseUrl: Boolean(process.env.QUANTOS_BFF_DATABASE_URL),
       hasTerminalOrigin: Boolean(process.env.QUANTOS_TERMINAL_ORIGIN),
-      verifiedTls,
       verifiedTlsError,
     }));
-    if (!sameProject || !row.bff_group_exists || !row.can_create_roles) process.exitCode = 1;
+    if (!sameProject || !row.bff_group_exists || !row.can_create_roles || !verifiedTls) {
+      process.exitCode = 1;
+    }
   } finally {
     await client.end();
   }
