@@ -1,4 +1,5 @@
 const { Client } = require('pg');
+const fs = require('node:fs');
 
 async function main() {
   if (!process.env.DATABASE_URL || !process.env.SUPABASE_URL) {
@@ -29,6 +30,31 @@ async function main() {
       exists(select 1 from pg_roles where rolname='quantos_bff' and not rolcanlogin) as bff_group_exists,
       exists(select 1 from pg_roles where rolname='quantos_bff_login') as bff_login_exists,
       current_setting('server_version_num')::int as server_version_num`)).rows[0];
+    let verifiedTls = null;
+    let verifiedTlsError = null;
+    if (process.env.QUANTOS_BFF_SSLROOTCERT) {
+      const strict = new Client({
+        host: database.hostname,
+        port: Number(database.port || 5432),
+        user: decodeURIComponent(database.username),
+        password: decodeURIComponent(database.password),
+        database: database.pathname.slice(1) || 'postgres',
+        ssl: {
+          ca: fs.readFileSync(process.env.QUANTOS_BFF_SSLROOTCERT, 'utf8'),
+          rejectUnauthorized: true,
+        },
+        connectionTimeoutMillis: 10000,
+      });
+      try {
+        await strict.connect();
+        verifiedTls = true;
+      } catch (error) {
+        verifiedTls = false;
+        verifiedTlsError = error.code || error.message;
+      } finally {
+        await strict.end().catch(() => {});
+      }
+    }
     console.log(JSON.stringify({
       status: sameProject && row.bff_group_exists && row.can_create_roles
         ? 'READY_FOR_CONFIGURATION' : 'BLOCKED',
@@ -42,6 +68,8 @@ async function main() {
       hasPublishableKey: Boolean(process.env.SUPABASE_PUBLISHABLE_KEY),
       hasBffDatabaseUrl: Boolean(process.env.QUANTOS_BFF_DATABASE_URL),
       hasTerminalOrigin: Boolean(process.env.QUANTOS_TERMINAL_ORIGIN),
+      verifiedTls,
+      verifiedTlsError,
     }));
     if (!sameProject || !row.bff_group_exists || !row.can_create_roles) process.exitCode = 1;
   } finally {

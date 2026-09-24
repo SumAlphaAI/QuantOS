@@ -10,7 +10,7 @@
 
 ## 需要项目管理员提供的三项配置
 
-1. **数据库 CA 证书**：在同一个 Supabase 项目的 **Settings → Database → SSL Configuration → Download Certificate** 下载 PEM/CRT，保存到本机仅当前用户可读的绝对路径。在 `.env.local` 加一行 `QUANTOS_BFF_SSLROOTCERT=/绝对路径/证书.pem`。下载证书不改变数据库设置；不要关闭 SSL 验证。若当前 pooler 仍报证书链或有效期错误，需要在 Dashboard 的 **Connect** 中选择证书可验证的 direct 或 session endpoint，再由我验证；不能把应用 URL 降级为 `sslmode=require`。[Supabase SSL 文档](https://supabase.com/docs/guides/platform/ssl-enforcement)、[连接方式](https://supabase.com/docs/guides/database/connecting-to-postgres)。
+1. **数据库 CA 证书**：在同一个 Supabase 项目的 **Settings → Database → SSL Configuration → Download Certificate** 下载 `prod-ca-2021.crt`，保存到本机绝对路径。`.crt` 是文件名后缀，下载内容本身是 PEM 编码，直接写 `QUANTOS_BFF_SSLROOTCERT=/绝对路径/prod-ca-2021.crt`，无需改名或转换。下载证书不改变数据库设置；不要关闭 SSL 验证。若当前 pooler 仍报证书链或有效期错误，需要在 Dashboard 的 **Connect** 中选择证书可验证的 direct 或 session endpoint，再由我验证；不能把应用 URL 降级为 `sslmode=require`。[Supabase SSL 文档](https://supabase.com/docs/guides/platform/ssl-enforcement)、[连接方式](https://supabase.com/docs/guides/database/connecting-to-postgres)。
 2. **Publishable key**：在相同项目的 **Settings → API Keys** 复制 `sb_publishable_...`，本机 `.env.local` 加 `SUPABASE_PUBLISHABLE_KEY=...`。不要使用 `SUPABASE_SERVICE_ROLE_KEY` 或 `sb_secret_...`。若项目尚无 publishable key，先在该页面创建。[Supabase API key 文档](https://supabase.com/docs/guides/getting-started/api-keys)。
 3. **Terminal Origin**：将浏览器实际使用的 HTTPS origin（只有 scheme、host、可选端口；无尾斜杠或路径）写入 `QUANTOS_TERMINAL_ORIGIN=https://...`。同时写 `QUANTOS_BFF_ENVIRONMENT=dev` 或 `staging`，与该隔离项目的用途一致。仓库 `env/staging.env.example` 的 `https://app.staging.sumalpha.ai` 只是候选值，必须先确认它确实是本次终端入口。
 
