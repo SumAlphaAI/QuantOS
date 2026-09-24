@@ -25,3 +25,5 @@ production credentials. See `docs/audit/F06-remediation-2026-09-24.md`.
 Run `cargo test -p bff-gateway` and `make bff-contract-check`. The executable
 entrypoint is `cargo run -p bff-gateway`; bind/configuration details live in
 `src/main.rs`. Never supply production credentials for local verification.
+For isolated F06 live setup, run `make f06-bff-preflight` and follow
+`docs/audit/F06-BFF-setup-runbook-2026-09-24.md`.

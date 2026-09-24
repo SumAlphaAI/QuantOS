@@ -1,0 +1,25 @@
+# F06 独立 BFF 与真实身份测试配置清单
+
+> 2026-09-24。仅用于已确认的隔离 Supabase 项目。`.env.local` 已被 Git 忽略，须保持权限 `0600`；不要在聊天或提交中粘贴数据库口令、API key、访问令牌或测试用户口令。
+
+## 已自动完成
+
+- `make f06-bff-preflight` 已只读确认：`DATABASE_URL` 与 `SUPABASE_URL` 属于同一项目；`quantos_bff` 组角色存在；operator 有创建角色权限；尚无 `quantos_bff_login`、publishable key、BFF URL 和 Terminal Origin。
+- `.env.local` 权限已收紧为 `0600`。
+- `make f06-bff-provision` 已准备好：只在设置 `QUANTOS_F06_ISOLATED_PROJECT=1` 且项目 CA 严格校验通过后，为确认过的隔离项目创建 `quantos_bff_login`，只授予 `quantos_bff`，生成独立随机口令，并把 `sslmode=verify-full` 的 `QUANTOS_BFF_DATABASE_URL` 写入本机 `.env.local`。脚本拒绝覆盖现有登录或 URL，不输出口令。
+
+## 需要项目管理员提供的三项配置
+
+1. **数据库 CA 证书**：在同一个 Supabase 项目的 **Settings → Database → SSL Configuration → Download Certificate** 下载 PEM/CRT，保存到本机仅当前用户可读的绝对路径。在 `.env.local` 加一行 `QUANTOS_BFF_SSLROOTCERT=/绝对路径/证书.pem`。下载证书不改变数据库设置；不要关闭 SSL 验证。若当前 pooler 仍报证书链或有效期错误，需要在 Dashboard 的 **Connect** 中选择证书可验证的 direct 或 session endpoint，再由我验证；不能把应用 URL 降级为 `sslmode=require`。[Supabase SSL 文档](https://supabase.com/docs/guides/platform/ssl-enforcement)、[连接方式](https://supabase.com/docs/guides/database/connecting-to-postgres)。
+2. **Publishable key**：在相同项目的 **Settings → API Keys** 复制 `sb_publishable_...`，本机 `.env.local` 加 `SUPABASE_PUBLISHABLE_KEY=...`。不要使用 `SUPABASE_SERVICE_ROLE_KEY` 或 `sb_secret_...`。若项目尚无 publishable key，先在该页面创建。[Supabase API key 文档](https://supabase.com/docs/guides/getting-started/api-keys)。
+3. **Terminal Origin**：将浏览器实际使用的 HTTPS origin（只有 scheme、host、可选端口；无尾斜杠或路径）写入 `QUANTOS_TERMINAL_ORIGIN=https://...`。同时写 `QUANTOS_BFF_ENVIRONMENT=dev` 或 `staging`，与该隔离项目的用途一致。仓库 `env/staging.env.example` 的 `https://app.staging.sumalpha.ai` 只是候选值，必须先确认它确实是本次终端入口。
+
+完成这三项后告知“已配置”，无需把值发到聊天。我会运行 `make f06-bff-preflight`、`QUANTOS_F06_ISOLATED_PROJECT=1 make f06-bff-provision`，随后用新登录执行严格 TLS 和角色权限验证。新登录的 Supabase shared session pooler 用户名格式是 `quantos_bff_login.<project-ref>`；脚本自动生成该 URL。必须使用 `5432` session pooler 或可达的 direct 连接，不能用 `6543` transaction pooler承载进程级 `SET ROLE`。[Supabase 连接文档](https://supabase.com/docs/guides/database/connecting-to-postgres)。
+
+## 测试身份
+
+最省事的路径是在确认项目隔离后，由我使用现有受控 Auth Admin 凭据创建**专用测试用户**，随机生成口令并只存本机 `.env.local`，再为该 `auth.users` 身份建立唯一测试 tenant、active actor、Primary workspace、paper account 和最小 capability 映射，执行真实 Supabase Auth 登录到 live BFF 的回执。若你希望测试身份绑定自己可收信的邮箱，可在同一项目的 **Authentication → Users → Add user → Send invitation** 创建；只需在本机 `.env.local` 写 `QUANTOS_F06_TEST_EMAIL=你的测试邮箱`，不要向聊天发送口令。涉及 MFA 的测试需要你用认证器完成一次 TOTP 绑定与挑战；我随后可验证 `aal2` 会话。邮件用户能证明真实 Supabase Auth；若本次验收必须覆盖外部 OIDC 提供商，还需在隔离项目启用相应 provider 并使用该 provider 的专用测试身份。[Supabase 用户邀请](https://supabase.com/docs/guides/auth/users)、[MFA 文档](https://supabase.com/docs/guides/auth/auth-mfa)。
+
+## 验收边界
+
+当前可自动执行的是同项目检查、独立数据库登录创建、严格 TLS/最小权限验证、测试映射、live BFF 会话及负向探针。正式页面 API 尚未全部挂入 live router，因此这些配置本身不能关闭 F06-A01/A08；仍需目标 HTTP 矩阵与同一完整提交 SHA 回执。

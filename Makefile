@@ -198,6 +198,12 @@ f06-bff-session-check:
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F06 BFF session check." >&2; exit 1)
 	QUANTOS_RUN_F06_POSTGRES_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context bff_session_is_bound_to_its_primary_account_and_revocation --locked -- --exact --nocapture
 
+f06-bff-preflight:
+	@node scripts/f06-bff-preflight.cjs
+
+f06-bff-provision:
+	@node scripts/f06-bff-provision.cjs
+
 f06-acceptance-gate:
 	node scripts/check-f06-acceptance.mjs
 
