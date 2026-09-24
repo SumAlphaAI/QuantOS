@@ -4,9 +4,10 @@ use axum::{
     Json, Router,
     extract::State,
     http::{HeaderMap, HeaderName, HeaderValue, Method, StatusCode, header},
+    response::{IntoResponse, Response},
     routing::{get, post},
 };
-use quantos_auth::{GatewayAuthMiddleware, SupabaseAuthVerifier};
+use quantos_auth::{AuthError, GatewayAuthMiddleware, SupabaseAuthVerifier};
 use quantos_core::AccountId;
 use serde_json::{Value, json};
 use tower_http::cors::CorsLayer;
@@ -17,6 +18,50 @@ struct LiveState {
     middleware: Mutex<GatewayAuthMiddleware>,
     terminal_origin: String,
     environment: String,
+}
+
+struct LiveError(StatusCode);
+
+impl From<StatusCode> for LiveError {
+    fn from(status: StatusCode) -> Self {
+        Self(status)
+    }
+}
+
+impl IntoResponse for LiveError {
+    fn into_response(self) -> Response {
+        let correlation_id = Uuid::new_v4().to_string();
+        let (code, message) = match self.0 {
+            StatusCode::UNAUTHORIZED => ("UNAUTHENTICATED", "Session is unavailable."),
+            StatusCode::FORBIDDEN => ("FORBIDDEN", "Access denied."),
+            StatusCode::NOT_FOUND => ("NOT_FOUND", "Resource not found."),
+            StatusCode::BAD_REQUEST => ("BAD_REQUEST", "Invalid request."),
+            StatusCode::INTERNAL_SERVER_ERROR => ("INTERNAL_ERROR", "Internal error."),
+            _ => ("SERVICE_UNAVAILABLE", "Service is unavailable."),
+        };
+        let mut headers = HeaderMap::new();
+        headers.insert("x-correlation-id", correlation_id.parse().unwrap());
+        headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+        (
+            self.0,
+            headers,
+            Json(json!({
+                "code": code, "message": message, "correlationId": correlation_id,
+            })),
+        )
+            .into_response()
+    }
+}
+
+fn auth_status(error: AuthError) -> StatusCode {
+    match error {
+        AuthError::HiddenAccount => StatusCode::NOT_FOUND,
+        AuthError::UnverifiedSession
+        | AuthError::AmbiguousPrimaryContext
+        | AuthError::MissingIdentityMapping { .. } => StatusCode::UNAUTHORIZED,
+        AuthError::Policy(_) => StatusCode::FORBIDDEN,
+        _ => StatusCode::SERVICE_UNAVAILABLE,
+    }
 }
 
 /// Real identity surface. The reference-provider routes are deliberately not
@@ -66,7 +111,7 @@ pub fn router(
 async fn session(
     State(state): State<Arc<LiveState>>,
     headers: HeaderMap,
-) -> Result<(HeaderMap, Json<Value>), StatusCode> {
+) -> Result<(HeaderMap, Json<Value>), LiveError> {
     let raw_session = session_cookie(&headers).ok_or(StatusCode::UNAUTHORIZED)?;
     let environment = state.environment.clone();
     let account_id = match headers.get("x-account-id") {
@@ -83,7 +128,7 @@ async fn session(
             .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?;
         middleware
             .load_bff_session_context(&raw_session, account_id)
-            .map_err(|_| StatusCode::UNAUTHORIZED)
+            .map_err(auth_status)
     })
     .await
     .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)??;
@@ -97,6 +142,7 @@ async fn session(
         HeaderValue::from_str(&Uuid::new_v4().to_string())
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
     );
+    response_headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
     Ok((
         response_headers,
         Json(json!({
@@ -117,7 +163,7 @@ async fn session(
 async fn establish_session(
     State(state): State<Arc<LiveState>>,
     headers: HeaderMap,
-) -> Result<(StatusCode, HeaderMap), StatusCode> {
+) -> Result<(StatusCode, HeaderMap), LiveError> {
     require_origin(&headers, &state.terminal_origin)?;
     let token = headers
         .get(header::AUTHORIZATION)
@@ -133,7 +179,7 @@ async fn establish_session(
             .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?;
         middleware
             .issue_bff_session(&state.verifier, &token)
-            .map_err(|_| StatusCode::UNAUTHORIZED)
+            .map_err(auth_status)
     })
     .await
     .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)??;
@@ -144,13 +190,14 @@ async fn establish_session(
         header::SET_COOKIE,
         HeaderValue::from_str(&cookie).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
     );
+    response_headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
     Ok((StatusCode::NO_CONTENT, response_headers))
 }
 
 async fn logout(
     State(state): State<Arc<LiveState>>,
     headers: HeaderMap,
-) -> Result<(StatusCode, HeaderMap), StatusCode> {
+) -> Result<(StatusCode, HeaderMap), LiveError> {
     require_origin(&headers, &state.terminal_origin)?;
     if let Some(raw) = session_cookie(&headers) {
         tokio::task::spawn_blocking(move || {
@@ -172,6 +219,7 @@ async fn logout(
             "quantos_session=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Strict",
         ),
     );
+    response_headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
     Ok((StatusCode::NO_CONTENT, response_headers))
 }
 
@@ -201,8 +249,10 @@ fn require_origin(headers: &HeaderMap, expected: &str) -> Result<(), StatusCode>
 
 #[cfg(test)]
 mod tests {
-    use super::{require_origin, session_cookie};
+    use super::{LiveError, auth_status, require_origin, session_cookie};
     use axum::http::{HeaderMap, HeaderValue, StatusCode, header};
+    use axum::response::IntoResponse;
+    use quantos_auth::AuthError;
 
     #[test]
     fn live_session_requires_opaque_cookie_and_exact_origin() {
@@ -231,5 +281,24 @@ mod tests {
             HeaderValue::from_static("https://terminal.example"),
         );
         assert_eq!(require_origin(&headers, "https://terminal.example"), Ok(()));
+    }
+
+    #[test]
+    fn live_errors_hide_account_existence_and_include_correlation() {
+        assert_eq!(auth_status(AuthError::HiddenAccount), StatusCode::NOT_FOUND);
+        assert_eq!(
+            auth_status(AuthError::UnverifiedSession),
+            StatusCode::UNAUTHORIZED
+        );
+        for status in [
+            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
+            StatusCode::NOT_FOUND,
+        ] {
+            let response = LiveError(status).into_response();
+            assert_eq!(response.status(), status);
+            assert_eq!(response.headers()[header::CACHE_CONTROL], "no-store");
+            assert!(response.headers().contains_key("x-correlation-id"));
+        }
     }
 }

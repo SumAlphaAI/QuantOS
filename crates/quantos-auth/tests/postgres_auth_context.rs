@@ -7,6 +7,7 @@ use postgres_native_tls::MakeTlsConnector;
 use quantos_auth::{ExecutionSecretStore, GatewayAuthMiddleware, PgAuthStore};
 use quantos_core::{AccountId, TenantId};
 use quantos_policy::{AuthorizationRequirement, Capability, RunMode};
+use sha2::{Digest, Sha256};
 use url::Url;
 use uuid::Uuid;
 
@@ -309,6 +310,173 @@ fn authenticated_role_cannot_read_other_tenant_workspace() {
     client
         .batch_execute("rollback")
         .expect("rollback RLS probe");
+}
+
+#[test]
+fn f06_four_category_denial_matrix() {
+    let database_url = match env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) {
+        Some(url) => url,
+        None => {
+            assert_ne!(
+                env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
+                Ok("1"),
+                "F06 denial matrix requires DATABASE_URL"
+            );
+            eprintln!("NOT RUN: F06 denial matrix requires DATABASE_URL");
+            return;
+        }
+    };
+    let tenant_a = TenantId::new();
+    let tenant_b = TenantId::new();
+    let user_a = Uuid::now_v7();
+    let user_b = Uuid::now_v7();
+    let fixture_a = seed_auth_fixture(&database_url, tenant_a, user_a);
+    let _fixture_b = seed_auth_fixture(&database_url, tenant_b, user_b);
+    let mut denied = 0;
+    let mut middleware = GatewayAuthMiddleware::connect(&database_url).expect("connect auth store");
+    let requirement =
+        AuthorizationRequirement::new(Capability::parse(Capability::EXECUTION_OPERATE).unwrap())
+            .requiring_account();
+
+    // 1: An unknown actor or caller-selected tenant cannot create a context.
+    for (user_id, tenant_id) in [(Uuid::now_v7(), tenant_a), (user_a, tenant_b)] {
+        assert!(
+            middleware
+                .authorize_user_request(
+                    &quantos_auth::UserRequestContext {
+                        user_id,
+                        tenant_id,
+                        mode: RunMode::Paper,
+                        account_id: Some(fixture_a.account_id),
+                    },
+                    &requirement
+                )
+                .is_err()
+        );
+    }
+    denied += 1;
+
+    // 2: A real mapped actor cannot invoke an ungranted capability.
+    assert!(
+        middleware
+            .authorize_user_request(
+                &quantos_auth::UserRequestContext {
+                    user_id: user_a,
+                    tenant_id: tenant_a,
+                    mode: RunMode::Paper,
+                    account_id: Some(fixture_a.account_id),
+                },
+                &AuthorizationRequirement::new(
+                    Capability::parse(Capability::STRATEGY_APPROVE).unwrap()
+                )
+            )
+            .is_err()
+    );
+    denied += 1;
+
+    let mut client = connect_client(&database_url).expect("connect role probes");
+    let login: String = client.query_one("select current_user", &[]).unwrap().get(0);
+    let quoted_login = format!("\"{}\"", login.replace('"', "\"\""));
+    client
+        .batch_execute("begin")
+        .expect("start rollback-only role probes");
+    {
+        client
+            .batch_execute(&format!(
+                "grant authenticated, quantos_engine to {quoted_login}; \
+             grant usage on schema quantos to authenticated; \
+             grant select on quantos.workspaces to authenticated; \
+             set local role authenticated"
+            ))
+            .expect("assume authenticated role");
+        client
+            .query_one(
+                "select set_config('request.jwt.claim.sub',$1,true)",
+                &[&user_a.to_string()],
+            )
+            .expect("set authenticated subject");
+        // 3: A direct SQL read cannot bypass RLS to see a second tenant.
+        let count: i64 = client
+            .query_one(
+                "select count(*) from quantos.workspaces where tenant_id=$1",
+                &[tenant_b.as_uuid()],
+            )
+            .expect("RLS read")
+            .get(0);
+        assert_eq!(count, 0, "cross-tenant workspace leaked through RLS");
+        denied += 1;
+        client
+            .batch_execute("reset role; savepoint engine_denial")
+            .unwrap();
+        client
+            .batch_execute("set local role quantos_engine")
+            .expect("assume engine role");
+        // 4: Engine cannot execute the Vault decryption function.
+        let error = client
+            .query(
+                "select quantos.resolve_execution_vault_secret($1,$2,$3)",
+                &[&"invalid-session", &"invalid-secret", &Utc::now()],
+            )
+            .expect_err("Engine reached Vault secret resolver");
+        assert_eq!(
+            error.code(),
+            Some(&postgres::error::SqlState::INSUFFICIENT_PRIVILEGE)
+        );
+        denied += 1;
+    }
+    client
+        .batch_execute("rollback")
+        .expect("rollback role probes");
+    assert_eq!(denied, 4);
+    eprintln!(
+        "F06_DENIAL_MATRIX={{\"status\":\"PASS\",\"denied\":{denied},\"total\":4,\"categories\":[\"missing_actor_or_tenant\",\"capability\",\"rls_bypass\",\"engine_secret\"]}}"
+    );
+}
+
+#[test]
+fn bff_session_is_bound_to_its_primary_account_and_revocation() {
+    let database_url = match env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) {
+        Some(url) => url,
+        None => {
+            assert_ne!(
+                env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
+                Ok("1"),
+                "F06 BFF session test requires DATABASE_URL"
+            );
+            eprintln!("NOT RUN: F06 BFF session test requires DATABASE_URL");
+            return;
+        }
+    };
+    let user_a = Uuid::now_v7();
+    let user_b = Uuid::now_v7();
+    let tenant_a = TenantId::new();
+    let tenant_b = TenantId::new();
+    let fixture_a = seed_auth_fixture(&database_url, tenant_a, user_a);
+    let fixture_b = seed_auth_fixture(&database_url, tenant_b, user_b);
+    let raw = Uuid::new_v4().to_string();
+    let hash = format!("{:x}", Sha256::digest(raw.as_bytes()));
+    let mut client = connect_client(&database_url).expect("connect session fixture");
+    client
+        .execute(
+            "insert into quantos.bff_sessions(session_hash,user_id,expires_at,mfa_verified)
+        values($1,$2,now()+interval '5 minutes',false)",
+            &[&hash, &user_a],
+        )
+        .expect("insert opaque BFF session fixture");
+    let mut middleware = GatewayAuthMiddleware::connect(&database_url).expect("connect auth store");
+    let context = middleware
+        .load_bff_session_context(&raw, None)
+        .expect("load primary account");
+    assert_eq!(context.auth.account_id, Some(fixture_a.account_id));
+    assert!(!context.mfa_verified);
+    assert!(matches!(
+        middleware.load_bff_session_context(&raw, Some(fixture_b.account_id)),
+        Err(quantos_auth::AuthError::HiddenAccount)
+    ));
+    middleware
+        .revoke_bff_session(&raw)
+        .expect("revoke server session");
+    assert!(middleware.load_bff_session_context(&raw, None).is_err());
 }
 
 #[test]

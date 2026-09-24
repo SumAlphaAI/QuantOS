@@ -190,6 +190,14 @@ f06-rls-check:
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for F06 RLS test." >&2; exit 1)
 	QUANTOS_RUN_F06_POSTGRES_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context authenticated_role_cannot_read_other_tenant_workspace --locked -- --exact --nocapture
 
+f06-denial-matrix:
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F06 denial matrix." >&2; exit 1)
+	QUANTOS_RUN_F06_POSTGRES_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context f06_four_category_denial_matrix --locked -- --exact --nocapture
+
+f06-bff-session-check:
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F06 BFF session check." >&2; exit 1)
+	QUANTOS_RUN_F06_POSTGRES_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context bff_session_is_bound_to_its_primary_account_and_revocation --locked -- --exact --nocapture
+
 f06-acceptance-gate:
 	node scripts/check-f06-acceptance.mjs
 

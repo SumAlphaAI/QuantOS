@@ -81,6 +81,8 @@ pub enum AuthError {
     UnverifiedSession,
     #[error("user does not have exactly one active primary tenant/account context")]
     AmbiguousPrimaryContext,
+    #[error("account is unavailable in the current session context")]
+    HiddenAccount,
     #[error("execution database connection did not assume the dedicated gateway role")]
     ExecutionRoleRequired,
     #[error("BFF database connection did not assume the dedicated BFF role")]
@@ -358,29 +360,9 @@ impl PgAuthStore {
     }
 
     fn issue_bff_session(&mut self, user: &VerifiedUser) -> Result<String, AuthError> {
-        // A valid Supabase identity alone is not a QuantOS membership. Refuse
-        // to mint a product session until the primary workspace mapping exists.
-        let eligible: bool = self
-            .client
-            .query_typed_one(
-                "select exists (
-               select 1 from quantos.actors as actor
-               join quantos.workspace_memberships as membership
-                 on membership.tenant_id = actor.tenant_id and membership.actor_id = actor.id
-               join quantos.workspaces as workspace
-                 on workspace.tenant_id = actor.tenant_id
-                and workspace.id = membership.workspace_id and workspace.is_primary
-               join quantos.accounts as account
-                 on account.tenant_id = actor.tenant_id
-                and account.workspace_id = workspace.id and account.is_active
-               where actor.user_id = $1 and actor.actor_kind = 'user' and actor.is_active
-             ) as eligible",
-                &[(&user.id, Type::UUID)],
-            )?
-            .get("eligible");
-        if !eligible {
-            return Err(AuthError::UnverifiedSession);
-        }
+        // Issue only a session that can resolve to exactly one primary context.
+        // A caller cannot select a second tenant or account with a request header.
+        self.load_primary_context(user.id, None)?;
         let raw = Uuid::new_v4().to_string();
         let hash = session_hash(&raw);
         let expires = (Utc::now() + chrono::Duration::minutes(5)).min(user.token_expires_at);
@@ -413,8 +395,12 @@ impl PgAuthStore {
                 &[(&hash, Type::TEXT)],
             )?
             .ok_or(AuthError::UnverifiedSession)?;
+        let auth = self.load_primary_context(row.get("user_id"), None)?;
+        if account_id.is_some() && auth.account_id != account_id {
+            return Err(AuthError::HiddenAccount);
+        }
         Ok(BffSessionContext {
-            auth: self.load_primary_context(row.get("user_id"), account_id)?,
+            auth,
             mfa_verified: row.get("mfa_verified"),
             expires_at: row.get("expires_at"),
         })
