@@ -32,9 +32,10 @@
 
 ## 留存风险与下一步
 
-- **A01/A08 仍为 `OPEN`，F06 保持 `FIX_VALIDATION`。** live router 仍只挂载 F06 身份路由，正式页面 API 的 capability/403/404、MFA challenge/reauth、跨页面会话撤销流未接真实 provider；不能挂入参考 provider 固定夹具。
-- 当前没有实际 HTTPS Terminal Origin。合成 Origin 烟测不等于浏览器验收。需要可访问的本地 HTTPS Terminal 或 staging Terminal 后再设置 `QUANTOS_TERMINAL_ORIGIN`，执行浏览器登录与 AAL2 MFA。
-- 在正式页面路由落地后，针对同一完整 `sourceCommit` 重新收集目标 HTTP 四类拒绝计数、角色/SQLSTATE、会话撤销和页面 capability 回执；本轮隔离库与本机服务验证不能直接关闭 A01/A08。
+> 验收边界已按 [F06 Gate 修正](./F06-gate-scope-correction-2026-09-24.md)更新。上表及提交后复验段落保留当时实际执行情况；其中浏览器 `NOT RUN` 和页面 API 未接线不是 F06 阻塞项。
+
+- **A01/A08 仍为 `OPEN`，F06 保持 `FIX_VALIDATION`。** 需要按修正后的服务端范围整理真实 Auth/OIDC 到 BFF 会话与主上下文、四类拒绝和四角色 Vault 拒绝的同一完整 `sourceCommit` 目标回执，并独立完成 F06 其余 Execution 与 P95 验收。
+- 合成 HTTPS Origin 已用于服务端 CORS/请求拒绝烟测。真实 Terminal Origin、浏览器登录、MFA 页面交互、跨页面撤销流和全部页面 API 的 capability/403/404 联调转入 Web 前端 G1/页面与接口阶段；不再据此保持 F06-A01/A08 `OPEN`。
 
 ## 提交后同 SHA 复验
 

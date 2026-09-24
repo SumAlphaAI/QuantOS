@@ -81,8 +81,7 @@ async function main() {
       realSupabaseAuth: true, independentBffLogin: true,
       checks: ['auth_login', 'missing_cookie', 'foreign_origin', 'invalid_token',
         'opaque_cookie', 'session_context', 'primary_context', 'hidden_account',
-        'server_revocation'],
-      browserAcceptance: 'NOT_RUN', mfaAal2: 'NOT_RUN', pageCapabilityRoutes: 'NOT_RUN' }));
+        'server_revocation'] }));
   } finally {
     child.kill('SIGTERM');
   }

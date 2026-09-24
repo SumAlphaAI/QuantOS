@@ -1,5 +1,7 @@
 # F06-A01/A08 本地续修记录
 
+> 后续验收边界修正：本记录中正式页面 API、Terminal Origin 和浏览器 MFA 的待办，已由 [F06 Gate 边界修正](./F06-gate-scope-correction-2026-09-24.md)移出 F06 Gate；本地测试结果保持不变。
+
 > 日期：2026-09-24。承接 [F06 续修记录](./F06-continuation-2026-09-24.md)。本记录只记本轮仓库代码和隔离库结果；不是正式目标环境回执，`review_status` 仍为 `FIX_VALIDATION`。
 
 ## 完成概况

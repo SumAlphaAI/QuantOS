@@ -274,6 +274,7 @@ flowchart LR
 - 技术要求：Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝；Vault 仅存静态加密秘密，Execution Gateway 通过受控角色与 allowlist 函数取得所需引用，短时授权由服务会话/命令过期/轮换状态控制
 - 交付物：`quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration、Vault 访问 policy/函数
 - 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API；鉴权读 P95 同区域 <100ms，开发机跨区域远程复验 <500ms
+- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及上述性能指标；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。Terminal 实际部署、真实浏览器登录/E2E、MFA 页面交互及全部页面 API 联调属于 Web 前端 G1/页面与接口阶段，不作为 F06 验收 Gate。
 - 依赖：F03、F05
 
 <a id="review-f06"></a>
@@ -281,11 +282,11 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-24 F06 初审 3/18 完成，10 项问题继续修复验证；隔离库独立 BFF 登录、真实 Supabase Auth 身份、严格 TLS 和 live 身份路由烟测已通过，四类拒绝 4/4 与四角色 Vault SQL 拒绝 8/8。正式页面 API、浏览器 Terminal Origin、MFA AAL2、同 SHA 目标回执仍缺；开发机跨区域鉴权读 P95 651ms（要求 <500ms），同区域与 Execution 闭环未验收。详见 [F06 live 续修](./audit/F06-A01-A08-live-continuation-2026-09-24.md)及[前次记录](./audit/F06-continuation-2026-09-24.md)。
+- review_conclusion: 2026-09-24 F06 初审 3/18 完成，10 项问题继续修复验证；隔离库独立 BFF 登录、真实 Supabase Auth 身份、严格 TLS 和 live 身份路由烟测已通过，四类拒绝 4/4 与四角色 Vault SQL 拒绝 8/8。Terminal 浏览器、MFA 页面交互及全部页面 API 联调已从 F06 Gate 排除；F06 所需同 SHA 目标回执仍缺，开发机跨区域鉴权读 P95 651ms（要求 <500ms），同区域与 Execution 闭环未验收。详见 [Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)、[F06 live 续修](./audit/F06-A01-A08-live-continuation-2026-09-24.md)及[前次记录](./audit/F06-continuation-2026-09-24.md)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER
-    description: 正式 OIDC/BFF/运行时身份闭环缺目标验收
+    description: 真实 Auth/OIDC 到 BFF 服务端会话及运行时身份闭环缺同 SHA 目标回执
     evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
     status: OPEN
   - issue_id: F06-A02
@@ -320,7 +321,7 @@ flowchart LR
     status: OPEN
   - issue_id: F06-A08
     severity: MEDIUM
-    description: 四类请求和四类角色拒绝需完整矩阵
+    description: F06 四类服务端拒绝和四类角色 Vault 拒绝需同 SHA 目标矩阵
     evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
     status: OPEN
   - issue_id: F06-A09

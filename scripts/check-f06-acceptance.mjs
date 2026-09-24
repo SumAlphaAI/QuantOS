@@ -8,6 +8,8 @@ const root = resolve(import.meta.dirname, "..");
 const plan = readFileSync(resolve(root, "docs/SumAlpha-QuantOS-Development-Plan.md"), "utf8");
 const section = plan.split('<a id="review-f06"></a>')[1]?.split('<a id="task-f07"></a>')[0] ?? "";
 const receiptPath = resolve(root, "docs/audit/F06-target-acceptance-receipt.json");
+// F06 covers server-side identity and authorization. Terminal browser E2E and
+// page-level API integration are gated by the Web frontend plan, not here.
 const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 const failures = [];
 if (!section.includes("- review_status: `ACCEPTED`")) failures.push("F06 review_status is not ACCEPTED");

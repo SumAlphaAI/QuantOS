@@ -1,5 +1,7 @@
 # F06 身份、授权、秘密引用与主上下文全面复审
 
+> 后续验收边界修正：本报告的历史检查结果和 `3/18` 统计保持原样；将 Terminal 浏览器、MFA 页面及全部页面 API 当作 F06 Gate 的建议，已由 [F06 Gate 边界修正](./F06-gate-scope-correction-2026-09-24.md)取代。
+
 > 复审日期：2026-09-24
 > 审查基线：`8e5711baa97eb802c14b8e9ac5b50a51300dacfe`（审查开始时工作树干净）
 > 范围：`docs/SumAlpha-QuantOS-Development-Plan.md` F06、相关 Rust 服务/库、Supabase migrations、数据库 Gate、BFF 参考 provider 与定向测试。未连接目标 Supabase 或真实 OIDC。
