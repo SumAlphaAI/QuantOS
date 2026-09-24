@@ -1,4 +1,5 @@
 use anyhow::Result;
+use quantos_auth::ExecutionSecretStore;
 use quantos_core::HealthReport;
 use quantos_execution::gateway::{
     ExecutionGateway, GatewayLimits, NautilusBoundaryAdapter, PaperKernel,
@@ -7,6 +8,11 @@ use quantos_observability::service::ServiceObservability;
 use rust_decimal::Decimal;
 
 fn main() -> Result<()> {
+    if let Ok(url) = std::env::var("QUANTOS_EXECUTION_DATABASE_URL") {
+        // Fail startup if the managed connection cannot assume the restricted
+        // role. No generic DATABASE_URL fallback is allowed here.
+        let _secret_store = ExecutionSecretStore::connect(&url)?;
+    }
     if let Some(address) = std::env::var("QUANTOS_OBSERVABILITY_ADDR")
         .ok()
         .filter(|value| !value.trim().is_empty())

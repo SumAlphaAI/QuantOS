@@ -64,6 +64,30 @@ describe("OIDC callback PoC（G0 #4）", () => {
     expect(sessionStore.get()).toBeNull();
   });
 
+  it("真实回调必须把短期 token 交换为 BFF HttpOnly 服务端会话", async () => {
+    const calls: string[] = [];
+    const fetchImpl = (async (url: unknown, init?: RequestInit) => {
+      calls.push(String(url));
+      if (String(url).endsWith("/v1/auth/session")) {
+        expect(init?.credentials).toBe("include");
+        expect(init?.headers).toEqual({ authorization: "Bearer short-token" });
+        return new Response(null, { status: 204 });
+      }
+      return new Response(JSON.stringify({ access_token: "short-token", user: { id: "user-1" }, expires_in: 300 }), { status: 200 });
+    }) as typeof fetch;
+    const session = await exchangeCode(config, pending, "code-1", "s", fetchImpl, "https://bff.example.com");
+    expect(calls).toHaveLength(2);
+    expect(session.subject).toBe("user-1");
+    expect(JSON.stringify(session)).not.toContain("short-token");
+    sessionStore.clear();
+  });
+
+  it("真实回调缺 token 时失败关闭", async () => {
+    const fetchImpl = (async () => new Response(JSON.stringify({ subject: "user-1", expires_in: 300 }), { status: 200 })) as typeof fetch;
+    await expect(exchangeCode(config, pending, "code-1", "s", fetchImpl, "https://bff.example.com"))
+      .rejects.toThrow(AuthError);
+  });
+
   it("保留服务端 MFA 必需信号但不接收任何长期 token", async () => {
     const fetchImpl = (async () => new Response(JSON.stringify({ subject: "user-1", expires_in: 300, mfa_required: true }), { status: 200 })) as typeof fetch;
     const session = await exchangeCode(config, pending, "code-1", "s", fetchImpl);

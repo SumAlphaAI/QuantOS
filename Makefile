@@ -178,6 +178,21 @@ test-f05-live:
 	QUANTOS_RUN_F05_POSTGRES_TESTS=1 cargo test -p quantos-event --test postgres_persistence --locked -- --test-threads=1 --nocapture
 	QUANTOS_RUN_F05_POSTGRES_TESTS=1 cargo test -p quantos-storage --test postgres_persistence --locked -- --test-threads=1 --nocapture
 
+f06-live-check:
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F06 PostgreSQL Gate." >&2; exit 1)
+	QUANTOS_RUN_F06_POSTGRES_TESTS=1 QUANTOS_F06_TOPOLOGY=$${QUANTOS_F06_TOPOLOGY:-developer_remote} cargo test -p quantos-auth --test postgres_auth_context --locked -- --test-threads=1 --nocapture
+
+f06-vault-check:
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F06 Vault Gate." >&2; exit 1)
+	QUANTOS_F06_TARGET_ISOLATED=1 node scripts/f06-vault-gate.cjs
+
+f06-rls-check:
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for F06 RLS test." >&2; exit 1)
+	QUANTOS_RUN_F06_POSTGRES_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context authenticated_role_cannot_read_other_tenant_workspace --locked -- --exact --nocapture
+
+f06-acceptance-gate:
+	node scripts/check-f06-acceptance.mjs
+
 test-supabase-storage-live:
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F05 Supabase Storage acceptance Gate." >&2; exit 1)
 	@test -n "$$SUPABASE_URL" || (echo "SUPABASE_URL is required for the F05 Supabase Storage acceptance Gate." >&2; exit 1)

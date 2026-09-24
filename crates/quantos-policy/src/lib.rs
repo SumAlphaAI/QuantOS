@@ -257,7 +257,15 @@ impl PolicyEngine {
 
     fn role_implies_capability(role: Role, capability: &Capability) -> bool {
         match role {
-            Role::Owner => true,
+            Role::Owner => matches!(
+                capability.as_str(),
+                Capability::RESEARCH_READ
+                    | Capability::RESEARCH_WRITE
+                    | Capability::STRATEGY_APPROVE
+                    | Capability::STRATEGY_WRITE
+                    | Capability::EXECUTION_OPERATE
+                    | Capability::ACCOUNT_READ
+            ),
             Role::Approver => matches!(
                 capability.as_str(),
                 Capability::RESEARCH_READ | Capability::STRATEGY_APPROVE | Capability::ACCOUNT_READ
@@ -355,5 +363,19 @@ mod tests {
         let error = PolicyEngine::authorize_secret_resolution(&context, &request)
             .expect_err("user roles must not resolve secrets");
         assert_eq!(error.machine_code(), "POLICY_SECRET_ACCESS_DENIED");
+    }
+
+    #[test]
+    fn owner_does_not_inherit_secret_resolution_or_unknown_capabilities() {
+        let context = base_context(Role::Owner);
+        for name in [Capability::SECRET_RESOLVE, "unreviewed.capability"] {
+            let requirement = AuthorizationRequirement::new(Capability::parse(name).unwrap());
+            assert_eq!(
+                PolicyEngine::authorize_action(&context, &requirement)
+                    .unwrap_err()
+                    .machine_code(),
+                "POLICY_CAPABILITY_DENIED"
+            );
+        }
     }
 }

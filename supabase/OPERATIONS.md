@@ -8,7 +8,10 @@ The repository supports `.env` and `.env.local` at the project root. `Makefile` 
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `DATABASE_URL` | Yes | Native PostgreSQL connection string for the target Supabase project, branch, or controlled staging database. |
+| `DATABASE_URL` | Yes | Operator/migration connection string for the target Supabase project, branch, or controlled staging database. Never supply this URL to BFF or Execution Gateway. |
+| `QUANTOS_BFF_DATABASE_URL` | Live BFF only | Dedicated login with membership in `quantos_bff`, without `service_role`, superuser, BYPASSRLS, or Vault read privilege. |
+| `QUANTOS_EXECUTION_DATABASE_URL` | Live Execution only | Dedicated login with membership in `quantos_execution_gateway`, without `service_role`, superuser, BYPASSRLS, or Vault read privilege. |
+| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `QUANTOS_TERMINAL_ORIGIN` | Live BFF only | Supabase Auth validation endpoint and the exact HTTPS Terminal origin. The publishable key is not a `service_role` key. |
 | `QUANTOS_DB_RESET_CONFIRM` | Only for `make db-reset` | Destructive reset guard. Must equal `reset_remote_schema` before the remote `quantos` schema can be dropped and recreated. |
 
 Recommended operator workflow:
@@ -62,7 +65,8 @@ Applies to the restricted execution zone (`quantos_execution_gateway` role, `qua
 ### Rules
 
 - Secret material lives only in Supabase Vault. Code, fixtures, migrations, and reports must carry `vault://` / `secret://` references only — never key material. Dynamic Vault leases are intentionally not used.
-- Only the Execution Gateway resolves Vault references, via `quantos.resolve_execution_secret_ref`. Research engines, UI sessions, and ordinary BFF roles have no EXECUTE grant.
+- Only the Execution Gateway resolves plaintext through `quantos.resolve_execution_vault_secret(session_hash, secret_name, command_expiry)`. The previous `resolve_execution_secret_ref` overloads are revoked from application roles. Research engines, UI sessions, and ordinary BFF roles have no EXECUTE grant.
+- Supabase's platform-managed `service_role` may retain direct `vault.decrypted_secrets` access. It is an **operator/platform exception only**; neither BFF nor Engine may hold it, including through inherited roles or a shared connection URL. Both services reject elevated login roles at startup.
 - Egress from the execution zone is limited to the approved testnet venue host and the platform control plane (`EgressPolicy::execution_default`). Adding a host requires a reviewed change to the allowlist.
 - Service sessions and issued commands carry TTLs; expired ones are rejected without retry.
 
@@ -79,3 +83,9 @@ Applies to the restricted execution zone (`quantos_execution_gateway` role, `qua
 1. Set `quantos.execution_secret_refs.revoked_at = now()` for the compromised entry and revoke the matching mTLS identity.
 2. All subsequent resolutions fail closed (`ZONE_SECRET_REVOKED` / `ZONE_MTLS_INVALID`); no cache path bypasses this.
 3. Rotate in a fresh credential using the steps above, then clear the incident per the Operations runbook.
+
+## F06 isolated acceptance and application login setup
+
+Use separate login roles for BFF and Execution. An operator creates each login outside migrations and grants only `quantos_bff` or `quantos_execution_gateway` membership respectively. Set their connection URLs only in the corresponding service environment. Do not reuse `DATABASE_URL` or a Supabase `service_role` URL. The application checks the effective login and changes to its restricted role at startup.
+
+On the approved isolated test database, run `make db-replay-check`, `make db-migration-check`, `make rls-policy-test`, `make f06-rls-check`, `make f06-vault-check`, and `make f06-live-check`. The Makefile loads `.env.local`; a direct `cargo test` does not. `f06-live-check` requires 100 samples and a declared `QUANTOS_F06_TOPOLOGY` (`developer_remote` or `same_region`). A green isolated SQL Gate does not prove deployed BFF/Execution, real OIDC, or same-region latency. Record those results against the exact source commit before changing F06 review status to `ACCEPTED`.

@@ -37,7 +37,12 @@ fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks()
         .ok()
         .filter(|value| !value.trim().is_empty())
     else {
-        eprintln!("skipping live PostgreSQL auth test: DATABASE_URL is not set");
+        assert_ne!(
+            env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
+            Ok("1"),
+            "F06 live Gate requires DATABASE_URL"
+        );
+        eprintln!("NOT RUN: F06 PostgreSQL test requires DATABASE_URL");
         return;
     };
 
@@ -68,8 +73,8 @@ fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks()
     assert_eq!(context.workspace_slug, "primary");
     assert_eq!(context.account_id, Some(fixture.account_id));
 
-    let mut auth_read_samples = Vec::with_capacity(20);
-    for _ in 0..20 {
+    let mut auth_read_samples = Vec::with_capacity(100);
+    for _ in 0..100 {
         let started_at = Instant::now();
         middleware
             .authorize_user_request(
@@ -86,18 +91,21 @@ fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks()
     auth_read_samples.sort();
     let p95_index = (auth_read_samples.len() * 95).div_ceil(100) - 1;
     let auth_read_p95 = auth_read_samples[p95_index];
-    let remote_p95_limit_ms = env::var("QUANTOS_AUTH_READ_P95_LIMIT_MS")
-        .ok()
-        .map(|value| value.parse::<u128>().expect("Auth P95 limit is numeric"))
-        .unwrap_or(500);
+    let topology =
+        env::var("QUANTOS_F06_TOPOLOGY").expect("F06 live Gate requires QUANTOS_F06_TOPOLOGY");
+    let p95_limit_ms = match topology.as_str() {
+        "same_region" => 100,
+        "developer_remote" => 500,
+        _ => panic!("F06 topology must be same_region or developer_remote"),
+    };
     eprintln!(
-        "gateway auth read p95={}ms (remote limit={}ms)",
+        "gateway auth read topology={topology} samples=100 p95={}ms (limit={}ms)",
         auth_read_p95.as_millis(),
-        remote_p95_limit_ms
+        p95_limit_ms
     );
     assert!(
-        auth_read_p95.as_millis() < remote_p95_limit_ms,
-        "gateway auth read p95 must stay under {remote_p95_limit_ms}ms for the configured environment, got {}ms",
+        auth_read_p95 < std::time::Duration::from_millis(p95_limit_ms),
+        "gateway auth read p95 must stay under {p95_limit_ms}ms for the configured topology, got {}ms",
         auth_read_p95.as_millis()
     );
 
@@ -110,6 +118,26 @@ fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks()
         )
         .expect_err("operator should not inherit strategy approval");
     assert!(denied.to_string().contains("POLICY_CAPABILITY_DENIED"));
+
+    // An account cannot be authorized under a caller-selected different mode.
+    let mut client = connect_client(&database_url).expect("connect for mode probe");
+    client
+        .execute_typed(
+            "update quantos.accounts set mode = 'shadow' where id = $1",
+            &[(fixture.account_id.as_uuid(), Type::UUID)],
+        )
+        .expect("switch fixture account mode");
+    assert!(
+        middleware
+            .authorize_user_request(
+                &request,
+                &AuthorizationRequirement::new(
+                    Capability::parse(Capability::EXECUTION_OPERATE).unwrap()
+                )
+                .requiring_account(),
+            )
+            .is_err()
+    );
 }
 
 #[test]
@@ -118,7 +146,12 @@ fn gateway_auth_only_allows_service_secret_resolution_via_allowlist_session() {
         .ok()
         .filter(|value| !value.trim().is_empty())
     else {
-        eprintln!("skipping live PostgreSQL auth test: DATABASE_URL is not set");
+        assert_ne!(
+            env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
+            Ok("1"),
+            "F06 live Gate requires DATABASE_URL"
+        );
+        eprintln!("NOT RUN: F06 PostgreSQL test requires DATABASE_URL");
         return;
     };
 
@@ -149,6 +182,117 @@ fn gateway_auth_only_allows_service_secret_resolution_via_allowlist_session() {
             .to_string()
             .contains("secret allowlist entry `missing.secret` is unavailable")
     );
+
+    let mut client = connect_client(&database_url).expect("connect for revocation probe");
+    client
+        .execute_typed(
+            "update quantos.secret_references set rotation_state = 'revoked' where tenant_id = $1",
+            &[(tenant_id.as_uuid(), Type::UUID)],
+        )
+        .expect("revoke fixture reference");
+    assert!(
+        middleware
+            .authorize_secret_resolution(
+                &fixture.session_token_hash,
+                "venue.binance.paper",
+                Utc::now(),
+            )
+            .is_err()
+    );
+}
+
+#[test]
+fn cross_tenant_membership_is_rejected_by_database_constraint() {
+    let Some(database_url) = env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) else {
+        assert_ne!(
+            env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
+            Ok("1"),
+            "F06 live Gate requires DATABASE_URL"
+        );
+        eprintln!("NOT RUN: F06 PostgreSQL test requires DATABASE_URL");
+        return;
+    };
+    let mut client = connect_client(&database_url).expect("connect for tenant isolation probe");
+    client.batch_execute("begin").expect("begin isolated probe");
+    let a = Uuid::now_v7();
+    let b = Uuid::now_v7();
+    let actor: Uuid = client
+        .query_one(
+            "with tenants as (
+           insert into quantos.tenants(id, slug, name)
+           values ($1, $3, 'A'), ($2, $4, 'B') returning id
+         )
+         insert into quantos.actors(tenant_id, actor_kind, display_name, service_name)
+         values ($1, 'service', 'F06 probe', 'f06-probe') returning id",
+            &[&a, &b, &format!("f06-a-{a}"), &format!("f06-b-{b}")],
+        )
+        .expect("seed actor")
+        .get(0);
+    let workspace: Uuid = client
+        .query_one(
+            "insert into quantos.workspaces(tenant_id, slug, name, is_primary)
+         values ($1, 'primary', 'Primary', true) returning id",
+            &[&b],
+        )
+        .expect("seed workspace")
+        .get(0);
+    let err = client
+        .execute(
+            "insert into quantos.workspace_memberships(tenant_id, workspace_id, actor_id, role)
+         values ($1, $2, $3, 'service')",
+            &[&a, &workspace, &actor],
+        )
+        .expect_err("cross-tenant membership must fail");
+    assert_eq!(
+        err.code(),
+        Some(&postgres::error::SqlState::FOREIGN_KEY_VIOLATION)
+    );
+    client.batch_execute("rollback").expect("rollback probe");
+}
+
+#[test]
+fn authenticated_role_cannot_read_other_tenant_workspace() {
+    let Some(database_url) = env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) else {
+        assert_ne!(
+            env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
+            Ok("1"),
+            "F06 live Gate requires DATABASE_URL"
+        );
+        eprintln!("NOT RUN: F06 PostgreSQL test requires DATABASE_URL");
+        return;
+    };
+    let tenant_a = TenantId::new();
+    let tenant_b = TenantId::new();
+    let user_a = Uuid::now_v7();
+    let user_b = Uuid::now_v7();
+    let _fixture_a = seed_auth_fixture(&database_url, tenant_a, user_a);
+    let _fixture_b = seed_auth_fixture(&database_url, tenant_b, user_b);
+    let mut client = connect_client(&database_url).expect("connect for RLS probe");
+    client
+        .batch_execute(
+            "begin;
+        grant usage on schema quantos to authenticated;
+        grant select on quantos.workspaces to authenticated;
+        set local role authenticated",
+        )
+        .expect("assume user role with fixture API grants");
+    client
+        .query_one(
+            "select set_config('request.jwt.claim.sub',$1,true)",
+            &[&user_a.to_string()],
+        )
+        .expect("set authenticated subject");
+    let rows = client
+        .query(
+            "select tenant_id from quantos.workspaces where tenant_id in ($1,$2)",
+            &[tenant_a.as_uuid(), tenant_b.as_uuid()],
+        )
+        .expect("RLS workspace query");
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0].get::<_, Uuid>(0), *tenant_a.as_uuid());
+    client
+        .batch_execute("rollback")
+        .expect("rollback RLS probe");
 }
 
 struct SeededFixture {
@@ -294,11 +438,12 @@ fn seed_auth_fixture(database_url: &str, tenant_id: TenantId, user_id: Uuid) -> 
     let session_token_hash = format!("session-{}", Uuid::now_v7());
     client
         .execute_typed(
-            "insert into quantos.execution_service_sessions (tenant_id, actor_id, session_token_hash, allowed_capability, expires_at)
-             values ($1, $2, $3, $4, $5)",
+            "insert into quantos.execution_service_sessions (tenant_id, actor_id, account_id, session_token_hash, allowed_capability, expires_at)
+             values ($1, $2, $3, $4, $5, $6)",
             &[
                 (tenant_id.as_uuid(), Type::UUID),
                 (&service_actor_id, Type::UUID),
+                (&account_uuid, Type::UUID),
                 (&session_token_hash, Type::TEXT),
                 (&Capability::EXECUTION_OPERATE, Type::TEXT),
                 (&(Utc::now() + ChronoDuration::minutes(15)), Type::TIMESTAMPTZ),

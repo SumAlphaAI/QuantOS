@@ -344,6 +344,8 @@ async function liveRlsCheck() {
       "quantos.resolve_execution_secret_reference(text, text, text)";
     const restrictedSecretFunctionName =
       "quantos.resolve_execution_secret_ref(text)";
+    const vaultSecretFunctionName =
+      "quantos.resolve_execution_vault_secret(text, text, timestamp with time zone)";
     const secretFunctionPrivileges = await client.query(
       `
         select
@@ -355,9 +357,13 @@ async function liveRlsCheck() {
           has_function_privilege('anon', $2, 'EXECUTE') as anon_restricted,
           has_function_privilege('service_role', $2, 'EXECUTE') as service_role_restricted,
           has_function_privilege('quantos_execution_gateway', $2, 'EXECUTE') as gateway_restricted,
+          has_function_privilege('authenticated', $3, 'EXECUTE') as authenticated_vault,
+          has_function_privilege('anon', $3, 'EXECUTE') as anon_vault,
+          has_function_privilege('service_role', $3, 'EXECUTE') as service_role_vault,
+          has_function_privilege('quantos_execution_gateway', $3, 'EXECUTE') as gateway_vault,
           has_table_privilege('service_role', 'quantos.execution_secret_refs', 'SELECT') as service_role_table_select
       `,
-      [legacySecretFunctionName, restrictedSecretFunctionName],
+      [legacySecretFunctionName, restrictedSecretFunctionName, vaultSecretFunctionName],
     );
 
     const privilegeRow = secretFunctionPrivileges.rows[0];
@@ -368,6 +374,9 @@ async function liveRlsCheck() {
       privilegeRow.authenticated_restricted ||
       privilegeRow.anon_restricted ||
       privilegeRow.service_role_restricted ||
+      privilegeRow.authenticated_vault ||
+      privilegeRow.anon_vault ||
+      privilegeRow.service_role_vault ||
       privilegeRow.service_role_table_select
     ) {
       throw new Error(
@@ -375,9 +384,9 @@ async function liveRlsCheck() {
       );
     }
 
-    if (!privilegeRow.gateway_legacy || !privilegeRow.gateway_restricted) {
+    if (privilegeRow.gateway_legacy || privilegeRow.gateway_restricted || !privilegeRow.gateway_vault) {
       throw new Error(
-        "Both execution secret allowlist functions must remain executable by quantos_execution_gateway.",
+        "Only the scoped Vault function may be executable by quantos_execution_gateway.",
       );
     }
 

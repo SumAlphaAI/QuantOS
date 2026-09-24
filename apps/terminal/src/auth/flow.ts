@@ -110,6 +110,7 @@ export async function exchangeCode(
   code: string,
   state: string,
   fetchImpl: typeof fetch = fetch,
+  bffOrigin?: string,
 ): Promise<Session> {
   if (!code) throw new AuthError("回调缺少授权码");
   if (state !== pending.state) throw new AuthError("认证状态不匹配，请重新登录");
@@ -135,9 +136,22 @@ export async function exchangeCode(
     }
     throw new AuthError("登录交换失败，请重试；若持续失败请联系支持", correlationId);
   }
-  const body = (await res.json()) as { subject?: string; expires_in?: number; mfa_required?: boolean };
+  const body = (await res.json()) as { subject?: string; user?: { id?: string }; access_token?: string; expires_in?: number; mfa_required?: boolean };
+  if (bffOrigin) {
+    if (!body.access_token || !(body.user?.id ?? body.subject)) {
+      throw new AuthError("身份会话缺少必要字段，请重新登录。");
+    }
+    const established = await fetchImpl(`${bffOrigin}/v1/auth/session`, {
+      method: "POST",
+      credentials: "include",
+      headers: { authorization: `Bearer ${body.access_token}` },
+    });
+    if (established.status !== 204) {
+      throw new AuthError("服务端会话建立失败，请重新登录。");
+    }
+  }
   const session: Session = {
-    subject: body.subject ?? "unknown",
+    subject: body.user?.id ?? body.subject ?? "unknown",
     establishedAt: new Date().toISOString(),
     expiresIn: body.expires_in ?? 300,
     mfaRequired: body.mfa_required === true,

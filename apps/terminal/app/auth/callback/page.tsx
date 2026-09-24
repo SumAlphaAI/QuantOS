@@ -49,7 +49,13 @@ function CallbackHandler() {
         return;
       }
       try {
-        const session = await exchangeCode(config, pending, code, state);
+        const bffOrigin = process.env.NEXT_PUBLIC_QUANTOS_MOCK_ENABLED === "true"
+          ? undefined
+          : process.env.NEXT_PUBLIC_QUANTOS_BFF_ORIGIN;
+        if (process.env.NEXT_PUBLIC_QUANTOS_MOCK_ENABLED !== "true" && !bffOrigin) {
+          throw new AuthError("服务端身份服务未配置，请联系管理员。");
+        }
+        const session = await exchangeCode(config, pending, code, state, fetch, bffOrigin);
         const safeReturn = sanitizeReturnPath(pending.returnTo);
         router.replace(session.mfaRequired ? `/mfa?return_to=${encodeURIComponent(safeReturn)}` : safeReturn);
       } catch (e) {

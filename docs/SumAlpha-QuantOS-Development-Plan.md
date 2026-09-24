@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.6
-> 更新时间：2026-09-17
+> 版本：3.7
+> 更新时间：2026-09-24
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.7`：F06 全面复审进入修复验证；开发状态与复审验收状态分开记录。隔离目标的远程鉴权 P95 曾超过 500ms，同区域 100ms 和正式 OIDC/BFF 服务会话尚无同 SHA 回执，F06 不作为已验收依赖。详见 [F06 复审](./audit/F06-comprehensive-review-2026-09-24.md)。
 
 - `3.6`：再次核验 F01 全部整改已解决；主报告改为当前验收视图，已关闭问题和修复跟踪移至历史记录，活动清单清空。保留 20/20、3/3 的验收结论及适用边界，F0 总体 Gate 不变。
 
@@ -275,9 +277,59 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
+- review_status: `FIX_VALIDATION`
+- review_conclusion: 2026-09-24 F06 初审 3/18 完成，10 项问题进入修复验证；隔离 PostgreSQL/Vault 负向 Gate 已建立，开发机跨区域鉴权读 100 次 P95 为 734ms（要求 <500ms），同区域、正式 OIDC/BFF 与 Execution 运行回执缺失，暂不验收。详见 [F06 整改复验](./audit/F06-remediation-2026-09-24.md)。
+- issues:
+  - issue_id: F06-A01
+    severity: BLOCKER
+    description: 正式 OIDC/BFF/运行时身份闭环缺目标验收
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
+  - issue_id: F06-A02
+    severity: BLOCKER
+    description: Execution Gateway Vault 实际调用与部署闭环待验证
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
+  - issue_id: F06-A03
+    severity: HIGH
+    description: 跨租户关系与查询谓词需同 SHA 复验
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
+  - issue_id: F06-A04
+    severity: HIGH
+    description: 主上下文账户模式需正式服务复验
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
+  - issue_id: F06-A05
+    severity: HIGH
+    description: capability 默认拒绝与 SQL 范围需负向验收
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
+  - issue_id: F06-A06
+    severity: HIGH
+    description: 专用角色运行登录与最小权限待部署验证
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
+  - issue_id: F06-A07
+    severity: HIGH
+    description: Vault 双路径收敛需同 SHA 回执
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
+  - issue_id: F06-A08
+    severity: MEDIUM
+    description: 四类请求和四类角色拒绝需完整矩阵
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
+  - issue_id: F06-A09
+    severity: MEDIUM
+    description: 同区域与开发机跨区域 P95 尚未双达标
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
+  - issue_id: F06-A10
+    severity: LOW
+    description: 开发完成标签曾被误读为完整验收
+    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    status: OPEN
 - fix_tracking: []
 
 <a id="task-f07"></a>
