@@ -226,6 +226,9 @@ f06-bff-preflight:
 f06-bff-provision:
 	@node scripts/f06-bff-provision.cjs
 
+f06-runtime-login-provision:
+	@node scripts/f06-runtime-login-provision.cjs
+
 f06-bff-login-check:
 	@test -n "$$QUANTOS_BFF_DATABASE_URL" || (echo "QUANTOS_BFF_DATABASE_URL is required." >&2; exit 1)
 	QUANTOS_RUN_F06_BFF_LOGIN_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context dedicated_bff_login_uses_verified_tls_and_narrow_role --locked -- --exact --nocapture
