@@ -451,6 +451,41 @@ fn postgres_runtime_rejects_revocation_capability_conflicts_and_rate_overflow() 
             .schedule_run(&limited, now + ChronoDuration::minutes(1))
             .is_err()
     );
+    let window = (now + ChronoDuration::minutes(1))
+        .timestamp()
+        .div_euclid(60)
+        * 60;
+    let rate = client
+        .query_typed_one(
+            "select accepted_count from quantos.workflow_tool_rate_windows
+             where tenant_id=$1 and tool_name=$2 and window_start=to_timestamp($3)",
+            &[
+                (fixture.auth.tenant_id.as_uuid(), Type::UUID),
+                (&limited.tool_name, Type::TEXT),
+                (&window, Type::INT8),
+            ],
+        )
+        .unwrap();
+    assert_eq!(
+        rate.get::<_, i32>(0),
+        1,
+        "rejected schedule must not consume quota"
+    );
+    let rejected = client
+        .query_typed_one(
+            "select count(*) from quantos.workflow_runs
+             where tenant_id=$1 and idempotency_key=$2",
+            &[
+                (fixture.auth.tenant_id.as_uuid(), Type::UUID),
+                (&limited.idempotency_key, Type::TEXT),
+            ],
+        )
+        .unwrap();
+    assert_eq!(
+        rejected.get::<_, i64>(0),
+        0,
+        "rejected schedule must roll back run"
+    );
 }
 
 #[test]

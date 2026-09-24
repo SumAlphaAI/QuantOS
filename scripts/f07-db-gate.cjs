@@ -94,7 +94,8 @@ async function main() {
     if (process.env.QUANTOS_F07_COVERAGE_DIAGNOSTIC === '1') {
       try {
         run('cargo', ['llvm-cov', '--package', 'quantos-runtime', '--package', 'runtime-gateway',
-          '--lib', '--bins', '--test', 'postgres_runtime', '--locked', '--json',
+          '--lib', '--bins', '--test', 'postgres_runtime', '--locked',
+          ...(process.env.QUANTOS_F07_NIGHTLY_BRANCH === '1' ? ['--branch'] : []), '--json',
           '--output-path', coveragePath, '--', '--test-threads=1', '--nocapture'], {
           DATABASE_URL: url.toString(), QUANTOS_F07_DB_REQUIRED: '1',
           QUANTOS_RUNTIME_RECOVERY_RUNS: '10', QUANTOS_F07_COVERAGE_MEASUREMENT: '1',

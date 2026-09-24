@@ -205,8 +205,7 @@ impl PgRuntimeStore {
             return Err(crate::RuntimeError::rejected("deadline or rate limit is invalid").into());
         }
         let fingerprint = ContentHash::sha256_bytes(&serde_json::to_vec(input)?);
-        let mut tx = self.client.transaction()?;
-        let row = tx.query_typed_opt(
+        let row = self.client.query_typed_opt(
             "with session_row as (
                 select session.id,
                        session.tenant_id,
@@ -253,7 +252,8 @@ impl PgRuntimeStore {
                       and actor.tenant_id = session.tenant_id
                       and actor.is_active = true
                   )
-            )
+            ),
+            inserted as (
             insert into quantos.workflow_runs (
                 tenant_id, runtime_session_id, actor_id, workspace_id, account_id, tool_name,
                 capability, workflow_kind, idempotency_key, correlation_id, input_hash,
@@ -274,7 +274,22 @@ impl PgRuntimeStore {
                       input_hash, status, attempts, max_attempts, next_attempt_at, deadline_at,
                       cost_budget_units, rate_limit_per_minute, lease_owner, lease_expires_at,
                       cancel_requested_at, completed_at, last_error, created_at, updated_at,
-                      request_fingerprint, (xmax = '0'::xid) as inserted",
+                      request_fingerprint, (xmax = '0'::xid) as inserted
+            ),
+            rate_row as (
+                insert into quantos.workflow_tool_rate_windows
+                    (tenant_id, tool_name, window_start, accepted_count, effective_limit)
+                select inserted.tenant_id, inserted.tool_name,
+                       to_timestamp((extract(epoch from $12::timestamptz)::bigint / 60) * 60),
+                       1, inserted.rate_limit_per_minute
+                from inserted where inserted.inserted
+                on conflict (tenant_id, tool_name, window_start)
+                do update set accepted_count = quantos.workflow_tool_rate_windows.accepted_count + 1,
+                              effective_limit = least(quantos.workflow_tool_rate_windows.effective_limit,
+                                                      excluded.effective_limit)
+                returning accepted_count
+            )
+            select inserted.* from inserted left join rate_row on true",
             &[
                 (input.runtime_session_id.as_uuid(), Type::UUID),
                 (&input.tool_name, Type::TEXT),
@@ -290,7 +305,15 @@ impl PgRuntimeStore {
                 (&queued_at, Type::TIMESTAMPTZ),
                 (&fingerprint.as_str(), Type::TEXT),
             ],
-        )?;
+        ).map_err(|error| {
+            if error.as_db_error().and_then(|db| db.constraint())
+                == Some("workflow_tool_rate_windows_within_limit")
+            {
+                PgRuntimeError::Runtime(crate::RuntimeError::rejected("tool rate limit exceeded"))
+            } else {
+                PgRuntimeError::Postgres(error)
+            }
+        })?;
 
         let row = row.ok_or_else(|| crate::RuntimeError::tool_not_registered(&input.tool_name))?;
         let run = row_to_workflow_run(&row)?;
@@ -299,26 +322,6 @@ impl PgRuntimeStore {
                 crate::RuntimeError::duplicate_idempotency_key(&input.idempotency_key).into(),
             );
         }
-        if row.get::<_, bool>("inserted") {
-            let window = queued_at.timestamp().div_euclid(60) * 60;
-            let rate = tx.query_typed_one(
-                "insert into quantos.workflow_tool_rate_windows
-                   (tenant_id, tool_name, window_start, accepted_count)
-                 values ($1,$2,to_timestamp($3),1)
-                 on conflict (tenant_id, tool_name, window_start)
-                 do update set accepted_count = quantos.workflow_tool_rate_windows.accepted_count + 1
-                 returning accepted_count",
-                &[
-                    (run.tenant_id.as_uuid(), Type::UUID),
-                    (&run.tool_name, Type::TEXT),
-                    (&window, Type::INT8),
-                ],
-            )?;
-            if rate.get::<_, i32>("accepted_count") > run.rate_limit_per_minute as i32 {
-                return Err(crate::RuntimeError::rejected("tool rate limit exceeded").into());
-            }
-        }
-        tx.commit()?;
         Ok(run)
     }
 
