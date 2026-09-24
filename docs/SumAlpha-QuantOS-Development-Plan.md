@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.7
+> 版本：3.8
 > 更新时间：2026-09-24
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.8`：F06 续修补齐服务端会话签发前的成员映射检查、Supabase 验证后 JWT `aal`/到期绑定、BFF SessionContext 必填字段、应用登录的独占角色及可验证 TLS 要求；隔离库新增前向 migration 和负向测试。`developer_remote` 100 次鉴权 P95 仍为 651ms（门槛 <500ms），live 服务连接所需证书/角色/OIDC 回执仍缺，复审保持 `FIX_VALIDATION`。详见 [F06 续修记录](./audit/F06-continuation-2026-09-24.md)。
 - `3.7`：F06 全面复审进入修复验证；开发状态与复审验收状态分开记录。隔离目标的远程鉴权 P95 曾超过 500ms，同区域 100ms 和正式 OIDC/BFF 服务会话尚无同 SHA 回执，F06 不作为已验收依赖。详见 [F06 复审](./audit/F06-comprehensive-review-2026-09-24.md)。
 
 - `3.6`：再次核验 F01 全部整改已解决；主报告改为当前验收视图，已关闭问题和修复跟踪移至历史记录，活动清单清空。保留 20/20、3/3 的验收结论及适用边界，F0 总体 Gate 不变。
@@ -278,7 +279,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-24 F06 初审 3/18 完成，10 项问题进入修复验证；隔离 PostgreSQL/Vault 负向 Gate 已建立，开发机跨区域鉴权读 100 次 P95 为 734ms（要求 <500ms），同区域、正式 OIDC/BFF 与 Execution 运行回执缺失，暂不验收。详见 [F06 整改复验](./audit/F06-remediation-2026-09-24.md)。
+- review_conclusion: 2026-09-24 F06 初审 3/18 完成，10 项问题继续修复验证；隔离 PostgreSQL/Vault Gate 已建立，续修后开发机跨区域鉴权读 100 次 P95 为 651ms（要求 <500ms），同区域、正式 OIDC/BFF 与 Execution 运行回执及可验证 TLS 服务连接缺失，暂不验收。详见 [F06 续修记录](./audit/F06-continuation-2026-09-24.md)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER

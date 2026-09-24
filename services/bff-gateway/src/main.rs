@@ -28,6 +28,8 @@ async fn main() -> anyhow::Result<()> {
                 .context("live BFF requires SUPABASE_PUBLISHABLE_KEY")?,
             env::var("QUANTOS_TERMINAL_ORIGIN")
                 .context("live BFF requires QUANTOS_TERMINAL_ORIGIN")?,
+            env::var("QUANTOS_BFF_ENVIRONMENT")
+                .context("live BFF requires QUANTOS_BFF_ENVIRONMENT")?,
         )?
     } else {
         BffProvider::default().router()

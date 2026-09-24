@@ -4,7 +4,7 @@ use chrono::{Duration as ChronoDuration, Utc};
 use native_tls::TlsConnector;
 use postgres::{Client, NoTls, types::Type};
 use postgres_native_tls::MakeTlsConnector;
-use quantos_auth::GatewayAuthMiddleware;
+use quantos_auth::{ExecutionSecretStore, GatewayAuthMiddleware, PgAuthStore};
 use quantos_core::{AccountId, TenantId};
 use quantos_policy::{AuthorizationRequirement, Capability, RunMode};
 use url::Url;
@@ -290,9 +290,55 @@ fn authenticated_role_cannot_read_other_tenant_workspace() {
         .expect("RLS workspace query");
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].get::<_, Uuid>(0), *tenant_a.as_uuid());
+    let denied_without_mode: bool = client
+        .query_one(
+            "select quantos.current_user_has_capability($1, 'execution.operate', null, $2)",
+            &[tenant_a.as_uuid(), _fixture_a.account_id.as_uuid()],
+        )
+        .expect("capability helper rejects missing mode")
+        .get(0);
+    assert!(!denied_without_mode);
+    let allowed_with_mode: bool = client
+        .query_one(
+            "select quantos.current_user_has_capability($1, 'execution.operate', 'paper', $2)",
+            &[tenant_a.as_uuid(), _fixture_a.account_id.as_uuid()],
+        )
+        .expect("capability helper accepts matching mode")
+        .get(0);
+    assert!(allowed_with_mode);
     client
         .batch_execute("rollback")
         .expect("rollback RLS probe");
+}
+
+#[test]
+fn operator_connection_cannot_be_reused_without_verified_tls() {
+    let Some(database_url) = env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) else {
+        assert_ne!(
+            env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
+            Ok("1"),
+            "F06 live Gate requires DATABASE_URL"
+        );
+        eprintln!("NOT RUN: F06 PostgreSQL test requires DATABASE_URL");
+        return;
+    };
+    PgAuthStore::connect(&database_url).unwrap_or_else(|error| {
+        let mut detail = error.to_string();
+        let mut source = std::error::Error::source(&error);
+        while let Some(cause) = source {
+            detail.push_str(&format!(" -> {cause}"));
+            source = cause.source();
+        }
+        panic!("operator URL must connect with verified TLS: {detail}")
+    });
+    assert!(
+        PgAuthStore::connect_as_bff(&database_url).is_err(),
+        "operator URL without verify-full must not become a BFF connection"
+    );
+    assert!(
+        ExecutionSecretStore::connect(&database_url).is_err(),
+        "operator URL without verify-full must not become an Execution connection"
+    );
 }
 
 struct SeededFixture {

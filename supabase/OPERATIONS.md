@@ -9,9 +9,10 @@ The repository supports `.env` and `.env.local` at the project root. `Makefile` 
 | Variable | Required | Purpose |
 |---|---|---|
 | `DATABASE_URL` | Yes | Operator/migration connection string for the target Supabase project, branch, or controlled staging database. Never supply this URL to BFF or Execution Gateway. |
-| `QUANTOS_BFF_DATABASE_URL` | Live BFF only | Dedicated login with membership in `quantos_bff`, without `service_role`, superuser, BYPASSRLS, or Vault read privilege. |
-| `QUANTOS_EXECUTION_DATABASE_URL` | Live Execution only | Dedicated login with membership in `quantos_execution_gateway`, without `service_role`, superuser, BYPASSRLS, or Vault read privilege. |
+| `QUANTOS_BFF_DATABASE_URL` | Live BFF only | Dedicated login with membership only in `quantos_bff`, without `service_role`, superuser, BYPASSRLS, or Vault read privilege; `sslmode=verify-full` is mandatory. |
+| `QUANTOS_EXECUTION_DATABASE_URL` | Live Execution only | Dedicated login with membership only in `quantos_execution_gateway`, without `service_role`, superuser, BYPASSRLS, or Vault read privilege; `sslmode=verify-full` is mandatory. |
 | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `QUANTOS_TERMINAL_ORIGIN` | Live BFF only | Supabase Auth validation endpoint and the exact HTTPS Terminal origin. The publishable key is not a `service_role` key. |
+| `QUANTOS_BFF_ENVIRONMENT` | Live BFF only | Explicit `dev`, `staging`, or `prod` value returned in the session contract. |
 | `QUANTOS_DB_RESET_CONFIRM` | Only for `make db-reset` | Destructive reset guard. Must equal `reset_remote_schema` before the remote `quantos` schema can be dropped and recreated. |
 
 Recommended operator workflow:
@@ -87,5 +88,7 @@ Applies to the restricted execution zone (`quantos_execution_gateway` role, `qua
 ## F06 isolated acceptance and application login setup
 
 Use separate login roles for BFF and Execution. An operator creates each login outside migrations and grants only `quantos_bff` or `quantos_execution_gateway` membership respectively. Set their connection URLs only in the corresponding service environment. Do not reuse `DATABASE_URL` or a Supabase `service_role` URL. The application checks the effective login and changes to its restricted role at startup.
+
+The `DATABASE_URL` operator/test URL may use `sslmode=require` for existing isolated PostgreSQL Gates; this does not validate the server certificate. Live application URLs must use `sslmode=verify-full`. When the database uses a private CA, include its PEM file path as `sslrootcert` in the application URL. On 2026-09-24 the configured isolated pooler failed strict native TLS with “The validity period in the certificate exceeds the maximum allowed”; a separate Node/OpenSSL probe reported `SELF_SIGNED_CERT_IN_CHAIN`. A trusted CA chain or a verified endpoint is required before live BFF/Execution acceptance; do not weaken the live service check to make this endpoint pass.
 
 On the approved isolated test database, run `make db-replay-check`, `make db-migration-check`, `make rls-policy-test`, `make f06-rls-check`, `make f06-vault-check`, and `make f06-live-check`. The Makefile loads `.env.local`; a direct `cargo test` does not. `f06-live-check` requires 100 samples and a declared `QUANTOS_F06_TOPOLOGY` (`developer_remote` or `same_region`). A green isolated SQL Gate does not prove deployed BFF/Execution, real OIDC, or same-region latency. Record those results against the exact source commit before changing F06 review status to `ACCEPTED`.

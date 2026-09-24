@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{DateTime, Utc};
 use native_tls::TlsConnector;
 use postgres::{Client, NoTls, Row, types::Type};
@@ -71,6 +72,8 @@ pub enum AuthError {
     #[error(transparent)]
     Tls(#[from] native_tls::Error),
     #[error(transparent)]
+    Io(#[from] std::io::Error),
+    #[error(transparent)]
     Policy(#[from] PolicyError),
     #[error(transparent)]
     Http(#[from] reqwest::Error),
@@ -84,6 +87,8 @@ pub enum AuthError {
     BffRoleRequired,
     #[error("database login is privileged or can directly read Vault")]
     UnsafeApplicationLogin,
+    #[error("application database connections require verified TLS")]
+    InsecureDatabaseTransport,
     #[error("identity mapping is missing for user `{user_id}` in tenant `{tenant_id}`")]
     MissingIdentityMapping { user_id: Uuid, tenant_id: TenantId },
     #[error(
@@ -109,8 +114,9 @@ pub struct ExecutionSecretStore {
 
 impl ExecutionSecretStore {
     pub fn connect(database_url: &str) -> Result<Self, AuthError> {
+        require_verified_transport(database_url)?;
         let mut client = connect_client(database_url)?;
-        require_narrow_login(&mut client)?;
+        require_narrow_login(&mut client, ApplicationRole::Execution)?;
         client.batch_execute("set role quantos_execution_gateway")?;
         let role: String = client.query_one("select current_role::text", &[])?.get(0);
         if role != "quantos_execution_gateway" {
@@ -139,7 +145,17 @@ impl ExecutionSecretStore {
 
 /// A user identity constructed only after the Supabase Auth server validates
 /// the access token. Client-provided subject or tenant headers are ignored.
-pub struct VerifiedUser(Uuid);
+pub struct VerifiedUser {
+    id: Uuid,
+    mfa_verified: bool,
+    token_expires_at: DateTime<Utc>,
+}
+
+pub struct BffSessionContext {
+    pub auth: AuthContext,
+    pub mfa_verified: bool,
+    pub expires_at: DateTime<Utc>,
+}
 
 pub struct SupabaseAuthVerifier {
     user_endpoint: Url,
@@ -190,8 +206,36 @@ impl SupabaseAuthVerifier {
         {
             return Err(AuthError::UnverifiedSession);
         }
-        Ok(VerifiedUser(id))
+        verified_user_claims(token, id)
     }
+}
+
+// Called only after Supabase Auth verifies this exact bearer token. The claim
+// checks bind MFA and expiry to the returned user and reject service tokens.
+fn verified_user_claims(token: &str, id: Uuid) -> Result<VerifiedUser, AuthError> {
+    let payload = token
+        .split('.')
+        .nth(1)
+        .and_then(|value| URL_SAFE_NO_PAD.decode(value).ok())
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok())
+        .ok_or(AuthError::UnverifiedSession)?;
+    if payload.get("sub").and_then(serde_json::Value::as_str) != Some(id.to_string().as_str())
+        || payload.get("role").and_then(serde_json::Value::as_str) != Some("authenticated")
+    {
+        return Err(AuthError::UnverifiedSession);
+    }
+    let token_expires_at = payload
+        .get("exp")
+        .and_then(serde_json::Value::as_i64)
+        .and_then(|seconds| DateTime::<Utc>::from_timestamp(seconds, 0))
+        .filter(|expires_at| *expires_at > Utc::now())
+        .ok_or(AuthError::UnverifiedSession)?;
+    let mfa_verified = payload.get("aal").and_then(serde_json::Value::as_str) == Some("aal2");
+    Ok(VerifiedUser {
+        id,
+        mfa_verified,
+        token_expires_at,
+    })
 }
 
 pub struct PgAuthStore {
@@ -206,8 +250,9 @@ impl PgAuthStore {
     }
 
     pub fn connect_as_bff(database_url: &str) -> Result<Self, AuthError> {
+        require_verified_transport(database_url)?;
         let mut client = connect_client(database_url)?;
-        require_narrow_login(&mut client)?;
+        require_narrow_login(&mut client, ApplicationRole::Bff)?;
         client.batch_execute("set role quantos_bff")?;
         let role: String = client.query_one("select current_role::text", &[])?.get(0);
         if role != "quantos_bff" {
@@ -280,7 +325,7 @@ impl PgAuthStore {
 
     fn load_primary_context(
         &mut self,
-        user: &VerifiedUser,
+        user_id: Uuid,
         account_id: Option<AccountId>,
     ) -> Result<AuthContext, AuthError> {
         let selected = account_id.map(|id| *id.as_uuid());
@@ -297,7 +342,7 @@ impl PgAuthStore {
              where a.user_id = $1 and a.actor_kind = 'user' and a.is_active
                and ($2::uuid is null or account.id = $2)
              order by a.tenant_id, account.id limit 2",
-            &[(&user.0, Type::UUID), (&selected, Type::UUID)],
+            &[(&user_id, Type::UUID), (&selected, Type::UUID)],
         )?;
         if rows.len() != 1 {
             return Err(AuthError::AmbiguousPrimaryContext);
@@ -305,7 +350,7 @@ impl PgAuthStore {
         let row = &rows[0];
         let mode = RunMode::parse(row.get::<_, String>("mode").as_str())?;
         self.load_user_context(
-            user.0,
+            user_id,
             TenantId::from_uuid(row.get("tenant_id")),
             mode,
             Some(AccountId::from_uuid(row.get("account_id"))),
@@ -313,15 +358,42 @@ impl PgAuthStore {
     }
 
     fn issue_bff_session(&mut self, user: &VerifiedUser) -> Result<String, AuthError> {
+        // A valid Supabase identity alone is not a QuantOS membership. Refuse
+        // to mint a product session until the primary workspace mapping exists.
+        let eligible: bool = self
+            .client
+            .query_typed_one(
+                "select exists (
+               select 1 from quantos.actors as actor
+               join quantos.workspace_memberships as membership
+                 on membership.tenant_id = actor.tenant_id and membership.actor_id = actor.id
+               join quantos.workspaces as workspace
+                 on workspace.tenant_id = actor.tenant_id
+                and workspace.id = membership.workspace_id and workspace.is_primary
+               join quantos.accounts as account
+                 on account.tenant_id = actor.tenant_id
+                and account.workspace_id = workspace.id and account.is_active
+               where actor.user_id = $1 and actor.actor_kind = 'user' and actor.is_active
+             ) as eligible",
+                &[(&user.id, Type::UUID)],
+            )?
+            .get("eligible");
+        if !eligible {
+            return Err(AuthError::UnverifiedSession);
+        }
         let raw = Uuid::new_v4().to_string();
         let hash = session_hash(&raw);
-        let expires = Utc::now() + chrono::Duration::minutes(5);
+        let expires = (Utc::now() + chrono::Duration::minutes(5)).min(user.token_expires_at);
+        if expires <= Utc::now() {
+            return Err(AuthError::UnverifiedSession);
+        }
         self.client.execute_typed(
-            "insert into quantos.bff_sessions(session_hash,user_id,expires_at) values($1,$2,$3)",
+            "insert into quantos.bff_sessions(session_hash,user_id,expires_at,mfa_verified) values($1,$2,$3,$4)",
             &[
                 (&hash, Type::TEXT),
-                (&user.0, Type::UUID),
+                (&user.id, Type::UUID),
                 (&expires, Type::TIMESTAMPTZ),
+                (&user.mfa_verified, Type::BOOL),
             ],
         )?;
         Ok(raw)
@@ -331,17 +403,21 @@ impl PgAuthStore {
         &mut self,
         raw: &str,
         account_id: Option<AccountId>,
-    ) -> Result<AuthContext, AuthError> {
+    ) -> Result<BffSessionContext, AuthError> {
         let hash = session_hash(raw);
         let row = self
             .client
             .query_typed_opt(
-                "select user_id from quantos.bff_sessions
+                "select user_id, mfa_verified, expires_at from quantos.bff_sessions
              where session_hash=$1 and expires_at > now()",
                 &[(&hash, Type::TEXT)],
             )?
             .ok_or(AuthError::UnverifiedSession)?;
-        self.load_primary_context(&VerifiedUser(row.get("user_id")), account_id)
+        Ok(BffSessionContext {
+            auth: self.load_primary_context(row.get("user_id"), account_id)?,
+            mfa_verified: row.get("mfa_verified"),
+            expires_at: row.get("expires_at"),
+        })
     }
 
     fn revoke_bff_session(&mut self, raw: &str) -> Result<(), AuthError> {
@@ -424,20 +500,48 @@ impl PgAuthStore {
     }
 }
 
-fn require_narrow_login(client: &mut Client) -> Result<(), AuthError> {
+#[derive(Clone, Copy)]
+enum ApplicationRole {
+    Bff,
+    Execution,
+}
+
+fn require_narrow_login(client: &mut Client, expected: ApplicationRole) -> Result<(), AuthError> {
     let row = client.query_one(
-        "select r.rolsuper, r.rolbypassrls,
+        "select r.rolsuper, r.rolbypassrls, r.rolcreaterole,
+                r.rolcreatedb, r.rolreplication,
                 pg_has_role(session_user, 'service_role', 'MEMBER') as service_member,
+                pg_has_role(session_user, 'pg_read_all_data', 'MEMBER') as read_all,
+                pg_has_role(session_user, 'pg_write_all_data', 'MEMBER') as write_all,
+                pg_has_role(session_user, 'quantos_bff', 'SET') as can_set_bff,
+                pg_has_role(session_user, 'quantos_execution_gateway', 'SET') as can_set_execution,
                 case when to_regclass('vault.decrypted_secrets') is null then true
-                     else has_table_privilege(session_user, 'vault.decrypted_secrets', 'SELECT')
+                     else exists (
+                       select 1 from pg_roles as reachable
+                       where pg_has_role(session_user::regrole::oid, reachable.oid, 'SET')
+                         and has_table_privilege(reachable.oid, 'vault.decrypted_secrets', 'SELECT')
+                     )
                 end as vault_reader
          from pg_roles as r where r.rolname = session_user",
         &[],
     )?;
     if row.get::<_, bool>("rolsuper")
         || row.get::<_, bool>("rolbypassrls")
+        || row.get::<_, bool>("rolcreaterole")
+        || row.get::<_, bool>("rolcreatedb")
+        || row.get::<_, bool>("rolreplication")
         || row.get::<_, bool>("service_member")
+        || row.get::<_, bool>("read_all")
+        || row.get::<_, bool>("write_all")
         || row.get::<_, bool>("vault_reader")
+        || match expected {
+            ApplicationRole::Bff => {
+                !row.get::<_, bool>("can_set_bff") || row.get::<_, bool>("can_set_execution")
+            }
+            ApplicationRole::Execution => {
+                !row.get::<_, bool>("can_set_execution") || row.get::<_, bool>("can_set_bff")
+            }
+        }
     {
         return Err(AuthError::UnsafeApplicationLogin);
     }
@@ -495,7 +599,7 @@ impl GatewayAuthMiddleware {
         account_id: Option<AccountId>,
     ) -> Result<AuthContext, AuthError> {
         let user = verifier.verify_access_token(access_token)?;
-        self.store.load_primary_context(&user, account_id)
+        self.store.load_primary_context(user.id, account_id)
     }
 
     pub fn authorize_secret_resolution(
@@ -545,7 +649,7 @@ impl GatewayAuthMiddleware {
         &mut self,
         raw_session: &str,
         account_id: Option<AccountId>,
-    ) -> Result<AuthContext, AuthError> {
+    ) -> Result<BffSessionContext, AuthError> {
         self.store.load_bff_session_context(raw_session, account_id)
     }
 
@@ -566,11 +670,21 @@ fn connect_client(database_url: &str) -> Result<Client, AuthError> {
     let relaxed_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
-
     if disable_tls {
+        if !matches!(url.host_str(), Some("localhost" | "127.0.0.1" | "::1")) {
+            return Err(AuthError::InsecureDatabaseTransport);
+        }
         Ok(Client::connect(database_url, NoTls)?)
     } else {
         let mut builder = TlsConnector::builder();
+        if let Some(root_path) = url
+            .query_pairs()
+            .find(|(key, _)| key == "sslrootcert")
+            .map(|(_, value)| value.into_owned())
+        {
+            let root = native_tls::Certificate::from_pem(&std::fs::read(root_path)?)?;
+            builder.add_root_certificate(root);
+        }
         if relaxed_tls {
             builder.danger_accept_invalid_certs(true);
         }
@@ -580,6 +694,17 @@ fn connect_client(database_url: &str) -> Result<Client, AuthError> {
             MakeTlsConnector::new(connector),
         )?)
     }
+}
+
+fn require_verified_transport(database_url: &str) -> Result<(), AuthError> {
+    let url = Url::parse(database_url)?;
+    if !url
+        .query_pairs()
+        .any(|(key, value)| key == "sslmode" && value == "verify-full")
+    {
+        return Err(AuthError::InsecureDatabaseTransport);
+    }
+    Ok(())
 }
 
 fn row_to_auth_context(
@@ -614,11 +739,63 @@ fn row_to_auth_context(
 
 #[cfg(test)]
 mod tests {
-    use super::{AuthContext, UserRequestContext};
+    use super::{
+        AuthContext, UserRequestContext, require_verified_transport, verified_user_claims,
+    };
+    use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
+    use chrono::{Duration, Utc};
     use quantos_core::{AccountId, ActorId, TenantId, WorkspaceId};
     use quantos_policy::{Capability, Role, RunMode};
     use std::collections::BTreeSet;
     use uuid::Uuid;
+
+    #[test]
+    fn verified_claims_bind_subject_role_mfa_and_expiry() {
+        let id = Uuid::now_v7();
+        let payload = serde_json::json!({
+            "sub": id.to_string(), "role": "authenticated", "aal": "aal2",
+            "exp": (Utc::now() + Duration::minutes(2)).timestamp(),
+        });
+        let token = format!(
+            "header.{}.signature",
+            URL_SAFE_NO_PAD.encode(payload.to_string())
+        );
+        assert!(verified_user_claims(&token, id).unwrap().mfa_verified);
+        assert!(verified_user_claims(&token, Uuid::now_v7()).is_err());
+        let service = payload.as_object().unwrap().clone();
+        let mut service = serde_json::Value::Object(service);
+        service["role"] = serde_json::json!("service_role");
+        let service_token = format!(
+            "header.{}.signature",
+            URL_SAFE_NO_PAD.encode(service.to_string())
+        );
+        assert!(verified_user_claims(&service_token, id).is_err());
+        let expired = serde_json::json!({
+            "sub": id.to_string(), "role": "authenticated", "aal": "aal2",
+            "exp": (Utc::now() - Duration::seconds(1)).timestamp(),
+        });
+        let expired_token = format!(
+            "header.{}.signature",
+            URL_SAFE_NO_PAD.encode(expired.to_string())
+        );
+        assert!(verified_user_claims(&expired_token, id).is_err());
+    }
+
+    #[test]
+    fn application_urls_require_certificate_verification() {
+        assert!(
+            require_verified_transport("postgres://user@db.example/postgres?sslmode=require")
+                .is_err()
+        );
+        assert!(
+            require_verified_transport("postgres://user@db.example/postgres?sslmode=disable")
+                .is_err()
+        );
+        assert!(
+            require_verified_transport("postgres://user@db.example/postgres?sslmode=verify-full")
+                .is_ok()
+        );
+    }
 
     #[test]
     fn auth_context_projects_policy_context() {

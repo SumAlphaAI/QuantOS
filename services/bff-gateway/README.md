@@ -13,7 +13,11 @@ composition. Consult the BFF-FE acceptance records before deployment.
 verification, server-side opaque sessions, `/v1/session`, `/v1/context`,
 `POST /v1/auth/session`, and `POST /v1/auth/logout`. It requires a dedicated
 `QUANTOS_BFF_DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and an
-exact HTTPS `QUANTOS_TERMINAL_ORIGIN`. The live router does not yet serve all
+exact HTTPS `QUANTOS_TERMINAL_ORIGIN`; it also requires
+`QUANTOS_BFF_ENVIRONMENT=dev|staging|prod`. The database URL must use
+`sslmode=verify-full` and a narrowly scoped BFF login. The live session
+response includes the server-side account context, token-derived MFA state,
+actual session expiry, and a correlation ID. The live router does not yet serve all
 page operations from the reference provider and is not an accepted production
 BFF. The reference provider can bind only to loopback and must never receive
 production credentials. See `docs/audit/F06-remediation-2026-09-24.md`.

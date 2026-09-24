@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use axum::{
     Json, Router,
     extract::State,
-    http::{HeaderMap, HeaderValue, Method, StatusCode, header},
+    http::{HeaderMap, HeaderName, HeaderValue, Method, StatusCode, header},
     routing::{get, post},
 };
 use quantos_auth::{GatewayAuthMiddleware, SupabaseAuthVerifier};
@@ -16,6 +16,7 @@ struct LiveState {
     verifier: SupabaseAuthVerifier,
     middleware: Mutex<GatewayAuthMiddleware>,
     terminal_origin: String,
+    environment: String,
 }
 
 /// Real identity surface. The reference-provider routes are deliberately not
@@ -25,16 +26,22 @@ pub fn router(
     project_url: &str,
     publishable_key: String,
     terminal_origin: String,
+    environment: String,
 ) -> anyhow::Result<Router> {
     anyhow::ensure!(
         terminal_origin.starts_with("https://"),
         "live BFF requires an HTTPS Terminal origin"
+    );
+    anyhow::ensure!(
+        matches!(environment.as_str(), "dev" | "staging" | "prod"),
+        "live BFF requires a valid environment"
     );
     let origin_header = HeaderValue::from_str(&terminal_origin)?;
     let state = Arc::new(LiveState {
         verifier: SupabaseAuthVerifier::new(project_url, publishable_key)?,
         middleware: Mutex::new(GatewayAuthMiddleware::connect_as_bff(database_url)?),
         terminal_origin,
+        environment,
     });
     Ok(Router::new()
         .route("/v1/session", get(session))
@@ -47,15 +54,21 @@ pub fn router(
                 .allow_origin(origin_header)
                 .allow_credentials(true)
                 .allow_methods([Method::GET, Method::POST])
-                .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]),
+                .allow_headers([
+                    header::AUTHORIZATION,
+                    header::CONTENT_TYPE,
+                    HeaderName::from_static("x-account-id"),
+                ])
+                .expose_headers([HeaderName::from_static("x-correlation-id")]),
         ))
 }
 
 async fn session(
     State(state): State<Arc<LiveState>>,
     headers: HeaderMap,
-) -> Result<Json<Value>, StatusCode> {
+) -> Result<(HeaderMap, Json<Value>), StatusCode> {
     let raw_session = session_cookie(&headers).ok_or(StatusCode::UNAUTHORIZED)?;
+    let environment = state.environment.clone();
     let account_id = match headers.get("x-account-id") {
         Some(value) => Some(AccountId::from_uuid(
             Uuid::parse_str(value.to_str().map_err(|_| StatusCode::BAD_REQUEST)?)
@@ -74,15 +87,31 @@ async fn session(
     })
     .await
     .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)??;
-    Ok(Json(json!({
-        "actorId": context.actor_id.to_string(),
-        "tenantId": context.tenant_id.to_string(),
-        "workspaceId": context.workspace_id.to_string(),
-        "accountId": context.account_id.map(|value| value.to_string()),
-        "mode": context.mode.as_str(),
-        "role": context.role.as_str(),
-        "capabilities": context.capabilities.iter().map(|value| value.as_str()).collect::<Vec<_>>(),
-    })))
+    let account_id = context
+        .auth
+        .account_id
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let mut response_headers = HeaderMap::new();
+    response_headers.insert(
+        HeaderName::from_static("x-correlation-id"),
+        HeaderValue::from_str(&Uuid::new_v4().to_string())
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
+    );
+    Ok((
+        response_headers,
+        Json(json!({
+            "actorId": context.auth.actor_id.to_string(),
+            "tenantId": context.auth.tenant_id.to_string(),
+            "workspaceId": context.auth.workspace_id.to_string(),
+            "accountId": account_id.to_string(),
+            "mode": context.auth.mode.as_str(),
+            "environment": environment,
+            "role": context.auth.role.as_str(),
+            "capabilities": context.auth.capabilities.iter().map(|value| value.as_str()).collect::<Vec<_>>(),
+            "mfaState": if context.mfa_verified { "verified" } else { "challenged" },
+            "expiresAt": context.expires_at.to_rfc3339(),
+        })),
+    ))
 }
 
 async fn establish_session(
