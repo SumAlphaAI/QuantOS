@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.8
+> 版本：3.9
 > 更新时间：2026-09-24
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.9`：F07 全面复审发现 12 项问题并进入本地修复验证；新增 Runtime 服务入口、持久租约 fencing、权限/限额、前向 migration 和隔离库 Gate。F07 量化验收仍为 `0/3` 同 SHA 目标回执，F06 依赖未验收，故保持 `FIX_VALIDATION`。详见 [F07 复审](./audit/F07-comprehensive-review-2026-09-24.md)及[整改记录](./audit/F07-remediation-2026-09-24.md)。
 - `3.8`：F06 续修补齐服务端会话签发前的成员映射检查、Supabase 验证后 JWT `aal`/到期绑定、BFF SessionContext 必填字段、应用登录的独占角色及可验证 TLS 要求；隔离库新增前向 migration 和负向测试。`developer_remote` 100 次鉴权 P95 仍为 651ms（门槛 <500ms），live 服务连接所需证书/角色/OIDC 回执仍缺，复审保持 `FIX_VALIDATION`。详见 [F06 续修记录](./audit/F06-continuation-2026-09-24.md)。
 - `3.7`：F06 全面复审进入修复验证；开发状态与复审验收状态分开记录。隔离目标的远程鉴权 P95 曾超过 500ms，同区域 100ms 和正式 OIDC/BFF 服务会话尚无同 SHA 回执，F06 不作为已验收依赖。详见 [F06 复审](./audit/F06-comprehensive-review-2026-09-24.md)。
 
@@ -350,9 +351,69 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
+- review_status: `FIX_VALIDATION`
+- review_conclusion: 2026-09-24 F07 初审仅 1/18 完整通过，12 项问题已进入整改；隔离 Supabase PostgreSQL 前向迁移、RLS 及 3 项数据库测试通过，独立诊断确认 100/100 强杀恢复和唯一 Artifact。正式 Gate 的两次调度 P95 为 2630.54ms、2381.08ms，均超过 200ms 门槛；Rust 覆盖率诊断 line 66.49%、region 58.68%，低于 90%/85% 门槛。正式 HTTP/Storage 与同 SHA 目标回执仍缺，F06 依赖未验收。F07 不接受放行；详见 [整改记录](./audit/F07-remediation-2026-09-24.md)。
+- issues:
+  - issue_id: F07-A01
+    severity: BLOCKER
+    description: Runtime 服务入口和真实 worker 接线待 live 验证
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
+  - issue_id: F07-A02
+    severity: BLOCKER
+    description: 隔离库和同 SHA 量化回执及 F06 依赖未齐
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: OPEN
+  - issue_id: F07-A03
+    severity: HIGH
+    description: session 与 tool 授权负向路径待数据库验证
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
+  - issue_id: F07-A04
+    severity: HIGH
+    description: 租约凭据与旧 worker 写入拒绝待数据库验证
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
+  - issue_id: F07-A05
+    severity: HIGH
+    description: PostgreSQL 重试与最大次数终态待数据库验证
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
+  - issue_id: F07-A06
+    severity: HIGH
+    description: 成本与速率限额待数据库验证
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
+  - issue_id: F07-A07
+    severity: HIGH
+    description: Artifact 租户复合约束待迁移和负向验证
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
+  - issue_id: F07-A08
+    severity: MEDIUM
+    description: 请求指纹幂等冲突待数据库验证
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
+  - issue_id: F07-A09
+    severity: MEDIUM
+    description: cancel 和 deadline 状态竞态待数据库验证
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
+  - issue_id: F07-A10
+    severity: MEDIUM
+    description: 运行时严格 TLS 与专用角色待目标连接验证
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
+  - issue_id: F07-A11
+    severity: MEDIUM
+    description: 200ms P95 门槛已写入 Gate 但没有有效测量
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: OPEN
+  - issue_id: F07-A12
+    severity: LOW
+    description: fixture、Runbook、覆盖率和文档追踪待最终验收
+    evidence: docs/audit/F07-remediation-2026-09-24.md
+    status: FIX_VALIDATION
 - fix_tracking: []
 
 <a id="task-f08"></a>

@@ -28,6 +28,8 @@ function buildClientConfig() {
     ssl = undefined;
   } else if (sslmode === "verify-full" || sslmode === "verify-ca") {
     ssl = { rejectUnauthorized: true };
+    const rootCert = url.searchParams.get("sslrootcert");
+    if (rootCert) ssl.ca = fs.readFileSync(rootCert, "utf8");
   } else if (sslmode === "require" || sslmode === "prefer") {
     ssl = { rejectUnauthorized: false };
   }

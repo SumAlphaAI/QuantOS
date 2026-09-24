@@ -51,6 +51,18 @@ pub enum WorkflowRunStatus {
 }
 
 impl WorkflowRunStatus {
+    pub fn from_database(value: &str) -> Result<Self, RuntimeError> {
+        match value {
+            "queued" => Ok(Self::Queued),
+            "running" => Ok(Self::Running),
+            "succeeded" => Ok(Self::Succeeded),
+            "failed" => Ok(Self::Failed),
+            "cancel_requested" => Ok(Self::CancelRequested),
+            "cancelled" => Ok(Self::Cancelled),
+            "timed_out" => Ok(Self::TimedOut),
+            other => Err(RuntimeError::invalid_status(other)),
+        }
+    }
     #[must_use]
     pub fn is_terminal(self) -> bool {
         matches!(
@@ -103,7 +115,7 @@ pub struct WorkflowRun {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct NewWorkflowRun {
     pub runtime_session_id: RuntimeSessionId,
     pub tool_name: String,
@@ -226,14 +238,21 @@ impl RuntimeError {
             format!("workflow run `{run_id}` is not currently leased by this worker"),
         )
     }
+
+    #[must_use]
+    pub fn rejected(reason: &'static str) -> Self {
+        Self::new("RUNTIME_REQUEST_REJECTED", reason)
+    }
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct InMemoryRuntimeKernel {
     sessions: BTreeMap<RuntimeSessionId, RuntimeSession>,
+    session_capabilities: BTreeMap<RuntimeSessionId, BTreeSet<Capability>>,
     tools: BTreeMap<String, ToolRegistration>,
     runs: BTreeMap<WorkflowRunId, WorkflowRun>,
     runs_by_idempotency: BTreeMap<(TenantId, String), WorkflowRunId>,
+    requests_by_idempotency: BTreeMap<(TenantId, String), NewWorkflowRun>,
     checkpoints: BTreeMap<WorkflowRunId, WorkflowCheckpoint>,
     artifacts_by_hash: BTreeMap<(TenantId, ContentHash), ArtifactManifest>,
     run_artifacts: BTreeMap<WorkflowRunId, BTreeSet<ArtifactId>>,
@@ -264,6 +283,8 @@ impl InMemoryRuntimeKernel {
         };
         self.sessions
             .insert(session.runtime_session_id, session.clone());
+        self.session_capabilities
+            .insert(session.runtime_session_id, auth.capabilities.clone());
         session
     }
 
@@ -295,14 +316,33 @@ impl InMemoryRuntimeKernel {
 
         let key = (session.tenant_id, input.idempotency_key.clone());
         if let Some(existing_id) = self.runs_by_idempotency.get(&key) {
-            return self
-                .runs
-                .get(existing_id)
-                .cloned()
-                .ok_or_else(|| RuntimeError::duplicate_idempotency_key(&input.idempotency_key));
+            let existing =
+                self.runs.get(existing_id).cloned().ok_or_else(|| {
+                    RuntimeError::duplicate_idempotency_key(&input.idempotency_key)
+                })?;
+            if self.requests_by_idempotency.get(&key) != Some(&input) {
+                return Err(RuntimeError::duplicate_idempotency_key(
+                    &input.idempotency_key,
+                ));
+            }
+            return Ok(existing);
+        }
+
+        if input.deadline_at <= queued_at || input.capability != tool.capability {
+            return Err(RuntimeError::rejected(
+                "deadline or tool capability is invalid",
+            ));
+        }
+        if !self
+            .session_capabilities
+            .get(&input.runtime_session_id)
+            .is_some_and(|capabilities| capabilities.contains(&input.capability))
+        {
+            return Err(RuntimeError::rejected("tool is not authorized"));
         }
 
         let rate_limit_per_minute = input.rate_limit_per_minute.min(tool.rate_limit_per_minute);
+        let request = input.clone();
         let run = WorkflowRun {
             workflow_run_id: WorkflowRunId::new(),
             runtime_session_id: input.runtime_session_id,
@@ -335,6 +375,7 @@ impl InMemoryRuntimeKernel {
             (run.tenant_id, run.idempotency_key.clone()),
             run.workflow_run_id,
         );
+        self.requests_by_idempotency.insert(key, request);
         self.runs.insert(run.workflow_run_id, run.clone());
         Ok(run)
     }
@@ -357,10 +398,12 @@ impl InMemoryRuntimeKernel {
                     .lease_expires_at
                     .map(|value| value <= now)
                     .unwrap_or(true);
-                let eligible = matches!(
-                    run.status,
-                    WorkflowRunStatus::Queued | WorkflowRunStatus::Running
-                ) && run.next_attempt_at <= now
+                let eligible = run.attempts < run.max_attempts
+                    && matches!(
+                        run.status,
+                        WorkflowRunStatus::Queued | WorkflowRunStatus::Running
+                    )
+                    && run.next_attempt_at <= now
                     && run.deadline_at > now
                     && run.cancel_requested_at.is_none()
                     && lease_expired;
@@ -759,7 +802,7 @@ mod tests {
                     deadline_at: now - ChronoDuration::seconds(1),
                     ..schedule_run(session.runtime_session_id, 2, now)
                 },
-                now,
+                now - ChronoDuration::seconds(2),
             )
             .expect("timed run schedules");
         assert_eq!(kernel.mark_timed_out_runs(now), 1);

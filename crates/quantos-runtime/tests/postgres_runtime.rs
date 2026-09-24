@@ -7,13 +7,13 @@ use std::{
 };
 
 use chrono::{Duration as ChronoDuration, Utc};
-use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{Client, NoTls, types::Type};
-use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector;
 use quantos_auth::AuthContext;
 use quantos_core::{AccountId, ActorId, ContentHash, CorrelationId, TenantId, WorkspaceId};
 use quantos_policy::{Capability, Role, RunMode};
-use quantos_runtime::{NewWorkflowRun, ToolRegistration, pg::PgRuntimeStore};
+use quantos_runtime::{NewWorkflowRun, ToolRegistration, WorkflowRunStatus, pg::PgRuntimeStore};
 use quantos_storage::ArtifactManifest;
 use url::Url;
 use uuid::Uuid;
@@ -21,20 +21,28 @@ use uuid::Uuid;
 struct Cleanup {
     database_url: String,
     tenant_id: TenantId,
-    user_id: Uuid,
 }
 
 impl Drop for Cleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
-            let _ = client.execute_typed(
-                "delete from quantos.tenants where id = $1",
+            if let Err(error) = client.execute_typed(
+                "update quantos.workflow_runs
+                 set status='failed', completed_at=now(), lease_owner=null,
+                     lease_expires_at=null, attempt_id=null,
+                     last_error='F07 fixture retired', updated_at=now()
+                 where tenant_id=$1 and status in ('queued','running','cancel_requested')",
                 &[(self.tenant_id.as_uuid(), Type::UUID)],
-            );
-            let _ = client.execute_typed(
-                "delete from auth.users where id = $1",
-                &[(&self.user_id, Type::UUID)],
-            );
+            ) {
+                eprintln!("F07 fixture run retirement failed: {error}");
+            }
+            if let Err(error) = client.execute_typed(
+                "update quantos.tool_registry set enabled=false, updated_at=now()
+                 where tenant_id=$1 and enabled=true",
+                &[(self.tenant_id.as_uuid(), Type::UUID)],
+            ) {
+                eprintln!("F07 fixture tool retirement failed: {error}");
+            }
         }
     }
 }
@@ -51,7 +59,12 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
         .ok()
         .filter(|value| !value.trim().is_empty())
     else {
-        eprintln!("skipping live PostgreSQL runtime test: DATABASE_URL is not set");
+        assert_ne!(
+            env::var("QUANTOS_F07_DB_REQUIRED").as_deref(),
+            Ok("1"),
+            "F07 database acceptance requires DATABASE_URL"
+        );
+        eprintln!("NOT RUN: live PostgreSQL runtime test requires DATABASE_URL");
         return;
     };
 
@@ -90,16 +103,32 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
     let p95_limit_ms = env::var("QUANTOS_RUNTIME_SCHEDULE_P95_LIMIT_MS")
         .ok()
         .map(|value| value.parse::<u64>().expect("P95 limit is numeric"))
-        .unwrap_or(1_500);
+        .unwrap_or(200);
     eprintln!(
         "runtime schedule direct PostgreSQL P95: {:.2} ms (limit: {p95_limit_ms} ms, samples: {run_count})",
         scheduling_p95.as_secs_f64() * 1_000.0
     );
-    assert!(
-        scheduling_p95 <= Duration::from_millis(p95_limit_ms),
-        "schedule P95 {:.2} ms exceeds configured limit {p95_limit_ms} ms",
-        scheduling_p95.as_secs_f64() * 1_000.0
-    );
+    if let Ok(path) = env::var("QUANTOS_F07_METRICS_PATH") {
+        fs::write(
+            path,
+            serde_json::to_vec_pretty(&serde_json::json!({
+                "schema": "quantos-f07-recovery-measurements/v1",
+                "scheduledRuns": run_count,
+                "scheduleP95Ms": scheduling_p95.as_secs_f64() * 1_000.0,
+                "scheduleP95LimitMs": p95_limit_ms,
+                "recoveryCompleted": false
+            }))
+            .expect("F07 measurements serialize"),
+        )
+        .expect("F07 measurements write");
+    }
+    if env::var("QUANTOS_F07_COVERAGE_MEASUREMENT").as_deref() != Ok("1") {
+        assert!(
+            scheduling_p95 <= Duration::from_millis(p95_limit_ms),
+            "schedule P95 {:.2} ms exceeds configured limit {p95_limit_ms} ms",
+            scheduling_p95.as_secs_f64() * 1_000.0
+        );
+    }
 
     let marker_dir = tempfile::tempdir().expect("worker marker tempdir creates");
     let marker_path = marker_dir.path().join("checkpointed");
@@ -137,7 +166,7 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
         "forced worker kill must be observable"
     );
 
-    let recovery_at = Utc::now() + ChronoDuration::seconds(31);
+    let recovery_at = Utc::now() + ChronoDuration::minutes(31);
     let mut recovered = PgRuntimeStore::connect(&database_url).expect("recovered store connects");
     let resumed = recovered
         .claim_runs(
@@ -145,7 +174,7 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
             "worker-b",
             run_count as i64,
             recovery_at,
-            ChronoDuration::seconds(30),
+            ChronoDuration::minutes(30),
         )
         .expect("expired leases reclaim");
     assert_eq!(resumed.len(), run_count);
@@ -166,10 +195,10 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
             now,
         );
         recovered
-            .record_artifact(lease.run.workflow_run_id, &manifest, recovery_at)
+            .record_artifact(lease, &manifest, recovery_at)
             .expect("artifact dedupe holds");
         recovered
-            .complete_run(lease.run.workflow_run_id, "worker-b", recovery_at)
+            .complete_run(lease, recovery_at)
             .expect("run completes");
     }
 
@@ -225,6 +254,22 @@ fn postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts() {
         artifact_link_summary.get::<_, i64>("single_artifact_count"),
         run_count as i64
     );
+    if let Ok(path) = env::var("QUANTOS_F07_METRICS_PATH") {
+        fs::write(
+            path,
+            serde_json::to_vec_pretty(&serde_json::json!({
+                "schema": "quantos-f07-recovery-measurements/v1",
+                "scheduledRuns": run_count,
+                "scheduleP95Ms": scheduling_p95.as_secs_f64() * 1_000.0,
+                "scheduleP95LimitMs": p95_limit_ms,
+                "recoveryCompleted": true,
+                "recoveredRuns": run_count,
+                "uniqueArtifactBindings": run_count
+            }))
+            .expect("F07 measurements serialize"),
+        )
+        .expect("F07 measurements write");
+    }
 }
 
 #[test]
@@ -249,14 +294,14 @@ fn postgres_runtime_worker_child_claims_checkpoints_and_waits() {
             "worker-a",
             run_count as i64,
             now,
-            ChronoDuration::seconds(30),
+            ChronoDuration::minutes(30),
         )
         .expect("child claims runs");
     assert_eq!(claimed.len(), run_count);
     for lease in &claimed {
         store
             .save_checkpoint(
-                lease.run.workflow_run_id,
+                lease,
                 "step.execute",
                 1,
                 &serde_json::json!({ "step": 1, "run_id": lease.run.workflow_run_id }),
@@ -272,7 +317,7 @@ fn postgres_runtime_worker_child_claims_checkpoints_and_waits() {
             now,
         );
         store
-            .record_artifact(lease.run.workflow_run_id, &manifest, now)
+            .record_artifact(lease, &manifest, now)
             .expect("child artifact records");
     }
     fs::write(marker_path, format!("checkpointed={run_count}\n")).expect("child marker writes");
@@ -285,7 +330,12 @@ fn postgres_runtime_records_cancel_and_timeout_audits() {
         .ok()
         .filter(|value| !value.trim().is_empty())
     else {
-        eprintln!("skipping live PostgreSQL runtime test: DATABASE_URL is not set");
+        assert_ne!(
+            env::var("QUANTOS_F07_DB_REQUIRED").as_deref(),
+            Ok("1"),
+            "F07 database acceptance requires DATABASE_URL"
+        );
+        eprintln!("NOT RUN: live PostgreSQL runtime test requires DATABASE_URL");
         return;
     };
 
@@ -312,7 +362,7 @@ fn postgres_runtime_records_cancel_and_timeout_audits() {
     let mut timed_out_input = new_run(session.runtime_session_id, 201, now);
     timed_out_input.deadline_at = now - ChronoDuration::seconds(1);
     let timed_out = store
-        .schedule_run(&timed_out_input, now)
+        .schedule_run(&timed_out_input, now - ChronoDuration::seconds(2))
         .expect("timed out run schedules");
     assert_eq!(
         store
@@ -338,15 +388,174 @@ fn postgres_runtime_records_cancel_and_timeout_audits() {
     assert_eq!(timeout_actions, vec!["runtime.timed_out".to_owned()]);
 }
 
+#[test]
+fn postgres_runtime_rejects_revocation_capability_conflicts_and_rate_overflow() {
+    let Some(database_url) = env::var("DATABASE_URL").ok().filter(|s| !s.is_empty()) else {
+        assert_ne!(env::var("QUANTOS_F07_DB_REQUIRED").as_deref(), Ok("1"));
+        return;
+    };
+    let fixture = seed_runtime_fixture(&database_url);
+    let now = Utc::now();
+    let mut store = PgRuntimeStore::connect(&database_url).unwrap();
+    let session = store
+        .create_session(&fixture.auth, now, now + ChronoDuration::hours(1))
+        .unwrap();
+    store
+        .register_tool(fixture.auth.tenant_id, &tool_registration(), now)
+        .unwrap();
+    let mut wrong = new_run(session.runtime_session_id, 300, now);
+    wrong.capability = Capability::parse("strategy.write").unwrap();
+    assert!(store.schedule_run(&wrong, now).is_err());
+
+    let first = new_run(session.runtime_session_id, 301, now);
+    let accepted = store.schedule_run(&first, now).unwrap();
+    assert_eq!(
+        store.schedule_run(&first, now).unwrap().workflow_run_id,
+        accepted.workflow_run_id
+    );
+    let mut changed = first.clone();
+    changed.input_hash = ContentHash::sha256_bytes(b"changed-input");
+    assert!(store.schedule_run(&changed, now).is_err());
+
+    let mut client = connect_client(&database_url).unwrap();
+    client
+        .execute_typed(
+            "update quantos.runtime_sessions set revoked_at = $2 where id = $1",
+            &[
+                (session.runtime_session_id.as_uuid(), Type::UUID),
+                (&now, Type::TIMESTAMPTZ),
+            ],
+        )
+        .unwrap();
+    assert!(
+        store
+            .schedule_run(&new_run(session.runtime_session_id, 302, now), now)
+            .is_err()
+    );
+
+    let second_session = store
+        .create_session(&fixture.auth, now, now + ChronoDuration::hours(1))
+        .unwrap();
+    let mut limited = new_run(
+        second_session.runtime_session_id,
+        303,
+        now + ChronoDuration::minutes(1),
+    );
+    limited.rate_limit_per_minute = 1;
+    store
+        .schedule_run(&limited, now + ChronoDuration::minutes(1))
+        .unwrap();
+    limited.idempotency_key = "different-rate-key".to_owned();
+    assert!(
+        store
+            .schedule_run(&limited, now + ChronoDuration::minutes(1))
+            .is_err()
+    );
+}
+
+#[test]
+fn postgres_runtime_fences_old_attempt_and_enforces_cost_and_retry_budget() {
+    let Some(database_url) = env::var("DATABASE_URL").ok().filter(|s| !s.is_empty()) else {
+        assert_ne!(env::var("QUANTOS_F07_DB_REQUIRED").as_deref(), Ok("1"));
+        return;
+    };
+    let fixture = seed_runtime_fixture(&database_url);
+    let now = Utc::now();
+    let mut store = PgRuntimeStore::connect(&database_url).unwrap();
+    let session = store
+        .create_session(&fixture.auth, now, now + ChronoDuration::hours(1))
+        .unwrap();
+    store
+        .register_tool(fixture.auth.tenant_id, &tool_registration(), now)
+        .unwrap();
+    let mut run = new_run(session.runtime_session_id, 400, now);
+    run.max_attempts = 2;
+    run.cost_budget_units = 0;
+    let scheduled = store.schedule_run(&run, now).unwrap();
+    let old = store
+        .claim_runs(
+            fixture.auth.tenant_id,
+            "same-worker",
+            1,
+            now,
+            ChronoDuration::seconds(1),
+        )
+        .unwrap()
+        .remove(0);
+    let later = now + ChronoDuration::seconds(2);
+    let fresh = store
+        .claim_runs(
+            fixture.auth.tenant_id,
+            "same-worker",
+            1,
+            later,
+            ChronoDuration::seconds(30),
+        )
+        .unwrap()
+        .remove(0);
+    assert_ne!(old.task_attempt_id, fresh.task_attempt_id);
+    assert!(
+        store
+            .save_checkpoint(&old, "stale", 1, &serde_json::json!({}), later)
+            .is_err()
+    );
+    assert!(store.complete_run(&old, later).is_err());
+    let manifest = ArtifactManifest::new(
+        fixture.auth.tenant_id,
+        "application/json",
+        ContentHash::sha256_bytes(b"cost-limit"),
+        "quantos-artifacts",
+        10,
+        later,
+    );
+    assert!(store.record_artifact(&fresh, &manifest, later).is_err());
+    let foreign = ArtifactManifest::new(
+        TenantId::new(),
+        "application/json",
+        ContentHash::sha256_bytes(b"foreign"),
+        "quantos-artifacts",
+        7,
+        later,
+    );
+    assert_eq!(
+        store
+            .fail_and_retry(&fresh, "controlled failure", later)
+            .unwrap(),
+        WorkflowRunStatus::Failed
+    );
+    let another = store
+        .schedule_run(&new_run(session.runtime_session_id, 401, now), now)
+        .unwrap();
+    let other_lease = store
+        .claim_runs(
+            fixture.auth.tenant_id,
+            "worker-c",
+            1,
+            later,
+            ChronoDuration::seconds(30),
+        )
+        .unwrap()
+        .remove(0);
+    assert_eq!(other_lease.run.workflow_run_id, another.workflow_run_id);
+    assert!(
+        store
+            .record_artifact(&other_lease, &foreign, later)
+            .is_err()
+    );
+    assert_eq!(
+        store
+            .load_run(scheduled.workflow_run_id)
+            .unwrap()
+            .unwrap()
+            .status,
+        WorkflowRunStatus::Failed
+    );
+}
+
 fn tool_registration() -> ToolRegistration {
-    ToolRegistration {
-        tool_name: "research.execute".to_owned(),
-        capability: Capability::parse(Capability::EXECUTION_OPERATE).expect("capability parses"),
-        description: "Run a deterministic research step".to_owned(),
-        max_cost_units: 10_000,
-        rate_limit_per_minute: 600,
-        enabled: true,
-    }
+    let fixture: serde_json::Value =
+        serde_json::from_str(include_str!("fixtures/f07-workflow.json")).unwrap();
+    serde_json::from_value(fixture["toolRegistration"].clone()).unwrap()
 }
 
 fn new_run(
@@ -356,16 +565,16 @@ fn new_run(
 ) -> NewWorkflowRun {
     NewWorkflowRun {
         runtime_session_id,
-        tool_name: "research.execute".to_owned(),
-        capability: Capability::parse(Capability::EXECUTION_OPERATE).expect("capability parses"),
-        workflow_kind: "research".to_owned(),
+        tool_name: tool_registration().tool_name,
+        capability: tool_registration().capability,
+        workflow_kind: "runtime.fixture.v1".to_owned(),
         idempotency_key: format!("runtime-run-{index}"),
         correlation_id: CorrelationId::new(),
         input_hash: ContentHash::sha256_bytes(format!("payload-{index}").as_bytes()),
         max_attempts: 3,
-        deadline_at: now + ChronoDuration::minutes(10),
+        deadline_at: now + ChronoDuration::hours(2),
         cost_budget_units: 1_000,
-        rate_limit_per_minute: 60,
+        rate_limit_per_minute: 600,
     }
 }
 
@@ -449,7 +658,7 @@ fn seed_runtime_fixture(database_url: &str) -> RuntimeFixture {
                 (&actor_id, Type::UUID),
                 (&workspace_id, Type::UUID),
                 (&account_id, Type::UUID),
-                (&Capability::EXECUTION_OPERATE, Type::TEXT),
+                (&Capability::RESEARCH_WRITE, Type::TEXT),
             ],
         )
         .expect("capability inserts");
@@ -466,14 +675,13 @@ fn seed_runtime_fixture(database_url: &str) -> RuntimeFixture {
             mode: RunMode::Paper,
             account_id: Some(AccountId::from_uuid(account_id)),
             capabilities: std::collections::BTreeSet::from([Capability::parse(
-                Capability::EXECUTION_OPERATE,
+                Capability::RESEARCH_WRITE,
             )
             .expect("capability parses")]),
         },
         _cleanup: std::sync::Arc::new(Cleanup {
             database_url: database_url.to_owned(),
             tenant_id,
-            user_id,
         }),
     }
 }
@@ -656,18 +864,38 @@ fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
     let disable_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && value == "disable");
-    let relaxed_tls = url
+    let root = url
         .query_pairs()
-        .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
-
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned());
+    let options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+        .map(|(key, value)| (key.into_owned(), value.into_owned()))
+        .collect::<Vec<_>>();
+    let mut connection_url = url.clone();
+    connection_url.set_query(None);
+    if !options.is_empty() {
+        connection_url.query_pairs_mut().extend_pairs(options);
+    }
+    let mut config: postgres::Config = connection_url
+        .as_str()
+        .parse()
+        .expect("postgres URL parses");
     if disable_tls {
-        Client::connect(database_url, NoTls)
+        config.ssl_mode(postgres::config::SslMode::Disable);
+        config.connect(NoTls)
     } else {
-        let mut builder = TlsConnector::builder();
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
+        let mut builder = SslConnector::builder(SslMethod::tls()).expect("TLS connector builds");
+        builder.set_verify(SslVerifyMode::PEER);
+        if let Some(root) = root {
+            builder.set_ca_file(root).expect("CA file loads");
+        } else {
+            builder
+                .set_default_verify_paths()
+                .expect("default CA paths load");
         }
-        let connector = builder.build().expect("TLS connector builds");
-        Client::connect(database_url, MakeTlsConnector::new(connector))
+        config.ssl_mode(postgres::config::SslMode::Require);
+        config.connect(MakeTlsConnector::new(builder.build()))
     }
 }

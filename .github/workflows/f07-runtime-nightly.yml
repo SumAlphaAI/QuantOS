@@ -1,0 +1,45 @@
+name: F07 Runtime Nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 19 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  branch-and-recovery:
+    runs-on: ubuntu-24.04
+    env:
+      QUANTOS_SKIP_ENV: "1"
+      DATABASE_URL: ${{ secrets.F07_DATABASE_URL }}
+      SUPABASE_URL: ${{ secrets.F07_SUPABASE_URL }}
+      QUANTOS_F07_NIGHTLY_BRANCH: "1"
+      RUSTUP_TOOLCHAIN: nightly
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: llvm-tools-preview
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - run: corepack enable pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install isolated Supabase CA
+        env:
+          F07_CA_PEM: ${{ secrets.F07_CA_PEM }}
+        run: |
+          test -n "$F07_CA_PEM"
+          printf '%s\n' "$F07_CA_PEM" > "$RUNNER_TEMP/f07-ca.pem"
+          echo "QUANTOS_BFF_SSLROOTCERT=$RUNNER_TEMP/f07-ca.pem" >> "$GITHUB_ENV"
+      - run: cargo install cargo-llvm-cov --version 0.8.7 --locked
+      - name: Measure F07 recovery, line, region and branch coverage
+        run: make f07-db-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f07-nightly-${{ github.sha }}
+          path: artifacts/f07/
+          if-no-files-found: error

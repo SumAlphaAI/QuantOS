@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+.PHONY: f07-db-check f07-recovery-diagnostic f07-coverage-diagnostic f07-fixture-check f07-fixture-retire f07-forward-migration
 export UV_BUILD_CONSTRAINT := $(CURDIR)/engines/build-constraints.txt
 
 ifneq ($(QUANTOS_SKIP_ENV),1)
@@ -144,6 +145,27 @@ f05-target-coverage:
 f05-db-check:
 	@test -n "$$F02_PG_ADMIN_URL" || (echo "F02_PG_ADMIN_URL is required for the disposable F05 PostgreSQL Gate." >&2; exit 1)
 	node scripts/f05-db-gate.cjs
+
+f07-db-check:
+	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for the F07 Supabase Gate." >&2; exit 1)
+	node scripts/f07-db-gate.cjs
+
+f07-recovery-diagnostic:
+	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for F07 recovery diagnostics." >&2; exit 1)
+	QUANTOS_F07_RECOVERY_DIAGNOSTIC=1 node scripts/f07-db-gate.cjs
+
+f07-coverage-diagnostic:
+	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for F07 coverage diagnostics." >&2; exit 1)
+	QUANTOS_F07_COVERAGE_DIAGNOSTIC=1 node scripts/f07-db-gate.cjs
+
+f07-fixture-check:
+	node scripts/f07-fixture-check.cjs
+
+f07-fixture-retire:
+	QUANTOS_F07_FIXTURE_RETIRE=1 node scripts/f07-fixture-check.cjs --retire
+
+f07-forward-migration:
+	QUANTOS_F07_MIGRATION_ONLY=1 node scripts/f07-db-gate.cjs
 
 f05-target-check:
 	node scripts/f05-target-gate.cjs

@@ -1,10 +1,10 @@
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
-use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{
     Client, NoTls, Row, Transaction,
     types::{Json, Type},
 };
-use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector;
 use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
@@ -28,7 +28,11 @@ pub enum PgRuntimeError {
     #[error(transparent)]
     Url(#[from] url::ParseError),
     #[error(transparent)]
-    Tls(#[from] native_tls::Error),
+    Tls(#[from] openssl::error::ErrorStack),
+    #[error("remote runtime database requires sslmode=verify-full")]
+    InsecureDatabaseTransport,
+    #[error("runtime database login must have only quantos_runtime role membership")]
+    RuntimeRoleRequired,
     #[error(transparent)]
     Core(#[from] CoreError),
     #[error(transparent)]
@@ -50,16 +54,96 @@ impl PgRuntimeStore {
         })
     }
 
+    pub fn connect_as_runtime(database_url: &str) -> Result<Self, PgRuntimeError> {
+        let url = Url::parse(database_url)?;
+        if !url
+            .query_pairs()
+            .any(|(key, value)| key == "sslmode" && value == "verify-full")
+        {
+            return Err(PgRuntimeError::InsecureDatabaseTransport);
+        }
+        let mut store = Self::connect(database_url)?;
+        let role = store.client.query_one(
+            "select pg_has_role(session_user, 'quantos_runtime', 'SET') as runtime,
+                    pg_has_role(session_user, 'quantos_bff', 'SET') as bff,
+                    pg_has_role(session_user, 'quantos_execution_gateway', 'SET') as execution",
+            &[],
+        )?;
+        if !role.get::<_, bool>("runtime")
+            || role.get::<_, bool>("bff")
+            || role.get::<_, bool>("execution")
+        {
+            return Err(PgRuntimeError::RuntimeRoleRequired);
+        }
+        store.client.batch_execute("set role quantos_runtime")?;
+        Ok(store)
+    }
+
+    pub fn load_session(
+        &mut self,
+        id: RuntimeSessionId,
+    ) -> Result<Option<RuntimeSession>, PgRuntimeError> {
+        self.client.query_typed_opt(
+            "select id, tenant_id, actor_id, workspace_id, account_id, mode, created_at, expires_at
+             from quantos.runtime_sessions where id = $1 and revoked_at is null",
+            &[(id.as_uuid(), Type::UUID)],
+        )?.map(|row| row_to_runtime_session(&row)).transpose()
+    }
+
+    pub fn pending_tenants(&mut self) -> Result<Vec<TenantId>, PgRuntimeError> {
+        let rows = self.client.query(
+            "select distinct tenant_id from quantos.workflow_runs
+             where status in ('queued', 'running', 'cancel_requested')",
+            &[],
+        )?;
+        Ok(rows
+            .into_iter()
+            .map(|row| TenantId::from_uuid(row.get(0)))
+            .collect())
+    }
+
+    pub fn finalize_pending_cancellations(
+        &mut self,
+        tenant_id: TenantId,
+        at: DateTime<Utc>,
+    ) -> Result<usize, PgRuntimeError> {
+        let rows = self.client.query_typed(
+            "select id from quantos.workflow_runs
+             where tenant_id = $1 and status = 'cancel_requested'
+               and (lease_expires_at is null or lease_expires_at <= $2)",
+            &[(tenant_id.as_uuid(), Type::UUID), (&at, Type::TIMESTAMPTZ)],
+        )?;
+        for row in &rows {
+            self.finalize_cancelled(WorkflowRunId::from_uuid(row.get("id")), at)?;
+        }
+        Ok(rows.len())
+    }
+
     pub fn create_session(
         &mut self,
         auth: &AuthContext,
         created_at: DateTime<Utc>,
         expires_at: DateTime<Utc>,
     ) -> Result<RuntimeSession, PgRuntimeError> {
-        let row = self.client.query_typed_one(
+        if expires_at <= created_at {
+            return Err(crate::RuntimeError::rejected("session expiry is invalid").into());
+        }
+        let row = self.client.query_typed_opt(
             "insert into quantos.runtime_sessions (
                 tenant_id, actor_id, workspace_id, account_id, mode, created_at, expires_at
-            ) values ($1,$2,$3,$4,$5,$6,$7)
+            ) select $1,$2,$3,$4,$5,$6,$7
+              from quantos.actors as actor
+              join quantos.workspace_memberships as member
+                on member.tenant_id = actor.tenant_id and member.actor_id = actor.id
+               and member.workspace_id = $3
+              where actor.id = $2 and actor.tenant_id = $1
+                and actor.user_id = $8 and actor.is_active = true
+                and ($4::uuid is null or exists (
+                  select 1 from quantos.accounts as account
+                  where account.id = $4 and account.tenant_id = $1
+                    and account.workspace_id = $3 and account.mode = $5
+                    and account.is_active = true
+                ))
             returning id, tenant_id, actor_id, workspace_id, account_id, mode, created_at, expires_at",
             &[
                 (auth.tenant_id.as_uuid(), Type::UUID),
@@ -69,9 +153,14 @@ impl PgRuntimeStore {
                 (&auth.mode.as_str(), Type::TEXT),
                 (&created_at, Type::TIMESTAMPTZ),
                 (&expires_at, Type::TIMESTAMPTZ),
+                (&auth.user_id, Type::UUID),
             ],
         )?;
-        row_to_runtime_session(&row)
+        row.map(|row| row_to_runtime_session(&row))
+            .transpose()?
+            .ok_or_else(|| {
+                crate::RuntimeError::rejected("runtime session context is invalid").into()
+            })
     }
 
     pub fn register_tool(
@@ -112,7 +201,12 @@ impl PgRuntimeStore {
         input: &NewWorkflowRun,
         queued_at: DateTime<Utc>,
     ) -> Result<WorkflowRun, PgRuntimeError> {
-        let row = self.client.query_typed_opt(
+        if input.deadline_at <= queued_at || input.rate_limit_per_minute == 0 {
+            return Err(crate::RuntimeError::rejected("deadline or rate limit is invalid").into());
+        }
+        let fingerprint = ContentHash::sha256_bytes(&serde_json::to_vec(input)?);
+        let mut tx = self.client.transaction()?;
+        let row = tx.query_typed_opt(
             "with session_row as (
                 select session.id,
                        session.tenant_id,
@@ -124,6 +218,7 @@ impl PgRuntimeStore {
                 from quantos.runtime_sessions as session
                 where session.id = $1
                   and session.expires_at > $12
+                  and session.revoked_at is null
             ),
             tool_row as (
                 select tool.tool_name,
@@ -133,16 +228,43 @@ impl PgRuntimeStore {
                 from quantos.tool_registry as tool
                 join session_row as session on session.tenant_id = tool.tenant_id
                 where tool.tool_name = $2 and tool.enabled = true
+                  and tool.capability = $3
+                  and (session.account_id is null or exists (
+                    select 1 from quantos.accounts as account
+                    where account.id = session.account_id
+                      and account.tenant_id = session.tenant_id
+                      and account.workspace_id = session.workspace_id
+                      and account.mode = session.mode and account.is_active = true
+                  ))
+                  and exists (
+                    select 1 from quantos.actors as actor
+                    join quantos.workspace_memberships as member
+                      on member.tenant_id = actor.tenant_id
+                     and member.actor_id = actor.id
+                     and member.workspace_id = session.workspace_id
+                    join quantos.actor_capabilities as grant_row
+                      on grant_row.tenant_id = actor.tenant_id
+                     and grant_row.actor_id = actor.id
+                     and grant_row.capability = $3
+                     and (grant_row.workspace_id is null or grant_row.workspace_id = session.workspace_id)
+                     and (grant_row.account_id is null or grant_row.account_id = session.account_id)
+                     and (grant_row.mode_scope is null or grant_row.mode_scope = session.mode)
+                    where actor.id = session.actor_id
+                      and actor.tenant_id = session.tenant_id
+                      and actor.is_active = true
+                  )
             )
             insert into quantos.workflow_runs (
                 tenant_id, runtime_session_id, actor_id, workspace_id, account_id, tool_name,
                 capability, workflow_kind, idempotency_key, correlation_id, input_hash,
                 status, attempts, max_attempts, next_attempt_at, deadline_at,
-                cost_budget_units, rate_limit_per_minute, created_at, updated_at
+                cost_budget_units, rate_limit_per_minute, created_at, updated_at,
+                request_fingerprint
             )
             select session.tenant_id, session.id, session.actor_id, session.workspace_id, session.account_id,
                    tool.tool_name, $3, $4, $5, $6, $7, 'queued', 0, $8, $12, $9,
-                   least($10, tool.max_cost_units), least($11, tool.rate_limit_per_minute), $12, $12
+                   least($10, tool.max_cost_units), least($11, tool.rate_limit_per_minute), $12, $12,
+                   $13
             from session_row as session
             join tool_row as tool on true
             on conflict (tenant_id, idempotency_key)
@@ -151,7 +273,8 @@ impl PgRuntimeStore {
                       tool_name, capability, workflow_kind, idempotency_key, correlation_id,
                       input_hash, status, attempts, max_attempts, next_attempt_at, deadline_at,
                       cost_budget_units, rate_limit_per_minute, lease_owner, lease_expires_at,
-                      cancel_requested_at, completed_at, last_error, created_at, updated_at",
+                      cancel_requested_at, completed_at, last_error, created_at, updated_at,
+                      request_fingerprint, (xmax = '0'::xid) as inserted",
             &[
                 (input.runtime_session_id.as_uuid(), Type::UUID),
                 (&input.tool_name, Type::TEXT),
@@ -165,13 +288,38 @@ impl PgRuntimeStore {
                 (&(input.cost_budget_units as i64), Type::INT8),
                 (&(input.rate_limit_per_minute as i32), Type::INT4),
                 (&queued_at, Type::TIMESTAMPTZ),
+                (&fingerprint.as_str(), Type::TEXT),
             ],
         )?;
 
-        match row {
-            Some(row) => row_to_workflow_run(&row),
-            None => Err(crate::RuntimeError::tool_not_registered(&input.tool_name).into()),
+        let row = row.ok_or_else(|| crate::RuntimeError::tool_not_registered(&input.tool_name))?;
+        let run = row_to_workflow_run(&row)?;
+        if row.get::<_, String>("request_fingerprint") != fingerprint.as_str() {
+            return Err(
+                crate::RuntimeError::duplicate_idempotency_key(&input.idempotency_key).into(),
+            );
         }
+        if row.get::<_, bool>("inserted") {
+            let window = queued_at.timestamp().div_euclid(60) * 60;
+            let rate = tx.query_typed_one(
+                "insert into quantos.workflow_tool_rate_windows
+                   (tenant_id, tool_name, window_start, accepted_count)
+                 values ($1,$2,to_timestamp($3),1)
+                 on conflict (tenant_id, tool_name, window_start)
+                 do update set accepted_count = quantos.workflow_tool_rate_windows.accepted_count + 1
+                 returning accepted_count",
+                &[
+                    (run.tenant_id.as_uuid(), Type::UUID),
+                    (&run.tool_name, Type::TEXT),
+                    (&window, Type::INT8),
+                ],
+            )?;
+            if rate.get::<_, i32>("accepted_count") > run.rate_limit_per_minute as i32 {
+                return Err(crate::RuntimeError::rejected("tool rate limit exceeded").into());
+            }
+        }
+        tx.commit()?;
+        Ok(run)
     }
 
     pub fn claim_runs(
@@ -183,6 +331,16 @@ impl PgRuntimeStore {
         lease_duration: ChronoDuration,
     ) -> Result<Vec<LeasedWorkflowRun>, PgRuntimeError> {
         self.mark_timed_out_runs(tenant_id, observed_at)?;
+        self.client.execute_typed(
+            "update quantos.workflow_runs set status = 'failed', completed_at = $2,
+                    lease_owner = null, lease_expires_at = null, attempt_id = null, updated_at = $2
+             where tenant_id = $1 and status = 'running' and attempts >= max_attempts
+               and lease_expires_at <= $2",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (&observed_at, Type::TIMESTAMPTZ),
+            ],
+        )?;
         let lease_expires_at = observed_at + lease_duration;
         let rows = self.client.query_typed(
             "with candidate as (
@@ -192,6 +350,7 @@ impl PgRuntimeStore {
                   and run.next_attempt_at <= $3
                   and run.deadline_at > $3
                   and run.cancel_requested_at is null
+                  and run.attempts < run.max_attempts
                   and run.status in ('queued', 'running')
                   and (
                     run.lease_expires_at is null
@@ -206,6 +365,7 @@ impl PgRuntimeStore {
                 attempts = run.attempts + 1,
                 lease_owner = $1,
                 lease_expires_at = $2,
+                attempt_id = gen_random_uuid(),
                 updated_at = $3
             from candidate
             where run.id = candidate.id
@@ -215,7 +375,7 @@ impl PgRuntimeStore {
                       run.attempts, run.max_attempts, run.next_attempt_at, run.deadline_at,
                       run.cost_budget_units, run.rate_limit_per_minute, run.lease_owner,
                       run.lease_expires_at, run.cancel_requested_at, run.completed_at,
-                      run.last_error, run.created_at, run.updated_at",
+                      run.last_error, run.created_at, run.updated_at, run.attempt_id",
             &[
                 (&worker_name, Type::TEXT),
                 (&lease_expires_at, Type::TIMESTAMPTZ),
@@ -229,7 +389,7 @@ impl PgRuntimeStore {
             .map(|row| {
                 let run = row_to_workflow_run(row)?;
                 Ok(LeasedWorkflowRun {
-                    task_attempt_id: TaskAttemptId::new(),
+                    task_attempt_id: TaskAttemptId::from_uuid(row.get("attempt_id")),
                     lease_owner: row
                         .get::<_, Option<String>>("lease_owner")
                         .unwrap_or_default(),
@@ -244,33 +404,49 @@ impl PgRuntimeStore {
 
     pub fn save_checkpoint(
         &mut self,
-        run_id: WorkflowRunId,
+        lease: &LeasedWorkflowRun,
         checkpoint_key: &str,
         step_index: u32,
         payload: &serde_json::Value,
         recorded_at: DateTime<Utc>,
     ) -> Result<WorkflowCheckpoint, PgRuntimeError> {
+        let mut tx = self.client.transaction()?;
+        check_lease_tx(&mut tx, lease, recorded_at)?;
         let payload = Json(payload);
-        let row = self.client.query_typed_one(
+        let row = tx.query_typed_opt(
             "insert into quantos.workflow_run_checkpoints (
                 workflow_run_id, checkpoint_key, step_index, payload, recorded_at
-            ) values ($1,$2,$3,$4,$5)
+            ) select run.id, $2, $3, $4, $5
+              from quantos.workflow_runs as run
+              where run.id = $1 and run.status = 'running'
+                and run.lease_owner = $6 and run.attempt_id = $7
+                and run.lease_expires_at > greatest($5, clock_timestamp())
+                and run.deadline_at > greatest($5, clock_timestamp())
+                and run.cancel_requested_at is null
             on conflict (workflow_run_id)
             do update set
                 checkpoint_key = excluded.checkpoint_key,
                 step_index = excluded.step_index,
                 payload = excluded.payload,
                 recorded_at = excluded.recorded_at
+            where quantos.workflow_run_checkpoints.step_index <= excluded.step_index
             returning workflow_run_id, checkpoint_key, step_index, payload, recorded_at",
             &[
-                (run_id.as_uuid(), Type::UUID),
+                (lease.run.workflow_run_id.as_uuid(), Type::UUID),
                 (&checkpoint_key, Type::TEXT),
                 (&(step_index as i32), Type::INT4),
                 (&payload, Type::JSONB),
                 (&recorded_at, Type::TIMESTAMPTZ),
+                (&lease.lease_owner, Type::TEXT),
+                (lease.task_attempt_id.as_uuid(), Type::UUID),
             ],
         )?;
-        row_to_checkpoint(&row)
+        let checkpoint = row
+            .map(|row| row_to_checkpoint(&row))
+            .transpose()?
+            .ok_or_else(|| crate::RuntimeError::lease_conflict(lease.run.workflow_run_id))?;
+        tx.commit()?;
+        Ok(checkpoint)
     }
 
     pub fn load_checkpoint(
@@ -290,21 +466,37 @@ impl PgRuntimeStore {
 
     pub fn record_artifact(
         &mut self,
-        run_id: WorkflowRunId,
+        lease: &LeasedWorkflowRun,
         manifest: &ArtifactManifest,
         recorded_at: DateTime<Utc>,
     ) -> Result<WorkflowArtifactBinding, PgRuntimeError> {
+        let mut tx = self.client.transaction()?;
+        check_lease_tx(&mut tx, lease, recorded_at)?;
         let metadata = serde_json::to_value(&manifest.metadata)?;
         let metadata = Json(&metadata);
         // Keep artifact upsert, workflow binding, and run touch in one statement.
         // Besides being atomic, this avoids four cross-region round trips and is
         // compatible with transaction-pooler connections.
-        let row = self.client.query_typed_one(
+        let row = tx.query_typed_opt(
             "with artifact as (
                insert into quantos.object_artifacts (
                  tenant_id, artifact_id, content_hash, storage_bucket, object_key,
                  media_type, size_bytes, metadata, created_at
-               ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+               ) select $1,$2,$3,$4,$5,$6,$7,$8,$9
+                 from quantos.workflow_runs as run
+                 where run.id = $10 and run.tenant_id = $1
+                   and run.status = 'running' and run.lease_owner = $12
+                   and run.attempt_id = $13
+                   and run.lease_expires_at > greatest($11, clock_timestamp())
+                   and run.deadline_at > greatest($11, clock_timestamp())
+                   and run.cancel_requested_at is null
+                   and (run.cost_used_units < run.cost_budget_units or exists (
+                     select 1 from quantos.workflow_run_artifacts as old_binding
+                     join quantos.object_artifacts as old_artifact
+                       on old_artifact.artifact_id = old_binding.artifact_id
+                     where old_binding.workflow_run_id = run.id
+                       and old_artifact.tenant_id = $1 and old_artifact.content_hash = $3
+                   ))
                on conflict (tenant_id, content_hash)
                do update set
                  storage_bucket = quantos.object_artifacts.storage_bucket,
@@ -316,17 +508,18 @@ impl PgRuntimeStore {
              ),
              binding as (
                insert into quantos.workflow_run_artifacts (
-                 workflow_run_id, artifact_id, linked_at
+                 tenant_id, workflow_run_id, artifact_id, linked_at
                )
-               select $10, artifact_id, $11 from artifact
+               select $1, $10, artifact_id, $11 from artifact
                on conflict (workflow_run_id, artifact_id)
                do update set linked_at = quantos.workflow_run_artifacts.linked_at
-               returning workflow_run_id, artifact_id, linked_at
+               returning workflow_run_id, artifact_id, linked_at,
+                         (xmax = '0'::xid) as created
              ),
              touched as (
                update quantos.workflow_runs
-               set updated_at = $11
-               where id = $10 and exists (select 1 from binding)
+               set updated_at = $11, cost_used_units = cost_used_units + 1
+               where id = $10 and exists (select 1 from binding where created)
              )
              select workflow_run_id, artifact_id, linked_at from binding",
             &[
@@ -339,10 +532,15 @@ impl PgRuntimeStore {
                 (&(manifest.size_bytes as i64), Type::INT8),
                 (&metadata, Type::JSONB),
                 (&manifest.created_at, Type::TIMESTAMPTZ),
-                (run_id.as_uuid(), Type::UUID),
+                (lease.run.workflow_run_id.as_uuid(), Type::UUID),
                 (&recorded_at, Type::TIMESTAMPTZ),
+                (&lease.lease_owner, Type::TEXT),
+                (lease.task_attempt_id.as_uuid(), Type::UUID),
             ],
         )?;
+        let row =
+            row.ok_or_else(|| crate::RuntimeError::lease_conflict(lease.run.workflow_run_id))?;
+        tx.commit()?;
         Ok(WorkflowArtifactBinding {
             workflow_run_id: WorkflowRunId::from_uuid(row.get("workflow_run_id")),
             artifact_id: ArtifactId::from_uuid(row.get("artifact_id")),
@@ -353,8 +551,7 @@ impl PgRuntimeStore {
 
     pub fn complete_run(
         &mut self,
-        run_id: WorkflowRunId,
-        worker_name: &str,
+        lease: &LeasedWorkflowRun,
         completed_at: DateTime<Utc>,
     ) -> Result<(), PgRuntimeError> {
         let updated = self.client.execute_typed(
@@ -362,19 +559,57 @@ impl PgRuntimeStore {
              set status = 'succeeded',
                  completed_at = $3,
                  lease_owner = null,
-                 lease_expires_at = null,
+                 lease_expires_at = null, attempt_id = null,
                  updated_at = $3
-             where id = $1 and lease_owner = $2",
+             where id = $1 and lease_owner = $2 and attempt_id = $4
+               and status = 'running' and lease_expires_at > greatest($3, clock_timestamp())
+               and deadline_at > greatest($3, clock_timestamp())
+               and cancel_requested_at is null",
             &[
-                (run_id.as_uuid(), Type::UUID),
-                (&worker_name, Type::TEXT),
+                (lease.run.workflow_run_id.as_uuid(), Type::UUID),
+                (&lease.lease_owner, Type::TEXT),
                 (&completed_at, Type::TIMESTAMPTZ),
+                (lease.task_attempt_id.as_uuid(), Type::UUID),
             ],
         )?;
         if updated == 0 {
-            return Err(crate::RuntimeError::lease_conflict(run_id).into());
+            return Err(crate::RuntimeError::lease_conflict(lease.run.workflow_run_id).into());
         }
         Ok(())
+    }
+
+    pub fn fail_and_retry(
+        &mut self,
+        lease: &LeasedWorkflowRun,
+        detail: &str,
+        observed_at: DateTime<Utc>,
+    ) -> Result<WorkflowRunStatus, PgRuntimeError> {
+        let backoff_seconds = 1_i64 << lease.run.attempts.saturating_sub(1).min(6);
+        let row = self.client.query_typed_opt(
+            "update quantos.workflow_runs
+             set status = case when attempts >= max_attempts then 'failed' else 'queued' end,
+                 completed_at = case when attempts >= max_attempts then $4 else null end,
+                 next_attempt_at = $4 + $5 * interval '1 second',
+                 last_error = $6, lease_owner = null, lease_expires_at = null,
+                 attempt_id = null, updated_at = $4
+             where id = $1 and lease_owner = $2 and attempt_id = $3
+               and status = 'running' and lease_expires_at > greatest($4, clock_timestamp())
+               and deadline_at > greatest($4, clock_timestamp())
+               and cancel_requested_at is null
+             returning status",
+            &[
+                (lease.run.workflow_run_id.as_uuid(), Type::UUID),
+                (&lease.lease_owner, Type::TEXT),
+                (lease.task_attempt_id.as_uuid(), Type::UUID),
+                (&observed_at, Type::TIMESTAMPTZ),
+                (&backoff_seconds, Type::INT8),
+                (&detail, Type::TEXT),
+            ],
+        )?;
+        let row =
+            row.ok_or_else(|| crate::RuntimeError::lease_conflict(lease.run.workflow_run_id))?;
+        WorkflowRunStatus::from_database(row.get::<_, String>("status").as_str())
+            .map_err(PgRuntimeError::from)
     }
 
     pub fn request_cancel(
@@ -383,23 +618,24 @@ impl PgRuntimeStore {
         requested_at: DateTime<Utc>,
     ) -> Result<(), PgRuntimeError> {
         let mut tx = self.client.transaction()?;
-        let row = tx.query_typed_one(
+        let row = tx.query_typed_opt(
             "update quantos.workflow_runs as run
-             set status = case
-                   when run.status in ('queued', 'running', 'cancel_requested') then 'cancel_requested'
-                   else run.status
-                 end,
-                 cancel_requested_at = coalesce(run.cancel_requested_at, $2),
+             set status = 'cancel_requested',
+                 cancel_requested_at = $2,
                  updated_at = $2
              from quantos.actors as actor
              where run.id = $1
                and actor.id = run.actor_id
+               and run.status in ('queued', 'running')
              returning run.tenant_id, run.correlation_id, actor.id as actor_id",
             &[
                 (run_id.as_uuid(), Type::UUID),
                 (&requested_at, Type::TIMESTAMPTZ),
             ],
         )?;
+        let Some(row) = row else {
+            return Ok(());
+        };
         insert_audit_tx(
             &mut tx,
             TenantId::from_uuid(row.get("tenant_id")),
@@ -419,22 +655,27 @@ impl PgRuntimeStore {
         cancelled_at: DateTime<Utc>,
     ) -> Result<(), PgRuntimeError> {
         let mut tx = self.client.transaction()?;
-        let row = tx.query_typed_one(
+        let row = tx.query_typed_opt(
             "update quantos.workflow_runs as run
              set status = 'cancelled',
                  completed_at = $2,
                  lease_owner = null,
-                 lease_expires_at = null,
+                 lease_expires_at = null, attempt_id = null,
                  updated_at = $2
              from quantos.actors as actor
              where run.id = $1
                and actor.id = run.actor_id
+               and run.status = 'cancel_requested'
+               and (run.lease_expires_at is null or run.lease_expires_at <= $2)
              returning run.tenant_id, run.correlation_id, actor.id as actor_id",
             &[
                 (run_id.as_uuid(), Type::UUID),
                 (&cancelled_at, Type::TIMESTAMPTZ),
             ],
         )?;
+        let Some(row) = row else {
+            return Ok(());
+        };
         insert_audit_tx(
             &mut tx,
             TenantId::from_uuid(row.get("tenant_id")),
@@ -459,12 +700,11 @@ impl PgRuntimeStore {
              set status = 'timed_out',
                  completed_at = $1,
                  lease_owner = null,
-                 lease_expires_at = null,
+                 lease_expires_at = null, attempt_id = null,
                  updated_at = $1
              from quantos.actors as actor
              where run.tenant_id = $2
                and run.deadline_at <= $1
-               and run.cancel_requested_at is null
                and run.status not in ('succeeded', 'failed', 'cancelled', 'timed_out')
                and actor.id = run.actor_id
              returning run.id, run.tenant_id, run.correlation_id, actor.id as actor_id",
@@ -523,6 +763,45 @@ impl PgRuntimeStore {
             .get("count"))
     }
 
+    pub fn load_artifact_for_run(
+        &mut self,
+        tenant_id: TenantId,
+        run_id: WorkflowRunId,
+        artifact_id: ArtifactId,
+    ) -> Result<Option<ArtifactManifest>, PgRuntimeError> {
+        let row = self.client.query_typed_opt(
+            "select artifact.artifact_id, artifact.tenant_id, artifact.media_type,
+                    artifact.content_hash, artifact.storage_bucket, artifact.object_key,
+                    artifact.size_bytes, artifact.metadata, artifact.created_at
+             from quantos.workflow_run_artifacts as binding
+             join quantos.object_artifacts as artifact
+               on artifact.artifact_id = binding.artifact_id
+              and artifact.tenant_id = binding.tenant_id
+             where binding.tenant_id = $1 and binding.workflow_run_id = $2
+               and binding.artifact_id = $3",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (run_id.as_uuid(), Type::UUID),
+                (artifact_id.as_uuid(), Type::UUID),
+            ],
+        )?;
+        row.map(|row| {
+            let metadata: Json<serde_json::Value> = row.get("metadata");
+            Ok(ArtifactManifest {
+                artifact_id: ArtifactId::from_uuid(row.get("artifact_id")),
+                tenant_id: TenantId::from_uuid(row.get("tenant_id")),
+                media_type: row.get("media_type"),
+                content_hash: ContentHash::parse(row.get::<_, String>("content_hash").as_str())?,
+                storage_bucket: row.get("storage_bucket"),
+                object_key: row.get("object_key"),
+                size_bytes: row.get::<_, i64>("size_bytes") as u64,
+                metadata: serde_json::from_value(metadata.0)?,
+                created_at: row.get("created_at"),
+            })
+        })
+        .transpose()
+    }
+
     pub fn audit_actions_for_run(
         &mut self,
         run_id: WorkflowRunId,
@@ -538,28 +817,71 @@ impl PgRuntimeStore {
     }
 }
 
+fn check_lease_tx(
+    tx: &mut Transaction<'_>,
+    lease: &LeasedWorkflowRun,
+    at: DateTime<Utc>,
+) -> Result<(), PgRuntimeError> {
+    let row = tx.query_typed_opt(
+        "select id from quantos.workflow_runs
+         where id = $1 and tenant_id = $2 and status = 'running'
+           and lease_owner = $3 and attempt_id = $4
+           and lease_expires_at > greatest($5, clock_timestamp())
+           and deadline_at > greatest($5, clock_timestamp())
+           and cancel_requested_at is null
+         for update",
+        &[
+            (lease.run.workflow_run_id.as_uuid(), Type::UUID),
+            (lease.run.tenant_id.as_uuid(), Type::UUID),
+            (&lease.lease_owner, Type::TEXT),
+            (lease.task_attempt_id.as_uuid(), Type::UUID),
+            (&at, Type::TIMESTAMPTZ),
+        ],
+    )?;
+    if row.is_none() {
+        return Err(crate::RuntimeError::lease_conflict(lease.run.workflow_run_id).into());
+    }
+    Ok(())
+}
+
 fn connect_client(database_url: &str) -> Result<Client, PgRuntimeError> {
     let url = Url::parse(database_url)?;
-    let disable_tls = url
+    let local = matches!(url.host_str(), Some("localhost" | "127.0.0.1" | "::1"));
+    let mode = url
         .query_pairs()
-        .any(|(key, value)| key == "sslmode" && value == "disable");
-    let relaxed_tls = url
-        .query_pairs()
-        .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
-
-    if disable_tls {
-        Ok(Client::connect(database_url, NoTls)?)
-    } else {
-        let mut builder = TlsConnector::builder();
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
-        }
-        let connector = builder.build()?;
-        Ok(Client::connect(
-            database_url,
-            MakeTlsConnector::new(connector),
-        )?)
+        .find(|(key, _)| key == "sslmode")
+        .map(|(_, value)| value.into_owned());
+    if !local && mode.as_deref() != Some("verify-full") {
+        return Err(PgRuntimeError::InsecureDatabaseTransport);
     }
+    let root = url
+        .query_pairs()
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned());
+    let options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+        .map(|(key, value)| (key.into_owned(), value.into_owned()))
+        .collect::<Vec<_>>();
+    let mut connection_url = url.clone();
+    connection_url.set_query(None);
+    if !options.is_empty() {
+        connection_url.query_pairs_mut().extend_pairs(options);
+    }
+    let mut config: postgres::Config = connection_url.as_str().parse()?;
+    if local && mode.as_deref() != Some("verify-full") {
+        config.ssl_mode(postgres::config::SslMode::Disable);
+        return Ok(config.connect(NoTls)?);
+    }
+    let mut builder = SslConnector::builder(SslMethod::tls())?;
+    builder.set_verify(SslVerifyMode::PEER);
+    if let Some(root) = root {
+        builder.set_ca_file(root)?;
+    } else {
+        builder.set_default_verify_paths()?;
+    }
+    config.ssl_mode(postgres::config::SslMode::Require);
+    Ok(config.connect(MakeTlsConnector::new(builder.build()))?)
 }
 
 fn insert_audit_tx(
@@ -631,16 +953,7 @@ fn row_to_workflow_run(row: &Row) -> Result<WorkflowRun, PgRuntimeError> {
         idempotency_key: row.get("idempotency_key"),
         correlation_id: CorrelationId::from_uuid(row.get("correlation_id")),
         input_hash: ContentHash::parse(row.get::<_, String>("input_hash").as_str())?,
-        status: match row.get::<_, String>("status").as_str() {
-            "queued" => WorkflowRunStatus::Queued,
-            "running" => WorkflowRunStatus::Running,
-            "succeeded" => WorkflowRunStatus::Succeeded,
-            "failed" => WorkflowRunStatus::Failed,
-            "cancel_requested" => WorkflowRunStatus::CancelRequested,
-            "cancelled" => WorkflowRunStatus::Cancelled,
-            "timed_out" => WorkflowRunStatus::TimedOut,
-            value => return Err(crate::RuntimeError::invalid_status(value).into()),
-        },
+        status: WorkflowRunStatus::from_database(row.get::<_, String>("status").as_str())?,
         attempts: row.get::<_, i32>("attempts") as u32,
         max_attempts: row.get::<_, i32>("max_attempts") as u32,
         next_attempt_at: row.get("next_attempt_at"),
