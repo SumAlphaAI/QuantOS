@@ -333,6 +333,7 @@ fn f06_four_category_denial_matrix() {
     let fixture_a = seed_auth_fixture(&database_url, tenant_a, user_a);
     let _fixture_b = seed_auth_fixture(&database_url, tenant_b, user_b);
     let mut denied = 0;
+    let engine_sqlstate;
     let mut middleware = GatewayAuthMiddleware::connect(&database_url).expect("connect auth store");
     let requirement =
         AuthorizationRequirement::new(Capability::parse(Capability::EXECUTION_OPERATE).unwrap())
@@ -422,6 +423,7 @@ fn f06_four_category_denial_matrix() {
             error.code(),
             Some(&postgres::error::SqlState::INSUFFICIENT_PRIVILEGE)
         );
+        engine_sqlstate = error.code().map(|code| code.code().to_owned());
         denied += 1;
     }
     client
@@ -429,7 +431,18 @@ fn f06_four_category_denial_matrix() {
         .expect("rollback role probes");
     assert_eq!(denied, 4);
     eprintln!(
-        "F06_DENIAL_MATRIX={{\"status\":\"PASS\",\"denied\":{denied},\"total\":4,\"categories\":[\"missing_actor_or_tenant\",\"capability\",\"rls_bypass\",\"engine_secret\"]}}"
+        "F06_DENIAL_MATRIX={}",
+        serde_json::json!({
+            "status": "PASS",
+            "denied": denied,
+            "total": 4,
+            "cases": [
+                { "category": "missing_actor_or_tenant", "probes": 2, "denied": 2, "layer": "auth_middleware" },
+                { "category": "capability", "probes": 1, "denied": 1, "layer": "auth_middleware" },
+                { "category": "rls_bypass", "probes": 1, "denied": 1, "role": "authenticated", "result": "zero_rows" },
+                { "category": "engine_secret", "probes": 1, "denied": 1, "role": "quantos_engine", "sqlstate": engine_sqlstate },
+            ],
+        })
     );
 }
 

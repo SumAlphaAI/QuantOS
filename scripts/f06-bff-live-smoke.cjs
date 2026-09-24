@@ -21,6 +21,8 @@ async function main() {
   assert(auth.ok, `Supabase test login returned HTTP ${auth.status}`);
   const token = (await auth.json()).access_token;
   assert(token, 'Supabase test login returned no access token');
+  const claims = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString('utf8'));
+  assert(claims.sub === process.env.QUANTOS_F06_TEST_USER_ID, 'Supabase subject is not the configured test user');
   const port = 49000 + crypto.randomInt(1000);
   const base = `http://127.0.0.1:${port}`;
   const child = spawn(path.resolve('target/debug/bff-gateway'), [], {
@@ -56,6 +58,10 @@ async function main() {
     assert(established.status === 204, `session handshake returned HTTP ${established.status}`);
     const cookie = established.headers.get('set-cookie')?.split(';')[0];
     assert(cookie?.startsWith('quantos_session='), 'opaque BFF cookie was not issued');
+    const setCookie = established.headers.get('set-cookie') || '';
+    assert(/; Secure(?:;|$)/i.test(setCookie), 'session cookie is not Secure');
+    assert(/; HttpOnly(?:;|$)/i.test(setCookie), 'session cookie is not HttpOnly');
+    assert(/; SameSite=Strict(?:;|$)/i.test(setCookie), 'session cookie is not SameSite=Strict');
     assert(established.headers.get('cache-control') === 'no-store', 'session cookie was cacheable');
     const session = await request('/v1/session', { headers: { cookie } });
     assert(session.status === 200, `session read returned HTTP ${session.status}`);
@@ -64,6 +70,9 @@ async function main() {
     assert(context.tenantId === process.env.QUANTOS_F06_TEST_TENANT_ID, 'tenant mismatch');
     assert(context.accountId === process.env.QUANTOS_F06_TEST_ACCOUNT_ID, 'account mismatch');
     assert(context.mfaState === 'challenged', 'AAL1 test session must not assert MFA');
+    const sessionExpiry = Date.parse(context.expiresAt);
+    assert(Number.isFinite(sessionExpiry) && sessionExpiry > Date.now(), 'session expiry is invalid');
+    assert(sessionExpiry <= claims.exp * 1000, 'BFF session outlives the verified Auth token');
     assert(context.capabilities.includes('execution.operate'), 'server capability mapping missing');
     assert(session.headers.get('x-correlation-id'), 'session correlation ID missing');
     const validContext = await request('/v1/context', { headers: { cookie } });
@@ -75,10 +84,17 @@ async function main() {
     assert(hidden.headers.get('x-correlation-id'), 'hidden-resource correlation ID missing');
     const revoked = await request('/v1/auth/logout', { method: 'POST', headers: { origin, cookie } });
     assert(revoked.status === 204, 'logout failed');
+    assert(/Max-Age=0(?:;|$)/i.test(revoked.headers.get('set-cookie') || ''), 'logout did not clear the cookie');
     const afterRevoke = await request('/v1/session', { headers: { cookie } });
     assert(afterRevoke.status === 401, 'revoked session remained valid');
     console.log(JSON.stringify({ status: 'PASS', originKind: 'synthetic_http_smoke',
-      realSupabaseAuth: true, independentBffLogin: true,
+      realSupabaseAuth: true, independentBffLogin: true, verifiedSubject: true,
+      cookiePolicy: 'Secure; HttpOnly; SameSite=Strict', tokenBoundExpiry: true,
+      httpStatuses: { missingCookie: missing.status, foreignOrigin: wrongOrigin.status,
+        invalidToken: invalidToken.status, sessionEstablished: established.status,
+        sessionRead: session.status, primaryContext: validContext.status,
+        hiddenAccount: hidden.status, logout: revoked.status,
+        revokedSession: afterRevoke.status },
       checks: ['auth_login', 'missing_cookie', 'foreign_origin', 'invalid_token',
         'opaque_cookie', 'session_context', 'primary_context', 'hidden_account',
         'server_revocation'] }));

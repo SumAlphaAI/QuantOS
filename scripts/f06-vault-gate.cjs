@@ -20,6 +20,7 @@ async function main() {
   });
   await client.connect();
   const checks = [];
+  const roleDenials = [];
   try {
     const role = (await client.query(`select current_user,
       pg_has_role(current_user, 'quantos_execution_gateway', 'SET') as can_set_gateway,
@@ -113,18 +114,23 @@ async function main() {
             throw Error(`${deniedRole} reached a Vault decryption path`);
           } catch (error) {
             if (error.code !== '42501') throw error;
+            roleDenials.push({ role: deniedRole,
+              path: sql.includes('resolve_execution') ? 'resolver' : 'decrypted_view',
+              sqlstate: error.code });
           } finally {
             await client.query('rollback to savepoint f06_denial');
             await client.query('release savepoint f06_denial');
           }
         }
       }
+      assert(roleDenials.length === 8, 'Vault role denial matrix is incomplete');
       checks.push('8/8 actual SQL denials for UI, user, BFF and Engine roles');
     } finally {
       await client.query('rollback');
     }
     console.log(JSON.stringify({
-      status:'PASS', checks, secretMaterialLogged:false,
+      status:'PASS', checks, roleDenials, denied:roleDenials.length, total:8,
+      secretMaterialLogged:false,
       platformServiceRoleViewException: privileges.service_role_view,
       applicationRolesHoldServiceRole:false,
     }));
