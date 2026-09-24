@@ -1,0 +1,35 @@
+{
+  "schema": "quantos-f06-a01-a08-target-review/v1",
+  "testedSourceCommit": "559471e60bdb380695853d1151cd2e655a79cbc7",
+  "environment": "isolated_supabase_with_local_live_bff",
+  "originKind": "synthetic_https_server_probe",
+  "a01": {
+    "status": "PARTIAL",
+    "independentBffLogin": "PASS",
+    "realSupabaseAuthBffHttp": "PASS",
+    "verifiedSubject": true,
+    "httpChecks": 9,
+    "httpStatuses": {
+      "missingCookie": 401,
+      "foreignOrigin": 403,
+      "invalidToken": 401,
+      "sessionEstablished": 204,
+      "sessionRead": 200,
+      "primaryContext": 200,
+      "hiddenAccount": 404,
+      "logout": 204,
+      "revokedSession": 401
+    },
+    "secureCookieAndTokenBoundExpiry": "PASS",
+    "runtimeLiveIdentity": "NOT_RUN",
+    "externalOidcProvider": "NOT_RUN"
+  },
+  "a08": {
+    "status": "PASS",
+    "denialCategories": { "denied": 4, "total": 4, "missingActorOrTenantProbes": 2 },
+    "engineSecretSqlstate": "42501",
+    "crossTenantRlsResult": "zero_rows",
+    "vaultRolePaths": { "denied": 8, "total": 8, "roles": ["anon", "authenticated", "quantos_bff", "quantos_engine"], "paths": ["decrypted_view", "resolver"], "sqlstate": "42501" }
+  },
+  "f06OverallAcceptance": "NOT_ACCEPTED"
+}
