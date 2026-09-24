@@ -282,7 +282,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；本次在代码提交 559471e 的隔离目标重跑真实 Auth/live BFF 9 项 HTTP、四类拒绝 4/4 及 Vault 四角色两路径 8/8，A08 单项关闭，余 9 项仍待复验。A01 的 BFF 分段通过，但 Runtime 目标身份链尚无回执，保持 OPEN。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate；F06 总回执仍缺，开发机跨区域鉴权读 P95 651ms（要求 <500ms），同区域与 Execution 闭环未验收。详见 [A01/A08 本次复验](./audit/F06-A01-A08-target-review-2026-09-24.md)、[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)及[前次记录](./audit/F06-continuation-2026-09-24.md)。
+- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；代码提交 559471e 的隔离目标重跑真实 Auth/live BFF 9 项 HTTP、四类拒绝 4/4 及 Vault 四角色两路径 8/8，A08 单项关闭，余 9 项仍待复验。A01 的 BFF 分段及 Runtime 独立登录最小权限 Gate 已通过，但 Runtime live HTTP 身份链缺受限 Storage 凭据和目标回执，保持 OPEN。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate；F06 总回执仍缺，开发机跨区域鉴权读 P95 651ms（要求 <500ms），同区域与 Execution 闭环未验收。详见 [A01/A08 本次复验](./audit/F06-A01-A08-target-review-2026-09-24.md)、[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)及[前次记录](./audit/F06-continuation-2026-09-24.md)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER
@@ -335,6 +335,12 @@ flowchart LR
     evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
     status: OPEN
 - fix_tracking:
+  - issue_id: F06-A01
+    fix_ref: b105360def26f09fdf4821910818388a713a4b03
+    verification_command: make f06-bff-live-smoke && make f06-runtime-login-check
+    verification_environment: isolated_supabase_local_bff
+    verification_evidence: docs/audit/F06-A01-A08-target-receipt-2026-09-24.json
+    verification_status: PARTIAL
   - issue_id: F06-A08
     fix_ref: 559471e60bdb380695853d1151cd2e655a79cbc7
     verification_command: make f06-denial-matrix && make f06-vault-check
