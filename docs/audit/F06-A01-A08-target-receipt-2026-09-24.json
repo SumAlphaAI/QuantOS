@@ -1,10 +1,11 @@
 {
   "schema": "quantos-f06-a01-a08-target-review/v1",
-  "testedSourceCommit": "559471e60bdb380695853d1151cd2e655a79cbc7",
+  "testedSourceCommit": "fa6e540714231663324ada627c60c101764122fb",
   "environment": "isolated_supabase_with_local_live_bff",
   "originKind": "synthetic_https_server_probe",
   "a01": {
-    "status": "PARTIAL",
+    "status": "PASS_F06_IDENTITY_SCOPE",
+    "testedSourceCommit": "fa6e540714231663324ada627c60c101764122fb",
     "independentBffLogin": "PASS",
     "realSupabaseAuthBffHttp": "PASS",
     "verifiedSubject": true,
@@ -28,11 +29,26 @@
       "runtimeRoleOnly": true,
       "vaultResolverDeniedSqlstate": "42501"
     },
-    "runtimeLiveIdentity": "NOT_RUN",
-    "externalOidcProvider": "NOT_RUN"
+    "runtimeLiveIdentity": {
+      "status": "PASS_ISOLATED_LOCAL",
+      "testedSourceCommit": "fa6e540714231663324ada627c60c101764122fb",
+      "httpStatuses": {
+        "missingCookie": 401,
+        "authorizedUnknownRun": 404,
+        "foreignOrigin": 403,
+        "deniedRole": 403,
+        "bffLogout": 204,
+        "revokedCookie": 401
+      },
+      "temporaryAdminStorageKey": true,
+      "storageOperationPerformed": false
+    },
+    "scopedRuntimeStorageKey": "DEFERRED_RUNTIME_DEPLOYMENT",
+    "externalOidcProviderBrowserFlow": "DEFERRED_WEB_G1"
   },
   "a08": {
     "status": "PASS",
+    "testedSourceCommit": "fa6e540714231663324ada627c60c101764122fb",
     "denialCategories": { "denied": 4, "total": 4, "missingActorOrTenantProbes": 2 },
     "engineSecretSqlstate": "42501",
     "crossTenantRlsResult": "zero_rows",
