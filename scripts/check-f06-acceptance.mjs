@@ -21,6 +21,7 @@ export function validateF06Acceptance({ plan, receipt, sourceCommit }) {
   if (!receipt || typeof receipt !== "object" || Array.isArray(receipt) || "receiptError" in receipt) {
     failures.push("F06 target acceptance receipt is missing or invalid");
   } else {
+    if (receipt.schema !== "quantos-f06-target-acceptance/v1") failures.push("F06 target receipt schema is invalid");
     if (receipt.sourceCommit !== sourceCommit || !/^[a-f0-9]{40}$/.test(receipt.sourceCommit ?? "")) failures.push("receipt sourceCommit differs from HEAD or is not a full SHA");
     for (const key of requiredChecks) {
       if (receipt[key]?.status !== "PASS") failures.push(`${key} is not PASS`);
@@ -34,11 +35,16 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const plan = readFileSync(resolve(root, "docs/SumAlpha-QuantOS-Development-Plan.md"), "utf8");
   let receipt = null;
   try {
-    receipt = JSON.parse(readFileSync(resolve(root, "docs/audit/F06-target-acceptance-receipt.json"), "utf8"));
+    receipt = JSON.parse(execFileSync("git", ["notes", "--ref=refs/notes/f06-acceptance", "show", sourceCommit],
+      { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }));
   } catch (error) {
-    if (error.code !== "ENOENT") receipt = { receiptError: error.message };
+    receipt = { receiptError: error.message };
   }
   const report = validateF06Acceptance({ plan, receipt, sourceCommit });
+  if (execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }).trim()) {
+    report.failures.push("working tree is not clean");
+    report.status = "FAIL";
+  }
   console.log(JSON.stringify(report));
   if (report.failures.length) process.exitCode = 1;
 }
