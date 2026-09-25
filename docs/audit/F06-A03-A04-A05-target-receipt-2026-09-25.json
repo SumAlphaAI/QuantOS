@@ -1,0 +1,36 @@
+{
+  "schema": "quantos-f06-a03-a04-a05-target/v1",
+  "testedSourceCommit": "1839b98c950c7f2d532b59dea3bac8d2d87fed53",
+  "environment": "isolated_supabase_with_local_bff",
+  "migration": {
+    "file": "supabase/migrations/20260925110000_f06_execution_capability_account_required.sql",
+    "sha256": "e3f2fa5364919d98e1f7b082e890269def8098238204ee76cec458e19f74985f",
+    "apply": "PASS",
+    "schemaDiffWithFreshReference": "NOT_RUN_MISSING_REFERENCE_DATABASE_URL"
+  },
+  "a03": {
+    "status": "PASS",
+    "crossTenantForeignKeyRejections": { "denied": 7, "total": 7 },
+    "authenticatedRlsOtherTenantRows": 0,
+    "wrongTenantAuthContext": "DENIED"
+  },
+  "a04": {
+    "status": "PASS",
+    "callerSelectedAccountModeMismatch": "DENIED",
+    "bffSessionModeAfterAccountChange": "DERIVED_FROM_CURRENT_ACCOUNT",
+    "paperScopedGrantAfterModeChange": "NOT_PRESENT",
+    "liveBffAuthAndPrimaryContext": "PASS",
+    "liveBffHttpChecks": 9
+  },
+  "a05": {
+    "status": "PASS",
+    "ownerUnknownAndSecretCapabilities": "DENIED",
+    "rustExecutionWithoutAccount": "DENIED",
+    "sqlGlobalExecutionGrantWithoutAccount": "DENIED",
+    "sqlMissingModeWrongModeOtherTenant": "DENIED",
+    "sqlMatchingModeAndAccount": "ALLOWED"
+  },
+  "postgresHarness": { "passed": 9, "failed": 0, "databaseTestsExecuted": 8, "p95Test": "NOT_RUN" },
+  "f06OverallAcceptance": "NOT_ACCEPTED",
+  "secretMaterialLogged": false
+}

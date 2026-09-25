@@ -283,7 +283,7 @@ flowchart LR
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
 - 状态解释：`development_status=COMPLETED` 只表示 F06 仓库开发基线完成；目标环境验收只能以 `review_status=ACCEPTED`、全部 F06 问题 `CLOSED`、同 HEAD 完整 SHA 的目标回执及 `make f06-acceptance-gate` 通过为准。BFF-FE-001 等下游本地契约 Gate 的 PASS 不构成 F06 验收。
-- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；隔离目标在完整源码提交 fa6e540 重跑真实 Auth/live BFF 9 项 HTTP、真实 Auth→BFF→live Runtime 身份拒绝链、四类拒绝 4/4 与 Vault 四角色两路径 8/8，A01/A08 已关闭。2026-09-25 在 d99b180 对专用 Execution 登录、严格 TLS、服务启动、命令账户绑定 Vault 函数和旧路径收敛做隔离库同 SHA 复验，A06/A07 已关闭；在 d6e9c20 运行 Execution 进程经受限 Vault 到 paper kernel 的六场景隔离目标探针，A02 按 F06 Vault/Execution 范围关闭。合成 paper 命令不证明 X03 签发、审批、可信传输或真实 venue；它们仍归后续任务。用户确认无同区域运行器使用权限后，将 <100ms 从 F06/A09 Gate 移至首次同区域部署后的性能目标；530bded 上专用 BFF 登录完成开发机跨区域 100 次只读鉴权，P95 308.384ms <500ms，A09 CLOSED，10 项累计关闭 6 项。历史 operator 路径 651ms 仍保留为失败记录。Runtime 仅临时使用用户授权的高权限 Storage key，未执行 Storage 操作；正式受限凭据及外部 OIDC 浏览器登录归各自后续 Gate。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate；F06 总回执仍缺。详见 [A09 Gate 范围修正](./audit/F06-A09-gate-scope-correction-2026-09-25.md)、[A02 命令链复验](./audit/F06-A02-command-path-review-2026-09-25.md)、[A01/A08 复验](./audit/F06-A01-A08-target-review-2026-09-24.md)及[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)。
+- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；隔离目标在完整源码提交 fa6e540 重跑真实 Auth/live BFF 9 项 HTTP、真实 Auth→BFF→live Runtime 身份拒绝链、四类拒绝 4/4 与 Vault 四角色两路径 8/8，A01/A08 已关闭。2026-09-25 在 d99b180 对专用 Execution 登录、严格 TLS、服务启动、命令账户绑定 Vault 函数和旧路径收敛做隔离库同 SHA 复验，A06/A07 已关闭；在 d6e9c20 运行 Execution 进程经受限 Vault 到 paper kernel 的六场景隔离目标探针，A02 按 F06 Vault/Execution 范围关闭。合成 paper 命令不证明 X03 签发、审批、可信传输或真实 venue；它们仍归后续任务。用户确认无同区域运行器使用权限后，将 <100ms 从 F06/A09 Gate 移至首次同区域部署后的性能目标；530bded 上专用 BFF 登录完成开发机跨区域 100 次只读鉴权，P95 308.384ms <500ms，A09 CLOSED，至此 10 项累计关闭 6 项。历史 operator 路径 651ms 仍保留为失败记录。Runtime 仅临时使用用户授权的高权限 Storage key，未执行 Storage 操作；正式受限凭据及外部 OIDC 浏览器登录归各自后续 Gate。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate。随后在完整源码提交 1839b98 上应用账户范围迁移，隔离库跨租户七类关联拒绝、当前账户 mode 与 SQL capability 负向检查、真实 Auth→live BFF 9 项 HTTP 均通过，A03/A04/A05 关闭，累计 9/10 项；A10 与同一最终 SHA 的 F06 总回执仍缺，整体保持 FIX_VALIDATION。详见 [A03/A04/A05 目标复验](./audit/F06-A03-A04-A05-target-review-2026-09-25.md)、[A09 Gate 范围修正](./audit/F06-A09-gate-scope-correction-2026-09-25.md)、[A02 命令链复验](./audit/F06-A02-command-path-review-2026-09-25.md)、[A01/A08 复验](./audit/F06-A01-A08-target-review-2026-09-24.md)及[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER
@@ -298,18 +298,18 @@ flowchart LR
   - issue_id: F06-A03
     severity: HIGH
     description: 跨租户关系与查询谓词需同 SHA 复验
-    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
-    status: OPEN
+    evidence: docs/audit/F06-A03-A04-A05-target-review-2026-09-25.md
+    status: CLOSED
   - issue_id: F06-A04
     severity: HIGH
     description: 主上下文账户模式需正式服务复验
-    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
-    status: OPEN
+    evidence: docs/audit/F06-A03-A04-A05-target-review-2026-09-25.md
+    status: CLOSED
   - issue_id: F06-A05
     severity: HIGH
     description: capability 默认拒绝与 SQL 范围需负向验收
-    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
-    status: OPEN
+    evidence: docs/audit/F06-A03-A04-A05-target-review-2026-09-25.md
+    status: CLOSED
   - issue_id: F06-A06
     severity: HIGH
     description: 专用角色运行登录与最小权限待部署验证
@@ -336,6 +336,24 @@ flowchart LR
     evidence: docs/audit/F06-A10-status-governance-2026-09-25.md
     status: OPEN
 - fix_tracking:
+  - issue_id: F06-A03
+    fix_ref: 1839b98c950c7f2d532b59dea3bac8d2d87fed53
+    verification_command: make f06-live-check
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F06-A03-A04-A05-target-receipt-2026-09-25.json
+    verification_status: PASS
+  - issue_id: F06-A04
+    fix_ref: 1839b98c950c7f2d532b59dea3bac8d2d87fed53
+    verification_command: make f06-live-check && make f06-bff-live-smoke
+    verification_environment: isolated_supabase_local_bff
+    verification_evidence: docs/audit/F06-A03-A04-A05-target-receipt-2026-09-25.json
+    verification_status: PASS
+  - issue_id: F06-A05
+    fix_ref: 1839b98c950c7f2d532b59dea3bac8d2d87fed53
+    verification_command: cargo test -p quantos-policy --locked && make db-apply && make f06-live-check
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F06-A03-A04-A05-target-receipt-2026-09-25.json
+    verification_status: PASS
   - issue_id: F06-A09
     fix_ref: 530bdeda46c7c0a17c8c3ba9c6971f878aed164d
     verification_command: QUANTOS_F06_TOPOLOGY=developer_remote make f06-auth-latency-check
