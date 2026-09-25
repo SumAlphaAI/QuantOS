@@ -1,0 +1,99 @@
+{
+  "schema": "quantos-f06-target-acceptance/v1",
+  "sourceCommit": "40300445da8aed0f874aa1f5369b5e42bdf11234",
+  "collectedAt": "2026-09-25T02:21:29.421086+00:00",
+  "status": "FAIL",
+  "failures": [
+    "developerRemoteP95: 670.556ms is not below 500ms"
+  ],
+  "environment": "isolated_supabase_local_bff_runtime_execution_developer_remote",
+  "realOidcBff": {
+    "status": "PASS",
+    "realSupabaseAuth": true,
+    "independentBffAndRuntimeLogins": true,
+    "bffHttpChecks": 9,
+    "bffHttpStatuses": {
+      "missingCookie": 401,
+      "foreignOrigin": 403,
+      "invalidToken": 401,
+      "sessionEstablished": 204,
+      "sessionRead": 200,
+      "primaryContext": 200,
+      "hiddenAccount": 404,
+      "logout": 204,
+      "revokedSession": 401
+    },
+    "runtimeIdentityHttpStatuses": {
+      "missingCookie": 401,
+      "authorizedUnknownRun": 404,
+      "foreignOrigin": 403,
+      "deniedRole": 403,
+      "bffLogout": 204,
+      "revokedCookie": 401
+    },
+    "temporaryAdminStorageKey": true,
+    "storageOperationPerformed": false
+  },
+  "executionRoleAndVault": {
+    "status": "PASS",
+    "dedicatedExecutionVerifiedTls": true,
+    "restrictedVaultCall": true,
+    "paperKernelSubmissions": 1,
+    "negativeScenarios": [
+      "account_mismatch",
+      "expired",
+      "reference_rotating",
+      "reference_revoked",
+      "session_revoked"
+    ],
+    "deniedKernelSubmissions": 0,
+    "fixtureDataCleaned": true,
+    "emptyIsolatedTenantRetained": true
+  },
+  "denialMatrix": {
+    "status": "PASS",
+    "requestCategoriesDenied": 4,
+    "requestCategoriesTotal": 4,
+    "vaultRolePathsDenied": 8,
+    "vaultRolePathsTotal": 8,
+    "vaultDenialSqlstate": "42501",
+    "crossTenantForeignKeyDenials": 7,
+    "crossTenantForeignKeyTotal": 7,
+    "postgresDatabaseTestsExecuted": 8,
+    "postgresDatabaseTestsFailed": 0,
+    "postgresHarnessPassed": 9,
+    "postgresHarnessP95": "NOT_RUN_SEPARATELY_EXECUTED_BELOW"
+  },
+  "developerRemoteP95": {
+    "status": "FAIL",
+    "topology": "developer_remote",
+    "databaseRegion": "ca-central-1",
+    "role": "quantos_bff",
+    "verifiedTls": true,
+    "samples": 100,
+    "p50Millis": 229.821,
+    "p95Millis": 670.556,
+    "limitMillis": 500
+  },
+  "localChecks": {
+    "planStructure": "PASS",
+    "migrationStatic": "PASS",
+    "authUnitTests": 4,
+    "policyUnitTests": 6
+  },
+  "commands": [
+    "make f06-bff-live-smoke",
+    "QUANTOS_F06_ISOLATED_PROJECT=1 QUANTOS_F06_ALLOW_TEMP_ADMIN_STORAGE_KEY=1 make f06-runtime-live-smoke",
+    "QUANTOS_F06_ISOLATED_PROJECT=1 make f06-execution-command-smoke",
+    "make f06-vault-check",
+    "make f06-live-check",
+    "QUANTOS_F06_TOPOLOGY=developer_remote make f06-auth-latency-check"
+  ],
+  "scopeExclusions": {
+    "terminalBrowserE2e": "WEB_G1",
+    "sameRegionP95": "FIRST_SAME_REGION_DEPLOYMENT",
+    "x03IssuerTransport": "X03",
+    "freshReferenceSchemaDiff": "NOT_RUN_MISSING_REFERENCE_DATABASE_URL"
+  },
+  "secretMaterialLogged": false
+}
