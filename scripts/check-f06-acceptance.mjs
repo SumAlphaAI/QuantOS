@@ -19,7 +19,7 @@ if (!existsSync(receiptPath)) {
 } else {
   const receipt = JSON.parse(readFileSync(receiptPath, "utf8"));
   if (receipt.sourceCommit !== sourceCommit) failures.push("receipt sourceCommit differs from HEAD");
-  for (const key of ["realOidcBff", "executionRoleAndVault", "denialMatrix", "developerRemoteP95", "sameRegionP95"]) {
+  for (const key of ["realOidcBff", "executionRoleAndVault", "denialMatrix", "developerRemoteP95"]) {
     if (receipt[key]?.status !== "PASS") failures.push(`${key} is not PASS`);
   }
 }

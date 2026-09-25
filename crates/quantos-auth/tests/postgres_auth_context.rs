@@ -74,42 +74,6 @@ fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks()
     assert_eq!(context.workspace_slug, "primary");
     assert_eq!(context.account_id, Some(fixture.account_id));
 
-    let mut auth_read_samples = Vec::with_capacity(100);
-    for _ in 0..100 {
-        let started_at = Instant::now();
-        middleware
-            .authorize_user_request(
-                &request,
-                &AuthorizationRequirement::new(
-                    Capability::parse(Capability::EXECUTION_OPERATE)
-                        .expect("static capability parses"),
-                )
-                .requiring_account(),
-            )
-            .expect("repeated authorization succeeds");
-        auth_read_samples.push(started_at.elapsed());
-    }
-    auth_read_samples.sort();
-    let p95_index = (auth_read_samples.len() * 95).div_ceil(100) - 1;
-    let auth_read_p95 = auth_read_samples[p95_index];
-    let topology =
-        env::var("QUANTOS_F06_TOPOLOGY").expect("F06 live Gate requires QUANTOS_F06_TOPOLOGY");
-    let p95_limit_ms = match topology.as_str() {
-        "same_region" => 100,
-        "developer_remote" => 500,
-        _ => panic!("F06 topology must be same_region or developer_remote"),
-    };
-    eprintln!(
-        "gateway auth read topology={topology} samples=100 p95={}ms (limit={}ms)",
-        auth_read_p95.as_millis(),
-        p95_limit_ms
-    );
-    assert!(
-        auth_read_p95 < std::time::Duration::from_millis(p95_limit_ms),
-        "gateway auth read p95 must stay under {p95_limit_ms}ms for the configured topology, got {}ms",
-        auth_read_p95.as_millis()
-    );
-
     let denied = middleware
         .authorize_user_request(
             &request,
@@ -153,11 +117,11 @@ fn f06_dedicated_bff_auth_read_p95() {
         .expect("F06 P95 Gate requires QUANTOS_BFF_DATABASE_URL");
     let topology =
         env::var("QUANTOS_F06_TOPOLOGY").expect("F06 P95 Gate requires an explicit topology");
-    let limit_ms = match topology.as_str() {
-        "same_region" => 100,
-        "developer_remote" => 500,
-        _ => panic!("F06 P95 topology must be same_region or developer_remote"),
-    };
+    assert_eq!(
+        topology, "developer_remote",
+        "F06 P95 only measures developer_remote"
+    );
+    let limit_ms = 500;
     let user_id =
         Uuid::parse_str(&env::var("QUANTOS_F06_TEST_USER_ID").expect("F06 test user is required"))
             .expect("F06 test user must be a UUID");

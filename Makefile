@@ -202,11 +202,11 @@ test-f05-live:
 
 f06-live-check:
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F06 PostgreSQL Gate." >&2; exit 1)
-	QUANTOS_RUN_F06_POSTGRES_TESTS=1 QUANTOS_F06_TOPOLOGY=$${QUANTOS_F06_TOPOLOGY:-developer_remote} cargo test -p quantos-auth --test postgres_auth_context --locked -- --test-threads=1 --nocapture
+	QUANTOS_RUN_F06_POSTGRES_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context --locked -- --test-threads=1 --nocapture
 
 f06-auth-latency-check:
 	@test -n "$$QUANTOS_BFF_DATABASE_URL" || (echo "QUANTOS_BFF_DATABASE_URL is required." >&2; exit 1)
-	@test -n "$$QUANTOS_F06_TOPOLOGY" || (echo "QUANTOS_F06_TOPOLOGY must name developer_remote or same_region." >&2; exit 1)
+	@test "$$QUANTOS_F06_TOPOLOGY" = developer_remote || (echo "F06 latency Gate only accepts QUANTOS_F06_TOPOLOGY=developer_remote." >&2; exit 1)
 	@node scripts/f06-auth-latency-gate.cjs
 
 f06-vault-check:

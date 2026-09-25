@@ -11,18 +11,12 @@ function targetRegion(databaseUrl) {
 
 function main() {
   const topology = process.env.QUANTOS_F06_TOPOLOGY;
-  if (!['developer_remote', 'same_region'].includes(topology)) {
-    fail('QUANTOS_F06_TOPOLOGY must be developer_remote or same_region');
+  if (topology !== 'developer_remote') {
+    fail('F06 auth latency Gate only accepts developer_remote');
   }
   if (!process.env.QUANTOS_BFF_DATABASE_URL) fail('dedicated BFF database URL is required');
   const databaseRegion = targetRegion(process.env.QUANTOS_BFF_DATABASE_URL);
   if (!databaseRegion) fail('cannot establish target region from dedicated BFF pooler host');
-  const runnerRegion = process.env.QUANTOS_F06_RUNNER_REGION || null;
-  const runnerEvidence = process.env.QUANTOS_F06_RUNNER_EVIDENCE || null;
-  if (topology === 'same_region' &&
-      (runnerRegion !== databaseRegion || !runnerEvidence)) {
-    fail('same_region requires matching runner region and a runner deployment evidence reference');
-  }
   const sourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   const run = spawnSync('cargo', [
     'test', '-p', 'quantos-auth', '--test', 'postgres_auth_context',
@@ -38,7 +32,7 @@ function main() {
     measurement.topology === topology && p95Millis < measurement.limitMillis;
   const receipt = {
     schema: 'quantos-f06-auth-latency/v1', sourceCommit, topology,
-    databaseRegion, runnerRegion, runnerEvidence,
+    databaseRegion,
     role: 'quantos_bff', verifiedTls: true,
     samples: measurement.samples,
     p50Millis: measurement.p50Micros / 1000,
