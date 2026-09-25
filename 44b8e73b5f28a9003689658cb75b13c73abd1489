@@ -1,0 +1,66 @@
+{
+  "schema": "quantos-f06-target-acceptance/v1",
+  "sourceCommit": "44b8e73b5f28a9003689658cb75b13c73abd1489",
+  "environment": "isolated_supabase_local_bff_runtime_execution_developer_remote",
+  "realOidcBff": {
+    "status": "PASS",
+    "realSupabaseAuth": true,
+    "independentBffAndRuntimeLogins": true,
+    "bffHttpChecks": 9,
+    "runtimeIdentityHttpStatuses": {
+      "missingCookie": 401,
+      "authorizedUnknownRun": 404,
+      "foreignOrigin": 403,
+      "deniedRole": 403,
+      "bffLogout": 204,
+      "revokedCookie": 401
+    },
+    "temporaryAdminStorageKey": true,
+    "storageOperationPerformed": false
+  },
+  "executionRoleAndVault": {
+    "status": "PASS",
+    "dedicatedExecutionVerifiedTls": true,
+    "restrictedVaultCall": true,
+    "paperKernelSubmissions": 1,
+    "negativeScenarios": [
+      "account_mismatch",
+      "expired",
+      "reference_rotating",
+      "reference_revoked",
+      "session_revoked"
+    ],
+    "deniedKernelSubmissions": 0,
+    "fixtureDataCleaned": true
+  },
+  "denialMatrix": {
+    "status": "PASS",
+    "requestCategoriesDenied": 4,
+    "requestCategoriesTotal": 4,
+    "vaultRolePathsDenied": 8,
+    "vaultRolePathsTotal": 8,
+    "vaultDenialSqlstate": "42501",
+    "crossTenantForeignKeyDenials": 7,
+    "crossTenantForeignKeyTotal": 7,
+    "postgresDatabaseTestsExecuted": 8,
+    "postgresDatabaseTestsFailed": 0
+  },
+  "developerRemoteP95": {
+    "status": "PASS",
+    "topology": "developer_remote",
+    "databaseRegion": "ca-central-1",
+    "role": "quantos_bff",
+    "verifiedTls": true,
+    "samples": 100,
+    "p50Millis": 238.524,
+    "p95Millis": 317.415,
+    "limitMillis": 500
+  },
+  "scopeExclusions": {
+    "terminalBrowserE2e": "WEB_G1",
+    "sameRegionP95": "FIRST_SAME_REGION_DEPLOYMENT",
+    "x03IssuerTransport": "X03",
+    "freshReferenceSchemaDiff": "NOT_RUN_MISSING_REFERENCE_DATABASE_URL"
+  },
+  "secretMaterialLogged": false
+}
