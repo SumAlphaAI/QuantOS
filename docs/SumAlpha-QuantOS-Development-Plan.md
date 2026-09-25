@@ -282,47 +282,47 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `ACCEPTED`
-- 状态解释：`development_status=COMPLETED` 只表示 F06 仓库开发基线完成；目标环境验收以 `review_status=ACCEPTED`、全部 F06 问题 `CLOSED`、绑定完整 HEAD SHA 的 `refs/notes/f06-acceptance` 目标回执及干净工作树上的 `make f06-acceptance-gate` 通过为准。Git note 在提交之外绑定 SHA，避免把回执提交进自身所指的 HEAD 造成循环。BFF-FE-001 等下游本地契约 Gate 的 PASS 不构成 F06 验收。
-- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；隔离目标在完整源码提交 fa6e540 重跑真实 Auth/live BFF 9 项 HTTP、真实 Auth→BFF→live Runtime 身份拒绝链、四类拒绝 4/4 与 Vault 四角色两路径 8/8，A01/A08 已关闭。2026-09-25 在 d99b180 对专用 Execution 登录、严格 TLS、服务启动、命令账户绑定 Vault 函数和旧路径收敛做隔离库同 SHA 复验，A06/A07 已关闭；在 d6e9c20 运行 Execution 进程经受限 Vault 到 paper kernel 的六场景隔离目标探针，A02 按 F06 Vault/Execution 范围关闭。合成 paper 命令不证明 X03 签发、审批、可信传输或真实 venue；它们仍归后续任务。用户确认无同区域运行器使用权限后，将 <100ms 从 F06/A09 Gate 移至首次同区域部署后的性能目标；530bded 上专用 BFF 登录完成开发机跨区域 100 次只读鉴权，P95 308.384ms <500ms，A09 CLOSED，至此 10 项累计关闭 6 项。历史 operator 路径 651ms 仍保留为失败记录。Runtime 仅临时使用用户授权的高权限 Storage key，未执行 Storage 操作；正式受限凭据及外部 OIDC 浏览器登录归各自后续 Gate。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate。随后在完整源码提交 1839b98 上应用账户范围迁移，隔离库跨租户七类关联拒绝、当前账户 mode 与 SQL capability 负向检查、真实 Auth→live BFF 9 项 HTTP 均通过，A03/A04/A05 关闭，累计 9/10 项；当时 A10 与同一最终 SHA 的 F06 总回执仍缺，整体保持 FIX_VALIDATION；后续最终验收见 [F06 同 SHA 验收](./audit/F06-final-same-sha-acceptance-2026-09-25.md)及绑定 HEAD 的 Git note。详见 [A03/A04/A05 目标复验](./audit/F06-A03-A04-A05-target-review-2026-09-25.md)、[A09 Gate 范围修正](./audit/F06-A09-gate-scope-correction-2026-09-25.md)、[A02 命令链复验](./audit/F06-A02-command-path-review-2026-09-25.md)、[A01/A08 复验](./audit/F06-A01-A08-target-review-2026-09-24.md)及[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)。
+- 状态解释：ACCEPTED 表示已列明基线的 F06 服务端范围验收；development_status=COMPLETED 只标识开发完成。对任一新 HEAD，仍必须具备绑定该完整 SHA 的 refs/notes/f06-acceptance 回执、全部问题 CLOSED、干净工作树及 make f06-acceptance-gate PASS。文档提交不转移历史回执；下游本地契约 Gate 不代表 F06 目标验收。
+- review_conclusion: 2026-09-25 复核确认 F06-A01–A10 全部 CLOSED：阻塞级 2/2、高危 5/5、中危 2/2、低危 1/1，合计 10/10（100%），活动问题 0。已验收基线为 44b8e73b5f28a9003689658cb75b13c73abd1489，本轮修改前本地总 Gate PASS；真实 Auth/BFF/Runtime、Execution/Vault、四类拒绝 4/4、Vault 角色路径拒绝 8/8 及跨区域 100 次 P95 317.415ms 均有该 SHA 的目标回执。本轮重核证据与状态 Gate，未重跑目标服务；文档整理后的新 HEAD 不自动继承基线回执。远端 main 已同步该基线，远端 Git note 尚缺。详见 [当前复审结论](./audit/F06-comprehensive-review-2026-09-24.md)与[基线回执归档](./audit/F06-accepted-baseline-44b8e73.json)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER
-    description: 真实 Auth/OIDC 到 BFF 服务端会话及运行时身份闭环缺同 SHA 目标回执
+    description: 已验证真实 Auth/BFF/Runtime 身份闭环
     evidence: docs/audit/F06-A01-A08-target-review-2026-09-24.md
     status: CLOSED
   - issue_id: F06-A02
     severity: BLOCKER
-    description: Execution Gateway Vault 实际调用与部署闭环待验证
+    description: 已验证受控 Execution 到 Vault 的隔离 paper 命令链
     evidence: docs/audit/F06-A02-command-path-review-2026-09-25.md
     status: CLOSED
   - issue_id: F06-A03
     severity: HIGH
-    description: 跨租户关系与查询谓词需同 SHA 复验
+    description: 已验证跨租户关系约束与查询隔离
     evidence: docs/audit/F06-A03-A04-A05-target-review-2026-09-25.md
     status: CLOSED
   - issue_id: F06-A04
     severity: HIGH
-    description: 主上下文账户模式需正式服务复验
+    description: 已验证 Primary 主上下文与账户模式
     evidence: docs/audit/F06-A03-A04-A05-target-review-2026-09-25.md
     status: CLOSED
   - issue_id: F06-A05
     severity: HIGH
-    description: capability 默认拒绝与 SQL 范围需负向验收
+    description: 已验证 capability 默认拒绝与账户模式范围
     evidence: docs/audit/F06-A03-A04-A05-target-review-2026-09-25.md
     status: CLOSED
   - issue_id: F06-A06
     severity: HIGH
-    description: 专用角色运行登录与最小权限待部署验证
+    description: 已验证专用角色登录与最小权限
     evidence: docs/audit/F06-A02-A06-A07-target-review-2026-09-25.md
     status: CLOSED
   - issue_id: F06-A07
     severity: HIGH
-    description: Vault 双路径收敛需同 SHA 回执
+    description: 已验证 Vault 路径收敛与撤销过期拒绝
     evidence: docs/audit/F06-A02-A06-A07-target-review-2026-09-25.md
     status: CLOSED
   - issue_id: F06-A08
     severity: MEDIUM
-    description: F06 四类服务端拒绝和四类角色 Vault 拒绝需同 SHA 目标矩阵
+    description: 已验证四类请求与四角色 Vault 拒绝矩阵
     evidence: docs/audit/F06-A01-A08-target-review-2026-09-24.md
     status: CLOSED
   - issue_id: F06-A09
@@ -332,7 +332,7 @@ flowchart LR
     status: CLOSED
   - issue_id: F06-A10
     severity: LOW
-    description: 开发完成标签曾被误读为完整验收
+    description: 已区分开发完成与绑定提交的目标验收
     evidence: docs/audit/F06-final-same-sha-acceptance-2026-09-25.md
     status: CLOSED
 - fix_tracking:
