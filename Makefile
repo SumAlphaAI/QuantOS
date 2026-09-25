@@ -241,6 +241,12 @@ f06-execution-service-check:
 	cargo build -p execution-gateway --locked
 	@target/debug/execution-gateway
 
+f06-execution-command-smoke:
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required." >&2; exit 1)
+	@test -n "$$QUANTOS_EXECUTION_DATABASE_URL" || (echo "QUANTOS_EXECUTION_DATABASE_URL is required." >&2; exit 1)
+	cargo build -p execution-gateway --locked
+	QUANTOS_F06_TARGET_ISOLATED=1 node scripts/f06-execution-command-smoke.cjs
+
 f06-runtime-login-check:
 	@test -n "$$QUANTOS_RUNTIME_DATABASE_URL" || (echo "QUANTOS_RUNTIME_DATABASE_URL is required." >&2; exit 1)
 	@node scripts/f06-runtime-login-check.cjs

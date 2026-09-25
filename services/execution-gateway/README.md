@@ -15,6 +15,14 @@ TP07 execution boundary service for QuantOS.
 
 Gateway logic lives in `crates/quantos-execution/src/gateway.rs`; this service is the deployable bootstrap.
 
+F06's isolated-project smoke uses `make f06-execution-command-smoke` after
+setting `QUANTOS_F06_ISOLATED_PROJECT=1`. It creates a short-lived paper fixture,
+calls the restricted Vault resolver from the running gateway process, verifies
+one paper-kernel submission and negative cases, then deletes the test secret,
+session, account, actor, workspace, and capability rows. The empty isolated
+tenant is retained because the append-only event ledger forbids tenant DELETE. This
+local diagnostic does not accept external orders or validate the X03 issuer.
+
 Set `QUANTOS_OBSERVABILITY_ADDR=0.0.0.0:9090` to run the deployable operations
 surface. It exposes `/healthz`, `/readyz`, Prometheus `/metrics`, and
 `/trace/<correlation-uuid>`; invalid routes use the shared structured error envelope.
