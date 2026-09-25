@@ -61,7 +61,7 @@
 | 功能完整性 | 所有列出的输入、成功、拒绝和恢复路径都有自动化测试；不得以手工验证替代。 |
 | 代码质量 | `cargo fmt --check`、Clippy（禁止 warning）、Rust `cargo test --workspace --locked`（含 doctest；见 [F01 测试执行器 ADR](./adr/20260917-f01-rust-test-runner.md)）；Python Ruff、Pyright、pytest；TypeScript lint、typecheck、Vitest 全绿。 |
 | 覆盖率 | 新增 Rust 核心领域/风险/执行代码行覆盖率 ≥90%；稳定 Rust/LLVM CI 以 region 覆盖率 ≥85% 作为分支代理，nightly 发布验证仍要求分支覆盖率 ≥85%；Python Engine 适配新增代码行覆盖率 ≥85%；TypeScript 领域组件/状态代码行覆盖率 ≥80%。不能覆盖的代码须在报告中逐项豁免。 |
-| 性能 | 测试环境中纯领域计算 P95 <50ms；BFF 授权读查询同区域 P95 <100ms，跨区域开发机连接托管数据库时 P95 <500ms；命令校验（不含外部 venue 往返）P95 <200ms。异步任务必须在 deadline 内返回受理或确定性错误。 |
+| 性能 | 测试环境中纯领域计算 P95 <50ms；F06 阶段 BFF 授权读以开发机跨区域连接托管数据库 P95 <500ms 验收。同区域 P95 <100ms 保留为首次同区域部署后的性能目标，不作为 F06 Gate；命令校验（不含外部 venue 往返）P95 <200ms。异步任务必须在 deadline 内返回受理或确定性错误。 |
 | 兼容性 | 协议变更通过 Buf breaking check；Rust/Python/TypeScript 生成 SDK 可编译；Web Chromium/Firefox/Safari 当前稳定版回归通过。 |
 | 安全与审计 | 无高危依赖/secret scan 未豁免项；所有写操作写入 actor、tenant、correlation、causation；错误、日志和导出不含秘密。 |
 | 可运维性 | 关键路径提供结构化日志、trace、指标、健康检查和失败说明；部署/回滚/已知限制写入 Runbook 或任务文档。 |
@@ -273,8 +273,8 @@ flowchart LR
 - 需求描述：身份、授权、秘密引用与主上下文
 - 技术要求：Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝；Vault 仅存静态加密秘密，Execution Gateway 通过受控角色与 allowlist 函数取得所需引用，短时授权由服务会话/命令过期/轮换状态控制
 - 交付物：`quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration、Vault 访问 policy/函数
-- 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API；鉴权读 P95 同区域 <100ms，开发机跨区域远程复验 <500ms
-- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及上述性能指标；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。Terminal 实际部署、真实浏览器登录/E2E、MFA 页面交互及全部页面 API 联调属于 Web 前端 G1/页面与接口阶段，不作为 F06 验收 Gate。
+- 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API；鉴权读 P95 开发机跨区域远程复验 <500ms
+- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及开发机跨区域鉴权读 P95 <500ms；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。由于此阶段没有同区域运行器使用权限，同区域 P95 <100ms 移至首次同区域部署后的性能验证，不作为 F06/A09 Gate。Terminal 实际部署、真实浏览器登录/E2E、MFA 页面交互及全部页面 API 联调属于 Web 前端 G1/页面与接口阶段，不作为 F06 验收 Gate。
 - 依赖：F03、F05
 
 <a id="review-f06"></a>
@@ -282,7 +282,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；隔离目标在完整源码提交 fa6e540 重跑真实 Auth/live BFF 9 项 HTTP、真实 Auth→BFF→live Runtime 身份拒绝链、四类拒绝 4/4 与 Vault 四角色两路径 8/8，A01/A08 已关闭。2026-09-25 在 d99b180 对专用 Execution 登录、严格 TLS、服务启动、命令账户绑定 Vault 函数和旧路径收敛做隔离库同 SHA 复验，A06/A07 已关闭；在 d6e9c20 运行 Execution 进程经受限 Vault 到 paper kernel 的六场景隔离目标探针，A02 按 F06 Vault/Execution 范围关闭，10 项累计关闭 5 项。合成 paper 命令不证明 X03 签发、审批、可信传输或真实 venue；它们仍归后续任务。A09 在 a301c74 用专用 BFF 登录和严格 TLS 完成开发机跨区域 100 次只读鉴权，P95 392.78ms <500ms；历史 operator 路径 651ms 仍保留为失败记录。同区域运行器尚无，<100ms 无回执，A09 继续 OPEN。Runtime 仅临时使用用户授权的高权限 Storage key，未执行 Storage 操作；正式受限凭据及外部 OIDC 浏览器登录归各自后续 Gate。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate；F06 总回执仍缺。详见 [A09 性能续修](./audit/F06-A09-performance-review-2026-09-25.md)、[A02 命令链复验](./audit/F06-A02-command-path-review-2026-09-25.md)、[A01/A08 复验](./audit/F06-A01-A08-target-review-2026-09-24.md)及[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)。
+- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；隔离目标在完整源码提交 fa6e540 重跑真实 Auth/live BFF 9 项 HTTP、真实 Auth→BFF→live Runtime 身份拒绝链、四类拒绝 4/4 与 Vault 四角色两路径 8/8，A01/A08 已关闭。2026-09-25 在 d99b180 对专用 Execution 登录、严格 TLS、服务启动、命令账户绑定 Vault 函数和旧路径收敛做隔离库同 SHA 复验，A06/A07 已关闭；在 d6e9c20 运行 Execution 进程经受限 Vault 到 paper kernel 的六场景隔离目标探针，A02 按 F06 Vault/Execution 范围关闭。合成 paper 命令不证明 X03 签发、审批、可信传输或真实 venue；它们仍归后续任务。用户确认无同区域运行器使用权限后，将 <100ms 从 F06/A09 Gate 移至首次同区域部署后的性能目标；530bded 上专用 BFF 登录完成开发机跨区域 100 次只读鉴权，P95 308.384ms <500ms，A09 CLOSED，10 项累计关闭 6 项。历史 operator 路径 651ms 仍保留为失败记录。Runtime 仅临时使用用户授权的高权限 Storage key，未执行 Storage 操作；正式受限凭据及外部 OIDC 浏览器登录归各自后续 Gate。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate；F06 总回执仍缺。详见 [A09 Gate 范围修正](./audit/F06-A09-gate-scope-correction-2026-09-25.md)、[A02 命令链复验](./audit/F06-A02-command-path-review-2026-09-25.md)、[A01/A08 复验](./audit/F06-A01-A08-target-review-2026-09-24.md)及[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER
@@ -326,9 +326,9 @@ flowchart LR
     status: CLOSED
   - issue_id: F06-A09
     severity: MEDIUM
-    description: 同区域与开发机跨区域 P95 尚未双达标
-    evidence: docs/audit/F06-A09-performance-review-2026-09-25.md
-    status: OPEN
+    description: 开发机跨区域鉴权读 P95 验收；同区域 Gate 已移出 F06
+    evidence: docs/audit/F06-A09-gate-scope-correction-2026-09-25.md
+    status: CLOSED
   - issue_id: F06-A10
     severity: LOW
     description: 开发完成标签曾被误读为完整验收
@@ -336,11 +336,11 @@ flowchart LR
     status: OPEN
 - fix_tracking:
   - issue_id: F06-A09
-    fix_ref: a301c740108f44accbd9d9311892a1bfd5a305a4
+    fix_ref: 530bdeda46c7c0a17c8c3ba9c6971f878aed164d
     verification_command: QUANTOS_F06_TOPOLOGY=developer_remote make f06-auth-latency-check
     verification_environment: isolated_supabase_developer_remote
-    verification_evidence: docs/audit/F06-A09-developer-remote-receipt-2026-09-25.json
-    verification_status: PARTIAL
+    verification_evidence: docs/audit/F06-A09-scope-correction-receipt-2026-09-25.json
+    verification_status: PASS
   - issue_id: F06-A02
     fix_ref: d6e9c20d007a0d87d0b80e530ebfa86b90af9d4f
     verification_command: QUANTOS_F06_ISOLATED_PROJECT=1 make f06-execution-command-smoke && make f06-execution-login-check && make f06-vault-check

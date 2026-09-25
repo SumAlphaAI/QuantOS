@@ -1,5 +1,7 @@
 # F06 续修与隔离库复验记录
 
+> 后续 A09 修正：本记录所列同区域 P95 Gate 已由 [A09 Gate 范围修正](./F06-A09-gate-scope-correction-2026-09-25.md)从 F06 移除；历史采样结果保持原样。
+
 > 后续验收边界修正：本记录中要求正式页面 API、浏览器 MFA 或 Terminal 联调来关闭 F06-A01/A08 的步骤，已由 [F06 Gate 边界修正](./F06-gate-scope-correction-2026-09-24.md)取代；原执行结果仍作为历史证据。
 
 > 日期：2026-09-24。承接 [全面复审](./F06-comprehensive-review-2026-09-24.md)及[首轮整改](./F06-remediation-2026-09-24.md)。本记录对应本轮提交前的工作树；正式目标回执须在提交后绑定完整 `sourceCommit`。未输出或提交 `.env.local` 的任何秘密值。
