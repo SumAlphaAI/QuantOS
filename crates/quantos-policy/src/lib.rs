@@ -217,7 +217,12 @@ impl PolicyEngine {
         context: &PolicyContext,
         requirement: &AuthorizationRequirement,
     ) -> Result<(), PolicyError> {
-        if requirement.account_required && context.account_id.is_none() {
+        // Execution authorization is always account-scoped, even if a caller
+        // forgets to set requiring_account on its requirement.
+        if (requirement.account_required
+            || requirement.capability.as_str() == Capability::EXECUTION_OPERATE)
+            && context.account_id.is_none()
+        {
             return Err(PolicyError::account_required());
         }
 
@@ -312,6 +317,21 @@ mod tests {
         .requiring_account();
 
         PolicyEngine::authorize_action(&context, &requirement).expect("owner should pass");
+    }
+
+    #[test]
+    fn execution_capability_requires_account_even_without_caller_flag() {
+        let mut context = base_context(Role::Owner);
+        context.account_id = None;
+        let requirement = AuthorizationRequirement::new(
+            Capability::parse(Capability::EXECUTION_OPERATE).unwrap(),
+        );
+        assert_eq!(
+            PolicyEngine::authorize_action(&context, &requirement)
+                .unwrap_err()
+                .machine_code(),
+            "POLICY_ACCOUNT_REQUIRED"
+        );
     }
 
     #[test]

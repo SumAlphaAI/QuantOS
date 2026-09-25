@@ -234,7 +234,7 @@ fn gateway_auth_only_allows_service_secret_resolution_via_allowlist_session() {
 }
 
 #[test]
-fn cross_tenant_membership_is_rejected_by_database_constraint() {
+fn cross_tenant_authorization_edges_are_rejected_by_database_constraints() {
     let Some(database_url) = env::var("DATABASE_URL").ok().filter(|v| !v.is_empty()) else {
         assert_ne!(
             env::var("QUANTOS_RUN_F06_POSTGRES_TESTS").as_deref(),
@@ -248,7 +248,7 @@ fn cross_tenant_membership_is_rejected_by_database_constraint() {
     client.batch_execute("begin").expect("begin isolated probe");
     let a = Uuid::now_v7();
     let b = Uuid::now_v7();
-    let actor: Uuid = client
+    let actor_a: Uuid = client
         .query_one(
             "with tenants as (
            insert into quantos.tenants(id, slug, name)
@@ -260,7 +260,15 @@ fn cross_tenant_membership_is_rejected_by_database_constraint() {
         )
         .expect("seed actor")
         .get(0);
-    let workspace: Uuid = client
+    let actor_b: Uuid = client
+        .query_one(
+            "insert into quantos.actors(tenant_id, actor_kind, display_name, service_name)
+             values ($1, 'service', 'F06 probe B', 'f06-probe-b') returning id",
+            &[&b],
+        )
+        .expect("seed second actor")
+        .get(0);
+    let workspace_b: Uuid = client
         .query_one(
             "insert into quantos.workspaces(tenant_id, slug, name, is_primary)
          values ($1, 'primary', 'Primary', true) returning id",
@@ -268,17 +276,90 @@ fn cross_tenant_membership_is_rejected_by_database_constraint() {
         )
         .expect("seed workspace")
         .get(0);
-    let err = client
-        .execute(
-            "insert into quantos.workspace_memberships(tenant_id, workspace_id, actor_id, role)
-         values ($1, $2, $3, 'service')",
-            &[&a, &workspace, &actor],
+    let workspace_a: Uuid = client
+        .query_one(
+            "insert into quantos.workspaces(tenant_id, slug, name, is_primary)
+             values ($1, 'primary', 'Primary', true) returning id",
+            &[&a],
         )
-        .expect_err("cross-tenant membership must fail");
-    assert_eq!(
-        err.code(),
-        Some(&postgres::error::SqlState::FOREIGN_KEY_VIOLATION)
-    );
+        .expect("seed first workspace")
+        .get(0);
+    let account_b: Uuid = client
+        .query_one(
+            "insert into quantos.accounts(tenant_id,workspace_id,venue,external_account_ref,name,mode)
+             values ($1,$2,'paper',$3,'B','paper') returning id",
+            &[&b, &workspace_b, &format!("f06-{b}")],
+        )
+        .expect("seed second account")
+        .get(0);
+    let account_a: Uuid = client
+        .query_one(
+            "insert into quantos.accounts(tenant_id,workspace_id,venue,external_account_ref,name,mode)
+             values ($1,$2,'paper',$3,'A','paper') returning id",
+            &[&a, &workspace_a, &format!("f06-{a}")],
+        )
+        .expect("seed first account")
+        .get(0);
+
+    for (name, sql, ids) in [
+        (
+            "membership actor",
+            "insert into quantos.workspace_memberships(tenant_id,workspace_id,actor_id,role) values($1,$2,$3,'service')",
+            [a, workspace_a, actor_b],
+        ),
+        (
+            "membership workspace",
+            "insert into quantos.workspace_memberships(tenant_id,workspace_id,actor_id,role) values($1,$2,$3,'service')",
+            [a, workspace_b, actor_a],
+        ),
+        (
+            "capability actor",
+            "insert into quantos.actor_capabilities(tenant_id,actor_id,workspace_id,capability) values($1,$2,$3,'research.read')",
+            [a, actor_b, workspace_a],
+        ),
+        (
+            "capability workspace",
+            "insert into quantos.actor_capabilities(tenant_id,actor_id,workspace_id,capability) values($1,$2,$3,'research.read')",
+            [a, actor_a, workspace_b],
+        ),
+        (
+            "capability account",
+            "insert into quantos.actor_capabilities(tenant_id,actor_id,account_id,capability) values($1,$2,$3,'execution.operate')",
+            [a, actor_a, account_b],
+        ),
+    ] {
+        client.batch_execute("savepoint edge_probe").unwrap();
+        let err = client
+            .execute(sql, &[&ids[0], &ids[1], &ids[2]])
+            .expect_err(name);
+        assert_eq!(
+            err.code(),
+            Some(&postgres::error::SqlState::FOREIGN_KEY_VIOLATION),
+            "{name}"
+        );
+        client
+            .batch_execute("rollback to savepoint edge_probe")
+            .unwrap();
+    }
+    for (name, actor, account) in [
+        ("session actor", actor_b, account_a),
+        ("session account", actor_a, account_b),
+    ] {
+        client.batch_execute("savepoint edge_probe").unwrap();
+        let err = client.execute(
+            "insert into quantos.execution_service_sessions(tenant_id,actor_id,account_id,session_token_hash,allowed_capability,expires_at)
+             values($1,$2,$3,$4,'execution.operate',now()+interval '1 minute')",
+            &[&a, &actor, &account, &Uuid::new_v4().to_string()],
+        ).expect_err(name);
+        assert_eq!(
+            err.code(),
+            Some(&postgres::error::SqlState::FOREIGN_KEY_VIOLATION),
+            "{name}"
+        );
+        client
+            .batch_execute("rollback to savepoint edge_probe")
+            .unwrap();
+    }
     client.batch_execute("rollback").expect("rollback probe");
 }
 
@@ -300,6 +381,11 @@ fn authenticated_role_cannot_read_other_tenant_workspace() {
     let _fixture_a = seed_auth_fixture(&database_url, tenant_a, user_a);
     let _fixture_b = seed_auth_fixture(&database_url, tenant_b, user_b);
     let mut client = connect_client(&database_url).expect("connect for RLS probe");
+    client.execute(
+        "insert into quantos.actor_capabilities(tenant_id,actor_id,capability)
+         select tenant_id,id,'execution.operate' from quantos.actors where tenant_id=$1 and user_id=$2",
+        &[tenant_a.as_uuid(), &user_a],
+    ).expect("seed global grant to test mandatory account boundary");
     client
         .batch_execute(
             "begin;
@@ -338,6 +424,30 @@ fn authenticated_role_cannot_read_other_tenant_workspace() {
         .expect("capability helper accepts matching mode")
         .get(0);
     assert!(allowed_with_mode);
+    let denied_without_account: bool = client
+        .query_one(
+            "select quantos.current_user_has_capability($1, 'execution.operate', 'paper', null)",
+            &[tenant_a.as_uuid()],
+        )
+        .expect("global execution grant still requires an account")
+        .get(0);
+    assert!(!denied_without_account);
+    let denied_wrong_mode: bool = client
+        .query_one(
+            "select quantos.current_user_has_capability($1, 'execution.operate', 'shadow', $2)",
+            &[tenant_a.as_uuid(), _fixture_a.account_id.as_uuid()],
+        )
+        .expect("account mode must match")
+        .get(0);
+    assert!(!denied_wrong_mode);
+    let denied_other_tenant: bool = client
+        .query_one(
+            "select quantos.current_user_has_capability($1, 'execution.operate', 'paper', $2)",
+            &[tenant_b.as_uuid(), _fixture_b.account_id.as_uuid()],
+        )
+        .expect("other tenant grant is hidden")
+        .get(0);
+    assert!(!denied_other_tenant);
     client
         .batch_execute("rollback")
         .expect("rollback RLS probe");
@@ -542,6 +652,23 @@ fn bff_session_is_bound_to_its_primary_account_and_revocation() {
         middleware.load_bff_session_context(&raw, Some(fixture_b.account_id)),
         Err(quantos_auth::AuthError::HiddenAccount)
     ));
+    client
+        .execute(
+            "update quantos.accounts set mode='shadow' where id=$1",
+            &[fixture_a.account_id.as_uuid()],
+        )
+        .expect("change account mode after BFF session issue");
+    let updated = middleware
+        .load_bff_session_context(&raw, None)
+        .expect("BFF context derives current account mode");
+    assert_eq!(updated.auth.mode, RunMode::Shadow);
+    assert!(
+        !updated
+            .auth
+            .capabilities
+            .contains(&Capability::parse(Capability::EXECUTION_OPERATE).unwrap()),
+        "paper-scoped grant must not survive an account mode change"
+    );
     middleware
         .revoke_bff_session(&raw)
         .expect("revoke server session");
