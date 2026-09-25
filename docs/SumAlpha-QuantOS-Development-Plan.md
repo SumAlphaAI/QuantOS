@@ -282,7 +282,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；隔离目标在完整源码提交 fa6e540 重跑真实 Auth/live BFF 9 项 HTTP、真实 Auth→BFF→live Runtime 身份拒绝链、四类拒绝 4/4 与 Vault 四角色两路径 8/8，A01/A08 已关闭。2026-09-25 在 d99b180 对专用 Execution 登录、严格 TLS、服务启动、命令账户绑定 Vault 函数和旧路径收敛做隔离库同 SHA 复验，A06/A07 已关闭，10 项中累计关闭 4 项；A02 进程内路径已实现但没有可信 TradeCommand 入口及端到端回执，仍 OPEN。Runtime 仅临时使用用户授权的高权限 Storage key，未执行 Storage 操作；正式受限凭据及外部 OIDC 浏览器登录归各自后续 Gate。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate；F06 总回执仍缺，开发机跨区域鉴权读 P95 651ms（要求 <500ms），同区域与 Execution 命令闭环未验收。详见 [A02/A06/A07 复验](./audit/F06-A02-A06-A07-target-review-2026-09-25.md)、[A01/A08 复验](./audit/F06-A01-A08-target-review-2026-09-24.md)及[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)。
+- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；隔离目标在完整源码提交 fa6e540 重跑真实 Auth/live BFF 9 项 HTTP、真实 Auth→BFF→live Runtime 身份拒绝链、四类拒绝 4/4 与 Vault 四角色两路径 8/8，A01/A08 已关闭。2026-09-25 在 d99b180 对专用 Execution 登录、严格 TLS、服务启动、命令账户绑定 Vault 函数和旧路径收敛做隔离库同 SHA 复验，A06/A07 已关闭；在 d6e9c20 运行 Execution 进程经受限 Vault 到 paper kernel 的六场景隔离目标探针，A02 按 F06 Vault/Execution 范围关闭，10 项累计关闭 5 项。合成 paper 命令不证明 X03 签发、审批、可信传输或真实 venue；它们仍归后续任务。Runtime 仅临时使用用户授权的高权限 Storage key，未执行 Storage 操作；正式受限凭据及外部 OIDC 浏览器登录归各自后续 Gate。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate；F06 总回执仍缺，开发机跨区域鉴权读 P95 651ms（要求 <500ms），同区域指标未验收。详见 [A02 命令链复验](./audit/F06-A02-command-path-review-2026-09-25.md)、[A02/A06/A07 前次复验](./audit/F06-A02-A06-A07-target-review-2026-09-25.md)、[A01/A08 复验](./audit/F06-A01-A08-target-review-2026-09-24.md)及[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER
@@ -292,8 +292,8 @@ flowchart LR
   - issue_id: F06-A02
     severity: BLOCKER
     description: Execution Gateway Vault 实际调用与部署闭环待验证
-    evidence: docs/audit/F06-A02-A06-A07-target-review-2026-09-25.md
-    status: OPEN
+    evidence: docs/audit/F06-A02-command-path-review-2026-09-25.md
+    status: CLOSED
   - issue_id: F06-A03
     severity: HIGH
     description: 跨租户关系与查询谓词需同 SHA 复验
@@ -336,11 +336,11 @@ flowchart LR
     status: OPEN
 - fix_tracking:
   - issue_id: F06-A02
-    fix_ref: d99b18095bfcd3ea09cfd02d0db1ba6b0fb8b0cb
-    verification_command: cargo test -p execution-gateway -p quantos-auth -p quantos-execution --locked && make f06-vault-check
+    fix_ref: d6e9c20d007a0d87d0b80e530ebfa86b90af9d4f
+    verification_command: QUANTOS_F06_ISOLATED_PROJECT=1 make f06-execution-command-smoke && make f06-execution-login-check && make f06-vault-check
     verification_environment: isolated_supabase_local_execution
-    verification_evidence: docs/audit/F06-A02-A06-A07-target-receipt-2026-09-25.json
-    verification_status: PARTIAL
+    verification_evidence: docs/audit/F06-A02-command-path-receipt-2026-09-25.json
+    verification_status: PASS
   - issue_id: F06-A06
     fix_ref: d99b18095bfcd3ea09cfd02d0db1ba6b0fb8b0cb
     verification_command: make f06-execution-login-check && make f06-execution-service-check
