@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.13
+> 版本：3.14
 > 更新时间：2026-09-25
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.14`：F06 已关闭问题及修复追踪移至审计归档，计划保留当前结论和验收边界；F06 Gate 改为校验归档中的完整关闭记录，同 SHA 回执要求不变。
 
 - `3.13`：F07 再次核验 12/12 原问题保持关闭；主报告重构为当前开发验收结论，原初审与关闭追踪分别归档，开发计划活动问题清空。18/18、3/3 的既有验收范围和 L04 上线前移交边界保持有效。
 
@@ -287,119 +289,9 @@ flowchart LR
 - review_model: `GPT-6 Astra`
 - review_status: `ACCEPTED`
 - 状态解释：ACCEPTED 表示已列明基线的 F06 服务端范围验收；development_status=COMPLETED 只标识开发完成。对任一新 HEAD，仍必须具备绑定该完整 SHA 的 refs/notes/f06-acceptance 回执、全部问题 CLOSED、干净工作树及 make f06-acceptance-gate PASS。文档提交不转移历史回执；下游本地契约 Gate 不代表 F06 目标验收。
-- review_conclusion: 2026-09-25 复核确认 F06-A01–A10 全部 CLOSED：阻塞级 2/2、高危 5/5、中危 2/2、低危 1/1，合计 10/10（100%），活动问题 0。历史已验收基线为 44b8e73b5f28a9003689658cb75b13c73abd1489；40300445da8aed0f874aa1f5369b5e42bdf11234 的旧范围总回执为 FAIL，开发机跨区域 P95 670.556ms，复测 701.1ms 与 815.425ms。经用户确认，本地网络相关 P95 从 F06 Gate 移除，历史测量不改写；新范围只要求真实 Auth/BFF/Runtime、Execution/Vault 和拒绝矩阵三组同 SHA PASS 回执，且总回执状态 PASS。任一新 HEAD 必须独立通过总 Gate。详见 [当前复审结论](./audit/F06-comprehensive-review-2026-09-24.md)、[范围修订](./audit/F06-A09-remote-latency-gate-withdrawal-2026-09-25.md)与[历史基线](./audit/F06-accepted-baseline-44b8e73.json)。
-- issues:
-  - issue_id: F06-A01
-    severity: BLOCKER
-    description: 已验证真实 Auth/BFF/Runtime 身份闭环
-    evidence: docs/audit/F06-A01-A08-target-review-2026-09-24.md
-    status: CLOSED
-  - issue_id: F06-A02
-    severity: BLOCKER
-    description: 已验证受控 Execution 到 Vault 的隔离 paper 命令链
-    evidence: docs/audit/F06-A02-command-path-review-2026-09-25.md
-    status: CLOSED
-  - issue_id: F06-A03
-    severity: HIGH
-    description: 已验证跨租户关系约束与查询隔离
-    evidence: docs/audit/F06-A03-A04-A05-target-review-2026-09-25.md
-    status: CLOSED
-  - issue_id: F06-A04
-    severity: HIGH
-    description: 已验证 Primary 主上下文与账户模式
-    evidence: docs/audit/F06-A03-A04-A05-target-review-2026-09-25.md
-    status: CLOSED
-  - issue_id: F06-A05
-    severity: HIGH
-    description: 已验证 capability 默认拒绝与账户模式范围
-    evidence: docs/audit/F06-A03-A04-A05-target-review-2026-09-25.md
-    status: CLOSED
-  - issue_id: F06-A06
-    severity: HIGH
-    description: 已验证专用角色登录与最小权限
-    evidence: docs/audit/F06-A02-A06-A07-target-review-2026-09-25.md
-    status: CLOSED
-  - issue_id: F06-A07
-    severity: HIGH
-    description: 已验证 Vault 路径收敛与撤销过期拒绝
-    evidence: docs/audit/F06-A02-A06-A07-target-review-2026-09-25.md
-    status: CLOSED
-  - issue_id: F06-A08
-    severity: MEDIUM
-    description: 已验证四类请求与四角色 Vault 拒绝矩阵
-    evidence: docs/audit/F06-A01-A08-target-review-2026-09-24.md
-    status: CLOSED
-  - issue_id: F06-A09
-    severity: MEDIUM
-    description: 开发机跨区域鉴权读 P95 已转诊断；同区域性能移至首次部署验证
-    evidence: docs/audit/F06-A09-remote-latency-gate-withdrawal-2026-09-25.md
-    status: CLOSED
-  - issue_id: F06-A10
-    severity: LOW
-    description: 已区分开发完成与绑定提交的目标验收
-    evidence: docs/audit/F06-final-same-sha-acceptance-2026-09-25.md
-    status: CLOSED
-- fix_tracking:
-  - issue_id: F06-A10
-    fix_ref: 72ea0d17fb6a8ff4512a40aefd4bfd324b3776d9
-    verification_command: make f06-acceptance-gate
-    verification_environment: isolated_supabase_local_bff_execution_runtime_developer_remote
-    verification_evidence: docs/audit/F06-final-same-sha-acceptance-2026-09-25.md
-    verification_status: PASS
-  - issue_id: F06-A03
-    fix_ref: 1839b98c950c7f2d532b59dea3bac8d2d87fed53
-    verification_command: make f06-live-check
-    verification_environment: isolated_supabase
-    verification_evidence: docs/audit/F06-A03-A04-A05-target-receipt-2026-09-25.json
-    verification_status: PASS
-  - issue_id: F06-A04
-    fix_ref: 1839b98c950c7f2d532b59dea3bac8d2d87fed53
-    verification_command: make f06-live-check && make f06-bff-live-smoke
-    verification_environment: isolated_supabase_local_bff
-    verification_evidence: docs/audit/F06-A03-A04-A05-target-receipt-2026-09-25.json
-    verification_status: PASS
-  - issue_id: F06-A05
-    fix_ref: 1839b98c950c7f2d532b59dea3bac8d2d87fed53
-    verification_command: cargo test -p quantos-policy --locked && make db-apply && make f06-live-check
-    verification_environment: isolated_supabase
-    verification_evidence: docs/audit/F06-A03-A04-A05-target-receipt-2026-09-25.json
-    verification_status: PASS
-  - issue_id: F06-A09
-    fix_ref: 530bdeda46c7c0a17c8c3ba9c6971f878aed164d
-    verification_command: QUANTOS_F06_TOPOLOGY=developer_remote make f06-auth-latency-check
-    verification_environment: isolated_supabase_developer_remote
-    verification_evidence: docs/audit/F06-A09-scope-correction-receipt-2026-09-25.json
-    verification_status: PASS
-  - issue_id: F06-A02
-    fix_ref: d6e9c20d007a0d87d0b80e530ebfa86b90af9d4f
-    verification_command: QUANTOS_F06_ISOLATED_PROJECT=1 make f06-execution-command-smoke && make f06-execution-login-check && make f06-vault-check
-    verification_environment: isolated_supabase_local_execution
-    verification_evidence: docs/audit/F06-A02-command-path-receipt-2026-09-25.json
-    verification_status: PASS
-  - issue_id: F06-A06
-    fix_ref: d99b18095bfcd3ea09cfd02d0db1ba6b0fb8b0cb
-    verification_command: make f06-execution-login-check && make f06-execution-service-check
-    verification_environment: isolated_supabase_local_execution
-    verification_evidence: docs/audit/F06-A02-A06-A07-target-receipt-2026-09-25.json
-    verification_status: PASS
-  - issue_id: F06-A07
-    fix_ref: d99b18095bfcd3ea09cfd02d0db1ba6b0fb8b0cb
-    verification_command: make f06-vault-check && make rls-policy-test
-    verification_environment: isolated_supabase
-    verification_evidence: docs/audit/F06-A02-A06-A07-target-receipt-2026-09-25.json
-    verification_status: PASS
-  - issue_id: F06-A01
-    fix_ref: fa6e540714231663324ada627c60c101764122fb
-    verification_command: make f06-bff-live-smoke && make f06-runtime-login-check && QUANTOS_F06_ISOLATED_PROJECT=1 QUANTOS_F06_ALLOW_TEMP_ADMIN_STORAGE_KEY=1 make f06-runtime-live-smoke
-    verification_environment: isolated_supabase_local_bff
-    verification_evidence: docs/audit/F06-A01-A08-target-receipt-2026-09-24.json
-    verification_status: PASS
-  - issue_id: F06-A08
-    fix_ref: 559471e60bdb380695853d1151cd2e655a79cbc7
-    verification_command: make f06-denial-matrix && make f06-vault-check
-    verification_environment: isolated_supabase
-    verification_evidence: docs/audit/F06-A01-A08-target-receipt-2026-09-24.json
-    verification_status: PASS
+- review_conclusion: F06-A01–A10 全部关闭：阻塞级 2/2、高危 5/5、中危 2/2、低危 1/1，共 10/10（100%），活动问题 0。保持已确认服务端范围的 ACCEPTED；新 HEAD 仍须通过同 SHA 总 Gate。详见 [当前复审结论](./audit/F06-comprehensive-review-2026-09-24.md)、[已关闭问题与修复追踪](./audit/F06-closed-findings-2026-09-25.md)和[性能范围修订](./audit/F06-A09-remote-latency-gate-withdrawal-2026-09-25.md)。
+- issues: []
+- fix_tracking: []
 
 <a id="task-f07"></a>
 ### F07：Runtime 最小可恢复工作流

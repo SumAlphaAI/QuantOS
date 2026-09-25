@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { validateF06Acceptance } from "./check-f06-acceptance.mjs";
+import { validateF06Acceptance as validate } from "./check-f06-acceptance.mjs";
 
 const plan = readFileSync(new URL("../docs/SumAlpha-QuantOS-Development-Plan.md", import.meta.url), "utf8");
+const archivedFindings = readFileSync(new URL("../docs/audit/F06-closed-findings-2026-09-25.md", import.meta.url), "utf8");
+const validateF06Acceptance = (input) => validate({ archivedFindings, ...input });
 const sourceCommit = "a".repeat(40);
 const receipt = Object.fromEntries(["realOidcBff", "executionRoleAndVault", "denialMatrix"].map((key) => [key, { status: "PASS" }]));
 receipt.sourceCommit = sourceCommit;
@@ -22,8 +24,8 @@ test("development COMPLETED does not accept the current F06 review", () => {
 });
 
 test("ACCEPTED with any open finding remains blocked", () => {
-  const open = accepted.replace(/(  - issue_id: F06-A03[\s\S]*?    status: )CLOSED/, "$1OPEN");
-  const result = validateF06Acceptance({ plan: open, receipt, sourceCommit });
+  const open = archivedFindings.replace(/(  - issue_id: F06-A03[\s\S]*?    status: )CLOSED/, "$1OPEN");
+  const result = validateF06Acceptance({ plan: accepted, archivedFindings: open, receipt, sourceCommit });
   assert(result.failures.includes("F06 findings are missing or still open"));
 });
 
@@ -45,4 +47,14 @@ test("missing or duplicate review markers fail closed", () => {
   assert.equal(validateF06Acceptance({ plan: plan.replace('<a id="review-f06"></a>', ""), receipt, sourceCommit }).status, "FAIL");
   const duplicated = accepted.replace(/(<a id="review-f06"><\/a>[\s\S]*?- review_status: `)ACCEPTED(`)/, "$1FIX_VALIDATION`\n- review_status: `ACCEPTED$2");
   assert(validateF06Acceptance({ plan: duplicated, receipt, sourceCommit }).failures.includes("F06 review_status is not uniquely ACCEPTED"));
+});
+
+test("archived closure records must be present, complete and unique", () => {
+  for (const content of [null, "", archivedFindings.replace("issue_id: F06-A03", "issue_id: F06-A02"),
+    archivedFindings.replace("    status: CLOSED", "    status: FIX_VALIDATION"),
+    archivedFindings.replace("    status: CLOSED", "    status: CLOSED\n    status: OPEN")]) {
+    assert.equal(validateF06Acceptance({ plan: accepted, archivedFindings: content, receipt, sourceCommit }).status, "FAIL");
+  }
+  const unlinked = accepted.replace("./audit/F06-closed-findings-2026-09-25.md", "./audit/missing.md");
+  assert.equal(validateF06Acceptance({ plan: unlinked, receipt, sourceCommit }).status, "FAIL");
 });
