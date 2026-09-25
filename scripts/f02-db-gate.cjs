@@ -24,8 +24,9 @@ async function main(){
   for(let i=0;i<names.length;i++){
    await admin.query(`create database ${names[i]}`);
    const c=new Client({connectionString:urls[i]});await c.connect();clients.push(c);
-   await c.query(`create schema auth; create schema extensions;
+   await c.query(`create schema auth; create schema extensions; create schema storage;
      create table auth.users(id uuid primary key);
+     create table storage.buckets(id text primary key, name text not null, public boolean not null default false);
      create function auth.uid() returns uuid language sql stable as 'select nullif(current_setting(''request.jwt.claim.sub'',true),'''')::uuid';
      grant usage on schema auth to authenticated,anon,service_role;`);
    const p=spawnSync(process.execPath,[path.join(root,'scripts/db-cli.cjs'),'apply'],{cwd:root,env:{...process.env,DATABASE_URL:urls[i]},encoding:'utf8'});

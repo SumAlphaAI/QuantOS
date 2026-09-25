@@ -72,8 +72,9 @@ async function main() {
     await admin.query(`create database ${name}`);
     client = new Client({ connectionString: target.toString() });
     await client.connect();
-    await client.query(`create schema auth; create schema extensions;
+    await client.query(`create schema auth; create schema extensions; create schema storage;
       create table auth.users(id uuid primary key);
+      create table storage.buckets(id text primary key, name text not null, public boolean not null default false);
       create function auth.uid() returns uuid language sql stable as 'select nullif(current_setting(''request.jwt.claim.sub'',true),'''')::uuid';
       grant usage on schema auth to authenticated,anon,service_role;`);
     run(process.execPath, ['scripts/db-cli.cjs', 'apply'], { DATABASE_URL: target.toString() });
