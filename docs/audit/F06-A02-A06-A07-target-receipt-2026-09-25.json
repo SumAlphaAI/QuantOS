@@ -1,0 +1,34 @@
+{
+  "schema": "quantos-f06-a02-a06-a07-target-review/v1",
+  "testedSourceCommit": "d99b18095bfcd3ea09cfd02d0db1ba6b0fb8b0cb",
+  "environment": "isolated_supabase_with_local_execution_gateway",
+  "a02": {
+    "status": "PARTIAL",
+    "accountBoundResolver": "PASS",
+    "trustedInProcessSubmissionUnitTests": "PASS",
+    "realVaultSqlChecks": "PASS",
+    "liveCommandIngressToVaultAndKernel": "NOT_RUN_NO_RECEIPT"
+  },
+  "a06": {
+    "status": "PASS_F06_ISOLATED_SCOPE",
+    "dedicatedLogin": "PASS",
+    "verifiedTls": true,
+    "executionRoleOnly": true,
+    "legacyFunctionsRevoked": true,
+    "directVaultViewDenied": true,
+    "localServiceStartupWithDedicatedLogin": "PASS"
+  },
+  "a07": {
+    "status": "PASS",
+    "activeResolverGrantedOnlyToExecutionRole": true,
+    "oldResolverDeniedToExecutionRole": true,
+    "commandAccountMismatchDenied": true,
+    "expiredCommandDenied": true,
+    "rotatingReferenceDenied": true,
+    "revokedReferenceDenied": true,
+    "revokedSessionDenied": true,
+    "vaultRolePaths": { "denied": 8, "total": 8, "sqlstate": "42501" },
+    "platformServiceRoleViewException": true
+  },
+  "f06OverallAcceptance": "NOT_ACCEPTED"
+}
