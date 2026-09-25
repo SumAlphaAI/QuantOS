@@ -282,7 +282,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；隔离目标在完整源码提交 fa6e540 重跑真实 Auth/live BFF 9 项 HTTP、真实 Auth→BFF→live Runtime 身份拒绝链、四类拒绝 4/4 与 Vault 四角色两路径 8/8，A01/A08 已关闭。2026-09-25 在 d99b180 对专用 Execution 登录、严格 TLS、服务启动、命令账户绑定 Vault 函数和旧路径收敛做隔离库同 SHA 复验，A06/A07 已关闭；在 d6e9c20 运行 Execution 进程经受限 Vault 到 paper kernel 的六场景隔离目标探针，A02 按 F06 Vault/Execution 范围关闭，10 项累计关闭 5 项。合成 paper 命令不证明 X03 签发、审批、可信传输或真实 venue；它们仍归后续任务。Runtime 仅临时使用用户授权的高权限 Storage key，未执行 Storage 操作；正式受限凭据及外部 OIDC 浏览器登录归各自后续 Gate。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate；F06 总回执仍缺，开发机跨区域鉴权读 P95 651ms（要求 <500ms），同区域指标未验收。详见 [A02 命令链复验](./audit/F06-A02-command-path-review-2026-09-25.md)、[A02/A06/A07 前次复验](./audit/F06-A02-A06-A07-target-review-2026-09-25.md)、[A01/A08 复验](./audit/F06-A01-A08-target-review-2026-09-24.md)及[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)。
+- review_conclusion: 2026-09-24 F06 初审 3/18 完成、发现 10 项问题；隔离目标在完整源码提交 fa6e540 重跑真实 Auth/live BFF 9 项 HTTP、真实 Auth→BFF→live Runtime 身份拒绝链、四类拒绝 4/4 与 Vault 四角色两路径 8/8，A01/A08 已关闭。2026-09-25 在 d99b180 对专用 Execution 登录、严格 TLS、服务启动、命令账户绑定 Vault 函数和旧路径收敛做隔离库同 SHA 复验，A06/A07 已关闭；在 d6e9c20 运行 Execution 进程经受限 Vault 到 paper kernel 的六场景隔离目标探针，A02 按 F06 Vault/Execution 范围关闭，10 项累计关闭 5 项。合成 paper 命令不证明 X03 签发、审批、可信传输或真实 venue；它们仍归后续任务。A09 在 a301c74 用专用 BFF 登录和严格 TLS 完成开发机跨区域 100 次只读鉴权，P95 392.78ms <500ms；历史 operator 路径 651ms 仍保留为失败记录。同区域运行器尚无，<100ms 无回执，A09 继续 OPEN。Runtime 仅临时使用用户授权的高权限 Storage key，未执行 Storage 操作；正式受限凭据及外部 OIDC 浏览器登录归各自后续 Gate。Terminal 浏览器、MFA 页面交互及全部页面 API 联调不属于 F06 Gate；F06 总回执仍缺。详见 [A09 性能续修](./audit/F06-A09-performance-review-2026-09-25.md)、[A02 命令链复验](./audit/F06-A02-command-path-review-2026-09-25.md)、[A01/A08 复验](./audit/F06-A01-A08-target-review-2026-09-24.md)及[Gate 边界修正](./audit/F06-gate-scope-correction-2026-09-24.md)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER
@@ -327,7 +327,7 @@ flowchart LR
   - issue_id: F06-A09
     severity: MEDIUM
     description: 同区域与开发机跨区域 P95 尚未双达标
-    evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
+    evidence: docs/audit/F06-A09-performance-review-2026-09-25.md
     status: OPEN
   - issue_id: F06-A10
     severity: LOW
@@ -335,6 +335,12 @@ flowchart LR
     evidence: docs/audit/F06-comprehensive-review-2026-09-24.md
     status: OPEN
 - fix_tracking:
+  - issue_id: F06-A09
+    fix_ref: a301c740108f44accbd9d9311892a1bfd5a305a4
+    verification_command: QUANTOS_F06_TOPOLOGY=developer_remote make f06-auth-latency-check
+    verification_environment: isolated_supabase_developer_remote
+    verification_evidence: docs/audit/F06-A09-developer-remote-receipt-2026-09-25.json
+    verification_status: PARTIAL
   - issue_id: F06-A02
     fix_ref: d6e9c20d007a0d87d0b80e530ebfa86b90af9d4f
     verification_command: QUANTOS_F06_ISOLATED_PROJECT=1 make f06-execution-command-smoke && make f06-execution-login-check && make f06-vault-check
