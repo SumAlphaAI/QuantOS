@@ -1,0 +1,99 @@
+{
+  "schema": "quantos-f06-target-acceptance/v2",
+  "sourceCommit": "f5993743420cc7f5f2de0544e3b83404eea88cdc",
+  "collectedAt": "2026-09-25T10:30:10.002Z",
+  "status": "PASS",
+  "failures": [],
+  "environment": "isolated_supabase_local_bff_runtime_execution",
+  "realOidcBff": {
+    "status": "PASS",
+    "realSupabaseAuth": true,
+    "independentBffAndRuntimeLogins": true,
+    "bffHttpChecks": 9,
+    "bffHttpStatuses": {
+      "missingCookie": 401,
+      "foreignOrigin": 403,
+      "invalidToken": 401,
+      "sessionEstablished": 204,
+      "sessionRead": 200,
+      "primaryContext": 200,
+      "hiddenAccount": 404,
+      "logout": 204,
+      "revokedSession": 401
+    },
+    "runtimeIdentityHttpStatuses": {
+      "missingCookie": 401,
+      "authorizedUnknownRun": 404,
+      "foreignOrigin": 403,
+      "deniedRole": 403,
+      "bffLogout": 204,
+      "revokedCookie": 401
+    },
+    "temporaryAdminStorageKey": true,
+    "storageOperationPerformed": false
+  },
+  "executionRoleAndVault": {
+    "status": "PASS",
+    "dedicatedExecutionVerifiedTls": true,
+    "restrictedVaultCall": true,
+    "paperKernelSubmissions": 1,
+    "deniedKernelSubmissions": 0,
+    "negativeScenarios": [
+      "account_mismatch",
+      "expired",
+      "reference_rotating",
+      "reference_revoked",
+      "session_revoked"
+    ],
+    "fixtureDataCleaned": true,
+    "emptyIsolatedTenantRetained": true
+  },
+  "denialMatrix": {
+    "status": "PASS",
+    "requestCategoriesDenied": 4,
+    "requestCategoriesTotal": 4,
+    "vaultRolePathsDenied": 8,
+    "vaultRolePathsTotal": 8,
+    "vaultDenialSqlstate": "42501",
+    "postgresHarnessPassed": 9,
+    "postgresDatabaseTestsExecuted": 8,
+    "postgresHarnessFailed": 0,
+    "latencyDiagnosticSkipped": true
+  },
+  "localChecks": {
+    "planStructure": "PASS",
+    "acceptanceNegativeTests": 4
+  },
+  "commands": [
+    "make f06-bff-live-smoke",
+    "make f06-runtime-login-check",
+    "QUANTOS_F06_ISOLATED_PROJECT=1 QUANTOS_F06_ALLOW_TEMP_ADMIN_STORAGE_KEY=1 make f06-runtime-live-smoke",
+    "make f06-execution-login-check",
+    "make f06-execution-service-check",
+    "QUANTOS_F06_ISOLATED_PROJECT=1 make f06-execution-command-smoke",
+    "make f06-vault-check",
+    "make f06-rls-check f06-denial-matrix f06-bff-session-check",
+    "make f06-live-check",
+    "node scripts/check-development-plans.mjs",
+    "node --test scripts/f06-acceptance-gate-negative.mjs"
+  ],
+  "scopeExclusions": {
+    "developerRemoteP95": "REMOVED_FROM_F06_GATE_LOCAL_NETWORK",
+    "sameRegionP95": "FIRST_SAME_REGION_DEPLOYMENT",
+    "terminalBrowserE2e": "WEB_G1",
+    "x03IssuerTransport": "X03",
+    "freshReferenceSchemaDiff": "NOT_RUN_MISSING_REFERENCE_DATABASE_URL"
+  },
+  "secretMaterialLogged": false,
+  "regressionContext": {
+    "migration": "20260925120000_f07_actor_identity_uniqueness.sql",
+    "verified": [
+      "F06 Auth/BFF live",
+      "Runtime role and identity",
+      "Execution/Vault",
+      "RLS and 4/4 denial matrix",
+      "9/9 PostgreSQL harness"
+    ],
+    "ciFixture": "f599374 adds disposable PostgreSQL Storage bucket fixture without changing applied Supabase migration"
+  }
+}

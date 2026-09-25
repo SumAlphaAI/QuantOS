@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.11
+> 版本：3.12
 > 更新时间：2026-09-25
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.12`：按当前开发阶段范围，F07 以本地启动的真实服务、隔离 Supabase 功能验证、同源码 SHA 的 CI/Nightly 和 F06 依赖回执完成开发验收。部署后的 HTTPS 入口与仅限 `quantos-artifacts` 的 Runtime Storage 凭据改列 L04 上线前 Gate；临时管理员 Storage key 仅允许隔离环境诊断，不构成发布授权。历史初审及旧范围诊断结论不改写。详见 [F07 开发验收与上线前移交](./audit/F07-development-acceptance-2026-09-25.md)。
 - `3.11`：F07 补齐 HTTP、worker、重试、权限隔离和 Artifact 测试；隔离 Supabase 诊断覆盖率 line/region/branch 为 93.27%/88.15%/89.13%，通过既有门槛。目标服务诊断完成真实 Auth、BFF/Runtime、私有 Storage 往返和跨租户拒绝；actor 唯一约束与 Bucket 缺失以前向迁移修复。正式同 SHA Nightly、受限 Storage 凭据及部署入口仍待验收，F07 保持 `FIX_VALIDATION`。详见 [F07 覆盖率与目标服务复验](./audit/F07-coverage-target-service-2026-09-25.md)。
 - `3.10`：F07 Nightly 在 `1e14310` 上执行，调度 P95 326.65ms 超过 200ms，正式恢复与覆盖率未开始；已改为原子单语句调度并在隔离 Supabase 验证迁移和限额回滚。待新提交同 SHA Nightly 复验，F07 仍为 `FIX_VALIDATION`。详见 [Nightly 调度整改](./audit/F07-nightly-schedule-remediation-2026-09-24.md)。
 - `3.9`：F07 全面复审发现 12 项问题并进入本地修复验证；新增 Runtime 服务入口、持久租约 fencing、权限/限额、前向 migration 和隔离库 Gate。F07 量化验收仍为 `0/3` 同 SHA 目标回执，F06 依赖未验收，故保持 `FIX_VALIDATION`。详见 [F07 复审](./audit/F07-comprehensive-review-2026-09-24.md)及[整改记录](./audit/F07-remediation-2026-09-24.md)。
@@ -410,75 +411,148 @@ flowchart LR
 - 交付物：`quantos-runtime`、workflow fixtures
 - 量化验收标准：worker 强杀后 100 个任务均从 checkpoint 恢复且不重复创建 Artifact；cancel/timeout 事件均带 audit；任务调度 P95 <200ms
 - 依赖：F04–F06
+- 阶段验收边界：F07 当前验收面向开发阶段，使用本地 BFF/Runtime 进程、隔离 Supabase 项目和同源码 SHA 的自动化回执验证功能、拒绝、恢复与量化指标。部署后的 HTTPS 入口和仅可访问 `quantos-artifacts` 的 Runtime Storage 凭据移至 L04 上线前 Gate；不得以 F07 开发验收替代生产部署或发布批准。
 
 <a id="review-f07"></a>
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-25 F07 已补 HTTP、worker、cancel、retry、Artifact 与同租户 actor 隔离测试；隔离 Supabase 诊断覆盖率达到 line 93.27%、region 88.15%、branch 89.13%，超过 90%/85%/85% 门槛。目标服务诊断已完成真实 Supabase Auth、独立 BFF/Runtime 登录、严格 TLS、worker 与私有 Storage 往返、跨租户拒绝及会话撤销。修复了 actor 唯一约束和缺失的 Artifact Bucket。上述回执仍来自未提交工作树，Storage 临时使用管理员 key；需新提交同 SHA CI/Nightly、100 次强杀恢复与 P95 正式回执，以及受限 Storage 凭据和部署入口验收，故保持 `FIX_VALIDATION`。F06 已独立验收，但本次身份 schema 变更需按新 SHA 复验受影响的 F06 Gate。详见 [F07 覆盖率与目标服务复验](./audit/F07-coverage-target-service-2026-09-25.md)。
+- review_status: `ACCEPTED`
+- review_conclusion: 2026-09-25 开发阶段验收通过，源码基线 f5993743420cc7f5f2de0544e3b83404eea88cdc：同 SHA 主 CI、F07 Nightly、隔离 Supabase 本地服务功能诊断及 F06 总 Gate 已复核；worker 强杀后 100/100 任务恢复且 Artifact 唯一、cancel/timeout audit、调度 P95 27.66ms、Rust line/region/branch 93.98%/86.72%/89.13% 均满足规格。按开发阶段口径，初审 18/18 检查点及 F07-A01–A12 已关闭。目标服务回执因使用隔离环境临时管理员 Storage key，仍标记 DIAGNOSTIC_ONLY；部署后的 HTTPS 入口及受限 Storage 凭据单列 L04 上线前 Gate，当前未完成，也未授权上线。文档提交不会自动转移 f599374 的源码回执到新的 HEAD。详见 [F07 开发验收与上线前移交](./audit/F07-development-acceptance-2026-09-25.md)。
 - issues:
   - issue_id: F07-A01
     severity: BLOCKER
-    description: Runtime 服务入口和真实 worker 接线待 live 验证
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
+    description: 本地 Runtime 服务入口和真实 worker 接线已验证
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A02
     severity: BLOCKER
-    description: 隔离库和同 SHA 量化回执及 F06 依赖未齐
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: OPEN
+    description: 隔离库、同 SHA 量化回执及 F06 依赖已齐
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A03
     severity: HIGH
-    description: session 与 tool 授权负向路径待数据库验证
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
+    description: session 与 tool 授权负向路径已在数据库验证
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A04
     severity: HIGH
-    description: 租约凭据与旧 worker 写入拒绝待数据库验证
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
+    description: 租约凭据与旧 worker 写入拒绝已在数据库验证
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A05
     severity: HIGH
-    description: PostgreSQL 重试与最大次数终态待数据库验证
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
+    description: PostgreSQL 重试与最大次数终态已验证
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A06
     severity: HIGH
-    description: 成本与速率限额待数据库验证
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
+    description: 成本与速率限额已在数据库验证
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A07
     severity: HIGH
-    description: Artifact 租户复合约束待迁移和负向验证
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
+    description: Artifact 租户复合约束迁移和负向验证已通过
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A08
     severity: MEDIUM
-    description: 请求指纹幂等冲突待数据库验证
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
+    description: 请求指纹幂等冲突已在数据库验证
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A09
     severity: MEDIUM
-    description: cancel 和 deadline 状态竞态待数据库验证
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
+    description: cancel 和 deadline 状态竞态已在数据库验证
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A10
     severity: MEDIUM
-    description: 运行时严格 TLS 与专用角色待目标连接验证
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
+    description: 运行时严格 TLS 与专用角色已在隔离目标连接验证
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A11
     severity: MEDIUM
-    description: 200ms P95 门槛已写入 Gate 但没有有效测量
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: OPEN
+    description: 200ms P95 门槛已由同 SHA Nightly 实测通过
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
   - issue_id: F07-A12
     severity: LOW
-    description: fixture、Runbook、覆盖率和文档追踪待最终验收
-    evidence: docs/audit/F07-remediation-2026-09-24.md
-    status: FIX_VALIDATION
-- fix_tracking: []
+    description: fixture、Runbook、覆盖率和文档追踪已完成开发阶段验收
+    evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    status: CLOSED
+- fix_tracking:
+  - issue_id: F07-A01
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: make f07-target-service-acceptance
+    verification_environment: isolated_supabase_local_service
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A02
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6 && QuantOS CI #138 && make f06-acceptance-gate
+    verification_environment: github_actions_and_isolated_supabase
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A03
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6 && make f07-target-service-acceptance
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A04
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A05
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A06
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A07
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6 && make f07-target-service-acceptance
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A08
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A09
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A10
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: make f07-target-service-acceptance
+    verification_environment: isolated_supabase_local_service
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A11
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6
+    verification_environment: isolated_supabase
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F07-A12
+    fix_ref: f5993743420cc7f5f2de0544e3b83404eea88cdc
+    verification_command: F07 Nightly #6 && node scripts/check-development-plans.mjs
+    verification_environment: github_actions_and_local
+    verification_evidence: docs/audit/F07-development-acceptance-2026-09-25.md
+    verification_status: PASS
 
 <a id="task-f08"></a>
 ### F08：Engine SDK、Manager 与 Mock Engine
@@ -1437,6 +1511,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - 交付物：SLO report、drill report、release checklist
 - 量化验收标准：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0
 - 依赖：X05、X06、L01–L03
+- F07 上线前移交：在拟上线的隔离部署环境中验证外部 HTTPS BFF/Runtime 入口、真实身份与会话、worker 恢复、私有 Artifact 取回及跨租户拒绝；为 Runtime 配置只能访问 `quantos-artifacts` 的 Storage 凭据，证明其他 bucket 读写被拒并记录轮换和撤销。两项均需绑定候选发布源码 SHA 的目标回执；未通过不得发布 Runtime。开发阶段的临时管理员 Storage key 诊断回执不能替代此 Gate。
 
 <a id="review-l04"></a>
 #### GPT-6 Astra 功能复审
@@ -1482,6 +1557,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 ### 10.5 L4 Gate
 
 - [ ] L01–L04 完成；仅 testnet 证明通过，不自动产生生产实盘权限。
+- [ ] F07 拟上线部署的 HTTPS BFF/Runtime 入口与恢复/隔离回执通过；Runtime Storage 凭据仅可访问 `quantos-artifacts`，其他 bucket 拒绝和轮换/撤销证据通过，且全部绑定候选发布源码 SHA。
 - [ ] venue、秘密、MFA、审批、网络、容量、恢复、对账和安全证据全部归档。
 - [ ] 任一容量阈值触发时，先完成 Supabase 原生优化和容量 ADR；未获 ADR 批准时不得增加 Supabase 生态外的事件、缓存、时序或秘密基础设施。
 - [ ] 是否开启小额 Assisted Live 必须在本计划之外，由单独批准决定。
