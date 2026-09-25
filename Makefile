@@ -229,6 +229,9 @@ f06-bff-provision:
 f06-runtime-login-provision:
 	@node scripts/f06-runtime-login-provision.cjs
 
+f06-execution-login-provision:
+	@node scripts/f06-execution-login-provision.cjs
+
 f06-runtime-login-check:
 	@test -n "$$QUANTOS_RUNTIME_DATABASE_URL" || (echo "QUANTOS_RUNTIME_DATABASE_URL is required." >&2; exit 1)
 	@node scripts/f06-runtime-login-check.cjs
