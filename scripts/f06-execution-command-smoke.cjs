@@ -102,7 +102,9 @@ async function main() {
     const existing = (await client.query(`select tenant.id,
       (select vault_path from quantos.secret_references
        where tenant_id=tenant.id and secret_name='f06.paper') as vault_path
-      from quantos.tenants as tenant where tenant.slug like 'f06-command-%'`)).rows;
+      from quantos.tenants as tenant
+      where tenant.slug ~ '^f06-command-[0-9a-f]{16}$'
+        and tenant.name = 'F06 command smoke'`)).rows;
     assert(existing.length <= 1, 'multiple F06 command tenants require manual review');
     if (existing.length === 1) {
       fixture.tenant = existing[0].id;
