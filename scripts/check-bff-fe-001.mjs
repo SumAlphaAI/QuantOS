@@ -63,7 +63,7 @@ export function validateBffFe001(inputs) {
   const fail = (condition, message) => { if (!condition) failures.push(message); };
 
   fail(taskStatus(inputs.frontendPlan, "BFF-FE-000") === "COMPLETED", "dependency BFF-FE-000 is COMPLETED");
-  fail(taskStatus(inputs.corePlan, "F06") === "COMPLETED", "dependency F06 is COMPLETED");
+  fail(taskStatus(inputs.corePlan, "F06") === "COMPLETED", "F06 development prerequisite is COMPLETED (local contract check only)");
   fail(taskStatus(inputs.frontendPlan, "BFF-FE-001") === "COMPLETED", "BFF-FE-001 development status is COMPLETED");
   fail(Number(inputs.openapi.info?.version?.split(".")[0]) === 1 && Number(inputs.openapi.info?.version?.split(".")[1]) >= 2, "OpenAPI retains the BFF-FE-001 1.2.0 baseline");
   fail(inputs.openapi.components?.securitySchemes?.cookieAuth?.in === "cookie", "session auth uses an HttpOnly-compatible cookie security scheme");
@@ -112,7 +112,7 @@ export function validateBffFe001(inputs) {
   fail(inputs.ciWorkflow.includes("make bff-provider-test"), "main CI runs the Rust provider integration tests");
   fail(inputs.summaryExists && inputs.evidenceExists, "A2 summary and acceptance evidence are checked in");
 
-  return { status: failures.length ? "FAIL" : "PASS", failures, operations: requiredOperations.length };
+  return { status: failures.length ? "FAIL" : "PASS", scope: "local_contract", failures, operations: requiredOperations.length };
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -120,5 +120,5 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (report.failures.length) {
     report.failures.forEach((failure) => console.error(`FAIL  ${failure}`));
     process.exitCode = 1;
-  } else console.log(`BFF-FE-001 Gate PASS: ${report.operations} C01/C17 operations, cookie session, CSRF, recent-auth, MFA protection, audit and revocation stream checks.`);
+  } else console.log(`BFF-FE-001 local contract Gate PASS: ${report.operations} C01/C17 operations, cookie session, CSRF, recent-auth, MFA protection, audit and revocation stream checks. F06 target acceptance requires make f06-acceptance-gate.`);
 }

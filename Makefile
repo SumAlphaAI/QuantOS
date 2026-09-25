@@ -275,6 +275,7 @@ f06-bff-live-smoke:
 	@node scripts/f06-bff-live-smoke.cjs
 
 f06-acceptance-gate:
+	node --test scripts/f06-acceptance-gate-negative.mjs
 	node scripts/check-f06-acceptance.mjs
 
 test-supabase-storage-live:

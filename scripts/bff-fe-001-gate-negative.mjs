@@ -8,6 +8,7 @@ const current = loadBffFe001Inputs();
 test("current BFF-FE-001 repository Gate passes", () => {
   const report = validateBffFe001(current);
   assert.equal(report.status, "PASS", report.failures.join("\n"));
+  assert.equal(report.scope, "local_contract");
 });
 
 test("CSRF deletion is rejected", () => {
