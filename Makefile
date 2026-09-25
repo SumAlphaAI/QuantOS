@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-.PHONY: f07-db-check f07-recovery-diagnostic f07-coverage-diagnostic f07-gateway-test f07-target-service-acceptance f07-fixture-check f07-fixture-retire f07-forward-migration f08-check
+.PHONY: f07-db-check f07-recovery-diagnostic f07-coverage-diagnostic f07-gateway-test f07-target-service-acceptance f07-fixture-check f07-fixture-retire f07-forward-migration f08-check f08-nightly-check
 export UV_BUILD_CONSTRAINT := $(CURDIR)/engines/build-constraints.txt
 
 ifneq ($(QUANTOS_SKIP_ENV),1)
@@ -185,6 +185,10 @@ f08-check:
 	node scripts/check-f08-python-coverage.mjs target/f08-python-coverage.json
 	cargo llvm-cov -p quantos-engine-manager --locked --json --output-path target/f08-rust-coverage.json
 	node scripts/check-f08-rust-coverage.mjs target/f08-rust-coverage.json
+
+f08-nightly-check:
+	cargo +nightly llvm-cov --branch -p quantos-engine-manager --locked --json --output-path target/f08-rust-nightly-coverage.json
+	node scripts/check-f08-rust-coverage.mjs target/f08-rust-nightly-coverage.json --require-branches
 
 f05-target-check:
 	node scripts/f05-target-gate.cjs

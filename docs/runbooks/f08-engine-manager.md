@@ -2,7 +2,7 @@
 
 ## 准入
 
-Manager 默认拒绝 `register_engine`。部署控制面须在独立审核后固定 Engine manifest、不可变制品文件及路由策略，由 `f08-approval` 对三者生成绑定签名。审核密钥以 `QUANTOS_ENGINE_APPROVAL_KEY_HEX` 从受控启动环境提供给签发命令；不要写入仓库、日志或 Engine 环境。运行宿主用相同密钥构造 `EngineManager::with_approval_key`，并通过 `register_supervised_engine` 注册本地 sidecar。注册时和每次重启时核验制品 SHA-256；每次连接核对 `GetMetadata` 的名称、版本、capabilities 和 schema，再查 readiness。未审核、签名变化、制品变化或身份不一致均拒绝。
+Manager 默认拒绝 `register_engine`。部署控制面须在独立审核后固定 Engine manifest、不可变制品文件及路由策略，由 `f08-approval` 对三者生成绑定签名。审核密钥以 `QUANTOS_ENGINE_APPROVAL_KEY_HEX` 从受控启动环境提供给签发命令；不要写入仓库、日志或 Engine 环境。运行宿主用相同密钥及私有状态目录构造 `EngineManager::with_durable_state`，并通过 `register_supervised_engine` 注册本地 sidecar。签名策略 `requires_supervision: true` 若未配置持久状态目录会被拒绝。注册时和每次重启时核验制品 SHA-256；每次连接核对 `GetMetadata` 的名称、版本、capabilities 和 schema，再查 readiness。未审核、签名变化、制品变化或身份不一致均拒绝。
 
 `EngineApproval::sign_for_local_fixture` 仅用于合成测试；它签入宽松本地策略，不得用作部署批准。部署策略使用 `sign_with_policy` 或如下签发命令，并明确列出租户、区域、数据分类上限、成本上限、GPU 能力、每秒请求上限、CPU 上限、是否要求进程监督以及 Engine 是否已证明可安全重试。生产本地 sidecar 设置 `requires_supervision: true`；没有可证明幂等实现时设置 `retry_safe: false`。Engine 无法从请求推断数据敏感度、成本或 GPU 需求，Runtime 必须调用带可信 `EngineDispatchContext` 的接口；默认上下文按最高敏感度和成本处理，偏向拒绝。
 
@@ -17,9 +17,9 @@ QUANTOS_SKIP_ENV=1 cargo run -p quantos-engine-manager --bin f08-approval --lock
 
 ## 启动与请求处理
 
-1. 宿主加载审核记录、manifest、路由策略及密钥。先验证签名和制品，再注册 sidecar 的绝对可执行路径、固定参数和制品路径。Manager 在首次调用时启动进程；应在开放入口前调用 `health` 并启动 `start_health_monitor(interval)`，确认 ready。
-2. Runtime 将 tenant、actor、correlation、causation、capability、schema、snapshot/policy 引用、idempotency key、绝对 deadline 和可信路由上下文交给 Manager。Manager 对单 Engine 并发、租户每秒速率、采样 CPU/RSS、身份和路由策略执行拒绝；GPU 仅验证签名的可用性标记，硬隔离待目标宿主补齐。所有拒绝均有稳定 `machine_code()`；不记录请求输入、秘密或签名密钥。
-3. Manager 同一实例及其克隆共享熔断、速率和幂等结果状态。相同 tenant/capability/key 和相同请求返回已完成结果；同键改输入返回 `ENGINE_IDEMPOTENCY_CONFLICT`。重试仅在审核策略 `retry_safe=true` 且状态可重试时启用。结果状态是当前 Manager 实例的运行时状态；上层 Runtime 的持久 checkpoint/Artifact 仍负责跨 Manager 进程恢复，不得把此内存缓存当持久队列。
+1. 宿主加载审核记录、manifest、路由策略及密钥。先验证签名和制品，再注册 sidecar 的绝对可执行路径、固定参数和制品路径。Mock Engine 作为受监督服务运行时传入私有 `--state-db` 路径，使相同请求键的结果在 Engine 进程重启后保留；正式 Engine 取得 `retry_safe=true` 审批前须另行证明其副作用幂等。Manager 在首次调用时启动进程；应在开放入口前调用 `health` 并启动 `start_health_monitor(interval)`，确认 ready。
+2. Runtime 将 tenant、actor、correlation、causation、capability、schema、snapshot/policy 引用、idempotency key、绝对 deadline 和可信路由上下文交给 Manager。Manager 对单 Engine 并发、租户每秒速率、采样 CPU/RSS、身份和路由策略执行拒绝；GPU 只用于能力路由。本系统不以 CPU/GPU 硬隔离作为 F08 Gate。所有拒绝均有稳定 `machine_code()`；不记录请求输入、秘密或签名密钥。
+3. Manager 同一实例及其克隆共享熔断、速率和幂等结果状态。持久模式在调用前 fsync 未完成请求，跨进程对同一 tenant/capability/key 使用文件锁；成功后原子提交结果。相同请求跨 Manager 进程返回已完成结果；同键改输入返回 `ENGINE_IDEMPOTENCY_CONFLICT`。进程崩溃留下未完成记录时，只有审核策略 `retry_safe=true` 才能重放；否则返回 `ENGINE_RESULT_UNCERTAIN`，由 Runtime checkpoint/Artifact 对账后处置。`ENGINE_DURABLE_BUSY` 表示另一个 Manager 正在执行同一键。当前 Mock 可重放测试使用确定性 Artifact ID；有外部副作用的 Engine 必须先证明自身幂等再获 `retry_safe` 审批。
 4. Engine 进程退出后，Manager 在下次调用重新校验制品、启动子进程并等待身份/就绪检查；达到崩溃阈值进入退避，仅一个半开探针可尝试恢复。超 deadline 返回 `ENGINE_DEADLINE_EXCEEDED`；调用方按 Runtime checkpoint 处理后续恢复。
 
 ## 观测与故障判断
@@ -36,4 +36,4 @@ QUANTOS_SKIP_ENV=1 cargo run -p quantos-engine-manager --bin f08-approval --lock
 QUANTOS_SKIP_ENV=1 make f08-check
 ```
 
-Gate 包含 Rust fmt/Clippy/Manager 测试与 line ≥90%/region ≥85% 覆盖率、Python Ruff/Pyright/全 Engine contract 与逐文件 ≥85% 行覆盖率。Nightly 还须用 `node scripts/check-f08-rust-coverage.mjs target/f08-rust-coverage.json --require-branches` 验证 branch ≥85%。UDS 测试需要允许创建 Unix socket 的本机/CI 环境；受限沙箱中的绑定失败不是产品失败。本地 Gate 只证明其实际执行源码；发布候选仍需同一完整 SHA 的 CI、覆盖率和目标服务回执，不能把本地 PASS 改写成远程验收。
+Gate 包含 Rust fmt/Clippy/Manager 测试与 line ≥90%/region ≥85% 覆盖率、Python Ruff/Pyright/全 Engine contract 与逐文件 ≥85% 行覆盖率。`QUANTOS_SKIP_ENV=1 make f08-nightly-check` 另用 Nightly 测量 branch ≥85%。两道 Gate 均失败即阻断，不含 CPU/GPU 硬隔离检查。UDS 测试需要允许创建 Unix socket 的本机/CI 环境；受限沙箱中的绑定失败不是产品失败。本地 Gate 只证明其实际执行源码；发布候选仍需同一完整 SHA 的 CI、覆盖率和目标服务回执，不能把本地 PASS 改写成远程验收。

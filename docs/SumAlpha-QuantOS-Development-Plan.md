@@ -334,7 +334,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-25 对全面复审的 11 项问题依序整改：7 项本地修复、4 项仍部分完成；24 项检查点重核为 21 PASS、3 PARTIAL、0 FAIL，严格本地完成率 87.5%。Rust Manager line/region 覆盖率 75.82%/74.96%，未达到 90%/85%；持久幂等、资源硬隔离及同 SHA CI/Nightly/目标回执仍缺，F08 未验收。详见 [初审](./audit/F08-comprehensive-review-2026-09-25.md)与[整改记录](./audit/F08-remediation-2026-09-25.md)。
+- review_conclusion: 2026-09-25 按用户决定移除 CPU/GPU 硬隔离 Gate，并完成持久请求/结果、跨进程同键锁、Mock SQLite 幂等缓存和熔断状态恢复。本地 11 项问题中 10 项修复、M03 覆盖率问题仍开放；24 项检查点为 23 PASS、1 PARTIAL、0 FAIL，严格本地完成率 95.8%。Rust line/region/branch 仍低于 90%/85%/85%，且缺同一最终 SHA 的 CI/Nightly/隔离目标回执，F08 未验收。详见 [初审](./audit/F08-comprehensive-review-2026-09-25.md)、[首轮整改](./audit/F08-remediation-2026-09-25.md)与[后续整改](./audit/F08-continuation-2026-09-25.md)。
 - issues:
   - issue_id: F08-B01
     severity: BLOCKER
@@ -358,14 +358,14 @@ flowchart LR
     status: CLOSED
   - issue_id: F08-H03
     severity: HIGH
-    description: 已采集并超额停止受监督进程的 RSS/CPU；CPU/GPU 硬隔离及目标宿主验证仍缺。
+    description: 已采集并超额停止受监督进程的 RSS/CPU；CPU/GPU 硬隔离按用户决定不属于 F08 Gate。
     evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
-    status: OPEN
+    status: CLOSED
   - issue_id: F08-H04
     severity: HIGH
-    description: 请求/响应校验和同进程幂等结果绑定已补；跨 Manager 进程持久队列/结果仍缺。
-    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
-    status: OPEN
+    description: 已补持久 pending/结果、跨进程同键锁和 Mock SQLite 重启缓存；未证明幂等的 Engine 禁止盲目重试。
+    evidence: [F08 后续整改](./audit/F08-continuation-2026-09-25.md)
+    status: CLOSED
   - issue_id: F08-H05
     severity: HIGH
     description: 流已纳入配额与 deadline，Manager 运行中取消和跨租户拒绝本地测试通过。
@@ -378,13 +378,13 @@ flowchart LR
     status: CLOSED
   - issue_id: F08-M02
     severity: MEDIUM
-    description: 已补共享半开熔断与重注册清路由；跨 Manager 进程状态持久化仍缺。
-    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
-    status: OPEN
+    description: 已补共享半开熔断、重注册清路由及与审批 manifest digest 绑定的跨进程熔断状态恢复。
+    evidence: [F08 后续整改](./audit/F08-continuation-2026-09-25.md)
+    status: CLOSED
   - issue_id: F08-M03
     severity: MEDIUM
-    description: 共用 harness 和逐 Python 文件覆盖率已补；Rust line/region 低于计划门槛且 Nightly branch 未验。
-    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    description: 共用 harness 和逐 Python 文件覆盖率已补；Rust line/region/branch 均低于计划门槛。
+    evidence: [F08 后续整改](./audit/F08-continuation-2026-09-25.md)
     status: OPEN
   - issue_id: F08-L01
     severity: LOW
@@ -419,15 +419,15 @@ flowchart LR
   - issue_id: F08-H03
     fix_ref: crates/quantos-engine-manager/src/lib.rs
     verification_command: cargo test -p quantos-engine-manager --locked
-    verification_environment: 本机 RSS 采样通过；CPU/GPU 硬配额未验证
+    verification_environment: 本机 RSS 采样通过；CPU/GPU 硬隔离 Gate 已取消
     verification_evidence: docs/audit/F08-remediation-2026-09-25.md
-    verification_status: PARTIAL
+    verification_status: PASS
   - issue_id: F08-H04
-    fix_ref: crates/quantos-engine-manager/src/lib.rs
+    fix_ref: crates/quantos-engine-manager/src/durable.rs
     verification_command: cargo test -p quantos-engine-manager --locked
-    verification_environment: 本机内存幂等通过；跨进程持久化未验证
-    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
-    verification_status: PARTIAL
+    verification_environment: 本机 Manager 进程强杀、跨进程同键锁及 Mock 重启缓存
+    verification_evidence: docs/audit/F08-continuation-2026-09-25.md
+    verification_status: PASS
   - issue_id: F08-H05
     fix_ref: crates/quantos-engine-manager/tests/python_mock_engine.rs
     verification_command: cargo test -p quantos-engine-manager --locked
@@ -441,16 +441,16 @@ flowchart LR
     verification_evidence: docs/audit/F08-remediation-2026-09-25.md
     verification_status: PASS
   - issue_id: F08-M02
-    fix_ref: crates/quantos-engine-manager/src/lib.rs
+    fix_ref: crates/quantos-engine-manager/src/durable.rs
     verification_command: cargo test -p quantos-engine-manager --locked
-    verification_environment: 本机共享熔断通过；跨 Manager 进程状态未验证
-    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
-    verification_status: PARTIAL
+    verification_environment: 本机重建 Manager 后恢复持久熔断状态
+    verification_evidence: docs/audit/F08-continuation-2026-09-25.md
+    verification_status: PASS
   - issue_id: F08-M03
     fix_ref: Makefile
     verification_command: QUANTOS_SKIP_ENV=1 UV_OFFLINE=1 CARGO_NET_OFFLINE=true make f08-check
-    verification_environment: 本机 Python PASS；Rust 覆盖率门槛 FAIL
-    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_environment: 本机 Python PASS；Rust 稳定版及 Nightly 覆盖率门槛 FAIL
+    verification_evidence: docs/audit/F08-continuation-2026-09-25.md
     verification_status: PARTIAL
   - issue_id: F08-L01
     fix_ref: docs/runbooks/f08-engine-manager.md

@@ -437,13 +437,16 @@ async fn manager_supervises_three_real_crashes_without_test_owned_restarts() -> 
     let digest = Sha256::digest(std::fs::read(&artifact_path)?);
     let artifact_sha256: String = digest.iter().map(|byte| format!("{byte:02x}")).collect();
     let manifest = manifest_for_socket(socket_path.clone());
-    let approval = EngineApproval::sign_for_local_fixture(
+    let mut policy = EngineRoutingPolicy::local_fixture();
+    policy.requires_supervision = true;
+    let approval = EngineApproval::sign_with_policy(
         &manifest,
         &artifact_sha256,
         "F08 test reviewer",
+        policy,
         TEST_APPROVAL_KEY,
     )?;
-    let mut manager = EngineManager::with_approval_key(
+    let mut manager = EngineManager::with_durable_state(
         BackoffPolicy {
             crash_threshold: 3,
             base_backoff: Duration::from_millis(50),
@@ -451,7 +454,8 @@ async fn manager_supervises_three_real_crashes_without_test_owned_restarts() -> 
             max_dispatch_attempts: 40,
         },
         TEST_APPROVAL_KEY.to_vec(),
-    );
+        tempdir.path().join("manager-state"),
+    )?;
     manager.register_supervised_engine(
         manifest,
         &approval,
@@ -465,6 +469,12 @@ async fn manager_supervises_three_real_crashes_without_test_owned_restarts() -> 
                 socket_path.display().to_string(),
                 "--crash-state-file".to_owned(),
                 crash_state.display().to_string(),
+                "--state-db".to_owned(),
+                tempdir
+                    .path()
+                    .join("manager-state/mock-results.sqlite")
+                    .display()
+                    .to_string(),
             ],
         },
     )?;
@@ -609,6 +619,39 @@ async fn heartbeat_removes_failed_engine_and_restores_ready_route() -> anyhow::R
 }
 
 #[tokio::test]
+async fn dispatch_reprobes_ready_engine_without_background_monitor() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let child = spawn_python_mock_engine(&socket_path, 0, 0, false).await?;
+    let mut manager =
+        EngineManager::with_approval_key(BackoffPolicy::default(), TEST_APPROVAL_KEY.to_vec());
+    register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
+    shutdown_child(child, &socket_path).await;
+    assert!(
+        manager
+            .health(
+                "mock-engine",
+                HealthRequest {
+                    metadata: Some(valid_metadata("route-probe-down")),
+                },
+            )
+            .await
+            .is_err()
+    );
+    assert!(!manager.circuit_state("mock-engine").expect("state").ready);
+    let recovered = spawn_python_mock_engine(&socket_path, 0, 0, false).await?;
+    let response = manager
+        .execute("research.execute", execute_request("route-probe-up"))
+        .await?;
+    assert_eq!(
+        response.execution_id,
+        "run-route-probe-up:idem-route-probe-up"
+    );
+    assert!(manager.circuit_state("mock-engine").expect("state").ready);
+    shutdown_child(recovered, &socket_path).await;
+    Ok(())
+}
+
+#[tokio::test]
 async fn manager_cancel_interrupts_owned_running_execution() -> anyhow::Result<()> {
     let socket_path = short_socket_path();
     let child = spawn_python_mock_engine(&socket_path, 0, 1_500, false).await?;
@@ -639,6 +682,165 @@ async fn manager_cancel_interrupts_owned_running_execution() -> anyhow::Result<(
         .expect_err("running request must stop after cancellation");
     assert_eq!(error.machine_code(), "ENGINE_RPC");
     assert!(started.elapsed() < Duration::from_secs(2));
+    shutdown_child(child, &socket_path).await;
+    Ok(())
+}
+
+#[tokio::test]
+async fn durable_result_and_circuit_survive_manager_reconstruction() -> anyhow::Result<()> {
+    let state = tempfile::tempdir()?;
+    let socket_path = short_socket_path();
+    let child = spawn_python_mock_engine(&socket_path, 0, 0, false).await?;
+    let manifest = manifest_for_socket(socket_path.clone());
+    let mut first = EngineManager::with_durable_state(
+        BackoffPolicy::default(),
+        TEST_APPROVAL_KEY.to_vec(),
+        state.path().join("manager"),
+    )?;
+    register_reviewed_engine(&mut first, manifest.clone())?;
+    let request = execute_request("durable-result");
+    let original = first.execute("research.execute", request.clone()).await?;
+    shutdown_child(child, &socket_path).await;
+    let failed_health = first
+        .health(
+            "mock-engine",
+            HealthRequest {
+                metadata: Some(valid_metadata("durable-health-down")),
+            },
+        )
+        .await;
+    assert!(failed_health.is_err());
+    drop(first);
+
+    let mut recovered = EngineManager::with_durable_state(
+        BackoffPolicy::default(),
+        TEST_APPROVAL_KEY.to_vec(),
+        state.path().join("manager"),
+    )?;
+    register_reviewed_engine(&mut recovered, manifest)?;
+    assert!(!recovered.circuit_state("mock-engine").expect("state").ready);
+    assert_eq!(
+        recovered
+            .completed_execution("tenant-primary", "research.execute", "idem-durable-result")
+            .await,
+        Some(original.clone())
+    );
+    let denied = recovered
+        .execute("research.execute", request.clone())
+        .await
+        .expect_err("unhealthy route must remain closed across restart");
+    assert_eq!(denied.machine_code(), "ENGINE_NOT_READY");
+
+    let child = spawn_python_mock_engine(&socket_path, 0, 0, false).await?;
+    recovered
+        .health(
+            "mock-engine",
+            HealthRequest {
+                metadata: Some(valid_metadata("durable-health-restored")),
+            },
+        )
+        .await?;
+    assert_eq!(
+        recovered
+            .execute("research.execute", request.clone())
+            .await?,
+        original
+    );
+    let mut changed = request;
+    changed.data_snapshot_ref = "different-snapshot".to_owned();
+    let error = recovered
+        .execute("research.execute", changed)
+        .await
+        .expect_err("key is bound");
+    assert_eq!(error.machine_code(), "ENGINE_IDEMPOTENCY_CONFLICT");
+    shutdown_child(child, &socket_path).await;
+    Ok(())
+}
+
+#[test]
+fn durable_child_execute_entry() {
+    let Ok(directory) = std::env::var("F08_DURABLE_CHILD_DIR") else {
+        return;
+    };
+    let socket = std::env::var("F08_DURABLE_CHILD_SOCKET").expect("child socket");
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("child runtime");
+    runtime.block_on(async {
+        let mut manager = EngineManager::with_durable_state(
+            BackoffPolicy::default(),
+            TEST_APPROVAL_KEY.to_vec(),
+            PathBuf::from(directory),
+        )
+        .expect("child manager");
+        register_reviewed_engine(&mut manager, manifest_for_socket(PathBuf::from(socket)))
+            .expect("child registration");
+        let _ = manager
+            .execute("research.execute", execute_request("killed-manager"))
+            .await;
+    });
+}
+
+#[tokio::test]
+async fn os_killed_manager_replays_pending_key_into_one_durable_result() -> anyhow::Result<()> {
+    let directory = tempfile::tempdir()?;
+    let state_dir = directory.path().join("manager");
+    let socket_path = short_socket_path();
+    let child = spawn_python_mock_engine(&socket_path, 0, 2_000, false).await?;
+    let mut manager_process = Command::new(std::env::current_exe()?)
+        .arg("--exact")
+        .arg("durable_child_execute_entry")
+        .env("F08_DURABLE_CHILD_DIR", &state_dir)
+        .env("F08_DURABLE_CHILD_SOCKET", &socket_path)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()?;
+    tokio::time::timeout(Duration::from_secs(3), async {
+        loop {
+            if let Ok(bytes) = std::fs::read(state_dir.join("state.json")) {
+                let value: serde_json::Value = serde_json::from_slice(&bytes).expect("valid state");
+                if value["pending"]
+                    .as_object()
+                    .is_some_and(|pending| !pending.is_empty())
+                {
+                    break;
+                }
+            }
+            sleep(Duration::from_millis(20)).await;
+        }
+    })
+    .await?;
+    let mut recovered = EngineManager::with_durable_state(
+        BackoffPolicy::default(),
+        TEST_APPROVAL_KEY.to_vec(),
+        state_dir.clone(),
+    )?;
+    register_reviewed_engine(&mut recovered, manifest_for_socket(socket_path.clone()))?;
+    let busy = recovered
+        .execute("research.execute", execute_request("killed-manager"))
+        .await
+        .expect_err("second Manager cannot concurrently dispatch the same key");
+    assert_eq!(busy.machine_code(), "ENGINE_DURABLE_BUSY");
+    manager_process.kill().await?;
+    manager_process.wait().await?;
+    let response = recovered
+        .execute("research.execute", execute_request("killed-manager"))
+        .await?;
+    assert_eq!(
+        response.execution_id,
+        "run-killed-manager:idem-killed-manager"
+    );
+    let state: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(state_dir.join("state.json"))?)?;
+    assert_eq!(
+        state["pending"].as_object().map(|entries| entries.len()),
+        Some(0)
+    );
+    assert_eq!(
+        state["completed"].as_object().map(|entries| entries.len()),
+        Some(1)
+    );
     shutdown_child(child, &socket_path).await;
     Ok(())
 }

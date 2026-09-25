@@ -29,6 +29,11 @@ def parse_args() -> argparse.Namespace:
         help="Test fixture counter persisted across supervised process restarts",
     )
     parser.add_argument(
+        "--state-db",
+        type=Path,
+        help="Private SQLite result cache retained across Mock Engine process restarts",
+    )
+    parser.add_argument(
         "--default-sleep-ms",
         type=int,
         default=0,
@@ -51,6 +56,7 @@ def main() -> None:
             default_sleep_ms=args.default_sleep_ms,
             exit_on_execute=args.exit_on_execute,
             crash_state_file=args.crash_state_file,
+            state_db=args.state_db,
         ),
     )
     try:

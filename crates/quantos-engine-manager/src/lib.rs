@@ -32,6 +32,9 @@ use tonic::transport::{Channel, Endpoint};
 use tower::service_fn;
 use tracing::{info, warn};
 
+mod durable;
+use durable::{BeginRequest, DurableLedger};
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EngineCapabilityManifest {
     pub name: String,
@@ -308,6 +311,12 @@ pub enum EngineManagerError {
     CpuQuota,
     #[error("ENGINE_SUPERVISION_REQUIRED: signed policy requires a managed sidecar")]
     SupervisionRequired,
+    #[error("ENGINE_DURABLE_STATE_REQUIRED: supervised production sidecar requires durable state")]
+    DurableStateRequired,
+    #[error("ENGINE_DURABLE_BUSY: another Manager is executing this idempotency key")]
+    DurableBusy,
+    #[error("ENGINE_RESULT_UNCERTAIN: interrupted non-retry-safe request requires reconciliation")]
+    ResultUncertain,
     #[error("ENGINE_CONCURRENCY_QUOTA: engine `{0}` has no execution slot available")]
     ConcurrencyQuota(String),
     #[error(
@@ -358,6 +367,9 @@ impl EngineManagerError {
             Self::StreamIncomplete => "ENGINE_STREAM_INCOMPLETE",
             Self::CpuQuota => "ENGINE_CPU_QUOTA",
             Self::SupervisionRequired => "ENGINE_SUPERVISION_REQUIRED",
+            Self::DurableStateRequired => "ENGINE_DURABLE_STATE_REQUIRED",
+            Self::DurableBusy => "ENGINE_DURABLE_BUSY",
+            Self::ResultUncertain => "ENGINE_RESULT_UNCERTAIN",
             Self::ConcurrencyQuota(_) => "ENGINE_CONCURRENCY_QUOTA",
             Self::RssQuota { .. } => "ENGINE_RSS_QUOTA",
         }
@@ -383,7 +395,7 @@ impl Default for BackoffPolicy {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EngineCircuitState {
     pub consecutive_failures: u32,
     pub backoff_until: Option<DateTime<Utc>>,
@@ -437,6 +449,7 @@ pub struct EngineManager {
     completed: CompletedMap,
     rates: RateWindows,
     execution_owners: Arc<Mutex<BTreeMap<String, (String, String)>>>,
+    durable: Option<Arc<DurableLedger>>,
 }
 
 impl EngineManager {
@@ -450,6 +463,7 @@ impl EngineManager {
             completed: Arc::new(Mutex::new(BTreeMap::new())),
             rates: Arc::new(Mutex::new(BTreeMap::new())),
             execution_owners: Arc::new(Mutex::new(BTreeMap::new())),
+            durable: None,
         }
     }
 
@@ -458,6 +472,18 @@ impl EngineManager {
         let mut manager = Self::new(policy);
         manager.approval_key = Some(Arc::from(key.into()));
         manager
+    }
+
+    pub fn with_durable_state(
+        policy: BackoffPolicy,
+        key: impl Into<Vec<u8>>,
+        state_directory: PathBuf,
+    ) -> Result<Self, EngineManagerError> {
+        let durable = Arc::new(DurableLedger::new(state_directory)?);
+        let mut manager = Self::with_approval_key(policy, key);
+        manager.execution_owners = Arc::new(Mutex::new(durable.completed_owners()?));
+        manager.durable = Some(durable);
+        Ok(manager)
     }
 
     /// Legacy registration is deliberately closed. Callers must supply a
@@ -490,6 +516,9 @@ impl EngineManager {
         if approval.routing_policy.requires_supervision && !supervised {
             return Err(EngineManagerError::SupervisionRequired);
         }
+        if approval.routing_policy.requires_supervision && self.durable.is_none() {
+            return Err(EngineManagerError::DurableStateRequired);
+        }
         for capability in &manifest.capabilities {
             if let Some(owner) = self.capability_routes.get(&capability.name)
                 && owner != &manifest.engine_name
@@ -510,12 +539,19 @@ impl EngineManager {
                 .insert(capability.name.clone(), manifest.engine_name.clone());
         }
         let max_concurrency = manifest.quota.max_concurrency;
+        let restored = if let Some(durable) = &self.durable {
+            durable.circuit(&manifest.engine_name, &approval.manifest_sha256)?
+        } else {
+            None
+        };
         self.engines.insert(
             manifest.engine_name.clone(),
             ManagedEngine {
                 manifest,
                 routing_policy: approval.routing_policy.clone(),
-                state: Arc::new(StdMutex::new(EngineCircuitState::new())),
+                state: Arc::new(StdMutex::new(
+                    restored.unwrap_or_else(EngineCircuitState::new),
+                )),
                 execution_slots: Arc::new(Semaphore::new(max_concurrency as usize)),
                 sidecar: None,
             },
@@ -565,6 +601,7 @@ impl EngineManager {
         if let Ok(mut state) = sidecar.state.lock() {
             state.quarantined = true;
         }
+        self.persist_circuit(engine_name)?;
         if let Some(sidecar) = &sidecar.sidecar {
             let mut process = sidecar.lock().await;
             if let Some(mut child) = process.child.take() {
@@ -616,6 +653,11 @@ impl EngineManager {
     }
 
     pub async fn snapshot(&self) -> EngineManagerSnapshot {
+        let completed_count = if let Some(durable) = &self.durable {
+            durable.completed_count().unwrap_or_default()
+        } else {
+            self.completed.lock().await.len()
+        };
         EngineManagerSnapshot {
             registered_engines: self.engines.len(),
             supervised_engines: self
@@ -632,7 +674,7 @@ impl EngineManager {
                     })
                 })
                 .count(),
-            completed_idempotency_keys: self.completed.lock().await.len(),
+            completed_idempotency_keys: completed_count,
             rate_windows: self.rates.lock().await.len(),
         }
     }
@@ -644,11 +686,12 @@ impl EngineManager {
         idempotency_key: &str,
     ) -> Option<ExecuteResponse> {
         let key = format!("{tenant_id}\0{capability}\0{idempotency_key}");
-        let slot = self.completed.lock().await.get(&key).cloned()?;
-        slot.lock()
-            .await
-            .as_ref()
-            .map(|(_, response)| response.clone())
+        if let Some(slot) = self.completed.lock().await.get(&key).cloned()
+            && let Some((_, response)) = &*slot.lock().await
+        {
+            return Some(response.clone());
+        }
+        self.durable.as_ref()?.completed(&key).ok().flatten()
     }
 
     pub fn circuit_state(&self, engine_name: &str) -> Option<EngineCircuitState> {
@@ -781,13 +824,14 @@ impl EngineManager {
         request: ExecuteRequest,
         context: EngineDispatchContext,
     ) -> Result<ExecuteResponse, EngineManagerError> {
-        let engine_name = self.route_engine_name(capability)?.to_owned();
-        self.validate_execution_request(&engine_name, capability, &request)?;
-        self.enforce_route_policy(&engine_name, &request, &context)?;
         let deadline = request
             .deadline
             .ok_or(EngineManagerError::DeadlineExceeded)?;
-        let remaining = remaining_time(timestamp_to_datetime(&deadline)?)?;
+        let deadline_at = timestamp_to_datetime(&deadline)?;
+        let engine_name = self.route_ready(capability, deadline_at).await?;
+        self.validate_execution_request(&engine_name, capability, &request)?;
+        self.enforce_route_policy(&engine_name, &request, &context)?;
+        let remaining = remaining_time(deadline_at)?;
         let metadata = request
             .metadata
             .as_ref()
@@ -811,10 +855,12 @@ impl EngineManager {
         );
         let pending_execution_id =
             format!("{}:{}", request.workflow_run_id, request.idempotency_key);
+        let durable = self.durable.clone();
+        let retry_safe = self.engines[&engine_name].routing_policy.retry_safe;
         let slot = {
             let mut completed = self.completed.lock().await;
             completed
-                .entry(key)
+                .entry(key.clone())
                 .or_insert_with(|| Arc::new(Mutex::new(None)))
                 .clone()
         };
@@ -827,6 +873,17 @@ impl EngineManager {
                     Err(EngineManagerError::IdempotencyConflict)
                 };
             }
+            let _request_guard = if let Some(ledger) = &durable {
+                match ledger.begin_request(&key, &fingerprint, retry_safe)? {
+                    BeginRequest::Cached(response) => {
+                        *entry = Some((fingerprint.clone(), (*response).clone()));
+                        return Ok(*response);
+                    }
+                    BeginRequest::Dispatch(guard) => Some(guard),
+                }
+            } else {
+                None
+            };
             self.enforce_rate_limit(&engine_name, &request).await?;
             let tenant_id = request
                 .metadata
@@ -851,6 +908,9 @@ impl EngineManager {
                     .lock()
                     .await
                     .remove(&pending_execution_id);
+            }
+            if let Some(ledger) = &durable {
+                ledger.complete_request(&key, &fingerprint, &tenant_id, &engine_name, &response)?;
             }
             self.execution_owners.lock().await.insert(
                 response.execution_id.clone(),
@@ -963,20 +1023,17 @@ impl EngineManager {
         request: StreamExecuteRequest,
         context: EngineDispatchContext,
     ) -> Result<Vec<StreamExecuteResponse>, EngineManagerError> {
-        let engine_name = self.route_engine_name(capability)?.to_owned();
         let inner = request
             .request
             .as_ref()
             .ok_or(EngineManagerError::InvalidRequest("request"))?;
+        let deadline = inner.deadline.ok_or(EngineManagerError::DeadlineExceeded)?;
+        let deadline_at = timestamp_to_datetime(&deadline)?;
+        let engine_name = self.route_ready(capability, deadline_at).await?;
         self.validate_execution_request(&engine_name, capability, inner)?;
         self.enforce_route_policy(&engine_name, inner, &context)?;
         self.enforce_rate_limit(&engine_name, inner).await?;
-        let deadline = request
-            .request
-            .as_ref()
-            .and_then(|value| value.deadline)
-            .ok_or(EngineManagerError::DeadlineExceeded)?;
-        let remaining = remaining_time(timestamp_to_datetime(&deadline)?)?;
+        let remaining = remaining_time(deadline_at)?;
         let pending_execution_id = format!("{}:{}", inner.workflow_run_id, inner.idempotency_key);
         let tenant_id = inner
             .metadata
@@ -1107,12 +1164,17 @@ impl EngineManager {
             .ok_or(EngineManagerError::InvalidRequest("metadata"))?
             .tenant_id
             .clone();
-        let owner = self
+        let mut owner = self
             .execution_owners
             .lock()
             .await
             .get(&request.execution_id)
             .cloned();
+        if owner.is_none()
+            && let Some(durable) = &self.durable
+        {
+            owner = durable.owner_for_execution(&request.execution_id)?;
+        }
         if owner != Some((tenant_id, engine_name.to_owned())) {
             return Err(EngineManagerError::CancellationDenied);
         }
@@ -1156,8 +1218,56 @@ impl EngineManager {
         capability: &str,
         request: CancelRequest,
     ) -> Result<CancelResponse, EngineManagerError> {
-        let engine_name = self.route_engine_name(capability)?.to_owned();
+        let engine_name = self
+            .capability_routes
+            .get(capability)
+            .ok_or_else(|| EngineManagerError::CapabilityNotRouted(capability.to_owned()))?
+            .clone();
         self.cancel(&engine_name, request).await
+    }
+
+    async fn route_ready(
+        &mut self,
+        capability: &str,
+        deadline_at: DateTime<Utc>,
+    ) -> Result<String, EngineManagerError> {
+        match self.route_engine_name(capability) {
+            Ok(engine_name) => Ok(engine_name.to_owned()),
+            Err(EngineManagerError::NotReady) => {
+                let engine_name = self
+                    .capability_routes
+                    .get(capability)
+                    .ok_or_else(|| EngineManagerError::CapabilityNotRouted(capability.to_owned()))?
+                    .clone();
+                if self
+                    .circuit_state(&engine_name)
+                    .is_some_and(|state| state.quarantined)
+                {
+                    return Err(EngineManagerError::NotReady);
+                }
+                let timeout = remaining_time(deadline_at)?;
+                match tokio::time::timeout(
+                    timeout,
+                    self.health(
+                        &engine_name,
+                        HealthRequest {
+                            metadata: Some(service_metadata("route-readiness-reprobe")),
+                        },
+                    ),
+                )
+                .await
+                .map_err(|_| EngineManagerError::DeadlineExceeded)?
+                {
+                    Ok(_) => {}
+                    Err(EngineManagerError::Transport(_)) => {
+                        return Err(EngineManagerError::NotReady);
+                    }
+                    Err(error) => return Err(error),
+                }
+                Ok(self.route_engine_name(capability)?.to_owned())
+            }
+            Err(error) => Err(error),
+        }
     }
 
     async fn client_for_engine(
@@ -1490,7 +1600,8 @@ impl EngineManager {
         state.backoff_until = None;
         state.half_open_probe = false;
         state.ready = true;
-        Ok(())
+        drop(state);
+        self.persist_circuit(engine_name)
     }
 
     fn record_status(
@@ -1534,6 +1645,22 @@ impl EngineManager {
                 failures = state.consecutive_failures,
                 "engine circuit opened"
             );
+        }
+        drop(state);
+        self.persist_circuit(engine_name)
+    }
+
+    fn persist_circuit(&self, engine_name: &str) -> Result<(), EngineManagerError> {
+        if let Some(durable) = &self.durable {
+            let managed = self
+                .engines
+                .get(engine_name)
+                .ok_or_else(|| EngineManagerError::EngineNotFound(engine_name.to_owned()))?;
+            let state = *managed
+                .state
+                .lock()
+                .map_err(|_| EngineManagerError::Transport("circuit lock poisoned".to_owned()))?;
+            durable.save_circuit(engine_name, &manifest_digest(&managed.manifest)?, state)?;
         }
         Ok(())
     }

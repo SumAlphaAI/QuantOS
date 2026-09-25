@@ -6,6 +6,7 @@ assert(file, "usage: node scripts/check-f08-rust-coverage.mjs REPORT_JSON");
 const report = JSON.parse(readFileSync(file, "utf8"));
 const sources = [
   "crates/quantos-engine-manager/src/lib.rs",
+  "crates/quantos-engine-manager/src/durable.rs",
   "crates/quantos-engine-manager/src/bin/f08-approval.rs",
 ];
 const results = sources.map((suffix) => {

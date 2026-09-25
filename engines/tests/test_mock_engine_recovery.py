@@ -56,6 +56,8 @@ def test_mock_server_cli_passes_crash_fixture_and_stops(tmp_path: Path, monkeypa
             str(socket),
             "--crash-state-file",
             str(crash_file),
+            "--state-db",
+            str(tmp_path / "results.sqlite"),
             "--failures-before-success",
             "2",
             "--default-sleep-ms",
@@ -68,6 +70,7 @@ def test_mock_server_cli_passes_crash_fixture_and_stops(tmp_path: Path, monkeypa
     assert observed["socket"] == socket
     assert observed["waited"] is True and observed["grace"] == 0
     assert service.crash_state_file == crash_file
+    assert service.state_db == tmp_path / "results.sqlite"
     assert service.failures_before_success == 2
     assert service.default_sleep_ms == 10 and service.exit_on_execute is True
 
@@ -86,6 +89,19 @@ def test_mock_crash_counter_survives_restart(tmp_path: Path, monkeypatch) -> Non
     assert crash_file.read_text(encoding="utf-8") == "0"
     response = MockEngineService(crash_state_file=crash_file).execute(request, fake_context())
     assert response.execution_id == "run-1:idem-1"
+
+
+def test_mock_result_cache_survives_restart_and_rejects_changed_input(tmp_path: Path) -> None:
+    state_db = tmp_path / "results.sqlite"
+    request = valid_execute_request(4)
+    first = MockEngineService(state_db=state_db).execute(request, fake_context())
+    second = MockEngineService(state_db=state_db).execute(request, fake_context())
+    assert second == first
+    changed = engine_pb2.ExecuteRequest()
+    changed.CopyFrom(request)
+    changed.data_snapshot_ref = "other-snapshot"
+    with pytest.raises(RuntimeError, match="ALREADY_EXISTS:ENGINE_IDEMPOTENCY_CONFLICT"):
+        MockEngineService(state_db=state_db).execute(changed, fake_context())
 
 
 def test_mock_failure_cancel_and_sleep_paths() -> None:
