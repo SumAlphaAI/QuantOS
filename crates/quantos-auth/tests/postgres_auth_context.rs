@@ -141,6 +141,73 @@ fn gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks()
     );
 }
 
+/// Read-only latency Gate over the same restricted login as the live BFF.
+/// Existing isolated identity data is used; this test creates no fixture.
+#[test]
+fn f06_dedicated_bff_auth_read_p95() {
+    if env::var("QUANTOS_RUN_F06_P95").as_deref() != Ok("1") {
+        eprintln!("NOT RUN: set QUANTOS_RUN_F06_P95=1 for the dedicated BFF P95 Gate");
+        return;
+    }
+    let database_url = env::var("QUANTOS_BFF_DATABASE_URL")
+        .expect("F06 P95 Gate requires QUANTOS_BFF_DATABASE_URL");
+    let topology =
+        env::var("QUANTOS_F06_TOPOLOGY").expect("F06 P95 Gate requires an explicit topology");
+    let limit_ms = match topology.as_str() {
+        "same_region" => 100,
+        "developer_remote" => 500,
+        _ => panic!("F06 P95 topology must be same_region or developer_remote"),
+    };
+    let user_id =
+        Uuid::parse_str(&env::var("QUANTOS_F06_TEST_USER_ID").expect("F06 test user is required"))
+            .expect("F06 test user must be a UUID");
+    let tenant_id = TenantId::from_uuid(
+        Uuid::parse_str(&env::var("QUANTOS_F06_TEST_TENANT_ID").expect("F06 tenant is required"))
+            .expect("F06 tenant must be a UUID"),
+    );
+    let account_id = AccountId::from_uuid(
+        Uuid::parse_str(&env::var("QUANTOS_F06_TEST_ACCOUNT_ID").expect("F06 account is required"))
+            .expect("F06 account must be a UUID"),
+    );
+    let request = quantos_auth::UserRequestContext {
+        user_id,
+        tenant_id,
+        mode: RunMode::Paper,
+        account_id: Some(account_id),
+    };
+    let requirement = AuthorizationRequirement::new(
+        Capability::parse(Capability::EXECUTION_OPERATE).expect("static capability parses"),
+    )
+    .requiring_account();
+    let mut middleware = GatewayAuthMiddleware::connect_as_bff(&database_url)
+        .expect("dedicated BFF login with verified TLS is required");
+    for _ in 0..5 {
+        middleware
+            .authorize_user_request(&request, &requirement)
+            .expect("warm-up authorization succeeds");
+    }
+    let mut samples = Vec::with_capacity(100);
+    for _ in 0..100 {
+        let started = Instant::now();
+        middleware
+            .authorize_user_request(&request, &requirement)
+            .expect("authorization succeeds");
+        samples.push(started.elapsed());
+    }
+    samples.sort_unstable();
+    let p95 = samples[94];
+    let p50 = samples[49];
+    eprintln!(
+        "F06_P95_RESULT {{\"topology\":\"{topology}\",\"samples\":100,\"p50Micros\":{},\"p95Micros\":{},\"limitMillis\":{limit_ms},\"dedicatedBffLogin\":true,\"verifiedTls\":true}}",
+        p50.as_micros(),
+        p95.as_micros()
+    );
+    assert!(
+        p95 < std::time::Duration::from_millis(limit_ms),
+        "F06 dedicated BFF authorization P95 exceeded the {topology} <{limit_ms}ms Gate"
+    );
+}
+
 #[test]
 fn gateway_auth_only_allows_service_secret_resolution_via_allowlist_session() {
     let Some(database_url) = env::var("DATABASE_URL")
