@@ -358,6 +358,12 @@ fn postgres_runtime_records_cancel_and_timeout_audits() {
     store
         .finalize_cancelled(cancellable.workflow_run_id, now)
         .expect("cancel finalize persists");
+    store
+        .request_cancel(cancellable.workflow_run_id, now)
+        .expect("terminal cancellation is idempotent");
+    store
+        .finalize_cancelled(cancellable.workflow_run_id, now)
+        .expect("terminal finalize is idempotent");
 
     let mut timed_out_input = new_run(session.runtime_session_id, 201, now);
     timed_out_input.deadline_at = now - ChronoDuration::seconds(1);
@@ -397,12 +403,19 @@ fn postgres_runtime_rejects_revocation_capability_conflicts_and_rate_overflow() 
     let fixture = seed_runtime_fixture(&database_url);
     let now = Utc::now();
     let mut store = PgRuntimeStore::connect(&database_url).unwrap();
+    assert!(store.create_session(&fixture.auth, now, now).is_err());
     let session = store
         .create_session(&fixture.auth, now, now + ChronoDuration::hours(1))
         .unwrap();
     store
         .register_tool(fixture.auth.tenant_id, &tool_registration(), now)
         .unwrap();
+    let mut expired_deadline = new_run(session.runtime_session_id, 298, now);
+    expired_deadline.deadline_at = now;
+    assert!(store.schedule_run(&expired_deadline, now).is_err());
+    let mut zero_rate = new_run(session.runtime_session_id, 299, now);
+    zero_rate.rate_limit_per_minute = 0;
+    assert!(store.schedule_run(&zero_rate, now).is_err());
     let mut wrong = new_run(session.runtime_session_id, 300, now);
     wrong.capability = Capability::parse("strategy.write").unwrap();
     assert!(store.schedule_run(&wrong, now).is_err());

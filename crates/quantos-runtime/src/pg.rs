@@ -69,12 +69,7 @@ impl PgRuntimeStore {
                     pg_has_role(session_user, 'quantos_execution_gateway', 'SET') as execution",
             &[],
         )?;
-        if !role.get::<_, bool>("runtime")
-            || role.get::<_, bool>("bff")
-            || role.get::<_, bool>("execution")
-        {
-            return Err(PgRuntimeError::RuntimeRoleRequired);
-        }
+        require_narrow_runtime_role(role.get("runtime"), role.get("bff"), role.get("execution"))?;
         store.client.batch_execute("set role quantos_runtime")?;
         Ok(store)
     }
@@ -820,6 +815,17 @@ impl PgRuntimeStore {
     }
 }
 
+fn require_narrow_runtime_role(
+    runtime: bool,
+    bff: bool,
+    execution: bool,
+) -> Result<(), PgRuntimeError> {
+    if !runtime || bff || execution {
+        return Err(PgRuntimeError::RuntimeRoleRequired);
+    }
+    Ok(())
+}
+
 fn check_lease_tx(
     tx: &mut Transaction<'_>,
     lease: &LeasedWorkflowRun,
@@ -981,4 +987,86 @@ fn row_to_checkpoint(row: &Row) -> Result<WorkflowCheckpoint, PgRuntimeError> {
         payload: row.get("payload"),
         recorded_at: row.get("recorded_at"),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{PgRuntimeError, PgRuntimeStore, require_narrow_runtime_role};
+    use std::env;
+    use url::Url;
+
+    #[test]
+    fn remote_runtime_rejects_unverified_transport_before_connecting() {
+        let result = PgRuntimeStore::connect_as_runtime(
+            "postgresql://runtime:unused@db.example.supabase.co:5432/postgres?sslmode=require",
+        );
+        assert!(matches!(
+            result,
+            Err(PgRuntimeError::InsecureDatabaseTransport)
+        ));
+        let result = PgRuntimeStore::connect(
+            "postgresql://runtime:unused@db.example.supabase.co:5432/postgres?sslmode=disable",
+        );
+        assert!(matches!(
+            result,
+            Err(PgRuntimeError::InsecureDatabaseTransport)
+        ));
+    }
+
+    #[test]
+    fn runtime_role_membership_requires_only_the_runtime_role() {
+        assert!(require_narrow_runtime_role(true, false, false).is_ok());
+        for memberships in [
+            (false, false, false),
+            (true, true, false),
+            (true, false, true),
+            (true, true, true),
+        ] {
+            assert!(matches!(
+                require_narrow_runtime_role(memberships.0, memberships.1, memberships.2),
+                Err(PgRuntimeError::RuntimeRoleRequired)
+            ));
+        }
+    }
+
+    #[test]
+    fn local_transport_and_query_options_are_handled_explicitly() {
+        for url in [
+            "postgresql://runtime:unused@127.0.0.1:1/postgres",
+            "postgresql://runtime:unused@127.0.0.1:1/postgres?sslmode=verify-full",
+            "postgresql://runtime:unused@127.0.0.1:1/postgres?sslmode=verify-full&application_name=f07-test",
+        ] {
+            assert!(matches!(
+                PgRuntimeStore::connect(url),
+                Err(PgRuntimeError::Postgres(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn broad_admin_login_cannot_impersonate_runtime_service() {
+        let Some(database_url) = env::var("DATABASE_URL")
+            .ok()
+            .filter(|value| !value.is_empty())
+        else {
+            assert_ne!(env::var("QUANTOS_F07_DB_REQUIRED").as_deref(), Ok("1"));
+            return;
+        };
+        let mut url = Url::parse(&database_url).unwrap();
+        let ca = env::var("QUANTOS_BFF_SSLROOTCERT").expect("isolated Supabase CA is required");
+        let options = url
+            .query_pairs()
+            .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+            .map(|(key, value)| (key.into_owned(), value.into_owned()))
+            .collect::<Vec<_>>();
+        url.set_query(None);
+        url.query_pairs_mut()
+            .extend_pairs(options)
+            .append_pair("sslmode", "verify-full")
+            .append_pair("sslrootcert", &ca);
+        assert!(matches!(
+            PgRuntimeStore::connect_as_runtime(url.as_str()),
+            Err(PgRuntimeError::RuntimeRoleRequired)
+        ));
+    }
 }

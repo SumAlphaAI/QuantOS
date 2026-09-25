@@ -71,7 +71,12 @@ async function main() {
     receipt.targetPostgresMajor = Math.floor(info.version / 10000);
     receipt.migrationBefore = pending || null;
     run(process.execPath, ['scripts/db-cli.cjs', 'apply'], { DATABASE_URL: url.toString() });
+    const bucket = (await client.query(`select exists(
+      select 1 from storage.buckets where id='quantos-artifacts' and public=false
+    ) as private_bucket`)).rows[0];
+    if (!bucket.private_bucket) throw new Error('F07 private quantos-artifacts bucket is missing');
     receipt.checks.push('same-project, verified-TLS target and checksum-guarded forward migrations');
+    receipt.checks.push('private quantos-artifacts Storage bucket');
     run(process.execPath, ['scripts/db-cli.cjs', 'live-rls'], { DATABASE_URL: url.toString() });
     receipt.checks.push('target RLS baseline');
     if (process.env.QUANTOS_F07_MIGRATION_ONLY === '1') {

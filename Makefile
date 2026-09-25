@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-.PHONY: f07-db-check f07-recovery-diagnostic f07-coverage-diagnostic f07-fixture-check f07-fixture-retire f07-forward-migration
+.PHONY: f07-db-check f07-recovery-diagnostic f07-coverage-diagnostic f07-gateway-test f07-target-service-acceptance f07-fixture-check f07-fixture-retire f07-forward-migration
 export UV_BUILD_CONSTRAINT := $(CURDIR)/engines/build-constraints.txt
 
 ifneq ($(QUANTOS_SKIP_ENV),1)
@@ -157,6 +157,14 @@ f07-recovery-diagnostic:
 f07-coverage-diagnostic:
 	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for F07 coverage diagnostics." >&2; exit 1)
 	QUANTOS_F07_COVERAGE_DIAGNOSTIC=1 node scripts/f07-db-gate.cjs
+
+f07-gateway-test:
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F07 gateway test." >&2; exit 1)
+	QUANTOS_F07_DB_REQUIRED=1 cargo test -p runtime-gateway --bin runtime-gateway --locked gateway_executes_owned_run_and_retrieves_verified_artifact -- --nocapture
+
+f07-target-service-acceptance:
+	cargo build -p bff-gateway -p runtime-gateway --locked
+	@node scripts/f07-target-service-acceptance.cjs
 
 f07-fixture-check:
 	node scripts/f07-fixture-check.cjs

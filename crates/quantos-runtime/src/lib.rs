@@ -846,4 +846,307 @@ mod tests {
             "in-memory scheduling baseline should stay within the F07 budget"
         );
     }
+
+    #[test]
+    fn kernel_rejects_invalid_schedule_and_stale_worker_operations() {
+        let now = Utc::now();
+        let auth = auth_context();
+        let mut kernel = InMemoryRuntimeKernel::new();
+        let session = kernel.open_session(&auth, now, now + ChronoDuration::hours(1));
+        let request = schedule_run(session.runtime_session_id, 9, now);
+
+        assert_eq!(
+            kernel
+                .schedule_run(request.clone(), now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_TOOL_NOT_REGISTERED"
+        );
+        kernel.register_tool(tool()).unwrap();
+        assert_eq!(
+            kernel.register_tool(tool()).unwrap_err().machine_code(),
+            "RUNTIME_DUPLICATE_TOOL"
+        );
+        let unknown = NewWorkflowRun {
+            runtime_session_id: RuntimeSessionId::new(),
+            ..request.clone()
+        };
+        assert_eq!(
+            kernel
+                .schedule_run(unknown, now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_SESSION_EXPIRED"
+        );
+        let expired = kernel.open_session(&auth, now, now);
+        assert_eq!(
+            kernel
+                .schedule_run(schedule_run(expired.runtime_session_id, 10, now), now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_SESSION_EXPIRED"
+        );
+        let deadline = NewWorkflowRun {
+            deadline_at: now,
+            ..request.clone()
+        };
+        assert_eq!(
+            kernel
+                .schedule_run(deadline, now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_REQUEST_REJECTED"
+        );
+        let mismatch = NewWorkflowRun {
+            capability: Capability::parse(Capability::RESEARCH_WRITE).unwrap(),
+            ..request.clone()
+        };
+        assert_eq!(
+            kernel
+                .schedule_run(mismatch, now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_REQUEST_REJECTED"
+        );
+        let mut no_grant = auth.clone();
+        no_grant.capabilities.clear();
+        let no_grant_session = kernel.open_session(&no_grant, now, now + ChronoDuration::hours(1));
+        assert_eq!(
+            kernel
+                .schedule_run(
+                    schedule_run(no_grant_session.runtime_session_id, 11, now),
+                    now
+                )
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_REQUEST_REJECTED"
+        );
+
+        let run = kernel.schedule_run(request.clone(), now).unwrap();
+        assert_eq!(
+            kernel
+                .schedule_run(request.clone(), now)
+                .unwrap()
+                .workflow_run_id,
+            run.workflow_run_id
+        );
+        let replay_with_other_hash = NewWorkflowRun {
+            input_hash: ContentHash::sha256_bytes(b"different"),
+            ..request
+        };
+        assert_eq!(
+            kernel
+                .schedule_run(replay_with_other_hash, now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_DUPLICATE_IDEMPOTENCY"
+        );
+        let missing_id = quantos_core::WorkflowRunId::new();
+        assert_eq!(
+            kernel
+                .save_checkpoint(missing_id, "missing", 1, serde_json::json!({}), now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_RUN_NOT_FOUND"
+        );
+        assert_eq!(
+            kernel
+                .record_artifact(
+                    missing_id,
+                    ArtifactManifest::new(
+                        auth.tenant_id,
+                        "application/json",
+                        ContentHash::sha256_bytes(b"missing"),
+                        "quantos-artifacts",
+                        7,
+                        now
+                    ),
+                    now
+                )
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_RUN_NOT_FOUND"
+        );
+        assert_eq!(
+            kernel
+                .request_cancel(missing_id, now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_RUN_NOT_FOUND"
+        );
+        assert_eq!(kernel.run_artifact_count(missing_id), 0);
+        let lease = kernel.claim_runs("worker-a", now, 1, ChronoDuration::seconds(30));
+        assert_eq!(lease.len(), 1);
+        assert_eq!(
+            kernel
+                .complete_run(run.workflow_run_id, "worker-b", now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_LEASE_CONFLICT"
+        );
+        assert_eq!(
+            kernel
+                .fail_and_retry(run.workflow_run_id, "worker-b", "stale", now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_LEASE_CONFLICT"
+        );
+        assert_eq!(
+            kernel
+                .fail_and_retry(run.workflow_run_id, "worker-a", "retry", now)
+                .unwrap(),
+            WorkflowRunStatus::Queued
+        );
+        assert!(
+            kernel
+                .claim_runs("worker-a", now, 1, ChronoDuration::seconds(30))
+                .is_empty()
+        );
+        assert_eq!(
+            kernel
+                .claim_runs(
+                    "worker-a",
+                    now + ChronoDuration::seconds(1),
+                    1,
+                    ChronoDuration::seconds(30)
+                )
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn persisted_status_and_retry_bounds_are_explicit() {
+        for (value, expected_terminal) in [
+            ("queued", false),
+            ("running", false),
+            ("succeeded", true),
+            ("failed", true),
+            ("cancel_requested", false),
+            ("cancelled", true),
+            ("timed_out", true),
+        ] {
+            let status = WorkflowRunStatus::from_database(value).unwrap();
+            assert_eq!(status.as_str(), value);
+            assert_eq!(status.is_terminal(), expected_terminal);
+        }
+        assert_eq!(
+            WorkflowRunStatus::from_database("unknown")
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_INVALID_STATUS"
+        );
+        assert_eq!(super::retry_backoff(0).num_seconds(), 1);
+        assert_eq!(super::retry_backoff(1).num_seconds(), 1);
+        assert_eq!(super::retry_backoff(3).num_seconds(), 4);
+        assert_eq!(super::retry_backoff(u32::MAX).num_seconds(), 64);
+    }
+
+    #[test]
+    fn kernel_fences_cancelled_timed_out_and_exhausted_runs() {
+        let now = Utc::now();
+        let auth = auth_context();
+        let mut kernel = InMemoryRuntimeKernel::new();
+        kernel.register_tool(tool()).unwrap();
+        let session = kernel.open_session(&auth, now, now + ChronoDuration::minutes(10));
+        let mut first = schedule_run(session.runtime_session_id, 20, now);
+        first.max_attempts = 1;
+        let first = kernel.schedule_run(first, now).unwrap();
+        let first_id = first.workflow_run_id;
+        let lease = kernel.claim_runs("worker-a", now, 1, ChronoDuration::seconds(10));
+        assert_eq!(lease.len(), 1);
+        assert_eq!(
+            kernel
+                .fail_and_retry(first_id, "worker-a", "terminal failure", now)
+                .unwrap(),
+            WorkflowRunStatus::Failed
+        );
+        assert!(
+            kernel
+                .claim_runs(
+                    "worker-b",
+                    now + ChronoDuration::seconds(11),
+                    1,
+                    ChronoDuration::seconds(10)
+                )
+                .is_empty()
+        );
+        kernel.request_cancel(first_id, now).unwrap();
+        assert_eq!(
+            kernel.run(first_id).unwrap().status,
+            WorkflowRunStatus::Failed
+        );
+        assert_eq!(
+            kernel
+                .fail_and_retry(quantos_core::WorkflowRunId::new(), "worker-a", "gone", now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_RUN_NOT_FOUND"
+        );
+        assert_eq!(
+            kernel
+                .complete_run(quantos_core::WorkflowRunId::new(), "worker-a", now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_RUN_NOT_FOUND"
+        );
+        assert_eq!(
+            kernel
+                .finalize_cancelled(quantos_core::WorkflowRunId::new(), now)
+                .unwrap_err()
+                .machine_code(),
+            "RUNTIME_RUN_NOT_FOUND"
+        );
+
+        let second = kernel
+            .schedule_run(schedule_run(session.runtime_session_id, 21, now), now)
+            .unwrap();
+        kernel.request_cancel(second.workflow_run_id, now).unwrap();
+        assert!(
+            kernel
+                .claim_runs("worker-b", now, 1, ChronoDuration::seconds(10))
+                .is_empty()
+        );
+        assert_eq!(
+            kernel.mark_timed_out_runs(now + ChronoDuration::minutes(20)),
+            0
+        );
+        kernel
+            .finalize_cancelled(second.workflow_run_id, now)
+            .unwrap();
+        assert_eq!(
+            kernel.run(second.workflow_run_id).unwrap().status,
+            WorkflowRunStatus::Cancelled
+        );
+
+        let third = kernel
+            .schedule_run(schedule_run(session.runtime_session_id, 22, now), now)
+            .unwrap();
+        assert_eq!(
+            kernel.mark_timed_out_runs(now + ChronoDuration::minutes(20)),
+            1
+        );
+        assert_eq!(
+            kernel.run(third.workflow_run_id).unwrap().status,
+            WorkflowRunStatus::TimedOut
+        );
+        assert!(
+            kernel
+                .claim_runs(
+                    "worker-b",
+                    now + ChronoDuration::minutes(20),
+                    10,
+                    ChronoDuration::seconds(10)
+                )
+                .is_empty()
+        );
+        let actions = kernel
+            .audit_log()
+            .iter()
+            .map(|entry| entry.action.as_str())
+            .collect::<Vec<_>>();
+        assert!(actions.contains(&"runtime.cancel_requested"));
+        assert!(actions.contains(&"runtime.cancelled"));
+        assert!(actions.contains(&"runtime.timed_out"));
+    }
 }

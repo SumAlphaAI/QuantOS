@@ -1,13 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.10
-> 更新时间：2026-09-24
+> 版本：3.11
+> 更新时间：2026-09-25
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
 
+- `3.11`：F07 补齐 HTTP、worker、重试、权限隔离和 Artifact 测试；隔离 Supabase 诊断覆盖率 line/region/branch 为 93.27%/88.15%/89.13%，通过既有门槛。目标服务诊断完成真实 Auth、BFF/Runtime、私有 Storage 往返和跨租户拒绝；actor 唯一约束与 Bucket 缺失以前向迁移修复。正式同 SHA Nightly、受限 Storage 凭据及部署入口仍待验收，F07 保持 `FIX_VALIDATION`。详见 [F07 覆盖率与目标服务复验](./audit/F07-coverage-target-service-2026-09-25.md)。
 - `3.10`：F07 Nightly 在 `1e14310` 上执行，调度 P95 326.65ms 超过 200ms，正式恢复与覆盖率未开始；已改为原子单语句调度并在隔离 Supabase 验证迁移和限额回滚。待新提交同 SHA Nightly 复验，F07 仍为 `FIX_VALIDATION`。详见 [Nightly 调度整改](./audit/F07-nightly-schedule-remediation-2026-09-24.md)。
 - `3.9`：F07 全面复审发现 12 项问题并进入本地修复验证；新增 Runtime 服务入口、持久租约 fencing、权限/限额、前向 migration 和隔离库 Gate。F07 量化验收仍为 `0/3` 同 SHA 目标回执，F06 依赖未验收，故保持 `FIX_VALIDATION`。详见 [F07 复审](./audit/F07-comprehensive-review-2026-09-24.md)及[整改记录](./audit/F07-remediation-2026-09-24.md)。
 - `3.8`：F06 续修补齐服务端会话签发前的成员映射检查、Supabase 验证后 JWT `aal`/到期绑定、BFF SessionContext 必填字段、应用登录的独占角色及可验证 TLS 要求；隔离库新增前向 migration 和负向测试。`developer_remote` 100 次鉴权 P95 仍为 651ms（门槛 <500ms），live 服务连接所需证书/角色/OIDC 回执仍缺，复审保持 `FIX_VALIDATION`。详见 [F06 续修记录](./audit/F06-continuation-2026-09-24.md)。
@@ -415,7 +416,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-24 F07 初审仅 1/18 完整通过，12 项问题已进入整改；隔离 Supabase PostgreSQL 前向迁移、RLS 及 3 项数据库测试通过，独立诊断确认 100/100 强杀恢复和唯一 Artifact。`1e14310` 的 F07 Nightly 已运行但调度 P95 326.65ms 超过 200ms，恢复与覆盖率未测；现已改为原子单语句调度，待新提交 Nightly 复验。Rust 覆盖率诊断 line 66.49%、region 58.68%，低于 90%/85% 门槛。正式 HTTP/Storage 与同 SHA PASS 回执仍缺，F06 依赖未验收。F07 不接受放行；详见 [整改记录](./audit/F07-remediation-2026-09-24.md)及[Nightly 调度整改](./audit/F07-nightly-schedule-remediation-2026-09-24.md)。
+- review_conclusion: 2026-09-25 F07 已补 HTTP、worker、cancel、retry、Artifact 与同租户 actor 隔离测试；隔离 Supabase 诊断覆盖率达到 line 93.27%、region 88.15%、branch 89.13%，超过 90%/85%/85% 门槛。目标服务诊断已完成真实 Supabase Auth、独立 BFF/Runtime 登录、严格 TLS、worker 与私有 Storage 往返、跨租户拒绝及会话撤销。修复了 actor 唯一约束和缺失的 Artifact Bucket。上述回执仍来自未提交工作树，Storage 临时使用管理员 key；需新提交同 SHA CI/Nightly、100 次强杀恢复与 P95 正式回执，以及受限 Storage 凭据和部署入口验收，故保持 `FIX_VALIDATION`。F06 已独立验收，但本次身份 schema 变更需按新 SHA 复验受影响的 F06 Gate。详见 [F07 覆盖率与目标服务复验](./audit/F07-coverage-target-service-2026-09-25.md)。
 - issues:
   - issue_id: F07-A01
     severity: BLOCKER

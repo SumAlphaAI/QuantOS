@@ -437,17 +437,5 @@ fn worker_once(store: &mut PgRuntimeStore, storage: &SupabaseStorageAdapter) -> 
 }
 
 #[cfg(test)]
-mod tests {
-    use super::session_cookie;
-    use axum::http::{HeaderMap, header};
-    #[test]
-    fn invalid_or_missing_session_cookie_is_rejected() {
-        let mut headers = HeaderMap::new();
-        assert_eq!(session_cookie(&headers), None);
-        headers.insert(
-            header::COOKIE,
-            "quantos_session=not-a-uuid".parse().unwrap(),
-        );
-        assert_eq!(session_cookie(&headers), None);
-    }
-}
+#[path = "live_tests.rs"]
+mod tests;
