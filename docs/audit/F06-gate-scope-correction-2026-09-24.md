@@ -1,6 +1,6 @@
 # F06 验收 Gate 边界修正
 
-> 后续修正：本报告保留 2026-09-24 的历史 Gate 描述；其中同区域 P95 与 `sameRegionP95` 已由 [A09 Gate 范围修正](./F06-A09-gate-scope-correction-2026-09-25.md)从 F06 移除。
+> 后续修正：本报告保留 2026-09-24 的历史 Gate 描述；同区域 P95 与 `sameRegionP95` 已由 [A09 同区域范围修正](./F06-A09-gate-scope-correction-2026-09-25.md)移除，开发机跨区域 P95 又由[远程延迟 Gate 范围修订](./F06-A09-remote-latency-gate-withdrawal-2026-09-25.md)从 F06 移除。
 
 > 日期：2026-09-24。根据 F06 原始任务范围和 Web 前端执行计划，撤销把已部署 Terminal 浏览器入口作为 F06 验收前提的表述。本记录修正此前 F06 复审与续修文档中的验收归属；历史测试结果保持原样。
 

@@ -61,7 +61,7 @@
 | 功能完整性 | 所有列出的输入、成功、拒绝和恢复路径都有自动化测试；不得以手工验证替代。 |
 | 代码质量 | `cargo fmt --check`、Clippy（禁止 warning）、Rust `cargo test --workspace --locked`（含 doctest；见 [F01 测试执行器 ADR](./adr/20260917-f01-rust-test-runner.md)）；Python Ruff、Pyright、pytest；TypeScript lint、typecheck、Vitest 全绿。 |
 | 覆盖率 | 新增 Rust 核心领域/风险/执行代码行覆盖率 ≥90%；稳定 Rust/LLVM CI 以 region 覆盖率 ≥85% 作为分支代理，nightly 发布验证仍要求分支覆盖率 ≥85%；Python Engine 适配新增代码行覆盖率 ≥85%；TypeScript 领域组件/状态代码行覆盖率 ≥80%。不能覆盖的代码须在报告中逐项豁免。 |
-| 性能 | 测试环境中纯领域计算 P95 <50ms；F06 阶段 BFF 授权读以开发机跨区域连接托管数据库 P95 <500ms 验收。同区域 P95 <100ms 保留为首次同区域部署后的性能目标，不作为 F06 Gate；命令校验（不含外部 venue 往返）P95 <200ms。异步任务必须在 deadline 内返回受理或确定性错误。 |
+| 性能 | 测试环境中纯领域计算 P95 <50ms；F06 开发机跨区域 BFF 鉴权读仅记录诊断结果，不作为 F06 验收 Gate。同区域 P95 <100ms 保留为首次同区域部署后的性能目标，不作为 F06 Gate；命令校验（不含外部 venue 往返）P95 <200ms。异步任务必须在 deadline 内返回受理或确定性错误。 |
 | 兼容性 | 协议变更通过 Buf breaking check；Rust/Python/TypeScript 生成 SDK 可编译；Web Chromium/Firefox/Safari 当前稳定版回归通过。 |
 | 安全与审计 | 无高危依赖/secret scan 未豁免项；所有写操作写入 actor、tenant、correlation、causation；错误、日志和导出不含秘密。 |
 | 可运维性 | 关键路径提供结构化日志、trace、指标、健康检查和失败说明；部署/回滚/已知限制写入 Runbook 或任务文档。 |
@@ -273,8 +273,8 @@ flowchart LR
 - 需求描述：身份、授权、秘密引用与主上下文
 - 技术要求：Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝；Vault 仅存静态加密秘密，Execution Gateway 通过受控角色与 allowlist 函数取得所需引用，短时授权由服务会话/命令过期/轮换状态控制
 - 交付物：`quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration、Vault 访问 policy/函数
-- 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API；鉴权读 P95 开发机跨区域远程复验 <500ms
-- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及开发机跨区域鉴权读 P95 <500ms；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。由于此阶段没有同区域运行器使用权限，同区域 P95 <100ms 移至首次同区域部署后的性能验证，不作为 F06/A09 Gate。Terminal 实际部署、真实浏览器登录/E2E、MFA 页面交互及全部页面 API 联调属于 Web 前端 G1/页面与接口阶段，不作为 F06 验收 Gate。
+- 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API。开发机跨区域鉴权读 P95 仅作诊断，不作为 F06 放行条件。
+- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及拒绝矩阵；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。开发机本地网络到托管数据库的长尾不作为 F06/A09 Gate；同区域 P95 <100ms 移至首次同区域部署后的性能验证。Terminal 实际部署、真实浏览器登录/E2E、MFA 页面交互及全部页面 API 联调属于 Web 前端 G1/页面与接口阶段，不作为 F06 验收 Gate。
 - 依赖：F03、F05
 
 <a id="review-f06"></a>
@@ -283,7 +283,7 @@ flowchart LR
 - review_model: `GPT-6 Astra`
 - review_status: `ACCEPTED`
 - 状态解释：ACCEPTED 表示已列明基线的 F06 服务端范围验收；development_status=COMPLETED 只标识开发完成。对任一新 HEAD，仍必须具备绑定该完整 SHA 的 refs/notes/f06-acceptance 回执、全部问题 CLOSED、干净工作树及 make f06-acceptance-gate PASS。文档提交不转移历史回执；下游本地契约 Gate 不代表 F06 目标验收。
-- review_conclusion: 2026-09-25 复核确认 F06-A01–A10 全部 CLOSED：阻塞级 2/2、高危 5/5、中危 2/2、低危 1/1，合计 10/10（100%），活动问题 0。已验收基线为 44b8e73b5f28a9003689658cb75b13c73abd1489，本轮修改前本地总 Gate PASS；真实 Auth/BFF/Runtime、Execution/Vault、四类拒绝 4/4、Vault 角色路径拒绝 8/8 及跨区域 100 次 P95 317.415ms 均有该 SHA 的目标回执。本轮重核证据与状态 Gate，未重跑目标服务；文档整理后的新 HEAD 不自动继承基线回执。远端 main 已同步该基线，远端 Git note 尚缺。详见 [当前复审结论](./audit/F06-comprehensive-review-2026-09-24.md)与[基线回执归档](./audit/F06-accepted-baseline-44b8e73.json)。
+- review_conclusion: 2026-09-25 复核确认 F06-A01–A10 全部 CLOSED：阻塞级 2/2、高危 5/5、中危 2/2、低危 1/1，合计 10/10（100%），活动问题 0。历史已验收基线为 44b8e73b5f28a9003689658cb75b13c73abd1489；40300445da8aed0f874aa1f5369b5e42bdf11234 的旧范围总回执为 FAIL，开发机跨区域 P95 670.556ms，复测 701.1ms 与 815.425ms。经用户确认，本地网络相关 P95 从 F06 Gate 移除，历史测量不改写；新范围只要求真实 Auth/BFF/Runtime、Execution/Vault 和拒绝矩阵三组同 SHA PASS 回执，且总回执状态 PASS。任一新 HEAD 必须独立通过总 Gate。详见 [当前复审结论](./audit/F06-comprehensive-review-2026-09-24.md)、[范围修订](./audit/F06-A09-remote-latency-gate-withdrawal-2026-09-25.md)与[历史基线](./audit/F06-accepted-baseline-44b8e73.json)。
 - issues:
   - issue_id: F06-A01
     severity: BLOCKER
@@ -327,8 +327,8 @@ flowchart LR
     status: CLOSED
   - issue_id: F06-A09
     severity: MEDIUM
-    description: 开发机跨区域鉴权读 P95 验收；同区域 Gate 已移出 F06
-    evidence: docs/audit/F06-A09-gate-scope-correction-2026-09-25.md
+    description: 开发机跨区域鉴权读 P95 已转诊断；同区域性能移至首次部署验证
+    evidence: docs/audit/F06-A09-remote-latency-gate-withdrawal-2026-09-25.md
     status: CLOSED
   - issue_id: F06-A10
     severity: LOW

@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const root = resolve(import.meta.dirname, "..");
-const requiredChecks = ["realOidcBff", "executionRoleAndVault", "denialMatrix", "developerRemoteP95"];
+const requiredChecks = ["realOidcBff", "executionRoleAndVault", "denialMatrix"];
 
 export function validateF06Acceptance({ plan, receipt, sourceCommit }) {
   const failures = [];
@@ -21,8 +21,11 @@ export function validateF06Acceptance({ plan, receipt, sourceCommit }) {
   if (!receipt || typeof receipt !== "object" || Array.isArray(receipt) || "receiptError" in receipt) {
     failures.push("F06 target acceptance receipt is missing or invalid");
   } else {
-    if (receipt.schema !== "quantos-f06-target-acceptance/v1") failures.push("F06 target receipt schema is invalid");
+    if (receipt.schema !== "quantos-f06-target-acceptance/v2") failures.push("F06 target receipt schema is invalid");
     if (receipt.sourceCommit !== sourceCommit || !/^[a-f0-9]{40}$/.test(receipt.sourceCommit ?? "")) failures.push("receipt sourceCommit differs from HEAD or is not a full SHA");
+    if (receipt.status !== "PASS" || !Array.isArray(receipt.failures) || receipt.failures.length !== 0) {
+      failures.push("F06 target receipt is not a clean PASS");
+    }
     for (const key of requiredChecks) {
       if (receipt[key]?.status !== "PASS") failures.push(`${key} is not PASS`);
     }

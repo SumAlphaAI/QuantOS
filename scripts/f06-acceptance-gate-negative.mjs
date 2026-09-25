@@ -6,9 +6,11 @@ import { validateF06Acceptance } from "./check-f06-acceptance.mjs";
 
 const plan = readFileSync(new URL("../docs/SumAlpha-QuantOS-Development-Plan.md", import.meta.url), "utf8");
 const sourceCommit = "a".repeat(40);
-const receipt = Object.fromEntries(["realOidcBff", "executionRoleAndVault", "denialMatrix", "developerRemoteP95"].map((key) => [key, { status: "PASS" }]));
+const receipt = Object.fromEntries(["realOidcBff", "executionRoleAndVault", "denialMatrix"].map((key) => [key, { status: "PASS" }]));
 receipt.sourceCommit = sourceCommit;
-receipt.schema = "quantos-f06-target-acceptance/v1";
+receipt.schema = "quantos-f06-target-acceptance/v2";
+receipt.status = "PASS";
+receipt.failures = [];
 const accepted = plan.replace(/(<a id="review-f06"><\/a>[\s\S]*?- review_status: `)(?:FIX_VALIDATION|ACCEPTED)(`)/, "$1ACCEPTED$2")
   .replace(/(  - issue_id: F06-A\d\d[\s\S]*?    status: )OPEN/g, "$1CLOSED");
 
@@ -29,7 +31,13 @@ test("all closed findings require a same-SHA complete receipt", () => {
   assert.equal(validateF06Acceptance({ plan: accepted, receipt, sourceCommit }).status, "PASS");
   assert(validateF06Acceptance({ plan: accepted, receipt: null, sourceCommit }).failures.some((failure) => failure.includes("receipt")));
   assert(validateF06Acceptance({ plan: accepted, receipt: { ...receipt, sourceCommit: "b".repeat(40) }, sourceCommit }).failures.some((failure) => failure.includes("sourceCommit")));
+  assert(validateF06Acceptance({ plan: accepted, receipt: { ...receipt, realOidcBff: { status: "FAIL" } }, sourceCommit }).failures.includes("realOidcBff is not PASS"));
+  assert(validateF06Acceptance({ plan: accepted, receipt: { ...receipt, executionRoleAndVault: { status: "FAIL" } }, sourceCommit }).failures.includes("executionRoleAndVault is not PASS"));
   assert(validateF06Acceptance({ plan: accepted, receipt: { ...receipt, denialMatrix: { status: "FAIL" } }, sourceCommit }).failures.includes("denialMatrix is not PASS"));
+  assert(validateF06Acceptance({ plan: accepted, receipt: { ...receipt, status: "FAIL" }, sourceCommit }).failures.includes("F06 target receipt is not a clean PASS"));
+  assert(validateF06Acceptance({ plan: accepted, receipt: { ...receipt, failures: ["unresolved"] }, sourceCommit }).failures.includes("F06 target receipt is not a clean PASS"));
+  assert.equal(validateF06Acceptance({ plan: accepted, receipt: { ...receipt, developerRemoteP95: { status: "FAIL" } }, sourceCommit }).status, "PASS");
+  assert(validateF06Acceptance({ plan: accepted, receipt: { ...receipt, schema: "quantos-f06-target-acceptance/v1" }, sourceCommit }).failures.includes("F06 target receipt schema is invalid"));
   assert(validateF06Acceptance({ plan: accepted, receipt: { ...receipt, schema: "unknown" }, sourceCommit }).failures.includes("F06 target receipt schema is invalid"));
 });
 

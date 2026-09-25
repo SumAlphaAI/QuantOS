@@ -1,5 +1,7 @@
 # F06-A09 同区域性能 Gate 范围修正
 
+> 后续修订：开发机跨区域 P95 也已由用户从 F06 Gate 移除；本页保留当时的验收范围与测量事实。当前规则见[远程延迟 Gate 范围修订](./F06-A09-remote-latency-gate-withdrawal-2026-09-25.md)。
+
 > 日期：2026-09-25。用户确认本阶段没有 Supabase 同区域运行器的使用权限，要求从 A09 移除该 Gate。代码提交：`530bdeda46c7c0a17c8c3ba9c6971f878aed164d`；新提交上的开发机跨区域回执见 [JSON](./F06-A09-scope-correction-receipt-2026-09-25.json)。[前次性能报告](./F06-A09-performance-review-2026-09-25.md)作为变更前历史记录保留。
 
 ## 任务完成概况
