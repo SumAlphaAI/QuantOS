@@ -11,6 +11,7 @@ import pytest
 
 from mock_engine import server as mock_server
 from mock_engine.service import MockEngineService
+from quantos_engine_sdk import json_document_from_mapping
 from quantos.engine.v1 import engine_pb2
 from test_engine_contract import valid_execute_request
 
@@ -146,3 +147,61 @@ def test_running_mock_execution_cancels_within_two_seconds() -> None:
         with pytest.raises(RuntimeError, match="CANCELLED"):
             running.result(timeout=2)
         assert time.monotonic() - started < 2
+
+
+def test_mock_fault_fixtures_cover_rpc_identity_and_readiness() -> None:
+    service = MockEngineService()
+    request = valid_execute_request(5)
+    for fault in ("f08-fault-metadata-rpc", "f08-fault-metadata-identity"):
+        request.metadata.request_id = fault
+        metadata = engine_pb2.GetMetadataRequest(metadata=request.metadata)
+        if fault.endswith("-rpc"):
+            with pytest.raises(RuntimeError, match="INTERNAL"):
+                service.get_metadata(metadata, fake_context())
+        else:
+            assert service.get_metadata(metadata, fake_context()).metadata.request_id != fault
+
+    for fault in ("f08-fault-health-rpc", "f08-fault-health-identity", "f08-fault-health-not-ready"):
+        request.metadata.request_id = fault
+        health = engine_pb2.HealthRequest(metadata=request.metadata)
+        if fault.endswith("-rpc"):
+            with pytest.raises(RuntimeError, match="INTERNAL"):
+                service.health(health, fake_context())
+        else:
+            response = service.health(health, fake_context())
+            if fault.endswith("not-ready"):
+                assert not response.ready
+            else:
+                assert response.metadata.request_id != fault
+
+    for fault in ("f08-fault-cancel-rpc", "f08-fault-cancel-identity"):
+        request.metadata.request_id = fault
+        cancel = engine_pb2.CancelRequest(metadata=request.metadata, execution_id="other")
+        if fault.endswith("-rpc"):
+            with pytest.raises(RuntimeError, match="INTERNAL"):
+                service.cancel(cancel, fake_context())
+        else:
+            assert service.cancel(cancel, fake_context()).metadata.request_id != fault
+
+
+def test_mock_fault_fixtures_cover_execute_and_stream_interruptions() -> None:
+    service = MockEngineService()
+    for fault in ("rpc", "identity"):
+        request = valid_execute_request(6)
+        request.input.CopyFrom(json_document_from_mapping({"__mock_execute_fault": fault}))
+        if fault == "rpc":
+            with pytest.raises(RuntimeError, match="INTERNAL"):
+                service.execute(request, fake_context())
+        else:
+            assert service.execute(request, fake_context()).engine_version == "unexpected-version"
+    for fault in ("incomplete", "duplicate", "rpc"):
+        request = valid_execute_request(7)
+        request.input.CopyFrom(json_document_from_mapping({"__mock_stream_fault": fault}))
+        stream = service.stream_execute(engine_pb2.StreamExecuteRequest(request=request), fake_context())
+        if fault == "rpc":
+            with pytest.raises(RuntimeError, match="INTERNAL"):
+                list(stream)
+        else:
+            events = list(stream)
+            assert len(events) == (1 if fault == "incomplete" else 2)
+            assert not events[-1].done

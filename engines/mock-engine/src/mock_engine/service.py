@@ -69,21 +69,29 @@ class MockEngineService:
         request: engine_pb2.GetMetadataRequest,
         context: grpc.ServicerContext,
     ) -> engine_pb2.GetMetadataResponse:
-        del context
-        return self.manifest.to_proto(request.metadata)
+        if request.metadata.request_id == "f08-fault-metadata-rpc":
+            context.abort(grpc.StatusCode.INTERNAL, "injected metadata failure")
+        response = self.manifest.to_proto(request.metadata)
+        if request.metadata.request_id == "f08-fault-metadata-identity":
+            response.metadata.request_id = "unexpected-request"
+        return response
 
     def health(
         self,
         request: engine_pb2.HealthRequest,
         context: grpc.ServicerContext,
     ) -> engine_pb2.HealthResponse:
-        del context
-        return engine_pb2.HealthResponse(
+        if request.metadata.request_id == "f08-fault-health-rpc":
+            context.abort(grpc.StatusCode.INTERNAL, "injected health failure")
+        response = engine_pb2.HealthResponse(
             metadata=request.metadata,
-            ready=True,
+            ready=request.metadata.request_id != "f08-fault-health-not-ready",
             status="ready",
             observed_at=timestamp_now(),
         )
+        if request.metadata.request_id == "f08-fault-health-identity":
+            response.metadata.request_id = "unexpected-request"
+        return response
 
     def execute(
         self,
@@ -146,6 +154,15 @@ class MockEngineService:
         if execution_id in self._cancelled:
             context.abort(grpc.StatusCode.CANCELLED, "execution was cancelled")
         payload = json_document_to_mapping(request.input)
+        if payload.get("__mock_execute_fault") == "rpc":
+            context.abort(grpc.StatusCode.INTERNAL, "injected execute failure")
+        if payload.get("__mock_execute_fault") == "identity":
+            return engine_pb2.ExecuteResponse(
+                metadata=request.metadata,
+                execution_id=execution_id,
+                engine_version="unexpected-version",
+                input_hash=input_hash(request.input),
+            )
         return engine_pb2.ExecuteResponse(
             metadata=request.metadata,
             execution_id=execution_id,
@@ -189,7 +206,8 @@ class MockEngineService:
             context.abort(grpc.StatusCode.CANCELLED, "execution was cancelled")
 
         payload = json_document_to_mapping(request.request.input)
-        yield engine_pb2.StreamExecuteResponse(
+        fault = payload.get("__mock_stream_fault")
+        first = engine_pb2.StreamExecuteResponse(
             metadata=request.request.metadata,
             execution_id=execution_id,
             sequence_id="seq-1",
@@ -202,6 +220,14 @@ class MockEngineService:
             done=False,
             emitted_at=timestamp_now(),
         )
+        yield first
+        if fault == "incomplete":
+            return
+        if fault == "duplicate":
+            yield first
+            return
+        if fault == "rpc":
+            context.abort(grpc.StatusCode.INTERNAL, "injected stream failure")
         yield engine_pb2.StreamExecuteResponse(
             metadata=request.request.metadata,
             execution_id=execution_id,
@@ -230,14 +256,18 @@ class MockEngineService:
         request: engine_pb2.CancelRequest,
         context: grpc.ServicerContext,
     ) -> engine_pb2.CancelResponse:
-        del context
+        if request.metadata.request_id == "f08-fault-cancel-rpc":
+            context.abort(grpc.StatusCode.INTERNAL, "injected cancellation failure")
         self._cancelled.add(request.execution_id)
-        return engine_pb2.CancelResponse(
+        response = engine_pb2.CancelResponse(
             metadata=request.metadata,
             execution_id=request.execution_id,
             cancelled=True,
             cancelled_at=timestamp_now(),
         )
+        if request.metadata.request_id == "f08-fault-cancel-identity":
+            response.metadata.request_id = "unexpected-request"
+        return response
 
     @staticmethod
     def _execution_id(request: engine_pb2.ExecuteRequest) -> str:

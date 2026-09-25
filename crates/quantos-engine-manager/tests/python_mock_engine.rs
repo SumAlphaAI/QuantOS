@@ -5,6 +5,7 @@ use std::{
 };
 
 use chrono::Utc;
+use pbjson_types::{Struct, Value, value::Kind};
 use quantos_engine_manager::{
     BackoffPolicy, EngineApproval, EngineCapabilityManifest, EngineManager, EngineManifest,
     EngineQuota, EngineRoutingPolicy, EngineTransport, SidecarSpec, build_metadata,
@@ -86,6 +87,21 @@ fn execute_request(request_id: &str) -> ExecuteRequest {
     }
 }
 
+fn fault_request(request_id: &str, field: &str, fault: &str) -> ExecuteRequest {
+    let mut request = execute_request(request_id);
+    request.input = Some(JsonDocument {
+        value: Some(Struct {
+            fields: std::collections::HashMap::from([(
+                field.to_owned(),
+                Value {
+                    kind: Some(Kind::StringValue(fault.to_owned())),
+                },
+            )]),
+        }),
+    });
+    request
+}
+
 fn valid_metadata(request_id: &str) -> CommandMetadata {
     let mut metadata = build_metadata(request_id);
     metadata.actor = Some(ActorRef {
@@ -152,12 +168,500 @@ async fn spawn_python_mock_engine(
     ))
 }
 
+async fn spawn_untrusted_engine(socket_path: &Path) -> anyhow::Result<Child> {
+    spawn_untrusted_engine_with_fault(socket_path, "").await
+}
+
+async fn spawn_untrusted_engine_with_fault(
+    socket_path: &Path,
+    handshake_fault: &str,
+) -> anyhow::Result<Child> {
+    let fixture =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/f08_malformed_server.py");
+    let mut child = Command::new(engines_dir().join(".venv/bin/python"))
+        .arg(fixture)
+        .arg("--socket")
+        .arg(socket_path)
+        .arg("--handshake-fault")
+        .arg(handshake_fault)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()?;
+    for _ in 0..100 {
+        if socket_path.exists() {
+            sleep(Duration::from_millis(50)).await;
+            return Ok(child);
+        }
+        if child.try_wait()?.is_some() {
+            anyhow::bail!("untrusted test Engine exited before binding its socket");
+        }
+        sleep(Duration::from_millis(50)).await;
+    }
+    anyhow::bail!("untrusted test Engine did not bind its socket")
+}
+
 async fn shutdown_child(mut child: Child, socket_path: &Path) {
     let _ = child.kill().await;
     let _ = child.wait().await;
     if socket_path.exists() {
         let _ = std::fs::remove_file(socket_path);
     }
+}
+
+#[tokio::test]
+async fn manager_rejects_broken_execute_and_interrupted_streams() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let child = spawn_python_mock_engine(&socket_path, 0, 0, false).await?;
+    let mut manager =
+        EngineManager::with_approval_key(BackoffPolicy::default(), TEST_APPROVAL_KEY.to_vec());
+    let manifest = manifest_for_socket(socket_path.clone());
+    let mut policy = EngineRoutingPolicy::local_fixture();
+    policy.retry_safe = false;
+    let approval = EngineApproval::sign_with_policy(
+        &manifest,
+        &"a".repeat(64),
+        "F08 test reviewer",
+        policy,
+        TEST_APPROVAL_KEY,
+    )?;
+    manager.register_approved_engine(manifest, &approval)?;
+
+    for (fault, expected) in [
+        ("identity", "ENGINE_IDENTITY_MISMATCH"),
+        ("rpc", "ENGINE_RPC"),
+    ] {
+        let request = fault_request(fault, "__mock_execute_fault", fault);
+        assert_eq!(
+            manager
+                .execute("research.execute", request)
+                .await
+                .expect_err("faulty Execute response must fail closed")
+                .machine_code(),
+            expected,
+        );
+        manager
+            .execute(
+                "research.execute",
+                execute_request(&format!("recovered-{fault}")),
+            )
+            .await?;
+    }
+    for (fault, expected) in [
+        ("incomplete", "ENGINE_STREAM_INCOMPLETE"),
+        ("duplicate", "ENGINE_STREAM_INCOMPLETE"),
+        ("rpc", "ENGINE_RPC"),
+    ] {
+        let request = StreamExecuteRequest {
+            request: Some(fault_request(fault, "__mock_stream_fault", fault)),
+        };
+        let error = manager
+            .stream_execute_collect("research.execute", request)
+            .await
+            .expect_err("broken stream must fail closed");
+        assert_eq!(error.machine_code(), expected, "fault={fault}");
+    }
+    shutdown_child(child, &socket_path).await;
+    Ok(())
+}
+
+#[tokio::test]
+async fn metadata_health_and_cancel_failures_preserve_route_state() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let child = spawn_python_mock_engine(&socket_path, 0, 0, false).await?;
+    let mut manager = EngineManager::with_approval_key(
+        BackoffPolicy {
+            crash_threshold: 100,
+            ..BackoffPolicy::default()
+        },
+        TEST_APPROVAL_KEY.to_vec(),
+    );
+    register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
+    for (request_id, expected) in [
+        ("f08-fault-metadata-identity", "ENGINE_RPC"),
+        ("f08-fault-metadata-rpc", "ENGINE_RPC"),
+    ] {
+        let error = manager
+            .get_metadata(
+                "mock-engine",
+                GetMetadataRequest {
+                    metadata: Some(valid_metadata(request_id)),
+                },
+            )
+            .await
+            .expect_err("invalid metadata response must be rejected");
+        assert_eq!(error.machine_code(), expected);
+    }
+    for (request_id, expected) in [
+        ("f08-fault-health-identity", "ENGINE_RPC"),
+        ("f08-fault-health-rpc", "ENGINE_RPC"),
+        ("f08-fault-health-not-ready", "ENGINE_NOT_READY"),
+    ] {
+        let error = manager
+            .health(
+                "mock-engine",
+                HealthRequest {
+                    metadata: Some(valid_metadata(request_id)),
+                },
+            )
+            .await
+            .expect_err("unhealthy response must be rejected");
+        assert_eq!(error.machine_code(), expected);
+    }
+    assert!(!manager.circuit_state("mock-engine").expect("state").ready);
+    manager
+        .health(
+            "mock-engine",
+            HealthRequest {
+                metadata: Some(valid_metadata("health-recovered")),
+            },
+        )
+        .await?;
+    assert!(manager.circuit_state("mock-engine").expect("state").ready);
+    let execution = manager
+        .execute("research.execute", execute_request("cancel-fault-owner"))
+        .await?;
+    for (request_id, expected) in [
+        ("f08-fault-cancel-identity", "ENGINE_RPC"),
+        ("f08-fault-cancel-rpc", "ENGINE_RPC"),
+    ] {
+        let error = manager
+            .cancel(
+                "mock-engine",
+                CancelRequest {
+                    metadata: Some(valid_metadata(request_id)),
+                    execution_id: execution.execution_id.clone(),
+                    reason: "operator-request".to_owned(),
+                },
+            )
+            .await
+            .expect_err("faulty cancellation must not be confirmed");
+        assert_eq!(error.machine_code(), expected);
+    }
+    shutdown_child(child, &socket_path).await;
+    Ok(())
+}
+
+#[tokio::test]
+async fn untrusted_engine_cannot_bypass_manager_response_identity_checks() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let child = spawn_untrusted_engine(&socket_path).await?;
+    let mut manager = EngineManager::with_approval_key(
+        BackoffPolicy {
+            crash_threshold: 100,
+            ..BackoffPolicy::default()
+        },
+        TEST_APPROVAL_KEY.to_vec(),
+    );
+    register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
+
+    let metadata_error = manager
+        .get_metadata(
+            "mock-engine",
+            GetMetadataRequest {
+                metadata: Some(valid_metadata("raw-metadata-mismatch")),
+            },
+        )
+        .await
+        .expect_err("forged metadata identity must be rejected");
+    assert_eq!(metadata_error.machine_code(), "ENGINE_IDENTITY_MISMATCH");
+    let health_error = manager
+        .health(
+            "mock-engine",
+            HealthRequest {
+                metadata: Some(valid_metadata("raw-health-mismatch")),
+            },
+        )
+        .await
+        .expect_err("forged health identity must be rejected");
+    assert_eq!(health_error.machine_code(), "ENGINE_IDENTITY_MISMATCH");
+    for fault in [
+        "raw-execute-mismatch",
+        "raw-execute-metadata",
+        "raw-execute-hash",
+        "raw-execute-empty-id",
+    ] {
+        let error = manager
+            .execute("research.execute", execute_request(fault))
+            .await
+            .expect_err("forged Execute response must be rejected");
+        assert_eq!(error.machine_code(), "ENGINE_IDENTITY_MISMATCH", "{fault}");
+    }
+    for fault in [
+        "raw-stream-mismatch",
+        "raw-stream-empty-id",
+        "raw-stream-empty-sequence",
+        "raw-stream-incomplete",
+        "raw-stream-duplicate",
+        "raw-stream-after-terminal",
+        "raw-stream-switch-execution",
+    ] {
+        let error = manager
+            .stream_execute_collect(
+                "research.execute",
+                StreamExecuteRequest {
+                    request: Some(execute_request(fault)),
+                },
+            )
+            .await
+            .expect_err("forged stream event must be rejected");
+        assert_eq!(error.machine_code(), "ENGINE_STREAM_INCOMPLETE", "{fault}");
+    }
+    let mut stalled = execute_request("raw-stream-stall");
+    stalled.deadline = Some(timestamp_after(Duration::from_millis(300)));
+    let stalled_error = manager
+        .stream_execute_collect(
+            "research.execute",
+            StreamExecuteRequest {
+                request: Some(stalled),
+            },
+        )
+        .await
+        .expect_err("stream stalled after its first event must obey deadline");
+    assert_eq!(stalled_error.machine_code(), "ENGINE_DEADLINE_EXCEEDED");
+    let completed = manager
+        .execute("research.execute", execute_request("raw-cancel-owner"))
+        .await?;
+    let completed_execution_id = completed.execution_id;
+    let cancel_error = manager
+        .cancel(
+            "mock-engine",
+            CancelRequest {
+                metadata: Some(valid_metadata("raw-cancel-mismatch")),
+                execution_id: completed_execution_id.clone(),
+                reason: "operator-request".to_owned(),
+            },
+        )
+        .await
+        .expect_err("forged cancellation identity must be rejected");
+    assert_eq!(cancel_error.machine_code(), "ENGINE_IDENTITY_MISMATCH");
+    let cancel_metadata_error = manager
+        .cancel(
+            "mock-engine",
+            CancelRequest {
+                metadata: Some(valid_metadata("raw-cancel-metadata")),
+                execution_id: completed_execution_id,
+                reason: "operator-request".to_owned(),
+            },
+        )
+        .await
+        .expect_err("forged cancellation metadata must be rejected");
+    assert_eq!(
+        cancel_metadata_error.machine_code(),
+        "ENGINE_IDENTITY_MISMATCH"
+    );
+    shutdown_child(child, &socket_path).await;
+    Ok(())
+}
+
+#[tokio::test]
+async fn unavailable_socket_fails_fast_then_recovers_without_request_loss() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let mut manager = EngineManager::with_approval_key(
+        BackoffPolicy {
+            max_dispatch_attempts: 1,
+            ..BackoffPolicy::default()
+        },
+        TEST_APPROVAL_KEY.to_vec(),
+    );
+    register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
+    let error = manager
+        .execute("research.execute", execute_request("socket-unavailable"))
+        .await
+        .expect_err("unavailable Engine must fail within dispatch budget");
+    assert_eq!(error.machine_code(), "ENGINE_TRANSPORT");
+    assert!(!manager.circuit_state("mock-engine").expect("state").ready);
+    let child = spawn_python_mock_engine(&socket_path, 0, 0, false).await?;
+    manager
+        .health(
+            "mock-engine",
+            HealthRequest {
+                metadata: Some(valid_metadata("socket-restored")),
+            },
+        )
+        .await?;
+    let response = manager
+        .execute("research.execute", execute_request("socket-unavailable"))
+        .await?;
+    assert_eq!(
+        response.execution_id,
+        "run-socket-unavailable:idem-socket-unavailable"
+    );
+    shutdown_child(child, &socket_path).await;
+    Ok(())
+}
+
+#[tokio::test]
+async fn control_rpcs_timeout_within_two_seconds_on_untrusted_engine() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let child = spawn_untrusted_engine(&socket_path).await?;
+    let mut manager =
+        EngineManager::with_approval_key(BackoffPolicy::default(), TEST_APPROVAL_KEY.to_vec());
+    register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
+    let execution = manager
+        .execute("research.execute", execute_request("control-timeout-owner"))
+        .await?;
+    let start = std::time::Instant::now();
+    assert_eq!(
+        manager
+            .get_metadata(
+                "mock-engine",
+                GetMetadataRequest {
+                    metadata: Some(valid_metadata("raw-metadata-stall")),
+                },
+            )
+            .await
+            .expect_err("Metadata stall must time out")
+            .machine_code(),
+        "ENGINE_DEADLINE_EXCEEDED"
+    );
+    assert!(start.elapsed() < Duration::from_millis(2_500));
+    let start = std::time::Instant::now();
+    assert_eq!(
+        manager
+            .health(
+                "mock-engine",
+                HealthRequest {
+                    metadata: Some(valid_metadata("raw-health-stall")),
+                },
+            )
+            .await
+            .expect_err("Health stall must time out")
+            .machine_code(),
+        "ENGINE_DEADLINE_EXCEEDED"
+    );
+    assert!(start.elapsed() < Duration::from_millis(2_500));
+    let start = std::time::Instant::now();
+    assert_eq!(
+        manager
+            .cancel(
+                "mock-engine",
+                CancelRequest {
+                    metadata: Some(valid_metadata("raw-cancel-stall")),
+                    execution_id: execution.execution_id,
+                    reason: "operator-request".to_owned(),
+                },
+            )
+            .await
+            .expect_err("Cancel stall must time out")
+            .machine_code(),
+        "ENGINE_DEADLINE_EXCEEDED"
+    );
+    assert!(start.elapsed() < Duration::from_millis(2_500));
+    shutdown_child(child, &socket_path).await;
+    Ok(())
+}
+
+#[tokio::test]
+async fn handshake_rejects_each_unreviewed_identity_and_readiness_dimension() -> anyhow::Result<()>
+{
+    for (fault, expected) in [
+        ("name", "ENGINE_IDENTITY_MISMATCH"),
+        ("version", "ENGINE_IDENTITY_MISMATCH"),
+        ("schema", "ENGINE_IDENTITY_MISMATCH"),
+        ("capability", "ENGINE_IDENTITY_MISMATCH"),
+        ("metadata", "ENGINE_IDENTITY_MISMATCH"),
+        ("readiness", "ENGINE_NOT_READY"),
+        ("health-metadata", "ENGINE_NOT_READY"),
+    ] {
+        let socket_path = short_socket_path();
+        let child = spawn_untrusted_engine_with_fault(&socket_path, fault).await?;
+        let mut manager =
+            EngineManager::with_approval_key(BackoffPolicy::default(), TEST_APPROVAL_KEY.to_vec());
+        register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
+        let error = manager
+            .health(
+                "mock-engine",
+                HealthRequest {
+                    metadata: Some(valid_metadata(&format!("probe-{fault}"))),
+                },
+            )
+            .await
+            .expect_err("unreviewed handshake must not admit an Engine");
+        assert_eq!(error.machine_code(), expected, "fault={fault}");
+        shutdown_child(child, &socket_path).await;
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn supervised_sidecar_refuses_tampered_artifact_then_recovers() -> anyhow::Result<()> {
+    let directory = tempfile::tempdir()?;
+    let socket_path = short_socket_path();
+    let artifact_path = directory.path().join("mock-server.py");
+    let source = std::fs::read(engines_dir().join("mock-engine/src/mock_engine/server.py"))?;
+    std::fs::write(&artifact_path, &source)?;
+    let digest: String = Sha256::digest(&source)
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
+    let manifest = manifest_for_socket(socket_path.clone());
+    let mut policy = EngineRoutingPolicy::local_fixture();
+    policy.requires_supervision = true;
+    let approval = EngineApproval::sign_with_policy(
+        &manifest,
+        &digest,
+        "F08 test reviewer",
+        policy,
+        TEST_APPROVAL_KEY,
+    )?;
+    let mut manager = EngineManager::with_durable_state(
+        BackoffPolicy::default(),
+        TEST_APPROVAL_KEY.to_vec(),
+        directory.path().join("manager-state"),
+    )?;
+    manager.register_supervised_engine(
+        manifest,
+        &approval,
+        SidecarSpec {
+            executable: engines_dir().join(".venv/bin/python"),
+            artifact_path: artifact_path.clone(),
+            args: vec![
+                "-m".to_owned(),
+                "mock_engine.server".to_owned(),
+                "--socket".to_owned(),
+                socket_path.display().to_string(),
+            ],
+        },
+    )?;
+    std::fs::write(&artifact_path, b"tampered")?;
+    assert_eq!(
+        manager
+            .execute("research.execute", execute_request("tampered-artifact"))
+            .await
+            .expect_err("tampered approved code must not start")
+            .machine_code(),
+        "ENGINE_ARTIFACT_MISMATCH"
+    );
+    assert!(!socket_path.exists());
+    std::fs::write(&artifact_path, &source)?;
+    let mut recovered = false;
+    for _ in 0..20 {
+        if manager
+            .health(
+                "mock-engine",
+                HealthRequest {
+                    metadata: Some(valid_metadata("artifact-restored")),
+                },
+            )
+            .await
+            .is_ok()
+        {
+            recovered = true;
+            break;
+        }
+        sleep(Duration::from_millis(50)).await;
+    }
+    assert!(
+        recovered,
+        "approved sidecar must recover after artifact restore"
+    );
+    let response = manager
+        .execute("research.execute", execute_request("tampered-artifact"))
+        .await?;
+    assert!(!response.execution_id.is_empty());
+    manager.stop_supervised_engine("mock-engine").await?;
+    assert!(manager.manifest("mock-engine").is_none());
+    Ok(())
 }
 
 #[tokio::test]
@@ -667,8 +1171,8 @@ async fn manager_cancel_interrupts_owned_running_execution() -> anyhow::Result<(
     sleep(Duration::from_millis(150)).await;
     let started = std::time::Instant::now();
     let confirmation = manager
-        .cancel(
-            "mock-engine",
+        .cancel_capability(
+            "research.execute",
             CancelRequest {
                 metadata: Some(valid_metadata("running-cancel-command")),
                 execution_id: "run-running-cancel:idem-running-cancel".to_owned(),
@@ -753,6 +1257,17 @@ async fn durable_result_and_circuit_survive_manager_reconstruction() -> anyhow::
         .await
         .expect_err("key is bound");
     assert_eq!(error.machine_code(), "ENGINE_IDEMPOTENCY_CONFLICT");
+    let cancelled = recovered
+        .cancel(
+            "mock-engine",
+            CancelRequest {
+                metadata: Some(valid_metadata("durable-owner-cancel")),
+                execution_id: original.execution_id,
+                reason: "reconciled-by-runtime".to_owned(),
+            },
+        )
+        .await?;
+    assert!(cancelled.cancelled);
     shutdown_child(child, &socket_path).await;
     Ok(())
 }
@@ -824,9 +1339,44 @@ async fn os_killed_manager_replays_pending_key_into_one_durable_result() -> anyh
     assert_eq!(busy.machine_code(), "ENGINE_DURABLE_BUSY");
     manager_process.kill().await?;
     manager_process.wait().await?;
+    let mut unsafe_replay = EngineManager::with_durable_state(
+        BackoffPolicy::default(),
+        TEST_APPROVAL_KEY.to_vec(),
+        state_dir.clone(),
+    )?;
+    let manifest = manifest_for_socket(socket_path.clone());
+    let mut no_retry_policy = EngineRoutingPolicy::local_fixture();
+    no_retry_policy.retry_safe = false;
+    let no_retry_approval = EngineApproval::sign_with_policy(
+        &manifest,
+        &"a".repeat(64),
+        "F08 test reviewer",
+        no_retry_policy,
+        TEST_APPROVAL_KEY,
+    )?;
+    unsafe_replay.register_approved_engine(manifest, &no_retry_approval)?;
+    assert_eq!(
+        unsafe_replay
+            .execute("research.execute", execute_request("killed-manager"))
+            .await
+            .expect_err("unreviewed retry safety must require reconciliation")
+            .machine_code(),
+        "ENGINE_RESULT_UNCERTAIN"
+    );
     let response = recovered
         .execute("research.execute", execute_request("killed-manager"))
         .await?;
+    let cancellation = unsafe_replay
+        .cancel(
+            "mock-engine",
+            CancelRequest {
+                metadata: Some(valid_metadata("cross-manager-cancel")),
+                execution_id: response.execution_id.clone(),
+                reason: "reconciled-by-runtime".to_owned(),
+            },
+        )
+        .await?;
+    assert!(cancellation.cancelled);
     assert_eq!(
         response.execution_id,
         "run-killed-manager:idem-killed-manager"
@@ -922,6 +1472,10 @@ async fn signed_rate_limit_and_stream_deadline_are_enforced() -> anyhow::Result<
             .await
             .expect_err("one request per second enforced");
         assert_eq!(error.machine_code(), "ENGINE_RATE_LIMITED");
+        sleep(Duration::from_millis(1_100)).await;
+        manager
+            .execute("research.execute", execute_request("rate-window-restored"))
+            .await?;
         Ok::<(), anyhow::Error>(())
     }
     .await;

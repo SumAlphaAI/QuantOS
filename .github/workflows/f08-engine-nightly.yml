@@ -1,0 +1,37 @@
+name: F08 Engine Nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 18 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  f08-branch-gate:
+    runs-on: ubuntu-24.04
+    env:
+      QUANTOS_SKIP_ENV: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: llvm-tools-preview
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - run: cargo install cargo-llvm-cov --version 0.8.7 --locked
+      - name: Run F08 Nightly branch Gate
+        run: |
+          mkdir -p artifacts/f08
+          printf '%s\n' '${{ github.sha }}' > artifacts/f08/source-sha.txt
+          make f08-nightly-check 2>&1 | tee artifacts/f08/nightly-gate.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f08-nightly-${{ github.sha }}
+          path: |
+            artifacts/f08/
+            target/f08-rust-nightly-coverage.json
+          if-no-files-found: warn

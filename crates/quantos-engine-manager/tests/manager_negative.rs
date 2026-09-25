@@ -17,6 +17,73 @@ use sha2::{Digest, Sha256};
 
 const KEY: &[u8] = b"f08-negative-fixture-approval-key";
 
+#[test]
+fn manager_diagnostics_do_not_expose_approval_key() {
+    let manager = EngineManager::with_approval_key(
+        BackoffPolicy::default(),
+        b"distinct-private-approval-key".to_vec(),
+    );
+    let diagnostic = format!("{manager:?}");
+    assert!(diagnostic.contains("registered_engines"));
+    assert!(!diagnostic.contains("distinct-private-approval-key"));
+}
+
+#[tokio::test]
+async fn reviewed_registration_rejects_capability_takeover_and_live_sidecar_replacement() {
+    let directory = tempfile::tempdir().expect("private fixture root");
+    let mut manager = EngineManager::with_durable_state(
+        BackoffPolicy::default(),
+        KEY.to_vec(),
+        directory.path().join("state"),
+    )
+    .expect("durable manager");
+    let manifest = manifest();
+    let executable = std::env::current_exe().expect("test executable");
+    let digest: String = Sha256::digest(std::fs::read(&executable).expect("read fixture artifact"))
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
+    let mut policy = EngineRoutingPolicy::local_fixture();
+    policy.requires_supervision = true;
+    let approval =
+        EngineApproval::sign_with_policy(&manifest, &digest, "fixture reviewer", policy, KEY)
+            .expect("sign supervised approval");
+    let spec = SidecarSpec {
+        executable: executable.clone(),
+        artifact_path: executable,
+        args: Vec::new(),
+    };
+    manager
+        .register_supervised_engine(manifest.clone(), &approval, spec.clone())
+        .expect("supervised registration");
+    let snapshot = manager.snapshot().await;
+    assert_eq!(snapshot.registered_engines, 1);
+    assert_eq!(snapshot.supervised_engines, 1);
+    assert_eq!(
+        serde_json::to_value(snapshot).expect("operator snapshot serializes")["registered_engines"],
+        1
+    );
+    assert_eq!(
+        manager
+            .register_supervised_engine(manifest.clone(), &approval, spec)
+            .expect_err("active sidecar cannot be replaced")
+            .machine_code(),
+        "ENGINE_ACTIVE"
+    );
+    let mut takeover = manifest;
+    takeover.engine_name = "takeover".to_owned();
+    let takeover_approval =
+        EngineApproval::sign_for_local_fixture(&takeover, &"a".repeat(64), "fixture reviewer", KEY)
+            .expect("sign takeover fixture");
+    assert_eq!(
+        manager
+            .register_approved_engine(takeover, &takeover_approval)
+            .expect_err("capability owner cannot be overwritten")
+            .machine_code(),
+        "ENGINE_CAPABILITY_CONFLICT"
+    );
+}
+
 fn manifest() -> EngineManifest {
     EngineManifest {
         engine_name: "fixture-engine".to_owned(),

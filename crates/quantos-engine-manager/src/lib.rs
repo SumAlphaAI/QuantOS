@@ -418,7 +418,7 @@ impl EngineCircuitState {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 struct ManagedEngine {
     manifest: EngineManifest,
     routing_policy: EngineRoutingPolicy,
@@ -440,7 +440,7 @@ pub struct EngineManagerSnapshot {
     pub rate_windows: usize,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct EngineManager {
     policy: BackoffPolicy,
     approval_key: Option<Arc<[u8]>>,
@@ -450,6 +450,17 @@ pub struct EngineManager {
     rates: RateWindows,
     execution_owners: Arc<Mutex<BTreeMap<String, (String, String)>>>,
     durable: Option<Arc<DurableLedger>>,
+}
+
+impl std::fmt::Debug for EngineManager {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("EngineManager")
+            .field("policy", &self.policy)
+            .field("registered_engines", &self.engines.len())
+            .field("durable_enabled", &self.durable.is_some())
+            .finish_non_exhaustive()
+    }
 }
 
 impl EngineManager {
@@ -750,6 +761,7 @@ impl EngineManager {
             Ok(response) => {
                 let response = response.into_inner();
                 if response.metadata != expected_metadata {
+                    self.record_failure(engine_name)?;
                     return Err(EngineManagerError::IdentityMismatch);
                 }
                 self.mark_success(engine_name)?;
@@ -793,7 +805,12 @@ impl EngineManager {
             Ok(response) => {
                 let response = response.into_inner();
                 if response.metadata != expected_metadata {
+                    self.record_failure(engine_name)?;
                     return Err(EngineManagerError::IdentityMismatch);
+                }
+                if !response.ready {
+                    self.record_failure(engine_name)?;
+                    return Err(EngineManagerError::NotReady);
                 }
                 self.mark_success(engine_name)?;
                 Ok(response)
@@ -1116,6 +1133,7 @@ impl EngineManager {
                                 })
                                 || events.len() >= 10_000
                             {
+                                self.record_failure(&engine_name)?;
                                 return Err(EngineManagerError::StreamIncomplete);
                             }
                             self.execution_owners.lock().await.insert(
@@ -1137,6 +1155,7 @@ impl EngineManager {
                     }
                 }
                 if !events.last().is_some_and(|event| event.done) {
+                    self.record_failure(&engine_name)?;
                     return Err(EngineManagerError::StreamIncomplete);
                 }
                 self.mark_success(&engine_name)?;
@@ -1201,6 +1220,7 @@ impl EngineManager {
                 if response.metadata != expected_metadata
                     || response.execution_id != expected_execution_id
                 {
+                    self.record_failure(engine_name)?;
                     return Err(EngineManagerError::IdentityMismatch);
                 }
                 self.mark_success(engine_name)?;
