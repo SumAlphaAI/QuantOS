@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from engine_contract_harness import assert_five_rpc_contract
+
 import json
 import time
 from datetime import datetime, timedelta, timezone
@@ -117,6 +119,7 @@ def test_llmquant_contract_all_rpcs() -> None:
                 "tools": ["query_snapshot", "query_artifact"],
             },
         )
+        assert_five_rpc_contract(client, execute_request, "llmquant")
         execute_response = client.execute(execute_request, timeout=5)
         output = json_document_to_mapping(execute_response.output)
         signal = parse_signal_output(output)

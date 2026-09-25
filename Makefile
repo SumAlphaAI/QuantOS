@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-.PHONY: f07-db-check f07-recovery-diagnostic f07-coverage-diagnostic f07-gateway-test f07-target-service-acceptance f07-fixture-check f07-fixture-retire f07-forward-migration
+.PHONY: f07-db-check f07-recovery-diagnostic f07-coverage-diagnostic f07-gateway-test f07-target-service-acceptance f07-fixture-check f07-fixture-retire f07-forward-migration f08-check
 export UV_BUILD_CONSTRAINT := $(CURDIR)/engines/build-constraints.txt
 
 ifneq ($(QUANTOS_SKIP_ENV),1)
@@ -174,6 +174,17 @@ f07-fixture-retire:
 
 f07-forward-migration:
 	QUANTOS_F07_MIGRATION_ONLY=1 node scripts/f07-db-gate.cjs
+
+f08-check:
+	cargo fmt --check
+	cargo clippy -p quantos-engine-manager --all-targets --locked -- -D warnings
+	cargo test -p quantos-engine-manager --locked
+	uv run --locked --project engines --all-packages ruff check .
+	uv run --locked --project engines --all-packages pyright --project engines
+	uv run --locked --project engines --all-packages pytest engines/tests --cov=quantos_engine_sdk --cov=mock_engine --cov-config=engines/pyproject.toml --cov-report=json:target/f08-python-coverage.json --cov-report=term-missing
+	node scripts/check-f08-python-coverage.mjs target/f08-python-coverage.json
+	cargo llvm-cov -p quantos-engine-manager --locked --json --output-path target/f08-rust-coverage.json
+	node scripts/check-f08-rust-coverage.mjs target/f08-rust-coverage.json
 
 f05-target-check:
 	node scripts/f05-target-gate.cjs

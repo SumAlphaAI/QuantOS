@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from engine_contract_harness import assert_five_rpc_contract
+
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -90,6 +92,7 @@ def test_rd_agent_contract_all_rpcs() -> None:
                 "tools": ["query_snapshot"],
             },
         )
+        assert_five_rpc_contract(client, execute_request, "rd-agent")
         execute_response = client.execute(execute_request, timeout=5)
         output = json_document_to_mapping(execute_response.output)
         assert execute_response.execution_id == "run-1:idem-1"

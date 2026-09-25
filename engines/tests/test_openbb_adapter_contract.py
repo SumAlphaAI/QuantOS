@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from engine_contract_harness import assert_five_rpc_contract
+
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from statistics import quantiles
@@ -98,6 +100,7 @@ def test_openbb_adapter_contract_all_rpcs() -> None:
                 "tools": ["query_snapshot", "query_artifact"],
             },
         )
+        assert_five_rpc_contract(client, execute_request, "openbb-adapter")
         execute_response = client.execute(execute_request, timeout=5)
         output = json_document_to_mapping(execute_response.output)
         assert execute_response.execution_id == "run-1:idem-1"

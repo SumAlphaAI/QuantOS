@@ -258,6 +258,12 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
         run_id: quantos_core::WorkflowRunId,
         requested_at: DateTime<Utc>,
     ) -> Result<ChronoDuration, ResearchWorkflowError> {
+        let was_queued = self
+            .runtime
+            .run(run_id)
+            .ok_or(RuntimeError::run_not_found(run_id))?
+            .status
+            == crate::WorkflowRunStatus::Queued;
         self.runtime.request_cancel(run_id, requested_at)?;
         let checkpoint = self
             .runtime
@@ -267,21 +273,23 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
         let payload: ResearchCheckpointPayload = serde_json::from_value(checkpoint.payload)?;
 
         let confirmed_at = requested_at + ChronoDuration::milliseconds(50);
-        self.engine_manager
-            .cancel_capability(
-                &payload.capability,
-                CancelRequest {
-                    metadata: Some(build_command_metadata(
-                        self.runtime
-                            .run(run_id)
-                            .ok_or(RuntimeError::run_not_found(run_id))?,
-                        &payload.capability,
-                    )),
-                    execution_id: payload.execution_id,
-                    reason: "operator-request".to_owned(),
-                },
-            )
-            .await?;
+        if !was_queued {
+            self.engine_manager
+                .cancel_capability(
+                    &payload.capability,
+                    CancelRequest {
+                        metadata: Some(build_command_metadata(
+                            self.runtime
+                                .run(run_id)
+                                .ok_or(RuntimeError::run_not_found(run_id))?,
+                            &payload.capability,
+                        )),
+                        execution_id: payload.execution_id,
+                        reason: "operator-request".to_owned(),
+                    },
+                )
+                .await?;
+        }
         self.runtime.finalize_cancelled(run_id, confirmed_at)?;
         Ok(confirmed_at - requested_at)
     }

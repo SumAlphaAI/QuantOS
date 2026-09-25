@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from engine_contract_harness import assert_five_rpc_contract
+
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -102,6 +104,7 @@ def test_strategy_lab_contract_all_rpcs() -> None:
         )
         assert health_response.ready is True
 
+        assert_five_rpc_contract(client, build_request(1, build_input("trend_momentum_btc")), "strategy-lab")
         execute_response = client.execute(
             build_request(1, build_input("trend_momentum_btc")),
             timeout=5,

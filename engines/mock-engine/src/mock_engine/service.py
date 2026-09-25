@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 import os
+from pathlib import Path
 from dataclasses import dataclass, field
 
 import grpc
@@ -41,6 +42,7 @@ class MockEngineService:
     failures_before_success: int = 0
     default_sleep_ms: int = 0
     exit_on_execute: bool = False
+    crash_state_file: Path | None = None
     _cancelled: set[str] = field(default_factory=set)
     _remaining_failures: int = field(init=False)
 
@@ -73,6 +75,11 @@ class MockEngineService:
         request: engine_pb2.ExecuteRequest,
         context: grpc.ServicerContext,
     ) -> engine_pb2.ExecuteResponse:
+        if self.crash_state_file is not None:
+            remaining = int(self.crash_state_file.read_text(encoding="utf-8"))
+            if remaining > 0:
+                self.crash_state_file.write_text(str(remaining - 1), encoding="utf-8")
+                os._exit(70)
         if self.exit_on_execute:
             os._exit(70)
         if self._remaining_failures > 0:
@@ -80,7 +87,7 @@ class MockEngineService:
             context.abort(grpc.StatusCode.UNAVAILABLE, "engine crash")
 
         execution_id = self._execution_id(request)
-        self._maybe_sleep(request)
+        self._maybe_sleep(request, execution_id, context)
         if execution_id in self._cancelled:
             context.abort(grpc.StatusCode.CANCELLED, "execution was cancelled")
 
@@ -123,7 +130,7 @@ class MockEngineService:
         context: grpc.ServicerContext,
     ):
         execution_id = self._execution_id(request.request)
-        self._maybe_sleep(request.request)
+        self._maybe_sleep(request.request, execution_id, context)
         if execution_id in self._cancelled:
             context.abort(grpc.StatusCode.CANCELLED, "execution was cancelled")
 
@@ -182,8 +189,18 @@ class MockEngineService:
     def _execution_id(request: engine_pb2.ExecuteRequest) -> str:
         return f"{request.workflow_run_id}:{request.idempotency_key}"
 
-    def _maybe_sleep(self, request: engine_pb2.ExecuteRequest) -> None:
+    def _maybe_sleep(
+        self,
+        request: engine_pb2.ExecuteRequest,
+        execution_id: str,
+        context: grpc.ServicerContext,
+    ) -> None:
         payload = json_document_to_mapping(request.input)
         sleep_ms = int(payload.get("sleep_ms", self.default_sleep_ms) or 0)
-        if sleep_ms > 0:
-            time.sleep(sleep_ms / 1000)
+        remaining = max(sleep_ms, 0) / 1000
+        while remaining > 0:
+            if execution_id in self._cancelled or not context.is_active():
+                context.abort(grpc.StatusCode.CANCELLED, "execution was cancelled")
+            slice_seconds = min(remaining, 0.01)
+            time.sleep(slice_seconds)
+            remaining -= slice_seconds

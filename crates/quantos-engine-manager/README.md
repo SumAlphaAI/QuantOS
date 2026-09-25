@@ -1,12 +1,13 @@
 # quantos-engine-manager
 
-Manifest review, UDS gRPC routing, crash backoff, deadline enforcement, and contract tests for QuantOS engines.
+Reviewed manifest admission, supervised UDS sidecars, routing, quotas, deadlines, recovery, and contract tests for QuantOS engines.
 
 ## Current scope
 
-- review and register Engine manifests
-- route requests by capability
-- connect to Python engines over Unix domain sockets with tonic
-- apply backoff after repeated `UNAVAILABLE` failures
-- return deterministic deadline errors
-- exercise the Python `mock-engine` in cross-language tests
+- verify signed approval, artifact digest, and live Engine identity
+- start, monitor, restart, and stop local sidecars
+- enforce signed routing policy, rate/concurrency/resource limits, deadlines, and cancellation ownership
+- share circuit state and in-process idempotency results across Manager clones
+- exercise all Python Engines through a common contract harness
+
+Deployment and rollback steps: [F08 runbook](../../docs/runbooks/f08-engine-manager.md).

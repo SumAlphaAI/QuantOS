@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from engine_contract_harness import assert_five_rpc_contract
+
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from pathlib import Path
@@ -37,6 +39,22 @@ def build_metadata(index: int) -> common_pb2.CommandMetadata:
         mode=common_pb2.RuntimeMode.RUNTIME_MODE_PAPER,
         environment=common_pb2.Environment.ENVIRONMENT_TEST,
         issued_at=timestamp_from_datetime(datetime.now(tz=timezone.utc)),
+    )
+
+
+def valid_execute_request(index: int) -> engine_pb2.ExecuteRequest:
+    return engine_pb2.ExecuteRequest(
+        metadata=build_metadata(index),
+        workflow_run_id=f"run-{index}",
+        idempotency_key=f"idem-{index}",
+        capability="research.execute",
+        input_schema_version="v1",
+        data_snapshot_ref="snapshot-1",
+        policy_context_ref="policy-1",
+        input=json_document_from_mapping({"ticker": "BTCUSDT"}),
+        deadline=timestamp_from_datetime(
+            datetime.now(tz=timezone.utc) + timedelta(seconds=5)
+        ),
     )
 
 
@@ -78,6 +96,7 @@ def test_mock_engine_contract_all_rpcs(tmp_path: Path) -> None:
                 datetime.now(tz=timezone.utc) + timedelta(seconds=5)
             ),
         )
+        assert_five_rpc_contract(client, execute_request, "mock-engine")
         execute_response = client.execute(execute_request, timeout=5)
         assert execute_response.execution_id == "run-contract:idem-contract"
         assert execute_response.engine_version == "0.1.0"
@@ -137,7 +156,7 @@ def test_engine_rejects_invalid_response_metadata(streaming: bool, field: str) -
         with pytest.raises(grpc.RpcError) as invalid:
             if streaming:
                 client.stream_execute(engine_pb2.StreamExecuteRequest(
-                    request=engine_pb2.ExecuteRequest(metadata=build_metadata(1)),
+                    request=valid_execute_request(1),
                 ), timeout=5)
             else:
                 client.health(engine_pb2.HealthRequest(metadata=build_metadata(1)), timeout=5)

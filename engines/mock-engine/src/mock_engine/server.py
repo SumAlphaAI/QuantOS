@@ -24,6 +24,11 @@ def parse_args() -> argparse.Namespace:
         help="Terminate the process immediately when Execute is received",
     )
     parser.add_argument(
+        "--crash-state-file",
+        type=Path,
+        help="Test fixture counter persisted across supervised process restarts",
+    )
+    parser.add_argument(
         "--default-sleep-ms",
         type=int,
         default=0,
@@ -45,6 +50,7 @@ def main() -> None:
             failures_before_success=args.failures_before_success,
             default_sleep_ms=args.default_sleep_ms,
             exit_on_execute=args.exit_on_execute,
+            crash_state_file=args.crash_state_file,
         ),
     )
     try:

@@ -8,8 +8,8 @@ use std::{
 use chrono::Utc;
 use pbjson_types::{Struct, Value, value::Kind};
 use quantos_engine_manager::{
-    BackoffPolicy, EngineCapabilityManifest, EngineManager, EngineManifest, EngineQuota,
-    EngineTransport, build_metadata,
+    BackoffPolicy, EngineApproval, EngineCapabilityManifest, EngineManager, EngineManifest,
+    EngineQuota, EngineTransport, build_metadata,
 };
 use quantos_proto::generated::google::protobuf::Timestamp;
 use quantos_proto::quantos::{
@@ -23,6 +23,22 @@ use tokio::{
     time::sleep,
 };
 use uuid::Uuid;
+
+const TEST_APPROVAL_KEY: &[u8] = b"f08-test-approval-key";
+
+fn register_reviewed_engine(
+    manager: &mut EngineManager,
+    manifest: EngineManifest,
+) -> anyhow::Result<()> {
+    let approval = EngineApproval::sign_for_local_fixture(
+        &manifest,
+        &"a".repeat(64),
+        "F08 test reviewer",
+        TEST_APPROVAL_KEY,
+    )?;
+    manager.register_approved_engine(manifest, &approval)?;
+    Ok(())
+}
 
 fn repo_root() -> &'static Path {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -164,8 +180,11 @@ async fn python_rd_agent_contracts_round_trip_over_uds() -> anyhow::Result<()> {
     let child = spawn_python_rd_agent(&socket_path).await?;
 
     let result = async {
-        let mut manager = EngineManager::new(BackoffPolicy::default());
-        manager.register_engine(manifest_for_socket(socket_path.clone()))?;
+        let mut manager = EngineManager::with_approval_key(
+            BackoffPolicy::default(),
+            b"f08-test-approval-key".to_vec(),
+        );
+        register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
 
         let metadata = manager
             .get_metadata(
@@ -254,8 +273,11 @@ async fn python_rd_agent_rejects_forbidden_boundary_fields() -> anyhow::Result<(
     let child = spawn_python_rd_agent(&socket_path).await?;
 
     let result = async {
-        let mut manager = EngineManager::new(BackoffPolicy::default());
-        manager.register_engine(manifest_for_socket(socket_path.clone()))?;
+        let mut manager = EngineManager::with_approval_key(
+            BackoffPolicy::default(),
+            b"f08-test-approval-key".to_vec(),
+        );
+        register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
 
         let error = manager
             .execute(

@@ -333,10 +333,131 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- review_status: `FIX_VALIDATION`
+- review_conclusion: 2026-09-25 对全面复审的 11 项问题依序整改：7 项本地修复、4 项仍部分完成；24 项检查点重核为 21 PASS、3 PARTIAL、0 FAIL，严格本地完成率 87.5%。Rust Manager line/region 覆盖率 75.82%/74.96%，未达到 90%/85%；持久幂等、资源硬隔离及同 SHA CI/Nightly/目标回执仍缺，F08 未验收。详见 [初审](./audit/F08-comprehensive-review-2026-09-25.md)与[整改记录](./audit/F08-remediation-2026-09-25.md)。
+- issues:
+  - issue_id: F08-B01
+    severity: BLOCKER
+    description: 已补签名审批、制品 digest 及握手身份核对，本地负向测试通过。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: CLOSED
+  - issue_id: F08-B02
+    severity: BLOCKER
+    description: 已补 Manager 持有的 sidecar 生命周期和三次真实崩溃自动恢复。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: CLOSED
+  - issue_id: F08-H01
+    severity: HIGH
+    description: 已将 Execute/Stream 绝对 deadline 扩至全调用，并限制其他 RPC 为两秒。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: CLOSED
+  - issue_id: F08-H02
+    severity: HIGH
+    description: 已补签名租户/分类/成本/GPU/region 路由约束和每秒请求限流。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: CLOSED
+  - issue_id: F08-H03
+    severity: HIGH
+    description: 已采集并超额停止受监督进程的 RSS/CPU；CPU/GPU 硬隔离及目标宿主验证仍缺。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: OPEN
+  - issue_id: F08-H04
+    severity: HIGH
+    description: 请求/响应校验和同进程幂等结果绑定已补；跨 Manager 进程持久队列/结果仍缺。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: OPEN
+  - issue_id: F08-H05
+    severity: HIGH
+    description: 流已纳入配额与 deadline，Manager 运行中取消和跨租户拒绝本地测试通过。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: CLOSED
+  - issue_id: F08-M01
+    severity: MEDIUM
+    description: 已补主动 heartbeat、共享 readiness 摘流与恢复测试。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: CLOSED
+  - issue_id: F08-M02
+    severity: MEDIUM
+    description: 已补共享半开熔断与重注册清路由；跨 Manager 进程状态持久化仍缺。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: OPEN
+  - issue_id: F08-M03
+    severity: MEDIUM
+    description: 共用 harness 和逐 Python 文件覆盖率已补；Rust line/region 低于计划门槛且 Nightly branch 未验。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: OPEN
+  - issue_id: F08-L01
+    severity: LOW
+    description: 已补 F08 Runbook 和失败即阻断的可重放 Gate；Gate 当前因 Rust 覆盖率失败。
+    evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
+    status: CLOSED
+- fix_tracking:
+  - issue_id: F08-B01
+    fix_ref: crates/quantos-engine-manager/src/lib.rs
+    verification_command: cargo test -p quantos-engine-manager --locked
+    verification_environment: 本机 UDS 与本地审批测试密钥
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F08-B02
+    fix_ref: crates/quantos-engine-manager/tests/python_mock_engine.rs
+    verification_command: cargo test -p quantos-engine-manager --locked
+    verification_environment: 本机真实 Mock sidecar 三次退出
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F08-H01
+    fix_ref: crates/quantos-engine-manager/src/lib.rs
+    verification_command: cargo test -p quantos-engine-manager --locked
+    verification_environment: 本机 UDS 超时负向测试
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F08-H02
+    fix_ref: crates/quantos-engine-manager/src/lib.rs
+    verification_command: cargo test -p quantos-engine-manager --locked
+    verification_environment: 本机签名策略及限速负向测试
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F08-H03
+    fix_ref: crates/quantos-engine-manager/src/lib.rs
+    verification_command: cargo test -p quantos-engine-manager --locked
+    verification_environment: 本机 RSS 采样通过；CPU/GPU 硬配额未验证
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PARTIAL
+  - issue_id: F08-H04
+    fix_ref: crates/quantos-engine-manager/src/lib.rs
+    verification_command: cargo test -p quantos-engine-manager --locked
+    verification_environment: 本机内存幂等通过；跨进程持久化未验证
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PARTIAL
+  - issue_id: F08-H05
+    fix_ref: crates/quantos-engine-manager/tests/python_mock_engine.rs
+    verification_command: cargo test -p quantos-engine-manager --locked
+    verification_environment: 本机 UDS 运行中取消及流负向测试
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F08-M01
+    fix_ref: crates/quantos-engine-manager/tests/python_mock_engine.rs
+    verification_command: cargo test -p quantos-engine-manager --locked
+    verification_environment: 本机心跳摘流及恢复测试
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PASS
+  - issue_id: F08-M02
+    fix_ref: crates/quantos-engine-manager/src/lib.rs
+    verification_command: cargo test -p quantos-engine-manager --locked
+    verification_environment: 本机共享熔断通过；跨 Manager 进程状态未验证
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PARTIAL
+  - issue_id: F08-M03
+    fix_ref: Makefile
+    verification_command: QUANTOS_SKIP_ENV=1 UV_OFFLINE=1 CARGO_NET_OFFLINE=true make f08-check
+    verification_environment: 本机 Python PASS；Rust 覆盖率门槛 FAIL
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PARTIAL
+  - issue_id: F08-L01
+    fix_ref: docs/runbooks/f08-engine-manager.md
+    verification_command: node scripts/check-development-plans.mjs
+    verification_environment: 本机 Runbook 与 fail-closed Gate 已落库
+    verification_evidence: docs/audit/F08-remediation-2026-09-25.md
+    verification_status: PASS
 
 <a id="task-f09"></a>
 ### F09：本地可观测性、容量阈值与故障注入

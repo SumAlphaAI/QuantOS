@@ -120,9 +120,36 @@ def add_engine_service(
 
     observer = observability or EngineObservability(service.manifest.engine_name)
 
-    def checked_response(response, context):
+    def validate_execution(request):
+        execution = request.request if isinstance(request, engine_pb2.StreamExecuteRequest) else request
+        if not isinstance(execution, engine_pb2.ExecuteRequest):
+            return
+        if execution.capability not in {cap.name for cap in service.manifest.capabilities}:
+            raise MetadataValidationError("ENGINE_CAPABILITY_UNSUPPORTED")
+        if execution.input_schema_version not in service.manifest.supported_schema_versions:
+            raise MetadataValidationError("ENGINE_SCHEMA_UNSUPPORTED")
+        if (
+            not execution.workflow_run_id.strip()
+            or not execution.idempotency_key.strip()
+            or not execution.data_snapshot_ref.strip()
+            or not execution.policy_context_ref.strip()
+            or not execution.HasField("input")
+            or not execution.HasField("deadline")
+        ):
+            raise MetadataValidationError("ENGINE_INPUT_INVALID")
+        if execution.deadline.ToDatetime(tzinfo=timezone.utc) <= datetime.now(tz=timezone.utc):
+            raise MetadataValidationError("ENGINE_DEADLINE_EXCEEDED")
+
+    def checked_response(response, request, context):
         try:
             validate_message_metadata(response)
+            request_metadata = (
+                request.request.metadata
+                if isinstance(request, engine_pb2.StreamExecuteRequest)
+                else request.metadata
+            )
+            if response.metadata != request_metadata:
+                raise MetadataValidationError("ENGINE_RESPONSE_IDENTITY_MISMATCH")
         except MetadataValidationError as error:
             context.abort(grpc.StatusCode.INTERNAL, f"invalid engine response: {error}")
         return response
@@ -133,7 +160,8 @@ def add_engine_service(
             observer.record(correlation_id, operation, "started", {"transport": "grpc"})
             try:
                 validate_message_metadata(request)
-                response = checked_response(method(request, context), context)
+                validate_execution(request)
+                response = checked_response(method(request, context), request, context)
             except MetadataValidationError as error:
                 observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(error))
@@ -151,8 +179,9 @@ def add_engine_service(
             observer.record(correlation_id, operation, "started", {"transport": "grpc"})
             try:
                 validate_message_metadata(request)
+                validate_execution(request)
                 for response in method(request, context):
-                    yield checked_response(response, context)
+                    yield checked_response(response, request, context)
             except MetadataValidationError as error:
                 observer.record(correlation_id, operation, "failed", {"transport": "grpc"})
                 context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(error))

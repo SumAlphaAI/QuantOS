@@ -10,8 +10,8 @@ use chrono::{Duration as ChronoDuration, TimeZone, Utc};
 use quantos_auth::AuthContext;
 use quantos_core::{AccountId, ActorId, CorrelationId, TenantId, WorkflowRunId, WorkspaceId};
 use quantos_engine_manager::{
-    BackoffPolicy, EngineCapabilityManifest, EngineManager, EngineManifest, EngineQuota,
-    EngineTransport,
+    BackoffPolicy, EngineApproval, EngineCapabilityManifest, EngineManager, EngineManifest,
+    EngineQuota, EngineTransport,
 };
 use quantos_policy::{Capability, Role, RunMode};
 use quantos_runtime::{
@@ -31,6 +31,22 @@ use tokio::{
     time::sleep,
 };
 use uuid::Uuid;
+
+const TEST_APPROVAL_KEY: &[u8] = b"f08-test-approval-key";
+
+fn register_reviewed_engine(
+    manager: &mut EngineManager,
+    manifest: EngineManifest,
+) -> anyhow::Result<()> {
+    let approval = EngineApproval::sign_for_local_fixture(
+        &manifest,
+        &"a".repeat(64),
+        "F08 test reviewer",
+        TEST_APPROVAL_KEY,
+    )?;
+    manager.register_approved_engine(manifest, &approval)?;
+    Ok(())
+}
 
 fn repo_root() -> &'static Path {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -219,8 +235,11 @@ async fn research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_e
         let session = runtime.open_session(&auth, now, now + ChronoDuration::hours(1));
 
         let mut repository = InMemoryResearchArtifactRepository::new();
-        let mut manager = EngineManager::new(BackoffPolicy::default());
-        manager.register_engine(manifest_for_socket(socket_path.clone()))?;
+        let mut manager = EngineManager::with_approval_key(
+            BackoffPolicy::default(),
+            b"f08-test-approval-key".to_vec(),
+        );
+        register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
 
         let mut outputs = Vec::new();
         {
@@ -320,8 +339,11 @@ async fn research_workflow_cancel_confirms_within_two_seconds() -> Result<()> {
         let session = runtime.open_session(&auth, now, now + ChronoDuration::hours(1));
 
         let mut repository = InMemoryResearchArtifactRepository::new();
-        let mut manager = EngineManager::new(BackoffPolicy::default());
-        manager.register_engine(manifest_for_socket(socket_path.clone()))?;
+        let mut manager = EngineManager::with_approval_key(
+            BackoffPolicy::default(),
+            b"f08-test-approval-key".to_vec(),
+        );
+        register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
 
         let run_id: WorkflowRunId;
         {

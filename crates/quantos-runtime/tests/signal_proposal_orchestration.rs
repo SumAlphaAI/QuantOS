@@ -10,8 +10,8 @@ use chrono::{Duration as ChronoDuration, TimeZone, Utc};
 use quantos_auth::AuthContext;
 use quantos_core::{AccountId, ActorId, CorrelationId, TenantId, WorkspaceId};
 use quantos_engine_manager::{
-    BackoffPolicy, EngineCapabilityManifest, EngineManager, EngineManifest, EngineQuota,
-    EngineTransport,
+    BackoffPolicy, EngineApproval, EngineCapabilityManifest, EngineManager, EngineManifest,
+    EngineQuota, EngineTransport,
 };
 use quantos_policy::{Capability, Role, RunMode};
 use quantos_runtime::{
@@ -32,6 +32,22 @@ use tokio::{
     time::sleep,
 };
 use uuid::Uuid;
+
+const TEST_APPROVAL_KEY: &[u8] = b"f08-test-approval-key";
+
+fn register_reviewed_engine(
+    manager: &mut EngineManager,
+    manifest: EngineManifest,
+) -> anyhow::Result<()> {
+    let approval = EngineApproval::sign_for_local_fixture(
+        &manifest,
+        &"a".repeat(64),
+        "F08 test reviewer",
+        TEST_APPROVAL_KEY,
+    )?;
+    manager.register_approved_engine(manifest, &approval)?;
+    Ok(())
+}
 
 fn repo_root() -> &'static Path {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -375,10 +391,19 @@ async fn signal_proposal_workflow_runs_hundred_cases_with_evidence_expiry_and_no
         let session = runtime.open_session(&auth, now, now + ChronoDuration::hours(1));
 
         let mut repository = InMemorySignalProposalRepository::new();
-        let mut manager = EngineManager::new(BackoffPolicy::default());
-        manager.register_engine(openbb_adapter_manifest(openbb_adapter_socket.clone()))?;
-        manager.register_engine(llmquant_manifest(llmquant_socket.clone()))?;
-        manager.register_engine(trading_agents_manifest(trading_agents_socket.clone()))?;
+        let mut manager = EngineManager::with_approval_key(
+            BackoffPolicy::default(),
+            b"f08-test-approval-key".to_vec(),
+        );
+        register_reviewed_engine(
+            &mut manager,
+            openbb_adapter_manifest(openbb_adapter_socket.clone()),
+        )?;
+        register_reviewed_engine(&mut manager, llmquant_manifest(llmquant_socket.clone()))?;
+        register_reviewed_engine(
+            &mut manager,
+            trading_agents_manifest(trading_agents_socket.clone()),
+        )?;
 
         let mut run_ids = Vec::new();
         let mut proposals = Vec::new();
@@ -540,10 +565,19 @@ async fn signal_proposal_workflow_replay_keeps_signal_and_proposal_hashes_stable
         let session = runtime.open_session(&auth, now, now + ChronoDuration::hours(1));
 
         let mut repository = InMemorySignalProposalRepository::new();
-        let mut manager = EngineManager::new(BackoffPolicy::default());
-        manager.register_engine(openbb_adapter_manifest(openbb_adapter_socket.clone()))?;
-        manager.register_engine(llmquant_manifest(llmquant_socket.clone()))?;
-        manager.register_engine(trading_agents_manifest(trading_agents_socket.clone()))?;
+        let mut manager = EngineManager::with_approval_key(
+            BackoffPolicy::default(),
+            b"f08-test-approval-key".to_vec(),
+        );
+        register_reviewed_engine(
+            &mut manager,
+            openbb_adapter_manifest(openbb_adapter_socket.clone()),
+        )?;
+        register_reviewed_engine(&mut manager, llmquant_manifest(llmquant_socket.clone()))?;
+        register_reviewed_engine(
+            &mut manager,
+            trading_agents_manifest(trading_agents_socket.clone()),
+        )?;
 
         let mut results = Vec::new();
         {
@@ -681,10 +715,19 @@ async fn signal_proposal_workflow_rejects_forbidden_order_tools() -> Result<()> 
         let session = runtime.open_session(&auth, now, now + ChronoDuration::hours(1));
 
         let mut repository = InMemorySignalProposalRepository::new();
-        let mut manager = EngineManager::new(BackoffPolicy::default());
-        manager.register_engine(openbb_adapter_manifest(openbb_adapter_socket.clone()))?;
-        manager.register_engine(llmquant_manifest(llmquant_socket.clone()))?;
-        manager.register_engine(trading_agents_manifest(trading_agents_socket.clone()))?;
+        let mut manager = EngineManager::with_approval_key(
+            BackoffPolicy::default(),
+            b"f08-test-approval-key".to_vec(),
+        );
+        register_reviewed_engine(
+            &mut manager,
+            openbb_adapter_manifest(openbb_adapter_socket.clone()),
+        )?;
+        register_reviewed_engine(&mut manager, llmquant_manifest(llmquant_socket.clone()))?;
+        register_reviewed_engine(
+            &mut manager,
+            trading_agents_manifest(trading_agents_socket.clone()),
+        )?;
 
         let run_id;
         {

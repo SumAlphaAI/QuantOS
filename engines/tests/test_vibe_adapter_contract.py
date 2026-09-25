@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from engine_contract_harness import assert_five_rpc_contract
+
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -90,6 +92,7 @@ def test_vibe_adapter_contract_all_rpcs() -> None:
                 "tools": ["read_url", "web_search"],
             },
         )
+        assert_five_rpc_contract(client, execute_request, "vibe-adapter")
         execute_response = client.execute(execute_request, timeout=5)
         assert execute_response.execution_id == "run-1:idem-1"
         assert execute_response.engine_version == "0.1.0"
@@ -328,7 +331,7 @@ def test_vibe_adapter_rejects_unsupported_capability() -> None:
             client.execute(request, timeout=5)
         except grpc.RpcError as error:
             assert error.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert "unsupported capability" in (error.details() or "")
+            assert error.details() == "ENGINE_CAPABILITY_UNSUPPORTED"
         else:
             raise AssertionError("unsupported capability should be rejected")
     finally:
