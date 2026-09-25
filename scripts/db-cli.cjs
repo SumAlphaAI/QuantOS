@@ -347,6 +347,8 @@ async function liveRlsCheck() {
     const restrictedSecretFunctionName =
       "quantos.resolve_execution_secret_ref(text)";
     const vaultSecretFunctionName =
+      "quantos.resolve_execution_vault_secret(text, text, timestamp with time zone, uuid)";
+    const oldVaultSecretFunctionName =
       "quantos.resolve_execution_vault_secret(text, text, timestamp with time zone)";
     const secretFunctionPrivileges = await client.query(
       `
@@ -363,9 +365,11 @@ async function liveRlsCheck() {
           has_function_privilege('anon', $3, 'EXECUTE') as anon_vault,
           has_function_privilege('service_role', $3, 'EXECUTE') as service_role_vault,
           has_function_privilege('quantos_execution_gateway', $3, 'EXECUTE') as gateway_vault,
+          has_function_privilege('quantos_execution_gateway', $4, 'EXECUTE') as gateway_old_vault,
           has_table_privilege('service_role', 'quantos.execution_secret_refs', 'SELECT') as service_role_table_select
       `,
-      [legacySecretFunctionName, restrictedSecretFunctionName, vaultSecretFunctionName],
+      [legacySecretFunctionName, restrictedSecretFunctionName, vaultSecretFunctionName,
+        oldVaultSecretFunctionName],
     );
 
     const privilegeRow = secretFunctionPrivileges.rows[0];
@@ -386,7 +390,8 @@ async function liveRlsCheck() {
       );
     }
 
-    if (privilegeRow.gateway_legacy || privilegeRow.gateway_restricted || !privilegeRow.gateway_vault) {
+    if (privilegeRow.gateway_legacy || privilegeRow.gateway_restricted ||
+        privilegeRow.gateway_old_vault || !privilegeRow.gateway_vault) {
       throw new Error(
         "Only the scoped Vault function may be executable by quantos_execution_gateway.",
       );

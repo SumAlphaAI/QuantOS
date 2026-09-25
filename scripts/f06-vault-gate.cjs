@@ -1,7 +1,8 @@
 const { Client } = require('pg');
 const crypto = require('node:crypto');
 
-const functionName = 'quantos.resolve_execution_vault_secret(text,text,timestamp with time zone)';
+const functionName = 'quantos.resolve_execution_vault_secret(text,text,timestamp with time zone,uuid)';
+const oldFunctionName = 'quantos.resolve_execution_vault_secret(text,text,timestamp with time zone)';
 const assert = (condition, message) => { if (!condition) throw Error(message); };
 
 async function main() {
@@ -33,6 +34,7 @@ async function main() {
       has_function_privilege('quantos_bff',$1,'EXECUTE') as bff,
       has_function_privilege('quantos_engine',$1,'EXECUTE') as engine,
       has_function_privilege('quantos_execution_gateway',$1,'EXECUTE') as gateway,
+      has_function_privilege('quantos_execution_gateway',$2,'EXECUTE') as old_gateway,
       has_table_privilege('authenticated','vault.decrypted_secrets','SELECT') as authenticated_view,
       has_table_privilege('anon','vault.decrypted_secrets','SELECT') as anon_view,
       has_table_privilege('service_role','vault.decrypted_secrets','SELECT') as service_role_view,
@@ -42,9 +44,11 @@ async function main() {
       has_schema_privilege('service_role','vault','USAGE') as service_role_vault_schema,
       pg_has_role('service_role','pg_read_all_data','MEMBER') as service_role_read_all,
       pg_has_role('quantos_bff','service_role','MEMBER') as bff_service_member,
-      pg_has_role('quantos_engine','service_role','MEMBER') as engine_service_member`, [functionName])).rows[0];
+      pg_has_role('quantos_engine','service_role','MEMBER') as engine_service_member`,
+    [functionName, oldFunctionName])).rows[0];
     const appMatrixOk = privileges.gateway && !privileges.authenticated && !privileges.anon &&
-      !privileges.service_role && !privileges.authenticated_view && !privileges.anon_view &&
+      !privileges.service_role && !privileges.old_gateway &&
+      !privileges.authenticated_view && !privileges.anon_view &&
       !privileges.gateway_view && !privileges.bff && !privileges.engine &&
       !privileges.bff_view && !privileges.engine_view &&
       !privileges.bff_service_member && !privileges.engine_service_member;
@@ -82,11 +86,20 @@ async function main() {
         [tenant, actor, account, tokenHash]);
       await client.query('set local role quantos_execution_gateway');
       const resolve = async (expires) => (await client.query(
-        `select quantos.resolve_execution_vault_secret($1,$2,$3) as value`,
-        [tokenHash, 'f06.test', expires])).rows[0].value;
+        `select quantos.resolve_execution_vault_secret($1,$2,$3,$4) as value`,
+        [tokenHash, 'f06.test', expires, account])).rows[0].value;
       assert(await resolve(new Date(Date.now()+60000)) === plaintext, 'Gateway did not resolve the active scoped Vault secret');
+      assert((await client.query(
+        `select quantos.resolve_execution_vault_secret($1,$2,$3,$4) as value`,
+        [tokenHash, 'f06.test', new Date(Date.now()+60000), crypto.randomUUID()])).rows[0].value === null,
+      'mismatched TradeCommand account resolved a secret');
       assert(await resolve(new Date(Date.now()-1000)) === null, 'Expired command resolved a secret');
-      checks.push('gateway allowed; expired command rejected');
+      checks.push('gateway allowed; mismatched command account and expired command rejected');
+      await client.query('reset role');
+      await client.query("update quantos.secret_references set rotation_state='rotating' where tenant_id=$1", [tenant]);
+      await client.query('set local role quantos_execution_gateway');
+      assert(await resolve(new Date(Date.now()+60000)) === null, 'Rotating secret resolved');
+      checks.push('rotating reference rejected');
       await client.query('reset role');
       await client.query("update quantos.secret_references set rotation_state='revoked' where tenant_id=$1", [tenant]);
       await client.query('set local role quantos_execution_gateway');
@@ -104,13 +117,13 @@ async function main() {
         await client.query(`grant ${deniedRole} to ${quoted}`);
         for (const sql of [
           'select decrypted_secret from vault.decrypted_secrets limit 1',
-          'select quantos.resolve_execution_vault_secret($1,$2,$3)',
+          'select quantos.resolve_execution_vault_secret($1,$2,$3,$4)',
         ]) {
           await client.query('savepoint f06_denial');
           try {
             await client.query(`set local role ${deniedRole}`);
             await client.query(sql, sql.includes('resolve_execution')
-              ? [tokenHash, 'f06.test', new Date(Date.now()+60000)] : []);
+              ? [tokenHash, 'f06.test', new Date(Date.now()+60000), account] : []);
             throw Error(`${deniedRole} reached a Vault decryption path`);
           } catch (error) {
             if (error.code !== '42501') throw error;

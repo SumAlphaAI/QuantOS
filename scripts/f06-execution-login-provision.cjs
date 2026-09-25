@@ -41,7 +41,7 @@ async function main() {
       exists(select 1 from pg_roles where rolname='quantos_execution_gateway' and not rolcanlogin) as execution_group_exists,
       exists(select 1 from pg_roles where rolname=$1) as login_exists,
       has_function_privilege('quantos_execution_gateway',
-        'quantos.resolve_execution_vault_secret(text,text,timestamp with time zone)','EXECUTE') as resolver_granted`,
+        'quantos.resolve_execution_vault_secret(text,text,timestamp with time zone,uuid)','EXECUTE') as resolver_granted`,
     [loginRole])).rows[0];
     if (!state.can_create_roles || !state.execution_group_exists || state.login_exists || !state.resolver_granted) {
       throw Error('Execution role/function is absent, login already exists, or operator lacks permission');

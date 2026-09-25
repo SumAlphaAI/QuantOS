@@ -34,8 +34,9 @@ async function main() {
     await client.query('select id from quantos.runtime_sessions limit 0');
     let denied = false;
     try {
-      await client.query('select quantos.resolve_execution_vault_secret($1,$2,$3)',
-        ['invalid-session', 'invalid-secret', new Date()]);
+      await client.query('select quantos.resolve_execution_vault_secret($1,$2,$3,$4)',
+        ['invalid-session', 'invalid-secret', new Date(),
+          '00000000-0000-0000-0000-000000000000']);
     } catch (error) {
       denied = error.code === '42501';
       if (!denied) throw error;

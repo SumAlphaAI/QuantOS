@@ -232,6 +232,15 @@ f06-runtime-login-provision:
 f06-execution-login-provision:
 	@node scripts/f06-execution-login-provision.cjs
 
+f06-execution-login-check:
+	@test -n "$$QUANTOS_EXECUTION_DATABASE_URL" || (echo "QUANTOS_EXECUTION_DATABASE_URL is required." >&2; exit 1)
+	@node scripts/f06-execution-login-check.cjs
+
+f06-execution-service-check:
+	@test -n "$$QUANTOS_EXECUTION_DATABASE_URL" || (echo "QUANTOS_EXECUTION_DATABASE_URL is required." >&2; exit 1)
+	cargo build -p execution-gateway --locked
+	@target/debug/execution-gateway
+
 f06-runtime-login-check:
 	@test -n "$$QUANTOS_RUNTIME_DATABASE_URL" || (echo "QUANTOS_RUNTIME_DATABASE_URL is required." >&2; exit 1)
 	@node scripts/f06-runtime-login-check.cjs

@@ -229,6 +229,16 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
         &mut self.kernel
     }
 
+    /// Check an incoming command before a service resolves any credential.
+    /// The check is repeated by `submit` immediately before the kernel call.
+    pub fn validate_command(
+        &self,
+        command: &TradeCommand,
+        now: DateTime<Utc>,
+    ) -> Result<(), GatewayError> {
+        self.intercept_at_boundary(command, now)
+    }
+
     /// Submit an issued `TradeCommand`. Replays with the same idempotency key
     /// return the existing receipt without touching the kernel.
     pub fn submit(

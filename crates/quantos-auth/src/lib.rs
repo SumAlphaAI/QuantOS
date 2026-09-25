@@ -136,13 +136,15 @@ impl ExecutionSecretStore {
         session_token_hash: &str,
         secret_name: &str,
         command_expires_at: DateTime<Utc>,
+        command_account_id: Uuid,
     ) -> Result<Option<ExecutionSecret>, AuthError> {
         let row = self.client.query_typed_one(
-            "select quantos.resolve_execution_vault_secret($1, $2, $3) as value",
+            "select quantos.resolve_execution_vault_secret($1, $2, $3, $4) as value",
             &[
                 (&session_token_hash, Type::TEXT),
                 (&secret_name, Type::TEXT),
                 (&command_expires_at, Type::TIMESTAMPTZ),
+                (&command_account_id, Type::UUID),
             ],
         )?;
         Ok(row.get::<_, Option<String>>("value").map(ExecutionSecret))

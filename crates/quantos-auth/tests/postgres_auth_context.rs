@@ -415,8 +415,13 @@ fn f06_four_category_denial_matrix() {
         // 4: Engine cannot execute the Vault decryption function.
         let error = client
             .query(
-                "select quantos.resolve_execution_vault_secret($1,$2,$3)",
-                &[&"invalid-session", &"invalid-secret", &Utc::now()],
+                "select quantos.resolve_execution_vault_secret($1,$2,$3,$4)",
+                &[
+                    &"invalid-session",
+                    &"invalid-secret",
+                    &Utc::now(),
+                    &Uuid::nil(),
+                ],
             )
             .expect_err("Engine reached Vault secret resolver");
         assert_eq!(
