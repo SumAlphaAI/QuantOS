@@ -185,7 +185,7 @@ flowchart LR
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest
 - 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本
 - 量化验收标准：任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免
-- 执行流程：本地修复与提交 → 人工通过 GitHub Desktop 推送 → GitHub Actions 执行 → 收集同 SHA 回执 → 关闭 A11；已确认 `1d94edc` 推送，用户已录入环境签名密钥。主 CI #92 因3项视觉比较失败，签名尚未执行；Ruleset已保存但套餐限制不执行，A11 OPEN。详见 [F02 当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)。
+- 执行流程：本地修复与提交 → 人工通过 GitHub Desktop 推送 → GitHub Actions 执行 → 收集同 SHA 回执 → 关闭 A11。2026-09-26 主线 `830c0c547f08d1667725fee55015fc09608b8f48` 的主 CI、正式签名及独立下载验签已成功；实际生效规则仅含禁止删除/强推，required checks 阻断与恢复证据仍缺，A11 保持 OPEN。详见 [F02 当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)。
 - 依赖：F01
 
 <a id="review-f02"></a>
@@ -197,7 +197,7 @@ flowchart LR
 - issues:
   - issue_id: F02-A11
     severity: MEDIUM
-    description: 1d94edc主CI因3项Chromium视觉比较失败，正式签名job未执行；用户已录入f02-signing密钥。12张Linux基线已入库，兼容/前端绿色不能抵消主CI失败。8项Ruleset受未升级套餐限制不执行，完整同SHA验签、供应链及有效分支阻断/恢复回执仍缺失。
+    description: 2026-09-26 主线 830c0c547f08d1667725fee55015fc09608b8f48 的完整主 CI、正式签名与独立下载验签已有成功回执；当前生效分支规则仅含禁止删除及强推，缺 required checks 实际阻断/恢复证据。A11 保持 OPEN，主线成功不能替代有效分支保护验收。
     evidence: docs/audit/F02-comprehensive-review-2026-09-17.md
     status: OPEN
 - fix_tracking: []
@@ -334,8 +334,8 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `ACCEPTED`
-- 状态解释：ACCEPTED 绑定完整源码 SHA `905f744da8fb4b1987712559e280a44f1a1c3cbf` 的 F08 开发阶段基线。远程 CI、Nightly、隔离目标回执均与该 SHA 一致；后续源码、文档或合并新 SHA 不自动继承回执，生产部署不在本阶段验收范围。
-- review_conclusion: 2026-09-26 完成跨秒健康探测补修后的同 SHA 正式验收：CI 36236861889、Nightly 36236861831、隔离目标 36237146224 均首次执行 SUCCESS，目标九项 release 场景 9/9 PASS；跨秒回归在两道远程 Gate 均通过。原阻塞级 2/2、高危 5/5、中危 3/3、低危 1/1，共 11/11 问题关闭，24/24 检查点完成，活动代码问题 0。CPU/GPU 硬隔离按用户决定移除，127 项可审计覆盖率豁免保持既定范围。详见 [当前复审结论](./audit/F08-comprehensive-review-2026-09-25.md)、[同 SHA 正式验收](./audit/F08-acceptance-905f744-2026-09-26.md)、[逐项关闭复核](./audit/F08-closure-recheck-2026-09-26.md)、[初审归档](./audit/F08-initial-review-2026-09-25.md)和[已关闭问题及修复追踪](./audit/F08-closed-findings-2026-09-26.md)。
+- 状态解释：ACCEPTED 绑定完整源码 SHA `830c0c547f08d1667725fee55015fc09608b8f48` 的 F08 开发阶段基线。远程 CI、Nightly、隔离目标回执均与该 SHA 一致；后续源码、文档或合并新 SHA 不自动继承回执，生产部署不在本阶段验收范围。
+- review_conclusion: 2026-09-26 完成 PR #1 合并后的主线同 SHA 正式验收（合并触发的 7 个工作流及补充 Nightly/目标共 9 个工作流均成功）：主线 CI 36238199294、Nightly 36239409436、隔离目标 36239615322 均首次执行 SUCCESS，目标九项 release 场景 9/9 PASS；跨秒回归在两道远程 Gate 均通过。原阻塞级 2/2、高危 5/5、中危 3/3、低危 1/1，共 11/11 问题关闭，24/24 检查点完成，活动代码问题 0。CPU/GPU 硬隔离按用户决定移除，127 项可审计覆盖率豁免保持既定范围。详见 [当前复审结论](./audit/F08-comprehensive-review-2026-09-25.md)、[主线验收收尾](./audit/main-acceptance-closeout-830c0c5-2026-09-26.md)、[逐项关闭复核](./audit/F08-closure-recheck-2026-09-26.md)、[初审归档](./audit/F08-initial-review-2026-09-25.md)和[已关闭问题及修复追踪](./audit/F08-closed-findings-2026-09-26.md)。
 - issues: []
 - fix_tracking: []
 
