@@ -1,5 +1,7 @@
 # F02 CI、制品与供应链门禁复审报告
 
+> 2026-09-26 主线补证：合并提交 `830c0c547f08d1667725fee55015fc09608b8f48` 的 [QuantOS CI](https://github.com/SumAlphaAI/QuantOS/actions/runs/36238199280) 已成功，`signing-policy`、`sign-main`、`verify-download-main`、`verify-download` 均成功；[独立下载验签原始回执](./evidence/main-830c0c5/formal-download-receipt.json)的 `downloadVerified` 和 `formalSignatureVerified` 均为 true。旧视觉失败及“缺正式签名回执”是下文 2026-09-20 快照，不再代表当前主线。当前[生效分支规则](./evidence/main-830c0c5/main-effective-rules.json)仅含 deletion/non_fast_forward，required checks 的实际阻断与恢复证据仍缺，因此 A11 保持 OPEN。本次补证不是 F02 全量复审，不重算历史 20/24 完成率。
+
 > 更新：2026-09-20。复核源码：`1d94edc2e79ac562b6407063ce4a7bd83026dc99`。依据：[开发计划 F02](../SumAlpha-QuantOS-Development-Plan.md#task-f02)、§2.2–2.4。
 > 结论：**原 A01–A10、A12 共 11 个问题保持 CLOSED；仅 A11 OPEN。F02 为 IMPLEMENTED_PENDING_ACCEPTANCE。** 本文已移除已关闭问题的活动缺陷描述；历史整改、诊断和测试保留在 [整改记录](./F02-remediation-2026-09-17.md)及其证据目录。初审全文可通过 Git 的 `1d94edc` 版本追溯。
 
