@@ -48,6 +48,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Diagnose isolated historical secret scan (redacted)
+        run: |
+          bash scripts/install-gitleaks.sh
+          artifacts/tools/gitleaks git --config .gitleaks.toml --gitleaks-ignore-path .gitleaksignore --redact --verbose --no-banner .
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
