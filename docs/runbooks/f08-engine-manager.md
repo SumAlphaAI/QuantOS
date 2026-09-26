@@ -36,7 +36,7 @@ QUANTOS_SKIP_ENV=1 cargo run -p quantos-engine-manager --bin f08-approval --lock
 QUANTOS_SKIP_ENV=1 make f08-check
 ```
 
-Gate 包含 Rust fmt/Clippy/Manager 测试与物理源码 line ≥90%、逐项豁免后 region ≥85% 覆盖率、Python Ruff/Pyright/全 Engine contract 与逐文件 ≥85% 行覆盖率。`QUANTOS_SKIP_ENV=1 make f08-nightly-check` 另用 Nightly 测量逐项豁免后 branch ≥85%。Rust 原始 LLVM 数值、按物理源码位置合并重复编译实例的数值和每项豁免的启用状态均写入 Gate 日志；清单见 [F08 覆盖率豁免](../audit/F08-coverage-waivers.json)，覆盖率口径及风险见 [M03 关闭记录](../audit/F08-coverage-closure-2026-09-26.md)。负向探针要求缺文件、重复文件、丢失豁免区域、覆盖行或分支结果时失败。两道 Gate 均失败即阻断，不含 CPU/GPU 硬隔离检查。UDS 测试需要允许创建 Unix socket 的本机/CI 环境；受限沙箱中的绑定失败不是产品失败。本地 Gate 只证明其实际执行源码；发布候选仍需同一完整 SHA 的 CI、覆盖率和目标服务回执，不能把本地 PASS 改写成远程验收。
+Gate 包含 Rust fmt/Clippy/Manager 测试与物理源码 line ≥90%、逐项豁免后 region ≥85% 覆盖率、Python Ruff/Pyright/全 Engine contract 与逐文件 ≥85% 行覆盖率。`QUANTOS_SKIP_ENV=1 make f08-nightly-check` 另用 Nightly 测量逐项豁免后 branch ≥85%。Rust 原始 LLVM 数值、按物理源码位置合并重复编译实例的数值和每项豁免的启用状态均写入 Gate 日志；清单见 [F08 覆盖率豁免](../audit/F08-coverage-waivers.json)，覆盖率口径及风险见 [M03 关闭记录](../audit/F08-coverage-closure-2026-09-26.md)。负向探针要求缺失/重复生产文件、清空执行行或分支结果时失败；报表未生成的豁免区域不获得额度，若调整后低于阈值仍失败。两道 Gate 均失败即阻断，不含 CPU/GPU 硬隔离检查。UDS 测试需要允许创建 Unix socket 的本机/CI 环境；受限沙箱中的绑定失败不是产品失败。本地 Gate 只证明其实际执行源码；发布候选仍需同一完整 SHA 的 CI、覆盖率和目标服务回执，不能把本地 PASS 改写成远程验收。
 
 本地两道 Gate 通过后固定候选完整 SHA。对该 SHA 等待 `F08 Engine CI` 完成并保存 `f08-ci-<SHA>` 制品，再以同一 ref 运行 `F08 Engine Nightly` 并保存 `f08-nightly-<SHA>` 制品；两份制品均含 `source-sha.txt`、执行日志和对应覆盖率 JSON。只有工作流终态成功、制品 SHA 与候选一致且数值逐项达标时，才进入隔离目标服务验收。重新提交代码须重新取得两份回执。
 

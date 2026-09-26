@@ -122,7 +122,10 @@ const totals = {
   adjustedRegions: sumMetric(results.map((result) => result.adjusted.regions)),
   adjustedBranches: sumMetric(results.map((result) => result.adjusted.branches)),
 };
-console.log(JSON.stringify({ schema: "quantos-f08-rust-coverage/v2", files: results, totals, waivers: findings }, null, 2));
+const receipt = { schema: "quantos-f08-rust-coverage/v2", files: results, totals, waivers: findings };
+console.log(JSON.stringify(process.argv.includes("--summary-only")
+  ? { totals, usedRegionWaivers: findings.filter((item) => item.metric === "region" && item.used).length }
+  : receipt, null, 2));
 assert(totals.sourceLines.count && totals.sourceLines.percent >= 90, "F08 Rust physical source line coverage below 90%");
 assert(totals.adjustedRegions.count && totals.adjustedRegions.percent >= 85, "F08 Rust audited region coverage below 85%");
 if (process.argv.includes("--require-branches")) {

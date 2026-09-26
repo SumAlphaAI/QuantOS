@@ -1,38 +1,38 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
-const stable = JSON.parse(readFileSync("target/f08-rust-coverage.json", "utf8"));
-const nightly = existsSync("target/f08-rust-nightly-coverage.json")
-  ? JSON.parse(readFileSync("target/f08-rust-nightly-coverage.json", "utf8"))
-  : null;
+const isNightly = process.env.F08_COVERAGE_MODE === "nightly";
+const reportPath = process.env.F08_COVERAGE_REPORT
+  ?? (isNightly ? "target/f08-rust-nightly-coverage.json" : "target/f08-rust-coverage.json");
+const coverage = JSON.parse(readFileSync(reportPath, "utf8"));
 const waivers = JSON.parse(readFileSync("docs/audit/F08-coverage-waivers.json", "utf8"));
 const clone = (value) => structuredClone(value);
-const probe = (report, branches = false) => {
+const probe = (report, branches = isNightly) => {
   const dir = mkdtempSync(join(tmpdir(), "f08-coverage-negative-"));
   try {
     const file = join(dir, "coverage.json");
     writeFileSync(file, JSON.stringify(report));
-    return spawnSync("node", ["scripts/check-f08-rust-coverage.mjs", file, ...(branches ? ["--require-branches"] : [])], { encoding: "utf8" });
+    return spawnSync("node", ["scripts/check-f08-rust-coverage.mjs", file, "--summary-only", ...(branches ? ["--require-branches"] : [])], { encoding: "utf8", maxBuffer: 4 * 1024 * 1024 });
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 };
 
 test("F08 coverage rejects missing and duplicated production source", () => {
-  const missing = clone(stable);
+  const missing = clone(coverage);
   missing.data[0].files = missing.data[0].files.filter((file) => !file.filename.endsWith("/src/durable.rs"));
   assert.notEqual(probe(missing).status, 0);
-  const duplicate = clone(stable);
+  const duplicate = clone(coverage);
   duplicate.data[0].files.push(clone(duplicate.data[0].files.find((file) => file.filename.endsWith("/src/durable.rs"))));
   assert.notEqual(probe(duplicate).status, 0);
 });
 
 test("F08 coverage does not credit absent audited regions", () => {
-  const changed = clone(stable);
+  const changed = clone(coverage);
   const regions = new Set(waivers.items.filter((waiver) => waiver.metric === "region").map((item) => `${item.file}:${item.span.join(":")}`));
   let removed = 0;
   for (const fn of changed.data[0].functions) {
@@ -45,11 +45,18 @@ test("F08 coverage does not credit absent audited regions", () => {
   }
   assert(removed > 0);
   const result = probe(changed);
-  assert.notEqual(result.status, 0);
+  const receipt = JSON.parse(result.stdout);
+  assert.equal(receipt.totals.adjustedRegions.count, receipt.totals.raw.regions.count);
+  assert.equal(receipt.usedRegionWaivers, 0);
+  const noCoverage = clone(changed);
+  for (const file of noCoverage.data[0].files) {
+    if (file.filename.includes("quantos-engine-manager/")) file.summary.regions.covered = 0;
+  }
+  assert.notEqual(probe(noCoverage).status, 0);
 });
 
 test("F08 coverage rejects lost source lines", () => {
-  const noLines = clone(stable);
+  const noLines = clone(coverage);
   for (const file of noLines.data[0].files) {
     if (file.filename.includes("quantos-engine-manager/")) {
       for (const segment of file.segments) segment[2] = 0;
@@ -58,8 +65,8 @@ test("F08 coverage rejects lost source lines", () => {
   assert.notEqual(probe(noLines).status, 0);
 });
 
-test("F08 coverage rejects lost branch outcomes", { skip: !nightly }, () => {
-  const noBranches = clone(nightly);
+test("F08 coverage rejects lost branch outcomes", { skip: !isNightly }, () => {
+  const noBranches = clone(coverage);
   for (const file of noBranches.data[0].files) {
     if (file.filename.includes("quantos-engine-manager/")) {
       for (const branch of file.branches) { branch[4] = 0; branch[5] = 0; }
