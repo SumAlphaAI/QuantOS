@@ -179,7 +179,7 @@ flowchart LR
 - task_id: `F02`
 - task_type: `CORE`
 - development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
-- 状态范围：2026-09-26 F02-A11 required checks 配置、失败阻断及恢复隔离合并已实证关闭；主线 ac73a95 的三次可重复构建失败，F02 整体仍待验收。
+- 状态范围：2026-09-26 F02-A11 required checks 配置、失败阻断及恢复隔离合并已实证关闭；主线 ac73a95 的三次可重复构建失败，F02 整体仍待验收。 本轮补齐正式构建原始字节留存及4项故障回归，原失败SHA的Linux诊断未复现漂移，根因仍待确认；详见 [F02-A11诊断报告](./audit/F02-A11-reproducibility-diagnosis-2026-09-26.md)。
 - review_entry: [GPT-6 Astra 复审入口](#review-f02)
 - 需求描述：CI、制品与供应链门禁
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest

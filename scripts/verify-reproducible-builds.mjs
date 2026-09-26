@@ -6,17 +6,23 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { run, validateOutputs, requireThree, requireMatching, cleanSource } from './f01-lib.mjs';
 import { checkToolchains } from './check-toolchains.mjs';
+import { captureBuildOutputs } from './capture-build-outputs.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const option = (name, fallback) => { const i = process.argv.indexOf(name); return i < 0 ? fallback : process.argv[i + 1]; };
 const mode = option('--mode', 'reproducibility');
 const runs = Number(option('--runs', '3'));
 const output = path.resolve(root, option('--output', `artifacts/reproducibility/f01-${mode}.json`));
+const snapshotRoot = `${output}.web-outputs`;
 const evidence = { schemaVersion: 2, mode, status: 'RUNNING', passed: false, reproducible: false, startedAt: new Date().toISOString(), environment: { os: os.platform(), release: os.release(), arch: os.arch(), ciRunId: process.env.GITHUB_RUN_ID ?? null, ciRunUrl: process.env.GITHUB_RUN_ID ? `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}` : null }, runs: [] };
 function save() { fs.mkdirSync(path.dirname(output), { recursive: true }); fs.writeFileSync(output, JSON.stringify(evidence, null, 2) + '\n'); }
 // Revoke stale success before validating inputs or starting any build.
 save();
 let scratch;
 try {
+    if (process.argv.includes('--capture-web-outputs')) {
+        fs.rmSync(snapshotRoot, { recursive: true, force: true });
+        fs.mkdirSync(snapshotRoot, { recursive: true });
+    }
     if (!['clean-room', 'reproducibility'].includes(mode))
         throw new Error('Unknown mode');
     if (mode === 'reproducibility')
@@ -75,9 +81,8 @@ try {
             result.inventory = inv;
             // Keep real bytes for diagnosing rare output drift; hashes alone cannot identify its cause.
             if (process.argv.includes('--capture-web-outputs')) {
-                const snapshot = path.join(path.dirname(output), 'web-outputs', `run-${i}`);
-                for (const item of inv.js)
-                    fs.cpSync(path.join(workspace, item.output), path.join(snapshot, item.directory), { recursive: true });
+                const snapshot = path.join(snapshotRoot, `run-${i}`);
+                captureBuildOutputs(workspace, inv, result, snapshot);
                 result.webOutputSnapshot = path.relative(root, snapshot);
             }
         }

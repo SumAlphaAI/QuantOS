@@ -7,10 +7,15 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 const root = path.resolve(import.meta.dirname, '..');
 const output = path.join(root, 'artifacts/web-build-diagnostic');
-const sha = execFileSync('git', ['rev-parse', process.env.QUANTOS_DIAGNOSTIC_SOURCE || 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+const source = process.env.QUANTOS_DIAGNOSTIC_SOURCE || 'HEAD';
+if (source !== 'HEAD' && !/^[0-9a-f]{40}$/.test(source)) throw new Error('Expected a full source commit SHA');
+const runs = Number(process.env.QUANTOS_DIAGNOSTIC_RUNS || 6);
+if (!Number.isInteger(runs) || runs < 2 || runs > 20) throw new Error('Expected 2 to 20 builds');
+const sha = execFileSync('git', ['rev-parse', `${source}^{commit}`], { cwd: root, encoding: 'utf8' }).trim();
 const epoch = execFileSync('git', ['show', '-s', '--format=%ct', sha], { cwd: root, encoding: 'utf8' }).trim();
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'quantos-web-diagnostic-'));
 const receipt = { source: sha, kind: 'DIAGNOSTIC_NOT_ACCEPTANCE', status: 'RUNNING', runs: [] };
+fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(output, { recursive: true });
 const save = () => fs.writeFileSync(path.join(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n');
 const inherited = Object.fromEntries(['PATH', 'HOME', 'USER', 'LOGNAME', 'LANG', 'LC_ALL', 'TMPDIR', 'RUSTUP_HOME', 'CARGO_HOME', 'SSL_CERT_FILE'].filter(k => process.env[k]).map(k => [k, process.env[k]]));
@@ -27,7 +32,7 @@ save();
 try {
   const archive = path.join(scratch, 'source.tar');
   execFileSync('git', ['archive', '--format=tar', `--output=${archive}`, sha], { cwd: root });
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= runs; i++) {
     const workspace = path.join(scratch, 'workspace');
     fs.mkdirSync(workspace);
     execFileSync('tar', ['-xf', archive, '-C', workspace]);
@@ -40,6 +45,7 @@ try {
     fs.rmSync(workspace, { recursive: true, force: true });
     if (i > 1 && JSON.stringify(receipt.runs[0].files) !== JSON.stringify(receipt.runs[i - 1].files)) {
       receipt.status = 'DIFFERENCE_CAPTURED';
+      process.exitCode = 1;
       break;
     }
   }
