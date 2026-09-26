@@ -25,4 +25,4 @@
 
 ## 验证与整改建议
 
-`node --test scripts/f08-coverage-negative.mjs` 验证缺失/重复生产文件、删除全部清单区域后不得再计豁免、清空执行行或 Nightly 分支计数均被拒绝，并纳入对应 Gate。新增业务负向测试通过；两道本地 Gate 通过。首次远程同 SHA 尝试因 Linux LLVM 区域位置差异和 Nightly 缺少 uv 环境而失败，原始失败日志及回执保存在 [F08 首次远程失败证据](./evidence/f08-e84ead1/receipt.json)。第二次远程尝试的主覆盖率检查通过，但负向探针错误假设 Linux 原始覆盖率也必须依赖豁免，且 Nightly 错读不存在的稳定版报表；原始回执保存在 [F08 第二次远程失败证据](./evidence/f08-32bf44b/receipt.json)。后续优先用可观察的真实故障测试替代已列出的宿主错误豁免，逐项退役，不修改 90%/85%/85% 阈值。M03 在本地关闭；F08 只有在同一完整 SHA 的远程 CI、Nightly 和隔离目标服务回执均通过后才可改为 `ACCEPTED`。
+`node --test scripts/f08-coverage-negative.mjs` 验证缺失/重复生产文件、删除全部清单区域后不得再计豁免、清空执行行或 Nightly 分支计数均被拒绝，并纳入对应 Gate。新增业务负向测试通过；两道本地 Gate 通过。首次远程同 SHA 尝试因 Linux LLVM 区域位置差异和 Nightly 缺少 uv 环境而失败，原始失败日志及回执保存在 [F08 首次远程失败证据](./evidence/f08-e84ead1/receipt.json)。第二次远程尝试的主覆盖率检查通过，但负向探针错误假设 Linux 原始覆盖率也必须依赖豁免，且 Nightly 错读不存在的稳定版报表；原始回执保存在 [F08 第二次远程失败证据](./evidence/f08-32bf44b/receipt.json)。最终源码基线 `0a154e887d8f2bd283c8b7bdd9db927d1094341b` 的远程 CI、Nightly 和隔离目标回执均通过，详见 [同 SHA 正式验收](./F08-acceptance-0a154e8-2026-09-26.md)。后续优先用可观察的真实故障测试替代已列出的宿主错误豁免，逐项退役，不修改 90%/85%/85% 阈值。M03 完成关闭；F08 `ACCEPTED` 仅适用于已列明的源码基线。
