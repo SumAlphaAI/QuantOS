@@ -1,6 +1,6 @@
 # F02-A11 模块 ID 漂移根因与针对性修复
 
-> 日期：2026-09-26。根因已确认，真实字节已重现，针对性修复已通过本地正反回归。**等待修复提交的远程 Gate 和新 main 同 SHA 回执，尚未宣告 F02 全量验收。**
+> 日期：2026-09-26。根因已确认，真实字节已重现，针对性修复及新 main 同 SHA 验收均已通过。**F02-A11 CLOSED / F02 ACCEPTED**；最终基线和原始回执见 [主线验收收尾](./F02-A11-main-acceptance-2026-09-26.md)。
 > 本报告更新了[前轮诊断报告](./F02-A11-reproducibility-diagnosis-2026-09-26.md)中“根因未确认”的结论。历史失败与早期未复现结果继续保留。
 
 ## 一、任务完成概况
@@ -56,14 +56,13 @@ Terminal 与 Website 的实际 Next 配置均设置：
 |---|---|---|
 | 分支保护 required checks 实际阻断与恢复 | 已关闭 | 原服务端拒绝/恢复证据继续有效 |
 | Playwright 截断 Git 历史 | 已修复 | 原真实 Git/Playwright 回归保留 |
-| Terminal 模块 ID 偶发漂移 | 已定位、已修复，待远程验证 | 历史字节精确重现；两份应用配置均修复；碰撞失败条件有负例 |
-| 新 main 同 SHA 完整验收 | 待取得 | 必须是修复合并后的 main SHA，不拼接 PR head、临时 merge 与历史 main 回执 |
+| Terminal 模块 ID 偶发漂移 | CLOSED / 已完成主线验证 | 历史字节精确重现；两份应用配置均修复；碰撞失败条件有负例 |
+| 新 main 同 SHA 完整验收 | PASS | bb4ef3c95753c1db15c7f2e2ba3ae22abb7a0b1f；8/8 checks、正式签名和独立下载验签全部成功 |
 
 模块 ID 和 chunk 文件名会按新策略改变，属于预期制品变化。浏览器合同、视觉基线、运行时 bundle 与完整三次构建继续由现有 required checks 验证。CPU/GPU 硬隔离不在此验收范围；本修复不新增该 Gate，也不修改任何安全、签名、覆盖率或三次比较要求。
 
 ## 四、验收收尾
 
-1. 固定修复提交，取得 PR 的 8 项 required checks 成功。
-2. 通过现有 PR 合并，固定实际 main 完整 SHA，取得该 SHA 的主线 CI、F01 与其余 required checks。
-3. 保存主线签名和下载复验回执，核验 `sourceCommit` 与 main SHA 严格相等。
-4. 保存回执与完整性清单，更新活动报告和开发计划，再关闭 F02-A11。此前状态保持 FIX_VALIDATION。
+已正常合并PR #4，固定main `bb4ef3c95753c1db15c7f2e2ba3ae22abb7a0b1f`，完成7/7工作流和8/8 required checks。下载回执的 `commit`、F01回执的 `source.commit` 与该SHA严格相等，正式签名及独立下载验证均为true。完整来源关系、服务端规则pass和原始回执见[主线收尾报告](./F02-A11-main-acceptance-2026-09-26.md)。
+
+后续保留碰撞拒绝、历史保全和原始字节留存回归，不降低任何Gate。新的源码和文档归档提交不自动继承此次源码回执。
