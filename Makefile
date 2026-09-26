@@ -70,6 +70,8 @@ quality-gate-self-test:
 f01-check:
 	node scripts/check-f01.mjs
 	node --test scripts/f01-gate-negative.mjs
+	node --test scripts/capture-build-outputs.test.mjs
+	node --test scripts/webpack-module-ids.test.mjs
 
 build-python:
 	uv sync --locked --project engines --all-packages --all-groups
@@ -416,4 +418,4 @@ f02-package:
 	$(MAKE) build-manifest
 
 f02-check:
-	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs
+	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/playwright-git-history.test.mjs

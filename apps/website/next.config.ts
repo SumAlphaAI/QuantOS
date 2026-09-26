@@ -21,6 +21,15 @@ function deterministicBuildId(app: string): string {
 
 const nextConfig: NextConfig = {
   output: "export",
+  webpack(config, { webpack }) {
+    // F02-A11: short-ID collision retries depend on async traversal order.
+    // Use a fixed larger namespace and reject collisions instead of reassigning IDs.
+    config.optimization.moduleIds = false;
+    config.plugins.push(new webpack.ids.DeterministicModuleIdsPlugin({
+      maxLength: 8, fixedLength: true, failOnConflict: true,
+    }));
+    return config;
+  },
   generateBuildId: () => deterministicBuildId("website"),
   transpilePackages: ["@sumalpha/ui", "@sumalpha/config"],
 };

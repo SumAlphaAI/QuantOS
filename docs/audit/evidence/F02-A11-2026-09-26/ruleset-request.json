@@ -1,0 +1,64 @@
+{
+  "name": "F02 main required gates",
+  "target": "branch",
+  "enforcement": "active",
+  "bypass_actors": [],
+  "conditions": {
+    "ref_name": {
+      "include": [
+        "refs/heads/main",
+        "refs/heads/codex/f02-a11-protected-target"
+      ],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          {
+            "context": "verify",
+            "integration_id": 15368
+          },
+          {
+            "context": "verify-download",
+            "integration_id": 15368
+          },
+          {
+            "context": "frontend-baseline",
+            "integration_id": 15368
+          },
+          {
+            "context": "Web contract (chromium)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Web contract (firefox)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Web contract (webkit)",
+            "integration_id": 15368
+          },
+          {
+            "context": "acceptance (clean-room)",
+            "integration_id": 15368
+          },
+          {
+            "context": "acceptance (reproducibility)",
+            "integration_id": 15368
+          }
+        ]
+      }
+    }
+  ]
+}

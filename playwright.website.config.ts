@@ -5,6 +5,8 @@ import { defineConfig, devices } from "@playwright/test";
  * 与 Terminal 的 playwright.config.ts 分配置，避免官网用例误入业务 CI 矩阵。
  */
 export default defineConfig({
+  // Playwright PR diff capture fetches --depth=1, truncating history needed by security gates.
+  captureGitInfo: { commit: true, diff: false },
   testDir: "./tests/e2e",
   testMatch: "website.spec.ts",
   fullyParallel: true,

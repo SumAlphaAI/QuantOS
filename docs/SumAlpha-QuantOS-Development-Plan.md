@@ -179,13 +179,13 @@ flowchart LR
 - task_id: `F02`
 - task_type: `CORE`
 - development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
-- 状态范围：2026-09-17 按 F02 全面复审整改；本地验证与远程验收分开记录，远程 CI、主干正式制品、required checks 仍需回执。
+- 状态范围：2026-09-26 F02-A11 required checks 配置、失败阻断及恢复隔离合并已实证关闭；主线 ac73a95 的三次可重复构建失败，F02 整体仍待验收。 本轮已精确重现历史chunk，修复短模块ID冲突后的顺序依赖分配；真实编译5/5回归通过、完整Terminal两种顺序61/61文件一致，等待修复后的同SHA主线回执；详见 [F02-A11根因报告](./audit/F02-A11-module-id-root-cause-2026-09-26.md)。
 - review_entry: [GPT-6 Astra 复审入口](#review-f02)
 - 需求描述：CI、制品与供应链门禁
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest
 - 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本
 - 量化验收标准：任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免
-- 执行流程：本地修复与提交 → 人工通过 GitHub Desktop 推送 → GitHub Actions 执行 → 收集同 SHA 回执 → 关闭 A11。2026-09-26 主线 `830c0c547f08d1667725fee55015fc09608b8f48` 的主 CI、正式签名及独立下载验签已成功；实际生效规则仅含禁止删除/强推，required checks 阻断与恢复证据仍缺，A11 保持 OPEN。详见 [F02 当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)。
+- 执行流程：本地修复与提交 → 授权推送/PR → 收集完整 SHA 回执。main 已启用 8 项 GitHub Actions required checks、strict 和零 bypass；PR #3 已完成真实拒绝与恢复合并。ac73a95 正式 CI/签名/下载验签成功，但主线 required checks 当前 7/8，尚缺 reproducibility 修复后的完整主线证据。详见 [F02 分支保护验收](./audit/F02-A11-branch-protection-2026-09-26.md)。
 - 依赖：F01
 
 <a id="review-f02"></a>
@@ -193,14 +193,15 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-20复核确认A01–A10、A12保持关闭，非A11为11/11（100%），全部为11/12（91.7%）；活动清单仅A11。24项严格验收仍按20/24（83.3%）的已归档范围记录，不代表今日全量重跑。本轮20/21回归通过，1项缺固定Gitleaks；npm/Python新扫描通过，固定Rust扫描未运行。历史核心源码/锁及23份证据哈希一致。详见 [F02 当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)，整体外部验收未完成。
+- review_conclusion: 2026-09-26 已关闭 A11 的 required checks 阻断/恢复子缺口，修复 Playwright Git diff 采集截断历史导致的扫描误报，本地 F02 15/15 回归通过。原问题仍为11/12关闭；24项检查点为23/24具备各自范围证据，C24因ac73a95主线Terminal可重复构建失败保持PARTIAL。F02尚未整体ACCEPTED，详见 [F02 当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)。
 - issues:
   - issue_id: F02-A11
     severity: MEDIUM
-    description: 2026-09-26 主线 830c0c547f08d1667725fee55015fc09608b8f48 的完整主 CI、正式签名与独立下载验签已有成功回执；当前生效分支规则仅含禁止删除及强推，缺 required checks 实际阻断/恢复证据。A11 保持 OPEN，主线成功不能替代有效分支保护验收。
+    description: required checks 配置、实际拒绝及恢复隔离合并证据已关闭；当前剩余缺口为主线 ac73a95a758cc95385b69e9d6f9376cef4a2af0b 的 acceptance (reproducibility) 失败，Terminal 第1次与第2/3次构建摘要不同。已精确重现并修复短模块ID冲突，新增真实编译5/5正反回归，待修复后的完整主线回执。正式主 CI、签名/下载验签已成功，但不能用另一个恢复 SHA 的8项成功替代当前主线完整验收，A11整体仍OPEN。
     evidence: docs/audit/F02-comprehensive-review-2026-09-17.md
     status: OPEN
 - fix_tracking: []
+
 
 <a id="task-f03"></a>
 ### F03：领域协议 v1 与 SDK 生成

@@ -34,10 +34,12 @@ jobs:
           version: "0.7.0"
       - run: corepack enable pnpm
       - name: Verify isolated source snapshot
-        run: node scripts/verify-reproducible-builds.mjs --mode ${{ matrix.mode }} --runs 3 --output artifacts/reproducibility/f01-${{ matrix.mode }}.json
+        run: node scripts/verify-reproducible-builds.mjs --mode ${{ matrix.mode }} --runs 3 --capture-web-outputs --output artifacts/reproducibility/f01-${{ matrix.mode }}.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: f01-${{ matrix.mode }}-evidence
-          path: artifacts/reproducibility/f01-${{ matrix.mode }}.json
+          path: |
+            artifacts/reproducibility/f01-${{ matrix.mode }}.json
+            artifacts/reproducibility/*.web-outputs/
           if-no-files-found: error

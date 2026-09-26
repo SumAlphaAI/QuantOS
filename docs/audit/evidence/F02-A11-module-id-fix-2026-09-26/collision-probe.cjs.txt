@@ -1,0 +1,25 @@
+const fs=require('node:fs'),path=require('node:path');
+module.exports=class CollisionProbe {
+ apply(compiler) {
+  compiler.hooks.thisCompilation.tap('CollisionProbe',compilation=>{
+   const previous=new Map();
+   compilation.hooks.moduleIds.tap({name:'CollisionProbe',stage:-10000},()=>{
+    if(compiler.name!=='client')return;
+    for(const m of compilation.modules){
+     const id=m.identifier();
+     if(id.includes('next-flight-client-entry-loader.js?')){
+      const replaced=id.replaceAll(encodeURIComponent('/private/tmp/f02-repro-cause-20260926/source'),encodeURIComponent('/tmp/quantos-f01-kRbvPC/workspace'));
+      m.identifier=()=>replaced;
+     }
+     if(m.rootModule?.resource?.endsWith('/packages/ui/src/index.ts')){
+      previous.set(m,compilation.moduleGraph.getPreOrderIndex(m));
+      compilation.moduleGraph.setPreOrderIndex(m,['35','37'].includes(process.env.QUANTOS_DIAGNOSTIC_SEED)?-1:100000);
+     }
+    }
+   });
+   compilation.hooks.moduleIds.tap({name:'CollisionProbe',stage:10000},()=>{
+    for(const [m,index] of previous)compilation.moduleGraph.setPreOrderIndex(m,index);
+   });
+  });
+ }
+};

@@ -2,6 +2,19 @@
 
 本地命令均设置 `QUANTOS_SKIP_ENV=1`，不加载项目 `.env`。工具版本以仓库版本文件和 CI 为准。2026-09-17 用户批准将 Python 从 3.9 升级为 3.12，当前固定为 3.12.10；升级全部 8 个 Engine 的版本约束、锁文件、CI、Ruff/Pyright 和测试依赖。F01 历史 3.9 回执仅证明其原源码，不自动覆盖本次升级。
 
+## 2026-09-26 分支保护复核流程
+
+当前 required checks 阻断/恢复验收已通过；F02 整体仍受 ac73a95 的 Terminal 可重复构建失败阻塞，详见 [本次验收报告](../audit/F02-A11-branch-protection-2026-09-26.md)。
+
+用户已授权本次远程配置与推送验收；下文 2026-09-20 的人工推送限制和缺回执状态保留为历史记录。本次不升级套餐。当前仓库为 public，以 API 实际执行结果判断规则是否生效。
+
+- 配置模板：[f02-main-ruleset.proposed.json](./f02-main-ruleset.proposed.json)。8 项检查均绑定 GitHub Actions App `15368`，strict 模式开启、无 bypass；保留禁止删除与强推。
+- 读取 `GET /repos/SumAlphaAI/QuantOS/rulesets/23727075` 和 `GET /repos/SumAlphaAI/QuantOS/rules/branches/main`，核对 active、完整检查名称、来源及作用范围；不能仅凭规则保存成功判定验收。
+- 在 main 当前 SHA 创建隔离目标，将同一个规则集临时扩展到该分支。通过 PR 注入真实检查故障，使用固定 head SHA 请求合并；必须保存 HTTP 拒绝及 rule suite 中 required_status_checks 的 fail 结果。
+- 移除故障、重跑全部 8 项检查，保存每项 success 与实际 head SHA，再合并到隔离目标，保存 merged=true 与 rule suite pass。故障提交不得进入 main；不使用绕过或伪造状态。
+- 验收后规则作用域恢复为 main，重新读取实际规则并确认隔离 scope 已移除；主干配置持续生效。
+- 主线正式制品下载验签和隔离 PR 的完整性校验分别绑定其源码 SHA；故障与恢复提交必须分别记录，不能虚构为同一 SHA。
+
 ## 扫描与失败语义
 
 - `make license-check`：Rust cargo-deny 0.20.2；全部 pnpm 锁包（含 dev/build/其他平台）；Python 所有激活依赖组。未知许可证失败。LGPL 条件见 [批准记录](../adr/20260917-f02-license-intake.md)，不得作为全局准入。
@@ -26,7 +39,7 @@ CI 必须启动专用 PostgreSQL 17.10 服务，并提供 loopback `F02_PG_ADMIN
 
 CI 上传 payload 后由独立 `verify-download-main` / `verify-download-pr` job 下载复验，`verify-download` 聚合实际结果，生成带 SHA、run URL、attempt、签名状态的 `f02-download-receipt`。主干 HMAC 密钥不得写入仓库或本地证据。正式验收还需远程成功运行和 required checks 配置回执；本地通过不能填写远程 PASS，也不自动授权 push 或发布。
 
-## 人工推送与 A11 交接流程（2026-09-20 确认）
+## 历史人工推送与 A11 交接流程（2026-09-20 快照）
 
 固定流程：**本地修复与提交 → 人工推送 → GitHub Actions 执行 → 收集回执 → 关闭 A11**。所有代码由人工通过 GitHub Desktop 推送；代理负责本地修复、验证、提交与推送后验收。代理不执行 push，不代操作 GitHub Desktop 上传。2026-09-20 用户另行明确授权持久化设置变更，已按第 6 节回执配置 Environment 与 Ruleset；套餐升级仍未授权。
 
@@ -67,7 +80,7 @@ CI 上传 payload 后由独立 `verify-download-main` / `verify-download-pr` job
 
 当前状态：**REMOTE_REVIEW / PENDING_EXTERNAL_ACCEPTANCE**。`6179d22` 已人工推送；本地已导入12张Linux候选基线，待新提交人工推送并比较。Environment 与 Ruleset 已保存；密钥未录入、规则受套餐限制不执行，A11 OPEN。最新回执见 [A11 远程检查第 6 节](../audit/F02-A11-remote-review-2026-09-20.md#6-管理员授权后的设置落地与完整基线导入)。
 
-## A11 补齐流程（2026-09-20，设置与基线已准备）
+## A11 补齐流程（2026-09-20 历史快照，操作原理仍适用）
 
 用户不升级 GitHub Team 的决定仍有效。管理员授权后，已创建 main-only 的 f02-signing 和8项检查的 Ruleset；此前自动审批授权不足已解除。设置保存结果不替代运行时隔离、正式验签和实际分支阻断回执。
 
