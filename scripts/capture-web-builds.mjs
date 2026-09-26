@@ -7,13 +7,14 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 const root = path.resolve(import.meta.dirname, '..');
 const output = path.join(root, 'artifacts/web-build-diagnostic');
-const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+const sha = execFileSync('git', ['rev-parse', process.env.QUANTOS_DIAGNOSTIC_SOURCE || 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 const epoch = execFileSync('git', ['show', '-s', '--format=%ct', sha], { cwd: root, encoding: 'utf8' }).trim();
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'quantos-web-diagnostic-'));
 const receipt = { source: sha, kind: 'DIAGNOSTIC_NOT_ACCEPTANCE', status: 'RUNNING', runs: [] };
 fs.mkdirSync(output, { recursive: true });
 const save = () => fs.writeFileSync(path.join(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n');
-const env = { ...process.env, GITHUB_SHA: sha, SOURCE_DATE_EPOCH: epoch, TZ: 'UTC', NEXT_TELEMETRY_DISABLED: '1',
+const inherited = Object.fromEntries(['PATH', 'HOME', 'USER', 'LOGNAME', 'LANG', 'LC_ALL', 'TMPDIR', 'RUSTUP_HOME', 'CARGO_HOME', 'SSL_CERT_FILE'].filter(k => process.env[k]).map(k => [k, process.env[k]]));
+const env = { ...inherited, QUANTOS_SKIP_ENV: '1', GITHUB_SHA: sha, SOURCE_DATE_EPOCH: epoch, TZ: 'UTC', NEXT_TELEMETRY_DISABLED: '1',
   NEXT_PUBLIC_QUANTOS_ENV: 'local-mock', NEXT_PUBLIC_SITE_ORIGIN: 'http://localhost:3000',
   NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: 'http://localhost:3100', NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: 'http://localhost:4010',
   NEXT_PUBLIC_QUANTOS_OIDC_ISSUER: 'https://mock.idp.local', NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: 'quantos-f01',
