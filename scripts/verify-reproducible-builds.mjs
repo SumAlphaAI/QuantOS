@@ -73,6 +73,13 @@ try {
             const inv = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', `import {inventory} from './scripts/f01-lib.mjs'; console.log(JSON.stringify(inventory(process.cwd())));`], { cwd: workspace, env, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }));
             Object.assign(result, validateOutputs(workspace, inv));
             result.inventory = inv;
+            // Keep real bytes for diagnosing rare output drift; hashes alone cannot identify its cause.
+            if (process.argv.includes('--capture-web-outputs')) {
+                const snapshot = path.join(path.dirname(output), 'web-outputs', `run-${i}`);
+                for (const item of inv.js)
+                    fs.cpSync(path.join(workspace, item.output), path.join(snapshot, item.directory), { recursive: true });
+                result.webOutputSnapshot = path.relative(root, snapshot);
+            }
         }
         result.completedAt = new Date().toISOString();
         save();
