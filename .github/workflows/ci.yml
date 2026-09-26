@@ -124,7 +124,7 @@ jobs:
         run: bash scripts/install-gitleaks.sh
 
       - name: Secret scan
-        run: bash scripts/check-secrets.sh
+        run: artifacts/tools/gitleaks git --config .gitleaks.toml --gitleaks-ignore-path .gitleaksignore --redact --verbose --no-banner .
 
       - name: Validate lockfiles
         run: make lockfile-check
