@@ -52,7 +52,10 @@ fn engines_dir() -> PathBuf {
 }
 
 fn short_socket_path() -> PathBuf {
-    PathBuf::from("/tmp").join(format!("quantos-mock-{}.sock", Uuid::now_v7()))
+    std::env::var_os("F08_TARGET_SOCKET_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("/tmp"))
+        .join(format!("quantos-mock-{}.sock", Uuid::now_v7()))
 }
 
 fn manifest_for_socket(socket_path: PathBuf) -> EngineManifest {
@@ -170,6 +173,19 @@ async fn spawn_python_mock_engine(
 
 async fn spawn_untrusted_engine(socket_path: &Path) -> anyhow::Result<Child> {
     spawn_untrusted_engine_with_fault(socket_path, "").await
+}
+
+async fn recover_untrusted_route(manager: &mut EngineManager) -> anyhow::Result<()> {
+    let response = manager
+        .health(
+            "mock-engine",
+            HealthRequest {
+                metadata: Some(valid_metadata("raw-negative-recovery")),
+            },
+        )
+        .await?;
+    assert!(response.ready);
+    Ok(())
 }
 
 async fn spawn_untrusted_engine_with_fault(
@@ -364,6 +380,7 @@ async fn untrusted_engine_cannot_bypass_manager_response_identity_checks() -> an
         .await
         .expect_err("forged metadata identity must be rejected");
     assert_eq!(metadata_error.machine_code(), "ENGINE_IDENTITY_MISMATCH");
+    recover_untrusted_route(&mut manager).await?;
     let health_error = manager
         .health(
             "mock-engine",
@@ -380,6 +397,7 @@ async fn untrusted_engine_cannot_bypass_manager_response_identity_checks() -> an
         "raw-execute-hash",
         "raw-execute-empty-id",
     ] {
+        recover_untrusted_route(&mut manager).await?;
         let error = manager
             .execute("research.execute", execute_request(fault))
             .await
@@ -395,6 +413,7 @@ async fn untrusted_engine_cannot_bypass_manager_response_identity_checks() -> an
         "raw-stream-after-terminal",
         "raw-stream-switch-execution",
     ] {
+        recover_untrusted_route(&mut manager).await?;
         let error = manager
             .stream_execute_collect(
                 "research.execute",
@@ -407,6 +426,7 @@ async fn untrusted_engine_cannot_bypass_manager_response_identity_checks() -> an
         assert_eq!(error.machine_code(), "ENGINE_STREAM_INCOMPLETE", "{fault}");
     }
     let mut stalled = execute_request("raw-stream-stall");
+    recover_untrusted_route(&mut manager).await?;
     stalled.deadline = Some(timestamp_after(Duration::from_millis(300)));
     let stalled_error = manager
         .stream_execute_collect(
@@ -418,6 +438,7 @@ async fn untrusted_engine_cannot_bypass_manager_response_identity_checks() -> an
         .await
         .expect_err("stream stalled after its first event must obey deadline");
     assert_eq!(stalled_error.machine_code(), "ENGINE_DEADLINE_EXCEEDED");
+    recover_untrusted_route(&mut manager).await?;
     let completed = manager
         .execute("research.execute", execute_request("raw-cancel-owner"))
         .await?;
@@ -1041,6 +1062,11 @@ async fn observed_sidecar_rss_excess_quarantines_shared_route() -> anyhow::Resul
 
 #[tokio::test]
 async fn approval_cli_signs_reviewed_manifest_and_refuses_overwrite() -> anyhow::Result<()> {
+    let missing_args = Command::new(env!("CARGO_BIN_EXE_f08-approval"))
+        .output()
+        .await?;
+    assert!(!missing_args.status.success());
+    assert!(String::from_utf8_lossy(&missing_args.stderr).contains("usage: f08-approval"));
     let tempdir = tempfile::tempdir()?;
     let manifest_path = tempdir.path().join("manifest.json");
     let policy_path = tempdir.path().join("policy.json");
@@ -1064,6 +1090,13 @@ async fn approval_cli_signs_reviewed_manifest_and_refuses_overwrite() -> anyhow:
             .arg(&output_path);
         command
     };
+    let short_key = invoke()
+        .env("QUANTOS_ENGINE_APPROVAL_KEY_HEX", "ab")
+        .output()
+        .await?;
+    assert!(!short_key.status.success());
+    assert!(String::from_utf8_lossy(&short_key.stderr).contains("at least 32 bytes"));
+    assert!(!output_path.exists());
     assert!(invoke().status().await?.success());
     let approval: EngineApproval = serde_json::from_slice(&std::fs::read(&output_path)?)?;
     let mut manager = EngineManager::with_approval_key(BackoffPolicy::default(), vec![0xab; 32]);

@@ -334,7 +334,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-25 按用户决定移除 CPU/GPU 硬隔离 Gate，并完成持久请求/结果、跨进程同键锁、Mock SQLite 幂等缓存和熔断状态恢复。本地 11 项问题中 10 项修复、M03 覆盖率问题仍开放；24 项检查点为 23 PASS、1 PARTIAL、0 FAIL，严格本地完成率 95.8%。继续补测 Manager 错误、流中断、监督恢复后，Rust line/region/branch 仍低于 90%/85%/85%，且缺同一最终 SHA 的 CI/Nightly/隔离目标回执，F08 未验收。详见 [初审](./audit/F08-comprehensive-review-2026-09-25.md)、[首轮整改](./audit/F08-remediation-2026-09-25.md)、[后续整改](./audit/F08-continuation-2026-09-25.md)与[验收推进](./audit/F08-acceptance-progress-2026-09-25.md)。
+- review_conclusion: 2026-09-26 按用户决定移除 CPU/GPU 硬隔离 Gate，且接受开发计划允许的逐项可审计覆盖率豁免。本地 11 项问题均已修复，24 项检查点为 24 PASS、0 PARTIAL、0 FAIL，本地整改完成率 100%；M03 的稳定版及 Nightly 本地 Gate 均通过，保留原始 LLVM 数值、物理源码行口径与 127 项逐源位置豁免。本地完成不等于发布验收，仍须同一最终完整 SHA 的远程 CI、Nightly 和隔离目标服务回执；回执未齐前 F08 保持 FIX_VALIDATION。详见 [初审](./audit/F08-comprehensive-review-2026-09-25.md)、[首轮整改](./audit/F08-remediation-2026-09-25.md)、[后续整改](./audit/F08-continuation-2026-09-25.md)、[旧验收推进](./audit/F08-acceptance-progress-2026-09-25.md)与[M03 关闭记录](./audit/F08-coverage-closure-2026-09-26.md)。
 - issues:
   - issue_id: F08-B01
     severity: BLOCKER
@@ -383,12 +383,12 @@ flowchart LR
     status: CLOSED
   - issue_id: F08-M03
     severity: MEDIUM
-    description: 共用 harness、逐 Python 文件覆盖率与错误/流/监督恢复负向测试已补；Rust line/region/branch 仍低于计划门槛。
-    evidence: [F08 验收推进](./audit/F08-acceptance-progress-2026-09-25.md)
-    status: OPEN
+    description: 共用 harness、逐 Python 文件覆盖率与错误/流/监督恢复负向测试已补；物理源码行及逐项可审计豁免后的 Rust region/branch 本地 Gate 通过。
+    evidence: [M03 关闭记录](./audit/F08-coverage-closure-2026-09-26.md)
+    status: CLOSED
   - issue_id: F08-L01
     severity: LOW
-    description: 已补 F08 Runbook 和失败即阻断的可重放 Gate；Gate 当前因 Rust 覆盖率失败。
+    description: 已补 F08 Runbook 和失败即阻断的可重放 Gate；本地稳定版与 Nightly Gate 均通过。
     evidence: [F08 整改记录](./audit/F08-remediation-2026-09-25.md)
     status: CLOSED
 - fix_tracking:
@@ -447,11 +447,11 @@ flowchart LR
     verification_evidence: docs/audit/F08-continuation-2026-09-25.md
     verification_status: PASS
   - issue_id: F08-M03
-    fix_ref: Makefile
-    verification_command: QUANTOS_SKIP_ENV=1 UV_OFFLINE=1 CARGO_NET_OFFLINE=true make f08-check
-    verification_environment: 本机 Python PASS；Rust 稳定版及 Nightly 覆盖率门槛 FAIL
-    verification_evidence: docs/audit/F08-acceptance-progress-2026-09-25.md
-    verification_status: PARTIAL
+    fix_ref: scripts/check-f08-rust-coverage.mjs
+    verification_command: QUANTOS_SKIP_ENV=1 UV_OFFLINE=1 CARGO_NET_OFFLINE=true make f08-check && CARGO_NET_OFFLINE=true make f08-nightly-check
+    verification_environment: 本机允许 UDS 绑定的环境；Python 逐文件及 Rust 两道 Gate PASS，逐项豁免与负向探针已审计
+    verification_evidence: docs/audit/F08-coverage-closure-2026-09-26.md
+    verification_status: PASS
   - issue_id: F08-L01
     fix_ref: docs/runbooks/f08-engine-manager.md
     verification_command: node scripts/check-development-plans.mjs

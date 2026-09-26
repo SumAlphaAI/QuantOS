@@ -2,6 +2,8 @@ name: F08 Engine Nightly
 
 on:
   workflow_dispatch:
+  push:
+    branches: ["codex/f08-acceptance"]
   schedule:
     - cron: "41 18 * * *"
 
@@ -24,6 +26,7 @@ jobs:
       - run: cargo install cargo-llvm-cov --version 0.8.7 --locked
       - name: Run F08 Nightly branch Gate
         run: |
+          set -o pipefail
           mkdir -p artifacts/f08
           printf '%s\n' '${{ github.sha }}' > artifacts/f08/source-sha.txt
           make f08-nightly-check 2>&1 | tee artifacts/f08/nightly-gate.log

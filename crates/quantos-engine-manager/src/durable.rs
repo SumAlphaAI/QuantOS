@@ -328,6 +328,13 @@ mod tests {
             execution_id: "execution-1".to_owned(),
             ..ExecuteResponse::default()
         };
+        assert_eq!(
+            ledger
+                .complete_request("key", "wrong-fingerprint", "tenant", "engine", &response)
+                .expect_err("mismatched pending result must not be committed")
+                .machine_code(),
+            "ENGINE_IDEMPOTENCY_CONFLICT"
+        );
         ledger
             .complete_request("key", "fingerprint", "tenant", "engine", &response)
             .expect("durable completion");
