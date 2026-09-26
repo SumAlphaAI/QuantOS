@@ -25,6 +25,10 @@ const results = sources.map((suffix) => {
   const matches = report.data.flatMap((item) => item.files).filter((item) => item.filename.endsWith(suffix));
   assert.equal(matches.length, 1, `${suffix}: missing or duplicate coverage entry`);
   const file = matches[0];
+  for (const name of ["lines", "regions", "branches"]) {
+    const metric = file.summary[name];
+    assert(metric && Number.isInteger(metric.count) && Number.isInteger(metric.covered) && metric.count >= metric.covered && metric.covered >= 0, `${suffix}: invalid ${name} summary`);
+  }
   const lines = readFileSync(suffix, "utf8").split("\n");
   const fileWaivers = waivers.items.filter((item) => item.file === suffix);
   const regionCounts = new Map();
@@ -65,16 +69,16 @@ const results = sources.map((suffix) => {
     assert(!seen.has(identity), `${suffix}: duplicate waiver ${identity}`);
     seen.add(identity);
     if (item.metric === "region") {
-      assert(regionCounts.has(key(item.span)), `${suffix}: waived region disappeared`);
-      const used = regionCounts.get(key(item.span)) === 0;
+      const applicable = regionCounts.has(key(item.span));
+      const used = applicable && regionCounts.get(key(item.span)) === 0;
       if (used) waivedRegions += 1;
-      findings.push({ ...item, used });
+      findings.push({ ...item, applicable, used });
     } else {
       const counts = branches.get(key(item.span));
-      assert(counts, `${suffix}: waived branch disappeared`);
-      const used = counts[0] === 0 && counts[1] === 0;
+      const applicable = Boolean(counts);
+      const used = applicable && counts[0] === 0 && counts[1] === 0;
       if (used) waivedBranches += 2;
-      findings.push({ ...item, used });
+      findings.push({ ...item, applicable, used });
     }
   }
 

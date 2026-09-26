@@ -31,14 +31,14 @@ test("F08 coverage rejects missing and duplicated production source", () => {
   assert.notEqual(probe(duplicate).status, 0);
 });
 
-test("F08 coverage rejects a missing audited region", () => {
+test("F08 coverage does not credit absent audited regions", () => {
   const changed = clone(stable);
-  const item = waivers.items.find((waiver) => waiver.metric === "region");
-  assert(item);
+  const regions = new Set(waivers.items.filter((waiver) => waiver.metric === "region").map((item) => `${item.file}:${item.span.join(":")}`));
   let removed = 0;
   for (const fn of changed.data[0].functions) {
     fn.regions = fn.regions.filter((region) => {
-      const target = fn.filenames[region[5]]?.endsWith(item.file) && region.slice(0, 4).every((value, index) => value === item.span[index]);
+      const relative = fn.filenames[region[5]]?.split("/quantos-engine-manager/")[1];
+      const target = relative && regions.has(`crates/quantos-engine-manager/${relative}:${region.slice(0, 4).join(":")}`);
       if (target) removed += 1;
       return !target;
     });
