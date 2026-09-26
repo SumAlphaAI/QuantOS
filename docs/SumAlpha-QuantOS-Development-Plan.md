@@ -333,9 +333,9 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- 状态解释：ACCEPTED 仅适用于完整源码 SHA `0a154e887d8f2bd283c8b7bdd9db927d1094341b` 的 F08 开发阶段基线。新 HEAD 不自动继承三道远程回执，生产部署亦不在本阶段验收范围。
-- review_conclusion: 2026-09-26 按用户决定移除 CPU/GPU 硬隔离 Gate，并接受开发计划允许的逐项可审计覆盖率豁免。初审阻塞级 2/2、高危 5/5、中危 3/3、低危 1/1，共 11/11 问题关闭；24/24 检查点 PASS，本地整改完成率 100%。完整源码 SHA `0a154e887d8f2bd283c8b7bdd9db927d1094341b` 的远程 CI 第 2 次执行、Nightly 与 Ubuntu 24.04 隔离目标服务三道 Gate 均成功，目标九项 release 场景 9/9 PASS；CI 第 1 次 `rd-agent` 未就绪失败已保留并列为低危偶发风险。详见 [初审](./audit/F08-comprehensive-review-2026-09-25.md)、[已关闭问题及修复追踪](./audit/F08-closed-findings-2026-09-26.md)、[整改与 M03 关闭](./audit/F08-coverage-closure-2026-09-26.md)、[同 SHA 正式验收](./audit/F08-acceptance-0a154e8-2026-09-26.md)及[原始回执](./audit/evidence/f08-0a154e8/receipt.json)。
+- review_status: `FIX_VALIDATION`
+- 状态解释：原 11 项代码问题均已关闭；本轮新增跨秒健康探测修复已通过完整本地稳定版及 Nightly Gate，但新源码仍须取得同一完整 SHA 的远程 CI、Nightly 和隔离目标回执。历史 `0a154e887d8f2bd283c8b7bdd9db927d1094341b` 的成功回执不转移到新提交。
+- review_conclusion: 2026-09-26 逐项复核：阻塞级 2/2、高危 5/5、中危 3/3、低危 1/1，共 11/11 问题完成代码及本地验证闭环；24/24 实现与本地检查完成，活动代码问题 0。CPU/GPU 硬隔离按用户决定移除，127 项可审计覆盖率豁免保持既定范围。进一步修复 Manager 健康回显跨秒误判，旧实现回归测试稳定失败、修复后通过；完整稳定版/Nightly Gate PASS，Rust 55 项、Python 134 项。当前待验收项为本轮新源码的三份同 SHA 远程回执。详见 [当前复审结论](./audit/F08-comprehensive-review-2026-09-25.md)、[逐项关闭复核](./audit/F08-closure-recheck-2026-09-26.md)、[初审归档](./audit/F08-initial-review-2026-09-25.md)和[已关闭问题及修复追踪](./audit/F08-closed-findings-2026-09-26.md)。
 - issues: []
 - fix_tracking: []
 

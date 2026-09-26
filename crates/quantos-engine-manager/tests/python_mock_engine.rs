@@ -573,6 +573,31 @@ async fn control_rpcs_timeout_within_two_seconds_on_untrusted_engine() -> anyhow
 }
 
 #[tokio::test]
+async fn readiness_accepts_exact_metadata_echo_across_second_boundary() -> anyhow::Result<()> {
+    let socket_path = short_socket_path();
+    let child = spawn_untrusted_engine_with_fault(&socket_path, "health-cross-second").await?;
+    let result = async {
+        let mut manager =
+            EngineManager::with_approval_key(BackoffPolicy::default(), TEST_APPROVAL_KEY.to_vec());
+        register_reviewed_engine(&mut manager, manifest_for_socket(socket_path.clone()))?;
+        let metadata = manager
+            .get_metadata(
+                "mock-engine",
+                GetMetadataRequest {
+                    metadata: Some(valid_metadata("cross-second")),
+                },
+            )
+            .await?;
+        assert_eq!(metadata.engine_name, "mock-engine");
+        assert!(manager.circuit_state("mock-engine").unwrap().ready);
+        Ok::<(), anyhow::Error>(())
+    }
+    .await;
+    shutdown_child(child, &socket_path).await;
+    result
+}
+
+#[tokio::test]
 async fn handshake_rejects_each_unreviewed_identity_and_readiness_dimension() -> anyhow::Result<()>
 {
     for (fault, expected) in [
