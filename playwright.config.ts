@@ -8,6 +8,8 @@ import { defineConfig, devices } from "@playwright/test";
  *   ci.yml 与 compatibility.yml 均已前置构建步骤）。
  */
 export default defineConfig({
+  // Playwright PR diff capture fetches --depth=1, truncating history needed by security gates.
+  captureGitInfo: { commit: true, diff: false },
   testDir: "./tests/e2e",
   testIgnore: ["website.spec.ts", "deep-link-reauth.spec.ts"],
   fullyParallel: true,
