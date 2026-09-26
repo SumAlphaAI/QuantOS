@@ -59,9 +59,13 @@ PR checks 的 head SHA、GitHub 临时 merge SHA `c9e02c0b5c2c35fa62e2da745e02ea
 - 证据：`main-reproducibility-failed.json`、`main-reproducibility-differences.json`、`main-clean-room-first.json`。
 - 本次不把未定位到根因的构建差异解释为网络抖动，不以反复重跑替代整改。
 
-### 3.3 本轮继续诊断与证据留存修复
+### 3.3 前轮诊断与证据留存修复
 
 同一原失败 SHA 的 Linux 六次 Web 诊断、固定输入的 Linux 4096 次压缩和新增正式 F01 运行均未再捕获差异，不能据此认定根因已修复。已修复正式 Gate 仅保留摘要、无法比较原始字节的证据缺陷，新增 4/4 故障回归；F02 回归再次 15/15 PASS。详细源码绑定、证据和关闭条件见 [可重复构建诊断报告](./F02-A11-reproducibility-diagnosis-2026-09-26.md)。A11 整体仍 OPEN。
+
+### 3.4 根因已确认并针对性修复
+
+已取得与历史两组 SHA 精确一致的真实 chunk，定位到 callback 入口与 UI 的短模块 ID 冲突。两份 Next 配置使用固定八位空间并在冲突时失败；真实编译回归5/5通过，完整 Terminal 在两种冲突顺序下61/61文件一致。待新 main 同SHA远程收尾；详见 [根因与修复报告](./F02-A11-module-id-root-cause-2026-09-26.md)。
 
 ## 四、整改与维护建议
 

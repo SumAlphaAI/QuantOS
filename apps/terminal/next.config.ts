@@ -26,6 +26,15 @@ function deterministicBuildId(app: string): string {
 
 const nextConfig: NextConfig = {
   output: "export",
+  webpack(config, { webpack }) {
+    // F02-A11: short-ID collision retries depend on async traversal order.
+    // Use a fixed larger namespace and reject collisions instead of reassigning IDs.
+    config.optimization.moduleIds = false;
+    config.plugins.push(new webpack.ids.DeterministicModuleIdsPlugin({
+      maxLength: 8, fixedLength: true, failOnConflict: true,
+    }));
+    return config;
+  },
   generateBuildId: () => deterministicBuildId("terminal"),
   transpilePackages: ["@sumalpha/ui", "@sumalpha/config", "@sumalpha/domain-ui", "@sumalpha/api-client", "@sumalpha/platform"],
   // Terminal 业务路由一律 noindex, nofollow（执行计划第 2 节）：由 app/layout.tsx metadata.robots 保证

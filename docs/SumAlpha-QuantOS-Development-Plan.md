@@ -179,7 +179,7 @@ flowchart LR
 - task_id: `F02`
 - task_type: `CORE`
 - development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
-- 状态范围：2026-09-26 F02-A11 required checks 配置、失败阻断及恢复隔离合并已实证关闭；主线 ac73a95 的三次可重复构建失败，F02 整体仍待验收。 本轮补齐正式构建原始字节留存及4项故障回归，原失败SHA的Linux诊断未复现漂移，根因仍待确认；详见 [F02-A11诊断报告](./audit/F02-A11-reproducibility-diagnosis-2026-09-26.md)。
+- 状态范围：2026-09-26 F02-A11 required checks 配置、失败阻断及恢复隔离合并已实证关闭；主线 ac73a95 的三次可重复构建失败，F02 整体仍待验收。 本轮已精确重现历史chunk，修复短模块ID冲突后的顺序依赖分配；真实编译5/5回归通过、完整Terminal两种顺序61/61文件一致，等待修复后的同SHA主线回执；详见 [F02-A11根因报告](./audit/F02-A11-module-id-root-cause-2026-09-26.md)。
 - review_entry: [GPT-6 Astra 复审入口](#review-f02)
 - 需求描述：CI、制品与供应链门禁
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest
@@ -197,7 +197,7 @@ flowchart LR
 - issues:
   - issue_id: F02-A11
     severity: MEDIUM
-    description: required checks 配置、实际拒绝及恢复隔离合并证据已关闭；当前剩余缺口为主线 ac73a95a758cc95385b69e9d6f9376cef4a2af0b 的 acceptance (reproducibility) 失败，Terminal 第1次与第2/3次构建摘要不同。正式主 CI、签名/下载验签已成功，但不能用另一个恢复 SHA 的8项成功替代当前主线完整验收，A11整体仍OPEN。
+    description: required checks 配置、实际拒绝及恢复隔离合并证据已关闭；当前剩余缺口为主线 ac73a95a758cc95385b69e9d6f9376cef4a2af0b 的 acceptance (reproducibility) 失败，Terminal 第1次与第2/3次构建摘要不同。已精确重现并修复短模块ID冲突，新增真实编译5/5正反回归，待修复后的完整主线回执。正式主 CI、签名/下载验签已成功，但不能用另一个恢复 SHA 的8项成功替代当前主线完整验收，A11整体仍OPEN。
     evidence: docs/audit/F02-comprehensive-review-2026-09-17.md
     status: OPEN
 - fix_tracking: []

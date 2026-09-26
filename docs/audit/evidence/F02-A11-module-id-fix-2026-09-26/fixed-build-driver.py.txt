@@ -1,0 +1,16 @@
+import os,subprocess,shutil,hashlib,json
+from pathlib import Path
+base=Path('/tmp/f02-repro-cause-20260926');root=base/'source'
+env=os.environ.copy();env.update({'GITHUB_SHA':'ac73a95a758cc95385b69e9d6f9376cef4a2af0b','SOURCE_DATE_EPOCH':'1790426751','TZ':'UTC','NEXT_TELEMETRY_DISABLED':'1','NEXT_PUBLIC_QUANTOS_ENV':'local-mock','NEXT_PUBLIC_SITE_ORIGIN':'http://localhost:3000','NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN':'http://localhost:3100','NEXT_PUBLIC_QUANTOS_BFF_ORIGIN':'http://localhost:4010','NEXT_PUBLIC_QUANTOS_OIDC_ISSUER':'https://mock.idp.local','NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID':'quantos-f01','NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI':'http://localhost:3100/auth/callback','NEXT_PUBLIC_QUANTOS_DEFAULT_MODE':'paper','NEXT_PUBLIC_QUANTOS_MOCK_ENABLED':'true','NEXT_PUBLIC_QUANTOS_OBS_ENABLED':'false','NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET':'off'})
+results=[]
+for i in range(37,39):
+ env['QUANTOS_DIAGNOSTIC_SEED']=str(i)
+ for d in ['apps/terminal/.next','apps/terminal/out']:
+  shutil.rmtree(root/d,ignore_errors=True)
+ with open(base/f'build-{i}.log','w') as log:
+  subprocess.run(['corepack','pnpm','--filter','@sumalpha/terminal','build'],cwd=root,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
+ dest=base/f'run-{i}';shutil.copytree(root/'apps/terminal/out',dest)
+ hashes={str(f.relative_to(dest)):hashlib.sha256(f.read_bytes()).hexdigest() for f in dest.rglob('*') if f.is_file()};results.append(hashes)
+ (base/'collision-fixed-digests.json').write_text(json.dumps(results,indent=2))
+ print('build',i,'files',len(hashes),'digest',hashlib.sha256(json.dumps(hashes,sort_keys=True).encode()).hexdigest(),flush=True)
+ if len(results)>1 and hashes!=results[0]:print('DIVERGENCE CAPTURED',flush=True);break
