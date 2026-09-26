@@ -2,6 +2,8 @@ name: F08 Engine Nightly
 
 on:
   workflow_dispatch:
+  push:
+    branches: ["codex/f08-acceptance"]
   schedule:
     - cron: "41 18 * * *"
 
@@ -18,12 +20,20 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
         with:
           components: llvm-tools-preview
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.10"
       - uses: actions/setup-node@v4
         with:
           node-version: "24.12.0"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.7.0"
       - run: cargo install cargo-llvm-cov --version 0.8.7 --locked
+      - run: uv sync --locked --project engines --all-packages
       - name: Run F08 Nightly branch Gate
         run: |
+          set -o pipefail
           mkdir -p artifacts/f08
           printf '%s\n' '${{ github.sha }}' > artifacts/f08/source-sha.txt
           make f08-nightly-check 2>&1 | tee artifacts/f08/nightly-gate.log

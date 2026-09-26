@@ -1,7 +1,7 @@
 # F08 Engine SDK、Manager 与 Mock Engine 整改记录
 
 > 日期：2026-09-25
-> 对照：[F08 全面复审报告](./F08-comprehensive-review-2026-09-25.md)
+> 对照：[F08 全面复审报告](./F08-initial-review-2026-09-25.md)
 > 原始源码基线：`1a28d9dc6b3c1811d15635d8b7acbffa76b3e8dc`。本记录按提交前工作树执行；最终提交 SHA 以 Git 提交为准。
 > 口径：`本地修复`表示代码问题和所述本地测试通过；`部分`表示原问题仍有未实现要求。没有同一最终 SHA 的 CI、Nightly、隔离目标服务回执，不表示 F08 验收通过。
 

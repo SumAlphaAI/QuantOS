@@ -185,10 +185,12 @@ f08-check:
 	node scripts/check-f08-python-coverage.mjs target/f08-python-coverage.json
 	cargo llvm-cov -p quantos-engine-manager --locked --json --output-path target/f08-rust-coverage.json
 	node scripts/check-f08-rust-coverage.mjs target/f08-rust-coverage.json
+	node --test scripts/f08-coverage-negative.mjs
 
 f08-nightly-check:
 	cargo +nightly llvm-cov --branch -p quantos-engine-manager --locked --json --output-path target/f08-rust-nightly-coverage.json
 	node scripts/check-f08-rust-coverage.mjs target/f08-rust-nightly-coverage.json --require-branches
+	F08_COVERAGE_MODE=nightly node --test scripts/f08-coverage-negative.mjs
 
 f05-target-check:
 	node scripts/f05-target-gate.cjs

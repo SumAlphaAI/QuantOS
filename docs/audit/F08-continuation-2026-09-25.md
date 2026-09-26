@@ -2,7 +2,7 @@
 
 > 日期：2026-09-25
 > 前次提交：`1c97df2c14abec1f1ab774b6a3f27dc92b49abe4`
-> 依据：[初审](./F08-comprehensive-review-2026-09-25.md)、[首轮整改](./F08-remediation-2026-09-25.md)
+> 依据：[初审](./F08-initial-review-2026-09-25.md)、[首轮整改](./F08-remediation-2026-09-25.md)
 > 本文记录提交前本地工作树；最终提交 SHA 以本轮 Git 提交为准。
 
 ## 一、范围和完成概况

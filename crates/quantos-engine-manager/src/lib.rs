@@ -1354,17 +1354,18 @@ impl EngineManager {
         {
             return Err(EngineManagerError::IdentityMismatch);
         }
+        let readiness_metadata = service_metadata("manager-readiness");
         let health = tokio::time::timeout(
             Duration::from_secs(2),
             client.health(HealthRequest {
-                metadata: Some(service_metadata("manager-readiness")),
+                metadata: Some(readiness_metadata.clone()),
             }),
         )
         .await
         .map_err(|_| EngineManagerError::DeadlineExceeded)?
         .map_err(Self::status_to_error)?
         .into_inner();
-        if health.metadata != Some(service_metadata("manager-readiness")) || !health.ready {
+        if health.metadata != Some(readiness_metadata) || !health.ready {
             return Err(EngineManagerError::NotReady);
         }
         Ok(client)

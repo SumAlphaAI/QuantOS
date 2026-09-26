@@ -46,6 +46,8 @@ def health(request, context, *, handshake_fault=""):
     del context
     if request.metadata.request_id == "raw-health-stall":
         time.sleep(3)
+    if request.metadata.request_id == "manager-readiness" and handshake_fault == "health-cross-second":
+        time.sleep(1.1)
     response = engine_pb2.HealthResponse(metadata=request.metadata, ready=True, status="ready")
     if request.metadata.request_id == "raw-health-mismatch":
         response.metadata.request_id = "forged-request"

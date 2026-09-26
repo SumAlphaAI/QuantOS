@@ -3,7 +3,7 @@ name: F08 Engine CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, "codex/f08-acceptance"]
   workflow_dispatch:
 
 permissions:
@@ -33,6 +33,7 @@ jobs:
       - run: uv sync --locked --project engines --all-packages
       - name: Run F08 stable Gate
         run: |
+          set -o pipefail
           mkdir -p artifacts/f08
           printf '%s\n' '${{ github.sha }}' > artifacts/f08/source-sha.txt
           make f08-check 2>&1 | tee artifacts/f08/stable-gate.log

@@ -1,0 +1,42 @@
+name: F08 Isolated Target Service
+
+on:
+  push:
+    tags: ["f08-target-*"]
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-target:
+    runs-on: ubuntu-24.04
+    env:
+      QUANTOS_SKIP_ENV: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.91.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.10"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.7.0"
+      - name: Install isolated Mock Engine wheel
+        run: |
+          uv build engines/mock-engine --wheel --out-dir artifacts/f08-target/wheels
+          uv sync --locked --project engines --all-packages --no-editable
+      - name: Run isolated target acceptance
+        env:
+          F08_SOURCE_SHA: ${{ github.sha }}
+        run: node scripts/f08-target-service-acceptance.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f08-target-${{ github.sha }}
+          path: artifacts/f08-target/
+          if-no-files-found: warn
