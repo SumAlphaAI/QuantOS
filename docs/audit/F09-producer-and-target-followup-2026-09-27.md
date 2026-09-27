@@ -21,6 +21,7 @@
 ## 2. 调度、故障与性能实测
 
 - `capacity-monitor --watch` 每 60 秒重新连接 Supabase 执行一次；失败的 tick 清除旧 ADR JSON。测试 Supabase 上的独立 scope 实测 **2 次缺采样告警 PASS**，旧 ADR 输出未残留；结果保存在忽略目录 `artifacts/f09/scheduler.json`。它验证调度和失败关闭，不验证九类生产者齐全。
+- 提交 `7897104` 的首轮完整 SHA Gate 因 125 秒上限内只观察到 1 次 tick 而 FAIL，回执保留在 `artifacts/f09/target.json`。调度探针增加真实 tick 间隔断言、失败回执及网络抖动诊断后，独立复测 2 次 tick PASS；仍需在新完整 SHA 下重跑整套 Gate。
 - 在测试 Supabase 上只终止本探针自己的 PostgreSQL 会话，重新连接后同一 correlation ID 的 2 条事件仍按序可查询：PASS。消费者注入失败、重试及同一事件投影样本的组合探针，在仅调整自身 outbox fixture 优先级后 PASS；此前本机连接地址不可用及共享队列竞争的失败记录不计作通过。
 - Engine 管理器真实子进程三次崩溃并由监督器恢复的测试，在允许 Unix 套接字绑定的本机运行 PASS。该测试仍是本机 mock Engine，不等同于目标 Supabase 上的跨服务同链演练。
 - 原有组合查询端到端 P95 `<300ms` 测试从本机访问测试 Supabase 时 **FAIL，约 890ms**。异步批量指标写入后已从同步写入阶段的约 2.6s 降低，但仍不能标为性能达标。同地域服务端请求或网络诊断需要另行执行并留回执。

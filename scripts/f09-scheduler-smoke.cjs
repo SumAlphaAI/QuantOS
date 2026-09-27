@@ -33,7 +33,7 @@ async function main() {
   child.stderr.on('data', (chunk) => { logs += chunk.toString(); });
   let ticks = 0;
   try {
-    const deadline = Date.now() + 125000;
+    const deadline = Date.now() + 195000;
     while (Date.now() < deadline) {
       if (child.exitCode !== null) throw new Error(`scheduler stopped before two ticks: ${child.exitCode}`);
       const rows = await client.query(
@@ -44,7 +44,16 @@ async function main() {
       if (ticks >= 2) break;
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
-    if (ticks < 2) throw new Error(`scheduler produced only ${ticks} missing-coverage tick(s)`);
+    if (ticks < 2) throw new Error(`scheduler produced only ${ticks} missing-coverage tick(s); recent output: ${logs.slice(-1200)}`);
+    const tickRows = (await client.query(
+      `select triggered_at from quantos.capacity_alerts
+       where scope = $1 and rule_id = 'metric_coverage_missing'
+       order by triggered_at asc limit 2`, [scope],
+    )).rows;
+    const intervalSeconds = (tickRows[1].triggered_at - tickRows[0].triggered_at) / 1000;
+    if (intervalSeconds < 45 || intervalSeconds > 90) {
+      throw new Error(`scheduled ticks were ${intervalSeconds}s apart; expected 45-90s`);
+    }
     if (fs.existsSync(output)) throw new Error('stale ADR evidence survived missing metrics');
     if (!logs.includes('metric coverage is stale or missing')) {
       throw new Error('scheduler did not report the missing producer');
@@ -52,10 +61,18 @@ async function main() {
     fs.writeFileSync(receiptPath, `${JSON.stringify({
       schema: 'quantos-f09-scheduler-smoke/v1', sourceCommit, scope,
       targetClass: 'test-supabase-postgresql', status: 'PASS',
-      observedMissingCoverageTicks: ticks, staleAdrEvidence: false,
+      observedMissingCoverageTicks: ticks, intervalSeconds, staleAdrEvidence: false,
       completedAt: new Date().toISOString(),
     }, null, 2)}\n`);
     console.log(`F09 scheduler smoke PASS: ${ticks} real Supabase missing-coverage ticks`);
+  } catch (error) {
+    fs.writeFileSync(receiptPath, `${JSON.stringify({
+      schema: 'quantos-f09-scheduler-smoke/v1', sourceCommit, scope,
+      targetClass: 'test-supabase-postgresql', status: 'FAIL',
+      observedMissingCoverageTicks: ticks, error: error.message,
+      completedAt: new Date().toISOString(),
+    }, null, 2)}\n`);
+    throw error;
   } finally {
     child.kill('SIGTERM');
     await new Promise((resolve) => { if (child.exitCode !== null) resolve(); else child.once('exit', resolve); });
