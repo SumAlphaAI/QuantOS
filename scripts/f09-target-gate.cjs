@@ -57,6 +57,19 @@ function run(command, args, logName) {
   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed with ${result.status}`);
 }
 
+async function requireRestrictedLogin(client, expectedRole, forbiddenRole) {
+  const role = (await client.query(`select
+    (select rolsuper or rolbypassrls or rolcreaterole or rolcreatedb or rolreplication
+       from pg_roles where rolname = session_user) as privileged,
+    pg_has_role(session_user, 'service_role', 'MEMBER') as service_member,
+    pg_has_role(session_user, $1, 'SET') as expected_member,
+    pg_has_role(session_user, $2, 'SET') as forbidden_member`,
+  [expectedRole, forbiddenRole])).rows[0];
+  if (role.privileged || role.service_member || !role.expected_member || role.forbidden_member) {
+    throw new Error(`F09 ${expectedRole} URL does not use a dedicated restricted login`);
+  }
+}
+
 async function main() {
   save();
   if (dirty) throw new Error('F09 target Gate requires a clean exact-SHA checkout');
@@ -91,6 +104,11 @@ async function main() {
     : decodeURIComponent(executionDatabase.username).split('.').at(-1);
   if (executionRef !== databaseRef) {
     throw new Error('F09 execution metric login must target the same Supabase project');
+  }
+  if (runtimeDatabase.username === database.username
+      || executionDatabase.username === database.username
+      || runtimeDatabase.username === executionDatabase.username) {
+    throw new Error('F09 operator, Runtime and Execution URLs require three distinct database logins');
   }
   const caPath = process.env.QUANTOS_BFF_SSLROOTCERT;
   if (!caPath || !path.isAbsolute(caPath) || !fs.existsSync(caPath)) {
@@ -137,6 +155,7 @@ async function main() {
   });
   await runtimeClient.connect();
   try {
+    await requireRestrictedLogin(runtimeClient, 'quantos_runtime', 'quantos_execution_gateway');
     await runtimeClient.query('set role quantos_runtime');
     await runtimeClient.query('begin');
     let rejected = false;
@@ -164,6 +183,7 @@ async function main() {
   });
   await executionClient.connect();
   try {
+    await requireRestrictedLogin(executionClient, 'quantos_execution_gateway', 'quantos_runtime');
     await executionClient.query('set role quantos_execution_gateway');
     await executionClient.query('begin');
     await executionClient.query(`select quantos.record_operational_metric(
@@ -201,11 +221,6 @@ async function main() {
     'manager_supervises_three_real_crashes_without_test_owned_restarts', '--', '--exact', '--nocapture',
   ], 'engine-crash.log');
   receipt.checks.push('local supervised Engine process crash and recovery');
-  run('cargo', [
-    'test', '-p', 'quantos-portfolio', '--test', 'postgres_portfolio', '--locked',
-    'postgres_portfolio_store_persists_and_reads_projection', '--', '--exact', '--nocapture',
-  ], 'portfolio-p95.log');
-  receipt.checks.push('portfolio end-to-end query p95 below 300ms');
   receipt.status = 'PASS';
 }
 

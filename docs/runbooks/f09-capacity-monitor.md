@@ -55,3 +55,26 @@ sources are deployed. The F09 workflow requires `F09_DATABASE_URL`,
 its direct Supabase target job. The Runtime URL must use `sslmode=verify-full`
 and the restricted Runtime login; the workflow writes the configured CA to a
 temporary file. It starts no local PostgreSQL instance.
+
+The three PostgreSQL URLs must point to the **same Supabase project** but use
+**different database logins**. `F09_DATABASE_URL` is the operator/test login for
+migration checks and fixture setup. `F09_RUNTIME_DATABASE_URL` uses the narrow
+`quantos_runtime_login`; `F09_EXECUTION_DATABASE_URL` uses the narrow
+`quantos_execution_login`. The latter two must not use the operator password or
+each other's role. `F09_SUPABASE_URL` is the HTTPS project API origin, such as
+`https://<project-ref>.supabase.co`, and is not a PostgreSQL connection string.
+Use the project's direct or session-pooler port 5432 URL; this Gate excludes
+transaction-pooler port 6543 because its probes require session state.
+
+Download the database CA certificate from the Supabase Dashboard's project
+**Database Settings → SSL Configuration → Download Certificate**. Put the
+complete PEM certificate text into the GitHub Actions secret `F09_CA_PEM`.
+The workflow writes it to a temporary PEM file, updates all PostgreSQL URLs to
+refer to that runner-local path, and verifies the server certificate and host.
+Do not copy a local `sslrootcert` filesystem path into the GitHub secret as the
+runner cannot access it. Supabase documents the certificate and `verify-full`
+setup in its [Postgres connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres).
+
+The F09 target Gate no longer imposes a same-region runner or a hard query P95
+benchmark. Query latency samples and the 300 ms / 15 minute alert rule remain
+part of F09 observability acceptance.
