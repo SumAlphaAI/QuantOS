@@ -55,6 +55,9 @@ sources are deployed.
 configured Supabase project. It writes `artifacts/f09/source-coverage.json`
 and fails when any metric has no sample in the last 90 seconds. Sample presence
 does not prove business provenance or deployment ownership.
+The F09 Supabase target workflow runs this check after the component probes,
+even when a component probe fails, and uploads both receipts. A missing source
+fails the workflow; a passing coverage receipt alone never opens F09/F0.
 
 The F09 workflow requires `F09_DATABASE_URL`,
 `F09_SUPABASE_URL`, and `F09_CA_PEM` secrets for its direct Supabase target job.
