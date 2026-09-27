@@ -1,4 +1,4 @@
-use std::{env, net::SocketAddr};
+use std::{env, net::SocketAddr, sync::Arc};
 
 use anyhow::{Context, ensure};
 use bff_gateway::BffProvider;
@@ -17,8 +17,12 @@ async fn main() -> anyhow::Result<()> {
             "the reference provider may only bind to a loopback address"
         );
     }
+    let observer = Arc::new(if live {
+        ServiceObservability::from_required_env("bff-gateway")?
+    } else {
+        ServiceObservability::from_env("bff-gateway")?
+    });
     if let Ok(observability_address) = env::var("QUANTOS_OBSERVABILITY_ADDR") {
-        let observer = ServiceObservability::from_env("bff-gateway")?;
         observer.start_background(observability_address.parse()?)?;
     }
     let listener = tokio::net::TcpListener::bind(address)
@@ -34,6 +38,7 @@ async fn main() -> anyhow::Result<()> {
             .context("live BFF requires QUANTOS_TERMINAL_ORIGIN")?;
         let environment = env::var("QUANTOS_BFF_ENVIRONMENT")
             .context("live BFF requires QUANTOS_BFF_ENVIRONMENT")?;
+        let observer = observer.clone();
         tokio::task::spawn_blocking(move || {
             bff_gateway::live::router(
                 &database_url,
@@ -41,6 +46,7 @@ async fn main() -> anyhow::Result<()> {
                 publishable_key,
                 terminal_origin,
                 environment,
+                observer,
             )
         })
         .await

@@ -95,7 +95,7 @@ pub async fn serve() -> Result<()> {
         worker_healthy.load(Ordering::SeqCst),
         "runtime worker did not become healthy"
     );
-    let observability = Arc::new(ServiceObservability::from_env("runtime-gateway")?);
+    let observability = Arc::new(ServiceObservability::from_required_env("runtime-gateway")?);
     if let Ok(address) = env::var("QUANTOS_OBSERVABILITY_ADDR") {
         let address = address.parse()?;
         observability.start_background(address)?;

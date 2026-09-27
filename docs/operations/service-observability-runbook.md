@@ -22,8 +22,11 @@ QUANTOS_OBSERVABILITY_ADDR=127.0.0.1:9090
 The observability HTTP listener only binds to loopback; forward it through an
 authenticated operations proxy when remote access is required. Do not share
 one file between replicas. Ship/rotate JSONL using the platform log
-agent; retention and immutable archival belong to deployment policy. A replica
-without a configured, writable exporter remains live but reports not-ready.
+agent; retention and immutable archival belong to deployment policy. Live BFF
+and Runtime gateways and the market/portfolio batch writers now refuse to
+start business writes without an absolute, writable exporter path. The
+reference provider and read-only commands may run without one but report
+not-ready on the operations surface.
 
 ## Batch services
 

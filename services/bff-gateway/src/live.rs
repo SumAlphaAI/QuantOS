@@ -74,6 +74,7 @@ pub fn router(
     publishable_key: String,
     terminal_origin: String,
     environment: String,
+    observability: Arc<ServiceObservability>,
 ) -> anyhow::Result<Router> {
     anyhow::ensure!(
         terminal_origin.starts_with("https://"),
@@ -84,7 +85,6 @@ pub fn router(
         "live BFF requires a valid environment"
     );
     let origin_header = HeaderValue::from_str(&terminal_origin)?;
-    let observability = Arc::new(ServiceObservability::from_env("bff-gateway")?);
     let state = Arc::new(LiveState {
         verifier: SupabaseAuthVerifier::new(project_url, publishable_key)?,
         middleware: Mutex::new(GatewayAuthMiddleware::connect_as_bff(database_url)?),

@@ -9,7 +9,7 @@ use chrono::Utc;
 use clap::{Parser, Subcommand};
 use quantos_core::{ActorId, CorrelationId, DeadLetterId, TenantId};
 use quantos_event::{RecordedEvent, pg::PgEventStore, replay_by_correlation};
-use quantos_observability::service::run_observed_command;
+use quantos_observability::service::{ServiceObservability, run_observed_command};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -116,6 +116,8 @@ fn run() -> Result<()> {
             actor_id,
             database_url: explicit_url,
         } => {
+            ServiceObservability::from_required_env("replay-cli")
+                .context("dead-letter requeue requires a writable trace exporter")?;
             let tenant_id = parse_tenant_id(&tenant_id)?;
             let dead_letter_id = DeadLetterId::parse_str(&dead_letter_id)
                 .with_context(|| format!("invalid dead-letter id `{dead_letter_id}`"))?;

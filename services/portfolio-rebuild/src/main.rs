@@ -6,8 +6,8 @@ use std::{
 
 use anyhow::{Context, Result, bail};
 use clap::{Parser, Subcommand};
-use quantos_core::{AccountId, TenantId};
-use quantos_observability::service::run_observed_command;
+use quantos_core::{AccountId, CorrelationId, TenantId};
+use quantos_observability::service::run_observed_write_command;
 use quantos_portfolio::{
     InMemoryPortfolioProjection, PortfolioSnapshot, generate_fill_replay, read_events_jsonl,
     replay_start, snapshots_approx_eq, write_events_jsonl,
@@ -50,10 +50,10 @@ fn golden_account() -> AccountId {
 }
 
 fn main() -> std::process::ExitCode {
-    run_observed_command("portfolio-rebuild", "portfolio.command", run)
+    run_observed_write_command("portfolio-rebuild", "portfolio.command", run)
 }
 
-fn run() -> Result<()> {
+fn run(_correlation_id: CorrelationId) -> Result<()> {
     match Cli::try_parse()
         .context("invalid portfolio-rebuild arguments")?
         .command

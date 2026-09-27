@@ -196,6 +196,14 @@ impl ServiceObservability {
         }
     }
 
+    /// Live write services must have a persistent trace sink before they can
+    /// accept business requests. The deployment owns durable storage and log
+    /// shipping; this checks that an exporter is configured and writable.
+    pub fn from_required_env(service: impl Into<String>) -> std::io::Result<Self> {
+        let path = required_export_path(std::env::var("QUANTOS_TRACE_EXPORT_PATH").ok())?;
+        Self::with_jsonl_exporter(service, path)
+    }
+
     #[must_use]
     pub fn service(&self) -> &str {
         &self.service
@@ -437,6 +445,19 @@ impl ServiceObservability {
     }
 }
 
+fn required_export_path(raw: Option<String>) -> std::io::Result<PathBuf> {
+    let value = raw
+        .filter(|path| !path.trim().is_empty())
+        .ok_or_else(|| std::io::Error::other("QUANTOS_TRACE_EXPORT_PATH is required"))?;
+    let path = PathBuf::from(value);
+    if !path.is_absolute() {
+        return Err(std::io::Error::other(
+            "QUANTOS_TRACE_EXPORT_PATH must be absolute",
+        ));
+    }
+    Ok(path)
+}
+
 /// Run one batch-service command with the same trace/error contract as the
 /// long-running gateways. The optional operations HTTP surface runs alongside
 /// the batch command and cannot suppress the command itself.
@@ -445,7 +466,29 @@ pub fn run_observed_command<E>(
     operation: &str,
     command: impl FnOnce() -> Result<(), E>,
 ) -> ExitCode {
-    let observability = match ServiceObservability::from_env(service) {
+    run_observed_command_with_exporter(service, operation, false, |_| command())
+}
+
+/// Use for a batch command that can persist F0 business state.
+pub fn run_observed_write_command<E>(
+    service: &str,
+    operation: &str,
+    command: impl FnOnce(CorrelationId) -> Result<(), E>,
+) -> ExitCode {
+    run_observed_command_with_exporter(service, operation, true, command)
+}
+
+fn run_observed_command_with_exporter<E>(
+    service: &str,
+    operation: &str,
+    require_exporter: bool,
+    command: impl FnOnce(CorrelationId) -> Result<(), E>,
+) -> ExitCode {
+    let observability = match if require_exporter {
+        ServiceObservability::from_required_env(service)
+    } else {
+        ServiceObservability::from_env(service)
+    } {
         Ok(observability) => observability,
         Err(_) => return emit_bootstrap_failure(service, "OBSERVABILITY_TRACE_EXPORTER_INIT"),
     };
@@ -475,7 +518,7 @@ pub fn run_observed_command<E>(
         return emit_export_failure(service, correlation_id);
     }
 
-    match command() {
+    match command(correlation_id) {
         Ok(()) => {
             if observability
                 .record_trace(
@@ -549,7 +592,7 @@ fn emit_error_envelope(envelope: ErrorEnvelope) -> ExitCode {
 
 #[cfg(test)]
 mod tests {
-    use super::{ErrorEnvelope, ServiceObservability, TraceQueryResult};
+    use super::{ErrorEnvelope, ServiceObservability, TraceQueryResult, required_export_path};
     use quantos_core::CorrelationId;
     use serde_json::json;
 
@@ -592,6 +635,18 @@ mod tests {
         assert_eq!(envelope.code, "OBSERVABILITY_ROUTE_NOT_FOUND");
         assert_eq!(envelope.service, "execution-gateway");
         assert!(!envelope.retryable);
+    }
+
+    #[test]
+    fn live_write_trace_sink_requires_absolute_path() {
+        assert!(required_export_path(None).is_err());
+        assert!(required_export_path(Some("  ".to_owned())).is_err());
+        assert!(required_export_path(Some("relative/trace.jsonl".to_owned())).is_err());
+        let path = std::env::temp_dir().join("f09-trace.jsonl");
+        assert_eq!(
+            required_export_path(Some(path.display().to_string())).unwrap(),
+            path
+        );
     }
 
     #[test]
