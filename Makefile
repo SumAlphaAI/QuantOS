@@ -216,6 +216,10 @@ test-rust:
 
 observability-check:
 	cargo test -p quantos-observability --lib --locked
+	cargo test -p bff-gateway --lib f09_trace_tests --locked
+	cargo test -p runtime-gateway --bin runtime-gateway f09_trace_tests --locked
+	cargo build -p market-ingestor -p portfolio-rebuild --locked
+	node scripts/f09-batch-trace-smoke.cjs
 	uv run --locked --project engines --all-packages pytest engines/tests/test_engine_observability.py engines/tests/test_mock_engine_recovery.py
 	node ./scripts/test-f09-adr-input.mjs
 	node ./scripts/check-f09-observability-config.mjs

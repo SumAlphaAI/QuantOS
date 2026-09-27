@@ -42,9 +42,9 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       QUANTOS_SKIP_ENV: "1"
-      DATABASE_URL: ${{ secrets.F09_DATABASE_URL }}
-      SUPABASE_URL: ${{ secrets.F09_SUPABASE_URL }}
-      F09_CA_PEM: ${{ secrets.F09_CA_PEM }}
+      DATABASE_URL: ${{ secrets.F09_DATABASE_URL || secrets.F07_DATABASE_URL }}
+      SUPABASE_URL: ${{ secrets.F09_SUPABASE_URL || secrets.F07_SUPABASE_URL }}
+      F09_CA_PEM: ${{ secrets.F09_CA_PEM || secrets.F07_CA_PEM }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -64,7 +64,10 @@ jobs:
       - run: uv sync --locked --project engines --all-packages
       - name: Verify target configuration and write CA file
         run: |
-          test -n "$DATABASE_URL" && test -n "$SUPABASE_URL" && test -n "$F09_CA_PEM"
+          if [[ -z "$DATABASE_URL" || -z "$SUPABASE_URL" || -z "$F09_CA_PEM" ]]; then
+            echo '::error::F09 target requires configured Supabase database URL, API URL and CA PEM' >&2
+            exit 1
+          fi
           printf '%s\n' "$F09_CA_PEM" > "$RUNNER_TEMP/f09-ca.pem"
           echo "QUANTOS_BFF_SSLROOTCERT=$RUNNER_TEMP/f09-ca.pem" >> "$GITHUB_ENV"
           node <<'NODE'

@@ -53,22 +53,26 @@ fn main() -> std::process::ExitCode {
     run_observed_write_command("portfolio-rebuild", "portfolio.command", run)
 }
 
-fn run(_correlation_id: CorrelationId) -> Result<()> {
+fn run(correlation_id: CorrelationId) -> Result<()> {
     match Cli::try_parse()
         .context("invalid portfolio-rebuild arguments")?
         .command
     {
-        Command::GenerateReplay { output, count } => generate_replay(output, count),
+        Command::GenerateReplay { output, count } => generate_replay(output, count, correlation_id),
         Command::Rebuild {
             input,
             golden,
             emit_golden,
             database_url,
-        } => rebuild(input, golden, emit_golden, database_url),
+        } => rebuild(input, golden, emit_golden, database_url, correlation_id),
     }
 }
 
-fn generate_replay(output: PathBuf, count: Option<u64>) -> Result<()> {
+fn generate_replay(
+    output: PathBuf,
+    count: Option<u64>,
+    correlation_id: CorrelationId,
+) -> Result<()> {
     let count = count.unwrap_or(10_000);
     let events = generate_fill_replay(golden_account(), count, replay_start());
     let output_file =
@@ -76,10 +80,11 @@ fn generate_replay(output: PathBuf, count: Option<u64>) -> Result<()> {
     let mut writer = BufWriter::new(output_file);
     write_events_jsonl(&mut writer, &events).context("failed to write replay dataset")?;
     println!(
-        "generated {} portfolio events ({} fills + marks) into {}",
+        "generated {} portfolio events ({} fills + marks) into {} correlation_id={}",
         events.len(),
         count,
-        output.display()
+        output.display(),
+        correlation_id
     );
     Ok(())
 }
@@ -89,6 +94,7 @@ fn rebuild(
     golden: Option<PathBuf>,
     emit_golden: Option<PathBuf>,
     database_url: Option<String>,
+    correlation_id: CorrelationId,
 ) -> Result<()> {
     let input_file =
         File::open(&input).with_context(|| format!("failed to open {}", input.display()))?;
@@ -103,13 +109,14 @@ fn rebuild(
         .context("failed to build portfolio snapshot")?;
 
     println!(
-        "rebuilt events={} positions={} realized_pnl={:.4} unrealized_pnl={:.4} exposure_gross={:.4} snapshot_hash={}",
+        "rebuilt events={} positions={} realized_pnl={:.4} unrealized_pnl={:.4} exposure_gross={:.4} snapshot_hash={} correlation_id={}",
         snapshot.last_event_sequence,
         snapshot.positions.len(),
         snapshot.realized_pnl,
         snapshot.unrealized_pnl,
         snapshot.exposure_gross,
-        snapshot.snapshot_hash
+        snapshot.snapshot_hash,
+        correlation_id
     );
 
     if let Some(emit_golden) = emit_golden {
@@ -117,7 +124,11 @@ fn rebuild(
             .with_context(|| format!("failed to create {}", emit_golden.display()))?;
         serde_json::to_writer_pretty(BufWriter::new(golden_file), &snapshot)
             .context("failed to write golden snapshot")?;
-        println!("wrote golden snapshot to {}", emit_golden.display());
+        println!(
+            "wrote golden snapshot to {} correlation_id={}",
+            emit_golden.display(),
+            correlation_id
+        );
     }
 
     if let Some(golden) = golden {
@@ -141,7 +152,7 @@ fn rebuild(
         store
             .save_snapshot(&snapshot)
             .context("failed to persist portfolio snapshot")?;
-        println!("persisted portfolio snapshot to PostgreSQL");
+        println!("persisted portfolio snapshot to PostgreSQL correlation_id={correlation_id}");
     }
     Ok(())
 }

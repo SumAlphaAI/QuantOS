@@ -47,12 +47,16 @@ fn run(correlation_id: CorrelationId) -> Result<()> {
         .context("invalid market-ingestor arguments")?
         .command
     {
-        Command::GenerateReplay { output, count } => generate_replay(output, count),
+        Command::GenerateReplay { output, count } => generate_replay(output, count, correlation_id),
         Command::IngestReplay { input } => ingest_replay(input, correlation_id),
     }
 }
 
-fn generate_replay(output: PathBuf, count: Option<usize>) -> Result<()> {
+fn generate_replay(
+    output: PathBuf,
+    count: Option<usize>,
+    correlation_id: CorrelationId,
+) -> Result<()> {
     let mut spec = default_replay_spec().context("failed to load default market replay spec")?;
     if let Some(count) = count {
         spec.count = count;
@@ -65,9 +69,10 @@ fn generate_replay(output: PathBuf, count: Option<usize>) -> Result<()> {
         .context("failed to write replay dataset")?;
 
     println!(
-        "generated {} replay ticks into {}",
+        "generated {} replay ticks into {} correlation_id={}",
         spec.count,
-        output.display()
+        output.display(),
+        correlation_id
     );
     Ok(())
 }

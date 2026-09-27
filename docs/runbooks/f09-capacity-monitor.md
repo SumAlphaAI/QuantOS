@@ -61,8 +61,12 @@ CI check: before deployment, missing live samples are expected. A passing
 coverage receipt alone never establishes business provenance or release
 acceptance.
 
-The F09 workflow requires `F09_DATABASE_URL`,
-`F09_SUPABASE_URL`, and `F09_CA_PEM` secrets for its direct Supabase target job.
+The F09 workflow uses `F09_DATABASE_URL`, `F09_SUPABASE_URL`, and
+`F09_CA_PEM` for its direct Supabase target job when configured. During
+development it can reuse the existing test-project `F07_DATABASE_URL`,
+`F07_SUPABASE_URL`, and `F07_CA_PEM` secrets. It verifies the resulting
+database and API URLs identify the same Supabase project; missing values
+fail before running the component probes.
 The database URL is the target test login for migration checks and fixture
 setup. The F09 target Gate does not require or compare Runtime and Execution
 database logins. Their restricted-role validation remains outside this Gate.
