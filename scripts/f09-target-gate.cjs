@@ -57,6 +57,23 @@ function run(command, args, logName) {
   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed with ${result.status}`);
 }
 
+async function connectTarget(config) {
+  let lastError;
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    const client = new Client(config);
+    try {
+      await client.connect();
+      if (attempt > 1) receipt.connectionAttempts = attempt;
+      return client;
+    } catch (error) {
+      lastError = error;
+      await client.end().catch(() => {});
+      if (attempt < 4) await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  }
+  throw lastError;
+}
+
 async function main() {
   save();
   if (dirty) throw new Error('F09 target Gate requires a clean exact-SHA checkout');
@@ -83,14 +100,13 @@ async function main() {
   }
   receipt.targetRefHash = crypto.createHash('sha256')
     .update(`${database.hostname}/${api.hostname}`).digest('hex').slice(0, 16);
-  const client = new Client({
+  const client = await connectTarget({
     host: database.hostname, port: Number(database.port || 5432),
     user: decodeURIComponent(database.username), password: decodeURIComponent(database.password),
     database: database.pathname.slice(1) || 'postgres',
     ssl: { ca: fs.readFileSync(caPath, 'utf8'), rejectUnauthorized: true },
     connectionTimeoutMillis: 10000,
   });
-  await client.connect();
   try {
     const remote = (await client.query(`select filename, sha256 from quantos.schema_migrations
       order by filename`)).rows;

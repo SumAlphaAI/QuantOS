@@ -47,7 +47,7 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         payload: json!({"fixture": "f09-capacity"}),
     })
     .expect("event builds");
-    PgEventStore::connect(&database_url)
+    retry_target_connection(|| PgEventStore::connect(&database_url))
         .expect("event store connects")
         .append_event(&event)
         .expect("event and real outbox row persist");
@@ -84,11 +84,13 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         )
         .expect("real DLQ row persists");
 
-    let mut rejected_writer = PgCapacityMonitor::connect_scoped_for_tenant(
-        &database_url,
-        &scope,
-        Some(*tenant_id.as_uuid()),
-    )
+    let mut rejected_writer = retry_target_connection(|| {
+        PgCapacityMonitor::connect_scoped_for_tenant(
+            &database_url,
+            &scope,
+            Some(*tenant_id.as_uuid()),
+        )
+    })
     .expect("metric writer connects");
     let missing = rejected_writer.collect_snapshot(first_observation, Duration::from_secs(900));
     assert!(
@@ -141,11 +143,13 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         first_observation,
     );
     seed_remaining_metric_minutes(&mut direct, tenant_id, correlation_id, first_observation);
-    let mut monitor = PgCapacityMonitor::connect_scoped_for_tenant(
-        &database_url,
-        &scope,
-        Some(*tenant_id.as_uuid()),
-    )
+    let mut monitor = retry_target_connection(|| {
+        PgCapacityMonitor::connect_scoped_for_tenant(
+            &database_url,
+            &scope,
+            Some(*tenant_id.as_uuid()),
+        )
+    })
     .expect("capacity monitor connects");
     for minute in 0..=17 {
         if minute % 3 == 0 {
@@ -153,11 +157,13 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         }
         let observed_at = first_observation + ChronoDuration::minutes(minute);
         if minute == 8 {
-            monitor = PgCapacityMonitor::connect_scoped_for_tenant(
-                &database_url,
-                &scope,
-                Some(*tenant_id.as_uuid()),
-            )
+            monitor = retry_target_connection(|| {
+                PgCapacityMonitor::connect_scoped_for_tenant(
+                    &database_url,
+                    &scope,
+                    Some(*tenant_id.as_uuid()),
+                )
+            })
             .expect("capacity monitor reconnects midway through the window");
         }
         let evidence = monitor
@@ -232,7 +238,7 @@ fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
         payload: json!({"safe": true}),
     })
     .unwrap();
-    let mut store = PgEventStore::connect(&database_url).unwrap();
+    let mut store = retry_target_connection(|| PgEventStore::connect(&database_url)).unwrap();
     let mut fixture_client = connect_client(&database_url).expect("fixture updater connects");
     let prioritize_fixture = |client: &mut Client| {
         client
@@ -367,7 +373,8 @@ fn live_database_session_termination_preserves_ordered_event_chain() {
     let correlation_id = CorrelationId::new();
     let scope = format!("f09-db-disconnect-{tenant_id}");
     let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
-    let mut store = PgEventStore::connect(&database_url).expect("event store connects");
+    let mut store = retry_target_connection(|| PgEventStore::connect(&database_url))
+        .expect("event store connects");
     let event = |sequence| {
         RecordedEvent::new(NewRecordedEvent {
             tenant_id,
@@ -395,7 +402,8 @@ fn live_database_session_termination_preserves_ordered_event_chain() {
     assert!(doomed.query_one("select 1", &[]).is_err());
 
     drop(store);
-    let mut recovered = PgEventStore::connect(&database_url).expect("reconnect succeeds");
+    let mut recovered = retry_target_connection(|| PgEventStore::connect(&database_url))
+        .expect("reconnect succeeds");
     let second = event(2);
     recovered
         .append_event(&second)
@@ -424,7 +432,7 @@ fn restricted_runtime_role_records_only_real_storage_outcomes() {
     let correlation_id = CorrelationId::new();
     let scope = format!("f09-runtime-metric-{tenant_id}");
     let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
-    let mut runtime = PgRuntimeStore::connect_as_runtime(&runtime_url)
+    let mut runtime = retry_target_connection(|| PgRuntimeStore::connect_as_runtime(&runtime_url))
         .expect("restricted Runtime database role connects");
     runtime
         .record_storage_operation(tenant_id, correlation_id, false, Utc::now())
@@ -570,16 +578,34 @@ fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
     let relaxed_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
-    if disable_tls {
-        Client::connect(database_url, NoTls)
-    } else {
-        let mut builder = TlsConnector::builder();
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
+    retry_target_connection(|| {
+        if disable_tls {
+            Client::connect(database_url, NoTls)
+        } else {
+            let mut builder = TlsConnector::builder();
+            if relaxed_tls {
+                builder.danger_accept_invalid_certs(true);
+            }
+            Client::connect(
+                database_url,
+                MakeTlsConnector::new(builder.build().expect("TLS connector initializes")),
+            )
         }
-        Client::connect(
-            database_url,
-            MakeTlsConnector::new(builder.build().expect("TLS connector initializes")),
-        )
+    })
+}
+
+// A remote Supabase endpoint can close a new TLS handshake before PostgreSQL
+// receives any query. Retry only connection establishment; assertions and
+// business operations never retry, so an injected fault still has to recover.
+fn retry_target_connection<T, E>(mut connect: impl FnMut() -> Result<T, E>) -> Result<T, E> {
+    for attempt in 1..4 {
+        match connect() {
+            Ok(value) => return Ok(value),
+            Err(_) => {
+                eprintln!("F09 target connection attempt {attempt}/4 failed");
+                std::thread::sleep(Duration::from_secs(2));
+            }
+        }
     }
+    connect()
 }
