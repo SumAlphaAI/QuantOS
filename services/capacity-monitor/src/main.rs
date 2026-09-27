@@ -1,4 +1,8 @@
-use std::{fs, path::PathBuf, time::Duration};
+use std::{
+    fs,
+    path::PathBuf,
+    time::{Duration, Instant},
+};
 
 use anyhow::{Context, Result};
 use chrono::Utc;
@@ -17,6 +21,13 @@ struct Cli {
     output: Option<PathBuf>,
     #[arg(long, default_value_t = 900)]
     lookback_seconds: u64,
+    #[arg(long, default_value = "global")]
+    scope: String,
+    #[arg(long)]
+    tenant_id: Option<uuid::Uuid>,
+    /// Evaluate every minute; each tick reconnects so a database outage can recover.
+    #[arg(long)]
+    watch: bool,
 }
 
 fn main() -> std::process::ExitCode {
@@ -38,10 +49,49 @@ fn run() -> Result<()> {
                 .map(PathBuf::from)
         })
         .unwrap_or_else(|| PathBuf::from("artifacts/observability/f09-alerts.json"));
-    let mut monitor = PgCapacityMonitor::connect(&database_url)
+    if cli.watch {
+        loop {
+            let started = Instant::now();
+            if let Err(error) = collect_once(
+                &database_url,
+                &output,
+                cli.lookback_seconds,
+                &cli.scope,
+                cli.tenant_id,
+            ) {
+                eprintln!("F09 scheduled capacity tick failed: {error:#}");
+            }
+            std::thread::sleep(
+                Duration::from_secs(60)
+                    .saturating_sub(started.elapsed())
+                    .max(Duration::from_secs(1)),
+            );
+        }
+    }
+    collect_once(
+        &database_url,
+        &output,
+        cli.lookback_seconds,
+        &cli.scope,
+        cli.tenant_id,
+    )
+}
+
+fn collect_once(
+    database_url: &str,
+    output: &PathBuf,
+    lookback_seconds: u64,
+    scope: &str,
+    tenant_id: Option<uuid::Uuid>,
+) -> Result<()> {
+    // A previous PASS must never survive a failed scheduled tick as fresh ADR evidence.
+    if output.exists() {
+        fs::remove_file(output).with_context(|| format!("failed to clear {}", output.display()))?;
+    }
+    let mut monitor = PgCapacityMonitor::connect_scoped_for_tenant(database_url, scope, tenant_id)
         .context("failed to connect F09 capacity monitor to PostgreSQL")?;
     let evidence = monitor
-        .evaluate_and_persist(Utc::now(), Duration::from_secs(cli.lookback_seconds))
+        .evaluate_and_persist(Utc::now(), Duration::from_secs(lookback_seconds))
         .context("failed to collect or evaluate the F09 capacity window")?;
     if let Some(parent) = output.parent() {
         fs::create_dir_all(parent)

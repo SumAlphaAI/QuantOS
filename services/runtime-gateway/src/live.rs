@@ -448,10 +448,16 @@ async fn get_artifact(
             .load_artifact_for_run(run.tenant_id, id, ArtifactId::from_uuid(artifact_id))
             .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?
             .ok_or(StatusCode::NOT_FOUND)?;
-        let bytes = state
-            .storage
-            .get_artifact(&manifest)
-            .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?;
+        let storage_result = state.storage.get_artifact(&manifest);
+        if let Err(error) = store.record_storage_operation(
+            run.tenant_id,
+            run.correlation_id,
+            storage_result.is_err(),
+            Utc::now(),
+        ) {
+            eprintln!("runtime Storage metric persist failed: {error}");
+        }
+        let bytes = storage_result.map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?;
         Ok::<_, StatusCode>(([(header::CONTENT_TYPE, manifest.media_type)], bytes))
     })
     .await
@@ -510,10 +516,16 @@ fn worker_once(store: &mut PgRuntimeStore, storage: &SupabaseStorageAdapter) -> 
                 payload.len() as u64,
                 Utc::now(),
             );
-            if storage
-                .put_artifact(&manifest, Bytes::from(payload))
-                .is_err()
-            {
+            let storage_result = storage.put_artifact(&manifest, Bytes::from(payload));
+            if let Err(error) = store.record_storage_operation(
+                tenant,
+                lease.run.correlation_id,
+                storage_result.is_err(),
+                Utc::now(),
+            ) {
+                eprintln!("runtime Storage metric persist failed: {error}");
+            }
+            if storage_result.is_err() {
                 store.fail_and_retry(&lease, "storage upload failed", Utc::now())?;
                 continue;
             }

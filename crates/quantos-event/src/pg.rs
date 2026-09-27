@@ -764,6 +764,28 @@ impl PgEventStore {
             });
         }
         tx.commit()?;
+        // Projection completion is the actual end-to-end event latency. The
+        // Realtime wakeup is only advisory; the polling recovery path uses the
+        // same sample. Keep telemetry failure outside the event transaction.
+        if let Err(error) = self.client.execute_typed(
+            "with input as (
+                select * from jsonb_to_recordset($1::jsonb) as x(
+                    outbox_id uuid, tenant_id uuid, completed_at timestamptz)
+             )
+             insert into quantos.operational_metric_samples (
+                tenant_id, metric_name, metric_value, source, correlation_id,
+                attributes, observed_at)
+             select input.tenant_id, 'realtime_projection_delay_secs',
+                    greatest(extract(epoch from (input.completed_at - e.ingested_at)), 0)::float8,
+                    'realtime_projection_delay_secs', e.correlation_id,
+                    '{}'::jsonb, input.completed_at
+             from input
+             join quantos.outbox_event o on o.id = input.outbox_id
+             join quantos.event_log e on e.id = o.event_log_id",
+            &[(&input, Type::JSONB)],
+        ) {
+            eprintln!("event projection delay metric persist failed: {error}");
+        }
         Ok(())
     }
 

@@ -1,5 +1,7 @@
 use std::{env, time::Instant};
 
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
+use postgres_openssl::MakeTlsConnector;
 use quantos_core::{AccountId, TenantId, WorkspaceId};
 use quantos_portfolio::{
     InMemoryPortfolioProjection, generate_fill_replay, pg::PgPortfolioStore, replay_start,
@@ -14,9 +16,7 @@ struct TenantCleanup {
 impl Drop for TenantCleanup {
     fn drop(&mut self) {
         let cleanup = || -> anyhow::Result<()> {
-            let connector =
-                postgres_native_tls::MakeTlsConnector::new(native_tls::TlsConnector::new()?);
-            let mut client = postgres::Client::connect(&self.database_url, connector)?;
+            let mut client = connect_client(&self.database_url)?;
             client.execute(
                 "delete from quantos.tenants where id = $1",
                 &[self.tenant_id.as_uuid()],
@@ -28,9 +28,7 @@ impl Drop for TenantCleanup {
 }
 
 fn seed_context(database_url: &str, tenant_id: TenantId) -> (TenantCleanup, AccountId) {
-    let connector =
-        postgres_native_tls::MakeTlsConnector::new(native_tls::TlsConnector::new().expect("tls"));
-    let mut client = postgres::Client::connect(database_url, connector).expect("connects");
+    let mut client = connect_client(database_url).expect("connects");
     let workspace_id = WorkspaceId::new();
     let account_id = AccountId::new();
     client
@@ -77,6 +75,54 @@ fn seed_context(database_url: &str, tenant_id: TenantId) -> (TenantCleanup, Acco
         },
         account_id,
     )
+}
+
+fn connect_client(database_url: &str) -> anyhow::Result<postgres::Client> {
+    let mut builder = SslConnector::builder(SslMethod::tls())?;
+    builder.set_verify(SslVerifyMode::PEER);
+    if let Ok(root) = env::var("QUANTOS_BFF_SSLROOTCERT") {
+        builder.set_ca_file(root)?;
+    } else {
+        builder.set_default_verify_paths()?;
+    }
+    Ok(postgres::Client::connect(
+        database_url,
+        MakeTlsConnector::new(builder.build()),
+    )?)
+}
+
+#[test]
+fn f09_portfolio_and_risk_queries_persist_actual_latency_samples() {
+    if env::var("QUANTOS_RUN_F09_POSTGRES_TESTS").as_deref() != Ok("1") {
+        return;
+    }
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL required");
+    let tenant_id = TenantId::new();
+    let (_cleanup, account_id) = seed_context(&database_url, tenant_id);
+    let mut store = PgPortfolioStore::connect(&database_url).expect("portfolio store connects");
+    assert!(
+        store
+            .positions_for_account(tenant_id, account_id)
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        store
+            .account_state(tenant_id, account_id)
+            .unwrap()
+            .is_none()
+    );
+    drop(store);
+    let mut verifier = connect_client(&database_url).expect("metric verifier connects");
+    let rows = verifier.query(
+        "select metric_name, metric_value from quantos.operational_metric_samples
+         where tenant_id = $1 and metric_name in ('portfolio_query_latency_ms','risk_query_latency_ms')",
+        &[tenant_id.as_uuid()],
+    ).expect("query samples persist");
+    assert_eq!(rows.len(), 2);
+    for row in rows {
+        assert!(row.get::<_, f64>(1) >= 0.0);
+    }
 }
 
 #[test]
@@ -135,6 +181,27 @@ fn postgres_portfolio_store_persists_and_reads_projection() {
         p95 < std::time::Duration::from_millis(300),
         "portfolio query p95 {p95:?} exceeded 300ms"
     );
+    drop(store); // flush the bounded metric queue before checking persistence
+    let mut verifier = connect_client(&database_url).expect("metric verifier connects");
+    let counts = verifier.query(
+        "select metric_name, count(*)::bigint from quantos.operational_metric_samples
+         where tenant_id = $1 and metric_name in ('portfolio_query_latency_ms','risk_query_latency_ms')
+         group by metric_name",
+        &[tenant_id.as_uuid()],
+    ).expect("query samples persist");
+    assert_eq!(counts.len(), 2);
+    for row in counts {
+        let name: String = row.get(0);
+        let count: i64 = row.get(1);
+        assert!(
+            count
+                >= if name == "portfolio_query_latency_ms" {
+                    51
+                } else {
+                    1
+                }
+        );
+    }
 
     let rebuilt = InMemoryPortfolioProjection::rebuild(tenant_id, replay_start(), &events)
         .expect("rebuild is repeatable")

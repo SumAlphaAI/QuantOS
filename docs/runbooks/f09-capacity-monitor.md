@@ -1,8 +1,8 @@
 # F09 Capacity Monitor Runbook
 
-Run `capacity-monitor` once per minute with `DATABASE_URL`,
+Run `capacity-monitor --watch` under a supervisor with `DATABASE_URL`,
 `QUANTOS_TRACE_EXPORT_PATH`, and a durable `QUANTOS_F09_EVIDENCE_PATH`.
-Window state and alerts live in PostgreSQL, so a restarted or rescheduled job
+Window state and alerts live in Supabase PostgreSQL, so a restarted job
 continues the original 15-minute and three-check windows.
 
 ## Metric producer contract
@@ -12,15 +12,16 @@ registered metric name as the source label, an optional correlation ID, and
 non-sensitive attributes. The SQL intake rejects out-of-range values and
 observations more than 24 hours old or 90 seconds in the future:
 
-- Realtime subscriber/projection worker: end-to-end delay and current quota
-  utilization.
-- Risk and portfolio query boundaries: one latency sample per completed query.
+- Event projection consumer: end-to-end applied delay. Realtime quota usage
+  still needs an actual provider source.
+- Portfolio position and risk-input account queries: one latency sample per
+  completed query, queued for bounded asynchronous batch persistence.
 - Risk MV and operations refresh jobs: age in seconds after every refresh
-  check, including successful checks.
-- Storage adapter: `0` for every successful upload/download/delete and `1` for
-  every failed operation; the monitor computes the window error rate.
-- Execution Gateway: `0`/`1` for every rotation check and controlled Vault
-  read. RLS restricts this role to the two secret metric names.
+  check once those jobs exist.
+- Runtime Storage upload/download: `0` for success and `1` for failure; the
+  monitor computes the window error rate. Other Storage paths need the same hook.
+- Execution Gateway Vault read: `0`/`1` for controlled read outcome. Rotation
+  failure needs a rotation workflow. RLS restricts the role to secret metrics.
 
 Never place a credential, request payload, secret reference, session, or token
 in metric attributes. SQL intake rejects sensitive keys and the Rust recorder
@@ -29,11 +30,11 @@ also recursively redacts them.
 ## Scheduled evaluation
 
 ```sh
-make f09-capacity-snapshot
+cargo run -p capacity-monitor -- --watch --lookback-seconds 900
 make f09-adr-input
 ```
 
-The first command fails closed if any of the nine externally produced metric
+The monitor reconnects every minute and fails closed if any of the nine externally produced metric
 families lacks a sample in the last 90 seconds. It directly derives outbox age and
 DLQ ratio from PostgreSQL truth tables, restores alert state, persists alerts,
 and atomically publishes JSON evidence. The second command renders the complete
@@ -42,3 +43,15 @@ the capacity ADR template.
 
 After a failure, first restore the missing producer or database connection. Do
 not substitute zeros: an absent metric is unknown, not healthy.
+
+Implemented producers are the event consumer's applied projection delay,
+portfolio and risk-input query latency, Runtime Storage outcomes, and the
+restricted Execution Gateway secret-read outcome. Realtime quota, risk MV,
+operations aggregate freshness, and secret rotation have no implemented
+business data source. The monitor must report their absence until those
+sources are deployed. The F09 workflow requires `F09_DATABASE_URL`,
+`F09_RUNTIME_DATABASE_URL`, `F09_EXECUTION_DATABASE_URL`,
+`F09_SUPABASE_URL`, and `F09_CA_PEM` secrets for
+its direct Supabase target job. The Runtime URL must use `sslmode=verify-full`
+and the restricted Runtime login; the workflow writes the configured CA to a
+temporary file. It starts no local PostgreSQL instance.

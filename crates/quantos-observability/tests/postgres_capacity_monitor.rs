@@ -10,6 +10,7 @@ use quantos_observability::capacity::{
     CapacityMonitorError, OperationalMetricSample, PgCapacityMonitor, REQUIRED_EXTERNAL_METRICS,
 };
 use quantos_observability::{FaultProxy, FaultTarget, InMemoryTelemetrySink};
+use quantos_runtime::pg::PgRuntimeStore;
 use serde_json::json;
 use url::Url;
 
@@ -232,6 +233,18 @@ fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
     })
     .unwrap();
     let mut store = PgEventStore::connect(&database_url).unwrap();
+    let mut fixture_client = connect_client(&database_url).expect("fixture updater connects");
+    let prioritize_fixture = |client: &mut Client| {
+        client
+            .execute(
+                "update quantos.outbox_event set available_at = '2000-01-01'::timestamptz
+             where event_log_id = (select id from quantos.event_log where event_id = $1)
+               and status in ('pending','leased')",
+                &[event.event_id.as_uuid()],
+            )
+            .expect("only this F09 outbox fixture is prioritized");
+    };
+    prioritize_fixture(&mut fixture_client);
     let mut proxy = FaultProxy::new();
     let mut telemetry = InMemoryTelemetrySink::new();
     proxy.inject_failures(FaultTarget::Database, 1);
@@ -291,6 +304,7 @@ fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
         )
         .unwrap();
     assert_eq!(first.retried, 1);
+    prioritize_fixture(&mut fixture_client);
     std::thread::sleep(Duration::from_secs(4));
     let second = store
         .poll_outbox_once(
@@ -316,6 +330,20 @@ fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
         )
         .unwrap();
     assert_eq!(second.processed, 1);
+    let projection_samples = connect_client(&database_url)
+        .expect("metric verifier connects")
+        .query_one(
+            "select count(*)::bigint from quantos.operational_metric_samples
+             where tenant_id = $1 and metric_name = 'realtime_projection_delay_secs'
+               and correlation_id = $2",
+            &[tenant_id.as_uuid(), correlation_id.as_uuid()],
+        )
+        .expect("projection sample query succeeds")
+        .get::<_, i64>(0);
+    assert_eq!(
+        projection_samples, 1,
+        "real consumer completion emits one sample"
+    );
     assert_eq!(
         store
             .events_by_correlation_id(tenant_id, correlation_id)
@@ -326,6 +354,98 @@ fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
     let logs = serde_json::to_string(telemetry.logs()).unwrap();
     assert!(!logs.contains("should-be-redacted"));
     assert!(logs.contains("[REDACTED]"));
+}
+
+#[test]
+fn live_database_session_termination_preserves_ordered_event_chain() {
+    if env::var("QUANTOS_RUN_F09_POSTGRES_TESTS").as_deref() != Ok("1") {
+        return;
+    }
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL required");
+    let tenant_id = TenantId::new();
+    let actor_id = ActorId::new();
+    let correlation_id = CorrelationId::new();
+    let scope = format!("f09-db-disconnect-{tenant_id}");
+    let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
+    let mut store = PgEventStore::connect(&database_url).expect("event store connects");
+    let event = |sequence| {
+        RecordedEvent::new(NewRecordedEvent {
+            tenant_id,
+            actor_id,
+            correlation_id,
+            causation_id: None,
+            aggregate_type: "f09-db-disconnect".to_owned(),
+            aggregate_id: scope.clone(),
+            sequence,
+            event_kind: "ConnectionRecovered".to_owned(),
+            schema_version: SchemaVersion::parse("v1").unwrap(),
+            occurred_at: Utc::now(),
+            payload: json!({"safe": true, "sequence": sequence}),
+        })
+        .unwrap()
+    };
+    let first = event(1);
+    store.append_event(&first).expect("first event commits");
+
+    // Terminate only this test's own connection. No shared database outage or
+    // other session is touched on the user's test Supabase project.
+    let mut doomed = connect_client(&database_url).expect("fault session connects");
+    let termination = doomed.query_one("select pg_terminate_backend(pg_backend_pid())", &[]);
+    assert!(termination.is_err(), "the fault session must disconnect");
+    assert!(doomed.query_one("select 1", &[]).is_err());
+
+    drop(store);
+    let mut recovered = PgEventStore::connect(&database_url).expect("reconnect succeeds");
+    let second = event(2);
+    recovered
+        .append_event(&second)
+        .expect("second event commits");
+    let chain = recovered
+        .events_by_correlation_id(tenant_id, correlation_id)
+        .expect("event chain remains queryable");
+    assert_eq!(chain.len(), 2);
+    assert_eq!(chain[0].event_id, first.event_id);
+    assert_eq!(chain[1].event_id, second.event_id);
+    assert_eq!(chain[0].sequence, 1);
+    assert_eq!(chain[1].sequence, 2);
+    eprintln!("F09 database termination recovered; correlation={correlation_id}; ordered_events=2");
+}
+
+#[test]
+fn restricted_runtime_role_records_only_real_storage_outcomes() {
+    if env::var("QUANTOS_RUN_F09_POSTGRES_TESTS").as_deref() != Ok("1") {
+        return;
+    }
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL required");
+    let runtime_url = env::var("QUANTOS_RUNTIME_DATABASE_URL")
+        .expect("QUANTOS_RUNTIME_DATABASE_URL required for restricted producer test");
+    let tenant_id = TenantId::new();
+    let actor_id = ActorId::new();
+    let correlation_id = CorrelationId::new();
+    let scope = format!("f09-runtime-metric-{tenant_id}");
+    let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
+    let mut runtime = PgRuntimeStore::connect_as_runtime(&runtime_url)
+        .expect("restricted Runtime database role connects");
+    runtime
+        .record_storage_operation(tenant_id, correlation_id, false, Utc::now())
+        .expect("successful Storage result records zero");
+    runtime
+        .record_storage_operation(tenant_id, correlation_id, true, Utc::now())
+        .expect("failed Storage result records one");
+    let mut verifier = connect_client(&database_url).expect("verification client connects");
+    let values = verifier
+        .query(
+            "select metric_value from quantos.operational_metric_samples
+             where tenant_id = $1 and metric_name = 'storage_operation_error'
+               and correlation_id = $2 order by observed_at, id",
+            &[tenant_id.as_uuid(), correlation_id.as_uuid()],
+        )
+        .expect("persisted runtime metrics query succeeds")
+        .into_iter()
+        .map(|row| row.get::<_, f64>(0))
+        .collect::<Vec<_>>();
+    assert_eq!(values.len(), 2);
+    assert!(values.contains(&0.0) && values.contains(&1.0));
 }
 
 fn record_breaching_external_metrics(

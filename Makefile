@@ -222,14 +222,11 @@ observability-check:
 
 test-f09-live:
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F09 PostgreSQL Gate." >&2; exit 1)
+	@test -n "$$QUANTOS_RUNTIME_DATABASE_URL" || (echo "QUANTOS_RUNTIME_DATABASE_URL is required for the restricted F09 producer Gate." >&2; exit 1)
 	QUANTOS_RUN_F09_POSTGRES_TESTS=1 cargo test -p quantos-observability --test postgres_capacity_monitor --locked -- --test-threads=1 --nocapture
 
-f09-db-check: ensure-node
-	@test -n "$$F02_PG_ADMIN_URL" || (echo "F02_PG_ADMIN_URL is required for disposable F09 PostgreSQL." >&2; exit 1)
-	node scripts/f09-db-gate.cjs
-
 f09-target-check: ensure-node
-	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for F09 target acceptance." >&2; exit 1)
+	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" -a -n "$$QUANTOS_RUNTIME_DATABASE_URL" -a -n "$$QUANTOS_EXECUTION_DATABASE_URL" || (echo "DATABASE_URL, SUPABASE_URL, QUANTOS_RUNTIME_DATABASE_URL and QUANTOS_EXECUTION_DATABASE_URL are required for F09 target acceptance." >&2; exit 1)
 	node scripts/f09-target-gate.cjs
 
 test-f05-live:
