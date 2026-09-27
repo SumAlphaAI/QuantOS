@@ -209,6 +209,13 @@ impl ServiceObservability {
         &self.service
     }
 
+    #[must_use]
+    pub fn is_ready(&self) -> bool {
+        self.exporter
+            .as_ref()
+            .is_some_and(JsonlTraceExporter::is_ready)
+    }
+
     pub fn record_error(&self) {
         self.counters.errors.fetch_add(1, Ordering::Relaxed);
     }
@@ -309,10 +316,7 @@ impl ServiceObservability {
                 .expect("health payload is serializable"),
             ),
             "/readyz" => {
-                let ready = self
-                    .exporter
-                    .as_ref()
-                    .is_some_and(JsonlTraceExporter::is_ready);
+                let ready = self.is_ready();
                 (
                     if ready {
                         "200 OK"
@@ -432,10 +436,7 @@ impl ServiceObservability {
 
     fn metrics(&self) -> String {
         let service = self.service.replace(['\\', '"'], "_");
-        let ready = self
-            .exporter
-            .as_ref()
-            .is_some_and(JsonlTraceExporter::is_ready);
+        let ready = self.is_ready();
         format!(
             "# HELP quantos_service_ready Whether the service and trace exporter are ready.\n# TYPE quantos_service_ready gauge\nquantos_service_ready{{service=\"{service}\"}} {}\n# HELP quantos_observability_requests_total Observability HTTP requests.\n# TYPE quantos_observability_requests_total counter\nquantos_observability_requests_total{{service=\"{service}\"}} {}\n# HELP quantos_service_errors_total Structured service errors.\n# TYPE quantos_service_errors_total counter\nquantos_service_errors_total{{service=\"{service}\"}} {}\n",
             u8::from(ready),
@@ -624,6 +625,8 @@ mod tests {
         assert_eq!(query.records[0].operation, "runtime.claim");
         assert!(!response.contains("DATABASE_URL"));
         std::fs::remove_file(trace_path).expect("remove trace fixture");
+        assert!(!probe.is_ready());
+        assert!(probe.render("/readyz").contains("\"ready\":false"));
     }
 
     #[test]

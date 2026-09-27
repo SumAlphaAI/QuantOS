@@ -5,6 +5,7 @@ use postgres::{
     types::{Json, Type},
 };
 use postgres_native_tls::MakeTlsConnector;
+use std::time::Duration;
 use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
@@ -77,6 +78,8 @@ pub enum PgEventStoreError {
     Url(#[from] url::ParseError),
     #[error(transparent)]
     Tls(#[from] native_tls::Error),
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
     #[error(transparent)]
     Event(#[from] EventError),
     #[error(transparent)]
@@ -1240,19 +1243,36 @@ fn connect_client(database_url: &str) -> Result<Client, PgEventStoreError> {
     let relaxed_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
+    let root = url
+        .query_pairs()
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned())
+        .or_else(|| std::env::var("QUANTOS_BFF_SSLROOTCERT").ok());
+    let options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+        .map(|(key, value)| (key.into_owned(), value.into_owned()))
+        .collect::<Vec<_>>();
+    let mut connection_url = url.clone();
+    connection_url.set_query(None);
+    if !options.is_empty() {
+        connection_url.query_pairs_mut().extend_pairs(options);
+    }
+    let mut config: postgres::Config = connection_url.as_str().parse()?;
+    config.connect_timeout(Duration::from_secs(10));
 
     if disable_tls {
-        Ok(Client::connect(database_url, NoTls)?)
+        Ok(config.connect(NoTls)?)
     } else {
         let mut builder = TlsConnector::builder();
         if relaxed_tls {
             builder.danger_accept_invalid_certs(true);
+        } else if let Some(root) = root {
+            builder.add_root_certificate(native_tls::Certificate::from_pem(&std::fs::read(root)?)?);
         }
         let connector = builder.build()?;
-        Ok(Client::connect(
-            database_url,
-            MakeTlsConnector::new(connector),
-        )?)
+        config.ssl_mode(postgres::config::SslMode::Require);
+        Ok(config.connect(MakeTlsConnector::new(connector))?)
     }
 }
 

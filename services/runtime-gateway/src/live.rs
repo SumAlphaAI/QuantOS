@@ -38,6 +38,7 @@ struct AppState {
     storage: SupabaseStorageAdapter,
     origin: String,
     worker_healthy: Arc<AtomicBool>,
+    observability: Arc<ServiceObservability>,
 }
 
 fn storage_config() -> Result<SupabaseStorageConfig> {
@@ -106,6 +107,7 @@ pub async fn serve() -> Result<()> {
         storage,
         origin,
         worker_healthy,
+        observability: observability.clone(),
     });
     let router = Router::new()
         .route("/healthz", get(health))
@@ -178,6 +180,43 @@ async fn trace_write_request(
             HeaderValue::from_str(&correlation_id.to_string()).expect("UUID header value"),
         );
     }
+    if !response.status().is_success() {
+        let correlation_id = response
+            .headers()
+            .get("x-correlation-id")
+            .and_then(|value| value.to_str().ok())
+            .and_then(|value| CorrelationId::parse_str(value).ok())
+            .or(requested_id)
+            .unwrap_or_else(CorrelationId::new);
+        let (code, message) = match response.status() {
+            StatusCode::BAD_REQUEST => ("BAD_REQUEST", "Invalid request."),
+            StatusCode::UNAUTHORIZED => ("UNAUTHENTICATED", "Session is unavailable."),
+            StatusCode::FORBIDDEN => ("FORBIDDEN", "Access denied."),
+            StatusCode::NOT_FOUND => ("NOT_FOUND", "Resource not found."),
+            StatusCode::CONFLICT => ("CONFLICT", "Request conflicts with current state."),
+            StatusCode::INTERNAL_SERVER_ERROR => ("INTERNAL_ERROR", "Internal error."),
+            _ => ("SERVICE_UNAVAILABLE", "Service is unavailable."),
+        };
+        let (mut parts, _) = response.into_parts();
+        parts.headers.insert(
+            "x-correlation-id",
+            HeaderValue::from_str(&correlation_id.to_string()).expect("UUID header value"),
+        );
+        parts.headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("application/json"),
+        );
+        parts
+            .headers
+            .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+        return Response::from_parts(
+            parts,
+            axum::body::Body::from(
+                json!({"code": code, "message": message, "correlationId": correlation_id})
+                    .to_string(),
+            ),
+        );
+    }
     response
 }
 
@@ -234,10 +273,50 @@ mod f09_trace_tests {
         assert!(result.contains("http.post /v1/runtime/runs"));
         std::fs::remove_file(path).unwrap();
     }
+
+    #[tokio::test]
+    async fn failed_write_has_structured_error_and_matching_trace() {
+        let path = std::env::temp_dir().join(format!("f09-runtime-{}.jsonl", uuid::Uuid::new_v4()));
+        let observer =
+            Arc::new(ServiceObservability::with_jsonl_exporter("runtime-gateway", &path).unwrap());
+        let router = Router::new()
+            .route("/v1/runtime/runs", post(|| async { StatusCode::FORBIDDEN }))
+            .layer(middleware::from_fn_with_state(
+                observer.clone(),
+                trace_write_request,
+            ));
+        let response = router
+            .oneshot(
+                Request::builder()
+                    .method(Method::POST)
+                    .uri("/v1/runtime/runs")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let correlation = response.headers()["x-correlation-id"]
+            .to_str()
+            .unwrap()
+            .to_owned();
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let error: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(error["code"], "FORBIDDEN");
+        assert_eq!(error["correlationId"], correlation);
+        assert!(
+            observer
+                .render(&format!("/trace/{correlation}"))
+                .contains("failed")
+        );
+        std::fs::remove_file(path).unwrap();
+    }
 }
 
 async fn health(State(state): State<Arc<AppState>>) -> StatusCode {
-    if state.worker_healthy.load(Ordering::SeqCst) {
+    if state.worker_healthy.load(Ordering::SeqCst) && state.observability.is_ready() {
         StatusCode::NO_CONTENT
     } else {
         StatusCode::SERVICE_UNAVAILABLE

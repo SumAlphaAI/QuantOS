@@ -435,6 +435,13 @@ fn gateway_executes_owned_run_and_retrieves_verified_artifact() {
         storage,
         origin: ORIGIN.into(),
         worker_healthy: Arc::new(AtomicBool::new(true)),
+        observability: Arc::new(
+            ServiceObservability::with_jsonl_exporter(
+                "runtime-gateway",
+                std::env::temp_dir().join(format!("f09-runtime-health-{}.jsonl", Uuid::new_v4())),
+            )
+            .unwrap(),
+        ),
     });
     runtime.block_on(async {
         assert_eq!(health(State(state.clone())).await, StatusCode::NO_CONTENT);
