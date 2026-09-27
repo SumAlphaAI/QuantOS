@@ -572,24 +572,45 @@ impl Drop for Cleanup {
 
 fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
     let url = Url::parse(database_url).expect("database URL parses");
+    let local = url
+        .host_str()
+        .is_some_and(|host| host == "localhost" || host == "127.0.0.1");
     let disable_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && value == "disable");
-    let relaxed_tls = url
+    assert!(!disable_tls || local, "remote F09 database requires TLS");
+    let root = url
         .query_pairs()
-        .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned())
+        .or_else(|| env::var("QUANTOS_BFF_SSLROOTCERT").ok());
+    let options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+        .map(|(key, value)| (key.into_owned(), value.into_owned()))
+        .collect::<Vec<_>>();
+    let mut connection_url = url.clone();
+    connection_url.set_query(None);
+    if !options.is_empty() {
+        connection_url.query_pairs_mut().extend_pairs(options);
+    }
+    let mut config: postgres::Config = connection_url.as_str().parse()?;
+    config.connect_timeout(Duration::from_secs(10));
     retry_target_connection(|| {
         if disable_tls {
-            Client::connect(database_url, NoTls)
+            config.connect(NoTls)
         } else {
             let mut builder = TlsConnector::builder();
-            if relaxed_tls {
-                builder.danger_accept_invalid_certs(true);
+            if let Some(root) = &root {
+                let pem = std::fs::read(root).expect("F09 CA file reads");
+                builder.add_root_certificate(
+                    native_tls::Certificate::from_pem(&pem).expect("F09 CA PEM parses"),
+                );
             }
-            Client::connect(
-                database_url,
-                MakeTlsConnector::new(builder.build().expect("TLS connector initializes")),
-            )
+            config.ssl_mode(postgres::config::SslMode::Require);
+            config.connect(MakeTlsConnector::new(
+                builder.build().expect("TLS connector initializes"),
+            ))
         }
     })
 }
