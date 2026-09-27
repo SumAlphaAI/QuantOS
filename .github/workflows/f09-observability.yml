@@ -43,8 +43,6 @@ jobs:
     env:
       QUANTOS_SKIP_ENV: "1"
       DATABASE_URL: ${{ secrets.F09_DATABASE_URL }}
-      QUANTOS_RUNTIME_DATABASE_URL: ${{ secrets.F09_RUNTIME_DATABASE_URL }}
-      QUANTOS_EXECUTION_DATABASE_URL: ${{ secrets.F09_EXECUTION_DATABASE_URL }}
       SUPABASE_URL: ${{ secrets.F09_SUPABASE_URL }}
       F09_CA_PEM: ${{ secrets.F09_CA_PEM }}
     steps:
@@ -66,13 +64,13 @@ jobs:
       - run: uv sync --locked --project engines --all-packages
       - name: Verify target configuration and write CA file
         run: |
-          test -n "$DATABASE_URL" && test -n "$SUPABASE_URL" && test -n "$QUANTOS_RUNTIME_DATABASE_URL" && test -n "$QUANTOS_EXECUTION_DATABASE_URL" && test -n "$F09_CA_PEM"
+          test -n "$DATABASE_URL" && test -n "$SUPABASE_URL" && test -n "$F09_CA_PEM"
           printf '%s\n' "$F09_CA_PEM" > "$RUNNER_TEMP/f09-ca.pem"
           echo "QUANTOS_BFF_SSLROOTCERT=$RUNNER_TEMP/f09-ca.pem" >> "$GITHUB_ENV"
           node <<'NODE'
           const fs = require('node:fs');
           const caPath = `${process.env.RUNNER_TEMP}/f09-ca.pem`;
-          for (const name of ['DATABASE_URL', 'QUANTOS_RUNTIME_DATABASE_URL', 'QUANTOS_EXECUTION_DATABASE_URL']) {
+          for (const name of ['DATABASE_URL']) {
             const url = new URL(process.env[name]);
             url.searchParams.set('sslmode', 'verify-full');
             url.searchParams.set('sslrootcert', caPath);

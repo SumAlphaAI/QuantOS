@@ -1,5 +1,7 @@
 # F09 数据源核查、业务任务与 Gate 复核（2026-09-27）
 
+后续 F09 目标 Gate 不再要求验证三种不同数据库身份；此变更不代表 Runtime/Execution 受限角色的安全验收通过。当前目标配置见 [容量监控运行手册](../runbooks/f09-capacity-monitor.md)。
+
 ## 1. 完成概况与证据边界
 
 依据 [F09 规格](../SumAlpha-QuantOS-Development-Plan.md#task-f09)及[固定 22 点初审](F09-comprehensive-review-2026-09-27.md)。本次直接连接已配置的测试阶段 Supabase PostgreSQL，只读取 `information_schema.tables`、`pg_matviews` 和秘密元数据的列名；未读取秘密值或业务行。目录检查发现 `quantos` 只有 `execution_secret_refs` 与 `secret_references` 两个相关元数据表，**没有 Realtime 配额数据表、风险物化视图或运营聚合视图**。仓库检索也未发现这些采集/刷新业务任务或秘密轮换执行入口。这是本次目标目录及源码的结论，不外推为 Supabase 平台没有相应能力。

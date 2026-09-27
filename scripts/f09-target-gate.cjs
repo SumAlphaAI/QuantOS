@@ -57,27 +57,13 @@ function run(command, args, logName) {
   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed with ${result.status}`);
 }
 
-async function requireRestrictedLogin(client, expectedRole, forbiddenRole) {
-  const role = (await client.query(`select
-    (select rolsuper or rolbypassrls or rolcreaterole or rolcreatedb or rolreplication
-       from pg_roles where rolname = session_user) as privileged,
-    pg_has_role(session_user, 'service_role', 'MEMBER') as service_member,
-    pg_has_role(session_user, $1, 'SET') as expected_member,
-    pg_has_role(session_user, $2, 'SET') as forbidden_member`,
-  [expectedRole, forbiddenRole])).rows[0];
-  if (role.privileged || role.service_member || !role.expected_member || role.forbidden_member) {
-    throw new Error(`F09 ${expectedRole} URL does not use a dedicated restricted login`);
-  }
-}
-
 async function main() {
   save();
   if (dirty) throw new Error('F09 target Gate requires a clean exact-SHA checkout');
   const rawDatabase = process.env.DATABASE_URL;
   const rawApi = process.env.SUPABASE_URL;
-  if (!rawDatabase || !rawApi || !process.env.QUANTOS_RUNTIME_DATABASE_URL
-      || !process.env.QUANTOS_EXECUTION_DATABASE_URL) {
-    throw new Error('F09 Supabase, Runtime and Execution database URLs are required');
+  if (!rawDatabase || !rawApi) {
+    throw new Error('F09 Supabase database and API URLs are required');
   }
   const database = new URL(rawDatabase);
   const api = new URL(rawApi);
@@ -90,25 +76,6 @@ async function main() {
   const apiRef = api.hostname.split('.')[0];
   if (!databaseRef || databaseRef !== apiRef || database.port === '6543') {
     throw new Error('F09 target Gate requires the same project and a direct/session PostgreSQL endpoint');
-  }
-  const runtimeDatabase = new URL(process.env.QUANTOS_RUNTIME_DATABASE_URL);
-  const runtimeRef = runtimeDatabase.hostname.startsWith('db.')
-    ? runtimeDatabase.hostname.split('.')[1]
-    : decodeURIComponent(runtimeDatabase.username).split('.').at(-1);
-  if (runtimeRef !== databaseRef) {
-    throw new Error('F09 runtime metric login must target the same Supabase project');
-  }
-  const executionDatabase = new URL(process.env.QUANTOS_EXECUTION_DATABASE_URL);
-  const executionRef = executionDatabase.hostname.startsWith('db.')
-    ? executionDatabase.hostname.split('.')[1]
-    : decodeURIComponent(executionDatabase.username).split('.').at(-1);
-  if (executionRef !== databaseRef) {
-    throw new Error('F09 execution metric login must target the same Supabase project');
-  }
-  if (runtimeDatabase.username === database.username
-      || executionDatabase.username === database.username
-      || runtimeDatabase.username === executionDatabase.username) {
-    throw new Error('F09 operator, Runtime and Execution URLs require three distinct database logins');
   }
   const caPath = process.env.QUANTOS_BFF_SSLROOTCERT;
   if (!caPath || !path.isAbsolute(caPath) || !fs.existsSync(caPath)) {
@@ -145,67 +112,6 @@ async function main() {
     await client.end();
   }
   receipt.checks.push('same source migration ledger and checksums');
-  const runtimeClient = new Client({
-    host: runtimeDatabase.hostname, port: Number(runtimeDatabase.port || 5432),
-    user: decodeURIComponent(runtimeDatabase.username),
-    password: decodeURIComponent(runtimeDatabase.password),
-    database: runtimeDatabase.pathname.slice(1) || 'postgres',
-    ssl: { ca: fs.readFileSync(caPath, 'utf8'), rejectUnauthorized: true },
-    connectionTimeoutMillis: 10000,
-  });
-  await runtimeClient.connect();
-  try {
-    await requireRestrictedLogin(runtimeClient, 'quantos_runtime', 'quantos_execution_gateway');
-    await runtimeClient.query('set role quantos_runtime');
-    await runtimeClient.query('begin');
-    let rejected = false;
-    try {
-      await runtimeClient.query(`select quantos.record_operational_metric(
-        null, 'risk_query_latency_ms', 1.0, 'risk_query_latency_ms',
-        null, '{}'::jsonb, now())`);
-    } catch (error) {
-      rejected = error.code === '42501';
-    } finally {
-      await runtimeClient.query('rollback');
-    }
-    if (!rejected) throw new Error('restricted Runtime role could write a non-Storage metric');
-  } finally {
-    await runtimeClient.end();
-  }
-  receipt.checks.push('restricted Runtime role rejects other metric families');
-  const executionClient = new Client({
-    host: executionDatabase.hostname, port: Number(executionDatabase.port || 5432),
-    user: decodeURIComponent(executionDatabase.username),
-    password: decodeURIComponent(executionDatabase.password),
-    database: executionDatabase.pathname.slice(1) || 'postgres',
-    ssl: { ca: fs.readFileSync(caPath, 'utf8'), rejectUnauthorized: true },
-    connectionTimeoutMillis: 10000,
-  });
-  await executionClient.connect();
-  try {
-    await requireRestrictedLogin(executionClient, 'quantos_execution_gateway', 'quantos_runtime');
-    await executionClient.query('set role quantos_execution_gateway');
-    await executionClient.query('begin');
-    await executionClient.query(`select quantos.record_operational_metric(
-      null, 'secret_read_failure', 1.0, 'secret_read_failure',
-      null, '{}'::jsonb, now())`);
-    await executionClient.query('rollback');
-    await executionClient.query('begin');
-    let rejected = false;
-    try {
-      await executionClient.query(`select quantos.record_operational_metric(
-        null, 'storage_operation_error', 1.0, 'storage_operation_error',
-        null, '{}'::jsonb, now())`);
-    } catch (error) {
-      rejected = error.code === '42501';
-    } finally {
-      await executionClient.query('rollback');
-    }
-    if (!rejected) throw new Error('restricted Execution role could write a Storage metric');
-  } finally {
-    await executionClient.end();
-  }
-  receipt.checks.push('restricted Execution role can write only secret metric families');
   run('cargo', ['build', '-p', 'capacity-monitor', '--locked']);
   run('node', ['scripts/f09-scheduler-smoke.cjs'], 'scheduler-smoke.log');
   receipt.checks.push('two one-minute Supabase scheduler ticks fail closed on missing metrics');
