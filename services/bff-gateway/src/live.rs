@@ -201,6 +201,9 @@ mod f09_trace_tests {
     }
 }
 
+#[cfg(test)]
+mod f09_live_tests;
+
 async fn session(
     State(state): State<Arc<LiveState>>,
     headers: HeaderMap,

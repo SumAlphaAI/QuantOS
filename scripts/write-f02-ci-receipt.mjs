@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {verifyRelease} from './verify-release.mjs';
-const sha=process.env.GITHUB_SHA;
+import {expectedCiSourceSha} from './f02-source-sha.mjs';
+const sha=expectedCiSourceSha();
 if(process.env.GITHUB_ACTIONS!=='true'||!process.env.GITHUB_RUN_ID)throw Error('Remote receipt requires GitHub Actions context');
+if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==sha)throw Error('F02 receipt checkout does not match source SHA');
 verifyRelease('artifacts/release',sha);
 const formal=process.env.GITHUB_EVENT_NAME==='push'&&process.env.GITHUB_REF==='refs/heads/main';
 if(formal)execFileSync('bash',['scripts/verify-artifact-signatures.sh','artifacts/release/manifest.json'],{stdio:'inherit'});

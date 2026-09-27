@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { cleanSource, files, digest } from "./f01-lib.mjs";
+import { expectedCiSourceSha } from "./f02-source-sha.mjs";
 
 const repoRoot = path.resolve(new URL("..", import.meta.url).pathname);
 const outputFlagIndex = process.argv.indexOf("--output");
@@ -34,7 +35,8 @@ function shell(command, args) {
 
 const packageJson = readJson("package.json");
 const source = cleanSource(repoRoot);
-if (process.env.GITHUB_SHA && process.env.GITHUB_SHA !== source.commit) throw new Error("Build SHA does not match checked out source");
+const expectedSource = expectedCiSourceSha();
+if (expectedSource && expectedSource !== source.commit) throw new Error("Build SHA does not match checked out source");
 const metadataOnly = process.argv.includes("--metadata-only");
 const releaseRoot = path.join(repoRoot,"artifacts/release");
 const manifest = {

@@ -32,6 +32,8 @@ enum Command {
         output: PathBuf,
         #[arg(long)]
         count: Option<u64>,
+        #[arg(long)]
+        account_id: Option<uuid::Uuid>,
     },
     Rebuild {
         #[arg(long)]
@@ -42,7 +44,20 @@ enum Command {
         emit_golden: Option<PathBuf>,
         #[arg(long)]
         database_url: Option<String>,
+        #[arg(long)]
+        use_database_env: bool,
+        #[arg(long)]
+        tenant_id: Option<uuid::Uuid>,
+        #[arg(long)]
+        account_id: Option<uuid::Uuid>,
     },
+}
+
+struct RebuildTarget {
+    database_url: Option<String>,
+    use_database_env: bool,
+    tenant_id: Option<uuid::Uuid>,
+    account_id: Option<uuid::Uuid>,
 }
 
 fn golden_account() -> AccountId {
@@ -58,23 +73,48 @@ fn run(correlation_id: CorrelationId) -> Result<()> {
         .context("invalid portfolio-rebuild arguments")?
         .command
     {
-        Command::GenerateReplay { output, count } => generate_replay(output, count, correlation_id),
+        Command::GenerateReplay {
+            output,
+            count,
+            account_id,
+        } => generate_replay(output, count, account_id, correlation_id),
         Command::Rebuild {
             input,
             golden,
             emit_golden,
             database_url,
-        } => rebuild(input, golden, emit_golden, database_url, correlation_id),
+            use_database_env,
+            tenant_id,
+            account_id,
+        } => rebuild(
+            input,
+            golden,
+            emit_golden,
+            RebuildTarget {
+                database_url,
+                use_database_env,
+                tenant_id,
+                account_id,
+            },
+            correlation_id,
+        ),
     }
 }
 
 fn generate_replay(
     output: PathBuf,
     count: Option<u64>,
+    account_id: Option<uuid::Uuid>,
     correlation_id: CorrelationId,
 ) -> Result<()> {
     let count = count.unwrap_or(10_000);
-    let events = generate_fill_replay(golden_account(), count, replay_start());
+    let events = generate_fill_replay(
+        account_id
+            .map(AccountId::from_uuid)
+            .unwrap_or_else(golden_account),
+        count,
+        replay_start(),
+    );
     let output_file =
         File::create(&output).with_context(|| format!("failed to create {}", output.display()))?;
     let mut writer = BufWriter::new(output_file);
@@ -93,7 +133,7 @@ fn rebuild(
     input: PathBuf,
     golden: Option<PathBuf>,
     emit_golden: Option<PathBuf>,
-    database_url: Option<String>,
+    target: RebuildTarget,
     correlation_id: CorrelationId,
 ) -> Result<()> {
     let input_file =
@@ -101,11 +141,29 @@ fn rebuild(
     let events = read_events_jsonl(BufReader::new(input_file))
         .context("failed to parse portfolio replay dataset")?;
 
-    let tenant_id = TenantId::new();
+    if target.use_database_env && target.database_url.is_some() {
+        bail!("choose either --database-url or --use-database-env");
+    }
+    let database_url = if target.use_database_env {
+        Some(std::env::var("DATABASE_URL").context("DATABASE_URL required")?)
+    } else {
+        target.database_url
+    };
+    if database_url.is_some() && (target.tenant_id.is_none() || target.account_id.is_none()) {
+        bail!("PostgreSQL persistence requires --tenant-id and --account-id");
+    }
+    let tenant_id = target
+        .tenant_id
+        .map(TenantId::from_uuid)
+        .unwrap_or_default();
+    let account_id = target
+        .account_id
+        .map(AccountId::from_uuid)
+        .unwrap_or_else(golden_account);
     let projection = InMemoryPortfolioProjection::rebuild(tenant_id, replay_start(), &events)
         .context("failed to rebuild portfolio projection")?;
     let snapshot = projection
-        .snapshot(golden_account())
+        .snapshot(account_id)
         .context("failed to build portfolio snapshot")?;
 
     println!(

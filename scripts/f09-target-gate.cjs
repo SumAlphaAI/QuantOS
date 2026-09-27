@@ -9,12 +9,11 @@ const output = path.join(root, 'artifacts/f09/target.json');
 const sourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 const dirty = Boolean(execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim());
 const receipt = {
-  schema: 'quantos-f09-target-gate/v2', sourceCommit, dirty,
+  schema: 'quantos-f09-target-gate/v3', sourceCommit, dirty,
   targetClass: 'test-supabase-postgresql', status: 'RUNNING', checks: [],
   acceptanceScope: 'F09 development database and Engine component probes',
   f09Accepted: false,
   remainingDevelopmentAcceptance: [
-    'delivered F0 write entrypoint trace and structured error review',
     'same-SHA remote CI and Nightly receipts',
   ],
   deferredToL04: [
@@ -30,9 +29,9 @@ function save() {
   fs.writeFileSync(output, `${JSON.stringify(receipt, null, 2)}\n`);
 }
 
-function run(command, args, logName) {
+function run(command, args, logName, env = process.env) {
   const result = spawnSync(command, args, {
-    cwd: root, env: process.env, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024,
+    cwd: root, env, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024,
   });
   let outputText = `${result.stdout ?? ''}${result.stderr ?? ''}`;
   const sensitiveValues = [
@@ -58,6 +57,15 @@ function run(command, args, logName) {
   }
   if (receipt.secretLeakDetected) throw new Error('F09 exercise output included a configured secret');
   if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed with ${result.status}`);
+  return outputText;
+}
+
+function traceId(outputText, pattern) {
+  const id = outputText.match(pattern)?.[1];
+  if (!id || !/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id)) {
+    throw new Error('F09 write entrypoint did not emit a checked correlation ID');
+  }
+  return id;
 }
 
 async function connectTarget(config) {
@@ -132,6 +140,7 @@ async function main() {
   }
   receipt.checks.push('same source migration ledger and checksums');
   run('cargo', ['build', '-p', 'capacity-monitor', '--locked']);
+  run('cargo', ['build', '-p', 'portfolio-rebuild', '--locked']);
   run('node', ['scripts/f09-scheduler-smoke.cjs'], 'scheduler-smoke.log');
   receipt.checks.push('two one-minute Supabase scheduler ticks fail closed on missing metrics');
   run('make', ['test-f09-live'], 'postgres-exercises.log');
@@ -141,6 +150,31 @@ async function main() {
     'f09_portfolio_and_risk_queries_persist_actual_latency_samples', '--', '--exact', '--nocapture',
   ], 'portfolio-query.log');
   receipt.checks.push('real portfolio and risk query samples');
+  const liveEnv = { ...process.env, QUANTOS_RUN_F09_POSTGRES_TESTS: '1' };
+  const bffOutput = run('cargo', [
+    'test', '-p', 'bff-gateway', '--lib', 'f09_live_tests', '--locked',
+    '--', '--test-threads=1', '--nocapture',
+  ], 'bff-write-trace.log', liveEnv);
+  const runtimeOutput = run('cargo', [
+    'test', '-p', 'runtime-gateway', '--bin', 'runtime-gateway',
+    'f09_runtime_real_write_trace', '--locked', '--', '--nocapture',
+  ], 'runtime-write-trace.log', liveEnv);
+  const portfolioOutput = run('node', [
+    'scripts/f09-portfolio-write-trace.cjs',
+  ], 'portfolio-write-trace.log');
+  const portfolioEvidence = portfolioOutput.split('\n')
+    .filter((line) => line.includes('F09_PORTFOLIO_WRITE_TRACE_PASS'))
+    .map((line) => JSON.parse(line)).at(-1);
+  if (!portfolioEvidence || !portfolioEvidence.snapshotHash ||
+      portfolioEvidence.lastEventSequence < 20 || portfolioEvidence.positionCount < 1) {
+    throw new Error('F09 portfolio write trace evidence is incomplete');
+  }
+  receipt.writeTraces = {
+    bffSessionRevoke: traceId(bffOutput, /F09 BFF real session revoke and persistent trace share correlation_id=([0-9a-f-]{36})/),
+    runtimeRunSchedule: traceId(runtimeOutput, /F09 Runtime persisted run and trace share correlation_id=([0-9a-f-]{36})/),
+    portfolioProjection: portfolioEvidence,
+  };
+  receipt.checks.push('real BFF, Runtime and Portfolio writes linked to persistent trace');
   run('cargo', [
     'test', '-p', 'quantos-engine-manager', '--test', 'python_mock_engine', '--locked',
     'manager_supervises_three_real_crashes_without_test_owned_restarts', '--', '--exact', '--nocapture',

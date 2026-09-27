@@ -1,15 +1,144 @@
 use super::*;
 use std::collections::HashSet;
 
-use axum::{body::Bytes as BodyBytes, extract::State as AxumState};
+use axum::{
+    body::{Body, Bytes as BodyBytes},
+    extract::State as AxumState,
+    http::Request,
+};
 use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{Client, NoTls, types::Type};
 use postgres_openssl::MakeTlsConnector;
 use quantos_core::{AccountId, ActorId, CorrelationId, RuntimeSessionId, TenantId, WorkspaceId};
 use sha2::{Digest, Sha256};
+use tower::ServiceExt;
 use url::Url;
 
 const ORIGIN: &str = "https://f07-runtime-test.invalid";
+
+#[test]
+fn f09_runtime_real_write_trace() {
+    if env::var("QUANTOS_RUN_F09_POSTGRES_TESTS").as_deref() != Ok("1") {
+        return;
+    }
+    let database_url = env::var("DATABASE_URL").expect("F09 database URL required");
+    let fixture = seed_fixture(&database_url, "owner");
+    let trace_path = env::temp_dir().join(format!("f09-runtime-live-{}.jsonl", Uuid::new_v4()));
+    let observer = Arc::new(
+        ServiceObservability::with_jsonl_exporter("runtime-gateway", &trace_path)
+            .expect("persistent Runtime trace opens"),
+    );
+    let storage = SupabaseStorageAdapter::connect(SupabaseStorageConfig {
+        project_url: "http://127.0.0.1:1".into(),
+        bucket_name: "quantos-artifacts".into(),
+        api_key: "test-key".into(),
+        authorization_token: None,
+        upsert: true,
+    })
+    .expect("unused Storage adapter config");
+    let state = Arc::new(AppState {
+        auth: Mutex::new(GatewayAuthMiddleware::connect(&database_url).expect("auth connects")),
+        store: Mutex::new(PgRuntimeStore::connect(&database_url).expect("Runtime connects")),
+        storage,
+        origin: ORIGIN.into(),
+        worker_healthy: Arc::new(AtomicBool::new(true)),
+        observability: observer.clone(),
+    });
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .expect("F09 Runtime test runtime");
+    let (_, Json(session)) = runtime
+        .block_on(create_session(
+            State(state.clone()),
+            headers(&fixture.cookie, true),
+        ))
+        .expect("real Runtime session persists");
+    let session_id = RuntimeSessionId::from_uuid(
+        Uuid::parse_str(session["runtime_session_id"].as_str().unwrap()).unwrap(),
+    );
+    let _ = runtime
+        .block_on(register_tool(
+            State(state.clone()),
+            headers(&fixture.cookie, true),
+            Json(runtime_tool()),
+        ))
+        .expect("real tool registration persists");
+    let router = Router::new()
+        .route("/v1/runtime/runs", post(schedule))
+        .with_state(state.clone())
+        .layer(middleware::from_fn_with_state(
+            observer.clone(),
+            trace_write_request,
+        ));
+    let business = runtime_run(session_id, 909);
+    let request = |origin: &str| {
+        let mut request = Request::builder()
+            .method(Method::POST)
+            .uri("/v1/runtime/runs")
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(Body::from(serde_json::to_vec(&business).unwrap()))
+            .unwrap();
+        let mut request_headers = headers(&fixture.cookie, true);
+        request_headers.insert(header::ORIGIN, origin.parse().unwrap());
+        request.headers_mut().extend(request_headers);
+        request
+    };
+    let rejected = runtime
+        .block_on(
+            router
+                .clone()
+                .oneshot(request("https://wrong.example.invalid")),
+        )
+        .unwrap();
+    assert_eq!(rejected.status(), StatusCode::FORBIDDEN);
+    let rejected_id = rejected.headers()["x-correlation-id"].to_str().unwrap();
+    assert!(
+        observer
+            .render(&format!("/trace/{rejected_id}"))
+            .contains("\"status\":\"failed\"")
+    );
+    let mut verifier = connect_admin(&database_url).expect("F09 verifier connects");
+    let rejected_runs: i64 = verifier
+        .query_one(
+            "select count(*) from quantos.workflow_runs where tenant_id = $1",
+            &[fixture.tenant_id.as_uuid()],
+        )
+        .expect("rejected Runtime request leaves no workflow run")
+        .get(0);
+    assert_eq!(rejected_runs, 0);
+
+    let accepted = runtime.block_on(router.oneshot(request(ORIGIN))).unwrap();
+    assert_eq!(accepted.status(), StatusCode::ACCEPTED);
+    let accepted_id = accepted.headers()["x-correlation-id"]
+        .to_str()
+        .unwrap()
+        .to_owned();
+    let body = runtime
+        .block_on(axum::body::to_bytes(accepted.into_body(), usize::MAX))
+        .unwrap();
+    let run: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(run["correlation_id"], accepted_id);
+    let run_id = WorkflowRunId::from_uuid(
+        Uuid::parse_str(run["workflow_run_id"].as_str().unwrap()).unwrap(),
+    );
+    let stored = state
+        .store
+        .lock()
+        .unwrap()
+        .load_run(run_id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(stored.correlation_id.to_string(), accepted_id);
+    let trace = observer.render(&format!("/trace/{accepted_id}"));
+    assert!(trace.contains("http.post /v1/runtime/runs"));
+    assert!(trace.contains("\"status\":\"succeeded\""));
+    assert!(!trace.contains(&fixture.cookie));
+    drop(runtime);
+    drop(state);
+    std::fs::remove_file(trace_path).expect("trace fixture cleans up");
+    println!("F09 Runtime persisted run and trace share correlation_id={accepted_id}");
+}
 
 #[derive(Clone)]
 struct MockStorage {
