@@ -1,5 +1,7 @@
 # F09 指标生产与目标演练续修记录（2026-09-27）
 
+四类缺失源的测试 Supabase 目录核查、业务任务与固定 22 点最新复核见 [F09 数据源核查与 Gate 复核](F09-source-and-gate-recheck-2026-09-27.md)。
+
 ## 1. 本轮交付与验收边界
 
 本轮继续处理 [F09 整改实施记录](F09-remediation-2026-09-27.md) 中的 B02/B03/B04。遵循仓库 `AGENTS.md`：数据库迁移及 live 测试只连接现有测试 Supabase PostgreSQL；F09 专属 CI/Nightly 工作流不创建本地、容器或临时 PostgreSQL。旧的可丢弃数据库 Gate 已移除，新的目标回执继续绑定完整源码 SHA。
