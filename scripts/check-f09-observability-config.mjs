@@ -44,8 +44,8 @@ for (const [current, existing] of [
   ["SUPABASE_URL", "F07_SUPABASE_URL"],
   ["F09_CA_PEM", "F07_CA_PEM"],
 ]) {
-  assert.match(workflow.jobs["supabase-target"].env[current],
-    new RegExp(`secrets\\.F09_[A-Z_]+ \\|\\| secrets\\.${existing}`),
-    `${current} must use the existing test Supabase secret when F09 is not configured`);
+  assert.equal(workflow.jobs["supabase-target"].env[current],
+    `\${{ secrets.${existing} }}`,
+    `${current} must use the configured test Supabase secret`);
 }
 console.log("F09 alert rules and dashboard inventory agree with the evaluator.");

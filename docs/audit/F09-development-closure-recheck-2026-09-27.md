@@ -8,11 +8,13 @@
 
 | 检查 | 本轮证据 | 状态与边界 |
 | --- | --- | --- |
-| trace 基础、结构化错误、健康/就绪、告警规则及 ADR 模板 | `make observability-check`：Rust 13 项、Python 9 项、ADR 与规则配置通过；BFF/Runtime 写请求 trace 各 1 项通过 | 组件通过；真实业务路由与持久业务事实仍需逐入口双向核对。 |
+| trace 基础、结构化错误、健康/就绪、告警规则及 ADR 模板 | `make observability-check`：Rust 14 项、Python 9 项、ADR 与规则配置通过；BFF/Runtime 写请求 trace 各 1 项通过 | 组件通过；真实业务路由与持久业务事实仍需逐入口双向核对。 |
 | 市场与组合批处理写入口 | 正向命令输出 correlation ID，可从持久 JSONL 找到相同 ID 的 `started`、`succeeded`；缺 trace 路径时拒绝写文件 | 开发期本地路径通过；组合数据库持久化仍缺业务事实与 trace 的目标双向回执。 |
 | 阈值、断采、调度与数据库/消费者/Engine 组件故障 | `ca8a6798b05e9fc3b325188ecd2716df65ca1016` 测试 Supabase `quantos-f09-target-gate/v2` 组件 PASS：migration ledger、两次实际分钟调度、三项数据库用例、查询采样、本地 Engine 三次崩溃 | 仅该完整 SHA 的组件回执；后续源码提交须重新绑定，不能沿用旧回执。 |
-| 远程 F09 开发工作流 | 同 SHA push run `36320189745` 的 `local-observability` 成功；`supabase-target` 在配置预检失败，组件步骤未执行 | GitHub 当前仓库 Secret 列表有 F07 测试 Supabase 三项而无 F09 专项三项；工作流现复用已有测试配置并对缺项明确失败，待新 SHA 远程复跑。 |
-| 同 SHA CI 与 Nightly | `QuantOS CI` 只在 `main` push 或 PR 触发；F09 分支无开放 PR，当前 SHA 无 CI 回执；F09 定时运行也尚无同 SHA 回执 | **缺回执**，不可把本地或其他 SHA 的成功算作本次验收。 |
+| 远程 F09 开发工作流 | 同 SHA push run `36320189745` 的 `local-observability` 成功，目标配置预检失败；`d1e6eab6eb9f10934a1dbcc6ed14b4ef8ca37d54` 的 push run `36321340956` 到达测试 Supabase，migration 校验成功，但调度进程因 Rust 连接器不能解析 `sslmode=verify-full` 而失败 | 已修复连接解析，继续严格校验证书和主机名，并拒绝远端禁用 TLS；最终 SHA 的远程目标回执待复跑。 |
+| 同 SHA CI 与 Nightly | 草稿 PR #6 已触发 `d1e6eab6eb9f10934a1dbcc6ed14b4ef8ca37d54` 的 CI；run `36321370397` 因 Secret scan 将工作流的 Secret 名称回退表达式误判为 `generic-api-key` 而失败，后续 F02 证据及验签随之缺失 | 工作流已改为直接使用现有 F07 测试环境 Secret；`.gitleaksignore` 仅忽略历史提交这一条精确指纹，本地全 Git 历史扫描通过。最终 SHA 的 CI 和定时 Nightly 回执仍缺。 |
+
+真实 Runtime 目标测试在调度响应中新增“HTTP trace ID 等于已持久化的 `workflow_runs.correlation_id`”断言。首次运行在后段新 TLS 握手被目标关闭；单次有限复测 1/1 通过，含调度、取消、恢复和权限负例。此结果证明本机到测试 Supabase 的业务路径，不替代新提交的同 SHA 目标 Gate。
 
 ## 剩余关闭条件
 

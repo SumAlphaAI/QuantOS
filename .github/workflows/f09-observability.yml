@@ -42,9 +42,9 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       QUANTOS_SKIP_ENV: "1"
-      DATABASE_URL: ${{ secrets.F09_DATABASE_URL || secrets.F07_DATABASE_URL }}
-      SUPABASE_URL: ${{ secrets.F09_SUPABASE_URL || secrets.F07_SUPABASE_URL }}
-      F09_CA_PEM: ${{ secrets.F09_CA_PEM || secrets.F07_CA_PEM }}
+      DATABASE_URL: ${{ secrets.F07_DATABASE_URL }}
+      SUPABASE_URL: ${{ secrets.F07_SUPABASE_URL }}
+      F09_CA_PEM: ${{ secrets.F07_CA_PEM }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable

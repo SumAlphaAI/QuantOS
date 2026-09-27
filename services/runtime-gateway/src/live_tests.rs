@@ -553,13 +553,17 @@ fn gateway_executes_owned_run_and_retrieves_verified_artifact() {
             .unwrap_err(),
             StatusCode::NOT_FOUND
         );
-        let (_, Json(run_value)) = schedule(
+        let (_, response_headers, Json(run_value)) = schedule(
             State(state.clone()),
             headers(&fixture.cookie, true),
             Json(runtime_run(session_id, 1)),
         )
         .await
         .expect("run schedules");
+        assert_eq!(
+            response_headers["x-correlation-id"].to_str().unwrap(),
+            run_value["correlation_id"].as_str().unwrap()
+        );
         let run_id = Uuid::parse_str(run_value["workflow_run_id"].as_str().unwrap()).unwrap();
         let conflict = NewWorkflowRun {
             input_hash: ContentHash::sha256_bytes(b"different"),
@@ -669,7 +673,7 @@ fn gateway_executes_owned_run_and_retrieves_verified_artifact() {
             .unwrap_err(),
             StatusCode::NOT_FOUND
         );
-        let (_, Json(cancel_value)) = schedule(
+        let (_, _, Json(cancel_value)) = schedule(
             State(state.clone()),
             headers(&fixture.cookie, true),
             Json(runtime_run(session_id, 2)),

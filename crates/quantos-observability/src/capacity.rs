@@ -48,6 +48,10 @@ pub enum CapacityMonitorError {
     Url(#[from] url::ParseError),
     #[error(transparent)]
     Tls(#[from] native_tls::Error),
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+    #[error("remote F09 PostgreSQL connections require TLS")]
+    InsecureRemoteConnection,
     #[error("F09 metric coverage is stale or missing: {0}")]
     MissingMetricCoverage(String),
     #[error("F09 capacity monitor already running for scope {0}")]
@@ -411,25 +415,50 @@ impl PgCapacityMonitor {
 }
 
 fn connect_client(database_url: &str) -> Result<Client, CapacityMonitorError> {
+    let (mut config, root, disable_tls) = connection_config(database_url)?;
+    if disable_tls {
+        Ok(config.connect(NoTls)?)
+    } else {
+        let mut builder = TlsConnector::builder();
+        if let Some(root) = root {
+            builder.add_root_certificate(native_tls::Certificate::from_pem(&std::fs::read(root)?)?);
+        }
+        config.ssl_mode(postgres::config::SslMode::Require);
+        Ok(config.connect(MakeTlsConnector::new(builder.build()?))?)
+    }
+}
+
+fn connection_config(
+    database_url: &str,
+) -> Result<(postgres::Config, Option<String>, bool), CapacityMonitorError> {
     let url = Url::parse(database_url)?;
+    let local = url
+        .host_str()
+        .is_some_and(|host| host == "localhost" || host == "127.0.0.1");
     let disable_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && value == "disable");
-    let relaxed_tls = url
-        .query_pairs()
-        .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
-    if disable_tls {
-        Ok(Client::connect(database_url, NoTls)?)
-    } else {
-        let mut builder = TlsConnector::builder();
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
-        }
-        Ok(Client::connect(
-            database_url,
-            MakeTlsConnector::new(builder.build()?),
-        )?)
+    if disable_tls && !local {
+        return Err(CapacityMonitorError::InsecureRemoteConnection);
     }
+    let root = url
+        .query_pairs()
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned())
+        .or_else(|| std::env::var("QUANTOS_BFF_SSLROOTCERT").ok());
+    let options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+        .map(|(key, value)| (key.into_owned(), value.into_owned()))
+        .collect::<Vec<_>>();
+    let mut connection_url = url.clone();
+    connection_url.set_query(None);
+    if !options.is_empty() {
+        connection_url.query_pairs_mut().extend_pairs(options);
+    }
+    let mut config: postgres::Config = connection_url.as_str().parse()?;
+    config.connect_timeout(Duration::from_secs(10));
+    Ok((config, root, disable_tls))
 }
 
 #[cfg(test)]
@@ -451,6 +480,22 @@ mod tests {
         );
         assert!(REQUIRED_EXTERNAL_METRICS.contains(&"storage_operation_error"));
         assert!(REQUIRED_EXTERNAL_METRICS.contains(&"secret_read_failure"));
+    }
+
+    #[test]
+    fn target_connection_accepts_verified_tls_options_without_relaxing_validation() {
+        let (_, root, disabled) = connection_config(
+            "postgresql://user:example@db.test.supabase.com:5432/postgres?sslmode=verify-full&sslrootcert=%2Ftmp%2Ftarget-ca.pem",
+        )
+        .expect("verified target URL parses");
+        assert_eq!(root.as_deref(), Some("/tmp/target-ca.pem"));
+        assert!(!disabled);
+        assert!(matches!(
+            connection_config(
+                "postgresql://user:example@db.test.supabase.com:5432/postgres?sslmode=disable"
+            ),
+            Err(CapacityMonitorError::InsecureRemoteConnection)
+        ));
     }
 
     #[test]

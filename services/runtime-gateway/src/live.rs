@@ -202,8 +202,17 @@ mod f09_trace_tests {
         let path = std::env::temp_dir().join(format!("f09-runtime-{}.jsonl", uuid::Uuid::new_v4()));
         let observer =
             Arc::new(ServiceObservability::with_jsonl_exporter("runtime-gateway", &path).unwrap());
+        let business_correlation = "5f10d43a-406f-4700-a8f6-6bf85e84b006";
         let router = Router::new()
-            .route("/v1/runtime/runs", post(|| async { StatusCode::ACCEPTED }))
+            .route(
+                "/v1/runtime/runs",
+                post(|| async {
+                    (
+                        StatusCode::ACCEPTED,
+                        [("x-correlation-id", "5f10d43a-406f-4700-a8f6-6bf85e84b006")],
+                    )
+                }),
+            )
             .layer(middleware::from_fn_with_state(
                 observer.clone(),
                 trace_write_request,
@@ -220,6 +229,7 @@ mod f09_trace_tests {
             .unwrap();
         assert_eq!(response.status(), StatusCode::ACCEPTED);
         let correlation = response.headers()["x-correlation-id"].to_str().unwrap();
+        assert_eq!(correlation, business_correlation);
         let result = observer.render(&format!("/trace/{correlation}"));
         assert!(result.contains("http.post /v1/runtime/runs"));
         std::fs::remove_file(path).unwrap();
@@ -330,7 +340,7 @@ async fn schedule(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
     Json(input): Json<NewWorkflowRun>,
-) -> Result<(StatusCode, Json<Value>), StatusCode> {
+) -> Result<(StatusCode, HeaderMap, Json<Value>), StatusCode> {
     if input.workflow_kind != "runtime.fixture.v1" {
         return Err(StatusCode::BAD_REQUEST);
     }
@@ -370,7 +380,13 @@ async fn schedule(
     })
     .await
     .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)??;
-    Ok((StatusCode::ACCEPTED, Json(json!(run))))
+    let mut response_headers = HeaderMap::new();
+    response_headers.insert(
+        "x-correlation-id",
+        HeaderValue::from_str(&run.correlation_id.to_string())
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
+    );
+    Ok((StatusCode::ACCEPTED, response_headers, Json(json!(run))))
 }
 
 async fn get_run(
