@@ -241,16 +241,16 @@ fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
     let mut store = retry_target_connection(|| PgEventStore::connect(&database_url)).unwrap();
     let mut fixture_client = connect_client(&database_url).expect("fixture updater connects");
     let prioritize_fixture = |client: &mut Client| {
-        client
+        let updated = client
             .execute(
-                "update quantos.outbox_event set available_at = '2000-01-01'::timestamptz
+                "update quantos.outbox_event set available_at = '1900-01-01'::timestamptz
              where event_log_id = (select id from quantos.event_log where event_id = $1)
                and status in ('pending','leased')",
                 &[event.event_id.as_uuid()],
             )
             .expect("only this F09 outbox fixture is prioritized");
+        assert_eq!(updated, 1, "F09 outbox fixture must exist before polling");
     };
-    prioritize_fixture(&mut fixture_client);
     let mut proxy = FaultProxy::new();
     let mut telemetry = InMemoryTelemetrySink::new();
     proxy.inject_failures(FaultTarget::Database, 1);
@@ -284,6 +284,7 @@ fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
             .len(),
         1
     );
+    prioritize_fixture(&mut fixture_client);
 
     proxy.inject_failures(FaultTarget::EventConsumer, 1);
     let first = store
