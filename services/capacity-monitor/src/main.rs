@@ -101,7 +101,7 @@ fn collect_once(
     let temporary = output.with_extension("json.tmp");
     fs::write(&temporary, payload)
         .with_context(|| format!("failed to write {}", temporary.display()))?;
-    fs::rename(&temporary, &output)
+    fs::rename(&temporary, output)
         .with_context(|| format!("failed to publish {}", output.display()))?;
     println!(
         "collected all F09 metric families; alerts={} evidence={}",
