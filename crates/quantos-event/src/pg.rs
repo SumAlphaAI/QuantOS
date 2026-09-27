@@ -1237,6 +1237,8 @@ impl PgEventStore {
 
 fn connect_client(database_url: &str) -> Result<Client, PgEventStoreError> {
     let url = Url::parse(database_url)?;
+    let local = matches!(url.host_str(), Some("localhost" | "127.0.0.1" | "::1"));
+    let explicit_tls_mode = url.query_pairs().any(|(key, _)| key == "sslmode");
     let disable_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && value == "disable");
@@ -1261,7 +1263,7 @@ fn connect_client(database_url: &str) -> Result<Client, PgEventStoreError> {
     let mut config: postgres::Config = connection_url.as_str().parse()?;
     config.connect_timeout(Duration::from_secs(10));
 
-    if disable_tls {
+    if disable_tls || (local && !explicit_tls_mode) {
         Ok(config.connect(NoTls)?)
     } else {
         let mut builder = TlsConnector::builder();
