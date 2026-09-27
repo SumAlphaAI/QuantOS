@@ -9,26 +9,27 @@ use quantos_event::{NewRecordedEvent, RecordedEvent, pg::PgEventStore};
 use quantos_observability::capacity::{
     CapacityMonitorError, OperationalMetricSample, PgCapacityMonitor, REQUIRED_EXTERNAL_METRICS,
 };
+use quantos_observability::{FaultProxy, FaultTarget, InMemoryTelemetrySink};
 use serde_json::json;
 use url::Url;
 
 #[test]
 fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence() {
+    if env::var("QUANTOS_RUN_F09_POSTGRES_TESTS").as_deref() != Ok("1") {
+        eprintln!("skipping isolated F09 PostgreSQL test; run make test-f09-live");
+        return;
+    }
     let Some(database_url) = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.trim().is_empty())
     else {
-        eprintln!("skipping live F09 capacity test: DATABASE_URL is not set");
-        return;
+        panic!("DATABASE_URL is required when QUANTOS_RUN_F09_POSTGRES_TESTS=1");
     };
 
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
     let actor_id = ActorId::new();
     let scope = format!("f09-live-{tenant_id}");
-    let final_observation = Utc::now();
-    let first_observation = final_observation - ChronoDuration::minutes(17);
-    let second_observation = final_observation - ChronoDuration::minutes(8);
     let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
 
     let event = RecordedEvent::new(NewRecordedEvent {
@@ -41,7 +42,7 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         sequence: 1,
         event_kind: "CapacityFixtureCreated".to_owned(),
         schema_version: SchemaVersion::parse("v1").expect("schema version parses"),
-        occurred_at: first_observation - ChronoDuration::seconds(120),
+        occurred_at: Utc::now() - ChronoDuration::minutes(19),
         payload: json!({"fixture": "f09-capacity"}),
     })
     .expect("event builds");
@@ -50,7 +51,17 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         .append_event(&event)
         .expect("event and real outbox row persist");
 
+    // Anchor the replay window after the real database append. The event's
+    // database-assigned ingested_at is then in the final DLQ cohort even when
+    // remote Supabase setup takes longer than expected.
+    let final_observation = Utc::now() + ChronoDuration::seconds(1);
+    let first_observation = final_observation - ChronoDuration::minutes(17);
+
     let mut direct = connect_client(&database_url).expect("verification client connects");
+    direct.execute(
+        "update quantos.outbox_event set created_at = $1 where tenant_id = $2 and event_log_id = (select id from quantos.event_log where event_id = $3)",
+        &[&(first_observation - ChronoDuration::seconds(120)), tenant_id.as_uuid(), event.event_id.as_uuid()],
+    ).expect("age seeded from original enqueue time");
     direct
         .execute_typed(
             "insert into quantos.dead_letter_event (
@@ -83,11 +94,23 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         matches!(missing, Err(CapacityMonitorError::MissingMetricCoverage(_))),
         "an incomplete metric window must fail closed"
     );
+    direct
+        .query_one("select pg_advisory_lock(709, hashtext($1))", &[&scope])
+        .expect("hold independent monitor lease");
+    let concurrent =
+        rejected_writer.evaluate_and_persist(first_observation, Duration::from_secs(900));
+    assert!(matches!(
+        concurrent,
+        Err(CapacityMonitorError::ConcurrentRun(_))
+    ));
+    direct
+        .query_one("select pg_advisory_unlock(709, hashtext($1))", &[&scope])
+        .expect("release independent monitor lease");
     let rejected = rejected_writer.record_metric(&OperationalMetricSample {
         tenant_id: Some(*tenant_id.as_uuid()),
         metric_name: "storage_operation_error".to_owned(),
         metric_value: 0.0,
-        source: "f09-sensitive-negative-test".to_owned(),
+        source: "storage_operation_error".to_owned(),
         correlation_id: Some(correlation_id),
         attributes: json!({"secret_token": "must-not-persist"}),
         observed_at: first_observation,
@@ -96,15 +119,46 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         rejected.is_err(),
         "sensitive metric attributes must fail closed"
     );
+    let invalid_ratio = rejected_writer.record_metric(&OperationalMetricSample {
+        tenant_id: Some(*tenant_id.as_uuid()),
+        metric_name: "realtime_quota_utilization".to_owned(),
+        metric_value: 1.5,
+        source: "realtime_quota_utilization".to_owned(),
+        correlation_id: Some(correlation_id),
+        attributes: json!({}),
+        observed_at: first_observation,
+    });
+    assert!(
+        invalid_ratio.is_err(),
+        "quota utilization above 100% must fail closed"
+    );
 
-    for observed_at in [first_observation, second_observation, final_observation] {
-        let mut monitor = PgCapacityMonitor::connect_scoped_for_tenant(
-            &database_url,
-            &scope,
-            Some(*tenant_id.as_uuid()),
-        )
-        .expect("capacity monitor reconnects for each scheduled tick");
-        record_breaching_external_metrics(&mut monitor, tenant_id, correlation_id, observed_at);
+    record_breaching_external_metrics(
+        &mut rejected_writer,
+        tenant_id,
+        correlation_id,
+        first_observation,
+    );
+    seed_remaining_metric_minutes(&mut direct, tenant_id, correlation_id, first_observation);
+    let mut monitor = PgCapacityMonitor::connect_scoped_for_tenant(
+        &database_url,
+        &scope,
+        Some(*tenant_id.as_uuid()),
+    )
+    .expect("capacity monitor connects");
+    for minute in 0..=17 {
+        if minute % 3 == 0 {
+            eprintln!("F09 capacity continuity tick {minute}/17");
+        }
+        let observed_at = first_observation + ChronoDuration::minutes(minute);
+        if minute == 8 {
+            monitor = PgCapacityMonitor::connect_scoped_for_tenant(
+                &database_url,
+                &scope,
+                Some(*tenant_id.as_uuid()),
+            )
+            .expect("capacity monitor reconnects midway through the window");
+        }
         let evidence = monitor
             .evaluate_and_persist(observed_at, Duration::from_secs(15 * 60))
             .expect("complete live metric window evaluates");
@@ -135,7 +189,9 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
                 evidence.metric_sources.len(),
                 REQUIRED_EXTERNAL_METRICS.len()
             );
-            assert!(evidence.secret_redaction_verified);
+            assert!(!evidence.secret_redaction_verified);
+            assert!(evidence.trace_evidence.is_empty());
+            assert_eq!(evidence.db_fault_result, "NOT RUN / NO RECEIPT");
         }
     }
 
@@ -149,23 +205,136 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
     assert!(persisted >= 11, "all alert families must persist");
 }
 
+#[test]
+fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
+    if env::var("QUANTOS_RUN_F09_POSTGRES_TESTS").as_deref() != Ok("1") {
+        return;
+    }
+    let database_url = env::var("DATABASE_URL").expect("isolated DATABASE_URL required");
+    let tenant_id = TenantId::new();
+    let actor_id = ActorId::new();
+    let correlation_id = CorrelationId::new();
+    let scope = format!("f09-fault-{tenant_id}");
+    let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
+    let now = Utc::now();
+    let event = RecordedEvent::new(NewRecordedEvent {
+        tenant_id,
+        actor_id,
+        correlation_id,
+        causation_id: None,
+        aggregate_type: "f09-fault".to_owned(),
+        aggregate_id: scope,
+        sequence: 1,
+        event_kind: "FaultRecovered".to_owned(),
+        schema_version: SchemaVersion::parse("v1").unwrap(),
+        occurred_at: now,
+        payload: json!({"safe": true}),
+    })
+    .unwrap();
+    let mut store = PgEventStore::connect(&database_url).unwrap();
+    let mut proxy = FaultProxy::new();
+    let mut telemetry = InMemoryTelemetrySink::new();
+    proxy.inject_failures(FaultTarget::Database, 1);
+    assert!(
+        proxy
+            .run(
+                FaultTarget::Database,
+                &mut telemetry,
+                correlation_id,
+                "append_event",
+                now,
+                || store.append_event(&event)
+            )
+            .is_err()
+    );
+    proxy
+        .run(
+            FaultTarget::Database,
+            &mut telemetry,
+            correlation_id,
+            "append_event",
+            now + ChronoDuration::seconds(1),
+            || store.append_event(&event),
+        )
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        store
+            .events_by_correlation_id(tenant_id, correlation_id)
+            .unwrap()
+            .len(),
+        1
+    );
+
+    proxy.inject_failures(FaultTarget::EventConsumer, 1);
+    let first = store
+        .poll_outbox_once(
+            "f09-worker",
+            "f09-consumer",
+            1,
+            Utc::now(),
+            ChronoDuration::seconds(30),
+            3,
+            |_, _| {
+                proxy
+                    .run(
+                        FaultTarget::EventConsumer,
+                        &mut telemetry,
+                        correlation_id,
+                        "consume_event",
+                        Utc::now(),
+                        || (),
+                    )
+                    .map_err(|error| error.to_string())
+            },
+            |_| Ok(()),
+        )
+        .unwrap();
+    assert_eq!(first.retried, 1);
+    std::thread::sleep(Duration::from_secs(4));
+    let second = store
+        .poll_outbox_once(
+            "f09-worker",
+            "f09-consumer",
+            1,
+            Utc::now(),
+            ChronoDuration::seconds(30),
+            3,
+            |_, _| {
+                proxy
+                    .run(
+                        FaultTarget::EventConsumer,
+                        &mut telemetry,
+                        correlation_id,
+                        "consume_event",
+                        Utc::now(),
+                        || (),
+                    )
+                    .map_err(|error| error.to_string())
+            },
+            |_| Ok(()),
+        )
+        .unwrap();
+    assert_eq!(second.processed, 1);
+    assert_eq!(
+        store
+            .events_by_correlation_id(tenant_id, correlation_id)
+            .unwrap()
+            .len(),
+        1
+    );
+    let logs = serde_json::to_string(telemetry.logs()).unwrap();
+    assert!(!logs.contains("should-be-redacted"));
+    assert!(logs.contains("[REDACTED]"));
+}
+
 fn record_breaching_external_metrics(
     monitor: &mut PgCapacityMonitor,
     tenant_id: TenantId,
     correlation_id: CorrelationId,
     observed_at: chrono::DateTime<Utc>,
 ) {
-    for (metric_name, value) in [
-        ("realtime_projection_delay_secs", 8.0),
-        ("realtime_quota_utilization", 0.8),
-        ("risk_query_latency_ms", 350.0),
-        ("portfolio_query_latency_ms", 340.0),
-        ("risk_mv_freshness_secs", 90.0),
-        ("ops_aggregate_freshness_secs", 360.0),
-        ("storage_operation_error", 1.0),
-        ("secret_rotation_failure", 1.0),
-        ("secret_read_failure", 1.0),
-    ] {
+    for (metric_name, value) in breaching_metrics() {
         monitor
             .record_metric(&OperationalMetricSample {
                 tenant_id: Some(*tenant_id.as_uuid()),
@@ -178,6 +347,45 @@ fn record_breaching_external_metrics(
             })
             .expect("metric sample persists");
     }
+}
+
+fn breaching_metrics() -> [(&'static str, f64); 9] {
+    [
+        ("realtime_projection_delay_secs", 8.0),
+        ("realtime_quota_utilization", 0.8),
+        ("risk_query_latency_ms", 350.0),
+        ("portfolio_query_latency_ms", 340.0),
+        ("risk_mv_freshness_secs", 90.0),
+        ("ops_aggregate_freshness_secs", 360.0),
+        ("storage_operation_error", 1.0),
+        ("secret_rotation_failure", 1.0),
+        ("secret_read_failure", 1.0),
+    ]
+}
+
+fn seed_remaining_metric_minutes(
+    client: &mut Client,
+    tenant_id: TenantId,
+    correlation_id: CorrelationId,
+    first_observation: chrono::DateTime<Utc>,
+) {
+    let mut rows = Vec::new();
+    for minute in 1..=17 {
+        for (name, value) in breaching_metrics() {
+            rows.push(json!({
+                "name": name,
+                "value": value,
+                "observed_at": (first_observation + ChronoDuration::minutes(minute)).to_rfc3339(),
+            }));
+        }
+    }
+    client.execute(
+        "insert into quantos.operational_metric_samples (
+            tenant_id, metric_name, metric_value, source, correlation_id, attributes, observed_at
+         ) select $1, sample.name, sample.value, sample.name, $2, '{}'::jsonb, sample.observed_at
+           from jsonb_to_recordset($3::jsonb) as sample(name text, value double precision, observed_at timestamptz)",
+        &[tenant_id.as_uuid(), correlation_id.as_uuid(), &json!(rows)],
+    ).expect("continuous metric samples persist in one batch");
 }
 
 struct Cleanup {
@@ -227,7 +435,7 @@ impl Drop for Cleanup {
                 &[&self.scope],
             );
             let _ = client.execute_typed(
-                "delete from quantos.tenants where id = $1",
+                "delete from quantos.operational_metric_samples where tenant_id = $1",
                 &[(self.tenant_id.as_uuid(), Type::UUID)],
             );
         }

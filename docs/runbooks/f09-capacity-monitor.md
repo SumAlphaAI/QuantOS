@@ -7,8 +7,10 @@ continues the original 15-minute and three-check windows.
 
 ## Metric producer contract
 
-Producers call `quantos.record_operational_metric` with a numeric value, a
-stable source label, an optional correlation ID, and non-sensitive attributes:
+Producers call `quantos.record_operational_metric` with a numeric value, the
+registered metric name as the source label, an optional correlation ID, and
+non-sensitive attributes. The SQL intake rejects out-of-range values and
+observations more than 24 hours old or 90 seconds in the future:
 
 - Realtime subscriber/projection worker: end-to-end delay and current quota
   utilization.
@@ -32,7 +34,7 @@ make f09-adr-input
 ```
 
 The first command fails closed if any of the nine externally produced metric
-families is absent from the lookback window. It directly derives outbox age and
+families lacks a sample in the last 90 seconds. It directly derives outbox age and
 DLQ ratio from PostgreSQL truth tables, restores alert state, persists alerts,
 and atomically publishes JSON evidence. The second command renders the complete
 snapshot, alert IDs, correlations, metric sources, and remediation actions into

@@ -2,6 +2,7 @@ use std::{env, net::SocketAddr};
 
 use anyhow::{Context, ensure};
 use bff_gateway::BffProvider;
+use quantos_observability::service::ServiceObservability;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -15,6 +16,10 @@ async fn main() -> anyhow::Result<()> {
             address.ip().is_loopback(),
             "the reference provider may only bind to a loopback address"
         );
+    }
+    if let Ok(observability_address) = env::var("QUANTOS_OBSERVABILITY_ADDR") {
+        let observer = ServiceObservability::from_env("bff-gateway")?;
+        observer.start_background(observability_address.parse()?)?;
     }
     let listener = tokio::net::TcpListener::bind(address)
         .await

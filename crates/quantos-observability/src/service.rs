@@ -21,6 +21,8 @@ use quantos_core::CorrelationId;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use crate::redact_value;
+
 const MAX_REQUEST_BYTES: usize = 8 * 1024;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -114,7 +116,9 @@ impl JsonlTraceExporter {
             .create(true)
             .append(true)
             .open(self.path())?;
-        serde_json::to_writer(&mut file, record).map_err(std::io::Error::other)?;
+        let mut safe_record = record.clone();
+        safe_record.attributes = redact_value(safe_record.attributes);
+        serde_json::to_writer(&mut file, &safe_record).map_err(std::io::Error::other)?;
         file.write_all(b"\n")?;
         file.flush()
     }
@@ -220,7 +224,7 @@ impl ServiceObservability {
             correlation_id,
             operation: operation.into(),
             status,
-            attributes,
+            attributes: redact_value(attributes),
             recorded_at: Utc::now(),
         })
     }
@@ -228,7 +232,33 @@ impl ServiceObservability {
     /// Serve `/healthz`, `/readyz`, `/metrics`, and correlation-addressable
     /// `/trace/<uuid>` endpoints. Unknown routes return a stable error envelope.
     pub fn serve(&self, address: SocketAddr) -> std::io::Result<()> {
-        let listener = TcpListener::bind(address)?;
+        self.serve_listener(Self::bind(address)?)
+    }
+
+    pub fn start_background(&self, address: SocketAddr) -> std::io::Result<()> {
+        let listener = Self::bind(address)?;
+        let observer = self.clone();
+        std::thread::Builder::new()
+            .name(format!("{}-observability", self.service))
+            .spawn(move || {
+                if let Err(error) = observer.serve_listener(listener) {
+                    eprintln!("observability listener failed: {error}");
+                }
+            })?;
+        Ok(())
+    }
+
+    fn bind(address: SocketAddr) -> std::io::Result<TcpListener> {
+        if !address.ip().is_loopback() {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::PermissionDenied,
+                "observability HTTP must bind to loopback",
+            ));
+        }
+        TcpListener::bind(address)
+    }
+
+    fn serve_listener(&self, listener: TcpListener) -> std::io::Result<()> {
         for connection in listener.incoming() {
             match connection {
                 Ok(mut stream) => {
@@ -408,8 +438,8 @@ impl ServiceObservability {
 }
 
 /// Run one batch-service command with the same trace/error contract as the
-/// long-running gateways. When `QUANTOS_OBSERVABILITY_ADDR` is configured the
-/// binary runs its operations HTTP surface instead of executing a batch job.
+/// long-running gateways. The optional operations HTTP surface runs alongside
+/// the batch command and cannot suppress the command itself.
 pub fn run_observed_command<E>(
     service: &str,
     operation: &str,
@@ -427,10 +457,9 @@ pub fn run_observed_command<E>(
         let Ok(address) = address.parse() else {
             return emit_bootstrap_failure(service, "OBSERVABILITY_INVALID_ADDRESS");
         };
-        return match observability.serve(address) {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(_) => emit_bootstrap_failure(service, "OBSERVABILITY_HTTP_SERVER_FAILURE"),
-        };
+        if observability.start_background(address).is_err() {
+            return emit_bootstrap_failure(service, "OBSERVABILITY_HTTP_SERVER_FAILURE");
+        }
     }
 
     let correlation_id = CorrelationId::new();
@@ -563,5 +592,31 @@ mod tests {
         assert_eq!(envelope.code, "OBSERVABILITY_ROUTE_NOT_FOUND");
         assert_eq!(envelope.service, "execution-gateway");
         assert!(!envelope.retryable);
+    }
+
+    #[test]
+    fn persisted_trace_redacts_nested_credentials_and_rejects_remote_listener() {
+        let trace_path = std::env::temp_dir().join(format!(
+            "quantos-observability-secret-{}.jsonl",
+            CorrelationId::new()
+        ));
+        let probe = ServiceObservability::with_jsonl_exporter("runtime-gateway", &trace_path)
+            .expect("trace exporter");
+        let id = CorrelationId::new();
+        probe
+            .record_trace(
+                id,
+                "write",
+                "succeeded",
+                json!({
+                    "nested": {"authorization": "Bearer sensitive-value"}, "safe": "ok"
+                }),
+            )
+            .expect("trace export");
+        let written = std::fs::read_to_string(&trace_path).expect("read trace");
+        assert!(!written.contains("sensitive-value"));
+        assert!(written.contains("[REDACTED]"));
+        assert!(probe.serve("0.0.0.0:0".parse().unwrap()).is_err());
+        std::fs::remove_file(trace_path).expect("remove trace fixture");
     }
 }

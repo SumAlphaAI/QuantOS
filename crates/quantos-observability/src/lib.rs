@@ -199,6 +199,7 @@ impl InMemoryTelemetrySink {
 pub struct AlertWindowState {
     first_breach_at: HashMap<String, DateTime<Utc>>,
     consecutive_breaches: HashMap<String, u32>,
+    last_observed_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone)]
@@ -221,6 +222,14 @@ impl CapacityAlertEvaluator {
         observed_at: DateTime<Utc>,
         state: &mut AlertWindowState,
     ) -> Vec<AlertRecord> {
+        if state.last_observed_at.is_some_and(|previous| {
+            let gap = observed_at.signed_duration_since(previous);
+            gap <= ChronoDuration::zero() || gap > ChronoDuration::seconds(90)
+        }) {
+            state.first_breach_at.clear();
+            state.consecutive_breaches.clear();
+        }
+        state.last_observed_at = Some(observed_at);
         let mut alerts = Vec::new();
 
         self.evaluate_duration_rule(
@@ -911,6 +920,8 @@ fn should_redact_key(key: &str) -> bool {
         "token",
         "password",
         "api_key",
+        "api-key",
+        "apikey",
         "authorization",
         "credential",
         "session",
@@ -1018,12 +1029,13 @@ mod tests {
         };
         let mut state = AlertWindowState::default();
 
-        let _ = evaluator.evaluate(&snapshot, base_time, &mut state);
-        let _ = evaluator.evaluate(
-            &snapshot,
-            base_time + ChronoDuration::minutes(16),
-            &mut state,
-        );
+        for minute in 0..17 {
+            let _ = evaluator.evaluate(
+                &snapshot,
+                base_time + ChronoDuration::minutes(minute),
+                &mut state,
+            );
+        }
         let alerts = evaluator.evaluate(
             &snapshot,
             base_time + ChronoDuration::minutes(17),
@@ -1060,6 +1072,44 @@ mod tests {
             build_adr_evidence_report(&alerts, &sink, base_time + ChronoDuration::minutes(17));
         assert!(!report.recommended_actions.is_empty());
         assert!(report.implicated_correlations.contains(&correlation_id));
+    }
+
+    #[test]
+    fn capacity_duration_and_consecutive_windows_reset_after_missing_tick() {
+        let base = Utc.with_ymd_and_hms(2026, 9, 27, 0, 0, 0).single().unwrap();
+        let snapshot = CapacitySnapshot {
+            outbox_oldest_age_secs: 61.0,
+            risk_mv_freshness_secs: 61.0,
+            ..CapacitySnapshot::default()
+        };
+        let mut state = AlertWindowState::default();
+        let evaluator = CapacityAlertEvaluator;
+        let _ = evaluator.evaluate(&snapshot, base, &mut state);
+        let _ = evaluator.evaluate(&snapshot, base + ChronoDuration::minutes(1), &mut state);
+        let after_gap =
+            evaluator.evaluate(&snapshot, base + ChronoDuration::minutes(16), &mut state);
+        assert!(
+            !after_gap
+                .iter()
+                .any(|alert| alert.rule_id == "outbox_oldest_age")
+        );
+        assert!(
+            !after_gap
+                .iter()
+                .any(|alert| alert.rule_id == "risk_mv_freshness")
+        );
+        let _ = evaluator.evaluate(&snapshot, base + ChronoDuration::minutes(17), &mut state);
+        let third = evaluator.evaluate(&snapshot, base + ChronoDuration::minutes(18), &mut state);
+        assert!(
+            third
+                .iter()
+                .any(|alert| alert.rule_id == "risk_mv_freshness")
+        );
+        assert!(
+            !third
+                .iter()
+                .any(|alert| alert.rule_id == "outbox_oldest_age")
+        );
     }
 
     #[test]

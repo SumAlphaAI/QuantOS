@@ -18,6 +18,32 @@ from quantos_engine_sdk import (
     timestamp_now,
     uds_target,
 )
+from quantos_engine_sdk.observability import ExportedTraceRecord
+
+
+def test_trace_exporter_redacts_nested_credentials_without_network(tmp_path: Path) -> None:
+    trace_path = tmp_path / "redacted.jsonl"
+    exporter = JsonlTraceExporter(trace_path)
+    exporter.export(
+        ExportedTraceRecord(
+            service="mock-engine",
+            correlation_id=str(uuid.uuid4()),
+            operation="engine.execute",
+            status="failed",
+            attributes={"nested": {"secret_token": "sensitive-value"}, "safe": "ok"},
+            recorded_at="2026-09-27T00:00:00Z",
+        )
+    )
+    written = trace_path.read_text()
+    assert "sensitive-value" not in written
+    assert "[REDACTED]" in written
+    observer = EngineObservability("mock-engine", exporter)
+    try:
+        observer.start_http(("0.0.0.0", 0))
+    except ValueError as error:
+        assert "loopback" in str(error)
+    else:
+        raise AssertionError("remote observability listener was allowed")
 
 
 def test_engine_rpc_exports_queryable_trace_and_operational_metrics(tmp_path: Path) -> None:

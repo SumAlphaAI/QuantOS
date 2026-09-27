@@ -1,0 +1,56 @@
+name: F09 Observability Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main, "codex/f09-remediation"]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 19 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  disposable-observability:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17.10
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      QUANTOS_SKIP_ENV: "1"
+      F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.91.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.10"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.7.0"
+      - run: corepack enable pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --locked --project engines --all-packages
+      - name: Local trace, Engine and ADR Gate
+        run: make observability-check
+      - name: Disposable PostgreSQL capacity Gate
+        run: make f09-db-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: f09-disposable-${{ github.sha }}
+          path: artifacts/f09/disposable-database.json
+          if-no-files-found: warn

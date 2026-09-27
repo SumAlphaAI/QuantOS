@@ -13,12 +13,14 @@ use axum::{
     Json, Router,
     extract::{Path, State},
     http::{HeaderMap, HeaderValue, Method, StatusCode, header},
+    middleware::{self, Next},
+    response::Response,
     routing::{get, post},
 };
 use bytes::Bytes;
 use chrono::{Duration as ChronoDuration, Utc};
 use quantos_auth::{BffSessionContext, GatewayAuthMiddleware};
-use quantos_core::{ArtifactId, ContentHash, WorkflowRunId};
+use quantos_core::{ArtifactId, ContentHash, CorrelationId, WorkflowRunId};
 use quantos_observability::service::ServiceObservability;
 use quantos_policy::{AuthorizationRequirement, Capability, Role};
 use quantos_runtime::{NewWorkflowRun, ToolRegistration, pg::PgRuntimeStore};
@@ -93,15 +95,10 @@ pub async fn serve() -> Result<()> {
         worker_healthy.load(Ordering::SeqCst),
         "runtime worker did not become healthy"
     );
+    let observability = Arc::new(ServiceObservability::from_env("runtime-gateway")?);
     if let Ok(address) = env::var("QUANTOS_OBSERVABILITY_ADDR") {
         let address = address.parse()?;
-        std::thread::Builder::new()
-            .name("runtime-observability".to_owned())
-            .spawn(move || {
-                if let Ok(service) = ServiceObservability::from_env("runtime-gateway") {
-                    let _ = service.serve(address);
-                }
-            })?;
+        observability.start_background(address)?;
     }
     let state = Arc::new(AppState {
         auth: Mutex::new(auth),
@@ -122,6 +119,10 @@ pub async fn serve() -> Result<()> {
             get(get_artifact),
         )
         .with_state(state)
+        .layer(middleware::from_fn_with_state(
+            observability,
+            trace_write_request,
+        ))
         .layer(
             CorsLayer::new()
                 .allow_origin(origin_header)
@@ -136,6 +137,93 @@ pub async fn serve() -> Result<()> {
     println!("{{\"service\":\"runtime-gateway\",\"ready\":true,\"address\":\"{address}\"}}");
     axum::serve(listener, router).await?;
     Ok(())
+}
+
+async fn trace_write_request(
+    State(observer): State<Arc<ServiceObservability>>,
+    request: axum::extract::Request,
+    next: Next,
+) -> Response {
+    let method = request.method().clone();
+    let path = request.uri().path().to_owned();
+    let requested_id = request
+        .headers()
+        .get("x-correlation-id")
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| CorrelationId::parse_str(value).ok());
+    let mut response = next.run(request).await;
+    if method == Method::POST {
+        let correlation_id = response
+            .headers()
+            .get("x-correlation-id")
+            .and_then(|value| value.to_str().ok())
+            .and_then(|value| CorrelationId::parse_str(value).ok())
+            .or(requested_id)
+            .unwrap_or_else(CorrelationId::new);
+        let status = if response.status().is_success() {
+            "succeeded"
+        } else {
+            "failed"
+        };
+        if let Err(error) = observer.record_trace(
+            correlation_id,
+            format!("http.post {path}"),
+            status,
+            json!({ "http_status": response.status().as_u16() }),
+        ) {
+            eprintln!("runtime trace export failed: {error}");
+        }
+        response.headers_mut().insert(
+            "x-correlation-id",
+            HeaderValue::from_str(&correlation_id.to_string()).expect("UUID header value"),
+        );
+    }
+    response
+}
+
+#[cfg(test)]
+mod f09_trace_tests {
+    use std::sync::Arc;
+
+    use axum::{
+        Router,
+        body::Body,
+        http::{Method, Request, StatusCode},
+        middleware,
+        routing::post,
+    };
+    use quantos_observability::service::ServiceObservability;
+    use tower::ServiceExt;
+
+    use super::trace_write_request;
+
+    #[tokio::test]
+    async fn write_returns_queryable_correlation_trace() {
+        let path = std::env::temp_dir().join(format!("f09-runtime-{}.jsonl", uuid::Uuid::new_v4()));
+        let observer =
+            Arc::new(ServiceObservability::with_jsonl_exporter("runtime-gateway", &path).unwrap());
+        let router = Router::new()
+            .route("/v1/runtime/runs", post(|| async { StatusCode::ACCEPTED }))
+            .layer(middleware::from_fn_with_state(
+                observer.clone(),
+                trace_write_request,
+            ));
+        let response = router
+            .oneshot(
+                Request::builder()
+                    .method(Method::POST)
+                    .uri("/v1/runtime/runs")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::ACCEPTED);
+        let correlation = response.headers()["x-correlation-id"].to_str().unwrap();
+        let result = observer.render(&format!("/trace/{correlation}"));
+        assert!(result.contains("http.post /v1/runtime/runs"));
+        std::fs::remove_file(path).unwrap();
+    }
 }
 
 async fn health(State(state): State<Arc<AppState>>) -> StatusCode {

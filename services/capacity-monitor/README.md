@@ -7,8 +7,8 @@ Storage, and Vault measurements, restores alert-window state, evaluates all
 capacity rules, persists alerts, and atomically writes ADR JSON input.
 
 The collector fails closed when any required external metric family has no
-sample in the lookback window. Metric producers insert only numeric values,
-safe source labels, optional correlation IDs, and non-sensitive attributes
+sample in the last 90 seconds. Metric producers insert only numeric values,
+the metric name as source label, optional correlation IDs, and non-sensitive attributes
 into `quantos.operational_metric_samples`; credentials and payloads are
 forbidden.
 
