@@ -55,9 +55,11 @@ sources are deployed.
 configured Supabase project. It writes `artifacts/f09/source-coverage.json`
 and fails when any metric has no sample in the last 90 seconds. Sample presence
 does not prove business provenance or deployment ownership.
-The F09 Supabase target workflow runs this check after the component probes,
-even when a component probe fails, and uploads both receipts. A missing source
-fails the workflow; a passing coverage receipt alone never opens F09/F0.
+Run this diagnostic after the actual metric producers and one-minute monitor
+are deployed for L04 release acceptance. It is not a required F09 development
+CI check: before deployment, missing live samples are expected. A passing
+coverage receipt alone never establishes business provenance or release
+acceptance.
 
 The F09 workflow requires `F09_DATABASE_URL`,
 `F09_SUPABASE_URL`, and `F09_CA_PEM` secrets for its direct Supabase target job.
@@ -79,6 +81,7 @@ Do not copy a local `sslrootcert` filesystem path into the GitHub secret as the
 runner cannot access it. Supabase documents the certificate and `verify-full`
 setup in its [Postgres connection guide](https://supabase.com/docs/guides/database/connecting-to-postgres).
 
-The F09 target Gate no longer imposes a same-region runner or a hard query P95
-benchmark. Query latency samples and the 300 ms / 15 minute alert rule remain
-part of F09 observability acceptance.
+The F09 development target Gate verifies Supabase-backed component behavior
+without a deployed service. It does not impose a same-region runner or a hard
+query P95 benchmark. Deployed query samples, sustained 300 ms / 15 minute
+alerts, dashboard queries and notifications move to L04 release acceptance.

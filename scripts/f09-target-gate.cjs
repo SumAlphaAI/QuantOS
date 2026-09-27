@@ -9,15 +9,18 @@ const output = path.join(root, 'artifacts/f09/target.json');
 const sourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 const dirty = Boolean(execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim());
 const receipt = {
-  schema: 'quantos-f09-target-gate/v1', sourceCommit, dirty,
+  schema: 'quantos-f09-target-gate/v2', sourceCommit, dirty,
   targetClass: 'test-supabase-postgresql', status: 'RUNNING', checks: [],
-  acceptanceScope: 'F09 database and Engine component probes',
+  acceptanceScope: 'F09 development database and Engine component probes',
   f09Accepted: false,
-  remainingAcceptance: [
-    'nine live business metric producers and one-minute deployment',
-    'cross-service same-chain fault exercise',
-    'dashboard query and notification delivery',
+  remainingDevelopmentAcceptance: [
+    'delivered F0 write entrypoint trace and structured error review',
     'same-SHA remote CI and Nightly receipts',
+  ],
+  deferredToL04: [
+    'nine deployed business metric producers and one-minute monitor',
+    'cross-service same-chain fault exercises and secret leak scan',
+    'sustained live thresholds, dashboard queries and notification delivery',
   ],
   startedAt: new Date().toISOString(),
 };

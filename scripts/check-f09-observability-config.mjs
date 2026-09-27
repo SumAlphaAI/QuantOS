@@ -27,12 +27,13 @@ assert.deepEqual([...displayed].sort(), [...expectedMetrics].sort(), "F09 dashbo
 assert.equal(capacity.evaluation_interval_seconds, 60);
 const targetSteps = workflow.jobs["supabase-target"].steps;
 const componentIndex = targetSteps.findIndex((step) => step.run === "make f09-target-check");
-const sourceIndex = targetSteps.findIndex((step) => step.run === "make f09-source-coverage-check");
 const artifactIndex = targetSteps.findIndex((step) => step.uses?.startsWith("actions/upload-artifact@"));
-assert.ok(componentIndex >= 0 && sourceIndex > componentIndex && artifactIndex > sourceIndex,
-  "F09 workflow must run source coverage after component probes and upload both receipts");
-assert.equal(targetSteps[sourceIndex].if, "always()",
-  "F09 source coverage must run even when component probes fail");
+assert.ok(componentIndex >= 0 && artifactIndex > componentIndex,
+  "F09 workflow must run component probes and upload their receipt");
+const onlineSourceSteps = Object.values(workflow.jobs).flatMap((job) => job.steps ?? [])
+  .filter((step) => /\bf09-source-coverage-check\b/.test(step.run ?? ""));
+assert.equal(onlineSourceSteps.length, 0,
+  "deployed nine-source coverage belongs to the L04 release Gate, not F09 development CI");
 assert.equal(targetSteps[artifactIndex].if, "always()",
   "F09 target receipts must upload on failure");
 console.log("F09 alert rules and dashboard inventory agree with the evaluator.");
