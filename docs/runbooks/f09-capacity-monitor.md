@@ -49,7 +49,14 @@ portfolio and risk-input query latency, Runtime Storage outcomes, and the
 restricted Execution Gateway secret-read outcome. Realtime quota, risk MV,
 operations aggregate freshness, and secret rotation have no implemented
 business data source. The monitor must report their absence until those
-sources are deployed. The F09 workflow requires `F09_DATABASE_URL`,
+sources are deployed.
+
+`make f09-source-coverage-check` is a read-only exact-SHA diagnostic for the
+configured Supabase project. It writes `artifacts/f09/source-coverage.json`
+and fails when any metric has no sample in the last 90 seconds. Sample presence
+does not prove business provenance or deployment ownership.
+
+The F09 workflow requires `F09_DATABASE_URL`,
 `F09_SUPABASE_URL`, and `F09_CA_PEM` secrets for its direct Supabase target job.
 The database URL is the target test login for migration checks and fixture
 setup. The F09 target Gate does not require or compare Runtime and Execution

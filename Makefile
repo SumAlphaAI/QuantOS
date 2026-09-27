@@ -228,6 +228,10 @@ f09-target-check: ensure-node
 	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for F09 target acceptance." >&2; exit 1)
 	node scripts/f09-target-gate.cjs
 
+f09-source-coverage-check: ensure-node
+	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" -a -n "$$QUANTOS_BFF_SSLROOTCERT" || (echo "DATABASE_URL, SUPABASE_URL and QUANTOS_BFF_SSLROOTCERT are required for F09 source coverage." >&2; exit 1)
+	node scripts/f09-source-coverage.cjs
+
 test-f05-live:
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F05 PostgreSQL acceptance Gate." >&2; exit 1)
 	QUANTOS_RUN_F05_POSTGRES_TESTS=1 cargo test -p quantos-event --test postgres_persistence --locked -- --test-threads=1 --nocapture
