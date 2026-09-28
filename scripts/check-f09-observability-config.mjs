@@ -3,9 +3,11 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import YAML from "yaml";
+import { validateF09RuleContracts } from "./f09-rule-contract.mjs";
 
 const legacy = YAML.parse(fs.readFileSync("docs/operations/f09_alert_rules.yaml", "utf8"));
 const capacity = YAML.parse(fs.readFileSync("docs/operations/f09_capacity_alert_rules.yaml", "utf8"));
+validateF09RuleContracts(legacy, capacity);
 const dashboard = JSON.parse(fs.readFileSync("docs/operations/f09_capacity_dashboard.json", "utf8"));
 const workflow = YAML.parse(fs.readFileSync(".github/workflows/f09-observability.yml", "utf8"));
 const makefile = fs.readFileSync("Makefile", "utf8");

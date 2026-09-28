@@ -208,7 +208,14 @@ impl PgCapacityMonitor {
         let snapshot = match self.collect_snapshot(observed_at, lookback) {
             Ok(snapshot) => snapshot,
             Err(CapacityMonitorError::MissingMetricCoverage(missing)) => {
-                self.client.execute(
+                // An observed sampling failure breaks continuity even if a
+                // retry succeeds within 90 seconds of the previous good tick.
+                let mut transaction = self.client.transaction()?;
+                transaction.execute(
+                    "delete from quantos.capacity_alert_window_state where scope = $1",
+                    &[&self.scope],
+                )?;
+                transaction.execute(
                     "insert into quantos.capacity_alerts (
                        scope, rule_id, severity, summary, observed_value, threshold, triggered_at
                      ) values ($1,'metric_coverage_missing','critical',
@@ -221,6 +228,7 @@ impl PgCapacityMonitor {
                         &observed_at,
                     ],
                 )?;
+                transaction.commit()?;
                 return Err(CapacityMonitorError::MissingMetricCoverage(missing));
             }
             Err(error) => return Err(error),
@@ -332,6 +340,7 @@ impl PgCapacityMonitor {
             "delete from quantos.capacity_alert_window_state where scope = $1",
             &[&self.scope],
         )?;
+        let accepted_tick = state.last_observed_at.unwrap_or(observed_at);
         let rule_ids = state
             .first_breach_at
             .keys()
@@ -354,7 +363,7 @@ impl PgCapacityMonitor {
                     &rule_id,
                     &first_breach,
                     &consecutive,
-                    &observed_at,
+                    &accepted_tick,
                 ],
             )?;
         }

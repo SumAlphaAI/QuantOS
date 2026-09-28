@@ -223,6 +223,7 @@ observability-check:
 	uv run --locked --project engines --all-packages pytest engines/tests/test_engine_observability.py engines/tests/test_mock_engine_recovery.py
 	node ./scripts/test-f09-adr-input.mjs
 	node ./scripts/check-f09-observability-config.mjs
+	node --test scripts/tests/f09-rule-contract.test.mjs
 
 test-f09-live:
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F09 PostgreSQL Gate." >&2; exit 1)

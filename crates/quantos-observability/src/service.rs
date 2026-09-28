@@ -11,7 +11,7 @@ use std::{
     process::ExitCode,
     sync::{
         Arc, Mutex,
-        atomic::{AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
     },
     time::Duration,
 };
@@ -157,6 +157,7 @@ impl JsonlTraceExporter {
 struct Counters {
     requests: AtomicU64,
     errors: AtomicU64,
+    listener_failed: AtomicBool,
 }
 
 #[derive(Debug, Clone)]
@@ -174,6 +175,7 @@ impl ServiceObservability {
             counters: Arc::new(Counters {
                 requests: AtomicU64::new(0),
                 errors: AtomicU64::new(0),
+                listener_failed: AtomicBool::new(false),
             }),
             exporter: None,
         }
@@ -211,9 +213,11 @@ impl ServiceObservability {
 
     #[must_use]
     pub fn is_ready(&self) -> bool {
-        self.exporter
-            .as_ref()
-            .is_some_and(JsonlTraceExporter::is_ready)
+        !self.counters.listener_failed.load(Ordering::Relaxed)
+            && self
+                .exporter
+                .as_ref()
+                .is_some_and(JsonlTraceExporter::is_ready)
     }
 
     pub fn record_error(&self) {
@@ -274,14 +278,31 @@ impl ServiceObservability {
     }
 
     fn serve_listener(&self, listener: TcpListener) -> std::io::Result<()> {
-        for connection in listener.incoming() {
+        self.serve_connections(listener.incoming())
+    }
+
+    fn serve_connections(
+        &self,
+        connections: impl IntoIterator<Item = std::io::Result<TcpStream>>,
+    ) -> std::io::Result<()> {
+        for connection in connections {
             match connection {
                 Ok(mut stream) => {
-                    stream.set_read_timeout(Some(Duration::from_secs(2)))?;
-                    self.handle_connection(&mut stream)?;
+                    let result = stream
+                        .set_read_timeout(Some(Duration::from_secs(2)))
+                        .and_then(|()| stream.set_write_timeout(Some(Duration::from_secs(2))))
+                        .and_then(|()| self.handle_connection(&mut stream));
+                    if result.is_err() {
+                        // A stalled/disconnected client is not a listener failure.
+                        self.counters.errors.fetch_add(1, Ordering::Relaxed);
+                    }
                 }
                 Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
-                Err(error) => return Err(error),
+                Err(error) => {
+                    self.counters.listener_failed.store(true, Ordering::Relaxed);
+                    self.counters.errors.fetch_add(1, Ordering::Relaxed);
+                    return Err(error);
+                }
             }
         }
         Ok(())
@@ -627,6 +648,40 @@ mod tests {
         std::fs::remove_file(trace_path).expect("remove trace fixture");
         assert!(!probe.is_ready());
         assert!(probe.render("/readyz").contains("\"ready\":false"));
+    }
+
+    #[test]
+    fn stalled_client_does_not_stop_listener_and_listener_failure_changes_readiness() {
+        use std::{
+            io::{Read, Write},
+            net::{TcpListener, TcpStream},
+        };
+        let path =
+            std::env::temp_dir().join(format!("f09-listener-{}.jsonl", CorrelationId::new()));
+        let probe = ServiceObservability::with_jsonl_exporter("runtime-gateway", &path).unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let idle = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let (idle_server, _) = listener.accept().unwrap();
+        let mut good = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let (good_server, _) = listener.accept().unwrap();
+        good.write_all(b"GET /readyz HTTP/1.1\r\nHost: localhost\r\n\r\n")
+            .unwrap();
+        probe
+            .serve_connections([Ok(idle_server), Ok(good_server)])
+            .unwrap();
+        let mut response = String::new();
+        good.read_to_string(&mut response).unwrap();
+        assert!(response.contains("200 OK"));
+        assert!(probe.is_ready());
+        drop(idle);
+        assert!(
+            probe
+                .serve_connections([Err(std::io::Error::other("listener unavailable"))])
+                .is_err()
+        );
+        assert!(!probe.is_ready());
+        assert!(probe.render("/readyz").contains("503 Service Unavailable"));
+        std::fs::remove_file(path).unwrap();
     }
 
     #[test]

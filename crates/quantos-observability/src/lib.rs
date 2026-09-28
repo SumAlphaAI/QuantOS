@@ -222,12 +222,18 @@ impl CapacityAlertEvaluator {
         observed_at: DateTime<Utc>,
         state: &mut AlertWindowState,
     ) -> Vec<AlertRecord> {
-        if state.last_observed_at.is_some_and(|previous| {
-            let gap = observed_at.signed_duration_since(previous);
-            gap <= ChronoDuration::zero() || gap > ChronoDuration::seconds(90)
-        }) {
-            state.first_breach_at.clear();
-            state.consecutive_breaches.clear();
+        if let Some(previous) = state.last_observed_at {
+            // Retries and duplicate invocations in one scheduled minute must
+            // not advance the consecutive count or erase a valid window.
+            if observed_at <= previous
+                || observed_at.timestamp().div_euclid(60) == previous.timestamp().div_euclid(60)
+            {
+                return Vec::new();
+            }
+            if observed_at.signed_duration_since(previous) > ChronoDuration::seconds(90) {
+                state.first_breach_at.clear();
+                state.consecutive_breaches.clear();
+            }
         }
         state.last_observed_at = Some(observed_at);
         let mut alerts = Vec::new();
@@ -281,16 +287,14 @@ impl CapacityAlertEvaluator {
             },
             &mut alerts,
         );
-        self.evaluate_duration_rule(
+        self.evaluate_immediate_rule(
             snapshot.realtime_quota_utilization > 0.7,
             observed_at,
-            ChronoDuration::minutes(15),
-            state,
             AlertSeed {
                 rule_id: "realtime_quota_utilization".to_owned(),
                 severity: AlertSeverity::Warning,
                 summary: format!(
-                    "realtime quota utilization exceeded 70% for 15 minutes: {:.2}",
+                    "realtime quota utilization exceeded 70%: {:.2}",
                     snapshot.realtime_quota_utilization
                 ),
                 observed_value: json!(snapshot.realtime_quota_utilization),
@@ -1072,6 +1076,59 @@ mod tests {
             build_adr_evidence_report(&alerts, &sink, base_time + ChronoDuration::minutes(17));
         assert!(!report.recommended_actions.is_empty());
         assert!(report.implicated_correlations.contains(&correlation_id));
+    }
+
+    #[test]
+    fn quota_alert_is_immediate_and_requires_exceeding_seventy_percent() {
+        let base = Utc.with_ymd_and_hms(2026, 9, 28, 0, 0, 0).single().unwrap();
+        for (value, expected) in [(0.7, false), (0.7001, true)] {
+            let alerts = CapacityAlertEvaluator.evaluate(
+                &CapacitySnapshot {
+                    realtime_quota_utilization: value,
+                    ..CapacitySnapshot::default()
+                },
+                base,
+                &mut AlertWindowState::default(),
+            );
+            assert_eq!(
+                alerts
+                    .iter()
+                    .any(|a| a.rule_id == "realtime_quota_utilization"),
+                expected
+            );
+        }
+    }
+
+    #[test]
+    fn duplicate_or_backward_ticks_do_not_advance_consecutive_windows() {
+        let base = Utc.with_ymd_and_hms(2026, 9, 28, 0, 0, 0).single().unwrap();
+        let snapshot = CapacitySnapshot {
+            risk_mv_freshness_secs: 61.0,
+            ops_aggregate_freshness_secs: 301.0,
+            ..CapacitySnapshot::default()
+        };
+        let mut state = AlertWindowState::default();
+        let evaluator = CapacityAlertEvaluator;
+        assert!(evaluator.evaluate(&snapshot, base, &mut state).is_empty());
+        for seconds in [0, 1, 2, 59, -1] {
+            assert!(
+                evaluator
+                    .evaluate(
+                        &snapshot,
+                        base + ChronoDuration::seconds(seconds),
+                        &mut state
+                    )
+                    .is_empty()
+            );
+        }
+        assert!(
+            evaluator
+                .evaluate(&snapshot, base + ChronoDuration::minutes(1), &mut state)
+                .is_empty()
+        );
+        let third = evaluator.evaluate(&snapshot, base + ChronoDuration::minutes(2), &mut state);
+        assert!(third.iter().any(|a| a.rule_id == "risk_mv_freshness"));
+        assert!(third.iter().any(|a| a.rule_id == "ops_aggregate_freshness"));
     }
 
     #[test]

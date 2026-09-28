@@ -210,6 +210,43 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         .expect("persisted alerts query succeeds")
         .get::<_, i64>(0);
     assert!(persisted >= 11, "all alert families must persist");
+
+    // A failed sample read between adjacent valid ticks must erase persisted
+    // continuity. Otherwise a fast recovery reuses a pre-failure 15m window.
+    direct.execute(
+        "delete from quantos.operational_metric_samples where tenant_id = $1 and metric_name = 'realtime_quota_utilization'",
+        &[tenant_id.as_uuid()],
+    ).unwrap();
+    let retry_at = final_observation + ChronoDuration::seconds(1);
+    assert!(matches!(
+        monitor.evaluate_and_persist(retry_at, Duration::from_secs(900)),
+        Err(CapacityMonitorError::MissingMetricCoverage(_))
+    ));
+    let remaining: i64 = direct
+        .query_one(
+            "select count(*) from quantos.capacity_alert_window_state where scope = $1",
+            &[&scope],
+        )
+        .unwrap()
+        .get(0);
+    assert_eq!(
+        remaining, 0,
+        "missing coverage must clear persisted breach state"
+    );
+    record_breaching_external_metrics(&mut monitor, tenant_id, correlation_id, retry_at);
+    let recovered = monitor
+        .evaluate_and_persist(retry_at, Duration::from_secs(900))
+        .unwrap();
+    for rule in [
+        "outbox_oldest_age",
+        "risk_mv_freshness",
+        "ops_aggregate_freshness",
+    ] {
+        assert!(
+            !recovered.alerts.iter().any(|alert| alert.rule_id == rule),
+            "recovery reused pre-gap state for {rule}"
+        );
+    }
 }
 
 #[test]
