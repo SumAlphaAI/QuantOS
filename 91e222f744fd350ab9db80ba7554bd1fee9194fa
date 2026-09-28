@@ -1,0 +1,35 @@
+{
+  "schema": "quantos-f06-target-acceptance/v2",
+  "sourceCommit": "91e222f744fd350ab9db80ba7554bd1fee9194fa",
+  "status": "PASS",
+  "failures": [],
+  "targetClass": "configured-test-supabase-local-services",
+  "realOidcBff": {
+    "status": "PASS",
+    "checks": [
+      "real Supabase Auth and BFF 9 HTTP cases",
+      "real Auth BFF Runtime identity denials"
+    ],
+    "traceExportConfigured": true
+  },
+  "executionRoleAndVault": {
+    "status": "PASS",
+    "paperScenarios": 6,
+    "actualRoleDenials": 8
+  },
+  "denialMatrix": {
+    "status": "PASS",
+    "categories": 4,
+    "actualDatabaseTests": 8,
+    "excludedLatencyDiagnostic": "NOT RUN"
+  },
+  "evidenceLogSha256": {
+    "live.log": "4be2cf4e41bdb6f9459d935146c5b7cf1fe632255c9a2e6a7b45680a6a15d7cc",
+    "rerun.log": "68b797e0896ef9a9dec35d12db67fbde9a653e19a39359e5c3343122c92e6de1"
+  },
+  "notes": [
+    "Initial run failed on a transient TLS connection closure; complete unchanged same-SHA rerun passed. Original failure log retained.",
+    "Configured shared test Supabase; no isolated project provisioned or schema reset.",
+    "Runtime temporary admin Storage key is diagnostic only and performed no Storage operation."
+  ]
+}
