@@ -131,3 +131,17 @@ receipt does not establish that target result.
 - Archive `database.json` or `target.json`, `measurements.json`, `coverage.json`
   and `coverage-summary.json` from the same clean SHA. Core-only coverage or
   mock HTTP success cannot replace a full persistence/target receipt.
+
+## 共享测试 Supabase 的验收范围
+
+F05 实际数据库用例为每个 fixture 创建唯一 tenant，并使用
+`PgEventStore::connect_for_outbox_tenants` 限定消费者的领取范围。
+该范围在 `FOR UPDATE SKIP LOCKED` 之前应用；空列表不领取任何事件，
+未指定范围的既有生产消费者继续扫描全部可用租户。
+这是队列分区，不替代数据库角色/RLS 授权。
+
+租约恢复用例同时插入另一个租户的哨兵事件，断言其状态、attempts、
+lease owner/token 不被当前消费者改动，再以哨兵自身范围完成清理。
+全表 TRUNCATE 拒绝探针始终放在回滚事务内；不得通过清空共享 schema
+或放宽事件数量断言解决 fixture 污染。完整 migration 重建必须另行取得
+可重建 Supabase 目标或明确的共享测试 schema 重置授权。

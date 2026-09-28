@@ -51,7 +51,8 @@ fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
     let actor_id = seed_tenant(&database_url, tenant_id);
-    let mut seed_store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
+    let mut seed_store =
+        connect_store(&database_url, &[tenant_id]).expect("connects to PostgreSQL");
     let events = vec![
         build_event(tenant_id, actor_id, correlation_id, 1),
         build_event(tenant_id, actor_id, correlation_id, 2),
@@ -59,12 +60,25 @@ fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
     for event in &events {
         seed_store.append_event(event).expect("event appends");
     }
+    let foreign_tenant = TenantId::new();
+    let foreign_actor = seed_tenant(&database_url, foreign_tenant);
+    let foreign = build_event(foreign_tenant, foreign_actor, CorrelationId::new(), 1);
+    seed_store
+        .append_event(&foreign)
+        .expect("foreign sentinel appends");
+    let mut empty = connect_store(&database_url, &[]).unwrap();
+    assert!(
+        empty
+            .claim_outbox_events("empty-scope", 100, Utc::now(), ChronoDuration::seconds(30))
+            .unwrap()
+            .is_empty()
+    );
     let observed_at = Utc::now();
 
-    let mut worker_a = PgEventStore::connect(&database_url).expect("worker A connects");
-    let mut worker_b = PgEventStore::connect(&database_url).expect("worker B connects");
-    let mut worker_c = PgEventStore::connect(&database_url).expect("worker C connects");
-    let mut worker_d = PgEventStore::connect(&database_url).expect("worker D connects");
+    let mut worker_a = connect_store(&database_url, &[tenant_id]).expect("worker A connects");
+    let mut worker_b = connect_store(&database_url, &[tenant_id]).expect("worker B connects");
+    let mut worker_c = connect_store(&database_url, &[tenant_id]).expect("worker C connects");
+    let mut worker_d = connect_store(&database_url, &[tenant_id]).expect("worker D connects");
 
     let claimed_a = worker_a
         .claim_outbox_events("worker-a", 1, observed_at, ChronoDuration::seconds(30))
@@ -106,6 +120,33 @@ fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
     worker_d
         .mark_outbox_dispatched(&recovered[0], observed_at + ChronoDuration::seconds(31))
         .expect("recovery worker completes reclaimed lease");
+    let mut db = connect_client(&database_url).unwrap();
+    let row = db.query_one(
+        "select status, attempts, lease_owner, lease_token from quantos.outbox_event where tenant_id=$1",
+        &[foreign_tenant.as_uuid()],
+    ).unwrap();
+    assert_eq!(row.get::<_, String>(0), "pending");
+    assert_eq!(row.get::<_, i32>(1), 0);
+    assert!(row.get::<_, Option<String>>(2).is_none());
+    assert!(row.get::<_, Option<Uuid>>(3).is_none());
+    // Drain only our sentinel through its own partition, leaving other tenants alone.
+    let mut foreign_store = connect_store(&database_url, &[foreign_tenant]).unwrap();
+    let report = foreign_store
+        .poll_outbox_once(
+            "sentinel",
+            "sentinel",
+            1,
+            Utc::now(),
+            ChronoDuration::seconds(30),
+            3,
+            |event, _| {
+                assert_eq!(event.event_id, foreign.event_id);
+                Ok(())
+            },
+            |_| Ok(()),
+        )
+        .unwrap();
+    assert_eq!(report.processed, 1);
 }
 
 #[test]
@@ -117,7 +158,7 @@ fn postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correl
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
     let actor_id = seed_tenant(&database_url, tenant_id);
-    let mut store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
+    let mut store = connect_store(&database_url, &[tenant_id]).expect("connects to PostgreSQL");
     let mut events = vec![
         build_event(tenant_id, actor_id, correlation_id, 1),
         build_event(tenant_id, actor_id, correlation_id, 2),
@@ -237,7 +278,7 @@ fn postgres_polling_worker_dead_letters_poison_events_after_retry_budget() {
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
     let actor_id = seed_tenant(&database_url, tenant_id);
-    let mut store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
+    let mut store = connect_store(&database_url, &[tenant_id]).expect("connects to PostgreSQL");
     let event = build_event(tenant_id, actor_id, correlation_id, 1);
     store.append_event(&event).expect("event appends");
 
@@ -381,7 +422,7 @@ fn postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_a
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
     let actor_id = seed_tenant(&database_url, tenant_id);
-    let mut store = PgEventStore::connect(&database_url).expect("connects to PostgreSQL");
+    let mut store = connect_store(&database_url, &[tenant_id]).expect("connects to PostgreSQL");
     let event = build_event(tenant_id, actor_id, correlation_id, 1);
     store.append_event(&event).expect("event appends");
 
@@ -405,9 +446,9 @@ fn postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_a
 
             scope.spawn(move || {
                 let worker_name = format!("worker-{worker_index}");
-                let mut store =
-                    PgEventStore::connect(&database_url).expect("worker store connects");
+                let connection = connect_store(&database_url, &[tenant_id]);
                 barrier.wait();
+                let mut store = connection.expect("worker store connects");
 
                 loop {
                     let attempt = attempt_counter.fetch_add(1, Ordering::SeqCst);
@@ -441,7 +482,7 @@ fn postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_a
 
     assert_eq!(side_effect_count.load(Ordering::SeqCst), 1);
 
-    let mut verify_store = PgEventStore::connect(&database_url).expect("verification store");
+    let mut verify_store = connect_store(&database_url, &[tenant_id]).expect("verification store");
     let checkpoint = verify_store
         .load_checkpoint(tenant_id, "projection-idempotent", &event.stream_key())
         .expect("checkpoint query succeeds")
@@ -487,7 +528,7 @@ fn stale_outbox_and_inbox_lease_tokens_cannot_commit_after_reclaim() {
     let tenant_id = TenantId::new();
     let actor_id = seed_tenant(&database_url, tenant_id);
     let event = build_event(tenant_id, actor_id, CorrelationId::new(), 1);
-    let mut seed = PgEventStore::connect(&database_url).expect("seed store connects");
+    let mut seed = connect_store(&database_url, &[tenant_id]).expect("seed store connects");
     seed.append_event(&event).expect("event appends");
     let started_at = Utc::now();
 
@@ -495,7 +536,7 @@ fn stale_outbox_and_inbox_lease_tokens_cannot_commit_after_reclaim() {
         .claim_outbox_events("worker-a", 1, started_at, ChronoDuration::seconds(1))
         .expect("original outbox claim succeeds")
         .remove(0);
-    let mut replacement = PgEventStore::connect(&database_url).expect("replacement connects");
+    let mut replacement = connect_store(&database_url, &[tenant_id]).expect("replacement connects");
     let replacement_outbox = replacement
         .claim_outbox_events(
             "worker-b",
@@ -566,7 +607,7 @@ fn batched_success_rolls_back_when_either_lease_token_changes() {
     let tenant_id = TenantId::new();
     let actor_id = seed_tenant(&database_url, tenant_id);
     let correlation_id = CorrelationId::new();
-    let mut store = PgEventStore::connect(&database_url).expect("consumer connects");
+    let mut store = connect_store(&database_url, &[tenant_id]).expect("consumer connects");
     let mut replacement = connect_client(&database_url).expect("replacement connects");
 
     for (sequence, replaced_kind) in [(1, "inbox"), (2, "outbox")] {
@@ -687,7 +728,8 @@ fn correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation(
     let actor_b = seed_tenant(&database_url, tenant_b);
     let event_a = build_event(tenant_a, actor_a, correlation_id, 1);
     let event_b = build_event(tenant_b, actor_b, correlation_id, 1);
-    let mut store = PgEventStore::connect(&database_url).expect("event store connects");
+    let mut store =
+        connect_store(&database_url, &[tenant_a, tenant_b]).expect("event store connects");
     store
         .append_event(&event_a)
         .expect("tenant A event appends");
@@ -729,7 +771,10 @@ fn correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation(
         "truncate table quantos.event_log cascade",
         "truncate table quantos.audit_entries",
     ] {
-        let error = direct
+        let mut transaction = direct
+            .transaction()
+            .expect("truncate probe transaction starts");
+        let error = transaction
             .batch_execute(sql)
             .expect_err("append-only truncate must fail");
         assert_eq!(error.code().map(|code| code.code()), Some("55000"));
@@ -759,7 +804,7 @@ fn postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent() {
     let actor_id = seed_tenant(&database_url, tenant_id);
     let correlation_id = CorrelationId::new();
     seed_volume_event_chain(&database_url, tenant_id, actor_id, correlation_id, 10_000);
-    let mut store = PgEventStore::connect(&database_url).expect("event store connects");
+    let mut store = connect_store(&database_url, &[tenant_id]).expect("event store connects");
 
     // Exercise the production consumer, including lease fencing, inbox success,
     // checkpoint updates and outbox acknowledgements. Bulk SQL is fixture setup
@@ -1050,7 +1095,7 @@ fn postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts() {
     let tenant = TenantId::new();
     let actor = seed_tenant(&url, tenant);
     let correlation = CorrelationId::new();
-    let mut store = PgEventStore::connect(&url).unwrap();
+    let mut store = connect_store(&url, &[tenant]).unwrap();
     let event = build_event(tenant, actor, correlation, 1);
     // Invalid actor fails after stream creation; the transaction must roll back.
     let invalid = build_event(tenant, ActorId::new(), correlation, 1);
@@ -1278,6 +1323,20 @@ fn seed_tenant(database_url: &str, tenant_id: TenantId) -> ActorId {
         )
         .expect("actor inserts");
     actor_id
+}
+
+fn connect_store(
+    database_url: &str,
+    tenants: &[TenantId],
+) -> Result<PgEventStore, PgEventStoreError> {
+    for attempt in 0..3 {
+        match PgEventStore::connect_for_outbox_tenants(database_url, tenants) {
+            Ok(store) => return Ok(store),
+            Err(_) if attempt < 2 => thread::sleep(Duration::from_secs(1)),
+            Err(error) => return Err(error),
+        }
+    }
+    unreachable!()
 }
 
 fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {

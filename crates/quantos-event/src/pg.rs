@@ -99,13 +99,27 @@ pub enum PgEventStoreError {
 
 pub struct PgEventStore {
     client: Client,
+    outbox_tenants: Option<Vec<Uuid>>,
 }
 
 impl PgEventStore {
     pub fn connect(database_url: &str) -> Result<Self, PgEventStoreError> {
         Ok(Self {
             client: connect_client(database_url)?,
+            outbox_tenants: None,
         })
+    }
+
+    /// Restrict polling claims to explicit tenants before locking or updating rows.
+    /// An empty scope claims nothing. This is a queue partition, not authorization;
+    /// callers must still use an appropriately restricted database role.
+    pub fn connect_for_outbox_tenants(
+        database_url: &str,
+        tenants: &[TenantId],
+    ) -> Result<Self, PgEventStoreError> {
+        let mut store = Self::connect(database_url)?;
+        store.outbox_tenants = Some(tenants.iter().map(|id| *id.as_uuid()).collect());
+        Ok(store)
     }
 
     pub fn append_event(&mut self, event: &RecordedEvent) -> Result<(), PgEventStoreError> {
@@ -224,6 +238,7 @@ impl PgEventStore {
                 select o.id
                 from quantos.outbox_event as o
                 where o.available_at <= $3
+                  and ($5::uuid[] is null or o.tenant_id = any($5))
                   and (
                     o.status = 'pending'
                     or (
@@ -269,6 +284,7 @@ impl PgEventStore {
                 (&lease_expires_at, Type::TIMESTAMPTZ),
                 (&observed_at, Type::TIMESTAMPTZ),
                 (&limit, Type::INT8),
+                (&self.outbox_tenants, Type::UUID_ARRAY),
             ],
         )?;
 
