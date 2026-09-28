@@ -62,20 +62,23 @@ pub async fn serve() -> Result<()> {
         "Terminal origin must use HTTPS"
     );
     let origin_header = HeaderValue::from_str(&origin)?;
-    let auth = tokio::task::spawn_blocking(move || GatewayAuthMiddleware::connect_as_bff(&bff_url))
-        .await
-        .context("auth initialization failed")??;
-    let (store, worker_store, storage, worker_storage) =
-        tokio::task::spawn_blocking(move || -> Result<_> {
-            Ok((
-                PgRuntimeStore::connect_as_runtime(&runtime_url)?,
-                PgRuntimeStore::connect_as_runtime(&runtime_url)?,
-                SupabaseStorageAdapter::connect(storage_config()?)?,
-                SupabaseStorageAdapter::connect(storage_config()?)?,
-            ))
-        })
-        .await
-        .context("Runtime and Storage initialization failed")??;
+    let worker_url = runtime_url.clone();
+    // Each connection owns an independent session. Join all attempts before
+    // starting the worker or listener, so partial initialization cannot serve.
+    let (auth, store, worker_store) = crate::startup::initialize(
+        move || Ok(GatewayAuthMiddleware::connect_as_bff(&bff_url)?),
+        move || Ok(PgRuntimeStore::connect_as_runtime(&runtime_url)?),
+        move || Ok(PgRuntimeStore::connect_as_runtime(&worker_url)?),
+    )
+    .await?;
+    let (storage, worker_storage) = tokio::task::spawn_blocking(move || -> Result<_> {
+        Ok((
+            SupabaseStorageAdapter::connect(storage_config()?)?,
+            SupabaseStorageAdapter::connect(storage_config()?)?,
+        ))
+    })
+    .await
+    .context("Storage initialization failed")??;
     let worker_healthy = Arc::new(AtomicBool::new(false));
     let worker_status = worker_healthy.clone();
     std::thread::Builder::new()
