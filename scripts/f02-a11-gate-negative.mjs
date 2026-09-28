@@ -8,6 +8,7 @@ import { PNG } from 'pngjs';
 import { parse } from 'yaml';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { validateSigningPolicy } from './check-f02-signing-policy.mjs';
+import { expectedCiSourceSha } from './f02-source-sha.mjs';
 import { requiredVisualPaths, validateVisualBaselines } from './check-visual-baselines.mjs';
 
 test('complete Linux matrix passes; deletion and pixel tampering fail', () => {
@@ -135,4 +136,29 @@ test('required download check rejects skipped or failed event-specific verificat
     const result = spawnSync('bash', ['-e', '-c', script], { env: { PATH: process.env.PATH, GITHUB_EVENT_NAME: event, GITHUB_REF: 'refs/heads/main', MAIN_RESULT: main, PR_RESULT: pr } });
     assert.equal(result.status, expected, `${event}: ${main}/${pr}`);
   }
+});
+
+test('PR receipts bind the checked out head while main signing stays on the event SHA', () => {
+  const ci = parse(fs.readFileSync('.github/workflows/ci.yml', 'utf8'));
+  const head = '${{ github.event.pull_request.head.sha }}';
+  assert.equal(ci.jobs.verify.steps[0].with.ref, '${{ github.event.pull_request.head.sha || github.sha }}');
+  assert.equal(ci.jobs['verify-download-pr'].steps[0].with.ref, head);
+  assert.equal(ci.jobs['verify-download-pr'].env.QUANTOS_SOURCE_SHA, head);
+  const pr = 'a'.repeat(40);
+  const merge = 'b'.repeat(40);
+  assert.equal(expectedCiSourceSha({
+    GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request',
+    GITHUB_SHA: merge, QUANTOS_SOURCE_SHA: pr,
+  }), pr);
+  assert.throws(() => expectedCiSourceSha({
+    GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'pull_request', GITHUB_SHA: merge,
+  }));
+  assert.equal(expectedCiSourceSha({
+    GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'push',
+    GITHUB_SHA: pr, QUANTOS_SOURCE_SHA: pr,
+  }), pr);
+  assert.throws(() => expectedCiSourceSha({
+    GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'push',
+    GITHUB_SHA: pr, QUANTOS_SOURCE_SHA: merge,
+  }));
 });

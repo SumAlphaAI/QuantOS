@@ -19,7 +19,9 @@ test("receipt requires same SHA, executed successful gate, clean artifacts and c
 });
 test("protocol workflow is independent, fail closed, and always archives receipts", () => {
   const workflow = YAML.parse(readFileSync(new URL("../../.github/workflows/f03-protocol.yml", import.meta.url), "utf8"));
+  assert.equal(workflow.on.workflow_dispatch.inputs.baseline_sha.required, true);
   const job = workflow.jobs["proto-check"];
+  assert.match(job.env.QUANTOS_PROTO_BASE, /inputs\.baseline_sha/);
   assert.equal(job.needs, undefined);
   assert.equal(job["continue-on-error"], undefined);
   assert.equal(workflow.permissions.contents, "read");

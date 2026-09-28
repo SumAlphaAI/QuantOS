@@ -48,8 +48,14 @@ pub enum CapacityMonitorError {
     Url(#[from] url::ParseError),
     #[error(transparent)]
     Tls(#[from] native_tls::Error),
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+    #[error("remote F09 PostgreSQL connections require TLS")]
+    InsecureRemoteConnection,
     #[error("F09 metric coverage is stale or missing: {0}")]
     MissingMetricCoverage(String),
+    #[error("F09 capacity monitor already running for scope {0}")]
+    ConcurrentRun(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -132,10 +138,14 @@ impl PgCapacityMonitor {
 
         let row = self.client.query_one(
             "select
-               coalesce((select extract(epoch from ($1 - min(available_at)))
+               coalesce((select extract(epoch from ($1 - min(created_at)))
                          from quantos.outbox_event
-                         where status in ('pending', 'leased') and available_at <= $1 and ($3::uuid is null or tenant_id = $3)), 0)::float8,
-               coalesce((select count(*)::float8 from quantos.dead_letter_event where created_at between $2 and $1 and ($3::uuid is null or tenant_id = $3))
+                         where status in ('pending', 'leased') and created_at <= $1 and ($3::uuid is null or tenant_id = $3)), 0)::float8,
+               coalesce((select count(distinct dead.event_id)::float8
+                         from quantos.dead_letter_event dead
+                         join quantos.event_log event on event.event_id = dead.event_id
+                         where event.ingested_at between $2 and $1
+                           and ($3::uuid is null or event.tenant_id = $3))
                  / greatest((select count(*)::float8 from quantos.event_log where ingested_at between $2 and $1 and ($3::uuid is null or tenant_id = $3)), 1), 0)::float8,
                coalesce((select metric_value from quantos.operational_metric_samples where metric_name = 'realtime_projection_delay_secs' and observed_at between $2 and $1 and ($3::uuid is null or tenant_id = $3) order by observed_at desc limit 1), 0)::float8,
                coalesce((select metric_value from quantos.operational_metric_samples where metric_name = 'realtime_quota_utilization' and observed_at between $2 and $1 and ($3::uuid is null or tenant_id = $3) order by observed_at desc limit 1), 0)::float8,
@@ -169,11 +179,63 @@ impl PgCapacityMonitor {
         observed_at: DateTime<Utc>,
         lookback: Duration,
     ) -> Result<CapacityRunEvidence, CapacityMonitorError> {
-        let snapshot = self.collect_snapshot(observed_at, lookback)?;
+        let acquired: bool = self
+            .client
+            .query_one(
+                "select pg_try_advisory_lock(709, hashtext($1))",
+                &[&self.scope],
+            )?
+            .get(0);
+        if !acquired {
+            return Err(CapacityMonitorError::ConcurrentRun(self.scope.clone()));
+        }
+        let result = self.evaluate_and_persist_locked(observed_at, lookback);
+        let unlock = self.client.query_one(
+            "select pg_advisory_unlock(709, hashtext($1))",
+            &[&self.scope],
+        );
+        if let Err(error) = unlock {
+            return Err(error.into());
+        }
+        result
+    }
+
+    fn evaluate_and_persist_locked(
+        &mut self,
+        observed_at: DateTime<Utc>,
+        lookback: Duration,
+    ) -> Result<CapacityRunEvidence, CapacityMonitorError> {
+        let snapshot = match self.collect_snapshot(observed_at, lookback) {
+            Ok(snapshot) => snapshot,
+            Err(CapacityMonitorError::MissingMetricCoverage(missing)) => {
+                // An observed sampling failure breaks continuity even if a
+                // retry succeeds within 90 seconds of the previous good tick.
+                let mut transaction = self.client.transaction()?;
+                transaction.execute(
+                    "delete from quantos.capacity_alert_window_state where scope = $1",
+                    &[&self.scope],
+                )?;
+                transaction.execute(
+                    "insert into quantos.capacity_alerts (
+                       scope, rule_id, severity, summary, observed_value, threshold, triggered_at
+                     ) values ($1,'metric_coverage_missing','critical',
+                       'F09 metric producer is missing or stale', $2, $3, $4)
+                     on conflict (scope, rule_id, triggered_at) do nothing",
+                    &[
+                        &self.scope,
+                        &serde_json::json!(missing),
+                        &serde_json::json!("latest sample <= 90s"),
+                        &observed_at,
+                    ],
+                )?;
+                transaction.commit()?;
+                return Err(CapacityMonitorError::MissingMetricCoverage(missing));
+            }
+            Err(error) => return Err(error),
+        };
         let mut state = self.load_window_state()?;
         let alerts = CapacityAlertEvaluator.evaluate(&snapshot, observed_at, &mut state);
-        self.persist_window_state(&state, observed_at)?;
-        self.persist_alerts(&alerts)?;
+        self.persist_window_state_and_alerts(&state, &alerts, observed_at)?;
 
         let window_start = observed_at
             - chrono::Duration::from_std(lookback)
@@ -195,10 +257,10 @@ impl PgCapacityMonitor {
             alerts,
             correlation_ids,
             metric_sources,
-            db_fault_result: "see correlated fault-injection trace evidence".to_owned(),
-            event_consumer_fault_result: "see correlated fault-injection trace evidence".to_owned(),
-            engine_fault_result: "see correlated fault-injection trace evidence".to_owned(),
-            secret_redaction_verified: true,
+            db_fault_result: "NOT RUN / NO RECEIPT".to_owned(),
+            event_consumer_fault_result: "NOT RUN / NO RECEIPT".to_owned(),
+            engine_fault_result: "NOT RUN / NO RECEIPT".to_owned(),
+            secret_redaction_verified: false,
             trace_evidence: Vec::new(),
             recommended_actions,
         })
@@ -210,14 +272,18 @@ impl PgCapacityMonitor {
         observed_at: DateTime<Utc>,
     ) -> Result<(), CapacityMonitorError> {
         let rows = self.client.query(
-            "select distinct metric_name
+            "select metric_name, max(observed_at)
              from quantos.operational_metric_samples
              where observed_at between $1 and $2
-               and ($3::uuid is null or tenant_id = $3)",
+               and ($3::uuid is null or tenant_id = $3)
+             group by metric_name",
             &[&window_start, &observed_at, &self.tenant_id],
         )?;
         let present = rows
             .iter()
+            .filter(|row| {
+                row.get::<_, DateTime<Utc>>(1) >= observed_at - chrono::Duration::seconds(90)
+            })
             .map(|row| row.get::<_, String>(0))
             .collect::<HashSet<_>>();
         let missing = REQUIRED_EXTERNAL_METRICS
@@ -237,11 +303,17 @@ impl PgCapacityMonitor {
     fn load_window_state(&mut self) -> Result<AlertWindowState, CapacityMonitorError> {
         let mut state = AlertWindowState::default();
         for row in self.client.query(
-            "select rule_id, first_breach_at, consecutive_breaches
+            "select rule_id, first_breach_at, consecutive_breaches, last_observed_at
              from quantos.capacity_alert_window_state where scope = $1",
             &[&self.scope],
         )? {
             let rule_id = row.get::<_, String>(0);
+            let last_observed_at = row.get::<_, DateTime<Utc>>(3);
+            state.last_observed_at = Some(
+                state
+                    .last_observed_at
+                    .map_or(last_observed_at, |previous| previous.max(last_observed_at)),
+            );
             if let Some(first_breach_at) = row.get::<_, Option<DateTime<Utc>>>(1) {
                 state
                     .first_breach_at
@@ -257,9 +329,10 @@ impl PgCapacityMonitor {
         Ok(state)
     }
 
-    fn persist_window_state(
+    fn persist_window_state_and_alerts(
         &mut self,
         state: &AlertWindowState,
+        alerts: &[AlertRecord],
         observed_at: DateTime<Utc>,
     ) -> Result<(), CapacityMonitorError> {
         let mut transaction = self.client.transaction()?;
@@ -267,6 +340,7 @@ impl PgCapacityMonitor {
             "delete from quantos.capacity_alert_window_state where scope = $1",
             &[&self.scope],
         )?;
+        let accepted_tick = state.last_observed_at.unwrap_or(observed_at);
         let rule_ids = state
             .first_breach_at
             .keys()
@@ -289,21 +363,16 @@ impl PgCapacityMonitor {
                     &rule_id,
                     &first_breach,
                     &consecutive,
-                    &observed_at,
+                    &accepted_tick,
                 ],
             )?;
         }
-        transaction.commit()?;
-        Ok(())
-    }
-
-    fn persist_alerts(&mut self, alerts: &[AlertRecord]) -> Result<(), CapacityMonitorError> {
         for alert in alerts {
             let severity = match alert.severity {
                 AlertSeverity::Warning => "warning",
                 AlertSeverity::Critical => "critical",
             };
-            self.client.execute(
+            transaction.execute(
                 "insert into quantos.capacity_alerts (
                     scope, rule_id, severity, summary, observed_value, threshold, triggered_at
                  ) values ($1,$2,$3,$4,$5,$6,$7)
@@ -319,6 +388,7 @@ impl PgCapacityMonitor {
                 ],
             )?;
         }
+        transaction.commit()?;
         Ok(())
     }
 
@@ -354,25 +424,50 @@ impl PgCapacityMonitor {
 }
 
 fn connect_client(database_url: &str) -> Result<Client, CapacityMonitorError> {
+    let (mut config, root, disable_tls) = connection_config(database_url)?;
+    if disable_tls {
+        Ok(config.connect(NoTls)?)
+    } else {
+        let mut builder = TlsConnector::builder();
+        if let Some(root) = root {
+            builder.add_root_certificate(native_tls::Certificate::from_pem(&std::fs::read(root)?)?);
+        }
+        config.ssl_mode(postgres::config::SslMode::Require);
+        Ok(config.connect(MakeTlsConnector::new(builder.build()?))?)
+    }
+}
+
+fn connection_config(
+    database_url: &str,
+) -> Result<(postgres::Config, Option<String>, bool), CapacityMonitorError> {
     let url = Url::parse(database_url)?;
+    let local = url
+        .host_str()
+        .is_some_and(|host| host == "localhost" || host == "127.0.0.1");
     let disable_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && value == "disable");
-    let relaxed_tls = url
-        .query_pairs()
-        .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
-    if disable_tls {
-        Ok(Client::connect(database_url, NoTls)?)
-    } else {
-        let mut builder = TlsConnector::builder();
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
-        }
-        Ok(Client::connect(
-            database_url,
-            MakeTlsConnector::new(builder.build()?),
-        )?)
+    if disable_tls && !local {
+        return Err(CapacityMonitorError::InsecureRemoteConnection);
     }
+    let root = url
+        .query_pairs()
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned())
+        .or_else(|| std::env::var("QUANTOS_BFF_SSLROOTCERT").ok());
+    let options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+        .map(|(key, value)| (key.into_owned(), value.into_owned()))
+        .collect::<Vec<_>>();
+    let mut connection_url = url.clone();
+    connection_url.set_query(None);
+    if !options.is_empty() {
+        connection_url.query_pairs_mut().extend_pairs(options);
+    }
+    let mut config: postgres::Config = connection_url.as_str().parse()?;
+    config.connect_timeout(Duration::from_secs(10));
+    Ok((config, root, disable_tls))
 }
 
 #[cfg(test)]
@@ -394,6 +489,22 @@ mod tests {
         );
         assert!(REQUIRED_EXTERNAL_METRICS.contains(&"storage_operation_error"));
         assert!(REQUIRED_EXTERNAL_METRICS.contains(&"secret_read_failure"));
+    }
+
+    #[test]
+    fn target_connection_accepts_verified_tls_options_without_relaxing_validation() {
+        let (_, root, disabled) = connection_config(
+            "postgresql://user:example@db.test.supabase.com:5432/postgres?sslmode=verify-full&sslrootcert=%2Ftmp%2Ftarget-ca.pem",
+        )
+        .expect("verified target URL parses");
+        assert_eq!(root.as_deref(), Some("/tmp/target-ca.pem"));
+        assert!(!disabled);
+        assert!(matches!(
+            connection_config(
+                "postgresql://user:example@db.test.supabase.com:5432/postgres?sslmode=disable"
+            ),
+            Err(CapacityMonitorError::InsecureRemoteConnection)
+        ));
     }
 
     #[test]

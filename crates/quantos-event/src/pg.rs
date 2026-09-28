@@ -5,6 +5,7 @@ use postgres::{
     types::{Json, Type},
 };
 use postgres_native_tls::MakeTlsConnector;
+use std::time::Duration;
 use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
@@ -78,6 +79,8 @@ pub enum PgEventStoreError {
     #[error(transparent)]
     Tls(#[from] native_tls::Error),
     #[error(transparent)]
+    Io(#[from] std::io::Error),
+    #[error(transparent)]
     Event(#[from] EventError),
     #[error(transparent)]
     Core(#[from] CoreError),
@@ -96,13 +99,27 @@ pub enum PgEventStoreError {
 
 pub struct PgEventStore {
     client: Client,
+    outbox_tenants: Option<Vec<Uuid>>,
 }
 
 impl PgEventStore {
     pub fn connect(database_url: &str) -> Result<Self, PgEventStoreError> {
         Ok(Self {
             client: connect_client(database_url)?,
+            outbox_tenants: None,
         })
+    }
+
+    /// Restrict polling claims to explicit tenants before locking or updating rows.
+    /// An empty scope claims nothing. This is a queue partition, not authorization;
+    /// callers must still use an appropriately restricted database role.
+    pub fn connect_for_outbox_tenants(
+        database_url: &str,
+        tenants: &[TenantId],
+    ) -> Result<Self, PgEventStoreError> {
+        let mut store = Self::connect(database_url)?;
+        store.outbox_tenants = Some(tenants.iter().map(|id| *id.as_uuid()).collect());
+        Ok(store)
     }
 
     pub fn append_event(&mut self, event: &RecordedEvent) -> Result<(), PgEventStoreError> {
@@ -221,6 +238,7 @@ impl PgEventStore {
                 select o.id
                 from quantos.outbox_event as o
                 where o.available_at <= $3
+                  and ($5::uuid[] is null or o.tenant_id = any($5))
                   and (
                     o.status = 'pending'
                     or (
@@ -266,6 +284,7 @@ impl PgEventStore {
                 (&lease_expires_at, Type::TIMESTAMPTZ),
                 (&observed_at, Type::TIMESTAMPTZ),
                 (&limit, Type::INT8),
+                (&self.outbox_tenants, Type::UUID_ARRAY),
             ],
         )?;
 
@@ -764,6 +783,28 @@ impl PgEventStore {
             });
         }
         tx.commit()?;
+        // Projection completion is the actual end-to-end event latency. The
+        // Realtime wakeup is only advisory; the polling recovery path uses the
+        // same sample. Keep telemetry failure outside the event transaction.
+        if let Err(error) = self.client.execute_typed(
+            "with input as (
+                select * from jsonb_to_recordset($1::jsonb) as x(
+                    outbox_id uuid, tenant_id uuid, completed_at timestamptz)
+             )
+             insert into quantos.operational_metric_samples (
+                tenant_id, metric_name, metric_value, source, correlation_id,
+                attributes, observed_at)
+             select input.tenant_id, 'realtime_projection_delay_secs',
+                    greatest(extract(epoch from (input.completed_at - e.ingested_at)), 0)::float8,
+                    'realtime_projection_delay_secs', e.correlation_id,
+                    '{}'::jsonb, input.completed_at
+             from input
+             join quantos.outbox_event o on o.id = input.outbox_id
+             join quantos.event_log e on e.id = o.event_log_id",
+            &[(&input, Type::JSONB)],
+        ) {
+            eprintln!("event projection delay metric persist failed: {error}");
+        }
         Ok(())
     }
 
@@ -1212,25 +1253,44 @@ impl PgEventStore {
 
 fn connect_client(database_url: &str) -> Result<Client, PgEventStoreError> {
     let url = Url::parse(database_url)?;
+    let local = matches!(url.host_str(), Some("localhost" | "127.0.0.1" | "::1"));
+    let explicit_tls_mode = url.query_pairs().any(|(key, _)| key == "sslmode");
     let disable_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && value == "disable");
     let relaxed_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
+    let root = url
+        .query_pairs()
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned())
+        .or_else(|| std::env::var("QUANTOS_BFF_SSLROOTCERT").ok());
+    let options = url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+        .map(|(key, value)| (key.into_owned(), value.into_owned()))
+        .collect::<Vec<_>>();
+    let mut connection_url = url.clone();
+    connection_url.set_query(None);
+    if !options.is_empty() {
+        connection_url.query_pairs_mut().extend_pairs(options);
+    }
+    let mut config: postgres::Config = connection_url.as_str().parse()?;
+    config.connect_timeout(Duration::from_secs(10));
 
-    if disable_tls {
-        Ok(Client::connect(database_url, NoTls)?)
+    if disable_tls || (local && !explicit_tls_mode) {
+        Ok(config.connect(NoTls)?)
     } else {
         let mut builder = TlsConnector::builder();
         if relaxed_tls {
             builder.danger_accept_invalid_certs(true);
+        } else if let Some(root) = root {
+            builder.add_root_certificate(native_tls::Certificate::from_pem(&std::fs::read(root)?)?);
         }
         let connector = builder.build()?;
-        Ok(Client::connect(
-            database_url,
-            MakeTlsConnector::new(connector),
-        )?)
+        config.ssl_mode(postgres::config::SslMode::Require);
+        Ok(config.connect(MakeTlsConnector::new(connector))?)
     }
 }
 

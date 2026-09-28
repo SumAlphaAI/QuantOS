@@ -57,7 +57,7 @@ export function validateR01(inputs) {
     "invalid_ticks_do_not_poison_deduplication_and_negative_values_fail_quality",
   ]) check(inputs.source.includes(testName), `quantos-market test covers ${testName}`);
 
-  for (const marker of ["GenerateReplay", "IngestReplay", "default_approved_providers", "ingest_batch", "run_observed_command"]) {
+  for (const marker of ["GenerateReplay", "IngestReplay", "default_approved_providers", "ingest_batch", "run_observed_write_command"]) {
     check(inputs.service.includes(marker), `market-ingestor implements ${marker}`);
   }
   check(inputs.makefile.includes("r01-check:") && inputs.makefile.includes("node ./scripts/check-r01.mjs") && inputs.makefile.includes("node --test ./scripts/r01-gate-negative.mjs") && inputs.makefile.includes("cargo test -p quantos-market"), "Makefile exposes replayable R01 positive and negative checks");

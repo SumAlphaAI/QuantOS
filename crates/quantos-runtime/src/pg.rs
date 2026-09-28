@@ -74,6 +74,28 @@ impl PgRuntimeStore {
         Ok(store)
     }
 
+    /// Record the actual Supabase Storage operation result using the same
+    /// restricted runtime session that performed the workflow operation.
+    pub fn record_storage_operation(
+        &mut self,
+        tenant_id: TenantId,
+        correlation_id: CorrelationId,
+        failed: bool,
+        observed_at: DateTime<Utc>,
+    ) -> Result<(), PgRuntimeError> {
+        self.client.query_one(
+            "select quantos.record_operational_metric(
+                $1, 'storage_operation_error', $2, 'storage_operation_error', $3, '{}'::jsonb, $4)",
+            &[
+                tenant_id.as_uuid(),
+                &(if failed { 1.0_f64 } else { 0.0_f64 }),
+                correlation_id.as_uuid(),
+                &observed_at,
+            ],
+        )?;
+        Ok(())
+    }
+
     pub fn load_session(
         &mut self,
         id: RuntimeSessionId,
@@ -866,7 +888,8 @@ fn connect_client(database_url: &str) -> Result<Client, PgRuntimeError> {
     let root = url
         .query_pairs()
         .find(|(key, _)| key == "sslrootcert")
-        .map(|(_, value)| value.into_owned());
+        .map(|(_, value)| value.into_owned())
+        .or_else(|| std::env::var("QUANTOS_BFF_SSLROOTCERT").ok());
     let options = url
         .query_pairs()
         .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")

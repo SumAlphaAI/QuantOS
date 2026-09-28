@@ -4,11 +4,13 @@ use axum::{
     Json, Router,
     extract::State,
     http::{HeaderMap, HeaderName, HeaderValue, Method, StatusCode, header},
+    middleware::{self, Next},
     response::{IntoResponse, Response},
     routing::{get, post},
 };
 use quantos_auth::{AuthError, GatewayAuthMiddleware, SupabaseAuthVerifier};
-use quantos_core::AccountId;
+use quantos_core::{AccountId, CorrelationId};
+use quantos_observability::service::ServiceObservability;
 use serde_json::{Value, json};
 use tower_http::cors::CorsLayer;
 use uuid::Uuid;
@@ -72,6 +74,7 @@ pub fn router(
     publishable_key: String,
     terminal_origin: String,
     environment: String,
+    observability: Arc<ServiceObservability>,
 ) -> anyhow::Result<Router> {
     anyhow::ensure!(
         terminal_origin.starts_with("https://"),
@@ -94,6 +97,10 @@ pub fn router(
         .route("/v1/auth/session", post(establish_session))
         .route("/v1/auth/logout", post(logout))
         .with_state(state)
+        .layer(middleware::from_fn_with_state(
+            observability,
+            trace_write_request,
+        ))
         .layer(
             CorsLayer::new()
                 .allow_origin(origin_header)
@@ -107,6 +114,95 @@ pub fn router(
                 .expose_headers([HeaderName::from_static("x-correlation-id")]),
         ))
 }
+
+async fn trace_write_request(
+    State(observer): State<Arc<ServiceObservability>>,
+    request: axum::extract::Request,
+    next: Next,
+) -> Response {
+    let method = request.method().clone();
+    let path = request.uri().path().to_owned();
+    let requested_id = request
+        .headers()
+        .get("x-correlation-id")
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| CorrelationId::parse_str(value).ok());
+    let mut response = next.run(request).await;
+    if method == Method::POST {
+        let correlation_id = response
+            .headers()
+            .get("x-correlation-id")
+            .and_then(|value| value.to_str().ok())
+            .and_then(|value| CorrelationId::parse_str(value).ok())
+            .or(requested_id)
+            .unwrap_or_else(CorrelationId::new);
+        if let Err(error) = observer.record_trace(
+            correlation_id,
+            format!("http.post {path}"),
+            if response.status().is_success() {
+                "succeeded"
+            } else {
+                "failed"
+            },
+            json!({ "http_status": response.status().as_u16() }),
+        ) {
+            eprintln!("BFF trace export failed: {error}");
+        }
+        response.headers_mut().insert(
+            "x-correlation-id",
+            HeaderValue::from_str(&correlation_id.to_string()).expect("UUID header value"),
+        );
+    }
+    response
+}
+
+#[cfg(test)]
+mod f09_trace_tests {
+    use std::sync::Arc;
+
+    use axum::{
+        Router,
+        body::Body,
+        http::{Method, Request, StatusCode},
+        middleware,
+        routing::post,
+    };
+    use quantos_observability::service::ServiceObservability;
+    use tower::ServiceExt;
+
+    use super::trace_write_request;
+
+    #[tokio::test]
+    async fn auth_write_returns_queryable_correlation_trace() {
+        let path = std::env::temp_dir().join(format!("f09-bff-{}.jsonl", uuid::Uuid::new_v4()));
+        let observer =
+            Arc::new(ServiceObservability::with_jsonl_exporter("bff-gateway", &path).unwrap());
+        let router = Router::new()
+            .route("/v1/auth/logout", post(|| async { StatusCode::NO_CONTENT }))
+            .layer(middleware::from_fn_with_state(
+                observer.clone(),
+                trace_write_request,
+            ));
+        let response = router
+            .oneshot(
+                Request::builder()
+                    .method(Method::POST)
+                    .uri("/v1/auth/logout")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::NO_CONTENT);
+        let correlation = response.headers()["x-correlation-id"].to_str().unwrap();
+        let result = observer.render(&format!("/trace/{correlation}"));
+        assert!(result.contains("http.post /v1/auth/logout"));
+        std::fs::remove_file(path).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod f09_live_tests;
 
 async fn session(
     State(state): State<Arc<LiveState>>,

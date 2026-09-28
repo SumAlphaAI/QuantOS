@@ -113,15 +113,38 @@ impl SupabaseStorageAdapter {
         manifest: &ArtifactManifest,
         payload: Bytes,
     ) -> Result<ArtifactManifest, SupabaseStorageError> {
-        self.put_artifact(manifest, payload)?;
+        let upload = self.put_artifact(manifest, payload);
+        storage.record_storage_outcome(manifest.tenant_id, upload.is_err());
+        upload?;
 
         match storage.upsert_artifact(manifest) {
             Ok(persisted) => Ok(persisted),
             Err(error) => {
-                let _ = self.delete_artifact(manifest);
+                let cleanup = self.delete_artifact(manifest);
+                storage.record_storage_outcome(manifest.tenant_id, cleanup.is_err());
                 Err(error.into())
             }
         }
+    }
+
+    pub fn get_artifact_recorded(
+        &self,
+        storage: &mut PgStorageStore,
+        manifest: &ArtifactManifest,
+    ) -> Result<Bytes, SupabaseStorageError> {
+        let result = self.get_artifact(manifest);
+        storage.record_storage_outcome(manifest.tenant_id, result.is_err());
+        result
+    }
+
+    pub fn delete_artifact_recorded(
+        &self,
+        storage: &mut PgStorageStore,
+        manifest: &ArtifactManifest,
+    ) -> Result<(), SupabaseStorageError> {
+        let result = self.delete_artifact(manifest);
+        storage.record_storage_outcome(manifest.tenant_id, result.is_err());
+        result
     }
 
     fn object_url(&self, manifest: &ArtifactManifest) -> String {

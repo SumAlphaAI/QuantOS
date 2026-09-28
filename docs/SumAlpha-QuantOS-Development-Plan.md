@@ -1,12 +1,16 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.14
-> 更新时间：2026-09-25
+> 版本：3.16
+> 更新时间：2026-09-28
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.16`：执行 F0 总 Gate，保留 BLOCKED；补齐候选分项回执，发现 F05 共享库用例隔离缺陷，远程重建和最终主线签名仍待闭环。
+
+- `3.15`：F09 修复版 `81cb5ae` 完成同 SHA 开发期验收，B04 关闭；原 14 项中 9 项关闭、5 项运行期剩余问题继续追踪，F0 总 Gate 保持关闭。
 
 - `3.14`：F06 已关闭问题及修复追踪移至审计归档，计划保留当前结论和验收边界；F06 Gate 改为校验归档中的完整关闭记录，同 SHA 回执要求不变。
 
@@ -345,15 +349,16 @@ flowchart LR
 - 需求描述：本地可观测性、容量阈值与故障注入
 - 技术要求：trace、metrics、结构化日志、健康检查、test fault proxy；为 outbox 年龄/DLQ、Realtime 投影延迟与配额、读模型查询/MV 新鲜度、Storage 错误与秘密轮换配置可执行告警和 ADR 证据采集
 - 交付物：dashboards、alert rules、fault tests、容量 ADR 模板
-- 量化验收标准：每个 F0 写操作可从 trace 查到 correlation ID；注入 DB/事件消费者/Engine 故障时无秘密泄露，恢复后事件链完整；以下阈值均自动告警并生成 ADR 输入：outbox 最老事件 >60 秒持续 15 分钟或 DLQ >0.1%，Realtime 投影延迟 >5 秒持续 15 分钟或配额 >70%，风险/组合查询 P95 >300ms 持续 15 分钟，风险 MV >1 分钟或运营聚合 >5 分钟连续 3 次，Storage 错误 >1% 或秘密轮换/读取失败
+- 量化验收标准：开发阶段 Gate 验证已交付 F0 写入口的持久 trace/correlation ID、结构化错误与健康检查；用确定性样本、断采和时间前进测试告警阈值、连续窗口及 ADR 输入；在已配置的测试 Supabase PostgreSQL 上验证 migration、真实数据库/消费者组件故障恢复、查询采样和本地 Engine 崩溃恢复。CI、Nightly 与数据库组件回执须绑定同一完整源码 SHA。此 Gate 不要求尚未部署的业务生产者持续上报或发送真实通知。
+- 上线前量化验收（移交 L04）：在拟上线的隔离部署环境中，逐个已部署 F0 写入口可由 trace 查到同一 correlation ID；注入 DB/事件消费者/Engine 故障时无秘密泄露，恢复后同链事件完整；九类真实指标生产者和每分钟 monitor 持续运行，阈值自动告警、实际通知并生成可信 ADR 输入：outbox 最老事件 >60 秒持续 15 分钟或 DLQ >0.1%，Realtime 投影延迟 >5 秒持续 15 分钟或配额 >70%，风险/组合查询 P95 >300ms 持续 15 分钟，风险 MV >1 分钟或运营聚合 >5 分钟连续 3 次，Storage 错误 >1% 或秘密轮换/读取失败。未交付的业务来源仍须由所属业务任务实现，缺采样不能算健康。
 - 依赖：F05–F08
 
 <a id="review-f09"></a>
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
+- review_status: `ACCEPTED`
+- review_conclusion: 2026-09-28 最终源码 `81cb5ae43f87e7d4b4be059b9eed036b755b4986` 的 CI、F09 push 目标和手动调度/Nightly 路径回执全部通过；内部完整 SHA、下载验证、两份目标各 7 个日志摘要和三类真实写入口 trace 均核验，F09-B04 关闭。原 14 项现为 9 项关闭（8 项代码修复及 B04 回执闭环）、5 项部分修复／移交，B01–B03/H05/M03 的运行期剩余范围仍由业务任务/L04 追踪。手动调度不代表已观察实际 cron；后续文档提交不自动继承该源码回执。详见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)、[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)、[逐项复核归档](./audit/F09-findings-recheck-2026-09-28.md)。F0 总 Gate 继续关闭，F02 main 正式签名约束不变。
 - issues: []
 - fix_tracking: []
 
@@ -1271,6 +1276,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - 量化验收标准：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0
 - 依赖：X05、X06、L01–L03
 - F07 上线前移交：在拟上线的隔离部署环境中验证外部 HTTPS BFF/Runtime 入口、真实身份与会话、worker 恢复、私有 Artifact 取回及跨租户拒绝；为 Runtime 配置只能访问 `quantos-artifacts` 的 Storage 凭据，证明其他 bucket 读写被拒并记录轮换和撤销。两项均需绑定候选发布源码 SHA 的目标回执；未通过不得发布 Runtime。开发阶段的临时管理员 Storage key 诊断回执不能替代此 Gate。
+- F09 上线前移交：原 F09-B01–B03、H05、M03 的未解决运行期范围继续开放（见 [当前清单](./audit/F09-comprehensive-review-2026-09-27.md)）；移交不算修复完成。按 F09 所列运行期量化标准，在实际部署的业务生产者、每分钟 monitor、dashboard 与通知目标上验证九类来源、持续阈值、真实通知、三类同链故障与无秘密泄露；取得绑定候选发布完整 SHA 的回执。缺失来源或服务未部署时保持 `NOT RUN / NO RECEIPT`，不得用开发阶段的人工样本、组件探针或 ADR 模板代替。
 
 <a id="review-l04"></a>
 #### GPT-6 Astra 功能复审
@@ -1286,10 +1292,12 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 ### 10.1 F0 Gate
 
-- [ ] F01–F09 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。
-- [x] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
-- [x] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
-- [x] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量阈值告警与 ADR 证据模板已启用。
+- 总验收状态：`BLOCKED`（2026-09-28）；候选 `f7618693f9bc007606b8b8bb912afabef8efb5e3` 的 7 项条件为 4 PASS / 1 PARTIAL / 2 FAIL。F05 共享 Supabase 用例读到非本次 fixture，实际断言失败；F03 手动 Gate 缺可信协议比较基线而失败；候选尚缺主线正式签名和完整同 SHA 汇总，不能关闭 F0。F06 三组目标与严格 Gate、F07 Nightly、F08 目标和 F09 回执已补验；详见 [F0 总 Gate 验收](./audit/F0-total-gate-acceptance-2026-09-28.md)。下方未勾选项按本次候选重新核验，不否定旧基线的历史通过记录。
+
+- [ ] F01–F09 开发阶段 Gate 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。部署后的 F09 运行期验收归 L04 上线前 Gate。
+- [ ] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
+- [ ] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
+- [x] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量规则与 ADR 模板已纳入开发阶段自动化检查，运行期通知另按 L04 验收。
 - [x] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
 - [x] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
 - [x] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。

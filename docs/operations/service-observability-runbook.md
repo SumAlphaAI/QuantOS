@@ -16,19 +16,24 @@ Assign every replica a distinct file on a durable or log-shipped volume:
 
 ```text
 QUANTOS_TRACE_EXPORT_PATH=/var/lib/quantos/traces/<service>-<replica>.jsonl
-QUANTOS_OBSERVABILITY_ADDR=0.0.0.0:9090
+QUANTOS_OBSERVABILITY_ADDR=127.0.0.1:9090
 ```
 
-Do not share one file between replicas. Ship/rotate JSONL using the platform log
-agent; retention and immutable archival belong to deployment policy. A replica
-without a configured, writable exporter remains live but reports not-ready.
+The observability HTTP listener only binds to loopback; forward it through an
+authenticated operations proxy when remote access is required. Do not share
+one file between replicas. Ship/rotate JSONL using the platform log
+agent; retention and immutable archival belong to deployment policy. Live BFF
+and Runtime gateways and the market/portfolio batch writers now refuse to
+start business writes without an absolute, writable exporter path. The
+reference provider and read-only commands may run without one but report
+not-ready on the operations surface.
 
 ## Batch services
 
 `market-ingestor`, `portfolio-rebuild`, and `replay-cli` export `started` plus
 `succeeded` or `failed` during normal execution. With
-`QUANTOS_OBSERVABILITY_ADDR` present, the same binary enters operations-server
-mode instead of running a batch command. CLI and operation failures emit a
+`QUANTOS_OBSERVABILITY_ADDR` present, the operations server runs alongside the
+batch command. CLI and operation failures emit a
 stable envelope whose correlation ID matches the exported failure trace.
 
 ## Python Engines

@@ -11,7 +11,7 @@ use std::{
     process::ExitCode,
     sync::{
         Arc, Mutex,
-        atomic::{AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
     },
     time::Duration,
 };
@@ -20,6 +20,8 @@ use chrono::{DateTime, Utc};
 use quantos_core::CorrelationId;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+
+use crate::redact_value;
 
 const MAX_REQUEST_BYTES: usize = 8 * 1024;
 
@@ -114,7 +116,9 @@ impl JsonlTraceExporter {
             .create(true)
             .append(true)
             .open(self.path())?;
-        serde_json::to_writer(&mut file, record).map_err(std::io::Error::other)?;
+        let mut safe_record = record.clone();
+        safe_record.attributes = redact_value(safe_record.attributes);
+        serde_json::to_writer(&mut file, &safe_record).map_err(std::io::Error::other)?;
         file.write_all(b"\n")?;
         file.flush()
     }
@@ -153,6 +157,7 @@ impl JsonlTraceExporter {
 struct Counters {
     requests: AtomicU64,
     errors: AtomicU64,
+    listener_failed: AtomicBool,
 }
 
 #[derive(Debug, Clone)]
@@ -170,6 +175,7 @@ impl ServiceObservability {
             counters: Arc::new(Counters {
                 requests: AtomicU64::new(0),
                 errors: AtomicU64::new(0),
+                listener_failed: AtomicBool::new(false),
             }),
             exporter: None,
         }
@@ -192,9 +198,26 @@ impl ServiceObservability {
         }
     }
 
+    /// Live write services must have a persistent trace sink before they can
+    /// accept business requests. The deployment owns durable storage and log
+    /// shipping; this checks that an exporter is configured and writable.
+    pub fn from_required_env(service: impl Into<String>) -> std::io::Result<Self> {
+        let path = required_export_path(std::env::var("QUANTOS_TRACE_EXPORT_PATH").ok())?;
+        Self::with_jsonl_exporter(service, path)
+    }
+
     #[must_use]
     pub fn service(&self) -> &str {
         &self.service
+    }
+
+    #[must_use]
+    pub fn is_ready(&self) -> bool {
+        !self.counters.listener_failed.load(Ordering::Relaxed)
+            && self
+                .exporter
+                .as_ref()
+                .is_some_and(JsonlTraceExporter::is_ready)
     }
 
     pub fn record_error(&self) {
@@ -220,7 +243,7 @@ impl ServiceObservability {
             correlation_id,
             operation: operation.into(),
             status,
-            attributes,
+            attributes: redact_value(attributes),
             recorded_at: Utc::now(),
         })
     }
@@ -228,15 +251,58 @@ impl ServiceObservability {
     /// Serve `/healthz`, `/readyz`, `/metrics`, and correlation-addressable
     /// `/trace/<uuid>` endpoints. Unknown routes return a stable error envelope.
     pub fn serve(&self, address: SocketAddr) -> std::io::Result<()> {
-        let listener = TcpListener::bind(address)?;
-        for connection in listener.incoming() {
+        self.serve_listener(Self::bind(address)?)
+    }
+
+    pub fn start_background(&self, address: SocketAddr) -> std::io::Result<()> {
+        let listener = Self::bind(address)?;
+        let observer = self.clone();
+        std::thread::Builder::new()
+            .name(format!("{}-observability", self.service))
+            .spawn(move || {
+                if let Err(error) = observer.serve_listener(listener) {
+                    eprintln!("observability listener failed: {error}");
+                }
+            })?;
+        Ok(())
+    }
+
+    fn bind(address: SocketAddr) -> std::io::Result<TcpListener> {
+        if !address.ip().is_loopback() {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::PermissionDenied,
+                "observability HTTP must bind to loopback",
+            ));
+        }
+        TcpListener::bind(address)
+    }
+
+    fn serve_listener(&self, listener: TcpListener) -> std::io::Result<()> {
+        self.serve_connections(listener.incoming())
+    }
+
+    fn serve_connections(
+        &self,
+        connections: impl IntoIterator<Item = std::io::Result<TcpStream>>,
+    ) -> std::io::Result<()> {
+        for connection in connections {
             match connection {
                 Ok(mut stream) => {
-                    stream.set_read_timeout(Some(Duration::from_secs(2)))?;
-                    self.handle_connection(&mut stream)?;
+                    let result = stream
+                        .set_read_timeout(Some(Duration::from_secs(2)))
+                        .and_then(|()| stream.set_write_timeout(Some(Duration::from_secs(2))))
+                        .and_then(|()| self.handle_connection(&mut stream));
+                    if result.is_err() {
+                        // A stalled/disconnected client is not a listener failure.
+                        self.counters.errors.fetch_add(1, Ordering::Relaxed);
+                    }
                 }
                 Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
-                Err(error) => return Err(error),
+                Err(error) => {
+                    self.counters.listener_failed.store(true, Ordering::Relaxed);
+                    self.counters.errors.fetch_add(1, Ordering::Relaxed);
+                    return Err(error);
+                }
             }
         }
         Ok(())
@@ -271,10 +337,7 @@ impl ServiceObservability {
                 .expect("health payload is serializable"),
             ),
             "/readyz" => {
-                let ready = self
-                    .exporter
-                    .as_ref()
-                    .is_some_and(JsonlTraceExporter::is_ready);
+                let ready = self.is_ready();
                 (
                     if ready {
                         "200 OK"
@@ -286,6 +349,8 @@ impl ServiceObservability {
                         service: self.service.to_string(),
                         status: if ready {
                             "ready"
+                        } else if self.counters.listener_failed.load(Ordering::Relaxed) {
+                            "observability_listener_unavailable"
                         } else {
                             "trace_exporter_unavailable"
                         },
@@ -394,10 +459,7 @@ impl ServiceObservability {
 
     fn metrics(&self) -> String {
         let service = self.service.replace(['\\', '"'], "_");
-        let ready = self
-            .exporter
-            .as_ref()
-            .is_some_and(JsonlTraceExporter::is_ready);
+        let ready = self.is_ready();
         format!(
             "# HELP quantos_service_ready Whether the service and trace exporter are ready.\n# TYPE quantos_service_ready gauge\nquantos_service_ready{{service=\"{service}\"}} {}\n# HELP quantos_observability_requests_total Observability HTTP requests.\n# TYPE quantos_observability_requests_total counter\nquantos_observability_requests_total{{service=\"{service}\"}} {}\n# HELP quantos_service_errors_total Structured service errors.\n# TYPE quantos_service_errors_total counter\nquantos_service_errors_total{{service=\"{service}\"}} {}\n",
             u8::from(ready),
@@ -407,15 +469,50 @@ impl ServiceObservability {
     }
 }
 
+fn required_export_path(raw: Option<String>) -> std::io::Result<PathBuf> {
+    let value = raw
+        .filter(|path| !path.trim().is_empty())
+        .ok_or_else(|| std::io::Error::other("QUANTOS_TRACE_EXPORT_PATH is required"))?;
+    let path = PathBuf::from(value);
+    if !path.is_absolute() {
+        return Err(std::io::Error::other(
+            "QUANTOS_TRACE_EXPORT_PATH must be absolute",
+        ));
+    }
+    Ok(path)
+}
+
 /// Run one batch-service command with the same trace/error contract as the
-/// long-running gateways. When `QUANTOS_OBSERVABILITY_ADDR` is configured the
-/// binary runs its operations HTTP surface instead of executing a batch job.
+/// long-running gateways. The optional operations HTTP surface runs alongside
+/// the batch command and cannot suppress the command itself.
 pub fn run_observed_command<E>(
     service: &str,
     operation: &str,
     command: impl FnOnce() -> Result<(), E>,
 ) -> ExitCode {
-    let observability = match ServiceObservability::from_env(service) {
+    run_observed_command_with_exporter(service, operation, false, |_| command())
+}
+
+/// Use for a batch command that can persist F0 business state.
+pub fn run_observed_write_command<E>(
+    service: &str,
+    operation: &str,
+    command: impl FnOnce(CorrelationId) -> Result<(), E>,
+) -> ExitCode {
+    run_observed_command_with_exporter(service, operation, true, command)
+}
+
+fn run_observed_command_with_exporter<E>(
+    service: &str,
+    operation: &str,
+    require_exporter: bool,
+    command: impl FnOnce(CorrelationId) -> Result<(), E>,
+) -> ExitCode {
+    let observability = match if require_exporter {
+        ServiceObservability::from_required_env(service)
+    } else {
+        ServiceObservability::from_env(service)
+    } {
         Ok(observability) => observability,
         Err(_) => return emit_bootstrap_failure(service, "OBSERVABILITY_TRACE_EXPORTER_INIT"),
     };
@@ -427,10 +524,9 @@ pub fn run_observed_command<E>(
         let Ok(address) = address.parse() else {
             return emit_bootstrap_failure(service, "OBSERVABILITY_INVALID_ADDRESS");
         };
-        return match observability.serve(address) {
-            Ok(()) => ExitCode::SUCCESS,
-            Err(_) => emit_bootstrap_failure(service, "OBSERVABILITY_HTTP_SERVER_FAILURE"),
-        };
+        if observability.start_background(address).is_err() {
+            return emit_bootstrap_failure(service, "OBSERVABILITY_HTTP_SERVER_FAILURE");
+        }
     }
 
     let correlation_id = CorrelationId::new();
@@ -446,7 +542,7 @@ pub fn run_observed_command<E>(
         return emit_export_failure(service, correlation_id);
     }
 
-    match command() {
+    match command(correlation_id) {
         Ok(()) => {
             if observability
                 .record_trace(
@@ -520,7 +616,7 @@ fn emit_error_envelope(envelope: ErrorEnvelope) -> ExitCode {
 
 #[cfg(test)]
 mod tests {
-    use super::{ErrorEnvelope, ServiceObservability, TraceQueryResult};
+    use super::{ErrorEnvelope, ServiceObservability, TraceQueryResult, required_export_path};
     use quantos_core::CorrelationId;
     use serde_json::json;
 
@@ -552,6 +648,47 @@ mod tests {
         assert_eq!(query.records[0].operation, "runtime.claim");
         assert!(!response.contains("DATABASE_URL"));
         std::fs::remove_file(trace_path).expect("remove trace fixture");
+        assert!(!probe.is_ready());
+        assert!(probe.render("/readyz").contains("\"ready\":false"));
+    }
+
+    #[test]
+    fn stalled_client_does_not_stop_listener_and_listener_failure_changes_readiness() {
+        use std::{
+            io::{Read, Write},
+            net::{TcpListener, TcpStream},
+        };
+        let path =
+            std::env::temp_dir().join(format!("f09-listener-{}.jsonl", CorrelationId::new()));
+        let probe = ServiceObservability::with_jsonl_exporter("runtime-gateway", &path).unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let idle = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let (idle_server, _) = listener.accept().unwrap();
+        let mut good = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let (good_server, _) = listener.accept().unwrap();
+        good.write_all(b"GET /readyz HTTP/1.1\r\nHost: localhost\r\n\r\n")
+            .unwrap();
+        probe
+            .serve_connections([Ok(idle_server), Ok(good_server)])
+            .unwrap();
+        let mut response = String::new();
+        good.read_to_string(&mut response).unwrap();
+        assert!(response.contains("200 OK"));
+        assert!(probe.is_ready());
+        drop(idle);
+        assert!(
+            probe
+                .serve_connections([Err(std::io::Error::other("listener unavailable"))])
+                .is_err()
+        );
+        assert!(!probe.is_ready());
+        assert!(probe.render("/readyz").contains("503 Service Unavailable"));
+        assert!(
+            probe
+                .render("/readyz")
+                .contains("observability_listener_unavailable")
+        );
+        std::fs::remove_file(path).unwrap();
     }
 
     #[test]
@@ -563,5 +700,43 @@ mod tests {
         assert_eq!(envelope.code, "OBSERVABILITY_ROUTE_NOT_FOUND");
         assert_eq!(envelope.service, "execution-gateway");
         assert!(!envelope.retryable);
+    }
+
+    #[test]
+    fn live_write_trace_sink_requires_absolute_path() {
+        assert!(required_export_path(None).is_err());
+        assert!(required_export_path(Some("  ".to_owned())).is_err());
+        assert!(required_export_path(Some("relative/trace.jsonl".to_owned())).is_err());
+        let path = std::env::temp_dir().join("f09-trace.jsonl");
+        assert_eq!(
+            required_export_path(Some(path.display().to_string())).unwrap(),
+            path
+        );
+    }
+
+    #[test]
+    fn persisted_trace_redacts_nested_credentials_and_rejects_remote_listener() {
+        let trace_path = std::env::temp_dir().join(format!(
+            "quantos-observability-secret-{}.jsonl",
+            CorrelationId::new()
+        ));
+        let probe = ServiceObservability::with_jsonl_exporter("runtime-gateway", &trace_path)
+            .expect("trace exporter");
+        let id = CorrelationId::new();
+        probe
+            .record_trace(
+                id,
+                "write",
+                "succeeded",
+                json!({
+                    "nested": {"authorization": "Bearer sensitive-value"}, "safe": "ok"
+                }),
+            )
+            .expect("trace export");
+        let written = std::fs::read_to_string(&trace_path).expect("read trace");
+        assert!(!written.contains("sensitive-value"));
+        assert!(written.contains("[REDACTED]"));
+        assert!(probe.serve("0.0.0.0:0".parse().unwrap()).is_err());
+        std::fs::remove_file(trace_path).expect("remove trace fixture");
     }
 }

@@ -29,6 +29,7 @@ jobs:
       F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres
       GITLEAKS_BIN: ${{ github.workspace }}/artifacts/tools/gitleaks
       QUANTOS_PROTO_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+      QUANTOS_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CARGO_TERM_COLOR: always
       NEXT_PUBLIC_QUANTOS_ENV: local-mock
       NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai
@@ -47,6 +48,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -109,7 +111,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ci-browser-comparison-${{ github.sha }}
+          name: ci-browser-comparison-${{ env.QUANTOS_SOURCE_SHA }}
           path: |
             artifacts/browser/
             test-results/
@@ -144,6 +146,9 @@ jobs:
 
       - name: Validate F05 event, storage and audit source Gate
         run: make f05-check
+
+      - name: Validate F09 local observability and ADR source Gate
+        run: make observability-check
 
       - name: Validate migration baseline
         run: make db-migration-check
@@ -279,8 +284,12 @@ jobs:
     needs: verify
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
+    env:
+      QUANTOS_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: "24.12.0"

@@ -17,6 +17,18 @@ def _now() -> str:
     return datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def _redact(value: Any) -> Any:
+    sensitive = ("secret", "token", "password", "api_key", "api-key", "apikey", "authorization", "credential", "session")
+    if isinstance(value, dict):
+        return {
+            key: "[REDACTED]" if any(word in key.lower() for word in sensitive) else _redact(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [_redact(item) for item in value]
+    return value
+
+
 @dataclass(frozen=True)
 class ExportedTraceRecord:
     service: str
@@ -37,7 +49,9 @@ class JsonlTraceExporter:
         self._lock = threading.Lock()
 
     def export(self, record: ExportedTraceRecord) -> None:
-        encoded = json.dumps(asdict(record), sort_keys=True, separators=(",", ":"))
+        safe_record = asdict(record)
+        safe_record["attributes"] = _redact(safe_record["attributes"])
+        encoded = json.dumps(safe_record, sort_keys=True, separators=(",", ":"))
         with self._lock, self.path.open("a", encoding="utf-8") as output:
             output.write(encoded)
             output.write("\n")
@@ -122,6 +136,8 @@ class EngineObservability:
         return self.start_http((host, int(raw_port)))
 
     def start_http(self, address: Tuple[str, int]) -> ThreadingHTTPServer:
+        if address[0] not in ("localhost", "127.0.0.1", "::1"):
+            raise ValueError("observability HTTP must bind to loopback")
         observer = self
 
         class Handler(BaseHTTPRequestHandler):

@@ -13,12 +13,14 @@ use axum::{
     Json, Router,
     extract::{Path, State},
     http::{HeaderMap, HeaderValue, Method, StatusCode, header},
+    middleware::{self, Next},
+    response::Response,
     routing::{get, post},
 };
 use bytes::Bytes;
 use chrono::{Duration as ChronoDuration, Utc};
 use quantos_auth::{BffSessionContext, GatewayAuthMiddleware};
-use quantos_core::{ArtifactId, ContentHash, WorkflowRunId};
+use quantos_core::{ArtifactId, ContentHash, CorrelationId, WorkflowRunId};
 use quantos_observability::service::ServiceObservability;
 use quantos_policy::{AuthorizationRequirement, Capability, Role};
 use quantos_runtime::{NewWorkflowRun, ToolRegistration, pg::PgRuntimeStore};
@@ -36,6 +38,7 @@ struct AppState {
     storage: SupabaseStorageAdapter,
     origin: String,
     worker_healthy: Arc<AtomicBool>,
+    observability: Arc<ServiceObservability>,
 }
 
 fn storage_config() -> Result<SupabaseStorageConfig> {
@@ -93,15 +96,10 @@ pub async fn serve() -> Result<()> {
         worker_healthy.load(Ordering::SeqCst),
         "runtime worker did not become healthy"
     );
+    let observability = Arc::new(ServiceObservability::from_required_env("runtime-gateway")?);
     if let Ok(address) = env::var("QUANTOS_OBSERVABILITY_ADDR") {
         let address = address.parse()?;
-        std::thread::Builder::new()
-            .name("runtime-observability".to_owned())
-            .spawn(move || {
-                if let Ok(service) = ServiceObservability::from_env("runtime-gateway") {
-                    let _ = service.serve(address);
-                }
-            })?;
+        observability.start_background(address)?;
     }
     let state = Arc::new(AppState {
         auth: Mutex::new(auth),
@@ -109,6 +107,7 @@ pub async fn serve() -> Result<()> {
         storage,
         origin,
         worker_healthy,
+        observability: observability.clone(),
     });
     let router = Router::new()
         .route("/healthz", get(health))
@@ -122,6 +121,10 @@ pub async fn serve() -> Result<()> {
             get(get_artifact),
         )
         .with_state(state)
+        .layer(middleware::from_fn_with_state(
+            observability,
+            trace_write_request,
+        ))
         .layer(
             CorsLayer::new()
                 .allow_origin(origin_header)
@@ -138,8 +141,182 @@ pub async fn serve() -> Result<()> {
     Ok(())
 }
 
+async fn trace_write_request(
+    State(observer): State<Arc<ServiceObservability>>,
+    request: axum::extract::Request,
+    next: Next,
+) -> Response {
+    let method = request.method().clone();
+    let path = request.uri().path().to_owned();
+    let requested_id = request
+        .headers()
+        .get("x-correlation-id")
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| CorrelationId::parse_str(value).ok());
+    let mut response = next.run(request).await;
+    if method == Method::POST {
+        let correlation_id = response
+            .headers()
+            .get("x-correlation-id")
+            .and_then(|value| value.to_str().ok())
+            .and_then(|value| CorrelationId::parse_str(value).ok())
+            .or(requested_id)
+            .unwrap_or_else(CorrelationId::new);
+        let status = if response.status().is_success() {
+            "succeeded"
+        } else {
+            "failed"
+        };
+        if let Err(error) = observer.record_trace(
+            correlation_id,
+            format!("http.post {path}"),
+            status,
+            json!({ "http_status": response.status().as_u16() }),
+        ) {
+            eprintln!("runtime trace export failed: {error}");
+        }
+        response.headers_mut().insert(
+            "x-correlation-id",
+            HeaderValue::from_str(&correlation_id.to_string()).expect("UUID header value"),
+        );
+    }
+    if !response.status().is_success() {
+        let correlation_id = response
+            .headers()
+            .get("x-correlation-id")
+            .and_then(|value| value.to_str().ok())
+            .and_then(|value| CorrelationId::parse_str(value).ok())
+            .or(requested_id)
+            .unwrap_or_else(CorrelationId::new);
+        let (code, message) = match response.status() {
+            StatusCode::BAD_REQUEST => ("BAD_REQUEST", "Invalid request."),
+            StatusCode::UNAUTHORIZED => ("UNAUTHENTICATED", "Session is unavailable."),
+            StatusCode::FORBIDDEN => ("FORBIDDEN", "Access denied."),
+            StatusCode::NOT_FOUND => ("NOT_FOUND", "Resource not found."),
+            StatusCode::CONFLICT => ("CONFLICT", "Request conflicts with current state."),
+            StatusCode::INTERNAL_SERVER_ERROR => ("INTERNAL_ERROR", "Internal error."),
+            _ => ("SERVICE_UNAVAILABLE", "Service is unavailable."),
+        };
+        let (mut parts, _) = response.into_parts();
+        parts.headers.insert(
+            "x-correlation-id",
+            HeaderValue::from_str(&correlation_id.to_string()).expect("UUID header value"),
+        );
+        parts.headers.insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("application/json"),
+        );
+        parts
+            .headers
+            .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+        return Response::from_parts(
+            parts,
+            axum::body::Body::from(
+                json!({"code": code, "message": message, "correlationId": correlation_id})
+                    .to_string(),
+            ),
+        );
+    }
+    response
+}
+
+#[cfg(test)]
+mod f09_trace_tests {
+    use std::sync::Arc;
+
+    use axum::{
+        Router,
+        body::Body,
+        http::{Method, Request, StatusCode},
+        middleware,
+        routing::post,
+    };
+    use quantos_observability::service::ServiceObservability;
+    use tower::ServiceExt;
+
+    use super::trace_write_request;
+
+    #[tokio::test]
+    async fn write_returns_queryable_correlation_trace() {
+        let path = std::env::temp_dir().join(format!("f09-runtime-{}.jsonl", uuid::Uuid::new_v4()));
+        let observer =
+            Arc::new(ServiceObservability::with_jsonl_exporter("runtime-gateway", &path).unwrap());
+        let business_correlation = "5f10d43a-406f-4700-a8f6-6bf85e84b006";
+        let router = Router::new()
+            .route(
+                "/v1/runtime/runs",
+                post(|| async {
+                    (
+                        StatusCode::ACCEPTED,
+                        [("x-correlation-id", "5f10d43a-406f-4700-a8f6-6bf85e84b006")],
+                    )
+                }),
+            )
+            .layer(middleware::from_fn_with_state(
+                observer.clone(),
+                trace_write_request,
+            ));
+        let response = router
+            .oneshot(
+                Request::builder()
+                    .method(Method::POST)
+                    .uri("/v1/runtime/runs")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::ACCEPTED);
+        let correlation = response.headers()["x-correlation-id"].to_str().unwrap();
+        assert_eq!(correlation, business_correlation);
+        let result = observer.render(&format!("/trace/{correlation}"));
+        assert!(result.contains("http.post /v1/runtime/runs"));
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[tokio::test]
+    async fn failed_write_has_structured_error_and_matching_trace() {
+        let path = std::env::temp_dir().join(format!("f09-runtime-{}.jsonl", uuid::Uuid::new_v4()));
+        let observer =
+            Arc::new(ServiceObservability::with_jsonl_exporter("runtime-gateway", &path).unwrap());
+        let router = Router::new()
+            .route("/v1/runtime/runs", post(|| async { StatusCode::FORBIDDEN }))
+            .layer(middleware::from_fn_with_state(
+                observer.clone(),
+                trace_write_request,
+            ));
+        let response = router
+            .oneshot(
+                Request::builder()
+                    .method(Method::POST)
+                    .uri("/v1/runtime/runs")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let correlation = response.headers()["x-correlation-id"]
+            .to_str()
+            .unwrap()
+            .to_owned();
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let error: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(error["code"], "FORBIDDEN");
+        assert_eq!(error["correlationId"], correlation);
+        assert!(
+            observer
+                .render(&format!("/trace/{correlation}"))
+                .contains("failed")
+        );
+        std::fs::remove_file(path).unwrap();
+    }
+}
+
 async fn health(State(state): State<Arc<AppState>>) -> StatusCode {
-    if state.worker_healthy.load(Ordering::SeqCst) {
+    if state.worker_healthy.load(Ordering::SeqCst) && state.observability.is_ready() {
         StatusCode::NO_CONTENT
     } else {
         StatusCode::SERVICE_UNAVAILABLE
@@ -242,7 +419,7 @@ async fn schedule(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
     Json(input): Json<NewWorkflowRun>,
-) -> Result<(StatusCode, Json<Value>), StatusCode> {
+) -> Result<(StatusCode, HeaderMap, Json<Value>), StatusCode> {
     if input.workflow_kind != "runtime.fixture.v1" {
         return Err(StatusCode::BAD_REQUEST);
     }
@@ -282,7 +459,13 @@ async fn schedule(
     })
     .await
     .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)??;
-    Ok((StatusCode::ACCEPTED, Json(json!(run))))
+    let mut response_headers = HeaderMap::new();
+    response_headers.insert(
+        "x-correlation-id",
+        HeaderValue::from_str(&run.correlation_id.to_string())
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
+    );
+    Ok((StatusCode::ACCEPTED, response_headers, Json(json!(run))))
 }
 
 async fn get_run(
@@ -360,10 +543,16 @@ async fn get_artifact(
             .load_artifact_for_run(run.tenant_id, id, ArtifactId::from_uuid(artifact_id))
             .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?
             .ok_or(StatusCode::NOT_FOUND)?;
-        let bytes = state
-            .storage
-            .get_artifact(&manifest)
-            .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?;
+        let storage_result = state.storage.get_artifact(&manifest);
+        if let Err(error) = store.record_storage_operation(
+            run.tenant_id,
+            run.correlation_id,
+            storage_result.is_err(),
+            Utc::now(),
+        ) {
+            eprintln!("runtime Storage metric persist failed: {error}");
+        }
+        let bytes = storage_result.map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?;
         Ok::<_, StatusCode>(([(header::CONTENT_TYPE, manifest.media_type)], bytes))
     })
     .await
@@ -422,10 +611,16 @@ fn worker_once(store: &mut PgRuntimeStore, storage: &SupabaseStorageAdapter) -> 
                 payload.len() as u64,
                 Utc::now(),
             );
-            if storage
-                .put_artifact(&manifest, Bytes::from(payload))
-                .is_err()
-            {
+            let storage_result = storage.put_artifact(&manifest, Bytes::from(payload));
+            if let Err(error) = store.record_storage_operation(
+                tenant,
+                lease.run.correlation_id,
+                storage_result.is_err(),
+                Utc::now(),
+            ) {
+                eprintln!("runtime Storage metric persist failed: {error}");
+            }
+            if storage_result.is_err() {
                 store.fail_and_retry(&lease, "storage upload failed", Utc::now())?;
                 continue;
             }

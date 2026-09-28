@@ -215,12 +215,27 @@ test-rust:
 	cargo test --workspace --locked
 
 observability-check:
-	cargo test -p quantos-observability
-	uv run --locked --project engines --all-packages pytest engines/tests/test_engine_observability.py
+	cargo test -p quantos-observability --lib --locked
+	cargo test -p bff-gateway --lib f09_trace_tests --locked
+	cargo test -p runtime-gateway --bin runtime-gateway f09_trace_tests --locked
+	cargo build -p market-ingestor -p portfolio-rebuild --locked
+	node scripts/f09-batch-trace-smoke.cjs
+	uv run --locked --project engines --all-packages pytest engines/tests/test_engine_observability.py engines/tests/test_mock_engine_recovery.py
 	node ./scripts/test-f09-adr-input.mjs
+	node ./scripts/check-f09-observability-config.mjs
+	node --test scripts/tests/f09-rule-contract.test.mjs
 
 test-f09-live:
-	cargo test -p quantos-observability --test postgres_capacity_monitor -- --test-threads=1 --nocapture
+	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F09 PostgreSQL Gate." >&2; exit 1)
+	QUANTOS_RUN_F09_POSTGRES_TESTS=1 cargo test -p quantos-observability --test postgres_capacity_monitor --locked -- --test-threads=1 --skip restricted_runtime_role_records_only_real_storage_outcomes --nocapture
+
+f09-target-check: ensure-node
+	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" || (echo "DATABASE_URL and SUPABASE_URL are required for F09 target acceptance." >&2; exit 1)
+	node scripts/f09-target-gate.cjs
+
+f09-source-coverage-check: ensure-node
+	@test -n "$$DATABASE_URL" -a -n "$$SUPABASE_URL" -a -n "$$QUANTOS_BFF_SSLROOTCERT" || (echo "DATABASE_URL, SUPABASE_URL and QUANTOS_BFF_SSLROOTCERT are required for F09 source coverage." >&2; exit 1)
+	node scripts/f09-source-coverage.cjs
 
 test-f05-live:
 	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the F05 PostgreSQL acceptance Gate." >&2; exit 1)

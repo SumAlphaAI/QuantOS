@@ -85,7 +85,7 @@ fn supabase_storage_adapter_round_trips_artifacts_and_registers_manifest() {
     assert_eq!(persisted.content_hash, hash);
 
     let downloaded = adapter
-        .get_artifact(&persisted)
+        .get_artifact_recorded(&mut storage, &persisted)
         .expect("artifact downloads from Supabase Storage");
     assert_eq!(downloaded, payload);
 
@@ -98,8 +98,42 @@ fn supabase_storage_adapter_round_trips_artifacts_and_registers_manifest() {
     assert_eq!(fetched.metadata["source"], "supabase-storage-live");
 
     adapter
-        .delete_artifact(&persisted)
+        .delete_artifact_recorded(&mut storage, &persisted)
         .expect("artifact deletes from Supabase Storage");
+
+    let missing = ArtifactManifest::new(
+        tenant_id,
+        "application/octet-stream",
+        ContentHash::sha256_bytes(b"f09-missing-artifact"),
+        persisted.storage_bucket.clone(),
+        20,
+        Utc::now(),
+    );
+    assert!(
+        adapter
+            .get_artifact_recorded(&mut storage, &missing)
+            .is_err()
+    );
+
+    let mut metrics = connect_client(&database_url).expect("connects for F09 metric assertion");
+    let outcomes: (i64, i64) = {
+        let row = metrics
+            .query_one(
+                "select count(*) filter (where metric_value = 0),
+                    count(*) filter (where metric_value = 1)
+             from quantos.operational_metric_samples
+             where tenant_id = $1 and metric_name = 'storage_operation_error'
+               and source = metric_name",
+                &[tenant_id.as_uuid()],
+            )
+            .expect("reads Storage outcomes");
+        (row.get(0), row.get(1))
+    };
+    assert_eq!(
+        outcomes,
+        (3, 1),
+        "Storage successes and failure must be sampled"
+    );
 }
 
 fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {

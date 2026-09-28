@@ -36,6 +36,7 @@ fn serve(
                     Err(e) => panic!("{e}"),
                 }
             };
+            socket.set_nonblocking(false).unwrap();
             socket
                 .set_read_timeout(Some(Duration::from_secs(5)))
                 .unwrap();
@@ -205,5 +206,38 @@ fn registration_failure_compensates_upload_and_success_persists() {
         .unwrap();
     assert_eq!(persisted.content_hash, m.content_hash);
     server.join().unwrap();
+    let (base, server) = serve(vec![
+        ("GET", "200 OK", b"payload"),
+        ("DELETE", "200 OK", b""),
+        ("GET", "403 Forbidden", b"denied"),
+        ("DELETE", "500 Internal Server Error", b"failed"),
+    ]);
+    let recorded = adapter(base, false);
+    assert_eq!(
+        recorded.get_artifact_recorded(&mut store, &m).unwrap(),
+        Bytes::from_static(b"payload")
+    );
+    recorded.delete_artifact_recorded(&mut store, &m).unwrap();
+    assert!(
+        matches!(recorded.get_artifact_recorded(&mut store, &m), Err(SupabaseStorageError::HttpStatus { status, .. }) if status.as_u16() == 403)
+    );
+    assert!(
+        matches!(recorded.delete_artifact_recorded(&mut store, &m), Err(SupabaseStorageError::HttpStatus { status, .. }) if status.as_u16() == 500)
+    );
+    server.join().unwrap();
+    let metrics = db.query_one(
+        "select count(*)::bigint, sum(metric_value)::double precision from quantos.operational_metric_samples where tenant_id=$1 and metric_name='storage_operation_error'",
+        &[m.tenant_id.as_uuid()],
+    ).unwrap();
+    assert_eq!(
+        metrics.get::<_, i64>(0),
+        5,
+        "upload, two reads and two deletes each record an outcome"
+    );
+    assert_eq!(
+        metrics.get::<_, f64>(1),
+        2.0,
+        "HTTP failures must persist failed outcomes"
+    );
     // Preserve the tenant: cascading deletion must not bypass append-only ledger triggers.
 }

@@ -138,7 +138,7 @@ impl ExecutionSecretStore {
         command_expires_at: DateTime<Utc>,
         command_account_id: Uuid,
     ) -> Result<Option<ExecutionSecret>, AuthError> {
-        let row = self.client.query_typed_one(
+        let result = self.client.query_typed_one(
             "select quantos.resolve_execution_vault_secret($1, $2, $3, $4) as value",
             &[
                 (&session_token_hash, Type::TEXT),
@@ -146,7 +146,21 @@ impl ExecutionSecretStore {
                 (&command_expires_at, Type::TIMESTAMPTZ),
                 (&command_account_id, Type::UUID),
             ],
-        )?;
+        );
+        let failed = result
+            .as_ref()
+            .map_or(true, |row| row.get::<_, Option<String>>("value").is_none());
+        // Only the numeric outcome is persisted. Neither the secret name nor
+        // the session hash or plaintext can enter the operational sample.
+        if let Err(error) = self.client.query_one(
+            "select quantos.record_operational_metric(
+                null, 'secret_read_failure', $1, 'secret_read_failure',
+                null, '{}'::jsonb, now())",
+            &[&(if failed { 1.0_f64 } else { 0.0_f64 })],
+        ) {
+            eprintln!("execution secret-read metric persist failed: {error}");
+        }
+        let row = result?;
         Ok(row.get::<_, Option<String>>("value").map(ExecutionSecret))
     }
 }

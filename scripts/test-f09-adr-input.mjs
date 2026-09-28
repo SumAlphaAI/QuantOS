@@ -41,6 +41,24 @@ try {
     assert.ok(rendered.includes(expected), `ADR output omitted ${expected}`);
   }
   assert.ok(!rendered.includes("{{"), "ADR output contains unresolved template fields");
+  const pending = JSON.parse(
+    fs.readFileSync("./scripts/fixtures/f09-capacity/complete-window.json", "utf8"),
+  );
+  pending.db_fault_result = "NOT RUN / NO RECEIPT";
+  pending.event_consumer_fault_result = "NOT RUN / NO RECEIPT";
+  pending.engine_fault_result = "NOT RUN / NO RECEIPT";
+  pending.secret_redaction_verified = false;
+  pending.traceEvidence = [];
+  const pendingInput = path.join(temporaryDirectory, "pending.json");
+  fs.writeFileSync(pendingInput, JSON.stringify(pending));
+  execFileSync(process.execPath, [
+    "./scripts/generate-f09-adr-input.mjs", "--input", pendingInput,
+    "--output", output,
+  ]);
+  const pendingRendered = fs.readFileSync(output, "utf8");
+  assert.ok(pendingRendered.includes("NOT RUN / NO RECEIPT"));
+  assert.ok(pendingRendered.includes("Secret redaction verified: `false`"));
+  assert.ok(pendingRendered.includes("## Trace Evidence\n\n- none"));
   console.log("F09 ADR input generation checks passed.");
 } finally {
   fs.rmSync(temporaryDirectory, { recursive: true, force: true });

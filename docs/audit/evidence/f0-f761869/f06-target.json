@@ -1,0 +1,36 @@
+{
+  "schema": "quantos-f06-target-acceptance/v2",
+  "sourceCommit": "f7618693f9bc007606b8b8bb912afabef8efb5e3",
+  "status": "PASS",
+  "failures": [],
+  "targetClass": "configured-test-supabase-local-services",
+  "realOidcBff": {
+    "status": "PASS",
+    "checks": [
+      "real Supabase Auth and BFF 9 HTTP cases",
+      "real Auth BFF Runtime identity denials"
+    ],
+    "traceExportConfigured": true
+  },
+  "executionRoleAndVault": {
+    "status": "PASS",
+    "paperScenarios": 6,
+    "actualRoleDenials": 8
+  },
+  "denialMatrix": {
+    "status": "PASS",
+    "categories": 4,
+    "actualDatabaseTests": 8,
+    "excludedLatencyDiagnostic": "NOT RUN"
+  },
+  "evidenceLogSha256": {
+    "f0-f06-live.log": "6431a943e3968f755fef9a9d3e947be51f7fb168ccd12575612cf8e22993b39a",
+    "f0-f06-services-configured.log": "0cbc484861d13d9413af5ce184cb054765ae0d1fd2ee1f50f5b536901e340ee9",
+    "f0-f06-services-remainder.log": "0194eecf5ce9787dff42309cbfbb6d89b80a295470c02d94df0a4bbd1a705dfb"
+  },
+  "notes": [
+    "First BFF invocation lacked required trace path and failed; configured rerun passed.",
+    "Test Supabase authorized by user; no dedicated isolated database provisioned.",
+    "Runtime temporary admin Storage key is diagnostic only and performed no Storage operation."
+  ]
+}

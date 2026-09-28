@@ -5,6 +5,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      baseline_sha:
+        description: "Trusted full SHA to compare against (must be an ancestor, not HEAD)"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -14,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      QUANTOS_PROTO_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+      QUANTOS_PROTO_BASE: ${{ github.event.pull_request.base.sha || github.event.before || inputs.baseline_sha }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,7 +42,7 @@ jobs:
           pnpm install --frozen-lockfile
           uv sync --locked --project engines --all-packages
       - name: Test receipt rejection rules
-        run: node --test scripts/tests/record-f03-receipt.test.mjs
+        run: node --test scripts/tests/record-f03-receipt.test.mjs scripts/tests/proto-manual-baseline.test.mjs
       - name: Verify generator bootstraps without SDK generated files
         run: node scripts/check-proto-json-bootstrap.mjs
       - name: Validate proto workspace and cross-language compatibility

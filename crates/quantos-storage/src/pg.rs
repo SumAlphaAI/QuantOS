@@ -50,6 +50,22 @@ impl PgStorageStore {
         })
     }
 
+    /// Persist only the outcome of a Storage operation. Telemetry failure must
+    /// not change the result of the object request or expose its key or body.
+    pub fn record_storage_outcome(&mut self, tenant_id: TenantId, failed: bool) {
+        if let Err(error) = self.client.query_one(
+            "select quantos.record_operational_metric(
+                $1, 'storage_operation_error', $2, 'storage_operation_error',
+                null, '{}'::jsonb, now())",
+            &[
+                tenant_id.as_uuid(),
+                &(if failed { 1.0_f64 } else { 0.0_f64 }),
+            ],
+        ) {
+            eprintln!("storage operation metric persist failed: {error}");
+        }
+    }
+
     pub fn upsert_artifact(
         &mut self,
         manifest: &ArtifactManifest,
