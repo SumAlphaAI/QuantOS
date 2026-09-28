@@ -1263,7 +1263,8 @@ fn postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts() {
             let result = PgEventStore::connect(candidate.as_str());
             assert_eq!(
                 result.is_ok(),
-                !matches!(mode, Some("require" | "verify-full"))
+                matches!(mode, None | Some("disable")),
+                "explicit TLS mode {mode:?} must not silently downgrade on a plaintext server"
             );
         }
     }
