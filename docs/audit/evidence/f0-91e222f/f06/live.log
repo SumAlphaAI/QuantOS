@@ -1,0 +1,30 @@
+QUANTOS_RUN_F06_POSTGRES_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context --locked -- --test-threads=1 --nocapture
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running tests/postgres_auth_context.rs (target/debug/deps/postgres_auth_context-970b40de0b36e4f2)
+
+running 9 tests
+test authenticated_role_cannot_read_other_tenant_workspace ... ok
+test bff_session_is_bound_to_its_primary_account_and_revocation ... 
+thread 'bff_session_is_bound_to_its_primary_account_and_revocation' (266893) panicked at crates/quantos-auth/tests/postgres_auth_context.rs:744:51:
+connects for setup: Error { kind: Tls, cause: Some(Error { code: -9806, message: "connection closed via error" }) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test cross_tenant_authorization_edges_are_rejected_by_database_constraints ... ok
+test dedicated_bff_login_uses_verified_tls_and_narrow_role ... ok
+test f06_dedicated_bff_auth_read_p95 ... NOT RUN: set QUANTOS_RUN_F06_P95=1 for the dedicated BFF P95 Gate
+ok
+test f06_four_category_denial_matrix ... F06_DENIAL_MATRIX={"cases":[{"category":"missing_actor_or_tenant","denied":2,"layer":"auth_middleware","probes":2},{"category":"capability","denied":1,"layer":"auth_middleware","probes":1},{"category":"rls_bypass","denied":1,"probes":1,"result":"zero_rows","role":"authenticated"},{"category":"engine_secret","denied":1,"probes":1,"role":"quantos_engine","sqlstate":"42501"}],"denied":4,"status":"PASS","total":4}
+ok
+test gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks ... ok
+test gateway_auth_only_allows_service_secret_resolution_via_allowlist_session ... ok
+test operator_connection_cannot_be_reused_without_verified_tls ... ok
+
+failures:
+
+failures:
+    bff_session_is_bound_to_its_primary_account_and_revocation
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 190.80s
+
+error: test failed, to rerun pass `-p quantos-auth --test postgres_auth_context`
+make: *** [f06-live-check] Error 101

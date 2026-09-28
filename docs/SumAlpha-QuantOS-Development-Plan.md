@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.16
+> 版本：3.17
 > 更新时间：2026-09-28
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.17`：修复 F05 共享库测试串扰及 F03 手动基线，PR #6 正常合入 main `91e222f`；14/14 主线工作流、8/8 必需检查、正式签名与独立下载通过。随后经授权完成实际 Supabase 完整重建及独立远程参考库 drift，F0 为 7/7 PASS，关闭本阶段总 Gate。
 
 - `3.16`：执行 F0 总 Gate，保留 BLOCKED；补齐候选分项回执，发现 F05 共享库用例隔离缺陷，远程重建和最终主线签名仍待闭环。
 
@@ -221,7 +223,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `ACCEPTED`
-- review_conclusion: COMPLETED / ACCEPTED。c3be28d的F03 Protocol Acceptance #2完整执行proto-check并成功，生成物无漂移；50份Schema、六方向二进制与ProtoJSON、11003组样本及15项非法JSON探针通过。下载包及日志摘要、sourceSha/expectedSha、92份文件哈希均核验一致。C12已关闭，既有Rust8/Python127/TS46项本地证据保留。详见 [F03 全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)。
+- review_conclusion: COMPLETED / ACCEPTED。c3be28d的F03 Protocol Acceptance #2完整执行proto-check并成功，生成物无漂移；50份Schema、六方向二进制与ProtoJSON、11003组样本及15项非法JSON探针通过。下载包及日志摘要、sourceSha/expectedSha、92份文件哈希均核验一致。C12已关闭，既有Rust8/Python127/TS46项本地证据保留。详见 [F03 全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)。 2026-09-28 补充：手动基线缺陷 F0-H01 已修复，必须提供非 HEAD 的完整祖先 SHA；main `91e222f` 的独立手动 Gate、92 个生成物摘要通过。 详见 [F0 整改与主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。
 - issues: []
 - fix_tracking: []
 
@@ -265,7 +267,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `ACCEPTED`
-- review_conclusion: 2026-09-23 以完整 SHA 48d837692b81e56bd88e13189f0cf15ee34976d3 完成三项同 SHA 验收：QuantOS CI #117 整体 SUCCESS，正式签名与独立下载验签确认 236 个发布文件；F05 Event Nightly #7 SUCCESS，10,000 条正式消费和唯一副作用全部对齐、完整事件链取回 160.233317ms，Linux pg.rs region 607/714=85.014%；隔离 Supabase 目标 Gate PASS，15 项 migration、RLS、真实 Storage 及万条一致性通过。30/30 检查点 PASS，初审 11/11 问题关闭。目标 Supabase 的跨区域 ID 链时延仅作完整性观测，不能外推为该环境完整载荷 ≤5 秒。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)及[同 SHA 正式验收](./audit/F05-acceptance-48d8376-2026-09-23.md)。
+- review_conclusion: 2026-09-23 以完整 SHA 48d837692b81e56bd88e13189f0cf15ee34976d3 完成三项同 SHA 验收：QuantOS CI #117 整体 SUCCESS，正式签名与独立下载验签确认 236 个发布文件；F05 Event Nightly #7 SUCCESS，10,000 条正式消费和唯一副作用全部对齐、完整事件链取回 160.233317ms，Linux pg.rs region 607/714=85.014%；隔离 Supabase 目标 Gate PASS，15 项 migration、RLS、真实 Storage 及万条一致性通过。30/30 检查点 PASS，初审 11/11 问题关闭。目标 Supabase 的跨区域 ID 链时延仅作完整性观测，不能外推为该环境完整载荷 ≤5 秒。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)及[同 SHA 正式验收](./audit/F05-acceptance-48d8376-2026-09-23.md)。 2026-09-28 补充：F0-B01 共享库测试串扰已修复；main `91e222f` 的 CI/Nightly 通过，万条事件及唯一副作用一致、完整查询 159.374ms、分支覆盖 87.013%。经用户授权重建当前测试项目 quantos schema，同 main SHA 的 Supabase 完整 target、独立远程参考库 drift 与实际 RLS 全部通过，F0 7/7 闭环。 详见 [F0 整改与主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。
 - issues: []
 - fix_tracking: []
 
@@ -358,7 +360,7 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `ACCEPTED`
-- review_conclusion: 2026-09-28 最终源码 `81cb5ae43f87e7d4b4be059b9eed036b755b4986` 的 CI、F09 push 目标和手动调度/Nightly 路径回执全部通过；内部完整 SHA、下载验证、两份目标各 7 个日志摘要和三类真实写入口 trace 均核验，F09-B04 关闭。原 14 项现为 9 项关闭（8 项代码修复及 B04 回执闭环）、5 项部分修复／移交，B01–B03/H05/M03 的运行期剩余范围仍由业务任务/L04 追踪。手动调度不代表已观察实际 cron；后续文档提交不自动继承该源码回执。详见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)、[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)、[逐项复核归档](./audit/F09-findings-recheck-2026-09-28.md)。F0 总 Gate 继续关闭，F02 main 正式签名约束不变。
+- review_conclusion: 2026-09-28 最终源码 `81cb5ae43f87e7d4b4be059b9eed036b755b4986` 的 CI、F09 push 目标和手动调度/Nightly 路径回执全部通过；内部完整 SHA、下载验证、两份目标各 7 个日志摘要和三类真实写入口 trace 均核验，F09-B04 关闭。原 14 项现为 9 项关闭（8 项代码修复及 B04 回执闭环）、5 项部分修复／移交，B01–B03/H05/M03 的运行期剩余范围仍由业务任务/L04 追踪。手动调度不代表已观察实际 cron；后续文档提交不自动继承该源码回执。详见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)、[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)、[逐项复核归档](./audit/F09-findings-recheck-2026-09-28.md)。F0 总 Gate 最新结论见第 10.1 节，F02 main 正式签名约束不变。
 - issues: []
 - fix_tracking: []
 
@@ -1292,11 +1294,11 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 ### 10.1 F0 Gate
 
-- 总验收状态：`BLOCKED`（2026-09-28）；候选 `f7618693f9bc007606b8b8bb912afabef8efb5e3` 的 7 项条件为 4 PASS / 1 PARTIAL / 2 FAIL。F05 共享 Supabase 用例读到非本次 fixture，实际断言失败；F03 手动 Gate 缺可信协议比较基线而失败；候选尚缺主线正式签名和完整同 SHA 汇总，不能关闭 F0。F06 三组目标与严格 Gate、F07 Nightly、F08 目标和 F09 回执已补验；详见 [F0 总 Gate 验收](./audit/F0-total-gate-acceptance-2026-09-28.md)。下方未勾选项按本次候选重新核验，不否定旧基线的历史通过记录。
+- 总验收状态：`ACCEPTED`（2026-09-28），F0 总 Gate 关闭；验收主线 `91e222f744fd350ab9db80ba7554bd1fee9194fa`，7/7 条件 PASS（100%）。F05 共享库串扰、F03 手动基线已修复；14/14 主线工作流、8/8 必需检查、正式签名/独立下载，以及同 SHA F05 Supabase 完整重建目标 Gate 全部通过。实际 34 个迁移重建、独立远程参考库七类目录 drift 与正反向检查、重建后 RLS 通过，临时参考库已删除。详见 [整改与最终主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)及[证据索引](./audit/evidence/f0-91e222f/index.json)。[首次总验收](./audit/F0-total-gate-acceptance-2026-09-28.md)保留历史失败。后续文档提交不自动继承此源码回执；L04 上线前范围不变。
 
-- [ ] F01–F09 开发阶段 Gate 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。部署后的 F09 运行期验收归 L04 上线前 Gate。
-- [ ] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
-- [ ] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
+- [x] F01–F09 开发阶段 Gate 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。部署后的 F09 运行期验收归 L04 上线前 Gate。
+- [x] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
+- [x] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
 - [x] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量规则与 ADR 模板已纳入开发阶段自动化检查，运行期通知另按 L04 验收。
 - [x] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
 - [x] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。

@@ -1,0 +1,34 @@
+QUANTOS_RUN_F06_POSTGRES_TESTS=1 cargo test -p quantos-auth --test postgres_auth_context --locked -- --test-threads=1 --nocapture
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running tests/postgres_auth_context.rs (target/debug/deps/postgres_auth_context-970b40de0b36e4f2)
+
+running 9 tests
+test authenticated_role_cannot_read_other_tenant_workspace ... ok
+test bff_session_is_bound_to_its_primary_account_and_revocation ... ok
+test cross_tenant_authorization_edges_are_rejected_by_database_constraints ... ok
+test dedicated_bff_login_uses_verified_tls_and_narrow_role ... ok
+test f06_dedicated_bff_auth_read_p95 ... NOT RUN: set QUANTOS_RUN_F06_P95=1 for the dedicated BFF P95 Gate
+ok
+test f06_four_category_denial_matrix ... F06_DENIAL_MATRIX={"cases":[{"category":"missing_actor_or_tenant","denied":2,"layer":"auth_middleware","probes":2},{"category":"capability","denied":1,"layer":"auth_middleware","probes":1},{"category":"rls_bypass","denied":1,"probes":1,"result":"zero_rows","role":"authenticated"},{"category":"engine_secret","denied":1,"probes":1,"role":"quantos_engine","sqlstate":"42501"}],"denied":4,"status":"PASS","total":4}
+ok
+test gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks ... ok
+test gateway_auth_only_allows_service_secret_resolution_via_allowlist_session ... ok
+test operator_connection_cannot_be_reused_without_verified_tls ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 202.65s
+
+cargo build -p bff-gateway --locked
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
+{"status":"PASS","originKind":"synthetic_http_smoke","realSupabaseAuth":true,"independentBffLogin":true,"verifiedSubject":true,"cookiePolicy":"Secure; HttpOnly; SameSite=Strict","tokenBoundExpiry":true,"httpStatuses":{"missingCookie":401,"foreignOrigin":403,"invalidToken":401,"sessionEstablished":204,"sessionRead":200,"primaryContext":200,"hiddenAccount":404,"logout":204,"revokedSession":401},"checks":["auth_login","missing_cookie","foreign_origin","invalid_token","opaque_cookie","session_context","primary_context","hidden_account","server_revocation"]}
+cargo build -p bff-gateway -p runtime-gateway --locked
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
+{"status":"PASS","target":"isolated_supabase_local_runtime","realSupabaseAuth":true,"independentBffAndRuntimeLogins":true,"temporaryAdminStorageKey":true,"storageOperationPerformed":false,"originKind":"synthetic_https_server_probe","httpStatuses":{"missingCookie":401,"authorizedUnknownRun":404,"foreignOrigin":403,"deniedRole":403,"bffLogout":204,"revokedCookie":401}}
+cargo build -p execution-gateway --locked
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.42s
+QUANTOS_F06_TARGET_ISOLATED=1 node scripts/f06-execution-command-smoke.cjs
+{"status":"PASS","liveRestrictedVaultCall":true,"paperKernelSubmission":1,"deniedKernelSubmissions":0,"scenarios":["active","account_mismatch","expired","reference_rotating","reference_revoked","session_revoked"],"fixtureDataCleaned":true,"emptyIsolatedTenantRetained":true,"secretMaterialLogged":false,"x03IssuerOrTransportAcceptance":"NOT_TESTED"}
+QUANTOS_F06_TARGET_ISOLATED=1 node scripts/f06-vault-gate.cjs
+{"status":"PASS","checks":["application function and decrypted view privilege matrix","gateway allowed; mismatched command account and expired command rejected","rotating reference rejected","revoked reference rejected","revoked service session rejected","8/8 actual SQL denials for UI, user, BFF and Engine roles"],"roleDenials":[{"role":"anon","path":"decrypted_view","sqlstate":"42501"},{"role":"anon","path":"resolver","sqlstate":"42501"},{"role":"authenticated","path":"decrypted_view","sqlstate":"42501"},{"role":"authenticated","path":"resolver","sqlstate":"42501"},{"role":"quantos_bff","path":"decrypted_view","sqlstate":"42501"},{"role":"quantos_bff","path":"resolver","sqlstate":"42501"},{"role":"quantos_engine","path":"decrypted_view","sqlstate":"42501"},{"role":"quantos_engine","path":"resolver","sqlstate":"42501"}],"denied":8,"total":8,"secretMaterialLogged":false,"platformServiceRoleViewException":true,"applicationRolesHoldServiceRole":false}
