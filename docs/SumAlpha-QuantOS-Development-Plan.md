@@ -353,8 +353,8 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
+- review_status: `ACCEPTED`
+- review_conclusion: 2026-09-28 按 F09 开发期 Gate 关闭，验收源码基线为完整 SHA `935fb2455ac502825e432a7195312531da5e69e9`。同 SHA PR CI 36331162688、F09 push 目标 36331160914、同工作流手动调度 36331235209 均 SUCCESS；下载回执内部 SHA 一致，BFF 会话、Runtime 调度、Portfolio 投影实际写入与持久 trace 完成双向核对。手动调度证明定时工作流的同一路径可执行，不代表已观察到实际 cron 触发。F02 PR 下载校验通过，正式签名仍只在 main 的受保护环境进行。此结论只覆盖开发期；九类持续业务指标、通知、跨服务同链故障和秘密轮换等运行期项目仍在 L04 保持 NOT RUN / NO RECEIPT，F0 总 Gate 不随 F09 自动打开。详见 [F09 开发期关闭复核](./audit/F09-development-acceptance-2026-09-28.md)。
 - issues: []
 - fix_tracking: []
 

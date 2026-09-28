@@ -1,5 +1,7 @@
 # F09 开发阶段剩余问题与关闭复核（2026-09-27）
 
+> 本文保留 2026-09-27 时点的未关闭判断与失败记录。`935fb2455ac502825e432a7195312531da5e69e9` 的同 SHA 回执取得后的开发期关闭结论见 [2026-09-28 关闭复核](F09-development-acceptance-2026-09-28.md)。
+
 ## 复核结论
 
 依据 [F09 阶段 Gate 边界](F09-stage-gate-review-2026-09-27.md)，当前**尚不能关闭 F09 开发验收**。已部署业务来源、持续告警和同链运行期演练属于 L04；开发期仍须完成写入口 trace 的可核对证据，以及同一完整 SHA 的 CI、Nightly 和测试 Supabase 组件回执。`development_status=COMPLETED` 只表示已有实现，不等于 `review_status=ACCEPTED`。
