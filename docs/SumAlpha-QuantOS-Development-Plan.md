@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.14
-> 更新时间：2026-09-25
+> 版本：3.15
+> 更新时间：2026-09-28
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.15`：F09 修复版 `81cb5ae` 完成同 SHA 开发期验收，B04 关闭；原 14 项中 9 项关闭、5 项运行期剩余问题继续追踪，F0 总 Gate 保持关闭。
 
 - `3.14`：F06 已关闭问题及修复追踪移至审计归档，计划保留当前结论和验收边界；F06 Gate 改为校验归档中的完整关闭记录，同 SHA 回执要求不变。
 
@@ -353,21 +355,10 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-09-28 重新核对初审 14 项：8 项代码缺陷已修复并通过适用回归，B01–B03/H05/M03 共 5 项仍部分修复并移交业务任务/L04，B04 等待新源码完整回执。本轮发现并修复配额告警额外等待、同分钟重复累计、缺采样恢复复用窗口及观测监听故障；源码提交 `1ce64b6f0a33fff4b9ffb35f22c05ea642b3df69`。此前 `935fb24`、`994ec53` 的 ACCEPTED 仅保留为历史开发基线，不自动覆盖新修复版。当前仅保留活动问题，详见 [F09 当前复审](./audit/F09-comprehensive-review-2026-09-27.md)、[逐项复核与修复归档](./audit/F09-findings-recheck-2026-09-28.md)及[初审原文归档](./audit/F09-initial-review-2026-09-27.md)。F0 总 Gate 继续关闭，运行期移交不算验收通过。
-- issues:
-  - issue_id: F09-B04
-    severity: BLOCKER
-    description: 新修复源码须重新汇总同完整 SHA 的 CI、F09 目标与手动调度/Nightly 路径回执；旧基线通过不转移。
-    evidence: [当前复审与逐项证据](./audit/F09-findings-recheck-2026-09-28.md)
-    status: OPEN
-- fix_tracking:
-  - issue_id: F09-B04
-    fix_ref: 1ce64b6f0a33fff4b9ffb35f22c05ea642b3df69
-    verification_command: 核对 QuantOS CI 与 F09 工作流、内部完整 SHA、writeTraces 和下载校验回执
-    verification_environment: GitHub Linux runner 与配置的测试 Supabase PostgreSQL
-    verification_evidence: [本轮验证与历史回执](./audit/F09-findings-recheck-2026-09-28.md#3-本轮验证与历史回执)
-    verification_status: PENDING
+- review_status: `ACCEPTED`
+- review_conclusion: 2026-09-28 最终源码 `81cb5ae43f87e7d4b4be059b9eed036b755b4986` 的 CI、F09 push 目标和手动调度/Nightly 路径回执全部通过；内部完整 SHA、下载验证、两份目标各 7 个日志摘要和三类真实写入口 trace 均核验，F09-B04 关闭。原 14 项现为 9 项关闭（8 项代码修复及 B04 回执闭环）、5 项部分修复／移交，B01–B03/H05/M03 的运行期剩余范围仍由业务任务/L04 追踪。手动调度不代表已观察实际 cron；后续文档提交不自动继承该源码回执。详见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)、[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)、[逐项复核归档](./audit/F09-findings-recheck-2026-09-28.md)。F0 总 Gate 继续关闭，F02 main 正式签名约束不变。
+- issues: []
+- fix_tracking: []
 
 
 ## 5. TP：第三方工程评估、适配与依赖治理
