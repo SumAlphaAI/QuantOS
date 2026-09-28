@@ -275,7 +275,10 @@ fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
         payload: json!({"safe": true}),
     })
     .unwrap();
-    let mut store = retry_target_connection(|| PgEventStore::connect(&database_url)).unwrap();
+    let mut store = retry_target_connection(|| {
+        PgEventStore::connect_for_outbox_tenants(&database_url, &[tenant_id])
+    })
+    .unwrap();
     let mut fixture_client = connect_client(&database_url).expect("fixture updater connects");
     let prioritize_fixture = |client: &mut Client| {
         let updated = client
