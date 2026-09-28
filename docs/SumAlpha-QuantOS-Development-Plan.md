@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.15
+> 版本：3.16
 > 更新时间：2026-09-28
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.16`：执行 F0 总 Gate，保留 BLOCKED；补齐候选分项回执，发现 F05 共享库用例隔离缺陷，远程重建和最终主线签名仍待闭环。
 
 - `3.15`：F09 修复版 `81cb5ae` 完成同 SHA 开发期验收，B04 关闭；原 14 项中 9 项关闭、5 项运行期剩余问题继续追踪，F0 总 Gate 保持关闭。
 
@@ -1290,9 +1292,11 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 ### 10.1 F0 Gate
 
+- 总验收状态：`BLOCKED`（2026-09-28）；候选 `f7618693f9bc007606b8b8bb912afabef8efb5e3` 的 7 项条件为 4 PASS / 1 PARTIAL / 2 FAIL。F05 共享 Supabase 用例读到非本次 fixture，实际断言失败；F03 手动 Gate 缺可信协议比较基线而失败；候选尚缺主线正式签名和完整同 SHA 汇总，不能关闭 F0。F06 三组目标与严格 Gate、F07 Nightly、F08 目标和 F09 回执已补验；详见 [F0 总 Gate 验收](./audit/F0-total-gate-acceptance-2026-09-28.md)。下方未勾选项按本次候选重新核验，不否定旧基线的历史通过记录。
+
 - [ ] F01–F09 开发阶段 Gate 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。部署后的 F09 运行期验收归 L04 上线前 Gate。
-- [x] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
-- [x] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
+- [ ] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
+- [ ] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
 - [x] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量规则与 ADR 模板已纳入开发阶段自动化检查，运行期通知另按 L04 验收。
 - [x] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
 - [x] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
