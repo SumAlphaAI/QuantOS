@@ -353,10 +353,21 @@ flowchart LR
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: 2026-09-28 按 F09 开发期 Gate 关闭，验收源码基线为完整 SHA `935fb2455ac502825e432a7195312531da5e69e9`。同 SHA PR CI 36331162688、F09 push 目标 36331160914、同工作流手动调度 36331235209 均 SUCCESS；下载回执内部 SHA 一致，BFF 会话、Runtime 调度、Portfolio 投影实际写入与持久 trace 完成双向核对。手动调度证明定时工作流的同一路径可执行，不代表已观察到实际 cron 触发。F02 PR 下载校验通过，正式签名仍只在 main 的受保护环境进行。此结论只覆盖开发期；九类持续业务指标、通知、跨服务同链故障和秘密轮换等运行期项目仍在 L04 保持 NOT RUN / NO RECEIPT，F0 总 Gate 不随 F09 自动打开。详见 [F09 开发期关闭复核](./audit/F09-development-acceptance-2026-09-28.md)。
-- issues: []
-- fix_tracking: []
+- review_status: `FIX_VALIDATION`
+- review_conclusion: 2026-09-28 重新核对初审 14 项：8 项代码缺陷已修复并通过适用回归，B01–B03/H05/M03 共 5 项仍部分修复并移交业务任务/L04，B04 等待新源码完整回执。本轮发现并修复配额告警额外等待、同分钟重复累计、缺采样恢复复用窗口及观测监听故障；源码提交 `1ce64b6f0a33fff4b9ffb35f22c05ea642b3df69`。此前 `935fb24`、`994ec53` 的 ACCEPTED 仅保留为历史开发基线，不自动覆盖新修复版。当前仅保留活动问题，详见 [F09 当前复审](./audit/F09-comprehensive-review-2026-09-27.md)、[逐项复核与修复归档](./audit/F09-findings-recheck-2026-09-28.md)及[初审原文归档](./audit/F09-initial-review-2026-09-27.md)。F0 总 Gate 继续关闭，运行期移交不算验收通过。
+- issues:
+  - issue_id: F09-B04
+    severity: BLOCKER
+    description: 新修复源码须重新汇总同完整 SHA 的 CI、F09 目标与手动调度/Nightly 路径回执；旧基线通过不转移。
+    evidence: [当前复审与逐项证据](./audit/F09-findings-recheck-2026-09-28.md)
+    status: OPEN
+- fix_tracking:
+  - issue_id: F09-B04
+    fix_ref: 1ce64b6f0a33fff4b9ffb35f22c05ea642b3df69
+    verification_command: 核对 QuantOS CI 与 F09 工作流、内部完整 SHA、writeTraces 和下载校验回执
+    verification_environment: GitHub Linux runner 与配置的测试 Supabase PostgreSQL
+    verification_evidence: [本轮验证与历史回执](./audit/F09-findings-recheck-2026-09-28.md#3-本轮验证与历史回执)
+    verification_status: PENDING
 
 
 ## 5. TP：第三方工程评估、适配与依赖治理
@@ -1272,7 +1283,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - 量化验收标准：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0
 - 依赖：X05、X06、L01–L03
 - F07 上线前移交：在拟上线的隔离部署环境中验证外部 HTTPS BFF/Runtime 入口、真实身份与会话、worker 恢复、私有 Artifact 取回及跨租户拒绝；为 Runtime 配置只能访问 `quantos-artifacts` 的 Storage 凭据，证明其他 bucket 读写被拒并记录轮换和撤销。两项均需绑定候选发布源码 SHA 的目标回执；未通过不得发布 Runtime。开发阶段的临时管理员 Storage key 诊断回执不能替代此 Gate。
-- F09 上线前移交：按 F09 所列运行期量化标准，在实际部署的业务生产者、每分钟 monitor、dashboard 与通知目标上验证九类来源、持续阈值、真实通知、三类同链故障与无秘密泄露；取得绑定候选发布完整 SHA 的回执。缺失来源或服务未部署时保持 `NOT RUN / NO RECEIPT`，不得用开发阶段的人工样本、组件探针或 ADR 模板代替。
+- F09 上线前移交：原 F09-B01–B03、H05、M03 的未解决运行期范围继续开放（见 [当前清单](./audit/F09-comprehensive-review-2026-09-27.md)）；移交不算修复完成。按 F09 所列运行期量化标准，在实际部署的业务生产者、每分钟 monitor、dashboard 与通知目标上验证九类来源、持续阈值、真实通知、三类同链故障与无秘密泄露；取得绑定候选发布完整 SHA 的回执。缺失来源或服务未部署时保持 `NOT RUN / NO RECEIPT`，不得用开发阶段的人工样本、组件探针或 ADR 模板代替。
 
 <a id="review-l04"></a>
 #### GPT-6 Astra 功能复审

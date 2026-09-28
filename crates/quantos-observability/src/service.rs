@@ -349,6 +349,8 @@ impl ServiceObservability {
                         service: self.service.to_string(),
                         status: if ready {
                             "ready"
+                        } else if self.counters.listener_failed.load(Ordering::Relaxed) {
+                            "observability_listener_unavailable"
                         } else {
                             "trace_exporter_unavailable"
                         },
@@ -681,6 +683,11 @@ mod tests {
         );
         assert!(!probe.is_ready());
         assert!(probe.render("/readyz").contains("503 Service Unavailable"));
+        assert!(
+            probe
+                .render("/readyz")
+                .contains("observability_listener_unavailable")
+        );
         std::fs::remove_file(path).unwrap();
     }
 
