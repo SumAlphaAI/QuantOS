@@ -1,0 +1,37 @@
+node ./scripts/check-tp-intake.mjs
+TP02-TP05 intake evidence is complete; unapproved upstream packages are absent from production locks.
+node ./scripts/check-vibe-repositories.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --remote-lock ./forks/vibe-trading/repository.lock.json --readonly ./third_party/vibe-trading/upstream-src --allow-missing-fork 1
+TP01 repository checks passed: readonly=c33133f4fd5e978d21d2a61fdd8787fb352b4687, fork=pending-auth
+node ./scripts/test-vibe-repository-gate.mjs
+TP01 controlled fork gate positive and negative checks passed.
+node ./scripts/check-vibe-repositories.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --remote-lock ./forks/vibe-trading/repository.lock.json --readonly ./third_party/vibe-trading/upstream-src --fork "${QUANTOS_VIBE_FORK_PATH:-artifacts/third_party/vibe-trading/controlled-fork}"
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: git -c credential.helper= ls-remote --exit-code https://github.com/sumalphai/Vibe-Trading.git refs/heads/sumalphai/tp01-base
+fatal: unable to access 'https://github.com/sumalphai/Vibe-Trading.git/': Could not resolve host: github.com
+
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at publicRemoteBranch (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-vibe-repositories.mjs:35:12)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-vibe-repositories.mjs:144:22
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  status: 128,
+  signal: null,
+  output: [
+    null,
+    '',
+    "fatal: unable to access 'https://github.com/sumalphai/Vibe-Trading.git/': Could not resolve host: github.com\n"
+  ],
+  pid: 18961,
+  stdout: '',
+  stderr: "fatal: unable to access 'https://github.com/sumalphai/Vibe-Trading.git/': Could not resolve host: github.com\n"
+}
+
+Node.js v24.12.0
+make: *** [tp01-vibe-repository-check] Error 1

@@ -1,0 +1,21 @@
+node /tmp/f0-reference-drift.cjs
+{
+  "schema": "quantos-f0-supabase-drift/v1",
+  "sourceCommit": "91e222f744fd350ab9db80ba7554bd1fee9194fa",
+  "dirty": false,
+  "status": "PASS",
+  "targetClass": "configured-shared-test-supabase",
+  "referenceClass": "temporary-separate-database-on-same-supabase-server",
+  "referenceDatabase": "f0_reference_91e222f_c1b6f56e",
+  "platformBootstrap": "auth.users(id), auth.uid(), storage.buckets compatibility prerequisites; quantos schema built only by all repository migrations",
+  "startedAt": "2026-09-28T04:17:59.280Z",
+  "checks": [
+    "all repository migrations freshly applied to separate remote database",
+    "target migration checksums and full seven-category catalog equal independently rebuilt reference",
+    "real reference column drift rejected",
+    "restored reference comparison passes",
+    "target-as-reference rejected"
+  ],
+  "referenceRemoved": true,
+  "completedAt": "2026-09-28T04:21:05.692Z"
+}
