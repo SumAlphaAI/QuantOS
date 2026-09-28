@@ -64,6 +64,7 @@ bff-provider-test:
 	cargo test -p bff-gateway
 
 quality-gate-self-test:
+	node --test scripts/f06-test-identity-context.test.cjs scripts/runtime-startup-evidence.test.cjs
 	bash ./scripts/check-secrets.sh
 	node ./scripts/test-quality-gates.mjs
 
@@ -309,6 +310,13 @@ f06-bff-login-check:
 f06-auth-preflight:
 	@node scripts/f06-auth-preflight.cjs
 
+.PHONY: f06-test-identity-check f06-test-identity-restore
+f06-test-identity-check:
+	@node scripts/f06-test-identity-context.cjs
+
+f06-test-identity-restore:
+	@node scripts/f06-test-identity-context.cjs --restore-missing
+
 f06-test-identity-provision:
 	@node scripts/f06-test-identity-provision.cjs
 
@@ -317,6 +325,7 @@ f06-bff-live-smoke:
 	@node scripts/f06-bff-live-smoke.cjs
 
 f06-acceptance-gate:
+	node --test scripts/f06-test-identity-context.test.cjs scripts/runtime-startup-evidence.test.cjs
 	node --test scripts/f06-acceptance-gate-negative.mjs
 	node scripts/check-f06-acceptance.mjs
 

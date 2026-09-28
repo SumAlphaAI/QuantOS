@@ -56,6 +56,20 @@ impl IntoResponse for LiveError {
 }
 
 fn auth_status(error: AuthError) -> StatusCode {
+    let category = match &error {
+        AuthError::Http(error) if error.is_timeout() => Some("auth_http_timeout"),
+        AuthError::Http(error) if error.is_connect() => Some("auth_http_connect"),
+        AuthError::Http(_) => Some("auth_http_error"),
+        AuthError::Postgres(_) => Some("auth_database_error"),
+        _ => None,
+    };
+    if let Some(category) = category {
+        // No URL, bearer, session, identity or underlying error text is logged.
+        eprintln!(
+            "{}",
+            json!({"service":"bff-gateway","event":"auth_dependency_failed","category":category})
+        );
+    }
     match error {
         AuthError::HiddenAccount => StatusCode::NOT_FOUND,
         AuthError::UnverifiedSession

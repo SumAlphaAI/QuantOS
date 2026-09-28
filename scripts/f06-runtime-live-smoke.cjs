@@ -1,3 +1,4 @@
+const startupEvidence = require('./lib/runtime-startup-evidence.cjs');
 const { spawn } = require('node:child_process');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -49,12 +50,13 @@ function start(binary, port, extra) {
   });
   let diagnostic = '';
   child.stdout.on('data', () => {});
-  child.stderr.on('data', chunk => { diagnostic = (diagnostic + chunk.toString('utf8')).slice(0, 2500); });
+  child.stderr.on('data', chunk => { diagnostic = (diagnostic + chunk.toString('utf8')).slice(-6000); });
   return { child, base: `http://127.0.0.1:${port}`,
+    startupPhases: () => startupEvidence(diagnostic),
     diagnostic: () => diagnostic
       .replace(/postgres(?:ql)?:\/\/\S+/gi, '[redacted database URL]')
       .replace(/(?:sb_secret_|eyJ)[A-Za-z0-9_.-]+/g, '[redacted credential]')
-      .slice(0, 1400) };
+      .slice(-6000) };
 }
 
 async function ready(service, route, expected) {
@@ -97,7 +99,7 @@ async function main() {
       method: 'POST', headers: { origin, authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(15000),
     });
-    assert(established.status === 204, 'BFF did not establish the real Auth session');
+    assert(established.status === 204, `BFF did not establish the real Auth session (HTTP ${established.status}; ${bff.diagnostic()})`);
     const cookie = established.headers.get('set-cookie')?.split(';')[0];
     assert(cookie?.startsWith('quantos_session='), 'BFF did not issue its opaque cookie');
     runtime = start('runtime-gateway', runtimePort, {
@@ -133,6 +135,7 @@ async function main() {
     console.log(JSON.stringify({ status: 'PASS', target: 'isolated_supabase_local_runtime',
       realSupabaseAuth: true, independentBffAndRuntimeLogins: true,
       temporaryAdminStorageKey: true, storageOperationPerformed: false,
+      startupPhases: runtime.startupPhases(),
       originKind: 'synthetic_https_server_probe',
       httpStatuses: { missingCookie: missing.status, authorizedUnknownRun: authorized.status,
         foreignOrigin: wrongOrigin.status, deniedRole: deniedRole.status,

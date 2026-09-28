@@ -1,3 +1,5 @@
+const observeClientErrors = require('./lib/target-client-errors.cjs');
+const startupEvidence = require('./lib/runtime-startup-evidence.cjs');
 const { spawn, execFileSync } = require('node:child_process');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -74,9 +76,10 @@ function start(binary, port, extra) {
   });
   let diagnostic = '';
   child.stdout.on('data', () => {});
-  child.stderr.on('data', chunk => { diagnostic = (diagnostic + chunk.toString()).slice(-3000); });
+  child.stderr.on('data', chunk => { diagnostic = (diagnostic + chunk.toString()).slice(-6000); });
   return { child, base: `http://127.0.0.1:${port}`,
-    diagnostic: () => redact(diagnostic).slice(0, 1500) };
+    startupPhases: () => startupEvidence(diagnostic),
+    diagnostic: () => redact(diagnostic).slice(-6000) };
 }
 
 async function ready(service, route, status) {
@@ -127,13 +130,18 @@ async function seed(db, userId) {
 async function main() {
   const api = target();
   const db = adminClient();
-  await db.connect();
+  const assertDatabaseHealthy = observeClientErrors(db, () => {
+    receipt.status = 'FAIL';
+    receipt.databaseError = 'Target database connection failed outside a query';
+    save();
+  });
   let tenantId;
   let bff;
   let runtime;
   let cookie;
   let otherCookie;
   try {
+    await db.connect();
     const bucket = (await db.query(`select exists(
       select 1 from storage.buckets where id='quantos-artifacts' and public=false
     ) as private_bucket`)).rows[0];
@@ -166,6 +174,7 @@ async function main() {
       QUANTOS_RUNTIME_STORAGE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     });
     await ready(runtime, '/healthz', 204);
+    receipt.startupPhases = runtime.startupPhases();
     const tool = { tool_name: 'runtime.fixture', capability: 'research.write',
       description: 'F07 target fixture', max_cost_units: 100,
       rate_limit_per_minute: 100, enabled: true };
@@ -235,6 +244,7 @@ async function main() {
     receipt.checks.push('BFF logout revokes Runtime access');
     receipt.runId = runId;
     receipt.artifactId = rows[0].artifact_id;
+    assertDatabaseHealthy();
     receipt.status = 'DIAGNOSTIC_ONLY';
   } finally {
     if (otherCookie && bff) {
@@ -245,15 +255,17 @@ async function main() {
     }
     runtime?.child.kill('SIGTERM');
     bff?.child.kill('SIGTERM');
-    if (tenantId) {
-      await db.query(`update quantos.workflow_runs set status='failed', completed_at=now(),
-        lease_owner=null, lease_expires_at=null, attempt_id=null,
-        last_error='F07 target fixture retired', updated_at=now()
-        where tenant_id=$1 and status in ('queued','running','cancel_requested')`, [tenantId]);
-      await db.query(`update quantos.tool_registry set enabled=false, updated_at=now()
-        where tenant_id=$1 and enabled=true`, [tenantId]);
-    }
-    await db.end();
+    try {
+      if (tenantId) {
+        await db.query(`update quantos.workflow_runs set status='failed', completed_at=now(),
+          lease_owner=null, lease_expires_at=null, attempt_id=null,
+          last_error='F07 target fixture retired', updated_at=now()
+          where tenant_id=$1 and status in ('queued','running','cancel_requested')`, [tenantId]);
+        await db.query(`update quantos.tool_registry set enabled=false, updated_at=now()
+          where tenant_id=$1 and enabled=true`, [tenantId]);
+      }
+    } finally { await db.end(); }
+    assertDatabaseHealthy();
   }
 }
 
