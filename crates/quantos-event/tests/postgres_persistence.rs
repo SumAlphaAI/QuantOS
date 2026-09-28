@@ -43,6 +43,40 @@ fn postgres_connection_failures_are_closed_for_plain_and_tls_clients() {
 }
 
 #[test]
+fn postgres_tls_root_configuration_fails_closed() {
+    let directory = std::env::temp_dir().join(format!("f05-ca-{}", Uuid::now_v7()));
+    std::fs::create_dir(&directory).unwrap();
+    let invalid = directory.join("invalid.pem");
+    std::fs::write(&invalid, "not a certificate").unwrap();
+    let valid = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/test-ca.pem");
+    let url = |root: &std::path::Path| {
+        let mut url =
+            Url::parse("postgresql://postgres@127.0.0.1:1/postgres?sslmode=verify-full").unwrap();
+        url.query_pairs_mut()
+            .append_pair("sslrootcert", root.to_str().unwrap());
+        url.to_string()
+    };
+    assert!(matches!(
+        PgEventStore::connect(&url(&directory.join("missing.pem"))),
+        Err(PgEventStoreError::Io(_))
+    ));
+    assert!(matches!(
+        PgEventStore::connect(&url(&invalid)),
+        Err(PgEventStoreError::Tls(_))
+    ));
+    // Parsing the explicitly configured CA succeeds; the unreachable socket still fails.
+    assert!(matches!(
+        PgEventStore::connect(&url(&valid)),
+        Err(PgEventStoreError::Postgres(_))
+    ));
+    assert!(matches!(
+        PgEventStore::connect("postgresql://postgres@127.0.0.1:1/postgres?unknown_option=1"),
+        Err(PgEventStoreError::Postgres(_))
+    ));
+    std::fs::remove_dir_all(directory).unwrap();
+}
+
+#[test]
 fn postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry() {
     let Some(database_url) = live_database_url() else {
         return;
