@@ -1,0 +1,218 @@
+{
+  "schema": "quantos-f06-target-acceptance/v2",
+  "sourceCommit": "7caa594fd9a9eb5cb2caa2b04ce48497d48cf4bc",
+  "status": "PASS",
+  "failures": [],
+  "targetClass": "configured-shared-test-supabase-local-services",
+  "realOidcBff": {
+    "status": "PASS",
+    "bff": {
+      "status": "PASS",
+      "originKind": "synthetic_http_smoke",
+      "realSupabaseAuth": true,
+      "independentBffLogin": true,
+      "verifiedSubject": true,
+      "cookiePolicy": "Secure; HttpOnly; SameSite=Strict",
+      "tokenBoundExpiry": true,
+      "httpStatuses": {
+        "missingCookie": 401,
+        "foreignOrigin": 403,
+        "invalidToken": 401,
+        "sessionEstablished": 204,
+        "sessionRead": 200,
+        "primaryContext": 200,
+        "hiddenAccount": 404,
+        "logout": 204,
+        "revokedSession": 401
+      },
+      "checks": [
+        "auth_login",
+        "missing_cookie",
+        "foreign_origin",
+        "invalid_token",
+        "opaque_cookie",
+        "session_context",
+        "primary_context",
+        "hidden_account",
+        "server_revocation"
+      ]
+    },
+    "runtime": {
+      "status": "PASS",
+      "target": "isolated_supabase_local_runtime",
+      "realSupabaseAuth": true,
+      "independentBffAndRuntimeLogins": true,
+      "temporaryAdminStorageKey": true,
+      "storageOperationPerformed": false,
+      "startupPhases": [
+        {
+          "phase": "worker_store",
+          "status": "started",
+          "attempt": 1
+        },
+        {
+          "phase": "bff_auth",
+          "status": "started",
+          "attempt": 1
+        },
+        {
+          "phase": "runtime_store",
+          "status": "started",
+          "attempt": 1
+        },
+        {
+          "phase": "worker_store",
+          "status": "ready",
+          "attempt": 1,
+          "elapsedMs": 2979
+        },
+        {
+          "phase": "runtime_store",
+          "status": "ready",
+          "attempt": 1,
+          "elapsedMs": 4642
+        },
+        {
+          "phase": "bff_auth",
+          "status": "ready",
+          "attempt": 1,
+          "elapsedMs": 4751
+        }
+      ],
+      "originKind": "synthetic_https_server_probe",
+      "httpStatuses": {
+        "missingCookie": 401,
+        "authorizedUnknownRun": 404,
+        "foreignOrigin": 403,
+        "deniedRole": 403,
+        "bffLogout": 204,
+        "revokedCookie": 401
+      }
+    }
+  },
+  "executionRoleAndVault": {
+    "status": "PASS",
+    "execution": {
+      "status": "PASS",
+      "liveRestrictedVaultCall": true,
+      "paperKernelSubmission": 1,
+      "deniedKernelSubmissions": 0,
+      "scenarios": [
+        "active",
+        "account_mismatch",
+        "expired",
+        "reference_rotating",
+        "reference_revoked",
+        "session_revoked"
+      ],
+      "fixtureDataCleaned": true,
+      "emptyIsolatedTenantRetained": true,
+      "secretMaterialLogged": false,
+      "x03IssuerOrTransportAcceptance": "NOT_TESTED"
+    },
+    "vault": {
+      "status": "PASS",
+      "checks": [
+        "application function and decrypted view privilege matrix",
+        "gateway allowed; mismatched command account and expired command rejected",
+        "rotating reference rejected",
+        "revoked reference rejected",
+        "revoked service session rejected",
+        "8/8 actual SQL denials for UI, user, BFF and Engine roles"
+      ],
+      "roleDenials": [
+        {
+          "role": "anon",
+          "path": "decrypted_view",
+          "sqlstate": "42501"
+        },
+        {
+          "role": "anon",
+          "path": "resolver",
+          "sqlstate": "42501"
+        },
+        {
+          "role": "authenticated",
+          "path": "decrypted_view",
+          "sqlstate": "42501"
+        },
+        {
+          "role": "authenticated",
+          "path": "resolver",
+          "sqlstate": "42501"
+        },
+        {
+          "role": "quantos_bff",
+          "path": "decrypted_view",
+          "sqlstate": "42501"
+        },
+        {
+          "role": "quantos_bff",
+          "path": "resolver",
+          "sqlstate": "42501"
+        },
+        {
+          "role": "quantos_engine",
+          "path": "decrypted_view",
+          "sqlstate": "42501"
+        },
+        {
+          "role": "quantos_engine",
+          "path": "resolver",
+          "sqlstate": "42501"
+        }
+      ],
+      "denied": 8,
+      "total": 8,
+      "secretMaterialLogged": false,
+      "platformServiceRoleViewException": true,
+      "applicationRolesHoldServiceRole": false
+    }
+  },
+  "denialMatrix": {
+    "status": "PASS",
+    "matrix": {
+      "cases": [
+        {
+          "category": "missing_actor_or_tenant",
+          "denied": 2,
+          "layer": "auth_middleware",
+          "probes": 2
+        },
+        {
+          "category": "capability",
+          "denied": 1,
+          "layer": "auth_middleware",
+          "probes": 1
+        },
+        {
+          "category": "rls_bypass",
+          "denied": 1,
+          "probes": 1,
+          "result": "zero_rows",
+          "role": "authenticated"
+        },
+        {
+          "category": "engine_secret",
+          "denied": 1,
+          "probes": 1,
+          "role": "quantos_engine",
+          "sqlstate": "42501"
+        }
+      ],
+      "denied": 4,
+      "status": "PASS",
+      "total": 4
+    },
+    "actualDatabaseTests": 8,
+    "excludedLatencyDiagnostic": "NOT RUN"
+  },
+  "evidenceLogSha256": {
+    "live.log": "ba8d4092ab77f0e900e08d13328117130712b98acc73867f0a919d2eb85b92fc"
+  },
+  "notes": [
+    "Actual configured shared test Supabase; target jobs serialized.",
+    "Existing strict TLS, identity, role and readiness assertions retained.",
+    "Temporary administrator Storage credential used only within approved development diagnostic boundary."
+  ]
+}
