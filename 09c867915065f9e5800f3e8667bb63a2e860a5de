@@ -1,0 +1,149 @@
+{
+  "schema": "quantos-f06-target-acceptance/v2",
+  "sourceCommit": "09c867915065f9e5800f3e8667bb63a2e860a5de",
+  "status": "FAIL",
+  "failures": [
+    "Runtime original identity smoke did not become ready within unchanged readiness window; attempts 5, 6 and 7 failed"
+  ],
+  "targetClass": "configured-shared-test-supabase-local-services",
+  "realOidcBff": {
+    "status": "FAIL",
+    "bff": {
+      "status": "PASS",
+      "originKind": "synthetic_http_smoke",
+      "realSupabaseAuth": true,
+      "independentBffLogin": true,
+      "verifiedSubject": true,
+      "cookiePolicy": "Secure; HttpOnly; SameSite=Strict",
+      "tokenBoundExpiry": true,
+      "httpStatuses": {
+        "missingCookie": 401,
+        "foreignOrigin": 403,
+        "invalidToken": 401,
+        "sessionEstablished": 204,
+        "sessionRead": 200,
+        "primaryContext": 200,
+        "hiddenAccount": 404,
+        "logout": 204,
+        "revokedSession": 401
+      },
+      "checks": [
+        "auth_login",
+        "missing_cookie",
+        "foreign_origin",
+        "invalid_token",
+        "opaque_cookie",
+        "session_context",
+        "primary_context",
+        "hidden_account",
+        "server_revocation"
+      ]
+    },
+    "runtime": "FAIL"
+  },
+  "executionRoleAndVault": {
+    "status": "PASS",
+    "results": [
+      {
+        "status": "PASS",
+        "liveRestrictedVaultCall": true,
+        "paperKernelSubmission": 1,
+        "deniedKernelSubmissions": 0,
+        "scenarios": [
+          "active",
+          "account_mismatch",
+          "expired",
+          "reference_rotating",
+          "reference_revoked",
+          "session_revoked"
+        ],
+        "fixtureDataCleaned": true,
+        "emptyIsolatedTenantRetained": true,
+        "secretMaterialLogged": false,
+        "x03IssuerOrTransportAcceptance": "NOT_TESTED"
+      },
+      {
+        "status": "PASS",
+        "checks": [
+          "application function and decrypted view privilege matrix",
+          "gateway allowed; mismatched command account and expired command rejected",
+          "rotating reference rejected",
+          "revoked reference rejected",
+          "revoked service session rejected",
+          "8/8 actual SQL denials for UI, user, BFF and Engine roles"
+        ],
+        "roleDenials": [
+          {
+            "role": "anon",
+            "path": "decrypted_view",
+            "sqlstate": "42501"
+          },
+          {
+            "role": "anon",
+            "path": "resolver",
+            "sqlstate": "42501"
+          },
+          {
+            "role": "authenticated",
+            "path": "decrypted_view",
+            "sqlstate": "42501"
+          },
+          {
+            "role": "authenticated",
+            "path": "resolver",
+            "sqlstate": "42501"
+          },
+          {
+            "role": "quantos_bff",
+            "path": "decrypted_view",
+            "sqlstate": "42501"
+          },
+          {
+            "role": "quantos_bff",
+            "path": "resolver",
+            "sqlstate": "42501"
+          },
+          {
+            "role": "quantos_engine",
+            "path": "decrypted_view",
+            "sqlstate": "42501"
+          },
+          {
+            "role": "quantos_engine",
+            "path": "resolver",
+            "sqlstate": "42501"
+          }
+        ],
+        "denied": 8,
+        "total": 8,
+        "secretMaterialLogged": false,
+        "platformServiceRoleViewException": true,
+        "applicationRolesHoldServiceRole": false
+      }
+    ]
+  },
+  "denialMatrix": {
+    "status": "PASS",
+    "categories": 4,
+    "actualDatabaseTests": 8,
+    "excludedLatencyDiagnostic": "NOT RUN"
+  },
+  "evidenceLogSha256": {
+    "runtime-start-diagnostic.log": "0753583402a04354b7192e323fe5ca21205cd54cd7abca63503bf9cc4f668118",
+    "execution-vault.log": "c76c14cac735b78047cc954e5009069b0f4867b3752466e5be79d152746aefce",
+    "attempt3-db-pass-bff-missing-fixture.log": "18102c3f5f621b719b061d736d0040514837c432a600dd6c1ea5f9328907c5e2",
+    "attempt2-tls-failed.log": "ce41b77e3915993a2c5899729f78ac66cff84c8476813ad28e096b1265966ca4",
+    "live.log": "bd03907811786bb35fa56295dec6502a561609221cc5dc558fe023f9cc1144f1",
+    "attempt6-runtime-not-ready.log": "b8bbd82119093ea308d99fb53fb6bc3a1b1460b54088928684b3ec222bfe94c9",
+    "fixture-restore.log": "4869ede5a91c3d50db53f1e7da284b20b9b0048270621f4f43663e4061cab358",
+    "attempt5-runtime-not-ready.log": "d8a30982f4136a5a2e5c5f1db78cffe002d81e285bd6c3f02a9a8bacfe11b2d6",
+    "attempt4-runtime-timeout.log": "1b704c83a21db570f0efd6d1ba5658e5366e1e9953f03a851be85131e3c67e6a",
+    "attempt7-runtime-not-ready.log": "f72b7b8b3635ef1b95d27396d49f0a5ffee3567bf7e7e7887a50112c9a47b5b7"
+  },
+  "notes": [
+    "Initial pool capacity and TLS failures retained. Database full group passed on attempt 3.",
+    "Authorized schema reset removed configured test business mappings. Restored minimal mapping only; Auth user and credentials unchanged; subsequent BFF passed.",
+    "Runtime transient request timeout and repeated readiness failures remain unresolved. Independent startup diagnostic reached health in 15.35 seconds but does not replace failed acceptance.",
+    "No source changes, TLS bypass, timeout increases or assertion changes made."
+  ]
+}
