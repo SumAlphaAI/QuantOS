@@ -5,6 +5,8 @@ import {
   cancelControlledExport,
   createControlledExport,
   getControlledExportDownload,
+  loadEvidenceChain,
+  loadExportStatus,
   searchAuditEvents,
 } from "../src/audit/gateway";
 
@@ -27,6 +29,20 @@ function exportJob(status: "queued" | "cancelled") {
 }
 
 describe("BFF-FE-007 generated audit gateway", () => {
+  it("retrieves evidence and export status through authenticated BFF routes", async () => {
+    const requests: Request[] = [];
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      const request = input as Request;
+      requests.push(request);
+      const body = request.url.includes("evidence-chains") ? { correlationId: CORRELATION_ID, items: [], complete: true } : exportJob("queued");
+      return new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
+    }) as typeof fetch;
+    expect((await loadEvidenceChain("https://bff.example", CORRELATION_ID, { cursor: "next", pageSize: 25 }, fetchImpl)).complete).toBe(true);
+    expect((await loadExportStatus("https://bff.example", EXPORT_ID, fetchImpl)).status).toBe("queued");
+    expect(requests[0]?.url).toContain(`evidence-chains/${CORRELATION_ID}?cursor=next&pageSize=25`);
+    expect(requests[1]?.url).toContain(`/exports/${EXPORT_ID}`);
+    expect(requests.every(request => request.credentials === "include")).toBe(true);
+  });
   it("uses server-side cursor filters for audit search", async () => {
     let requestUrl = "";
     const fetchImpl = (async (input: RequestInfo | URL) => {
