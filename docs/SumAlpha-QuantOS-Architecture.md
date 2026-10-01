@@ -105,7 +105,7 @@ flowchart TB
 | OpenBB                                                               | 研究/金融数据统一访问                      | 作为隔离的数据适配服务；仅暴露自有 Data Contract                      | 交易内核或核心业务依赖                |
 | VibeTradingLabs/vibetrading                                          | 自然语言策略开发流水线                      | 作为 Strategy Lab 的参考/适配候选；引入前单独评估许可证、质量与数据/部署边界       | 生产 OMS                     |
 | NautilusTrader                                                       | 确定性事件驱动的研究、仿真与执行内核               | 独立进程/服务边界集成；适配层将内部协议翻译为其 API                         | Agent Runtime、租户/权限系统      |
-| Qlib / TrendRadar / ValueCell / OpenStock / nautilus\_agents / Loong | 数据集/实验、趋势、投研、UI、协议或 Runtime 思路   | **按需参考设计，不列为 Day-1 生产依赖**                            | 第二套 Quant Core、第二套 Runtime |
+| Qlib / TrendRadar / ValueCell / OpenStock / nautilus\_agents | 数据集/实验、趋势、投研、UI、协议或 Runtime 思路   | **按需参考设计，不列为 Day-1 生产依赖**                            | 第二套 Quant Core、第二套 Runtime |
 
 ### 5.2 Vibe-Trading 集成路线
 
