@@ -835,29 +835,6 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - issues: []
 - fix_tracking: []
 
-<a id="task-tp13"></a>
-#### TP13：Loong
-
-- task_id: `TP13`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp13)
-- 需求描述：Loong
-- 评估问题与限定范围：评估 protocol/Runtime/UI 设计思路与可替换接口
-- 交付物：ADR、协议/UX 对照表、adoption decision
-- 验收标准：对照至少覆盖 session、workflow、tool、memory、权限、审计六项；无上游类型进入 QuantOS protocol/core
-- 阶段/依赖：F03、F07
-
-<a id="review-tp13"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-
 ## 6. R1：数据、研究、信号与 Terminal 研究闭环
 
 <a id="task-r01"></a>
@@ -1315,7 +1292,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 - [ ] S01–S04 完成；look-ahead/数据泄漏/未审批策略 100% 阻断。
 - [ ] Release 包含全部不可变证据，且可部署目标只有 Paper/Shadow。
-- [ ] TP06–TP13 的评估结论和 ADR 已归档；未经明确 adoption 的项目无运行时依赖。
+- [ ] TP06–TP12 的评估结论和 ADR 已归档；未经明确 adoption 的项目无运行时依赖。
 
 ### 10.4 X3 Gate
 

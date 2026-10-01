@@ -14,7 +14,7 @@ const desktopPlanFilename = "docs/SumAlpha-QuantOS-Desktop-Development-Execution
 const range = (prefix, from, to, width = 2) =>
   Array.from({ length: to - from + 1 }, (_, i) => `${prefix}${String(from + i).padStart(width, "0")}`);
 const coreIds = [
-  ...range("F", 1, 9), ...range("TP", 1, 13),
+  ...range("F", 1, 9), ...range("TP", 1, 12),
   ..."ABCDEFG".split("").map((suffix) => `TP01-${suffix}`),
   ...range("R", 1, 4), "U01", ...range("S", 1, 4),
   ...range("X", 1, 6), ...range("L", 1, 4),
