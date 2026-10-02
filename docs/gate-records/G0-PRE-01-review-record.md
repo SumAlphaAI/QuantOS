@@ -2,14 +2,18 @@
 
 > Gate：G0（FEP-0 前期准备 Gate）  关联任务：PRE-01（评审对象），PRE-02–PRE-06 与 BFF-FE-000 状态经 G0 核查报告确认
 > 提交日期：2026-08-14  提交人：Frontend（代执行）
-> 状态：**已签署通过（2026-08-14，六方组织责任人确认）**
+> 历史状态：**已签署通过（2026-08-14，六方组织责任人确认）**；适用历史 OpenAPI 1.0.0 与拆分前需求范围。
+> 当前口径（2026-10-02）：历史签署不适用于最新一期产物；正式 `FRONTEND-GATE:G0` 仍为 `NOT_STARTED / NO CURRENT RECEIPT`，不能据此放行新页面。
+> 历史记录修订前源快照：`296ffc2f1b98e6266a3a83e4716b8f6b99ecfa16`；这是仓库记录快照，不是个人签署身份凭证。
 > 记录口径：用户已确认六方真实责任人完成评审；仓库记录组织责任角色与日期，个人身份由组织评审/身份系统留存，不在公开工程文档重复个人信息。
 
 ## 1. 评审对象
 
+下表保留历史记录中的范围及 2026-09-16 补记；当前 2026-10-02 产物属于新的工程修订，不代表重新签署。
+
 | # | 产出物 | 版本 | 说明 |
 |---|---|---|---|
-| 1 | [页面台账与 Story 拆解](../PRE-01-page-ledger-and-stories.md) | 1.1 | 31 页面单元、138 条 story，含 P0/P1、角色、路由、平台、风险级别；自动完整性 Gate 已关联 |
+| 1 | [页面台账与 Story 拆解](../PRE-01-page-ledger-and-stories.md) | 历史 1.1 | 31 页面单元、138 条 story；现行 v1.2 已改为 30 页/132 Story，历史签署不自动延伸至新版本 |
 | 2 | [路由/权限矩阵](../PRE-01-route-permission-matrix.md) | 1.1 | 38 条 Terminal 路由 × 8 角色 + 带 WEB-01–WEB-07 ID 的官网路由 + 领域权限矩阵 |
 | 3 | [验收场景表](../PRE-01-acceptance-scenarios.md) | 1.1 | 31 × 7 = 217 条逐页七态场景 + 10 条关键流程场景 + 31 条逐页追踪映射；2026-09-16 自动 Gate 复核通过 |
 | 4 | [执行总结与风险登记](../PRE-01-summary-and-risks.md) | 1.1 | 完成标准自检、7 项风险、4 项遗留项与 2026-09-16 仓库复核边界 |
@@ -53,7 +57,27 @@
 | 2026-08-14 | 1.0 | 首次提交评审 | Frontend |
 | 2026-08-14 | 1.1 | 根据六方责任人确认完成签署记录；补齐全部遗留项 owner、日历截止日与兼容策略 | Frontend（记录执行） |
 | 2026-09-16 | 1.2 | 修正官网七页共用聚合场景造成的覆盖统计缺口，补为逐页七态与逐页追踪；新增可重放 PRE-01 Gate。本修订不代表重新签署或模型复审 | Frontend（仓库复核） |
+| 2026-10-02 | 1.3 | 分离历史签署与当前正式 G0；登记全部 10 项遗留状态，明确过期项需补证或重排；不冒充新签署 | Frontend（仓库治理） |
 
 ## 5. G0 汇总关联
 
-本记录与 [G0 readiness assessment](./G0-readiness-assessment.md)、[Tauri 深链证据](./G0-tauri-deep-link-evidence.md)共同构成 G0 放行记录。签署后遗留项不改变 G0 最低冻结面，但受上表 DoR/兼容策略约束。
+本记录与 [历史 G0 readiness assessment](./G0-readiness-assessment.md)、[历史 Tauri 深链证据](./G0-tauri-deep-link-evidence.md)仅保存旧版本评审链。当前一期 P0 准备检查点只放行 A1；正式 G0 在 A1 末尾独立关闭，新页面还须等待 PROVIDER:ALL。历史签署、原生 PoC 或本地结构 PASS 均不替代新检查点证据。
+
+## 6. 当前版本与遗留项跟踪（2026-10-02）
+
+[当前治理记录](./G0-current-governance.json) 绑定本次观察日、历史快照与当前 checkpoint；下表以其为结构化来源。历史日期不改写，缺关闭回执的已过日期项记录为逾期待重排，不伪造新截止日。已局部交付的契约/schema 仍需按原项整体范围复核 provider/staging 与相关验收。
+
+| ID | 遗留项 | 当前状态 | 关闭证据 |
+|---|---|---|---|
+| G0-L01 | Backtest SSE v1.1 additive 契约 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
+| G0-L02 | C02/C17 页面契约冻结 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
+| G0-L03 | C12/C14 页面契约冻结 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
+| G0-L04 | C10/C13/C15 页面契约冻结 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
+| G0-L05 | C11/C16 页面契约冻结 | OPEN | NO COMPLETE RECEIPT |
+| G0-L06 | Staging 真实 IdP + 桌面系统浏览器回跳 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
+| G0-L07 | FEP-1 页面七态高保真稿 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
+| G0-L08 | Linux 视觉基线 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
+| G0-L09 | 首屏 JS 预算复核 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
+| G0-L10 | InMemory adapter 删除/生成接口 adapter 化 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
+
+现行 PRE-01 工程需求整改与这些独立的 G0 遗留项分开验收。Desktop 内容按二期计划处理；其历史截止日不授权二期启动。

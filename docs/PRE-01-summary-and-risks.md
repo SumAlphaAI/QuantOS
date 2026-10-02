@@ -1,55 +1,45 @@
 # PRE-01 执行总结、风险登记与验收自检
 
-> 任务：PRE-01 需求拆解（FEP-0）  开发状态：`COMPLETED`  模型复审：`NOT_STARTED`
-> 版本：1.1  日期：2026-09-16
-> 产出物：[页面台账与 Story 拆解](./PRE-01-page-ledger-and-stories.md)、[路由/权限矩阵](./PRE-01-route-permission-matrix.md)、[验收场景表](./PRE-01-acceptance-scenarios.md)
+> 任务：PRE-01 需求拆解（P0 / 一期 Web）；开发状态：`COMPLETED`；指定模型复审：`NOT_STARTED`。
+> 版本：1.2；日期：2026-10-02；依据：前端执行计划 v3.1。
+> 主产物：[页面台账](./PRE-01-page-ledger-and-stories.md)、[路由/权限矩阵](./PRE-01-route-permission-matrix.md)、[验收场景](./PRE-01-acceptance-scenarios.md)。
 
-## 1. PRE-01 完成标准自检
+## 1. 完成标准自检
 
-| 完成标准（执行计划 3.1 节） | 自检结果 | 证据 |
+| 要求 | 当前产物 | 验收边界 |
 |---|---|---|
-| 官网页面、P01–P23、全局壳拆为 story | 达成 | 台账共 31 个页面单元：全局壳 12 条、官网 8 条、P01–P23 共 110 条页面 story，另 8 条跨页面关键流程 story |
-| 每项标注 P0/P1 | 达成 | 全部 story 含优先级列；P0/P1 口径与设计规格 5.1（F01–F05/F10/F11/F13=P0）及执行计划 1.2 一致 |
-| 每项标注角色 | 达成 | 台账与 story 均标注 8 类角色（研/开/交/风/运/管/审/访） |
-| 每项标注路由 | 达成 | 全部 story 绑定具体路由；路由全集与矩阵第 2/3 节一致 |
-| 每项标注平台 | 达成 | Web / Desktop / 双端共享 / 官网逐一标注，P16/P17 平台专属已注明 |
-| 每项标注风险级别 | 达成 | 高/中/低三级，口径见台账第 1 节 |
-| 产出：页面台账 | 达成 | PRE-01-page-ledger-and-stories.md 第 2 节（31/31 页面） |
-| 产出：路由/权限矩阵 | 达成 | PRE-01-route-permission-matrix.md（38 条 Terminal 路由 × 8 角色 + 官网路由 + 领域权限矩阵） |
-| 产出：验收场景表 | 达成 | PRE-01-acceptance-scenarios.md（31 个页面单元各自 7 态，共 217 条独立场景 + 10 条流程场景） |
-| 页面覆盖率 100% | 达成 | 官网 7 + P01–P23 23 + 全局壳 1 = 31/31；官网"开发者/状态页"按 1.2 节属后续范围，已显式标注不进本期 |
-| 每页至少有默认/加载/空/错误/无权/陈旧/离线状态 | 达成 | 31 页 × 7 态 = 217 条场景，无缺口；官网 WEB-01–WEB-07 不再共用聚合场景 |
+| 官网、一期 Terminal、全局壳、关键流程拆解为 Web Story | 30 页面单元；124 页面 Story + 8 流程 Story = 132 | 只验需求定义，不宣称页面运行通过 |
+| 每项标注 P0/P1、角色、路由、风险 | 全部 132 Story 有明确字段；8 流程另有涉及页面和分步职责 | 角色在需求矩阵中冻结，实际权限仍由服务端裁决 |
+| 页面台账与范围 | GS 1 + 官网 7 + Terminal 22 = 30/30 | P16/原生 Story 由二期承接 |
+| 路由/权限矩阵 | 29 组 Terminal 路由 + 官网 7 页，8 角色 | 组合行与完整路由数分开；P10 仅审批人、P13 运/管、P14 管 |
+| 每页七态 | 30×7=210 独立场景；另 10 流程场景 | 七态定义不等于 UI、视觉或 E2E 验收 |
+| 页面追踪 | 30 行；现行 task、逻辑契约 owner、场景和 Gate 可解析 | planned operation 不等于 schema/provider 完成 |
+| Web 离线 | 当前内存已加载非敏感数据只读，默认无持久领域缓存；禁写、禁认证交换/导出、不自动提交 | 原生加密缓存只由二期验证 |
 
-自动验收：`pnpm check:pre01` 校验 31 个页面、130 条页面 Story、217 条七态场景、31 条逐页追踪映射；`pnpm test:pre01` 以缺状态、非法优先级、缺追踪行三个破坏用例证明 Gate 会失败。当前执行证据见 [PRE-01 acceptance evidence（2026-09-16）](./audit/PRE-01-acceptance-evidence-2026-09-16.md)。
+`pnpm check:pre01` 使用 [需求规则基线](./PRE-01-requirements-baseline.json)，同时核对一期 catalog 与当前计划；检查字段、Story 唯一/完整集合、路由、权限、流程、冻结安全条件、任务引用与契约 owner。规则变更须同步规格/产物并重新评审，不能仅修改门禁以容纳错误要求。`pnpm test:pre01` 验证缺状态、错误角色/路由、重复 Story、删流程、越权、安全语义篡改、缺 owner 等负向情况。
 
-## 2. 与 G0 / 下游任务的衔接
+## 2. 下游衔接与阶段边界
 
-- 本台账支持 G0 条件"页面 → 前端任务 → BFF 契约 → 后端计划任务 → 测试用例 → Gate"追踪（验收场景表第 6 节）。
-- PRE-04（接口盘点）可直接以台账"契约"列（C01–C17）与 BFF-FE-000–011 为盘点基线。
-- PRE-06（测试基线）的 MSW fixture 应覆盖 217 条七态场景；Playwright/视觉基线按页面台账逐页建档。
-- 看板字段（执行计划第 9 节）可由台账列直接填充：页面 ID、前端任务 ID、契约 ID、风险级别、目标 Sprint（FEP 阶段）。
+- 当前 PRE-01 只关闭仓库需求拆解范围。P0 准备检查点、A1、正式 G0、PROVIDER:ALL 与每页运行验收按最新计划独立关闭。
+- PRE-04 读取本台账的实际 P0 页面；PRE-06 测试输入按 210 七态及 10 流程场景逐步建立，不强制原生运行。
+- [接口覆盖登记](./PRE-01-page-api-coverage-register.md) 区分 operation published/planned；当前 OpenAPI 1.3.0 为 62 operations、51 schemas，引用检查只证明仓库覆盖。
+- [二期承接表](./DESK-PRE-01-requirements-transfer.md) 保留原生 Story/场景 ID、原生流程扩展与新任务追踪，不授权 Desktop 启动或发布。
 
-## 3. 风险登记（PRE-01 执行期间识别）
+## 3. 当前风险登记
 
-| # | 风险点 | 等级 | 说明 | 缓解措施 | Owner |
-|---|---|---|---|---|---|
-| R1 | 七态设计稿不全 | 高 | 执行计划第 8 节已列"设计稿状态不全"风险：design/ 中 23 组高保真稿主要为默认态，缺错误/无权/陈旧/离线稿 | 本场景表已先用文字冻结七态行为；G0 前设计 owner 必须补齐七态稿，未补齐页面不进 Sprint | Design owner |
-| R2 | 后续页面域 OpenAPI 未冻结 | 中 | G0 最低面 C01/C03–C10 已冻结；C02/C11–C17 仍按阶段冻结（C17 P15/P17 面已冻结） | 冻结域由生成/覆盖 CI 保护；未冻结域按 G0 签署后遗留台账的日历日期和兼容策略执行 | BFF TL |
-| R3 | P08–P12/P20/P22 高风险页验收依赖后端 Gate | 高 | 七类高风险用例（G5）依赖 X01–X06、L 系列后端能力，mock 不能代验收 | 按执行计划 8.1 调整页面顺序而不缩减安全测试；P0 command 不以 mock 代验收 | FE TL + BFF TL |
-| R4 | 官网合规文案边界 | 中 | 禁用词（收益承诺/跟单/排行榜）需在内容编写期拦截，否则 FEP-1 返工 | ST-WEB-08 已列禁用词扫描与 Lighthouse 门槛；合规在 Sprint 前签署文案 | Product + 合规 |
-| R5 | 角色口径在文档间存在细微差异 | 低 | 设计规格含"审计员"独立表述，网站设计方案未单列；本台账按 8 角色统一 | 已在矩阵第 1 节统一缩写口径；如 RBAC 模型落地时合并/拆分角色，需同步修订矩阵 | FE TL |
-| R6 | P16/P17 平台互斥渲染 | 中 | Web 访问 `/settings/desktop` 渲染受限页、桌面端隐藏 `/settings/browser`，易在共享路由实现中遗漏 | 矩阵第 2 节注 2 与 ACC-P16-S5/ACC-P17-S5 已冻结验收；实现时归入 packages/platform 差异层 | FE TL |
-| R7 | 小屏只读档遗漏高风险入口 | 高 | <768px 必须隐藏审批/下单/撤单/发布等操作，逐页易漏 | 矩阵"高风险操作"统一定义 + ACC-FLOW-10 专项场景 + boundary lint | QA |
+| 风险 | 等级 | 责任角色 | 处置与独立验收边界 |
+|---|---|---|---|
+| 七态高保真稿/真实页面尚需验收 | 高 | Product/Design + QA | 一期 22 组 Terminal 设计输入需逐态与 UI-VIS/page Gate 对齐；文字定义不代视觉通过 |
+| planned API 或缺 provider/staging 回执 | 高 | BFF TL + domain owner | 逐 operation 与 A2–A6 交付一致；新页面须正式 G0 与 PROVIDER:ALL |
+| 风控、审批、命令、订单、审计目标环境验收 | 高 | FE/BFF TL + Security/Risk + QA | mock 仅用于 UI，真实权限/MFA/幂等/回补/审计另有 Gate |
+| 官网合规和性能 | 中 | Product/Compliance + QA | ST-WEB-08 保留禁用词与 Lighthouse/LCP 要求，页面阶段独立复验 |
+| 角色需与服务端 policy 对齐 | 高 | Security/BFF TL | 当前需求默认拒绝；任何扩权需正式需求变更与 policy 证据 |
+| 小屏与离线安全 | 高 | FE TL + QA | <768px 隐藏高风险入口；Web 无持久领域缓存/写队列；逐页负向验收 |
+| 历史 G0 遗留项已过期 | 中 | G0 各 owner | [当前治理记录](./gate-records/G0-current-governance.json) 逐项保留日期、owner、状态；缺完整回执则逾期待补证/重排 |
 
-## 4. 评审与遗留项状态
+## 4. 复审、历史签署与统计版本
 
-- 联合评审：产品、前端、BFF、QA、安全、风控六方组织责任人已于 2026-08-14 完成确认，见 [G0-PRE-01-review-record](./gate-records/G0-PRE-01-review-record.md)。
-- operationId 回填：BFF OpenAPI 1.3.0 的 C01/C03–C10 与 C17 P15/P17 面共 62 个 operation 已回填并由 `check:bff-contract-coverage` 在 CI 校验；C02/C11–C16 与 C17 Desktop 面按签署后遗留台账冻结。
-- 当前复核：2026-09-16 的仓库内 PRE-01 Gate 已通过；该结论不冒充新的六方签署、GPT-6 Astra 复审、设计稿视觉验收或真实 BFF/provider 联调。
-
-遗留项（进入 FEP-0 backlog）：
-
-1. ~~BFF-FE-000 冻结并回填 G0 最低面 operationId~~ → 已完成，42/42 覆盖检查进入 CI。
-2. Design owner 按 G0 评审记录中的日历期限补齐相应阶段页面七态高保真稿并回填链接。
-3. PRE-02 设计 token ADR 签署后，场景表"语义色/文案"引用切换为 token/i18n key。
-4. ~~六方联合评审签署~~ → 已于 2026-08-14 完成。
+- 2026-08-14 六方用户确认的签署记录予以保留，仅适用历史范围；不将其扩展到 2026-10-02 修订产物。参见 [历史记录与当前状态](./gate-records/G0-PRE-01-review-record.md)。
+- 42 operations 是历史 OpenAPI 1.0.0 数量；2026-09-16 的 31/130/217/31 是旧双端结构基线。当前一期为 30/124/210/30，另 8 流程 Story 和 10 流程场景。
+- 指定模型复审、六方重新签署、远程 CI、浏览器/真实 IdP/provider/staging/数据库验收未由本次文档修复执行，保持 `NOT RUN / NO NEW RECEIPT`。
+- 当前工程整改与复验见 [PRE-01 整改复验报告](./audit/PRE-01-remediation-validation-2026-10-02.md)；历史发现保留在 [全面复审报告](./audit/PRE-01-comprehensive-review-2026-10-02.md)，不覆盖旧证据。

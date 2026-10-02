@@ -68,6 +68,8 @@
 
 ### 4.4 UI-P16：Desktop Control Center
 
+原 PRE-01 的 P16 Story/七态、原生认证、多窗口、文件和离线扩展见 [二期需求承接表](./DESK-PRE-01-requirements-transfer.md)。该表是需求输入，仍需 D0/D1 和二期独立验收。
+
 - task_id 保留：`UI-P16`；设计基准：`P16-Desktop-Control-Center-High-Fidelity-v2.png`。
 - 路由：`/settings/desktop`；契约：C17 Desktop 扩展与 `PlatformCapabilities`。
 - 动作：实现通知、窗口/显示器、文件导入、加密缓存、更新与诊断界面及七态。
