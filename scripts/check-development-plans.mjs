@@ -93,7 +93,7 @@ function reviewRecords(body, key, value, required, id) {
   return records;
 }
 
-function parseTasks(text, expected, freshReview) {
+function parseTasks(text, expected, freshReview, reviewRequired = true) {
   const markers = [...text.matchAll(/^<a id="task-([^"]+)"><\/a>\n(#{3,5}) (.+)\n/gm)];
   const records = markers.map((marker, index) => {
     const body = text.slice(marker.index, markers[index + 1]?.index ?? text.length);
@@ -103,14 +103,25 @@ function parseTasks(text, expected, freshReview) {
       fields[match[1]] = unquote(match[2] ?? "");
     }
     const id = fields.task_id;
-    for (const key of ["task_id", "task_type", "development_status", "review_entry", "review_model", "review_status", "review_conclusion", "issues", "fix_tracking", "depends_on"]) {
+    assert(id, `${marker[1]}: missing task_id`);
+    // Web tasks intentionally omit designated-model intake after 695c5f0.
+    // An absent review is NOT_STARTED, never an implied acceptance.
+    if (!reviewRequired) {
+      const reviewKeys = ["review_entry", "review_model", "review_status", "review_conclusion", "issues", "fix_tracking"];
+      assert(reviewKeys.every((key) => !(key in fields)), `${id}: Web review metadata must be kept in the audit report`);
+      assert(!body.includes(`<a id="review-${id.toLowerCase()}">`), `${id}: stale Web review anchor`);
+      Object.assign(fields, { review_status: "NOT_STARTED", review_conclusion: "null", issues: "[]", fix_tracking: "[]" });
+    }
+    for (const key of ["task_id", "task_type", "development_status", "review_status", "review_conclusion", "issues", "fix_tracking", "depends_on", ...(reviewRequired ? ["review_entry", "review_model"] : [])]) {
       assert(key in fields, `${id ?? marker[1]}: missing ${key}`);
     }
     assert.equal(marker[1], id.toLowerCase(), `${id}: task anchor mismatch`);
     assert(marker[3].startsWith(`${id}：`), `${id}: title ID mismatch`);
-    assert(body.includes(`<a id="review-${id.toLowerCase()}"></a>\n${"#".repeat(marker[2].length + 1)} GPT-6 Astra 功能复审`), `${id}: missing nested review module`);
+    if (reviewRequired) {
+      assert(body.includes(`<a id="review-${id.toLowerCase()}"></a>\n${"#".repeat(marker[2].length + 1)} GPT-6 Astra 功能复审`), `${id}: missing nested review module`);
     assert.equal(fields.review_entry, `[GPT-6 Astra 复审入口](#review-${id.toLowerCase()})`, `${id}: review link mismatch`);
     assert.equal(fields.review_model, "GPT-6 Astra", `${id}: wrong review model`);
+    }
     assert(["COMPLETED", "IMPLEMENTED_PENDING_ACCEPTANCE", "PARTIAL", "UNSPECIFIED"].includes(fields.development_status), `${id}: invalid development status`);
     assert(["NOT_STARTED", "IN_REVIEW", "CHANGES_REQUESTED", "FIX_VALIDATION", "RE_REVIEW", "ACCEPTED", "BLOCKED"].includes(fields.review_status), `${id}: invalid review status`);
     assert(/^- 需求描述：\S.*$/m.test(body), `${id}: missing requirement`);
@@ -170,7 +181,7 @@ export function validatePlans(coreText, frontendText, { root = projectRoot, fres
   }
   const anchorSets = texts.map((text, i) => checkMarkdown(text, filenames[i]));
   const core = parseTasks(coreText, coreIds, freshReview);
-  const frontend = parseTasks(frontendText, frontendIds, freshReview);
+  const frontend = parseTasks(frontendText, frontendIds, freshReview, false);
   assert(core.every((record) => record.task_type === "CORE"), "core task type mismatch");
   assert(!/^#### 10\.1\.\d+|FEP-1 交付核查记录|复验证据：|审查修复：/m.test(texts.join("\n")), "historical review block remains");
   const byId = new Map(frontend.map((record) => [record.task_id, record]));
@@ -217,7 +228,7 @@ export function validatePlans(coreText, frontendText, { root = projectRoot, fres
       }
     }
   }
-  return { ...planOrder, schema: "quantos-plan-review/v1", order_schema: planOrder.schema, structure: "PASS", desktop_scope_split: "PASS", platform_load: "NOT_RUN", model_review: "NOT_RUN", core_tasks: core.length, frontend_tasks: frontend.length, page_api_tasks: apis.length, page_tasks: ui.filter((r) => /^UI-P\d+$/.test(r.task_id)).length, tasks: [...core, ...frontend] };
+  return { ...planOrder, schema: "quantos-plan-review/v1", order_schema: planOrder.schema, structure: "PASS", frontend_task_schema: "quantos-web-task/v1", desktop_scope_split: "PASS", platform_load: "NOT_RUN", model_review: "NOT_RUN", core_tasks: core.length, frontend_tasks: frontend.length, page_api_tasks: apis.length, page_tasks: ui.filter((r) => /^UI-P\d+$/.test(r.task_id)).length, tasks: [...core, ...frontend] };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

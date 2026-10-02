@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { createRequire } from "node:module";
+import { chromium } from "@playwright/test";
+import { sourceDigest } from "./pre03-build-receipt.mjs";
 import { createServer } from "node:http";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
@@ -9,7 +12,8 @@ import { parse as parseYaml } from "yaml";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain", ".woff2": "font/woff2" };
 
-const expectedLockedVersions = {
+export const expectedLockedVersions = {
+  ".": { devDependencies: { "@next/eslint-plugin-next": "15.5.24" } },
   "apps/terminal": {
     dependencies: {
       "@tanstack/react-query": "5.101.4", "@tanstack/react-table": "8.21.3", "@tanstack/react-virtual": "3.14.9",
@@ -24,7 +28,7 @@ const expectedLockedVersions = {
   },
   "packages/ui": {
     dependencies: { "@radix-ui/react-dialog": "1.1.23", "@radix-ui/react-tabs": "1.1.21" },
-    devDependencies: { storybook: "8.6.18", vite: "6.4.3", react: "19.2.8", "react-dom": "19.2.8" },
+    devDependencies: { "@testing-library/react": "16.3.0", jsdom: "26.1.0", storybook: "8.6.18", vite: "6.4.3", react: "19.2.8", "react-dom": "19.2.8" },
   },
 };
 
@@ -37,14 +41,23 @@ function cargoPackageVersion(lock, name) {
   return "";
 }
 
-export function loadRuntimeInputs(root = repoRoot, { webOnly = false } = {}) {
+export async function loadEffectiveConfig(root, app) {
+  const require = createRequire(join(root, `apps/${app}/package.json`));
+  const loadConfig = require("next/dist/server/config.js").default;
+  const { PHASE_PRODUCTION_BUILD } = require("next/constants");
+  return loadConfig(PHASE_PRODUCTION_BUILD, join(root, `apps/${app}`), { silent: true });
+}
+
+export async function loadRuntimeInputs(root = repoRoot, { webOnly = true } = {}) {
   const inputs = {
     rootPackage: JSON.parse(readFileSync(join(root, "package.json"), "utf8")),
     nodeVersion: readFileSync(join(root, ".nvmrc"), "utf8").trim(),
     rustToolchain: readFileSync(join(root, "rust-toolchain.toml"), "utf8"),
     pnpmLock: parseYaml(readFileSync(join(root, "pnpm-lock.yaml"), "utf8")),
-    terminalNextConfig: readFileSync(join(root, "apps/terminal/next.config.ts"), "utf8"),
-    websiteNextConfig: readFileSync(join(root, "apps/website/next.config.ts"), "utf8"),
+    terminalNextConfig: await loadEffectiveConfig(root, "terminal"),
+    websiteNextConfig: await loadEffectiveConfig(root, "website"),
+    manifests: Object.fromEntries(Object.keys(parseYaml(readFileSync(join(root,"pnpm-lock.yaml"),"utf8")).importers).map((name) => [name, JSON.parse(readFileSync(join(root,name,"package.json"),"utf8"))])),
+    runtimeAdr: readFileSync(join(root, "docs/adr/20260814-pre03-runtime-stack.md"), "utf8"),
   };
   if (!webOnly) {
     inputs.tauriCargoLock = readFileSync(join(root, "apps/terminal-desktop/src-tauri/Cargo.lock"), "utf8");
@@ -54,7 +67,7 @@ export function loadRuntimeInputs(root = repoRoot, { webOnly = false } = {}) {
   return inputs;
 }
 
-export function validateRuntimeContract(inputs, { webOnly = false } = {}) {
+export function validateRuntimeContract(inputs, { webOnly = true } = {}) {
   const failures = [];
   const checks = [];
   const check = (condition, message) => (condition ? checks : failures).push(message);
@@ -74,8 +87,40 @@ export function validateRuntimeContract(inputs, { webOnly = false } = {}) {
       }
     }
   }
-  check(inputs.terminalNextConfig.includes('output: "export"'), "Terminal uses static export");
-  check(inputs.websiteNextConfig.includes('output: "export"'), "Website uses static export");
+  check(inputs.terminalNextConfig.output === "export", "Terminal uses static export");
+  check(inputs.websiteNextConfig.output === "export", "Website uses static export");
+  for (const [name, manifest] of Object.entries(inputs.manifests)) {
+    const importer = inputs.pnpmLock.importers?.[name];
+    for (const section of ["dependencies", "devDependencies", "optionalDependencies"]) {
+      const declared = manifest[section] ?? {};
+      const locked = importer?.[section] ?? {};
+      check(JSON.stringify(Object.keys(declared).sort()) === JSON.stringify(Object.keys(locked).sort()), `${name} ${section} dependency set matches lock`);
+      for (const [dependency, specifier] of Object.entries(declared)) {
+        const entry = locked[dependency];
+        check(entry?.specifier === specifier, `${name} ${dependency} specifier matches manifest`);
+        if (specifier.startsWith("workspace:")) {
+          check(entry?.version?.startsWith("link:"), `${name} ${dependency} workspace link exists`);
+        } else {
+          const version = String(entry?.version ?? "");
+          check(Boolean(inputs.pnpmLock.packages?.[`${dependency}@${version.split("(")[0]}`]?.resolution), `${name} ${dependency} package resolution exists`);
+          check(Boolean(inputs.pnpmLock.snapshots?.[`${dependency}@${version}`]), `${name} ${dependency} snapshot exists`);
+        }
+      }
+    }
+  }
+  for (const [key, snapshot] of Object.entries(inputs.pnpmLock.snapshots ?? {})) {
+    check(Boolean(inputs.pnpmLock.packages?.[key.split("(")[0]]?.resolution), `snapshot ${key} has package resolution`);
+    for (const [dependency, version] of Object.entries({ ...snapshot.dependencies, ...snapshot.optionalDependencies })) {
+      const target = /^\d/.test(version) ? `${dependency}@${version}` : version;
+      check(Boolean(inputs.pnpmLock.snapshots?.[target]), `snapshot ${key} dependency ${dependency} resolves`);
+    }
+  }
+  check(inputs.manifests["packages/ui"].devDependencies?.["@testing-library/react"] === "16.3.0", "React Testing Library is a direct dependency");
+  const adrRows = [...inputs.runtimeAdr.matchAll(/^\| ([^|]+) \| ([^|]+) \|$/gm)];
+  for (const [name, sections] of Object.entries(expectedLockedVersions)) for (const dependencies of Object.values(sections)) for (const [dependency, version] of Object.entries(dependencies)) {
+    const rows = adrRows.filter((row) => row[1] === dependency);
+    check(rows.length === 1 && rows[0][2] === version, `${name} ${dependency} ADR version matches lock`);
+  }
   if (!webOnly) {
     check(cargoPackageVersion(inputs.tauriCargoLock, "tauri") === "2.11.5", "Tauri is locked at 2.11.5");
     check(cargoPackageVersion(inputs.tauriCargoLock, "tauri-plugin-deep-link") === "2.4.9", "Tauri deep-link plugin is locked at 2.4.9");
@@ -115,39 +160,81 @@ async function close(server) {
   await new Promise((resolvePromise, reject) => server.close((error) => error ? reject(error) : resolvePromise()));
 }
 
-async function checkPage(root, { name, directory, path, marker }) {
+export async function checkPage(root, { name, directory, path, marker, selector, browser }) {
   const absoluteDirectory = join(root, directory);
   if (!existsSync(absoluteDirectory)) return { ok: false, message: `${name}: missing build output ${directory}` };
   const server = await serve(absoluteDirectory);
+  let page;
   try {
-    const address = server.address();
-    const response = await fetch(`http://127.0.0.1:${address.port}${path}`);
+    const base = `http://127.0.0.1:${server.address().port}`;
+    const response = await fetch(`${base}${path}`);
     const body = await response.text();
-    return response.status === 200 && body.includes(marker)
-      ? { ok: true, message: `${name}: ${path} is served from built output` }
-      : { ok: false, message: `${name}: ${path} status=${response.status}, marker missing (${marker})` };
+    if (response.status !== 200 || !body.includes(marker)) throw new Error(`status=${response.status}, marker missing`);
+    const assets = [...body.matchAll(/(?:src|href)="([^"#?]+\.(?:js|css)(?:\?[^" ]*)?)"/g)].map((match) => match[1]);
+    if (!assets.some((asset) => asset.includes(".js")) || !assets.some((asset) => asset.includes(".css"))) throw new Error("required JS/CSS references missing");
+    for (const asset of new Set(assets)) {
+      const url = new URL(asset,base);
+      if (url.origin !== base) throw new Error("unexpected remote build resource");
+      const resource = await fetch(url);
+      if (resource.status !== 200 || !(await resource.text()).length) throw new Error(`missing resource ${asset}`);
+    }
+    page = await browser.newPage();
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("response", (resource) => { if (/\.(js|css)(\?|$)/.test(resource.url()) && resource.status() >= 400) errors.push(`resource ${resource.status()} ${resource.url()}`); });
+    await page.goto(`${base}${path}`, { waitUntil: "networkidle" });
+    await page.locator(selector).waitFor({ state:"visible", timeout:10000 });
+    if (name === "terminal-web") await page.locator('[data-guard-state="allowed"]').waitFor({ state:"visible", timeout:10000 });
+    if (errors.length) throw new Error(`browser errors: ${errors.join("; ")}`);
+    return { ok:true, message:`${name}: ${path} resources and browser rendering verified` };
+  } catch (error) {
+    return { ok:false, message:`${name}: ${error.message}` };
   } finally {
+    if (page) await page.close();
     await close(server);
   }
 }
 
-export async function runPre03(root = repoRoot, { webOnly = false } = {}) {
-  const contract = validateRuntimeContract(loadRuntimeInputs(root, { webOnly }), { webOnly });
-  const pageChecks = [
-    checkPage(root, { name: "terminal-web", directory: "apps/terminal/out", path: "/command", marker: "static/chunks/app/command" }),
-    checkPage(root, { name: "website", directory: "apps/website/out", path: "/", marker: 'data-smoke="website-home"' }),
-  ];
-  if (!webOnly) {
-    pageChecks.push(checkPage(root, { name: "terminal-deep-link-gate", directory: "apps/terminal/out", path: "/auth/deep-link", marker: "static/chunks/app/auth/deep-link" }));
+export function validateBuildReceipts(root, digest) {
+  const checks = [], failures = [];
+  for (const app of ["terminal", "website"]) {
+    try {
+      const receipt = JSON.parse(readFileSync(join(root, `apps/${app}/out/pre03-build.json`),"utf8"));
+      if (receipt.schema !== "quantos-pre03-build/v1" || receipt.app !== app || receipt.sourceDigest !== digest || receipt.output !== "export") throw new Error("stale or invalid build receipt");
+      const id = readFileSync(join(root,`apps/${app}/.next/BUILD_ID`),"utf8").trim();
+      if (id !== receipt.buildId) throw new Error("build ID mismatch");
+      checks.push(`${app} build is bound to current source/config/profile`);
+    } catch (error) { failures.push(`${app}: ${error.message}`); }
   }
-  const pages = await Promise.all(pageChecks);
-  const failures = [...contract.failures, ...pages.filter((page) => !page.ok).map((page) => page.message)];
-  return { ...contract, status: failures.length === 0 ? "PASS" : "FAIL", failures, built_route_checks: pages.length, checks: [...contract.checks, ...pages.filter((page) => page.ok).map((page) => page.message)] };
+  return { checks, failures };
+}
+
+export async function runPre03(root = repoRoot, { webOnly = true } = {}) {
+  const inputs = await loadRuntimeInputs(root, { webOnly });
+  const contract = validateRuntimeContract(inputs, { webOnly });
+  const failures = [...contract.failures];
+  const checks = [...contract.checks];
+  const receipts = validateBuildReceipts(root, sourceDigest(root));
+  failures.push(...receipts.failures);
+  checks.push(...receipts.checks);
+  if (failures.length) return { ...contract, checks, failures, status:"FAIL", built_route_checks:0 };
+  const browser = await chromium.launch({ headless:true });
+  try {
+    const pages = [];
+    for (const options of [
+      { name:"terminal-web", directory:"apps/terminal/out", path:"/command", marker:"static/chunks/app/command", selector:'[data-smoke="route-/command"]' },
+      { name:"website", directory:"apps/website/out", path:"/", marker:'data-smoke="website-home"', selector:'[data-smoke="website-home"]' },
+      ...(!webOnly ? [{name:"terminal-deep-link-gate",directory:"apps/terminal/out",path:"/auth/deep-link",marker:"static/chunks/app/auth/deep-link",selector:"main"}] : []),
+    ]) pages.push(await checkPage(root,{...options,browser}));
+    failures.push(...pages.filter((page) => !page.ok).map((page) => page.message));
+    checks.push(...pages.filter((page) => page.ok).map((page) => page.message));
+    return { ...contract, checks, failures, status:failures.length ? "FAIL":"PASS", built_route_checks:pages.length };
+  } finally { await browser.close(); }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
-    const webOnly = process.argv.includes("--web-only");
+    const webOnly = !process.argv.includes("--desktop");
     const report = await runPre03(repoRoot, { webOnly });
     if (report.status === "FAIL") {
       for (const failure of report.failures) console.error(`FAIL  ${failure}`);

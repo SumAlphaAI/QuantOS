@@ -1,41 +1,22 @@
 # PRE-03 执行总结与验收自检
 
-> 任务：PRE-03 技术栈落地（FEP-0）  状态：仓库 Gate 已完成；GPT-6 Astra 功能复审未开始
-> 版本：1.1  日期：2026-09-16
+> 更新时间：2026-10-02；范围：P0，一期官网与 Web Terminal
 
-## 1. 交付物
+## 工程产出
 
-| 要求产出 | 交付 | 位置 |
-|---|---|---|
-| 运行时 ADR | 实际锁定版本、双端同一产物架构、验证与边界 | [docs/adr/20260814-pre03-runtime-stack.md](./adr/20260814-pre03-runtime-stack.md) |
-| 依赖锁 | pnpm 与 Tauri 锁文件冻结实际版本；Node/pnpm/Rust 均有仓库 pin；必需锁文件进入存在性 Gate | `.nvmrc`、`package.json`、`rust-toolchain.toml`、`pnpm-lock.yaml`、`apps/terminal-desktop/src-tauri/Cargo.lock` |
-| 最小构建 | Terminal（17 个静态页面）、官网（12 个静态页面）、Storybook 静态构建、Tauri `cargo check --locked` | `apps/terminal`、`apps/website`、`packages/ui`、`apps/terminal-desktop/src-tauri` |
-| 双端 Gate | 43 项运行时契约 + 3 项真实构建路由检查通过；5/5 负向测试证明关键漂移会阻断 | [scripts/pre03-smoke.mjs](../scripts/pre03-smoke.mjs)、[scripts/pre03-gate-negative.mjs](../scripts/pre03-gate-negative.mjs) |
-| 验收证据 | 起始状态、锁文件、隔离计时、命令结果、Gate 与风险 | [PRE-03 acceptance evidence](./audit/PRE-03-acceptance-evidence-2026-09-16.md) |
+- [运行时 ADR](./adr/20260814-pre03-runtime-stack.md)冻结现行 Next 15.5.24、React 19.2.8、Node 24.12.0、pnpm 10.20.0，以及测试/组件依赖；pnpm frozen 安装保证声明与锁一致。
+- 官网、Terminal 独立 Next App Router 静态导出；build 生成来源摘要和实际配置/build ID 回执。默认 PRE-03 Gate 仅覆盖一期 Web。
+- `pnpm check:pre03` / `check:pre03:web` 验证最终生效配置、29项关键依赖、ADR、声明/锁/解析图、构建来源及两目标路由资源与 Chromium 渲染；`pnpm test:pre03` 为相应正负回归。
+- 两应用 `start` 提供静态产物预览，官网3000、Terminal3100；未知资源/路由真实404。构建前复制 `env/local-mock.env.example` 到两个应用 `.env.local`，或注入同一公开变量 profile。构建和检查使用相同 profile。
+- Frontend Baseline 保留计划字段/依赖/顺序门禁，预先安装 Chromium，在两个构建后执行 PRE-03 正负检查。
+- React Testing Library + jsdom 直接声明于 UI 包，实际状态/交互回归已纳入 workspace test；Next 专项 ESLint 规则及负向违规检查纳入验收。
 
-## 2. 完成标准自检
+## 证据与状态
 
-| 完成标准 | 结果 | 证据 |
-|---|---|---|
-| 在现有 workspace 引入并验证目标依赖 | 达成 | Gate 从锁文件校验 26 项前端依赖、Tauri 2.11.5 与 deep-link 2.4.9；全量 lint 和 109 项 workspace 测试通过 |
-| Next.js Web PoC | 达成 | `apps/website` App Router 静态导出，12 个页面构建成功，首页构建产物可服务 |
-| Next.js Terminal PoC | 达成 | `apps/terminal` App Router 静态导出，17 个页面构建成功，`/command` 和 `/auth/deep-link` 构建产物可服务 |
-| Tauri 加载/深链 PoC | 达成（仓库层） | 同一 `out/` 产物；`quantos://` 注册；冷/热接收；URL 白名单消毒后进入本地重新鉴权页；锁定编译通过。未把原生 GUI 手测计为本次证据 |
-| 新环境 ≤30 分钟 bootstrap/build/test | 达成 | 无 Git、node_modules 与构建缓存的隔离副本：离线 frozen install + lint/test + 三项构建 + PRE-03 Gate 37.73s；Tauri 冷 `cargo check` 16.70s；合计约 54.43s |
-| Web 与 Desktop 打开同一路由 | 达成（产物与配置层） | 构建产物 `/command` 可服务；Tauri `frontendDist` 精确指向同一 `apps/terminal/out`，偏离会被负向测试拒绝。原生窗口打开仍属候选包 GUI 验收 |
+[PRE-03 全面复审报告](./audit/PRE-03-comprehensive-review-2026-10-02.md)记录初审与整改状态；当前整改结果见[整改记录](./audit/PRE-03-remediation-2026-10-02.md)。原[2026-09-16验收](./audit/PRE-03-acceptance-evidence-2026-09-16.md)属于其历史 SHA，不能替代当前版本的检查结果。
 
-## 3. 2026-09-16 复核修复
+干净 workspace 的时限验证必须说明下载缓存、工具链和 profile 条件。仓库通过不等于 GitHub 实际 CI、正式 G0、指定模型或 provider/staging 验收。
 
-1. 将旧 ADR 中的 React 19.2.7 和多个模糊 `x` 范围改为当前锁文件的精确解析值。
-2. 增加 `.nvmrc`，把本地 Node 版本与 CI 的 24.12.0 统一。
-3. smoke 改用临时回环端口和真实 404，扩展为工具链、依赖、构建产物、Tauri 共享目录、深链与窗口契约 Gate。
-4. 新增依赖漂移、桌面产物分叉、深链消毒缺失和 Node pin 漂移的可破坏测试。
-5. 锁文件检查增加 `buf.lock` 与桌面壳 `Cargo.lock`，Frontend Baseline CI 同时执行 PRE-03 正向和负向 Gate。
+## 第二期边界
 
-## 4. 边界与遗留
-
-1. 每个签名桌面候选包仍须执行原生 OS/GUI 和冷/热深链回归；本次未运行签名候选包、生产凭据或外部发布。
-2. 隔离复现使用本机已有 pnpm/Cargo 下载缓存；它验证干净 workspace 的 frozen bootstrap 与冷构建，不声明完全无缓存、首次联网下载耗时。
-3. Next 构建存在 ESLint plugin 未检测到的非阻断警告；Storybook 构建存在 `use client`/source map、第三方 `eval` 与大 chunk 警告。
-4. TanStack Query、Zustand、next-intl 与 MSW 的业务接线分别属于后续 UI/PRE-06 任务；依赖存在不代表所有业务集成完成。
-5. GPT-6 Astra 功能复审保持 `NOT_STARTED / NOT RUN`；仓库结构校验不得解释为模型复审。
+Desktop/native 归独立第二期计划；`check:pre03:desktop` / `test:pre03:desktop` 保留显式参考门禁，默认 Web 流程不读取 Desktop 配置或源文件。依赖安装不表示后续页面的 Query、图表、表单、i18n 与真实 BFF 业务接线已经全部完成。

@@ -1,0 +1,71 @@
+[
+  {
+    "name": "browser-terminal",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/command.spec.ts",
+      "--project=chromium",
+      "--grep",
+      "\u8def\u7531\u53ef\u6253\u5f00",
+      "--workers=1"
+    ],
+    "exit_code": 0,
+    "seconds": 2.265,
+    "log": "browser-terminal.log"
+  },
+  {
+    "name": "browser-website",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "playwright.website.config.ts",
+      "--project=chromium",
+      "--grep",
+      "\u9996\u9875\u5448\u73b0|\u5168\u90e8\u9996\u671f\u9875\u9762",
+      "--workers=1"
+    ],
+    "exit_code": 0,
+    "seconds": 1.799,
+    "log": "browser-website.log"
+  },
+  {
+    "name": "website-start",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/website",
+      "start"
+    ],
+    "exit_code": 1,
+    "seconds": 0.485,
+    "log": "website-start.log"
+  },
+  {
+    "name": "terminal-start",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "start"
+    ],
+    "exit_code": 1,
+    "seconds": 0.429,
+    "log": "terminal-start.log"
+  },
+  {
+    "name": "node-lock",
+    "command": [
+      "node",
+      "scripts/check-node-lock.mjs"
+    ],
+    "exit_code": 0,
+    "seconds": 2.445,
+    "log": "node-lock.log"
+  }
+]

@@ -1,8 +1,11 @@
+import nextPlugin from "@next/eslint-plugin-next";
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
+  // Next also probes this configuration file when detecting the plugin.
+  { plugins: { "@next/next": nextPlugin } },
   {
     ignores: ["dist/**", "coverage/**", "node_modules/**"],
   },
@@ -10,6 +13,16 @@ export default tseslint.config(
     files: ["packages/api-client/src/gen/**/*.ts", "packages/api-client/src/bff-gen/**/*.ts"],
     linterOptions: {
       reportUnusedDisableDirectives: "off",
+    },
+  },
+  {
+    files: ["apps/website/**/*.{ts,tsx}", "apps/terminal/**/*.{ts,tsx}"],
+    settings: { next: { rootDir: ["apps/website/", "apps/terminal/"] } },
+    rules: {
+      ...nextPlugin.configs.recommended.rules, ...nextPlugin.configs["core-web-vitals"].rules,
+      "@next/next/no-async-client-component": "error",
+      // These are App Router static exports with no pages/ directory.
+      "@next/next/no-html-link-for-pages": "off",
     },
   },
   js.configs.recommended,

@@ -6,8 +6,8 @@
   "exports": "./src/index.ts",
   "scripts": {
     "dev": "next dev -p 3100",
-    "build": "next build",
-    "start": "next start -p 3100",
+    "build": "next build && node ../../scripts/pre03-build-receipt.mjs terminal",
+    "start": "node ../../scripts/serve-static.mjs out 3100",
     "lint": "eslint app src tests --ext .ts,.tsx",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "vitest run"

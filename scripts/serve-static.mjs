@@ -16,7 +16,11 @@ createServer((req, res) => {
   let p = join(dir, url.pathname === "/" ? "index.html" : url.pathname);
   if (!existsSync(p)) p = `${p}.html`;
   if (!existsSync(p) || statSync(p).isDirectory()) p = join(dir, url.pathname, "index.html");
-  if (!existsSync(p)) p = join(dir, "404.html");
+  if (!existsSync(p)) {
+    res.writeHead(404, { "content-type": "text/html" });
+    res.end(existsSync(join(dir, "404.html")) ? readFileSync(join(dir, "404.html")) : "not found");
+    return;
+  }
   if (!existsSync(p)) {
     res.writeHead(404);
     res.end("not found");
@@ -24,4 +28,4 @@ createServer((req, res) => {
   }
   res.writeHead(200, { "content-type": MIME[extname(p)] ?? "application/octet-stream" });
   res.end(readFileSync(p));
-}).listen(Number(portArg), () => console.log(`serving ${dir} on :${portArg}`));
+}).listen(Number(portArg), "127.0.0.1", () => console.log(`serving ${dir} on :${portArg}`));

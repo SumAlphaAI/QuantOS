@@ -93,17 +93,17 @@ jobs:
       - name: Build website & terminal
         run: pnpm --filter @sumalpha/website build && pnpm --filter @sumalpha/terminal build
 
-      - name: Web build smoke (PRE-03 Web-only)
-        run: pnpm check:pre03:web
+      - name: Install Playwright Chromium for PRE-03 browser smoke
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Web build smoke and negative probes (PRE-03 Web-only)
+        run: pnpm check:pre03:web && pnpm test:pre03
 
       - name: Performance budget
         run: node scripts/check-perf-budget.mjs
 
       - name: Visual baseline integrity
         run: pnpm check:visual-baselines --platform linux
-
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install chromium --with-deps
 
       # 本 job 仅安装 Chromium，必须限定 --project=chromium；
       # playwright test 不带 --project 会运行全部浏览器项目（firefox/webkit 全矩阵由 compatibility.yml 负责）

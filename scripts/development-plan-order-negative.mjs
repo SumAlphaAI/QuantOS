@@ -127,3 +127,12 @@ test('UI windows cannot skip the preceding reconciliation window', () => {
   const changed = changeTask(frontend, 'UI-506', 'depends_on', ds => ds.filter(d => d !== 'FRONTEND-WINDOW:I5'));
   assert.throws(() => check(core, changed), /missing window admission FRONTEND-WINDOW:I5/);
 });
+
+
+test('Web intake preserves the explicit no-model-review schema', () => {
+  const changed = frontend.replace('- task_id: `PRE-03`', '- task_id: `PRE-03`\n- review_status: `ACCEPTED`');
+  assert.throws(() => check(core, changed), /Web review metadata/);
+});
+test('missing Web task fields still fail closed', () => {
+  assert.throws(() => check(core, frontend.replace('- task_id: `PRE-03`', '')), /missing task_id/);
+});

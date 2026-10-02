@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.4
+> 版本：3.5
 > 更新时间：2026-10-02
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.5`：PRE-03 整改对齐一期 Web 范围；前端任务不再包含指定模型复审块，校验器保留任务/依赖/顺序检查，模型状态仅作未运行边界。运行时配置、构建来源、资源和浏览器 smoke、锁一致性与负向 CI 纳入工程验收。
 
 - `3.4`：PRE-02 再复验补齐 Storybook 配置覆盖/死分支的门禁遗漏，27 项 Gate 回归与 18 项 UI 测试通过；主报告收敛为当前验收结果，历史问题和关闭依据独立归档。指定模型与正式 G0 状态不变。
 
@@ -28,7 +30,7 @@
 - `2.1`：PRE-01 需求拆解完成当前仓库复核；官网七页由聚合七态改为逐页七态，新增可执行的页面/Story/权限/场景/追踪完整性 Gate。开发状态与 GPT-6 Astra 复审状态继续分开记录。
 - `2.0`：页面 API 与前端功能独立排期；先完成全量页面 API 开发与 provider 验证，再依业务依赖推进前端。FEP/Gate、UI、WEB、PRE、BFF-FE 与 C01–C17 标识保持稳定；P16 自 2.5 起迁入第二期。
 - FEP-1 及 UI-101–UI-104、WEB-101 标记已开发完成，保留集成晋级条件，清除历史复验证据；为 GPT-6 Astra 设置全新复审入口。
-- 采用[核心计划字段约定](./SumAlpha-QuantOS-Development-Plan.md#plan-review-schema) `quantos-plan-review/v1`。校验：`node scripts/check-development-plans.mjs`；结构通过不等于 Codex 平台加载、模型调用或真实联调验收通过。
+- 核心计划继续采用[核心计划字段约定](./SumAlpha-QuantOS-Development-Plan.md#plan-review-schema) `quantos-plan-review/v1`；一期前端任务采用 `quantos-web-task/v1`，不包含指定模型复审字段，工程检查结果存于任务链接的审计报告。校验：`node scripts/check-development-plans.mjs`；结构通过不等于 Codex 平台加载、模型调用或真实联调验收通过。
 
 ## 1. 执行原则、范围与当前基线
 
@@ -139,6 +141,7 @@
 - 需求描述：技术栈落地
 - 主要动作：在现有 workspace 引入并验证目标依赖；建立 Next.js 官网与 Web Terminal PoC
 - 产出：运行时 ADR、依赖锁、最小 Web 构建与路由 smoke
+- 仓库整改：2026-10-02 PASS，原10项问题关闭、15/15控制点通过；29项关键依赖、Web正负套件24项、177项单元测试和实际Chromium/标准启动路由验证通过。见[整改记录](./audit/PRE-03-remediation-2026-10-02.md)及[证据清单](./audit/evidence/pre03-remediation-20261002/manifest.json)。远端CI、正式G0与provider/staging不据此验收。
 - 完成标准：新环境 ≤30 分钟完成 bootstrap/build/test；官网与 Web Terminal 目标路由可打开
 
 <a id="task-pre-04"></a>
@@ -2083,7 +2086,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 | Risk/Compliance | Proposal/Risk/Approval/Command 时序、模式/限额/kill switch、审计与导出 |
 | SRE | staging、观测、性能采样、故障注入、Runbook 与发布回滚 |
 
-每个看板任务首先包含 `task_id`、`task_type`、`iteration`、`depends_on`、`development_status`、`review_entry`、`workflow` 和四个复审字段，并必须包含：`页面 ID`、`前端任务 ID`、`契约 ID`、`后端计划 ID`、`风险级别`、`设计链接`、`测试用例`、`owner`、`依赖`、`目标 Sprint`、`契约状态`、`联调状态`、`Gate 证据`。
+每个看板任务首先包含 `task_id`、`task_type`、`iteration`、`depends_on`、`development_status`、`workflow`；一期前端任务不携带指定模型复审字段，工程审计通过报告及证据链接追踪。页面交付看板还必须包含：`页面 ID`、`前端任务 ID`、`契约 ID`、`后端计划 ID`、`风险级别`、`设计链接`、`测试用例`、`owner`、`依赖`、`目标 Sprint`、`契约状态`、`联调状态`、`Gate 证据`。
 
 ## 10. 最终发布检查表
 
