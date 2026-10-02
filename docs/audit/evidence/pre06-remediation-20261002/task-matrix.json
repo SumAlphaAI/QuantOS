@@ -1,0 +1,132 @@
+{
+  "total": 20,
+  "status_counts": {
+    "PASS": 20,
+    "PARTIAL": 0,
+    "FAIL": 0
+  },
+  "strict_completion_percent": 100,
+  "formula": "PASS / 20; repository engineering controls only; formal/remote target acceptance excluded",
+  "controls": [
+    {
+      "id": "C01",
+      "requirement": "一期官网/Web Terminal及Desktop隔离",
+      "status": "PASS",
+      "verification": "两应用Web-only；Desktop保留二期边界"
+    },
+    {
+      "id": "C02",
+      "requirement": "锁定工具链、依赖、测试命令和目录",
+      "status": "PASS",
+      "verification": "Node24.12.0/pnpm10.20.0冻结离线安装与28项重放"
+    },
+    {
+      "id": "C03",
+      "requirement": "同源OpenAPI/schema/MSW生成与漂移检查",
+      "status": "PASS",
+      "verification": "OpenAPI1.3.0、62操作/51schema，generated与coverage检查通过"
+    },
+    {
+      "id": "C04",
+      "requirement": "MSW授权/错误/未配置操作语义",
+      "status": "PASS",
+      "verification": "17项contract，四resolver成功/错误及未实现501语义受检"
+    },
+    {
+      "id": "C05",
+      "requirement": "fixture集合可枚举、逐项schema与安全受检",
+      "status": "PASS",
+      "verification": "10项全量登记与正负校验，2个inventory隔离，未知/敏感注入拒绝"
+    },
+    {
+      "id": "C06",
+      "requirement": "schema故意破坏必检出",
+      "status": "PASS",
+      "verification": "schema负向和四种sabotage通过"
+    },
+    {
+      "id": "C07",
+      "requirement": "冻结权限不变量故意破坏必检出",
+      "status": "PASS",
+      "verification": "executable=true拒绝，关键权限政策100%"
+    },
+    {
+      "id": "C08",
+      "requirement": "敏感字段负向扫描可靠",
+      "status": "PASS",
+      "verification": "字典分隔符/大小写/嵌套对象和数组别名拒绝"
+    },
+    {
+      "id": "C09",
+      "requirement": "两应用三浏览器CI项目与隔离配置",
+      "status": "PASS",
+      "verification": "两应用三浏览器配置及CI步骤/输出/trace政策验证"
+    },
+    {
+      "id": "C10",
+      "requirement": "当前目标浏览器功能与视觉重放完整",
+      "status": "PASS",
+      "verification": "macOS六组135/135、零失败/跳过/flaky；Linux仅inventory"
+    },
+    {
+      "id": "C11",
+      "requirement": "axe严重/高等级违规阻断基线",
+      "status": "PASS",
+      "verification": "官网/Terminal现有serious/critical axe阻断用例通过"
+    },
+    {
+      "id": "C12",
+      "requirement": "390px、200%缩放及键盘基线",
+      "status": "PASS",
+      "verification": "390px、200%缩放、键盘用例通过"
+    },
+    {
+      "id": "C13",
+      "requirement": "实际PNG inventory/hash/尺寸/0.5%阈值及破坏",
+      "status": "PASS",
+      "verification": "24PNG；Linux/macOS各12，尺寸/hash和0.5%阈值及真实像素破坏拒绝"
+    },
+    {
+      "id": "C14",
+      "requirement": "页面像素比较断言可删除时必须被拒绝",
+      "status": "PASS",
+      "verification": "删除截图比较时结构、浏览器及独立sabotage非零"
+    },
+    {
+      "id": "C15",
+      "requirement": "两应用完整构建性能预算持续阻断",
+      "status": "PASS",
+      "verification": "两应用共享/chunk/CSS与逐路由预算；空产物/超预算/旧回执拒绝"
+    },
+    {
+      "id": "C16",
+      "requirement": "CI真实步骤/关键测试删除负向保护",
+      "status": "PASS",
+      "verification": "停用CI、注释命令、恒真contract被实际进程拒绝"
+    },
+    {
+      "id": "C17",
+      "requirement": "CI不得用重试掩盖flaky",
+      "status": "PASS",
+      "verification": "CI真实配置两flaky探针均exit1"
+    },
+    {
+      "id": "C18",
+      "requirement": "全局80%与关键风险分支100%验收机制",
+      "status": "PASS",
+      "verification": "全局行≥80%；五文件各四维100%，未测分支实际拒绝"
+    },
+    {
+      "id": "C19",
+      "requirement": "失败报告/trace/视觉附件可归档",
+      "status": "PASS",
+      "verification": "两CI always/14天归档结构受检，本地真实trace/diff存在"
+    },
+    {
+      "id": "C20",
+      "requirement": "总结/计划状态与当前验证身份一致",
+      "status": "PASS",
+      "verification": "总结/计划/初审历史与当前源码哈希、执行证据同步"
+    }
+  ]
+}

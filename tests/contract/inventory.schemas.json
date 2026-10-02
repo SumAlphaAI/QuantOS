@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "PRE-04 unpublished Inventory Fixture; not generated BFF wire schemas",
+  "$defs": {
+    "PRE04CommandInventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "riskPosture",
+        "dataFreshness",
+        "asOf",
+        "sampledAt",
+        "pendingApprovals",
+        "failedRuns",
+        "openRiskAlerts",
+        "orderSummary",
+        "alerts"
+      ],
+      "properties": {
+        "riskPosture": {
+          "enum": [
+            "normal",
+            "elevated",
+            "critical",
+            "unknown"
+          ]
+        },
+        "dataFreshness": {
+          "enum": [
+            "fresh",
+            "delayed",
+            "stale",
+            "unavailable"
+          ]
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sampledAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "pendingApprovals": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failedRuns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "openRiskAlerts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "orderSummary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "submitted",
+            "filled",
+            "rejected"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "research",
+                "paper",
+                "shadow"
+              ]
+            },
+            "submitted": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "filled": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "rejected": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "alerts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "alertId",
+              "correlationId",
+              "severity",
+              "domain",
+              "occurredAt"
+            ],
+            "properties": {
+              "alertId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "correlationId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "severity": {
+                "enum": [
+                  "info",
+                  "warning",
+                  "critical"
+                ]
+              },
+              "domain": {
+                "type": "string"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

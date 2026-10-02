@@ -15,7 +15,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? "github" : "list",
+  failOnFlakyTests: Boolean(process.env.CI),
+  outputDir: "artifacts/browser/terminal/test-results",
+  reporter: process.env.CI ? [["github"], ["json", { outputFile: "artifacts/browser/terminal/report.json" }]] : "list",
   use: {
     baseURL: "http://localhost:3190",
     trace: "retain-on-failure",

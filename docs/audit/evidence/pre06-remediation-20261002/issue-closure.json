@@ -1,0 +1,121 @@
+{
+  "initial": {
+    "blocker": 0,
+    "high": 2,
+    "medium": 6,
+    "low": 1
+  },
+  "closed": 9,
+  "open": 0,
+  "issues": [
+    {
+      "id": "H-01",
+      "severity": "高危",
+      "module": "字段安全扫描",
+      "status": "CLOSED",
+      "repair": "统一字段分隔符与大小写；冻结字典别名、嵌套对象/数组及有效公开字段回归。",
+      "evidence": [
+        "contract.log",
+        "probes.json"
+      ]
+    },
+    {
+      "id": "H-02",
+      "severity": "高危",
+      "module": "执行结构与断言",
+      "status": "CLOSED",
+      "repair": "YAML实际步骤、条件、顺序和TS AST断言受检；契约、浏览器和独立sabotage入口先验结构。",
+      "evidence": [
+        "pre06-negative.log",
+        "mutations.json",
+        "removed-visual-assertions-sabotage.log"
+      ]
+    },
+    {
+      "id": "M-01",
+      "severity": "中危",
+      "module": "fixture与MSW",
+      "status": "CLOSED",
+      "repair": "全量10项清单，6契约正向/2负向/2inventory-only；独立PRE04 schema且禁止MSW加载；修复StrategyDraft缺files。",
+      "evidence": [
+        "contract.log",
+        "unused-fixture-contract.log"
+      ]
+    },
+    {
+      "id": "M-02",
+      "severity": "中危",
+      "module": "性能预算",
+      "status": "CLOSED",
+      "repair": "两应用CI检查真实资源、路由及源码/配置/构建回执；每路由200KB，与共享250/chunk200/CSS60KB共同阻断。",
+      "evidence": [
+        "perf-terminal.log",
+        "perf-website.log",
+        "supplement.json",
+        "pre06-negative.log"
+      ]
+    },
+    {
+      "id": "M-03",
+      "severity": "中危",
+      "module": "重试政策",
+      "status": "CLOSED",
+      "repair": "两配置CI启用failOnFlakyTests；两实际配置一失败一重试通过仍exit1并记录flaky。",
+      "evidence": [
+        "terminal-flaky.json",
+        "website-flaky.json",
+        "mutations.json"
+      ]
+    },
+    {
+      "id": "M-04",
+      "severity": "中危",
+      "module": "视觉矩阵",
+      "status": "CLOSED",
+      "repair": "支持Linux/macOS×三浏览器；补齐7张macOS图，24图完整性与人工工程像素核对后独立禁止更新重放。",
+      "evidence": [
+        "visual-darwin.log",
+        "visual-linux.log",
+        "visual-comparison.png",
+        "terminal-firefox.json",
+        "terminal-webkit.json"
+      ]
+    },
+    {
+      "id": "M-05",
+      "severity": "中危",
+      "module": "关键覆盖率",
+      "status": "CLOSED",
+      "repair": "固定5个当前风险政策文件，包括TSX；逐文件行/语句/函数/分支100%；补齐真实分支用例。",
+      "evidence": [
+        "critical-coverage-summary.json",
+        "critical-branch-negative.log",
+        "web-coverage.log"
+      ]
+    },
+    {
+      "id": "M-06",
+      "severity": "中危",
+      "module": "文档与执行身份",
+      "status": "CLOSED",
+      "repair": "总结、执行计划与当前清单/指标/执行身份同步；初审和历史验收独立保存。",
+      "evidence": [
+        "manifest.json",
+        "task-matrix.json",
+        "plans.log"
+      ]
+    },
+    {
+      "id": "L-01",
+      "severity": "低危",
+      "module": "失败附件归档",
+      "status": "CLOSED",
+      "repair": "两workflow always上传artifacts/browser并保留14天；分应用报告/附件目录；本地真实像素失败trace与diff归档。",
+      "evidence": [
+        "pre06-negative.log",
+        "visual-runtime-negative-artifacts",
+        "visual-runtime-negative.json"
+      ]
+    }
+  ]
+}

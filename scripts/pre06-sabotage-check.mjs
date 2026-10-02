@@ -3,6 +3,8 @@
  * PRE-06 破坏自检（完成标准）：故意破坏 schema、权限、敏感字段、视觉基线，
  * 逐项确认对应检查会失败（即门禁真实有效）。全部检出则本脚本通过（exit 0）。
  */
+import { loadPre06Inputs, validatePre06 } from "./check-pre06.mjs";
+import { validateFixtureInventory } from "../tests/contract/fixture-inventory.mjs";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
 import { readFileSync } from "node:fs";
@@ -13,6 +15,10 @@ import { validateVisualBaselines } from "./check-visual-baselines.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
+const structure=validatePre06(loadPre06Inputs());
+if(structure.status!=="PASS")throw new Error("PRE-06 execution structure failed: "+structure.failures.join(", "));
+const inventory=validateFixtureInventory();
+if(inventory.status!=="PASS")throw new Error("Fixture inventory failed: "+inventory.issues.join(", "));
 let undetected = 0;
 const expectDetected = (label, detected, detail = "") => {
   if (detected) console.log(`ok    ${label} 已被门禁捕获${detail ? `（${detail}）` : ""}`);

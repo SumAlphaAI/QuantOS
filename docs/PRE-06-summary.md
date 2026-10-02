@@ -1,56 +1,32 @@
 # PRE-06 Web 测试基线
 
-> 任务：FEP-0 / PRE-06 测试基线
->
-> 状态：当前仓库开发完成（Web-only）
->
-> 版本：2.0
->
-> 日期：2026-09-16
+> 日期：2026-10-02；版本：3.0；范围：一期官网与Web Terminal。
+> 当前工程修复与验证见[整改验收记录](./audit/PRE-06-remediation-2026-10-02.md)及[证据清单](./audit/evidence/pre06-remediation-20261002/manifest.json)。2026-09-16结果是历史回执，不代表当前源码或远端验收。
 
-## 1. 范围与分层
+## 1. 交付与门禁
 
-一期 Gate 覆盖官网与 Web Terminal：BFF contract fixture、MSW、组件/契约测试、Chromium/Firefox/WebKit E2E、axe、视觉基线完整性与性能预算。Desktop 原生构建、Tauri 深链、签名、分发与自动更新属于第二期，仅在手动 `desktop-phase2.yml` 中保留独立入口，不参与一期 PR/CI Gate。
+| 基线 | 当前交付与验收 |
+|---|---|
+| BFF/MSW | 同源OpenAPI1.3.0、62操作/51schema；10个登记JSON（6契约正向、2明确负向、2隔离的PRE-04 inventory正向），四resolver所有成功/错误分支受检，其余默认501；schema、不可执行不变量和规范化敏感字段拒绝 |
+| CI结构 | 解析实际YAML步骤/条件/顺序，TS AST核对有效配置、契约断言及四个像素比较调用；注释不能冒充接线或断言 |
+| 浏览器/axe | 官网与Terminal各三project，1440×900、390px与200%缩放、键盘及serious/critical axe阻断；CI `failOnFlakyTests`拒绝重试后通过 |
+| 视觉 | Linux/macOS各12张、合计24PNG；hash/尺寸/inventory、0.5%阈值和真实篡改负向；缺图失败，不无条件跳过或自动批准 |
+| 性能 | 两应用CI均查共享JS≤250KB、chunk≤200KB、CSS≤60KB及每路由≤200KB；完整资源和源码/配置/构建身份必须有效 |
+| 覆盖率 | 全局TS行≥80%；五个关键风险政策文件独立逐文件行/语句/函数/分支100%，包括风险提示TSX |
+| 失败证据 | 应用隔离的JSON与test-results（trace、图片、上下文）归入artifacts/browser；两workflow均always上传，保留14天 |
 
-## 2. 交付物
+范围与隔离决定见[工程ADR](./adr/20261002-pre06-fixture-and-critical-baseline.md)。生成操作数量不等于所有业务mock/provider验收；新增fixture、关键逻辑、平台或预算须同步模型与回归。
 
-| 基线 | 实现 | Gate |
-|---|---|---|
-| BFF/MSW contract | OpenAPI `1.3.0`，62 operations / 51 schemas；未配置 operation 默认 501；覆盖 403、409、410、429、可执行性不变量与敏感字段 | `pnpm test:contract`、`check:bff-generated`、`check:bff-contract-coverage` |
-| 浏览器 E2E | Terminal 与官网各注册 Chromium / Firefox / WebKit，固定 1440×900 桌面 viewport，同时覆盖 390px 与 200% 缩放场景 | `test:browser`、`test:browser:website` |
-| 无障碍 | axe WCAG 2 A/AA，serious/critical 为阻断；可滚动下载区域可键盘聚焦 | Playwright spec |
-| 视觉 | 5 个入库 PNG 由 manifest 冻结 SHA-256、尺寸、scope 与 `0.5%` 差异阈值 | `pnpm check:visual-baselines`、`pnpm sabotage:pre06` |
-| 性能 | 共享首屏 JS gzip ≤250KB，单 chunk ≤200KB，CSS gzip ≤60KB | `pnpm check:perf` |
-| 结构/边界 | 一期 Web workflow、三浏览器、视觉完整性、性能预算、Desktop 隔离及契约数量均有正向/负向 Gate | `pnpm check:pre06 && pnpm test:pre06` |
+## 2. 操作
 
-## 3. 可破坏验收
+`pnpm check:pre06`检查实际接线、配置和fixture；`pnpm test:pre06`执行结构、集合破坏、空产物和真实flaky政策探针；`pnpm test:contract`先检查结构，再执行17项contract；`pnpm sabotage:pre06`重放schema、权限、敏感字段、真实PNG破坏。
 
-`pnpm sabotage:pre06` 对真实验收链逐项破坏：
+完成显式环境构建后，`pnpm check:perf apps/terminal/out`和`pnpm check:perf apps/website/out`均须通过。`pnpm coverage:web`包含全局80%与独立关键100%；`pnpm coverage:critical`可单独重放，覆盖报告位于coverage/critical。浏览器使用对应配置和相同环境构建产物；常规验证使用`--update-snapshots=none`，不将更新模式计为通过证明。
 
-| 破坏类型 | 破坏内容 | 预期拒绝 |
-|---|---|---|
-| schema | `SessionContext` 删除必需字段 | JSON Schema 校验拒绝 |
-| 权限/交易边界 | `TradeProposal.executable=true` | 领域不变量拒绝 |
-| 敏感字段 | 注入 `venueApiKey` | 敏感字段扫描与 schema 拒绝 |
-| 视觉基线 | 篡改实际入库 PNG 约 5% 像素 | SHA-256 完整性与 pixel diff 均拒绝 |
+## 3. 当前证据与边界
 
-`test:pre06` 额外证明删除官网 Gate、重新耦合 Desktop、纳入 Desktop 深链 spec、缩减 operation、破坏视觉完整性或放宽性能预算都会 fail closed。
+本轮按当前Git基线叠加修复、冻结离线依赖，以macOS本地CI mock配置重放；完整命令、测试数量、构建指标和源码SHA-256绑定见整改记录。本地生成与核对macOS缺图后另行重放；原Linux和macOS17张基线未改写。
 
-## 4. 当前实测基线
+[2026-09-16回执](./audit/PRE-06-acceptance-evidence-2026-09-16.md)保留其历史SHA及跳过结论。当前三浏览器不继承旧“有跳过PASS”；Linux只可先证明12张基线完整，当前Linux执行/远端CI仍需独立回执。
 
-- contract：13/13 通过；BFF 生成与 coverage Gate 为 62 operations / 51 schemas。
-- Terminal：Chromium 27/27；Firefox 24 通过、3 个缺失对应平台快照的视觉用例跳过；WebKit 25 通过、2 个缺失对应平台快照的视觉用例跳过。
-- 官网：Chromium、Firefox、WebKit 各 18/18 通过。
-- 视觉：5 个入库快照的 hash、尺寸与 inventory 通过；文件名中的 `1440` 与实际 1440px 宽一致。
-- 性能：共享首屏 JS 138.8KB、最大 chunk 58.1KB、CSS 10.7KB，均低于预算。
-
-## 5. 验收边界
-
-- 上述浏览器结果是 macOS 本地重放；GitHub Actions 和 Linux runner 本轮未运行。
-- 视觉 spec 只在存在相同浏览器/平台快照时比较像素；所有已入库 PNG 无论运行平台都必须通过 manifest hash/尺寸/inventory Gate。当前不把缺失的 Linux 快照记为已验收。
-- 未使用 staging/生产凭据，未发布、部署或生成外部验收回执。
-- GPT-6 Astra 功能复审仍为 `NOT_STARTED / NOT RUN`；开发完成不等于联合签署或 G0 全部条件已关闭。
-
-## 6. 下一任务
-
-P0 仓库准备工作完成后，按执行计划进入 **BFF-FE-000：页面 BFF OpenAPI 基线**。该任务仍需满足 `CORE:F03/F05/F06` 依赖，且不得以 PRE-06 mock/consumer Gate 代替 provider 实现或 staging 验收。
+正式G0、指定模型复审、风险/QA/设计owner签署、staging/provider/BFF/IdP/Sentry/账号、数据库、全业务与Desktop/native保持独立 **NOT RUN / NO RECEIPT**。本轮未连接数据库，也不提前宣称后续页面任务全部通过。

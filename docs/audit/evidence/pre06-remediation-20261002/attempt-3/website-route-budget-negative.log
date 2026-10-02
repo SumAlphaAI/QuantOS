@@ -1,0 +1,32 @@
+
+> @sumalpha/quantos@ check:perf /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-remediation-oh2gw7ow
+> node scripts/check-perf-budget.mjs apps/website/out
+
+ok    共享首屏 JS gzip: 230.1KB ≤ 250.0KB
+ok    单 chunk gzip: 136.4KB ≤ 200.0KB
+ok    CSS gzip: 4.4KB ≤ 60.0KB
+
+各路由首屏 JS gzip（含 polyfills；逐路由门禁）：
+   231.1KB  /_not-found/page
+   232.4KB  /access-request/page
+   230.2KB  /architecture-security/page
+   232.3KB  /docs/page
+   230.2KB  /layout
+   230.2KB  /login/page
+   230.2KB  /page
+   230.2KB  /product/page
+   230.2KB  /robots.txt/route
+   230.2KB  /sitemap.xml/route
+   230.2KB  /use-cases/page
+ ELIFECYCLE  Command failed with exit code 1.
+FAIL  route /_not-found/page: 231.1KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /access-request/page: 232.4KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /architecture-security/page: 230.2KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /docs/page: 232.3KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /layout: 230.2KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /login/page: 230.2KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /page: 230.2KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /product/page: 230.2KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /robots.txt/route: 230.2KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /sitemap.xml/route: 230.2KB > 200.0KB（超限须 ADR 与拆包证据）
+FAIL  route /use-cases/page: 230.2KB > 200.0KB（超限须 ADR 与拆包证据）

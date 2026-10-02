@@ -15,16 +15,19 @@ const generatedSchemas = JSON.parse(
 );
 
 const sensitive = JSON.parse(readFileSync(join(dir, "sensitive-fields.json"), "utf8"));
-const SENSITIVE_PATTERNS = sensitive.forbiddenKeyPatterns.map((k) => k.toLowerCase());
+const normalizeKey = (key) => key.replace(/[^a-z0-9]/gi, "").toLowerCase();
+const SENSITIVE_PATTERNS = sensitive.forbiddenKeyPatterns.map(normalizeKey);
 
+const inventorySchemas = JSON.parse(readFileSync(join(dir, "inventory.schemas.json"), "utf8"));
 const validators = new Map();
 function validatorFor(schemaName) {
   if (!validators.has(schemaName)) {
-    if (!generatedSchemas.$defs?.[schemaName]) throw new Error(`Unknown generated BFF schema: ${schemaName}`);
+    const bundle = schemaName.startsWith("PRE04") ? inventorySchemas : generatedSchemas;
+    if (!bundle.$defs?.[schemaName]) throw new Error(`Unknown generated BFF schema: ${schemaName}`);
     validators.set(schemaName, ajv2020.compile({
-      $schema: generatedSchemas.$schema,
+      $schema: bundle.$schema,
       $ref: `#/$defs/${schemaName}`,
-      $defs: generatedSchemas.$defs,
+      $defs: bundle.$defs,
     }));
   }
   return validators.get(schemaName);
@@ -36,7 +39,7 @@ function scanSensitiveKeys(value, path, issues) {
     value.forEach((v, i) => scanSensitiveKeys(v, `${path}[${i}]`, issues));
   } else if (value && typeof value === "object") {
     for (const [k, v] of Object.entries(value)) {
-      if (SENSITIVE_PATTERNS.some((p) => k.toLowerCase().includes(p))) {
+      if (SENSITIVE_PATTERNS.some((p) => normalizeKey(k).includes(p))) {
         issues.push(`敏感字段命中：${path}.${k}`);
       }
       scanSensitiveKeys(v, `${path}.${k}`, issues);

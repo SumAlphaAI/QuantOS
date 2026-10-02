@@ -88,3 +88,13 @@ describe("UI-101 shell policy", () => {
     expect(writesAllowed({ ...safe, risk: "unknown" })).toBe(false);
   });
 });
+
+it("write permission policy covers the full connection/freshness/risk/viewport matrix", () => {
+  for (const connection of ["live", "reconnecting", "offline"] as const)
+    for (const freshness of ["fresh", "delayed", "stale", "unknown"] as const)
+      for (const risk of ["normal", "elevated", "critical", "unknown"] as const)
+        for (const compactViewport of [false,true]) {
+          const expected = connection === "live" && freshness === "fresh" && ["normal","elevated"].includes(risk) && !compactViewport;
+          expect(writesAllowed({ connection,freshness,risk,compactViewport })).toBe(expected);
+        }
+});

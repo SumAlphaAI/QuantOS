@@ -131,3 +131,30 @@ describe("OIDC callback PoC（G0 #4）", () => {
     expect(handleAuthHttpStatus(404, "/orders/missing")).toEqual({ kind: "concealed", route: "/unauthorized" });
   });
 });
+
+it("callback failure paths never establish a session or expose provider details", async () => {
+  sessionStore.clear();
+  const never = (async () => { throw new Error("must not fetch"); }) as typeof fetch;
+  await expect(exchangeCode(config,pending,"","s",never)).rejects.toThrow("缺少授权码");
+  expect(sanitizeReturnPath("//evil/path")).toBe("/command");
+  expect(handleAuthHttpStatus(503)).toEqual({kind:"maintenance",route:"/maintenance"});
+  expect(handleAuthHttpStatus(200)).toEqual({kind:"continue"});
+  const invalidJson = (async () => new Response("not json",{status:400})) as typeof fetch;
+  await expect(exchangeCode(config,pending,"code","s",invalidJson)).rejects.toThrow(AuthError);
+  for (const body of [{access_token:"temporary"},{access_token:"temporary",user:{}},{access_token:"temporary",subject:"actor"}]) {
+    let calls=0;
+    const fetchImpl=(async () => ++calls===1 ? new Response(JSON.stringify(body)) : new Response(null,{status:403})) as typeof fetch;
+    await expect(exchangeCode(config,pending,"code","s",fetchImpl,"https://bff.example")).rejects.toThrow(AuthError);
+    expect(sessionStore.get()).toBeNull();
+  }
+});
+it("beginAuth and local PoC fallback expose only sanitized session metadata", async () => {
+  const {beginAuth}=await import("../src/auth/flow");
+  const started=await beginAuth(config,"//evil/path");
+  expect(started.pending.returnTo).toBe("/command");
+  expect(new URL(started.authorizeUrl).searchParams.get("code_challenge_method")).toBe("S256");
+  const fetchImpl=(async () => new Response("{}")) as typeof fetch;
+  const session=await exchangeCode(config,pending,"code","s",fetchImpl);
+  expect(session).toMatchObject({subject:"unknown",expiresIn:300,mfaRequired:false});
+  sessionStore.clear();
+});

@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.10
+> 版本：3.11
 > 更新时间：2026-10-02
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.11`：PRE-06 修复9项复审问题，冻结fixture集合与关键分支100%门禁，补齐macOS视觉矩阵及两应用性能/CI失败证据；工程验证与正式目标/G0签署分开记录。
 - `3.10`：PRE-05 再复核补齐短秘密与应用生产环境文件产物扫描，原9项问题关闭、16/16仓库控制点通过；主报告保留当前验收视图，历史发现与本轮证据独立归档。
 - `3.9`：PRE-05 关闭9项环境审计问题；配置与客户端产物双层秘密检查、原值/DSN/callback/issuer约束、Next同源dotenv解析和模板身份回归纳入验收，文档明确普通dev mock与目标环境边界。
 
@@ -200,6 +201,7 @@
 - 主要动作：建立 MSW contract fixtures、Playwright project、axe、视觉基线、性能预算
 - 产出：测试目录与 CI job
 - 完成标准：故意破坏 schema、权限、敏感字段或视觉基线能使 CI 失败
+- 仓库整改：2026-10-02，9项复审问题修复与重放结果见[整改验收记录](./audit/PRE-06-remediation-2026-10-02.md)和[证据清单](./audit/evidence/pre06-remediation-20261002/manifest.json)。10个fixture逐项受检（2个仅inventory），五个关键政策文件逐文件100%，Linux/macOS各12张视觉基线；当前工程验证不替代远端CI或正式G0/owner签署。
 
 <a id="acceptance-preparation-p0"></a>
 #### PREPARATION:P0：验收检查点

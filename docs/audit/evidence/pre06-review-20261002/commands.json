@@ -1,0 +1,325 @@
+{
+  "baseline": "cb729db7497b25b0e6e1a6a02a4699287ae8172e",
+  "workspace": "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65",
+  "scope": "clean Git archive; frozen offline install with host cache; controlled CI mock env; macOS browsers; no database/target operations",
+  "results": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "pnpm",
+        "install",
+        "--offline",
+        "--frozen-lockfile"
+      ],
+      "exit_code": 0,
+      "seconds": 2.468,
+      "log": "bootstrap.log"
+    },
+    {
+      "name": "pre06",
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ],
+      "exit_code": 0,
+      "seconds": 0.566,
+      "log": "pre06.log"
+    },
+    {
+      "name": "pre06-negative",
+      "command": [
+        "pnpm",
+        "test:pre06"
+      ],
+      "exit_code": 0,
+      "seconds": 0.616,
+      "log": "pre06-negative.log"
+    },
+    {
+      "name": "contract",
+      "command": [
+        "pnpm",
+        "test:contract"
+      ],
+      "exit_code": 0,
+      "seconds": 3.191,
+      "log": "contract.log"
+    },
+    {
+      "name": "sabotage",
+      "command": [
+        "pnpm",
+        "sabotage:pre06"
+      ],
+      "exit_code": 0,
+      "seconds": 0.72,
+      "log": "sabotage.log"
+    },
+    {
+      "name": "visual-inventory",
+      "command": [
+        "pnpm",
+        "check:visual-baselines"
+      ],
+      "exit_code": 0,
+      "seconds": 0.558,
+      "log": "visual-inventory.log"
+    },
+    {
+      "name": "visual-linux",
+      "command": [
+        "pnpm",
+        "check:visual-baselines",
+        "--platform",
+        "linux"
+      ],
+      "exit_code": 0,
+      "seconds": 0.557,
+      "log": "visual-linux.log"
+    },
+    {
+      "name": "visual-darwin",
+      "command": [
+        "pnpm",
+        "check:visual-baselines",
+        "--platform",
+        "darwin"
+      ],
+      "exit_code": 1,
+      "seconds": 0.567,
+      "log": "visual-darwin.log"
+    },
+    {
+      "name": "generated",
+      "command": [
+        "pnpm",
+        "check:bff-generated"
+      ],
+      "exit_code": 0,
+      "seconds": 0.844,
+      "log": "generated.log"
+    },
+    {
+      "name": "contract-coverage",
+      "command": [
+        "pnpm",
+        "check:bff-contract-coverage"
+      ],
+      "exit_code": 0,
+      "seconds": 0.236,
+      "log": "contract-coverage.log"
+    },
+    {
+      "name": "pre04",
+      "command": [
+        "pnpm",
+        "check:pre04"
+      ],
+      "exit_code": 0,
+      "seconds": 0.233,
+      "log": "pre04.log"
+    },
+    {
+      "name": "pre05",
+      "command": [
+        "pnpm",
+        "check:pre05"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4,
+      "log": "pre05.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "pnpm",
+        "lint"
+      ],
+      "exit_code": 0,
+      "seconds": 2.786,
+      "log": "lint.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 4.77,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "unit",
+      "command": [
+        "pnpm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 2.764,
+      "log": "unit.log"
+    },
+    {
+      "name": "web-coverage",
+      "command": [
+        "pnpm",
+        "coverage:web"
+      ],
+      "exit_code": 0,
+      "seconds": 1.252,
+      "log": "web-coverage.log"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "exit_code": 0,
+      "seconds": 0.188,
+      "log": "plans.log"
+    },
+    {
+      "name": "browser-install-inventory",
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "install",
+        "--dry-run"
+      ],
+      "exit_code": 0,
+      "seconds": 0.618,
+      "log": "browser-install-inventory.log"
+    },
+    {
+      "name": "build-website",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 8.483,
+      "log": "build-website.log"
+    },
+    {
+      "name": "build-terminal",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 7.83,
+      "log": "build-terminal.log"
+    },
+    {
+      "name": "perf-terminal",
+      "command": [
+        "pnpm",
+        "check:perf"
+      ],
+      "exit_code": 0,
+      "seconds": 0.298,
+      "log": "perf-terminal.log"
+    },
+    {
+      "name": "perf-website",
+      "command": [
+        "pnpm",
+        "check:perf",
+        "apps/website/out"
+      ],
+      "exit_code": 0,
+      "seconds": 0.241,
+      "log": "perf-website.log"
+    },
+    {
+      "name": "terminal-chromium",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=chromium",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0"
+      ],
+      "exit_code": 0,
+      "seconds": 4.628,
+      "log": "terminal-chromium.log"
+    },
+    {
+      "name": "terminal-firefox",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=firefox",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0"
+      ],
+      "exit_code": 1,
+      "seconds": 9.949,
+      "log": "terminal-firefox.log"
+    },
+    {
+      "name": "terminal-webkit",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=webkit",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0"
+      ],
+      "exit_code": 1,
+      "seconds": 9.694,
+      "log": "terminal-webkit.log"
+    },
+    {
+      "name": "website-chromium",
+      "command": [
+        "pnpm",
+        "test:browser:website",
+        "--project=chromium",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0"
+      ],
+      "exit_code": 0,
+      "seconds": 4.279,
+      "log": "website-chromium.log"
+    },
+    {
+      "name": "website-firefox",
+      "command": [
+        "pnpm",
+        "test:browser:website",
+        "--project=firefox",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0"
+      ],
+      "exit_code": 0,
+      "seconds": 6.823,
+      "log": "website-firefox.log"
+    },
+    {
+      "name": "website-webkit",
+      "command": [
+        "pnpm",
+        "test:browser:website",
+        "--project=webkit",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0"
+      ],
+      "exit_code": 0,
+      "seconds": 6.032,
+      "log": "website-webkit.log"
+    }
+  ]
+}

@@ -98,3 +98,33 @@ describe("PRE-06 MSW contract handlers", () => {
     expect(validateFixture(payload, { schema: "ErrorEnvelope" })).toEqual([]);
   });
 });
+
+describe("PRE-06 complete fixture and sensitive-key policy", () => {
+  it("all declared positive/negative fixtures match their schema and purpose", async () => {
+    const { validateFixtureInventory, loadValidatedFixture } = await import("./fixture-inventory.mjs");
+    expect(validateFixtureInventory().issues).toEqual([]);
+    expect(() => loadValidatedFixture("command-center/default.json")).toThrow("Unknown positive fixture");
+  });
+  it("equivalent forbidden keys are rejected recursively without rejecting public fields", async () => {
+    const { default: dictionary } = await import("./sensitive-fields.json");
+    for (const key of dictionary.forbiddenKeyPatterns) {
+      const words = key.replace(/([a-z])([A-Z])/g, "$1_$2").split("_");
+      for (const alias of [key, words.join("_"), words.join("-"), words.join(".").toUpperCase()]) {
+        expect(validateFixture({ data: [{ [alias]: "synthetic-private-marker" }] }).some(issue => issue.includes(alias))).toBe(true);
+      }
+    }
+    expect(validateFixture({ expiresAt: "public", capabilities: [], publicKeyId: "public" })).toEqual([]);
+  });
+  it("getProposal response is schema-valid and never executable", async () => {
+    const response = await fetch("http://localhost:4010/v1/proposals/5e6f7081-9a2b-4c3d-8e4f-6a7b8c9d0e1f");
+    expect(response.status).toBe(200);
+    expect(validateFixture(await response.json(), { schema: "TradeProposal" })).toEqual([]);
+  });
+  it("fresh version returns schema-valid StrategyDraft", async () => {
+    const response = await fetch("http://localhost:4010/v1/strategies/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee/draft", {
+      method: "PUT", headers: { "if-match": "draft-v3", "content-type": "application/json" }, body: JSON.stringify({ name: "refreshed draft" }),
+    });
+    expect(response.status).toBe(200);
+    expect(validateFixture(await response.json(), { schema: "StrategyDraft" })).toEqual([]);
+  });
+});

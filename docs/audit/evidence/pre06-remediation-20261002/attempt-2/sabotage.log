@@ -1,0 +1,11 @@
+
+> @sumalpha/quantos@ sabotage:pre06 /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-remediation-aqs3tj_f
+> node scripts/pre06-sabotage-check.mjs
+
+ok    schema 破坏（缺 required 字段） 已被门禁捕获（schema: / must have required property 'expiresAt'）
+ok    权限破坏（executable=true） 已被门禁捕获（schema: /executable must be equal to one of the allowed values）
+ok    敏感字段破坏（venueApiKey） 已被门禁捕获（敏感字段命中：$.venueApiKey）
+ok    视觉基线完整性破坏 已被门禁捕获（sha256 mismatch: tests/e2e/command.spec.ts-snapshots/command-1440-dark-chromium-darwin.png）
+ok    视觉基线像素破坏（5% 像素变更） 已被门禁捕获（diff=4.80% > 阈值 0.5%）
+
+PRE-06 破坏自检通过：四类故意破坏均被门禁捕获

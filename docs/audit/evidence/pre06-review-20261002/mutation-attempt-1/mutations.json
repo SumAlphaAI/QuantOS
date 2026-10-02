@@ -1,0 +1,108 @@
+{
+  "baseline": "cb729db7497b25b0e6e1a6a02a4699287ae8172e",
+  "workspace": "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65",
+  "scope": "temporary files restored; browser-free retry control and actual Chromium tests; synthetic values only",
+  "results": [
+    {
+      "name": "unused-fixture-contract",
+      "command": [
+        "pnpm",
+        "test:contract"
+      ],
+      "exit_code": 0,
+      "expected": "nonzero",
+      "unexpected_accept": true,
+      "log": "unused-fixture-contract.log"
+    },
+    {
+      "name": "unused-fixture-sabotage",
+      "command": [
+        "pnpm",
+        "sabotage:pre06"
+      ],
+      "exit_code": 0,
+      "expected": "nonzero",
+      "unexpected_accept": true,
+      "log": "unused-fixture-sabotage.log"
+    },
+    {
+      "name": "unused-fixture-pre06",
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ],
+      "exit_code": 1,
+      "expected": "nonzero",
+      "unexpected_accept": false,
+      "log": "unused-fixture-pre06.log"
+    },
+    {
+      "name": "removed-visual-assertions-pre06",
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ],
+      "exit_code": 1,
+      "expected": "nonzero",
+      "unexpected_accept": false,
+      "log": "removed-visual-assertions-pre06.log"
+    },
+    {
+      "name": "removed-visual-assertions-sabotage",
+      "command": [
+        "pnpm",
+        "sabotage:pre06"
+      ],
+      "exit_code": 0,
+      "expected": "nonzero",
+      "unexpected_accept": true,
+      "log": "removed-visual-assertions-sabotage.log"
+    },
+    {
+      "name": "removed-visual-assertions-browser",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=chromium",
+        "--workers=2",
+        "--retries=0"
+      ],
+      "exit_code": 0,
+      "expected": "nonzero",
+      "unexpected_accept": true,
+      "log": "removed-visual-assertions-browser.log"
+    },
+    {
+      "name": "terminal-flaky",
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/__pre06_audit_flaky/config.ts",
+        "--workers=1"
+      ],
+      "exit_code": 0,
+      "expected": "nonzero",
+      "unexpected_accept": true,
+      "log": "terminal-flaky.log"
+    },
+    {
+      "name": "website-flaky",
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "--config",
+        "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/__pre06_audit_flaky/config.ts",
+        "--workers=1"
+      ],
+      "exit_code": 0,
+      "expected": "nonzero",
+      "unexpected_accept": true,
+      "log": "website-flaky.log"
+    }
+  ]
+}

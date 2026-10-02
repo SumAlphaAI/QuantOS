@@ -87,6 +87,9 @@ jobs:
       - name: Lint & typecheck frontend packages
         run: pnpm --filter @sumalpha/ui --filter @sumalpha/config --filter @sumalpha/terminal --filter @sumalpha/website lint && pnpm --filter @sumalpha/ui --filter @sumalpha/config --filter @sumalpha/terminal --filter @sumalpha/website typecheck
 
+      - name: Critical risk branch coverage
+        run: pnpm coverage:critical
+
       - name: Unit tests
         run: pnpm --filter @sumalpha/terminal --filter @sumalpha/website --filter @sumalpha/ui --filter @sumalpha/config test
 
@@ -103,7 +106,7 @@ jobs:
         run: pnpm check:pre03:web && pnpm test:pre03
 
       - name: Performance budget
-        run: node scripts/check-perf-budget.mjs
+        run: node scripts/check-perf-budget.mjs apps/terminal/out && node scripts/check-perf-budget.mjs apps/website/out
 
       - name: Visual baseline integrity
         run: pnpm check:visual-baselines --platform linux
@@ -118,3 +121,12 @@ jobs:
 
       - name: Sabotage self-test (schema/permission/sensitive-field/visual must fail the gates)
         run: node scripts/pre06-sabotage-check.mjs
+
+      - name: Archive browser reports and failure attachments
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-browser-evidence
+          path: artifacts/browser/
+          retention-days: 14
+          if-no-files-found: warn

@@ -1,0 +1,51 @@
+{
+  "baseline": "cb729db7497b25b0e6e1a6a02a4699287ae8172e",
+  "workspace": "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-518o8wui",
+  "scope": "capture missing macOS snapshots only; existing baseline bytes preserved; engineering comparison pending",
+  "results": [
+    {
+      "name": "install",
+      "command": [
+        "pnpm",
+        "install",
+        "--offline",
+        "--frozen-lockfile"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "build-terminal",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "firefox",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=firefox",
+        "--workers=2",
+        "--update-snapshots=missing",
+        "--retries=0"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "webkit",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=webkit",
+        "--workers=2",
+        "--update-snapshots=missing",
+        "--retries=0"
+      ],
+      "exit_code": 1
+    }
+  ]
+}

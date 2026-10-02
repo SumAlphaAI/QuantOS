@@ -1,0 +1,1219 @@
+{
+  "config": {
+    "argv": [
+      "/Users/anray/.nvm/versions/node/v24.12.0/bin/node",
+      "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.config.ts",
+      "--project=webkit",
+      "--workers=2",
+      "--reporter=list,json",
+      "--retries=0"
+    ],
+    "configFile": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/playwright.config.ts",
+    "rootDir": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e",
+        "testIgnore": [
+          "website.spec.ts",
+          "deep-link-reauth.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e",
+        "testIgnore": [
+          "website.spec.ts",
+          "deep-link-reauth.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e",
+        "testIgnore": [
+          "website.spec.ts",
+          "deep-link-reauth.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 2,
+    "webServer": {
+      "command": "node scripts/serve-static.mjs apps/terminal/out 3190",
+      "url": "http://localhost:3190/command",
+      "reuseExistingServer": false,
+      "timeout": 30000
+    }
+  },
+  "suites": [
+    {
+      "title": "auth-callback.spec.ts",
+      "file": "auth-callback.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "OIDC callback PoC",
+          "file": "auth-callback.spec.ts",
+          "line": 39,
+          "column": 6,
+          "specs": [
+            {
+              "title": "完整流：login → PKCE authorize → callback 交换 → 安全 return path",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 908,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:27.085Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4cc2a23857009c817ff2-7e497dbeb394450ebf06",
+              "file": "auth-callback.spec.ts",
+              "line": 40,
+              "column": 7
+            },
+            {
+              "title": "跨站 return_to 被消毒回退到 /command",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 921,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:27.085Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4cc2a23857009c817ff2-1dbb5bf2ea99e3f56223",
+              "file": "auth-callback.spec.ts",
+              "line": 56,
+              "column": 7
+            },
+            {
+              "title": "state 不匹配：不发起 token 交换并显示安全错误",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 228,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:29.992Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4cc2a23857009c817ff2-fbbe6686e9cb929c7523",
+              "file": "auth-callback.spec.ts",
+              "line": 66,
+              "column": 7
+            },
+            {
+              "title": "IdP 返回 error：不发起交换，错误提示不含敏感细节",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 228,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:30.004Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4cc2a23857009c817ff2-304bb2e56f8c9f4d4ffd",
+              "file": "auth-callback.spec.ts",
+              "line": 78,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "command.spec.ts",
+      "file": "command.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Command Center（/command）",
+          "file": "command.spec.ts",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "静态首屏只渲染守卫状态，不提前泄露 Command 投影",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 311,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:30.246Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2e1fd9f15a64c34feff8-5057b14f84369e89ca60",
+              "file": "command.spec.ts",
+              "line": 13,
+              "column": 7
+            },
+            {
+              "title": "路由可打开且渲染共享壳标记",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 249,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:30.256Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2e1fd9f15a64c34feff8-1f0dfb7348c999e64d6d",
+              "file": "command.spec.ts",
+              "line": 21,
+              "column": 7
+            },
+            {
+              "title": "复用 UI-103 的 freshness、risk 与 connection 领域组件",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 245,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:30.509Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2e1fd9f15a64c34feff8-3277bdf65362a072be28",
+              "file": "command.spec.ts",
+              "line": 31,
+              "column": 7
+            },
+            {
+              "title": "axe 无严重/高等级可访问性问题（执行计划 7.1）",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 822,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:30.561Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2e1fd9f15a64c34feff8-3814a22de962514f76dd",
+              "file": "command.spec.ts",
+              "line": 40,
+              "column": 7
+            },
+            {
+              "title": "优先级筛选与侧栏折叠可交互",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 323,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:30.759Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2e1fd9f15a64c34feff8-b73e71b322dbcc536f4b",
+              "file": "command.spec.ts",
+              "line": 47,
+              "column": 7
+            },
+            {
+              "title": "390px 小屏保持只读监控并隐藏高风险入口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 258,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:31.086Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2e1fd9f15a64c34feff8-338984f6938874fa88e3",
+              "file": "command.spec.ts",
+              "line": 56,
+              "column": 7
+            },
+            {
+              "title": "视觉基线：1440 深主题",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 391,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:31.349Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2e1fd9f15a64c34feff8-6d0628dfadfb44b69a9d",
+              "file": "command.spec.ts",
+              "line": 66,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ui102-auth.spec.ts",
+      "file": "ui102-auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "UI-102 identity, access and recovery",
+          "file": "ui102-auth.spec.ts",
+          "line": 15,
+          "column": 6,
+          "specs": [
+            {
+              "title": "P01 登录页仅展示安全、审计、Paper/Shadow 三项事实且通过 axe",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 540,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:31.392Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d47cdb0d05bba711526-ed598fac5e66dc99db12",
+              "file": "ui102-auth.spec.ts",
+              "line": 16,
+              "column": 7
+            },
+            {
+              "title": "MFA 成功后只返回消毒后的安全路由",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 301,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:31.746Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d47cdb0d05bba711526-3b09591c5ea8e6ea974c",
+              "file": "ui102-auth.spec.ts",
+              "line": 28,
+              "column": 7
+            },
+            {
+              "title": "MFA 429 文案不泄露账户存在性并展示等待时间",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 310,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:31.940Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d47cdb0d05bba711526-e0ddbab5c6d1e3c58153",
+              "file": "ui102-auth.spec.ts",
+              "line": 45,
+              "column": 7
+            },
+            {
+              "title": "访问申请 202 只显示已受理而非权限已开通",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 299,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:32.052Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d47cdb0d05bba711526-f1db73335c920e01f2aa",
+              "file": "ui102-auth.spec.ts",
+              "line": 59,
+              "column": 7
+            },
+            {
+              "title": "403 页面与 404 页面使用相同的不可探测资源文案",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 249,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:32.254Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d47cdb0d05bba711526-eabbfa3d1f0f67e76725",
+              "file": "ui102-auth.spec.ts",
+              "line": 73,
+              "column": 7
+            },
+            {
+              "title": "maintenance 明确禁写，offline 强制只读且不自动提交旧意图",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 250,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:32.355Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d47cdb0d05bba711526-62b1f355ee543b86f7a3",
+              "file": "ui102-auth.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "390px 与 200% 缩放下认证操作仍可达",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 222,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:32.507Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0d47cdb0d05bba711526-e3640d7911202706252a",
+              "file": "ui102-auth.spec.ts",
+              "line": 94,
+              "column": 7
+            },
+            {
+              "title": "P01 1440 深色视觉基线",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 530,
+                      "error": {
+                        "message": "Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui102-auth.spec.ts-snapshots/ui102-login-1440-dark-webkit-darwin.png, writing actual.",
+                        "stack": "Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui102-auth.spec.ts-snapshots/ui102-login-1440-dark-webkit-darwin.png, writing actual.\n    at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui102-auth.spec.ts:108:5",
+                        "location": {
+                          "file": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui102-auth.spec.ts",
+                          "column": 5,
+                          "line": 108
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 106 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"/login\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 107 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"button\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"使用组织账户继续\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 108 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${snapshot}.png`\u001b[39m\u001b[33m,\u001b[39m { maxDiffPixelRatio\u001b[33m:\u001b[39m \u001b[35m0.005\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 109 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 110 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 111 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui102-auth.spec.ts",
+                            "column": 5,
+                            "line": 108
+                          },
+                          "message": "Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui102-auth.spec.ts-snapshots/ui102-login-1440-dark-webkit-darwin.png, writing actual.\n\n  106 |     await page.goto(\"/login\");\n  107 |     await expect(page.getByRole(\"button\", { name: \"使用组织账户继续\" })).toBeVisible();\n> 108 |     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });\n      |     ^\n  109 |   });\n  110 | });\n  111 |\n    at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui102-auth.spec.ts:108:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:32.609Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "ui102-login-1440-dark-expected.png",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui102-auth.spec.ts-snapshots/ui102-login-1440-dark-webkit-darwin.png"
+                        },
+                        {
+                          "name": "ui102-login-1440-dark-actual.png",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results/ui102-auth-UI-102-identity-3ce22-nd-recovery-P01-1440-深色视觉基线-webkit/ui102-login-1440-dark-actual.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results/ui102-auth-UI-102-identity-3ce22-nd-recovery-P01-1440-深色视觉基线-webkit/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results/ui102-auth-UI-102-identity-3ce22-nd-recovery-P01-1440-深色视觉基线-webkit/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui102-auth.spec.ts",
+                        "column": 5,
+                        "line": 108
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "0d47cdb0d05bba711526-94b06e3c4b6ff219ffc2",
+              "file": "ui102-auth.spec.ts",
+              "line": 104,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ui104-settings.spec.ts",
+      "file": "ui104-settings.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "UI-104 profile, security, notifications and browser settings",
+          "file": "ui104-settings.spec.ts",
+          "line": 7,
+          "column": 6,
+          "specs": [
+            {
+              "title": "P15/P17 routes render the shared settings workspace",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 406,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:32.734Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d62c9413ce093bd2d677-283e127aea77466e5223",
+              "file": "ui104-settings.spec.ts",
+              "line": 8,
+              "column": 7
+            },
+            {
+              "title": "browser notification denial degrades without blocking in-app alerts",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 261,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:33.144Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d62c9413ce093bd2d677-24af1e8eb87b9199b3a1",
+              "file": "ui104-settings.spec.ts",
+              "line": 23,
+              "column": 7
+            },
+            {
+              "title": "scrollable browser download history is keyboard focusable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 380,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:33.415Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d62c9413ce093bd2d677-6bf64668b64c36c5b6c9",
+              "file": "ui104-settings.spec.ts",
+              "line": 30,
+              "column": 7
+            },
+            {
+              "title": "session revocation requires phrase and six-digit MFA, with cancel focused first",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 354,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:33.409Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d62c9413ce093bd2d677-ceadfdedf4b2e0ab8524",
+              "file": "ui104-settings.spec.ts",
+              "line": 37,
+              "column": 7
+            },
+            {
+              "title": "390px and 200% zoom hide high-risk settings actions without page overflow",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 259,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:33.766Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d62c9413ce093bd2d677-b51f190ad61441539515",
+              "file": "ui104-settings.spec.ts",
+              "line": 51,
+              "column": 7
+            },
+            {
+              "title": "offline mode freezes profile and notification writes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 261,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:33.974Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d62c9413ce093bd2d677-039cd2c72eb6f3d315a9",
+              "file": "ui104-settings.spec.ts",
+              "line": 62,
+              "column": 7
+            },
+            {
+              "title": "profile, security and browser pages have no serious or critical axe violations",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1445,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:34.029Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d62c9413ce093bd2d677-3157f30fb2b6151bc555",
+              "file": "ui104-settings.spec.ts",
+              "line": 71,
+              "column": 7
+            },
+            {
+              "title": "P15 security and P17 browser 1440 dark visual baselines",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 891,
+                      "error": {
+                        "message": "Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-security-1440-dark-webkit-darwin.png, writing actual.",
+                        "stack": "Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-security-1440-dark-webkit-darwin.png, writing actual.\n    at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts:83:5",
+                        "location": {
+                          "file": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts",
+                          "column": 5,
+                          "line": 83
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 81 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"/settings/security\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 82 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Security & MFA\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 83 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${snapshots[0]}.png`\u001b[39m\u001b[33m,\u001b[39m { fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m maxDiffPixelRatio\u001b[33m:\u001b[39m \u001b[35m0.005\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 84 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m\"/settings/browser\"\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 85 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Browser settings\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 86 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveScreenshot(\u001b[32m`${snapshots[1]}.png`\u001b[39m\u001b[33m,\u001b[39m { fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m\u001b[33m,\u001b[39m maxDiffPixelRatio\u001b[33m:\u001b[39m \u001b[35m0.005\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts",
+                            "column": 5,
+                            "line": 83
+                          },
+                          "message": "Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-security-1440-dark-webkit-darwin.png, writing actual.\n\n  81 |     await page.goto(\"/settings/security\");\n  82 |     await expect(page.getByRole(\"heading\", { name: \"Security & MFA\" })).toBeVisible();\n> 83 |     await expect(page).toHaveScreenshot(`${snapshots[0]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });\n     |     ^\n  84 |     await page.goto(\"/settings/browser\");\n  85 |     await expect(page.getByRole(\"heading\", { name: \"Browser settings\" })).toBeVisible();\n  86 |     await expect(page).toHaveScreenshot(`${snapshots[1]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });\n    at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts:83:5"
+                        },
+                        {
+                          "location": {
+                            "file": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts",
+                            "column": 5,
+                            "line": 86
+                          },
+                          "message": "Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-browser-1440-dark-webkit-darwin.png, writing actual.\n\n  84 |     await page.goto(\"/settings/browser\");\n  85 |     await expect(page.getByRole(\"heading\", { name: \"Browser settings\" })).toBeVisible();\n> 86 |     await expect(page).toHaveScreenshot(`${snapshots[1]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });\n     |     ^\n  87 |   });\n  88 | });\n  89 |\n    at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts:86:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-02T13:37:34.240Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "ui104-security-1440-dark-expected.png",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-security-1440-dark-webkit-darwin.png"
+                        },
+                        {
+                          "name": "ui104-security-1440-dark-actual.png",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-webkit/ui104-security-1440-dark-actual.png"
+                        },
+                        {
+                          "name": "ui104-browser-1440-dark-expected.png",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-browser-1440-dark-webkit-darwin.png"
+                        },
+                        {
+                          "name": "ui104-browser-1440-dark-actual.png",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-webkit/ui104-browser-1440-dark-actual.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-webkit/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-webkit/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-review-w9o4hw65/tests/e2e/ui104-settings.spec.ts",
+                        "column": 5,
+                        "line": 83
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d62c9413ce093bd2d677-5539d30c866a6cf56763",
+              "file": "ui104-settings.spec.ts",
+              "line": 79,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-02T13:37:26.248Z",
+    "duration": 9257.838000000002,
+    "expected": 25,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

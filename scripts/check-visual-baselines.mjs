@@ -47,8 +47,9 @@ export function validateVisualBaselines(root = repoRoot, { readFile = readFileSy
   const entries = manifest.entries ?? [];
   const declared = entries.map((entry) => entry.path);
   if (new Set(declared).size !== declared.length) issues.push("duplicate visual baseline path");
-  if (platform) {
-    for (const path of requiredVisualPaths(platform)) {
+  if (JSON.stringify(manifest.platforms) !== JSON.stringify(["linux", "darwin"])) issues.push("supported visual platforms must remain linux and darwin");
+  for (const requiredPlatform of (platform ? [platform] : (manifest.platforms ?? []))) {
+    for (const path of requiredVisualPaths(requiredPlatform)) {
       if (!declared.includes(path)) issues.push(`missing required platform baseline: ${path}`);
     }
   }

@@ -1,0 +1,122 @@
+
+> @sumalpha/quantos@ test:browser /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a
+> playwright test --config playwright.config.ts --project=firefox --workers=2 --update-snapshots=missing --retries=0
+
+
+Running 27 tests using 2 workers
+···········F
+::error file=tests/e2e/command.spec.ts,title=[firefox] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题,line=70,col=5::  1) [firefox] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ─────────%0A    Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/command.spec.ts-snapshots/command-1440-dark-firefox-darwin.png, writing actual.%0A%0A      68 |     await page.goto("/command");%0A      69 |     await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible();%0A    > 70 |     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });%0A         |     ^%0A      71 |   });%0A      72 | });%0A      73 |%0A        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/command.spec.ts:70:5
+·······F
+::error file=tests/e2e/ui102-auth.spec.ts,title=[firefox] › tests/e2e/ui102-auth.spec.ts:104:7 › UI-102 identity, access and recovery › P01 1440 深色视觉基线,line=108,col=5::  2) [firefox] › tests/e2e/ui102-auth.spec.ts:104:7 › UI-102 identity, access and recovery › P01 1440 深色视觉基线 %0A    Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui102-auth.spec.ts-snapshots/ui102-login-1440-dark-firefox-darwin.png, writing actual.%0A%0A      106 |     await page.goto("/login");%0A      107 |     await expect(page.getByRole("button", { name: "使用组织账户继续" })).toBeVisible();%0A    > 108 |     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });%0A          |     ^%0A      109 |   });%0A      110 | });%0A      111 |%0A        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui102-auth.spec.ts:108:5
+·····F
+::error file=tests/e2e/ui104-settings.spec.ts,title=[firefox] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines,line=83,col=5::  3) [firefox] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines %0A    Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-security-1440-dark-firefox-darwin.png, writing actual.%0A%0A      81 |     await page.goto("/settings/security");%0A      82 |     await expect(page.getByRole("heading", { name: "Security & MFA" })).toBeVisible();%0A    > 83 |     await expect(page).toHaveScreenshot(`${snapshots[0]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });%0A         |     ^%0A      84 |     await page.goto("/settings/browser");%0A      85 |     await expect(page.getByRole("heading", { name: "Browser settings" })).toBeVisible();%0A      86 |     await expect(page).toHaveScreenshot(`${snapshots[1]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });%0A        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui104-settings.spec.ts:83:5
+::error file=tests/e2e/ui104-settings.spec.ts,title=[firefox] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines,line=86,col=5::  3) [firefox] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines %0A    Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-browser-1440-dark-firefox-darwin.png, writing actual.%0A%0A      84 |     await page.goto("/settings/browser");%0A      85 |     await expect(page.getByRole("heading", { name: "Browser settings" })).toBeVisible();%0A    > 86 |     await expect(page).toHaveScreenshot(`${snapshots[1]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });%0A         |     ^%0A      87 |   });%0A      88 | });%0A      89 |%0A        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui104-settings.spec.ts:86:5
+·
+
+  1) [firefox] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ─────────
+
+    Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/command.spec.ts-snapshots/command-1440-dark-firefox-darwin.png, writing actual.
+
+      68 |     await page.goto("/command");
+      69 |     await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible();
+    > 70 |     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });
+         |     ^
+      71 |   });
+      72 | });
+      73 |
+        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/command.spec.ts:70:5
+
+    attachment #1: command-1440-dark (image/png) ───────────────────────────────────────────────────
+    Expected: tests/e2e/command.spec.ts-snapshots/command-1440-dark-firefox-darwin.png
+    Received: artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-firefox/command-1440-dark-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-firefox/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [firefox] › tests/e2e/ui102-auth.spec.ts:104:7 › UI-102 identity, access and recovery › P01 1440 深色视觉基线 
+
+    Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui102-auth.spec.ts-snapshots/ui102-login-1440-dark-firefox-darwin.png, writing actual.
+
+      106 |     await page.goto("/login");
+      107 |     await expect(page.getByRole("button", { name: "使用组织账户继续" })).toBeVisible();
+    > 108 |     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });
+          |     ^
+      109 |   });
+      110 | });
+      111 |
+        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui102-auth.spec.ts:108:5
+
+    attachment #1: ui102-login-1440-dark (image/png) ───────────────────────────────────────────────
+    Expected: tests/e2e/ui102-auth.spec.ts-snapshots/ui102-login-1440-dark-firefox-darwin.png
+    Received: artifacts/browser/terminal/test-results/ui102-auth-UI-102-identity-3ce22-nd-recovery-P01-1440-深色视觉基线-firefox/ui102-login-1440-dark-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts/browser/terminal/test-results/ui102-auth-UI-102-identity-3ce22-nd-recovery-P01-1440-深色视觉基线-firefox/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts/browser/terminal/test-results/ui102-auth-UI-102-identity-3ce22-nd-recovery-P01-1440-深色视觉基线-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace artifacts/browser/terminal/test-results/ui102-auth-UI-102-identity-3ce22-nd-recovery-P01-1440-深色视觉基线-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [firefox] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines 
+
+    Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-security-1440-dark-firefox-darwin.png, writing actual.
+
+      81 |     await page.goto("/settings/security");
+      82 |     await expect(page.getByRole("heading", { name: "Security & MFA" })).toBeVisible();
+    > 83 |     await expect(page).toHaveScreenshot(`${snapshots[0]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });
+         |     ^
+      84 |     await page.goto("/settings/browser");
+      85 |     await expect(page.getByRole("heading", { name: "Browser settings" })).toBeVisible();
+      86 |     await expect(page).toHaveScreenshot(`${snapshots[1]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });
+        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui104-settings.spec.ts:83:5
+
+    Error: A snapshot doesn't exist at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui104-settings.spec.ts-snapshots/ui104-browser-1440-dark-firefox-darwin.png, writing actual.
+
+      84 |     await page.goto("/settings/browser");
+      85 |     await expect(page.getByRole("heading", { name: "Browser settings" })).toBeVisible();
+    > 86 |     await expect(page).toHaveScreenshot(`${snapshots[1]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });
+         |     ^
+      87 |   });
+      88 | });
+      89 |
+        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-visuals-qn7rlr7a/tests/e2e/ui104-settings.spec.ts:86:5
+
+    attachment #1: ui104-security-1440-dark (image/png) ────────────────────────────────────────────
+    Expected: tests/e2e/ui104-settings.spec.ts-snapshots/ui104-security-1440-dark-firefox-darwin.png
+    Received: artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-firefox/ui104-security-1440-dark-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: ui104-browser-1440-dark (image/png) ─────────────────────────────────────────────
+    Expected: tests/e2e/ui104-settings.spec.ts-snapshots/ui104-browser-1440-dark-firefox-darwin.png
+    Received: artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-firefox/ui104-browser-1440-dark-actual.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-firefox/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-firefox/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-firefox/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [firefox] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ──────────
+    [firefox] › tests/e2e/ui102-auth.spec.ts:104:7 › UI-102 identity, access and recovery › P01 1440 深色视觉基线 
+    [firefox] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines 
+  24 passed (8.5s)
+::notice title=🎭 Playwright Run Summary::  3 failed%0A    [firefox] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ──────────%0A    [firefox] › tests/e2e/ui102-auth.spec.ts:104:7 › UI-102 identity, access and recovery › P01 1440 深色视觉基线 %0A    [firefox] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines %0A  24 passed (8.5s)
+ ELIFECYCLE  Command failed with exit code 1.

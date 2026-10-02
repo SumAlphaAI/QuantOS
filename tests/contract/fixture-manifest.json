@@ -1,0 +1,77 @@
+{
+  "schema": "quantos-contract-fixtures/v1",
+  "entries": [
+    {
+      "path": "session/default.json",
+      "schema": "SessionContext",
+      "expect": "PASS",
+      "purpose": "authorized getSession",
+      "scope": "contract"
+    },
+    {
+      "path": "command-center/unauthorized.json",
+      "schema": "ErrorEnvelope",
+      "expect": "PASS",
+      "purpose": "unauthorized getSession",
+      "scope": "contract"
+    },
+    {
+      "path": "proposal/default.json",
+      "schema": "TradeProposal",
+      "expect": "PASS",
+      "purpose": "getProposal; executable=false",
+      "scope": "contract"
+    },
+    {
+      "path": "errors/conflict.json",
+      "schema": "ErrorEnvelope",
+      "expect": "PASS",
+      "purpose": "stale saveStrategyDraft",
+      "scope": "contract"
+    },
+    {
+      "path": "errors/rate-limited.json",
+      "schema": "ErrorEnvelope",
+      "expect": "PASS",
+      "purpose": "mfaChallenge limit",
+      "scope": "contract"
+    },
+    {
+      "path": "strategy/default.json",
+      "schema": "StrategyDraft",
+      "expect": "PASS",
+      "purpose": "successful saveStrategyDraft",
+      "scope": "contract"
+    },
+    {
+      "path": "sabotage/schema-broken.json",
+      "schema": "SessionContext",
+      "expect": "FAIL",
+      "issue": "schema:",
+      "purpose": "missing required expiry",
+      "scope": "contract"
+    },
+    {
+      "path": "sabotage/sensitive-field.json",
+      "schema": "SessionContext",
+      "expect": "FAIL",
+      "issue": "venueApiKey",
+      "purpose": "canonical sensitive-field sabotage",
+      "scope": "contract"
+    },
+    {
+      "path": "command-center/default.json",
+      "schema": "PRE04CommandInventory",
+      "expect": "PASS",
+      "scope": "inventory-only",
+      "purpose": "PRE-04 C02 unpublished planned model; never a BFF success response"
+    },
+    {
+      "path": "command-center/stale.json",
+      "schema": "PRE04CommandInventory",
+      "expect": "PASS",
+      "scope": "inventory-only",
+      "purpose": "PRE-04 C02 unpublished planned model; never a BFF success response"
+    }
+  ]
+}

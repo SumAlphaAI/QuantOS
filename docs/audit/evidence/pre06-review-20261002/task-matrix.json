@@ -1,0 +1,132 @@
+{
+  "total": 20,
+  "status_counts": {
+    "PASS": 10,
+    "PARTIAL": 5,
+    "FAIL": 5
+  },
+  "strict_completion_percent": 50.0,
+  "formula": "PASS / total; PARTIAL receives no credit",
+  "controls": [
+    {
+      "id": "C01",
+      "requirement": "一期官网/Web Terminal及Desktop隔离",
+      "status": "PASS",
+      "verification": "两个Web配置与workflow；deep-link忽略，Desktop仅手动"
+    },
+    {
+      "id": "C02",
+      "requirement": "锁定工具链、依赖、测试命令和目录",
+      "status": "PASS",
+      "verification": "干净Git副本，Node24.12.0/pnpm10.20.0冻结离线安装"
+    },
+    {
+      "id": "C03",
+      "requirement": "同源OpenAPI/schema/MSW生成与漂移检查",
+      "status": "PASS",
+      "verification": "1.3.0；62operations/51schemas；generated与coverage检查通过"
+    },
+    {
+      "id": "C04",
+      "requirement": "MSW授权/错误/未配置操作语义",
+      "status": "PASS",
+      "verification": "13contract；200/403/409/429/501与版本/限流通过，四resolver不是62个成功fixture"
+    },
+    {
+      "id": "C05",
+      "requirement": "fixture集合可枚举、逐项schema与安全受检",
+      "status": "FAIL",
+      "verification": "M-01：未使用fixture敏感注入仍放行"
+    },
+    {
+      "id": "C06",
+      "requirement": "schema故意破坏必检出",
+      "status": "PASS",
+      "verification": "缺required负向、Zod/Ajv及sabotage通过"
+    },
+    {
+      "id": "C07",
+      "requirement": "冻结权限不变量故意破坏必检出",
+      "status": "PASS",
+      "verification": "TradeProposal.executable=true拒绝；不推断全业务RBAC/provider验收"
+    },
+    {
+      "id": "C08",
+      "requirement": "敏感字段负向扫描可靠",
+      "status": "PARTIAL",
+      "verification": "H-01：venueApiKey检出，三种既有字典语义别名误放行"
+    },
+    {
+      "id": "C09",
+      "requirement": "两应用三浏览器CI项目与隔离配置",
+      "status": "PASS",
+      "verification": "六project、viewport1440x900、forbidOnly与失败trace接线存在"
+    },
+    {
+      "id": "C10",
+      "requirement": "当前目标浏览器功能与视觉重放完整",
+      "status": "PARTIAL",
+      "verification": "M-04：130/135通过，5视觉用例FAIL；Linux只检查基线未实际运行"
+    },
+    {
+      "id": "C11",
+      "requirement": "axe严重/高等级违规阻断基线",
+      "status": "PASS",
+      "verification": "官网七页、Command/Login/Settings扫描在本轮通过；不是全量WCAG2.2签署"
+    },
+    {
+      "id": "C12",
+      "requirement": "390px、200%缩放及键盘基线",
+      "status": "PASS",
+      "verification": "认证/设置缩放，小屏高风险隐藏与下载区域键盘用例通过"
+    },
+    {
+      "id": "C13",
+      "requirement": "实际PNG inventory/hash/尺寸/0.5%阈值及破坏",
+      "status": "PASS",
+      "verification": "17PNG完整性、Linux12/12路径及真实PNG篡改检出"
+    },
+    {
+      "id": "C14",
+      "requirement": "页面像素比较断言可删除时必须被拒绝",
+      "status": "FAIL",
+      "verification": "H-02：删除toHaveScreenshot仍27/27、sabotage和结构检查通过"
+    },
+    {
+      "id": "C15",
+      "requirement": "两应用完整构建性能预算持续阻断",
+      "status": "PARTIAL",
+      "verification": "M-02：真实产物通过，空产物放行且官网预算缺CI"
+    },
+    {
+      "id": "C16",
+      "requirement": "CI真实步骤/关键测试删除负向保护",
+      "status": "FAIL",
+      "verification": "H-02：if:false、注释标记及恒真contract未拒绝"
+    },
+    {
+      "id": "C17",
+      "requirement": "CI不得用重试掩盖flaky",
+      "status": "FAIL",
+      "verification": "M-03：继承两配置的flaky=1仍exit0"
+    },
+    {
+      "id": "C18",
+      "requirement": "全局80%与关键风险分支100%验收机制",
+      "status": "PARTIAL",
+      "verification": "M-05：80.20%全局通过；关键清单/分支门槛缺失，TSX排除"
+    },
+    {
+      "id": "C19",
+      "requirement": "失败报告/trace/视觉附件可归档",
+      "status": "PARTIAL",
+      "verification": "L-01：runner本地留trace，CI附件归档不完整"
+    },
+    {
+      "id": "C20",
+      "requirement": "总结/计划状态与当前验证身份一致",
+      "status": "FAIL",
+      "verification": "M-06：视觉/性能/跨浏览器当前结果与总结不一致"
+    }
+  ]
+}

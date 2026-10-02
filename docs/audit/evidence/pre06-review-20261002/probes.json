@@ -1,0 +1,103 @@
+{
+  "results": [
+    {
+      "name": "disabled-website-step",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "workflow step if:false; parsed YAML is not used to enforce execution"
+    },
+    {
+      "name": "disabled-terminal-step",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "workflow step if:false; parsed YAML is not used to enforce execution"
+    },
+    {
+      "name": "disabled-visual-integrity-step",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "workflow step if:false; parsed YAML is not used to enforce execution"
+    },
+    {
+      "name": "all-frontend-commands-commented",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "required strings survive only as shell comments"
+    },
+    {
+      "name": "delete-sabotage-ci-step",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "completion-standard sabotage command is not validated"
+    },
+    {
+      "name": "contract-test-markers-only",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "only comments remain; gate accepts marker text without assertions"
+    },
+    {
+      "name": "sensitive-alias-vault_path",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "canonical camelCase forbidden key alias; JSON schema permits extra property"
+    },
+    {
+      "name": "sensitive-alias-signing_key",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "matches": true,
+      "detail": "canonical camelCase forbidden key alias; JSON schema permits extra property"
+    },
+    {
+      "name": "sensitive-alias-bearer_token",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "canonical camelCase forbidden key alias; JSON schema permits extra property"
+    },
+    {
+      "name": "sensitive-alias-model_key",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "canonical camelCase forbidden key alias; JSON schema permits extra property"
+    },
+    {
+      "name": "canonical-sensitive-field",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "matches": true,
+      "detail": "positive rejection control"
+    },
+    {
+      "name": "schema-required-field",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "matches": true,
+      "detail": "positive rejection control"
+    },
+    {
+      "name": "executable-permission",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "matches": true,
+      "detail": "positive rejection control"
+    },
+    {
+      "name": "empty-build-perf",
+      "expected": "REJECT",
+      "actual": "ACCEPT",
+      "matches": false,
+      "detail": "empty pages/chunk/CSS inventory: ok    共享首屏 JS gzip: 0.0KB ≤ 250.0KB; ok    单 chunk gzip: 0.0KB ≤ 200.0KB; ok    CSS gzip: 0.0KB ≤ 60.0KB; ; 各路由首屏 JS gzip（共享 + 路由 page chunk，仅报告不门禁）：; ; 性能预算校验通过"
+    }
+  ],
+  "unexpected_accepts": 10
+}

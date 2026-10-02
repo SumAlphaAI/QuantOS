@@ -10,7 +10,8 @@ export interface DangerConfirmDialogProps {
   trigger: ReactNode; title: string; summary: string; impact: string; confirmPhrase: string; confirmLabel: string;
   mfaRequired?: boolean; finalCheckLabel?: string; correlationId?: string; onConfirm: (input: { phrase: string; mfaCode?: string }) => Promise<void> | void;
 }
-export function isDangerConfirmationValid(phrase: string, expectedPhrase: string, mfaRequired: boolean, mfaCode: string): boolean { return phrase === expectedPhrase && (!mfaRequired || /^\d{6}$/.test(mfaCode)); }
+import { isDangerConfirmationValid } from "./confirmation-policy";
+export { isDangerConfirmationValid } from "./confirmation-policy";
 export function DangerConfirmDialog({ trigger, title, summary, impact, confirmPhrase, confirmLabel, mfaRequired = false, finalCheckLabel = "服务端最终校验将在提交时再次执行", correlationId, onConfirm }: DangerConfirmDialogProps) {
   const { theme } = useTheme();
   const [open, setOpen] = useState(false); const [phrase, setPhrase] = useState(""); const [mfaCode, setMfaCode] = useState(""); const [pending, setPending] = useState(false); const [error, setError] = useState<string>();

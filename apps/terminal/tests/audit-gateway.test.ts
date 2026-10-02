@@ -85,3 +85,22 @@ describe("BFF-FE-007 generated audit gateway", () => {
     expect((error as AuditGatewayError).message).not.toContain("object key");
   });
 });
+
+it("every controlled audit operation conceals denied resources and rejects transport failures", async () => {
+  const operations=[
+    (f:typeof fetch)=>searchAuditEvents("https://bff.example",{},f),
+    (f:typeof fetch)=>loadEvidenceChain("https://bff.example",CORRELATION_ID,undefined,f),
+    (f:typeof fetch)=>createControlledExport("https://bff.example",{scope:{correlationIds:[CORRELATION_ID]},format:"jsonl",reason:"Review",watermark:"audit",retentionDays:7},"key","csrf","reauth",f),
+    (f:typeof fetch)=>loadExportStatus("https://bff.example",EXPORT_ID,f),
+    (f:typeof fetch)=>cancelControlledExport("https://bff.example",EXPORT_ID,"key","csrf","reauth",f),
+    (f:typeof fetch)=>getControlledExportDownload("https://bff.example",EXPORT_ID,f),
+  ];
+  for (const status of [403,404,500]) for (const operation of operations) {
+    const fetchImpl=(async()=>new Response(JSON.stringify({code:"DENIED",message:"internal detail"}),{status,headers:{"content-type":"application/json"}})) as typeof fetch;
+    const error=await operation(fetchImpl).catch((error:unknown)=>error);
+    expect(error).toBeInstanceOf(AuditGatewayError);
+    expect((error as Error).message).not.toContain("internal detail");
+  }
+  const fetchImpl=(async()=>new Response(JSON.stringify({exportId:EXPORT_ID,url:"https://download.example",expiresAt:"2026-10-02T00:00:00Z"}),{headers:{"content-type":"application/json"}})) as typeof fetch;
+  expect(await getControlledExportDownload("https://bff.example",EXPORT_ID,fetchImpl)).toHaveProperty("exportId");
+});
