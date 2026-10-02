@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-import { createRequire } from "node:module";
+import { loadEffectiveConfig } from "./pre03-next-config.mjs";
+export { loadEffectiveConfig } from "./pre03-next-config.mjs";
 import { chromium } from "@playwright/test";
 import { sourceDigest } from "./pre03-build-receipt.mjs";
 import { createServer } from "node:http";
-import { existsSync, readFileSync, statSync } from "node:fs";
-import { dirname, extname, join, resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parse as parseYaml } from "yaml";
 
@@ -41,22 +42,23 @@ function cargoPackageVersion(lock, name) {
   return "";
 }
 
-export async function loadEffectiveConfig(root, app) {
-  const require = createRequire(join(root, `apps/${app}/package.json`));
-  const loadConfig = require("next/dist/server/config.js").default;
-  const { PHASE_PRODUCTION_BUILD } = require("next/constants");
-  return loadConfig(PHASE_PRODUCTION_BUILD, join(root, `apps/${app}`), { silent: true });
-}
-
 export async function loadRuntimeInputs(root = repoRoot, { webOnly = true } = {}) {
+  // Discover manifests from the phase-one workspace, never from the lock being checked.
+  const workspace = parseYaml(readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8'));
+  const apps = !webOnly && workspace.packages?.includes('apps/*')
+    ? readdirSync(join(root, 'apps')).filter((name) => existsSync(join(root, 'apps', name, 'package.json'))).map((name) => `apps/${name}`)
+    : ['apps/website', 'apps/terminal'];
+  const roots = ['.', ...apps, ...readdirSync(join(root, 'packages'))
+    .filter((name) => existsSync(join(root, 'packages', name, 'package.json'))).map((name) => `packages/${name}`)];
   const inputs = {
+    workspace,
     rootPackage: JSON.parse(readFileSync(join(root, "package.json"), "utf8")),
     nodeVersion: readFileSync(join(root, ".nvmrc"), "utf8").trim(),
     rustToolchain: readFileSync(join(root, "rust-toolchain.toml"), "utf8"),
     pnpmLock: parseYaml(readFileSync(join(root, "pnpm-lock.yaml"), "utf8")),
     terminalNextConfig: await loadEffectiveConfig(root, "terminal"),
     websiteNextConfig: await loadEffectiveConfig(root, "website"),
-    manifests: Object.fromEntries(Object.keys(parseYaml(readFileSync(join(root,"pnpm-lock.yaml"),"utf8")).importers).map((name) => [name, JSON.parse(readFileSync(join(root,name,"package.json"),"utf8"))])),
+    manifests: Object.fromEntries(roots.map((name) => [name, JSON.parse(readFileSync(join(root,name,"package.json"),"utf8"))])),
     runtimeAdr: readFileSync(join(root, "docs/adr/20260814-pre03-runtime-stack.md"), "utf8"),
   };
   if (!webOnly) {
@@ -89,6 +91,12 @@ export function validateRuntimeContract(inputs, { webOnly = true } = {}) {
   }
   check(inputs.terminalNextConfig.output === "export", "Terminal uses static export");
   check(inputs.websiteNextConfig.output === "export", "Website uses static export");
+  const workspaceScope = JSON.stringify(inputs.workspace.packages);
+  check(workspaceScope === JSON.stringify(['apps/website', 'apps/terminal', 'packages/*'])
+    || (!webOnly && workspaceScope === JSON.stringify(['apps/*', 'packages/*'])), 'workspace matches explicit Web/Desktop scope');
+  check(JSON.stringify(Object.keys(inputs.manifests).sort()) === JSON.stringify(Object.keys(inputs.pnpmLock.importers ?? {}).sort()), 'all workspace importers match discovered manifests');
+  const sortedEntries = (object) => JSON.stringify(Object.entries(object ?? {}).sort(([a], [b]) => a.localeCompare(b)));
+  check(sortedEntries(inputs.rootPackage.pnpm?.overrides) === sortedEntries(inputs.pnpmLock.overrides), 'pnpm overrides match root manifest');
   for (const [name, manifest] of Object.entries(inputs.manifests)) {
     const importer = inputs.pnpmLock.importers?.[name];
     for (const section of ["dependencies", "devDependencies", "optionalDependencies"]) {
@@ -99,7 +107,9 @@ export function validateRuntimeContract(inputs, { webOnly = true } = {}) {
         const entry = locked[dependency];
         check(entry?.specifier === specifier, `${name} ${dependency} specifier matches manifest`);
         if (specifier.startsWith("workspace:")) {
-          check(entry?.version?.startsWith("link:"), `${name} ${dependency} workspace link exists`);
+          const targets = Object.entries(inputs.manifests).filter(([, target]) => target.name === dependency);
+          const target = targets.length === 1 ? `link:${relative(name, targets[0][0]).split(sep).join('/')}` : null;
+          check(target !== null && entry?.version === target, `${name} ${dependency} workspace link matches target package`);
         } else {
           const version = String(entry?.version ?? "");
           check(Boolean(inputs.pnpmLock.packages?.[`${dependency}@${version.split("(")[0]}`]?.resolution), `${name} ${dependency} package resolution exists`);
@@ -200,7 +210,7 @@ export function validateBuildReceipts(root, digest) {
   for (const app of ["terminal", "website"]) {
     try {
       const receipt = JSON.parse(readFileSync(join(root, `apps/${app}/out/pre03-build.json`),"utf8"));
-      if (receipt.schema !== "quantos-pre03-build/v1" || receipt.app !== app || receipt.sourceDigest !== digest || receipt.output !== "export") throw new Error("stale or invalid build receipt");
+      if (receipt.schema !== "quantos-pre03-build/v1" || receipt.app !== app || receipt.sourceDigest !== (typeof digest === "string" ? digest : digest[app]) || receipt.output !== "export") throw new Error("stale or invalid build receipt");
       const id = readFileSync(join(root,`apps/${app}/.next/BUILD_ID`),"utf8").trim();
       if (id !== receipt.buildId) throw new Error("build ID mismatch");
       checks.push(`${app} build is bound to current source/config/profile`);
@@ -214,7 +224,10 @@ export async function runPre03(root = repoRoot, { webOnly = true } = {}) {
   const contract = validateRuntimeContract(inputs, { webOnly });
   const failures = [...contract.failures];
   const checks = [...contract.checks];
-  const receipts = validateBuildReceipts(root, sourceDigest(root));
+  const receipts = validateBuildReceipts(root, {
+    terminal: sourceDigest(root, inputs.terminalNextConfig.publicEnv),
+    website: sourceDigest(root, inputs.websiteNextConfig.publicEnv),
+  });
   failures.push(...receipts.failures);
   checks.push(...receipts.checks);
   if (failures.length) return { ...contract, checks, failures, status:"FAIL", built_route_checks:0 };

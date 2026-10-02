@@ -43,7 +43,7 @@ Node 固定 24.12.0，pnpm 固定 10.20.0；安装执行 `pnpm install --frozen-
 ## 构建、启动与验收
 
 1. 正常 build 在 Next 构建后生成 `out/pre03-build.json`，包含实际构建配置、build ID，以及源文件/锁/ADR/公开环境 profile 的摘要。摘要排除构建目录、node_modules、环境凭据文件和缓存；未绑定当前来源的旧 out 无法通过。
-2. `pnpm check:pre03`、`check:pre03:web`、`smoke:pre03` 默认为一期 Web。读取 Next 官方配置加载器的最终有效配置，校验 29 项锁版本、所有一期 importer 的声明/锁一致性、包解析及快照、ADR 版本与构建来源；检查目标 HTML 引用 JS/CSS，再用 Chromium 验证 `/command` 守卫放行与官网首页渲染及无页面脚本异常。
+2. `pnpm check:pre03`、`check:pre03:web`、`smoke:pre03` 默认为一期 Web。在独立子进程中逐应用读取 Next 官方配置加载器的最终有效配置及实际公开环境（支持 `.env.local` 和进程注入，防止跨应用缓存污染），校验 29 项锁版本、从实际一期 workspace 独立发现 manifests，对照全部 importer 的声明/锁集合、精确 workspace 链接目标与 overrides 一致性、包解析及快照、ADR 版本与构建来源；检查目标 HTML 引用 JS/CSS，再用 Chromium 验证 `/command` 守卫放行与官网首页渲染及无页面脚本异常。
 3. 两应用 `start` 使用仓库静态服务器，端口官网3000/Terminal3100，未知页面或资源返回真实404。首次使用复制 `env/local-mock.env.example` 到两个应用的 `.env.local`，或由环境显式注入同一 profile；构建与验收使用相同公开变量。
 4. `pnpm test:pre03` 为 Web 正负套件，覆盖有效配置、注释/死分支/覆盖、坏锁/ADR、坏资源、空页面、脚本异常与阶段隔离。Frontend Baseline 在构建前安装 Chromium，构建后调用正向及负向 Gate。
 5. `check:pre03:desktop` / `test:pre03:desktop` 是显式二期参考检查，保留 Tauri 共享产物与深链约束，不进入一期门禁。原生 GUI、签名包及 OS 深链不是本 ADR 的一期验收内容。

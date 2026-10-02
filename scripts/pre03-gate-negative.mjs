@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { tmpdir } from 'node:os';
 import { ESLint } from 'eslint';
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, copyFileSync, symlinkSync, rmSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { sourceDigest } from './pre03-build-receipt.mjs';
 import { chromium } from '@playwright/test';
@@ -114,5 +114,50 @@ test('source binding ignores caches but detects actual source changes',()=>{
     assert.equal(sourceDigest(tmp),before);
     writeFileSync(join(tmp,'apps/terminal/source.ts'),'export const value=2;');
     assert.notEqual(sourceDigest(tmp),before);
+  } finally {rmSync(tmp,{recursive:true,force:true});}
+});
+
+
+test('all workspace importers and exact link targets are required',()=>{
+  const missing=structuredClone(current.pnpmLock);delete missing.importers['packages/api-client'];rejected({pnpmLock:missing});
+  const extra=structuredClone(current.pnpmLock);extra.importers['apps/terminal-desktop']={};rejected({pnpmLock:extra});
+  const wrong=structuredClone(current.pnpmLock);wrong.importers['apps/terminal'].dependencies['@sumalpha/api-client'].version='link:../../packages/ui';rejected({pnpmLock:wrong});
+  const overrides=structuredClone(current.pnpmLock);overrides.overrides.playwright='0.0.0';rejected({pnpmLock:overrides});
+});
+
+test('runtime loader discovers omitted manifests independently of lockfile',async()=>{
+  const tmp=mkdtempSync(join(tmpdir(),'pre03-importers-'));
+  try {
+    for(const dir of ['apps','packages','docs','node_modules'])symlinkSync(join(root,dir),join(tmp,dir),'dir');
+    for(const file of ['package.json','.nvmrc','rust-toolchain.toml','pnpm-workspace.yaml'])copyFileSync(join(root,file),join(tmp,file));
+    const lock=structuredClone(current.pnpmLock);delete lock.importers['packages/api-client'];
+    // JSON is valid YAML; this mutates the actual loader input on disk.
+    writeFileSync(join(tmp,'pnpm-lock.yaml'),JSON.stringify(lock));
+    const loaded=await loadRuntimeInputs(tmp);
+    assert(loaded.manifests['packages/api-client']);
+    assert.equal(validateRuntimeContract(loaded).status,'FAIL');
+  } finally {rmSync(tmp,{recursive:true,force:true});}
+});
+
+test('per-app env files are isolated and reloaded without polluting caller',async()=>{
+  const tmp=mkdtempSync(join(tmpdir(),'pre03-env-'));
+  const key='NEXT_PUBLIC_PRE03_CONFIG_PROBE';
+  const original=process.env[key];
+  assert.equal(original,undefined,'reserved fixture variable must not be injected');
+  try {
+    symlinkSync(join(root,'node_modules'),join(tmp,'node_modules'),'dir');
+    for(const app of ['terminal','website']) {
+      const dir=join(tmp,`apps/${app}`);mkdirSync(dir,{recursive:true});
+      writeFileSync(join(dir,'package.json'),'{}');writeFileSync(join(dir,'tsconfig.json'),'{}');
+      symlinkSync(join(root,`apps/${app}/node_modules`),join(dir,'node_modules'),'dir');
+      writeFileSync(join(dir,'next.config.ts'),'export default { output: "export" };');
+      writeFileSync(join(dir,'.env.local'),`${key}=${app}\n`);
+    }
+    assert.equal((await loadEffectiveConfig(tmp,'terminal')).publicEnv[key],'terminal');
+    assert.equal((await loadEffectiveConfig(tmp,'website')).publicEnv[key],'website');
+    writeFileSync(join(tmp,'apps/terminal/.env.local'),`${key}=changed\n`);
+    assert.equal((await loadEffectiveConfig(tmp,'terminal')).publicEnv[key],'changed');
+    assert.equal(process.env[key],original);
+    assert.notEqual(sourceDigest(root,{[key]:'terminal'}),sourceDigest(root,{[key]:'website'}));
   } finally {rmSync(tmp,{recursive:true,force:true});}
 });

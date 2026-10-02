@@ -1,10 +1,11 @@
+import { loadEffectiveConfig } from './pre03-next-config.mjs';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const excluded = new Set(['node_modules', '.next', 'out', 'dist', 'coverage', 'storybook-static', '.git', '__pycache__']);
-export function sourceDigest(root) {
+export function sourceDigest(root, environment = process.env) {
   const hash = createHash('sha256');
   function visit(relative) {
     for (const entry of readdirSync(join(root, relative), { withFileTypes: true }).sort((a,b) => a.name.localeCompare(b.name))) {
@@ -16,14 +17,16 @@ export function sourceDigest(root) {
   }
   for (const path of ['apps/terminal', 'apps/website', 'packages', 'scripts']) visit(path);
   for (const path of ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', '.nvmrc', 'tsconfig.base.json', 'eslint.config.mjs', 'docs/adr/20260814-pre03-runtime-stack.md']) hash.update(path).update(readFileSync(join(root,path)));
-  const profile = Object.fromEntries(Object.entries(process.env).filter(([name]) => name.startsWith('NEXT_PUBLIC_')).sort(([a],[b]) => a.localeCompare(b)));
+  const profile = Object.fromEntries(Object.entries(environment).filter(([name]) => name.startsWith('NEXT_PUBLIC_')).sort(([a],[b]) => a.localeCompare(b)));
   hash.update(JSON.stringify(profile));
   return hash.digest('hex');
 }
 export function writeBuildReceipt(root, app) {
   if (!['terminal', 'website'].includes(app)) throw new Error('Unknown Web application');
   const build = JSON.parse(readFileSync(join(root, `apps/${app}/.next/required-server-files.json`), 'utf8'));
-  const receipt = { schema:'quantos-pre03-build/v1', app, sourceDigest:sourceDigest(root), output:build.config.output, buildId:readFileSync(join(root, `apps/${app}/.next/BUILD_ID`),'utf8').trim() };
+  const effective = loadEffectiveConfig(root, app);
+  if (effective.output !== build.config.output) throw new Error(`${app}: build/config output mismatch`);
+  const receipt = { schema:'quantos-pre03-build/v1', app, sourceDigest:sourceDigest(root, effective.publicEnv), output:build.config.output, buildId:readFileSync(join(root, `apps/${app}/.next/BUILD_ID`),'utf8').trim() };
   writeFileSync(join(root, `apps/${app}/out/pre03-build.json`), JSON.stringify(receipt,null,2)+'\n');
   return receipt;
 }

@@ -1,0 +1,114 @@
+{
+  "baseline": "eaa294120ab2b62dfaa211c7dd3f9901fdb46738",
+  "scope": "repository phase-one Web acceptance",
+  "closed": 10,
+  "open": 0,
+  "issues": [
+    {
+      "id": "B-01",
+      "original_severity": "阻塞级",
+      "status": "CLOSED",
+      "verification": "计划 schema 与 validator 对齐；当前前端/核心/二期计划结构及负向回归通过",
+      "evidence": [
+        "plans.log",
+        "plan-negative.log"
+      ]
+    },
+    {
+      "id": "H-01",
+      "original_severity": "高危",
+      "status": "CLOSED",
+      "verification": "实际配置语义与构建绑定通过；补充逐应用环境隔离及 .env.local/注入 profile 校验",
+      "evidence": [
+        "web-negative.log",
+        "source.json",
+        "profile-check.json",
+        "before-env-file-smoke.log"
+      ]
+    },
+    {
+      "id": "H-02",
+      "original_severity": "高危",
+      "status": "CLOSED",
+      "verification": "真实资源、页面与脚本错误检查；伪 HTML/坏资源/脚本故障均被拒绝",
+      "evidence": [
+        "web-negative.log",
+        "web-smoke.log",
+        "browser-terminal.log",
+        "browser-website.log"
+      ]
+    },
+    {
+      "id": "M-01",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "ADR 现行版本与 29 项目标依赖一致，版本与重复行漂移被拒绝",
+      "evidence": [
+        "web-smoke.log",
+        "web-negative.log"
+      ]
+    },
+    {
+      "id": "M-02",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "默认 Web 无 Desktop 依赖；移除 Desktop 后通过；显式 Desktop companion workspace 仍受检",
+      "evidence": [
+        "web-isolation.log",
+        "desktop-reference.log"
+      ]
+    },
+    {
+      "id": "M-03",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "workflow 安装 Chromium 并执行 check:pre03:web 与 test:pre03；本地回归通过，远端执行未宣称",
+      "evidence": [
+        "web-negative.log"
+      ]
+    },
+    {
+      "id": "M-04",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "声明、specifier、解析图检查通过；补齐独立 manifest 发现、完整 importer、正确 link 与 overrides 校验",
+      "evidence": [
+        "before-lock-probes.json",
+        "web-negative.log",
+        "bootstrap.log",
+        "node-lock.log"
+      ]
+    },
+    {
+      "id": "M-05",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "React Testing Library/jsdom 直接声明；UI 19 项（含真实状态交互）与 workspace 177 项通过",
+      "evidence": [
+        "unit.log"
+      ]
+    },
+    {
+      "id": "M-06",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "标准静态 start 与真实 404 通过；推荐 .env.local 配置构建与回执链路补验通过",
+      "evidence": [
+        "build.log",
+        "start-browser.json",
+        "source.json"
+      ]
+    },
+    {
+      "id": "L-01",
+      "original_severity": "低危",
+      "status": "CLOSED",
+      "verification": "Next 插件加载，专用规则负向用例拒绝；构建无插件缺失警告",
+      "evidence": [
+        "lint.log",
+        "build.log",
+        "web-negative.log"
+      ]
+    }
+  ]
+}

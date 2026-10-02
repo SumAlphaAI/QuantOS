@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.5
+> 版本：3.6
 > 更新时间：2026-10-02
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.6`：PRE-03 再复验补齐 workspace importer/链接目标检查与逐应用 `.env.local` 构建绑定；10/10 问题关闭，主报告收敛为当前验收视图并保留历史证据。
 - `3.5`：PRE-03 整改对齐一期 Web 范围；前端任务不再包含指定模型复审块，校验器保留任务/依赖/顺序检查，模型状态仅作未运行边界。运行时配置、构建来源、资源和浏览器 smoke、锁一致性与负向 CI 纳入工程验收。
 
 - `3.4`：PRE-02 再复验补齐 Storybook 配置覆盖/死分支的门禁遗漏，27 项 Gate 回归与 18 项 UI 测试通过；主报告收敛为当前验收结果，历史问题和关闭依据独立归档。指定模型与正式 G0 状态不变。
@@ -141,7 +142,7 @@
 - 需求描述：技术栈落地
 - 主要动作：在现有 workspace 引入并验证目标依赖；建立 Next.js 官网与 Web Terminal PoC
 - 产出：运行时 ADR、依赖锁、最小 Web 构建与路由 smoke
-- 仓库整改：2026-10-02 PASS，原10项问题关闭、15/15控制点通过；29项关键依赖、Web正负套件24项、177项单元测试和实际Chromium/标准启动路由验证通过。见[整改记录](./audit/PRE-03-remediation-2026-10-02.md)及[证据清单](./audit/evidence/pre03-remediation-20261002/manifest.json)。远端CI、正式G0与provider/staging不据此验收。
+- 仓库再复验：2026-10-02 PASS，原10/10问题关闭、15/15控制点通过，当前各等级活动问题均为0；29项关键依赖、Web正负套件27项、Desktop显式参考4项、177项单元测试及实际Chromium/标准启动验证通过。干净源码、可用下载缓存与local-mock条件下主链32.278秒；`.env.local`/注入配置及旧回执拒绝均实测。见[当前复审报告](./audit/PRE-03-comprehensive-review-2026-10-02.md)及[本轮证据清单](./audit/evidence/pre03-recheck-20261002/manifest.json)。远端CI、正式G0、指定模型与provider/staging仍未验收。
 - 完成标准：新环境 ≤30 分钟完成 bootstrap/build/test；官网与 Web Terminal 目标路由可打开
 
 <a id="task-pre-04"></a>
