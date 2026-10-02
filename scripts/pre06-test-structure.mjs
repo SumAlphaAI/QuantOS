@@ -16,6 +16,34 @@ function hasAssertion(callback) {
   }
   visit(callback);return found;
 }
+
+// Baseline registrations must execute at module/suite scope, not inside a
+// skipped suite, conditional branch, or uncalled helper.
+function activeRegistration(call) {
+  const statement=call.parent;
+  if(!ts.isExpressionStatement(statement))return false;
+  const scope=statement.parent;
+  if(ts.isSourceFile(scope))return true;
+  if(!ts.isBlock(scope))return false;
+  const callback=scope.parent;
+  if(!ts.isArrowFunction(callback)&&!ts.isFunctionExpression(callback))return false;
+  const suite=callback.parent;
+  return ts.isCallExpression(suite)&&['describe','test.describe'].includes(suite.expression.getText())&&activeRegistration(suite)&&
+    !scope.statements.some(node=>ts.isReturnStatement(node)||ts.isThrowStatement(node));
+}
+
+function activeVisualAssertion(call) {
+  const awaited=call.parent;
+  if(!ts.isAwaitExpression(awaited)||!ts.isExpressionStatement(awaited.parent))return false;
+  const statement=awaited.parent;const body=statement.parent;
+  if(!ts.isBlock(body))return false;
+  const callback=body.parent;
+  if(!ts.isArrowFunction(callback)&&!ts.isFunctionExpression(callback))return false;
+  const registration=callback.parent;
+  if(!ts.isCallExpression(registration)||registration.expression.getText()!=='test'||!activeRegistration(registration))return false;
+  if(body.statements.slice(0,body.statements.indexOf(statement)).some(node=>ts.isReturnStatement(node)||ts.isThrowStatement(node)))return false;
+  return !calls(callback.getText()).some(node=>['test.skip','test.fixme'].includes(node.expression.getText()));
+}
 export const requiredContractTests=[
   '故意破坏 schema → 校验失败','故意破坏权限不变量（executable=true）→ 校验失败','故意注入敏感字段（venueApiKey）→ 校验失败',
   '未配置 operation 默认返回 501 且不伪造成功 fixture','版本冲突返回 409/currentVersion，客户端不得静默覆盖',
@@ -30,12 +58,12 @@ export function validateTestStructure(contractText, visualTexts) {
     const callback=test?.arguments[1];
     const expectedCall=/未配置|版本冲突|MFA 限流/.test(name)?'fetch':name.startsWith('all declared')?'validateFixtureInventory':'validateFixture';
     const executableCalls=callback?calls(callback.getText()):[];
-    if(!callback||!hasAssertion(callback)||!executableCalls.some(call=>call.expression.getText()===expectedCall))failures.push('missing executable contract assertion: '+name);
+    if(!callback||!activeRegistration(test)||!hasAssertion(callback)||!executableCalls.some(call=>call.expression.getText()===expectedCall))failures.push('missing executable contract assertion: '+name);
   }
   for(const [file,text] of Object.entries(visualTexts)) {
     const expected=file==='ui104-settings.spec.ts'?2:1;
     const actual=calls(text).filter(call=>ts.isPropertyAccessExpression(call.expression)&&call.expression.name.text==='toHaveScreenshot'&&call.expression.expression.getText()==='expect(page)'&&call.arguments[1]&&ts.isObjectLiteralExpression(call.arguments[1])&&call.arguments[1].properties.some(prop=>ts.isPropertyAssignment(prop)&&prop.name.getText()==='maxDiffPixelRatio'&&prop.initializer.getText()==='0.005'));
-    if(actual.length!==expected)failures.push('missing executable visual assertions: '+file);
+    if(actual.length!==expected||!actual.every(activeVisualAssertion))failures.push('missing executable visual assertions: '+file);
   }
   if(Object.keys(visualTexts).length!==3)failures.push('missing visual spec inventory');
   return failures;

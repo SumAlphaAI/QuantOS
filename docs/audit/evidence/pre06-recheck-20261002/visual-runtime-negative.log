@@ -1,0 +1,59 @@
+
+Running 1 test using 1 worker
+F
+::error file=tests/e2e/command.spec.ts,title=[chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题,line=70,col=24::  1) [chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ────────%0A    Error: expect(page).toHaveScreenshot(expected) failed%0A%0A      1199895 pixels (ratio 0.93 of all image pixels) are different.%0A%0A      Snapshot: command-1440-dark.png%0A%0A    Call log:%0A      - Expect "toHaveScreenshot(command-1440-dark.png)" with timeout 5000ms%0A        - verifying given screenshot expectation%0A      - taking page screenshot%0A        - disabled all CSS animations%0A      - waiting for fonts to load...%0A      - fonts loaded%0A      - 1199895 pixels (ratio 0.93 of all image pixels) are different.%0A      - waiting 100ms before taking screenshot%0A      - taking page screenshot%0A        - disabled all CSS animations%0A      - waiting for fonts to load...%0A      - fonts loaded%0A      - captured a stable screenshot%0A      - 1199895 pixels (ratio 0.93 of all image pixels) are different.%0A%0A%0A      68 |     await page.goto("/command");%0A      69 |     await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible();%0A    > 70 |     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });%0A         |                        ^%0A      71 |   });%0A      72 | });%0A      73 |%0A        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-remediation-_g60elzb/tests/e2e/command.spec.ts:70:24
+
+
+  1) [chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      1199895 pixels (ratio 0.93 of all image pixels) are different.
+
+      Snapshot: command-1440-dark.png
+
+    Call log:
+      - Expect "toHaveScreenshot(command-1440-dark.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 1199895 pixels (ratio 0.93 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 1199895 pixels (ratio 0.93 of all image pixels) are different.
+
+
+      68 |     await page.goto("/command");
+      69 |     await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible();
+    > 70 |     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });
+         |                        ^
+      71 |   });
+      72 | });
+      73 |
+        at /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre06-remediation-_g60elzb/tests/e2e/command.spec.ts:70:24
+
+    attachment #1: command-1440-dark (image/png) ───────────────────────────────────────────────────
+    Expected: tests/e2e/command.spec.ts-snapshots/command-1440-dark-chromium-darwin.png
+    Received: artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/command-1440-dark-actual.png
+    Diff:     artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/command-1440-dark-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ─────────
+::notice title=🎭 Playwright Run Summary::  1 failed%0A    [chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ─────────

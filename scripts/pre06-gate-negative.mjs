@@ -84,3 +84,18 @@ test("comments cannot restore weakened budget or critical coverage policy", () =
   assert.equal(validatePre06({...current,criticalConfig:current.criticalConfig.replace("branches: 100","branches: 0")+"\n// perFile: true, branches: 100, lines: 100, functions: 100, statements: 100"}).status,"FAIL");
   assert.equal(validatePre06({...current,criticalInventory:{...current.criticalInventory,files:current.criticalInventory.files.slice(1)}}).status,"FAIL");
 });
+
+test("skipped suites and inactive screenshot assertions cannot satisfy the baseline", () => {
+  for(const change of [
+    text=>text.replace('test("视觉基线：1440 深主题"','test.skip("视觉基线：1440 深主题"'),
+    text=>text.replace('test.describe(','test.describe.skip('),
+    text=>text.replace('await expect(page).toHaveScreenshot','if (false) await expect(page).toHaveScreenshot'),
+    text=>text.replace('await expect(page).toHaveScreenshot','return; await expect(page).toHaveScreenshot'),
+    text=>text.replace('await expect(page).toHaveScreenshot','test.skip(); await expect(page).toHaveScreenshot'),
+    text=>text.replace('await expect(page).toHaveScreenshot','expect(page).toHaveScreenshot'),
+  ]) {
+    const visualTests={...current.visualTests,'command.spec.ts':change(current.visualTests['command.spec.ts'])};
+    assert.equal(validatePre06({...current,visualTests}).status,'FAIL');
+  }
+  for(const method of ['skip','todo'])assert.equal(validatePre06({...current,contractTests:current.contractTests.replaceAll('describe(',`describe.${method}(`)}).status,'FAIL');
+});

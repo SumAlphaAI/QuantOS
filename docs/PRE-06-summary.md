@@ -1,7 +1,7 @@
 # PRE-06 Web 测试基线
 
-> 日期：2026-10-02；版本：3.0；范围：一期官网与Web Terminal。
-> 当前工程修复与验证见[整改验收记录](./audit/PRE-06-remediation-2026-10-02.md)及[证据清单](./audit/evidence/pre06-remediation-20261002/manifest.json)。2026-09-16结果是历史回执，不代表当前源码或远端验收。
+> 日期：2026-10-02；版本：3.1；范围：一期官网与Web Terminal。
+> 最新再复核见[当前复审报告](./audit/PRE-06-comprehensive-review-2026-10-02.md)及[再复核证据](./audit/evidence/pre06-recheck-20261002/manifest.json)，包含测试跳过与非执行截图断言防护。上一轮工程修复与验证见[整改验收记录](./audit/PRE-06-remediation-2026-10-02.md)及[证据清单](./audit/evidence/pre06-remediation-20261002/manifest.json)。2026-09-16结果是历史回执，不代表当前源码或远端验收。
 
 ## 1. 交付与门禁
 
