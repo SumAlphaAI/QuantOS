@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.17
-> 更新时间：2026-09-28
+> 版本：3.18
+> 更新时间：2026-10-02
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.18`：按依赖与验收顺序重排全部任务，将第三方任务穿插到所属阶段、阶段 Gate 移至各阶段末尾；区分 TP 评估、最小适配与完整验收，澄清 TP01-D/R02 及 TP07/TP12 的跨阶段关系。保留既有开发状态、复审记录、验收标准和证据；本次仅调整计划，不新增功能验收结论。
 
 - `3.17`：修复 F05 共享库测试串扰及 F03 手动基线，PR #6 正常合入 main `91e222f`；14/14 主线工作流、8/8 必需检查、正式签名与独立下载通过。随后经授权完成实际 Supabase 完整重建及独立远程参考库 drift，F0 为 7/7 PASS，关闭本阶段总 Gate。
 
@@ -91,7 +93,7 @@
 2. 用户身份以 Supabase `auth.users` 为唯一主锚点；QuantOS 的 actor、成员关系、workspace/account 授权等业务表必须显式映射 `auth.users.id`，不得额外建立平行密码账户体系。
 3. 凡是用户可见且承载 tenant/workspace/account 数据的业务表，默认启用 RLS 且默认拒绝；服务端只可通过受控 backend role/service role 执行跨租户维护、重放和运维任务。
 4. 所有业务表主键与跨表引用统一使用 UUID，数据库默认值采用 `gen_random_uuid()`；`created_at`、`updated_at`、`occurred_at`、`expires_at` 等时间字段统一使用 `timestamptz`。
-5. 每个数据库任务都必须提供 migration、RLS policy、索引、回滚说明和自动化验证；CI 必须覆盖本地重建、schema drift、RLS policy 测试与权限负向用例。
+5. 每个数据库任务都必须提供 migration、RLS policy、索引、回滚说明和自动化验证；CI 必须覆盖已配置 Supabase PostgreSQL 的受控远程重建、schema drift、RLS policy 测试与权限负向用例。本机不得建立 PostgreSQL/Supabase 服务或容器；静态检查与实际目标执行结果分别记录，重建等破坏性操作须取得对应授权。
 6. `outbox_event`、`inbox_receipt`、`dead_letter_event` 与 `projection_checkpoint` 是可靠事件闭环的受控表；生产消费者必须以 PostgreSQL 轮询、租约和 `FOR UPDATE SKIP LOCKED` 领取事件，`inbox_receipt` 的幂等唯一约束、指数退避、死信和 checkpoint 均须持久化。
 7. Supabase Realtime 仅用于消费者唤醒与已授权 UI 实时投影，不得充当可靠队列、事件事实来源或唯一 worker 调度器；断连、漏通知或订阅恢复后，消费者必须以数据库扫描补偿并最终处理全部已提交 outbox 事件。
 8. PostgreSQL advisory lock 只用于短时互斥协调；不得把其或 Realtime 作为通用缓存。可重建读模型、任务状态和命令事实均以 PostgreSQL 为真相源，缓存失效不得改变交易或风控结论。
@@ -108,12 +110,12 @@
 | `task_id` | 唯一任务标识；每个任务只有一个定义，使用 `task-<小写 ID>` 稳定锚点。 |
 | `task_type` | 任务类型标签；核心为 `CORE`，前端计划使用 `PREPARATION`、`PAGE_API`、`FRONTEND`、`WEBSITE`、`MILESTONE`。 |
 | `iteration` | 迭代周期；前端计划按两周一个 Sprint 分组，阶段 ID 与排期解耦。 |
-| `depends_on` | 依赖关系标记；前端任务使用 JSON 字符串数组，空依赖为 `[]`。`CORE:<ID>` 指向本计划的前置服务能力；其他 ID 指向前端计划内任务。核心任务原有依赖描述逐字保留在“依赖”字段。 |
+| `depends_on` | 依赖关系标记；前端任务使用 JSON 字符串数组，空依赖为 `[]`。`CORE:<ID>` 指向本计划的前置服务能力；其他 ID 指向前端计划内任务。核心任务依赖见“依赖”或“阶段/依赖”字段；执行顺序与跨阶段检查点见第 3 节。 |
 | `development_status` | `COMPLETED` 已开发完成；`IMPLEMENTED_PENDING_ACCEPTANCE` 已实现待验收；`PARTIAL` 部分完成；`UNSPECIFIED` 原计划未明确状态，待盘点。不得把未注明状态的任务推定为未开发或已完成。 |
 | `review_entry` | 指向本任务 `review-<小写 ID>` 的 Markdown 链接。 |
 | `workflow` | 开发-复审流转节点，详见前端计划；与开发状态、接口集成状态分别维护。 |
 | `review_model` | 固定为 `GPT-6 Astra`，指定预期复审模型；不代表已启动或已验证模型调用。 |
-| `review_status` | `NOT_STARTED`、`IN_REVIEW`、`CHANGES_REQUESTED`、`FIX_VALIDATION`、`RE_REVIEW`、`ACCEPTED`、`BLOCKED`。本次统一重置为 `NOT_STARTED`。 |
+| `review_status` | `NOT_STARTED`、`IN_REVIEW`、`CHANGES_REQUESTED`、`FIX_VALIDATION`、`RE_REVIEW`、`ACCEPTED`、`BLOCKED`。新增复审入口初始化为 `NOT_STARTED`；已有复审状态保持原记录。 |
 | `review_conclusion` | 复审结论；尚未执行为 `null`，不得填“通过”或“无问题”。 |
 | `issues` | 问题记录；预留为 `[]`，表示尚未录入，不代表零缺陷。录入后每项含 `issue_id`、`severity`、`description`、`evidence`、`status`。 |
 | `fix_tracking` | 修复验证追踪项；预留为 `[]`。录入后每项含 `issue_id`、`fix_ref`、`verification_command`、`verification_environment`、`verification_evidence`、`verification_status`。 |
@@ -124,25 +126,77 @@
 
 `node scripts/check-development-plans.mjs --fresh-review` 额外检查所有复审入口已清空；后续填写复审记录后使用不带此参数的结构校验。加 `--json` 可输出解析后的任务清单，供任务编排读取；它不自动调用模型或启动平台任务。
 
-开发完成标记仅迁移原文状态；F01/F02 的开发状态与外部验收状态分开，TP01 的子任务完成不等于整个 adapter 完成，TP02–TP05 的评估完成不等于生产准入。第 10 节原有 Gate 勾选保留为交付状态标记，不作为本轮复审结论；v3.0 从空白复审入口开始，后续复审以各任务当前记录为准。
+开发完成标记仅迁移原文状态；F01/F02 的开发状态与外部验收状态分开，TP01 的子任务完成不等于整个 adapter 完成，TP02–TP05 的评估完成不等于生产准入。各阶段末尾的 Gate 保留原有勾选及总验收记录；勾选不能替代任务复审与绑定源码 SHA 的证据；v3.0 从空白复审入口开始，后续复审以各任务当前记录为准。
 
-## 3. 阶段与依赖图
+### 2.6 通用第三方接入流程（每个 TP 任务均强制执行）
+
+1. 固定上游 repository URL、tag/commit、LICENSE、NOTICE、依赖锁和许可证结论；生成 SBOM/CVE 报告。
+2. 在隔离环境做 capability inventory：输入、输出、副作用、网络、秘密、存储、资源和测试覆盖。
+3. 只定义 QuantOS 自有契约；禁止公开上游 class、数据库 ID、配置格式或交易密钥。
+4. 实现 adapter/Engine manifest 或仅形成 ADR；执行 contract、负向权限、重放和升级/回滚测试。
+5. 将上游差异、补丁、升级策略、许可证义务写入 `UPSTREAM.md` 和 `THIRD_PARTY_NOTICES.md`。
+
+### 2.7 Vibe-Trading 同步借鉴与演进执行规则
+
+TP01 除遵循通用流程外，还必须执行以下专属规则：
+
+1. 统一采用“受控 Fork + `vibe_adapter` 适配层吸收”策略，`third_party/vibe-trading` 仅作只读参考，生产制品只能来自 `engines/vibe-adapter`。
+2. 上游更新按 S0–S3 分级处理：S0 安全响应、S1 兼容性响应、S2 计划同步、S3 研究借鉴；不同级别必须有独立 decision record、时限与阻断策略。
+3. 每次同步必须固定 upstream commit/tag，并记录 LICENSE/NOTICE hash、依赖锁 hash、diff 摘要、patch queue、制品 digest 与回滚指针；禁止直接跟踪 `main`。
+4. 只允许三种吸收方式：最小 cherry-pick 到 fork、在 adapter 重写等价逻辑、仅提取设计/测试思路；不得把上游 session/memory 主数据、订单工具或内部类型带入 QuantOS 核心协议。
+5. 每次同步都必须经过 canary 和回滚演练；未通过质量 Gate 的变更只能保留在隔离分支或标记为“仅借鉴”，不得进入默认 capability registry。
+
+Vibe-Trading 同步必须满足以下质量 Gate：
+
+| 维度 | 最低标准 |
+|---|---|
+| 可复现性 | 连续 3 次独立构建得到相同 `uv.lock`、制品 digest 与 SBOM；`UPSTREAM.md` 能反向追溯 `upstream SHA → fork patch set → adapter image digest → release manifest`。 |
+| 契约与功能 | `GetMetadata/Health/Execute/StreamExecute/Cancel` 100% contract 通过；20 个代表性 workflow fixture 可回放；取消 ≤2 秒确认；重启无重复 Artifact。 |
+| 安全负向 | 至少 100 个 fixture 覆盖 secret、venue、shell、文件、未授权网络、跨 tenant 数据；全部必须被拒绝并写审计。 |
+| 兼容与 UX | Web Research E2E 全绿；上游故障只允许暴露受控错误，不泄露内部堆栈、路径或凭证。 |
+| 发布与回滚 | canary 观察期内无未解释 P1；能力禁用或回滚在 ≤5 分钟完成，且 in-flight 请求有确定性取消或重试语义。 |
+
+TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依赖。每个任务的完成标准是形成可验证的“采用/不采用”结论和可移植设计输入；未通过 Gate 时不得被引入运行时、客户端或核心领域编译图。
+
+## 3. 从上到下的验收执行顺序
+
+### 3.1 执行规则与当前位置
+
+本文给出一条满足依赖关系的串行验收路线。依次阅读第 4–9 节，完成任务的开发、复审和证据闭环后继续下一项；每阶段末尾执行该阶段 Gate，Gate 未通过不得进入下一业务阶段。已验收且适用源码与环境未变化的任务引用既有证据；发生变化时按任务规定补齐回执。
+
+当前 F0 总 Gate 已在记录基线验收，下一项是 **R01 的正式复审验收**，随后 R02。`development_status: COMPLETED` 不等于 `review_status: ACCEPTED`；R01/R02 现有实现仍须按任务标准验收。本次重排未重新执行 F0 或任何目标环境 Gate。
+
+TP 是贯穿业务阶段的第三方评估与适配工作线。不能按 TP 编号一次性做完再开始 R1。下表中的“评估”检查点只确认版本、许可证、capability inventory、ADR 等对应交付；完整 adapter 和业务集成按后续任务标准验收。阶段名称表示所属执行窗口，不表示该阶段全部完成后才可启动窗口内的任务。
+
+### 3.2 顺序导航
+
+| 执行窗口 | 从左到右的验收顺序 | 末尾放行条件 |
+|---|---|---|
+| [F0](#execution-f0) | F01 → F02 → F03 → F04 → F05 → F06 → F07 → F08 → F09 → TP01-A → TP01-B → TP01–TP05 初步评估检查点 | [F0 Gate](#gate-f0) |
+| [R1](#execution-r1) | R01 → R02 → TP01-C → TP01-D → TP02 → TP03 → TP04 → TP05 → TP08 → TP09 → TP10 → TP11 → R03 → R04 → U01 | [R1 Gate](#gate-r1) |
+| [TP01 后续演进](#execution-tp01-evolution) | TP01-E → TP01-F → TP01-G → TP01 总项完整验收 | 完整适配、同步、canary 与回滚证据就绪，供 TP06 使用 |
+| [S2](#execution-s2) | S01 → TP06 → S02 → S03 → S04 → TP06–TP12 评估归档检查点（含 TP07/TP12 的提前评估） | [S2 Gate](#gate-s2) |
+| [X3](#execution-x3) | X01 → X02 → X03 → TP07 完整适配 → TP12 完整复审 → X04 → X05 → X06 | [X3 Gate](#gate-x3) |
+| [L4](#execution-l4) | L01 → L02 → L03 → L04 | [L4 Gate](#gate-l4)，仅 testnet/上线评审准备 |
+
+TP01 总项在 R1 开头定义总体范围；依次执行 A–G，最后在第 6 节完成总项验收。TP01-C/D 是 R1 的最小适配要求；E/F/G 是后续同步与演进要求，不反向阻塞 R1 Gate。TP06 原依赖 TP01，本串行路线保守地安排在 TP01 总项完整验收之后。
+
+TP07 属于 X3，但 S2 Gate 已要求 TP06–TP12 的评估结论和 ADR。因此第 7 节先做 TP07/TP12 的评估归档，第 8 节再验收完整任务；不得将提前评估写成 adapter/Paper 内核已通过。TP08–TP11 在 R1 完成相应评估，避免后续 S02/U01 或 S2 Gate 等待设计输入。
 
 ```mermaid
-flowchart LR
-  F["F0 工程与协议基线"] --> R["R1 研究与数据闭环"]
-  R --> S["S2 策略治理闭环"]
-  S --> X["X3 Paper + Shadow 执行闭环"]
-  X --> L["L4 Assisted Live 评审准备"]
-  F --> U["U Web Terminal"]
-  R --> U
-  S --> U
-  X --> U
-  F --> TP["TP 第三方评估/适配"]
-  TP --> R
-  TP --> S
-  TP --> X
+flowchart TD
+  F["F0 + 第三方基线评估"] --> FG["F0 Gate"]
+  FG --> R["R01/R02 + TP01-C/D + TP02–TP05 + TP08–TP11 + R03/R04/U01"]
+  R --> RG["R1 Gate"]
+  RG --> V["TP01-E/F/G + TP01 总验收"]
+  V --> S["S01/TP06/S02–S04 + TP07/TP12 提前评估"]
+  S --> SG["S2 Gate"]
+  SG --> X["X01–X03 + TP07/TP12 完整验收 + X04–X06"]
+  X --> XG["X3 Gate"]
+  XG --> L["L01–L04 + L4 Gate"]
 ```
+
+### 3.3 阶段交付与放行边界
 
 | 阶段 | 准入条件 | 阶段交付 | 放行条件 |
 |---|---|---|---|
@@ -152,6 +206,7 @@ flowchart LR
 | X3 Paper + Shadow | S2 | 风控、命令、执行边界、OMS、对账、Shadow、审计 | 订单状态可重建，连续 Shadow 验证通过 |
 | L4 Assisted Live 准备 | X3 | testnet venue、密钥、MFA、双人审批、加固与演练 | 仅形成上线评审证据；不自动开启实盘 |
 
+<a id="execution-f0"></a>
 ## 4. F0：工程、协议与运行时基线
 
 <a id="task-f01"></a>
@@ -202,7 +257,6 @@ flowchart LR
 - review_conclusion: F02-A11 CLOSED；原物理目录下callback与UI短模块ID冲突已精确重现并修复，两份实际Next配置采用固定八位空间且遇冲突失败。真实编译5/5回归、完整Terminal两种顺序61/61文件一致；main bb4ef3c完整SHA的8项检查及正式签名下载回执全部通过。当前未解决问题0，详见 [F02当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)。
 - issues: []
 - fix_tracking: []
-
 
 <a id="task-f03"></a>
 ### F03：领域协议 v1 与 SDK 生成
@@ -360,207 +414,12 @@ flowchart LR
 
 - review_model: `GPT-6 Astra`
 - review_status: `ACCEPTED`
-- review_conclusion: 2026-09-28 最终源码 `81cb5ae43f87e7d4b4be059b9eed036b755b4986` 的 CI、F09 push 目标和手动调度/Nightly 路径回执全部通过；内部完整 SHA、下载验证、两份目标各 7 个日志摘要和三类真实写入口 trace 均核验，F09-B04 关闭。原 14 项现为 9 项关闭（8 项代码修复及 B04 回执闭环）、5 项部分修复／移交，B01–B03/H05/M03 的运行期剩余范围仍由业务任务/L04 追踪。手动调度不代表已观察实际 cron；后续文档提交不自动继承该源码回执。详见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)、[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)、[逐项复核归档](./audit/F09-findings-recheck-2026-09-28.md)。F0 总 Gate 最新结论见第 10.1 节，F02 main 正式签名约束不变。
+- review_conclusion: 2026-09-28 最终源码 `81cb5ae43f87e7d4b4be059b9eed036b755b4986` 的 CI、F09 push 目标和手动调度/Nightly 路径回执全部通过；内部完整 SHA、下载验证、两份目标各 7 个日志摘要和三类真实写入口 trace 均核验，F09-B04 关闭。原 14 项现为 9 项关闭（8 项代码修复及 B04 回执闭环）、5 项部分修复／移交，B01–B03/H05/M03 的运行期剩余范围仍由业务任务/L04 追踪。手动调度不代表已观察实际 cron；后续文档提交不自动继承该源码回执。详见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)、[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)、[逐项复核归档](./audit/F09-findings-recheck-2026-09-28.md)。F0 总 Gate 最新结论见第 4.2 节，F02 main 正式签名约束不变。
 - issues: []
 - fix_tracking: []
-
-
-## 5. TP：第三方工程评估、适配与依赖治理
-
-### 5.1 通用第三方接入流程（每个 TP 任务均强制执行）
-
-1. 固定上游 repository URL、tag/commit、LICENSE、NOTICE、依赖锁和许可证结论；生成 SBOM/CVE 报告。
-2. 在隔离环境做 capability inventory：输入、输出、副作用、网络、秘密、存储、资源和测试覆盖。
-3. 只定义 QuantOS 自有契约；禁止公开上游 class、数据库 ID、配置格式或交易密钥。
-4. 实现 adapter/Engine manifest 或仅形成 ADR；执行 contract、负向权限、重放和升级/回滚测试。
-5. 将上游差异、补丁、升级策略、许可证义务写入 `UPSTREAM.md` 和 `THIRD_PARTY_NOTICES.md`。
-
-### 5.1.1 Vibe-Trading 同步借鉴与演进执行规则
-
-TP01 除遵循通用流程外，还必须执行以下专属规则：
-
-1. 统一采用“受控 Fork + `vibe_adapter` 适配层吸收”策略，`third_party/vibe-trading` 仅作只读参考，生产制品只能来自 `engines/vibe-adapter`。
-2. 上游更新按 S0–S3 分级处理：S0 安全响应、S1 兼容性响应、S2 计划同步、S3 研究借鉴；不同级别必须有独立 decision record、时限与阻断策略。
-3. 每次同步必须固定 upstream commit/tag，并记录 LICENSE/NOTICE hash、依赖锁 hash、diff 摘要、patch queue、制品 digest 与回滚指针；禁止直接跟踪 `main`。
-4. 只允许三种吸收方式：最小 cherry-pick 到 fork、在 adapter 重写等价逻辑、仅提取设计/测试思路；不得把上游 session/memory 主数据、订单工具或内部类型带入 QuantOS 核心协议。
-5. 每次同步都必须经过 canary 和回滚演练；未通过质量 Gate 的变更只能保留在隔离分支或标记为“仅借鉴”，不得进入默认 capability registry。
-
-Vibe-Trading 同步必须满足以下质量 Gate：
-
-| 维度 | 最低标准 |
-|---|---|
-| 可复现性 | 连续 3 次独立构建得到相同 `uv.lock`、制品 digest 与 SBOM；`UPSTREAM.md` 能反向追溯 `upstream SHA → fork patch set → adapter image digest → release manifest`。 |
-| 契约与功能 | `GetMetadata/Health/Execute/StreamExecute/Cancel` 100% contract 通过；20 个代表性 workflow fixture 可回放；取消 ≤2 秒确认；重启无重复 Artifact。 |
-| 安全负向 | 至少 100 个 fixture 覆盖 secret、venue、shell、文件、未授权网络、跨 tenant 数据；全部必须被拒绝并写审计。 |
-| 兼容与 UX | Web Research E2E 全绿；上游故障只允许暴露受控错误，不泄露内部堆栈、路径或凭证。 |
-| 发布与回滚 | canary 观察期内无未解释 P1；能力禁用或回滚在 ≤5 分钟完成，且 in-flight 请求有确定性取消或重试语义。 |
-
-### 5.2 采用/封装工程任务
-
-<a id="task-tp01"></a>
-#### TP01：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
-
-- task_id: `TP01`
-- task_type: `CORE`
-- development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01)
-- 需求描述：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
-- 接入范围与改造：仅评估后吸收可独立测试的 workflow/skill/streaming 设计；建立 `vibe_adapter`，会话、权限、事件、审计全部替换为 QuantOS 接口；按 S0–S3 分级执行官方仓库同步、选择性吸收、canary 与回滚；禁止其成为状态源或执行器
-- 交付物：capability inventory、许可证报告、只读副本、fork、`UPSTREAM.md`、sync decision records、adapter ADR、自动化回归测试
-- 集成验收标准：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动
-- 阶段/依赖：F07、F08；R1 前完成最小适配
-
-<a id="review-tp01"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp02"></a>
-#### TP02：RD-Agent：自动研究/实验 Engine
-
-- task_id: `TP02`
-- task_type: `CORE`
-- development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp02)
-- 需求描述：RD-Agent：自动研究/实验 Engine
-- 接入范围与改造：独立 Python Engine，映射 hypothesis/experiment capability 到自有 `ResearchArtifact`；限制网络、数据权限和 Artifact 写入
-- 交付物：`engines/rd-agent`、manifest、运行时打包、adapter、fixtures
-- 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s
-- 阶段/依赖：F08；R1
-
-<a id="review-tp02"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp03"></a>
-#### TP03：LLMQuant：特征、因子、模型、Signal Engine
-
-- task_id: `TP03`
-- task_type: `CORE`
-- development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp03)
-- 需求描述：LLMQuant：特征、因子、模型、Signal Engine
-- 接入范围与改造：封装为 `quant.signal.v1`；输入必须是 release/feature snapshot，输出自有 Signal/diagnostics，不暴露上游类型
-- 交付物：`engines/llmquant`、manifest、Signal mapper、model provenance
-- 集成验收标准：100 组固定输入结果 schema 100% 有效；每条 Signal 含策略/模型/数据版本、置信度和时效；无 OMS/venue/secret import；流式取消 ≤2s 生效
-- 阶段/依赖：F08、F05；R1
-
-<a id="review-tp03"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp04"></a>
-#### TP04：TradingAgents：多 Agent 决策 Engine
-
-- task_id: `TP04`
-- task_type: `CORE`
-- development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp04)
-- 需求描述：TradingAgents：多 Agent 决策 Engine
-- 接入范围与改造：封装为 `decision.proposal.v1`；保留多观点与证据，输出仅 `TradeProposal`；移除/屏蔽任何订单工具
-- 交付物：`engines/trading-agents`、proposal mapper、policy fixtures
-- 集成验收标准：100% Proposal 带证据、反方观点、失效时间；所有输出 `executable=false`；尝试调用 order/secret tool 必失败并审计；固定 fixture 可重放
-- 阶段/依赖：F08、TP03；R1
-
-<a id="review-tp04"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp05"></a>
-#### TP05：OpenBB：数据/研究适配服务
-
-- task_id: `TP05`
-- task_type: `CORE`
-- development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp05)
-- 需求描述：OpenBB：数据/研究适配服务
-- 接入范围与改造：隔离为 `data.query.v1` provider；实现自有 Data Contract、缓存/血缘/许可证标签；AGPL/商业许可未结论前只在隔离评估环境启用
-- 交付物：`engines/openbb-adapter`、provider interface、法律决策 ADR、替代 provider mock
-- 集成验收标准：结果 100% 含来源/许可/schema/hash；未经批准的数据不可进入交易流程；服务端无核心领域依赖；许可证 Gate 未通过时生产构建拒绝包含该制品
-- 阶段/依赖：F05、F08；R1
-
-<a id="review-tp05"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp06"></a>
-#### TP06：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选
-
-- task_id: `TP06`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp06)
-- 需求描述：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选
-- 接入范围与改造：单独评估策略生成、静态检查与回测编排；输出策略草稿和检查 Artifact，绝不部署或进入 OMS
-- 交付物：`engines/strategy-lab` 或 ADR、generator adapter、静态分析 fixtures
-- 集成验收标准：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现
-- 阶段/依赖：F08、TP01；S2
-
-<a id="review-tp06"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp07"></a>
-#### TP07：NautilusTrader：研究、仿真、OMS、执行内核
-
-- task_id: `TP07`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp07)
-- 需求描述：NautilusTrader：研究、仿真、OMS、执行内核
-- 接入范围与改造：独立服务/进程边界；将 QuantOS Trading Protocol 映射为其 API；不引入其类型到 core；LGPL 合规与替换预案
-- 交付物：`services/execution-gateway`、Nautilus boundary adapter、Paper kernel、LICENSE ADR
-- 集成验收标准：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session
-- 阶段/依赖：F03、F06、F08；X3
-
-<a id="review-tp07"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-
-### 5.2.1 TP01 可执行路线图（V0–V3）
 
 <a id="task-tp01-a"></a>
-#### TP01-A：上游只读副本与 Fork 基线
+### TP01-A：上游只读副本与 Fork 基线
 
 - task_id: `TP01-A`
 - task_type: `CORE`
@@ -574,7 +433,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - 依赖：F01、F02
 
 <a id="review-tp01-a"></a>
-##### GPT-6 Astra 功能复审
+#### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
 - review_status: `NOT_STARTED`
@@ -583,7 +442,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - fix_tracking: []
 
 <a id="task-tp01-b"></a>
-#### TP01-B：capability inventory 与禁止耦合清单
+### TP01-B：capability inventory 与禁止耦合清单
 
 - task_id: `TP01-B`
 - task_type: `CORE`
@@ -597,7 +456,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - 依赖：TP01-A、F07
 
 <a id="review-tp01-b"></a>
-##### GPT-6 Astra 功能复审
+#### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
 - review_status: `NOT_STARTED`
@@ -605,237 +464,52 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - issues: []
 - fix_tracking: []
 
-<a id="task-tp01-c"></a>
-#### TP01-C：`vibe_adapter` skeleton
+### 4.1 TP01–TP05 初步评估检查点
 
-- task_id: `TP01-C`
+按已有 F0 Gate 记录核验固定版本、许可证与 capability inventory，以及 TP01-A/B 的基线材料。此处仅验收 F0 所需评估范围；[TP01](#task-tp01)、[TP02](#task-tp02)、[TP03](#task-tp03)、[TP04](#task-tp04)、[TP05](#task-tp05) 的完整定义与后续适配验收见 R1。保持这些总项现有 `PARTIAL` 状态，不把初步评估升级为整体 ACCEPTED。
+
+<a id="101-f0-gate"></a>
+<a id="gate-f0"></a>
+### 4.2 F0 Gate：本阶段末尾验收
+
+- 总验收状态：`ACCEPTED`（2026-09-28），F0 总 Gate 关闭；验收主线 `91e222f744fd350ab9db80ba7554bd1fee9194fa`，7/7 条件 PASS（100%）。F05 共享库串扰、F03 手动基线已修复；14/14 主线工作流、8/8 必需检查、正式签名/独立下载，以及同 SHA F05 Supabase 完整重建目标 Gate 全部通过。实际 34 个迁移重建、独立远程参考库七类目录 drift 与正反向检查、重建后 RLS 通过，临时参考库已删除。详见 [整改与最终主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)及[证据索引](./audit/evidence/f0-91e222f/index.json)。[首次总验收](./audit/F0-total-gate-acceptance-2026-09-28.md)保留历史失败。后续文档提交不自动继承此源码回执；L04 上线前范围不变。
+
+- [x] F01–F09 开发阶段 Gate 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。部署后的 F09 运行期验收归 L04 上线前 Gate。
+- [x] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
+- [x] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
+- [x] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量规则与 ADR 模板已纳入开发阶段自动化检查，运行期通知另按 L04 验收。
+- [x] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
+- [x] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
+- [x] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。
+
+<a id="execution-r1"></a>
+## 5. R1：数据、第三方 Engine 与 Terminal 研究闭环
+
+TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考评估任务，完成采用决策即可，不要求引入生产依赖。
+
+<a id="task-tp01"></a>
+### TP01：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
+
+- task_id: `TP01`
 - task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-c)
-- 需求描述：`vibe_adapter` skeleton
-- 路线阶段：V1 最小适配
-- 开发范围：实现 manifest、UDS gRPC、Artifact API、context translator、工具 allowlist、mock fixture
-- 交付物：`engines/vibe-adapter`、contract tests、mock adapter
-- 验收标准：五个 Engine RPC 100% 通过；无未授权 egress、secret 或 venue capability
-- 依赖：TP01-B、F08
+- development_status: `PARTIAL`
+- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
+- review_entry: [GPT-6 Astra 复审入口](#review-tp01)
+- 需求描述：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
+- 接入范围与改造：仅评估后吸收可独立测试的 workflow/skill/streaming 设计；建立 `vibe_adapter`，会话、权限、事件、审计全部替换为 QuantOS 接口；按 S0–S3 分级执行官方仓库同步、选择性吸收、canary 与回滚；禁止其成为状态源或执行器
+- 交付物：capability inventory、许可证报告、只读副本、fork、`UPSTREAM.md`、sync decision records、adapter ADR、自动化回归测试
+- 集成验收标准：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动
+- 执行定位：本项是 TP01-A–G 的总体范围与最终复审入口，不是要求立即完成的单步任务。F0 验收 A/B，R1 验收 C/D；第 6 节完成 E/F/G 后再进行本总项完整验收。
+- 阶段/依赖：F07、F08；TP01-C 可在 R1 开始时执行，TP01-D 在 R02 验收后执行；最小适配须在 R1 Gate 前完成
 
-<a id="review-tp01-c"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp01-d"></a>
-#### TP01-D：选择性吸收与最小 patch 队列
-
-- task_id: `TP01-D`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-d)
-- 需求描述：选择性吸收与最小 patch 队列
-- 路线阶段：V1 最小适配
-- 开发范围：只迁移通过 inventory 的研究 workflow/streaming 设计，替换 session/审计/权限调用
-- 交付物：fork patch queue、adapter modules、sync ADR
-- 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow
-- 依赖：TP01-C、R02
-
-<a id="review-tp01-d"></a>
-##### GPT-6 Astra 功能复审
+<a id="review-tp01"></a>
+#### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
 - review_status: `NOT_STARTED`
 - review_conclusion: null
 - issues: []
 - fix_tracking: []
-
-<a id="task-tp01-e"></a>
-#### TP01-E：同步自动化与分级阻断
-
-- task_id: `TP01-E`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-e)
-- 需求描述：同步自动化与分级阻断
-- 路线阶段：V2 受控同步
-- 开发范围：实现 S0–S3 分级、diff/range-diff、许可证/依赖 diff、candidate issue、质量流水线
-- 交付物：`sync-vibe` 工具、CI workflow、decision records
-- 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果
-- 依赖：TP01-D、F02
-
-<a id="review-tp01-e"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp01-f"></a>
-#### TP01-F：canary、观测与回滚
-
-- task_id: `TP01-F`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-f)
-- 需求描述：canary、观测与回滚
-- 路线阶段：V2 受控同步
-- 开发范围：capability flag、影子任务、阈值告警、签名制品、一键禁用/回滚
-- 交付物：dashboards、alert rules、rollback runbook、drill report
-- 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整
-- 依赖：TP01-E、F09
-
-<a id="review-tp01-f"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp01-g"></a>
-#### TP01-G：上游贡献与脱钩替换
-
-- task_id: `TP01-G`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-g)
-- 需求描述：上游贡献与脱钩替换
-- 路线阶段：V3 演进
-- 开发范围：将通用 bugfix 回馈上游，逐步以 QuantOS-native trait/protocol 替换 fork 内耦合模块
-- 交付物：upstream PR 记录、deprecation plan、替换测试
-- 验收标准：不依赖 fork 内部类型；任一模块可替换且业务协议不变
-- 依赖：TP01-F、R03
-
-<a id="review-tp01-g"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-
-### 5.3 仅参考工程的独立评估任务
-
-这些项目不作为 Day-1 生产依赖。每个任务的完成标准是形成可验证的“采用/不采用”结论和可移植设计输入；未通过 Gate 时不得被引入运行时、客户端或核心领域编译图。
-
-<a id="task-tp08"></a>
-#### TP08：Qlib
-
-- task_id: `TP08`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp08)
-- 需求描述：Qlib
-- 评估问题与限定范围：评估数据集、因子实验、工作流复现能力；不引入第二 Quant Core
-- 交付物：ADR、capability matrix、与 `DataSnapshot/ResearchArtifact` 映射样例
-- 验收标准：固定 commit、许可证/SBOM/CVE 记录齐全；完成 3 个离线实验映射；结论明确“仅参考/隔离 adapter/拒绝”及替换成本
-- 阶段/依赖：R1，F05
-
-<a id="review-tp08"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp09"></a>
-#### TP09：TrendRadar
-
-- task_id: `TP09`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp09)
-- 需求描述：TrendRadar
-- 评估问题与限定范围：评估趋势检测、新闻/主题信号的输入质量与血缘要求
-- 交付物：ADR、趋势 signal schema 样例、数据许可清单
-- 验收标准：3 组离线输入可映射至自有 Signal；缺少许可证/来源的输出 100% 被标为不可交易；无生产依赖进入 lockfile
-- 阶段/依赖：R1，TP03
-
-<a id="review-tp09"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp10"></a>
-#### TP10：ValueCell
-
-- task_id: `TP10`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp10)
-- 需求描述：ValueCell
-- 评估问题与限定范围：评估投研 UI/工作流的信息架构，不复制其数据模型或账户体系
-- 交付物：UX gap report、可复用交互清单、禁止耦合清单
-- 验收标准：至少 10 个 UI 模式映射至 Terminal design spec；无源码复制/运行时依赖；所有差异写 ADR
-- 阶段/依赖：U01 前
-
-<a id="review-tp10"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp11"></a>
-#### TP11：OpenStock
-
-- task_id: `TP11`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp11)
-- 需求描述：OpenStock
-- 评估问题与限定范围：评估公开市场数据、策略/投研展示能力与数据许可风险
-- 交付物：provider comparison、Data Contract fixture、许可证结论
-- 验收标准：2 个 provider fixture 完成血缘/质量映射；任何未授权数据无法生成可用 DataSnapshot；无 Day-1 依赖
-- 阶段/依赖：R1，TP05
-
-<a id="review-tp11"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-tp12"></a>
-#### TP12：nautilus_agents
-
-- task_id: `TP12`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp12)
-- 需求描述：nautilus_agents
-- 评估问题与限定范围：评估 Agent 与交易内核协作边界，提取反模式与工具设计经验
-- 交付物：ADR、threat model 补充、接口差异清单
-- 验收标准：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖
-- 阶段/依赖：F07、TP07
-
-<a id="review-tp12"></a>
-##### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-## 6. R1：数据、研究、信号与 Terminal 研究闭环
 
 <a id="task-r01"></a>
 ### R01：Market ingestion 与标准化行情契约
@@ -873,6 +547,232 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - 依赖：R01、F06
 
 <a id="review-r02"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp01-c"></a>
+### TP01-C：`vibe_adapter` skeleton
+
+- task_id: `TP01-C`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp01-c)
+- 需求描述：`vibe_adapter` skeleton
+- 路线阶段：V1 最小适配
+- 开发范围：实现 manifest、UDS gRPC、Artifact API、context translator、工具 allowlist、mock fixture
+- 交付物：`engines/vibe-adapter`、contract tests、mock adapter
+- 验收标准：五个 Engine RPC 100% 通过；无未授权 egress、secret 或 venue capability
+- 依赖：TP01-B、F08
+
+<a id="review-tp01-c"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp01-d"></a>
+### TP01-D：选择性吸收与最小 patch 队列
+
+- task_id: `TP01-D`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp01-d)
+- 需求描述：选择性吸收与最小 patch 队列
+- 路线阶段：V1 最小适配
+- 开发范围：只迁移通过 inventory 的研究 workflow/streaming 设计，替换 session/审计/权限调用
+- 交付物：fork patch queue、adapter modules、sync ADR
+- 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow
+- 依赖：TP01-C、R02
+
+<a id="review-tp01-d"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp02"></a>
+### TP02：RD-Agent：自动研究/实验 Engine
+
+- task_id: `TP02`
+- task_type: `CORE`
+- development_status: `PARTIAL`
+- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
+- review_entry: [GPT-6 Astra 复审入口](#review-tp02)
+- 需求描述：RD-Agent：自动研究/实验 Engine
+- 接入范围与改造：独立 Python Engine，映射 hypothesis/experiment capability 到自有 `ResearchArtifact`；限制网络、数据权限和 Artifact 写入
+- 交付物：`engines/rd-agent`、manifest、运行时打包、adapter、fixtures
+- 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s
+- 阶段/依赖：F08；R1
+
+<a id="review-tp02"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp03"></a>
+### TP03：LLMQuant：特征、因子、模型、Signal Engine
+
+- task_id: `TP03`
+- task_type: `CORE`
+- development_status: `PARTIAL`
+- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
+- review_entry: [GPT-6 Astra 复审入口](#review-tp03)
+- 需求描述：LLMQuant：特征、因子、模型、Signal Engine
+- 接入范围与改造：封装为 `quant.signal.v1`；输入必须是 release/feature snapshot，输出自有 Signal/diagnostics，不暴露上游类型
+- 交付物：`engines/llmquant`、manifest、Signal mapper、model provenance
+- 集成验收标准：100 组固定输入结果 schema 100% 有效；每条 Signal 含策略/模型/数据版本、置信度和时效；无 OMS/venue/secret import；流式取消 ≤2s 生效
+- 阶段/依赖：F08、F05；R1
+
+<a id="review-tp03"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp04"></a>
+### TP04：TradingAgents：多 Agent 决策 Engine
+
+- task_id: `TP04`
+- task_type: `CORE`
+- development_status: `PARTIAL`
+- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
+- review_entry: [GPT-6 Astra 复审入口](#review-tp04)
+- 需求描述：TradingAgents：多 Agent 决策 Engine
+- 接入范围与改造：封装为 `decision.proposal.v1`；保留多观点与证据，输出仅 `TradeProposal`；移除/屏蔽任何订单工具
+- 交付物：`engines/trading-agents`、proposal mapper、policy fixtures
+- 集成验收标准：100% Proposal 带证据、反方观点、失效时间；所有输出 `executable=false`；尝试调用 order/secret tool 必失败并审计；固定 fixture 可重放
+- 阶段/依赖：F08、TP03；R1
+
+<a id="review-tp04"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp05"></a>
+### TP05：OpenBB：数据/研究适配服务
+
+- task_id: `TP05`
+- task_type: `CORE`
+- development_status: `PARTIAL`
+- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
+- review_entry: [GPT-6 Astra 复审入口](#review-tp05)
+- 需求描述：OpenBB：数据/研究适配服务
+- 接入范围与改造：隔离为 `data.query.v1` provider；实现自有 Data Contract、缓存/血缘/许可证标签；AGPL/商业许可未结论前只在隔离评估环境启用
+- 交付物：`engines/openbb-adapter`、provider interface、法律决策 ADR、替代 provider mock
+- 集成验收标准：结果 100% 含来源/许可/schema/hash；未经批准的数据不可进入交易流程；服务端无核心领域依赖；许可证 Gate 未通过时生产构建拒绝包含该制品
+- 阶段/依赖：F05、F08；R1
+
+<a id="review-tp05"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp08"></a>
+### TP08：Qlib
+
+- task_id: `TP08`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp08)
+- 需求描述：Qlib
+- 评估问题与限定范围：评估数据集、因子实验、工作流复现能力；不引入第二 Quant Core
+- 交付物：ADR、capability matrix、与 `DataSnapshot/ResearchArtifact` 映射样例
+- 验收标准：固定 commit、许可证/SBOM/CVE 记录齐全；完成 3 个离线实验映射；结论明确“仅参考/隔离 adapter/拒绝”及替换成本
+- 阶段/依赖：R1，F05
+
+<a id="review-tp08"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp09"></a>
+### TP09：TrendRadar
+
+- task_id: `TP09`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp09)
+- 需求描述：TrendRadar
+- 评估问题与限定范围：评估趋势检测、新闻/主题信号的输入质量与血缘要求
+- 交付物：ADR、趋势 signal schema 样例、数据许可清单
+- 验收标准：3 组离线输入可映射至自有 Signal；缺少许可证/来源的输出 100% 被标为不可交易；无生产依赖进入 lockfile
+- 阶段/依赖：R1，TP03
+
+<a id="review-tp09"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp10"></a>
+### TP10：ValueCell
+
+- task_id: `TP10`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp10)
+- 需求描述：ValueCell
+- 评估问题与限定范围：评估投研 UI/工作流的信息架构，不复制其数据模型或账户体系
+- 交付物：UX gap report、可复用交互清单、禁止耦合清单
+- 验收标准：至少 10 个 UI 模式映射至 Terminal design spec；无源码复制/运行时依赖；所有差异写 ADR
+- 阶段/依赖：U01 前
+
+<a id="review-tp10"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp11"></a>
+### TP11：OpenStock
+
+- task_id: `TP11`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp11)
+- 需求描述：OpenStock
+- 评估问题与限定范围：评估公开市场数据、策略/投研展示能力与数据许可风险
+- 交付物：provider comparison、Data Contract fixture、许可证结论
+- 验收标准：2 个 provider fixture 完成血缘/质量映射；任何未授权数据无法生成可用 DataSnapshot；无 Day-1 依赖
+- 阶段/依赖：R1，TP05
+
+<a id="review-tp11"></a>
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
@@ -947,7 +847,92 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - issues: []
 - fix_tracking: []
 
+<a id="102-r1-gate"></a>
+<a id="gate-r1"></a>
+### 5.1 R1 Gate：本阶段末尾验收
 
+- [ ] R01–R04、U01 完成；研究、Signal、Proposal 全部可回放且无交易副作用。
+- [ ] RD-Agent、LLMQuant、TradingAgents 的 contract/权限/重放测试通过；OpenBB 仅在许可证 Gate 允许时启用。
+- [ ] Web Research 用例全绿；所有 Artifact/数据快照可进入 Audit。
+- [ ] TP01-C、TP01-D 完成；`vibe_adapter` 的 contract、负向安全、回放与隔离运行测试通过，且移除 adapter 不影响其他 workflow 启动。
+
+<a id="execution-tp01-evolution"></a>
+## 6. TP01 后续演进：受控同步、回滚与总项验收
+
+<a id="task-tp01-e"></a>
+### TP01-E：同步自动化与分级阻断
+
+- task_id: `TP01-E`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp01-e)
+- 需求描述：同步自动化与分级阻断
+- 路线阶段：V2 受控同步
+- 开发范围：实现 S0–S3 分级、diff/range-diff、许可证/依赖 diff、candidate issue、质量流水线
+- 交付物：`sync-vibe` 工具、CI workflow、decision records
+- 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果
+- 依赖：TP01-D、F02
+
+<a id="review-tp01-e"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp01-f"></a>
+### TP01-F：canary、观测与回滚
+
+- task_id: `TP01-F`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp01-f)
+- 需求描述：canary、观测与回滚
+- 路线阶段：V2 受控同步
+- 开发范围：capability flag、影子任务、阈值告警、签名制品、一键禁用/回滚
+- 交付物：dashboards、alert rules、rollback runbook、drill report
+- 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整
+- 依赖：TP01-E、F09
+
+<a id="review-tp01-f"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp01-g"></a>
+### TP01-G：上游贡献与脱钩替换
+
+- task_id: `TP01-G`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp01-g)
+- 需求描述：上游贡献与脱钩替换
+- 路线阶段：V3 演进
+- 开发范围：将通用 bugfix 回馈上游，逐步以 QuantOS-native trait/protocol 替换 fork 内耦合模块
+- 交付物：upstream PR 记录、deprecation plan、替换测试
+- 验收标准：不依赖 fork 内部类型；任一模块可替换且业务协议不变
+- 依赖：TP01-F、R03
+
+<a id="review-tp01-g"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+### 6.1 TP01 总项完整验收检查点
+
+在 TP01-A–G 按各自标准验收后，回到 [TP01 总项复审入口](#review-tp01)，核验总体集成标准及第 2.7 节质量 Gate，包括三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、Web Research E2E、7 天 canary 和 ≤5 分钟回滚。全部证据满足后才将总项标为 ACCEPTED；仅完成 C/D 不足以放行依赖 TP01 总项的 TP06。
+
+<a id="execution-s2"></a>
 ## 7. S2：策略实验、验证、发布与审批
 
 <a id="task-s01"></a>
@@ -964,6 +949,28 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - 依赖：R02、R03
 
 <a id="review-s01"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp06"></a>
+### TP06：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选
+
+- task_id: `TP06`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp06)
+- 需求描述：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选
+- 接入范围与改造：单独评估策略生成、静态检查与回测编排；输出策略草稿和检查 Artifact，绝不部署或进入 OMS
+- 交付物：`engines/strategy-lab` 或 ADR、generator adapter、静态分析 fixtures
+- 集成验收标准：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现
+- 阶段/依赖：F08、TP01；S2
+
+<a id="review-tp06"></a>
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
@@ -1038,7 +1045,28 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - issues: []
 - fix_tracking: []
 
+### 7.1 TP06–TP12 评估归档检查点
 
+执行 S2 Gate 前核验以下材料。评估结论可为仅参考、隔离适配或拒绝；未经明确 adoption 不得新增运行时依赖。
+
+| 任务 | 本检查点交付 | 完整验收位置 |
+|---|---|---|
+| TP06 | 策略开发参考/适配候选的评估与 ADR | 本节 TP06 |
+| TP07 | 固定版本、许可证/SBOM/CVE、capability inventory、执行边界与替换预案 ADR | [X3 TP07](#task-tp07)，在 X03 之后 |
+| TP08–TP11 | R1 已完成的评估结论及 ADR/设计输入归档 | 第 5 节对应任务 |
+| TP12 | 基于 TP07 评估材料形成协作边界评估、威胁模型、禁止耦合规则与 ADR | [X3 TP12](#task-tp12)，在 TP07 完整验收之后 |
+
+TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定的提前评估。S2 Gate 的评估要求不等于放行 X3 的实现或集成验收。
+
+<a id="103-s2-gate"></a>
+<a id="gate-s2"></a>
+### 7.2 S2 Gate：本阶段末尾验收
+
+- [ ] S01–S04 完成；look-ahead/数据泄漏/未审批策略 100% 阻断。
+- [ ] Release 包含全部不可变证据，且可部署目标只有 Paper/Shadow。
+- [ ] TP06–TP12 的评估结论和 ADR 已归档；未经明确 adoption 的项目无运行时依赖。
+
+<a id="execution-x3"></a>
 ## 8. X3：确定性风险、Paper、Shadow、对账与审计闭环
 
 <a id="task-x01"></a>
@@ -1099,6 +1127,52 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - 依赖：R04、X02
 
 <a id="review-x03"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp07"></a>
+### TP07：NautilusTrader：研究、仿真、OMS、执行内核
+
+- task_id: `TP07`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp07)
+- 需求描述：NautilusTrader：研究、仿真、OMS、执行内核
+- 接入范围与改造：独立服务/进程边界；将 QuantOS Trading Protocol 映射为其 API；不引入其类型到 core；LGPL 合规与替换预案
+- 交付物：`services/execution-gateway`、Nautilus boundary adapter、Paper kernel、LICENSE ADR
+- 集成验收标准：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session
+- 执行定位：S2 Gate 前仅完成固定版本、许可证、capability inventory 和 ADR 评估；本节在 X03 后完成 adapter/Paper 内核与集成验收。S2 的评估完成不代表本项 ACCEPTED。
+- 阶段/依赖：F03、F06、F08；X3
+
+<a id="review-tp07"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="task-tp12"></a>
+### TP12：nautilus_agents
+
+- task_id: `TP12`
+- task_type: `CORE`
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-tp12)
+- 需求描述：nautilus_agents
+- 评估问题与限定范围：评估 Agent 与交易内核协作边界，提取反模式与工具设计经验
+- 交付物：ADR、threat model 补充、接口差异清单
+- 验收标准：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖
+- 执行定位：S2 Gate 前基于 TP07 评估材料归档评估结论和 ADR；本项完整复审在 TP07 的 X3 集成验收之后执行。
+- 阶段/依赖：F07、TP07
+
+<a id="review-tp12"></a>
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
@@ -1173,7 +1247,15 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - issues: []
 - fix_tracking: []
 
+<a id="104-x3-gate"></a>
+<a id="gate-x3"></a>
+### 8.1 X3 Gate：本阶段末尾验收
 
+- [ ] X01–X06 完成；连续 10 个交易日 Shadow，对账未解释差异=0。
+- [ ] 命令、订单、成交、仓位和审计链可重建；命令重复执行=0。
+- [ ] kill switch、数据陈旧、venue 故障、审批拒绝、事件重放演练全绿。
+
+<a id="execution-l4"></a>
 ## 9. L4：Assisted Live 上线评审准备（仅 testnet）
 
 <a id="task-l01"></a>
@@ -1266,41 +1348,9 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - issues: []
 - fix_tracking: []
 
-
-## 10. 阶段 Gate、命令与回归清单
-
-### 10.1 F0 Gate
-
-- 总验收状态：`ACCEPTED`（2026-09-28），F0 总 Gate 关闭；验收主线 `91e222f744fd350ab9db80ba7554bd1fee9194fa`，7/7 条件 PASS（100%）。F05 共享库串扰、F03 手动基线已修复；14/14 主线工作流、8/8 必需检查、正式签名/独立下载，以及同 SHA F05 Supabase 完整重建目标 Gate 全部通过。实际 34 个迁移重建、独立远程参考库七类目录 drift 与正反向检查、重建后 RLS 通过，临时参考库已删除。详见 [整改与最终主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)及[证据索引](./audit/evidence/f0-91e222f/index.json)。[首次总验收](./audit/F0-total-gate-acceptance-2026-09-28.md)保留历史失败。后续文档提交不自动继承此源码回执；L04 上线前范围不变。
-
-- [x] F01–F09 开发阶段 Gate 完成；三语言 SDK、Mock Engine、事件重放和默认拒绝鉴权全绿。部署后的 F09 运行期验收归 L04 上线前 Gate。
-- [x] 基于 `DATABASE_URL` 的远程 migration 重放、migration drift、`auth.users` 映射与 RLS 默认拒绝测试全绿；UUID 默认值与 `timestamptz` 约束无豁免项。
-- [x] outbox/inbox 的轮询租约、幂等去重、退避/死信/checkpoint 和 Realtime 漏通知补偿均通过自动化验证；Realtime 未被用作可靠事件源或唯一 worker 调度。
-- [x] Vault 解密路径只对 Execution Gateway 的受控角色/allowlist 函数开放；UI、Engine、普通 BFF 与用户角色的负向访问测试全绿；F09 容量规则与 ADR 模板已纳入开发阶段自动化检查，运行期通知另按 L04 验收。
-- [x] 每个服务提供 health、metrics、trace 和结构化错误；供应链报告可追溯。
-- [x] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
-- [x] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。
-
-### 10.2 R1 Gate
-
-- [ ] R01–R04、U01 完成；研究、Signal、Proposal 全部可回放且无交易副作用。
-- [ ] RD-Agent、LLMQuant、TradingAgents 的 contract/权限/重放测试通过；OpenBB 仅在许可证 Gate 允许时启用。
-- [ ] Web Research 用例全绿；所有 Artifact/数据快照可进入 Audit。
-- [ ] TP01-C、TP01-D 完成；`vibe_adapter` 的 contract、负向安全、回放与隔离运行测试通过，且移除 adapter 不影响其他 workflow 启动。
-
-### 10.3 S2 Gate
-
-- [ ] S01–S04 完成；look-ahead/数据泄漏/未审批策略 100% 阻断。
-- [ ] Release 包含全部不可变证据，且可部署目标只有 Paper/Shadow。
-- [ ] TP06–TP12 的评估结论和 ADR 已归档；未经明确 adoption 的项目无运行时依赖。
-
-### 10.4 X3 Gate
-
-- [ ] X01–X06 完成；连续 10 个交易日 Shadow，对账未解释差异=0。
-- [ ] 命令、订单、成交、仓位和审计链可重建；命令重复执行=0。
-- [ ] kill switch、数据陈旧、venue 故障、审批拒绝、事件重放演练全绿。
-
-### 10.5 L4 Gate
+<a id="105-l4-gate"></a>
+<a id="gate-l4"></a>
+### 9.1 L4 Gate：本阶段末尾验收
 
 - [ ] L01–L04 完成；仅 testnet 证明通过，不自动产生生产实盘权限。
 - [ ] F07 拟上线部署的 HTTPS BFF/Runtime 入口与恢复/隔离回执通过；Runtime Storage 凭据仅可访问 `quantos-artifacts`，其他 bucket 拒绝和轮换/撤销证据通过，且全部绑定候选发布源码 SHA。
@@ -1308,7 +1358,7 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 - [ ] 任一容量阈值触发时，先完成 Supabase 原生优化和容量 ADR；未获 ADR 批准时不得增加 Supabase 生态外的事件、缓存、时序或秘密基础设施。
 - [ ] 是否开启小额 Assisted Live 必须在本计划之外，由单独批准决定。
 
-### 10.6 建议的自动执行命令
+## 10. 自动执行命令与回归清单
 
 | 类别 | 命令目标（实现时在 `Makefile`/CI 固化） |
 |---|---|
