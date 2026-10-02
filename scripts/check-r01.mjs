@@ -1,78 +1,22 @@
 #!/usr/bin/env node
-
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const text = (relative) => readFileSync(resolve(root, relative), "utf8");
-
-function taskStatus(plan, taskId) {
-  const match = plan.match(new RegExp("- task_id: `" + taskId + "`([\\s\\S]*?)(?=\\n<a id=|$)"));
-  return match?.[1].match(/- development_status: `([^`]+)`/)?.[1] ?? null;
-}
-
-export function loadR01Inputs() {
-  return {
-    plan: text("docs/SumAlpha-QuantOS-Development-Plan.md"),
-    source: text("crates/quantos-market/src/lib.rs"),
-    crate: text("crates/quantos-market/Cargo.toml"),
-    service: text("services/market-ingestor/src/main.rs"),
-    fixture: JSON.parse(text("crates/quantos-market/fixtures/market_replay_catalog.json")),
-    workspace: text("Cargo.toml"),
-    makefile: text("Makefile"),
-    workflow: text(".github/workflows/ci.yml"),
-    summaryExists: existsSync(resolve(root, "docs/R01-summary.md")),
-    evidenceExists: existsSync(resolve(root, "docs/audit/R01-acceptance-evidence-2026-09-16.md")),
-  };
-}
-
-export function validateR01(inputs) {
-  const failures = [];
-  const check = (condition, message) => { if (!condition) failures.push(message); };
-
-  check(taskStatus(inputs.plan, "F03") === "COMPLETED", "dependency F03 is COMPLETED");
-  check(taskStatus(inputs.plan, "F05") === "COMPLETED", "dependency F05 is COMPLETED");
-  check(taskStatus(inputs.plan, "R01") === "COMPLETED", "R01 development status is COMPLETED");
-  check(inputs.workspace.includes('"crates/quantos-market"') && inputs.workspace.includes('"services/market-ingestor"'), "workspace includes quantos-market and market-ingestor");
-  check(inputs.crate.includes('quantos-event = { path = "../quantos-event"'), "quantos-market writes through quantos-event");
-
-  check(inputs.fixture.count === 100_000, "replay fixture contains exactly 100000 ticks");
-  check(inputs.fixture.duplicate_every > 0 && inputs.fixture.out_of_order_every > 1, "replay fixture injects duplicates and out-of-order ticks");
-  check(inputs.fixture.stale_every > 0 && inputs.fixture.quality_fail_every > 0, "replay fixture injects freshness and quality failures");
-
-  for (const marker of ["ApprovedProviderRegistry", "MARKET_PROVIDER_NOT_APPROVED", "normalized_symbol", "event_time", "received_at", "license_label", "MarketEventKind", "to_recorded_event", "AppendOnlyLedger"]) {
-    check(inputs.source.includes(marker), `market contract implements ${marker}`);
-  }
-  check(inputs.source.includes("character.is_ascii_alphanumeric() || matches!(character, '/' | '-' | '_')"), "symbol normalization rejects unexpected punctuation");
-  check(inputs.source.includes("price.value() <= Decimal::ZERO") && inputs.source.includes("volume.value() <= Decimal::ZERO"), "non-positive price and volume fail quality");
-  check(inputs.source.indexOf("self.seen_tick_ids.insert(deduplication_key)") > inputs.source.indexOf("Quantity::parse_str(&tick.volume)"), "deduplication keys are committed only after tick validation");
-  check(inputs.source.includes("Duration::from_secs(5)"), "anomaly emission test enforces the five-second bound");
-
-  for (const testName of [
-    "replay_dataset_ingests_one_hundred_thousand_ticks_without_parse_failures",
-    "out_of_order_and_duplicate_ticks_are_deduplicated",
-    "freshness_and_quality_anomalies_emit_events_within_five_seconds",
-    "rejects_unapproved_providers_and_normalizes_symbols",
-    "invalid_ticks_do_not_poison_deduplication_and_negative_values_fail_quality",
-  ]) check(inputs.source.includes(testName), `quantos-market test covers ${testName}`);
-
-  for (const marker of ["GenerateReplay", "IngestReplay", "default_approved_providers", "ingest_batch", "run_observed_write_command"]) {
-    check(inputs.service.includes(marker), `market-ingestor implements ${marker}`);
-  }
-  check(inputs.makefile.includes("r01-check:") && inputs.makefile.includes("node ./scripts/check-r01.mjs") && inputs.makefile.includes("node --test ./scripts/r01-gate-negative.mjs") && inputs.makefile.includes("cargo test -p quantos-market"), "Makefile exposes replayable R01 positive and negative checks");
-  check(inputs.workflow.includes("make r01-check"), "main CI runs the R01 Gate");
-  check(inputs.summaryExists && inputs.evidenceExists, "R01 summary and acceptance evidence are checked in");
-
-  return { status: failures.length ? "FAIL" : "PASS", failures };
-}
-
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const report = validateR01(loadR01Inputs());
-  if (report.failures.length) {
-    report.failures.forEach((failure) => console.error(`FAIL  ${failure}`));
-    process.exitCode = 1;
-  } else {
-    console.log("R01 Gate PASS: approved-provider ingestion, strict normalization, 100000-tick replay, deduplication, anomaly emission and event-ledger wiring checks.");
-  }
-}
+// Static assembly checks complement, never replace, the Rust behavior and Supabase Gates.
+import {existsSync,readFileSync} from 'node:fs';
+import {dirname,resolve} from 'node:path';import {fileURLToPath,pathToFileURL} from 'node:url';
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');const text=p=>readFileSync(resolve(root,p),'utf8');
+function taskStatus(plan,id){return plan.match(new RegExp('- task_id: `'+id+'`([\\s\\S]*?)(?=\\n<a id=|$)'))?.[1].match(/- development_status: `([^`]+)`/)?.[1];}
+function review(plan,id){return plan.split(`<a id="review-${id.toLowerCase()}"></a>`)[1]?.split('<a id=')[0].match(/- review_status: `([^`]+)`/)?.[1];}
+export function loadR01Inputs(){return{plan:text('docs/SumAlpha-QuantOS-Development-Plan.md'),source:text('crates/quantos-market/src/lib.rs'),tests:text('crates/quantos-market/src/tests.rs'),durable:text('crates/quantos-market/src/durable.rs'),service:text('services/market-ingestor/src/main.rs')+text('services/market-ingestor/src/cli.rs'),fixture:JSON.parse(text('crates/quantos-market/fixtures/market_replay_catalog.json')),makefile:text('Makefile'),workflow:text('.github/workflows/ci.yml'),foundation:JSON.parse(text('docs/audit/evidence/f0-91e222f/index.json')),migration:text('supabase/migrations/20261002100000_r01_atomic_ingest_function.sql'),summaryExists:existsSync(resolve(root,'docs/R01-summary.md'))};}
+export function validateR01(i){const failures=[];const check=(c,m)=>{if(!c)failures.push(m);};
+ for(const id of ['F03','F05']){check(taskStatus(i.plan,id)==='COMPLETED',`dependency ${id} is COMPLETED`);check(review(i.plan,id)==='ACCEPTED',`dependency ${id} is ACCEPTED`);}
+ check(i.plan.match(/"checkpoint_id": "CORE-GATE:F0"[\s\S]*?"review_status": "([^"]+)"/)?.[1]==='ACCEPTED'&&i.foundation.f0Gate==='ACCEPTED'&&i.plan.includes(i.foundation.sourceCommit),'F0 accepted receipt matches the plan');
+ check(taskStatus(i.plan,'R01')==='COMPLETED','R01 development status is COMPLETED');
+ check(i.fixture.count===100000,'replay fixture contains exactly 100000 ticks');check(i.fixture.duplicate_every>0&&i.fixture.out_of_order_every>1&&i.fixture.stale_every>0&&i.fixture.quality_fail_every>0,'replay fixture injects all quality scenarios');
+ for(const m of ['ApprovedProviderRegistry','MARKET_SOURCE_CONFLICT','approval_reference','instruments','ingest_tick_at','ResourceLimit','staged_ledger'])check(i.source.includes(m),`market contract implements ${m}`);
+ for(const m of ['identity_is_tenant_scoped_and_conflicting_content_is_rejected','failed_batch_does_not_publish_partial_ledger_or_identity','invalid_numeric_ticks_emit_quality_with_raw_values_and_continue','pure_domain_p95_under_fifty_milliseconds'])check(i.tests.includes(m),`behavior test ${m} exists`);
+ check(i.durable.includes('append_market_events')&&i.durable.includes('watchdog'),'durable writer and watchdog are connected');
+ check(i.migration.includes('on conflict(tenant_id,provider,source_tick_id)')&&i.migration.includes('for update')&&i.migration.includes('quantos.outbox_event'),'single-statement atomic source receipt and outbox');
+ check(i.service.includes('IngestSource')&&i.service.includes('PollSource')&&i.service.includes('Requeue'),'persistent source and recovery commands exist');
+ check(i.makefile.includes('r01-mutation-check')&&i.makefile.includes('cargo test -p quantos-market --lib --locked')&&i.makefile.includes('cargo test -p market-ingestor --locked'),'R01 Gate executes behavior and CLI tests');
+ check(i.workflow.includes('make r01-check'),'main CI runs the R01 Gate');check(i.summaryExists,'R01 delivery summary exists');
+ return{status:failures.length?'FAIL':'PASS',failures};}
+if(import.meta.url===pathToFileURL(process.argv[1]).href){const r=validateR01(loadR01Inputs());if(r.failures.length){r.failures.forEach(m=>console.error(`FAIL ${m}`));process.exitCode=1;}else console.log('R01 assembly Gate PASS; runtime, coverage and target Gates are separate.');}

@@ -560,10 +560,120 @@ flowchart TD
 #### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- review_status: `FIX_VALIDATION`
+- review_conclusion: 2026-10-02 全面复审及整改验证完成；9 项关闭，B01 真实 provider 验收待完成。fixture Supabase/源码测试不能替代真实供应商回执，R01 未 ACCEPTED。
+- issues:
+  - issue_id: B01
+    severity: BLOCKER
+    description: 持久摄取及 Supabase fixture 闭环已实现；真实 provider 许可、adapter 与目标回执仍缺失
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: OPEN
+  - issue_id: H01
+    severity: HIGH
+    description: 来源身份、序号、事件与 outbox 原子提交；失败重试安全
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: CLOSED
+  - issue_id: H02
+    severity: HIGH
+    description: tenant/provider/source ID 唯一键与内容 hash 冲突校验
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: CLOSED
+  - issue_id: H03
+    severity: HIGH
+    description: 显式 instrument map 与 BASE/QUOTE v2 契约
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: CLOSED
+  - issue_id: H04
+    severity: HIGH
+    description: 非法数值质量事件及坏帧隔离，继续后续摄取
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: CLOSED
+  - issue_id: M01
+    severity: MEDIUM
+    description: 实际 processing clock、持久 watchdog 与目标异常提交测试；真实源边界见 B01
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: CLOSED
+  - issue_id: M02
+    severity: MEDIUM
+    description: registry 元数据、审批引用、版本、过期及撤销校验
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: CLOSED
+  - issue_id: M03
+    severity: MEDIUM
+    description: 行为测试、真实 mutant 与按文件 stable/nightly 覆盖 Gate
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: CLOSED
+  - issue_id: M04
+    severity: MEDIUM
+    description: replay spec Result、流式读取、帧/数量上限
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: CLOSED
+  - issue_id: L01
+    severity: LOW
+    description: trace 示例、v2 ADR、故障恢复与 provider 申请指南
+    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
+    status: CLOSED
+- fix_tracking:
+  - issue_id: B01
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PARTIAL
+  - issue_id: H01
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PASS
+  - issue_id: H02
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PASS
+  - issue_id: H03
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PASS
+  - issue_id: H04
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PASS
+  - issue_id: M01
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PASS
+  - issue_id: M02
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PASS
+  - issue_id: M03
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PASS
+  - issue_id: M04
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PASS
+  - issue_id: L01
+    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
+    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
+    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
+    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    verification_status: PASS
 
 <a id="task-r02"></a>
 ### R02：DataSnapshot、血缘与质量 Gate

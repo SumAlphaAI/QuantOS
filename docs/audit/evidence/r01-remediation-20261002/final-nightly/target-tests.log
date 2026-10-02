@@ -1,0 +1,59 @@
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test cli_success_rejection_and_config_paths ... ok
+test cli_supabase_fixture_and_recovery_paths ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 48.59s
+
+
+running 13 tests
+test tests::error_codes_and_io_failures_are_deterministic ... ok
+test tests::failed_batch_does_not_publish_partial_ledger_or_identity ... ok
+test tests::freshness_and_quality_anomalies_emit_events_within_five_seconds ... ok
+test tests::identity_is_tenant_scoped_and_conflicting_content_is_rejected ... ok
+test tests::instrument_identity_is_unambiguous_and_venue_scoped ... ok
+test tests::invalid_numeric_ticks_emit_quality_with_raw_values_and_continue ... ok
+test tests::out_of_order_and_duplicate_ticks_are_deduplicated ... ok
+test tests::processing_clock_detects_backlog_future_receive_and_future_event ... ok
+test tests::provider_configuration_fails_closed_and_supports_revocation ... ok
+test tests::pure_domain_p95_under_fifty_milliseconds ... R01 pure domain n=2000 p95_ns=74875
+ok
+test tests::rejects_unapproved_providers_and_normalizes_symbols ... ok
+test tests::replay_and_parser_are_bounded_and_invalid_specs_return_errors ... ok
+test tests::replay_dataset_ingests_one_hundred_thousand_ticks_without_parse_failures ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.89s
+
+
+running 1 test
+test supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter ... R01 abnormal_tick_commit_ns=303516750
+R01_SUPABASE_PASS events=8 concurrent_unique=1 rollback_retry=PASS restart=PASS conflict=PASS watchdog=PASS dead_letter_replayed=8
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 62.15s
+
+warning: --branch option is unstable
+info: cargo-llvm-cov currently setting cfg(coverage) and cfg(coverage_nightly); you can opt-out it by passing --no-cfg-coverage and --no-cfg-coverage-nightly
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling market-ingestor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/market-ingestor)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.80s
+     Running unittests src/main.rs (target/llvm-cov-target/debug/deps/market_ingestor-05e1aeb3caa6c5cb)
+     Running tests/cli.rs (target/llvm-cov-target/debug/deps/cli-b6f80d437fa0afc1)
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_market-a110fe5739014e5a)
+     Running tests/postgres_ingestion.rs (target/llvm-cov-target/debug/deps/postgres_ingestion-ac8d12d6cbf11b7a)
+
+    Finished report saved to /Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/r01-remediation-20261002/final-nightly/coverage.json

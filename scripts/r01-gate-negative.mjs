@@ -1,51 +1,13 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-
-import { loadR01Inputs, validateR01 } from "./check-r01.mjs";
-
-const current = loadR01Inputs();
-
-test("current R01 repository Gate passes", () => {
-  const report = validateR01(current);
-  assert.equal(report.status, "PASS", report.failures.join("\n"));
-});
-
-test("replay count regression is rejected", () => {
-  const fixture = { ...current.fixture, count: 99_999 };
-  assert(validateR01({ ...current, fixture }).failures.includes("replay fixture contains exactly 100000 ticks"));
-});
-
-test("provider allowlist deletion is rejected", () => {
-  const source = current.source.replaceAll("ApprovedProviderRegistry", "RemovedProviderRegistry");
-  assert(validateR01({ ...current, source }).failures.includes("market contract implements ApprovedProviderRegistry"));
-});
-
-test("permissive symbol parsing is rejected", () => {
-  const source = current.source.replace("character.is_ascii_alphanumeric() || matches!(character, '/' | '-' | '_')", "true");
-  assert(validateR01({ ...current, source }).failures.includes("symbol normalization rejects unexpected punctuation"));
-});
-
-test("non-positive quality check deletion is rejected", () => {
-  const source = current.source.replace("price.value() <= Decimal::ZERO", "price.value().is_zero()");
-  assert(validateR01({ ...current, source }).failures.includes("non-positive price and volume fail quality"));
-});
-
-test("five-second anomaly bound weakening is rejected", () => {
-  const source = current.source.replace("Duration::from_secs(5)", "Duration::from_secs(6)");
-  assert(validateR01({ ...current, source }).failures.includes("anomaly emission test enforces the five-second bound"));
-});
-
-test("R01 status regression is rejected", () => {
-  const plan = current.plan.replace(/(- task_id: `R01`[\s\S]*?- development_status: `)COMPLETED(`)/, "$1PARTIAL$2");
-  assert(validateR01({ ...current, plan }).failures.includes("R01 development status is COMPLETED"));
-});
-
-test("dependency regression is rejected", () => {
-  const plan = current.plan.replace(/(- task_id: `F05`[\s\S]*?- development_status: `)COMPLETED(`)/, "$1PARTIAL$2");
-  assert(validateR01({ ...current, plan }).failures.includes("dependency F05 is COMPLETED"));
-});
-
-test("CI Gate deletion is rejected", () => {
-  const workflow = current.workflow.replace("make r01-check", "echo removed-r01-check");
-  assert(validateR01({ ...current, workflow }).failures.includes("main CI runs the R01 Gate"));
-});
+import assert from 'node:assert/strict';import test from 'node:test';import {loadR01Inputs,validateR01} from './check-r01.mjs';
+const current=loadR01Inputs();test('current assembly passes',()=>assert.equal(validateR01(current).status,'PASS'));
+for(const [name,mutate]of[
+ ['replay count',i=>({...i,fixture:{...i.fixture,count:99999}})],
+ ['provider registry',i=>({...i,source:i.source.replaceAll('ApprovedProviderRegistry','Removed')} )],
+ ['source conflict',i=>({...i,source:i.source.replaceAll('MARKET_SOURCE_CONFLICT','Removed')})],
+ ['persistent writer',i=>({...i,durable:i.durable.replaceAll('append_market_events','removed')})],
+ ['atomic transaction',i=>({...i,migration:i.migration.replaceAll('for update','removed')})],
+ ['F0 receipt',i=>({...i,foundation:{...i.foundation,f0Gate:'BLOCKED'}})],
+ ['accepted dependency',i=>({...i,plan:i.plan.replace(/(id="review-f05"[\s\S]*?review_status: `)ACCEPTED/,'$1FIX_VALIDATION')})],
+ ['CLI tests',i=>({...i,makefile:i.makefile.replace('cargo test -p market-ingestor --locked','removed')})],
+ ['CI assembly',i=>({...i,workflow:i.workflow.replace('make r01-check','removed')})],
+])test(`${name} regression fails closed`,()=>assert.equal(validateR01(mutate(current)).status,'FAIL'));

@@ -1,0 +1,68 @@
+name: R01 Market Service Gate
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '23 19 * * *'
+permissions:
+  contents: read
+jobs:
+  behavior:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.91.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+      - run: make r01-check
+  supabase-coverage:
+    if: github.event_name != 'pull_request'
+    needs: behavior
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: ['1.91.0', nightly]
+    env:
+      DATABASE_URL: ${{ secrets.F07_DATABASE_URL }}
+      R01_CA_PEM: ${{ secrets.F07_CA_PEM }}
+      RUSTUP_TOOLCHAIN: ${{ matrix.toolchain }}
+      QUANTOS_R01_COVERAGE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: llvm-tools-preview
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+      - run: corepack enable pnpm && pnpm install --frozen-lockfile
+      - run: cargo install cargo-llvm-cov --version 0.8.7 --locked
+      - name: Configure verified TLS for the existing Supabase target
+        run: |
+          test -n "$DATABASE_URL" && test -n "$R01_CA_PEM"
+          printf '%s' "$R01_CA_PEM" > "$RUNNER_TEMP/r01-ca.pem"
+          node <<'JS'
+          const fs=require('fs');const url=new URL(process.env.DATABASE_URL);
+          url.searchParams.set('sslmode','verify-full');url.searchParams.set('sslrootcert',`${process.env.RUNNER_TEMP}/r01-ca.pem`);
+          fs.appendFileSync(process.env.GITHUB_ENV,`DATABASE_URL=${url.toString()}\n`);
+          JS
+      - name: Apply forward migrations without resetting the schema
+        run: node scripts/db-cli.cjs apply
+      - name: Target tests and mandatory per-file coverage
+        run: |
+          if [[ '${{ matrix.toolchain }}' == 'nightly' ]]; then export QUANTOS_R01_BRANCH=1; fi
+          node scripts/r01-live-check.cjs
+          node scripts/check-r01-coverage.mjs artifacts/r01/coverage.json $([[ '${{ matrix.toolchain }}' == 'nightly' ]] && printf '%s' '--require-branches')
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r01-${{ matrix.toolchain }}-${{ github.sha }}
+          path: artifacts/r01/
+          if-no-files-found: error

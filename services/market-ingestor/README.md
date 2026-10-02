@@ -1,19 +1,13 @@
 # market-ingestor
 
-Generate and ingest deterministic QuantOS market replay datasets.
+R01 v2 provides durable approved-source ingestion into the configured Supabase PostgreSQL event ledger. `ingest-source` and `poll-source` use atomic source receipts, events, audit and outbox; `dispatch`/`requeue` reuse F05 recovery. Provider configuration requires license/approval references and explicit instrument aliases. Live mode rejects fixture approvals.
 
-The binary covers the R01 validation path:
-
-- `generate-replay` expands the compact replay catalog into JSONL ticks
-- `ingest-replay` parses the dataset, enforces approved providers, normalizes symbols, and writes `MarketEvent` records into an append-only ledger
-
-Examples:
+`generate-replay` and `ingest-replay` are bounded deterministic **in-memory validation** commands:
 
 ```bash
-cargo run -p market-ingestor -- generate-replay --output /tmp/market-replay.jsonl --count 100000
-cargo run -p market-ingestor -- ingest-replay --input /tmp/market-replay.jsonl
+export QUANTOS_TRACE_EXPORT_PATH=/private/tmp/market-trace.jsonl
+cargo run -p market-ingestor --locked -- generate-replay --output /private/tmp/market-replay.jsonl --count 100000
+cargo run -p market-ingestor --locked -- ingest-replay --input /private/tmp/market-replay.jsonl
 ```
 
-Set `QUANTOS_TRACE_EXPORT_PATH` during normal batch execution to persist
-started/succeeded/failed trace records. Set `QUANTOS_OBSERVABILITY_ADDR` to run
-the shared health, metrics, correlation-trace, and structured-error HTTP surface.
+All write commands require an absolute writable trace exporter. Optional `QUANTOS_OBSERVABILITY_ADDR` exposes the shared loopback health/ready/metrics/trace surface. Configuration, persistent commands, rejection, reconnect, dead-letter replay and rollback are in [R01 Runbook](../../docs/runbooks/r01_market_ingestion.md). Schema compatibility is in [Market v2 ADR](../../docs/adr/20261002-r01-market-v2-durable-ingestion.md).

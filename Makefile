@@ -92,9 +92,24 @@ f01-reproducibility-check:
 
 r01-check:
 	node ./scripts/check-r01.mjs
-	node --test ./scripts/r01-gate-negative.mjs
-	cargo test -p quantos-market
-	cargo test -p market-ingestor
+	node --test ./scripts/r01-gate-negative.mjs ./scripts/r01-coverage-negative.mjs
+	cargo test -p quantos-market --lib --locked
+	cargo test -p market-ingestor --locked
+	$(MAKE) r01-mutation-check
+
+r01-mutation-check:
+	node ./scripts/r01-mutation-check.mjs
+
+r01-live-check:
+	node ./scripts/r01-live-check.cjs
+
+r01-coverage:
+	QUANTOS_R01_COVERAGE=1 node ./scripts/r01-live-check.cjs
+	node ./scripts/check-r01-coverage.mjs artifacts/r01/coverage.json
+
+r01-nightly-coverage:
+	RUSTUP_TOOLCHAIN=nightly QUANTOS_R01_COVERAGE=1 QUANTOS_R01_BRANCH=1 node ./scripts/r01-live-check.cjs
+	node ./scripts/check-r01-coverage.mjs artifacts/r01/coverage.json --require-branches
 
 r02-check:
 	node ./scripts/check-r02.mjs

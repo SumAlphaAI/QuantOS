@@ -1,0 +1,47 @@
+node ./scripts/check-r01.mjs
+R01 Gate PASS: approved-provider ingestion, strict normalization, 100000-tick replay, deduplication, anomaly emission and event-ledger wiring checks.
+node --test ./scripts/r01-gate-negative.mjs
+✔ current R01 repository Gate passes (0.625459ms)
+✔ replay count regression is rejected (0.151583ms)
+✔ provider allowlist deletion is rejected (0.108334ms)
+✔ permissive symbol parsing is rejected (0.125916ms)
+✔ non-positive quality check deletion is rejected (0.106917ms)
+✔ five-second anomaly bound weakening is rejected (0.094291ms)
+✔ R01 status regression is rejected (0.149084ms)
+✔ dependency regression is rejected (0.125583ms)
+✔ CI Gate deletion is rejected (0.101834ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39.463167
+cargo test -p quantos-market
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+     Running unittests src/lib.rs (target/debug/deps/quantos_market-3f958c2c8750d096)
+
+running 5 tests
+test tests::rejects_unapproved_providers_and_normalizes_symbols ... ok
+test tests::invalid_ticks_do_not_poison_deduplication_and_negative_values_fail_quality ... ok
+test tests::freshness_and_quality_anomalies_emit_events_within_five_seconds ... ok
+test tests::out_of_order_and_duplicate_ticks_are_deduplicated ... ok
+test tests::replay_dataset_ingests_one_hundred_thousand_ticks_without_parse_failures ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.87s
+
+   Doc-tests quantos_market
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+cargo test -p market-ingestor
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/main.rs (target/debug/deps/market_ingestor-6811b5b2ab9bb210)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,68 +1,127 @@
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    io::{BufRead, Write},
-};
-
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
-use quantos_core::{ActorId, CoreError, CorrelationId, Quantity, SchemaVersion, TenantId};
+use quantos_core::{
+    ActorId, ContentHash, CoreError, CorrelationId, Quantity, SchemaVersion, TenantId,
+    canonical_json_bytes,
+};
 use quantos_event::{AppendOnlyLedger, EventError, NewRecordedEvent, RecordedEvent};
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::{
+    collections::BTreeMap,
+    io::{BufRead, Read, Write},
+};
 use thiserror::Error;
 
+pub mod durable;
+pub const MAX_REPLAY_TICKS: usize = 100_000;
+pub const MAX_LINE_BYTES: usize = 16_384;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ApprovedProvider {
     pub provider: String,
     pub dataset: String,
     pub license_label: String,
+    pub approval_reference: String,
+    pub approval_version: String,
+    pub expires_at: DateTime<Utc>,
+    pub enabled: bool,
+    pub instruments: BTreeMap<String, String>,
     pub freshness_sla_secs: i64,
     pub max_future_skew_secs: i64,
 }
-
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct ApprovedProviderRegistry {
     providers: BTreeMap<String, ApprovedProvider>,
 }
-
 impl ApprovedProviderRegistry {
-    #[must_use]
-    pub fn new(providers: impl IntoIterator<Item = ApprovedProvider>) -> Self {
-        let providers = providers
-            .into_iter()
-            .map(|provider| (provider.provider.clone(), provider))
-            .collect();
-        Self { providers }
+    pub fn new(providers: impl IntoIterator<Item = ApprovedProvider>) -> Result<Self, MarketError> {
+        let mut entries = BTreeMap::new();
+        for p in providers {
+            if [
+                &p.provider,
+                &p.dataset,
+                &p.license_label,
+                &p.approval_reference,
+                &p.approval_version,
+            ]
+            .iter()
+            .any(|s| s.trim().is_empty() || s.len() > 256)
+                || !(1..=3600).contains(&p.freshness_sla_secs)
+                || !(0..=60).contains(&p.max_future_skew_secs)
+                || p.instruments.is_empty()
+            {
+                return Err(MarketError::Configuration);
+            }
+            for (alias, canonical) in &p.instruments {
+                let parts = alias.split(['/', '-', '_']).collect::<Vec<_>>();
+                if alias.is_empty()
+                    || alias.len() > 49
+                    || parts.len() > 2
+                    || parts.iter().any(|part| {
+                        part.is_empty() || !part.chars().all(|c| c.is_ascii_alphanumeric())
+                    })
+                    || alias != &alias.to_ascii_uppercase()
+                    || normalize_symbol(canonical)? != *canonical
+                {
+                    return Err(MarketError::Configuration);
+                }
+            }
+            if entries.insert(p.provider.clone(), p).is_some() {
+                return Err(MarketError::Configuration);
+            }
+        }
+        if entries.is_empty() {
+            return Err(MarketError::Configuration);
+        }
+        Ok(Self { providers: entries })
     }
-
     pub fn approved_provider(&self, provider: &str) -> Result<&ApprovedProvider, MarketError> {
         self.providers
             .get(provider)
+            .filter(|p| p.enabled && p.expires_at > Utc::now())
             .ok_or_else(|| MarketError::provider_not_approved(provider))
     }
+    pub fn require_live(&self) -> Result<(), MarketError> {
+        if self
+            .providers
+            .values()
+            .any(|p| p.approval_reference.starts_with("fixture:"))
+        {
+            return Err(MarketError::Configuration);
+        }
+        Ok(())
+    }
 }
-
 #[must_use]
 pub fn default_approved_providers() -> ApprovedProviderRegistry {
-    ApprovedProviderRegistry::new([
-        ApprovedProvider {
-            provider: "approved.binance.spot".to_owned(),
-            dataset: "crypto.top_of_book.v1".to_owned(),
-            license_label: "internal-approved".to_owned(),
+    ApprovedProviderRegistry::new(
+        ["approved.binance.spot", "approved.coinbase.spot"].map(|name| ApprovedProvider {
+            provider: name.into(),
+            dataset: "crypto.top_of_book.v2".into(),
+            license_label: "fixture-only".into(),
+            approval_reference: "fixture:r01-replay-only".into(),
+            approval_version: "v2".into(),
+            expires_at: DateTime::parse_from_rfc3339("2099-01-01T00:00:00Z")
+                .unwrap()
+                .with_timezone(&Utc),
+            enabled: true,
+            instruments: ["BTC", "ETH", "SOL", "BNB"]
+                .into_iter()
+                .flat_map(|base| {
+                    ["", "/", "-", "_"].into_iter().map(move |separator| {
+                        (format!("{base}{separator}USDT"), format!("{base}/USDT"))
+                    })
+                })
+                .collect(),
             freshness_sla_secs: 2,
             max_future_skew_secs: 2,
-        },
-        ApprovedProvider {
-            provider: "approved.coinbase.spot".to_owned(),
-            dataset: "crypto.top_of_book.v1".to_owned(),
-            license_label: "internal-approved".to_owned(),
-            freshness_sla_secs: 2,
-            max_future_skew_secs: 2,
-        },
-    ])
+        }),
+    )
+    .expect("validated static replay approvals")
 }
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RawMarketTick {
     pub provider: String,
     pub source_tick_id: String,
@@ -72,7 +131,14 @@ pub struct RawMarketTick {
     pub price: String,
     pub volume: String,
 }
-
+impl RawMarketTick {
+    pub fn source_hash(&self) -> Result<ContentHash, MarketError> {
+        // Delivery timestamps are deliberately excluded: retransmission is the same source fact.
+        Ok(ContentHash::sha256_bytes(&canonical_json_bytes(
+            &json!({"provider":self.provider,"id":self.source_tick_id,"symbol":self.provider_symbol,"event_time":self.event_time,"price":self.price,"volume":self.volume}),
+        )?))
+    }
+}
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MarketReplaySpec {
     pub dataset_name: String,
@@ -85,7 +151,6 @@ pub struct MarketReplaySpec {
     pub stale_every: usize,
     pub quality_fail_every: usize,
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MarketDataQuality {
@@ -93,9 +158,7 @@ pub enum MarketDataQuality {
     Degraded,
     Failed,
 }
-
 impl MarketDataQuality {
-    #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::Passed => "passed",
@@ -104,7 +167,6 @@ impl MarketDataQuality {
         }
     }
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum MarketEventKind {
@@ -112,9 +174,7 @@ pub enum MarketEventKind {
     FreshnessDegraded,
     QualityFailed,
 }
-
 impl MarketEventKind {
-    #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::TickRecorded => "market.tick.recorded",
@@ -123,7 +183,6 @@ impl MarketEventKind {
         }
     }
 }
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MarketEvent {
     pub normalized_symbol: String,
@@ -134,14 +193,18 @@ pub struct MarketEvent {
     pub provider_symbol: String,
     pub event_time: DateTime<Utc>,
     pub received_at: DateTime<Utc>,
-    pub price: Quantity,
-    pub volume: Quantity,
+    pub price: Option<Quantity>,
+    pub volume: Option<Quantity>,
+    pub raw_price: String,
+    pub raw_volume: String,
     pub quality: MarketDataQuality,
     pub event_kind: MarketEventKind,
     pub anomaly_reason: Option<String>,
     pub sequence: u64,
+    pub detected_at: DateTime<Utc>,
+    pub approval_reference: String,
+    pub approval_version: String,
 }
-
 impl MarketEvent {
     pub fn to_recorded_event(
         &self,
@@ -155,31 +218,20 @@ impl MarketEvent {
             actor_id,
             correlation_id,
             causation_id: None,
-            aggregate_type: "market".to_owned(),
-            aggregate_id: self.normalized_symbol.clone(),
+            aggregate_type: "market".into(),
+            aggregate_id: format!("{}:{}", self.provider, self.normalized_symbol),
             sequence: self.sequence,
-            event_kind: self.event_kind.as_str().to_owned(),
-            schema_version: SchemaVersion::parse("v1")
-                .expect("static market event schema version should parse"),
+            event_kind: self.event_kind.as_str().into(),
+            schema_version: SchemaVersion::parse("v2")?,
             occurred_at,
-            payload: json!({
-                "symbol": self.normalized_symbol,
-                "provider": self.provider,
-                "dataset": self.dataset,
-                "license_label": self.license_label,
-                "source_tick_id": self.source_tick_id,
-                "provider_symbol": self.provider_symbol,
-                "event_time": self.event_time.to_rfc3339(),
-                "received_at": self.received_at.to_rfc3339(),
-                "price": self.price.value().to_string(),
-                "volume": self.volume.value().to_string(),
-                "quality": self.quality.as_str(),
-                "anomaly_reason": self.anomaly_reason,
-            }),
+            payload: {
+                let mut value = serde_json::to_value(self)?;
+                value.as_object_mut().unwrap().remove("sequence");
+                value
+            },
         })?)
     }
 }
-
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct ReplayIngestionSummary {
     pub input_ticks: usize,
@@ -189,149 +241,172 @@ pub struct ReplayIngestionSummary {
     pub anomaly_events: usize,
     pub recorded_events: usize,
 }
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct MarketIngestionOutcome {
     pub duplicate: bool,
     pub market_events: Vec<MarketEvent>,
     pub recorded_events: Vec<RecordedEvent>,
 }
-
 #[derive(Debug, Clone)]
 pub struct MarketIngestor {
     approvals: ApprovedProviderRegistry,
     actor_id: ActorId,
-    seen_tick_ids: BTreeSet<(String, String)>,
+    seen_tick_ids: BTreeMap<(TenantId, String, String), ContentHash>,
     next_sequence: BTreeMap<(TenantId, String), u64>,
 }
-
 impl MarketIngestor {
     #[must_use]
     pub fn new(approvals: ApprovedProviderRegistry) -> Self {
+        Self::with_actor(approvals, ActorId::new())
+    }
+    #[must_use]
+    pub fn with_actor(approvals: ApprovedProviderRegistry, actor_id: ActorId) -> Self {
         Self {
             approvals,
-            actor_id: ActorId::new(),
-            seen_tick_ids: BTreeSet::new(),
+            actor_id,
+            seen_tick_ids: BTreeMap::new(),
             next_sequence: BTreeMap::new(),
         }
     }
-
+    // Replay uses supplied receive time; live callers must call ingest_tick_at with a processing clock.
     pub fn ingest_tick(
         &mut self,
         tenant_id: TenantId,
         correlation_id: CorrelationId,
         tick: RawMarketTick,
     ) -> Result<MarketIngestionOutcome, MarketError> {
+        let observed_at = tick.received_at;
+        self.ingest_tick_at(tenant_id, correlation_id, tick, observed_at)
+    }
+    pub fn ingest_tick_at(
+        &mut self,
+        tenant_id: TenantId,
+        correlation_id: CorrelationId,
+        tick: RawMarketTick,
+        observed_at: DateTime<Utc>,
+    ) -> Result<MarketIngestionOutcome, MarketError> {
+        if tick.source_tick_id.trim().is_empty()
+            || tick.source_tick_id.len() > 256
+            || tick.source_tick_id.starts_with("watchdog:")
+            || tick.source_tick_id.starts_with("rejected:")
+            || tick.price.len() > 128
+            || tick.volume.len() > 128
+        {
+            return Err(MarketError::InvalidIdentity);
+        }
         let provider = self.approvals.approved_provider(&tick.provider)?.clone();
-        let normalized_symbol = normalize_symbol(&tick.provider_symbol)?;
-        let deduplication_key = (tick.provider.clone(), tick.source_tick_id.clone());
-        if self.seen_tick_ids.contains(&deduplication_key) {
+        let normalized_symbol = provider
+            .instruments
+            .get(&tick.provider_symbol.trim().to_ascii_uppercase())
+            .cloned()
+            .ok_or_else(|| MarketError::InvalidSymbol {
+                symbol: tick.provider_symbol.clone(),
+            })?;
+        let key = (
+            tenant_id,
+            tick.provider.clone(),
+            tick.source_tick_id.clone(),
+        );
+        let hash = tick.source_hash()?;
+        if let Some(prior) = self.seen_tick_ids.get(&key) {
+            if prior != &hash {
+                return Err(MarketError::SourceConflict);
+            }
             return Ok(MarketIngestionOutcome {
                 duplicate: true,
-                market_events: Vec::new(),
-                recorded_events: Vec::new(),
+                market_events: vec![],
+                recorded_events: vec![],
             });
         }
-
-        let price = Quantity::parse_str(&tick.price)
-            .map_err(|_| MarketError::invalid_price(&tick.source_tick_id, &tick.price))?;
-        let volume = Quantity::parse_str(&tick.volume)
-            .map_err(|_| MarketError::invalid_volume(&tick.source_tick_id, &tick.volume))?;
-
-        let freshness_breached = tick.received_at - tick.event_time
-            > ChronoDuration::seconds(provider.freshness_sla_secs);
-        let future_skew_breached = tick.event_time - tick.received_at
-            > ChronoDuration::seconds(provider.max_future_skew_secs);
-        let quality_failed = price.value() <= Decimal::ZERO
-            || volume.value() <= Decimal::ZERO
-            || future_skew_breached;
-        let tick_quality = if quality_failed {
+        if self.seen_tick_ids.len() >= MAX_REPLAY_TICKS {
+            return Err(MarketError::ResourceLimit);
+        }
+        let price = Quantity::parse_str(&tick.price).ok();
+        let volume = Quantity::parse_str(&tick.volume).ok();
+        let invalid = price.is_none_or(|p| p.value() <= rust_decimal::Decimal::ZERO)
+            || volume.is_none_or(|v| v.value() <= rust_decimal::Decimal::ZERO);
+        let future = tick.event_time - observed_at
+            > ChronoDuration::seconds(provider.max_future_skew_secs)
+            || tick.received_at - observed_at
+                > ChronoDuration::seconds(provider.max_future_skew_secs)
+            || tick.event_time - tick.received_at
+                > ChronoDuration::seconds(provider.max_future_skew_secs);
+        let stale =
+            observed_at - tick.event_time > ChronoDuration::seconds(provider.freshness_sla_secs);
+        let quality = if invalid || future {
             MarketDataQuality::Failed
-        } else if freshness_breached {
+        } else if stale {
             MarketDataQuality::Degraded
         } else {
             MarketDataQuality::Passed
         };
-
-        // A malformed tick must not poison the deduplication key. Only validated ticks become
-        // durable members of the provider/source-id set.
-        self.seen_tick_ids.insert(deduplication_key);
-
-        let mut market_events = Vec::new();
-        market_events.push(MarketEvent {
+        let mut events = vec![MarketEvent {
             normalized_symbol: normalized_symbol.clone(),
             provider: provider.provider.clone(),
             dataset: provider.dataset.clone(),
             license_label: provider.license_label.clone(),
             source_tick_id: tick.source_tick_id.clone(),
-            provider_symbol: tick.provider_symbol.clone(),
+            provider_symbol: tick.provider_symbol,
             event_time: tick.event_time,
             received_at: tick.received_at,
             price,
             volume,
-            quality: tick_quality,
+            raw_price: tick.price,
+            raw_volume: tick.volume,
+            quality,
             event_kind: MarketEventKind::TickRecorded,
             anomaly_reason: None,
-            sequence: self.next_sequence(tenant_id, &normalized_symbol),
-        });
-
-        if freshness_breached {
-            market_events.push(MarketEvent {
-                normalized_symbol: normalized_symbol.clone(),
-                provider: provider.provider.clone(),
-                dataset: provider.dataset.clone(),
-                license_label: provider.license_label.clone(),
-                source_tick_id: tick.source_tick_id.clone(),
-                provider_symbol: tick.provider_symbol.clone(),
-                event_time: tick.event_time,
-                received_at: tick.received_at,
-                price,
-                volume,
-                quality: MarketDataQuality::Degraded,
-                event_kind: MarketEventKind::FreshnessDegraded,
-                anomaly_reason: Some("freshness_sla_breached".to_owned()),
-                sequence: self.next_sequence(tenant_id, &normalized_symbol),
-            });
+            sequence: 0,
+            detected_at: observed_at,
+            approval_reference: provider.approval_reference,
+            approval_version: provider.approval_version,
+        }];
+        if stale {
+            let mut e = events[0].clone();
+            e.event_kind = MarketEventKind::FreshnessDegraded;
+            e.anomaly_reason = Some("freshness_sla_breached".into());
+            events.push(e);
         }
-
-        if quality_failed {
-            let anomaly_reason = if future_skew_breached {
-                "future_skew_breached"
-            } else {
-                "non_positive_price_or_volume"
-            };
-            market_events.push(MarketEvent {
-                normalized_symbol: normalized_symbol.clone(),
-                provider: provider.provider.clone(),
-                dataset: provider.dataset.clone(),
-                license_label: provider.license_label.clone(),
-                source_tick_id: tick.source_tick_id.clone(),
-                provider_symbol: tick.provider_symbol,
-                event_time: tick.event_time,
-                received_at: tick.received_at,
-                price,
-                volume,
-                quality: MarketDataQuality::Failed,
-                event_kind: MarketEventKind::QualityFailed,
-                anomaly_reason: Some(anomaly_reason.to_owned()),
-                sequence: self.next_sequence(tenant_id, &normalized_symbol),
-            });
+        if invalid || future {
+            let mut e = events[0].clone();
+            e.event_kind = MarketEventKind::QualityFailed;
+            e.anomaly_reason = Some(
+                if future {
+                    "future_skew_breached"
+                } else {
+                    "invalid_or_non_positive_price_or_volume"
+                }
+                .into(),
+            );
+            events.push(e);
         }
-
-        let recorded_events = market_events
-            .iter()
-            .map(|event| {
-                event.to_recorded_event(tenant_id, self.actor_id, correlation_id, event.received_at)
-            })
-            .collect::<Result<Vec<_>, _>>()?;
-
+        let stream = (
+            tenant_id,
+            format!("{}:{}", tick.provider, normalized_symbol),
+        );
+        let mut seq = self.next_sequence.get(&stream).copied().unwrap_or(0);
+        for e in &mut events {
+            seq += 1;
+            e.sequence = seq;
+        }
+        let root =
+            events[0].to_recorded_event(tenant_id, self.actor_id, correlation_id, observed_at)?;
+        let root_id = root.event_id;
+        let mut recorded_events = vec![root];
+        for e in events.iter().skip(1) {
+            let mut recorded =
+                e.to_recorded_event(tenant_id, self.actor_id, correlation_id, observed_at)?;
+            recorded.causation_id = root_id;
+            recorded_events.push(recorded);
+        }
+        self.seen_tick_ids.insert(key, hash);
+        self.next_sequence.insert(stream, seq);
         Ok(MarketIngestionOutcome {
             duplicate: false,
-            market_events,
+            market_events: events,
             recorded_events,
         })
     }
-
     pub fn ingest_batch(
         &mut self,
         tenant_id: TenantId,
@@ -339,10 +414,16 @@ impl MarketIngestor {
         ticks: impl IntoIterator<Item = RawMarketTick>,
         ledger: &mut AppendOnlyLedger,
     ) -> Result<ReplayIngestionSummary, MarketError> {
+        // A replay batch stages both ledger and in-memory identities; publish neither on failure.
+        let mut staged = self.clone();
+        let mut staged_ledger = ledger.clone();
         let mut summary = ReplayIngestionSummary::default();
         for tick in ticks {
+            if summary.input_ticks >= MAX_REPLAY_TICKS {
+                return Err(MarketError::ResourceLimit);
+            }
             summary.input_ticks += 1;
-            let outcome = self.ingest_tick(tenant_id, correlation_id, tick)?;
+            let outcome = staged.ingest_tick(tenant_id, correlation_id, tick)?;
             if outcome.duplicate {
                 summary.duplicate_ticks += 1;
                 continue;
@@ -352,24 +433,18 @@ impl MarketIngestor {
             summary.anomaly_events += outcome
                 .market_events
                 .iter()
-                .filter(|event| event.event_kind != MarketEventKind::TickRecorded)
+                .filter(|e| e.event_kind != MarketEventKind::TickRecorded)
                 .count();
             summary.recorded_events += outcome.recorded_events.len();
-            for event in outcome.recorded_events {
-                ledger.append(event)?;
+            for e in outcome.recorded_events {
+                staged_ledger.append(e)?;
             }
         }
+        *self = staged;
+        *ledger = staged_ledger;
         Ok(summary)
     }
-
-    fn next_sequence(&mut self, tenant_id: TenantId, symbol: &str) -> u64 {
-        let key = (tenant_id, symbol.to_owned());
-        let entry = self.next_sequence.entry(key).or_insert(0);
-        *entry += 1;
-        *entry
-    }
 }
-
 #[derive(Debug, Error)]
 pub enum MarketError {
     #[error(transparent)]
@@ -380,92 +455,86 @@ pub enum MarketError {
     Io(#[from] std::io::Error),
     #[error(transparent)]
     Json(#[from] serde_json::Error),
-    #[error("MARKET_PROVIDER_NOT_APPROVED: provider `{provider}` is not approved")]
+    #[error("MARKET_PROVIDER_NOT_APPROVED")]
     ProviderNotApproved { provider: String },
-    #[error("MARKET_INVALID_SYMBOL: provider symbol `{symbol}` cannot be normalized")]
+    #[error("MARKET_INVALID_SYMBOL")]
     InvalidSymbol { symbol: String },
-    #[error("MARKET_INVALID_PRICE: tick `{source_tick_id}` has invalid price `{price}`")]
+    #[error("MARKET_INVALID_PRICE")]
     InvalidPrice {
         source_tick_id: String,
         price: String,
     },
-    #[error("MARKET_INVALID_VOLUME: tick `{source_tick_id}` has invalid volume `{volume}`")]
+    #[error("MARKET_INVALID_VOLUME")]
     InvalidVolume {
         source_tick_id: String,
         volume: String,
     },
+    #[error("MARKET_INVALID_IDENTITY")]
+    InvalidIdentity,
+    #[error("MARKET_SOURCE_CONFLICT")]
+    SourceConflict,
+    #[error("MARKET_CONFIGURATION")]
+    Configuration,
+    #[error("MARKET_RESOURCE_LIMIT")]
+    ResourceLimit,
 }
-
 impl MarketError {
-    #[must_use]
     pub fn machine_code(&self) -> &'static str {
         match self {
-            Self::Core(error) => error.machine_code(),
-            Self::Event(error) => error.machine_code(),
+            Self::Core(e) => e.machine_code(),
+            Self::Event(e) => e.machine_code(),
             Self::Io(_) => "MARKET_IO",
             Self::Json(_) => "MARKET_JSON",
             Self::ProviderNotApproved { .. } => "MARKET_PROVIDER_NOT_APPROVED",
             Self::InvalidSymbol { .. } => "MARKET_INVALID_SYMBOL",
             Self::InvalidPrice { .. } => "MARKET_INVALID_PRICE",
             Self::InvalidVolume { .. } => "MARKET_INVALID_VOLUME",
+            Self::InvalidIdentity => "MARKET_INVALID_IDENTITY",
+            Self::SourceConflict => "MARKET_SOURCE_CONFLICT",
+            Self::Configuration => "MARKET_CONFIGURATION",
+            Self::ResourceLimit => "MARKET_RESOURCE_LIMIT",
         }
     }
-
-    #[must_use]
     pub fn provider_not_approved(provider: &str) -> Self {
         Self::ProviderNotApproved {
-            provider: provider.to_owned(),
-        }
-    }
-
-    #[must_use]
-    pub fn invalid_price(source_tick_id: &str, price: &str) -> Self {
-        Self::InvalidPrice {
-            source_tick_id: source_tick_id.to_owned(),
-            price: price.to_owned(),
-        }
-    }
-
-    #[must_use]
-    pub fn invalid_volume(source_tick_id: &str, volume: &str) -> Self {
-        Self::InvalidVolume {
-            source_tick_id: source_tick_id.to_owned(),
-            volume: volume.to_owned(),
+            provider: provider.into(),
         }
     }
 }
-
-pub fn normalize_symbol(provider_symbol: &str) -> Result<String, MarketError> {
-    let raw = provider_symbol.trim();
-    let valid = !raw.is_empty()
-        && raw.chars().all(|character| {
-            character.is_ascii_alphanumeric() || matches!(character, '/' | '-' | '_')
-        });
-    let parts = raw.split(['/', '-', '_']).collect::<Vec<_>>();
-    if !valid
-        || parts.iter().any(|part| part.is_empty())
-        || parts.iter().any(|part| {
-            !part
-                .chars()
-                .all(|character| character.is_ascii_alphanumeric())
-        })
+pub fn normalize_symbol(raw: &str) -> Result<String, MarketError> {
+    let upper = raw.trim().to_ascii_uppercase();
+    let parts = upper.split(['/', '-', '_']).collect::<Vec<_>>();
+    if parts.len() != 2
+        || parts
+            .iter()
+            .any(|p| p.is_empty() || p.len() > 24 || !p.chars().all(|c| c.is_ascii_alphanumeric()))
     {
-        Err(MarketError::InvalidSymbol {
-            symbol: provider_symbol.to_owned(),
-        })
-    } else {
-        Ok(parts.concat().to_ascii_uppercase())
+        return Err(MarketError::InvalidSymbol { symbol: raw.into() });
     }
+    Ok(format!("{}/{}", parts[0], parts[1]))
 }
-
 pub fn default_replay_spec() -> Result<MarketReplaySpec, MarketError> {
     Ok(serde_json::from_str(include_str!(
         "../fixtures/market_replay_catalog.json"
     ))?)
 }
 
-#[must_use]
-pub fn generate_replay_dataset(spec: &MarketReplaySpec) -> Vec<RawMarketTick> {
+pub fn generate_replay_dataset(spec: &MarketReplaySpec) -> Result<Vec<RawMarketTick>, MarketError> {
+    if spec.count == 0
+        || spec.count > MAX_REPLAY_TICKS
+        || spec.symbols.is_empty()
+        || spec.symbols.len() > 1024
+        || spec
+            .symbols
+            .iter()
+            .any(|s| !matches!(s.as_str(), "BTCUSDT" | "ETHUSDT" | "SOLUSDT" | "BNBUSDT"))
+        || spec
+            .base_time
+            .checked_add_signed(ChronoDuration::milliseconds(spec.count as i64 * 100))
+            .is_none()
+    {
+        return Err(MarketError::Configuration);
+    }
     let mut ticks = (0..spec.count)
         .map(|index| {
             let symbol = &spec.symbols[index % spec.symbols.len()];
@@ -515,7 +584,7 @@ pub fn generate_replay_dataset(spec: &MarketReplaySpec) -> Vec<RawMarketTick> {
         }
     }
 
-    ticks
+    Ok(ticks)
 }
 
 pub fn write_ticks_jsonl(
@@ -530,252 +599,63 @@ pub fn write_ticks_jsonl(
 }
 
 pub fn read_ticks_jsonl(reader: impl BufRead) -> Result<Vec<RawMarketTick>, MarketError> {
-    let mut ticks = Vec::new();
-    for line in reader.lines() {
-        let line = line?;
-        if line.trim().is_empty() {
-            continue;
+    TickReader::new(reader).collect()
+}
+/// A bounded, streaming JSONL parser. No read_line allocation may exceed the limit.
+pub struct TickReader<R> {
+    reader: R,
+    line: Vec<u8>,
+    count: usize,
+    done: bool,
+}
+impl<R: BufRead> TickReader<R> {
+    pub fn new(reader: R) -> Self {
+        Self {
+            reader,
+            line: Vec::new(),
+            count: 0,
+            done: false,
         }
-        ticks.push(serde_json::from_str::<RawMarketTick>(&line)?);
     }
-    Ok(ticks)
+}
+impl<R: BufRead> Iterator for TickReader<R> {
+    type Item = Result<RawMarketTick, MarketError>;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.done {
+            return None;
+        }
+        loop {
+            self.line.clear();
+            match (&mut self.reader)
+                .take((MAX_LINE_BYTES + 1) as u64)
+                .read_until(b'\n', &mut self.line)
+            {
+                Err(e) => {
+                    self.done = true;
+                    return Some(Err(e.into()));
+                }
+                Ok(0) => {
+                    self.done = true;
+                    return None;
+                }
+                Ok(n) if n > MAX_LINE_BYTES => {
+                    self.done = true;
+                    return Some(Err(MarketError::ResourceLimit));
+                }
+                Ok(_) => {}
+            }
+            self.count += 1;
+            if self.count > MAX_REPLAY_TICKS {
+                self.done = true;
+                return Some(Err(MarketError::ResourceLimit));
+            }
+            if self.line.iter().all(u8::is_ascii_whitespace) {
+                continue;
+            }
+            return Some(serde_json::from_slice(&self.line).map_err(MarketError::from));
+        }
+    }
 }
 
 #[cfg(test)]
-mod tests {
-    use std::{
-        io::Cursor,
-        time::{Duration, Instant},
-    };
-
-    use anyhow::Result;
-
-    use super::*;
-
-    #[test]
-    fn replay_dataset_ingests_one_hundred_thousand_ticks_without_parse_failures() -> Result<()> {
-        let spec = default_replay_spec()?;
-        let ticks = generate_replay_dataset(&spec);
-        let mut encoded = Vec::new();
-        write_ticks_jsonl(&mut encoded, ticks.clone())?;
-        let decoded = read_ticks_jsonl(Cursor::new(encoded))?;
-
-        assert_eq!(decoded.len(), 100_000);
-
-        let tenant_id = TenantId::new();
-        let correlation_id = CorrelationId::new();
-        let mut ledger = AppendOnlyLedger::new();
-        let mut ingestor = MarketIngestor::new(default_approved_providers());
-        let summary = ingestor.ingest_batch(tenant_id, correlation_id, decoded, &mut ledger)?;
-
-        assert_eq!(summary.input_ticks, 100_000);
-        assert_eq!(summary.unique_ticks + summary.duplicate_ticks, 100_000);
-        assert!(summary.unique_ticks > 90_000);
-        assert!(summary.anomaly_events > 0);
-        assert_eq!(
-            ledger
-                .events_by_correlation_id(tenant_id, correlation_id)
-                .len(),
-            summary.recorded_events
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn out_of_order_and_duplicate_ticks_are_deduplicated() -> Result<()> {
-        let spec = MarketReplaySpec {
-            dataset_name: "small".to_owned(),
-            provider: "approved.binance.spot".to_owned(),
-            symbols: vec!["BTCUSDT".to_owned(), "ETHUSDT".to_owned()],
-            base_time: Utc::now(),
-            count: 24,
-            duplicate_every: 4,
-            out_of_order_every: 3,
-            stale_every: 0,
-            quality_fail_every: 0,
-        };
-        let tenant_id = TenantId::new();
-        let correlation_id = CorrelationId::new();
-        let mut ledger = AppendOnlyLedger::new();
-        let mut ingestor = MarketIngestor::new(default_approved_providers());
-        let summary = ingestor.ingest_batch(
-            tenant_id,
-            correlation_id,
-            generate_replay_dataset(&spec),
-            &mut ledger,
-        )?;
-
-        assert_eq!(summary.input_ticks, 24);
-        assert_eq!(summary.duplicate_ticks, 5);
-        assert_eq!(summary.unique_ticks, 19);
-        assert_eq!(
-            ledger
-                .events_by_correlation_id(tenant_id, correlation_id)
-                .len(),
-            summary.recorded_events
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn freshness_and_quality_anomalies_emit_events_within_five_seconds() -> Result<()> {
-        let provider = "approved.binance.spot".to_owned();
-        let base_time = Utc::now();
-        let stale_tick = RawMarketTick {
-            provider: provider.clone(),
-            source_tick_id: "stale-1".to_owned(),
-            provider_symbol: "BTC/USDT".to_owned(),
-            event_time: base_time,
-            received_at: base_time + ChronoDuration::seconds(6),
-            price: "101.5".to_owned(),
-            volume: "2.5".to_owned(),
-        };
-        let quality_tick = RawMarketTick {
-            provider,
-            source_tick_id: "quality-1".to_owned(),
-            provider_symbol: "ETH-USDT".to_owned(),
-            event_time: base_time + ChronoDuration::seconds(1),
-            received_at: base_time + ChronoDuration::seconds(1),
-            price: "0".to_owned(),
-            volume: "0".to_owned(),
-        };
-
-        let mut ingestor = MarketIngestor::new(default_approved_providers());
-        let started_at = Instant::now();
-        let stale = ingestor.ingest_tick(TenantId::new(), CorrelationId::new(), stale_tick)?;
-        let quality = ingestor.ingest_tick(TenantId::new(), CorrelationId::new(), quality_tick)?;
-
-        let stale_anomaly = stale
-            .market_events
-            .iter()
-            .find(|event| event.event_kind == MarketEventKind::FreshnessDegraded)
-            .expect("freshness anomaly emitted");
-        let quality_anomaly = quality
-            .market_events
-            .iter()
-            .find(|event| event.event_kind == MarketEventKind::QualityFailed)
-            .expect("quality anomaly emitted");
-
-        assert!(started_at.elapsed() <= Duration::from_secs(5));
-        assert_eq!(
-            quality_anomaly.anomaly_reason.as_deref(),
-            Some("non_positive_price_or_volume")
-        );
-        assert_eq!(
-            stale.recorded_events[1].occurred_at,
-            stale_anomaly.received_at
-        );
-        assert_eq!(
-            quality.recorded_events[1].occurred_at,
-            quality_anomaly.received_at
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn rejects_unapproved_providers_and_normalizes_symbols() {
-        let error = MarketIngestor::new(default_approved_providers())
-            .ingest_tick(
-                TenantId::new(),
-                CorrelationId::new(),
-                RawMarketTick {
-                    provider: "shadow.provider".to_owned(),
-                    source_tick_id: "1".to_owned(),
-                    provider_symbol: "btc/usdt".to_owned(),
-                    event_time: Utc::now(),
-                    received_at: Utc::now(),
-                    price: "1".to_owned(),
-                    volume: "1".to_owned(),
-                },
-            )
-            .expect_err("provider should be rejected");
-
-        assert_eq!(error.machine_code(), "MARKET_PROVIDER_NOT_APPROVED");
-        assert_eq!(
-            normalize_symbol("btc/usdt").expect("symbol normalizes"),
-            "BTCUSDT"
-        );
-        assert_eq!(
-            normalize_symbol("btc-usdt").expect("hyphenated symbol normalizes"),
-            "BTCUSDT"
-        );
-        assert_eq!(
-            normalize_symbol("btc_usdt").expect("underscored symbol normalizes"),
-            "BTCUSDT"
-        );
-        assert_eq!(
-            normalize_symbol("btc@@usdt")
-                .expect_err("unexpected punctuation must fail closed")
-                .machine_code(),
-            "MARKET_INVALID_SYMBOL"
-        );
-    }
-
-    #[test]
-    fn invalid_ticks_do_not_poison_deduplication_and_negative_values_fail_quality() -> Result<()> {
-        let tenant_id = TenantId::new();
-        let correlation_id = CorrelationId::new();
-        let base_time = Utc::now();
-        let mut ingestor = MarketIngestor::new(default_approved_providers());
-        let mut tick = RawMarketTick {
-            provider: "approved.binance.spot".to_owned(),
-            source_tick_id: "correctable-1".to_owned(),
-            provider_symbol: "BTC/USDT".to_owned(),
-            event_time: base_time,
-            received_at: base_time,
-            price: "invalid".to_owned(),
-            volume: "1".to_owned(),
-        };
-
-        assert_eq!(
-            ingestor
-                .ingest_tick(tenant_id, correlation_id, tick.clone())
-                .expect_err("invalid price is rejected")
-                .machine_code(),
-            "MARKET_INVALID_PRICE"
-        );
-        tick.price = "100.1250".to_owned();
-        let corrected = ingestor.ingest_tick(tenant_id, correlation_id, tick)?;
-        assert!(!corrected.duplicate);
-        assert_eq!(
-            corrected.market_events[0].price.value().to_string(),
-            "100.1250"
-        );
-
-        let zero = ingestor.ingest_tick(
-            tenant_id,
-            correlation_id,
-            RawMarketTick {
-                provider: "approved.binance.spot".to_owned(),
-                source_tick_id: "zero-1".to_owned(),
-                provider_symbol: "ETH-USDT".to_owned(),
-                event_time: base_time,
-                received_at: base_time,
-                price: "0".to_owned(),
-                volume: "2".to_owned(),
-            },
-        )?;
-        assert!(zero.market_events.iter().any(|event| {
-            event.event_kind == MarketEventKind::QualityFailed
-                && event.anomaly_reason.as_deref() == Some("non_positive_price_or_volume")
-        }));
-
-        let negative_error = ingestor
-            .ingest_tick(
-                tenant_id,
-                correlation_id,
-                RawMarketTick {
-                    provider: "approved.binance.spot".to_owned(),
-                    source_tick_id: "negative-1".to_owned(),
-                    provider_symbol: "SOL_USDT".to_owned(),
-                    event_time: base_time,
-                    received_at: base_time,
-                    price: "-1".to_owned(),
-                    volume: "2".to_owned(),
-                },
-            )
-            .expect_err("negative price is rejected");
-        assert_eq!(negative_error.machine_code(), "MARKET_INVALID_PRICE");
-        Ok(())
-    }
-}
+mod tests;

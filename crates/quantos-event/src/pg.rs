@@ -84,6 +84,10 @@ pub enum PgEventStoreError {
     Event(#[from] EventError),
     #[error(transparent)]
     Core(#[from] CoreError),
+    #[error("MARKET_SOURCE_CONFLICT")]
+    MarketSourceConflict,
+    #[error("MARKET_INVALID_IDENTITY")]
+    MarketIdentity,
     #[error("missing event log row for event `{0}`")]
     MissingEvent(EventId),
     #[error("EVENT_STALE_LEASE: {kind} `{id}` is no longer owned by this claim")]
@@ -100,6 +104,7 @@ pub enum PgEventStoreError {
 pub struct PgEventStore {
     client: Client,
     outbox_tenants: Option<Vec<Uuid>>,
+    outbox_aggregate_type: Option<String>,
 }
 
 impl PgEventStore {
@@ -107,6 +112,7 @@ impl PgEventStore {
         Ok(Self {
             client: connect_client(database_url)?,
             outbox_tenants: None,
+            outbox_aggregate_type: None,
         })
     }
 
@@ -122,87 +128,100 @@ impl PgEventStore {
         Ok(store)
     }
 
+    /// Partition a worker by aggregate type as well as tenant before claiming rows.
+    #[must_use]
+    pub fn with_aggregate_scope(mut self, aggregate_type: &str) -> Self {
+        self.outbox_aggregate_type = Some(aggregate_type.to_owned());
+        self
+    }
+
     pub fn append_event(&mut self, event: &RecordedEvent) -> Result<(), PgEventStoreError> {
         let mut tx = self.client.transaction()?;
-        if find_event_log_uuid(&mut tx, event.event_id)?.is_some() {
-            return Err(EventError::duplicate_event(event.event_id).into());
-        }
-        let stream_id = ensure_stream(&mut tx, event)?;
-        tx.execute_typed(
-            "select 1 from quantos.event_streams where id = $1 for update",
-            &[(&stream_id, Type::UUID)],
-        )?;
-        let expected = expected_sequence(&mut tx, stream_id)?;
-        if event.sequence != expected {
-            return Err(EventError::sequence_gap(expected, event.sequence).into());
-        }
-
-        let payload = Json(&event.payload);
-        tx.execute_typed(
-            "insert into quantos.event_log (
-                tenant_id, stream_id, event_id, actor_id, correlation_id, causation_id,
-                aggregate_type, aggregate_id, sequence, event_kind, schema_version, payload,
-                payload_hash, occurred_at
-            ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)",
-            &[
-                (event.tenant_id.as_uuid(), Type::UUID),
-                (&stream_id, Type::UUID),
-                (event.event_id.as_uuid(), Type::UUID),
-                (event.actor_id.as_uuid(), Type::UUID),
-                (event.correlation_id.as_uuid(), Type::UUID),
-                (event.causation_id.as_uuid(), Type::UUID),
-                (&event.aggregate_type, Type::TEXT),
-                (&event.aggregate_id, Type::TEXT),
-                (&(event.sequence as i64), Type::INT8),
-                (&event.event_kind, Type::TEXT),
-                (&event.schema_version.as_str(), Type::TEXT),
-                (&payload, Type::JSONB),
-                (&event.payload_hash.as_str(), Type::TEXT),
-                (&event.occurred_at, Type::TIMESTAMPTZ),
-            ],
-        )?;
-
-        let audit_details = Json(&serde_json::json!({
-            "event_kind": event.event_kind,
-            "payload_hash": event.payload_hash.as_str(),
-            "sequence": event.sequence,
-        }));
-        tx.execute_typed(
-            "insert into quantos.audit_entries (
-                tenant_id, actor_id, correlation_id, causation_id, event_id, action, details, recorded_at
-            ) values ($1,$2,$3,$4,$5,$6,$7,$8)",
-            &[
-                (event.tenant_id.as_uuid(), Type::UUID),
-                (event.actor_id.as_uuid(), Type::UUID),
-                (event.correlation_id.as_uuid(), Type::UUID),
-                (event.causation_id.as_uuid(), Type::UUID),
-                (event.event_id.as_uuid(), Type::UUID),
-                (&"event.appended", Type::TEXT),
-                (&audit_details, Type::JSONB),
-                (&event.occurred_at, Type::TIMESTAMPTZ),
-            ],
-        )?;
-
-        let event_log_id = find_event_log_uuid(&mut tx, event.event_id)?
-            .ok_or(PgEventStoreError::MissingEvent(event.event_id))?;
-
-        tx.execute_typed(
-            "insert into quantos.outbox_event (
-                tenant_id, event_log_id, topic, status, attempts, available_at
-            ) values ($1,$2,$3,'pending',0,$4)",
-            &[
-                (event.tenant_id.as_uuid(), Type::UUID),
-                (&event_log_id, Type::UUID),
-                (
-                    &format!("{}.{}", event.aggregate_type, event.event_kind),
-                    Type::TEXT,
-                ),
-                (&event.occurred_at, Type::TIMESTAMPTZ),
-            ],
-        )?;
-
+        append_recorded_event_tx(&mut tx, event)?;
         tx.commit()?;
         Ok(())
+    }
+
+    /// Source receipt, stream allocation, ledger, audit and outbox commit together.
+    /// A delivery timestamp is not part of the source hash; conflicting content is rejected.
+    pub fn append_market_events(
+        &mut self,
+        tenant_id: TenantId,
+        actor_id: ActorId,
+        provider: &str,
+        source_tick_id: &str,
+        source_hash: &ContentHash,
+        events: &mut [RecordedEvent],
+    ) -> Result<bool, PgEventStoreError> {
+        if provider.trim().is_empty()
+            || source_tick_id.trim().is_empty()
+            || events.is_empty()
+            || events.iter().any(|e| {
+                e.tenant_id != tenant_id
+                    || e.actor_id != actor_id
+                    || e.aggregate_type != "market"
+                    || e.aggregate_id != events[0].aggregate_id
+            })
+        {
+            return Err(PgEventStoreError::MarketIdentity);
+        }
+        let document =
+            Json(serde_json::to_value(&*events).map_err(|_| PgEventStoreError::MarketIdentity)?);
+        let result = self.client.query_typed_one(
+            "select inserted, first_sequence from quantos.append_market_source($1,$2,$3,$4,$5,$6)",
+            &[
+                (tenant_id.as_uuid(), Type::UUID),
+                (actor_id.as_uuid(), Type::UUID),
+                (&provider, Type::TEXT),
+                (&source_tick_id, Type::TEXT),
+                (&source_hash.as_str(), Type::TEXT),
+                (&document, Type::JSONB),
+            ],
+        );
+        let row = match result {
+            Err(error)
+                if error
+                    .as_db_error()
+                    .is_some_and(|db| db.message() == "MARKET_SOURCE_CONFLICT") =>
+            {
+                return Err(PgEventStoreError::MarketSourceConflict);
+            }
+            Err(error)
+                if error
+                    .as_db_error()
+                    .is_some_and(|db| db.message() == "MARKET_ACTOR_NOT_AUTHORIZED") =>
+            {
+                return Err(PgEventStoreError::ActorNotAuthorized {
+                    tenant_id,
+                    actor_id,
+                });
+            }
+            other => other?,
+        };
+        let inserted: bool = row.get("inserted");
+        if inserted {
+            let first: i64 = row.get("first_sequence");
+            for (offset, event) in events.iter_mut().enumerate() {
+                event.sequence = first as u64 + offset as u64;
+            }
+        }
+        Ok(inserted)
+    }
+
+    /// Session-local deadline for the single-statement market writer; no effect on other connections.
+    pub fn configure_market_deadline(&mut self) -> Result<(), PgEventStoreError> {
+        self.client
+            .batch_execute("set statement_timeout='4000ms'; set lock_timeout='2000ms'")?;
+        Ok(())
+    }
+
+    pub fn last_market_receipt(
+        &mut self,
+        tenant: TenantId,
+        provider: &str,
+    ) -> Result<Option<DateTime<Utc>>, PgEventStoreError> {
+        let row=self.client.query_typed_one("select max(created_at) from quantos.market_source_receipt where tenant_id=$1 and provider=$2 and source_tick_id not like 'watchdog:%' and source_tick_id not like 'rejected:%'", &[(tenant.as_uuid(),Type::UUID),(&provider,Type::TEXT)])?;
+        Ok(row.get(0))
     }
 
     pub fn events_by_correlation_id(
@@ -239,6 +258,7 @@ impl PgEventStore {
                 from quantos.outbox_event as o
                 where o.available_at <= $3
                   and ($5::uuid[] is null or o.tenant_id = any($5))
+                  and ($6::text is null or exists (select 1 from quantos.event_log e where e.id=o.event_log_id and e.aggregate_type=$6))
                   and (
                     o.status = 'pending'
                     or (
@@ -285,6 +305,7 @@ impl PgEventStore {
                 (&observed_at, Type::TIMESTAMPTZ),
                 (&limit, Type::INT8),
                 (&self.outbox_tenants, Type::UUID_ARRAY),
+                (&self.outbox_aggregate_type, Type::TEXT),
             ],
         )?;
 
@@ -1249,6 +1270,90 @@ impl PgEventStore {
         }
         Ok(())
     }
+}
+
+fn append_recorded_event_tx(
+    tx: &mut Transaction<'_>,
+    event: &RecordedEvent,
+) -> Result<(), PgEventStoreError> {
+    if find_event_log_uuid(tx, event.event_id)?.is_some() {
+        return Err(EventError::duplicate_event(event.event_id).into());
+    }
+    let stream_id = ensure_stream(tx, event)?;
+    tx.execute_typed(
+        "select 1 from quantos.event_streams where id = $1 for update",
+        &[(&stream_id, Type::UUID)],
+    )?;
+    let expected = expected_sequence(tx, stream_id)?;
+    if event.sequence != expected {
+        return Err(EventError::sequence_gap(expected, event.sequence).into());
+    }
+
+    let payload = Json(&event.payload);
+    tx.execute_typed(
+        "insert into quantos.event_log (
+                tenant_id, stream_id, event_id, actor_id, correlation_id, causation_id,
+                aggregate_type, aggregate_id, sequence, event_kind, schema_version, payload,
+                payload_hash, occurred_at
+            ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)",
+        &[
+            (event.tenant_id.as_uuid(), Type::UUID),
+            (&stream_id, Type::UUID),
+            (event.event_id.as_uuid(), Type::UUID),
+            (event.actor_id.as_uuid(), Type::UUID),
+            (event.correlation_id.as_uuid(), Type::UUID),
+            (event.causation_id.as_uuid(), Type::UUID),
+            (&event.aggregate_type, Type::TEXT),
+            (&event.aggregate_id, Type::TEXT),
+            (&(event.sequence as i64), Type::INT8),
+            (&event.event_kind, Type::TEXT),
+            (&event.schema_version.as_str(), Type::TEXT),
+            (&payload, Type::JSONB),
+            (&event.payload_hash.as_str(), Type::TEXT),
+            (&event.occurred_at, Type::TIMESTAMPTZ),
+        ],
+    )?;
+
+    let audit_details = Json(&serde_json::json!({
+        "event_kind": event.event_kind,
+        "payload_hash": event.payload_hash.as_str(),
+        "sequence": event.sequence,
+    }));
+    tx.execute_typed(
+            "insert into quantos.audit_entries (
+                tenant_id, actor_id, correlation_id, causation_id, event_id, action, details, recorded_at
+            ) values ($1,$2,$3,$4,$5,$6,$7,$8)",
+            &[
+                (event.tenant_id.as_uuid(), Type::UUID),
+                (event.actor_id.as_uuid(), Type::UUID),
+                (event.correlation_id.as_uuid(), Type::UUID),
+                (event.causation_id.as_uuid(), Type::UUID),
+                (event.event_id.as_uuid(), Type::UUID),
+                (&"event.appended", Type::TEXT),
+                (&audit_details, Type::JSONB),
+                (&event.occurred_at, Type::TIMESTAMPTZ),
+            ],
+        )?;
+
+    let event_log_id = find_event_log_uuid(tx, event.event_id)?
+        .ok_or(PgEventStoreError::MissingEvent(event.event_id))?;
+
+    tx.execute_typed(
+        "insert into quantos.outbox_event (
+                tenant_id, event_log_id, topic, status, attempts, available_at
+            ) values ($1,$2,$3,'pending',0,$4)",
+        &[
+            (event.tenant_id.as_uuid(), Type::UUID),
+            (&event_log_id, Type::UUID),
+            (
+                &format!("{}.{}", event.aggregate_type, event.event_kind),
+                Type::TEXT,
+            ),
+            (&event.occurred_at, Type::TIMESTAMPTZ),
+        ],
+    )?;
+
+    Ok(())
 }
 
 fn connect_client(database_url: &str) -> Result<Client, PgEventStoreError> {

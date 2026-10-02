@@ -1,0 +1,66 @@
+{
+  "schema": "quantos-r01-remediation-evidence/v1",
+  "date": "2026-10-02",
+  "status": "FIX_VALIDATION",
+  "closedIssues": 9,
+  "totalIssues": 10,
+  "openIssues": [
+    "B01"
+  ],
+  "providerAcceptance": "NOT RUN / NO RECEIPT",
+  "scope": "local production-source hashes + configured Supabase fixture; not remote exact-SHA acceptance",
+  "sourceHashes": {
+    "crates/quantos-market/src/lib.rs": "0312293350a64aacb7eb85e8a7e5955c5a01d5d5a6b1e963e600be2518fc7fba",
+    "crates/quantos-market/src/durable.rs": "218274d46cad2d628b5c4e208562282508c9cd252b03eaa6d7dec5c68d6b177b",
+    "services/market-ingestor/src/main.rs": "65da6c6e15fb3fd44d18871e9e46aa064e25c14427fca1a5c18704c416807127",
+    "services/market-ingestor/src/cli.rs": "f93cd907e0952942beb25810693cf919b3be6aebaa23860ef69dbbad6a6aac63",
+    "crates/quantos-event/src/pg.rs": "8697ef45925aafa515996ecc2476ea29f353e382a03416fe5b4a9f99bb0407a3",
+    "crates/quantos-market/src/tests.rs": "aaf3cef889a6a79e68bfb43d0938ce42f1631c5559665d3e1d8d47558a6f1704",
+    "crates/quantos-market/tests/postgres_ingestion.rs": "cb0365ddb57d865a9355ea3dceae3d10b21054893bf5d414e5702c83180ade57",
+    "services/market-ingestor/tests/cli.rs": "0a0959bc325f31706ebba081dea1ac695ab3d79e16070d6488e317b0de5a2ad0"
+  },
+  "targetReceipts": [
+    "accepted-stable/target-receipt.json",
+    "final-nightly/target-receipt.json"
+  ],
+  "checks": {
+    "localGate": "PASS",
+    "stableCoverage": "PASS",
+    "nightlyCoverage": "PASS",
+    "supabaseFixture": "PASS",
+    "fmt": "PASS",
+    "workspaceClippy": "PASS",
+    "workspaceRustTests": "PASS",
+    "secrets": "PASS",
+    "lockfiles": "PASS",
+    "planStructure": "PASS",
+    "remoteWorkflow": "NOT RUN",
+    "realProvider": "NOT RUN"
+  },
+  "sha256": {
+    "accepted-stable/coverage-summary.json": "c5f23b53ba82b92459c0ede9f8d3b37428b18a8798a0ffb42dd33d34f4a90f86",
+    "accepted-stable/coverage.json.gz": "6b70788b3e525ca1614493c65d4743443e6b25f2965015e5cf36be434d05d28a",
+    "accepted-stable/owned-fixtures.json": "227c30e74e01ed3d1a1bf01d89c82ac84246a23e2808e8eb16346ecdb3141fba",
+    "accepted-stable/target-receipt.json": "290e760ca1913ba3b9c3a5c50c71da82cf3fba83c30ff59c9698142ba98d9845",
+    "accepted-stable/target-tests.log": "f10b02c353fcbecf7ac67b8f74a065094020a1fcb546b41634e719d6e77ca0e8",
+    "accepted-stable-run.log": "043f309b1a9ec5b760a53fb2c3062e56bd0306634746bfb7af6c89b617e17d1a",
+    "final-nightly/coverage-summary.json": "12695bc29bb106279127a3666a59a25863fa7ad9e79acab4c8352112cf6a8bc2",
+    "final-nightly/coverage.json.gz": "e3ee42c5b9cbebdec90447eeb036f5841b6542f801c810bbd787bb1b103f781e",
+    "final-nightly/owned-fixtures.json": "0dabf58dd4dee533fb0795ee360bc394b9f26ca5a308d0cbbed33b0570c5b267",
+    "final-nightly/target-receipt.json": "290e760ca1913ba3b9c3a5c50c71da82cf3fba83c30ff59c9698142ba98d9845",
+    "final-nightly/target-tests.log": "20df4c0fd9d9ad8003f4c68b293efa1d3bfaae3a29be08fc469cc2bf7e8413ab",
+    "final-nightly-run.log": "043f309b1a9ec5b760a53fb2c3062e56bd0306634746bfb7af6c89b617e17d1a",
+    "fmt-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "local-gate-final.log": "cd782614222b49bb669b8e15f74b3c70a6e4a5ef4c6e64f18ebea3f167cdb530",
+    "locks-final.log": "67cb7ab53874000041dca12ad79d182b8fa8f076f8c56f3fab89854175dc4dd4",
+    "migration-apply-final.log": "da948d5ee8e0cc77ce98d05394c6f6f70446ea4318a36eae81e17ca4ea1411f1",
+    "migration-apply.log": "46c7900bb25a9b46dfba6d1dfe7b84a6a4af36ea2080e2d2e9e561c1b177c0f4",
+    "plans-final.log": "a7a02d64bb4c7dc05831d228b2fe385957373320ec6a2aba45d26c75582656df",
+    "secrets-final.log": "ca5db157b114e3b38e39d071cba3a6a293324791c1621e10755a2c3c2d459932",
+    "target-first-failed.log": "cb4b285d0ccba805d18ac1666867d3fbb863ce9d5c120897c885983e5d3bd9af",
+    "target-second-failed.log": "fd353142d666a24525324906480f44049365c7f1f31a0528d28d22e8944a0fb0",
+    "workspace-clippy-final.log": "3d5bc1e8495fc23936320b24e5c147a47a6291e348e12f1e8bc00dc73d25cc13",
+    "workspace-tests-authorized.log": "1665937b608df452831ee7f2a66eb94b7841df089773aa4b657e5fe07c03f149",
+    "README.md": "7f033ba24cc9b05c03db07d43fce785d8eb51acd3fcd13c6a15c6af5b402fe89"
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "schema": "quantos-r01-audit/v1",
+  "date": "2026-10-02",
+  "timezone": "Asia/Shanghai",
+  "sourceCommit": "296ffc2f1b98e6266a3a83e4716b8f6b99ecfa16",
+  "scope": "R01 service review, not R1 full-business acceptance",
+  "conclusion": "FIX_VALIDATION_RECOMMENDED",
+  "planStatusUnchanged": true,
+  "checkpoints": {
+    "total": 24,
+    "PASS": 8,
+    "PARTIAL": 13,
+    "FAIL": 3,
+    "completePercent": 33.33
+  },
+  "quantitativeAcceptance": {
+    "total": 3,
+    "PASS": 1,
+    "PARTIAL": 2,
+    "FAIL": 0
+  },
+  "formalTaskAcceptance": {
+    "total": 1,
+    "accepted": 0
+  },
+  "issues": {
+    "OPEN": 10,
+    "blocking": 1,
+    "high": 4,
+    "medium": 4,
+    "low": 1
+  },
+  "boundaryProbes": {
+    "total": 10,
+    "reproduced": 10,
+    "meaning": "PASS asserts defective current behavior"
+  },
+  "targetProvider": "NOT_RUN_NO_RECEIPT",
+  "targetSupabase": "NOT_RUN_NO_RECEIPT",
+  "nightlyBranchCoverage": "NOT_RUN_NO_RECEIPT",
+  "pureDomainP95": "NOT_RUN_NO_RECEIPT",
+  "matrix": [
+    {
+      "id": "C01",
+      "requirement": "F03/F05/F0 前置依赖",
+      "status": "PASS"
+    },
+    {
+      "id": "C02",
+      "requirement": "`quantos-market` 交付",
+      "status": "PASS"
+    },
+    {
+      "id": "C03",
+      "requirement": "ingestor 服务交付",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C04",
+      "requirement": "replay dataset 交付",
+      "status": "PASS"
+    },
+    {
+      "id": "C05",
+      "requirement": "symbol 归一化",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C06",
+      "requirement": "时间标准化",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C07",
+      "requirement": "数值精度",
+      "status": "PASS"
+    },
+    {
+      "id": "C08",
+      "requirement": "来源、dataset、许可证",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C09",
+      "requirement": "仅批准 provider",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C10",
+      "requirement": "质量归一化及异常路径",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C11",
+      "requirement": "`MarketEvent` 转领域记录",
+      "status": "PASS"
+    },
+    {
+      "id": "C12",
+      "requirement": "可靠写入 `MarketEvent`",
+      "status": "FAIL"
+    },
+    {
+      "id": "C13",
+      "requirement": "10 万条解析成功率 100%",
+      "status": "PASS"
+    },
+    {
+      "id": "C14",
+      "requirement": "重复数据正确去重",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C15",
+      "requirement": "乱序数据基础处理",
+      "status": "PASS"
+    },
+    {
+      "id": "C16",
+      "requirement": "新鲜度/质量异常 ≤5s 发出",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C17",
+      "requirement": "写失败后安全重试",
+      "status": "FAIL"
+    },
+    {
+      "id": "C18",
+      "requirement": "重复/乱序/重启/死信闭环",
+      "status": "FAIL"
+    },
+    {
+      "id": "C19",
+      "requirement": "成功/拒绝/恢复自动化测试",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C20",
+      "requirement": "Rust fmt、Clippy 无 warning",
+      "status": "PASS"
+    },
+    {
+      "id": "C21",
+      "requirement": "覆盖率与可破坏 Gate",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C22",
+      "requirement": "纯领域 P95 <50ms/异步 deadline",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C23",
+      "requirement": "安全、锁与协议质量检查",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C24",
+      "requirement": "日志/trace/指标/健康/运维",
+      "status": "PARTIAL"
+    }
+  ],
+  "checks": {
+    "r01-check": 0,
+    "fmt": 0,
+    "clippy": 0,
+    "secret-pattern": 0,
+    "plan-structure": 0,
+    "coverage-collection": 0,
+    "cli-generate": 0,
+    "cli-ingest": 0,
+    "boundary-probes": 0,
+    "lockfiles-final": 0,
+    "lockfiles-first": 1,
+    "lockfiles-retry": 1
+  },
+  "files": {
+    "README.md": "1baf6f955a27b98a9921839300052e785feded353ac32e860d68412805821c71",
+    "boundary-probes.log": "6403cacdb96d88dc168c1671792f2afaa169fa41d39e24986a591dd7981ba03d",
+    "boundary_probes.rs": "ebb94315e60327ca3ae7898ec6263e15201807195fc510b5cff1939181e38084",
+    "cli-generate.log": "b434e4358e6d06f152ef0ff475032cf5daefa20e64a122318cd4466adae7180a",
+    "cli-ingest.log": "4a5c2883c61888e63d8c4ce757e361edd8f8db59a6eb349fe4f243690a4fde8b",
+    "clippy.log": "5e699d1e5d6d892e95939508a2b6280492ff11218ae14ccc2d378d86fa757fc0",
+    "coverage.json": "84ad95648f9790bd604dd4d7cab79c6087c31e70040cc086941ac2ea584b0a3a",
+    "coverage.log": "e253f705c4ae1e7a76878b918f91e9d1acfa5f8fadd9beac59cb9e3bc067e11d",
+    "fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lockfiles-final.log": "3605c4473387f87ca3866c2f7621e1b20ff37e01e32c6248a6b511532ef397ac",
+    "lockfiles-retry.log": "4c47ef96b8f99e5e8b61ecb040a674d37839862602fd8eb954a6c51462f8ea0d",
+    "lockfiles.log": "e8c308d1c7070c9a6637861ace8d48eeb3da230b8a27f4c046ef3b5731d1332f",
+    "plans.log": "a7a02d64bb4c7dc05831d228b2fe385957373320ec6a2aba45d26c75582656df",
+    "r01-check.log": "bd8c877173fa32cb78c72afd125f200d222d972f3d010a8f985c38dbae0a8e13",
+    "secrets.log": "ca5db157b114e3b38e39d071cba3a6a293324791c1621e10755a2c3c2d459932"
+  },
+  "reportSha256": "d7c8341baf950de7867abd911a131f45b7179b120783f5c410866f8f8fa58ee2"
+}
