@@ -1,0 +1,136 @@
+{
+  "schema": "quantos-pre01-recheck/v1",
+  "date": "2026-10-02",
+  "source_base_commit": "199eb8f9b5ae4792d98919e0d793349490e2eb6e",
+  "binding": "base commit plus working-tree SHA-256; final commit is the containing Git commit, not a self-referential hash",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "pre01",
+      "command": "node scripts/check-pre01.mjs",
+      "exit_code": 0,
+      "log": "pre01.log"
+    },
+    {
+      "name": "pre01-tests",
+      "command": "node --test scripts/tests/check-pre01.test.mjs",
+      "exit_code": 0,
+      "log": "pre01-tests.log",
+      "tests": 32,
+      "passed": 32
+    },
+    {
+      "name": "g0",
+      "command": "node scripts/check-g0-records.mjs",
+      "exit_code": 0,
+      "log": "g0.log"
+    },
+    {
+      "name": "bff-coverage",
+      "command": "node scripts/check-bff-contract-coverage.mjs",
+      "exit_code": 0,
+      "log": "bff-coverage.log"
+    },
+    {
+      "name": "pre04",
+      "command": "node scripts/pre04-inventory.mjs",
+      "exit_code": 0,
+      "log": "pre04.log"
+    },
+    {
+      "name": "pre04-tests",
+      "command": "node --test scripts/pre04-gate-negative.mjs",
+      "exit_code": 0,
+      "log": "pre04-tests.log",
+      "tests": 7,
+      "passed": 7
+    },
+    {
+      "name": "bff-fe-000",
+      "command": "node scripts/check-bff-fe-000.mjs",
+      "exit_code": 0,
+      "log": "bff-fe-000.log"
+    },
+    {
+      "name": "bff-fe-000-tests",
+      "command": "node --test scripts/bff-fe-000-gate-negative.mjs",
+      "exit_code": 0,
+      "log": "bff-fe-000-tests.log",
+      "tests": 8,
+      "passed": 8
+    },
+    {
+      "name": "plans",
+      "command": "node scripts/check-development-plans.mjs",
+      "exit_code": 0,
+      "log": "plans.log"
+    },
+    {
+      "name": "plan-tests",
+      "command": "node --test scripts/development-plan-order-negative.mjs",
+      "exit_code": 0,
+      "log": "plan-tests.log",
+      "tests": 20,
+      "passed": 20
+    },
+    {
+      "name": "pre06",
+      "command": "node scripts/check-pre06.mjs",
+      "exit_code": 0,
+      "log": "pre06.log"
+    }
+  ],
+  "tests": {
+    "total": 67,
+    "passed": 67
+  },
+  "history": {
+    "archive": "docs/audit/PRE-01-comprehensive-review-history-2026-10-02.md",
+    "source_path": "docs/audit/PRE-01-comprehensive-review-2026-10-02.md",
+    "source_commit": "199eb8f9b5ae4792d98919e0d793349490e2eb6e",
+    "byte_identical": true,
+    "sha256": "ee69963fdd621f3e49ef9ed6635addb4cdcf0266e6f2576bb89902d9334e2df6",
+    "note": "Prior manifests bind their original commit/working-tree artifacts, not the newly rewritten report."
+  },
+  "sha256": {
+    "bff/openapi/quantos-bff.v1.yaml": "749069fd36417528f59fb4c85e126d3d4952f8db7d89e2a11a0ecddcbbed5db3",
+    "bff/page-operation-catalog.yaml": "d849b35b60861edff8956d3db9bf03a4e06c13cbc12621a0983af65fb8412622",
+    "docs/DESK-PRE-01-requirements-transfer.md": "06dd210f85f5e95fe4380f6db793b0b4c11ad469155f85aac04b7072782c0e10",
+    "docs/PRE-01-acceptance-scenarios.md": "ceba9194594c9bbade525ec027251fc2656947f995e43e8ae2fde11d144d98c9",
+    "docs/PRE-01-page-api-coverage-register.md": "15a241c01a0644d9a1a053ab3becbcd8fc25f6de45f503d5eb0321c6540cc57f",
+    "docs/PRE-01-page-ledger-and-stories.md": "b96d4864c51630801cba879c597e78974842e1df491dc5bb223e4ac410d06974",
+    "docs/PRE-01-requirements-baseline.json": "dab5cd519d22c3bff674645cf0ed68b2a87608ce057156e0ba0e5e6df6f89d57",
+    "docs/PRE-01-route-permission-matrix.md": "de578e1a13c9efd43a3659bb3bf179dca5928fbd020d3ca1130623d63080c09b",
+    "docs/PRE-01-summary-and-risks.md": "1c5eb27ff55194756b315749e106cee98d8b88bbb2081771b41f24507f2b8123",
+    "docs/SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md": "403289986ae1d4a1bce3a1defed59dd67e17e1281efbbb89301ed92926721790",
+    "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md": "ed6186b324b90765ffae98353d42a6c574008685d8579660538c68170b9aa525",
+    "docs/audit/PRE-01-comprehensive-review-2026-10-02.md": "4141e212930d77bce3987f4a4fb6a7090798e2004466a50bf7f7780494621eb2",
+    "docs/audit/PRE-01-comprehensive-review-history-2026-10-02.md": "ee69963fdd621f3e49ef9ed6635addb4cdcf0266e6f2576bb89902d9334e2df6",
+    "docs/audit/PRE-01-remediation-validation-2026-10-02.md": "b14bcf96b2649eaf237d83ce0bffe17720871eff964e8225a4f1fb973bcf7ccc",
+    "docs/audit/evidence/pre01-recheck-20261002/before-extra-probe.json": "d9083f430cb773d552fabc56ddf45c3de55a76532ff1fd645e6dd53d2352c118",
+    "docs/audit/evidence/pre01-recheck-20261002/bff-coverage.log": "0d1717cde30d30d6bcdc56354e762be6c43ea85e0f0e672ebbd7099e7082c7ed",
+    "docs/audit/evidence/pre01-recheck-20261002/bff-fe-000-tests.log": "acb3a8dfdcac77276d64bf8fb3eeb2a423dfd5f912f6682b46d79f8bf795e736",
+    "docs/audit/evidence/pre01-recheck-20261002/bff-fe-000.log": "ffb8fc4ed3433e11440d7c3bdf94d84247b30e6d0fac7ae43284673050031f72",
+    "docs/audit/evidence/pre01-recheck-20261002/closure.json": "2352060731b6d388a6357265b4b57b97c7be37c8ba489a8fd57b143a529a114d",
+    "docs/audit/evidence/pre01-recheck-20261002/g0.log": "95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c",
+    "docs/audit/evidence/pre01-recheck-20261002/plan-tests.log": "70f6a679f2c61505b903b33787f4f9708bd6e8d4d1ecbeab1d4f83a6d16ec5f6",
+    "docs/audit/evidence/pre01-recheck-20261002/plans.log": "a7a02d64bb4c7dc05831d228b2fe385957373320ec6a2aba45d26c75582656df",
+    "docs/audit/evidence/pre01-recheck-20261002/pre01-tests.log": "d01f80e1a0e09b6fc75dd94d3f6fe08384488abfe9a4ca937acdebe8957b66c2",
+    "docs/audit/evidence/pre01-recheck-20261002/pre01.log": "e0a171eeeb07232db1993ab4de85723514a09aa409a3228949370f5f874e6e77",
+    "docs/audit/evidence/pre01-recheck-20261002/pre04-tests.log": "7e9d66e5a24351d2a775da73e4dc389bd7716e65f987a1d1be21e0448c5d1cf4",
+    "docs/audit/evidence/pre01-recheck-20261002/pre04.log": "3e7558dcc1a981f2cd59339c1fff36ec3d4adf2ac1ce42ddb80db8284e5a350c",
+    "docs/audit/evidence/pre01-recheck-20261002/pre06.log": "b87030f8b1209e46ae8a6d772a2ac3434dd9fbd6c6b2022da246444ca8b79efa",
+    "docs/gate-records/G0-PRE-01-review-record.md": "0a17d015c97e63be0fddd413b358c3838f392140c3a8fd5e47a98cc3bb8e5c19",
+    "docs/gate-records/G0-current-governance.json": "ad89d8da7ca7cf52510003667900b86c632a5400f24e2a3a557bf2038a88ec4b",
+    "docs/gate-records/G0-readiness-assessment.md": "b5e364cadc03d41b114606b4fb43042de901c515d0ca8a2cb144a7a9db95194f",
+    "scripts/check-g0-records.mjs": "d46e8ad78628fc056c71eb9813d49ffae6e23af25e6852e6f7fcfb46035cdbec",
+    "scripts/check-pre01.mjs": "31d9351896108d3f69c585512116fa3b42f4368e3f7d1a0b4362b731f028a4dc",
+    "scripts/tests/check-pre01.test.mjs": "c793048bc8a77e492d5f3af3c613288eafab919d557d0b4d49b3d100bab1dd2a"
+  },
+  "boundaries": {
+    "designated_model_review": "NOT_STARTED",
+    "formal_g0": "NOT_STARTED / NO CURRENT RECEIPT",
+    "target_runtime": "NOT_RUN",
+    "database": "NOT_RUN"
+  }
+}

@@ -79,3 +79,35 @@ test("missing G0 leftover owner fails",()=>{
   const input=loadG0Inputs(); input.governance.leftovers[0].owner="";
   assert.throws(()=>validateG0Records(input),/owner\/deadline/);
 });
+
+test("P05 cannot bind metadata download to an untraced audit export operation", () => {
+  const coverage = valid.coverage.replace(/^\| P05 \|.*$/m, row => {
+    const cells = row.split("|");
+    cells[4] = " createExport（published，C10） ";
+    return cells.join("|");
+  });
+  assert.notEqual(coverage, valid.coverage);
+  assert.throws(() => validatePre01({ ...valid, coverage }), /P05: operation createExport requires traced contract C10/);
+});
+
+test("P21 cannot drop alert ownership from both ledger and trace while retaining the subscription", () => {
+  const ledger = valid.ledger.replace(/^\| P21 \|.*$/m, row => row.replace("C14、C15、C16", "C14、C15"));
+  const scenarios = valid.scenarios.replace(/^\| P21 \|.*$/m, row => row.replace("C14/C15/C16", "C14/C15").replace("/BFF-FE-010", ""));
+  assert.notEqual(ledger, valid.ledger);
+  assert.notEqual(scenarios, valid.scenarios);
+  assert.throws(() => validatePre01({ ...valid, ledger, scenarios }), /P21: operation subscribeAlerts requires traced contract C16/);
+});
+
+test("unknown unlabelled operation in API register is rejected", () => {
+  const coverage = valid.coverage.replace(/^\| P05 \|.*$/m, row => row.replace("getDataSnapshot", "getUnknownSnapshot"));
+  assert.notEqual(coverage, valid.coverage);
+  assert.throws(() => validatePre01({ ...valid, coverage }), /unknown operation getUnknownSnapshot/);
+});
+
+test("P05 quality alerts require C16 ownership on the consumer page", () => {
+  const ledger = valid.ledger.replace(/^\| P05 \|.*$/m, row => row.replace("C04、C16", "C04"));
+  const scenarios = valid.scenarios.replace(/^\| P05 \|.*$/m, row => row.replace("C04/C16", "C04").replace("/BFF-FE-010", ""));
+  assert.notEqual(ledger, valid.ledger);
+  assert.notEqual(scenarios, valid.scenarios);
+  assert.throws(() => validatePre01({ ...valid, ledger, scenarios }), /P05: operation subscribeAlerts requires traced contract C16/);
+});

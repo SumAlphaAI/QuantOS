@@ -32,7 +32,7 @@
 | P02 | Command Center | v1 | `/command` | Web | 全部登录角色 | P0 | 中 | C02、C06、C16 | FEP-1 |
 | P03 | Research 列表与新建 | v1 | `/research`、`/research/new` | Web | 研、开（其他只读） | P0 | 中 | C03、C04 | FEP-2 |
 | P04 | Research 与 Artifact 详情 | v1 | `/research/:runId`、`/artifacts/:artifactId` | Web | 资源级授权 | P0 | 中 | C03、C04、C10 | FEP-2 |
-| P05 | 数据快照目录与详情 | v1 | `/data-snapshots`、`/data-snapshots/:snapshotId` | Web | 研、开、风 | P0 | 中 | C04 | FEP-2 |
+| P05 | 数据快照目录与详情 | v1 | `/data-snapshots`、`/data-snapshots/:snapshotId` | Web | 研、开、风 | P0 | 中 | C04、C16 | FEP-2 |
 | P06 | Strategy 目录与 Lab | v1 | `/strategies`、`/strategies/new`、`/strategies/:strategyId/lab` | Web | 开（其他只读） | P0 | 中 | C05 | FEP-3 |
 | P07 | Backtest 详情与 Release | v1 | `/backtests/:runId`、`/releases`、`/releases/:releaseId` | Web | 开、风、审 | P0 | 高 | C05、C08、C10 | FEP-3 |
 | P08 | Portfolio 与 Risk | v1 | `/portfolio`、`/risk`、`/risk/rules/:ruleId` | Web | 交、风 | P0 | 高 | C06 | FEP-5 |
@@ -47,7 +47,7 @@
 | P18 | Markets 总览与标的详情 | v2 | `/markets`、`/markets/:symbol` | Web | 全部（按行情授权） | P0 | 中 | C12、C16 | FEP-4 |
 | P19 | K 线与市场分析 | v4 | `/markets/:symbol/chart` | Web | 全部（按行情授权） | P0 | 中 | C09、C12 | FEP-4 |
 | P20 | Trade Ticket 受控下单 | v3 | `/trade`、`/trade/:symbol` | Web | 交（风/审批只读） | P0 | 高 | C07、C08、C09、C12、C13 | FEP-5 |
-| P21 | Performance 与报表 | v1 | `/performance`、`/performance/reports/:reportId` | Web | 交、风、研（只读） | P1 | 中 | C14、C15 | FEP-4 |
+| P21 | Performance 与报表 | v1 | `/performance`、`/performance/reports/:reportId` | Web | 交、风、研（只读） | P1 | 中 | C14、C15、C16 | FEP-4 |
 | P22 | Reconciliation 与账本 | v1 | `/reconciliation`、`/reconciliation/:runId` | Web | 交、风、运 | P0 | 高 | C09、C10、C15 | FEP-5 |
 | P23 | Alerts 收件箱与处置 | v1 | `/alerts`、`/alerts/:alertId` | Web | 全部（按事件授权） | P1 | 中 | C10、C11、C16 | FEP-6 |
 
@@ -135,7 +135,7 @@
 | ST-P05-02 | 作为用户，详情页展示 QualityScoreCard、时间窗、字段 schema、血缘时间线与许可证标识 | P0 | 研、开、风 | `/data-snapshots/:snapshotId` | Web | 中 |
 | ST-P05-03 | 作为用户，质量受限（failed/degraded/expired/license missing）的快照被明确阻断用于策略/交易流程；质量状态由服务端返回前端不可覆盖 | P0 | 研、开、风 | `/data-snapshots/:snapshotId` | Web | 高 |
 | ST-P05-04 | 作为用户，未授权许可证数据仅显示最小元数据，不泄露内容 | P0 | 全部 | `/data-snapshots/:snapshotId` | Web | 中 |
-| ST-P05-05 | 作为用户，我复制快照引用、在允许时将其作为新研究/回测输入；可对比两个快照、订阅质量告警 | P1 | 研、开 | `/data-snapshots` | Web | 低 |
+| ST-P05-05 | 作为用户，我复制快照引用、在允许时将其作为新研究/回测输入；可对比两个快照、订阅质量告警、下载 getDataSnapshot 已授权响应中的元数据（无原始行情或审计事件） | P1 | 研、开 | `/data-snapshots` | Web | 低 |
 
 #### P06 Strategy 目录与 Lab
 

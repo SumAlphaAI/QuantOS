@@ -1,7 +1,7 @@
 # PRE-01 执行总结、风险登记与验收自检
 
 > 任务：PRE-01 需求拆解（P0 / 一期 Web）；开发状态：`COMPLETED`；指定模型复审：`NOT_STARTED`。
-> 版本：1.2；日期：2026-10-02；依据：前端执行计划 v3.1。
+> 版本：1.3；日期：2026-10-02；依据：前端执行计划 v3.2。
 > 主产物：[页面台账](./PRE-01-page-ledger-and-stories.md)、[路由/权限矩阵](./PRE-01-route-permission-matrix.md)、[验收场景](./PRE-01-acceptance-scenarios.md)。
 
 ## 1. 完成标准自检
@@ -16,7 +16,7 @@
 | 页面追踪 | 30 行；现行 task、逻辑契约 owner、场景和 Gate 可解析 | planned operation 不等于 schema/provider 完成 |
 | Web 离线 | 当前内存已加载非敏感数据只读，默认无持久领域缓存；禁写、禁认证交换/导出、不自动提交 | 原生加密缓存只由二期验证 |
 
-`pnpm check:pre01` 使用 [需求规则基线](./PRE-01-requirements-baseline.json)，同时核对一期 catalog 与当前计划；检查字段、Story 唯一/完整集合、路由、权限、流程、冻结安全条件、任务引用与契约 owner。规则变更须同步规格/产物并重新评审，不能仅修改门禁以容纳错误要求。`pnpm test:pre01` 验证缺状态、错误角色/路由、重复 Story、删流程、越权、安全语义篡改、缺 owner 等负向情况。
+`pnpm check:pre01` 使用 [需求规则基线](./PRE-01-requirements-baseline.json)，同时核对一期 catalog 与当前计划；检查字段、Story 唯一/完整集合、路由、权限、流程、冻结安全条件、任务引用、operationId 到页面契约映射与契约 owner。规则变更须同步规格/产物并重新评审，不能仅修改门禁以容纳错误要求。`pnpm test:pre01` 验证缺状态、错误角色/路由、重复 Story、删流程、越权、安全语义篡改、缺 owner 等负向情况。
 
 ## 2. 下游衔接与阶段边界
 
@@ -42,4 +42,4 @@
 - 2026-08-14 六方用户确认的签署记录予以保留，仅适用历史范围；不将其扩展到 2026-10-02 修订产物。参见 [历史记录与当前状态](./gate-records/G0-PRE-01-review-record.md)。
 - 42 operations 是历史 OpenAPI 1.0.0 数量；2026-09-16 的 31/130/217/31 是旧双端结构基线。当前一期为 30/124/210/30，另 8 流程 Story 和 10 流程场景。
 - 指定模型复审、六方重新签署、远程 CI、浏览器/真实 IdP/provider/staging/数据库验收未由本次文档修复执行，保持 `NOT RUN / NO NEW RECEIPT`。
-- 当前工程整改与复验见 [PRE-01 整改复验报告](./audit/PRE-01-remediation-validation-2026-10-02.md)；历史发现保留在 [全面复审报告](./audit/PRE-01-comprehensive-review-2026-10-02.md)，不覆盖旧证据。
+- 当前工程复验见 [全面复审报告](./audit/PRE-01-comprehensive-review-2026-10-02.md)；历史发现保留在 [历史报告](./audit/PRE-01-comprehensive-review-history-2026-10-02.md)，上一轮结果见 [整改复验报告](./audit/PRE-01-remediation-validation-2026-10-02.md)。本轮补齐 P05/P21 的 operation 追踪并增加负向回归，不覆盖旧证据。

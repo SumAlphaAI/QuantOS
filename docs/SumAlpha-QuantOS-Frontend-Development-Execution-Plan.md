@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.1
+> 版本：3.2
 > 更新时间：2026-10-02
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.2`：PRE-01 再复验关闭原 8 项发现；补齐 P05 元数据下载和 P21 告警订阅追踪，新增 operationId 到页面契约的负向门禁。同步一期 30 页面、132 Story、220 场景定义及当前报告入口；指定模型与正式 G0 状态不变。
 
 - `3.1`：与核心计划v3.19协调服务准入与完整业务验收；保留P0/A1–A6全量API先行。里程碑移至实际关闭窗口末尾，补准备/provider/G0–G8检查点与跨文档依赖；G5在I6、G4在I7关闭。已有开发与复审状态不变，新增检查点均未验收。
 
@@ -98,8 +100,10 @@
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：需求拆解
 - 主要动作：将官网页面、P01–P15/P17–P23、全局壳、角色、状态和关键流程拆为 Web story；每项标注 P0/P1、角色、路由和风险级别
-- 产出：页面台账、路由/权限矩阵、验收场景表
+- 产出：[页面台账](./PRE-01-page-ledger-and-stories.md)、[路由/权限矩阵](./PRE-01-route-permission-matrix.md)、[验收场景表](./PRE-01-acceptance-scenarios.md)
 - 完成标准：页面覆盖率 100%；每页至少有默认/加载/空/错误/无权/陈旧/离线状态
+- 当前数量：一期 30 页面单元；124 页面 Story + 8 流程 Story；210 页面七态 + 10 流程场景；30 行页面追踪。
+- 仓库复验：2026-10-02 PASS，10/10 控制点通过，原 8/8 问题关闭；见[当前报告](./audit/PRE-01-comprehensive-review-2026-10-02.md)与[可重放证据](./audit/evidence/pre01-recheck-20261002/manifest.json)。此结果不代表指定模型、正式 G0、provider/staging 或页面运行验收。
 
 <a id="review-pre-01"></a>
 ##### GPT-6 Astra 功能复审

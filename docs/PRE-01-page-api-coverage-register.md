@@ -14,6 +14,8 @@
 
 错误码集合统一基线（各页均适用，页面特有补充在备注列）：`401 / 403 / 404 / 409 / 422 / 429 / 5xx / stream-abort`。
 
+共享认证操作 getSession/getContext/reauth/mfaChallenge/logout 统一追踪到 GS 的 C01/BFF-FE-001；其余页面 operationId 必须在对应页面的契约与 BFF owner 追踪中出现。P05 元数据下载仅使用 getDataSnapshot 已授权响应，不导出原始行情或审计事件；C10 createExport 的 ExportScope 以 correlationIds 为输入，不是快照元数据下载接口。
+
 ## 2. 登记表
 
 | 页面 | 路由 | Query operationId | Command operationId | Realtime channel/operationId | 权限/capability | 数据新鲜度字段 | OpenAPI 版本 | mock 版本 | BFF owner | 最后验证 |
@@ -24,7 +26,7 @@
 | P02 | `/command` | getCommandSummary（planned，C02）；getPortfolio、getRiskView（published，C06）；listAlerts（planned，C16） | – | subscribeCommandEvents、subscribeAlerts（planned）；subscribePortfolio（published） | 卡片按 capability | sampledAt、dataFreshness、asOf | 1.3.0 + planned / BFF-FE-002/006/010 | 1.3.0（published only） | BFF TL | 2026-10-02（仓库命名） |
 | P03 | `/research`、`/research/new` | listResearchRuns、getResearchRun | createResearchRun、cancelResearchRun | 无（创建后转 P04 订阅） | 研/开创建；其他只读 | deadlineAt、capturedAt/maxAgeSeconds | 1.3.0 | 1.3.0（generated only） | BFF TL | 2026-10-02（仓库引用；历史 2026-08-14） |
 | P04 | `/research/:runId`、`/artifacts/:artifactId` | getResearchRun、getArtifact；getArtifactAttachment（planned） | cancelResearchRun；createExport（published） | subscribeResearchRun（SSE，afterSequence） | 资源级授权 | capturedAt、maxAgeSeconds | 1.3.0 + planned / BFF-FE-003/007 | 1.3.0（published only） | BFF TL | 2026-10-02（仓库引用） |
-| P05 | `/data-snapshots`、`/data-snapshots/:snapshotId` | listDataSnapshots、getDataSnapshot | createExport（published，C10） | 无（快照不可变） | 研/开/风；资源级只读 | capturedAt、maxAgeSeconds、qualityBlocked | 1.3.0 / BFF-FE-003/007 | 1.3.0（published only） | BFF TL | 2026-10-02（仓库命名） |
+| P05 | `/data-snapshots`、`/data-snapshots/:snapshotId` | listDataSnapshots、getDataSnapshot | 无（下载已授权元数据复用 getDataSnapshot 响应，不调用审计导出） | subscribeAlerts（planned，C16；质量告警，快照本身不可变） | 研/开/风；资源级只读 | capturedAt、maxAgeSeconds、qualityBlocked | 1.3.0 + planned / BFF-FE-003/010 | 1.3.0（published only） | BFF TL | 2026-10-02（仓库命名） |
 | P06 | `/strategies`、`/strategies/new`、`/strategies/:strategyId/lab` | listStrategies、getStrategyDraft | saveStrategyDraft（If-Match→409）、runStaticCheck | 无（回测状态经 P07） | 开编辑；其他只读 | objectVersion、updatedAt | 1.3.0 | 1.3.0（generated only） | BFF TL | 2026-10-02（仓库引用；历史 2026-08-14） |
 | P07 | `/backtests/:runId`、`/releases`、`/releases/:releaseId` | getBacktest、listReleases、getRelease | createBacktest、createRelease、submitReleaseApproval、requestReleaseRollback | subscribeBacktestRun（planned；发布前以 getBacktest 轮询） | 开；风/审批按动作 | reportArtifactId、objectVersion、allowedTargets | 1.3.0 + planned / BFF-FE-004 | 1.3.0（published only） | BFF TL | 2026-10-02（仓库引用） |
 | P08 | `/portfolio`、`/risk`、`/risk/rules/:ruleId` | getPortfolio、getRiskView | engageKillSwitch、releaseKillSwitch | subscribePortfolio（含 kill switch 广播） | 交/风；kill switch 授权风控+MFA | asOf、stale | 1.3.0 | 1.3.0（generated only） | BFF TL | 2026-10-02（仓库引用；历史 2026-08-14） |

@@ -127,7 +127,24 @@ export function validatePre01({ ledger, matrix, scenarios, coverage = read("docs
   }
   const registered = rows(coverage).filter(r=>r[0]==="GS" || r[0]==="官网" || /^P\d{2}$/.test(r[0]));
   assert.deepEqual(registered.map(r=>r[0]),["GS","官网",...catalog.scope.pages],"API register must match phase-one page scope");
-  for (const row of registered) assert(!/1\.[012]\.0/.test(row[7]+row[8]),`${row[0]}: API register references obsolete generated version`);
+  const operationContracts = new Map(Object.entries(catalog.contracts).flatMap(([id, contract]) =>
+    [...contract.publishedOperations, ...contract.plannedOperations].map(operation => [operation, id])));
+  // Shared authentication is owned by the GS trace. Domain operations must be
+  // traceable on their consumer page even if they also appear on another page.
+  const sharedAuth = new Set(["getSession", "getContext", "reauth", "mfaChallenge", "logout"]);
+  const operationToken = /\b(?:get|list|search|create|save|run|submit|request|engage|release|decide|cancel|subscribe|revoke|setup|clear|check|update|ack|unack)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
+  for (const row of registered) {
+    assert.equal(row.length, 11, `${row[0]}: incomplete API register row`);
+    assert(!/1\.[012]\.0/.test(row[7]+row[8]),`${row[0]}: API register references obsolete generated version`);
+    for (const operation of row.slice(2, 5).join(" ").match(operationToken) ?? []) {
+      const contract = operationContracts.get(operation);
+      assert(contract, `${row[0]}: unknown operation ${operation}`);
+      const consumer = sharedAuth.has(operation) ? "GS" : row[0] === "官网" ? "WEB-06" : row[0];
+      const trace = traces.find(item => item[0] === consumer);
+      assert((trace[2].match(/C\d{2}/g) ?? []).includes(contract),
+        `${row[0]}: operation ${operation} requires traced contract ${contract} on ${consumer}`);
+    }
+  }
   return { schema:"quantos-pre01/v2", status:"PASS", pages:pageRows.length, stories:storyRows.filter(r=>!r[0].startsWith("ST-FLOW-")).length, flow_stories:8, acceptance_scenarios:scenarioRows.length, flow_scenarios:flowRows.length, states_per_page:7, traceability_rows:traces.length };
 }
 if (process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href) {
