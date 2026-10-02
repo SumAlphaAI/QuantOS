@@ -1,0 +1,409 @@
+{
+  "baseline": "982a37c143110100aeffd0b9d427dfce8ed9d135",
+  "workspace": "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-recheck-0vdqf_l1",
+  "overlay_files": [
+    "docs/PRE-05-environment-guide.md",
+    "docs/PRE-05-summary.md",
+    "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md",
+    "docs/audit/evidence/pre05-recheck-20261002/after.json",
+    "docs/audit/evidence/pre05-recheck-20261002/attempt-1/bootstrap.log",
+    "docs/audit/evidence/pre05-recheck-20261002/attempt-1/commands.json",
+    "docs/audit/evidence/pre05-recheck-20261002/attempt-1/plans.log",
+    "docs/audit/evidence/pre05-recheck-20261002/attempt-1/pre05-tests.log",
+    "docs/audit/evidence/pre05-recheck-20261002/attempt-1/pre05.log",
+    "docs/audit/evidence/pre05-recheck-20261002/before.json",
+    "docs/audit/evidence/pre05-recheck-20261002/boundary-probes.mjs",
+    "docs/audit/evidence/pre05-recheck-20261002/focused.log",
+    "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+    "docs/audit/evidence/pre05-recheck-20261002/parser-comparison.mjs",
+    "docs/audit/evidence/pre05-recheck-20261002/probes.mjs",
+    "docs/audit/evidence/pre05-recheck-20261002/replay.py",
+    "docs/audit/evidence/pre05-recheck-20261002/supplement.py",
+    "packages/config/src/env-file.ts",
+    "packages/config/src/env.ts",
+    "packages/config/tests/config.test.ts",
+    "scripts/check-client-secrets.mjs",
+    "scripts/pre05-gate-negative.mjs"
+  ],
+  "scope": "fresh source/dependencies; host offline download store; no database or target operations",
+  "results": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "pnpm",
+        "install",
+        "--offline",
+        "--frozen-lockfile"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 2.424,
+      "log": "bootstrap.log"
+    },
+    {
+      "name": "pre05",
+      "command": [
+        "pnpm",
+        "check:pre05"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.406,
+      "log": "pre05.log"
+    },
+    {
+      "name": "pre05-tests",
+      "command": [
+        "pnpm",
+        "test:pre05"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 4.336,
+      "log": "pre05-tests.log"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.188,
+      "log": "plans.log"
+    },
+    {
+      "name": "plan-tests",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.293,
+      "log": "plan-tests.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "pnpm",
+        "lint"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 2.801,
+      "log": "lint.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 4.068,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "unit",
+      "command": [
+        "pnpm",
+        "test"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 2.668,
+      "log": "unit.log"
+    },
+    {
+      "name": "contract",
+      "command": [
+        "pnpm",
+        "test:contract"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.565,
+      "log": "contract.log"
+    },
+    {
+      "name": "pre01",
+      "command": [
+        "pnpm",
+        "check:pre01"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.187,
+      "log": "pre01.log"
+    },
+    {
+      "name": "pre02",
+      "command": [
+        "pnpm",
+        "check:pre02"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.46,
+      "log": "pre02.log"
+    },
+    {
+      "name": "pre04",
+      "command": [
+        "pnpm",
+        "check:pre04"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.241,
+      "log": "pre04.log"
+    },
+    {
+      "name": "pre06",
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.571,
+      "log": "pre06.log"
+    },
+    {
+      "name": "openapi",
+      "command": [
+        "pnpm",
+        "check:bff-openapi"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.234,
+      "log": "openapi.log"
+    },
+    {
+      "name": "generated",
+      "command": [
+        "pnpm",
+        "check:bff-generated"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.879,
+      "log": "generated.log"
+    },
+    {
+      "name": "coverage",
+      "command": [
+        "pnpm",
+        "check:bff-contract-coverage"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.239,
+      "log": "coverage.log"
+    },
+    {
+      "name": "missing-env-website",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ],
+      "exit_code": 1,
+      "expected": "nonzero",
+      "seconds": 2.126,
+      "log": "missing-env-website.log"
+    },
+    {
+      "name": "missing-env-terminal",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 1,
+      "expected": "nonzero",
+      "seconds": 0.775,
+      "log": "missing-env-terminal.log"
+    },
+    {
+      "name": "local-mock-website",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 6.691,
+      "log": "local-mock-website.log"
+    },
+    {
+      "name": "local-mock-terminal",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 7.44,
+      "log": "local-mock-terminal.log"
+    },
+    {
+      "name": "local-mock-client-scan",
+      "command": [
+        "pnpm",
+        "check:client-secrets"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.243,
+      "log": "local-mock-client-scan.log"
+    },
+    {
+      "name": "local-integrated-website",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 5.971,
+      "log": "local-integrated-website.log"
+    },
+    {
+      "name": "local-integrated-terminal",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 6.601,
+      "log": "local-integrated-terminal.log"
+    },
+    {
+      "name": "local-integrated-client-scan",
+      "command": [
+        "pnpm",
+        "check:client-secrets"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.235,
+      "log": "local-integrated-client-scan.log"
+    },
+    {
+      "name": "staging-website",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 6.438,
+      "log": "staging-website.log"
+    },
+    {
+      "name": "staging-terminal",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 7.035,
+      "log": "staging-terminal.log"
+    },
+    {
+      "name": "staging-client-scan",
+      "command": [
+        "pnpm",
+        "check:client-secrets"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.237,
+      "log": "staging-client-scan.log"
+    },
+    {
+      "name": "pre03-web",
+      "command": [
+        "pnpm",
+        "check:pre03:web"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 2.396,
+      "log": "pre03-web.log"
+    },
+    {
+      "name": "synthetic-token-build",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 1,
+      "expected": "nonzero",
+      "seconds": 0.508,
+      "log": "synthetic-token-build.log"
+    },
+    {
+      "name": "padded-mock-build",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 1,
+      "expected": "nonzero",
+      "seconds": 0.513,
+      "log": "padded-mock-build.log"
+    },
+    {
+      "name": "path-issuer-build",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 1,
+      "expected": "nonzero",
+      "seconds": 0.503,
+      "log": "path-issuer-build.log"
+    },
+    {
+      "name": "callback-slash-build",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 1,
+      "expected": "nonzero",
+      "seconds": 0.499,
+      "log": "callback-slash-build.log"
+    }
+  ]
+}

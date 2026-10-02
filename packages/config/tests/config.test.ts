@@ -173,3 +173,14 @@ it("rejects accidentally copied server-secret values even without a known finger
     expect(JSON.stringify(result.issues)).not.toContain(secret);
   }
 });
+
+it("rejects nonempty short server secrets without echoing them", () => {
+  for (const secret of ["x", "q7x4z2", "a/b c"]) {
+    for (const value of [secret, encodeURIComponent(secret)]) {
+      const result = validateEnv({ ...validBase, SERVER_SECRET: secret, NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: value });
+      expect(result.ok).toBe(false);
+      expect(result.issues.some(issue => issue.key === "NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID")).toBe(true);
+    }
+  }
+  expect(validateEnv({ ...validBase, SERVER_SECRET: "" }).ok).toBe(true);
+});

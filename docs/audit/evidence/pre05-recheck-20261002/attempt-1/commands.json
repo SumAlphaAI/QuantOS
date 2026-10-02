@@ -1,0 +1,71 @@
+{
+  "baseline": "982a37c143110100aeffd0b9d427dfce8ed9d135",
+  "workspace": "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-recheck-45_tie7l",
+  "overlay_files": [
+    "docs/PRE-05-environment-guide.md",
+    "docs/PRE-05-summary.md",
+    "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md",
+    "docs/audit/evidence/pre05-recheck-20261002/after.json",
+    "docs/audit/evidence/pre05-recheck-20261002/before.json",
+    "docs/audit/evidence/pre05-recheck-20261002/boundary-probes.mjs",
+    "docs/audit/evidence/pre05-recheck-20261002/focused.log",
+    "docs/audit/evidence/pre05-recheck-20261002/parser-comparison.mjs",
+    "docs/audit/evidence/pre05-recheck-20261002/probes.mjs",
+    "docs/audit/evidence/pre05-recheck-20261002/replay.py",
+    "docs/audit/evidence/pre05-recheck-20261002/supplement.py",
+    "packages/config/src/env-file.ts",
+    "packages/config/src/env.ts",
+    "packages/config/tests/config.test.ts",
+    "scripts/check-client-secrets.mjs",
+    "scripts/pre05-gate-negative.mjs"
+  ],
+  "scope": "fresh source/dependencies; host offline download store; no database or target operations",
+  "results": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "pnpm",
+        "install",
+        "--offline",
+        "--frozen-lockfile"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 2.602,
+      "log": "bootstrap.log"
+    },
+    {
+      "name": "pre05",
+      "command": [
+        "pnpm",
+        "check:pre05"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 0.405,
+      "log": "pre05.log"
+    },
+    {
+      "name": "pre05-tests",
+      "command": [
+        "pnpm",
+        "test:pre05"
+      ],
+      "exit_code": 0,
+      "expected": 0,
+      "seconds": 4.161,
+      "log": "pre05-tests.log"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "exit_code": 1,
+      "expected": 0,
+      "seconds": 0.183,
+      "log": "plans.log"
+    }
+  ]
+}

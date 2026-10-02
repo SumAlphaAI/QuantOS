@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import { readdirSync, readFileSync, lstatSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { secretFingerprints, serverSecretVariants } from '../packages/config/src/env.ts';
+import { loadProductionEnv } from '../packages/config/src/env-file.ts';
 
 export function scanClientArtifacts(roots, environment = process.env) {
   const failures = []; let files = 0;
@@ -29,11 +30,14 @@ export function scanClientArtifacts(roots, environment = process.env) {
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
-    const result = scanClientArtifacts(process.argv.slice(2));
+    const roots = process.argv.slice(2);
+    if (!roots.length) throw new Error('At least one artifact directory is required');
+    const results = roots.map(root => scanClientArtifacts([root], loadProductionEnv(dirname(resolve(root)), process.env)));
+    const result = { files: results.reduce((sum, item) => sum + item.files, 0), failures: results.flatMap(item => item.failures) };
     for (const failure of result.failures) console.error(`FAIL ${failure.path}: ${failure.labels.join(', ')}`);
     if (result.failures.length) process.exitCode = 1;
     else console.log(`Client secret check PASS (${result.files} files)`);
   } catch {
-    console.error('Client secret check FAIL: missing, empty or invalid artifact directory'); process.exitCode = 1;
+    console.error('Client secret check FAIL: invalid artifact directory or production environment'); process.exitCode = 1;
   }
 }

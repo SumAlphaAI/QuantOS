@@ -1,0 +1,107 @@
+{
+  "total": 16,
+  "status_counts": {
+    "PASS": 16,
+    "PARTIAL": 0,
+    "FAIL": 0
+  },
+  "strict_completion_percent": 100,
+  "controls": [
+    {
+      "id": "C01",
+      "requirement": "仅三套 Web；Desktop 独立承接",
+      "verification": "三Web profile独立，Desktop不进入一期Gate",
+      "status": "PASS"
+    },
+    {
+      "id": "C02",
+      "requirement": "三模板各定义必需公开配置",
+      "verification": "三模板身份受检；六组构建通过",
+      "status": "PASS"
+    },
+    {
+      "id": "C03",
+      "requirement": "绝对 http/https、纯 origin；staging HTTPS；无凭据/query/fragment",
+      "verification": "Web/BFF origin约束保留；staging HTTPS",
+      "status": "PASS"
+    },
+    {
+      "id": "C04",
+      "requirement": "callback 精确匹配、issuer 与消费者一致",
+      "verification": "原值精确callback；当前未支持路径issuer启动前拒绝",
+      "status": "PASS"
+    },
+    {
+      "id": "C05",
+      "requirement": "profile 与 research/paper/shadow 独立；禁止默认实盘",
+      "verification": "profile/mode独立，默认实盘拒绝",
+      "status": "PASS"
+    },
+    {
+      "id": "C06",
+      "requirement": "布尔/off-on 值、profile/mock 绑定与实际消费一致",
+      "verification": "公开原值拒绝首尾空白；正常布尔/off-on及profile绑定通过",
+      "status": "PASS"
+    },
+    {
+      "id": "C07",
+      "requirement": "观测启用时有效公网 DSN，URL 安全约束一致",
+      "verification": "任一profile观测开必须有有效DSN，密码/query/fragment拒绝",
+      "status": "PASS"
+    },
+    {
+      "id": "C08",
+      "requirement": "角色身份、公开标识与秘密注入边界明确",
+      "verification": "四类非敏感测试角色占位身份受检；真实身份另验收",
+      "status": "PASS"
+    },
+    {
+      "id": "C09",
+      "requirement": "缺必需变量时 dev/build 的配置入口拒绝",
+      "verification": "两个应用实际dev/build缺变量均拒绝",
+      "status": "PASS"
+    },
+    {
+      "id": "C10",
+      "requirement": "公开值不得容纳已知 server credential 形态",
+      "verification": "共享凭据指纹与全部非空服务器秘密检查；短秘密/合成token输入拒绝",
+      "status": "PASS"
+    },
+    {
+      "id": "C11",
+      "requirement": "客户端 bundle 不含 server secret 形态",
+      "verification": "两应用build/CI按各自生产环境有效秘密扫描；短秘密/文件秘密与六种产物注入拒绝",
+      "status": "PASS"
+    },
+    {
+      "id": "C12",
+      "requirement": "校验和 Next 加载语义一致，文件参数可用",
+      "verification": "Next同源dotenv解析、隔离与优先级明确；绝对/相对路径通过",
+      "status": "PASS"
+    },
+    {
+      "id": "C13",
+      "requirement": "PRE-05 正向/回归及显式构建配置进入 CI",
+      "verification": "Frontend Baseline正向/测试/显式产物扫描接线",
+      "status": "PASS"
+    },
+    {
+      "id": "C14",
+      "requirement": "三 profile 身份、身份清单和安全/语义错误能拒绝",
+      "verification": "36项回归及原始负向、集合身份破坏均符合预期",
+      "status": "PASS"
+    },
+    {
+      "id": "C15",
+      "requirement": "配置行为、mock/集成边界忠于当前实现",
+      "verification": "开发指南准确区分普通dev、Playwright拦截和后续完整mock",
+      "status": "PASS"
+    },
+    {
+      "id": "C16",
+      "requirement": "总结与当前范围/测试/启动/评审身份一致",
+      "verification": "当前总结/计划3.10、历史SHA与G0未评审边界一致",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+
+> @sumalpha/quantos@ test:pre05 /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-recheck-0vdqf_l1
+> pnpm --filter @sumalpha/config test && node --test scripts/pre05-gate-negative.mjs
+
+
+> @sumalpha/config@0.1.0 test /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-recheck-0vdqf_l1/packages/config
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-recheck-0vdqf_l1/packages/config[39m
+
+ [31m❯[39m tests/config.test.ts [2m([22m[2m26 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 272[2mms[22m[39m
+     [32m✓[39m exports the workspace label[32m 1[2mms[22m[39m
+     [32m✓[39m 三套 Web 环境示例均通过校验：local-mock.env.example[32m 28[2mms[22m[39m
+[31m     [31m×[31m 三套 Web 环境示例均通过校验：local-integrated.env.example[39m[32m 29[2mms[22m[39m
+[31m     [31m×[31m 三套 Web 环境示例均通过校验：staging.env.example[39m[32m 26[2mms[22m[39m
+     [32m✓[39m 缺必需变量 fail-fast 并列出全部缺失[32m 1[2mms[22m[39m
+     [32m✓[39m 客户端 bundle 不含 server secret：key 指纹拒绝[32m 0[2mms[22m[39m
+     [32m✓[39m 客户端 bundle 不含 server secret：value 指纹（JWT）拒绝[32m 0[2mms[22m[39m
+     [32m✓[39m 拒绝 allowlist 外的公开变量[32m 0[2mms[22m[39m
+     [32m✓[39m 环境/mode 分离：非法环境与 assisted_live 默认 mode 均拒绝[32m 0[2mms[22m[39m
+     [32m✓[39m 布尔值与 Web callback 同源关系均 fail closed[32m 0[2mms[22m[39m
+     [32m✓[39m local-integrated 禁 mock[32m 0[2mms[22m[39m
+     [32m✓[39m staging 约束：禁 mock、必须 https、观测开启必须配 DSN[32m 0[2mms[22m[39m
+     [32m✓[39m rejects known credentials inside public client IDs without echoing values[32m 0[2mms[22m[39m
+     [32m✓[39m rejects padded flags, profiles, mode and public URL values before raw-value consumers run[32m 0[2mms[22m[39m
+     [32m✓[39m requires a safe DSN whenever observation is enabled: local-mock[32m 26[2mms[22m[39m
+     [32m✓[39m requires a safe DSN whenever observation is enabled: local-integrated[32m 27[2mms[22m[39m
+     [32m✓[39m requires a safe DSN whenever observation is enabled: staging[32m 26[2mms[22m[39m
+     [32m✓[39m rejects malformed configured DSN even when observation is off[32m 0[2mms[22m[39m
+     [32m✓[39m requires the exact callback raw URI and rejects unsupported path issuers[32m 0[2mms[22m[39m
+     [32m✓[39m binds each template to its independent profile identity[32m 0[2mms[22m[39m
+     [32m✓[39m requires each staging role and rejects renamed, duplicated or credential-shaped identities[32m 27[2mms[22m[39m
+     [32m✓[39m forbids server-only variables in Web example templates[32m 0[2mms[22m[39m
+     [32m✓[39m shares Next dotenv parsing for comments, quotes, multiline and expansion[32m 26[2mms[22m[39m
+     [32m✓[39m file parsing is isolated from inherited env and other parsed files[32m 51[2mms[22m[39m
+   [32m✓[39m rejects accidentally copied server-secret values even without a known fingerprint[32m 0[2mms[22m[39m
+   [32m✓[39m rejects nonempty short server secrets without echoing them[32m 1[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/config.test.ts[2m > [22mPRE-05 环境配置校验[2m > [22m三套 Web 环境示例均通过校验：local-integrated.env.example
+[31m[1mAssertionError[22m: expected [ { …(2) } ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "key": "NEXT_PUBLIC_QUANTOS_ENV",[39m
+[31m+     "reason": "模板文件与指定 profile 不匹配",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/config.test.ts:[2m38:29[22m[39m
+    [90m 36|[39m       const profile = ENV_PROFILES.find(profile => name === `${profile…
+    [90m 37|[39m       [35mconst[39m result [33m=[39m [34mvalidateEnvExample[39m(profile[33m,[39m [34mloadExample[39m(name))[33m;[39m
+    [90m 38|[39m       [34mexpect[39m(result[33m.[39missues)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   |[39m                             [31m^[39m
+    [90m 39|[39m       [34mexpect[39m(result[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m 40|[39m     }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/config.test.ts[2m > [22mPRE-05 环境配置校验[2m > [22m三套 Web 环境示例均通过校验：staging.env.example
+[31m[1mAssertionError[22m: expected [ { …(2) }, { …(2) }, { …(2) }, …(2) ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   {[39m
+[31m+     "key": "NEXT_PUBLIC_QUANTOS_ENV",[39m
+[31m+     "reason": "模板文件与指定 profile 不匹配",[39m
+[31m+   },[39m
+[31m+   {[39m
+[31m+     "key": "QUANTOS_E2E_ACCOUNT_RESEARCHER",[39m
+[31m+     "reason": "模板必须保留对应角色的非敏感 staging 占位标识；真实身份由目标环境注入",[39m
+[31m+   },[39m
+[31m+   {[39m
+[31m+     "key": "QUANTOS_E2E_ACCOUNT_TRADER",[39m
+[31m+     "reason": "模板必须保留对应角色的非敏感 staging 占位标识；真实身份由目标环境注入",[39m
+[31m+   },[39m
+[31m+   {[39m
+[31m+     "key": "QUANTOS_E2E_ACCOUNT_APPROVER",[39m
+[31m+     "reason": "模板必须保留对应角色的非敏感 staging 占位标识；真实身份由目标环境注入",[39m
+[31m+   },[39m
+[31m+   {[39m
+[31m+     "key": "QUANTOS_E2E_ACCOUNT_ADMIN",[39m
+[31m+     "reason": "模板必须保留对应角色的非敏感 staging 占位标识；真实身份由目标环境注入",[39m
+[31m+   },[39m
+[31m+ ][39m
+
+[36m [2m❯[22m tests/config.test.ts:[2m38:29[22m[39m
+    [90m 36|[39m       const profile = ENV_PROFILES.find(profile => name === `${profile…
+    [90m 37|[39m       [35mconst[39m result [33m=[39m [34mvalidateEnvExample[39m(profile[33m,[39m [34mloadExample[39m(name))[33m;[39m
+    [90m 38|[39m       [34mexpect[39m(result[33m.[39missues)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   |[39m                             [31m^[39m
+    [90m 39|[39m       [34mexpect[39m(result[33m.[39mok)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m 40|[39m     }[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m24 passed[39m[22m[90m (26)[39m
+[2m   Start at [22m 21:20:28
+[2m   Duration [22m 369ms[2m (transform 29ms, setup 0ms, import 37ms, tests 272ms, environment 0ms)[22m
+
+/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-recheck-0vdqf_l1/packages/config:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/config@0.1.0 test: `vitest run`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.

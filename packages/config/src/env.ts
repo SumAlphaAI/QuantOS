@@ -28,7 +28,7 @@ export function secretFingerprints(value: string): string[] {
 /** Inspect only explicitly named server credentials; public values remain public. */
 export function serverSecretVariants(vars: Record<string, string | undefined>): string[] {
   return Object.entries(vars)
-    .filter(([key, value]) => !key.startsWith("NEXT_PUBLIC_") && /SECRET|PASSWORD|PRIVATE_KEY|API_KEY|TOKEN|SIGNING|SERVICE_ROLE/i.test(key) && typeof value === "string" && value.length >= 8)
+    .filter(([key, value]) => !key.startsWith("NEXT_PUBLIC_") && /SECRET|PASSWORD|PRIVATE_KEY|API_KEY|TOKEN|SIGNING|SERVICE_ROLE/i.test(key) && typeof value === "string" && value.length > 0)
     .flatMap(([, value]) => [value!, JSON.stringify(value).slice(1, -1), encodeURIComponent(value!)]);
 }
 

@@ -1,7 +1,7 @@
 # PRE-05 Web 环境方案与开发说明
 
 > 任务：FEP-0 / PRE-05 环境方案
-> 版本：3.0
+> 版本：3.1
 > 日期：2026-10-02
 > 范围：第一期官网与 Web Terminal；Desktop 环境迁入[第二期计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)
 
@@ -42,7 +42,7 @@ Desktop 不是第四套一期环境。`env/desktop.env.example` 只保留为第�
 
 - service-role key、venue/API/模型密钥、JWT、refresh token、私钥、签名密钥与口令不得使用 `NEXT_PUBLIC_`，也不得写入三个模板。
 - 校验器对公开变量key、value和allowlist做负向扫描；已知API/JWT/私钥/Supabase/GitHub/AWS凭据形态会在构建前拒绝，诊断不回显值。
-- 两应用build最后扫描实际客户端JS/HTML/map/CSS/JSON等文件，同时检查已知凭据指纹及当前进程注入的服务器秘密值；目录缺失/为空也拒绝。`pnpm check:client-secrets`可重放产物检查，CI显式执行。指纹检查不能替代秘密管理、数据分类或真实发布审查。
+- 两应用build最后扫描实际客户端JS/HTML/map/CSS/JSON等文件，同时检查已知凭据指纹及按各应用生产构建优先级加载的有效服务器秘密值（进程注入 > `.env.production.local` > `.env.local` > `.env.production` > `.env`，独立进程解析变量展开，应用间隔离）；所有明确命名的非空秘密均检查，不以长度豁免；空值不作为秘密指纹。目录缺失/为空也拒绝。`pnpm check:client-secrets`可重放产物检查，CI显式执行。指纹检查不能替代秘密管理、数据分类或真实发布审查。
 - `QUANTOS_E2E_ACCOUNT_*` 仅是 staging 测试身份的非敏感标识，永不进入 bundle；模板值是占位格式，不代表账号已创建。
 - 测试账号口令、MFA seed 和会话令牌只能由受控 CI/staging secret 注入。本任务未创建或使用真实账号。
 

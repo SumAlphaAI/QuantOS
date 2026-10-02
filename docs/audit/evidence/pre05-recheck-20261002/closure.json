@@ -1,0 +1,107 @@
+{
+  "closed": 9,
+  "open": 0,
+  "controls": {
+    "PASS": 16,
+    "PARTIAL": 0,
+    "FAIL": 0,
+    "strict_completion_percent": 100
+  },
+  "issues": [
+    {
+      "id": "H-01",
+      "original_severity": "高危",
+      "status": "CLOSED",
+      "verification": "输入及实际产物凭据检查；构建与CI接线，六类实际产物注入拒绝",
+      "evidence": [
+        "pre05-tests.log",
+        "synthetic-token-build.log",
+        "supplement-commands.json",
+        "script-check.json",
+        "before.json",
+        "after.json"
+      ]
+    },
+    {
+      "id": "M-01",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "公开原值首尾空白拒绝，实际padded mock构建拒绝",
+      "evidence": [
+        "pre05-tests.log",
+        "padded-mock-build.log",
+        "probes.json"
+      ]
+    },
+    {
+      "id": "M-02",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "所有profile观测/DSN一致，无密码/query/fragment",
+      "evidence": [
+        "pre05-tests.log",
+        "probes.json"
+      ]
+    },
+    {
+      "id": "M-03",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "精确callback与根路径issuer支持范围冻结，未支持值启动前拒绝",
+      "evidence": [
+        "callback-slash-build.log",
+        "path-issuer-build.log",
+        "probes.json"
+      ]
+    },
+    {
+      "id": "M-04",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "指南/模板/总结如实说明普通dev无worker、测试route和后续能力",
+      "evidence": [
+        "document-check.json"
+      ]
+    },
+    {
+      "id": "M-05",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "Next同源dotenv、独立进程隔离，实际文本解析完全一致",
+      "evidence": [
+        "pre05-tests.log",
+        "parser-comparison.json"
+      ]
+    },
+    {
+      "id": "M-06",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "模板profile与四类占位身份独立绑定，破坏CLI及测试拒绝",
+      "evidence": [
+        "supplement-commands.json",
+        "pre05-tests.log"
+      ]
+    },
+    {
+      "id": "M-07",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "当前三Web/启动/测试/历史G0口径、计划3.10同步",
+      "evidence": [
+        "document-check.json",
+        "plans.log"
+      ]
+    },
+    {
+      "id": "L-01",
+      "original_severity": "低危",
+      "status": "CLOSED",
+      "verification": "绝对/相对路径均正确；不存在文件非零",
+      "evidence": [
+        "absolute-cli-path.log",
+        "pre05-tests.log"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+import { createRequire } from 'node:module';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+const root=process.argv[2];
+const require=createRequire(join(root,'package.json'));
+const {ESLint}=require('eslint');const globals=require('globals');
+const eslint=new ESLint({cwd:root,overrideConfig:[{files:['**/*.mjs'],languageOptions:{globals:globals.node}}]});
+const results=await eslint.lintFiles(['scripts/check-client-secrets.mjs','scripts/pre05-gate-negative.mjs']);
+const result={files:results.length,errors:results.reduce((n,r)=>n+r.errorCount,0),warnings:results.reduce((n,r)=>n+r.warningCount,0),messages:results.flatMap(r=>r.messages),environment:'Node globals; repository rules retained'};
+writeFileSync(new URL('script-check.json',import.meta.url),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));if(result.errors||result.warnings)process.exitCode=1;

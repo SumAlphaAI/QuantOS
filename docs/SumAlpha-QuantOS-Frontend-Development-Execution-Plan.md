@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.9
+> 版本：3.10
 > 更新时间：2026-10-02
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.10`：PRE-05 再复核补齐短秘密与应用生产环境文件产物扫描，原9项问题关闭、16/16仓库控制点通过；主报告保留当前验收视图，历史发现与本轮证据独立归档。
 - `3.9`：PRE-05 关闭9项环境审计问题；配置与客户端产物双层秘密检查、原值/DSN/callback/issuer约束、Next同源dotenv解析和模板身份回归纳入验收，文档明确普通dev mock与目标环境边界。
 
 - `3.8`：PRE-04 再复验补齐后端任务全文匹配和本地实现三类证据完整性校验，38项回归通过；9/9问题关闭，主报告收敛为当前验收视图，历史记录保留。
@@ -182,7 +183,7 @@
 - 主要动作：建立 local/mock、local-integrated、staging 三套 Web 配置，定义 BFF origin、OIDC callback、feature flags、观测和测试账号
 - 产出：`.env.example`、配置校验、开发说明
 - 完成标准：缺必需变量 fail-fast；客户端 bundle 不含 server secret；环境/mode 明确分离
-- 仓库整改：2026-10-02，原9项问题的修复与验证见[整改记录](./audit/PRE-05-remediation-2026-10-02.md)和[证据清单](./audit/evidence/pre05-remediation-20261002/manifest.json)。当前模板只证明配置准备，正式G0与真实staging/provider验收仍独立记录。
+- 仓库复核：2026-10-02，原9项问题已关闭，16/16控制点通过；补齐短秘密与生产环境文件秘密扫描后，36项PRE-05回归及三profile×两应用构建通过。见[当前验收报告](./audit/PRE-05-comprehensive-review-2026-10-02.md)和[复核证据](./audit/evidence/pre05-recheck-20261002/manifest.json)。当前模板只证明配置准备，正式G0与真实staging/provider验收仍独立记录。
 
 <a id="task-pre-06"></a>
 #### PRE-06：测试基线
