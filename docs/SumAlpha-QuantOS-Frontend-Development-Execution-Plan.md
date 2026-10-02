@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.13
-> 更新时间：2026-10-02
+> 版本：3.14
+> 更新时间：2026-10-03
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.14`：P0 三项问题关闭，16/16 控制点通过；登记修复提交的真实 Supabase F06 与 P0 联合回执，仅放行 A1。文档提交后的新 HEAD 仍须取得自身 Git notes 回执。
 
 - `3.13`：P0新增独立同SHA验收回执门禁，契约测试加入实际断言计数；目标验收完成后记录A1准入，Git notes承载提交后回执以避免自引用。
 - `3.12`：PRE-06 再复核补齐跳过测试组、非执行分支和未等待截图断言的拒绝机制；当前结论绑定独立重放，原整改证据保留。
@@ -223,9 +225,13 @@
     "FE:PRE-06"
   ],
   "required_scope": "准备任务全部标准与PoC通过，owner/环境/mock/设计/接口台账和测试基线齐备；仅放行A1，不宣称正式OpenAPI或全部provider验收。",
-  "review_status": "RE_REVIEW",
-  "source_commit": null,
-  "evidence": []
+  "review_status": "ACCEPTED",
+  "source_commit": "0149e5681fde7c6b75f891f6708d63726f075fc9",
+  "evidence": [
+    "audit/evidence/p0-preparation-remediation-20261002/source-0149e56/web/p0-receipt.json",
+    "audit/evidence/p0-preparation-remediation-20261002/source-0149e56/f06-target/f06-receipt.json",
+    "audit/PREPARATION-P0-remediation-2026-10-02.md"
+  ]
 }
 ```
 

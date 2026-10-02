@@ -1,0 +1,16 @@
+
+> @sumalpha/quantos@ sabotage:pre06 /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-p0-review-ixawlakq
+> node scripts/pre06-sabotage-check.mjs
+
+ ELIFECYCLE  Command failed with exit code 1.
+file:///private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-p0-review-ixawlakq/scripts/pre06-sabotage-check.mjs:19
+if(structure.status!=="PASS")throw new Error("PRE-06 execution structure failed: "+structure.failures.join(", "));
+                                   ^
+
+Error: PRE-06 execution structure failed: missing executable contract assertion: 故意破坏 schema → 校验失败, missing executable contract assertion: 故意破坏权限不变量（executable=true）→ 校验失败, missing executable contract assertion: 故意注入敏感字段（venueApiKey）→ 校验失败, missing executable contract assertion: 未配置 operation 默认返回 501 且不伪造成功 fixture, missing executable contract assertion: 版本冲突返回 409/currentVersion，客户端不得静默覆盖, missing executable contract assertion: MFA 限流返回 429/retryAfter 且不泄露账户存在性, missing executable contract assertion: all declared positive/negative fixtures match their schema and purpose, missing executable contract assertion: equivalent forbidden keys are rejected recursively without rejecting public fields
+    at file:///private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-p0-review-ixawlakq/scripts/pre06-sabotage-check.mjs:19:36
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.12.0
