@@ -1,0 +1,146 @@
+{
+  "schema": "quantos-pre02-comprehensive-review/v1",
+  "date": "2026-10-02",
+  "source_base_commit": "8edf05f76bf406ed5df980ce4eeca8ce94329de3",
+  "initial_git_status": "CLEAN",
+  "scope": "repository design-system research; audit only, no source/plan changes",
+  "review_conclusion": "PARTIAL / CHANGES_REQUESTED",
+  "counts": {
+    "controls": 14,
+    "pass": 8,
+    "partial": 6,
+    "missing": 0,
+    "control_completion_percent": 57.14,
+    "strict_task_completion": "0/1",
+    "issues": {
+      "blocker": 0,
+      "high": 3,
+      "medium": 4,
+      "low": 1
+    }
+  },
+  "environment": {
+    "node": "v24.12.0",
+    "pnpm": "10.20.0 (Node 24.12.0 Corepack shim)"
+  },
+  "checks": [
+    {
+      "name": "gate",
+      "command": "node packages/ui/scripts/pre02-checks.mjs",
+      "exit_code": 0,
+      "log": "gate.log"
+    },
+    {
+      "name": "gate-tests",
+      "command": "node --test packages/ui/scripts/pre02-gate-negative.mjs",
+      "exit_code": 0,
+      "log": "gate-tests.log"
+    },
+    {
+      "name": "pre01",
+      "command": "node scripts/check-pre01.mjs",
+      "exit_code": 0,
+      "log": "pre01.log"
+    },
+    {
+      "name": "plans",
+      "command": "node scripts/check-development-plans.mjs",
+      "exit_code": 0,
+      "log": "plans.log"
+    },
+    {
+      "name": "ui-lint",
+      "command": "/Users/anray/.nvm/versions/node/v24.12.0/bin/pnpm --filter @sumalpha/ui lint",
+      "exit_code": 0,
+      "log": "ui-lint.log"
+    },
+    {
+      "name": "ui-typecheck",
+      "command": "/Users/anray/.nvm/versions/node/v24.12.0/bin/pnpm --filter @sumalpha/ui typecheck",
+      "exit_code": 0,
+      "log": "ui-typecheck.log"
+    },
+    {
+      "name": "ui-tests",
+      "command": "/Users/anray/.nvm/versions/node/v24.12.0/bin/pnpm --filter @sumalpha/ui test",
+      "exit_code": 0,
+      "log": "ui-tests.log"
+    },
+    {
+      "name": "storybook-build",
+      "command": "/Users/anray/.nvm/versions/node/v24.12.0/bin/pnpm --filter @sumalpha/ui build-storybook",
+      "exit_code": 0,
+      "log": "storybook-build.log"
+    },
+    {
+      "name": "probes",
+      "command": "node docs/audit/evidence/pre02-review-20261002/probes.mjs",
+      "exit_code": 0,
+      "log": "probes.log",
+      "note": "Successful reproduction of defects, not acceptance PASS"
+    }
+  ],
+  "tests": {
+    "gate": 5,
+    "ui": 7
+  },
+  "probes": {
+    "accepted_broken_inputs": 10,
+    "total": 10,
+    "prototype_state_crashes": 3,
+    "mechanism": "esbuild-transformed source and React SSR, no listening socket",
+    "browser": "NOT_RUN"
+  },
+  "sha256": {
+    ".github/workflows/frontend-baseline.yml": "4c24508a1111d224785c8d83818cd9783acbe27c47b09381e1482f38584c72f6",
+    "docs/PRE-01-page-ledger-and-stories.md": "b96d4864c51630801cba879c597e78974842e1df491dc5bb223e4ac410d06974",
+    "docs/PRE-02-component-inventory.md": "c820907ef373a6e07ced979d99f57c8c9a842a599a6fa11113520c8d201e4b02",
+    "docs/PRE-02-summary.md": "5f2e52ee5c1cd4890a515afd3938f861d85172a11963db835a855cb55bf2974d",
+    "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md": "ed6186b324b90765ffae98353d42a6c574008685d8579660538c68170b9aa525",
+    "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md": "3f6856c7cfe2be3ea28ba626f985d052c0c73917ccf48cd5e3b408194181616e",
+    "docs/adr/20260814-pre02-design-tokens.md": "96240fc5145083ed01c3eab5b08b1cf26c4b6ee3f943dfc6e35a571dd65eb49f",
+    "docs/audit/PRE-02-acceptance-evidence-2026-09-16.md": "34fc6129429bced6c67bed9c24453603c7a82351a008fa9a1739777c22ebb681",
+    "docs/audit/PRE-02-comprehensive-review-2026-10-02.md": "64ad9bd08c2f5a10997431cd186f0829df67ed164c6756001cfaf9e812f74869",
+    "docs/audit/evidence/pre02-review-20261002/baseline.txt": "817f5917b8a6c7fdda335594b5ffc7a1e7ffe00ea2d425498e4521d2f050626f",
+    "docs/audit/evidence/pre02-review-20261002/findings.json": "ec8248f1e4e6c5c76bf307bf432d21e68c2a373c2dd82a5cf441b4043b98cd41",
+    "docs/audit/evidence/pre02-review-20261002/frozen-inputs.json": "cd2125d2eda46abb4557920eee78fa055766269af41489322f4dd8de79ccec86",
+    "docs/audit/evidence/pre02-review-20261002/gate-tests.log": "c5b4dc84e92881b48811a488d665c9d1fe3ff1156b3b6bfc7d0e6f5fb285e5ab",
+    "docs/audit/evidence/pre02-review-20261002/gate.log": "c291a96bb6274bdbf90b1d72c1a38011280f85a6406a9ca6db8d1609010540cc",
+    "docs/audit/evidence/pre02-review-20261002/plans.log": "a7a02d64bb4c7dc05831d228b2fe385957373320ec6a2aba45d26c75582656df",
+    "docs/audit/evidence/pre02-review-20261002/pre01.log": "e0a171eeeb07232db1993ab4de85723514a09aa409a3228949370f5f874e6e77",
+    "docs/audit/evidence/pre02-review-20261002/probes.json": "dcafab223ce57dd14b5994482927c0b08cb59199bbf8978a158a9bfae691a1f7",
+    "docs/audit/evidence/pre02-review-20261002/probes.log": "6a2917088e04c23e7df9b546308db9aa33a44077edc97e3bc1e6be7df0ea38ce",
+    "docs/audit/evidence/pre02-review-20261002/probes.mjs": "92fa7a29165a81451ba71c56fa1eb1a514c6effa7f84b24fe9593d4b92c9f70d",
+    "docs/audit/evidence/pre02-review-20261002/standards.json": "625022911ba1ab6a4fd54305bb5b9d9669c38a2c50aea2cd41ca20f7dd6ce733",
+    "docs/audit/evidence/pre02-review-20261002/storybook-build.log": "b29ebd6fb27dc41b9d9013e49623496b95f9b5515f5fef11ffd934c4d302e2cd",
+    "docs/audit/evidence/pre02-review-20261002/ui-lint.log": "0eb037ef6d81f5cb1c83fe3fbb5b3ee84094451aea39ddb13c66ad425c80d249",
+    "docs/audit/evidence/pre02-review-20261002/ui-tests.log": "830b93aa493f27173c29e57eac03fe7c281524acd5dfaaf3b6f540f4d5015d73",
+    "docs/audit/evidence/pre02-review-20261002/ui-typecheck.log": "b0be91d9e9778a5ab297e2a4f12b2c78d7ea130bf77db751b2efc5c9f8a8e5e2",
+    "package.json": "d02c27b2e796074ab396f56c6a0cdba8a25571f2f8abe0ea5a2ac46c3f7d315a",
+    "packages/ui/.storybook/main.ts": "0ed5aa02b761dcc4d256584da9f275ceb98d1993a465a7576317872711262881",
+    "packages/ui/.storybook/preview.tsx": "875845931961f6ec099b886a96f3cf8609e5078e4b55598bbc92a9eb0b462251",
+    "packages/ui/package.json": "9ecb479adfa8d16cd2682429f9e9b5e1b4357ec98277ab58ed70c60f9c0643be",
+    "packages/ui/scripts/pre02-checks.mjs": "b06b81bab7967305189b71ca2de1744e464e748fff5466861590dc0a0fb93d6c",
+    "packages/ui/scripts/pre02-gate-negative.mjs": "93c465806212f44f897670fbfb09feaed7704117129346e7ebd361179c3ed95f",
+    "packages/ui/src/components/StateBadge/StateBadge.stories.tsx": "a996bca1e05bddbd08a05f5a2a970b197a70877aa4acafb13e465a883e22e55c",
+    "packages/ui/src/components/StateBadge/StateBadge.tsx": "fd4f9bd1f6da97292d02a0dde3ef952768cdbbe3af71d82b7bf0d93ef03e0848",
+    "packages/ui/src/i18n/I18nProvider.tsx": "a71be1503d95aeeb148aadc45a615b95155ad16a6df871f8cd87af2342e36dec",
+    "packages/ui/src/i18n/en.json": "d306917079770fa19c61dceac8a2e9d76676bd2baa8591e5a97cb6ec35ff787e",
+    "packages/ui/src/i18n/zh-CN.json": "e83d32c700b976bbdd1a1b20d4c6e886495d2026fe96f84bafce65ae56a1e40a",
+    "packages/ui/src/styles.css": "050a58d7c84e6945def9ef09999db82751de1622af7e13761a28c51bce6e1e7c",
+    "packages/ui/src/theme/ThemeProvider.tsx": "80eb6c564209b1061eb61a9854c1b776d466fe596ce03f004da9ae798c138138",
+    "packages/ui/src/tokens/index.ts": "dfa5bf21d91346098388c6860a42c16e81b98988bdaa3d6a050b723adc7d99df",
+    "packages/ui/src/tokens/tokens.json": "2039a10d800d4a17305f909623b3bdee50927b6ec77a9a536d918a64941c40c0",
+    "packages/ui/tests/ui.test.ts": "61ef1bb17bbd46482aad74b48237bedf5e3bd85cccde67564210f791037a8aa7",
+    "packages/ui/tests/ui103.test.tsx": "5db70fbbb5bba2495d68ce5dc23a095612414a7521235b60659c19808a0314ef",
+    "pnpm-lock.yaml": "74d9378f2fcca8196d1f72235ae9ff14a36373e97946d8fb2d0e26ca881e6050",
+    "proto/quantos/common/v1/common.proto": "8d02461f2197b52c7957ea5372c53813cbcda086907af9b8629927748fdec6e9"
+  },
+  "boundaries": {
+    "designated_model_review": "NOT_STARTED / NOT_RUN",
+    "remote_ci": "NOT_RUN",
+    "browser_axe_keyboard_zoom_visual": "NOT_RUN",
+    "target_provider_database": "NOT_RUN",
+    "new_joint_g0_signature": "NO NEW RECEIPT"
+  }
+}

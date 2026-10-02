@@ -1,0 +1,94 @@
+{
+  "schema": "quantos-pre02-review-findings/v1",
+  "date": "2026-10-02",
+  "findings": [
+    {
+      "id": "H-01",
+      "severity": "高危",
+      "module": "StateBadge 未知状态",
+      "manifestation": "state in stateColor 与普通属性读取命中原型链；toString/constructor/__proto__ 在 resolveHex 的 split 抛错，未显示 unknown fallback。",
+      "impact": "以未来/异常枚举输入的状态标签及承载页面；未证明执行动作旁路。",
+      "evidence": "packages/ui/src/components/StateBadge/StateBadge.tsx:35",
+      "probe": "runtime",
+      "recommendation": "使用 own-property 检查、类型校验与可解析 token 校验；未知输入统一 fallback，并回归原型链名称及非法值。",
+      "status": "OPEN"
+    },
+    {
+      "id": "H-02",
+      "severity": "高危",
+      "module": "主题 / Storybook 基准组件",
+      "manifestation": "StateBadge 默认 theme=dark，不读取 ThemeProvider；切换 light 后仍用 #60A5FA，在 light surface.0 #F7F9FC 上的正文对比度 2.41055:1。",
+      "impact": "默认/审批/拒绝/陈旧/未知等基准 Story 与复用 StateBadge 的浅色主题；LightTheme 单独传 prop 不能证明全局主题切换正确。",
+      "evidence": "packages/ui/src/components/StateBadge/StateBadge.tsx:45",
+      "probe": "contrast",
+      "recommendation": "统一主题事实来源，允许明确 override；在 provider 的两主题下检查全部枚举及 unknown 的实际前景/背景。",
+      "status": "OPEN"
+    },
+    {
+      "id": "H-03",
+      "severity": "高危",
+      "module": "PRE-02 Gate / CI",
+      "manifestation": "10/10 破坏输入仍 PASS：deny 改成功色/无效 token、英文安全语义反转、控件密度、焦点 token/宽度、断点上界、排版/基栅、危险组件替换、纯注释 Storybook、surface.2 破坏。",
+      "impact": "Frontend Baseline 使用此 Gate；既有 5/5 负向测试不足以防止安全语义及设计系统冻结约定回退。",
+      "evidence": "packages/ui/scripts/pre02-checks.mjs:75",
+      "probe": "mutations",
+      "recommendation": "冻结完整 token schema/值、状态到合法语义色的映射、安全译文/语义审查、组件身份和可执行 Storybook 配置；增加独立负向与组件运行回归。",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-01",
+      "severity": "中危",
+      "module": "WCAG 基础矩阵 / 控件边界 token",
+      "manifestation": "36 配对未覆盖 surface.2 文本、输入框识别边界及实际混合主题。现有 border.strong 对 surface.0/1：dark 2.194/1.986、light 1.675/1.767，均小于 3。",
+      "impact": "使用 q-input/q-button 等识别边界的基础控件；是否存在足够替代视觉提示须浏览器逐控件确认，不能仅按缺测认定所有页面 WCAG 失败。",
+      "evidence": "packages/ui/scripts/pre02-checks.mjs:89",
+      "probe": "contrast",
+      "recommendation": "按控件实际前景/背景/边界建立适用配对，区分装饰线与识别边界；为需识别的控件提供达标边界或替代提示，并验证 focus、hover、两主题。",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-02",
+      "severity": "中危",
+      "module": "token 单一来源 / StateBadge 样式",
+      "manifestation": "基准组件写死 fontSize 13、lineHeight 18px、gap 6；gap 6 不在 4px 基栅 scale 内，字号也未引用 typography.table。",
+      "impact": "修改 token 后基准组件不跟随，违反 ADR 后果约束与组件清单的禁止硬编码规则。",
+      "evidence": "packages/ui/src/components/StateBadge/StateBadge.tsx:57",
+      "probe": "source",
+      "recommendation": "通过 token/CSS variables 消费字号、行高、数值排版和间距；必要例外写入 ADR；用合法 token 变更证明组件跟随。",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-03",
+      "severity": "中危",
+      "module": "Storybook locale / i18n 消费",
+      "manifestation": "StateBadge 默认 locale=zh-CN，内置 UNKNOWN_LABEL，不读取 I18nProvider/state.unknown；在 light/en provider 下 unknown 的 aria-label 与文字仍为中文，已由 SSR 复现；基准 Story 的已知状态 label 也固定为中文。",
+      "impact": "英文工具栏的基准验收与未知状态读屏；18 条 safety 文案本身已入双语词典，此问题不等于 safety key 缺失。",
+      "evidence": "packages/ui/src/components/StateBadge/StateBadge.tsx:21",
+      "probe": "runtime",
+      "recommendation": "基准 Story 和 fallback 从统一 i18n 入口取词，避免复制 state.unknown；验证两语言 provider 切换及 aria-label 一致性。",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-04",
+      "severity": "中危",
+      "module": "一期范围 / 组件清单与 Gate",
+      "manifestation": "组件清单仍以 P16/P17 + Web/DT 互斥渲染共同验收；当前一期 Gate 强制 desktopMin 1180×760，却没有标明是二期共享参考项。",
+      "impact": "PRE-02 对一期 P17 与二期 P16 的责任、通过条件不明确，与 v3.2 Web-only 计划和已校准 PRE-01 范围未同步。",
+      "evidence": "docs/PRE-02-component-inventory.md:54",
+      "probe": "source",
+      "recommendation": "保留合法共享 token，明确一期 Web 必需与二期参考；P16 原生验收转入 Desktop 计划，避免强制一期原生运行条件。",
+      "status": "OPEN"
+    },
+    {
+      "id": "L-01",
+      "severity": "低危",
+      "module": "Storybook 源码说明",
+      "manifestation": "StateBadge.stories.tsx 注释声称“八态基准 story”，实际只有 7 个示例导出，且其中含主题/视口变体，非八态场景集合。",
+      "impact": "维护者可能混淆 PRE-02 骨架示例与下游领域组件八态完成率；总结文档的 7 个示例统计是正确的。",
+      "evidence": "packages/ui/src/components/StateBadge/StateBadge.stories.tsx:5",
+      "probe": "source",
+      "recommendation": "改成七个基准示例，明确全量八态在领域组件任务验收；不为修正注释强造无业务意义的 Story。",
+      "status": "OPEN"
+    }
+  ]
+}

@@ -2,13 +2,15 @@
 
 > F01 整改后，Desktop 不在一期默认 pnpm workspace 中。第二期请在独立 checkout 将根目录 `pnpm-workspace.desktop.yaml`、`pnpm-lock.desktop.yaml` 分别复制为默认文件名，再执行 frozen install；手动 Desktop CI 已使用此入口。不要在一期活动工作区替换配置。
 
-> 版本：1.1
-> 更新时间：2026-09-17
+> 版本：1.2
+> 更新时间：2026-10-02
 > 状态：第二期范围已拆分，尚未授权启动开发或发布
 > 上游：[第一期总体开发计划](./SumAlpha-QuantOS-Development-Plan.md)、[第一期 Web 前端开发执行计划](./SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md)、[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)
 > 目标：在第一期 Web Terminal 验收稳定后，以同一业务页面、契约和安全语义交付 Tauri Desktop；原生平台能力不得形成第二套业务状态机。
 
 ## 版本变更说明
+
+- `1.2`：明确承接 PRE-02 的 P16 原生组件、Web/DT 平台适配与 desktopMin 1180×760 验收；共享 token 不扩大一期 Gate，第二期仍未授权启动。
 
 - `1.1`：完整承接第一期总体开发计划中原有的 Desktop 开发、测试、双端回归、通知与 Gate 要求；第一期文档收敛为 Web-only 交付基线。
 - `1.0`：建立 Desktop 第二期范围、工作包、原生测试、D0–D4 Gate 与发布授权边界。
@@ -30,6 +32,8 @@
 | 原生平台能力 | 深链、系统通知、多窗口、布局恢复、本地文件选择、受控下载、诊断包 | 保存 token/venue key、直连数据库/NATS/Engine/Execution Gateway/venue |
 | 发布 | macOS/Windows 候选包、manifest、SBOM、签名与受控更新、回滚 | 未签名分发、自动扩大更新比例、无回滚发布 |
 | 离线 | 加密的非敏感只读缓存与明确的最后同步时间 | 离线提交、自动重放旧意图、缓存风险结论或可执行命令 |
+
+PRE-02 原生组件承接：P16 的 PlatformCapabilityCard/平台 adapter 与最小窗口 1180×760 按本计划 D0 启动、D1–D3 实现/测试门槛验收；[共享 token ADR](./adr/20260814-pre02-design-tokens.md)中的 desktopMin 是二期参考。第一期清单仅绑定 P17 BrowserCapabilities，不要求原生运行。
 
 ## 3. 技术与安全决策
 

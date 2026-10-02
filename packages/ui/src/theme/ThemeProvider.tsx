@@ -24,3 +24,6 @@ export function ThemeProvider({ children, defaultTheme = "dark", theme: controll
   return <ThemeContext.Provider value={value}><div className={`quantos-theme${className ? ` ${className}` : ""}`} data-quantos-theme={theme} style={createThemeVariables(theme)}>{children}</div></ThemeContext.Provider>;
 }
 export function useTheme(): ThemeContextValue { const context = useContext(ThemeContext); if (!context) throw new Error("useTheme must be used inside ThemeProvider"); return context; }
+
+/** Optional context for primitives that also support standalone rendering. */
+export function useOptionalTheme(): ThemeContextValue | null { return useContext(ThemeContext); }

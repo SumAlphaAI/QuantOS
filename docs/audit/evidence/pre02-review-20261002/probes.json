@@ -1,0 +1,216 @@
+{
+  "schema": "quantos-pre02-review-probes/v1",
+  "baseline": "8edf05f76bf406ed5df980ce4eeca8ce94329de3",
+  "original_gate": "PASS",
+  "mutations": [
+    {
+      "id": "state-deny-success",
+      "description": "风险 deny 被映射为成功色",
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "id": "state-invalid-path",
+      "description": "风险 deny 映射到不存在的 token",
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "id": "english-inverted",
+      "description": "英文危险语义反转但保持 key 非空",
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "id": "density-broken",
+      "description": "compact 控件高/padding 破坏",
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "id": "focus-broken",
+      "description": "焦点环宽度清零并改为低对比度 token",
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "id": "breakpoint-gap",
+      "description": "折叠上界改为 800，造成区间缺口",
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "id": "typography-broken",
+      "description": "正文排版和基栅破坏",
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "id": "inventory-replaced",
+      "description": "用任意名称替换危险确认组件，保持行数",
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "id": "storybook-comment-only",
+      "description": "插件/扫描/视口/story 只留注释，不留可执行配置",
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "id": "surface2-broken",
+      "description": "浮层背景改为与文字同色，未进入 36 对比度矩阵",
+      "status": "PASS",
+      "failures": []
+    }
+  ],
+  "contrast": [
+    {
+      "pair": "dark input border.strong/surface.0",
+      "ratio": 2.194192081798922,
+      "minimum": 3,
+      "context": "q-input border/background; component boundary, needs sufficient alternative visual identification"
+    },
+    {
+      "pair": "dark input border.strong/surface.1",
+      "ratio": 1.9856524295235911,
+      "minimum": 3,
+      "context": "q-input on panel/dialog"
+    },
+    {
+      "pair": "dark categorical[0]/surface.0",
+      "ratio": 9.899413076023437,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[1]/surface.0",
+      "ratio": 7.248068262736837,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[2]/surface.0",
+      "ratio": 6.771347327783092,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[3]/surface.0",
+      "ratio": 11.038727229659873,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[4]/surface.0",
+      "ratio": 6.66185417359242,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[5]/surface.0",
+      "ratio": 9.585626975724763,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[6]/surface.0",
+      "ratio": 6.95777692220895,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[7]/surface.0",
+      "ratio": 7.186956189633094,
+      "minimum": 3
+    },
+    {
+      "pair": "light input border.strong/surface.0",
+      "ratio": 1.6753222666102543,
+      "minimum": 3,
+      "context": "q-input border/background; component boundary, needs sufficient alternative visual identification"
+    },
+    {
+      "pair": "light input border.strong/surface.1",
+      "ratio": 1.7669726942154063,
+      "minimum": 3,
+      "context": "q-input on panel/dialog"
+    },
+    {
+      "pair": "light categorical[0]/surface.0",
+      "ratio": 3.550047401503275,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[1]/surface.0",
+      "ratio": 6.354014732057736,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[2]/surface.0",
+      "ratio": 6.736372015121215,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[3]/surface.0",
+      "ratio": 4.761167445738887,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[4]/surface.0",
+      "ratio": 6.134452451739392,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[5]/surface.0",
+      "ratio": 5.199480503364688,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[6]/surface.0",
+      "ratio": 5.724531957580283,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[7]/surface.0",
+      "ratio": 7.0021914077251095,
+      "minimum": 3
+    },
+    {
+      "pair": "Storybook toolbar light: default StateBadge running / light surface.0",
+      "ratio": 2.4105507356907423,
+      "minimum": 4.5,
+      "foreground": "#60A5FA",
+      "background": "#F7F9FC",
+      "basis": "StateBadge default theme dark ignores ThemeProvider; default story has no theme prop; computed from SSR markup and light provider token",
+      "markup": "<span role=\"status\" aria-label=\"running\" style=\"display:inline-flex;align-items:center;gap:6px;color:#60A5FA;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">◆</span><span>running</span></span>"
+    }
+  ],
+  "runtime": [
+    {
+      "state": "running",
+      "status": "RENDERED",
+      "markup": "<span role=\"status\" aria-label=\"running\" style=\"display:inline-flex;align-items:center;gap:6px;color:#60A5FA;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">◆</span><span>running</span></span>"
+    },
+    {
+      "state": "some_future_enum",
+      "status": "RENDERED",
+      "markup": "<span role=\"status\" aria-label=\"未知/需升级\" style=\"display:inline-flex;align-items:center;gap:6px;color:#FBBF24;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">▲</span><span>未知/需升级</span></span>"
+    },
+    {
+      "state": "toString",
+      "status": "THREW",
+      "error": "tokenPath.split is not a function or its return value is not iterable"
+    },
+    {
+      "state": "constructor",
+      "status": "THREW",
+      "error": "tokenPath.split is not a function or its return value is not iterable"
+    },
+    {
+      "state": "__proto__",
+      "status": "THREW",
+      "error": "tokenPath.split is not a function or its return value is not iterable"
+    },
+    {
+      "state": "some_future_enum under light/en providers",
+      "status": "RENDERED",
+      "markup": "<div class=\"quantos-theme\" data-quantos-theme=\"light\" style=\"--q-color-scheme:light;--q-surface-0:#F7F9FC;--q-surface-1:#FFFFFF;--q-surface-2:#EEF2F7;--q-border:#D4DCE6;--q-border-strong:#B8C4D4;--q-text-primary:#16202E;--q-text-secondary:#47576B;--q-text-disabled:#93A1B4;--q-brand:#0F766E;--q-brand-hover:#115E59;--q-brand-fg:#FFFFFF;--q-success:#047857;--q-warning:#B45309;--q-danger:#B91C1C;--q-info:#1D4ED8;--q-focus:#1D4ED8;--q-focus-width:2px;--q-font-sans:Inter, PingFang SC, Microsoft YaHei, system-ui, sans-serif;--q-font-mono:JetBrains Mono, SFMono-Regular, Consolas, monospace;--q-font-body-size:14px;--q-font-body-line:20px;--q-font-table-size:13px;--q-font-table-line:18px;--q-font-page-size:24px;--q-font-page-line:32px;--q-space-1:4px;--q-space-2:8px;--q-space-3:12px;--q-space-4:16px;--q-space-5:20px;--q-radius-sm:4px;--q-radius-md:6px;--q-radius-lg:10px;--q-control-height:28px;--q-row-height:32px\"><span role=\"status\" aria-label=\"未知/需升级\" style=\"display:inline-flex;align-items:center;gap:6px;color:#FBBF24;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">▲</span><span>未知/需升级</span></span></div>"
+    }
+  ],
+  "browser_execution": "NOT_RUN",
+  "note": "Mutation PASS means the existing gate accepts deliberately broken input. SSR is not browser/axe acceptance."
+}

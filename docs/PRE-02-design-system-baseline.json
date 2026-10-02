@@ -1,0 +1,375 @@
+{
+  "schema": "quantos-pre02-requirements/v1",
+  "scope": "phase-one Web; native desktopMin is reference-only",
+  "tokens": {
+    "$schema": "quantos-design-tokens/v1",
+    "color": {
+      "dark": {
+        "surface": {
+          "0": "#0E1420",
+          "1": "#161E2E",
+          "2": "#1E2839"
+        },
+        "border": {
+          "default": "#2C3A52",
+          "strong": "#6B7D99"
+        },
+        "text": {
+          "primary": "#E8EEF7",
+          "secondary": "#A7B4C8",
+          "disabled": "#5C6B82",
+          "inverse": "#0E1420"
+        },
+        "brand": {
+          "bg": "#0F766E",
+          "bgHover": "#115E59",
+          "fg": "#FFFFFF"
+        },
+        "semantic": {
+          "success": "#34D399",
+          "warning": "#FBBF24",
+          "danger": "#F87171",
+          "info": "#60A5FA"
+        },
+        "mode": {
+          "research": "#60A5FA",
+          "paper": "#34D399",
+          "shadow": "#A78BFA",
+          "assistedLive": "#F87171"
+        },
+        "chart": {
+          "up": "#2DD4BF",
+          "down": "#F87171",
+          "categorical": [
+            "#2DD4BF",
+            "#60A5FA",
+            "#A78BFA",
+            "#FBBF24",
+            "#F87171",
+            "#34D399",
+            "#F472B6",
+            "#94A3B8"
+          ]
+        }
+      },
+      "light": {
+        "surface": {
+          "0": "#F7F9FC",
+          "1": "#FFFFFF",
+          "2": "#EEF2F7"
+        },
+        "border": {
+          "default": "#D4DCE6",
+          "strong": "#73839A"
+        },
+        "text": {
+          "primary": "#16202E",
+          "secondary": "#47576B",
+          "disabled": "#93A1B4",
+          "inverse": "#FFFFFF"
+        },
+        "brand": {
+          "bg": "#0F766E",
+          "bgHover": "#115E59",
+          "fg": "#FFFFFF"
+        },
+        "semantic": {
+          "success": "#047857",
+          "warning": "#92400E",
+          "danger": "#B91C1C",
+          "info": "#1D4ED8"
+        },
+        "mode": {
+          "research": "#1D4ED8",
+          "paper": "#047857",
+          "shadow": "#6D28D9",
+          "assistedLive": "#B91C1C"
+        },
+        "chart": {
+          "up": "#0D9488",
+          "down": "#DC2626",
+          "categorical": [
+            "#0D9488",
+            "#1D4ED8",
+            "#6D28D9",
+            "#B45309",
+            "#B91C1C",
+            "#047857",
+            "#BE185D",
+            "#47576B"
+          ]
+        }
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "sans": "Inter, PingFang SC, Microsoft YaHei, system-ui, sans-serif",
+        "mono": "JetBrains Mono, SFMono-Regular, Consolas, monospace"
+      },
+      "body": {
+        "fontSize": "14px",
+        "lineHeight": "20px"
+      },
+      "table": {
+        "fontSize": "13px",
+        "lineHeight": "18px"
+      },
+      "pageTitle": {
+        "fontSize": "24px",
+        "lineHeight": "32px",
+        "fontWeight": 600
+      },
+      "numeric": {
+        "fontVariantNumeric": "tabular-nums",
+        "note": "全部金融数值使用等宽数字；ID/hash/correlation ID 使用 mono"
+      }
+    },
+    "spacing": {
+      "base": 4,
+      "scale": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        64
+      ]
+    },
+    "density": {
+      "comfortable": {
+        "rowHeight": 40,
+        "controlHeight": 36,
+        "padding": 16
+      },
+      "compact": {
+        "rowHeight": 32,
+        "controlHeight": 28,
+        "padding": 12
+      },
+      "default": "compact",
+      "note": "Terminal 默认 compact（专业高密度）；官网固定 comfortable"
+    },
+    "breakpoints": {
+      "full": {
+        "min": 1280,
+        "behavior": "完整工作区"
+      },
+      "collapsed": {
+        "min": 768,
+        "max": 1279,
+        "behavior": "折叠侧栏 + 单列详情"
+      },
+      "readonly": {
+        "max": 767,
+        "behavior": "仅状态/只读监控；隐藏审批、下单、撤单、发布等全部高风险操作"
+      }
+    },
+    "radius": {
+      "sm": 4,
+      "md": 6,
+      "lg": 10
+    },
+    "focus": {
+      "ringWidth": 2,
+      "ringColorToken": "semantic.info",
+      "note": "焦点环永远可见，不用 outline:none"
+    },
+    "stateEnum": {
+      "task": [
+        "queued",
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled"
+      ],
+      "risk": [
+        "allow",
+        "deny",
+        "approval_required"
+      ],
+      "order": [
+        "draft",
+        "risk_checking",
+        "awaiting_approval",
+        "command_ready",
+        "submitted",
+        "accepted",
+        "partially_filled",
+        "filled",
+        "cancelled",
+        "rejected",
+        "expired"
+      ],
+      "market": [
+        "live",
+        "delayed",
+        "stale",
+        "unavailable"
+      ],
+      "reconciliation": [
+        "matched",
+        "investigating",
+        "resolved"
+      ],
+      "unknownFallback": "未知/需升级：未知枚举显示该标识并阻断高风险动作，不落入默认 allow"
+    },
+    "stateColor": {
+      "queued": "text.secondary",
+      "running": "semantic.info",
+      "succeeded": "semantic.success",
+      "failed": "semantic.danger",
+      "cancelled": "text.secondary",
+      "allow": "semantic.success",
+      "deny": "semantic.danger",
+      "approval_required": "semantic.warning",
+      "draft": "text.secondary",
+      "risk_checking": "semantic.info",
+      "awaiting_approval": "semantic.warning",
+      "command_ready": "semantic.info",
+      "submitted": "semantic.info",
+      "accepted": "semantic.info",
+      "partially_filled": "semantic.warning",
+      "filled": "semantic.success",
+      "rejected": "semantic.danger",
+      "expired": "semantic.danger",
+      "live": "semantic.success",
+      "delayed": "semantic.warning",
+      "stale": "semantic.warning",
+      "unavailable": "semantic.danger",
+      "matched": "semantic.success",
+      "investigating": "semantic.warning",
+      "resolved": "semantic.success"
+    }
+  },
+  "safetyEnglish": {
+    "safety.mode.paper": "PAPER · Paper trading ledger. No orders will be submitted to any venue.",
+    "safety.mode.shadow": "SHADOW · Shadow results are generated from live market data for comparison only. No orders will be submitted.",
+    "safety.mode.assistedLiveUnavailable": "Assisted Live is not available yet. It requires the M5 Gate and a separate approval.",
+    "safety.dataStale": "Data has exceeded its allowed freshness window. Refresh the data or wait for recovery before continuing.",
+    "safety.forbidden": "You do not have permission to access this resource. If you believe this is an error, contact your primary workspace administrator.",
+    "safety.nonExecutableProposal": "This is a trade proposal, not an order. Complete the deterministic risk evaluation and required approvals first.",
+    "safety.commandExpired": "This trade command has expired and cannot be submitted. Run the risk evaluation again.",
+    "safety.noVenue": "No authorized and healthy venue is currently available for this instrument. Check connection status or contact your administrator.",
+    "safety.priceChanged": "The quote has changed and the order has not been submitted. Review the latest price and estimated cost before continuing.",
+    "safety.performanceBasis": "Performance is based on confirmed ledger entries and valuation snapshots, and does not represent future results.",
+    "safety.reconciliationBreak": "A discrepancy between the ledger and external reports was detected. It is under investigation and must not be used to adjust trading decisions.",
+    "safety.offline": "Connection lost. Read-only cache remains available; creation, approval and trading actions are paused.",
+    "safety.reauth": "This action affects trading risk. Complete identity verification to continue.",
+    "safety.approvalRecorded": "Approval recorded. The system will continue with the remaining deterministic checks.",
+    "safety.approvalRejected": "The request has been rejected. The reason and rule context have been written to the audit trail.",
+    "safety.killSwitch": "Kill switch is engaged. The system rejects new trade commands until it is released by authorized personnel.",
+    "safety.loadFailed": "This page could not be loaded. Retry; if the problem persists, copy the correlation ID and contact support.",
+    "safety.noResults": "No results match the current filters. Adjust the filters or clear them."
+  },
+  "stateCopy": {
+    "en": {
+      "state.unknown": "Unknown / upgrade required",
+      "state.queued": "Queued",
+      "state.running": "Running",
+      "state.succeeded": "Succeeded",
+      "state.failed": "Failed",
+      "state.cancelled": "Cancelled",
+      "state.allow": "Allowed",
+      "state.deny": "Denied",
+      "state.approval_required": "Approval required",
+      "state.draft": "Draft",
+      "state.risk_checking": "Risk checking",
+      "state.awaiting_approval": "Awaiting approval",
+      "state.command_ready": "Command ready",
+      "state.submitted": "Submitted",
+      "state.accepted": "Accepted",
+      "state.partially_filled": "Partially filled",
+      "state.filled": "Filled",
+      "state.rejected": "Rejected",
+      "state.expired": "Expired",
+      "state.live": "Live",
+      "state.delayed": "Delayed",
+      "state.stale": "Stale",
+      "state.unavailable": "Unavailable",
+      "state.matched": "Matched",
+      "state.investigating": "Investigating",
+      "state.resolved": "Resolved"
+    },
+    "zh-CN": {
+      "state.unknown": "未知/需升级",
+      "state.queued": "排队中",
+      "state.running": "运行中",
+      "state.succeeded": "已完成",
+      "state.failed": "失败",
+      "state.cancelled": "已取消",
+      "state.allow": "允许",
+      "state.deny": "拒绝",
+      "state.approval_required": "需要审批",
+      "state.draft": "草稿",
+      "state.risk_checking": "风险检查中",
+      "state.awaiting_approval": "等待审批",
+      "state.command_ready": "命令就绪",
+      "state.submitted": "已提交",
+      "state.accepted": "已接收",
+      "state.partially_filled": "部分成交",
+      "state.filled": "已成交",
+      "state.rejected": "已拒绝",
+      "state.expired": "已过期",
+      "state.live": "实时",
+      "state.delayed": "延迟",
+      "state.stale": "陈旧",
+      "state.unavailable": "不可用",
+      "state.matched": "已匹配",
+      "state.investigating": "调查中",
+      "state.resolved": "已解决"
+    }
+  },
+  "commonComponents": [
+    "AppShell",
+    "Button / IconButton",
+    "Badge / StateBadge",
+    "ModeBanner",
+    "DataGrid",
+    "EvidenceTimeline",
+    "Drawer（Evidence/Activity/Filter）",
+    "Dialog / DangerConfirmDialog",
+    "Toast / InlineAlert",
+    "Form 控件族",
+    "Skeleton / EmptyState",
+    "Tabs / Breadcrumb / Pagination",
+    "Tooltip / Popover",
+    "KpiCard",
+    "CodeEditor（受控封装）",
+    "Chart 容器",
+    "CandlestickChart",
+    "AuthCard",
+    "SearchCommandPalette"
+  ],
+  "domainComponents": [
+    "DataFreshnessIndicator",
+    "RiskPostureBadge",
+    "ConnectionStatusBar",
+    "PriorityQueue / HealthSummary / ActivityFeed",
+    "ResearchComposer（三步）",
+    "RunTimeline / EvidencePanel",
+    "ArtifactCard / SnapshotQualityCard / LineageTimeline",
+    "StrategyFileTree / ValidationPanel / BacktestDrawer",
+    "BacktestMetrics / EquityCurve / ReleaseCard / ApprovalTimeline / DeploymentTargetSelector",
+    "PositionGrid / ExposureHeatmap / RiskRuleList / KillSwitchControl",
+    "NonExecutableBanner / ProposalCard / CounterViewList",
+    "RiskDecisionCard / ApprovalActionBar / MfaChallenge",
+    "OrderStateMachine / FillTable / CommandSummary / VenueHealthBadge",
+    "AuditSearchBar / RedactedPayloadViewer / ExportJobDrawer",
+    "ServiceHealthStrip / IncidentTimeline / RunbookActionList",
+    "MemberGrid / PolicyVersionTimeline / CapabilityApprovalList / FlagRolloutControl",
+    "NotificationMatrix / SessionDeviceList / MfaSetupPanel",
+    "PlatformCapabilityCard",
+    "WatchlistPanel / MarketGrid / InstrumentHeader / VenueQuoteTable",
+    "ChartContextBar / IndicatorPanel / EventMarkers / OhlcvTable / GapList",
+    "OrderForm / ExecutionContext / PreTradeCheck / VenueSelector / ModeBanner(Trade)",
+    "PerformanceContextBar / AttributionChart / DrawdownChart / PeriodReturnTable / ReportBuilder",
+    "ReconciliationSummary / BreakGrid / BreakEvidenceDrawer",
+    "AlertFeed / AlertDetail / SubscriptionRuleEditor",
+    "MoneyText / DecimalText / AsOfText / ProvisionalTag / CorrelationIdChip / HashText"
+  ]
+}

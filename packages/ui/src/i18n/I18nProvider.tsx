@@ -10,3 +10,5 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 export interface I18nProviderProps { children: ReactNode; defaultLocale?: Locale; locale?: Locale; onLocaleChange?: (locale: Locale) => void }
 export function I18nProvider({ children, defaultLocale = "zh-CN", locale: controlledLocale, onLocaleChange }: I18nProviderProps) { const [internalLocale, setInternalLocale] = useState(defaultLocale); const locale = controlledLocale ?? internalLocale; const value = useMemo<I18nContextValue>(() => ({ locale, setLocale(next) { if (controlledLocale === undefined) setInternalLocale(next); onLocaleChange?.(next); }, t: (key, values) => translate(locale, key, values) }), [controlledLocale, locale, onLocaleChange]); return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>; }
 export function useI18n(): I18nContextValue { const context = useContext(I18nContext); if (!context) throw new Error("useI18n must be used inside I18nProvider"); return context; }
+
+export function useOptionalI18n(): I18nContextValue | null { return useContext(I18nContext); }

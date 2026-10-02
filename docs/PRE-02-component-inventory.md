@@ -1,6 +1,6 @@
 # PRE-02 产出物：组件清单
 
-> 任务：PRE-02 设计系统预研  版本：1.1  日期：2026-09-16
+> 任务：PRE-02 设计系统预研  版本：1.2  日期：2026-10-02
 > 依据：设计规格 3.1/3.2/4/7.1 节；执行计划 2、7.3 节；[组件状态基准](./PRE-01-acceptance-scenarios.md) 七态定义
 > 归属规则：`packages/ui` = 无领域语义的通用组件；`packages/domain-ui` = 含领域语义组件。所有组件禁止硬编码 token 之外的色值/字号；领域组件必须覆盖八态（默认/加载/空/错误/无权/陈旧/离线/危险确认）。
 
@@ -51,7 +51,7 @@
 | ServiceHealthStrip / IncidentTimeline / RunbookActionList | P13 | 仅 actionId，无任意命令 | P1 |
 | MemberGrid / PolicyVersionTimeline / CapabilityApprovalList / FlagRolloutControl | P14 | 最后管理员保护；双人审批 | P1 |
 | NotificationMatrix / SessionDeviceList / MfaSetupPanel | P15 | 近期登录门槛 | P0 |
-| PlatformCapabilityCard | P16/P17 | capability 状态驱动；Web/DT 互斥渲染 | P1 |
+| PlatformCapabilityCard | P17 | BrowserCapabilities 与 permission state 驱动 Web 降级 | P1 |
 | WatchlistPanel / MarketGrid / InstrumentHeader / VenueQuoteTable | P18 | source/asOf/latency/quality 每行齐全 | P0 |
 | ChartContextBar / IndicatorPanel / EventMarkers / OhlcvTable / GapList | P19 | 切维度清 series；缺口提示 | P0 |
 | OrderForm / ExecutionContext / PreTradeCheck / VenueSelector / ModeBanner(Trade) | P20 | capability 驱动字段；单 venue 锁定；每步刷新 | P0 |
@@ -59,6 +59,8 @@
 | ReconciliationSummary / BreakGrid / BreakEvidenceDrawer | P22 | 无手工改账入口 | P0 |
 | AlertFeed / AlertDetail / SubscriptionRuleEditor | P23 | ack≠resolved | P1 |
 | MoneyText / DecimalText / AsOfText / ProvisionalTag / CorrelationIdChip / HashText | 全部 | 十进制定点；币种/精度/时区；复制 correlation ID | P0 |
+
+P16 原生通知、文件、窗口与离线缓存组件归[Desktop 二期计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)，不进入一期组件验收。共享 token 的 desktopMin 仅供二期参考。
 
 ## 3. Storybook 覆盖约定
 

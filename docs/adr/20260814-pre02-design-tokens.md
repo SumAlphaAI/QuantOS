@@ -1,14 +1,14 @@
 # ADR: QuantOS 设计系统 token 冻结（PRE-02）
 
-- 状态：已冻结；仓库 Gate 于 2026-09-16 重验证通过（GPT-6 Astra 复审仍为 `NOT_STARTED`）
+- 状态：已冻结；仓库 Gate 于 2026-10-02 整改复验通过（GPT-6 Astra 复审仍为 `NOT_STARTED`）
 - 日期：2026-08-14
-- 最近复核：2026-09-16
+- 最近复核：2026-10-02
 - 关联：PRE-02 设计系统预研；[设计规格 3.2/7 节](../SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)；[执行计划第 2 节](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md)
 - 事实来源：[`packages/ui/src/tokens/tokens.json`](../../packages/ui/src/tokens/tokens.json)
 
 ## 背景
 
-FEP-0 必须在页面开发前冻结设计系统决策，避免逐页复制样式与状态口径漂移。token 集中管理于 `packages/ui`，Web 与 Desktop 共享；语义色不得挪作装饰色。任何变更须修订本 ADR 并重新通过 `packages/ui/scripts/pre02-checks.mjs`。
+FEP-0 必须在页面开发前冻结设计系统决策，避免逐页复制样式与状态口径漂移。token 集中管理于 `packages/ui`，一期 Web 为当前验收范围；Desktop 可共享 token，但原生要求只由二期验收；语义色不得挪作装饰色。任何变更须修订本 ADR 并重新通过 `packages/ui/scripts/pre02-checks.mjs`。
 
 ## 决策
 
@@ -18,7 +18,7 @@ FEP-0 必须在页面开发前冻结设计系统决策，避免逐页复制样�
 - 色板：surface 三级（页面/面板/浮层）、border 两级、text 四级（primary/secondary/disabled/inverse）、brand（蓝绿 #0F766E 系）、语义四色（success/warning/danger/info）。
 - 语义约束：success 仅表示"已完成"；warning 表示"需关注"；danger 仅用于拒绝、故障、紧急停止；颜色必须配合图标和文字，不能单独传达含义。
 - 运行模式色常驻且带文字：research=info 蓝、paper=success 绿、shadow=紫、assistedLive=danger 红（M5 前不开放）。
-- WCAG 2.2 AA：正文/安全状态文案配对 ≥4.5:1，图表与焦点环非文本对比度 ≥3:1，由脚本强制校验（双主题 36/36 通过）。
+- WCAG 2.2 AA：正文/安全状态文案配对 ≥4.5:1，图表与焦点环非文本对比度 ≥3:1，由脚本强制校验（双主题 252/252 适用配对通过）。
 
 ### 2. 排版
 
@@ -33,7 +33,7 @@ FEP-0 必须在页面开发前冻结设计系统决策，避免逐页复制样�
 ### 4. 断点与响应式
 
 - ≥1280px 完整工作区；768–1279px 折叠侧栏 + 单列详情；<768px 只读监控，隐藏审批/下单/撤单/发布等全部高风险操作。
-- 桌面端最小窗口 1180×760，无小屏只读档。
+- 桌面端最小窗口 1180×760，无小屏只读档；此项为二期参考，不是一期 Web Gate 的必需字段。
 
 ### 5. 状态枚举（冻结）
 
@@ -69,7 +69,15 @@ FEP-0 必须在页面开发前冻结设计系统决策，避免逐页复制样�
 
 ### 10. i18n 与文案
 
-- 通用安全文案 18 条全部入库：`packages/ui/src/i18n/{en,zh-CN}.json`，key 前缀 `safety.*`；页面仅替换变量，不得改写安全含义；Gate 强制 key 精确集合、规范中文原文、中英文非空与占位符一致。
+- 通用安全文案 18 条全部入库：`packages/ui/src/i18n/{en,zh-CN}.json`，key 前缀 `safety.*`；页面仅替换变量，不得改写安全含义；Gate 强制 key 精确集合、规范中文原文、受控英文译文与占位符一致；state.* 的 25 个状态与 unknown 均从同一 i18n 入口取词，默认跟随 provider。
+
+## 2026-10-02 整改决策
+
+- 受控规则基线：[PRE-02-design-system-baseline.json](../PRE-02-design-system-baseline.json)；Web token 全字段/值、状态色映射、英文安全文案、状态标签和组件身份冻结。变更必须先同步规格、本 ADR、基线并重新评审，不能仅改基线让错误实现通过。
+- 控件识别边界使用 border.strong：dark `#6B7D99`、light `#73839A`；default border 仅作装饰分隔，不可独自识别交互控件。浅主题 warning 改为 `#92400E`，确保在 surface.2 上普通状态文字达标。
+- 对比度矩阵 252 组：保留原 36 组；增加 surface.2 文本与焦点 6 组、控件边界 6 组、分类图形 48 组、25 状态及 unknown 在三背景/双主题 156 组。普通文字至少 4.5:1，必要图形、控件边界和焦点至少 3:1；disabled/decorative 例外不冒充有交互控件通过。
+- StateBadge 继承 ThemeProvider/I18nProvider，显式 prop 可覆盖；standalone 保留 dark/zh-CN 默认。只识别 own-property 合法映射，未知与非法运行值均使用 unknown，不抛错、不显示调用方伪造的 allow 标签；动作授权仍由消费方与服务端裁决。字号/行高/间距直接消费 token。
+- Storybook 使用 7 个基准示例，主题与语言由全局 provider 驱动；领域八态由下游 UI-Pxx 完成。AST 校验真实配置/导出，不以注释中的标记作为通过证据。
 
 ## 后果
 
