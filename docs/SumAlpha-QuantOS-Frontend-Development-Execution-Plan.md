@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.6
+> 版本：3.7
 > 更新时间：2026-10-02
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.7`：PRE-04 关闭9项审计问题；23个一期P0单元和辅助契约齐备，字段字典以受控wire/domain映射生成，Gap按published/planned准确分级；补齐32项失败关闭回归，原生接口移至二期承接。
 - `3.6`：PRE-03 再复验补齐 workspace importer/链接目标检查与逐应用 `.env.local` 构建绑定；10/10 问题关闭，主报告收敛为当前验收视图并保留历史证据。
 - `3.5`：PRE-03 整改对齐一期 Web 范围；前端任务不再包含指定模型复审块，校验器保留任务/依赖/顺序检查，模型状态仅作未运行边界。运行时配置、构建来源、资源和浏览器 smoke、锁一致性与负向 CI 纳入工程验收。
 
@@ -159,6 +160,7 @@
 - 需求描述：接口盘点
 - 主要动作：对照 F03、F05–F09、R02–R04、S01–S04、X01–X06、L01–L03 与现有 Proto/API client，建立本计划第 5 节契约台账
 - 产出：OpenAPI gap list、字段字典、接口责任人、mock 状态
+- 仓库整改：2026-10-02 PASS，原9/9问题关闭、16/16控制点通过；23个P0单元、383行wire/计划字段、32项盘点回归。62 published/46 planned能力精确登记，后续接口实现与目标验收不据此完成。见[整改记录](./audit/PRE-04-remediation-2026-10-02.md)及[证据清单](./audit/evidence/pre04-remediation-20261002/manifest.json)。
 - 完成标准：每个 P0 页面有 Query/Command/Realtime 依赖；无“待开发时再定”字段
 
 <a id="task-pre-05"></a>

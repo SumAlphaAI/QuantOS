@@ -1,32 +1,33 @@
 # PRE-04 OpenAPI Gap List
 
-> 任务：PRE-04 接口盘点  版本：1.1  日期：2026-08-14；复核：2026-09-16
-> 口径：operation 名称表达能力需求，不预设 URL；最终 path/method/schema/envelope 以 BFF 版本化 OpenAPI 为准（执行计划 5.6 节）。
-> 追踪：每条 gap 对应契约台账一行与 BFF-FE 任务；状态 `Open → In Design（BFF-FE-000）→ Closed（OpenAPI 发布）`。
+> 任务：PRE-04 接口盘点  版本：1.2  日期：2026-10-02
+> 口径：operationId 与 catalog 精确对应；published 的 path/method/schema/envelope 以 BFF 版本化 OpenAPI 为准，planned 仍由后续任务定义（执行计划 5.6 节）。
+> 追踪：每条 gap 对应契约台账一行与 BFF-FE 任务；一期 Web 状态：无 published 为 Open；部分发布且有 planned 为 Partial；全部发布且无 planned 为 Closed。它仅表示契约缺口，不表示 provider/目标环境已验收。
 > 共性要求（每条 gap 必须满足，不重复列出）：统一错误 envelope（code/message/correlationId/fieldErrors/retryAfter/currentVersion）、cursor 分页、Idempotency-Key（command）、ETag/objectVersion（可变对象）、correlation ID、权限/capability 裁剪、敏感字段脱敏、202 异步受理引用。
 
-| Gap ID | 契约 | 必须新增的页面 operation（Query/Command/Realtime） | 覆盖页面 | 后端任务 | 优先级 | 目标阶段 | BFF-FE | 状态 |
+| Gap ID | 契约 | published / planned operationId | 覆盖页面 | 后端任务 | 优先级 | 目标阶段 | BFF-FE | 状态 |
 |---|---|---|---|---|---|---|---|---|
-| GAP-01 | C01 | Q: getSession、getContext（workspace/account/capabilities）；C: reauth、mfaChallenge、logout、submitAccessRequest；R: 权限变更断开 | P01、GS、P15、官网访问申请 | F06、L03 | P0 | FEP-0/G0 冻结 | BFF-FE-000/001 | Closed（OpenAPI 1.0.0 冻结） |
-| GAP-02 | C02 | Q: getCommandSummary（riskPosture/dataFreshness/pendingApprovals/failedRuns/orderSummary/alerts/sampledAt）；R: command event projection | P02 | F09、R03、X01–X06 | P0 | FEP-1/G1 | BFF-FE-002 | Open |
-| GAP-03 | C03 | Q: listResearchRuns、getResearchRun；C: createResearchRun（202+runId）、cancelResearchRun（cancel_requested）；R: subscribeRunStream（sequence/afterSequence replay） | P03、P04 | F07/F08、R03、U01 | P0 | FEP-2/G2 | BFF-FE-003 | Closed（OpenAPI 1.0.0 冻结） |
-| GAP-04 | C04 | Q: listDataSnapshots、getDataSnapshot、getArtifact、getArtifactAttachment | P04、P05 | R02/R03、F05 | P0 | FEP-2/G2 | BFF-FE-003 | Closed（OpenAPI 1.0.0 冻结） |
-| GAP-05 | C05 | Q: listStrategies、getDraft、getBacktest、listReleases、getRelease；C: saveDraft（expectedVersion→409 diff）、runStaticCheck、createBacktest、createRelease、submitReleaseApproval、requestRollback；R: backtest run stream | P06、P07 | S01–S04 | P0 | FEP-3/G3 | BFF-FE-004 | Closed（OpenAPI 1.0.0 冻结） |
-| GAP-06 | C06 | Q: getPortfolio、getRiskView（asOf/stale）；C: engageKillSwitch、releaseKillSwitch（MFA+签名）；R: portfolio/risk projection、kill switch broadcast | P02、P08 | X01/X02 | P0 | FEP-5/G5 | BFF-FE-006 | Closed（OpenAPI 1.0.0 冻结） |
-| GAP-07 | C07 | Q: listProposals、getProposal；C: requestRiskEvaluation（proposal/version/context hash）；R: proposal status stream。`TradeProposal.counter_views` proto 缺口已以 additive 字段关闭 | P09、P20 | R04、X02 | P0 | FEP-5/G5 | BFF-FE-006 | Closed（OpenAPI 1.0.0 冻结） |
-| GAP-08 | C08 | Q: listApprovals、getApproval；C: decideApproval（signature+mfaChallengeRef）、reauth；MFA challenge 生命周期 | P07、P10、P20 | F06、X03、L03 | P0 | FEP-5/G5 | BFF-FE-006 | Closed（OpenAPI 1.0.0 冻结） |
-| GAP-09 | C09 | Q: listOrders、getOrder；C: submitCommandRef（Idempotency-Key）、requestCancel；R: order event stream | P11、P19（标记）、P20 | X03/X04、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Closed（OpenAPI 1.0.0 冻结） |
-| GAP-10 | C10 | Q: searchAuditEvents、getEvidenceChain（correlation/causation 分页）；C: createExport、getExportStatus、cancelExport、getExportDownload（短时签名 URL） | P12 及全部领域页跳转 | F05、X06 | P0 | FEP-5/G5 | BFF-FE-007 | Closed（OpenAPI 1.3.0、本地参考 provider、typed gateway 与 Gate 已交付；真实 Postgres/对象存储及 staging 签署待目标环境验收） |
-| GAP-11 | C11 | Q: getServiceHealth、listIncidents、getIncident、admin 四类 query；C: runApprovedRunbookAction（仅 actionId+precheck）、member/policy/capability/flag 版本化 CRUD | P13、P14 | F06/F09、X06 | P1 | FEP-6/G6 | BFF-FE-010 | Open |
-| GAP-12 | C12 | Q: getMarketCatalog、getWatchlist、getVenueQuotes、getCandleSeries（history）；C: saveWatchlist；R: quote stream、candle stream（断流定格） | P18、P19、P20 | R01/R02、L01 | P0 | FEP-4/G4 | BFF-FE-005 | Open |
-| GAP-13 | C13 | Q: getOrderCapabilities、getPreflight（quoteRef/balance/limit impact/objectVersion/blockingReasons）；R: preflight refresh push | P20 | X01–X03、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Open |
-| GAP-14 | C14 | Q: getPerformanceSummary、getPerformanceSeries、getAttribution；C: createReport、getReportStatus、getReportDownload | P21 | X01/X05（BFF 新增页面模型） | P1 | FEP-4/G4 | BFF-FE-008 | Open |
-| GAP-15 | C15 | Q: listReconRuns、getReconRun、listBreaks、getBreak、listLedgerEntries；C: requestReconRerun（幂等）；R: recon status stream；禁止 edit-ledger operation | P22、P11、P21 | X05 | P0 | FEP-5/G5 | BFF-FE-009 | Open |
-| GAP-16 | C16 | Q: listAlerts、getAlert、getSubscriptions；C: ackAlert、unackAlert、saveSubscription；R: alert stream（授权/去重/限速） | P23、P02、P13、全局 | F09、X05/X06 | P1 | FEP-6/G6 | BFF-FE-010 | Open |
-| GAP-17 | C17 | Q: getProfile、listSessions、listDevices、getNotificationPrefs、listDownloads、getPlatformCapabilities；C: saveProfile、revokeSession、revokeDevice、setupMfa、revokeMfaFactor、clearOfflineCache、checkUpdate、createDiagnosticJob；R: session 撤销推送 | P15、P16、P17 | F06、F09、L02/L03 | P0 | FEP-1/G1（P15）、FEP-6/G6（P16/P17） | BFF-FE-001/011 | Partial（P15/P17 已有 OpenAPI 1.2.0 与本地参考 provider；P16 与 staging 签署待完成） |
+| GAP-01 | C01 | 已发布：getSession、getContext、reauth、mfaChallenge、logout、submitAccessRequest；未发布：无 | P01、P15、GS、WEB-06、WEB-07 | F06、L03 | P0 | FEP-0/G0 冻结 | BFF-FE-001 | Closed |
+| GAP-02 | C02 | 已发布：无；未发布：getCommandSummary、subscribeCommandEvents | P02 | F09、R03、X01、X02、X03、X04、X05、X06 | P0 | FEP-1/G1 | BFF-FE-002 | Open |
+| GAP-03 | C03 | 已发布：listResearchRuns、createResearchRun、getResearchRun、cancelResearchRun、subscribeResearchRun；未发布：无 | P03、P04 | F07、F08、R03、U01 | P0 | FEP-2/G2 | BFF-FE-003 | Closed |
+| GAP-04 | C04 | 已发布：listDataSnapshots、getDataSnapshot、getArtifact；未发布：getArtifactAttachment | P04、P05 | R02、R03、F05 | P0 | FEP-2/G2 | BFF-FE-003 | Partial |
+| GAP-05 | C05 | 已发布：listStrategies、getStrategyDraft、saveStrategyDraft、runStaticCheck、createBacktest、getBacktest、listReleases、createRelease、getRelease、submitReleaseApproval、requestReleaseRollback；未发布：subscribeBacktestRun | P06、P07 | S01、S02、S03、S04 | P0 | FEP-3/G3 | BFF-FE-004 | Partial |
+| GAP-06 | C06 | 已发布：getPortfolio、getRiskView、engageKillSwitch、releaseKillSwitch、subscribePortfolio；未发布：无 | P02、P08 | X01、X02 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |
+| GAP-07 | C07 | 已发布：listProposals、getProposal、requestRiskEvaluation、subscribeProposal；未发布：无 | P09、P20 | R04、X02 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |
+| GAP-08 | C08 | 已发布：listApprovals、getApproval、decideApproval；未发布：无 | P07、P10、P20 | F06、X03、L03 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |
+| GAP-09 | C09 | 已发布：submitTradeCommand、listOrders、getOrder、requestOrderCancel、subscribeOrder；未发布：无 | P11、P19、P20 | X03、X04、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |
+| GAP-10 | C10 | 已发布：searchAuditEvents、getEvidenceChain、createExport、getExportStatus、cancelExport、getExportDownload；未发布：无 | P04、P07、P09、P10、P11、P12、P13、P14、P22、P23 | F05、X06 | P0 | FEP-5/G5 | BFF-FE-007 | Closed |
+| GAP-11 | C11 | 已发布：无；未发布：getServiceHealth、listIncidents、getIncident、listMembers、listPolicies、listCapabilities、listFeatureFlags、runApprovedRunbookAction、updateMember、savePolicy、saveCapability、saveFeatureFlag | P13、P14 | F06、F09、X06 | P1 | FEP-6/G6 | BFF-FE-010 | Open |
+| GAP-12 | C12 | 已发布：无；未发布：getMarketCatalog、getWatchlist、getVenueQuotes、getCandleSeries、saveWatchlist、subscribeQuotes、subscribeCandles | P18、P19、P20 | R01、R02、L01 | P0 | FEP-4/G4 | BFF-FE-005 | Open |
+| GAP-13 | C13 | 已发布：无；未发布：getOrderCapabilities、getTradePreflight、subscribeTradePreflight | P20 | X01、X02、X03、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Open |
+| GAP-14 | C14 | 已发布：无；未发布：getPerformanceSummary、getPerformanceSeries、getPerformanceAttribution、createPerformanceReport、getReportStatus、getReportDownload | P21 | X01、X05 | P1 | FEP-4/G4 | BFF-FE-008 | Open |
+| GAP-15 | C15 | 已发布：无；未发布：listReconciliationRuns、getReconciliationRun、listReconciliationBreaks、getReconciliationBreak、listLedgerEntries、requestReconciliationRerun、subscribeReconciliationRun | P11、P21、P22 | X05 | P0 | FEP-5/G5 | BFF-FE-009 | Open |
+| GAP-16 | C16 | 已发布：无；未发布：listAlerts、getAlert、getAlertSubscriptions、ackAlert、unackAlert、saveAlertSubscriptions、subscribeAlerts | P02、P13、P23 | F09、X05、X06 | P1 | FEP-6/G6 | BFF-FE-010 | Open |
+| GAP-17 | C17 | 已发布：getProfile、saveProfile、getNotificationPrefs、saveNotificationPrefs、getSecuritySettings、listSessions、revokeSession、subscribeSessionRevocations、listDevices、revokeDevice、setupMfa、revokeMfaFactor、listDownloads、getPlatformCapabilities；未发布：无 | P15、P17 | F06、F09、L03 | P0 | FEP-1/G1（一期 Web P15/P17） | BFF-FE-001/011 | Closed |
 
 ## 统一基线（GAP-00，BFF-FE-000 本体）
 
 - envelope、分页（cursor/pageSize/nextCursor）、sort/filter、202 job 引用、Idempotency-Key、ETag/objectVersion、错误模型、SSE event envelope（streamId/sequence/eventId/occurredAt/correlationId/payloadVersion）由 BFF-FE-000 一次性冻结，GAP-01–17 继承，不逐条重复设计。
 - 现有 `quantos.swagger.json`（7 个 Engine/EventLedger operation）保留为服务级契约，页面不直接消费；页面只引用 BFF 版本化 OpenAPI 生成的 client。
-- 关闭条件：对应 BFF-FE 任务达成 `Reviewed + Mocked`（进入 Sprint 前一个 Sprint），最终 `Implemented` 后页面方可标记 Integrated。
+- Gap Closed 只表示一期 catalog 全部 operation 发布；进入页面 Sprint 的 Reviewed/Mocked、provider 实现和真实 staging 集成仍独立验收。C04 附件和 C05 backtest stream 保持 Partial；C17 Web Closed，原生面由二期承接。
+- 原生 P16/cache/update/diagnostic 不进入本表，见 [DESK-PRE-04承接表](./DESK-PRE-04-interface-transfer.md)。

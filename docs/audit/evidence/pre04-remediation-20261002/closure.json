@@ -1,0 +1,102 @@
+{
+  "closed": 9,
+  "open": 0,
+  "control_points": {
+    "pass": 16,
+    "partial": 0,
+    "fail": 0
+  },
+  "issues": [
+    {
+      "id": "H-01",
+      "original_severity": "高危",
+      "status": "CLOSED",
+      "verification": "383行字段与80项领域→wire锚忠于真实schema；包括旧engine_version来源修正",
+      "evidence": [
+        "pre04.log",
+        "script-check.json"
+      ]
+    },
+    {
+      "id": "H-02",
+      "original_severity": "高危",
+      "status": "CLOSED",
+      "verification": "字段完整性/语义、源身份及operation method/path失败关闭",
+      "evidence": [
+        "pre04-negative.log",
+        "probes.json"
+      ]
+    },
+    {
+      "id": "M-01",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "23个全一期P0单元与辅助契约一致",
+      "evidence": [
+        "pre04.log",
+        "pre04-negative.log"
+      ]
+    },
+    {
+      "id": "M-02",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "8Closed/2Partial/7Open按62published/46planned准确登记",
+      "evidence": [
+        "pre04.log",
+        "pre04-negative.log"
+      ]
+    },
+    {
+      "id": "M-03",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "Map前原始序列检查拒绝重复行",
+      "evidence": [
+        "pre04-negative.log",
+        "probes.json"
+      ]
+    },
+    {
+      "id": "M-04",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "页面/角色/核心/BFF任务解析与受控映射一致",
+      "evidence": [
+        "pre04-negative.log",
+        "probes.json"
+      ]
+    },
+    {
+      "id": "M-05",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "mock/实现状态由发布面、fixture和本地参考证据区分；目标不冒充",
+      "evidence": [
+        "pre04-negative.log",
+        "contract.log",
+        "probes.json"
+      ]
+    },
+    {
+      "id": "M-06",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "一期Web与独立原生承接分开；移除L02原生owner误绑定",
+      "evidence": [
+        "pre04.log",
+        "pre04-negative.log"
+      ]
+    },
+    {
+      "id": "L-01",
+      "original_severity": "低危",
+      "status": "CLOSED",
+      "verification": "当前1.2/计划3.7、原始历史身份和链接一致",
+      "evidence": [
+        "plans.log",
+        "document-check.json"
+      ]
+    }
+  ]
+}

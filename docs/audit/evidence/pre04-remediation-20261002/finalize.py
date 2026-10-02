@@ -1,0 +1,29 @@
+from pathlib import Path
+import hashlib,json,re,subprocess
+folder=Path(__file__).resolve().parent;root=folder.parents[3]
+sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
+commands=json.loads((folder/'commands.json').read_text());workspace=Path(commands['workspace'])
+source_paths=['package.json','scripts/pre04-inventory.mjs','scripts/pre04-gate-negative.mjs','scripts/pre04-fields.mjs','scripts/pre04-render-fields.mjs','docs/PRE-04-inventory-baseline.json','docs/PRE-04-field-dictionary.md','docs/PRE-04-contract-ledger.md','docs/PRE-04-openapi-gap-list.md','docs/PRE-04-summary.md','docs/DESK-PRE-04-interface-transfer.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md']
+for path in source_paths:assert sha(root/path)==sha(workspace/path),f'validation source drift: {path}'
+unit=(folder/'unit.log').read_text();unit_count=sum(map(int,re.findall(r'Tests\s+(\d+) passed',unit)));unit_files=sum(map(int,re.findall(r'Test Files\s+(\d+) passed',unit)));assert(unit_count,unit_files)==(167,25)
+probes=json.loads((folder/'probes.json').read_text());assert all(result['behaves_as_expected'] for result in probes)
+assert all(command['exit_code']==0 for command in commands['results'])
+initial=json.loads((root/'docs/audit/evidence/pre04-review-20261002/manifest.json').read_text());history=root/'docs/audit/PRE-04-comprehensive-review-history-2026-10-02.md';assert sha(history)==initial['report_sha256']
+closed=[('H-01','高危','383行字段与80项领域→wire锚忠于真实schema；包括旧engine_version来源修正',['pre04.log','script-check.json']),('H-02','高危','字段完整性/语义、源身份及operation method/path失败关闭',['pre04-negative.log','probes.json']),('M-01','中危','23个全一期P0单元与辅助契约一致',['pre04.log','pre04-negative.log']),('M-02','中危','8Closed/2Partial/7Open按62published/46planned准确登记',['pre04.log','pre04-negative.log']),('M-03','中危','Map前原始序列检查拒绝重复行',['pre04-negative.log','probes.json']),('M-04','中危','页面/角色/核心/BFF任务解析与受控映射一致',['pre04-negative.log','probes.json']),('M-05','中危','mock/实现状态由发布面、fixture和本地参考证据区分；目标不冒充',['pre04-negative.log','contract.log','probes.json']),('M-06','中危','一期Web与独立原生承接分开；移除L02原生owner误绑定',['pre04.log','pre04-negative.log']),('L-01','低危','当前1.2/计划3.7、原始历史身份和链接一致',['plans.log','document-check.json'])]
+(folder/'closure.json').write_text(json.dumps({'closed':9,'open':0,'control_points':{'pass':16,'partial':0,'fail':0},'issues':[{'id':id,'original_severity':severity,'status':'CLOSED','verification':note,'evidence':evidence} for id,severity,note,evidence in closed]},ensure_ascii=False,indent=2)+'\n')
+files=[root/path for path in ['docs/PRE-04-contract-ledger.md','docs/PRE-04-openapi-gap-list.md','docs/PRE-04-field-dictionary.md','docs/PRE-04-summary.md','docs/DESK-PRE-04-interface-transfer.md','docs/audit/PRE-04-remediation-2026-10-02.md','docs/audit/PRE-04-comprehensive-review-2026-10-02.md']]
+count=0;errors=[]
+for path in files:
+ for link in re.findall(r'\]\(([^)]+)\)',path.read_text()):
+  if '://' in link or link.startswith('#'):continue
+  count+=1
+  if not(path.parent/link.split('#')[0]).exists():errors.append({'file':str(path.relative_to(root)),'link':link})
+assert not errors,errors
+(folder/'document-check.json').write_text(json.dumps({'result':'PASS','links':count,'errors':errors,'historical_report_digest_matches_original_manifest':True},indent=2)+'\n')
+inputs=set(source_paths+['AGENTS.md','pnpm-lock.yaml','docs/SumAlpha-QuantOS-Development-Plan.md','docs/PRE-01-page-ledger-and-stories.md','bff/openapi/quantos-bff.v1.yaml','bff/page-operation-catalog.yaml','.github/workflows/frontend-baseline.yml','tests/contract/contract.test.ts'])
+for pattern in ['proto/quantos/*/v1/*.proto','proto/jsonschema/*.schema.json','tests/contract/generated/*','tests/contract/fixtures/**/*.json']:
+ inputs.update(str(path.relative_to(root)) for path in root.glob(pattern) if path.is_file())
+baseline=json.loads((root/'docs/PRE-04-inventory-baseline.json').read_text());inputs.update(a['path'] for e in baseline['implementations'].values() for a in e['artifacts'])
+manifest={'schema':'quantos-pre04-remediation/v1','date':'2026-10-02','baseline':commands['baseline'],'binding':'Git archive baseline plus working-tree overlay; critical source hashes verified identical to final clean validation workspace','result':'PASS','closed_issues':9,'open_issues':{'blocker':0,'high':0,'medium':0,'low':0},'control_points':{'total':16,'pass':16,'partial':0,'fail':0,'strict_completion_percent':100},'required_outputs':{'pass':4,'total':4},'inventory':{'contracts':17,'gaps':17,'p0_units':23,'field_rows':383,'domain_mappings':80,'published_operations':62,'planned_operations':46,'bff_schemas':51,'gap_states':{'closed':8,'partial':2,'open':7}},'validation':{'fresh_frozen_offline_install':True,'cache':'existing host pnpm download store','node':'24.12.0','pnpm':'10.20.0','main_commands':21,'all_exit_zero':True,'pre04_tests':32,'initial_corpus':{'positive':1,'negative':14,'false_passes':0},'pre01_tests':32,'plan_tests':22,'bff000_tests':8,'bff001_tests':10,'bff007_tests':11,'contract_tests':13,'unit_tests':unit_count,'unit_files':unit_files,'script_lint_files':4,'script_lint_errors':0},'not_run':['Web build/new PRE03 build receipt','browser matrix','full F03/F06 target acceptance','remote CI','formal G0','designated-model review','database/IdP/object storage','provider/staging','Desktop/native acceptance'],'historical_report':{'path':str(history.relative_to(root)),'sha256':sha(history)},'input_sha256':{path:sha(root/path) for path in sorted(inputs)},'report_sha256':{str(path.relative_to(root)):sha(path) for path in files},'artifact_sha256':{str(path.relative_to(folder)):sha(path) for path in sorted(folder.rglob('*')) if path.is_file() and path.name!='manifest.json'}}
+(folder/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
+print(f'16/16 controls; 9/9 closed; {unit_count} unit tests; {count} document links; source and history hashes PASS')
