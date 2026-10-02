@@ -1,0 +1,124 @@
+{
+  "total": 16,
+  "counts": {
+    "PASS": 13,
+    "PARTIAL": 1,
+    "FAIL": 2
+  },
+  "strict_completion_percent": 81.25,
+  "formula": "PASS / 16; PARTIAL has no credit; completion percentage never overrides blocker",
+  "controls": [
+    {
+      "id": "C01",
+      "requirement": "P0范围、六项依赖与A1/G0/provider边界",
+      "status": "PASS",
+      "verification": "计划依赖图、35个检查点/157节点/1454边通过；只放行A1",
+      "evidence": "plans.log; plan-negative.log; g0-boundary.log"
+    },
+    {
+      "id": "C02",
+      "requirement": "PRE-03/PRE-04的完整核心前置可接受",
+      "status": "FAIL",
+      "verification": "F01/F03已有范围化历史接受记录；当前SHA的F06目标回执本地缺失，判定FAIL（B-01）",
+      "evidence": "checkpoint-probes.json"
+    },
+    {
+      "id": "C03",
+      "requirement": "PRE-01页面、Story及七态覆盖100%",
+      "status": "PASS",
+      "verification": "30页面、124页面Story+8流程Story、210七态+10流程场景、30追踪行",
+      "evidence": "pre01.log; pre01-negative.log"
+    },
+    {
+      "id": "C04",
+      "requirement": "角色/路由/风险/离线与安全要求一致",
+      "status": "PASS",
+      "verification": "受控规则、operation追踪及32项正负回归通过",
+      "evidence": "pre01-negative.log"
+    },
+    {
+      "id": "C05",
+      "requirement": "PRE-02设计台账、基础WCAG与安全i18n",
+      "status": "PASS",
+      "verification": "252对比度配对、18安全key、19通用/25领域条目、7基础Story；27回归及4组实际Chromium基础检查通过",
+      "evidence": "pre02.log; pre02-negative.log; browser.json; storybook.log"
+    },
+    {
+      "id": "C06",
+      "requirement": "PRE-03依赖落地、锁定与双应用PoC",
+      "status": "PASS",
+      "verification": "29关键依赖、2349运行时契约检查、2目标路由；Web正负27项与构建通过",
+      "evidence": "pre03.log; pre03-negative.log; node-lock.log"
+    },
+    {
+      "id": "C07",
+      "requirement": "新源码bootstrap/build/test在30分钟内",
+      "status": "PASS",
+      "verification": "干净Git导出、宿主离线下载缓存；包含构建与测试的39项主检查累计112.912秒；非无缓存联网计时",
+      "evidence": "commands.json"
+    },
+    {
+      "id": "C08",
+      "requirement": "PRE-04接口/字段/页面依赖完整",
+      "status": "PASS",
+      "verification": "17契约、23个P0单元、383字段；62已发布/46计划能力区分，38回归通过",
+      "evidence": "pre04.log; pre04-negative.log; generated.log; contract-coverage.log"
+    },
+    {
+      "id": "C09",
+      "requirement": "owner及mock状态可追溯",
+      "status": "PASS",
+      "verification": "17契约均有BFF/领域责任角色，实施任务及生成mock/规划inventory/本地provider边界明确；不冒充个人签字",
+      "evidence": "pre04.log; pre04-negative.log"
+    },
+    {
+      "id": "C10",
+      "requirement": "PRE-05三环境配置、身份与mode分离",
+      "status": "PASS",
+      "verification": "三profile正向、26配置测试+10门禁回归通过；真实账号/服务未执行",
+      "evidence": "pre05.log; pre05-negative.log"
+    },
+    {
+      "id": "C11",
+      "requirement": "缺配置fail-fast与客户端秘密检查",
+      "status": "PASS",
+      "verification": "PRE05负向通过；当前两应用mock构建及客户端产物扫描通过",
+      "evidence": "pre05-negative.log; client-secrets.log"
+    },
+    {
+      "id": "C12",
+      "requirement": "PRE-06同源schema/MSW、敏感字段与fixture台账",
+      "status": "PASS",
+      "verification": "62操作/51schema；10项fixture、17正常contract、schema/权限/敏感字段原有破坏检查通过",
+      "evidence": "contract.log; sabotage.log; generated.log"
+    },
+    {
+      "id": "C13",
+      "requirement": "关键负向测试确实执行且停用必拒绝",
+      "status": "PARTIAL",
+      "verification": "既有16门禁回归通过；8个关键contract提前返回后3个入口仍PASS（H-01）",
+      "evidence": "pre06-negative.log; contract-return-probe.json"
+    },
+    {
+      "id": "C14",
+      "requirement": "当前目标浏览器、基础axe与视觉基线",
+      "status": "PASS",
+      "verification": "macOS六组135/135、无失败/跳过/flaky；24PNG完整；Linux执行另需回执",
+      "evidence": "terminal-chromium.json; terminal-firefox.json; terminal-webkit.json; website-chromium.json; website-firefox.json; website-webkit.json; visual-inventory.log"
+    },
+    {
+      "id": "C15",
+      "requirement": "覆盖率、性能预算与CI失败证据接线",
+      "status": "PASS",
+      "verification": "全局行81.27%；5关键文件四维100%；两应用预算通过；CI报告/trace保留政策受检",
+      "evidence": "web-coverage.log; critical-coverage-summary.json; perf-terminal.log; perf-website.log; pre06-negative.log"
+    },
+    {
+      "id": "C16",
+      "requirement": "P0完整SHA验收记录和受限放行闭环",
+      "status": "FAIL",
+      "verification": "NOT_STARTED/null/[]；缺实际放行记录，结构检查不验证回执有效性（M-01）",
+      "evidence": "checkpoint-probes.json"
+    }
+  ]
+}

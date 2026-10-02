@@ -1,0 +1,36 @@
+{
+  "source_commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18",
+  "mutation": "early return in all 8 required contract callbacks; names/calls/assertions retained; restored after probe",
+  "results": [
+    {
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ],
+      "expected_exit": "nonzero",
+      "exit_code": 0,
+      "unexpected_accept": true,
+      "log": "contract-return-check-pre06.log"
+    },
+    {
+      "command": [
+        "pnpm",
+        "test:contract"
+      ],
+      "expected_exit": "nonzero",
+      "exit_code": 0,
+      "unexpected_accept": true,
+      "log": "contract-return-test-contract.log"
+    },
+    {
+      "command": [
+        "pnpm",
+        "sabotage:pre06"
+      ],
+      "expected_exit": "nonzero",
+      "exit_code": 0,
+      "unexpected_accept": true,
+      "log": "contract-return-sabotage-pre06.log"
+    }
+  ]
+}

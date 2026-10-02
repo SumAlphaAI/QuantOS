@@ -1,0 +1,324 @@
+{
+  "schema": "quantos-p0-required-checks/v1",
+  "checks": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "pnpm",
+        "install",
+        "--offline",
+        "--frozen-lockfile"
+      ]
+    },
+    {
+      "name": "pre01",
+      "command": [
+        "pnpm",
+        "check:pre01"
+      ]
+    },
+    {
+      "name": "pre01-negative",
+      "command": [
+        "pnpm",
+        "test:pre01"
+      ]
+    },
+    {
+      "name": "pre02",
+      "command": [
+        "pnpm",
+        "check:pre02"
+      ]
+    },
+    {
+      "name": "pre02-negative",
+      "command": [
+        "pnpm",
+        "test:pre02"
+      ]
+    },
+    {
+      "name": "pre04-negative",
+      "command": [
+        "pnpm",
+        "test:pre04"
+      ]
+    },
+    {
+      "name": "pre05-negative",
+      "command": [
+        "pnpm",
+        "test:pre05"
+      ]
+    },
+    {
+      "name": "plan-negative",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ]
+    },
+    {
+      "name": "pre06",
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ]
+    },
+    {
+      "name": "pre06-negative",
+      "command": [
+        "pnpm",
+        "test:pre06"
+      ]
+    },
+    {
+      "name": "contract",
+      "command": [
+        "pnpm",
+        "test:contract"
+      ]
+    },
+    {
+      "name": "sabotage",
+      "command": [
+        "pnpm",
+        "sabotage:pre06"
+      ]
+    },
+    {
+      "name": "visual-inventory",
+      "command": [
+        "pnpm",
+        "check:visual-baselines"
+      ]
+    },
+    {
+      "name": "visual-linux",
+      "command": [
+        "pnpm",
+        "check:visual-baselines",
+        "--platform",
+        "linux"
+      ]
+    },
+    {
+      "name": "visual-darwin",
+      "command": [
+        "pnpm",
+        "check:visual-baselines",
+        "--platform",
+        "darwin"
+      ]
+    },
+    {
+      "name": "generated",
+      "command": [
+        "pnpm",
+        "check:bff-generated"
+      ]
+    },
+    {
+      "name": "contract-coverage",
+      "command": [
+        "pnpm",
+        "check:bff-contract-coverage"
+      ]
+    },
+    {
+      "name": "pre04",
+      "command": [
+        "pnpm",
+        "check:pre04"
+      ]
+    },
+    {
+      "name": "pre05",
+      "command": [
+        "pnpm",
+        "check:pre05"
+      ]
+    },
+    {
+      "name": "lint",
+      "command": [
+        "pnpm",
+        "lint"
+      ]
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ]
+    },
+    {
+      "name": "unit",
+      "command": [
+        "pnpm",
+        "test"
+      ]
+    },
+    {
+      "name": "web-coverage",
+      "command": [
+        "pnpm",
+        "coverage:web"
+      ]
+    },
+    {
+      "name": "plans",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ]
+    },
+    {
+      "name": "browser-install-inventory",
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "install",
+        "--dry-run"
+      ]
+    },
+    {
+      "name": "build-website",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ]
+    },
+    {
+      "name": "build-terminal",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ]
+    },
+    {
+      "name": "storybook",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/ui",
+        "build-storybook"
+      ]
+    },
+    {
+      "name": "pre03",
+      "command": [
+        "pnpm",
+        "check:pre03:web"
+      ]
+    },
+    {
+      "name": "pre03-negative",
+      "command": [
+        "pnpm",
+        "test:pre03"
+      ]
+    },
+    {
+      "name": "client-secrets",
+      "command": [
+        "pnpm",
+        "check:client-secrets"
+      ]
+    },
+    {
+      "name": "perf-terminal",
+      "command": [
+        "pnpm",
+        "check:perf"
+      ]
+    },
+    {
+      "name": "perf-website",
+      "command": [
+        "pnpm",
+        "check:perf",
+        "apps/website/out"
+      ]
+    },
+    {
+      "name": "terminal-chromium",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=chromium",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0",
+        "--update-snapshots=none"
+      ]
+    },
+    {
+      "name": "terminal-firefox",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=firefox",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0",
+        "--update-snapshots=none"
+      ]
+    },
+    {
+      "name": "terminal-webkit",
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=webkit",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0",
+        "--update-snapshots=none"
+      ]
+    },
+    {
+      "name": "website-chromium",
+      "command": [
+        "pnpm",
+        "test:browser:website",
+        "--project=chromium",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0",
+        "--update-snapshots=none"
+      ]
+    },
+    {
+      "name": "website-firefox",
+      "command": [
+        "pnpm",
+        "test:browser:website",
+        "--project=firefox",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0",
+        "--update-snapshots=none"
+      ]
+    },
+    {
+      "name": "website-webkit",
+      "command": [
+        "pnpm",
+        "test:browser:website",
+        "--project=webkit",
+        "--workers=2",
+        "--reporter=list,json",
+        "--retries=0",
+        "--update-snapshots=none"
+      ]
+    }
+  ]
+}

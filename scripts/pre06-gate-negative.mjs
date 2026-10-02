@@ -99,3 +99,14 @@ test("skipped suites and inactive screenshot assertions cannot satisfy the basel
   }
   for(const method of ['skip','todo'])assert.equal(validatePre06({...current,contractTests:current.contractTests.replaceAll('describe(',`describe.${method}(`)}).status,'FAIL');
 });
+
+test("critical contract callbacks cannot return early, hide assertions, or remove runtime counting", () => {
+  const start='it("故意破坏 schema → 校验失败", () => {';
+  for(const text of [
+    current.contractTests.replace(start,start+' return;'),
+    current.contractTests.replace(start,start+' if (true) return;'),
+    current.contractTests.replace('beforeEach(() => expect.hasAssertions());',''),
+    current.contractTests.replace('const issues = validateFixture(loadFixture("sabotage/schema-broken.json"), { schema: "SessionContext" });\n    expect(issues.length).toBeGreaterThan(0);','if (false) { const issues = validateFixture(loadFixture("sabotage/schema-broken.json"), { schema: "SessionContext" }); expect(issues.length).toBeGreaterThan(0); }'),
+    current.contractTests.replace('const issues = validateFixture(loadFixture("sabotage/schema-broken.json"), { schema: "SessionContext" });\n    expect(issues.length).toBeGreaterThan(0);','const unused = () => { const issues = validateFixture(loadFixture("sabotage/schema-broken.json"), { schema: "SessionContext" }); expect(issues.length).toBeGreaterThan(0); };'),
+  ])assert.equal(validatePre06({...current,contractTests:text}).status,'FAIL');
+});

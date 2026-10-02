@@ -17,6 +17,31 @@ function hasAssertion(callback) {
   visit(callback);return found;
 }
 
+function activeContractBody(callback) {
+  if(!callback?.body||!ts.isBlock(callback.body))return false;
+  let inactive=false;
+  function visit(node) {
+    if(ts.isReturnStatement(node)||ts.isThrowStatement(node))inactive=true;
+    if(ts.isFunctionLike(node))return;
+    ts.forEachChild(node,visit);
+  }
+  visit(callback.body);
+  return !inactive;
+}
+
+function directContractCalls(callback) {
+  const found=[];
+  function visit(node) {
+    // Frozen critical tests must not satisfy execution checks with conditional
+    // branches or deferred helper bodies. Runtime assertion counts complement this.
+    if(ts.isFunctionLike(node)||ts.isIfStatement(node)||ts.isConditionalExpression(node))return;
+    if(ts.isCallExpression(node))found.push(node);
+    ts.forEachChild(node,visit);
+  }
+  if(callback?.body)visit(callback.body);
+  return found;
+}
+
 // Baseline registrations must execute at module/suite scope, not inside a
 // skipped suite, conditional branch, or uncalled helper.
 function activeRegistration(call) {
@@ -53,12 +78,15 @@ export const requiredContractTests=[
 ];
 export function validateTestStructure(contractText, visualTexts) {
   const failures=[];const all=calls(contractText);
+  const assertionHook=all.some(call=>call.expression.getText()==='beforeEach'&&activeRegistration(call)&&
+    call.arguments[0]?.body?.getText()==='expect.hasAssertions()');
+  if(!assertionHook)failures.push('missing unconditional contract assertion-count hook');
   for(const name of requiredContractTests) {
     const test=all.find(call=>call.expression.getText()==='it'&&ts.isStringLiteral(call.arguments[0])&&call.arguments[0].text===name);
     const callback=test?.arguments[1];
     const expectedCall=/未配置|版本冲突|MFA 限流/.test(name)?'fetch':name.startsWith('all declared')?'validateFixtureInventory':'validateFixture';
-    const executableCalls=callback?calls(callback.getText()):[];
-    if(!callback||!activeRegistration(test)||!hasAssertion(callback)||!executableCalls.some(call=>call.expression.getText()===expectedCall))failures.push('missing executable contract assertion: '+name);
+    const executableCalls=directContractCalls(callback);
+    if(!callback||!activeRegistration(test)||!activeContractBody(callback)||!executableCalls.some(call=>hasAssertion(call))||!executableCalls.some(call=>call.expression.getText()===expectedCall))failures.push('missing executable contract assertion: '+name);
   }
   for(const [file,text] of Object.entries(visualTexts)) {
     const expected=file==='ui104-settings.spec.ts'?2:1;

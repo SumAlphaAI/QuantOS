@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { setupServer } from "msw/node";
 import { bffZodSchemas } from "../../packages/api-client/src/bff-gen/quantos-bff.zod";
 
@@ -7,6 +7,7 @@ import { loadFixture, validateFixture } from "./validate.mjs";
 
 const server = setupServer(...handlers);
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+beforeEach(() => expect.hasAssertions());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 

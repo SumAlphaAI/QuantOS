@@ -1,0 +1,18 @@
+import {readFileSync,writeFileSync} from 'node:fs';import {resolve} from 'node:path';import {execFileSync} from 'node:child_process';import {gzipSync} from 'node:zlib';import {createHash} from 'node:crypto';
+import {validateP0Receipt} from './check-p0-acceptance.mjs';
+const root=resolve(import.meta.dirname,'..');const web=resolve(process.argv[2]??'.');const target=resolve(process.argv[3]??'.');
+const git=args=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
+if(git(['status','--porcelain']))throw Error('clean committed source required');const sourceCommit=git(['rev-parse','HEAD']);const read=p=>JSON.parse(readFileSync(p,'utf8'));
+const run=read(resolve(web,'commands.json'));const f06=read(resolve(target,'f06-receipt.json'));if(run.baseline!==sourceCommit||f06.sourceCommit!==sourceCommit)throw Error('all runs must use current HEAD');
+const expectedTargets=['build','preflight','auth-bff','auth-runtime','execution','vault','database'];
+if(f06.evidence?.length!==expectedTargets.length||!expectedTargets.every(name=>f06.evidence.filter(c=>c.name===name&&c.exit_code===0).length===1))throw Error('incomplete F06 target evidence');
+for(const record of f06.evidence){const bytes=readFileSync(resolve(target,record.name+'.log'));if(createHash('sha256').update(bytes).digest('hex')!==record.logSha256)throw Error('F06 log changed');}
+if(!readFileSync(resolve(target,'database.log'),'utf8').includes('8 passed; 0 failed'))throw Error('eight actual PostgreSQL tests required');
+const checks=run.results.map(record=>{const bytes=readFileSync(resolve(web,record.log));return {...record,logSha256:createHash('sha256').update(bytes).digest('hex'),logGzipBase64:gzipSync(bytes).toString('base64')};});
+const browserNames=['terminal-chromium','terminal-firefox','terminal-webkit','website-chromium','website-firefox','website-webkit'];const browserStats=browserNames.map(name=>read(resolve(web,name+'.json')).stats);if(browserStats.reduce((n,s)=>n+s.expected,0)!==135||browserStats.some(s=>s.unexpected||s.skipped||s.flaky))throw Error('browser matrix is not a complete 135-case PASS');
+const receipt={schema:'quantos-p0-acceptance/v1',sourceCommit,status:'PASS',failures:[],admission:'A1_ONLY',environment:'macos-web-mock-and-configured-supabase',reviewer:'user-authorized engineering verification; no organizational owner signature asserted',closedIssues:['B-01','H-01','M-01'],controls:Array.from({length:16},(_,i)=>({id:`C${String(i+1).padStart(2,'0')}`,status:'PASS'})),checks,negativeChecks:read(resolve(web,'execution-negatives.json')),browserStats,boundaries:['Remote CI/Linux execution NOT RUN','Formal G0/provider ALL/page integration/native NOT ACCEPTED'],prerequisites:{F01:'scoped accepted record in core plan; toolchain/lock rechecked',F03:'scoped accepted record in core plan; generated contract drift rechecked',F06:'current-SHA actual target note required'}};
+const result=validateP0Receipt({receipt,sourceCommit,f06,plan:readFileSync(resolve(root,'docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'),'utf8'),corePlan:readFileSync(resolve(root,'docs/SumAlpha-QuantOS-Development-Plan.md'),'utf8'),archivedFindings:readFileSync(resolve(root,'docs/audit/F06-closed-findings-2026-09-25.md'),'utf8')});if(result.status!=='PASS')throw Error(result.failures.join('; '));
+const path=resolve(web,'p0-receipt.json');writeFileSync(path,JSON.stringify(receipt,null,2)+'\n');
+// Notes are append-only per source identity; never overwrite a prior receipt.
+git(['notes','--ref=refs/notes/f06-acceptance','add','-F',resolve(target,'f06-receipt.json'),sourceCommit]);
+git(['notes','--ref=refs/notes/p0-acceptance','add','-F',path,sourceCommit]);console.log(JSON.stringify(result,null,2));

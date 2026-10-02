@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.12
+> 版本：3.13
 > 更新时间：2026-10-02
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,6 +8,7 @@
 
 ## 版本变更说明
 
+- `3.13`：P0新增独立同SHA验收回执门禁，契约测试加入实际断言计数；目标验收完成后记录A1准入，Git notes承载提交后回执以避免自引用。
 - `3.12`：PRE-06 再复核补齐跳过测试组、非执行分支和未等待截图断言的拒绝机制；当前结论绑定独立重放，原整改证据保留。
 - `3.11`：PRE-06 修复9项复审问题，冻结fixture集合与关键分支100%门禁，补齐macOS视觉矩阵及两应用性能/CI失败证据；工程验证与正式目标/G0签署分开记录。
 - `3.10`：PRE-05 再复核补齐短秘密与应用生产环境文件产物扫描，原9项问题关闭、16/16仓库控制点通过；主报告保留当前验收视图，历史发现与本轮证据独立归档。
@@ -222,11 +223,13 @@
     "FE:PRE-06"
   ],
   "required_scope": "准备任务全部标准与PoC通过，owner/环境/mock/设计/接口台账和测试基线齐备；仅放行A1，不宣称正式OpenAPI或全部provider验收。",
-  "review_status": "NOT_STARTED",
+  "review_status": "RE_REVIEW",
   "source_commit": null,
   "evidence": []
 }
 ```
+
+P0实际准入以 `pnpm check:p0` 校验的当前HEAD外置回执为准，记录于 `refs/notes/p0-acceptance`，同时要求同SHA F06回执。上方检查点的source_commit/evidence登记已完成验收的历史版本；文档登记后的新HEAD仍须独立生成当前回执，不能继承旧PASS。操作见[P0验收规程](./P0-acceptance-runbook.md)。
 
 ## 4. 页面 API 前置与前端迭代计划
 
