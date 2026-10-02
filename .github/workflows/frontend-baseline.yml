@@ -42,6 +42,9 @@ jobs:
       - name: Bootstrap workspace
         run: pnpm install --frozen-lockfile
 
+      - name: Development plan cross-document order and negative probes
+        run: pnpm check:development-plans && pnpm test:development-plans
+
       - name: Design token & i18n checks (PRE-02)
         run: pnpm check:pre02 && pnpm test:pre02
 

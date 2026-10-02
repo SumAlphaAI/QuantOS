@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import process from "node:process";
+import { validatePlanOrder } from "./check-development-plan-order.mjs";
 
 // Project Markdown intake contract, not a Codex platform import/launch test.
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -102,7 +103,7 @@ function parseTasks(text, expected, freshReview) {
       fields[match[1]] = unquote(match[2] ?? "");
     }
     const id = fields.task_id;
-    for (const key of ["task_id", "task_type", "development_status", "review_entry", "review_model", "review_status", "review_conclusion", "issues", "fix_tracking"]) {
+    for (const key of ["task_id", "task_type", "development_status", "review_entry", "review_model", "review_status", "review_conclusion", "issues", "fix_tracking", "depends_on"]) {
       assert(key in fields, `${id ?? marker[1]}: missing ${key}`);
     }
     assert.equal(marker[1], id.toLowerCase(), `${id}: task anchor mismatch`);
@@ -132,12 +133,15 @@ function parseTasks(text, expected, freshReview) {
         assert.equal(fields.fix_tracking.filter((fix) => fix.issue_id === issue.issue_id).at(-1)?.verification_status, "PASS", `${id}: accepted issue lacks passing validation`);
       }
     }
+    fields.depends_on = JSON.parse(fields.depends_on);
+    assert(Array.isArray(fields.depends_on) && fields.depends_on.every((dep) => typeof dep === "string"), `${id}: depends_on must be a string array`);
     if (fields.task_type === "CORE") {
       assert(/^- (阶段\/依赖|依赖)：\S.*$/m.test(body), `${id}: missing original dependency definition`);
     } else {
       assert.equal(fields.workflow, workflow, `${id}: workflow mismatch`);
       assert(iterations.includes(fields.iteration), `${id}: invalid iteration`);
-      fields.depends_on = JSON.parse(fields.depends_on);
+      fields.core_prerequisites = JSON.parse(fields.core_prerequisites);
+      fields.closes_core = JSON.parse(fields.closes_core);
       assert(Array.isArray(fields.depends_on) && fields.depends_on.every((dep) => typeof dep === "string"), `${id}: depends_on must be a string array`);
       assert.equal(new Set(fields.depends_on).size, fields.depends_on.length, `${id}: duplicate dependency`);
       assert(["PREPARATION", "PAGE_API", "FRONTEND", "WEBSITE", "MILESTONE"].includes(fields.task_type), `${id}: invalid task type`);
@@ -180,6 +184,7 @@ export function validatePlans(coreText, frontendText, { root = projectRoot, fres
         assert(coreIds.includes(dep.slice(5)), `${record.task_id}: unknown core dependency ${dep}`);
         continue;
       }
+      if (dep.includes(":")) continue; // Namespaced graph edges are validated jointly below.
       const target = byId.get(dep);
       assert(target, `${record.task_id}: unknown dependency ${dep}`);
       assert(target.index < record.index, `${record.task_id}: forward dependency or cycle via ${dep}`);
@@ -198,6 +203,7 @@ export function validatePlans(coreText, frontendText, { root = projectRoot, fres
   for (const id of ["FEP-1", ...range("UI-", 101, 104, 3), "WEB-101"]) {
     assert.equal(byId.get(id).development_status, "COMPLETED", `${id}: completed development marker lost`);
   }
+  const planOrder = validatePlanOrder(coreText, frontendText, core, frontend, { root });
   for (const [i, text] of texts.entries()) {
     for (const match of text.matchAll(/\[[^\]\n]+\]\(([^)\s]+)\)/g)) {
       const [path, fragment] = match[1].split("#");
@@ -211,7 +217,7 @@ export function validatePlans(coreText, frontendText, { root = projectRoot, fres
       }
     }
   }
-  return { schema: "quantos-plan-review/v1", structure: "PASS", desktop_scope_split: "PASS", platform_load: "NOT_RUN", model_review: "NOT_RUN", core_tasks: core.length, frontend_tasks: frontend.length, page_api_tasks: apis.length, page_tasks: ui.filter((r) => /^UI-P\d+$/.test(r.task_id)).length, tasks: [...core, ...frontend] };
+  return { ...planOrder, schema: "quantos-plan-review/v1", order_schema: planOrder.schema, structure: "PASS", desktop_scope_split: "PASS", platform_load: "NOT_RUN", model_review: "NOT_RUN", core_tasks: core.length, frontend_tasks: frontend.length, page_api_tasks: apis.length, page_tasks: ui.filter((r) => /^UI-P\d+$/.test(r.task_id)).length, tasks: [...core, ...frontend] };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
@@ -221,6 +227,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     else {
       const summary = { ...report };
       delete summary.tasks;
+      delete summary.execution_order;
       process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
     }
   } catch (error) {

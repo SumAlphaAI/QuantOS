@@ -49,6 +49,12 @@ proto-compat-check:
 	pnpm --filter @sumalpha/api-client build
 	node scripts/check-proto-compatibility.mjs
 
+development-plan-check:
+	pnpm check:development-plans
+	pnpm test:development-plans
+
+.PHONY: development-plan-check
+
 bff-contract-check:
 	pnpm check:bff-openapi
 	pnpm check:bff-generated

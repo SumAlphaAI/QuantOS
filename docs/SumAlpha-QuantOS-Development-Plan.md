@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.18
+> 版本：3.19
 > 更新时间：2026-10-02
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.19`：按前端顺序审查协调方案拆分服务准入与完整业务 Gate；保留全量 API 前置和全部原验收标准。新增结构化 depends_on、服务子范围与检查点，将含页面任务的完整验收后置到对应 FEP 闭环；校验两份计划联合图、阶段窗口及末尾关闭位置。未据此新增任何功能或目标验收 PASS。
 
 - `3.18`：按依赖与验收顺序重排全部任务，将第三方任务穿插到所属阶段、阶段 Gate 移至各阶段末尾；区分 TP 评估、最小适配与完整验收，澄清 TP01-D/R02 及 TP07/TP12 的跨阶段关系。保留既有开发状态、复审记录、验收标准和证据；本次仅调整计划，不新增功能验收结论。
 
@@ -64,7 +66,7 @@
 
 ### 2.1 任务状态与依赖
 
-任务按 `F`（Foundation）、`R`（Research）、`S`（Strategy）、`X`（Execution）、`U`（User interface）、`L`（Live-readiness）、`TP`（Third-party）编号。任务只有在前置任务的验收记录全部通过后才能开始；任何破坏性协议或风险边界变更必须新增 ADR、迁移和回放用例。
+任务按 `F`（Foundation）、`R`（Research）、`S`（Strategy）、`X`（Execution）、`U`（User interface）、`L`（Live-readiness）、`TP`（Third-party）编号。任务只有在结构化 `depends_on` 指定验收单位的记录全部通过后才能开始；服务开发以相应服务 Gate 准入，完整业务 Gate 在页面/E2E 闭环后关闭，服务 Gate 不等于完整阶段 ACCEPTED；任何破坏性协议或风险边界变更必须新增 ADR、迁移和回放用例。
 
 ### 2.2 全任务最低完成条件
 
@@ -110,7 +112,7 @@
 | `task_id` | 唯一任务标识；每个任务只有一个定义，使用 `task-<小写 ID>` 稳定锚点。 |
 | `task_type` | 任务类型标签；核心为 `CORE`，前端计划使用 `PREPARATION`、`PAGE_API`、`FRONTEND`、`WEBSITE`、`MILESTONE`。 |
 | `iteration` | 迭代周期；前端计划按两周一个 Sprint 分组，阶段 ID 与排期解耦。 |
-| `depends_on` | 依赖关系标记；前端任务使用 JSON 字符串数组，空依赖为 `[]`。`CORE:<ID>` 指向本计划的前置服务能力；其他 ID 指向前端计划内任务。核心任务依赖见“依赖”或“阶段/依赖”字段；执行顺序与跨阶段检查点见第 3 节。 |
+| `depends_on` | 核心与前端均使用 JSON 字符串数组，空依赖为 `[]`；`CORE:<ID>` 指完整核心任务，拆分服务准入使用 SERVICE/CORE-GATE；命名空间及跨文档准入见第 2.8 节。原“依赖/阶段依赖”保留业务背景，执行前置以结构化依赖为准。 |
 | `development_status` | `COMPLETED` 已开发完成；`IMPLEMENTED_PENDING_ACCEPTANCE` 已实现待验收；`PARTIAL` 部分完成；`UNSPECIFIED` 原计划未明确状态，待盘点。不得把未注明状态的任务推定为未开发或已完成。 |
 | `review_entry` | 指向本任务 `review-<小写 ID>` 的 Markdown 链接。 |
 | `workflow` | 开发-复审流转节点，详见前端计划；与开发状态、接口集成状态分别维护。 |
@@ -158,53 +160,54 @@ Vibe-Trading 同步必须满足以下质量 Gate：
 
 TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依赖。每个任务的完成标准是形成可验证的“采用/不采用”结论和可移植设计输入；未通过 Gate 时不得被引入运行时、客户端或核心领域编译图。
 
-## 3. 从上到下的验收执行顺序
+### 2.8 跨计划验收单位与证据规则
 
-### 3.1 执行规则与当前位置
+- `CORE:<ID>`：完整核心任务；`FE:<ID>`：前端任务（前端 depends_on 的本地 ID 等价于 FE 前缀）。
+- `SERVICE:<ID>`：明确拆出的服务子范围，只有本节所列 SERVICE:TP01/S04/X06/L03/L04 有效；对应 CORE 总任务的页面、视觉与浏览器 E2E 标准全部保留。
+- `CORE-GATE:<阶段>-SERVICE`：服务准入；`CORE-GATE:<阶段>`：完整业务 Gate；`FRONTEND-GATE:G0–G8`：前端闭环 Gate；`PROVIDER:A1–A6/ALL`：页面 API provider 验收；`PREPARATION:P0` 和 `EVALUATION:TP07/TP12`：限定范围检查点。
+- 每个检查点以 `acceptance-...` 稳定锚点和 fenced JSON 定义唯一 checkpoint_id、acceptance_window、depends_on、required_scope、review_status、source_commit、evidence。新建记录为 NOT_STARTED/null/[]。只有绑定完整源码 SHA 的证据齐备才可标记 ACCEPTED；历史 F0 记录保持历史基线，不迁移到新 HEAD。
+- 结构检查读取任务与检查点的联合依赖图、固定窗口及关闭顺序；验证计划可执行，不执行记录中的任务。NOT_STARTED 不阻止静态图校验通过；实际执行仍必须逐项核验前置证据。
+- API provider Gate 不依赖消费页面或最终 frontend Gate；全量 PROVIDER:ALL 通过后才能启动新页面或既有页面真实联调。Mock/本地参考 provider 不能替代 staging provider 验收。
+- `closes_core` 是完成页面后要复审的核心总任务映射，不是页面启动依赖。不能把 U01/S04/X06 完整任务作为其消费页面的前置条件。
+- 固定窗口与必要依赖约束由 `scripts/development-plan-order-policy.json` 管理；合法调整任务、范围或排期时须同步两份计划与策略文件，再运行 `pnpm check:development-plans`、`pnpm test:development-plans`（或 `make development-plan-check`）。策略文件没有功能验收结论，静态通过不验证证据内容或目标执行。
 
-本文给出一条满足依赖关系的串行验收路线。依次阅读第 4–9 节，完成任务的开发、复审和证据闭环后继续下一项；每阶段末尾执行该阶段 Gate，Gate 未通过不得进入下一业务阶段。已验收且适用源码与环境未变化的任务引用既有证据；发生变化时按任务规定补齐回执。
+## 3. 全项目服务、API 与完整验收顺序
 
-当前 F0 总 Gate 已在记录基线验收，下一项是 **R01 的正式复审验收**，随后 R02。`development_status: COMPLETED` 不等于 `review_status: ACCEPTED`；R01/R02 现有实现仍须按任务标准验收。本次重排未重新执行 F0 或任何目标环境 Gate。
+### 3.1 准入规则与当前位置
 
-TP 是贯穿业务阶段的第三方评估与适配工作线。不能按 TP 编号一次性做完再开始 R1。下表中的“评估”检查点只确认版本、许可证、capability inventory、ADR 等对应交付；完整 adapter 和业务集成按后续任务标准验收。阶段名称表示所属执行窗口，不表示该阶段全部完成后才可启动窗口内的任务。
+保留“全量页面 API 先行”。先验收 F0，再按 R1 → TP01 演进 → S2 → X3 的服务窗口推进；后续领域服务依赖服务 Gate，不等待尚未交付的页面。随后执行前端计划 P0/A1–A6（P0 也可在依赖满足后提前），全量 provider Gate 通过后按 I1–I9 完成页面与 Beta。L4 服务准备在 Beta 后、I10 前完成，最后关闭 L4 完整 Gate。
 
-### 3.2 顺序导航
+服务准入只覆盖列明的服务能力，**服务 Gate 通过不等于原完整阶段 ACCEPTED**。U01/S04/X06/TP01/L03/L04 的完整业务、页面与 E2E 条件不删除；在对应前端窗口末尾复审这些总项，关闭原完整 Gate。无前置证据不得启动任务，任何历史回执不自动转移至新 HEAD。
 
-| 执行窗口 | 从左到右的验收顺序 | 末尾放行条件 |
+当前 F0 仍是已有历史基线验收，下一步先复审 R01/R02。所有新增服务/页面检查点保持 NOT_STARTED；本次修复只证明计划结构，不证明服务、数据库、staging 或浏览器验收。
+
+### 3.2 从上到下的导航
+
+| 顺序 | 核心/前端窗口 | 末尾关闭 |
 |---|---|---|
-| [F0](#execution-f0) | F01 → F02 → F03 → F04 → F05 → F06 → F07 → F08 → F09 → TP01-A → TP01-B → TP01–TP05 初步评估检查点 | [F0 Gate](#gate-f0) |
-| [R1](#execution-r1) | R01 → R02 → TP01-C → TP01-D → TP02 → TP03 → TP04 → TP05 → TP08 → TP09 → TP10 → TP11 → R03 → R04 → U01 | [R1 Gate](#gate-r1) |
-| [TP01 后续演进](#execution-tp01-evolution) | TP01-E → TP01-F → TP01-G → TP01 总项完整验收 | 完整适配、同步、canary 与回滚证据就绪，供 TP06 使用 |
-| [S2](#execution-s2) | S01 → TP06 → S02 → S03 → S04 → TP06–TP12 评估归档检查点（含 TP07/TP12 的提前评估） | [S2 Gate](#gate-s2) |
-| [X3](#execution-x3) | X01 → X02 → X03 → TP07 完整适配 → TP12 完整复审 → X04 → X05 → X06 | [X3 Gate](#gate-x3) |
-| [L4](#execution-l4) | L01 → L02 → L03 → L04 | [L4 Gate](#gate-l4)，仅 testnet/上线评审准备 |
-
-TP01 总项在 R1 开头定义总体范围；依次执行 A–G，最后在第 6 节完成总项验收。TP01-C/D 是 R1 的最小适配要求；E/F/G 是后续同步与演进要求，不反向阻塞 R1 Gate。TP06 原依赖 TP01，本串行路线保守地安排在 TP01 总项完整验收之后。
-
-TP07 属于 X3，但 S2 Gate 已要求 TP06–TP12 的评估结论和 ADR。因此第 7 节先做 TP07/TP12 的评估归档，第 8 节再验收完整任务；不得将提前评估写成 adapter/Paper 内核已通过。TP08–TP11 在 R1 完成相应评估，避免后续 S02/U01 或 S2 Gate 等待设计输入。
+| 1 | 第 4 节 F01–F09、TP01-A/B 与 F0 初步评估 | F0 完整 Gate |
+| 2 | 第 5 节 R01/R02、TP01-C/D、TP02–TP05、TP08–TP11、R03/R04 | CORE-GATE:R1-SERVICE；U01 后置 |
+| 3 | 第 6 节 TP01-E/F/G、SERVICE:TP01 | TP01 服务准入；总项 Web E2E 后置 |
+| 4 | 第 7 节 S01、TP06、S02/S03、SERVICE:S04；TP07/TP12 提前评估 | CORE-GATE:S2-SERVICE；S04 总项后置 |
+| 5 | 第 8 节 X01–X03、TP07/TP12 完整适配、X04/X05、SERVICE:X06 | CORE-GATE:X3-SERVICE；X06 总项后置 |
+| 6 | 前端 P0 → A1 → A2 → A3 → A4 → A5 → A6 | 准备、G0、各 provider Gate、PROVIDER:ALL |
+| 7 | 第 9 节映射前端 I1/G1 → I2/G2 → I3/G3 → I4/I5 → I6/G5 → I7/G4 → I8/G6 → I9/G7 | U01/TP01/R1、S04/S2、X06/X3 完整验收；Beta |
+| 8 | 第 10 节 L01/L02、SERVICE:L03/L04 | CORE-GATE:L4-SERVICE |
+| 9 | 前端 I10/G8，再复审第 10 节 L03/L04 | L4 完整 Gate；仅 testnet 评审证据 |
 
 ```mermaid
 flowchart TD
-  F["F0 + 第三方基线评估"] --> FG["F0 Gate"]
-  FG --> R["R01/R02 + TP01-C/D + TP02–TP05 + TP08–TP11 + R03/R04/U01"]
-  R --> RG["R1 Gate"]
-  RG --> V["TP01-E/F/G + TP01 总验收"]
-  V --> S["S01/TP06/S02–S04 + TP07/TP12 提前评估"]
-  S --> SG["S2 Gate"]
-  SG --> X["X01–X03 + TP07/TP12 完整验收 + X04–X06"]
-  X --> XG["X3 Gate"]
-  XG --> L["L01–L04 + L4 Gate"]
+  F["F0 完整 Gate"] --> R["R1 服务 Gate"]
+  R --> T["TP01 服务范围与 S2 服务 Gate"]
+  T --> X["X3 服务 Gate"]
+  X --> A["P0/A1–A6 全量 provider Gate"]
+  A --> U["I1–I8 页面 + R1/S2/X3 完整 Gate"]
+  U --> B["I9/G7 Paper + Shadow Beta"]
+  B --> L["L4 服务准备 Gate"]
+  L --> M["I10/G8 + L03/L04 + L4 完整 Gate"]
 ```
 
-### 3.3 阶段交付与放行边界
-
-| 阶段 | 准入条件 | 阶段交付 | 放行条件 |
-|---|---|---|---|
-| F0 Foundation | 空仓库 | 单体工作区、协议、事件、权限、Runtime、Engine Manager、供应链基线 | Mock Engine 与核心事件端到端通过 |
-| R1 Research | F0 | 数据快照、研究/信号/决策 Engine、Artifact、Research UI | 固定输入可重放且无交易副作用 |
-| S2 Strategy | R1 | 策略草稿、回测、验证、不可变 Release、审批 | 未通过验证/审批的策略无法进入 Paper |
-| X3 Paper + Shadow | S2 | 风控、命令、执行边界、OMS、对账、Shadow、审计 | 订单状态可重建，连续 Shadow 验证通过 |
-| L4 Assisted Live 准备 | X3 | testnet venue、密钥、MFA、双人审批、加固与演练 | 仅形成上线评审证据；不自动开启实盘 |
+完整 Gate 的交付范围仍为：R1 固定输入重放且无交易副作用；S2 策略验证/审批；X3 Paper/Shadow、10 个交易日 Shadow 与对账；L4 仅 Assisted Live testnet 评审准备，不自动开启生产实盘。
 
 <a id="execution-f0"></a>
 ## 4. F0：工程、协议与运行时基线
@@ -214,6 +217,8 @@ flowchart TD
 
 - task_id: `F01`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: []
 - development_status: `COMPLETED`
 - 状态范围：2026-09-17 再次复核通过；20/20（100%）检查点、3/3 量化验收通过，当前未解决问题为 0。适用源码与环境边界见复审报告；F0 总体 Gate 不随本项放行。
 - review_entry: [GPT-6 Astra 复审入口](#review-f01)
@@ -239,6 +244,8 @@ flowchart TD
 
 - task_id: `F02`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:F01"]
 - development_status: `COMPLETED`
 - 状态范围：2026-09-26 F02-A11 全部关闭；12/12原问题、24/24检查点通过。验收基线为main `bb4ef3c95753c1db15c7f2e2ba3ae22abb7a0b1f`，8/8 required checks、7/7主线工作流、正式签名与独立下载验签全部成功；文档归档提交不自动继承该源码回执，F0总体不随本项放行。
 - review_entry: [GPT-6 Astra 复审入口](#review-f02)
@@ -263,6 +270,8 @@ flowchart TD
 
 - task_id: `F03`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:F01"]
 - development_status: `COMPLETED`
 - 状态范围：2026-09-20原六项问题及C12全部关闭，20/20（100%）检查点、4/4量化标准通过。c3be28d独立协议验收#2成功，同SHA制品/日志摘要和92份生成文件哈希均核验一致；不代表F02 A11或其他CI通过。
 - review_entry: [GPT-6 Astra 复审入口](#review-f03)
@@ -286,6 +295,8 @@ flowchart TD
 
 - task_id: `F04`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:F03"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f04)
 - 需求描述：Core、错误、时钟与 ID
@@ -308,6 +319,8 @@ flowchart TD
 
 - task_id: `F05`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:F03", "CORE:F04"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f05)
 - 需求描述：事件、存储与审计账本
@@ -330,6 +343,8 @@ flowchart TD
 
 - task_id: `F06`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:F03", "CORE:F05"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f06)
 - 需求描述：身份、授权、秘密引用与主上下文
@@ -354,6 +369,8 @@ flowchart TD
 
 - task_id: `F07`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:F04", "CORE:F05", "CORE:F06"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f07)
 - 需求描述：Runtime 最小可恢复工作流
@@ -377,6 +394,8 @@ flowchart TD
 
 - task_id: `F08`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:F03", "CORE:F06", "CORE:F07"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f08)
 - 需求描述：Engine SDK、Manager 与 Mock Engine
@@ -400,6 +419,8 @@ flowchart TD
 
 - task_id: `F09`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f09)
 - 需求描述：本地可观测性、容量阈值与故障注入
@@ -423,6 +444,8 @@ flowchart TD
 
 - task_id: `TP01-A`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:F01", "CORE:F02"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-a)
 - 需求描述：上游只读副本与 Fork 基线
@@ -446,6 +469,8 @@ flowchart TD
 
 - task_id: `TP01-B`
 - task_type: `CORE`
+- acceptance_window: `F0`
+- depends_on: ["CORE:TP01-A", "CORE:F07"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-b)
 - 需求描述：capability inventory 与禁止耦合清单
@@ -466,11 +491,11 @@ flowchart TD
 
 ### 4.1 TP01–TP05 初步评估检查点
 
-按已有 F0 Gate 记录核验固定版本、许可证与 capability inventory，以及 TP01-A/B 的基线材料。此处仅验收 F0 所需评估范围；[TP01](#task-tp01)、[TP02](#task-tp02)、[TP03](#task-tp03)、[TP04](#task-tp04)、[TP05](#task-tp05) 的完整定义与后续适配验收见 R1。保持这些总项现有 `PARTIAL` 状态，不把初步评估升级为整体 ACCEPTED。
+保留 F0 已有固定版本、许可证与 capability inventory 评估；不等于后续 adapter 整体 ACCEPTED。
 
 <a id="101-f0-gate"></a>
 <a id="gate-f0"></a>
-### 4.2 F0 Gate：本阶段末尾验收
+### 4.2 F0 完整 Gate：业务闭环末尾验收
 
 - 总验收状态：`ACCEPTED`（2026-09-28），F0 总 Gate 关闭；验收主线 `91e222f744fd350ab9db80ba7554bd1fee9194fa`，7/7 条件 PASS（100%）。F05 共享库串扰、F03 手动基线已修复；14/14 主线工作流、8/8 必需检查、正式签名/独立下载，以及同 SHA F05 Supabase 完整重建目标 Gate 全部通过。实际 34 个迁移重建、独立远程参考库七类目录 drift 与正反向检查、重建后 RLS 通过，临时参考库已删除。详见 [整改与最终主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)及[证据索引](./audit/evidence/f0-91e222f/index.json)。[首次总验收](./audit/F0-total-gate-acceptance-2026-09-28.md)保留历史失败。后续文档提交不自动继承此源码回执；L04 上线前范围不变。
 
@@ -482,40 +507,47 @@ flowchart TD
 - [x] TP01–TP05 的固定版本、许可证和 capability inventory 至少完成评估，未获批准者不能进入生产拓扑。
 - [x] TP01-A、TP01-B 完成；Vibe-Trading baseline SHA、只读副本、fork、`UPSTREAM.md`、分级规则与禁止耦合清单已归档。
 
+<a id="acceptance-core-gate-f0"></a>
+### CORE-GATE:F0：验收检查点
+
+沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。
+
+```json
+{
+  "checkpoint_id": "CORE-GATE:F0",
+  "acceptance_window": "F0",
+  "depends_on": [
+    "CORE:F01",
+    "CORE:F02",
+    "CORE:F03",
+    "CORE:F04",
+    "CORE:F05",
+    "CORE:F06",
+    "CORE:F07",
+    "CORE:F08",
+    "CORE:F09",
+    "CORE:TP01-A",
+    "CORE:TP01-B"
+  ],
+  "required_scope": "沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。",
+  "review_status": "ACCEPTED",
+  "source_commit": "91e222f744fd350ab9db80ba7554bd1fee9194fa",
+  "evidence": [
+    "./audit/F0-F05-F03-main-acceptance-2026-09-28.md"
+  ]
+}
+```
+
 <a id="execution-r1"></a>
-## 5. R1：数据、第三方 Engine 与 Terminal 研究闭环
-
-TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考评估任务，完成采用决策即可，不要求引入生产依赖。
-
-<a id="task-tp01"></a>
-### TP01：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
-
-- task_id: `TP01`
-- task_type: `CORE`
-- development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01)
-- 需求描述：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
-- 接入范围与改造：仅评估后吸收可独立测试的 workflow/skill/streaming 设计；建立 `vibe_adapter`，会话、权限、事件、审计全部替换为 QuantOS 接口；按 S0–S3 分级执行官方仓库同步、选择性吸收、canary 与回滚；禁止其成为状态源或执行器
-- 交付物：capability inventory、许可证报告、只读副本、fork、`UPSTREAM.md`、sync decision records、adapter ADR、自动化回归测试
-- 集成验收标准：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动
-- 执行定位：本项是 TP01-A–G 的总体范围与最终复审入口，不是要求立即完成的单步任务。F0 验收 A/B，R1 验收 C/D；第 6 节完成 E/F/G 后再进行本总项完整验收。
-- 阶段/依赖：F07、F08；TP01-C 可在 R1 开始时执行，TP01-D 在 R02 验收后执行；最小适配须在 R1 Gate 前完成
-
-<a id="review-tp01"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+## 5. R1：数据与研究服务验收
 
 <a id="task-r01"></a>
 ### R01：Market ingestion 与标准化行情契约
 
 - task_id: `R01`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:F03", "CORE:F05", "CORE-GATE:F0"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r01)
 - 需求描述：Market ingestion 与标准化行情契约
@@ -538,6 +570,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `R02`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:R01", "CORE:F06", "CORE-GATE:F0"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r02)
 - 需求描述：DataSnapshot、血缘与质量 Gate
@@ -560,6 +594,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP01-C`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:TP01-B", "CORE:F08", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-c)
 - 需求描述：`vibe_adapter` skeleton
@@ -583,6 +619,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP01-D`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:TP01-C", "CORE:R02", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-d)
 - 需求描述：选择性吸收与最小 patch 队列
@@ -606,6 +644,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP02`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:F08", "CORE-GATE:F0"]
 - development_status: `PARTIAL`
 - 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
 - review_entry: [GPT-6 Astra 复审入口](#review-tp02)
@@ -629,6 +669,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP03`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - development_status: `PARTIAL`
 - 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
 - review_entry: [GPT-6 Astra 复审入口](#review-tp03)
@@ -652,6 +694,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP04`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - development_status: `PARTIAL`
 - 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
 - review_entry: [GPT-6 Astra 复审入口](#review-tp04)
@@ -675,6 +719,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP05`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:F05", "CORE:F08", "CORE-GATE:F0"]
 - development_status: `PARTIAL`
 - 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
 - review_entry: [GPT-6 Astra 复审入口](#review-tp05)
@@ -698,6 +744,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP08`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:F05", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp08)
 - 需求描述：Qlib
@@ -720,6 +768,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP09`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:TP03", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp09)
 - 需求描述：TrendRadar
@@ -742,6 +792,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP10`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp10)
 - 需求描述：ValueCell
@@ -764,6 +816,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP11`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:TP05", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp11)
 - 需求描述：OpenStock
@@ -786,6 +840,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `R03`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r03)
 - 需求描述：Research orchestration 与 Artifact lifecycle
@@ -808,6 +864,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `R04`
 - task_type: `CORE`
+- acceptance_window: `R1-SERVICE`
+- depends_on: ["CORE:R03", "CORE:TP03", "CORE:TP04", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r04)
 - 需求描述：Signal 与 TradeProposal 工作流
@@ -825,45 +883,48 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 - issues: []
 - fix_tracking: []
 
-<a id="task-u01"></a>
-### U01：Web Terminal 壳、认证与 Research 页面
+<a id="acceptance-core-gate-r1-service"></a>
+### CORE-GATE:R1-SERVICE：验收检查点
 
-- task_id: `U01`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-u01)
-- 需求描述：Web Terminal 壳、认证与 Research 页面
-- 技术要求：建立 React/Next Web 应用、BFF typed client、OIDC/MFA、App Shell、P01–P05 页面
-- 交付物：`apps/terminal`、`packages/ui/domain-ui/api-client`、P01–P05
-- 量化验收标准：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作
-- 依赖：F06–F09、R02–R04
+验收全部本节领域/Engine 任务、固定输入研究/Signal/Proposal 回放、权限负向、取消与 Artifact 生命周期及 TP01-C/D 最小适配。保留原 task 标准，页面/浏览器 Research E2E 移至 U01/R1 完整 Gate。
 
-<a id="review-u01"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="102-r1-gate"></a>
-<a id="gate-r1"></a>
-### 5.1 R1 Gate：本阶段末尾验收
-
-- [ ] R01–R04、U01 完成；研究、Signal、Proposal 全部可回放且无交易副作用。
-- [ ] RD-Agent、LLMQuant、TradingAgents 的 contract/权限/重放测试通过；OpenBB 仅在许可证 Gate 允许时启用。
-- [ ] Web Research 用例全绿；所有 Artifact/数据快照可进入 Audit。
-- [ ] TP01-C、TP01-D 完成；`vibe_adapter` 的 contract、负向安全、回放与隔离运行测试通过，且移除 adapter 不影响其他 workflow 启动。
+```json
+{
+  "checkpoint_id": "CORE-GATE:R1-SERVICE",
+  "acceptance_window": "R1-SERVICE",
+  "depends_on": [
+    "CORE:R01",
+    "CORE:R02",
+    "CORE:TP01-C",
+    "CORE:TP01-D",
+    "CORE:TP02",
+    "CORE:TP03",
+    "CORE:TP04",
+    "CORE:TP05",
+    "CORE:TP08",
+    "CORE:TP09",
+    "CORE:TP10",
+    "CORE:TP11",
+    "CORE:R03",
+    "CORE:R04"
+  ],
+  "required_scope": "验收全部本节领域/Engine 任务、固定输入研究/Signal/Proposal 回放、权限负向、取消与 Artifact 生命周期及 TP01-C/D 最小适配。保留原 task 标准，页面/浏览器 Research E2E 移至 U01/R1 完整 Gate。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
 
 <a id="execution-tp01-evolution"></a>
-## 6. TP01 后续演进：受控同步、回滚与总项验收
+## 6. TP01：同步、canary 与服务子范围
 
 <a id="task-tp01-e"></a>
 ### TP01-E：同步自动化与分级阻断
 
 - task_id: `TP01-E`
 - task_type: `CORE`
+- acceptance_window: `TP01-SERVICE`
+- depends_on: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-e)
 - 需求描述：同步自动化与分级阻断
@@ -887,6 +948,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP01-F`
 - task_type: `CORE`
+- acceptance_window: `TP01-SERVICE`
+- depends_on: ["CORE:TP01-E", "CORE:F09", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-f)
 - 需求描述：canary、观测与回滚
@@ -910,6 +973,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP01-G`
 - task_type: `CORE`
+- acceptance_window: `TP01-SERVICE`
+- depends_on: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-g)
 - 需求描述：上游贡献与脱钩替换
@@ -928,18 +993,42 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 - issues: []
 - fix_tracking: []
 
-### 6.1 TP01 总项完整验收检查点
+<a id="acceptance-service-tp01"></a>
+### SERVICE:TP01：验收检查点
 
-在 TP01-A–G 按各自标准验收后，回到 [TP01 总项复审入口](#review-tp01)，核验总体集成标准及第 2.7 节质量 Gate，包括三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、Web Research E2E、7 天 canary 和 ≤5 分钟回滚。全部证据满足后才将总项标为 ACCEPTED；仅完成 C/D 不足以放行依赖 TP01 总项的 TP06。
+TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、取消≤2秒、Artifact 去重、S0–S3 阻断、7天 canary 和≤5分钟回滚。仅排除消费页面 Web Research E2E，该项保留在 CORE:TP01 随 U01 完整复审；服务子范围通过仅放行 TP06。
+
+```json
+{
+  "checkpoint_id": "SERVICE:TP01",
+  "acceptance_window": "TP01-SERVICE",
+  "depends_on": [
+    "CORE:TP01-A",
+    "CORE:TP01-B",
+    "CORE:TP01-C",
+    "CORE:TP01-D",
+    "CORE:TP01-E",
+    "CORE:TP01-F",
+    "CORE:TP01-G",
+    "CORE-GATE:R1-SERVICE"
+  ],
+  "required_scope": "TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、取消≤2秒、Artifact 去重、S0–S3 阻断、7天 canary 和≤5分钟回滚。仅排除消费页面 Web Research E2E，该项保留在 CORE:TP01 随 U01 完整复审；服务子范围通过仅放行 TP06。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
 
 <a id="execution-s2"></a>
-## 7. S2：策略实验、验证、发布与审批
+## 7. S2：策略领域服务、验证与审批准入
 
 <a id="task-s01"></a>
 ### S01：策略草稿与参数模型
 
 - task_id: `S01`
 - task_type: `CORE`
+- acceptance_window: `S2-SERVICE`
+- depends_on: ["CORE:R02", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-s01)
 - 需求描述：策略草稿与参数模型
@@ -962,13 +1051,15 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `TP06`
 - task_type: `CORE`
+- acceptance_window: `S2-SERVICE`
+- depends_on: ["CORE:F08", "SERVICE:TP01", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp06)
 - 需求描述：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选
 - 接入范围与改造：单独评估策略生成、静态检查与回测编排；输出策略草稿和检查 Artifact，绝不部署或进入 OMS
 - 交付物：`engines/strategy-lab` 或 ADR、generator adapter、静态分析 fixtures
 - 集成验收标准：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现
-- 阶段/依赖：F08、TP01；S2
+- 阶段/依赖：F08、SERVICE:TP01；S2 服务窗口；TP01 总项的 Web E2E 随 U01 后续验收
 
 <a id="review-tp06"></a>
 #### GPT-6 Astra 功能复审
@@ -984,6 +1075,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `S02`
 - task_type: `CORE`
+- acceptance_window: `S2-SERVICE`
+- depends_on: ["CORE:S01", "CORE:TP06", "CORE:TP08", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-s02)
 - 需求描述：回测与成本/滑点验证
@@ -1006,6 +1099,8 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 
 - task_id: `S03`
 - task_type: `CORE`
+- acceptance_window: `S2-SERVICE`
+- depends_on: ["CORE:S02", "CORE:F06", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-s03)
 - 需求描述：StrategyRelease 与部署目标控制
@@ -1023,57 +1118,111 @@ TP01 总项先说明范围，单步执行从 R01 开始。TP08–TP11 为参考�
 - issues: []
 - fix_tracking: []
 
-<a id="task-s04"></a>
-### S04：策略审批与 Terminal Strategy 页面
+<a id="acceptance-service-s04"></a>
+### SERVICE:S04：验收检查点
 
-- task_id: `S04`
-- task_type: `CORE`
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-s04)
-- 需求描述：策略审批与 Terminal Strategy 页面
-- 技术要求：实现策略目录、Lab、Backtest、Release、审批时间线；前端通过 capability 显示目标
-- 交付物：P06–P07、approval integration、E2E
-- 量化验收标准：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过
-- 依赖：S01–S03、U01
+策略目录/Lab/Backtest/Release 的授权 API 与 approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07、20个策略UI fixture、视觉与浏览器回归保留在 CORE:S04/G3 总验收。
 
-<a id="review-s04"></a>
-#### GPT-6 Astra 功能复审
+```json
+{
+  "checkpoint_id": "SERVICE:S04",
+  "acceptance_window": "S2-SERVICE",
+  "depends_on": [
+    "CORE:S01",
+    "CORE:S02",
+    "CORE:S03",
+    "CORE:F06",
+    "CORE-GATE:R1-SERVICE"
+  ],
+  "required_scope": "策略目录/Lab/Backtest/Release 的授权 API 与 approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07、20个策略UI fixture、视觉与浏览器回归保留在 CORE:S04/G3 总验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
 
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+<a id="acceptance-evaluation-tp07"></a>
+### EVALUATION:TP07：验收检查点
 
-### 7.1 TP06–TP12 评估归档检查点
+固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。
 
-执行 S2 Gate 前核验以下材料。评估结论可为仅参考、隔离适配或拒绝；未经明确 adoption 不得新增运行时依赖。
+```json
+{
+  "checkpoint_id": "EVALUATION:TP07",
+  "acceptance_window": "S2-SERVICE",
+  "depends_on": [
+    "CORE:F03",
+    "CORE:F06",
+    "CORE:F08"
+  ],
+  "required_scope": "固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
 
-| 任务 | 本检查点交付 | 完整验收位置 |
-|---|---|---|
-| TP06 | 策略开发参考/适配候选的评估与 ADR | 本节 TP06 |
-| TP07 | 固定版本、许可证/SBOM/CVE、capability inventory、执行边界与替换预案 ADR | [X3 TP07](#task-tp07)，在 X03 之后 |
-| TP08–TP11 | R1 已完成的评估结论及 ADR/设计输入归档 | 第 5 节对应任务 |
-| TP12 | 基于 TP07 评估材料形成协作边界评估、威胁模型、禁止耦合规则与 ADR | [X3 TP12](#task-tp12)，在 TP07 完整验收之后 |
+<a id="acceptance-evaluation-tp12"></a>
+### EVALUATION:TP12：验收检查点
 
-TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定的提前评估。S2 Gate 的评估要求不等于放行 X3 的实现或集成验收。
+基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。
 
-<a id="103-s2-gate"></a>
-<a id="gate-s2"></a>
-### 7.2 S2 Gate：本阶段末尾验收
+```json
+{
+  "checkpoint_id": "EVALUATION:TP12",
+  "acceptance_window": "S2-SERVICE",
+  "depends_on": [
+    "CORE:F07",
+    "EVALUATION:TP07"
+  ],
+  "required_scope": "基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
 
-- [ ] S01–S04 完成；look-ahead/数据泄漏/未审批策略 100% 阻断。
-- [ ] Release 包含全部不可变证据，且可部署目标只有 Paper/Shadow。
-- [ ] TP06–TP12 的评估结论和 ADR 已归档；未经明确 adoption 的项目无运行时依赖。
+<a id="acceptance-core-gate-s2-service"></a>
+### CORE-GATE:S2-SERVICE：验收检查点
+
+策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制全部服务标准通过；TP06–TP12评估/ADR归档。S04页面与完整S2 Gate仍待G3。
+
+```json
+{
+  "checkpoint_id": "CORE-GATE:S2-SERVICE",
+  "acceptance_window": "S2-SERVICE",
+  "depends_on": [
+    "CORE-GATE:R1-SERVICE",
+    "SERVICE:TP01",
+    "CORE:S01",
+    "CORE:TP06",
+    "CORE:S02",
+    "CORE:S03",
+    "SERVICE:S04",
+    "CORE:TP08",
+    "CORE:TP09",
+    "CORE:TP10",
+    "CORE:TP11",
+    "EVALUATION:TP07",
+    "EVALUATION:TP12"
+  ],
+  "required_scope": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制全部服务标准通过；TP06–TP12评估/ADR归档。S04页面与完整S2 Gate仍待G3。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
 
 <a id="execution-x3"></a>
-## 8. X3：确定性风险、Paper、Shadow、对账与审计闭环
+## 8. X3：风险、Paper/Shadow、对账与治理服务
 
 <a id="task-x01"></a>
 ### X01：Portfolio 读模型与风险输入快照
 
 - task_id: `X01`
 - task_type: `CORE`
+- acceptance_window: `X3-SERVICE`
+- depends_on: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x01)
 - 需求描述：Portfolio 读模型与风险输入快照
@@ -1096,6 +1245,8 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 
 - task_id: `X02`
 - task_type: `CORE`
+- acceptance_window: `X3-SERVICE`
+- depends_on: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x02)
 - 需求描述：Pre/Post-trade Risk 与 kill switch
@@ -1118,6 +1269,8 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 
 - task_id: `X03`
 - task_type: `CORE`
+- acceptance_window: `X3-SERVICE`
+- depends_on: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x03)
 - 需求描述：TradeCommand 签发与审批状态机
@@ -1140,6 +1293,8 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 
 - task_id: `TP07`
 - task_type: `CORE`
+- acceptance_window: `X3-SERVICE`
+- depends_on: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp07)
 - 需求描述：NautilusTrader：研究、仿真、OMS、执行内核
@@ -1163,6 +1318,8 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 
 - task_id: `TP12`
 - task_type: `CORE`
+- acceptance_window: `X3-SERVICE`
+- depends_on: ["CORE:F07", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp12)
 - 需求描述：nautilus_agents
@@ -1186,6 +1343,8 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 
 - task_id: `X04`
 - task_type: `CORE`
+- acceptance_window: `X3-SERVICE`
+- depends_on: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x04)
 - 需求描述：Nautilus 边界、Paper OMS 与订单状态机
@@ -1208,6 +1367,8 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 
 - task_id: `X05`
 - task_type: `CORE`
+- acceptance_window: `X3-SERVICE`
+- depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x05)
 - 需求描述：Shadow 运行、对账与异常队列
@@ -1225,11 +1386,206 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 - issues: []
 - fix_tracking: []
 
+<a id="acceptance-service-x06"></a>
+### SERVICE:X06：验收检查点
+
+执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务测试。P08–P14/P20–P23页面、真实BFF consumer/E2E与视觉保留在CORE:X06及G4/G5/G6。
+
+```json
+{
+  "checkpoint_id": "SERVICE:X06",
+  "acceptance_window": "X3-SERVICE",
+  "depends_on": [
+    "CORE:X01",
+    "CORE:X02",
+    "CORE:X03",
+    "CORE:X04",
+    "CORE:X05",
+    "CORE:F05",
+    "CORE:F06",
+    "CORE:F09"
+  ],
+  "required_scope": "执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务测试。P08–P14/P20–P23页面、真实BFF consumer/E2E与视觉保留在CORE:X06及G4/G5/G6。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="acceptance-core-gate-x3-service"></a>
+### CORE-GATE:X3-SERVICE：验收检查点
+
+保留X01–X05/TP07/TP12全部服务验收；Paper/Shadow、10个交易日Shadow、未解释对账差异=0、命令重复=0、恢复/kill switch/数据陈旧等服务演练通过；X06页面及完整X3 Gate仍待G4/G5/G6。
+
+```json
+{
+  "checkpoint_id": "CORE-GATE:X3-SERVICE",
+  "acceptance_window": "X3-SERVICE",
+  "depends_on": [
+    "CORE-GATE:S2-SERVICE",
+    "CORE:X01",
+    "CORE:X02",
+    "CORE:X03",
+    "CORE:TP07",
+    "CORE:TP12",
+    "CORE:X04",
+    "CORE:X05",
+    "SERVICE:X06"
+  ],
+  "required_scope": "保留X01–X05/TP07/TP12全部服务验收；Paper/Shadow、10个交易日Shadow、未解释对账差异=0、命令重复=0、恢复/kill switch/数据陈旧等服务演练通过；X06页面及完整X3 Gate仍待G4/G5/G6。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="execution-business-total"></a>
+## 9. 全量 API 后的 Web 与完整业务 Gate
+
+执行前端计划P0/A1–A6及PROVIDER:ALL后，按I1–I9完成本节映射。这里记录完整任务与原业务Gate，不是服务准入。
+
+<a id="task-u01"></a>
+### U01：Web Terminal 壳、认证与 Research 页面
+
+- task_id: `U01`
+- task_type: `CORE`
+- acceptance_window: `I2`
+- depends_on: ["CORE:F06", "CORE:F07", "CORE:F08", "CORE:F09", "CORE:R02", "CORE:R03", "CORE:R04", "FE:FEP-2"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-u01)
+- 需求描述：Web Terminal 壳、认证与 Research 页面
+- 技术要求：建立 React/Next Web 应用、BFF typed client、OIDC/MFA、App Shell、P01–P05 页面
+- 交付物：`apps/terminal`、`packages/ui/domain-ui/api-client`、P01–P05
+- 量化验收标准：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作
+- 依赖：F06–F09、R02–R04
+
+<a id="review-u01"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+
+<a id="task-tp01"></a>
+### TP01：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
+
+- task_id: `TP01`
+- task_type: `CORE`
+- acceptance_window: `I2`
+- depends_on: ["SERVICE:TP01", "CORE:U01", "FE:FEP-2"]
+- development_status: `PARTIAL`
+- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
+- review_entry: [GPT-6 Astra 复审入口](#review-tp01)
+- 需求描述：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
+- 接入范围与改造：仅评估后吸收可独立测试的 workflow/skill/streaming 设计；建立 `vibe_adapter`，会话、权限、事件、审计全部替换为 QuantOS 接口；按 S0–S3 分级执行官方仓库同步、选择性吸收、canary 与回滚；禁止其成为状态源或执行器
+- 交付物：capability inventory、许可证报告、只读副本、fork、`UPSTREAM.md`、sync decision records、adapter ADR、自动化回归测试
+- 集成验收标准：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动
+- 执行定位：A–G 的服务证据先在 SERVICE:TP01 验收；本总项包含 Web Research E2E，在 U01/FEP-2 后完整复审，不能用服务 Gate 把本项提前标为 ACCEPTED。
+- 阶段/依赖：F07、F08；TP01-C 可在 R1 开始时执行，TP01-D 在 R02 验收后执行；最小适配须在 R1 Gate 前完成
+
+<a id="review-tp01"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="102-r1-gate"></a>
+<a id="gate-r1"></a>
+### R1 完整 Gate：业务闭环末尾验收
+
+- [ ] R01–R04、U01 完成；研究、Signal、Proposal 全部可回放且无交易副作用。
+- [ ] RD-Agent、LLMQuant、TradingAgents 的 contract/权限/重放测试通过；OpenBB 仅在许可证 Gate 允许时启用。
+- [ ] Web Research 用例全绿；所有 Artifact/数据快照可进入 Audit。
+- [ ] TP01-C、TP01-D 完成；`vibe_adapter` 的 contract、负向安全、回放与隔离运行测试通过，且移除 adapter 不影响其他 workflow 启动。
+
+<a id="acceptance-core-gate-r1"></a>
+### CORE-GATE:R1：验收检查点
+
+保留上方R1完整Gate全部勾选要求，包括U01/Web Research E2E；不得以服务Gate或mock替代。
+
+```json
+{
+  "checkpoint_id": "CORE-GATE:R1",
+  "acceptance_window": "I2",
+  "depends_on": [
+    "CORE-GATE:R1-SERVICE",
+    "CORE:U01",
+    "FRONTEND-GATE:G2"
+  ],
+  "required_scope": "保留上方R1完整Gate全部勾选要求，包括U01/Web Research E2E；不得以服务Gate或mock替代。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="task-s04"></a>
+### S04：策略审批与 Terminal Strategy 页面
+
+- task_id: `S04`
+- task_type: `CORE`
+- acceptance_window: `I3`
+- depends_on: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE:U01", "SERVICE:S04", "FE:FEP-3"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-s04)
+- 需求描述：策略审批与 Terminal Strategy 页面
+- 技术要求：实现策略目录、Lab、Backtest、Release、审批时间线；前端通过 capability 显示目标
+- 交付物：P06–P07、approval integration、E2E
+- 量化验收标准：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过
+- 依赖：S01–S03、U01
+
+<a id="review-s04"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+<a id="103-s2-gate"></a>
+<a id="gate-s2"></a>
+### S2 完整 Gate：业务闭环末尾验收
+
+- [ ] S01–S04 完成；look-ahead/数据泄漏/未审批策略 100% 阻断。
+- [ ] Release 包含全部不可变证据，且可部署目标只有 Paper/Shadow。
+- [ ] TP06–TP12 的评估结论和 ADR 已归档；未经明确 adoption 的项目无运行时依赖。
+
+<a id="acceptance-core-gate-s2"></a>
+### CORE-GATE:S2：验收检查点
+
+保留上方S2完整Gate全部条件及S04页面/策略UI拒绝回归。
+
+```json
+{
+  "checkpoint_id": "CORE-GATE:S2",
+  "acceptance_window": "I3",
+  "depends_on": [
+    "CORE-GATE:R1",
+    "CORE-GATE:S2-SERVICE",
+    "CORE:S04",
+    "FRONTEND-GATE:G3"
+  ],
+  "required_scope": "保留上方S2完整Gate全部条件及S04页面/策略UI拒绝回归。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
 <a id="task-x06"></a>
 ### X06：执行/审计/运维 Terminal 页面
 
 - task_id: `X06`
 - task_type: `CORE`
+- acceptance_window: `I8`
+- depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:X05", "CORE:U01", "SERVICE:X06", "FRONTEND-GATE:G5", "FRONTEND-GATE:G4", "FRONTEND-GATE:G6"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x06)
 - 需求描述：执行/审计/运维 Terminal 页面
@@ -1247,22 +1603,51 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 - issues: []
 - fix_tracking: []
 
+
 <a id="104-x3-gate"></a>
 <a id="gate-x3"></a>
-### 8.1 X3 Gate：本阶段末尾验收
+### X3 完整 Gate：业务闭环末尾验收
 
 - [ ] X01–X06 完成；连续 10 个交易日 Shadow，对账未解释差异=0。
 - [ ] 命令、订单、成交、仓位和审计链可重建；命令重复执行=0。
 - [ ] kill switch、数据陈旧、venue 故障、审批拒绝、事件重放演练全绿。
 
+<a id="acceptance-core-gate-x3"></a>
+### CORE-GATE:X3：验收检查点
+
+保留上方X3完整Gate全部条件，包括执行/审计/运维页面、10个交易日Shadow及对账完整证据。I9/FEP-7进入Beta前须核验R1/S2/X3完整Gate及TP01总项。
+
+```json
+{
+  "checkpoint_id": "CORE-GATE:X3",
+  "acceptance_window": "I8",
+  "depends_on": [
+    "CORE-GATE:S2",
+    "CORE-GATE:X3-SERVICE",
+    "CORE:X06",
+    "FRONTEND-GATE:G4",
+    "FRONTEND-GATE:G5",
+    "FRONTEND-GATE:G6"
+  ],
+  "required_scope": "保留上方X3完整Gate全部条件，包括执行/审计/运维页面、10个交易日Shadow及对账完整证据。I9/FEP-7进入Beta前须核验R1/S2/X3完整Gate及TP01总项。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
 <a id="execution-l4"></a>
-## 9. L4：Assisted Live 上线评审准备（仅 testnet）
+## 10. L4：Beta 后 testnet 服务准备与完整评审
+
+在FE:FEP-7和CORE-GATE:X3后执行服务准备，随后进入前端I10。仅testnet，不自动开启生产Assisted Live。
 
 <a id="task-l01"></a>
 ### L01：优先 venue testnet 适配
 
 - task_id: `L01`
 - task_type: `CORE`
+- acceptance_window: `L4-SERVICE`
+- depends_on: ["CORE:X04", "CORE:TP07", "CORE-GATE:X3", "FE:FEP-7"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-l01)
 - 需求描述：优先 venue testnet 适配
@@ -1285,6 +1670,8 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 
 - task_id: `L02`
 - task_type: `CORE`
+- acceptance_window: `L4-SERVICE`
+- depends_on: ["CORE:F06", "CORE:L01", "CORE-GATE:X3", "FE:FEP-7"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-l02)
 - 需求描述：Supabase Vault、mTLS 与受限执行区
@@ -1302,11 +1689,85 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 - issues: []
 - fix_tracking: []
 
+<a id="acceptance-service-l03"></a>
+### SERVICE:L03：验收检查点
+
+服务端feature/capability、双人职责分离、额度/白名单、M5 flag关闭时API100%拒绝、testnet 50次双人审批签名审计、自批/超额/过期100%拒绝。UI入口和完整E2E保留在CORE:L03/G8。
+
+```json
+{
+  "checkpoint_id": "SERVICE:L03",
+  "acceptance_window": "L4-SERVICE",
+  "depends_on": [
+    "CORE:X02",
+    "CORE:X03",
+    "CORE:L02",
+    "FE:FEP-7"
+  ],
+  "required_scope": "服务端feature/capability、双人职责分离、额度/白名单、M5 flag关闭时API100%拒绝、testnet 50次双人审批签名审计、自批/超额/过期100%拒绝。UI入口和完整E2E保留在CORE:L03/G8。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="acceptance-service-l04"></a>
+### SERVICE:L04：验收检查点
+
+L04服务压测/混沌/DB事件恢复/订单对账/告警/回滚，无重复Command/订单、审计持久化100%、四类演练、高危=0；F07部署HTTPS/受限Storage及F09九类真实生产者、持续窗口/通知/同链故障的全部上线前服务回执。页面消费者验证与最终证据包保留在CORE:L04；缺来源/部署保持NOT RUN / NO RECEIPT，不能用组件或人工样本替代。
+
+```json
+{
+  "checkpoint_id": "SERVICE:L04",
+  "acceptance_window": "L4-SERVICE",
+  "depends_on": [
+    "CORE:X05",
+    "SERVICE:X06",
+    "CORE:L01",
+    "CORE:L02",
+    "SERVICE:L03",
+    "FE:FEP-7"
+  ],
+  "required_scope": "L04服务压测/混沌/DB事件恢复/订单对账/告警/回滚，无重复Command/订单、审计持久化100%、四类演练、高危=0；F07部署HTTPS/受限Storage及F09九类真实生产者、持续窗口/通知/同链故障的全部上线前服务回执。页面消费者验证与最终证据包保留在CORE:L04；缺来源/部署保持NOT RUN / NO RECEIPT，不能用组件或人工样本替代。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="acceptance-core-gate-l4-service"></a>
+### CORE-GATE:L4-SERVICE：验收检查点
+
+L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证据通过，才放行I10；不代表L4完整Gate或生产发布授权。
+
+```json
+{
+  "checkpoint_id": "CORE-GATE:L4-SERVICE",
+  "acceptance_window": "L4-SERVICE",
+  "depends_on": [
+    "CORE-GATE:X3",
+    "FE:FEP-7",
+    "CORE:L01",
+    "CORE:L02",
+    "SERVICE:L03",
+    "SERVICE:L04"
+  ],
+  "required_scope": "L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证据通过，才放行I10；不代表L4完整Gate或生产发布授权。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+### I10 后的 L03/L04 完整验收
+
 <a id="task-l03"></a>
 ### L03：双人审批、MFA 与 Assisted Live UI Gate
 
 - task_id: `L03`
 - task_type: `CORE`
+- acceptance_window: `I10`
+- depends_on: ["CORE:X02", "CORE:X03", "CORE:L02", "SERVICE:L03", "FE:FEP-8"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-l03)
 - 需求描述：双人审批、MFA 与 Assisted Live UI Gate
@@ -1329,6 +1790,8 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 
 - task_id: `L04`
 - task_type: `CORE`
+- acceptance_window: `L4-TOTAL`
+- depends_on: ["CORE:X05", "CORE:X06", "CORE:L01", "CORE:L02", "CORE:L03", "SERVICE:L04", "FE:FEP-8"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-l04)
 - 需求描述：容量、恢复、安全与上线证据包
@@ -1348,9 +1811,10 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 - issues: []
 - fix_tracking: []
 
+
 <a id="105-l4-gate"></a>
 <a id="gate-l4"></a>
-### 9.1 L4 Gate：本阶段末尾验收
+### L4 完整 Gate：业务闭环末尾验收
 
 - [ ] L01–L04 完成；仅 testnet 证明通过，不自动产生生产实盘权限。
 - [ ] F07 拟上线部署的 HTTPS BFF/Runtime 入口与恢复/隔离回执通过；Runtime Storage 凭据仅可访问 `quantos-artifacts`，其他 bucket 拒绝和轮换/撤销证据通过，且全部绑定候选发布源码 SHA。
@@ -1358,7 +1822,29 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 - [ ] 任一容量阈值触发时，先完成 Supabase 原生优化和容量 ADR；未获 ADR 批准时不得增加 Supabase 生态外的事件、缓存、时序或秘密基础设施。
 - [ ] 是否开启小额 Assisted Live 必须在本计划之外，由单独批准决定。
 
-## 10. 自动执行命令与回归清单
+<a id="acceptance-core-gate-l4"></a>
+### CORE-GATE:L4：验收检查点
+
+保留上方L4完整Gate全部原有要求，UI/API flag拒绝、MFA/双人审批E2E、F07/F09上线前移交及可信发布证据包全部闭环；生产实盘仍须计划外单独批准。
+
+```json
+{
+  "checkpoint_id": "CORE-GATE:L4",
+  "acceptance_window": "L4-TOTAL",
+  "depends_on": [
+    "CORE-GATE:L4-SERVICE",
+    "CORE:L03",
+    "CORE:L04",
+    "FRONTEND-GATE:G8"
+  ],
+  "required_scope": "保留上方L4完整Gate全部原有要求，UI/API flag拒绝、MFA/双人审批E2E、F07/F09上线前移交及可信发布证据包全部闭环；生产实盘仍须计划外单独批准。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+## 11. 自动执行命令与回归清单
 
 | 类别 | 命令目标（实现时在 `Makefile`/CI 固化） |
 |---|---|
@@ -1371,7 +1857,7 @@ TP07/TP12 的完整任务定义位于下一阶段，当前只执行本表限定�
 | Web 界面 | `e2e-web`、`visual-regression`、`a11y-test` |
 | 性能与演练 | `bench-domain`、`load-bff`、`chaos-drill`、`reconciliation-test` |
 
-## 11. 任务完成定义与禁止项
+## 12. 任务完成定义与禁止项
 
 任务完成不以“代码可运行”或“页面可打开”为准，必须符合第 2 节最低完成条件、任务表专属验收和所属 Gate。以下行为一律视为未完成：
 

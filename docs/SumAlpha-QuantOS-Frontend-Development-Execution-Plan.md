@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.0
-> 更新时间：2026-09-16
+> 版本：3.1
+> 更新时间：2026-10-02
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.1`：与核心计划v3.19协调服务准入与完整业务验收；保留P0/A1–A6全量API先行。里程碑移至实际关闭窗口末尾，补准备/provider/G0–G8检查点与跨文档依赖；G5在I6、G4在I7关闭。已有开发与复审状态不变，新增检查点均未验收。
 
 - `3.0`：完成 A2/BFF-FE-007 仓库交付；发布 OpenAPI 1.3.0 的 Audit 搜索/证据链分页与受控导出 create/status/cancel/download 契约，增加 Rust 本地参考 provider、Terminal typed gateway、可破坏 Gate 及验收证据。真实 Postgres 审计读模型、对象存储签名 URL、staging 消费者/provider 签署与 GPT-6 Astra 复审仍为独立未执行项。
 - `2.9`：完成 A2/BFF-FE-001 仓库交付；发布 OpenAPI 1.2.0 的 cookie session、CSRF、recent-auth、MFA 因素保护与 auditRef 契约，增加 Rust 本地参考 provider、撤销 SSE、前端 client 与可破坏 Gate。真实 IdP/Postgres、staging 消费者/provider 签署、GitHub CI 与 GPT-6 Astra 复审仍为独立未执行项。
@@ -76,35 +78,11 @@
 | 观测 | Sentry/OTel Web SDK（按隐私策略启用） | 错误含 correlation ID；token、密钥、完整敏感载荷不得上报 |
 | 包管理/构建 | 现有 pnpm workspace；Next.js 构建 | 锁文件、Node/pnpm 版本固定；Web 制品生成 manifest 与 SBOM |
 
-## 3. 前期准备阶段（FEP-0，建议 2 周）
-
-<a id="task-fep-0"></a>
-### FEP-0：准备与契约
-
-- task_id: `FEP-0`
-- task_type: `MILESTONE`
-- iteration: `P0`
-- depends_on: ["CORE:F01", "CORE:F02", "CORE:F03", "CORE:F04", "CORE:F05", "CORE:F06"]
-- development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-fep-0)
-- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：工程运行时、设计系统、接口台账、环境、测试底座
-- 主要后端依赖：F01–F06，尤其 F03/F06
-- 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结
-- 范围说明：PRE-01–PRE-06 的准备里程碑；契约冻结与 PoC 不替代 A1–A6 的全量 API 开发及 provider Gate。
-
-<a id="review-fep-0"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+## 3. 前期准备窗口（P0）
 
 ### 3.1 工作包与产出
 
-迭代 `P0`（W1–W2）只安排需求、设计、工程、接口盘点、环境和测试底座；PoC/fixture 不属于业务页面交付，PRE-04 只盘点接口，不承担页面 API 实现。按下列依赖顺序执行。
+迭代 `P0`（W1–W2）按以下顺序复审准备任务。准备检查点仅放行A1，FEP-0/G0正式验收在A1末尾。
 
 <a id="task-pre-01"></a>
 #### PRE-01：需求拆解
@@ -113,6 +91,8 @@
 - task_type: `PREPARATION`
 - iteration: `P0`
 - depends_on: []
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-01)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -137,6 +117,8 @@
 - task_type: `PREPARATION`
 - iteration: `P0`
 - depends_on: ["PRE-01"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-02)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -161,6 +143,8 @@
 - task_type: `PREPARATION`
 - iteration: `P0`
 - depends_on: ["PRE-02", "CORE:F01"]
+- core_prerequisites: ["CORE:F01"]
+- closes_core: []
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-03)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -185,6 +169,8 @@
 - task_type: `PREPARATION`
 - iteration: `P0`
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
+- core_prerequisites: ["CORE:F03", "CORE:F06"]
+- closes_core: []
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-04)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -209,6 +195,8 @@
 - task_type: `PREPARATION`
 - iteration: `P0`
 - depends_on: ["PRE-03", "PRE-04"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-05)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -233,6 +221,8 @@
 - task_type: `PREPARATION`
 - iteration: `P0`
 - depends_on: ["PRE-04", "PRE-05"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-pre-06)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -250,32 +240,47 @@
 - issues: []
 - fix_tracking: []
 
-### 3.2 前期 Gate G0
+<a id="acceptance-preparation-p0"></a>
+#### PREPARATION:P0：验收检查点
 
-以下条件全部满足后才能进入页面功能开发：
+准备任务全部标准与PoC通过，owner/环境/mock/设计/接口台账和测试基线齐备；仅放行A1，不宣称正式OpenAPI或全部provider验收。
 
-- BFF 发布版本化 OpenAPI，至少冻结会话/上下文、Research、DataSnapshot、Strategy、Portfolio/Risk、Proposal/Approval/Order 与统一错误模型；未实现接口允许 mock，但 schema 不允许另起一套。
-- 生成 client 与 Proto/JSON Schema 一致性检查进入 CI；现有手写 `InMemory*Backend` 已迁移为实现生成接口的测试 adapter，或明确标记为待删除。
-- 页面台账能追踪到 `页面 → 前端任务 → BFF 契约 → 后端计划任务 → 测试用例 → Gate`。
-- Web 页面 PoC、OIDC callback PoC、SSE 断线续传 PoC 均通过。
-- 产品、前端、BFF、QA、安全与风控签署 G0 记录；未冻结项有责任人、截止日和兼容策略。
+```json
+{
+  "checkpoint_id": "PREPARATION:P0",
+  "acceptance_window": "P0",
+  "depends_on": [
+    "FE:PRE-01",
+    "FE:PRE-02",
+    "FE:PRE-03",
+    "FE:PRE-04",
+    "FE:PRE-05",
+    "FE:PRE-06"
+  ],
+  "required_scope": "准备任务全部标准与PoC通过，owner/环境/mock/设计/接口台账和测试基线齐备；仅放行A1，不宣称正式OpenAPI或全部provider验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
 
 ## 4. 页面 API 前置与前端迭代计划
 
 排期基准为 3–4 名前端、1 名 BFF 联调接口人、1 名 QA，2 周一个 Sprint。以下为依赖满足后的相对建议窗口，不是已完成记录或固定交付承诺；外部核心服务未就绪时顺延所有依赖窗口。新增全量 API 前置阶段后不再沿用原 18 周总周期。官网可与同一前端迭代的 Terminal 工作并行。
 
-- 执行顺序：`P0 → A1 → A2 → A3 → A4 → A5 → A6 → I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I9 → I10`。
-- P0 完成准备工作后进入 A1；G0 中的正式 OpenAPI 冻结项由 A1 交付后关闭。G0 的最小冻结面与 A6 的全量 provider Gate 分别验证，二者都必须在新页面开发前满足。
+- 执行顺序：`P0 → A1 → A2 → A3 → A4 → A5 → A6 → I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I9 → CORE-GATE:L4-SERVICE → I10`。
+- P0 的 PREPARATION:P0 检查点通过后进入 A1；A1/provider 后关闭正式 G0 与 FEP-0。G0 的最小冻结面与 A6 的全量 provider Gate 分别验证，二者都必须在新页面开发前满足。
 - `A1–A6` 独立完成全部页面 API 的 OpenAPI、生成 client、实现、授权、安全/错误/幂等/实时恢复及 staging provider 验证；全部 API `review_status=ACCEPTED` 后才启动新的前端页面实现与既有页面真实联调。consumer/UI E2E 和 G1–G8 仍在前端迭代验证，不以前端尚未交付阻塞 provider Gate。
 - `Reviewed + Mocked` 至少领先页面一个 Sprint 的要求保留；本轮排期进一步要求全量 API 已实现且 provider 验证通过。mock 可用于契约/组件 fixture 与复审，不能绕过全量 API 前置门槛。
-- `CORE:<ID>` 是核心计划中服务部分的准入依赖。U01/S04/X06 等包含页面的总任务保留在契约追溯中，API 阶段只依赖其领域服务/审计/运维能力，页面验收回到对应 FEP，避免 API 等待其消费页面形成循环。L01–L03 仅为原有 testnet/平台安全范围。
-- 同一迭代内按条目顺序与 `depends_on` 拓扑执行；不同任务类型分别排期。FEP 是稳定的业务范围/Gate 编号，不表示数字大小即执行先后。FEP-5 的审计基础先于 Research/Release 证据跳转交付；FEP-4 的市场先行，订单标记及收益报表放在订单/对账之后。跨页面导航引用保留在契约/路由验收中，不把双向跳转误作循环开发依赖。
+- `CORE:<ID>`明确指完整核心任务；拆分的服务前置必须使用SERVICE/CORE-GATE:*SERVICE，禁止隐式解释为“仅服务部分”。U01/S04/X06/TP01/L03/L04完整任务由closes_core映射在页面闭环后复审；FEP-7需要R1/S2/X3完整Gate，FEP-8需要L4服务Gate。
+- 同一迭代内按条目顺序与 `depends_on` 拓扑执行；实际任务→检查点→里程碑顺序即验收顺序；不同任务类型分别排期。FEP 是稳定的业务范围/Gate 编号，不表示数字大小即执行先后。FEP-5 的审计基础先于 Research/Release 证据跳转交付；FEP-4 的市场先行，订单标记及收益报表放在订单/对账之后。跨页面导航引用保留在契约/路由验收中，不把双向跳转误作循环开发依赖。
 - FEP-1 已完成开发的事实保留；本轮 I1 安排重新复审、集成与其逐页验收，不要求重复开发。未明确完成的任务使用 `UNSPECIFIED`，执行前盘点。
+- 每个窗口末尾依次记录检查点证据和里程碑复审；下列 JSON 是可校验的准入/关闭定义。新检查点保持 NOT_STARTED，必须取得实际绑定完整源码 SHA 的回执才可改为 ACCEPTED，不能以结构校验代替执行。
 
 | 迭代 | 建议窗口 | 任务类型 | 范围 |
 |---|---|---|---|
-| P0 | W1–W2 | PREPARATION | PRE-01–PRE-06，工程与契约盘点 |
-| A1 | W3–W4 | PAGE_API | BFF-FE-000 |
+| P0 | W1–W2 | PREPARATION | PRE-01–PRE-06，工程与契约盘点、准备检查点 |
+| A1 | W3–W4 | PAGE_API | BFF-FE-000；G0/FEP-0正式关闭 |
 | A2 | W5–W6 | PAGE_API | BFF-FE-001、007 |
 | A3 | W7–W8 | PAGE_API | BFF-FE-003、005 |
 | A4 | W9–W10 | PAGE_API | BFF-FE-006、004 |
@@ -296,7 +301,9 @@
 
 F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 operation 名称表达能力，不预设 URL；最终 path、method、request/response schema、分页和 envelope 必须由 BFF 在版本化 OpenAPI 中发布，前端只使用生成 client。每项“目标阶段与验收”保持原业务 Gate 绑定，实际 API 开发窗口以前置 A 迭代为准。
 
-#### 迭代 A1：页面契约基线
+跨计划执行路线：核心F0 → R1服务Gate → TP01服务子范围 → S2服务Gate → X3服务Gate → 本计划A1–A6 provider → I1–I8及核心R1/S2/X3完整Gate → I9/Beta → 核心L4服务准备 → I10/G8 → 核心L03/L04及L4完整Gate。P0可在其已验收依赖满足后提前完成。稳定验收单位定义见[核心计划第2.8节](./SumAlpha-QuantOS-Development-Plan.md#28-跨计划验收单位与证据规则)。
+
+#### 迭代 A1：页面 API provider 验收
 
 <a id="task-bff-fe-000"></a>
 ##### BFF-FE-000：页面 BFF OpenAPI 基线
@@ -304,7 +311,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
-- depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06"]
+- depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
+- core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
+- closes_core: []
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-000)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -322,7 +331,84 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
-#### 迭代 A2：身份与审计
+<a id="acceptance-provider-a1"></a>
+##### PROVIDER:A1：验收检查点
+
+本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+
+```json
+{
+  "checkpoint_id": "PROVIDER:A1",
+  "acceptance_window": "A1",
+  "depends_on": [
+    "FE:BFF-FE-000",
+    "PREPARATION:P0"
+  ],
+  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+##### G0 原始完整验收要求
+
+以下条件全部满足后关闭G0；新页面还须等待PROVIDER:ALL：
+
+- BFF 发布版本化 OpenAPI，至少冻结会话/上下文、Research、DataSnapshot、Strategy、Portfolio/Risk、Proposal/Approval/Order 与统一错误模型；未实现接口允许 mock，但 schema 不允许另起一套。
+- 生成 client 与 Proto/JSON Schema 一致性检查进入 CI；现有手写 `InMemory*Backend` 已迁移为实现生成接口的测试 adapter，或明确标记为待删除。
+- 页面台账能追踪到 `页面 → 前端任务 → BFF 契约 → 后端计划任务 → 测试用例 → Gate`。
+- Web 页面 PoC、OIDC callback PoC、SSE 断线续传 PoC 均通过。
+- 产品、前端、BFF、QA、安全与风控签署 G0 记录；未冻结项有责任人、截止日和兼容策略。
+
+<a id="acceptance-frontend-gate-g0"></a>
+##### FRONTEND-GATE:G0：验收检查点
+
+上方G0全部原始要求及正式契约冻结、PoC、签署记录关闭，准许进入后续API窗口；新页面仍等待PROVIDER:ALL。
+
+```json
+{
+  "checkpoint_id": "FRONTEND-GATE:G0",
+  "acceptance_window": "A1",
+  "depends_on": [
+    "PREPARATION:P0",
+    "PROVIDER:A1",
+    "FE:BFF-FE-000"
+  ],
+  "required_scope": "上方G0全部原始要求及正式契约冻结、PoC、签署记录关闭，准许进入后续API窗口；新页面仍等待PROVIDER:ALL。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="task-fep-0"></a>
+### FEP-0：准备与契约
+
+- task_id: `FEP-0`
+- task_type: `MILESTONE`
+- iteration: `A1`
+- depends_on: ["CORE-GATE:F0", "PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06", "FRONTEND-GATE:G0"]
+- core_prerequisites: ["CORE-GATE:F0"]
+- closes_core: []
+- development_status: `COMPLETED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-0)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：工程运行时、设计系统、接口台账、环境、测试底座
+- 主要后端依赖：CORE-GATE:F0
+- 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结
+- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+
+<a id="review-fep-0"></a>
+#### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
+#### 迭代 A2：页面 API provider 验收
 
 <a id="task-bff-fe-001"></a>
 ##### BFF-FE-001：身份、会话与设置 API
@@ -330,7 +416,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-001`
 - task_type: `PAGE_API`
 - iteration: `A2`
-- depends_on: ["BFF-FE-000", "CORE:F06"]
+- depends_on: ["BFF-FE-000", "CORE:F06", "PROVIDER:A1"]
+- core_prerequisites: ["CORE:F06"]
+- closes_core: []
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-001)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -354,7 +442,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-007`
 - task_type: `PAGE_API`
 - iteration: `A2`
-- depends_on: ["BFF-FE-001", "CORE:F05"]
+- depends_on: ["BFF-FE-001", "CORE:F05", "PROVIDER:A1"]
+- core_prerequisites: ["CORE:F05"]
+- closes_core: []
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-007)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -372,7 +462,28 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
-#### 迭代 A3：研究与市场数据
+<a id="acceptance-provider-a2"></a>
+##### PROVIDER:A2：验收检查点
+
+本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+
+```json
+{
+  "checkpoint_id": "PROVIDER:A2",
+  "acceptance_window": "A2",
+  "depends_on": [
+    "FE:BFF-FE-001",
+    "FE:BFF-FE-007",
+    "PROVIDER:A1"
+  ],
+  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+#### 迭代 A3：页面 API provider 验收
 
 <a id="task-bff-fe-003"></a>
 ##### BFF-FE-003：Research、Snapshot 与 Artifact API
@@ -380,7 +491,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-003`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04"]
+- depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
+- core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-003)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -404,7 +517,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-005`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- depends_on: ["BFF-FE-001", "CORE:R01", "CORE:R02"]
+- depends_on: ["BFF-FE-001", "CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
+- core_prerequisites: ["CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-005)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -422,7 +537,28 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
-#### 迭代 A4：风险执行与策略
+<a id="acceptance-provider-a3"></a>
+##### PROVIDER:A3：验收检查点
+
+本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+
+```json
+{
+  "checkpoint_id": "PROVIDER:A3",
+  "acceptance_window": "A3",
+  "depends_on": [
+    "FE:BFF-FE-003",
+    "FE:BFF-FE-005",
+    "PROVIDER:A2"
+  ],
+  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+#### 迭代 A4：页面 API provider 验收
 
 <a id="task-bff-fe-006"></a>
 ##### BFF-FE-006：Portfolio、Risk、Proposal、Approval 与 Order API
@@ -430,7 +566,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-006`
 - task_type: `PAGE_API`
 - iteration: `A4`
-- depends_on: ["BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07"]
+- depends_on: ["BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE", "PROVIDER:A3"]
+- core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-006)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -454,7 +592,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-004`
 - task_type: `PAGE_API`
 - iteration: `A4`
-- depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-007", "CORE:S01", "CORE:S02", "CORE:S03"]
+- depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-007", "CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04", "PROVIDER:A3"]
+- core_prerequisites: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-004)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -472,7 +612,28 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
-#### 迭代 A5：对账、分析与治理
+<a id="acceptance-provider-a4"></a>
+##### PROVIDER:A4：验收检查点
+
+本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+
+```json
+{
+  "checkpoint_id": "PROVIDER:A4",
+  "acceptance_window": "A4",
+  "depends_on": [
+    "FE:BFF-FE-006",
+    "FE:BFF-FE-004",
+    "PROVIDER:A3"
+  ],
+  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+#### 迭代 A5：页面 API provider 验收
 
 <a id="task-bff-fe-009"></a>
 ##### BFF-FE-009：Reconciliation 与账本 API
@@ -480,7 +641,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-009`
 - task_type: `PAGE_API`
 - iteration: `A5`
-- depends_on: ["BFF-FE-006", "BFF-FE-007", "CORE:X05"]
+- depends_on: ["BFF-FE-006", "BFF-FE-007", "CORE:X05", "CORE-GATE:X3-SERVICE", "PROVIDER:A4"]
+- core_prerequisites: ["CORE:X05", "CORE-GATE:X3-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-009)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -504,7 +667,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-008`
 - task_type: `PAGE_API`
 - iteration: `A5`
-- depends_on: ["BFF-FE-009", "CORE:X01", "CORE:X05"]
+- depends_on: ["BFF-FE-009", "CORE:X01", "CORE:X05", "CORE-GATE:X3-SERVICE", "PROVIDER:A4"]
+- core_prerequisites: ["CORE:X01", "CORE:X05", "CORE-GATE:X3-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-008)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -528,7 +693,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-010`
 - task_type: `PAGE_API`
 - iteration: `A5`
-- depends_on: ["BFF-FE-001", "BFF-FE-007", "BFF-FE-009", "CORE:F09"]
+- depends_on: ["BFF-FE-001", "BFF-FE-007", "BFF-FE-009", "CORE:F09", "CORE-GATE:X3-SERVICE", "SERVICE:X06", "PROVIDER:A4"]
+- core_prerequisites: ["CORE:F09", "CORE-GATE:X3-SERVICE", "SERVICE:X06"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-010)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -546,7 +713,29 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
-#### 迭代 A6：汇总与平台能力
+<a id="acceptance-provider-a5"></a>
+##### PROVIDER:A5：验收检查点
+
+本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+
+```json
+{
+  "checkpoint_id": "PROVIDER:A5",
+  "acceptance_window": "A5",
+  "depends_on": [
+    "FE:BFF-FE-009",
+    "FE:BFF-FE-008",
+    "FE:BFF-FE-010",
+    "PROVIDER:A4"
+  ],
+  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+#### 迭代 A6：页面 API provider 验收
 
 <a id="task-bff-fe-002"></a>
 ##### BFF-FE-002：Command Center 聚合 API
@@ -554,7 +743,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-002`
 - task_type: `PAGE_API`
 - iteration: `A6`
-- depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-010", "CORE:F09"]
+- depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-010", "CORE:F09", "CORE-GATE:X3-SERVICE", "PROVIDER:A5"]
+- core_prerequisites: ["CORE:F09", "CORE-GATE:X3-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-002)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -578,7 +769,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-011`
 - task_type: `PAGE_API`
 - iteration: `A6`
-- depends_on: ["BFF-FE-001", "BFF-FE-010"]
+- depends_on: ["BFF-FE-001", "BFF-FE-010", "CORE-GATE:X3-SERVICE", "PROVIDER:A5"]
+- core_prerequisites: ["CORE-GATE:X3-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-bff-fe-011)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -596,6 +789,64 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
+<a id="acceptance-provider-a6"></a>
+##### PROVIDER:A6：验收检查点
+
+本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+
+```json
+{
+  "checkpoint_id": "PROVIDER:A6",
+  "acceptance_window": "A6",
+  "depends_on": [
+    "FE:BFF-FE-002",
+    "FE:BFF-FE-011",
+    "PROVIDER:A5"
+  ],
+  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="acceptance-provider-all"></a>
+##### PROVIDER:ALL：验收检查点
+
+全部12个API的provider基线、staging证据、权限/幂等/错误/实时恢复/敏感字段Gate及正式G0通过；全部API review_status=ACCEPTED，才允许I1起新页面实现与既有页面真实联调；Paper/Shadow基线不提前宣称M5 target启用。
+
+```json
+{
+  "checkpoint_id": "PROVIDER:ALL",
+  "acceptance_window": "A6",
+  "depends_on": [
+    "PROVIDER:A1",
+    "PROVIDER:A2",
+    "PROVIDER:A3",
+    "PROVIDER:A4",
+    "PROVIDER:A5",
+    "PROVIDER:A6",
+    "FE:BFF-FE-000",
+    "FE:BFF-FE-001",
+    "FE:BFF-FE-002",
+    "FE:BFF-FE-003",
+    "FE:BFF-FE-004",
+    "FE:BFF-FE-005",
+    "FE:BFF-FE-006",
+    "FE:BFF-FE-007",
+    "FE:BFF-FE-008",
+    "FE:BFF-FE-009",
+    "FE:BFF-FE-010",
+    "FE:BFF-FE-011",
+    "FRONTEND-GATE:G0"
+  ],
+  "required_scope": "全部12个API的provider基线、staging证据、权限/幂等/错误/实时恢复/敏感字段Gate及正式G0通过；全部API review_status=ACCEPTED，才允许I1起新页面实现与既有页面真实联调；Paper/Shadow基线不提前宣称M5 target启用。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
 ### 4.2 前端功能与逐页设计稿交付（后行）
 
 以下 `UI-Pxx` 是各阶段 UI 任务的交付子任务。`design/` 中列出的有效稿是页面默认态的内容结构与视觉基准；若同一页面存在多个版本，以本节指定版本为准，旧版本仅保留追溯。开发必须将设计稿制作成可运行、可路由、可鉴权、可访问且接入生成式 BFF client 的 React 页面，同时按设计规范补齐加载、空、错误、无权、陈旧、离线/断线和危险确认状态。设计稿中的示例数据只能进入 Storybook/MSW fixture，不能硬编码进生产页面。
@@ -606,38 +857,15 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 
 #### 迭代 I1：W15–W16
 
-<a id="task-fep-1"></a>
-##### FEP-1：壳与官网
-
-- task_id: `FEP-1`
-- task_type: `MILESTONE`
-- iteration: `I1`
-- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PRE-06"]
-- development_status: `COMPLETED`
-- 状态范围：已开发完成范围为 UI-101–UI-104、WEB-101；逐页 UI-Pxx 与 G1 的集成验收仍按独立条目判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-fep-1)
-- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态
-- 主要后端依赖：F06、F09
-- 交付节点与放行条件：G1：认证/RBAC/模式/陈旧/离线/响应式可用，官网内容合规
-- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
-
-<a id="review-fep-1"></a>
-###### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
 <a id="task-ui-103"></a>
 ##### UI-103：QuantOS UI/domain-ui、主题、i18n、表格/时间线/确认框
 
 - task_id: `UI-103`
 - task_type: `FRONTEND`
 - iteration: `I1`
-- depends_on: ["PRE-02", "PRE-03", "PRE-06", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["PRE-02", "PRE-03", "PRE-06", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete。组件及 Storybook 属于交付范围，本轮复审从空白开始。
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-103)
@@ -661,14 +889,16 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-VIS-000`
 - task_type: `FRONTEND`
 - iteration: `I1`
-- depends_on: ["UI-103", "BFF-FE-001", "BFF-FE-010", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009"]
+- depends_on: ["UI-103", "BFF-FE-001", "BFF-FE-010", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-vis-000)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：P01–P15/P17–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准
 - 实际页面/路由交付：App Shell、导航、顶栏、状态条、栅格、token、边框、表格、表单、图表、Badge、危险确认与状态语义
 - 契约绑定：C01、C16、C17
-- 所属阶段：FEP-0/1
+- 所属阶段：FEP-1；P0 的设计预研只提供输入，UI-VIS-000 完整交付在 I1 验收
 - 页面级完成标准：抽取为 `packages/ui`/`domain-ui`，禁止逐页复制样式；1440 基准视觉回归由设计签署；语义色不得挪作装饰色
 
 <a id="review-ui-vis-000"></a>
@@ -686,7 +916,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-102`
 - task_type: `FRONTEND`
 - iteration: `I1`
-- depends_on: ["UI-VIS-000", "BFF-FE-001", "BFF-FE-006", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-VIS-000", "BFF-FE-001", "BFF-FE-006", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete / Contract Integrated。staging IdP/MFA 联调签署是晋级 G1 Done 的前置条件。
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-102)
@@ -710,7 +942,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-101`
 - task_type: `FRONTEND`
 - iteration: `I1`
-- depends_on: ["UI-102", "BFF-FE-001", "BFF-FE-002", "BFF-FE-010", "BFF-FE-000", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-102", "BFF-FE-001", "BFF-FE-002", "BFF-FE-010", "BFF-FE-000", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete / Mocked。BFF-FE-002 发布后使用生成 client + 同 schema MSW，staging 签署前不得升级 Integrated。
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-101)
@@ -734,7 +968,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-104`
 - task_type: `FRONTEND`
 - iteration: `I1`
-- depends_on: ["UI-101", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
+- depends_on: ["UI-101", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete / Local Provider Implemented。BFF-FE-001/011 Web 契约完成 staging 签署后才可 Integrated。
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-104)
@@ -758,7 +994,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `WEB-101`
 - task_type: `WEBSITE`
 - iteration: `I1`
-- depends_on: ["UI-103", "UI-102", "BFF-FE-001", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-103", "UI-102", "BFF-FE-001", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete / Local Provider Implemented。Terminal Auth/BFF staging 联调后配置真实 BFF origin 并晋级 G1；生产发布前在目标 CDN origin 验证 Lighthouse。
 - review_entry: [GPT-6 Astra 复审入口](#review-web-101)
@@ -783,7 +1021,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P01`
 - task_type: `FRONTEND`
 - iteration: `I1`
-- depends_on: ["UI-102", "UI-VIS-000", "BFF-FE-001", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-102", "UI-VIS-000", "BFF-FE-001", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p01)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -808,7 +1048,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P02`
 - task_type: `FRONTEND`
 - iteration: `I1`
-- depends_on: ["UI-101", "UI-VIS-000", "BFF-FE-002", "BFF-FE-006", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-101", "UI-VIS-000", "BFF-FE-002", "BFF-FE-006", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p02)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -833,7 +1075,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P15`
 - task_type: `FRONTEND`
 - iteration: `I1`
-- depends_on: ["UI-104", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
+- depends_on: ["UI-104", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p15)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -858,7 +1102,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P17`
 - task_type: `FRONTEND`
 - iteration: `I1`
-- depends_on: ["UI-104", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010"]
+- depends_on: ["UI-104", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p17)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -877,24 +1123,56 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
-#### 迭代 I2：W17–W18
+<a id="acceptance-frontend-gate-g1"></a>
+##### FRONTEND-GATE:G1：验收检查点
 
-<a id="task-fep-2"></a>
-##### FEP-2：研究闭环
+按FEP-1全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
 
-- task_id: `FEP-2`
+```json
+{
+  "checkpoint_id": "FRONTEND-GATE:G1",
+  "acceptance_window": "I1",
+  "depends_on": [
+    "FE:UI-103",
+    "FE:UI-VIS-000",
+    "FE:UI-102",
+    "FE:UI-101",
+    "FE:UI-104",
+    "FE:WEB-101",
+    "FE:UI-P01",
+    "FE:UI-P02",
+    "FE:UI-P15",
+    "FE:UI-P17",
+    "CORE:F06",
+    "CORE:F09",
+    "PROVIDER:ALL"
+  ],
+  "required_scope": "按FEP-1全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="task-fep-1"></a>
+##### FEP-1：壳与官网
+
+- task_id: `FEP-1`
 - task_type: `MILESTONE`
-- iteration: `I2`
-- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P17"]
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-fep-2)
+- iteration: `I1`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PRE-06", "CORE:F06", "CORE:F09", "UI-103", "UI-VIS-000", "UI-102", "UI-101", "UI-104", "WEB-101", "UI-P01", "UI-P02", "UI-P15", "UI-P17", "FRONTEND-GATE:G1"]
+- core_prerequisites: ["CORE:F06", "CORE:F09"]
+- closes_core: []
+- development_status: `COMPLETED`
+- 状态范围：已开发完成范围为 UI-101–UI-104、WEB-101；逐页 UI-Pxx 与 G1 的集成验收仍按独立条目判定。
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-1)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot
-- 主要后端依赖：R02–R04、F07/F08、TP01–TP05、U01
-- 交付节点与放行条件：G2：固定输入可追溯与重放；取消 ≤2s；目标 Web 浏览器同用例全绿
-- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+- 需求描述：官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态
+- 主要后端依赖：CORE:F06、CORE:F09
+- 交付节点与放行条件：G1：认证/RBAC/模式/陈旧/离线/响应式可用，官网内容合规
+- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
 
-<a id="review-fep-2"></a>
+<a id="review-fep-1"></a>
 ###### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
@@ -903,13 +1181,17 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
+#### 迭代 I2：W17–W18
+
 <a id="task-ui-507"></a>
 ##### UI-507：Audit Explorer 与受控导出
 
 - task_id: `UI-507`
 - task_type: `FRONTEND`
 - iteration: `I2`
-- depends_on: ["UI-101", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-101", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-507)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -932,7 +1214,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P12`
 - task_type: `FRONTEND`
 - iteration: `I2`
-- depends_on: ["UI-507", "UI-VIS-000", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-507", "UI-VIS-000", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p12)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -957,7 +1241,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-204`
 - task_type: `FRONTEND`
 - iteration: `I2`
-- depends_on: ["UI-101", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-101", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-204)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -980,7 +1266,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P05`
 - task_type: `FRONTEND`
 - iteration: `I2`
-- depends_on: ["UI-204", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-204", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p05)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1005,7 +1293,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-201`
 - task_type: `FRONTEND`
 - iteration: `I2`
-- depends_on: ["UI-204", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-204", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-201)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1028,7 +1318,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P03`
 - task_type: `FRONTEND`
 - iteration: `I2`
-- depends_on: ["UI-201", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-201", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p03)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1053,7 +1345,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-202`
 - task_type: `FRONTEND`
 - iteration: `I2`
-- depends_on: ["UI-201", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-201", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-202)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1076,7 +1370,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-203`
 - task_type: `FRONTEND`
 - iteration: `I2`
-- depends_on: ["UI-202", "UI-507", "BFF-FE-003", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-202", "UI-507", "BFF-FE-003", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-203)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1099,7 +1395,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P04`
 - task_type: `FRONTEND`
 - iteration: `I2`
-- depends_on: ["UI-202", "UI-203", "UI-VIS-000", "BFF-FE-003", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-202", "UI-203", "UI-VIS-000", "BFF-FE-003", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p04)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1118,24 +1416,51 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
-#### 迭代 I3：W19–W20
+<a id="acceptance-frontend-gate-g2"></a>
+##### FRONTEND-GATE:G2：验收检查点
 
-<a id="task-fep-3"></a>
-##### FEP-3：策略治理
+按FEP-2全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
 
-- task_id: `FEP-3`
+```json
+{
+  "checkpoint_id": "FRONTEND-GATE:G2",
+  "acceptance_window": "I2",
+  "depends_on": [
+    "FE:UI-204",
+    "FE:UI-P05",
+    "FE:UI-201",
+    "FE:UI-P03",
+    "FE:UI-202",
+    "FE:UI-203",
+    "FE:UI-P04",
+    "CORE-GATE:R1-SERVICE",
+    "PROVIDER:ALL"
+  ],
+  "required_scope": "按FEP-2全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="task-fep-2"></a>
+##### FEP-2：研究闭环
+
+- task_id: `FEP-2`
 - task_type: `MILESTONE`
-- iteration: `I3`
-- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P04"]
+- iteration: `I2`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P17", "CORE-GATE:R1-SERVICE", "UI-204", "UI-P05", "UI-201", "UI-P03", "UI-202", "UI-203", "UI-P04", "FRONTEND-GATE:G2"]
+- core_prerequisites: ["CORE-GATE:R1-SERVICE"]
+- closes_core: ["CORE:U01", "CORE:TP01"]
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-fep-3)
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-2)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：P06–P07；草稿、静态检查、回测、Release、审批时间线
-- 主要后端依赖：S01–S04、R02、F06
-- 交付节点与放行条件：G3：未验证/未审批不可部署；M3/M4 仅 Paper/Shadow
-- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+- 需求描述：P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot
+- 主要后端依赖：CORE-GATE:R1-SERVICE
+- 交付节点与放行条件：G2：固定输入可追溯与重放；取消 ≤2s；目标 Web 浏览器同用例全绿
+- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
 
-<a id="review-fep-3"></a>
+<a id="review-fep-2"></a>
 ###### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
@@ -1144,13 +1469,17 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
+#### 迭代 I3：W19–W20
+
 <a id="task-ui-301"></a>
 ##### UI-301：Strategy 目录与 Lab 草稿
 
 - task_id: `UI-301`
 - task_type: `FRONTEND`
 - iteration: `I3`
-- depends_on: ["UI-203", "UI-204", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-203", "UI-204", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-301)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1173,7 +1502,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P06`
 - task_type: `FRONTEND`
 - iteration: `I3`
-- depends_on: ["UI-301", "UI-VIS-000", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-301", "UI-VIS-000", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p06)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1198,7 +1529,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-302`
 - task_type: `FRONTEND`
 - iteration: `I3`
-- depends_on: ["UI-301", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-301", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-302)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1221,7 +1554,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-303`
 - task_type: `FRONTEND`
 - iteration: `I3`
-- depends_on: ["UI-302", "UI-507", "BFF-FE-004", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-302", "UI-507", "BFF-FE-004", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-303)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1244,7 +1579,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P07`
 - task_type: `FRONTEND`
 - iteration: `I3`
-- depends_on: ["UI-302", "UI-303", "UI-VIS-000", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-302", "UI-303", "UI-VIS-000", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p07)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1263,55 +1600,59 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
+<a id="acceptance-frontend-gate-g3"></a>
+##### FRONTEND-GATE:G3：验收检查点
+
+按FEP-3全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+
+```json
+{
+  "checkpoint_id": "FRONTEND-GATE:G3",
+  "acceptance_window": "I3",
+  "depends_on": [
+    "FE:UI-301",
+    "FE:UI-P06",
+    "FE:UI-302",
+    "FE:UI-303",
+    "FE:UI-P07",
+    "CORE-GATE:S2-SERVICE",
+    "SERVICE:S04",
+    "PROVIDER:ALL"
+  ],
+  "required_scope": "按FEP-3全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="task-fep-3"></a>
+##### FEP-3：策略治理
+
+- task_id: `FEP-3`
+- task_type: `MILESTONE`
+- iteration: `I3`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P04", "CORE-GATE:S2-SERVICE", "SERVICE:S04", "UI-301", "UI-P06", "UI-302", "UI-303", "UI-P07", "FRONTEND-GATE:G3"]
+- core_prerequisites: ["CORE-GATE:S2-SERVICE", "SERVICE:S04"]
+- closes_core: ["CORE:S04"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-3)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P06–P07；草稿、静态检查、回测、Release、审批时间线
+- 主要后端依赖：CORE-GATE:S2-SERVICE、SERVICE:S04
+- 交付节点与放行条件：G3：未验证/未审批不可部署；M3/M4 仅 Paper/Shadow
+- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+
+<a id="review-fep-3"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
 #### 迭代 I4：W21–W22
-
-<a id="task-fep-4"></a>
-##### FEP-4：市场与分析
-
-- task_id: `FEP-4`
-- task_type: `MILESTONE`
-- iteration: `I4`
-- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07"]
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-fep-4)
-- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：P18–P19、P21；市场目录、报价、K 线、订单标记、收益与报表
-- 主要后端依赖：R01/R02、X01、Performance/Valuation/Report API
-- 交付节点与放行条件：G4：来源/venue/as_of/quality/口径完整；断流不拼接；provisional 正确
-- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
-
-<a id="review-fep-4"></a>
-###### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
-<a id="task-fep-5"></a>
-##### FEP-5：风险与执行闭环
-
-- task_id: `FEP-5`
-- task_type: `MILESTONE`
-- iteration: `I4`
-- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07"]
-- development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-fep-5)
-- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：P08–P12、P20、P22；Portfolio/Risk、Proposal、Trade Ticket、Approval、Order、Reconciliation、Audit
-- 主要后端依赖：X01–X06、TP07
-- 交付节点与放行条件：G5：七类高风险用例全绿；完整证据链 ≤5 分钟还原；无直连 venue
-- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
-
-<a id="review-fep-5"></a>
-###### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
 
 <a id="task-ui-401"></a>
 ##### UI-401：Market Catalog、Watchlist、VenueQuote
@@ -1319,7 +1660,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-401`
 - task_type: `FRONTEND`
 - iteration: `I4`
-- depends_on: ["UI-101", "UI-204", "BFF-FE-005", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-101", "UI-204", "BFF-FE-005", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-401)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1342,7 +1685,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P18`
 - task_type: `FRONTEND`
 - iteration: `I4`
-- depends_on: ["UI-401", "UI-VIS-000", "BFF-FE-005", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-401", "UI-VIS-000", "BFF-FE-005", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p18)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1367,7 +1712,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-501`
 - task_type: `FRONTEND`
 - iteration: `I4`
-- depends_on: ["UI-101", "BFF-FE-006", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-101", "BFF-FE-006", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-501)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1390,7 +1737,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P08`
 - task_type: `FRONTEND`
 - iteration: `I4`
-- depends_on: ["UI-501", "UI-VIS-000", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-501", "UI-VIS-000", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p08)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1415,7 +1764,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-502`
 - task_type: `FRONTEND`
 - iteration: `I4`
-- depends_on: ["UI-203", "UI-501", "UI-507", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-203", "UI-501", "UI-507", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-502)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1438,7 +1789,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P09`
 - task_type: `FRONTEND`
 - iteration: `I4`
-- depends_on: ["UI-502", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-502", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p09)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1457,6 +1810,31 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
+<a id="acceptance-frontend-window-i4"></a>
+##### FRONTEND-WINDOW:I4：验收检查点
+
+本迭代全部任务验收后才进入下一窗口；G4/G5属于跨窗口完整Gate，本窗口不提前关闭。
+
+```json
+{
+  "checkpoint_id": "FRONTEND-WINDOW:I4",
+  "acceptance_window": "I4",
+  "depends_on": [
+    "FE:UI-401",
+    "FE:UI-P18",
+    "FE:UI-501",
+    "FE:UI-P08",
+    "FE:UI-502",
+    "FE:UI-P09",
+    "PROVIDER:ALL"
+  ],
+  "required_scope": "本迭代全部任务验收后才进入下一窗口；G4/G5属于跨窗口完整Gate，本窗口不提前关闭。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
 #### 迭代 I5：W23–W24
 
 <a id="task-ui-503"></a>
@@ -1465,7 +1843,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-503`
 - task_type: `FRONTEND`
 - iteration: `I5`
-- depends_on: ["UI-401", "UI-501", "UI-502", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-401", "UI-501", "UI-502", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-503)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1488,7 +1868,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-504`
 - task_type: `FRONTEND`
 - iteration: `I5`
-- depends_on: ["UI-503", "UI-102", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-503", "UI-102", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-504)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1511,7 +1893,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P10`
 - task_type: `FRONTEND`
 - iteration: `I5`
-- depends_on: ["UI-504", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-504", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p10)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1536,7 +1920,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-505`
 - task_type: `FRONTEND`
 - iteration: `I5`
-- depends_on: ["UI-504", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-504", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-505)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1559,7 +1945,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P20`
 - task_type: `FRONTEND`
 - iteration: `I5`
-- depends_on: ["UI-503", "UI-504", "UI-505", "UI-VIS-000", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-503", "UI-504", "UI-505", "UI-VIS-000", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p20)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1584,7 +1972,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P11`
 - task_type: `FRONTEND`
 - iteration: `I5`
-- depends_on: ["UI-505", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-505", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p11)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1603,6 +1993,31 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
+<a id="acceptance-frontend-window-i5"></a>
+##### FRONTEND-WINDOW:I5：验收检查点
+
+本迭代全部任务验收后才进入下一窗口；G4/G5属于跨窗口完整Gate，本窗口不提前关闭。
+
+```json
+{
+  "checkpoint_id": "FRONTEND-WINDOW:I5",
+  "acceptance_window": "I5",
+  "depends_on": [
+    "FE:UI-503",
+    "FE:UI-504",
+    "FE:UI-P10",
+    "FE:UI-505",
+    "FE:UI-P20",
+    "FE:UI-P11",
+    "PROVIDER:ALL"
+  ],
+  "required_scope": "本迭代全部任务验收后才进入下一窗口；G4/G5属于跨窗口完整Gate，本窗口不提前关闭。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
 #### 迭代 I6：W25–W26
 
 <a id="task-ui-506"></a>
@@ -1611,7 +2026,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-506`
 - task_type: `FRONTEND`
 - iteration: `I6`
-- depends_on: ["UI-505", "UI-507", "BFF-FE-009", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-011"]
+- depends_on: ["UI-505", "UI-507", "BFF-FE-009", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I5"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-506)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1634,7 +2051,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P22`
 - task_type: `FRONTEND`
 - iteration: `I6`
-- depends_on: ["UI-506", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-506", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I5"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p22)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1653,6 +2072,67 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
+<a id="acceptance-frontend-gate-g5"></a>
+##### FRONTEND-GATE:G5：验收检查点
+
+按FEP-5全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+
+```json
+{
+  "checkpoint_id": "FRONTEND-GATE:G5",
+  "acceptance_window": "I6",
+  "depends_on": [
+    "FE:UI-507",
+    "FE:UI-P12",
+    "FE:UI-501",
+    "FE:UI-P08",
+    "FE:UI-502",
+    "FE:UI-P09",
+    "FE:UI-503",
+    "FE:UI-504",
+    "FE:UI-P10",
+    "FE:UI-505",
+    "FE:UI-P20",
+    "FE:UI-P11",
+    "FE:UI-506",
+    "FE:UI-P22",
+    "CORE-GATE:X3-SERVICE",
+    "SERVICE:X06",
+    "PROVIDER:ALL"
+  ],
+  "required_scope": "按FEP-5全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="task-fep-5"></a>
+##### FEP-5：风险与执行闭环
+
+- task_id: `FEP-5`
+- task_type: `MILESTONE`
+- iteration: `I6`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07", "CORE-GATE:X3-SERVICE", "SERVICE:X06", "UI-507", "UI-P12", "UI-501", "UI-P08", "UI-502", "UI-P09", "UI-503", "UI-504", "UI-P10", "UI-505", "UI-P20", "UI-P11", "UI-506", "UI-P22", "FRONTEND-GATE:G5", "FRONTEND-WINDOW:I5"]
+- core_prerequisites: ["CORE-GATE:X3-SERVICE", "SERVICE:X06"]
+- closes_core: []
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-5)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P08–P12、P20、P22；Portfolio/Risk、Proposal、Trade Ticket、Approval、Order、Reconciliation、Audit
+- 主要后端依赖：CORE-GATE:X3-SERVICE、SERVICE:X06
+- 交付节点与放行条件：G5：七类高风险用例全绿；完整证据链 ≤5 分钟还原；无直连 venue
+- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+
+<a id="review-fep-5"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
 #### 迭代 I7：W27–W28
 
 <a id="task-ui-402"></a>
@@ -1661,7 +2141,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-402`
 - task_type: `FRONTEND`
 - iteration: `I7`
-- depends_on: ["UI-401", "UI-505", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-401", "UI-505", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-402)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1684,7 +2166,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P19`
 - task_type: `FRONTEND`
 - iteration: `I7`
-- depends_on: ["UI-402", "UI-VIS-000", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-402", "UI-VIS-000", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p19)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1709,7 +2193,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-403`
 - task_type: `FRONTEND`
 - iteration: `I7`
-- depends_on: ["UI-506", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-506", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-403)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1732,7 +2218,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P21`
 - task_type: `FRONTEND`
 - iteration: `I7`
-- depends_on: ["UI-403", "UI-VIS-000", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011"]
+- depends_on: ["UI-403", "UI-VIS-000", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p21)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1751,24 +2239,50 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
-#### 迭代 I8：W29–W30
+<a id="acceptance-frontend-gate-g4"></a>
+##### FRONTEND-GATE:G4：验收检查点
 
-<a id="task-fep-6"></a>
-##### FEP-6：Web 运维治理
+按FEP-4全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
 
-- task_id: `FEP-6`
+```json
+{
+  "checkpoint_id": "FRONTEND-GATE:G4",
+  "acceptance_window": "I7",
+  "depends_on": [
+    "FE:UI-401",
+    "FE:UI-P18",
+    "FE:UI-402",
+    "FE:UI-P19",
+    "FE:UI-403",
+    "FE:UI-P21",
+    "CORE-GATE:X3-SERVICE",
+    "PROVIDER:ALL"
+  ],
+  "required_scope": "按FEP-4全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="task-fep-4"></a>
+##### FEP-4：市场与分析
+
+- task_id: `FEP-4`
 - task_type: `MILESTONE`
-- iteration: `I8`
-- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P21"]
+- iteration: `I7`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07", "CORE-GATE:X3-SERVICE", "UI-401", "UI-P18", "UI-402", "UI-P19", "UI-403", "UI-P21", "FRONTEND-GATE:G4"]
+- core_prerequisites: ["CORE-GATE:X3-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-fep-6)
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-4)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：P13、P14、P23；Operations、Admin、Alerts
-- 主要后端依赖：F09、X05/X06、Auth/Policy/Incident/Alert API
-- 交付节点与放行条件：G6：受控 Runbook、职责分离、Web 通知、权限与离线禁写通过
-- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+- 需求描述：P18–P19、P21；市场目录、报价、K 线、订单标记、收益与报表
+- 主要后端依赖：CORE-GATE:X3-SERVICE
+- 交付节点与放行条件：G4：来源/venue/as_of/quality/口径完整；断流不拼接；provisional 正确
+- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
 
-<a id="review-fep-6"></a>
+<a id="review-fep-4"></a>
 ###### GPT-6 Astra 功能复审
 
 - review_model: `GPT-6 Astra`
@@ -1777,13 +2291,17 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
+#### 迭代 I8：W29–W30
+
 <a id="task-ui-603"></a>
 ##### UI-603：Alerts 收件箱
 
 - task_id: `UI-603`
 - task_type: `FRONTEND`
 - iteration: `I8`
-- depends_on: ["UI-506", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-506", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-603)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1806,7 +2324,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P23`
 - task_type: `FRONTEND`
 - iteration: `I8`
-- depends_on: ["UI-603", "UI-VIS-000", "BFF-FE-007", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-603", "UI-VIS-000", "BFF-FE-007", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p23)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1831,7 +2351,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-601`
 - task_type: `FRONTEND`
 - iteration: `I8`
-- depends_on: ["UI-603", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-603", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-601)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1854,7 +2376,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P13`
 - task_type: `FRONTEND`
 - iteration: `I8`
-- depends_on: ["UI-601", "UI-VIS-000", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-601", "UI-VIS-000", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p13)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1879,7 +2403,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-602`
 - task_type: `FRONTEND`
 - iteration: `I8`
-- depends_on: ["UI-601", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-601", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-602)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1902,7 +2428,9 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `UI-P14`
 - task_type: `FRONTEND`
 - iteration: `I8`
-- depends_on: ["UI-602", "UI-VIS-000", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011"]
+- depends_on: ["UI-602", "UI-VIS-000", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
+- core_prerequisites: []
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-ui-p14)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
@@ -1921,7 +2449,89 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - issues: []
 - fix_tracking: []
 
+<a id="acceptance-frontend-gate-g6"></a>
+##### FRONTEND-GATE:G6：验收检查点
+
+按FEP-6全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+
+```json
+{
+  "checkpoint_id": "FRONTEND-GATE:G6",
+  "acceptance_window": "I8",
+  "depends_on": [
+    "FE:UI-603",
+    "FE:UI-P23",
+    "FE:UI-601",
+    "FE:UI-P13",
+    "FE:UI-602",
+    "FE:UI-P14",
+    "CORE-GATE:X3-SERVICE",
+    "SERVICE:X06",
+    "PROVIDER:ALL"
+  ],
+  "required_scope": "按FEP-6全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
+<a id="task-fep-6"></a>
+##### FEP-6：Web 运维治理
+
+- task_id: `FEP-6`
+- task_type: `MILESTONE`
+- iteration: `I8`
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P21", "CORE-GATE:X3-SERVICE", "SERVICE:X06", "UI-603", "UI-P23", "UI-601", "UI-P13", "UI-602", "UI-P14", "FRONTEND-GATE:G6"]
+- core_prerequisites: ["CORE-GATE:X3-SERVICE", "SERVICE:X06"]
+- closes_core: ["CORE:X06"]
+- development_status: `UNSPECIFIED`
+- review_entry: [GPT-6 Astra 复审入口](#review-fep-6)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 需求描述：P13、P14、P23；Operations、Admin、Alerts
+- 主要后端依赖：CORE-GATE:X3-SERVICE、SERVICE:X06
+- 交付节点与放行条件：G6：受控 Runbook、职责分离、Web 通知、权限与离线禁写通过
+- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+
+<a id="review-fep-6"></a>
+###### GPT-6 Astra 功能复审
+
+- review_model: `GPT-6 Astra`
+- review_status: `NOT_STARTED`
+- review_conclusion: null
+- issues: []
+- fix_tracking: []
+
 #### 迭代 I9：W31–W32
+
+<a id="acceptance-frontend-gate-g7"></a>
+##### FRONTEND-GATE:G7：验收检查点
+
+按FEP-7全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+
+```json
+{
+  "checkpoint_id": "FRONTEND-GATE:G7",
+  "acceptance_window": "I9",
+  "depends_on": [
+    "CORE-GATE:R1",
+    "CORE-GATE:S2",
+    "CORE-GATE:X3",
+    "CORE:TP01",
+    "PROVIDER:ALL",
+    "FRONTEND-GATE:G1",
+    "FRONTEND-GATE:G2",
+    "FRONTEND-GATE:G3",
+    "FRONTEND-GATE:G4",
+    "FRONTEND-GATE:G5",
+    "FRONTEND-GATE:G6"
+  ],
+  "required_scope": "按FEP-7全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
 
 <a id="task-fep-7"></a>
 ##### FEP-7：硬化与 Beta
@@ -1929,14 +2539,16 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `FEP-7`
 - task_type: `MILESTONE`
 - iteration: `I9`
-- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P01", "UI-P02", "UI-P03", "UI-P04", "UI-P05", "UI-P06", "UI-P07", "UI-P08", "UI-P09", "UI-P10", "UI-P11", "UI-P12", "UI-P13", "UI-P14", "UI-P15", "UI-P17", "UI-P18", "UI-P19", "UI-P20", "UI-P21", "UI-P22", "UI-P23", "WEB-101"]
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P01", "UI-P02", "UI-P03", "UI-P04", "UI-P05", "UI-P06", "UI-P07", "UI-P08", "UI-P09", "UI-P10", "UI-P11", "UI-P12", "UI-P13", "UI-P14", "UI-P15", "UI-P17", "UI-P18", "UI-P19", "UI-P20", "UI-P21", "UI-P22", "UI-P23", "WEB-101", "CORE-GATE:R1", "CORE-GATE:S2", "CORE-GATE:X3", "CORE:TP01", "FRONTEND-GATE:G7"]
+- core_prerequisites: ["CORE-GATE:R1", "CORE-GATE:S2", "CORE-GATE:X3", "CORE:TP01"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-fep-7)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：全量回归、兼容、性能、可访问性、安全、视觉、故障恢复
-- 主要后端依赖：R1/S2/X3 Gate
+- 主要后端依赖：CORE-GATE:R1、CORE-GATE:S2、CORE-GATE:X3、CORE:TP01
 - 交付节点与放行条件：G7：Paper + Shadow Beta 验收通过，阻断级缺陷为 0
-- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
 
 <a id="review-fep-7"></a>
 ###### GPT-6 Astra 功能复审
@@ -1949,20 +2561,47 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 
 #### 迭代 I10：W33–W34
 
+<a id="acceptance-frontend-gate-g8"></a>
+##### FRONTEND-GATE:G8：验收检查点
+
+按FEP-8全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+
+```json
+{
+  "checkpoint_id": "FRONTEND-GATE:G8",
+  "acceptance_window": "I10",
+  "depends_on": [
+    "CORE:L01",
+    "CORE:L02",
+    "SERVICE:L03",
+    "SERVICE:L04",
+    "CORE-GATE:L4-SERVICE",
+    "PROVIDER:ALL",
+    "FE:FEP-7"
+  ],
+  "required_scope": "按FEP-8全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": []
+}
+```
+
 <a id="task-fep-8"></a>
 ##### FEP-8：M5 评审准备
 
 - task_id: `FEP-8`
 - task_type: `MILESTONE`
 - iteration: `I10`
-- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "FEP-7"]
+- depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "FEP-7", "CORE:L01", "CORE:L02", "SERVICE:L03", "SERVICE:L04", "CORE-GATE:L4-SERVICE", "FRONTEND-GATE:G8"]
+- core_prerequisites: ["CORE:L01", "CORE:L02", "SERVICE:L03", "SERVICE:L04", "CORE-GATE:L4-SERVICE"]
+- closes_core: ["CORE:L03", "CORE:L04"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-fep-8)
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：P10/P11 的 testnet 条件入口、MFA 与双人审批
-- 主要后端依赖：L01–L04，且仅 testnet
+- 主要后端依赖：CORE:L01、CORE:L02、SERVICE:L03、SERVICE:L04、CORE-GATE:L4-SERVICE
 - 交付节点与放行条件：G8：flag 关闭时 UI/API 不可达；只形成评审证据，不开启生产实盘
-- 范围说明：业务里程碑仅归组与约束下属任务；全部子任务和 Gate 通过后才能关闭。
+- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
 
 <a id="review-fep-8"></a>
 ###### GPT-6 Astra 功能复审
