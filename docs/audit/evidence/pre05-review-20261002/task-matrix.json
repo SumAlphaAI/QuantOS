@@ -1,0 +1,123 @@
+{
+  "total": 16,
+  "status_counts": {
+    "PASS": 7,
+    "PARTIAL": 6,
+    "FAIL": 3
+  },
+  "strict_completion_percent": 43.75,
+  "controls": [
+    {
+      "id": "C01",
+      "name": "C01 一期范围",
+      "requirement": "仅三套 Web；Desktop 独立承接",
+      "verification": "配置枚举、CLI、开发说明均明确分开",
+      "status": "PASS"
+    },
+    {
+      "id": "C02",
+      "name": "C02 配置产物",
+      "requirement": "三模板各定义必需公开配置",
+      "verification": "三套当前文件齐备，六组 Web 构建成功",
+      "status": "PASS"
+    },
+    {
+      "id": "C03",
+      "name": "C03 BFF 与 Web origin",
+      "requirement": "绝对 http/https、纯 origin；staging HTTPS；无凭据/query/fragment",
+      "verification": "当前校验实现符合，已有相关负向测试",
+      "status": "PASS"
+    },
+    {
+      "id": "C04",
+      "name": "C04 OIDC 配置契约",
+      "requirement": "callback 精确匹配、issuer 与消费者一致",
+      "verification": "尾斜杠被额外放行；issuer 路径可配置却被认证函数丢弃（M-03）",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C05",
+      "name": "C05 环境/mode 分离",
+      "requirement": "profile 与 research/paper/shadow 独立；禁止默认实盘",
+      "verification": "当前枚举与拒绝测试通过",
+      "status": "PASS"
+    },
+    {
+      "id": "C06",
+      "name": "C06 flags 语义",
+      "requirement": "布尔/off-on 值、profile/mock 绑定与实际消费一致",
+      "verification": "校验 trim，消费者读取原值；带空格 mock flag 走错分支（M-01）",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C07",
+      "name": "C07 观测方案",
+      "requirement": "观测启用时有效公网 DSN，URL 安全约束一致",
+      "verification": "本地缺 DSN/非法 DSN/含密码 URL 放行；staging query/fragment 放行（M-02）",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C08",
+      "name": "C08 测试账号定义",
+      "requirement": "角色身份、公开标识与秘密注入边界明确",
+      "verification": "staging 四标识与秘密注入说明存在；不声称真实账号已创建",
+      "status": "PASS"
+    },
+    {
+      "id": "C09",
+      "name": "C09 启动 fail-fast",
+      "requirement": "缺必需变量时 dev/build 的配置入口拒绝",
+      "verification": "两应用 assertEnv 接线存在；实际 build 缺变量均拒绝",
+      "status": "PASS"
+    },
+    {
+      "id": "C10",
+      "name": "C10 输入秘密防线",
+      "requirement": "公开值不得容纳已知 server credential 形态",
+      "verification": "AWS/GitHub 形态在允许的 client id 中均放行（H-01）",
+      "status": "FAIL"
+    },
+    {
+      "id": "C11",
+      "name": "C11 客户端产物安全",
+      "requirement": "客户端 bundle 不含 server secret 形态",
+      "verification": "合成 token 穿过校验与构建并进入客户端 JS；无产物防线阻断（H-01）",
+      "status": "FAIL"
+    },
+    {
+      "id": "C12",
+      "name": "C12 CLI 与实际解析",
+      "requirement": "校验和 Next 加载语义一致，文件参数可用",
+      "verification": "行内注释解析不同；绝对路径被错误拼接（M-05、L-01）",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C13",
+      "name": "C13 CI 接线",
+      "requirement": "PRE-05 正向/回归及显式构建配置进入 CI",
+      "verification": "Frontend Baseline 接线存在；不声明当前远端 run 通过",
+      "status": "PASS"
+    },
+    {
+      "id": "C14",
+      "name": "C14 验收负向有效性",
+      "requirement": "三 profile 身份、身份清单和安全/语义错误能拒绝",
+      "verification": "模板退化/账号删除仍绿；独立 12 负向输入中 8 误放行（M-06及关联发现）",
+      "status": "FAIL"
+    },
+    {
+      "id": "C15",
+      "name": "C15 开发说明可执行性",
+      "requirement": "配置行为、mock/集成边界忠于当前实现",
+      "verification": "文档声称本地 MSW/伪认证隔离，应用未注册 worker；仅 E2E route 拦截（M-04）",
+      "status": "PARTIAL"
+    },
+    {
+      "id": "C16",
+      "name": "C16 当前状态可追溯",
+      "requirement": "总结与当前范围/测试/启动/评审身份一致",
+      "verification": "总结仍为旧四环境/10测试/未接线、未区分历史 G0 与当前记录（M-07）",
+      "status": "PARTIAL"
+    }
+  ]
+}

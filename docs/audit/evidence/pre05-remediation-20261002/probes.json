@@ -1,0 +1,178 @@
+{
+  "counts": {
+    "total": 14,
+    "unexpected_passes": 0
+  },
+  "results": [
+    {
+      "name": "valid-local-mock",
+      "expected": "PASS",
+      "actual": "PASS",
+      "matches": true,
+      "issues": []
+    },
+    {
+      "name": "missing-bff",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_BFF_ORIGIN",
+          "reason": "缺少必需变量（fail-fast）"
+        }
+      ]
+    },
+    {
+      "name": "unknown-public-key",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_UNREVIEWED",
+          "reason": "不在客户端公开变量 allowlist，禁止进入 bundle"
+        }
+      ]
+    },
+    {
+      "name": "staging-mock-on",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_MOCK_ENABLED",
+          "reason": "staging 禁止开启 mock"
+        }
+      ]
+    },
+    {
+      "name": "assisted-live-default",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_DEFAULT_MODE",
+          "reason": "非法默认 mode；仅允许 research/paper/shadow，Assisted/Guarded Live 不可作默认值"
+        }
+      ]
+    },
+    {
+      "name": "aws-secret-shaped-public-client-id",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID",
+          "reason": "value 命中已知凭据指纹，禁止进入客户端配置"
+        }
+      ],
+      "detail": "synthetic known secret fingerprint, never an actual key"
+    },
+    {
+      "name": "github-secret-shaped-public-client-id",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID",
+          "reason": "value 命中已知凭据指纹，禁止进入客户端配置"
+        }
+      ],
+      "detail": "synthetic known secret fingerprint, never an actual token"
+    },
+    {
+      "name": "padded-mock-flag",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_MOCK_ENABLED",
+          "reason": "公开变量必须使用规范原值，不允许首尾空白"
+        }
+      ],
+      "detail": "validator trims to true; callback consumes raw === true and takes integrated branch"
+    },
+    {
+      "name": "local-observation-on-without-dsn",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_SENTRY_DSN",
+          "reason": "开启观测时必须配置 HTTPS 公网 DSN"
+        }
+      ],
+      "detail": "guide 2.1 requires DSN whenever observation enabled"
+    },
+    {
+      "name": "local-observation-invalid-dsn",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_SENTRY_DSN",
+          "reason": "DSN 必须是无密码/query/fragment的 HTTPS 公网 DSN，路径为项目编号"
+        }
+      ]
+    },
+    {
+      "name": "local-dsn-password",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_SENTRY_DSN",
+          "reason": "DSN 必须是无密码/query/fragment的 HTTPS 公网 DSN，路径为项目编号"
+        }
+      ]
+    },
+    {
+      "name": "staging-dsn-query-fragment",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_SENTRY_DSN",
+          "reason": "DSN 必须是无密码/query/fragment的 HTTPS 公网 DSN，路径为项目编号"
+        }
+      ],
+      "detail": "guide says all URL reject query and fragment"
+    },
+    {
+      "name": "callback-trailing-slash",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI",
+          "reason": "必须与 Terminal origin 同源并精确指向 http://localhost:3100/auth/callback"
+        }
+      ],
+      "detail": "guide and exact IdP registration require precise callback, validator strips trailing slash"
+    },
+    {
+      "name": "issuer-path-unsupported",
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "matches": true,
+      "issues": [
+        {
+          "key": "NEXT_PUBLIC_QUANTOS_OIDC_ISSUER",
+          "reason": "必须是纯 origin，不得包含路径"
+        }
+      ],
+      "detail": "current root-origin-only decision rejects unsupported issuer before startup"
+    }
+  ]
+}

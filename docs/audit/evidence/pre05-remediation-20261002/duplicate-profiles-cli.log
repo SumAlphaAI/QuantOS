@@ -1,0 +1,21 @@
+
+> @sumalpha/quantos@ check:pre05 /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-remediation-zudd0h4a
+> pnpm --filter @sumalpha/config check:env
+
+
+> @sumalpha/config@0.1.0 check:env /private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-remediation-zudd0h4a/packages/config
+> node scripts/check-env.mjs --examples
+
+ok    env/local-mock.env.example
+FAIL  env/local-integrated.env.example: NEXT_PUBLIC_QUANTOS_ENV: 模板文件与指定 profile 不匹配
+FAIL  env/staging.env.example: NEXT_PUBLIC_QUANTOS_ENV: 模板文件与指定 profile 不匹配
+FAIL  env/staging.env.example: QUANTOS_E2E_ACCOUNT_RESEARCHER: 模板必须保留对应角色的非敏感 staging 占位标识；真实身份由目标环境注入
+FAIL  env/staging.env.example: QUANTOS_E2E_ACCOUNT_TRADER: 模板必须保留对应角色的非敏感 staging 占位标识；真实身份由目标环境注入
+FAIL  env/staging.env.example: QUANTOS_E2E_ACCOUNT_APPROVER: 模板必须保留对应角色的非敏感 staging 占位标识；真实身份由目标环境注入
+FAIL  env/staging.env.example: QUANTOS_E2E_ACCOUNT_ADMIN: 模板必须保留对应角色的非敏感 staging 占位标识；真实身份由目标环境注入
+
+2 个环境文件校验失败
+/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-remediation-zudd0h4a/packages/config:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/config@0.1.0 check:env: `node scripts/check-env.mjs --examples`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.

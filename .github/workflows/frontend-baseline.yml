@@ -93,6 +93,9 @@ jobs:
       - name: Build website & terminal
         run: pnpm --filter @sumalpha/website build && pnpm --filter @sumalpha/terminal build
 
+      - name: Client artifact secret check (PRE-05)
+        run: pnpm check:client-secrets
+
       - name: Install Playwright Chromium for PRE-03 browser smoke
         run: pnpm exec playwright install chromium --with-deps
 

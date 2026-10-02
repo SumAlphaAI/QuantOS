@@ -7,11 +7,12 @@
  * 任一文件不通过即非零退出（fail-fast，供 CI 与启动前检查使用）。
  */
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { validateEnv, parseEnvText } from "../src/env.ts";
+import { validateEnv, validateEnvExample, ENV_PROFILES } from "../src/env.ts";
+import { parseEnvText } from "../src/env-file.ts";
 
-const root = join(fileURLToPath(import.meta.url), "../../../..");
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const args = process.argv.slice(2);
 const files = args.includes("--examples")
   ? ["env/local-mock.env.example", "env/local-integrated.env.example", "env/staging.env.example"]
@@ -24,7 +25,7 @@ if (files.length === 0) {
 
 let failed = 0;
 for (const file of files) {
-  const path = join(root, file);
+  const path = resolve(root, file);
   let text;
   try {
     text = readFileSync(path, "utf8");
@@ -33,7 +34,9 @@ for (const file of files) {
     failed += 1;
     continue;
   }
-  const result = validateEnv(parseEnvText(text));
+  const vars = parseEnvText(text);
+  const profile = args.includes("--examples") ? ENV_PROFILES[files.indexOf(file)] : undefined;
+  const result = profile ? validateEnvExample(profile, vars) : validateEnv(vars);
   if (result.ok) {
     console.log(`ok    ${file}`);
   } else {

@@ -1,0 +1,22 @@
+import {validateEnv,parseEnvText} from '../../../../packages/config/src/env.ts';
+import {readFileSync,writeFileSync} from 'node:fs';
+const base=parseEnvText(readFileSync('env/local-mock.env.example','utf8'));
+const stage=parseEnvText(readFileSync('env/staging.env.example','utf8'));
+const results=[];
+function probe(name,vars,expected,detail){const r=validateEnv(vars);results.push({name,expected,actual:r.ok?'PASS':'FAIL',matches:r.ok===(expected==='PASS'),issues:r.issues.map(({key,reason})=>({key,reason:reason.replace(/"[^"]*"/g,'"<value>"')})),detail});}
+probe('valid-local-mock',base,'PASS');
+probe('missing-bff',{...base,NEXT_PUBLIC_QUANTOS_BFF_ORIGIN:''},'FAIL');
+probe('unknown-public-key',{...base,NEXT_PUBLIC_UNREVIEWED:'value'},'FAIL');
+probe('staging-mock-on',{...stage,NEXT_PUBLIC_QUANTOS_MOCK_ENABLED:'true'},'FAIL');
+probe('assisted-live-default',{...base,NEXT_PUBLIC_QUANTOS_DEFAULT_MODE:'assisted_live'},'FAIL');
+probe('aws-secret-shaped-public-client-id',{...base,NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID:'AK'+'IA'+'A'.repeat(16)},'FAIL','synthetic known secret fingerprint, never an actual key');
+probe('github-secret-shaped-public-client-id',{...base,NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID:'gh'+'p_'+'A'.repeat(36)},'FAIL','synthetic known secret fingerprint, never an actual token');
+probe('padded-mock-flag',{...base,NEXT_PUBLIC_QUANTOS_MOCK_ENABLED:' true '},'FAIL','validator trims to true; callback consumes raw === true and takes integrated branch');
+probe('local-observation-on-without-dsn',{...base,NEXT_PUBLIC_QUANTOS_OBS_ENABLED:'true'},'FAIL','guide 2.1 requires DSN whenever observation enabled');
+probe('local-observation-invalid-dsn',{...base,NEXT_PUBLIC_QUANTOS_OBS_ENABLED:'true',NEXT_PUBLIC_QUANTOS_SENTRY_DSN:'not-a-dsn'},'FAIL');
+probe('local-dsn-password',{...base,NEXT_PUBLIC_QUANTOS_OBS_ENABLED:'true',NEXT_PUBLIC_QUANTOS_SENTRY_DSN:'https://public:test-only-password@o0.ingest.sentry.io/1'},'FAIL');
+probe('staging-dsn-query-fragment',{...stage,NEXT_PUBLIC_QUANTOS_SENTRY_DSN:'https://public@o0.ingest.sentry.io/1?token=synthetic#fragment'},'FAIL','guide says all URL reject query and fragment');
+probe('callback-trailing-slash',{...base,NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI:base.NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI+'/'},'FAIL','guide and exact IdP registration require precise callback, validator strips trailing slash');
+probe('issuer-path-accepted',{...base,NEXT_PUBLIC_QUANTOS_OIDC_ISSUER:'https://idp.example.test/tenant/realm'},'PASS','config permits issuer path; flow new URL(/authorize,/token) discards it');
+const counts={total:results.length,unexpected_passes:results.filter(r=>r.expected==='FAIL'&&r.actual==='PASS').length};
+writeFileSync(new URL('probes.json',import.meta.url),JSON.stringify({counts,results},null,2)+'\n');console.log(JSON.stringify(counts));

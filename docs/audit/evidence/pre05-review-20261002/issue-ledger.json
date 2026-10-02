@@ -1,0 +1,83 @@
+{
+  "total": 9,
+  "severities": {
+    "blocker": 0,
+    "high": 1,
+    "medium": 7,
+    "low": 1
+  },
+  "issues": [
+    {
+      "id": "H-01",
+      "severity": "高危",
+      "module": "`packages/config/src/env.ts:45` 秘密指纹；Web 构建/CI",
+      "manifestation": "value 只识别 sk/JWT/PEM/sbp；允许 client id 携带合成 AWS 或 GitHub credential 形态。合成 GitHub token 用于实际 Terminal 构建，退出 0 且出现在 login/callback 两个客户端 JS。输入测试不是 bundle 扫描；Git 历史 secret Gate 不覆盖运行时注入值",
+      "impact": "任一公开变量被误填秘密时，构建不能可靠拒绝，浏览器可下载该值。这里证明防线缺陷，未证明真实泄露",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-01",
+      "severity": "中危",
+      "module": "`packages/config/src/env.ts:64`；`apps/terminal/app/auth/callback/page.tsx:52`",
+      "manifestation": "validateEnv 读取 trim 后值但 assertEnv 不返回/应用规范化值。`MOCK_ENABLED=' true '`通过，页面原值不等于 `'true'`，走集成/BFF session 分支；profile 和业务值也存在同类规范化分歧",
+      "impact": "local-mock 认证行为与校验结论不一致；环境/flag 决策不可靠",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-02",
+      "severity": "中危",
+      "module": "`packages/config/src/env.ts:159`；开发说明 §2.1",
+      "manifestation": "DSN 必填/格式只在 staging+观测开启时检查。本地观测开但缺 DSN、非法 DSN、含密码 DSN 均通过；staging DSN query/fragment 也通过，与“所有 URL 无密码/query/fragment”说明不一致",
+      "impact": "三套 profile 的观测配置与 URL/敏感信息边界；误配置不能 fail-fast",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-03",
+      "severity": "中危",
+      "module": "`packages/config/src/env.ts:135`；`apps/terminal/src/auth/flow.ts:72,118`",
+      "manifestation": "callback 校验主动移除尾斜杠，放行与注册 URI 不完全相同的值；issuer 允许路径，但真实 authorize/token 构造用根路径，丢弃 `/tenant/realm`。2 项认证函数探针确认，fetch 未联网",
+      "impact": "路径型 IdP 与精确 callback 注册的 local-integrated/staging 登录；不是要求本轮实现完整 OIDC provider",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-04",
+      "severity": "中危",
+      "module": "`env/local-mock.env.example` 注释；开发说明 §1；`apps/terminal/app/login/page.tsx`；`tests/e2e/auth-callback.spec.ts`",
+      "manifestation": "文档承诺 MSW 拦截全部 BFF、伪认证不跳转真实 OIDC；应用无 setupWorker/worker.start，也无随应用分发的 mock worker。登录直接 location.assign mock issuer；测试里的 page.route 不会随普通 dev 启动",
+      "impact": "开发者照说明启动后的本地离线与认证体验；配置完成被误解为 mock 运行面已实现。完整业务 mock 应由后续任务负责",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-05",
+      "severity": "中危",
+      "module": "`packages/config/src/env.ts:218`；CLI 与 Next 环境加载",
+      "manifestation": "自制 parser 不处理 dotenv 行内注释等语法。同一 `MOCK_ENABLED=true # local mock`：CLI 值包含注释而拒绝，Next 值为 true 而通过，已对比实际 Next 依赖加载器",
+      "impact": "校验指定文件与应用实际启动不一致；正向配置误拒绝，双解析器维护风险",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-06",
+      "severity": "中危",
+      "module": "`packages/config/scripts/check-env.mjs:16`；`packages/config/tests/config.test.ts:31`",
+      "manifestation": "只逐文件调用通用 validateEnv，不绑定文件名对应 profile/集合身份。在临时副本把 integrated/staging 都替换为 local-mock，CLI 与12测试全绿；删除 staging 四测试身份也全绿",
+      "impact": "三套环境覆盖和测试身份产出可静默退化；CI 不能证明交付集合完整。需与源控制点绑定，而非只增加测试数量",
+      "status": "OPEN"
+    },
+    {
+      "id": "M-07",
+      "severity": "中危",
+      "module": "`docs/PRE-05-summary.md:3,10,21,33,36`",
+      "manifestation": "当前总结仍写四套环境、4/4 CLI、10/10测试、assertEnv待接线及Desktop smoke；历史 G0 纳入表述没有历史源身份/当前未评审边界。与三套当前模型、12测试、已接线及 `G0-current-governance.json` 的 NOT_STARTED 不一致",
+      "impact": "PRE-05状态、第一期范围及阶段评审判断；不可将历史范围表述沿用为当前通过",
+      "status": "OPEN"
+    },
+    {
+      "id": "L-01",
+      "severity": "低危",
+      "module": "`packages/config/scripts/check-env.mjs:27`",
+      "manifestation": "对绝对路径仍使用 join(root,file)，存在的绝对 env 文件被拼成根目录下的另一条路径，CLI 报不存在；同文件相对路径成功",
+      "impact": "编辑器/自动化传入绝对路径时的开发检查；三模板默认命令不受影响",
+      "status": "OPEN"
+    }
+  ]
+}

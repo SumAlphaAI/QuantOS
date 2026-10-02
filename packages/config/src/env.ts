@@ -9,6 +9,29 @@
  *   （运行模式 research/paper/shadow）独立校验，mode 永远不允许 assisted_live 默认值。
  */
 
+/** Known credential fingerprints, shared by input and client-artifact checks.
+ * Return labels only: never include matched credential values in diagnostics. */
+const fingerprints: ReadonlyArray<readonly [string, RegExp]> = [
+  ["API secret", /\bsk-[A-Za-z0-9_-]{16,}/],
+  ["JWT", /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/],
+  ["private key", /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
+  ["Supabase token", /\bsbp_[A-Za-z0-9]{20,}/],
+  ["Supabase secret", /\bsb_secret_[A-Za-z0-9_-]{16,}/],
+  ["GitHub token", /\bgh[pousr]_[A-Za-z0-9]{30,}/],
+  ["GitHub fine-grained token", /\bgithub_pat_[A-Za-z0-9_]{30,}/],
+  ["AWS credential identifier", /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/],
+];
+export function secretFingerprints(value: string): string[] {
+  return fingerprints.filter(([, pattern]) => pattern.test(value)).map(([label]) => label);
+}
+
+/** Inspect only explicitly named server credentials; public values remain public. */
+export function serverSecretVariants(vars: Record<string, string | undefined>): string[] {
+  return Object.entries(vars)
+    .filter(([key, value]) => !key.startsWith("NEXT_PUBLIC_") && /SECRET|PASSWORD|PRIVATE_KEY|API_KEY|TOKEN|SIGNING|SERVICE_ROLE/i.test(key) && typeof value === "string" && value.length >= 8)
+    .flatMap(([, value]) => [value!, JSON.stringify(value).slice(1, -1), encodeURIComponent(value!)]);
+}
+
 export const ENV_PROFILES = ["local-mock", "local-integrated", "staging"] as const;
 export type EnvProfile = (typeof ENV_PROFILES)[number];
 
@@ -41,14 +64,6 @@ const BOOLEAN_KEYS = ["NEXT_PUBLIC_QUANTOS_MOCK_ENABLED", "NEXT_PUBLIC_QUANTOS_O
 
 /** server secret 指纹：key 命中即拒绝出现在 NEXT_PUBLIC_ 变量中 */
 const SECRET_KEY_PATTERN = /(SERVICE_ROLE|SECRET|PASSWORD|PRIVATE|APIKEY|API_KEY|ACCESS_TOKEN|REFRESH_TOKEN|SESSION_KEY|SIGNING)/i;
-/** value 指纹：常见密钥形态（允许 OIDC client id、Sentry 公网 DSN 等公开值） */
-const SECRET_VALUE_PATTERNS = [
-  /^sk-[A-Za-z0-9_-]{16,}$/, // generic secret key
-  /^eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}$/, // JWT
-  /^-----BEGIN [A-Z ]*PRIVATE KEY-----/,
-  /^sbp_[A-Za-z0-9]{20,}$/, // Supabase service-role style
-];
-
 export interface EnvIssue {
   key: string;
   reason: string;
@@ -63,6 +78,13 @@ export function validateEnv(vars: Record<string, string | undefined>): EnvValida
   const issues: EnvIssue[] = [];
   const get = (k: string) => (vars[k] ?? "").trim();
 
+  // Do not validate a trimmed value while Next/client code consumes the raw one.
+  for (const [key, raw] of Object.entries(vars)) {
+    if (key.startsWith(PUBLIC_PREFIX) && raw !== undefined && raw !== raw.trim()) {
+      issues.push({ key, reason: "公开变量必须使用规范原值，不允许首尾空白" });
+    }
+  }
+
   // 1) 必需变量 fail-fast
   for (const key of REQUIRED_PUBLIC_KEYS) {
     if (!get(key)) issues.push({ key, reason: "缺少必需变量（fail-fast）" });
@@ -71,13 +93,13 @@ export function validateEnv(vars: Record<string, string | undefined>): EnvValida
   // 2) 环境/mode 分离
   const env = get("NEXT_PUBLIC_QUANTOS_ENV");
   if (env && !(RUNTIME_ENVS as readonly string[]).includes(env)) {
-    issues.push({ key: "NEXT_PUBLIC_QUANTOS_ENV", reason: `非法环境 "${env}"，允许值：${RUNTIME_ENVS.join("/")}` });
+    issues.push({ key: "NEXT_PUBLIC_QUANTOS_ENV", reason: `非法环境，允许值：${RUNTIME_ENVS.join("/")}` });
   }
   const mode = get("NEXT_PUBLIC_QUANTOS_DEFAULT_MODE");
   if (mode && !(RUNTIME_MODES as readonly string[]).includes(mode)) {
     issues.push({
       key: "NEXT_PUBLIC_QUANTOS_DEFAULT_MODE",
-      reason: `非法默认 mode "${mode}"；仅允许 ${RUNTIME_MODES.join("/")}，Assisted/Guarded Live 不可作默认值`,
+      reason: `非法默认 mode；仅允许 ${RUNTIME_MODES.join("/")}，Assisted/Guarded Live 不可作默认值`,
     });
   }
 
@@ -122,6 +144,7 @@ export function validateEnv(vars: Record<string, string | undefined>): EnvValida
     ["NEXT_PUBLIC_SITE_ORIGIN", siteOrigin],
     ["NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN", terminalOrigin],
     ["NEXT_PUBLIC_QUANTOS_BFF_ORIGIN", bffOrigin],
+    ["NEXT_PUBLIC_QUANTOS_OIDC_ISSUER", oidcIssuer],
   ] as const) {
     if (parsed && parsed.pathname !== "/") {
       issues.push({ key, reason: "必须是纯 origin，不得包含路径" });
@@ -132,7 +155,7 @@ export function validateEnv(vars: Record<string, string | undefined>): EnvValida
   }
   if (terminalOrigin && oidcRedirect) {
     const expected = `${terminalOrigin.origin}/auth/callback`;
-    if (oidcRedirect.href.replace(/\/$/, "") !== expected) {
+    if (get("NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI") !== expected) {
       issues.push({
         key: "NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI",
         reason: `必须与 Terminal origin 同源并精确指向 ${expected}`,
@@ -156,20 +179,19 @@ export function validateEnv(vars: Record<string, string | undefined>): EnvValida
         issues.push({ key, reason: "staging Web URL 必须使用 https" });
       }
     }
-    if (get("NEXT_PUBLIC_QUANTOS_OBS_ENABLED") === "true") {
-      const dsn = get("NEXT_PUBLIC_QUANTOS_SENTRY_DSN");
-      if (!dsn) {
-        issues.push({ key: "NEXT_PUBLIC_QUANTOS_SENTRY_DSN", reason: "staging 开启观测时必须配置 Sentry DSN（公网 DSN）" });
-      } else {
-        try {
-          const parsed = new URL(dsn);
-          if (parsed.protocol !== "https:" || !parsed.hostname || !parsed.username || parsed.password) {
-            throw new Error("invalid public DSN");
-          }
-        } catch {
-          issues.push({ key: "NEXT_PUBLIC_QUANTOS_SENTRY_DSN", reason: "必须是无密码的 HTTPS 公网 DSN" });
-        }
-      }
+  }
+  const dsn = get("NEXT_PUBLIC_QUANTOS_SENTRY_DSN");
+  if (get("NEXT_PUBLIC_QUANTOS_OBS_ENABLED") === "true" && !dsn) {
+    issues.push({ key: "NEXT_PUBLIC_QUANTOS_SENTRY_DSN", reason: "开启观测时必须配置 HTTPS 公网 DSN" });
+  }
+  // Validate any configured DSN, even while observation is disabled.
+  if (dsn) {
+    try {
+      const parsed = new URL(dsn);
+      if (parsed.protocol !== "https:" || !parsed.hostname || !parsed.username || parsed.password ||
+          parsed.search || parsed.hash || !/^\/\d+$/.test(parsed.pathname)) throw new Error("invalid public DSN");
+    } catch {
+      issues.push({ key: "NEXT_PUBLIC_QUANTOS_SENTRY_DSN", reason: "DSN 必须是无密码/query/fragment的 HTTPS 公网 DSN，路径为项目编号" });
     }
   }
   if (env === "local-mock" && get("NEXT_PUBLIC_QUANTOS_MOCK_ENABLED") !== "true") {
@@ -185,6 +207,8 @@ export function validateEnv(vars: Record<string, string | undefined>): EnvValida
     issues.push({ key: "NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET", reason: "只允许 off/on；开启必须经服务端 flag/capability 放行（L03）" });
   }
 
+  const serverValues = serverSecretVariants(vars);
+
   // 5) server secret 负向扫描：进入 bundle 的变量（NEXT_PUBLIC_）不得含 secret 指纹
   for (const [key, raw] of Object.entries(vars)) {
     if (!key.startsWith(PUBLIC_PREFIX) || raw === undefined || raw === "") continue;
@@ -197,8 +221,8 @@ export function validateEnv(vars: Record<string, string | undefined>): EnvValida
       continue;
     }
     const v = raw.trim();
-    if (SECRET_VALUE_PATTERNS.some((p) => p.test(v))) {
-      issues.push({ key, reason: "value 命中 server-secret 指纹（JWT/私钥/service-role 形态）" });
+    if (secretFingerprints(v).length || serverValues.some(value => v.includes(value))) {
+      issues.push({ key, reason: "value 命中已知凭据指纹，禁止进入客户端配置" });
     }
   }
 
@@ -214,20 +238,26 @@ export function assertEnv(vars: Record<string, string | undefined>): void {
   }
 }
 
-/** 解析 KEY=VALUE 文本（供 CLI/测试复用，忽略注释与空行，支持可选引号）。 */
-export function parseEnvText(text: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const line of text.split(/\r?\n/)) {
-    const t = line.trim();
-    if (!t || t.startsWith("#")) continue;
-    const eq = t.indexOf("=");
-    if (eq <= 0) continue;
-    const key = t.slice(0, eq).trim();
-    let value = t.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-      value = value.slice(1, -1);
+/** Reviewed template identity; these identifiers are placeholders, not live accounts. */
+export const E2E_ROLES = ["RESEARCHER", "TRADER", "APPROVER", "ADMIN"] as const;
+export function validateEnvExample(profile: EnvProfile, vars: Record<string, string | undefined>): EnvValidationResult {
+  const result = validateEnv(vars);
+  const issues = [...result.issues];
+  if (vars.NEXT_PUBLIC_QUANTOS_ENV !== profile) issues.push({ key: "NEXT_PUBLIC_QUANTOS_ENV", reason: "模板文件与指定 profile 不匹配" });
+  const identityKeys = E2E_ROLES.map(role => `QUANTOS_E2E_ACCOUNT_${role}`);
+  for (const [key, value] of Object.entries(vars)) {
+    if (!key.startsWith(PUBLIC_PREFIX) && !(profile === "staging" && identityKeys.includes(key))) {
+      issues.push({ key, reason: "Web 模板只能包含已审核公开配置及 staging 四类测试身份" });
     }
-    out[key] = value;
+    if (identityKeys.includes(key) && value && secretFingerprints(value).length) {
+      issues.push({ key, reason: "测试身份标识不得包含凭据" });
+    }
   }
-  return out;
+  if (profile === "staging") for (const role of E2E_ROLES) {
+    const key = `QUANTOS_E2E_ACCOUNT_${role}`;
+    if (vars[key] !== `e2e-${role.toLowerCase()}@staging.sumalpha.ai`) {
+      issues.push({ key, reason: "模板必须保留对应角色的非敏感 staging 占位标识；真实身份由目标环境注入" });
+    }
+  }
+  return { ok: !issues.length, issues };
 }

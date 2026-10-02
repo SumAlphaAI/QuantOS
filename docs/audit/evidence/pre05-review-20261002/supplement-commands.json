@@ -1,0 +1,117 @@
+{
+  "baseline": "16f34747c1b6232a0b2ef10ee15c04383f6f846c",
+  "results": [
+    {
+      "name": "duplicate-profiles-cli",
+      "command": [
+        "pnpm",
+        "check:pre05"
+      ],
+      "exit_code": 0,
+      "seconds": 0.296,
+      "log": "duplicate-profiles-cli.log"
+    },
+    {
+      "name": "duplicate-profiles-tests",
+      "command": [
+        "pnpm",
+        "test:pre05"
+      ],
+      "exit_code": 0,
+      "seconds": 0.513,
+      "log": "duplicate-profiles-tests.log"
+    },
+    {
+      "name": "missing-test-identities-cli",
+      "command": [
+        "pnpm",
+        "check:pre05"
+      ],
+      "exit_code": 0,
+      "seconds": 0.351,
+      "log": "missing-test-identities-cli.log"
+    },
+    {
+      "name": "missing-test-identities-tests",
+      "command": [
+        "pnpm",
+        "test:pre05"
+      ],
+      "exit_code": 0,
+      "seconds": 0.567,
+      "log": "missing-test-identities-tests.log"
+    },
+    {
+      "name": "absolute-cli-path",
+      "command": [
+        "node",
+        "packages/config/scripts/check-env.mjs",
+        "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-review-jofm7ufb/env/local-mock.env.example"
+      ],
+      "exit_code": 1,
+      "seconds": 0.078,
+      "log": "absolute-cli-path.log"
+    },
+    {
+      "name": "synthetic-secret-terminal-build",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 0,
+      "seconds": 6.689,
+      "log": "synthetic-secret-terminal-build.log"
+    },
+    {
+      "name": "auth-runtime-probes",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "exec",
+        "vitest",
+        "run",
+        "tests/pre05-audit-probe.test.ts"
+      ],
+      "exit_code": 0,
+      "seconds": 0.403,
+      "log": "auth-runtime-probes.log"
+    },
+    {
+      "name": "dotenv-parser-comparison",
+      "command": [
+        "node",
+        "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre05-review-jofm7ufb/pre05-dotenv-probe.mjs"
+      ],
+      "exit_code": 1,
+      "seconds": 0.078,
+      "log": "dotenv-parser-comparison.log"
+    },
+    {
+      "name": "dotenv-parser-comparison-retry",
+      "command": [
+        "node",
+        "parser-comparison.mjs",
+        "<archive-workspace>"
+      ],
+      "exit_code": 0,
+      "log": "dotenv-parser-comparison.log",
+      "reason": "resolve transitive @next/env from installed Next package"
+    },
+    {
+      "name": "synthetic-token-terminal-build",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "exit_code": 0,
+      "log": "synthetic-token-terminal-build.log",
+      "environment": "local-mock plus synthetic GitHub token shape as public client id; never actual credential"
+    }
+  ],
+  "mutation_scope": "temporary archive only, original source files restored; synthetic canary build; no target network"
+}
