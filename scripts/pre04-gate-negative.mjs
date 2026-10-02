@@ -61,3 +61,22 @@ test('nonexistent domain field mappings including the former engine-version anch
 });
 test('removed referenced core task is rejected', () => rejected(i => {i.corePlan = change(i.corePlan, '- task_id: `F06`', '- task_id: `Z99`');}, 'backend tasks resolve'));
 test('catalog source drift is rejected', () => rejected(i => {i.catalog.contracts.C02.publishedOperations.push('getCommandSummary');}, 'operation catalog identity'));
+
+test('empty implementation artifact lists are rejected for every implemented contract', () => {
+  for (const id of Object.keys(current.baseline.implementations)) rejected(i => {i.baseline.implementations[id].artifacts = [];}, 'requires complete contract-specific');
+});
+test('each missing implementation evidence category is rejected', () => {
+  for (const id of Object.keys(current.baseline.implementations)) for (let index = 0; index < 3; index++) rejected(i => {i.baseline.implementations[id].artifacts.splice(index, 1);}, 'requires complete contract-specific');
+});
+test('duplicate artifacts cannot substitute for test or receipt evidence', () => rejected(i => {
+  i.baseline.implementations.C01.artifacts[1] = i.baseline.implementations.C01.artifacts[0];
+}, 'requires complete contract-specific'));
+test('another contract receipt cannot substitute for required evidence', () => rejected(i => {
+  i.baseline.implementations.C01.artifacts = i.baseline.implementations.C10.artifacts;
+}, 'requires complete contract-specific'));
+test('unknown task suffixes are rejected in both backend task columns', () => {
+  for (const key of ['ledger', 'gaps']) for (const suffix of ['BFF-FE-999', 'Z999', 'unknown']) rejected(i => {i[key] = change(i[key], '| F06、L03 |', `| F06、L03、${suffix} |`);}, 'backend tasks resolve');
+});
+test('ambiguous cross-prefix ranges cannot impersonate reviewed backend tasks', () => {
+  for (const key of ['ledger', 'gaps']) rejected(i => {i[key] = change(i[key], '| S01、S02、S03、S04 |', '| S01–Z04 |');}, 'backend tasks resolve');
+});

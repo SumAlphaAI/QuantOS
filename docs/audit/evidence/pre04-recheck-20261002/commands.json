@@ -1,0 +1,249 @@
+{
+  "baseline": "ed388cba53ee79d189ebd8ef9323c49216ba19b8",
+  "workspace": "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre04-recheck-82_vh1wy",
+  "overlay_files": [
+    "docs/PRE-04-summary.md",
+    "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md",
+    "docs/audit/PRE-04-comprehensive-review-2026-10-02.md",
+    "docs/audit/evidence/pre04-recheck-20261002/attempt-1/bootstrap.log",
+    "docs/audit/evidence/pre04-recheck-20261002/attempt-1/commands.json",
+    "docs/audit/evidence/pre04-recheck-20261002/attempt-1/plans.log",
+    "docs/audit/evidence/pre04-recheck-20261002/attempt-1/pre01-negative.log",
+    "docs/audit/evidence/pre04-recheck-20261002/attempt-1/pre01.log",
+    "docs/audit/evidence/pre04-recheck-20261002/attempt-1/pre04-negative.log",
+    "docs/audit/evidence/pre04-recheck-20261002/attempt-1/pre04.log",
+    "docs/audit/evidence/pre04-recheck-20261002/before-probes.json",
+    "docs/audit/evidence/pre04-recheck-20261002/bootstrap.log",
+    "docs/audit/evidence/pre04-recheck-20261002/commands.json",
+    "docs/audit/evidence/pre04-recheck-20261002/finalize.py",
+    "docs/audit/evidence/pre04-recheck-20261002/manifest.json",
+    "docs/audit/evidence/pre04-recheck-20261002/plans.log",
+    "docs/audit/evidence/pre04-recheck-20261002/pre01-negative.log",
+    "docs/audit/evidence/pre04-recheck-20261002/pre01.log",
+    "docs/audit/evidence/pre04-recheck-20261002/pre04-negative.log",
+    "docs/audit/evidence/pre04-recheck-20261002/pre04.log",
+    "docs/audit/evidence/pre04-recheck-20261002/probes.json",
+    "docs/audit/evidence/pre04-recheck-20261002/probes.log",
+    "docs/audit/evidence/pre04-recheck-20261002/probes.mjs",
+    "docs/audit/evidence/pre04-recheck-20261002/replay.py",
+    "docs/audit/evidence/pre04-recheck-20261002/script-check.json",
+    "docs/audit/evidence/pre04-recheck-20261002/script-check.mjs",
+    "scripts/pre04-gate-negative.mjs",
+    "scripts/pre04-inventory.mjs"
+  ],
+  "scope": "fresh source and installed dependencies; existing offline download store; no build/database/target operations",
+  "results": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "pnpm",
+        "install",
+        "--frozen-lockfile",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "seconds": 2.419,
+      "log": "bootstrap.log"
+    },
+    {
+      "name": "pre04",
+      "command": [
+        "pnpm",
+        "check:pre04"
+      ],
+      "exit_code": 0,
+      "seconds": 0.241,
+      "log": "pre04.log"
+    },
+    {
+      "name": "pre04-negative",
+      "command": [
+        "pnpm",
+        "test:pre04"
+      ],
+      "exit_code": 0,
+      "seconds": 0.456,
+      "log": "pre04-negative.log"
+    },
+    {
+      "name": "pre01",
+      "command": [
+        "pnpm",
+        "check:pre01"
+      ],
+      "exit_code": 0,
+      "seconds": 0.184,
+      "log": "pre01.log"
+    },
+    {
+      "name": "pre01-negative",
+      "command": [
+        "pnpm",
+        "test:pre01"
+      ],
+      "exit_code": 0,
+      "seconds": 0.238,
+      "log": "pre01-negative.log"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "exit_code": 0,
+      "seconds": 0.187,
+      "log": "plans.log"
+    },
+    {
+      "name": "plan-negative",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ],
+      "exit_code": 0,
+      "seconds": 0.296,
+      "log": "plan-negative.log"
+    },
+    {
+      "name": "openapi",
+      "command": [
+        "pnpm",
+        "check:bff-openapi"
+      ],
+      "exit_code": 0,
+      "seconds": 0.185,
+      "log": "openapi.log"
+    },
+    {
+      "name": "generated",
+      "command": [
+        "pnpm",
+        "check:bff-generated"
+      ],
+      "exit_code": 0,
+      "seconds": 1.111,
+      "log": "generated.log"
+    },
+    {
+      "name": "coverage",
+      "command": [
+        "pnpm",
+        "check:bff-contract-coverage"
+      ],
+      "exit_code": 0,
+      "seconds": 0.239,
+      "log": "coverage.log"
+    },
+    {
+      "name": "pre06",
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ],
+      "exit_code": 0,
+      "seconds": 0.573,
+      "log": "pre06.log"
+    },
+    {
+      "name": "contract",
+      "command": [
+        "pnpm",
+        "test:contract"
+      ],
+      "exit_code": 0,
+      "seconds": 1.864,
+      "log": "contract.log"
+    },
+    {
+      "name": "bff000",
+      "command": [
+        "pnpm",
+        "check:bff-fe-000"
+      ],
+      "exit_code": 0,
+      "seconds": 0.188,
+      "log": "bff000.log"
+    },
+    {
+      "name": "bff000-negative",
+      "command": [
+        "pnpm",
+        "test:bff-fe-000"
+      ],
+      "exit_code": 0,
+      "seconds": 0.243,
+      "log": "bff000-negative.log"
+    },
+    {
+      "name": "bff001",
+      "command": [
+        "pnpm",
+        "check:bff-fe-001"
+      ],
+      "exit_code": 0,
+      "seconds": 0.188,
+      "log": "bff001.log"
+    },
+    {
+      "name": "bff001-negative",
+      "command": [
+        "pnpm",
+        "test:bff-fe-001"
+      ],
+      "exit_code": 0,
+      "seconds": 0.243,
+      "log": "bff001-negative.log"
+    },
+    {
+      "name": "bff007",
+      "command": [
+        "pnpm",
+        "check:bff-fe-007"
+      ],
+      "exit_code": 0,
+      "seconds": 0.188,
+      "log": "bff007.log"
+    },
+    {
+      "name": "bff007-negative",
+      "command": [
+        "pnpm",
+        "test:bff-fe-007"
+      ],
+      "exit_code": 0,
+      "seconds": 0.243,
+      "log": "bff007-negative.log"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "pnpm",
+        "lint"
+      ],
+      "exit_code": 0,
+      "seconds": 2.91,
+      "log": "lint.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "seconds": 4.437,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "unit",
+      "command": [
+        "pnpm",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 2.611,
+      "log": "unit.log"
+    }
+  ]
+}

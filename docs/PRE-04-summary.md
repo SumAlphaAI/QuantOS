@@ -1,7 +1,7 @@
 # PRE-04 执行总结与验收自检
 
-> 任务：P0 / PRE-04 接口盘点；版本：1.2；日期：2026-10-02。
-> 当前状态：仓库整改验收 PASS；16/16 控制点，9/9 原问题关闭。远端 CI、正式 G0、指定模型与目标环境未据此验收。
+> 任务：P0 / PRE-04 接口盘点；版本：1.3；日期：2026-10-02。
+> 当前状态：仓库再复验 PASS；16/16 控制点，9/9 原问题关闭。远端 CI、正式 G0、指定模型与目标环境未据此验收。
 
 ## 1. 当前产出
 
@@ -17,9 +17,9 @@
 
 `pnpm check:pre04` 校验17/17契约和Gap的完整唯一性、所有23个P0单元、PRE-01辅助契约、页面/核心/BFF任务/角色、published/planned状态、字段字典与实际schema一致性、完整operationId/method/path、Proto与JSON Schema身份及本地实现依据。
 
-`pnpm test:pre04` 的32项回归覆盖字段删除/假来源/类型与required漂移、同数量源替换、重复行、缺官网页、缺辅助契约、假任务/owner、错误Gap关闭、虚假mock升级、证据/fixture缺失和原生范围混入。Frontend Baseline继续调用正负Gate，并保留OpenAPI、生成漂移及PRE-01覆盖检查。
+`pnpm test:pre04` 的38项回归覆盖字段删除/假来源/类型与required漂移、同数量源替换、重复行、缺官网页、缺辅助契约、假任务/owner、错误Gap关闭、虚假mock升级、证据/fixture缺失、空或不完整实现证据、未知任务后缀/错误范围和原生范围混入。Frontend Baseline继续调用正负Gate，并保留OpenAPI、生成漂移及PRE-01覆盖检查。
 
-本轮完整验证见[整改记录](./audit/PRE-04-remediation-2026-10-02.md)和[证据清单](./audit/evidence/pre04-remediation-20261002/manifest.json)。[初审报告](./audit/PRE-04-comprehensive-review-history-2026-10-02.md)为修复前基线；[2026-09-16验收](./audit/PRE-04-acceptance-evidence-2026-09-16.md)仅代表其记录的历史SHA与环境。
+本轮完整验证见[当前复验报告](./audit/PRE-04-comprehensive-review-2026-10-02.md)和[证据清单](./audit/evidence/pre04-recheck-20261002/manifest.json)。[初审报告](./audit/PRE-04-comprehensive-review-history-2026-10-02.md)为修复前基线；[2026-09-16验收](./audit/PRE-04-acceptance-evidence-2026-09-16.md)仅代表其记录的历史SHA与环境。
 
 ## 3. 变更与维护
 

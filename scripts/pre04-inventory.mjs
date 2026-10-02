@@ -10,6 +10,16 @@ import { parse as parseYaml } from "yaml";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const contractIds = Array.from({ length: 17 }, (_, index) => `C${String(index + 1).padStart(2, "0")}`);
 const gapIds = contractIds.map((id) => `GAP-${id.slice(1)}`);
+// Required evidence is independent of the editable baseline artifact list.
+const implementationEvidence = Object.fromEntries([
+  ["C01", "auth_settings_provider", "001"],
+  ["C17", "auth_settings_provider", "001"],
+  ["C10", "audit_export_provider", "007"],
+].map(([id, test, task]) => [id, [
+  "services/bff-gateway/src/lib.rs",
+  `services/bff-gateway/tests/${test}.rs`,
+  `docs/audit/BFF-FE-${task}-acceptance-evidence-2026-09-16.md`,
+]]));
 const forbiddenPlaceholder = /待开发时再定|待定义|待补充|\bTBD\b|\bTODO\b/i;
 
 function section(markdown, heading, nextHeading) {
@@ -89,6 +99,7 @@ export function validatePre04Inventory(inputs) {
   for (const [id, evidence] of Object.entries(baseline.implementations)) {
     check(evidence.scope === "local-reference-only" && evidence.targetAcceptance === "NOT_RUN / NO_RECEIPT", `${id} implementation receipt is local only`);
     check(Boolean(catalog.contracts[id]?.publishedOperations.length), `${id} implementation requires published operations`);
+    check(same(evidence.artifacts.map(artifact => artifact.path).sort(), implementationEvidence[id]?.toSorted()), `${id} implementation requires complete contract-specific provider/test/receipt evidence`);
     for (const { path, sha256 } of evidence.artifacts) check(inputs.evidenceFiles[path] !== undefined && digest(inputs.evidenceFiles[path]) === sha256, `${id} provider/test/historical receipt matches ${path}`);
   }
   for (const [key, [source]] of Object.entries(baseline.domainMappings)) {
@@ -115,7 +126,7 @@ export function validatePre04Inventory(inputs) {
     check(Boolean(row[8]) && !forbiddenPlaceholder.test(row[8]), `${id} has an explicit mock status`);
     const spec = baseline.contracts[id];
     check(row[0] === `${id} ${spec.name}` && row[5] === spec.protoCoverage && same(row.slice(1, 4), spec.surface), `${id} capability and domain coverage match reviewed decisions`);
-    check(same(referencedTasks(row[4] ?? ""), spec.backendTasks) && spec.backendTasks.every(task => coreIds.has(task)), `${id} backend tasks resolve to reviewed core tasks`);
+    check(row[4] === spec.backendTasks.join("、") && spec.backendTasks.every(task => coreIds.has(task)), `${id} backend tasks resolve to reviewed core tasks`);
     check(row[7] === spec.owners && referencedTasks(row[7] ?? "").every(task => coreIds.has(task)), `${id} owners resolve to reviewed domain roles`);
     check(row[8] === expectedMockStatus(inputs, id), `${id} mock status matches published/fixture/provider evidence`);
     for (const path of [...spec.fixtures, ...spec.inventoryFixtures]) check(Boolean(inputs.fixtureFiles[path]), `${id} fixture exists: ${path}`);
@@ -141,7 +152,7 @@ export function validatePre04Inventory(inputs) {
     check(gapPages.every(page => knownPages.has(page)), `${gapId} pages resolve to phase-one PRE-01 pages`);
     const expectedPages = [...entry.pages, ...(contractId === "C01" ? ["GS", "WEB-06", "WEB-07"] : [])];
     check(same(gapPages, expectedPages), `${gapId} pages exactly match catalog and shared/website decisions`);
-    check(same(referencedTasks(row[4] ?? ""), spec.backendTasks) && referencedTasks(row[4] ?? "").every(task => coreIds.has(task)), `${gapId} backend tasks resolve to core plan`);
+    check(row[4] === spec.backendTasks.join("、") && referencedTasks(row[4] ?? "").every(task => coreIds.has(task)), `${gapId} backend tasks resolve to core plan`);
     const ownerTasks = (row[7] ?? "").split("/").map((task, index) => index ? `BFF-FE-${task}` : task);
     check(ownerTasks.every(task => frontendIds.has(task)) && same(ownerTasks, [entry.ownerTask, ...(entry.coOwnerTask ? [entry.coOwnerTask] : [])]), `${gapId} BFF tasks resolve to catalog and frontend plan`);
     check(row[8] === expectedGapStatus(inputs, contractId), `${gapId} status matches published/planned operations`);

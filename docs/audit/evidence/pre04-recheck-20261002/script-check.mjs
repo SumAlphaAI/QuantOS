@@ -1,0 +1,14 @@
+import { ESLint } from 'eslint';
+import globals from 'globals';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { renderFieldDictionary } from '../../../../scripts/pre04-fields.mjs';
+import { loadPre04Inputs } from '../../../../scripts/pre04-inventory.mjs';
+const lint = new ESLint({ overrideConfig: { files: ['scripts/pre04*.mjs'], languageOptions: { globals: globals.node } } });
+const results = await lint.lintFiles(['scripts/pre04-inventory.mjs','scripts/pre04-fields.mjs','scripts/pre04-render-fields.mjs','scripts/pre04-gate-negative.mjs']);
+const errors = results.reduce((total, result) => total + result.errorCount, 0);
+const warnings = results.reduce((total, result) => total + result.warningCount, 0);
+const input = loadPre04Inputs();const expected = renderFieldDictionary(input).markdown;
+const deterministic = expected === renderFieldDictionary(input).markdown && expected === readFileSync('docs/PRE-04-field-dictionary.md','utf8');
+const result = {script_lint:{files:results.length,errors,warnings,environment:'Node globals; repository rules unchanged'},renderer_deterministic:deterministic,fields:renderFieldDictionary(input).fieldRows,domain_mappings:Object.keys(input.baseline.domainMappings).length,diagnostics:results.filter(result=>result.messages.length).map(({filePath,messages})=>({filePath,messages}))};
+writeFileSync(new URL('script-check.json',import.meta.url),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));
+if(errors || !deterministic)process.exitCode=1;

@@ -1,0 +1,111 @@
+{
+  "closed": 9,
+  "open": 0,
+  "control_points": {
+    "pass": 16,
+    "partial": 0,
+    "fail": 0
+  },
+  "issues": [
+    {
+      "id": "H-01",
+      "original_severity": "高危",
+      "status": "CLOSED",
+      "verification": "383行字段与80项领域→wire锚忠于真实schema；包括旧engine_version来源修正",
+      "evidence": [
+        "pre04.log",
+        "script-check.json"
+      ],
+      "recheck_repair": false
+    },
+    {
+      "id": "H-02",
+      "original_severity": "高危",
+      "status": "CLOSED",
+      "verification": "字段完整性/语义、源身份及operation method/path失败关闭",
+      "evidence": [
+        "pre04-negative.log",
+        "probes.json"
+      ],
+      "recheck_repair": false
+    },
+    {
+      "id": "M-01",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "23个全一期P0单元与辅助契约一致",
+      "evidence": [
+        "pre04.log",
+        "pre04-negative.log"
+      ],
+      "recheck_repair": false
+    },
+    {
+      "id": "M-02",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "8Closed/2Partial/7Open按62published/46planned准确登记",
+      "evidence": [
+        "pre04.log",
+        "pre04-negative.log"
+      ],
+      "recheck_repair": false
+    },
+    {
+      "id": "M-03",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "Map前原始序列检查拒绝重复行",
+      "evidence": [
+        "pre04-negative.log",
+        "probes.json"
+      ],
+      "recheck_repair": false
+    },
+    {
+      "id": "M-04",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "页面/角色/核心/BFF任务映射一致；后端任务栏全文精确匹配，未知后缀与错误范围拒绝",
+      "evidence": [
+        "pre04-negative.log",
+        "probes.json"
+      ],
+      "recheck_repair": true
+    },
+    {
+      "id": "M-05",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "mock状态按发布面区分；本地实现强制契约对应provider/test/receipt完整证据，目标不冒充",
+      "evidence": [
+        "pre04-negative.log",
+        "contract.log",
+        "probes.json"
+      ],
+      "recheck_repair": true
+    },
+    {
+      "id": "M-06",
+      "original_severity": "中危",
+      "status": "CLOSED",
+      "verification": "一期Web与独立原生承接分开；移除L02原生owner误绑定",
+      "evidence": [
+        "pre04.log",
+        "pre04-negative.log"
+      ],
+      "recheck_repair": false
+    },
+    {
+      "id": "L-01",
+      "original_severity": "低危",
+      "status": "CLOSED",
+      "verification": "当前总结1.3/计划3.8、原始历史身份和链接一致",
+      "evidence": [
+        "plans.log",
+        "document-check.json"
+      ],
+      "recheck_repair": false
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "baseline": "ed388cba53ee79d189ebd8ef9323c49216ba19b8",
+  "workspace": "/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-pre04-recheck-fmxs7zr4",
+  "overlay_files": [
+    "docs/PRE-04-summary.md",
+    "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md",
+    "docs/audit/PRE-04-comprehensive-review-2026-10-02.md",
+    "docs/audit/evidence/pre04-recheck-20261002/before-probes.json",
+    "docs/audit/evidence/pre04-recheck-20261002/finalize.py",
+    "docs/audit/evidence/pre04-recheck-20261002/probes.mjs",
+    "docs/audit/evidence/pre04-recheck-20261002/replay.py",
+    "docs/audit/evidence/pre04-recheck-20261002/script-check.mjs",
+    "scripts/pre04-gate-negative.mjs",
+    "scripts/pre04-inventory.mjs"
+  ],
+  "scope": "fresh source and installed dependencies; existing offline download store; no build/database/target operations",
+  "results": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "pnpm",
+        "install",
+        "--frozen-lockfile",
+        "--offline"
+      ],
+      "exit_code": 0,
+      "seconds": 2.507,
+      "log": "bootstrap.log"
+    },
+    {
+      "name": "pre04",
+      "command": [
+        "pnpm",
+        "check:pre04"
+      ],
+      "exit_code": 0,
+      "seconds": 0.242,
+      "log": "pre04.log"
+    },
+    {
+      "name": "pre04-negative",
+      "command": [
+        "pnpm",
+        "test:pre04"
+      ],
+      "exit_code": 0,
+      "seconds": 0.458,
+      "log": "pre04-negative.log"
+    },
+    {
+      "name": "pre01",
+      "command": [
+        "pnpm",
+        "check:pre01"
+      ],
+      "exit_code": 0,
+      "seconds": 0.187,
+      "log": "pre01.log"
+    },
+    {
+      "name": "pre01-negative",
+      "command": [
+        "pnpm",
+        "test:pre01"
+      ],
+      "exit_code": 0,
+      "seconds": 0.236,
+      "log": "pre01-negative.log"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "exit_code": 1,
+      "seconds": 0.188,
+      "log": "plans.log"
+    }
+  ]
+}
