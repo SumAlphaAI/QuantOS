@@ -1,0 +1,306 @@
+{
+  "schema": "quantos-pre02-remediation-probes/v1",
+  "baseline": "c5347357ab518b4d58cb57bda93bbe5d8a0dfb5f",
+  "original_gate": "PASS",
+  "mutations": [
+    {
+      "id": "state-deny-success",
+      "description": "风险 deny 被映射为成功色",
+      "status": "FAIL",
+      "failures": [
+        "all Web token fields and values match reviewed baseline",
+        "stateColor semantics and token paths are frozen"
+      ]
+    },
+    {
+      "id": "state-invalid-path",
+      "description": "风险 deny 映射到不存在的 token",
+      "status": "FAIL",
+      "failures": [
+        "all Web token fields and values match reviewed baseline",
+        "stateColor semantics and token paths are frozen",
+        "dark: state.deny / surface.0 >= 4.5:1",
+        "dark: state.deny / surface.1 >= 4.5:1",
+        "dark: state.deny / surface.2 >= 4.5:1",
+        "light: state.deny / surface.0 >= 4.5:1",
+        "light: state.deny / surface.1 >= 4.5:1",
+        "light: state.deny / surface.2 >= 4.5:1"
+      ]
+    },
+    {
+      "id": "english-inverted",
+      "description": "英文危险语义反转但保持 key 非空",
+      "status": "FAIL",
+      "failures": [
+        "safety.nonExecutableProposal matches reviewed English safety copy"
+      ]
+    },
+    {
+      "id": "density-broken",
+      "description": "compact 控件高/padding 破坏",
+      "status": "FAIL",
+      "failures": [
+        "all Web token fields and values match reviewed baseline"
+      ]
+    },
+    {
+      "id": "focus-broken",
+      "description": "焦点环宽度清零并改为低对比度 token",
+      "status": "FAIL",
+      "failures": [
+        "all Web token fields and values match reviewed baseline"
+      ]
+    },
+    {
+      "id": "breakpoint-gap",
+      "description": "折叠上界改为 800，造成区间缺口",
+      "status": "FAIL",
+      "failures": [
+        "all Web token fields and values match reviewed baseline"
+      ]
+    },
+    {
+      "id": "typography-broken",
+      "description": "正文排版和基栅破坏",
+      "status": "FAIL",
+      "failures": [
+        "all Web token fields and values match reviewed baseline"
+      ]
+    },
+    {
+      "id": "inventory-replaced",
+      "description": "用任意名称替换危险确认组件，保持行数",
+      "status": "FAIL",
+      "failures": [
+        "common component identities are frozen"
+      ]
+    },
+    {
+      "id": "storybook-comment-only",
+      "description": "插件/扫描/视口/story 只留注释，不留可执行配置",
+      "status": "FAIL",
+      "failures": [
+        "Storybook config is the executable default export",
+        "Storybook includes @storybook/addon-essentials",
+        "Storybook includes @storybook/addon-a11y",
+        "Storybook includes @storybook/addon-interactions",
+        "Storybook executable scan roots are exact",
+        "Storybook executable framework is frozen",
+        "Storybook preview is the executable default export",
+        "Storybook initial theme and locale are frozen",
+        "Storybook preview configures theme",
+        "Storybook preview configures locale",
+        "Storybook providers consume executable globals",
+        "Storybook preview configures desktop1440",
+        "Storybook preview configures desktop1280",
+        "Storybook preview configures collapsed768",
+        "Storybook preview configures readonly390",
+        "Storybook executable contrast rule is enabled",
+        "StateBadge is the executable default story component",
+        "StateBadge exports executable localized Default",
+        "StateBadge exports executable localized ApprovalRequired",
+        "StateBadge exports executable localized Denied",
+        "StateBadge exports executable localized Stale",
+        "StateBadge exports executable localized UnknownFallback",
+        "StateBadge exports executable localized LightTheme",
+        "StateBadge exports executable localized ReadonlyViewport",
+        "LightTheme exercises the global provider",
+        "ReadonlyViewport exercises the readonly viewport"
+      ]
+    },
+    {
+      "id": "surface2-broken",
+      "description": "浮层背景改为与文字同色，未进入 36 对比度矩阵",
+      "status": "FAIL",
+      "failures": [
+        "all Web token fields and values match reviewed baseline",
+        "dark: text.primary / surface.2 >= 4.5:1",
+        "dark: text.secondary / surface.2 >= 4.5:1",
+        "dark: focus / surface.2 >= 3:1",
+        "dark: categorical.0 / surface.2 >= 3:1",
+        "dark: categorical.1 / surface.2 >= 3:1",
+        "dark: categorical.2 / surface.2 >= 3:1",
+        "dark: categorical.3 / surface.2 >= 3:1",
+        "dark: categorical.4 / surface.2 >= 3:1",
+        "dark: categorical.5 / surface.2 >= 3:1",
+        "dark: categorical.6 / surface.2 >= 3:1",
+        "dark: categorical.7 / surface.2 >= 3:1",
+        "dark: state.queued / surface.2 >= 4.5:1",
+        "dark: state.running / surface.2 >= 4.5:1",
+        "dark: state.succeeded / surface.2 >= 4.5:1",
+        "dark: state.failed / surface.2 >= 4.5:1",
+        "dark: state.cancelled / surface.2 >= 4.5:1",
+        "dark: state.allow / surface.2 >= 4.5:1",
+        "dark: state.deny / surface.2 >= 4.5:1",
+        "dark: state.approval_required / surface.2 >= 4.5:1",
+        "dark: state.draft / surface.2 >= 4.5:1",
+        "dark: state.risk_checking / surface.2 >= 4.5:1",
+        "dark: state.awaiting_approval / surface.2 >= 4.5:1",
+        "dark: state.command_ready / surface.2 >= 4.5:1",
+        "dark: state.submitted / surface.2 >= 4.5:1",
+        "dark: state.accepted / surface.2 >= 4.5:1",
+        "dark: state.partially_filled / surface.2 >= 4.5:1",
+        "dark: state.filled / surface.2 >= 4.5:1",
+        "dark: state.rejected / surface.2 >= 4.5:1",
+        "dark: state.expired / surface.2 >= 4.5:1",
+        "dark: state.live / surface.2 >= 4.5:1",
+        "dark: state.delayed / surface.2 >= 4.5:1",
+        "dark: state.stale / surface.2 >= 4.5:1",
+        "dark: state.unavailable / surface.2 >= 4.5:1",
+        "dark: state.matched / surface.2 >= 4.5:1",
+        "dark: state.investigating / surface.2 >= 4.5:1",
+        "dark: state.resolved / surface.2 >= 4.5:1",
+        "dark: state.unknown / surface.2 >= 4.5:1"
+      ]
+    }
+  ],
+  "contrast": [
+    {
+      "pair": "dark input border.strong/surface.0",
+      "ratio": 4.403847331059925,
+      "minimum": 3,
+      "context": "q-input border/background; component boundary, needs sufficient alternative visual identification"
+    },
+    {
+      "pair": "dark input border.strong/surface.1",
+      "ratio": 3.985298381443835,
+      "minimum": 3,
+      "context": "q-input on panel/dialog"
+    },
+    {
+      "pair": "dark categorical[0]/surface.0",
+      "ratio": 9.899413076023437,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[1]/surface.0",
+      "ratio": 7.248068262736837,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[2]/surface.0",
+      "ratio": 6.771347327783092,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[3]/surface.0",
+      "ratio": 11.038727229659873,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[4]/surface.0",
+      "ratio": 6.66185417359242,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[5]/surface.0",
+      "ratio": 9.585626975724763,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[6]/surface.0",
+      "ratio": 6.95777692220895,
+      "minimum": 3
+    },
+    {
+      "pair": "dark categorical[7]/surface.0",
+      "ratio": 7.186956189633094,
+      "minimum": 3
+    },
+    {
+      "pair": "light input border.strong/surface.0",
+      "ratio": 3.658649483500517,
+      "minimum": 3,
+      "context": "q-input border/background; component boundary, needs sufficient alternative visual identification"
+    },
+    {
+      "pair": "light input border.strong/surface.1",
+      "ratio": 3.8588001030578214,
+      "minimum": 3,
+      "context": "q-input on panel/dialog"
+    },
+    {
+      "pair": "light categorical[0]/surface.0",
+      "ratio": 3.550047401503275,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[1]/surface.0",
+      "ratio": 6.354014732057736,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[2]/surface.0",
+      "ratio": 6.736372015121215,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[3]/surface.0",
+      "ratio": 4.761167445738887,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[4]/surface.0",
+      "ratio": 6.134452451739392,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[5]/surface.0",
+      "ratio": 5.199480503364688,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[6]/surface.0",
+      "ratio": 5.724531957580283,
+      "minimum": 3
+    },
+    {
+      "pair": "light categorical[7]/surface.0",
+      "ratio": 7.0021914077251095,
+      "minimum": 3
+    },
+    {
+      "pair": "Storybook toolbar light: default StateBadge running / light surface.0",
+      "ratio": 6.354014732057736,
+      "minimum": 4.5,
+      "foreground": "#1D4ED8",
+      "background": "#F7F9FC",
+      "basis": "Effective provider-inherited foreground from rendered StateBadge markup against light surface.0",
+      "markup": "<div class=\"quantos-theme\" data-quantos-theme=\"light\" style=\"--q-color-scheme:light;--q-surface-0:#F7F9FC;--q-surface-1:#FFFFFF;--q-surface-2:#EEF2F7;--q-border:#D4DCE6;--q-border-strong:#73839A;--q-text-primary:#16202E;--q-text-secondary:#47576B;--q-text-disabled:#93A1B4;--q-brand:#0F766E;--q-brand-hover:#115E59;--q-brand-fg:#FFFFFF;--q-success:#047857;--q-warning:#92400E;--q-danger:#B91C1C;--q-info:#1D4ED8;--q-focus:#1D4ED8;--q-focus-width:2px;--q-font-sans:Inter, PingFang SC, Microsoft YaHei, system-ui, sans-serif;--q-font-mono:JetBrains Mono, SFMono-Regular, Consolas, monospace;--q-font-body-size:14px;--q-font-body-line:20px;--q-font-table-size:13px;--q-font-table-line:18px;--q-font-page-size:24px;--q-font-page-line:32px;--q-space-1:4px;--q-space-2:8px;--q-space-3:12px;--q-space-4:16px;--q-space-5:20px;--q-radius-sm:4px;--q-radius-md:6px;--q-radius-lg:10px;--q-control-height:28px;--q-row-height:32px\"><span role=\"status\" aria-label=\"运行中\" style=\"display:inline-flex;align-items:center;gap:4px;color:#1D4ED8;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">◆</span><span>运行中</span></span></div>"
+    }
+  ],
+  "runtime": [
+    {
+      "state": "running",
+      "status": "RENDERED",
+      "markup": "<span role=\"status\" aria-label=\"运行中\" style=\"display:inline-flex;align-items:center;gap:4px;color:#60A5FA;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">◆</span><span>运行中</span></span>"
+    },
+    {
+      "state": "some_future_enum",
+      "status": "RENDERED",
+      "markup": "<span role=\"status\" aria-label=\"未知/需升级\" style=\"display:inline-flex;align-items:center;gap:4px;color:#FBBF24;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">▲</span><span>未知/需升级</span></span>"
+    },
+    {
+      "state": "toString",
+      "status": "RENDERED",
+      "markup": "<span role=\"status\" aria-label=\"未知/需升级\" style=\"display:inline-flex;align-items:center;gap:4px;color:#FBBF24;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">▲</span><span>未知/需升级</span></span>"
+    },
+    {
+      "state": "constructor",
+      "status": "RENDERED",
+      "markup": "<span role=\"status\" aria-label=\"未知/需升级\" style=\"display:inline-flex;align-items:center;gap:4px;color:#FBBF24;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">▲</span><span>未知/需升级</span></span>"
+    },
+    {
+      "state": "__proto__",
+      "status": "RENDERED",
+      "markup": "<span role=\"status\" aria-label=\"未知/需升级\" style=\"display:inline-flex;align-items:center;gap:4px;color:#FBBF24;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">▲</span><span>未知/需升级</span></span>"
+    },
+    {
+      "state": "some_future_enum under light/en providers",
+      "status": "RENDERED",
+      "markup": "<div class=\"quantos-theme\" data-quantos-theme=\"light\" style=\"--q-color-scheme:light;--q-surface-0:#F7F9FC;--q-surface-1:#FFFFFF;--q-surface-2:#EEF2F7;--q-border:#D4DCE6;--q-border-strong:#73839A;--q-text-primary:#16202E;--q-text-secondary:#47576B;--q-text-disabled:#93A1B4;--q-brand:#0F766E;--q-brand-hover:#115E59;--q-brand-fg:#FFFFFF;--q-success:#047857;--q-warning:#92400E;--q-danger:#B91C1C;--q-info:#1D4ED8;--q-focus:#1D4ED8;--q-focus-width:2px;--q-font-sans:Inter, PingFang SC, Microsoft YaHei, system-ui, sans-serif;--q-font-mono:JetBrains Mono, SFMono-Regular, Consolas, monospace;--q-font-body-size:14px;--q-font-body-line:20px;--q-font-table-size:13px;--q-font-table-line:18px;--q-font-page-size:24px;--q-font-page-line:32px;--q-space-1:4px;--q-space-2:8px;--q-space-3:12px;--q-space-4:16px;--q-space-5:20px;--q-radius-sm:4px;--q-radius-md:6px;--q-radius-lg:10px;--q-control-height:28px;--q-row-height:32px\"><span role=\"status\" aria-label=\"Unknown / upgrade required\" style=\"display:inline-flex;align-items:center;gap:4px;color:#92400E;font-size:13px;line-height:18px;font-variant-numeric:tabular-nums\"><span aria-hidden=\"true\">▲</span><span>Unknown / upgrade required</span></span></div>"
+    }
+  ],
+  "browser_execution": "NOT_RUN",
+  "note": "Mutation PASS means the existing gate accepts deliberately broken input. SSR is not browser/axe acceptance."
+}

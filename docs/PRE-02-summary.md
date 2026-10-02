@@ -1,7 +1,7 @@
 # PRE-02 执行总结与验收自检
 
 > 任务：PRE-02 设计系统预研（FEP-0）  开发状态：`COMPLETED`  模型复审：`NOT_STARTED`
-> 版本：1.2  日期：2026-10-02
+> 版本：1.3  日期：2026-10-02
 
 ## 1. 交付物
 
@@ -32,6 +32,8 @@
 | 通用安全文案全部入 i18n | 达成 | safety.* 18/18 条；中文规范、英文受控译文、key/占位符与非空强制；state.* 同源消费 |
 
 补充验证：`pnpm --filter @sumalpha/ui typecheck`、`lint`、`test` 与 `build-storybook` 均须通过；Storybook 的 `.tsx`、UI 组件和测试均已纳入当前 TypeScript/构建链。当前执行证据见 [PRE-02 当前报告](./audit/PRE-02-comprehensive-review-2026-10-02.md)；[2026-09-16 验收记录](./audit/PRE-02-acceptance-evidence-2026-09-16.md)仅为历史基线。
+
+本轮再复验补齐 Storybook 对象展开/重复字段覆盖与未执行 JSX 的门禁遗漏；配置采用明确的声明式字段和无条件返回的 provider/Story 链。当前 27 项 Gate 回归、18 项 UI 测试通过，历史问题关闭依据归档于当前报告的复验证据中。
 
 ## 3. 边界与遗留
 

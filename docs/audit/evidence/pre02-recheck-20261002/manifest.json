@@ -1,0 +1,222 @@
+{
+  "schema": "quantos-pre02-recheck/v1",
+  "date": "2026-10-02",
+  "source_base_commit": "c5347357ab518b4d58cb57bda93bbe5d8a0dfb5f",
+  "binding": "base commit plus current file SHA-256; final commit is the containing Git commit",
+  "status": "PASS",
+  "initial_git_status": "CLEAN",
+  "issues_closed": [
+    "H-01",
+    "H-02",
+    "H-03",
+    "M-01",
+    "M-02",
+    "M-03",
+    "M-04",
+    "L-01"
+  ],
+  "open_counts": {
+    "blocker": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "controls": {
+    "passed": 14,
+    "total": 14
+  },
+  "supplemental_fix": "Reject declarative config overrides and JSX dead branches; five new negative regression cases",
+  "checks": [
+    {
+      "name": "gate",
+      "command": "node packages/ui/scripts/pre02-checks.mjs",
+      "exit_code": 0,
+      "log": "gate.log"
+    },
+    {
+      "name": "gate-tests",
+      "command": "node --test packages/ui/scripts/pre02-gate-negative.mjs",
+      "exit_code": 0,
+      "log": "gate-tests.log"
+    },
+    {
+      "name": "ui-tests",
+      "command": "/Users/anray/.nvm/versions/node/v24.12.0/bin/pnpm --filter @sumalpha/ui test",
+      "exit_code": 0,
+      "log": "ui-tests.log"
+    },
+    {
+      "name": "ui-typecheck",
+      "command": "/Users/anray/.nvm/versions/node/v24.12.0/bin/pnpm --filter @sumalpha/ui typecheck",
+      "exit_code": 0,
+      "log": "ui-typecheck.log"
+    },
+    {
+      "name": "ui-lint",
+      "command": "/Users/anray/.nvm/versions/node/v24.12.0/bin/pnpm --filter @sumalpha/ui lint",
+      "exit_code": 0,
+      "log": "ui-lint.log"
+    },
+    {
+      "name": "storybook-build",
+      "command": "/Users/anray/.nvm/versions/node/v24.12.0/bin/pnpm --filter @sumalpha/ui build-storybook",
+      "exit_code": 0,
+      "log": "storybook-build.log"
+    },
+    {
+      "name": "verification",
+      "command": "node docs/audit/evidence/pre02-recheck-20261002/verify.mjs",
+      "exit_code": 0,
+      "log": "verification.log"
+    },
+    {
+      "name": "browser",
+      "command": "node docs/audit/evidence/pre02-recheck-20261002/browser-check.mjs",
+      "exit_code": 0,
+      "log": "browser.log"
+    },
+    {
+      "name": "pre01",
+      "command": "node scripts/check-pre01.mjs",
+      "exit_code": 0,
+      "log": "pre01.log"
+    },
+    {
+      "name": "plans",
+      "command": "node scripts/check-development-plans.mjs",
+      "exit_code": 0,
+      "log": "plans.log"
+    },
+    {
+      "name": "pre06",
+      "command": "node scripts/check-pre06.mjs",
+      "exit_code": 0,
+      "log": "pre06.log"
+    },
+    {
+      "name": "g0",
+      "command": "node scripts/check-g0-records.mjs",
+      "exit_code": 0,
+      "log": "g0.log"
+    }
+  ],
+  "tests": {
+    "gate": 27,
+    "ui": 18,
+    "passed": 45,
+    "total": 45
+  },
+  "contrast_pairs": 252,
+  "browser": {
+    "engine": "Chromium",
+    "version": "151.0.7922.34",
+    "foundation_cases": 4,
+    "axe_serious_critical": 0,
+    "axe_review_items": [
+      "color-contrast"
+    ],
+    "computed_styles_contrast": "PASS"
+  },
+  "history": {
+    "prior_manifest": "docs/audit/evidence/pre02-remediation-20261002/manifest.json",
+    "hash_validation": "All prior manifest hashes verified against source_base_commit",
+    "report_archive": "docs/audit/PRE-02-remediation-review-2026-10-02.md",
+    "byte_identical": true,
+    "sha256": "126bbb076b2f96256e5f3660f2ee1ddb75ab9118bf296faf2986b7637c4683e6"
+  },
+  "sha256": {
+    ".github/workflows/frontend-baseline.yml": "4c24508a1111d224785c8d83818cd9783acbe27c47b09381e1482f38584c72f6",
+    "docs/PRE-01-page-ledger-and-stories.md": "b96d4864c51630801cba879c597e78974842e1df491dc5bb223e4ac410d06974",
+    "docs/PRE-02-component-inventory.md": "2b3833b5344ea943b269ae6fab69b3c6e518f10b12fa48bfe74cc1aaf4ea02f3",
+    "docs/PRE-02-design-system-baseline.json": "481897608777c95bad8da9abc5c0a03bdbb07042364667e887ea53d268b9e1e6",
+    "docs/PRE-02-summary.md": "0e3dab64f067aab3b8955caeedfb614296ed9fbca0b1da2479eb141800a500df",
+    "docs/SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md": "e3422d161e2e4bff28e1f3373921d650da463fde4eaf0c72bbd4d22a98ad7857",
+    "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md": "b19ba1531d09a4f4bb031d09780d5dd7f0b0a6e66166425aa71f7ef39e768e1a",
+    "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md": "3f6856c7cfe2be3ea28ba626f985d052c0c73917ccf48cd5e3b408194181616e",
+    "docs/adr/20260814-pre02-design-tokens.md": "a472a533bdd1ce530993fe8d5aa1735bf5d89baf7f686595c67d7425601576fb",
+    "docs/audit/PRE-02-acceptance-evidence-2026-09-16.md": "34fc6129429bced6c67bed9c24453603c7a82351a008fa9a1739777c22ebb681",
+    "docs/audit/PRE-02-comprehensive-review-2026-10-02.md": "b2a6ffbe10cf0cf427e570b1c6df9ddf80f7fb6ceaeaff07d180983d7ec270d6",
+    "docs/audit/PRE-02-comprehensive-review-history-2026-10-02.md": "64ad9bd08c2f5a10997431cd186f0829df67ed164c6756001cfaf9e812f74869",
+    "docs/audit/PRE-02-remediation-review-2026-10-02.md": "126bbb076b2f96256e5f3660f2ee1ddb75ab9118bf296faf2986b7637c4683e6",
+    "docs/audit/evidence/pre02-recheck-20261002/after-probes.json": "11e8d67135bcf29713dec3721fac2052f3b6eee032c30e85a4f13d233b9654e7",
+    "docs/audit/evidence/pre02-recheck-20261002/baseline.txt": "ca84e6c1bcb766e5bbbf59e97817653e66df0c9ed8dfae7dc54f40ebddde89cd",
+    "docs/audit/evidence/pre02-recheck-20261002/before-probes.json": "a8c9c1f9ace676d82a7925ef07d2dcac5e039834a70f30128a48a7fcbd462461",
+    "docs/audit/evidence/pre02-recheck-20261002/browser-check.mjs": "d6ad656b92be67278412fedae421eaf725eb6d916997df391af97d3a4114df5e",
+    "docs/audit/evidence/pre02-recheck-20261002/browser.json": "fdd1dae301061a20d873354458c4c494712d801996a80f779a64118cdc2e3743",
+    "docs/audit/evidence/pre02-recheck-20261002/browser.log": "28c4d235030d8c7f917421cf3cd5218151e57b5e89c1717cf47fadc5f128b7b6",
+    "docs/audit/evidence/pre02-recheck-20261002/closure.json": "7d74a445da8b5f781870c35611733a02300af7c8086510f77454888ba658b742",
+    "docs/audit/evidence/pre02-recheck-20261002/g0.log": "95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c",
+    "docs/audit/evidence/pre02-recheck-20261002/gate-tests.log": "647a471763322803f2e02934777d9c7bb44335025b3cffad8862dab2da07338f",
+    "docs/audit/evidence/pre02-recheck-20261002/gate.log": "77ad12075cf7ae3d663e5436076f6ad99cc839a5f8f18cdd9800ba0d6f24cc9d",
+    "docs/audit/evidence/pre02-recheck-20261002/plans.log": "a7a02d64bb4c7dc05831d228b2fe385957373320ec6a2aba45d26c75582656df",
+    "docs/audit/evidence/pre02-recheck-20261002/pre01.log": "e0a171eeeb07232db1993ab4de85723514a09aa409a3228949370f5f874e6e77",
+    "docs/audit/evidence/pre02-recheck-20261002/pre06.log": "b87030f8b1209e46ae8a6d772a2ac3434dd9fbd6c6b2022da246444ca8b79efa",
+    "docs/audit/evidence/pre02-recheck-20261002/storybook-build.log": "83561ced34e5a5620d0e5e5824e1732feba0a58c4ada1fd9f837e56ee3bb9787",
+    "docs/audit/evidence/pre02-recheck-20261002/ui-lint.log": "6a9a5f8137650cbadd60c7f0ffa411eedde9d2f711a85bf145eea247c64a377f",
+    "docs/audit/evidence/pre02-recheck-20261002/ui-tests.log": "11e4814131ccc0a441df74868283f8933838b8f70f87d151dd594639ef2f11b2",
+    "docs/audit/evidence/pre02-recheck-20261002/ui-typecheck.log": "34a80315c0026ea3f315ade3bdcf0ba1be9fd8cbc19212e81fa6ac8614da5f9f",
+    "docs/audit/evidence/pre02-recheck-20261002/verification.json": "afc5502138cca8795dd637c05992df9616e5b3ee0e88c7b0010e9f6af480b444",
+    "docs/audit/evidence/pre02-recheck-20261002/verification.log": "bf386a37589b92882b4f4cc3acec45ce032aa96c7b47c0c3d89e0116203bfef3",
+    "docs/audit/evidence/pre02-recheck-20261002/verify.mjs": "fb6d8bf1a32c16b78a230bbb84156fcb1847023bd3259a20481cf69fc334eb0f",
+    "docs/audit/evidence/pre02-remediation-20261002/baseline.txt": "817f5917b8a6c7fdda335594b5ffc7a1e7ffe00ea2d425498e4521d2f050626f",
+    "docs/audit/evidence/pre02-remediation-20261002/browser-check.mjs": "d6ad656b92be67278412fedae421eaf725eb6d916997df391af97d3a4114df5e",
+    "docs/audit/evidence/pre02-remediation-20261002/browser.json": "fdd1dae301061a20d873354458c4c494712d801996a80f779a64118cdc2e3743",
+    "docs/audit/evidence/pre02-remediation-20261002/browser.log": "28c4d235030d8c7f917421cf3cd5218151e57b5e89c1717cf47fadc5f128b7b6",
+    "docs/audit/evidence/pre02-remediation-20261002/closure.json": "54790c639499e5036d17e085da646ff7fd4f0826057edb844125b4b3f259507a",
+    "docs/audit/evidence/pre02-remediation-20261002/g0.log": "95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c",
+    "docs/audit/evidence/pre02-remediation-20261002/gate-tests.log": "c0307433534c9340068a05632093bcc092dd14522310caa4388365d188d57c73",
+    "docs/audit/evidence/pre02-remediation-20261002/gate.log": "77ad12075cf7ae3d663e5436076f6ad99cc839a5f8f18cdd9800ba0d6f24cc9d",
+    "docs/audit/evidence/pre02-remediation-20261002/plans.log": "a7a02d64bb4c7dc05831d228b2fe385957373320ec6a2aba45d26c75582656df",
+    "docs/audit/evidence/pre02-remediation-20261002/pre01.log": "e0a171eeeb07232db1993ab4de85723514a09aa409a3228949370f5f874e6e77",
+    "docs/audit/evidence/pre02-remediation-20261002/pre06.log": "b87030f8b1209e46ae8a6d772a2ac3434dd9fbd6c6b2022da246444ca8b79efa",
+    "docs/audit/evidence/pre02-remediation-20261002/storybook-build.log": "9acd7abd44557fa0bdb1f6fa2d6c77292ff12a1c1905a832ae74750fb15d1d3d",
+    "docs/audit/evidence/pre02-remediation-20261002/ui-lint.log": "0eb037ef6d81f5cb1c83fe3fbb5b3ee84094451aea39ddb13c66ad425c80d249",
+    "docs/audit/evidence/pre02-remediation-20261002/ui-tests.log": "401aa98004a61f35081415c7053b9de65aded3e043e74ab041e60c763357409f",
+    "docs/audit/evidence/pre02-remediation-20261002/ui-typecheck.log": "b0be91d9e9778a5ab297e2a4f12b2c78d7ea130bf77db751b2efc5c9f8a8e5e2",
+    "docs/audit/evidence/pre02-remediation-20261002/verification.json": "40f0ecd8687bd4aa6c31a5d43d0531229056a6914156572435f8fdaf902a86cc",
+    "docs/audit/evidence/pre02-remediation-20261002/verification.log": "bf386a37589b92882b4f4cc3acec45ce032aa96c7b47c0c3d89e0116203bfef3",
+    "docs/audit/evidence/pre02-remediation-20261002/verify.mjs": "fb6d8bf1a32c16b78a230bbb84156fcb1847023bd3259a20481cf69fc334eb0f",
+    "docs/audit/evidence/pre02-review-20261002/baseline.txt": "817f5917b8a6c7fdda335594b5ffc7a1e7ffe00ea2d425498e4521d2f050626f",
+    "docs/audit/evidence/pre02-review-20261002/findings.json": "ec8248f1e4e6c5c76bf307bf432d21e68c2a373c2dd82a5cf441b4043b98cd41",
+    "docs/audit/evidence/pre02-review-20261002/frozen-inputs.json": "cd2125d2eda46abb4557920eee78fa055766269af41489322f4dd8de79ccec86",
+    "docs/audit/evidence/pre02-review-20261002/gate-tests.log": "c5b4dc84e92881b48811a488d665c9d1fe3ff1156b3b6bfc7d0e6f5fb285e5ab",
+    "docs/audit/evidence/pre02-review-20261002/gate.log": "c291a96bb6274bdbf90b1d72c1a38011280f85a6406a9ca6db8d1609010540cc",
+    "docs/audit/evidence/pre02-review-20261002/plans.log": "a7a02d64bb4c7dc05831d228b2fe385957373320ec6a2aba45d26c75582656df",
+    "docs/audit/evidence/pre02-review-20261002/pre01.log": "e0a171eeeb07232db1993ab4de85723514a09aa409a3228949370f5f874e6e77",
+    "docs/audit/evidence/pre02-review-20261002/probes.json": "dcafab223ce57dd14b5994482927c0b08cb59199bbf8978a158a9bfae691a1f7",
+    "docs/audit/evidence/pre02-review-20261002/probes.log": "6a2917088e04c23e7df9b546308db9aa33a44077edc97e3bc1e6be7df0ea38ce",
+    "docs/audit/evidence/pre02-review-20261002/probes.mjs": "92fa7a29165a81451ba71c56fa1eb1a514c6effa7f84b24fe9593d4b92c9f70d",
+    "docs/audit/evidence/pre02-review-20261002/standards.json": "625022911ba1ab6a4fd54305bb5b9d9669c38a2c50aea2cd41ca20f7dd6ce733",
+    "docs/audit/evidence/pre02-review-20261002/storybook-build.log": "b29ebd6fb27dc41b9d9013e49623496b95f9b5515f5fef11ffd934c4d302e2cd",
+    "docs/audit/evidence/pre02-review-20261002/ui-lint.log": "0eb037ef6d81f5cb1c83fe3fbb5b3ee84094451aea39ddb13c66ad425c80d249",
+    "docs/audit/evidence/pre02-review-20261002/ui-tests.log": "830b93aa493f27173c29e57eac03fe7c281524acd5dfaaf3b6f540f4d5015d73",
+    "docs/audit/evidence/pre02-review-20261002/ui-typecheck.log": "b0be91d9e9778a5ab297e2a4f12b2c78d7ea130bf77db751b2efc5c9f8a8e5e2",
+    "package.json": "d02c27b2e796074ab396f56c6a0cdba8a25571f2f8abe0ea5a2ac46c3f7d315a",
+    "packages/ui/.storybook/main.ts": "0ed5aa02b761dcc4d256584da9f275ceb98d1993a465a7576317872711262881",
+    "packages/ui/.storybook/preview.tsx": "875845931961f6ec099b886a96f3cf8609e5078e4b55598bbc92a9eb0b462251",
+    "packages/ui/package.json": "9ecb479adfa8d16cd2682429f9e9b5e1b4357ec98277ab58ed70c60f9c0643be",
+    "packages/ui/scripts/pre02-checks.mjs": "510c6f1cc67311d959a4b088821f86a8c6f4865d6034b74329088b1deaf913d4",
+    "packages/ui/scripts/pre02-gate-negative.mjs": "ab4c6b6aed6cf1bdffda1bcb17667938daa48a8a22dddf9143980637da31a58a",
+    "packages/ui/src/components/StateBadge/StateBadge.stories.tsx": "ff9c193958016f5b1617ea8ba77759dc9fc9fff0f53919c5662b7c6f55025770",
+    "packages/ui/src/components/StateBadge/StateBadge.tsx": "c405925395d719829064d311a34b3037e9ebd4ced175472ff88241a12bf2b944",
+    "packages/ui/src/i18n/I18nProvider.tsx": "6ec947feee749f3c731047bf500873d915657d270adcb993f77f4ce42866295f",
+    "packages/ui/src/i18n/en.json": "279a0181884bdbc309400b13620072531a68ace3abb62a9829fef7e8513af5c7",
+    "packages/ui/src/i18n/zh-CN.json": "5de1c57809ce4323fd77fe3c4bd6658f13ee38513f1064cca0e241b07ee8599b",
+    "packages/ui/src/styles.css": "050a58d7c84e6945def9ef09999db82751de1622af7e13761a28c51bce6e1e7c",
+    "packages/ui/src/theme/ThemeProvider.tsx": "85563209896a111e487ac1a7bde8ccd8a1dd43eebffeec04be051c306f1e0e2d",
+    "packages/ui/src/tokens/index.ts": "dfa5bf21d91346098388c6860a42c16e81b98988bdaa3d6a050b723adc7d99df",
+    "packages/ui/src/tokens/tokens.json": "cdd0ba005520b4a9f047210862c6b4e3cca3b3ee8eaf49cb8475b8d99048307f",
+    "packages/ui/tests/state-badge.test.tsx": "9d378a2260dd10b7c833b13fa973341a9bfb146a23e93565f0e2e9cbc256a556",
+    "packages/ui/tests/ui.test.ts": "61ef1bb17bbd46482aad74b48237bedf5e3bd85cccde67564210f791037a8aa7",
+    "packages/ui/tests/ui103.test.tsx": "5db70fbbb5bba2495d68ce5dc23a095612414a7521235b60659c19808a0314ef",
+    "pnpm-lock.yaml": "74d9378f2fcca8196d1f72235ae9ff14a36373e97946d8fb2d0e26ca881e6050",
+    "proto/quantos/common/v1/common.proto": "8d02461f2197b52c7957ea5372c53813cbcda086907af9b8629927748fdec6e9"
+  },
+  "log_format": "New logs preserve content with trailing blank lines normalized",
+  "boundaries": {
+    "full_page_storybook_compatibility_visual_screenreader": "NOT_RUN",
+    "designated_model": "NOT_STARTED / NOT_RUN",
+    "formal_g0_new_signature": "NO NEW RECEIPT",
+    "database_provider_staging_remote_ci": "NOT_RUN"
+  }
+}

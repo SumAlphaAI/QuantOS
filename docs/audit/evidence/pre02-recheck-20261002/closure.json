@@ -1,0 +1,72 @@
+{
+  "schema": "quantos-pre02-recheck-closure/v1",
+  "date": "2026-10-02",
+  "scope": "repository PRE-02 requirements, foundation component and Gate",
+  "issues": [
+    {
+      "id": "H-01",
+      "severity": "高危",
+      "module": "StateBadge 未知状态",
+      "status": "CLOSED",
+      "resolution": "Own-property 与值类型检查；原型链名、新枚举及非字符串输入使用 unknown。SSR 与浏览器回归无异常，unknown 不接受伪造 allow label。",
+      "recheck": "Current source and replayed Gate/UI/browser evidence verified"
+    },
+    {
+      "id": "H-02",
+      "severity": "高危",
+      "module": "主题 / Storybook 基准组件",
+      "status": "CLOSED",
+      "resolution": "StateBadge 继承 ThemeProvider，显式覆盖和独立默认保留；浅主题 running 从 #60A5FA 改为实际 provider #1D4ED8，对比度 6.354:1。",
+      "recheck": "Current source and replayed Gate/UI/browser evidence verified"
+    },
+    {
+      "id": "H-03",
+      "severity": "高危",
+      "module": "PRE-02 Gate / CI",
+      "status": "CLOSED",
+      "resolution": "受控 Web token/译文/状态映射/组件身份基线与 TypeScript AST 门禁；原 10 类破坏全部拒绝，额外覆盖假注释、尺寸与未执行的 provider。 本轮补齐对象展开覆盖、重复配置覆盖和不执行的 JSX 分支；新增 5 项回归。校验无条件返回的 ThemeProvider → I18nProvider → Story 链，拒绝动态/歧义配置。",
+      "recheck": "Current source and replayed Gate/UI/browser evidence verified"
+    },
+    {
+      "id": "M-01",
+      "severity": "中危",
+      "module": "WCAG 基础矩阵 / 控件边界 token",
+      "status": "CLOSED",
+      "resolution": "两主题 border.strong 调整、浅主题 warning 调深；252 配对及浏览器实际状态文字/输入边界达标。axe color-contrast 待复核项单列，不冒充全站 AA。",
+      "recheck": "Current source and replayed Gate/UI/browser evidence verified"
+    },
+    {
+      "id": "M-02",
+      "severity": "中危",
+      "module": "token 单一来源 / StateBadge 样式",
+      "status": "CLOSED",
+      "resolution": "字号、行高、数值排版与 4px 间距直接消费 token；通过修改 token 后渲染跟随的行为测试。",
+      "recheck": "Current source and replayed Gate/UI/browser evidence verified"
+    },
+    {
+      "id": "M-03",
+      "severity": "中危",
+      "module": "Storybook locale / i18n 消费",
+      "status": "CLOSED",
+      "resolution": "25 状态及 unknown 双语同源；Badge/七示例跟随语言 provider，文字与 aria-label 一致。",
+      "recheck": "Current source and replayed Gate/UI/browser evidence verified"
+    },
+    {
+      "id": "M-04",
+      "severity": "中危",
+      "module": "一期范围 / 组件清单与 Gate",
+      "status": "CLOSED",
+      "resolution": "一期组件行仅绑定 P17；P16/native 由 Desktop 计划明确承接；移除 Web Gate 对 desktopMin 的强制，删除参考项的测试仍 PASS。",
+      "recheck": "Current source and replayed Gate/UI/browser evidence verified"
+    },
+    {
+      "id": "L-01",
+      "severity": "低危",
+      "module": "Storybook 源码说明",
+      "status": "CLOSED",
+      "resolution": "说明改为七个基准示例，明确全量领域八态由 UI-Pxx 验收。",
+      "recheck": "Current source and replayed Gate/UI/browser evidence verified"
+    }
+  ],
+  "base_commit": "c5347357ab518b4d58cb57bda93bbe5d8a0dfb5f"
+}

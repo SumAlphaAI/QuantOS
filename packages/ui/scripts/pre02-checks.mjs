@@ -78,25 +78,51 @@ function literal(node) {
   if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
   if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
   if (ts.isArrayLiteralExpression(node)) return node.elements.map(literal);
-  if (ts.isObjectLiteralExpression(node)) return Object.fromEntries(node.properties.filter(ts.isPropertyAssignment).map(p => [p.name.getText().replace(/^['"]|['"]$/g, ""), literal(p.initializer)]));
+  if (ts.isObjectLiteralExpression(node)) {
+    // This Gate accepts declarative configuration only. Spreads/computed keys
+    // cannot be safely ignored: they may override the fields being validated.
+    if (node.properties.some(p => !ts.isPropertyAssignment(p) || !(ts.isIdentifier(p.name) || ts.isStringLiteral(p.name)))) return undefined;
+    const names = node.properties.map(p => p.name.text);
+    if (new Set(names).size !== names.length) return undefined;
+    return Object.fromEntries(node.properties.map((p, i) => [names[i], literal(p.initializer)]));
+  }
   return undefined;
 }
 function declarations(text) {
-  const ast = source(text), result = {};
+  const ast = source(text), result = Object.create(null);
+  if (ast.parseDiagnostics.length) return { ast, result };
   for (const statement of ast.statements) if (ts.isVariableStatement(statement)) {
     for (const d of statement.declarationList.declarations) result[d.name.getText(ast)] = { value: literal(d.initializer), node: unwrap(d.initializer), exported: statement.modifiers?.some(m => m.kind === ts.SyntaxKind.ExportKeyword) };
   }
   return { ast, result };
 }
-function providerBound(ast, name, field, scope) {
-  let found = false;
-  function visit(node) {
-    if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) && node.tagName.getText(ast) === name) {
-      found ||= node.attributes.properties.some(p => ts.isJsxAttribute(p) && p.name.getText(ast) === field && p.initializer && ts.isJsxExpression(p.initializer) && p.initializer.expression?.getText(ast) === `context.globals.${field}`);
-    }
-    ts.forEachChild(node, visit);
-  }
-  if (scope) visit(scope); return found;
+function singleElementChild(element) {
+  if (!ts.isJsxElement(element)) return undefined;
+  const children = element.children.filter(child => !(ts.isJsxText(child) && !child.text.trim()) && !(ts.isJsxExpression(child) && !child.expression));
+  return children.length === 1 ? children[0] : undefined;
+}
+function boundProvider(node, name, field, ast) {
+  if (!node || !ts.isJsxElement(node) || node.openingElement.tagName.getText(ast) !== name) return false;
+  const attributes = node.openingElement.attributes.properties;
+  if (attributes.some(p => !ts.isJsxAttribute(p))) return false;
+  const names = attributes.map(p => p.name.getText(ast));
+  if (new Set(names).size !== names.length) return false;
+  const attribute = attributes.find(p => p.name.getText(ast) === field);
+  return attribute?.initializer && ts.isJsxExpression(attribute.initializer) && attribute.initializer.expression?.getText(ast) === `context.globals.${field}`;
+}
+function providerDecorator(ast, scope) {
+  // Only the returned, unconditional provider chain counts. Descendant searches
+  // would also match dead branches or JSX stored in an unused local function.
+  if (!scope || !ts.isArrayLiteralExpression(scope) || scope.elements.length !== 1) return false;
+  const arrow = unwrap(scope.elements[0]);
+  if (!ts.isArrowFunction(arrow) || arrow.parameters.length !== 2 || arrow.parameters[0].name.getText(ast) !== "Story" || arrow.parameters[1].name.getText(ast) !== "context") return false;
+  const theme = unwrap(arrow.body);
+  if (!boundProvider(theme, "ThemeProvider", "theme", ast)) return false;
+  const locale = singleElementChild(theme);
+  if (!boundProvider(locale, "I18nProvider", "locale", ast)) return false;
+  let content = singleElementChild(locale);
+  while (content && ts.isJsxElement(content) && /^[a-z]/.test(content.openingElement.tagName.getText(ast))) content = singleElementChild(content);
+  return Boolean(content && ts.isJsxSelfClosingElement(content) && content.tagName.getText(ast) === "Story" && content.attributes.properties.length === 0);
 }
 
 export function validatePre02({ tokens, en, zh, storybookMain, storybookPreview, stateBadgeStories, componentInventory }) {
@@ -185,7 +211,7 @@ export function validatePre02({ tokens, en, zh, storybookMain, storybookPreview,
   const mainSource = declarations(storybookMain);
   const main = mainSource.result.config?.value;
   check(mainSource.ast.statements.some(s => ts.isExportAssignment(s) && s.expression.getText(mainSource.ast) === "config"), "Storybook config is the executable default export");
-  for (const addon of ["@storybook/addon-essentials", "@storybook/addon-a11y", "@storybook/addon-interactions"]) check(main?.addons?.includes(addon), `Storybook includes ${addon}`);
+  for (const addon of ["@storybook/addon-essentials", "@storybook/addon-a11y", "@storybook/addon-interactions"]) check(Array.isArray(main?.addons) && main.addons.includes(addon), `Storybook includes ${addon}`);
   check(isDeepStrictEqual(main?.stories, ["../src/**/*.stories.@(ts|tsx)", "../../domain-ui/src/**/*.stories.@(ts|tsx)", "../../../apps/terminal/app/**/*.stories.@(ts|tsx)"]), "Storybook executable scan roots are exact");
   check(main?.framework?.name === "@storybook/react-vite", "Storybook executable framework is frozen");
   const { ast: previewAst, result: previewDeclarations } = declarations(storybookPreview);
@@ -194,7 +220,7 @@ export function validatePre02({ tokens, en, zh, storybookMain, storybookPreview,
   check(preview?.globalTypes?.theme?.defaultValue === "dark" && preview?.globalTypes?.locale?.defaultValue === "zh-CN", "Storybook initial theme and locale are frozen");
   for (const [field, values] of [["theme", ["dark", "light"]], ["locale", ["zh-CN", "en"]]]) check(isDeepStrictEqual(preview?.globalTypes?.[field]?.toolbar?.items, values), `Storybook preview configures ${field}`);
   const decoratorNode = previewDeclarations.preview?.node?.properties?.find(p => ts.isPropertyAssignment(p) && p.name.getText(previewAst) === "decorators")?.initializer;
-  check(providerBound(previewAst, "ThemeProvider", "theme", decoratorNode) && providerBound(previewAst, "I18nProvider", "locale", decoratorNode), "Storybook providers consume executable globals");
+  check(Boolean(preview) && providerDecorator(previewAst, decoratorNode), "Storybook providers consume executable globals");
   for (const [id, width, height] of [["desktop1440", "1440px", "900px"], ["desktop1280", "1280px", "800px"], ["collapsed768", "768px", "1024px"], ["readonly390", "390px", "844px"]]) check(isDeepStrictEqual(preview?.parameters?.viewport?.viewports?.[id]?.styles, { width, height }), `Storybook preview configures ${id}`);
   check(preview?.parameters?.a11y?.config?.rules?.some(rule => rule.id === "color-contrast" && rule.enabled === true) && previewDeclarations.preview?.node !== undefined, "Storybook executable contrast rule is enabled");
   const expectedBaselineStories = ["Default", "ApprovalRequired", "Denied", "Stale", "UnknownFallback", "LightTheme", "ReadonlyViewport"];

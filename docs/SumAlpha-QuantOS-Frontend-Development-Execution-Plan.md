@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.3
+> 版本：3.4
 > 更新时间：2026-10-02
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.4`：PRE-02 再复验补齐 Storybook 配置覆盖/死分支的门禁遗漏，27 项 Gate 回归与 18 项 UI 测试通过；主报告收敛为当前验收结果，历史问题和关闭依据独立归档。指定模型与正式 G0 状态不变。
 
 - `3.3`：PRE-02 关闭 8 项工程审计问题；冻结完整 Web token、受控译文、状态/组件身份及可执行 Storybook 配置，基础对比度扩展为 252 组。Badge 统一主题/语言与未知回退，原生参考由二期承接；指定模型与正式 G0 未据此验收。
 
@@ -131,7 +133,7 @@
 - 需求描述：设计系统预研
 - 主要动作：固化 token、密度、断点、主题、状态枚举、金融数值、图表、表格、危险动作模式
 - 产出：[Design token ADR](./adr/20260814-pre02-design-tokens.md)、[组件清单](./PRE-02-component-inventory.md)、Storybook 骨架；[受控规则基线](./PRE-02-design-system-baseline.json)。
-- 仓库复验：2026-10-02 PASS，14/14 控制点与 8/8 问题关闭；见[PRE-02 当前报告](./audit/PRE-02-comprehensive-review-2026-10-02.md)。一期 Web 验收不要求 P16/native，指定模型、正式 G0 与页面/目标环境验收独立记录。
+- 仓库复验：2026-10-02 再复验 PASS，14/14 控制点、原 8/8 问题关闭；27 项 Gate + 18 项 UI 回归、252 对比度配对和四组 Chromium 基础核验通过。见[PRE-02 当前报告](./audit/PRE-02-comprehensive-review-2026-10-02.md)及[复验清单](./audit/evidence/pre02-recheck-20261002/manifest.json)。一期 Web 验收不要求 P16/native，指定模型、正式 G0 与页面/目标环境验收独立记录。
 - 完成标准：WCAG 2.2 AA 基础检查通过；通用安全文案全部入 i18n
 
 <a id="review-pre-02"></a>

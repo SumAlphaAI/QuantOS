@@ -90,3 +90,27 @@ test("unexported configuration does not authorize a Storybook entry", () => {
 test("initial theme cannot contradict the dark default contract", () => {
   assert.equal(validatePre02({ ...current, storybookPreview: current.storybookPreview.replace('defaultValue: "dark"', 'defaultValue: "light"') }).status, "FAIL");
 });
+
+test("object spread cannot silently override required addons", () => {
+  const storybookMain = current.storybookMain.replace('staticDirs: ["../public"],', 'staticDirs: ["../public"], ...{ addons: [] },');
+  assert.notEqual(storybookMain, current.storybookMain);
+  assert.equal(validatePre02({ ...current, storybookMain }).status, "FAIL");
+});
+test("duplicate decorators cannot replace the validated provider tree", () => {
+  const storybookPreview = current.storybookPreview.replace('parameters: {', 'decorators: [], parameters: {');
+  assert.notEqual(storybookPreview, current.storybookPreview);
+  assert.equal(validatePre02({ ...current, storybookPreview }).status, "FAIL");
+});
+test("dead JSX branches are not executed provider decorators", () => {
+  const storybookPreview = current.storybookPreview.replace('=> <ThemeProvider', '=> false && <ThemeProvider');
+  assert.notEqual(storybookPreview, current.storybookPreview);
+  assert.equal(validatePre02({ ...current, storybookPreview }).status, "FAIL");
+});
+test("provider attributes cannot be overwritten through JSX spreads", () => {
+  const storybookPreview = current.storybookPreview.replace('theme={context.globals.theme}', 'theme={context.globals.theme} {...{ theme: "dark" }}');
+  assert.notEqual(storybookPreview, current.storybookPreview);
+  assert.equal(validatePre02({ ...current, storybookPreview }).status, "FAIL");
+});
+test("provider-only JSX without the Story consumer is rejected", () => {
+  assert.equal(validatePre02({ ...current, storybookPreview: current.storybookPreview.replace('<Story />', '<span />') }).status, "FAIL");
+});

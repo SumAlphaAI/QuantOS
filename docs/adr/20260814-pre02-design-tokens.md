@@ -77,7 +77,7 @@ FEP-0 必须在页面开发前冻结设计系统决策，避免逐页复制样�
 - 控件识别边界使用 border.strong：dark `#6B7D99`、light `#73839A`；default border 仅作装饰分隔，不可独自识别交互控件。浅主题 warning 改为 `#92400E`，确保在 surface.2 上普通状态文字达标。
 - 对比度矩阵 252 组：保留原 36 组；增加 surface.2 文本与焦点 6 组、控件边界 6 组、分类图形 48 组、25 状态及 unknown 在三背景/双主题 156 组。普通文字至少 4.5:1，必要图形、控件边界和焦点至少 3:1；disabled/decorative 例外不冒充有交互控件通过。
 - StateBadge 继承 ThemeProvider/I18nProvider，显式 prop 可覆盖；standalone 保留 dark/zh-CN 默认。只识别 own-property 合法映射，未知与非法运行值均使用 unknown，不抛错、不显示调用方伪造的 allow 标签；动作授权仍由消费方与服务端裁决。字号/行高/间距直接消费 token。
-- Storybook 使用 7 个基准示例，主题与语言由全局 provider 驱动；领域八态由下游 UI-Pxx 完成。AST 校验真实配置/导出，不以注释中的标记作为通过证据。
+- Storybook 使用 7 个基准示例，主题与语言由全局 provider 驱动；领域八态由下游 UI-Pxx 完成。AST 校验真实配置/导出，不以注释中的标记作为通过证据。配置限于声明式字段，拒绝对象展开、计算属性和重复字段；decorator 必须无条件返回 ThemeProvider → I18nProvider → Story 的实际嵌套链，允许中间的原生 DOM 包装，不接受 JSX 死分支或 provider 属性展开覆盖。复杂配置需显式扩展规则与回归，不能静默忽略不支持的表达式。
 
 ## 后果
 
