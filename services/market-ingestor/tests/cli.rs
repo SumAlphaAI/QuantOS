@@ -254,12 +254,22 @@ fn cli_supabase_fixture_and_recovery_paths() {
     let mut changed = serde_json::to_vec(&json).unwrap();
     changed.push(b'\n');
     fs::write(&ticks, changed).unwrap();
-    assert!(run(&args, &trace).status.success());
+    let result = run(&args, &trace);
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     let mut invalid: serde_json::Value =
         serde_json::from_slice(original.split(|b| *b == b'\n').next().unwrap()).unwrap();
     invalid["source_tick_id"] = "".into();
     fs::write(&ticks, serde_json::to_vec(&invalid).unwrap()).unwrap();
-    assert!(run(&args, &trace).status.success());
+    let result = run(&args, &trace);
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
     // A real failed delivery and authorized CLI dead-letter replay.
     let tenant_id = quantos_core::TenantId::parse_str(&tenant).unwrap();
     let mut store = quantos_event::pg::PgEventStore::connect_for_outbox_tenants(

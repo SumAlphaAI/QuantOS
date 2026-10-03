@@ -20,6 +20,7 @@ use std::{
     time::Duration,
 };
 
+mod binance;
 mod cli;
 use cli::{Cli, Command};
 
@@ -177,6 +178,34 @@ fn run(correlation: CorrelationId) -> Result<()> {
                 durable.watchdog(tenant, correlation, &provider, Utc::now())?;
                 std::thread::sleep(Duration::from_millis(250));
             }
+        }
+        Command::BinanceRest {
+            approvals,
+            provider,
+            tenant,
+            actor,
+            symbol,
+            from_id,
+            iterations,
+            limit,
+            poll_ms,
+            fixture,
+        } => {
+            binance::run(
+                binance::Config {
+                    approvals,
+                    provider,
+                    tenant: TenantId::parse_str(&tenant)?,
+                    actor: ActorId::parse_str(&actor)?,
+                    symbol,
+                    from_id,
+                    iterations,
+                    limit,
+                    poll_ms,
+                    fixture,
+                },
+                correlation,
+            )?;
         }
         Command::Dispatch {
             tenant,

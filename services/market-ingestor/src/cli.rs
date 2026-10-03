@@ -55,6 +55,30 @@ pub(super) enum Command {
         #[arg(long, default_value_t = false)]
         fixture: bool,
     },
+    /// Native Binance Spot REST aggregate trades, no API key. Cursor is stored in Supabase.
+    BinanceRest {
+        #[arg(long)]
+        approvals: PathBuf,
+        #[arg(long, default_value = "binance.spot.aggtrades")]
+        provider: String,
+        #[arg(long)]
+        tenant: String,
+        #[arg(long)]
+        actor: String,
+        #[arg(long, default_value = "BTCUSDT")]
+        symbol: String,
+        #[arg(long)]
+        from_id: Option<i64>,
+        #[arg(long, default_value_t = 10)]
+        iterations: usize,
+        #[arg(long, default_value_t = 1000)]
+        limit: usize,
+        #[arg(long, default_value_t = 1000)]
+        poll_ms: u64,
+        /// Loopback fixture transport is test-only, never a real provider receipt.
+        #[arg(long, default_value_t = false)]
+        fixture: bool,
+    },
     /// Reuse F05 outbox/inbox leases, retries, dead letters and durable checkpoint.
     Dispatch {
         #[arg(long)]

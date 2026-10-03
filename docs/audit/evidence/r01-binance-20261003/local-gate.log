@@ -1,0 +1,82 @@
+node ./scripts/check-r01.mjs
+R01 assembly Gate PASS; runtime, coverage and target Gates are separate.
+node --test ./scripts/r01-gate-negative.mjs ./scripts/r01-coverage-negative.mjs
+✔ complete coverage passes (0.44075ms)
+✔ lines below threshold fails (0.337084ms)
+✔ regions below threshold fails (0.429333ms)
+✔ branches below threshold fails (0.100166ms)
+✔ missing branch measurement fails (0.127833ms)
+✔ missing CLI source fails (0.230542ms)
+✔ current assembly passes (0.633667ms)
+✔ replay count regression fails closed (0.153792ms)
+✔ provider registry regression fails closed (0.123542ms)
+✔ source conflict regression fails closed (0.132292ms)
+✔ persistent writer regression fails closed (0.15025ms)
+✔ atomic transaction regression fails closed (0.119708ms)
+✔ F0 receipt regression fails closed (0.456542ms)
+✔ accepted dependency regression fails closed (0.157958ms)
+✔ CLI tests regression fails closed (0.127167ms)
+✔ CI assembly regression fails closed (0.145042ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 35.549583
+cargo test -p quantos-market --lib --locked
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.71s
+     Running unittests src/lib.rs (target/debug/deps/quantos_market-3f958c2c8750d096)
+
+running 13 tests
+test tests::freshness_and_quality_anomalies_emit_events_within_five_seconds ... ok
+test tests::processing_clock_detects_backlog_future_receive_and_future_event ... ok
+test tests::instrument_identity_is_unambiguous_and_venue_scoped ... ok
+test tests::failed_batch_does_not_publish_partial_ledger_or_identity ... ok
+test tests::rejects_unapproved_providers_and_normalizes_symbols ... ok
+test tests::invalid_numeric_ticks_emit_quality_with_raw_values_and_continue ... ok
+test tests::identity_is_tenant_scoped_and_conflicting_content_is_rejected ... ok
+test tests::provider_configuration_fails_closed_and_supports_revocation ... ok
+test tests::out_of_order_and_duplicate_ticks_are_deduplicated ... ok
+test tests::pure_domain_p95_under_fifty_milliseconds ... ok
+test tests::error_codes_and_io_failures_are_deterministic ... ok
+test tests::replay_and_parser_are_bounded_and_invalid_specs_return_errors ... ok
+test tests::replay_dataset_ingests_one_hundred_thousand_ticks_without_parse_failures ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.05s
+
+cargo test -p market-ingestor --locked
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+   Compiling market-ingestor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/market-ingestor)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.18s
+     Running unittests src/main.rs (target/debug/deps/market_ingestor-91bfbbc7b47846ff)
+
+running 2 tests
+test binance::tests::endpoint_cannot_redirect_native_calls_to_other_hosts ... ok
+test binance::tests::aggregate_mapping_identity_and_gap_boundaries ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/binance.rs (target/debug/deps/binance-e8881d49b17157f2)
+
+running 3 tests
+test supabase_pages_are_atomic_and_empty_polls_are_transport_health ... ok
+test cli_transport_outage_recovers_from_committed_cursor_and_restarts ... ok
+test cli_rejects_unbounded_and_unapproved_configuration ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+     Running tests/cli.rs (target/debug/deps/cli-e5cded3a4a70f5da)
+
+running 2 tests
+test cli_supabase_fixture_and_recovery_paths ... ok
+test cli_success_rejection_and_config_paths ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+/Library/Developer/CommandLineTools/usr/bin/make r01-mutation-check
+node ./scripts/r01-mutation-check.mjs
+R01 compiled mutation rejected: source-content-conflict
+R01 compiled mutation rejected: failed-append-identity

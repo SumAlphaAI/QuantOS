@@ -1,0 +1,103 @@
+{
+  "schema": "quantos-binance-live/v1",
+  "status": "PASS",
+  "sourceCommit": "c0eced69fc9f8b3fa2f4e71262663f770d0b9167",
+  "workingTreeModified": true,
+  "sourceHashes": {
+    "services/market-ingestor/src/binance.rs": "3b0d4dc993efa2dee58b1df55abd5185a6c335feab04e91965c7babb56fb1f84",
+    "services/market-ingestor/src/main.rs": "6aa4b4945490ab565490df1f6818b97877814073739ce52c46252d34cac3392e",
+    "services/market-ingestor/src/cli.rs": "12ce0c01688a8d8df8a1d25e6cf0f9f9832083ecd190a3fe525e2a34c2916434",
+    "crates/quantos-market/src/durable.rs": "743841e93e86134b333ccee3c963c54bb53add28dd1c988c3a97256525affbeb",
+    "crates/quantos-event/src/pg.rs": "472a6c11e29773c179ce352dda55311c6923989044d71853c4688e3e297402e1",
+    "supabase/migrations/20261003120000_r01_binance_cursor.sql": "da00634ca251fd88ad251d12c5dad9edb1b00fcab68d464b6f15efce0a08d2d7",
+    "docs/provider-approvals/20261003-binance-public-evaluation.json": "3b93ad615d776c86701173e077d1829e45808b95c3335ec9c53871f49201170e",
+    "docs/provider-approvals/20261003-binance-public-evaluation.md": "ab95f8073db1fe903286bb860aa53f87a819abe62fdc210a556f8a21b67aea7d"
+  },
+  "target": "configured Supabase + Binance public REST",
+  "provider": "binance.spot.aggtrades",
+  "symbol": "BTCUSDT",
+  "tenant": "b475b4c4-bf26-4a3c-ad81-3e210360603b",
+  "actor": "90c8557b-57a0-4ed5-91fb-70943cefa9c2",
+  "fixture": false,
+  "approval": "owner-authorized internal technical evaluation only",
+  "initial": {
+    "next_id": "4080033842",
+    "initial_id": "4080033833",
+    "last_response_at": "2026-10-03T08:26:31.450Z"
+  },
+  "resumed": {
+    "next_id": "4080033873",
+    "initial_id": "4080033833",
+    "last_response_at": "2026-10-03T08:26:56.136Z"
+  },
+  "deliberateDisconnect": {
+    "stoppedAt": "2026-10-03T08:26:33.117Z",
+    "pause_ms": 3000,
+    "referenceCount": 10,
+    "referenceReadback": "PASS"
+  },
+  "uniqueTicks": 40,
+  "duplicateReplay": 3,
+  "identitySpan": "PASS",
+  "delivery": {
+    "pending": 0,
+    "applied": 73,
+    "outbox": 73
+  },
+  "latency": {
+    "measurement": "source event_time to database ingested_at, includes catch-up",
+    "p95_ms": 19454,
+    "max_ms": 21884
+  },
+  "realSourceAnomalySla": "NOT_ASSERTED_BY_THIS_SUCCESSFUL_DATA_RUN",
+  "commercialApproval": "NOT VERIFIED",
+  "phases": [
+    {
+      "command": "binance-rest",
+      "elapsed_ms": 16921,
+      "exit": 0,
+      "output": "binance symbol=BTCUSDT input=3 next_id=4080033836 fixture=false correlation_id=01a100df-0262-7d43-9aab-a2f842f0a820\nbinance symbol=BTCUSDT input=5 next_id=4080033841 fixture=false correlation_id=01a100df-0262-7d43-9aab-a2f842f0a820\nbinance symbol=BTCUSDT input=1 next_id=4080033842 fixture=false correlation_id=01a100df-0262-7d43-9aab-a2f842f0a820"
+    },
+    {
+      "command": "public REST reference",
+      "elapsed_ms": 7379,
+      "count": 10
+    },
+    {
+      "command": "binance-rest",
+      "elapsed_ms": 14051,
+      "exit": 0,
+      "output": "binance source_unavailable=true cursor_unchanged=true correlation_id=01a100df-67b2-7671-b478-bc00d9659417\nbinance symbol=BTCUSDT input=28 next_id=4080033870 fixture=false correlation_id=01a100df-67b2-7671-b478-bc00d9659417\nbinance symbol=BTCUSDT input=3 next_id=4080033873 fixture=false correlation_id=01a100df-67b2-7671-b478-bc00d9659417"
+    },
+    {
+      "command": "ingest-source",
+      "elapsed_ms": 4884,
+      "exit": 0,
+      "output": "accepted=0 duplicates=3 rejected=0 fixture=false correlation_id=01a100df-c1fb-7130-848c-2e8125164be5"
+    },
+    {
+      "command": "dispatch",
+      "elapsed_ms": 18321,
+      "exit": 0,
+      "output": "processed=73 duplicate_skipped=0 dead_lettered=0 correlation_id=01a100df-d870-74a2-adf9-897c8103e426"
+    },
+    {
+      "command": "dispatch",
+      "elapsed_ms": 5575,
+      "exit": 0,
+      "output": "processed=0 duplicate_skipped=0 dead_lettered=0 correlation_id=01a100e0-1ffb-7c61-ad71-d6ee84953b6b"
+    },
+    {
+      "command": "dispatch",
+      "elapsed_ms": 3868,
+      "exit": 0,
+      "output": "processed=0 duplicate_skipped=0 dead_lettered=0 correlation_id=01a100e0-35c3-78f3-a44a-ca97f3fb0b8e"
+    },
+    {
+      "command": "dispatch",
+      "elapsed_ms": 4725,
+      "exit": 0,
+      "output": "processed=0 duplicate_skipped=0 dead_lettered=0 correlation_id=01a100e0-44de-7c70-b283-241d9a54bed5"
+    }
+  ]
+}

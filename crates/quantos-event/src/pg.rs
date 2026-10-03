@@ -208,6 +208,46 @@ impl PgEventStore {
         Ok(inserted)
     }
 
+    /// No speculative network cursor: only fully committed Binance pages advance this value.
+    pub fn binance_cursor(
+        &mut self,
+        tenant: TenantId,
+        provider: &str,
+        symbol: &str,
+    ) -> Result<Option<i64>, PgEventStoreError> {
+        Ok(self.client.query_typed_opt("select next_id from quantos.binance_ingestion_cursor where tenant_id=$1 and provider=$2 and symbol=$3", &[(tenant.as_uuid(), Type::UUID), (&provider, Type::TEXT), (&symbol, Type::TEXT)])?.map(|r| r.get(0)))
+    }
+    pub fn append_binance_page(
+        &mut self,
+        tenant: TenantId,
+        actor: ActorId,
+        provider: &str,
+        symbol: &str,
+        expected: i64,
+        page: &serde_json::Value,
+    ) -> Result<i64, PgEventStoreError> {
+        let row = self.client.query_typed_one(
+            "select quantos.append_binance_page($1,$2,$3,$4,$5,$6)",
+            &[
+                (tenant.as_uuid(), Type::UUID),
+                (actor.as_uuid(), Type::UUID),
+                (&provider, Type::TEXT),
+                (&symbol, Type::TEXT),
+                (&expected, Type::INT8),
+                (&Json(page), Type::JSONB),
+            ],
+        )?;
+        Ok(row.get(0))
+    }
+    pub fn binance_last_response(
+        &mut self,
+        tenant: TenantId,
+        provider: &str,
+        symbol: &str,
+    ) -> Result<Option<DateTime<Utc>>, PgEventStoreError> {
+        Ok(self.client.query_typed_opt("select last_response_at from quantos.binance_ingestion_cursor where tenant_id=$1 and provider=$2 and symbol=$3", &[(tenant.as_uuid(),Type::UUID), (&provider,Type::TEXT), (&symbol,Type::TEXT)])?.map(|r| r.get(0)))
+    }
+
     /// Session-local deadline for the single-statement market writer; no effect on other connections.
     pub fn configure_market_deadline(&mut self) -> Result<(), PgEventStoreError> {
         self.client

@@ -11,3 +11,5 @@ cargo run -p market-ingestor --locked -- ingest-replay --input /private/tmp/mark
 ```
 
 All write commands require an absolute writable trace exporter. Optional `QUANTOS_OBSERVABILITY_ADDR` exposes the shared loopback health/ready/metrics/trace surface. Configuration, persistent commands, rejection, reconnect, dead-letter replay and rollback are in [R01 Runbook](../../docs/runbooks/r01_market_ingestion.md). Schema compatibility is in [Market v2 ADR](../../docs/adr/20261002-r01-market-v2-durable-ingestion.md).
+
+原生 Binance 公共现货聚合成交使用 `binance-rest`；无需 API Key，原子 Supabase 游标与独立 watchdog 支持重启补偿。配置、授权范围和限流恢复见 [Runbook](../../docs/runbooks/r01_binance_rest.md)。

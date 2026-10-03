@@ -1,0 +1,36 @@
+
+running 1 test
+test supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter ... R01 abnormal_tick_commit_ns=305042417
+FAILED
+
+failures:
+
+failures:
+    supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.08s
+
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.97s
+     Running tests/postgres_ingestion.rs (target/debug/deps/postgres_ingestion-4d43b87424483617)
+
+thread '<unnamed>' (894514) panicked at crates/quantos-market/tests/postgres_ingestion.rs:109:91:
+called `Result::unwrap()` on an `Err` value: Store(Postgres(Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: None, code: SqlState(EXX000), message: "(EMAXCONNSESSION) max clients reached in session mode - max clients are limited to pool_size: 15", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: None, line: None, routine: None }) }))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread '<unnamed>' (894510) panicked at crates/quantos-market/tests/postgres_ingestion.rs:109:91:
+called `Result::unwrap()` on an `Err` value: Store(Postgres(Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: None, code: SqlState(EXX000), message: "(EMAXCONNSESSION) max clients reached in session mode - max clients are limited to pool_size: 15", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: None, line: None, routine: None }) }))
+
+thread '<unnamed>' (894515) panicked at crates/quantos-market/tests/postgres_ingestion.rs:109:91:
+called `Result::unwrap()` on an `Err` value: Store(Postgres(Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: None, code: SqlState(EXX000), message: "(EMAXCONNSESSION) max clients reached in session mode - max clients are limited to pool_size: 15", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: None, line: None, routine: None }) }))
+
+thread '<unnamed>' (894509) panicked at crates/quantos-market/tests/postgres_ingestion.rs:109:91:
+called `Result::unwrap()` on an `Err` value: Store(Postgres(Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: None, code: SqlState(EXX000), message: "(EMAXCONNSESSION) max clients reached in session mode - max clients are limited to pool_size: 15", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: None, line: None, routine: None }) }))
+
+thread '<unnamed>' (894507) panicked at crates/quantos-market/tests/postgres_ingestion.rs:109:91:
+called `Result::unwrap()` on an `Err` value: Store(Postgres(Error { kind: Db, cause: Some(DbError { severity: "FATAL", parsed_severity: None, code: SqlState(EXX000), message: "(EMAXCONNSESSION) max clients reached in session mode - max clients are limited to pool_size: 15", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: None, line: None, routine: None }) }))
+
+thread 'supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter' (894328) panicked at crates/quantos-market/tests/postgres_ingestion.rs:117:31:
+called `Result::unwrap()` on an `Err` value: Any { .. }
+error: test failed, to rerun pass `-p quantos-market --test postgres_ingestion`

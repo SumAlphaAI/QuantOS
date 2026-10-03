@@ -1,0 +1,52 @@
+
+running 2 tests
+test binance::tests::aggregate_mapping_identity_and_gap_boundaries ... ok
+test binance::tests::endpoint_cannot_redirect_native_calls_to_other_hosts ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 3 tests
+test cli_rejects_unbounded_and_unapproved_configuration ... ok
+test cli_transport_outage_recovers_from_committed_cursor_and_restarts ... Binance CLI source outage/restart/429/418/schema/gap/body-cap/bootstrap PASS
+ok
+test supabase_pages_are_atomic_and_empty_polls_are_transport_health ... Binance target atomic rollback/retry/restart/actor/watchdog/empty-health PASS
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 92.77s
+
+
+running 2 tests
+test cli_success_rejection_and_config_paths ... ok
+test cli_supabase_fixture_and_recovery_paths ... FAILED
+
+failures:
+
+failures:
+    cli_supabase_fixture_and_recovery_paths
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 28.81s
+
+warning: --branch option is unstable
+info: cargo-llvm-cov currently setting cfg(coverage) and cfg(coverage_nightly); you can opt-out it by passing --no-cfg-coverage and --no-cfg-coverage-nightly
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling market-ingestor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/market-ingestor)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.22s
+     Running unittests src/main.rs (target/llvm-cov-target/debug/deps/market_ingestor-05e1aeb3caa6c5cb)
+     Running tests/binance.rs (target/llvm-cov-target/debug/deps/binance-06d75ce47142ad79)
+     Running tests/cli.rs (target/llvm-cov-target/debug/deps/cli-b6f80d437fa0afc1)
+
+thread 'cli_supabase_fixture_and_recovery_paths' (931590) panicked at services/market-ingestor/tests/cli.rs:257:5:
+assertion failed: run(&args, &trace).status.success()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p market-ingestor --test cli`
+error: process didn't exit successfully: `/Users/anray/.rustup/toolchains/nightly-aarch64-apple-darwin/bin/cargo test --manifest-path /Users/anray/Documents/project/SumAlpha/QuantOS/Cargo.toml --target-dir /Users/anray/Documents/project/SumAlpha/QuantOS/target/llvm-cov-target -p quantos-market -p market-ingestor --locked --lib --bin market-ingestor --test cli --test binance -- --test-threads=1 --nocapture` (exit status: 101)

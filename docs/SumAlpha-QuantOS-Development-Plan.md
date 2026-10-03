@@ -561,11 +561,11 @@ flowchart TD
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-10-02 全面复审及整改验证完成；9 项关闭，B01 真实 provider 验收待完成。fixture Supabase/源码测试不能替代真实供应商回执，R01 未 ACCEPTED。
+- review_conclusion: 2026-10-03 Binance REST 原生接入与真实数据/断线补偿验证完成；9 项关闭，B01 的正式 SLA、部署和许可验收仍待完成，R01 未 ACCEPTED。
 - issues:
   - issue_id: B01
     severity: BLOCKER
-    description: 持久摄取及 Supabase fixture 闭环已实现；真实 provider 许可、adapter 与目标回执仍缺失
+    description: Binance REST 与真实数据补偿回执已取得；正式五秒异常 SLA、长期部署与商用许可未验收
     evidence: docs/audit/R01-remediation-validation-2026-10-02.md
     status: OPEN
   - issue_id: H01
@@ -615,10 +615,10 @@ flowchart TD
     status: CLOSED
 - fix_tracking:
   - issue_id: B01
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
+    fix_ref: docs/audit/R01-binance-rest-validation-2026-10-03.md
+    verification_command: node --env-file=.env.local scripts/r01-binance-live-check.cjs；r01-binance-target-check.cjs；coverage Gate
+    verification_environment: Binance 公共 REST 与配置 Supabase；真实数据/受控补偿及独立 fixture 故障测试
+    verification_evidence: docs/audit/evidence/r01-binance-20261003/index.json
     verification_status: PARTIAL
   - issue_id: H01
     fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md

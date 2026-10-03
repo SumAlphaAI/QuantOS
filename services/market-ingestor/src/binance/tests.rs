@@ -1,0 +1,108 @@
+use super::*;
+#[test]
+fn aggregate_mapping_identity_and_gap_boundaries() {
+    let now = Utc::now();
+    let good = br#"[{"a":7,"p":"100.1250","q":"2.00","T":1700000000000,"f":10,"l":12,"m":true}]"#;
+    let rows = decode(good, "p", "BTCUSDT", Some(7), now).unwrap();
+    assert_eq!(rows[0].source_tick_id, "BTCUSDT:agg:7");
+    assert_eq!(rows[0].price, "100.1250");
+    assert_eq!(rows[0].volume, "2.00");
+    assert_eq!(rows[0].received_at, now);
+    assert!(decode(good, "p", "BTCUSDT", Some(8), now).is_err());
+    assert!(
+        decode(good, "p", "ETHUSDT", None, now).unwrap()[0]
+            .source_tick_id
+            .starts_with("ETHUSDT:")
+    );
+    assert!(
+        decode(b"[]", "p", "BTCUSDT", Some(7), now)
+            .unwrap()
+            .is_empty()
+    );
+    assert!(decode(b"{}", "p", "BTCUSDT", None, now).is_err());
+    let base: serde_json::Value = serde_json::from_slice(good).unwrap();
+    for (field, value) in [
+        ("a", -1),
+        ("a", i64::MAX),
+        ("f", -1),
+        ("l", 9),
+        ("T", i64::MAX),
+    ] {
+        let mut bad = base.clone();
+        bad[0][field] = value.into();
+        assert!(
+            decode(
+                &serde_json::to_vec(&bad).unwrap(),
+                "p",
+                "BTCUSDT",
+                None,
+                now
+            )
+            .is_err()
+        );
+    }
+    let mut bad = base.clone();
+    bad[0]["p"] = serde_json::Value::Null;
+    assert!(
+        decode(
+            &serde_json::to_vec(&bad).unwrap(),
+            "p",
+            "BTCUSDT",
+            None,
+            now
+        )
+        .is_err()
+    );
+    let repeated = vec![base[0].clone(); 1001];
+    assert!(
+        decode(
+            &serde_json::to_vec(&repeated).unwrap(),
+            "p",
+            "BTCUSDT",
+            None,
+            now
+        )
+        .is_err()
+    );
+    assert!(
+        decode(
+            &serde_json::to_vec(&vec![base[0].clone(); 2]).unwrap(),
+            "p",
+            "BTCUSDT",
+            None,
+            now
+        )
+        .is_err()
+    );
+}
+#[test]
+fn endpoint_cannot_redirect_native_calls_to_other_hosts() {
+    for u in [
+        "https://data-api.binance.vision/",
+        "https://data-api.binance.vision:443/",
+    ] {
+        assert!(endpoint(u, false).is_ok());
+    }
+    for u in [
+        "http://localhost:123/",
+        "http://127.0.0.1:123/",
+        "http://[::1]:123/",
+    ] {
+        assert!(endpoint(u, true).is_ok());
+        assert!(endpoint(u, false).is_err());
+    }
+    for u in [
+        "garbage",
+        "http://data-api.binance.vision/",
+        "https://example.com/",
+        "https://data-api.binance.vision:444/",
+        "https://u@data-api.binance.vision/",
+        "https://:pw@data-api.binance.vision/",
+        "https://data-api.binance.vision/path",
+        "https://data-api.binance.vision/?a=1",
+        "https://data-api.binance.vision/#x",
+        "http://other.invalid/",
+    ] {
+        assert!(endpoint(u, true).is_err(), "{u}");
+    }
+}

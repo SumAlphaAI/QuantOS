@@ -98,6 +98,9 @@ fn supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter() {
     );
     assert_eq!(retry[0].sequence, 4);
     assert_eq!(retry[1].sequence, 5);
+    // Release idle clients before the eight-connection race on the shared Supabase pool.
+    drop(i);
+    drop(store);
     let barrier = Arc::new(Barrier::new(8));
     let mut threads = vec![];
     for _ in 0..8 {
@@ -119,6 +122,10 @@ fn supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter() {
             .count(),
         1
     );
+    let mut i = connect();
+    let mut store = PgEventStore::connect_for_outbox_tenants(&url, &[tenant])
+        .unwrap()
+        .with_aggregate_scope("market");
     let all = store.events_by_correlation_id(tenant, c).unwrap();
     assert_eq!(all.len(), 6);
     assert_eq!(

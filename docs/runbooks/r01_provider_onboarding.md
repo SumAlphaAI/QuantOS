@@ -1,12 +1,12 @@
 # R01 行情 provider 获取与审批配置指南
 
-日期：2026-10-02。当前工程没有真实行情 provider URL、许可/审批记录；B01 的真实供应商验收仍为 NOT RUN。环境变量由工程运维配置，供应商提供的是数据入口、账号/授权或合同，不会向 QuantOS 颁发环境变量。
+日期：2026-10-02；2026-10-03 更新：用户因无法访问 LLMQuant 官网决定暂用 Binance 公共现货行情；已新增原生 REST 接入与受控技术验证。配置/补偿见 [Binance REST Runbook](./r01_binance_rest.md)，结果见 [接入验证报告](../audit/R01-binance-rest-validation-2026-10-03.md)。长期生产/商用许可及正式 SLA 验收仍待完成。环境变量由工程运维配置，供应商提供的是数据入口、账号/授权或合同，不会向 QuantOS 颁发环境变量。
 
 ## 一、官方获取途径
 
 | 需要 | 官方入口及申请方式 | QuantOS 接入边界 |
 |---|---|---|
-| Binance 公共现货行情 | [官方 Market Data Only 文档](https://github.com/binance/binance-spot-api-docs/blob/master/faqs/market_data_only.md)：REST base `https://data-api.binance.vision`，公共 WebSocket `wss://data-stream.binance.vision`；官方明确不需要认证/API Key。先由项目负责人确认可用地区、网络、使用条款及用途，再进行只读连通性验证 | 原生 REST/WebSocket 不是 ingestor 的 JSONL 协议；需要批准的 adapter。不要申请交易/提现权限 |
+| Binance 公共现货行情 | [官方 Market Data Only 文档](https://github.com/binance/binance-spot-api-docs/blob/master/faqs/market_data_only.md)：REST base `https://data-api.binance.vision`，公共 WebSocket `wss://data-stream.binance.vision`；官方明确不需要认证/API Key。先由项目负责人确认可用地区、网络、使用条款及用途，再进行只读连通性验证 | 原生 REST 现由 `binance-rest` 命令适配；JSONL `poll-source` 仍不能直接接原生 API。不要申请交易/提现权限 |
 | Binance 历史行情 | [官方公共数据仓库说明](https://github.com/binance/binance-public-data)，下载入口 `https://data.binance.vision/`，按标的/日期选择数据、校验下载内容 | 转换 CSV/归档的时间单位、trade ID 与数值格式，作为历史数据使用；不能宣称实时 freshness 验收 |
 | Coinbase 商业历史数据 | [官方 Data Marketplace 产品](https://help.coinbase.com/en/data-marketplace/getting-started/data-marketplace-products)包括逐笔成交与 OHLCV；通过官方 Marketplace/帮助中心的联系入口咨询购买、地区和授权范围。购买后按[官方 SFTP 下载说明](https://help.coinbase.com/en/data-marketplace/access-data/download-files)及关联的 SSH/连接教程取得账号、上传公钥、下载已购买产品 | 这是付费历史文件交付，不是低延迟实时 endpoint；合同与 SSH 私钥只进受控秘密配置 |
 | LLMQuant 市场数据 MCP | [LLMQuant 项目](https://github.com/LLMQuant)、[data-mcp 仓库](https://github.com/LLMQuant/data-mcp)；在 [LLMQuant Data 官网](https://llmquantdata.com/)注册并进入 [Dashboard](https://llmquantdata.com/dashboard)创建 API Key，或生成 Remote MCP URL；具体流程见下节 | MCP 工具/REST 响应需由 adapter 转为 QuantOS 契约；历史 K 线、快照不能直接视为实时逐笔流或五秒 SLA |
@@ -67,6 +67,7 @@ npx @modelcontextprotocol/inspector npx -y @llmquant/data-mcp
 | 配置 | 当前 ingestor 支持 | 获取人/途径 |
 |---|---|---|
 | `DATABASE_URL` | 已有 Supabase 配置，直接使用 | 工程现有配置；不要申请/创建本地数据库 |
+| `QUANTOS_BINANCE_REST_BASE_URL` | `binance-rest` 原生 REST base，默认 `https://data-api.binance.vision/`，仅允许该官方 HTTPS 入口 | 无需申请账号/API Key；范围、授权和恢复见 [Binance Runbook](./r01_binance_rest.md) |
 | `QUANTOS_MARKET_SOURCE_URL` | `poll-source` 默认读取的 **HTTPS 标准化 JSONL adapter URL**；可用 `--endpoint-env` 指定其他变量名。禁止重定向与 URL userinfo | adapter 部署负责人提供；不能填原生 exchange REST、WebSocket、SFTP 或 MCP URL |
 | 批准文件路径 | **CLI `--approvals /absolute/path/approvals.json`**；目前没有内置 approval 环境变量 | 数据负责人批准后生成，运维部署受控文件 |
 | tenant/actor | **CLI `--tenant` / `--actor`**；目前没有内置对应环境变量 | Supabase 管理负责人提供现有有效 UUID |
@@ -80,7 +81,7 @@ npx @modelcontextprotocol/inspector npx -y @llmquant/data-mcp
 ## 四、审批后完成 B01 验收
 
 1. 先完成并审查 native provider→RawMarketTick adapter，确认 provider/source_tick_id/provider_symbol/event_time/received_at/price/volume 格式、稳定 ID、至少一次补偿及精度转换。
-2. 运维提供获准 adapter URL、批准文件和有效 tenant/actor，运行 `poll-source`（**不加 `--fixture`**）；再运行 `dispatch` 使 F05 checkpoint 前进。
+2. 运维提供获准 adapter URL、批准文件和有效 tenant/actor，运行 `poll-source`（**不加 `--fixture`**）；原生 Binance 使用 `binance-rest` 和其独立 base 配置；再运行 `dispatch` 使 F05 checkpoint 前进。
 3. 在配置的 Supabase 读回原始身份 hash、MarketEvent、outbox/inbox/checkpoint；验证同 ID 冲突、断流与恢复、重启去重、死信修复；量测从真实异常发生到持久事件发出的 ≤5s，单列消费延迟。
 4. 保存源码 SHA、批准版本、部署/网络环境、命令、计数、延迟分布及读回证据，独立复审后关闭 B01；fixture 的数据库/HTTP 测试不能替代此回执。
 

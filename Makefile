@@ -100,6 +100,12 @@ r01-check:
 	cargo test -p market-ingestor --locked
 	$(MAKE) r01-mutation-check
 
+r01-binance-target-check:
+	node ./scripts/r01-binance-target-check.cjs
+
+r01-binance-live-check:
+	node ./scripts/r01-binance-live-check.cjs
+
 r01-mutation-check:
 	node ./scripts/r01-mutation-check.mjs
 

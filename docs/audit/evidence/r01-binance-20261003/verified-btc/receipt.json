@@ -1,0 +1,87 @@
+{
+  "schema": "quantos-binance-live/v1",
+  "status": "PASS",
+  "sourceCommit": "c0eced69fc9f8b3fa2f4e71262663f770d0b9167",
+  "workingTreeModified": true,
+  "binarySha256": "1974f1b0c4736cf5ff3aff30b6a6ef1988f87cd8903fed3e8bc582e8dcf493e5",
+  "sourceHashes": {
+    "services/market-ingestor/src/binance.rs": "0b13af2f9f07f3740d5b21ffd431bb96666f446e1a837d647ff793158a9a3237",
+    "services/market-ingestor/src/main.rs": "6aa4b4945490ab565490df1f6818b97877814073739ce52c46252d34cac3392e",
+    "services/market-ingestor/src/cli.rs": "12ce0c01688a8d8df8a1d25e6cf0f9f9832083ecd190a3fe525e2a34c2916434",
+    "crates/quantos-market/src/durable.rs": "1aaf1e007726f534e29b5b9c5a86b59b24167c9283625f09fb8e1ffaf3d2d5c8",
+    "crates/quantos-event/src/pg.rs": "472a6c11e29773c179ce352dda55311c6923989044d71853c4688e3e297402e1",
+    "supabase/migrations/20261003120000_r01_binance_cursor.sql": "da00634ca251fd88ad251d12c5dad9edb1b00fcab68d464b6f15efce0a08d2d7",
+    "docs/provider-approvals/20261003-binance-public-evaluation.json": "3b93ad615d776c86701173e077d1829e45808b95c3335ec9c53871f49201170e",
+    "docs/provider-approvals/20261003-binance-public-evaluation.md": "ab95f8073db1fe903286bb860aa53f87a819abe62fdc210a556f8a21b67aea7d"
+  },
+  "target": "configured Supabase + Binance public REST",
+  "provider": "binance.spot.aggtrades",
+  "symbol": "BTCUSDT",
+  "tenant": "efa96512-eea1-4055-8844-a5ea7c712342",
+  "actor": "248beba3-8870-4101-9ff9-dff67c3297c4",
+  "fixture": false,
+  "approval": "owner-authorized internal technical evaluation only",
+  "initial": {
+    "next_id": "4080039140",
+    "initial_id": "4080039127",
+    "last_response_at": "2026-10-03T08:57:53.011Z"
+  },
+  "resumed": {
+    "next_id": "4080039172",
+    "initial_id": "4080039127",
+    "last_response_at": "2026-10-03T08:58:12.028Z"
+  },
+  "deliberateDisconnect": {
+    "stoppedAt": "2026-10-03T08:57:54.988Z",
+    "pause_ms": 3000,
+    "referenceCount": 10,
+    "referenceReadback": "PASS"
+  },
+  "uniqueTicks": 45,
+  "duplicateReplay": 3,
+  "identitySpan": "PASS",
+  "delivery": {
+    "pending": 0,
+    "applied": 72,
+    "outbox": 72
+  },
+  "latency": {
+    "measurement": "source event_time to database ingested_at, includes catch-up",
+    "p95_ms": 13468,
+    "max_ms": 13912,
+    "initial_phase_p95_ms": 2921
+  },
+  "realSourceAnomalySla": "NOT_ASSERTED_BY_THIS_SUCCESSFUL_DATA_RUN",
+  "commercialApproval": "NOT VERIFIED",
+  "phases": [
+    {
+      "command": "binance-rest",
+      "elapsed_ms": 13526,
+      "exit": 0,
+      "output": "binance symbol=BTCUSDT input=6 next_id=4080039133 fixture=false correlation_id=01a100fb-c3b1-73f3-b5ab-b2e58581181e\nbinance symbol=BTCUSDT input=5 next_id=4080039138 fixture=false correlation_id=01a100fb-c3b1-73f3-b5ab-b2e58581181e\nbinance symbol=BTCUSDT input=2 next_id=4080039140 fixture=false correlation_id=01a100fb-c3b1-73f3-b5ab-b2e58581181e"
+    },
+    {
+      "command": "public REST reference",
+      "elapsed_ms": 2759,
+      "count": 10
+    },
+    {
+      "command": "binance-rest",
+      "elapsed_ms": 12512,
+      "exit": 0,
+      "output": "binance symbol=BTCUSDT input=22 next_id=4080039162 fixture=false correlation_id=01a100fc-0cbb-7161-a011-7a4c8bf01831\nbinance symbol=BTCUSDT input=1 next_id=4080039163 fixture=false correlation_id=01a100fc-0cbb-7161-a011-7a4c8bf01831\nbinance symbol=BTCUSDT input=9 next_id=4080039172 fixture=false correlation_id=01a100fc-0cbb-7161-a011-7a4c8bf01831"
+    },
+    {
+      "command": "ingest-source",
+      "elapsed_ms": 3773,
+      "exit": 0,
+      "output": "accepted=0 duplicates=3 rejected=0 fixture=false correlation_id=01a100fc-466d-74a1-981a-d7d9bc5860c5"
+    },
+    {
+      "command": "dispatch",
+      "elapsed_ms": 5875,
+      "exit": 0,
+      "output": "processed=72 duplicate_skipped=0 dead_lettered=0 correlation_id=01a100fc-5632-7910-833b-e431172ed3c9"
+    }
+  ]
+}
