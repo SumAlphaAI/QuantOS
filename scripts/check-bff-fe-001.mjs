@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import YAML from "yaml";
+import { executionInputs, executionSources, digest, readExecutionProof, runExecutionProof } from "./bff-fe-001-execution.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const httpMethods = new Set(["get", "post", "put", "patch", "delete"]);
@@ -39,6 +40,11 @@ function hasHeader(operation, name) {
 
 export function loadBffFe001Inputs() {
   return {
+    ...executionInputs(root),
+    executionProof: readExecutionProof(root),
+    summary: text("docs/BFF-FE-001-summary.md"),
+    activeEvidenceExists: existsSync(resolve(root, "docs/audit/BFF-FE-001-remediation-2026-10-03.md")),
+    activeEvidence: JSON.parse(text("docs/audit/evidence/bff-fe-001-remediation-20261003/baseline.json")),
     openapi: YAML.parse(text("bff/openapi/quantos-bff.v1.yaml")),
     catalog: YAML.parse(text("bff/page-operation-catalog.yaml")),
     corePlan: text("docs/SumAlpha-QuantOS-Development-Plan.md"),
@@ -57,7 +63,22 @@ export function loadBffFe001Inputs() {
   };
 }
 
-export function validateBffFe001(inputs) {
+function unconditional(condition) {
+  return condition === undefined || condition === true || condition === "true" || condition === "${{ true }}";
+}
+function activeRun(workflow, commands) {
+  const doc = YAML.parse(workflow);
+  return Object.values(doc.jobs ?? {}).some(job => unconditional(job.if) && job["continue-on-error"] !== true && (job.steps ?? []).some(step => {
+    if (!unconditional(step.if) || step["continue-on-error"] === true) return false;
+    const lines = String(step.run ?? "").split("\n").map(line => line.trim()).filter(line => line && !line.startsWith("#"));
+    return commands.every(command => lines.some(line => line === command || line.split(/\s*&&\s*/).includes(command)));
+  }));
+}
+function activeRecipe(makefile, command) {
+  return makefile.split("\n").some(line => /^\t/.test(line) && !line.trim().startsWith("#") && line.trim() === command);
+}
+
+export function validateBffFe001(inputs, { structureOnly = false } = {}) {
   const failures = [];
   const operations = operationMap(inputs.openapi);
   const fail = (condition, message) => { if (!condition) failures.push(message); };
@@ -94,31 +115,32 @@ export function validateBffFe001(inputs) {
     fail(schemaRef === "#/components/schemas/AuditedAsyncAccepted", `${operationId} uses the audited acceptance envelope`);
   }
 
-  for (const marker of ["mutation_guard", "require_reauth", "LAST_FACTOR_PROTECTED", "permission_revoked", "SameSite=Strict", "access.request"]) {
-    fail(inputs.provider.includes(marker), `local reference provider implements ${marker}`);
+  if (!structureOnly) {
+    fail(inputs.executionProof?.status === "PASS" && inputs.executionProof?.results?.length === 2 && inputs.executionProof.results.every(r => r.exitCode === 0), "provider and consumer semantic regressions executed successfully");
+    for (const name of Object.keys(executionSources)) fail(inputs.executionProof?.sourceHashes?.[name] === digest(inputs[name]), `execution proof matches current ${name}`);
   }
-  for (const marker of ["authentication_csrf_and_resource_failures_fail_closed", "session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit", "current_session_and_last_mfa_factor_are_protected", "logout_expires_secure_http_only_same_site_cookie"]) {
-    fail(inputs.providerTests.includes(marker), `provider integration test covers ${marker}`);
-  }
-  fail(inputs.cargo.includes('"services/bff-gateway"'), "Rust workspace includes the BFF gateway reference provider");
-  fail(inputs.authClient.includes('headers["x-csrf-token"] = csrfToken') && inputs.authClient.includes("completeRecentAuth"), "auth client forwards CSRF and exposes recent-auth completion");
-  fail(inputs.settingsClient.includes("X-CSRF-Token") && inputs.settingsClient.includes("revokeMfaFactor"), "settings client forwards CSRF and supports MFA factor revoke");
 
   fail(inputs.packageJson.scripts?.["check:bff-fe-001"] === "node scripts/check-bff-fe-001.mjs", "package script exposes the BFF-FE-001 Gate");
-  fail(inputs.packageJson.scripts?.["test:bff-fe-001"] === "node --test scripts/bff-fe-001-gate-negative.mjs", "package script exposes BFF-FE-001 negative probes");
-  fail(inputs.makefile.includes("pnpm check:bff-fe-001") && inputs.makefile.includes("pnpm test:bff-fe-001"), "Makefile BFF contract Gate runs A2 positive and negative checks");
-  fail(inputs.makefile.includes("cargo test -p bff-gateway"), "Makefile exposes the local provider integration test");
-  fail(inputs.frontendWorkflow.includes("pnpm check:bff-fe-001 && pnpm test:bff-fe-001"), "Frontend Baseline CI runs the A2 contract Gate");
-  fail(inputs.ciWorkflow.includes("make bff-provider-test"), "main CI runs the Rust provider integration tests");
-  fail(inputs.summaryExists && inputs.evidenceExists, "A2 summary and acceptance evidence are checked in");
+  fail(inputs.packageJson.scripts?.["test:bff-fe-001"] === "node --test scripts/bff-fe-001-gate-negative.mjs && node scripts/test-bff-fe-001-mutations.mjs && node --test scripts/f09-migration-ledger.test.cjs", "package script exposes BFF-FE-001 negative probes");
+  fail(activeRecipe(inputs.makefile, "pnpm check:bff-fe-001") && activeRecipe(inputs.makefile, "pnpm test:bff-fe-001"), "Makefile BFF contract Gate runs A2 positive and negative checks");
+  fail(inputs.makefile.split("\n").some(line => /^\tcargo test -p bff-gateway(?:\s|$)/.test(line)), "Makefile exposes the local provider integration test");
+  fail(activeRun(inputs.frontendWorkflow, ["pnpm check:bff-fe-001", "pnpm test:bff-fe-001"]), "Frontend Baseline CI runs the A2 contract Gate");
+  fail(activeRun(inputs.ciWorkflow, ["make bff-provider-test"]), "main CI runs the Rust provider integration tests");
+  fail(inputs.summaryExists && inputs.evidenceExists, "A2 historical summary and acceptance evidence are retained");
+  fail(inputs.activeEvidenceExists, "active remediation evidence file exists");
+  fail(inputs.activeEvidence.apiVersion === inputs.openapi.info.version && inputs.activeEvidence.operationCount === operations.size && inputs.activeEvidence.schemaCount === Object.keys(inputs.openapi.components.schemas).length, "active evidence inventory matches current OpenAPI");
+  fail(inputs.summary.includes(`API ${inputs.openapi.info.version}`) && inputs.summary.includes("BFF-FE-001-remediation-2026-10-03.md") && inputs.activeEvidence.stagingStatus === "DEFERRED_TO_FINAL_REVIEW", "active summary identifies current evidence and final-review boundary");
 
   return { status: failures.length ? "FAIL" : "PASS", scope: "local_contract", failures, operations: requiredOperations.length };
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const report = validateBffFe001(loadBffFe001Inputs());
+  const inputs = loadBffFe001Inputs();
+  const structural = validateBffFe001(inputs, { structureOnly: true });
+  if (structural.status === "PASS") inputs.executionProof = runExecutionProof(root);
+  const report = validateBffFe001(inputs);
   if (report.failures.length) {
     report.failures.forEach((failure) => console.error(`FAIL  ${failure}`));
     process.exitCode = 1;
-  } else console.log(`BFF-FE-001 local contract Gate PASS: ${report.operations} C01/C17 operations, cookie session, CSRF, recent-auth, MFA protection, audit and revocation stream checks. F06 target acceptance requires make f06-acceptance-gate.`);
+  } else console.log(`BFF-FE-001 local contract Gate PASS: ${report.operations} C01/C17 operations, structure plus executed provider/consumer semantics. Live Supabase/staging evidence remains separate. F06 target acceptance requires make f06-acceptance-gate.`);
 }

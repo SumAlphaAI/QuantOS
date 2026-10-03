@@ -1024,6 +1024,14 @@ export interface components {
         };
         AuditedAsyncAccepted: components["schemas"]["AsyncAccepted"] & {
             auditRef: components["schemas"]["UUID"];
+            mfaEnrollment?: components["schemas"]["MfaEnrollment"];
+        };
+        MfaEnrollment: {
+            factorRef: components["schemas"]["UUID"];
+            /** @enum {string} */
+            delivery: "one_time" | "restart_required";
+            /** @description One-time otpauth enrollment URI for the authenticated user only; never persist, log, cache or send to analytics. Idempotent job replay omits this material. */
+            uri?: string;
         };
         ReauthRequest: {
             challengeRef: components["schemas"]["UUID"];
@@ -1119,6 +1127,10 @@ export interface components {
             currentDevice: boolean;
         };
         SecuritySettings: {
+            /** @description Server-enabled enrollment methods. WebAuthn requires a separately enabled provider capability; unavailable methods fail closed. */
+            availableMfaMethods?: ("authenticator" | "passkey")[];
+            /** @description Fresh IdP-authentication grant scoped only to enrollment of the first factor and cancellation of an unverified enrollment; never authorizes other security mutations. */
+            firstFactorSetupRef?: components["schemas"]["UUID"];
             /** @enum {string} */
             posture: "strong" | "attention_required" | "unknown";
             score: number;

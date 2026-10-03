@@ -104,16 +104,27 @@ export function zodSchema(schema) {
   return expression;
 }
 
-function renderZod(schemas, version) {
+function renderZod(schemas, version, doc) {
   const declarations = Object.entries(schemas).map(([name, schema]) =>
     `export const ${name}Schema = ${zodSchema(schema)};`,
   );
   const registry = Object.keys(schemas).map((name) => `  ${name}: ${name}Schema,`).join("\n");
+  const responses = Object.values(doc.paths).flatMap((item) => Object.entries(item)
+    .filter(([method, operation]) => HTTP_METHODS.has(method) && operation.operationId)
+    .map(([, operation]) => {
+      const statuses = Object.entries(operation.responses).map(([status, response]) => {
+        if (response.$ref) response = doc.components.responses[response.$ref.split("/").at(-1)];
+        const schema = response.content?.["application/json"]?.schema;
+        return `    ${JSON.stringify(status)}: ${schema ? zodSchema(schema) : "z.undefined()"},`;
+      });
+      return `  ${JSON.stringify(operation.operationId)}: {\n${statuses.join("\n")}\n  },`;
+    })).join("\n");
   return `/* eslint-disable */\n` +
     `// Generated from bff/openapi/quantos-bff.v1.yaml (${version}). Do not edit.\n` +
     `import { z } from "zod";\n\n` +
     `${declarations.join("\n\n")}\n\n` +
-    `export const bffZodSchemas = {\n${registry}\n} as const;\n`;
+    `export const bffZodSchemas = {\n${registry}\n} as const;\n\n` +
+    `export const bffResponseSchemas = {\n${responses}\n} as const;\n`;
 }
 
 function responseSchemaName(operation) {
@@ -196,7 +207,7 @@ export function generateBffContracts(outputRoot = repoRoot) {
   };
 
   const outputs = {
-    [GENERATED_FILES.zod]: renderZod(doc.components?.schemas ?? {}, doc.info.version),
+    [GENERATED_FILES.zod]: renderZod(doc.components?.schemas ?? {}, doc.info.version, doc),
     [GENERATED_FILES.schemas]: json(schemaDocument),
     [GENERATED_FILES.operations]: json({
       source: "bff/openapi/quantos-bff.v1.yaml",

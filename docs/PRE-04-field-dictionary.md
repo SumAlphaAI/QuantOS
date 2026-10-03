@@ -30,7 +30,7 @@
 | ErrorEnvelope | {"type":"object","required":["code","message","correlationId"],"properties":{"code":{"type":"string"},"message":{"type":"string"},"correlationId":{"$ref":"#/components/schemas/UUID"},"fieldErrors":{"type":"object","additionalProperties":{"type":"string"}},"retryAfter":{"type":"integer","minimum":0},"currentVersion":{"type":"string"}},"additionalProperties":false} |
 | Page | {"type":"object","required":["items"],"properties":{"items":{"type":"array","items":{}},"nextCursor":{"type":"string"}}} |
 | AsyncAccepted | {"type":"object","required":["jobId","status","correlationId"],"properties":{"jobId":{"$ref":"#/components/schemas/UUID"},"status":{"type":"string","enum":["accepted","cancel_requested"]},"correlationId":{"$ref":"#/components/schemas/UUID"}}} |
-| AuditedAsyncAccepted | {"allOf":[{"$ref":"#/components/schemas/AsyncAccepted"},{"type":"object","required":["auditRef"],"properties":{"auditRef":{"$ref":"#/components/schemas/UUID"}}}]} |
+| AuditedAsyncAccepted | {"allOf":[{"$ref":"#/components/schemas/AsyncAccepted"},{"type":"object","required":["auditRef"],"properties":{"auditRef":{"$ref":"#/components/schemas/UUID"},"mfaEnrollment":{"$ref":"#/components/schemas/MfaEnrollment"}}}]} |
 | StreamEvent | {"type":"object","required":["streamId","sequence","eventId","occurredAt","correlationId","payloadVersion","payload"],"properties":{"streamId":{"$ref":"#/components/schemas/UUID"},"sequence":{"type":"integer","format":"int64","minimum":1},"eventId":{"$ref":"#/components/schemas/UUID"},"occurredAt":{"$ref":"#/components/schemas/DateTime"},"correlationId":{"$ref":"#/components/schemas/UUID"},"payloadVersion":{"type":"string","enum":["v1","1"]},"payload":{"type":"object"}}} |
 
 ## 2. C01 Session/Context
@@ -486,6 +486,8 @@
 | MfaFactor.createdAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:MfaFactor.createdAt |
 | MfaFactor.lastUsedAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:MfaFactor.lastUsedAt |
 | MfaFactor.currentDevice | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:MfaFactor.currentDevice |
+| SecuritySettings.availableMfaMethods | {"type":"array","items":{"type":"string","enum":["authenticator","passkey"]}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:SecuritySettings.availableMfaMethods |
+| SecuritySettings.firstFactorSetupRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 绑定五分钟内已验证首因素与当前 session；只允许注册或取消未验证注册，不能替代普通安全授权 | bff:SecuritySettings.firstFactorSetupRef |
 | SecuritySettings.posture | {"type":"string","enum":["strong","attention_required","unknown"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:SecuritySettings.posture |
 | SecuritySettings.score | {"type":"integer","minimum":0,"maximum":100} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:SecuritySettings.score |
 | SecuritySettings.mfaEnabled | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:SecuritySettings.mfaEnabled |
@@ -524,6 +526,9 @@
 | BrowserCapabilityPolicy.businessPagesNoIndex | {"type":"boolean","enum":[true]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.businessPagesNoIndex |
 | BrowserCapabilityPolicy.cspEnforced | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.cspEnforced |
 | BrowserCapabilityPolicy.sessionProtected | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.sessionProtected |
+| MfaEnrollment.factorRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:MfaEnrollment.factorRef |
+| MfaEnrollment.delivery | {"type":"string","enum":["one_time","restart_required"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:MfaEnrollment.delivery |
+| MfaEnrollment.uri | {"type":"string"} | 否 | none | 真实 Auth 的一次性 TOTP 注册材料；仅首次响应和内存消费；禁止日志、数据库或持久化 | bff:MfaEnrollment.uri |
 | saveProfile.request.displayName | {"type":"string","minLength":1,"maxLength":80} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.displayName |
 | saveProfile.request.title | {"type":"string","maxLength":120} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.title |
 | saveProfile.request.team | {"type":"string","maxLength":120} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.team |
@@ -546,7 +551,7 @@
 
 ## 19. 完备性与验收边界
 
-- 共 408 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
+- 共 413 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
 - 必填字段、可选字段、请求与响应按真实 schema 区分；SSE 信封为共享 StreamEvent，载荷版本和实时恢复仍按各 operation 规则执行。
 - 已发布部分只证明仓库契约；未配置生成式 MSW 返回501。本地参考 provider 不替代 staging、真实数据库/身份/对象存储或正式签署。
 - 当前一期不包含原生控制面；原生接口独立见 [DESK-PRE-04 承接表](./DESK-PRE-04-interface-transfer.md)。

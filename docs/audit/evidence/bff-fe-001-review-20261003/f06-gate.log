@@ -1,0 +1,29 @@
+node --test scripts/f06-test-identity-context.test.cjs scripts/runtime-startup-evidence.test.cjs
+✔ mismatched identity, partial context and unapproved repair fail before any write (0.49175ms)
+﹣ actual Supabase restoration uses verified existing Auth and rolls back test fixture (0.041667ms) # SKIP
+✔ startup receipt strips raw errors, unknown phases and credentials (0.673958ms)
+✔ idle pg failure is latched and cannot be reported as success (0.200208ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 38.382583
+node --test scripts/f06-acceptance-gate-negative.mjs
+✔ development COMPLETED does not accept the current F06 review (0.833583ms)
+✔ ACCEPTED with any open finding remains blocked (0.203459ms)
+✔ all closed findings require a same-SHA complete receipt (0.492292ms)
+✔ missing or duplicate review markers fail closed (0.13025ms)
+✔ archived closure records must be present, complete and unique (0.26975ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 32.118833
+node scripts/check-f06-acceptance.mjs
+{"status":"PASS","sourceCommit":"28deabe961404fcde35791ea757b352c79e558fa","failures":[]}

@@ -100,7 +100,9 @@ async function main() {
       signal: AbortSignal.timeout(15000),
     });
     assert(established.status === 204, `BFF did not establish the real Auth session (HTTP ${established.status}; ${bff.diagnostic()})`);
-    const cookie = established.headers.get('set-cookie')?.split(';')[0];
+    const cookie = established.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');
+    const csrf = /(?:^|; )quantos_csrf=([^;]+)/.exec(cookie)?.[1];
+    assert(csrf, 'BFF did not issue its CSRF cookie');
     assert(cookie?.startsWith('quantos_session='), 'BFF did not issue its opaque cookie');
     runtime = start('runtime-gateway', runtimePort, {
       QUANTOS_RUNTIME_BIND: `127.0.0.1:${runtimePort}`,
@@ -127,7 +129,7 @@ async function main() {
     });
     assert(deniedRole.status === 403, 'non-owner Runtime identity registered a tool');
     const logout = await fetch(`${bff.base}/v1/auth/logout`, {
-      method: 'POST', headers: { origin, cookie }, signal: AbortSignal.timeout(15000),
+      method: 'POST', headers: { origin, cookie, 'x-csrf-token': csrf }, signal: AbortSignal.timeout(15000),
     });
     assert(logout.status === 204, 'BFF logout failed');
     const revoked = await request(runPath, { headers: { cookie } });

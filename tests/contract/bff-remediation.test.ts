@@ -46,7 +46,7 @@ describe("A1 OpenAPI semantic remediation",()=>{
   expect((await validateResponse('getSession',Response.json({}, {headers:{"X-Correlation-Id":uuid,"Cache-Control":"no-store"}}))).length).toBeGreaterThan(0);
   expect((await validateResponse('getSession',Response.json(loadFixture('session/default.json')))).some((i:string)=>i.includes('header'))).toBe(true);
   expect((await validateResponse('getSession',Response.json({...loadFixture('session/default.json'),venueApiKey:'synthetic'},{headers:{"X-Correlation-Id":uuid,"Cache-Control":"no-store"}}))).some((i:string)=>i.includes('敏感'))).toBe(true);
-  expect(openapi.info.version).toBe('1.4.0');
+  expect(openapi.info.version).toBe('1.5.0');
  });
  it("requires conflict version, rate retry and matching error correlation without debug extensions",async()=>{
   const envelope={code:'VERSION_CONFLICT',message:'stale',correlationId:uuid};
@@ -68,4 +68,12 @@ describe("A1 OpenAPI semantic remediation",()=>{
    expect((await fetch(url,{method:'PUT',headers:h,body:JSON.stringify({files:{},parameters:{changed:true}})})).status).toBe(409);
   }finally{server.close();}
  });
+});
+
+
+it("checks successful accepted envelope correlation on every replay", async () => {
+ const id="11111111-1111-4111-8111-111111111111";
+ const payload={jobId:id,status:"accepted",correlationId:id,auditRef:id};
+ const response=Response.json(payload,{status:202,headers:{"X-Correlation-Id":"22222222-2222-4222-8222-222222222222","Cache-Control":"no-store"}});
+ expect(await validateResponse("setupMfa",response)).toContain("correlation header/body mismatch");
 });

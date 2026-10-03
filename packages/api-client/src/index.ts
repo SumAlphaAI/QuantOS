@@ -8,6 +8,7 @@ export * from "./execution.js";
 export * from "./ops.js";
 export * from "./sse.js";
 export * from "./bff.js";
+export * from "./bff-response.js";
 export * from "./bff-domain.js";
 export * from "./proto-validation.js";
 export type { components as BffComponents, operations as BffOperations, paths as BffPaths } from "./bff-gen/quantos-bff.js";

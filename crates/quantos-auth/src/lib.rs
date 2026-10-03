@@ -173,7 +173,15 @@ pub struct VerifiedUser {
     token_expires_at: DateTime<Utc>,
 }
 
+impl VerifiedUser {
+    pub fn mfa_verified(&self) -> bool {
+        self.mfa_verified
+    }
+}
+
+#[derive(Clone)]
 pub struct BffSessionContext {
+    pub user_id: Uuid,
     pub auth: AuthContext,
     pub mfa_verified: bool,
     pub expires_at: DateTime<Utc>,
@@ -420,6 +428,7 @@ impl PgAuthStore {
             return Err(AuthError::HiddenAccount);
         }
         Ok(BffSessionContext {
+            user_id: row.get("user_id"),
             auth,
             mfa_verified: row.get("mfa_verified"),
             expires_at: row.get("expires_at"),
@@ -504,6 +513,12 @@ impl PgAuthStore {
             })
         }
     }
+}
+
+/// A dedicated, TLS-verified, least-privilege connection for BFF business storage.
+/// This uses exactly the same login/role checks as the identity gateway.
+pub fn connect_bff_database(database_url: &str) -> Result<Client, AuthError> {
+    Ok(PgAuthStore::connect_as_bff(database_url)?.client)
 }
 
 #[derive(Clone, Copy)]

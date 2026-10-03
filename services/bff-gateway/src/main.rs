@@ -58,7 +58,10 @@ async fn main() -> anyhow::Result<()> {
         r#"{{"service":"bff-gateway","ready":true,"mode":"{}","address":"{address}"}}"#,
         if live { "live" } else { "reference-provider" }
     );
-    axum::serve(listener, router)
-        .await
-        .context("reference provider server failed")
+    axum::serve(
+        listener,
+        router.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    .context("reference provider server failed")
 }

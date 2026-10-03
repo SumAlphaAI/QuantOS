@@ -1,11 +1,17 @@
 # BFF-FE-001 身份、会话与设置 API 交付总结
 
 > 任务：A2 / BFF-FE-001
-> 日期：2026-09-16
-> 仓库 Gate：**PASS（本地参考 provider）**
-> 目标环境：**NOT RUN / NO RECEIPT**
+> 历史交付日期：2026-09-16；当前整改日期：2026-10-03
+> 历史仓库 Gate：**PASS（本地参考 provider）**
+> 历史目标环境：**NOT RUN / NO RECEIPT**
 
-## 交付范围
+## 当前基线（2026-10-03）
+
+API 1.5.0：62 operations / 52 schemas；C01/C17 20 operations。当前整改入口为 [整改复验记录](audit/BFF-FE-001-remediation-2026-10-03.md)，基线清单为 [baseline.json](audit/evidence/bff-fe-001-remediation-20261003/baseline.json)。原始 2026-09-16 交付内容及其证据保留在下文，不能代表当前验收。
+
+真实 Supabase Auth/PostgreSQL 与本机 live BFF 联调单独记录；staging consumer/provider、联合签署延至 FINAL 评审。PROVIDER:A2/G1 与 Desktop 不由本次工程整改代为签署。
+
+## 历史交付范围（2026-09-16）
 
 - OpenAPI 升级为 1.2.0：C01/C17 共 20 个 operation，新增 `revokeMfaFactor` 和 `ReauthRequest`，统一使用服务端 session cookie，并为状态变更声明 CSRF、recent-auth、幂等、版本冲突与 `auditRef`。
 - 新增 `services/bff-gateway` Rust/axum 本地参考 provider：session/context、MFA challenge、reauth、logout、access request、profile、通知偏好、安全设置、会话、可信设备、MFA 因素、下载与浏览器能力。
@@ -13,7 +19,7 @@
 - Terminal auth/settings client 转发 CSRF 和 recent-auth 引用；访问申请保持匿名且不伪造 CSRF；生成 client、Zod、JSON Schema、MSW 与 operation manifest 同源更新。
 - A2 正向 Gate、八类负向探针、Rust 集成测试和 CI 接线均已纳入仓库。
 
-## 验收边界
+## 历史验收边界（2026-09-16）
 
 | 层次 | 结论 | 说明 |
 |---|---|---|
@@ -25,13 +31,13 @@
 | 真实 IdP / 持久化 session | NOT RUN | 本地 provider 为内存参考实现，不是生产部署 |
 | GPT-6 Astra 功能复审 | NOT_STARTED | 与开发完成状态分离 |
 
-## 未决风险
+## 历史未决风险（现状以当前整改记录为准）
 
 1. session、reauth grant、幂等记录、审计与 SSE 游标当前仅为进程内状态；生产实现必须落到受控持久层并验证并发、过期、重启恢复和跨实例一致性。
 2. OIDC/PKCE、真实 MFA 因素注册与吊销、cookie domain/secure policy、代理层 Origin 传递尚未在 staging 验证。
 3. C17 P16 Desktop cache/update/diagnostic 仍由 BFF-FE-011 负责；不得从本任务推导 Desktop 已完成。
 4. UI-102/UI-104 可标记为 Local Provider Implemented，但在 staging 签署前不得标记 Integrated/Verified。
 
-## 下一任务
+## 历史下一任务安排
 
 按执行计划依赖拓扑进入 **A2 / BFF-FE-007：Audit 与导出 API**。该任务依赖本任务与 CORE:F05；不得复用本地 `auditRef` 作为目标环境审计账本验收回执。

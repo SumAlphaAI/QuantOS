@@ -3,6 +3,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { execFileSync, spawnSync } = require('node:child_process');
 const { Client } = require('pg');
+const { validateF09MigrationLedger } = require('./lib/f09-migration-ledger.cjs');
 
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'artifacts/f09/target.json');
@@ -123,18 +124,7 @@ async function main() {
       order by filename`)).rows;
     const migrationDir = path.join(root, 'supabase/migrations');
     const local = fs.readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort();
-    if (JSON.stringify(remote.map((row) => row.filename)) !== JSON.stringify(local)) {
-      throw new Error('F09 target migration ledger differs from repository files');
-    }
-    for (const row of remote) {
-      const expected = crypto.createHash('sha256')
-        .update(fs.readFileSync(path.join(migrationDir, row.filename))).digest('hex');
-      if (row.sha256 !== expected) throw new Error(`F09 target migration checksum mismatch: ${row.filename}`);
-    }
-    receipt.migrationHead = remote.at(-1)?.filename ?? null;
-    if (receipt.migrationHead !== '20260927093000_f09_execution_metric_returning.sql') {
-      throw new Error('F09 target migration is not current');
-    }
+    receipt.migrationHead = validateF09MigrationLedger(remote, new Map(local.map(name => [name, fs.readFileSync(path.join(migrationDir, name))])));
   } finally {
     await client.end();
   }

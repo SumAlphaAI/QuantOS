@@ -132,6 +132,16 @@ fn real_logout_db_write_matches_persistent_trace() {
         verifier: SupabaseAuthVerifier::new(&project_url, "unused-test-key".into())
             .expect("Auth verifier config"),
         middleware: Mutex::new(GatewayAuthMiddleware::connect(&database_url).expect("BFF DB")),
+        a2: Mutex::new(
+            settings::A2Store::new(
+                &env::var("QUANTOS_BFF_DATABASE_URL").expect("narrow BFF DB required"),
+            )
+            .expect("A2 DB"),
+        ),
+        database_url: env::var("QUANTOS_BFF_DATABASE_URL").expect("narrow BFF DB required"),
+        proofs: Mutex::new(BTreeMap::new()),
+        mfa: settings::SupabaseMfa::new(&project_url, "unused-test-key".into())
+            .expect("MFA config"),
         terminal_origin: origin.into(),
         environment: "dev".into(),
     });

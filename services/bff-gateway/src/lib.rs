@@ -27,16 +27,36 @@ const EXPIRED_EXPORT: &str = "eeeeeeee-1111-4111-8111-111111111111";
 #[derive(Debug, Clone)]
 struct ReauthGrant {
     expires_at: chrono::DateTime<Utc>,
+    session: String,
+}
+
+#[derive(Debug, Clone)]
+struct MfaChallenge {
+    session: String,
+    purpose: String,
+    verified_at: Option<chrono::DateTime<Utc>>,
+    expires_at: chrono::DateTime<Utc>,
+    consumed: bool,
+}
+
+#[derive(Debug, Clone)]
+struct MfaWindow {
+    started_at: chrono::DateTime<Utc>,
+    failures: u8,
 }
 
 #[derive(Debug)]
 struct ProviderData {
     session_active: bool,
-    failed_mfa_attempts: u8,
-    challenges: BTreeMap<String, bool>,
+    clock_offset: Duration,
+    session_expires_at: chrono::DateTime<Utc>,
+    mfa_windows: BTreeMap<String, MfaWindow>,
+    challenges: BTreeMap<String, MfaChallenge>,
     reauth_grants: BTreeMap<String, ReauthGrant>,
     profile_version: u64,
     notification_version: u64,
+    profile: Value,
+    notifications: Value,
     sessions: BTreeMap<String, Value>,
     devices: BTreeMap<String, Value>,
     factors: BTreeMap<String, Value>,
@@ -44,17 +64,22 @@ struct ProviderData {
     audits: Vec<Value>,
     exports: BTreeMap<String, Value>,
     idempotency: BTreeMap<String, Value>,
+    idempotency_intents: BTreeMap<String, Value>,
 }
 
 impl Default for ProviderData {
     fn default() -> Self {
         Self {
             session_active: true,
-            failed_mfa_attempts: 0,
+            clock_offset: Duration::zero(),
+            session_expires_at: Utc::now() + Duration::minutes(5),
+            mfa_windows: BTreeMap::new(),
             challenges: BTreeMap::new(),
             reauth_grants: BTreeMap::new(),
             profile_version: 1,
             notification_version: 1,
+            profile: profile(1),
+            notifications: notifications(1),
             sessions: BTreeMap::from([
                 (
                     CURRENT_SESSION.to_owned(),
@@ -100,6 +125,7 @@ impl Default for ProviderData {
                 }),
             )]),
             idempotency: BTreeMap::new(),
+            idempotency_intents: BTreeMap::new(),
         }
     }
 }
@@ -126,6 +152,17 @@ impl Default for BffProvider {
 }
 
 impl BffProvider {
+    /// Deterministic time advancement for loopback reference-provider regressions.
+    pub async fn advance_reference_time(&self, elapsed: Duration) {
+        self.data.lock().await.clock_offset += elapsed;
+    }
+
+    /// Renew only the deterministic fixture session, leaving challenges and grants unchanged.
+    pub async fn renew_reference_session(&self) {
+        let mut state = self.data.lock().await;
+        state.session_expires_at = state.now() + Duration::minutes(5);
+    }
+
     pub fn router(&self) -> Router {
         Router::new()
             .route("/v1/session", get(get_session))
@@ -239,6 +276,12 @@ fn seed_audits() -> Vec<Value> {
 }
 
 fn response(status: StatusCode, payload: Value, correlation: &str) -> Response {
+    let correlation = payload
+        .get("correlationId")
+        .and_then(Value::as_str)
+        .and_then(|value| Uuid::parse_str(value).ok())
+        .map(|id| id.to_string())
+        .unwrap_or_else(|| correlation.to_owned());
     let version = payload
         .get("objectVersion")
         .and_then(Value::as_str)
@@ -246,7 +289,7 @@ fn response(status: StatusCode, payload: Value, correlation: &str) -> Response {
     let mut response = (status, Json(payload)).into_response();
     response.headers_mut().insert(
         "x-correlation-id",
-        HeaderValue::from_str(correlation).expect("generated UUID is a valid header"),
+        HeaderValue::from_str(&correlation).expect("generated UUID is a valid header"),
     );
     response
         .headers_mut()
@@ -284,8 +327,11 @@ async fn authenticate(
     data: &Arc<Mutex<ProviderData>>,
 ) -> Result<(), Response> {
     let session = cookies(headers).get("quantos_session").copied();
-    if (session != Some(CURRENT_SESSION) && session != Some(VIEWER_SESSION))
-        || !data.lock().await.session_active
+    let state = data.lock().await;
+    let active = session.is_some_and(|id| id == VIEWER_SESSION || state.sessions.contains_key(id));
+    if !active
+        || state.now() >= state.session_expires_at
+        || (session == Some(CURRENT_SESSION) && !state.session_active)
     {
         return Err(error(
             StatusCode::UNAUTHORIZED,
@@ -361,12 +407,11 @@ async fn require_reauth(
                 "需要近期身份验证。",
             )
         })?;
-    let valid = data
-        .lock()
-        .await
-        .reauth_grants
-        .get(token)
-        .is_some_and(|grant| grant.expires_at > Utc::now());
+    let state = data.lock().await;
+    let valid = state.reauth_grants.get(token).is_some_and(|grant| {
+        grant.expires_at > state.now()
+            && Some(grant.session.as_str()) == cookies(headers).get("quantos_session").copied()
+    });
     if !valid {
         return Err(error(
             StatusCode::FORBIDDEN,
@@ -391,10 +436,56 @@ fn idempotency_key(headers: &HeaderMap) -> Result<String, Box<Response>> {
         })
 }
 
-fn accepted(data: &mut ProviderData, key: String, action: &str) -> Value {
-    if let Some(existing) = data.idempotency.get(&key) {
-        return existing.clone();
+impl ProviderData {
+    fn now(&self) -> chrono::DateTime<Utc> {
+        Utc::now() + self.clock_offset
     }
+}
+
+struct IdempotentCommand {
+    key: String,
+    intent: Value,
+}
+impl IdempotentCommand {
+    fn new(
+        headers: &HeaderMap,
+        operation: &str,
+        resource: &str,
+        body: &Value,
+    ) -> Result<Self, Box<Response>> {
+        let key = idempotency_key(headers)?;
+        let session = cookies(headers)
+            .get("quantos_session")
+            .copied()
+            .unwrap_or("");
+        Ok(Self {
+            key: json!(["a2", session, operation, key]).to_string(),
+            intent: json!([resource, body]),
+        })
+    }
+    fn replay(&self, data: &ProviderData) -> Result<Option<Value>, Box<Response>> {
+        if data
+            .idempotency_intents
+            .get(&self.key)
+            .is_some_and(|intent| intent != &self.intent)
+        {
+            return Err(Box::new(error(
+                StatusCode::CONFLICT,
+                "IDEMPOTENCY_CONFLICT",
+                "幂等键已用于不同请求。",
+            )));
+        }
+        Ok(data.idempotency.get(&self.key).cloned())
+    }
+    fn save(self, data: &mut ProviderData, payload: Value) -> Value {
+        data.idempotency_intents
+            .insert(self.key.clone(), self.intent);
+        data.idempotency.insert(self.key, payload.clone());
+        payload
+    }
+}
+
+fn accepted(data: &mut ProviderData, command: IdempotentCommand, action: &str) -> Value {
     let audit_ref = Uuid::now_v7().to_string();
     let correlation = correlation_id();
     let payload = json!({
@@ -403,11 +494,10 @@ fn accepted(data: &mut ProviderData, key: String, action: &str) -> Value {
     });
     data.audits
         .push(json!({"auditRef":audit_ref,"action":action,"correlationId":correlation}));
-    data.idempotency.insert(key, payload.clone());
-    payload
+    command.save(data, payload)
 }
 
-fn session_payload(headers: &HeaderMap) -> Value {
+fn session_payload(headers: &HeaderMap, expires_at: chrono::DateTime<Utc>) -> Value {
     let capabilities = if cookies(headers).get("quantos_session").copied() == Some(CURRENT_SESSION)
     {
         json!([
@@ -425,7 +515,7 @@ fn session_payload(headers: &HeaderMap) -> Value {
         "workspaceId":"33333333-3333-4333-8333-333333333333",
         "accountId":"44444444-4444-4444-8444-444444444444",
         "mode":"paper","environment":"dev","capabilities":capabilities,
-        "mfaState":"verified","expiresAt":"2026-09-17T10:00:00Z"
+        "mfaState":"verified","expiresAt":expires_at.to_rfc3339()
     })
 }
 
@@ -434,11 +524,16 @@ async fn get_session(State(data): State<Arc<Mutex<ProviderData>>>, headers: Head
         return response;
     }
     let correlation = correlation_id();
-    response(StatusCode::OK, session_payload(&headers), &correlation)
+    response(
+        StatusCode::OK,
+        session_payload(&headers, data.lock().await.session_expires_at),
+        &correlation,
+    )
 }
 
 #[derive(Deserialize)]
 struct MfaInput {
+    purpose: String,
     code: Option<String>,
 }
 
@@ -450,28 +545,64 @@ async fn mfa_challenge(
     if let Err(response) = mutation_guard(&headers, &data).await {
         return response;
     }
+    let session = cookies(&headers)
+        .get("quantos_session")
+        .copied()
+        .unwrap()
+        .to_owned();
     let mut state = data.lock().await;
-    if input.code.as_deref() != Some("123456") {
-        state.failed_mfa_attempts += 1;
-        if state.failed_mfa_attempts >= 5 {
-            let correlation = correlation_id();
-            return response(
-                StatusCode::TOO_MANY_REQUESTS,
-                json!({
-                    "code":"RATE_LIMITED","message":"验证请求过于频繁，请稍后重试。",
-                    "correlationId":correlation,"retryAfter":60
-                }),
-                &correlation,
-            );
+    let now = state.now();
+    let window = state
+        .mfa_windows
+        .entry(session.clone())
+        .or_insert(MfaWindow {
+            started_at: now,
+            failures: 0,
+        });
+    if now >= window.started_at + Duration::seconds(60) {
+        *window = MfaWindow {
+            started_at: now,
+            failures: 0,
+        };
+    }
+    if window.failures >= 5 {
+        return rate_limited(
+            (window.started_at + Duration::seconds(60) - now)
+                .num_seconds()
+                .max(1),
+        );
+    }
+    let verified = input.code.as_deref() == Some("123456"); // loopback fixture only
+    if input.code.is_some() && !verified {
+        window.failures += 1;
+        if window.failures >= 5 {
+            return rate_limited(60);
         }
     }
     let challenge = Uuid::now_v7().to_string();
-    let verified = input.code.as_deref() == Some("123456");
-    state.challenges.insert(challenge.clone(), verified);
+    state.challenges.insert(
+        challenge.clone(),
+        MfaChallenge {
+            session,
+            purpose: input.purpose,
+            verified_at: verified.then_some(now),
+            expires_at: now + Duration::minutes(5),
+            consumed: false,
+        },
+    );
     let correlation = correlation_id();
     response(
         StatusCode::OK,
-        json!({"challengeRef":challenge,"status":if verified {"verified"} else {"failed"}}),
+        json!({"challengeRef":challenge,"status":if verified {"verified"} else if input.code.is_none() {"pending"} else {"failed"}}),
+        &correlation,
+    )
+}
+
+fn rate_limited(retry_after: i64) -> Response {
+    let correlation = correlation_id();
+    response(
+        StatusCode::TOO_MANY_REQUESTS,
+        json!({"code":"RATE_LIMITED","message":"验证请求过于频繁，请稍后重试。","correlationId":correlation,"retryAfter":retry_after}),
         &correlation,
     )
 }
@@ -491,18 +622,42 @@ async fn reauth(
         return response;
     }
     let mut state = data.lock().await;
-    if state.challenges.get(&input.challenge_ref) != Some(&true) {
+    let now = state.now();
+    let session = cookies(&headers)
+        .get("quantos_session")
+        .copied()
+        .unwrap()
+        .to_owned();
+    let Some(challenge) = state
+        .challenges
+        .get_mut(&input.challenge_ref)
+        .filter(|challenge| {
+            challenge.session == session
+                && matches!(challenge.purpose.as_str(), "login" | "security_change")
+                && !challenge.consumed
+                && challenge.expires_at > now
+                && challenge
+                    .verified_at
+                    .is_some_and(|at| at + Duration::minutes(5) > now)
+        })
+    else {
         return error(
             StatusCode::FORBIDDEN,
             "MFA_NOT_VERIFIED",
             "资源不存在或无权访问。",
         );
-    }
+    };
+    challenge.consumed = true;
+    let expires_at =
+        (challenge.verified_at.unwrap() + Duration::minutes(5)).min(challenge.expires_at);
     let token = Uuid::now_v7().to_string();
-    let expires_at = Utc::now() + Duration::minutes(5);
-    state
-        .reauth_grants
-        .insert(token.clone(), ReauthGrant { expires_at });
+    state.reauth_grants.insert(
+        token.clone(),
+        ReauthGrant {
+            expires_at,
+            session,
+        },
+    );
     let correlation = correlation_id();
     response(
         StatusCode::OK,
@@ -595,27 +750,28 @@ async fn get_profile(State(data): State<Arc<Mutex<ProviderData>>>, headers: Head
     if let Err(response) = authenticate(&headers, &data).await {
         return response;
     }
-    let version = data.lock().await.profile_version;
+    let payload = data.lock().await.profile.clone();
     let correlation = correlation_id();
-    response(StatusCode::OK, profile(version), &correlation)
+    response(StatusCode::OK, payload, &correlation)
 }
 
 async fn save_profile(
     State(data): State<Arc<Mutex<ProviderData>>>,
     headers: HeaderMap,
-    Json(_input): Json<Value>,
+    Json(input): Json<Value>,
 ) -> Response {
     if let Err(response) = mutation_guard(&headers, &data).await {
         return response;
     }
-    let key = match idempotency_key(&headers) {
-        Ok(key) => key,
+    let command = match IdempotentCommand::new(&headers, "saveProfile", "profile", &input) {
+        Ok(command) => command,
         Err(response) => return *response,
     };
     let mut state = data.lock().await;
-    if let Some(existing) = state.idempotency.get(&key) {
-        let correlation = correlation_id();
-        return response(StatusCode::OK, existing.clone(), &correlation);
+    match command.replay(&state) {
+        Ok(Some(payload)) => return response(StatusCode::OK, payload, &correlation_id()),
+        Err(response) => return *response,
+        Ok(None) => {}
     }
     let expected = format!("profile-v{}", state.profile_version);
     if headers
@@ -631,8 +787,14 @@ async fn save_profile(
         );
     }
     state.profile_version += 1;
-    let payload = profile(state.profile_version);
-    state.idempotency.insert(key, payload.clone());
+    for (key, value) in input.as_object().expect("validated settings object") {
+        state.profile[key] = value.clone();
+    }
+    state.profile["objectVersion"] = json!(format!("profile-v{}", state.profile_version));
+    let payload = {
+        let payload = state.profile.clone();
+        command.save(&mut state, payload)
+    };
     let correlation = correlation_id();
     state.audits.push(
         json!({"auditRef":Uuid::now_v7(),"action":"profile.save","correlationId":correlation}),
@@ -651,27 +813,29 @@ async fn get_notifications(
     if let Err(response) = authenticate(&headers, &data).await {
         return response;
     }
-    let version = data.lock().await.notification_version;
+    let payload = data.lock().await.notifications.clone();
     let correlation = correlation_id();
-    response(StatusCode::OK, notifications(version), &correlation)
+    response(StatusCode::OK, payload, &correlation)
 }
 
 async fn save_notifications(
     State(data): State<Arc<Mutex<ProviderData>>>,
     headers: HeaderMap,
-    Json(_input): Json<Value>,
+    Json(input): Json<Value>,
 ) -> Response {
     if let Err(response) = mutation_guard(&headers, &data).await {
         return response;
     }
-    let key = match idempotency_key(&headers) {
-        Ok(key) => key,
-        Err(response) => return *response,
-    };
+    let command =
+        match IdempotentCommand::new(&headers, "saveNotificationPrefs", "notifications", &input) {
+            Ok(command) => command,
+            Err(response) => return *response,
+        };
     let mut state = data.lock().await;
-    if let Some(existing) = state.idempotency.get(&key) {
-        let correlation = correlation_id();
-        return response(StatusCode::OK, existing.clone(), &correlation);
+    match command.replay(&state) {
+        Ok(Some(payload)) => return response(StatusCode::OK, payload, &correlation_id()),
+        Err(response) => return *response,
+        Ok(None) => {}
     }
     let expected = format!("notifications-v{}", state.notification_version);
     if headers
@@ -687,8 +851,15 @@ async fn save_notifications(
         );
     }
     state.notification_version += 1;
-    let payload = notifications(state.notification_version);
-    state.idempotency.insert(key, payload.clone());
+    for (key, value) in input.as_object().expect("validated settings object") {
+        state.notifications[key] = value.clone();
+    }
+    state.notifications["objectVersion"] =
+        json!(format!("notifications-v{}", state.notification_version));
+    let payload = {
+        let payload = state.notifications.clone();
+        command.save(&mut state, payload)
+    };
     let correlation = correlation_id();
     state.audits.push(json!({"auditRef":Uuid::now_v7(),"action":"notification_preferences.save","correlationId":correlation}));
     response(StatusCode::OK, payload, &correlation)
@@ -740,20 +911,25 @@ async fn revoke_session(
             "当前会话不能从此操作撤销。",
         );
     }
-    let key = match idempotency_key(&headers) {
-        Ok(key) => key,
+    let command = match IdempotentCommand::new(&headers, "revokeSession", &session_id, &Value::Null)
+    {
+        Ok(command) => command,
         Err(response) => return *response,
     };
     let mut state = data.lock().await;
-    if let Some(existing) = state.idempotency.get(&key).cloned() {
-        let correlation = correlation_id();
-        return response(StatusCode::ACCEPTED, existing, &correlation);
+    match command.replay(&state) {
+        Ok(Some(payload)) => {
+            let correlation = payload["correlationId"].as_str().unwrap().to_owned();
+            return response(StatusCode::ACCEPTED, payload, &correlation);
+        }
+        Err(response) => return *response,
+        Ok(None) => {}
     }
     if state.sessions.remove(&session_id).is_none() {
         return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
     }
-    push_event(&mut state, "permission_revoked", &session_id);
-    let payload = accepted(&mut state, key, "session.revoke");
+    push_event(&mut state, "session_revoked", &session_id);
+    let payload = accepted(&mut state, command, "session.revoke");
     let correlation = payload["correlationId"]
         .as_str()
         .expect("accepted correlation");
@@ -775,15 +951,62 @@ async fn session_stream(
         return response;
     }
     let after = query.after_sequence.unwrap_or(0);
-    let body = data
-        .lock()
-        .await
-        .events
-        .iter()
-        .filter(|event| event["sequence"].as_u64().unwrap_or(0) > after)
-        .map(|event| format!("data: {event}\n\n"))
-        .collect::<String>();
-    let mut response = Response::new(Body::from(body));
+    let session = cookies(&headers)
+        .get("quantos_session")
+        .copied()
+        .unwrap()
+        .to_owned();
+    let stream = futures_util::stream::unfold(
+        (data, after, session, false),
+        |(data, mut after, session, closed)| async move {
+            if closed {
+                return None;
+            }
+            loop {
+                let state = data.lock().await;
+                if let Some(mut event) = state
+                    .events
+                    .iter()
+                    .find(|event| event["sequence"].as_u64().unwrap() > after)
+                    .cloned()
+                {
+                    after = event["sequence"].as_u64().unwrap();
+                    let target = event["payload"]["objectId"].as_str() == Some(session.as_str());
+                    if matches!(
+                        event["payload"]["type"].as_str(),
+                        Some("permission_revoked" | "session_revoked")
+                    ) {
+                        event["payload"]["type"] = json!(if target {
+                            "permission_revoked"
+                        } else {
+                            "session_revoked"
+                        });
+                    }
+                    let terminal = event["payload"]["type"] == "permission_revoked";
+                    let frame = format!("data: {event}\n\n");
+                    drop(state);
+                    return Some((
+                        Ok::<_, std::convert::Infallible>(frame),
+                        (data, after, session, terminal),
+                    ));
+                }
+                if state.now() >= state.session_expires_at
+                    || (session != VIEWER_SESSION && !state.sessions.contains_key(&session))
+                    || (session == CURRENT_SESSION && !state.session_active)
+                {
+                    let frame = format!(
+                        "data: {}\n\n",
+                        json!({"streamId":"55555555-5555-4555-8555-555555555555","sequence":after+1,"eventId":Uuid::now_v7(),"occurredAt":state.now().to_rfc3339(),"correlationId":Uuid::now_v7(),"payloadVersion":"v1","payload":{"type":"permission_revoked","objectId":session}})
+                    );
+                    drop(state);
+                    return Some((Ok(frame), (data, after + 1, session, true)));
+                }
+                drop(state);
+                tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+            }
+        },
+    );
+    let mut response = Response::new(Body::from_stream(stream));
     response.headers_mut().insert(
         header::CONTENT_TYPE,
         HeaderValue::from_static("text/event-stream"),
@@ -821,15 +1044,23 @@ async fn revoke_device(
     if let Err(response) = require_reauth(&headers, &data).await {
         return response;
     }
-    let key = match idempotency_key(&headers) {
-        Ok(key) => key,
+    let command = match IdempotentCommand::new(&headers, "revokeDevice", &device_id, &Value::Null) {
+        Ok(command) => command,
         Err(response) => return *response,
     };
     let mut state = data.lock().await;
+    match command.replay(&state) {
+        Ok(Some(payload)) => {
+            let correlation = payload["correlationId"].as_str().unwrap().to_owned();
+            return response(StatusCode::ACCEPTED, payload, &correlation);
+        }
+        Err(response) => return *response,
+        Ok(None) => {}
+    }
     if state.devices.remove(&device_id).is_none() {
         return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
     }
-    let payload = accepted(&mut state, key, "device.revoke");
+    let payload = accepted(&mut state, command, "device.revoke");
     let correlation = payload["correlationId"]
         .as_str()
         .expect("accepted correlation");
@@ -847,17 +1078,25 @@ async fn setup_mfa(
     if let Err(response) = require_reauth(&headers, &data).await {
         return response;
     }
-    let key = match idempotency_key(&headers) {
-        Ok(key) => key,
+    let command = match IdempotentCommand::new(&headers, "setupMfa", "mfa", &input) {
+        Ok(command) => command,
         Err(response) => return *response,
     };
     let mut state = data.lock().await;
-    let id = format!("factor-{}", state.factors.len() + 1);
+    match command.replay(&state) {
+        Ok(Some(payload)) => {
+            let correlation = payload["correlationId"].as_str().unwrap().to_owned();
+            return response(StatusCode::ACCEPTED, payload, &correlation);
+        }
+        Err(response) => return *response,
+        Ok(None) => {}
+    }
+    let id = format!("factor-{}", Uuid::now_v7());
     state.factors.insert(
         id.clone(),
         factor(&id, input["method"].as_str().unwrap_or("authenticator")),
     );
-    let payload = accepted(&mut state, key, "mfa.setup");
+    let payload = accepted(&mut state, command, "mfa.setup");
     let correlation = payload["correlationId"]
         .as_str()
         .expect("accepted correlation");
@@ -875,11 +1114,20 @@ async fn revoke_factor(
     if let Err(response) = require_reauth(&headers, &data).await {
         return response;
     }
-    let key = match idempotency_key(&headers) {
-        Ok(key) => key,
-        Err(response) => return *response,
-    };
+    let command =
+        match IdempotentCommand::new(&headers, "revokeMfaFactor", &factor_id, &Value::Null) {
+            Ok(command) => command,
+            Err(response) => return *response,
+        };
     let mut state = data.lock().await;
+    match command.replay(&state) {
+        Ok(Some(payload)) => {
+            let correlation = payload["correlationId"].as_str().unwrap().to_owned();
+            return response(StatusCode::ACCEPTED, payload, &correlation);
+        }
+        Err(response) => return *response,
+        Ok(None) => {}
+    }
     if !state.factors.contains_key(&factor_id) {
         return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
     }
@@ -891,7 +1139,7 @@ async fn revoke_factor(
         );
     }
     state.factors.remove(&factor_id);
-    let payload = accepted(&mut state, key, "mfa.factor.revoke");
+    let payload = accepted(&mut state, command, "mfa.factor.revoke");
     let correlation = payload["correlationId"]
         .as_str()
         .expect("accepted correlation");

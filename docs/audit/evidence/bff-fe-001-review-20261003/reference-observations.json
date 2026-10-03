@@ -1,0 +1,123 @@
+{
+  "sourceCommit": "28deabe961404fcde35791ea757b352c79e558fa",
+  "scope": "reference HTTP and actual client/reducer; no database",
+  "observations": [
+    {
+      "id": "profile-roundtrip",
+      "writeStatus": 200,
+      "inputSaved": false,
+      "versionChanged": true
+    },
+    {
+      "id": "changed-intent",
+      "expected": 409,
+      "actual": 200
+    },
+    {
+      "id": "cross-operation-idempotency",
+      "status": 200,
+      "responseIssues": [
+        ": must have required property 'rules'",
+        ": must have required property 'quietHoursEnabled'",
+        ": must have required property 'quietHoursStart'",
+        ": must have required property 'quietHoursEnd'",
+        ": must have required property 'criticalBypass'",
+        ": must have required property 'digestFrequency'",
+        ": must have required property 'browserPermission'"
+      ],
+      "returnedProfile": true
+    },
+    {
+      "id": "notification-roundtrip",
+      "writeStatus": 200,
+      "inputSaved": false
+    },
+    {
+      "id": "reference-session-expiry",
+      "status": 200,
+      "expiresInPast": true
+    },
+    {
+      "id": "challenge-reuse",
+      "purpose": "login",
+      "firstReauth": 200,
+      "secondReauth": 200,
+      "distinctGrant": true
+    },
+    {
+      "id": "mfa-setup-replay",
+      "statuses": [
+        202,
+        202
+      ],
+      "sameJob": true,
+      "factorIncrease": 2
+    },
+    {
+      "id": "device-revoke-replay",
+      "statuses": [
+        202,
+        404
+      ]
+    },
+    {
+      "id": "factor-revoke-replay",
+      "statuses": [
+        202,
+        404
+      ]
+    },
+    {
+      "id": "accepted-correlation-replay",
+      "statuses": [
+        202,
+        202
+      ],
+      "initialMatch": true,
+      "replayMatch": false
+    },
+    {
+      "id": "remote-revoke-current-stream",
+      "revokedObject": "session-remote",
+      "currentSessionReadStatus": 200,
+      "reducerAction": "closed",
+      "reducerClosed": true,
+      "streamReachedEof": true
+    },
+    {
+      "id": "mfa-limit-and-init",
+      "initialStatus": "failed",
+      "wrongStatuses": [
+        200,
+        200,
+        200,
+        429,
+        429
+      ],
+      "correctAfterLimit": 200
+    },
+    {
+      "id": "auth-response-validation",
+      "malformedAccepted": true,
+      "challengeMissing": true
+    },
+    {
+      "id": "settings-response-validation",
+      "malformedSessionAndSectionsAccepted": true,
+      "calls": 8,
+      "hasMissingProfileVersion": true
+    },
+    {
+      "id": "settings-mutation-response-validation",
+      "wrongSchemaAccepted": true
+    },
+    {
+      "id": "settings-error-envelope",
+      "name": "SettingsGatewayError",
+      "correlationPreserved": false,
+      "codePreserved": false,
+      "currentVersionPreserved": false,
+      "statusPreserved": false
+    }
+  ]
+}

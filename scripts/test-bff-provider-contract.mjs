@@ -29,7 +29,8 @@ async function call(id,bodyOverride,unsafe=false,expectedStatus) {
  let payload;
  if(response.status!==204&&response.headers.get('content-type')?.includes('application/json'))payload=await response.clone().json();
  if(op.responses[response.status]?.content?.['text/event-stream']) {
-   const text=await response.text();for(const line of text.split('\n').filter(s=>s.startsWith('data: ')))issues.push(...validateFixture(JSON.parse(line.slice(6)),{schema:'StreamEvent'}));
+   const reader=response.body.getReader(); const frame=await Promise.race([reader.read(),new Promise((_,reject)=>setTimeout(()=>reject(Error('SSE first frame timeout')),5000))]);
+   const text=new TextDecoder().decode(frame.value);await reader.cancel();for(const line of text.split('\n').filter(s=>s.startsWith('data: ')))issues.push(...validateFixture(JSON.parse(line.slice(6)),{schema:'StreamEvent'}));
  }
  records.push({operationId:id,status:response.status,requestValidation:unsafe?'EXPECTED_INVALID':'PASS',responseValidation:issues.length?'FAIL':'PASS',issues});
  if(issues.length)throw Error(id+' OpenAPI violation '+issues.join(';'));

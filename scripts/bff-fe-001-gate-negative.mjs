@@ -63,3 +63,31 @@ test("dependency regression is rejected", () => {
   const frontendPlan = current.frontendPlan.replace(/(- task_id: `BFF-FE-000`[\s\S]*?- development_status: `)COMPLETED(`)/, "$1IN_PROGRESS$2");
   assert(validateBffFe001({ ...current, frontendPlan }).failures.includes("dependency BFF-FE-000 is COMPLETED"));
 });
+
+for (const field of ["provider", "providerTests", "authClient", "settingsClient", "liveProvider"]) {
+  test(`${field} changes invalidate executed evidence`, () => {
+    const report = validateBffFe001({ ...current, [field]: current[field] + "\n// altered source\n" });
+    assert(report.failures.includes(`execution proof matches current ${field}`));
+  });
+}
+for (const field of ["frontendWorkflow", "ciWorkflow"]) {
+  test(`${field} commands in comments do not count as CI`, () => {
+    const marker = field === "frontendWorkflow" ? "pnpm check:bff-fe-001 && pnpm test:bff-fe-001" : "make bff-provider-test";
+    const workflow = current[field].replace(`run: ${marker}`, `run: echo disabled\n        # ${marker}`);
+    assert.equal(validateBffFe001({ ...current, [field]: workflow }).status, "FAIL");
+  });
+}
+test("disabled CI steps cannot satisfy the Gate", () => {
+  const frontendWorkflow = current.frontendWorkflow.replace("run: pnpm check:bff-fe-001 && pnpm test:bff-fe-001", "if: false\n        run: pnpm check:bff-fe-001 && pnpm test:bff-fe-001");
+  assert.equal(validateBffFe001({ ...current, frontendWorkflow }).status, "FAIL");
+});
+test("outdated inventory cannot satisfy the active evidence Gate", () => {
+  assert.equal(validateBffFe001({ ...current, activeEvidence: { ...current.activeEvidence, apiVersion: "1.2.0" } }).status, "FAIL");
+});
+
+test("commented Make recipes do not satisfy executable wiring", () => {
+ const makefile=current.makefile.replace("\tpnpm check:bff-fe-001", "\t# pnpm check:bff-fe-001");
+ assert.equal(validateBffFe001({...current,makefile}).status,"FAIL");
+});
+test("no semantic receipt cannot satisfy the Gate",()=>assert.equal(validateBffFe001({...current,executionProof:null}).status,"FAIL"));
+test("deleted active evidence cannot satisfy the Gate",()=>assert.equal(validateBffFe001({...current,activeEvidenceExists:false}).status,"FAIL"));

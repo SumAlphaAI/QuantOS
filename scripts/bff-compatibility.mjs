@@ -3,6 +3,7 @@ export const digest=value=>createHash('sha256').update(JSON.stringify(value)).di
 const ignored=key=>['description','summary','title','example','examples','info','servers','tags'].includes(key)||key.startsWith('x-');
 export function contractChanges(before,after,path='') {
   if(digest(before)===digest(after))return [];
+  if(path.endsWith('/allOf') && Array.isArray(before) && Array.isArray(after) && before.length===after.length) return before.flatMap((entry,index)=>contractChanges(entry,after[index],path+'/'+index));
   if(Array.isArray(before)||Array.isArray(after))return [{path,before,after}];
   if(before&&after&&typeof before==='object'&&typeof after==='object') {
     const changes=[];
@@ -22,7 +23,7 @@ export function contractChanges(before,after,path='') {
 }
 export function validateCompatibility(before,after,decision,now=new Date().toISOString().slice(0,10)) {
   const changes=contractChanges(before,after);
-  const approved=decision?.baselineDigest===digest(before)&&decision?.candidateVersion===after.info.version&&
+  const approved=decision?.baselineDigest===digest(before)&&(decision?.candidateVersion===after.info.version||decision?.compatibleAdditiveVersions?.includes(after.info.version))&&
     decision?.expiresOn>=now&&decision?.admission==='ENGINEERING_ONLY_PENDING_A1' ? decision.changes : [];
   const failures=changes.filter(change=>!approved?.some(entry=>entry.path===change.path&&entry.beforeDigest===digest(change.before)&&entry.afterDigest===digest(change.after)));
   if(changes.length&&before.info.version===after.info.version)failures.push({path:'/info/version',before:before.info.version,after:after.info.version});

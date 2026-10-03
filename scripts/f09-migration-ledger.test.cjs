@@ -1,0 +1,12 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const { validateF09MigrationLedger } = require('./lib/f09-migration-ledger.cjs');
+const prerequisite = '20260927093000_f09_execution_metric_returning.sql';
+const future = '20261003090000_bff_a2_identity_settings.sql';
+const local = new Map([[prerequisite, 'reviewed F09 SQL'], [future, 'reviewed A2 SQL']]);
+const remote = [...local].map(([filename, source]) => ({ filename, sha256: crypto.createHash('sha256').update(source).digest('hex') }));
+test('later A2 migration does not make a complete F09 ledger stale', () => assert.equal(validateF09MigrationLedger(remote, local), future));
+test('missing target migration fails closed', () => assert.throws(() => validateF09MigrationLedger(remote.slice(0, 1), local), /differs/));
+test('changed applied SQL checksum fails closed', () => assert.throws(() => validateF09MigrationLedger([{ ...remote[0], sha256: '0'.repeat(64) }, remote[1]], local), /checksum mismatch/));
+test('missing F09 prerequisite fails even if remaining ledger matches', () => assert.throws(() => validateF09MigrationLedger(remote.slice(1), new Map([[future, local.get(future)]])), /prerequisite is missing/));

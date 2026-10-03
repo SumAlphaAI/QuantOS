@@ -1,6 +1,6 @@
 # BFF-FE-000 页面 BFF OpenAPI 基线
 
-> 更新：2026-10-03；规范：[OpenAPI](../bff/openapi/quantos-bff.v1.yaml)，OpenAPI 3.1 / API 1.4.0 / 62 operations / 51 schemas。
+> 更新：2026-10-03；规范：[OpenAPI](../bff/openapi/quantos-bff.v1.yaml)，OpenAPI 3.1 / 当前 API 1.5.0 / 62 operations / 52 schemas；1.4.0 是 A1 安全修正版本。
 > 命名：[catalog](../bff/page-operation-catalog.yaml)，C01–C17 / 一期 22 页 / 62 published + 46 planned；P16 为二期。
 > 开发 Gate：`pnpm check:bff-a1-development` / `make bff-contract-check`；最后评审验收：`pnpm check:bff-a1-final-review`。
 

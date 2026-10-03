@@ -135,20 +135,20 @@ fn route_matches(template: &str, path: &str) -> bool {
             .zip(b.iter())
             .all(|(x, y)| x.starts_with('{') || x == y)
 }
+pub(crate) fn operation(method: &str, path: &str) -> Option<&'static Value> {
+    policy()["operations"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|op| op["method"] == method && route_matches(op["path"].as_str().unwrap(), path))
+}
+
 pub(crate) async fn guard(
     State(data): State<Arc<Mutex<ProviderData>>>,
     request: Request,
     next: Next,
 ) -> Response {
-    let Some(op) = policy()["operations"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|op| {
-            op["method"] == request.method().as_str()
-                && route_matches(op["path"].as_str().unwrap(), request.uri().path())
-        })
-    else {
+    let Some(op) = operation(request.method().as_str(), request.uri().path()) else {
         return next.run(request).await;
     };
     let write = matches!(
@@ -165,15 +165,26 @@ pub(crate) async fn guard(
             return response;
         }
     }
+    match validate_request(request, op).await {
+        Ok(request) => next.run(request).await,
+        Err(response) => response,
+    }
+}
+
+pub(crate) async fn validate_request(request: Request, op: &Value) -> Result<Request, Response> {
+    let write = matches!(
+        request.method().as_str(),
+        "POST" | "PUT" | "DELETE" | "PATCH"
+    );
     let mut query = std::collections::BTreeMap::new();
     for (key, value) in url::form_urlencoded::parse(request.uri().query().unwrap_or("").as_bytes())
     {
         if query.insert(key.into_owned(), value.into_owned()).is_some() {
-            return error(
+            return Err(error(
                 StatusCode::UNPROCESSABLE_ENTITY,
                 "INVALID_REQUEST",
                 "重复查询参数。 ",
-            );
+            ));
         }
     }
     for parameter in op["parameters"]
@@ -190,18 +201,18 @@ pub(crate) async fn guard(
                 Value::String(value.clone())
             };
             if !valid(&parameter["schema"], &value) {
-                return error(
+                return Err(error(
                     StatusCode::UNPROCESSABLE_ENTITY,
                     "INVALID_REQUEST",
                     "查询参数未通过契约校验。",
-                );
+                ));
             }
         } else if parameter["required"] == true {
-            return error(
+            return Err(error(
                 StatusCode::UNPROCESSABLE_ENTITY,
                 "INVALID_REQUEST",
                 "缺少必需查询参数。",
-            );
+            ));
         }
     }
     for (name, key) in [("sort", "sort"), ("filter", "filter")] {
@@ -218,11 +229,11 @@ pub(crate) async fn guard(
                 parts.len() == 3 && parts[1] == "eq" && !parts[2].is_empty()
             };
             if !allowed || !shape {
-                return error(
+                return Err(error(
                     StatusCode::UNPROCESSABLE_ENTITY,
                     "INVALID_REQUEST",
                     "排序或筛选条件未获允许。",
-                );
+                ));
             }
         }
     }
@@ -235,14 +246,14 @@ pub(crate) async fn guard(
         let name = parameter["name"].as_str().unwrap();
         if let Some(value) = request.headers().get(name).and_then(|v| v.to_str().ok()) {
             if !valid(&parameter["schema"], &Value::String(value.to_owned())) {
-                return error(
+                return Err(error(
                     StatusCode::UNPROCESSABLE_ENTITY,
                     "INVALID_REQUEST",
                     "请求未通过契约校验。",
-                );
+                ));
             }
         } else if parameter["required"] == true {
-            return error(
+            return Err(error(
                 if name == "X-Reauth-Token-Ref" {
                     StatusCode::FORBIDDEN
                 } else {
@@ -250,43 +261,41 @@ pub(crate) async fn guard(
                 },
                 "INVALID_REQUEST",
                 "请求缺少必需信息。",
-            );
+            ));
         }
     }
     if write {
         let (parts, body) = request.into_parts();
         let Ok(bytes) = to_bytes(body, 65536).await else {
-            return error(
+            return Err(error(
                 StatusCode::UNPROCESSABLE_ENTITY,
                 "INVALID_REQUEST",
                 "请求超出大小限制。",
-            );
+            ));
         };
         if !op["body"].is_null() {
             let Ok(value) = serde_json::from_slice::<Value>(&bytes) else {
-                return error(
+                return Err(error(
                     StatusCode::UNPROCESSABLE_ENTITY,
                     "INVALID_REQUEST",
                     "请求未通过契约校验。",
-                );
+                ));
             };
             if !valid(&op["body"], &value) {
-                return error(
+                return Err(error(
                     StatusCode::UNPROCESSABLE_ENTITY,
                     "INVALID_REQUEST",
                     "请求未通过契约校验。",
-                );
+                ));
             }
         } else if !bytes.is_empty() {
-            return error(
+            return Err(error(
                 StatusCode::UNPROCESSABLE_ENTITY,
                 "INVALID_REQUEST",
                 "请求不允许正文。",
-            );
+            ));
         }
-        return next
-            .run(Request::from_parts(parts, Body::from(bytes)))
-            .await;
+        return Ok(Request::from_parts(parts, Body::from(bytes)));
     }
-    next.run(request).await
+    Ok(request)
 }

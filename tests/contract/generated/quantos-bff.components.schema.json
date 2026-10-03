@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.4.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.5.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -201,10 +201,37 @@
           "properties": {
             "auditRef": {
               "$ref": "#/$defs/UUID"
+            },
+            "mfaEnrollment": {
+              "$ref": "#/$defs/MfaEnrollment"
             }
           }
         }
       ]
+    },
+    "MfaEnrollment": {
+      "type": "object",
+      "required": [
+        "factorRef",
+        "delivery"
+      ],
+      "properties": {
+        "factorRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "delivery": {
+          "type": "string",
+          "enum": [
+            "one_time",
+            "restart_required"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "description": "One-time otpauth enrollment URI for the authenticated user only; never persist, log, cache or send to analytics. Idempotent job replay omits this material."
+        }
+      },
+      "additionalProperties": false
     },
     "ReauthRequest": {
       "type": "object",
@@ -594,6 +621,21 @@
         "correlationId"
       ],
       "properties": {
+        "availableMfaMethods": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "authenticator",
+              "passkey"
+            ]
+          },
+          "description": "Server-enabled enrollment methods. WebAuthn requires a separately enabled provider capability; unavailable methods fail closed."
+        },
+        "firstFactorSetupRef": {
+          "$ref": "#/$defs/UUID",
+          "description": "Fresh IdP-authentication grant scoped only to enrollment of the first factor and cancellation of an unverified enrollment; never authorizes other security mutations."
+        },
         "posture": {
           "type": "string",
           "enum": [

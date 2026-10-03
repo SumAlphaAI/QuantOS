@@ -1,4 +1,4 @@
-import type { BffComponents, BffOperations } from "@sumalpha/api-client";
+import { bffZodSchemas, parseBffResponse, type BffOperationId, type BffComponents, type BffOperations } from "@sumalpha/api-client";
 
 type ErrorEnvelope = BffComponents["schemas"]["ErrorEnvelope"];
 type MfaRequest = BffOperations["mfaChallenge"]["requestBody"]["content"]["application/json"];
@@ -21,10 +21,11 @@ export class AuthBffError extends Error {
   }
 }
 
-async function parseError(response: Response): Promise<AuthBffError> {
+async function parseError(operation: BffOperationId, response: Response): Promise<AuthBffError> {
   let body: Partial<ErrorEnvelope> = {};
   try {
-    body = await response.json() as Partial<ErrorEnvelope>;
+    const parsed = bffZodSchemas.ErrorEnvelope.safeParse(parseBffResponse(operation, response.status, await response.json()));
+    if (parsed.success) body = parsed.data;
   } catch {
     // Safe generic error below; never expose transport details.
   }
@@ -40,6 +41,7 @@ async function parseError(response: Response): Promise<AuthBffError> {
 }
 
 async function postJson<TResponse>(
+  operation: BffOperationId,
   origin: string,
   path: string,
   body: unknown,
@@ -55,8 +57,8 @@ async function postJson<TResponse>(
     headers,
     body: JSON.stringify(body),
   });
-  if (response.status !== acceptedStatus) throw await parseError(response);
-  return await response.json() as TResponse;
+  if (response.status !== acceptedStatus) throw await parseError(operation, response);
+  return parseBffResponse(operation, response.status, await response.json()) as TResponse;
 }
 
 export function completeLoginMfa(
@@ -66,7 +68,7 @@ export function completeLoginMfa(
   fetchImpl: typeof fetch = fetch,
 ): Promise<MfaResponse> {
   const body: MfaRequest = { purpose: "login", code };
-  return postJson<MfaResponse>(origin, "/v1/auth/mfa/challenges", body, 200, csrfToken, fetchImpl);
+  return postJson<MfaResponse>("mfaChallenge", origin, "/v1/auth/mfa/challenges", body, 200, csrfToken, fetchImpl);
 }
 
 export function completeRecentAuth(
@@ -76,7 +78,7 @@ export function completeRecentAuth(
   fetchImpl: typeof fetch = fetch,
 ): Promise<ReauthResponse> {
   const body: ReauthRequest = { challengeRef };
-  return postJson<ReauthResponse>(origin, "/v1/auth/reauth", body, 200, csrfToken, fetchImpl);
+  return postJson<ReauthResponse>("reauth", origin, "/v1/auth/reauth", body, 200, csrfToken, fetchImpl);
 }
 
 export function submitAccessRequest(
@@ -84,5 +86,5 @@ export function submitAccessRequest(
   input: AccessRequest,
   fetchImpl: typeof fetch = fetch,
 ): Promise<AccessAccepted> {
-  return postJson<AccessAccepted>(origin, "/v1/access-requests", input, 202, undefined, fetchImpl);
+  return postJson<AccessAccepted>("submitAccessRequest", origin, "/v1/access-requests", input, 202, undefined, fetchImpl);
 }

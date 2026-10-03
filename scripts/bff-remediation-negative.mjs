@@ -65,3 +65,11 @@ test('receipt checker binds actual evidence bytes and each role to source and co
  files.set('check.log','synthetic unit-test evidence');files.set('QA.json',files.get('QA.json').replace(sha,'c'.repeat(40)));
  assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'NOT_ACCEPTED');
 });
+
+test('optional property within an existing allOf is additive, required changes are rejected', () => {
+ const before={info:{version:'1.4.0'},components:{schemas:{Accepted:{allOf:[{$ref:'#/components/schemas/Base'},{type:'object',required:['auditRef'],properties:{auditRef:{type:'string'}}}]}}}};
+ const after=structuredClone(before);after.info.version='1.5.0';after.components.schemas.Accepted.allOf[1].properties.enrollment={type:'object'};
+ assert.equal(validateCompatibility(before,after).status,'PASS');
+ after.components.schemas.Accepted.allOf[1].required.push('enrollment');
+ assert.equal(validateCompatibility(before,after).status,'FAIL');
+});

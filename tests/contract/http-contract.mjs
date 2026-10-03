@@ -62,7 +62,7 @@ export async function validateResponse(id,response) {
   if(media) {
     if(!response.headers.get('content-type')?.includes('application/json'))issues.push('response media type mismatch');
     try {const body=await response.clone().json();issues.push(...validate(media.schema,body),...validateFixture(body));
-      if(body?.code&&body.correlationId!==response.headers.get('X-Correlation-Id'))issues.push('error correlation header/body mismatch');
+      if(body?.correlationId&&body.correlationId!==response.headers.get('X-Correlation-Id'))issues.push('correlation header/body mismatch');
     }
     catch {issues.push('invalid response JSON');}
   }

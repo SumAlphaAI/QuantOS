@@ -1,0 +1,118 @@
+{
+  "schema": "quantos-a2-engineering-checks/v1",
+  "scope": "local engineering checks; live/Supabase receipt separate; exact-SHA acceptance after commit",
+  "commands": [
+    {
+      "name": "BFF contract",
+      "command": "make bff-contract-check",
+      "status": "PASS",
+      "log": "bff-contract-all.log",
+      "logSha256": "c1de88cc358cf91cf584d3d17f1dc8d68370f8ba9e66bb64749058ebd5bb6c96"
+    },
+    {
+      "name": "Rust fmt",
+      "command": "cargo fmt --check",
+      "status": "PASS",
+      "log": "rust-fmt.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "Rust clippy",
+      "command": "cargo clippy --locked --offline --workspace --all-targets -- -D warnings",
+      "status": "PASS",
+      "log": "rust-clippy.log",
+      "logSha256": "aa6647a4e299e9b51809e053905eca4de205548b2566f5fa237ecd449529bf15"
+    },
+    {
+      "name": "Rust local tests",
+      "command": "cargo test --locked --offline -p bff-gateway -p quantos-auth",
+      "status": "PASS",
+      "log": "reference-rust.log",
+      "logSha256": "2d3290e9a7bda6474c773e13580e50984e4d1b3190a2dcfa03f70c734453365f"
+    },
+    {
+      "name": "Consumer regression",
+      "command": "pnpm --filter @sumalpha/terminal exec vitest run tests/auth-bff.test.ts tests/ui104-settings.test.ts",
+      "status": "PASS",
+      "log": "consumer-regression.log",
+      "logSha256": "b36a61d5b3a59ab32e0bd85ee190c609676851b6591b22e8541c66f96da54d07"
+    },
+    {
+      "name": "Terminal",
+      "command": "pnpm --filter @sumalpha/terminal test",
+      "status": "PASS",
+      "log": "terminal-tests.log",
+      "logSha256": "c0fc358622985934b2d6ff048c1f2a78512d5aed26329692f652aec98f63d786"
+    },
+    {
+      "name": "Contract",
+      "command": "pnpm test:contract",
+      "status": "PASS",
+      "log": "contract-tests.log",
+      "logSha256": "93407c539a95cef90ec940619f5fe8c4b9f3476a1f6b3f4b4eda39795f7a98db"
+    },
+    {
+      "name": "Frontend lint",
+      "command": "pnpm lint",
+      "status": "PASS",
+      "log": "frontend-lint.log",
+      "logSha256": "6c4e8218edef24cda3e6b34e91b98bf5fdafc29a4e46556f978835e3db0ddf9b"
+    },
+    {
+      "name": "Frontend typecheck",
+      "command": "pnpm typecheck",
+      "status": "PASS",
+      "log": "frontend-typecheck.log",
+      "logSha256": "722b516dafab6f68d716b568cbc61029c97d7e2abc47cef67e32042a5c48146f"
+    },
+    {
+      "name": "Python Ruff",
+      "command": "uv run --locked --project engines --all-packages ruff check .",
+      "status": "PASS",
+      "log": "ruff.log",
+      "logSha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "Python Pyright",
+      "command": "uv run --locked --project engines --all-packages pyright --project engines",
+      "status": "PASS",
+      "log": "pyright.log",
+      "logSha256": "1d044deee37a17d52f4dd31d7de6ebd21c68eb5d08e8b3b0822f58940a3392bb"
+    },
+    {
+      "name": "Lockfiles",
+      "command": "CARGO_NET_OFFLINE=true bash scripts/check-lockfiles.sh",
+      "status": "PASS",
+      "log": "locks.log",
+      "logSha256": "3b675b795b1b777b9734bd3e6239d11c9ddf264d6ed0f02d47de3f389b41cc34"
+    },
+    {
+      "name": "PRE04",
+      "command": "pnpm check:pre04 && pnpm test:pre04",
+      "status": "PASS",
+      "log": "pre04-negative.log",
+      "logSha256": "d07947401def89fd8dbea040d6c304fefe20aa3e343390a6052c8e035ae7ce1b"
+    },
+    {
+      "name": "PRE06",
+      "command": "pnpm check:pre06 && pnpm test:pre06",
+      "status": "PASS",
+      "log": "pre06-negative.log",
+      "logSha256": "b44cf4bbf690bdf0ae62a00aaa95e2dfb959a5b0e4ee2b4066d89a5ae07a31b5"
+    },
+    {
+      "name": "Plans",
+      "command": "pnpm check:development-plans",
+      "status": "PASS",
+      "log": "plans.log",
+      "logSha256": "a34865b6c79627fb2a43ed560df2340ec165528574aacd55c0a474e1642217d3"
+    },
+    {
+      "name": "Secrets patterns",
+      "command": "node scripts/check-secrets.mjs",
+      "status": "PASS",
+      "log": "secrets.log",
+      "logSha256": "ca5db157b114e3b38e39d071cba3a6a293324791c1621e10755a2c3c2d459932"
+    }
+  ]
+}

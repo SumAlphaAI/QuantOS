@@ -1,0 +1,289 @@
+{
+  "sourceCommit": "28deabe961404fcde35791ea757b352c79e558fa",
+  "taskId": "BFF-FE-001",
+  "reviewStatus": "CHANGES_REQUESTED",
+  "accepted": false,
+  "developmentControlCount": 24,
+  "counts": {
+    "PASS": 6,
+    "PARTIAL": 7,
+    "FAIL": 11
+  },
+  "strictCompletionPercent": 25.0,
+  "taskAcceptancePercent": 0,
+  "liveRouteCoverage": {
+    "passedHttpSmoke": 3,
+    "missing": 17,
+    "total": 20,
+    "percent": 15,
+    "semanticAcceptance": false
+  },
+  "issueCounts": {
+    "BLOCKER": 1,
+    "HIGH": 8,
+    "MEDIUM": 5,
+    "LOW": 1
+  },
+  "issues": [
+    {
+      "id": "B-01",
+      "priority": "BLOCKER",
+      "module": "live provider"
+    },
+    {
+      "id": "H-01",
+      "priority": "HIGH",
+      "module": "profile/notification persistence"
+    },
+    {
+      "id": "H-02",
+      "priority": "HIGH",
+      "module": "idempotency scope and intent"
+    },
+    {
+      "id": "H-03",
+      "priority": "HIGH",
+      "module": "security mutation replay"
+    },
+    {
+      "id": "H-04",
+      "priority": "HIGH",
+      "module": "challenge and recent auth"
+    },
+    {
+      "id": "H-05",
+      "priority": "HIGH",
+      "module": "MFA rate limit"
+    },
+    {
+      "id": "H-06",
+      "priority": "HIGH",
+      "module": "revocation SSE"
+    },
+    {
+      "id": "H-07",
+      "priority": "HIGH",
+      "module": "consumer response validation"
+    },
+    {
+      "id": "H-08",
+      "priority": "HIGH",
+      "module": "A2 Gate"
+    },
+    {
+      "id": "M-01",
+      "priority": "MEDIUM",
+      "module": "live CSRF/CORS"
+    },
+    {
+      "id": "M-02",
+      "priority": "MEDIUM",
+      "module": "success correlation replay"
+    },
+    {
+      "id": "M-03",
+      "priority": "MEDIUM",
+      "module": "settings error envelope"
+    },
+    {
+      "id": "M-04",
+      "priority": "MEDIUM",
+      "module": "reference session expiration"
+    },
+    {
+      "id": "M-05",
+      "priority": "MEDIUM",
+      "module": "MFA initiation"
+    },
+    {
+      "id": "L-01",
+      "priority": "LOW",
+      "module": "current summary"
+    }
+  ],
+  "controls": [
+    {
+      "id": "R01",
+      "requirement": "C01/C17 的 20 个 published operation",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R02",
+      "requirement": "OpenAPI/TS/Zod/MSW/JSON Schema 同源生成",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R03",
+      "requirement": "P01/P15、owner 与后续 Desktop 任务边界",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R04",
+      "requirement": "A2 live provider 路由与实际业务覆盖",
+      "status": "FAIL",
+      "issues": [
+        "B-01"
+      ]
+    },
+    {
+      "id": "R05",
+      "requirement": "session/context 与过期会话处理",
+      "status": "PARTIAL",
+      "issues": [
+        "M-04"
+      ]
+    },
+    {
+      "id": "R06",
+      "requirement": "profile/locale/theme 保存与读回",
+      "status": "FAIL",
+      "issues": [
+        "H-01"
+      ]
+    },
+    {
+      "id": "R07",
+      "requirement": "notification preferences 保存与读回",
+      "status": "FAIL",
+      "issues": [
+        "H-01"
+      ]
+    },
+    {
+      "id": "R08",
+      "requirement": "参考实现 If-Match/409/currentVersion",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R09",
+      "requirement": "MFA 发起与 challenge 生命周期",
+      "status": "FAIL",
+      "issues": [
+        "H-04",
+        "M-05"
+      ]
+    },
+    {
+      "id": "R10",
+      "requirement": "MFA 失败限流与限制期间拒绝",
+      "status": "FAIL",
+      "issues": [
+        "H-05"
+      ]
+    },
+    {
+      "id": "R11",
+      "requirement": "近期认证与安全操作授权",
+      "status": "FAIL",
+      "issues": [
+        "H-04"
+      ]
+    },
+    {
+      "id": "R12",
+      "requirement": "logout、cookie、Origin 和 CSRF",
+      "status": "PARTIAL",
+      "issues": [
+        "M-01"
+      ]
+    },
+    {
+      "id": "R13",
+      "requirement": "匿名访问申请、校验与审计受理",
+      "status": "PARTIAL",
+      "issues": [
+        "B-01"
+      ]
+    },
+    {
+      "id": "R14",
+      "requirement": "security/sessions/devices/downloads/platform 读取",
+      "status": "PARTIAL",
+      "issues": [
+        "B-01"
+      ]
+    },
+    {
+      "id": "R15",
+      "requirement": "参考实现当前会话与最后因素保护",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R16",
+      "requirement": "会话撤销重试与 correlation 一致性",
+      "status": "PARTIAL",
+      "issues": [
+        "H-02",
+        "M-02"
+      ]
+    },
+    {
+      "id": "R17",
+      "requirement": "设备/MFA 创建及撤销的幂等副作用",
+      "status": "FAIL",
+      "issues": [
+        "H-02",
+        "H-03"
+      ]
+    },
+    {
+      "id": "R18",
+      "requirement": "撤销 SSE 对象范围与实时失效",
+      "status": "FAIL",
+      "issues": [
+        "H-06"
+      ]
+    },
+    {
+      "id": "R19",
+      "requirement": "参考实现 401/403/404 和资源隐藏",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R20",
+      "requirement": "typed client 的真实响应与会话拒绝",
+      "status": "FAIL",
+      "issues": [
+        "H-07"
+      ]
+    },
+    {
+      "id": "R21",
+      "requirement": "客户端冲突/认证错误可恢复性",
+      "status": "FAIL",
+      "issues": [
+        "M-03"
+      ]
+    },
+    {
+      "id": "R22",
+      "requirement": "A2 Gate 与语义破坏自检",
+      "status": "FAIL",
+      "issues": [
+        "H-08"
+      ]
+    },
+    {
+      "id": "R23",
+      "requirement": "当前 SHA 的 CI 接线与结果",
+      "status": "PARTIAL",
+      "issues": [
+        "H-08"
+      ]
+    },
+    {
+      "id": "R24",
+      "requirement": "当前交付/验收文档准确性",
+      "status": "PARTIAL",
+      "issues": [
+        "L-01"
+      ]
+    }
+  ]
+}

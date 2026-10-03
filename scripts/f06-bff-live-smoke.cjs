@@ -56,7 +56,9 @@ async function main() {
     const established = await request('/v1/auth/session', { method: 'POST',
       headers: { origin, authorization: `Bearer ${token}` } });
     assert(established.status === 204, `session handshake returned HTTP ${established.status}`);
-    const cookie = established.headers.get('set-cookie')?.split(';')[0];
+    const cookie = established.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');
+    const csrf = /(?:^|; )quantos_csrf=([^;]+)/.exec(cookie)?.[1];
+    assert(csrf, 'BFF did not issue its CSRF cookie');
     assert(cookie?.startsWith('quantos_session='), 'opaque BFF cookie was not issued');
     const setCookie = established.headers.get('set-cookie') || '';
     assert(/; Secure(?:;|$)/i.test(setCookie), 'session cookie is not Secure');
@@ -82,7 +84,7 @@ async function main() {
     } });
     assert(hidden.status === 404, 'foreign account was not hidden');
     assert(hidden.headers.get('x-correlation-id'), 'hidden-resource correlation ID missing');
-    const revoked = await request('/v1/auth/logout', { method: 'POST', headers: { origin, cookie } });
+    const revoked = await request('/v1/auth/logout', { method: 'POST', headers: { origin, cookie, 'x-csrf-token': csrf } });
     assert(revoked.status === 204, 'logout failed');
     assert(/Max-Age=0(?:;|$)/i.test(revoked.headers.get('set-cookie') || ''), 'logout did not clear the cookie');
     const afterRevoke = await request('/v1/session', { headers: { cookie } });

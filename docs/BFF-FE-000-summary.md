@@ -1,6 +1,6 @@
 # BFF-FE-000 交付总结
 
-> 阶段：A1；更新日期：2026-10-03；基线：OpenAPI 3.1 / API 1.4.0。
+> 阶段：A1；更新日期：2026-10-03；A1 安全修正基线：OpenAPI 3.1 / API 1.4.0；当前 A2 兼容扩展为 API 1.5.0。
 > 工程开发与整改已完成；当前阶段安排见 [评审阶段调整记录](./audit/BFF-FE-000-review-stage-policy-2026-10-03.md)。B-01 staging：`DEFERRED_TO_FINAL_REVIEW`，不阻塞开发完成或 REVIEW_READY。
 > [原整改复验](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)保留当时口径；正式 PROVIDER:A1 / G0 尚未 ACCEPTED。
 

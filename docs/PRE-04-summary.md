@@ -30,3 +30,7 @@
 ## 4. 第二期边界
 
 一期只交付官网与Web；原生P16、缓存清除、签名更新和诊断导出见[DESK-PRE-04承接表](./DESK-PRE-04-interface-transfer.md)，二期保持NOT ACCEPTED。L02是Vault/mTLS/受限执行区安全任务，原生任务由独立Desktop计划承接。
+
+## 2026-10-03 A2 兼容扩展同步
+
+API 1.5.0 / 62 operations / 52 schemas；字段字典 413 行。新增 MFA 注册材料与能力引用的映射说明，更新当前 provider/test 内容摘要；历史签署 SHA 保留在 baseline 的 historicalReviewedSourceSha，当前快照的正式 reviewedSourceSha 为 null。当前源码的工程回归与 Git notes 见 [BFF-FE-001 整改记录](audit/BFF-FE-001-remediation-2026-10-03.md)。

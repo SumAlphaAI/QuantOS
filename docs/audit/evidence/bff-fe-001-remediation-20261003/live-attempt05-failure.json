@@ -1,0 +1,161 @@
+{
+  "schema": "quantos-bff-a2-live-regression/v1",
+  "sourceCommit": "28deabe961404fcde35791ea757b352c79e558fa",
+  "sourceTreeClean": false,
+  "status": "FAIL",
+  "scope": "configured existing Supabase Auth/PostgreSQL; local live BFF, synthetic HTTPS Origin; not staging",
+  "records": [
+    {
+      "operationId": "getSession",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getContext",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "getNotificationPrefs",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveNotificationPrefs",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getNotificationPrefs",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "revokeSession",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "listSessions",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "listSessions",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "subscribeSessionRevocations",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "subscribeSessionRevocations",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "revokeSession",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "revokeSession",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "getSession",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "revokeMfaFactor",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 503,
+      "issues": []
+    }
+  ],
+  "failure": "setupMfa expected 202 received 503; Original factor set was not restored",
+  "cleanup": "restore own original profile/preferences and factor set; revoke own temporary sessions; retain append-only test audits"
+}

@@ -1,0 +1,87 @@
+{
+  "sourceCommit": "28deabe961404fcde35791ea757b352c79e558fa",
+  "executionDate": "2026-10-03",
+  "toolchain": {
+    "node": "24.12.0",
+    "pnpm": "10.20.0"
+  },
+  "commands": [
+    {
+      "command": "pnpm check:p0",
+      "log": "p0.log",
+      "exitCode": 0,
+      "result": "PASS",
+      "scope": "clean source; receipt validation; A1_ONLY"
+    },
+    {
+      "command": "make f06-acceptance-gate",
+      "log": "f06-gate.log",
+      "exitCode": 0,
+      "result": "PASS",
+      "scope": "clean source; existing same-SHA Supabase receipt validation"
+    },
+    {
+      "command": "pnpm check:bff-fe-001",
+      "log": "a2-gate.log",
+      "exitCode": 0,
+      "result": "PASS",
+      "scope": "local structure"
+    },
+    {
+      "command": "pnpm test:bff-fe-001",
+      "log": "a2-negative.log",
+      "exitCode": 0,
+      "result": "PASS",
+      "scope": "10/10 existing negative cases"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal test",
+      "log": "terminal-test.log",
+      "exitCode": 0,
+      "result": "PASS",
+      "scope": "68/68 unit tests"
+    },
+    {
+      "command": "cargo test -p bff-gateway --test auth_settings_provider --locked --offline",
+      "log": "reference-unit.log",
+      "exitCode": 0,
+      "result": "PASS",
+      "scope": "8/8 reference unit integration tests"
+    },
+    {
+      "command": "pnpm test:contract",
+      "log": "contract.log",
+      "exitCode": 0,
+      "result": "PASS",
+      "scope": "24/24 fixtures"
+    },
+    {
+      "command": "pnpm test:bff-provider-contract",
+      "log": "reference-http-contract.log",
+      "exitCode": 0,
+      "result": "PASS",
+      "scope": "28 loopback HTTP records"
+    },
+    {
+      "command": "node <evidence>/probes.mjs <tmp-output> --live",
+      "log": "probes.log",
+      "exitCode": 0,
+      "result": "DEFECTS_REPRODUCED",
+      "scope": "reference plus configured existing Supabase; not staging"
+    },
+    {
+      "command": "node <evidence>/probes.mjs <tmp-output>",
+      "log": "probes-reference.log",
+      "exitCode": 0,
+      "result": "DEFECTS_REPRODUCED",
+      "scope": "16 reference/client/reducer observations"
+    },
+    {
+      "command": "node <evidence>/gate-probes.mjs <tmp-output>",
+      "log": "gate-probes.log",
+      "exitCode": 0,
+      "result": "DEFECTS_REPRODUCED",
+      "scope": "5 semantic mutations incorrectly allowed"
+    }
+  ]
+}

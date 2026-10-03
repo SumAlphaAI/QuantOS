@@ -1,4 +1,9 @@
-use std::sync::{Arc, Mutex};
+mod settings;
+
+use std::{
+    collections::BTreeMap,
+    sync::{Arc, Mutex},
+};
 
 use axum::{
     Json, Router,
@@ -20,6 +25,10 @@ struct LiveState {
     middleware: Mutex<GatewayAuthMiddleware>,
     terminal_origin: String,
     environment: String,
+    a2: Mutex<settings::A2Store>,
+    database_url: String,
+    proofs: Mutex<BTreeMap<String, settings::AuthProof>>,
+    mfa: settings::SupabaseMfa,
 }
 
 struct LiveError(StatusCode);
@@ -100,7 +109,11 @@ pub fn router(
     );
     let origin_header = HeaderValue::from_str(&terminal_origin)?;
     let state = Arc::new(LiveState {
-        verifier: SupabaseAuthVerifier::new(project_url, publishable_key)?,
+        verifier: SupabaseAuthVerifier::new(project_url, publishable_key.clone())?,
+        a2: Mutex::new(settings::A2Store::new(database_url)?),
+        database_url: database_url.to_owned(),
+        proofs: Mutex::new(BTreeMap::new()),
+        mfa: settings::SupabaseMfa::new(project_url, publishable_key)?,
         middleware: Mutex::new(GatewayAuthMiddleware::connect_as_bff(database_url)?),
         terminal_origin,
         environment,
@@ -110,6 +123,12 @@ pub fn router(
         .route("/v1/context", get(session))
         .route("/v1/auth/session", post(establish_session))
         .route("/v1/auth/logout", post(logout))
+        .merge(settings::routes())
+        .fallback(|| async { settings::ApiError::new(StatusCode::NOT_FOUND, "NOT_FOUND") })
+        .layer(middleware::from_fn_with_state(
+            state.clone(),
+            settings::guard,
+        ))
         .with_state(state)
         .layer(middleware::from_fn_with_state(
             observability,
@@ -119,11 +138,23 @@ pub fn router(
             CorsLayer::new()
                 .allow_origin(origin_header)
                 .allow_credentials(true)
-                .allow_methods([Method::GET, Method::POST])
+                .allow_methods([
+                    Method::GET,
+                    Method::POST,
+                    Method::PUT,
+                    Method::DELETE,
+                    Method::OPTIONS,
+                ])
                 .allow_headers([
                     header::AUTHORIZATION,
                     header::CONTENT_TYPE,
                     HeaderName::from_static("x-account-id"),
+                    HeaderName::from_static("x-csrf-token"),
+                    HeaderName::from_static("idempotency-key"),
+                    HeaderName::from_static("if-match"),
+                    HeaderName::from_static("x-request-id"),
+                    HeaderName::from_static("x-correlation-id"),
+                    HeaderName::from_static("traceparent"),
                 ])
                 .expose_headers([HeaderName::from_static("x-correlation-id")]),
         ))
@@ -142,7 +173,10 @@ async fn trace_write_request(
         .and_then(|value| value.to_str().ok())
         .and_then(|value| CorrelationId::parse_str(value).ok());
     let mut response = next.run(request).await;
-    if method == Method::POST {
+    if matches!(
+        method,
+        Method::POST | Method::PUT | Method::DELETE | Method::PATCH
+    ) {
         let correlation_id = response
             .headers()
             .get("x-correlation-id")
@@ -152,7 +186,7 @@ async fn trace_write_request(
             .unwrap_or_else(CorrelationId::new);
         if let Err(error) = observer.record_trace(
             correlation_id,
-            format!("http.post {path}"),
+            format!("http.{} {path}", method.as_str().to_ascii_lowercase()),
             if response.status().is_success() {
                 "succeeded"
             } else {
@@ -282,14 +316,55 @@ async fn establish_session(
         .filter(|value| !value.is_empty())
         .ok_or(StatusCode::UNAUTHORIZED)?
         .to_owned();
+    let csrf = Uuid::new_v4().to_string();
+    let csrf_for_store = csrf.clone();
     let raw = tokio::task::spawn_blocking(move || {
         let mut middleware = state
             .middleware
             .lock()
             .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?;
-        middleware
+        let raw = middleware
             .issue_bff_session(&state.verifier, &token)
-            .map_err(auth_status)
+            .map_err(auth_status)?;
+        let context = middleware
+            .load_bff_session_context(&raw, None)
+            .map_err(auth_status)?;
+        drop(middleware);
+        let user = state.mfa.user(&token).map_err(|e| e.status)?;
+        if user["id"].as_str() != Some(context.user_id.to_string().as_str()) {
+            return Err(StatusCode::FORBIDDEN);
+        }
+        let registered = (|| {
+            let mut store = state
+                .a2
+                .lock()
+                .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?;
+            store
+                .register(&raw, &csrf_for_store, &context, &user)
+                .map_err(|e| e.status)?;
+            store
+                .bootstrap(&raw, &context, &token, &user)
+                .map_err(|e| e.status)?;
+            state
+                .proofs
+                .lock()
+                .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?
+                .insert(
+                    settings::hash(&raw),
+                    settings::AuthProof {
+                        token,
+                        expires_at: context.expires_at,
+                    },
+                );
+            Ok::<_, StatusCode>(())
+        })();
+        if let Err(error) = registered {
+            if let Ok(mut middleware) = state.middleware.lock() {
+                let _ = middleware.revoke_bff_session(&raw);
+            }
+            return Err(error);
+        }
+        Ok(raw)
     })
     .await
     .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)??;
@@ -299,6 +374,13 @@ async fn establish_session(
     response_headers.insert(
         header::SET_COOKIE,
         HeaderValue::from_str(&cookie).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
+    );
+    response_headers.append(
+        header::SET_COOKIE,
+        HeaderValue::from_str(&format!(
+            "quantos_csrf={csrf}; Path=/; Max-Age=300; Secure; SameSite=Strict"
+        ))
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?,
     );
     response_headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
     Ok((StatusCode::NO_CONTENT, response_headers))
@@ -311,6 +393,11 @@ async fn logout(
     require_origin(&headers, &state.terminal_origin)?;
     if let Some(raw) = session_cookie(&headers) {
         tokio::task::spawn_blocking(move || {
+            state
+                .proofs
+                .lock()
+                .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?
+                .remove(&settings::hash(&raw));
             let mut middleware = state
                 .middleware
                 .lock()
@@ -328,6 +415,10 @@ async fn logout(
         HeaderValue::from_static(
             "quantos_session=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Strict",
         ),
+    );
+    response_headers.append(
+        header::SET_COOKIE,
+        HeaderValue::from_static("quantos_csrf=; Path=/; Max-Age=0; Secure; SameSite=Strict"),
     );
     response_headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
     Ok((StatusCode::NO_CONTENT, response_headers))

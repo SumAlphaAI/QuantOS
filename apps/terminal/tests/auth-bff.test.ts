@@ -64,3 +64,21 @@ describe("UI-102 generated-schema auth transport", () => {
     expect(new Headers(captured?.headers).has("x-csrf-token")).toBe(false);
   });
 });
+
+describe("A2 auth runtime response boundary", () => {
+  it("rejects an apparent MFA success without its challenge reference", async () => {
+    const fetchImpl = (async () => Response.json({ status: "verified" })) as typeof fetch;
+    await expect(completeLoginMfa("https://bff.example", "123456", "csrf", fetchImpl)).rejects.toMatchObject({ name: "BffResponseError", operation: "mfaChallenge" });
+  });
+
+  it("rejects a malformed reauthentication success", async () => {
+    const fetchImpl = (async () => Response.json({ reauthTokenRef: "not-a-uuid", expiresAt: "invalid" })) as typeof fetch;
+    await expect(completeRecentAuth("https://bff.example", "challenge", "csrf", fetchImpl)).rejects.toMatchObject({ name: "BffResponseError" });
+  });
+
+  it("does not forward unvalidated error metadata", async () => {
+    const fetchImpl = (async () => Response.json({ code: "RATE_LIMITED", retryAfter: "tomorrow", correlationId: "invalid" }, { status: 429 })) as typeof fetch;
+    const error = await completeLoginMfa("https://bff.example", "000000", "csrf", fetchImpl).catch((value: unknown) => value);
+    expect(error).toMatchObject({ status: 429, retryAfter: undefined, correlationId: undefined });
+  });
+});

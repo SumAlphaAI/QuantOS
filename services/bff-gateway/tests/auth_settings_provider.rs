@@ -52,6 +52,18 @@ async fn json_body(response: axum::response::Response) -> Value {
     serde_json::from_slice(&bytes).unwrap_or(Value::Null)
 }
 
+async fn frame_event(body: &mut Body) -> Value {
+    let frame = tokio::time::timeout(std::time::Duration::from_secs(2), body.frame())
+        .await
+        .unwrap()
+        .unwrap()
+        .unwrap()
+        .into_data()
+        .unwrap();
+    let text = String::from_utf8(frame.to_vec()).unwrap();
+    serde_json::from_str(text.trim().strip_prefix("data: ").unwrap()).unwrap()
+}
+
 async fn recent_auth(router: &Router) -> String {
     let challenge_response = router
         .clone()
@@ -255,14 +267,17 @@ async fn session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_aud
     let body = String::from_utf8(
         stream
             .into_body()
-            .collect()
+            .frame()
             .await
             .unwrap()
-            .to_bytes()
+            .unwrap()
+            .into_data()
+            .unwrap()
             .to_vec(),
     )
     .unwrap();
-    assert!(body.contains("permission_revoked"));
+    assert!(body.contains("session_revoked"));
+    assert!(!body.contains("permission_revoked"));
     assert!(body.contains("session-remote"));
 }
 
@@ -334,6 +349,292 @@ async fn stale_settings_write_returns_current_version_without_mutation() {
         .await
         .unwrap();
     assert_eq!(json_body(current).await["objectVersion"], "profile-v1");
+}
+
+#[tokio::test]
+async fn settings_roundtrip_preserves_inputs_and_separates_idempotent_intents() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    for (path, operation, prefix, field, changed) in [
+        (
+            "/v1/settings/profile",
+            "saveProfile",
+            "profile",
+            "displayName",
+            json!("Saved Name"),
+        ),
+        (
+            "/v1/settings/notification-preferences",
+            "saveNotificationPrefs",
+            "notifications",
+            "digestFrequency",
+            json!("weekly"),
+        ),
+    ] {
+        let mut input = body_for(operation);
+        input[field] = changed.clone();
+        let mut first = mutation("PUT", path, Some(input.clone()));
+        first
+            .headers_mut()
+            .insert("if-match", format!("{prefix}-v1").parse().unwrap());
+        first
+            .headers_mut()
+            .insert("idempotency-key", uuid_key("shared-key").parse().unwrap());
+        let saved = router.clone().oneshot(first).await.unwrap();
+        assert_eq!(saved.status(), StatusCode::OK);
+        let payload = json_body(saved).await;
+        assert_eq!(payload[field], changed);
+        let fetched = json_body(
+            router
+                .clone()
+                .oneshot(authenticated("GET", path, None))
+                .await
+                .unwrap(),
+        )
+        .await;
+        assert_eq!(fetched, payload);
+        let mut retry = mutation("PUT", path, Some(input.clone()));
+        retry
+            .headers_mut()
+            .insert("if-match", format!("{prefix}-v1").parse().unwrap());
+        retry
+            .headers_mut()
+            .insert("idempotency-key", uuid_key("shared-key").parse().unwrap());
+        assert_eq!(
+            json_body(router.clone().oneshot(retry).await.unwrap()).await,
+            payload
+        );
+        input[field] = if prefix == "profile" {
+            json!("Different Name")
+        } else {
+            json!("off")
+        };
+        let mut conflict = mutation("PUT", path, Some(input));
+        conflict
+            .headers_mut()
+            .insert("if-match", format!("{prefix}-v2").parse().unwrap());
+        conflict
+            .headers_mut()
+            .insert("idempotency-key", uuid_key("shared-key").parse().unwrap());
+        let conflict = router.clone().oneshot(conflict).await.unwrap();
+        assert_eq!(conflict.status(), StatusCode::CONFLICT);
+        assert_eq!(json_body(conflict).await["code"], "IDEMPOTENCY_CONFLICT");
+    }
+    assert_eq!(provider.audit_count().await, 2);
+}
+
+#[tokio::test]
+async fn security_retries_execute_once_and_match_success_correlation() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let grant = recent_auth(&router).await;
+    let mut setup = protected_mutation("POST", "/v1/settings/mfa/setup", "setup-key", &grant);
+    *setup.body_mut() = Body::from(body_for("setupMfa").to_string());
+    setup
+        .headers_mut()
+        .insert("content-type", "application/json".parse().unwrap());
+    let result = json_body(router.clone().oneshot(setup).await.unwrap()).await;
+    let mut retry = protected_mutation("POST", "/v1/settings/mfa/setup", "setup-key", &grant);
+    *retry.body_mut() = Body::from(body_for("setupMfa").to_string());
+    retry
+        .headers_mut()
+        .insert("content-type", "application/json".parse().unwrap());
+    let response = router.clone().oneshot(retry).await.unwrap();
+    let header = response.headers()["x-correlation-id"]
+        .to_str()
+        .unwrap()
+        .to_owned();
+    let replay = json_body(response).await;
+    assert_eq!(result, replay);
+    assert_eq!(replay["correlationId"], header);
+    let security = json_body(
+        router
+            .clone()
+            .oneshot(authenticated("GET", "/v1/settings/security", None))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(security["factors"].as_array().unwrap().len(), 3);
+    for (path, key) in [
+        ("/v1/settings/trusted-devices/device-remote", "device-key"),
+        ("/v1/settings/mfa/factors/factor-totp", "factor-key"),
+        ("/v1/settings/sessions/session-remote", "session-key"),
+    ] {
+        let first = router
+            .clone()
+            .oneshot(protected_mutation("DELETE", path, key, &grant))
+            .await
+            .unwrap();
+        assert_eq!(first.status(), StatusCode::ACCEPTED);
+        let payload = json_body(first).await;
+        let retry = router
+            .clone()
+            .oneshot(protected_mutation("DELETE", path, key, &grant))
+            .await
+            .unwrap();
+        assert_eq!(retry.status(), StatusCode::ACCEPTED);
+        let correlation = retry.headers()["x-correlation-id"]
+            .to_str()
+            .unwrap()
+            .to_owned();
+        assert_eq!(json_body(retry).await, payload);
+        assert_eq!(payload["correlationId"], correlation);
+    }
+    assert_eq!(provider.audit_count().await, 4);
+}
+
+#[tokio::test]
+async fn challenges_are_fresh_single_use_and_cooldown_precedes_verification() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let pending = json_body(
+        router
+            .clone()
+            .oneshot(mutation(
+                "POST",
+                "/v1/auth/mfa/challenges",
+                Some(json!({"purpose":"login"})),
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(pending["status"], "pending");
+    for _ in 0..5 {
+        router
+            .clone()
+            .oneshot(mutation(
+                "POST",
+                "/v1/auth/mfa/challenges",
+                Some(json!({"purpose":"login","code":"000000"})),
+            ))
+            .await
+            .unwrap();
+    }
+    let blocked = router
+        .clone()
+        .oneshot(mutation(
+            "POST",
+            "/v1/auth/mfa/challenges",
+            Some(json!({"purpose":"login","code":"123456"})),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(blocked.status(), StatusCode::TOO_MANY_REQUESTS);
+    provider
+        .advance_reference_time(chrono::Duration::seconds(61))
+        .await;
+    let challenge = json_body(
+        router
+            .clone()
+            .oneshot(mutation(
+                "POST",
+                "/v1/auth/mfa/challenges",
+                Some(json!({"purpose":"security_change","code":"123456"})),
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    for expected in [StatusCode::OK, StatusCode::FORBIDDEN] {
+        let response = router
+            .clone()
+            .oneshot(mutation(
+                "POST",
+                "/v1/auth/reauth",
+                Some(json!({"challengeRef":challenge["challengeRef"]})),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), expected);
+    }
+    let old = json_body(
+        router
+            .clone()
+            .oneshot(mutation(
+                "POST",
+                "/v1/auth/mfa/challenges",
+                Some(json!({"purpose":"security_change","code":"123456"})),
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    provider
+        .advance_reference_time(chrono::Duration::minutes(6))
+        .await;
+    let expired = router
+        .clone()
+        .oneshot(authenticated("GET", "/v1/session", None))
+        .await
+        .unwrap();
+    assert_eq!(expired.status(), StatusCode::UNAUTHORIZED);
+    provider.renew_reference_session().await;
+    let reauth = router
+        .oneshot(mutation(
+            "POST",
+            "/v1/auth/reauth",
+            Some(json!({"challengeRef":old["challengeRef"]})),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(reauth.status(), StatusCode::FORBIDDEN);
+}
+
+#[tokio::test]
+async fn session_stream_stays_open_for_other_session_and_closes_revoked_target() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let grant = recent_auth(&router).await;
+    let current = router
+        .clone()
+        .oneshot(authenticated("GET", "/v1/settings/sessions/stream", None))
+        .await
+        .unwrap();
+    let mut target = authenticated("GET", "/v1/settings/sessions/stream", None);
+    target
+        .headers_mut()
+        .insert("cookie", "quantos_session=session-remote".parse().unwrap());
+    let target = router.clone().oneshot(target).await.unwrap();
+    assert_eq!(target.status(), StatusCode::OK);
+    let mut current = current.into_body();
+    let mut target = target.into_body();
+    let revoked = router
+        .clone()
+        .oneshot(protected_mutation(
+            "DELETE",
+            "/v1/settings/sessions/session-remote",
+            "revoke-stream",
+            &grant,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(revoked.status(), StatusCode::ACCEPTED);
+    assert_eq!(
+        frame_event(&mut current).await["payload"]["type"],
+        "session_revoked"
+    );
+    assert_eq!(
+        frame_event(&mut target).await["payload"]["type"],
+        "permission_revoked"
+    );
+    assert!(target.frame().await.is_none());
+    assert!(
+        tokio::time::timeout(std::time::Duration::from_millis(100), current.frame())
+            .await
+            .is_err()
+    );
+    let logout = router
+        .oneshot(mutation("POST", "/v1/auth/logout", None))
+        .await
+        .unwrap();
+    assert_eq!(logout.status(), StatusCode::NO_CONTENT);
+    assert_eq!(
+        frame_event(&mut current).await["payload"]["type"],
+        "permission_revoked"
+    );
+    assert!(current.frame().await.is_none());
 }
 
 #[tokio::test]

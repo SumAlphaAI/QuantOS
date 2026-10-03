@@ -198,13 +198,13 @@ export function validatePre04Inventory(inputs) {
   }
   const sourceIds = sourceOperations.map((operation) => operation.operationId).sort();
   const manifestIds = (inputs.manifest.operations ?? []).map((operation) => operation.operationId).sort();
-  check(inputs.openapi.info?.version === "1.4.0", "BFF OpenAPI inventory version is 1.4.0");
+  check(inputs.openapi.info?.version === "1.5.0", "BFF OpenAPI inventory version is 1.5.0");
   check(sourceOperations.length === 62, "BFF OpenAPI inventory has 62 operations");
-  check(Object.keys(inputs.openapi.components?.schemas ?? {}).length === 51, "BFF OpenAPI inventory has 51 schemas");
+  check(Object.keys(inputs.openapi.components?.schemas ?? {}).length === 52, "BFF OpenAPI inventory has 52 schemas");
   check(same(sourceIds, manifestIds), "generated operation IDs exactly match OpenAPI");
   const byId = entries => entries.map(({operationId, method, path}) => ({operationId, method, path})).sort((a, b) => a.operationId.localeCompare(b.operationId));
   check(same(byId(sourceOperations), byId(inputs.manifest.operations ?? [])), "generated operation manifest exactly matches OpenAPI");
-  check(inputs.ledger.includes("62 个 operation") && inputs.ledger.includes("51 个 schema"), "ledger records current BFF operation/schema counts");
+  check(inputs.ledger.includes("62 个 operation") && inputs.ledger.includes("52 个 schema"), "ledger records current BFF operation/schema counts");
 
   const protoMetrics = {
     files: inputs.protoSources.length,
