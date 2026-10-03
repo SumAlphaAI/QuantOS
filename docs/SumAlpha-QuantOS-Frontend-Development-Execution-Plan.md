@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.14
+> 版本：3.15
 > 更新时间：2026-10-03
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.15`：按 BFF-FE-000 独立复审修正同源生成、SSE、安全输入、兼容性、语义门禁、mock/provider harness 与文档基线；工程复验与目标 staging/签署分别记账，PROVIDER:A1/G0 尚未关闭。
 
 - `3.14`：P0 三项问题关闭，16/16 控制点通过；登记修复提交的真实 Supabase F06 与 P0 联合回执，仅放行 A1。文档提交后的新 HEAD 仍须取得自身 Git notes 回执。
 
@@ -293,6 +295,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - 领域接口背景：F03 有领域 Proto/OpenAPI 生成，但无第一期 22 个 Web Terminal 页面完整 API 清单
 - 覆盖契约/页面：C01–C17；P01–P15/P17–P23
 - 目标阶段与验收：FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI
+- 工程整改复验：[2026-10-03 整改报告](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)；API 1.4.0 / 62 published / 46 planned / 51 schemas；真实 staging 与当期联合签署尚不具备，B-01 保持未验收。
 
 <a id="acceptance-provider-a1"></a>
 ##### PROVIDER:A1：验收检查点

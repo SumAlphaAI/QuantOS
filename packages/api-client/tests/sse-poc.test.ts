@@ -49,9 +49,9 @@ let seq = 0;
 const env = (payload: Record<string, unknown>, eventId?: string): SseEventEnvelope => {
   seq += 1;
   return {
-    streamId: "stream-1",
+    streamId: "11111111-1111-4111-8111-111111111111",
     sequence: seq,
-    eventId: eventId ?? `evt-${seq}`,
+    eventId: eventId ?? `22222222-2222-4222-8222-${String(seq).padStart(12, "0")}`,
     occurredAt: "2026-08-14T03:00:00Z",
     correlationId: "9a1c4e60-2d3b-4c5f-8a9e-1b2c3d4e5f60",
     payloadVersion: "v1",

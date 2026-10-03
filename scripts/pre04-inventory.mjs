@@ -198,7 +198,7 @@ export function validatePre04Inventory(inputs) {
   }
   const sourceIds = sourceOperations.map((operation) => operation.operationId).sort();
   const manifestIds = (inputs.manifest.operations ?? []).map((operation) => operation.operationId).sort();
-  check(inputs.openapi.info?.version === "1.3.0", "BFF OpenAPI inventory version is 1.3.0");
+  check(inputs.openapi.info?.version === "1.4.0", "BFF OpenAPI inventory version is 1.4.0");
   check(sourceOperations.length === 62, "BFF OpenAPI inventory has 62 operations");
   check(Object.keys(inputs.openapi.components?.schemas ?? {}).length === 51, "BFF OpenAPI inventory has 51 schemas");
   check(same(sourceIds, manifestIds), "generated operation IDs exactly match OpenAPI");

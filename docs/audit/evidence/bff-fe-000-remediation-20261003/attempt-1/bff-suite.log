@@ -1,0 +1,125 @@
+pnpm check:bff-compatibility
+
+> @sumalpha/quantos@ check:bff-compatibility /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-compatibility.mjs
+
+{
+  "status": "PASS",
+  "changes": 65,
+  "registeredCorrections": 65,
+  "failures": [],
+  "baseline": "75a563c62d3d7883d5b178111becec07d4da0301",
+  "scope": "engineering compatibility; no owner/staging signature implied"
+}
+pnpm test:bff-remediation
+
+> @sumalpha/quantos@ test:bff-remediation /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-remediation-negative.mjs && vitest run tests/contract/bff-remediation.test.ts packages/api-client/tests/sse-safety.test.ts
+
+✔ current semantic A1 gate passes (6.127583ms)
+✔ rejects cookie semantic regression (2.46025ms)
+✔ rejects idempotency semantic regression (2.295416ms)
+✔ rejects sort semantic regression (2.713166ms)
+✔ rejects page semantic regression (2.563083ms)
+✔ rejects ci semantic regression (2.116292ms)
+✔ rejects decimal semantic regression (2.106292ms)
+✔ rejects version semantic regression (2.477709ms)
+✔ rejects csrf semantic regression (2.90875ms)
+✔ exact registered security correction is accepted only within its window (10.751333ms)
+✔ unregistered breaking type, enum or missing baseline fails closed (22.615083ms)
+✔ new required parameters and constraints cannot silently bypass compatibility (0.900542ms)
+✔ absent, invented and reference-only staging receipts never close A1 (0.250458ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 151.30025
+
+ RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  09:44:02
+   Duration  380ms (transform 86ms, setup 0ms, import 289ms, tests 116ms, environment 0ms)
+
+pnpm check:bff-openapi
+
+> @sumalpha/quantos@ check:bff-openapi /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-openapi.mjs
+
+ok    OpenAPI 版本 3.1.0
+ok    全部本地 $ref 可解析
+ok    operation 数 62，operationId 全局唯一
+
+BFF OpenAPI 基线结构校验通过
+pnpm check:bff-generated
+
+> @sumalpha/quantos@ check:bff-generated /Users/anray/Documents/project/SumAlpha/QuantOS
+> node ./scripts/check-bff-generated.mjs
+
+✨ openapi-typescript 7.13.0
+🚀 /Users/anray/Documents/project/SumAlpha/QuantOS/bff/openapi/quantos-bff.v1.yaml → /var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-bff-generated-vsFPLc/packages/api-client/src/bff-gen/quantos-bff.ts [56.9ms]
+Generated BFF 1.4.0: 62 operations, 51 schemas.
+ok    packages/api-client/src/bff-gen/quantos-bff.ts
+ok    packages/api-client/src/bff-gen/quantos-bff.zod.ts
+ok    tests/contract/generated/quantos-bff.components.schema.json
+ok    tests/contract/generated/quantos-bff.operations.json
+ok    tests/contract/generated/quantos-bff.msw.ts
+ok    services/bff-gateway/src/generated-input-policy.json
+
+BFF generated artifacts match the frozen OpenAPI.
+pnpm check:bff-contract-coverage
+
+> @sumalpha/quantos@ check:bff-contract-coverage /Users/anray/Documents/project/SumAlpha/QuantOS
+> node ./scripts/check-bff-contract-coverage.mjs
+
+BFF contract coverage passed: 62 operations, 51 schemas, 62 page references.
+pnpm check:bff-fe-000
+
+> @sumalpha/quantos@ check:bff-fe-000 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-bff-fe-000.mjs
+
+BFF-FE-000 Gate PASS: 17 contracts, 22 phase-one pages, 62 published + 46 planned operationIds.
+pnpm test:bff-fe-000
+
+> @sumalpha/quantos@ test:bff-fe-000 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/bff-fe-000-gate-negative.mjs
+
+✔ current BFF-FE-000 repository Gate passes (3.456583ms)
+✔ missing phase-one page mapping is rejected (1.754084ms)
+✔ published operation drift is rejected (2.410875ms)
+✔ planned operation traceability deletion is rejected (2.231375ms)
+✖ shared idempotency baseline deletion is rejected (1.845625ms)
+✔ dependency regression is rejected (1.429792ms)
+✔ error correlation header deletion is rejected (2.07075ms)
+✔ generated Zod export deletion is rejected (1.332041ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103.749125
+
+✖ failing tests:
+
+test at scripts/bff-fe-000-gate-negative.mjs:34:1
+✖ shared idempotency baseline deletion is rejected (1.845625ms)
+  TypeError: Cannot read properties of undefined (reading 'name')
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-a1-semantics.mjs:21:40
+      at Array.some (<anonymous>)
+      at has (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-a1-semantics.mjs:21:30)
+      at validateA1Semantics (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-a1-semantics.mjs:24:24)
+      at validateBffFe000 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-bff-fe-000.mjs:54:20)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-000-gate-negative.mjs:37:18)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+ ELIFECYCLE  Command failed with exit code 1.
+make: *** [bff-contract-check] Error 1

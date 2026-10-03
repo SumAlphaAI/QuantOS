@@ -28,6 +28,7 @@ jobs:
       QUANTOS_SKIP_ENV: "1"
       F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres
       GITLEAKS_BIN: ${{ github.workspace }}/artifacts/tools/gitleaks
+      QUANTOS_BFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
       QUANTOS_PROTO_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
       QUANTOS_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CARGO_TERM_COLOR: always
@@ -133,7 +134,7 @@ jobs:
         run: make bff-contract-check
 
       - name: Test BFF auth and settings reference provider
-        run: make bff-provider-test
+        run: make bff-provider-test && pnpm test:bff-provider-contract
 
       - name: Validate R01 market ingestion contract and replay
         run: make r01-check

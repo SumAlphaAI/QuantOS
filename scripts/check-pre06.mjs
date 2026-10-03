@@ -93,11 +93,11 @@ export function validatePre06(inputs) {
   }
   check(configValue(inputs.terminalPlaywright,["testIgnore"])?.includes('"deep-link-reauth.spec.ts"'), "phase-one Terminal excludes the Desktop deep-link spec");
 
-  check(inputs.operations.version === "1.3.0", "BFF fixture manifest is version 1.3.0");
+  check(inputs.operations.version === "1.4.0", "BFF fixture manifest is version 1.4.0");
   check(inputs.operations.operations?.length === 62, "BFF fixture manifest covers 62 operations");
   check(Object.keys(inputs.schemas.$defs ?? {}).length === 51, "BFF fixture schema bundle covers 51 schemas");
   for (const failure of validateTestStructure(inputs.contractTests, inputs.visualTests)) failures.push(failure);
-  const criticalPaths=["packages/domain-ui/src/ui101.ts","packages/domain-ui/src/indicators.tsx","packages/ui/src/components/DangerConfirmDialog/confirmation-policy.ts","apps/terminal/src/auth/flow.ts","apps/terminal/src/audit/gateway.ts"];
+  const criticalPaths=["packages/api-client/src/sse-contract.ts","packages/domain-ui/src/ui101.ts","packages/domain-ui/src/indicators.tsx","packages/ui/src/components/DangerConfirmDialog/confirmation-policy.ts","apps/terminal/src/auth/flow.ts","apps/terminal/src/audit/gateway.ts"];
   check(inputs.criticalInventory.schema === "quantos-critical-branches/v1" && criticalPaths.every(path=>inputs.criticalInventory.files.some(entry=>entry.path===path&&entry.policy)), "critical policy inventory cannot shrink");
   check(configValue(inputs.criticalConfig,["test","coverage","thresholds","perFile"]) === "true" && ["branches","lines","functions","statements"].every(key=>configValue(inputs.criticalConfig,["test","coverage","thresholds",key]) === "100") && configValue(inputs.criticalConfig,["test","coverage","exclude"]) === "[]" && configValue(inputs.criticalConfig,["test","coverage","include"]) === "inventory.files.map(entry=>entry.path)", "critical coverage freezes per-file 100% including TSX");
   check(inputs.fixtureReport.status === "PASS", "all fixture inventory entries pass schema and sensitive policy");

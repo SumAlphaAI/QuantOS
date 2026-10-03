@@ -14,6 +14,7 @@ const GENERATED_FILES = {
   schemas: "tests/contract/generated/quantos-bff.components.schema.json",
   operations: "tests/contract/generated/quantos-bff.operations.json",
   handlers: "tests/contract/generated/quantos-bff.msw.ts",
+  providerPolicy: "services/bff-gateway/src/generated-input-policy.json",
 };
 
 const HTTP_METHODS = new Set(["get", "post", "put", "patch", "delete", "options", "head"]);
@@ -37,7 +38,7 @@ function rewriteComponentRefs(value) {
   }));
 }
 
-function zodSchema(schema) {
+export function zodSchema(schema) {
   if (!schema || Object.keys(schema).length === 0) return "z.unknown()";
   if (schema.$ref) return `z.lazy(() => ${schema.$ref.split("/").at(-1)}Schema)`;
 
@@ -88,6 +89,10 @@ function zodSchema(schema) {
         expression += `.catchall(${zodSchema(schema.additionalProperties)})`;
       } else if (schema.additionalProperties === false) {
         expression += ".strict()";
+      } else {
+        // JSON Schema objects are open unless explicitly closed. Preserve data,
+        // including event payloads and strategy parameter maps, after parsing.
+        expression += ".passthrough()";
       }
     }
   } else {
@@ -161,7 +166,7 @@ function renderMsw(operations, version) {
     `function missingResolver(operationId: BffOperationId): Response {\n` +
     `  return HttpResponse.json(\n` +
     `    { code: "MOCK_NOT_CONFIGURED", message: \`No fixture configured for \${operationId}.\`, correlationId: "00000000-0000-4000-8000-000000000000" },\n` +
-    `    { status: 501 },\n  );\n}\n\n` +
+    `    { status: 501, headers: { "X-Correlation-Id": "00000000-0000-4000-8000-000000000000", "Cache-Control": "no-store" } },\n  );\n}\n\n` +
     `export function createGeneratedBffHandlers(\n` +
     `  resolvers: BffMockResolvers,\n` +
     `  baseUrl = "http://localhost:4010",\n` +
@@ -200,6 +205,19 @@ export function generateBffContracts(outputRoot = repoRoot) {
       operations,
     }),
     [GENERATED_FILES.handlers]: renderMsw(operations, doc.info.version),
+    [GENERATED_FILES.providerPolicy]: json({
+      version: doc.info.version,
+      schemas: doc.components.schemas,
+      operations: Object.entries(doc.paths).flatMap(([path, item]) => Object.entries(item)
+        .filter(([method, op]) => HTTP_METHODS.has(method) && op.operationId)
+        .map(([method, op]) => ({ path, method: method.toUpperCase(), operationId: op.operationId,
+          parameters: (op.parameters ?? []).map(p => p.$ref ? doc.components.parameters[p.$ref.split("/").at(-1)] : p),
+          body: op.requestBody?.content?.["application/json"]?.schema ?? null,
+          bodyExample: op.requestBody?.content?.["application/json"]?.example ?? null,
+          policy: op["x-quantos-policy"],
+          authenticated: (op.security ?? doc.security).length > 0,
+        }))),
+    }),
   };
 
   for (const [relative, content] of Object.entries(outputs)) {

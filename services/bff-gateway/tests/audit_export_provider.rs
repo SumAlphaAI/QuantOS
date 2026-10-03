@@ -47,6 +47,10 @@ fn viewer(method: &str, path: &str) -> Request<Body> {
 
 fn mutation(method: &str, path: &str, body: Option<Value>) -> Request<Body> {
     let mut request = authenticated(method, path, body);
+    request.headers_mut().insert(
+        "x-request-id",
+        uuid::Uuid::now_v7().to_string().parse().unwrap(),
+    );
     request
         .headers_mut()
         .insert("origin", ORIGIN.parse().unwrap());
@@ -99,11 +103,21 @@ fn export_mutation(path: &str, key: &str, reauth: &str, body: Option<Value>) -> 
     let mut request = mutation("POST", path, body);
     request
         .headers_mut()
-        .insert("idempotency-key", key.parse().unwrap());
+        .insert("idempotency-key", uuid_key(key).parse().unwrap());
     request
         .headers_mut()
         .insert("x-reauth-token-ref", reauth.parse().unwrap());
     request
+}
+
+fn uuid_key(label: &str) -> String {
+    use std::hash::{Hash, Hasher};
+    let mut hash = std::collections::hash_map::DefaultHasher::new();
+    label.hash(&mut hash);
+    format!(
+        "11111111-1111-4111-8111-{:012x}",
+        hash.finish() & 0xffffffffffff
+    )
 }
 
 #[tokio::test]
@@ -143,7 +157,8 @@ async fn audit_search_is_capability_guarded_redacted_and_cursor_paginated() {
     assert_eq!(first_body["nextCursor"], "audit:3");
     for item in first_body["items"].as_array().unwrap() {
         assert_eq!(item["redactionApplied"], true);
-        assert_eq!(item["redactedPayload"]["secret"], "[REDACTED]");
+        assert!(item["redactedPayload"].get("secret").is_none());
+        assert_eq!(item["redactedPayload"]["redactionSummary"], "[REDACTED]");
         assert!(item["payloadHash"].as_str().unwrap().starts_with("sha256:"));
     }
 
@@ -384,4 +399,35 @@ async fn export_cancel_expiry_and_validation_fail_closed() {
         .await
         .unwrap();
     assert_eq!(expired.status(), StatusCode::GONE);
+}
+
+#[tokio::test]
+async fn audit_sort_filter_is_executed_and_unknown_expressions_are_rejected() {
+    let router = BffProvider::default().router();
+    let response = router.clone().oneshot(authenticated("GET", &format!("/v1/audit/events?correlationId={CORRELATION}&sort=occurredAt:desc&filter=kind:eq:order.accepted"), None)).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = json_body(response).await;
+    let items = body["items"].as_array().unwrap();
+    assert!(!items.is_empty());
+    assert!(items.iter().all(|item| item["kind"] == "order.accepted"));
+    assert!(
+        items
+            .windows(2)
+            .all(|pair| pair[0]["occurredAt"].as_str() >= pair[1]["occurredAt"].as_str())
+    );
+    for path in [
+        "/v1/audit/events?sort=secret:asc".to_owned(),
+        "/v1/audit/events?filter=kind:contains:order".to_owned(),
+        format!("/v1/audit/evidence-chains/{CORRELATION}?sort=occurredAt:desc"),
+    ] {
+        assert_eq!(
+            router
+                .clone()
+                .oneshot(authenticated("GET", &path, None))
+                .await
+                .unwrap()
+                .status(),
+            StatusCode::UNPROCESSABLE_ENTITY
+        );
+    }
 }

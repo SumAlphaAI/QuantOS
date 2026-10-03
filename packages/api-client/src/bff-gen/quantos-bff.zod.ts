@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.3.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.4.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -12,7 +12,7 @@ export const MoneyValueSchema = z.object({
   "currencyCode": z.string().regex(new RegExp("^[A-Z]{3}$")),
   "units": z.string(),
   "nanos": z.number().int().min(-999999999).max(999999999),
-});
+}).passthrough();
 
 export const RuntimeModeSchema = z.enum(["research","paper","shadow","assisted_live"]).describe("assisted_live 仅 M5+ 且服务端 flag/capability 放行才可见；客户端不得硬编码可用性");
 
@@ -27,7 +27,7 @@ export const OrderStatusSchema = z.enum(["draft","risk_checking","awaiting_appro
 export const TimeWindowSchema = z.object({
   "start": z.lazy(() => DateTimeSchema),
   "end": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const ErrorEnvelopeSchema = z.object({
   "code": z.string().describe("稳定机器码，如 FORBIDDEN/VERSION_CONFLICT/COMMAND_EXPIRED/DATA_STALE"),
@@ -36,22 +36,22 @@ export const ErrorEnvelopeSchema = z.object({
   "fieldErrors": z.record(z.string(), z.string()).optional(),
   "retryAfter": z.number().int().min(0).describe("秒").optional(),
   "currentVersion": z.string().describe("409 时返回，供客户端 diff").optional(),
-});
+}).strict();
 
 export const PageSchema = z.object({
   "items": z.array(z.unknown()),
   "nextCursor": z.string().describe("缺省表示末页").optional(),
-});
+}).passthrough();
 
 export const AsyncAcceptedSchema = z.object({
   "jobId": z.lazy(() => UUIDSchema),
   "status": z.enum(["accepted","cancel_requested"]),
   "correlationId": z.lazy(() => UUIDSchema),
-});
+}).passthrough();
 
 export const AuditedAsyncAcceptedSchema = z.intersection(z.lazy(() => AsyncAcceptedSchema), z.object({
   "auditRef": z.lazy(() => UUIDSchema),
-}));
+}).passthrough());
 
 export const ReauthRequestSchema = z.object({
   "challengeRef": z.lazy(() => UUIDSchema),
@@ -63,11 +63,11 @@ export const StreamEventSchema = z.object({
   "eventId": z.lazy(() => UUIDSchema),
   "occurredAt": z.lazy(() => DateTimeSchema),
   "correlationId": z.lazy(() => UUIDSchema),
-  "payloadVersion": z.string().describe("载荷 schema 版本（未知版本客户端 fail closed）"),
+  "payloadVersion": z.enum(["v1","1"]).describe("Canonical v1; legacy 1 remains supported during the 1.4.0 migration window. Other versions fail closed."),
   "payload": z.object({
 
-}).describe("领域事件载荷；payload.type=permission_revoked 为终态语义"),
-});
+}).passthrough().describe("领域事件载荷；payload.type=permission_revoked 为终态语义"),
+}).passthrough();
 
 export const SessionContextSchema = z.object({
   "actorId": z.lazy(() => UUIDSchema),
@@ -79,7 +79,7 @@ export const SessionContextSchema = z.object({
   "capabilities": z.array(z.string()).describe("capability key 全集（权限裁剪唯一来源）"),
   "mfaState": z.enum(["unenrolled","enrolled","challenged","verified"]),
   "expiresAt": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const ProfileSettingsInputSchema = z.object({
   "displayName": z.string().min(1).max(80),
@@ -94,7 +94,7 @@ export const ProfileSettingsInputSchema = z.object({
   "density": z.enum(["compact","comfortable"]),
   "highContrast": z.boolean(),
   "reducedMotion": z.boolean(),
-});
+}).passthrough();
 
 export const ProfileSettingsSchema = z.intersection(z.lazy(() => ProfileSettingsInputSchema), z.object({
   "memberId": z.string(),
@@ -102,7 +102,7 @@ export const ProfileSettingsSchema = z.intersection(z.lazy(() => ProfileSettings
   "emailVerified": z.boolean(),
   "roleLabels": z.array(z.string()),
   "objectVersion": z.string(),
-}));
+}).passthrough());
 
 export const NotificationRuleSchema = z.object({
   "key": z.string(),
@@ -111,7 +111,7 @@ export const NotificationRuleSchema = z.object({
   "desktop": z.boolean(),
   "email": z.boolean(),
   "browser": z.boolean(),
-});
+}).passthrough();
 
 export const NotificationPreferencesInputSchema = z.object({
   "rules": z.array(z.lazy(() => NotificationRuleSchema)),
@@ -120,12 +120,12 @@ export const NotificationPreferencesInputSchema = z.object({
   "quietHoursEnd": z.string().regex(new RegExp("^([01]\\d|2[0-3]):[0-5]\\d$")),
   "criticalBypass": z.boolean().describe("Critical 可绕过静默但仍受服务端授权策略约束"),
   "digestFrequency": z.enum(["off","daily","weekly"]),
-});
+}).passthrough();
 
 export const NotificationPreferencesSchema = z.intersection(z.lazy(() => NotificationPreferencesInputSchema), z.object({
   "objectVersion": z.string(),
   "browserPermission": z.enum(["granted","denied","default","unsupported"]),
-}));
+}).passthrough());
 
 export const MfaFactorSchema = z.object({
   "factorId": z.string(),
@@ -134,7 +134,7 @@ export const MfaFactorSchema = z.object({
   "createdAt": z.lazy(() => DateTimeSchema),
   "lastUsedAt": z.lazy(() => DateTimeSchema),
   "currentDevice": z.boolean(),
-});
+}).passthrough();
 
 export const SecuritySettingsSchema = z.object({
   "posture": z.enum(["strong","attention_required","unknown"]),
@@ -144,7 +144,7 @@ export const SecuritySettingsSchema = z.object({
   "recoveryCodesRemaining": z.number().int().min(0),
   "lastVerifiedAt": z.lazy(() => DateTimeSchema),
   "correlationId": z.lazy(() => UUIDSchema),
-});
+}).passthrough();
 
 export const ActiveSessionSchema = z.object({
   "sessionId": z.string(),
@@ -154,7 +154,7 @@ export const ActiveSessionSchema = z.object({
   "lastActiveAt": z.lazy(() => DateTimeSchema),
   "ipMasked": z.string().describe("仅脱敏 IP，禁止返回完整地址"),
   "current": z.boolean(),
-});
+}).passthrough();
 
 export const TrustedDeviceSchema = z.object({
   "deviceId": z.string(),
@@ -162,7 +162,7 @@ export const TrustedDeviceSchema = z.object({
   "verificationMethod": z.enum(["passkey","biometric","authenticator"]),
   "trustedUntil": z.lazy(() => DateTimeSchema),
   "current": z.boolean(),
-});
+}).passthrough();
 
 export const DownloadRecordSchema = z.object({
   "downloadId": z.string(),
@@ -174,7 +174,7 @@ export const DownloadRecordSchema = z.object({
   "downloadUrl": z.string().url().describe("BFF 短时签名 URL；不得写入日志或持久化").optional(),
   "watermarked": z.boolean().optional(),
   "correlationId": z.lazy(() => UUIDSchema).optional(),
-});
+}).passthrough();
 
 export const BrowserCapabilityPolicySchema = z.object({
   "kind": z.literal("web"),
@@ -187,7 +187,7 @@ export const BrowserCapabilityPolicySchema = z.object({
   "businessPagesNoIndex": z.literal(true),
   "cspEnforced": z.boolean(),
   "sessionProtected": z.boolean(),
-});
+}).passthrough();
 
 export const AuditEventSchema = z.object({
   "eventId": z.lazy(() => UUIDSchema),
@@ -201,14 +201,14 @@ export const AuditEventSchema = z.object({
   "redactionApplied": z.literal(true),
   "redactedPayload": z.object({
 
-}).describe("只允许服务端脱敏后输出；密钥、token、完整账户标识禁止出现"),
+}).passthrough().describe("只允许服务端脱敏后输出；密钥、token、完整账户标识禁止出现"),
   "payloadHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "retentionUntil": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const AuditEventPageSchema = z.intersection(z.lazy(() => PageSchema), z.object({
   "items": z.array(z.lazy(() => AuditEventSchema)),
-}));
+}).passthrough());
 
 export const EvidenceNodeSchema = z.object({
   "eventId": z.lazy(() => UUIDSchema),
@@ -220,14 +220,14 @@ export const EvidenceNodeSchema = z.object({
   "payloadHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "route": z.string().regex(new RegExp("^/")).describe("只含资源引用，不含 token"),
   "retentionUntil": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const EvidenceChainPageSchema = z.object({
   "correlationId": z.lazy(() => UUIDSchema),
   "items": z.array(z.lazy(() => EvidenceNodeSchema)),
   "nextCursor": z.string().optional(),
   "complete": z.boolean().describe("true 仅表示当前授权范围内证据链完整"),
-});
+}).passthrough();
 
 export const ExportScopeSchema = z.object({
   "correlationIds": z.array(z.lazy(() => UUIDSchema)).min(1).max(100),
@@ -255,7 +255,7 @@ export const ExportJobSchema = z.object({
   "retentionUntil": z.lazy(() => DateTimeSchema),
   "correlationId": z.lazy(() => UUIDSchema),
   "auditRef": z.lazy(() => UUIDSchema),
-});
+}).passthrough();
 
 export const ExportDownloadMetadataSchema = z.object({
   "exportId": z.lazy(() => UUIDSchema),
@@ -267,7 +267,7 @@ export const ExportDownloadMetadataSchema = z.object({
   "watermarked": z.literal(true),
   "retentionUntil": z.lazy(() => DateTimeSchema),
   "auditRef": z.lazy(() => UUIDSchema),
-});
+}).passthrough();
 
 export const ResearchRunSchema = z.object({
   "runId": z.lazy(() => UUIDSchema),
@@ -283,7 +283,7 @@ export const ResearchRunSchema = z.object({
   "evidenceRefs": z.array(z.lazy(() => UUIDSchema)),
   "correlationId": z.lazy(() => UUIDSchema),
   "createdAt": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const DataSnapshotSchema = z.object({
   "snapshotId": z.lazy(() => UUIDSchema),
@@ -296,7 +296,7 @@ export const DataSnapshotSchema = z.object({
   "licenseLabel": z.string(),
   "capturedAt": z.lazy(() => DateTimeSchema),
   "maxAgeSeconds": z.number().int(),
-});
+}).passthrough();
 
 export const ArtifactSchema = z.object({
   "artifactId": z.lazy(() => UUIDSchema),
@@ -310,13 +310,13 @@ export const ArtifactSchema = z.object({
   "contentHash": z.string(),
   "lineageRefs": z.array(z.lazy(() => UUIDSchema)).optional(),
   "createdAt": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const StrategySummarySchema = z.object({
   "strategyId": z.lazy(() => UUIDSchema),
   "name": z.string(),
   "updatedAt": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const StrategyDraftSchema = z.object({
   "strategyId": z.lazy(() => UUIDSchema),
@@ -324,9 +324,9 @@ export const StrategyDraftSchema = z.object({
   "files": z.record(z.string(), z.string()),
   "parameters": z.object({
 
-}),
+}).passthrough(),
   "updatedAt": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const BacktestReportSchema = z.object({
   "runId": z.lazy(() => UUIDSchema),
@@ -336,7 +336,7 @@ export const BacktestReportSchema = z.object({
   "metrics": z.record(z.string(), z.lazy(() => DecimalValueSchema)),
   "leakViolations": z.array(z.string()).describe("泄漏检查失败规则码（非空阻断 Release）"),
   "reportArtifactId": z.lazy(() => UUIDSchema),
-});
+}).passthrough();
 
 export const StrategyReleaseSchema = z.object({
   "releaseId": z.lazy(() => UUIDSchema),
@@ -347,19 +347,19 @@ export const StrategyReleaseSchema = z.object({
   "parameterHash": z.string(),
   "parameters": z.object({
 
-}),
+}).passthrough(),
   "snapshotId": z.lazy(() => UUIDSchema),
   "allowedTargets": z.array(z.enum(["paper","shadow","assisted_live"])).describe("服务端权威；M3/M4 仅 paper/shadow；assisted_live 出现需 flag 放行"),
   "approvalState": z.enum(["none","pending","approved","rejected","expired"]),
   "createdAt": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const PositionSchema = z.object({
   "symbol": z.string(),
   "side": z.enum(["long","short"]),
   "quantity": z.lazy(() => DecimalValueSchema),
   "avgPrice": z.lazy(() => DecimalValueSchema),
-});
+}).passthrough();
 
 export const PortfolioViewSchema = z.object({
   "accountId": z.lazy(() => UUIDSchema),
@@ -368,7 +368,7 @@ export const PortfolioViewSchema = z.object({
   "positions": z.array(z.lazy(() => PositionSchema)),
   "pnl": z.lazy(() => MoneyValueSchema),
   "exposure": z.lazy(() => DecimalValueSchema),
-});
+}).passthrough();
 
 export const RiskViewSchema = z.object({
   "accountId": z.lazy(() => UUIDSchema),
@@ -379,8 +379,9 @@ export const RiskViewSchema = z.object({
   "state": z.enum(["disengaged","engaged"]),
   "actor": z.string().optional(),
   "at": z.lazy(() => DateTimeSchema).optional(),
-}),
-});
+}).passthrough(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).passthrough();
 
 export const SignalSchema = z.object({
   "signalId": z.lazy(() => UUIDSchema),
@@ -391,7 +392,7 @@ export const SignalSchema = z.object({
   "confidence": z.lazy(() => DecimalValueSchema),
   "generatedAt": z.lazy(() => DateTimeSchema),
   "validUntil": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const TradeProposalSchema = z.object({
   "proposalId": z.lazy(() => UUIDSchema),
@@ -408,7 +409,7 @@ export const TradeProposalSchema = z.object({
   "expiresAt": z.lazy(() => DateTimeSchema),
   "executable": z.literal(false).describe("恒 false（A02；schema 层强制）"),
   "objectVersion": z.string(),
-});
+}).passthrough();
 
 export const ApprovalSchema = z.object({
   "approvalId": z.lazy(() => UUIDSchema),
@@ -419,14 +420,14 @@ export const ApprovalSchema = z.object({
   "signature": z.string().describe("批准后服务端签名").optional(),
   "commandRef": z.lazy(() => UUIDSchema).optional(),
   "correlationId": z.lazy(() => UUIDSchema),
-});
+}).passthrough();
 
 export const FillSchema = z.object({
   "fillId": z.lazy(() => UUIDSchema),
   "quantity": z.lazy(() => DecimalValueSchema),
   "price": z.lazy(() => DecimalValueSchema),
   "at": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const OrderSchema = z.object({
   "orderId": z.lazy(() => UUIDSchema),
@@ -449,7 +450,7 @@ export const OrderSchema = z.object({
   "mode": z.lazy(() => RuntimeModeSchema),
   "correlationId": z.lazy(() => UUIDSchema),
   "submittedAt": z.lazy(() => DateTimeSchema),
-});
+}).passthrough();
 
 export const bffZodSchemas = {
   UUID: UUIDSchema,

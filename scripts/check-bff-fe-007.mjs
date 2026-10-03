@@ -58,7 +58,7 @@ export function validateBffFe007(inputs) {
   fail(taskStatus(inputs.frontendPlan, "BFF-FE-001") === "COMPLETED", "dependency BFF-FE-001 is COMPLETED");
   fail(taskStatus(inputs.corePlan, "F05") === "COMPLETED", "dependency F05 is COMPLETED");
   fail(taskStatus(inputs.frontendPlan, "BFF-FE-007") === "COMPLETED", "BFF-FE-007 development status is COMPLETED");
-  fail(inputs.openapi.info?.version === "1.3.0", "BFF-FE-007 publishes OpenAPI 1.3.0");
+  fail(inputs.openapi.info?.version === "1.4.0", "BFF-FE-007 publishes OpenAPI 1.4.0");
 
   for (const operationId of requiredOperations) fail(operations.has(operationId), `BFF-FE-007 operation ${operationId} is published`);
   const c10 = inputs.catalog.contracts?.C10;

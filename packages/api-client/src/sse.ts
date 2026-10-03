@@ -8,78 +8,38 @@
  * - 权限撤销（permission_revoked 或 403）即终态关闭，不再重连；
  * - 断线（网络/5xx/流结束）自动按 afterSequence 续传，不产生重复副作用。
  */
-
-export interface SseEventEnvelope {
-  streamId: string;
-  sequence: number;
-  eventId: string;
-  occurredAt: string;
-  correlationId: string;
-  payloadVersion: string;
-  payload: { type?: string; [k: string]: unknown };
-}
-
-export type ReducerAction =
-  | { type: "apply"; event: SseEventEnvelope }
-  | { type: "duplicate"; event: SseEventEnvelope }
-  | { type: "gap"; expected: number; got: number }
-  | { type: "closed"; reason: "permission_revoked" };
-
-export class SseStreamReducer {
-  private lastSequence: number;
-  private readonly seenEventIds = new Set<string>();
-  private closed = false;
-
-  /** @param startAfter 重连起点：只应用 sequence 严格大于 startAfter 的事件 */
-  constructor(startAfter = 0) {
-    this.lastSequence = startAfter;
-  }
-
-  get resumeAfter(): number {
-    return this.lastSequence;
-  }
-
-  get isClosed(): boolean {
-    return this.closed;
-  }
-
-  accept(event: SseEventEnvelope): ReducerAction {
-    if (this.closed || this.seenEventIds.has(event.eventId)) return { type: "duplicate", event };
-    if (event.payload?.type === "permission_revoked") {
-      this.seenEventIds.add(event.eventId);
-      this.closed = true;
-      return { type: "closed", reason: "permission_revoked" };
-    }
-    if (event.sequence <= this.lastSequence) return { type: "duplicate", event }; // 乱序迟到/重放
-    if (event.sequence > this.lastSequence + 1) {
-      return { type: "gap", expected: this.lastSequence + 1, got: event.sequence };
-    }
-    this.seenEventIds.add(event.eventId);
-    this.lastSequence = event.sequence;
-    return { type: "apply", event };
-  }
-}
+import { SseContractError, SseStreamReducer, type SseEventEnvelope, type ReducerAction } from "./sse-contract.js";
+export { SseContractError, SseStreamReducer, type SseEventEnvelope, type ReducerAction } from "./sse-contract.js";
 
 /** 解析 SSE 字节流为事件信封（data: JSON，忽略注释/心跳行）。 */
 export async function* parseSse(body: ReadableStream<Uint8Array>): AsyncGenerator<SseEventEnvelope> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
-  for (;;) {
+  try { for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
     let idx;
-    while ((idx = buffer.indexOf("\n\n")) >= 0) {
+    while ((idx = buffer.search(/\r?\n\r?\n/)) >= 0) {
       const raw = buffer.slice(0, idx);
-      buffer = buffer.slice(idx + 2);
+      buffer = buffer.slice(idx + (buffer[idx] === "\r" ? 4 : 2));
       const data = raw
-        .split("\n")
+        .split(/\r?\n/)
         .filter((l) => l.startsWith("data:"))
         .map((l) => l.slice(5).trimStart())
         .join("\n");
-      if (data) yield JSON.parse(data) as SseEventEnvelope;
+      if (data) {
+        try { yield JSON.parse(data) as SseEventEnvelope; }
+        catch (error) {
+          if (error instanceof SyntaxError) throw new SseContractError("Invalid SSE JSON");
+          throw error;
+        }
+      }
     }
+  } } finally {
+    await reader.cancel().catch(() => undefined);
+    reader.releaseLock();
   }
 }
 
@@ -89,8 +49,19 @@ export interface ConsumeSseOptions {
   reducer?: SseStreamReducer;
   signal?: AbortSignal;
   fetchImpl?: typeof fetch;
-  /** 最大连续重连次数（防御无限循环；PoC 默认 10） */
+  /** 最大总重连次数（防御无限循环；PoC 默认 10） */
   maxReconnects?: number;
+  /** Base retry delay; capped exponential backoff, abort-aware. */
+  retryDelayMs?: number;
+}
+
+async function retryDelay(ms: number, signal?: AbortSignal): Promise<void> {
+  signal?.throwIfAborted();
+  await new Promise<void>((resolve, reject) => {
+    const abort = () => { clearTimeout(timer); reject(signal?.reason); };
+    const timer = setTimeout(() => { signal?.removeEventListener("abort", abort); resolve(); }, ms);
+    signal?.addEventListener("abort", abort, { once: true });
+  });
 }
 
 /**
@@ -98,24 +69,41 @@ export interface ConsumeSseOptions {
  * yield 每个 ReducerAction，调用方只对 type==="apply" 产生副作用。
  */
 export async function* consumeSse(options: ConsumeSseOptions): AsyncGenerator<ReducerAction> {
-  const { url, signal, fetchImpl = fetch, maxReconnects = 10 } = options;
+  const { url, signal, fetchImpl = fetch, maxReconnects = 10, retryDelayMs = 250 } = options;
   const reducer = options.reducer ?? new SseStreamReducer();
   let reconnects = 0;
 
   while (!reducer.isClosed) {
-    const sep = url.includes("?") ? "&" : "?";
-    const res = await fetchImpl(`${url}${sep}afterSequence=${reducer.resumeAfter}`, {
+    signal?.throwIfAborted();
+    const streamUrl = new URL(url);
+    streamUrl.searchParams.set("afterSequence", String(reducer.resumeAfter));
+    let response: Response;
+    try { response = await fetchImpl(streamUrl.toString(), {
       headers: { accept: "text/event-stream" },
+      credentials: "include",
+      cache: "no-store",
       signal,
-    });
-    if (res.status === 403) {
+    }); } catch (error) {
+      signal?.throwIfAborted();
+      if (++reconnects > maxReconnects) throw error;
+      await retryDelay(Math.min(retryDelayMs * 2 ** (reconnects - 1), 4000), signal);
+      continue;
+    }
+    const res = response;
+    if (res.status === 401 || res.status === 403) {
       yield { type: "closed", reason: "permission_revoked" };
       return;
     }
-    if (!res.ok || !res.body) throw new Error(`SSE 连接失败：HTTP ${res.status}`);
+    if (res.status >= 500) {
+      await res.body?.cancel();
+      if (++reconnects > maxReconnects) throw new Error(`SSE retry limit: HTTP ${res.status}`);
+      await retryDelay(Math.min(retryDelayMs * 2 ** (reconnects - 1), 4000), signal);
+      continue;
+    }
+    if (!res.ok || !res.body) throw new SseContractError(`SSE 连接失败：HTTP ${res.status}`);
 
     let gapDetected = false;
-    for await (const event of parseSse(res.body)) {
+    try { for await (const event of parseSse(res.body)) {
       const action = reducer.accept(event);
       yield action;
       if (action.type === "gap") {
@@ -123,6 +111,10 @@ export async function* consumeSse(options: ConsumeSseOptions): AsyncGenerator<Re
         break; // 立即重连回补，跳过残留旧事件
       }
       if (action.type === "closed") return;
+    } } catch (error) {
+      signal?.throwIfAborted();
+      if (error instanceof SseContractError) throw error;
+      // A transport/read failure resumes from the last acknowledged sequence.
     }
     if (reducer.isClosed) return;
 
@@ -131,5 +123,6 @@ export async function* consumeSse(options: ConsumeSseOptions): AsyncGenerator<Re
     if (reconnects > maxReconnects) {
       throw new Error(`SSE 重连超过上限（${maxReconnects}），停止续传（gap=${gapDetected}）`);
     }
+    await retryDelay(Math.min(retryDelayMs * 2 ** (reconnects - 1), 4000), signal);
   }
 }

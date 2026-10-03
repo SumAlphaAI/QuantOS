@@ -17,7 +17,7 @@ function fieldMutation(input, alter) {
 test('current full phase-one inventory passes', () => {
   const report = validatePre04Inventory(current);
   assert.equal(report.status, 'PASS', report.failures.join('\n'));
-  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 383]);
+  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 408]);
 });
 test('missing Gap is rejected', () => rejected(i => {i.gaps = i.gaps.replace(/^\| GAP-13 \|.*\n/m, '');}, 'gap list contains'));
 test('undecided realtime dependency is rejected', () => rejected(i => {i.ledger = change(i.ledger, 'C13 preflight/quote refresh', '待开发时再定');}, 'P20 Realtime dependency is explicit'));

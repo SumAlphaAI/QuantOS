@@ -53,7 +53,11 @@
     "check:client-secrets": "node scripts/check-client-secrets.mjs apps/website/out apps/terminal/out",
     "coverage:critical": "vitest run --config vitest.critical.config.ts --coverage",
     "check:p0": "node scripts/check-p0-acceptance.mjs",
-    "test:p0": "node --test scripts/p0-acceptance-negative.mjs"
+    "test:p0": "node --test scripts/p0-acceptance-negative.mjs",
+    "check:bff-compatibility": "node scripts/check-bff-compatibility.mjs",
+    "test:bff-remediation": "node --test scripts/bff-remediation-negative.mjs && vitest run tests/contract/bff-remediation.test.ts packages/api-client/tests/sse-safety.test.ts",
+    "check:bff-a1-acceptance": "node scripts/check-bff-a1-acceptance.mjs",
+    "test:bff-provider-contract": "node scripts/test-bff-provider-contract.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

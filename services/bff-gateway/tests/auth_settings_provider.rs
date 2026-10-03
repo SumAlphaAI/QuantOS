@@ -34,6 +34,10 @@ fn authenticated(method: &str, path: &str, body: Option<Value>) -> Request<Body>
 
 fn mutation(method: &str, path: &str, body: Option<Value>) -> Request<Body> {
     let mut request = authenticated(method, path, body);
+    request.headers_mut().insert(
+        "x-request-id",
+        uuid::Uuid::now_v7().to_string().parse().unwrap(),
+    );
     request
         .headers_mut()
         .insert("origin", ORIGIN.parse().unwrap());
@@ -80,11 +84,32 @@ fn protected_mutation(method: &str, path: &str, key: &str, reauth: &str) -> Requ
     let mut request = mutation(method, path, None);
     request
         .headers_mut()
-        .insert("idempotency-key", key.parse().unwrap());
+        .insert("idempotency-key", uuid_key(key).parse().unwrap());
     request
         .headers_mut()
         .insert("x-reauth-token-ref", reauth.parse().unwrap());
     request
+}
+
+fn uuid_key(label: &str) -> String {
+    use std::hash::{Hash, Hasher};
+    let mut hash = std::collections::hash_map::DefaultHasher::new();
+    label.hash(&mut hash);
+    format!(
+        "11111111-1111-4111-8111-{:012x}",
+        hash.finish() & 0xffffffffffff
+    )
+}
+fn body_for(id: &str) -> Value {
+    let policy: Value =
+        serde_json::from_str(include_str!("../src/generated-input-policy.json")).unwrap();
+    policy["operations"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|op| op["operationId"] == id)
+        .unwrap()["bodyExample"]
+        .clone()
 }
 
 #[tokio::test]
@@ -171,9 +196,10 @@ async fn session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_aud
 
     let without_reauth = {
         let mut request = mutation("DELETE", "/v1/settings/sessions/session-remote", None);
-        request
-            .headers_mut()
-            .insert("idempotency-key", "revoke-session-1".parse().unwrap());
+        request.headers_mut().insert(
+            "idempotency-key",
+            uuid_key("revoke-session-1").parse().unwrap(),
+        );
         request
     };
     assert_eq!(
@@ -290,17 +316,14 @@ async fn current_session_and_last_mfa_factor_are_protected() {
 #[tokio::test]
 async fn stale_settings_write_returns_current_version_without_mutation() {
     let router = BffProvider::default().router();
-    let mut request = mutation(
-        "PUT",
-        "/v1/settings/profile",
-        Some(json!({"displayName":"stale"})),
-    );
+    let mut request = mutation("PUT", "/v1/settings/profile", Some(body_for("saveProfile")));
     request
         .headers_mut()
         .insert("if-match", "profile-v0".parse().unwrap());
-    request
-        .headers_mut()
-        .insert("idempotency-key", "profile-save-1".parse().unwrap());
+    request.headers_mut().insert(
+        "idempotency-key",
+        uuid_key("profile-save-1").parse().unwrap(),
+    );
     let response = router.clone().oneshot(request).await.unwrap();
     assert_eq!(response.status(), StatusCode::CONFLICT);
     assert_eq!(json_body(response).await["currentVersion"], "profile-v1");
@@ -384,12 +407,14 @@ async fn notification_save_is_idempotent_and_audited() {
     let mut save = mutation(
         "PUT",
         "/v1/settings/notification-preferences",
-        Some(json!({})),
+        Some(body_for("saveNotificationPrefs")),
     );
     save.headers_mut()
         .insert("if-match", "notifications-v1".parse().unwrap());
-    save.headers_mut()
-        .insert("idempotency-key", "notification-save-1".parse().unwrap());
+    save.headers_mut().insert(
+        "idempotency-key",
+        uuid_key("notification-save-1").parse().unwrap(),
+    );
 
     let first = router.clone().oneshot(save).await.unwrap();
     assert_eq!(first.status(), StatusCode::OK);
@@ -399,14 +424,15 @@ async fn notification_save_is_idempotent_and_audited() {
     let mut replay = mutation(
         "PUT",
         "/v1/settings/notification-preferences",
-        Some(json!({})),
+        Some(body_for("saveNotificationPrefs")),
     );
     replay
         .headers_mut()
         .insert("if-match", "notifications-v1".parse().unwrap());
-    replay
-        .headers_mut()
-        .insert("idempotency-key", "notification-save-1".parse().unwrap());
+    replay.headers_mut().insert(
+        "idempotency-key",
+        uuid_key("notification-save-1").parse().unwrap(),
+    );
     let replayed = router.clone().oneshot(replay).await.unwrap();
     assert_eq!(replayed.status(), StatusCode::OK);
     assert_eq!(

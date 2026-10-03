@@ -63,7 +63,7 @@ export async function createControlledExport(
 ): Promise<ExportJob> {
   const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).POST("/v1/exports", {
     body,
-    params: { header: { "Idempotency-Key": idempotencyKey, "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } },
+    params: { header: { "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } },
   });
   if (!result.data) throw failure("createExport", result);
   return result.data;
@@ -86,7 +86,7 @@ export async function cancelControlledExport(
   const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).POST("/v1/exports/{exportId}/cancel", {
     params: {
       path: { exportId },
-      header: { "Idempotency-Key": idempotencyKey, "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef },
+      header: { "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef },
     },
   });
   if (!result.data) throw failure("cancelExport", result);

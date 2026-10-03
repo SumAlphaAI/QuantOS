@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import YAML from "yaml";
+import { validateA1Semantics } from "./bff-a1-semantics.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const expectedContracts = Array.from({ length: 17 }, (_, index) => `C${String(index + 1).padStart(2, "0")}`);
@@ -44,11 +45,13 @@ export function loadBffFe000Inputs() {
     apiClientIndex: text("packages/api-client/src/index.ts"),
     makefile: text("Makefile"),
     workflow: text(".github/workflows/frontend-baseline.yml"),
+    policy: JSON.parse(text("bff/a1-baseline-policy.json")),
   };
 }
 
 export function validateBffFe000(inputs) {
   const failures = [];
+  failures.push(...validateA1Semantics(inputs.openapi, inputs.catalog, inputs.policy, YAML.parse(inputs.workflow)));
   const { catalog, openapi, manifest } = inputs;
   const contracts = Object.keys(catalog.contracts ?? {});
   const scopedPages = catalog.scope?.pages ?? [];

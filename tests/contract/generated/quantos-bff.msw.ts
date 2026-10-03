@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.3.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.4.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -77,7 +77,7 @@ export type BffOperationId =
 function missingResolver(operationId: BffOperationId): Response {
   return HttpResponse.json(
     { code: "MOCK_NOT_CONFIGURED", message: `No fixture configured for ${operationId}.`, correlationId: "00000000-0000-4000-8000-000000000000" },
-    { status: 501 },
+    { status: 501, headers: { "X-Correlation-Id": "00000000-0000-4000-8000-000000000000", "Cache-Control": "no-store" } },
   );
 }
 

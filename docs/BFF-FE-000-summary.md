@@ -1,30 +1,12 @@
 # BFF-FE-000 交付总结
 
-> 阶段：A1
->
-> 日期：2026-09-16
->
-> 结论：repository Gate `PASS`；provider/staging/GPT-6 Astra `NOT RUN`
+> 阶段：A1；更新日期：2026-10-03；基线：OpenAPI 3.1 / API 1.4.0。
+> 工程整改与本地复验见 [整改报告](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)。PROVIDER:A1 / 正式 G0：`NOT ACCEPTED / NO CURRENT RECEIPT`。
 
-## 交付
+当前 catalog 覆盖 C01–C17、一期 22 页，62 个 published、46 个 planned operation、51 个组件 schema。P16 属 Desktop 二期；planned operation 按对应 A3–A6 owner 交付，不计作 A1 缺失实现。
 
-- 版本化 OpenAPI 1.1.0 保持 55 个 published operation / 41 个 schema，并补齐共享 sort/filter、ETag 和错误响应 correlation header 基线。
-- `bff/page-operation-catalog.yaml` 冻结 C01–C17、一期 P01–P15/P17–P23 的 55 个 published 与 51 个 planned operationId；P16 明确属于 Desktop 二期。
-- Page API Coverage 已消除一期页面的 operationId 占位符；planned 条目明确标注 owner，且不冒充 OpenAPI/provider 已交付。
-- A1 Gate 校验核心依赖、任务状态、OpenAPI/生成 manifest 双向一致、共享契约、全页面追踪和 CI 接线；8 个正/负向用例证明删除或漂移会失败。
-- `make bff-contract-check`、主 CI（经 Makefile）和 Frontend Baseline CI 均执行 A1 Gate。
+生成器同源生成 TS 类型、Zod、JSON Schema、MSW 路由、operation manifest 和 Rust 输入策略共六项资产。开放 payload/参数对象保留扩展数据，命令顶层拒绝未知字段。业务写请求声明 CSRF、请求 ID、幂等与对象版本条件；全部 operation 有安全策略、示例、correlation/cache header 与安全服务端错误声明。
 
-## Gate
+A1 Gate 检查精确页面/owner、共享类型与必需条件、每 operation 的安全语义和活动 CI；兼容 Gate 独立读取可信 Git 基线，安全修正按 [ADR](./adr/ADR-A1-security-contract-correction.md) 精确登记。MSW 和真实 HTTP harness 校验请求、状态、header、返回 schema 与敏感字段；真实 HTTP 覆盖 C01/C17/C10 的 26 个本地参考接口。其他已发布接口的参考实现由 owner 后续交付，缺 resolver 返回 501，不能冒充真实业务通过。
 
-| Gate | 结果 | 边界 |
-|---|---|---|
-| 核心依赖 F03/F05/F06 | PASS | 计划内 `development_status=COMPLETED` |
-| C01–C17 / 一期 22 页追踪 | PASS | 55 published + 51 planned；planned 未发布 |
-| OpenAPI / client / Zod / JSON Schema / MSW 漂移 | PASS | repository 生成物一致 |
-| 契约与敏感字段负向测试 | PASS | 本地 fixture/mock 层 |
-| provider/staging contract | NOT RUN | 无生产/staging 凭据或外部授权 |
-| GPT-6 Astra / 组织联合复审 | NOT STARTED | 不由 repository Gate 代替 |
-
-## 后续
-
-下一任务为 A2/BFF-FE-001。该任务应先将 C01/C17 身份、会话与设置面的实现和 staging/provider 证据闭环；其他 planned operation 继续由 A2–A6 的 owner 任务交付。
+执行入口为 `make bff-contract-check`、`pnpm test:contract`、`pnpm test:bff-provider-contract`。实际 staging/身份/权限/存储/数据库验收与组织签署必须通过独立的 `pnpm check:bff-a1-acceptance`，使用 [回执规程](./BFF-FE-000-openapi-proposal.md#验收回执)。用户已确认当前尚不具备 staging 与签署资料，故 B-01 保持开放。当前开发状态的 COMPLETED 仅表示仓库工程交付。

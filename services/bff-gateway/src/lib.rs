@@ -1,5 +1,6 @@
 use std::{collections::BTreeMap, sync::Arc};
 
+mod input_contract;
 pub mod live;
 
 use axum::{
@@ -164,6 +165,10 @@ impl BffProvider {
             .route("/v1/exports/:export_id/cancel", post(cancel_export))
             .route("/v1/exports/:export_id/download", get(get_export_download))
             .with_state(self.data.clone())
+            .layer(axum::middleware::from_fn_with_state(
+                self.data.clone(),
+                input_contract::guard,
+            ))
     }
 
     pub async fn audit_count(&self) -> usize {
@@ -221,7 +226,7 @@ fn seed_audits() -> Vec<Value> {
                 "auditRef":Uuid::now_v7(),"eventId":event_id,"correlationId":AUDIT_CORRELATION,
                 "sequence":index + 1,"kind":kind,"actor":"quantos-service",
                 "objectRef":object_ref,"occurredAt":format!("2026-09-16T10:00:{index:02}Z"),
-                "redactionApplied":true,"redactedPayload":{"account":"acct-…xxx","secret":"[REDACTED]"},
+                "redactionApplied":true,"redactedPayload":{"account":"acct-…xxx","redactionSummary":"[REDACTED]"},
                 "payloadHash":format!("sha256:{:064x}", index + 1),"route":route,
                 "retentionUntil":"2027-09-16T10:00:00Z"
             });
@@ -234,6 +239,10 @@ fn seed_audits() -> Vec<Value> {
 }
 
 fn response(status: StatusCode, payload: Value, correlation: &str) -> Response {
+    let version = payload
+        .get("objectVersion")
+        .and_then(Value::as_str)
+        .map(str::to_owned);
     let mut response = (status, Json(payload)).into_response();
     response.headers_mut().insert(
         "x-correlation-id",
@@ -242,6 +251,12 @@ fn response(status: StatusCode, payload: Value, correlation: &str) -> Response {
     response
         .headers_mut()
         .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+    if let Some(version) = version {
+        response.headers_mut().insert(
+            header::ETAG,
+            HeaderValue::from_str(&version).expect("version header"),
+        );
+    }
     response
 }
 
@@ -776,6 +791,10 @@ async fn session_stream(
     response
         .headers_mut()
         .insert(header::CACHE_CONTROL, HeaderValue::from_static("no-store"));
+    response.headers_mut().insert(
+        "x-correlation-id",
+        HeaderValue::from_str(&correlation_id()).expect("correlation header"),
+    );
     response
 }
 
@@ -910,6 +929,8 @@ async fn browser_capabilities(
 struct AuditQuery {
     cursor: Option<String>,
     page_size: Option<usize>,
+    sort: Option<String>,
+    filter: Option<String>,
     correlation_id: Option<String>,
     causation_id: Option<String>,
     object_ref: Option<String>,
@@ -977,37 +998,83 @@ async fn search_audit_events(
             );
         }
     };
+    let sort = match query
+        .sort
+        .as_deref()
+        .unwrap_or("occurredAt:asc")
+        .split_once(':')
+    {
+        Some((field @ ("occurredAt" | "kind" | "eventId"), direction @ ("asc" | "desc"))) => {
+            (field, direction)
+        }
+        _ => {
+            return error(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "VALIDATION_FAILED",
+                "排序参数无效。",
+            );
+        }
+    };
+    let filter = match query.filter.as_deref() {
+        None => None,
+        Some(raw) => match raw.splitn(3, ':').collect::<Vec<_>>().as_slice() {
+            [field @ ("kind" | "eventId"), "eq", value] if !value.is_empty() => {
+                Some((*field, *value))
+            }
+            _ => {
+                return error(
+                    StatusCode::UNPROCESSABLE_ENTITY,
+                    "VALIDATION_FAILED",
+                    "筛选参数无效。",
+                );
+            }
+        },
+    };
     let state = data.lock().await;
-    let matching =
-        state
-            .audits
-            .iter()
-            .filter(|entry| entry.get("eventId").is_some())
-            .filter(|entry| {
-                query.correlation_id.as_deref().is_none_or(|value| {
-                    entry.get("correlationId").and_then(Value::as_str) == Some(value)
-                }) && query.causation_id.as_deref().is_none_or(|value| {
-                    entry.get("causationId").and_then(Value::as_str) == Some(value)
-                }) && query.object_ref.as_deref().is_none_or(|value| {
+    let mut matching = state
+        .audits
+        .iter()
+        .filter(|entry| entry.get("eventId").is_some())
+        .filter(|entry| {
+            query.correlation_id.as_deref().is_none_or(|value| {
+                entry.get("correlationId").and_then(Value::as_str) == Some(value)
+            }) && query
+                .causation_id
+                .as_deref()
+                .is_none_or(|value| entry.get("causationId").and_then(Value::as_str) == Some(value))
+                && query.object_ref.as_deref().is_none_or(|value| {
                     entry
                         .get("objectRef")
                         .and_then(Value::as_str)
                         .is_some_and(|candidate| candidate.contains(value))
-                }) && query
+                })
+                && query
                     .kind
                     .as_deref()
                     .is_none_or(|value| entry.get("kind").and_then(Value::as_str) == Some(value))
-                    && entry
-                        .get("occurredAt")
-                        .and_then(Value::as_str)
-                        .and_then(|value| chrono::DateTime::parse_from_rfc3339(value).ok())
-                        .is_some_and(|occurred_at| {
-                            start_at.is_none_or(|start| occurred_at >= start)
-                                && end_at.is_none_or(|end| occurred_at <= end)
-                        })
-            })
-            .cloned()
-            .collect::<Vec<_>>();
+                && entry
+                    .get("occurredAt")
+                    .and_then(Value::as_str)
+                    .and_then(|value| chrono::DateTime::parse_from_rfc3339(value).ok())
+                    .is_some_and(|occurred_at| {
+                        start_at.is_none_or(|start| occurred_at >= start)
+                            && end_at.is_none_or(|end| occurred_at <= end)
+                    })
+        })
+        .filter(|entry| filter.is_none_or(|(field, value)| entry[field].as_str() == Some(value)))
+        .cloned()
+        .collect::<Vec<_>>();
+    matching.sort_by(|a, b| {
+        let order = a[sort.0]
+            .as_str()
+            .cmp(&b[sort.0].as_str())
+            .then_with(|| a["eventId"].as_str().cmp(&b["eventId"].as_str()));
+        if sort.1 == "desc" {
+            order.reverse()
+        } else {
+            order
+        }
+    });
     let items = matching
         .iter()
         .skip(offset)
@@ -1339,6 +1406,6 @@ fn push_event(data: &mut ProviderData, kind: &str, object_id: &str) {
     data.events.push(json!({
         "streamId":"55555555-5555-4555-8555-555555555555","sequence":sequence,
         "eventId":Uuid::now_v7(),"occurredAt":Utc::now().to_rfc3339(),"correlationId":Uuid::now_v7(),
-        "payloadVersion":"1","payload":{"type":kind,"objectId":object_id}
+        "payloadVersion":"v1","payload":{"type":kind,"objectId":object_id}
     }));
 }

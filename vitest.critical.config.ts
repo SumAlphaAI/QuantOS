@@ -3,7 +3,7 @@ import inventory from "./tests/critical-branches.json";
 
 export default defineConfig({
   test: {
-    include: ["packages/domain-ui/tests/**/*.test.{ts,tsx}", "packages/ui/tests/**/*.test.{ts,tsx}", "apps/terminal/tests/**/*.test.ts"],
+    include: ["packages/api-client/tests/**/*.test.ts", "packages/domain-ui/tests/**/*.test.{ts,tsx}", "packages/ui/tests/**/*.test.{ts,tsx}", "apps/terminal/tests/**/*.test.ts"],
     coverage: {
       provider: "v8",
       include: inventory.files.map(entry => entry.path),

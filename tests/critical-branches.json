@@ -2,10 +2,29 @@
   "schema": "quantos-critical-branches/v1",
   "scope": "current implemented security and risk policies; inventory changes require QA/risk review, formal target/G0 signature remains independent",
   "files": [
-    { "path": "packages/domain-ui/src/ui101.ts", "policy": "ordered route/RBAC/resource/mode/freshness guard and write blocking" },
-    { "path": "packages/domain-ui/src/indicators.tsx", "policy": "unknown risk blocks and offline/freshness status is explicit" },
-    { "path": "packages/ui/src/components/DangerConfirmDialog/confirmation-policy.ts", "policy": "exact confirmation phrase and required six-digit MFA" },
-    { "path": "apps/terminal/src/auth/flow.ts", "policy": "safe redirects, state/code validation, token exchange and session handling" },
-    { "path": "apps/terminal/src/audit/gateway.ts", "policy": "authenticated export failure/expiry and resource concealment" }
+    {
+      "path": "packages/domain-ui/src/ui101.ts",
+      "policy": "ordered route/RBAC/resource/mode/freshness guard and write blocking"
+    },
+    {
+      "path": "packages/domain-ui/src/indicators.tsx",
+      "policy": "unknown risk blocks and offline/freshness status is explicit"
+    },
+    {
+      "path": "packages/ui/src/components/DangerConfirmDialog/confirmation-policy.ts",
+      "policy": "exact confirmation phrase and required six-digit MFA"
+    },
+    {
+      "path": "apps/terminal/src/auth/flow.ts",
+      "policy": "safe redirects, state/code validation, token exchange and session handling"
+    },
+    {
+      "path": "apps/terminal/src/audit/gateway.ts",
+      "policy": "authenticated export failure/expiry and resource concealment"
+    },
+    {
+      "path": "packages/api-client/src/sse-contract.ts",
+      "policy": "validated envelope/version, acknowledgement, gap/replay and terminal permission revocation"
+    }
   ]
 }

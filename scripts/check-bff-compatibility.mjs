@@ -1,0 +1,15 @@
+import {execFileSync} from 'node:child_process';
+import {readFileSync} from 'node:fs';
+import YAML from 'yaml';
+import {validateCompatibility} from './bff-compatibility.mjs';
+const root=new URL('..',import.meta.url).pathname;
+const read=file=>JSON.parse(readFileSync(new URL('../'+file,import.meta.url),'utf8'));
+const decision=read('bff/compatibility/a1-security-correction.json');
+const requested=process.env.QUANTOS_BFF_BASE??(process.env.CI?'':decision.sourceCommit);
+if(!/^[a-f0-9]{40}$/.test(requested??''))throw Error('Trusted full BFF baseline SHA is required');
+execFileSync('git',['merge-base','--is-ancestor',requested,'HEAD'],{cwd:root});
+const before=YAML.parse(execFileSync('git',['show',`${requested}:bff/openapi/quantos-bff.v1.yaml`],{cwd:root,encoding:'utf8'}));
+const after=YAML.parse(readFileSync(new URL('../bff/openapi/quantos-bff.v1.yaml',import.meta.url),'utf8'));
+const result=validateCompatibility(before,after,decision);
+console.log(JSON.stringify({...result,baseline:requested,scope:'engineering compatibility; no owner/staging signature implied'},null,2));
+if(result.status!=='PASS')process.exitCode=1;

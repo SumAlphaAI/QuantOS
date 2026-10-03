@@ -1,0 +1,94 @@
+[
+  {
+    "name": "p0-before-audit",
+    "command": [
+      "node",
+      "scripts/check-p0-acceptance.mjs"
+    ],
+    "exit_code": 0,
+    "evidence": "p0-before-audit.json",
+    "provenance": "completed tool invocation"
+  },
+  {
+    "name": "api-test-unrestricted",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "test"
+    ],
+    "exit_code": 0,
+    "evidence": "api-test-unrestricted.log",
+    "provenance": "completed tool invocation"
+  },
+  {
+    "name": "lockfiles-unrestricted",
+    "command": [
+      "bash",
+      "scripts/check-lockfiles.sh"
+    ],
+    "exit_code": 0,
+    "evidence": "lockfiles-unrestricted.log",
+    "provenance": "completed tool invocation"
+  },
+  {
+    "name": "reference-provider",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "auth_settings_provider",
+      "--test",
+      "audit_export_provider",
+      "--locked",
+      "--offline"
+    ],
+    "exit_code": 0,
+    "evidence": "reference-provider.log",
+    "provenance": "completed tool invocation"
+  },
+  {
+    "name": "inspection",
+    "command": [
+      "node",
+      "docs/audit/evidence/bff-fe-000-review-20261003/inspect.mjs"
+    ],
+    "exit_code": 0,
+    "evidence": "inspection.json",
+    "provenance": "completed tool invocation"
+  },
+  {
+    "name": "runtime-probes",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "docs/audit/evidence/bff-fe-000-review-20261003/runtime-probes.test.ts"
+    ],
+    "exit_code": 0,
+    "evidence": "runtime-probes.log",
+    "provenance": "completed tool invocation"
+  },
+  {
+    "name": "api-coverage",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "exec",
+      "vitest",
+      "run",
+      "--coverage",
+      "--coverage.include=src/bff.ts",
+      "--coverage.include=src/sse.ts",
+      "--coverage.reporter=json-summary",
+      "--coverage.reportsDirectory=/Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/bff-fe-000-review-20261003/api-coverage"
+    ],
+    "exit_code": 0,
+    "evidence": "api-coverage.log",
+    "provenance": "completed tool invocation"
+  }
+]

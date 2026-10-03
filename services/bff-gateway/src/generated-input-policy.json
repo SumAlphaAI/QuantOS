@@ -1,0 +1,6012 @@
+{
+  "version": "1.4.0",
+  "schemas": {
+    "UUID": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "DateTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 UTC"
+    },
+    "DecimalValue": {
+      "type": "string",
+      "pattern": "^-?\\d+(\\.\\d+)?$",
+      "description": "十进制定点字符串（proto DecimalValue.value；禁 IEEE-754 交易计算）"
+    },
+    "MoneyValue": {
+      "type": "object",
+      "required": [
+        "currencyCode",
+        "units",
+        "nanos"
+      ],
+      "properties": {
+        "currencyCode": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "units": {
+          "type": "string",
+          "format": "int64"
+        },
+        "nanos": {
+          "type": "integer",
+          "minimum": -999999999,
+          "maximum": 999999999
+        }
+      }
+    },
+    "RuntimeMode": {
+      "type": "string",
+      "enum": [
+        "research",
+        "paper",
+        "shadow",
+        "assisted_live"
+      ],
+      "description": "assisted_live 仅 M5+ 且服务端 flag/capability 放行才可见；客户端不得硬编码可用性"
+    },
+    "Environment": {
+      "type": "string",
+      "enum": [
+        "dev",
+        "staging",
+        "prod"
+      ]
+    },
+    "DataQuality": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "provisional",
+        "degraded",
+        "failed",
+        "expired",
+        "license_missing"
+      ],
+      "description": "未知值客户端显示\"未知/需升级\"并阻断高风险动作"
+    },
+    "TaskStatus": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "cancel_requested"
+      ]
+    },
+    "OrderStatus": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "risk_checking",
+        "awaiting_approval",
+        "command_ready",
+        "submitted",
+        "accepted",
+        "partially_filled",
+        "filled",
+        "cancelled",
+        "rejected",
+        "expired"
+      ]
+    },
+    "TimeWindow": {
+      "type": "object",
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "end": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "ErrorEnvelope": {
+      "type": "object",
+      "required": [
+        "code",
+        "message",
+        "correlationId"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "稳定机器码，如 FORBIDDEN/VERSION_CONFLICT/COMMAND_EXPIRED/DATA_STALE"
+        },
+        "message": {
+          "type": "string",
+          "description": "安全可展示文案（i18n key 由客户端映射）"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "fieldErrors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "retryAfter": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "秒"
+        },
+        "currentVersion": {
+          "type": "string",
+          "description": "409 时返回，供客户端 diff"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Page": {
+      "type": "object",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {}
+        },
+        "nextCursor": {
+          "type": "string",
+          "description": "缺省表示末页"
+        }
+      }
+    },
+    "AsyncAccepted": {
+      "type": "object",
+      "required": [
+        "jobId",
+        "status",
+        "correlationId"
+      ],
+      "properties": {
+        "jobId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "accepted",
+            "cancel_requested"
+          ]
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "AuditedAsyncAccepted": {
+      "allOf": [
+        {
+          "$ref": "#/components/schemas/AsyncAccepted"
+        },
+        {
+          "type": "object",
+          "required": [
+            "auditRef"
+          ],
+          "properties": {
+            "auditRef": {
+              "$ref": "#/components/schemas/UUID"
+            }
+          }
+        }
+      ]
+    },
+    "ReauthRequest": {
+      "type": "object",
+      "required": [
+        "challengeRef"
+      ],
+      "properties": {
+        "challengeRef": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      },
+      "additionalProperties": false
+    },
+    "StreamEvent": {
+      "type": "object",
+      "required": [
+        "streamId",
+        "sequence",
+        "eventId",
+        "occurredAt",
+        "correlationId",
+        "payloadVersion",
+        "payload"
+      ],
+      "properties": {
+        "streamId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "sequence": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "eventId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "occurredAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "payloadVersion": {
+          "type": "string",
+          "description": "Canonical v1; legacy 1 remains supported during the 1.4.0 migration window. Other versions fail closed.",
+          "enum": [
+            "v1",
+            "1"
+          ]
+        },
+        "payload": {
+          "type": "object",
+          "description": "领域事件载荷；payload.type=permission_revoked 为终态语义"
+        }
+      }
+    },
+    "SessionContext": {
+      "type": "object",
+      "required": [
+        "actorId",
+        "tenantId",
+        "workspaceId",
+        "accountId",
+        "mode",
+        "environment",
+        "capabilities",
+        "mfaState",
+        "expiresAt"
+      ],
+      "properties": {
+        "actorId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "tenantId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "workspaceId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "$ref": "#/components/schemas/RuntimeMode"
+        },
+        "environment": {
+          "$ref": "#/components/schemas/Environment"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "capability key 全集（权限裁剪唯一来源）"
+        },
+        "mfaState": {
+          "type": "string",
+          "enum": [
+            "unenrolled",
+            "enrolled",
+            "challenged",
+            "verified"
+          ]
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "ProfileSettingsInput": {
+      "type": "object",
+      "required": [
+        "displayName",
+        "locale",
+        "timezone",
+        "theme",
+        "numberFormat",
+        "timeDisplay",
+        "defaultRoute",
+        "density",
+        "highContrast",
+        "reducedMotion"
+      ],
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "team": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "locale": {
+          "type": "string",
+          "enum": [
+            "zh-CN",
+            "en"
+          ]
+        },
+        "timezone": {
+          "type": "string",
+          "description": "IANA timezone"
+        },
+        "theme": {
+          "type": "string",
+          "enum": [
+            "system",
+            "dark",
+            "light"
+          ]
+        },
+        "numberFormat": {
+          "type": "string",
+          "enum": [
+            "comma_dot",
+            "space_comma"
+          ]
+        },
+        "timeDisplay": {
+          "type": "string",
+          "enum": [
+            "utc_local",
+            "local"
+          ]
+        },
+        "defaultRoute": {
+          "type": "string",
+          "enum": [
+            "/command",
+            "/research",
+            "/portfolio",
+            "/markets"
+          ]
+        },
+        "density": {
+          "type": "string",
+          "enum": [
+            "compact",
+            "comfortable"
+          ]
+        },
+        "highContrast": {
+          "type": "boolean"
+        },
+        "reducedMotion": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ProfileSettings": {
+      "allOf": [
+        {
+          "$ref": "#/components/schemas/ProfileSettingsInput"
+        },
+        {
+          "type": "object",
+          "required": [
+            "memberId",
+            "email",
+            "emailVerified",
+            "roleLabels",
+            "objectVersion"
+          ],
+          "properties": {
+            "memberId": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "readOnly": true
+            },
+            "emailVerified": {
+              "type": "boolean",
+              "readOnly": true
+            },
+            "roleLabels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "readOnly": true
+            },
+            "objectVersion": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "NotificationRule": {
+      "type": "object",
+      "required": [
+        "key",
+        "severity",
+        "inApp",
+        "desktop",
+        "email",
+        "browser"
+      ],
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "critical",
+            "warning",
+            "info"
+          ]
+        },
+        "inApp": {
+          "type": "boolean"
+        },
+        "desktop": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "boolean"
+        },
+        "browser": {
+          "type": "boolean"
+        }
+      }
+    },
+    "NotificationPreferencesInput": {
+      "type": "object",
+      "required": [
+        "rules",
+        "quietHoursEnabled",
+        "quietHoursStart",
+        "quietHoursEnd",
+        "criticalBypass",
+        "digestFrequency"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/NotificationRule"
+          }
+        },
+        "quietHoursEnabled": {
+          "type": "boolean"
+        },
+        "quietHoursStart": {
+          "type": "string",
+          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+        },
+        "quietHoursEnd": {
+          "type": "string",
+          "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+        },
+        "criticalBypass": {
+          "type": "boolean",
+          "description": "Critical 可绕过静默但仍受服务端授权策略约束"
+        },
+        "digestFrequency": {
+          "type": "string",
+          "enum": [
+            "off",
+            "daily",
+            "weekly"
+          ]
+        }
+      }
+    },
+    "NotificationPreferences": {
+      "allOf": [
+        {
+          "$ref": "#/components/schemas/NotificationPreferencesInput"
+        },
+        {
+          "type": "object",
+          "required": [
+            "objectVersion",
+            "browserPermission"
+          ],
+          "properties": {
+            "objectVersion": {
+              "type": "string"
+            },
+            "browserPermission": {
+              "type": "string",
+              "enum": [
+                "granted",
+                "denied",
+                "default",
+                "unsupported"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MfaFactor": {
+      "type": "object",
+      "required": [
+        "factorId",
+        "method",
+        "label",
+        "createdAt",
+        "lastUsedAt",
+        "currentDevice"
+      ],
+      "properties": {
+        "factorId": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "passkey",
+            "authenticator",
+            "recovery_codes"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "createdAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "lastUsedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "currentDevice": {
+          "type": "boolean"
+        }
+      }
+    },
+    "SecuritySettings": {
+      "type": "object",
+      "required": [
+        "posture",
+        "score",
+        "mfaEnabled",
+        "factors",
+        "recoveryCodesRemaining",
+        "lastVerifiedAt",
+        "correlationId"
+      ],
+      "properties": {
+        "posture": {
+          "type": "string",
+          "enum": [
+            "strong",
+            "attention_required",
+            "unknown"
+          ]
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "mfaEnabled": {
+          "type": "boolean"
+        },
+        "factors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/MfaFactor"
+          }
+        },
+        "recoveryCodesRemaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lastVerifiedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "ActiveSession": {
+      "type": "object",
+      "required": [
+        "sessionId",
+        "client",
+        "platform",
+        "location",
+        "lastActiveAt",
+        "ipMasked",
+        "current"
+      ],
+      "properties": {
+        "sessionId": {
+          "type": "string"
+        },
+        "client": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "lastActiveAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "ipMasked": {
+          "type": "string",
+          "description": "仅脱敏 IP，禁止返回完整地址"
+        },
+        "current": {
+          "type": "boolean"
+        }
+      }
+    },
+    "TrustedDevice": {
+      "type": "object",
+      "required": [
+        "deviceId",
+        "label",
+        "verificationMethod",
+        "trustedUntil",
+        "current"
+      ],
+      "properties": {
+        "deviceId": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "verificationMethod": {
+          "type": "string",
+          "enum": [
+            "passkey",
+            "biometric",
+            "authenticator"
+          ]
+        },
+        "trustedUntil": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "current": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DownloadRecord": {
+      "type": "object",
+      "required": [
+        "downloadId",
+        "objectLabel",
+        "format",
+        "requestedAt",
+        "status"
+      ],
+      "properties": {
+        "downloadId": {
+          "type": "string"
+        },
+        "objectLabel": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "requestedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "preparing",
+            "ready",
+            "downloaded",
+            "expired",
+            "failed"
+          ]
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "downloadUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "BFF 短时签名 URL；不得写入日志或持久化"
+        },
+        "watermarked": {
+          "type": "boolean"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "BrowserCapabilityPolicy": {
+      "type": "object",
+      "required": [
+        "kind",
+        "authFlow",
+        "notifications",
+        "localFileImport",
+        "deepLinkScheme",
+        "downloadsViaBff",
+        "offlineDomainActions",
+        "businessPagesNoIndex",
+        "cspEnforced",
+        "sessionProtected"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "web"
+          ]
+        },
+        "authFlow": {
+          "type": "string",
+          "enum": [
+            "browser_redirect"
+          ]
+        },
+        "notifications": {
+          "type": "string",
+          "enum": [
+            "browser"
+          ]
+        },
+        "localFileImport": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "deepLinkScheme": {
+          "type": "string",
+          "format": "uri"
+        },
+        "downloadsViaBff": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "offlineDomainActions": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        "businessPagesNoIndex": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "cspEnforced": {
+          "type": "boolean"
+        },
+        "sessionProtected": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AuditEvent": {
+      "type": "object",
+      "required": [
+        "eventId",
+        "correlationId",
+        "sequence",
+        "kind",
+        "actor",
+        "objectRef",
+        "occurredAt",
+        "redactionApplied",
+        "redactedPayload",
+        "payloadHash",
+        "retentionUntil"
+      ],
+      "properties": {
+        "eventId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "causationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "sequence": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "kind": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string",
+          "description": "已脱敏的 actor 显示名或服务主体"
+        },
+        "objectRef": {
+          "type": "string"
+        },
+        "occurredAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "redactionApplied": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "redactedPayload": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "只允许服务端脱敏后输出；密钥、token、完整账户标识禁止出现"
+        },
+        "payloadHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "retentionUntil": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "AuditEventPage": {
+      "allOf": [
+        {
+          "$ref": "#/components/schemas/Page"
+        },
+        {
+          "type": "object",
+          "required": [
+            "items"
+          ],
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AuditEvent"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "EvidenceNode": {
+      "type": "object",
+      "required": [
+        "eventId",
+        "sequence",
+        "kind",
+        "objectRef",
+        "occurredAt",
+        "payloadHash",
+        "route",
+        "retentionUntil"
+      ],
+      "properties": {
+        "eventId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "causationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "sequence": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "kind": {
+          "type": "string"
+        },
+        "objectRef": {
+          "type": "string"
+        },
+        "occurredAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "payloadHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "route": {
+          "type": "string",
+          "pattern": "^/",
+          "description": "只含资源引用，不含 token"
+        },
+        "retentionUntil": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "EvidenceChainPage": {
+      "type": "object",
+      "required": [
+        "correlationId",
+        "items",
+        "complete"
+      ],
+      "properties": {
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/EvidenceNode"
+          }
+        },
+        "nextCursor": {
+          "type": "string"
+        },
+        "complete": {
+          "type": "boolean",
+          "description": "true 仅表示当前授权范围内证据链完整"
+        }
+      }
+    },
+    "ExportScope": {
+      "type": "object",
+      "required": [
+        "correlationIds"
+      ],
+      "properties": {
+        "correlationIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        "eventKinds": {
+          "type": "array",
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "startAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "endAt": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExportRequest": {
+      "type": "object",
+      "required": [
+        "scope",
+        "format",
+        "reason",
+        "watermark",
+        "retentionDays"
+      ],
+      "properties": {
+        "scope": {
+          "$ref": "#/components/schemas/ExportScope"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "jsonl",
+            "csv",
+            "pdf"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 500
+        },
+        "watermark": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 120
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExportJob": {
+      "type": "object",
+      "required": [
+        "exportId",
+        "status",
+        "format",
+        "requestedBy",
+        "requestedAt",
+        "watermark",
+        "retentionUntil",
+        "correlationId",
+        "auditRef"
+      ],
+      "properties": {
+        "exportId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "generating",
+            "ready",
+            "cancel_requested",
+            "cancelled",
+            "expired",
+            "failed"
+          ]
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "jsonl",
+            "csv",
+            "pdf"
+          ]
+        },
+        "requestedBy": {
+          "type": "string"
+        },
+        "requestedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "completedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "watermark": {
+          "type": "string"
+        },
+        "retentionUntil": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "ExportDownloadMetadata": {
+      "type": "object",
+      "required": [
+        "exportId",
+        "downloadUrl",
+        "expiresAt",
+        "sha256",
+        "sizeBytes",
+        "mediaType",
+        "watermarked",
+        "retentionUntil",
+        "auditRef"
+      ],
+      "properties": {
+        "exportId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "downloadUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "一次性不透明签名 URL，最长 5 分钟"
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "mediaType": {
+          "type": "string"
+        },
+        "watermarked": {
+          "type": "boolean",
+          "enum": [
+            true
+          ]
+        },
+        "retentionUntil": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "ResearchRun": {
+      "type": "object",
+      "required": [
+        "runId",
+        "capability",
+        "dataSnapshotId",
+        "budget",
+        "deadlineAt",
+        "status",
+        "inputHash",
+        "engineVersion",
+        "evidenceRefs",
+        "correlationId",
+        "createdAt"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "capability": {
+          "type": "string"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "budget": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "costUnits": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "deadlineAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "status": {
+          "$ref": "#/components/schemas/TaskStatus"
+        },
+        "inputHash": {
+          "type": "string"
+        },
+        "engineVersion": {
+          "type": "string"
+        },
+        "artifactRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "createdAt": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "DataSnapshot": {
+      "type": "object",
+      "required": [
+        "snapshotId",
+        "schemaVersion",
+        "window",
+        "quality",
+        "contentHash",
+        "licenseLabel",
+        "capturedAt",
+        "maxAgeSeconds"
+      ],
+      "properties": {
+        "snapshotId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "schemaVersion": {
+          "type": "string"
+        },
+        "window": {
+          "$ref": "#/components/schemas/TimeWindow"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quality": {
+          "$ref": "#/components/schemas/DataQuality"
+        },
+        "qualityBlocked": {
+          "type": "boolean",
+          "description": "质量受限阻断标识（服务端权威，前端不可覆盖）"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "licenseLabel": {
+          "type": "string"
+        },
+        "capturedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "maxAgeSeconds": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Artifact": {
+      "type": "object",
+      "required": [
+        "artifactId",
+        "hypothesis",
+        "summary",
+        "engineVersion",
+        "promptVersion",
+        "codeVersion",
+        "environmentHash",
+        "dataSnapshotId",
+        "contentHash",
+        "createdAt"
+      ],
+      "properties": {
+        "artifactId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "hypothesis": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "engineVersion": {
+          "type": "string"
+        },
+        "promptVersion": {
+          "type": "string"
+        },
+        "codeVersion": {
+          "type": "string"
+        },
+        "environmentHash": {
+          "type": "string"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "lineageRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        "createdAt": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "StrategySummary": {
+      "type": "object",
+      "required": [
+        "strategyId",
+        "name",
+        "updatedAt"
+      ],
+      "properties": {
+        "strategyId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "name": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "StrategyDraft": {
+      "type": "object",
+      "required": [
+        "strategyId",
+        "objectVersion",
+        "files",
+        "parameters",
+        "updatedAt"
+      ],
+      "properties": {
+        "strategyId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "updatedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "BacktestReport": {
+      "type": "object",
+      "required": [
+        "runId",
+        "strategyId",
+        "dataSnapshotId",
+        "status",
+        "metrics",
+        "leakViolations",
+        "reportArtifactId"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "strategyId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "status": {
+          "$ref": "#/components/schemas/TaskStatus"
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/components/schemas/DecimalValue"
+          }
+        },
+        "leakViolations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "泄漏检查失败规则码（非空阻断 Release）"
+        },
+        "reportArtifactId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "StrategyRelease": {
+      "type": "object",
+      "required": [
+        "releaseId",
+        "strategyId",
+        "backtestReportArtifactId",
+        "sourceDigest",
+        "imageDigest",
+        "parameterHash",
+        "parameters",
+        "snapshotId",
+        "allowedTargets",
+        "approvalState",
+        "createdAt"
+      ],
+      "properties": {
+        "releaseId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "strategyId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "backtestReportArtifactId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "sourceDigest": {
+          "type": "string"
+        },
+        "imageDigest": {
+          "type": "string"
+        },
+        "parameterHash": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "snapshotId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "allowedTargets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "paper",
+              "shadow",
+              "assisted_live"
+            ]
+          },
+          "description": "服务端权威；M3/M4 仅 paper/shadow；assisted_live 出现需 flag 放行"
+        },
+        "approvalState": {
+          "type": "string",
+          "enum": [
+            "none",
+            "pending",
+            "approved",
+            "rejected",
+            "expired"
+          ]
+        },
+        "createdAt": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "Position": {
+      "type": "object",
+      "required": [
+        "symbol",
+        "side",
+        "quantity",
+        "avgPrice"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "long",
+            "short"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "avgPrice": {
+          "$ref": "#/components/schemas/DecimalValue"
+        }
+      }
+    },
+    "PortfolioView": {
+      "type": "object",
+      "required": [
+        "accountId",
+        "asOf",
+        "stale",
+        "positions",
+        "pnl",
+        "exposure"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "asOf": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "stale": {
+          "type": "boolean",
+          "description": "true 时命令类操作由服务端拒绝"
+        },
+        "positions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Position"
+          }
+        },
+        "pnl": {
+          "$ref": "#/components/schemas/MoneyValue"
+        },
+        "exposure": {
+          "$ref": "#/components/schemas/DecimalValue"
+        }
+      }
+    },
+    "RiskView": {
+      "type": "object",
+      "required": [
+        "accountId",
+        "asOf",
+        "hitRules",
+        "limitIds",
+        "killSwitch"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "asOf": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "hitRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        "killSwitch": {
+          "type": "object",
+          "required": [
+            "state"
+          ],
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "disengaged",
+                "engaged"
+              ]
+            },
+            "actor": {
+              "type": "string"
+            },
+            "at": {
+              "$ref": "#/components/schemas/DateTime"
+            }
+          }
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID",
+          "description": "Trace reference for control actions; also supplied in response headers."
+        }
+      }
+    },
+    "Signal": {
+      "type": "object",
+      "required": [
+        "signalId",
+        "strategyReleaseId",
+        "symbol",
+        "direction",
+        "strength",
+        "confidence",
+        "generatedAt",
+        "validUntil"
+      ],
+      "properties": {
+        "signalId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "strategyReleaseId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "long",
+            "short",
+            "flat"
+          ]
+        },
+        "strength": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "confidence": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "generatedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "validUntil": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "TradeProposal": {
+      "type": "object",
+      "required": [
+        "proposalId",
+        "accountId",
+        "symbol",
+        "action",
+        "quantity",
+        "notional",
+        "signal",
+        "rationale",
+        "counterViews",
+        "evidenceRefs",
+        "confidence",
+        "expiresAt",
+        "executable",
+        "objectVersion"
+      ],
+      "properties": {
+        "proposalId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell",
+            "reduce",
+            "close"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "notional": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "signal": {
+          "$ref": "#/components/schemas/Signal"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "counterViews": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "反方观点（R04 强制；proto trading.v1.TradeProposal.counter_views）"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        "confidence": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "executable": {
+          "type": "boolean",
+          "enum": [
+            false
+          ],
+          "description": "恒 false（A02；schema 层强制）"
+        },
+        "objectVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "Approval": {
+      "type": "object",
+      "required": [
+        "approvalId",
+        "originator",
+        "objectVersion",
+        "status",
+        "expiresAt",
+        "correlationId"
+      ],
+      "properties": {
+        "approvalId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "originator": {
+          "type": "string",
+          "description": "发起人 actorId（禁自批判定）"
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected",
+            "expired",
+            "conflict"
+          ]
+        },
+        "expiresAt": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "signature": {
+          "type": "string",
+          "description": "批准后服务端签名"
+        },
+        "commandRef": {
+          "$ref": "#/components/schemas/UUID",
+          "description": "批准后签发的短时 TradeCommand 引用"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "Fill": {
+      "type": "object",
+      "required": [
+        "fillId",
+        "quantity",
+        "price",
+        "at"
+      ],
+      "properties": {
+        "fillId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "quantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "price": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "at": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "Order": {
+      "type": "object",
+      "required": [
+        "orderId",
+        "commandId",
+        "accountId",
+        "venue",
+        "venueKind",
+        "symbol",
+        "intent",
+        "side",
+        "quantity",
+        "status",
+        "filledQuantity",
+        "averageFillPrice",
+        "fills",
+        "mode",
+        "correlationId",
+        "submittedAt"
+      ],
+      "properties": {
+        "orderId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "commandId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "decisionId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "proposalId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "releaseId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "venue": {
+          "type": "string"
+        },
+        "venueKind": {
+          "type": "string",
+          "enum": [
+            "binance",
+            "okx",
+            "coinbase",
+            "ibkr",
+            "alpine",
+            "mock"
+          ]
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "intent": {
+          "type": "string",
+          "enum": [
+            "open",
+            "increase",
+            "reduce",
+            "close"
+          ]
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "prices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/DecimalValue"
+          }
+        },
+        "status": {
+          "$ref": "#/components/schemas/OrderStatus"
+        },
+        "filledQuantity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "averageFillPrice": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "fills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Fill"
+          }
+        },
+        "mode": {
+          "$ref": "#/components/schemas/RuntimeMode"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "submittedAt": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    }
+  },
+  "operations": [
+    {
+      "path": "/v1/session",
+      "method": "GET",
+      "operationId": "getSession",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/context",
+      "method": "GET",
+      "operationId": "getContext",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/auth/reauth",
+      "method": "POST",
+      "operationId": "reauth",
+      "parameters": [
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "challengeRef"
+        ],
+        "properties": {
+          "challengeRef": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "challengeRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "Authentication challenge or public abuse-limit policy; no business command",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/auth/mfa/challenges",
+      "method": "POST",
+      "operationId": "mfaChallenge",
+      "parameters": [
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "purpose"
+        ],
+        "properties": {
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "login",
+              "approval",
+              "kill_switch",
+              "security_change"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "description": "完成 challenge 时提交；发起时缺省"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "purpose": "login"
+      },
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "Authentication challenge or public abuse-limit policy; no business command",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/auth/logout",
+      "method": "POST",
+      "operationId": "logout",
+      "parameters": [
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "Authentication challenge or public abuse-limit policy; no business command",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/access-requests",
+      "method": "POST",
+      "operationId": "submitAccessRequest",
+      "parameters": [],
+      "body": {
+        "type": "object",
+        "required": [
+          "teamName",
+          "contactEmail",
+          "purpose",
+          "markets",
+          "expectedMode",
+          "privacyNoticeVersion"
+        ],
+        "properties": {
+          "teamName": {
+            "type": "string"
+          },
+          "contactEmail": {
+            "type": "string",
+            "format": "email"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "markets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expectedMode": {
+            "$ref": "#/components/schemas/RuntimeMode"
+          },
+          "privacyNoticeVersion": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "teamName": "x",
+        "contactEmail": "synthetic@example.invalid",
+        "purpose": "x",
+        "markets": [],
+        "expectedMode": "research",
+        "privacyNoticeVersion": "x"
+      },
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "public + Origin + abuse protection",
+        "capability": "public-access-request",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "Authentication challenge or public abuse-limit policy; no business command",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": false
+    },
+    {
+      "path": "/v1/settings/profile",
+      "method": "GET",
+      "operationId": "getProfile",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/profile",
+      "method": "PUT",
+      "operationId": "saveProfile",
+      "parameters": [
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "displayName",
+          "locale",
+          "timezone",
+          "theme",
+          "numberFormat",
+          "timeDisplay",
+          "defaultRoute",
+          "density",
+          "highContrast",
+          "reducedMotion"
+        ],
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "team": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "zh-CN",
+              "en"
+            ]
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA timezone"
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "system",
+              "dark",
+              "light"
+            ]
+          },
+          "numberFormat": {
+            "type": "string",
+            "enum": [
+              "comma_dot",
+              "space_comma"
+            ]
+          },
+          "timeDisplay": {
+            "type": "string",
+            "enum": [
+              "utc_local",
+              "local"
+            ]
+          },
+          "defaultRoute": {
+            "type": "string",
+            "enum": [
+              "/command",
+              "/research",
+              "/portfolio",
+              "/markets"
+            ]
+          },
+          "density": {
+            "type": "string",
+            "enum": [
+              "compact",
+              "comfortable"
+            ]
+          },
+          "highContrast": {
+            "type": "boolean"
+          },
+          "reducedMotion": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "displayName": "x",
+        "locale": "zh-CN",
+        "timezone": "x",
+        "theme": "system",
+        "numberFormat": "comma_dot",
+        "timeDisplay": "utc_local",
+        "defaultRoute": "/command",
+        "density": "compact",
+        "highContrast": false,
+        "reducedMotion": false
+      },
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/notification-preferences",
+      "method": "GET",
+      "operationId": "getNotificationPrefs",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/notification-preferences",
+      "method": "PUT",
+      "operationId": "saveNotificationPrefs",
+      "parameters": [
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "rules",
+          "quietHoursEnabled",
+          "quietHoursStart",
+          "quietHoursEnd",
+          "criticalBypass",
+          "digestFrequency"
+        ],
+        "properties": {
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationRule"
+            }
+          },
+          "quietHoursEnabled": {
+            "type": "boolean"
+          },
+          "quietHoursStart": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "quietHoursEnd": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+          },
+          "criticalBypass": {
+            "type": "boolean",
+            "description": "Critical 可绕过静默但仍受服务端授权策略约束"
+          },
+          "digestFrequency": {
+            "type": "string",
+            "enum": [
+              "off",
+              "daily",
+              "weekly"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "rules": [],
+        "quietHoursEnabled": false,
+        "quietHoursStart": "00:00",
+        "quietHoursEnd": "00:00",
+        "criticalBypass": false,
+        "digestFrequency": "off"
+      },
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/security",
+      "method": "GET",
+      "operationId": "getSecuritySettings",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/sessions",
+      "method": "GET",
+      "operationId": "listSessions",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/sessions/{sessionId}",
+      "method": "DELETE",
+      "operationId": "revokeSession",
+      "parameters": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/sessions/stream",
+      "method": "GET",
+      "operationId": "subscribeSessionRevocations",
+      "parameters": [
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/trusted-devices",
+      "method": "GET",
+      "operationId": "listDevices",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/trusted-devices/{deviceId}",
+      "method": "DELETE",
+      "operationId": "revokeDevice",
+      "parameters": [
+        {
+          "name": "deviceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/mfa/setup",
+      "method": "POST",
+      "operationId": "setupMfa",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "method"
+        ],
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "passkey",
+              "authenticator"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "method": "passkey"
+      },
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/mfa/factors/{factorId}",
+      "method": "DELETE",
+      "operationId": "revokeMfaFactor",
+      "parameters": [
+        {
+          "name": "factorId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/settings/downloads",
+      "method": "GET",
+      "operationId": "listDownloads",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422"
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端过滤表达式；仅接受具体 operation allowlist 中的字段"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "downloadId",
+          "requestedAt",
+          "status",
+          "expiresAt",
+          "correlationId"
+        ],
+        "filter": [
+          "downloadId",
+          "status",
+          "correlationId"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/platform/browser-capabilities",
+      "method": "GET",
+      "operationId": "getPlatformCapabilities",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-001",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/research-runs",
+      "method": "GET",
+      "operationId": "listResearchRuns",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/TaskStatus"
+          }
+        },
+        {
+          "name": "dataSnapshotId",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422"
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端过滤表达式；仅接受具体 operation allowlist 中的字段"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-003",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "runId",
+          "dataSnapshotId",
+          "deadlineAt",
+          "status",
+          "correlationId",
+          "createdAt"
+        ],
+        "filter": [
+          "runId",
+          "dataSnapshotId",
+          "status",
+          "correlationId"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/research-runs",
+      "method": "POST",
+      "operationId": "createResearchRun",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "capability",
+          "dataSnapshotId",
+          "question",
+          "budget",
+          "deadlineAt"
+        ],
+        "properties": {
+          "capability": {
+            "type": "string"
+          },
+          "dataSnapshotId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "question": {
+            "type": "string"
+          },
+          "budget": {
+            "$ref": "#/components/schemas/DecimalValue"
+          },
+          "deadlineAt": {
+            "$ref": "#/components/schemas/DateTime"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "已上传扫描后的 Artifact 引用"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "capability": "x",
+        "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
+        "question": "x",
+        "budget": "1",
+        "deadlineAt": "2026-10-03T00:00:00Z"
+      },
+      "policy": {
+        "owner": "BFF-FE-003",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/research-runs/{runId}",
+      "method": "GET",
+      "operationId": "getResearchRun",
+      "parameters": [
+        {
+          "name": "runId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-003",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/research-runs/{runId}/cancel",
+      "method": "POST",
+      "operationId": "cancelResearchRun",
+      "parameters": [
+        {
+          "name": "runId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-003",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/research-runs/{runId}/stream",
+      "method": "GET",
+      "operationId": "subscribeResearchRun",
+      "parameters": [
+        {
+          "name": "runId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-003",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/data-snapshots",
+      "method": "GET",
+      "operationId": "listDataSnapshots",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "quality",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/DataQuality"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422"
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端过滤表达式；仅接受具体 operation allowlist 中的字段"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-003",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "snapshotId",
+          "capturedAt"
+        ],
+        "filter": [
+          "snapshotId"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/data-snapshots/{snapshotId}",
+      "method": "GET",
+      "operationId": "getDataSnapshot",
+      "parameters": [
+        {
+          "name": "snapshotId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-003",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/artifacts/{artifactId}",
+      "method": "GET",
+      "operationId": "getArtifact",
+      "parameters": [
+        {
+          "name": "artifactId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-003",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/strategies",
+      "method": "GET",
+      "operationId": "listStrategies",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422"
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端过滤表达式；仅接受具体 operation allowlist 中的字段"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "strategyId",
+          "name",
+          "updatedAt"
+        ],
+        "filter": [
+          "strategyId",
+          "name"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/strategies/{strategyId}/draft",
+      "method": "GET",
+      "operationId": "getStrategyDraft",
+      "parameters": [
+        {
+          "name": "strategyId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/strategies/{strategyId}/draft",
+      "method": "PUT",
+      "operationId": "saveStrategyDraft",
+      "parameters": [
+        {
+          "name": "strategyId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "files",
+          "parameters"
+        ],
+        "properties": {
+          "files": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "parameters": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "files": {},
+        "parameters": {}
+      },
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/strategies/{strategyId}/static-checks",
+      "method": "POST",
+      "operationId": "runStaticCheck",
+      "parameters": [
+        {
+          "name": "strategyId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/backtests",
+      "method": "POST",
+      "operationId": "createBacktest",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "strategyId",
+          "objectVersion",
+          "dataSnapshotId"
+        ],
+        "properties": {
+          "strategyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "objectVersion": {
+            "type": "string"
+          },
+          "dataSnapshotId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "strategyId": "11111111-1111-4111-8111-111111111111",
+        "objectVersion": "x",
+        "dataSnapshotId": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/backtests/{runId}",
+      "method": "GET",
+      "operationId": "getBacktest",
+      "parameters": [
+        {
+          "name": "runId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/releases",
+      "method": "GET",
+      "operationId": "listReleases",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422"
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端过滤表达式；仅接受具体 operation allowlist 中的字段"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "releaseId",
+          "strategyId",
+          "backtestReportArtifactId",
+          "snapshotId",
+          "createdAt"
+        ],
+        "filter": [
+          "releaseId",
+          "strategyId",
+          "backtestReportArtifactId",
+          "snapshotId"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/releases",
+      "method": "POST",
+      "operationId": "createRelease",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "strategyId",
+          "objectVersion",
+          "backtestRunId",
+          "parameters"
+        ],
+        "properties": {
+          "strategyId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "objectVersion": {
+            "type": "string"
+          },
+          "backtestRunId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parameters": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "strategyId": "11111111-1111-4111-8111-111111111111",
+        "objectVersion": "x",
+        "backtestRunId": "11111111-1111-4111-8111-111111111111",
+        "parameters": {}
+      },
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/releases/{releaseId}",
+      "method": "GET",
+      "operationId": "getRelease",
+      "parameters": [
+        {
+          "name": "releaseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/releases/{releaseId}/approval-submissions",
+      "method": "POST",
+      "operationId": "submitReleaseApproval",
+      "parameters": [
+        {
+          "name": "releaseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/releases/{releaseId}/rollback-requests",
+      "method": "POST",
+      "operationId": "requestReleaseRollback",
+      "parameters": [
+        {
+          "name": "releaseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "targetReleaseId"
+        ],
+        "properties": {
+          "targetReleaseId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "targetReleaseId": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-004",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/portfolio",
+      "method": "GET",
+      "operationId": "getPortfolio",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/risk",
+      "method": "GET",
+      "operationId": "getRiskView",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/risk/kill-switch/engage",
+      "method": "POST",
+      "operationId": "engageKillSwitch",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "accountId",
+          "reason",
+          "mfaChallengeRef",
+          "reauthTokenRef",
+          "confirmPhrase"
+        ],
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "mfaChallengeRef": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reauthTokenRef": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "confirmPhrase": {
+            "type": "string",
+            "description": "客户端 DangerConfirm 输入的确认短语"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "reason": "x",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "confirmPhrase": "x"
+      },
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/risk/kill-switch/release",
+      "method": "POST",
+      "operationId": "releaseKillSwitch",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "accountId",
+          "reason",
+          "mfaChallengeRef",
+          "reauthTokenRef"
+        ],
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "mfaChallengeRef": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reauthTokenRef": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "reason": "x",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/portfolio/stream",
+      "method": "GET",
+      "operationId": "subscribePortfolio",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/proposals",
+      "method": "GET",
+      "operationId": "listProposals",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "symbol",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422"
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端过滤表达式；仅接受具体 operation allowlist 中的字段"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "proposalId",
+          "accountId",
+          "expiresAt"
+        ],
+        "filter": [
+          "proposalId",
+          "accountId"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/proposals/{proposalId}",
+      "method": "GET",
+      "operationId": "getProposal",
+      "parameters": [
+        {
+          "name": "proposalId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/proposals/{proposalId}/risk-evaluations",
+      "method": "POST",
+      "operationId": "requestRiskEvaluation",
+      "parameters": [
+        {
+          "name": "proposalId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "contextHash"
+        ],
+        "properties": {
+          "contextHash": {
+            "type": "string",
+            "description": "quoteRef/accountRef/mode/版本组合 hash"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "contextHash": "x"
+      },
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/proposals/{proposalId}/stream",
+      "method": "GET",
+      "operationId": "subscribeProposal",
+      "parameters": [
+        {
+          "name": "proposalId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/approvals",
+      "method": "GET",
+      "operationId": "listApprovals",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422"
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端过滤表达式；仅接受具体 operation allowlist 中的字段"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "approvalId",
+          "status",
+          "expiresAt",
+          "correlationId"
+        ],
+        "filter": [
+          "approvalId",
+          "status",
+          "correlationId"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/approvals/{approvalId}",
+      "method": "GET",
+      "operationId": "getApproval",
+      "parameters": [
+        {
+          "name": "approvalId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/approvals/{approvalId}/decisions",
+      "method": "POST",
+      "operationId": "decideApproval",
+      "parameters": [
+        {
+          "name": "approvalId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "decision",
+          "mfaChallengeRef",
+          "reauthTokenRef"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject",
+              "request_info"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "description": "decision≠approve 时必填，写入审计"
+          },
+          "mfaChallengeRef": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reauthTokenRef": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "decision": "approve",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/commands",
+      "method": "POST",
+      "operationId": "submitTradeCommand",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "commandRef"
+        ],
+        "properties": {
+          "commandRef": {
+            "type": "string",
+            "format": "uuid",
+            "description": "服务端签发的短时 TradeCommand 引用"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "commandRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/orders",
+      "method": "GET",
+      "operationId": "listOrders",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/OrderStatus"
+          }
+        },
+        {
+          "name": "symbol",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422"
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端过滤表达式；仅接受具体 operation allowlist 中的字段"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "orderId",
+          "commandId",
+          "decisionId",
+          "proposalId",
+          "releaseId",
+          "accountId",
+          "status",
+          "correlationId",
+          "submittedAt"
+        ],
+        "filter": [
+          "orderId",
+          "commandId",
+          "decisionId",
+          "proposalId",
+          "releaseId",
+          "accountId",
+          "status",
+          "correlationId"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/orders/{orderId}",
+      "method": "GET",
+      "operationId": "getOrder",
+      "parameters": [
+        {
+          "name": "orderId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/orders/{orderId}/cancel-requests",
+      "method": "POST",
+      "operationId": "requestOrderCancel",
+      "parameters": [
+        {
+          "name": "orderId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "commandRef"
+        ],
+        "properties": {
+          "commandRef": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "commandRef": "11111111-1111-4111-8111-111111111111"
+      },
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/orders/{orderId}/stream",
+      "method": "GET",
+      "operationId": "subscribeOrder",
+      "parameters": [
+        {
+          "name": "orderId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-006",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "Domain owner authorizes the resource/action; client capability is not authority.",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/audit/events",
+      "method": "GET",
+      "operationId": "searchAuditEvents",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "name": "correlationId",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "causationId",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "objectRef",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "startAt",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/DateTime"
+          }
+        },
+        {
+          "name": "endAt",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/DateTime"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422"
+        },
+        {
+          "name": "filter",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "服务端过滤表达式；仅接受具体 operation allowlist 中的字段"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:read",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "occurredAt",
+          "kind",
+          "eventId"
+        ],
+        "filter": [
+          "kind",
+          "eventId"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/audit/evidence-chains/{correlationId}",
+      "method": "GET",
+      "operationId": "getEvidenceChain",
+      "parameters": [
+        {
+          "name": "correlationId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:read",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [],
+        "filter": [],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.",
+        "sortFilterNotApplicable": "Evidence chain preserves causation order; filtering would remove required nodes"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/exports",
+      "method": "POST",
+      "operationId": "createExport",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "type": "object",
+        "required": [
+          "scope",
+          "format",
+          "reason",
+          "watermark",
+          "retentionDays"
+        ],
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/ExportScope"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "jsonl",
+              "csv",
+              "pdf"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 500
+          },
+          "watermark": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120
+          },
+          "retentionDays": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30
+          }
+        },
+        "additionalProperties": false
+      },
+      "bodyExample": {
+        "scope": {
+          "correlationIds": [
+            "11111111-1111-4111-8111-111111111111"
+          ]
+        },
+        "format": "jsonl",
+        "reason": "xxxxxxxx",
+        "watermark": "xxx",
+        "retentionDays": 1
+      },
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:export",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/exports/{exportId}",
+      "method": "GET",
+      "operationId": "getExportStatus",
+      "parameters": [
+        {
+          "name": "exportId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:read",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/exports/{exportId}/cancel",
+      "method": "POST",
+      "operationId": "cancelExport",
+      "parameters": [
+        {
+          "name": "exportId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:export",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/exports/{exportId}/download",
+      "method": "GET",
+      "operationId": "getExportDownload",
+      "parameters": [
+        {
+          "name": "exportId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:export",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    }
+  ]
+}

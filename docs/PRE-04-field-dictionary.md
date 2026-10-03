@@ -27,11 +27,11 @@
 | TaskStatus | {"type":"string","enum":["queued","running","succeeded","failed","cancelled","cancel_requested"]} |
 | OrderStatus | {"type":"string","enum":["draft","risk_checking","awaiting_approval","command_ready","submitted","accepted","partially_filled","filled","cancelled","rejected","expired"]} |
 | TimeWindow | {"type":"object","required":["start","end"],"properties":{"start":{"$ref":"#/components/schemas/DateTime"},"end":{"$ref":"#/components/schemas/DateTime"}}} |
-| ErrorEnvelope | {"type":"object","required":["code","message","correlationId"],"properties":{"code":{"type":"string"},"message":{"type":"string"},"correlationId":{"$ref":"#/components/schemas/UUID"},"fieldErrors":{"type":"object","additionalProperties":{"type":"string"}},"retryAfter":{"type":"integer","minimum":0},"currentVersion":{"type":"string"}}} |
+| ErrorEnvelope | {"type":"object","required":["code","message","correlationId"],"properties":{"code":{"type":"string"},"message":{"type":"string"},"correlationId":{"$ref":"#/components/schemas/UUID"},"fieldErrors":{"type":"object","additionalProperties":{"type":"string"}},"retryAfter":{"type":"integer","minimum":0},"currentVersion":{"type":"string"}},"additionalProperties":false} |
 | Page | {"type":"object","required":["items"],"properties":{"items":{"type":"array","items":{}},"nextCursor":{"type":"string"}}} |
 | AsyncAccepted | {"type":"object","required":["jobId","status","correlationId"],"properties":{"jobId":{"$ref":"#/components/schemas/UUID"},"status":{"type":"string","enum":["accepted","cancel_requested"]},"correlationId":{"$ref":"#/components/schemas/UUID"}}} |
 | AuditedAsyncAccepted | {"allOf":[{"$ref":"#/components/schemas/AsyncAccepted"},{"type":"object","required":["auditRef"],"properties":{"auditRef":{"$ref":"#/components/schemas/UUID"}}}]} |
-| StreamEvent | {"type":"object","required":["streamId","sequence","eventId","occurredAt","correlationId","payloadVersion","payload"],"properties":{"streamId":{"$ref":"#/components/schemas/UUID"},"sequence":{"type":"integer","format":"int64","minimum":1},"eventId":{"$ref":"#/components/schemas/UUID"},"occurredAt":{"$ref":"#/components/schemas/DateTime"},"correlationId":{"$ref":"#/components/schemas/UUID"},"payloadVersion":{"type":"string"},"payload":{"type":"object"}}} |
+| StreamEvent | {"type":"object","required":["streamId","sequence","eventId","occurredAt","correlationId","payloadVersion","payload"],"properties":{"streamId":{"$ref":"#/components/schemas/UUID"},"sequence":{"type":"integer","format":"int64","minimum":1},"eventId":{"$ref":"#/components/schemas/UUID"},"occurredAt":{"$ref":"#/components/schemas/DateTime"},"correlationId":{"$ref":"#/components/schemas/UUID"},"payloadVersion":{"type":"string","enum":["v1","1"]},"payload":{"type":"object"}}} |
 
 ## 2. C01 Session/Context
 
@@ -47,6 +47,7 @@
 | SessionContext.mfaState | {"type":"string","enum":["unenrolled","enrolled","challenged","verified"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:SessionContext.mfaState |
 | SessionContext.expiresAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:SessionContext.expiresAt |
 | ReauthRequest.challengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ReauthRequest.challengeRef |
+| reauth.request.challengeRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:reauth.request.challengeRef |
 | mfaChallenge.request.purpose | {"type":"string","enum":["login","approval","kill_switch","security_change"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:mfaChallenge.request.purpose |
 | mfaChallenge.request.code | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:mfaChallenge.request.code |
 | submitAccessRequest.request.teamName | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:submitAccessRequest.request.teamName |
@@ -179,6 +180,7 @@
 | RiskView.hitRules | {"type":"array","items":{"type":"string"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:RiskView.hitRules |
 | RiskView.limitIds | {"type":"array","items":{"$ref":"#/components/schemas/UUID"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:RiskView.limitIds |
 | RiskView.killSwitch | {"type":"object","required":["state"],"properties":{"state":{"type":"string","enum":["disengaged","engaged"]},"actor":{"type":"string"},"at":{"$ref":"#/components/schemas/DateTime"}}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:RiskView.killSwitch |
+| RiskView.correlationId | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:RiskView.correlationId |
 | Position.symbol | {"type":"string"} | 是 | proto:trading.v1.Position.symbol | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Position.symbol |
 | Position.side | {"type":"string","enum":["long","short"]} | 是 | proto:trading.v1.Position.side | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Position.side |
 | Position.quantity | {"$ref":"#/components/schemas/DecimalValue"} | 是 | proto:trading.v1.Position.quantity | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Position.quantity |
@@ -236,7 +238,7 @@
 | decideApproval.request.decision | {"type":"string","enum":["approve","reject","request_info"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.decision |
 | decideApproval.request.reason | {"type":"string"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.reason |
 | decideApproval.request.mfaChallengeRef | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.mfaChallengeRef |
-| decideApproval.request.reauthTokenRef | {"type":"string","format":"uuid"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.reauthTokenRef |
+| decideApproval.request.reauthTokenRef | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:decideApproval.request.reauthTokenRef |
 
 ## 10. C09 Command/Order
 
@@ -328,6 +330,11 @@
 | ExportDownloadMetadata.watermarked | {"type":"boolean","enum":[true]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ExportDownloadMetadata.watermarked |
 | ExportDownloadMetadata.retentionUntil | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ExportDownloadMetadata.retentionUntil |
 | ExportDownloadMetadata.auditRef | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ExportDownloadMetadata.auditRef |
+| createExport.request.scope | {"$ref":"#/components/schemas/ExportScope"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createExport.request.scope |
+| createExport.request.format | {"type":"string","enum":["jsonl","csv","pdf"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createExport.request.format |
+| createExport.request.reason | {"type":"string","minLength":8,"maxLength":500} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createExport.request.reason |
+| createExport.request.watermark | {"type":"string","minLength":3,"maxLength":120} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createExport.request.watermark |
+| createExport.request.retentionDays | {"type":"integer","minimum":1,"maximum":30} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createExport.request.retentionDays |
 
 ## 12. C11 Ops/Admin
 
@@ -517,11 +524,29 @@
 | BrowserCapabilityPolicy.businessPagesNoIndex | {"type":"boolean","enum":[true]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.businessPagesNoIndex |
 | BrowserCapabilityPolicy.cspEnforced | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.cspEnforced |
 | BrowserCapabilityPolicy.sessionProtected | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:BrowserCapabilityPolicy.sessionProtected |
+| saveProfile.request.displayName | {"type":"string","minLength":1,"maxLength":80} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.displayName |
+| saveProfile.request.title | {"type":"string","maxLength":120} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.title |
+| saveProfile.request.team | {"type":"string","maxLength":120} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.team |
+| saveProfile.request.locale | {"type":"string","enum":["zh-CN","en"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.locale |
+| saveProfile.request.timezone | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.timezone |
+| saveProfile.request.theme | {"type":"string","enum":["system","dark","light"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.theme |
+| saveProfile.request.numberFormat | {"type":"string","enum":["comma_dot","space_comma"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.numberFormat |
+| saveProfile.request.timeDisplay | {"type":"string","enum":["utc_local","local"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.timeDisplay |
+| saveProfile.request.defaultRoute | {"type":"string","enum":["/command","/research","/portfolio","/markets"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.defaultRoute |
+| saveProfile.request.density | {"type":"string","enum":["compact","comfortable"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.density |
+| saveProfile.request.highContrast | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.highContrast |
+| saveProfile.request.reducedMotion | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveProfile.request.reducedMotion |
+| saveNotificationPrefs.request.rules | {"type":"array","items":{"$ref":"#/components/schemas/NotificationRule"}} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveNotificationPrefs.request.rules |
+| saveNotificationPrefs.request.quietHoursEnabled | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveNotificationPrefs.request.quietHoursEnabled |
+| saveNotificationPrefs.request.quietHoursStart | {"type":"string","pattern":"^([01]\\d&#124;2[0-3]):[0-5]\\d$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveNotificationPrefs.request.quietHoursStart |
+| saveNotificationPrefs.request.quietHoursEnd | {"type":"string","pattern":"^([01]\\d&#124;2[0-3]):[0-5]\\d$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveNotificationPrefs.request.quietHoursEnd |
+| saveNotificationPrefs.request.criticalBypass | {"type":"boolean"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveNotificationPrefs.request.criticalBypass |
+| saveNotificationPrefs.request.digestFrequency | {"type":"string","enum":["off","daily","weekly"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:saveNotificationPrefs.request.digestFrequency |
 | setupMfa.request.method | {"type":"string","enum":["passkey","authenticator"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:setupMfa.request.method |
 
 ## 19. 完备性与验收边界
 
-- 共 383 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
+- 共 408 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
 - 必填字段、可选字段、请求与响应按真实 schema 区分；SSE 信封为共享 StreamEvent，载荷版本和实时恢复仍按各 operation 规则执行。
 - 已发布部分只证明仓库契约；未配置生成式 MSW 返回501。本地参考 provider 不替代 staging、真实数据库/身份/对象存储或正式签署。
 - 当前一期不包含原生控制面；原生接口独立见 [DESK-PRE-04 承接表](./DESK-PRE-04-interface-transfer.md)。

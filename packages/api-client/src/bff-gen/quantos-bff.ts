@@ -1035,8 +1035,11 @@ export interface components {
             eventId: components["schemas"]["UUID"];
             occurredAt: components["schemas"]["DateTime"];
             correlationId: components["schemas"]["UUID"];
-            /** @description 载荷 schema 版本（未知版本客户端 fail closed） */
-            payloadVersion: string;
+            /**
+             * @description Canonical v1; legacy 1 remains supported during the 1.4.0 migration window. Other versions fail closed.
+             * @enum {string}
+             */
+            payloadVersion: "v1" | "1";
             /** @description 领域事件载荷；payload.type=permission_revoked 为终态语义 */
             payload: Record<string, never>;
         };
@@ -1377,6 +1380,8 @@ export interface components {
                 actor?: string;
                 at?: components["schemas"]["DateTime"];
             };
+            /** @description Trace reference for control actions; also supplied in response headers. */
+            correlationId?: components["schemas"]["UUID"];
         };
         Signal: {
             signalId: components["schemas"]["UUID"];
@@ -1462,6 +1467,8 @@ export interface components {
         Unauthorized: {
             headers: {
                 "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                /** @description Restricted responses must not be stored. */
+                "Cache-Control"?: "no-store";
                 [name: string]: unknown;
             };
             content: {
@@ -1479,6 +1486,8 @@ export interface components {
         Forbidden: {
             headers: {
                 "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                /** @description Restricted responses must not be stored. */
+                "Cache-Control"?: "no-store";
                 [name: string]: unknown;
             };
             content: {
@@ -1496,6 +1505,8 @@ export interface components {
         NotFound: {
             headers: {
                 "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                /** @description Restricted responses must not be stored. */
+                "Cache-Control"?: "no-store";
                 [name: string]: unknown;
             };
             content: {
@@ -1513,16 +1524,20 @@ export interface components {
         Conflict: {
             headers: {
                 "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                /** @description Restricted responses must not be stored. */
+                "Cache-Control"?: "no-store";
                 [name: string]: unknown;
             };
             content: {
-                "application/json": components["schemas"]["ErrorEnvelope"];
+                "application/json": components["schemas"]["ErrorEnvelope"] & unknown;
             };
         };
         /** @description 校验失败（字段级 fieldErrors；含超预算/过期数据/未批准 capability 等原因） */
         Unprocessable: {
             headers: {
                 "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                /** @description Restricted responses must not be stored. */
+                "Cache-Control"?: "no-store";
                 [name: string]: unknown;
             };
             content: {
@@ -1533,19 +1548,42 @@ export interface components {
         RateLimited: {
             headers: {
                 "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                /** @description Restricted responses must not be stored. */
+                "Cache-Control"?: "no-store";
                 [name: string]: unknown;
             };
             content: {
-                "application/json": components["schemas"]["ErrorEnvelope"];
+                "application/json": components["schemas"]["ErrorEnvelope"] & unknown;
             };
         };
         /** @description 受控资源已过期并不再可用；需重新创建导出 */
         Gone: {
             headers: {
                 "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                /** @description Restricted responses must not be stored. */
+                "Cache-Control"?: "no-store";
                 [name: string]: unknown;
             };
             content: {
+                "application/json": components["schemas"]["ErrorEnvelope"];
+            };
+        };
+        /** @description Safe upstream/internal failure; unknown codes fail closed. */
+        ServerError: {
+            headers: {
+                "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                /** @description Restricted responses must not be stored. */
+                "Cache-Control"?: "no-store";
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "code": "SERVICE_UNAVAILABLE",
+                 *       "message": "服务暂不可用，请稍后重试。",
+                 *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
                 "application/json": components["schemas"]["ErrorEnvelope"];
             };
         };
@@ -1566,6 +1604,8 @@ export interface components {
         AfterSequence: number;
         /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
         CsrfToken: string;
+        /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+        ClientRequestId: string;
     };
     requestBodies: never;
     headers: {
@@ -1591,13 +1631,30 @@ export interface operations {
             200: {
                 headers: {
                     "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "actorId": "11111111-1111-4111-8111-111111111111",
+                     *       "tenantId": "11111111-1111-4111-8111-111111111111",
+                     *       "workspaceId": "11111111-1111-4111-8111-111111111111",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "research",
+                     *       "environment": "dev",
+                     *       "capabilities": [],
+                     *       "mfaState": "unenrolled",
+                     *       "expiresAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["SessionContext"];
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     getContext: {
@@ -1613,13 +1670,30 @@ export interface operations {
             200: {
                 headers: {
                     "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "actorId": "11111111-1111-4111-8111-111111111111",
+                     *       "tenantId": "11111111-1111-4111-8111-111111111111",
+                     *       "workspaceId": "11111111-1111-4111-8111-111111111111",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "research",
+                     *       "environment": "dev",
+                     *       "capabilities": [],
+                     *       "mfaState": "unenrolled",
+                     *       "expiresAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["SessionContext"];
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     reauth: {
@@ -1634,16 +1708,32 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReauthRequest"];
+                /**
+                 * @example {
+                 *       "challengeRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
+                "application/json": {
+                    challengeRef: components["schemas"]["UUID"];
+                };
             };
         };
         responses: {
             /** @description 再认证通过，返回新的 reauthTokenRef（短时） */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                     *       "expiresAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": {
                         /** Format: uuid */
                         reauthTokenRef: string;
@@ -1652,7 +1742,10 @@ export interface operations {
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
         };
     };
     mfaChallenge: {
@@ -1667,6 +1760,11 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "purpose": "login"
+                 *     }
+                 */
                 "application/json": {
                     /** @enum {string} */
                     purpose: "login" | "approval" | "kill_switch" | "security_change";
@@ -1679,9 +1777,18 @@ export interface operations {
             /** @description challenge 状态 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "challengeRef": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "pending"
+                     *     }
+                     */
                     "application/json": {
                         /** Format: uuid */
                         challengeRef: string;
@@ -1690,7 +1797,11 @@ export interface operations {
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
         };
     };
     logout: {
@@ -1708,10 +1819,17 @@ export interface operations {
             /** @description 已注销 */
             204: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content?: never;
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     submitAccessRequest: {
@@ -1723,6 +1841,16 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "teamName": "x",
+                 *       "contactEmail": "synthetic@example.invalid",
+                 *       "purpose": "x",
+                 *       "markets": [],
+                 *       "expectedMode": "research",
+                 *       "privacyNoticeVersion": "x"
+                 *     }
+                 */
                 "application/json": {
                     teamName: string;
                     /** Format: email */
@@ -1738,14 +1866,26 @@ export interface operations {
             /** @description 受理 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AuditedAsyncAccepted"];
                 };
             };
             422: components["responses"]["Unprocessable"];
             429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
         };
     };
     getProfile: {
@@ -1760,13 +1900,38 @@ export interface operations {
             /** @description 资料设置 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "displayName": "x",
+                     *       "locale": "zh-CN",
+                     *       "timezone": "x",
+                     *       "theme": "system",
+                     *       "numberFormat": "comma_dot",
+                     *       "timeDisplay": "utc_local",
+                     *       "defaultRoute": "/command",
+                     *       "density": "compact",
+                     *       "highContrast": false,
+                     *       "reducedMotion": false,
+                     *       "memberId": "x",
+                     *       "email": "synthetic@example.invalid",
+                     *       "emailVerified": false,
+                     *       "roleLabels": [],
+                     *       "objectVersion": "x"
+                     *     }
+                     */
                     "application/json": components["schemas"]["ProfileSettings"];
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     saveProfile: {
@@ -1779,22 +1944,81 @@ export interface operations {
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
                 "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ProfileSettingsInput"];
+                /**
+                 * @example {
+                 *       "displayName": "x",
+                 *       "locale": "zh-CN",
+                 *       "timezone": "x",
+                 *       "theme": "system",
+                 *       "numberFormat": "comma_dot",
+                 *       "timeDisplay": "utc_local",
+                 *       "defaultRoute": "/command",
+                 *       "density": "compact",
+                 *       "highContrast": false,
+                 *       "reducedMotion": false
+                 *     }
+                 */
+                "application/json": {
+                    displayName: string;
+                    title?: string;
+                    team?: string;
+                    /** @enum {string} */
+                    locale: "zh-CN" | "en";
+                    /** @description IANA timezone */
+                    timezone: string;
+                    /** @enum {string} */
+                    theme: "system" | "dark" | "light";
+                    /** @enum {string} */
+                    numberFormat: "comma_dot" | "space_comma";
+                    /** @enum {string} */
+                    timeDisplay: "utc_local" | "local";
+                    /** @enum {string} */
+                    defaultRoute: "/command" | "/research" | "/portfolio" | "/markets";
+                    /** @enum {string} */
+                    density: "compact" | "comfortable";
+                    highContrast: boolean;
+                    reducedMotion: boolean;
+                };
             };
         };
         responses: {
             /** @description 已保存 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "displayName": "x",
+                     *       "locale": "zh-CN",
+                     *       "timezone": "x",
+                     *       "theme": "system",
+                     *       "numberFormat": "comma_dot",
+                     *       "timeDisplay": "utc_local",
+                     *       "defaultRoute": "/command",
+                     *       "density": "compact",
+                     *       "highContrast": false,
+                     *       "reducedMotion": false,
+                     *       "memberId": "x",
+                     *       "email": "synthetic@example.invalid",
+                     *       "emailVerified": false,
+                     *       "roleLabels": [],
+                     *       "objectVersion": "x"
+                     *     }
+                     */
                     "application/json": components["schemas"]["ProfileSettings"];
                 };
             };
@@ -1802,6 +2026,7 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
             422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     getNotificationPrefs: {
@@ -1816,12 +2041,31 @@ export interface operations {
             /** @description 通知偏好矩阵 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "rules": [],
+                     *       "quietHoursEnabled": false,
+                     *       "quietHoursStart": "00:00",
+                     *       "quietHoursEnd": "00:00",
+                     *       "criticalBypass": false,
+                     *       "digestFrequency": "off",
+                     *       "objectVersion": "x",
+                     *       "browserPermission": "granted"
+                     *     }
+                     */
                     "application/json": components["schemas"]["NotificationPreferences"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     saveNotificationPrefs: {
@@ -1834,28 +2078,67 @@ export interface operations {
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
                 "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["NotificationPreferencesInput"];
+                /**
+                 * @example {
+                 *       "rules": [],
+                 *       "quietHoursEnabled": false,
+                 *       "quietHoursStart": "00:00",
+                 *       "quietHoursEnd": "00:00",
+                 *       "criticalBypass": false,
+                 *       "digestFrequency": "off"
+                 *     }
+                 */
+                "application/json": {
+                    rules: components["schemas"]["NotificationRule"][];
+                    quietHoursEnabled: boolean;
+                    quietHoursStart: string;
+                    quietHoursEnd: string;
+                    /** @description Critical 可绕过静默但仍受服务端授权策略约束 */
+                    criticalBypass: boolean;
+                    /** @enum {string} */
+                    digestFrequency: "off" | "daily" | "weekly";
+                };
             };
         };
         responses: {
             /** @description 已保存 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "rules": [],
+                     *       "quietHoursEnabled": false,
+                     *       "quietHoursStart": "00:00",
+                     *       "quietHoursEnd": "00:00",
+                     *       "criticalBypass": false,
+                     *       "digestFrequency": "off",
+                     *       "objectVersion": "x",
+                     *       "browserPermission": "granted"
+                     *     }
+                     */
                     "application/json": components["schemas"]["NotificationPreferences"];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     getSecuritySettings: {
@@ -1870,14 +2153,29 @@ export interface operations {
             /** @description MFA 与安全姿态 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "posture": "strong",
+                     *       "score": 0,
+                     *       "mfaEnabled": false,
+                     *       "factors": [],
+                     *       "recoveryCodesRemaining": 0,
+                     *       "lastVerifiedAt": "2026-10-03T00:00:00Z",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["SecuritySettings"];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     listSessions: {
@@ -1892,14 +2190,19 @@ export interface operations {
             /** @description 活跃会话（IP 必须脱敏） */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [] */
                     "application/json": components["schemas"]["ActiveSession"][];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     revokeSession: {
@@ -1911,6 +2214,8 @@ export interface operations {
                 /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
                 "X-CSRF-Token": components["parameters"]["CsrfToken"];
                 "X-Reauth-Token-Ref": string;
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 sessionId: string;
@@ -1922,9 +2227,20 @@ export interface operations {
             /** @description 撤销已受理 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AuditedAsyncAccepted"];
                 };
             };
@@ -1932,6 +2248,8 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     subscribeSessionRevocations: {
@@ -1949,6 +2267,9 @@ export interface operations {
             /** @description 会话撤销/失效 SSE；当前会话被撤销为终态并清空内存认证态 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
@@ -1957,6 +2278,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     listDevices: {
@@ -1971,14 +2293,19 @@ export interface operations {
             /** @description 可信设备 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example [] */
                     "application/json": components["schemas"]["TrustedDevice"][];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     revokeDevice: {
@@ -1990,6 +2317,8 @@ export interface operations {
                 /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
                 "X-CSRF-Token": components["parameters"]["CsrfToken"];
                 "X-Reauth-Token-Ref": string;
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 deviceId: string;
@@ -2001,9 +2330,20 @@ export interface operations {
             /** @description 撤销已受理 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AuditedAsyncAccepted"];
                 };
             };
@@ -2011,6 +2351,8 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     setupMfa: {
@@ -2022,12 +2364,19 @@ export interface operations {
                 /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
                 "X-CSRF-Token": components["parameters"]["CsrfToken"];
                 "X-Reauth-Token-Ref": string;
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "method": "passkey"
+                 *     }
+                 */
                 "application/json": {
                     /** @enum {string} */
                     method: "passkey" | "authenticator";
@@ -2038,15 +2387,28 @@ export interface operations {
             /** @description MFA 设置流程已受理 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AuditedAsyncAccepted"];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     revokeMfaFactor: {
@@ -2058,6 +2420,8 @@ export interface operations {
                 /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
                 "X-CSRF-Token": components["parameters"]["CsrfToken"];
                 "X-Reauth-Token-Ref": string;
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 factorId: string;
@@ -2069,9 +2433,20 @@ export interface operations {
             /** @description 因素撤销已受理；auditRef 可追踪安全审计记录 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AuditedAsyncAccepted"];
                 };
             };
@@ -2079,6 +2454,8 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     listDownloads: {
@@ -2087,6 +2464,10 @@ export interface operations {
                 /** @description 不透明分页游标 */
                 cursor?: components["parameters"]["Cursor"];
                 pageSize?: components["parameters"]["PageSize"];
+                /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+                sort?: components["parameters"]["Sort"];
+                /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+                filter?: components["parameters"]["Filter"];
             };
             header?: never;
             path?: never;
@@ -2097,9 +2478,17 @@ export interface operations {
             /** @description 下载记录；URL 必须短时、签名且服务端鉴权 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
                     "application/json": components["schemas"]["Page"] & {
                         items?: components["schemas"]["DownloadRecord"][];
                     };
@@ -2107,6 +2496,7 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     getPlatformCapabilities: {
@@ -2121,14 +2511,32 @@ export interface operations {
             /** @description Web 平台能力策略 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "kind": "web",
+                     *       "authFlow": "browser_redirect",
+                     *       "notifications": "browser",
+                     *       "localFileImport": false,
+                     *       "deepLinkScheme": "https://downloads.invalid/example",
+                     *       "downloadsViaBff": true,
+                     *       "offlineDomainActions": false,
+                     *       "businessPagesNoIndex": true,
+                     *       "cspEnforced": false,
+                     *       "sessionProtected": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["BrowserCapabilityPolicy"];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     listResearchRuns: {
@@ -2139,6 +2547,10 @@ export interface operations {
                 pageSize?: components["parameters"]["PageSize"];
                 status?: components["schemas"]["TaskStatus"];
                 dataSnapshotId?: string;
+                /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+                sort?: components["parameters"]["Sort"];
+                /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+                filter?: components["parameters"]["Filter"];
             };
             header?: never;
             path?: never;
@@ -2149,15 +2561,25 @@ export interface operations {
             /** @description 任务页 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
                     "application/json": components["schemas"]["Page"] & {
                         items?: components["schemas"]["ResearchRun"][];
                     };
                 };
             };
             401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     createResearchRun: {
@@ -2166,12 +2588,25 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "capability": "x",
+                 *       "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
+                 *       "question": "x",
+                 *       "budget": "1",
+                 *       "deadlineAt": "2026-10-03T00:00:00Z"
+                 *     }
+                 */
                 "application/json": {
                     capability: string;
                     /** Format: uuid */
@@ -2188,13 +2623,26 @@ export interface operations {
             /** @description 受理（不代表完成） */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     getResearchRun: {
@@ -2211,13 +2659,34 @@ export interface operations {
             /** @description 任务 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "runId": "11111111-1111-4111-8111-111111111111",
+                     *       "capability": "x",
+                     *       "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
+                     *       "budget": "1",
+                     *       "deadlineAt": "2026-10-03T00:00:00Z",
+                     *       "status": "queued",
+                     *       "inputHash": "x",
+                     *       "engineVersion": "x",
+                     *       "evidenceRefs": [],
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "createdAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["ResearchRun"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     cancelResearchRun: {
@@ -2226,6 +2695,10 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 runId: string;
@@ -2237,13 +2710,27 @@ export interface operations {
             /** @description 取消已受理（cancel_requested） */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     subscribeResearchRun: {
@@ -2263,13 +2750,18 @@ export interface operations {
             /** @description SSE 事件流 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
                     "text/event-stream": components["schemas"]["StreamEvent"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     listDataSnapshots: {
@@ -2279,6 +2771,10 @@ export interface operations {
                 cursor?: components["parameters"]["Cursor"];
                 pageSize?: components["parameters"]["PageSize"];
                 quality?: components["schemas"]["DataQuality"];
+                /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+                sort?: components["parameters"]["Sort"];
+                /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+                filter?: components["parameters"]["Filter"];
             };
             header?: never;
             path?: never;
@@ -2289,14 +2785,25 @@ export interface operations {
             /** @description 快照页 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
                     "application/json": components["schemas"]["Page"] & {
                         items?: components["schemas"]["DataSnapshot"][];
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     getDataSnapshot: {
@@ -2313,13 +2820,34 @@ export interface operations {
             /** @description 快照 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "snapshotId": "11111111-1111-4111-8111-111111111111",
+                     *       "schemaVersion": "x",
+                     *       "window": {
+                     *         "start": "2026-10-03T00:00:00Z",
+                     *         "end": "2026-10-03T00:00:00Z"
+                     *       },
+                     *       "quality": "verified",
+                     *       "contentHash": "x",
+                     *       "licenseLabel": "x",
+                     *       "capturedAt": "2026-10-03T00:00:00Z",
+                     *       "maxAgeSeconds": 0
+                     *     }
+                     */
                     "application/json": components["schemas"]["DataSnapshot"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     getArtifact: {
@@ -2336,13 +2864,33 @@ export interface operations {
             /** @description Artifact */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "artifactId": "11111111-1111-4111-8111-111111111111",
+                     *       "hypothesis": "x",
+                     *       "summary": "x",
+                     *       "engineVersion": "x",
+                     *       "promptVersion": "x",
+                     *       "codeVersion": "x",
+                     *       "environmentHash": "x",
+                     *       "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
+                     *       "contentHash": "x",
+                     *       "createdAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Artifact"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     listStrategies: {
@@ -2351,6 +2899,10 @@ export interface operations {
                 /** @description 不透明分页游标 */
                 cursor?: components["parameters"]["Cursor"];
                 pageSize?: components["parameters"]["PageSize"];
+                /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+                sort?: components["parameters"]["Sort"];
+                /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+                filter?: components["parameters"]["Filter"];
             };
             header?: never;
             path?: never;
@@ -2361,14 +2913,25 @@ export interface operations {
             /** @description 策略页 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
                     "application/json": components["schemas"]["Page"] & {
                         items?: components["schemas"]["StrategySummary"][];
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     getStrategyDraft: {
@@ -2385,15 +2948,29 @@ export interface operations {
             /** @description 草稿（携带 objectVersion/ETag） */
             200: {
                 headers: {
-                    /** @description objectVersion */
-                    ETag?: string;
+                    ETag: components["headers"]["ETag"];
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "strategyId": "11111111-1111-4111-8111-111111111111",
+                     *       "objectVersion": "x",
+                     *       "files": {},
+                     *       "parameters": {},
+                     *       "updatedAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["StrategyDraft"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     saveStrategyDraft: {
@@ -2404,6 +2981,10 @@ export interface operations {
                 "If-Match": components["parameters"]["IfMatch"];
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 strategyId: string;
@@ -2412,6 +2993,12 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "files": {},
+                 *       "parameters": {}
+                 *     }
+                 */
                 "application/json": {
                     files: {
                         [key: string]: string;
@@ -2424,13 +3011,30 @@ export interface operations {
             /** @description 已保存，返回新 objectVersion */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    ETag: components["headers"]["ETag"];
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "strategyId": "11111111-1111-4111-8111-111111111111",
+                     *       "objectVersion": "x",
+                     *       "files": {},
+                     *       "parameters": {},
+                     *       "updatedAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["StrategyDraft"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     runStaticCheck: {
@@ -2439,6 +3043,10 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 strategyId: string;
@@ -2450,12 +3058,26 @@ export interface operations {
             /** @description 受理 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     createBacktest: {
@@ -2464,12 +3086,23 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "strategyId": "11111111-1111-4111-8111-111111111111",
+                 *       "objectVersion": "x",
+                 *       "dataSnapshotId": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
                 "application/json": {
                     /** Format: uuid */
                     strategyId: string;
@@ -2483,13 +3116,27 @@ export interface operations {
             /** @description 受理 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     getBacktest: {
@@ -2506,13 +3153,30 @@ export interface operations {
             /** @description 回测报告（指标/泄漏检查/验证结果） */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "runId": "11111111-1111-4111-8111-111111111111",
+                     *       "strategyId": "11111111-1111-4111-8111-111111111111",
+                     *       "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "queued",
+                     *       "metrics": {},
+                     *       "leakViolations": [],
+                     *       "reportArtifactId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["BacktestReport"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     listReleases: {
@@ -2521,6 +3185,10 @@ export interface operations {
                 /** @description 不透明分页游标 */
                 cursor?: components["parameters"]["Cursor"];
                 pageSize?: components["parameters"]["PageSize"];
+                /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+                sort?: components["parameters"]["Sort"];
+                /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+                filter?: components["parameters"]["Filter"];
             };
             header?: never;
             path?: never;
@@ -2531,14 +3199,25 @@ export interface operations {
             /** @description Release 页 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
                     "application/json": components["schemas"]["Page"] & {
                         items?: components["schemas"]["StrategyRelease"][];
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     createRelease: {
@@ -2547,12 +3226,24 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "strategyId": "11111111-1111-4111-8111-111111111111",
+                 *       "objectVersion": "x",
+                 *       "backtestRunId": "11111111-1111-4111-8111-111111111111",
+                 *       "parameters": {}
+                 *     }
+                 */
                 "application/json": {
                     /** Format: uuid */
                     strategyId: string;
@@ -2567,14 +3258,35 @@ export interface operations {
             /** @description 已创建 */
             201: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "releaseId": "11111111-1111-4111-8111-111111111111",
+                     *       "strategyId": "11111111-1111-4111-8111-111111111111",
+                     *       "backtestReportArtifactId": "11111111-1111-4111-8111-111111111111",
+                     *       "sourceDigest": "x",
+                     *       "imageDigest": "x",
+                     *       "parameterHash": "x",
+                     *       "parameters": {},
+                     *       "snapshotId": "11111111-1111-4111-8111-111111111111",
+                     *       "allowedTargets": [],
+                     *       "approvalState": "none",
+                     *       "createdAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["StrategyRelease"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
             422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     getRelease: {
@@ -2591,13 +3303,34 @@ export interface operations {
             /** @description Release */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "releaseId": "11111111-1111-4111-8111-111111111111",
+                     *       "strategyId": "11111111-1111-4111-8111-111111111111",
+                     *       "backtestReportArtifactId": "11111111-1111-4111-8111-111111111111",
+                     *       "sourceDigest": "x",
+                     *       "imageDigest": "x",
+                     *       "parameterHash": "x",
+                     *       "parameters": {},
+                     *       "snapshotId": "11111111-1111-4111-8111-111111111111",
+                     *       "allowedTargets": [],
+                     *       "approvalState": "none",
+                     *       "createdAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["StrategyRelease"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     submitReleaseApproval: {
@@ -2608,6 +3341,10 @@ export interface operations {
                 "If-Match": components["parameters"]["IfMatch"];
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 releaseId: string;
@@ -2619,13 +3356,27 @@ export interface operations {
             /** @description 已进入审批 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     requestReleaseRollback: {
@@ -2634,6 +3385,10 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 releaseId: string;
@@ -2642,6 +3397,11 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "targetReleaseId": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
                 "application/json": {
                     /** Format: uuid */
                     targetReleaseId: string;
@@ -2652,12 +3412,26 @@ export interface operations {
             /** @description 受理 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     getPortfolio: {
@@ -2674,13 +3448,33 @@ export interface operations {
             /** @description 组合视图 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "asOf": "2026-10-03T00:00:00Z",
+                     *       "stale": false,
+                     *       "positions": [],
+                     *       "pnl": {
+                     *         "currencyCode": "USD",
+                     *         "units": "x",
+                     *         "nanos": 0
+                     *       },
+                     *       "exposure": "1"
+                     *     }
+                     */
                     "application/json": components["schemas"]["PortfolioView"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     getRiskView: {
@@ -2697,12 +3491,29 @@ export interface operations {
             /** @description 风险视图（预算/命中规则/kill switch 状态） */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "asOf": "2026-10-03T00:00:00Z",
+                     *       "hitRules": [],
+                     *       "limitIds": [],
+                     *       "killSwitch": {
+                     *         "state": "disengaged"
+                     *       }
+                     *     }
+                     */
                     "application/json": components["schemas"]["RiskView"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     engageKillSwitch: {
@@ -2711,12 +3522,25 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "accountId": "11111111-1111-4111-8111-111111111111",
+                 *       "reason": "x",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+                 *       "confirmPhrase": "x"
+                 *     }
+                 */
                 "application/json": {
                     /** Format: uuid */
                     accountId: string;
@@ -2734,14 +3558,32 @@ export interface operations {
             /** @description 已触发（含审计 correlationId） */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RiskView"];
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "asOf": "2026-10-03T00:00:00Z",
+                     *       "hitRules": [],
+                     *       "limitIds": [],
+                     *       "killSwitch": {
+                     *         "state": "disengaged"
+                     *       },
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RiskView"] & unknown;
                 };
             };
+            401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     releaseKillSwitch: {
@@ -2750,12 +3592,24 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "accountId": "11111111-1111-4111-8111-111111111111",
+                 *       "reason": "x",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
                 "application/json": {
                     /** Format: uuid */
                     accountId: string;
@@ -2771,13 +3625,31 @@ export interface operations {
             /** @description 已解除 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RiskView"];
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "asOf": "2026-10-03T00:00:00Z",
+                     *       "hitRules": [],
+                     *       "limitIds": [],
+                     *       "killSwitch": {
+                     *         "state": "disengaged"
+                     *       },
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["RiskView"] & unknown;
                 };
             };
+            401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     subscribePortfolio: {
@@ -2796,13 +3668,18 @@ export interface operations {
             /** @description SSE 事件流 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
                     "text/event-stream": components["schemas"]["StreamEvent"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     listProposals: {
@@ -2813,6 +3690,10 @@ export interface operations {
                 pageSize?: components["parameters"]["PageSize"];
                 status?: string;
                 symbol?: string;
+                /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+                sort?: components["parameters"]["Sort"];
+                /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+                filter?: components["parameters"]["Filter"];
             };
             header?: never;
             path?: never;
@@ -2823,14 +3704,25 @@ export interface operations {
             /** @description 建议页 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
                     "application/json": components["schemas"]["Page"] & {
                         items?: components["schemas"]["TradeProposal"][];
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     getProposal: {
@@ -2847,13 +3739,48 @@ export interface operations {
             /** @description 建议 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "proposalId": "11111111-1111-4111-8111-111111111111",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "symbol": "x",
+                     *       "action": "buy",
+                     *       "quantity": "1",
+                     *       "notional": "1",
+                     *       "signal": {
+                     *         "signalId": "11111111-1111-4111-8111-111111111111",
+                     *         "strategyReleaseId": "11111111-1111-4111-8111-111111111111",
+                     *         "symbol": "x",
+                     *         "direction": "long",
+                     *         "strength": "1",
+                     *         "confidence": "1",
+                     *         "generatedAt": "2026-10-03T00:00:00Z",
+                     *         "validUntil": "2026-10-03T00:00:00Z"
+                     *       },
+                     *       "rationale": "x",
+                     *       "counterViews": [
+                     *         "x"
+                     *       ],
+                     *       "evidenceRefs": [],
+                     *       "confidence": "1",
+                     *       "expiresAt": "2026-10-03T00:00:00Z",
+                     *       "executable": false,
+                     *       "objectVersion": "x"
+                     *     }
+                     */
                     "application/json": components["schemas"]["TradeProposal"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     requestRiskEvaluation: {
@@ -2864,6 +3791,10 @@ export interface operations {
                 "If-Match": components["parameters"]["IfMatch"];
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 proposalId: string;
@@ -2872,6 +3803,11 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "contextHash": "x"
+                 *     }
+                 */
                 "application/json": {
                     /** @description quoteRef/accountRef/mode/版本组合 hash */
                     contextHash: string;
@@ -2882,14 +3818,27 @@ export interface operations {
             /** @description 受理 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
             422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     subscribeProposal: {
@@ -2909,12 +3858,18 @@ export interface operations {
             /** @description SSE 事件流 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
                     "text/event-stream": components["schemas"]["StreamEvent"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     listApprovals: {
@@ -2923,6 +3878,10 @@ export interface operations {
                 /** @description 不透明分页游标 */
                 cursor?: components["parameters"]["Cursor"];
                 pageSize?: components["parameters"]["PageSize"];
+                /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+                sort?: components["parameters"]["Sort"];
+                /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+                filter?: components["parameters"]["Filter"];
             };
             header?: never;
             path?: never;
@@ -2933,14 +3892,25 @@ export interface operations {
             /** @description 审批页 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
                     "application/json": components["schemas"]["Page"] & {
                         items?: components["schemas"]["Approval"][];
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     getApproval: {
@@ -2957,13 +3927,29 @@ export interface operations {
             /** @description 审批 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "approvalId": "11111111-1111-4111-8111-111111111111",
+                     *       "originator": "x",
+                     *       "objectVersion": "x",
+                     *       "status": "pending",
+                     *       "expiresAt": "2026-10-03T00:00:00Z",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Approval"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     decideApproval: {
@@ -2974,6 +3960,10 @@ export interface operations {
                 "If-Match": components["parameters"]["IfMatch"];
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 approvalId: string;
@@ -2982,6 +3972,13 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "decision": "approve",
+                 *       "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+                 *       "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
                 "application/json": {
                     /** @enum {string} */
                     decision: "approve" | "reject" | "request_info";
@@ -2990,7 +3987,7 @@ export interface operations {
                     /** Format: uuid */
                     mfaChallengeRef: string;
                     /** Format: uuid */
-                    reauthTokenRef?: string;
+                    reauthTokenRef: string;
                 };
             };
         };
@@ -2998,14 +3995,30 @@ export interface operations {
             /** @description 已记录（批准时含 commandRef，服务端最终校验仍可在提交时拒绝） */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "approvalId": "11111111-1111-4111-8111-111111111111",
+                     *       "originator": "x",
+                     *       "objectVersion": "x",
+                     *       "status": "pending",
+                     *       "expiresAt": "2026-10-03T00:00:00Z",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Approval"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     submitTradeCommand: {
@@ -3014,12 +4027,21 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "commandRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
                 "application/json": {
                     /**
                      * Format: uuid
@@ -3033,14 +4055,27 @@ export interface operations {
             /** @description 受理（Execution Gateway 二次校验仍可能拒绝） */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
             422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     listOrders: {
@@ -3052,6 +4087,10 @@ export interface operations {
                 accountId: string;
                 status?: components["schemas"]["OrderStatus"];
                 symbol?: string;
+                /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+                sort?: components["parameters"]["Sort"];
+                /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+                filter?: components["parameters"]["Filter"];
             };
             header?: never;
             path?: never;
@@ -3062,14 +4101,25 @@ export interface operations {
             /** @description 订单页 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
                     "application/json": components["schemas"]["Page"] & {
                         items?: components["schemas"]["Order"][];
                     };
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     getOrder: {
@@ -3086,13 +4136,39 @@ export interface operations {
             /** @description 订单（状态机/成交/关联 proposal/decision/release） */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "orderId": "11111111-1111-4111-8111-111111111111",
+                     *       "commandId": "11111111-1111-4111-8111-111111111111",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "venue": "x",
+                     *       "venueKind": "binance",
+                     *       "symbol": "x",
+                     *       "intent": "open",
+                     *       "side": "buy",
+                     *       "quantity": "1",
+                     *       "status": "draft",
+                     *       "filledQuantity": "1",
+                     *       "averageFillPrice": "1",
+                     *       "fills": [],
+                     *       "mode": "research",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "submittedAt": "2026-10-03T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Order"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     requestOrderCancel: {
@@ -3101,6 +4177,10 @@ export interface operations {
             header: {
                 /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 orderId: string;
@@ -3109,6 +4189,11 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "commandRef": "11111111-1111-4111-8111-111111111111"
+                 *     }
+                 */
                 "application/json": {
                     /** Format: uuid */
                     commandRef: string;
@@ -3119,13 +4204,27 @@ export interface operations {
             /** @description 受理 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["AsyncAccepted"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     subscribeOrder: {
@@ -3145,13 +4244,18 @@ export interface operations {
             /** @description SSE 事件流 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
                     "text/event-stream": components["schemas"]["StreamEvent"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
         };
     };
     searchAuditEvents: {
@@ -3166,6 +4270,10 @@ export interface operations {
                 kind?: string;
                 startAt?: components["schemas"]["DateTime"];
                 endAt?: components["schemas"]["DateTime"];
+                /** @description 服务端排序表达式；允许值由具体 operation 明确列出，未知字段返回 422 */
+                sort?: components["parameters"]["Sort"];
+                /** @description 服务端过滤表达式；仅接受具体 operation allowlist 中的字段 */
+                filter?: components["parameters"]["Filter"];
             };
             header?: never;
             path?: never;
@@ -3176,15 +4284,24 @@ export interface operations {
             /** @description 事件页；payload 已由服务端脱敏，不返回原始密钥、token 或完整账户标识 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "items": []
+                     *     }
+                     */
                     "application/json": components["schemas"]["AuditEventPage"];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     getEvidenceChain: {
@@ -3205,15 +4322,26 @@ export interface operations {
             /** @description 证据链页；哈希用于完整性校验，不代替 Artifact 授权 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "items": [],
+                     *       "complete": false
+                     *     }
+                     */
                     "application/json": components["schemas"]["EvidenceChainPage"];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     createExport: {
@@ -3225,28 +4353,67 @@ export interface operations {
                 /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
                 "X-CSRF-Token": components["parameters"]["CsrfToken"];
                 "X-Reauth-Token-Ref": string;
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ExportRequest"];
+                /**
+                 * @example {
+                 *       "scope": {
+                 *         "correlationIds": [
+                 *           "11111111-1111-4111-8111-111111111111"
+                 *         ]
+                 *       },
+                 *       "format": "jsonl",
+                 *       "reason": "xxxxxxxx",
+                 *       "watermark": "xxx",
+                 *       "retentionDays": 1
+                 *     }
+                 */
+                "application/json": {
+                    scope: components["schemas"]["ExportScope"];
+                    /** @enum {string} */
+                    format: "jsonl" | "csv" | "pdf";
+                    reason: string;
+                    watermark: string;
+                    retentionDays: number;
+                };
             };
         };
         responses: {
             /** @description 导出作业已受理，不代表已生成文件 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "exportId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "queued",
+                     *       "format": "jsonl",
+                     *       "requestedBy": "x",
+                     *       "requestedAt": "2026-10-03T00:00:00Z",
+                     *       "watermark": "x",
+                     *       "retentionUntil": "2026-10-03T00:00:00Z",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["ExportJob"];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     getExportStatus: {
@@ -3263,15 +4430,32 @@ export interface operations {
             /** @description 导出作业状态 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "exportId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "queued",
+                     *       "format": "jsonl",
+                     *       "requestedBy": "x",
+                     *       "requestedAt": "2026-10-03T00:00:00Z",
+                     *       "watermark": "x",
+                     *       "retentionUntil": "2026-10-03T00:00:00Z",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["ExportJob"];
                 };
             };
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
         };
     };
     cancelExport: {
@@ -3283,6 +4467,8 @@ export interface operations {
                 /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
                 "X-CSRF-Token": components["parameters"]["CsrfToken"];
                 "X-Reauth-Token-Ref": string;
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
             };
             path: {
                 exportId: string;
@@ -3294,9 +4480,25 @@ export interface operations {
             /** @description 取消已受理并记录审计 */
             202: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "exportId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "queued",
+                     *       "format": "jsonl",
+                     *       "requestedBy": "x",
+                     *       "requestedAt": "2026-10-03T00:00:00Z",
+                     *       "watermark": "x",
+                     *       "retentionUntil": "2026-10-03T00:00:00Z",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["ExportJob"];
                 };
             };
@@ -3304,6 +4506,8 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            default: components["responses"]["ServerError"];
         };
     };
     getExportDownload: {
@@ -3320,9 +4524,25 @@ export interface operations {
             /** @description 短时签名 URL；不得写入日志或持久化到客户端 */
             200: {
                 headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "exportId": "11111111-1111-4111-8111-111111111111",
+                     *       "downloadUrl": "https://downloads.invalid/example",
+                     *       "expiresAt": "2026-10-03T00:00:00Z",
+                     *       "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "sizeBytes": 1,
+                     *       "mediaType": "x",
+                     *       "watermarked": true,
+                     *       "retentionUntil": "2026-10-03T00:00:00Z",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
                     "application/json": components["schemas"]["ExportDownloadMetadata"];
                 };
             };
@@ -3331,6 +4551,7 @@ export interface operations {
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
             410: components["responses"]["Gone"];
+            default: components["responses"]["ServerError"];
         };
     };
 }

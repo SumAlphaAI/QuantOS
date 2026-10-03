@@ -22,7 +22,7 @@
 
 - 当前 PRE-01 只关闭仓库需求拆解范围。P0 准备检查点、A1、正式 G0、PROVIDER:ALL 与每页运行验收按最新计划独立关闭。
 - PRE-04 读取本台账的实际 P0 页面；PRE-06 测试输入按 210 七态及 10 流程场景逐步建立，不强制原生运行。
-- [接口覆盖登记](./PRE-01-page-api-coverage-register.md) 区分 operation published/planned；当前 OpenAPI 1.3.0 为 62 operations、51 schemas，引用检查只证明仓库覆盖。
+- [接口覆盖登记](./PRE-01-page-api-coverage-register.md) 区分 operation published/planned；当前 OpenAPI 1.4.0 为 62 operations、51 schemas，引用检查只证明仓库覆盖。
 - [二期承接表](./DESK-PRE-01-requirements-transfer.md) 保留原生 Story/场景 ID、原生流程扩展与新任务追踪，不授权 Desktop 启动或发布。
 
 ## 3. 当前风险登记

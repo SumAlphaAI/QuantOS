@@ -1,0 +1,276 @@
+[
+  {
+    "name": "bff-suite",
+    "command": [
+      "make",
+      "bff-contract-check"
+    ],
+    "exitCode": 2,
+    "expectedExitCode": 0,
+    "result": "FAIL",
+    "elapsedSeconds": 2.88,
+    "log": "bff-suite.log"
+  },
+  {
+    "name": "contract",
+    "command": [
+      "pnpm",
+      "test:contract"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 1.82,
+    "log": "contract.log"
+  },
+  {
+    "name": "domain-sse-unit",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "test"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.97,
+    "log": "domain-sse-unit.log"
+  },
+  {
+    "name": "reference-provider",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "auth_settings_provider",
+      "--test",
+      "audit_export_provider",
+      "--locked",
+      "--offline"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.2,
+    "log": "reference-provider.log"
+  },
+  {
+    "name": "provider-http",
+    "command": [
+      "node",
+      "scripts/test-bff-provider-contract.mjs",
+      "/Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/bff-fe-000-remediation-20261003/provider-contract.json"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 1.21,
+    "log": "provider-http.log"
+  },
+  {
+    "name": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "-p",
+      "bff-gateway",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.2,
+    "log": "clippy.log"
+  },
+  {
+    "name": "fmt",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.3,
+    "log": "fmt.log"
+  },
+  {
+    "name": "lint",
+    "command": [
+      "pnpm",
+      "lint"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 2.0,
+    "log": "lint.log"
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 3.24,
+    "log": "typecheck.log"
+  },
+  {
+    "name": "web-coverage",
+    "command": [
+      "pnpm",
+      "coverage:web"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 2.39,
+    "log": "web-coverage.log"
+  },
+  {
+    "name": "pre01",
+    "command": [
+      "pnpm",
+      "check:pre01"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.17,
+    "log": "pre01.log"
+  },
+  {
+    "name": "pre01-negative",
+    "command": [
+      "pnpm",
+      "test:pre01"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.23,
+    "log": "pre01-negative.log"
+  },
+  {
+    "name": "pre04",
+    "command": [
+      "pnpm",
+      "check:pre04"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 0,
+    "result": "FAIL",
+    "elapsedSeconds": 0.25,
+    "log": "pre04.log"
+  },
+  {
+    "name": "pre04-negative",
+    "command": [
+      "pnpm",
+      "test:pre04"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 0,
+    "result": "FAIL",
+    "elapsedSeconds": 0.5,
+    "log": "pre04-negative.log"
+  },
+  {
+    "name": "pre06",
+    "command": [
+      "pnpm",
+      "check:pre06"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.89,
+    "log": "pre06.log"
+  },
+  {
+    "name": "pre06-negative",
+    "command": [
+      "pnpm",
+      "test:pre06"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 1.55,
+    "log": "pre06-negative.log"
+  },
+  {
+    "name": "plans",
+    "command": [
+      "pnpm",
+      "check:development-plans"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 0,
+    "result": "FAIL",
+    "elapsedSeconds": 0.17,
+    "log": "plans.log"
+  },
+  {
+    "name": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 0,
+    "result": "FAIL",
+    "elapsedSeconds": 0.29,
+    "log": "plans-negative.log"
+  },
+  {
+    "name": "g0",
+    "command": [
+      "pnpm",
+      "check:g0-records"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.14,
+    "log": "g0.log"
+  },
+  {
+    "name": "locks",
+    "command": [
+      "make",
+      "lockfile-check"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.49,
+    "log": "locks.log"
+  },
+  {
+    "name": "staging-acceptance",
+    "command": [
+      "pnpm",
+      "check:bff-a1-acceptance"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 1,
+    "result": "EXPECTED_NOT_ACCEPTED",
+    "elapsedSeconds": 0.18,
+    "log": "staging-acceptance.log"
+  }
+]

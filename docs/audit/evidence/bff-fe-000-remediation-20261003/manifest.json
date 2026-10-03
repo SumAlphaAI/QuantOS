@@ -1,0 +1,467 @@
+{
+  "schema": "quantos-bff-remediation-evidence/v1",
+  "sourceParentCommit": "75a563c62d3d7883d5b178111becec07d4da0301",
+  "scope": "local engineering; no staging/IdP/storage/database/remote CI acceptance",
+  "checks": {
+    "localPass": 20,
+    "expectedNotAccepted": 2,
+    "unexpectedFailures": 0
+  },
+  "issues": {
+    "total": 14,
+    "closedEngineering": 13,
+    "openBlocking": [
+      "B-01"
+    ]
+  },
+  "controls": {
+    "PASS": 22,
+    "PARTIAL": 1,
+    "NOT_RUN": 1
+  },
+  "coverage": {
+    "webLines": 82.43,
+    "criticalPolicyFiles": 6,
+    "criticalPerFileAllMetrics": 100
+  },
+  "sourceFiles": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "bf198da794f90cbe1cf400b90a3041c7b6bfa86c3ad273f9f82aefa550a50e25"
+    },
+    {
+      "path": ".github/workflows/frontend-baseline.yml",
+      "sha256": "bb25600044aefc549db1d40def10105dde8de63e82c543566b50adeeb339c3d9"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "fc4afde91296c546654527558e31140ae1ea5999dbe5961ca61f09caf2a32f47"
+    },
+    {
+      "path": "Makefile",
+      "sha256": "c017d50e8efb4ce088aee3487ee3e7a8e51345542ab72711b9d39ac38fb6a0d7"
+    },
+    {
+      "path": "apps/terminal/src/audit/gateway.ts",
+      "sha256": "e7a9beae9755bf74e3823d938628e8f15c149478a2bec40d8bba9639947cef55"
+    },
+    {
+      "path": "apps/terminal/src/settings/gateway.ts",
+      "sha256": "309563ac20fac7dc138d668614d484caab0abbbef8f75127b4f4d7327935ffee"
+    },
+    {
+      "path": "bff/a1-baseline-policy.json",
+      "sha256": "22d8754c6efe2eadc18f064638b53ed1e8a2db973b9523dd0908a0329ffd3447"
+    },
+    {
+      "path": "bff/compatibility/1.3.0.json",
+      "sha256": "3fbf3c35fbfe3d4a5ec9fbe44791b6963f7e632cce004ea6dc227e3b7f62144f"
+    },
+    {
+      "path": "bff/compatibility/a1-security-correction.json",
+      "sha256": "dbfd2c315110e4edf23c666f37ef85df101f0c8dd4912102be370ad8832848cd"
+    },
+    {
+      "path": "bff/openapi/quantos-bff.v1.yaml",
+      "sha256": "55fdbf4b6bc4d96ff7c35a81ecb5fb80bb5af65cb591cca6d679434e11bf27b1"
+    },
+    {
+      "path": "docs/BFF-FE-000-openapi-proposal.md",
+      "sha256": "25302f0e8473b6c9cbb6eaa4d48876333f8816bee46aa53ac5a41a52195372b4"
+    },
+    {
+      "path": "docs/BFF-FE-000-summary.md",
+      "sha256": "903da3a57405c30128eed3f5402e47aca70541593c3e216b0e26831d54340d28"
+    },
+    {
+      "path": "docs/PRE-01-page-api-coverage-register.md",
+      "sha256": "cf7aee0bc2cab4ba745125a4671db8a3c42abfe543a5a0efe4dabc32f5527bf2"
+    },
+    {
+      "path": "docs/PRE-01-summary-and-risks.md",
+      "sha256": "078aeef02ae105b7fc4144f42837c1eba476f6a4868c3dd2cee9c62eeaadb56e"
+    },
+    {
+      "path": "docs/PRE-04-contract-ledger.md",
+      "sha256": "b40eaab0b6361ab83c7d5926c3f7ea77c25934a1c54664220c46b3fcb76d4888"
+    },
+    {
+      "path": "docs/PRE-04-field-dictionary.md",
+      "sha256": "57adea74dd87cbd041cc4d00f6a719a3f34ad8ab5adeb9a1bcc957c28af72d9f"
+    },
+    {
+      "path": "docs/PRE-04-inventory-baseline.json",
+      "sha256": "5526eb103105c6933d6e76fd212d5090e0cd2b040c10b32d902ec420a1d47cdf"
+    },
+    {
+      "path": "docs/PRE-06-summary.md",
+      "sha256": "e89b0a8d898e7da282cf70fca5798a613b7fab85199c61b06a8f90fbbe7cc40d"
+    },
+    {
+      "path": "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md",
+      "sha256": "70fb3bdb0c427df8994843cd7c9becf75df56b6d886b9293943abe9ebbf62339"
+    },
+    {
+      "path": "docs/adr/ADR-A1-security-contract-correction.md",
+      "sha256": "7bd78dedc515e2746b937e3020f57bd32128baec625f2a7ef68cbe85bb42d095"
+    },
+    {
+      "path": "docs/audit/BFF-FE-000-comprehensive-review-2026-10-03.md",
+      "sha256": "4482074f657adb03f8caf6f51c9c502cdd46c2a22385819fb7a1784da643dd32"
+    },
+    {
+      "path": "docs/audit/BFF-FE-000-remediation-validation-2026-10-03.md",
+      "sha256": "c03bf48cd5c6c0fa09c34714cfd93fc919d8847ea6161926a4642bbea1453e99"
+    },
+    {
+      "path": "package.json",
+      "sha256": "1d72713ae7b2cefc3875ee3dbacdccb9bac294a4e60fbe0a33b959a2e6610e7c"
+    },
+    {
+      "path": "packages/api-client/src/bff-domain.ts",
+      "sha256": "8d5b95e8f981d4582025b4df4bd1130ea96082a3a64dcba998b36af715f791fb"
+    },
+    {
+      "path": "packages/api-client/src/bff-gen/quantos-bff.ts",
+      "sha256": "97a343ed157c4ae2217ddafc834526da3f7083117783b28d99ad36b158ccb3a7"
+    },
+    {
+      "path": "packages/api-client/src/bff-gen/quantos-bff.zod.ts",
+      "sha256": "1f1e7813ee83ef1019476e21ab392b146a4d781f6f02614e37346e65ce5a47ce"
+    },
+    {
+      "path": "packages/api-client/src/index.ts",
+      "sha256": "8eb9b8fd33ea9262326b469efe122b4711e7cde8bc0321c7653579deb34f5db6"
+    },
+    {
+      "path": "packages/api-client/src/sse-contract.ts",
+      "sha256": "8b865d397b81246f0ecacee5a2586f3ff488317a5216a9fb9233285383e2ab35"
+    },
+    {
+      "path": "packages/api-client/src/sse.ts",
+      "sha256": "d33f46751ad56ff643c55642a329ab0a2b639b3f4986f1526e4e13f323a49b6a"
+    },
+    {
+      "path": "packages/api-client/tests/bff-domain.test.ts",
+      "sha256": "e5c9f59f05e6819b3de0394c77bf62accb805926358dbf40235e72f6fb2a31d4"
+    },
+    {
+      "path": "packages/api-client/tests/sse-poc.test.ts",
+      "sha256": "466887c945be08096c33ba41b0a35a2bf974a6e54fbf56dad6e1cecaaddd3328"
+    },
+    {
+      "path": "packages/api-client/tests/sse-safety.test.ts",
+      "sha256": "874505ed7c3c421342dd72915881623b327c78b3ad9798ce9b32eff5232c1a13"
+    },
+    {
+      "path": "scripts/bff-a1-semantics.mjs",
+      "sha256": "1899de47a9dd0871524e4cdea7a63248a6b2a1205f70fde5d332da2f795c910e"
+    },
+    {
+      "path": "scripts/bff-compatibility.mjs",
+      "sha256": "b39768c8a6bdae8eb8466d89fbd2df55ee0e71b5382e1d3007a6022d5d5d372e"
+    },
+    {
+      "path": "scripts/bff-remediation-negative.mjs",
+      "sha256": "e75980b3f96295a7eb433840d4862dac484f8fdcaec29a7ddfb2a8c725b9ab4d"
+    },
+    {
+      "path": "scripts/check-bff-a1-acceptance.mjs",
+      "sha256": "1d3b4ea32bb2cdd5d1b55987623896e275db245888a69133ba7f67b5ccd8a808"
+    },
+    {
+      "path": "scripts/check-bff-compatibility.mjs",
+      "sha256": "bef893a888cdac9e9fa915c947a7a4d083f8d405decdac08a940a04499b492b8"
+    },
+    {
+      "path": "scripts/check-bff-fe-000.mjs",
+      "sha256": "a1ec44e08d03959e9e8099d75214029d87c3a3793aa1ec8636345565d52a14c6"
+    },
+    {
+      "path": "scripts/check-bff-fe-007.mjs",
+      "sha256": "3123d411c8d70878b3b0ad4ca0a64308773fb17b9fab3eeb75e5ff77770be62e"
+    },
+    {
+      "path": "scripts/check-pre06.mjs",
+      "sha256": "ed1033c8806e24902c0837370ecb417eadce5fc095ea4c9ed41a0586f5c7c7a4"
+    },
+    {
+      "path": "scripts/generate-bff-contracts.mjs",
+      "sha256": "8c0772dcae5da60fe6700b87b55a6ad12cf0ed8baa0e2da4793229562be3aef8"
+    },
+    {
+      "path": "scripts/pre04-gate-negative.mjs",
+      "sha256": "30d49c3428d4aa0f352839b2e808667b5977c22fe8db7d5ec68e217d1bd552d1"
+    },
+    {
+      "path": "scripts/pre04-inventory.mjs",
+      "sha256": "782c7e119d7c555cd6184e11a94fd4c47505b7ac9a8f87d7a4b700399f1d9c71"
+    },
+    {
+      "path": "scripts/test-bff-provider-contract.mjs",
+      "sha256": "40ec8343976fe81f9db7497dc6fcf0af20a302c3437c01632acdd07beda4a7f4"
+    },
+    {
+      "path": "services/bff-gateway/Cargo.toml",
+      "sha256": "1f4a68725ea1cb792605f86886a9636bd3752241c69fa3841ec27c059a0ad748"
+    },
+    {
+      "path": "services/bff-gateway/src/generated-input-policy.json",
+      "sha256": "952dcb2dfc7ac899318e33ded3f66c9e963130b8edf10674d8b9465d823b1337"
+    },
+    {
+      "path": "services/bff-gateway/src/input_contract.rs",
+      "sha256": "0ad3664171a1f5bece8cfaae8f16f4a10efcf46c2b2f871f423e9ff030df2e39"
+    },
+    {
+      "path": "services/bff-gateway/src/lib.rs",
+      "sha256": "d8fcdc4bab368617af6e1a7bddd30dfdc4c7f41756c6e8698c8ec42186aa79e5"
+    },
+    {
+      "path": "services/bff-gateway/tests/audit_export_provider.rs",
+      "sha256": "cb6c2e883aee1ed432ca0878972ea4c101fbcf47d8afc7915d5b5fa0ccb424bf"
+    },
+    {
+      "path": "services/bff-gateway/tests/auth_settings_provider.rs",
+      "sha256": "d0df289d18ddb5aef4b9e8ffdff41f5edc98ea41a0d5d80216a3f4ff47bc40cd"
+    },
+    {
+      "path": "tests/contract/bff-remediation.test.ts",
+      "sha256": "bac5d677e1ac8303cbeba09c515d46a1967347c04339959d26e366c55c6c757c"
+    },
+    {
+      "path": "tests/contract/contract.test.ts",
+      "sha256": "5874a4bfc82f68a5044e14a9db29a3f4d88984fd1b092a4de4263366543762d1"
+    },
+    {
+      "path": "tests/contract/generated/quantos-bff.components.schema.json",
+      "sha256": "30d78a833d2d119640bfa103ddf640949cf46555650d79a586c66fe038502798"
+    },
+    {
+      "path": "tests/contract/generated/quantos-bff.msw.ts",
+      "sha256": "0f86bb7a9c8c7f8c011fad6a56a69762ecad293a0b5397f13a5eec8892a1e05f"
+    },
+    {
+      "path": "tests/contract/generated/quantos-bff.operations.json",
+      "sha256": "4f4def78f5fce1811ea452f50e09ab34869ba88a7429abefb51664e3e1add1e1"
+    },
+    {
+      "path": "tests/contract/handlers.ts",
+      "sha256": "9dfac04315ac5e274804293afafee46b0afa55e1d8d4d273e5d0e2cf230adf45"
+    },
+    {
+      "path": "tests/contract/http-contract.mjs",
+      "sha256": "d194e989bf19599c5fee4b9c4991bd122158ede78aef2fc1f9b2686b440b4e0c"
+    },
+    {
+      "path": "tests/critical-branches.json",
+      "sha256": "8ffc5389953cf38ef67c378b073f830626e9b3bced821578f8b1eae585dba141"
+    },
+    {
+      "path": "vitest.critical.config.ts",
+      "sha256": "270fdf336d55b2d2d6788f36d405e09af541ca028bb4b1e1f259572f73878939"
+    }
+  ],
+  "evidenceFiles": [
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/bff-suite.log",
+      "sha256": "1e166709b1271814de7dd64550286e942cd23649477039fef8c7eeb6813c00e5"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/clippy.log",
+      "sha256": "22e0df986057b9ba5be07526ac5fb348862a3dedef42108383cc3e088acbb889"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/commands.json",
+      "sha256": "a700fde0f82cde498a957cb7902475c911f18bceb5251dd15d0621b57e1569de"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/contract.log",
+      "sha256": "cfa3587e579103027afd0b17c1c46c0654508624a061d5c987119cc2458a544c"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/domain-sse-unit.log",
+      "sha256": "89e4f8e50afefe0f2cf02dd57ea76cba69b8a92510c67f3f6f0ed5f996cd330b"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/g0.log",
+      "sha256": "4692117a9275451762888e5f20dc3d6bdb6fd994983c3fb33f5f590d17430adc"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/lint.log",
+      "sha256": "b844b2bf48eeae6e3d734553e4d32c399fdb2d68b8b8a714157143fbcedb9af3"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/locks.log",
+      "sha256": "ae887a40af7593fb4e21f6c921a26c85b6cf503a97387e7b0d7007cdc6446ab0"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/plans-negative.log",
+      "sha256": "d78f405cf778098e9d306926cad85eb1a71759970f9ed33cb10ef3da37a43fa9"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/plans.log",
+      "sha256": "1449c01629e0ac24a104cb5ae20cf798a654ca5ea07e4dfec196c65cb2b0aca0"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/pre01-negative.log",
+      "sha256": "4ee17458d2e0ad04f4153dde353fdb4468368fc69fe631e70f6e8bd1f68e15b2"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/pre01.log",
+      "sha256": "11a8ae6898ef48994a050a62b884cd188c8f4f220f8d7e26e6b9fe6041cef688"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/pre04-negative.log",
+      "sha256": "b3817ad942b89f58c880a83efe69b0e7d16e0d2633bffceb82eb3df7129841e3"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/pre04.log",
+      "sha256": "4876c7b4dc9ecdb99fe3f7e44870464f457a581ea50cb0173dc51d2591d3690d"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/pre06-negative.log",
+      "sha256": "30847e667280e4bdbc680344c84f324c87811f5d3cac0ed6cd2088f7eea85e49"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/pre06.log",
+      "sha256": "360bbcdbb5a588fba4003ca4928245ff061d5a508067069d24849927369d39e8"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/provider-http.log",
+      "sha256": "bb717a36c9ad5eebb21cda2578588d7cd1957a4cffd89e889a07cdbb9a49d11b"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/reference-provider.log",
+      "sha256": "9908a5930e6e520a5ceca17fc816aa4bf3a3270ffa2dd8d0a5cd874ea0cb835b"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/staging-acceptance.log",
+      "sha256": "a2e6fe63a23cd83a2a15a521f0f8f35756cec58d6c2f09fe6f0cb21379122088"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/typecheck.log",
+      "sha256": "722b516dafab6f68d716b568cbc61029c97d7e2abc47cef67e32042a5c48146f"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/attempt-1/web-coverage.log",
+      "sha256": "104cae648260aed4c3519b5be274abdbfc1d6ec56418a1b824017b864aff69b6"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/bff-suite.log",
+      "sha256": "253b0a5779f181b1cd77ff23cb64d22bc9fec74bb44a4b60191bcd966a3b6f54"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/clippy.log",
+      "sha256": "5d28939de45bb37ac9c94b61cc60ee2e31010c00ee64d95c170bf4ee9dca581a"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/commands.json",
+      "sha256": "8ef18a150539b6fea3caf89bb2daedb7a803c06efa224a0c4648ec97e065072d"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/contract.log",
+      "sha256": "9e342436a57341ed4f3751c81dd1d0bb65ad34b0e6d22184a4a6e956bbb9e3c2"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/coverage-summary.json",
+      "sha256": "a11d48c15b3d3bb03e809ebda3e5193d4e272e4f9f946ea773f5b41287563485"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/critical-coverage-summary.json",
+      "sha256": "0b4d1963e92cf2fedce475e7e587cb4124a0de5ec206be8b91f7eb0a924a4937"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/domain-sse-unit.log",
+      "sha256": "4aef5e811261b3c54ee64fe0ad407ce821563f161502212041453d58fab80617"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/fmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/g0.log",
+      "sha256": "4692117a9275451762888e5f20dc3d6bdb6fd994983c3fb33f5f590d17430adc"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/initial-provider-failure.json",
+      "sha256": "d14af4bd526c75b69052616de80160e3899c82b98ad07779712f08b457b8dfbb"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/lint.log",
+      "sha256": "d4644118634dea5668e1c80f44ecec68b49aca9649391f00cd6936438f4896f3"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/locks.log",
+      "sha256": "4f2fb6c0d04686a6a2cc308d413cadce429a81d781cf9961253da3123557f64e"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/p0-admission.log",
+      "sha256": "7b7eef365430d0443e32991de6b23ae7529bb75589e74f7b7b16b4c0a7f2ea78"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/plans-negative.log",
+      "sha256": "9f98ee3b363b619e9b332ac0e9ad8560b17c2b8e01dfc16daf9bd27e167d1c20"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/plans.log",
+      "sha256": "a34865b6c79627fb2a43ed560df2340ec165528574aacd55c0a474e1642217d3"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/pre01-negative.log",
+      "sha256": "b9a1fcbc7a1fce32797d53967439347443caa26f05b6f1cd306285fd151b3fac"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/pre01.log",
+      "sha256": "11a8ae6898ef48994a050a62b884cd188c8f4f220f8d7e26e6b9fe6041cef688"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/pre04-negative.log",
+      "sha256": "939da8b46b5a97d3e8e5c22f0c1607d4307ab54888772f5bb7159b6dbcf126cc"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/pre04.log",
+      "sha256": "3f42c043213b88ff83b7e995dadb9afedf23fd0b6cc8d591e2b25bfedfceca3f"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/pre06-negative.log",
+      "sha256": "452a3cabbdfbd79919166a82963e5cd509ce297f76160b5b8ada43deafd7959b"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/pre06.log",
+      "sha256": "360bbcdbb5a588fba4003ca4928245ff061d5a508067069d24849927369d39e8"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/provider-contract.json",
+      "sha256": "b39c4288da77824ec99acd520cf86bb033279c58f47973a468090d6a7a56d87b"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/provider-http.log",
+      "sha256": "bb4f25164052ea4b094f348c431ce6d7696d52fffabdc6b6701a4f2406889dd9"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/reference-provider.log",
+      "sha256": "2261a33f647a9e1486a960cc9b307198ccb0a6f2143f8e568abae1bd75200412"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/run-checks.py",
+      "sha256": "2f2a04e7770d34e3c371d6cc81dd6db8fbb62cecd2bbccaf7b05314d59368197"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/staging-acceptance.log",
+      "sha256": "3bf3c36c46f32712944198f64fff6a08548e7bde39139890109c16b38ecd798a"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/typecheck.log",
+      "sha256": "722b516dafab6f68d716b568cbc61029c97d7e2abc47cef67e32042a5c48146f"
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/web-coverage.log",
+      "sha256": "2ee62a2777d014e39768b4054ec471867ca8289bd82f649f9dc0ba069378e0be"
+    }
+  ]
+}

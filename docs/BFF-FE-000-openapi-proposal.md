@@ -1,60 +1,35 @@
 # BFF-FE-000 页面 BFF OpenAPI 基线
 
-> 状态：**A1 repository delivery complete（2026-09-16）**；GPT-6 Astra 复审与 staging/provider 验收未执行
-> 发布规范：[bff/openapi/quantos-bff.v1.yaml](../bff/openapi/quantos-bff.v1.yaml)（OpenAPI 3.1.0 / API 1.1.0 / 55 operations / 41 schemas）
-> 全量命名：[page-operation-catalog.yaml](../bff/page-operation-catalog.yaml)（C01–C17 / 一期 22 页 / 55 published + 51 planned operationIds）
-> Gate：`pnpm check:bff-fe-000 && pnpm test:bff-fe-000`
-> 依据：执行计划 3.2 G0 条件 1、5.2–5.6 节；[GAP list](./PRE-04-openapi-gap-list.md)；[字段字典](./PRE-04-field-dictionary.md)；[契约台账](./PRE-04-contract-ledger.md)
+> 更新：2026-10-03；规范：[OpenAPI](../bff/openapi/quantos-bff.v1.yaml)，OpenAPI 3.1 / API 1.4.0 / 62 operations / 51 schemas。
+> 命名：[catalog](../bff/page-operation-catalog.yaml)，C01–C17 / 一期 22 页 / 62 published + 46 planned；P16 为二期。
+> 工程 Gate：`make bff-contract-check`；实际阶段验收：`pnpm check:bff-a1-acceptance`。
 
-## 1. 范围
+## 范围与联调
 
-发布面覆盖 G0 条件 1 最低冻结面（GAP-00 + C01/C03–C09）及 C17 Web additive 面：
+最低 G0 面已发布 Session/Context、Research、DataSnapshot、Strategy、Portfolio/Risk、Proposal、Approval、Execution。C17 Settings/Web 和 C10 Audit/Export 已发布；其余 planned 名称和 owner 已冻结，待对应 A3–A6 实现发布。A1 提供生成基线及校验 harness，不要求提前交付这些后续 provider。
 
-| 契约 | operations | 路径 |
-|---|---|---|
-| C01 Session/Context | getSession、getContext、reauth、mfaChallenge、logout、submitAccessRequest | `/v1/session`、`/v1/context`、`/v1/auth/*`、`/v1/access-requests` |
-| C03 Research | listResearchRuns、createResearchRun、getResearchRun、cancelResearchRun、subscribeResearchRun | `/v1/research-runs*` |
-| C04 Data | listDataSnapshots、getDataSnapshot、getArtifact | `/v1/data-snapshots*`、`/v1/artifacts/{id}` |
-| C05 Strategy | listStrategies、getStrategyDraft、saveStrategyDraft、runStaticCheck、createBacktest、getBacktest、listReleases、createRelease、getRelease、submitReleaseApproval、requestReleaseRollback | `/v1/strategies*`、`/v1/backtests*`、`/v1/releases*` |
-| C06 Portfolio/Risk | getPortfolio、getRiskView、engageKillSwitch、releaseKillSwitch、subscribePortfolio | `/v1/portfolio*`、`/v1/risk*` |
-| C07 Proposal | listProposals、getProposal、requestRiskEvaluation、subscribeProposal | `/v1/proposals*` |
-| C08 Approval | listApprovals、getApproval、decideApproval | `/v1/approvals*` |
-| C09 Execution | submitTradeCommand、listOrders、getOrder、requestOrderCancel、subscribeOrder | `/v1/commands`、`/v1/orders*` |
-| C17 Settings/Web Platform | profile、notification、security、session/device、download 与 browser capability 共 13 个 operation | `/v1/settings/*`、`/v1/platform/capabilities` |
+前端使用 `createBffClient` 生成式 client，默认 `credentials=include`。Cookie 认证由服务端注入身份和上下文；受认证写携带 CSRF Cookie/Header 与受信 Origin。业务写携带 UUID `X-Request-Id` 与 `Idempotency-Key`，业务重试复用后者。reauth、MFA challenge、logout 和公开访问申请是明确登记的幂等例外。审批与其他高风险命令要求 recent-auth/MFA 等各 operation 声明的条件，服务端仍是最终授权方。
 
-C02/C10–C16 及 C04/C05 的补充 operation 已在 catalog 冻结稳定名称和 owner，但仍是 `planned`。它们不进入生成 client，不得被解释为 provider 已实现；由 A2–A6 对应任务发布 path/schema 后才转为 `published`。
+命令顶层闭合，拒绝 actor/tenant/workspace 等伪造输入；Strategy parameters 与 StreamEvent payload 保持开放扩展。Decimal 以精确字符串传输，Money.units 为 int64 字符串，UTC 日期为 RFC3339。转换测试使用实际 Proto 二进制/JSON 路径验证精度、枚举未知值和受信会话注入；页面聚合字段仍由各领域 owner 按 PRE-04 映射实现。
 
-## 2. 关键设计决策（评审重点）
+单资源裸返回，列表返回 items/nextCursor，pageSize 最大 200。sort 为 `field:asc|desc`，filter 为 `field:eq:value`；各 operation 的 `x-quantos-policy` 列出实际资源字段白名单，非法字段/表达式返回 422。证据链按 causation 固定顺序，不支持会破坏链节点的 sort/filter；门禁要求该 N/A 原因。审计参考 provider 实际执行 kind/eventId 筛选及 occurredAt/kind/eventId 排序；其他 provider 按其 owner 实现同样的策略。
 
-1. **统一基线（GAP-00）**：单资源裸返回；列表 `Page{items,nextCursor}`；错误一律 `ErrorEnvelope{code,message,correlationId,fieldErrors?,retryAfter?,currentVersion?}`；复用响应组件覆盖 401/403/404/409/422/429。
-2. **幂等与并发**：业务命令 POST 一律要求 `Idempotency-Key`（uuid）；可变对象写要求 `If-Match: objectVersion`，409 返回 `currentVersion` 且客户端保留草稿不覆盖（校验脚本强制）。
-3. **异步语义**：创建/取消/评估/提交等一律 `202 + AsyncAccepted{jobId,status,correlationId}`，终态以 SSE/详情为准，客户端不得乐观显示完成/成交。
-4. **SSE 实时**：GET + `text/event-stream` + `afterSequence` 回补；事件信封 `StreamEvent{streamId,sequence,eventId,occurredAt,correlationId,payloadVersion,payload}` 与已通过 PoC 的 [sse.ts](../packages/api-client/src/sse.ts) 完全一致；权限撤销 = `payload.type=permission_revoked` 或重连 403 终态。
-5. **安全边界**：BFF 注入 tenant/workspace/actor（schema 中不出现 actor 输入字段）；`TradeProposal.executable` 在 schema 层 `enum: [false]` 强制；404/403 不区分防存在性泄露；MFA/kill switch 决策要求 `mfaChallengeRef + reauthTokenRef`。
-6. **数值与时间**：`DecimalValue` 字符串（pattern 校验）、`MoneyValue{currencyCode,units,nanos}`、RFC 3339 UTC——与 PRE-04 字段字典一致；proto 已有对象字段名与 proto 对齐（sourceDigest/imageDigest/venue+venueKind/counterViews 等）。
-7. **版本策略**：路径 `/v1`；当前 `1.1.0`；后续只加不破（新增 optional 字段/新端点走 minor；破坏性变更走 `/v2`）。
-8. **全量追踪策略**：catalog 的 `publishedOperations` 必须与 OpenAPI/生成 manifest 精确相等；`plannedOperations` 必须出现在 Page API Coverage，且不得冒充已生成或已联调。
+设置与策略对象返回 ETag，更新带 If-Match，VERSION_CONFLICT 返回 currentVersion，客户端保留草稿。状态冲突无需伪造对象版本。429 要求 retryAfter。错误采用 ErrorEnvelope，全部响应声明 X-Correlation-Id 和 Cache-Control，default 为安全服务端错误，禁止 stack/debug/secret 字段。每 operation 的请求/成功示例直接置于 OpenAPI，并经 schema 校验；policy 声明鉴权、能力、分页、缓存、新鲜度、幂等、审计、请求上限与敏感字段边界。限流配额由 provider owner/目标环境配置，baseline 不虚构线上 QPS。
 
-## 3. 评审检查单（BFF TL + 联签方）
+202 表示任务已受理，最终状态从详情/SSE 获取。SSE 带 Cookie，按最后确认 sequence 重连，网络与 5xx 使用可中断指数退避（250ms 起，最大 4s，总重连默认 10 次）；401/403 或 permission_revoked 为终态。未知 envelope/version 不应用状态。payloadVersion canonical 为 v1，保留已有 1 别名。跨域须由目标 provider 正确配置 Cookie/CORS，loopback 测试不替代浏览器 staging 验证。
 
-- [x] 55 个 published operation 与 OpenAPI/生成 manifest 双向一致
-- [x] C01–C17 与 P01–P15/P17–P23 均有稳定 operationId 和后续 owner
-- [x] ErrorEnvelope、cursor、sort/filter、202、Idempotency-Key、ETag/If-Match、correlation ID 与 SSE envelope 已冻结
-- [x] 生成 client/schema/MSW 漂移和页面覆盖进入 CI
-- [x] 敏感字段、权限不变量、403/409/429/501 fixture 已有自动化负向证据
-- [ ] A2–A6 planned operation 的 path/schema/provider contract 与 staging 回执
-- [ ] GPT-6 Astra 功能复审及 BFF/Frontend/QA/安全/领域 owner 的本轮 A1 联签
+## 兼容与自动化
 
-## 4. 冻结后动作
+六项生成资产逐字节漂移检查进入 CI。BFF 独立兼容 Gate 从 Git full SHA 获取历史 OpenAPI，拒绝未登记破坏性差异。本次安全修正的工程准入范围、迁移条件、到期日见 [ADR](./adr/ADR-A1-security-contract-correction.md)；不构成生产发布或签署授权。
 
-1. ~~发布版本化 OpenAPI 并生成 client/schema/MSW。~~ 已完成；当前 1.1.0 / 55 operations / 41 schemas。
-2. ~~冻结全量页面 operationId 与 owner。~~ 已完成；catalog 覆盖 17 契约和一期 22 页。
-3. ~~回填 [Page API Coverage 登记表](./PRE-01-page-api-coverage-register.md)。~~ 已完成稳定命名；planned/published 明确分栏语义。
-4. ~~将生成漂移、页面覆盖、依赖/基线与负向破坏检查接入 CI。~~ 已完成。
-5. A2–A6 逐域交付 planned operation 的 OpenAPI/schema/provider/staging 证据；A1 不替代这些 Gate。
+MSW resolver 经同源请求/响应 validator 包装，Cookie 认证、CSRF、必需头、闭合输入、幂等冲突及敏感字段均受检；缺 resolver 501 明确报错。`pnpm test:bff-provider-contract` 启动仅内存参考模式，实际 HTTP 覆盖 C01/C17/C10 的 26 接口，并反校验 schema/header；不启动数据库、不访问 IdP/存储，不记为 staging 验收。全窗口真实 provider 测试仍需目标环境。
 
-## 5. 未决边界
+## 验收回执
 
-1. **51 个 planned operation 尚未发布。** 其中包括回测流、Command Center、审计导出、运维治理、行情、preflight、绩效、对账与告警；页面仍受各自 A2–A6/DoR Gate 阻断。
-2. **provider/staging 未验收。** 当前证据是 repository/OpenAPI/generated/mock/consumer 层，不证明真实 BFF、身份、权限、限流、SSE 恢复或审计行为。
-3. **外部评审未执行。** `development_status=COMPLETED` 与 `review_status=NOT_STARTED` 分开记录，不伪造 GPT-6 Astra 或组织联签。
+当前用户已确认 staging 与签署尚不具备，PROVIDER:A1/G0 保持 NOT_STARTED，无当前 source_commit/evidence。不得把工程 Gate PASS 写作正式阶段通过。回执准备完成后按以下步骤关闭 B-01：
+
+1. 先固定待验收的完整 source SHA，并计算 OpenAPI 原始字节与生成 Zod 原始字节按此顺序拼接后的 SHA-256（inputsDigest）。在该 SHA 的实际 staging 部署上验证 Cookie session、请求/响应 schema、CSRF/Origin、幂等/版本、correlation/审计、SSE 恢复/权限撤销、敏感字段七类检查；每项保留 requestId、原始日志文件及 SHA-256。
+2. 创建 `schema=quantos-bff-a1-acceptance/v1` 的 JSON：sourceCommit、inputsDigest、status=PASS、environment=staging、实际 HTTPS baseUrl；checks 数组各有 name/status/requestId/evidence/logSha256。evidence 指向 docs/audit/evidence 下真实日志，不写 Cookie/token/数据库凭据。
+3. 当前 Product/Frontend/BFF/QA/Security/Risk/Domain 各自签署角色回执。每份 `schema=quantos-g0-role-signoff/v1` 含 approved=true、sourceCommit、inputsDigest、role、identity、signedAt。主回执 signatures 含相同 role/identity/sourceCommit/signedAt、receipt 路径与 receiptSha256；这记录组织确认，不声称具备公钥密码学签名。
+4. 保存主回执到 `docs/audit/evidence/bff-a1-staging-acceptance.json`，或通过 QUANTOS_BFF_A1_RECEIPT 指向文件，运行 `pnpm check:bff-a1-acceptance`。门禁校验当前 HEAD/输入摘要、七类证据文件哈希和七角色回执。缺文件、假域名、错误 SHA、修改证据或缺签署一律 NOT_ACCEPTED。
+5. 只有完整目标证据与签署获复核后才能更新 PROVIDER:A1/G0 记录；新提交重新验收。配置数据库相关验证仅连接工程已配置的 Supabase PostgreSQL，另存实际执行回执。
