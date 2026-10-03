@@ -41,6 +41,7 @@
 | auth/settings Rust | 12/12 PASS | reference：写读、幂等、冷却、过期挑战、单次消费、双会话持续流 |
 | auth/settings consumer | 23/23 PASS | 成功/错误运行时响应；空 session 中止后续请求；401/403/409/429/503 恢复信息 |
 | Terminal / contract | 79/79、25/25 PASS | 客户端单元与 fixture/HTTP validator；成功 correlation 破坏必须拒绝 |
+| 全接口 runtime 校验 / Web coverage | PASS | 52 组件正反向、62 operation 错误与成功分支；完整行覆盖率 92.85%，关键逻辑四项 100%，不降低门槛 |
 | reference HTTP | 28 records PASS | C01/C17/C10 harness；只有其中 20 个 operation 属于本任务分母 |
 | live Auth/PostgreSQL | 43 records PASS | 真实 TOTP 注册/验证/吊销、profile/prefs、幂等、SSE、非空元数据、预检和 CSRF；测试因素已恢复 |
 | A2 负向检查 | 22/22 PASS | 陈旧执行证明、注释/禁用 CI、缺失当前文档、契约字段与依赖回退等 |
@@ -71,7 +72,7 @@
 | M-04 / 中危 | reference session | TTL 来自可控时钟，输出/鉴权一致；过期后 401，fixture 续期不续期挑战 | 时间推进、过期会话拒绝、logout 与撤销 |
 | M-05 / 中危 | MFA initiation | 无 code 发起 pending；只有实际错误验证才计失败 | schema 示例发起与限流回归；真实 Auth pending |
 | L-01 / 低危 | 活跃验收入口 | 当前 summary/版本/operation/schema/证据必须一致；历史 9/16 内容保留并标明历史 | 新基线检查、删当前证据/旧版本负向 |
-| X-01 / 关联 CI | Python 审计脚本 | 修复 43 文件的 779 Ruff 项，无目录排除；原始字节副本和摘要保留；Secret scan 对新增四项摘要逐项重算并仅豁免精确值 | Ruff 0；文档化 import/lambda 转换后的 AST 等价；Pyright 0 |
+| X-01 / 关联 CI | Python 审计脚本 | 修复 43 文件的 779 Ruff 项，无目录排除；原始字节副本和摘要保留；Secret scan 对新增五项摘要逐项重算并仅豁免精确值 | Ruff 0；文档化 import/lambda 转换后的 AST 等价；Pyright 0 |
 | X-02 / 关联 CI | F09 target ledger | 删除“最后文件永远是 F09 迁移”的错误假设；仍要求完整排序、全部摘要及 F09 前置迁移 | 4 类 ledger 用例；现有 Supabase 38 份迁移匹配 |
 
 剩余验收风险按实际范围记录：
@@ -84,6 +85,12 @@
 
 ## 四、后续整改与放行建议
 
-本报告已无未修复的工程缺陷，可以进入独立代码复审与新 SHA 的开发基线复验。提交后重新执行 P0 的 39 项命令/六浏览器 135 场景、F06 实际 Supabase/Auth/Runtime/Execution/Vault/PostgreSQL，再生成绑定同一 SHA 的 Git notes。源码与 notes 的远端发布授权、托管执行和回执分别核验，不能复用旧 28deabe 的 PASS。
+原报告列出的工程缺陷均已完成修复，可以进入独立代码复审与新 SHA 的开发基线复验。提交后重新执行 P0 的 39 项命令/六浏览器 135 场景、F06 实际 Supabase/Auth/Runtime/Execution/Vault/PostgreSQL，再生成绑定同一 SHA 的 Git notes。源码与 notes 的远端发布授权、托管执行和回执分别核验，不能复用旧 28deabe 的 PASS。
 
 后续任务仍按结构化依赖检查：BFF-FE-007 依赖 CORE:F05 与 PROVIDER:A1；本次工程整改不代为关闭该正式前置。最终 ACCEPTED 仍需最终环境、对应 review 与签署。历史复审中的原失败证据不覆盖或删除，本次证据另目录保存。
+
+### 提交后复验发现的接线问题
+
+初次修复提交 `d549f1b` 的 P0/F06 复验拒绝生成回执：新增 generated response 代码没有完整测试，导致 Web 行覆盖率不足；Terminal 生产构建从 workspace ESM 源文件加载时无法解析 `.js` specifier；F06 启动器没有配置 live 服务必需的 trace 输出。三项均作后续修正：增加全部公开组件/接口的运行时正反向测试（覆盖率 92.85%），配置 Next 的 TypeScript extensionAlias，按 F06 命令在仓外证据目录配置 trace。原失败日志保留在 `/private/tmp/bff-fe-001-d549f1b-p0` 和 `/private/tmp/bff-fe-001-d549f1b-f06`，未记录成 PASS。最终回执必须绑定包含本次补充的提交 SHA。
+
+随后完整浏览器矩阵发现旧访问申请成功 fixture 缺少 `AuditedAsyncAccepted.auditRef`；新 consumer 正确拒绝，因此补齐 fixture 的必需 UUID，保持运行时校验严格。第二次源码快照 `9a5a639` 的失败日志保留在 `/private/tmp/bff-fe-001-9a5a639-p0`，不作为最终 SHA 回执。

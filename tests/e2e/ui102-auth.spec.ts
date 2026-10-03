@@ -59,7 +59,7 @@ test.describe("UI-102 identity, access and recovery", () => {
   test("访问申请 202 只显示已受理而非权限已开通", async ({ page }) => {
     await page.route(`${BFF}/v1/access-requests`, async (route) => {
       if (route.request().method() === "OPTIONS") await route.fulfill({ status: 204, headers: corsHeaders });
-      else await route.fulfill({ status: 202, contentType: "application/json", headers: corsHeaders, body: JSON.stringify({ jobId: "11111111-2222-4333-8444-555555555555", status: "accepted", correlationId: "66666666-7777-4888-8999-000000000000" }) });
+      else await route.fulfill({ status: 202, contentType: "application/json", headers: corsHeaders, body: JSON.stringify({ jobId: "11111111-2222-4333-8444-555555555555", status: "accepted", correlationId: "66666666-7777-4888-8999-000000000000", auditRef: "77777777-8888-4999-8aaa-111111111111" }) });
     });
     await page.goto("/access-request");
     await page.getByLabel("组织 / 公司").fill("SumAlpha Research");

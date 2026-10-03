@@ -27,6 +27,9 @@ function deterministicBuildId(app: string): string {
 const nextConfig: NextConfig = {
   output: "export",
   webpack(config, { webpack }) {
+    // Workspace ESM sources retain .js specifiers for their compiled output.
+    // Resolve those specifiers to TypeScript when Next builds directly from source.
+    config.resolve.extensionAlias = { ...config.resolve.extensionAlias, ".js": [".ts", ".tsx", ".js"] };
     // F02-A11: short-ID collision retries depend on async traversal order.
     // Use a fixed larger namespace and reject collisions instead of reassigning IDs.
     config.optimization.moduleIds = false;
