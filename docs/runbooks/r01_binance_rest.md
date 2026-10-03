@@ -34,9 +34,9 @@ HTTP timeout 3s；网络/HTTP 失败在本轮保留游标，后续轮次重试�
 
 独立 watchdog 使用另一条受限数据库连接/250ms timer，读取持久 last_response_at；成功且无成交也刷新 health，避免把正常无交易误判断网。进程停止时 timer 同样停止，必须由 supervisor 的进程存活检查补充告警；恢复时持久 last_response 状态不会清空。
 
-429/418 立即停止请求，保留游标，输出有界 Retry-After 秒数。运维至少等待该时长（没有有效值则检查官方限制后恢复），不能让 supervisor 紧循环重启；此版本不会自动等候限流后恢复。其他暂时 HTTP/网络错误按配置 poll-ms 重试。数据库失败、schema/gap、审批失效则停止并检查根因；不要跳过 ID 或删 receipt 强行修复。
+429/418 立即停止请求，保留游标，输出有界 Retry-After 秒数。运维至少等待该时长（没有有效值则检查官方限制后恢复），不能让 supervisor 紧循环重启；原生命令将限流交给外部监督程序；[持续运行监督](./r01_binance_supervisor.md)按有效 Retry-After 等待后恢复，缺失/无效值退出 78 请求人工处理。其他暂时 HTTP/网络错误按配置 poll-ms 重试。数据库失败、schema/gap、审批失效则停止并检查根因；不要跳过 ID 或删 receipt 强行修复。
 
-进程由 supervisor 重启，持续运行需要指定稳定 tenant/actor、日志持久化/轮转及受控网络。命令有界迭代完成后再启动会从数据库接续；不是已经部署的常驻服务。本次每个原生 worker 使用 writer/watchdog 两个 Supabase session，部署并发数应计入共享 pool 容量。
+进程由 supervisor 重启，持续运行需要指定稳定 tenant/actor、日志持久化/轮转及受控网络。命令有界迭代完成后再启动会从数据库接续；不是已经部署的常驻服务。每个原生 worker 使用 writer/watchdog 两条 Supabase 客户端连接，部署并发数应计入共享 pool 容量。当前监督程序与事务池使用方式见[持续运行 Runbook](./r01_binance_supervisor.md)。
 
 ```bash
 # F05 消费事实、推进 checkpoint；不是 Web 行情投影或交易执行。
@@ -60,4 +60,4 @@ node scripts/check-r01-coverage.mjs artifacts/r01-binance/coverage.json --requir
 
 真实验证脚本先执行 `cargo build -p market-ingestor --locked` 并绑定二进制 hash；覆盖与验证 Gate 绑定生产源码 hash；R01 CI 的目标矩阵和同工作流执行串行，其他服务也应按共享池容量协调。脚本仅停用本次创建的 actor，保留不可变事实，不删除/重建数据。不将 loopback fixture 的故障注入声称为 Binance 实际事故；停止进程是受控断连补偿，非供应商 SLA 测试。结果见[本次接入验证报告](../audit/R01-binance-rest-validation-2026-10-03.md)。
 
-上述专用 target 覆盖 Binance、新旧 CLI 和相关 unit；完整旧 R01 target 仍使用 `node --env-file=.env.local scripts/r01-live-check.cjs`，保留八线程竞争用例。本轮完整 Gate 在共享 Supabase session pool_size=15 下失败，须协调目标连接容量后重跑，不能以专用 Gate 通过替代。
+上述专用 target 覆盖 Binance、新旧 CLI 和相关 unit；完整旧 R01 target 仍使用 `node --env-file=.env.local scripts/r01-live-check.cjs`，保留八线程竞争用例。初次接入时完整 Gate 在共享 Supabase session pool_size=15 下失败，历史回执保留。随后使用同一项目的官方事务池显式重跑完整 Gate，保留八并发；最终覆盖与持续运行结果见[后续验证报告](../audit/R01-supervision-validation-2026-10-03.md)，不以专用 Gate 替代。

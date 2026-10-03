@@ -1,5 +1,41 @@
 use super::*;
 #[test]
+fn retry_after_is_strict_and_fatal_errors_do_not_churn() {
+    for value in [
+        "",
+        "garbage3",
+        "-1",
+        "1.5",
+        "604801",
+        "999999999999999999999999",
+        "Wed, 01 Jan 2030",
+    ] {
+        assert_eq!(retry_after(value), None);
+    }
+    assert_eq!(retry_after(" 12 "), Some(12));
+    for message in [
+        "BINANCE_RATE_LIMIT retry_after=12",
+        "BINANCE_TRANSPORT",
+        "BINANCE_SOURCE_UNAVAILABLE",
+        "BINANCE_HTTP_STATUS 503",
+    ] {
+        assert!(exit_policy(&anyhow::anyhow!(message)).retryable);
+    }
+    for message in [
+        "BINANCE_RATE_LIMIT retry_after=unspecified",
+        "BINANCE_HTTP_STATUS 403",
+        "BINANCE_RESPONSE_SCHEMA",
+        "BINANCE_SOURCE_GAP",
+        "BINANCE_TIMESTAMP",
+        "BINANCE_RESPONSE_LIMIT",
+        "BINANCE_PAGE_LIMIT",
+        "BINANCE_ID_OVERFLOW",
+        "database failure",
+    ] {
+        assert!(!exit_policy(&anyhow::anyhow!(message)).retryable);
+    }
+}
+#[test]
 fn aggregate_mapping_identity_and_gap_boundaries() {
     let now = Utc::now();
     let good = br#"[{"a":7,"p":"100.1250","q":"2.00","T":1700000000000,"f":10,"l":12,"m":true}]"#;

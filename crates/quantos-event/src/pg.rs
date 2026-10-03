@@ -105,6 +105,8 @@ pub struct PgEventStore {
     client: Client,
     outbox_tenants: Option<Vec<Uuid>>,
     outbox_aggregate_type: Option<String>,
+    transaction_pool: bool,
+    market_transaction_deadline: bool,
 }
 
 impl PgEventStore {
@@ -113,6 +115,11 @@ impl PgEventStore {
             client: connect_client(database_url)?,
             outbox_tenants: None,
             outbox_aggregate_type: None,
+            transaction_pool: Url::parse(database_url)?
+                .host_str()
+                .is_some_and(|h| h.ends_with(".pooler.supabase.com"))
+                && Url::parse(database_url)?.port() == Some(6543),
+            market_transaction_deadline: false,
         })
     }
 
@@ -167,7 +174,7 @@ impl PgEventStore {
         }
         let document =
             Json(serde_json::to_value(&*events).map_err(|_| PgEventStoreError::MarketIdentity)?);
-        let result = self.client.query_typed_one(
+        let result = self.market_query(
             "select inserted, first_sequence from quantos.append_market_source($1,$2,$3,$4,$5,$6)",
             &[
                 (tenant_id.as_uuid(), Type::UUID),
@@ -226,7 +233,7 @@ impl PgEventStore {
         expected: i64,
         page: &serde_json::Value,
     ) -> Result<i64, PgEventStoreError> {
-        let row = self.client.query_typed_one(
+        let row = self.market_query(
             "select quantos.append_binance_page($1,$2,$3,$4,$5,$6)",
             &[
                 (tenant.as_uuid(), Type::UUID),
@@ -248,11 +255,35 @@ impl PgEventStore {
         Ok(self.client.query_typed_opt("select last_response_at from quantos.binance_ingestion_cursor where tenant_id=$1 and provider=$2 and symbol=$3", &[(tenant.as_uuid(),Type::UUID), (&provider,Type::TEXT), (&symbol,Type::TEXT)])?.map(|r| r.get(0)))
     }
 
-    /// Session-local deadline for the single-statement market writer; no effect on other connections.
+    /// Market write deadlines: session-local on dedicated sessions, SET LOCAL inside
+    /// each transaction on Supavisor transaction mode, never a backend-global SET.
     pub fn configure_market_deadline(&mut self) -> Result<(), PgEventStoreError> {
-        self.client
-            .batch_execute("set statement_timeout='4000ms'; set lock_timeout='2000ms'")?;
+        if self.transaction_pool {
+            // SET must not leak to a different client on a transaction-pooled backend.
+            self.market_transaction_deadline = true;
+        } else {
+            self.client
+                .batch_execute("set statement_timeout='4000ms'; set lock_timeout='2000ms'")?;
+        }
         Ok(())
+    }
+
+    fn market_query(
+        &mut self,
+        sql: &str,
+        params: &[(&(dyn postgres::types::ToSql + Sync), Type)],
+    ) -> Result<Row, postgres::Error> {
+        if self.market_transaction_deadline {
+            let mut tx = self.client.transaction()?;
+            tx.batch_execute(
+                "set local statement_timeout='4000ms'; set local lock_timeout='2000ms'",
+            )?;
+            let row = tx.query_typed_one(sql, params)?;
+            tx.commit()?;
+            Ok(row)
+        } else {
+            self.client.query_typed_one(sql, params)
+        }
     }
 
     pub fn last_market_receipt(

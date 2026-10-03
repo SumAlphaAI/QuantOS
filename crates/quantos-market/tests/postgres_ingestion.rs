@@ -102,14 +102,14 @@ fn supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter() {
     drop(i);
     drop(store);
     let barrier = Arc::new(Barrier::new(8));
+    // Admit all eight sessions before spawning writers. A failed handshake cannot strand
+    // seven threads at a barrier; SQL writes still race on eight independent connections.
+    let writers = (0..8).map(|_| connect()).collect::<Vec<_>>();
     let mut threads = vec![];
-    for _ in 0..8 {
-        let url = url.clone();
+    for mut i in writers {
         let barrier = barrier.clone();
         let raw = tick("parallel", "100");
         threads.push(thread::spawn(move || {
-            let mut i =
-                DurableMarketIngestor::connect(&url, default_approved_providers(), actor).unwrap();
             barrier.wait();
             i.ingest(tenant, c, raw, now).unwrap().duplicate
         }));

@@ -191,7 +191,7 @@ fn run(correlation: CorrelationId) -> Result<()> {
             poll_ms,
             fixture,
         } => {
-            binance::run(
+            let result = binance::run(
                 binance::Config {
                     approvals,
                     provider,
@@ -205,7 +205,14 @@ fn run(correlation: CorrelationId) -> Result<()> {
                     fixture,
                 },
                 correlation,
-            )?;
+            );
+            if let Err(error) = &result {
+                println!(
+                    "{}",
+                    serde_json::json!({"kind":"binance_exit","policy":binance::exit_policy(error)})
+                );
+            }
+            result?;
         }
         Command::Dispatch {
             tenant,

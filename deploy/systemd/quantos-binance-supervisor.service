@@ -1,0 +1,30 @@
+[Unit]
+Description=QuantOS Binance market supervisor
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=quantos
+WorkingDirectory=/opt/quantos
+EnvironmentFile=/etc/quantos/market.env
+ExecStart=/usr/bin/node /opt/quantos/scripts/binance-supervisor.cjs --config /etc/quantos/binance-supervisor.json --binary /opt/quantos/bin/market-ingestor
+Restart=on-failure
+RestartPreventExitStatus=78
+RestartSec=30
+KillMode=mixed
+TimeoutStopSec=30
+StateDirectory=quantos-market
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/quantos-market
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

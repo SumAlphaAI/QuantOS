@@ -1,0 +1,111 @@
+{
+  "schema": "quantos-r01-supervision/v1",
+  "status": "PASS",
+  "sourceCommit": "c676d29c91f50b8ef96ddf6d2dc8913be4eb97f1",
+  "workingTreeModified": true,
+  "sourceHashes": {
+    "scripts/binance-supervisor.cjs": "73ef0a406ef81b93059e30c74232efa0261b468a19c4b913f70bb00d975b172e",
+    "scripts/lib/r01-db.cjs": "107f61d25736a38441b26d26a774c7920baec101c9f0fb1da70bac4190d0dd30",
+    "scripts/r01-supervision-check.cjs": "36843a1e673f1e6c920a6269078290dd1b1203ebe6f7da7aba74a42c8da6c5db",
+    "services/market-ingestor/src/binance.rs": "bf3fcfe2a45498a17b0328b90d9e6742a4fd3bd8cc14f0cebedd1d34460cc0e6",
+    "services/market-ingestor/src/main.rs": "a5ef54d0de13732a2014fe420f8b201efc21ec113cfcbc0d404d75d1b5acee65",
+    "services/market-ingestor/src/cli.rs": "12ce0c01688a8d8df8a1d25e6cf0f9f9832083ecd190a3fe525e2a34c2916434",
+    "crates/quantos-event/src/pg.rs": "1917bea7df67e74ca1c3c07f1d3bc97a9baa59814441285ec0ea8ee8cf55d281",
+    "crates/quantos-market/src/durable.rs": "1aaf1e007726f534e29b5b9c5a86b59b24167c9283625f09fb8e1ffaf3d2d5c8",
+    "docs/provider-approvals/20261003-binance-public-evaluation.json": "3b93ad615d776c86701173e077d1829e45808b95c3335ec9c53871f49201170e",
+    "docs/provider-approvals/20261003-binance-public-evaluation.md": "ab95f8073db1fe903286bb860aa53f87a819abe62fdc210a556f8a21b67aea7d"
+  },
+  "binarySha256": "cc952d66e97cc217b536ae4eca5c5cc4b76b1a13a1cf15b6a2e06bb79b406d19",
+  "target": "configured Supabase PostgreSQL",
+  "connectionMode": "transaction",
+  "provider": "Binance public REST",
+  "fixture": false,
+  "tenant": "25cc10bf-d073-4261-9226-0e9686d2bd26",
+  "actor": "292f5b9c-bc6f-4b16-a259-8db5a19cf5df",
+  "actorActive": false,
+  "cases": [
+    {
+      "name": "worker_suspended",
+      "status": "PASS",
+      "fixture": false,
+      "fault_at": "2026-10-03T13:40:13.983Z",
+      "commit_ack_at": "2026-10-03T13:40:15.902Z",
+      "elapsed_ms": 1919,
+      "event_id": "efc5fc4e-4558-4ee5-b83f-9dbee87d1caa",
+      "readback": {
+        "event_kind": "market.source.freshness_degraded",
+        "payload": {
+          "reason": "binance_poll_unavailable",
+          "symbol": "BTCUSDT",
+          "quality": "degraded",
+          "provider": "binance.spot.aggtrades",
+          "last_response_at": "2026-10-03T13:40:13.599Z"
+        },
+        "payload_hash": "sha256:becb9772266ccb87c15686b03d9222ce097e59f8ca89286c98b6701d9ac8f2de",
+        "sequence": "6",
+        "occurred_at": "2026-10-03T13:40:15.657Z"
+      }
+    },
+    {
+      "name": "worker_killed",
+      "status": "PASS",
+      "fixture": false,
+      "fault_at": "2026-10-03T13:40:16.174Z",
+      "commit_ack_at": "2026-10-03T13:40:16.430Z",
+      "elapsed_ms": 256,
+      "event_id": "5911d26c-2b95-4ad9-ae09-c13641a2bede",
+      "readback": {
+        "event_kind": "market.source.worker_stopped",
+        "payload": {
+          "reason": "worker_exit",
+          "signal": "SIGKILL",
+          "symbol": "BTCUSDT",
+          "quality": "degraded",
+          "provider": "binance.spot.aggtrades",
+          "exit_code": null
+        },
+        "payload_hash": "sha256:5e13377150c411987d052215c7215326dae93a10c1a4d5db05fa254bebd35587",
+        "sequence": "7",
+        "occurred_at": "2026-10-03T13:40:16.179Z"
+      }
+    },
+    {
+      "name": "resume_identity_span",
+      "status": "PASS",
+      "initial": {
+        "initial_id": "4080101430",
+        "next_id": "4080101507",
+        "last_response_at": "2026-10-03T13:40:13.599Z"
+      },
+      "resumed": {
+        "initial_id": "4080101430",
+        "next_id": "4080101546",
+        "last_response_at": "2026-10-03T13:40:24.921Z"
+      },
+      "uniqueTicks": 116
+    }
+  ],
+  "max_anomaly_elapsed_ms": 1919,
+  "threshold_ms": 5000,
+  "measurement": "fault injection / bad response send to native transaction commit ACK or supervisor append ACK; target event readback required",
+  "delivery": {
+    "pending": 0,
+    "outbox": 166,
+    "applied": 166,
+    "checkpoints": [
+      {
+        "stream_key": "market:binance.spot.aggtrades:BTC/USDT",
+        "expected": "158",
+        "actual": "158"
+      },
+      {
+        "stream_key": "market:binance.spot.aggtrades:source",
+        "expected": "8",
+        "actual": "8"
+      }
+    ]
+  },
+  "longRunning24h": "NOT RUN",
+  "supervisorProcessDeath": "requires external service manager",
+  "commercialLicense": "NOT VERIFIED"
+}

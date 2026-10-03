@@ -109,14 +109,9 @@ impl Source {
                 .headers()
                 .get("retry-after")
                 .and_then(|x| x.to_str().ok())
-                .unwrap_or("unspecified");
-            bail!(
-                "BINANCE_RATE_LIMIT retry_after={}",
-                wait.chars()
-                    .filter(char::is_ascii_digit)
-                    .take(10)
-                    .collect::<String>()
-            );
+                .and_then(retry_after)
+                .map_or_else(|| "unspecified".into(), |n| n.to_string());
+            bail!("BINANCE_RATE_LIMIT retry_after={}", wait);
         }
         if !status.is_success() {
             bail!("BINANCE_HTTP_STATUS {}", status.as_u16());
@@ -242,10 +237,10 @@ pub(super) fn run(config: Config, correlation: CorrelationId) -> Result<()> {
                     }
                     Err(e) => {
                         let message = e.to_string();
-                        if message.starts_with("BINANCE_RATE_LIMIT")
-                            || message.starts_with("BINANCE_SOURCE_GAP")
-                            || message.starts_with("BINANCE_RESPONSE")
-                        {
+                        if !exit_policy(&e).retryable {
+                            return Err(e);
+                        }
+                        if message.starts_with("BINANCE_RATE_LIMIT") {
                             return Err(e);
                         }
                         println!(
@@ -267,6 +262,54 @@ pub(super) fn run(config: Config, correlation: CorrelationId) -> Result<()> {
         poll?;
         monitoring
     })
+}
+
+fn retry_after(value: &str) -> Option<u64> {
+    let value = value.trim();
+    if value.is_empty() || !value.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    value.parse::<u64>().ok().filter(|n| *n <= 604_800)
+}
+
+#[derive(serde::Serialize)]
+pub(super) struct ExitPolicy {
+    pub code: &'static str,
+    pub retryable: bool,
+    pub retry_after_secs: Option<u64>,
+}
+pub(super) fn exit_policy(error: &anyhow::Error) -> ExitPolicy {
+    let message = error.to_string();
+    let rate = message.strip_prefix("BINANCE_RATE_LIMIT retry_after=");
+    let wait = rate.and_then(retry_after);
+    let retryable = if rate.is_some() {
+        wait.is_some()
+    } else {
+        message.starts_with("BINANCE_TRANSPORT")
+            || message.starts_with("BINANCE_SOURCE_UNAVAILABLE")
+            || message.starts_with("BINANCE_HTTP_STATUS 5")
+    };
+    ExitPolicy {
+        code: if rate.is_some() {
+            "BINANCE_RATE_LIMIT"
+        } else if retryable {
+            "BINANCE_SOURCE_UNAVAILABLE"
+        } else {
+            [
+                "BINANCE_RESPONSE_SCHEMA",
+                "BINANCE_SOURCE_GAP",
+                "BINANCE_TIMESTAMP",
+                "BINANCE_RESPONSE_LIMIT",
+                "BINANCE_PAGE_LIMIT",
+                "BINANCE_ID_OVERFLOW",
+            ]
+            .into_iter()
+            .find(|code| message.starts_with(code))
+            .unwrap_or("BINANCE_FATAL")
+        },
+        retryable,
+        retry_after_secs: wait,
+    }
 }
 #[cfg(test)]
 mod tests;

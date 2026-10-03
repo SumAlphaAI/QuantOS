@@ -95,7 +95,7 @@ f01-reproducibility-check:
 
 r01-check:
 	node ./scripts/check-r01.mjs
-	node --test ./scripts/r01-gate-negative.mjs ./scripts/r01-coverage-negative.mjs
+	node --test ./scripts/r01-gate-negative.mjs ./scripts/r01-coverage-negative.mjs ./scripts/tests/binance-supervisor.test.cjs
 	cargo test -p quantos-market --lib --locked
 	cargo test -p market-ingestor --locked
 	$(MAKE) r01-mutation-check
@@ -105,6 +105,13 @@ r01-binance-target-check:
 
 r01-binance-live-check:
 	node ./scripts/r01-binance-live-check.cjs
+
+.PHONY: r01-supervision-check r01-supervision-live-check
+r01-supervision-check:
+	node ./scripts/r01-supervision-check.cjs
+
+r01-supervision-live-check:
+	node ./scripts/r01-supervision-check.cjs --live
 
 r01-mutation-check:
 	node ./scripts/r01-mutation-check.mjs

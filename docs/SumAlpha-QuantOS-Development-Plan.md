@@ -561,11 +561,11 @@ flowchart TD
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-10-03 Binance REST 原生接入与真实数据/断线补偿验证完成；9 项关闭，B01 的正式 SLA、部署和许可验收仍待完成，R01 未 ACCEPTED。
+- review_conclusion: 2026-10-03 补齐 Binance 持续监督、受控异常 ≤5s 提交与事务池完整八并发 Gate 验证；fixture/真实进程故障最大 2164ms/1919ms。9 项关闭，B01 的长期部署、远程同 SHA CI 和许可验收仍待完成，R01 未 ACCEPTED；本轮为整改验证，未产生新的独立 Astra 复审。
 - issues:
   - issue_id: B01
     severity: BLOCKER
-    description: Binance REST 与真实数据补偿回执已取得；正式五秒异常 SLA、长期部署与商用许可未验收
+    description: Binance REST、真实补偿与受控五秒异常回执已取得；长期部署、远程同 SHA CI 与商用许可未验收
     evidence: docs/audit/R01-remediation-validation-2026-10-02.md
     status: OPEN
   - issue_id: H01
@@ -615,10 +615,10 @@ flowchart TD
     status: CLOSED
 - fix_tracking:
   - issue_id: B01
-    fix_ref: docs/audit/R01-binance-rest-validation-2026-10-03.md
-    verification_command: node --env-file=.env.local scripts/r01-binance-live-check.cjs；r01-binance-target-check.cjs；coverage Gate
-    verification_environment: Binance 公共 REST 与配置 Supabase；真实数据/受控补偿及独立 fixture 故障测试
-    verification_evidence: docs/audit/evidence/r01-binance-20261003/index.json
+    fix_ref: docs/audit/R01-supervision-validation-2026-10-03.md
+    verification_command: make r01-check；QUANTOS_R01_POOL_MODE=transaction node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate；r01-supervision-check.cjs 与 --live
+    verification_environment: 同一配置 Supabase 事务池；保留八并发完整 Gate；fixture 异常与 Binance 真实进程故障分开验收
+    verification_evidence: docs/audit/evidence/r01-supervision-20261003/index.json
     verification_status: PARTIAL
   - issue_id: H01
     fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md

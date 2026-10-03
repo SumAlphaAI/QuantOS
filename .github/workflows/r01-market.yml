@@ -37,6 +37,7 @@ jobs:
       R01_CA_PEM: ${{ secrets.F07_CA_PEM }}
       RUSTUP_TOOLCHAIN: ${{ matrix.toolchain }}
       QUANTOS_R01_COVERAGE: '1'
+      QUANTOS_R01_POOL_MODE: transaction
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -53,7 +54,7 @@ jobs:
           test -n "$DATABASE_URL" && test -n "$R01_CA_PEM"
           printf '%s' "$R01_CA_PEM" > "$RUNNER_TEMP/r01-ca.pem"
           node <<'JS'
-          const fs=require('fs');const url=new URL(process.env.DATABASE_URL);
+          const fs=require('fs');const url=new URL(require('./scripts/lib/r01-db.cjs').targetUrl());
           url.searchParams.set('sslmode','verify-full');url.searchParams.set('sslrootcert',`${process.env.RUNNER_TEMP}/r01-ca.pem`);
           fs.appendFileSync(process.env.GITHUB_ENV,`DATABASE_URL=${url.toString()}\n`);
           JS
@@ -64,9 +65,13 @@ jobs:
           if [[ '${{ matrix.toolchain }}' == 'nightly' ]]; then export QUANTOS_R01_BRANCH=1; fi
           node scripts/r01-live-check.cjs
           node scripts/check-r01-coverage.mjs artifacts/r01/coverage.json $([[ '${{ matrix.toolchain }}' == 'nightly' ]] && printf '%s' '--require-branches')
+      - name: Native supervision and injected anomaly commit deadlines
+        run: node scripts/r01-supervision-check.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: r01-${{ matrix.toolchain }}-${{ github.sha }}
-          path: artifacts/r01/
+          path: |
+            artifacts/r01/
+            artifacts/r01-supervision/
           if-no-files-found: error
