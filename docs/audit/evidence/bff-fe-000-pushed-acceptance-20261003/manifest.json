@@ -1,0 +1,123 @@
+{
+  "schema": "quantos-bff-pushed-development-review/v1",
+  "sourceCommit": "ad85fc742994a9dff2e3e9f19f10a0728b2c99fd",
+  "snapshotAt": "2026-10-03T03:52:54Z",
+  "sourceWorkingTreeCleanBeforeEvidence": true,
+  "developmentBaseline": "PASS",
+  "formalAdmission": "HOLD",
+  "nextAllowedScope": "BFF-FE-001 engineering review and CI remediation",
+  "formalAccepted": false,
+  "stagingStatus": "DEFERRED_TO_FINAL_REVIEW",
+  "checks": [
+    {
+      "command": "make bff-contract-check",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @sumalpha/api-client test",
+      "exitCode": 0,
+      "environment": "loopback allowed; initial sandbox EPERM excluded"
+    },
+    {
+      "command": "pnpm test:contract",
+      "exitCode": 0
+    },
+    {
+      "command": "cargo test -p bff-gateway --locked --offline",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm test:bff-provider-contract",
+      "exitCode": 0,
+      "scope": "loopback reference; no DB/IdP/storage/staging"
+    },
+    {
+      "command": "pnpm coverage:web",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm check:p0",
+      "exitCode": 1,
+      "status": "FAIL missing current receipt"
+    },
+    {
+      "command": "gitleaks 8.28.0 git --config .gitleaks.toml --gitleaks-ignore-path .gitleaksignore --redact --log-opts ad85fc742994a9dff2e3e9f19f10a0728b2c99fd",
+      "exitCode": 1,
+      "status": "FAIL 138 digest-field matches; source history only"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "api-client-unsandboxed.log",
+      "sha256": "8c1d502e2716e9daf64684be711edc3ab4770d2edafc98d6e978dd2f560c9b14"
+    },
+    {
+      "path": "bff-contract-check.log",
+      "sha256": "3a4232fb91ab658b44e7de739e8b55156f350e72663da2383f7c136aa008a9d5"
+    },
+    {
+      "path": "contract.log",
+      "sha256": "722609b8c419ab180e45a4f13da7e244b189bd5b707b56bd0e1ecb1b9afece2d"
+    },
+    {
+      "path": "f08-summary.json",
+      "sha256": "765d5a9d7af766374d9e4faca97b382926b614454fee7b12188012b029887213"
+    },
+    {
+      "path": "frontend-artifacts.json",
+      "sha256": "d1487856a7d7605dd84b9a9f42cddd7b61e8f169fbea56670a15bb96f47569ce"
+    },
+    {
+      "path": "frontend-ci.json",
+      "sha256": "ce9808b196d20879354aed5fe307d6d3a1efdf20e0d60e614dd15c7cc1d7a1ef"
+    },
+    {
+      "path": "gitleaks-source-summary.json",
+      "sha256": "3333f732931dc8d5dd71ab53c83916407690cb9b41f3a09e9aecbbc54ada6442"
+    },
+    {
+      "path": "gitleaks-source.log",
+      "sha256": "9496ab8a9783a67062883e78a3d603b03901b953e9d85307fa97c874e5b63394"
+    },
+    {
+      "path": "p0.log",
+      "sha256": "781b882256f31d4cc5117829f3c5dc6815cc67fbcd0fdb53c45ca4d7eb77c6c4"
+    },
+    {
+      "path": "provider.json",
+      "sha256": "b39c4288da77824ec99acd520cf86bb033279c58f47973a468090d6a7a56d87b"
+    },
+    {
+      "path": "provider.log",
+      "sha256": "7452b2186676569427c90ec6fd218cd0ad9f3c8e11c379f435b4c1d53bfcb283"
+    },
+    {
+      "path": "quantos-ci.json",
+      "sha256": "c85b39521f0e61f1fd1643d2981b021a62bf32c0eb1006c2832c91533102e337"
+    },
+    {
+      "path": "remote-f06-notes.txt",
+      "sha256": "1c3fcb94e63dd773f35e11dab8cb01a4cf2161455f7b6e698399572186b07209"
+    },
+    {
+      "path": "remote-runs.json",
+      "sha256": "e1a845f8761b37d31bb15ecbd130a49d1540287949f5bfeb482603f2bf0e27ca"
+    },
+    {
+      "path": "rust-bff.log",
+      "sha256": "58e73efa6dcf79c4e111f3ca0b4a85482207f0eab230e95004b86bc395b36eff"
+    },
+    {
+      "path": "terminal-browser-report.json",
+      "sha256": "bf1fbfa3bd2e9a3f38d2d07c6541b3e0fe37bbd3be33b7255fe6f83607ee5651"
+    },
+    {
+      "path": "web-coverage.log",
+      "sha256": "1c4c476fb419cb1a1818ebdd75e14adf284135cfddf1789a5704c7a25293c27a"
+    },
+    {
+      "path": "website-browser-report.json",
+      "sha256": "54ada93607777311db0ad1a84a5d2da3aa029ae897b9e5a8fae1a3f4ca0e7dd9"
+    }
+  ]
+}

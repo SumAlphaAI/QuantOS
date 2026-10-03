@@ -1,0 +1,71 @@
+node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/playwright-git-history.test.mjs
+✖ complete Linux matrix passes; deletion and pixel tampering fail (129.972292ms)
+✔ acceptance never updates snapshots or skips missing snapshots (0.389792ms)
+✔ only main signing and verification jobs receive the signing environment (10.528125ms)
+✔ signing policy rejects missing protection, wildcards, tags and extra branches (0.205209ms)
+✖ candidate import rejects tampering and stale source before writing, then imports the reviewed matrix (378.32825ms)
+✔ required download check rejects skipped or failed event-specific verification (21.637208ms)
+✔ PR receipts bind the checked out head while main signing stays on the event SHA (3.530917ms)
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+✔ real Gitleaks positive control and GitHub/Slack leaks (1528.481042ms)
+✔ historical digest exceptions do not waive fresh credentials in audit JSON (1066.805167ms)
+✔ RLS baseline rejects policy deletion and late disabling with recovery (166.461291ms)
+✔ migration filename control, rejection and recovery (15.719083ms)
+✔ waivers only authorize exact advisory/ecosystem/package/version before expiry (1.044875ms)
+✔ license expression policy does not globally allow LGPL or unknown licenses (0.318875ms)
+✔ release binds complete payload and SBOM to source; rejects corruption and build-only native files (3.0795ms)
+✔ Buf compares against distinct historical source and detects removed fields (2647.723042ms)
+✔ SCA scanner adapter consumes exact waivers and never waives scanner failures (696.125417ms)
+✔ Playwright PR reporting preserves complete history for downstream security scans (1590.670958ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 15
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6163.822875
+
+✖ failing tests:
+
+test at scripts/f02-a11-gate-negative.mjs:14:1
+✖ complete Linux matrix passes; deletion and pixel tampering fail (129.972292ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-a11-gate-negative.mjs:26:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/f02-a11-gate-negative.mjs:87:1
+✖ candidate import rejects tampering and stale source before writing, then imports the reviewed matrix (378.32825ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-a11-gate-negative.mjs:124:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+make: *** [f02-check] Error 1

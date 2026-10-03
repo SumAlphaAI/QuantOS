@@ -26,6 +26,20 @@ test('real Gitleaks positive control and GitHub/Slack leaks',t=>{
  assert.notEqual(bad.status,0);assert.doesNotMatch(bad.stdout+bad.stderr,/leaks found/i);
  }
 });
+test('historical digest exceptions do not waive fresh credentials in audit JSON',t=>{
+ const d=fixture(t);pass(run('git',['init','-q'],d));
+ const dir=path.join(d,'docs/audit/evidence/secret-probe');fs.mkdirSync(dir,{recursive:true});
+ const file=path.join(dir,'manifest.json');
+ const commit=()=>{pass(run('git',['add','.'],d));pass(run('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture'],d));};
+ const scan=()=>run('bash',[path.join(repo,'scripts/check-secrets.sh')],repo,{QUANTOS_GATE_ROOT:d});
+ fs.writeFileSync(file,JSON.stringify({scope:'public fixture'},null,2)+'\n');commit();pass(scan());
+ // A hex credential can resemble a digest. Only reviewed immutable fingerprints
+ // are waived; neither an audit path nor a 64-character hex value is sufficient.
+ fs.writeFileSync(file,JSON.stringify({api_key:sha(Buffer.from('synthetic generic credential control'))},null,2)+'\n');commit();
+ reject(scan(),/leaks found/i);
+ fs.writeFileSync(file,JSON.stringify({openapiDigest:sha(Buffer.from('unreviewed digest control'))},null,2)+'\n');commit();
+ reject(scan(),/leaks found/i);
+});
 test('RLS baseline rejects policy deletion and late disabling with recovery',t=>{
  const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});
  const f=path.join(dir,'20260101000000_baseline.sql');

@@ -1,0 +1,69 @@
+{
+  "schema": "quantos-bff-ci-receipt-remediation/v1",
+  "sourceParentCommit": "ad85fc742994a9dff2e3e9f19f10a0728b2c99fd",
+  "scope": "precommit engineering fixes; postcommit target receipts stored in Git notes",
+  "checks": {
+    "secretScan": "PASS",
+    "secretControls": "2/2 PASS",
+    "bffRuff": "PASS 17 issues closed",
+    "bffContractSuite": "PASS",
+    "f06Preflight": "READY_FOR_LIVE_VALIDATION",
+    "fullRuff": "FAIL 779 other findings",
+    "f02Full": "FAIL 15/17; two visual fixture failures",
+    "p0F06FinalReceipt": "POST_COMMIT_EXECUTION_REQUIRED"
+  },
+  "runners": [
+    {
+      "path": "docs/audit/evidence/bff-fe-000-remediation-20261003/run-checks.py",
+      "originalPath": "docs/audit/evidence/bff-fe-000-remediation-20261003/run-checks.original.py.txt",
+      "originalSha256": "2f2a04e7770d34e3c371d6cc81dd6db8fbb62cecd2bbccaf7b05314d59368197",
+      "currentSha256": "2ff6de35329a61d0ce43d414f50fd08077cdc222c8aeae30b1998b05556e149a",
+      "normalizedAstEquivalent": true
+    },
+    {
+      "path": "docs/audit/evidence/bff-fe-000-review-stage-20261003/run-checks.py",
+      "originalPath": "docs/audit/evidence/bff-fe-000-review-stage-20261003/run-checks.original.py.txt",
+      "originalSha256": "0c6d7cd781a9a02987d4c815bc85de0aec2a3265895d1134048eb2df5ee93b63",
+      "currentSha256": "e4658a856080092bca14d5516c45e93ff4410be4158c7e39e67e387953a5f6bf",
+      "normalizedAstEquivalent": true
+    }
+  ],
+  "evidence": [
+    {
+      "path": "bff-suite.log",
+      "sha256": "883cffafe7cb72b634ab2b46da8b59b249641d532da78c437fc9027e379b994c"
+    },
+    {
+      "path": "digest-exceptions.json",
+      "sha256": "64386ee4988bbb4cb938b5ce1fa03ea244d416f61f924810bb28382d151e9dd1"
+    },
+    {
+      "path": "f02-negative.log",
+      "sha256": "49c428f3299205f0aebbfcf76ff07197fbc84ee3e34f55abe28b1bab8788ae73"
+    },
+    {
+      "path": "f06-preflight.log",
+      "sha256": "2e8cb65bfd9db1e6b079e49da4538133c3cf6d93d65b5b45923e122814df9079"
+    },
+    {
+      "path": "ruff-all.json",
+      "sha256": "87545cbceb22bf938a6fb816b377403c5cb48ec421e4d2ac56ed27243c9b6415"
+    },
+    {
+      "path": "ruff-bff.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "ruff-format.log",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "secret-negative.log",
+      "sha256": "3b029e0d25772817e7152415cf74cad094899a8dcd708118740a7183127e82b0"
+    },
+    {
+      "path": "secrets-fixed.log",
+      "sha256": "f482270c44101f73d8a0627668fc29dbe45680b40f98c1e9b2cd1ad2dce51c62"
+    }
+  ]
+}

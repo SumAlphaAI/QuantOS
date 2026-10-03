@@ -1,0 +1,902 @@
+{
+  "count": 138,
+  "sha256ShapedLines": 138,
+  "byCommit": {
+    "6587853dc800401f4c9273ae4883b1c475edc1b9": 1,
+    "75a563c62d3d7883d5b178111becec07d4da0301": 4,
+    "0149e5681fde7c6b75f891f6708d63726f075fc9": 19,
+    "4433f1e6b04f0c917e19fb33a90dbb6c38374a18": 16,
+    "2b768b65b5fd95af846bd2b9a9ee29da19300bb7": 32,
+    "16f34747c1b6232a0b2ef10ee15c04383f6f846c": 3,
+    "ed388cba53ee79d189ebd8ef9323c49216ba19b8": 7,
+    "982a37c143110100aeffd0b9d427dfce8ed9d135": 23,
+    "cb729db7497b25b0e6e1a6a02a4699287ae8172e": 13,
+    "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1": 12,
+    "b3afbfba2b0c1367859961499bc71fc498275ee5": 2,
+    "c5347357ab518b4d58cb57bda93bbe5d8a0dfb5f": 4,
+    "199eb8f9b5ae4792d98919e0d793349490e2eb6e": 2
+  },
+  "byFile": {
+    "docs/PRE-04-inventory-baseline.json": 2,
+    "docs/audit/evidence/p0-preparation-remediation-20261002/source-0149e56/manifest.json": 4,
+    "docs/audit/evidence/p0-preparation-review-20261002/manifest.json": 19,
+    "docs/audit/evidence/pre06-recheck-20261002/manifest.json": 16,
+    "docs/audit/evidence/pre06-remediation-20261002/manifest.json": 16,
+    "docs/audit/evidence/pre06-review-20261002/manifest.json": 16,
+    "docs/audit/evidence/pre04-recheck-20261002/manifest.json": 3,
+    "docs/audit/evidence/pre04-remediation-20261002/manifest.json": 3,
+    "docs/audit/evidence/pre05-review-20261002/manifest.json": 10,
+    "docs/audit/evidence/pre04-review-20261002/manifest.json": 3,
+    "docs/audit/evidence/pre05-recheck-20261002/manifest.json": 13,
+    "docs/audit/evidence/pre05-remediation-20261002/manifest.json": 13,
+    "docs/audit/evidence/pre03-recheck-20261002/manifest.json": 12,
+    "docs/audit/evidence/pre02-recheck-20261002/manifest.json": 2,
+    "docs/audit/evidence/pre02-remediation-20261002/manifest.json": 2,
+    "docs/audit/evidence/pre02-review-20261002/manifest.json": 2,
+    "docs/audit/evidence/r01-remediation-20261002/index.json": 1,
+    "docs/audit/evidence/r01-review-20261002/index.json": 1
+  },
+  "byField": {
+    "openapiDigest": 2,
+    "initial-target-failure/auth-bff.log": 1,
+    "f06-target/auth-bff.log": 1,
+    "f06-target/auth-runtime.log": 1,
+    "web/client-secrets.log": 1,
+    "apps/terminal/app/_components/auth-surface.tsx": 8,
+    "apps/terminal/tests/auth-bff.test.ts": 8,
+    "apps/terminal/tests/auth-poc.test.ts": 8,
+    "apps/terminal/tests/deep-link-auth.test.ts": 8,
+    "docs/PRE-04-openapi-gap-list.md": 6,
+    "docs/adr/20260814-pre02-design-tokens.md": 4,
+    "packages/api-client/tests/api-client.test.ts": 5,
+    "packages/ui/src/tokens/tokens.json": 8,
+    "scripts/check-bff-openapi.mjs": 8,
+    "scripts/check-client-secrets.mjs": 6,
+    "scripts/check-secrets.mjs": 8,
+    "scripts/check-secrets.sh": 8,
+    "scripts/f06-auth-latency-gate.cjs": 7,
+    "scripts/f06-auth-preflight.cjs": 7,
+    "scripts/fixtures/tp01-vibe-sync/api-break.json": 7,
+    "tests/e2e/auth-callback.spec.ts": 5,
+    "tests/e2e/deep-link-reauth.spec.ts": 4,
+    "tests/e2e/ui102-auth.spec.ts": 4,
+    "client-secrets.log": 1,
+    "openapi.log": 5,
+    "auth-runtime-probes.log": 1,
+    "synthetic-secret-terminal-build.log": 1,
+    "synthetic-token-terminal-build.log": 1,
+    "synthetic-token-build.log": 2,
+    "secrets-final.log": 1,
+    "secrets.log": 1
+  },
+  "findings": [
+    {
+      "rule": "generic-api-key",
+      "file": "docs/PRE-04-inventory-baseline.json",
+      "line": 6,
+      "commit": "6587853dc800401f4c9273ae4883b1c475edc1b9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-remediation-20261002/source-0149e56/manifest.json",
+      "line": 22,
+      "commit": "75a563c62d3d7883d5b178111becec07d4da0301"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-remediation-20261002/source-0149e56/manifest.json",
+      "line": 27,
+      "commit": "75a563c62d3d7883d5b178111becec07d4da0301"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-remediation-20261002/source-0149e56/manifest.json",
+      "line": 28,
+      "commit": "75a563c62d3d7883d5b178111becec07d4da0301"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-remediation-20261002/source-0149e56/manifest.json",
+      "line": 40,
+      "commit": "75a563c62d3d7883d5b178111becec07d4da0301"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 201,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 241,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 242,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 243,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 290,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 299,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 335,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 405,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 429,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 430,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 468,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 469,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 499,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 500,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 532,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 624,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 632,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 634,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/p0-preparation-review-20261002/manifest.json",
+      "line": 671,
+      "commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 193,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 233,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 234,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 235,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 299,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 369,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 393,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 394,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 432,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 433,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 463,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 464,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 496,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 588,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 596,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-recheck-20261002/manifest.json",
+      "line": 598,
+      "commit": "4433f1e6b04f0c917e19fb33a90dbb6c38374a18"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 192,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 232,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 233,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 234,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 299,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 369,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 393,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 394,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 432,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 433,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 463,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 464,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 496,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 588,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 596,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-remediation-20261002/manifest.json",
+      "line": 598,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 107,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 147,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 148,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 149,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 215,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 284,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 308,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 309,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 347,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 348,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 378,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 379,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 411,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 496,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 503,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre06-review-20261002/manifest.json",
+      "line": 505,
+      "commit": "2b768b65b5fd95af846bd2b9a9ee29da19300bb7"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre04-recheck-20261002/manifest.json",
+      "line": 93,
+      "commit": "16f34747c1b6232a0b2ef10ee15c04383f6f846c"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre04-recheck-20261002/manifest.json",
+      "line": 180,
+      "commit": "16f34747c1b6232a0b2ef10ee15c04383f6f846c"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre04-recheck-20261002/manifest.json",
+      "line": 211,
+      "commit": "16f34747c1b6232a0b2ef10ee15c04383f6f846c"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre04-remediation-20261002/manifest.json",
+      "line": 89,
+      "commit": "ed388cba53ee79d189ebd8ef9323c49216ba19b8"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre04-remediation-20261002/manifest.json",
+      "line": 176,
+      "commit": "ed388cba53ee79d189ebd8ef9323c49216ba19b8"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre04-remediation-20261002/manifest.json",
+      "line": 200,
+      "commit": "ed388cba53ee79d189ebd8ef9323c49216ba19b8"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 76,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 116,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 117,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 118,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 174,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 175,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 180,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 184,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 223,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-review-20261002/manifest.json",
+      "line": 224,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre04-review-20261002/manifest.json",
+      "line": 103,
+      "commit": "ed388cba53ee79d189ebd8ef9323c49216ba19b8"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre04-review-20261002/manifest.json",
+      "line": 188,
+      "commit": "ed388cba53ee79d189ebd8ef9323c49216ba19b8"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre04-review-20261002/manifest.json",
+      "line": 217,
+      "commit": "ed388cba53ee79d189ebd8ef9323c49216ba19b8"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 88,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 128,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 129,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 130,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 194,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 195,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 233,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 234,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 264,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 265,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 297,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 417,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-recheck-20261002/manifest.json",
+      "line": 443,
+      "commit": "cb729db7497b25b0e6e1a6a02a4699287ae8172e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 86,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 126,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 127,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 128,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 192,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 193,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 231,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 232,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 262,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 263,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 295,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 413,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre05-remediation-20261002/manifest.json",
+      "line": 438,
+      "commit": "982a37c143110100aeffd0b9d427dfce8ed9d135"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 98,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 138,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 139,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 140,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 201,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 269,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 293,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 331,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 332,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 362,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 363,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre03-recheck-20261002/manifest.json",
+      "line": 395,
+      "commit": "2b6c2cec6b0167d4552a560e4e5ccf27a0eadbe1"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/PRE-04-inventory-baseline.json",
+      "line": 6,
+      "commit": "ed388cba53ee79d189ebd8ef9323c49216ba19b8"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre02-recheck-20261002/manifest.json",
+      "line": 136,
+      "commit": "b3afbfba2b0c1367859961499bc71fc498275ee5"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre02-recheck-20261002/manifest.json",
+      "line": 208,
+      "commit": "b3afbfba2b0c1367859961499bc71fc498275ee5"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre02-remediation-20261002/manifest.json",
+      "line": 133,
+      "commit": "c5347357ab518b4d58cb57bda93bbe5d8a0dfb5f"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre02-remediation-20261002/manifest.json",
+      "line": 184,
+      "commit": "c5347357ab518b4d58cb57bda93bbe5d8a0dfb5f"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre02-review-20261002/manifest.json",
+      "line": 101,
+      "commit": "c5347357ab518b4d58cb57bda93bbe5d8a0dfb5f"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/pre02-review-20261002/manifest.json",
+      "line": 133,
+      "commit": "c5347357ab518b4d58cb57bda93bbe5d8a0dfb5f"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/r01-remediation-20261002/index.json",
+      "line": 59,
+      "commit": "199eb8f9b5ae4792d98919e0d793349490e2eb6e"
+    },
+    {
+      "rule": "generic-api-key",
+      "file": "docs/audit/evidence/r01-review-20261002/index.json",
+      "line": 193,
+      "commit": "199eb8f9b5ae4792d98919e0d793349490e2eb6e"
+    }
+  ]
+}
