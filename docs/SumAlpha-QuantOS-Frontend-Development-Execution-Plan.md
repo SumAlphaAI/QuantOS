@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.15
+> 版本：3.16
 > 更新时间：2026-10-03
 > 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
 - `3.15`：按 BFF-FE-000 独立复审修正同源生成、SSE、安全输入、兼容性、语义门禁、mock/provider harness 与文档基线；工程复验与目标 staging/签署分别记账，PROVIDER:A1/G0 尚未关闭。
 
@@ -243,6 +245,7 @@ P0实际准入以 `pnpm check:p0` 校验的当前HEAD外置回执为准，记录
 
 排期基准为 3–4 名前端、1 名 BFF 联调接口人、1 名 QA，2 周一个 Sprint。以下为依赖满足后的相对建议窗口，不是已完成记录或固定交付承诺；外部核心服务未就绪时顺延所有依赖窗口。新增全量 API 前置阶段后不再沿用原 18 周总周期。官网可与同一前端迭代的 Terminal 工作并行。
 
+- A1 分为开发与最后评审：`DEVELOPMENT/FIX_VALIDATION → 本地工程检查 → REVIEW_READY/RE_REVIEW → 真实 staging 验收与联合签署 → ACCEPTED`。开发入口 `pnpm check:bff-a1-development`；最后评审入口 `pnpm check:bff-a1-final-review`。B-01 staging 在开发阶段为 `DEFERRED_TO_FINAL_REVIEW`，不计为开发阻塞或未完成代码；正式检查点和 Integrated/Done/发布仍需真实证据。本轮不调整 A2–A6 的验收范围。
 - 执行顺序：`P0 → A1 → A2 → A3 → A4 → A5 → A6 → I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I9 → CORE-GATE:L4-SERVICE → I10`。
 - P0 的 PREPARATION:P0 检查点通过后进入 A1；A1/provider 后关闭正式 G0 与 FEP-0。G0 的最小冻结面与 A6 的全量 provider Gate 分别验证，二者都必须在新页面开发前满足。
 - `A1–A6` 独立完成全部页面 API 的 OpenAPI、生成 client、实现、授权、安全/错误/幂等/实时恢复及 staging provider 验证；全部 API `review_status=ACCEPTED` 后才启动新的前端页面实现与既有页面真实联调。consumer/UI E2E 和 G1–G8 仍在前端迭代验证，不以前端尚未交付阻塞 provider Gate。
@@ -278,7 +281,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 
 跨计划执行路线：核心F0 → R1服务Gate → TP01服务子范围 → S2服务Gate → X3服务Gate → 本计划A1–A6 provider → I1–I8及核心R1/S2/X3完整Gate → I9/Beta → 核心L4服务准备 → I10/G8 → 核心L03/L04及L4完整Gate。P0可在其已验收依赖满足后提前完成。稳定验收单位定义见[核心计划第2.8节](./SumAlpha-QuantOS-Development-Plan.md#28-跨计划验收单位与证据规则)。
 
-#### 迭代 A1：页面 API provider 验收
+#### 迭代 A1：页面 API 基线开发与最终评审
 
 <a id="task-bff-fe-000"></a>
 ##### BFF-FE-000：页面 BFF OpenAPI 基线
@@ -295,12 +298,12 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - 领域接口背景：F03 有领域 Proto/OpenAPI 生成，但无第一期 22 个 Web Terminal 页面完整 API 清单
 - 覆盖契约/页面：C01–C17；P01–P15/P17–P23
 - 目标阶段与验收：FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI
-- 工程整改复验：[2026-10-03 整改报告](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)；API 1.4.0 / 62 published / 46 planned / 51 schemas；真实 staging 与当期联合签署尚不具备，B-01 保持未验收。
+- 工程整改复验：[2026-10-03 整改报告](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)；API 1.4.0 / 62 published / 46 planned / 51 schemas；B-01 的 staging 执行已移至最后评审，开发阶段标记 `DEFERRED_TO_FINAL_REVIEW`，不再作为开发缺陷或 REVIEW_READY 阻塞；最终 ACCEPTED 仍须目标回执与签署。当前口径见[评审阶段调整记录](./audit/BFF-FE-000-review-stage-policy-2026-10-03.md)。
 
 <a id="acceptance-provider-a1"></a>
 ##### PROVIDER:A1：验收检查点
 
-本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 provider/consumer harness；真实 staging 证据在代码与对应 provider 实现完成后的最后评审执行，必须在 RE_REVIEW → ACCEPTED 前通过。缺 staging 不阻塞开发完成或 REVIEW_READY，但不能关闭本正式检查点；consumer/UI 最终 Gate 独立验收，A1 不提前实现 A2–A6 provider。
 
 ```json
 {
@@ -310,7 +313,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
     "FE:BFF-FE-000",
     "PREPARATION:P0"
   ],
-  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "required_scope": "A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 provider/consumer harness；真实 staging 证据在代码与对应 provider 实现完成后的最后评审执行，必须在 RE_REVIEW → ACCEPTED 前通过。缺 staging 不阻塞开发完成或 REVIEW_READY，但不能关闭本正式检查点；consumer/UI 最终 Gate 独立验收，A1 不提前实现 A2–A6 provider。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": []
@@ -330,7 +333,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 <a id="acceptance-frontend-gate-g0"></a>
 ##### FRONTEND-GATE:G0：验收检查点
 
-上方G0全部原始要求及正式契约冻结、PoC、签署记录关闭，准许进入后续API窗口；新页面仍等待PROVIDER:ALL。
+上方 G0 全部原始要求及正式契约冻结、PoC、签署记录在最后评审关闭；B-01 staging 待执行不阻塞 A1 代码开发或 REVIEW_READY，正式 ACCEPTED 仍要求完整目标回执与签署；后续正式验收顺序保留，新页面仍等待 PROVIDER:ALL。
 
 ```json
 {
@@ -341,7 +344,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
     "PROVIDER:A1",
     "FE:BFF-FE-000"
   ],
-  "required_scope": "上方G0全部原始要求及正式契约冻结、PoC、签署记录关闭，准许进入后续API窗口；新页面仍等待PROVIDER:ALL。",
+  "required_scope": "上方 G0 全部原始要求及正式契约冻结、PoC、签署记录在最后评审关闭；B-01 staging 待执行不阻塞 A1 代码开发或 REVIEW_READY，正式 ACCEPTED 仍要求完整目标回执与签署；后续正式验收顺序保留，新页面仍等待 PROVIDER:ALL。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": []
@@ -1990,7 +1993,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 
 1. **契约设计：** BFF 在实现前提交 OpenAPI/Proto 变更、示例和兼容说明；前端和 QA 在 PR 内评审字段、状态、权限、错误与时序。
 2. **生成与 mock：** CI 生成 TS client、Zod/fixture 类型；MSW 从同一契约提供成功、拒绝、冲突、限流、断流、陈旧与权限场景。
-3. **Provider contract：** BFF 对 OpenAPI 示例运行响应校验；前端 consumer contract 对 staging BFF 运行，不允许仅 mock 通过。
+3. **Provider contract：** 开发阶段运行同源示例、mock 和本地参考 provider 请求/响应校验；A1 的真实 staging consumer/provider 验收在最后评审、转 ACCEPTED 前执行，不作为开发完成或 REVIEW_READY 条件。其他阶段按原 Gate 执行；目标验收不得仅凭 mock 通过。
 4. **功能联调：** 按“单接口 smoke → 页面 query → command → realtime → 审计链 → 故障恢复”的顺序，每个接口记录 owner、环境、版本、证据和遗留项。
 5. **Gate 回归：** 每阶段结束运行该阶段全部场景、全局安全回归和目标浏览器 E2E；契约未通过则阶段不能标为完成。
 
@@ -2070,6 +2073,8 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 | Bundle | 每路由设预算并在 G0 基线化；共享首屏 JS 初始建议 gzip ≤250KB，超限必须 ADR 与拆包证据 |
 
 ### 7.5 阶段完成定义
+
+A1/BFF-FE-000 的 `development_status=COMPLETED` 和 `REVIEW_READY` 依据工程交付与本地验证，真实 staging 不属于此时的完成分母。最后评审在代码和对应 provider 实现就绪后执行 staging 与签署；通过后才能转为正式 `ACCEPTED`。以下 Integrated/Done 与发布条件仍适用。
 
 一个任务只有在代码、单元/组件/契约/E2E、可访问性、文案、观测、文档、联调记录和回滚说明全部完成后才能关闭。使用 mock 完成只可标记 `UI Complete`，只有 staging provider contract、真实权限、实时、错误和审计链通过后才能标记 `Integrated`；所属 Gate 全绿后才是 `Done`。
 

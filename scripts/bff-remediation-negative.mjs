@@ -1,9 +1,25 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import{loadBffFe000Inputs,validateBffFe000}from'./check-bff-fe-000.mjs';
 import{validateCompatibility}from'./bff-compatibility.mjs';import{readFileSync}from'node:fs';
-import{validateA1Receipt}from'./check-bff-a1-acceptance.mjs';
+import{validateA1Receipt,validateA1Stage}from'./check-bff-a1-acceptance.mjs';
 import{createHash}from'node:crypto';
 const current=loadBffFe000Inputs();
+const reviewPolicy=JSON.parse(readFileSync(new URL('../bff/a1-review-policy.json',import.meta.url)));
+test('missing staging permits development readiness and never claims formal acceptance',()=>{
+ const result=validateA1Stage('development',{policy:reviewPolicy,development:{status:'PASS'}});
+ assert.equal(result.status,'PASS');assert.equal(result.stagingStatus,'DEFERRED_TO_FINAL_REVIEW');assert.equal(result.formalAccepted,false);
+ assert.equal(validateA1Stage('final-review',{policy:reviewPolicy}).status,'NOT_ACCEPTED');
+});
+test('stage deferral cannot bypass engineering failures, final receipt requirements or unknown stages',()=>{
+ assert.equal(validateA1Stage('development',{policy:reviewPolicy,development:{status:'FAIL',failures:['schema drift']}}).status,'FAIL');
+ assert.equal(validateA1Stage('release',{policy:reviewPolicy}).status,'FAIL');
+ assert.equal(validateA1Stage('final-review',{policy:{...reviewPolicy,missingStagingBlocksFinalAcceptance:false}}).status,'FAIL');
+ assert.equal(validateA1Stage('development',{policy:{...reviewPolicy,stagingRequiredAt:'development'},development:{status:'PASS'}}).status,'FAIL');
+});
+test('final review command cannot be rewired to the development stage',()=>{
+ const input=structuredClone(current);input.packageJson.scripts['check:bff-a1-final-review']=input.packageJson.scripts['check:bff-a1-development'];
+ assert.equal(validateBffFe000(input).status,'FAIL');
+});
 test('current semantic A1 gate passes',()=>assert.equal(validateBffFe000(current).status,'PASS',JSON.stringify(validateBffFe000(current).failures)));
 const mutants={cookie:i=>{i.openapi.security=[];},idempotency:i=>{i.openapi.components.parameters.IdempotencyKey.required=false;},sort:i=>{i.openapi.components.parameters.Sort.schema.type='integer';},page:i=>{i.catalog.contracts.C03.pages=['P23'];},ci:i=>{i.workflow=i.workflow.replace('run: pnpm check:bff-fe-000 && pnpm test:bff-fe-000','if: false\n        run: pnpm check:bff-fe-000 && pnpm test:bff-fe-000');},decimal:i=>{i.openapi.components.schemas.DecimalValue.type='number';},version:i=>{i.openapi.components.schemas.StreamEvent.properties.payloadVersion={};},csrf:i=>{i.openapi.paths['/v1/commands'].post.parameters=i.openapi.paths['/v1/commands'].post.parameters.filter(p=>!p.$ref.endsWith('/CsrfToken'));}};
 for(const[name,mutate]of Object.entries(mutants))test('rejects '+name+' semantic regression',()=>{const input=structuredClone(current);mutate(input);assert.equal(validateBffFe000(input).status,'FAIL');});
@@ -43,6 +59,8 @@ test('receipt checker binds actual evidence bytes and each role to source and co
  checks:['cookie-session','request-response-schema','csrf-origin','idempotency-version','correlation-audit','sse-recovery-revocation','sensitive-fields'].map(name=>({name,status:'PASS',requestId:'unit-test',evidence:'check.log',logSha256:hash(files.get('check.log'))}))};
  const reader=path=>files.get(path);
  assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'PASS');
+ const final=validateA1Stage('final-review',{policy:reviewPolicy,receipt,sha,inputsDigest:inputs,evidenceReader:reader});
+ assert.equal(final.status,'PASS');assert.equal(final.formalAccepted,true);
  files.set('check.log','tampered');assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'NOT_ACCEPTED');
  files.set('check.log','synthetic unit-test evidence');files.set('QA.json',files.get('QA.json').replace(sha,'c'.repeat(40)));
  assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'NOT_ACCEPTED');

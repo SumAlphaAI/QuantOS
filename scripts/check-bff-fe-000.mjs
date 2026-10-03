@@ -123,6 +123,8 @@ export function validateBffFe000(inputs) {
 
   if (inputs.packageJson.scripts?.["check:bff-fe-000"] !== "node scripts/check-bff-fe-000.mjs") failures.push("package script exposes the BFF-FE-000 Gate");
   if (inputs.packageJson.scripts?.["test:bff-fe-000"] !== "node --test scripts/bff-fe-000-gate-negative.mjs") failures.push("package script exposes BFF-FE-000 negative probes");
+  if (inputs.packageJson.scripts?.["check:bff-a1-development"] !== "node scripts/check-bff-a1-acceptance.mjs --stage development") failures.push("A1 development command selects engineering scope");
+  if (inputs.packageJson.scripts?.["check:bff-a1-final-review"] !== "node scripts/check-bff-a1-acceptance.mjs --stage final-review") failures.push("A1 final review command selects strict target acceptance");
   if (!inputs.apiClientIndex.includes('export { bffZodSchemas } from "./bff-gen/quantos-bff.zod.js"')) failures.push("API client exports generated Zod schemas");
   if (!inputs.makefile.includes("pnpm check:bff-fe-000") || !inputs.makefile.includes("pnpm test:bff-fe-000")) failures.push("Makefile BFF contract Gate runs A1 positive and negative checks");
   if (!inputs.workflow.includes("pnpm check:bff-fe-000 && pnpm test:bff-fe-000")) failures.push("Frontend Baseline CI runs the A1 Gate");

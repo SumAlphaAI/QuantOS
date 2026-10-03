@@ -1,0 +1,124 @@
+[
+  {
+    "name": "development",
+    "command": [
+      "pnpm",
+      "check:bff-a1-development"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.23,
+    "log": "development.log"
+  },
+  {
+    "name": "final-review",
+    "command": [
+      "pnpm",
+      "check:bff-a1-final-review"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 1,
+    "result": "EXPECTED_REFUSAL",
+    "elapsedSeconds": 0.17,
+    "log": "final-review.log"
+  },
+  {
+    "name": "legacy-final-review",
+    "command": [
+      "pnpm",
+      "check:bff-a1-acceptance"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 1,
+    "result": "EXPECTED_REFUSAL",
+    "elapsedSeconds": 0.18,
+    "log": "legacy-final-review.log"
+  },
+  {
+    "name": "invalid-stage",
+    "command": [
+      "node",
+      "scripts/check-bff-a1-acceptance.mjs",
+      "--stage",
+      "unknown"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 1,
+    "result": "EXPECTED_REFUSAL",
+    "elapsedSeconds": 0.03,
+    "log": "invalid-stage.log"
+  },
+  {
+    "name": "bff-suite",
+    "command": [
+      "make",
+      "bff-contract-check"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 4.11,
+    "log": "bff-suite.log"
+  },
+  {
+    "name": "plans",
+    "command": [
+      "pnpm",
+      "check:development-plans"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.15,
+    "log": "plans.log"
+  },
+  {
+    "name": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.27,
+    "log": "plans-negative.log"
+  },
+  {
+    "name": "pre06",
+    "command": [
+      "pnpm",
+      "check:pre06"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.91,
+    "log": "pre06.log"
+  },
+  {
+    "name": "pre06-negative",
+    "command": [
+      "pnpm",
+      "test:pre06"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 1.5,
+    "log": "pre06-negative.log"
+  },
+  {
+    "name": "g0",
+    "command": [
+      "pnpm",
+      "check:g0-records"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "result": "PASS",
+    "elapsedSeconds": 0.14,
+    "log": "g0.log"
+  }
+]

@@ -56,6 +56,7 @@ development-plan-check:
 .PHONY: development-plan-check
 
 bff-contract-check:
+	pnpm check:bff-a1-development
 	pnpm check:bff-compatibility
 	pnpm test:bff-remediation
 	pnpm check:bff-openapi

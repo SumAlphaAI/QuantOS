@@ -49,6 +49,6 @@ export function validateA1Semantics(openapi,catalog,policy,workflow) {
    check(Boolean(op?.responses?.['200']?.headers?.ETag),`${id} ETag is published`);
  }
  const active=command=>Object.values(workflow.jobs??{}).some(job=>job.if===undefined&&!job['continue-on-error']&&(job.steps??[]).some(step=>step.if===undefined&&!step['continue-on-error']&&String(step.run??'').split(/\s*&&\s*|\n/).map(s=>s.trim()).includes(command)));
- for(const command of ['pnpm check:bff-fe-000','pnpm test:bff-fe-000','pnpm check:bff-compatibility','pnpm test:bff-remediation'])check(active(command),`active CI step ${command}`);
+ for(const command of ['pnpm check:bff-fe-000','pnpm test:bff-fe-000','pnpm check:bff-a1-development','pnpm check:bff-compatibility','pnpm test:bff-remediation'])check(active(command),`active CI step ${command}`);
  return failures;
 }

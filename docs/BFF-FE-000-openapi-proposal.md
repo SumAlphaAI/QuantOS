@@ -2,7 +2,7 @@
 
 > 更新：2026-10-03；规范：[OpenAPI](../bff/openapi/quantos-bff.v1.yaml)，OpenAPI 3.1 / API 1.4.0 / 62 operations / 51 schemas。
 > 命名：[catalog](../bff/page-operation-catalog.yaml)，C01–C17 / 一期 22 页 / 62 published + 46 planned；P16 为二期。
-> 工程 Gate：`make bff-contract-check`；实际阶段验收：`pnpm check:bff-a1-acceptance`。
+> 开发 Gate：`pnpm check:bff-a1-development` / `make bff-contract-check`；最后评审验收：`pnpm check:bff-a1-final-review`。
 
 ## 范围与联调
 
@@ -26,10 +26,12 @@ MSW resolver 经同源请求/响应 validator 包装，Cookie 认证、CSRF、�
 
 ## 验收回执
 
-当前用户已确认 staging 与签署尚不具备，PROVIDER:A1/G0 保持 NOT_STARTED，无当前 source_commit/evidence。不得把工程 Gate PASS 写作正式阶段通过。回执准备完成后按以下步骤关闭 B-01：
+按 2026-10-03 用户要求，B-01 真实 staging 验收移至最后评审（代码与对应 provider 实现完成后、RE_REVIEW → ACCEPTED 前）。开发阶段运行工程 Gate，staging 标为 DEFERRED_TO_FINAL_REVIEW；无需提供真实环境资料即可完成代码开发、修复验证并进入 REVIEW_READY。正式 PROVIDER:A1/G0 仍保持 NOT_STARTED，不把延期写作目标 PASS。阶段策略见 [调整记录](./audit/BFF-FE-000-review-stage-policy-2026-10-03.md)与 [机器策略](../bff/a1-review-policy.json)。到最后评审时按以下步骤关闭目标验收项：
 
 1. 先固定待验收的完整 source SHA，并计算 OpenAPI 原始字节与生成 Zod 原始字节按此顺序拼接后的 SHA-256（inputsDigest）。在该 SHA 的实际 staging 部署上验证 Cookie session、请求/响应 schema、CSRF/Origin、幂等/版本、correlation/审计、SSE 恢复/权限撤销、敏感字段七类检查；每项保留 requestId、原始日志文件及 SHA-256。
 2. 创建 `schema=quantos-bff-a1-acceptance/v1` 的 JSON：sourceCommit、inputsDigest、status=PASS、environment=staging、实际 HTTPS baseUrl；checks 数组各有 name/status/requestId/evidence/logSha256。evidence 指向 docs/audit/evidence 下真实日志，不写 Cookie/token/数据库凭据。
 3. 当前 Product/Frontend/BFF/QA/Security/Risk/Domain 各自签署角色回执。每份 `schema=quantos-g0-role-signoff/v1` 含 approved=true、sourceCommit、inputsDigest、role、identity、signedAt。主回执 signatures 含相同 role/identity/sourceCommit/signedAt、receipt 路径与 receiptSha256；这记录组织确认，不声称具备公钥密码学签名。
-4. 保存主回执到 `docs/audit/evidence/bff-a1-staging-acceptance.json`，或通过 QUANTOS_BFF_A1_RECEIPT 指向文件，运行 `pnpm check:bff-a1-acceptance`。门禁校验当前 HEAD/输入摘要、七类证据文件哈希和七角色回执。缺文件、假域名、错误 SHA、修改证据或缺签署一律 NOT_ACCEPTED。
+4. 保存主回执到 `docs/audit/evidence/bff-a1-staging-acceptance.json`，或通过 QUANTOS_BFF_A1_RECEIPT 指向文件，运行 `pnpm check:bff-a1-final-review`。门禁校验当前 HEAD/输入摘要、七类证据文件哈希和七角色回执。缺文件、假域名、错误 SHA、修改证据或缺签署一律 NOT_ACCEPTED。
 5. 只有完整目标证据与签署获复核后才能更新 PROVIDER:A1/G0 记录；新提交重新验收。配置数据库相关验证仅连接工程已配置的 Supabase PostgreSQL，另存实际执行回执。
+
+开发检查输出 `scope=engineering baseline only`、`formalAccepted=false` 与 `stagingStatus=DEFERRED_TO_FINAL_REVIEW`；缺真实回执不影响该工程检查，但代码/契约退化仍失败。最后评审命令继续验证真实证据、完整 SHA、输入摘要、证据哈希与七角色回执，缺任一项返回 NOT_ACCEPTED。旧 `pnpm check:bff-a1-acceptance` 仍严格执行最后评审，供历史规程兼容使用，不接入开发 CI。
