@@ -21,7 +21,10 @@
     ".github/workflows/frontend-baseline.yml",
     ".gitattributes",
     "scripts/",
-    ".github/workflows/"
+    ".github/workflows/",
+    "env/",
+    "tsconfig.base.json",
+    "eslint.config.mjs"
   ],
   "checks": {
     "f01": {
@@ -497,7 +500,8 @@
         "scripts/*json-schema*",
         "scripts/tests/*proto*",
         "scripts/tests/*json-schema*",
-        "tools/proto-json-codegen/"
+        "tools/proto-json-codegen/",
+        "engines/engine-sdk/"
       ],
       "checks": [
         "proto",
@@ -711,6 +715,13 @@
         "receipt-negative",
         "db-visibility"
       ]
+    }
+  },
+  "developmentProfile": {
+    "file": "env/local-mock.env.example",
+    "overrides": {
+      "NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN": "http://localhost:3190",
+      "NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI": "http://localhost:3190/auth/callback"
     }
   }
 }

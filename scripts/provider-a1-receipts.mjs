@@ -6,6 +6,7 @@ import {execFileSync,spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {gunzipSync} from 'node:zlib';
 import {pathToFileURL} from 'node:url';
+import {parseEnv} from 'node:util';
 import {validatePlans} from './check-development-plans.mjs';
 export const root=resolve(import.meta.dirname,'..');
 export const digest=bytes=>'sha256:'+createHash('sha256').update(bytes).digest('hex');
@@ -38,13 +39,19 @@ function matches(path,selector){if(selector.endsWith('/'))return path.startsWith
 export function inventory(selectors,base=root) {
  const paths=[...new Set(execFileSync('git',['ls-files','--cached','--others','--exclude-standard'],{cwd:base,encoding:'utf8'}).trim().split('\n'))].filter(p=>p&&selectors.some(s=>matches(p,s))).sort();
  for(const selector of selectors)assert(paths.some(p=>matches(p,selector)),`missing required input selector ${selector}`);
- return paths.map(path=>({path,role:path.startsWith('bff/')||path.startsWith('proto/')?'contract':/test|fixture|negative|mutation/.test(path)?'test':/\.(json|ya?ml|toml)$|lock$|Makefile|nvmrc/.test(path)?'config':'code',sha256:digest(readFileSync(confined(path,base)))}));
+ return paths.map(path=>({path,role:path.startsWith('bff/')||path.startsWith('proto/')?'contract':/test|fixture|negative|mutation/.test(path)?'test':/^env\/|^eslint\.config\.|\.(json|ya?ml|toml)$|lock$|Makefile|nvmrc|version$/.test(path)?'config':'code',sha256:digest(readFileSync(confined(path,base)))}));
 }
 export function captureInputs(nodes,selected,p=policy(),base=root) {
  return new Map(selected.map(id=>[id,{planInput:planInput(nodes.get(id)),inputs:inventory([...p.commonInputs,...p.nodes[id].inputs],base)}]));
 }
 export function assertInputSnapshot(before,after) {
  assert.deepEqual(after,before,'functional inputs changed during execution; rerun on committed source');
+}
+export function developmentEnvironment(template,overrides={},base=process.env) {
+ const vars=parseEnv(template);
+ assert([...Object.keys(vars),...Object.keys(overrides)].every(k=>k.startsWith('NEXT_PUBLIC_')),'development profile must contain public variables only');
+ const privateEnv=Object.fromEntries(Object.entries(base).filter(([k])=>!k.startsWith('NEXT_PUBLIC_')));
+ return {...privateEnv,...vars,...overrides,QUANTOS_CLIENT_PROFILE:'mock',QUANTOS_RUN_F09_POSTGRES_TESTS:'0'};
 }
 export function policy(base=root){return JSON.parse(readFileSync(resolve(base,'scripts/provider-a1-policy.json'),'utf8'));}
 export function validateReceipt(id,{nodes=nodesFromPlans(),base=root,record,visited=new Set(),requireReady=true}={}) {
@@ -74,9 +81,9 @@ export function publishStages(text,nodes,namespace) {
 export function assess() {
  assert.equal(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim(),'','commit source before recording functional execution');
  const texts=planPaths.map(p=>readFileSync(resolve(root,p),'utf8'));const nodes=nodesFromPlans(texts);const selected=closure(nodes);const p=policy();const initialInputs=captureInputs(nodes,selected,p);const out=resolve(root,directory);mkdirSync(resolve(out,'logs'),{recursive:true});
- const source=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();const environment={node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),rust:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim(),platform:process.platform};
+ const source=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();const environment={node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),rust:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,clientProfile:'local-mock'};
  const all=[...new Set(selected.flatMap(id=>p.nodes[id].checks))].sort((a,b)=>Number(Boolean(p.checks[b].target))-Number(Boolean(p.checks[a].target)));const results=new Map();
- for(const id of all){const spec=p.checks[id];const env={...process.env,QUANTOS_CLIENT_PROFILE:'mock',QUANTOS_SKIP_ENV:'1',QUANTOS_RUN_F09_POSTGRES_TESTS:'0'};let external;
+ for(const id of all){const spec=p.checks[id];const env=developmentEnvironment(readFileSync(confined(p.developmentProfile.file),'utf8'),p.developmentProfile.overrides);let external;
   if(spec.database){process.loadEnvFile(resolve(root,'.env.local'));Object.assign(env,process.env);env.QUANTOS_RUN_F05_POSTGRES_TESTS='1';const url=new URL(env.DATABASE_URL);assert(url.hostname.endsWith('.supabase.com'),'only configured Supabase database permitted');}
   let command=spec.command.map(c=>c==='node'?process.execPath:c);
   if(spec.target){external=mkdtempSync(resolve(tmpdir(),'quantos-a1-f06-'));command.push(external);}

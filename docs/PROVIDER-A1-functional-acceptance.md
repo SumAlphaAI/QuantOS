@@ -2,7 +2,7 @@
 
 依据执行计划第 2.1 节，在 DEVELOPMENT 对当前实现与依赖闭包生成内容绑定回执，发布性能、长稳、staging、同 SHA 托管 CI 和联合签署由 RELEASE 收口。
 
-`pnpm assess:provider-a1` 从干净源码提交执行 `scripts/provider-a1-policy.json` 的全部必需命令，记录日志、环境、输入清单、依赖清单、范围和遗留项；当前检查点闭包共 14 节点。测试失败即停止，不发布 READY。实际数据库检查只读取 `.env.local` 的既有 Supabase 配置；F05 只做八项数据/租约/幂等恢复功能检查，F06 使用既有目标入口，不执行 provision、migration/reset 或本地数据库。F06 在写入本轮审计日志之前运行，以满足其干净源码要求。
+`pnpm assess:provider-a1` 从干净源码提交执行 `scripts/provider-a1-policy.json` 的全部必需命令，记录日志、环境、输入清单、依赖清单、范围和遗留项；当前检查点闭包共 14 节点。独立命令继续记录执行结果，任何失败都阻止 READY。实际数据库检查只读取 `.env.local` 的既有 Supabase 配置；Web 构建使用受控 `env/local-mock.env.example` 公开变量与 3190 callback 覆盖，不写入本地环境文件。F05 只做八项数据/租约/幂等恢复功能检查，F06 使用既有目标入口，不执行 provision、migration/reset 或本地数据库。F06 在写入本轮审计日志之前运行，以满足其干净源码要求。
 
 所有执行通过后自底向上写入 stage_gate：manifest 全文 SHA-256 作为 input_digest，evidence 指向本节点 manifest。只有这次经内容与结果校验的节点获得 READY；不迁移历史正式 ACCEPTED 或 notes。`observedSourceCommit` 表示执行时源码提交。其后文档和 stage_gate 更新不改变受检代码；输入摘要与规范要求投影会验证代码/契约/配置/测试和依赖回执是否仍适用，而不是伪造最终文档提交的同 SHA formal receipt。
 
@@ -13,3 +13,5 @@
 数据库未执行不得记 PASS。默认 Cargo 忽略 real_logout_db_write_matches_persistent_trace；正式 F09 runner 显式选择 --ignored 且要求目标 opt-in。A1 的独立状态探针仅确认未授权显式运行会失败，不执行该数据库 case。
 
 原始报告与失败证据保留在 docs/audit/PROVIDER-A1-comprehensive-review-2026-10-04.md；整改状态另行登记。整个回执只授权功能前置，不授权正式发布或 staged 部署。
+
+执行开始前与结束后核对输入清单、规范要求和源码提交；期间输入发生变化即拒绝回执。远程 F06 DEVELOPMENT HTTP 探针显式采用 60 秒传输等待上限，允许值限定 15–60 秒且记录实际耗时；默认独立探针仍为 15 秒。等待上限不构成性能/P95 验收，正式延迟要求由 RELEASE 单独评估。

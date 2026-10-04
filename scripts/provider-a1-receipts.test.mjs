@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 import {gzipSync} from 'node:zlib';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot} from './provider-a1-receipts.mjs';
+import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot,developmentEnvironment} from './provider-a1-receipts.mjs';
 function fixture(fn){const base=mkdtempSync(resolve(tmpdir(),'quantos-stage-receipt-'));try{
  execFileSync('git',['init','-q'],{cwd:base});mkdirSync(resolve(base,'scripts'));mkdirSync(resolve(base,directory,'logs'),{recursive:true});writeFileSync(resolve(base,'code.ts'),'trusted code');
  const spec={scope:'implemented functionality only',inputs:['code.ts'],checks:['actual']};const p={commonInputs:['scripts/provider-a1-policy.json'],excluded:['release'],nodes:{child:spec,parent:spec},checks:{actual:{command:['node','run.mjs'],marker:'ACTUAL_PASS'}}};writeFileSync(resolve(base,'scripts/provider-a1-policy.json'),JSON.stringify(p));const nodes=new Map([['child',{id:'child',dependencies:[]}],['parent',{id:'parent',dependencies:['child']}]]);
@@ -43,3 +43,11 @@ test('requirement drift during execution invalidates the original input snapshot
  const p=JSON.parse(readFileSync(resolve(f.base,'scripts/provider-a1-policy.json')));const before=captureInputs(f.nodes,['child','parent'],p,f.base);
  f.nodes.get('child').requirements=['new acceptance scope'];assert.throws(()=>assertInputSnapshot(before,captureInputs(f.nodes,['child','parent'],p,f.base)),/changed during execution/);
 }));
+
+test('controlled public development profile overrides stale values and preserves server inputs',()=>{
+ const env=developmentEnvironment('NEXT_PUBLIC_QUANTOS_ENV=local-mock\nNEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN=http://localhost:3100',{NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN:'http://localhost:3190'},{DATABASE_URL:'private-fixture',NEXT_PUBLIC_QUANTOS_ENV:'staging',NEXT_PUBLIC_UNDECLARED:'stale'});
+ assert.equal(env.NEXT_PUBLIC_QUANTOS_ENV,'local-mock');assert.equal(env.NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN,'http://localhost:3190');assert.equal(env.DATABASE_URL,'private-fixture');assert.equal(env.NEXT_PUBLIC_UNDECLARED,undefined);
+});
+test('private credentials cannot be injected through a public development profile',()=>{
+ assert.throws(()=>developmentEnvironment('DATABASE_URL=private'),/public variables only/);assert.throws(()=>developmentEnvironment('NEXT_PUBLIC_QUANTOS_ENV=local-mock',{PRIVATE_TOKEN:'private'}),/public variables only/);
+});
