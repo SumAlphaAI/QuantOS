@@ -7,6 +7,7 @@ const { Client } = require('pg');
 
 const assert = (condition, message) => { if (!condition) throw Error(message); };
 const origin = 'https://f06-runtime-local-smoke.invalid';
+let diagnosticPhase = 'configuration';
 
 async function assertIsolatedIdleRuntime() {
   assert(process.env.QUANTOS_F06_ISOLATED_PROJECT === '1', 'confirmed isolated project flag is required');
@@ -75,7 +76,9 @@ async function main() {
   for (const name of ['SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY',
     'QUANTOS_BFF_DATABASE_URL', 'QUANTOS_RUNTIME_DATABASE_URL', 'QUANTOS_F06_TEST_EMAIL',
     'QUANTOS_F06_TEST_PASSWORD']) assert(process.env[name], `${name} is required`);
+  diagnosticPhase = 'target-idle-check';
   await assertIsolatedIdleRuntime();
+  diagnosticPhase = 'supabase-auth-login';
   const login = await fetch(new URL('/auth/v1/token?grant_type=password', process.env.SUPABASE_URL), {
     method: 'POST',
     headers: { apikey: process.env.SUPABASE_PUBLISHABLE_KEY, 'content-type': 'application/json' },
@@ -94,7 +97,9 @@ async function main() {
   });
   let runtime;
   try {
+    diagnosticPhase = 'bff-startup';
     await ready(bff, '/v1/session', 401);
+    diagnosticPhase = 'bff-session-establish';
     const established = await fetch(`${bff.base}/v1/auth/session`, {
       method: 'POST', headers: { origin, authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(15000),
@@ -109,29 +114,36 @@ async function main() {
       // Authorized for this isolated smoke only; never persist this key as Runtime configuration.
       QUANTOS_RUNTIME_STORAGE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     });
+    diagnosticPhase = 'runtime-startup';
     await ready(runtime, '/healthz', 204);
     const runPath = `/v1/runtime/runs/${crypto.randomUUID()}`;
     const request = (route, options = {}) => fetch(`${runtime.base}${route}`, {
       ...options, signal: AbortSignal.timeout(15000),
     });
+    diagnosticPhase = 'runtime-missing-cookie';
     const missing = await request(runPath);
     assert(missing.status === 401, 'Runtime accepted a missing BFF cookie');
+    diagnosticPhase = 'runtime-authenticated-read';
     const authorized = await request(runPath, { headers: { cookie } });
     assert(authorized.status === 404, 'Runtime did not load the BFF identity before hiding an unknown run');
+    diagnosticPhase = 'runtime-origin-denial';
     const wrongOrigin = await request('/v1/runtime/sessions', {
       method: 'POST', headers: { cookie, origin: 'https://other.invalid' },
     });
     assert(wrongOrigin.status === 403, 'Runtime accepted a foreign Origin');
+    diagnosticPhase = 'runtime-role-denial';
     const deniedRole = await request('/v1/runtime/tools', {
       method: 'POST', headers: { cookie, origin, 'content-type': 'application/json' },
       body: JSON.stringify({ tool_name: 'runtime.fixture', capability: 'research.write',
         description: 'denial probe', max_cost_units: 1, rate_limit_per_minute: 1, enabled: true }),
     });
     assert(deniedRole.status === 403, 'non-owner Runtime identity registered a tool');
+    diagnosticPhase = 'bff-logout';
     const logout = await fetch(`${bff.base}/v1/auth/logout`, {
       method: 'POST', headers: { origin, cookie, 'x-csrf-token': csrf }, signal: AbortSignal.timeout(15000),
     });
     assert(logout.status === 204, 'BFF logout failed');
+    diagnosticPhase = 'runtime-revocation-read';
     const revoked = await request(runPath, { headers: { cookie } });
     assert(revoked.status === 401, 'Runtime accepted a revoked BFF cookie');
     console.log(JSON.stringify({ status: 'PASS', target: 'isolated_supabase_local_runtime',
@@ -149,6 +161,6 @@ async function main() {
 }
 
 main().catch(error => {
-  console.error(`F06 Runtime live smoke failed: ${error.message}`);
+  console.error(`F06 Runtime live smoke failed [${diagnosticPhase}]: ${error.message}`);
   process.exitCode = 1;
 });
