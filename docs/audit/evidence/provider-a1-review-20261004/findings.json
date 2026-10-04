@@ -1,0 +1,85 @@
+{
+  "schema": "quantos-provider-a1-audit-findings/v1",
+  "counts": {
+    "阻塞级": 1,
+    "高危": 1,
+    "中危": 3,
+    "低危": 1
+  },
+  "findings": [
+    {
+      "id": "B-01",
+      "severity": "阻塞级",
+      "module": "PROVIDER:A1 / FE:BFF-FE-000 / PREPARATION:P0 阶段依赖",
+      "symptom": "两项直接依赖及递归闭包尚无功能 READY 回执，PROVIDER:A1 为 NOT_ASSESSED/null/[]",
+      "impact": "不能作为 BFF-FE-001/BFF-FE-002/PROVIDER:A2/G0 等后续节点的已通过前置",
+      "evidence": [
+        "dependency-stage-snapshot.json"
+      ],
+      "boundary": "阻塞阶段准入，不因缺 staging 阻塞继续开发；历史 ACCEPTED 不自动迁移"
+    },
+    {
+      "id": "H-01",
+      "severity": "高危",
+      "module": "C10 reference create_export / cancel_export",
+      "symptom": "同键不同内容或不同资源返回旧 202 结果；第二个取消返回第一个 exportId",
+      "impact": "参考业务行为违背已冻结幂等契约，消费者重试/取消与审计断言可能被错误训练为通过",
+      "evidence": [
+        "independent-http-probes.json",
+        "independent-probes.mjs"
+      ],
+      "boundary": "仅 reference provider 已复现；live router 未挂载 C10，不宣称生产漏洞"
+    },
+    {
+      "id": "M-01",
+      "severity": "中危",
+      "module": "阶段功能验收入口 / 输入清单校验",
+      "symptom": "缺 PROVIDER:A1 完整范围聚合和输入内容校验；静态计划校验可接受任意格式正确摘要及不相关现存文档",
+      "impact": "手工更新 READY 若只依赖静态校验，无法证明代码/配置/测试/依赖内容与回执绑定",
+      "evidence": [
+        "stage-binding-probe.json",
+        "dependency-stage-snapshot.json"
+      ],
+      "boundary": "静态校验器明确不校验内容；当前没有错误 READY，仅新阶段规程尚未闭环"
+    },
+    {
+      "id": "M-02",
+      "severity": "中危",
+      "module": "provider contract harness / Rust negative regression / CI",
+      "symptom": "既有 provider 17 项集成测试与正向 HTTP harness 全绿，本轮导出意图冲突和近期认证跨域预检仍失败",
+      "impact": "schema 或静态 PASS 无法阻止已实现功能在业务语义和浏览器边界退化",
+      "evidence": [
+        "rust-reference.log",
+        "reference-http.json",
+        "independent-http-probes.json",
+        "live-cors-probe.log"
+      ],
+      "boundary": "现有 CI 接线存在；缺少这些断言，不是缺少所有 provider CI"
+    },
+    {
+      "id": "M-03",
+      "severity": "中危",
+      "module": "live Router CorsLayer / C01/C17 recent-auth consumer",
+      "symptom": "Access-Control-Allow-Headers 未含 X-Reauth-Token-Ref，而 consumer 和 live recent() 均依赖它",
+      "impact": "Terminal/BFF 跨域时会话撤销、设备撤销、MFA 安全操作请求在预检被浏览器阻止",
+      "evidence": [
+        "live-cors-source-fragment.txt",
+        "live-cors-probe.rs",
+        "live-cors-probe.log"
+      ],
+      "boundary": "源码中的 CorsLayer 在空 Router 上执行；不是完整 Supabase/browser/staging 链路验收"
+    },
+    {
+      "id": "L-01",
+      "severity": "低危",
+      "module": "live/f09_live_tests.rs 测试执行状态",
+      "symptom": "QUANTOS_RUN_F09_POSTGRES_TESTS 非 1 时直接 return，Rust 将未执行的 real DB case 显示为 ok",
+      "impact": "只阅读 cargo 汇总可能误把没有 DB 执行当成 DB 通过",
+      "evidence": [
+        "rust-reference.log",
+        "environment.json"
+      ],
+      "boundary": "本轮 DB NOT_RUN；不推断独立 F09 正式 Gate 已可绕过"
+    }
+  ]
+}

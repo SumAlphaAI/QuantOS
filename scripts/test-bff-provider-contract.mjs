@@ -16,11 +16,12 @@ const child=spawn(resolve(root,'target/debug/bff-gateway'),[],{cwd:root,env:{...
 const records=[];let reauth;let challenge;let exportId;let profileVersion='profile-v1';let notificationVersion='notifications-v1';
 const uuid='aaaaaaaa-1111-4111-8111-111111111111';
 const base=`http://127.0.0.1:${port}`;
-async function call(id,bodyOverride,unsafe=false,expectedStatus) {
+async function call(id,bodyOverride,unsafe=false,expectedStatus,overrides={}) {
  const op=operations.get(id);const params={};
  const path=op.path.replace(/\{([^}]+)\}/g,(_,name)=>params[name]=({sessionId:'session-remote',deviceId:'device-remote',factorId:'factor-totp',correlationId:uuid,exportId:exportId??'eeeeeeee-1111-4111-8111-111111111111'})[name]??uuid);
  const headers={cookie:'quantos_session=session-current; quantos_csrf=csrf-token-0000000000000001',Origin:'http://localhost:3190','X-CSRF-Token':'csrf-token-0000000000000001','X-Request-Id':randomUUID(),'Idempotency-Key':randomUUID(),'X-Reauth-Token-Ref':reauth??uuid,'If-Match':id==='saveNotificationPrefs'?notificationVersion:profileVersion};
  const body=bodyOverride??op.requestBody?.content['application/json'].example;
+ Object.assign(headers,overrides);
  if(body!==undefined)headers['content-type']='application/json';
  const request=new Request(base+path,{method:op.method,headers,body:body===undefined?undefined:JSON.stringify(body)});
  if(!unsafe){const issues=(await validateRequest(id,request,params)).issues;if(issues.length)throw Error(id+' invalid harness request '+issues.join(';'));}
@@ -55,7 +56,22 @@ try {
   if(id==='submitAccessRequest')body={teamName:'Research',contactEmail:'synthetic@example.invalid',purpose:'Paper research',markets:['digital-assets'],expectedMode:'paper',privacyNoticeVersion:'2026-10-03'};
   const result=await call(id,body);if(id==='createExport')exportId=result.payload?.exportId;
  }
- await call('getExportStatus');await call('getExportStatus');await call('getExportDownload');await call('cancelExport');
+ const exportBody=operations.get('createExport').requestBody.content['application/json'].example;
+ const createKey=randomUUID();const created=(await call('createExport',exportBody,false,202,{'Idempotency-Key':createKey})).payload;
+ const replay=(await call('createExport',exportBody,false,202,{'Idempotency-Key':createKey})).payload;
+ if(JSON.stringify(created)!==JSON.stringify(replay))throw Error('export same intent must replay the original result');
+ for(const [field,value]of [['reason','A distinct legitimate purpose'],['scope',{correlationIds:[randomUUID()]}],['format','csv'],['watermark','Another watermark'],['retentionDays',14]]) {
+  const conflict=await call('createExport',{...exportBody,[field]:value},false,409,{'Idempotency-Key':createKey});
+  if(conflict.payload.code!=='IDEMPOTENCY_CONFLICT')throw Error('changed export intent must conflict before side effects');
+ }
+ await call('getExportStatus');await call('getExportStatus');await call('getExportDownload');
+ const cancelKey=randomUUID();const cancelled=(await call('cancelExport',undefined,false,202,{'Idempotency-Key':cancelKey})).payload;
+ const cancelledReplay=(await call('cancelExport',undefined,false,202,{'Idempotency-Key':cancelKey})).payload;
+ if(JSON.stringify(cancelled)!==JSON.stringify(cancelledReplay))throw Error('cancel same resource must replay');
+ exportId=created.exportId;
+ const conflict=await call('cancelExport',undefined,false,409,{'Idempotency-Key':cancelKey});
+ if(conflict.payload.code!=='IDEMPOTENCY_CONFLICT')throw Error('changed cancel resource must conflict');
+ if((await call('getExportStatus')).payload.status==='cancelled')throw Error('conflicting cancel changed another export');
  const invalid=await call('saveProfile',{...operations.get('saveProfile').requestBody.content['application/json'].example,actorId:uuid},true);
  if(invalid.response.status!==422)throw Error('Reference provider accepted forged actor');
  await call('logout');

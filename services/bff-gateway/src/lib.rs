@@ -1457,10 +1457,6 @@ async fn create_export(
     if let Err(response) = require_reauth(&headers, &data).await {
         return response;
     }
-    let raw_key = match idempotency_key(&headers) {
-        Ok(key) => key,
-        Err(response) => return *response,
-    };
     if input.scope.correlation_ids.is_empty()
         || input.scope.correlation_ids.len() > 100
         || input
@@ -1479,11 +1475,20 @@ async fn create_export(
             "导出范围或保留策略无效。",
         );
     }
-    let key = format!("export.create:{raw_key}");
+    let intent = json!({
+        "scope":{"correlationIds":input.scope.correlation_ids},
+        "format":input.format,"reason":input.reason,"watermark":input.watermark,
+        "retentionDays":input.retention_days
+    });
+    let command = match IdempotentCommand::new(&headers, "createExport", "exports", &intent) {
+        Ok(command) => command,
+        Err(response) => return *response,
+    };
     let mut state = data.lock().await;
-    if let Some(existing) = state.idempotency.get(&key) {
-        let correlation = correlation_id();
-        return response(StatusCode::ACCEPTED, existing.clone(), &correlation);
+    match command.replay(&state) {
+        Ok(Some(existing)) => return response(StatusCode::ACCEPTED, existing, &correlation_id()),
+        Err(response) => return *response,
+        Ok(None) => {}
     }
     let export_id = Uuid::now_v7().to_string();
     let correlation = input.scope.correlation_ids[0].clone();
@@ -1506,7 +1511,7 @@ async fn create_export(
         "correlationId":correlation,"auditRef":audit_ref
     });
     state.exports.insert(export_id, payload.clone());
-    state.idempotency.insert(key, payload.clone());
+    command.save(&mut state, payload.clone());
     let response_correlation = correlation_id();
     response(StatusCode::ACCEPTED, payload, &response_correlation)
 }
@@ -1558,15 +1563,15 @@ async fn cancel_export(
     if let Err(response) = require_reauth(&headers, &data).await {
         return response;
     }
-    let raw_key = match idempotency_key(&headers) {
-        Ok(key) => key,
+    let command = match IdempotentCommand::new(&headers, "cancelExport", &export_id, &Value::Null) {
+        Ok(command) => command,
         Err(response) => return *response,
     };
-    let key = format!("export.cancel:{raw_key}");
     let mut state = data.lock().await;
-    if let Some(existing) = state.idempotency.get(&key) {
-        let correlation = correlation_id();
-        return response(StatusCode::ACCEPTED, existing.clone(), &correlation);
+    match command.replay(&state) {
+        Ok(Some(existing)) => return response(StatusCode::ACCEPTED, existing, &correlation_id()),
+        Err(response) => return *response,
+        Ok(None) => {}
     }
     let payload = {
         let Some(job) = state.exports.get_mut(&export_id) else {
@@ -1594,7 +1599,7 @@ async fn cancel_export(
     let mut payload = payload;
     payload["auditRef"] = json!(audit_ref);
     state.exports.insert(export_id, payload.clone());
-    state.idempotency.insert(key, payload.clone());
+    command.save(&mut state, payload.clone());
     let correlation = correlation_id();
     response(StatusCode::ACCEPTED, payload, &correlation)
 }

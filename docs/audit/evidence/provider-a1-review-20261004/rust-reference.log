@@ -1,0 +1,53 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.06s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-a92e9b7005214b4c)
+
+running 4 tests
+test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... ok
+test live::tests::live_session_requires_opaque_cookie_and_exact_origin ... ok
+test live::tests::live_errors_hide_account_existence_and_include_correlation ... ok
+test live::f09_trace_tests::auth_write_returns_queryable_correlation_trace ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/bff_gateway-f6384f26a5766d57)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/audit_export_provider.rs (target/debug/deps/audit_export_provider-72c445b960a5a84a)
+
+running 5 tests
+test audit_sort_filter_is_executed_and_unknown_expressions_are_rejected ... ok
+test evidence_chain_preserves_causation_order_and_hides_missing_resources ... ok
+test audit_search_is_capability_guarded_redacted_and_cursor_paginated ... ok
+test export_cancel_expiry_and_validation_fail_closed ... ok
+test export_lifecycle_is_idempotent_watermarked_short_lived_and_audited ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/auth_settings_provider.rs (target/debug/deps/auth_settings_provider-9ef25550dfd20b82)
+
+running 12 tests
+test logout_expires_secure_http_only_same_site_cookie ... ok
+test public_access_request_validates_origin_and_body_and_writes_audit ... ok
+test stale_settings_write_returns_current_version_without_mutation ... ok
+test authentication_csrf_and_resource_failures_fail_closed ... ok
+test mfa_rate_limit_is_account_neutral ... ok
+test session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit ... ok
+test current_session_and_last_mfa_factor_are_protected ... ok
+test challenges_are_fresh_single_use_and_cooldown_precedes_verification ... ok
+test settings_roundtrip_preserves_inputs_and_separates_idempotent_intents ... ok
+test notification_save_is_idempotent_and_audited ... ok
+test security_retries_execute_once_and_match_success_correlation ... ok
+test session_stream_stays_open_for_other_session_and_closes_revoked_target ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+   Doc-tests bff_gateway
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

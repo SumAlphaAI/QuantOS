@@ -1,0 +1,707 @@
+{
+  "schema": "quantos-provider-a1-functional-policy/v1",
+  "excluded": [
+    "RELEASE staging deployment",
+    "RELEASE seven-role authorization/signatures",
+    "RELEASE same-SHA hosted CI",
+    "RELEASE performance/soak/full platform matrix",
+    "unimplemented A2-A6 providers",
+    "P16 Desktop"
+  ],
+  "commonInputs": [
+    "scripts/provider-a1-receipts.mjs",
+    "scripts/provider-a1-policy.json",
+    "scripts/provider-a1-receipts.test.mjs",
+    "Cargo.toml",
+    "Cargo.lock",
+    "package.json",
+    "pnpm-lock.yaml",
+    "Makefile",
+    ".github/workflows/ci.yml",
+    ".github/workflows/frontend-baseline.yml",
+    ".gitattributes"
+  ],
+  "checks": {
+    "f01": {
+      "command": [
+        "node",
+        "scripts/check-f01.mjs"
+      ]
+    },
+    "f01-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/f01-gate-negative.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "proto": {
+      "command": [
+        "bash",
+        "scripts/check-proto.sh"
+      ],
+      "marker": "Proto checks passed"
+    },
+    "proto-client": {
+      "command": [
+        "make",
+        "proto-compat-check"
+      ]
+    },
+    "f04": {
+      "command": [
+        "node",
+        "scripts/check-f04.mjs"
+      ]
+    },
+    "f04-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/f04-gate-negative.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "foundation-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-core",
+        "-p",
+        "quantos-testkit",
+        "--lib"
+      ],
+      "marker": "test result: ok"
+    },
+    "f05": {
+      "command": [
+        "node",
+        "scripts/check-f05.mjs"
+      ]
+    },
+    "f05-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/f05-gate-negative.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "event-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-event",
+        "--lib"
+      ],
+      "marker": "test result: ok"
+    },
+    "f05-database": {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "quantos-event",
+        "--test",
+        "postgres_persistence",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1",
+        "--skip",
+        "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+        "--skip",
+        "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+        "--skip",
+        "postgres_tls_root_configuration_fails_closed"
+      ],
+      "marker": "8 passed; 0 failed",
+      "database": true
+    },
+    "auth-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-auth",
+        "--lib"
+      ],
+      "marker": "test result: ok"
+    },
+    "f06-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/f06-acceptance-gate-negative.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "f06-target": {
+      "command": [
+        "node",
+        "scripts/run-p0-f06-target.mjs"
+      ],
+      "marker": "database 0",
+      "target": true
+    },
+    "pre01": {
+      "command": [
+        "pnpm",
+        "check:pre01"
+      ]
+    },
+    "pre01-negative": {
+      "command": [
+        "pnpm",
+        "test:pre01"
+      ]
+    },
+    "pre02": {
+      "command": [
+        "pnpm",
+        "check:pre02"
+      ]
+    },
+    "pre02-negative": {
+      "command": [
+        "pnpm",
+        "test:pre02"
+      ]
+    },
+    "pre04": {
+      "command": [
+        "pnpm",
+        "check:pre04"
+      ]
+    },
+    "pre04-negative": {
+      "command": [
+        "pnpm",
+        "test:pre04"
+      ]
+    },
+    "pre05": {
+      "command": [
+        "pnpm",
+        "check:pre05"
+      ]
+    },
+    "pre05-negative": {
+      "command": [
+        "pnpm",
+        "test:pre05"
+      ]
+    },
+    "pre06": {
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ]
+    },
+    "pre06-negative": {
+      "command": [
+        "pnpm",
+        "test:pre06"
+      ]
+    },
+    "pre03": {
+      "command": [
+        "pnpm",
+        "check:pre03:web"
+      ]
+    },
+    "pre03-negative": {
+      "command": [
+        "pnpm",
+        "test:pre03"
+      ]
+    },
+    "build-website": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ]
+    },
+    "build-terminal": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ]
+    },
+    "storybook": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/ui",
+        "build-storybook"
+      ]
+    },
+    "ui-tests": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/ui",
+        "test"
+      ],
+      "marker": "passed"
+    },
+    "api-client-tests": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "test"
+      ],
+      "marker": "passed"
+    },
+    "domain-ui-tests": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/domain-ui",
+        "test"
+      ],
+      "marker": "passed"
+    },
+    "config-tests": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/config",
+        "test"
+      ],
+      "marker": "passed"
+    },
+    "schema": {
+      "command": [
+        "pnpm",
+        "test:contract"
+      ],
+      "marker": "passed"
+    },
+    "generated": {
+      "command": [
+        "pnpm",
+        "check:bff-generated"
+      ],
+      "marker": "generated artifacts match"
+    },
+    "catalog": {
+      "command": [
+        "pnpm",
+        "check:bff-contract-coverage"
+      ]
+    },
+    "visual-inventory": {
+      "command": [
+        "pnpm",
+        "check:visual-baselines"
+      ]
+    },
+    "sabotage": {
+      "command": [
+        "pnpm",
+        "sabotage:pre06"
+      ]
+    },
+    "critical": {
+      "command": [
+        "pnpm",
+        "coverage:critical"
+      ],
+      "marker": "100%"
+    },
+    "coverage": {
+      "command": [
+        "pnpm",
+        "coverage:web"
+      ],
+      "marker": "Coverage summary"
+    },
+    "plans": {
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ]
+    },
+    "plans-negative": {
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ]
+    },
+    "a1": {
+      "command": [
+        "pnpm",
+        "check:bff-a1-development"
+      ],
+      "marker": "engineering baseline only"
+    },
+    "openapi": {
+      "command": [
+        "pnpm",
+        "check:bff-openapi"
+      ]
+    },
+    "compatibility": {
+      "command": [
+        "pnpm",
+        "check:bff-compatibility"
+      ]
+    },
+    "a1-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-000-gate-negative.mjs",
+        "scripts/bff-remediation-negative.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "client-typecheck": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "typecheck"
+      ]
+    },
+    "client-lint": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "lint"
+      ]
+    },
+    "chromium": {
+      "command": [
+        "pnpm",
+        "test:browser",
+        "--project=chromium",
+        "--workers=2",
+        "--retries=0",
+        "--update-snapshots=none"
+      ],
+      "marker": "passed"
+    },
+    "provider-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib"
+      ],
+      "marker": "test result: ok"
+    },
+    "provider-http": {
+      "command": [
+        "node",
+        "scripts/test-bff-provider-contract.mjs"
+      ],
+      "marker": "\"status\":\"PASS\"",
+      "output": "reference-http.json"
+    },
+    "semantic-mutations": {
+      "command": [
+        "node",
+        "scripts/test-provider-a1-mutations.mjs"
+      ],
+      "marker": "PASS"
+    },
+    "receipt-negative": {
+      "command": [
+        "pnpm",
+        "test:provider-a1"
+      ],
+      "marker": "fail 0"
+    },
+    "db-visibility": {
+      "command": [
+        "node",
+        "scripts/check-provider-a1-db-visibility.mjs"
+      ],
+      "marker": "PASS target test is ignored by default and requires explicit target opt-in"
+    }
+  },
+  "nodes": {
+    "CORE:F01": {
+      "scope": "Pinned tools, dependency inventories and reproducible development configuration; final release signatures/remote rebuild excluded",
+      "inputs": [
+        "rust-toolchain.toml",
+        ".nvmrc",
+        "pnpm-workspace.yaml",
+        "scripts/check-f01.mjs",
+        "scripts/f01-*",
+        "scripts/check-toolchains.mjs",
+        "engines/pyproject.toml",
+        "engines/uv.lock",
+        "apps/*/package.json",
+        "packages/*/package.json",
+        "crates/*/Cargo.toml",
+        "engines/build-constraints.txt",
+        ".python-version",
+        "crates/*/README.md",
+        "services/*/README.md",
+        "packages/*/README.md",
+        "apps/terminal/README.md",
+        "apps/website/README.md",
+        "proto/README.md",
+        "crates/README.md",
+        "services/README.md",
+        "engines/README.md",
+        "apps/README.md",
+        "packages/README.md",
+        "supabase/README.md",
+        "engines/*/README.md"
+      ],
+      "checks": [
+        "f01",
+        "f01-negative"
+      ]
+    },
+    "CORE:F03": {
+      "scope": "Proto/schema generation, compatibility and current TS client interop",
+      "inputs": [
+        "proto/",
+        "buf.yaml",
+        "buf.gen.yaml",
+        "buf.lock",
+        "crates/quantos-proto/",
+        "packages/api-client/",
+        "scripts/*proto*",
+        "scripts/*json-schema*",
+        "scripts/tests/*proto*",
+        "scripts/tests/*json-schema*",
+        "tools/proto-json-codegen/"
+      ],
+      "checks": [
+        "proto",
+        "proto-client",
+        "api-client-tests"
+      ]
+    },
+    "CORE:F04": {
+      "scope": "Deterministic domain primitives and fixture corpus correctness",
+      "inputs": [
+        "crates/quantos-core/",
+        "crates/quantos-testkit/",
+        "scripts/*f04*"
+      ],
+      "checks": [
+        "foundation-rust",
+        "f04",
+        "f04-negative"
+      ]
+    },
+    "CORE:F05": {
+      "scope": "Event integrity, tenant isolation, append-only audit and bounded receipt/lease recovery on configured Supabase; volume/soak excluded",
+      "inputs": [
+        "crates/quantos-event/",
+        "services/replay-cli/",
+        "supabase/migrations/20260921090000_f05_ledger_integrity_and_replay.sql",
+        "scripts/*f05*"
+      ],
+      "checks": [
+        "event-rust",
+        "f05",
+        "f05-negative",
+        "f05-database"
+      ]
+    },
+    "CORE:F06": {
+      "scope": "Identity/roles, real Auth/BFF/Runtime, execution/Vault and PostgreSQL denial correctness; latency benchmark excluded",
+      "inputs": [
+        "crates/quantos-auth/",
+        "crates/quantos-policy/",
+        "services/bff-gateway/",
+        "services/runtime-gateway/",
+        "services/execution-gateway/",
+        "scripts/*f06*",
+        "scripts/run-p0-f06-target.mjs",
+        "supabase/migrations/"
+      ],
+      "checks": [
+        "auth-rust",
+        "f06-negative",
+        "f06-target"
+      ]
+    },
+    "FE:PRE-01": {
+      "scope": "Phase-one route/API owner register and traceability",
+      "inputs": [
+        "docs/PRE-01-page-api-coverage-register.md",
+        "scripts/check-pre01.mjs",
+        "scripts/tests/check-pre01.test.mjs",
+        "bff/page-operation-catalog.yaml",
+        "docs/PRE-01-page-ledger-and-stories.md",
+        "docs/PRE-01-route-permission-matrix.md",
+        "docs/PRE-01-requirements-baseline.json"
+      ],
+      "checks": [
+        "pre01",
+        "pre01-negative"
+      ]
+    },
+    "FE:PRE-02": {
+      "scope": "Design tokens, components, accessibility and design consistency baseline",
+      "inputs": [
+        "packages/ui/",
+        "docs/PRE-02*"
+      ],
+      "checks": [
+        "pre02",
+        "pre02-negative",
+        "ui-tests"
+      ]
+    },
+    "FE:PRE-03": {
+      "scope": "Web runtime/architecture PoCs, real compiled exports and browser rendering; Desktop excluded",
+      "inputs": [
+        "apps/terminal/",
+        "apps/website/",
+        "packages/platform/",
+        "packages/config/",
+        "scripts/pre03*",
+        "scripts/capture-build*",
+        "scripts/runtime*",
+        "scripts/webpack*",
+        "docs/adr/20260814-pre03-runtime-stack.md"
+      ],
+      "checks": [
+        "build-terminal",
+        "build-website",
+        "storybook",
+        "pre03",
+        "pre03-negative"
+      ]
+    },
+    "FE:PRE-04": {
+      "scope": "Domain fields and trusted session mapping, decimal/int64/time/enum correctness",
+      "inputs": [
+        "docs/PRE-04*",
+        "scripts/pre04*",
+        "packages/api-client/",
+        "packages/domain-ui/"
+      ],
+      "checks": [
+        "pre04",
+        "pre04-negative",
+        "api-client-tests",
+        "domain-ui-tests"
+      ]
+    },
+    "FE:PRE-05": {
+      "scope": "Environment separation, mock profile and credential containment",
+      "inputs": [
+        "packages/config/",
+        "scripts/pre05*",
+        "scripts/check-client-secrets.mjs"
+      ],
+      "checks": [
+        "pre05",
+        "pre05-negative",
+        "config-tests"
+      ]
+    },
+    "FE:PRE-06": {
+      "scope": "Schema/mock/provider fixtures, negative harness, registered visual and critical branch baseline",
+      "inputs": [
+        "tests/contract/",
+        "tests/critical-branches.json",
+        "scripts/*pre06*",
+        "scripts/check-visual-baselines.mjs",
+        "packages/api-client/",
+        "packages/domain-ui/",
+        "packages/ui/",
+        "vitest.coverage.config.ts",
+        "vitest.critical.config.ts"
+      ],
+      "checks": [
+        "pre06",
+        "pre06-negative",
+        "schema",
+        "generated",
+        "catalog",
+        "visual-inventory",
+        "sabotage",
+        "critical"
+      ]
+    },
+    "PREPARATION:P0": {
+      "scope": "All six preparation functional standards/PoCs and basic Chromium regression; full platform matrix/performance release evidence excluded",
+      "inputs": [
+        "playwright.config.ts",
+        "tests/e2e/"
+      ],
+      "checks": [
+        "plans",
+        "plans-negative",
+        "chromium",
+        "coverage"
+      ]
+    },
+    "FE:BFF-FE-000": {
+      "scope": "OpenAPI/generated client/schema, semantic safety and frozen published/planned operation baseline",
+      "inputs": [
+        "bff/",
+        "packages/api-client/",
+        "tests/contract/",
+        "scripts/*bff*",
+        "docs/BFF-FE-000-openapi-proposal.md",
+        "docs/PRE-01-page-api-coverage-register.md"
+      ],
+      "checks": [
+        "a1",
+        "openapi",
+        "generated",
+        "catalog",
+        "compatibility",
+        "a1-negative",
+        "client-typecheck",
+        "client-lint",
+        "api-client-tests",
+        "schema"
+      ]
+    },
+    "PROVIDER:A1": {
+      "scope": "A1 contracts/schema/security and implemented C01/C17/C10 reference provider/consumer harness; live browser CORS configuration; future providers excluded",
+      "inputs": [
+        "services/bff-gateway/",
+        "apps/terminal/src/auth/",
+        "apps/terminal/src/settings/",
+        "apps/terminal/src/audit/",
+        "apps/terminal/tests/",
+        "packages/api-client/",
+        "tests/contract/",
+        "scripts/test-bff-provider-contract.mjs",
+        "scripts/test-provider-a1-mutations.mjs",
+        "scripts/f09-target-gate.cjs",
+        "scripts/check-provider-a1-db-visibility.mjs"
+      ],
+      "checks": [
+        "provider-rust",
+        "provider-http",
+        "semantic-mutations",
+        "receipt-negative",
+        "db-visibility"
+      ]
+    }
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "schema": "quantos-provider-a1-audit-controls/v1",
+  "weighting": "each control counts once; only PASS counts complete; test suites overlap and are not summed",
+  "total": 21,
+  "counts": {
+    "PASS": 15,
+    "PARTIAL": 2,
+    "FAIL": 2,
+    "NOT_ASSESSED": 1,
+    "MISSING": 1
+  },
+  "complete_rate": 71.43,
+  "checkpoint_ready_rate": 0,
+  "controls": [
+    {
+      "id": "A01",
+      "control": "阶段范围、排除项与验收口径",
+      "status": "PASS",
+      "evidence_summary": "计划 v3.18 DEVELOPMENT/INTEGRATION/RELEASE 边界一致；未交付 A2–A6 provider 不计 A1 实现范围。",
+      "findings": []
+    },
+    {
+      "id": "A02",
+      "control": "直接依赖及递归前置功能准入",
+      "status": "NOT_ASSESSED",
+      "evidence_summary": "两个直接依赖均无 READY；含本节点的 14 个依赖闭包节点均 NOT_ASSESSED。",
+      "findings": [
+        "B-01"
+      ]
+    },
+    {
+      "id": "A03",
+      "control": "PROVIDER:A1 功能输入清单、摘要与回执校验",
+      "status": "MISSING",
+      "evidence_summary": "计划记录为 null/[]；现有工程命令不核验完整输入清单或阶段依赖。",
+      "findings": [
+        "M-01"
+      ]
+    },
+    {
+      "id": "A04",
+      "control": "OpenAPI 语法、组件与 operation 完整性",
+      "status": "PASS",
+      "evidence_summary": "API 1.5.0，62 operation / 52 schema；验证通过。",
+      "findings": []
+    },
+    {
+      "id": "A05",
+      "control": "页面、契约、owner 与 published/planned 追踪",
+      "status": "PASS",
+      "evidence_summary": "C01–C17 / 22 页面，62 published / 46 planned 精确映射，P16 排除。",
+      "findings": []
+    },
+    {
+      "id": "A06",
+      "control": "六类生成资产与同源一致性",
+      "status": "PASS",
+      "evidence_summary": "TS、Zod、JSON Schema、operation manifest、MSW、Rust input policy 重生成逐字节一致。",
+      "findings": []
+    },
+    {
+      "id": "A07",
+      "control": "破坏性变更与兼容性决策",
+      "status": "PASS",
+      "evidence_summary": "69 项安全修正均登记；未登记/过期/删除/收紧负向断言通过。",
+      "findings": []
+    },
+    {
+      "id": "A08",
+      "control": "客户端类型、Lint 与 Rust 格式规范",
+      "status": "PASS",
+      "evidence_summary": "api-client typecheck/lint、bff-gateway cargo fmt --check 均通过。",
+      "findings": []
+    },
+    {
+      "id": "A09",
+      "control": "已实现 reference provider 正向 HTTP harness",
+      "status": "PASS",
+      "evidence_summary": "C01/C17/C10 的 26/26 operation、28 次请求通过现有 harness；仅声明其正向范围。",
+      "findings": []
+    },
+    {
+      "id": "A10",
+      "control": "认证、Origin/CSRF、capability 与输入防伪",
+      "status": "PASS",
+      "evidence_summary": "真实 reference 回环拒绝缺/错会话、缺 CSRF、坏 Origin、viewer 越权及伪造 actor。",
+      "findings": []
+    },
+    {
+      "id": "A11",
+      "control": "响应 schema、错误 envelope、correlation 与缓存头",
+      "status": "PASS",
+      "evidence_summary": "当前契约测试及 18 条独立 HTTP 记录均通过 response schema；错误/成功 correlation 校验通过。",
+      "findings": []
+    },
+    {
+      "id": "A12",
+      "control": "领域精度、枚举、受信字段转换",
+      "status": "PASS",
+      "evidence_summary": "当前 api-client 的 Proto/domain 与 response 回归通过；不宣称所有后续聚合已实现。",
+      "findings": []
+    },
+    {
+      "id": "A13",
+      "control": "C01/C17 幂等、版本冲突与近期认证",
+      "status": "PASS",
+      "evidence_summary": "12 个 Rust auth/settings 测试通过；独立 stale-version 409 / MFA+reauth 建立成功。",
+      "findings": []
+    },
+    {
+      "id": "A14",
+      "control": "C10 导出创建/取消的业务幂等冲突",
+      "status": "FAIL",
+      "evidence_summary": "同键改 reason 或改 exportId 均返回 202，未拒绝不同业务意图。",
+      "findings": [
+        "H-01"
+      ]
+    },
+    {
+      "id": "A15",
+      "control": "SSE 游标、重连、版本与撤销终态",
+      "status": "PASS",
+      "evidence_summary": "客户端 SSE 安全回归及 Rust 持续流/目标撤销/过期断言通过；未验证目标浏览器网络。",
+      "findings": []
+    },
+    {
+      "id": "A16",
+      "control": "参考审计、脱敏、导出生命周期及期限",
+      "status": "PASS",
+      "evidence_summary": "5 个审计导出 Rust 回归和 HTTP queued/ready/download/cancel 正向流程通过；不同意图重试独立列 A14。",
+      "findings": []
+    },
+    {
+      "id": "A17",
+      "control": "稳定门禁对独立失败场景的检测能力",
+      "status": "PARTIAL",
+      "evidence_summary": "已有负向测试通过，但未包含本轮两条 C10 冲突及 live 近期认证预检场景。",
+      "findings": [
+        "M-02"
+      ]
+    },
+    {
+      "id": "A18",
+      "control": "TypeScript 覆盖率与已登记关键分支",
+      "status": "PASS",
+      "evidence_summary": "Web lines 92.85% >=80%；六文件关键清单 129 lines /111 branches 全部覆盖。",
+      "findings": []
+    },
+    {
+      "id": "A19",
+      "control": "本地门禁与有效 CI 接线",
+      "status": "PASS",
+      "evidence_summary": "Frontend Baseline 执行 A1/兼容/negative；main CI 执行 Rust provider 与 HTTP harness；未声明远端本 SHA CI 成功。",
+      "findings": []
+    },
+    {
+      "id": "A20",
+      "control": "测试执行范围与数据库结果可观测性",
+      "status": "PARTIAL",
+      "evidence_summary": "一项 real DB test 未启用却由 Rust 输出 ok；需执行状态或独立回执澄清。",
+      "findings": [
+        "L-01"
+      ]
+    },
+    {
+      "id": "A21",
+      "control": "已实现 live 安全操作的跨域预检契约",
+      "status": "FAIL",
+      "evidence_summary": "精确 CorsLayer 片段执行不允许必需 X-Reauth-Token-Ref；控制用例通过而必需头用例失败。",
+      "findings": [
+        "M-03"
+      ]
+    }
+  ]
+}

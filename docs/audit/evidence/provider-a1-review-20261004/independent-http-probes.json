@@ -1,0 +1,192 @@
+{
+  "schema": "quantos-provider-a1-audit-negative/v1",
+  "scope": "C01/C17/C10 synthetic reference provider only; no DB/IdP/storage/staging",
+  "status": "FAIL",
+  "passed": 16,
+  "total": 18,
+  "records": [
+    {
+      "name": "missing-session",
+      "operationId": "getSession",
+      "expectedStatus": 401,
+      "actualStatus": 401,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "UNAUTHENTICATED",
+      "result": "PASS"
+    },
+    {
+      "name": "invalid-session",
+      "operationId": "getSession",
+      "expectedStatus": 401,
+      "actualStatus": 401,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "UNAUTHENTICATED",
+      "result": "PASS"
+    },
+    {
+      "name": "missing-CSRF",
+      "operationId": "saveProfile",
+      "expectedStatus": 403,
+      "actualStatus": 403,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "FORBIDDEN",
+      "result": "PASS"
+    },
+    {
+      "name": "bad-origin",
+      "operationId": "saveProfile",
+      "expectedStatus": 403,
+      "actualStatus": 403,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "FORBIDDEN",
+      "result": "PASS"
+    },
+    {
+      "name": "missing-idempotency",
+      "operationId": "saveProfile",
+      "expectedStatus": 422,
+      "actualStatus": 422,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "INVALID_REQUEST",
+      "result": "PASS"
+    },
+    {
+      "name": "invalid-request-id",
+      "operationId": "saveProfile",
+      "expectedStatus": 422,
+      "actualStatus": 422,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "INVALID_REQUEST",
+      "result": "PASS"
+    },
+    {
+      "name": "forged-actor",
+      "operationId": "saveProfile",
+      "expectedStatus": 422,
+      "actualStatus": 422,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "INVALID_REQUEST",
+      "result": "PASS"
+    },
+    {
+      "name": "stale-version",
+      "operationId": "saveProfile",
+      "expectedStatus": 409,
+      "actualStatus": 409,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "VERSION_CONFLICT",
+      "result": "PASS"
+    },
+    {
+      "name": "viewer-capability",
+      "operationId": "searchAuditEvents",
+      "expectedStatus": 403,
+      "actualStatus": 403,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "FORBIDDEN",
+      "result": "PASS"
+    },
+    {
+      "name": "unknown-sort",
+      "operationId": "searchAuditEvents",
+      "expectedStatus": 422,
+      "actualStatus": 422,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": "INVALID_REQUEST",
+      "result": "PASS"
+    },
+    {
+      "name": "valid-MFA-setup",
+      "operationId": "mfaChallenge",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": null,
+      "result": "PASS"
+    },
+    {
+      "name": "valid-reauth-setup",
+      "operationId": "reauth",
+      "expectedStatus": 200,
+      "actualStatus": 200,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": null,
+      "result": "PASS"
+    },
+    {
+      "name": "export-create",
+      "operationId": "createExport",
+      "expectedStatus": 202,
+      "actualStatus": 202,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": null,
+      "result": "PASS"
+    },
+    {
+      "name": "export-same-intent-replay",
+      "operationId": "createExport",
+      "expectedStatus": 202,
+      "actualStatus": 202,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": null,
+      "result": "PASS",
+      "sameExportId": true
+    },
+    {
+      "name": "export-changed-intent",
+      "operationId": "createExport",
+      "expectedStatus": 409,
+      "actualStatus": 202,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": null,
+      "result": "FAIL",
+      "replayedOriginalExport": true
+    },
+    {
+      "name": "export-second-create",
+      "operationId": "createExport",
+      "expectedStatus": 202,
+      "actualStatus": 202,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": null,
+      "result": "PASS"
+    },
+    {
+      "name": "export-cancel-first",
+      "operationId": "cancelExport",
+      "expectedStatus": 202,
+      "actualStatus": 202,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": null,
+      "result": "PASS"
+    },
+    {
+      "name": "export-cancel-other-resource",
+      "operationId": "cancelExport",
+      "expectedStatus": 409,
+      "actualStatus": 202,
+      "responseValidation": "PASS",
+      "issues": [],
+      "code": null,
+      "result": "FAIL",
+      "returnedWrongExportId": true
+    }
+  ]
+}

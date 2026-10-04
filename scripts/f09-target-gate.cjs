@@ -143,7 +143,7 @@ async function main() {
   const liveEnv = { ...process.env, QUANTOS_RUN_F09_POSTGRES_TESTS: '1' };
   const bffOutput = run('cargo', [
     'test', '-p', 'bff-gateway', '--lib', 'f09_live_tests', '--locked',
-    '--', '--test-threads=1', '--nocapture',
+    '--', '--ignored', '--test-threads=1', '--nocapture',
   ], 'bff-write-trace.log', liveEnv);
   const runtimeOutput = run('cargo', [
     'test', '-p', 'runtime-gateway', '--bin', 'runtime-gateway',

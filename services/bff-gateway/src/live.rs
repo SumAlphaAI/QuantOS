@@ -107,7 +107,7 @@ pub fn router(
         matches!(environment.as_str(), "dev" | "staging" | "prod"),
         "live BFF requires a valid environment"
     );
-    let origin_header = HeaderValue::from_str(&terminal_origin)?;
+    let cors = cors_layer(HeaderValue::from_str(&terminal_origin)?);
     let state = Arc::new(LiveState {
         verifier: SupabaseAuthVerifier::new(project_url, publishable_key.clone())?,
         a2: Mutex::new(settings::A2Store::new(database_url)?),
@@ -134,30 +134,34 @@ pub fn router(
             observability,
             trace_write_request,
         ))
-        .layer(
-            CorsLayer::new()
-                .allow_origin(origin_header)
-                .allow_credentials(true)
-                .allow_methods([
-                    Method::GET,
-                    Method::POST,
-                    Method::PUT,
-                    Method::DELETE,
-                    Method::OPTIONS,
-                ])
-                .allow_headers([
-                    header::AUTHORIZATION,
-                    header::CONTENT_TYPE,
-                    HeaderName::from_static("x-account-id"),
-                    HeaderName::from_static("x-csrf-token"),
-                    HeaderName::from_static("idempotency-key"),
-                    HeaderName::from_static("if-match"),
-                    HeaderName::from_static("x-request-id"),
-                    HeaderName::from_static("x-correlation-id"),
-                    HeaderName::from_static("traceparent"),
-                ])
-                .expose_headers([HeaderName::from_static("x-correlation-id")]),
-        ))
+        .layer(cors))
+}
+
+// Shared by the live router and its database-free browser preflight regressions.
+fn cors_layer(origin: HeaderValue) -> CorsLayer {
+    CorsLayer::new()
+        .allow_origin(origin)
+        .allow_credentials(true)
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
+        .allow_headers([
+            header::AUTHORIZATION,
+            header::CONTENT_TYPE,
+            HeaderName::from_static("x-account-id"),
+            HeaderName::from_static("x-csrf-token"),
+            HeaderName::from_static("x-reauth-token-ref"),
+            HeaderName::from_static("idempotency-key"),
+            HeaderName::from_static("if-match"),
+            HeaderName::from_static("x-request-id"),
+            HeaderName::from_static("x-correlation-id"),
+            HeaderName::from_static("traceparent"),
+        ])
+        .expose_headers([HeaderName::from_static("x-correlation-id"), header::ETAG])
 }
 
 async fn trace_write_request(
@@ -501,5 +505,92 @@ mod tests {
             assert_eq!(response.headers()[header::CACHE_CONTROL], "no-store");
             assert!(response.headers().contains_key("x-correlation-id"));
         }
+    }
+}
+
+#[cfg(test)]
+mod cors_tests {
+    use super::*;
+    use axum::{body::Body, http::Request};
+    use tower::ServiceExt;
+    const ORIGIN: &str = "https://terminal.example.invalid";
+    async fn preflight(origin: &str, method: &str) -> HeaderMap {
+        let response = Router::new()
+            .layer(cors_layer(HeaderValue::from_static(ORIGIN)))
+            .oneshot(
+                Request::builder()
+                    .method("OPTIONS")
+                    .uri("/v1/settings/sessions/remote")
+                    .header("origin", origin)
+                    .header("access-control-request-method", method)
+                    .header(
+                        "access-control-request-headers",
+                        "x-csrf-token,idempotency-key,x-request-id,x-reauth-token-ref",
+                    )
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        response.headers().clone()
+    }
+    #[tokio::test]
+    async fn trusted_recent_auth_preflight_allows_contract_headers() {
+        for method in ["POST", "DELETE"] {
+            let headers = preflight(ORIGIN, method).await;
+            assert_eq!(headers["access-control-allow-origin"], ORIGIN);
+            assert_eq!(headers["access-control-allow-credentials"], "true");
+            for required in [
+                "x-csrf-token",
+                "idempotency-key",
+                "x-request-id",
+                "x-reauth-token-ref",
+            ] {
+                assert!(
+                    headers["access-control-allow-headers"]
+                        .to_str()
+                        .unwrap()
+                        .split(',')
+                        .any(|h| h.trim() == required),
+                    "missing {required}"
+                );
+            }
+        }
+    }
+    #[tokio::test]
+    async fn trusted_browser_can_read_contract_response_headers() {
+        let response = Router::new()
+            .layer(cors_layer(HeaderValue::from_static(ORIGIN)))
+            .oneshot(
+                Request::builder()
+                    .uri("/v1/settings/profile")
+                    .header("origin", ORIGIN)
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        let exposed = response.headers()["access-control-expose-headers"]
+            .to_str()
+            .unwrap();
+        assert!(exposed.contains("etag") && exposed.contains("x-correlation-id"));
+    }
+    #[tokio::test]
+    async fn untrusted_origin_and_undeclared_headers_are_not_allowed() {
+        let headers = preflight("https://evil.example.invalid", "DELETE").await;
+        assert_ne!(
+            headers
+                .get("access-control-allow-origin")
+                .and_then(|h| h.to_str().ok()),
+            Some("https://evil.example.invalid")
+        );
+        let trusted = preflight(ORIGIN, "DELETE").await;
+        assert!(
+            !trusted["access-control-allow-headers"]
+                .to_str()
+                .unwrap()
+                .contains("x-forged-authority")
+        );
+        assert_ne!(trusted["access-control-allow-headers"], "*");
     }
 }

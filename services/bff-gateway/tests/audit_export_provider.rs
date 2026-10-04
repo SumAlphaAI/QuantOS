@@ -431,3 +431,110 @@ async fn audit_sort_filter_is_executed_and_unknown_expressions_are_rejected() {
         );
     }
 }
+
+#[tokio::test]
+async fn export_commands_reject_changed_intents_before_audit_or_cancellation() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let reauth = recent_auth(&router).await;
+    let create = router
+        .clone()
+        .oneshot(export_mutation(
+            "/v1/exports",
+            "intent-create",
+            &reauth,
+            Some(export_body()),
+        ))
+        .await
+        .unwrap();
+    let original = json_body(create).await;
+    let first_id = original["exportId"].as_str().unwrap();
+    let replay = router
+        .clone()
+        .oneshot(export_mutation(
+            "/v1/exports",
+            "intent-create",
+            &reauth,
+            Some(export_body()),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(json_body(replay).await, original);
+    for (field, value) in [
+        ("reason", json!("A distinct legitimate purpose")),
+        (
+            "scope",
+            json!({"correlationIds":["bbbbbbbb-1111-4111-8111-111111111111"]}),
+        ),
+        ("format", json!("csv")),
+        ("watermark", json!("Another watermark")),
+        ("retentionDays", json!(14)),
+    ] {
+        let mut body = export_body();
+        body[field] = value;
+        let conflict = router
+            .clone()
+            .oneshot(export_mutation(
+                "/v1/exports",
+                "intent-create",
+                &reauth,
+                Some(body),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(conflict.status(), StatusCode::CONFLICT, "changed {field}");
+        assert_eq!(json_body(conflict).await["code"], "IDEMPOTENCY_CONFLICT");
+    }
+    assert_eq!(provider.audit_action_count("export.created").await, 1);
+    let second = router
+        .clone()
+        .oneshot(export_mutation(
+            "/v1/exports",
+            "intent-second",
+            &reauth,
+            Some(export_body()),
+        ))
+        .await
+        .unwrap();
+    let second = json_body(second).await;
+    let second_id = second["exportId"].as_str().unwrap();
+    let first_path = format!("/v1/exports/{first_id}/cancel");
+    let cancelled = router
+        .clone()
+        .oneshot(export_mutation(&first_path, "intent-cancel", &reauth, None))
+        .await
+        .unwrap();
+    let cancelled = json_body(cancelled).await;
+    let replay = router
+        .clone()
+        .oneshot(export_mutation(&first_path, "intent-cancel", &reauth, None))
+        .await
+        .unwrap();
+    assert_eq!(json_body(replay).await, cancelled);
+    let wrong_target = router
+        .clone()
+        .oneshot(export_mutation(
+            &format!("/v1/exports/{second_id}/cancel"),
+            "intent-cancel",
+            &reauth,
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(wrong_target.status(), StatusCode::CONFLICT);
+    assert_eq!(
+        json_body(wrong_target).await["code"],
+        "IDEMPOTENCY_CONFLICT"
+    );
+    assert_eq!(provider.audit_action_count("export.cancelled").await, 1);
+    let unaffected = router
+        .clone()
+        .oneshot(authenticated(
+            "GET",
+            &format!("/v1/exports/{second_id}"),
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(json_body(unaffected).await["status"], "ready");
+}

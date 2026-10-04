@@ -102,10 +102,13 @@ fn seed_auth_user(db: &mut Client, user_id: Uuid) {
 }
 
 #[test]
+#[ignore = "Supabase target test: run explicitly with QUANTOS_RUN_F09_POSTGRES_TESTS=1"]
 fn real_logout_db_write_matches_persistent_trace() {
-    if env::var("QUANTOS_RUN_F09_POSTGRES_TESTS").as_deref() != Ok("1") {
-        return;
-    }
+    assert_eq!(
+        env::var("QUANTOS_RUN_F09_POSTGRES_TESTS").as_deref(),
+        Ok("1"),
+        "explicit Supabase target test requires QUANTOS_RUN_F09_POSTGRES_TESTS=1"
+    );
     let database_url = env::var("DATABASE_URL").expect("F09 database URL required");
     let project_url = env::var("SUPABASE_URL").expect("F09 Supabase URL required");
     // Keep one dedicated test identity: audit entries referencing it are

@@ -1,0 +1,55 @@
+[
+  {
+    "name": "client",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "test"
+    ],
+    "exit_code": 0,
+    "seconds": 0.99
+  },
+  {
+    "name": "contract",
+    "command": [
+      "pnpm",
+      "test:contract"
+    ],
+    "exit_code": 0,
+    "seconds": 1.87
+  },
+  {
+    "name": "critical-coverage",
+    "command": [
+      "pnpm",
+      "coverage:critical"
+    ],
+    "exit_code": 0,
+    "seconds": 1.14
+  },
+  {
+    "name": "web-coverage",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--config",
+      "vitest.coverage.config.ts",
+      "--coverage"
+    ],
+    "exit_code": 0,
+    "seconds": 1.24
+  },
+  {
+    "name": "reference-http",
+    "command": [
+      "node",
+      "scripts/test-bff-provider-contract.mjs",
+      "docs/audit/evidence/provider-a1-review-20261004/reference-http.json"
+    ],
+    "exit_code": 0,
+    "seconds": 6.69
+  }
+]

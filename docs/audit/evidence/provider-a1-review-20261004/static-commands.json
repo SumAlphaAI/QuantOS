@@ -1,0 +1,133 @@
+[
+  {
+    "name": "plans",
+    "command": [
+      "pnpm",
+      "check:development-plans"
+    ],
+    "exit_code": 0,
+    "seconds": 0.17
+  },
+  {
+    "name": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "exit_code": 0,
+    "seconds": 0.48
+  },
+  {
+    "name": "a1",
+    "command": [
+      "pnpm",
+      "check:bff-fe-000"
+    ],
+    "exit_code": 0,
+    "seconds": 0.22
+  },
+  {
+    "name": "development",
+    "command": [
+      "pnpm",
+      "check:bff-a1-development"
+    ],
+    "exit_code": 0,
+    "seconds": 0.23
+  },
+  {
+    "name": "openapi",
+    "command": [
+      "pnpm",
+      "check:bff-openapi"
+    ],
+    "exit_code": 0,
+    "seconds": 0.22
+  },
+  {
+    "name": "generated",
+    "command": [
+      "pnpm",
+      "check:bff-generated"
+    ],
+    "exit_code": 0,
+    "seconds": 0.59
+  },
+  {
+    "name": "catalog",
+    "command": [
+      "pnpm",
+      "check:bff-contract-coverage"
+    ],
+    "exit_code": 0,
+    "seconds": 0.22
+  },
+  {
+    "name": "compatibility",
+    "command": [
+      "pnpm",
+      "check:bff-compatibility"
+    ],
+    "exit_code": 0,
+    "seconds": 0.26
+  },
+  {
+    "name": "a1-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/bff-fe-000-gate-negative.mjs",
+      "scripts/bff-remediation-negative.mjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.2
+  },
+  {
+    "name": "client-typecheck",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "typecheck"
+    ],
+    "exit_code": 0,
+    "seconds": 1.12
+  },
+  {
+    "name": "client-lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "lint"
+    ],
+    "exit_code": 0,
+    "seconds": 1.21
+  },
+  {
+    "name": "rust-reference",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "bff-gateway",
+      "--locked",
+      "--offline"
+    ],
+    "exit_code": 0,
+    "seconds": 9.09
+  },
+  {
+    "name": "rust-format",
+    "command": [
+      "cargo",
+      "fmt",
+      "-p",
+      "bff-gateway",
+      "--",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.19
+  }
+]

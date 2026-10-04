@@ -1,0 +1,91 @@
+     Locking 57 packages to latest Rust 1.91.0 compatible versions
+      Adding axum v0.7.9 (available: v0.8.9)
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling itoa v1.0.18
+   Compiling pin-project-lite v0.2.17
+   Compiling libc v0.2.189
+   Compiling futures-core v0.3.34
+   Compiling bytes v1.12.1
+   Compiling serde_core v1.0.229
+   Compiling tower-service v0.3.3
+   Compiling once_cell v1.21.4
+   Compiling httparse v1.10.1
+   Compiling rustversion v1.0.23
+   Compiling tower-layer v0.3.3
+   Compiling futures-task v0.3.34
+   Compiling serde v1.0.229
+   Compiling slab v0.4.12
+   Compiling zmij v1.0.23
+   Compiling log v0.4.33
+   Compiling tracing-core v0.1.36
+   Compiling futures-channel v0.3.34
+   Compiling futures-util v0.3.34
+   Compiling httpdate v1.0.3
+   Compiling smallvec v1.15.2
+   Compiling percent-encoding v2.3.2
+   Compiling atomic-waker v1.1.2
+   Compiling http v1.5.0
+   Compiling serde_json v1.0.151
+   Compiling sync_wrapper v1.0.2
+   Compiling tracing v0.1.44
+   Compiling form_urlencoded v1.2.2
+   Compiling ryu v1.0.23
+   Compiling memchr v2.8.3
+   Compiling mime v0.3.17
+   Compiling matchit v0.7.3
+   Compiling bitflags v2.13.1
+   Compiling http-body v1.1.0
+   Compiling tower-http v0.6.11
+   Compiling http-body-util v0.1.5
+   Compiling syn v2.0.119
+   Compiling syn v3.0.3
+   Compiling socket2 v0.6.5
+   Compiling mio v1.2.2
+   Compiling serde_path_to_error v0.1.20
+   Compiling serde_urlencoded v0.7.1
+   Compiling tokio-macros v2.7.1
+   Compiling async-trait v0.1.91
+   Compiling tokio v1.53.1
+   Compiling axum-core v0.4.5
+   Compiling hyper v1.11.0
+   Compiling tower v0.5.3
+   Compiling hyper-util v0.1.20
+   Compiling axum v0.7.9
+   Compiling quantos-provider-a1-cors-probe v0.0.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-cors-v10cjshh)
+warning: function `source_cors` is never used
+ --> src/lib.rs:4:4
+  |
+4 | fn source_cors() -> CorsLayer { let origin_header=HeaderValue::from_static("https://terminal.example.invalid"); CorsLayer::new()
+  |    ^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `preflight` is never used
+  --> src/lib.rs:26:10
+   |
+26 | async fn preflight(headers:&str)->String {
+   |          ^^^^^^^^^
+
+warning: `quantos-provider-a1-cors-probe` (lib) generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.02s
+     Running unittests src/lib.rs (target/provider-a1-cors-probe/debug/deps/quantos_provider_a1_cors_probe-01ccdb6557530d1d)
+
+running 2 tests
+access-control-allow-headers: authorization,content-type,x-account-id,x-csrf-token,idempotency-key,if-match,x-request-id,x-correlation-id,traceparent
+
+thread 'required_recent_auth_header_is_allowed' (1299113) panicked at src/lib.rs:31:210:
+OpenAPI/consumer/live recent-auth header must be allowed by preflight
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test declared_common_headers_are_allowed ... ok
+test required_recent_auth_header_is_allowed ... FAILED
+
+failures:
+
+failures:
+    required_recent_auth_header_is_allowed
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`

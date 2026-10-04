@@ -1,0 +1,22 @@
+CorsLayer::new()
+                .allow_origin(origin_header)
+                .allow_credentials(true)
+                .allow_methods([
+                    Method::GET,
+                    Method::POST,
+                    Method::PUT,
+                    Method::DELETE,
+                    Method::OPTIONS,
+                ])
+                .allow_headers([
+                    header::AUTHORIZATION,
+                    header::CONTENT_TYPE,
+                    HeaderName::from_static("x-account-id"),
+                    HeaderName::from_static("x-csrf-token"),
+                    HeaderName::from_static("idempotency-key"),
+                    HeaderName::from_static("if-match"),
+                    HeaderName::from_static("x-request-id"),
+                    HeaderName::from_static("x-correlation-id"),
+                    HeaderName::from_static("traceparent"),
+                ])
+                .expose_headers([HeaderName::from_static("x-correlation-id")])
