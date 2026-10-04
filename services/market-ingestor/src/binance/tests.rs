@@ -142,3 +142,55 @@ fn endpoint_cannot_redirect_native_calls_to_other_hosts() {
         assert!(endpoint(u, true).is_err(), "{u}");
     }
 }
+
+#[test]
+fn server_clock_diagnostics_preserve_unknowns_and_rtt_bounds() {
+    use std::{
+        io::{Read, Write},
+        net::TcpListener,
+    };
+    for body in ["{\"serverTime\":1700000000000}", "{}"] {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let base = url::Url::parse(&format!("http://{}/", listener.local_addr().unwrap())).unwrap();
+        std::thread::scope(|scope| {
+            scope.spawn(|| {
+                let (mut stream, _) = listener.accept().unwrap();
+                let mut request = [0; 4096];
+                let size = stream.read(&mut request).unwrap();
+                assert!(size > 0);
+                write!(
+                    stream,
+                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                    body.len(),
+                    body
+                )
+                .unwrap();
+            });
+            let source = Source {
+                client: reqwest::blocking::Client::new(),
+                base,
+            };
+            let r = source.clock_observation("BTCUSDT").unwrap();
+            if body == "{}" {
+                assert_eq!(r["status"], "UNMEASURED");
+                assert!(r["offset_lower_ms"].is_null());
+            } else {
+                assert_eq!(r["status"], "MEASURED_RTT_BOUNDS");
+                assert!(
+                    r["offset_lower_ms"].as_i64().unwrap()
+                        <= r["offset_upper_ms"].as_i64().unwrap()
+                );
+            }
+        });
+    }
+}
+#[test]
+fn owned_stop_pipe_is_bounded_and_eof_stops_requests() {
+    for bytes in [b"stop\nextra".as_slice(), b"".as_slice()] {
+        let flag = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let mut reader = std::io::Cursor::new(bytes);
+        super::stop_pipe(&mut reader, flag.clone());
+        assert!(flag.load(std::sync::atomic::Ordering::Acquire));
+        assert!(reader.position() <= 5);
+    }
+}

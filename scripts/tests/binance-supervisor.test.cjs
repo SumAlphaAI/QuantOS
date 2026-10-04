@@ -52,8 +52,64 @@ test('read timeouts degrade health and circuit-break without retrying writes', a
     license_label: 'fixture', approval_version: 'v1', approval_reference: 'fixture:test', instruments: { BTCUSDT: 'BTC/USDT' } }]));
   let reads = 0, alerts = 0, failed;
   const state = { stopping: false, config: { ...config(), approvals: file, fixture: true, max_failures: 2 },
-    watchDb: { query: async () => { reads++; throw Error('Query read timeout'); } }, record() {}, writeHealth() {},
+    watchDb: { query: async () => { reads++; throw Error('Query read timeout'); } }, replaceWatchClient: async () => {}, record() {}, writeHealth() {},
     enqueueAlert(kind) { assert.equal(kind, 'market.source.monitor_degraded'); alerts++; }, fail(code) { failed = code; this.stopping = true; } };
   try { await Supervisor.prototype.watch.call(state); assert.equal(reads, 2); assert.equal(alerts, 1); assert.equal(failed, 'R01_WATCH_READ_CIRCUIT'); assert.equal(state.ready, false); }
   finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
+test('timed-out read connection is discarded before recovery without retrying writes', async () => {
+  const order = [], replacement = { async connect() { order.push('connect'); } };
+  const state = { stopping: false, watchDb: { async end() { order.push('end'); assert.equal(state.watchDb, null); } },
+    makeWatchClient() { order.push('new'); return replacement; }, record(kind) { order.push(kind); } };
+  await Supervisor.prototype.replaceWatchClient.call(state);
+  assert.deepEqual(order, ['end', 'new', 'connect', 'monitor_connection_replaced']); assert.equal(state.watchDb, replacement);
+});
+test('supervisor uses the native canonical freshness identity and records post-append ACK', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r01-shared-id-')), file = path.join(root, 'approval.json');
+  fs.writeFileSync(file, JSON.stringify([{ provider: 'binance.spot.aggtrades', enabled: true, expires_at: '2099-01-01T00:00:00Z', freshness_sla_secs: 2,
+    license_label: 'fixture', approval_version: 'v1', approval_reference: 'fixture:test', instruments: { BTCUSDT: 'BTC/USDT' } }]));
+  let sourceId, payload;
+  const state = { config: { ...config(), approvals: file, fixture: true }, alerts: [], record() {},
+    alertDb: { query: async cfg => { const args = cfg.values; sourceId = args[3]; payload = JSON.parse(args[5])[0].payload; return { rows: [{ inserted: true }] }; } } };
+  const checkpoint = '2026-10-04T00:00:00.123Z';
+  try { await Supervisor.prototype.persistAlert.call(state, 'market.source.freshness_degraded', 'BTCUSDT', checkpoint,
+    { reason: 'binance_poll_unavailable', last_response_at: checkpoint }, Date.now());
+    assert.equal(sourceId, 'watchdog:freshness:v2:BTCUSDT:' + checkpoint);
+    assert.equal(payload.last_response_at, checkpoint); assert.equal(payload.producer, undefined);
+    assert.equal(state.alerts[0].producer, 'supervisor'); assert.ok(state.alerts[0].append_ms >= 0);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
+test('bounded acceptance ACK evidence fails closed instead of rotating away unmeasured events', () => {
+  const state = { config: { capture_commit_evidence: true }, log: { write() {} }, evidenceBytes: 134217728, failure: null, stopping: false };
+  Supervisor.prototype.record.call(state, 'binance_page_committed', { input: 1 });
+  assert.equal(state.failure, 'R01_COMMIT_EVIDENCE_LIMIT'); assert.equal(state.stopping, true);
+});
+test('ACK confirmation timeout never substitutes for the five-second origin acceptance limit', async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r01-alert-budget-')), file = path.join(root, 'approval.json');
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.writeFileSync(file, JSON.stringify([{ provider: 'binance.spot.aggtrades', enabled: true, expires_at: '2099-01-01T00:00:00Z', freshness_sla_secs: 2,
+    license_label: 'fixture', approval_version: 'v1', approval_reference: 'fixture:test', instruments: { BTCUSDT: 'BTC/USDT' } }]));
+  let now = 10000, budget, violation; t.mock.method(Date, 'now', () => now);
+  const state = { config: { ...config(), approvals: file, fixture: true }, alerts: [], record(kind, fields) { if (kind === 'alert_sla_missed') violation = fields; },
+    alertDb: { async query(cfg) { budget = cfg.query_timeout; now += 3100; return { rows: [{ inserted: true }] }; } } };
+  await Supervisor.prototype.persistAlert.call(state, 'market.source.monitor_degraded', 'BTCUSDT', 'monitor:test', { reason: 'monitor_read_timeout' }, 8000);
+  assert.equal(budget, 5000); assert.equal(state.alerts[0].remaining_origin_budget_ms, 3000);
+  assert.equal(state.alerts[0].elapsed_ms, 5100); assert.equal(violation.acceptance, 'FAIL_SLA_OR_CLOCK');
+  now = 20000;
+  await Supervisor.prototype.persistAlert.call(state, 'market.source.freshness_degraded', 'BTCUSDT', 'recovery:test',
+    { last_response_at: '1970-01-01T00:00:01.000Z', reason: 'binance_poll_unavailable' }, 3000);
+  assert.equal(budget, 5000); assert.equal(state.alerts[1].elapsed_ms, 20100); assert.equal(violation.elapsed_ms, 20100);
+});
+test('uncertain alert write is identified without retry or fabricated ACK', async t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'r01-alert-unknown-')), file = path.join(root, 'approval.json');
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.writeFileSync(file, JSON.stringify([{ provider: 'binance.spot.aggtrades', enabled: true, expires_at: '2099-01-01T00:00:00Z', freshness_sla_secs: 2,
+    license_label: 'fixture', approval_version: 'v1', approval_reference: 'fixture:test', instruments: { BTCUSDT: 'BTC/USDT' } }]));
+  const records = []; let calls = 0;
+  const state = { config: { ...config(), approvals: file, fixture: true }, alerts: [], record(kind, fields) { records.push({ kind, ...fields }); },
+    alertDb: { async query() { calls++; throw Error('Query read timeout'); } } };
+  await assert.rejects(Supervisor.prototype.persistAlert.call(state, 'market.source.monitor_degraded', 'BTCUSDT', 'monitor:test', { reason: 'monitor_read_timeout' }, Date.now() - 2000), /R01_ALERT_PERSISTENCE/);
+  assert.equal(calls, 1); assert.equal(state.alerts.length, 0); assert.equal(records[0].kind, 'alert_commit_unconfirmed');
+  assert.ok(records[0].attempted_event_id); assert.equal(records[0].event_id, undefined);
+  assert.equal(records[0].error_code, 'CLIENT_QUERY_TIMEOUT');
 });

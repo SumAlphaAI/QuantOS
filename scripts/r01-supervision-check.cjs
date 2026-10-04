@@ -3,12 +3,15 @@ const fs = require('node:fs'), path = require('node:path'), crypto = require('no
 const { spawn, spawnSync } = require('node:child_process');
 const { parseArgs } = require('node:util');
 const { targetUrl, client, connectionMode } = require('./lib/r01-db.cjs');
+const { Supervisor } = require('./binance-supervisor.cjs');
+const { elapsed: preciseElapsed } = require('./r01-window-metrics.cjs');
 const delay = ms => new Promise(r => setTimeout(r, ms));
 const { values } = parseArgs({ options: { live: { type: 'boolean', default: false } } });
 const out = path.resolve(process.env.QUANTOS_R01_EVIDENCE_DIR || 'artifacts/r01-supervision'); fs.mkdirSync(out, { recursive: true });
+if (fs.readdirSync(out).length) throw Error('R01_SUPERVISION_EVIDENCE_NOT_EMPTY');
 const sourceFiles = ['scripts/binance-supervisor.cjs', 'scripts/lib/r01-db.cjs', 'scripts/r01-supervision-check.cjs',
   'services/market-ingestor/src/binance.rs', 'services/market-ingestor/src/main.rs', 'services/market-ingestor/src/cli.rs',
-  'crates/quantos-event/src/pg.rs', 'crates/quantos-market/src/durable.rs',
+  'crates/quantos-observability/src/service.rs', 'crates/quantos-event/src/pg.rs', 'crates/quantos-market/src/durable.rs',
   'docs/provider-approvals/20261003-binance-public-evaluation.json', 'docs/provider-approvals/20261003-binance-public-evaluation.md'];
 const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const hashes = () => Object.fromEntries(sourceFiles.map(f => [f, digest(fs.readFileSync(f))]));
@@ -80,12 +83,17 @@ async function main() {
       if (selected === 'malformed') { res.end('{}'); return; }
       const T = selected === 'stale' ? at - 60000 : at;
       if (selected === 'badprice' || selected === 'stale') mode = 'good';
+      if (selected === 'draining') {
+        mode = 'good';
+        setTimeout(() => { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify([{ a: id, p: '100.1250', q: '1.00', T, f: id, l: id, m: false }])); }, 350);
+        return;
+      }
       res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify([{ a: id, p: selected === 'badprice' ? '-1' : '100.1250', q: '1.00', T, f: id, l: id, m: false }]));
     });
     await new Promise(r => server.listen(0, '127.0.0.1', r)); env.QUANTOS_BINANCE_REST_BASE_URL = 'http://127.0.0.1:' + server.address().port + '/';
   } else env.QUANTOS_BINANCE_REST_BASE_URL = 'https://data-api.binance.vision/';
   config = { schema: 'quantos-binance-supervisor/v1', tenant, actor, provider, approvals, symbols: ['BTCUSDT'], fixture: !values.live,
-    log_dir: out, worker_iterations: 1000, poll_ms: 1000, runtime_seconds: 600, log_bytes: 16384, log_files: 5 };
+    capture_commit_evidence: true, log_dir: out, worker_iterations: 1000, poll_ms: 1000, runtime_seconds: 600, log_bytes: 16384, log_files: 5 };
   const cfg = path.join(out, 'config.json'); fs.writeFileSync(cfg, JSON.stringify(config, null, 2) + '\n');
   child = spawn(process.execPath, ['scripts/binance-supervisor.cjs', '--config', cfg], { env, stdio: ['ignore', 'ignore', 'pipe'] });
   let stderr = ''; child.stderr.on('data', c => { stderr = (stderr + c.toString()).slice(-4096); });
@@ -97,10 +105,12 @@ async function main() {
       await committed(kind + '_transport', f.changedAt, r => r.event_kind === 'market.source.freshness_degraded'); mode = 'good'; await progress(Date.now());
     }
     for (const [kind, eventKind] of [['badprice', 'market.tick.quality_failed'], ['stale', 'market.tick.freshness_degraded']]) {
-      const f = await fault(kind); const p = await progress(f.at);
+      const f = await fault(kind); const p = await until(() => records().find(r => r.kind === 'binance_page_committed'
+        && r.events?.some(e => e.event_kind === eventKind && e.source_tick_id === 'BTCUSDT:agg:' + f.id)));
       const rows = (await db.query("select event_id,event_kind,payload from quantos.event_log where tenant_id=$1 and event_kind=$2 and payload->>'source_tick_id'=$3", [tenant, eventKind, 'BTCUSDT:agg:' + f.id])).rows;
-      const elapsed = Date.parse(p.at) - f.at; if (rows.length !== 1 || elapsed < 0 || elapsed > 5000) throw Error('R01_TICK_SLA_FAILED');
-      cases.push({ name: kind, status: 'PASS', fixture: true, fault_at: new Date(f.at).toISOString(), commit_ack_at: p.at, elapsed_ms: elapsed, event: rows[0], measurement: 'native progress emitted after transaction commit ACK' });
+      const elapsed = preciseElapsed(p.write.commit_ack_at, new Date(f.at).toISOString()); if (rows.length !== 1 || elapsed < 0 || elapsed > 5000) throw Error('R01_TICK_SLA_FAILED');
+      if (!p.events.some(e => e.event_id === rows[0].event_id)) throw Error('R01_ACK_ID_MISMATCH');
+      cases.push({ name: kind, status: 'PASS', fixture: true, fault_at: new Date(f.at).toISOString(), commit_ack_at: p.write.commit_ack_at, elapsed_ms: elapsed, event: rows[0], measurement: 'native COMMIT ACK captured before stdout; response-send origin; exact event_id target readback' });
     }
     const rate = await fault('429'); await committed('rate_limit_exit', rate.at, r => r.event_kind === 'market.source.worker_stopped');
     const backoff = await until(() => records().find(r => r.kind === 'worker_backoff' && Date.parse(r.at) >= rate.at && r.code === 'BINANCE_RATE_LIMIT'));
@@ -130,6 +140,19 @@ async function main() {
   } else { await stop(); if (exit.code !== 0) throw Error('R01_STOP_FAILED'); }
   if (!values.live) {
     mode = 'good'; exit = null; logs = path.join(out, 'rotation'); fs.mkdirSync(logs, { recursive: true });
+    const rotationLogs = logs;
+    logs = path.join(out, 'graceful'); fs.mkdirSync(logs); exit = undefined;
+    config = { ...config, log_dir: logs, worker_iterations: 1000 }; fs.writeFileSync(cfg, JSON.stringify(config, null, 2) + '\n');
+    child = spawn(process.execPath, ['scripts/binance-supervisor.cjs', '--config', cfg], { env, stdio: ['ignore', 'ignore', 'ignore'] });
+    child.on('close', (code, signal) => { exit = { code, signal }; });
+    await progress(); const inflight = await fault('draining'), requestedStop = Date.now(); await stop();
+    const ack = records().find(r => r.kind === 'binance_page_committed' && r.events?.some(e => e.source_tick_id === 'BTCUSDT:agg:' + inflight.id));
+    const targetPage = (await db.query("select event_id from quantos.event_log where tenant_id=$1 and event_kind='market.tick.recorded' and payload->>'source_tick_id'=$2", [tenant, 'BTCUSDT:agg:' + inflight.id])).rows;
+    if (exit.code !== 0 || !ack || Date.parse(ack.write.commit_ack_at) < requestedStop || targetPage.length !== 1
+        || !ack.events.some(e => e.event_id === targetPage[0].event_id) || BigInt((await cursor()).next_id) !== BigInt(inflight.id) + 1n) throw Error('R01_GRACEFUL_ACK_FAILED');
+    cases.push({ name: 'graceful_stop_retains_inflight_page_ack', status: 'PASS', requested_stop_at: new Date(requestedStop).toISOString(),
+      commit_ack_at: ack.write.commit_ack_at, event_id: targetPage[0].event_id, next_id: String(inflight.id + 1) });
+    logs = rotationLogs; exit = undefined;
     config = { ...config, log_dir: logs, worker_iterations: 1 }; fs.writeFileSync(cfg, JSON.stringify(config, null, 2) + '\n');
     child = spawn(process.execPath, ['scripts/binance-supervisor.cjs', '--config', cfg], { env, stdio: ['ignore', 'ignore', 'ignore'] });
     child.on('close', (code, signal) => { exit = { code, signal }; });
@@ -142,7 +165,43 @@ async function main() {
     cases.push({ name: 'approval_revocation_stops_workers', status: 'PASS', revoked_at: new Date(revokedAt).toISOString() });
     const health = JSON.parse(fs.readFileSync(path.join(logs, 'health.json')));
     if (health.workers.some(w => w.pid !== null) || health.ready !== false) throw Error('R01_OWNED_WORKER_LEAK');
+    // Real target read timeout: pg_sleep holds only this owned read connection.
+    // The production monitor must discard it before reading the same target again.
+    p[0].enabled = true; fs.writeFileSync(approvals, JSON.stringify(p, null, 2) + '\n');
+    logs = path.join(out, 'read-recovery'); fs.mkdirSync(logs); exit = undefined; child = undefined;
+    config = { ...config, log_dir: logs, worker_iterations: 1000 };
+    const supervisor = new Supervisor(config); supervisor.env.QUANTOS_BINANCE_REST_BASE_URL = env.QUANTOS_BINANCE_REST_BASE_URL;
+    const factory = supervisor.makeWatchClient.bind(supervisor); let injectedRead = false, readOrigin, runError;
+    supervisor.makeWatchClient = () => {
+      const connection = factory(), query = connection.query.bind(connection);
+      connection.query = (sql, ...args) => {
+        if (!injectedRead && typeof sql === 'string' && sql.startsWith('select symbol,last_response_at')) {
+          injectedRead = true; readOrigin = Date.now();
+          fs.writeFileSync(path.join(logs, 'read-injection.json'), JSON.stringify({ target: 'configured Supabase', writes: false,
+            delay_ms: 3000, origin_at: new Date(readOrigin).toISOString() }) + '\n');
+          return query('select pg_sleep(3)');
+        }
+        return query(sql, ...args);
+      };
+      return connection;
+    };
+    const running = supervisor.run().catch(e => { runError = e; exit = { code: 1 }; });
+    try {
+      await until(() => records().some(r => r.kind === 'monitor_connection_replaced')
+        && JSON.parse(fs.readFileSync(path.join(logs, 'health.json'))).ready === true);
+      await committed('configured_read_timeout_alert', readOrigin, r => r.event_kind === 'market.source.monitor_degraded');
+      const replacements = records().filter(r => r.kind === 'monitor_connection_replaced').length;
+      if (replacements !== 1 || records().some(r => r.kind === 'supervisor_failure')) throw Error('R01_READ_RECOVERY_FAILED');
+      cases.push({ name: 'configured_read_connection_recovery', status: 'PASS', injected_delay_ms: 3000, replacements,
+        ready_after_real_cursor_read: true, writes_retried: false });
+    } finally { supervisor.stopping = true; await running; }
+    if (runError) throw runError;
+    const recoveredHealth = JSON.parse(fs.readFileSync(path.join(logs, 'health.json')));
+    if (recoveredHealth.workers.some(w => w.pid !== null) || recoveredHealth.failure) throw Error('R01_READ_RECOVERY_STOP_FAILED');
   }
+  const duplicates = (await db.query("select count(*)::int groups from (select payload->>'symbol',payload->>'last_response_at',count(*) from quantos.event_log where tenant_id=$1 and event_kind='market.source.freshness_degraded' and payload->>'last_response_at' is not null group by 1,2 having count(*)>1) d", [tenant])).rows[0].groups;
+  if (duplicates !== 0) throw Error('R01_SHARED_WATCHDOG_DUPLICATE');
+  cases.push({ name: 'shared_watchdog_single_fact_per_checkpoint', status: 'PASS', duplicate_groups: duplicates });
   const delivery = await drain();
   await db.query('update quantos.actors set is_active=false where id=$1 and tenant_id=$2', [actor, tenant]);
   if (JSON.stringify(before) !== JSON.stringify(hashes())) throw Error('R01_SOURCE_CHANGED');

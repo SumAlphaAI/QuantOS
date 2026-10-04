@@ -32,6 +32,12 @@ cargo run -p market-ingestor --locked -- binance-rest \
 
 HTTP timeout 3s；网络/HTTP 失败在本轮保留游标，后续轮次重试；最后一轮仍失败时退出非零。迭代 1–1000，poll-ms 1000–60000；完整响应中的连续已确认窗口才推进游标。数据积压不会回填/伪造 received_at 或隐藏 freshness 异常。
 
+2026-10-04 修订：poll-ms 是轮询轮次开始之间的最小间隔，每轮包括批准重载、HTTP、解码、领域处理与提交；已超过该间隔时，不再额外等待一个完整 poll-ms。实际 HTTP 请求起点另行记录，批准重载耗时可使请求间隔产生微小偏移。启动从数据库载入 next_id，只有原子页提交 ACK 返回的 next_id 才能用于下一请求；并发 cursor 冲突、结果不明或写入失败仍停止，重启再读持久 cursor。没有跳过 source ID、追赶到最新成交或放宽 freshness=2s。
+
+页 JSON 回执 `binance_page_committed` 包含 symbol、next_id、逐事件 event_id、event/received/detected 时间，及 HTTP headers/body/decode、领域 build、BEGIN/SET LOCAL/SQL/COMMIT/total 的 monotonic 毫秒。`write.commit_ack_at` 是客户端确认提交后的 UTC，`ingested_at` 或 progress 均不能替代。正常显式事务保留本地 statement/lock timeout；隐式路径 SQL 时间包含隐式提交，commit_ms=0 不能解释为没有提交成本。无成交页同样保留请求和持久 heartbeat 测量。
+
+每次真实 worker 启动读取相同获准官方 endpoint 的 `/api/v3/time`，输出 `binance_clock_observation`；按请求本机起止与 serverTime 给出 RTT 偏移上下界，失败标记 UNMEASURED。该探测不校正原始时间、阈值或证明双方 NTP 同步。官方接口支持说明见 [market data only](https://github.com/binance/binance-spot-api-docs/blob/master/faqs/market_data_only.md?plain=1) 与 [REST server time](https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md?plain=1)。
+
 独立 watchdog 使用另一条受限数据库连接/250ms timer，读取持久 last_response_at；成功且无成交也刷新 health，避免把正常无交易误判断网。进程停止时 timer 同样停止，必须由 supervisor 的进程存活检查补充告警；恢复时持久 last_response 状态不会清空。
 
 429/418 立即停止请求，保留游标，输出有界 Retry-After 秒数。运维至少等待该时长（没有有效值则检查官方限制后恢复），不能让 supervisor 紧循环重启；原生命令将限流交给外部监督程序；[持续运行监督](./r01_binance_supervisor.md)按有效 Retry-After 等待后恢复，缺失/无效值退出 78 请求人工处理。其他暂时 HTTP/网络错误按配置 poll-ms 重试。数据库失败、schema/gap、审批失效则停止并检查根因；不要跳过 ID 或删 receipt 强行修复。

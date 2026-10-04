@@ -1,0 +1,105 @@
+node ./scripts/check-r01.mjs
+R01 assembly Gate PASS; runtime, coverage and target Gates are separate.
+node --test ./scripts/r01-gate-negative.mjs ./scripts/r01-coverage-negative.mjs ./scripts/tests/binance-supervisor.test.cjs ./scripts/tests/r01-window.test.cjs ./scripts/tests/r01-window-metrics.test.cjs ./scripts/tests/r01-commit-evidence.test.cjs
+✔ complete coverage passes (0.631959ms)
+✔ lines below threshold fails (0.419875ms)
+✔ regions below threshold fails (0.375542ms)
+✔ branches below threshold fails (0.097458ms)
+✔ missing branch measurement fails (0.121666ms)
+✔ missing CLI source fails (0.216666ms)
+✔ current assembly passes (0.710125ms)
+✔ replay count regression fails closed (0.171292ms)
+✔ provider registry regression fails closed (0.142542ms)
+✔ source conflict regression fails closed (0.14025ms)
+✔ persistent writer regression fails closed (0.143916ms)
+✔ atomic transaction regression fails closed (0.120958ms)
+✔ F0 receipt regression fails closed (0.587125ms)
+✔ accepted dependency regression fails closed (0.205084ms)
+✔ CLI tests regression fails closed (0.152291ms)
+✔ CI assembly regression fails closed (0.177083ms)
+✔ pool selection preserves target identity and is never implicit (0.609667ms)
+✔ rate waits are never shortened and fatal errors do not restart (0.387542ms)
+✔ configuration bounds and approval expiry/revocation fail closed (1.582292ms)
+✔ logs rotate with bounded retention and deterministic payload hash (2.797167ms)
+✔ read timeouts degrade health and circuit-break without retrying writes (253.484333ms)
+✔ supervisor uses the native canonical freshness identity and records post-append ACK (2.46075ms)
+✔ bounded acceptance ACK evidence fails closed instead of rotating away unmeasured events (0.195792ms)
+✔ monitor alert uses the remaining five-second origin budget and retains a late ACK violation (1.66775ms)
+✔ uncertain alert write is identified without retry or fabricated ACK (1.361083ms)
+✔ acceptance ACK and lifecycle survive operational log rotation without duplicate records (10.334167ms)
+✔ ACK measurement retains the nanosecond that crosses the five second limit (0.645875ms)
+✔ progress, ingested_at and duplicate attempts cannot substitute for exact ACK (0.203542ms)
+✔ duplicate ACK identities and mismatched target payloads fail closed (0.077833ms)
+✔ native source facts require ACKs and duplicate checkpoints remain visible (0.722125ms)
+✔ freshness, stale health and submission violations remain failures despite pending zero (5.241084ms)
+✔ readback corruption, active actor and missing phase data are rejected (2.312584ms)
+✔ malformed traces and absent exact evidence cannot silently reduce the measured denominator (2.098417ms)
+✔ lossless JSONL compression preserves the complete offline result (2.735667ms)
+✔ missing phase durations and UTC boundaries are never reported as zero cost (1.724083ms)
+✔ a failed window retains target facts with unknown ACK even when delivery is complete (2.2945ms)
+✔ 30 minute owner-approved evaluation is bounded and preserves original expiry (0.434542ms)
+✔ scope cannot grow permissions, duration, endpoint, tenant lifecycle or resource envelope (0.250917ms)
+✔ scope and provider expiry, revocation and version identity fail closed (0.103209ms)
+✔ sampling deadlines do not drift with queries and missed periods are explicit (0.798708ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 301.833625
+cargo test -p quantos-market --lib --locked
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running unittests src/lib.rs (target/debug/deps/quantos_market-3f958c2c8750d096)
+
+running 13 tests
+test tests::identity_is_tenant_scoped_and_conflicting_content_is_rejected ... ok
+test tests::freshness_and_quality_anomalies_emit_events_within_five_seconds ... ok
+test tests::failed_batch_does_not_publish_partial_ledger_or_identity ... ok
+test tests::instrument_identity_is_unambiguous_and_venue_scoped ... ok
+test tests::provider_configuration_fails_closed_and_supports_revocation ... ok
+test tests::rejects_unapproved_providers_and_normalizes_symbols ... ok
+test tests::invalid_numeric_ticks_emit_quality_with_raw_values_and_continue ... ok
+test tests::processing_clock_detects_backlog_future_receive_and_future_event ... ok
+test tests::out_of_order_and_duplicate_ticks_are_deduplicated ... ok
+test tests::pure_domain_p95_under_fifty_milliseconds ... ok
+test tests::error_codes_and_io_failures_are_deterministic ... ok
+test tests::replay_and_parser_are_bounded_and_invalid_specs_return_errors ... ok
+test tests::replay_dataset_ingests_one_hundred_thousand_ticks_without_parse_failures ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.27s
+
+cargo test -p market-ingestor --locked
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/main.rs (target/debug/deps/market_ingestor-91bfbbc7b47846ff)
+
+running 4 tests
+test binance::tests::retry_after_is_strict_and_fatal_errors_do_not_churn ... ok
+test binance::tests::endpoint_cannot_redirect_native_calls_to_other_hosts ... ok
+test binance::tests::server_clock_diagnostics_preserve_unknowns_and_rtt_bounds ... ok
+test binance::tests::aggregate_mapping_identity_and_gap_boundaries ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/binance.rs (target/debug/deps/binance-e8881d49b17157f2)
+
+running 3 tests
+test cli_transport_outage_recovers_from_committed_cursor_and_restarts ... ok
+test supabase_pages_are_atomic_and_empty_polls_are_transport_health ... ok
+test cli_rejects_unbounded_and_unapproved_configuration ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.01s
+
+     Running tests/cli.rs (target/debug/deps/cli-e5cded3a4a70f5da)
+
+running 2 tests
+test cli_supabase_fixture_and_recovery_paths ... ok
+test cli_success_rejection_and_config_paths ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+/Library/Developer/CommandLineTools/usr/bin/make r01-mutation-check
+node ./scripts/r01-mutation-check.mjs
+R01 compiled mutation rejected: source-content-conflict
+R01 compiled mutation rejected: failed-append-identity

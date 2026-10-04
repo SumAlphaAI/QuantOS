@@ -1,0 +1,289 @@
+{
+  "schema": "quantos-r01-supervision/v1",
+  "status": "PASS",
+  "sourceCommit": "e4d2cfdd26f8a7b01838dce7bc1ccff67648d361",
+  "workingTreeModified": true,
+  "sourceHashes": {
+    "scripts/binance-supervisor.cjs": "9a980a77a69760c2627dcd81b71fb71b4eb52f4a7351e0dedb576731deffdcd0",
+    "scripts/lib/r01-db.cjs": "107f61d25736a38441b26d26a774c7920baec101c9f0fb1da70bac4190d0dd30",
+    "scripts/r01-supervision-check.cjs": "08705da01cd47efdc9eaf1f6e8b4c3d5a3299d157e16e422fa7d2e40bba982b7",
+    "services/market-ingestor/src/binance.rs": "b9b776dc429746a02c31cff1a59ce499cd614ddb2b5cb755af0493135e520206",
+    "services/market-ingestor/src/main.rs": "a5ef54d0de13732a2014fe420f8b201efc21ec113cfcbc0d404d75d1b5acee65",
+    "services/market-ingestor/src/cli.rs": "12ce0c01688a8d8df8a1d25e6cf0f9f9832083ecd190a3fe525e2a34c2916434",
+    "crates/quantos-observability/src/service.rs": "15fcb3aad2679843a0747f5ec46ac1b437eca67f961db8489fe35a029934a0e3",
+    "crates/quantos-event/src/pg.rs": "0cf4d3f33171387f51582d767f79b403d254ac0857f02218c89d5ba61bf10ed3",
+    "crates/quantos-market/src/durable.rs": "4cc04d8c5b5ecf21530b7ee06a58ce2b65b147530fb29214f5ea69cf58cce739",
+    "docs/provider-approvals/20261003-binance-public-evaluation.json": "3b93ad615d776c86701173e077d1829e45808b95c3335ec9c53871f49201170e",
+    "docs/provider-approvals/20261003-binance-public-evaluation.md": "ab95f8073db1fe903286bb860aa53f87a819abe62fdc210a556f8a21b67aea7d"
+  },
+  "binarySha256": "2758e75b46e30a5c35bda8ba6c74aafdc558848f5d01109288f9a3ca490bdd81",
+  "target": "configured Supabase PostgreSQL",
+  "connectionMode": "transaction",
+  "provider": "loopback injected source",
+  "fixture": true,
+  "tenant": "8b460731-e80a-4eb6-a870-edd49191138f",
+  "actor": "4871f676-2710-4e6d-82bb-211c0c11ca79",
+  "actorActive": false,
+  "cases": [
+    {
+      "name": "503_transport",
+      "status": "PASS",
+      "fixture": true,
+      "fault_at": "2026-10-04T03:41:38.431Z",
+      "commit_ack_at": "2026-10-04T03:41:41.451Z",
+      "elapsed_ms": 3020,
+      "event_id": "25c5f846-1201-4a28-b911-391891d0ed8e",
+      "readback": {
+        "event_kind": "market.source.freshness_degraded",
+        "payload": {
+          "reason": "binance_poll_unavailable",
+          "symbol": "BTCUSDT",
+          "quality": "degraded",
+          "provider": "fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed",
+          "last_response_at": "2026-10-04T03:41:39.105Z"
+        },
+        "payload_hash": "sha256:793b8eb810c6526bf3bf34b9001088cc835536e5420c9c9cd5a2a30071b2d293",
+        "sequence": "2",
+        "occurred_at": "2026-10-04T03:41:41.214Z"
+      }
+    },
+    {
+      "name": "timeout_transport",
+      "status": "PASS",
+      "fixture": true,
+      "fault_at": "2026-10-04T03:41:44.575Z",
+      "commit_ack_at": "2026-10-04T03:41:47.884Z",
+      "elapsed_ms": 3309,
+      "event_id": "93f9c532-ae04-4bcb-8551-732717a92da3",
+      "readback": {
+        "event_kind": "market.source.freshness_degraded",
+        "payload": {
+          "reason": "binance_poll_unavailable",
+          "symbol": "BTCUSDT",
+          "quality": "degraded",
+          "provider": "fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed",
+          "last_response_at": "2026-10-04T03:41:45.093Z"
+        },
+        "payload_hash": "sha256:f474a589b84c64106cee95908164ca1758956c83f3866314bcc40e2dfd7bd14e",
+        "sequence": "3",
+        "occurred_at": "2026-10-04T03:41:47.169Z"
+      }
+    },
+    {
+      "name": "badprice",
+      "status": "PASS",
+      "fixture": true,
+      "fault_at": "2026-10-04T03:41:49.523Z",
+      "commit_ack_at": "2026-10-04T03:41:50.439057Z",
+      "elapsed_ms": 916,
+      "event": {
+        "event_id": "01a10500-ee54-79d1-9396-cb6bc67cd040",
+        "event_kind": "market.tick.quality_failed",
+        "payload": {
+          "price": null,
+          "volume": "1.00",
+          "dataset": "fixture.supervised.aggregate.v1",
+          "quality": "failed",
+          "provider": "fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed",
+          "raw_price": "-1",
+          "event_kind": "quality_failed",
+          "event_time": "2026-10-04T03:41:49.523Z",
+          "raw_volume": "1.00",
+          "detected_at": "2026-10-04T03:41:49.524018Z",
+          "received_at": "2026-10-04T03:41:49.523877Z",
+          "license_label": "fixture-only",
+          "anomaly_reason": "invalid_or_non_positive_price_or_volume",
+          "source_tick_id": "BTCUSDT:agg:1007",
+          "provider_symbol": "BTCUSDT",
+          "approval_version": "v1",
+          "normalized_symbol": "BTC/USDT",
+          "approval_reference": "fixture:supervisor-target"
+        }
+      },
+      "measurement": "native COMMIT ACK captured before stdout; response-send origin; exact event_id target readback"
+    },
+    {
+      "name": "stale",
+      "status": "PASS",
+      "fixture": true,
+      "fault_at": "2026-10-04T03:41:51.532Z",
+      "commit_ack_at": "2026-10-04T03:41:52.615701Z",
+      "elapsed_ms": 1083,
+      "event": {
+        "event_id": "01a10500-f62e-7f31-8abf-c21ada318c9a",
+        "event_kind": "market.tick.freshness_degraded",
+        "payload": {
+          "price": "100.1250",
+          "volume": "1.00",
+          "dataset": "fixture.supervised.aggregate.v1",
+          "quality": "degraded",
+          "provider": "fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed",
+          "raw_price": "100.1250",
+          "event_kind": "freshness_degraded",
+          "event_time": "2026-10-04T03:40:51.532Z",
+          "raw_volume": "1.00",
+          "detected_at": "2026-10-04T03:41:51.534228Z",
+          "received_at": "2026-10-04T03:41:51.533807Z",
+          "license_label": "fixture-only",
+          "anomaly_reason": "freshness_sla_breached",
+          "source_tick_id": "BTCUSDT:agg:1009",
+          "provider_symbol": "BTCUSDT",
+          "approval_version": "v1",
+          "normalized_symbol": "BTC/USDT",
+          "approval_reference": "fixture:supervisor-target"
+        }
+      },
+      "measurement": "native COMMIT ACK captured before stdout; response-send origin; exact event_id target readback"
+    },
+    {
+      "name": "rate_limit_exit",
+      "status": "PASS",
+      "fixture": true,
+      "fault_at": "2026-10-04T03:41:53.619Z",
+      "commit_ack_at": "2026-10-04T03:41:54.020Z",
+      "elapsed_ms": 401,
+      "event_id": "6cdbd93b-6beb-4fa4-ac69-f9ae467fe094",
+      "readback": {
+        "event_kind": "market.source.worker_stopped",
+        "payload": {
+          "reason": "worker_exit",
+          "signal": null,
+          "symbol": "BTCUSDT",
+          "quality": "degraded",
+          "provider": "fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed",
+          "exit_code": 1
+        },
+        "payload_hash": "sha256:dcd275a07c141c9684c26427cf30f100eebbcd67b22a2c824f732b0eee275b5c",
+        "sequence": "4",
+        "occurred_at": "2026-10-04T03:41:53.789Z"
+      }
+    },
+    {
+      "name": "retry_after_respected",
+      "status": "PASS",
+      "requested_ms": 3000,
+      "actual_ms": 3482
+    },
+    {
+      "name": "worker_suspended",
+      "status": "PASS",
+      "fixture": true,
+      "fault_at": "2026-10-04T03:42:01.134Z",
+      "commit_ack_at": "2026-10-04T03:42:03.129Z",
+      "elapsed_ms": 1995,
+      "event_id": "e7b141d6-196c-4878-89ff-d9387ad900de",
+      "readback": {
+        "event_kind": "market.source.freshness_degraded",
+        "payload": {
+          "reason": "binance_poll_unavailable",
+          "symbol": "BTCUSDT",
+          "quality": "degraded",
+          "provider": "fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed",
+          "last_response_at": "2026-10-04T03:42:00.783Z"
+        },
+        "payload_hash": "sha256:3b9b9c6fe1b1f840c4f9cfd29125c994439f530a20631ec61bf95110b9c07932",
+        "sequence": "6",
+        "occurred_at": "2026-10-04T03:42:02.836Z"
+      }
+    },
+    {
+      "name": "worker_killed",
+      "status": "PASS",
+      "fixture": true,
+      "fault_at": "2026-10-04T03:42:03.420Z",
+      "commit_ack_at": "2026-10-04T03:42:03.654Z",
+      "elapsed_ms": 234,
+      "event_id": "dcb8a2e6-6917-4588-a4c6-1fd9ef23b173",
+      "readback": {
+        "event_kind": "market.source.worker_stopped",
+        "payload": {
+          "reason": "worker_exit",
+          "signal": "SIGKILL",
+          "symbol": "BTCUSDT",
+          "quality": "degraded",
+          "provider": "fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed",
+          "exit_code": null
+        },
+        "payload_hash": "sha256:28c23bf8626b1721c3ac6f614e73c3f7063fb93d6e45632c646555d349b95a70",
+        "sequence": "7",
+        "occurred_at": "2026-10-04T03:42:03.422Z"
+      }
+    },
+    {
+      "name": "resume_identity_span",
+      "status": "PASS",
+      "initial": {
+        "initial_id": "1000",
+        "next_id": "1013",
+        "last_response_at": "2026-10-04T03:42:00.783Z"
+      },
+      "resumed": {
+        "initial_id": "1000",
+        "next_id": "1014",
+        "last_response_at": "2026-10-04T03:42:07.230Z"
+      },
+      "uniqueTicks": 14
+    },
+    {
+      "name": "malformed_quality",
+      "status": "PASS",
+      "fixture": true,
+      "fault_at": "2026-10-04T03:42:08.657Z",
+      "commit_ack_at": "2026-10-04T03:42:09.130Z",
+      "elapsed_ms": 473,
+      "event_id": "6f68a581-4dfa-48f5-bd01-384c9903debc",
+      "readback": {
+        "event_kind": "market.source.quality_degraded",
+        "payload": {
+          "reason": "BINANCE_RESPONSE_SCHEMA",
+          "signal": null,
+          "symbol": "BTCUSDT",
+          "quality": "degraded",
+          "provider": "fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed",
+          "exit_code": 1
+        },
+        "payload_hash": "sha256:bfa0d8e24768034ba2c670ce3af79141854cb94c1e94ac860e75acb63ece780b",
+        "sequence": "8",
+        "occurred_at": "2026-10-04T03:42:08.838Z"
+      }
+    },
+    {
+      "name": "normal_iteration_rotation",
+      "status": "PASS",
+      "starts": 2
+    },
+    {
+      "name": "approval_revocation_stops_workers",
+      "status": "PASS",
+      "revoked_at": "2026-10-04T03:42:24.439Z"
+    },
+    {
+      "name": "shared_watchdog_single_fact_per_checkpoint",
+      "status": "PASS",
+      "duplicate_groups": 0
+    }
+  ],
+  "max_anomaly_elapsed_ms": 3309,
+  "threshold_ms": 5000,
+  "measurement": "fault injection / bad response send to native transaction commit ACK or supervisor append ACK; target event readback required",
+  "delivery": {
+    "pending": 0,
+    "outbox": 29,
+    "applied": 29,
+    "checkpoints": [
+      {
+        "stream_key": "market:fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed:BTC/USDT",
+        "expected": "19",
+        "actual": "19"
+      },
+      {
+        "stream_key": "market:fixture.supervised.71ee4e7a-5bf4-42c8-a651-f54ed272a9ed:source",
+        "expected": "10",
+        "actual": "10"
+      }
+    ]
+  },
+  "longRunning24h": "NOT RUN",
+  "supervisorProcessDeath": "requires external service manager",
+  "commercialLicense": "NOT VERIFIED"
+}

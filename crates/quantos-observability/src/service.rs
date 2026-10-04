@@ -118,8 +118,12 @@ impl JsonlTraceExporter {
             .open(self.path())?;
         let mut safe_record = record.clone();
         safe_record.attributes = redact_value(safe_record.attributes);
-        serde_json::to_writer(&mut file, &safe_record).map_err(std::io::Error::other)?;
-        file.write_all(b"\n")?;
+        let mut bytes = serde_json::to_vec(&safe_record).map_err(std::io::Error::other)?;
+        bytes.push(b'\n');
+        // Mutex protects clones in this process; the OS lock protects other processes.
+        // Keep the lock across short writes and the newline, including query readers.
+        file.lock()?;
+        file.write_all(&bytes)?;
         file.flush()
     }
 
@@ -133,6 +137,7 @@ impl JsonlTraceExporter {
             .lock()
             .map_err(|_| std::io::Error::other("trace exporter lock poisoned"))?;
         let file = File::open(self.path())?;
+        file.lock_shared()?;
         let mut records = Vec::new();
         for line in std::io::BufRead::lines(std::io::BufReader::new(file)) {
             let line = line?;
@@ -738,5 +743,47 @@ mod tests {
         assert!(written.contains("[REDACTED]"));
         assert!(probe.serve("0.0.0.0:0".parse().unwrap()).is_err());
         std::fs::remove_file(trace_path).expect("remove trace fixture");
+    }
+    #[test]
+    fn multiprocess_jsonl_fixture() {
+        if let Ok(path) = std::env::var("QUANTOS_TRACE_CHILD_PATH") {
+            let probe = ServiceObservability::with_jsonl_exporter("multi", path).unwrap();
+            for _ in 0..60 {
+                probe
+                    .record_trace(
+                        CorrelationId::new(),
+                        "write",
+                        "succeeded",
+                        json!({"safe": "x".repeat(8192), "pid": std::process::id()}),
+                    )
+                    .unwrap();
+            }
+        }
+    }
+
+    #[test]
+    fn multiple_processes_write_complete_jsonl_records() {
+        let path =
+            std::env::temp_dir().join(format!("trace-process-{}.jsonl", CorrelationId::new()));
+        let mut children = Vec::new();
+        for _ in 0..6 {
+            children.push(
+                std::process::Command::new(std::env::current_exe().unwrap())
+                    .args(["--exact", "service::tests::multiprocess_jsonl_fixture"])
+                    .env("QUANTOS_TRACE_CHILD_PATH", &path)
+                    .stdout(std::process::Stdio::null())
+                    .spawn()
+                    .unwrap(),
+            );
+        }
+        for mut child in children {
+            assert!(child.wait().unwrap().success());
+        }
+        let raw = std::fs::read_to_string(&path).unwrap();
+        assert_eq!(raw.lines().count(), 360);
+        for line in raw.lines() {
+            serde_json::from_str::<super::ExportedTraceRecord>(line).unwrap();
+        }
+        std::fs::remove_file(path).unwrap();
     }
 }

@@ -34,7 +34,20 @@ function loadScope(file, starting = false) {
   if (starting && Date.parse(s.expires_at) < Date.now() + (s.runtime_seconds + 120) * 1000) throw Error('R01_WINDOW_EXPIRY_BUDGET');
   return s;
 }
+function nextSampleDeadline(due, completed, interval) {
+  let next = due + interval;
+  const missed = completed >= next ? Math.floor((completed - next) / interval) + 1 : 0;
+  return { next: next + missed * interval, missed };
+}
+function effectiveHealth(health, observed, maximumAge) {
+  const age = observed - Date.parse(health?.checked_at);
+  return { age_ms: Number.isFinite(age) ? age : null,
+    ready: health?.ready === true && Number.isFinite(age) && age >= 0 && age <= maximumAge };
+}
 function records(dir) {
+  // The bounded acceptance sink preserves lifecycle and ACKs through normal log rotation.
+  const evidence = path.join(dir, 'commit-evidence.jsonl');
+  if (fs.existsSync(evidence)) return fs.readFileSync(evidence, 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
   return fs.readdirSync(dir).filter(f => /^supervisor\.jsonl(?:\.\d+)?$/.test(f)).flatMap(f =>
     fs.readFileSync(path.join(dir, f), 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line)));
 }
@@ -49,7 +62,7 @@ async function main(scopeFile, out) {
   if (fs.readdirSync(out).length) throw Error('R01_WINDOW_EVIDENCE_NOT_EMPTY');
   const sourceFiles = ['scripts/r01-window-check.cjs', 'scripts/binance-supervisor.cjs', 'scripts/lib/r01-db.cjs',
     'services/market-ingestor/src/binance.rs', 'services/market-ingestor/src/main.rs', 'services/market-ingestor/src/cli.rs',
-    'crates/quantos-event/src/pg.rs', 'crates/quantos-market/src/lib.rs', 'crates/quantos-market/src/durable.rs', 'Cargo.lock',
+    'crates/quantos-observability/src/service.rs', 'crates/quantos-event/src/pg.rs', 'crates/quantos-market/src/lib.rs', 'crates/quantos-market/src/durable.rs', 'Cargo.lock',
     scopeFile, s.approval_file, s.approval_reference];
   const hashes = () => Object.fromEntries(sourceFiles.map(f => [f, digest(fs.readFileSync(f))]));
   const before = hashes(), env = { ...process.env, DATABASE_URL: targetUrl(), QUANTOS_BINANCE_REST_BASE_URL: s.endpoint };
@@ -76,25 +89,40 @@ async function main(scopeFile, out) {
     fs.writeFileSync(path.join(out, 'owned-scope.json'), JSON.stringify({ tenant, actor, scope_id: s.scope_id }, null, 2) + '\n');
     const config = { schema: 'quantos-binance-supervisor/v1', tenant, actor, provider: s.provider, approvals: path.resolve(s.approval_file),
       symbols: s.symbols, runtime_seconds: s.runtime_seconds, poll_ms: s.poll_ms, worker_iterations: s.worker_iterations,
-      log_dir: out, log_bytes: 1048576, log_files: 5, fixture: false };
+      capture_commit_evidence: true, log_dir: out, log_bytes: 1048576, log_files: 5, fixture: false };
     const cfg = path.join(out, 'config.json'); fs.writeFileSync(cfg, JSON.stringify(config, null, 2) + '\n');
     child = spawn(process.execPath, ['scripts/binance-supervisor.cjs', '--config', cfg, '--binary', binary], { env, stdio: ['ignore', 'ignore', 'ignore'] });
     child.on('error', () => { exit = { code: null, reason: 'spawn_error' }; });
     child.on('close', (code, signal) => { exit = { code, signal }; });
-    const budget = Date.now() + (s.runtime_seconds + 60) * 1000; let nextSample = 0;
+    const budget = Date.now() + (s.runtime_seconds + 60) * 1000; let nextSample = null, windowEnd = null, stopSent = false;
     while (!exit && !failure && Date.now() < budget) {
       // Both policy identity and enabled/expiry are enforced throughout this owned window.
       if (!same(loadScope(scopeFile), s)) throw Error('R01_WINDOW_SCOPE_CHANGED');
-      if (Date.now() >= nextSample) {
-        let health = null; const h = path.join(out, 'health.json'); if (fs.existsSync(h)) health = JSON.parse(fs.readFileSync(h));
+      const healthPath = path.join(out, 'health.json');
+      const currentHealth = fs.existsSync(healthPath) ? JSON.parse(fs.readFileSync(healthPath)) : null;
+      if (nextSample === null && currentHealth?.started_at) {
+        nextSample = Date.parse(currentHealth.started_at); windowEnd = nextSample + s.runtime_seconds * 1000;
+      }
+      if (windowEnd !== null && Date.now() >= windowEnd && !stopSent) { child.kill('SIGTERM'); stopSent = true; }
+      if (nextSample !== null && Date.now() >= nextSample && Date.now() < windowEnd) {
+        const health = currentHealth, due = nextSample, healthRead = Date.now(), cursorStart = Date.now();
         const rows = (await db.query("select symbol,initial_id::text,next_id::text,last_response_at from quantos.binance_ingestion_cursor where tenant_id=$1 and provider=$2 order by symbol", [tenant, s.provider])).rows;
+        const cursorEnd = Date.now(), countsStart = Date.now();
         const counts = (await db.query("select (select count(*)::int from quantos.market_source_receipt where tenant_id=$1 and source_tick_id like '%:agg:%') ticks,(select count(*)::int from quantos.event_log where tenant_id=$1) events,(select count(*)::int from quantos.outbox_event where tenant_id=$1 and status!='dispatched') pending", [tenant])).rows[0];
+        const countsEnd = Date.now();
         const pids = [child.pid, ...(health?.workers || []).map(w => w.pid)].filter(Number.isInteger);
-        const sample = { at: new Date().toISOString(), health, cursors: rows, counts, resources: resources(pids) }; append('samples.jsonl', sample);
+        const processResources = resources(pids), completed = Date.now();
+        const deadline = nextSampleDeadline(due, completed, s.sample_seconds * 1000);
+        const sample = { at: new Date(completed).toISOString(), due_at: new Date(due).toISOString(),
+          due_lag_ms: healthRead - due, missed_periods: deadline.missed,
+          health_read_at: new Date(healthRead).toISOString(), cursor_query_started_at: new Date(cursorStart).toISOString(),
+          cursor_query_completed_at: new Date(cursorEnd).toISOString(), counts_query_started_at: new Date(countsStart).toISOString(),
+          counts_query_completed_at: new Date(countsEnd).toISOString(), effective_health: effectiveHealth(health, completed, 2000),
+          health, cursors: rows, counts, resources: processResources }; append('samples.jsonl', sample);
         samples++; first ||= sample; last = sample; steadyTicks = counts.ticks;
         if (counts.ticks >= s.max_source_ticks || counts.events >= s.max_events) throw Error('R01_WINDOW_RESOURCE_LIMIT');
         console.log(JSON.stringify({ kind: 'window_sample', at: sample.at, samples, ready: health?.ready || false, ...counts }));
-        nextSample = Date.now() + s.sample_seconds * 1000;
+        nextSample = deadline.next;
       }
       await delay(250);
     }
@@ -129,7 +157,7 @@ async function main(scopeFile, out) {
     if (Object.values(rotations).some(x => x.starts < 2 || x.normal_exits < 1)) throw Error('R01_WINDOW_ROTATION');
     if (!same(before, hashes()) || digest(fs.readFileSync(binary)) !== binaryHash) throw Error('R01_WINDOW_SOURCE_CHANGED');
     const anomalies = (await db.query("select event_kind,count(*)::int count from quantos.event_log where tenant_id=$1 and event_kind not in ('market.tick.recorded') group by event_kind order by event_kind", [tenant])).rows;
-    result = { schema: 'quantos-r01-window/v1', status: 'PASS', sourceCommit: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(), workingTreeModified: true,
+    result = { schema: 'quantos-r01-window/v1', status: 'PASS_BOUNDED_INTEGRITY', healthAcceptance: 'NOT_CLAIMED_REQUIRES_SEPARATE_FRESHNESS_AND_ACK_ASSESSMENT', sourceCommit: spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim(), workingTreeModified: true,
       sourceHashes: before, binarySha256: binaryHash, target: 'configured Supabase PostgreSQL', connectionMode: connectionMode(env.DATABASE_URL), provider: s.provider, fixture: false,
       authorization: s, tenant, actor, actorActive: false, runtime_seconds: s.runtime_seconds, started_at: start.at, stopped_at: end.at, observed_elapsed_ms: elapsed,
       samples, steadyTicks, cursors, rotations, delivery, checkpoints, anomalies, anomalySla: 'NOT REVALIDATED_BY_SOAK', longRunning24h: 'NOT RUN', systemdDeployment: 'NOT RUN', commercialLicense: 'NOT VERIFIED' };
@@ -147,11 +175,11 @@ async function main(scopeFile, out) {
     else fs.writeFileSync(path.join(out, 'receipt.json'), JSON.stringify(result, null, 2) + '\n');
   }
   if (failure) throw Error(failure);
-  console.log(JSON.stringify({ status: 'PASS', samples, observed_elapsed_ms: result.observed_elapsed_ms, uniqueTicks: result.cursors.map(c => ({ symbol: c.symbol, count: c.unique_ticks })) }));
+  console.log(JSON.stringify({ status: result.status, healthAcceptance: result.healthAcceptance, samples, observed_elapsed_ms: result.observed_elapsed_ms, uniqueTicks: result.cursors.map(c => ({ symbol: c.symbol, count: c.unique_ticks })) }));
 }
 if (require.main === module) {
   const { values } = parseArgs({ options: { scope: { type: 'string' } } });
   main(values.scope || 'docs/provider-approvals/20261004-binance-window-scope.json',
     path.resolve(process.env.QUANTOS_R01_EVIDENCE_DIR || 'artifacts/r01-window')).catch(() => { console.error('R01_WINDOW_FAILED'); process.exitCode = 1; });
 }
-module.exports = { validateScope, loadScope };
+module.exports = { validateScope, loadScope, nextSampleDeadline, effectiveHealth };

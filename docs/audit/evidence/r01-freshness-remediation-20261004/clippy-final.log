@@ -1,0 +1,16 @@
+    Checking quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+    Checking quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+    Checking quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Checking market-ingestor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/market-ingestor)
+error: read amount is not handled
+   --> services/market-ingestor/src/binance/tests.rs:159:17
+    |
+159 |                 stream.read(&mut request).unwrap();
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: use `Read::read_exact` instead, or handle partial reads
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#unused_io_amount
+    = note: `#[deny(clippy::unused_io_amount)]` on by default
+
+error: could not compile `market-ingestor` (bin "market-ingestor" test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

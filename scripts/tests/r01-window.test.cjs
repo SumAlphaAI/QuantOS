@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const { validateScope, loadScope } = require('../r01-window-check.cjs');
+const { validateScope, loadScope, nextSampleDeadline, effectiveHealth } = require('../r01-window-check.cjs');
 const file = 'docs/provider-approvals/20261004-binance-window-scope.json';
 const scope = JSON.parse(fs.readFileSync(file));
 const provider = JSON.parse(fs.readFileSync(scope.approval_file))[0];
@@ -24,4 +24,12 @@ test('scope and provider expiry, revocation and version identity fail closed', (
   for (const change of [{ enabled: false }, { approval_version: 'other' }, { expires_at: '2099-01-01' }, { instruments: {} }]) {
     assert.throws(() => validateScope(scope, { ...provider, ...change }, beforeExpiry), /R01_WINDOW_SCOPE/);
   }
+});
+test('sampling deadlines do not drift with queries and missed periods are explicit', () => {
+  assert.deepEqual(nextSampleDeadline(0, 900, 15000), { next: 15000, missed: 0 });
+  assert.deepEqual(nextSampleDeadline(15000, 16000, 15000), { next: 30000, missed: 0 });
+  assert.deepEqual(nextSampleDeadline(0, 30001, 15000), { next: 45000, missed: 2 });
+  assert.equal(effectiveHealth({ ready: true, checked_at: new Date(0).toISOString() }, 2001, 2000).ready, false);
+  assert.equal(effectiveHealth({ ready: true, checked_at: new Date(0).toISOString() }, 500, 2000).ready, true);
+  assert.equal(effectiveHealth(null, 500, 2000).ready, false);
 });

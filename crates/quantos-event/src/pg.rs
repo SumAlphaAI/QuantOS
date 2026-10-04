@@ -5,7 +5,7 @@ use postgres::{
     types::{Json, Type},
 };
 use postgres_native_tls::MakeTlsConnector;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
@@ -101,12 +101,24 @@ pub enum PgEventStoreError {
     },
 }
 
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct MarketWriteTiming {
+    pub started_at: DateTime<Utc>,
+    pub commit_ack_at: DateTime<Utc>,
+    pub begin_ms: f64,
+    pub set_local_ms: f64,
+    pub sql_ms: f64,
+    pub commit_ms: f64,
+    pub total_ms: f64,
+}
+
 pub struct PgEventStore {
     client: Client,
     outbox_tenants: Option<Vec<Uuid>>,
     outbox_aggregate_type: Option<String>,
     transaction_pool: bool,
     market_transaction_deadline: bool,
+    last_market_write: Option<MarketWriteTiming>,
 }
 
 impl PgEventStore {
@@ -120,6 +132,7 @@ impl PgEventStore {
                 .is_some_and(|h| h.ends_with(".pooler.supabase.com"))
                 && Url::parse(database_url)?.port() == Some(6543),
             market_transaction_deadline: false,
+            last_market_write: None,
         })
     }
 
@@ -215,6 +228,10 @@ impl PgEventStore {
         Ok(inserted)
     }
 
+    pub fn last_market_write(&self) -> Option<&MarketWriteTiming> {
+        self.last_market_write.as_ref()
+    }
+
     /// No speculative network cursor: only fully committed Binance pages advance this value.
     pub fn binance_cursor(
         &mut self,
@@ -273,17 +290,42 @@ impl PgEventStore {
         sql: &str,
         params: &[(&(dyn postgres::types::ToSql + Sync), Type)],
     ) -> Result<Row, postgres::Error> {
+        self.last_market_write = None;
+        let clock = Instant::now();
+        let started_at = Utc::now();
+        let row;
+        let (begin_ms, set_local_ms, sql_ms, commit_ms);
         if self.market_transaction_deadline {
             let mut tx = self.client.transaction()?;
+            begin_ms = clock.elapsed().as_secs_f64() * 1000.0;
+            let phase = Instant::now();
             tx.batch_execute(
                 "set local statement_timeout='4000ms'; set local lock_timeout='2000ms'",
             )?;
-            let row = tx.query_typed_one(sql, params)?;
+            set_local_ms = phase.elapsed().as_secs_f64() * 1000.0;
+            let phase = Instant::now();
+            row = tx.query_typed_one(sql, params)?;
+            sql_ms = phase.elapsed().as_secs_f64() * 1000.0;
+            let phase = Instant::now();
             tx.commit()?;
-            Ok(row)
+            commit_ms = phase.elapsed().as_secs_f64() * 1000.0;
         } else {
-            self.client.query_typed_one(sql, params)
+            row = self.client.query_typed_one(sql, params)?;
+            begin_ms = 0.0;
+            set_local_ms = 0.0;
+            commit_ms = 0.0;
+            sql_ms = clock.elapsed().as_secs_f64() * 1000.0;
         }
+        self.last_market_write = Some(MarketWriteTiming {
+            started_at,
+            commit_ack_at: Utc::now(),
+            begin_ms,
+            set_local_ms,
+            sql_ms,
+            commit_ms,
+            total_ms: clock.elapsed().as_secs_f64() * 1000.0,
+        });
+        Ok(row)
     }
 
     pub fn last_market_receipt(

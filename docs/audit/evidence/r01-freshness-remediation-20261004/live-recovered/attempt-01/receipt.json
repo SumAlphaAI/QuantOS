@@ -1,0 +1,142 @@
+{
+  "schema": "quantos-r01-window/v1",
+  "status": "PASS_BOUNDED_INTEGRITY",
+  "healthAcceptance": "NOT_CLAIMED_REQUIRES_SEPARATE_FRESHNESS_AND_ACK_ASSESSMENT",
+  "sourceCommit": "e4d2cfdd26f8a7b01838dce7bc1ccff67648d361",
+  "workingTreeModified": true,
+  "sourceHashes": {
+    "scripts/r01-window-check.cjs": "3abe24136fc4694cd96d0df59da3c21f9cadfda9f65fd6fa3b637bccd52ec6c7",
+    "scripts/binance-supervisor.cjs": "8ab2541c3c4365072db5ff24c144e95e039287c483f8561837b8bddf91ccba94",
+    "scripts/lib/r01-db.cjs": "107f61d25736a38441b26d26a774c7920baec101c9f0fb1da70bac4190d0dd30",
+    "services/market-ingestor/src/binance.rs": "409015b1675071f3bafe6d4407f0822a5c02aeaf04707f20763f5fe0920cd21d",
+    "services/market-ingestor/src/main.rs": "a5ef54d0de13732a2014fe420f8b201efc21ec113cfcbc0d404d75d1b5acee65",
+    "services/market-ingestor/src/cli.rs": "12ce0c01688a8d8df8a1d25e6cf0f9f9832083ecd190a3fe525e2a34c2916434",
+    "crates/quantos-observability/src/service.rs": "15fcb3aad2679843a0747f5ec46ac1b437eca67f961db8489fe35a029934a0e3",
+    "crates/quantos-event/src/pg.rs": "0cf4d3f33171387f51582d767f79b403d254ac0857f02218c89d5ba61bf10ed3",
+    "crates/quantos-market/src/lib.rs": "0312293350a64aacb7eb85e8a7e5955c5a01d5d5a6b1e963e600be2518fc7fba",
+    "crates/quantos-market/src/durable.rs": "4cc04d8c5b5ecf21530b7ee06a58ce2b65b147530fb29214f5ea69cf58cce739",
+    "Cargo.lock": "ce4367e83ac85ddf2e9f8af947f58a9a7dad0f13934def7dbe95a717f9b874f2",
+    "docs/provider-approvals/20261004-binance-window-scope.json": "ad39fc036f89f0ecd0474aaa3c893a4fa915f30f469f930bcf0a0eae61637a20",
+    "docs/provider-approvals/20261004-binance-window-evaluation.json": "88cc6c91c8d44243d286f7055c50101ed22f3ed072be04e22e4b1ca783e82bc2",
+    "docs/provider-approvals/20261004-binance-window-evaluation.md": "5e4a2b53f75e7fe77bdcdc75d18cac59c0222981c5d6378f4ee2d93076ffb93e"
+  },
+  "binarySha256": "e7cd47ad93fa2fe1d44afd0701e8ce9810a4895edb49169e1f9958bbe20178b2",
+  "target": "configured Supabase PostgreSQL",
+  "connectionMode": "transaction",
+  "provider": "binance.spot.aggtrades",
+  "fixture": false,
+  "authorization": {
+    "schema": "quantos-binance-evaluation-scope/v1",
+    "scope_id": "r01-20261004-30m-internal",
+    "provider": "binance.spot.aggtrades",
+    "approval_version": "v2-window-30m",
+    "approval_reference": "docs/provider-approvals/20261004-binance-window-evaluation.md",
+    "approval_file": "docs/provider-approvals/20261004-binance-window-evaluation.json",
+    "enabled": true,
+    "expires_at": "2026-10-10T00:00:00Z",
+    "purpose": "internal-engineering-evaluation",
+    "environment": "foreground-existing-supabase",
+    "endpoint": "https://data-api.binance.vision/",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "runtime_seconds": 1800,
+    "sample_seconds": 15,
+    "poll_ms": 1000,
+    "worker_iterations": 100,
+    "max_source_ticks": 200000,
+    "max_events": 500000,
+    "permissions": [
+      "public-market-read",
+      "append-market-facts",
+      "dispatch-market-facts"
+    ],
+    "forbidden_uses": [
+      "trading",
+      "withdrawals",
+      "customer-display",
+      "redistribution",
+      "commercial-use",
+      "permanent-production"
+    ],
+    "actor_lifecycle": "create-owned-service-actor-and-deactivate-on-exit",
+    "retention": "retain-immutable-evaluation-facts-in-existing-supabase",
+    "authorization_evidence": "User: 继续执行：扩大运行窗口，明确授权范围，生成独立 Git 提交; duration reply: 30 分钟（建议，完成后提交）"
+  },
+  "tenant": "d8e6ea57-5499-4465-9cbb-595f32e2770c",
+  "actor": "6fd6c1ab-d52e-47e5-9d9e-e16de405c35f",
+  "actorActive": false,
+  "runtime_seconds": 1800,
+  "started_at": "2026-10-04T05:20:36.863Z",
+  "stopped_at": "2026-10-04T05:50:39.740Z",
+  "observed_elapsed_ms": 1802877,
+  "samples": 120,
+  "steadyTicks": 8453,
+  "cursors": [
+    {
+      "symbol": "BTCUSDT",
+      "initial_id": "4080301854",
+      "next_id": "4080308120",
+      "last_response_at": "2026-10-04T05:50:37.219Z",
+      "unique_ticks": "6266",
+      "minimum_id": "4080301854",
+      "maximum_id": "4080308119"
+    },
+    {
+      "symbol": "ETHUSDT",
+      "initial_id": "2094317524",
+      "next_id": "2094319788",
+      "last_response_at": "2026-10-04T05:50:37.089Z",
+      "unique_ticks": "2264",
+      "minimum_id": "2094317524",
+      "maximum_id": "2094319787"
+    }
+  ],
+  "rotations": {
+    "BTCUSDT": {
+      "starts": 14,
+      "normal_exits": 14
+    },
+    "ETHUSDT": {
+      "starts": 14,
+      "normal_exits": 14
+    }
+  },
+  "delivery": {
+    "pending": 0,
+    "outbox": 9461,
+    "applied": 9461
+  },
+  "checkpoints": [
+    {
+      "stream_key": "market:binance.spot.aggtrades:BTC/USDT",
+      "expected": "6671",
+      "actual": "6671"
+    },
+    {
+      "stream_key": "market:binance.spot.aggtrades:source",
+      "expected": "217",
+      "actual": "217"
+    },
+    {
+      "stream_key": "market:binance.spot.aggtrades:ETH/USDT",
+      "expected": "2573",
+      "actual": "2573"
+    }
+  ],
+  "anomalies": [
+    {
+      "event_kind": "market.source.freshness_degraded",
+      "count": 217
+    },
+    {
+      "event_kind": "market.tick.freshness_degraded",
+      "count": 714
+    }
+  ],
+  "anomalySla": "NOT REVALIDATED_BY_SOAK",
+  "longRunning24h": "NOT RUN",
+  "systemdDeployment": "NOT RUN",
+  "commercialLicense": "NOT VERIFIED"
+}

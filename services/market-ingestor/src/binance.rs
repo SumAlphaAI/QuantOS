@@ -11,7 +11,7 @@ use std::{
         Arc,
         atomic::{AtomicBool, Ordering},
     },
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 pub(super) struct Config {
@@ -88,12 +88,37 @@ fn endpoint(value: &str, fixture: bool) -> Result<url::Url> {
     }
     Ok(u)
 }
+struct FetchedPage {
+    ticks: Vec<RawMarketTick>,
+    timing: serde_json::Value,
+}
 struct Source {
     client: reqwest::blocking::Client,
     base: url::Url,
 }
 impl Source {
-    fn fetch(&self, symbol: &str, from: Option<i64>, limit: usize) -> Result<Vec<RawMarketTick>> {
+    fn clock_observation(&self, symbol: &str) -> Result<serde_json::Value> {
+        let start = Utc::now();
+        let clock = Instant::now();
+        let result = self
+            .client
+            .get(self.base.join("api/v3/time")?)
+            .send()
+            .and_then(reqwest::blocking::Response::error_for_status)
+            .and_then(|r| r.json::<serde_json::Value>());
+        let end = Utc::now();
+        let value = result.ok().and_then(|v| v["serverTime"].as_i64());
+        Ok(
+            serde_json::json!({"kind":"binance_clock_observation","symbol":symbol,
+            "local_start_at":start,"local_end_at":end,"server_time_ms":value,"rtt_ms":clock.elapsed().as_secs_f64()*1000.0,
+            "offset_lower_ms":value.map(|v|v-end.timestamp_millis()),"offset_upper_ms":value.map(|v|v-start.timestamp_millis()),
+            "status":if value.is_some(){"MEASURED_RTT_BOUNDS"}else{"UNMEASURED"}}),
+        )
+    }
+
+    fn fetch(&self, symbol: &str, from: Option<i64>, limit: usize) -> Result<FetchedPage> {
+        let clock = Instant::now();
+        let started = Utc::now();
         let mut url = self.base.join("api/v3/aggTrades")?;
         url.query_pairs_mut()
             .append_pair("symbol", symbol)
@@ -117,6 +142,8 @@ impl Source {
             bail!("BINANCE_HTTP_STATUS {}", status.as_u16());
         }
         let received = Utc::now();
+        let headers_ms = clock.elapsed().as_secs_f64() * 1000.0;
+        let body_clock = Instant::now();
         let mut bytes = Vec::new();
         response
             .take(1_048_577)
@@ -125,9 +152,23 @@ impl Source {
         if bytes.len() > 1_048_576 {
             bail!("BINANCE_RESPONSE_LIMIT");
         }
-        // Provider is filled by the caller after transport decoding.
-        decode(&bytes, "", symbol, from, received)
+        let body_completed = Utc::now();
+        let body_ms = body_clock.elapsed().as_secs_f64() * 1000.0;
+        let decode_clock = Instant::now();
+        let ticks = decode(&bytes, "", symbol, from, received)?;
+        Ok(FetchedPage {
+            ticks,
+            timing: serde_json::json!({"request_started_at":started,
+            "headers_received_at":received,"body_completed_at":body_completed,"decoded_at":Utc::now(),
+            "headers_ms":headers_ms,"body_ms":body_ms,"decode_ms":decode_clock.elapsed().as_secs_f64()*1000.0}),
+        })
     }
+}
+fn stop_pipe(reader: impl Read, stop: Arc<AtomicBool>) {
+    let mut command = [0u8; 5];
+    let _ = reader.take(5).read_exact(&mut command);
+    // Owned pipe command, EOF or read failure all stop new requests; memory is bounded.
+    stop.store(true, Ordering::Release);
 }
 pub(super) fn run(config: Config, correlation: CorrelationId) -> Result<()> {
     if !(1..=1000).contains(&config.iterations)
@@ -154,16 +195,24 @@ pub(super) fn run(config: Config, correlation: CorrelationId) -> Result<()> {
             .build()?,
         base,
     };
+    let stop = Arc::new(AtomicBool::new(false));
+    if std::env::var("QUANTOS_BINANCE_STOP_STDIN").as_deref() == Ok("1") {
+        let owned_stop = stop.clone();
+        std::thread::spawn(move || stop_pipe(std::io::stdin(), owned_stop));
+    }
     let database = super::database_url()?;
     let mut writer = DurableMarketIngestor::connect(&database, approvals, config.actor)?;
     let existing = writer.binance_cursor(config.tenant, &config.provider, &config.symbol)?;
+    if stop.load(Ordering::Acquire) {
+        return Ok(());
+    }
     // Initial window is explicit, or starts at the current newest aggregate trade. Never reset an existing cursor.
     let first = match (existing, config.from_id) {
         (Some(n), Some(requested)) if requested != n => bail!("BINANCE_CURSOR_ALREADY_INITIALIZED"),
         (Some(n), _) | (_, Some(n)) => n,
         (None, None) => {
-            let ticks = source.fetch(&config.symbol, None, 1)?;
-            let t = ticks.first().context("BINANCE_EMPTY_BOOTSTRAP")?;
+            let fetched = source.fetch(&config.symbol, None, 1)?;
+            let t = fetched.ticks.first().context("BINANCE_EMPTY_BOOTSTRAP")?;
             t.source_tick_id
                 .rsplit(':')
                 .next()
@@ -181,7 +230,10 @@ pub(super) fn run(config: Config, correlation: CorrelationId) -> Result<()> {
             vec![],
         )?;
     }
-    let stop = Arc::new(AtomicBool::new(false));
+    // Diagnostic only; never modifies source timestamps or freshness thresholds.
+    if !config.fixture && !stop.load(Ordering::Acquire) {
+        println!("{}", source.clock_observation(&config.symbol)?);
+    }
     let monitor_stop = stop.clone();
     // Separate connection and timer: blocked HTTP/write work cannot suppress transport alerts.
     std::thread::scope(|scope| {
@@ -194,42 +246,60 @@ pub(super) fn run(config: Config, correlation: CorrelationId) -> Result<()> {
             while !monitor_stop.load(Ordering::Acquire) {
                 watch
                     .refresh_approvals(super::registry(config.approvals.clone(), !config.fixture)?);
-                watch.binance_watchdog(
+                if let Some(receipt) = watch.binance_watchdog_receipt(
                     config.tenant,
                     correlation,
                     &config.provider,
                     &config.symbol,
                     Utc::now(),
-                )?;
+                )? {
+                    println!("{receipt}");
+                }
                 std::thread::sleep(Duration::from_millis(250));
             }
             Ok(())
         });
         let poll = (|| -> Result<()> {
+            let mut next = first;
             for iteration in 0..config.iterations {
+                if stop.load(Ordering::Acquire) {
+                    break;
+                }
+                let poll_clock = Instant::now();
                 if monitor.is_finished() {
                     bail!("BINANCE_WATCHDOG_UNAVAILABLE");
                 }
                 // Refresh approvals on each poll; disabling the provider stops writes immediately on the next attempt.
                 writer
                     .refresh_approvals(super::registry(config.approvals.clone(), !config.fixture)?);
-                let next = writer
-                    .binance_cursor(config.tenant, &config.provider, &config.symbol)?
-                    .context("BINANCE_CURSOR_MISSING")?;
+                if stop.load(Ordering::Acquire) {
+                    break;
+                }
                 match source.fetch(&config.symbol, Some(next), config.limit) {
-                    Ok(mut ticks) => {
-                        let count = ticks.len();
-                        for tick in &mut ticks {
+                    Ok(mut fetched) => {
+                        let count = fetched.ticks.len();
+                        for tick in &mut fetched.ticks {
                             tick.provider = config.provider.clone();
                         }
-                        let committed = writer.ingest_binance_page(
+                        let mut receipt = writer.ingest_binance_page_receipt(
                             config.tenant,
                             correlation,
                             &config.provider,
                             &config.symbol,
                             next,
-                            ticks,
+                            fetched.ticks,
                         )?;
+                        // Only the acknowledged durable cursor is reused; conflicts still fail closed in SQL.
+                        next = receipt["next_id"]
+                            .as_str()
+                            .context("BINANCE_CURSOR_MISSING")?
+                            .parse()?;
+                        receipt["input"] = count.into();
+                        receipt["transport"] = fetched.timing;
+                        receipt["fixture"] = config.fixture.into();
+                        receipt["correlation_id"] = correlation.to_string().into();
+                        println!("{receipt}");
+                        let committed = next;
                         println!(
                             "binance symbol={} input={count} next_id={committed} fixture={} correlation_id={correlation}",
                             config.symbol, config.fixture
@@ -246,12 +316,18 @@ pub(super) fn run(config: Config, correlation: CorrelationId) -> Result<()> {
                         println!(
                             "binance source_unavailable=true cursor_unchanged=true correlation_id={correlation}"
                         );
+                        if stop.load(Ordering::Acquire) {
+                            break;
+                        }
                         if iteration + 1 == config.iterations {
                             bail!("BINANCE_SOURCE_UNAVAILABLE");
                         }
                     }
                 }
-                std::thread::sleep(Duration::from_millis(config.poll_ms));
+                // Minimum request-start interval, not an extra delay after the acknowledged page.
+                std::thread::sleep(
+                    Duration::from_millis(config.poll_ms).saturating_sub(poll_clock.elapsed()),
+                );
             }
             Ok(())
         })();
