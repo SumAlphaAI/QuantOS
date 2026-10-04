@@ -92,7 +92,8 @@
       "command": [
         "node",
         "--test",
-        "scripts/f05-gate-negative.mjs"
+        "scripts/f05-gate-negative.mjs",
+        "scripts/f05-coverage.test.mjs"
       ],
       "marker": "fail 0"
     },
@@ -446,11 +447,156 @@
         "scripts/check-provider-a1-db-visibility.mjs"
       ],
       "marker": "PASS target test is ignored by default and requires explicit target opt-in"
+    },
+    "f01-reproducibility": {
+      "command": [
+        "node",
+        "scripts/verify-reproducible-builds.mjs",
+        "--mode",
+        "reproducibility",
+        "--runs",
+        "3"
+      ],
+      "cleanSource": true,
+      "reproducibility": true,
+      "timeoutMs": 5400000
+    },
+    "f01-lint": {
+      "command": [
+        "make",
+        "lint"
+      ],
+      "staticOnly": true
+    },
+    "f01-test": {
+      "command": [
+        "make",
+        "test"
+      ],
+      "staticOnly": true
+    },
+    "f04-line-coverage": {
+      "command": [
+        "cargo",
+        "llvm-cov",
+        "--package",
+        "quantos-core",
+        "--all-features",
+        "--release",
+        "--fail-under-lines",
+        "90",
+        "--fail-under-regions",
+        "90",
+        "--summary-only"
+      ],
+      "marker": "TOTAL"
+    },
+    "f04-branch-coverage": {
+      "command": [
+        "make",
+        "coverage-rust-branch"
+      ],
+      "env": {
+        "RUSTUP_TOOLCHAIN": "nightly"
+      },
+      "marker": "\"acceptance\":\"PASS\"",
+      "artifact": "target/f04-branch-coverage.json",
+      "artifactKind": "f04-branch"
+    },
+    "f05-volume": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-event",
+        "--test",
+        "postgres_persistence",
+        "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "database": true,
+      "env": {
+        "QUANTOS_F05_TARGET_ISOLATED": "1"
+      },
+      "measurement": true,
+      "marker": "1 passed; 0 failed",
+      "timeoutMs": 1800000
+    },
+    "storage-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--lib",
+        "--test",
+        "storage_http"
+      ],
+      "staticOnly": true,
+      "marker": "test result: ok"
+    },
+    "storage-database": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--test",
+        "postgres_persistence",
+        "--",
+        "--test-threads=1"
+      ],
+      "database": true,
+      "marker": "1 passed; 0 failed"
+    },
+    "storage-target": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--test",
+        "supabase_storage_integration",
+        "--",
+        "--test-threads=1"
+      ],
+      "database": true,
+      "env": {
+        "QUANTOS_RUN_SUPABASE_STORAGE_TESTS": "1"
+      },
+      "marker": "1 passed; 0 failed"
+    },
+    "rls-target": {
+      "command": [
+        "node",
+        "scripts/db-cli.cjs",
+        "live-rls"
+      ],
+      "database": true,
+      "marker": "Remote RLS checks passed"
+    },
+    "f05-coverage": {
+      "command": [
+        "make",
+        "f05-coverage"
+      ],
+      "staticOnly": true,
+      "marker": "TOTAL"
     }
   },
   "nodes": {
     "CORE:F01": {
-      "scope": "Pinned tools, dependency inventories and reproducible development configuration; final release signatures/remote rebuild excluded",
+      "scope": "Pinned tools, bootstrap/lint/test, README boundaries and three clean-directory cross-language reproducible builds; 30-minute clean-room release receipt excluded",
       "inputs": [
         "rust-toolchain.toml",
         ".nvmrc",
@@ -481,11 +627,19 @@
         ".uv-version",
         "services/*/Cargo.toml",
         "engines/*/pyproject.toml",
-        "tools/*/Cargo.toml"
+        "tools/*/Cargo.toml",
+        "crates/",
+        "services/",
+        "engines/",
+        "apps/",
+        "packages/"
       ],
       "checks": [
         "f01",
-        "f01-negative"
+        "f01-negative",
+        "f01-reproducibility",
+        "f01-lint",
+        "f01-test"
       ]
     },
     "CORE:F03": {
@@ -511,7 +665,7 @@
       ]
     },
     "CORE:F04": {
-      "scope": "Deterministic domain primitives and fixture corpus correctness",
+      "scope": "Deterministic domain primitives and fixture correctness, actual line/region and precision/timezone branch coverage thresholds",
       "inputs": [
         "crates/quantos-core/",
         "crates/quantos-testkit/",
@@ -520,23 +674,34 @@
       "checks": [
         "foundation-rust",
         "f04",
-        "f04-negative"
+        "f04-negative",
+        "f04-line-coverage",
+        "f04-branch-coverage"
       ]
     },
     "CORE:F05": {
-      "scope": "Event integrity, tenant isolation, append-only audit and bounded receipt/lease recovery on configured Supabase; volume/soak excluded",
+      "scope": "Configured Supabase event/storage integrity, 10000-event production consumer convergence, 1000 concurrent deliveries, RLS/transactions/lease/recovery; performance and controlled full rebuild release receipts excluded",
       "inputs": [
         "crates/quantos-event/",
         "services/replay-cli/",
         "supabase/migrations/20260921090000_f05_ledger_integrity_and_replay.sql",
         "scripts/*f05*",
-        "docs/runbooks/f05_db_polling_consumer_recovery.md"
+        "docs/runbooks/f05_db_polling_consumer_recovery.md",
+        "crates/quantos-storage/",
+        "supabase/migrations/",
+        "supabase/tests/"
       ],
       "checks": [
         "event-rust",
         "f05",
         "f05-negative",
-        "f05-database"
+        "f05-database",
+        "f05-volume",
+        "storage-rust",
+        "storage-database",
+        "storage-target",
+        "rls-target",
+        "f05-coverage"
       ]
     },
     "CORE:F06": {

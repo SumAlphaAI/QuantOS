@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 import {gzipSync} from 'node:zlib';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot,developmentEnvironment,runTargetAttempts} from './provider-a1-receipts.mjs';
+import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot,developmentEnvironment,runTargetAttempts,validateReproducibility,policy} from './provider-a1-receipts.mjs';
 function fixture(fn){const base=mkdtempSync(resolve(tmpdir(),'quantos-stage-receipt-'));try{
  execFileSync('git',['init','-q'],{cwd:base});mkdirSync(resolve(base,'scripts'));mkdirSync(resolve(base,directory,'logs'),{recursive:true});writeFileSync(resolve(base,'code.ts'),'trusted code');
  const spec={scope:'implemented functionality only',inputs:['code.ts'],checks:['actual']};const p={commonInputs:['scripts/provider-a1-policy.json'],excluded:['release'],nodes:{child:spec,parent:spec},checks:{actual:{command:['node','run.mjs'],marker:'ACTUAL_PASS'}}};writeFileSync(resolve(base,'scripts/provider-a1-policy.json'),JSON.stringify(p));const nodes=new Map([['child',{id:'child',dependencies:[]}],['parent',{id:'parent',dependencies:['child']}]]);
@@ -61,3 +61,16 @@ test('configured target retries require explicit attempt outcomes in the receipt
  const path=resolve(f.base,'scripts/provider-a1-policy.json');const p=JSON.parse(readFileSync(path));p.checks.actual.target=true;p.checks.actual.maxAttempts=3;writeFileSync(path,JSON.stringify(p));
  const m=f.read('parent');m.inputs=inventory([...p.commonInputs,...p.nodes.parent.inputs],f.base);f.store('parent',m);assert.throws(f.validate,/attempt outcomes missing/);
 }));
+
+function reproducibleFixture(){
+ const files=[{path:'built',sha256:'b'.repeat(64),sizeBytes:10}];const output={files,sha256:createHash('sha256').update(JSON.stringify(files)).digest('hex')};const outputs={rust:output,python:output,typescript:[output]};
+ return {schemaVersion:2,mode:'reproducibility',status:'PASS',passed:true,reproducible:true,source:{commit:'a'.repeat(40),dirty:false},runs:[1,2,3].map(run=>({run,commands:[['make',['bootstrap']],['cargo',['build','--workspace','--release','--locked']],['pnpm',['build']],['make',['build-python']]].map(([binary,args])=>({binary,args,exitCode:0})),...outputs,combinedSha256:createHash('sha256').update(JSON.stringify(outputs)).digest('hex')}))};
+}
+test('three successful full builds bind output inventories',()=>validateReproducibility(reproducibleFixture(),'a'.repeat(40)));
+for(const [name,mutate]of [
+ ['only two builds',r=>r.runs.pop()],['missing Python build',r=>r.runs[1].commands.pop()],['failed command',r=>r.runs[2].commands[0].exitCode=1],['different output digest',r=>r.runs[1].combinedSha256='c'.repeat(64)],['substituted inventory',r=>r.runs[0].rust.files[0].sha256='d'.repeat(64)],['dirty source',r=>r.source.dirty=true],['old source',r=>r.source.commit='e'.repeat(40)]
+])test('reproducibility rejects '+name,()=>{const r=reproducibleFixture();mutate(r);assert.throws(()=>validateReproducibility(r,'a'.repeat(40)));});
+test('development policy retains explicit build, coverage, volume and target storage obligations',()=>{
+ const p=policy();for(const [node,checks]of [['CORE:F01',['f01-reproducibility','f01-lint','f01-test']],['CORE:F04',['f04-branch-coverage']],['CORE:F05',['f05-volume','storage-database','storage-target','rls-target']]])for(const check of checks)assert(p.nodes[node].checks.includes(check),node+' missing '+check);
+ assert(p.checks['f05-volume'].database);assert(p.checks['storage-target'].database);assert(!p.excluded.some(e=>/volume|10000|10,000|three.*build/i.test(e)));
+});
