@@ -1,0 +1,167 @@
+{
+  "baselineSourceCommit": "272aec4dd219915facf8abcfb9df95a059419108",
+  "originalReportSha256": "4482074f657adb03f8caf6f51c9c502cdd46c2a22385819fb7a1784da643dd32",
+  "sourceBinding": "commit containing this report and its archive; execution artifacts are engineering-only; no same-SHA target receipt claimed",
+  "issues": [
+    {
+      "id": "H-01",
+      "severity": "高危",
+      "status": "CLOSED",
+      "verification": "开放对象/参数 parse 保真，闭合对象拒绝额外键",
+      "evidence": [
+        "inspection.json",
+        "api-client.log",
+        "contract.log"
+      ]
+    },
+    {
+      "id": "H-02",
+      "severity": "高危",
+      "status": "CLOSED",
+      "verification": "SSE envelope/版本先验、cookie、5xx/网络有界回补及撤权终态",
+      "evidence": [
+        "api-client.log",
+        "critical-coverage.log"
+      ]
+    },
+    {
+      "id": "H-03",
+      "severity": "高危",
+      "status": "CLOSED",
+      "verification": "CSRF/请求 ID/幂等/受信字段禁止输入与审批 recent-auth",
+      "evidence": [
+        "a1.log",
+        "contract.log",
+        "reference-rust.log"
+      ]
+    },
+    {
+      "id": "H-04",
+      "severity": "高危",
+      "status": "CLOSED",
+      "verification": "可信历史 diff；未登记破坏、缺基线和过期决策拒绝",
+      "evidence": [
+        "compatibility.log",
+        "a1-negative.log"
+      ]
+    },
+    {
+      "id": "H-05",
+      "severity": "高危",
+      "status": "CLOSED",
+      "verification": "原七类门禁退化均拒绝，CI 活动步骤语义检查",
+      "evidence": [
+        "a1-negative.log",
+        "a1.log"
+      ]
+    },
+    {
+      "id": "H-06",
+      "severity": "高危",
+      "status": "CLOSED",
+      "verification": "cookie mock、请求/响应双向检查及真实参考 HTTP",
+      "evidence": [
+        "contract.log",
+        "reference-http.json"
+      ]
+    },
+    {
+      "id": "M-01",
+      "severity": "中危",
+      "status": "CLOSED",
+      "verification": "适用列表 sort/filter 白名单与非法表达式 422",
+      "evidence": [
+        "a1.log",
+        "reference-rust.log"
+      ]
+    },
+    {
+      "id": "M-02",
+      "severity": "中危",
+      "status": "CLOSED",
+      "verification": "全部 62 default，错误闭合与版本/限流条件字段",
+      "evidence": [
+        "inspection.json",
+        "contract.log"
+      ]
+    },
+    {
+      "id": "M-03",
+      "severity": "中危",
+      "status": "CLOSED",
+      "verification": "成功/错误/204/流 header；body correlation 一致",
+      "evidence": [
+        "inspection.json",
+        "reference-http.json"
+      ]
+    },
+    {
+      "id": "M-04",
+      "severity": "中危",
+      "status": "CLOSED",
+      "verification": "ETag/If-Match/409 currentVersion、幂等与陈旧版本拒绝",
+      "evidence": [
+        "a1.log",
+        "reference-rust.log"
+      ]
+    },
+    {
+      "id": "M-05",
+      "severity": "中危",
+      "status": "CLOSED",
+      "verification": "真实 Proto 序列化精度/UTC 纳秒/枚举/受信字段转换",
+      "evidence": [
+        "api-client.log"
+      ]
+    },
+    {
+      "id": "M-06",
+      "severity": "中危",
+      "status": "CLOSED",
+      "verification": "62 operation 直接示例与完整政策，planned 独立登记",
+      "evidence": [
+        "a1.log",
+        "inspection.json",
+        "contract.log"
+      ]
+    },
+    {
+      "id": "L-01",
+      "severity": "低危",
+      "status": "CLOSED",
+      "verification": "本轮修正 summary/任务卡的 1.5.0 / 52 schemas，并更新活跃报告入口",
+      "evidence": [
+        "docs-current.json"
+      ]
+    },
+    {
+      "id": "B-01",
+      "severity": "阻塞级（原）",
+      "status": "DEFERRED_TO_FINAL_REVIEW",
+      "formalAccepted": false,
+      "blocksDevelopment": false,
+      "requiredStage": "RELEASE",
+      "evidence": [
+        "development.log",
+        "final-review.log",
+        "a1-negative.log"
+      ]
+    }
+  ],
+  "statistics": {
+    "original": 14,
+    "closedEngineering": 13,
+    "engineeringTotal": 13,
+    "deferred": 1,
+    "activeEngineering": 0,
+    "highClosed": 6,
+    "mediumClosed": 6,
+    "lowClosed": 1,
+    "formalTaskAccepted": 0,
+    "controlsPass": 22,
+    "controlsPartial": 1,
+    "controlsDeferred": 1,
+    "applicableControls": 23,
+    "applicableControlPassRate": 95.65
+  }
+}

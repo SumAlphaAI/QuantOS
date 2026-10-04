@@ -1,0 +1,216 @@
+{
+  "schema": "quantos-a1-recheck/v1",
+  "baselineSourceCommit": "272aec4dd219915facf8abcfb9df95a059419108",
+  "scope": "engineering and stage-policy checks; no DB/staging; expected final-review rejection is not PASS",
+  "results": [
+    {
+      "name": "development",
+      "command": [
+        "node",
+        "scripts/check-bff-a1-acceptance.mjs",
+        "--stage",
+        "development"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "development.log",
+      "logSha256": "3e2667f6226d0872d55a7c5607584dbdd546ee5fae52a06712fc15c52afbb5f1"
+    },
+    {
+      "name": "a1",
+      "command": [
+        "node",
+        "scripts/check-bff-fe-000.mjs"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "a1.log",
+      "logSha256": "ffb8fc4ed3433e11440d7c3bdf94d84247b30e6d0fac7ae43284673050031f72"
+    },
+    {
+      "name": "compatibility",
+      "command": [
+        "node",
+        "scripts/check-bff-compatibility.mjs"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "compatibility.log",
+      "logSha256": "6d459100d2640c764307c4d36dbdaef896fd8b5d4e5d91478135d359a560012e"
+    },
+    {
+      "name": "a1-negative",
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-000-gate-negative.mjs",
+        "scripts/bff-remediation-negative.mjs"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "a1-negative.log",
+      "logSha256": "b0e0489d26d1596858fae42fc4ad3fc05f2001b2bc3d0a563ca66c4ac171ecd9"
+    },
+    {
+      "name": "openapi",
+      "command": [
+        "node",
+        "scripts/check-bff-openapi.mjs"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "openapi.log",
+      "logSha256": "afe664e0b10f2b33c7e6e1931b8184f51f6e0e79ffd2902e120f422705bb14b6"
+    },
+    {
+      "name": "generated",
+      "command": [
+        "node",
+        "scripts/check-bff-generated.mjs"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "generated.log",
+      "logSha256": "dfbbc3e474b1bb5323d6637b0a04e9941c4fd82371c6d6bdfb7d3f49006926d7"
+    },
+    {
+      "name": "coverage-inventory",
+      "command": [
+        "node",
+        "scripts/check-bff-contract-coverage.mjs"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "coverage-inventory.log",
+      "logSha256": "e18d9904454327c2f7f97c0f1b0b186b1b4e679b0f9feea877f235be8992b039"
+    },
+    {
+      "name": "final-review",
+      "command": [
+        "node",
+        "scripts/check-bff-a1-acceptance.mjs",
+        "--stage",
+        "final-review"
+      ],
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "matched": true,
+      "log": "final-review.log",
+      "logSha256": "c5c5472fcb5e7ac001594a46c13992d583470d9aa4bea5a023542d6b597cb4d0"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "plans.log",
+      "logSha256": "5f190f2c256c46e43c102ea74ed6a64c9c09f3c6a41bf426e6c99f819cdba529"
+    },
+    {
+      "name": "api-client",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "test"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "api-client.log",
+      "logSha256": "a9607d544196d8a98cc8de86094bb273a707e0f46aed1d438143a88769e7b820"
+    },
+    {
+      "name": "contract",
+      "command": [
+        "pnpm",
+        "test:contract"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "contract.log",
+      "logSha256": "cbf668af9fda8c4dcfad1cf7c17d04b79e359506f77c83e28649c92da7869188"
+    },
+    {
+      "name": "reference-rust",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider",
+        "--test",
+        "audit_export_provider",
+        "--locked",
+        "--offline"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "reference-rust.log",
+      "logSha256": "e31d13045a8e664c2afada216eb73cf48a4195deecb916f22943d703a3a30f17"
+    },
+    {
+      "name": "reference-http",
+      "command": [
+        "node",
+        "scripts/test-bff-provider-contract.mjs",
+        "docs/audit/evidence/bff-fe-000-recheck-20261004/reference-http.json"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "reference-http.log",
+      "logSha256": "71c1d54a6b834ff5d126af6a6a699654dd24636b7fb2f84522427dfdfb3bc6fc"
+    },
+    {
+      "name": "critical-coverage",
+      "command": [
+        "pnpm",
+        "coverage:critical"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "critical-coverage.log",
+      "logSha256": "923a74288b63b6969920197ff24992b3f4619a6b316d82bbf128ef54996f79f3"
+    },
+    {
+      "name": "plans-final",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "plans-final.log",
+      "logSha256": "f4fb87cd13b94a10ba01025852e569c1d541741d604488dcc94076f4d974ec03"
+    },
+    {
+      "name": "plans-negative",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "matched": true,
+      "log": "plans-negative.log",
+      "logSha256": "628448d96008929fe26a618c14da7fd37031aa46f4da2d1b4f7c4415e2e7d1ce"
+    }
+  ]
+}

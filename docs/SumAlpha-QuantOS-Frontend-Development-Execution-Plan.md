@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.17
+> 版本：3.18
 > 更新时间：2026-10-04
 > 状态：阶段归属已更新；功能准入待聚焦评估，正式发布待产品、前端、BFF、QA、安全与风控联合验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,9 +8,11 @@
 
 ## 版本变更说明
 
+- `3.18`：重新核对 BFF-FE-000 原 14 项发现，13 项工程问题关闭，B-01 维持最终 RELEASE 评审待办；活跃报告精简并归档历史发现，任务卡/总结同步 API 1.5.0 / 52 schemas。当前 P0 同 SHA 回执未在本轮重验，不改变阶段 READY 或正式 ACCEPTED。
+
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.17、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.18、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -337,7 +339,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - 领域接口背景：F03 有领域 Proto/OpenAPI 生成，但无第一期 22 个 Web Terminal 页面完整 API 清单
 - 覆盖契约/页面：C01–C17；P01–P15/P17–P23
 - 目标阶段与验收：FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI
-- 工程整改复验：[2026-10-03 整改报告](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)；API 1.4.0 / 62 published / 46 planned / 51 schemas；B-01 的 staging 执行已移至最后评审，开发阶段标记 `DEFERRED_TO_FINAL_REVIEW`，不再作为开发缺陷或 REVIEW_READY 阻塞；最终 ACCEPTED 仍须目标回执与签署。既有决定见[评审阶段调整记录](./audit/BFF-FE-000-review-stage-policy-2026-10-03.md)，当前统一阶段归属见第 2.1 节。
+- 当前工程复核：[2026-10-04 活跃复核报告](./audit/BFF-FE-000-comprehensive-review-2026-10-03.md)；API 1.5.0 / 62 published / 46 planned / 52 schemas；原 6 高危、6 中危、1 低危工程问题已关闭，当前活动工程缺陷 0，历史发现与关闭索引已归档。B-01 为 `DEFERRED_TO_FINAL_REVIEW`，真实 staging/联合签署在 RELEASE 执行，不阻塞开发完成或 REVIEW_READY，未标为 CLOSED/PASS。C01 当前 P0 同 SHA 回执未补齐；本次不将 `stage_gate` 改为 READY，不改变 PROVIDER:A1/G0 正式状态。证据见[本轮清单](./audit/evidence/bff-fe-000-recheck-20261004/manifest.json)，阶段归属继续按第 2.1 节。
 
 <a id="acceptance-provider-a1"></a>
 ##### PROVIDER:A1：验收检查点

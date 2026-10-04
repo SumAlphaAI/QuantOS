@@ -1,10 +1,11 @@
 # BFF-FE-000 交付总结
 
-> 阶段：A1；更新日期：2026-10-03；A1 安全修正基线：OpenAPI 3.1 / API 1.4.0；当前 A2 兼容扩展为 API 1.5.0。
+> 阶段：A1；更新日期：2026-10-04；A1 安全修正基线：OpenAPI 3.1 / API 1.4.0；当前 A2 兼容扩展为 API 1.5.0。
 > 工程开发与整改已完成；当前阶段安排见 [评审阶段调整记录](./audit/BFF-FE-000-review-stage-policy-2026-10-03.md)。B-01 staging：`DEFERRED_TO_FINAL_REVIEW`，不阻塞开发完成或 REVIEW_READY。
-> [原整改复验](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)保留当时口径；正式 PROVIDER:A1 / G0 尚未 ACCEPTED。
+> 当前结果见 [2026-10-04 复核报告](./audit/BFF-FE-000-comprehensive-review-2026-10-03.md)；原 13 项工程问题全部关闭，B-01 仍未正式验收。
+> [原整改复验](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)保留当时口径；正式 PROVIDER:A1 / G0 尚未 ACCEPTED，staging 与签署按当前计划由 RELEASE 收口。
 
-当前 catalog 覆盖 C01–C17、一期 22 页，62 个 published、46 个 planned operation、51 个组件 schema。P16 属 Desktop 二期；planned operation 按对应 A3–A6 owner 交付，不计作 A1 缺失实现。
+当前 catalog 覆盖 C01–C17、一期 22 页，62 个 published、46 个 planned operation、52 个组件 schema。P16 属 Desktop 二期；planned operation 按对应 A3–A6 owner 交付，不计作 A1 缺失实现。
 
 生成器同源生成 TS 类型、Zod、JSON Schema、MSW 路由、operation manifest 和 Rust 输入策略共六项资产。开放 payload/参数对象保留扩展数据，命令顶层拒绝未知字段。业务写请求声明 CSRF、请求 ID、幂等与对象版本条件；全部 operation 有安全策略、示例、correlation/cache header 与安全服务端错误声明。
 
