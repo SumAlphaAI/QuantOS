@@ -561,11 +561,11 @@ flowchart TD
 
 - review_model: `GPT-6 Astra`
 - review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-10-03 补齐 Binance 持续监督、受控异常 ≤5s 提交与事务池完整八并发 Gate 验证；fixture/真实进程故障最大 2164ms/1919ms。9 项关闭，B01 的长期部署、远程同 SHA CI 和许可验收仍待完成，R01 未 ACCEPTED；本轮为整改验证，未产生新的独立 Astra 复审。 2026-10-04：经用户明确选择新增 30 分钟有界内部评估授权；实际 1801.473s、6243 唯一成交、F05 11195/11195 与 actor 清理通过。readiness 30.43%、2623 tick 新鲜度降级，保持健康风险与 B01 PARTIAL；详见[扩大窗口报告](./audit/R01-window-validation-2026-10-04.md)。
+- review_conclusion: 2026-10-03 补齐 Binance 持续监督、受控异常 ≤5s 提交与事务池完整八并发 Gate 验证；fixture/真实进程故障最大 2164ms/1919ms。9 项关闭，B01 的长期部署、远程同 SHA CI 和许可验收仍待完成，R01 未 ACCEPTED；本轮为整改验证，未产生新的独立 Astra 复审。 2026-10-04：经用户明确选择新增 30 分钟有界内部评估授权；实际 1801.473s、6243 唯一成交、F05 11195/11195 与 actor 清理通过。readiness 30.43%、2623 tick 新鲜度降级，保持健康风险与 B01 PARTIAL；详见[扩大窗口报告](./audit/R01-window-validation-2026-10-04.md)。专项只读评估确认 source-age P95 3686.049ms、processing 到检测 P95 17.437ms；运行期 ready=35/114（30.70% 点样本），44 条自然 tick 告警检测到 progress >5s、native ACK 缺测、trace 共写坏行待整改。未启动新窗口；scope 1800 秒/两标的/用途/到期日不变，24h 或部署须新范围授权；Linux/systemd、父启动器/主机死亡通知、商用许可、远程同 SHA CI 均待验收，B01 OPEN/PARTIAL。详见[专项评估报告](./audit/R01-freshness-assessment-2026-10-04.md)。
 - issues:
   - issue_id: B01
     severity: BLOCKER
-    description: Binance REST、真实补偿与受控五秒异常回执已取得；长期部署、远程同 SHA CI 与商用许可未验收
+    description: Binance REST、真实补偿与历史受控五秒异常回执已取得；自然运行新鲜度/readiness 降级、精确告警 ACK/trace 补证、长期部署及父启动器/主机死亡通知、远程同 SHA CI 与商用许可未验收
     evidence: docs/audit/R01-remediation-validation-2026-10-02.md
     status: OPEN
   - issue_id: H01

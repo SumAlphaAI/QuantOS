@@ -1,6 +1,6 @@
 # CORE:R01 Market ingestion 与标准化行情契约交付摘要
 
-更新日期：2026-10-03。状态：FIX_VALIDATION；9 项复审问题关闭，B01 已完成 Binance 原生接入、真实补偿及受控异常五秒提交验证，长期部署、远程同 SHA CI 与许可验收待完成，R01 未 ACCEPTED。
+更新日期：2026-10-04。状态：FIX_VALIDATION；9 项复审问题关闭，B01 已完成 Binance 原生接入、真实补偿及历史受控异常五秒提交验证，自然运行健康与精确异常提交补证、长期部署、远程同 SHA CI 与许可验收待完成，R01 未 ACCEPTED。
 
 - MarketEvent v2 使用显式标的映射与 BASE/QUOTE；来源身份包含 tenant/provider/ID，并对同 ID 的不同内容报冲突。原始数值错误产生质量事件，坏帧隔离后继续处理。
 - `ingest-source` / `poll-source` 将 receipt、序号、事件、审计和 F05 outbox 原子写入配置的 Supabase；重启去重、失败安全重试、F05 inbox/checkpoint、死信重放已有目标 fixture 测试。
@@ -26,3 +26,9 @@ B01 的 native adapter/真实来源执行缺口已补齐；正式五秒异常 SL
 ## 30 分钟扩大窗口
 
 2026-10-04 用户选择 30 分钟内部 BTCUSDT/ETHUSDT 评估，新增严格 v2 授权与单独范围，不延长原到期日。实际 1801.473s、115 样本，6243 个唯一成交；两个 ID 区间、正常轮换、11195 条 F05 交付/checkpoint、actor 停用通过。但 readiness 仅 30.43% 采样正常，2623 个 tick 新鲜度降级，完整性 PASS 不等于全程健康。详见[扩大窗口报告](./audit/R01-window-validation-2026-10-04.md)。R01/B01 仍为 FIX_VALIDATION / PARTIAL；24h、部署、商用许可与远程 CI 未验收。
+
+## 新鲜度专项评估
+
+既有事实只读复核：source-age P95 3686.049ms，响应到检测 P95 17.437ms；检测时 2623/6243（42.02%）tick 已超 2s。剔除启动前样本后 ready=35/114（30.70% 点样本，不是 uptime）。同一 BTC 页 44 个自然 tick 告警的检测到 progress 观测 >5s，实际 ACK 尚缺精确测量；native source 告警有 1157 个无 ACK 回执，trace 有 3 坏行。完整度、delivery 和 processing 短时长都不能覆盖这些健康/测量缺口。详见[专项评估报告](./audit/R01-freshness-assessment-2026-10-04.md)。
+
+本次没有新摄取或数据库写入，actor 仍 inactive，历史事实保留。scope 固定 1800 秒、两标的、原内部用途及 2026-10-10T00:00:00Z 到期日；后续复跑采用有效批准、新具名 actor、新空证据目录，失败保留并停止进程/停用 actor。24h 或部署需新范围授权；Linux/systemd、父启动器/主机死亡通知、商用许可、远程同 SHA CI 仍待验收，B01 OPEN/PARTIAL。

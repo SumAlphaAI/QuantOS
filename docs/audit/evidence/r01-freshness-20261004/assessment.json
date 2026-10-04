@@ -1,0 +1,667 @@
+{
+  "schema": "quantos-r01-freshness-assessment/v1",
+  "status": "ASSESSED_DEGRADED_B01_OPEN_PARTIAL",
+  "historical_window": {
+    "started_at": "2026-10-04T01:17:42.306Z",
+    "stopped_at": "2026-10-04T01:47:43.779Z",
+    "tenant": "f17a5956-ae3d-45d2-aae0-edb2c3660ce7",
+    "actor": "92902e56-c69c-4206-b40e-81bfd48b1a3e",
+    "runtime_seconds": 1800,
+    "scope_id": "r01-20261004-30m-internal",
+    "expires_at": "2026-10-10T00:00:00Z"
+  },
+  "verified_inputs": [
+    {
+      "file": "attempt-01/receipt.json",
+      "sha256": "3bd85f959089177cbb08e06cec5251b1d48f837fb562c1273ea4c3a9eb3a2fdd"
+    },
+    {
+      "file": "compression-manifest.json",
+      "sha256": "fce5e7ed33ff47e57c2dc42db8bfa11e8a47854ab3854b8071f14a846cb56799"
+    },
+    {
+      "file": "attempt-01/samples.jsonl.gz",
+      "sha256": "21c0991a7ddb3c2bd381dbb1b231137c7176cd1f091f51faedfcdea137336809"
+    },
+    {
+      "file": "attempt-01/supervisor.jsonl.gz",
+      "sha256": "f289db48792feb2899842c51db5e0160028cb566f0bbdc16f928bccf3089778a"
+    },
+    {
+      "file": "attempt-01/trace.jsonl.gz",
+      "sha256": "d4011f8ad167c5b1ca198b84f87b4ace8cb2247ef7535d9932b82b8877370ae4"
+    }
+  ],
+  "target_readback": {
+    "schema": "quantos-r01-freshness-readback/v1",
+    "sourceReceiptSha256": "3bd85f959089177cbb08e06cec5251b1d48f837fb562c1273ea4c3a9eb3a2fdd",
+    "tenant": "f17a5956-ae3d-45d2-aae0-edb2c3660ce7",
+    "actor": "92902e56-c69c-4206-b40e-81bfd48b1a3e",
+    "target": "configured Supabase PostgreSQL",
+    "connectionMode": "transaction",
+    "newLiveWindow": "NOT RUN",
+    "writes": false,
+    "files": {
+      "target-events.json.gz": {
+        "sha256": "a4226aacd399c916b957342ee49c33f253c996a9c18c274e70d87349676ab30e",
+        "rawSha256": "f83355a8c80a252f476893ce90b8716ad58217fdb079eabcf262b7b5b710d40a",
+        "rows": 11195
+      },
+      "target-source-receipts.json.gz": {
+        "sha256": "929304753e46aeb13346a99556c9bfd7b76ac59943a4e10cfa08fbb3be9527e7",
+        "rawSha256": "766bf37c36d791f24e770ae7c73675e26af2d80980d93ecef9cf9fb7e5a7df7a",
+        "rows": 2329
+      }
+    },
+    "readOnly": "on",
+    "actorActive": false,
+    "delivery": {
+      "outbox": 11195,
+      "pending": 0,
+      "applied": 11195
+    },
+    "transactionEnd": "ROLLBACK",
+    "status": "PASS_READ_ONLY_READBACK",
+    "checked_at": "2026-10-04T02:35:26.082Z"
+  },
+  "sampling": {
+    "all_samples": 115,
+    "pre_start": 1,
+    "after_stop": 0,
+    "running_samples": 114,
+    "ready_all": 35,
+    "ready_running": 35,
+    "ready_running_percent": 30.70175438596491,
+    "unready_running": 79,
+    "unknown_health_running": 0,
+    "nominal_interval_ms": 15000,
+    "interval_ms": {
+      "measured": 113,
+      "missing": 0,
+      "min": 15597,
+      "p50": 15714,
+      "p95": 16255,
+      "p99": 16405,
+      "max": 16561,
+      "negative": 0,
+      "gt_2000": 113,
+      "gt_5000": 113
+    },
+    "intervals_gt_twice_nominal": 0,
+    "total_cadence_excess_ms": 85456,
+    "first_sample_after_start_ms": 13400,
+    "stop_after_last_sample_ms": 7617,
+    "health_file_age_at_sample_ms": {
+      "measured": 114,
+      "missing": 0,
+      "min": 489,
+      "p50": 845,
+      "p95": 1580,
+      "p99": 2053,
+      "max": 2546,
+      "negative": 0,
+      "gt_2000": 2,
+      "gt_5000": 0
+    },
+    "symbol_samples": {
+      "BTCUSDT": {
+        "age_at_sample_ms": {
+          "measured": 114,
+          "missing": 0,
+          "min": 658,
+          "p50": 2377,
+          "p95": 4035,
+          "p99": 4610,
+          "max": 5050,
+          "negative": 0,
+          "gt_2000": 67,
+          "gt_5000": 1
+        },
+        "within_2000": 47
+      },
+      "ETHUSDT": {
+        "age_at_sample_ms": {
+          "measured": 114,
+          "missing": 0,
+          "min": 621,
+          "p50": 2367,
+          "p95": 4738,
+          "p99": 7395,
+          "max": 8698,
+          "negative": 0,
+          "gt_2000": 69,
+          "gt_5000": 4
+        },
+        "within_2000": 45
+      }
+    },
+    "ready_health_but_later_cursor_stale_samples": [
+      "2026-10-04T01:17:55.706Z",
+      "2026-10-04T01:18:42.811Z",
+      "2026-10-04T01:19:14.082Z",
+      "2026-10-04T01:20:33.019Z",
+      "2026-10-04T01:22:23.468Z",
+      "2026-10-04T01:23:57.680Z",
+      "2026-10-04T01:24:13.421Z",
+      "2026-10-04T01:25:00.496Z",
+      "2026-10-04T01:26:35.358Z",
+      "2026-10-04T01:26:51.131Z",
+      "2026-10-04T01:28:25.699Z",
+      "2026-10-04T01:29:12.659Z",
+      "2026-10-04T01:29:44.018Z",
+      "2026-10-04T01:31:35.079Z",
+      "2026-10-04T01:36:49.490Z",
+      "2026-10-04T01:37:36.501Z",
+      "2026-10-04T01:39:11.052Z",
+      "2026-10-04T01:40:14.544Z",
+      "2026-10-04T01:40:45.900Z",
+      "2026-10-04T01:42:20.217Z",
+      "2026-10-04T01:46:48.303Z",
+      "2026-10-04T01:47:20.382Z"
+    ],
+    "pending_max_sample": 307,
+    "missing_health_timestamps": 0,
+    "semantics": "POINT_SAMPLES_NOT_UPTIME; health read before cursor/count SELECT; at recorded after queries; milliseconds resolution"
+  },
+  "ticks": {
+    "ticks": 6243,
+    "degraded": 2623,
+    "quality_counts": {
+      "degraded": 2623,
+      "passed": 3620
+    },
+    "clocks_ms": {
+      "source_age_ms": {
+        "measured": 6243,
+        "missing": 0,
+        "min": 184.443,
+        "p50": 1697.621,
+        "p95": 3686.049,
+        "p99": 6152.482,
+        "max": 9138.705,
+        "negative": 0,
+        "gt_2000": 2620,
+        "gt_5000": 102
+      },
+      "processing_to_detection_ms": {
+        "measured": 6243,
+        "missing": 0,
+        "min": 0.116,
+        "p50": 2.784,
+        "p95": 17.437,
+        "p99": 35.944,
+        "max": 46.264,
+        "negative": 0,
+        "gt_2000": 0,
+        "gt_5000": 0
+      },
+      "source_age_at_detection_ms": {
+        "measured": 6243,
+        "missing": 0,
+        "min": 185.712,
+        "p50": 1701.19,
+        "p95": 3695.533,
+        "p99": 6153.228,
+        "max": 9139.085,
+        "negative": 0,
+        "gt_2000": 2623,
+        "gt_5000": 102
+      },
+      "detection_to_progress_ms": {
+        "measured": 6243,
+        "missing": 0,
+        "min": 957.413,
+        "p50": 1238.634,
+        "p95": 3581.725,
+        "p99": 4341.269,
+        "max": 5279.354,
+        "negative": 0,
+        "gt_2000": 930,
+        "gt_5000": 45
+      },
+      "source_age_at_progress_ms": {
+        "measured": 6243,
+        "missing": 0,
+        "min": 1178,
+        "p50": 3075,
+        "p95": 6702,
+        "p99": 9120,
+        "max": 12165,
+        "negative": 0,
+        "gt_2000": 5288,
+        "gt_5000": 792
+      },
+      "receive_to_progress_ms": {
+        "measured": 6243,
+        "missing": 0,
+        "min": 958.021,
+        "p50": 1241.346,
+        "p95": 3583.721,
+        "p99": 4348.612,
+        "max": 5280.61,
+        "negative": 0,
+        "gt_2000": 930,
+        "gt_5000": 45
+      }
+    },
+    "progress_missing_event_ids": [],
+    "progress_ambiguous_event_ids": [],
+    "detection_to_progress_over_5000_pages": [
+      {
+        "symbol": "BTCUSDT",
+        "next_id": "4080259416",
+        "progress_at": "2026-10-04T01:26:30.491Z",
+        "affected_events": 45
+      }
+    ],
+    "semantics": "received_at at response headers; detected_at before page SQL; progress log follows COMMIT ACK + stdout scheduling; ingested_at is transaction-start time, never ACK"
+  },
+  "by_symbol": {
+    "BTCUSDT": {
+      "ticks": 3912,
+      "degraded": 1674,
+      "quality_counts": {
+        "degraded": 1674,
+        "passed": 2238
+      },
+      "clocks_ms": {
+        "source_age_ms": {
+          "measured": 3912,
+          "missing": 0,
+          "min": 184.443,
+          "p50": 1782.313,
+          "p95": 3721.89,
+          "p99": 6500.048,
+          "max": 9138.705,
+          "negative": 0,
+          "gt_2000": 1672,
+          "gt_5000": 75
+        },
+        "processing_to_detection_ms": {
+          "measured": 3912,
+          "missing": 0,
+          "min": 0.13,
+          "p50": 2.913,
+          "p95": 20.334,
+          "p99": 40.636,
+          "max": 46.264,
+          "negative": 0,
+          "gt_2000": 0,
+          "gt_5000": 0
+        },
+        "source_age_at_detection_ms": {
+          "measured": 3912,
+          "missing": 0,
+          "min": 185.712,
+          "p50": 1784.872,
+          "p95": 3725.255,
+          "p99": 6512.57,
+          "max": 9139.085,
+          "negative": 0,
+          "gt_2000": 1674,
+          "gt_5000": 75
+        },
+        "detection_to_progress_ms": {
+          "measured": 3912,
+          "missing": 0,
+          "min": 957.591,
+          "p50": 1220.907,
+          "p95": 3858.995,
+          "p99": 5262.014,
+          "max": 5279.354,
+          "negative": 0,
+          "gt_2000": 695,
+          "gt_5000": 45
+        },
+        "source_age_at_progress_ms": {
+          "measured": 3912,
+          "missing": 0,
+          "min": 1205,
+          "p50": 3118,
+          "p95": 6809,
+          "p99": 9638,
+          "max": 12165,
+          "negative": 0,
+          "gt_2000": 3353,
+          "gt_5000": 580
+        },
+        "receive_to_progress_ms": {
+          "measured": 3912,
+          "missing": 0,
+          "min": 958.184,
+          "p50": 1223.09,
+          "p95": 3861.973,
+          "p99": 5280.61,
+          "max": 5280.61,
+          "negative": 0,
+          "gt_2000": 695,
+          "gt_5000": 45
+        }
+      },
+      "progress_missing_event_ids": [],
+      "progress_ambiguous_event_ids": [],
+      "detection_to_progress_over_5000_pages": [
+        {
+          "symbol": "BTCUSDT",
+          "next_id": "4080259416",
+          "progress_at": "2026-10-04T01:26:30.491Z",
+          "affected_events": 45
+        }
+      ],
+      "semantics": "received_at at response headers; detected_at before page SQL; progress log follows COMMIT ACK + stdout scheduling; ingested_at is transaction-start time, never ACK"
+    },
+    "ETHUSDT": {
+      "ticks": 2331,
+      "degraded": 949,
+      "quality_counts": {
+        "degraded": 949,
+        "passed": 1382
+      },
+      "clocks_ms": {
+        "source_age_ms": {
+          "measured": 2331,
+          "missing": 0,
+          "min": 195.636,
+          "p50": 1595.764,
+          "p95": 3686.049,
+          "p99": 5268.689,
+          "max": 8993.502,
+          "negative": 0,
+          "gt_2000": 948,
+          "gt_5000": 27
+        },
+        "processing_to_detection_ms": {
+          "measured": 2331,
+          "missing": 0,
+          "min": 0.116,
+          "p50": 2.495,
+          "p95": 13.036,
+          "p99": 18.214,
+          "max": 22.084,
+          "negative": 0,
+          "gt_2000": 0,
+          "gt_5000": 0
+        },
+        "source_age_at_detection_ms": {
+          "measured": 2331,
+          "missing": 0,
+          "min": 198.149,
+          "p50": 1596.664,
+          "p95": 3694.615,
+          "p99": 5275.357,
+          "max": 8994.031,
+          "negative": 0,
+          "gt_2000": 949,
+          "gt_5000": 27
+        },
+        "detection_to_progress_ms": {
+          "measured": 2331,
+          "missing": 0,
+          "min": 957.413,
+          "p50": 1274.365,
+          "p95": 2413.023,
+          "p99": 3580.261,
+          "max": 4365.89,
+          "negative": 0,
+          "gt_2000": 235,
+          "gt_5000": 0
+        },
+        "source_age_at_progress_ms": {
+          "measured": 2331,
+          "missing": 0,
+          "min": 1178,
+          "p50": 2998,
+          "p95": 5469,
+          "p99": 7054,
+          "max": 10588,
+          "negative": 0,
+          "gt_2000": 1935,
+          "gt_5000": 212
+        },
+        "receive_to_progress_ms": {
+          "measured": 2331,
+          "missing": 0,
+          "min": 958.021,
+          "p50": 1274.843,
+          "p95": 2415.132,
+          "p99": 3583.721,
+          "max": 4366.82,
+          "negative": 0,
+          "gt_2000": 235,
+          "gt_5000": 0
+        }
+      },
+      "progress_missing_event_ids": [],
+      "progress_ambiguous_event_ids": [],
+      "detection_to_progress_over_5000_pages": [],
+      "semantics": "received_at at response headers; detected_at before page SQL; progress log follows COMMIT ACK + stdout scheduling; ingested_at is transaction-start time, never ACK"
+    }
+  },
+  "natural_tick_anomaly_progress": {
+    "ticks": 2623,
+    "degraded": 2623,
+    "quality_counts": {
+      "degraded": 2623
+    },
+    "clocks_ms": {
+      "source_age_ms": {
+        "measured": 2623,
+        "missing": 0,
+        "min": 1996.137,
+        "p50": 2713.868,
+        "p95": 4357.39,
+        "p99": 6747.879,
+        "max": 9138.705,
+        "negative": 0,
+        "gt_2000": 2620,
+        "gt_5000": 102
+      },
+      "processing_to_detection_ms": {
+        "measured": 2623,
+        "missing": 0,
+        "min": 0.125,
+        "p50": 2.069,
+        "p95": 19.376,
+        "p99": 33.643,
+        "max": 39.937,
+        "negative": 0,
+        "gt_2000": 0,
+        "gt_5000": 0
+      },
+      "source_age_at_detection_ms": {
+        "measured": 2623,
+        "missing": 0,
+        "min": 2000.833,
+        "p50": 2714.693,
+        "p95": 4373.692,
+        "p99": 6749.047,
+        "max": 9139.085,
+        "negative": 0,
+        "gt_2000": 2623,
+        "gt_5000": 102
+      },
+      "detection_to_progress_ms": {
+        "measured": 2623,
+        "missing": 0,
+        "min": 961.728,
+        "p50": 1272.571,
+        "p95": 4313.769,
+        "p99": 5266.629,
+        "max": 5279.354,
+        "negative": 0,
+        "gt_2000": 613,
+        "gt_5000": 44
+      },
+      "source_age_at_progress_ms": {
+        "measured": 2623,
+        "missing": 0,
+        "min": 2974,
+        "p50": 4107,
+        "p95": 7201,
+        "p99": 9638,
+        "max": 12165,
+        "negative": 0,
+        "gt_2000": 2623,
+        "gt_5000": 734
+      },
+      "receive_to_progress_ms": {
+        "measured": 2623,
+        "missing": 0,
+        "min": 961.972,
+        "p50": 1273.979,
+        "p95": 4348.612,
+        "p99": 5280.61,
+        "max": 5280.61,
+        "negative": 0,
+        "gt_2000": 613,
+        "gt_5000": 44
+      }
+    },
+    "progress_missing_event_ids": [],
+    "progress_ambiguous_event_ids": [],
+    "detection_to_progress_over_5000_pages": [
+      {
+        "symbol": "BTCUSDT",
+        "next_id": "4080259416",
+        "progress_at": "2026-10-04T01:26:30.491Z",
+        "affected_events": 44
+      }
+    ],
+    "semantics": "received_at at response headers; detected_at before page SQL; progress log follows COMMIT ACK + stdout scheduling; ingested_at is transaction-start time, never ACK"
+  },
+  "natural_alerts": {
+    "event_kind_counts": {
+      "market.tick.freshness_degraded": 2623,
+      "market.source.freshness_degraded": 2327,
+      "market.source.monitor_degraded": 2
+    },
+    "receipt_producers": {
+      "native": 1157,
+      "supervisor": 1172
+    },
+    "supervisor_ack_count": 1172,
+    "supervisor_acks_missing_target": [],
+    "by_kind": {
+      "market.source.freshness_degraded": {
+        "count": 1170,
+        "origin_to_ack_ms": {
+          "measured": 1170,
+          "missing": 0,
+          "min": 238,
+          "p50": 610,
+          "p95": 1162,
+          "p99": 1715,
+          "max": 2179,
+          "negative": 0,
+          "gt_2000": 6,
+          "gt_5000": 0
+        },
+        "origin_to_detection_ms": {
+          "measured": 1170,
+          "missing": 0,
+          "min": 1,
+          "p50": 273,
+          "p95": 611,
+          "p99": 1032,
+          "max": 1769,
+          "negative": 0,
+          "gt_2000": 0,
+          "gt_5000": 0
+        },
+        "detection_to_ack_ms": {
+          "measured": 1170,
+          "missing": 0,
+          "min": 235,
+          "p50": 292,
+          "p95": 695,
+          "p99": 1103,
+          "max": 1754,
+          "negative": 0,
+          "gt_2000": 0,
+          "gt_5000": 0
+        },
+        "elapsed_field_mismatch": 0
+      },
+      "market.source.monitor_degraded": {
+        "count": 2,
+        "origin_to_ack_ms": {
+          "measured": 2,
+          "missing": 0,
+          "min": 2315,
+          "p50": 2315,
+          "p95": 2558,
+          "p99": 2558,
+          "max": 2558,
+          "negative": 0,
+          "gt_2000": 2,
+          "gt_5000": 0
+        },
+        "origin_to_detection_ms": {
+          "measured": 2,
+          "missing": 0,
+          "min": 2003,
+          "p50": 2003,
+          "p95": 2003,
+          "p99": 2003,
+          "max": 2003,
+          "negative": 0,
+          "gt_2000": 2,
+          "gt_5000": 0
+        },
+        "detection_to_ack_ms": {
+          "measured": 2,
+          "missing": 0,
+          "min": 312,
+          "p50": 312,
+          "p95": 555,
+          "p99": 555,
+          "max": 555,
+          "negative": 0,
+          "gt_2000": 0,
+          "gt_5000": 0
+        },
+        "elapsed_field_mismatch": 0
+      }
+    },
+    "freshness_checkpoints_ms": 1171,
+    "paired_checkpoints_ms": 1156,
+    "supervisor_only_checkpoints_ms": 14,
+    "unlogged_only_checkpoints_ms": 1,
+    "multiple_same_producer_checkpoints_ms": 0,
+    "source_events_without_ack_measurement": 1157,
+    "monitor_read_timeout_log_count": 1,
+    "timing_semantics": "freshness origin is last response + 2s, NOT physical fault occurrence; monitor origin is read start; native ACK unmeasured; checkpoint grouping truncates submillisecond precision, NOT outage count"
+  },
+  "trace_integrity": {
+    "lines": 510,
+    "valid_object_records": 507,
+    "invalid_lines": [
+      {
+        "line": 1,
+        "bytes": 640,
+        "sha256": "2908458247170db79bc3ddd0b35ee7129d987ee295b3d5131b7dcb296405d7a3"
+      },
+      {
+        "line": 2,
+        "bytes": 4,
+        "sha256": "8ad36d4505bb8487af63b7ec73f90fceddc2226466a137ab2ea5ec2d7fa29716"
+      },
+      {
+        "line": 3,
+        "bytes": 1,
+        "sha256": "d10b36aa74a59bcf4a88185837f658afaf3646eff2bb16c3928d0e9335e945d2"
+      }
+    ],
+    "complete_trace_timing": "UNAVAILABLE_CORRUPT_MULTI_PROCESS_JSONL; valid subset not representative"
+  },
+  "formal_fault_to_commit_sla": "NOT REVALIDATED_BY_THIS_ASSESSMENT",
+  "pending_acceptance": [
+    "24h/new scope",
+    "Linux/systemd deployment",
+    "parent-launcher/host death notifications",
+    "commercial license",
+    "remote same-SHA CI"
+  ],
+  "new_live_window": "NOT RUN",
+  "database_writes": false
+}

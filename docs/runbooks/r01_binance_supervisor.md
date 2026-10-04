@@ -92,3 +92,23 @@ QUANTOS_R01_POOL_MODE=transaction QUANTOS_R01_EVIDENCE_DIR=artifacts/r01-window 
 停机后核验每个 symbol 从 initial_id 至 next_id 的 receipt 数量与 min/max；唯一键加完整区间证明已确认窗口连续。F05 outbox/applied/checkpoint 必须一致且 pending=0；actor 停用并读回后才写 PASS 回执。immutable facts 保留。父启动器 SIGKILL/主机故障不能执行 finally，仍需外部进程管理和人工检查 owned-scope；本轮未验证此类目标部署故障。
 
 1800 秒是本次窗口的授权上限。24h、更多标的、对外展示/商用和长期生产均不在这份 scope 内。源码与原生二进制 hash 在启动/结束校验，后续提交必须匹配；本轮不重跑或继承旧回执为新的远程同 SHA CI。结果见 [扩大窗口报告](../audit/R01-window-validation-2026-10-04.md)。
+
+## 既有窗口专项评估（不启动摄取）
+
+[专项报告](../audit/R01-freshness-assessment-2026-10-04.md)分别统计 source-age、processing 到检测、自然告警提交观测、readiness 点样本及采样缺口。source-age 使用 received_at/event_time；检测 age 使用 detected_at/event_time；processing 到检测不包含 SQL/COMMIT。progress 日志在 ACK 后记录，含 stdout 调度，只能作为观测上界；数据库 now()/ingested_at 不是 ACK。监督 source 告警的 origin 是 last_response_at+freshness 阈值，monitor 告警 origin 是监控读开始，都不能冒充故障发生时刻。最终 pending=0 不能使这些指标通过。
+
+只读目标导出使用现有 DATABASE_URL（不打印连接信息），BEGIN REPEATABLE READ READ ONLY 后仅 SELECT，并 ROLLBACK；原 actor 不激活。输出目录必须为空，失败留下 failure.json，后续尝试使用新目录。离线分析会验证原压缩/解压 hashes、tenant/actor、actor inactive 和导出完整性；输出文件不得覆盖。
+
+```bash
+QUANTOS_R01_POOL_MODE=transaction node --env-file=.env.local \
+  scripts/r01-freshness-readback.cjs \
+  docs/audit/evidence/r01-window-20261004 \
+  artifacts/r01-freshness-readback-new-attempt
+
+node scripts/r01-freshness-assessment.cjs \
+  docs/audit/evidence/r01-window-20261004 \
+  artifacts/r01-freshness-readback-new-attempt \
+  artifacts/r01-freshness-assessment-new.json
+```
+
+源码与数据保留了当前问题：自然 tick 告警中存在检测到 progress >5s 的观测、native ACK 缺测、trace 共写坏行、health 与 SQL 非原子采样。评估完成不表示问题修复或验收关闭。复跑摄取仍必须走上方固定 1800 秒 scope 启动器，有效批准、预算覆盖期限、新具名 actor/空证据目录；提前退出保留 failure，结束停止本次进程、停用 actor并实际读回，不删除/重建 Supabase。24h/部署须新的范围授权，不改旧批准到期日；Linux/systemd、父启动器/主机死亡通知、商用许可、远程同 SHA CI 继续 NOT RUN / NOT VERIFIED。
