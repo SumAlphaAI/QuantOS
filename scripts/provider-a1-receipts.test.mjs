@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 import {gzipSync} from 'node:zlib';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot,developmentEnvironment} from './provider-a1-receipts.mjs';
+import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot,developmentEnvironment,runTargetAttempts} from './provider-a1-receipts.mjs';
 function fixture(fn){const base=mkdtempSync(resolve(tmpdir(),'quantos-stage-receipt-'));try{
  execFileSync('git',['init','-q'],{cwd:base});mkdirSync(resolve(base,'scripts'));mkdirSync(resolve(base,directory,'logs'),{recursive:true});writeFileSync(resolve(base,'code.ts'),'trusted code');
  const spec={scope:'implemented functionality only',inputs:['code.ts'],checks:['actual']};const p={commonInputs:['scripts/provider-a1-policy.json'],excluded:['release'],nodes:{child:spec,parent:spec},checks:{actual:{command:['node','run.mjs'],marker:'ACTUAL_PASS'}}};writeFileSync(resolve(base,'scripts/provider-a1-policy.json'),JSON.stringify(p));const nodes=new Map([['child',{id:'child',dependencies:[]}],['parent',{id:'parent',dependencies:['child']}]]);
@@ -51,3 +51,13 @@ test('controlled public development profile overrides stale values and preserves
 test('private credentials cannot be injected through a public development profile',()=>{
  assert.throws(()=>developmentEnvironment('DATABASE_URL=private'),/public variables only/);assert.throws(()=>developmentEnvironment('NEXT_PUBLIC_QUANTOS_ENV=local-mock',{PRIVATE_TOKEN:'private'}),/public variables only/);
 });
+
+test('transient Auth 503 can retry only a complete target execution',()=>{let n=0;const runs=runTargetAttempts(()=>++n===1?{status:1,diagnostic:'session handshake returned HTTP 503'}:{status:0});assert.equal(runs.length,2);assert.equal(runs[0].status,1);assert.equal(runs[1].status,0);});
+test('persistent target timeout never becomes PASS and stops at its budget',()=>{let n=0;const runs=runTargetAttempts(()=>{n++;return {status:1,diagnostic:'operation was aborted due to timeout'};});assert.equal(n,3);assert(runs.every(r=>r.status!==0));});
+test('semantic target failures stop without retry or PASS',()=>{let n=0;const runs=runTargetAttempts(()=>{n++;return {status:1,diagnostic:'non-owner Runtime identity registered a tool'};});assert.equal(n,1);assert.equal(runs[0].status,1);});
+test('target retry budget cannot be unbounded',()=>{for(const n of [0,4,Infinity,1.5])assert.throws(()=>runTargetAttempts(()=>({status:0}),n),/attempt budget/);});
+
+test('configured target retries require explicit attempt outcomes in the receipt',()=>fixture(f=>{
+ const path=resolve(f.base,'scripts/provider-a1-policy.json');const p=JSON.parse(readFileSync(path));p.checks.actual.target=true;p.checks.actual.maxAttempts=3;writeFileSync(path,JSON.stringify(p));
+ const m=f.read('parent');m.inputs=inventory([...p.commonInputs,...p.nodes.parent.inputs],f.base);f.store('parent',m);assert.throws(f.validate,/attempt outcomes missing/);
+}));
