@@ -1,12 +1,16 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.19
-> 更新时间：2026-10-02
+> 版本：3.20
+> 更新时间：2026-10-04
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.20`：统一功能开发、功能联调、发布前验收三阶段；新增独立 `stage_gate` 功能准入记录，将性能、长稳运行、部署与正式发布回执交给独立 Release Gate。保留 47 个核心任务、原业务要求、量化目标、依赖 ID、开发状态及历史复审证据；不自动将任何记录标为 READY/ACCEPTED，不扩大 provider 或数据库授权。
+
+以下版本条目是历史决策记录；当前阶段归属以 3.20、第 2.9 节及各任务“阶段执行”为准。
 
 - `3.19`：按前端顺序审查协调方案拆分服务准入与完整业务 Gate；保留全量 API 前置和全部原验收标准。新增结构化 depends_on、服务子范围与检查点，将含页面任务的完整验收后置到对应 FEP 闭环；校验两份计划联合图、阶段窗口及末尾关闭位置。未据此新增任何功能或目标验收 PASS。
 
@@ -66,25 +70,25 @@
 
 ### 2.1 任务状态与依赖
 
-任务按 `F`（Foundation）、`R`（Research）、`S`（Strategy）、`X`（Execution）、`U`（User interface）、`L`（Live-readiness）、`TP`（Third-party）编号。任务只有在结构化 `depends_on` 指定验收单位的记录全部通过后才能开始；服务开发以相应服务 Gate 准入，完整业务 Gate 在页面/E2E 闭环后关闭，服务 Gate 不等于完整阶段 ACCEPTED；任何破坏性协议或风险边界变更必须新增 ADR、迁移和回放用例。
+任务按 `F`（Foundation）、`R`（Research）、`S`（Strategy）、`X`（Execution）、`U`（User interface）、`L`（Live-readiness）、`TP`（Third-party）编号。结构化 `depends_on` 消费前置单位的 `stage_gate` 准入范围；先实现并验证功能，再完成跨模块联调，最后统一执行发布前验收。依赖的功能准入满足后即可推进，不等待其性能、长稳或部署签字全部完成；本阶段的正确性、权限、数据完整性等问题仍然阻塞。阶段准入不等于正式复审 ACCEPTED，具体边界见第 2.9 节；任何破坏性协议或风险边界变更必须新增 ADR、迁移和回放用例。
 
-### 2.2 全任务最低完成条件
+### 2.2 分阶段最低完成条件
 
-除任务表中特别说明外，每个任务都必须满足下列可由 Codex/CI 校验的标准：
+每项任务的原“量化验收标准/集成验收标准”保留为全量目标，验证时机以本节和任务中的“阶段执行”为准，不能把全量目标再次当成开发准入清单。开发、联调均记录耗时/规模基线；吞吐无法支撑最小功能、无界排队、超时后仍执行危险动作等必须当期修复，不能作为普通性能优化后置。
 
-| 维度 | 最低标准 |
-|---|---|
-| 功能完整性 | 所有列出的输入、成功、拒绝和恢复路径都有自动化测试；不得以手工验证替代。 |
-| 代码质量 | `cargo fmt --check`、Clippy（禁止 warning）、Rust `cargo test --workspace --locked`（含 doctest；见 [F01 测试执行器 ADR](./adr/20260917-f01-rust-test-runner.md)）；Python Ruff、Pyright、pytest；TypeScript lint、typecheck、Vitest 全绿。 |
-| 覆盖率 | 新增 Rust 核心领域/风险/执行代码行覆盖率 ≥90%；稳定 Rust/LLVM CI 以 region 覆盖率 ≥85% 作为分支代理，nightly 发布验证仍要求分支覆盖率 ≥85%；Python Engine 适配新增代码行覆盖率 ≥85%；TypeScript 领域组件/状态代码行覆盖率 ≥80%。不能覆盖的代码须在报告中逐项豁免。 |
-| 性能 | 测试环境中纯领域计算 P95 <50ms；F06 开发机跨区域 BFF 鉴权读仅记录诊断结果，不作为 F06 验收 Gate。同区域 P95 <100ms 保留为首次同区域部署后的性能目标，不作为 F06 Gate；命令校验（不含外部 venue 往返）P95 <200ms。异步任务必须在 deadline 内返回受理或确定性错误。 |
-| 兼容性 | 协议变更通过 Buf breaking check；Rust/Python/TypeScript 生成 SDK 可编译；Web Chromium/Firefox/Safari 当前稳定版回归通过。 |
-| 安全与审计 | 无高危依赖/secret scan 未豁免项；所有写操作写入 actor、tenant、correlation、causation；错误、日志和导出不含秘密。 |
-| 可运维性 | 关键路径提供结构化日志、trace、指标、健康检查和失败说明；部署/回滚/已知限制写入 Runbook 或任务文档。 |
+| 维度 | 功能开发 DEVELOPMENT | 功能联调 INTEGRATION | 发布前验收 RELEASE |
+|---|---|---|---|
+| 功能完整性 | 输入、成功、拒绝、恢复路径自动化；契约、确定性重放、幂等、超时/取消、审计与质量拒绝 | 真实模块组合与代表性 Web 业务链；消费者补偿、跨角色拒绝、证据可追溯 | 候选版本全部业务链和已移交风险关闭；不得以性能通过掩盖功能缺陷 |
+| 代码质量 | 受影响模块 fmt/Clippy（无 warning）、Ruff/Pyright、lint/typecheck 与单元/契约测试 | 依赖范围的集成/回归测试；基础库或契约变更扩大到受影响消费者 | Rust `cargo test --workspace --locked`（含 doctest）、Python、TypeScript 全量流水线与候选版本一致；遵守 [F01 测试执行器 ADR](./adr/20260917-f01-rust-test-runner.md) |
+| 覆盖率 | 新增 Rust 核心领域/风险/执行行覆盖率 ≥90%；稳定 Rust/LLVM region ≥85%；Python Engine 适配 ≥85%；TypeScript 领域组件/状态 ≥80%；逐项说明无法覆盖代码 | 补足跨模块、拒绝与恢复分支，不能仅复测正常路径 | nightly 分支覆盖率 ≥85% 与全量回归回执；不以发布阶段安排为由取消新增代码覆盖率 |
+| 性能 | 记录基线、规模、环境和瓶颈；异步任务在 deadline 内返回受理或确定性错误；取消/异常提交时限按协议做受控测试 | 采样真实组合的延迟、吞吐和队列趋势；发现功能不可用立即阻塞 | 纯领域计算 P95 <50ms、命令校验 P95 <200ms；F06 首次同区域部署 P95 <100ms；任务专属性能目标全部归档。跨区域 F06 仅诊断，不能冒充同区域验收 |
+| 兼容性 | Buf breaking check、三语言生成 SDK 编译及受影响浏览器功能用例 | 主流程与依赖消费者兼容，不以 mock 替代真实集成 | Chromium/Firefox/Safari 当前稳定版完整回归及视觉/可访问性发布矩阵 |
+| 安全与审计 | 授权/RLS 默认拒绝、actor/tenant/correlation/causation、secret scan、高危依赖处置；错误/日志/导出无秘密 | 跨租户与高风险业务 E2E、取消后无副作用、持久审计 | 发布制品完整供应链、签名与同 SHA 远程 CI；适用环境/用途批准 |
+| 可运维性 | 健康检查、结构化日志、trace、指标、失败/恢复语义与 Runbook | 连通真实服务，验证断连补偿、监测缺口和功能恢复 | 授权环境的容量、持续运行、进程/主机死亡通知、部署/回滚与实际通知回执 |
 
 ### 2.3 测试资产规则
 
-- `quantos-testkit` 提供固定 clock、ID、market replay、策略/订单 fixture 和 mock Engine；测试不得依赖真实账户、实时公共数据或未固定的模型输出。
+- `quantos-testkit` 提供固定 clock、ID、market replay、策略/订单 fixture 和 mock Engine；确定性功能测试不得依赖真实账户、实时公共数据或未固定的模型输出。真实服务联调、provider 与发布验证另列证据，必须在对应授权范围内执行。
 - 每个 Engine/插件必须使用同一套 `Metadata / Health / Execute / StreamExecute / Cancel` contract harness。
 - 每个事件消费者必须通过“重复投递、乱序投递、进程重启、死信重放”四类测试。
 - 每个高风险命令必须有 allow、deny、approval-required、过期、重复、数据陈旧、kill switch 七类端到端用例。
@@ -95,7 +99,7 @@
 2. 用户身份以 Supabase `auth.users` 为唯一主锚点；QuantOS 的 actor、成员关系、workspace/account 授权等业务表必须显式映射 `auth.users.id`，不得额外建立平行密码账户体系。
 3. 凡是用户可见且承载 tenant/workspace/account 数据的业务表，默认启用 RLS 且默认拒绝；服务端只可通过受控 backend role/service role 执行跨租户维护、重放和运维任务。
 4. 所有业务表主键与跨表引用统一使用 UUID，数据库默认值采用 `gen_random_uuid()`；`created_at`、`updated_at`、`occurred_at`、`expires_at` 等时间字段统一使用 `timestamptz`。
-5. 每个数据库任务都必须提供 migration、RLS policy、索引、回滚说明和自动化验证；CI 必须覆盖已配置 Supabase PostgreSQL 的受控远程重建、schema drift、RLS policy 测试与权限负向用例。本机不得建立 PostgreSQL/Supabase 服务或容器；静态检查与实际目标执行结果分别记录，重建等破坏性操作须取得对应授权。
+5. 每个数据库任务都必须提供 migration、RLS policy、索引、回滚说明和自动化验证；开发/联调中，受影响的 SQL、事务、RLS 与权限负向用例必须在已配置 Supabase PostgreSQL 实测。候选版本 CI 另覆盖受控远程重建、schema drift 与完整 RLS 回归，日常文档或无关代码变更不触发整库重建。本机不得建立 PostgreSQL/Supabase 服务或容器；静态检查与实际目标执行结果分别记录，重建等破坏性操作须取得对应授权。
 6. `outbox_event`、`inbox_receipt`、`dead_letter_event` 与 `projection_checkpoint` 是可靠事件闭环的受控表；生产消费者必须以 PostgreSQL 轮询、租约和 `FOR UPDATE SKIP LOCKED` 领取事件，`inbox_receipt` 的幂等唯一约束、指数退避、死信和 checkpoint 均须持久化。
 7. Supabase Realtime 仅用于消费者唤醒与已授权 UI 实时投影，不得充当可靠队列、事件事实来源或唯一 worker 调度器；断连、漏通知或订阅恢复后，消费者必须以数据库扫描补偿并最终处理全部已提交 outbox 事件。
 8. PostgreSQL advisory lock 只用于短时互斥协调；不得把其或 Realtime 作为通用缓存。可重建读模型、任务状态和命令事实均以 PostgreSQL 为真相源，缓存失效不得改变交易或风控结论。
@@ -112,7 +116,8 @@
 | `task_id` | 唯一任务标识；每个任务只有一个定义，使用 `task-<小写 ID>` 稳定锚点。 |
 | `task_type` | 任务类型标签；核心为 `CORE`，前端计划使用 `PREPARATION`、`PAGE_API`、`FRONTEND`、`WEBSITE`、`MILESTONE`。 |
 | `iteration` | 迭代周期；前端计划按两周一个 Sprint 分组，阶段 ID 与排期解耦。 |
-| `depends_on` | 核心与前端均使用 JSON 字符串数组，空依赖为 `[]`；`CORE:<ID>` 指完整核心任务，拆分服务准入使用 SERVICE/CORE-GATE；命名空间及跨文档准入见第 2.8 节。原“依赖/阶段依赖”保留业务背景，执行前置以结构化依赖为准。 |
+| `depends_on` | 核心与前端均使用 JSON 字符串数组，空依赖为 `[]`；`CORE:<ID>` 标识核心任务，依赖只消费其已声明阶段的功能准入；拆分服务准入使用 SERVICE/CORE-GATE；命名空间及跨文档准入见第 2.8 节。原“依赖/阶段依赖”保留业务背景，执行前置以结构化依赖为准。 |
+| `stage_gate` | 独立阶段准入 JSON：`stage/status/input_digest/evidence`；字段与证据规则见第 2.9 节，不代替历史复审。 |
 | `development_status` | `COMPLETED` 已开发完成；`IMPLEMENTED_PENDING_ACCEPTANCE` 已实现待验收；`PARTIAL` 部分完成；`UNSPECIFIED` 原计划未明确状态，待盘点。不得把未注明状态的任务推定为未开发或已完成。 |
 | `review_entry` | 指向本任务 `review-<小写 ID>` 的 Markdown 链接。 |
 | `workflow` | 开发-复审流转节点，详见前端计划；与开发状态、接口集成状态分别维护。 |
@@ -146,9 +151,9 @@ TP01 除遵循通用流程外，还必须执行以下专属规则：
 2. 上游更新按 S0–S3 分级处理：S0 安全响应、S1 兼容性响应、S2 计划同步、S3 研究借鉴；不同级别必须有独立 decision record、时限与阻断策略。
 3. 每次同步必须固定 upstream commit/tag，并记录 LICENSE/NOTICE hash、依赖锁 hash、diff 摘要、patch queue、制品 digest 与回滚指针；禁止直接跟踪 `main`。
 4. 只允许三种吸收方式：最小 cherry-pick 到 fork、在 adapter 重写等价逻辑、仅提取设计/测试思路；不得把上游 session/memory 主数据、订单工具或内部类型带入 QuantOS 核心协议。
-5. 每次同步都必须经过 canary 和回滚演练；未通过质量 Gate 的变更只能保留在隔离分支或标记为“仅借鉴”，不得进入默认 capability registry。
+5. 开发时必须实现并受控验证 canary、能力禁用及回滚机制；生产候选同步还必须完成连续 canary 和目标环境回滚。未完成发布质量 Gate 的变更只能留在开发/隔离 candidate registry 或标记“仅借鉴”，不得进入生产默认 capability registry。
 
-Vibe-Trading 同步必须满足以下质量 Gate：
+Vibe-Trading 同步必须满足以下质量 Gate；契约/安全在开发验证，Web Research 在联调验证，可复现构建早期验证且发布重验，连续 canary 与目标环境 ≤5 分钟回滚在 `RELEASE-GATE:BETA` 验收，后续正式同步同样执行：
 
 | 维度 | 最低标准 |
 |---|---|
@@ -162,52 +167,89 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
 
 ### 2.8 跨计划验收单位与证据规则
 
-- `CORE:<ID>`：完整核心任务；`FE:<ID>`：前端任务（前端 depends_on 的本地 ID 等价于 FE 前缀）。
-- `SERVICE:<ID>`：明确拆出的服务子范围，只有本节所列 SERVICE:TP01/S04/X06/L03/L04 有效；对应 CORE 总任务的页面、视觉与浏览器 E2E 标准全部保留。
-- `CORE-GATE:<阶段>-SERVICE`：服务准入；`CORE-GATE:<阶段>`：完整业务 Gate；`FRONTEND-GATE:G0–G8`：前端闭环 Gate；`PROVIDER:A1–A6/ALL`：页面 API provider 验收；`PREPARATION:P0` 和 `EVALUATION:TP07/TP12`：限定范围检查点。
-- 每个检查点以 `acceptance-...` 稳定锚点和 fenced JSON 定义唯一 checkpoint_id、acceptance_window、depends_on、required_scope、review_status、source_commit、evidence。新建记录为 NOT_STARTED/null/[]。只有绑定完整源码 SHA 的证据齐备才可标记 ACCEPTED；历史 F0 记录保持历史基线，不迁移到新 HEAD。
-- 结构检查读取任务与检查点的联合依赖图、固定窗口及关闭顺序；验证计划可执行，不执行记录中的任务。NOT_STARTED 不阻止静态图校验通过；实际执行仍必须逐项核验前置证据。
-- API provider Gate 不依赖消费页面或最终 frontend Gate；全量 PROVIDER:ALL 通过后才能启动新页面或既有页面真实联调。Mock/本地参考 provider 不能替代 staging provider 验收。
-- `closes_core` 是完成页面后要复审的核心总任务映射，不是页面启动依赖。不能把 U01/S04/X06 完整任务作为其消费页面的前置条件。
-- 固定窗口与必要依赖约束由 `scripts/development-plan-order-policy.json` 管理；合法调整任务、范围或排期时须同步两份计划与策略文件，再运行 `pnpm check:development-plans`、`pnpm test:development-plans`（或 `make development-plan-check`）。策略文件没有功能验收结论，静态通过不验证证据内容或目标执行。
+- `CORE:<ID>`、`FE:<ID>` 标识任务；前端本地 ID 等价于 FE 前缀。依赖读取 `stage_gate` 所属阶段的就绪范围，正式 `review_status` 单独保留。
+- `SERVICE:TP01/S04/X06/L03/L04` 是服务子范围；`CORE-GATE:<阶段>-SERVICE` 为服务功能准入；原 `CORE-GATE:R1/S2/X3/L4` 关闭业务功能联调。保留原 ID、稳定锚点与量化要求，延期项交给指定发布检查点。
+- `FRONTEND-GATE:G0–G8`、`PROVIDER:A1–A6/ALL`、`PREPARATION:P0`、`EVALUATION:TP07/TP12` 按各自窗口声明 DEVELOPMENT 或 INTEGRATION；`RELEASE-GATE:BETA`、`RELEASE-GATE:LIVE-READINESS` 只用于最终发布前验收。
+- 检查点 fenced JSON 包含原 checkpoint_id、acceptance_window、depends_on、required_scope、review_status、source_commit、evidence，加上独立 `stage_gate`。原正式 ACCEPTED 仍需完整源码 SHA 与证据；F0 的历史回执保持原始边界，不能转移到新 HEAD。
+- 保留“全量页面 API 先行”：12 个 API 和 `PROVIDER:ALL` 功能准入后，才能启动新页面及既有页面真实联调。开发 mock 可用于契约/界面实现；标记 Integrated 必须有获准工程环境中真实 BFF/领域服务证据，mock 不能代替真实服务，工程环境也不能冒充正式 staging。
+- `closes_core` 是页面闭环后要复审的核心总任务映射，不是页面启动依赖，避免把 U01/S04/X06 总项作为其消费页面的前置。
+- 固定窗口与必要依赖由 `scripts/development-plan-order-policy.json` 管理；变更后运行 `pnpm check:development-plans`、`pnpm test:development-plans`。校验阶段一致性、依赖图与发布门槛无反向阻塞；结构 PASS 不执行 Gate，不验证证据内容或把 NOT_ASSESSED 变成 READY。
 
-## 3. 全项目服务、API 与完整验收顺序
+### 2.9 三阶段准入契约与验收移交
+
+以下 `quantos-plan-stages/v1` 对象与前端计划保持一致，由联合校验器检查。阶段是验证目的，窗口是排期：后续 L4 功能开发可以依赖前面已完成的业务联调，但任何功能开发/联调节点不得依赖 RELEASE 节点。
+
+```json
+{"schema":"quantos-plan-stages/v1","dependency_basis":"stage_gate","early_required":["contracts","data-integrity","authorization","idempotency-recovery","deadline-semantics"],"release_required":["performance","soak","deployment","same-sha-ci","release-authorization"],"release_checkpoints":["RELEASE-GATE:BETA","RELEASE-GATE:LIVE-READINESS"]}
+```
+
+任何节点登记 READY 前，其 `depends_on` 前置阶段记录必须全部 READY；RELEASE 节点还必须有正式 `review_status: ACCEPTED`、完整源码 SHA 和发布证据，不能只凭开发回执登记发布就绪。结构校验仅验证这些记录一致性，实际证据范围仍需复审。
+
+每个 `stage_gate` 使用 `stage`（DEVELOPMENT/INTEGRATION/RELEASE）、`status`（NOT_ASSESSED/READY/BLOCKED）、`input_digest`、`evidence` 四个字段。NOT_ASSESSED 必须为 null/[]；BLOCKED 可以保留合法摘要与失败证据，不能作为已满足依赖。此次重排全部初始化为 NOT_ASSESSED/null/[]，不改历史 `development_status/review_status/issues/fix_tracking`，也不把既有完成标记自动换成新准入结论。
+
+准入评估只审查该阶段必需功能与实际下游使用范围。READY 必须有 `sha256:<64位小写hex>` 输入清单摘要及可定位证据；清单记录源码/契约/测试/配置版本、涉及的数据库迁移和环境、执行命令、结果、尚存风险与适用消费者。未评估和阻塞都不能作为已满足的依赖；先复用并核对既有证据的相关输入，补测受影响内容，再登记 READY，不要求为了登记而重跑无关长稳任务。文档排期改动不使未变化功能失效，源码/契约/配置或目标环境变化必须重新评估受影响准入；这不放宽正式候选版本同 SHA 回执。
+
+功能准入可与正式复审 FIX_VALIDATION/BLOCKED 并存，但必须逐条说明未关闭问题为何不影响允许的下游功能。数据丢失、重复副作用、越权、错误质量/新鲜度判断、不可控恢复和截止时间语义错误不能后置；真实性能退化到基本功能不可用也不能后置。纯性能/长稳/部署差距保持 OPEN/PARTIAL，带责任任务、目标指标和 release 检查点移交；正式复审的全问题关闭规则不变。开发就绪率、联调完成率、发布验收率分开统计，不把任何一种当成总体正式完成率。
+
+| 范围/责任任务 | 开发或联调必须具备 | 发布前归属与保留目标 |
+|---|---|---|
+| F01/F02/F05/F07、R02/TP02/S01/X01–X03 | 可运行工具链、锁依赖/安全检查、数据/事务正确性、查询功能、拒绝/幂等/恢复；记录基线 | `RELEASE-GATE:BETA`：30 分钟新环境、完整 CI/签名，事件链 ≤5 秒、调度/签发 <200ms、查询/草稿 <300ms、Engine 接收 <1s、kill switch P95 <1s；第 2.2 节其余 P95 不变 |
+| R01/R02 | 10 万 replay、原子游标/去重、来源/许可证与质量拒绝、断线补偿、受控异常提交 ≤5s；消费侧必须诚实展示并拒绝不合格实时数据 | `RELEASE-GATE:BETA`：实际 source-age/readiness、自然告警与采样完整性、授权的持续窗口/部署验证。processing、source-age、异常提交时限分别验收，写入持续或 pending=0 不代表新鲜度通过 |
+| TP01-F/TP01 | flag、阈值告警、回滚/禁用的受控功能测试，in-flight 请求有确定性结果；Research 消费联调 | `RELEASE-GATE:BETA`：连续 7 天 canary 无未解释 P1、目标回滚 ≤5 分钟及对应制品回执；依赖许可证在引入时就必须获准 |
+| X05/X06 | 固定输入 Paper/Shadow 与 20 类差异注入可定位、无 venue submit、证据链完整、命令重复=0；UI 拒绝/审计链联调 | `RELEASE-GATE:BETA`：连续 10 个交易日 Shadow、日终未解释差异=0、实际告警定位 ≤15 分钟、订单 UI 证据链还原 ≤5 分钟 |
+| F07/F09 → L04 | 授权工程环境的真实服务恢复/RLS/Storage 功能；监测缺口、阈值/连续窗口的确定性测试 | L04 负责归档；Beta 使用的服务由 `RELEASE-GATE:BETA` 验收部署 HTTPS/受限凭据、真实生产者/持续窗口/通知，同 SHA CI；testnet 执行区新增范围归 `RELEASE-GATE:LIVE-READINESS`，不能以 L04 排期较晚推迟 Beta 实际使用范围的验收 |
+| L01–L04 | 协议映射、MFA/审批/额度、默认关闭、秘密隔离、轮换与恢复机制；获准 testnet 的代表性 UI/API 真实联调 | `RELEASE-GATE:LIVE-READINESS`：200 笔目标 testnet、真实 mTLS/受限执行区、轮换 ≤5 分钟、目标负载/四类演练、完整安全与证据包。仍不授权生产实盘 |
+| U01/S04/X06/前端 FEP | 可访问性与风险交互、真实主流程、稳定错误/恢复状态 | `RELEASE-GATE:BETA` 及涉及 testnet 的 `RELEASE-GATE:LIVE-READINESS`：完整多浏览器/视觉签字、前端性能预算、部署目标与组织签字 |
+
+R01 当前按[专项整改报告](./audit/R01-freshness-remediation-2026-10-04.md)保留 FA-H01、B01 OPEN/PARTIAL 和 FIX_VALIDATION；不能据此声称实时健康或 R1 正式 ACCEPTED。可先评估回放、研究/拒绝陈旧数据所需功能，再推进 R02 及后续研发；要求实时健康的消费者仍受新鲜度风险阻塞。已有 scope 固定 1800 秒、BTCUSDT/ETHUSDT 和原内部用途，不自动续期。24 小时、Linux/systemd/其他部署、扩大标的/用途须新的范围授权；具名 actor、空证据目录、提前失败保留、结束停进程并停用 actor 规则继续有效。不删除或重建现有 Supabase，不以计划变更扩张许可。
+
+### 2.10 执行入口与混合 Gate 的处理
+
+本次调整计划与结构校验，不宣称所有运行脚本已支持 `--stage`。`make r01-check` 的纯领域 P95、`make r02-live-check` 的查询 P95、前端聚合 baseline 的 bundle 预算仍可能与功能检查混合；不能通过删除断言、忽略失败或将整条失败命令记为 PASS 来“解除阻塞”。先使用已有独立功能子检查，分别记录功能结果和性能诊断；缺少可分离入口时，在对应任务内拆分 runner/报告并加负向测试后再登记阶段 READY。正式发布仍运行完整门槛。A1 已有 development/final-review 入口可按前端计划使用，不推定其覆盖其他 API。
+
+日常按改动影响选择测试；基础契约/领域共享库扩大回归到所有消费者。只有纯计划/文档改动时执行结构、链接、依赖和负向测试，不启动 Supabase、provider 窗口或全套签字/同 SHA 环境验证。正式发布回执仍绑定候选完整 SHA，旧回执仅作为历史事实。
+
+## 3. 全项目功能开发、联调与发布顺序
 
 ### 3.1 准入规则与当前位置
 
-保留“全量页面 API 先行”。先验收 F0，再按 R1 → TP01 演进 → S2 → X3 的服务窗口推进；后续领域服务依赖服务 Gate，不等待尚未交付的页面。随后执行前端计划 P0/A1–A6（P0 也可在依赖满足后提前），全量 provider Gate 通过后按 I1–I9 完成页面与 Beta。L4 服务准备在 Beta 后、I10 前完成，最后关闭 L4 完整 Gate。
+保留“全量页面 API 先行”，按实际依赖推进 F0 → R1 → TP01/S2 → X3 服务功能，前端 P0/A1/A2 可在各自前置满足后并行，A3 依赖 R1、A4–A6 依赖 X3。全量 API 的功能准入后进入 I1–I9 联调，得到 Beta 功能候选；L4/I10 接续实现 testnet 评审功能，不等待 Beta 长稳或性能验收。
 
-服务准入只覆盖列明的服务能力，**服务 Gate 通过不等于原完整阶段 ACCEPTED**。U01/S04/X06/TP01/L03/L04 的完整业务、页面与 E2E 条件不删除；在对应前端窗口末尾复审这些总项，关闭原完整 Gate。无前置证据不得启动任务，任何历史回执不自动转移至新 HEAD。
+候选发布另行进入 Release Gate：Beta 必须关闭性能、长稳、部署与适用授权风险；testnet 上线评审同时满足 Beta 和 Live-readiness Release Gate。生产 Assisted Live 仍需计划外批准。实际无前置功能证据不得宣称依赖已满足，历史全量复审也不自动为当前代码放行。
 
-当前 F0 仍是已有历史基线验收，下一步先复审 R01/R02。所有新增服务/页面检查点保持 NOT_STARTED；本次修复只证明计划结构，不证明服务、数据库、staging 或浏览器验收。
+当前优先核对既有 F0/R01/R02 功能证据与输入变化，补齐必要准入记录，然后沿图实现未完成功能及 API；不把下一步默认设成扩大 R01 运行窗口或反复追求性能 Gate。所有新阶段记录保持 NOT_ASSESSED，本次仅重排计划和校验规则。
 
-### 3.2 从上到下的导航
+### 3.2 执行导航与阶段归属
 
-| 顺序 | 核心/前端窗口 | 末尾关闭 |
+| 顺序 | 窗口与工作 | 关闭范围 |
 |---|---|---|
-| 1 | 第 4 节 F01–F09、TP01-A/B 与 F0 初步评估 | F0 完整 Gate |
-| 2 | 第 5 节 R01/R02、TP01-C/D、TP02–TP05、TP08–TP11、R03/R04 | CORE-GATE:R1-SERVICE；U01 后置 |
-| 3 | 第 6 节 TP01-E/F/G、SERVICE:TP01 | TP01 服务准入；总项 Web E2E 后置 |
-| 4 | 第 7 节 S01、TP06、S02/S03、SERVICE:S04；TP07/TP12 提前评估 | CORE-GATE:S2-SERVICE；S04 总项后置 |
-| 5 | 第 8 节 X01–X03、TP07/TP12 完整适配、X04/X05、SERVICE:X06 | CORE-GATE:X3-SERVICE；X06 总项后置 |
-| 6 | 前端 P0 → A1 → A2 → A3 → A4 → A5 → A6 | 准备、G0、各 provider Gate、PROVIDER:ALL |
-| 7 | 第 9 节映射前端 I1/G1 → I2/G2 → I3/G3 → I4/I5 → I6/G5 → I7/G4 → I8/G6 → I9/G7 | U01/TP01/R1、S04/S2、X06/X3 完整验收；Beta |
-| 8 | 第 10 节 L01/L02、SERVICE:L03/L04 | CORE-GATE:L4-SERVICE |
-| 9 | 前端 I10/G8，再复审第 10 节 L03/L04 | L4 完整 Gate；仅 testnet 评审证据 |
+| 1 | F0；前端 P0 在自身依赖满足后推进 | 工具链/协议/权限等功能基线；F0 历史正式验收保留 |
+| 2 | R1 服务、TP01 演进、S2 服务、X3 服务 | 服务功能准入；不等待 canary/10 交易日 Shadow |
+| 3 | P0 → A1 → A2 → A3 → A4 → A5 → A6 | 12 个 API、G0、各 PROVIDER 与 ALL 功能准入 |
+| 4 | I1/G1 → I2/G2 → I3/G3 → I4/I5 → I6/G5 → I7/G4 → I8/G6 → I9/G7 | U01/TP01/R1、S04/S2、X06/X3 功能联调与 Beta 功能候选 |
+| 5 | L4 服务 → I10/G8 → L03/L04/L4 | testnet 功能联调与评审材料实现 |
+| 发布支线 | 功能候选具备后，按授权环境执行 `RELEASE-GATE:BETA` | Paper + Shadow Beta 正式发布前验收；不阻塞 L4 功能开发 |
+| 发布收口 | `RELEASE-GATE:LIVE-READINESS` | Beta 验收与 testnet/执行区发布证据齐备；不自动开启实盘 |
 
 ```mermaid
 flowchart TD
-  F["F0 完整 Gate"] --> R["R1 服务 Gate"]
-  R --> T["TP01 服务范围与 S2 服务 Gate"]
-  T --> X["X3 服务 Gate"]
-  X --> A["P0/A1–A6 全量 provider Gate"]
-  A --> U["I1–I8 页面 + R1/S2/X3 完整 Gate"]
-  U --> B["I9/G7 Paper + Shadow Beta"]
-  B --> L["L4 服务准备 Gate"]
-  L --> M["I10/G8 + L03/L04 + L4 完整 Gate"]
+  F["F0 功能基线"] --> R["R1 服务功能"]
+  F --> P["P0 / A1 / A2"]
+  R --> T["TP01 / S2 服务功能"]
+  T --> X["X3 服务功能"]
+  R --> A3["A3 API 功能"]
+  P --> A3
+  A3 --> A["A4–A6 / PROVIDER:ALL 功能准入"]
+  X --> A
+  A --> U["I1–I8 页面和 R1/S2/X3 功能联调"]
+  U --> B["I9/G7 Beta 功能候选"]
+  B --> L["L4 服务功能 / I10/G8 / L4 联调"]
+  B --> RB["RELEASE-GATE:BETA"]
+  RB --> RL["RELEASE-GATE:LIVE-READINESS"]
+  L --> RL
 ```
 
-完整 Gate 的交付范围仍为：R1 固定输入重放且无交易副作用；S2 策略验证/审批；X3 Paper/Shadow、10 个交易日 Shadow 与对账；L4 仅 Assisted Live testnet 评审准备，不自动开启生产实盘。
+发布支线可在对应功能候选具备后执行，文末两个 RELEASE 窗口的列举顺序不强制等待无依赖的 L4 实现；以 `depends_on` 为准。完整产品范围仍为 R1 研究、S2 策略、X3 Paper/Shadow、L4 testnet 上线评审准备；原性能与长稳指标继续作为发布条件。
 
 <a id="execution-f0"></a>
 ## 4. F0：工程、协议与运行时基线
@@ -218,6 +260,7 @@ flowchart TD
 - task_id: `F01`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: []
 - development_status: `COMPLETED`
 - 状态范围：2026-09-17 再次复核通过；20/20（100%）检查点、3/3 量化验收通过，当前未解决问题为 0。适用源码与环境边界见复审报告；F0 总体 Gate 不随本项放行。
@@ -226,6 +269,7 @@ flowchart TD
 - 技术要求：建立 Cargo workspace、`proto/`、`crates/`、`services/`、`engines/`、`apps/website`、`apps/terminal`、`packages/*`、`supabase/`；固定 Rust、uv、Node 工具链
 - 交付物：目录树、锁文件、Make 任务、本地开发环境基线、`DATABASE_URL` 约定
 - 量化验收标准：新环境在 ≤30 分钟内运行 `bootstrap`、`lint`、`test`；所有目录有 README 与明确模块边界；跨语言构建连续 3 次可重复
+- 阶段执行：功能开发验证 bootstrap/lint/test 可用、边界 README 和连续 3 次构建可复现；≤30 分钟的新环境时限在开发记录基线，正式新环境回执归 RELEASE-GATE:BETA。
 - 依赖：无
 
 <a id="review-f01"></a>
@@ -245,6 +289,7 @@ flowchart TD
 - task_id: `F02`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01"]
 - development_status: `COMPLETED`
 - 状态范围：2026-09-26 F02-A11 全部关闭；12/12原问题、24/24检查点通过。验收基线为main `bb4ef3c95753c1db15c7f2e2ba3ae22abb7a0b1f`，8/8 required checks、7/7主线工作流、正式签名与独立下载验签全部成功；文档归档提交不自动继承该源码回执，F0总体不随本项放行。
@@ -253,6 +298,7 @@ flowchart TD
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest
 - 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本
 - 量化验收标准：任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免
+- 阶段执行：secret/proto/锁依赖/RLS/schema drift 负向机制及新增高危漏洞处置在开发期验证；目标远程 CI、主干制品 digest/SBOM/签名回执归 RELEASE-GATE:BETA。缺失 CI 发布回执不等于可跳过安全检查。
 - 执行流程：修复已通过PR #4正常合入main；required checks真实阻断与恢复、新main同SHA的完整检查和正式制品回执均已闭环。保留strict、8项GitHub Actions来源检查及零bypass。详见 [F02主线验收收尾](./audit/F02-A11-main-acceptance-2026-09-26.md)。
 - 依赖：F01
 
@@ -271,6 +317,7 @@ flowchart TD
 - task_id: `F03`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01"]
 - development_status: `COMPLETED`
 - 状态范围：2026-09-20原六项问题及C12全部关闭，20/20（100%）检查点、4/4量化标准通过。c3be28d独立协议验收#2成功，同SHA制品/日志摘要和92份生成文件哈希均核验一致；不代表F02 A11或其他CI通过。
@@ -296,6 +343,7 @@ flowchart TD
 - task_id: `F04`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f04)
@@ -320,6 +368,7 @@ flowchart TD
 - task_id: `F05`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F04"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f05)
@@ -327,6 +376,7 @@ flowchart TD
 - 技术要求：Supabase PostgreSQL migration、业务 schema、RLS 基线、Supabase Storage、transactional outbox/inbox、schema registry、append-only audit；建立 `outbox_event`、`inbox_receipt`、`dead_letter_event`、`projection_checkpoint` 与基于租约/`FOR UPDATE SKIP LOCKED` 的轮询消费者。Realtime 只发送唤醒/投影通知，绝不作为事件真相或唯一调度；早期不引入 Supabase 生态外的独立消息、缓存或时序基础设施
 - 交付物：`quantos-event`、`quantos-storage`、`supabase/migrations/*`、policy/sql、replay CLI、消费者恢复 Runbook
 - 量化验收标准：重复/乱序/重启/死信四类测试全过；隔离 Supabase 线上项目或数据库分支可由 migration 重建 `quantos` schema；所有 tenant 表 RLS 默认拒绝且负向权限测试全过；1 万条测试事件无丢失、消费者最终一致；模拟 Realtime 漏通知、断连和重连后，数据库扫描在测试 deadline 内处理全部已提交事件；1,000 次同事件并发投递只产生一次业务副作用；按 correlation ID 在 ≤5 秒取回完整事件链
+- 阶段执行：开发期保留全部数据正确性规模用例（1 万事件、1,000 次并发）、真实 Supabase RLS/事务/补偿测试；重建能力须有迁移与可执行检查，受控整库重建只在对应授权内进行。相关查询耗时作为基线；≤5 秒检索完整链和候选版本重建/drift 回执归 RELEASE-GATE:BETA。
 - 依赖：F03、F04
 
 <a id="review-f05"></a>
@@ -344,6 +394,7 @@ flowchart TD
 - task_id: `F06`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F05"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f06)
@@ -351,7 +402,7 @@ flowchart TD
 - 技术要求：Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝；Vault 仅存静态加密秘密，Execution Gateway 通过受控角色与 allowlist 函数取得所需引用，短时授权由服务会话/命令过期/轮换状态控制
 - 交付物：`quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration、Vault 访问 policy/函数
 - 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API。开发机跨区域鉴权读 P95 仅作诊断，不作为 F06 放行条件。
-- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及拒绝矩阵；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。开发机本地网络到托管数据库的长尾不作为 F06/A09 Gate；同区域 P95 <100ms 移至首次同区域部署后的性能验证。Terminal 实际部署、真实浏览器登录/E2E、MFA 页面交互及全部页面 API 联调属于 Web 前端 G1/页面与接口阶段，不作为 F06 验收 Gate。
+- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及拒绝矩阵；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。开发机本地网络到托管数据库的长尾不作为 F06/A09 Gate；同区域 P95 <100ms 移至首次同区域部署后的性能验证。真实浏览器登录/E2E、MFA 页面交互及全部页面 API 功能联调属于 Web 前端 G1/页面与接口阶段；Terminal 实际部署归 RELEASE-GATE:BETA，不作为 F06 开发准入 Gate。
 - 依赖：F03、F05
 
 <a id="review-f06"></a>
@@ -370,6 +421,7 @@ flowchart TD
 - task_id: `F07`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F04", "CORE:F05", "CORE:F06"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f07)
@@ -377,8 +429,9 @@ flowchart TD
 - 技术要求：session、持久任务、tool registry、deadline、cancel、retry、checkpoint、Artifact API、成本/速率限额
 - 交付物：`quantos-runtime`、workflow fixtures
 - 量化验收标准：worker 强杀后 100 个任务均从 checkpoint 恢复且不重复创建 Artifact；cancel/timeout 事件均带 audit；任务调度 P95 <200ms
+- 阶段执行：worker 恢复、checkpoint、Artifact 去重及 cancel/timeout 审计为开发硬门槛；调度 P95 <200ms 移交 RELEASE-GATE:BETA；拟发布 HTTPS/受限 Storage 验证由 L04 归档，在服务首次发布前完成。
 - 依赖：F04–F06
-- 阶段验收边界：F07 当前验收面向开发阶段，使用本地 BFF/Runtime 进程、隔离 Supabase 项目和同源码 SHA 的自动化回执验证功能、拒绝、恢复与量化指标。部署后的 HTTPS 入口和仅可访问 `quantos-artifacts` 的 Runtime Storage 凭据移至 L04 上线前 Gate；不得以 F07 开发验收替代生产部署或发布批准。
+- 阶段验收边界：F07 原开发验收回执的源码/环境范围保留在复审记录；当前功能准入使用工程 BFF/Runtime、已配置 Supabase 的真实功能、拒绝与恢复证据。P95、正式同 SHA CI、部署 HTTPS 入口和仅可访问 `quantos-artifacts` 的 Runtime Storage 凭据由 L04 负责归档，并在首次使用这些服务的 RELEASE-GATE:BETA 验收；新增执行区范围归 RELEASE-GATE:LIVE-READINESS，不以开发准入代替发布批准。
 
 <a id="review-f07"></a>
 #### GPT-6 Astra 功能复审
@@ -395,6 +448,7 @@ flowchart TD
 - task_id: `F08`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F07"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f08)
@@ -420,6 +474,7 @@ flowchart TD
 - task_id: `F09`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f09)
@@ -427,6 +482,7 @@ flowchart TD
 - 技术要求：trace、metrics、结构化日志、健康检查、test fault proxy；为 outbox 年龄/DLQ、Realtime 投影延迟与配额、读模型查询/MV 新鲜度、Storage 错误与秘密轮换配置可执行告警和 ADR 证据采集
 - 交付物：dashboards、alert rules、fault tests、容量 ADR 模板
 - 量化验收标准：开发阶段 Gate 验证已交付 F0 写入口的持久 trace/correlation ID、结构化错误与健康检查；用确定性样本、断采和时间前进测试告警阈值、连续窗口及 ADR 输入；在已配置的测试 Supabase PostgreSQL 上验证 migration、真实数据库/消费者组件故障恢复、查询采样和本地 Engine 崩溃恢复。CI、Nightly 与数据库组件回执须绑定同一完整源码 SHA。此 Gate 不要求尚未部署的业务生产者持续上报或发送真实通知。
+- 阶段执行：本节原标准及历史同 SHA 回执保留；当前功能准入评估持久 trace、确定性告警/断采与受影响真实 Supabase 功能，持续采样/实际通知和远程 CI/Nightly 归发布检查点。Beta 范围在 RELEASE-GATE:BETA 完成，新增 testnet 执行区范围在 RELEASE-GATE:LIVE-READINESS 完成。
 - 上线前量化验收（移交 L04）：在拟上线的隔离部署环境中，逐个已部署 F0 写入口可由 trace 查到同一 correlation ID；注入 DB/事件消费者/Engine 故障时无秘密泄露，恢复后同链事件完整；九类真实指标生产者和每分钟 monitor 持续运行，阈值自动告警、实际通知并生成可信 ADR 输入：outbox 最老事件 >60 秒持续 15 分钟或 DLQ >0.1%，Realtime 投影延迟 >5 秒持续 15 分钟或配额 >70%，风险/组合查询 P95 >300ms 持续 15 分钟，风险 MV >1 分钟或运营聚合 >5 分钟连续 3 次，Storage 错误 >1% 或秘密轮换/读取失败。未交付的业务来源仍须由所属业务任务实现，缺采样不能算健康。
 - 依赖：F05–F08
 
@@ -445,6 +501,7 @@ flowchart TD
 - task_id: `TP01-A`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01", "CORE:F02"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-a)
@@ -470,6 +527,7 @@ flowchart TD
 - task_id: `TP01-B`
 - task_type: `CORE`
 - acceptance_window: `F0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-A", "CORE:F07"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-b)
@@ -534,12 +592,20 @@ flowchart TD
   "source_commit": "91e222f744fd350ab9db80ba7554bd1fee9194fa",
   "evidence": [
     "./audit/F0-F05-F03-main-acceptance-2026-09-28.md"
-  ]
+  ],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
+上方 `required_scope/review_status/source_commit/evidence` 保留 F0 原始 7/7 历史验收事实；当前 `stage_gate` 的 DEVELOPMENT 范围为 F01–F09/TP01-A/B 的工程、契约、安全、数据与恢复功能基线，按第 2.9 节核对相关输入和受影响功能。无需因本文排期调整重跑完整同 SHA 签名、远程重建或长稳；正式候选仍由 RELEASE 检查点取得自身回执。
+
 <a id="execution-r1"></a>
-## 5. R1：数据与研究服务验收
+## 5. R1：数据与研究服务功能开发
 
 <a id="task-r01"></a>
 ### R01：Market ingestion 与标准化行情契约
@@ -547,6 +613,7 @@ flowchart TD
 - task_id: `R01`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F05", "CORE-GATE:F0"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r01)
@@ -554,6 +621,7 @@ flowchart TD
 - 技术要求：归一化 symbol、时间、精度、来源、质量；只允许已批准 provider；写 `MarketEvent`
 - 交付物：`quantos-market`、ingestor、replay dataset
 - 量化验收标准：10万条 replay 事件解析成功率 100%；乱序/重复数据正确去重；新鲜度/质量异常在 ≤5s 内发出事件
+- 阶段执行：开发验证 10 万 replay、归一化/去重、原子游标、重试/补偿与受控异常提交 ≤5s；source-age、processing、自然告警精确 ACK 与采样缺口分别报告。真实持续运行的新鲜度/readiness 和部署 SLO 归 RELEASE-GATE:BETA；不能以 pending=0 或持续写入冒充健康，已知不健康数据必须明确标识并由策略/交易消费者拒绝。FA-H01/B01 保持 OPEN/PARTIAL，功能准入仅针对有证据支撑的允许用途。
 - 依赖：F03、F05
 
 <a id="review-r01"></a>
@@ -681,6 +749,7 @@ flowchart TD
 - task_id: `R02`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R01", "CORE:F06", "CORE-GATE:F0"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r02)
@@ -688,6 +757,7 @@ flowchart TD
 - 技术要求：不可变 hash、时间窗、schema、质量、许可证、来源；快照元数据与质量 Gate 存于 Supabase PostgreSQL，并通过 RLS 保护租户可见性；交易相关调用必须检查质量/时效
 - 交付物：snapshot API、对象存储、quality rules、snapshot migration
 - 量化验收标准：相同输入生成相同 hash；过期/质量不合格/许可证缺失的 300 个 fixture 100% 被拒用于策略/交易；查询 P95 <300ms
+- 阶段执行：确定性 hash、300 个质量/时效/许可证拒绝 fixture、真实 Supabase 查询/权限与 Storage 完整性为开发硬门槛；查询 P95 <300ms 保留基线并移交 RELEASE-GATE:BETA。
 - 依赖：R01、F06
 
 <a id="review-r02"></a>
@@ -705,6 +775,7 @@ flowchart TD
 - task_id: `TP01-C`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-B", "CORE:F08", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-c)
@@ -730,6 +801,7 @@ flowchart TD
 - task_id: `TP01-D`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-C", "CORE:R02", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-d)
@@ -755,6 +827,7 @@ flowchart TD
 - task_id: `TP02`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE-GATE:F0"]
 - development_status: `PARTIAL`
 - 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
@@ -763,6 +836,7 @@ flowchart TD
 - 接入范围与改造：独立 Python Engine，映射 hypothesis/experiment capability 到自有 `ResearchArtifact`；限制网络、数据权限和 Artifact 写入
 - 交付物：`engines/rd-agent`、manifest、运行时打包、adapter、fixtures
 - 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s
+- 阶段执行：contract、确定性 hash 与交易/secret/网络拒绝在开发验证；P95 接收响应 <1s 归 RELEASE-GATE:BETA，deadline 内确定性受理或错误仍是开发功能要求。
 - 阶段/依赖：F08；R1
 
 <a id="review-tp02"></a>
@@ -780,6 +854,7 @@ flowchart TD
 - task_id: `TP03`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - development_status: `PARTIAL`
 - 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
@@ -788,6 +863,7 @@ flowchart TD
 - 接入范围与改造：封装为 `quant.signal.v1`；输入必须是 release/feature snapshot，输出自有 Signal/diagnostics，不暴露上游类型
 - 交付物：`engines/llmquant`、manifest、Signal mapper、model provenance
 - 集成验收标准：100 组固定输入结果 schema 100% 有效；每条 Signal 含策略/模型/数据版本、置信度和时效；无 OMS/venue/secret import；流式取消 ≤2s 生效
+- 阶段执行：schema、版本/置信度/时效与禁止 import 在开发验证；流式取消 ≤2s 用受控 clock/真实进程测功能语义，Research UI 联调覆盖取消后无副作用；部署负载下同一时限在 RELEASE-GATE:BETA 重验，不删除超时语义。
 - 阶段/依赖：F08、F05；R1
 
 <a id="review-tp03"></a>
@@ -805,6 +881,7 @@ flowchart TD
 - task_id: `TP04`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - development_status: `PARTIAL`
 - 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
@@ -830,6 +907,7 @@ flowchart TD
 - task_id: `TP05`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE:F08", "CORE-GATE:F0"]
 - development_status: `PARTIAL`
 - 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
@@ -855,6 +933,7 @@ flowchart TD
 - task_id: `TP08`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp08)
@@ -879,6 +958,7 @@ flowchart TD
 - task_id: `TP09`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP03", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp09)
@@ -903,6 +983,7 @@ flowchart TD
 - task_id: `TP10`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp10)
@@ -927,6 +1008,7 @@ flowchart TD
 - task_id: `TP11`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP05", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp11)
@@ -951,6 +1033,7 @@ flowchart TD
 - task_id: `R03`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r03)
@@ -958,6 +1041,7 @@ flowchart TD
 - 技术要求：Runtime 组合研究 Engine、预算、deadline、流式事件、Artifact 归档与重放
 - 交付物：research workflow、Artifact repository
 - 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact
+- 阶段执行：10 次确定性运行、取消 ≤2s 确认与无重复 Artifact 为开发要求；获准工程环境的 Runtime/Engine 组合在联调验证，部署/负载回执在 RELEASE-GATE:BETA 重验。
 - 依赖：F07、F08、R02、TP02
 
 <a id="review-r03"></a>
@@ -975,6 +1059,7 @@ flowchart TD
 - task_id: `R04`
 - task_type: `CORE`
 - acceptance_window: `R1-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R03", "CORE:TP03", "CORE:TP04", "CORE-GATE:F0"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-r04)
@@ -996,7 +1081,7 @@ flowchart TD
 <a id="acceptance-core-gate-r1-service"></a>
 ### CORE-GATE:R1-SERVICE：验收检查点
 
-验收全部本节领域/Engine 任务、固定输入研究/Signal/Proposal 回放、权限负向、取消与 Artifact 生命周期及 TP01-C/D 最小适配。保留原 task 标准，页面/浏览器 Research E2E 移至 U01/R1 完整 Gate。
+本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。
 
 ```json
 {
@@ -1018,15 +1103,21 @@ flowchart TD
     "CORE:R03",
     "CORE:R04"
   ],
-  "required_scope": "验收全部本节领域/Engine 任务、固定输入研究/Signal/Proposal 回放、权限负向、取消与 Artifact 生命周期及 TP01-C/D 最小适配。保留原 task 标准，页面/浏览器 Research E2E 移至 U01/R1 完整 Gate。",
+  "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
 <a id="execution-tp01-evolution"></a>
-## 6. TP01：同步、canary 与服务子范围
+## 6. TP01：同步、canary 机制与服务功能准入
 
 <a id="task-tp01-e"></a>
 ### TP01-E：同步自动化与分级阻断
@@ -1034,6 +1125,7 @@ flowchart TD
 - task_id: `TP01-E`
 - task_type: `CORE`
 - acceptance_window: `TP01-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-e)
@@ -1059,6 +1151,7 @@ flowchart TD
 - task_id: `TP01-F`
 - task_type: `CORE`
 - acceptance_window: `TP01-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-E", "CORE:F09", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-f)
@@ -1067,6 +1160,7 @@ flowchart TD
 - 开发范围：capability flag、影子任务、阈值告警、签名制品、一键禁用/回滚
 - 交付物：dashboards、alert rules、rollback runbook、drill report
 - 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整
+- 阶段执行：功能开发完成 flag、影子任务、告警阈值、签名校验、一键禁用/回滚与 in-flight 请求处理的受控测试；连续 7 天 canary 和真实环境 ≤5 分钟回滚归 RELEASE-GATE:BETA，不作为 TP01-G/TP06 开始开发的前置。
 - 依赖：TP01-E、F09
 
 <a id="review-tp01-f"></a>
@@ -1084,6 +1178,7 @@ flowchart TD
 - task_id: `TP01-G`
 - task_type: `CORE`
 - acceptance_window: `TP01-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-g)
@@ -1106,7 +1201,7 @@ flowchart TD
 <a id="acceptance-service-tp01"></a>
 ### SERVICE:TP01：验收检查点
 
-TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、取消≤2秒、Artifact 去重、S0–S3 阻断、7天 canary 和≤5分钟回滚。仅排除消费页面 Web Research E2E，该项保留在 CORE:TP01 随 U01 完整复审；服务子范围通过仅放行 TP06。
+TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。
 
 ```json
 {
@@ -1122,10 +1217,16 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
     "CORE:TP01-G",
     "CORE-GATE:R1-SERVICE"
   ],
-  "required_scope": "TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、取消≤2秒、Artifact 去重、S0–S3 阻断、7天 canary 和≤5分钟回滚。仅排除消费页面 Web Research E2E，该项保留在 CORE:TP01 随 U01 完整复审；服务子范围通过仅放行 TP06。",
+  "required_scope": "TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1138,6 +1239,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `S01`
 - task_type: `CORE`
 - acceptance_window: `S2-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R02", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-s01)
@@ -1145,6 +1247,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：草稿可版本化、自动保存、冲突检测；策略只引用已批准数据/Artifact；草稿/参数表默认启用 RLS 并保留 `auth.users` 审计链
 - 交付物：`quantos-strategy` draft API、strategy fixtures、draft migration
 - 量化验收标准：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms
+- 阶段执行：50 组并发无静默覆盖及授权/快照/Artifact 约束在开发验证；草稿保存 P95 <300ms 归 RELEASE-GATE:BETA，开发记录基线。
 - 依赖：R02、R03
 
 <a id="review-s01"></a>
@@ -1162,6 +1265,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `TP06`
 - task_type: `CORE`
 - acceptance_window: `S2-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "SERVICE:TP01", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp06)
@@ -1186,6 +1290,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `S02`
 - task_type: `CORE`
 - acceptance_window: `S2-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:S01", "CORE:TP06", "CORE:TP08", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-s02)
@@ -1210,6 +1315,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `S03`
 - task_type: `CORE`
 - acceptance_window: `S2-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:S02", "CORE:F06", "CORE-GATE:R1-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-s03)
@@ -1231,7 +1337,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 <a id="acceptance-service-s04"></a>
 ### SERVICE:S04：验收检查点
 
-策略目录/Lab/Backtest/Release 的授权 API 与 approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07、20个策略UI fixture、视觉与浏览器回归保留在 CORE:S04/G3 总验收。
+策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。
 
 ```json
 {
@@ -1244,10 +1350,16 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
     "CORE:F06",
     "CORE-GATE:R1-SERVICE"
   ],
-  "required_scope": "策略目录/Lab/Backtest/Release 的授权 API 与 approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07、20个策略UI fixture、视觉与浏览器回归保留在 CORE:S04/G3 总验收。",
+  "required_scope": "策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1268,7 +1380,13 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
   "required_scope": "固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1288,14 +1406,20 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
   "required_scope": "基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
 <a id="acceptance-core-gate-s2-service"></a>
 ### CORE-GATE:S2-SERVICE：验收检查点
 
-策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制全部服务标准通过；TP06–TP12评估/ADR归档。S04页面与完整S2 Gate仍待G3。
+策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。
 
 ```json
 {
@@ -1316,10 +1440,16 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
     "EVALUATION:TP07",
     "EVALUATION:TP12"
   ],
-  "required_scope": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制全部服务标准通过；TP06–TP12评估/ADR归档。S04页面与完整S2 Gate仍待G3。",
+  "required_scope": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1332,6 +1462,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `X01`
 - task_type: `CORE`
 - acceptance_window: `X3-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x01)
@@ -1339,6 +1470,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：Position、valuation、P&L、exposure、账户状态、数据时间；只读模型可从事件重建，并持久化到 Supabase PostgreSQL 受控 schema
 - 交付物：`quantos-portfolio`、rebuild CLI、portfolio projection migration
 - 量化验收标准：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms
+- 阶段执行：1 万订单/成交黄金回放与读模型重建在开发验证；查询 P95 <300ms 归 RELEASE-GATE:BETA。
 - 依赖：F05、R01
 
 <a id="review-x01"></a>
@@ -1356,6 +1488,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `X02`
 - task_type: `CORE`
 - acceptance_window: `X3-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x02)
@@ -1363,6 +1496,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：规则：策略发布、数据时效、账户、精度、名义、杠杆、集中度、venue 健康、重复、审批；global/account kill switch
 - 交付物：`quantos-risk`、rule fixtures、kill switch API
 - 量化验收标准：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名
+- 阶段执行：全部规则与分支覆盖、kill switch 生效后立即拒绝新命令的逻辑及受控时限测试在开发验证；实际负载下 P95 <1s 归 RELEASE-GATE:BETA。不得将 kill switch 无效或异步传播错误归为可延期性能问题。
 - 依赖：X01、S03、F06
 
 <a id="review-x02"></a>
@@ -1380,6 +1514,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `X03`
 - task_type: `CORE`
 - acceptance_window: `X3-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x03)
@@ -1387,6 +1522,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：将有效 Proposal + RiskDecision + Approval 转为短期、签名、幂等 Command；禁止自批
 - 交付物：`quantos-execution` command issuer、approval verifier
 - 量化验收标准：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms
+- 阶段执行：全部拒绝矩阵、1,000 并发单命令与持久审计在开发验证；签发 P95 <200ms 归 RELEASE-GATE:BETA。
 - 依赖：R04、X02
 
 <a id="review-x03"></a>
@@ -1404,6 +1540,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `TP07`
 - task_type: `CORE`
 - acceptance_window: `X3-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp07)
@@ -1429,6 +1566,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `TP12`
 - task_type: `CORE`
 - acceptance_window: `X3-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F07", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp12)
@@ -1454,6 +1592,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `X04`
 - task_type: `CORE`
 - acceptance_window: `X3-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x04)
@@ -1478,6 +1617,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `X05`
 - task_type: `CORE`
 - acceptance_window: `X3-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x05)
@@ -1485,6 +1625,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：在真实行情产生对照建议而不下单；日终对账订单/成交/仓位/虚拟账本；异常关闭流程
 - 交付物：shadow runner、reconciler、exception queue
 - 量化验收标准：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用
+- 阶段执行：开发以固定输入和受控时间验证对账、20 类差异检测/定位、告警及无 venue submit；联调验证 Paper/Shadow 到订单/审计 UI 的短链路闭环。连续 10 个交易日、真实日终零未解释差异和 ≤15 分钟发现定位归 RELEASE-GATE:BETA，未经新运行范围授权不启动长稳窗口。
 - 依赖：X01–X04
 
 <a id="review-x05"></a>
@@ -1499,7 +1640,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 <a id="acceptance-service-x06"></a>
 ### SERVICE:X06：验收检查点
 
-执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务测试。P08–P14/P20–P23页面、真实BFF consumer/E2E与视觉保留在CORE:X06及G4/G5/G6。
+执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务功能。P08–P14/P20–P23页面及真实BFF消费者在CORE:X06及G4/G5/G6联调；性能/完整视觉/部署验收归 RELEASE-GATE:BETA。
 
 ```json
 {
@@ -1515,17 +1656,23 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
     "CORE:F06",
     "CORE:F09"
   ],
-  "required_scope": "执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务测试。P08–P14/P20–P23页面、真实BFF consumer/E2E与视觉保留在CORE:X06及G4/G5/G6。",
+  "required_scope": "执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务功能。P08–P14/P20–P23页面及真实BFF消费者在CORE:X06及G4/G5/G6联调；性能/完整视觉/部署验收归 RELEASE-GATE:BETA。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
 <a id="acceptance-core-gate-x3-service"></a>
 ### CORE-GATE:X3-SERVICE：验收检查点
 
-保留X01–X05/TP07/TP12全部服务验收；Paper/Shadow、10个交易日Shadow、未解释对账差异=0、命令重复=0、恢复/kill switch/数据陈旧等服务演练通过；X06页面及完整X3 Gate仍待G4/G5/G6。
+X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类差异检测定位、命令重复=0、恢复/kill switch/数据陈旧拒绝和无venue submit。X06页面联调在G4/G5/G6；连续10个交易日Shadow、真实日终未解释差异=0、负载P95与部署演练由 RELEASE-GATE:BETA 验收，不阻塞API和页面功能开发。
 
 ```json
 {
@@ -1542,17 +1689,23 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
     "CORE:X05",
     "SERVICE:X06"
   ],
-  "required_scope": "保留X01–X05/TP07/TP12全部服务验收；Paper/Shadow、10个交易日Shadow、未解释对账差异=0、命令重复=0、恢复/kill switch/数据陈旧等服务演练通过；X06页面及完整X3 Gate仍待G4/G5/G6。",
+  "required_scope": "X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类差异检测定位、命令重复=0、恢复/kill switch/数据陈旧拒绝和无venue submit。X06页面联调在G4/G5/G6；连续10个交易日Shadow、真实日终未解释差异=0、负载P95与部署演练由 RELEASE-GATE:BETA 验收，不阻塞API和页面功能开发。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
 <a id="execution-business-total"></a>
-## 9. 全量 API 后的 Web 与完整业务 Gate
+## 9. 全量 API 后的 Web 与业务功能联调 Gate
 
-执行前端计划P0/A1–A6及PROVIDER:ALL后，按I1–I9完成本节映射。这里记录完整任务与原业务Gate，不是服务准入。
+在前端计划 P0/A1–A6 及 PROVIDER:ALL 的功能准入后，按 I1–I9 完成本节映射。本节记录原业务任务的功能联调范围；各任务全量验收目标中的发布项，由独立 Release Gate 收口。
 
 <a id="task-u01"></a>
 ### U01：Web Terminal 壳、认证与 Research 页面
@@ -1560,6 +1713,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `U01`
 - task_type: `CORE`
 - acceptance_window: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F06", "CORE:F07", "CORE:F08", "CORE:F09", "CORE:R02", "CORE:R03", "CORE:R04", "FE:FEP-2"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-u01)
@@ -1567,6 +1721,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：建立 React/Next Web 应用、BFF typed client、OIDC/MFA、App Shell、P01–P05 页面
 - 交付物：`apps/terminal`、`packages/ui/domain-ui/api-client`、P01–P05
 - 量化验收标准：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作
+- 阶段执行：Research 真实 BFF/领域服务的创建/流式/取消/证据跳转、noindex 与小屏风险动作在 I2 联调；完整多浏览器视觉/性能矩阵归 RELEASE-GATE:BETA。
 - 依赖：F06–F09、R02–R04
 
 <a id="review-u01"></a>
@@ -1585,6 +1740,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `TP01`
 - task_type: `CORE`
 - acceptance_window: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["SERVICE:TP01", "CORE:U01", "FE:FEP-2"]
 - development_status: `PARTIAL`
 - 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
@@ -1593,8 +1749,9 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 接入范围与改造：仅评估后吸收可独立测试的 workflow/skill/streaming 设计；建立 `vibe_adapter`，会话、权限、事件、审计全部替换为 QuantOS 接口；按 S0–S3 分级执行官方仓库同步、选择性吸收、canary 与回滚；禁止其成为状态源或执行器
 - 交付物：capability inventory、许可证报告、只读副本、fork、`UPSTREAM.md`、sync decision records、adapter ADR、自动化回归测试
 - 集成验收标准：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动
-- 执行定位：A–G 的服务证据先在 SERVICE:TP01 验收；本总项包含 Web Research E2E，在 U01/FEP-2 后完整复审，不能用服务 Gate 把本项提前标为 ACCEPTED。
-- 阶段/依赖：F07、F08；TP01-C 可在 R1 开始时执行，TP01-D 在 R02 验收后执行；最小适配须在 R1 Gate 前完成
+- 阶段执行：I2 关闭 adapter/Artifact API、网络秘密隔离、20 个回放、同步阻断及 Research Web 功能联调；TP01-F 的 7 天 canary/回滚时限和完整发布供应链归 RELEASE-GATE:BETA，原业务与许可要求保留。
+- 执行定位：A–G 的服务证据先在 SERVICE:TP01 验收；本总项包含 Web Research E2E，在 U01/FEP-2 后完成业务功能联调评估，canary/发布回执仍由发布 Gate 收口；不能用服务 Gate 把本项提前标为 ACCEPTED。
+- 阶段/依赖：F07、F08；TP01-C 可在 R1 开始时执行，TP01-D 在 R02 功能准入后执行；最小适配须在 R1 服务功能 Gate 前完成
 
 <a id="review-tp01"></a>
 #### GPT-6 Astra 功能复审
@@ -1607,7 +1764,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 
 <a id="102-r1-gate"></a>
 <a id="gate-r1"></a>
-### R1 完整 Gate：业务闭环末尾验收
+### R1 功能联调 Gate：研究业务闭环
 
 - [ ] R01–R04、U01 完成；研究、Signal、Proposal 全部可回放且无交易副作用。
 - [ ] RD-Agent、LLMQuant、TradingAgents 的 contract/权限/重放测试通过；OpenBB 仅在许可证 Gate 允许时启用。
@@ -1617,7 +1774,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 <a id="acceptance-core-gate-r1"></a>
 ### CORE-GATE:R1：验收检查点
 
-保留上方R1完整Gate全部勾选要求，包括U01/Web Research E2E；不得以服务Gate或mock替代。
+关闭R1功能联调清单：研究/Signal/Proposal可回放且无交易副作用，U01/Web Research真实服务E2E、Artifact/Audit与adapter隔离。不得以mock替代真实模块集成；R01新鲜度/持续运行、各性能目标、完整浏览器矩阵及部署证据移交 RELEASE-GATE:BETA，原正式复审仍单独维护。
 
 ```json
 {
@@ -1628,10 +1785,16 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
     "CORE:U01",
     "FRONTEND-GATE:G2"
   ],
-  "required_scope": "保留上方R1完整Gate全部勾选要求，包括U01/Web Research E2E；不得以服务Gate或mock替代。",
+  "required_scope": "关闭R1功能联调清单：研究/Signal/Proposal可回放且无交易副作用，U01/Web Research真实服务E2E、Artifact/Audit与adapter隔离。不得以mock替代真实模块集成；R01新鲜度/持续运行、各性能目标、完整浏览器矩阵及部署证据移交 RELEASE-GATE:BETA，原正式复审仍单独维护。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1641,6 +1804,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `S04`
 - task_type: `CORE`
 - acceptance_window: `I3`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE:U01", "SERVICE:S04", "FE:FEP-3"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-s04)
@@ -1648,6 +1812,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：实现策略目录、Lab、Backtest、Release、审批时间线；前端通过 capability 显示目标
 - 交付物：P06–P07、approval integration、E2E
 - 量化验收标准：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过
+- 阶段执行：I3 完成 20 个研究到 Release UI fixture、真实服务拒绝/过期/并发审批与可访问状态；完整视觉/多浏览器发布回归归 RELEASE-GATE:BETA。
 - 依赖：S01–S03、U01
 
 <a id="review-s04"></a>
@@ -1661,7 +1826,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 
 <a id="103-s2-gate"></a>
 <a id="gate-s2"></a>
-### S2 完整 Gate：业务闭环末尾验收
+### S2 功能联调 Gate：策略业务闭环
 
 - [ ] S01–S04 完成；look-ahead/数据泄漏/未审批策略 100% 阻断。
 - [ ] Release 包含全部不可变证据，且可部署目标只有 Paper/Shadow。
@@ -1670,7 +1835,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 <a id="acceptance-core-gate-s2"></a>
 ### CORE-GATE:S2：验收检查点
 
-保留上方S2完整Gate全部条件及S04页面/策略UI拒绝回归。
+关闭S2功能联调清单及S04真实页面/策略UI拒绝回归，确保不可变Release、审批与Paper/Shadow目标约束；性能、完整发布回归及目标部署证据移交 RELEASE-GATE:BETA。
 
 ```json
 {
@@ -1682,10 +1847,16 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
     "CORE:S04",
     "FRONTEND-GATE:G3"
   ],
-  "required_scope": "保留上方S2完整Gate全部条件及S04页面/策略UI拒绝回归。",
+  "required_scope": "关闭S2功能联调清单及S04真实页面/策略UI拒绝回归，确保不可变Release、审批与Paper/Shadow目标约束；性能、完整发布回归及目标部署证据移交 RELEASE-GATE:BETA。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1695,6 +1866,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `X06`
 - task_type: `CORE`
 - acceptance_window: `I8`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:X05", "CORE:U01", "SERVICE:X06", "FRONTEND-GATE:G5", "FRONTEND-GATE:G4", "FRONTEND-GATE:G6"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-x06)
@@ -1702,6 +1874,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：实现 P08–P14；实时事件投影、危险操作确认、MFA、导出与 Runbook 入口
 - 交付物：Portfolio/Risk/Proposal/Approval/Order/Audit/Ops Web UI
 - 量化验收标准：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web 回归通过
+- 阶段执行：I8 完成订单/审批/kill switch 功能 E2E、证据链可定位与禁止直连 venue；≤5 分钟操作还原目标、完整 Web 视觉/浏览器矩阵归 RELEASE-GATE:BETA，开发/联调记录基线。
 - 依赖：X01–X05、U01
 
 <a id="review-x06"></a>
@@ -1716,16 +1889,16 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 
 <a id="104-x3-gate"></a>
 <a id="gate-x3"></a>
-### X3 完整 Gate：业务闭环末尾验收
+### X3 功能联调 Gate：执行与治理业务闭环
 
-- [ ] X01–X06 完成；连续 10 个交易日 Shadow，对账未解释差异=0。
+- [ ] [功能联调] X01–X06 的业务功能完成、短链路 Paper/Shadow 对账正确；[发布前 → RELEASE-GATE:BETA] 连续 10 个交易日 Shadow，对账未解释差异=0。
 - [ ] 命令、订单、成交、仓位和审计链可重建；命令重复执行=0。
 - [ ] kill switch、数据陈旧、venue 故障、审批拒绝、事件重放演练全绿。
 
 <a id="acceptance-core-gate-x3"></a>
 ### CORE-GATE:X3：验收检查点
 
-保留上方X3完整Gate全部条件，包括执行/审计/运维页面、10个交易日Shadow及对账完整证据。I9/FEP-7进入Beta前须核验R1/S2/X3完整Gate及TP01总项。
+关闭X3功能联调清单：执行/审计/运维真实页面、Paper/Shadow短链路对账、恢复/拒绝/证据重建；I9/FEP-7据此形成Beta功能候选。10个交易日Shadow、正式对账长稳和性能/部署证据由 RELEASE-GATE:BETA 收口；不将功能候选视作正式Beta发布。
 
 ```json
 {
@@ -1739,17 +1912,23 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
     "FRONTEND-GATE:G5",
     "FRONTEND-GATE:G6"
   ],
-  "required_scope": "保留上方X3完整Gate全部条件，包括执行/审计/运维页面、10个交易日Shadow及对账完整证据。I9/FEP-7进入Beta前须核验R1/S2/X3完整Gate及TP01总项。",
+  "required_scope": "关闭X3功能联调清单：执行/审计/运维真实页面、Paper/Shadow短链路对账、恢复/拒绝/证据重建；I9/FEP-7据此形成Beta功能候选。10个交易日Shadow、正式对账长稳和性能/部署证据由 RELEASE-GATE:BETA 收口；不将功能候选视作正式Beta发布。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
 <a id="execution-l4"></a>
-## 10. L4：Beta 后 testnet 服务准备与完整评审
+## 10. L4：Beta 功能候选后的 testnet 开发与联调
 
-在FE:FEP-7和CORE-GATE:X3后执行服务准备，随后进入前端I10。仅testnet，不自动开启生产Assisted Live。
+在 FE:FEP-7 和 CORE-GATE:X3 功能准入后执行服务准备，随后进入 I10；不等待 Beta 发布前长稳/性能验收。开发测试仍只用获准环境/用途，真实 testnet 调用依赖有效批准与受限凭据，不自动开启生产 Assisted Live。
 
 <a id="task-l01"></a>
 ### L01：优先 venue testnet 适配
@@ -1757,6 +1936,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `L01`
 - task_type: `CORE`
 - acceptance_window: `L4-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X04", "CORE:TP07", "CORE-GATE:X3", "FE:FEP-7"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-l01)
@@ -1764,6 +1944,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：仅接入已批准的单一 venue；订单意图/精度/限流映射；永不在 CI 使用生产 key
 - 交付物：venue plugin、testnet fixtures、compat report
 - 量化验收标准：200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品
+- 阶段执行：开发验证 200 个对应场景的协议 fixture、精度/限流/错误分类、生产端点/秘密拒绝；I10 必须以获准真实 testnet 完成代表性功能联调；200 笔目标 testnet 回执及发布环境兼容证据归 RELEASE-GATE:LIVE-READINESS，fixture 不能冒充真实 testnet 验收。
 - 依赖：X04、TP07
 
 <a id="review-l01"></a>
@@ -1781,6 +1962,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - task_id: `L02`
 - task_type: `CORE`
 - acceptance_window: `L4-SERVICE`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F06", "CORE:L01", "CORE-GATE:X3", "FE:FEP-7"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-l02)
@@ -1788,6 +1970,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 - 技术要求：Vault 静态秘密/引用、Execution Gateway 专用受控数据库角色与 allowlist 函数、服务会话/命令 TTL、网络 allowlist、mTLS、最少 egress、轮换/撤销；不实现 Vault 动态租约
 - 交付物：secret integration、database grants/function、network policy、rotation runbook
 - 量化验收标准：secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断
+- 阶段执行：开发验证 secret 隔离、拒绝过期/越权/egress、mTLS 双向身份认证及缺失/过期/不可信证书拒绝、轮换与撤销恢复机制；受控认证与受限执行边界不能延期，真实数据库权限在现有 Supabase 测试。实际部署的证书/网络策略、受限执行区与轮换后 ≤5 分钟恢复回执归 RELEASE-GATE:LIVE-READINESS。
 - 依赖：F06、L01
 
 <a id="review-l02"></a>
@@ -1802,7 +1985,7 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
 <a id="acceptance-service-l03"></a>
 ### SERVICE:L03：验收检查点
 
-服务端feature/capability、双人职责分离、额度/白名单、M5 flag关闭时API100%拒绝、testnet 50次双人审批签名审计、自批/超额/过期100%拒绝。UI入口和完整E2E保留在CORE:L03/G8。
+L03服务功能范围：feature/capability、双人职责分离、MFA、额度/白名单；M5 flag关闭时API100%拒绝，50次双人审批签名审计用例及自批/超额/过期100%拒绝。UI和真实testnet代表性闭环在CORE:L03/G8联调；正式部署/签字归 RELEASE-GATE:LIVE-READINESS。
 
 ```json
 {
@@ -1814,17 +1997,23 @@ TP01 的全部服务/供应链标准：三次可复现构建、20 个 workflow �
     "CORE:L02",
     "FE:FEP-7"
   ],
-  "required_scope": "服务端feature/capability、双人职责分离、额度/白名单、M5 flag关闭时API100%拒绝、testnet 50次双人审批签名审计、自批/超额/过期100%拒绝。UI入口和完整E2E保留在CORE:L03/G8。",
+  "required_scope": "L03服务功能范围：feature/capability、双人职责分离、MFA、额度/白名单；M5 flag关闭时API100%拒绝，50次双人审批签名审计用例及自批/超额/过期100%拒绝。UI和真实testnet代表性闭环在CORE:L03/G8联调；正式部署/签字归 RELEASE-GATE:LIVE-READINESS。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
 <a id="acceptance-service-l04"></a>
 ### SERVICE:L04：验收检查点
 
-L04服务压测/混沌/DB事件恢复/订单对账/告警/回滚，无重复Command/订单、审计持久化100%、四类演练、高危=0；F07部署HTTPS/受限Storage及F09九类真实生产者、持续窗口/通知/同链故障的全部上线前服务回执。页面消费者验证与最终证据包保留在CORE:L04；缺来源/部署保持NOT RUN / NO RECEIPT，不能用组件或人工样本替代。
+L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、无重复Command/订单与审计持久化100%，四类受控演练和受影响安全检查。F07/F09监控与证据采集机制须可用；持续窗口、真实部署/主机死亡通知、目标负载及最终安全/发布回执归对应 RELEASE Gate，不能用组件样本宣称这些正式验收通过。
 
 ```json
 {
@@ -1838,17 +2027,23 @@ L04服务压测/混沌/DB事件恢复/订单对账/告警/回滚，无重复Comm
     "SERVICE:L03",
     "FE:FEP-7"
   ],
-  "required_scope": "L04服务压测/混沌/DB事件恢复/订单对账/告警/回滚，无重复Command/订单、审计持久化100%、四类演练、高危=0；F07部署HTTPS/受限Storage及F09九类真实生产者、持续窗口/通知/同链故障的全部上线前服务回执。页面消费者验证与最终证据包保留在CORE:L04；缺来源/部署保持NOT RUN / NO RECEIPT，不能用组件或人工样本替代。",
+  "required_scope": "L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、无重复Command/订单与审计持久化100%，四类受控演练和受影响安全检查。F07/F09监控与证据采集机制须可用；持续窗口、真实部署/主机死亡通知、目标负载及最终安全/发布回执归对应 RELEASE Gate，不能用组件样本宣称这些正式验收通过。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
 <a id="acceptance-core-gate-l4-service"></a>
 ### CORE-GATE:L4-SERVICE：验收检查点
 
-L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证据通过，才放行I10；不代表L4完整Gate或生产发布授权。
+L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权限、MFA/审批/默认关闭、恢复与观测机制。拟上线部署、目标容量/长稳与正式回执由 RELEASE-GATE:LIVE-READINESS 验收；I10仍须完成获准真实testnet代表性联调，不产生生产发布授权。
 
 ```json
 {
@@ -1862,14 +2057,20 @@ L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证�
     "SERVICE:L03",
     "SERVICE:L04"
   ],
-  "required_scope": "L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证据通过，才放行I10；不代表L4完整Gate或生产发布授权。",
+  "required_scope": "L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权限、MFA/审批/默认关闭、恢复与观测机制。拟上线部署、目标容量/长稳与正式回执由 RELEASE-GATE:LIVE-READINESS 验收；I10仍须完成获准真实testnet代表性联调，不产生生产发布授权。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
-### I10 后的 L03/L04 完整验收
+### I10 后的 L03/L04 功能联调与发布移交
 
 <a id="task-l03"></a>
 ### L03：双人审批、MFA 与 Assisted Live UI Gate
@@ -1877,6 +2078,7 @@ L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证�
 - task_id: `L03`
 - task_type: `CORE`
 - acceptance_window: `I10`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X02", "CORE:X03", "CORE:L02", "SERVICE:L03", "FE:FEP-8"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-l03)
@@ -1884,6 +2086,7 @@ L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证�
 - 技术要求：仅在服务端 feature/capability 返回时显示 Assisted Live；双人职责分离、额度与白名单
 - 交付物：approval policy、P10/P11 M5 UI、E2E
 - 量化验收标准：M5 flag 关闭时 UI/API 100% 不可达；开启 testnet flag 后 50 次双人审批均写签名审计；自批/额度超限/过期 100% 拒绝
+- 阶段执行：I10 完成默认关闭、获准 testnet flag 下 UI/API 双人职责分离、MFA/额度/过期拒绝及 50 次签名审计用例；目标部署与发布签字归 RELEASE-GATE:LIVE-READINESS。
 - 依赖：X02、X03、L02
 
 <a id="review-l03"></a>
@@ -1901,6 +2104,7 @@ L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证�
 - task_id: `L04`
 - task_type: `CORE`
 - acceptance_window: `L4-TOTAL`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X05", "CORE:X06", "CORE:L01", "CORE:L02", "CORE:L03", "SERVICE:L04", "FE:FEP-8"]
 - development_status: `UNSPECIFIED`
 - review_entry: [GPT-6 Astra 复审入口](#review-l04)
@@ -1908,6 +2112,7 @@ L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证�
 - 技术要求：压测、混沌、DB/事件恢复、订单对账、告警、回滚；生成不可篡改测试证据
 - 交付物：SLO report、drill report、release checklist
 - 量化验收标准：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0
+- 阶段执行：L4 功能联调验证去重、审计持久化及重放/恢复/Engine 故障/kill switch 机制和证据采集；目标容量、四类部署演练、安全全量与最终证据包归 RELEASE-GATE:LIVE-READINESS。F07/F09 在 Beta 中实际使用的服务回执先由 RELEASE-GATE:BETA 收口，不等待 L4 全部完成。
 - 依赖：X05、X06、L01–L03
 - F07 上线前移交：在拟上线的隔离部署环境中验证外部 HTTPS BFF/Runtime 入口、真实身份与会话、worker 恢复、私有 Artifact 取回及跨租户拒绝；为 Runtime 配置只能访问 `quantos-artifacts` 的 Storage 凭据，证明其他 bucket 读写被拒并记录轮换和撤销。两项均需绑定候选发布源码 SHA 的目标回执；未通过不得发布 Runtime。开发阶段的临时管理员 Storage key 诊断回执不能替代此 Gate。
 - F09 上线前移交：原 F09-B01–B03、H05、M03 的未解决运行期范围继续开放（见 [当前清单](./audit/F09-comprehensive-review-2026-09-27.md)）；移交不算修复完成。按 F09 所列运行期量化标准，在实际部署的业务生产者、每分钟 monitor、dashboard 与通知目标上验证九类来源、持续阈值、真实通知、三类同链故障与无秘密泄露；取得绑定候选发布完整 SHA 的回执。缺失来源或服务未部署时保持 `NOT RUN / NO RECEIPT`，不得用开发阶段的人工样本、组件探针或 ADR 模板代替。
@@ -1924,18 +2129,18 @@ L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证�
 
 <a id="105-l4-gate"></a>
 <a id="gate-l4"></a>
-### L4 完整 Gate：业务闭环末尾验收
+### L4 功能联调 Gate 与发布前移交清单
 
-- [ ] L01–L04 完成；仅 testnet 证明通过，不自动产生生产实盘权限。
-- [ ] F07 拟上线部署的 HTTPS BFF/Runtime 入口与恢复/隔离回执通过；Runtime Storage 凭据仅可访问 `quantos-artifacts`，其他 bucket 拒绝和轮换/撤销证据通过，且全部绑定候选发布源码 SHA。
-- [ ] venue、秘密、MFA、审批、网络、容量、恢复、对账和安全证据全部归档。
-- [ ] 任一容量阈值触发时，先完成 Supabase 原生优化和容量 ADR；未获 ADR 批准时不得增加 Supabase 生态外的事件、缓存、时序或秘密基础设施。
-- [ ] 是否开启小额 Assisted Live 必须在本计划之外，由单独批准决定。
+- [ ] [功能联调] L01–L04 功能及代表性真实 testnet 闭环完成；不自动产生生产实盘权限。
+- [ ] [发布前] F07 拟上线部署的 HTTPS BFF/Runtime 入口与恢复/隔离回执通过；Runtime Storage 凭据仅可访问 `quantos-artifacts`，其他 bucket 拒绝和轮换/撤销证据通过，且全部绑定候选发布源码 SHA。Beta 已使用范围归 RELEASE-GATE:BETA，testnet 新增范围归 RELEASE-GATE:LIVE-READINESS。
+- [ ] [发布前 → RELEASE-GATE:LIVE-READINESS] venue、秘密、MFA、审批、网络、容量、恢复、对账和安全证据全部归档；功能联调期间先形成相关功能证据。
+- [ ] [各阶段架构约束] 任一容量阈值触发时，先完成 Supabase 原生优化和容量 ADR；未获 ADR 批准时不得增加 Supabase 生态外的事件、缓存、时序或秘密基础设施。
+- [ ] [发布授权边界] 是否开启小额 Assisted Live 必须在本计划之外，由单独批准决定。
 
 <a id="acceptance-core-gate-l4"></a>
 ### CORE-GATE:L4：验收检查点
 
-保留上方L4完整Gate全部原有要求，UI/API flag拒绝、MFA/双人审批E2E、F07/F09上线前移交及可信发布证据包全部闭环；生产实盘仍须计划外单独批准。
+关闭L4功能联调范围：UI/API flag拒绝、获准testnet代表性MFA/双人审批E2E、恢复/审计与证据包生成功能。F07/F09移交项、目标容量/部署演练及最终发布证据由 RELEASE-GATE:BETA 和 RELEASE-GATE:LIVE-READINESS 按适用范围收口；生产实盘另须计划外批准。
 
 ```json
 {
@@ -1947,32 +2152,77 @@ L01/L02及L03/L04服务子范围全部目标testnet与拟上线隔离部署证�
     "CORE:L04",
     "FRONTEND-GATE:G8"
   ],
-  "required_scope": "保留上方L4完整Gate全部原有要求，UI/API flag拒绝、MFA/双人审批E2E、F07/F09上线前移交及可信发布证据包全部闭环；生产实盘仍须计划外单独批准。",
+  "required_scope": "关闭L4功能联调范围：UI/API flag拒绝、获准testnet代表性MFA/双人审批E2E、恢复/审计与证据包生成功能。F07/F09移交项、目标容量/部署演练及最终发布证据由 RELEASE-GATE:BETA 和 RELEASE-GATE:LIVE-READINESS 按适用范围收口；生产实盘另须计划外批准。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
-## 11. 自动执行命令与回归清单
+## 11. 自动执行命令与阶段回归清单
 
-| 类别 | 命令目标（实现时在 `Makefile`/CI 固化） |
-|---|---|
-| 格式与静态检查 | `fmt`、`lint-rust`、`lint-python`、`lint-web`、`typecheck` |
-| 单元与覆盖率 | `test-rust`、`test-python`、`test-web`、`coverage-check` |
-| 数据库 | `db-apply`、`db-reset`、`db-migration-check`、`db-schema-diff`、`rls-policy-test` |
-| 协议与契约 | `proto-check`、`sdk-generate-check`、`engine-contract-test` |
-| 集成与回放 | `integration-test`、`event-replay-test`、`market-replay-test`、`order-state-test` |
-| 安全与供应链 | `sbom`、`license-check`、`sca`、`secret-scan`、`artifact-sign-verify`、`sync-vibe-check` |
-| Web 界面 | `e2e-web`、`visual-regression`、`a11y-test` |
-| 性能与演练 | `bench-domain`、`load-bff`、`chaos-drill`、`reconciliation-test` |
+表中命令是已有或须在所属实现任务内固化的入口，执行前核对 Makefile/CI。计划结构校验不证明运行命令已按阶段拆开；混合入口依第 2.10 节处理，不伪造整条命令 PASS。
 
-## 12. 任务完成定义与禁止项
+| 类别 | 命令目标 | 执行阶段 |
+|---|---|---|
+| 计划结构 | `check:development-plans`、`test:development-plans` | 两份计划、阶段/依赖和校验规则变更时；不连接数据库 |
+| 格式与静态检查 | `fmt`、`lint-rust`、`lint-python`、`lint-web`、`typecheck` | 开发按受影响模块执行；共享基础变更扩大范围 |
+| 单元与覆盖率 | `test-rust`、`test-python`、`test-web`、`coverage-check` | 开发/联调按影响回归；发布执行完整矩阵与 nightly 覆盖 |
+| 数据库 | `db-apply`、`db-migration-check`、`rls-policy-test`；`db-reset`、`db-schema-diff` | 受影响 SQL/RLS 功能在已配置 Supabase 实测；发布候选受控重建/drift 需相应授权，不能自动 reset |
+| 协议与契约 | `proto-check`、`sdk-generate-check`、`engine-contract-test` | 开发；协议变化复测全部受影响消费者 |
+| 集成与回放 | `integration-test`、`event-replay-test`、`market-replay-test`、`order-state-test` | 开发确定性机制测试，联调真实模块组合；发布重复完整关键路径 |
+| 安全与供应链 | `sbom`、`license-check`、`sca`、`secret-scan`、`artifact-sign-verify`、`sync-vibe-check` | 引入依赖即检查许可/安全，开发验证签名拒绝机制；发布补目标制品签名及远程 CI 回执 |
+| Web 界面 | `e2e-web`、`visual-regression`、`a11y-test` | 开发/联调覆盖功能与高风险交互；发布完整浏览器/视觉矩阵及签字 |
+| 性能与演练 | `bench-domain`、`load-bff`、`chaos-drill`、`reconciliation-test` | 开发采基线并验证受控故障/对账功能；发布验收负载、真实演练和授权长稳 |
 
-任务完成不以“代码可运行”或“页面可打开”为准，必须符合第 2 节最低完成条件、任务表专属验收和所属 Gate。以下行为一律视为未完成：
+## 12. 阶段完成定义与禁止项
 
-- 以真实账户、真实生产密钥或不可重放公网数据作为测试唯一依据；
-- 将第三方内部类型、数据库或 SDK API 泄漏到 QuantOS 的核心领域、协议或 UI；
+功能开发完成必须满足开发范围与必要自动化/真实数据库证据；功能联调完成必须证明真实模块的成功、拒绝和恢复闭环；正式发布验收必须补齐全部性能、长稳、部署和授权回执。每次汇报分别记录这三种状态及剩余问题，不以“代码可运行”“阶段 READY”或“页面可打开”声称正式 ACCEPTED。
+
+以下行为在开发期就禁止：
+
+- 以真实生产账户/密钥或不可重放公网数据作为测试唯一依据；
+- 将第三方内部类型、数据库或 SDK API 泄漏到 QuantOS 核心领域、协议或 UI；
 - 让 Agent、Engine、插件或 Web 客户端绕过 Risk/Approval/Execution Gateway；
-- 以未固定 commit/tag 的上游依赖、未完成许可证结论的 OpenBB、或无 SBOM 的制品进入生产拓扑；
-- 在 M5 Gate 前显示或启用 Assisted Live，在任何阶段启用 Guarded Live；
+- 在未明确获准的范围使用 provider、交易接口、商用数据或复制代码；把第三方许可检查整体推迟到发布前；
+- 隐藏新鲜度降级、采样缺口、重复副作用、权限或恢复失败；用“性能后置”规避正确性；
+- 因功能准入就续期 provider scope、启动 24 小时/新部署运行、重建已有 Supabase 或推送发布。
+
+以下发布门槛继续生效：未固定 commit/tag、未完成许可结论或缺 SBOM 的制品不得进入生产；M5 Gate 及单独批准前不得向生产开放 Assisted Live；任何阶段均不启用 Guarded Live。工程 testnet 的可见性/调用必须由受控 capability 和批准限定。
+
+## 13. 独立发布前验收
+
+Paper + Shadow Beta 的统一检查点为前端计划的 [RELEASE-GATE:BETA](./SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#acceptance-release-gate-beta)。它承接第 2.9 节性能、长稳、部署、同 SHA CI 和适用用途许可/签字；L04 负责的 Beta 服务移交也必须在首次 Beta 发布前完成，不能因责任任务排在后面而跳过。
+
+<a id="acceptance-release-gate-live-readiness"></a>
+### RELEASE-GATE:LIVE-READINESS：testnet 上线评审验收检查点
+
+在Beta发布验收和L4/I10功能联调基础上，完成L01–L04原目标环境全部要求：200笔真实testnet、50次双人审批审计、MFA/默认关闭、mTLS与受限执行区、秘密轮换≤5分钟、目标负载无重复Command/订单且审计持久化100%、四类恢复演练和高危安全缺陷=0；补齐F07/F09新增执行区的部署/持续采样/实际通知及完整证据包。所有正式回执绑定候选完整源码SHA，取得远程同SHA CI及适用发布签字/许可；运行须有新的有效环境和范围授权，任何开发或历史回执不能替代。此Gate仅完成Assisted Live testnet/上线评审准备，生产实盘仍须计划外单独批准。
+
+```json
+{
+  "checkpoint_id": "RELEASE-GATE:LIVE-READINESS",
+  "acceptance_window": "RELEASE-LIVE",
+  "depends_on": [
+    "RELEASE-GATE:BETA",
+    "CORE-GATE:L4",
+    "FE:FEP-8"
+  ],
+  "required_scope": "在Beta发布验收和L4/I10功能联调基础上，完成L01–L04原目标环境全部要求：200笔真实testnet、50次双人审批审计、MFA/默认关闭、mTLS与受限执行区、秘密轮换≤5分钟、目标负载无重复Command/订单且审计持久化100%、四类恢复演练和高危安全缺陷=0；补齐F07/F09新增执行区的部署/持续采样/实际通知及完整证据包。所有正式回执绑定候选完整源码SHA，取得远程同SHA CI及适用发布签字/许可；运行须有新的有效环境和范围授权，任何开发或历史回执不能替代。此Gate仅完成Assisted Live testnet/上线评审准备，生产实盘仍须计划外单独批准。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": [],
+  "stage_gate": {
+    "stage": "RELEASE",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
+}
+```

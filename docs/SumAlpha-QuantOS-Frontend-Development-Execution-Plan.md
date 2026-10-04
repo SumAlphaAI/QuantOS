@@ -1,12 +1,16 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.16
-> 更新时间：2026-10-03
-> 状态：待产品、前端、BFF、QA、安全与风控联合评审后执行  
+> 版本：3.17
+> 更新时间：2026-10-04
+> 状态：阶段归属已更新；功能准入待聚焦评估，正式发布待产品、前端、BFF、QA、安全与风控联合验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
+
+以下版本条目是历史决策记录；当前阶段归属以 3.17、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -78,7 +82,7 @@
 1. `design/` 中除 P16 外的 22 组高保真设计稿均须形成实际 React Web 页面；`UI-VIS-000`、`UI-P01`–`UI-P15`、`UI-P17`–`UI-P23` 是第 4.2 节可独立关闭的交付子任务。P16 迁入第二期计划。
 2. F03、F06、F07、R01–R04、S01–S04、X01–X06、L01–L03 的服务能力与安全时序不能替代页面级 BFF HTTP 路径、method、响应 envelope、分页、异步任务与实时订阅 OpenAPI。
 3. C01–C17 逻辑契约通过第 4.1 节 `BFF-FE-000`–`BFF-FE-011` 转为可生成客户端的版本化 OpenAPI，覆盖页面聚合、设置、报告、告警、运维治理与平台能力。
-4. 同 schema MSW 仅支持 `UI Complete`；契约达到 `Implemented` 且 staging 真实权限、实时、错误、审计与 provider/consumer contract 通过后方可 `Integrated`。页面自定义 DTO、静态 JSON 或 `InMemory*Backend` 不得替代接口交付。本轮新增页面工作还须遵守第 4 节全量 API 前置门槛。
+4. 同 schema MSW 仅支持 `UI Complete`；契约达到 `Implemented`，并在获准工程联调环境以真实 BFF/服务验证权限、实时、错误、审计与 provider/consumer contract 后方可 `Integrated`。发布前另取 staging/部署环境回执。页面自定义 DTO、静态 JSON 或 `InMemory*Backend` 不得替代接口交付。新增页面仍须满足第 4 节全量 API 的功能准入。
 
 ## 2. 技术栈与工程决策
 
@@ -102,11 +106,31 @@
 | 观测 | Sentry/OTel Web SDK（按隐私策略启用） | 错误含 correlation ID；token、密钥、完整敏感载荷不得上报 |
 | 包管理/构建 | 现有 pnpm workspace；Next.js 构建 | 锁文件、Node/pnpm 版本固定；Web 制品生成 manifest 与 SBOM |
 
+### 2.1 统一阶段与依赖消费规则
+
+```json
+{"schema":"quantos-plan-stages/v1","dependency_basis":"stage_gate","early_required":["contracts","data-integrity","authorization","idempotency-recovery","deadline-semantics"],"release_required":["performance","soak","deployment","same-sha-ci","release-authorization"],"release_checkpoints":["RELEASE-GATE:BETA","RELEASE-GATE:LIVE-READINESS"]}
+```
+
+| 阶段 | 目标与准入证据 | 阻塞范围 |
+|---|---|---|
+| DEVELOPMENT | P0、A1–A6：可运行实现、冻结契约/生成 client、数据正确性、权限隔离、幂等/恢复、超时与取消语义、基本回归；涉及数据库执行时使用现有配置的 Supabase 并记录实际结果 | 功能、契约、安全或不可恢复的数据错误阻塞相关依赖；性能基线记录不达标项 |
+| INTEGRATION | I1–I10：逐页实现及真实 BFF/服务的完整业务链、跨模块一致性、受控失败与恢复；可用获准工程环境完成，环境身份和能力边界必须写入证据 | 对应功能链路未通过阻塞其依赖的功能联调；不要求先取得发布环境签署 |
+| RELEASE | 功能闭环后在明确目标环境、负载、用途与授权下验证性能、长稳、staging/部署、远程同 SHA CI、发布回滚及签署 | 不达标阻止 Beta 发布或 testnet/Live 准备正式验收；仍可推进不依赖缺陷的功能 |
+
+任务与检查点的 `stage_gate` 记录阶段准入；原 `development_status` 继续描述实现进度，原 `review_status`、`source_commit`、`evidence` 继续保留正式全量复审与历史回执。三个维度分别统计，不能把待发布验收计成未实现功能，也不能把阶段 READY 计成正式 ACCEPTED。
+
+`stage_gate.status=NOT_ASSESSED` 表示尚需依据已有实现和实际证据进行聚焦功能评估，不能自动放行；此状态的 `input_digest` 必须为 null、`evidence` 必须为空。`BLOCKED` 可保留失败的输入摘要和证据，保留阻塞原因与实际结果。转为 `READY` 必须提供 `input_digest=sha256:<64hex>` 及非空证据：输入清单记录受检代码/契约/配置/测试/依赖证据的路径与内容摘要、运行环境、命令、结果、范围及遗留项；摘要绑定该清单。受检输入改变时重评受影响范围。仅规划文档或无关文件变动不要求重复全套真实环境/长稳测试；不能借此略过受影响功能回归。
+
+`depends_on`、`core_prerequisites`、`closes_core` 和全部任务 ID 保留：任何节点转阶段 READY 前，其全部前置节点的阶段记录必须 READY；开发/联调按依赖节点 `stage_gate` 声明的功能范围消费，跨阶段消费已完成的前置阶段能力，不要求上游尚未关闭的正式全量 `review_status`。同一 INTEGRATION 窗口的页面可以先开发，再完成自身联调；它的下游依赖仍须等待所需功能准入。`CORE:<ID>` 的完整功能范围、`SERVICE:*` 的服务子范围保持区分，不能以部分 mock 或服务测试冒充整项功能闭环。RELEASE 检查点汇总所有延期项和正式环境要求，不自动继承前置工程 PASS；其阶段 READY 还要求自身正式 `review_status=ACCEPTED`、完整源码 SHA 和真实发布验收证据，输入清单摘要及开发证据不能替代。
+
+现有 `pnpm check:p0`、A1 development/final-review、前端/核心 Gate 中可能仍混合多个阶段。本次不改运行 Gate 语义，不宣称已有命令自动支持阶段放行；已有独立功能子检查可分别记录结果和性能诊断，混合 runner 未拆分时不得忽略失败或将整条记为 PASS。受此影响的任务须先拆出可验证的功能 runner，再评估阶段 READY。本次纯文档变更只运行计划结构/依赖回归，不重跑数据库/provider 或长稳。旧同 SHA 正式回执只证明其原提交，不传递到新 HEAD；发布候选仍须取得自身的远程同 SHA CI 和目标环境回执。
+
 ## 3. 前期准备窗口（P0）
 
 ### 3.1 工作包与产出
 
-迭代 `P0`（W1–W2）按以下顺序复审准备任务。准备检查点仅放行A1，FEP-0/G0正式验收在A1末尾。
+迭代 `P0`（W1–W2）完成准备任务的 DEVELOPMENT 工程评估。准备检查点的阶段 READY 仅放行 A1 功能开发；FEP-0/G0 在 A1 完成功能冻结，正式全量验收的剩余项由 RELEASE 收口。
 
 <a id="task-pre-01"></a>
 #### PRE-01：需求拆解
@@ -114,6 +138,7 @@
 - task_id: `PRE-01`
 - task_type: `PREPARATION`
 - iteration: `P0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -132,6 +157,7 @@
 - task_id: `PRE-02`
 - task_type: `PREPARATION`
 - iteration: `P0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-01"]
 - core_prerequisites: []
 - closes_core: []
@@ -149,6 +175,7 @@
 - task_id: `PRE-03`
 - task_type: `PREPARATION`
 - iteration: `P0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-02", "CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -166,6 +193,7 @@
 - task_id: `PRE-04`
 - task_type: `PREPARATION`
 - iteration: `P0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
 - core_prerequisites: ["CORE:F03", "CORE:F06"]
 - closes_core: []
@@ -183,6 +211,7 @@
 - task_id: `PRE-05`
 - task_type: `PREPARATION`
 - iteration: `P0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-03", "PRE-04"]
 - core_prerequisites: []
 - closes_core: []
@@ -200,6 +229,7 @@
 - task_id: `PRE-06`
 - task_type: `PREPARATION`
 - iteration: `P0`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-04", "PRE-05"]
 - core_prerequisites: []
 - closes_core: []
@@ -208,7 +238,7 @@
 - 需求描述：测试基线
 - 主要动作：建立 MSW contract fixtures、Playwright project、axe、视觉基线、性能预算
 - 产出：测试目录与 CI job
-- 完成标准：故意破坏 schema、权限、敏感字段或视觉基线能使 CI 失败
+- 完成标准：故意破坏 schema、权限、敏感字段或视觉基线能使 CI 失败；开发以同源 runner 的可重放负向检查验证，远程同 SHA CI 的实际运行证据在 RELEASE 验收
 - 仓库复核：2026-10-02，原9项问题关闭；H-02残余的测试跳过/非执行断言已补修。当前结果见[PRE-06复审报告](./audit/PRE-06-comprehensive-review-2026-10-02.md)和[再复核证据](./audit/evidence/pre06-recheck-20261002/manifest.json)。10个fixture逐项受检（2个仅inventory），五个关键政策文件逐文件100%，Linux/macOS各12张视觉基线；本地工程验收与远端CI、Linux执行及正式G0/owner签署分别记录。
 
 <a id="acceptance-preparation-p0"></a>
@@ -235,53 +265,61 @@
     "audit/evidence/p0-preparation-remediation-20261002/source-0149e56/web/p0-receipt.json",
     "audit/evidence/p0-preparation-remediation-20261002/source-0149e56/f06-target/f06-receipt.json",
     "audit/PREPARATION-P0-remediation-2026-10-02.md"
-  ]
+  ],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
-P0实际准入以 `pnpm check:p0` 校验的当前HEAD外置回执为准，记录于 `refs/notes/p0-acceptance`，同时要求同SHA F06回执。上方检查点的source_commit/evidence登记已完成验收的历史版本；文档登记后的新HEAD仍须独立生成当前回执，不能继承旧PASS。操作见[P0验收规程](./P0-acceptance-runbook.md)。
+上方 `required_scope/review_status/source_commit/evidence` 保留历史完整范围及原回执事实。当前 P0 的 `stage_gate` 按第 2.1 节 DEVELOPMENT 范围核验工程标准、PoC、owner/环境/mock/设计/接口台账与测试基线，以功能输入清单和实际证据决定准入；NOT_ASSESSED 仍须聚焦评估。上方正式 `source_commit/evidence` 登记历史版本，不迁移旧 PASS。`pnpm check:p0`、`refs/notes/p0-acceptance` 及同 SHA F06 回执继续用于其原有正式验收范围；若需对新候选作正式同 SHA 声明，须独立生成该候选回执。仅本计划文字调整不触发全套真实 Supabase 验收重跑。原操作见[P0验收规程](./P0-acceptance-runbook.md)，命令范围按第 2.1 节核对。
 
 ## 4. 页面 API 前置与前端迭代计划
 
-排期基准为 3–4 名前端、1 名 BFF 联调接口人、1 名 QA，2 周一个 Sprint。以下为依赖满足后的相对建议窗口，不是已完成记录或固定交付承诺；外部核心服务未就绪时顺延所有依赖窗口。新增全量 API 前置阶段后不再沿用原 18 周总周期。官网可与同一前端迭代的 Terminal 工作并行。
+排期基准为 3–4 名前端、1 名 BFF 联调接口人、1 名 QA，2 周一个 Sprint。窗口表示依赖满足后的建议顺序；开发依赖按 `stage_gate` 判断。外部服务的必要功能未就绪时顺延依赖工作；部署/staging、性能或长稳待验收单独列入 RELEASE，不顺延无关功能开发。官网可与同一前端迭代的 Terminal 工作并行。
 
-- A1 分为开发与最后评审：`DEVELOPMENT/FIX_VALIDATION → 本地工程检查 → REVIEW_READY/RE_REVIEW → 真实 staging 验收与联合签署 → ACCEPTED`。开发入口 `pnpm check:bff-a1-development`；最后评审入口 `pnpm check:bff-a1-final-review`。B-01 staging 在开发阶段为 `DEFERRED_TO_FINAL_REVIEW`，不计为开发阻塞或未完成代码；正式检查点和 Integrated/Done/发布仍需真实证据。本轮不调整 A2–A6 的验收范围。
-- 执行顺序：`P0 → A1 → A2 → A3 → A4 → A5 → A6 → I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I9 → CORE-GATE:L4-SERVICE → I10`。
-- P0 的 PREPARATION:P0 检查点通过后进入 A1；A1/provider 后关闭正式 G0 与 FEP-0。G0 的最小冻结面与 A6 的全量 provider Gate 分别验证，二者都必须在新页面开发前满足。
-- `A1–A6` 独立完成全部页面 API 的 OpenAPI、生成 client、实现、授权、安全/错误/幂等/实时恢复及 staging provider 验证；全部 API `review_status=ACCEPTED` 后才启动新的前端页面实现与既有页面真实联调。consumer/UI E2E 和 G1–G8 仍在前端迭代验证，不以前端尚未交付阻塞 provider Gate。
-- `Reviewed + Mocked` 至少领先页面一个 Sprint 的要求保留；本轮排期进一步要求全量 API 已实现且 provider 验证通过。mock 可用于契约/组件 fixture 与复审，不能绕过全量 API 前置门槛。
-- `CORE:<ID>`明确指完整核心任务；拆分的服务前置必须使用SERVICE/CORE-GATE:*SERVICE，禁止隐式解释为“仅服务部分”。U01/S04/X06/TP01/L03/L04完整任务由closes_core映射在页面闭环后复审；FEP-7需要R1/S2/X3完整Gate，FEP-8需要L4服务Gate。
-- 同一迭代内按条目顺序与 `depends_on` 拓扑执行；实际任务→检查点→里程碑顺序即验收顺序；不同任务类型分别排期。FEP 是稳定的业务范围/Gate 编号，不表示数字大小即执行先后。FEP-5 的审计基础先于 Research/Release 证据跳转交付；FEP-4 的市场先行，订单标记及收益报表放在订单/对账之后。跨页面导航引用保留在契约/路由验收中，不把双向跳转误作循环开发依赖。
-- FEP-1 已完成开发的事实保留；本轮 I1 安排重新复审、集成与其逐页验收，不要求重复开发。未明确完成的任务使用 `UNSPECIFIED`，执行前盘点。
-- 每个窗口末尾依次记录检查点证据和里程碑复审；下列 JSON 是可校验的准入/关闭定义。新检查点保持 NOT_STARTED，必须取得实际绑定完整源码 SHA 的回执才可改为 ACCEPTED，不能以结构校验代替执行。
+- A1 既有 `DEFERRED_TO_FINAL_REVIEW` 继续适用，并将阶段分离推广到 A2–A6 和页面：工程交付与基本回归支持 `development_status=COMPLETED`、`REVIEW_READY` 和经评估的阶段 READY；真实 staging、性能和发布签署在 RELEASE 执行，正式 `RE_REVIEW → ACCEPTED` 仍须所要求的完整证据。A1 现有开发入口为 `pnpm check:bff-a1-development`，最后评审入口为 `pnpm check:bff-a1-final-review`；其他命令不因此被视为已有阶段模式。
+- 功能执行顺序保留：`P0 → A1 → A2 → A3 → A4 → A5 → A6 → I1 → I2 → I3 → I4 → I5 → I6 → I7 → I8 → I9 → CORE-GATE:L4-SERVICE → I10`。Beta 发布验收在 I9 功能闭环后独立执行，testnet/Live 准备正式验收在 I10 与核心 L4 功能闭环后执行。
+- P0 阶段 READY 后进入 A1；A1 完成 G0/FEP-0 功能冻结。G0 最小冻结面与 A6 全量 API 功能检查点 `PROVIDER:ALL` 均须阶段 READY，才开始新页面实现；它们的正式 staging/签署状态分别保留。
+- `A1–A6` 先完成全部页面 API 的 OpenAPI、生成 client、实现、授权、安全/错误/幂等/实时恢复及 provider 功能验证；全部 API 和 `PROVIDER:ALL` 的 DEVELOPMENT 准入通过后进入页面开发。无需等待全部 API 的正式 `review_status=ACCEPTED`；consumer/UI 功能 E2E 在 I1–I10 验证，发布环境回执在 RELEASE 验证。
+- `Reviewed + Mocked` 至少领先页面一个 Sprint 的要求保留，实际新页面准入还要求全量 API 功能实现就绪。mock 可用于契约/组件 fixture 和 UI Complete，不能替代 API 实现与真实功能联调。
+- `CORE:<ID>` 指完整核心功能范围；服务前置使用 `SERVICE:*` / `CORE-GATE:*SERVICE`。U01/S04/X06/TP01/L03/L04 由 `closes_core` 映射在页面闭环后作完整功能及正式复审；FEP-7 需要 R1/S2/X3 的功能 Gate，FEP-8 需要 L4 服务功能 Gate。正式全量验收和阶段准入分别记录。
+- 同一迭代按条目顺序和 `depends_on` 拓扑执行；任务→阶段检查点→功能里程碑顺序保持。FEP 编号表达稳定业务范围；FEP-5 审计基础先于 Research/Release 跳转，FEP-4 市场先行、订单标记及收益报表在订单/对账后交付。跨页面双向跳转不形成循环开发依赖。
+- FEP-1 已完成开发的事实保留；I1 安排功能复核、集成与逐页验证。`UNSPECIFIED` 实现状态需执行前盘点。新增 `stage_gate` 均为 NOT_ASSESSED；历史正式状态、通过/失败证据和遗留问题均保留，本次不产生自动准入。
+- 每个窗口末尾填报阶段证据，功能依赖满足后继续下一窗口；正式 `ACCEPTED` 仍需绑定完整源码 SHA 的全部要求回执。结构校验只验证计划，不能替代功能运行或发布验收。
 
-| 迭代 | 建议窗口 | 任务类型 | 范围 |
+| 迭代 | 建议窗口 | 阶段 | 范围与出口 |
 |---|---|---|---|
-| P0 | W1–W2 | PREPARATION | PRE-01–PRE-06，工程与契约盘点、准备检查点 |
-| A1 | W3–W4 | PAGE_API | BFF-FE-000；G0/FEP-0正式关闭 |
-| A2 | W5–W6 | PAGE_API | BFF-FE-001、007 |
-| A3 | W7–W8 | PAGE_API | BFF-FE-003、005 |
-| A4 | W9–W10 | PAGE_API | BFF-FE-006、004 |
-| A5 | W11–W12 | PAGE_API | BFF-FE-009、008、010 |
-| A6 | W13–W14 | PAGE_API | BFF-FE-002、011；全量 provider Gate |
-| I1 | W15–W16 | FRONTEND / WEBSITE | FEP-1：共享壳、认证、设置、官网及重新复审 |
-| I2 | W17–W18 | FRONTEND | FEP-5 审计基础；FEP-2：Snapshot → Research → Artifact |
-| I3 | W19–W20 | FRONTEND | FEP-3：草稿 → 回测 → Release |
-| I4 | W21–W22 | FRONTEND | FEP-4 市场部分；FEP-5 组合与建议 |
-| I5 | W23–W24 | FRONTEND | FEP-5：preflight → 审批 → Command/Order |
-| I6 | W25–W26 | FRONTEND | FEP-5：对账；完成 G5 |
-| I7 | W27–W28 | FRONTEND | FEP-4：订单标记、Performance/报表；完成 G4 |
-| I8 | W29–W30 | FRONTEND | FEP-6：Alerts → Operations/Admin |
-| I9 | W31–W32 | MILESTONE | FEP-7：全量硬化与 Beta |
-| I10 | W33–W34 | MILESTONE | FEP-8：M5 testnet 评审准备 |
+| P0 | W1–W2 | DEVELOPMENT | PRE-01–PRE-06；工程/契约准备，阶段准入 A1 |
+| A1 | W3–W4 | DEVELOPMENT | BFF-FE-000；G0/FEP-0 功能冻结 |
+| A2 | W5–W6 | DEVELOPMENT | BFF-FE-001、007；provider 功能验证 |
+| A3 | W7–W8 | DEVELOPMENT | BFF-FE-003、005；provider 功能验证 |
+| A4 | W9–W10 | DEVELOPMENT | BFF-FE-006、004；provider 功能验证 |
+| A5 | W11–W12 | DEVELOPMENT | BFF-FE-009、008、010；provider 功能验证 |
+| A6 | W13–W14 | DEVELOPMENT | BFF-FE-002、011；PROVIDER:ALL 全量 API 功能准入 |
+| I1 | W15–W16 | INTEGRATION | FEP-1：共享壳、认证、设置、官网，G1 功能闭环 |
+| I2 | W17–W18 | INTEGRATION | FEP-5 审计基础；FEP-2 Snapshot → Research → Artifact，G2 |
+| I3 | W19–W20 | INTEGRATION | FEP-3 草稿 → 回测 → Release，G3 |
+| I4 | W21–W22 | INTEGRATION | FEP-4 市场部分；FEP-5 组合与建议，I4 功能检查点 |
+| I5 | W23–W24 | INTEGRATION | FEP-5 preflight → 审批 → Command/Order，I5 功能检查点 |
+| I6 | W25–W26 | INTEGRATION | FEP-5 对账，G5 功能闭环 |
+| I7 | W27–W28 | INTEGRATION | FEP-4 订单标记、Performance/报表，G4 功能闭环 |
+| I8 | W29–W30 | INTEGRATION | FEP-6 Alerts → Operations/Admin，G6 功能闭环 |
+| I9 | W31–W32 | INTEGRATION | FEP-7/G7 全业务链候选；汇总性能基线和待优化项 |
+| I10 | W33–W34 | INTEGRATION | FEP-8/G8 获准 testnet 功能联调，保持模式/flag 边界 |
+| RELEASE-BETA | I9 功能闭环后，按环境与优化工作估算 | RELEASE | RELEASE-GATE:BETA；性能、获准长稳、部署/CI 与签署 |
+| RELEASE-LIVE | I10 与核心 L4 功能闭环后，另行安排 | RELEASE | 核心 RELEASE-GATE:LIVE-READINESS；正式 testnet/Live 准备验收，不启用生产实盘 |
 
 ### 4.1 页面 API 开发任务（先行）
 
-F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 operation 名称表达能力，不预设 URL；最终 path、method、request/response schema、分页和 envelope 必须由 BFF 在版本化 OpenAPI 中发布，前端只使用生成 client。每项“目标阶段与验收”保持原业务 Gate 绑定，实际 API 开发窗口以前置 A 迭代为准。
+F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 operation 名称表达能力，不预设 URL；最终 path、method、request/response schema、分页和 envelope 必须由 BFF 在版本化 OpenAPI 中发布，前端只使用生成 client。每项“目标阶段与验收”保持原业务 Gate 绑定：先在 A 迭代验证功能实现，后在对应 I 迭代完成功能联调；性能及正式环境指标在 RELEASE 收口。
 
-跨计划执行路线：核心F0 → R1服务Gate → TP01服务子范围 → S2服务Gate → X3服务Gate → 本计划A1–A6 provider → I1–I8及核心R1/S2/X3完整Gate → I9/Beta → 核心L4服务准备 → I10/G8 → 核心L03/L04及L4完整Gate。P0可在其已验收依赖满足后提前完成。稳定验收单位定义见[核心计划第2.8节](./SumAlpha-QuantOS-Development-Plan.md#28-跨计划验收单位与证据规则)。
+跨计划功能路线：核心 F0 → R1 服务 → TP01 服务子范围 → S2 服务 → X3 服务 → A1–A6 全量 API → I1–I8 与核心 R1/S2/X3 完整功能 Gate → I9/Beta 功能候选 → 核心 L4 服务准备 → I10/G8 → 核心 L03/L04 与 L4 完整功能 Gate。每一步消费对应 `stage_gate` READY；P0 可在其功能依赖满足后提前完成。Beta 与 Live 准备分别通过独立 RELEASE 检查点正式验收。稳定验收单位见[核心计划第2.8节](./SumAlpha-QuantOS-Development-Plan.md#28-跨计划验收单位与证据规则)。
 
-#### 迭代 A1：页面 API 基线开发与最终评审
+#### 迭代 A1：页面 API 基线开发与功能冻结
 
 <a id="task-bff-fe-000"></a>
 ##### BFF-FE-000：页面 BFF OpenAPI 基线
@@ -289,6 +327,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -298,12 +337,12 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - 领域接口背景：F03 有领域 Proto/OpenAPI 生成，但无第一期 22 个 Web Terminal 页面完整 API 清单
 - 覆盖契约/页面：C01–C17；P01–P15/P17–P23
 - 目标阶段与验收：FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI
-- 工程整改复验：[2026-10-03 整改报告](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)；API 1.4.0 / 62 published / 46 planned / 51 schemas；B-01 的 staging 执行已移至最后评审，开发阶段标记 `DEFERRED_TO_FINAL_REVIEW`，不再作为开发缺陷或 REVIEW_READY 阻塞；最终 ACCEPTED 仍须目标回执与签署。当前口径见[评审阶段调整记录](./audit/BFF-FE-000-review-stage-policy-2026-10-03.md)。
+- 工程整改复验：[2026-10-03 整改报告](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)；API 1.4.0 / 62 published / 46 planned / 51 schemas；B-01 的 staging 执行已移至最后评审，开发阶段标记 `DEFERRED_TO_FINAL_REVIEW`，不再作为开发缺陷或 REVIEW_READY 阻塞；最终 ACCEPTED 仍须目标回执与签署。既有决定见[评审阶段调整记录](./audit/BFF-FE-000-review-stage-policy-2026-10-03.md)，当前统一阶段归属见第 2.1 节。
 
 <a id="acceptance-provider-a1"></a>
 ##### PROVIDER:A1：验收检查点
 
-A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 provider/consumer harness；真实 staging 证据在代码与对应 provider 实现完成后的最后评审执行，必须在 RE_REVIEW → ACCEPTED 前通过。缺 staging 不阻塞开发完成或 REVIEW_READY，但不能关闭本正式检查点；consumer/UI 最终 Gate 独立验收，A1 不提前实现 A2–A6 provider。
+A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现功能的 provider/consumer harness，按输入清单评估阶段 READY；A2–A6 未交付 provider 不属 A1 实现范围。B-01 staging 继续 DEFERRED_TO_FINAL_REVIEW，正式目标回执和签署由 RELEASE 收口，不能据工程通过改为正式 ACCEPTED。
 
 ```json
 {
@@ -313,27 +352,33 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FE:BFF-FE-000",
     "PREPARATION:P0"
   ],
-  "required_scope": "A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 provider/consumer harness；真实 staging 证据在代码与对应 provider 实现完成后的最后评审执行，必须在 RE_REVIEW → ACCEPTED 前通过。缺 staging 不阻塞开发完成或 REVIEW_READY，但不能关闭本正式检查点；consumer/UI 最终 Gate 独立验收，A1 不提前实现 A2–A6 provider。",
+  "required_scope": "A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现功能的 provider/consumer harness，按输入清单评估阶段 READY；A2–A6 未交付 provider 不属 A1 实现范围。B-01 staging 继续 DEFERRED_TO_FINAL_REVIEW，正式目标回执和签署由 RELEASE 收口，不能据工程通过改为正式 ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
-##### G0 原始完整验收要求
+##### G0 契约与工程功能冻结要求
 
-以下条件全部满足后关闭G0；新页面还须等待PROVIDER:ALL：
+以下冻结与 PoC 要求形成 G0 的 DEVELOPMENT 证据；新页面还须等待 PROVIDER:ALL 的全量 API 功能准入。联合发布签署在 RELEASE 完成：
 
 - BFF 发布版本化 OpenAPI，至少冻结会话/上下文、Research、DataSnapshot、Strategy、Portfolio/Risk、Proposal/Approval/Order 与统一错误模型；未实现接口允许 mock，但 schema 不允许另起一套。
 - 生成 client 与 Proto/JSON Schema 一致性检查进入 CI；现有手写 `InMemory*Backend` 已迁移为实现生成接口的测试 adapter，或明确标记为待删除。
 - 页面台账能追踪到 `页面 → 前端任务 → BFF 契约 → 后端计划任务 → 测试用例 → Gate`。
 - Web 页面 PoC、OIDC callback PoC、SSE 断线续传 PoC 均通过。
-- 产品、前端、BFF、QA、安全与风控签署 G0 记录；未冻结项有责任人、截止日和兼容策略。
+- 产品、前端、BFF、QA、安全与风控确认契约/功能范围，未冻结项有责任人、截止日和兼容策略；G0 正式签署记录保留为 RELEASE 的完整验收要求。
 
 <a id="acceptance-frontend-gate-g0"></a>
 ##### FRONTEND-GATE:G0：验收检查点
 
-上方 G0 全部原始要求及正式契约冻结、PoC、签署记录在最后评审关闭；B-01 staging 待执行不阻塞 A1 代码开发或 REVIEW_READY，正式 ACCEPTED 仍要求完整目标回执与签署；后续正式验收顺序保留，新页面仍等待 PROVIDER:ALL。
+G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范围确认后评估阶段 READY；新页面还须全量 API 的 PROVIDER:ALL 阶段准入。正式 G0 签署、staging 与发布证据在 RELEASE 完成，历史正式复审状态独立保留。
 
 ```json
 {
@@ -344,10 +389,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "PROVIDER:A1",
     "FE:BFF-FE-000"
   ],
-  "required_scope": "上方 G0 全部原始要求及正式契约冻结、PoC、签署记录在最后评审关闭；B-01 staging 待执行不阻塞 A1 代码开发或 REVIEW_READY，正式 ACCEPTED 仍要求完整目标回执与签署；后续正式验收顺序保留，新页面仍等待 PROVIDER:ALL。",
+  "required_scope": "G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范围确认后评估阶段 READY；新页面还须全量 API 的 PROVIDER:ALL 阶段准入。正式 G0 签署、staging 与发布证据在 RELEASE 完成，历史正式复审状态独立保留。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -357,6 +408,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `FEP-0`
 - task_type: `MILESTONE`
 - iteration: `A1`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE-GATE:F0", "PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06", "FRONTEND-GATE:G0"]
 - core_prerequisites: ["CORE-GATE:F0"]
 - closes_core: []
@@ -365,9 +417,9 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - 需求描述：工程运行时、设计系统、接口台账、环境、测试底座
 - 主要后端依赖：CORE-GATE:F0
 - 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结
-- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
-#### 迭代 A2：页面 API provider 验收
+#### 迭代 A2：页面 API 开发与 provider 功能验证
 
 <a id="task-bff-fe-001"></a>
 ##### BFF-FE-001：身份、会话与设置 API
@@ -375,6 +427,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-001`
 - task_type: `PAGE_API`
 - iteration: `A2`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "CORE:F06", "PROVIDER:A1"]
 - core_prerequisites: ["CORE:F06"]
 - closes_core: []
@@ -384,7 +437,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - 领域接口背景：F06 定义 Auth/RBAC/主上下文；未定义完整登录恢复、个人资料、会话、可信设备、通知偏好页面 API
 - 覆盖契约/页面：C01、C17；P01/P15
 - 目标阶段与验收：FEP-1/G1：401/403/404、CSRF、recent-auth、最后有效因素保护与撤销后实时失效测试通过
-- 工程整改与复验：[2026-10-03 整改记录](./audit/BFF-FE-001-remediation-2026-10-03.md)。当前 API 1.5.0 / 62 operations / 52 schemas；reference 与实际 Supabase + 本机 live BFF 分别验证。staging 与签署仍按 FINAL 评审执行，PROVIDER:A2/G1 状态由对应正式回执决定。
+- 工程整改与复验：[2026-10-03 整改记录](./audit/BFF-FE-001-remediation-2026-10-03.md)。当前 API 1.5.0 / 62 operations / 52 schemas；reference 与实际 Supabase + 本机 live BFF 分别验证。staging 与签署仍按 FINAL 评审执行，PROVIDER:A2/G1 的正式复审状态由对应正式回执决定；功能准入另按 stage_gate 评估。
 
 <a id="task-bff-fe-007"></a>
 ##### BFF-FE-007：Audit 与导出 API
@@ -392,6 +445,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-007`
 - task_type: `PAGE_API`
 - iteration: `A2`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "CORE:F05", "PROVIDER:A1"]
 - core_prerequisites: ["CORE:F05"]
 - closes_core: []
@@ -400,12 +454,12 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - 需求描述：audit search/get chain；correlation/causation pagination；redacted payload；export create/status/cancel/download metadata；短时 URL、水印、retention
 - 领域接口背景：F05/X06 有审计账本目标，未定义 Explorer 搜索、证据链和安全导出页面 API
 - 覆盖契约/页面：C10；P04/P07/P09–P14/P22/P23
-- 目标阶段与验收：FEP-5/G5：按 correlation ID ≤5 分钟还原；越权/过期下载拒绝；导出全过程有审计事件
+- 目标阶段与验收：FEP-5/G5：功能联调验证 correlation ID 证据链完整、越权/过期下载拒绝和导出全过程审计；≤5 分钟还原在 RELEASE 的目标数据规模下验收，开发/联调记录基线
 
 <a id="acceptance-provider-a2"></a>
 ##### PROVIDER:A2：验收检查点
 
-本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。
 
 ```json
 {
@@ -416,14 +470,20 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FE:BFF-FE-007",
     "PROVIDER:A1"
   ],
-  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "required_scope": "A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
-#### 迭代 A3：页面 API provider 验收
+#### 迭代 A3：页面 API 开发与 provider 功能验证
 
 <a id="task-bff-fe-003"></a>
 ##### BFF-FE-003：Research、Snapshot 与 Artifact API
@@ -431,6 +491,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-003`
 - task_type: `PAGE_API`
 - iteration: `A3`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -447,6 +508,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-005`
 - task_type: `PAGE_API`
 - iteration: `A3`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -460,7 +522,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-provider-a3"></a>
 ##### PROVIDER:A3：验收检查点
 
-本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。
 
 ```json
 {
@@ -471,14 +533,20 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FE:BFF-FE-005",
     "PROVIDER:A2"
   ],
-  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "required_scope": "A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
-#### 迭代 A4：页面 API provider 验收
+#### 迭代 A4：页面 API 开发与 provider 功能验证
 
 <a id="task-bff-fe-006"></a>
 ##### BFF-FE-006：Portfolio、Risk、Proposal、Approval 与 Order API
@@ -486,6 +554,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-006`
 - task_type: `PAGE_API`
 - iteration: `A4`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE", "PROVIDER:A3"]
 - core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:TP07", "CORE-GATE:X3-SERVICE"]
 - closes_core: []
@@ -502,6 +571,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-004`
 - task_type: `PAGE_API`
 - iteration: `A4`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-007", "CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04", "PROVIDER:A3"]
 - core_prerequisites: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE-GATE:X3-SERVICE", "SERVICE:S04"]
 - closes_core: []
@@ -515,7 +585,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-provider-a4"></a>
 ##### PROVIDER:A4：验收检查点
 
-本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。
 
 ```json
 {
@@ -526,14 +596,20 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FE:BFF-FE-004",
     "PROVIDER:A3"
   ],
-  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "required_scope": "A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
-#### 迭代 A5：页面 API provider 验收
+#### 迭代 A5：页面 API 开发与 provider 功能验证
 
 <a id="task-bff-fe-009"></a>
 ##### BFF-FE-009：Reconciliation 与账本 API
@@ -541,6 +617,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-009`
 - task_type: `PAGE_API`
 - iteration: `A5`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-006", "BFF-FE-007", "CORE:X05", "CORE-GATE:X3-SERVICE", "PROVIDER:A4"]
 - core_prerequisites: ["CORE:X05", "CORE-GATE:X3-SERVICE"]
 - closes_core: []
@@ -557,6 +634,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-008`
 - task_type: `PAGE_API`
 - iteration: `A5`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-009", "CORE:X01", "CORE:X05", "CORE-GATE:X3-SERVICE", "PROVIDER:A4"]
 - core_prerequisites: ["CORE:X01", "CORE:X05", "CORE-GATE:X3-SERVICE"]
 - closes_core: []
@@ -573,6 +651,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-010`
 - task_type: `PAGE_API`
 - iteration: `A5`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "BFF-FE-007", "BFF-FE-009", "CORE:F09", "CORE-GATE:X3-SERVICE", "SERVICE:X06", "PROVIDER:A4"]
 - core_prerequisites: ["CORE:F09", "CORE-GATE:X3-SERVICE", "SERVICE:X06"]
 - closes_core: []
@@ -586,7 +665,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-provider-a5"></a>
 ##### PROVIDER:A5：验收检查点
 
-本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。
 
 ```json
 {
@@ -598,14 +677,20 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FE:BFF-FE-010",
     "PROVIDER:A4"
   ],
-  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "required_scope": "A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
-#### 迭代 A6：页面 API provider 验收
+#### 迭代 A6：页面 API 开发与 provider 功能验证
 
 <a id="task-bff-fe-002"></a>
 ##### BFF-FE-002：Command Center 聚合 API
@@ -613,6 +698,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-002`
 - task_type: `PAGE_API`
 - iteration: `A6`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-003", "BFF-FE-006", "BFF-FE-010", "CORE:F09", "CORE-GATE:X3-SERVICE", "PROVIDER:A5"]
 - core_prerequisites: ["CORE:F09", "CORE-GATE:X3-SERVICE"]
 - closes_core: []
@@ -621,7 +707,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - 需求描述：authorized command summary、priority queue、system health、risk/data/order/run counters、recent activity；返回 sampledAt/asOf、source 和资源级跳转引用
 - 领域接口背景：F09、R/X 有指标和事件，未定义 Command Center 聚合页面模型
 - 覆盖契约/页面：C02；P02
-- 目标阶段与验收：FEP-1/G1：单次聚合或受控并发预算达标；不同角色字段裁剪和无权对象负向测试通过
+- 目标阶段与验收：FEP-1/G1：单次聚合或受控并发、不同角色字段裁剪和无权对象负向测试通过；开发记录请求/延迟预算基线，无界扇出须修复，目标负载性能预算在 RELEASE 达标
 
 <a id="task-bff-fe-011"></a>
 ##### BFF-FE-011：Web 浏览器平台能力 API
@@ -629,6 +715,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `BFF-FE-011`
 - task_type: `PAGE_API`
 - iteration: `A6`
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "BFF-FE-010", "CORE-GATE:X3-SERVICE", "PROVIDER:A5"]
 - core_prerequisites: ["CORE-GATE:X3-SERVICE"]
 - closes_core: []
@@ -642,7 +729,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-provider-a6"></a>
 ##### PROVIDER:A6：验收检查点
 
-本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。
+A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。
 
 ```json
 {
@@ -653,17 +740,23 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FE:BFF-FE-011",
     "PROVIDER:A5"
   ],
-  "required_scope": "本窗口全部API的OpenAPI/生成client、schema/权限/错误/幂等/恢复/审计、安全负向与staging provider证据通过；consumer/UI最终Gate随后独立验收。A1基线负责发布catalog/生成与harness，不要求它实现A2–A6尚未交付的provider。",
+  "required_scope": "A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
 <a id="acceptance-provider-all"></a>
 ##### PROVIDER:ALL：验收检查点
 
-全部12个API的provider基线、staging证据、权限/幂等/错误/实时恢复/敏感字段Gate及正式G0通过；全部API review_status=ACCEPTED，才允许I1起新页面实现与既有页面真实联调；Paper/Shadow基线不提前宣称M5 target启用。
+全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。
 
 ```json
 {
@@ -690,10 +783,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FE:BFF-FE-011",
     "FRONTEND-GATE:G0"
   ],
-  "required_scope": "全部12个API的provider基线、staging证据、权限/幂等/错误/实时恢复/敏感字段Gate及正式G0通过；全部API review_status=ACCEPTED，才允许I1起新页面实现与既有页面真实联调；Paper/Shadow基线不提前宣称M5 target启用。",
+  "required_scope": "全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -701,9 +800,9 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 
 以下 `UI-Pxx` 是各阶段 UI 任务的交付子任务。`design/` 中列出的有效稿是页面默认态的内容结构与视觉基准；若同一页面存在多个版本，以本节指定版本为准，旧版本仅保留追溯。开发必须将设计稿制作成可运行、可路由、可鉴权、可访问且接入生成式 BFF client 的 React 页面，同时按设计规范补齐加载、空、错误、无权、陈旧、离线/断线和危险确认状态。设计稿中的示例数据只能进入 Storybook/MSW fixture，不能硬编码进生产页面。
 
-每个 `UI-Pxx` 任务关闭时必须附：设计稿对照截图、路由与权限测试、七态 Storybook、MSW 契约用例、staging 接口证据、键盘/axe 结果、1440 视觉回归、至少一个目标浏览器 E2E。仅提交静态 HTML、截图复刻或无接口组件不视为完成。
+每个 `UI-Pxx` 工程交付附设计稿对照、路由/权限测试、七态 Storybook、MSW 契约用例、键盘/axe 检查、1440 视觉基线及至少一个目标浏览器的关键功能 E2E；进入 INTEGRATION 阶段 READY 还须真实 BFF/服务接口和跨模块业务链证据。staging、完整视觉/浏览器矩阵与签署在 RELEASE 汇总。仅静态 HTML、截图复刻或无接口组件不视为功能实现完成。
 
-开发-复审流转：开发产物与测试齐备后 `REVIEW_READY → IN_REVIEW`；有问题进入 `CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW`，验证失败返回修复节点；无问题或问题全部验证关闭后 `ACCEPTED`，缺环境/依赖为 `BLOCKED`。`UI Complete → Integrated → Done` 保留原第 7.5 节定义，`ACCEPTED` 不能越过 staging 与所属 Gate；原接口状态链保持独立。
+开发产物与对应基本测试齐备后可 `REVIEW_READY → IN_REVIEW`；功能问题按 `CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW` 修复。阶段 READY 依据第 2.1 节评估；正式 `ACCEPTED` 仍须完整复审，缺其目标环境可保留正式 BLOCKED 而不清除已证实的工程进度。`UI Complete → Integrated → Done` 按第 7.5 节分别描述 UI 实现、真实功能联调、正式发布验收，原契约状态链保持独立。
 
 #### 迭代 I1：W15–W16
 
@@ -713,6 +812,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-103`
 - task_type: `FRONTEND`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-02", "PRE-03", "PRE-06", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
@@ -729,6 +829,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-VIS-000`
 - task_type: `FRONTEND`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-103", "BFF-FE-001", "BFF-FE-010", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
@@ -738,7 +839,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - 实际页面/路由交付：App Shell、导航、顶栏、状态条、栅格、token、边框、表格、表单、图表、Badge、危险确认与状态语义
 - 契约绑定：C01、C16、C17
 - 所属阶段：FEP-1；P0 的设计预研只提供输入，UI-VIS-000 完整交付在 I1 验收
-- 页面级完成标准：抽取为 `packages/ui`/`domain-ui`，禁止逐页复制样式；1440 基准视觉回归由设计签署；语义色不得挪作装饰色
+- 页面级完成标准：抽取为 `packages/ui`/`domain-ui`，禁止逐页复制样式；开发建立 1440 视觉基线并验证关键状态，RELEASE 完成基准视觉回归设计签署；语义色不得挪作装饰色
 
 <a id="task-ui-102"></a>
 ##### UI-102：OIDC、callback、MFA、401/403/404/maintenance/offline
@@ -746,11 +847,12 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-102`
 - task_type: `FRONTEND`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-VIS-000", "BFF-FE-001", "BFF-FE-006", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete / Contract Integrated。staging IdP/MFA 联调签署是晋级 G1 Done 的前置条件。
+- 状态范围：已开发完成；UI Complete / Contract Integrated。真实 IdP/MFA 功能联调是 G1 阶段 READY 的前置；staging 签署是正式 Done 的前置。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：OIDC、callback、MFA、401/403/404/maintenance/offline
 - 接口绑定：C01、C08
@@ -762,11 +864,12 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-101`
 - task_type: `FRONTEND`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-102", "BFF-FE-001", "BFF-FE-002", "BFF-FE-010", "BFF-FE-000", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete / Mocked。BFF-FE-002 发布后使用生成 client + 同 schema MSW，staging 签署前不得升级 Integrated。
+- 状态范围：已开发完成；UI Complete / Mocked。BFF-FE-002 发布后使用生成 client + 同 schema MSW；真实 BFF 功能联调前不得升级 Integrated，staging 签署在 RELEASE 完成。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：App Shell、路由守卫、主工作区/账户/mode/数据新鲜度/风险/连接状态
 - 接口绑定：C01、C02、C16
@@ -778,11 +881,12 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-104`
 - task_type: `FRONTEND`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-101", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete / Local Provider Implemented。BFF-FE-001/011 Web 契约完成 staging 签署后才可 Integrated。
+- 状态范围：已开发完成；UI Complete / Local Provider Implemented。BFF-FE-001/011 Web 契约完成真实功能联调后才可 Integrated，staging 签署在 RELEASE 完成。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：Profile/安全/通知/浏览器能力
 - 接口绑定：C17
@@ -794,15 +898,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `WEB-101`
 - task_type: `WEBSITE`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-103", "UI-102", "BFF-FE-001", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：已开发完成；UI Complete / Local Provider Implemented。Terminal Auth/BFF staging 联调后配置真实 BFF origin 并晋级 G1；生产发布前在目标 CDN origin 验证 Lighthouse。
+- 状态范围：已开发完成；UI Complete / Local Provider Implemented。Terminal Auth/BFF 真实功能联调后配置获准环境的 BFF origin 并评估 G1 阶段准入；发布前取得 staging/目标 CDN origin 证据并验证 Lighthouse。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：官网首页、产品、架构安全、场景、访问申请、登录
 - 接口绑定：Access Request/Auth
-- 验收重点：Lighthouse、SEO、隐私、防滥用和禁用词检查通过
+- 验收重点：开发验证 SEO、隐私、防滥用和禁用词功能；Lighthouse 采集基线，评分目标在 RELEASE 通过
 - 官网功能细则：首期七页为首页、产品、架构安全、使用场景、文档中心、访问申请、登录；使用场景 `/use-cases`、文档中心 `/docs`。复用冻结 design token（深色默认 + 浅色媒体查询）；文档中心支持搜索空态、首页文档入口及可展开的版本化正文。访问申请使用 C01 `submitAccessRequest` 生成类型，包含团队、用途、市场、预期模式（expectedMode）与隐私说明版本；支持 honeypot、客户端校验、pending 防重复、离线禁用/中止、429 文案及错误后输入保留，202 仅显示“已受理”。未配置 BFF origin 时使用同源 `/v1/access-requests`；登录页仅作 Terminal 受控入口，不内嵌认证。首页 title template 避免重复，官网 lint 覆盖 App Router TSX；SEO 包含 canonical/robots/sitemap。
 
 <a id="task-ui-p01"></a>
@@ -811,6 +916,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P01`
 - task_type: `FRONTEND`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-102", "UI-VIS-000", "BFF-FE-001", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
@@ -828,6 +934,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P02`
 - task_type: `FRONTEND`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-101", "UI-VIS-000", "BFF-FE-002", "BFF-FE-006", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
@@ -845,6 +952,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P15`
 - task_type: `FRONTEND`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-104", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
@@ -862,6 +970,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P17`
 - task_type: `FRONTEND`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-104", "UI-VIS-000", "BFF-FE-001", "BFF-FE-011", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "PROVIDER:ALL", "FRONTEND-GATE:G0"]
 - core_prerequisites: []
 - closes_core: []
@@ -876,7 +985,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-frontend-gate-g1"></a>
 ##### FRONTEND-GATE:G1：验收检查点
 
-按FEP-1全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+按 FEP-1 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
 
 ```json
 {
@@ -897,10 +1006,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "CORE:F09",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按FEP-1全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "required_scope": "按 FEP-1 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -910,6 +1025,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `FEP-1`
 - task_type: `MILESTONE`
 - iteration: `I1`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PRE-06", "CORE:F06", "CORE:F09", "UI-103", "UI-VIS-000", "UI-102", "UI-101", "UI-104", "WEB-101", "UI-P01", "UI-P02", "UI-P15", "UI-P17", "FRONTEND-GATE:G1"]
 - core_prerequisites: ["CORE:F06", "CORE:F09"]
 - closes_core: []
@@ -919,7 +1035,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - 需求描述：官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态
 - 主要后端依赖：CORE:F06、CORE:F09
 - 交付节点与放行条件：G1：认证/RBAC/模式/陈旧/离线/响应式可用，官网内容合规
-- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 #### 迭代 I2：W17–W18
 
@@ -929,6 +1045,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-507`
 - task_type: `FRONTEND`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-101", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
@@ -944,6 +1061,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P12`
 - task_type: `FRONTEND`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-507", "UI-VIS-000", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
@@ -961,6 +1079,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-204`
 - task_type: `FRONTEND`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-101", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
@@ -976,6 +1095,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P05`
 - task_type: `FRONTEND`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-204", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
@@ -993,6 +1113,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-201`
 - task_type: `FRONTEND`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-204", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
@@ -1008,6 +1129,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P03`
 - task_type: `FRONTEND`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-201", "UI-VIS-000", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
@@ -1025,6 +1147,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-202`
 - task_type: `FRONTEND`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-201", "BFF-FE-003", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
@@ -1040,6 +1163,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-203`
 - task_type: `FRONTEND`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-202", "UI-507", "BFF-FE-003", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
@@ -1055,6 +1179,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P04`
 - task_type: `FRONTEND`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-202", "UI-203", "UI-VIS-000", "BFF-FE-003", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G1"]
 - core_prerequisites: []
 - closes_core: []
@@ -1069,7 +1194,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-frontend-gate-g2"></a>
 ##### FRONTEND-GATE:G2：验收检查点
 
-按FEP-2全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+按 FEP-2 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
 
 ```json
 {
@@ -1086,10 +1211,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "CORE-GATE:R1-SERVICE",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按FEP-2全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "required_scope": "按 FEP-2 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1099,6 +1230,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `FEP-2`
 - task_type: `MILESTONE`
 - iteration: `I2`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P17", "CORE-GATE:R1-SERVICE", "UI-204", "UI-P05", "UI-201", "UI-P03", "UI-202", "UI-203", "UI-P04", "FRONTEND-GATE:G2"]
 - core_prerequisites: ["CORE-GATE:R1-SERVICE"]
 - closes_core: ["CORE:U01", "CORE:TP01"]
@@ -1106,8 +1238,8 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot
 - 主要后端依赖：CORE-GATE:R1-SERVICE
-- 交付节点与放行条件：G2：固定输入可追溯与重放；取消 ≤2s；目标 Web 浏览器同用例全绿
-- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+- 交付节点与放行条件：G2 功能准入验证固定输入可追溯与重放、取消/超时/终态/资源释放和基本浏览器用例；取消 ≤2s 在功能联调采样并于 RELEASE 指定环境验收，目标 Web 浏览器完整同用例全绿亦由 RELEASE 收口
+- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 #### 迭代 I3：W19–W20
 
@@ -1117,6 +1249,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-301`
 - task_type: `FRONTEND`
 - iteration: `I3`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-203", "UI-204", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
 - core_prerequisites: []
 - closes_core: []
@@ -1132,6 +1265,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P06`
 - task_type: `FRONTEND`
 - iteration: `I3`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-301", "UI-VIS-000", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
 - core_prerequisites: []
 - closes_core: []
@@ -1149,6 +1283,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-302`
 - task_type: `FRONTEND`
 - iteration: `I3`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-301", "BFF-FE-004", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
 - core_prerequisites: []
 - closes_core: []
@@ -1164,6 +1299,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-303`
 - task_type: `FRONTEND`
 - iteration: `I3`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-302", "UI-507", "BFF-FE-004", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
 - core_prerequisites: []
 - closes_core: []
@@ -1179,6 +1315,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P07`
 - task_type: `FRONTEND`
 - iteration: `I3`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-302", "UI-303", "UI-VIS-000", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G2"]
 - core_prerequisites: []
 - closes_core: []
@@ -1193,7 +1330,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-frontend-gate-g3"></a>
 ##### FRONTEND-GATE:G3：验收检查点
 
-按FEP-3全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+按 FEP-3 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
 
 ```json
 {
@@ -1209,10 +1346,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "SERVICE:S04",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按FEP-3全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "required_scope": "按 FEP-3 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1222,6 +1365,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `FEP-3`
 - task_type: `MILESTONE`
 - iteration: `I3`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P04", "CORE-GATE:S2-SERVICE", "SERVICE:S04", "UI-301", "UI-P06", "UI-302", "UI-303", "UI-P07", "FRONTEND-GATE:G3"]
 - core_prerequisites: ["CORE-GATE:S2-SERVICE", "SERVICE:S04"]
 - closes_core: ["CORE:S04"]
@@ -1230,7 +1374,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - 需求描述：P06–P07；草稿、静态检查、回测、Release、审批时间线
 - 主要后端依赖：CORE-GATE:S2-SERVICE、SERVICE:S04
 - 交付节点与放行条件：G3：未验证/未审批不可部署；M3/M4 仅 Paper/Shadow
-- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 #### 迭代 I4：W21–W22
 
@@ -1240,6 +1384,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-401`
 - task_type: `FRONTEND`
 - iteration: `I4`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-101", "UI-204", "BFF-FE-005", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
@@ -1255,6 +1400,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P18`
 - task_type: `FRONTEND`
 - iteration: `I4`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-401", "UI-VIS-000", "BFF-FE-005", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
@@ -1272,6 +1418,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-501`
 - task_type: `FRONTEND`
 - iteration: `I4`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-101", "BFF-FE-006", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
@@ -1287,6 +1434,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P08`
 - task_type: `FRONTEND`
 - iteration: `I4`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-501", "UI-VIS-000", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
@@ -1304,6 +1452,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-502`
 - task_type: `FRONTEND`
 - iteration: `I4`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-203", "UI-501", "UI-507", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
@@ -1319,6 +1468,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P09`
 - task_type: `FRONTEND`
 - iteration: `I4`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-502", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G3"]
 - core_prerequisites: []
 - closes_core: []
@@ -1333,7 +1483,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-frontend-window-i4"></a>
 ##### FRONTEND-WINDOW:I4：验收检查点
 
-本迭代全部任务验收后才进入下一窗口；G4/G5属于跨窗口完整Gate，本窗口不提前关闭。
+I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。
 
 ```json
 {
@@ -1348,10 +1498,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FE:UI-P09",
     "PROVIDER:ALL"
   ],
-  "required_scope": "本迭代全部任务验收后才进入下一窗口；G4/G5属于跨窗口完整Gate，本窗口不提前关闭。",
+  "required_scope": "I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1363,6 +1519,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-503`
 - task_type: `FRONTEND`
 - iteration: `I5`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-401", "UI-501", "UI-502", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1378,6 +1535,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-504`
 - task_type: `FRONTEND`
 - iteration: `I5`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-503", "UI-102", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1393,6 +1551,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P10`
 - task_type: `FRONTEND`
 - iteration: `I5`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-504", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1410,6 +1569,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-505`
 - task_type: `FRONTEND`
 - iteration: `I5`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-504", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1425,6 +1585,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P20`
 - task_type: `FRONTEND`
 - iteration: `I5`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-503", "UI-504", "UI-505", "UI-VIS-000", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1442,6 +1603,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P11`
 - task_type: `FRONTEND`
 - iteration: `I5`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-505", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1456,7 +1618,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-frontend-window-i5"></a>
 ##### FRONTEND-WINDOW:I5：验收检查点
 
-本迭代全部任务验收后才进入下一窗口；G4/G5属于跨窗口完整Gate，本窗口不提前关闭。
+I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。
 
 ```json
 {
@@ -1471,10 +1633,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FE:UI-P11",
     "PROVIDER:ALL"
   ],
-  "required_scope": "本迭代全部任务验收后才进入下一窗口；G4/G5属于跨窗口完整Gate，本窗口不提前关闭。",
+  "required_scope": "I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1486,6 +1654,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-506`
 - task_type: `FRONTEND`
 - iteration: `I6`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-505", "UI-507", "BFF-FE-009", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I5"]
 - core_prerequisites: []
 - closes_core: []
@@ -1501,6 +1670,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P22`
 - task_type: `FRONTEND`
 - iteration: `I6`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-506", "UI-VIS-000", "BFF-FE-006", "BFF-FE-007", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-008", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-WINDOW:I5"]
 - core_prerequisites: []
 - closes_core: []
@@ -1515,7 +1685,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-frontend-gate-g5"></a>
 ##### FRONTEND-GATE:G5：验收检查点
 
-按FEP-5全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+按 FEP-5 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
 
 ```json
 {
@@ -1540,10 +1710,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "SERVICE:X06",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按FEP-5全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "required_scope": "按 FEP-5 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1553,6 +1729,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `FEP-5`
 - task_type: `MILESTONE`
 - iteration: `I6`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07", "CORE-GATE:X3-SERVICE", "SERVICE:X06", "UI-507", "UI-P12", "UI-501", "UI-P08", "UI-502", "UI-P09", "UI-503", "UI-504", "UI-P10", "UI-505", "UI-P20", "UI-P11", "UI-506", "UI-P22", "FRONTEND-GATE:G5", "FRONTEND-WINDOW:I5"]
 - core_prerequisites: ["CORE-GATE:X3-SERVICE", "SERVICE:X06"]
 - closes_core: []
@@ -1560,8 +1737,8 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：P08–P12、P20、P22；Portfolio/Risk、Proposal、Trade Ticket、Approval、Order、Reconciliation、Audit
 - 主要后端依赖：CORE-GATE:X3-SERVICE、SERVICE:X06
-- 交付节点与放行条件：G5：七类高风险用例全绿；完整证据链 ≤5 分钟还原；无直连 venue
-- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+- 交付节点与放行条件：G5 功能准入验证七类高风险用例全绿、完整证据链可还原、无直连 venue；≤5 分钟还原在 RELEASE 指定数据规模验收
+- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 #### 迭代 I7：W27–W28
 
@@ -1571,6 +1748,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-402`
 - task_type: `FRONTEND`
 - iteration: `I7`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-401", "UI-505", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
 - core_prerequisites: []
 - closes_core: []
@@ -1586,6 +1764,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P19`
 - task_type: `FRONTEND`
 - iteration: `I7`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-402", "UI-VIS-000", "BFF-FE-005", "BFF-FE-006", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
 - core_prerequisites: []
 - closes_core: []
@@ -1603,6 +1782,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-403`
 - task_type: `FRONTEND`
 - iteration: `I7`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-506", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
 - core_prerequisites: []
 - closes_core: []
@@ -1618,6 +1798,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P21`
 - task_type: `FRONTEND`
 - iteration: `I7`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-403", "UI-VIS-000", "BFF-FE-008", "BFF-FE-009", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-010", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G5"]
 - core_prerequisites: []
 - closes_core: []
@@ -1632,7 +1813,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-frontend-gate-g4"></a>
 ##### FRONTEND-GATE:G4：验收检查点
 
-按FEP-4全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+按 FEP-4 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
 
 ```json
 {
@@ -1648,10 +1829,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "CORE-GATE:X3-SERVICE",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按FEP-4全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "required_scope": "按 FEP-4 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1661,6 +1848,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `FEP-4`
 - task_type: `MILESTONE`
 - iteration: `I7`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P07", "CORE-GATE:X3-SERVICE", "UI-401", "UI-P18", "UI-402", "UI-P19", "UI-403", "UI-P21", "FRONTEND-GATE:G4"]
 - core_prerequisites: ["CORE-GATE:X3-SERVICE"]
 - closes_core: []
@@ -1669,7 +1857,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - 需求描述：P18–P19、P21；市场目录、报价、K 线、订单标记、收益与报表
 - 主要后端依赖：CORE-GATE:X3-SERVICE
 - 交付节点与放行条件：G4：来源/venue/as_of/quality/口径完整；断流不拼接；provisional 正确
-- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 #### 迭代 I8：W29–W30
 
@@ -1679,6 +1867,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-603`
 - task_type: `FRONTEND`
 - iteration: `I8`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-506", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1694,6 +1883,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P23`
 - task_type: `FRONTEND`
 - iteration: `I8`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-603", "UI-VIS-000", "BFF-FE-007", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1711,6 +1901,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-601`
 - task_type: `FRONTEND`
 - iteration: `I8`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-603", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1726,6 +1917,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P13`
 - task_type: `FRONTEND`
 - iteration: `I8`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-601", "UI-VIS-000", "BFF-FE-010", "BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1743,6 +1935,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-602`
 - task_type: `FRONTEND`
 - iteration: `I8`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-601", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1758,6 +1951,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `UI-P14`
 - task_type: `FRONTEND`
 - iteration: `I8`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["UI-602", "UI-VIS-000", "BFF-FE-001", "BFF-FE-010", "BFF-FE-000", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-011", "PROVIDER:ALL", "FRONTEND-GATE:G4"]
 - core_prerequisites: []
 - closes_core: []
@@ -1772,7 +1966,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 <a id="acceptance-frontend-gate-g6"></a>
 ##### FRONTEND-GATE:G6：验收检查点
 
-按FEP-6全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+按 FEP-6 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
 
 ```json
 {
@@ -1789,10 +1983,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "SERVICE:X06",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按FEP-6全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "required_scope": "按 FEP-6 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1802,6 +2002,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `FEP-6`
 - task_type: `MILESTONE`
 - iteration: `I8`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P21", "CORE-GATE:X3-SERVICE", "SERVICE:X06", "UI-603", "UI-P23", "UI-601", "UI-P13", "UI-602", "UI-P14", "FRONTEND-GATE:G6"]
 - core_prerequisites: ["CORE-GATE:X3-SERVICE", "SERVICE:X06"]
 - closes_core: ["CORE:X06"]
@@ -1810,14 +2011,14 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - 需求描述：P13、P14、P23；Operations、Admin、Alerts
 - 主要后端依赖：CORE-GATE:X3-SERVICE、SERVICE:X06
 - 交付节点与放行条件：G6：受控 Runbook、职责分离、Web 通知、权限与离线禁写通过
-- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 #### 迭代 I9：W31–W32
 
 <a id="acceptance-frontend-gate-g7"></a>
 ##### FRONTEND-GATE:G7：验收检查点
 
-按FEP-7全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及关键浏览器回归，汇总所有性能/兼容/视觉基线和待整改项后评估 INTEGRATION 阶段 READY，形成 Beta 功能候选；核心完整功能范围保持独立验证。Beta 正式发布必须另通过 RELEASE-GATE:BETA，不能用功能候选替代性能、长稳、部署或签署。
 
 ```json
 {
@@ -1836,10 +2037,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "FRONTEND-GATE:G5",
     "FRONTEND-GATE:G6"
   ],
-  "required_scope": "按FEP-7全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "required_scope": "G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及关键浏览器回归，汇总所有性能/兼容/视觉基线和待整改项后评估 INTEGRATION 阶段 READY，形成 Beta 功能候选；核心完整功能范围保持独立验证。Beta 正式发布必须另通过 RELEASE-GATE:BETA，不能用功能候选替代性能、长稳、部署或签署。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1849,22 +2056,23 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `FEP-7`
 - task_type: `MILESTONE`
 - iteration: `I9`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "UI-P01", "UI-P02", "UI-P03", "UI-P04", "UI-P05", "UI-P06", "UI-P07", "UI-P08", "UI-P09", "UI-P10", "UI-P11", "UI-P12", "UI-P13", "UI-P14", "UI-P15", "UI-P17", "UI-P18", "UI-P19", "UI-P20", "UI-P21", "UI-P22", "UI-P23", "WEB-101", "CORE-GATE:R1", "CORE-GATE:S2", "CORE-GATE:X3", "CORE:TP01", "FRONTEND-GATE:G7"]
 - core_prerequisites: ["CORE-GATE:R1", "CORE-GATE:S2", "CORE-GATE:X3", "CORE:TP01"]
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
-- 需求描述：全量回归、兼容、性能、可访问性、安全、视觉、故障恢复
+- 需求描述：全业务链功能回归、可访问性与安全、故障恢复；汇总兼容/性能/视觉基线和待优化项，在 RELEASE 完成全量目标验收
 - 主要后端依赖：CORE-GATE:R1、CORE-GATE:S2、CORE-GATE:X3、CORE:TP01
-- 交付节点与放行条件：G7：Paper + Shadow Beta 验收通过，阻断级缺陷为 0
-- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+- 交付节点与放行条件：G7：Paper + Shadow Beta 功能候选通过，功能阻断级缺陷为 0；发布需另通过 RELEASE-GATE:BETA
+- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 #### 迭代 I10：W33–W34
 
 <a id="acceptance-frontend-gate-g8"></a>
 ##### FRONTEND-GATE:G8：验收检查点
 
-按FEP-8全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。
+G8 在 I10 完成获准 testnet 范围内的真实功能联调，验证 UI/API flag 关闭不可达、模式/权限/审批与审计恢复后评估 INTEGRATION 阶段 READY；不启用生产实盘。部署环境、长稳与正式签署转核心 RELEASE-GATE:LIVE-READINESS，testnet 实际运行仍须有效范围授权。
 
 ```json
 {
@@ -1879,10 +2087,16 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
     "PROVIDER:ALL",
     "FE:FEP-7"
   ],
-  "required_scope": "按FEP-8全部原有交付/放行条件、页面标准及第7节完整验收要求关闭；真实staging consumer、权限/实时/审计与目标浏览器E2E必须通过。页面完成后复审closes_core映射的完整核心任务；不将服务Gate当作完整验收。",
+  "required_scope": "G8 在 I10 完成获准 testnet 范围内的真实功能联调，验证 UI/API flag 关闭不可达、模式/权限/审批与审计恢复后评估 INTEGRATION 阶段 READY；不启用生产实盘。部署环境、长稳与正式签署转核心 RELEASE-GATE:LIVE-READINESS，testnet 实际运行仍须有效范围授权。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
-  "evidence": []
+  "evidence": [],
+  "stage_gate": {
+    "stage": "INTEGRATION",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
 }
 ```
 
@@ -1892,6 +2106,7 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - task_id: `FEP-8`
 - task_type: `MILESTONE`
 - iteration: `I10`
+- stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "BFF-FE-001", "BFF-FE-002", "BFF-FE-003", "BFF-FE-004", "BFF-FE-005", "BFF-FE-006", "BFF-FE-007", "BFF-FE-008", "BFF-FE-009", "BFF-FE-010", "BFF-FE-011", "FEP-7", "CORE:L01", "CORE:L02", "SERVICE:L03", "SERVICE:L04", "CORE-GATE:L4-SERVICE", "FRONTEND-GATE:G8"]
 - core_prerequisites: ["CORE:L01", "CORE:L02", "SERVICE:L03", "SERVICE:L04", "CORE-GATE:L4-SERVICE"]
 - closes_core: ["CORE:L03", "CORE:L04"]
@@ -1899,8 +2114,8 @@ A1 开发阶段验证 OpenAPI/生成client、schema、安全负向与本地 prov
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：P10/P11 的 testnet 条件入口、MFA 与双人审批
 - 主要后端依赖：CORE:L01、CORE:L02、SERVICE:L03、SERVICE:L04、CORE-GATE:L4-SERVICE
-- 交付节点与放行条件：G8：flag 关闭时 UI/API 不可达；只形成评审证据，不开启生产实盘
-- 范围说明：本记录位于实际关闭窗口末尾；依赖子任务与对应Gate全部验收后才能关闭。closes_core仅是后续总项复审映射，不作为页面前置。
+- 交付节点与放行条件：G8：获准 testnet 范围内功能联调完成，flag 关闭时 UI/API 不可达；正式准备验收进入核心 RELEASE-GATE:LIVE-READINESS，不开启生产实盘
+- 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 ## 5. 接口对接清单与契约基线
 
@@ -1976,7 +2191,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 - 每项 operation 必须提供：权限/capability、请求/响应示例、字段 required/nullable、枚举、分页/排序、缓存与 `asOf`、错误码、幂等、对象版本、审计、限流、实时恢复和敏感字段说明。
 - 对总开发计划已经存在的服务接口，BFF 只能做授权、裁剪、聚合和页面模型转换，不复制领域规则；风险结论、审批状态、订单事实和账本状态仍由原服务权威产生。
 - 新增页面 API 不得扩展产品范围：不增加 workspace 切换、生产 Assisted Live、Guarded Live、任意 Runbook 命令、手工改账、客户端 command 构造或 venue 直连。
-- BFF 契约未实现时允许同 schema mock；如果契约仍为 Draft、页面使用手写 DTO、provider contract 未通过或 staging 行为与 mock 不一致，对应 `UI-Pxx` 一律不能进入 `Integrated/Done`。
+- BFF 契约未实现时允许同 schema mock；契约为 Draft、页面使用手写 DTO、provider 功能 contract 未通过或真实 BFF 行为与 mock 不一致时，对应 `UI-Pxx` 不能进入 `Integrated`。staging 行为不一致仍阻塞正式 `Done`/发布。
 
 ### 5.7 逐页接口覆盖 Gate
 
@@ -1985,7 +2200,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 1. 页面展示的每个服务端字段都能追溯到 OpenAPI/领域 schema；不存在仅见于设计稿而无契约来源的业务字段。
 2. 页面每个按钮均映射为明确的本地 UI 动作或 BFF command；危险按钮必须有服务端可操作性与版本校验。
 3. 列表、详情、异步任务和实时事件分别有分页、终态、断线恢复和错误契约；不能用轮询/本地状态暗中替代未定义时序。
-4. 默认、加载、空、错误、无权、陈旧、离线和危险确认状态均有 fixture，并至少一次在 staging 用真实 BFF 验证。
+4. 默认、加载、空、错误、无权、陈旧、离线和危险确认状态均有 fixture，功能联调以真实 BFF 验证；RELEASE 在 staging 再验证目标环境行为。
 5. 契约变更报告能从 operationId 反查所有受影响的 `UI-Pxx` 任务和视觉/E2E 基线。
 
 ## 6. 联调与一致性校验机制
@@ -1994,9 +2209,9 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 
 1. **契约设计：** BFF 在实现前提交 OpenAPI/Proto 变更、示例和兼容说明；前端和 QA 在 PR 内评审字段、状态、权限、错误与时序。
 2. **生成与 mock：** CI 生成 TS client、Zod/fixture 类型；MSW 从同一契约提供成功、拒绝、冲突、限流、断流、陈旧与权限场景。
-3. **Provider contract：** 开发阶段运行同源示例、mock 和本地参考 provider 请求/响应校验；A1 的真实 staging consumer/provider 验收在最后评审、转 ACCEPTED 前执行，不作为开发完成或 REVIEW_READY 条件。其他阶段按原 Gate 执行；目标验收不得仅凭 mock 通过。
+3. **Provider contract：** A1–A6 开发阶段验证真实实现、同源 schema/示例、权限/错误/幂等/恢复及 provider harness；mock 或本地参考 adapter 的证据注明其范围，不能证明未实现的真实 provider。I1–I10 验证真实 consumer/provider 功能链；所有 staging 目标环境与签署在 RELEASE、正式 ACCEPTED 前完成。
 4. **功能联调：** 按“单接口 smoke → 页面 query → command → realtime → 审计链 → 故障恢复”的顺序，每个接口记录 owner、环境、版本、证据和遗留项。
-5. **Gate 回归：** 每阶段结束运行该阶段全部场景、全局安全回归和目标浏览器 E2E；契约未通过则阶段不能标为完成。
+5. **Gate 回归：** 按变更和依赖运行对应功能/契约回归、受影响安全场景及基本浏览器 E2E；功能链闭环时运行完整业务旅程。RELEASE 运行全量目标环境/浏览器/性能回归。该阶段必需功能契约失败仍阻塞其准入，不以重跑筛除失败。
 
 ### 6.2 一致性自动校验
 
@@ -2028,80 +2243,93 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 
 ## 7. 测试与验收标准
 
-### 7.1 测试分层
+### 7.1 测试分层与执行阶段
 
-| 层级 | 覆盖要求 | 阻断标准 |
-|---|---|---|
-| 单元 | 领域组件/状态/格式化/权限解释/错误映射/stream reducer；TypeScript 新增领域代码行覆盖率 ≥80%，关键风险状态分支 100% | 任一 P0 状态分支缺失或覆盖率下降则阻断 |
-| 组件 | P01–P15/P17–P23 的默认、加载、空、错误、无权、陈旧、离线、危险确认；Storybook + RTL + axe | 严重/高等级 a11y 问题为 0 |
-| 契约 | OpenAPI schema、错误码、枚举、字段精度、分页、幂等、版本冲突、实时事件 | consumer/provider 任一不一致则阻断联调完成 |
-| 集成 | TanStack Query 缓存/失效、OIDC、MFA、MSW/staging、SSE/WS、平台 adapter | mock 与 staging 行为不同或丢 correlation ID 则阻断 |
-| E2E | 每角色关键 Web 旅程；研究、策略、风险审批、订单、审计、对账、运维 | P0 旅程通过率 100%，不得以重跑掩盖 flaky |
-| 视觉 | 1280/1440 宽屏、768 折叠、390 只读、深浅主题、关键危险状态 | 关键页面无未批准差异；其余像素差异阈值 ≤0.5% |
-| 兼容 | Chromium/Firefox/Safari 当前稳定版；200% 缩放 | P0 功能/布局/键盘任一失败则阻断发布 |
-| 安全 | 越权、IDOR、CSRF/CSP/CORS、XSS、敏感字段、浏览器缓存、离线、依赖与 secret scan | 高危=0；未豁免中危=0；交易边界绕过=0 |
+保留所有测试和验收目标，按变更影响与阶段执行。有意义的功能回归不能因“性能后置”被删除；修复后通过必要检查即可继续实现下一功能，只有新变更、失败或未解决疑点才扩大或重复验证。
 
-### 7.2 必测 E2E 场景
+| 层级 | 覆盖要求 | 开发/功能联调要求 | 发布前要求 |
+|---|---|---|---|
+| 单元 | 领域组件/状态/格式化/权限解释/错误映射/stream reducer；TypeScript 新增领域代码行覆盖率 ≥80%，关键风险状态分支 100% | 受影响代码和 P0 状态分支必须验证，不得用无断言/跳过测试充数；覆盖退化需修复 | 重跑候选相关回归，保留实际覆盖证据 |
+| 组件 | 默认、加载、空、错误、无权、陈旧、离线、危险确认；Storybook + RTL + axe | 所交付组件状态齐全，严重/高等级 a11y 问题为 0 | 覆盖全部 P01–P15/P17–P23 并签署 |
+| 契约 | OpenAPI、错误码、枚举、精度、分页、幂等、冲突、实时事件 | 开发校验 schema/生成/实现；真实 consumer/provider 不一致阻断相关功能联调 | 候选版本与 staging 契约全绿 |
+| 集成 | 缓存/失效、OIDC、MFA、SSE/WS、平台 adapter、真实服务 | 以获准工程环境真实 BFF/服务验证业务链；mock 不替代真实联调，correlation ID 不得丢失 | staging/部署身份、权限、实时与故障行为复验；差异未解决则阻发布 |
+| E2E | 每角色关键 Web 旅程；研究、策略、风险审批、订单、审计、对账、运维 | 逐功能执行基本浏览器回归，链路闭环时 P0 旅程通过率 100%，不得重跑筛除 flaky | 全业务链和目标浏览器完整 E2E 矩阵通过 |
+| 视觉 | 1280/1440、768 折叠、390 只读、深浅主题、危险状态 | 建立 1440 基线，验证安全含义/可读性/关键布局，记录差异 | 关键页面无未批准差异；其余像素差异阈值 ≤0.5%，完成全矩阵和签署 |
+| 兼容 | Chromium/Firefox/Safari 当前稳定版；200% 缩放 | 主要目标浏览器关键功能/键盘及缩放可用，定期扩大采样并记录问题 | 完整矩阵的 P0 功能/布局/键盘任一失败均阻发布 |
+| 安全 | 越权、IDOR、CSRF/CSP/CORS、XSS、敏感字段、缓存、离线、依赖与 secret scan | 对应权限/数据/交易边界绕过为 0，已知相关高危问题先修复再联调；敏感字段扫描和负向测试保留 | 全范围高危=0、未豁免中危=0、交易边界绕过=0，供应链签署 |
+| 性能与运行 | 第 7.4 节全部阈值、容量、恢复、长稳、部署 | 采样诊断与趋势；无界积压、资源耗尽、明显不可用或架构不可行阻塞相关功能 | 在授权目标环境/负载/时长验证全部阈值及发布运维证据 |
+
+### 7.2 必测功能 E2E 场景
+
+以下语义在对应功能开发时实现并回归，跨模块链路在 INTEGRATION 验证；RELEASE 再取得发布候选的完整目标环境证据。
 
 1. 研究员选择可用 DataSnapshot，创建研究，接收流式结果，断线续传，取消并进入 Artifact/Audit；全过程无订单入口。
 2. 量化开发完成草稿、静态检查、固定快照回测、Release 和审批申请；验证失败/未审批/Assisted Live 均不可部署。
 3. 交易员从有效 Proposal 或 Trade Ticket 发起风险评估；分别覆盖 allow、deny、approval-required、过期、重复、数据陈旧、kill switch。
 4. 审批人完成 MFA 与审批；自批、第二人缺失、版本冲突、额度变化、命令过期全部拒绝。
-5. 已批准 command 重复提交 1,000 次仅产生一个命令/订单事实；页面不在 ack 前显示成交。
+5. 已批准 command 重复提交 1,000 次仅产生一个命令/订单事实；这是幂等正确性要求，保留可重放功能测试，页面不在 ack 前显示成交。
 6. 订单部分成交、拒绝、撤单延迟、断流回补；每个 Fill 可追溯 Proposal、RiskDecision、Approval、Command、Release 和 Snapshot。
 7. 对账注入差异后，Orders/Performance/Alerts/Audit 一致显示 provisional/Investigating，且 UI 无改账入口。
 8. 断网后 Web 全部写操作禁用；恢复连接后不自动提交旧意图。
 
 ### 7.3 页面还原度与功能完整性
 
-- P01–P15、P17–P23 页面、路由、角色、主操作、文案、字段和状态与设计规格逐项对照，第一期 Web 需求覆盖率 100%。
-- 关键组件（App Shell、ModeBanner、DataGrid、EvidenceTimeline、RiskDecision、OrderStateMachine、DangerConfirmDialog）视觉基线由设计 owner 签署；关键页面设计验收评分 ≥95/100。
-- 所有金融数值显示币种、精度、时区、`as_of` 与口径；所有证据对象显示 hash/版本/关联 ID。
-- 所有危险动作只有一个明确主按钮，默认不获焦；状态变化来自服务端事实。
+- P01–P15、P17–P23 的页面、路由、角色、主操作、文案、字段和状态逐功能对照设计，功能闭环目标仍为第一期 Web 需求覆盖率 100%；分母按开发、联调、发布验收分别统计。
+- 开发期建立 App Shell、ModeBanner、DataGrid、EvidenceTimeline、RiskDecision、OrderStateMachine、DangerConfirmDialog 的视觉基线与关键状态测试；RELEASE 由设计 owner 签署完整视觉矩阵，关键页面设计验收评分 ≥95/100。
+- 金融数值的币种、精度、时区、`as_of` 与口径，以及证据对象的 hash/版本/关联 ID，属于开发正确性，必须随功能交付。
+- 危险动作只有一个明确主按钮，默认不获焦；状态变化来自服务端事实。不得把安全语义缺陷记作可延期视觉优化。
 
-### 7.4 性能指标
+### 7.4 性能基线与发布验收指标
 
-性能按 staging 生产等价构建、受控网络与固定数据量采集 P75/P95；前端预算不得掩盖《可执行开发计划》的 BFF SLO。
+开发/联调记录下列指标的样本环境、数据量、负载、分位数和缺口，用于发现架构问题及建立优化待办；一般预算不足不阻止继续实现无关功能。功能闭环后，在 staging 生产等价构建、受控网络与固定数据量采集 P75/P95 并完成 RELEASE 验收。原阈值全部保留，前端预算不得掩盖核心计划的 BFF SLO。
 
-| 指标 | 验收门槛 |
-|---|---|
-| 官网 Lighthouse | Performance/Accessibility/SEO/Best Practices 均 ≥90；核心内容 LCP ≤2.5s |
-| Terminal 首次可用 | 典型办公网络冷启动 LCP ≤2.5s，INP ≤200ms，CLS ≤0.1；认证后 App Shell 可交互 ≤3.0s |
-| 路由切换 | 已缓存 shell 下 P95 ≤500ms 出现可用骨架，P95 ≤1.5s 呈现首批有效数据（不含明确异步任务） |
-| 交互响应 | 本地输入/展开/筛选反馈 ≤100ms；大表滚动保持 ≥55 FPS；高风险点击立即进入 pending 防重复提交 |
-| BFF | 同区域授权读 P95 <100ms；风险/组合读模型 P95 <300ms；命令校验 P95 <200ms |
-| 实时 | 已授权事件到 UI P95 ≤5s；研究取消确认 ≤2s；断线恢复后无事件丢失/重复副作用 |
-| Bundle | 每路由设预算并在 G0 基线化；共享首屏 JS 初始建议 gzip ≤250KB，超限必须 ADR 与拆包证据 |
+| 指标 | 发布前验收门槛 | 开发/联调责任 |
+|---|---|---|
+| 官网 Lighthouse | Performance/Accessibility/SEO/Best Practices 均 ≥90；核心内容 LCP ≤2.5s | 建立基线；SEO、隐私和安全功能先实现 |
+| Terminal 首次可用 | 典型办公网络冷启动 LCP ≤2.5s，INP ≤200ms，CLS ≤0.1；认证后 App Shell 可交互 ≤3.0s | 记录构建/设备/网络；明显不可用须排查 |
+| 路由切换 | 已缓存 shell 下 P95 ≤500ms 出现可用骨架，P95 ≤1.5s 呈现首批有效数据（不含明确异步任务） | 实现 loading/error/timeout 语义并采样 |
+| 交互响应 | 本地输入/展开/筛选反馈 ≤100ms；大表滚动保持 ≥55 FPS | 高风险点击立即进入 pending 防重复提交是功能要求，开发时验证；响应/FPS 预算集中优化 |
+| BFF | 同区域授权读 P95 <100ms；风险/组合读模型 P95 <300ms；命令校验 P95 <200ms | 记录连接/SQL/网络耗时；权限、幂等、错误和边界超时先正确 |
+| 实时 | 已授权事件到 UI P95 ≤5s；研究取消确认 ≤2s | 取消/超时/终态/资源释放及断线恢复后无事件丢失/重复副作用随功能验证；端到端时限在联调采样，并于 RELEASE 指定环境验收 |
+| Bundle | 每路由预算在 G0 基线化；共享首屏 JS 初始建议 gzip ≤250KB，发布前超限必须 ADR 与拆包证据 | 记录新增依赖和体积，不因普通超限重复阻塞功能实现 |
 
-### 7.5 阶段完成定义
+处理耗时、源数据年龄、事件到 UI 延迟与异常起点到持久化 ACK 的时限必须分别记录；持续写入、pending=0 或局部处理快速不能替代新鲜度/readiness 结论。R01 已知新鲜度降级和 B01 的 OPEN/PARTIAL 继续保留并限制相应用途；不自动阻塞其他可在契约/受控数据范围内开展的功能。30 分钟运行不证明 24 小时或部署长稳，任何超出现有 1800 秒、两标的、原内部用途的运行都须新范围授权；不得自动延长或复用过期批准。
 
-A1/BFF-FE-000 的 `development_status=COMPLETED` 和 `REVIEW_READY` 依据工程交付与本地验证，真实 staging 不属于此时的完成分母。最后评审在代码和对应 provider 实现就绪后执行 staging 与签署；通过后才能转为正式 `ACCEPTED`。以下 Integrated/Done 与发布条件仍适用。
+### 7.5 完成定义与统计
 
-一个任务只有在代码、单元/组件/契约/E2E、可访问性、文案、观测、文档、联调记录和回滚说明全部完成后才能关闭。使用 mock 完成只可标记 `UI Complete`，只有 staging provider contract、真实权限、实时、错误和审计链通过后才能标记 `Integrated`；所属 Gate 全绿后才是 `Done`。
+| 记录 | 达成条件 | 可以支持的结论 |
+|---|---|---|
+| `development_status=COMPLETED` / `REVIEW_READY` | 代码、契约、基本回归、对应权限/数据/高危交互、观测、文档和回滚方案就绪 | 工程实现完成；包含历史完成事实，不等于新 `stage_gate` 已评估 |
+| `UI Complete` | 页面、状态和同 schema fixture 可运行，组件/契约基本验证通过 | UI 实现完成；真实 BFF/服务联调仍待执行 |
+| `Integrated` | 获准工程环境的真实 provider/consumer、权限、实时、错误、审计链和恢复验证通过 | 功能联调完成；记录真实环境与能力边界，不能改称 staging/发布通过 |
+| `stage_gate=READY` | 节点声明阶段的必要检查通过、全部前置阶段 READY、输入清单摘要和实际证据齐备 | 仅解锁依赖图中的对应阶段功能；RELEASE 还须自身正式 ACCEPTED 与源码 SHA/发布证据 |
+| `Done` / 正式 `ACCEPTED` | 功能完成且适用的 RELEASE 环境、性能、长稳、CI、签署等全部正式要求通过 | 对已验证版本、环境、用途的正式验收；范围外仍未验收 |
+
+A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界。性能/部署等延期项保留 owner、问题、风险、目标环境、执行条件及 RELEASE 入口；不能删除失败事实或从正式验收分母中移除。工程完成率、功能联调完成率、正式发布验收率分别报告。功能已完成但阶段未聚焦评估记 NOT_ASSESSED，不因本文改版自动升级。
 
 ## 8. 风险管控与排期保障
 
 | 风险 | 触发信号 | 影响 | 预案 | Owner |
 |---|---|---|---|---|
-| BFF 接口延期 | 契约未在阶段前一 Sprint 冻结；staging 连续 2 天不可用 | 页面联调与 Gate 延误 | schema-first + MSW；先完成无副作用页面；P0 command 不以 mock 代验收；必要时调整页面顺序而不缩减安全测试 | BFF TL + FE TL |
+| BFF 接口延期 | 功能接口未按前置窗口就绪；staging 连续 2 天不可用 | 前者影响对应功能，后者影响目标环境验收 | schema-first + MSW 支持开发；真实功能联调用获准工程环境，staging 缺口列入 RELEASE；P0 command 不以 mock 代验收 | BFF TL + FE TL |
 | 契约/字段频繁变更 | 一周内 breaking diff >1 次 | client/表单/测试返工 | 版本化 OpenAPI、兼容窗口、consumer contract、变更冻结日；breaking 必须 ADR | Architect |
 | 设计变更 | 已开发页面结构/安全文案变化 | 视觉和交互返工 | token/组件优先；设计在 Sprint 前签署；安全含义变更需产品+风控复审 | Product + Design |
 | 设计稿状态不全 | 缺错误/无权/陈旧/离线稿 | 边界状态临时发挥 | G0 必须补齐七态；未补齐页面不进 Sprint | Design owner |
 | 实时链路不稳定 | 断线、重复、乱序、quota >70% | 状态错乱、重复提示 | cursor 回补、eventId 去重、轮询降级、只读降级；事实始终回查 BFF | BFF + FE |
 | 权限/交易边界缺陷 | UI 可见越权数据或可绕过 Risk | 高危安全风险 | 默认拒绝、服务端权威、七类 E2E、IDOR/缓存扫描；立即阻断发布 | Security + Risk |
 | 图表/大表性能 | 10k+ 行或高频 candle 卡顿 | 专业使用不可用 | 虚拟化、服务端聚合、增量更新、路由拆包；阶段内做性能基线 | FE Performance owner |
-| 第三方/许可问题 | CVE、许可证或上游 breaking | 构建/发布阻断 | 锁版本、SBOM、许可 Gate、adapter 隔离和替代方案；不让上游类型进入 UI | Supply-chain owner |
-| 跨浏览器 CI 晚暴露 | Firefox/WebKit 失败 | Beta 延期 | 从 FEP-1 起每 PR 跑 Chromium，夜间跑浏览器矩阵；每阶段至少一次完整矩阵 | QA |
+| 第三方/许可问题 | CVE、许可证或上游 breaking | 影响获准用途下的开发/运行或正式发布 | 锁版本、SBOM、adapter 隔离；实际使用始终需要有效批准，商业/再分发/部署用途的许可在 RELEASE 验收，不由工程功能通过自动扩大 | Supply-chain owner |
+| 跨浏览器 CI 晚暴露 | Firefox/WebKit 失败 | 对应功能或 Beta 延期 | 从 FEP-1 起每 PR 跑基本 Chromium，定期采样其他目标浏览器；完整矩阵及远程同 SHA CI 在 RELEASE 收口，关键功能缺陷发现即修复 | QA |
 | 人员/估算偏差 | Sprint burn-up 偏差 >20% | 里程碑滑动 | P0/P1 分层；锁定安全与契约任务，不删测试；官网/P1 报表或平台增强可后移 | PM + FE TL |
 
 ### 8.1 排期控制规则
 
-本节 DoR 为最低要求；本轮新增页面还必须满足第 4 节全量 API 前置准入，不能仅凭 Reviewed/Mocked 开始。
+本节 DoR 为最低要求；新增页面仍须满足第 4 节全量 API 的 DEVELOPMENT 阶段准入，不能仅凭 Reviewed/Mocked 开始，也不要求先取得发布验收。
 
-- 每个阶段开始前满足 DoR：设计七态齐全、契约 Reviewed/Mocked、依赖后端 Gate 明确、验收 fixture 可用、owner 与估算已确认。
-- Sprint 预留 20% 容量处理联调、可访问性、性能与缺陷；不得把这些工作推迟到最后一周。
+- 每个阶段开始前满足 DoR：设计七态齐全、契约 Reviewed/Mocked、所需依赖的 stage_gate READY、fixture 可用、owner 与估算已确认；真实使用和联调须处于有效环境/用途授权内。
+- Sprint 预留 20% 容量处理功能联调、可访问性、安全/数据缺陷与性能诊断；一般性能优化集中安排在功能闭环后的 RELEASE 窗口，发现无界积压/资源耗尽或明显不可用时及时修复。
 - 阻塞超过 1 个工作日升级给 BFF/产品 owner；超过 2 个工作日由 PM 调整依赖顺序；不得通过硬编码返回值绕过。
-- 每周发布集成环境候选；阶段中点做一次真实 BFF smoke，阶段末做 Gate，不把所有联调集中到最后。
+- 每周准备功能集成候选，获准工程环境可用时做真实 BFF smoke，窗口末做对应功能 Gate；环境缺失登记影响范围并推进独立功能。发布部署演练、完整同 SHA CI、性能和长稳统一由 RELEASE 收口。
 - P0 阻断缺陷（交易边界、越权、数据/模式混淆、证据丢失、重复命令）为 0；P1 缺陷必须有 owner、修复版本和风险接受记录。
 
 ## 9. 执行看板与责任分工
@@ -2116,9 +2344,9 @@ A1/BFF-FE-000 的 `development_status=COMPLETED` 和 `REVIEW_READY` 依据工程
 | Risk/Compliance | Proposal/Risk/Approval/Command 时序、模式/限额/kill switch、审计与导出 |
 | SRE | staging、观测、性能采样、故障注入、Runbook 与发布回滚 |
 
-每个看板任务首先包含 `task_id`、`task_type`、`iteration`、`depends_on`、`development_status`、`workflow`；一期前端任务不携带指定模型复审字段，工程审计通过报告及证据链接追踪。页面交付看板还必须包含：`页面 ID`、`前端任务 ID`、`契约 ID`、`后端计划 ID`、`风险级别`、`设计链接`、`测试用例`、`owner`、`依赖`、`目标 Sprint`、`契约状态`、`联调状态`、`Gate 证据`。
+每个看板任务首先包含 `task_id`、`task_type`、`iteration`、`depends_on`、`development_status`、`workflow`、`stage_gate`；一期前端任务不携带指定模型复审字段，工程审计通过报告及证据链接追踪。页面交付看板还必须包含：`页面 ID`、`前端任务 ID`、`契约 ID`、`后端计划 ID`、`风险级别`、`设计链接`、`测试用例`、`owner`、`依赖`、`目标 Sprint`、`契约状态`、`联调状态`、`Gate 证据`。
 
-## 10. 最终发布检查表
+## 10. RELEASE 发布前验收与检查表
 
 - [ ] 官网首期页面与 Web Terminal P01–P15、P17–P23 的范围、角色、路由和七态全部交付。
 - [ ] OpenAPI/Proto/JSON Schema/TS client 无未解释 diff，provider/consumer contract 全绿。
@@ -2129,3 +2357,37 @@ A1/BFF-FE-000 的 `development_status=COMPLETED` 和 `REVIEW_READY` 依据工程
 - [ ] 每笔抽样订单可在 5 分钟内还原完整证据链；每个错误可凭 correlation ID 定位。
 - [ ] Paper/Shadow 清晰区分；M5 flag 关闭时 Assisted Live UI/API 100% 不可达；Guarded Live 不存在。
 - [ ] Web 发布、灰度、回滚、告警与 Runbook 均已演练并归档。
+
+
+<a id="acceptance-release-gate-beta"></a>
+### RELEASE-GATE:BETA：Paper/Shadow 正式发布验收检查点
+
+在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/联合签署；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。
+
+```json
+{
+  "checkpoint_id": "RELEASE-GATE:BETA",
+  "acceptance_window": "RELEASE-BETA",
+  "depends_on": [
+    "CORE-GATE:R1",
+    "CORE-GATE:S2",
+    "CORE-GATE:X3",
+    "FE:FEP-7",
+    "PROVIDER:ALL"
+  ],
+  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/联合签署；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。",
+  "review_status": "NOT_STARTED",
+  "source_commit": null,
+  "evidence": [],
+  "stage_gate": {
+    "stage": "RELEASE",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  }
+}
+```
+
+本检查点在功能候选后独立执行，不为 I1–I10 新增反向依赖。每项延期工作须落实 owner、缺口、环境/负载/时长、运行授权及验收命令，满足条件后一次集中优化和验证；不因暂缺部署环境反复重跑短窗口。采用空的新证据目录与具名 actor，提前退出保留失败、结束停止本次进程并停用 actor，保留既有 Supabase 不可变事实。
+
+testnet/Live 准备的部署与正式运行范围另见[核心 RELEASE-GATE:LIVE-READINESS](./SumAlpha-QuantOS-Development-Plan.md#acceptance-release-gate-live-readiness)。该检查点不授权生产 Assisted Live 或 Guarded Live。

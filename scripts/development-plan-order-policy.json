@@ -23,7 +23,9 @@
     "I9",
     "L4-SERVICE",
     "I10",
-    "L4-TOTAL"
+    "L4-TOTAL",
+    "RELEASE-BETA",
+    "RELEASE-LIVE"
   ],
   "coreWindows": {
     "F01": "F0",
@@ -358,7 +360,9 @@
     "FRONTEND-GATE:G4": "I7",
     "FRONTEND-GATE:G6": "I8",
     "FRONTEND-GATE:G7": "I9",
-    "FRONTEND-GATE:G8": "I10"
+    "FRONTEND-GATE:G8": "I10",
+    "RELEASE-GATE:BETA": "RELEASE-BETA",
+    "RELEASE-GATE:LIVE-READINESS": "RELEASE-LIVE"
   },
   "checkpointDeps": {
     "CORE-GATE:F0": [
@@ -678,6 +682,18 @@
       "CORE-GATE:L4-SERVICE",
       "PROVIDER:ALL",
       "FE:FEP-7"
+    ],
+    "RELEASE-GATE:BETA": [
+      "CORE-GATE:R1",
+      "CORE-GATE:S2",
+      "CORE-GATE:X3",
+      "FE:FEP-7",
+      "PROVIDER:ALL"
+    ],
+    "RELEASE-GATE:LIVE-READINESS": [
+      "RELEASE-GATE:BETA",
+      "CORE-GATE:L4",
+      "FE:FEP-8"
     ]
   },
   "frontendCorePrerequisites": {
@@ -927,7 +943,7 @@
     "FEP-7": [],
     "FEP-8": []
   },
-  "schema": "quantos-plan-order/v1",
+  "schema": "quantos-plan-order/v2",
   "frontendAdmissions": {
     "PRE-01": [],
     "PRE-02": [],
@@ -1191,5 +1207,55 @@
     "FEP-8": [
       "FRONTEND-GATE:G8"
     ]
+  },
+  "stageContract": {
+    "schema": "quantos-plan-stages/v1",
+    "dependency_basis": "stage_gate",
+    "early_required": [
+      "contracts",
+      "data-integrity",
+      "authorization",
+      "idempotency-recovery",
+      "deadline-semantics"
+    ],
+    "release_required": [
+      "performance",
+      "soak",
+      "deployment",
+      "same-sha-ci",
+      "release-authorization"
+    ],
+    "release_checkpoints": [
+      "RELEASE-GATE:BETA",
+      "RELEASE-GATE:LIVE-READINESS"
+    ]
+  },
+  "windowStages": {
+    "F0": "DEVELOPMENT",
+    "P0": "DEVELOPMENT",
+    "R1-SERVICE": "DEVELOPMENT",
+    "TP01-SERVICE": "DEVELOPMENT",
+    "S2-SERVICE": "DEVELOPMENT",
+    "X3-SERVICE": "DEVELOPMENT",
+    "A1": "DEVELOPMENT",
+    "A2": "DEVELOPMENT",
+    "A3": "DEVELOPMENT",
+    "A4": "DEVELOPMENT",
+    "A5": "DEVELOPMENT",
+    "A6": "DEVELOPMENT",
+    "I1": "INTEGRATION",
+    "I2": "INTEGRATION",
+    "I3": "INTEGRATION",
+    "I4": "INTEGRATION",
+    "I5": "INTEGRATION",
+    "I6": "INTEGRATION",
+    "I7": "INTEGRATION",
+    "I8": "INTEGRATION",
+    "I9": "INTEGRATION",
+    "L4-SERVICE": "DEVELOPMENT",
+    "I10": "INTEGRATION",
+    "L4-TOTAL": "INTEGRATION",
+    "RELEASE-BETA": "RELEASE",
+    "RELEASE-LIVE": "RELEASE"
   }
 }

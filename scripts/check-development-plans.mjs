@@ -112,7 +112,7 @@ function parseTasks(text, expected, freshReview, reviewRequired = true) {
       assert(!body.includes(`<a id="review-${id.toLowerCase()}">`), `${id}: stale Web review anchor`);
       Object.assign(fields, { review_status: "NOT_STARTED", review_conclusion: "null", issues: "[]", fix_tracking: "[]" });
     }
-    for (const key of ["task_id", "task_type", "development_status", "review_status", "review_conclusion", "issues", "fix_tracking", "depends_on", ...(reviewRequired ? ["review_entry", "review_model"] : [])]) {
+    for (const key of ["task_id", "task_type", "development_status", "stage_gate", "review_status", "review_conclusion", "issues", "fix_tracking", "depends_on", ...(reviewRequired ? ["review_entry", "review_model"] : [])]) {
       assert(key in fields, `${id ?? marker[1]}: missing ${key}`);
     }
     assert.equal(marker[1], id.toLowerCase(), `${id}: task anchor mismatch`);
@@ -144,6 +144,7 @@ function parseTasks(text, expected, freshReview, reviewRequired = true) {
         assert.equal(fields.fix_tracking.filter((fix) => fix.issue_id === issue.issue_id).at(-1)?.verification_status, "PASS", `${id}: accepted issue lacks passing validation`);
       }
     }
+    fields.stage_gate = JSON.parse(fields.stage_gate);
     fields.depends_on = JSON.parse(fields.depends_on);
     assert(Array.isArray(fields.depends_on) && fields.depends_on.every((dep) => typeof dep === "string"), `${id}: depends_on must be a string array`);
     if (fields.task_type === "CORE") {
