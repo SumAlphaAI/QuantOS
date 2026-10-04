@@ -40,6 +40,12 @@ export function inventory(selectors,base=root) {
  for(const selector of selectors)assert(paths.some(p=>matches(p,selector)),`missing required input selector ${selector}`);
  return paths.map(path=>({path,role:path.startsWith('bff/')||path.startsWith('proto/')?'contract':/test|fixture|negative|mutation/.test(path)?'test':/\.(json|ya?ml|toml)$|lock$|Makefile|nvmrc/.test(path)?'config':'code',sha256:digest(readFileSync(confined(path,base)))}));
 }
+export function captureInputs(nodes,selected,p=policy(),base=root) {
+ return new Map(selected.map(id=>[id,{planInput:planInput(nodes.get(id)),inputs:inventory([...p.commonInputs,...p.nodes[id].inputs],base)}]));
+}
+export function assertInputSnapshot(before,after) {
+ assert.deepEqual(after,before,'functional inputs changed during execution; rerun on committed source');
+}
 export function policy(base=root){return JSON.parse(readFileSync(resolve(base,'scripts/provider-a1-policy.json'),'utf8'));}
 export function validateReceipt(id,{nodes=nodesFromPlans(),base=root,record,visited=new Set(),requireReady=true}={}) {
  if(visited.has(id))return;visited.add(id);
@@ -67,7 +73,7 @@ export function publishStages(text,nodes,namespace) {
 }
 export function assess() {
  assert.equal(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim(),'','commit source before recording functional execution');
- const texts=planPaths.map(p=>readFileSync(resolve(root,p),'utf8'));const nodes=nodesFromPlans(texts);const selected=closure(nodes);const p=policy();const out=resolve(root,directory);mkdirSync(resolve(out,'logs'),{recursive:true});
+ const texts=planPaths.map(p=>readFileSync(resolve(root,p),'utf8'));const nodes=nodesFromPlans(texts);const selected=closure(nodes);const p=policy();const initialInputs=captureInputs(nodes,selected,p);const out=resolve(root,directory);mkdirSync(resolve(out,'logs'),{recursive:true});
  const source=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();const environment={node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),rust:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim(),platform:process.platform};
  const all=[...new Set(selected.flatMap(id=>p.nodes[id].checks))].sort((a,b)=>Number(Boolean(p.checks[b].target))-Number(Boolean(p.checks[a].target)));const results=new Map();
  for(const id of all){const spec=p.checks[id];const env={...process.env,QUANTOS_CLIENT_PROFILE:'mock',QUANTOS_SKIP_ENV:'1',QUANTOS_RUN_F09_POSTGRES_TESTS:'0'};let external;
@@ -82,7 +88,9 @@ export function assess() {
   if(spec.database)result.target='configured-supabase';if(external){if(run.status!==0){const failed=resolve(out,'failed-f06-target');mkdirSync(failed,{recursive:true});for(const name of ['target-results.json','build.log','preflight.log','auth-bff.log','auth-runtime.log','execution.log','vault.log','database.log'])if(existsSync(resolve(external,name)))cpSync(resolve(external,name),resolve(failed,name));}rmSync(external,{recursive:true,force:true});}results.set(id,result);writeFileSync(resolve(out,'execution-results.json'),JSON.stringify([...results.values()],null,2)+'\n');console.log(id,run.status);
   assert.equal(run.status,0,`functional execution failed ${id}; see ${log}`);
  }
- for(const id of selected){const n=nodes.get(id);const spec=p.nodes[id];const m={schema:'quantos-stage-functional-manifest/v1',nodeId:id,stage:'DEVELOPMENT',status:'PASS',scope:spec.scope,formalAccepted:false,observedSourceCommit:source,environment,planInput:planInput(n),inputs:inventory([...p.commonInputs,...spec.inputs]),checks:spec.checks.map(c=>results.get(c)),dependencies:n.dependencies.map(dep=>({nodeId:dep,inputDigest:nodes.get(dep).stage_gate.input_digest,manifest:'docs/'+nodes.get(dep).stage_gate.evidence[0]})),excluded:p.excluded,residuals:[]};const path=directory+'/'+id.toLowerCase().replaceAll(':','-')+'.json';const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,path),bytes);n.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(bytes),evidence:[path.slice(5)]};validateReceipt(id,{nodes});}
+ const currentNodes=nodesFromPlans();assertInputSnapshot(initialInputs,captureInputs(currentNodes,selected,policy()));
+ assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),source,'source commit changed during execution');
+ for(const id of selected){const n=nodes.get(id);const spec=p.nodes[id];const m={schema:'quantos-stage-functional-manifest/v1',nodeId:id,stage:'DEVELOPMENT',status:'PASS',scope:spec.scope,formalAccepted:false,observedSourceCommit:source,environment,planInput:initialInputs.get(id).planInput,inputs:initialInputs.get(id).inputs,checks:spec.checks.map(c=>results.get(c)),dependencies:n.dependencies.map(dep=>({nodeId:dep,inputDigest:nodes.get(dep).stage_gate.input_digest,manifest:'docs/'+nodes.get(dep).stage_gate.evidence[0]})),excluded:p.excluded,residuals:[]};const path=directory+'/'+id.toLowerCase().replaceAll(':','-')+'.json';const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,path),bytes);n.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(bytes),evidence:[path.slice(5)]};validateReceipt(id,{nodes});}
  const admitted=new Map(selected.map(id=>[id,nodes.get(id)]));const updated=[publishStages(texts[0],admitted,'CORE:'),publishStages(texts[1],admitted,'FE:')];validatePlans(...updated);for(let i=0;i<2;i++)writeFileSync(resolve(root,planPaths[i]),updated[i]);
  console.log(JSON.stringify(validateReceipt('PROVIDER:A1',{nodes}),null,2));
 }

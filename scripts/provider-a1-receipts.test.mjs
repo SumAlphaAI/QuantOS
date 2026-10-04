@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 import {gzipSync} from 'node:zlib';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {validateReceipt,digest,directory,inventory,planInput} from './provider-a1-receipts.mjs';
+import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot} from './provider-a1-receipts.mjs';
 function fixture(fn){const base=mkdtempSync(resolve(tmpdir(),'quantos-stage-receipt-'));try{
  execFileSync('git',['init','-q'],{cwd:base});mkdirSync(resolve(base,'scripts'));mkdirSync(resolve(base,directory,'logs'),{recursive:true});writeFileSync(resolve(base,'code.ts'),'trusted code');
  const spec={scope:'implemented functionality only',inputs:['code.ts'],checks:['actual']};const p={commonInputs:['scripts/provider-a1-policy.json'],excluded:['release'],nodes:{child:spec,parent:spec},checks:{actual:{command:['node','run.mjs'],marker:'ACTUAL_PASS'}}};writeFileSync(resolve(base,'scripts/provider-a1-policy.json'),JSON.stringify(p));const nodes=new Map([['child',{id:'child',dependencies:[]}],['parent',{id:'parent',dependencies:['child']}]]);
@@ -33,4 +33,13 @@ test('Supabase target receipt verifies each compressed execution log',()=>fixtur
  const m=f.read('parent');m.inputs=inventory([...p.commonInputs,...p.nodes.parent.inputs],f.base);
  const receipt={schema:'quantos-f06-target-acceptance/v2',status:'PASS',targetClass:'configured-test-supabase-local-services',sourceCommit:m.observedSourceCommit,failures:[],realOidcBff:{status:'PASS'},executionRoleAndVault:{status:'PASS'},denialMatrix:{status:'PASS'},evidence:['build','preflight','auth-bff','auth-runtime','execution','vault','database'].map(name=>({name,exit_code:0,logGzipBase64:gzipSync('executed').toString('base64'),logSha256:createHash('sha256').update('executed').digest('hex')}))};receipt.evidence[0].logSha256='0'.repeat(64);
  const target=directory+'/target.json';writeFileSync(resolve(f.base,target),JSON.stringify(receipt));Object.assign(m.checks[0],{target:'configured-supabase',targetEvidence:target,targetEvidenceSha256:digest(readFileSync(resolve(f.base,target)))});f.store('parent',m);assert.throws(f.validate,/target execution log digest mismatch/);
+}));
+
+test('source drift during execution invalidates the original input snapshot',()=>fixture(f=>{
+ const p=JSON.parse(readFileSync(resolve(f.base,'scripts/provider-a1-policy.json')));const before=captureInputs(f.nodes,['child','parent'],p,f.base);
+ writeFileSync(resolve(f.base,'code.ts'),'changed while checks ran');assert.throws(()=>assertInputSnapshot(before,captureInputs(f.nodes,['child','parent'],p,f.base)),/changed during execution/);
+}));
+test('requirement drift during execution invalidates the original input snapshot',()=>fixture(f=>{
+ const p=JSON.parse(readFileSync(resolve(f.base,'scripts/provider-a1-policy.json')));const before=captureInputs(f.nodes,['child','parent'],p,f.base);
+ f.nodes.get('child').requirements=['new acceptance scope'];assert.throws(()=>assertInputSnapshot(before,captureInputs(f.nodes,['child','parent'],p,f.base)),/changed during execution/);
 }));
