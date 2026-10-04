@@ -9,7 +9,7 @@ const directory=resolve(output);if(directory===root||directory.startsWith(root+'
 const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 if(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim())throw Error('commit the source before target acceptance');
 process.loadEnvFile(resolve(root,'.env.local'));
-const env={...process.env,QUANTOS_F06_ISOLATED_PROJECT:'1',QUANTOS_F06_TARGET_ISOLATED:'1',QUANTOS_F06_ALLOW_TEMP_ADMIN_STORAGE_KEY:'1',QUANTOS_RUN_F06_POSTGRES_TESTS:'1',QUANTOS_RUN_F06_BFF_LOGIN_TESTS:'1'};
+const env={...process.env,QUANTOS_F06_ISOLATED_PROJECT:'1',QUANTOS_F06_TARGET_ISOLATED:'1',QUANTOS_F06_ALLOW_TEMP_ADMIN_STORAGE_KEY:'1',QUANTOS_RUN_F06_POSTGRES_TESTS:'1',QUANTOS_RUN_F06_BFF_LOGIN_TESTS:'1',QUANTOS_F06_HTTP_TIMEOUT_MS:'60000'};
 // Operator fixture connections also verify the configured CA and hostname.
 // This changes only the execution environment, never the saved credentials.
 const operator=new URL(env.DATABASE_URL);
@@ -28,5 +28,5 @@ for(const [name,command] of commands){
  const bytes=Buffer.from(log);writeFileSync(resolve(directory,name+'.log'),bytes);results.push({name,command,exit_code:run.status,logSha256:createHash('sha256').update(bytes).digest('hex'),logGzipBase64:gzipSync(bytes).toString('base64')});
  writeFileSync(resolve(directory,'target-results.json'),JSON.stringify({sourceCommit,results},null,2)+'\n');console.log(name,run.status);if(run.status!==0)process.exit(1);
 }
-const receipt={schema:'quantos-f06-target-acceptance/v2',sourceCommit,status:'PASS',failures:[],targetClass:'configured-test-supabase-local-services',realOidcBff:{status:'PASS',checks:['real Auth/BFF','real Auth/BFF/Runtime']},executionRoleAndVault:{status:'PASS',checks:['six paper scenarios','eight role denials']},denialMatrix:{status:'PASS',checks:['eight actual PostgreSQL tests including four-category denials']},evidence:results,notes:['No local database; existing configured Supabase test project; no provision/schema reset/migration.','Runtime temporary admin Storage key is confined to the existing identity smoke; no Storage operation.','Excluded developer latency diagnostic remains NOT RUN.']};
+const receipt={schema:'quantos-f06-target-acceptance/v2',sourceCommit,status:'PASS',failures:[],targetClass:'configured-test-supabase-local-services',realOidcBff:{status:'PASS',checks:['real Auth/BFF','real Auth/BFF/Runtime']},executionRoleAndVault:{status:'PASS',checks:['six paper scenarios','eight role denials']},denialMatrix:{status:'PASS',checks:['eight actual PostgreSQL tests including four-category denials']},evidence:results,notes:['No local database; existing configured Supabase test project; no provision/schema reset/migration.','Runtime temporary admin Storage key is confined to the existing identity smoke; no Storage operation.','Remote DEVELOPMENT HTTP probes have a bounded 60s transport budget and report elapsed times; this is not latency acceptance.','Excluded developer latency diagnostic remains NOT RUN.']};
 writeFileSync(resolve(directory,'f06-receipt.json'),JSON.stringify(receipt,null,2)+'\n');

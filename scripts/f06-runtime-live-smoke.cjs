@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client } = require('pg');
 
+const httpTimeoutMs = require('./lib/f06-http-budget.cjs')();
 const assert = (condition, message) => { if (!condition) throw Error(message); };
 const origin = 'https://f06-runtime-local-smoke.invalid';
 let diagnosticPhase = 'configuration';
@@ -84,7 +85,7 @@ async function main() {
     headers: { apikey: process.env.SUPABASE_PUBLISHABLE_KEY, 'content-type': 'application/json' },
     body: JSON.stringify({ email: process.env.QUANTOS_F06_TEST_EMAIL,
       password: process.env.QUANTOS_F06_TEST_PASSWORD }),
-    signal: AbortSignal.timeout(10000),
+    signal: AbortSignal.timeout(httpTimeoutMs),
   });
   assert(login.ok, `Supabase login returned HTTP ${login.status}`);
   const token = (await login.json()).access_token;
@@ -100,10 +101,12 @@ async function main() {
     diagnosticPhase = 'bff-startup';
     await ready(bff, '/v1/session', 401);
     diagnosticPhase = 'bff-session-establish';
+    const handshakeStarted = Date.now();
     const established = await fetch(`${bff.base}/v1/auth/session`, {
       method: 'POST', headers: { origin, authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(httpTimeoutMs),
     });
+    const handshakeElapsedMs = Date.now() - handshakeStarted;
     assert(established.status === 204, `BFF did not establish the real Auth session (HTTP ${established.status}; ${bff.diagnostic()})`);
     const cookie = established.headers.getSetCookie().map(value=>value.split(';')[0]).join('; ');
     const csrf = /(?:^|; )quantos_csrf=([^;]+)/.exec(cookie)?.[1];
@@ -118,7 +121,7 @@ async function main() {
     await ready(runtime, '/healthz', 204);
     const runPath = `/v1/runtime/runs/${crypto.randomUUID()}`;
     const request = (route, options = {}) => fetch(`${runtime.base}${route}`, {
-      ...options, signal: AbortSignal.timeout(15000),
+      ...options, signal: AbortSignal.timeout(httpTimeoutMs),
     });
     diagnosticPhase = 'runtime-missing-cookie';
     const missing = await request(runPath);
@@ -140,13 +143,13 @@ async function main() {
     assert(deniedRole.status === 403, 'non-owner Runtime identity registered a tool');
     diagnosticPhase = 'bff-logout';
     const logout = await fetch(`${bff.base}/v1/auth/logout`, {
-      method: 'POST', headers: { origin, cookie, 'x-csrf-token': csrf }, signal: AbortSignal.timeout(15000),
+      method: 'POST', headers: { origin, cookie, 'x-csrf-token': csrf }, signal: AbortSignal.timeout(httpTimeoutMs),
     });
     assert(logout.status === 204, 'BFF logout failed');
     diagnosticPhase = 'runtime-revocation-read';
     const revoked = await request(runPath, { headers: { cookie } });
     assert(revoked.status === 401, 'Runtime accepted a revoked BFF cookie');
-    console.log(JSON.stringify({ status: 'PASS', target: 'isolated_supabase_local_runtime',
+    console.log(JSON.stringify({ status: 'PASS', httpTimeoutMs, handshakeElapsedMs, target: 'isolated_supabase_local_runtime',
       realSupabaseAuth: true, independentBffAndRuntimeLogins: true,
       temporaryAdminStorageKey: true, storageOperationPerformed: false,
       startupPhases: runtime.startupPhases(),

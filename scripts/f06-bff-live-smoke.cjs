@@ -2,6 +2,8 @@ const { spawn } = require('node:child_process');
 const crypto = require('node:crypto');
 const path = require('node:path');
 
+const httpTimeoutMs = require('./lib/f06-http-budget.cjs')();
+const requestTimings = [];
 const assert = (condition, message) => { if (!condition) throw Error(message); };
 const origin = 'https://f06-local-smoke.invalid';
 
@@ -16,7 +18,7 @@ async function main() {
     headers: { apikey: process.env.SUPABASE_PUBLISHABLE_KEY, 'content-type': 'application/json' },
     body: JSON.stringify({ email: process.env.QUANTOS_F06_TEST_EMAIL,
       password: process.env.QUANTOS_F06_TEST_PASSWORD }),
-    signal: AbortSignal.timeout(10000),
+    signal: AbortSignal.timeout(httpTimeoutMs),
   });
   assert(auth.ok, `Supabase test login returned HTTP ${auth.status}`);
   const token = (await auth.json()).access_token;
@@ -42,9 +44,14 @@ async function main() {
       await new Promise(resolve => setTimeout(resolve, 200));
     }
     assert(ready, `live BFF did not start (${child.exitCode === null ? 'timeout' : 'exited'})`);
-    const request = (route, options = {}) => fetch(`${base}${route}`, {
-      ...options, signal: AbortSignal.timeout(15000),
-    });
+    const request = async (route, options = {}) => {
+      const started = Date.now();
+      try {
+        const response = await fetch(`${base}${route}`, { ...options, signal: AbortSignal.timeout(httpTimeoutMs) });
+        requestTimings.push({ route, method: options.method || 'GET', status: response.status, elapsedMs: Date.now() - started });
+        return response;
+      } catch (error) { throw Error(`${options.method || 'GET'} ${route} failed after ${Date.now() - started}ms: ${error.message}`); }
+    };
     const missing = await request('/v1/session');
     assert(missing.status === 401, 'missing cookie was not rejected');
     const wrongOrigin = await request('/v1/auth/session', { method: 'POST',
@@ -89,7 +96,7 @@ async function main() {
     assert(/Max-Age=0(?:;|$)/i.test(revoked.headers.get('set-cookie') || ''), 'logout did not clear the cookie');
     const afterRevoke = await request('/v1/session', { headers: { cookie } });
     assert(afterRevoke.status === 401, 'revoked session remained valid');
-    console.log(JSON.stringify({ status: 'PASS', originKind: 'synthetic_http_smoke',
+    console.log(JSON.stringify({ status: 'PASS', httpTimeoutMs, requestTimings, originKind: 'synthetic_http_smoke',
       realSupabaseAuth: true, independentBffLogin: true, verifiedSubject: true,
       cookiePolicy: 'Secure; HttpOnly; SameSite=Strict', tokenBoundExpiry: true,
       httpStatuses: { missingCookie: missing.status, foreignOrigin: wrongOrigin.status,
