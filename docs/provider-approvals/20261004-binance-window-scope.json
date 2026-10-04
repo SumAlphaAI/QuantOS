@@ -1,0 +1,39 @@
+{
+  "schema": "quantos-binance-evaluation-scope/v1",
+  "scope_id": "r01-20261004-30m-internal",
+  "provider": "binance.spot.aggtrades",
+  "approval_version": "v2-window-30m",
+  "approval_reference": "docs/provider-approvals/20261004-binance-window-evaluation.md",
+  "approval_file": "docs/provider-approvals/20261004-binance-window-evaluation.json",
+  "enabled": true,
+  "expires_at": "2026-10-10T00:00:00Z",
+  "purpose": "internal-engineering-evaluation",
+  "environment": "foreground-existing-supabase",
+  "endpoint": "https://data-api.binance.vision/",
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT"
+  ],
+  "runtime_seconds": 1800,
+  "sample_seconds": 15,
+  "poll_ms": 1000,
+  "worker_iterations": 100,
+  "max_source_ticks": 200000,
+  "max_events": 500000,
+  "permissions": [
+    "public-market-read",
+    "append-market-facts",
+    "dispatch-market-facts"
+  ],
+  "forbidden_uses": [
+    "trading",
+    "withdrawals",
+    "customer-display",
+    "redistribution",
+    "commercial-use",
+    "permanent-production"
+  ],
+  "actor_lifecycle": "create-owned-service-actor-and-deactivate-on-exit",
+  "retention": "retain-immutable-evaluation-facts-in-existing-supabase",
+  "authorization_evidence": "User: 继续执行：扩大运行窗口，明确授权范围，生成独立 Git 提交; duration reply: 30 分钟（建议，完成后提交）"
+}

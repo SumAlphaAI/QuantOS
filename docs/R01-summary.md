@@ -22,3 +22,7 @@ B01 的 native adapter/真实来源执行缺口已补齐；正式五秒异常 SL
 ## 持续运行与异常验证
 
 新增独立监督进程，持久游标接续、正常轮换、限流退避、人工处理退出码 78、审批撤销停止、独立监控/告警、健康文件和日志轮转均已实现。Supabase fixture 12/12、真实 Binance 进程故障 3/3 通过，异常发生至目标提交 ACK 最大分别 2164ms、1919ms，事件读回与 F05 checkpoint 对齐。完整 Gate/覆盖、历史失败、证据哈希及剩余边界见[本轮报告](./audit/R01-supervision-validation-2026-10-03.md)；部署步骤见[监督 Runbook](./runbooks/r01_binance_supervisor.md)。
+
+## 30 分钟扩大窗口
+
+2026-10-04 用户选择 30 分钟内部 BTCUSDT/ETHUSDT 评估，新增严格 v2 授权与单独范围，不延长原到期日。实际 1801.473s、115 样本，6243 个唯一成交；两个 ID 区间、正常轮换、11195 条 F05 交付/checkpoint、actor 停用通过。但 readiness 仅 30.43% 采样正常，2623 个 tick 新鲜度降级，完整性 PASS 不等于全程健康。详见[扩大窗口报告](./audit/R01-window-validation-2026-10-04.md)。R01/B01 仍为 FIX_VALIDATION / PARTIAL；24h、部署、商用许可与远程 CI 未验收。

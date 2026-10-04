@@ -95,7 +95,7 @@ f01-reproducibility-check:
 
 r01-check:
 	node ./scripts/check-r01.mjs
-	node --test ./scripts/r01-gate-negative.mjs ./scripts/r01-coverage-negative.mjs ./scripts/tests/binance-supervisor.test.cjs
+	node --test ./scripts/r01-gate-negative.mjs ./scripts/r01-coverage-negative.mjs ./scripts/tests/binance-supervisor.test.cjs ./scripts/tests/r01-window.test.cjs
 	cargo test -p quantos-market --lib --locked
 	cargo test -p market-ingestor --locked
 	$(MAKE) r01-mutation-check
@@ -481,3 +481,7 @@ f02-package:
 
 f02-check:
 	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/playwright-git-history.test.mjs
+
+.PHONY: r01-window-check
+r01-window-check:
+	node ./scripts/r01-window-check.cjs

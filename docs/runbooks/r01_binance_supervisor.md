@@ -73,3 +73,22 @@ QUANTOS_R01_POOL_MODE=transaction node --env-file=.env.local scripts/r01-supervi
 监督 fixture 测试真实使用 Supabase 与原生进程，注入 503、超时、坏价格、陈旧数据、429、畸形 JSON；验证挂起/退出、退避、正常轮换、撤销、checkpoint。live 模式只访问官方 Binance，fixture=false，SIGSTOP/SIGKILL 仅作用于本次具名 worker；证明真实摄取进程故障与恢复，不冒充交易所真实事故。
 
 五秒口径：受控故障发生/异常响应发送→监督 append ACK 或原生页 COMMIT ACK，且要求目标 event_id/异常事实读回。陈旧输入从到达时计检测时限，原始 T 保留；不能宣称其上游延迟低于五秒。各场景逐项按最大值判定，不用平均或 P95 掩盖超限。消费时限、正常行情 source-age 与异常提交时限分别记录。脚本创建自己的 tenant/actor，结束停用 actor、保留事实；结果索引及边界见 [本轮报告](../audit/R01-supervision-validation-2026-10-03.md)。
+
+## 2026-10-04：30 分钟扩大窗口
+
+本轮用户明确选择 30 分钟。[新版授权记录](../provider-approvals/20261004-binance-window-evaluation.md)与[机器范围](../provider-approvals/20261004-binance-window-scope.json)只扩展内部有界评估，原到期日不变。provider 严格 JSON 使用 v2 引用；旧 v1 和 10 月 3 日回执保留。
+
+```bash
+# 每次使用一个空的新证据目录；直接连接现有 Supabase，不创建本地数据库。
+QUANTOS_R01_POOL_MODE=transaction QUANTOS_R01_EVIDENCE_DIR=artifacts/r01-window \
+  node --env-file=.env.local scripts/r01-window-check.cjs \
+  --scope docs/provider-approvals/20261004-binance-window-scope.json
+```
+
+启动器在创建具名 tenant/service actor 前核验 scope/provider 版本、标的、用途、权限、期限和 1800 秒预算；运行中持续重读。监督配置只运行 BTCUSDT/ETHUSDT 两个原生 worker，100 次迭代正常轮换，poll 1000ms；不注入交易所或进程故障，不自动部署/注册系统服务。每 15 秒目标读回两个游标、tick/event/outbox 计数及健康状态，同时采集自身监督/worker 的 CPU、RSS；这些进程快照不是宿主机容量验收。
+
+计时以 supervisor_started 至 supervisor_stopped 为准，须 ≥1800 秒，采样数不得少于理论周期的 90%；连接/构建和最终 drain 分开记录。若任意 source 致命错误、监督失败、范围/批准变更撤销、过期、资源护栏或提前退出，保存 failure 并停止本次进程，不能以累计多个短跑替代完整 30 分钟窗口。健康状态和新鲜度告警如实报告，不将“进程持续运行”解释为“全程数据质量正常”。
+
+停机后核验每个 symbol 从 initial_id 至 next_id 的 receipt 数量与 min/max；唯一键加完整区间证明已确认窗口连续。F05 outbox/applied/checkpoint 必须一致且 pending=0；actor 停用并读回后才写 PASS 回执。immutable facts 保留。父启动器 SIGKILL/主机故障不能执行 finally，仍需外部进程管理和人工检查 owned-scope；本轮未验证此类目标部署故障。
+
+1800 秒是本次窗口的授权上限。24h、更多标的、对外展示/商用和长期生产均不在这份 scope 内。源码与原生二进制 hash 在启动/结束校验，后续提交必须匹配；本轮不重跑或继承旧回执为新的远程同 SHA CI。结果见 [扩大窗口报告](../audit/R01-window-validation-2026-10-04.md)。
