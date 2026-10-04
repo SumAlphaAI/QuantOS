@@ -306,11 +306,7 @@ async function liveRlsCheck() {
       order by cols.table_name, cols.column_name;
     `);
 
-    if (uuidPrimaryKeysWithoutDefaults.rowCount > 0) {
-      throw new Error(
-        `UUID primary-key columns must define database defaults: ${uuidPrimaryKeysWithoutDefaults.rows.map((row) => `${row.table_name}.${row.column_name}`).join(", ")}`,
-      );
-    }
+    require('./db-uuid-defaults.cjs').assertUuidDefaults(uuidPrimaryKeysWithoutDefaults.rows);
 
     const timestampsWithoutTimezone = await client.query(`
       select table_name, column_name

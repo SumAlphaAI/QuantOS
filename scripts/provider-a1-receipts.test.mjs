@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 import {gzipSync} from 'node:zlib';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot,developmentEnvironment,runTargetAttempts,validateReproducibility,policy} from './provider-a1-receipts.mjs';
+import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot,developmentEnvironment,runTargetAttempts,validateReproducibility,policy,staticEnvironment,runDatabaseAttempts} from './provider-a1-receipts.mjs';
 function fixture(fn){const base=mkdtempSync(resolve(tmpdir(),'quantos-stage-receipt-'));try{
  execFileSync('git',['init','-q'],{cwd:base});mkdirSync(resolve(base,'scripts'));mkdirSync(resolve(base,directory,'logs'),{recursive:true});writeFileSync(resolve(base,'code.ts'),'trusted code');
  const spec={scope:'implemented functionality only',inputs:['code.ts'],checks:['actual']};const p={commonInputs:['scripts/provider-a1-policy.json'],excluded:['release'],nodes:{child:spec,parent:spec},checks:{actual:{command:['node','run.mjs'],marker:'ACTUAL_PASS'}}};writeFileSync(resolve(base,'scripts/provider-a1-policy.json'),JSON.stringify(p));const nodes=new Map([['child',{id:'child',dependencies:[]}],['parent',{id:'parent',dependencies:['child']}]]);
@@ -74,3 +74,12 @@ test('development policy retains explicit build, coverage, volume and target sto
  const p=policy();for(const [node,checks]of [['CORE:F01',['f01-reproducibility','f01-lint','f01-test']],['CORE:F04',['f04-branch-coverage']],['CORE:F05',['f05-volume','storage-database','storage-target','rls-target']]])for(const check of checks)assert(p.nodes[node].checks.includes(check),node+' missing '+check);
  assert(p.checks['f05-volume'].database);assert(p.checks['storage-target'].database);assert(!p.excluded.some(e=>/volume|10000|10,000|three.*build/i.test(e)));
 });
+
+test('static make commands cannot reload .env.local or inherit target database opt-ins',()=>{
+ const env=staticEnvironment({PATH:'tools',DATABASE_URL:'private',QUANTOS_BFF_DATABASE_URL:'private',SUPABASE_SERVICE_ROLE_KEY:'private',QUANTOS_RUN_F05_POSTGRES_TESTS:'1',QUANTOS_SKIP_ENV:'0',NEXT_PUBLIC_QUANTOS_ENV:'local-mock'});
+ assert.equal(env.QUANTOS_SKIP_ENV,'1');assert.equal(env.PATH,'tools');assert.equal(env.NEXT_PUBLIC_QUANTOS_ENV,'local-mock');assert(Object.keys(env).every(k=>!/DATABASE_URL|SUPABASE|QUANTOS_RUN_.*TESTS/.test(k)));
+});
+
+test('volume retry restarts the complete check only on a closed PostgreSQL transport',()=>{let n=0;const r=runDatabaseAttempts(()=>++n===1?{status:101,stdout:'Postgres(Error { kind: Closed, cause: None })'}:{status:0});assert.equal(r.length,2);assert.equal(r[1].status,0);});
+test('volume correctness and certificate errors cannot be retried into PASS',()=>{for(const stdout of ['duplicate side effect','checkpoint did not converge','certificate verify failed']){const r=runDatabaseAttempts(()=>({status:101,stdout}));assert.equal(r.length,1);assert.equal(r[0].status,101);}});
+test('persistent database transport failure stays failed at the retry limit',()=>{const r=runDatabaseAttempts(()=>({status:101,stdout:'Postgres(Error { kind: Closed, cause: None })'}));assert.equal(r.length,3);assert(r.every(a=>a.status!==0));});

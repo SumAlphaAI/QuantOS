@@ -1,0 +1,51 @@
+cargo llvm-cov --package quantos-event --package quantos-storage --lib --ignore-filename-regex '(pg|supabase_storage)\.rs' --fail-under-lines 90 --fail-under-regions 85 --summary-only
+Filename                            Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+quantos-event/src/lib.rs                747                36    95.18%          56                 7    87.50%         519                22    95.76%           6                 6     0.00%
+quantos-storage/src/lib.rs              228                 3    98.68%          14                 1    92.86%         182                 1    99.45%           0                 0         -
+quantos-storage/src/snapshot.rs         778                58    92.54%          47                 8    82.98%         595                40    93.28%          28                28     0.00%
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                  1753                97    94.47%         117                16    86.32%        1296                63    95.14%          34                34     0.00%
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling tokio-postgres v0.7.18
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+   Compiling postgres v0.19.14
+   Compiling postgres-native-tls v0.5.3
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.57s
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_event-18d1870b0f3cb893)
+
+running 10 tests
+test tests::append_rejects_sequence_gaps ... ok
+test tests::duplicate_events_are_rejected_at_append_time ... ok
+test tests::projection_continues_with_buffered_event_after_dead_letter ... ok
+test tests::projection_can_resume_after_restart_from_checkpoint ... ok
+test tests::provenance_is_required_and_replay_filters_the_tenant_boundary ... ok
+test tests::projection_ignores_duplicate_deliveries ... ok
+test tests::projection_buffers_out_of_order_events_and_replays_in_sequence ... ok
+test tests::projection_sends_poison_messages_to_dead_letter_after_max_attempts ... ok
+test tests::projection_ignores_old_sequences_and_keeps_first_buffered_delivery ... ok
+test tests::ledger_replays_ten_thousand_events_without_loss ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_storage-357ed894a5974822)
+
+running 13 tests
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test snapshot::tests::optional_license_rule_accepts_complete_unlicensed_metadata ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
