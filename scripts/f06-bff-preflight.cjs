@@ -19,7 +19,10 @@ async function main() {
     user: decodeURIComponent(database.username),
     password: decodeURIComponent(database.password),
     database: database.pathname.slice(1) || 'postgres',
-    ssl: sslmode === 'disable' ? undefined : { rejectUnauthorized: sslmode === 'verify-full' },
+    ssl: sslmode === 'disable' ? undefined : {
+      ca: database.searchParams.get('sslrootcert') ? fs.readFileSync(database.searchParams.get('sslrootcert'), 'utf8') : undefined,
+      rejectUnauthorized: sslmode === 'verify-full',
+    },
     connectionTimeoutMillis: 10000,
   });
   await client.connect();

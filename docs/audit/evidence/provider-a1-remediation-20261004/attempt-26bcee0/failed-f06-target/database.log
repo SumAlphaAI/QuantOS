@@ -1,0 +1,34 @@
+
+running 8 tests
+test authenticated_role_cannot_read_other_tenant_workspace ... ok
+test bff_session_is_bound_to_its_primary_account_and_revocation ... ok
+test cross_tenant_authorization_edges_are_rejected_by_database_constraints ... ok
+test dedicated_bff_login_uses_verified_tls_and_narrow_role ... ok
+test f06_four_category_denial_matrix ... FAILED
+test gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks ... FAILED
+test gateway_auth_only_allows_service_secret_resolution_via_allowlist_session ... ok
+test operator_connection_cannot_be_reused_without_verified_tls ... ok
+
+failures:
+
+---- f06_four_category_denial_matrix stdout ----
+
+thread 'f06_four_category_denial_matrix' (1399270) panicked at crates/quantos-auth/tests/postgres_auth_context.rs:478:72:
+connect auth store: Postgres(Error { kind: Tls, cause: Some(Error { code: -9806, message: "connection closed via error" }) })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks stdout ----
+
+thread 'gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks' (1399610) panicked at crates/quantos-auth/tests/postgres_auth_context.rs:88:52:
+connect for mode probe: Error { kind: Tls, cause: Some(Error { code: -9806, message: "connection closed via error" }) }
+
+
+failures:
+    f06_four_category_denial_matrix
+    gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 1 filtered out; finished in 189.28s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running tests/postgres_auth_context.rs (target/debug/deps/postgres_auth_context-970b40de0b36e4f2)
+error: test failed, to rerun pass `-p quantos-auth --test postgres_auth_context`

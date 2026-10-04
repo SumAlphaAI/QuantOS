@@ -1,9 +1,9 @@
 use std::{collections::HashSet, env, time::Instant};
 
 use chrono::{Duration as ChronoDuration, Utc};
-use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{Client, NoTls, types::Type};
-use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector;
 use quantos_auth::{ExecutionSecretStore, GatewayAuthMiddleware, PgAuthStore};
 use quantos_core::{AccountId, TenantId};
 use quantos_policy::{AuthorizationRequirement, Capability, RunMode};
@@ -1081,18 +1081,39 @@ fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
     let disable_tls = url
         .query_pairs()
         .any(|(key, value)| key == "sslmode" && value == "disable");
-    let relaxed_tls = url
-        .query_pairs()
-        .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
-
     if disable_tls {
-        Client::connect(database_url, NoTls)
-    } else {
-        let mut builder = TlsConnector::builder();
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
-        }
-        let connector = builder.build().expect("TLS connector builds");
-        Client::connect(database_url, MakeTlsConnector::new(connector))
+        assert!(
+            matches!(url.host_str(), Some("localhost" | "127.0.0.1" | "::1")),
+            "target fixtures cannot disable remote TLS"
+        );
+        return Client::connect(database_url, NoTls);
     }
+    // Use the same verified TLS backend as the live services. Native macOS TLS
+    // has a different certificate lifetime policy; no certificate/hostname
+    // bypass is permitted in the target fixture helper.
+    let mut builder = SslConnector::builder(SslMethod::tls()).expect("TLS builder");
+    builder.set_verify(SslVerifyMode::PEER);
+    if let Some(root) = url.query_pairs().find(|(key, _)| key == "sslrootcert") {
+        builder
+            .set_ca_file(root.1.as_ref())
+            .expect("configured target CA");
+    } else {
+        builder
+            .set_default_verify_paths()
+            .expect("system target CAs");
+    }
+    let mut connection_url = url.clone();
+    connection_url.set_query(None);
+    for (key, value) in url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+    {
+        connection_url.query_pairs_mut().append_pair(&key, &value);
+    }
+    let mut config: postgres::Config = connection_url
+        .as_str()
+        .parse()
+        .expect("target connection config");
+    config.ssl_mode(postgres::config::SslMode::Require);
+    config.connect(MakeTlsConnector::new(builder.build()))
 }

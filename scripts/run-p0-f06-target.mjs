@@ -10,6 +10,13 @@ const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'u
 if(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim())throw Error('commit the source before target acceptance');
 process.loadEnvFile(resolve(root,'.env.local'));
 const env={...process.env,QUANTOS_F06_ISOLATED_PROJECT:'1',QUANTOS_F06_TARGET_ISOLATED:'1',QUANTOS_F06_ALLOW_TEMP_ADMIN_STORAGE_KEY:'1',QUANTOS_RUN_F06_POSTGRES_TESTS:'1',QUANTOS_RUN_F06_BFF_LOGIN_TESTS:'1'};
+// Operator fixture connections also verify the configured CA and hostname.
+// This changes only the execution environment, never the saved credentials.
+const operator=new URL(env.DATABASE_URL);
+if(!env.QUANTOS_BFF_SSLROOTCERT)throw Error('configured Supabase CA is required');
+operator.searchParams.set('sslmode','verify-full');
+operator.searchParams.set('sslrootcert',env.QUANTOS_BFF_SSLROOTCERT);
+env.DATABASE_URL=operator.toString();
 // Existing configured test project only; scripts enforce target identity, idle
 // Runtime and fixture cleanup. No provision, reset or migration is performed.
 const commands=[['build',['cargo','build','--locked','--offline','-p','bff-gateway','-p','runtime-gateway','-p','execution-gateway']],['preflight',[process.execPath,'scripts/f06-bff-preflight.cjs']],['auth-bff',[process.execPath,'scripts/f06-bff-live-smoke.cjs']],['auth-runtime',[process.execPath,'scripts/f06-runtime-live-smoke.cjs']],['execution',[process.execPath,'scripts/f06-execution-command-smoke.cjs']],['vault',[process.execPath,'scripts/f06-vault-gate.cjs']],['database',['cargo','test','--locked','--offline','-p','quantos-auth','--test','postgres_auth_context','--','--test-threads=1','--skip','f06_dedicated_bff_auth_read_p95']]];

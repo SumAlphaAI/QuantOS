@@ -1,5 +1,6 @@
 const { Client } = require('pg');
 const crypto = require('node:crypto');
+const fs = require('node:fs');
 
 const functionName = 'quantos.resolve_execution_vault_secret(text,text,timestamp with time zone,uuid)';
 const oldFunctionName = 'quantos.resolve_execution_vault_secret(text,text,timestamp with time zone)';
@@ -17,7 +18,8 @@ async function main() {
     password: decodeURIComponent(url.password),
     database: url.pathname.replace(/^\//, '') || 'postgres',
     ssl: sslmode === 'disable' ? undefined :
-      { rejectUnauthorized: sslmode === 'verify-full' || sslmode === 'verify-ca' },
+      { ca: url.searchParams.get('sslrootcert') ? fs.readFileSync(url.searchParams.get('sslrootcert'), 'utf8') : undefined,
+        rejectUnauthorized: sslmode === 'verify-full' || sslmode === 'verify-ca' },
   });
   await client.connect();
   const checks = [];
