@@ -3,14 +3,14 @@
   "scope": "A1 DEVELOPMENT preparation/contract milestone",
   "equalWeight": true,
   "counts": {
-    "PASS": 20,
-    "PENDING": 0,
+    "PASS": 18,
+    "PENDING": 2,
     "FAIL": 0
   },
   "completion": {
-    "passed": 20,
+    "passed": 18,
     "total": 20,
-    "percent": 100
+    "percent": 90
   },
   "controls": [
     {
@@ -35,9 +35,9 @@
     {
       "id": "C02",
       "control": "全部前置当前阶段准入",
-      "status": "PASS",
-      "evidence": "F0 与六个 PRE 均 READY；G0 READY",
-      "finding": "—",
+      "status": "PENDING",
+      "evidence": "F0 与六个 PRE 均 READY；G0 BLOCKED",
+      "finding": "当前 G0 用户确认",
       "dependencySnapshot": "docs/audit/evidence/fep0-remediation-20261005/dependency-snapshot.json"
     },
     {
@@ -407,9 +407,9 @@
     {
       "id": "C19",
       "control": "当前G0确认、冻结回执和遗留治理",
-      "status": "PASS",
-      "evidence": "G0 当前工程 16/16 PASS；当前范围 READY",
-      "finding": "—",
+      "status": "PENDING",
+      "evidence": "G0 当前工程 16/16 PASS；当前范围 BLOCKED",
+      "finding": "当前 G0 用户确认",
       "checks": [
         {
           "id": "records",
@@ -641,7 +641,7 @@
       "id": "C20",
       "control": "FEP-0自身内容绑定里程碑评估与回执",
       "status": "PASS",
-      "evidence": "独立 FEP-0 manifest、两项实际检查、39 项正负向、八依赖内容验证；READY",
+      "evidence": "独立 FEP-0 manifest、两项实际检查、39 项正负向、八依赖内容验证；BLOCKED",
       "finding": "—",
       "checks": [
         {
@@ -650,11 +650,11 @@
             "pnpm",
             "check:development-plans"
           ],
-          "executedAt": "2026-10-05T11:19:13.434Z",
+          "executedAt": "2026-10-05T11:13:49.485Z",
           "status": "PASS",
           "exitCode": 0,
-          "log": "docs/audit/evidence/fep0-remediation-20261005/user-confirmed/logs/plans.log",
-          "logSha256": "sha256:cb5815c0d203ebeb22e3482c589b5d9245ec8525d2385a14bfbcd463c140bb1b"
+          "log": "docs/audit/evidence/fep0-remediation-20261005/logs/plans.log",
+          "logSha256": "sha256:4d5aee6d89928dd5b3e793a5adf0b5f191c6148db4c737420283414a2b548c55"
         },
         {
           "id": "negative",
@@ -662,17 +662,16 @@
             "pnpm",
             "test:fep0"
           ],
-          "executedAt": "2026-10-05T11:19:13.598Z",
+          "executedAt": "2026-10-05T11:13:49.646Z",
           "status": "PASS",
           "exitCode": 0,
-          "log": "docs/audit/evidence/fep0-remediation-20261005/user-confirmed/logs/negative.log",
-          "logSha256": "sha256:b5c9227acc01a6420ce536bfb568d789ab59e828077bb5a3df08554e8a8f486d"
+          "log": "docs/audit/evidence/fep0-remediation-20261005/logs/negative.log",
+          "logSha256": "sha256:616ed1dcc692cb079df3d036a921498c692f22c6efc6fdc4c2b5900cb5ac9649"
         }
       ],
-      "manifest": "docs/audit/evidence/fep0-remediation-20261005/user-confirmed/fep0.json"
+      "manifest": "docs/audit/evidence/fep0-remediation-20261005/fep0.json"
     }
   ],
   "observedSourceCommit": "04229ce1f93e2d6732411d68a38504702238093e",
-  "aggregateObservedSourceCommit": "a805b5002f5ac3e690e1ce772e3ef9113ca1e760",
   "formalAccepted": false
 }

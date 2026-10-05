@@ -1,7 +1,7 @@
 # A1 / FEP-0 整改与复验报告
 
-> 日期：2026-10-05（Asia/Shanghai）。冻结功能源码：`04229ce1f93e2d6732411d68a38504702238093e`；用户确认后的 FEP-0 聚合实际执行于文档提交 `a805b5002f5ac3e690e1ce772e3ef9113ca1e760`。
-> 结论：**DEVELOPMENT READY；20/20 控制点满足**。完整 F0/A1 检查 **86/86 PASS**，G0 工程 **16/16 PASS**，FEP-0 自身 **2/2 PASS**。
+> 日期：2026-10-05（Asia/Shanghai）。冻结功能源码：`04229ce1f93e2d6732411d68a38504702238093e`。
+> 结论：**工程整改和复验通过；G0/FEP-0 保持 BLOCKED，等待当前范围的项目用户确认**。完整 F0/A1 检查 **86/86 PASS**，G0 工程 **16/16 PASS**，FEP-0 自身 **2/2 PASS**。
 > 本报告更新当前整改事实；[初审原件](./FEP-0-comprehensive-review-2026-10-05.md)及各次失败证据保持不变。正式 ACCEPTED、RELEASE 与同 SHA hosted CI 不由本报告产生。
 
 ## 一、任务完成概况
@@ -10,28 +10,28 @@
 
 真实数据库、Storage/RLS、服务、三次跨语言构建、覆盖率、wheel/UDS、供应链和反向探针均由实际命令产生；没有以旧审计正文、任意合法摘要或结构检查替代功能执行。数据库只连接工程已配置 Supabase PostgreSQL；没有建立本机、容器或临时 PostgreSQL/Supabase。FEP-0 聚合入口本身不连接数据库，数据库事实来自逐字节核验的子回执。
 
-当前用户确认已核验，G0/FEP-0 已 READY。
+唯一待办：项目用户确认 [G0 DEVELOPMENT 当前文稿](../gate-records/G0-user-confirmation-draft-2026-10-05-9630623790b8.md)。旧确认原件保留；本轮脚本、CI、包锁及安全补丁改变当前功能输入，不能将旧确认自动转移。
 
 ## 二、完成情况明细统计
 
 ### 2.1 当前控制点与依赖
 
-控制点仍按初审同一 20 项等权口径统计，PASS 才计完成；当前 **20/20（100%）**。工程代码修复完成不自动等于人工确认或阶段 READY。
+控制点仍按初审同一 20 项等权口径统计，PASS 才计完成；当前 **18/20（90%）**。工程代码修复完成不自动等于人工确认或阶段 READY。
 
 | 指标 | 当前结果 |
 |---|---|
 | 原问题 B-01 | 已关闭；F0 的 11 个直接前置及其递归功能证据 READY |
-| 原问题 B-02 | 已关闭 |
-| FEP-0 八个直接依赖 | 8/8 READY |
-| FEP-0 22 个递归上游 | 22/22 READY |
-| 含 FEP-0 的 23 个节点 | 23/23 READY |
-| FEP-0 stage_gate | READY；engineeringStatus=PASS；formalAccepted=false |
+| 原问题 B-02 | 工程整改通过；最终准入待当前 G0 用户确认 |
+| FEP-0 八个直接依赖 | 7/8 READY，G0 BLOCKED |
+| FEP-0 22 个递归上游 | 21/22 READY，G0 BLOCKED |
+| 含 FEP-0 的 23 个节点 | 21 READY、2 BLOCKED、0 NOT_ASSESSED |
+| FEP-0 stage_gate | BLOCKED；engineeringStatus=PASS；formalAccepted=false |
 | 实际有效执行入口 | 86 F0/A1 + 16 G0 + 2 FEP-0 = 104/104 PASS；入口中的用例有交集，不把它们相加为独立测试数 |
 
 | 编号 | 控制点 | 当前结果 | 实际依据 |
 |---|---|---|---|
 | C01 | A1/DEVELOPMENT、一期 Web 与后续阶段边界 | PASS | 本轮实际 PASS：plans, plans-negative |
-| C02 | 全部前置当前阶段准入 | PASS | F0 与六个 PRE 均 READY；G0 READY |
+| C02 | 全部前置当前阶段准入 | PENDING | F0 与六个 PRE 均 READY；G0 BLOCKED |
 | C03 | 固定工具链、锁文件及运行时ADR | PASS | 本轮实际 PASS：f01, pre03 |
 | C04 | 官网与Terminal构建、目标路由PoC | PASS | 本轮实际 PASS：build-website, build-terminal, pre03, chromium |
 | C05 | 前端开发规范、lint与typecheck | PASS | 本轮实际 PASS：f01-lint, client-typecheck, client-lint |
@@ -48,10 +48,10 @@
 | C16 | 同schema fixtures、单元、基本浏览器与SSE PoC | PASS | 本轮实际 PASS：api-client-tests, ui-tests, chromium |
 | C17 | schema/权限/敏感字段/视觉破坏持续拒绝 | PASS | 本轮实际 PASS：pre06, pre06-negative, sabotage, semantic-mutations |
 | C18 | 领域覆盖率与关键风险分支 | PASS | 本轮实际 PASS：coverage, critical |
-| C19 | 当前G0确认、冻结回执和遗留治理 | PASS | G0 当前工程 16/16 PASS；当前范围 READY |
-| C20 | FEP-0自身内容绑定里程碑评估与回执 | PASS | 独立 FEP-0 manifest、两项实际检查、39 项正负向、八依赖内容验证；READY |
+| C19 | 当前G0确认、冻结回执和遗留治理 | PENDING | G0 当前工程 16/16 PASS；当前范围 BLOCKED |
+| C20 | FEP-0自身内容绑定里程碑评估与回执 | PASS | 独立 FEP-0 manifest、两项实际检查、39 项正负向、八依赖内容验证；BLOCKED |
 
-机器可读 [20 项控制矩阵](./evidence/fep0-remediation-20261005/control-matrix.json)、[依赖快照](./evidence/fep0-remediation-20261005/dependency-snapshot.json)和[完整实际执行](./evidence/provider-a1-remediation-20261004/fep0-verified-20261005/execution-results.json)。C02 与 C19 由同一份 G0 当前范围确认闭环。当前 C02/C19 已由实际用户确认和严格内容门禁关闭；C20 的独立里程碑机制及阶段 READY 均通过。
+机器可读 [20 项控制矩阵](./evidence/fep0-remediation-20261005/control-matrix-pending-confirmation.json)、[依赖快照](./evidence/fep0-remediation-20261005/dependency-snapshot-pending-confirmation.json)和[完整实际执行](./evidence/provider-a1-remediation-20261004/fep0-verified-20261005/execution-results.json)。C02 与 C19 的待办（若有）来自同一份 G0 当前范围确认，不新增两个审批流程。C20 评价独立里程碑机制已交付且执行通过；其 BLOCKED 状态继续诚实保留。
 
 ### 2.2 关键实际验证与范围
 
@@ -68,7 +68,7 @@
 | 六 PRE / G0 | 当前两应用与 Storybook 构建、字段/页面/Story/权限追踪、生成同源、环境、Chromium/OIDC/SSE PoC、覆盖率、四类破坏自检及 G0 16 项独立工程入口 |
 | FEP-0 | 八依赖递归内容校验、独立规范/源码/配置/测试输入、命令/时间/退出码/日志摘要和环境边界；39 项正负向通过，CI 消费工程入口及反向探针 |
 
-用户确认前的[工程报告](./FEP-0-engineering-pending-confirmation-2026-10-05.md)、[原 FEP-0 BLOCKED 回执](./evidence/fep0-remediation-20261005/fep0.json)及[原预期拒绝记录](./evidence/fep0-remediation-20261005/final-validation.json)保持原件；[确认后严格验证](./evidence/fep0-remediation-20261005/user-confirmed/final-validation.json)独立记录。[四生态扫描原始字节](./evidence/provider-a1-remediation-20261004/fep0-verified-20261005/sca-raw/index.json)及其摘要保留上游 finding。
+[最终内容核验](./evidence/fep0-remediation-20261005/final-validation.json)包含五项真实 PASS 和两项缺确认的预期拒绝；[四生态原始扫描](./evidence/provider-a1-remediation-20261004/fep0-verified-20261005/sca-raw/index.json)另存原字节及摘要，保留上游 finding。
 
 完整产物与支持日志按摘要绑定；`.gitignore` 的 `artifacts/` 不作为遗漏证据的理由，所需当前及失败产物单独入库。此前各轮不是最终 PASS：
 
@@ -86,9 +86,9 @@
 | ID | 优先级 / 模块 | 原表现与影响 | 当前整改结论 |
 |---|---|---|---|
 | B-01 | 阻塞级 / F0 当前依赖 | F0 及六个子项缺当前回执，阻碍 FEP-0 前置 | 已关闭；11 个直接前置、完整闭包实际执行、输入/日志/产物/依赖校验全部通过 |
-| B-02 | 阻塞级 / FEP-0 聚合、CI | 缺独立内容绑定机制，结构绿灯不足以证明完成 | 关闭：八个依赖均 READY，独立里程碑实际评估和严格内容校验通过。 |
+| B-02 | 阻塞级 / FEP-0 聚合、CI | 缺独立内容绑定机制，结构绿灯不足以证明完成 | 工程缺口已修复：独立评估、内容绑定、负向与 CI 已交付并实际通过；最终 READY 关闭条件仍待 G0 当前范围用户确认。 |
 
-当前未关闭问题为 0。 原审计其余优先级为 0；整改复验中新发现的问题均已修复，具体如下。
+当前未关闭的阶段准入条件为 1 项阻塞级（当前 G0 用户确认）；无未修复工程故障。 原审计其余优先级为 0；整改复验中新发现的问题均已修复，具体如下。
 
 ### 3.2 复验新增问题及根因修复
 
@@ -114,8 +114,8 @@
 
 工程整改按 B-01、B-02 顺序完成，严格入口持续消费当前内容：`pnpm check:f0-development`、`pnpm check:provider-a1`、`pnpm check:g0-engineering`、`pnpm check:fep0:engineering`。缺日志、产物、执行、输入漂移或依赖变化持续拒绝；绿色 CI 仅代表已明确执行的工程门禁。
 
-当前用户确认已核验，G0/FEP-0 已 READY。
+唯一待办：项目用户确认 [G0 DEVELOPMENT 当前文稿](../gate-records/G0-user-confirmation-draft-2026-10-05-9630623790b8.md)。旧确认原件保留；本轮脚本、CI、包锁及安全补丁改变当前功能输入，不能将旧确认自动转移。
 
-本会话原始答复“确认当前 G0 DEVELOPMENT 文稿”已保存为 [单用户确认记录](../gate-records/G0-user-confirmation-2026-10-05-9630623790b8.json)，绑定不可变文稿及 585 项当前输入范围。`--finalize` 先验证原 PENDING snapshot、全部工程输入/日志/依赖，再消费真实答复；[原 pending manifest](./evidence/frontend-g0-fep0-remediation-20261005/pending-g0-b2e83ccbfe31.json)保留。随后在 [新子目录](./evidence/fep0-remediation-20261005/user-confirmed/fep0.json) 实际执行两项聚合检查，严格 G0/FEP-0 READY 入口通过，更新为 20/20、8/8 和 READY。原 FEP-0 BLOCKED manifest/日志保持原件，不覆盖；若工程输入变化则重新执行对应完整闭包。
+实际确认后先执行 `node scripts/g0-development.mjs --finalize`，独立核验原 PENDING snapshot、全部工程输入/日志/依赖后消费真实用户答复，保留原 pending manifest；再在新子目录 `pnpm assess:fep0 docs/audit/evidence/fep0-remediation-20261005/user-confirmed` 评估，运行严格 `pnpm check:g0-development` / `pnpm check:fep0`，更新为 20/20、8/8 和 READY。若工程输入变化则重新执行对应完整闭包，不把人工确认代替测试。
 
 发布环境、性能/长稳、完整参考重建、同 SHA hosted CI 及正式发布确认继续按 RELEASE 执行。两份计划同步当前 stage_gate，历史正式字段保持原事实。工程及最终证据生成本地 Git 提交；本轮未推送。
