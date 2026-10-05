@@ -1,0 +1,149 @@
+[
+  {
+    "id": "f05-database",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "quantos-event",
+      "--test",
+      "postgres_persistence",
+      "--locked",
+      "--offline",
+      "--",
+      "--test-threads=1",
+      "--skip",
+      "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+      "--skip",
+      "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+      "--skip",
+      "postgres_tls_root_configuration_fails_closed"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T00:42:41.278Z",
+    "observedSourceCommit": "4eee7f755c03654be83dfbf4f53994951a04f4ae",
+    "log": "artifacts/provider-a1-resume/f05-database.log",
+    "logSha256": "sha256:287fae70665eb3285623e685c9fdd01a7c24eb07b7e9c0e08b050c23a6984e36",
+    "error": null,
+    "signal": null,
+    "target": "configured-supabase"
+  },
+  {
+    "id": "f05-volume",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-event",
+      "--test",
+      "postgres_persistence",
+      "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+      "--",
+      "--exact",
+      "--test-threads=1"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T00:48:16.830Z",
+    "observedSourceCommit": "4eee7f755c03654be83dfbf4f53994951a04f4ae",
+    "log": "artifacts/provider-a1-resume/f05-volume.log",
+    "logSha256": "sha256:e8cb11977eb8dc6de868665e047c6c34ec5abbcca0fa101d84489be0a4919384",
+    "error": null,
+    "signal": null,
+    "target": "configured-supabase",
+    "environmentOverrides": {
+      "QUANTOS_F05_TARGET_ISOLATED": "1"
+    },
+    "attempts": [
+      {
+        "attempt": 1,
+        "exitCode": 0,
+        "transient": false
+      }
+    ]
+  },
+  {
+    "id": "storage-database",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-storage",
+      "--test",
+      "postgres_persistence",
+      "--",
+      "--test-threads=1"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T00:50:14.884Z",
+    "observedSourceCommit": "4eee7f755c03654be83dfbf4f53994951a04f4ae",
+    "log": "artifacts/provider-a1-resume/storage-database.log",
+    "logSha256": "sha256:cb238260ba92d19ae52b3213a7e1aa8dbb50ec32989f93e4de5756b4437dc26b",
+    "error": null,
+    "signal": null,
+    "target": "configured-supabase"
+  },
+  {
+    "id": "rls-target",
+    "command": [
+      "node",
+      "scripts/db-cli.cjs",
+      "live-rls"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T00:50:28.488Z",
+    "observedSourceCommit": "4eee7f755c03654be83dfbf4f53994951a04f4ae",
+    "log": "artifacts/provider-a1-resume/rls-target.log",
+    "logSha256": "sha256:9a0e9627fba26893e16ee406c4276947168e8a8eb1848584d96a1a854628cde8",
+    "error": null,
+    "signal": null,
+    "target": "configured-supabase"
+  },
+  {
+    "id": "chromium",
+    "command": [
+      "pnpm",
+      "test:browser",
+      "--project=chromium",
+      "--workers=2",
+      "--retries=0",
+      "--update-snapshots=none"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T00:50:36.345Z",
+    "observedSourceCommit": "4eee7f755c03654be83dfbf4f53994951a04f4ae",
+    "log": "artifacts/provider-a1-resume/chromium.log",
+    "logSha256": "sha256:d26fd7d0bbb6feb7bf01cbe0cde7dceb3c7b84c10359bd9d64bd4d6a19483edb",
+    "error": null,
+    "signal": null
+  },
+  {
+    "id": "provider-rust",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--tests"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T00:50:41.661Z",
+    "observedSourceCommit": "4eee7f755c03654be83dfbf4f53994951a04f4ae",
+    "log": "artifacts/provider-a1-resume/provider-rust.log",
+    "logSha256": "sha256:d79aef3eb2589d0d2a23f97f401d77230846f94432c2ab0525285a661deb1013",
+    "error": null,
+    "signal": null
+  }
+]

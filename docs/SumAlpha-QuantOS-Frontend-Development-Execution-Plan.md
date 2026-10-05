@@ -1,18 +1,20 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.18
-> 更新时间：2026-10-04
-> 状态：阶段归属已更新；功能准入待聚焦评估，正式发布待产品、前端、BFF、QA、安全与风控联合验收
+> 版本：3.19
+> 更新时间：2026-10-05
+> 状态：PROVIDER:A1 及 14 节点功能前置 READY；后续检查点独立评估，正式发布待联合验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
 
+- `3.19`：关闭 PROVIDER:A1 原 6 项发现；65 项完整功能检查当前有效结果全部通过，自底向上登记 14 节点 READY。包括独立三轮构建、实际覆盖率、Supabase 1 万事件/并发/Storage/RLS/F06；原完整轮与同源聚焦复验分开保留。历史 formal 字段/notes 不迁移，G0、PROVIDER:ALL、RELEASE 不自动放行。
+
 - `3.18`：重新核对 BFF-FE-000 原 14 项发现，13 项工程问题关闭，B-01 维持最终 RELEASE 评审待办；活跃报告精简并归档历史发现，任务卡/总结同步 API 1.5.0 / 52 schemas。当前 P0 同 SHA 回执未在本轮重验，不改变阶段 READY 或正式 ACCEPTED。
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.18、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.19、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -140,7 +142,7 @@
 - task_id: `PRE-01`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f670108e0682eaae536e86a8a232d1a4f9c8c6c38c4c677d1f1c61ef4d53e270","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-01.json"]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -159,7 +161,7 @@
 - task_id: `PRE-02`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:baca11b544f665a46366ac01616a52c72166a7318605f5c915038f5fb5e387cc","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-02.json"]}
 - depends_on: ["PRE-01"]
 - core_prerequisites: []
 - closes_core: []
@@ -177,7 +179,7 @@
 - task_id: `PRE-03`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e101b627898b8706033e180bd7f048320098b94a3babf250444d324f34bb25de","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-03.json"]}
 - depends_on: ["PRE-02", "CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -195,7 +197,7 @@
 - task_id: `PRE-04`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:1f4cf82cc0e842784db09f02239a5cae61ddeeb7be5d84bf32791d89832fe546","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-04.json"]}
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
 - core_prerequisites: ["CORE:F03", "CORE:F06"]
 - closes_core: []
@@ -213,7 +215,7 @@
 - task_id: `PRE-05`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:2a04cbbd55b2fbcc0327734dbeb84627d4c9119efba884884182bf28cae15c8b","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-05.json"]}
 - depends_on: ["PRE-03", "PRE-04"]
 - core_prerequisites: []
 - closes_core: []
@@ -231,7 +233,7 @@
 - task_id: `PRE-06`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:b6c346c1097e07c7035f5da710e35dab890c6b579e0678d3e4fb1496bf8119f2","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-06.json"]}
 - depends_on: ["PRE-04", "PRE-05"]
 - core_prerequisites: []
 - closes_core: []
@@ -270,9 +272,11 @@
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:024fa58a3021a07e0252e011638c8a4d0de726cbe7c6c8719829c23affa6a024",
+    "evidence": [
+      "audit/evidence/provider-a1-remediation-20261004/preparation-p0.json"
+    ]
   }
 }
 ```
@@ -329,7 +333,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:57102270495873c46393107208422d6bc5f54d18db58cc1ade71f9b4873db8ff","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-bff-fe-000.json"]}
 - depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -339,10 +343,12 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - 领域接口背景：F03 有领域 Proto/OpenAPI 生成，但无第一期 22 个 Web Terminal 页面完整 API 清单
 - 覆盖契约/页面：C01–C17；P01–P15/P17–P23
 - 目标阶段与验收：FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI
-- 当前工程复核：[2026-10-04 活跃复核报告](./audit/BFF-FE-000-comprehensive-review-2026-10-03.md)；API 1.5.0 / 62 published / 46 planned / 52 schemas；原 6 高危、6 中危、1 低危工程问题已关闭，当前活动工程缺陷 0，历史发现与关闭索引已归档。B-01 为 `DEFERRED_TO_FINAL_REVIEW`，真实 staging/联合签署在 RELEASE 执行，不阻塞开发完成或 REVIEW_READY，未标为 CLOSED/PASS。C01 当前 P0 同 SHA 回执未补齐；本次不将 `stage_gate` 改为 READY，不改变 PROVIDER:A1/G0 正式状态。证据见[本轮清单](./audit/evidence/bff-fe-000-recheck-20261004/manifest.json)，阶段归属继续按第 2.1 节。
+- 当前工程复核：[2026-10-04 活跃复核报告](./audit/BFF-FE-000-comprehensive-review-2026-10-03.md)；API 1.5.0 / 62 published / 46 planned / 52 schemas；原 6 高危、6 中危、1 低危工程问题已关闭，当前活动工程缺陷 0，历史发现与关闭索引已归档。B-01 为 `DEFERRED_TO_FINAL_REVIEW`，真实 staging/联合签署在 RELEASE 执行，不阻塞开发完成或 REVIEW_READY，未标为 CLOSED/PASS。2026-10-05 已补齐当前适用的功能输入与实际检查，BFF-FE-000/P0/PROVIDER:A1 的 DEVELOPMENT stage_gate 为 READY，见 [PROVIDER:A1 整改报告](./audit/PROVIDER-A1-remediation-2026-10-05.md)；历史 P0 formal notes 不迁移，G0 与 RELEASE 状态独立。证据见[本轮清单](./audit/evidence/bff-fe-000-recheck-20261004/manifest.json)，阶段归属继续按第 2.1 节。
 
 <a id="acceptance-provider-a1"></a>
 ##### PROVIDER:A1：验收检查点
+
+当前功能复验：原 6 项发现 CLOSED，21/21 控制点通过；`pnpm check:provider-a1` 核验当前输入/日志/产物和递归依赖，`pnpm test:provider-a1` 持续检验篡改与少跑拒绝。详见 [整改报告](./audit/PROVIDER-A1-remediation-2026-10-05.md)与[功能验收规程](./PROVIDER-A1-functional-acceptance.md)。下方正式 review_status/source_commit/evidence 保留原事实。
 
 A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现功能的 provider/consumer harness，按输入清单评估阶段 READY；A2–A6 未交付 provider 不属 A1 实现范围。B-01 staging 继续 DEFERRED_TO_FINAL_REVIEW，正式目标回执和签署由 RELEASE 收口，不能据工程通过改为正式 ACCEPTED。
 
@@ -360,9 +366,11 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:b986c85588aea7bc10e5e986bf42565e435c685446825154fa9402286e567aa3",
+    "evidence": [
+      "audit/evidence/provider-a1-remediation-20261004/provider-a1.json"
+    ]
   }
 }
 ```

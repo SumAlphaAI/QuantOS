@@ -1,5 +1,7 @@
 # A1 / PROVIDER:A1 验收检查点全面复审报告
 
+> 2026-10-05 整改更新：原 6 项发现 CLOSED，当前 DEVELOPMENT READY；21/21 控制点通过。详见[整改报告](./PROVIDER-A1-remediation-2026-10-05.md)与[当前功能证据](./evidence/provider-a1-remediation-20261004/README.md)。下文保留 2026-10-04 原始基线、71.43% 统计和失败记录，不代表当前活动问题。RELEASE 仍未正式 ACCEPTED。
+
 > 复审日期：2026-10-04（Asia/Shanghai）
 > 源码基线：`4a3fbe9fe79025422d1cdf87331cacbb77fe1861`；开始复审时工作区干净，本轮只新增审计报告及证据。
 > 结论：**CHANGES_REQUESTED，尚不能作为后续节点的 READY 前置。**

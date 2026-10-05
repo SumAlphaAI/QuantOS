@@ -1,0 +1,321 @@
+
+> @sumalpha/quantos@ test:browser /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-pre06.mjs && playwright test --config playwright.config.ts --project=chromium --workers=2 --retries=0 --update-snapshots=none
+
+{
+  "schema": "quantos-pre06/v1",
+  "status": "PASS",
+  "bff_operations": 62,
+  "bff_schemas": 52,
+  "visual_baselines": 24
+}
+
+Running 27 tests using 2 workers
+
+  ✓   1 [chromium] › tests/e2e/auth-callback.spec.ts:40:7 › OIDC callback PoC › 完整流：login → PKCE authorize → callback 交换 → 安全 return path (192ms)
+  ✓   2 [chromium] › tests/e2e/auth-callback.spec.ts:56:7 › OIDC callback PoC › 跨站 return_to 被消毒回退到 /command (193ms)
+  ✓   3 [chromium] › tests/e2e/auth-callback.spec.ts:66:7 › OIDC callback PoC › state 不匹配：不发起 token 交换并显示安全错误 (87ms)
+  ✓   4 [chromium] › tests/e2e/auth-callback.spec.ts:78:7 › OIDC callback PoC › IdP 返回 error：不发起交换，错误提示不含敏感细节 (88ms)
+  ✓   6 [chromium] › tests/e2e/command.spec.ts:21:7 › Command Center（/command） › 路由可打开且渲染共享壳标记 (112ms)
+  ✓   5 [chromium] › tests/e2e/command.spec.ts:13:7 › Command Center（/command） › 静态首屏只渲染守卫状态，不提前泄露 Command 投影 (316ms)
+  ✓   8 [chromium] › tests/e2e/command.spec.ts:40:7 › Command Center（/command） › axe 无严重/高等级可访问性问题（执行计划 7.1） (504ms)
+  ✓   9 [chromium] › tests/e2e/command.spec.ts:47:7 › Command Center（/command） › 优先级筛选与侧栏折叠可交互 (158ms)
+  ✓  10 [chromium] › tests/e2e/command.spec.ts:56:7 › Command Center（/command） › 390px 小屏保持只读监控并隐藏高风险入口 (112ms)
+  ✘  11 [chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 (663ms)
+  ✓  12 [chromium] › tests/e2e/ui102-auth.spec.ts:16:7 › UI-102 identity, access and recovery › P01 登录页仅展示安全、审计、Paper/Shadow 三项事实且通过 axe (299ms)
+  ✓  13 [chromium] › tests/e2e/ui102-auth.spec.ts:28:7 › UI-102 identity, access and recovery › MFA 成功后只返回消毒后的安全路由 (172ms)
+  ✓  14 [chromium] › tests/e2e/ui102-auth.spec.ts:45:7 › UI-102 identity, access and recovery › MFA 429 文案不泄露账户存在性并展示等待时间 (180ms)
+  ✓  15 [chromium] › tests/e2e/ui102-auth.spec.ts:59:7 › UI-102 identity, access and recovery › 访问申请 202 只显示已受理而非权限已开通 (161ms)
+  ✓  16 [chromium] › tests/e2e/ui102-auth.spec.ts:73:7 › UI-102 identity, access and recovery › 403 页面与 404 页面使用相同的不可探测资源文案 (99ms)
+  ✓  17 [chromium] › tests/e2e/ui102-auth.spec.ts:82:7 › UI-102 identity, access and recovery › maintenance 明确禁写，offline 强制只读且不自动提交旧意图 (107ms)
+  ✓  18 [chromium] › tests/e2e/ui102-auth.spec.ts:94:7 › UI-102 identity, access and recovery › 390px 与 200% 缩放下认证操作仍可达 (87ms)
+  ✓  19 [chromium] › tests/e2e/ui102-auth.spec.ts:104:7 › UI-102 identity, access and recovery › P01 1440 深色视觉基线 (231ms)
+  ✓  20 [chromium] › tests/e2e/ui104-settings.spec.ts:8:7 › UI-104 profile, security, notifications and browser settings › P15/P17 routes render the shared settings workspace (213ms)
+  ✓  21 [chromium] › tests/e2e/ui104-settings.spec.ts:23:7 › UI-104 profile, security, notifications and browser settings › browser notification denial degrades without blocking in-app alerts (105ms)
+  ✓  22 [chromium] › tests/e2e/ui104-settings.spec.ts:30:7 › UI-104 profile, security, notifications and browser settings › scrollable browser download history is keyboard focusable (108ms)
+  ✘   7 [chromium] › tests/e2e/command.spec.ts:31:7 › Command Center（/command） › 复用 UI-103 的 freshness、risk 与 connection 领域组件 (5.1s)
+  ✓  24 [chromium] › tests/e2e/ui104-settings.spec.ts:51:7 › UI-104 profile, security, notifications and browser settings › 390px and 200% zoom hide high-risk settings actions without page overflow (122ms)
+  ✓  25 [chromium] › tests/e2e/ui104-settings.spec.ts:62:7 › UI-104 profile, security, notifications and browser settings › offline mode freezes profile and notification writes (105ms)
+  ✘  26 [chromium] › tests/e2e/ui104-settings.spec.ts:71:7 › UI-104 profile, security, notifications and browser settings › profile, security and browser pages have no serious or critical axe violations (963ms)
+  ✘  27 [chromium] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines (735ms)
+  ✘  23 [chromium] › tests/e2e/ui104-settings.spec.ts:37:7 › UI-104 profile, security, notifications and browser settings › session revocation requires phrase and six-digit MFA, with cancel focused first (13.5m)
+
+
+  1) [chromium] › tests/e2e/command.spec.ts:31:7 › Command Center（/command） › 复用 UI-103 的 freshness、risk 与 connection 领域组件 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.freshness-status').getByRole('status', { name: 'live' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('.freshness-status').getByRole('status', { name: 'live' })
+
+
+      31 |   test("复用 UI-103 的 freshness、risk 与 connection 领域组件", async ({ page }) => {
+      32 |     await page.goto("/command");
+    > 33 |     await expect(page.locator(".freshness-status").getByRole("status", { name: "live" })).toBeVisible();
+         |                                                                                           ^
+      34 |     await expect(page.locator(".risk-status").getByRole("status", { name: "allow" })).toBeVisible();
+      35 |     const connection = page.locator(".terminal-statusbar .q-alert");
+      36 |     await expect(connection).toContainText("Connected");
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/command.spec.ts:33:91
+
+    Error Context: artifacts/browser/terminal/test-results/command-Command-Center（-co-63c80-ness、risk-与-connection-领域组件-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts/browser/terminal/test-results/command-Command-Center（-co-63c80-ness、risk-与-connection-领域组件-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace artifacts/browser/terminal/test-results/command-Command-Center（-co-63c80-ness、risk-与-connection-领域组件-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ────────
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      99796 pixels (ratio 0.08 of all image pixels) are different.
+
+      Snapshot: command-1440-dark.png
+
+    Call log:
+      - Expect "toHaveScreenshot(command-1440-dark.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - 99796 pixels (ratio 0.08 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - 99796 pixels (ratio 0.08 of all image pixels) are different.
+
+
+      68 |     await page.goto("/command");
+      69 |     await expect(page.getByRole("heading", { name: "Command Center" })).toBeVisible();
+    > 70 |     await expect(page).toHaveScreenshot(`${snapshot}.png`, { maxDiffPixelRatio: 0.005 });
+         |                        ^
+      71 |   });
+      72 | });
+      73 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/command.spec.ts:70:24
+
+    attachment #1: command-1440-dark (image/png) ───────────────────────────────────────────────────
+    Expected: tests/e2e/command.spec.ts-snapshots/command-1440-dark-chromium-darwin.png
+    Received: artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/command-1440-dark-actual.png
+    Diff:     artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/command-1440-dark-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace artifacts/browser/terminal/test-results/command-Command-Center（-command）-视觉基线：1440-深主题-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests/e2e/ui104-settings.spec.ts:37:7 › UI-104 profile, security, notifications and browser settings › session revocation requires phrase and six-digit MFA, with cancel focused first 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: '撤销会话' }).first()
+        - locator resolved to <button disabled type="button" data-state="closed" aria-expanded="false" aria-haspopup="dialog" class="q-button q-button--danger settings-high-risk">撤销会话</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        27 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      37 |   test("session revocation requires phrase and six-digit MFA, with cancel focused first", async ({ page }) => {
+      38 |     await page.goto("/settings/security");
+    > 39 |     await page.getByRole("button", { name: "撤销会话" }).first().click();
+         |                                                              ^
+      40 |     await expect(page.getByRole("dialog", { name: "撤销活动会话" })).toBeVisible();
+      41 |     await expect(page.getByRole("button", { name: "取消" })).toBeFocused();
+      42 |     const confirm = page.getByRole("button", { name: "确认撤销会话" });
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui104-settings.spec.ts:39:62
+
+    Error Context: artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-4f5b9-A-with-cancel-focused-first-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-4f5b9-A-with-cancel-focused-first-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-4f5b9-A-with-cancel-focused-first-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests/e2e/ui104-settings.spec.ts:71:7 › UI-104 profile, security, notifications and browser settings › profile, security and browser pages have no serious or critical axe violations 
+
+    Error: /settings/browser
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 52
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure elements that have scrollable content are accessible by keyboard in Safari",
+    +     "help": "Scrollable region must have keyboard access",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/scrollable-region-focusable?application=playwright",
+    +     "id": "scrollable-region-focusable",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-content",
+    +             "impact": "serious",
+    +             "message": "Element should have focusable content",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "focusable-element",
+    +             "impact": "serious",
+    +             "message": "Element should be focusable",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element should have focusable content
+    +   Element should be focusable",
+    +         "html": "<div class=\"downloads-list\" role=\"region\" aria-label=\"最近下载记录\" tabindex=\"0\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".downloads-list",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.keyboard",
+    +       "wcag2a",
+    +       "wcag211",
+    +       "wcag213",
+    +       "TTv5",
+    +       "TT4.a",
+    +       "EN-301-549",
+    +       "EN-9.2.1.1",
+    +       "EN-9.2.1.3",
+    +       "RGAAv4",
+    +       "RGAA-7.3.2",
+    +     ],
+    +   },
+    + ]
+
+      73 |       await page.goto(route);
+      74 |       const results = await new AxeBuilder({ page }).analyze();
+    > 75 |       expect(results.violations.filter((entry) => ["critical", "serious"].includes(entry.impact ?? "")), route).toEqual([]);
+         |                                                                                                                 ^
+      76 |     }
+      77 |   });
+      78 |
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui104-settings.spec.ts:75:113
+
+    Error Context: artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-49b3f--or-critical-axe-violations-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-49b3f--or-critical-axe-violations-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-49b3f--or-critical-axe-violations-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines 
+
+    Error: expect(page).toHaveScreenshot(expected) failed
+
+      Expected an image 1440px by 1091px, received 1440px by 1161px. 147575 pixels (ratio 0.09 of all image pixels) are different.
+
+      Snapshot: ui104-security-1440-dark.png
+
+    Call log:
+      - Expect "toHaveScreenshot(ui104-security-1440-dark.png)" with timeout 5000ms
+        - verifying given screenshot expectation
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - Expected an image 1440px by 1091px, received 1440px by 1161px. 147575 pixels (ratio 0.09 of all image pixels) are different.
+      - waiting 100ms before taking screenshot
+      - taking page screenshot
+        - disabled all CSS animations
+      - waiting for fonts to load...
+      - fonts loaded
+      - captured a stable screenshot
+      - Expected an image 1440px by 1091px, received 1440px by 1161px. 147575 pixels (ratio 0.09 of all image pixels) are different.
+
+
+      81 |     await page.goto("/settings/security");
+      82 |     await expect(page.getByRole("heading", { name: "Security & MFA" })).toBeVisible();
+    > 83 |     await expect(page).toHaveScreenshot(`${snapshots[0]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });
+         |                        ^
+      84 |     await page.goto("/settings/browser");
+      85 |     await expect(page.getByRole("heading", { name: "Browser settings" })).toBeVisible();
+      86 |     await expect(page).toHaveScreenshot(`${snapshots[1]}.png`, { fullPage: true, maxDiffPixelRatio: 0.005 });
+        at /Users/anray/Documents/project/SumAlpha/QuantOS/tests/e2e/ui104-settings.spec.ts:83:24
+
+    attachment #1: ui104-security-1440-dark (image/png) ────────────────────────────────────────────
+    Expected: tests/e2e/ui104-settings.spec.ts-snapshots/ui104-security-1440-dark-chromium-darwin.png
+    Received: artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-chromium/ui104-security-1440-dark-actual.png
+    Diff:     artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-chromium/ui104-security-1440-dark-diff.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-chromium/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace artifacts/browser/terminal/test-results/ui104-settings-UI-104-prof-97b7b--1440-dark-visual-baselines-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    [chromium] › tests/e2e/command.spec.ts:31:7 › Command Center（/command） › 复用 UI-103 的 freshness、risk 与 connection 领域组件 
+    [chromium] › tests/e2e/command.spec.ts:66:7 › Command Center（/command） › 视觉基线：1440 深主题 ─────────
+    [chromium] › tests/e2e/ui104-settings.spec.ts:37:7 › UI-104 profile, security, notifications and browser settings › session revocation requires phrase and six-digit MFA, with cancel focused first 
+    [chromium] › tests/e2e/ui104-settings.spec.ts:71:7 › UI-104 profile, security, notifications and browser settings › profile, security and browser pages have no serious or critical axe violations 
+    [chromium] › tests/e2e/ui104-settings.spec.ts:79:7 › UI-104 profile, security, notifications and browser settings › P15 security and P17 browser 1440 dark visual baselines 
+  22 passed (13.6m)
+ ELIFECYCLE  Command failed with exit code 1.
+[WebServer] (node:33777) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:33779) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
