@@ -1,0 +1,937 @@
+[
+  {
+    "id": "f01-reproducibility",
+    "command": [
+      "node",
+      "scripts/verify-reproducible-builds.mjs",
+      "--mode",
+      "reproducibility",
+      "--runs",
+      "3"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T13:45:50.784Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f01-reproducibility.log",
+    "logSha256": "sha256:d1a1ce852cfe851cb736a4efaecd5e7f02e7deb396e54cca7d921f4f2955de81",
+    "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/f01-reproducibility.json",
+    "artifactSha256": "sha256:62662eda406a7bd9d464ddc101c8d111cf798d91e9a1f40ea5c7c8489ee8cf28",
+    "supportingArtifacts": []
+  },
+  {
+    "id": "f06-target",
+    "command": [
+      "node",
+      "scripts/run-p0-f06-target.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T13:49:11.232Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f06-target.log",
+    "logSha256": "sha256:df79156caffa09775d6c8549cc41f9c5b8c5dadddb4b01cdbb7ed00a4934faef",
+    "target": "configured-supabase",
+    "targetEvidence": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/f06-target.json",
+    "targetEvidenceSha256": "sha256:fa654eb8f0c5d5e6ea1186c183947d652c2a899b86d1c22759930921a13d7e10",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exitCode": 0,
+        "transient": false
+      }
+    ]
+  },
+  {
+    "id": "pre01",
+    "command": [
+      "pnpm",
+      "check:pre01"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T13:54:50.301Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre01.log",
+    "logSha256": "sha256:11a8ae6898ef48994a050a62b884cd188c8f4f220f8d7e26e6b9fe6041cef688"
+  },
+  {
+    "id": "pre01-negative",
+    "command": [
+      "pnpm",
+      "test:pre01"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T13:54:50.530Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre01-negative.log",
+    "logSha256": "sha256:faa7fbbed3bedada5a078f9feeb8126d2fb6e887259e135bc9e8acf112b9a70c"
+  },
+  {
+    "id": "f01",
+    "command": [
+      "node",
+      "scripts/check-f01.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T13:54:50.804Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f01.log",
+    "logSha256": "sha256:f57bcb04ee2c912c26ec5768ffb698bd8088a663ed28bab21b5476205d28d9e0"
+  },
+  {
+    "id": "f01-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/f01-gate-negative.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T13:54:51.195Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f01-negative.log",
+    "logSha256": "sha256:e6bce0686659529c5adbd6a2093f1ee52060268ad9ce97132a9c7b4fc015f409"
+  },
+  {
+    "id": "f01-lint",
+    "command": [
+      "make",
+      "lint"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T13:54:56.040Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f01-lint.log",
+    "logSha256": "sha256:8475a65a25bf79b46d8177a07d1a1346009581b7c792d939ffdc271d5f29313d"
+  },
+  {
+    "id": "f01-test",
+    "command": [
+      "make",
+      "test"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T13:55:35.332Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f01-test.log",
+    "logSha256": "sha256:91f33c20a43d19e687f658605240bc3ea43095f326430f0f75523e00d9d9574b"
+  },
+  {
+    "id": "proto",
+    "command": [
+      "bash",
+      "scripts/check-proto.sh"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:00.082Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/proto.log",
+    "logSha256": "sha256:a62243b46ab09e4cadd4d2d238e50103161b6de52465c0c5938a0733b4e220e0"
+  },
+  {
+    "id": "proto-client",
+    "command": [
+      "make",
+      "proto-compat-check"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:09.854Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/proto-client.log",
+    "logSha256": "sha256:df1bec3ca2860b40bfeee038a91fef8d2a5ca27ce0f16951a4bbb9c3cc040b21"
+  },
+  {
+    "id": "api-client-tests",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "test"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:41.372Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/api-client-tests.log",
+    "logSha256": "sha256:12abb6f548cf88098dd0c55402fd7bd08263150f0acc62c81a68efe4c6c629cf"
+  },
+  {
+    "id": "foundation-rust",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-core",
+      "-p",
+      "quantos-testkit",
+      "--lib"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:42.369Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/foundation-rust.log",
+    "logSha256": "sha256:3105846faadfe0df2349ee99dedd073709fb58d6165523e47ef94fe2d0bce43d"
+  },
+  {
+    "id": "f04",
+    "command": [
+      "node",
+      "scripts/check-f04.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:42.555Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f04.log",
+    "logSha256": "sha256:4fd680fa84247d8c6b057fe8ce63125bf29d9d2cc29a4e6c73a2b68d5c053be2"
+  },
+  {
+    "id": "f04-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/f04-gate-negative.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:43.642Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f04-negative.log",
+    "logSha256": "sha256:02da8a051f6ab3669c78af0808e729ffe2a6a889315fed605e201d40a726091b"
+  },
+  {
+    "id": "f04-line-coverage",
+    "command": [
+      "cargo",
+      "llvm-cov",
+      "--package",
+      "quantos-core",
+      "--all-features",
+      "--release",
+      "--fail-under-lines",
+      "90",
+      "--fail-under-regions",
+      "90",
+      "--summary-only"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:43.883Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f04-line-coverage.log",
+    "logSha256": "sha256:ab99c8d83d307b52766853b019dbadbda74cc432810a6af068b3c170ad434383"
+  },
+  {
+    "id": "f04-branch-coverage",
+    "command": [
+      "make",
+      "coverage-rust-branch"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:46.327Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f04-branch-coverage.log",
+    "logSha256": "sha256:bcda9aaface2a15784c6068f864d2e5296c183e7d62b852746d73159d32b9f47",
+    "environmentOverrides": {
+      "RUSTUP_TOOLCHAIN": "nightly"
+    },
+    "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/artifacts/f04-branch-coverage/f04-branch-coverage.json",
+    "artifactSha256": "sha256:060b0901254c4f3bc85668cd5f4f06dd3d5a1f4fc848395b6f390a8f5da0aff3",
+    "supportingArtifacts": []
+  },
+  {
+    "id": "event-rust",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-event",
+      "--lib"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:48.465Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/event-rust.log",
+    "logSha256": "sha256:039611aa6c7afea86274c09549b682a5dd6d5431281d667fdb8016b0e34558a3"
+  },
+  {
+    "id": "f05",
+    "command": [
+      "node",
+      "scripts/check-f05.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:48.779Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f05.log",
+    "logSha256": "sha256:e3518c683a8dfa064e26f5bcbcc20261e75c6e3bd7dbceb2d55e222d5ce99ac9"
+  },
+  {
+    "id": "f05-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/f05-gate-negative.mjs",
+      "scripts/f05-coverage.test.mjs",
+      "scripts/db-uuid-defaults.test.cjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:48.805Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f05-negative.log",
+    "logSha256": "sha256:50df58ebf0d63ed2d423d0b599996fba46d87ce689a16021662a53a6226c8e93"
+  },
+  {
+    "id": "f05-database",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "quantos-event",
+      "--test",
+      "postgres_persistence",
+      "--locked",
+      "--offline",
+      "--",
+      "--test-threads=1",
+      "--skip",
+      "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+      "--skip",
+      "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+      "--skip",
+      "postgres_tls_root_configuration_fails_closed"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:00:48.971Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f05-database.log",
+    "logSha256": "sha256:6f1927920d283db0d86f0f358ad78304037b2ef725668261f218b6dcbaf9ad70",
+    "target": "configured-supabase"
+  },
+  {
+    "id": "f05-volume",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-event",
+      "--test",
+      "postgres_persistence",
+      "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+      "--",
+      "--exact",
+      "--test-threads=1"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:09:35.494Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f05-volume.log",
+    "logSha256": "sha256:aabada88c75b6110459acbb58108890a999dccf8f42b92294693fba721a464ff",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exitCode": 0,
+        "transient": false
+      }
+    ],
+    "environmentOverrides": {
+      "QUANTOS_F05_TARGET_ISOLATED": "1"
+    },
+    "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/f05-volume.json",
+    "artifactSha256": "sha256:175ec11963294414ed2f7fb6397175870152c2ef74897f10b07f6a2d2af9677d",
+    "supportingArtifacts": [],
+    "target": "configured-supabase"
+  },
+  {
+    "id": "storage-rust",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-storage",
+      "--lib",
+      "--test",
+      "storage_http"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:23:11.130Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/storage-rust.log",
+    "logSha256": "sha256:f2c75049fb7ffd5c532239b6770fa36aca3adbd93e66d13a160e1004867d511d"
+  },
+  {
+    "id": "storage-database",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-storage",
+      "--test",
+      "postgres_persistence",
+      "--",
+      "--test-threads=1"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:23:13.427Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/storage-database.log",
+    "logSha256": "sha256:31d664aa98dfb2a6b1f51eebf48de8cbc606f92823bd9fdb2c076262aeb10f29",
+    "target": "configured-supabase"
+  },
+  {
+    "id": "storage-target",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-storage",
+      "--test",
+      "supabase_storage_integration",
+      "--",
+      "--test-threads=1"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:23:40.995Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/storage-target.log",
+    "logSha256": "sha256:5858dc04eb9e0dd390081c34bc593d2c7fd6f4281cf52ff732bedda3ba7e07aa",
+    "environmentOverrides": {
+      "QUANTOS_RUN_SUPABASE_STORAGE_TESTS": "1"
+    },
+    "target": "configured-supabase"
+  },
+  {
+    "id": "rls-target",
+    "command": [
+      "node",
+      "scripts/db-cli.cjs",
+      "live-rls"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:13.424Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/rls-target.log",
+    "logSha256": "sha256:9a0e9627fba26893e16ee406c4276947168e8a8eb1848584d96a1a854628cde8",
+    "target": "configured-supabase"
+  },
+  {
+    "id": "f05-coverage",
+    "command": [
+      "make",
+      "f05-coverage"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:23.775Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f05-coverage.log",
+    "logSha256": "sha256:92aed771d2c8a93458e89c6fd2f6f293508031e4a74c9c068d6f8968f034d6f3"
+  },
+  {
+    "id": "auth-rust",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-auth",
+      "--lib"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:31.021Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/auth-rust.log",
+    "logSha256": "sha256:2a0fc9df5cf4e2283c0c2366193b25581ecfacf87465f13f3f1b39f981093f81"
+  },
+  {
+    "id": "f06-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/f06-acceptance-gate-negative.mjs",
+      "scripts/f06-http-budget.test.cjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:31.842Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/f06-negative.log",
+    "logSha256": "sha256:f1964b3fea53d78ea37ef21b8bca251403c2d2c40e50847a4abf95d19fe7e9cd"
+  },
+  {
+    "id": "pre04",
+    "command": [
+      "pnpm",
+      "check:pre04"
+    ],
+    "exitCode": 1,
+    "status": "FAIL",
+    "executedAt": "2026-10-05T14:24:31.907Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre04.log",
+    "logSha256": "sha256:0fba6d23c6b050c30d04b874ea491e9a19a3c539d5c7bd38656d99a38c159502"
+  },
+  {
+    "id": "pre04-negative",
+    "command": [
+      "pnpm",
+      "test:pre04"
+    ],
+    "exitCode": 1,
+    "status": "FAIL",
+    "executedAt": "2026-10-05T14:24:32.168Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre04-negative.log",
+    "logSha256": "sha256:58cb7cf99401682dc2f05e70a95b5948359c1c225e5ca394598317accf3049e4"
+  },
+  {
+    "id": "domain-ui-tests",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/domain-ui",
+      "test"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:32.669Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/domain-ui-tests.log",
+    "logSha256": "sha256:d524bfd7d16946b56dd32e8f1aa0d103d6525d5081488543cbd9244197b5e074"
+  },
+  {
+    "id": "pre02",
+    "command": [
+      "pnpm",
+      "check:pre02"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:33.195Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre02.log",
+    "logSha256": "sha256:2028b911d95b971cc47090b60b7d794e5cce4597d9a89e055491b4303c5eb62e"
+  },
+  {
+    "id": "pre02-negative",
+    "command": [
+      "pnpm",
+      "test:pre02"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:33.593Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre02-negative.log",
+    "logSha256": "sha256:5f28d121cf821567d05cb0c0871edff725fab931d446552613ada7d0143c1d33"
+  },
+  {
+    "id": "ui-tests",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/ui",
+      "test"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:34.048Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/ui-tests.log",
+    "logSha256": "sha256:4f29049029d8837387ec746c15fb2a481544efbbf171ca67b1e9f4efe0883dc0"
+  },
+  {
+    "id": "build-terminal",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:34.765Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/build-terminal.log",
+    "logSha256": "sha256:5879721f927c7128d878a6ac9f8eb4581bf0f82b7c4862561d3ea78566e85b27"
+  },
+  {
+    "id": "build-website",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/website",
+      "build"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:42.542Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/build-website.log",
+    "logSha256": "sha256:3a5b0d7c8d4f94370360a0064e10a015c08655e266206e9211d87e7f7c14df7c"
+  },
+  {
+    "id": "storybook",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/ui",
+      "build-storybook"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:48.745Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/storybook.log",
+    "logSha256": "sha256:cd6324a44a644094df62a00b8fc9e3c5df9b4c8350b073e07312396b8984e1fa"
+  },
+  {
+    "id": "pre03",
+    "command": [
+      "pnpm",
+      "check:pre03:web"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:55.303Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre03.log",
+    "logSha256": "sha256:43242be9e2144a688fc6bcbb7fbb23c05af033921615f9dd3f35f9755a7f873b"
+  },
+  {
+    "id": "pre03-negative",
+    "command": [
+      "pnpm",
+      "test:pre03"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:24:57.640Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre03-negative.log",
+    "logSha256": "sha256:3c2458d632b7834be869853ab4a91fccbe9727092a06fd1589d5643810ad9aa6"
+  },
+  {
+    "id": "pre05",
+    "command": [
+      "pnpm",
+      "check:pre05"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:12.816Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre05.log",
+    "logSha256": "sha256:07cde80e8afa022a0e1b91aeb2ffce79eefed36a571d00d627e1606ee3f34b3b"
+  },
+  {
+    "id": "pre05-negative",
+    "command": [
+      "pnpm",
+      "test:pre05"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:13.175Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre05-negative.log",
+    "logSha256": "sha256:58b1c1ebf9a5219078fc973648101eb7c5b60ab2f7bf44e46c635a786bbb239e"
+  },
+  {
+    "id": "config-tests",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/config",
+      "test"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:15.511Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/config-tests.log",
+    "logSha256": "sha256:5b9645dec898e8c5f4dc99e41a3cc369a3a9cd7c644237ddf6c66d52ef52b012"
+  },
+  {
+    "id": "pre06",
+    "command": [
+      "pnpm",
+      "check:pre06"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:16.109Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre06.log",
+    "logSha256": "sha256:9a7bb9049690061d12f936589d84ef6ccfd68d1a66c179afffdfa7b05091ff49"
+  },
+  {
+    "id": "pre06-negative",
+    "command": [
+      "pnpm",
+      "test:pre06"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:17.009Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/pre06-negative.log",
+    "logSha256": "sha256:01e3c550cd7a3c80bfc8577be46b4e45436e90f767e238fd49c31cd223c159fe"
+  },
+  {
+    "id": "schema",
+    "command": [
+      "pnpm",
+      "test:contract"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:18.488Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/schema.log",
+    "logSha256": "sha256:5e5e9239b059cf6e16f8000f9ccf6d1b7a92fddc0822e378d7cfdad6f7c09d1b"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "pnpm",
+      "check:bff-generated"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:20.629Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/generated.log",
+    "logSha256": "sha256:9a1e12269ef5b9c9979f1d18f936c978c86edb668434b2562624b3e9f2504519"
+  },
+  {
+    "id": "catalog",
+    "command": [
+      "pnpm",
+      "check:bff-contract-coverage"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:21.224Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/catalog.log",
+    "logSha256": "sha256:84a06a650ce8da85740db6da92c6a4f32012cc089f9ec64200aafa154d1329fe"
+  },
+  {
+    "id": "visual-inventory",
+    "command": [
+      "pnpm",
+      "check:visual-baselines"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:21.417Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/visual-inventory.log",
+    "logSha256": "sha256:a4f981c7c26242a0697fdd6942173803c431d76bce31caffe64ef7c4c05e1090"
+  },
+  {
+    "id": "sabotage",
+    "command": [
+      "pnpm",
+      "sabotage:pre06"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:22.079Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/sabotage.log",
+    "logSha256": "sha256:a1aa6e1a63425e7fd55b41b6c43e02a531938de138ae683e7476a00b89c6dc50"
+  },
+  {
+    "id": "critical",
+    "command": [
+      "pnpm",
+      "coverage:critical"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:23.583Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/critical.log",
+    "logSha256": "sha256:426151ab34a88414dc09e0ba12025b3d138eaf500fc443638a67addc98b1c000"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "pnpm",
+      "check:development-plans"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:24.741Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/plans.log",
+    "logSha256": "sha256:f4fb87cd13b94a10ba01025852e569c1d541741d604488dcc94076f4d974ec03"
+  },
+  {
+    "id": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:24.893Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/plans-negative.log",
+    "logSha256": "sha256:66b7e35507ac66d3f370f256c765e9de59431a638600dd774e46795040d70744"
+  },
+  {
+    "id": "chromium",
+    "command": [
+      "pnpm",
+      "test:browser",
+      "--project=chromium",
+      "--workers=2",
+      "--retries=0",
+      "--update-snapshots=none"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:25.326Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/chromium.log",
+    "logSha256": "sha256:3af75a904e72a96fe705dce6177da1d9d01ced2fadcac63629651bf0b6c1b321"
+  },
+  {
+    "id": "coverage",
+    "command": [
+      "pnpm",
+      "coverage:web"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:30.628Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/coverage.log",
+    "logSha256": "sha256:fa8eee6bf6b235d41c6f845fa5d47ba4b7c14a5370bde8988c771c4b7314dff1"
+  },
+  {
+    "id": "a1",
+    "command": [
+      "pnpm",
+      "check:bff-a1-development"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:33.066Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/a1.log",
+    "logSha256": "sha256:d1b3ff233477011d606b5a82dea5062afe3dc48f59e435b22fdc7daa254313f1"
+  },
+  {
+    "id": "openapi",
+    "command": [
+      "pnpm",
+      "check:bff-openapi"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:33.281Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/openapi.log",
+    "logSha256": "sha256:25373fe45b8d467d9b40d70a65d2045b8afaf038f4f9e0ba16ea1841254fae30"
+  },
+  {
+    "id": "compatibility",
+    "command": [
+      "pnpm",
+      "check:bff-compatibility"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:33.476Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/compatibility.log",
+    "logSha256": "sha256:7620129d8633aeac4be4e139cc299cafe30714c5f559bb7dd8d2a5b0653ffbfe"
+  },
+  {
+    "id": "a1-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/bff-fe-000-gate-negative.mjs",
+      "scripts/bff-remediation-negative.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:33.718Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/a1-negative.log",
+    "logSha256": "sha256:284ac3154c5c824103b5e68869d5bd4cb0c4467caf51960b53c55527eaf5a87f"
+  },
+  {
+    "id": "client-typecheck",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "typecheck"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:33.910Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/client-typecheck.log",
+    "logSha256": "sha256:f4af4995fef11f352442ba581d85cd8e40d96deee08590b95d84607ec128d41e"
+  },
+  {
+    "id": "client-lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "lint"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:34.847Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/client-lint.log",
+    "logSha256": "sha256:5330c0f482f4d0120fb33de02f59aa365fca03567ad9f3c4791cf85972aec1d1"
+  },
+  {
+    "id": "provider-rust",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--lib",
+      "--tests"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:35.639Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/provider-rust.log",
+    "logSha256": "sha256:caefe9f4ce23aa8aaf9e405a330f8483a9d7ed09aefd310b8eb2685d5ff0dbac"
+  },
+  {
+    "id": "provider-http",
+    "command": [
+      "node",
+      "scripts/test-bff-provider-contract.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:52.154Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/provider-http.log",
+    "logSha256": "sha256:1b7ad213f014671335ca646ab38fd8310513cab499d2ef0f19711a000a5d9ea1"
+  },
+  {
+    "id": "semantic-mutations",
+    "command": [
+      "node",
+      "scripts/test-provider-a1-mutations.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:25:58.340Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/semantic-mutations.log",
+    "logSha256": "sha256:2ae1d05d2f72e5762fb156a847a0bef7f8106c7387341cd75701727a2f219374"
+  },
+  {
+    "id": "receipt-negative",
+    "command": [
+      "pnpm",
+      "test:provider-a1"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:26:12.066Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/receipt-negative.log",
+    "logSha256": "sha256:e40ad10822dfaeb5d122c36d3212d194704b69bd06296aae548e5145bb25e763"
+  },
+  {
+    "id": "db-visibility",
+    "command": [
+      "node",
+      "scripts/check-provider-a1-db-visibility.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-05T14:26:12.988Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/a2-final-20261005/logs/db-visibility.log",
+    "logSha256": "sha256:f7a33e25c5001cbeac31485fd36d02e83598edf039b90d38201727cfb986280c"
+  }
+]
