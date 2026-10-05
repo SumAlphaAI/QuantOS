@@ -39,12 +39,13 @@ export function validateA2({nodes=nodesFromPlans(),base=root,record}={}) {
  const path='docs/'+gate.evidence[0];assert(path.startsWith('docs/audit/evidence/bff-fe-001-remediation-20261005/'),'A2 manifest outside evidence directory');const raw=readFileSync(confined(path,base));assert.equal(digest(raw),gate.input_digest,'A2 manifest digest changed');
  return validateEvidence(JSON.parse(raw),{currentInputs:inventory(selectors,base),currentPlan:planInput(n),dependencies:new Map(n.dependencies.map(id=>[id,nodes.get(id).stage_gate])),read:p=>readFileSync(confined(p,base)),validateDependency:id=>validateReceipt(id,{nodes,base})});
 }
-export function recordA2(output) {
- assert(output?.startsWith('docs/audit/evidence/bff-fe-001-remediation-20261005/')&&!output.includes('..'),'unsafe output');const nodes=nodesFromPlans();const n=nodes.get('FE:BFF-FE-001');for(const id of n.dependencies)validateReceipt(id,{nodes});
+export function recordA2(output,targetDirectory='docs/audit/evidence/bff-fe-001-remediation-20261005/live') {
+ assert(output?.startsWith('docs/audit/evidence/bff-fe-001-remediation-20261005/')&&!output.includes('..'),'unsafe output');
+ assert(targetDirectory.startsWith('docs/audit/evidence/bff-fe-001-remediation-20261005/')&&!targetDirectory.includes('..'),'unsafe target evidence');const nodes=nodesFromPlans();const n=nodes.get('FE:BFF-FE-001');for(const id of n.dependencies)validateReceipt(id,{nodes});
  const checks=[];const add=(id,path)=>{const raw=readFileSync(confined(path));checks.push({id,path,sha256:digest(raw),exitCode:0,status:'PASS'});};
  mkdirSync(resolve(root,output),{recursive:true});
  for(const name of ['semantics.json','mutations.json'])cpSync(resolve(root,'artifacts/bff-fe-001',name),resolve(root,output,name));
- add('semantics',output+'/semantics.json');add('mutations',output+'/mutations.json');add('live','docs/audit/evidence/bff-fe-001-remediation-20261005/live/receipt.json');add('traces','docs/audit/evidence/bff-fe-001-remediation-20261005/live/traces.jsonl');
+ add('semantics',output+'/semantics.json');add('mutations',output+'/mutations.json');add('live',targetDirectory+'/receipt.json');add('traces',targetDirectory+'/traces.jsonl');
  add('contract-negative',output+'/contract-negative.log');add('stage-negative',output+'/stage-negative.log');
  const semanticLogs=[0,1,2].map(i=>{const name=`semantics-${i}.log`;cpSync(resolve(root,'artifacts/bff-fe-001',name),resolve(root,output,name));return {path:output+'/'+name};});
  const mutationLogs=mutantNames.map(name=>{const file=`mutation-${name}.log`;cpSync(resolve(root,'artifacts/bff-fe-001',file),resolve(root,output,file));return {name,path:output+'/'+file};});
@@ -52,4 +53,4 @@ export function recordA2(output) {
  const path=output+'/a2.json';const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,path),bytes);n.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(bytes),evidence:[relative('docs',path)]};validateA2({nodes});
  const plan='docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md';writeFileSync(resolve(root,plan),publishStages(readFileSync(resolve(root,plan),'utf8'),nodes,'FE:'));return validateA2();
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{console.log(JSON.stringify(process.argv[2]==='--record'?recordA2(process.argv[3]):validateA2()));}catch(e){console.error(e.message);process.exitCode=1;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{console.log(JSON.stringify(process.argv[2]==='--record'?recordA2(process.argv[3],process.argv[4]):validateA2()));}catch(e){console.error(e.message);process.exitCode=1;}}

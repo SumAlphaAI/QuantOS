@@ -1,0 +1,116 @@
+{
+  "schema": "quantos-bff-a2-live-regression/v1",
+  "sourceCommit": "fab00bae95bea4b30eaaa0ca0f7f350e3af9986f",
+  "sourceTreeClean": true,
+  "status": "FAIL",
+  "sourceHashes": {
+    "services/bff-gateway/src/live/settings.rs": "133fe5932d33c9a755895b130c9f3fbd158418bbc1103b351fd56ae047065043",
+    "services/bff-gateway/src/live/settings_policy.rs": "d8e78c1ea645226a1567a5cf0143997df11190dcdc33a735544c1e2b4f31159d",
+    "services/bff-gateway/src/live.rs": "6371fb0d515b2fa2d62c5d156b99b19339ea5830b25259d6a11bb69dcfdce95c",
+    "crates/quantos-auth/src/lib.rs": "c71b5f3896893c7cdf4cb93647bde334601eaad51707f55eeb132757a2910cc9",
+    "supabase/migrations/20261003090000_bff_a2_identity_settings.sql": "16c99fff333abd48ba206a2edcef86bc61fc6e6feca59934fab93ea7c51afc41",
+    "bff/openapi/quantos-bff.v1.yaml": "e783bcd0fc250ca8d458d4c4a0e48b9b000ba71dd72bd66e3b92f1020f87b0a8",
+    "scripts/test-bff-fe-001-live.mjs": "5829a1e3b81eaa59357d4bfb63d826a5d57021cf0af5949ca84f4fb30086d0d5"
+  },
+  "assertions": [
+    "audit-response-saveProfile",
+    "profile-replay-stable-correlation",
+    "audit-response-saveNotificationPrefs",
+    "primary-auth-timestamp"
+  ],
+  "correlations": [
+    "dd61a853-5038-4168-95d7-422796ce6d8a",
+    "f0ea6acd-e2c3-470c-b464-95d9eaf5cb6d"
+  ],
+  "cleanupVerified": true,
+  "scope": "configured existing Supabase Auth/PostgreSQL; local live BFF, synthetic HTTPS Origin; not staging",
+  "records": [
+    {
+      "operationId": "getSession",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getContext",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "getNotificationPrefs",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveNotificationPrefs",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getNotificationPrefs",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 503,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    }
+  ],
+  "failure": "TOTP enrollment material was not delivered once",
+  "cleanup": "restore own original profile/preferences and factor set; revoke own temporary sessions; retain append-only test audits"
+}

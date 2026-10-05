@@ -17,3 +17,5 @@ CI 还消费 F0/G0/FEP0 工程回执，本轮脚本/测试输入改变后需重�
 补充实测：R01 按 GitHub transaction pool 设置 16/16 PASS，最大异常确认 3285ms；原 nightly native ACK 经当前 normalizer 和 Supabase 读回确认（2034ms）。两轮默认 session pool 失败单独保留。旧 A1 的 69 个引用文件均已被 Git 跟踪，F04 原 coverage 的 Git 快照/摘要/覆盖率校验通过。
 
 首轮完整评估保留 8 个已执行结果，其中 F09 因 raw operator TLS 模式失败；停止后对夹具的 TLS、CA、窄登录和 SET ROLE 候选逐项实测，失败证据保留。最终 test-only 适配器不执行设置 API 或权限验收，也不改变数据库角色。格式化后的源码需完整重新评估。
+
+2026-10-06：最终 F09 无窄 URL 实测通过。正常 A2 在 fab00ba 第三轮 51 次调用、20 API、14 强断言及 cleanupVerified=true；前两轮在首次材料交付处 503/恢复 restart_required 而终止，恢复均通过。直接 Auth 响应头诊断与隔离诊断二进制不计验收。新目标证据独立存入 ci-live-20261006，recorder 可显式选择该受限目录，原 live 回执不覆盖；完整上游需在最终 recorder 源码冻结后重新执行。
