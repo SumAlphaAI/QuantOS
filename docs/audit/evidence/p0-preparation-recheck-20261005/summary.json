@@ -1,0 +1,136 @@
+{
+  "schema": "quantos-p0-focused-recheck/v1",
+  "date": "2026-10-05",
+  "observedSourceCommit": "e1ab4a9a1173c63f8163bc953900c5d6a0bcfa8d",
+  "issueClosure": {
+    "B-01": "CLOSED",
+    "H-01": "CLOSED",
+    "M-01": "CLOSED"
+  },
+  "historicalFormalReceipt": "75a563c62d3d7883d5b178111becec07d4da0301",
+  "historicalArtifactsVerified": 73,
+  "developmentNodesReady": 12,
+  "currentFormalGate": "FAIL_NO_CURRENT_SHA_RECEIPT",
+  "databaseExecutionThisRun": "NOT_RUN",
+  "documentationRepair": "Align report/runbook with plan DEVELOPMENT stage policy; retain formal same-SHA scope",
+  "commandResults": [
+    {
+      "name": "pre06",
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "pre06-negative",
+      "command": [
+        "pnpm",
+        "test:pre06"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "contract",
+      "command": [
+        "pnpm",
+        "test:contract"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "sabotage",
+      "command": [
+        "pnpm",
+        "sabotage:pre06"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "p0-negative",
+      "command": [
+        "pnpm",
+        "test:p0"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "functional",
+      "command": [
+        "pnpm",
+        "check:provider-a1"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "functional-negative",
+      "command": [
+        "pnpm",
+        "test:provider-a1"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "plans",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "plans-negative",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ],
+      "exitCode": 0
+    },
+    {
+      "name": "formal-current",
+      "command": [
+        "pnpm",
+        "check:p0"
+      ],
+      "exitCode": 1
+    }
+  ],
+  "executionNegatives": 7,
+  "tests": {
+    "contract": 25,
+    "pre06": 17,
+    "p0": 16,
+    "functionalReceipt": 41,
+    "plan": 35
+  },
+  "bootstrap": {
+    "offline": "FAIL_MISSING_CACHED_PG_TARBALL",
+    "frozenOnline": "PASS"
+  },
+  "files": {
+    "bootstrap-online.log": "cab4decd3296f89d915e25d0521df8232998864e4101885c6ab881460b39b285",
+    "bootstrap.log": "9c7fc0a88332e6427d0a732668dceab50b263b2764a9e2a77034ba44c3531cb9",
+    "commands.json": "05ee1c3c6584047aaa88e0374ac55acf425922b83c74410d9f6072ded76f1d92",
+    "contract-dead-branch.log": "4ff6ade3bbc051a5fbfaa7691df492e7fde86df542d12643d29941da596a9ea6",
+    "contract-return-contract.log": "97475d70358d188adb86be0aeed3b6f962d4aae812129f13b17ef0fa1cae8498",
+    "contract-return-direct-vitest.log": "23e5f96239b1f61d06c618d63972cf0e8db9586df7ac8c9283171d200eea0cbe",
+    "contract-return-sabotage.log": "e2b54a66537d74f55249ea13105a8c87bb3549032947804cca3486a544affaf6",
+    "contract-return-structure.log": "432e7e9504a8571dea40259d947e86655454f3c93ce38e5277dac109a130236e",
+    "contract-unused-helper.log": "32da5756d8d9a4af6a2760ef2141710b77cbfa91d01784961e9812f4f5e35da7",
+    "contract-zero-assertion.log": "b139aed6177f3d4594efccaa97a3454484d106f55e799488a364198db4ddcf62",
+    "contract.log": "c5ccaf23b37d2c7188b01805b8722e34e747fb9da19646e8fcdab18e1a92241e",
+    "execution-negatives.json": "e7dda5ed241c1eca1b06aa17fa31940ef8a13d81d711abe2e01a2991ef1f1ac7",
+    "formal-current.log": "94bf72343dc384c1d87378efdc7f82c36046f0e15b7611e3939830bcf9c1ed6d",
+    "functional-negative.log": "2304993259a56712fc475cb0bc9403bc0d8a869fc358121bce5472fa06486e2a",
+    "functional.log": "8d80a0be1e1f691ebc63afd04a86dd9cfa6fe15d9fd8d53a8423e6a7d6a4384f",
+    "p0-negative.log": "977878a5223f612859bcd00a1901f372901e3398cf7931382dd203acdd1e9383",
+    "plans-negative.log": "96ccdd7fe63efe981a3907549a1f75b797751f105fabaefe8a5a84f443c4402d",
+    "plans.log": "f85102a63ebc4f8ce60d08e658bb4503b2a0072d70c9df57253a6a871d39fddc",
+    "pre06-negative.log": "1cfab22b34df7b87d1ba09bb901ecb7d723fe5a3e21970caa1e231d26140d943",
+    "pre06.log": "9a7bb9049690061d12f936589d84ef6ccfd68d1a66c179afffdfa7b05091ff49",
+    "receipt-verification.json": "4f8d8772f110513579f07b16e009fb70655351f1e2c0b6fe9de48431897bd99f",
+    "sabotage.log": "a1aa6e1a63425e7fd55b41b6c43e02a531938de138ae683e7476a00b89c6dc50",
+    "workspace.json": "394b607adb9ac4b1ba2f7f12806f7f8bead61099477b510c050907a5df6900a4",
+    "final-plan-negative.log": "85b28780167797223c95b9ea871c952cc1bd1aaf482eabb82ec14c6fe40cf0da"
+  }
+}

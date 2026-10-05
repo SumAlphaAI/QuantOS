@@ -1,69 +1,53 @@
-# P0 / PREPARATION:P0 验收检查点全面复审报告
+# PREPARATION:P0 复审报告
 
-> 初审：2026-10-02；整改验收：2026-10-03（Asia/Shanghai）。
-> 已接受源码：`0149e5681fde7c6b75f891f6708d63726f075fc9`；计划登记版本：3.14。
-> 结论：**PASS，16/16＝100%，仅放行 A1。** 原 3 项问题全部关闭；当前未解决问题：阻塞 0、高危 0、中危 0、低危 0。
+> 最近复核：2026-10-05（Asia/Shanghai）；受检提交：`e1ab4a9a1173c63f8163bc953900c5d6a0bcfa8d`。
+> **原 3 项问题全部关闭；当前 DEVELOPMENT READY。** 未解决问题：阻塞 0、高危 0、中危 0、低危 0。
+> 本次为问题关闭复核和文档整理，不是当前提交的正式全量验收。
 
 ## 一、任务完成概况
 
-依据[前端执行计划 P0](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#acceptance-preparation-p0)、[核心计划](../SumAlpha-QuantOS-Development-Plan.md)、[Terminal 规格](../SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)及[网站与终端设计](../SumAlpha-QuantOS-Web-and-Terminal-Design.md)，完成六项 PRE、完整核心前置及阶段验收记录复核。
+重新检查了原阻塞、高危、中危问题的实现、实际反证、历史正式回执及当前阶段证据。三项修复仍然有效；发现的文档口径偏差已修正：报告及操作规程统一遵循[执行计划第 2.1 节](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#21-统一阶段与依赖消费规则)，按受检功能输入决定 DEVELOPMENT 准入，正式同 SHA 验收继续单独记录。
 
-整改补齐关键契约测试的实际断言保障、同 SHA F06 目标验收与 P0 独立回执门禁。39 项联合检查全部通过；七项进程级反证全部按预期非零退出；直接连接已配置 Supabase 的 Auth/BFF/Runtime、Execution/Vault 和 PostgreSQL 拒绝矩阵通过。六项 PRE 均满足本阶段工程交付要求，16 个控制点全部通过。
+当前六项 PRE 均已完成；P0 与其 11 个前置节点共 **12/12 READY**，输入文件、契约、配置、测试、日志摘要与依赖证据递归核验通过。记录只支持相应功能范围，不自动接受 G0、全量 provider、页面联调或 RELEASE。
 
-本报告登记上述已接受源码，后续提交的准入仍以其自身 `refs/notes/f06-acceptance`、`refs/notes/p0-acceptance` 和干净工作树上的 `make f06-acceptance-gate`、`pnpm check:p0` 为准；历史回执不自动接受新 HEAD。审核身份为本轮用户授权的工程验证，不代表跨职能 owner 签字或指定模型复审。
-
-原始发现、初审结论与证据保持不变，见[历史报告](./PREPARATION-P0-comprehensive-review-history-2026-10-02.md)；逐项修复见[整改记录](./PREPARATION-P0-remediation-2026-10-02.md)。本次[证据清单](./evidence/p0-preparation-remediation-20261002/source-0149e56/manifest.json)包含日志哈希、[P0 回执](./evidence/p0-preparation-remediation-20261002/source-0149e56/web/p0-receipt.json)与[F06 回执](./evidence/p0-preparation-remediation-20261002/source-0149e56/f06-target/f06-receipt.json)。
+历史提交 `75a563c62d3d7883d5b178111becec07d4da0301` 的 P0/F06 notes 仍通过其原提交校验；73 份入库历史证据摘要全部一致。当前受检提交没有自身正式回执，`pnpm check:p0` 实际返回 FAIL，**未宣称当前 HEAD 正式 ACCEPTED**。这是现行阶段政策下的独立状态，不撤销已关闭的历史整改或有效的功能准入。
 
 ## 二、完成情况明细统计
 
-沿用初审的 16 个等权控制点：PASS 计 1，PARTIAL/FAIL 计 0。当前 PASS 16、PARTIAL 0、FAIL 0；严格完成率 **100%**。六项 PRE 均有产物并通过复核，不按测试数量推算任务完成率。
-
-| 编号 | 验收要求 | 当前结果与证据 | 状态 |
-|---|---|---|---|
-| C01 | P0 范围、依赖与 A1/G0/provider 边界 | 静态计划通过；实际回执限定 A1_ONLY | PASS |
-| C02 | PRE-03/PRE-04 完整核心前置 | F01/F03 范围化接受记录保留；本次 F06 同 SHA 真实目标回执及门禁通过 | PASS |
-| C03 | PRE-01 页面、Story 及七态覆盖 | 30 页面、132 Story、220 场景、30 追踪行；32 回归通过 | PASS |
-| C04 | 角色、路由、风险、离线和安全一致 | 受控规则与 operation 追踪验证通过 | PASS |
-| C05 | PRE-02 设计、WCAG 与安全 i18n | 252 对比度配对、18 安全 key、组件台账；27 回归及 Storybook 构建通过 | PASS |
-| C06 | PRE-03 依赖、锁与双应用 PoC | 29 关键依赖、2349 运行时契约检查；双构建和 27 项正负测试通过 | PASS |
-| C07 | 新源码 bootstrap/build/test ≤30 分钟 | 干净 Git 导出、冻结离线安装和宿主缓存；39 项累计 116.295 秒 | PASS |
-| C08 | PRE-04 接口、字段、页面依赖 | 17 契约、23 个 P0 单元、383 字段；38 回归通过 | PASS |
-| C09 | owner 与 mock 状态可追溯 | 17 契约责任角色及实施任务完整；62 已发布/46 计划能力边界明确 | PASS |
-| C10 | PRE-05 三环境、身份与 mode 分离 | 三模板及 26 配置测试、10 门禁回归通过 | PASS |
-| C11 | 缺配置 fail-fast、客户端秘密检查 | 配置负向与两应用 mock 构建产物扫描通过 | PASS |
-| C12 | PRE-06 同源 schema/MSW 与 fixture | 62 操作/51 schema、10 fixture、17 contract；原 sabotage 检查通过 | PASS |
-| C13 | 关键负向测试确实执行 | 17 门禁回归；七项进程反证均 exit 1；直接 Vitest 拒绝零断言 | PASS |
-| C14 | 浏览器、基础 axe 与视觉基线 | macOS 六组 135/135；0 失败/跳过/flaky；24 PNG 完整性通过 | PASS |
-| C15 | 覆盖率、性能与 CI 失败证据 | 全局行 81.27%；5 关键文件四维 100%；两应用预算通过；CI 接入 P0 政策回归 | PASS |
-| C16 | 完整 SHA 验收与受限放行 | 16 项 P0 判定器测试通过；实际 F06/P0 notes 和双门禁 PASS | PASS |
-
-| 验证层 | 实际结果 | 边界 |
+| 核验对象 | 结果 | 统计边界 |
 |---|---|---|
-| 六 PRE 联合重放 | 39/39 命令退出 0；187 单元、17 contract | Node 24.12.0 / pnpm 10.20.0；离线缓存安装，不宣称无缓存下载耗时 |
-| 浏览器 | Terminal 81 + 官网 54＝135；retries=0、update-snapshots=none | macOS Chromium/Firefox/WebKit；Linux PNG 完整性不等于 Linux 执行 |
-| 回归与反证 | PRE-06 17、P0 16；七项实际进程反证均成功拒绝 | 回调提前返回、死分支、未调用 helper、零断言及三个入口受检 |
-| Auth/BFF/Runtime | 真实 Supabase Auth、独立数据库登录、cookie/权限/撤销通过 | 本地服务连接远端测试项目；合成 Origin 服务探针，不是线上浏览器部署验收 |
-| Execution/Vault | 6 场景、8/8 SQL 角色拒绝通过 | Paper 路径；不宣称 X03 issuer/transport 验收 |
-| PostgreSQL | 8 passed、0 failed、0 ignored；包含四类拒绝矩阵 | 真实配置目标；1 项开发者延迟诊断按既有政策排除 |
-| F06 本地门禁 | 3 项身份/启动证据测试通过、1 项修复夹具测试跳过；5 项验收负向通过 | 跳过项不是必需目标矩阵，未记作执行成功 |
+| 原问题整改 | 3/3 关闭，100% | 阻塞 1、高危 1、中危 1；细节归档，不再列为待办 |
+| 六项准备任务 | 6/6 COMPLETED、READY | 既有功能清单与实际证据经本轮重新校验 |
+| P0 功能依赖闭包 | 12/12 READY | P0、六 PRE、CORE:F01/F03/F04/F05/F06；按内容摘要核验 |
+| 旧版 16 控制点 | 历史 16/16 PASS | 属于原提交验收，不能计作本轮 16 项全部重跑 |
+| 当前正式同 SHA 验收 | 未取得，门禁 FAIL | 不继承旧 notes；与 DEVELOPMENT 状态分开 |
 
-对应[联合命令](./evidence/p0-preparation-remediation-20261002/source-0149e56/web/commands.json)、[七项反证](./evidence/p0-preparation-remediation-20261002/source-0149e56/web/execution-negatives.json)、[目标运行](./evidence/p0-preparation-remediation-20261002/source-0149e56/f06-target/target-results.json)、[数据库日志](./evidence/p0-preparation-remediation-20261002/source-0149e56/f06-target/database.log)、[P0 门禁](./evidence/p0-preparation-remediation-20261002/source-0149e56/web/p0-acceptance-gate.log)和[F06 门禁](./evidence/p0-preparation-remediation-20261002/source-0149e56/web/f06-acceptance-gate.log)。
+本轮实际执行结果：
 
-## 三、问题清单及风险分析
+| 检查 | 结果 |
+|---|---|
+| PRE-06 正向及原 sabotage | 均通过 |
+| 正常契约测试 | 25/25 通过 |
+| PRE-06 门禁回归 | 17/17 通过 |
+| P0 回执回归 | 16/16 通过 |
+| 功能回执回归 | 41/41 通过 |
+| 计划依赖回归 | 35/35 通过 |
+| 实际进程反证 | 7/7 按预期 exit 1；提前返回、死分支、未调用 helper、空回调均被拒绝 |
+| 功能证据及计划结构 | 当前功能证据有效、计划结构通过 |
+| 历史验收证据 | 原 SHA 回执 PASS；73 文件摘要匹配 |
 
-当前无未解决问题。原阻塞 B-01、高危 H-01、中危 M-01 均已关闭；详情移入整改记录及历史报告，不再列为待办。
+反证在当前提交导出的独立源码副本执行并恢复测试文件。首次离线安装因本机缓存缺少 `pg` 包失败；随后按同一锁文件联网安装成功，两个结果均保留。未修改锁文件或依赖版本，也未把本轮安装当作原 30 分钟完整启动链复验。
 
-保留以下验收边界：
+本轮证据：[结果清单](./evidence/p0-preparation-recheck-20261005/summary.json)、[命令与退出码](./evidence/p0-preparation-recheck-20261005/commands.json)、[执行反证](./evidence/p0-preparation-recheck-20261005/execution-negatives.json)、[历史与阶段回执核验](./evidence/p0-preparation-recheck-20261005/receipt-verification.json)。
 
-- P0 只允许进入 A1；正式 G0、全部 provider 与页面联调、Desktop 不据此接受。
-- 未执行远端 CI/Linux、三 profile × 双应用全部目标构建、线上部署或组织 owner 签署；已执行的 Supabase 目标范围仅为完整 F06 前置。
-- 使用既有 Supabase 测试项目，无本地数据库、项目创建、schema 重置或迁移。Runtime 身份烟测临时使用 admin Storage key，未执行 Storage 操作；Execution 测试已清理数据并按既有脚本保留空测试 tenant。
-- 回执是本地工程证据，哈希用于校验内容一致性，不代替独立签名。Git notes 与分支分别存储；只推送分支不会保证回执同步。
+## 三、当前问题与验收边界
 
-初次目标运行因缺少 `QUANTOS_TRACE_EXPORT_PATH` 在 BFF 启动时退出，补齐临时证据路径后在同一 SHA 完整重跑成功；[首次失败证据](./evidence/p0-preparation-remediation-20261002/source-0149e56/initial-target-failure/target-results.json)保留，不将失败日志改写为 PASS。
+当前无待修复问题。已解决问题的具体表现、影响及关闭依据保留在[初审历史](./PREPARATION-P0-comprehensive-review-history-2026-10-02.md)、[整改记录](./PREPARATION-P0-remediation-2026-10-02.md)和[2026-10-03 验收快照](./PREPARATION-P0-accepted-snapshot-2026-10-03.md)，主报告只展示当前结论。
 
-## 四、整改建议与维护要求
+本轮未连接数据库、未执行浏览器矩阵、部署、性能或长稳测试。已有 Supabase 功能证据经内容和依赖校验仍有效，不等于本轮重新执行；历史 135 浏览器用例及 8 项数据库测试仍只属于其原运行。阶段 READY 不替代发布环境、组织签署或当前候选正式回执。
 
-本轮整改已完成，无待修复项。后续每次改变提交身份，应依照[P0 验收规程](../P0-acceptance-runbook.md)重放联合检查、七项执行反证和真实目标链路，为新 HEAD 生成独立回执，再执行双门禁。不得用任务 COMPLETED、静态计划 PASS、旧回执或本地 mock 替代目标验收。
+## 四、后续维护要求
 
-继续推进 A1 时保留正式 G0/provider 边界；向其他验收者交付时同步两个 notes ref，并在接收端重新校验当前 SHA。原始证据及本轮关闭证据按不可覆盖的历史记录保留。
+受检功能输入变化时重评受影响范围；仅文档整理不重跑全部真实环境检查。阶段证据可通过 `pnpm check:provider-a1` 递归校验，其中包含 P0 及其前置；静态计划检查不能替代该校验。
+
+需要对新候选声明正式同 SHA 验收时，按[P0 验收规程](../P0-acceptance-runbook.md)独立生成 F06/P0 回执并通过门禁。保留历史失败和验收记录，不修改历史 PASS 的提交身份，不向后续阶段自动传递正式接受结论。

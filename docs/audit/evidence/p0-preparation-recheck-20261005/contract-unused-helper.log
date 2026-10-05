@@ -1,0 +1,40 @@
+
+ RUN  v4.1.11 /private/tmp/quantos-p0-recheck-vxxsmir8
+
+ ❯ tests/contract/contract.test.ts (17 tests | 8 failed) 68ms
+     × 故意破坏 schema → 校验失败 1ms
+     × 故意破坏权限不变量（executable=true）→ 校验失败 0ms
+     × 故意注入敏感字段（venueApiKey）→ 校验失败 0ms
+     × 未配置 operation 默认返回 501 且不伪造成功 fixture 0ms
+     × 版本冲突返回 409/currentVersion，客户端不得静默覆盖 0ms
+     × MFA 限流返回 429/retryAfter 且不泄露账户存在性 0ms
+     × all declared positive/negative fixtures match their schema and purpose 0ms
+     × equivalent forbidden keys are rejected recursively without rejecting public fields 0ms
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  8 failed | 17 passed (25)
+   Start at  09:26:02
+   Duration  375ms (transform 80ms, setup 0ms, import 396ms, tests 181ms, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contract/contract.test.ts > PRE-06 contract fixtures：schema 驱动 > 故意破坏 schema → 校验失败
+ FAIL  tests/contract/contract.test.ts > PRE-06 contract fixtures：schema 驱动 > 故意破坏权限不变量（executable=true）→ 校验失败
+ FAIL  tests/contract/contract.test.ts > PRE-06 contract fixtures：schema 驱动 > 故意注入敏感字段（venueApiKey）→ 校验失败
+ FAIL  tests/contract/contract.test.ts > PRE-06 MSW contract handlers > 未配置 operation 默认返回 501 且不伪造成功 fixture
+ FAIL  tests/contract/contract.test.ts > PRE-06 MSW contract handlers > 版本冲突返回 409/currentVersion，客户端不得静默覆盖
+ FAIL  tests/contract/contract.test.ts > PRE-06 MSW contract handlers > MFA 限流返回 429/retryAfter 且不泄露账户存在性
+ FAIL  tests/contract/contract.test.ts > PRE-06 complete fixture and sensitive-key policy > all declared positive/negative fixtures match their schema and purpose
+ FAIL  tests/contract/contract.test.ts > PRE-06 complete fixture and sensitive-key policy > equivalent forbidden keys are rejected recursively without rejecting public fields
+Error: expected any number of assertion, but got none
+ ❯ tests/contract/contract.test.ts:12:25
+     10|   "Idempotency-Key": "11111111-1111-4111-8111-111111111111", "X-Reques…
+     11| beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+     12| beforeEach(() => expect.hasAssertions());
+       |                         ^
+     13| afterEach(() => server.resetHandlers());
+     14| afterAll(() => server.close());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+

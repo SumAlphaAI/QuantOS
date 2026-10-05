@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.20
+> 版本：3.21
 > 更新时间：2026-10-05
 > 状态：PROVIDER:A1 及 14 节点功能前置 READY；后续检查点独立评估，正式发布待联合验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.21`：P0 原 3 项发现再次核验关闭；当前 P0 及 11 个功能前置证据有效，七项契约执行反证均拒绝。报告与规程对齐 DEVELOPMENT 输入摘要准入，保留历史 formal 回执；当前 HEAD 未重新取得正式同 SHA 回执，本轮未执行数据库。
 
 - `3.20`：独立复核 PROVIDER:A1 原 6 项发现全部关闭；活跃报告整理为当前状态，原始问题与失败记录归档。重新执行 Rust/HTTP、业务 mutation、数据库执行状态和回执回归，14 节点功能证据仍有效；本轮未重跑 Supabase，不改写 formal 验收状态。
 
@@ -16,7 +18,7 @@
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.20、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.21、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -284,6 +286,8 @@
 ```
 
 上方 `required_scope/review_status/source_commit/evidence` 保留历史完整范围及原回执事实。当前 P0 的 `stage_gate` 按第 2.1 节 DEVELOPMENT 范围核验工程标准、PoC、owner/环境/mock/设计/接口台账与测试基线，以功能输入清单和实际证据决定准入；NOT_ASSESSED 仍须聚焦评估。上方正式 `source_commit/evidence` 登记历史版本，不迁移旧 PASS。`pnpm check:p0`、`refs/notes/p0-acceptance` 及同 SHA F06 回执继续用于其原有正式验收范围；若需对新候选作正式同 SHA 声明，须独立生成该候选回执。仅本计划文字调整不触发全套真实 Supabase 验收重跑。原操作见[P0验收规程](./P0-acceptance-runbook.md)，命令范围按第 2.1 节核对。
+
+2026-10-05 [P0 聚焦复核](./audit/PREPARATION-P0-comprehensive-review-2026-10-02.md)：原 3 项发现均已关闭，12 节点 DEVELOPMENT 证据递归核验通过；历史 formal 字段及阶段输入摘要保持不变。当前 formal `check:p0` 缺少本提交回执时仍按原规则失败，不将 DEVELOPMENT READY 改写为正式 ACCEPTED。
 
 ## 4. 页面 API 前置与前端迭代计划
 
