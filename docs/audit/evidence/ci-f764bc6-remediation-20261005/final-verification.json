@@ -1,0 +1,185 @@
+{
+  "schema": "quantos-ci-remediation-final-verification/v1",
+  "status": "PASS",
+  "sourceFreeze": "02f26c021470370b8b929c7d899a8eb219bdcf13",
+  "verifiedAt": "2026-10-05T17:53:01.873019+00:00",
+  "engineeringCounts": {
+    "f0A1": {
+      "checks": 86,
+      "passed": 86,
+      "readyNodes": 21
+    },
+    "g0": {
+      "checks": 16,
+      "passed": 16,
+      "status": "BLOCKED",
+      "missingApproval": "ProjectUser"
+    },
+    "fep0": {
+      "checks": 2,
+      "passed": 2,
+      "status": "BLOCKED"
+    },
+    "a2": {
+      "status": "READY",
+      "calls": 51,
+      "operations": 20,
+      "assertions": 14,
+      "cleanupVerified": true,
+      "targetSourceCommit": "fab00bae95bea4b30eaaa0ca0f7f350e3af9986f"
+    },
+    "r01": {
+      "cases": 16,
+      "status": "PASS",
+      "maxAnomalyMs": 3241,
+      "actorActive": false,
+      "pending": 0
+    }
+  },
+  "ciConsumerCommands": [
+    {
+      "id": "provider-a1",
+      "command": [
+        "pnpm",
+        "check:provider-a1"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-provider-a1.log",
+      "logSha256": "sha256:78fd7a51ca1c1f6e71cdd1e789456518acb8bef373b02a0b37454bdeb27b9d66"
+    },
+    {
+      "id": "f0-development",
+      "command": [
+        "pnpm",
+        "check:f0-development"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-f0-development.log",
+      "logSha256": "sha256:34e04740010868afa29ce7d1315431b2fd145f4b26eda6d8c004032341441473"
+    },
+    {
+      "id": "g0-engineering",
+      "command": [
+        "pnpm",
+        "check:g0-engineering"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-g0-engineering.log",
+      "logSha256": "sha256:6176b8852f6db3bac21194a674d551caafce3e58b58c28ff0c8423c53ab20534"
+    },
+    {
+      "id": "fep0-engineering",
+      "command": [
+        "pnpm",
+        "check:fep0:engineering"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-fep0-engineering.log",
+      "logSha256": "sha256:a6b7579c8b77bdaa77ee03c20c5c06df0ca116e675308c5c7aeabdd4b46097c4"
+    },
+    {
+      "id": "a2-development",
+      "command": [
+        "pnpm",
+        "check:bff-fe-001:development"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-a2-development.log",
+      "logSha256": "sha256:6e3ef834d2012ee88ef61c855b202dd8a5a47037daa2da66d2e44751b9ebd54f"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-plans.log",
+      "logSha256": "sha256:378515a730710e05f8a0a05f61258eea767fd7ce2833038928b13009a1ab40dc"
+    },
+    {
+      "id": "plan-negative",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-plan-negative.log",
+      "logSha256": "sha256:17f7d0cef7a55122b9046bef9a08eecec9840ae9cd6c063a773b54835fcfb659"
+    },
+    {
+      "id": "rust-format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-rust-format.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "diff-whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-diff-whitespace.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "g0-ready-refuses-pending",
+      "command": [
+        "pnpm",
+        "check:g0-development"
+      ],
+      "exitCode": 1,
+      "status": "EXPECTED_REJECTION",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-g0-ready-refuses-pending.log",
+      "logSha256": "sha256:8279b98e87b98e3428973bcedfd08bca54f4f951b34718b1fde5c1c7ed89b466"
+    },
+    {
+      "id": "fep0-ready-refuses-pending",
+      "command": [
+        "pnpm",
+        "check:fep0"
+      ],
+      "exitCode": 1,
+      "status": "EXPECTED_REJECTION",
+      "log": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-fep0-ready-refuses-pending.log",
+      "logSha256": "sha256:802ca20d6f9f2f5fcca5116f3e53f64973f971dcc3014a60336ecb3a4eacebcb"
+    }
+  ],
+  "evidencePortability": {
+    "status": "PASS",
+    "currentManifests": 24,
+    "boundFiles": 176,
+    "missing": [],
+    "hashFailures": [],
+    "untracked": [],
+    "proof": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-evidence-portability.json"
+  },
+  "secretScans": {
+    "historySourceCommit": "02f26c021470370b8b929c7d899a8eb219bdcf13",
+    "historyStatus": "PASS",
+    "historyLog": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-history-secrets.log",
+    "candidateStatus": "PASS",
+    "candidateLog": "docs/audit/evidence/ci-f764bc6-remediation-20261005/final-candidate-secrets.log"
+  },
+  "hostedCI": "NOT_RUN; no push performed",
+  "formalAccepted": false,
+  "currentG0Confirmation": "PENDING; historical approval preserved"
+}

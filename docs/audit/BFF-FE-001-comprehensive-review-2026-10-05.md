@@ -1,6 +1,6 @@
 # A2 / BFF-FE-001 身份、会话与设置 API 当前复审结论
 
-> CI 修复期间说明：下文为 f764bc6 的关闭复核；测试/门禁输入变化后功能准入待当前回执刷新，历史关闭事实保留。
+> 最新复验：2026-10-06，CI 整改冻结源码 `02f26c0`；A2 严格 DEVELOPMENT 门禁已刷新为 READY。旧六项问题继续 CLOSED，当前活动问题为 0。详见[CI 整改报告](CI-f764bc6-remediation-2026-10-05.md)。
 
 > 再复核日期：2026-10-05（Asia/Shanghai）
 > 再复核基线：`f2283fab37386354e19ffe32df2c86a1a7e9676f`；开始时工作区干净。
@@ -9,13 +9,13 @@
 
 ## 一、任务完成概况
 
-依据[前端执行计划任务卡](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#task-bff-fe-001)和 [Terminal 设计规格](../SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md) P01/P15，复核原报告六项问题的实现、调用路径、聚焦回归及内容绑定证据，均已关闭。本轮未发现需要追加代码修复的问题。
+依据[前端执行计划任务卡](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#task-bff-fe-001)和 [Terminal 设计规格](../SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md) P01/P15，复核原报告六项问题的实现、调用路径、聚焦回归及内容绑定证据，均已关闭。原关闭复核未发现新增 A2 业务缺陷；后续 CI 的测试夹具、证据路径和 ACK 识别修复及复验单独见 CI 整改报告。
 
 范围为 C01/C17 的身份与主上下文、MFA/reauth/logout/访问申请、资料与语言/主题、通知偏好、安全状态、会话/设备/因素撤销、撤销 SSE，以及下载元数据和浏览器能力，共 20 个 operation。全仓 API 基线为 **1.5.0 / 62 published operations / 52 schemas**。Desktop/P16、Audit 导出、页面完整业务链、通知投递和签名下载分别按其任务范围验收。
 
-本节点及 BFF-FE-000、CORE:F06、PROVIDER:A1 的内容绑定证据和递归依赖均有效，严格门禁返回 READY、`formalAccepted=false`。闭包共 15 个节点 READY；独立 F0/G0/FEP-0 的历史准入不因本次复核自动迁移。
+本节点及 BFF-FE-000、CORE:F06、PROVIDER:A1 的内容绑定证据和递归依赖均有效，严格门禁返回 READY、`formalAccepted=false`。A2 闭包 15 个节点 READY；连同独立 F0 范围共 22 个节点 READY。G0/FEP-0 工程检查 PASS，新 G0 范围用户确认待办，保持 BLOCKED；历史人工批准不自动迁移。
 
-本轮重新运行本地语义、mutation、transport、正负门禁及计划检查，并核对既有目标证据。**本轮没有重跑 Supabase 或获取 hosted CI 回执**。目标执行仍绑定 `9d67f880`，当前全部 7 个目标源码摘要一致：52 次调用覆盖 20 API、14 项强断言，恢复与清理已核实。环境为已配置 Supabase Auth/PostgreSQL + 本机 live BFF、合成 HTTPS Origin。
+2026-10-05 在 `f2283fa` 的关闭复核重新执行本地检查并核对旧目标 52 次调用。2026-10-06 CI 整改新增正常 Supabase 目标回归绑定 `fab00ba`：**51 次调用、20 API、14 强断言，cleanupVerified=true**；全部 7 个目标源码摘要与冻结源码 `02f26c0` 一致。当前本地语义、mutation、正负门禁和递归依赖已重新验证；新目标原件独立保存，旧目标未覆盖。环境为已配置 Supabase Auth/PostgreSQL + 本机 live BFF、合成 HTTPS Origin；未获取新 hosted CI 回执。
 
 历史问题已从主报告移出；[初审归档](BFF-FE-001-findings-archive-2026-10-05.md)与原文逐字节一致，[逐项关闭复核](BFF-FE-001-closed-findings-2026-10-05.md)保存六项依据，[整改记录](BFF-FE-001-remediation-2026-10-05.md)保留实现及各次失败历史。
 
@@ -70,7 +70,7 @@
 | A2 / PROVIDER:A1 严格门禁 | READY，源码、执行、目标回执及依赖内容有效 |
 | 计划结构与阶段依赖 | PASS；35 项计划负向通过 |
 
-套件范围可能重叠，不累加成总验收用例数。详情见[本轮命令与内容核验](evidence/bff-fe-001-closure-recheck-20261005/recheck.json)和[当前 A2 manifest](evidence/bff-fe-001-remediation-20261005/final/a2.json)。
+套件范围可能重叠，不累加成总验收用例数。详情见[原关闭复核命令](evidence/bff-fe-001-closure-recheck-20261005/recheck.json)、[最新 CI 复验](CI-f764bc6-remediation-2026-10-05.md)和[当前 A2 manifest](evidence/bff-fe-001-remediation-20261005/ci-final-precision-20261006/a2.json)。
 
 ## 三、活动问题与适用边界
 
