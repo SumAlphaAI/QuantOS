@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { confirmedAlert } = require('./r01-supervision-evidence.cjs');
+const { confirmedAlert, anomalyElapsed } = require('./r01-supervision-evidence.cjs');
 const origin = Date.parse('2026-10-05T15:12:26.751Z');
 const native = { kind: 'binance_watchdog_committed', producer: 'native', inserted: true,
   detected_at: '2026-10-05T15:12:28.666348691Z', event_id: 'owned-event',
@@ -15,6 +15,14 @@ test('native watchdog winner is observed when the supervisor append is duplicate
 test('supervisor winner retains its exact ACK', () => {
   const record = { ...native, kind: 'alert_committed', producer: 'supervisor', commit_ack_at: native.write.commit_ack_at };
   assert.equal(confirmedAlert(record, origin).commit_ack_at, record.commit_ack_at);
+});
+test('native nanoseconds cannot round a late ACK into the five-second SLA', () => {
+  const late = confirmedAlert({ ...native, write: { commit_ack_at: '2026-10-05T15:12:31.751000001Z' } }, origin);
+  assert.equal(Date.parse(late.commit_ack_at) - origin, 5000);
+  assert(anomalyElapsed(late, origin) > 5000);
+  const exact = { ...late, commit_ack_at: '2026-10-05T15:12:31.751000000Z' };
+  assert.equal(anomalyElapsed(exact, origin), 5000);
+  assert(Number.isNaN(anomalyElapsed({ commit_ack_at: 'invalid' }, origin)));
 });
 test('duplicates, unconfirmed appends, missing ACKs and old events cannot pass', () => {
   for (const record of [{ ...native, inserted: false }, { ...native, kind: 'alert_duplicate' },
