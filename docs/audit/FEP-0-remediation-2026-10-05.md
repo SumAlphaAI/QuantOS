@@ -13,3 +13,5 @@
 针对性复验已通过 178 项 FEP-0/回执/G0 回归、6 项补丁测试、真实 Supabase F07 服务、九个 wheel/UDS 场景和四生态 SCA。此处为预检结果，完整闭包须在新冻结源码重新执行。当前 G0 功能输入已变化，原用户确认原件保留，新文稿尚待实际用户确认；不能由 Codex 自行批准。
 
 `3a592a4` 的第二轮在发现明确失败后中止，没有执行完完整闭包，也未发布 READY；[部分执行记录](./evidence/provider-a1-remediation-20261004/fep0-final-20261005/assessment-summary.json)独立保留。已进一步修正锁文件检查及 SCA 负向 fixture 的补丁复制、F09 Runtime trace 测试的 CA/verify-full 配置。针对性预检为 F01 19/19、F02 17/17、真实 Supabase Runtime write trace 1/1 和 CA 配置拒绝测试 2/2 PASS；受沙箱缓存权限/未配置 Gitleaks 的预检失败原日志也保留。完整阶段结论仍须新的冻结源码实际执行。
+
+`68c3362` 的第三轮完整执行为 86 项、85 PASS / 1 FAIL，[实际执行清单](./evidence/provider-a1-remediation-20261004/fep0-rerun-20261005/execution-results.json)完整保留，未发布 READY。唯一失败为 FEP-0 反向测试夹具保留旧的 worker 描述；实际 F07 已正确记录一个 worker 被终止后恢复 100 个任务。已同步夹具，四组门禁回归 141/141 PASS；冻结新源码后重新执行全部 86 项，不复用旧失败轮次作为最终通过证据。
