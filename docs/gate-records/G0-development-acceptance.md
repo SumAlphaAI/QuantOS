@@ -14,6 +14,6 @@
 
 历史十项的日历截止日与逾期事实保留。当前 [19 个子项](./G0-current-disposition.md) 使用最晚检查点作为工程消费期限，未声明 owner 已签署新的日历承诺；子项 `IMPLEMENTED_ENGINEERING` 只说明已引用仓库交付，原整项与未来目标验收没有被关闭。
 
-上游策略广泛绑定 scripts、CI、包配置及源码。本轮这些输入变化，需要重新取得受影响功能回执。提供 `pnpm assess:provider-a1 -- <原证据目录下的新快照目录>` 保存独立执行结果，原完整轮与失败证据不覆盖。数据库验证只能使用工程现有 Supabase 配置；G0 本身仅执行静态、mock/fixture、Chromium 和 loopback SSE。
+上游策略广泛绑定 scripts、CI、包配置及源码。本轮这些输入变化，需要重新取得受影响功能回执。提供 `node scripts/provider-a1-receipts.mjs --assess <原证据目录下的新快照目录>` 保存独立执行结果，原完整轮与失败证据不覆盖。数据库验证只能使用工程现有 Supabase 配置；G0 本身仅执行静态、mock/fixture、Chromium 和 loopback SSE。
 
 正式 staging、真实 IdP、组织发布签署、远程同 SHA CI、完整平台矩阵及性能/长稳在 RELEASE 验收。新页面还须 PROVIDER:ALL 阶段 READY；工程 PASS 或 G0 单独 READY 均不授权绕过该依赖。

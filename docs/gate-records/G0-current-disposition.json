@@ -8,12 +8,12 @@
       "id": "G0-L01-1",
       "parentId": "G0-L01",
       "scope": "Backtest SSE schema/path/provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "owner": "BFF TL + Strategy owner",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-004",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       },
       "status": "PENDING",
       "compatibilityStrategy": "保留 getBacktest 同源轮询；SSE 未交付不得标实时 Integrated。",
@@ -26,12 +26,12 @@
       "id": "G0-L02-1",
       "parentId": "G0-L02",
       "scope": "C02 Command planned operations",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "owner": "BFF TL + Observability owner + Auth owner",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-002",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       },
       "status": "PENDING",
       "compatibilityStrategy": "只用同源命名与 fixture；发布 schema/provider 前不进入业务集成。",
@@ -63,12 +63,12 @@
       "id": "G0-L03-1",
       "parentId": "G0-L03",
       "scope": "C12 market contracts/provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "owner": "BFF TL + Market Data owner + Portfolio owner",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-005",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       },
       "status": "PENDING",
       "compatibilityStrategy": "许可证约束与默认拒绝；不得另建 DTO。",
@@ -81,12 +81,12 @@
       "id": "G0-L03-2",
       "parentId": "G0-L03",
       "scope": "C14 performance contracts/provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "owner": "BFF TL + Market Data owner + Portfolio owner",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-008",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       },
       "status": "PENDING",
       "compatibilityStrategy": "估值快照与账本语义同源；未交付不标 Integrated。",
@@ -118,12 +118,12 @@
       "id": "G0-L04-2",
       "parentId": "G0-L04",
       "scope": "C13 trade preflight planned extension",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "owner": "BFF TL + Audit owner + Execution owner + Recon owner",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-006",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       },
       "status": "PENDING",
       "compatibilityStrategy": "已有 Proposal/Order 不能替代 planned preflight；禁止高风险 mock 验收。",
@@ -136,12 +136,12 @@
       "id": "G0-L04-3",
       "parentId": "G0-L04",
       "scope": "C15 ledger/reconciliation contracts/provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "owner": "BFF TL + Audit owner + Execution owner + Recon owner",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-009",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       },
       "status": "PENDING",
       "compatibilityStrategy": "只用版本化账本与同 schema fixture，不标目标联调完成。",
@@ -154,12 +154,12 @@
       "id": "G0-L05-1",
       "parentId": "G0-L05",
       "scope": "C11 operations/admin provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "owner": "BFF TL + Ops owner + Observability owner",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-010",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       },
       "status": "PENDING",
       "compatibilityStrategy": "无临时 URL/字段；未知 capability 默认拒绝。",
@@ -172,12 +172,12 @@
       "id": "G0-L05-2",
       "parentId": "G0-L05",
       "scope": "C16 alerts provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "owner": "BFF TL + Ops owner + Observability owner",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-010",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       },
       "status": "PENDING",
       "compatibilityStrategy": "禁止以 planned 名称冒充告警运行；仅同源 fixture。",
@@ -194,7 +194,7 @@
       "owner": "Auth owner + Frontend TL + Security",
       "deadline": {
         "type": "CHECKPOINT",
-        "before": "FRONTEND-GATE:G0",
+        "before": "RELEASE-GATE:BETA",
         "stage": "RELEASE"
       },
       "status": "DEFERRED",
@@ -231,7 +231,8 @@
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:FEP-1",
-        "stage": "DEVELOPMENT"
+        "stage": "INTEGRATION",
+        "condition": "Before any FEP-1 page enters Sprint; checkpoint is the outermost consumption deadline"
       },
       "status": "PENDING",
       "compatibilityStrategy": "每页进入对应 Sprint 前补齐七态；PRE-01 文字场景不冒充高保真稿。",
@@ -266,7 +267,7 @@
       "owner": "QA",
       "deadline": {
         "type": "CHECKPOINT",
-        "before": "FRONTEND-GATE:G0",
+        "before": "RELEASE-GATE:BETA",
         "stage": "RELEASE"
       },
       "status": "DEFERRED",
@@ -302,7 +303,7 @@
       "owner": "Frontend Performance owner",
       "deadline": {
         "type": "CHECKPOINT",
-        "before": "FRONTEND-GATE:G0",
+        "before": "RELEASE-GATE:BETA",
         "stage": "RELEASE"
       },
       "status": "DEFERRED",
@@ -335,12 +336,12 @@
       "id": "G0-L10-2",
       "parentId": "G0-L10",
       "scope": "Legacy adapter removal by owning domain",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "owner": "Frontend TL + 对应 BFF owner",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "PROVIDER:ALL",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       },
       "status": "PENDING",
       "compatibilityStrategy": "迁移对应域 scenario 到生成 adapter 后再删除；现有类明确 deprecated fixture。",

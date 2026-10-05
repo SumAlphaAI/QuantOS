@@ -33,7 +33,8 @@
     "docs/gate-records/G0-current-disposition.json",
     "docs/gate-records/G0-PRE-01-review-record.md",
     "docs/gate-records/G0-readiness-assessment.md",
-    "docs/adr/20260814-pre03-runtime-stack.md"
+    "docs/adr/20260814-pre03-runtime-stack.md",
+    "docs/gate-records/G0-current-disposition.md"
   ],
   "developmentProfile": {
     "file": "env/local-mock.env.example",
@@ -191,22 +192,22 @@
       "id": "G0-L01-1",
       "parentId": "G0-L01",
       "scope": "Backtest SSE schema/path/provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-004",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       }
     },
     {
       "id": "G0-L02-1",
       "parentId": "G0-L02",
       "scope": "C02 Command planned operations",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-002",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       }
     },
     {
@@ -224,22 +225,22 @@
       "id": "G0-L03-1",
       "parentId": "G0-L03",
       "scope": "C12 market contracts/provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-005",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       }
     },
     {
       "id": "G0-L03-2",
       "parentId": "G0-L03",
       "scope": "C14 performance contracts/provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-008",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       }
     },
     {
@@ -257,44 +258,44 @@
       "id": "G0-L04-2",
       "parentId": "G0-L04",
       "scope": "C13 trade preflight planned extension",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-006",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       }
     },
     {
       "id": "G0-L04-3",
       "parentId": "G0-L04",
       "scope": "C15 ledger/reconciliation contracts/provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-009",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       }
     },
     {
       "id": "G0-L05-1",
       "parentId": "G0-L05",
       "scope": "C11 operations/admin provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-010",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       }
     },
     {
       "id": "G0-L05-2",
       "parentId": "G0-L05",
       "scope": "C16 alerts provider",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:BFF-FE-010",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       }
     },
     {
@@ -304,7 +305,7 @@
       "stage": "RELEASE",
       "deadline": {
         "type": "CHECKPOINT",
-        "before": "FRONTEND-GATE:G0",
+        "before": "RELEASE-GATE:BETA",
         "stage": "RELEASE"
       }
     },
@@ -327,7 +328,8 @@
       "deadline": {
         "type": "CHECKPOINT",
         "before": "FE:FEP-1",
-        "stage": "DEVELOPMENT"
+        "stage": "INTEGRATION",
+        "condition": "Before any FEP-1 page enters Sprint; checkpoint is the outermost consumption deadline"
       }
     },
     {
@@ -348,7 +350,7 @@
       "stage": "RELEASE",
       "deadline": {
         "type": "CHECKPOINT",
-        "before": "FRONTEND-GATE:G0",
+        "before": "RELEASE-GATE:BETA",
         "stage": "RELEASE"
       }
     },
@@ -370,7 +372,7 @@
       "stage": "RELEASE",
       "deadline": {
         "type": "CHECKPOINT",
-        "before": "FRONTEND-GATE:G0",
+        "before": "RELEASE-GATE:BETA",
         "stage": "RELEASE"
       }
     },
@@ -389,11 +391,11 @@
       "id": "G0-L10-2",
       "parentId": "G0-L10",
       "scope": "Legacy adapter removal by owning domain",
-      "stage": "INTEGRATION",
+      "stage": "DEVELOPMENT",
       "deadline": {
         "type": "CHECKPOINT",
         "before": "PROVIDER:ALL",
-        "stage": "INTEGRATION"
+        "stage": "DEVELOPMENT"
       }
     }
   ],

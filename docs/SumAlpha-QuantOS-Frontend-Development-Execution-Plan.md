@@ -148,7 +148,7 @@
 - task_id: `PRE-01`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f670108e0682eaae536e86a8a232d1a4f9c8c6c38c4c677d1f1c61ef4d53e270","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-01.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:2afa26c0eb3db5b4c49e695490047865f11f67f404acff5e9c247f2666226413","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-refresh-20261005/fe-pre-01.json"]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -167,7 +167,7 @@
 - task_id: `PRE-02`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:baca11b544f665a46366ac01616a52c72166a7318605f5c915038f5fb5e387cc","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-02.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:038bcd71ed31241b2e8f0960f0c53a0832535b7b597f50b6ef7c31f58404378e","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-refresh-20261005/fe-pre-02.json"]}
 - depends_on: ["PRE-01"]
 - core_prerequisites: []
 - closes_core: []
@@ -185,7 +185,7 @@
 - task_id: `PRE-03`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e101b627898b8706033e180bd7f048320098b94a3babf250444d324f34bb25de","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ccd6a555ff01ea37800d7e489495c1c2eed0525e5678f4861c0e1ad1956fad77","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-refresh-20261005/fe-pre-03.json"]}
 - depends_on: ["PRE-02", "CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -203,7 +203,7 @@
 - task_id: `PRE-04`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:1f4cf82cc0e842784db09f02239a5cae61ddeeb7be5d84bf32791d89832fe546","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c1bb90f55a96475991a4671f8de1e18bcd38a24ea0d4fc03ce634756d3d606ab","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-refresh-20261005/fe-pre-04.json"]}
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
 - core_prerequisites: ["CORE:F03", "CORE:F06"]
 - closes_core: []
@@ -221,7 +221,7 @@
 - task_id: `PRE-05`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:2a04cbbd55b2fbcc0327734dbeb84627d4c9119efba884884182bf28cae15c8b","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-05.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:379fb2a4cc95a10ef3387292380d3304c7978b3d5a1bf378dd06a6f400fa122b","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-refresh-20261005/fe-pre-05.json"]}
 - depends_on: ["PRE-03", "PRE-04"]
 - core_prerequisites: []
 - closes_core: []
@@ -239,7 +239,7 @@
 - task_id: `PRE-06`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:b6c346c1097e07c7035f5da710e35dab890c6b579e0678d3e4fb1496bf8119f2","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-pre-06.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:1ebb70e867fb94d66842ae510b00967776818f7586f587ca95c7c975255926ae","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-refresh-20261005/fe-pre-06.json"]}
 - depends_on: ["PRE-04", "PRE-05"]
 - core_prerequisites: []
 - closes_core: []
@@ -279,9 +279,9 @@
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "READY",
-    "input_digest": "sha256:024fa58a3021a07e0252e011638c8a4d0de726cbe7c6c8719829c23affa6a024",
+    "input_digest": "sha256:bfd797bace58e3f88ada0543e713c56189b0f21d194b793a64519d88d9b29037",
     "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/preparation-p0.json"
+      "audit/evidence/provider-a1-remediation-20261004/g0-refresh-20261005/preparation-p0.json"
     ]
   }
 }
@@ -341,7 +341,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:57102270495873c46393107208422d6bc5f54d18db58cc1ade71f9b4873db8ff","evidence":["audit/evidence/provider-a1-remediation-20261004/fe-bff-fe-000.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ef64a09e6b0a5b9f28a903f8ac5459eb27e1937ab27d5d4cac9e9b4c2a309546","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-refresh-20261005/fe-bff-fe-000.json"]}
 - depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -375,9 +375,9 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "READY",
-    "input_digest": "sha256:b986c85588aea7bc10e5e986bf42565e435c685446825154fa9402286e567aa3",
+    "input_digest": "sha256:56e01eb84d24e811711a52148c5efd6072007997b53d419e53eec15340535fdf",
     "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/provider-a1.json"
+      "audit/evidence/provider-a1-remediation-20261004/g0-refresh-20261005/provider-a1.json"
     ]
   }
 }

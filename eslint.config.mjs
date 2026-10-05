@@ -27,7 +27,9 @@ export default tseslint.config(
     },
   },
   {
-    files: ["apps/terminal/{app,src}/**/*.{ts,tsx}", "apps/website/{app,src}/**/*.{ts,tsx}"],
+    files: ["apps/terminal/{app,src}/**/*.{ts,tsx,js,jsx,mjs,cjs}", "apps/website/{app,src}/**/*.{ts,tsx,js,jsx,mjs,cjs}", "packages/{ui,domain-ui,platform,config}/src/**/*.{ts,tsx,js,jsx,mjs,cjs}"],
+    ignores: ["packages/ui/src/**/*.stories.{ts,tsx}"],
+    linterOptions: { noInlineConfig: true },
     plugins: { "quantos-boundary": { rules: { "public-bff": frontendBoundary } } },
     rules: { "quantos-boundary/public-bff": "error" },
   },

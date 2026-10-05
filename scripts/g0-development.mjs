@@ -60,6 +60,10 @@ export function check({requireReady=false}={}) {
  assert(['READY','BLOCKED'].includes(gate.status),'G0 functional assessment absent');assert.equal(gate.stage,'DEVELOPMENT');assert.equal(gate.evidence.length,1);
  assert.equal('docs/'+gate.evidence[0],evidenceDirectory+'/g0.json','G0 cannot accept arbitrary/historical receipt');const bytes=readFileSync(confined('docs/'+gate.evidence[0]));assert.equal(digest(bytes),gate.input_digest,'G0 manifest digest mismatch');const m=JSON.parse(bytes);assert.equal(m.status,gate.status,'G0 plan/receipt status mismatch');return validateManifest(m,{nodes,requireReady});
 }
+export function assertG0ExecutionSnapshot(before,after,originalNode,currentNode) {
+ assert.deepEqual(after,before,'G0 inputs changed during execution');
+ assert.deepEqual(planInput(currentNode),planInput(originalNode),'G0 normative plan changed during execution');
+}
 export function assess() {
  const p=policy();const nodes=nodesFromPlans();const n=nodes.get('FRONTEND-GATE:G0');for(const dep of n.dependencies)validateReceipt(dep,{nodes});
  const before=scopeRequest(p);const confirmations=json('docs/gate-records/G0-current-scope-confirmations.json');const confirmed=validateConfirmations(confirmations,before,p);
@@ -72,12 +76,12 @@ export function assess() {
   const output=(result.stdout??'')+(result.stderr??'');const log=evidenceDirectory+'/logs/'+id+'.log';writeFileSync(resolve(root,log),output);checks.push({id,command:spec.command,executedAt,status:result.status===0?'PASS':'FAIL',exitCode:result.status,log,logSha256:digest(output)});console.log(id,result.status);
   writeFileSync(resolve(root,evidenceDirectory,'execution-results.json'),JSON.stringify(checks,null,2)+'\n');assert.equal(result.status,0,`G0 check failed ${id}; see ${log}`);assert(new RegExp(spec.marker).test(output),`G0 execution marker missing ${id}`);
  }
- const after=scopeRequest(p);assert.deepEqual(after,before,'G0 inputs changed during execution');assert.equal(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),source,'G0 source commit changed during execution');
+ const after=scopeRequest(p);const currentNodes=nodesFromPlans();assertG0ExecutionSnapshot(before,after,n,currentNodes.get(n.id));assert.equal(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),source,'G0 source commit changed during execution');
  const buildBytes=readFileSync(resolve(root,'apps/terminal/out/pre03-build.json'));writeFileSync(resolve(root,evidenceDirectory,'terminal-build.json'),buildBytes);
  const m={schema:'quantos-g0-development-manifest/v1',nodeId:n.id,stage:'DEVELOPMENT',status:confirmed.status==='CONFIRMED'?'READY':'BLOCKED',engineeringStatus:'PASS',formalAccepted:false,observedSourceCommit:source,
   environment:{node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,profile:'local-mock',databaseExecuted:false},planInput:planInput(n),scopeRequest:before,confirmations:confirmed,confirmationsSha256:digest(readFileSync(confined('docs/gate-records/G0-current-scope-confirmations.json'))),checks,
   webBuild:JSON.parse(buildBytes),webBuildSha256:digest(buildBytes),dependencies:n.dependencies.map(id=>({nodeId:id,inputDigest:nodes.get(id).stage_gate.input_digest,manifest:'docs/'+nodes.get(id).stage_gate.evidence[0]})),excluded:p.excluded,residuals:confirmed.status==='CONFIRMED'?[]:['M-01: current six-role development scope confirmation missing']};
- validateManifest(m,{nodes});const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,evidenceDirectory,'g0.json'),bytes);
+ validateManifest(m,{nodes:currentNodes});const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,evidenceDirectory,'g0.json'),bytes);
  n.stage_gate={stage:'DEVELOPMENT',status:m.status,input_digest:digest(bytes),evidence:[evidenceDirectory.slice(5)+'/g0.json']};
  const plan='docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md';writeFileSync(resolve(root,plan),publishStages(read(plan),new Map([[n.id,n]]),'FE:'));
  writeFileSync(resolve(root,evidenceDirectory,'scope-request.json'),JSON.stringify(before,null,2)+'\n');console.log(JSON.stringify(check(),null,2));

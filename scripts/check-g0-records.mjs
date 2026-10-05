@@ -6,9 +6,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const read = file => readFileSync(resolve(root,file),"utf8");
 export function loadG0Inputs() {
-  return { readiness:read("docs/gate-records/G0-readiness-assessment.md"), review:read("docs/gate-records/G0-PRE-01-review-record.md"), governance:JSON.parse(read("docs/gate-records/G0-current-governance.json")), plan:read("docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md"), disposition:JSON.parse(read("docs/gate-records/G0-current-disposition.json")) };
+  return { readiness:read("docs/gate-records/G0-readiness-assessment.md"), review:read("docs/gate-records/G0-PRE-01-review-record.md"), governance:JSON.parse(read("docs/gate-records/G0-current-governance.json")), plan:read("docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md"), disposition:JSON.parse(read("docs/gate-records/G0-current-disposition.json")), dispositionText:read("docs/gate-records/G0-current-disposition.md") };
 }
-export function validateG0Records({readiness,review,governance,plan,disposition}) {
+export function validateG0Records({readiness,review,governance,plan,disposition,dispositionText}) {
   assert.equal(governance.schema,"quantos-g0-governance/v1");
   assert(/^\d{4}-\d{2}-\d{2}$/.test(governance.observedAt),"governance observation date required");
   assert.equal(governance.historicalSignature.date,"2026-08-14");
@@ -39,11 +39,17 @@ export function validateG0Records({readiness,review,governance,plan,disposition}
   assert.equal(disposition.schema,"quantos-g0-current-disposition/v1");
   assert.equal(disposition.historicalWholeItemClosure,false,"historical whole items must not silently close");
   assert.deepEqual(disposition.items.map(({id,parentId,scope,stage,deadline})=>({id,parentId,scope,stage,deadline})),expected,"current disposition scope/stage/deadline changed");
+  const stages=new Map(checkpoints.filter(c=>c.checkpoint_id).map(c=>[c.checkpoint_id,c.stage_gate.stage]));
+  for(const m of plan.matchAll(/(?:^|\n)- task_id: `([^`]+)`([\s\S]*?)(?=\n<a id=|$)/g)) {
+    const gate=m[2].match(/^- stage_gate: (\{.*\})$/m);if(gate) stages.set('FE:'+m[1],JSON.parse(gate[1]).stage);
+  }
   for(const item of disposition.items){
     assert.equal(item.owner,governance.leftovers.find(l=>l.id===item.parentId)?.owner,"current disposition owner missing or changed");
     assert(item.compatibilityStrategy?.trim() && item.closure?.trim(),"current compatibility strategy/closure missing");
     assert(["PENDING","DEFERRED","IMPLEMENTED_ENGINEERING"].includes(item.status),"current disposition cannot close future target scope");
     if(["RELEASE","PHASE_TWO"].includes(item.stage)) assert.equal(item.status,"DEFERRED","future stage cannot claim engineering completion");
+    if(item.stage!=='PHASE_TWO') assert.equal(stages.get(item.deadline.before),item.deadline.stage,"current deadline stage differs from target task/checkpoint");
+    assert(dispositionText.includes(`| ${item.id} | ${item.scope} | ${item.stage} / ${item.deadline.before} | ${item.owner} | ${item.status} | ${item.compatibilityStrategy} |`),"human-readable current disposition differs from structured source");
     assert(item.evidence?.length && item.evidence.every(p=>!p.includes("..")&&!p.startsWith("/")&&existsSync(resolve(root,p))),"current disposition evidence source missing");
   }
   return {schema:"quantos-g0-governance/v1",status:"PASS",historical_signature:"RECORDED_NOT_REVALIDATED",current_formal_g0:"NOT_STARTED / NO CURRENT RECEIPT",leftovers:10,overdue:governance.leftovers.filter(r=>r.status==="OVERDUE_PENDING_REPLAN").length};

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { policy, scopeRequest, validateConfirmations, validateManifest, evidenceDirectory } from './g0-development.mjs';
+import { policy, scopeRequest, validateConfirmations, validateManifest, assertG0ExecutionSnapshot, evidenceDirectory } from './g0-development.mjs';
 import { digest, nodesFromPlans, planInput, developmentEnvironment, root } from './provider-a1-receipts.mjs';
 import { sourceDigest } from './pre03-build-receipt.mjs';
 const p=policy();
@@ -51,3 +51,6 @@ for(const [name,change,error]of [
  ['different role scope',r=>r.scopeDigest=digest('old'),/Expected values/],
 ])test(`scope confirmation rejects ${name}`,()=>{const f=confirmedFixture();change(f.c.roles[0]);assert.throws(()=>validateConfirmations(f.c,f.request,p,path=>f.records.get(path)),error);});
 test('CI must always validate engineering receipts and G0 negatives',()=>{const workflow=readFileSync('.github/workflows/frontend-baseline.yml','utf8');assert(workflow.includes('run: pnpm check:g0-engineering && pnpm test:g0-development'));});
+test('G0 rejects normative plan drift during execution before publishing',()=>{const f=fixture();const original=f.nodes.get(f.m.nodeId);const changed={...original,required_scope:'changed normative scope'};assert.throws(()=>assertG0ExecutionSnapshot(f.options.request,f.options.request,original,changed),/normative plan changed during execution/);});
+test('G0 rejects code inventory drift during execution before publishing',()=>{const f=fixture();const node=f.nodes.get(f.m.nodeId);const after=structuredClone(f.options.request);after.inputs.pop();assert.throws(()=>assertG0ExecutionSnapshot(f.options.request,after,node,node),/inputs changed during execution/);});
+test('lifecycle metadata alone does not change normative G0 inputs',()=>{const f=fixture();const original=f.nodes.get(f.m.nodeId);assert.doesNotThrow(()=>assertG0ExecutionSnapshot(f.options.request,f.options.request,original,{...original,stage_gate:{status:'BLOCKED'}}));});
