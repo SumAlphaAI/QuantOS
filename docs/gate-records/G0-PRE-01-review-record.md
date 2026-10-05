@@ -61,7 +61,7 @@
 
 ## 5. G0 汇总关联
 
-本记录与 [历史 G0 readiness assessment](./G0-readiness-assessment.md)、[历史 Tauri 深链证据](./G0-tauri-deep-link-evidence.md)仅保存旧版本评审链。当前一期 P0 准备检查点只放行 A1；正式 G0 在 A1 末尾独立关闭，新页面还须等待 PROVIDER:ALL。历史签署、原生 PoC 或本地结构 PASS 均不替代新检查点证据。
+本记录与 [历史 G0 readiness assessment](./G0-readiness-assessment.md)、[历史 Tauri 深链证据](./G0-tauri-deep-link-evidence.md)仅保存旧版本评审链。当前一期 P0 准备检查点只放行 A1；G0 DEVELOPMENT 在 A1 末尾独立评估，正式签署按 RELEASE 完成，新页面还须等待 PROVIDER:ALL。历史签署、原生 PoC 或本地结构 PASS 均不替代新检查点证据。
 
 ## 6. 当前版本与遗留项跟踪（2026-10-02）
 
@@ -81,3 +81,7 @@
 | G0-L10 | InMemory adapter 删除/生成接口 adapter 化 | OVERDUE_PENDING_REPLAN | NO COMPLETE RECEIPT |
 
 现行 PRE-01 工程需求整改与这些独立的 G0 遗留项分开验收。Desktop 内容按二期计划处理；其历史截止日不授权二期启动。
+
+## 2026-10-05 当前工程处置入口
+
+历史签署及日期保持原样；当前一期 Web 的子项阶段、owner、检查点期限、兼容策略见 [当前处置台账](./G0-current-disposition.md)。G0 DEVELOPMENT 与正式 RELEASE 分别验收；当前六方范围确认暂缺，不沿用历史签署。

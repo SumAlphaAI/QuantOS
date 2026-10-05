@@ -1,3 +1,4 @@
+import { frontendBoundary } from "./scripts/frontend-import-boundary.mjs";
 import nextPlugin from "@next/eslint-plugin-next";
 import js from "@eslint/js";
 import globals from "globals";
@@ -24,6 +25,11 @@ export default tseslint.config(
       // These are App Router static exports with no pages/ directory.
       "@next/next/no-html-link-for-pages": "off",
     },
+  },
+  {
+    files: ["apps/terminal/{app,src}/**/*.{ts,tsx}", "apps/website/{app,src}/**/*.{ts,tsx}"],
+    plugins: { "quantos-boundary": { rules: { "public-bff": frontendBoundary } } },
+    rules: { "quantos-boundary/public-bff": "error" },
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

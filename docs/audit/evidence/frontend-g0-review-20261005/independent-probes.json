@@ -1,0 +1,78 @@
+{
+  "schema": "quantos-g0-independent-probes/v1",
+  "scope": "in-memory input mutations and ESLint stdin only; tracked inputs untouched",
+  "records": [
+    {
+      "id": "g0-governance-baseline",
+      "description": "Historical governance consistency only",
+      "observed": "ACCEPTED",
+      "result": {
+        "schema": "quantos-g0-governance/v1",
+        "status": "PASS",
+        "historical_signature": "RECORDED_NOT_REVALIDATED",
+        "current_formal_g0": "NOT_STARTED / NO CURRENT RECEIPT",
+        "leftovers": 10,
+        "overdue": 9
+      }
+    },
+    {
+      "id": "g0-unsupported-stage-ready",
+      "description": "G0 governance and plan structure accept an arbitrary G0 manifest digest/document while all actual prerequisites stay READY",
+      "observed": "ACCEPTED",
+      "result": {
+        "governance": "PASS",
+        "plan": "PASS",
+        "inMemoryMutationOnly": true
+      }
+    },
+    {
+      "id": "g0-readiness-body-absent",
+      "description": "Historical governance accepts readiness text without contract/PoC findings",
+      "observed": "ACCEPTED",
+      "result": {
+        "schema": "quantos-g0-governance/v1",
+        "status": "PASS",
+        "historical_signature": "RECORDED_NOT_REVALIDATED",
+        "current_formal_g0": "NOT_STARTED / NO CURRENT RECEIPT",
+        "leftovers": 10,
+        "overdue": 9
+      }
+    },
+    {
+      "id": "g0-compatibility-empty",
+      "description": "Historical governance accepts empty compatibility strategies in all ten ledger rows",
+      "observed": "ACCEPTED",
+      "result": {
+        "schema": "quantos-g0-governance/v1",
+        "status": "PASS",
+        "historical_signature": "RECORDED_NOT_REVALIDATED",
+        "current_formal_g0": "NOT_STARTED / NO CURRENT RECEIPT",
+        "leftovers": 10,
+        "overdue": 9
+      }
+    },
+    {
+      "id": "page-api-version-unbound",
+      "description": "PRE-01 accepts all API/mock 1.4.0 labels replaced with nonexistent 99.99.0",
+      "observed": "ACCEPTED",
+      "result": {
+        "schema": "quantos-pre01/v2",
+        "status": "PASS",
+        "pages": 30,
+        "stories": 124,
+        "flow_stories": 8,
+        "acceptance_scenarios": 210,
+        "flow_scenarios": 10,
+        "states_per_page": 7,
+        "traceability_rows": 30
+      }
+    },
+    {
+      "id": "production-inmemory-import",
+      "description": "Lint of executable InMemory backend import under a production page path",
+      "observed": "ACCEPTED",
+      "exitCode": 0,
+      "temporaryPageWritten": false
+    }
+  ]
+}

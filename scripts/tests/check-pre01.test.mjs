@@ -111,3 +111,12 @@ test("P05 quality alerts require C16 ownership on the consumer page", () => {
   assert.notEqual(scenarios, valid.scenarios);
   assert.throws(() => validatePre01({ ...valid, ledger, scenarios }), /P05: operation subscribeAlerts requires traced contract C16/);
 });
+
+for(const version of ['1.4.0','99.99.0']) test(`API register rejects current version ${version}`,()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replaceAll('1.5.0',version)}),/version differs/));
+test('published register row cannot omit API version',()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replace(/^\| GS \|.*$/m,row=>row.replaceAll('1.5.0','unspecified'))}),/published API version missing/));
+test('published register row cannot omit generated mock version',()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replace('1.5.0（generated only）','未生成')}),/generated mock version missing/));
+test('all ten historical compatibility strategies cannot be cleared',()=>{const f=loadG0Inputs();f.review=f.review.replace(/^(\| [^|]+ \| [^|]+ \| \d{4}-\d{2}-\d{2} \|).*\|$/gm,'$1  |');assert.throws(()=>validateG0Records(f),/compatibility strategy/);});
+test('current disposition cannot drop a historical parent',()=>{const f=loadG0Inputs();f.disposition.items=f.disposition.items.filter(i=>i.parentId!=='G0-L02');assert.throws(()=>validateG0Records(f),/scope\/stage\/deadline/);});
+test('current disposition requires effective checkpoint deadline',()=>{const f=loadG0Inputs();f.disposition.items[0].deadline.before='someday';assert.throws(()=>validateG0Records(f),/scope\/stage\/deadline/);});
+test('current disposition cannot claim target RELEASE completion',()=>{const f=loadG0Inputs();f.disposition.items.find(i=>i.stage==='RELEASE').status='IMPLEMENTED_ENGINEERING';assert.throws(()=>validateG0Records(f),/future stage/);});
+test('current disposition requires nonempty compatibility strategy',()=>{const f=loadG0Inputs();f.disposition.items[0].compatibilityStrategy=' ';assert.throws(()=>validateG0Records(f),/compatibility strategy/);});

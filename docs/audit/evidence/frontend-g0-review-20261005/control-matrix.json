@@ -1,0 +1,199 @@
+{
+  "schema": "quantos-g0-audit-controls/v1",
+  "scope": "DEVELOPMENT",
+  "sourceCommit": "ca00fe80b1bbc772287193bc6b7973eaeda224b0",
+  "counts": {
+    "PASS": 18,
+    "PARTIAL": 1,
+    "FAIL": 2,
+    "MISSING": 3,
+    "NOT_ASSESSED": 0
+  },
+  "completion": {
+    "passed": 18,
+    "total": 24,
+    "percent": 75
+  },
+  "controls": [
+    {
+      "id": "G01",
+      "control": "DEVELOPMENT/RELEASE、Web/未来 provider 范围",
+      "status": "PASS",
+      "facts": "计划第 2.1 节及 G0 范围一致；P16、正式签署/staging 不计开发分母",
+      "findings": []
+    },
+    {
+      "id": "G02",
+      "control": "直接与递归依赖准入",
+      "status": "PASS",
+      "facts": "直接 3/3 READY；上游递归 14/14 READY，当前内容验证通过",
+      "findings": []
+    },
+    {
+      "id": "G03",
+      "control": "G0 输入清单、摘要与阶段回执",
+      "status": "MISSING",
+      "facts": "自身 NOT_ASSESSED/null/[]，没有可验证的 G0 manifest",
+      "findings": [
+        "B-01"
+      ]
+    },
+    {
+      "id": "G04",
+      "control": "最低冻结领域与版本化 OpenAPI",
+      "status": "PASS",
+      "facts": "API 1.5.0，Session/Research/Data/Strategy/Risk/Proposal/Approval/Execution 已发布",
+      "findings": []
+    },
+    {
+      "id": "G05",
+      "control": "统一错误、状态、correlation 与缓存头",
+      "status": "PASS",
+      "facts": "OpenAPI、25 项 contract 回归及既有内容绑定基线通过",
+      "findings": []
+    },
+    {
+      "id": "G06",
+      "control": "会话、幂等、版本与高风险输入契约",
+      "status": "PASS",
+      "facts": "A1 基线/负向与客户端受信字段、SSE 安全回归通过",
+      "findings": []
+    },
+    {
+      "id": "G07",
+      "control": "mock 与正式 schema 同源",
+      "status": "PASS",
+      "facts": "生成 MSW + request/response validators，无额外 transition schema",
+      "findings": []
+    },
+    {
+      "id": "G08",
+      "control": "六类生成资产与漂移检查",
+      "status": "PASS",
+      "facts": "重新生成临时副本逐字节一致；未覆盖原生成文件",
+      "findings": []
+    },
+    {
+      "id": "G09",
+      "control": "Proto/JSON Schema/domain 一致性及 CI",
+      "status": "PASS",
+      "facts": "PRE-04 + client/domain 回归；既有 proto 日志内容有效、主 CI 接线",
+      "findings": []
+    },
+    {
+      "id": "G10",
+      "control": "InMemory 迁移或显式待删除",
+      "status": "PASS",
+      "facts": "四类均 deprecated/fixture-only；当前 Next 页面未直接引用",
+      "findings": []
+    },
+    {
+      "id": "G11",
+      "control": "生产导入边界的强制门禁",
+      "status": "FAIL",
+      "facts": "页面路径下构造 InMemory backend 的 ESLint stdin 探针退出 0",
+      "findings": [
+        "M-04"
+      ]
+    },
+    {
+      "id": "G12",
+      "control": "页面→任务→契约→后端→用例→Gate",
+      "status": "PASS",
+      "facts": "30/30 追踪行、132 Story、210 七态+10流程定义通过结构/归属校验",
+      "findings": []
+    },
+    {
+      "id": "G13",
+      "control": "页面登记表的 API/mock 版本绑定",
+      "status": "FAIL",
+      "facts": "24 行中 18 行 API 与 mock 仍为 1.4.0；虚构版本 99.99.0 被接受",
+      "findings": [
+        "M-03"
+      ]
+    },
+    {
+      "id": "G14",
+      "control": "operationId 反查影响页面/owner",
+      "status": "PASS",
+      "facts": "62 published/46 planned 明确归属，32 项 PRE-01 回归与 A1 缺失映射拒绝",
+      "findings": []
+    },
+    {
+      "id": "G15",
+      "control": "Web 页面与当前输入构建 PoC",
+      "status": "PASS",
+      "facts": "29 锁依赖/2349 运行时检查/2 路由，既有同输入构建 smoke 通过",
+      "findings": []
+    },
+    {
+      "id": "G16",
+      "control": "OIDC callback 正向 PoC",
+      "status": "PASS",
+      "facts": "Chromium PKCE authorize→callback→安全 return path；mock IdP 范围",
+      "findings": []
+    },
+    {
+      "id": "G17",
+      "control": "OIDC state、URL、错误与 session bridge",
+      "status": "PASS",
+      "facts": "浏览器 4 项与 auth 单元回归；本轮未执行真实 IdP",
+      "findings": []
+    },
+    {
+      "id": "G18",
+      "control": "SSE 去重、断流、gap 与撤权 PoC",
+      "status": "PASS",
+      "facts": "7 项 SSE PoC 及安全回归包含在本轮 100 项测试；真实 loopback HTTP",
+      "findings": []
+    },
+    {
+      "id": "G19",
+      "control": "基本浏览器、a11y、布局与视觉",
+      "status": "PASS",
+      "facts": "Chromium 共 11/11；/command axe serious/critical 0、390只读、1440视觉",
+      "findings": []
+    },
+    {
+      "id": "G20",
+      "control": "前端 lint/typecheck 与锁/ADR 规范",
+      "status": "PASS",
+      "facts": "七个一期 workspace lint/typecheck 通过；29 项固定选型核验",
+      "findings": []
+    },
+    {
+      "id": "G21",
+      "control": "领域覆盖率与关键风险分支",
+      "status": "PASS",
+      "facts": "内容绑定的既有 Web 92.85% 与关键129行/111分支100%仍有效；本轮未重跑 coverage",
+      "findings": []
+    },
+    {
+      "id": "G22",
+      "control": "六方当前契约/功能范围确认",
+      "status": "MISSING",
+      "facts": "仅有2026-08-14历史签署，未见当前1.5.0/Web/阶段范围的确认记录",
+      "findings": [
+        "M-01"
+      ]
+    },
+    {
+      "id": "G23",
+      "control": "未冻结项当前 owner、期限、阶段与兼容策略",
+      "status": "PARTIAL",
+      "facts": "历史10项有owner/期限/策略，但9项逾期；未拆分开发/发布/二期、未重排",
+      "findings": [
+        "M-02"
+      ]
+    },
+    {
+      "id": "G24",
+      "control": "G0 功能验收入口、持续拒绝与 CI",
+      "status": "MISSING",
+      "facts": "CI只有历史记录校验，缺当前G0范围/manifest/PoC/确认的聚合入口",
+      "findings": [
+        "B-01"
+      ]
+    }
+  ]
+}

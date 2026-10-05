@@ -21,7 +21,7 @@ import {
 } from "@sumalpha/domain-ui";
 import type { PlatformKind } from "@sumalpha/platform";
 
-import { createTerminalApp } from "../src/app.js";
+import { createTerminalApp } from "./fixtures/app.js";
 
 const APPROVER = { capabilities: ["strategy.approve"] };
 

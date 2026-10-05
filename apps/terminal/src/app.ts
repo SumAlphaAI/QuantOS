@@ -1,12 +1,9 @@
 /**
- * Shared Terminal application assembly: binds the BFF typed client, App Shell,
- * and page view models. The web app mounts this directly; the desktop shell
- * mounts it through the Tauri adapter with a different platform binding.
+ * Shared Terminal view-model assembly with an explicitly supplied typed client.
+ * Legacy default backend assembly lives only under tests/fixtures.
  */
 
 import {
-  InMemoryTerminalBackend,
-  createTerminalClient,
   type TerminalClient,
 } from "@sumalpha/api-client";
 import {
@@ -33,12 +30,11 @@ export interface TerminalApp {
 
 export function createTerminalApp(
   platformKind: PlatformKind,
-  client?: TerminalClient,
+  client: TerminalClient,
 ): TerminalApp {
-  const resolvedClient = client ?? createTerminalClient(new InMemoryTerminalBackend());
   const platform = platformCapabilities(platformKind);
   return {
-    client: resolvedClient,
+    client,
     platform,
     shell(route, viewportWidthPx, modeBanner) {
       return buildAppShell(route, viewportForWidth(viewportWidthPx), modeBanner);

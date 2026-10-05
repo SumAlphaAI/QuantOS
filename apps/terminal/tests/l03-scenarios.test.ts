@@ -9,7 +9,7 @@ import { InMemoryStrategyBackend } from "@sumalpha/api-client";
 import { assistedLiveGate, buildDeploymentTargetSelector } from "@sumalpha/domain-ui";
 import type { PlatformKind } from "@sumalpha/platform";
 
-import { createTerminalApp } from "../src/app.js";
+import { createTerminalApp } from "./fixtures/app.js";
 
 async function createPendingRelease(backend: InMemoryStrategyBackend) {
   await backend.runStaticCheck("strategy-001");

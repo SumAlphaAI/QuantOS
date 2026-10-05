@@ -1,0 +1,256 @@
+[
+  {
+    "nodeId": "FE:PRE-01",
+    "dependencies": [],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:f670108e0682eaae536e86a8a232d1a4f9c8c6c38c4c677d1f1c61ef4d53e270",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/fe-pre-01.json"
+      ]
+    },
+    "review_status": "NOT_STARTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "FE:PRE-02",
+    "dependencies": [
+      "FE:PRE-01"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:baca11b544f665a46366ac01616a52c72166a7318605f5c915038f5fb5e387cc",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/fe-pre-02.json"
+      ]
+    },
+    "review_status": "NOT_STARTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "CORE:F01",
+    "dependencies": [],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:ebddc39b1d9bfe67380f1b979b0381510de605ee3aa7074bdd2e682aab75cd9b",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/core-f01.json"
+      ]
+    },
+    "review_status": "ACCEPTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "FE:PRE-03",
+    "dependencies": [
+      "FE:PRE-02",
+      "CORE:F01"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:e101b627898b8706033e180bd7f048320098b94a3babf250444d324f34bb25de",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/fe-pre-03.json"
+      ]
+    },
+    "review_status": "NOT_STARTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "CORE:F03",
+    "dependencies": [
+      "CORE:F01"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:07868f3d7c35f5c9a344002753e4795653719b84d8fd27adc9855b2615d2b7da",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/core-f03.json"
+      ]
+    },
+    "review_status": "ACCEPTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "CORE:F04",
+    "dependencies": [
+      "CORE:F03"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:a447a5d6cbc8e2cade6f7f49fa575a89e2b182a2dd89366781d3d6cb145a6c63",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/core-f04.json"
+      ]
+    },
+    "review_status": "ACCEPTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "CORE:F05",
+    "dependencies": [
+      "CORE:F03",
+      "CORE:F04"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:80bffcb1beb9a7267a376410c0d33b8d912369ea22dd082858a4f6b6c8492090",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/core-f05.json"
+      ]
+    },
+    "review_status": "ACCEPTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "CORE:F06",
+    "dependencies": [
+      "CORE:F03",
+      "CORE:F05"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:7eb10969930611b9d5ef1c134f0fde9687a97e36d1aeb63865c5a011825495c7",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/core-f06.json"
+      ]
+    },
+    "review_status": "ACCEPTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "FE:PRE-04",
+    "dependencies": [
+      "FE:PRE-01",
+      "CORE:F03",
+      "CORE:F06"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:1f4cf82cc0e842784db09f02239a5cae61ddeeb7be5d84bf32791d89832fe546",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/fe-pre-04.json"
+      ]
+    },
+    "review_status": "NOT_STARTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "FE:PRE-05",
+    "dependencies": [
+      "FE:PRE-03",
+      "FE:PRE-04"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:2a04cbbd55b2fbcc0327734dbeb84627d4c9119efba884884182bf28cae15c8b",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/fe-pre-05.json"
+      ]
+    },
+    "review_status": "NOT_STARTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "FE:PRE-06",
+    "dependencies": [
+      "FE:PRE-04",
+      "FE:PRE-05"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:b6c346c1097e07c7035f5da710e35dab890c6b579e0678d3e4fb1496bf8119f2",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/fe-pre-06.json"
+      ]
+    },
+    "review_status": "NOT_STARTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "PREPARATION:P0",
+    "dependencies": [
+      "FE:PRE-01",
+      "FE:PRE-02",
+      "FE:PRE-03",
+      "FE:PRE-04",
+      "FE:PRE-05",
+      "FE:PRE-06"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:024fa58a3021a07e0252e011638c8a4d0de726cbe7c6c8719829c23affa6a024",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/preparation-p0.json"
+      ]
+    },
+    "review_status": "ACCEPTED",
+    "source_commit": "0149e5681fde7c6b75f891f6708d63726f075fc9"
+  },
+  {
+    "nodeId": "FE:BFF-FE-000",
+    "dependencies": [
+      "FE:PRE-04",
+      "FE:PRE-06",
+      "CORE:F03",
+      "CORE:F05",
+      "CORE:F06",
+      "PREPARATION:P0"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:57102270495873c46393107208422d6bc5f54d18db58cc1ade71f9b4873db8ff",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/fe-bff-fe-000.json"
+      ]
+    },
+    "review_status": "NOT_STARTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "PROVIDER:A1",
+    "dependencies": [
+      "FE:BFF-FE-000",
+      "PREPARATION:P0"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:b986c85588aea7bc10e5e986bf42565e435c685446825154fa9402286e567aa3",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/provider-a1.json"
+      ]
+    },
+    "review_status": "NOT_STARTED",
+    "source_commit": null
+  },
+  {
+    "nodeId": "FRONTEND-GATE:G0",
+    "dependencies": [
+      "PREPARATION:P0",
+      "PROVIDER:A1",
+      "FE:BFF-FE-000"
+    ],
+    "stage_gate": {
+      "stage": "DEVELOPMENT",
+      "status": "NOT_ASSESSED",
+      "input_digest": null,
+      "evidence": []
+    },
+    "review_status": "NOT_STARTED",
+    "source_commit": null
+  }
+]

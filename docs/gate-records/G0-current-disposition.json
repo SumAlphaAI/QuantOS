@@ -1,0 +1,356 @@
+{
+  "schema": "quantos-g0-current-disposition/v1",
+  "observedAt": "2026-10-05",
+  "calendarCommitment": "NO NEW OWNER CALENDAR SIGNATURE; checkpoint deadlines are engineering gate boundaries",
+  "historicalWholeItemClosure": false,
+  "items": [
+    {
+      "id": "G0-L01-1",
+      "parentId": "G0-L01",
+      "scope": "Backtest SSE schema/path/provider",
+      "stage": "INTEGRATION",
+      "owner": "BFF TL + Strategy owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-004",
+        "stage": "INTEGRATION"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "保留 getBacktest 同源轮询；SSE 未交付不得标实时 Integrated。",
+      "evidence": [
+        "bff/page-operation-catalog.yaml"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L02-1",
+      "parentId": "G0-L02",
+      "scope": "C02 Command planned operations",
+      "stage": "INTEGRATION",
+      "owner": "BFF TL + Observability owner + Auth owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-002",
+        "stage": "INTEGRATION"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "只用同源命名与 fixture；发布 schema/provider 前不进入业务集成。",
+      "evidence": [
+        "bff/page-operation-catalog.yaml"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L02-2",
+      "parentId": "G0-L02",
+      "scope": "C17 phase-one generated contract and reference provider",
+      "stage": "DEVELOPMENT",
+      "owner": "BFF TL + Observability owner + Auth owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "DEVELOPMENT"
+      },
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "按 BFF-FE-001 的实际工程范围引用；目标发布另验。",
+      "evidence": [
+        "bff/openapi/quantos-bff.v1.yaml",
+        "scripts/check-bff-fe-001.mjs"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L03-1",
+      "parentId": "G0-L03",
+      "scope": "C12 market contracts/provider",
+      "stage": "INTEGRATION",
+      "owner": "BFF TL + Market Data owner + Portfolio owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-005",
+        "stage": "INTEGRATION"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "许可证约束与默认拒绝；不得另建 DTO。",
+      "evidence": [
+        "bff/page-operation-catalog.yaml"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L03-2",
+      "parentId": "G0-L03",
+      "scope": "C14 performance contracts/provider",
+      "stage": "INTEGRATION",
+      "owner": "BFF TL + Market Data owner + Portfolio owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-008",
+        "stage": "INTEGRATION"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "估值快照与账本语义同源；未交付不标 Integrated。",
+      "evidence": [
+        "bff/page-operation-catalog.yaml"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L04-1",
+      "parentId": "G0-L04",
+      "scope": "C10 generated audit/export contract and reference provider",
+      "stage": "DEVELOPMENT",
+      "owner": "BFF TL + Audit owner + Execution owner + Recon owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "DEVELOPMENT"
+      },
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "复用已发布 C10；导出权限与目标发布仍独立验收。",
+      "evidence": [
+        "bff/openapi/quantos-bff.v1.yaml",
+        "scripts/check-bff-fe-007.mjs"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L04-2",
+      "parentId": "G0-L04",
+      "scope": "C13 trade preflight planned extension",
+      "stage": "INTEGRATION",
+      "owner": "BFF TL + Audit owner + Execution owner + Recon owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-006",
+        "stage": "INTEGRATION"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "已有 Proposal/Order 不能替代 planned preflight；禁止高风险 mock 验收。",
+      "evidence": [
+        "bff/page-operation-catalog.yaml"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L04-3",
+      "parentId": "G0-L04",
+      "scope": "C15 ledger/reconciliation contracts/provider",
+      "stage": "INTEGRATION",
+      "owner": "BFF TL + Audit owner + Execution owner + Recon owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-009",
+        "stage": "INTEGRATION"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "只用版本化账本与同 schema fixture，不标目标联调完成。",
+      "evidence": [
+        "bff/page-operation-catalog.yaml"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L05-1",
+      "parentId": "G0-L05",
+      "scope": "C11 operations/admin provider",
+      "stage": "INTEGRATION",
+      "owner": "BFF TL + Ops owner + Observability owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-010",
+        "stage": "INTEGRATION"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "无临时 URL/字段；未知 capability 默认拒绝。",
+      "evidence": [
+        "bff/page-operation-catalog.yaml"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L05-2",
+      "parentId": "G0-L05",
+      "scope": "C16 alerts provider",
+      "stage": "INTEGRATION",
+      "owner": "BFF TL + Ops owner + Observability owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-010",
+        "stage": "INTEGRATION"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "禁止以 planned 名称冒充告警运行；仅同源 fixture。",
+      "evidence": [
+        "bff/page-operation-catalog.yaml"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L06-1",
+      "parentId": "G0-L06",
+      "scope": "Real staging IdP Web acceptance",
+      "stage": "RELEASE",
+      "owner": "Auth owner + Frontend TL + Security",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "RELEASE"
+      },
+      "status": "DEFERRED",
+      "compatibilityStrategy": "本地 OIDC callback 只证明 PoC；真实 IdP 在 RELEASE 记录。",
+      "evidence": [
+        "tests/e2e/auth-callback.spec.ts"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L06-2",
+      "parentId": "G0-L06",
+      "scope": "Desktop system-browser callback",
+      "stage": "PHASE_TWO",
+      "owner": "Auth owner + Frontend TL + Security",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-DESKTOP-001",
+        "stage": "PHASE_TWO"
+      },
+      "status": "DEFERRED",
+      "compatibilityStrategy": "P16 与 Desktop 二期隔离；一期不开放桌面登录 flag。",
+      "evidence": [
+        "docs/gate-records/G0-tauri-deep-link-evidence.md"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L07-1",
+      "parentId": "G0-L07",
+      "scope": "Per-page seven-state design approval",
+      "stage": "DEVELOPMENT",
+      "owner": "Product/Design owner + QA",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:FEP-1",
+        "stage": "DEVELOPMENT"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "每页进入对应 Sprint 前补齐七态；PRE-01 文字场景不冒充高保真稿。",
+      "evidence": [
+        "docs/PRE-01-acceptance-scenarios.md"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L08-1",
+      "parentId": "G0-L08",
+      "scope": "Linux visual baselines and sabotage",
+      "stage": "DEVELOPMENT",
+      "owner": "QA",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:PRE-06",
+        "stage": "DEVELOPMENT"
+      },
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "现有 Linux fixtures 校验；每次 UI 变更重跑，不能当完整浏览器矩阵。",
+      "evidence": [
+        "scripts/check-visual-baselines.mjs"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L08-2",
+      "parentId": "G0-L08",
+      "scope": "Full platform visual matrix",
+      "stage": "RELEASE",
+      "owner": "QA",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "RELEASE"
+      },
+      "status": "DEFERRED",
+      "compatibilityStrategy": "保留缺失平台状态；RELEASE 不以本机 Chromium 代替完整矩阵。",
+      "evidence": [
+        ".github/workflows/compatibility.yml"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L09-1",
+      "parentId": "G0-L09",
+      "scope": "Current static JS budget gate",
+      "stage": "DEVELOPMENT",
+      "owner": "Frontend Performance owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:PRE-06",
+        "stage": "DEVELOPMENT"
+      },
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "超预算必须 ADR 与拆包复测；持续 CI 阻断。",
+      "evidence": [
+        "scripts/check-perf-budget.mjs"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L09-2",
+      "parentId": "G0-L09",
+      "scope": "Release performance revalidation",
+      "stage": "RELEASE",
+      "owner": "Frontend Performance owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "RELEASE"
+      },
+      "status": "DEFERRED",
+      "compatibilityStrategy": "候选版本实测首屏与长稳；开发预算不冒充发布性能验收。",
+      "evidence": [
+        "scripts/check-perf-budget.mjs"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L10-1",
+      "parentId": "G0-L10",
+      "scope": "Production adapter import prohibition",
+      "stage": "DEVELOPMENT",
+      "owner": "Frontend TL + 对应 BFF owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "DEVELOPMENT"
+      },
+      "status": "IMPLEMENTED_ENGINEERING",
+      "compatibilityStrategy": "生产页面禁止四类 legacy adapter，默认 fixture 仅在 tests 中组装。",
+      "evidence": [
+        "eslint.config.mjs",
+        "scripts/frontend-import-boundary.test.mjs"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    },
+    {
+      "id": "G0-L10-2",
+      "parentId": "G0-L10",
+      "scope": "Legacy adapter removal by owning domain",
+      "stage": "INTEGRATION",
+      "owner": "Frontend TL + 对应 BFF owner",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "PROVIDER:ALL",
+        "stage": "INTEGRATION"
+      },
+      "status": "PENDING",
+      "compatibilityStrategy": "迁移对应域 scenario 到生成 adapter 后再删除；现有类明确 deprecated fixture。",
+      "evidence": [
+        "packages/api-client/src/terminal.ts",
+        "packages/api-client/src/strategy.ts",
+        "packages/api-client/src/execution.ts",
+        "packages/api-client/src/ops.ts"
+      ],
+      "closure": "按本项阶段执行功能验收；IMPLEMENTED_ENGINEERING 仅表示引用仓库交付，不等于原历史整项 CLOSED。"
+    }
+  ]
+}

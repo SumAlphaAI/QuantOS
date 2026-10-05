@@ -96,8 +96,13 @@ jobs:
       - name: P0 acceptance receipt policy regressions
         run: pnpm test:p0
 
-      - name: G0 signed record and compatibility ledger
+      - name: G0 historical records and current stage disposition
         run: pnpm check:g0-records
+
+      - name: G0 functional engineering receipt and fail-closed rejection probes
+        # Pending organizational scope confirmation stays BLOCKED in the plan.
+        # This check validates engineering evidence; it never grants G0 READY.
+        run: pnpm check:g0-engineering && pnpm test:g0-development
 
       - name: Contract fixture tests (PRE-06)
         run: pnpm exec vitest run tests/contract

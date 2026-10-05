@@ -8,6 +8,8 @@ import { parse as parseYaml } from "yaml";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const read = file => readFileSync(resolve(root, file), "utf8");
 export const requirements = JSON.parse(read("docs/PRE-01-requirements-baseline.json"));
+const openapiVersion = parseYaml(read("bff/openapi/quantos-bff.v1.yaml")).info.version;
+const mockVersion = JSON.parse(read("tests/contract/generated/quantos-bff.operations.json")).version;
 const catalog = parseYaml(read("bff/page-operation-catalog.yaml"));
 export const expectedPages = requirements.pages;
 const states = ["默认", "加载", "空", "错误", "无权", "陈旧", "离线"];
@@ -125,6 +127,14 @@ export function validatePre01({ ledger, matrix, scenarios, coverage = read("docs
   for (const [id, status] of [...coverage.matchAll(/\b([a-z]+[A-Z][A-Za-z0-9]*)（(published|planned)/g)].map(m=>[m[1],m[2]])) {
     assert((status==="published" ? published : planned).has(id),`${id}: publication status differs from catalog`);
   }
+  assert.equal(mockVersion, openapiVersion, "generated mock version differs from OpenAPI");
+  const mentionedVersions = coverage.match(/\b\d+\.\d+\.\d+\b/g) ?? [];
+  // The initial 1.0.0 delivery is a dated historical entry, never the current register.
+  const activeCoverage = coverage.split("## 3. 回填执行流程")[0];
+  assert(mentionedVersions.length > 0, "current API register version missing");
+  for (const version of activeCoverage.match(/\b\d+\.\d+\.\d+\b/g) ?? []) assert.equal(version, openapiVersion, "API register version differs from current OpenAPI");
+  assert(activeCoverage.includes("G0 DEVELOPMENT") && activeCoverage.includes("INTEGRATION") && activeCoverage.includes("RELEASE"), "API register stage consumption missing");
+  assert(!/正式 G0 通过后|staging 消费者\/provider 签署后才能/.test(activeCoverage), "API register prematurely requires RELEASE acceptance");
   const registered = rows(coverage).filter(r=>r[0]==="GS" || r[0]==="官网" || /^P\d{2}$/.test(r[0]));
   assert.deepEqual(registered.map(r=>r[0]),["GS","官网",...catalog.scope.pages],"API register must match phase-one page scope");
   const operationContracts = new Map(Object.entries(catalog.contracts).flatMap(([id, contract]) =>
@@ -135,7 +145,11 @@ export function validatePre01({ ledger, matrix, scenarios, coverage = read("docs
   const operationToken = /\b(?:get|list|search|create|save|run|submit|request|engage|release|decide|cancel|subscribe|revoke|setup|clear|check|update|ack|unack)[A-Z][A-Za-z0-9]*\b|\b(?:reauth|mfaChallenge|logout)\b/g;
   for (const row of registered) {
     assert.equal(row.length, 11, `${row[0]}: incomplete API register row`);
-    assert(!/1\.[012]\.0/.test(row[7]+row[8]),`${row[0]}: API register references obsolete generated version`);
+    const operations = row.slice(2,5).join(" ").match(operationToken) ?? [];
+    if (operations.some(op => published.has(op))) {
+      assert((row[7].match(/\b\d+\.\d+\.\d+\b/g) ?? []).includes(openapiVersion), `${row[0]}: published API version missing`);
+      assert((row[8].match(/\b\d+\.\d+\.\d+\b/g) ?? []).includes(mockVersion), `${row[0]}: generated mock version missing`);
+    } else assert(row[7].includes("planned") && row[8]==="未生成", `${row[0]}: planned operations cannot claim generated delivery`);
     for (const operation of row.slice(2, 5).join(" ").match(operationToken) ?? []) {
       const contract = operationContracts.get(operation);
       assert(contract, `${row[0]}: unknown operation ${operation}`);

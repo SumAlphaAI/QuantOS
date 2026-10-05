@@ -1,0 +1,89 @@
+{
+  "schema": "quantos-g0-audit-findings/v1",
+  "counts": {
+    "阻塞级": 1,
+    "高危": 0,
+    "中危": 4,
+    "低危": 0
+  },
+  "findings": [
+    {
+      "id": "B-01",
+      "severity": "阻塞级",
+      "module": "FRONTEND-GATE:G0 / stage_gate / CI",
+      "manifestation": "G0自身无完整功能manifest、输入摘要、运行结果和依赖绑定；现有check:g0-records为历史治理校验。",
+      "impact": "G0/FEP-0及消费G0的新页面、PROVIDER:ALL功能准入",
+      "controls": [
+        "G03",
+        "G24"
+      ],
+      "evidence": [
+        "dependency-stage-snapshot.json",
+        "g0-records.log",
+        "independent-probes.json"
+      ],
+      "recommendation": "建立独立G0 DEVELOPMENT输入/功能回执聚合与内容校验，范围确认完成后最后登记READY。"
+    },
+    {
+      "id": "M-01",
+      "severity": "中危",
+      "module": "G0当前契约/功能范围确认",
+      "manifestation": "仓库仅有历史1.0.0/拆分前六方签署；缺当前最低冻结面与Web功能范围确认。",
+      "impact": "当前契约、安全/风控与产品边界的责任归属；不要求开发阶段正式发布签署",
+      "controls": [
+        "G22"
+      ],
+      "evidence": [
+        "source-inputs.json"
+      ],
+      "recommendation": "保存六方对当前功能范围、版本/摘要、排除项和遗留项的确认记录；正式签署仍在RELEASE。"
+    },
+    {
+      "id": "M-02",
+      "severity": "中危",
+      "module": "G0治理台账与历史兼容策略门禁",
+      "manifestation": "十项遗留仍使用历史混合范围和期限；九项逾期，无当前阶段处置；清空十项兼容策略仍被校验接受。",
+      "impact": "开发/发布/二期范围和未冻结项的跟进；可能误把已有契约或后置要求当当前G0阻塞",
+      "controls": [
+        "G23"
+      ],
+      "evidence": [
+        "g0-records.log",
+        "independent-probes.json"
+      ],
+      "recommendation": "保留历史快照，新增按功能子项/阶段划分的当前处置及责任人/有效期限/兼容策略，并校验策略非空。"
+    },
+    {
+      "id": "M-03",
+      "severity": "中危",
+      "module": "Page API Coverage / PRE-01版本与阶段口径",
+      "manifestation": "当前OpenAPI及生成资产1.5.0，18行API/mock标签仍1.4.0；全表替换虚构99.99.0后PRE-01仍PASS，正文仍要求正式G0/staging后开发或Integrated。",
+      "impact": "24行页面登记表的版本可信度及下游开发/联调的准入理解",
+      "controls": [
+        "G13"
+      ],
+      "evidence": [
+        "pre01.log",
+        "page-coverage.log",
+        "independent-probes.json"
+      ],
+      "recommendation": "按实际published/planned范围同步版本；由真实OpenAPI/生成manifest校验版本，按DEVELOPMENT/INTEGRATION/RELEASE修正文案。"
+    },
+    {
+      "id": "M-04",
+      "severity": "中危",
+      "module": "ESLint生产导入边界 / deprecated InMemory backend",
+      "manifestation": "四类虽已deprecated，但生产页面路径引入并实例化InMemory backend时ESLint退出0，缺强制导入边界。",
+      "impact": "未来页面可能绕过生成BFF/schema adapter并静默依赖手写业务状态；本轮未发现Next页面实际直接引用",
+      "controls": [
+        "G11"
+      ],
+      "evidence": [
+        "production-import-probe.txt",
+        "production-import-probe.log",
+        "independent-probes.json"
+      ],
+      "recommendation": "对生产页面/运行时启用禁止旧backend及内部DTO/venue类型的边界，限定测试例外并增加可执行拒绝回归。"
+    }
+  ]
+}

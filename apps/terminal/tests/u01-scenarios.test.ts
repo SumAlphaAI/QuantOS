@@ -26,7 +26,7 @@ import {
 } from "@sumalpha/domain-ui";
 import type { PlatformKind } from "@sumalpha/platform";
 
-import { createTerminalApp, type TerminalApp } from "../src/app.js";
+import { createTerminalApp, type TerminalApp } from "./fixtures/app.js";
 
 function apps(): { kind: PlatformKind; app: TerminalApp }[] {
   return (["web", "desktop"] as const).map((kind) => ({

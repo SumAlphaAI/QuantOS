@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,mkdirSync,realpathSync,statSync,existsSync,mkdtempSync,cpSync,rmSync} from 'node:fs';
-import {resolve,relative,sep} from 'node:path';
+import {resolve,relative,sep,dirname} from 'node:path';
 import {tmpdir} from 'node:os';
 import {execFileSync,spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -90,7 +90,7 @@ export function validateReceipt(id,{nodes=nodesFromPlans(),base=root,record,visi
  assert(m.environment?.node&&m.environment?.pnpm&&m.environment?.rust&&m.environment?.platform,'execution environment missing');assert(/^[0-9a-f]{40}$/.test(m.observedSourceCommit),'execution source commit missing');
  assert.deepEqual(m.checks.map(c=>c.id).sort(),[...spec.checks].sort(),'required functional checks missing or extra');
  for(const c of m.checks){const check=p.checks[c.id];assert.deepEqual(c.command,check.command,'actual command differs from policy');assert.equal(c.exitCode,0,'failed or unexecuted check');assert.equal(c.status,'PASS');assert(Number.isFinite(Date.parse(c.executedAt))&&Date.parse(c.executedAt)<=Date.now(),'actual execution time missing');
-  assert(c.log.startsWith(directory+'/logs/'),'log outside evidence directory');const log=readFileSync(confined(c.log,base));assert.equal(digest(log),c.logSha256,'log content changed');assert(log.length>0,'empty execution log');if(check.marker)assert(new RegExp(check.marker).test(log.toString()),`required execution marker missing ${c.id}`);
+  assert(c.log.startsWith(dirname(path)+'/logs/'),'log outside evidence directory');const log=readFileSync(confined(c.log,base));assert.equal(digest(log),c.logSha256,'log content changed');assert(log.length>0,'empty execution log');if(check.marker)assert(new RegExp(check.marker).test(log.toString()),`required execution marker missing ${c.id}`);
   if(check.database)assert.equal(c.target,'configured-supabase','actual database execution missing');
   if(check.transientDatabase){assert(Array.isArray(c.attempts)&&c.attempts.length>=1&&c.attempts.length<=check.maxAttempts,'database attempt outcomes missing');for(const [i,a]of c.attempts.entries()){assert.equal(a.attempt,i+1);if(i===c.attempts.length-1)assert.equal(a.exitCode,0);else {assert.notEqual(a.exitCode,0);assert.equal(a.transient,true,'semantic database failures cannot be retried');}}}
   if(check.env)assert.deepEqual(c.environmentOverrides,check.env,'required execution environment differs');
@@ -117,7 +117,10 @@ export function runDatabaseAttempts(execute,maxAttempts=3) {
  assert(Number.isInteger(maxAttempts)&&maxAttempts>=1&&maxAttempts<=3,'database attempt budget must be between 1 and 3');const runs=[];
  for(let attempt=1;attempt<=maxAttempts;attempt++){const run=execute(attempt);run.transient=run.status!==0&&/Postgres\(Error \{ kind: Closed, cause: None \}\)/.test((run.stdout??'')+(run.stderr??''));runs.push(run);if(run.status===0||!run.transient)break;}return runs;
 }
-export function assess() {
+export function assess(outputDirectory=directory) {
+ const approvedDirectory='docs/audit/evidence/provider-a1-remediation-20261004';
+ assert(outputDirectory===approvedDirectory || (outputDirectory.startsWith(approvedDirectory+'/') && /^[a-z0-9/-]+$/.test(outputDirectory) && !outputDirectory.includes('..')), 'unsafe assessment evidence directory');
+ const directory=outputDirectory;
  assert.equal(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim(),'','commit source before recording functional execution');
  const texts=planPaths.map(p=>readFileSync(resolve(root,p),'utf8'));const nodes=nodesFromPlans(texts);const selected=closure(nodes);const p=policy();const initialInputs=captureInputs(nodes,selected,p);const out=resolve(root,directory);mkdirSync(resolve(out,'logs'),{recursive:true});
  const source=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();const environment={node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),rust:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,clientProfile:'local-mock'};
@@ -150,4 +153,4 @@ export function assess() {
  const admitted=new Map(selected.map(id=>[id,nodes.get(id)]));const updated=[publishStages(texts[0],admitted,'CORE:'),publishStages(texts[1],admitted,'FE:')];validatePlans(...updated);for(let i=0;i<2;i++)writeFileSync(resolve(root,planPaths[i]),updated[i]);
  console.log(JSON.stringify(validateReceipt('PROVIDER:A1',{nodes}),null,2));
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--assess')assess();else {assert.equal(process.argv.length,2,'usage: [--assess]');console.log(JSON.stringify(validateReceipt('PROVIDER:A1'),null,2));}}catch(e){console.error(e.message);process.exitCode=1;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--assess'){assert(process.argv.length<=4,'usage: --assess [evidence-directory]');assess(process.argv[3]);}else {assert.equal(process.argv.length,2,'usage: [--assess]');console.log(JSON.stringify(validateReceipt('PROVIDER:A1'),null,2));}}catch(e){console.error(e.message);process.exitCode=1;}}

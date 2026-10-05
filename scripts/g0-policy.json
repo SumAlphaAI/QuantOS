@@ -1,0 +1,407 @@
+{
+  "schema": "quantos-g0-development-policy/v1",
+  "scope": "Phase-one Web; current published OpenAPI minimum, engineering/traceability and Web/OIDC/SSE PoCs",
+  "roles": [
+    "Product",
+    "Frontend",
+    "BFF",
+    "QA",
+    "Security",
+    "Risk"
+  ],
+  "inputSelectors": [
+    "apps/terminal/",
+    "apps/website/",
+    "packages/",
+    "bff/",
+    "proto/",
+    "tests/contract/",
+    "tests/e2e/",
+    "scripts/",
+    ".github/workflows/",
+    "env/",
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    "tsconfig.base.json",
+    "eslint.config.mjs",
+    "docs/PRE-01-page-ledger-and-stories.md",
+    "docs/PRE-01-route-permission-matrix.md",
+    "docs/PRE-01-acceptance-scenarios.md",
+    "docs/PRE-01-page-api-coverage-register.md",
+    "docs/gate-records/G0-current-governance.json",
+    "docs/gate-records/G0-current-disposition.json",
+    "docs/gate-records/G0-PRE-01-review-record.md",
+    "docs/gate-records/G0-readiness-assessment.md",
+    "docs/adr/20260814-pre03-runtime-stack.md"
+  ],
+  "developmentProfile": {
+    "file": "env/local-mock.env.example",
+    "overrides": {
+      "NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN": "http://localhost:3190",
+      "NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI": "http://localhost:3190/auth/callback"
+    }
+  },
+  "checks": {
+    "records": {
+      "command": [
+        "node",
+        "scripts/check-g0-records.mjs"
+      ],
+      "marker": "\"status\": \"PASS\""
+    },
+    "pre01": {
+      "command": [
+        "node",
+        "scripts/check-pre01.mjs"
+      ],
+      "marker": "\"status\": \"PASS\""
+    },
+    "pre01-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tests/check-pre01.test.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "boundary-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/frontend-import-boundary.test.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "g0-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/g0-development.test.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "baseline": {
+      "command": [
+        "node",
+        "scripts/check-bff-fe-000.mjs"
+      ],
+      "marker": "\"status\": \"PASS\""
+    },
+    "generated": {
+      "command": [
+        "node",
+        "scripts/check-bff-generated.mjs"
+      ],
+      "marker": "BFF generated artifacts match"
+    },
+    "proto": {
+      "command": [
+        "bash",
+        "scripts/check-proto.sh"
+      ],
+      "marker": "Proto checks passed"
+    },
+    "frontend-lint": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "--filter",
+        "@sumalpha/website",
+        "lint"
+      ],
+      "marker": "eslint"
+    },
+    "frontend-types": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "--filter",
+        "@sumalpha/website",
+        "typecheck"
+      ],
+      "marker": "tsc"
+    },
+    "auth-client-contract": {
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "apps/terminal/tests/auth-poc.test.ts",
+        "packages/api-client/tests",
+        "tests/contract"
+      ],
+      "marker": "Tests .*passed"
+    },
+    "sse": {
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "packages/api-client/tests/sse-poc.test.ts"
+      ],
+      "marker": "7 passed"
+    },
+    "web-build": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "marker": "next build"
+    },
+    "web-oidc-poc": {
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/auth-callback.spec.ts",
+        "tests/e2e/command.spec.ts",
+        "--project=chromium",
+        "--retries=0"
+      ],
+      "marker": "11 passed"
+    },
+    "js-budget": {
+      "command": [
+        "node",
+        "scripts/check-perf-budget.mjs",
+        "apps/terminal/out"
+      ],
+      "marker": "性能预算校验通过"
+    },
+    "linux-baselines": {
+      "command": [
+        "node",
+        "scripts/check-visual-baselines.mjs",
+        "--platform",
+        "linux"
+      ],
+      "marker": "PASS"
+    }
+  },
+  "disposition": [
+    {
+      "id": "G0-L01-1",
+      "parentId": "G0-L01",
+      "scope": "Backtest SSE schema/path/provider",
+      "stage": "INTEGRATION",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-004",
+        "stage": "INTEGRATION"
+      }
+    },
+    {
+      "id": "G0-L02-1",
+      "parentId": "G0-L02",
+      "scope": "C02 Command planned operations",
+      "stage": "INTEGRATION",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-002",
+        "stage": "INTEGRATION"
+      }
+    },
+    {
+      "id": "G0-L02-2",
+      "parentId": "G0-L02",
+      "scope": "C17 phase-one generated contract and reference provider",
+      "stage": "DEVELOPMENT",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "DEVELOPMENT"
+      }
+    },
+    {
+      "id": "G0-L03-1",
+      "parentId": "G0-L03",
+      "scope": "C12 market contracts/provider",
+      "stage": "INTEGRATION",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-005",
+        "stage": "INTEGRATION"
+      }
+    },
+    {
+      "id": "G0-L03-2",
+      "parentId": "G0-L03",
+      "scope": "C14 performance contracts/provider",
+      "stage": "INTEGRATION",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-008",
+        "stage": "INTEGRATION"
+      }
+    },
+    {
+      "id": "G0-L04-1",
+      "parentId": "G0-L04",
+      "scope": "C10 generated audit/export contract and reference provider",
+      "stage": "DEVELOPMENT",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "DEVELOPMENT"
+      }
+    },
+    {
+      "id": "G0-L04-2",
+      "parentId": "G0-L04",
+      "scope": "C13 trade preflight planned extension",
+      "stage": "INTEGRATION",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-006",
+        "stage": "INTEGRATION"
+      }
+    },
+    {
+      "id": "G0-L04-3",
+      "parentId": "G0-L04",
+      "scope": "C15 ledger/reconciliation contracts/provider",
+      "stage": "INTEGRATION",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-009",
+        "stage": "INTEGRATION"
+      }
+    },
+    {
+      "id": "G0-L05-1",
+      "parentId": "G0-L05",
+      "scope": "C11 operations/admin provider",
+      "stage": "INTEGRATION",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-010",
+        "stage": "INTEGRATION"
+      }
+    },
+    {
+      "id": "G0-L05-2",
+      "parentId": "G0-L05",
+      "scope": "C16 alerts provider",
+      "stage": "INTEGRATION",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-FE-010",
+        "stage": "INTEGRATION"
+      }
+    },
+    {
+      "id": "G0-L06-1",
+      "parentId": "G0-L06",
+      "scope": "Real staging IdP Web acceptance",
+      "stage": "RELEASE",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "RELEASE"
+      }
+    },
+    {
+      "id": "G0-L06-2",
+      "parentId": "G0-L06",
+      "scope": "Desktop system-browser callback",
+      "stage": "PHASE_TWO",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:BFF-DESKTOP-001",
+        "stage": "PHASE_TWO"
+      }
+    },
+    {
+      "id": "G0-L07-1",
+      "parentId": "G0-L07",
+      "scope": "Per-page seven-state design approval",
+      "stage": "DEVELOPMENT",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:FEP-1",
+        "stage": "DEVELOPMENT"
+      }
+    },
+    {
+      "id": "G0-L08-1",
+      "parentId": "G0-L08",
+      "scope": "Linux visual baselines and sabotage",
+      "stage": "DEVELOPMENT",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:PRE-06",
+        "stage": "DEVELOPMENT"
+      }
+    },
+    {
+      "id": "G0-L08-2",
+      "parentId": "G0-L08",
+      "scope": "Full platform visual matrix",
+      "stage": "RELEASE",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "RELEASE"
+      }
+    },
+    {
+      "id": "G0-L09-1",
+      "parentId": "G0-L09",
+      "scope": "Current static JS budget gate",
+      "stage": "DEVELOPMENT",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FE:PRE-06",
+        "stage": "DEVELOPMENT"
+      }
+    },
+    {
+      "id": "G0-L09-2",
+      "parentId": "G0-L09",
+      "scope": "Release performance revalidation",
+      "stage": "RELEASE",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "RELEASE"
+      }
+    },
+    {
+      "id": "G0-L10-1",
+      "parentId": "G0-L10",
+      "scope": "Production adapter import prohibition",
+      "stage": "DEVELOPMENT",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "FRONTEND-GATE:G0",
+        "stage": "DEVELOPMENT"
+      }
+    },
+    {
+      "id": "G0-L10-2",
+      "parentId": "G0-L10",
+      "scope": "Legacy adapter removal by owning domain",
+      "stage": "INTEGRATION",
+      "deadline": {
+        "type": "CHECKPOINT",
+        "before": "PROVIDER:ALL",
+        "stage": "INTEGRATION"
+      }
+    }
+  ],
+  "excluded": [
+    "RELEASE staging deployment/real IdP",
+    "RELEASE signatures and same-SHA hosted CI",
+    "RELEASE performance/soak/full platform matrix",
+    "unimplemented A2-A6 providers",
+    "P16 and Desktop phase two"
+  ]
+}
