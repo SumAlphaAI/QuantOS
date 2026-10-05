@@ -1,0 +1,178 @@
+{
+  "schema": "quantos-g0-final-checks/v1",
+  "observedSourceCommit": "22254ddaba32946e33c6be0c63f277229a0331b9",
+  "functionalSourceChanged": false,
+  "results": [
+    {
+      "id": "source-regression",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tests/check-pre01.test.mjs",
+        "scripts/tests/check-g0-records.test.mjs",
+        "scripts/frontend-import-boundary.test.mjs",
+        "scripts/g0-development.test.mjs",
+        "scripts/provider-a1-receipts.test.mjs"
+      ],
+      "completedAt": "2026-10-05T03:54:17.790976+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-source-regression.log",
+      "logSha256": "sha256:ba6e811b73eea96ea0402ce075c8aa8d5b76fc4dd36b3b64ebf9f72caede98f3"
+    },
+    {
+      "id": "workspace-lint",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "--filter",
+        "@sumalpha/website",
+        "--filter",
+        "@sumalpha/ui",
+        "--filter",
+        "@sumalpha/domain-ui",
+        "--filter",
+        "@sumalpha/platform",
+        "--filter",
+        "@sumalpha/config",
+        "lint"
+      ],
+      "completedAt": "2026-10-05T04:15:58.914076+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-workspace-lint.log",
+      "logSha256": "sha256:e356fbddfff5e1cba9d73d49223e9ecd63597280c6ccdeeec7b5c68328125727"
+    },
+    {
+      "id": "plan-shape-and-negative",
+      "command": [
+        "pnpm check:development-plans",
+        "node --test scripts/development-plan-order-negative.mjs"
+      ],
+      "completedAt": "2026-10-05T04:16:39.111998+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-plan-shape-and-negative.log",
+      "logSha256": "sha256:cc6177451d7c552ada27cdf58a415ac425018cf540056040b469928bf069d137"
+    },
+    {
+      "id": "g0-assess",
+      "command": [
+        "node",
+        "scripts/g0-development.mjs",
+        "--assess"
+      ],
+      "completedAt": "2026-10-05T04:16:14.951232+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-g0-assess.log",
+      "logSha256": "sha256:40e6448cb319f1c971bc138b0a5abc0198d61787fb328b33429e73a4fa21ed38"
+    },
+    {
+      "id": "g0-engineering",
+      "command": [
+        "node",
+        "scripts/g0-development.mjs",
+        "--engineering"
+      ],
+      "completedAt": "2026-10-05T04:16:41.121502+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-g0-engineering.log",
+      "logSha256": "sha256:adf38e011ebb62be27cd99604cfe6df5804f040d81a1fd3318a3d2ec99102d91"
+    },
+    {
+      "id": "g0-strict",
+      "command": [
+        "node",
+        "scripts/g0-development.mjs",
+        "--ready"
+      ],
+      "completedAt": "2026-10-05T04:16:41.121821+00:00",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "status": "EXPECTED_REJECTION",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-g0-strict.log",
+      "logSha256": "sha256:e8404576311f9989a70eec8ed19330d0440da68724cd7c3aa779a9e87bf96c91"
+    },
+    {
+      "id": "website-budget",
+      "command": [
+        "node",
+        "scripts/check-perf-budget.mjs",
+        "apps/website/out"
+      ],
+      "completedAt": "2026-10-05T04:17:11.172230+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-website-budget.log",
+      "logSha256": "sha256:38eeb2b9b470cee813ef5125a21da8525138b306319b3e49e8e07cbcf19b3650"
+    },
+    {
+      "id": "history-secret-scan",
+      "command": [
+        "GITLEAKS_BIN=artifacts/tools/gitleaks",
+        "bash",
+        "scripts/check-secrets.sh"
+      ],
+      "completedAt": "2026-10-05T03:56:47.132459+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-history-secret-scan.log",
+      "logSha256": "sha256:8c754f1adfb627487e39fb0c979e7d5bdc79e0a9b0442ef6d5344549bb2ca102"
+    },
+    {
+      "id": "upstream-snapshot-secret-scan",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "dir",
+        "docs/audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner"
+      ],
+      "completedAt": "2026-10-05T04:17:11.496547+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-upstream-snapshot-secret-scan.log",
+      "logSha256": "sha256:9223f4fb8c7e6130d988df2716ea15753cc1f07f49eb5218b25b8a9a891f04b9"
+    },
+    {
+      "id": "g0-snapshot-secret-scan",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "dir",
+        "docs/audit/evidence/frontend-g0-remediation-20261005",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner"
+      ],
+      "completedAt": "2026-10-05T04:17:59.109764+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/frontend-g0-remediation-20261005/logs/final-g0-snapshot-secret-scan.log",
+      "logSha256": "sha256:6b52206a5ff0917e44c514add6c5f6248bbc282c771255195ffeee052817ba77"
+    }
+  ],
+  "tests": {
+    "sourceRegressions": 166,
+    "planNegatives": 35
+  },
+  "profile": "website budget uses provider policy developmentEnvironment + staticEnvironment; strict G0 intentionally rejects missing current six-role scope; suite counts not added as unique controls"
+}

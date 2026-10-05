@@ -1,0 +1,227 @@
+{
+  "schema": "quantos-g0-audit-controls/v1",
+  "scope": "DEVELOPMENT",
+  "sourceCommit": "22254ddaba32946e33c6be0c63f277229a0331b9",
+  "counts": {
+    "PASS": 23,
+    "PARTIAL": 0,
+    "FAIL": 0,
+    "MISSING": 1,
+    "NOT_ASSESSED": 0
+  },
+  "completion": {
+    "passed": 23,
+    "total": 24,
+    "percent": 95.83,
+    "engineeringPassed": 23,
+    "engineeringTotal": 23
+  },
+  "controls": [
+    {
+      "id": "G01",
+      "control": "DEVELOPMENT/RELEASE、Web/未来 provider 范围",
+      "status": "PASS",
+      "facts": "DEVELOPMENT/RELEASE、一期 Web、未来 provider/二期排除在 policy、scopeRequest 及计划一致；正式范围未提前验收",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G02",
+      "control": "直接与递归依赖准入",
+      "status": "PASS",
+      "facts": "当前源码上游完整 65/65 PASS，3 个直接依赖及递归 14 节点内容验证 READY",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G03",
+      "control": "G0 输入清单、摘要与阶段回执",
+      "status": "PASS",
+      "facts": "当前 G0 manifest 绑定完整功能输入、计划、执行日志、产物、依赖与确认状态；BLOCKED 只剩 M-01",
+      "historicalFindings": [
+        "B-01"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G04",
+      "control": "最低冻结领域与版本化 OpenAPI",
+      "status": "PASS",
+      "facts": "当前 API 1.5.0，62 published / 46 planned excluded；最低冻结面当前基线核验通过",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G05",
+      "control": "统一错误、状态、correlation 与缓存头",
+      "status": "PASS",
+      "facts": "统一契约、25 项 contract 回归及 BFF 基线当前源码复验通过",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G06",
+      "control": "会话、幂等、版本与高风险输入契约",
+      "status": "PASS",
+      "facts": "A1 负向、API client、受信输入、F06 Supabase 安全/撤销与执行链实际复验通过",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G07",
+      "control": "mock 与正式 schema 同源",
+      "status": "PASS",
+      "facts": "生成 MSW 与正式 request/response validators 同源，当前重新生成比对通过",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G08",
+      "control": "六类生成资产与漂移检查",
+      "status": "PASS",
+      "facts": "六类生成资产临时生成逐字节一致，当前 generated Gate PASS",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G09",
+      "control": "Proto/JSON Schema/domain 一致性及 CI",
+      "status": "PASS",
+      "facts": "当前 Proto/JSON schema/domain 实际复验通过；G0 CI 模式显式记录父提交兼容基线",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G10",
+      "control": "InMemory 迁移或显式待删除",
+      "status": "PASS",
+      "facts": "旧 backend 保留 fixture-only 待删除标记；默认 InMemory 组装移到 tests/fixtures，生产显式注入",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G11",
+      "control": "生产导入边界的强制门禁",
+      "status": "PASS",
+      "facts": "应用及共享包生产 ESLint 强制边界，别名/重导出/namespace/dynamic/require/private SDK/inline disable 反证拒绝",
+      "historicalFindings": [
+        "M-04"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G12",
+      "control": "页面→任务→契约→后端→用例→Gate",
+      "status": "PASS",
+      "facts": "当前 30 追踪行、132 Story、210 七态+10 流程定义通过结构/归属检查；不是全量业务 E2E",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G13",
+      "control": "页面登记表的 API/mock 版本绑定",
+      "status": "PASS",
+      "facts": "18 个含 published 行 API/mock 精确 1.5.0，6 个仅 planned 行不声明生成；缺版本及虚构 99.99/旧1.4 拒绝",
+      "historicalFindings": [
+        "M-03"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G14",
+      "control": "operationId 反查影响页面/owner",
+      "status": "PASS",
+      "facts": "62 published/46 planned 归属及影响页面/owner 校验、PRE-01 负向当前复验通过",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G15",
+      "control": "Web 页面与当前输入构建 PoC",
+      "status": "PASS",
+      "facts": "当前源码 fresh Web 构建来源/受控 profile、runtime smoke 与 Chromium PoC 实际通过",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G16",
+      "control": "OIDC callback 正向 PoC",
+      "status": "PASS",
+      "facts": "当前 fresh build Chromium OIDC PKCE/callback/return path PoC 通过；mock IdP",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G17",
+      "control": "OIDC state、URL、错误与 session bridge",
+      "status": "PASS",
+      "facts": "Auth/API client/contract 100 项与浏览器 callback 正负通过；真实 staging IdP 未执行",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G18",
+      "control": "SSE 去重、断流、gap 与撤权 PoC",
+      "status": "PASS",
+      "facts": "SSE 7 项全部通过，包括 loopback HTTP 断流/续传、去重、gap、撤权；非目标部署 SSE",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G19",
+      "control": "基本浏览器、a11y、布局与视觉",
+      "status": "PASS",
+      "facts": "Chromium 当前 11/11 无重试；包括 Command a11y、390只读、1440视觉；非全平台发布矩阵",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G20",
+      "control": "前端 lint/typecheck 与锁/ADR 规范",
+      "status": "PASS",
+      "facts": "当前前端 lint/typecheck、六个应用/共享 workspace 边界 lint、锁/ADR 检查通过",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G21",
+      "control": "领域覆盖率与关键风险分支",
+      "status": "PASS",
+      "facts": "当前上游重新执行 Web coverage、关键风险100%及语义 mutation；不复用过期源码 coverage",
+      "historicalFindings": [],
+      "findings": []
+    },
+    {
+      "id": "G22",
+      "control": "六方当前契约/功能范围确认",
+      "status": "MISSING",
+      "facts": "用户明确暂无当前六方记录；PENDING/null/[]，组织授权与历史签署均未伪造",
+      "historicalFindings": [
+        "M-01"
+      ],
+      "findings": [
+        "M-01"
+      ]
+    },
+    {
+      "id": "G23",
+      "control": "未冻结项当前 owner、期限、阶段与兼容策略",
+      "status": "PASS",
+      "facts": "历史10项/9项当时逾期保留，当前19子项 owner/阶段/消费期限/非空兼容策略/来源与文本一致",
+      "historicalFindings": [
+        "M-02"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G24",
+      "control": "G0 功能验收入口、持续拒绝与 CI",
+      "status": "PASS",
+      "facts": "G0 16项真实执行、工程入口和持续负向接入 CI；严格准入缺六方确认实际退出非零，不授 READY",
+      "historicalFindings": [
+        "B-01"
+      ],
+      "findings": []
+    }
+  ]
+}
