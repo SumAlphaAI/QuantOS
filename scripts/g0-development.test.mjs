@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { policy, scopeRequest, validateConfirmations, validateManifest, assertG0ExecutionSnapshot, evidenceDirectory } from './g0-development.mjs';
+import { policy, scopeRequest, validateConfirmations, validateManifest, assertG0ExecutionSnapshot, assertG0Worktree, evidenceDirectory } from './g0-development.mjs';
 import { digest, nodesFromPlans, planInput, developmentEnvironment, root } from './provider-a1-receipts.mjs';
 import { sourceDigest } from './pre03-build-receipt.mjs';
 const p=policy();
@@ -11,13 +12,15 @@ function fixture(){
  const webBuild={schema:'quantos-pre03-build/v1',app:'terminal',output:'export',buildId:'fixture',sourceDigest:sourceDigest(root,developmentEnvironment(readFileSync(p.developmentProfile.file,'utf8'),p.developmentProfile.overrides))};
  logs.set(evidenceDirectory+'/terminal-build.json',Buffer.from(JSON.stringify(webBuild)));
  const checks=Object.entries(p.checks).map(([id,spec])=>{const log=evidenceDirectory+'/logs/'+id+'.log';const output=Buffer.from(spec.marker.replace('.*','fixture'));logs.set(log,output);return {id,command:spec.command,status:'PASS',exitCode:0,executedAt:new Date().toISOString(),log,logSha256:digest(output)};});
- const n=nodes.get('FRONTEND-GATE:G0');const m={schema:'quantos-g0-development-manifest/v1',nodeId:n.id,stage:'DEVELOPMENT',status:'BLOCKED',formalAccepted:false,engineeringStatus:'PASS',observedSourceCommit:'a'.repeat(40),environment:{node:'24',pnpm:'10',platform:'fixture',profile:'local-mock'},planInput:planInput(n),scopeRequest:structuredClone(request),checks,
+ const n=nodes.get('FRONTEND-GATE:G0');const m={schema:'quantos-g0-development-manifest/v1',nodeId:n.id,stage:'DEVELOPMENT',status:'BLOCKED',formalAccepted:false,engineeringStatus:'PASS',observedSourceCommit:'a'.repeat(40),environment:{node:'24',pnpm:'10',platform:'fixture',profile:'local-mock',protoBaseline:'b'.repeat(40)},planInput:planInput(n),scopeRequest:structuredClone(request),checks,
   confirmations:{status:'PENDING',missingRoles:p.roles},confirmationsSha256:digest(logs.get('docs/gate-records/G0-current-scope-confirmations.json')),excluded:p.excluded,residuals:['M-01: current six-role development scope confirmation missing'],webBuild,webBuildSha256:digest(logs.get(evidenceDirectory+'/terminal-build.json')),dependencies:n.dependencies.map(id=>({nodeId:id,inputDigest:nodes.get(id).stage_gate.input_digest,manifest:'docs/'+nodes.get(id).stage_gate.evidence[0]}))};
  return {m,logs,nodes,options:{p,request,confirmations,nodes,readBytes:path=>{assert(logs.has(path),'fixture path missing');return logs.get(path);},validateDependency:()=>{}}};
 }
 test('complete engineering checks retain BLOCKED while scope confirmation is absent',()=>{const f=fixture();assert.equal(validateManifest(f.m,f.options).status,'BLOCKED');});
 test('strict acceptance rejects pending current six-role scope',()=>{const f=fixture();assert.throws(()=>validateManifest(f.m,{...f.options,requireReady:true}),/G0 BLOCKED/);});
 for(const [name,mutate,error]of [
+ ['missing explicit proto baseline',f=>delete f.m.environment.protoBaseline,/explicit proto baseline/],
+ ['same-head proto baseline',f=>f.m.environment.protoBaseline=f.m.observedSourceCommit,/explicit proto baseline/],
  ['fabricated READY',f=>f.m.status='READY',/requires current scope/],
  ['historical arbitrary manifest',f=>f.m.schema='historical-g0',/quantos-g0-development/],
  ['missing actual check',f=>f.m.checks.pop(),/required functional execution/],
@@ -54,3 +57,6 @@ test('CI must always validate engineering receipts and G0 negatives',()=>{const 
 test('G0 rejects normative plan drift during execution before publishing',()=>{const f=fixture();const original=f.nodes.get(f.m.nodeId);const changed={...original,required_scope:'changed normative scope'};assert.throws(()=>assertG0ExecutionSnapshot(f.options.request,f.options.request,original,changed),/normative plan changed during execution/);});
 test('G0 rejects code inventory drift during execution before publishing',()=>{const f=fixture();const node=f.nodes.get(f.m.nodeId);const after=structuredClone(f.options.request);after.inputs.pop();assert.throws(()=>assertG0ExecutionSnapshot(f.options.request,after,node,node),/inputs changed during execution/);});
 test('lifecycle metadata alone does not change normative G0 inputs',()=>{const f=fixture();const original=f.nodes.get(f.m.nodeId);assert.doesNotThrow(()=>assertG0ExecutionSnapshot(f.options.request,f.options.request,original,{...original,stage_gate:{status:'BLOCKED'}}));});
+test('real BFF baseline CLI matches its required G0 execution marker',()=>{const output=execFileSync(process.execPath,['scripts/check-bff-fe-000.mjs'],{encoding:'utf8'});assert(new RegExp(policy().checks.baseline.marker).test(output));});
+for(const status of ['', ' M docs/SumAlpha-QuantOS-Development-Plan.md\n', 'M  docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md\n?? docs/audit/evidence/new/\n', '?? docs/audit/report.md\n'])test(`G0 worktree allows only lifecycle/evidence state ${JSON.stringify(status)}`,()=>assert.doesNotThrow(()=>assertG0Worktree(status)));
+for(const status of [' M scripts/g0-development.mjs\n','M  apps/terminal/src/auth/flow.ts\n','?? bff/new.yaml\n','R  docs/audit/a.md -> scripts/backdoor.mjs\n'])test(`G0 worktree rejects uncommitted functional input ${JSON.stringify(status)}`,()=>assert.throws(()=>assertG0Worktree(status),/commit functional source/));

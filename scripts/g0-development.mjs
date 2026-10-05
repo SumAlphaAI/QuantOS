@@ -40,6 +40,7 @@ export function validateManifest(m,{p=policy(),request=scopeRequest(p),confirmat
  assert.deepEqual(m.planInput,planInput(n),'G0 functional plan changed');assert.deepEqual(m.scopeRequest,request,'G0 functional input inventory changed');
  assert.deepEqual(m.excluded,p.excluded);assert(/^[a-f0-9]{40}$/.test(m.observedSourceCommit),'G0 execution source required');
  assert(m.environment?.node && m.environment?.pnpm && m.environment?.platform && m.environment?.profile==='local-mock','G0 execution environment missing');
+ assert(/^[a-f0-9]{40}$/.test(m.environment.protoBaseline) && m.environment.protoBaseline!==m.observedSourceCommit,'G0 explicit proto baseline required');
  const scope=validateConfirmations(confirmations,request,p);assert.deepEqual(m.confirmations,scope,'scope confirmation state changed');
  assert.equal(m.confirmationsSha256,digest(readBytes('docs/gate-records/G0-current-scope-confirmations.json')),'confirmation file changed');
  const status=scope.status==='CONFIRMED'?'READY':'BLOCKED';assert.equal(m.status,status,'G0 READY requires current scope confirmation');
@@ -64,12 +65,15 @@ export function assertG0ExecutionSnapshot(before,after,originalNode,currentNode)
  assert.deepEqual(after,before,'G0 inputs changed during execution');
  assert.deepEqual(planInput(currentNode),planInput(originalNode),'G0 normative plan changed during execution');
 }
+export function assertG0Worktree(status) {
+ const dirty=status.split('\n').filter(line=>line.trim());
+ assert(dirty.every(line=>!line.includes(' -> ') && /^.. (?:docs\/audit\/|docs\/SumAlpha-QuantOS-(?:Frontend-Development-Execution|Development)-Plan\.md$)/.test(line)),'commit functional source before G0 execution');
+}
 export function assess() {
  const p=policy();const nodes=nodesFromPlans();const n=nodes.get('FRONTEND-GATE:G0');for(const dep of n.dependencies)validateReceipt(dep,{nodes});
  const before=scopeRequest(p);const confirmations=json('docs/gate-records/G0-current-scope-confirmations.json');const confirmed=validateConfirmations(confirmations,before,p);
- const source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();const dirty=execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim().split('\n').filter(Boolean);
- assert(dirty.every(line=>/^.. (?:docs\/audit\/|docs\/SumAlpha-QuantOS-(?:Frontend-Development-Execution|Development)-Plan\.md$)/.test(line)),'commit functional source before G0 execution');
- const env=staticEnvironment(developmentEnvironment(read(p.developmentProfile.file),p.developmentProfile.overrides));env.CI='true';
+ const source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();assertG0Worktree(execFileSync('git',['status','--porcelain'],{encoding:'utf8'}));
+ const env=staticEnvironment(developmentEnvironment(read(p.developmentProfile.file),p.developmentProfile.overrides));env.CI='true';const protoBaseline=execFileSync('git',['rev-parse','--verify',`${source}^`],{encoding:'utf8'}).trim();env.QUANTOS_PROTO_BASE=protoBaseline;
  mkdirSync(resolve(root,evidenceDirectory,'logs'),{recursive:true});const checks=[];
  for(const [id,spec]of Object.entries(p.checks)){
   const executedAt=new Date().toISOString();const result=spawnSync(spec.command[0]==='node'?process.execPath:spec.command[0],spec.command.slice(1),{cwd:root,env,encoding:'utf8',timeout:600000,maxBuffer:32*1024*1024});
@@ -79,7 +83,7 @@ export function assess() {
  const after=scopeRequest(p);const currentNodes=nodesFromPlans();assertG0ExecutionSnapshot(before,after,n,currentNodes.get(n.id));assert.equal(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),source,'G0 source commit changed during execution');
  const buildBytes=readFileSync(resolve(root,'apps/terminal/out/pre03-build.json'));writeFileSync(resolve(root,evidenceDirectory,'terminal-build.json'),buildBytes);
  const m={schema:'quantos-g0-development-manifest/v1',nodeId:n.id,stage:'DEVELOPMENT',status:confirmed.status==='CONFIRMED'?'READY':'BLOCKED',engineeringStatus:'PASS',formalAccepted:false,observedSourceCommit:source,
-  environment:{node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,profile:'local-mock',databaseExecuted:false},planInput:planInput(n),scopeRequest:before,confirmations:confirmed,confirmationsSha256:digest(readFileSync(confined('docs/gate-records/G0-current-scope-confirmations.json'))),checks,
+  environment:{node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,profile:'local-mock',databaseExecuted:false,protoBaseline},planInput:planInput(n),scopeRequest:before,confirmations:confirmed,confirmationsSha256:digest(readFileSync(confined('docs/gate-records/G0-current-scope-confirmations.json'))),checks,
   webBuild:JSON.parse(buildBytes),webBuildSha256:digest(buildBytes),dependencies:n.dependencies.map(id=>({nodeId:id,inputDigest:nodes.get(id).stage_gate.input_digest,manifest:'docs/'+nodes.get(id).stage_gate.evidence[0]})),excluded:p.excluded,residuals:confirmed.status==='CONFIRMED'?[]:['M-01: current six-role development scope confirmation missing']};
  validateManifest(m,{nodes:currentNodes});const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,evidenceDirectory,'g0.json'),bytes);
  n.stage_gate={stage:'DEVELOPMENT',status:m.status,input_digest:digest(bytes),evidence:[evidenceDirectory.slice(5)+'/g0.json']};

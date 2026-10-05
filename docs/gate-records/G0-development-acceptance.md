@@ -17,3 +17,5 @@
 上游策略广泛绑定 scripts、CI、包配置及源码。本轮这些输入变化，需要重新取得受影响功能回执。提供 `node scripts/provider-a1-receipts.mjs --assess <原证据目录下的新快照目录>` 保存独立执行结果，原完整轮与失败证据不覆盖。数据库验证只能使用工程现有 Supabase 配置；G0 本身仅执行静态、mock/fixture、Chromium 和 loopback SSE。
 
 正式 staging、真实 IdP、组织发布签署、远程同 SHA CI、完整平台矩阵及性能/长稳在 RELEASE 验收。新页面还须 PROVIDER:ALL 阶段 READY；工程 PASS 或 G0 单独 READY 均不授权绕过该依赖。
+
+G0 的本机受控执行使用 CI 模式，Proto breaking 显式比较受检源码的父提交完整 SHA，并将该基线写入执行环境回执；不在 CI 模式下隐式回退 HEAD 或跳过兼容检查。
