@@ -44,7 +44,7 @@ async function compile(directory, names, reverse, configure) {
     const config = configure({
         mode: 'production', context: directory, target: 'node', cache: false,
         entry: './entry.js', output: { path: path.join(directory, 'out'), filename: 'bundle.js', library: { type: 'commonjs2' } },
-        optimization: { moduleIds: false, minimize: false }, plugins: [ordering],
+        resolve: {}, optimization: { moduleIds: false, minimize: false }, plugins: [ordering],
     });
     const compiler = webpack(config);
     const stats = await new Promise((resolve, reject) => compiler.run((error, stats) => {

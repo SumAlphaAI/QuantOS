@@ -5,11 +5,13 @@ const { parseArgs } = require('node:util');
 const { targetUrl, client, connectionMode } = require('./lib/r01-db.cjs');
 const { Supervisor } = require('./binance-supervisor.cjs');
 const { elapsed: preciseElapsed } = require('./r01-window-metrics.cjs');
+const { confirmedAlert } = require('./r01-supervision-evidence.cjs');
 const delay = ms => new Promise(r => setTimeout(r, ms));
 const { values } = parseArgs({ options: { live: { type: 'boolean', default: false } } });
 const out = path.resolve(process.env.QUANTOS_R01_EVIDENCE_DIR || 'artifacts/r01-supervision'); fs.mkdirSync(out, { recursive: true });
 if (fs.readdirSync(out).length) throw Error('R01_SUPERVISION_EVIDENCE_NOT_EMPTY');
 const sourceFiles = ['scripts/binance-supervisor.cjs', 'scripts/lib/r01-db.cjs', 'scripts/r01-supervision-check.cjs',
+  'scripts/r01-supervision-evidence.cjs',
   'services/market-ingestor/src/binance.rs', 'services/market-ingestor/src/main.rs', 'services/market-ingestor/src/cli.rs',
   'crates/quantos-observability/src/service.rs', 'crates/quantos-event/src/pg.rs', 'crates/quantos-market/src/durable.rs',
   'docs/provider-approvals/20261003-binance-public-evaluation.json', 'docs/provider-approvals/20261003-binance-public-evaluation.md'];
@@ -19,7 +21,8 @@ const before = hashes(), owned = [], cases = []; let db, child, server, mode = '
 let logs = out;
 const env = { ...process.env, DATABASE_URL: targetUrl() };
 function records() {
-  return fs.readdirSync(logs).filter(f => /^supervisor\.jsonl(?:\.\d+)?$/.test(f)).flatMap(f => fs.readFileSync(path.join(logs, f), 'utf8').trim().split('\n').filter(Boolean).map(s => JSON.parse(s)));
+  const lines = fs.readdirSync(logs).filter(f => /^supervisor\.jsonl(?:\.\d+)?$/.test(f) || f === 'commit-evidence.jsonl').flatMap(f => fs.readFileSync(path.join(logs, f), 'utf8').trim().split('\n').filter(Boolean));
+  return [...new Set(lines)].map(s => JSON.parse(s));
 }
 async function until(predicate, timeout = 60000) {
   const started = Date.now();
@@ -29,12 +32,12 @@ async function until(predicate, timeout = 60000) {
 async function cursor() { return (await db.query('select initial_id,next_id,last_response_at from quantos.binance_ingestion_cursor where tenant_id=$1 and provider=$2 and symbol=$3', [config.tenant, config.provider, 'BTCUSDT'])).rows[0]; }
 async function progress(after = 0) { return until(() => records().find(r => r.kind === 'worker_progress' && Date.parse(r.at) > after)); }
 async function committed(name, origin, predicate) {
-  const r = await until(() => records().find(r => r.kind === 'alert_committed' && Date.parse(r.detected_at) >= origin && predicate(r)));
+  const r = await until(() => records().map(r => confirmedAlert(r, origin)).find(r => r && predicate(r)));
   const elapsed = Date.parse(r.commit_ack_at) - origin;
   const row = (await db.query('select event_kind,payload,payload_hash,sequence,occurred_at from quantos.event_log where tenant_id=$1 and event_id=$2', [config.tenant, r.event_id])).rows[0];
   if (!row || row.event_kind !== r.event_kind || r.inserted !== true || elapsed < 0 || elapsed > 5000) throw Error('R01_ANOMALY_SLA_FAILED');
   cases.push({ name, status: 'PASS', fixture: !values.live, fault_at: new Date(origin).toISOString(), commit_ack_at: r.commit_ack_at,
-    elapsed_ms: elapsed, event_id: r.event_id, readback: row });
+    elapsed_ms: elapsed, event_id: r.event_id, producer: r.producer, readback: row });
   console.log(JSON.stringify({ name, elapsed_ms: elapsed, status: 'PASS' })); return r;
 }
 async function fault(kind) {

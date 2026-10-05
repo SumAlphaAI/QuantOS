@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 2026-10-05 A2 源码整改后，旧内容绑定 stage 回执不迁移：PROVIDER:A1 的 14 节点依赖链及 A2/BFF-FE-001 已按新输入复验并登记 READY（共 15 节点，formalAccepted=false）；其余 F0/G0/FEP-0 等历史回执的当前准入撤为 NOT_ASSESSED，人工确认保留原记录。节点下方旧日期结论仅说明该轮证据，当前准入以有效 stage_gate 与严格 runner 为准。
+> 2026-10-05 CI 修复改变测试/门禁功能输入，旧 stage 回执已撤为 NOT_ASSESSED；完成当前源码复验后刷新。原始用户确认及历史证据保留，人工批准不由技术修复自动迁移。
 
 > 版本：3.30
 > 更新时间：2026-10-05
@@ -171,7 +171,7 @@
 - task_id: `PRE-01`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:a95a4e0637dc1c5ccdf6abfb6ce16bc7f90929f855f2852cf63377a8a292033a","evidence":["audit/evidence/provider-a1-remediation-20261004/a2-metadata-revalidated-20261005/fe-pre-01.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -190,7 +190,7 @@
 - task_id: `PRE-02`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:eae483635281edbce4272838564fbf0760f1742e2bd5435dfcd5903223163e94","evidence":["audit/evidence/provider-a1-remediation-20261004/a2-metadata-revalidated-20261005/fe-pre-02.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-01"]
 - core_prerequisites: []
 - closes_core: []
@@ -208,7 +208,7 @@
 - task_id: `PRE-03`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:d4ff372433793f291a4c53ec6c588d61ae92297d3852e036b11091fcb538c92e","evidence":["audit/evidence/provider-a1-remediation-20261004/a2-metadata-revalidated-20261005/fe-pre-03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-02", "CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -226,7 +226,7 @@
 - task_id: `PRE-04`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:a0e97f3ccf23164d099df7c2cbc7b0b4c3e24081f1be9b5765ca3c9ac327661b","evidence":["audit/evidence/provider-a1-remediation-20261004/a2-metadata-revalidated-20261005/fe-pre-04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
 - core_prerequisites: ["CORE:F03", "CORE:F06"]
 - closes_core: []
@@ -244,7 +244,7 @@
 - task_id: `PRE-05`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ffb36e23acf602c425d63d7a45ba9cdddb8cb14a0ae0abb28ce15c9b718077f4","evidence":["audit/evidence/provider-a1-remediation-20261004/a2-metadata-revalidated-20261005/fe-pre-05.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-03", "PRE-04"]
 - core_prerequisites: []
 - closes_core: []
@@ -262,7 +262,7 @@
 - task_id: `PRE-06`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c13a3bf370e26288f5e4d5bca6d8b7a4471b5e0ba1f65821a140a9d40dcc84b8","evidence":["audit/evidence/provider-a1-remediation-20261004/a2-metadata-revalidated-20261005/fe-pre-06.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-04", "PRE-05"]
 - core_prerequisites: []
 - closes_core: []
@@ -301,11 +301,9 @@
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:df057f4450d66b16fea3e172fd660911e68c1b0408c1e810ec7179da7613433d",
-    "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/a2-metadata-revalidated-20261005/preparation-p0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -364,7 +362,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:9e6d0ccecc56e352e58735d33645fdd4349ecaa13abc37d804fd6fcba371e7fa","evidence":["audit/evidence/provider-a1-remediation-20261004/a2-metadata-revalidated-20261005/fe-bff-fe-000.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -397,11 +395,9 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:3db6ee4cecaf57afc07781699a9ce85727b5a24b5884366ee3e1998d024a2b11",
-    "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/a2-metadata-revalidated-20261005/provider-a1.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -475,7 +471,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `BFF-FE-001`
 - task_type: `PAGE_API`
 - iteration: `A2`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:974bd3cd5722d3a240c51cf0fbbe31d1371463b82411c767373818a56258d35f","evidence":["audit/evidence/bff-fe-001-remediation-20261005/final/a2.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "CORE:F06", "PROVIDER:A1"]
 - core_prerequisites: ["CORE:F06"]
 - closes_core: []

@@ -111,6 +111,9 @@ fn real_logout_db_write_matches_persistent_trace() {
     );
     let database_url = env::var("DATABASE_URL").expect("F09 database URL required");
     let project_url = env::var("SUPABASE_URL").expect("F09 Supabase URL required");
+    // This logout/trace component fixture uses the configured test connection,
+    // just like its middleware and owned session setup. It never runs an A2
+    // settings handler; production still requires its separate narrow BFF URL.
     // Keep one dedicated test identity: audit entries referencing it are
     // append-only, so deleting the user would mutate immutable evidence.
     let user_id = Uuid::parse_str("f0900000-0000-4000-8000-000000000009").unwrap();
@@ -135,13 +138,8 @@ fn real_logout_db_write_matches_persistent_trace() {
         verifier: SupabaseAuthVerifier::new(&project_url, "unused-test-key".into())
             .expect("Auth verifier config"),
         middleware: Mutex::new(GatewayAuthMiddleware::connect(&database_url).expect("BFF DB")),
-        a2: Mutex::new(
-            settings::A2Store::new(
-                &env::var("QUANTOS_BFF_DATABASE_URL").expect("narrow BFF DB required"),
-            )
-            .expect("A2 DB"),
-        ),
-        database_url: env::var("QUANTOS_BFF_DATABASE_URL").expect("narrow BFF DB required"),
+        a2: Mutex::new(settings::A2Store::new(&database_url).expect("test A2 state DB")),
+        database_url: database_url.clone(),
         proofs: Mutex::new(BTreeMap::new()),
         mfa: settings::SupabaseMfa::new(&project_url, "unused-test-key".into())
             .expect("MFA config"),
