@@ -13,4 +13,8 @@ async function schemaState(client) {
   for(const [name,sql] of Object.entries(queries))state[name]=(await client.query(sql)).rows;
   return state;
 }
-module.exports={schemaState};
+function assertSchemaMatches(actual, expected) {
+  if (!expected.tables?.length) throw new Error("Empty schema reference");
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error("SCHEMA_DRIFT: catalog differs from reference");
+}
+module.exports={schemaState,assertSchemaMatches};

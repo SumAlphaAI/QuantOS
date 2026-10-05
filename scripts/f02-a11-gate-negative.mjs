@@ -20,7 +20,7 @@ test('complete Linux matrix passes; deletion and pixel tampering fail', () => {
       fs.writeFileSync(path.join(root, relative), bytes);
       return { path: relative, sha256: createHash('sha256').update(bytes).digest('hex'), width: 1440, height: 900, scope: 'test fixture' };
     });
-    const manifest = { schema: 'quantos-visual-baselines/v1', maxDiffPixelRatio: 0.005, entries };
+    const manifest = { schema: 'quantos-visual-baselines/v1', maxDiffPixelRatio: 0.005, platforms: ['linux','darwin'], entries };
     const manifestPath = path.join(root, 'tests/e2e/visual-baselines.json');
     fs.writeFileSync(manifestPath, JSON.stringify(manifest));
     assert.equal(validateVisualBaselines(root, { platform: 'linux' }).status, 'PASS');
@@ -98,7 +98,7 @@ test('candidate import rejects tampering and stale source before writing, then i
     }
     fs.writeFileSync(path.join(root, '.gitignore'), 'node_modules\n');
     fs.writeFileSync(path.join(root, 'apps/terminal/input.txt'), 'original');
-    fs.writeFileSync(path.join(root, 'tests/e2e/visual-baselines.json'), JSON.stringify({ schema: 'quantos-visual-baselines/v1', maxDiffPixelRatio: 0.005, entries: [] }));
+    fs.writeFileSync(path.join(root, 'tests/e2e/visual-baselines.json'), JSON.stringify({ schema: 'quantos-visual-baselines/v1', maxDiffPixelRatio: 0.005, platforms: ['linux','darwin'], entries: [] }));
     const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
     git('init', '-q'); git('add', '.');
     git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', 'commit', '-qm', 'fixture');

@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const { Client } = require("pg");
 
 const repoRoot = process.env.QUANTOS_GATE_ROOT || path.resolve(__dirname, "..");
-const { schemaState } = require("./db-schema-state.cjs");
+const { schemaState, assertSchemaMatches } = require("./db-schema-state.cjs");
 const migrationsDir = path.join(repoRoot, "supabase", "migrations");
 const migrationsTable = "quantos.schema_migrations";
 
@@ -170,8 +170,7 @@ async function schemaDiff() {
       const referenceIdentity = (await reference.query(identity)).rows[0];
       if (JSON.stringify(targetIdentity) === JSON.stringify(referenceIdentity)) throw new Error("Schema reference must be independent of target");
       const actual = await schemaState(client), expected = await schemaState(reference);
-      if (!expected.tables.length) throw new Error("Empty schema reference");
-      if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error("SCHEMA_DRIFT: catalog differs from rebuilt reference");
+      assertSchemaMatches(actual, expected);
     } finally { await reference.end(); }
     console.log("Migration checksums and schema catalog match rebuilt reference.");
   });

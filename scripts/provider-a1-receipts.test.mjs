@@ -87,3 +87,9 @@ test('persistent database transport failure stays failed at the retry limit',()=
 test('separate assessment snapshot preserves historical manifests and binds its own logs',()=>fixture(f=>{
  const m=f.read('parent');const nested=directory+'/new-snapshot';mkdirSync(resolve(f.base,nested,'logs'),{recursive:true});m.checks[0].log=nested+'/logs/parent.log';writeFileSync(resolve(f.base,m.checks[0].log),'ACTUAL_PASS');const bytes=JSON.stringify(m);const path=nested+'/parent.json';writeFileSync(resolve(f.base,path),bytes);f.nodes.get('parent').stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(bytes),evidence:[path.slice(5)]};assert.equal(f.validate().status,'READY');assert.equal(JSON.parse(readFileSync(resolve(f.base,directory,'parent.json'))).checks[0].log,directory+'/logs/parent.log');
 }));
+test('third-party Git link binds the actual clean checkout and rejects dirty/advanced source',()=>fixture(f=>{
+ const dir=resolve(f.base,'upstream');mkdirSync(dir);execFileSync('git',['init','-q'],{cwd:dir});writeFileSync(resolve(dir,'source'),'pinned');execFileSync('git',['add','.'],{cwd:dir});execFileSync('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','baseline'],{cwd:dir});execFileSync('git',['add','upstream'],{cwd:f.base,stdio:'ignore'});
+ const original=inventory(['upstream'],f.base);assert.equal(original[0].role,'third-party');assert.match(original[0].gitCommit,/^[a-f0-9]{40}$/);
+ writeFileSync(resolve(dir,'source'),'dirty');assert.throws(()=>inventory(['upstream'],f.base),/checkout is dirty/);execFileSync('git',['checkout','--','source'],{cwd:dir});assert.deepEqual(inventory(['upstream'],f.base),original);
+ execFileSync('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','--allow-empty','-qm','advance'],{cwd:dir});assert.throws(()=>inventory(['upstream'],f.base),/differs from pinned Git link/);
+}));

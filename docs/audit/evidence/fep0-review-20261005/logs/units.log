@@ -1,0 +1,128 @@
+Scope: 6 of 8 workspace projects
+packages/ui test$ vitest run
+packages/config test$ vitest run
+packages/config test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/packages/config
+packages/ui test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/packages/ui
+packages/ui test:  Test Files  4 passed (4)
+packages/ui test:       Tests  19 passed (19)
+packages/ui test:    Start at  15:00:27
+packages/ui test:    Duration  384ms (transform 265ms, setup 0ms, import 482ms, tests 57ms, environment 182ms)
+packages/ui test: Done
+packages/config test:  Test Files  1 passed (1)
+packages/config test:       Tests  26 passed (26)
+packages/config test:    Start at  15:00:27
+packages/config test:    Duration  422ms (transform 59ms, setup 0ms, import 68ms, tests 278ms, environment 0ms)
+packages/config test: Done
+packages/api-client test$ vitest run
+packages/api-client test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/packages/api-client
+packages/api-client test:  ❯ tests/sse-poc.test.ts (7 tests | 4 failed) 20016ms
+packages/api-client test:        × 断流后按 afterSequence 回补：无丢失、无重复副作用 5005ms
+packages/api-client test:        × 序号空洞触发 gap 重连回补 5003ms
+packages/api-client test:        × 权限撤销（permission_revoked 事件）终态关闭且不再重连 5003ms
+packages/api-client test:        × HTTP 403 视为权限撤销终态 5003ms
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+packages/api-client test:  FAIL  tests/sse-poc.test.ts > SSE 断线续传 PoC（G0 #5） > consumeSse（真实 HTTP SSE） > 断流后按 afterSequence 回补：无丢失、无重复副作用
+packages/api-client test: Error: Test timed out in 5000ms.
+packages/api-client test: If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+packages/api-client test:  ❯ tests/sse-poc.test.ts:99:5
+packages/api-client test:      97|
+packages/api-client test:      98|   describe("consumeSse（真实 HTTP SSE）", () => {
+packages/api-client test:      99|     it("断流后按 afterSequence 回补：无丢失、无重复副作用", async () => {
+packages/api-client test:        |     ^
+packages/api-client test:     100|       seq = 0;
+packages/api-client test:     101|       const e1 = env({ type: "a" });
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+packages/api-client test:  FAIL  tests/sse-poc.test.ts > SSE 断线续传 PoC（G0 #5） > consumeSse（真实 HTTP SSE） > 序号空洞触发 gap 重连回补
+packages/api-client test: Error: Test timed out in 5000ms.
+packages/api-client test: If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+packages/api-client test:  ❯ tests/sse-poc.test.ts:124:5
+packages/api-client test:     122|     });
+packages/api-client test:     123|
+packages/api-client test:     124|     it("序号空洞触发 gap 重连回补", async () => {
+packages/api-client test:        |     ^
+packages/api-client test:     125|       seq = 0;
+packages/api-client test:     126|       const e1 = env({ type: "a" });
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+packages/api-client test:  FAIL  tests/sse-poc.test.ts > SSE 断线续传 PoC（G0 #5） > consumeSse（真实 HTTP SSE） > 权限撤销（permission_revoked 事件）终态关闭且不再重连
+packages/api-client test: Error: Test timed out in 5000ms.
+packages/api-client test: If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+packages/api-client test:  ❯ tests/sse-poc.test.ts:148:5
+packages/api-client test:     146|     });
+packages/api-client test:     147|
+packages/api-client test:     148|     it("权限撤销（permission_revoked 事件）终态关闭且不再重连", async () => {
+packages/api-client test:        |     ^
+packages/api-client test:     149|       seq = 0;
+packages/api-client test:     150|       const e1 = env({ type: "a" });
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+packages/api-client test:  FAIL  tests/sse-poc.test.ts > SSE 断线续传 PoC（G0 #5） > consumeSse（真实 HTTP SSE） > HTTP 403 视为权限撤销终态
+packages/api-client test: Error: Test timed out in 5000ms.
+packages/api-client test: If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+packages/api-client test:  ❯ tests/sse-poc.test.ts:165:5
+packages/api-client test:     163|     });
+packages/api-client test:     164|
+packages/api-client test:     165|     it("HTTP 403 视为权限撤销终态", async () => {
+packages/api-client test:        |     ^
+packages/api-client test:     166|       const server = makeServer(() => []);
+packages/api-client test:     167|       await server.start();
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+packages/api-client test: ⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+packages/api-client test: Vitest caught 4 unhandled errors during the test run.
+packages/api-client test: This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+packages/api-client test: ⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+packages/api-client test: Error: listen EPERM: operation not permitted 127.0.0.1
+packages/api-client test:  ❯ Server.setupListenHandle [as _listen2] node:net:1918:21
+packages/api-client test:  ❯ listenInCluster node:net:1997:12
+packages/api-client test:  ❯ node:net:2206:7
+packages/api-client test:  ❯ processTicksAndRejections node:internal/process/task_queues:89:21
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+packages/api-client test: Serialized Error: { code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }
+packages/api-client test: This error originated in "tests/sse-poc.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+packages/api-client test: The latest test that might've caused the error is "断流后按 afterSequence 回补：无丢失、无重复副作用". It might mean one of the following:
+packages/api-client test: - The error was thrown, while Vitest was running this test.
+packages/api-client test: - If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+packages/api-client test: ⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+packages/api-client test: Error: listen EPERM: operation not permitted 127.0.0.1
+packages/api-client test:  ❯ Server.setupListenHandle [as _listen2] node:net:1918:21
+packages/api-client test:  ❯ listenInCluster node:net:1997:12
+packages/api-client test:  ❯ node:net:2206:7
+packages/api-client test:  ❯ processTicksAndRejections node:internal/process/task_queues:89:21
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+packages/api-client test: Serialized Error: { code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }
+packages/api-client test: This error originated in "tests/sse-poc.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+packages/api-client test: The latest test that might've caused the error is "序号空洞触发 gap 重连回补". It might mean one of the following:
+packages/api-client test: - The error was thrown, while Vitest was running this test.
+packages/api-client test: - If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+packages/api-client test: ⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+packages/api-client test: Error: listen EPERM: operation not permitted 127.0.0.1
+packages/api-client test:  ❯ Server.setupListenHandle [as _listen2] node:net:1918:21
+packages/api-client test:  ❯ listenInCluster node:net:1997:12
+packages/api-client test:  ❯ node:net:2206:7
+packages/api-client test:  ❯ processTicksAndRejections node:internal/process/task_queues:89:21
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+packages/api-client test: Serialized Error: { code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }
+packages/api-client test: This error originated in "tests/sse-poc.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+packages/api-client test: The latest test that might've caused the error is "权限撤销（permission_revoked 事件）终态关闭且不再重连". It might mean one of the following:
+packages/api-client test: - The error was thrown, while Vitest was running this test.
+packages/api-client test: - If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+packages/api-client test: ⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+packages/api-client test: Error: listen EPERM: operation not permitted 127.0.0.1
+packages/api-client test:  ❯ Server.setupListenHandle [as _listen2] node:net:1918:21
+packages/api-client test:  ❯ listenInCluster node:net:1997:12
+packages/api-client test:  ❯ node:net:2206:7
+packages/api-client test:  ❯ processTicksAndRejections node:internal/process/task_queues:89:21
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+packages/api-client test: Serialized Error: { code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }
+packages/api-client test: This error originated in "tests/sse-poc.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+packages/api-client test: The latest test that might've caused the error is "HTTP 403 视为权限撤销终态". It might mean one of the following:
+packages/api-client test: - The error was thrown, while Vitest was running this test.
+packages/api-client test: - If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+packages/api-client test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+packages/api-client test:  Test Files  1 failed | 5 passed (6)
+packages/api-client test:       Tests  4 failed | 57 passed (61)
+packages/api-client test:      Errors  4 errors
+packages/api-client test:    Start at  15:00:27
+packages/api-client test:    Duration  20.20s (transform 344ms, setup 0ms, import 689ms, tests 20.09s, environment 0ms)
+packages/api-client test: Failed
+/Users/anray/Documents/project/SumAlpha/QuantOS/packages/api-client:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/api-client@0.1.0 test: `vitest run`
+Exit status 1

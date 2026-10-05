@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 可执行开发计划
 
-> 版本：3.23
+> 版本：3.24
 > 更新时间：2026-10-05
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.24`：FEP-0 整改新增 F02/F07/F08/F09/TP01-A/B 当前 DEVELOPMENT 功能证据及 CORE-GATE:F0 内容聚合。仅使用已配置 Supabase；F02 catalog/RLS 破坏在事务内回滚，不重建共享库。F07 保留诊断状态与临时管理员 Storage 身份，按功能范围核验，不接收其 P95/部署批准。证据输入变更后独立复评，历史正式回执保留。见[整改报告](./audit/FEP-0-remediation-2026-10-05.md)。
 
 - `3.23`：用户确认 G0 DEVELOPMENT 当前文稿后，在 `92dddbd` 重新完整执行 65/65 上游检查；F01/F03/F04/F05/F06 等 14 个节点的阶段回执已刷新为 READY，实际使用已配置 Supabase。G0 随后 16/16 PASS / READY，见[当前验收报告](./audit/FRONTEND-GATE-G0-user-confirmed-acceptance-2026-10-05.md)。历史 formal/source/evidence 不迁移，新页面需 PROVIDER:ALL，发布验收独立完成。
 
@@ -268,7 +270,7 @@ flowchart TD
 - task_id: `F01`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:94d4c05c10a6b311ee8b7d450c9f24a5b5e80d5960ab375720011447bb464ed5","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f01.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: []
 - development_status: `COMPLETED`
 - 状态范围：2026-09-17 再次复核通过；20/20（100%）检查点、3/3 量化验收通过，当前未解决问题为 0。适用源码与环境边界见复审报告；F0 总体 Gate 不随本项放行。
@@ -325,7 +327,7 @@ flowchart TD
 - task_id: `F03`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:8f9b5329bb473ab07037340ce569962d6e3be32566c94bc09c42f72c2f701e20","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01"]
 - development_status: `COMPLETED`
 - 状态范围：2026-09-20原六项问题及C12全部关闭，20/20（100%）检查点、4/4量化标准通过。c3be28d独立协议验收#2成功，同SHA制品/日志摘要和92份生成文件哈希均核验一致；不代表F02 A11或其他CI通过。
@@ -351,7 +353,7 @@ flowchart TD
 - task_id: `F04`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f0c280a2dbf4a2e355031bb78c8ce0b6e3ce1beb321ec19d82b5a08d779f81d4","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f04)
@@ -376,7 +378,7 @@ flowchart TD
 - task_id: `F05`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:89ff897b2f0cb81884d5f01789ca5f588daf1848e42b28d528e00c68641855f5","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f05.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F04"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f05)
@@ -402,7 +404,7 @@ flowchart TD
 - task_id: `F06`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:a656d672377e059f0ac62c31f51f6d3748e34a777b06a88bc07df5018a1aa8d0","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f06.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F05"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f06)
@@ -609,6 +611,8 @@ flowchart TD
   }
 }
 ```
+
+当前功能入口：`pnpm assess:f0-development <独立证据目录>` 实际执行 F0 与 PROVIDER:A1 的功能闭包；`pnpm check:f0-development` 逐项校验 11 个前置的代码/契约/配置/测试、日志/产物和递归依赖。任何缺测或漂移均拒绝。
 
 上方 `required_scope/review_status/source_commit/evidence` 保留 F0 原始 7/7 历史验收事实；当前 `stage_gate` 的 DEVELOPMENT 范围为 F01–F09/TP01-A/B 的工程、契约、安全、数据与恢复功能基线，按第 2.9 节核对相关输入和受影响功能。无需因本文排期调整重跑完整同 SHA 签名、远程重建或长稳；正式候选仍由 RELEASE 检查点取得自身回执。
 

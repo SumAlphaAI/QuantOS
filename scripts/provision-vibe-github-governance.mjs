@@ -51,6 +51,10 @@ function credentialToken() {
   } catch {
     // Fall through to the actionable error below without exposing credentials.
   }
+  try {
+    const token = execFileSync("gh", ["auth", "token"], {encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 5000}).trim();
+    if (token) return token;
+  } catch { /* Authentication failures never print token contents. */ }
   throw new Error(
     "GitHub authentication is required; set TP01_FORK_ADMIN_TOKEN/GH_TOKEN/GITHUB_TOKEN or configure the git credential helper",
   );

@@ -8,7 +8,7 @@ import { parse } from 'yaml';
 import { root, digest, inventory, confined, nodesFromPlans, planInput, validateReceipt, publishStages, developmentEnvironment, staticEnvironment } from './provider-a1-receipts.mjs';
 import { confirmationPolicy, confirmationMode, reviewDimensions, validateUserConfirmation } from './user-acceptance-confirmation.mjs';
 import { sourceDigest } from './pre03-build-receipt.mjs';
-export const evidenceDirectory='docs/audit/evidence/frontend-g0-user-confirmation-20261005';
+export const evidenceDirectory='docs/audit/evidence/frontend-g0-fep0-remediation-20261005';
 const read=p=>readFileSync(confined(p),'utf8');
 const json=p=>JSON.parse(read(p));
 export const requiredReviewDimensions=reviewDimensions;
@@ -41,7 +41,7 @@ export function draftConfirmation(){
 - 产品：确认一期 Web 与开发阶段范围、planned 与二期排除项。
 - 前端：确认页面追踪、生成客户端、生产导入边界及基本浏览器/a11y/视觉范围。
 - BFF：确认 API ${scope.openapiVersion} 最低冻结面、同源 schema/mock、错误与安全输入。
-- QA：历史工程受检源码 22254dd 的 65 项上游与 16 项 G0 检查通过；本次审批机制修改的专项回归另行记录。旧回执不可代替变更后工程准入复评。
+- QA：当前功能输入的工程执行和依赖核验见独立 G0 工程回执；FEP-0 整改新增 F0 当前功能回执与里程碑校验。你确认范围后仍须内容门禁通过，旧回执不可替代变更后工程准入复评。
 - 安全：确认 cookie/CSRF/OIDC/SSE 等开发安全范围；mock IdP、loopback 服务不代表真实 staging。
 - 风控：确认开发回执不会开启 testnet/实盘权限；未完成 provider、业务联调和发布验收仍按原计划。
 
@@ -75,7 +75,8 @@ export function validateManifest(m,{p=policy(),request=scopeRequest(p),confirmat
  assert.deepEqual(m.excluded,p.excluded);assert(/^[a-f0-9]{40}$/.test(m.observedSourceCommit),'G0 execution source required');
  assert(m.environment?.node && m.environment?.pnpm && m.environment?.platform && m.environment?.profile==='local-mock','G0 execution environment missing');
  assert(/^[a-f0-9]{40}$/.test(m.environment.protoBaseline) && m.environment.protoBaseline!==m.observedSourceCommit,'G0 explicit proto baseline required');
- const scope=validateConfirmations(confirmations,request,p);assert.deepEqual(m.confirmations,scope,'scope confirmation state changed');
+ const scope=validateConfirmations(confirmations,request,p,readBytes);assert.deepEqual(m.confirmations,scope,'scope confirmation state changed');
+ assert.equal(digest(m.confirmationLedgerSnapshot),m.confirmationsSha256,'recorded confirmation snapshot changed');assert.deepEqual(JSON.parse(m.confirmationLedgerSnapshot),confirmations,'confirmation snapshot differs');
  assert.equal(m.confirmationsSha256,digest(readBytes('docs/gate-records/G0-current-scope-confirmations.json')),'confirmation file changed');
  const status=scope.status==='CONFIRMED'?'READY':'BLOCKED';assert.equal(m.status,status,'G0 READY requires current scope confirmation');
  assert.deepEqual(m.residuals,status==='READY'?[]:['M-01: project user development scope confirmation missing'],'G0 residual inventory differs');
@@ -117,11 +118,24 @@ export function assess() {
  const after=scopeRequest(p);const currentNodes=nodesFromPlans();assertG0ExecutionSnapshot(before,after,n,currentNodes.get(n.id));assert.equal(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),source,'G0 source commit changed during execution');
  const buildBytes=readFileSync(resolve(root,'apps/terminal/out/pre03-build.json'));writeFileSync(resolve(root,evidenceDirectory,'terminal-build.json'),buildBytes);
  const m={schema:'quantos-g0-development-manifest/v1',nodeId:n.id,stage:'DEVELOPMENT',status:confirmed.status==='CONFIRMED'?'READY':'BLOCKED',engineeringStatus:'PASS',formalAccepted:false,observedSourceCommit:source,
-  environment:{node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,profile:'local-mock',databaseExecuted:false,protoBaseline},planInput:planInput(n),scopeRequest:before,confirmations:confirmed,confirmationsSha256:digest(readFileSync(confined('docs/gate-records/G0-current-scope-confirmations.json'))),checks,
+  environment:{node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,profile:'local-mock',databaseExecuted:false,protoBaseline},planInput:planInput(n),scopeRequest:before,confirmations:confirmed,confirmationLedgerSnapshot:read('docs/gate-records/G0-current-scope-confirmations.json'),confirmationsSha256:digest(readFileSync(confined('docs/gate-records/G0-current-scope-confirmations.json'))),checks,
   webBuild:JSON.parse(buildBytes),webBuildSha256:digest(buildBytes),dependencies:n.dependencies.map(id=>({nodeId:id,inputDigest:nodes.get(id).stage_gate.input_digest,manifest:'docs/'+nodes.get(id).stage_gate.evidence[0]})),excluded:p.excluded,residuals:confirmed.status==='CONFIRMED'?[]:['M-01: project user development scope confirmation missing']};
  validateManifest(m,{nodes:currentNodes});const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,evidenceDirectory,'g0.json'),bytes);
  n.stage_gate={stage:'DEVELOPMENT',status:m.status,input_digest:digest(bytes),evidence:[evidenceDirectory.slice(5)+'/g0.json']};
  const plan='docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md';writeFileSync(resolve(root,plan),publishStages(read(plan),new Map([[n.id,n]]),'FE:'));
  writeFileSync(resolve(root,evidenceDirectory,'scope-request.json'),JSON.stringify(before,null,2)+'\n');console.log(JSON.stringify(check(),null,2));
 }
-if(process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{const mode=process.argv[2];assert(['--engineering','--ready','--assess','--scope','--draft',undefined].includes(mode),'unknown G0 mode');if(mode==='--assess')assess();else if(mode==='--draft')console.log(JSON.stringify(draftConfirmation(),null,2));else if(mode==='--scope')console.log(JSON.stringify(scopeRequest(),null,2));else console.log(JSON.stringify(check({requireReady:mode!=='--engineering'}),null,2));}catch(e){console.error(e.message);process.exitCode=1;}}
+export function applyConfirmation(m,{nodes=nodesFromPlans(),confirmations=json('docs/gate-records/G0-current-scope-confirmations.json'),ledgerBytes=read('docs/gate-records/G0-current-scope-confirmations.json'),readBytes=p=>readFileSync(confined(p)),...options}={}){
+ assert.equal(m.status,'BLOCKED','only a completed pending engineering assessment can be finalized');
+ const original=JSON.parse(m.confirmationLedgerSnapshot);assert.equal(original.status,'PENDING');
+ validateManifest(m,{nodes,confirmations:original,readBytes:p=>p==='docs/gate-records/G0-current-scope-confirmations.json'?Buffer.from(m.confirmationLedgerSnapshot):readBytes(p),...options});
+ const approved=validateConfirmations(confirmations,options.request??scopeRequest(),options.p??policy(),readBytes);assert.equal(approved.status,'CONFIRMED','current project user confirmation required');
+ const updated={...m,status:'READY',residuals:[],confirmations:approved,confirmationLedgerSnapshot:ledgerBytes,confirmationsSha256:digest(ledgerBytes),confirmationAppliedAt:new Date().toISOString()};validateManifest(updated,{nodes,confirmations,readBytes,...options,requireReady:true});return updated;
+}
+export function finalize(){
+ const nodes=nodesFromPlans();const n=nodes.get('FRONTEND-GATE:G0');if(n.stage_gate.status==='READY')return check({requireReady:true});
+ const path=evidenceDirectory+'/g0.json';assert.deepEqual(n.stage_gate.evidence,[path.slice(5)]);const bytes=readFileSync(confined(path));assert.equal(digest(bytes),n.stage_gate.input_digest);const m=applyConfirmation(JSON.parse(bytes),{nodes});
+ const archived=evidenceDirectory+'/pending-g0-'+digest(bytes).slice(7,19)+'.json';if(existsSync(resolve(root,archived)))assert.equal(readFileSync(resolve(root,archived),'utf8'),bytes.toString());else writeFileSync(resolve(root,archived),bytes);
+ const updated=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,path),updated);n.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(updated),evidence:[path.slice(5)]};const plan='docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md';writeFileSync(resolve(root,plan),publishStages(read(plan),new Map([[n.id,n]]),'FE:'));return check({requireReady:true});
+}
+if(process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{const mode=process.argv[2];assert(['--engineering','--ready','--assess','--finalize','--scope','--draft',undefined].includes(mode),'unknown G0 mode');if(mode==='--assess')assess();else if(mode==='--finalize')console.log(JSON.stringify(finalize(),null,2));else if(mode==='--draft')console.log(JSON.stringify(draftConfirmation(),null,2));else if(mode==='--scope')console.log(JSON.stringify(scopeRequest(),null,2));else console.log(JSON.stringify(check({requireReady:mode!=='--engineering'}),null,2));}catch(e){console.error(e.message);process.exitCode=1;}}

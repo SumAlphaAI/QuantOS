@@ -1,0 +1,952 @@
+{
+  "schema": "quantos-fep0-dependencies/v1",
+  "sourceCommit": "ed2e6038a9d54f05768a29d9c8f0079bd1dacbdc",
+  "direct": [
+    {
+      "id": "CORE-GATE:F0",
+      "status": "NOT_ASSESSED"
+    },
+    {
+      "id": "FE:PRE-01",
+      "status": "READY"
+    },
+    {
+      "id": "FE:PRE-02",
+      "status": "READY"
+    },
+    {
+      "id": "FE:PRE-03",
+      "status": "READY"
+    },
+    {
+      "id": "FE:PRE-04",
+      "status": "READY"
+    },
+    {
+      "id": "FE:PRE-05",
+      "status": "READY"
+    },
+    {
+      "id": "FE:PRE-06",
+      "status": "READY"
+    },
+    {
+      "id": "FRONTEND-GATE:G0",
+      "status": "READY"
+    }
+  ],
+  "upstreamCount": 22,
+  "upstreamReady": 15,
+  "records": [
+    {
+      "id": "CORE:F01",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:94d4c05c10a6b311ee8b7d450c9f24a5b5e80d5960ab375720011447bb464ed5",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f01.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": null,
+      "dependencies": [],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [],
+        "depends_on": [],
+        "requirement": "初始化 Polyglot Monorepo",
+        "requirements": [
+          "- 需求描述：初始化 Polyglot Monorepo",
+          "- 技术要求：建立 Cargo workspace、`proto/`、`crates/`、`services/`、`engines/`、`apps/website`、`apps/terminal`、`packages/*`、`supabase/`；固定 Rust、uv、Node 工具链",
+          "- 交付物：目录树、锁文件、Make 任务、本地开发环境基线、`DATABASE_URL` 约定",
+          "- 量化验收标准：新环境在 ≤30 分钟内运行 `bootstrap`、`lint`、`test`；所有目录有 README 与明确模块边界；跨语言构建连续 3 次可重复",
+          "- 阶段执行：功能开发验证 bootstrap/lint/test 可用、边界 README 和连续 3 次构建可复现；≤30 分钟的新环境时限在开发记录基线，正式新环境回执归 RELEASE-GATE:BETA。"
+        ],
+        "task_id": "F01",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:F02",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:F01"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:F01"
+        ],
+        "depends_on": [
+          "CORE:F01"
+        ],
+        "requirement": "CI、制品与供应链门禁",
+        "requirements": [
+          "- 需求描述：CI、制品与供应链门禁",
+          "- 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest",
+          "- 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本",
+          "- 量化验收标准：任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免",
+          "- 阶段执行：secret/proto/锁依赖/RLS/schema drift 负向机制及新增高危漏洞处置在开发期验证；目标远程 CI、主干制品 digest/SBOM/签名回执归 RELEASE-GATE:BETA。缺失 CI 发布回执不等于可跳过安全检查。"
+        ],
+        "task_id": "F02",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:F03",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:8f9b5329bb473ab07037340ce569962d6e3be32566c94bc09c42f72c2f701e20",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f03.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:F01"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:F01"
+        ],
+        "depends_on": [
+          "CORE:F01"
+        ],
+        "requirement": "领域协议 v1 与 SDK 生成",
+        "requirements": [
+          "- 需求描述：领域协议 v1 与 SDK 生成",
+          "- 技术要求：定义 `DataSnapshot`、`ResearchArtifact`、`StrategyRelease`、`Signal`、`TradeProposal`、`RiskDecision`、`TradeCommand`、Order/Fill/Position、Engine/Event API；Buf + OpenAPI 生成",
+          "- 交付物：`proto/*/v1`、JSON schema、Rust/Python/TS SDK、兼容性测试",
+          "- 量化验收标准：SDK 三语言编译；100% 必填元数据（tenant/actor/correlation 等）测试；Buf breaking check 阻止破坏性变更；序列化往返 1,000 组 fixture 无差异"
+        ],
+        "task_id": "F03",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:F04",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:f0c280a2dbf4a2e355031bb78c8ce0b6e3ce1beb321ec19d82b5a08d779f81d4",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f04.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:F03"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:F03"
+        ],
+        "depends_on": [
+          "CORE:F03"
+        ],
+        "requirement": "Core、错误、时钟与 ID",
+        "requirements": [
+          "- 需求描述：Core、错误、时钟与 ID",
+          "- 技术要求：实现强类型 ID、UTC clock、领域错误码、金额/数量精度、版本与 hash primitives",
+          "- 交付物：`quantos-core`、fixture builder",
+          "- 量化验收标准：金额/精度边界与时区测试分支覆盖 ≥90%；任意错误可映射为稳定机器码；相同 fixture hash 100% 一致"
+        ],
+        "task_id": "F04",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:F05",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:89ff897b2f0cb81884d5f01789ca5f588daf1848e42b28d528e00c68641855f5",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f05.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F04"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:F03",
+          "CORE:F04"
+        ],
+        "depends_on": [
+          "CORE:F03",
+          "CORE:F04"
+        ],
+        "requirement": "事件、存储与审计账本",
+        "requirements": [
+          "- 需求描述：事件、存储与审计账本",
+          "- 技术要求：Supabase PostgreSQL migration、业务 schema、RLS 基线、Supabase Storage、transactional outbox/inbox、schema registry、append-only audit；建立 `outbox_event`、`inbox_receipt`、`dead_letter_event`、`projection_checkpoint` 与基于租约/`FOR UPDATE SKIP LOCKED` 的轮询消费者。Realtime 只发送唤醒/投影通知，绝不作为事件真相或唯一调度；早期不引入 Supabase 生态外的独立消息、缓存或时序基础设施",
+          "- 交付物：`quantos-event`、`quantos-storage`、`supabase/migrations/*`、policy/sql、replay CLI、消费者恢复 Runbook",
+          "- 量化验收标准：重复/乱序/重启/死信四类测试全过；隔离 Supabase 线上项目或数据库分支可由 migration 重建 `quantos` schema；所有 tenant 表 RLS 默认拒绝且负向权限测试全过；1 万条测试事件无丢失、消费者最终一致；模拟 Realtime 漏通知、断连和重连后，数据库扫描在测试 deadline 内处理全部已提交事件；1,000 次同事件并发投递只产生一次业务副作用；按 correlation ID 在 ≤5 秒取回完整事件链",
+          "- 阶段执行：开发期保留全部数据正确性规模用例（1 万事件、1,000 次并发）、真实 Supabase RLS/事务/补偿测试；重建能力须有迁移与可执行检查，受控整库重建只在对应授权内进行。相关查询耗时作为基线；≤5 秒检索完整链和候选版本重建/drift 回执归 RELEASE-GATE:BETA。"
+        ],
+        "task_id": "F05",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:F06",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:a656d672377e059f0ac62c31f51f6d3748e34a777b06a88bc07df5018a1aa8d0",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/core-f06.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F05"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:F03",
+          "CORE:F05"
+        ],
+        "depends_on": [
+          "CORE:F03",
+          "CORE:F05"
+        ],
+        "requirement": "身份、授权、秘密引用与主上下文",
+        "requirements": [
+          "- 需求描述：身份、授权、秘密引用与主上下文",
+          "- 技术要求：Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝；Vault 仅存静态加密秘密，Execution Gateway 通过受控角色与 allowlist 函数取得所需引用，短时授权由服务会话/命令过期/轮换状态控制",
+          "- 交付物：`quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration、Vault 访问 policy/函数",
+          "- 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API。开发机跨区域鉴权读 P95 仅作诊断，不作为 F06 放行条件。",
+          "- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及拒绝矩阵；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。开发机本地网络到托管数据库的长尾不作为 F06/A09 Gate；同区域 P95 <100ms 移至首次同区域部署后的性能验证。真实浏览器登录/E2E、MFA 页面交互及全部页面 API 功能联调属于 Web 前端 G1/页面与接口阶段；Terminal 实际部署归 RELEASE-GATE:BETA，不作为 F06 开发准入 Gate。"
+        ],
+        "task_id": "F06",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:F07",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:F04",
+        "CORE:F05",
+        "CORE:F06"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06"
+        ],
+        "depends_on": [
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06"
+        ],
+        "requirement": "Runtime 最小可恢复工作流",
+        "requirements": [
+          "- 需求描述：Runtime 最小可恢复工作流",
+          "- 技术要求：session、持久任务、tool registry、deadline、cancel、retry、checkpoint、Artifact API、成本/速率限额",
+          "- 交付物：`quantos-runtime`、workflow fixtures",
+          "- 量化验收标准：worker 强杀后 100 个任务均从 checkpoint 恢复且不重复创建 Artifact；cancel/timeout 事件均带 audit；任务调度 P95 <200ms",
+          "- 阶段执行：worker 恢复、checkpoint、Artifact 去重及 cancel/timeout 审计为开发硬门槛；调度 P95 <200ms 移交 RELEASE-GATE:BETA；拟发布 HTTPS/受限 Storage 验证由 L04 归档，在服务首次发布前完成。"
+        ],
+        "task_id": "F07",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:F08",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F07"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:F03",
+          "CORE:F06",
+          "CORE:F07"
+        ],
+        "depends_on": [
+          "CORE:F03",
+          "CORE:F06",
+          "CORE:F07"
+        ],
+        "requirement": "Engine SDK、Manager 与 Mock Engine",
+        "requirements": [
+          "- 需求描述：Engine SDK、Manager 与 Mock Engine",
+          "- 技术要求：Engine manifest 审核、UDS gRPC、health/readiness、routing、限流、熔断、退避、资源配额、contract harness",
+          "- 交付物：`quantos-engine-manager`、Python common SDK、mock engine",
+          "- 量化验收标准：`GetMetadata/Health/Execute/StreamExecute/Cancel` 100% contract 通过；连续 3 次崩溃触发退避且不丢请求；deadline 超时 ≤2 秒返回确定性错误"
+        ],
+        "task_id": "F08",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:F09",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08"
+        ],
+        "depends_on": [
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08"
+        ],
+        "requirement": "本地可观测性、容量阈值与故障注入",
+        "requirements": [
+          "- 需求描述：本地可观测性、容量阈值与故障注入",
+          "- 技术要求：trace、metrics、结构化日志、健康检查、test fault proxy；为 outbox 年龄/DLQ、Realtime 投影延迟与配额、读模型查询/MV 新鲜度、Storage 错误与秘密轮换配置可执行告警和 ADR 证据采集",
+          "- 交付物：dashboards、alert rules、fault tests、容量 ADR 模板",
+          "- 量化验收标准：开发阶段 Gate 验证已交付 F0 写入口的持久 trace/correlation ID、结构化错误与健康检查；用确定性样本、断采和时间前进测试告警阈值、连续窗口及 ADR 输入；在已配置的测试 Supabase PostgreSQL 上验证 migration、真实数据库/消费者组件故障恢复、查询采样和本地 Engine 崩溃恢复。CI、Nightly 与数据库组件回执须绑定同一完整源码 SHA。此 Gate 不要求尚未部署的业务生产者持续上报或发送真实通知。",
+          "- 阶段执行：本节原标准及历史同 SHA 回执保留；当前功能准入评估持久 trace、确定性告警/断采与受影响真实 Supabase 功能，持续采样/实际通知和远程 CI/Nightly 归发布检查点。Beta 范围在 RELEASE-GATE:BETA 完成，新增 testnet 执行区范围在 RELEASE-GATE:LIVE-READINESS 完成。"
+        ],
+        "task_id": "F09",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:TP01-A",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:F01",
+        "CORE:F02"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:F01",
+          "CORE:F02"
+        ],
+        "depends_on": [
+          "CORE:F01",
+          "CORE:F02"
+        ],
+        "requirement": "上游只读副本与 Fork 基线",
+        "requirements": [
+          "- 需求描述：上游只读副本与 Fork 基线",
+          "- 交付物：baseline SHA、监测 workflow、初始 SBOM/NOTICE、目录 README",
+          "- 验收标准：新 tag/commit 只生成 candidate 记录，不更新生产依赖；baseline 可重建"
+        ],
+        "task_id": "TP01-A",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE:TP01-B",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE:TP01-A",
+        "CORE:F07"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "dependencies": [
+          "CORE:TP01-A",
+          "CORE:F07"
+        ],
+        "depends_on": [
+          "CORE:TP01-A",
+          "CORE:F07"
+        ],
+        "requirement": "capability inventory 与禁止耦合清单",
+        "requirements": [
+          "- 需求描述：capability inventory 与禁止耦合清单",
+          "- 交付物：capability matrix、threat model 补充、禁止耦合 ADR",
+          "- 验收标准：每项能力都有输入/输出/副作用/权限/替换策略；交易/秘密路径全部标记拒绝"
+        ],
+        "task_id": "TP01-B",
+        "task_type": "CORE"
+      }
+    },
+    {
+      "id": "CORE-GATE:F0",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "developmentStatus": null,
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": "91e222f744fd350ab9db80ba7554bd1fee9194fa",
+      "dependencies": [
+        "CORE:F01",
+        "CORE:F02",
+        "CORE:F03",
+        "CORE:F04",
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:F09",
+        "CORE:TP01-A",
+        "CORE:TP01-B"
+      ],
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "checkpoint_id": "CORE-GATE:F0",
+        "dependencies": [
+          "CORE:F01",
+          "CORE:F02",
+          "CORE:F03",
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08",
+          "CORE:F09",
+          "CORE:TP01-A",
+          "CORE:TP01-B"
+        ],
+        "depends_on": [
+          "CORE:F01",
+          "CORE:F02",
+          "CORE:F03",
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08",
+          "CORE:F09",
+          "CORE:TP01-A",
+          "CORE:TP01-B"
+        ],
+        "required_scope": "沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。"
+      }
+    },
+    {
+      "id": "FE:PRE-01",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:5fb20ff4666d5fd87c320fc49195090a48a1a0dadd24bb1ec5ebf19819bc739d",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-01.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [],
+      "normativeInput": {
+        "closes_core": [],
+        "core_prerequisites": [],
+        "dependencies": [],
+        "depends_on": [],
+        "iteration": "P0",
+        "requirement": "需求拆解",
+        "requirements": [
+          "- 需求描述：需求拆解",
+          "- 完成标准：页面覆盖率 100%；每页至少有默认/加载/空/错误/无权/陈旧/离线状态"
+        ],
+        "task_id": "PRE-01",
+        "task_type": "PREPARATION",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      }
+    },
+    {
+      "id": "FE:PRE-02",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:926ad2062a14ddee483e3345ff907a63ee22432c08f8ec7e8f5ada5f94aa0051",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-02.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "FE:PRE-01"
+      ],
+      "normativeInput": {
+        "closes_core": [],
+        "core_prerequisites": [],
+        "dependencies": [
+          "FE:PRE-01"
+        ],
+        "depends_on": [
+          "PRE-01"
+        ],
+        "iteration": "P0",
+        "requirement": "设计系统预研",
+        "requirements": [
+          "- 需求描述：设计系统预研",
+          "- 完成标准：WCAG 2.2 AA 基础检查通过；通用安全文案全部入 i18n"
+        ],
+        "task_id": "PRE-02",
+        "task_type": "PREPARATION",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      }
+    },
+    {
+      "id": "FE:PRE-03",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:978b1167b59d6f97cbd8e8fe103ea693c16d588b22b642d37477dce3f9b9ccbf",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-03.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "FE:PRE-02",
+        "CORE:F01"
+      ],
+      "normativeInput": {
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F01"
+        ],
+        "dependencies": [
+          "FE:PRE-02",
+          "CORE:F01"
+        ],
+        "depends_on": [
+          "PRE-02",
+          "CORE:F01"
+        ],
+        "iteration": "P0",
+        "requirement": "技术栈落地",
+        "requirements": [
+          "- 需求描述：技术栈落地",
+          "- 完成标准：新环境 ≤30 分钟完成 bootstrap/build/test；官网与 Web Terminal 目标路由可打开"
+        ],
+        "task_id": "PRE-03",
+        "task_type": "PREPARATION",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      }
+    },
+    {
+      "id": "FE:PRE-04",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:5760cc1a89c4940de036156b0df6d6afcbbb03ff3e36f9fddd389570a5b80c4c",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-04.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "FE:PRE-01",
+        "CORE:F03",
+        "CORE:F06"
+      ],
+      "normativeInput": {
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F03",
+          "CORE:F06"
+        ],
+        "dependencies": [
+          "FE:PRE-01",
+          "CORE:F03",
+          "CORE:F06"
+        ],
+        "depends_on": [
+          "PRE-01",
+          "CORE:F03",
+          "CORE:F06"
+        ],
+        "iteration": "P0",
+        "requirement": "接口盘点",
+        "requirements": [
+          "- 需求描述：接口盘点",
+          "- 完成标准：每个 P0 页面有 Query/Command/Realtime 依赖；无“待开发时再定”字段"
+        ],
+        "task_id": "PRE-04",
+        "task_type": "PREPARATION",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      }
+    },
+    {
+      "id": "FE:PRE-05",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:e5fb362a41fa042c8ac3d5138e99a542698faee0c4575727ec5908a9451bab5c",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-05.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "FE:PRE-03",
+        "FE:PRE-04"
+      ],
+      "normativeInput": {
+        "closes_core": [],
+        "core_prerequisites": [],
+        "dependencies": [
+          "FE:PRE-03",
+          "FE:PRE-04"
+        ],
+        "depends_on": [
+          "PRE-03",
+          "PRE-04"
+        ],
+        "iteration": "P0",
+        "requirement": "环境方案",
+        "requirements": [
+          "- 需求描述：环境方案",
+          "- 完成标准：缺必需变量 fail-fast；客户端 bundle 不含 server secret；环境/mode 明确分离"
+        ],
+        "task_id": "PRE-05",
+        "task_type": "PREPARATION",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      }
+    },
+    {
+      "id": "FE:PRE-06",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:6eb8e173499c8c7d4991e7044a686fffb4ed670d5d7b9df5be35764c095c3451",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-06.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "FE:PRE-04",
+        "FE:PRE-05"
+      ],
+      "normativeInput": {
+        "closes_core": [],
+        "core_prerequisites": [],
+        "dependencies": [
+          "FE:PRE-04",
+          "FE:PRE-05"
+        ],
+        "depends_on": [
+          "PRE-04",
+          "PRE-05"
+        ],
+        "iteration": "P0",
+        "requirement": "测试基线",
+        "requirements": [
+          "- 需求描述：测试基线",
+          "- 完成标准：故意破坏 schema、权限、敏感字段或视觉基线能使 CI 失败；开发以同源 runner 的可重放负向检查验证，远程同 SHA CI 的实际运行证据在 RELEASE 验收"
+        ],
+        "task_id": "PRE-06",
+        "task_type": "PREPARATION",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      }
+    },
+    {
+      "id": "PREPARATION:P0",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:bb74b9139f05094f0ead4dc75867b01c74790e014b4b550be4d25d75d4c5af99",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/preparation-p0.json"
+        ]
+      },
+      "developmentStatus": null,
+      "formalReview": "ACCEPTED",
+      "formalSourceCommit": "0149e5681fde7c6b75f891f6708d63726f075fc9",
+      "dependencies": [
+        "FE:PRE-01",
+        "FE:PRE-02",
+        "FE:PRE-03",
+        "FE:PRE-04",
+        "FE:PRE-05",
+        "FE:PRE-06"
+      ],
+      "normativeInput": {
+        "acceptance_window": "P0",
+        "checkpoint_id": "PREPARATION:P0",
+        "dependencies": [
+          "FE:PRE-01",
+          "FE:PRE-02",
+          "FE:PRE-03",
+          "FE:PRE-04",
+          "FE:PRE-05",
+          "FE:PRE-06"
+        ],
+        "depends_on": [
+          "FE:PRE-01",
+          "FE:PRE-02",
+          "FE:PRE-03",
+          "FE:PRE-04",
+          "FE:PRE-05",
+          "FE:PRE-06"
+        ],
+        "required_scope": "准备任务全部标准与PoC通过，owner/环境/mock/设计/接口台账和测试基线齐备；仅放行A1，不宣称正式OpenAPI或全部provider验收。"
+      }
+    },
+    {
+      "id": "FE:BFF-FE-000",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:072aeb07de0975f9a19ab7ded615c7face426700d554d6de6132cdf63ef21dd8",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-bff-fe-000.json"
+        ]
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "FE:PRE-04",
+        "FE:PRE-06",
+        "CORE:F03",
+        "CORE:F05",
+        "CORE:F06",
+        "PREPARATION:P0"
+      ],
+      "normativeInput": {
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F03",
+          "CORE:F05",
+          "CORE:F06"
+        ],
+        "dependencies": [
+          "FE:PRE-04",
+          "FE:PRE-06",
+          "CORE:F03",
+          "CORE:F05",
+          "CORE:F06",
+          "PREPARATION:P0"
+        ],
+        "depends_on": [
+          "PRE-04",
+          "PRE-06",
+          "CORE:F03",
+          "CORE:F05",
+          "CORE:F06",
+          "PREPARATION:P0"
+        ],
+        "iteration": "A1",
+        "requirement": "建立页面 BFF OpenAPI 基线；统一 session 注入、错误 envelope、cursor 分页、sort/filter、202 job、Idempotency-Key、ETag/objectVersion、correlation ID、SSE event envelope；生成 TS client/Zod/MSW",
+        "requirements": [
+          "- 需求描述：建立页面 BFF OpenAPI 基线；统一 session 注入、错误 envelope、cursor 分页、sort/filter、202 job、Idempotency-Key、ETag/objectVersion、correlation ID、SSE event envelope；生成 TS client/Zod/MSW",
+          "- 目标阶段与验收：FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI"
+        ],
+        "task_id": "BFF-FE-000",
+        "task_type": "PAGE_API",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      }
+    },
+    {
+      "id": "PROVIDER:A1",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:4d33ad41c4a5294ca45bac4426c7c2acbbcc53e746a56a43d8dd099303bdb39d",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/provider-a1.json"
+        ]
+      },
+      "developmentStatus": null,
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "PREPARATION:P0"
+      ],
+      "normativeInput": {
+        "acceptance_window": "A1",
+        "checkpoint_id": "PROVIDER:A1",
+        "dependencies": [
+          "FE:BFF-FE-000",
+          "PREPARATION:P0"
+        ],
+        "depends_on": [
+          "FE:BFF-FE-000",
+          "PREPARATION:P0"
+        ],
+        "required_scope": "A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现功能的 provider/consumer harness，按输入清单评估阶段 READY；A2–A6 未交付 provider 不属 A1 实现范围。B-01 staging 继续 DEFERRED_TO_FINAL_REVIEW，正式目标回执和签署由 RELEASE 收口，不能据工程通过改为正式 ACCEPTED。"
+      }
+    },
+    {
+      "id": "FRONTEND-GATE:G0",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:52e49e000f915210bc64ac0c8141b7e8e80fc66dfa56ab66185accc91813260d",
+        "evidence": [
+          "audit/evidence/frontend-g0-user-confirmation-20261005/g0.json"
+        ]
+      },
+      "developmentStatus": null,
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "PREPARATION:P0",
+        "PROVIDER:A1",
+        "FE:BFF-FE-000"
+      ],
+      "normativeInput": {
+        "acceptance_window": "A1",
+        "checkpoint_id": "FRONTEND-GATE:G0",
+        "dependencies": [
+          "PREPARATION:P0",
+          "PROVIDER:A1",
+          "FE:BFF-FE-000"
+        ],
+        "depends_on": [
+          "PREPARATION:P0",
+          "PROVIDER:A1",
+          "FE:BFF-FE-000"
+        ],
+        "required_scope": "G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范围确认后评估阶段 READY；新页面还须全量 API 的 PROVIDER:ALL 阶段准入。正式 G0 用户确认、staging 与发布证据在 RELEASE 完成，历史正式复审状态独立保留。"
+      }
+    },
+    {
+      "id": "FE:FEP-0",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "developmentStatus": "COMPLETED",
+      "formalReview": "NOT_STARTED",
+      "formalSourceCommit": null,
+      "dependencies": [
+        "CORE-GATE:F0",
+        "FE:PRE-01",
+        "FE:PRE-02",
+        "FE:PRE-03",
+        "FE:PRE-04",
+        "FE:PRE-05",
+        "FE:PRE-06",
+        "FRONTEND-GATE:G0"
+      ],
+      "normativeInput": {
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE-GATE:F0",
+          "FE:PRE-01",
+          "FE:PRE-02",
+          "FE:PRE-03",
+          "FE:PRE-04",
+          "FE:PRE-05",
+          "FE:PRE-06",
+          "FRONTEND-GATE:G0"
+        ],
+        "depends_on": [
+          "CORE-GATE:F0",
+          "PRE-01",
+          "PRE-02",
+          "PRE-03",
+          "PRE-04",
+          "PRE-05",
+          "PRE-06",
+          "FRONTEND-GATE:G0"
+        ],
+        "iteration": "A1",
+        "requirement": "工程运行时、设计系统、接口台账、环境、测试底座",
+        "requirements": [
+          "- 需求描述：工程运行时、设计系统、接口台账、环境、测试底座",
+          "- 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结"
+        ],
+        "task_id": "FEP-0",
+        "task_type": "MILESTONE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      }
+    }
+  ]
+}

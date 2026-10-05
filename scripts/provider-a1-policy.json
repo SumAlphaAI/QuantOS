@@ -595,6 +595,212 @@
       ],
       "staticOnly": true,
       "marker": "TOTAL"
+    },
+    "f02-negative": {
+      "command": [
+        "make",
+        "f02-check"
+      ],
+      "marker": "fail 0",
+      "staticOnly": true,
+      "env": {
+        "GITLEAKS_BIN": "artifacts/tools/gitleaks"
+      }
+    },
+    "f02-secrets": {
+      "command": [
+        "bash",
+        "scripts/check-secrets.sh"
+      ],
+      "env": {
+        "GITLEAKS_BIN": "artifacts/tools/gitleaks"
+      },
+      "staticOnly": true,
+      "marker": "no leaks found"
+    },
+    "f02-license": {
+      "command": [
+        "make",
+        "license-check"
+      ],
+      "staticOnly": true
+    },
+    "f02-sca": {
+      "command": [
+        "make",
+        "sca-check"
+      ],
+      "staticOnly": true,
+      "artifact": "artifacts/f02/sca-npm-pypi-cargo.json",
+      "artifactKind": "f02-sca",
+      "marker": "\"passed\": true"
+    },
+    "f02-waivers": {
+      "command": [
+        "make",
+        "waiver-check"
+      ],
+      "staticOnly": true
+    },
+    "f02-database": {
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--database"
+      ],
+      "database": true,
+      "artifact": "artifacts/f02/development-database.json",
+      "artifactKind": "f02-database",
+      "marker": "transactional negatives PASS"
+    },
+    "f07-recovery": {
+      "command": [
+        "make",
+        "f07-recovery-diagnostic"
+      ],
+      "database": true,
+      "artifact": "artifacts/f07/recovery-diagnostic.json",
+      "artifactKind": "f07-recovery",
+      "marker": "1 passed; 0 failed",
+      "timeoutMs": 1800000
+    },
+    "f07-coverage": {
+      "command": [
+        "make",
+        "f07-coverage-diagnostic"
+      ],
+      "database": true,
+      "artifact": "artifacts/f07/coverage-diagnostic.json",
+      "artifactKind": "f07-coverage",
+      "marker": "F07|PASS",
+      "timeoutMs": 1800000
+    },
+    "f07-service": {
+      "command": [
+        "make",
+        "f07-target-service-acceptance"
+      ],
+      "database": true,
+      "artifact": "artifacts/f07/target-service.json",
+      "artifactKind": "f07-service",
+      "env": {
+        "QUANTOS_F07_TARGET_MODE": "configured-development",
+        "QUANTOS_F07_ALLOW_TEMP_ADMIN_STORAGE_KEY": "1"
+      }
+    },
+    "f08-functional": {
+      "command": [
+        "make",
+        "f08-check"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0",
+      "timeoutMs": 1800000
+    },
+    "f08-branches": {
+      "command": [
+        "make",
+        "f08-nightly-check"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0",
+      "timeoutMs": 1800000
+    },
+    "f08-service": {
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--engine"
+      ],
+      "staticOnly": true,
+      "artifact": "artifacts/f08-target/receipt.json",
+      "artifactKind": "f08-service",
+      "marker": "\"status\": \"PASS\"",
+      "timeoutMs": 1800000
+    },
+    "f09-functional": {
+      "command": [
+        "make",
+        "observability-check"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "f09-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/f09-migration-ledger.test.cjs",
+        "scripts/tests/f09-rule-contract.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "f09-target": {
+      "command": [
+        "node",
+        "scripts/f09-target-gate.cjs"
+      ],
+      "database": true,
+      "cleanSource": true,
+      "artifact": "artifacts/f09/target.json",
+      "artifactKind": "f09-target",
+      "marker": "F09",
+      "timeoutMs": 1800000,
+      "env": {
+        "QUANTOS_RUN_F09_POSTGRES_TESTS": "1"
+      }
+    },
+    "tp-intake": {
+      "command": [
+        "make",
+        "tp-intake-check"
+      ],
+      "staticOnly": true,
+      "marker": "intake evidence is complete"
+    },
+    "tp01-baseline": {
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--repository"
+      ],
+      "marker": "governance verified|governance checks passed|TP01 GitHub"
+    },
+    "tp01-negative": {
+      "command": [
+        "node",
+        "scripts/test-vibe-repository-gate.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "positive and negative checks passed"
+    },
+    "tp01-sync": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tests/sync-vibe.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp01-capability": {
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--capability"
+      ],
+      "staticOnly": true,
+      "marker": "11 complete capabilities"
+    },
+    "fep0-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/fep0-development.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
     }
   },
   "nodes": {
@@ -883,6 +1089,111 @@
         "semantic-mutations",
         "receipt-negative",
         "db-visibility"
+      ]
+    },
+    "CORE:F02": {
+      "scope": "Current supply-chain/locks/proto/security negative mechanisms, licensed dependencies and dated vulnerability waivers; transactional configured Supabase catalog/RLS/checksum negatives; main release/SBOM/signing/hosted CI excluded",
+      "inputs": [
+        "security/",
+        "deny.toml",
+        ".gitleaks.toml",
+        ".gitleaksignore",
+        "supabase/"
+      ],
+      "checks": [
+        "f02-negative",
+        "f02-secrets",
+        "f02-license",
+        "f02-sca",
+        "f02-waivers",
+        "f01-negative",
+        "proto",
+        "f02-database"
+      ]
+    },
+    "CORE:F07": {
+      "scope": "Configured Supabase checkpoint/100 OS-killed worker recovery, unique Artifact bindings, cancellation/timeout audit and Auth/BFF/Runtime/Storage denials; diagnostic measurements do not accept scheduling P95, deployed HTTPS or restricted Storage credentials",
+      "inputs": [
+        "crates/quantos-runtime/",
+        "services/runtime-gateway/",
+        "services/bff-gateway/",
+        "supabase/",
+        "docs/runbooks/"
+      ],
+      "checks": [
+        "f07-recovery",
+        "f07-coverage",
+        "f07-service"
+      ]
+    },
+    "CORE:F08": {
+      "scope": "Five Engine RPC contracts, three supervised crashes/backoff, two-second deadline, cancellation/reconstruction/idempotency/Artifact integrity, actual wheel and UDS processes, stable and branch coverage; hosted target/nightly and deployment excluded",
+      "inputs": [
+        "crates/quantos-engine-manager/",
+        "engines/",
+        "proto/"
+      ],
+      "checks": [
+        "f08-functional",
+        "f08-branches",
+        "f08-service"
+      ]
+    },
+    "CORE:F09": {
+      "scope": "Persistent write traces, deterministic alert/windows/ADR, actual configured Supabase migration/capacity/consumer recovery/query probes and local Engine crash; deployed producers/live notification/hosted CI excluded",
+      "inputs": [
+        "crates/quantos-observability/",
+        "crates/quantos-portfolio/",
+        "services/capacity-monitor/",
+        "services/portfolio-rebuild/",
+        "engines/",
+        "supabase/",
+        "docs/operations/f09*",
+        "docs/runbooks/f09-capacity-monitor.md"
+      ],
+      "checks": [
+        "f09-functional",
+        "f09-negative",
+        "f09-target"
+      ]
+    },
+    "CORE:TP01-A": {
+      "scope": "Immutable V0 upstream/read-only/fork baseline, live read-only GitHub branch protection, licenses/NOTICE/SBOM and candidate-only sync rejection; no dependency promotion",
+      "inputs": [
+        "third_party/vibe-trading/",
+        "forks/vibe-trading/",
+        "docs/adr/20260730-tp01-vibe*"
+      ],
+      "checks": [
+        "tp01-baseline",
+        "tp01-negative",
+        "tp01-sync"
+      ]
+    },
+    "CORE:TP01-B": {
+      "scope": "Eleven V0 capability inputs/outputs/side effects/permissions/replacements and denied trading/secret/storage coupling; TP02-TP05 fixed-license/evaluation intake; no production admission",
+      "inputs": [
+        "docs/operations/tp01_vibe_inventory_and_threats.md",
+        "docs/adr/20260730-tp01-vibe*",
+        "third_party/tp02-rd-agent/",
+        "third_party/tp03-llmquant/",
+        "third_party/tp04-trading-agents/",
+        "third_party/tp05-openbb/"
+      ],
+      "checks": [
+        "tp01-capability",
+        "tp-intake"
+      ]
+    },
+    "CORE-GATE:F0": {
+      "scope": "Current DEVELOPMENT F01-F09 and TP01-A/B engineering, contracts, security, data integrity and recovery closure; historical 7/7 signing/rebuild/hosted CI/performance acceptance remains separate",
+      "inputs": [
+        "AGENTS.md"
+      ],
+      "checks": [
+        "plans",
+        "plans-negative",
+        "fep0-negative"
       ]
     }
   },

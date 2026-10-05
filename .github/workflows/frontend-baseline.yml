@@ -63,6 +63,9 @@ jobs:
       - name: Verify PROVIDER A1 functional receipts and rejection probes
         run: pnpm check:provider-a1 && pnpm test:provider-a1
 
+      - name: FEP-0 full milestone receipts and rejection probes
+        run: pnpm check:f0-development && pnpm check:fep0:engineering && pnpm test:fep0
+
       - name: Frozen BFF OpenAPI structure
         run: pnpm check:bff-openapi
 

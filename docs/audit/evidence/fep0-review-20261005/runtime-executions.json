@@ -1,0 +1,145 @@
+{
+  "schema": "quantos-fep0-review-executions/v1",
+  "sourceCommit": "ed2e6038a9d54f05768a29d9c8f0079bd1dacbdc",
+  "environment": {
+    "node": "v24.12.0",
+    "pnpm": "10.20.0",
+    "profile": "local-mock",
+    "databaseExecuted": false,
+    "browserPermission": "approved native Chromium and local loopback"
+  },
+  "results": [
+    {
+      "id": "regressions",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tests/check-pre01.test.mjs",
+        "scripts/pre03-gate-negative.mjs",
+        "scripts/pre04-gate-negative.mjs",
+        "scripts/pre05-gate-negative.mjs",
+        "scripts/pre06-gate-negative.mjs",
+        "scripts/pre06-runtime-negative.mjs",
+        "scripts/g0-development.test.mjs",
+        "scripts/user-acceptance-confirmation.test.mjs",
+        "scripts/frontend-import-boundary.test.mjs",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "executedAt": "2026-10-05T07:02:54.632Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/runtime-regressions.log",
+      "logSha256": "sha256:9a0ab3a0daafc92cf5ea22a78abebeb86cb5887cf4a684f378bc9c7a83d9689d"
+    },
+    {
+      "id": "units",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "--filter",
+        "@sumalpha/website",
+        "--filter",
+        "@sumalpha/ui",
+        "--filter",
+        "@sumalpha/config",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/domain-ui",
+        "test"
+      ],
+      "executedAt": "2026-10-05T07:03:10.129Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/runtime-units.log",
+      "logSha256": "sha256:c3a77281e2b28c2f78ab218003aede1b3c83dbc61fec5fd2e9bfadac201c375b"
+    },
+    {
+      "id": "coverage",
+      "command": [
+        "pnpm",
+        "coverage:web"
+      ],
+      "executedAt": "2026-10-05T07:03:12.752Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/runtime-coverage.log",
+      "logSha256": "sha256:9503b5e23c45d823b9000432691f318903fcdfd89a65c755fa535044f9946b18"
+    },
+    {
+      "id": "sabotage",
+      "command": [
+        "pnpm",
+        "sabotage:pre06"
+      ],
+      "executedAt": "2026-10-05T07:03:15.318Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/runtime-sabotage.log",
+      "logSha256": "sha256:a1aa6e1a63425e7fd55b41b6c43e02a531938de138ae683e7476a00b89c6dc50"
+    },
+    {
+      "id": "build-terminal",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "executedAt": "2026-10-05T07:03:16.942Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/runtime-build-terminal.log",
+      "logSha256": "sha256:a7562318bd058e75470b86b270a5c0d917ef3c6e1881dd0c7aa3bf90c69e6e67"
+    },
+    {
+      "id": "build-website",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ],
+      "executedAt": "2026-10-05T07:03:23.966Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/runtime-build-website.log",
+      "logSha256": "sha256:b3fdc163e804bad2ac9c495778d245e3047f33cfb9c197538bdda018d12ca14f"
+    },
+    {
+      "id": "pre03-web",
+      "command": [
+        "node",
+        "scripts/pre03-smoke.mjs",
+        "--web-only"
+      ],
+      "executedAt": "2026-10-05T07:03:30.256Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/runtime-pre03-web.log",
+      "logSha256": "sha256:729a86df6985373f6bfdd800175e5404cd3b75ea757baeaa44685116b0a33091"
+    },
+    {
+      "id": "client-secrets",
+      "command": [
+        "pnpm",
+        "check:client-secrets"
+      ],
+      "executedAt": "2026-10-05T07:03:32.321Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/runtime-client-secrets.log",
+      "logSha256": "sha256:c53e319e5b1a3f6844079278eb68674312ce3e5cba5628c6dc3ac359fc294e15"
+    },
+    {
+      "id": "web-oidc-poc",
+      "command": [
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "tests/e2e/auth-callback.spec.ts",
+        "tests/e2e/command.spec.ts",
+        "--project=chromium",
+        "--retries=0"
+      ],
+      "executedAt": "2026-10-05T07:03:32.656Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/runtime-web-oidc-poc.log",
+      "logSha256": "sha256:9a9c6e13d8bb13959a08925f87bd7146430d56496e893208240297968717688d"
+    }
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "schema": "quantos-fep0-review-executions/v1",
+  "sourceCommit": "ed2e6038a9d54f05768a29d9c8f0079bd1dacbdc",
+  "environment": {
+    "node": "v24.12.0",
+    "pnpm": "10.20.0",
+    "profile": "local-mock",
+    "databaseExecuted": false
+  },
+  "results": [
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "executedAt": "2026-10-05T07:00:14.393Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/plans.log",
+      "logSha256": "sha256:069d96f2972b452d0db290680e66243a7899dc1a14f8801a960b62f71a62bbe0"
+    },
+    {
+      "id": "provider-a1",
+      "command": [
+        "node",
+        "scripts/provider-a1-receipts.mjs"
+      ],
+      "executedAt": "2026-10-05T07:00:14.539Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/provider-a1.log",
+      "logSha256": "sha256:b5597308fcee8b561bc72ac7e0444a46b0ca356cc25249be8e5d40259eb576a1"
+    },
+    {
+      "id": "g0-ready",
+      "command": [
+        "node",
+        "scripts/g0-development.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-05T07:00:15.266Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/g0-ready.log",
+      "logSha256": "sha256:f7db44a9befc69ee87c5fdabf73529872f28eb35308872d48d81c7c7ec6f0d25"
+    },
+    {
+      "id": "pre01",
+      "command": [
+        "pnpm",
+        "check:pre01"
+      ],
+      "executedAt": "2026-10-05T07:00:16.975Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/pre01.log",
+      "logSha256": "sha256:11a8ae6898ef48994a050a62b884cd188c8f4f220f8d7e26e6b9fe6041cef688"
+    },
+    {
+      "id": "pre02",
+      "command": [
+        "pnpm",
+        "check:pre02"
+      ],
+      "executedAt": "2026-10-05T07:00:17.290Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/pre02.log",
+      "logSha256": "sha256:2028b911d95b971cc47090b60b7d794e5cce4597d9a89e055491b4303c5eb62e"
+    },
+    {
+      "id": "pre04",
+      "command": [
+        "pnpm",
+        "check:pre04"
+      ],
+      "executedAt": "2026-10-05T07:00:17.815Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/pre04.log",
+      "logSha256": "sha256:98ed06ee74c7465b1c93961b0957b6a4d6a6ea03b6f26a289bd6ec915c14a049"
+    },
+    {
+      "id": "pre05",
+      "command": [
+        "pnpm",
+        "check:pre05"
+      ],
+      "executedAt": "2026-10-05T07:00:18.131Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/pre05.log",
+      "logSha256": "sha256:07cde80e8afa022a0e1b91aeb2ffce79eefed36a571d00d627e1606ee3f34b3b"
+    },
+    {
+      "id": "pre06",
+      "command": [
+        "pnpm",
+        "check:pre06"
+      ],
+      "executedAt": "2026-10-05T07:00:18.622Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/pre06.log",
+      "logSha256": "sha256:9a7bb9049690061d12f936589d84ef6ccfd68d1a66c179afffdfa7b05091ff49"
+    },
+    {
+      "id": "generated",
+      "command": [
+        "pnpm",
+        "check:bff-generated"
+      ],
+      "executedAt": "2026-10-05T07:00:19.611Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/generated.log",
+      "logSha256": "sha256:24a06442c37a20725a33373016fec29162fa33c169dfb942c4ec9338c1fe153d"
+    },
+    {
+      "id": "catalog",
+      "command": [
+        "pnpm",
+        "check:bff-contract-coverage"
+      ],
+      "executedAt": "2026-10-05T07:00:20.223Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/catalog.log",
+      "logSha256": "sha256:84a06a650ce8da85740db6da92c6a4f32012cc089f9ec64200aafa154d1329fe"
+    },
+    {
+      "id": "bff-baseline",
+      "command": [
+        "node",
+        "scripts/check-bff-fe-000.mjs"
+      ],
+      "executedAt": "2026-10-05T07:00:20.545Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/bff-baseline.log",
+      "logSha256": "sha256:ffb8fc4ed3433e11440d7c3bdf94d84247b30e6d0fac7ae43284673050031f72"
+    },
+    {
+      "id": "regressions",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tests/check-pre01.test.mjs",
+        "scripts/pre03-gate-negative.mjs",
+        "scripts/pre04-gate-negative.mjs",
+        "scripts/pre05-gate-negative.mjs",
+        "scripts/pre06-gate-negative.mjs",
+        "scripts/pre06-runtime-negative.mjs",
+        "scripts/g0-development.test.mjs",
+        "scripts/user-acceptance-confirmation.test.mjs",
+        "scripts/frontend-import-boundary.test.mjs",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "executedAt": "2026-10-05T07:00:20.741Z",
+      "exitCode": 1,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/regressions.log",
+      "logSha256": "sha256:34bee26c31dbcfba54350896efe7ec7301bf9afc4c7f0363d42af8ee468dbc99"
+    },
+    {
+      "id": "design-negatives",
+      "command": [
+        "pnpm",
+        "test:pre02"
+      ],
+      "executedAt": "2026-10-05T07:00:24.946Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/design-negatives.log",
+      "logSha256": "sha256:4b1a16425ffb06585c4cb3e3970f95268c0f149a30a3c173a74cee79d59647e3"
+    },
+    {
+      "id": "frontend-lint",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "--filter",
+        "@sumalpha/website",
+        "lint"
+      ],
+      "executedAt": "2026-10-05T07:00:25.535Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/frontend-lint.log",
+      "logSha256": "sha256:269f9f9972253097c89193acff9bdf0d0065f4552d2390af8d7289a8fa844567"
+    },
+    {
+      "id": "frontend-types",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "--filter",
+        "@sumalpha/website",
+        "typecheck"
+      ],
+      "executedAt": "2026-10-05T07:00:26.350Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/frontend-types.log",
+      "logSha256": "sha256:e0fe9b5d928ebf0362f9a0915b3703756eef0535b31eb3dfe97580b5a8d3e49b"
+    },
+    {
+      "id": "units",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "--filter",
+        "@sumalpha/website",
+        "--filter",
+        "@sumalpha/ui",
+        "--filter",
+        "@sumalpha/config",
+        "--filter",
+        "@sumalpha/api-client",
+        "--filter",
+        "@sumalpha/domain-ui",
+        "test"
+      ],
+      "executedAt": "2026-10-05T07:00:27.115Z",
+      "exitCode": 1,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/units.log",
+      "logSha256": "sha256:2ec30a0d0f32fa44e589808e5c11f726cf9700a52718123717de29e7e372d21e"
+    },
+    {
+      "id": "coverage",
+      "command": [
+        "pnpm",
+        "coverage:web"
+      ],
+      "executedAt": "2026-10-05T07:00:48.329Z",
+      "exitCode": 1,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/coverage.log",
+      "logSha256": "sha256:1ffa65133153bfeac54b127c080c0caf707b824cf6e852456f11cec242c3d3f6"
+    },
+    {
+      "id": "sabotage",
+      "command": [
+        "pnpm",
+        "check:sabotage"
+      ],
+      "executedAt": "2026-10-05T07:01:09.197Z",
+      "exitCode": 254,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/sabotage.log",
+      "logSha256": "sha256:b64334ce74c99c41022840ebcef67fd3482d6f276a686db5a87571bee0d5b87a"
+    },
+    {
+      "id": "visual-baselines",
+      "command": [
+        "pnpm",
+        "check:visual-baselines",
+        "--platform",
+        "linux"
+      ],
+      "executedAt": "2026-10-05T07:01:09.425Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/fep0-review-20261005/logs/visual-baselines.log",
+      "logSha256": "sha256:fc8d4265d4044beba1b602e848972b35ccfd37d703e7bc5153d1c42797ebe5c7"
+    }
+  ]
+}

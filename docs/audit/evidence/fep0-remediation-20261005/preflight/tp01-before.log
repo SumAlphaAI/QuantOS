@@ -1,0 +1,14 @@
+node ./scripts/check-vibe-repositories.mjs --baseline ./third_party/vibe-trading/baseline.lock.json --remote-lock ./forks/vibe-trading/repository.lock.json --readonly ./third_party/vibe-trading/upstream-src --fork "${QUANTOS_VIBE_FORK_PATH:-artifacts/third_party/vibe-trading/controlled-fork}"
+TP01 repository checks passed: readonly=c33133f4fd5e978d21d2a61fdd8787fb352b4687, fork=verified
+node ./scripts/provision-vibe-github-governance.mjs
+file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provision-vibe-github-governance.mjs:84
+    throw new Error(
+          ^
+
+Error: GitHub GET /repos/sumalphai/Vibe-Trading failed (401): Bad credentials
+    at github (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provision-vibe-github-governance.mjs:84:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provision-vibe-github-governance.mjs:166:18
+
+Node.js v24.12.0
+make: *** [tp01-vibe-repository-check] Error 1

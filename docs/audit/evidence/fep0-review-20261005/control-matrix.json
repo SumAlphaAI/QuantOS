@@ -1,0 +1,160 @@
+{
+  "schema": "quantos-fep0-review-controls/v1",
+  "scope": "A1 DEVELOPMENT preparation/contract milestone",
+  "equalWeight": true,
+  "counts": {
+    "PASS": 18,
+    "MISSING": 2,
+    "PARTIAL": 0,
+    "FAIL": 0
+  },
+  "completion": {
+    "passed": 18,
+    "total": 20,
+    "percent": 90,
+    "frontendDeliveryPassed": 18,
+    "frontendDeliveryTotal": 18
+  },
+  "controls": [
+    {
+      "id": "C01",
+      "control": "A1/DEVELOPMENT、一期 Web 与后续阶段边界",
+      "status": "PASS",
+      "evidence": "第2.1节、FEP-0任务卡和G0范围一致；COMPLETED表示交付进度，阶段记录独立",
+      "finding": "—"
+    },
+    {
+      "id": "C02",
+      "control": "全部前置当前阶段准入",
+      "status": "MISSING",
+      "evidence": "直接依赖7/8 READY；CORE-GATE:F0及其6个未评估子项仍NOT_ASSESSED；递归上游15/22 READY",
+      "finding": "B-01"
+    },
+    {
+      "id": "C03",
+      "control": "固定工具链、锁文件及运行时ADR",
+      "status": "PASS",
+      "evidence": "Node24.12.0、pnpm10.20.0；29锁依赖、2349运行时约束通过；现行ADR与解析版本相符",
+      "finding": "—"
+    },
+    {
+      "id": "C04",
+      "control": "官网与Terminal构建、目标路由PoC",
+      "status": "PASS",
+      "evidence": "两应用本轮重新构建，buildId绑定ed2e603；Web smoke两路由通过",
+      "finding": "—"
+    },
+    {
+      "id": "C05",
+      "control": "前端开发规范、lint与typecheck",
+      "status": "PASS",
+      "evidence": "当前生成客户端/应用/共享包lint和types入口全部退出0",
+      "finding": "—"
+    },
+    {
+      "id": "C06",
+      "control": "设计token、状态、密度、断点及组件清单",
+      "status": "PASS",
+      "evidence": "PRE-02正向与27负向通过；基准组件及44组件族的规划范围明确",
+      "finding": "—"
+    },
+    {
+      "id": "C07",
+      "control": "Storybook、WCAG基础与双语安全文案",
+      "status": "PASS",
+      "evidence": "可执行配置和基准Story核验、组件测试通过；历史同输入Storybook构建日志有效",
+      "finding": "—"
+    },
+    {
+      "id": "C08",
+      "control": "页面、Story、权限矩阵及七态场景",
+      "status": "PASS",
+      "evidence": "30页面、132Story、210七态和10流程定义通过PRE-01；二期P16独立",
+      "finding": "—"
+    },
+    {
+      "id": "C09",
+      "control": "页面→任务→契约→后端→测试→Gate追踪",
+      "status": "PASS",
+      "evidence": "30追踪行、operation归属/owner与负向通过；不是全量业务E2E",
+      "finding": "—"
+    },
+    {
+      "id": "C10",
+      "control": "字段字典、接口盘点与published/planned缺口",
+      "status": "PASS",
+      "evidence": "PRE-04通过；17契约、413字段、62published/46planned归属准确",
+      "finding": "—"
+    },
+    {
+      "id": "C11",
+      "control": "OpenAPI最低冻结面与同源client/mock",
+      "status": "PASS",
+      "evidence": "API1.5.0/52schemas；BFF基线、生成逐字节漂移和catalog核验通过",
+      "finding": "—"
+    },
+    {
+      "id": "C12",
+      "control": "会话、错误、安全输入和实时恢复",
+      "status": "PASS",
+      "evidence": "当前单元/coverage及OIDC/SSEPoC通过；F06已有内容绑定实际Supabase安全回执有效",
+      "finding": "—"
+    },
+    {
+      "id": "C13",
+      "control": "生产前端BFF导入与fixture例外边界",
+      "status": "PASS",
+      "evidence": "ESLint边界正负向通过；不允许生产使用旧InMemory及受限内部模块",
+      "finding": "—"
+    },
+    {
+      "id": "C14",
+      "control": "环境矩阵、公开变量、DSN/回跳约束",
+      "status": "PASS",
+      "evidence": "PRE-05正负向与配置包26测试通过，受控公开local-mock profile",
+      "finding": "—"
+    },
+    {
+      "id": "C15",
+      "control": "客户端产物与秘密检查",
+      "status": "PASS",
+      "evidence": "新Terminal/官网build实际通过client-secret检查；不暴露DATABASE_URL等凭据",
+      "finding": "—"
+    },
+    {
+      "id": "C16",
+      "control": "同schema fixtures、单元、基本浏览器与SSE PoC",
+      "status": "PASS",
+      "evidence": "211单元、238覆盖率测试、11ChromiumOIDC/页面通过；fixtures库存检查通过",
+      "finding": "—"
+    },
+    {
+      "id": "C17",
+      "control": "schema/权限/敏感字段/视觉破坏持续拒绝",
+      "status": "PASS",
+      "evidence": "PRE-06破坏自检四类检出，264综合回归含跳过/未执行断言/first-fail策略；CI接线受检",
+      "finding": "—"
+    },
+    {
+      "id": "C18",
+      "control": "领域覆盖率与关键风险分支",
+      "status": "PASS",
+      "evidence": "本轮Web行92.85%、分支79.90%；关键129行/111分支100%",
+      "finding": "—"
+    },
+    {
+      "id": "C19",
+      "control": "当前G0确认、冻结回执和遗留治理",
+      "status": "PASS",
+      "evidence": "G0严格READY；项目用户确认与577输入范围一致，19子项阶段/期限/策略约束有效",
+      "finding": "—"
+    },
+    {
+      "id": "C20",
+      "control": "FEP-0自身内容绑定里程碑评估与回执",
+      "status": "MISSING",
+      "evidence": "NOT_ASSESSED/null/[]；缺FEP-0独立manifest和消费F0+G0/六PRE证据的功能校验入口",
+      "finding": "B-02"
+    }
+  ]
+}

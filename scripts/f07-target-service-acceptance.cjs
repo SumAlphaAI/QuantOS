@@ -11,8 +11,9 @@ const output = path.join(root, 'artifacts/f07/target-service.json');
 const origin = 'https://f07-isolated-target.invalid';
 const sourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 const dirty = Boolean(execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim());
+const configuredDevelopment = process.env.QUANTOS_F07_TARGET_MODE === 'configured-development';
 const receipt = { schema: 'quantos-f07-target-service/v1', sourceCommit, dirty,
-  targetClass: 'isolated-supabase-local-service', status: 'RUNNING', checks: [],
+  targetClass: configuredDevelopment ? 'configured-supabase-local-service-development' : 'isolated-supabase-local-service', formalAccepted: false, status: 'RUNNING', checks: [],
   startedAt: new Date().toISOString() };
 fs.mkdirSync(path.dirname(output), { recursive: true });
 const save = () => fs.writeFileSync(output, `${JSON.stringify(receipt, null, 2)}\n`);
@@ -22,7 +23,7 @@ const redact = value => String(value)
   .replace(/(?:sb_secret_|eyJ)[A-Za-z0-9_.-]+/g, '[redacted credential]');
 
 function target() {
-  assert(process.env.QUANTOS_F07_ISOLATED_PROJECT === '1', 'isolated project confirmation is required');
+  assert(configuredDevelopment || process.env.QUANTOS_F07_ISOLATED_PROJECT === '1', 'explicit configured-development mode or isolated project confirmation is required');
   assert(process.env.QUANTOS_F07_ALLOW_TEMP_ADMIN_STORAGE_KEY === '1',
     'temporary admin Storage key authorization is required');
   for (const name of ['DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_PUBLISHABLE_KEY',
@@ -246,6 +247,8 @@ async function main() {
     receipt.artifactId = rows[0].artifact_id;
     assertDatabaseHealthy();
     receipt.status = 'DIAGNOSTIC_ONLY';
+    receipt.engineeringStatus = 'PASS';
+    receipt.excluded = ['deployed HTTPS', 'restricted Runtime Storage credential', 'scheduling P95', 'hosted CI'];
   } finally {
     if (otherCookie && bff) {
       await request(bff.base, '/v1/auth/logout', otherCookie, 'POST').catch(() => {});

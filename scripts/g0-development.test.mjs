@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { policy, scopeRequest, validateConfirmations, validateManifest, assertG0ExecutionSnapshot, assertG0Worktree, confirmationRequest, evidenceDirectory } from './g0-development.mjs';
+import { policy, scopeRequest, validateConfirmations, validateManifest, assertG0ExecutionSnapshot, assertG0Worktree, confirmationRequest, evidenceDirectory, applyConfirmation } from './g0-development.mjs';
 import { digest, nodesFromPlans, planInput, developmentEnvironment, root } from './provider-a1-receipts.mjs';
 import { bytesDigest, confirmationMode } from './user-acceptance-confirmation.mjs';
 import { sourceDigest } from './pre03-build-receipt.mjs';
@@ -14,7 +14,7 @@ function fixture(){
  logs.set(evidenceDirectory+'/terminal-build.json',Buffer.from(JSON.stringify(webBuild)));
  const checks=Object.entries(p.checks).map(([id,spec])=>{const log=evidenceDirectory+'/logs/'+id+'.log';const output=Buffer.from(spec.marker.replace('.*','fixture'));logs.set(log,output);return {id,command:spec.command,status:'PASS',exitCode:0,executedAt:new Date().toISOString(),log,logSha256:digest(output)};});
  const n=nodes.get('FRONTEND-GATE:G0');const m={schema:'quantos-g0-development-manifest/v1',nodeId:n.id,stage:'DEVELOPMENT',status:'BLOCKED',formalAccepted:false,engineeringStatus:'PASS',observedSourceCommit:'a'.repeat(40),environment:{node:'24',pnpm:'10',platform:'fixture',profile:'local-mock',protoBaseline:'b'.repeat(40)},planInput:planInput(n),scopeRequest:structuredClone(request),checks,
-  confirmations:{status:'PENDING',missingApproval:'ProjectUser'},confirmationsSha256:digest(logs.get('docs/gate-records/G0-current-scope-confirmations.json')),excluded:p.excluded,residuals:['M-01: project user development scope confirmation missing'],webBuild,webBuildSha256:digest(logs.get(evidenceDirectory+'/terminal-build.json')),dependencies:n.dependencies.map(id=>({nodeId:id,inputDigest:nodes.get(id).stage_gate.input_digest,manifest:'docs/'+nodes.get(id).stage_gate.evidence[0]}))};
+  confirmations:{status:'PENDING',missingApproval:'ProjectUser'},confirmationLedgerSnapshot:logs.get('docs/gate-records/G0-current-scope-confirmations.json').toString(),confirmationsSha256:digest(logs.get('docs/gate-records/G0-current-scope-confirmations.json')),excluded:p.excluded,residuals:['M-01: project user development scope confirmation missing'],webBuild,webBuildSha256:digest(logs.get(evidenceDirectory+'/terminal-build.json')),dependencies:n.dependencies.map(id=>({nodeId:id,inputDigest:nodes.get(id).stage_gate.input_digest,manifest:'docs/'+nodes.get(id).stage_gate.evidence[0]}))};
  return {m,logs,nodes,options:{p,request,confirmations,nodes,readBytes:path=>{assert(logs.has(path),'fixture path missing');return logs.get(path);},validateDependency:()=>{}}};
 }
 test('complete engineering checks retain BLOCKED while scope confirmation is absent',()=>{const f=fixture();assert.equal(validateManifest(f.m,f.options).status,'BLOCKED');});
@@ -58,3 +58,11 @@ for(const status of ['', ' M docs/SumAlpha-QuantOS-Development-Plan.md\n', 'M  d
 for(const status of [' M scripts/g0-development.mjs\n','M  apps/terminal/src/auth/flow.ts\n','?? bff/new.yaml\n','R  docs/audit/a.md -> scripts/backdoor.mjs\n'])test(`G0 worktree rejects uncommitted functional input ${JSON.stringify(status)}`,()=>assert.throws(()=>assertG0Worktree(status),/commit functional source/));
 
 test('user-confirmed scope includes the normative G0 plan and excludes lifecycle metadata',()=>{const request=scopeRequest(p);const n=nodesFromPlans().get('FRONTEND-GATE:G0');assert.deepEqual(request.planInput,planInput(n));assert(!('stage_gate' in request.planInput));assert(request.reviewDimensions.includes('Risk'));assert.equal(request.confirmationMode,'AGENT_DRAFT_USER_CONFIRMATION');});
+
+test('confirmation-only finalization refuses an absent user reply and cannot bless changed engineering inputs',()=>{const f=fixture();assert.throws(()=>applyConfirmation(f.m,{...f.options,ledgerBytes:f.m.confirmationLedgerSnapshot}),/current project user confirmation/);f.m.scopeRequest.inputs.pop();assert.throws(()=>applyConfirmation(f.m,{...f.options,ledgerBytes:f.m.confirmationLedgerSnapshot}),/functional input inventory/);});
+test('document-bound user reply finalizes the unchanged engineering checks without fabricating new execution',()=>{
+ const f=fixture();const request=confirmationRequest(f.options.request);const document='docs/gate-records/unit-finalize-draft.md',record='docs/gate-records/unit-finalize-confirmation.json';const doc=Buffer.from('```json\n'+JSON.stringify({schema:'quantos-acceptance-draft/v1',mode:confirmationMode,draftedBy:'Codex',request,reviewDimensions:request.reviewDimensions})+'\n```');
+ const reply=Buffer.from(JSON.stringify({schema:'quantos-user-acceptance-confirmation/v1',mode:confirmationMode,request,decision:'CONFIRMED',approver:'ProjectUser',identity:'unit-test fixture only',confirmedAt:new Date().toISOString(),document,documentSha256:bytesDigest(doc),confirmationSource:{kind:'USER_MESSAGE',text:'Unit-test fixture only: confirm this document'}}));f.logs.set(document,doc);f.logs.set(record,reply);
+ const confirmations={schema:'quantos-g0-scope-confirmations/v2',status:'CONFIRMED',scopeDigest:f.options.request.scopeDigest,approval:{record,recordSha256:bytesDigest(reply)},reason:'Unit-test confirmation only'};const ledgerBytes=JSON.stringify(confirmations);f.logs.set('docs/gate-records/G0-current-scope-confirmations.json',Buffer.from(ledgerBytes));
+ const updated=applyConfirmation(f.m,{...f.options,confirmations,ledgerBytes});assert.equal(updated.status,'READY');assert.deepEqual(updated.checks,f.m.checks);assert.equal(updated.observedSourceCommit,f.m.observedSourceCommit);assert.equal(f.m.status,'BLOCKED');
+});

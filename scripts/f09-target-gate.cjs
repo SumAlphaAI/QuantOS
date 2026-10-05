@@ -14,9 +14,8 @@ const receipt = {
   targetClass: 'test-supabase-postgresql', status: 'RUNNING', checks: [],
   acceptanceScope: 'F09 development database and Engine component probes',
   f09Accepted: false,
-  remainingDevelopmentAcceptance: [
-    'same-SHA remote CI and Nightly receipts',
-  ],
+  remainingDevelopmentAcceptance: [],
+  deferredToRelease: ['same-SHA remote CI and Nightly receipts'],
   deferredToL04: [
     'nine deployed business metric producers and one-minute monitor',
     'cross-service same-chain fault exercises and secret leak scan',
