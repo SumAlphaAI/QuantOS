@@ -1137,6 +1137,7 @@ export interface components {
             mfaEnabled: boolean;
             factors: components["schemas"]["MfaFactor"][];
             recoveryCodesRemaining: number;
+            /** @description Latest trusted primary sign-in or successful MFA verification timestamp; never derived from session expiry. */
             lastVerifiedAt: components["schemas"]["DateTime"];
             correlationId: components["schemas"]["UUID"];
         };

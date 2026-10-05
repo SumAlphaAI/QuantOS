@@ -1,0 +1,47 @@
+{
+  "schema": "quantos-bff-a2-live-regression/v1",
+  "sourceCommit": "de74b112dab8e4ec5141142cdced75f59b58626c",
+  "sourceTreeClean": false,
+  "status": "PASS",
+  "scope": "configured existing Supabase Auth/PostgreSQL; local live BFF, synthetic HTTPS Origin; not staging",
+  "records": [
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSession",
+      "status": 200,
+      "issues": []
+    }
+  ],
+  "observations": [
+    {
+      "probe": "server-owned-profile-field-write",
+      "status": 422,
+      "writeRejected": true,
+      "originalIdentityPreserved": true,
+      "realAuthRoleUnchanged": "operator"
+    },
+    {
+      "probe": "invalid-server-owned-field-rejected",
+      "writeStatus": 422,
+      "writeIssues": [],
+      "readStatus": 200,
+      "readIssues": []
+    }
+  ],
+  "failure": null,
+  "cleanup": "restore own original profile/preferences and factor set; revoke own temporary sessions; retain append-only test audits"
+}

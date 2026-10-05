@@ -1,0 +1,177 @@
+{
+  "schema": "quantos-audit-command-ledger/v1",
+  "runtime": {
+    "node": "24.12.0",
+    "pnpm": "10.20.0",
+    "platform": "darwin"
+  },
+  "initialSystemPnpmAttempt": {
+    "version": "11.21.0",
+    "exitCode": 130,
+    "log": "bff-contract-pnpm11-interrupted.log",
+    "status": "INTERRUPTED_NOT_PASS"
+  },
+  "results": [
+    {
+      "command": "make bff-contract-check",
+      "exitCode": 0,
+      "log": "bff-contract.log",
+      "scope": "no DB",
+      "logSha256": "1b8c68bc0f88a3a75768e63755956c266d7ea246f3d8127ebc01cd53859d48d0"
+    },
+    {
+      "command": "cargo test --locked --offline -p bff-gateway",
+      "exitCode": 0,
+      "log": "rust-provider.log",
+      "scope": "24 passed;1 ignored; not DB acceptance",
+      "logSha256": "a680a41fe7a56c382b3d0297270c51fc772c2963496530bc38decee6ed29e12c"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal lint",
+      "exitCode": 0,
+      "log": "terminal-lint.log",
+      "scope": "scoped",
+      "logSha256": "9451b49ef36e0a9e294fb730bfc40b92061d1a9b23645036cf2e1963c1ee467c"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal typecheck",
+      "exitCode": 0,
+      "log": "terminal-typecheck.log",
+      "scope": "scoped",
+      "logSha256": "865941baeed5632cf630081e43b6d624aa54141800cc3b3e38af4fe8a9f4dbcc"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/api-client typecheck",
+      "exitCode": 0,
+      "log": "api-typecheck.log",
+      "scope": "scoped",
+      "logSha256": "f4af4995fef11f352442ba581d85cd8e40d96deee08590b95d84607ec128d41e"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal test",
+      "exitCode": 0,
+      "log": "terminal-tests.log",
+      "scope": "79 passed",
+      "logSha256": "cfe656579ce7279cb412c3608fc6ccca0e990c877768167089ff7880bc84ecd2"
+    },
+    {
+      "command": "pnpm exec vitest run tests/contract packages/api-client/tests",
+      "exitCode": 1,
+      "log": "contract-api-tests.log",
+      "scope": "initial sandbox denied loopback;4 failed",
+      "logSha256": "8144a4fac98ba6a5390fe2b48035c6c4301c8300acfdfbb34899d8b9e436fec2"
+    },
+    {
+      "command": "pnpm exec vitest run tests/contract packages/api-client/tests",
+      "exitCode": 0,
+      "log": "contract-api-tests-with-loopback.log",
+      "scope": "authorized loopback;86 passed",
+      "logSha256": "aefd97780fcb4d73a3cd1c71d18fea4446fa0023dbd43b5e0cfc47161980cc81"
+    },
+    {
+      "command": "pnpm coverage:critical",
+      "exitCode": 1,
+      "log": "critical-coverage.log",
+      "scope": "initial sandbox denied loopback;4 failed",
+      "logSha256": "903fc999483633b2137bbc94c9cdb1e789b25b58f4acdd542a7c218a89eae13b"
+    },
+    {
+      "command": "pnpm coverage:critical",
+      "exitCode": 0,
+      "log": "critical-coverage-with-loopback.log",
+      "scope": "178 passed; critical six files100%",
+      "logSha256": "d755547972c67c591e0e8241aba570d51d108a3c4e44c878cb780ef816c798d7"
+    },
+    {
+      "command": "pnpm coverage:web",
+      "exitCode": 0,
+      "log": "web-coverage.log",
+      "scope": "238 passed; line92.85%;also critical178",
+      "logSha256": "84b0710672ec28ca5867faa7b1d592b695cfc0acf1bdf7e613fee8d9bd757659"
+    },
+    {
+      "command": "pnpm test:bff-provider-contract",
+      "exitCode": 0,
+      "log": "reference-http.log",
+      "scope": "reference only;38 records",
+      "logSha256": "1e2ad1b00608cbf7e71716b251dfc6b62f44ae07df2a191f3ed183a899b058cb"
+    },
+    {
+      "command": "pnpm check:provider-a1",
+      "exitCode": 0,
+      "log": "provider-a1-receipts.log",
+      "scope": "receipt validation only;READY",
+      "logSha256": "39e927b6d96e50ede97549ecc230b807013073f19727a7680d2654a9f4560c82"
+    },
+    {
+      "command": "pnpm check:g0-development",
+      "exitCode": 0,
+      "log": "g0-receipts.log",
+      "scope": "receipt validation only;READY",
+      "logSha256": "f4b3ae91a9fc27b5a1f6ab5d4e27e46e285118dd52f853831522aba8b3bd00f1"
+    },
+    {
+      "command": "pnpm check:development-plans",
+      "exitCode": 0,
+      "log": "plan-check.log",
+      "scope": "structure only",
+      "logSha256": "8d6ca2887a4fd3d75f48fbbba623cd12e93a95924d05cdd013097d6adf18dda5"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exitCode": 0,
+      "log": "rust-fmt.log",
+      "scope": "format",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "cargo clippy --locked --offline -p bff-gateway --all-targets -- -D warnings",
+      "exitCode": 0,
+      "log": "rust-clippy.log",
+      "scope": "scoped",
+      "logSha256": "39e4ba33911c18e33bedbc375c4deeaa856231e32d2b03da8e63a6deede678cb"
+    },
+    {
+      "command": "QUANTOS_RUN_BFF_A2_LIVE=1 node live-review.mjs <output>",
+      "exitCode": 1,
+      "log": "live-network-failed.log",
+      "scope": "initial sandbox fetch failed;0 records",
+      "logSha256": "56b606186f5d801488a561a7f61f73bbb10f493fe8df876461d7d3d63c81ba99"
+    },
+    {
+      "command": "QUANTOS_RUN_BFF_A2_LIVE=1 node live-review.mjs <output>",
+      "exitCode": 0,
+      "log": "live.log",
+      "scope": "authorized existing Supabase;50 records;observed defects",
+      "logSha256": "6e197628135aa84cb5c3b84a7a27c98ed94740ee61b3a4dcfd27a8fd02f64f77"
+    },
+    {
+      "command": "QUANTOS_RUN_BFF_A2_LIVE=1 node live-profile-review.mjs <output>",
+      "exitCode": 0,
+      "log": "live-input-negative.log",
+      "scope": "authorized existing Supabase;4 helper +2 direct HTTP requests",
+      "logSha256": "fd34261e941c6ea802968e2c7d1d03bf03c2b18c5e28cac8a83b322434831bdf"
+    },
+    {
+      "command": "node reference-profile-probe.mjs",
+      "exitCode": 0,
+      "log": "reference-profile-probe.log",
+      "scope": "candidate disproved;422;reference only",
+      "logSha256": "095ac94df5e2d0dd49cf50e75e6cda75fe2b88f225fa318e1a44ca8db9f82641"
+    },
+    {
+      "command": "node dependency-stage-probe.mjs",
+      "exitCode": 0,
+      "log": "dependency-stage-probe.log",
+      "scope": "in-memory stage reset;local_contract PASS",
+      "logSha256": "84731a1a7377763b3f10f05f35abe538b215d563c2f6b5455e14cea69f12aab8"
+    },
+    {
+      "command": "isolated cargo auth_settings_provider with live last-factor guard removed",
+      "exitCode": 0,
+      "log": "live-last-factor-mutant.log",
+      "scope": "12/12 still pass;defect assurance counterexample",
+      "logSha256": "044256d85396e9e24cbc009842ab8e557030978f3bbc2a382e1287478683d980"
+    }
+  ]
+}

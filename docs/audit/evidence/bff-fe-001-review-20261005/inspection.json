@@ -1,0 +1,295 @@
+{
+  "schema": "quantos-bff-fe-001-comprehensive-review/v1",
+  "reviewDate": "2026-10-05",
+  "timezone": "Asia/Shanghai",
+  "sourceCommit": "de74b112dab8e4ec5141142cdced75f59b58626c",
+  "disposition": "CHANGES_REQUESTED",
+  "recommendedDevelopmentReady": false,
+  "planStageStatusUnchanged": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "scope": "A2 DEVELOPMENT C01/C17 20 operations; excludes RELEASE formal environment and full UI integration",
+  "controls": [
+    {
+      "id": "R01",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R02",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R03",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R04",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R05",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R06",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R07",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R08",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R09",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R10",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R11",
+      "status": "FAIL",
+      "issues": [
+        "H-01"
+      ]
+    },
+    {
+      "id": "R12",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R13",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R14",
+      "status": "FAIL",
+      "issues": [
+        "M-02"
+      ]
+    },
+    {
+      "id": "R15",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R16",
+      "status": "PARTIAL",
+      "issues": [
+        "M-01"
+      ]
+    },
+    {
+      "id": "R17",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R18",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R19",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R20",
+      "status": "PASS",
+      "issues": []
+    },
+    {
+      "id": "R21",
+      "status": "PARTIAL",
+      "issues": [
+        "M-03"
+      ]
+    },
+    {
+      "id": "R22",
+      "status": "FAIL",
+      "issues": [
+        "H-02"
+      ]
+    },
+    {
+      "id": "R23",
+      "status": "PARTIAL",
+      "issues": [
+        "M-04"
+      ]
+    },
+    {
+      "id": "R24",
+      "status": "PASS",
+      "issues": []
+    }
+  ],
+  "controlCounts": {
+    "PASS": 18,
+    "PARTIAL": 3,
+    "FAIL": 3
+  },
+  "controlCompleteRatePercent": 75,
+  "publishedAndLiveExecutedOperations": 20,
+  "operations": [
+    {
+      "operationId": "getSession",
+      "status": "PASS"
+    },
+    {
+      "operationId": "getContext",
+      "status": "PASS"
+    },
+    {
+      "operationId": "reauth",
+      "status": "PARTIAL"
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": "PARTIAL"
+    },
+    {
+      "operationId": "logout",
+      "status": "PASS"
+    },
+    {
+      "operationId": "submitAccessRequest",
+      "status": "PASS"
+    },
+    {
+      "operationId": "getProfile",
+      "status": "PASS"
+    },
+    {
+      "operationId": "saveProfile",
+      "status": "PARTIAL"
+    },
+    {
+      "operationId": "getNotificationPrefs",
+      "status": "PASS"
+    },
+    {
+      "operationId": "saveNotificationPrefs",
+      "status": "PARTIAL"
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": "FAIL"
+    },
+    {
+      "operationId": "listSessions",
+      "status": "PASS"
+    },
+    {
+      "operationId": "revokeSession",
+      "status": "PASS"
+    },
+    {
+      "operationId": "subscribeSessionRevocations",
+      "status": "PASS"
+    },
+    {
+      "operationId": "listDevices",
+      "status": "PASS"
+    },
+    {
+      "operationId": "revokeDevice",
+      "status": "PASS"
+    },
+    {
+      "operationId": "setupMfa",
+      "status": "FAIL"
+    },
+    {
+      "operationId": "revokeMfaFactor",
+      "status": "PASS"
+    },
+    {
+      "operationId": "listDownloads",
+      "status": "PASS"
+    },
+    {
+      "operationId": "getPlatformCapabilities",
+      "status": "PASS"
+    }
+  ],
+  "operationCounts": {
+    "PASS": 14,
+    "PARTIAL": 4,
+    "FAIL": 2
+  },
+  "operationCompleteRatePercent": 70,
+  "issues": [
+    {
+      "id": "H-01",
+      "severity": "HIGH",
+      "module": "live MFA first_factor authorization",
+      "status": "OPEN",
+      "basis": "live observed registration after first factor verified in another session"
+    },
+    {
+      "id": "H-02",
+      "severity": "HIGH",
+      "module": "A2 semantic regression coverage of live provider",
+      "status": "OPEN",
+      "basis": "isolated compiled live last-factor mutant still passes 12 business tests"
+    },
+    {
+      "id": "M-01",
+      "severity": "MEDIUM",
+      "module": "settings/auth audit correlation",
+      "status": "OPEN",
+      "basis": "live observed saveProfile mismatch; other shared source paths reviewed"
+    },
+    {
+      "id": "M-02",
+      "severity": "MEDIUM",
+      "module": "security metadata",
+      "status": "OPEN",
+      "basis": "live observed lastVerifiedAt differs by 63546ms"
+    },
+    {
+      "id": "M-03",
+      "severity": "MEDIUM",
+      "module": "auth/settings transport deadlines and cancellation",
+      "status": "OPEN",
+      "basis": "source-reviewed missing deadline and caller cancellation; no perpetual SQL hang claimed"
+    },
+    {
+      "id": "M-04",
+      "severity": "MEDIUM",
+      "module": "A2 DEVELOPMENT manifest and strict phase runner",
+      "status": "OPEN",
+      "basis": "missing node manifest; local_contract validator is not a phase gate"
+    }
+  ],
+  "severityCounts": {
+    "BLOCKER": 0,
+    "HIGH": 2,
+    "MEDIUM": 4,
+    "LOW": 0
+  },
+  "liveRecords": 50,
+  "liveRunnerPassIsNotFullSafetyPass": true,
+  "liveNegativeHelperRecords": 4,
+  "liveNegativeDirectHttpRequests": 2,
+  "productionSourceUnchanged": true
+}

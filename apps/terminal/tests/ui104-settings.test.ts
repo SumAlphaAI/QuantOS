@@ -169,3 +169,39 @@ it("discards a 409 envelope with malformed version metadata", async () => {
   const error = await saveProfileSettings("https://bff.example", ui104SettingsFixture.profile, "v1", "key", "csrf", fetchImpl).catch((value: unknown) => value);
   expect(error).toMatchObject({ name: "SettingsGatewayError", status: 409, code: undefined, correlationId: undefined, currentVersion: undefined });
 });
+
+describe("A2 settings cancellation and uncertain writes", () => {
+  it("cancels sibling reads immediately when a settings dependency fails", async () => {
+    const signals: AbortSignal[] = [];
+    const fetchImpl = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = new URL((input as Request).url).pathname;
+      if (path === "/v1/session") return Response.json({ actorId: "11111111-1111-4111-8111-111111111111", tenantId: "22222222-2222-4222-8222-222222222222", workspaceId: "33333333-3333-4333-8333-333333333333", accountId: "44444444-4444-4444-8444-444444444444", mode: "paper", environment: "dev", mfaState: "verified", expiresAt: new Date(Date.now()+300000).toISOString(), capabilities: ["settings.read"] });
+      if (init?.signal) signals.push(init.signal);
+      if (path.endsWith("/security")) return Response.json({ code: "UNAUTHORIZED" }, { status: 401 });
+      return new Promise<Response>(() => {});
+    }) as typeof fetch;
+    await expect(loadSettingsBundle("https://bff.example", fetchImpl, { timeoutMs: 100 }))
+      .rejects.toMatchObject({ operation: "getSecuritySettings", status: 401 });
+    expect(signals).toHaveLength(7);
+    expect(signals.every(s => s.aborted)).toBe(true);
+  });
+
+  it("keeps the draft and original version/key when recovering a lost write response", async () => {
+    const draft = { ...ui104SettingsFixture.profile, displayName: "Unsubmitted draft" };
+    const original = structuredClone(draft);
+    const requests: Request[] = [];
+    const fetchImpl = (async (input: RequestInfo | URL) => {
+      requests.push(input as Request);
+      if (requests.length === 1) return new Promise<Response>(() => {});
+      return Response.json({ ...ui104SettingsFixture.profile, displayName: draft.displayName });
+    }) as typeof fetch;
+    await expect(saveProfileSettings("https://bff.example", draft, "v-original", "original-key", "csrf", fetchImpl, { timeoutMs: 10 }))
+      .rejects.toMatchObject({ code: "TIMEOUT", outcomeUnknown: true });
+    expect(requests).toHaveLength(1);
+    expect(draft).toEqual(original);
+    await saveProfileSettings("https://bff.example", draft, "v-original", "original-key", "csrf", fetchImpl);
+    expect(requests.map(r => r.headers.get("idempotency-key"))).toEqual(["original-key", "original-key"]);
+    expect(requests.map(r => r.headers.get("if-match"))).toEqual(["v-original", "v-original"]);
+    expect(await requests[0]!.clone().json()).toEqual(await requests[1]!.clone().json());
+  });
+});

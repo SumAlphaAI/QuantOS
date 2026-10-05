@@ -16,7 +16,7 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-use super::{LiveState, auth_status, require_origin, session_cookie};
+use super::{LiveState, auth_status, require_origin, session_cookie, settings_policy};
 
 #[derive(Clone)]
 pub(super) struct TrustedIdentity(pub BffSessionContext, pub String);
@@ -169,7 +169,7 @@ async fn authorized(
                 .get("x-csrf-token")
                 .and_then(|v| v.to_str().ok())
                 .ok_or_else(|| ApiError::new(StatusCode::FORBIDDEN, "FORBIDDEN"))?;
-            if cookie != token || hash(token) != row.get::<_, String>(0) {
+            if !settings_policy::csrf_valid(&row.get::<_, String>(0), Some(cookie), Some(token)) {
                 return Err(ApiError::new(StatusCode::FORBIDDEN, "FORBIDDEN"));
             }
         }
@@ -179,10 +179,15 @@ async fn authorized(
     .map_err(|_| ApiError::unavailable())??;
     Ok((context, raw_hash))
 }
-fn respond(payload: Value) -> Response {
+fn respond(mut payload: Value) -> Response {
+    let stored_correlation = payload
+        .as_object_mut()
+        .and_then(|p| p.remove("_correlationId"))
+        .and_then(|v| v.as_str().map(str::to_owned));
     let correlation = payload["correlationId"]
         .as_str()
         .map(str::to_owned)
+        .or(stored_correlation)
         .unwrap_or_else(|| Uuid::new_v4().to_string());
     crate::response(StatusCode::OK, payload, &correlation)
 }
@@ -191,21 +196,22 @@ fn recent(
     session: &str,
     headers: &HeaderMap,
     operation: &str,
-) -> Result<(), ApiError> {
+) -> Result<String, ApiError> {
     let reference = headers
         .get("x-reauth-token-ref")
         .and_then(|v| v.to_str().ok())
         .and_then(|v| Uuid::parse_str(v).ok())
         .ok_or_else(|| ApiError::new(StatusCode::FORBIDDEN, "RECENT_AUTH_REQUIRED"))?;
     let grant=tx.query_opt("select scope from quantos.bff_reauth_grants where grant_ref=$1 and session_hash=$2 and expires_at>now()", &[&reference,&session])?;
-    if !grant.is_some_and(|row| {
-        row.get::<_, String>(0) == "security"
-            || matches!(operation, "setupMfa" | "cancelUnverifiedMfa")
-                && row.get::<_, String>(0) == "first_factor"
-    }) {
+    let scope = grant
+        .map(|row| row.get::<_, String>(0))
+        .ok_or_else(|| ApiError::new(StatusCode::FORBIDDEN, "RECENT_AUTH_REQUIRED"))?;
+    if !(scope == "security"
+        || matches!(operation, "setupMfa" | "cancelUnverifiedMfa") && scope == "first_factor")
+    {
         return Err(ApiError::new(StatusCode::FORBIDDEN, "RECENT_AUTH_REQUIRED"));
     }
-    Ok(())
+    Ok(scope)
 }
 fn accepted() -> Value {
     json!({"jobId":Uuid::new_v4(),"status":"accepted","correlationId":Uuid::new_v4(),"auditRef":Uuid::new_v4()})
@@ -259,8 +265,13 @@ fn save_command(
     tx.execute("insert into quantos.bff_security_commands(user_id,operation,idempotency_key,intent,response,completed) values($1,$2,$3,$4,$5,true) on conflict(user_id,operation,idempotency_key) do update set response=excluded.response,completed=true", &[&user,&operation,&key,intent,payload])?;
     Ok(())
 }
-fn emit(tx: &mut Transaction<'_>, user: Uuid, session_id: Uuid) -> Result<(), ApiError> {
-    let event = json!({"streamId":user,"eventId":Uuid::new_v4(),"occurredAt":Utc::now().to_rfc3339(),"correlationId":Uuid::new_v4(),"payloadVersion":"v1","payload":{"type":"session_revoked","objectId":session_id}});
+fn emit(
+    tx: &mut Transaction<'_>,
+    user: Uuid,
+    session_id: Uuid,
+    correlation: &str,
+) -> Result<(), ApiError> {
+    let event = json!({"streamId":user,"eventId":Uuid::new_v4(),"occurredAt":Utc::now().to_rfc3339(),"correlationId":correlation,"payloadVersion":"v1","payload":{"type":"session_revoked","objectId":session_id}});
     tx.execute("insert into quantos.bff_settings_events(user_id,sequence,event) select $1,coalesce(max(sequence),0)+1,$2 from quantos.bff_settings_events where user_id=$1", &[&user,&event])?;
     Ok(())
 }
@@ -346,8 +357,9 @@ async fn save_preferences(
         payload["objectVersion"]=json!(format!("{kind}-v{version}"));
         let query=if kind=="profile" {"update quantos.bff_profiles set profile=$2,updated_at=now() where user_id=$1"} else {"update quantos.bff_profiles set notifications=$2,updated_at=now() where user_id=$1"};
         tx.execute(query,&[&context.user_id,&payload])?;
+        let correlation=Uuid::new_v4();payload["_correlationId"]=json!(correlation);
         save_command(&mut tx,context.user_id,operation,key,&intent,&payload)?;
-        audit(&mut tx,&context,operation,kind,&json!({"correlationId":Uuid::new_v4()}))?;
+        audit(&mut tx,&context,operation,kind,&json!({"correlationId":correlation}))?;
         tx.commit()?;Ok(payload)
     })).await.map_err(|_|ApiError::unavailable())??;
     Ok(respond(value))
@@ -417,9 +429,10 @@ async fn revoke(
         }else{tx.query("select s.session_hash,d.session_id from quantos.bff_sessions s join quantos.bff_session_details d using(session_hash) where d.session_id=$1 and s.user_id=$2 and s.expires_at>now()", &[&target,&context.user_id])?};
         if !device && rows.is_empty(){return Err(ApiError::new(StatusCode::NOT_FOUND,"NOT_FOUND"));}
         if !device && rows.iter().any(|row|row.get::<_,String>(0)==session){return Err(ApiError::new(StatusCode::CONFLICT,"CURRENT_SESSION_PROTECTED"));}
-        for row in rows {let hash:String=row.get(0);tx.execute("delete from quantos.bff_sessions where session_hash=$1", &[&hash])?;emit(&mut tx,context.user_id,row.get(1))?;}
+        let payload=accepted();
+        for row in rows {let hash:String=row.get(0);tx.execute("delete from quantos.bff_sessions where session_hash=$1", &[&hash])?;emit(&mut tx,context.user_id,row.get(1),payload["correlationId"].as_str().unwrap())?;}
         if device {tx.execute("update quantos.bff_devices set trusted=false where device_id=$1 and user_id=$2", &[&target,&context.user_id])?;}
-        let payload=accepted();save_command(&mut tx,context.user_id,operation,key,&intent,&payload)?;audit(&mut tx,&context,operation,&id,&payload)?;tx.commit()?;Ok(payload)
+        save_command(&mut tx,context.user_id,operation,key,&intent,&payload)?;audit(&mut tx,&context,operation,&id,&payload)?;tx.commit()?;Ok(payload)
     })).await.map_err(|_|ApiError::unavailable())??;
     let correlation = payload["correlationId"].as_str().unwrap().to_owned();
     Ok(crate::response(StatusCode::ACCEPTED, payload, &correlation))
@@ -593,7 +606,7 @@ async fn stream(
                               (context.auth.tenant_id.as_uuid(),Type::UUID),(context.auth.workspace_id.as_uuid(),Type::UUID),
                               (&account,Type::UUID),(&context.auth.role.as_str(),Type::TEXT),(&context.auth.mode.as_str(),Type::TEXT),
                               (&capabilities,Type::TEXT_ARRAY),(&after,Type::INT8)])?;
-                        if !row.get::<_,bool>(0) {
+                        if !settings_policy::delivery_authorized(row.get::<_,bool>(0)) {
                             return Ok::<_,ApiError>(Some((after+1,json!({"streamId":user,"eventId":Uuid::new_v4(),"occurredAt":Utc::now().to_rfc3339(),"correlationId":Uuid::new_v4(),"payloadVersion":"v1","payload":{"type":"permission_revoked","objectId":current}}),true)));
                         }
                         Ok(row.get::<_,Option<i64>>(1).map(|sequence| {
@@ -697,10 +710,7 @@ impl SupabaseMfa {
         self.request(token, reqwest::Method::GET, "user", None)
     }
     fn factors(&self, token: &str) -> Result<Vec<Value>, ApiError> {
-        Ok(self.user(token)?["factors"]
-            .as_array()
-            .cloned()
-            .unwrap_or_default())
+        settings_policy::factors_from_user(&self.user(token)?)
     }
     fn challenge(&self, token: &str, factor: Uuid) -> Result<Value, ApiError> {
         self.request(
@@ -747,10 +757,12 @@ async fn security(
 ) -> Result<Response, ApiError> {
     let axum::Extension(TrustedIdentity(context, session)) = identity;
     let value=tokio::task::spawn_blocking(move||{
-        let token=proof(&state,&session)?;let factors=state.mfa.factors(&token)?;
+        let token=proof(&state,&session)?;let user=state.mfa.user(&token)?;let factors=settings_policy::factors_from_user(&user)?;
+        let mfa_at=state.a2.lock().map_err(|_|ApiError::unavailable())?.client.query_one("select max(created_at) from quantos.bff_settings_audits where user_id=$1 and action='mfa.verify'", &[&context.user_id])?.get::<_,Option<DateTime<Utc>>>(0);
+        let last_verified=settings_policy::last_verified_at(&user,mfa_at)?;
         let verified=factors.iter().filter(|f|f["status"]=="verified").collect::<Vec<_>>();
         let payload_factors=verified.iter().filter(|f|matches!(f["factor_type"].as_str(),Some("totp"|"webauthn"))).map(|f|json!({"factorId":f["id"],"method":if f["factor_type"]=="webauthn"{"passkey"}else{"authenticator"},"label":f["friendly_name"].as_str().unwrap_or("MFA"),"createdAt":f["created_at"],"lastUsedAt":f["updated_at"],"currentDevice":false})).collect::<Vec<_>>();
-        let mut payload=json!({"posture":if verified.is_empty(){"attention_required"}else{"strong"},"score":if verified.is_empty(){50}else{90},"mfaEnabled":!verified.is_empty(),"factors":payload_factors,"recoveryCodesRemaining":0,"lastVerifiedAt":context.expires_at-Duration::minutes(5),"correlationId":Uuid::new_v4(),"availableMfaMethods":["authenticator"]});
+        let mut payload=json!({"posture":if verified.is_empty(){"attention_required"}else{"strong"},"score":if verified.is_empty(){50}else{90},"mfaEnabled":!verified.is_empty(),"factors":payload_factors,"recoveryCodesRemaining":0,"lastVerifiedAt":last_verified.to_rfc3339(),"correlationId":Uuid::new_v4(),"availableMfaMethods":["authenticator"]});
         if verified.is_empty(){
             let mut store=state.a2.lock().map_err(|_|ApiError::unavailable())?;
             if let Some(row)=store.client.query_opt("select grant_ref from quantos.bff_reauth_grants where session_hash=$1 and scope='first_factor' and expires_at>now() order by expires_at desc limit 1", &[&session])?{payload["firstFactorSetupRef"]=json!(row.get::<_,Uuid>(0));}
@@ -783,9 +795,9 @@ async fn challenge(
                 let factors=state.mfa.factors(&token)?;
                 let factor=factors.iter().find(|f|f["factor_type"]=="totp" && f["status"]=="verified").or_else(||factors.iter().find(|f|f["factor_type"]=="totp" && f["status"]=="unverified")).ok_or_else(||ApiError::new(StatusCode::FORBIDDEN,"MFA_NOT_ENROLLED"))?;
                 let factor_id=uuid(&factor["id"])?;let upstream=uuid(&state.mfa.challenge(&token,factor_id)?["id"])?;let reference=Uuid::new_v4();
-                store.client.execute("insert into quantos.bff_auth_challenges(challenge_ref,user_id,session_hash,purpose,factor_id,upstream_challenge,expires_at) values($1,$2,$3,$4,$5,$6,now()+interval '5 minutes')", &[&reference,&context.user_id,&session,&input.purpose,&factor_id,&upstream])?;(reference,factor_id,upstream)
+                store.client.execute("insert into quantos.bff_auth_challenges(challenge_ref,user_id,session_hash,purpose,factor_id,upstream_challenge,expires_at) values($1,$2,$3,$4,$5,$6,$7)", &[&reference,&context.user_id,&session,&input.purpose,&factor_id,&upstream,&settings_policy::challenge_expiry(Utc::now())])?;(reference,factor_id,upstream)
             };
-            let mut status="pending";
+            let mut status="pending";let correlation=Uuid::new_v4();
             if let Some(code)=input.code{
                 match state.mfa.verify(&token,factor,upstream,&code){
                     Ok(verified)=>{
@@ -801,7 +813,7 @@ async fn challenge(
                         tx.execute("update quantos.bff_auth_challenges set verified_at=now() where challenge_ref=$1", &[&reference])?;
                         tx.execute("update quantos.bff_sessions set mfa_verified=true where session_hash=$1", &[&session])?;
                         tx.execute("update quantos.bff_devices set trusted=true where device_id=(select device_id from quantos.bff_session_details where session_hash=$1)", &[&session])?;
-                        audit(&mut tx,&context,"mfa.verify",&factor.to_string(),&json!({"correlationId":Uuid::new_v4()}))?;tx.commit()?;status="verified";
+                        audit(&mut tx,&context,"mfa.verify",&factor.to_string(),&json!({"correlationId":correlation}))?;tx.commit()?;status="verified";
                     },
                     Err(error) if matches!(error.status,StatusCode::UNPROCESSABLE_ENTITY|StatusCode::FORBIDDEN)=>{
                         let row=store.client.query_one("update quantos.bff_mfa_windows set failures=failures+1 where user_id=$1 returning failures", &[&context.user_id])?;
@@ -810,7 +822,7 @@ async fn challenge(
                     Err(error)=>return Err(error),
                 }
             }
-            Ok(json!({"challengeRef":reference,"status":status}))
+            Ok(json!({"challengeRef":reference,"status":status,"_correlationId":correlation}))
         })
     }).await.map_err(|_|ApiError::unavailable())??;
     Ok(respond(value))
@@ -832,7 +844,7 @@ async fn reauth(
         let mut tx=store.client.transaction()?;
         let row=tx.query_opt("update quantos.bff_auth_challenges set consumed=true where challenge_ref=$1 and user_id=$2 and session_hash=$3 and purpose in ('login','security_change') and not consumed and expires_at>now() and verified_at>now()-interval '5 minutes' returning least(expires_at,verified_at+interval '5 minutes')", &[&input.challenge_ref,&context.user_id,&session])?.ok_or_else(||ApiError::new(StatusCode::FORBIDDEN,"MFA_NOT_VERIFIED"))?;
         let expiry:DateTime<Utc>=row.get(0);let grant=Uuid::new_v4();tx.execute("insert into quantos.bff_reauth_grants(grant_ref,session_hash,expires_at,scope) values($1,$2,$3,'security')", &[&grant,&session,&expiry])?;
-        audit(&mut tx,&context,"auth.reauth",&input.challenge_ref.to_string(),&json!({"correlationId":Uuid::new_v4()}))?;tx.commit()?;Ok(json!({"reauthTokenRef":grant,"expiresAt":expiry.to_rfc3339()}))
+        let correlation=Uuid::new_v4();audit(&mut tx,&context,"auth.reauth",&input.challenge_ref.to_string(),&json!({"correlationId":correlation}))?;tx.commit()?;Ok(json!({"reauthTokenRef":grant,"expiresAt":expiry.to_rfc3339(),"_correlationId":correlation}))
     })).await.map_err(|_|ApiError::unavailable())??;
     Ok(respond(value))
 }
@@ -868,10 +880,13 @@ async fn mfa_command(
             let factors=state.mfa.factors(&token)?;
             // Persist the narrow authorization policy with the checkpoint: the
             // upstream factor may already be absent when cancellation is retried.
-            let cancel_unverified=!enroll && (pending.as_ref().is_some_and(|p|p["_authOperation"]=="cancelUnverifiedMfa") || factors.iter().any(|f|f["id"]==resource && f["status"]=="unverified"));
-            let auth_operation=if cancel_unverified{"cancelUnverifiedMfa"}else{operation};
+            let current_factor=factors.iter().find(|f|f["id"]==resource);
+            let auth_operation=if enroll{operation}else{settings_policy::cancellation_policy(current_factor,pending.as_ref().is_some_and(|p|p["_authOperation"]=="cancelUnverifiedMfa"))};
+            let enrollment_name=pending.as_ref().map(|p|format!("QuantOS-{}",p["jobId"].as_str().unwrap()));
+            let recovering_existing=enrollment_name.as_ref().is_some_and(|name|factors.iter().any(|f|f["friendly_name"]==*name));
             let mut tx=store.client.transaction()?;
-            recent(&mut tx,&session,&headers,auth_operation)?;
+            let scope=recent(&mut tx,&session,&headers,auth_operation)?;
+            if enroll{settings_policy::authorize_enrollment(&scope,&factors,recovering_existing)?;}
             let mut payload=pending.unwrap_or_else(accepted);
             payload["_authOperation"]=json!(auth_operation);
             tx.execute("insert into quantos.bff_security_commands(user_id,operation,idempotency_key,intent,response) values($1,$2,$3,$4,$5) on conflict(user_id,operation,idempotency_key) do nothing", &[&context.user_id,&operation,&key,&intent,&payload])?;
@@ -889,9 +904,7 @@ async fn mfa_command(
             } else {
                 let factor=Uuid::parse_str(&resource).map_err(|_|ApiError::new(StatusCode::NOT_FOUND,"NOT_FOUND"))?;
                 if let Some(existing)=factors.iter().find(|f|f["id"]==resource){
-                    if existing["status"]=="verified" && factors.iter().filter(|f|f["status"]=="verified").count()<=1{
-                        return Err(ApiError::new(StatusCode::CONFLICT,"LAST_FACTOR_PROTECTED"));
-                    }
+                    settings_policy::protect_last_factor(&factors,existing)?;
                     store.client.execute("update quantos.bff_security_commands set upstream_started=true where user_id=$1 and operation=$2 and idempotency_key=$3", &[&context.user_id,&operation,&key])?;
                     state.mfa.request(&token,reqwest::Method::DELETE,&format!("factors/{factor}"),None)?;
                 } else {

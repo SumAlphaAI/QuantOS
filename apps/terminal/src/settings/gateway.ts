@@ -1,4 +1,4 @@
-import { bffZodSchemas, parseBffResponse, type BffOperationId, createBffClient } from "@sumalpha/api-client";
+import { bffZodSchemas, parseBffResponse, type BffOperationId, type BffRequestOptions, createBffClient } from "@sumalpha/api-client";
 import type { NotificationPreferencesInput, ProfileSettingsInput, SettingsBundle } from "./c17";
 
 export class SettingsGatewayError extends Error {
@@ -24,46 +24,55 @@ function required<T>(result: { data?: T; error?: unknown; response: Response }, 
   return parseBffResponse(operation, result.response.status, result.data) as T;
 }
 
-export async function loadSettingsBundle(origin: string, fetchImpl: typeof fetch = fetch): Promise<SettingsBundle> {
-  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
-  const session = await client.GET("/v1/session");
-  required(session, "getSession");
-  const [profile, notifications, security, sessions, devices, downloads, browserPolicy] = await Promise.all([
-    client.GET("/v1/settings/profile"), client.GET("/v1/settings/notification-preferences"), client.GET("/v1/settings/security"),
-    client.GET("/v1/settings/sessions"), client.GET("/v1/settings/trusted-devices"), client.GET("/v1/settings/downloads"), client.GET("/v1/platform/browser-capabilities"),
-  ]);
-  return {
-    profile: required(profile, "getProfile"), notifications: required(notifications, "getNotificationPrefs"), security: required(security, "getSecuritySettings"),
-    sessions: required(sessions, "listSessions"), devices: required(devices, "listDevices"), downloads: required(downloads, "listDownloads").items, browserPolicy: required(browserPolicy, "getPlatformCapabilities"),
-  };
+export async function loadSettingsBundle(origin: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}): Promise<SettingsBundle> {
+  const group = new AbortController();
+  const cancel = () => group.abort();
+  options.signal?.addEventListener("abort", cancel, { once: true });
+  if (options.signal?.aborted) group.abort();
+  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options, signal: group.signal });
+  try {
+    required(await client.GET("/v1/session"), "getSession");
+    const checked = <T>(promise: Promise<{ data?: T; error?: unknown; response: Response }>, operation: BffOperationId) =>
+      promise.then(result => required(result, operation)).catch(error => { group.abort(); throw error; });
+    const [profile, notifications, security, sessions, devices, downloads, browserPolicy] = await Promise.all([
+      checked(client.GET("/v1/settings/profile"), "getProfile"), checked(client.GET("/v1/settings/notification-preferences"), "getNotificationPrefs"),
+      checked(client.GET("/v1/settings/security"), "getSecuritySettings"), checked(client.GET("/v1/settings/sessions"), "listSessions"),
+      checked(client.GET("/v1/settings/trusted-devices"), "listDevices"), checked(client.GET("/v1/settings/downloads"), "listDownloads"),
+      checked(client.GET("/v1/platform/browser-capabilities"), "getPlatformCapabilities"),
+    ]);
+    return { profile, notifications, security, sessions, devices, downloads: downloads.items, browserPolicy };
+  } finally {
+    group.abort();
+    options.signal?.removeEventListener("abort", cancel);
+  }
 }
 
-export async function saveProfileSettings(origin: string, profile: ProfileSettingsInput, version: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
-  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
+export async function saveProfileSettings(origin: string, profile: ProfileSettingsInput, version: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
+  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options });
   const result = await client.PUT("/v1/settings/profile", { body: profile, params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken } } });
   return required(result, "saveProfile");
 }
 
-export async function saveNotificationSettings(origin: string, preferences: NotificationPreferencesInput, version: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
-  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
+export async function saveNotificationSettings(origin: string, preferences: NotificationPreferencesInput, version: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
+  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options });
   const result = await client.PUT("/v1/settings/notification-preferences", { body: preferences, params: { header: { "If-Match": version, "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken } } });
   return required(result, "saveNotificationPrefs");
 }
 
-export async function revokeSettingsSession(origin: string, sessionId: string, reauthTokenRef: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
-  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
+export async function revokeSettingsSession(origin: string, sessionId: string, reauthTokenRef: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
+  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options });
   const result = await client.DELETE("/v1/settings/sessions/{sessionId}", { params: { path: { sessionId }, header: { "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } } });
   return required(result, "revokeSession");
 }
 
-export async function revokeTrustedDevice(origin: string, deviceId: string, reauthTokenRef: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
-  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
+export async function revokeTrustedDevice(origin: string, deviceId: string, reauthTokenRef: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
+  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options });
   const result = await client.DELETE("/v1/settings/trusted-devices/{deviceId}", { params: { path: { deviceId }, header: { "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } } });
   return required(result, "revokeDevice");
 }
 
-export async function revokeMfaFactor(origin: string, factorId: string, reauthTokenRef: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch) {
-  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl });
+export async function revokeMfaFactor(origin: string, factorId: string, reauthTokenRef: string, idempotencyKey: string, csrfToken: string, fetchImpl: typeof fetch = fetch, options: BffRequestOptions = {}) {
+  const client = createBffClient({ baseUrl: origin, fetch: fetchImpl, ...options });
   const result = await client.DELETE("/v1/settings/mfa/factors/{factorId}", { params: { path: { factorId }, header: { "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } } });
   return required(result, "revokeMfaFactor");
 }

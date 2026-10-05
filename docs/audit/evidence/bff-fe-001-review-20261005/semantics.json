@@ -1,0 +1,52 @@
+{
+  "schema": "quantos-bff-a2-executed-semantics/v1",
+  "scope": "local reference provider and consumer regressions; live target separate",
+  "sourceHashes": {
+    "provider": "c495b85d27764c23f7cd069ea5cc563ffeb0faaafdcc47e1c8b914d6efe6064a",
+    "providerTests": "1bd09cf9f6c6eb515496ecdc62f10e9432340b11b0852127f49ccc3eaf4e4b98",
+    "liveRouter": "a96d979d51cb2547718857b8df1e67d0b857a2f95b795e89a7e4dbd36eab2fd6",
+    "authBoundary": "c71b5f3896893c7cdf4cb93647bde334601eaad51707f55eeb132757a2910cc9",
+    "liveTests": "07752aec0e0a82478f3934768c44c9c896f222ffa0e6ea7a3999f213d76f0c75",
+    "schemaGenerator": "939ee7de267fee7b3bb43b7292c8ce1ccc8a8088f885001433f612539c0f7f63",
+    "migration": "16c99fff333abd48ba206a2edcef86bc61fc6e6feca59934fab93ea7c51afc41",
+    "liveProvider": "afc00ac18797d742c8b5d8b55f80371eac385d4297091e75290aa611eab1e3cc",
+    "inputGuard": "90b86bd0b6917c91c7068764d74d4cfd06f3a149699e186ae09bedec3edc7ec8",
+    "authClient": "b76aa57ab00e839336612c50bc2cc9ff273e896d16f9ec0a33d7b7484ac638b8",
+    "settingsClient": "d8371199b31dd06ed3f9b35588796f1323fdfc536bc8782f9fa02010891419a4",
+    "responseParser": "99fbddbf41de29255934341012e2c5c210da175236ebbac5cdd32ebbc637d044",
+    "responseSchemas": "1f82c2938d8349620525d501e2067c31f4c68d6a826eb7850e71af6e63f52e97",
+    "authTests": "76cd89e5eb133d2077b1b33264167fc451f170f989951b82f7371c5ac83d1646",
+    "settingsTests": "a45b8697d86435461d69a74100a837cb8908e3d7b6c1878f142d13a2915ce9ae"
+  },
+  "results": [
+    {
+      "command": "cargo",
+      "args": [
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider"
+      ],
+      "exitCode": 0,
+      "outputSha256": "959d5cf81b64180e7ba31b2a93682e36d97f0e413c537545cccd5cd2e7e9a6f9"
+    },
+    {
+      "command": "pnpm",
+      "args": [
+        "--filter",
+        "@sumalpha/terminal",
+        "exec",
+        "vitest",
+        "run",
+        "tests/auth-bff.test.ts",
+        "tests/ui104-settings.test.ts"
+      ],
+      "exitCode": 0,
+      "outputSha256": "6512eb9962579f9be354f3b745458f9120b29e73458b435bd9c0d29a0f7cc381"
+    }
+  ],
+  "status": "PASS"
+}

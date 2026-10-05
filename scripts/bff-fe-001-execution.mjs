@@ -12,10 +12,13 @@ export const executionSources = {
   schemaGenerator: "scripts/generate-bff-contracts.mjs",
   migration: "supabase/migrations/20261003090000_bff_a2_identity_settings.sql",
   liveProvider: "services/bff-gateway/src/live/settings.rs",
+  livePolicy: "services/bff-gateway/src/live/settings_policy.rs",
   inputGuard: "services/bff-gateway/src/input_contract.rs",
   authClient: "apps/terminal/src/auth/bff.ts",
   settingsClient: "apps/terminal/src/settings/gateway.ts",
   responseParser: "packages/api-client/src/bff-response.ts",
+  transport: "packages/api-client/src/bff-transport.ts",
+  client: "packages/api-client/src/bff.ts",
   responseSchemas: "packages/api-client/src/bff-gen/quantos-bff.zod.ts",
   authTests: "apps/terminal/tests/auth-bff.test.ts",
   settingsTests: "apps/terminal/tests/ui104-settings.test.ts",
@@ -31,6 +34,7 @@ export function readExecutionProof(root) {
 export function runExecutionProof(root) {
   const sources = executionInputs(root);
   const commands = [
+    ["cargo", ["test", "--locked", "--offline", "-p", "bff-gateway", "--lib"]],
     ["cargo", ["test", "--locked", "--offline", "-p", "bff-gateway", "--test", "auth_settings_provider"]],
     ["pnpm", ["--filter", "@sumalpha/terminal", "exec", "vitest", "run", "tests/auth-bff.test.ts", "tests/ui104-settings.test.ts"]],
   ];

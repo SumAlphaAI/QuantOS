@@ -8,6 +8,7 @@ export * from "./execution.js";
 export * from "./ops.js";
 export * from "./sse.js";
 export * from "./bff.js";
+export * from "./bff-transport.js";
 export * from "./bff-response.js";
 export * from "./bff-domain.js";
 export * from "./proto-validation.js";

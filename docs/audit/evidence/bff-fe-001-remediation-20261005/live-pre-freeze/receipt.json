@@ -1,0 +1,299 @@
+{
+  "schema": "quantos-bff-a2-live-regression/v1",
+  "sourceCommit": "de74b112dab8e4ec5141142cdced75f59b58626c",
+  "sourceTreeClean": false,
+  "status": "PASS",
+  "sourceHashes": {
+    "services/bff-gateway/src/live/settings.rs": "1e38a2837f96f1818d66a436f30e016de5db0e677081da993eb926f4f17fe9ee",
+    "services/bff-gateway/src/live/settings_policy.rs": "c54213b2afffa04d2881722187114ccbdb1e3dc21fb0b35bfd94e1add2ae12ad",
+    "services/bff-gateway/src/live.rs": "6371fb0d515b2fa2d62c5d156b99b19339ea5830b25259d6a11bb69dcfdce95c",
+    "crates/quantos-auth/src/lib.rs": "c71b5f3896893c7cdf4cb93647bde334601eaad51707f55eeb132757a2910cc9",
+    "supabase/migrations/20261003090000_bff_a2_identity_settings.sql": "16c99fff333abd48ba206a2edcef86bc61fc6e6feca59934fab93ea7c51afc41",
+    "bff/openapi/quantos-bff.v1.yaml": "e783bcd0fc250ca8d458d4c4a0e48b9b000ba71dd72bd66e3b92f1020f87b0a8",
+    "scripts/test-bff-fe-001-live.mjs": "5829a1e3b81eaa59357d4bfb63d826a5d57021cf0af5949ca84f4fb30086d0d5"
+  },
+  "assertions": [
+    "audit-response-saveProfile",
+    "profile-replay-stable-correlation",
+    "audit-response-saveNotificationPrefs",
+    "primary-auth-timestamp",
+    "audit-response-mfa.verify",
+    "mfa-auth-timestamp",
+    "stale-first-factor-new-enrollment-denied",
+    "verified-enrollment-completed-replay",
+    "pending-existing-factor-recovery",
+    "pending-absent-factor-denied",
+    "verified-factor-overrides-cancel-checkpoint",
+    "audit-response-auth.reauth",
+    "revocation-event-correlation",
+    "audit-response-revokeSession"
+  ],
+  "correlations": [
+    "232ed1ec-1a7f-45a1-9c43-f23aa7f9b3e5",
+    "f6d29839-c81c-4bfe-ad5c-8d05c83e3e6b",
+    "7bd8c61f-89ec-4526-a86b-1a6e17a17ffb",
+    "7c0dc081-96b3-413b-82ad-138210eaf901",
+    "46aaa4ee-6805-4168-8bfb-38910d795d51"
+  ],
+  "cleanupVerified": true,
+  "scope": "configured existing Supabase Auth/PostgreSQL; local live BFF, synthetic HTTPS Origin; not staging",
+  "records": [
+    {
+      "operationId": "getSession",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getContext",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "getNotificationPrefs",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveNotificationPrefs",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getNotificationPrefs",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "saveProfile",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "getProfile",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "revokeMfaFactor",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "revokeMfaFactor",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "revokeSession",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "revokeMfaFactor",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "listSessions",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "listSessions",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "subscribeSessionRevocations",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "subscribeSessionRevocations",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "revokeSession",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "revokeSession",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "getSession",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "revokeMfaFactor",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "revokeMfaFactor",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "revokeMfaFactor",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "listDevices",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "listDownloads",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getPlatformCapabilities",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "submitAccessRequest",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "logout",
+      "status": 403,
+      "label": "missing-CSRF-denied"
+    },
+    {
+      "operationId": "revokeDevice",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "getSession",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "logout",
+      "status": 204,
+      "issues": []
+    }
+  ],
+  "failure": null,
+  "cleanup": "restore own original profile/preferences and factor set; revoke own temporary sessions; retain append-only test audits"
+}

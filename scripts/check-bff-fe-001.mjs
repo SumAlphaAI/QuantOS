@@ -116,7 +116,7 @@ export function validateBffFe001(inputs, { structureOnly = false } = {}) {
   }
 
   if (!structureOnly) {
-    fail(inputs.executionProof?.status === "PASS" && inputs.executionProof?.results?.length === 2 && inputs.executionProof.results.every(r => r.exitCode === 0), "provider and consumer semantic regressions executed successfully");
+    fail(inputs.executionProof?.status === "PASS" && inputs.executionProof?.results?.length === 3 && inputs.executionProof.results.every(r => r.exitCode === 0), "provider and consumer semantic regressions executed successfully");
     for (const name of Object.keys(executionSources)) fail(inputs.executionProof?.sourceHashes?.[name] === digest(inputs[name]), `execution proof matches current ${name}`);
   }
 

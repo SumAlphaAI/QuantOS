@@ -82,3 +82,44 @@ describe("A2 auth runtime response boundary", () => {
     expect(error).toMatchObject({ status: 429, retryAfter: undefined, correlationId: undefined });
   });
 });
+
+describe("A2 cancellable transport", () => {
+  it("bounds stalled headers without retrying an uncertain write", async () => {
+    let calls = 0;
+    let signal: AbortSignal | undefined;
+    const fetchImpl = (async (_: unknown, init?: RequestInit) => {
+      calls++; signal = init?.signal ?? undefined;
+      return new Promise<Response>(() => {});
+    }) as typeof fetch;
+    await expect(completeLoginMfa("https://bff.example", "123456", "csrf", fetchImpl, { timeoutMs: 10 }))
+      .rejects.toMatchObject({ code: "TIMEOUT", outcomeUnknown: true });
+    expect(calls).toBe(1);
+    expect(signal?.aborted).toBe(true);
+  });
+
+  it("bounds a response whose JSON body stalls", async () => {
+    const fetchImpl = (async () => new Response(new ReadableStream({ start() {} }))) as typeof fetch;
+    await expect(completeRecentAuth("https://bff.example", "challenge", "csrf", fetchImpl, { timeoutMs: 10 }))
+      .rejects.toMatchObject({ code: "TIMEOUT", outcomeUnknown: true });
+  });
+
+  it("does not send a request cancelled before dispatch", async () => {
+    const controller = new AbortController(); controller.abort();
+    let calls = 0;
+    const fetchImpl = (async () => { calls++; return Response.json({}); }) as typeof fetch;
+    await expect(completeLoginMfa("https://bff.example", "123456", "csrf", fetchImpl, { signal: controller.signal }))
+      .rejects.toMatchObject({ code: "CANCELLED" });
+    expect(calls).toBe(0);
+  });
+
+  it("propagates caller cancellation and sanitizes network failures", async () => {
+    const controller = new AbortController();
+    const fetchImpl = (async () => { controller.abort(); return new Promise<Response>(() => {}); }) as typeof fetch;
+    await expect(completeLoginMfa("https://bff.example", "123456", "csrf", fetchImpl, { signal: controller.signal }))
+      .rejects.toMatchObject({ code: "CANCELLED" });
+    const failing = (async () => { throw Error("secret upstream host"); }) as typeof fetch;
+    const error = await completeLoginMfa("https://bff.example", "123456", "csrf", failing).catch((e: unknown) => e);
+    expect(error).toMatchObject({ code: "NETWORK", outcomeUnknown: true });
+    expect(String(error)).not.toContain("secret");
+  });
+});

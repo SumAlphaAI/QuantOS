@@ -1,0 +1,138 @@
+
+> @sumalpha/quantos@ coverage:critical /Users/anray/Documents/project/SumAlpha/QuantOS
+> vitest run --config vitest.critical.config.ts --coverage
+
+
+ RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS
+      Coverage enabled with v8
+
+ ❯ packages/api-client/tests/sse-poc.test.ts (7 tests | 4 failed) 20020ms
+       × 断流后按 afterSequence 回补：无丢失、无重复副作用 5007ms
+       × 序号空洞触发 gap 重连回补 5003ms
+       × 权限撤销（permission_revoked 事件）终态关闭且不再重连 5003ms
+       × HTTP 403 视为权限撤销终态 5002ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/api-client/tests/sse-poc.test.ts > SSE 断线续传 PoC（G0 #5） > consumeSse（真实 HTTP SSE） > 断流后按 afterSequence 回补：无丢失、无重复副作用
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ packages/api-client/tests/sse-poc.test.ts:99:5
+     97|
+     98|   describe("consumeSse（真实 HTTP SSE）", () => {
+     99|     it("断流后按 afterSequence 回补：无丢失、无重复副作用", async () => {
+       |     ^
+    100|       seq = 0;
+    101|       const e1 = env({ type: "a" });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  packages/api-client/tests/sse-poc.test.ts > SSE 断线续传 PoC（G0 #5） > consumeSse（真实 HTTP SSE） > 序号空洞触发 gap 重连回补
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ packages/api-client/tests/sse-poc.test.ts:124:5
+    122|     });
+    123|
+    124|     it("序号空洞触发 gap 重连回补", async () => {
+       |     ^
+    125|       seq = 0;
+    126|       const e1 = env({ type: "a" });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  packages/api-client/tests/sse-poc.test.ts > SSE 断线续传 PoC（G0 #5） > consumeSse（真实 HTTP SSE） > 权限撤销（permission_revoked 事件）终态关闭且不再重连
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ packages/api-client/tests/sse-poc.test.ts:148:5
+    146|     });
+    147|
+    148|     it("权限撤销（permission_revoked 事件）终态关闭且不再重连", async () => {
+       |     ^
+    149|       seq = 0;
+    150|       const e1 = env({ type: "a" });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  packages/api-client/tests/sse-poc.test.ts > SSE 断线续传 PoC（G0 #5） > consumeSse（真实 HTTP SSE） > HTTP 403 视为权限撤销终态
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ packages/api-client/tests/sse-poc.test.ts:165:5
+    163|     });
+    164|
+    165|     it("HTTP 403 视为权限撤销终态", async () => {
+       |     ^
+    166|       const server = makeServer(() => []);
+    167|       await server.start();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 4 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: listen EPERM: operation not permitted 127.0.0.1
+ ❯ Server.setupListenHandle [as _listen2] node:net:1918:21
+ ❯ listenInCluster node:net:1997:12
+ ❯ node:net:2206:7
+ ❯ processTicksAndRejections node:internal/process/task_queues:89:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }
+This error originated in "packages/api-client/tests/sse-poc.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "断流后按 afterSequence 回补：无丢失、无重复副作用". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: listen EPERM: operation not permitted 127.0.0.1
+ ❯ Server.setupListenHandle [as _listen2] node:net:1918:21
+ ❯ listenInCluster node:net:1997:12
+ ❯ node:net:2206:7
+ ❯ processTicksAndRejections node:internal/process/task_queues:89:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }
+This error originated in "packages/api-client/tests/sse-poc.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "序号空洞触发 gap 重连回补". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: listen EPERM: operation not permitted 127.0.0.1
+ ❯ Server.setupListenHandle [as _listen2] node:net:1918:21
+ ❯ listenInCluster node:net:1997:12
+ ❯ node:net:2206:7
+ ❯ processTicksAndRejections node:internal/process/task_queues:89:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }
+This error originated in "packages/api-client/tests/sse-poc.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "权限撤销（permission_revoked 事件）终态关闭且不再重连". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+Error: listen EPERM: operation not permitted 127.0.0.1
+ ❯ Server.setupListenHandle [as _listen2] node:net:1918:21
+ ❯ listenInCluster node:net:1997:12
+ ❯ node:net:2206:7
+ ❯ processTicksAndRejections node:internal/process/task_queues:89:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'EPERM', errno: -1, syscall: 'listen', address: '127.0.0.1' }
+This error originated in "packages/api-client/tests/sse-poc.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "HTTP 403 视为权限撤销终态". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed | 23 passed (24)
+      Tests  4 failed | 174 passed (178)
+     Errors  4 errors
+   Start at  20:27:27
+   Duration  20.35s (transform 1.15s, setup 0ms, import 3.30s, tests 20.33s, environment 402ms)
+
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,4 +1,4 @@
-import { bffZodSchemas, parseBffResponse, type BffOperationId, type BffComponents, type BffOperations } from "@sumalpha/api-client";
+import { createBffFetch, type BffRequestOptions, bffZodSchemas, parseBffResponse, type BffOperationId, type BffComponents, type BffOperations } from "@sumalpha/api-client";
 
 type ErrorEnvelope = BffComponents["schemas"]["ErrorEnvelope"];
 type MfaRequest = BffOperations["mfaChallenge"]["requestBody"]["content"]["application/json"];
@@ -48,10 +48,11 @@ async function postJson<TResponse>(
   acceptedStatus: number,
   csrfToken: string | undefined,
   fetchImpl: typeof fetch,
+  options: BffRequestOptions,
 ): Promise<TResponse> {
   const headers: Record<string, string> = { accept: "application/json", "content-type": "application/json" };
   if (csrfToken) headers["x-csrf-token"] = csrfToken;
-  const response = await fetchImpl(`${origin}${path}`, {
+  const response = await createBffFetch(fetchImpl, options)(`${origin}${path}`, {
     method: "POST",
     credentials: "include",
     headers,
@@ -66,9 +67,10 @@ export function completeLoginMfa(
   code: string,
   csrfToken: string,
   fetchImpl: typeof fetch = fetch,
+  options: BffRequestOptions = {},
 ): Promise<MfaResponse> {
   const body: MfaRequest = { purpose: "login", code };
-  return postJson<MfaResponse>("mfaChallenge", origin, "/v1/auth/mfa/challenges", body, 200, csrfToken, fetchImpl);
+  return postJson<MfaResponse>("mfaChallenge", origin, "/v1/auth/mfa/challenges", body, 200, csrfToken, fetchImpl, options);
 }
 
 export function completeRecentAuth(
@@ -76,15 +78,17 @@ export function completeRecentAuth(
   challengeRef: string,
   csrfToken: string,
   fetchImpl: typeof fetch = fetch,
+  options: BffRequestOptions = {},
 ): Promise<ReauthResponse> {
   const body: ReauthRequest = { challengeRef };
-  return postJson<ReauthResponse>("reauth", origin, "/v1/auth/reauth", body, 200, csrfToken, fetchImpl);
+  return postJson<ReauthResponse>("reauth", origin, "/v1/auth/reauth", body, 200, csrfToken, fetchImpl, options);
 }
 
 export function submitAccessRequest(
   origin: string,
   input: AccessRequest,
   fetchImpl: typeof fetch = fetch,
+  options: BffRequestOptions = {},
 ): Promise<AccessAccepted> {
-  return postJson<AccessAccepted>("submitAccessRequest", origin, "/v1/access-requests", input, 202, undefined, fetchImpl);
+  return postJson<AccessAccepted>("submitAccessRequest", origin, "/v1/access-requests", input, 202, undefined, fetchImpl, options);
 }
