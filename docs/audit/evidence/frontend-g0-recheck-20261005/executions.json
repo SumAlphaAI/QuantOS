@@ -1,0 +1,77 @@
+{
+  "schema": "quantos-g0-recheck-executions/v1",
+  "sourceCommit": "9f2658d7ab6fdcdbced6e3b0cc7507bc1bfbf19d",
+  "results": [
+    {
+      "id": "g0-ready",
+      "command": [
+        "node",
+        "scripts/g0-development.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-05T05:31:31.336Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/frontend-g0-recheck-20261005/logs/g0-ready.log",
+      "logSha256": "sha256:f7db44a9befc69ee87c5fdabf73529872f28eb35308872d48d81c7c7ec6f0d25"
+    },
+    {
+      "id": "provider-a1",
+      "command": [
+        "node",
+        "scripts/provider-a1-receipts.mjs"
+      ],
+      "executedAt": "2026-10-05T05:31:32.948Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/frontend-g0-recheck-20261005/logs/provider-a1.log",
+      "logSha256": "sha256:b5597308fcee8b561bc72ac7e0444a46b0ca356cc25249be8e5d40259eb576a1"
+    },
+    {
+      "id": "pre01",
+      "command": [
+        "node",
+        "scripts/check-pre01.mjs"
+      ],
+      "executedAt": "2026-10-05T05:31:33.506Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/frontend-g0-recheck-20261005/logs/pre01.log",
+      "logSha256": "sha256:e0a171eeeb07232db1993ab4de85723514a09aa409a3228949370f5f874e6e77"
+    },
+    {
+      "id": "governance",
+      "command": [
+        "node",
+        "scripts/check-g0-records.mjs"
+      ],
+      "executedAt": "2026-10-05T05:31:33.588Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/frontend-g0-recheck-20261005/logs/governance.log",
+      "logSha256": "sha256:95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c"
+    },
+    {
+      "id": "targeted-regression",
+      "command": [
+        "node",
+        "--test",
+        "scripts/g0-development.test.mjs",
+        "scripts/user-acceptance-confirmation.test.mjs",
+        "scripts/frontend-import-boundary.test.mjs",
+        "scripts/tests/check-pre01.test.mjs"
+      ],
+      "executedAt": "2026-10-05T05:31:33.610Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/frontend-g0-recheck-20261005/logs/targeted-regression.log",
+      "logSha256": "sha256:bc4ac45c1bc8239f402e1077957bb72c0011a391f9d5cde364e6893f5560d6e9"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "executedAt": "2026-10-05T05:31:36.552Z",
+      "exitCode": 0,
+      "log": "docs/audit/evidence/frontend-g0-recheck-20261005/logs/plans.log",
+      "logSha256": "sha256:069d96f2972b452d0db290680e66243a7899dc1a14f8801a960b62f71a62bbe0"
+    }
+  ]
+}

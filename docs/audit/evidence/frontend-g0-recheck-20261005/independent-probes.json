@@ -1,0 +1,100 @@
+{
+  "schema": "quantos-g0-closure-probes/v1",
+  "sourceCommit": "9f2658d7ab6fdcdbced6e3b0cc7507bc1bfbf19d",
+  "executedAt": "2026-10-05T05:32:26.578Z",
+  "scope": "In-memory mutations and ESLint lintText only; no source or database mutation",
+  "passed": 11,
+  "total": 11,
+  "results": [
+    {
+      "id": "B-01-required-execution-removed",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "reason": "G0 required functional execution missing or extra\n+ actual - expected\n... Skipped lines\n\n  [\n    'auth-client-contract',\n    'baseline',\n    'boundary-negative',\n    'frontend-lint',\n...\n    'proto',\n-   'records',\n    'sse',\n    'web-build',\n    'web-oidc-poc'\n  ]\n"
+    },
+    {
+      "id": "B-01-log-bytes-replaced",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "reason": "G0 log content changed\n+ actual - expected\n\n+ 'sha256:6c1aa50442a93e42c0eb2907cf4e017cd19547891fa190f3ea473582b0479290'\n- 'sha256:95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c'\n"
+    },
+    {
+      "id": "B-01-unready-dependency",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "reason": "G0 dependency not READY\n\n'BLOCKED' !== 'READY'\n"
+    },
+    {
+      "id": "M-01-old-scope-confirmation",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "reason": "scope confirmation input digest changed\n+ actual - expected\n\n+ 'sha256:ecb8e2f8fd3fc41e76410a3371c63e75e97cbf8c9f7180177e9a35ee7e3fb2c9'\n- 'sha256:f28fdac5a2d97e34b1e4a0cc3150bc765e283cf53f744d88894ac16d09da95cb'\n"
+    },
+    {
+      "id": "M-01-user-record-bytes-changed",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "reason": "user confirmation record changed\n+ actual - expected\n\n+ 'sha256:6c1aa50442a93e42c0eb2907cf4e017cd19547891fa190f3ea473582b0479290'\n- 'sha256:6465437361733df5c9e5e61ef2c0f563ed5d7973587df1fe258c03ef7a7750e2'\n"
+    },
+    {
+      "id": "M-02-empty-current-strategy",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "reason": "current compatibility strategy/closure missing"
+    },
+    {
+      "id": "M-02-unknown-checkpoint-deadline",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "reason": "current disposition scope/stage/deadline changed\n+ actual - expected\n\n  [\n    {\n      deadline: {\n+       before: 'NONEXISTENT',\n-       before: 'FE:BFF-FE-004',\n        stage: 'DEVELOPMENT',\n        type: 'CHECKPOINT'\n      },\n      id: 'G0-L01-1',\n      parentId: 'G0-L01',\n"
+    },
+    {
+      "id": "M-03-nonexistent-api-version",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "reason": "API register version differs from current OpenAPI\n\n'99.99.0' !== '1.5.0'\n"
+    },
+    {
+      "id": "M-04-production-legacy-construction",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "messages": [
+        {
+          "ruleId": "quantos-boundary/public-bff",
+          "severity": 2,
+          "message": "Production frontend must use public generated BFF contracts; legacy adapters, private modules, test fixtures and unrestricted module loading are forbidden.",
+          "line": 1,
+          "column": 1,
+          "nodeType": "ImportDeclaration",
+          "messageId": "boundary",
+          "endLine": 1,
+          "endColumn": 64
+        }
+      ]
+    },
+    {
+      "id": "M-04-shared-reexport-bypass",
+      "expected": "REJECTED",
+      "observed": "REJECTED",
+      "messages": [
+        {
+          "ruleId": "quantos-boundary/public-bff",
+          "severity": 2,
+          "message": "Production frontend must use public generated BFF contracts; legacy adapters, private modules, test fixtures and unrestricted module loading are forbidden.",
+          "line": 1,
+          "column": 1,
+          "nodeType": "ExportNamedDeclaration",
+          "messageId": "boundary",
+          "endLine": 1,
+          "endColumn": 71
+        }
+      ]
+    },
+    {
+      "id": "M-04-generated-public-client",
+      "expected": "ACCEPTED",
+      "observed": "ACCEPTED",
+      "messages": []
+    }
+  ]
+}

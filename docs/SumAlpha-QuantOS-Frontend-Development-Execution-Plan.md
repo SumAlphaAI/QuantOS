@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.24
+> 版本：3.25
 > 更新时间：2026-10-05
 > 状态：G0 DEVELOPMENT READY；当前用户确认与 65 项上游/16 项 G0 复验闭环；PROVIDER:ALL 与正式发布独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.25`：再次复核 G0 原 1 阻塞、4 中危全部关闭；137 项专项回归、11 项独立反证及当前功能回执核验通过，24/24 控制点满足。主报告整理为[当前结论](./audit/FRONTEND-GATE-G0-comprehensive-review-2026-10-05.md)，历史发现与关闭依据独立归档；G0 保持 DEVELOPMENT READY，既有 65/16 项工程证据内容有效，本轮未重跑 Supabase。
 
 - `3.24`：项目用户明确确认当前 G0 DEVELOPMENT 文稿，原答复与不可变文稿/范围摘要绑定保存。确认提交 `92dddbd` 上重新执行 65/65 上游及 16/16 G0 检查，14 个上游节点及 G0 READY，24/24 控制点满足；原 5 项 G0 问题关闭。见[用户确认验收报告](./audit/FRONTEND-GATE-G0-user-confirmed-acceptance-2026-10-05.md)。继续 A2/API；新页面仍须 PROVIDER:ALL，历史正式字段/RELEASE 不自动通过。
 
@@ -24,7 +26,7 @@
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.24、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.25、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -405,7 +407,7 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
 <a id="acceptance-frontend-gate-g0"></a>
 ##### FRONTEND-GATE:G0：验收检查点
 
-当前 DEVELOPMENT 验收（2026-10-05）：用户已确认当前文稿；65/65 上游、16/16 G0 实际执行通过，24/24 控制点满足，阶段 READY。见[当前验收报告](./audit/FRONTEND-GATE-G0-user-confirmed-acceptance-2026-10-05.md)。本记录不放行 PROVIDER:ALL 或 RELEASE；下方正式字段保留原事实。
+当前 DEVELOPMENT 再复核（2026-10-05）：原 1 阻塞、4 中危全部 CLOSED，活动问题 0；137 项专项回归、11 项独立反证通过，当前用户确认和 14 上游/G0 回执内容有效，24/24 控制点满足，阶段 READY。见[当前复审结论](./audit/FRONTEND-GATE-G0-comprehensive-review-2026-10-05.md)、[关闭依据](./audit/FRONTEND-GATE-G0-closed-findings-2026-10-05.md)及[既有完整验收](./audit/FRONTEND-GATE-G0-user-confirmed-acceptance-2026-10-05.md)。本轮未重跑 65 项上游、16 项 G0 或 Supabase；PROVIDER:ALL 与 RELEASE 独立验收，下方正式字段保留原事实。
 
 工程复验入口为 `pnpm check:g0-engineering`，严格阶段准入为 `pnpm check:g0-development`；范围请求由 `pnpm scope:g0-development` 生成，项目用户当前确认记录写入 [G0-current-scope-confirmations.json](./gate-records/G0-current-scope-confirmations.json)。遗留子项见 [当前处置台账](./gate-records/G0-current-disposition.md)。工程 PASS 与用户范围确认分开记录，缺确认不能 READY。
 
