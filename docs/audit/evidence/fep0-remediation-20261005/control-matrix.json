@@ -1,0 +1,677 @@
+{
+  "schema": "quantos-fep0-remediation-controls/v1",
+  "scope": "A1 DEVELOPMENT preparation/contract milestone",
+  "equalWeight": true,
+  "counts": {
+    "PASS": 18,
+    "PENDING": 2,
+    "FAIL": 0
+  },
+  "completion": {
+    "passed": 18,
+    "total": 20,
+    "percent": 90
+  },
+  "controls": [
+    {
+      "id": "C01",
+      "control": "A1/DEVELOPMENT、一期 Web 与后续阶段边界",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：plans, plans-negative",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "plans",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/plans.log",
+          "logSha256": "sha256:f4fb87cd13b94a10ba01025852e569c1d541741d604488dcc94076f4d974ec03"
+        },
+        {
+          "id": "plans-negative",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/plans-negative.log",
+          "logSha256": "sha256:346a386359141931a3041d7e199985994a52cf1ac3889e3c54a7e019961eb14c"
+        }
+      ]
+    },
+    {
+      "id": "C02",
+      "control": "全部前置当前阶段准入",
+      "status": "PENDING",
+      "evidence": "F0 与六个 PRE 均 READY；G0 BLOCKED",
+      "finding": "当前 G0 用户确认",
+      "dependencySnapshot": "docs/audit/evidence/fep0-remediation-20261005/dependency-snapshot.json"
+    },
+    {
+      "id": "C03",
+      "control": "固定工具链、锁文件及运行时ADR",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：f01, pre03",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "f01",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/f01.log",
+          "logSha256": "sha256:f57bcb04ee2c912c26ec5768ffb698bd8088a663ed28bab21b5476205d28d9e0"
+        },
+        {
+          "id": "pre03",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre03.log",
+          "logSha256": "sha256:43242be9e2144a688fc6bcbb7fbb23c05af033921615f9dd3f35f9755a7f873b"
+        }
+      ]
+    },
+    {
+      "id": "C04",
+      "control": "官网与Terminal构建、目标路由PoC",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：build-website, build-terminal, pre03, chromium",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "build-website",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/build-website.log",
+          "logSha256": "sha256:84d292174a3a0e7fec2a087126692ad633e77e645b49f66cb092156b95d03f4c"
+        },
+        {
+          "id": "build-terminal",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/build-terminal.log",
+          "logSha256": "sha256:9c45d58846b16c8a349facab1b95ad244c00c34ad24fef9e5551226bcb6d36ec"
+        },
+        {
+          "id": "pre03",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre03.log",
+          "logSha256": "sha256:43242be9e2144a688fc6bcbb7fbb23c05af033921615f9dd3f35f9755a7f873b"
+        },
+        {
+          "id": "chromium",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/chromium.log",
+          "logSha256": "sha256:6408e786e37e94a463150d9aafee172c056a4db34dbbab80456d4fe1bc98c6a1"
+        }
+      ]
+    },
+    {
+      "id": "C05",
+      "control": "前端开发规范、lint与typecheck",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：f01-lint, client-typecheck, client-lint",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "f01-lint",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/f01-lint.log",
+          "logSha256": "sha256:51e327d6f2dcfbe4f9e46705f158b36f028d1780fb6cb72681b14071c2571500"
+        },
+        {
+          "id": "client-typecheck",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/client-typecheck.log",
+          "logSha256": "sha256:f4af4995fef11f352442ba581d85cd8e40d96deee08590b95d84607ec128d41e"
+        },
+        {
+          "id": "client-lint",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/client-lint.log",
+          "logSha256": "sha256:5330c0f482f4d0120fb33de02f59aa365fca03567ad9f3c4791cf85972aec1d1"
+        }
+      ]
+    },
+    {
+      "id": "C06",
+      "control": "设计token、状态、密度、断点及组件清单",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：pre02, pre02-negative",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "pre02",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre02.log",
+          "logSha256": "sha256:2028b911d95b971cc47090b60b7d794e5cce4597d9a89e055491b4303c5eb62e"
+        },
+        {
+          "id": "pre02-negative",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre02-negative.log",
+          "logSha256": "sha256:abad9e7e12fa0dcc3c42fa49b08555aed71776df78a9ddaae6e4eaa3f04cc8a4"
+        }
+      ]
+    },
+    {
+      "id": "C07",
+      "control": "Storybook、WCAG基础与双语安全文案",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：storybook, ui-tests",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "storybook",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/storybook.log",
+          "logSha256": "sha256:957a8d82480c4b8466ff2e8ec44a8cad5954d6a032d211d93f21d091b2038dc2"
+        },
+        {
+          "id": "ui-tests",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/ui-tests.log",
+          "logSha256": "sha256:282ef2f9093c7b7016141f13448ace7475a8b233f71f7cb0fa6151a6cf2c54e4"
+        }
+      ]
+    },
+    {
+      "id": "C08",
+      "control": "页面、Story、权限矩阵及七态场景",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：pre01, pre01-negative",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "pre01",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre01.log",
+          "logSha256": "sha256:11a8ae6898ef48994a050a62b884cd188c8f4f220f8d7e26e6b9fe6041cef688"
+        },
+        {
+          "id": "pre01-negative",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre01-negative.log",
+          "logSha256": "sha256:9aeef20b74babe3994ad52966122192c907ec0a9b0c60ecd32b48501e90a100a"
+        }
+      ]
+    },
+    {
+      "id": "C09",
+      "control": "页面→任务→契约→后端→测试→Gate追踪",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：pre01, catalog",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "pre01",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre01.log",
+          "logSha256": "sha256:11a8ae6898ef48994a050a62b884cd188c8f4f220f8d7e26e6b9fe6041cef688"
+        },
+        {
+          "id": "catalog",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/catalog.log",
+          "logSha256": "sha256:84a06a650ce8da85740db6da92c6a4f32012cc089f9ec64200aafa154d1329fe"
+        }
+      ]
+    },
+    {
+      "id": "C10",
+      "control": "字段字典、接口盘点与published/planned缺口",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：pre04, pre04-negative",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "pre04",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre04.log",
+          "logSha256": "sha256:98ed06ee74c7465b1c93961b0957b6a4d6a6ea03b6f26a289bd6ec915c14a049"
+        },
+        {
+          "id": "pre04-negative",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre04-negative.log",
+          "logSha256": "sha256:085b795d72cef02f12d21bf2e990d129d3dd7b9f8e30d772d8e8cc7cfcb0877a"
+        }
+      ]
+    },
+    {
+      "id": "C11",
+      "control": "OpenAPI最低冻结面与同源client/mock",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：openapi, schema, generated, catalog, a1",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "openapi",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/openapi.log",
+          "logSha256": "sha256:25373fe45b8d467d9b40d70a65d2045b8afaf038f4f9e0ba16ea1841254fae30"
+        },
+        {
+          "id": "schema",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/schema.log",
+          "logSha256": "sha256:fc8bed2fa980e7daa57880fef9aab23d171aa397a2908c3a98d8b94878b0bf0a"
+        },
+        {
+          "id": "generated",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/generated.log",
+          "logSha256": "sha256:7fd3f79ae30853e492a30ec133fac2f84e264f0d58aea03b641cac2ea39e7907"
+        },
+        {
+          "id": "catalog",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/catalog.log",
+          "logSha256": "sha256:84a06a650ce8da85740db6da92c6a4f32012cc089f9ec64200aafa154d1329fe"
+        },
+        {
+          "id": "a1",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/a1.log",
+          "logSha256": "sha256:777ce3edeeb9f09b5f16ff46aedccd72ce3dc0c4b2df13a9602436d4cc4f9013"
+        }
+      ]
+    },
+    {
+      "id": "C12",
+      "control": "会话、错误、安全输入和实时恢复",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：f06-target, api-client-tests, chromium",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "f06-target",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/f06-target.log",
+          "logSha256": "sha256:df79156caffa09775d6c8549cc41f9c5b8c5dadddb4b01cdbb7ed00a4934faef"
+        },
+        {
+          "id": "api-client-tests",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/api-client-tests.log",
+          "logSha256": "sha256:a2cb0bffb486ccc1f3a8f05ae23c7d807122635ea42b2f9ce9b00437fd4d46b6"
+        },
+        {
+          "id": "chromium",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/chromium.log",
+          "logSha256": "sha256:6408e786e37e94a463150d9aafee172c056a4db34dbbab80456d4fe1bc98c6a1"
+        }
+      ]
+    },
+    {
+      "id": "C13",
+      "control": "生产前端BFF导入与fixture例外边界",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：pre01-negative, f01-lint",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "pre01-negative",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre01-negative.log",
+          "logSha256": "sha256:9aeef20b74babe3994ad52966122192c907ec0a9b0c60ecd32b48501e90a100a"
+        },
+        {
+          "id": "f01-lint",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/f01-lint.log",
+          "logSha256": "sha256:51e327d6f2dcfbe4f9e46705f158b36f028d1780fb6cb72681b14071c2571500"
+        }
+      ]
+    },
+    {
+      "id": "C14",
+      "control": "环境矩阵、公开变量、DSN/回跳约束",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：pre05, pre05-negative, config-tests",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "pre05",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre05.log",
+          "logSha256": "sha256:07cde80e8afa022a0e1b91aeb2ffce79eefed36a571d00d627e1606ee3f34b3b"
+        },
+        {
+          "id": "pre05-negative",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre05-negative.log",
+          "logSha256": "sha256:a41ce2ee1095adeba03964b46721dbd73cca22bc70fb8270122a951c3553a051"
+        },
+        {
+          "id": "config-tests",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/config-tests.log",
+          "logSha256": "sha256:21af5deab14697c7baeb00597230b6e2fbca8376ec230245e4d180ccf73d295e"
+        }
+      ]
+    },
+    {
+      "id": "C15",
+      "control": "客户端产物与秘密检查",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：build-website, build-terminal, f02-secrets",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "build-website",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/build-website.log",
+          "logSha256": "sha256:84d292174a3a0e7fec2a087126692ad633e77e645b49f66cb092156b95d03f4c"
+        },
+        {
+          "id": "build-terminal",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/build-terminal.log",
+          "logSha256": "sha256:9c45d58846b16c8a349facab1b95ad244c00c34ad24fef9e5551226bcb6d36ec"
+        },
+        {
+          "id": "f02-secrets",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/f02-secrets.log",
+          "logSha256": "sha256:945eb0890dc85e1a59cf49ddcd2ae08b00a453268b7f7d4014fbd53664eff94c"
+        }
+      ]
+    },
+    {
+      "id": "C16",
+      "control": "同schema fixtures、单元、基本浏览器与SSE PoC",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：api-client-tests, ui-tests, chromium",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "api-client-tests",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/api-client-tests.log",
+          "logSha256": "sha256:a2cb0bffb486ccc1f3a8f05ae23c7d807122635ea42b2f9ce9b00437fd4d46b6"
+        },
+        {
+          "id": "ui-tests",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/ui-tests.log",
+          "logSha256": "sha256:282ef2f9093c7b7016141f13448ace7475a8b233f71f7cb0fa6151a6cf2c54e4"
+        },
+        {
+          "id": "chromium",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/chromium.log",
+          "logSha256": "sha256:6408e786e37e94a463150d9aafee172c056a4db34dbbab80456d4fe1bc98c6a1"
+        }
+      ]
+    },
+    {
+      "id": "C17",
+      "control": "schema/权限/敏感字段/视觉破坏持续拒绝",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：pre06, pre06-negative, sabotage, semantic-mutations",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "pre06",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre06.log",
+          "logSha256": "sha256:9a7bb9049690061d12f936589d84ef6ccfd68d1a66c179afffdfa7b05091ff49"
+        },
+        {
+          "id": "pre06-negative",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/pre06-negative.log",
+          "logSha256": "sha256:d944bc3e60cf0eae71c647c7ca7b0ee0a41b8ac3a9f64bbe6209ec066343d05a"
+        },
+        {
+          "id": "sabotage",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/sabotage.log",
+          "logSha256": "sha256:a1aa6e1a63425e7fd55b41b6c43e02a531938de138ae683e7476a00b89c6dc50"
+        },
+        {
+          "id": "semantic-mutations",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/semantic-mutations.log",
+          "logSha256": "sha256:2ae1d05d2f72e5762fb156a847a0bef7f8106c7387341cd75701727a2f219374"
+        }
+      ]
+    },
+    {
+      "id": "C18",
+      "control": "领域覆盖率与关键风险分支",
+      "status": "PASS",
+      "evidence": "本轮实际 PASS：coverage, critical",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "coverage",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/coverage.log",
+          "logSha256": "sha256:303aa16713059c4d30a11ee2b975e31e3501048bada1ad2c2b0e7ae888f6828a"
+        },
+        {
+          "id": "critical",
+          "log": "docs/audit/evidence/provider-a1-remediation-20261004/fep0-verified-20261005/logs/critical.log",
+          "logSha256": "sha256:2b181ef295836e32b2e64f241cd4a238c0ed5a949b244878c7c6dff078723640"
+        }
+      ]
+    },
+    {
+      "id": "C19",
+      "control": "当前G0确认、冻结回执和遗留治理",
+      "status": "PENDING",
+      "evidence": "G0 当前工程 16/16 PASS；当前范围 BLOCKED",
+      "finding": "当前 G0 用户确认",
+      "checks": [
+        {
+          "id": "records",
+          "command": [
+            "node",
+            "scripts/check-g0-records.mjs"
+          ],
+          "executedAt": "2026-10-05T11:12:45.043Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/records.log",
+          "logSha256": "sha256:95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c"
+        },
+        {
+          "id": "pre01",
+          "command": [
+            "node",
+            "scripts/check-pre01.mjs"
+          ],
+          "executedAt": "2026-10-05T11:12:45.068Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/pre01.log",
+          "logSha256": "sha256:e0a171eeeb07232db1993ab4de85723514a09aa409a3228949370f5f874e6e77"
+        },
+        {
+          "id": "pre01-negative",
+          "command": [
+            "node",
+            "--test",
+            "scripts/tests/check-pre01.test.mjs"
+          ],
+          "executedAt": "2026-10-05T11:12:45.153Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/pre01-negative.log",
+          "logSha256": "sha256:2b56d4dd1bf9afde98979d124667d39fe325f010ac34408f51db86f2db075bcd"
+        },
+        {
+          "id": "boundary-negative",
+          "command": [
+            "node",
+            "--test",
+            "scripts/frontend-import-boundary.test.mjs"
+          ],
+          "executedAt": "2026-10-05T11:12:45.316Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/boundary-negative.log",
+          "logSha256": "sha256:af8ea6293bf4b3118c3d7585d091fb06ee33e3ca7e3813cd4bd5e7aa225bb883"
+        },
+        {
+          "id": "g0-negative",
+          "command": [
+            "node",
+            "--test",
+            "scripts/g0-development.test.mjs",
+            "scripts/user-acceptance-confirmation.test.mjs"
+          ],
+          "executedAt": "2026-10-05T11:12:45.868Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/g0-negative.log",
+          "logSha256": "sha256:58da7191e489115ce1e1d1e219e21ee97cc84680ad0ad2972f4564411a9854e7"
+        },
+        {
+          "id": "baseline",
+          "command": [
+            "node",
+            "scripts/check-bff-fe-000.mjs"
+          ],
+          "executedAt": "2026-10-05T11:12:49.445Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/baseline.log",
+          "logSha256": "sha256:ffb8fc4ed3433e11440d7c3bdf94d84247b30e6d0fac7ae43284673050031f72"
+        },
+        {
+          "id": "generated",
+          "command": [
+            "node",
+            "scripts/check-bff-generated.mjs"
+          ],
+          "executedAt": "2026-10-05T11:12:49.530Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/generated.log",
+          "logSha256": "sha256:f9d08f6150fbb8e7730ce94871f22d406550dcb4c68ef9224e21aa256022cf37"
+        },
+        {
+          "id": "proto",
+          "command": [
+            "bash",
+            "scripts/check-proto.sh"
+          ],
+          "executedAt": "2026-10-05T11:12:49.942Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/proto.log",
+          "logSha256": "sha256:0b2e6f5ccb8c6d5bfdb3cf7fa76aaf13dbe4606052f50b5936f52ab1dcc57c7b"
+        },
+        {
+          "id": "frontend-lint",
+          "command": [
+            "pnpm",
+            "--filter",
+            "@sumalpha/terminal",
+            "--filter",
+            "@sumalpha/website",
+            "lint"
+          ],
+          "executedAt": "2026-10-05T11:12:56.061Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/frontend-lint.log",
+          "logSha256": "sha256:269f9f9972253097c89193acff9bdf0d0065f4552d2390af8d7289a8fa844567"
+        },
+        {
+          "id": "frontend-types",
+          "command": [
+            "pnpm",
+            "--filter",
+            "@sumalpha/terminal",
+            "--filter",
+            "@sumalpha/website",
+            "typecheck"
+          ],
+          "executedAt": "2026-10-05T11:12:56.994Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/frontend-types.log",
+          "logSha256": "sha256:e0fe9b5d928ebf0362f9a0915b3703756eef0535b31eb3dfe97580b5a8d3e49b"
+        },
+        {
+          "id": "auth-client-contract",
+          "command": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "apps/terminal/tests/auth-poc.test.ts",
+            "packages/api-client/tests",
+            "tests/contract"
+          ],
+          "executedAt": "2026-10-05T11:12:57.842Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/auth-client-contract.log",
+          "logSha256": "sha256:d81470b7aababe1e68e324c7ce47fbc4ee62d99c667307dc9bebd02b7048a72b"
+        },
+        {
+          "id": "sse",
+          "command": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "packages/api-client/tests/sse-poc.test.ts"
+          ],
+          "executedAt": "2026-10-05T11:13:00.708Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/sse.log",
+          "logSha256": "sha256:831bd304dc390dd0c8a6e721092dd1746b88ae6d96e2491eeed47f4cedffcd0d"
+        },
+        {
+          "id": "web-build",
+          "command": [
+            "pnpm",
+            "--filter",
+            "@sumalpha/terminal",
+            "build"
+          ],
+          "executedAt": "2026-10-05T11:13:06.749Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/web-build.log",
+          "logSha256": "sha256:de9075bea6e2d21d1aa5dd362e2939be457e6651126478d8115c039db57692f9"
+        },
+        {
+          "id": "web-oidc-poc",
+          "command": [
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "tests/e2e/auth-callback.spec.ts",
+            "tests/e2e/command.spec.ts",
+            "--project=chromium",
+            "--retries=0"
+          ],
+          "executedAt": "2026-10-05T11:13:16.943Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/web-oidc-poc.log",
+          "logSha256": "sha256:7296e53fa8ac235061f5fcea0a9bfe3fee5e0f3613a9040b30017c4337977c12"
+        },
+        {
+          "id": "js-budget",
+          "command": [
+            "node",
+            "scripts/check-perf-budget.mjs",
+            "apps/terminal/out"
+          ],
+          "executedAt": "2026-10-05T11:13:20.053Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/js-budget.log",
+          "logSha256": "sha256:ee21996a72fe61752c48b3e8c0f2fdbb01656f9fb055cb5a4c88d733e105a89f"
+        },
+        {
+          "id": "linux-baselines",
+          "command": [
+            "node",
+            "scripts/check-visual-baselines.mjs",
+            "--platform",
+            "linux"
+          ],
+          "executedAt": "2026-10-05T11:13:20.669Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/logs/linux-baselines.log",
+          "logSha256": "sha256:7523f1b676a1b4eea291b721f5350a1f25b96cf3ac3ca3eea8c8a8b291f6ade4"
+        }
+      ],
+      "manifest": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/g0.json"
+    },
+    {
+      "id": "C20",
+      "control": "FEP-0自身内容绑定里程碑评估与回执",
+      "status": "PASS",
+      "evidence": "独立 FEP-0 manifest、两项实际检查、39 项正负向、八依赖内容验证；BLOCKED",
+      "finding": "—",
+      "checks": [
+        {
+          "id": "plans",
+          "command": [
+            "pnpm",
+            "check:development-plans"
+          ],
+          "executedAt": "2026-10-05T11:13:49.485Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/fep0-remediation-20261005/logs/plans.log",
+          "logSha256": "sha256:4d5aee6d89928dd5b3e793a5adf0b5f191c6148db4c737420283414a2b548c55"
+        },
+        {
+          "id": "negative",
+          "command": [
+            "pnpm",
+            "test:fep0"
+          ],
+          "executedAt": "2026-10-05T11:13:49.646Z",
+          "status": "PASS",
+          "exitCode": 0,
+          "log": "docs/audit/evidence/fep0-remediation-20261005/logs/negative.log",
+          "logSha256": "sha256:616ed1dcc692cb079df3d036a921498c692f22c6efc6fdc4c2b5900cb5ac9649"
+        }
+      ],
+      "manifest": "docs/audit/evidence/fep0-remediation-20261005/fep0.json"
+    }
+  ],
+  "observedSourceCommit": "04229ce1f93e2d6732411d68a38504702238093e",
+  "formalAccepted": false
+}
