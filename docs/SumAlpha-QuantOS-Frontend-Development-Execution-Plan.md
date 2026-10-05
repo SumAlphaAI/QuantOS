@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.23
+> 版本：3.24
 > 更新时间：2026-10-05
-> 状态：验收人工确认改为 Codex 拟稿、项目用户单人确认；G0 待用户确认，策略变更后的功能回执待复评；正式发布独立验收
+> 状态：G0 DEVELOPMENT READY；当前用户确认与 65 项上游/16 项 G0 复验闭环；PROVIDER:ALL 与正式发布独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.24`：项目用户明确确认当前 G0 DEVELOPMENT 文稿，原答复与不可变文稿/范围摘要绑定保存。确认提交 `92dddbd` 上重新执行 65/65 上游及 16/16 G0 检查，14 个上游节点及 G0 READY，24/24 控制点满足；原 5 项 G0 问题关闭。见[用户确认验收报告](./audit/FRONTEND-GATE-G0-user-confirmed-acceptance-2026-10-05.md)。继续 A2/API；新页面仍须 PROVIDER:ALL，历史正式字段/RELEASE 不自动通过。
 
 - `3.23`：按用户要求，所有原六方/多角色验收确认改为 Codex 拟定文稿、项目用户一人确认；角色保留为审阅维度，旧签署/测试保留历史。统一规程覆盖 G0–G8、provider 最终评审、RELEASE 与 Desktop；变更后的范围/校验器输入须复评，不把流程授权视为 G0 文稿确认。
 
@@ -22,7 +24,7 @@
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.23、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.24、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -155,7 +157,7 @@
 - task_id: `PRE-01`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:5fb20ff4666d5fd87c320fc49195090a48a1a0dadd24bb1ec5ebf19819bc739d","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-01.json"]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -174,7 +176,7 @@
 - task_id: `PRE-02`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:926ad2062a14ddee483e3345ff907a63ee22432c08f8ec7e8f5ada5f94aa0051","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-02.json"]}
 - depends_on: ["PRE-01"]
 - core_prerequisites: []
 - closes_core: []
@@ -192,7 +194,7 @@
 - task_id: `PRE-03`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:978b1167b59d6f97cbd8e8fe103ea693c16d588b22b642d37477dce3f9b9ccbf","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-03.json"]}
 - depends_on: ["PRE-02", "CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -210,7 +212,7 @@
 - task_id: `PRE-04`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:5760cc1a89c4940de036156b0df6d6afcbbb03ff3e36f9fddd389570a5b80c4c","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-04.json"]}
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
 - core_prerequisites: ["CORE:F03", "CORE:F06"]
 - closes_core: []
@@ -228,7 +230,7 @@
 - task_id: `PRE-05`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e5fb362a41fa042c8ac3d5138e99a542698faee0c4575727ec5908a9451bab5c","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-05.json"]}
 - depends_on: ["PRE-03", "PRE-04"]
 - core_prerequisites: []
 - closes_core: []
@@ -246,7 +248,7 @@
 - task_id: `PRE-06`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:6eb8e173499c8c7d4991e7044a686fffb4ed670d5d7b9df5be35764c095c3451","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-pre-06.json"]}
 - depends_on: ["PRE-04", "PRE-05"]
 - core_prerequisites: []
 - closes_core: []
@@ -285,9 +287,11 @@
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:bb74b9139f05094f0ead4dc75867b01c74790e014b4b550be4d25d75d4c5af99",
+    "evidence": [
+      "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/preparation-p0.json"
+    ]
   }
 }
 ```
@@ -346,7 +350,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:072aeb07de0975f9a19ab7ded615c7face426700d554d6de6132cdf63ef21dd8","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/fe-bff-fe-000.json"]}
 - depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -379,9 +383,11 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:4d33ad41c4a5294ca45bac4426c7c2acbbcc53e746a56a43d8dd099303bdb39d",
+    "evidence": [
+      "audit/evidence/provider-a1-remediation-20261004/g0-approved-20261005/provider-a1.json"
+    ]
   }
 }
 ```
@@ -398,6 +404,8 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
 
 <a id="acceptance-frontend-gate-g0"></a>
 ##### FRONTEND-GATE:G0：验收检查点
+
+当前 DEVELOPMENT 验收（2026-10-05）：用户已确认当前文稿；65/65 上游、16/16 G0 实际执行通过，24/24 控制点满足，阶段 READY。见[当前验收报告](./audit/FRONTEND-GATE-G0-user-confirmed-acceptance-2026-10-05.md)。本记录不放行 PROVIDER:ALL 或 RELEASE；下方正式字段保留原事实。
 
 工程复验入口为 `pnpm check:g0-engineering`，严格阶段准入为 `pnpm check:g0-development`；范围请求由 `pnpm scope:g0-development` 生成，项目用户当前确认记录写入 [G0-current-scope-confirmations.json](./gate-records/G0-current-scope-confirmations.json)。遗留子项见 [当前处置台账](./gate-records/G0-current-disposition.md)。工程 PASS 与用户范围确认分开记录，缺确认不能 READY。
 
@@ -418,9 +426,11 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "BLOCKED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:52e49e000f915210bc64ac0c8141b7e8e80fc66dfa56ab66185accc91813260d",
+    "evidence": [
+      "audit/evidence/frontend-g0-user-confirmation-20261005/g0.json"
+    ]
   }
 }
 ```

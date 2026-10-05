@@ -8,6 +8,6 @@ G0 最低契约、追踪关系、Web/OIDC/SSE PoC 由 `scripts/g0-policy.json` �
 - `pnpm assess:g0-development` 先验证当前上游，再实际执行 16 项工程检查，检查输入/计划漂移、构建来源和人工确认，生成内容绑定阶段回执。
 - `pnpm check:g0-engineering` 仅验证完整工程回执及状态一致性；`pnpm check:g0-development` 严格要求人工确认和工程/依赖均通过。缺任一条件不得 READY。
 
-当前流程变更已授权，G0 文稿仍待用户确认。前轮 22254dd 上游 65 项/G0 16 项结果保留为历史工程证据；本轮策略、校验器及输入变化后的回执须重新评估，不手工迁移摘要。历史十项与当前 19 子项治理保留，人工批准集中不改变任务 owner 或未来交付范围。
+当前项目用户已回复“确认 G0 DEVELOPMENT 文稿”，确认原文与不可变文稿/范围摘要保存在[当前台账](./G0-current-scope-confirmations.json)。确认提交 92dddbd 上重新执行 65 项上游与 16 项 G0 检查，全部通过，严格 DEVELOPMENT 门禁返回 READY；见[当前验收报告](../audit/FRONTEND-GATE-G0-user-confirmed-acceptance-2026-10-05.md)。前轮工程结果及流程授权保留历史，不作为本次实际确认或新执行替代。历史十项与当前 19 子项治理保留，人工批准集中不改变任务 owner 或未来交付范围。
 
 Proto breaking 在本机受控 CI 模式显式比较受检源码父提交完整 SHA，并记录基线。数据库验证只能使用已配置 Supabase；G0 本身执行静态、mock/fixture、Chromium 和 loopback SSE。正式部署/IdP、发布性能/长稳、同 SHA hosted CI 与发布用户确认按 RELEASE；新页面还须 PROVIDER:ALL 阶段 READY。

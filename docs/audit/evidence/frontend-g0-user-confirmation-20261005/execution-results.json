@@ -1,0 +1,225 @@
+[
+  {
+    "id": "records",
+    "command": [
+      "node",
+      "scripts/check-g0-records.mjs"
+    ],
+    "executedAt": "2026-10-05T05:23:22.630Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/records.log",
+    "logSha256": "sha256:95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c"
+  },
+  {
+    "id": "pre01",
+    "command": [
+      "node",
+      "scripts/check-pre01.mjs"
+    ],
+    "executedAt": "2026-10-05T05:23:22.654Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/pre01.log",
+    "logSha256": "sha256:e0a171eeeb07232db1993ab4de85723514a09aa409a3228949370f5f874e6e77"
+  },
+  {
+    "id": "pre01-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tests/check-pre01.test.mjs"
+    ],
+    "executedAt": "2026-10-05T05:23:22.737Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/pre01-negative.log",
+    "logSha256": "sha256:b09654031a173edd6ef45bf995ed4a95bd83928b413eefd3211cb35de157d347"
+  },
+  {
+    "id": "boundary-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/frontend-import-boundary.test.mjs"
+    ],
+    "executedAt": "2026-10-05T05:23:22.896Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/boundary-negative.log",
+    "logSha256": "sha256:13e2c63dc86e1006ee87445e023887b100ffa0909136c52006bdf7b0b4988ef2"
+  },
+  {
+    "id": "g0-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/g0-development.test.mjs",
+      "scripts/user-acceptance-confirmation.test.mjs"
+    ],
+    "executedAt": "2026-10-05T05:23:23.276Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/g0-negative.log",
+    "logSha256": "sha256:e6f96550ecd80410b50f35c4d637e9f56c95a841b15a055b31e93784b2cc6f46"
+  },
+  {
+    "id": "baseline",
+    "command": [
+      "node",
+      "scripts/check-bff-fe-000.mjs"
+    ],
+    "executedAt": "2026-10-05T05:23:26.166Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/baseline.log",
+    "logSha256": "sha256:ffb8fc4ed3433e11440d7c3bdf94d84247b30e6d0fac7ae43284673050031f72"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "executedAt": "2026-10-05T05:23:26.249Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/generated.log",
+    "logSha256": "sha256:7a8824ca0e4ba4f895bf7749d32975ab5555e7fd3f5c4a9d8ace2ff6827874cb"
+  },
+  {
+    "id": "proto",
+    "command": [
+      "bash",
+      "scripts/check-proto.sh"
+    ],
+    "executedAt": "2026-10-05T05:23:26.616Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/proto.log",
+    "logSha256": "sha256:1c345cd3a7dbda5f10007ec89482617b0e85260b528b089054406a9df5b3aae9"
+  },
+  {
+    "id": "frontend-lint",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "--filter",
+      "@sumalpha/website",
+      "lint"
+    ],
+    "executedAt": "2026-10-05T05:23:33.510Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/frontend-lint.log",
+    "logSha256": "sha256:269f9f9972253097c89193acff9bdf0d0065f4552d2390af8d7289a8fa844567"
+  },
+  {
+    "id": "frontend-types",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "--filter",
+      "@sumalpha/website",
+      "typecheck"
+    ],
+    "executedAt": "2026-10-05T05:23:34.189Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/frontend-types.log",
+    "logSha256": "sha256:e0fe9b5d928ebf0362f9a0915b3703756eef0535b31eb3dfe97580b5a8d3e49b"
+  },
+  {
+    "id": "auth-client-contract",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/auth-poc.test.ts",
+      "packages/api-client/tests",
+      "tests/contract"
+    ],
+    "executedAt": "2026-10-05T05:23:34.884Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/auth-client-contract.log",
+    "logSha256": "sha256:c85ded9b356afa850bc091f3b2ddb87380aac9270c69ca8e8f56a074e5fffa49"
+  },
+  {
+    "id": "sse",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "packages/api-client/tests/sse-poc.test.ts"
+    ],
+    "executedAt": "2026-10-05T05:23:37.220Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/sse.log",
+    "logSha256": "sha256:fa2cf2765d285e7ef20b1a6a9a3d80528fc18347d924d25eedb1a0de6c460142"
+  },
+  {
+    "id": "web-build",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/terminal",
+      "build"
+    ],
+    "executedAt": "2026-10-05T05:23:40.116Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/web-build.log",
+    "logSha256": "sha256:d8ac55e915dc76c202dc2d3ccf883b37c6e5528159acc76f1077cba62966bfe3"
+  },
+  {
+    "id": "web-oidc-poc",
+    "command": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "tests/e2e/auth-callback.spec.ts",
+      "tests/e2e/command.spec.ts",
+      "--project=chromium",
+      "--retries=0"
+    ],
+    "executedAt": "2026-10-05T05:23:49.634Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/web-oidc-poc.log",
+    "logSha256": "sha256:f06997ccaf29e95cff897e4dc5497ce8e08f7eb96fef6749318f65bdc668ba93"
+  },
+  {
+    "id": "js-budget",
+    "command": [
+      "node",
+      "scripts/check-perf-budget.mjs",
+      "apps/terminal/out"
+    ],
+    "executedAt": "2026-10-05T05:23:52.646Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/js-budget.log",
+    "logSha256": "sha256:ee21996a72fe61752c48b3e8c0f2fdbb01656f9fb055cb5a4c88d733e105a89f"
+  },
+  {
+    "id": "linux-baselines",
+    "command": [
+      "node",
+      "scripts/check-visual-baselines.mjs",
+      "--platform",
+      "linux"
+    ],
+    "executedAt": "2026-10-05T05:23:53.267Z",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/frontend-g0-user-confirmation-20261005/logs/linux-baselines.log",
+    "logSha256": "sha256:7523f1b676a1b4eea291b721f5350a1f25b96cf3ac3ca3eea8c8a8b291f6ade4"
+  }
+]
