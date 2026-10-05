@@ -1,0 +1,385 @@
+cargo fmt --check
+cargo clippy -p quantos-engine-manager --all-targets --locked -- -D warnings
+cargo test -p quantos-engine-manager --locked
+
+running 8 tests
+test durable::tests::world_readable_state_directory_is_rejected ... ok
+test tests::remaining_time_rejects_expired_deadlines ... ok
+test tests::review_manifest_rejects_duplicate_capabilities ... ok
+test durable::tests::corrupt_ledger_fails_closed ... ok
+test tests::signed_route_policy_and_reregistration_fail_closed ... ok
+test tests::approval_fails_closed_on_unsigned_or_modified_manifest ... ok
+test tests::manager_opens_backoff_window_after_three_recorded_failures ... ok
+test durable::tests::pending_key_is_exclusive_and_completed_result_survives_reopen ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 8 tests
+test machine_codes_are_stable_for_all_manager_failures ... ok
+test manager_diagnostics_do_not_expose_approval_key ... ok
+test manifest_rejects_each_invalid_boundary ... ok
+test invalid_request_and_signed_route_dimensions_fail_before_network ... ok
+test malformed_approvals_never_register ... ok
+test malformed_rpc_inputs_fail_before_transport ... ok
+test supervised_release_requires_durable_state_and_exact_artifact ... ok
+test reviewed_registration_rejects_capability_takeover_and_live_sidecar_replacement ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+
+running 2 tests
+test python_llmquant_rejects_forbidden_boundary_fields ... ok
+test python_llmquant_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+
+running 25 tests
+test durable_child_execute_entry ... ok
+test observed_sidecar_rss_excess_quarantines_shared_route ... ok
+test duplicate_key_returns_same_result_and_changed_input_is_rejected ... ok
+test missing_vibe_adapter_does_not_block_mock_workflow_routing ... ok
+test metadata_health_and_cancel_failures_preserve_route_state ... ok
+test manager_rejects_broken_execute_and_interrupted_streams ... ok
+test manager_cancel_interrupts_owned_running_execution ... ok
+test dispatch_reprobes_ready_engine_without_background_monitor ... ok
+test python_mock_engine_contracts_round_trip_over_uds ... ok
+test python_mock_engine_recovers_after_three_unavailable_failures ... ok
+test approval_cli_signs_reviewed_manifest_and_refuses_overwrite ... ok
+test durable_result_and_circuit_survive_manager_reconstruction ... ok
+test heartbeat_removes_failed_engine_and_restores_ready_route ... ok
+test supervised_sidecar_refuses_tampered_artifact_then_recovers ... ok
+test unavailable_socket_fails_fast_then_recovers_without_request_loss ... ok
+test manager_supervises_three_real_crashes_without_test_owned_restarts ... ok
+test handshake_rejects_each_unreviewed_identity_and_readiness_dimension ... ok
+test execution_concurrency_and_rss_quotas_reject_excess_work ... ok
+test one_request_survives_three_real_engine_process_crashes ... ok
+test python_mock_engine_deadline_timeout_is_deterministic ... ok
+test untrusted_engine_cannot_bypass_manager_response_identity_checks ... ok
+test readiness_accepts_exact_metadata_echo_across_second_boundary ... ok
+test os_killed_manager_replays_pending_key_into_one_durable_result ... ok
+test signed_rate_limit_and_stream_deadline_are_enforced ... ok
+test control_rpcs_timeout_within_two_seconds_on_untrusted_engine ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.18s
+
+
+running 2 tests
+test python_openbb_adapter_blocks_production_license_enablement ... ok
+test python_openbb_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 2 tests
+test python_rd_agent_rejects_forbidden_boundary_fields ... ok
+test python_rd_agent_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 4 tests
+test python_strategy_lab_rejects_forbidden_boundary_fields ... ok
+test python_strategy_lab_static_check_failure_blocks_release ... ok
+test python_strategy_lab_contracts_round_trip_over_uds ... ok
+test python_strategy_lab_rejects_hundred_malicious_prompts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+
+running 2 tests
+test python_trading_agents_rejects_forbidden_boundary_fields ... ok
+test python_trading_agents_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 2 tests
+test python_vibe_adapter_rejects_forbidden_boundary_fields ... ok
+test python_vibe_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+uv run --locked --project engines --all-packages ruff check .
+All checks passed!
+uv run --locked --project engines --all-packages pyright --project engines
+0 errors, 0 warnings, 0 informations 
+WARNING: there is a new pyright version available (v1.1.403 -> v1.1.414).
+Please install the new version or set PYRIGHT_PYTHON_FORCE_VERSION to `latest`
+
+uv run --locked --project engines --all-packages pytest engines/tests --cov=quantos_engine_sdk --cov=mock_engine --cov-config=engines/pyproject.toml --cov-report=json:target/f08-python-coverage.json --cov-report=term-missing
+============================= test session starts ==============================
+platform darwin -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/anray/Documents/project/SumAlpha/QuantOS/engines
+configfile: pyproject.toml
+plugins: cov-6.2.1
+collected 129 items
+
+engines/tests/test_engine_contract.py .................................  [ 25%]
+engines/tests/test_engine_observability.py ..                            [ 27%]
+engines/tests/test_llmquant_contract.py .......                          [ 32%]
+engines/tests/test_mock_engine_recovery.py .......                       [ 37%]
+engines/tests/test_openbb_adapter_contract.py .........                  [ 44%]
+engines/tests/test_proto_sdk.py ..                                       [ 46%]
+engines/tests/test_protocol_metadata_completeness.py .......             [ 51%]
+engines/tests/test_rd_agent_contract.py .....                            [ 55%]
+engines/tests/test_strategy_lab_contract.py .......                      [ 61%]
+engines/tests/test_tp08_qlib_mapping_samples.py .....                    [ 65%]
+engines/tests/test_tp09_trendradar_mapping_samples.py ......             [ 69%]
+engines/tests/test_tp10_valuecell_evaluation.py .......                  [ 75%]
+engines/tests/test_tp11_openstock_fixtures.py .....                      [ 79%]
+engines/tests/test_tp12_nautilus_agents_rules.py .......                 [ 84%]
+engines/tests/test_trading_agents_contract.py .......                    [ 89%]
+engines/tests/test_vibe_adapter_contract.py ......                       [ 94%]
+engines/tests/test_workspace.py .......                                  [100%]
+
+================================ tests coverage ================================
+______________ coverage: platform darwin, python 3.12.10-final-0 _______________
+
+Name                                                             Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------------------------------
+engines/engine-sdk/sdk_src/quantos_engine_sdk/__init__.py            5      0      0      0   100%
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py              140      5     18      4    94%   31, 60, 141, 152, 250
+engines/engine-sdk/sdk_src/quantos_engine_sdk/manifest.py           21      1      2      1    91%   41
+engines/engine-sdk/sdk_src/quantos_engine_sdk/observability.py     152     19     32      6    85%   28, 65, 75-76, 133-136, 158-168, 200, 205-212, 214-221, 240-242
+engines/engine-sdk/sdk_src/quantos_engine_sdk/validation.py         39      1     26      1    97%   57
+engines/mock-engine/src/mock_engine/__init__.py                      5      0      0      0   100%
+engines/mock-engine/src/mock_engine/server.py                       26      2      4      2    87%   50, 69
+engines/mock-engine/src/mock_engine/service.py                     137     10     54      5    91%   61, 107, 137-142, 155, 206
+------------------------------------------------------------------------------------------------------------
+TOTAL                                                              525     38    136     19    91%
+Coverage JSON written to file target/f08-python-coverage.json
+Required test coverage of 85.0% reached. Total coverage: 90.77%
+============================= 129 passed in 1.59s ==============================
+node scripts/check-f08-python-coverage.mjs target/f08-python-coverage.json
+{
+  "schema": "quantos-f08-python-coverage/v1",
+  "status": "PASS",
+  "files": [
+    {
+      "file": "engines/engine-sdk/sdk_src/quantos_engine_sdk/__init__.py",
+      "covered": 5,
+      "total": 5,
+      "linePercent": 100
+    },
+    {
+      "file": "engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py",
+      "covered": 135,
+      "total": 140,
+      "linePercent": 96.43
+    },
+    {
+      "file": "engines/engine-sdk/sdk_src/quantos_engine_sdk/manifest.py",
+      "covered": 20,
+      "total": 21,
+      "linePercent": 95.24
+    },
+    {
+      "file": "engines/engine-sdk/sdk_src/quantos_engine_sdk/observability.py",
+      "covered": 133,
+      "total": 152,
+      "linePercent": 87.5
+    },
+    {
+      "file": "engines/engine-sdk/sdk_src/quantos_engine_sdk/validation.py",
+      "covered": 38,
+      "total": 39,
+      "linePercent": 97.44
+    },
+    {
+      "file": "engines/mock-engine/src/mock_engine/__init__.py",
+      "covered": 5,
+      "total": 5,
+      "linePercent": 100
+    },
+    {
+      "file": "engines/mock-engine/src/mock_engine/server.py",
+      "covered": 24,
+      "total": 26,
+      "linePercent": 92.31
+    },
+    {
+      "file": "engines/mock-engine/src/mock_engine/service.py",
+      "covered": 127,
+      "total": 137,
+      "linePercent": 92.7
+    }
+  ]
+}
+cargo llvm-cov -p quantos-engine-manager --locked --json --output-path target/f08-rust-coverage.json
+
+running 8 tests
+test durable::tests::world_readable_state_directory_is_rejected ... ok
+test tests::review_manifest_rejects_duplicate_capabilities ... ok
+test tests::remaining_time_rejects_expired_deadlines ... ok
+test durable::tests::corrupt_ledger_fails_closed ... ok
+test tests::approval_fails_closed_on_unsigned_or_modified_manifest ... ok
+test tests::signed_route_policy_and_reregistration_fail_closed ... ok
+test durable::tests::pending_key_is_exclusive_and_completed_result_survives_reopen ... ok
+test tests::manager_opens_backoff_window_after_three_recorded_failures ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 8 tests
+test machine_codes_are_stable_for_all_manager_failures ... ok
+test manager_diagnostics_do_not_expose_approval_key ... ok
+test manifest_rejects_each_invalid_boundary ... ok
+test malformed_approvals_never_register ... ok
+test invalid_request_and_signed_route_dimensions_fail_before_network ... ok
+test malformed_rpc_inputs_fail_before_transport ... ok
+test supervised_release_requires_durable_state_and_exact_artifact ... ok
+test reviewed_registration_rejects_capability_takeover_and_live_sidecar_replacement ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.14s
+
+
+running 2 tests
+test python_llmquant_rejects_forbidden_boundary_fields ... ok
+test python_llmquant_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 25 tests
+test durable_child_execute_entry ... ok
+test observed_sidecar_rss_excess_quarantines_shared_route ... ok
+test duplicate_key_returns_same_result_and_changed_input_is_rejected ... ok
+test missing_vibe_adapter_does_not_block_mock_workflow_routing ... ok
+test metadata_health_and_cancel_failures_preserve_route_state ... ok
+test manager_rejects_broken_execute_and_interrupted_streams ... ok
+test manager_cancel_interrupts_owned_running_execution ... ok
+test dispatch_reprobes_ready_engine_without_background_monitor ... ok
+test python_mock_engine_contracts_round_trip_over_uds ... ok
+test approval_cli_signs_reviewed_manifest_and_refuses_overwrite ... ok
+test python_mock_engine_recovers_after_three_unavailable_failures ... ok
+test durable_result_and_circuit_survive_manager_reconstruction ... ok
+test heartbeat_removes_failed_engine_and_restores_ready_route ... ok
+test unavailable_socket_fails_fast_then_recovers_without_request_loss ... ok
+test supervised_sidecar_refuses_tampered_artifact_then_recovers ... ok
+test manager_supervises_three_real_crashes_without_test_owned_restarts ... ok
+test handshake_rejects_each_unreviewed_identity_and_readiness_dimension ... ok
+test execution_concurrency_and_rss_quotas_reject_excess_work ... ok
+test one_request_survives_three_real_engine_process_crashes ... ok
+test python_mock_engine_deadline_timeout_is_deterministic ... ok
+test untrusted_engine_cannot_bypass_manager_response_identity_checks ... ok
+test readiness_accepts_exact_metadata_echo_across_second_boundary ... ok
+test os_killed_manager_replays_pending_key_into_one_durable_result ... ok
+test signed_rate_limit_and_stream_deadline_are_enforced ... ok
+test control_rpcs_timeout_within_two_seconds_on_untrusted_engine ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.17s
+
+
+running 2 tests
+test python_openbb_adapter_blocks_production_license_enablement ... ok
+test python_openbb_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 2 tests
+test python_rd_agent_rejects_forbidden_boundary_fields ... ok
+test python_rd_agent_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 4 tests
+test python_strategy_lab_rejects_forbidden_boundary_fields ... ok
+test python_strategy_lab_static_check_failure_blocks_release ... ok
+test python_strategy_lab_contracts_round_trip_over_uds ... ok
+test python_strategy_lab_rejects_hundred_malicious_prompts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+
+running 2 tests
+test python_trading_agents_rejects_forbidden_boundary_fields ... ok
+test python_trading_agents_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 2 tests
+test python_vibe_adapter_rejects_forbidden_boundary_fields ... ok
+test python_vibe_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+node scripts/check-f08-rust-coverage.mjs target/f08-rust-coverage.json
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.10s
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.70s
+     Running unittests src/lib.rs (target/debug/deps/quantos_engine_manager-7a7c96946e5acbf4)
+     Running unittests src/bin/f08-approval.rs (target/debug/deps/f08_approval-e9ed4f21aed18e4c)
+     Running tests/manager_negative.rs (target/debug/deps/manager_negative-d87767bf842be9de)
+     Running tests/python_llmquant.rs (target/debug/deps/python_llmquant-b817fb3b9c59bb9b)
+     Running tests/python_mock_engine.rs (target/debug/deps/python_mock_engine-a14b3ed6aaf7410e)
+Error: "approval output exists; choose a new path"
+     Running tests/python_openbb_adapter.rs (target/debug/deps/python_openbb_adapter-852edf586930b7e6)
+     Running tests/python_rd_agent.rs (target/debug/deps/python_rd_agent-420a099d07254f51)
+     Running tests/python_strategy_lab.rs (target/debug/deps/python_strategy_lab-a60c5c206a5844cb)
+     Running tests/python_trading_agents.rs (target/debug/deps/python_trading_agents-cfcc6780d738a56b)
+     Running tests/python_vibe_adapter.rs (target/debug/deps/python_vibe_adapter-e04a854d01b8f200)
+   Doc-tests quantos_engine_manager
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.18s
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_engine_manager-7a7c96946e5acbf4)
+     Running unittests src/bin/f08-approval.rs (target/llvm-cov-target/debug/deps/f08_approval-e9ed4f21aed18e4c)
+     Running tests/manager_negative.rs (target/llvm-cov-target/debug/deps/manager_negative-d87767bf842be9de)
+     Running tests/python_llmquant.rs (target/llvm-cov-target/debug/deps/python_llmquant-b817fb3b9c59bb9b)
+     Running tests/python_mock_engine.rs (target/llvm-cov-target/debug/deps/python_mock_engine-a14b3ed6aaf7410e)
+Error: "approval output exists; choose a new path"
+     Running tests/python_openbb_adapter.rs (target/llvm-cov-target/debug/deps/python_openbb_adapter-852edf586930b7e6)
+     Running tests/python_rd_agent.rs (target/llvm-cov-target/debug/deps/python_rd_agent-420a099d07254f51)
+     Running tests/python_strategy_lab.rs (target/llvm-cov-target/debug/deps/python_strategy_lab-a60c5c206a5844cb)
+     Running tests/python_trading_agents.rs (target/llvm-cov-target/debug/deps/python_trading_agents-cfcc6780d738a56b)
+     Running tests/python_vibe_adapter.rs (target/llvm-cov-target/debug/deps/python_vibe_adapter-e04a854d01b8f200)
+
+    Finished report saved to target/f08-rust-coverage.json
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: crates/quantos-engine-manager/src/lib.rs: branch span count changed
+
+256 !== 182
+
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-f08-rust-coverage.mjs:50:10
+    at Array.map (<anonymous>)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-f08-rust-coverage.mjs:24:25
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 256,
+  expected: 182,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.12.0
+make: *** [f08-check] Error 1

@@ -3,9 +3,9 @@
 use std::{collections::HashSet, time::Duration};
 
 use chrono::{DateTime, Utc};
-use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{Client, NoTls};
-use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector;
 use quantos_core::CorrelationId;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -47,7 +47,7 @@ pub enum CapacityMonitorError {
     #[error(transparent)]
     Url(#[from] url::ParseError),
     #[error(transparent)]
-    Tls(#[from] native_tls::Error),
+    Tls(#[from] openssl::error::ErrorStack),
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error("remote F09 PostgreSQL connections require TLS")]
@@ -428,13 +428,23 @@ fn connect_client(database_url: &str) -> Result<Client, CapacityMonitorError> {
     if disable_tls {
         Ok(config.connect(NoTls)?)
     } else {
-        let mut builder = TlsConnector::builder();
-        if let Some(root) = root {
-            builder.add_root_certificate(native_tls::Certificate::from_pem(&std::fs::read(root)?)?);
-        }
         config.ssl_mode(postgres::config::SslMode::Require);
-        Ok(config.connect(MakeTlsConnector::new(builder.build()?))?)
+        Ok(config.connect(MakeTlsConnector::new(verified_connector(root.as_deref())?))?)
     }
+}
+
+// Use the same backend as Runtime/Portfolio. macOS Security.framework rejects
+// the configured Supabase certificate lifetime; OpenSSL still verifies its CA
+// chain and the hostname passed by postgres-openssl (no relaxed verification).
+fn verified_connector(root: Option<&str>) -> Result<SslConnector, CapacityMonitorError> {
+    let mut builder = SslConnector::builder(SslMethod::tls())?;
+    builder.set_verify(SslVerifyMode::PEER);
+    if let Some(root) = root {
+        builder.set_ca_file(root)?;
+    } else {
+        builder.set_default_verify_paths()?;
+    }
+    Ok(builder.build())
 }
 
 fn connection_config(
@@ -505,6 +515,14 @@ mod tests {
             ),
             Err(CapacityMonitorError::InsecureRemoteConnection)
         ));
+    }
+
+    #[test]
+    fn postgres_tls_backend_keeps_peer_validation_and_rejects_missing_ca() {
+        let connector = verified_connector(None).expect("system trust initializes");
+        assert_eq!(connector.context().verify_mode(), SslVerifyMode::PEER);
+        let absent = std::env::temp_dir().join(format!("f09-missing-ca-{}", uuid::Uuid::new_v4()));
+        assert!(verified_connector(absent.to_str()).is_err());
     }
 
     #[test]

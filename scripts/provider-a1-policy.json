@@ -24,7 +24,8 @@
     ".github/workflows/",
     "env/",
     "tsconfig.base.json",
-    "eslint.config.mjs"
+    "eslint.config.mjs",
+    "patches/"
   ],
   "checks": {
     "f01": {
@@ -1098,7 +1099,10 @@
         "deny.toml",
         ".gitleaks.toml",
         ".gitleaksignore",
-        "supabase/"
+        "supabase/",
+        "third_party/rust/glib/",
+        "apps/terminal-desktop/src-tauri/Cargo.toml",
+        "apps/terminal-desktop/src-tauri/Cargo.lock"
       ],
       "checks": [
         "f02-negative",
@@ -1112,7 +1116,7 @@
       ]
     },
     "CORE:F07": {
-      "scope": "Configured Supabase checkpoint/100 OS-killed worker recovery, unique Artifact bindings, cancellation/timeout audit and Auth/BFF/Runtime/Storage denials; diagnostic measurements do not accept scheduling P95, deployed HTTPS or restricted Storage credentials",
+      "scope": "Configured Supabase checkpoint and 100 task recoveries after one OS-killed worker, unique Artifact bindings, cancellation/timeout audit and Auth/BFF/Runtime/Storage denials; diagnostic measurements do not accept scheduling P95, deployed HTTPS or restricted Storage credentials",
       "inputs": [
         "crates/quantos-runtime/",
         "services/runtime-gateway/",
@@ -1131,7 +1135,8 @@
       "inputs": [
         "crates/quantos-engine-manager/",
         "engines/",
-        "proto/"
+        "proto/",
+        "docs/audit/F08-coverage-waivers.json"
       ],
       "checks": [
         "f08-functional",
@@ -1149,7 +1154,8 @@
         "engines/",
         "supabase/",
         "docs/operations/f09*",
-        "docs/runbooks/f09-capacity-monitor.md"
+        "docs/runbooks/f09-capacity-monitor.md",
+        "docs/templates/f09_capacity_adr_template.md"
       ],
       "checks": [
         "f09-functional",

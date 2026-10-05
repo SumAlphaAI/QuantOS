@@ -4,6 +4,8 @@ const { spawn, execFileSync } = require('node:child_process');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
+const traceDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'quantos-f07-traces-'));
 const { Client } = require('pg');
 
 const root = path.resolve(__dirname, '..');
@@ -72,7 +74,8 @@ async function authRequest(api, route, method, body, key) {
 
 function start(binary, port, extra) {
   const child = spawn(path.resolve(root, `target/debug/${binary}`), [], {
-    cwd: root, env: { ...process.env, ...extra, QUANTOS_TERMINAL_ORIGIN: origin },
+    cwd: root, env: { ...process.env, ...extra, QUANTOS_TERMINAL_ORIGIN: origin,
+      QUANTOS_TRACE_EXPORT_PATH: path.join(traceDirectory, `${binary}.jsonl`) },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   let diagnostic = '';
@@ -96,8 +99,9 @@ async function ready(service, route, status) {
 }
 
 async function request(base, route, cookie, method = 'GET', body) {
+  const csrf = /(?:^|; )quantos_csrf=([^;]+)/.exec(cookie ?? '')?.[1];
   return fetch(`${base}${route}`, { method,
-    headers: { ...(cookie ? { cookie } : {}), ...(method === 'POST' ? { origin } : {}),
+    headers: { ...(cookie ? { cookie } : {}), ...(method === 'POST' ? { origin, ...(csrf ? { 'x-csrf-token': csrf } : {}) } : {}),
       ...(body ? { 'content-type': 'application/json' } : {}) },
     body: body ? JSON.stringify(body) : undefined, signal: AbortSignal.timeout(15000) });
 }
@@ -167,8 +171,8 @@ async function main() {
     const established = await fetch(`${bff.base}/v1/auth/session`, { method: 'POST',
       headers: { origin, authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(15000) });
     assert(established.status === 204, `BFF session returned HTTP ${established.status}`);
-    cookie = established.headers.get('set-cookie')?.split(';')[0];
-    assert(cookie?.startsWith('quantos_session='), 'BFF did not issue an opaque cookie');
+    cookie = established.headers.getSetCookie().map(value => value.split(';')[0]).join('; ');
+    assert(cookie?.startsWith('quantos_session=') && /(?:^|; )quantos_csrf=/.test(cookie), 'BFF did not issue opaque session and CSRF cookies');
     receipt.checks.push('real Supabase login and BFF opaque session');
     runtime = start('runtime-gateway', runtimePort, {
       QUANTOS_RUNTIME_BIND: `127.0.0.1:${runtimePort}`,
@@ -225,8 +229,8 @@ async function main() {
         headers: { origin, authorization: `Bearer ${otherToken}` },
         signal: AbortSignal.timeout(15000) });
       assert(otherSession.status === 204, `separate tenant BFF session returned HTTP ${otherSession.status}`);
-      otherCookie = otherSession.headers.get('set-cookie')?.split(';')[0];
-      assert(otherCookie?.startsWith('quantos_session='), 'separate tenant BFF cookie is missing');
+      otherCookie = otherSession.headers.getSetCookie().map(value => value.split(';')[0]).join('; ');
+      assert(otherCookie?.startsWith('quantos_session=') && /(?:^|; )quantos_csrf=/.test(otherCookie), 'separate tenant BFF session and CSRF cookies are missing');
       const deniedRun = await request(runtime.base, `/v1/runtime/runs/${runId}`, otherCookie);
       const deniedCancel = await request(runtime.base, `/v1/runtime/runs/${runId}/cancel`,
         otherCookie, 'POST');
@@ -237,12 +241,15 @@ async function main() {
       receipt.checks.push('separate real Auth tenant denied run, cancellation and Artifact access');
     }
     receipt.checks.push('dedicated BFF/Runtime logins, strict TLS, HTTP schedule/worker/Storage/retrieval/hash, missing-cookie rejection');
+    const missingCsrf = await fetch(`${bff.base}/v1/auth/logout`, { method: 'POST',
+      headers: { origin, cookie }, signal: AbortSignal.timeout(15000) });
+    assert(missingCsrf.status === 403, 'BFF logout accepted missing CSRF token');
     const logout = await request(bff.base, '/v1/auth/logout', cookie, 'POST');
     assert(logout.status === 204, `BFF logout returned HTTP ${logout.status}`);
     const revoked = await request(runtime.base, `/v1/runtime/runs/${runId}`, cookie);
     assert(revoked.status === 401, 'Runtime accepted a revoked BFF session');
     cookie = undefined;
-    receipt.checks.push('BFF logout revokes Runtime access');
+    receipt.checks.push('BFF logout revokes Runtime access; missing CSRF rejected');
     receipt.runId = runId;
     receipt.artifactId = rows[0].artifact_id;
     assertDatabaseHealthy();
@@ -275,4 +282,4 @@ async function main() {
 save();
 main().catch(error => { receipt.status = 'FAIL'; receipt.error = redact(error.message);
   process.exitCode = 1; console.error(`F07 target acceptance failed: ${redact(error.message)}`); })
-  .finally(() => { receipt.completedAt = new Date().toISOString(); save(); });
+  .finally(() => { fs.rmSync(traceDirectory, { recursive: true, force: true }); receipt.completedAt = new Date().toISOString(); save(); });

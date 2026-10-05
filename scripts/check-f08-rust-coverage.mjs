@@ -47,7 +47,12 @@ const results = sources.map((suffix) => {
     const previous = branches.get(span) ?? [0, 0];
     branches.set(span, [previous[0] + branch[4], previous[1] + branch[5]]);
   }
-  assert.equal(branches.size * 2, file.summary.branches.count, `${suffix}: branch span count changed`);
+  // Stable Rust does not enable branch instrumentation. Its exported synthetic
+  // spans need not match the branch summary; only nightly --branch is admissible
+  // branch evidence. Keep stable lines/regions and nightly branch gates strict.
+  if (process.argv.includes("--require-branches")) {
+    assert.equal(branches.size * 2, file.summary.branches.count, `${suffix}: branch span count changed`);
+  }
 
   const seen = new Set();
   let waivedRegions = 0;
@@ -122,9 +127,10 @@ const totals = {
   adjustedRegions: sumMetric(results.map((result) => result.adjusted.regions)),
   adjustedBranches: sumMetric(results.map((result) => result.adjusted.branches)),
 };
-const receipt = { schema: "quantos-f08-rust-coverage/v2", files: results, totals, waivers: findings };
+const branchAcceptance = process.argv.includes("--require-branches") ? "NIGHTLY_ASSESSED" : "NOT_ASSESSED_STABLE";
+const receipt = { branchAcceptance, schema: "quantos-f08-rust-coverage/v2", files: results, totals, waivers: findings };
 console.log(JSON.stringify(process.argv.includes("--summary-only")
-  ? { totals, usedRegionWaivers: findings.filter((item) => item.metric === "region" && item.used).length }
+  ? { branchAcceptance, totals, usedRegionWaivers: findings.filter((item) => item.metric === "region" && item.used).length }
   : receipt, null, 2));
 assert(totals.sourceLines.count && totals.sourceLines.percent >= 90, "F08 Rust physical source line coverage below 90%");
 assert(totals.adjustedRegions.count && totals.adjustedRegions.percent >= 85, "F08 Rust audited region coverage below 85%");

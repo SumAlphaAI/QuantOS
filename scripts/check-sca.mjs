@@ -19,6 +19,8 @@ try{
  for(const ecosystem of selected){
   let raw,findings=[],maintenanceWarnings=[];
   if(ecosystem==='npm'){
+   const {verifyBracesBackport}=await import('./braces-backport.mjs');
+   receipt.bracesBackport=verifyBracesBackport(root);
    const p=run('pnpm',['audit','--json']);raw=p.stdout;
    const data=JSON.parse(raw);if(data.error||!data.metadata?.vulnerabilities||!data.advisories||![0,1].includes(p.status))throw Error(`npm audit unavailable: ${data.error?.message??p.stderr}`);
    for(const a of Object.values(data.advisories))for(const f of a.findings) findings.push({ecosystem,id:a.github_advisory_id??String(a.id),package:a.module_name,version:f.version,severity:a.severity});
@@ -51,7 +53,8 @@ try{
   }else throw Error(`Unknown ecosystem ${ecosystem}`);
   fs.writeFileSync(path.join(output,`${ecosystem}-audit.raw`),raw);
   const decisions=adjudicate(findings,waivers);
-  receipt.scanners[ecosystem]={status:decisions.some(x=>!x.waived)?'FAIL':'PASS',findings:decisions,...(maintenanceWarnings.length?{maintenanceWarnings}:{})};
+  if(ecosystem==='npm'){const {isBracesBackportFinding}=await import('./braces-backport.mjs');for(const finding of decisions)if(isBracesBackportFinding(finding,receipt.bracesBackport))finding.backportVerified=true;}
+  receipt.scanners[ecosystem]={status:decisions.some(x=>!x.waived&&!x.backportVerified)?'FAIL':'PASS',findings:decisions,...(maintenanceWarnings.length?{maintenanceWarnings}:{})};
  }
  if(Object.values(receipt.scanners).some(x=>x.status!=='PASS'))throw Error('Unwaived dependency vulnerabilities');
  receipt.status='PASS';receipt.passed=true;

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -24,7 +24,11 @@ assert.equal(process.env.F08_SOURCE_SHA ?? sourceCommit, sourceCommit, "target s
 
 const artifactDir = "artifacts/f08-target";
 mkdirSync(artifactDir, { recursive: true });
-const targetDir = mkdtempSync(join(tmpdir(), "f08-target-"));
+// Darwin canonicalizes /var to /private/var; its default temp path exceeds
+// sockaddr_un when combined with our UUID socket name. Keep isolation and 0700
+// permissions, using the short system temp root on Darwin.
+const targetDir = mkdtempSync(join(process.platform === "darwin" ? "/private/tmp" : tmpdir(), "f08-"));
+assert(Buffer.byteLength(realpathSync(targetDir) + "/quantos-mock-00000000-0000-0000-0000-000000000000.sock") <= 103, "F08 canonical UDS path exceeds platform limit");
 chmodSync(targetDir, 0o700);
 const env = {
   ...process.env,

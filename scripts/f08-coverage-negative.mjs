@@ -74,3 +74,12 @@ test("F08 coverage rejects lost branch outcomes", { skip: !isNightly }, () => {
   }
   assert.notEqual(probe(noBranches, true).status, 0);
 });
+
+test("F08 branch summary consistency is enforced only for instrumented nightly evidence", () => {
+  const changed = clone(coverage);
+  const file = changed.data[0].files.find(file => file.filename.endsWith("quantos-engine-manager/src/lib.rs"));
+  file.summary.branches.count += 2;
+  const result = probe(changed);
+  if (isNightly) { assert.notEqual(result.status, 0); assert.match(result.stderr, /branch span count changed/); }
+  else { assert.equal(result.status, 0, result.stderr); assert.equal(JSON.parse(result.stdout).branchAcceptance, "NOT_ASSESSED_STABLE"); }
+});

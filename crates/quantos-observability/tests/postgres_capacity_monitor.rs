@@ -1,9 +1,9 @@
 use std::{collections::HashSet, env, time::Duration};
 
 use chrono::{Duration as ChronoDuration, Utc};
-use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{Client, NoTls, types::Type};
-use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector;
 use quantos_core::{ActorId, CorrelationId, SchemaVersion, TenantId};
 use quantos_event::{NewRecordedEvent, RecordedEvent, pg::PgEventStore};
 use quantos_observability::capacity::{
@@ -641,17 +641,17 @@ fn connect_client(database_url: &str) -> Result<Client, postgres::Error> {
         if disable_tls {
             config.connect(NoTls)
         } else {
-            let mut builder = TlsConnector::builder();
+            let mut builder = SslConnector::builder(SslMethod::tls()).expect("F09 TLS initializes");
+            builder.set_verify(SslVerifyMode::PEER);
             if let Some(root) = &root {
-                let pem = std::fs::read(root).expect("F09 CA file reads");
-                builder.add_root_certificate(
-                    native_tls::Certificate::from_pem(&pem).expect("F09 CA PEM parses"),
-                );
+                builder.set_ca_file(root).expect("F09 CA file loads");
+            } else {
+                builder
+                    .set_default_verify_paths()
+                    .expect("F09 system CA roots load");
             }
             config.ssl_mode(postgres::config::SslMode::Require);
-            config.connect(MakeTlsConnector::new(
-                builder.build().expect("TLS connector initializes"),
-            ))
+            config.connect(MakeTlsConnector::new(builder.build()))
         }
     })
 }

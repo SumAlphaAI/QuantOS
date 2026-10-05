@@ -1,0 +1,102 @@
+node --test scripts/tests/glib-backport.test.mjs
+✔ GLib backport rejects source rollback, missing files, and registry fallback (51.729042ms)
+✔ optimized GLib iterator preserves a C variadic out-pointer for all five affected methods (621.7075ms)
+✔ Desktop SCA invokes its independent manifest and rejects scanner failures or unwaived findings (808.170667ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1513.467
+node scripts/check-sca.mjs
+{
+  "status": "FAIL",
+  "passed": false,
+  "scope": "all runtime, dev, build and security dependencies; includes independent Desktop Rust lock",
+  "source": "f37360b10180e7df88e20f639ff6bf5be5c3f740",
+  "dirty": true,
+  "lockDigests": {
+    "Cargo.lock": "ce4367e83ac85ddf2e9f8af947f58a9a7dad0f13934def7dbe95a717f9b874f2",
+    "pnpm-lock.yaml": "b1590db200a674f0e9a539764c53e90cc1e43100982b99e633012521dd6da6d8",
+    "engines/uv.lock": "8f9e8ce7f28710653ab72ac5b18d5db93d2ebf21beaf304e5409be71e5fa2a58",
+    "apps/terminal-desktop/src-tauri/Cargo.lock": "be99df0c1e077f33775578b59d56f8fb2f0bc0f81d4fa138164233ef321eef17"
+  },
+  "startedAt": "2026-10-05T08:36:49.584Z",
+  "scanners": {
+    "npm": {
+      "status": "FAIL",
+      "findings": [
+        {
+          "ecosystem": "npm",
+          "id": "GHSA-vfj7-8cjw-p6xm",
+          "package": "braces",
+          "version": "3.0.3",
+          "severity": "high",
+          "waived": false
+        }
+      ]
+    },
+    "pypi": {
+      "status": "PASS",
+      "findings": []
+    },
+    "cargo": {
+      "status": "PASS",
+      "findings": []
+    },
+    "cargo-desktop": {
+      "status": "PASS",
+      "findings": [],
+      "maintenanceWarnings": [
+        {
+          "id": "RUSTSEC-2024-0370",
+          "package": "proc-macro-error",
+          "version": "1.0.4",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0081",
+          "package": "unic-char-property",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0075",
+          "package": "unic-char-range",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0080",
+          "package": "unic-common",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0100",
+          "package": "unic-ucd-ident",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0098",
+          "package": "unic-ucd-version",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        }
+      ]
+    }
+  },
+  "glibBackport": {
+    "advisory": "RUSTSEC-2024-0429",
+    "status": "BACKPORT_VERIFIED",
+    "upstreamFix": "https://github.com/gtk-rs/gtk-rs-core/pull/1343",
+    "files": 120
+  },
+  "error": "Unwaived dependency vulnerabilities",
+  "completedAt": "2026-10-05T08:37:08.846Z"
+}
+Unwaived dependency vulnerabilities
+make: *** [sca-check] Error 1

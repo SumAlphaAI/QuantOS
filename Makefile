@@ -411,7 +411,7 @@ license-check:
 	uv run --locked --project engines --all-packages --all-groups python scripts/check-python-licenses.py
 
 sca-check:
-	node --test scripts/tests/glib-backport.test.mjs
+	node --test scripts/tests/glib-backport.test.mjs scripts/braces-backport.test.mjs
 	node scripts/check-sca.mjs
 
 waiver-check:

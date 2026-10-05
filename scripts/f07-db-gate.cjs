@@ -92,7 +92,7 @@ async function main() {
           QUANTOS_F07_METRICS_PATH: metricsPath,
         });
       } finally { run(process.execPath, ['scripts/f07-fixture-check.cjs', '--retire'], { QUANTOS_F07_FIXTURE_RETIRE: '1' }); }
-      receipt.checks.push('100 OS-killed worker recoveries; scheduling P95 is deliberately not assessed by this diagnostic');
+      receipt.checks.push('100 task recoveries after an OS-killed worker; scheduling P95 is deliberately not assessed by this diagnostic');
       receipt.status = 'DIAGNOSTIC_ONLY';
       return;
     }
@@ -119,7 +119,7 @@ async function main() {
         QUANTOS_F07_METRICS_PATH: metricsPath,
       });
     } finally { run(process.execPath, ['scripts/f07-fixture-check.cjs', '--retire'], { QUANTOS_F07_FIXTURE_RETIRE: '1' }); }
-    receipt.checks.push('100 OS-killed worker recoveries, unique artifacts, cancel and timeout audit, scheduling P95 <=200ms');
+    receipt.checks.push('100 task recoveries after an OS-killed worker, unique artifacts, cancel and timeout audit, scheduling P95 <=200ms');
     run('cargo', ['llvm-cov', '--package', 'quantos-runtime', '--package', 'runtime-gateway', '--lib', '--bins', '--test', 'postgres_runtime',
       '--locked', ...(process.env.QUANTOS_F07_NIGHTLY_BRANCH === '1' ? ['--branch'] : []),
       '--json', '--output-path', coveragePath, '--', '--test-threads=1', '--nocapture'], {

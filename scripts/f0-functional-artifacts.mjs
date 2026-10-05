@@ -3,14 +3,15 @@ import {readFileSync} from 'node:fs';
 import {dirname,resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import {verifyBracesBackport,isBracesBackportFinding} from './braces-backport.mjs';
 export function validateF0Artifact(kind,path,source){
  const r=JSON.parse(readFileSync(path));assert.equal(r.sourceCommit??r.source,source,'F0 artifact source differs');
  if(kind==='f02-database'){assert.equal(r.schema,'quantos-f02-development-database/v1');assert.equal(r.status,'PASS');assert.equal(r.targetClass,'configured-supabase');assert.equal(r.formalAccepted,false);assert.equal(r.fullReferenceRebuild,false);assert.equal(r.checks.length,7);}
- else if(kind==='f02-sca'){assert.equal(r.status,'PASS');assert.equal(r.passed,true);assert.deepEqual(Object.keys(r.scanners).sort(),['cargo','cargo-desktop','npm','pypi']);assert(Object.values(r.scanners).every(c=>c.status==='PASS'&&c.findings.every(f=>f.waived)),'unwaived vulnerabilities');}
+ else if(kind==='f02-sca'){assert.equal(r.status,'PASS');assert.equal(r.passed,true);assert.deepEqual(Object.keys(r.scanners).sort(),['cargo','cargo-desktop','npm','pypi']);const proof=verifyBracesBackport(resolve(import.meta.dirname,'..'));assert.deepEqual(r.bracesBackport,proof,'SCA backport proof differs');assert(Object.values(r.scanners).every(c=>c.status==='PASS'&&c.findings.every(f=>f.waived||(f.backportVerified&&isBracesBackportFinding(f,proof)))),'unwaived vulnerabilities');}
  else if(kind==='f07-recovery'||kind==='f07-coverage'){
   assert.equal(r.schema,'quantos-f07-acceptance/v1');assert.equal(r.status,'DIAGNOSTIC_ONLY');assert.equal(r.targetPostgresMajor,17);assert(r.targetProjectRefHash);const m=r.measurements;assert.equal(m.schema,'quantos-f07-recovery-measurements/v1');assert.equal(m.recoveryCompleted,true);
   for(const key of ['scheduledRuns','recoveredRuns','uniqueArtifactBindings'])assert.equal(m[key],kind==='f07-recovery'?100:10,'checkpoint/Artifact count differs');
-  assert(r.checks.some(c=>kind==='f07-recovery'?c.includes('100 OS-killed worker'):c.includes('diagnostic coverage')),'actual recovery/coverage check missing');
+  assert(r.checks.some(c=>kind==='f07-recovery'?c.includes('100 task recoveries after an OS-killed worker'):c.includes('diagnostic coverage')),'actual recovery/coverage check missing');
   if(kind==='f07-coverage')execFileSync(process.execPath,[resolve(import.meta.dirname,'f07-coverage-check.cjs'),resolve(dirname(path),'coverage.json')],{encoding:'utf8'});
  }
  else if(kind==='f07-service'){
