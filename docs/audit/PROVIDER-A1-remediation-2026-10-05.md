@@ -6,7 +6,7 @@
 
 ## 一、任务完成概况
 
-依据[原始复审](./PROVIDER-A1-comprehensive-review-2026-10-04.md)，先盘点依赖闭包，再修复 C10 幂等、live CORS、持续断言、完整功能回执及数据库执行可观测性，最后收口 B-01。原始发现、71.43% 基线和失败证据全部保留。
+依据[原始复审归档](./PROVIDER-A1-findings-archive-2026-10-04.md)，先盘点依赖闭包，再修复 C10 幂等、live CORS、持续断言、完整功能回执及数据库执行可观测性，最后收口 B-01。原始发现、71.43% 基线和失败证据全部保留。
 
 当前完整功能范围覆盖 14 节点、65 项必需检查。完成实际三轮独立目录构建、Rust 覆盖率、Supabase 1 万事件/1,000 次并发/Storage/RLS/F06，以及 PRE、契约、客户端和 Chromium。DEVELOPMENT READY 可以作为后续 API 开发的前置；G0、PROVIDER:ALL、A2–A6 和 RELEASE 独立评估。
 

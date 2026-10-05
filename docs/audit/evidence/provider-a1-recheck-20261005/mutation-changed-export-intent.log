@@ -1,0 +1,38 @@
+
+running 6 tests
+test audit_sort_filter_is_executed_and_unknown_expressions_are_rejected ... ok
+test evidence_chain_preserves_causation_order_and_hides_missing_resources ... ok
+test audit_search_is_capability_guarded_redacted_and_cursor_paginated ... ok
+test export_cancel_expiry_and_validation_fail_closed ... ok
+test export_commands_reject_changed_intents_before_audit_or_cancellation ... FAILED
+test export_lifecycle_is_idempotent_watermarked_short_lived_and_audited ... ok
+
+failures:
+
+---- export_commands_reject_changed_intents_before_audit_or_cancellation stdout ----
+
+thread 'export_commands_reject_changed_intents_before_audit_or_cancellation' (164407) panicked at services/bff-gateway/tests/audit_export_provider.rs:485:9:
+assertion `left == right` failed: changed reason
+  left: 202
+ right: 409
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    export_commands_reject_changed_intents_before_audit_or_cancellation
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Compiling quantos-core v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/crates/quantos-core)
+   Compiling quantos-proto v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/crates/quantos-proto)
+   Compiling quantos-policy v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/crates/quantos-policy)
+   Compiling quantos-storage v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/crates/quantos-storage)
+   Compiling quantos-event v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/crates/quantos-event)
+   Compiling quantos-auth v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/crates/quantos-auth)
+   Compiling quantos-engine-manager v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/crates/quantos-observability)
+   Compiling bff-gateway v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-provider-a1-mutation-sGnwox/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.66s
+     Running tests/audit_export_provider.rs (target/bff-fe-001-mutants/debug/deps/audit_export_provider-72c445b960a5a84a)
+error: test failed, to rerun pass `-p bff-gateway --test audit_export_provider`

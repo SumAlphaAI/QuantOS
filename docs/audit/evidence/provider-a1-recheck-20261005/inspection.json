@@ -1,0 +1,72 @@
+{
+  "schema": "quantos-provider-a1-recheck/v1",
+  "reviewedCommit": "d847178037fc9bba2d6e2a33736ce44f39ff00bb",
+  "functionalExecutionCommit": "4eee7f755c03654be83dfbf4f53994951a04f4ae",
+  "status": "READY",
+  "formalAccepted": false,
+  "databaseExecutedThisReview": false,
+  "activeFindings": 0,
+  "controlPoints": {
+    "pass": 21,
+    "total": 21
+  },
+  "closure": {
+    "ready": 14,
+    "total": 14
+  },
+  "effectiveChecks": {
+    "pass": 65,
+    "total": 65
+  },
+  "uniqueInputsVerifiedAgainstGit": 945,
+  "inputDigest": "sha256:b986c85588aea7bc10e5e986bf42565e435c685446825154fa9402286e567aa3",
+  "originalReportSha256": "745c4013828eca3d14c1ab5f9880874e61808ffc5bd8d2c7efd6b411458cd328",
+  "findings": [
+    {
+      "id": "B-01",
+      "severity": "blocking",
+      "status": "CLOSED",
+      "verification": "14-node dependency closure",
+      "evidence": "functional-receipts.log"
+    },
+    {
+      "id": "H-01",
+      "severity": "high",
+      "status": "CLOSED",
+      "verification": "C10 intent and resource conflict before side effects",
+      "evidence": "rust-provider.log"
+    },
+    {
+      "id": "M-01",
+      "severity": "medium",
+      "status": "CLOSED",
+      "verification": "complete functional manifests and negative receipt checks",
+      "evidence": "receipt-regressions.log"
+    },
+    {
+      "id": "M-02",
+      "severity": "medium",
+      "status": "CLOSED",
+      "verification": "maintained semantic failures and CI wiring",
+      "evidence": "mutation-results.json"
+    },
+    {
+      "id": "M-03",
+      "severity": "medium",
+      "status": "CLOSED",
+      "verification": "actual live CORS helper and recent-auth header",
+      "evidence": "rust-provider.log"
+    },
+    {
+      "id": "L-01",
+      "severity": "low",
+      "status": "CLOSED",
+      "verification": "ignored database target and explicit opt-in rejection",
+      "evidence": "db-visibility.log"
+    }
+  ],
+  "ci": {
+    "functionalReceipt": ".github/workflows/frontend-baseline.yml:64",
+    "rustAndHttp": ".github/workflows/ci.yml:137"
+  }
+}

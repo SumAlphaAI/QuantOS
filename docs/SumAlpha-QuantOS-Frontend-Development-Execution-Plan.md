@@ -1,6 +1,6 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.19
+> 版本：3.20
 > 更新时间：2026-10-05
 > 状态：PROVIDER:A1 及 14 节点功能前置 READY；后续检查点独立评估，正式发布待联合验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
@@ -8,13 +8,15 @@
 
 ## 版本变更说明
 
+- `3.20`：独立复核 PROVIDER:A1 原 6 项发现全部关闭；活跃报告整理为当前状态，原始问题与失败记录归档。重新执行 Rust/HTTP、业务 mutation、数据库执行状态和回执回归，14 节点功能证据仍有效；本轮未重跑 Supabase，不改写 formal 验收状态。
+
 - `3.19`：关闭 PROVIDER:A1 原 6 项发现；65 项完整功能检查当前有效结果全部通过，自底向上登记 14 节点 READY。包括独立三轮构建、实际覆盖率、Supabase 1 万事件/并发/Storage/RLS/F06；原完整轮与同源聚焦复验分开保留。历史 formal 字段/notes 不迁移，G0、PROVIDER:ALL、RELEASE 不自动放行。
 
 - `3.18`：重新核对 BFF-FE-000 原 14 项发现，13 项工程问题关闭，B-01 维持最终 RELEASE 评审待办；活跃报告精简并归档历史发现，任务卡/总结同步 API 1.5.0 / 52 schemas。当前 P0 同 SHA 回执未在本轮重验，不改变阶段 READY 或正式 ACCEPTED。
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.19、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.20、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -348,7 +350,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 <a id="acceptance-provider-a1"></a>
 ##### PROVIDER:A1：验收检查点
 
-当前功能复验：原 6 项发现 CLOSED，21/21 控制点通过；`pnpm check:provider-a1` 核验当前输入/日志/产物和递归依赖，`pnpm test:provider-a1` 持续检验篡改与少跑拒绝。详见 [整改报告](./audit/PROVIDER-A1-remediation-2026-10-05.md)与[功能验收规程](./PROVIDER-A1-functional-acceptance.md)。下方正式 review_status/source_commit/evidence 保留原事实。
+当前功能复验（2026-10-05）：原 1 阻塞、1 高危、3 中危、1 低危全部 CLOSED；活动问题 0，21/21 控制点通过，含本节点的 14 节点 DEVELOPMENT READY。`pnpm check:provider-a1` 复核当前输入/日志/产物及递归依赖，41 项回执测试、24 项非 DB Rust、38 次 reference HTTP、2 项业务 mutation 和 DB 执行状态检查通过。既有 65 项功能结果继续有效，本轮未重跑 Supabase。当前结论见[活跃复核报告](./audit/PROVIDER-A1-comprehensive-review-2026-10-04.md)，原始发现见[历史归档](./audit/PROVIDER-A1-findings-archive-2026-10-04.md)，修复过程见[整改报告](./audit/PROVIDER-A1-remediation-2026-10-05.md)；持续验收按[功能验收规程](./PROVIDER-A1-functional-acceptance.md)。可作为后续 API 开发前置；G0、PROVIDER:ALL 和 RELEASE 独立评估。下方正式 review_status/source_commit/evidence 保留原事实。
 
 A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现功能的 provider/consumer harness，按输入清单评估阶段 READY；A2–A6 未交付 provider 不属 A1 实现范围。B-01 staging 继续 DEFERRED_TO_FINAL_REVIEW，正式目标回执和签署由 RELEASE 收口，不能据工程通过改为正式 ACCEPTED。
 
