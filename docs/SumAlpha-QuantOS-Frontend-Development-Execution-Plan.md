@@ -2,13 +2,15 @@
 
 > 2026-10-05 A2 源码整改后，旧内容绑定 stage 回执不迁移：PROVIDER:A1 的 14 节点依赖链及 A2/BFF-FE-001 已按新输入复验并登记 READY（共 15 节点，formalAccepted=false）；其余 F0/G0/FEP-0 等历史回执的当前准入撤为 NOT_ASSESSED，人工确认保留原记录。节点下方旧日期结论仅说明该轮证据，当前准入以有效 stage_gate 与严格 runner 为准。
 
-> 版本：3.29
+> 版本：3.30
 > 更新时间：2026-10-05
-> 状态：FEP-0 当前 DEVELOPMENT READY；20/20 控制点、8/8 直接依赖通过，PROVIDER:ALL 与 RELEASE 独立验收
+> 状态：BFF-FE-001 当前 DEVELOPMENT READY；24/24 控制点、20/20 API 满足；F0/G0/FEP-0 以当前有效 stage_gate 为准，PROVIDER:ALL 与 RELEASE 独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.30`：在 `f2283fa` 逐项复核 BFF-FE-001 原 2 高危、4 中危均已关闭；当前活动问题为 0，24/24 控制点及 20/20 API 满足，严格 DEVELOPMENT 门禁 READY。重新执行聚焦语义、8 项 mutation、22 项契约负向、14 项阶段正负与 transport 检查；既有 Supabase 目标证据按内容核验，本轮未重跑目标测试。主报告整理为[当前结论](./audit/BFF-FE-001-comprehensive-review-2026-10-05.md)，[历史发现](./audit/BFF-FE-001-findings-archive-2026-10-05.md)与[关闭依据](./audit/BFF-FE-001-closed-findings-2026-10-05.md)独立归档。
 
 - `3.29`：在 `72d12b0` 再次核验 FEP-0 原 2 个阻塞项均已关闭；5 项当前门禁、141 项专项回归、12 项独立反证通过，161 份证据摘要一致，20/20 控制点、8/8 直接依赖、23/23 闭包节点 READY。主报告整理为[当前结论](./audit/FEP-0-comprehensive-review-2026-10-05.md)，原始发现及关闭依据独立归档。本轮未重跑完整工程或 Supabase，既有功能回执和用户确认保持有效。
 
@@ -483,9 +485,10 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - 领域接口背景：F06 定义 Auth/RBAC/主上下文；未定义完整登录恢复、个人资料、会话、可信设备、通知偏好页面 API
 - 覆盖契约/页面：C01、C17；P01/P15
 - 目标阶段与验收：FEP-1/G1：401/403/404、CSRF、recent-auth、最后有效因素保护与撤销后实时失效测试通过
-- 工程整改与复验：[2026-10-03 整改记录](./audit/BFF-FE-001-remediation-2026-10-03.md)。当前 API 1.5.0 / 62 operations / 52 schemas；reference 与实际 Supabase + 本机 live BFF 分别验证。staging 与签署仍按 FINAL 评审执行，PROVIDER:A2/G1 的正式复审状态由对应正式回执决定；功能准入另按 stage_gate 评估。
+- 工程整改与复验：[当前复审结论](./audit/BFF-FE-001-comprehensive-review-2026-10-05.md)、[逐项关闭依据](./audit/BFF-FE-001-closed-findings-2026-10-05.md)、[2026-10-05 整改记录](./audit/BFF-FE-001-remediation-2026-10-05.md)。当前 API 1.5.0 / 62 operations / 52 schemas；reference 与实际 Supabase + 本机 live BFF 分别验证。staging 与签署仍按 FINAL 评审执行，PROVIDER:A2/G1 的正式复审状态由对应正式回执决定；功能准入另按 stage_gate 评估。
 - 阶段执行：`pnpm check:bff-fe-001` 为 local_contract；`pnpm check:bff-fe-001:development` 校验本任务源码/执行/目标证据及 BFF-FE-000、CORE:F06、PROVIDER:A1 的递归有效 READY 回执；正负门禁为 `pnpm test:bff-fe-001:development`。当前整改入口：[2026-10-05 问题关闭与复验](./audit/BFF-FE-001-remediation-2026-10-05.md)。
 
+当前功能复核（2026-10-05 / `f2283fa`）：原 2 高危、4 中危均 CLOSED；活动问题 0，24/24 控制点、20/20 API 满足，BFF-FE-001 DEVELOPMENT READY。目标证据源码内容一致，未重跑 Supabase；PROVIDER:A2/ALL 与 RELEASE 仍独立验收。
 
 <a id="task-bff-fe-007"></a>
 ##### BFF-FE-007：Audit 与导出 API

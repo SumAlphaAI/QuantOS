@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "id": "H-01",
+      "status": "fixed",
+      "module": "live MFA 首因素授权",
+      "evidence": "settings.rs:868–905 在主体锁内读取当前因素，authorize_enrollment 拒绝有 verified 因素后的旧 first_factor 新注册；完成重放和现有因素恢复仍可用。 原双会话实测拒绝新命令、pending 缺因素拒绝、现有因素恢复与取消检查点保护；本轮 live 单元及 first-factor mutation 通过。"
+    },
+    {
+      "id": "H-02",
+      "status": "fixed",
+      "module": "live 回归保障",
+      "evidence": "实际 handler 调用 settings_policy.rs 的 last-factor、CSRF、首因素、TTL 与撤销策略；执行脚本显式运行 --lib，mutation 直接修改这些策略。 本轮 5 项 live + 3 项 reference mutation 全由指定业务断言拒绝；14 Rust lib、12 reference、29 consumer 通过。"
+    },
+    {
+      "id": "M-01",
+      "status": "fixed",
+      "module": "审计与响应关联",
+      "evidence": "save_preferences 持久保存私有 correlation 并在 respond 移除私有字段；MFA verify/reauth 及持久撤销事件共用命令 ID。 已绑定目标回执验证 5 个响应 → 唯一 audit → 成功 trace、保存重放关联稳定及持久 session_revoked 事件关联。即时权限失效终态事件仍可有独立 ID，不据此声称所有 SSE 事件均来自同一命令。"
+    },
+    {
+      "id": "M-02",
+      "status": "fixed",
+      "module": "安全时间来源",
+      "evidence": "security 读取真实 last_sign_in_at 与持久 mfa.verify.created_at，策略选择最新可信值；无事实时失败关闭，不再倒推 expiry。 本轮来源与缺失事实单元通过；目标回执含 MFA 前主认证及 MFA 后持久审计时间断言，OpenAPI/生成物说明一致。"
+    },
+    {
+      "id": "M-03",
+      "status": "fixed",
+      "module": "客户端超时与取消",
+      "evidence": "统一 transport 默认 30 秒覆盖 headers/body，调用方取消和 bundle 失败中止可用；写结果未知有类型，未自动重试。 本轮 29 consumer + 3 transport 通过，覆盖停滞 headers/body、取消、兄弟读取终止、草稿与原 key/版本恢复、SSE 取消。"
+    },
+    {
+      "id": "M-04",
+      "status": "fixed",
+      "module": "A2 阶段准入",
+      "evidence": "内容绑定 manifest 校验当前源码、执行日志、目标断言、恢复与 trace，并递归校验三项前置的当前 READY。 本轮实际 A2/PROVIDER:A1 严格门禁 READY；14 项阶段正负、22 项契约负向通过，失效输入/依赖/证据均拒绝。"
+    }
+  ]
+}
