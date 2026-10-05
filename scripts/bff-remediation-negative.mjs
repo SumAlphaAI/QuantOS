@@ -3,6 +3,7 @@ import{loadBffFe000Inputs,validateBffFe000}from'./check-bff-fe-000.mjs';
 import{validateCompatibility}from'./bff-compatibility.mjs';import{readFileSync}from'node:fs';
 import{validateA1Receipt,validateA1Stage}from'./check-bff-a1-acceptance.mjs';
 import{createHash}from'node:crypto';
+import {bytesDigest,confirmationMode,reviewDimensions} from './user-acceptance-confirmation.mjs';
 const current=loadBffFe000Inputs();
 const reviewPolicy=JSON.parse(readFileSync(new URL('../bff/a1-review-policy.json',import.meta.url)));
 test('missing staging permits development readiness and never claims formal acceptance',()=>{
@@ -46,24 +47,19 @@ test('absent, invented and reference-only staging receipts never close A1',()=>{
  const sha='a'.repeat(40),inputs='b'.repeat(64);
  for(const receipt of [undefined,{schema:'quantos-bff-a1-acceptance/v1',sourceCommit:sha,status:'PASS',environment:'reference',inputsDigest:inputs,baseUrl:'http://localhost:4010'}, {schema:'quantos-bff-a1-acceptance/v1',sourceCommit:sha,status:'PASS',environment:'staging',inputsDigest:inputs,baseUrl:'https://staging.example.com',checks:[],signatures:[]}])assert.equal(validateA1Receipt(receipt,sha,inputs).status,'NOT_ACCEPTED');
 });
-test('receipt checker binds actual evidence bytes and each role to source and contract inputs',()=>{
+test('final receipt requires technical evidence plus one input-bound user confirmation',()=>{
  const sha='a'.repeat(40),inputs='b'.repeat(64),hash=raw=>createHash('sha256').update(raw).digest('hex');
- const files=new Map([['check.log','synthetic unit-test evidence']]);
- const roles=['Product','Frontend','BFF','QA','Security','Risk','Domain'];
- const signatures=roles.map(role=>{
-  const sign={role,sourceCommit:sha,identity:'unit-test signer',signedAt:'2026-10-02T00:00:00Z',receipt:role+'.json'};
-  const raw=JSON.stringify({...sign,schema:'quantos-g0-role-signoff/v1',approved:true,inputsDigest:inputs});files.set(sign.receipt,raw);
-  return {...sign,receiptSha256:hash(raw)};
- });
- const receipt={schema:'quantos-bff-a1-acceptance/v1',sourceCommit:sha,status:'PASS',environment:'staging',inputsDigest:inputs,baseUrl:'https://staging.sumalpha.ai',signatures,
- checks:['cookie-session','request-response-schema','csrf-origin','idempotency-version','correlation-audit','sse-recovery-revocation','sensitive-fields'].map(name=>({name,status:'PASS',requestId:'unit-test',evidence:'check.log',logSha256:hash(files.get('check.log'))}))};
- const reader=path=>files.get(path);
- assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'PASS');
- const final=validateA1Stage('final-review',{policy:reviewPolicy,receipt,sha,inputsDigest:inputs,evidenceReader:reader});
- assert.equal(final.status,'PASS');assert.equal(final.formalAccepted,true);
- files.set('check.log','tampered');assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'NOT_ACCEPTED');
- files.set('check.log','synthetic unit-test evidence');files.set('QA.json',files.get('QA.json').replace(sha,'c'.repeat(40)));
- assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'NOT_ACCEPTED');
+ const request={nodeId:'BFF-FE-000',stage:'RELEASE',sourceCommit:sha,inputsDigest:'sha256:'+inputs,reviewDimensions:[...reviewDimensions,'Domain']};
+ const document='docs/gate-records/unit-final-draft.md',record='docs/gate-records/unit-final-approval.json';
+ const draft='```json\n'+JSON.stringify({schema:'quantos-acceptance-draft/v1',mode:confirmationMode,draftedBy:'Codex',request,reviewDimensions:request.reviewDimensions})+'\n```';
+ const raw=JSON.stringify({schema:'quantos-user-acceptance-confirmation/v1',mode:confirmationMode,request,decision:'CONFIRMED',approver:'ProjectUser',identity:'unit-test only',confirmedAt:new Date().toISOString(),document,documentSha256:bytesDigest(draft),confirmationSource:{kind:'USER_MESSAGE',text:'Unit-test confirmation only'}});
+ const files=new Map([['check.log','synthetic unit-test evidence'],[document,draft],[record,raw]]);
+ const receipt={schema:'quantos-bff-a1-acceptance/v2',sourceCommit:sha,status:'PASS',environment:'staging',inputsDigest:inputs,baseUrl:'https://staging.sumalpha.ai',confirmation:{record,recordSha256:bytesDigest(raw)},checks:['cookie-session','request-response-schema','csrf-origin','idempotency-version','correlation-audit','sse-recovery-revocation','sensitive-fields'].map(name=>({name,status:'PASS',requestId:'unit-test',evidence:'check.log',logSha256:hash(files.get('check.log'))}))};
+ const reader=path=>files.get(path);assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'PASS');assert.equal(validateA1Stage('final-review',{policy:reviewPolicy,receipt,sha,inputsDigest:inputs,evidenceReader:reader}).formalAccepted,true);
+ files.set('check.log','tampered');assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'NOT_ACCEPTED');files.set('check.log','synthetic unit-test evidence');
+ files.set(record,raw.replace(sha,'c'.repeat(40)));receipt.confirmation.recordSha256=bytesDigest(files.get(record));assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'NOT_ACCEPTED');
+ files.set(record,raw);receipt.confirmation.recordSha256=bytesDigest(raw);files.set(document,draft+'changed');assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'NOT_ACCEPTED');
+ files.set(document,draft);delete receipt.confirmation;receipt.signatures=[];assert.equal(validateA1Receipt(receipt,sha,inputs,reader).status,'NOT_ACCEPTED');
 });
 
 test('optional property within an existing allOf is additive, required changes are rejected', () => {

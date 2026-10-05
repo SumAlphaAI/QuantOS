@@ -84,4 +84,4 @@
 
 ## 2026-10-05 当前工程处置入口
 
-历史签署及日期保持原样；当前一期 Web 的子项阶段、owner、检查点期限、兼容策略见 [当前处置台账](./G0-current-disposition.md)。G0 DEVELOPMENT 与正式 RELEASE 分别验收；当前六方范围确认暂缺，不沿用历史签署。
+历史签署及日期保持原样；当前一期 Web 的子项阶段、owner、检查点期限、兼容策略见 [当前处置台账](./G0-current-disposition.md)。G0 DEVELOPMENT 与正式 RELEASE 分别验收；2026-10-05 起当前人工确认改为 Codex 拟稿、项目用户一人确认；当前 G0 文稿待确认，不沿用历史签署。见[统一流程](./user-acceptance-confirmation-workflow.md)。

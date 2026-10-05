@@ -41,3 +41,5 @@ API 1.5.0：62 operations / 52 schemas；C01/C17 20 operations。当前整改入
 ## 历史下一任务安排
 
 按执行计划依赖拓扑进入 **A2 / BFF-FE-007：Audit 与导出 API**。该任务依赖本任务与 CORE:F05；不得复用本地 `auditRef` 作为目标环境审计账本验收回执。
+
+2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。

@@ -1,0 +1,118 @@
+{
+  "schema": "quantos-user-confirmation-workflow-checks/v1",
+  "observedBaseCommit": "a33ea04dc30a631432e3e85947143b724f793651",
+  "sourceState": "working tree workflow changes tested; no new database/browser/deployment or same-SHA formal acceptance",
+  "testedScopeDigest": "sha256:f28fdac5a2d97e34b1e4a0cc3150bc765e283cf53f744d88894ac16d09da95cb",
+  "tests": 152,
+  "userConfirmation": "PENDING",
+  "g0": "BLOCKED",
+  "records": [
+    {
+      "id": "regression",
+      "command": [
+        "node",
+        "--test",
+        "scripts/user-acceptance-confirmation.test.mjs",
+        "scripts/g0-development.test.mjs",
+        "scripts/bff-remediation-negative.mjs",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/tests/check-g0-records.test.mjs",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "completedAt": "2026-10-05T04:42:31.586022+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/user-confirmation-workflow-20261005/regression.log",
+      "logSha256": "sha256:a02a039fcea4efdd9d7539187e2ccaa8093adde4903472f7350449bbdbc3a75f"
+    },
+    {
+      "id": "plan-shape",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "completedAt": "2026-10-05T04:42:31.619626+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/user-confirmation-workflow-20261005/plan-shape.log",
+      "logSha256": "sha256:e02f193039a8f79c4f265978f6d68d9fe4947dd108c7a0cc3be9fc27abb357a6"
+    },
+    {
+      "id": "governance",
+      "command": [
+        "node",
+        "scripts/check-g0-records.mjs"
+      ],
+      "completedAt": "2026-10-05T04:42:31.642740+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/user-confirmation-workflow-20261005/governance.log",
+      "logSha256": "sha256:95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c"
+    },
+    {
+      "id": "development",
+      "command": [
+        "node",
+        "scripts/check-bff-a1-acceptance.mjs",
+        "--stage",
+        "development"
+      ],
+      "completedAt": "2026-10-05T04:46:13.794478+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/user-confirmation-workflow-20261005/development.log",
+      "logSha256": "sha256:6f84bf184c4a62798c77538ce067c94a8c08107ae96c01a4cf20baa4565cf22d"
+    },
+    {
+      "id": "strict",
+      "command": [
+        "node",
+        "scripts/g0-development.mjs",
+        "--ready"
+      ],
+      "completedAt": "2026-10-05T04:44:45.040582+00:00",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "status": "EXPECTED_REJECTION",
+      "log": "docs/audit/evidence/user-confirmation-workflow-20261005/strict.log",
+      "logSha256": "sha256:f430d88d359754b2b024704a13e444b9632775a2612a7bde4828ec05fe099bf8"
+    },
+    {
+      "id": "draft",
+      "command": [
+        "pnpm",
+        "draft:g0-confirmation"
+      ],
+      "completedAt": "2026-10-05T04:46:14.066615+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/user-confirmation-workflow-20261005/draft.log",
+      "logSha256": "sha256:4c39de4597d0ce535ef78b4b1460863e0414bf081912810b9a986e6e882916aa"
+    },
+    {
+      "id": "secrets",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "dir",
+        "docs/gate-records",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner"
+      ],
+      "completedAt": "2026-10-05T04:46:14.316145+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/user-confirmation-workflow-20261005/secrets.log",
+      "logSha256": "sha256:b078776c8347b9a1ce037a73894429f806cd939d9b668c4bc6936886a73bbae8"
+    }
+  ]
+}

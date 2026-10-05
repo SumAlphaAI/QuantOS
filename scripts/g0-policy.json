@@ -1,14 +1,6 @@
 {
-  "schema": "quantos-g0-development-policy/v1",
+  "schema": "quantos-g0-development-policy/v2",
   "scope": "Phase-one Web; current published OpenAPI minimum, engineering/traceability and Web/OIDC/SSE PoCs",
-  "roles": [
-    "Product",
-    "Frontend",
-    "BFF",
-    "QA",
-    "Security",
-    "Risk"
-  ],
   "inputSelectors": [
     "apps/terminal/",
     "apps/website/",
@@ -34,7 +26,8 @@
     "docs/gate-records/G0-PRE-01-review-record.md",
     "docs/gate-records/G0-readiness-assessment.md",
     "docs/adr/20260814-pre03-runtime-stack.md",
-    "docs/gate-records/G0-current-disposition.md"
+    "docs/gate-records/G0-current-disposition.md",
+    "docs/gate-records/acceptance-confirmation-policy.json"
   ],
   "developmentProfile": {
     "file": "env/local-mock.env.example",
@@ -78,7 +71,8 @@
       "command": [
         "node",
         "--test",
-        "scripts/g0-development.test.mjs"
+        "scripts/g0-development.test.mjs",
+        "scripts/user-acceptance-confirmation.test.mjs"
       ],
       "marker": "fail 0"
     },
@@ -175,7 +169,7 @@
         "scripts/check-perf-budget.mjs",
         "apps/terminal/out"
       ],
-      "marker": "性能预算校验通过"
+      "marker": "\u6027\u80fd\u9884\u7b97\u6821\u9a8c\u901a\u8fc7"
     },
     "linux-baselines": {
       "command": [
@@ -401,9 +395,18 @@
   ],
   "excluded": [
     "RELEASE staging deployment/real IdP",
-    "RELEASE signatures and same-SHA hosted CI",
+    "RELEASE user confirmation and same-SHA hosted CI",
     "RELEASE performance/soak/full platform matrix",
     "unimplemented A2-A6 providers",
     "P16 and Desktop phase two"
-  ]
+  ],
+  "reviewDimensions": [
+    "Product",
+    "Frontend",
+    "BFF",
+    "QA",
+    "Security",
+    "Risk"
+  ],
+  "confirmationMode": "AGENT_DRAFT_USER_CONFIRMATION"
 }

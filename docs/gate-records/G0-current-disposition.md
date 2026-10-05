@@ -4,7 +4,7 @@
 
 子项 stage 表示工作阶段，deadline.stage 表示消费门禁阶段。设计须在页面进入 Sprint 前补齐；FEP-1 INTEGRATION 检查点只是其外层消费期限。
 
-结构化来源：[G0-current-disposition.json](./G0-current-disposition.json)。六方当前范围确认仍待补。
+结构化来源：[G0-current-disposition.json](./G0-current-disposition.json)。当前范围确认由 Codex 拟稿、项目用户一人确认；文稿待确认，见[统一流程](./user-acceptance-confirmation-workflow.md)。
 
 | 子项 | 范围 | 阶段 / 最晚门禁 | Owner | 状态 | 兼容策略 |
 |---|---|---|---|---|---|

@@ -23,3 +23,5 @@ F01 三次构建的完整产物清单、F04 原始 LLVM 分支报告和 F05 1 �
 静态 make 检查须清除数据库 URL、Supabase 私有配置和目标测试开关，并设置 QUANTOS_SKIP_ENV=1，禁止 Make 再次自动 include .env.local。静态 suite 中其他历史 target 用例的早退不计目标通过；真实数据库执行仅按独立显式启用命令统计。
 
 F05 1 万事件测试只对明确的 PostgreSQL Closed 传输错误允许至多三次完整测试重跑，各次使用测试自身的新 tenant fixture，保留所有尝试结果和失败日志。副作用重复、checkpoint/计数失败及证书错误不重试；最终 PASS 必须来自单次完整消费与一致性验证，不拼接批次结果。该重试不证明 RELEASE 可用性或长稳。RLS 检查继续逐表执行，UUID 默认值检查仅识别版本化的六个 BFF 显式标识列，不能按表名前缀豁免。
+
+2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。

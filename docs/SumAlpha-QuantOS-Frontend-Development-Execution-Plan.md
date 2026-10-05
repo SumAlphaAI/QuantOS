@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.22
+> 版本：3.23
 > 更新时间：2026-10-05
-> 状态：PROVIDER:A1 及 14 节点功能前置 READY；G0 工程 PASS、DEVELOPMENT BLOCKED（待当前六方范围确认）；正式发布待联合验收
+> 状态：验收人工确认改为 Codex 拟稿、项目用户单人确认；G0 待用户确认，策略变更后的功能回执待复评；正式发布独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.23`：按用户要求，所有原六方/多角色验收确认改为 Codex 拟定文稿、项目用户一人确认；角色保留为审阅维度，旧签署/测试保留历史。统一规程覆盖 G0–G8、provider 最终评审、RELEASE 与 Desktop；变更后的范围/校验器输入须复评，不把流程授权视为 G0 文稿确认。
 
 - `3.22`：G0 工程整改增加内容绑定功能清单、PoC 执行日志、生产 BFF 导入边界和遗留子项阶段治理，PRE-01 同步 API 1.5.0。当前六方 DEVELOPMENT 范围确认暂缺，G0 保持 BLOCKED；正式 staging/签署仍按 RELEASE 验收。上游变更后回执独立复验，历史证据保留。本轮 65 项上游与 16 项 G0 实际执行通过，控制点 23/24；见[G0 整改复验报告](./audit/FRONTEND-GATE-G0-remediation-2026-10-05.md)。
 
@@ -20,7 +22,7 @@
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.22、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.23、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -136,6 +138,11 @@
 
 现有 `pnpm check:p0`、A1 development/final-review、前端/核心 Gate 中可能仍混合多个阶段。本次不改运行 Gate 语义，不宣称已有命令自动支持阶段放行；已有独立功能子检查可分别记录结果和性能诊断，混合 runner 未拆分时不得忽略失败或将整条记为 PASS。受此影响的任务须先拆出可验证的功能 runner，再评估阶段 READY。本次纯文档变更只运行计划结构/依赖回归，不重跑数据库/provider 或长稳。旧同 SHA 正式回执只证明其原提交，不传递到新 HEAD；发布候选仍须取得自身的远程同 SHA CI 和目标环境回执。
 
+
+### 2.2 验收人工确认
+
+所有原六方/多角色项目验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)：Codex 拟稿，项目用户一人确认；无需各角色分别签署。适用于本计划所有 Gate/provider 与后续 RELEASE。角色保留审阅维度与工程 owner，技术验证及范围边界照常执行。历史版本中的多方签署仅按当时事实保留。
+
 ## 3. 前期准备窗口（P0）
 
 ### 3.1 工作包与产出
@@ -148,7 +155,7 @@
 - task_id: `PRE-01`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:d21031660f766a04014c9cfd96f721a6d523bffd8a7e78f551bcf09d9ed26a9d","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005/fe-pre-01.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -167,7 +174,7 @@
 - task_id: `PRE-02`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ee74ec41f8fd9a655d364a86526d8e7b51083e2429ecdffc40d6d909ba8f8f09","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005/fe-pre-02.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-01"]
 - core_prerequisites: []
 - closes_core: []
@@ -185,7 +192,7 @@
 - task_id: `PRE-03`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:378bf401d5169ec714aa3fc96773cc831ac89876c98a5e33d5ee3968e0005380","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005/fe-pre-03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-02", "CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -203,7 +210,7 @@
 - task_id: `PRE-04`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e559bf1aaed2443b322a3dd9fa6b83fa40e941a5858d8b3fec7dc3c3894e6814","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005/fe-pre-04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
 - core_prerequisites: ["CORE:F03", "CORE:F06"]
 - closes_core: []
@@ -221,7 +228,7 @@
 - task_id: `PRE-05`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:8a310233feb8a78750523a23d48bba136945f3416473bb9cb0888e22ad8c06cd","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005/fe-pre-05.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-03", "PRE-04"]
 - core_prerequisites: []
 - closes_core: []
@@ -239,7 +246,7 @@
 - task_id: `PRE-06`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7a5b61ced78fe5d83a25db24e5d49a82d45d99ea5d471f470c0ebbd5ec1be50c","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005/fe-pre-06.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-04", "PRE-05"]
 - core_prerequisites: []
 - closes_core: []
@@ -278,11 +285,9 @@
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:a68bdbc8423c411fd016dac496bc6f66adc64a264b11883599a6ce3c1569750a",
-    "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005/preparation-p0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -341,7 +346,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:eb4f1c6f7adb57d2735707d260e9eff8d95a6245e0146bd7d2bb1055714be33b","evidence":["audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005/fe-bff-fe-000.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -374,31 +379,29 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:7fe1d4620c9821924bc01813ef372be32ee480d970d317f2f35f0270e71e7569",
-    "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/g0-corrected-20261005/provider-a1.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
 
 ##### G0 契约与工程功能冻结要求
 
-以下冻结与 PoC 要求形成 G0 的 DEVELOPMENT 证据；新页面还须等待 PROVIDER:ALL 的全量 API 功能准入。联合发布签署在 RELEASE 完成：
+以下冻结与 PoC 要求形成 G0 的 DEVELOPMENT 证据；新页面还须等待 PROVIDER:ALL 的全量 API 功能准入。发布用户确认在 RELEASE 完成：
 
 - BFF 发布版本化 OpenAPI，至少冻结会话/上下文、Research、DataSnapshot、Strategy、Portfolio/Risk、Proposal/Approval/Order 与统一错误模型；未实现接口允许 mock，但 schema 不允许另起一套。
 - 生成 client 与 Proto/JSON Schema 一致性检查进入 CI；现有手写 `InMemory*Backend` 已迁移为实现生成接口的测试 adapter，或明确标记为待删除。
 - 页面台账能追踪到 `页面 → 前端任务 → BFF 契约 → 后端计划任务 → 测试用例 → Gate`。
 - Web 页面 PoC、OIDC callback PoC、SSE 断线续传 PoC 均通过。
-- 产品、前端、BFF、QA、安全与风控确认契约/功能范围，未冻结项有责任人、截止日和兼容策略；G0 正式签署记录保留为 RELEASE 的完整验收要求。
+- Codex 按产品、前端、BFF、QA、安全、风控六个审阅维度拟定契约/功能范围文稿，由项目用户一人确认；未冻结项仍需责任人、截止日和兼容策略。RELEASE 的人工验收同样采用单用户确认。
 
 <a id="acceptance-frontend-gate-g0"></a>
 ##### FRONTEND-GATE:G0：验收检查点
 
-工程复验入口为 `pnpm check:g0-engineering`，严格阶段准入为 `pnpm check:g0-development`；范围请求由 `pnpm scope:g0-development` 生成，六方当前确认记录写入 [G0-current-scope-confirmations.json](./gate-records/G0-current-scope-confirmations.json)。遗留子项见 [当前处置台账](./gate-records/G0-current-disposition.md)。工程 PASS 与组织范围确认分开记录，缺确认不能 READY。
+工程复验入口为 `pnpm check:g0-engineering`，严格阶段准入为 `pnpm check:g0-development`；范围请求由 `pnpm scope:g0-development` 生成，项目用户当前确认记录写入 [G0-current-scope-confirmations.json](./gate-records/G0-current-scope-confirmations.json)。遗留子项见 [当前处置台账](./gate-records/G0-current-disposition.md)。工程 PASS 与用户范围确认分开记录，缺确认不能 READY。
 
-G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范围确认后评估阶段 READY；新页面还须全量 API 的 PROVIDER:ALL 阶段准入。正式 G0 签署、staging 与发布证据在 RELEASE 完成，历史正式复审状态独立保留。
+G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范围确认后评估阶段 READY；新页面还须全量 API 的 PROVIDER:ALL 阶段准入。正式 G0 用户确认、staging 与发布证据在 RELEASE 完成，历史正式复审状态独立保留。
 
 ```json
 {
@@ -409,17 +412,15 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
     "PROVIDER:A1",
     "FE:BFF-FE-000"
   ],
-  "required_scope": "G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范围确认后评估阶段 READY；新页面还须全量 API 的 PROVIDER:ALL 阶段准入。正式 G0 签署、staging 与发布证据在 RELEASE 完成，历史正式复审状态独立保留。",
+  "required_scope": "G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范围确认后评估阶段 READY；新页面还须全量 API 的 PROVIDER:ALL 阶段准入。正式 G0 用户确认、staging 与发布证据在 RELEASE 完成，历史正式复审状态独立保留。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "BLOCKED",
-    "input_digest": "sha256:0dd63b4243743e934e3400f2b9d7c950ccb944fcea691ff37e55619996f62522",
-    "evidence": [
-      "audit/evidence/frontend-g0-remediation-20261005/g0.json"
-    ]
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -2209,7 +2210,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 
 #### 5.6.1 API 缺口任务执行规则
 
-- `BFF-FE-000` 由 BFF TL 主责，Frontend TL、QA、安全和领域 owner 联合签署；其余任务必须在对应页面进入 Sprint 前一个 Sprint 达到 `Reviewed + Mocked`。
+- `BFF-FE-000` 由 BFF TL 主责，Codex 综合前端、QA、安全与领域审阅维度拟稿，由项目用户确认；其余任务必须在对应页面进入 Sprint 前一个 Sprint 达到 `Reviewed + Mocked`。
 - 每项 operation 必须提供：权限/capability、请求/响应示例、字段 required/nullable、枚举、分页/排序、缓存与 `asOf`、错误码、幂等、对象版本、审计、限流、实时恢复和敏感字段说明。
 - 对总开发计划已经存在的服务接口，BFF 只能做授权、裁剪、聚合和页面模型转换，不复制领域规则；风险结论、审批状态、订单事实和账本状态仍由原服务权威产生。
 - 新增页面 API 不得扩展产品范围：不增加 workspace 切换、生产 Assisted Live、Guarded Live、任意 Runbook 命令、手工改账、客户端 command 构造或 venue 直连。
@@ -2297,7 +2298,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 ### 7.3 页面还原度与功能完整性
 
 - P01–P15、P17–P23 的页面、路由、角色、主操作、文案、字段和状态逐功能对照设计，功能闭环目标仍为第一期 Web 需求覆盖率 100%；分母按开发、联调、发布验收分别统计。
-- 开发期建立 App Shell、ModeBanner、DataGrid、EvidenceTimeline、RiskDecision、OrderStateMachine、DangerConfirmDialog 的视觉基线与关键状态测试；RELEASE 由设计 owner 签署完整视觉矩阵，关键页面设计验收评分 ≥95/100。
+- 开发期建立 App Shell、ModeBanner、DataGrid、EvidenceTimeline、RiskDecision、OrderStateMachine、DangerConfirmDialog 的视觉基线与关键状态测试；RELEASE 由 Codex 汇总设计 owner 负责的完整视觉矩阵证据，项目用户确认，关键页面设计验收评分 ≥95/100。
 - 金融数值的币种、精度、时区、`as_of` 与口径，以及证据对象的 hash/版本/关联 ID，属于开发正确性，必须随功能交付。
 - 危险动作只有一个明确主按钮，默认不获焦；状态变化来自服务端事实。不得把安全语义缺陷记作可延期视觉优化。
 
@@ -2356,7 +2357,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
 
 ## 9. 执行看板与责任分工
 
-| 角色 | 必须负责的签署项 |
+| 工程责任 / 审阅维度 | 必须在确认文稿中核对的事项 |
 |---|---|
 | Frontend TL | 技术栈、目录边界、生成 client、共享实现、性能与阶段 Gate |
 | BFF TL | OpenAPI、错误 envelope、权限裁剪、幂等、实时回补、correlation/审计 |
@@ -2365,6 +2366,8 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
 | Security | OIDC/MFA、CSP/CORS/CSRF、敏感字段、浏览器权限、供应链 |
 | Risk/Compliance | Proposal/Risk/Approval/Command 时序、模式/限额/kill switch、审计与导出 |
 | SRE | staging、观测、性能采样、故障注入、Runbook 与发布回滚 |
+
+上表规定工程职责和文稿审阅维度，所有原多角色人工签署均由 Codex 汇总拟稿、项目用户一人确认，不要求逐角色收集签字。
 
 每个看板任务首先包含 `task_id`、`task_type`、`iteration`、`depends_on`、`development_status`、`workflow`、`stage_gate`；一期前端任务不携带指定模型复审字段，工程审计通过报告及证据链接追踪。页面交付看板还必须包含：`页面 ID`、`前端任务 ID`、`契约 ID`、`后端计划 ID`、`风险级别`、`设计链接`、`测试用例`、`owner`、`依赖`、`目标 Sprint`、`契约状态`、`联调状态`、`Gate 证据`。
 
@@ -2384,7 +2387,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
 <a id="acceptance-release-gate-beta"></a>
 ### RELEASE-GATE:BETA：Paper/Shadow 正式发布验收检查点
 
-在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/联合签署；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。
+在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。
 
 ```json
 {
@@ -2397,7 +2400,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
     "FE:FEP-7",
     "PROVIDER:ALL"
   ],
-  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/联合签署；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。",
+  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

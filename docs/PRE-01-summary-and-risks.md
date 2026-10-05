@@ -43,3 +43,5 @@
 - 42 operations 是历史 OpenAPI 1.0.0 数量；2026-09-16 的 31/130/217/31 是旧双端结构基线。当前一期为 30/124/210/30，另 8 流程 Story 和 10 流程场景。
 - 指定模型复审、六方重新签署、远程 CI、浏览器/真实 IdP/provider/staging/数据库验收未由本次文档修复执行，保持 `NOT RUN / NO NEW RECEIPT`。
 - 当前工程复验见 [全面复审报告](./audit/PRE-01-comprehensive-review-2026-10-02.md)；历史发现保留在 [历史报告](./audit/PRE-01-comprehensive-review-history-2026-10-02.md)，上一轮结果见 [整改复验报告](./audit/PRE-01-remediation-validation-2026-10-02.md)。本轮补齐 P05/P21 的 operation 追踪并增加负向回归，不覆盖旧证据。
+
+2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。

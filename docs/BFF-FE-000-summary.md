@@ -12,3 +12,5 @@
 A1 Gate 检查精确页面/owner、共享类型与必需条件、每 operation 的安全语义和活动 CI；兼容 Gate 独立读取可信 Git 基线，安全修正按 [ADR](./adr/ADR-A1-security-contract-correction.md) 精确登记。MSW 和真实 HTTP harness 校验请求、状态、header、返回 schema 与敏感字段；真实 HTTP 覆盖 C01/C17/C10 的 26 个本地参考接口。其他已发布接口的参考实现由 owner 后续交付，缺 resolver 返回 501，不能冒充真实业务通过。
 
 开发阶段运行 `pnpm check:bff-a1-development`、`make bff-contract-check`、`pnpm test:contract`、`pnpm test:bff-provider-contract`；不要求 staging 地址、会话或签署资料。13/13 工程整改已完成，缺 staging 不计为开发问题。代码和相应 provider 实现完成后的最后评审，再按 [回执规程](./BFF-FE-000-openapi-proposal.md#验收回执)取得真实目标证据与签署，运行 `pnpm check:bff-a1-final-review`，才能转为 ACCEPTED。旧 `check:bff-a1-acceptance` 保留为严格最终验收兼容入口。正式检查点、P0 同 SHA 依赖和其他阶段要求没有被标成已通过。
+
+2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。

@@ -2,13 +2,15 @@
 
 > F01 整改后，Desktop 不在一期默认 pnpm workspace 中。第二期请在独立 checkout 将根目录 `pnpm-workspace.desktop.yaml`、`pnpm-lock.desktop.yaml` 分别复制为默认文件名，再执行 frozen install；手动 Desktop CI 已使用此入口。不要在一期活动工作区替换配置。
 
-> 版本：1.2
-> 更新时间：2026-10-02
+> 版本：1.3
+> 更新时间：2026-10-05
 > 状态：第二期范围已拆分，尚未授权启动开发或发布
 > 上游：[第一期总体开发计划](./SumAlpha-QuantOS-Development-Plan.md)、[第一期 Web 前端开发执行计划](./SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md)、[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)
 > 目标：在第一期 Web Terminal 验收稳定后，以同一业务页面、契约和安全语义交付 Tauri Desktop；原生平台能力不得形成第二套业务状态机。
 
 ## 版本变更说明
+
+- `1.3`：Desktop D0–D4 及其原多角色人工验收同样按[统一确认流程](./gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户一人确认；原生工程/签名更新/OS 执行与启动范围要求保留。
 
 - `1.2`：明确承接 PRE-02 的 P16 原生组件、Web/DT 平台适配与 desktopMin 1180×760 验收；共享 token 不扩大一期 Gate，第二期仍未授权启动。
 
@@ -20,7 +22,7 @@
 1. 第一期只交付官网与 `app.sumalpha.ai` Web Terminal；Desktop 不属于第一期发布、测试矩阵或 Gate。
 2. 第二期复用第一期 `apps/terminal`、`packages/ui`、`packages/domain-ui`、`packages/api-client` 的业务实现；平台差异只进入 `packages/platform` 与 `apps/terminal-desktop`。
 3. 仓库已有 Tauri 壳、深链 PoC、锁文件和历史验证记录，仅作为第二期输入；其存在不代表第二期已授权、已验收或可发布。
-4. D0 启动条件：第一期 Web Gate 完成、C17 Desktop 扩展范围与 owner 确认、目标 OS/签名策略获批、Desktop owner/QA/Security/SRE 排期确认；契约达到 Reviewed + Mocked 是 D1 放行条件。
+4. D0 启动条件：第一期 Web Gate 完成、C17 Desktop 扩展范围与 owner 确认、目标 OS/签名策略获批、Desktop owner/QA/Security/SRE 排期和职责在文稿中说明，由项目用户统一确认；契约达到 Reviewed + Mocked 是 D1 放行条件。
 5. 本计划不授权使用生产凭据、签名证书、商店账号、发布通道或外部分发服务；这些动作必须取得独立发布授权。
 
 ## 2. 第二期范围
@@ -125,7 +127,7 @@ PRE-02 原生组件承接：P16 的 PlatformCapabilityCard/平台 adapter 与最
 | 风险 | 触发信号 | 控制 |
 |---|---|---|
 | Web/Desktop 业务分叉 | 出现 `isDesktop` 业务判断或重复页面 | boundary lint、共享 E2E、adapter 评审；拒绝业务 PR 平台分叉 |
-| capability 过宽 | capability 增加或 CSP 放宽无 threat model | 最小权限、负向测试、安全签署 |
+| capability 过宽 | capability 增加或 CSP 放宽无 threat model | 最小权限、负向测试、安全审阅维度及用户确认 |
 | 深链绕过鉴权 | 原始 URL/资源参数进入 Webview | Rust 白名单消毒、本地 reauth Gate、401/403/404 fail closed |
 | 缓存泄露或离线写 | 缓存包含敏感领域状态或恢复后自动提交 | 只读非敏感 allowlist、加密、TTL、清除与负向扫描 |
 | OS 矩阵晚暴露 | macOS/Windows 行为或 Webview 版本差异 | 从 D1 建立夜间矩阵；每个 Gate 保留精确 OS/包 hash 证据 |
