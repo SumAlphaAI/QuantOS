@@ -1,0 +1,330 @@
+✔ formal gate rejects zero, one, two and noninteger runs (0.365625ms)
+✔ all binaries participate in digest and omitted binary fails (2.908625ms)
+✔ extra binary, missing wheel and stale/empty Web cannot pass output inventory (2.608708ms)
+✔ manifest inventory cannot omit or add members (0.086625ms)
+✔ dirty and untracked source rejected (60.939291ms)
+✔ deleted module README is rejected (2.450166ms)
+✔ wrong uv version fails toolchain preflight (16.809875ms)
+✔ invalid locks fail real lock entrypoint (60.028542ms)
+✔ Terminal default lint rejects a page TSX violation (1375.189333ms)
+✔ invalid run revokes old successful receipt (24.179583ms)
+✖ Cargo manifest drift is rejected by actual lock gate (480.083167ms)
+✖ uv manifest drift is rejected by actual lock gate (472.15575ms)
+✖ pnpm manifest drift is rejected by actual lock gate (442.841542ms)
+✖ malformed Buf lock is rejected by actual lock gate (445.17425ms)
+✖ broken Desktop is outside phase-one pnpm frozen check (300.744375ms)
+✔ uv output marker is metadata, other unexpected files still fail (2.177042ms)
+✔ build-only tool is required in output inventory without becoming a runtime binary (2.021333ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 12
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3726.933
+
+✖ failing tests:
+
+test at scripts/f01-gate-negative.mjs:140:5
+✖ Cargo manifest drift is rejected by actual lock gate (480.083167ms)
+  AssertionError [ERR_ASSERTION]: Scope: all 8 workspace projects
+   ENOENT  ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-7aNArD/patches/braces@3.0.3.patch'
+  
+  pnpm: ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-7aNArD/patches/braces@3.0.3.patch'
+      at async open (node:internal/fs/promises:642:25)
+      at async Object.readFile (node:internal/fs/promises:1279:14)
+      at async readNormalizedFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55199:23)
+      at async createHexHashFromFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55196:28)
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136912:17
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136889:24
+      at async Promise.all (index 0)
+      at async pMapValue (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136888:7)
+      at async _install (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159224:134)
+      at async mutateModules (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159181:23)
+  Using CPython 3.12.10
+  Resolved 52 packages in 1ms
+  node:internal/errors:985
+    const err = new Error(message);
+                ^
+  
+  Error: Command failed: pnpm install --lockfile-only --frozen-lockfile --ignore-scripts
+      at genericNodeError (node:internal/errors:985:15)
+      at wrappedFn (node:internal/errors:539:14)
+      at checkExecSyncError (node:child_process:925:11)
+      at execFileSync (node:child_process:961:15)
+      at file:///private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/f01-negative-ddmsLN/scripts/check-node-lock.mjs:23:5
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+    status: 254,
+    signal: null,
+    output: [ null, null, null ],
+    pid: 79208,
+    stdout: null,
+    stderr: null
+  }
+  
+  Node.js v24.12.0
+  
+  
+  1 !== 0
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:147:16
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:13:12)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:140:59)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/f01-gate-negative.mjs:140:5
+✖ uv manifest drift is rejected by actual lock gate (472.15575ms)
+  AssertionError [ERR_ASSERTION]: Scope: all 8 workspace projects
+   ENOENT  ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-irzyzz/patches/braces@3.0.3.patch'
+  
+  pnpm: ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-irzyzz/patches/braces@3.0.3.patch'
+      at async open (node:internal/fs/promises:642:25)
+      at async Object.readFile (node:internal/fs/promises:1279:14)
+      at async readNormalizedFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55199:23)
+      at async createHexHashFromFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55196:28)
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136912:17
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136889:24
+      at async Promise.all (index 0)
+      at async pMapValue (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136888:7)
+      at async _install (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159224:134)
+      at async mutateModules (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159181:23)
+  Using CPython 3.12.10
+  Resolved 52 packages in 1ms
+  node:internal/errors:985
+    const err = new Error(message);
+                ^
+  
+  Error: Command failed: pnpm install --lockfile-only --frozen-lockfile --ignore-scripts
+      at genericNodeError (node:internal/errors:985:15)
+      at wrappedFn (node:internal/errors:539:14)
+      at checkExecSyncError (node:child_process:925:11)
+      at execFileSync (node:child_process:961:15)
+      at file:///private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/f01-negative-bslWe6/scripts/check-node-lock.mjs:23:5
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+    status: 254,
+    signal: null,
+    output: [ null, null, null ],
+    pid: 79252,
+    stdout: null,
+    stderr: null
+  }
+  
+  Node.js v24.12.0
+  
+  
+  1 !== 0
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:147:16
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:13:12)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:140:59)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/f01-gate-negative.mjs:140:5
+✖ pnpm manifest drift is rejected by actual lock gate (442.841542ms)
+  AssertionError [ERR_ASSERTION]: Scope: all 8 workspace projects
+   ENOENT  ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-ZT8n6B/patches/braces@3.0.3.patch'
+  
+  pnpm: ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-ZT8n6B/patches/braces@3.0.3.patch'
+      at async open (node:internal/fs/promises:642:25)
+      at async Object.readFile (node:internal/fs/promises:1279:14)
+      at async readNormalizedFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55199:23)
+      at async createHexHashFromFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55196:28)
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136912:17
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136889:24
+      at async Promise.all (index 0)
+      at async pMapValue (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136888:7)
+      at async _install (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159224:134)
+      at async mutateModules (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159181:23)
+  Using CPython 3.12.10
+  Resolved 52 packages in 1ms
+  node:internal/errors:985
+    const err = new Error(message);
+                ^
+  
+  Error: Command failed: pnpm install --lockfile-only --frozen-lockfile --ignore-scripts
+      at genericNodeError (node:internal/errors:985:15)
+      at wrappedFn (node:internal/errors:539:14)
+      at checkExecSyncError (node:child_process:925:11)
+      at execFileSync (node:child_process:961:15)
+      at file:///private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/f01-negative-pg8q2e/scripts/check-node-lock.mjs:23:5
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+    status: 254,
+    signal: null,
+    output: [ null, null, null ],
+    pid: 79295,
+    stdout: null,
+    stderr: null
+  }
+  
+  Node.js v24.12.0
+  
+  
+  1 !== 0
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:147:16
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:13:12)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:140:59)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/f01-gate-negative.mjs:140:5
+✖ malformed Buf lock is rejected by actual lock gate (445.17425ms)
+  AssertionError [ERR_ASSERTION]: Scope: all 8 workspace projects
+   ENOENT  ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-97O2NA/patches/braces@3.0.3.patch'
+  
+  pnpm: ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-97O2NA/patches/braces@3.0.3.patch'
+      at async open (node:internal/fs/promises:642:25)
+      at async Object.readFile (node:internal/fs/promises:1279:14)
+      at async readNormalizedFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55199:23)
+      at async createHexHashFromFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55196:28)
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136912:17
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136889:24
+      at async Promise.all (index 0)
+      at async pMapValue (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136888:7)
+      at async _install (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159224:134)
+      at async mutateModules (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159181:23)
+  Using CPython 3.12.10
+  Resolved 52 packages in 2ms
+  node:internal/errors:985
+    const err = new Error(message);
+                ^
+  
+  Error: Command failed: pnpm install --lockfile-only --frozen-lockfile --ignore-scripts
+      at genericNodeError (node:internal/errors:985:15)
+      at wrappedFn (node:internal/errors:539:14)
+      at checkExecSyncError (node:child_process:925:11)
+      at execFileSync (node:child_process:961:15)
+      at file:///private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/f01-negative-0i0U8x/scripts/check-node-lock.mjs:23:5
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+    status: 254,
+    signal: null,
+    output: [ null, null, null ],
+    pid: 79338,
+    stdout: null,
+    stderr: null
+  }
+  
+  Node.js v24.12.0
+  
+  
+  1 !== 0
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:147:16
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:13:12)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:140:59)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/f01-gate-negative.mjs:153:1
+✖ broken Desktop is outside phase-one pnpm frozen check (300.744375ms)
+  AssertionError [ERR_ASSERTION]: Scope: all 8 workspace projects
+   ENOENT  ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-HPKNbR/patches/braces@3.0.3.patch'
+  
+  pnpm: ENOENT: no such file or directory, open '/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-lock-HPKNbR/patches/braces@3.0.3.patch'
+      at async open (node:internal/fs/promises:642:25)
+      at async Object.readFile (node:internal/fs/promises:1279:14)
+      at async readNormalizedFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55199:23)
+      at async createHexHashFromFile (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:55196:28)
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136912:17
+      at async /Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136889:24
+      at async Promise.all (index 0)
+      at async pMapValue (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:136888:7)
+      at async _install (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159224:134)
+      at async mutateModules (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:159181:23)
+  node:internal/errors:985
+    const err = new Error(message);
+                ^
+  
+  Error: Command failed: pnpm install --lockfile-only --frozen-lockfile --ignore-scripts
+      at genericNodeError (node:internal/errors:985:15)
+      at wrappedFn (node:internal/errors:539:14)
+      at checkExecSyncError (node:child_process:925:11)
+      at execFileSync (node:child_process:961:15)
+      at file:///private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/f01-negative-Yteh1a/scripts/check-node-lock.mjs:23:5
+      at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+      at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+    status: 254,
+    signal: null,
+    output: [ null, null, null ],
+    pid: 79363,
+    stdout: null,
+    stderr: null
+  }
+  
+  Node.js v24.12.0
+  
+  
+  1 !== 0
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:157:12
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:13:12)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-gate-negative.mjs:153:69)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

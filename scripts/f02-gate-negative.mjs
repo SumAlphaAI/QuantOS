@@ -88,8 +88,10 @@ test('Buf compares against distinct historical source and detects removed fields
 });
 test('SCA scanner adapter consumes exact waivers and never waives scanner failures',t=>{
  const d=fixture(t);for(const name of ['scripts','security','engines','bin'])fs.mkdirSync(path.join(d,name));
- for(const name of ['check-sca.mjs','sca-policy.mjs','glib-backport.mjs'])fs.copyFileSync(path.join(repo,'scripts',name),path.join(d,'scripts',name));
- for(const name of ['Cargo.lock','pnpm-lock.yaml','engines/uv.lock'])fs.writeFileSync(path.join(d,name),'fixture');
+ for(const name of ['check-sca.mjs','sca-policy.mjs','glib-backport.mjs','braces-backport.mjs'])fs.copyFileSync(path.join(repo,'scripts',name),path.join(d,'scripts',name));
+ for(const name of ['Cargo.lock','engines/uv.lock'])fs.writeFileSync(path.join(d,name),'fixture');
+ for(const name of ['package.json','pnpm-lock.yaml','security/braces-backport.json','patches/braces@3.0.3.patch']){fs.mkdirSync(path.dirname(path.join(d,name)),{recursive:true});fs.copyFileSync(path.join(repo,name),path.join(d,name));}
+ fs.symlinkSync(path.join(repo,'node_modules'),path.join(d,'node_modules'),'dir');
  pass(run('git',['init','-q'],d));pass(run('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','--allow-empty','-qm','fixture'],d));
  const tool=path.join(d,'bin/pnpm');fs.writeFileSync(tool,`#!${process.execPath}\nconst fs=require('fs'),p=JSON.parse(fs.readFileSync('response.json'));console.log(JSON.stringify(p.body));process.exit(p.status);\n`);fs.chmodSync(tool,0o755);
  const scan=()=>run(process.execPath,['scripts/check-sca.mjs','npm'],d,{PATH:path.join(d,'bin')+':'+process.env.PATH});
@@ -104,5 +106,10 @@ test('SCA scanner adapter consumes exact waivers and never waives scanner failur
  const waiver={id:'GHSA-fixture',ecosystem:'npm',package:'fixture',version:'1.0.0',owner:'test',reason:'test fixture',expiresOn:'2099-01-01'};
  waive([waiver]);pass(scan());waive([{...waiver,version:'2.0.0'}]);reject(scan(),/Unwaived/);
  waive([waiver]);response(body,2);reject(scan(),/npm audit unavailable/);
+ const patched={metadata:{vulnerabilities:{high:1}},advisories:{1:{github_advisory_id:'GHSA-vfj7-8cjw-p6xm',module_name:'braces',severity:'high',findings:[{version:'3.0.3'}]}}};
+ waive([]);response(patched,1);pass(scan());
+ const unrelated=structuredClone(patched);unrelated.advisories[1].module_name='other';response(unrelated,1);reject(scan(),/Unwaived/);
+ fs.appendFileSync(path.join(d,'patches/braces@3.0.3.patch'),'\n');response(patched,1);reject(scan(),/patch changed/);
+ fs.copyFileSync(path.join(repo,'patches/braces@3.0.3.patch'),path.join(d,'patches/braces@3.0.3.patch'));
  waive([{...waiver,expiresOn:'2020-01-01'}]);reject(scan(),/Expired waiver/);
 });

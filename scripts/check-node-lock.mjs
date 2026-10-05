@@ -16,7 +16,16 @@ try {
     const lock = parse(fs.readFileSync('pnpm-lock.yaml', 'utf8'));
     if (JSON.stringify(Object.keys(lock.importers).sort()) !== JSON.stringify(roots.sort()))
         throw new Error('pnpm importer mismatch');
-    for (const file of ['pnpm-lock.yaml', 'pnpm-workspace.yaml', ...roots.map(p => path.join(p, 'package.json'))]) {
+    const manifest = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const patches = Object.values(manifest.pnpm?.patchedDependencies ?? {});
+    for (const file of patches) {
+        if (typeof file !== 'string' || path.isAbsolute(file) || path.normalize(file).startsWith('..' + path.sep) || path.normalize(file) === '..')
+            throw new Error('Invalid pnpm patch path');
+        const actual = fs.realpathSync(path.resolve(root, file));
+        if (!actual.startsWith(fs.realpathSync(root) + path.sep))
+            throw new Error('pnpm patch escapes repository');
+    }
+    for (const file of ['pnpm-lock.yaml', 'pnpm-workspace.yaml', ...roots.map(p => path.join(p, 'package.json')), ...patches]) {
         fs.mkdirSync(path.dirname(path.join(scratch, file)), { recursive: true });
         fs.copyFileSync(path.join(root, file), path.join(scratch, file));
     }

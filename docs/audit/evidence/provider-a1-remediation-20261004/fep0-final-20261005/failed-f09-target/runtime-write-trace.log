@@ -1,0 +1,19 @@
+
+running 1 test
+test live::tests::f09_runtime_real_write_trace ... FAILED
+
+failures:
+
+failures:
+    live::tests::f09_runtime_real_write_trace
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 1.33s
+
+   Compiling runtime-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/runtime-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.33s
+     Running unittests src/main.rs (target/debug/deps/runtime_gateway-1b2dfe6edba358ee)
+
+thread 'live::tests::f09_runtime_real_write_trace' (1368718) panicked at services/runtime-gateway/src/live_tests.rs:306:46:
+admin connects: Error { kind: Tls, cause: Some(ConnectError { error: Error { code: ErrorCode(1), cause: Some(Ssl(ErrorStack([Error { code: 167772294, library: "SSL routines", function: "tls_post_process_server_certificate", reason: "certificate verify failed", file: "ssl/statem/statem_clnt.c", line: 2107 }]))) }, verify_result: X509VerifyResult { code: 19, error: "self-signed certificate in certificate chain" } }) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p runtime-gateway --bin runtime-gateway`

@@ -1,0 +1,67 @@
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+✖ real Gitleaks positive control and GitHub/Slack leaks (33.173667ms)
+✖ historical digest exceptions do not waive fresh credentials in audit JSON (33.426125ms)
+✔ RLS baseline rejects policy deletion and late disabling with recovery (173.85275ms)
+✔ migration filename control, rejection and recovery (19.701417ms)
+✔ waivers only authorize exact advisory/ecosystem/package/version before expiry (1.0455ms)
+✔ license expression policy does not globally allow LGPL or unknown licenses (0.358083ms)
+✔ release binds complete payload and SBOM to source; rejects corruption and build-only native files (3.908167ms)
+✔ Buf compares against distinct historical source and detects removed fields (2565.651917ms)
+✔ SCA scanner adapter consumes exact waivers and never waives scanner failures (818.168792ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 7
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3687.470958
+
+✖ failing tests:
+
+test at scripts/f02-gate-negative.mjs:16:1
+✖ real Gitleaks positive control and GitHub/Slack leaks (33.173667ms)
+  AssertionError [ERR_ASSERTION]: /Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-secrets.sh: line 5: gitleaks: command not found
+  Expected Gitleaks 8.28.0
+  
+  
+  2 !== 0
+  
+      at pass (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:14:25)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:22:2)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/f02-gate-negative.mjs:29:1
+✖ historical digest exceptions do not waive fresh credentials in audit JSON (33.426125ms)
+  AssertionError [ERR_ASSERTION]: /Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-secrets.sh: line 5: gitleaks: command not found
+  Expected Gitleaks 8.28.0
+  
+  
+  2 !== 0
+  
+      at pass (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:14:25)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:35:87)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

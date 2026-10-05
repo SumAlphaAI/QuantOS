@@ -21,7 +21,9 @@ fn f09_runtime_real_write_trace() {
     if env::var("QUANTOS_RUN_F09_POSTGRES_TESTS").as_deref() != Ok("1") {
         return;
     }
-    let database_url = env::var("DATABASE_URL").expect("F09 database URL required");
+    let raw_database_url = env::var("DATABASE_URL").expect("F09 database URL required");
+    let ca = env::var("QUANTOS_BFF_SSLROOTCERT").ok();
+    let database_url = verified_database_url(&raw_database_url, ca.as_deref());
     let fixture = seed_fixture(&database_url, "owner");
     let trace_path = env::temp_dir().join(format!("f09-runtime-live-{}.jsonl", Uuid::new_v4()));
     let observer = Arc::new(
@@ -203,6 +205,55 @@ impl Drop for Fixture {
         })
         .join();
     }
+}
+
+fn verified_database_url(raw_url: &str, root_certificate: Option<&str>) -> String {
+    let mut target_url = Url::parse(raw_url).expect("database URL parses");
+    if !matches!(
+        target_url.host_str(),
+        Some("localhost" | "127.0.0.1" | "::1")
+    ) {
+        let ca = root_certificate.expect("configured Supabase CA is required");
+        let options = target_url
+            .query_pairs()
+            .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+            .map(|(key, value)| (key.into_owned(), value.into_owned()))
+            .collect::<Vec<_>>();
+        target_url.set_query(None);
+        target_url.query_pairs_mut().extend_pairs(options);
+        target_url
+            .query_pairs_mut()
+            .append_pair("sslmode", "verify-full")
+            .append_pair("sslrootcert", ca);
+    }
+    target_url.to_string()
+}
+
+#[test]
+fn remote_test_connection_keeps_verified_ca_for_all_consumers() {
+    let url = verified_database_url(
+        "postgresql://fixture@db.example.invalid/postgres?sslmode=require&application_name=fixture",
+        Some("/fixture-ca.pem"),
+    );
+    let url = Url::parse(&url).unwrap();
+    assert!(
+        url.query_pairs()
+            .any(|(k, v)| k == "sslmode" && v == "verify-full")
+    );
+    assert!(
+        url.query_pairs()
+            .any(|(k, v)| k == "sslrootcert" && v == "/fixture-ca.pem")
+    );
+    assert!(
+        url.query_pairs()
+            .any(|(k, v)| k == "application_name" && v == "fixture")
+    );
+}
+
+#[test]
+#[should_panic(expected = "configured Supabase CA is required")]
+fn remote_test_connection_rejects_missing_ca() {
+    verified_database_url("postgresql://fixture@db.example.invalid/postgres", None);
 }
 
 fn connect_admin(database_url: &str) -> Result<Client, postgres::Error> {
@@ -497,25 +548,8 @@ fn gateway_executes_owned_run_and_retrieves_verified_artifact() {
         );
         return;
     };
-    let mut target_url = Url::parse(&raw_database_url).expect("database URL parses");
-    if !matches!(
-        target_url.host_str(),
-        Some("localhost" | "127.0.0.1" | "::1")
-    ) {
-        let ca = env::var("QUANTOS_BFF_SSLROOTCERT").expect("isolated Supabase CA is required");
-        let options = target_url
-            .query_pairs()
-            .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
-            .map(|(key, value)| (key.into_owned(), value.into_owned()))
-            .collect::<Vec<_>>();
-        target_url.set_query(None);
-        target_url.query_pairs_mut().extend_pairs(options);
-        target_url
-            .query_pairs_mut()
-            .append_pair("sslmode", "verify-full")
-            .append_pair("sslrootcert", &ca);
-    }
-    let database_url = target_url.to_string();
+    let ca = env::var("QUANTOS_BFF_SSLROOTCERT").ok();
+    let database_url = verified_database_url(&raw_database_url, ca.as_deref());
     let fixture = seed_fixture(&database_url, "owner");
     let storage_data = MockStorage {
         payload: Arc::new(Mutex::new(Vec::new())),

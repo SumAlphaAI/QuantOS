@@ -1,0 +1,32 @@
+make[1]: Entering directory '/home/runner/work/QuantOS/QuantOS'
+QUANTOS_RUN_F09_POSTGRES_TESTS=1 cargo test -p quantos-observability --test postgres_capacity_monitor --locked -- --test-threads=1 --skip restricted_runtime_role_records_only_real_storage_outcomes --nocapture
+
+running 3 tests
+test fault_proxy_retries_real_postgres_event_and_consumer_chain ... ok
+test live_database_session_termination_preserves_ordered_event_chain ... ok
+test live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 28.02s
+
+make[1]: Leaving directory '/home/runner/work/QuantOS/QuantOS'
+[1m[92m   Compiling[0m anyhow v1.0.104
+[1m[92m   Compiling[0m prost-derive v0.13.5
+[1m[92m   Compiling[0m prost v0.13.5
+[1m[92m   Compiling[0m tonic v0.12.3
+[1m[92m   Compiling[0m prost-types v0.13.5
+[1m[92m   Compiling[0m prost-build v0.13.5
+[1m[92m   Compiling[0m pbjson-build v0.7.0
+[1m[92m   Compiling[0m pbjson-types v0.7.0
+[1m[92m   Compiling[0m quantos-proto v0.1.0 (/home/runner/work/QuantOS/QuantOS/crates/quantos-proto)
+[1m[92m   Compiling[0m quantos-engine-manager v0.1.0 (/home/runner/work/QuantOS/QuantOS/crates/quantos-engine-manager)
+[1m[92m   Compiling[0m quantos-runtime v0.1.0 (/home/runner/work/QuantOS/QuantOS/crates/quantos-runtime)
+[1m[92m   Compiling[0m quantos-observability v0.1.0 (/home/runner/work/QuantOS/QuantOS/crates/quantos-observability)
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 9.53s
+[1m[92m     Running[0m tests/postgres_capacity_monitor.rs (target/debug/deps/postgres_capacity_monitor-81af70ac28e29f76)
+F09 database termination recovered; correlation=01a0e581-b35c-7f72-b60d-a3e52947cda5; ordered_events=2
+F09 capacity continuity tick 0/17
+F09 capacity continuity tick 3/17
+F09 capacity continuity tick 6/17
+F09 capacity continuity tick 9/17
+F09 capacity continuity tick 12/17
+F09 capacity continuity tick 15/17

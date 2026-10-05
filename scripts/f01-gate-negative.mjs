@@ -110,6 +110,10 @@ test('invalid run revokes old successful receipt', () => fixture(p => {
 function lockFixture(p) {
     for (const f of ['Cargo.toml', 'Cargo.lock', 'buf.lock', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'package.json', '.python-version'])
         fs.copyFileSync(path.join(root, f), path.join(p, f));
+    for (const file of Object.values(JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).pnpm?.patchedDependencies ?? {})) {
+        fs.mkdirSync(path.dirname(path.join(p, file)), { recursive: true });
+        fs.copyFileSync(path.join(root, file), path.join(p, file));
+    }
     // Cargo workspace members also include the protocol generator under tools/.
     for (const directory of ['crates', 'services', 'tools'])
         fs.cpSync(path.join(root, directory), path.join(p, directory), { recursive: true });
@@ -177,4 +181,25 @@ test('build-only tool is required in output inventory without becoming a runtime
     assert.equal(inv.rustBinaries.includes('quantos-proto-json-codegen'), false);
     write(tool, 'changed generator');
     assert.throws(() => requireMatching([first, first, validateOutputs(p, inv)]), /differ/);
+}));
+
+test('pnpm frozen check rejects missing or changed patch bytes', () => fixture(p => {
+    lockFixture(p);
+    const patch = Object.values(JSON.parse(fs.readFileSync(path.join(p, 'package.json'))).pnpm.patchedDependencies)[0];
+    const scan = () => spawnSync('node', ['scripts/check-node-lock.mjs'], { cwd: p, env: process.env, encoding: 'utf8' });
+    assert.equal(scan().status, 0);
+    fs.appendFileSync(path.join(p, patch), '\n');
+    assert.notEqual(scan().status, 0);
+    fs.rmSync(path.join(p, patch));
+    assert.notEqual(scan().status, 0);
+}));
+test('pnpm patch cannot read outside the repository', () => fixture(p => {
+    lockFixture(p);
+    const file = path.join(p, 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(file));
+    pkg.pnpm.patchedDependencies['braces@3.0.3'] = '../outside.patch';
+    fs.writeFileSync(file, JSON.stringify(pkg));
+    const result = spawnSync('node', ['scripts/check-node-lock.mjs'], { cwd: p, env: process.env, encoding: 'utf8' });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Invalid pnpm patch path/);
 }));
