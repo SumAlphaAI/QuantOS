@@ -1,13 +1,13 @@
 # BFF-FE-001 身份、会话与设置 API 交付总结
 
 > 任务：A2 / BFF-FE-001
-> 历史交付日期：2026-09-16；当前整改日期：2026-10-03
+> 历史交付日期：2026-09-16；当前整改日期：2026-10-05
 > 历史仓库 Gate：**PASS（本地参考 provider）**
 > 历史目标环境：**NOT RUN / NO RECEIPT**
 
 ## 当前整改（2026-10-05）
 
-本轮修复高危 2 项、中危 4 项；逐项复验与阶段状态见 [整改报告](audit/BFF-FE-001-remediation-2026-10-05.md)。客户端默认 30 秒 deadline，可传调用方 AbortSignal；不自动重试写操作，未知结果须沿用原 idempotency key、版本和草稿。`lastVerifiedAt` 表示最近可信主认证或 MFA 成功时间，不由 session expiry 倒推。`check:bff-fe-001:development` 与 local_contract、RELEASE 分账。
+本轮高危 2 项、中危 4 项全部 CLOSED；24/24 控制点、20/20 API 满足当前 DEVELOPMENT 范围，严格阶段门禁 READY，formalAccepted=false。逐项复验与阶段状态见 [整改报告](audit/BFF-FE-001-remediation-2026-10-05.md)。客户端默认 30 秒 deadline，可传调用方 AbortSignal；不自动重试写操作，未知结果须沿用原 idempotency key、版本和草稿。`lastVerifiedAt` 表示最近可信主认证或 MFA 成功时间，不由 session expiry 倒推。`check:bff-fe-001:development` 与 local_contract、RELEASE 分账。
 
 ## 既有基线（2026-10-03）
 
