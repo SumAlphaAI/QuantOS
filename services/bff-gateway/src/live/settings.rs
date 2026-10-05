@@ -92,6 +92,12 @@ impl A2Store {
             client: quantos_auth::connect_bff_database(database_url)?,
         })
     }
+    // The F09 logout-only router must construct its unused A2 state without a
+    // production login secret. This adapter exists only in test binaries.
+    #[cfg(test)]
+    pub(super) fn for_observability_fixture(client: Client) -> Self {
+        Self { client }
+    }
     pub fn register(
         &mut self,
         raw: &str,

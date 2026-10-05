@@ -109,11 +109,33 @@ fn real_logout_db_write_matches_persistent_trace() {
         Ok("1"),
         "explicit Supabase target test requires QUANTOS_RUN_F09_POSTGRES_TESTS=1"
     );
-    let database_url = env::var("DATABASE_URL").expect("F09 database URL required");
+    let configured_url = env::var("DATABASE_URL").expect("F09 database URL required");
+    // Match the verified TLS URL prepared by F09 CI, retaining the configured
+    // endpoint, role and CA. A raw operator URL may still specify sslmode=require.
+    let mut verified_url = Url::parse(&configured_url).expect("F09 database URL parses");
+    let ca = verified_url
+        .query_pairs()
+        .find(|(key, _)| key == "sslrootcert")
+        .map(|(_, value)| value.into_owned())
+        .or_else(|| env::var("QUANTOS_BFF_SSLROOTCERT").ok())
+        .expect("F09 configured Supabase CA required");
+    let options = verified_url
+        .query_pairs()
+        .filter(|(key, _)| key != "sslmode" && key != "sslrootcert")
+        .map(|(key, value)| (key.into_owned(), value.into_owned()))
+        .collect::<Vec<_>>();
+    verified_url.set_query(None);
+    verified_url
+        .query_pairs_mut()
+        .extend_pairs(options)
+        .append_pair("sslrootcert", &ca)
+        .append_pair("sslmode", "verify-full");
+    let database_url = verified_url.to_string();
     let project_url = env::var("SUPABASE_URL").expect("F09 Supabase URL required");
     // This logout/trace component fixture uses the configured test connection,
-    // just like its middleware and owned session setup. It never runs an A2
-    // settings handler; production still requires its separate narrow BFF URL.
+    // just like its middleware and owned session setup. Its unused A2 store is
+    // constructed by a test-only adapter. Production still requires its
+    // separate narrow login URL; this router never runs a settings handler.
     // Keep one dedicated test identity: audit entries referencing it are
     // append-only, so deleting the user would mutate immutable evidence.
     let user_id = Uuid::parse_str("f0900000-0000-4000-8000-000000000009").unwrap();
@@ -121,13 +143,6 @@ fn real_logout_db_write_matches_persistent_trace() {
     let session_hash = format!("{:x}", Sha256::digest(raw_session.as_bytes()));
     let mut db = connect_admin(&database_url);
     seed_auth_user(&mut db, user_id);
-    db.execute_typed(
-        "insert into quantos.bff_sessions(session_hash,user_id,expires_at,mfa_verified)
-         values($1,$2,now()+interval '5 minutes',true)",
-        &[(&session_hash.as_str(), Type::TEXT), (&user_id, Type::UUID)],
-    )
-    .expect("real BFF session persists");
-
     let trace_path = env::temp_dir().join(format!("f09-bff-live-{}.jsonl", Uuid::new_v4()));
     let observer = Arc::new(
         ServiceObservability::with_jsonl_exporter("bff-gateway", &trace_path)
@@ -138,7 +153,9 @@ fn real_logout_db_write_matches_persistent_trace() {
         verifier: SupabaseAuthVerifier::new(&project_url, "unused-test-key".into())
             .expect("Auth verifier config"),
         middleware: Mutex::new(GatewayAuthMiddleware::connect(&database_url).expect("BFF DB")),
-        a2: Mutex::new(settings::A2Store::new(&database_url).expect("test A2 state DB")),
+        a2: Mutex::new(settings::A2Store::for_observability_fixture(connect_admin(
+            &database_url,
+        ))),
         database_url: database_url.clone(),
         proofs: Mutex::new(BTreeMap::new()),
         mfa: settings::SupabaseMfa::new(&project_url, "unused-test-key".into())
@@ -153,6 +170,14 @@ fn real_logout_db_write_matches_persistent_trace() {
             observer.clone(),
             trace_write_request,
         ));
+
+    // Finish all connection/configuration setup before persisting an owned session.
+    db.execute_typed(
+        "insert into quantos.bff_sessions(session_hash,user_id,expires_at,mfa_verified)
+         values($1,$2,now()+interval '5 minutes',true)",
+        &[(&session_hash.as_str(), Type::TEXT), (&user_id, Type::UUID)],
+    )
+    .expect("real BFF session persists");
 
     let request = |request_origin: &str| {
         Request::builder()

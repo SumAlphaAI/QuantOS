@@ -1,0 +1,55 @@
+   Compiling capacity-monitor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/capacity-monitor)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.88s
+   Compiling portfolio-rebuild v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/portfolio-rebuild)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.90s
+F09 scheduler smoke PASS: 2 real Supabase missing-coverage ticks
+QUANTOS_RUN_F09_POSTGRES_TESTS=1 cargo test -p quantos-observability --test postgres_capacity_monitor --locked -- --test-threads=1 --skip restricted_runtime_role_records_only_real_storage_outcomes --nocapture
+
+running 3 tests
+test fault_proxy_retries_real_postgres_event_and_consumer_chain ... ok
+test live_database_session_termination_preserves_ordered_event_chain ... ok
+test live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 399.15s
+
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.65s
+     Running tests/postgres_capacity_monitor.rs (target/debug/deps/postgres_capacity_monitor-9574dfcf6ab1c033)
+F09 database termination recovered; correlation=01a10cbe-0c2b-7701-91de-655733f28747; ordered_events=2
+F09 capacity continuity tick 0/17
+F09 capacity continuity tick 3/17
+F09 capacity continuity tick 6/17
+F09 capacity continuity tick 9/17
+F09 capacity continuity tick 12/17
+F09 capacity continuity tick 15/17
+
+running 1 test
+test f09_portfolio_and_risk_queries_persist_actual_latency_samples ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 15.52s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/postgres_portfolio.rs (target/debug/deps/postgres_portfolio-6f684ef8228c8a8c)
+
+running 1 test
+test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... FAILED
+
+failures:
+
+failures:
+    live::f09_live_tests::real_logout_db_write_matches_persistent_trace
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 14 filtered out; finished in 8.54s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.21s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-68c4eb783de3751f)
+
+thread 'live::f09_live_tests::real_logout_db_write_matches_persistent_trace' (2414900) panicked at services/bff-gateway/src/live/f09_live_tests.rs:141:62:
+test A2 state DB: application database connections require verified TLS
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p bff-gateway --lib`
+cargo test -p bff-gateway --lib f09_live_tests --locked -- --ignored --test-threads=1 --nocapture failed with 101

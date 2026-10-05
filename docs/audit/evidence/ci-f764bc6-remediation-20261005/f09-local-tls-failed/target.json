@@ -1,0 +1,35 @@
+{
+  "schema": "quantos-f09-target-gate/v3",
+  "sourceCommit": "fee7a7fe635791e8e19453193cff37f475716d11",
+  "dirty": false,
+  "targetClass": "test-supabase-postgresql",
+  "status": "FAIL",
+  "checks": [
+    "same source migration ledger and checksums",
+    "two one-minute Supabase scheduler ticks fail closed on missing metrics",
+    "live capacity, own-session termination, consumer recovery and redaction tests",
+    "real portfolio and risk query samples"
+  ],
+  "acceptanceScope": "F09 development database and Engine component probes",
+  "f09Accepted": false,
+  "remainingDevelopmentAcceptance": [],
+  "deferredToRelease": [
+    "same-SHA remote CI and Nightly receipts"
+  ],
+  "deferredToL04": [
+    "nine deployed business metric producers and one-minute monitor",
+    "cross-service same-chain fault exercises and secret leak scan",
+    "sustained live thresholds, dashboard queries and notification delivery"
+  ],
+  "startedAt": "2026-10-05T15:43:34.443Z",
+  "targetRefHash": "a70aa14f6acb257e",
+  "migrationHead": "20261003120000_r01_binance_cursor.sql",
+  "logs": {
+    "scheduler-smoke.log": "d4a17caabfdc6d30e334c4d2d23111290adaf3b2f8d34815f24cb85a2530e69a",
+    "postgres-exercises.log": "de20869ced0c3970111e1dae4a45515710821194fc6ba32af03d71688762f7ec",
+    "portfolio-query.log": "17d7e28f0de2abb6c8da84ac14218a552d28d6b7b5f02558fc0366a776f527dc",
+    "bff-write-trace.log": "87e13b347cf5a170d1b818870ea9246ef577bb5e3b2a9fcdae6068f27aa4d682"
+  },
+  "error": "cargo test -p bff-gateway --lib f09_live_tests --locked -- --ignored --test-threads=1 --nocapture failed with 101",
+  "completedAt": "2026-10-05T15:52:06.528Z"
+}
