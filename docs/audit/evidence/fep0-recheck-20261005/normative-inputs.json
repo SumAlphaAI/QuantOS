@@ -1,0 +1,5858 @@
+[
+  [
+    "CORE:F01",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [],
+      "depends_on": [],
+      "requirement": "初始化 Polyglot Monorepo",
+      "requirements": [
+        "- 需求描述：初始化 Polyglot Monorepo",
+        "- 技术要求：建立 Cargo workspace、`proto/`、`crates/`、`services/`、`engines/`、`apps/website`、`apps/terminal`、`packages/*`、`supabase/`；固定 Rust、uv、Node 工具链",
+        "- 交付物：目录树、锁文件、Make 任务、本地开发环境基线、`DATABASE_URL` 约定",
+        "- 量化验收标准：新环境在 ≤30 分钟内运行 `bootstrap`、`lint`、`test`；所有目录有 README 与明确模块边界；跨语言构建连续 3 次可重复",
+        "- 阶段执行：功能开发验证 bootstrap/lint/test 可用、边界 README 和连续 3 次构建可复现；≤30 分钟的新环境时限在开发记录基线，正式新环境回执归 RELEASE-GATE:BETA。"
+      ],
+      "task_id": "F01",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:F02",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:F01"
+      ],
+      "depends_on": [
+        "CORE:F01"
+      ],
+      "requirement": "CI、制品与供应链门禁",
+      "requirements": [
+        "- 需求描述：CI、制品与供应链门禁",
+        "- 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest",
+        "- 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本",
+        "- 量化验收标准：任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免",
+        "- 阶段执行：secret/proto/锁依赖/RLS/schema drift 负向机制及新增高危漏洞处置在开发期验证；目标远程 CI、主干制品 digest/SBOM/签名回执归 RELEASE-GATE:BETA。缺失 CI 发布回执不等于可跳过安全检查。"
+      ],
+      "task_id": "F02",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:F03",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:F01"
+      ],
+      "depends_on": [
+        "CORE:F01"
+      ],
+      "requirement": "领域协议 v1 与 SDK 生成",
+      "requirements": [
+        "- 需求描述：领域协议 v1 与 SDK 生成",
+        "- 技术要求：定义 `DataSnapshot`、`ResearchArtifact`、`StrategyRelease`、`Signal`、`TradeProposal`、`RiskDecision`、`TradeCommand`、Order/Fill/Position、Engine/Event API；Buf + OpenAPI 生成",
+        "- 交付物：`proto/*/v1`、JSON schema、Rust/Python/TS SDK、兼容性测试",
+        "- 量化验收标准：SDK 三语言编译；100% 必填元数据（tenant/actor/correlation 等）测试；Buf breaking check 阻止破坏性变更；序列化往返 1,000 组 fixture 无差异"
+      ],
+      "task_id": "F03",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:F04",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:F03"
+      ],
+      "depends_on": [
+        "CORE:F03"
+      ],
+      "requirement": "Core、错误、时钟与 ID",
+      "requirements": [
+        "- 需求描述：Core、错误、时钟与 ID",
+        "- 技术要求：实现强类型 ID、UTC clock、领域错误码、金额/数量精度、版本与 hash primitives",
+        "- 交付物：`quantos-core`、fixture builder",
+        "- 量化验收标准：金额/精度边界与时区测试分支覆盖 ≥90%；任意错误可映射为稳定机器码；相同 fixture hash 100% 一致"
+      ],
+      "task_id": "F04",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:F05",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F04"
+      ],
+      "depends_on": [
+        "CORE:F03",
+        "CORE:F04"
+      ],
+      "requirement": "事件、存储与审计账本",
+      "requirements": [
+        "- 需求描述：事件、存储与审计账本",
+        "- 技术要求：Supabase PostgreSQL migration、业务 schema、RLS 基线、Supabase Storage、transactional outbox/inbox、schema registry、append-only audit；建立 `outbox_event`、`inbox_receipt`、`dead_letter_event`、`projection_checkpoint` 与基于租约/`FOR UPDATE SKIP LOCKED` 的轮询消费者。Realtime 只发送唤醒/投影通知，绝不作为事件真相或唯一调度；早期不引入 Supabase 生态外的独立消息、缓存或时序基础设施",
+        "- 交付物：`quantos-event`、`quantos-storage`、`supabase/migrations/*`、policy/sql、replay CLI、消费者恢复 Runbook",
+        "- 量化验收标准：重复/乱序/重启/死信四类测试全过；隔离 Supabase 线上项目或数据库分支可由 migration 重建 `quantos` schema；所有 tenant 表 RLS 默认拒绝且负向权限测试全过；1 万条测试事件无丢失、消费者最终一致；模拟 Realtime 漏通知、断连和重连后，数据库扫描在测试 deadline 内处理全部已提交事件；1,000 次同事件并发投递只产生一次业务副作用；按 correlation ID 在 ≤5 秒取回完整事件链",
+        "- 阶段执行：开发期保留全部数据正确性规模用例（1 万事件、1,000 次并发）、真实 Supabase RLS/事务/补偿测试；重建能力须有迁移与可执行检查，受控整库重建只在对应授权内进行。相关查询耗时作为基线；≤5 秒检索完整链和候选版本重建/drift 回执归 RELEASE-GATE:BETA。"
+      ],
+      "task_id": "F05",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:F06",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F05"
+      ],
+      "depends_on": [
+        "CORE:F03",
+        "CORE:F05"
+      ],
+      "requirement": "身份、授权、秘密引用与主上下文",
+      "requirements": [
+        "- 需求描述：身份、授权、秘密引用与主上下文",
+        "- 技术要求：Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝；Vault 仅存静态加密秘密，Execution Gateway 通过受控角色与 allowlist 函数取得所需引用，短时授权由服务会话/命令过期/轮换状态控制",
+        "- 交付物：`quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration、Vault 访问 policy/函数",
+        "- 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API。开发机跨区域鉴权读 P95 仅作诊断，不作为 F06 放行条件。",
+        "- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及拒绝矩阵；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。开发机本地网络到托管数据库的长尾不作为 F06/A09 Gate；同区域 P95 <100ms 移至首次同区域部署后的性能验证。真实浏览器登录/E2E、MFA 页面交互及全部页面 API 功能联调属于 Web 前端 G1/页面与接口阶段；Terminal 实际部署归 RELEASE-GATE:BETA，不作为 F06 开发准入 Gate。"
+      ],
+      "task_id": "F06",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:F07",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:F04",
+        "CORE:F05",
+        "CORE:F06"
+      ],
+      "depends_on": [
+        "CORE:F04",
+        "CORE:F05",
+        "CORE:F06"
+      ],
+      "requirement": "Runtime 最小可恢复工作流",
+      "requirements": [
+        "- 需求描述：Runtime 最小可恢复工作流",
+        "- 技术要求：session、持久任务、tool registry、deadline、cancel、retry、checkpoint、Artifact API、成本/速率限额",
+        "- 交付物：`quantos-runtime`、workflow fixtures",
+        "- 量化验收标准：worker 强杀后 100 个任务均从 checkpoint 恢复且不重复创建 Artifact；cancel/timeout 事件均带 audit；任务调度 P95 <200ms",
+        "- 阶段执行：worker 恢复、checkpoint、Artifact 去重及 cancel/timeout 审计为开发硬门槛；调度 P95 <200ms 移交 RELEASE-GATE:BETA；拟发布 HTTPS/受限 Storage 验证由 L04 归档，在服务首次发布前完成。"
+      ],
+      "task_id": "F07",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:F08",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F07"
+      ],
+      "depends_on": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F07"
+      ],
+      "requirement": "Engine SDK、Manager 与 Mock Engine",
+      "requirements": [
+        "- 需求描述：Engine SDK、Manager 与 Mock Engine",
+        "- 技术要求：Engine manifest 审核、UDS gRPC、health/readiness、routing、限流、熔断、退避、资源配额、contract harness",
+        "- 交付物：`quantos-engine-manager`、Python common SDK、mock engine",
+        "- 量化验收标准：`GetMetadata/Health/Execute/StreamExecute/Cancel` 100% contract 通过；连续 3 次崩溃触发退避且不丢请求；deadline 超时 ≤2 秒返回确定性错误"
+      ],
+      "task_id": "F08",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:F09",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08"
+      ],
+      "depends_on": [
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08"
+      ],
+      "requirement": "本地可观测性、容量阈值与故障注入",
+      "requirements": [
+        "- 需求描述：本地可观测性、容量阈值与故障注入",
+        "- 技术要求：trace、metrics、结构化日志、健康检查、test fault proxy；为 outbox 年龄/DLQ、Realtime 投影延迟与配额、读模型查询/MV 新鲜度、Storage 错误与秘密轮换配置可执行告警和 ADR 证据采集",
+        "- 交付物：dashboards、alert rules、fault tests、容量 ADR 模板",
+        "- 量化验收标准：开发阶段 Gate 验证已交付 F0 写入口的持久 trace/correlation ID、结构化错误与健康检查；用确定性样本、断采和时间前进测试告警阈值、连续窗口及 ADR 输入；在已配置的测试 Supabase PostgreSQL 上验证 migration、真实数据库/消费者组件故障恢复、查询采样和本地 Engine 崩溃恢复。CI、Nightly 与数据库组件回执须绑定同一完整源码 SHA。此 Gate 不要求尚未部署的业务生产者持续上报或发送真实通知。",
+        "- 阶段执行：本节原标准及历史同 SHA 回执保留；当前功能准入评估持久 trace、确定性告警/断采与受影响真实 Supabase 功能，持续采样/实际通知和远程 CI/Nightly 归发布检查点。Beta 范围在 RELEASE-GATE:BETA 完成，新增 testnet 执行区范围在 RELEASE-GATE:LIVE-READINESS 完成。"
+      ],
+      "task_id": "F09",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP01-A",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:F01",
+        "CORE:F02"
+      ],
+      "depends_on": [
+        "CORE:F01",
+        "CORE:F02"
+      ],
+      "requirement": "上游只读副本与 Fork 基线",
+      "requirements": [
+        "- 需求描述：上游只读副本与 Fork 基线",
+        "- 交付物：baseline SHA、监测 workflow、初始 SBOM/NOTICE、目录 README",
+        "- 验收标准：新 tag/commit 只生成 candidate 记录，不更新生产依赖；baseline 可重建"
+      ],
+      "task_id": "TP01-A",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP01-B",
+    {
+      "acceptance_window": "F0",
+      "dependencies": [
+        "CORE:TP01-A",
+        "CORE:F07"
+      ],
+      "depends_on": [
+        "CORE:TP01-A",
+        "CORE:F07"
+      ],
+      "requirement": "capability inventory 与禁止耦合清单",
+      "requirements": [
+        "- 需求描述：capability inventory 与禁止耦合清单",
+        "- 交付物：capability matrix、threat model 补充、禁止耦合 ADR",
+        "- 验收标准：每项能力都有输入/输出/副作用/权限/替换策略；交易/秘密路径全部标记拒绝"
+      ],
+      "task_id": "TP01-B",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:R01",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F05",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:F03",
+        "CORE:F05",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "Market ingestion 与标准化行情契约",
+      "requirements": [
+        "- 需求描述：Market ingestion 与标准化行情契约",
+        "- 技术要求：归一化 symbol、时间、精度、来源、质量；只允许已批准 provider；写 `MarketEvent`",
+        "- 交付物：`quantos-market`、ingestor、replay dataset",
+        "- 量化验收标准：10万条 replay 事件解析成功率 100%；乱序/重复数据正确去重；新鲜度/质量异常在 ≤5s 内发出事件",
+        "- 阶段执行：开发验证 10 万 replay、归一化/去重、原子游标、重试/补偿与受控异常提交 ≤5s；source-age、processing、自然告警精确 ACK 与采样缺口分别报告。真实持续运行的新鲜度/readiness 和部署 SLO 归 RELEASE-GATE:BETA；不能以 pending=0 或持续写入冒充健康，已知不健康数据必须明确标识并由策略/交易消费者拒绝。FA-H01/B01 保持 OPEN/PARTIAL，功能准入仅针对有证据支撑的允许用途。"
+      ],
+      "task_id": "R01",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:R02",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:R01",
+        "CORE:F06",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:R01",
+        "CORE:F06",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "DataSnapshot、血缘与质量 Gate",
+      "requirements": [
+        "- 需求描述：DataSnapshot、血缘与质量 Gate",
+        "- 技术要求：不可变 hash、时间窗、schema、质量、许可证、来源；快照元数据与质量 Gate 存于 Supabase PostgreSQL，并通过 RLS 保护租户可见性；交易相关调用必须检查质量/时效",
+        "- 交付物：snapshot API、对象存储、quality rules、snapshot migration",
+        "- 量化验收标准：相同输入生成相同 hash；过期/质量不合格/许可证缺失的 300 个 fixture 100% 被拒用于策略/交易；查询 P95 <300ms",
+        "- 阶段执行：确定性 hash、300 个质量/时效/许可证拒绝 fixture、真实 Supabase 查询/权限与 Storage 完整性为开发硬门槛；查询 P95 <300ms 保留基线并移交 RELEASE-GATE:BETA。"
+      ],
+      "task_id": "R02",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP01-C",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:TP01-B",
+        "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:TP01-B",
+        "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "`vibe_adapter` skeleton",
+      "requirements": [
+        "- 需求描述：`vibe_adapter` skeleton",
+        "- 交付物：`engines/vibe-adapter`、contract tests、mock adapter",
+        "- 验收标准：五个 Engine RPC 100% 通过；无未授权 egress、secret 或 venue capability"
+      ],
+      "task_id": "TP01-C",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP01-D",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:TP01-C",
+        "CORE:R02",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:TP01-C",
+        "CORE:R02",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "选择性吸收与最小 patch 队列",
+      "requirements": [
+        "- 需求描述：选择性吸收与最小 patch 队列",
+        "- 交付物：fork patch queue、adapter modules、sync ADR",
+        "- 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow"
+      ],
+      "task_id": "TP01-D",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP02",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "RD-Agent：自动研究/实验 Engine",
+      "requirements": [
+        "- 需求描述：RD-Agent：自动研究/实验 Engine",
+        "- 交付物：`engines/rd-agent`、manifest、运行时打包、adapter、fixtures",
+        "- 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s",
+        "- 阶段执行：contract、确定性 hash 与交易/secret/网络拒绝在开发验证；P95 接收响应 <1s 归 RELEASE-GATE:BETA，deadline 内确定性受理或错误仍是开发功能要求。"
+      ],
+      "task_id": "TP02",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP03",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:F08",
+        "CORE:F05",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:F08",
+        "CORE:F05",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "LLMQuant：特征、因子、模型、Signal Engine",
+      "requirements": [
+        "- 需求描述：LLMQuant：特征、因子、模型、Signal Engine",
+        "- 交付物：`engines/llmquant`、manifest、Signal mapper、model provenance",
+        "- 集成验收标准：100 组固定输入结果 schema 100% 有效；每条 Signal 含策略/模型/数据版本、置信度和时效；无 OMS/venue/secret import；流式取消 ≤2s 生效",
+        "- 阶段执行：schema、版本/置信度/时效与禁止 import 在开发验证；流式取消 ≤2s 用受控 clock/真实进程测功能语义，Research UI 联调覆盖取消后无副作用；部署负载下同一时限在 RELEASE-GATE:BETA 重验，不删除超时语义。"
+      ],
+      "task_id": "TP03",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP04",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:F08",
+        "CORE:TP03",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:F08",
+        "CORE:TP03",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "TradingAgents：多 Agent 决策 Engine",
+      "requirements": [
+        "- 需求描述：TradingAgents：多 Agent 决策 Engine",
+        "- 交付物：`engines/trading-agents`、proposal mapper、policy fixtures",
+        "- 集成验收标准：100% Proposal 带证据、反方观点、失效时间；所有输出 `executable=false`；尝试调用 order/secret tool 必失败并审计；固定 fixture 可重放"
+      ],
+      "task_id": "TP04",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP05",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:F05",
+        "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:F05",
+        "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "OpenBB：数据/研究适配服务",
+      "requirements": [
+        "- 需求描述：OpenBB：数据/研究适配服务",
+        "- 交付物：`engines/openbb-adapter`、provider interface、法律决策 ADR、替代 provider mock",
+        "- 集成验收标准：结果 100% 含来源/许可/schema/hash；未经批准的数据不可进入交易流程；服务端无核心领域依赖；许可证 Gate 未通过时生产构建拒绝包含该制品"
+      ],
+      "task_id": "TP05",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP08",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:F05",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:F05",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "Qlib",
+      "requirements": [
+        "- 需求描述：Qlib",
+        "- 交付物：ADR、capability matrix、与 `DataSnapshot/ResearchArtifact` 映射样例",
+        "- 验收标准：固定 commit、许可证/SBOM/CVE 记录齐全；完成 3 个离线实验映射；结论明确“仅参考/隔离 adapter/拒绝”及替换成本"
+      ],
+      "task_id": "TP08",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP09",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:TP03",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:TP03",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "TrendRadar",
+      "requirements": [
+        "- 需求描述：TrendRadar",
+        "- 交付物：ADR、趋势 signal schema 样例、数据许可清单",
+        "- 验收标准：3 组离线输入可映射至自有 Signal；缺少许可证/来源的输出 100% 被标为不可交易；无生产依赖进入 lockfile"
+      ],
+      "task_id": "TP09",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP10",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE-GATE:F0"
+      ],
+      "requirement": "ValueCell",
+      "requirements": [
+        "- 需求描述：ValueCell",
+        "- 交付物：UX gap report、可复用交互清单、禁止耦合清单",
+        "- 验收标准：至少 10 个 UI 模式映射至 Terminal design spec；无源码复制/运行时依赖；所有差异写 ADR"
+      ],
+      "task_id": "TP10",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP11",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:TP05",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:TP05",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "OpenStock",
+      "requirements": [
+        "- 需求描述：OpenStock",
+        "- 交付物：provider comparison、Data Contract fixture、许可证结论",
+        "- 验收标准：2 个 provider fixture 完成血缘/质量映射；任何未授权数据无法生成可用 DataSnapshot；无 Day-1 依赖"
+      ],
+      "task_id": "TP11",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:R03",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:R02",
+        "CORE:TP02",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:R02",
+        "CORE:TP02",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "Research orchestration 与 Artifact lifecycle",
+      "requirements": [
+        "- 需求描述：Research orchestration 与 Artifact lifecycle",
+        "- 技术要求：Runtime 组合研究 Engine、预算、deadline、流式事件、Artifact 归档与重放",
+        "- 交付物：research workflow、Artifact repository",
+        "- 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact",
+        "- 阶段执行：10 次确定性运行、取消 ≤2s 确认与无重复 Artifact 为开发要求；获准工程环境的 Runtime/Engine 组合在联调验证，部署/负载回执在 RELEASE-GATE:BETA 重验。"
+      ],
+      "task_id": "R03",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:R04",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "dependencies": [
+        "CORE:R03",
+        "CORE:TP03",
+        "CORE:TP04",
+        "CORE-GATE:F0"
+      ],
+      "depends_on": [
+        "CORE:R03",
+        "CORE:TP03",
+        "CORE:TP04",
+        "CORE-GATE:F0"
+      ],
+      "requirement": "Signal 与 TradeProposal 工作流",
+      "requirements": [
+        "- 需求描述：Signal 与 TradeProposal 工作流",
+        "- 技术要求：仅接收版本化 Signal/研究输入；生成不可执行 Proposal、反方观点、失效时间、证据",
+        "- 交付物：signal/proposal service、schema validator",
+        "- 量化验收标准：100 个 Proposal fixture 100% 含证据/失效时间/`executable=false`；过期 Proposal 100% 拒绝评估；无订单 API 被调用"
+      ],
+      "task_id": "R04",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP01-E",
+    {
+      "acceptance_window": "TP01-SERVICE",
+      "dependencies": [
+        "CORE:TP01-D",
+        "CORE:F02",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:TP01-D",
+        "CORE:F02",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "requirement": "同步自动化与分级阻断",
+      "requirements": [
+        "- 需求描述：同步自动化与分级阻断",
+        "- 交付物：`sync-vibe` 工具、CI workflow、decision records",
+        "- 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果"
+      ],
+      "task_id": "TP01-E",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP01-F",
+    {
+      "acceptance_window": "TP01-SERVICE",
+      "dependencies": [
+        "CORE:TP01-E",
+        "CORE:F09",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:TP01-E",
+        "CORE:F09",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "requirement": "canary、观测与回滚",
+      "requirements": [
+        "- 需求描述：canary、观测与回滚",
+        "- 交付物：dashboards、alert rules、rollback runbook、drill report",
+        "- 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整",
+        "- 阶段执行：功能开发完成 flag、影子任务、告警阈值、签名校验、一键禁用/回滚与 in-flight 请求处理的受控测试；连续 7 天 canary 和真实环境 ≤5 分钟回滚归 RELEASE-GATE:BETA，不作为 TP01-G/TP06 开始开发的前置。"
+      ],
+      "task_id": "TP01-F",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP01-G",
+    {
+      "acceptance_window": "TP01-SERVICE",
+      "dependencies": [
+        "CORE:TP01-F",
+        "CORE:R03",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:TP01-F",
+        "CORE:R03",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "requirement": "上游贡献与脱钩替换",
+      "requirements": [
+        "- 需求描述：上游贡献与脱钩替换",
+        "- 交付物：upstream PR 记录、deprecation plan、替换测试",
+        "- 验收标准：不依赖 fork 内部类型；任一模块可替换且业务协议不变"
+      ],
+      "task_id": "TP01-G",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:S01",
+    {
+      "acceptance_window": "S2-SERVICE",
+      "dependencies": [
+        "CORE:R02",
+        "CORE:R03",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:R02",
+        "CORE:R03",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "requirement": "策略草稿与参数模型",
+      "requirements": [
+        "- 需求描述：策略草稿与参数模型",
+        "- 技术要求：草稿可版本化、自动保存、冲突检测；策略只引用已批准数据/Artifact；草稿/参数表默认启用 RLS 并保留 `auth.users` 审计链",
+        "- 交付物：`quantos-strategy` draft API、strategy fixtures、draft migration",
+        "- 量化验收标准：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms",
+        "- 阶段执行：50 组并发无静默覆盖及授权/快照/Artifact 约束在开发验证；草稿保存 P95 <300ms 归 RELEASE-GATE:BETA，开发记录基线。"
+      ],
+      "task_id": "S01",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP06",
+    {
+      "acceptance_window": "S2-SERVICE",
+      "dependencies": [
+        "CORE:F08",
+        "SERVICE:TP01",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:F08",
+        "SERVICE:TP01",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "requirement": "VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选",
+      "requirements": [
+        "- 需求描述：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选",
+        "- 交付物：`engines/strategy-lab` 或 ADR、generator adapter、静态分析 fixtures",
+        "- 集成验收标准：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现"
+      ],
+      "task_id": "TP06",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:S02",
+    {
+      "acceptance_window": "S2-SERVICE",
+      "dependencies": [
+        "CORE:S01",
+        "CORE:TP06",
+        "CORE:TP08",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:S01",
+        "CORE:TP06",
+        "CORE:TP08",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "requirement": "回测与成本/滑点验证",
+      "requirements": [
+        "- 需求描述：回测与成本/滑点验证",
+        "- 技术要求：固定 DataSnapshot、clock、成本/滑点模型、look-ahead/数据泄漏检测、环境 hash",
+        "- 交付物：backtest adapter、validation report",
+        "- 量化验收标准：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash"
+      ],
+      "task_id": "S02",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:S03",
+    {
+      "acceptance_window": "S2-SERVICE",
+      "dependencies": [
+        "CORE:S02",
+        "CORE:F06",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:S02",
+        "CORE:F06",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "requirement": "StrategyRelease 与部署目标控制",
+      "requirements": [
+        "- 需求描述：StrategyRelease 与部署目标控制",
+        "- 技术要求：生成不可变发布物，含源码/构建产物 hash、参数、数据、回测、审批；M3/M4 只允许 Paper/Shadow",
+        "- 交付物：release service、deployment policy、migration",
+        "- 量化验收标准：未验证/未审批 Release 的部署请求 100% 被拒；目标枚举不含 Assisted Live（M5 前）；同一内容重复发布返回同一 hash 或确定性冲突"
+      ],
+      "task_id": "S03",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:X01",
+    {
+      "acceptance_window": "X3-SERVICE",
+      "dependencies": [
+        "CORE:F05",
+        "CORE:R01",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:F05",
+        "CORE:R01",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "requirement": "Portfolio 读模型与风险输入快照",
+      "requirements": [
+        "- 需求描述：Portfolio 读模型与风险输入快照",
+        "- 技术要求：Position、valuation、P&L、exposure、账户状态、数据时间；只读模型可从事件重建，并持久化到 Supabase PostgreSQL 受控 schema",
+        "- 交付物：`quantos-portfolio`、rebuild CLI、portfolio projection migration",
+        "- 量化验收标准：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms",
+        "- 阶段执行：1 万订单/成交黄金回放与读模型重建在开发验证；查询 P95 <300ms 归 RELEASE-GATE:BETA。"
+      ],
+      "task_id": "X01",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:X02",
+    {
+      "acceptance_window": "X3-SERVICE",
+      "dependencies": [
+        "CORE:X01",
+        "CORE:S03",
+        "CORE:F06",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:X01",
+        "CORE:S03",
+        "CORE:F06",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "requirement": "Pre/Post-trade Risk 与 kill switch",
+      "requirements": [
+        "- 需求描述：Pre/Post-trade Risk 与 kill switch",
+        "- 技术要求：规则：策略发布、数据时效、账户、精度、名义、杠杆、集中度、venue 健康、重复、审批；global/account kill switch",
+        "- 交付物：`quantos-risk`、rule fixtures、kill switch API",
+        "- 量化验收标准：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名",
+        "- 阶段执行：全部规则与分支覆盖、kill switch 生效后立即拒绝新命令的逻辑及受控时限测试在开发验证；实际负载下 P95 <1s 归 RELEASE-GATE:BETA。不得将 kill switch 无效或异步传播错误归为可延期性能问题。"
+      ],
+      "task_id": "X02",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:X03",
+    {
+      "acceptance_window": "X3-SERVICE",
+      "dependencies": [
+        "CORE:R04",
+        "CORE:X02",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:R04",
+        "CORE:X02",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "requirement": "TradeCommand 签发与审批状态机",
+      "requirements": [
+        "- 需求描述：TradeCommand 签发与审批状态机",
+        "- 技术要求：将有效 Proposal + RiskDecision + Approval 转为短期、签名、幂等 Command；禁止自批",
+        "- 交付物：`quantos-execution` command issuer、approval verifier",
+        "- 量化验收标准：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms",
+        "- 阶段执行：全部拒绝矩阵、1,000 并发单命令与持久审计在开发验证；签发 P95 <200ms 归 RELEASE-GATE:BETA。"
+      ],
+      "task_id": "X03",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP07",
+    {
+      "acceptance_window": "X3-SERVICE",
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F08",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F08",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "requirement": "NautilusTrader：研究、仿真、OMS、执行内核",
+      "requirements": [
+        "- 需求描述：NautilusTrader：研究、仿真、OMS、执行内核",
+        "- 交付物：`services/execution-gateway`、Nautilus boundary adapter、Paper kernel、LICENSE ADR",
+        "- 集成验收标准：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session"
+      ],
+      "task_id": "TP07",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP12",
+    {
+      "acceptance_window": "X3-SERVICE",
+      "dependencies": [
+        "CORE:F07",
+        "CORE:TP07",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:F07",
+        "CORE:TP07",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "requirement": "nautilus_agents",
+      "requirements": [
+        "- 需求描述：nautilus_agents",
+        "- 交付物：ADR、threat model 补充、接口差异清单",
+        "- 验收标准：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖"
+      ],
+      "task_id": "TP12",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:X04",
+    {
+      "acceptance_window": "X3-SERVICE",
+      "dependencies": [
+        "CORE:X03",
+        "CORE:TP07",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:X03",
+        "CORE:TP07",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "requirement": "Nautilus 边界、Paper OMS 与订单状态机",
+      "requirements": [
+        "- 需求描述：Nautilus 边界、Paper OMS 与订单状态机",
+        "- 技术要求：通过 TP07 adapter 提交/取消、映射 ack/fill/reject，维护 append-only 订单事实",
+        "- 交付物：execution gateway、Paper kernel、state machine",
+        "- 量化验收标准：10万条订单事件 state transition 100% 合法；重复 submit 仅一次下游调用；cancel 延迟/拒绝可审计；所有 Fill 可追溯 Command"
+      ],
+      "task_id": "X04",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:X05",
+    {
+      "acceptance_window": "X3-SERVICE",
+      "dependencies": [
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "requirement": "Shadow 运行、对账与异常队列",
+      "requirements": [
+        "- 需求描述：Shadow 运行、对账与异常队列",
+        "- 技术要求：在真实行情产生对照建议而不下单；日终对账订单/成交/仓位/虚拟账本；异常关闭流程",
+        "- 交付物：shadow runner、reconciler、exception queue",
+        "- 量化验收标准：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用",
+        "- 阶段执行：开发以固定输入和受控时间验证对账、20 类差异检测/定位、告警及无 venue submit；联调验证 Paper/Shadow 到订单/审计 UI 的短链路闭环。连续 10 个交易日、真实日终零未解释差异和 ≤15 分钟发现定位归 RELEASE-GATE:BETA，未经新运行范围授权不启动长稳窗口。"
+      ],
+      "task_id": "X05",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:U01",
+    {
+      "acceptance_window": "I2",
+      "dependencies": [
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:F09",
+        "CORE:R02",
+        "CORE:R03",
+        "CORE:R04",
+        "FE:FEP-2"
+      ],
+      "depends_on": [
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:F09",
+        "CORE:R02",
+        "CORE:R03",
+        "CORE:R04",
+        "FE:FEP-2"
+      ],
+      "requirement": "Web Terminal 壳、认证与 Research 页面",
+      "requirements": [
+        "- 需求描述：Web Terminal 壳、认证与 Research 页面",
+        "- 技术要求：建立 React/Next Web 应用、BFF typed client、OIDC/MFA、App Shell、P01–P05 页面",
+        "- 交付物：`apps/terminal`、`packages/ui/domain-ui/api-client`、P01–P05",
+        "- 量化验收标准：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作",
+        "- 阶段执行：Research 真实 BFF/领域服务的创建/流式/取消/证据跳转、noindex 与小屏风险动作在 I2 联调；完整多浏览器视觉/性能矩阵归 RELEASE-GATE:BETA。"
+      ],
+      "task_id": "U01",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:TP01",
+    {
+      "acceptance_window": "I2",
+      "dependencies": [
+        "SERVICE:TP01",
+        "CORE:U01",
+        "FE:FEP-2"
+      ],
+      "depends_on": [
+        "SERVICE:TP01",
+        "CORE:U01",
+        "FE:FEP-2"
+      ],
+      "requirement": "Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork",
+      "requirements": [
+        "- 需求描述：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork",
+        "- 交付物：capability inventory、许可证报告、只读副本、fork、`UPSTREAM.md`、sync decision records、adapter ADR、自动化回归测试",
+        "- 集成验收标准：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动",
+        "- 阶段执行：I2 关闭 adapter/Artifact API、网络秘密隔离、20 个回放、同步阻断及 Research Web 功能联调；TP01-F 的 7 天 canary/回滚时限和完整发布供应链归 RELEASE-GATE:BETA，原业务与许可要求保留。"
+      ],
+      "task_id": "TP01",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:S04",
+    {
+      "acceptance_window": "I3",
+      "dependencies": [
+        "CORE:S01",
+        "CORE:S02",
+        "CORE:S03",
+        "CORE:U01",
+        "SERVICE:S04",
+        "FE:FEP-3"
+      ],
+      "depends_on": [
+        "CORE:S01",
+        "CORE:S02",
+        "CORE:S03",
+        "CORE:U01",
+        "SERVICE:S04",
+        "FE:FEP-3"
+      ],
+      "requirement": "策略审批与 Terminal Strategy 页面",
+      "requirements": [
+        "- 需求描述：策略审批与 Terminal Strategy 页面",
+        "- 技术要求：实现策略目录、Lab、Backtest、Release、审批时间线；前端通过 capability 显示目标",
+        "- 交付物：P06–P07、approval integration、E2E",
+        "- 量化验收标准：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过",
+        "- 阶段执行：I3 完成 20 个研究到 Release UI fixture、真实服务拒绝/过期/并发审批与可访问状态；完整视觉/多浏览器发布回归归 RELEASE-GATE:BETA。"
+      ],
+      "task_id": "S04",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:X06",
+    {
+      "acceptance_window": "I8",
+      "dependencies": [
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE:X05",
+        "CORE:U01",
+        "SERVICE:X06",
+        "FRONTEND-GATE:G5",
+        "FRONTEND-GATE:G4",
+        "FRONTEND-GATE:G6"
+      ],
+      "depends_on": [
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE:X05",
+        "CORE:U01",
+        "SERVICE:X06",
+        "FRONTEND-GATE:G5",
+        "FRONTEND-GATE:G4",
+        "FRONTEND-GATE:G6"
+      ],
+      "requirement": "执行/审计/运维 Terminal 页面",
+      "requirements": [
+        "- 需求描述：执行/审计/运维 Terminal 页面",
+        "- 技术要求：实现 P08–P14；实时事件投影、危险操作确认、MFA、导出与 Runbook 入口",
+        "- 交付物：Portfolio/Risk/Proposal/Approval/Order/Audit/Ops Web UI",
+        "- 量化验收标准：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web 回归通过",
+        "- 阶段执行：I8 完成订单/审批/kill switch 功能 E2E、证据链可定位与禁止直连 venue；≤5 分钟操作还原目标、完整 Web 视觉/浏览器矩阵归 RELEASE-GATE:BETA，开发/联调记录基线。"
+      ],
+      "task_id": "X06",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:L01",
+    {
+      "acceptance_window": "L4-SERVICE",
+      "dependencies": [
+        "CORE:X04",
+        "CORE:TP07",
+        "CORE-GATE:X3",
+        "FE:FEP-7"
+      ],
+      "depends_on": [
+        "CORE:X04",
+        "CORE:TP07",
+        "CORE-GATE:X3",
+        "FE:FEP-7"
+      ],
+      "requirement": "优先 venue testnet 适配",
+      "requirements": [
+        "- 需求描述：优先 venue testnet 适配",
+        "- 技术要求：仅接入已批准的单一 venue；订单意图/精度/限流映射；永不在 CI 使用生产 key",
+        "- 交付物：venue plugin、testnet fixtures、compat report",
+        "- 量化验收标准：200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品",
+        "- 阶段执行：开发验证 200 个对应场景的协议 fixture、精度/限流/错误分类、生产端点/秘密拒绝；I10 必须以获准真实 testnet 完成代表性功能联调；200 笔目标 testnet 回执及发布环境兼容证据归 RELEASE-GATE:LIVE-READINESS，fixture 不能冒充真实 testnet 验收。"
+      ],
+      "task_id": "L01",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:L02",
+    {
+      "acceptance_window": "L4-SERVICE",
+      "dependencies": [
+        "CORE:F06",
+        "CORE:L01",
+        "CORE-GATE:X3",
+        "FE:FEP-7"
+      ],
+      "depends_on": [
+        "CORE:F06",
+        "CORE:L01",
+        "CORE-GATE:X3",
+        "FE:FEP-7"
+      ],
+      "requirement": "Supabase Vault、mTLS 与受限执行区",
+      "requirements": [
+        "- 需求描述：Supabase Vault、mTLS 与受限执行区",
+        "- 技术要求：Vault 静态秘密/引用、Execution Gateway 专用受控数据库角色与 allowlist 函数、服务会话/命令 TTL、网络 allowlist、mTLS、最少 egress、轮换/撤销；不实现 Vault 动态租约",
+        "- 交付物：secret integration、database grants/function、network policy、rotation runbook",
+        "- 量化验收标准：secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断",
+        "- 阶段执行：开发验证 secret 隔离、拒绝过期/越权/egress、mTLS 双向身份认证及缺失/过期/不可信证书拒绝、轮换与撤销恢复机制；受控认证与受限执行边界不能延期，真实数据库权限在现有 Supabase 测试。实际部署的证书/网络策略、受限执行区与轮换后 ≤5 分钟恢复回执归 RELEASE-GATE:LIVE-READINESS。"
+      ],
+      "task_id": "L02",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:L03",
+    {
+      "acceptance_window": "I10",
+      "dependencies": [
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:L02",
+        "SERVICE:L03",
+        "FE:FEP-8"
+      ],
+      "depends_on": [
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:L02",
+        "SERVICE:L03",
+        "FE:FEP-8"
+      ],
+      "requirement": "双人审批、MFA 与 Assisted Live UI Gate",
+      "requirements": [
+        "- 需求描述：双人审批、MFA 与 Assisted Live UI Gate",
+        "- 技术要求：仅在服务端 feature/capability 返回时显示 Assisted Live；双人职责分离、额度与白名单",
+        "- 交付物：approval policy、P10/P11 M5 UI、E2E",
+        "- 量化验收标准：M5 flag 关闭时 UI/API 100% 不可达；开启 testnet flag 后 50 次双人审批均写签名审计；自批/额度超限/过期 100% 拒绝",
+        "- 阶段执行：I10 完成默认关闭、获准 testnet flag 下 UI/API 双人职责分离、MFA/额度/过期拒绝及 50 次签名审计用例；目标部署与发布签字归 RELEASE-GATE:LIVE-READINESS。"
+      ],
+      "task_id": "L03",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "CORE:L04",
+    {
+      "acceptance_window": "L4-TOTAL",
+      "dependencies": [
+        "CORE:X05",
+        "CORE:X06",
+        "CORE:L01",
+        "CORE:L02",
+        "CORE:L03",
+        "SERVICE:L04",
+        "FE:FEP-8"
+      ],
+      "depends_on": [
+        "CORE:X05",
+        "CORE:X06",
+        "CORE:L01",
+        "CORE:L02",
+        "CORE:L03",
+        "SERVICE:L04",
+        "FE:FEP-8"
+      ],
+      "requirement": "容量、恢复、安全与上线证据包",
+      "requirements": [
+        "- 需求描述：容量、恢复、安全与上线证据包",
+        "- 技术要求：压测、混沌、DB/事件恢复、订单对账、告警、回滚；生成不可篡改测试证据",
+        "- 交付物：SLO report、drill report、release checklist",
+        "- 量化验收标准：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0",
+        "- 阶段执行：L4 功能联调验证去重、审计持久化及重放/恢复/Engine 故障/kill switch 机制和证据采集；目标容量、四类部署演练、安全全量与最终证据包归 RELEASE-GATE:LIVE-READINESS。F07/F09 在 Beta 中实际使用的服务回执先由 RELEASE-GATE:BETA 收口，不等待 L4 全部完成。"
+      ],
+      "task_id": "L04",
+      "task_type": "CORE"
+    }
+  ],
+  [
+    "FE:PRE-01",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [],
+      "depends_on": [],
+      "iteration": "P0",
+      "requirement": "需求拆解",
+      "requirements": [
+        "- 需求描述：需求拆解",
+        "- 完成标准：页面覆盖率 100%；每页至少有默认/加载/空/错误/无权/陈旧/离线状态"
+      ],
+      "task_id": "PRE-01",
+      "task_type": "PREPARATION",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:PRE-02",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:PRE-01"
+      ],
+      "depends_on": [
+        "PRE-01"
+      ],
+      "iteration": "P0",
+      "requirement": "设计系统预研",
+      "requirements": [
+        "- 需求描述：设计系统预研",
+        "- 完成标准：WCAG 2.2 AA 基础检查通过；通用安全文案全部入 i18n"
+      ],
+      "task_id": "PRE-02",
+      "task_type": "PREPARATION",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:PRE-03",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:F01"
+      ],
+      "dependencies": [
+        "FE:PRE-02",
+        "CORE:F01"
+      ],
+      "depends_on": [
+        "PRE-02",
+        "CORE:F01"
+      ],
+      "iteration": "P0",
+      "requirement": "技术栈落地",
+      "requirements": [
+        "- 需求描述：技术栈落地",
+        "- 完成标准：新环境 ≤30 分钟完成 bootstrap/build/test；官网与 Web Terminal 目标路由可打开"
+      ],
+      "task_id": "PRE-03",
+      "task_type": "PREPARATION",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:PRE-04",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:F03",
+        "CORE:F06"
+      ],
+      "dependencies": [
+        "FE:PRE-01",
+        "CORE:F03",
+        "CORE:F06"
+      ],
+      "depends_on": [
+        "PRE-01",
+        "CORE:F03",
+        "CORE:F06"
+      ],
+      "iteration": "P0",
+      "requirement": "接口盘点",
+      "requirements": [
+        "- 需求描述：接口盘点",
+        "- 完成标准：每个 P0 页面有 Query/Command/Realtime 依赖；无“待开发时再定”字段"
+      ],
+      "task_id": "PRE-04",
+      "task_type": "PREPARATION",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:PRE-05",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:PRE-03",
+        "FE:PRE-04"
+      ],
+      "depends_on": [
+        "PRE-03",
+        "PRE-04"
+      ],
+      "iteration": "P0",
+      "requirement": "环境方案",
+      "requirements": [
+        "- 需求描述：环境方案",
+        "- 完成标准：缺必需变量 fail-fast；客户端 bundle 不含 server secret；环境/mode 明确分离"
+      ],
+      "task_id": "PRE-05",
+      "task_type": "PREPARATION",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:PRE-06",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:PRE-04",
+        "FE:PRE-05"
+      ],
+      "depends_on": [
+        "PRE-04",
+        "PRE-05"
+      ],
+      "iteration": "P0",
+      "requirement": "测试基线",
+      "requirements": [
+        "- 需求描述：测试基线",
+        "- 完成标准：故意破坏 schema、权限、敏感字段或视觉基线能使 CI 失败；开发以同源 runner 的可重放负向检查验证，远程同 SHA CI 的实际运行证据在 RELEASE 验收"
+      ],
+      "task_id": "PRE-06",
+      "task_type": "PREPARATION",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-000",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:F03",
+        "CORE:F05",
+        "CORE:F06"
+      ],
+      "dependencies": [
+        "FE:PRE-04",
+        "FE:PRE-06",
+        "CORE:F03",
+        "CORE:F05",
+        "CORE:F06",
+        "PREPARATION:P0"
+      ],
+      "depends_on": [
+        "PRE-04",
+        "PRE-06",
+        "CORE:F03",
+        "CORE:F05",
+        "CORE:F06",
+        "PREPARATION:P0"
+      ],
+      "iteration": "A1",
+      "requirement": "建立页面 BFF OpenAPI 基线；统一 session 注入、错误 envelope、cursor 分页、sort/filter、202 job、Idempotency-Key、ETag/objectVersion、correlation ID、SSE event envelope；生成 TS client/Zod/MSW",
+      "requirements": [
+        "- 需求描述：建立页面 BFF OpenAPI 基线；统一 session 注入、错误 envelope、cursor 分页、sort/filter、202 job、Idempotency-Key、ETag/objectVersion、correlation ID、SSE event envelope；生成 TS client/Zod/MSW",
+        "- 目标阶段与验收：FEP-0/G0：每个 `UI-Pxx` 可追踪到 operationId；生成漂移、provider/consumer contract 与敏感字段扫描进入 CI"
+      ],
+      "task_id": "BFF-FE-000",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:FEP-0",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE-GATE:F0"
+      ],
+      "dependencies": [
+        "CORE-GATE:F0",
+        "FE:PRE-01",
+        "FE:PRE-02",
+        "FE:PRE-03",
+        "FE:PRE-04",
+        "FE:PRE-05",
+        "FE:PRE-06",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "CORE-GATE:F0",
+        "PRE-01",
+        "PRE-02",
+        "PRE-03",
+        "PRE-04",
+        "PRE-05",
+        "PRE-06",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "A1",
+      "requirement": "工程运行时、设计系统、接口台账、环境、测试底座",
+      "requirements": [
+        "- 需求描述：工程运行时、设计系统、接口台账、环境、测试底座",
+        "- 验收边界：`pnpm check:fep0` 消费 CORE-GATE:F0、六 PRE 与当前 G0 的完整功能 manifest、执行日志/产物及递归证据；八项 READY 才能登记里程碑 READY。`pnpm check:fep0:engineering` 可核验唯一剩余 G0 用户确认的 BLOCKED 工程回执，不构成准入。",
+        "- 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结"
+      ],
+      "task_id": "FEP-0",
+      "task_type": "MILESTONE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-001",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:F06"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "CORE:F06",
+        "PROVIDER:A1"
+      ],
+      "depends_on": [
+        "BFF-FE-000",
+        "CORE:F06",
+        "PROVIDER:A1"
+      ],
+      "iteration": "A2",
+      "requirement": "session/context/reauth/MFA/logout/access request；profile/locale/theme；active sessions revoke；trusted devices revoke；notification preferences/subscriptions；安全操作与审计引用",
+      "requirements": [
+        "- 需求描述：session/context/reauth/MFA/logout/access request；profile/locale/theme；active sessions revoke；trusted devices revoke；notification preferences/subscriptions；安全操作与审计引用",
+        "- 目标阶段与验收：FEP-1/G1：401/403/404、CSRF、recent-auth、最后有效因素保护与撤销后实时失效测试通过"
+      ],
+      "task_id": "BFF-FE-001",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-007",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:F05"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-001",
+        "CORE:F05",
+        "PROVIDER:A1"
+      ],
+      "depends_on": [
+        "BFF-FE-001",
+        "CORE:F05",
+        "PROVIDER:A1"
+      ],
+      "iteration": "A2",
+      "requirement": "audit search/get chain；correlation/causation pagination；redacted payload；export create/status/cancel/download metadata；短时 URL、水印、retention",
+      "requirements": [
+        "- 需求描述：audit search/get chain；correlation/causation pagination；redacted payload；export create/status/cancel/download metadata；短时 URL、水印、retention",
+        "- 目标阶段与验收：FEP-5/G5：功能联调验证 correlation ID 证据链完整、越权/过期下载拒绝和导出全过程审计；≤5 分钟还原在 RELEASE 的目标数据规模下验收，开发/联调记录基线"
+      ],
+      "task_id": "BFF-FE-007",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-003",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:R02",
+        "CORE:R03",
+        "CORE:R04",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-007",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:R02",
+        "CORE:R03",
+        "CORE:R04",
+        "CORE-GATE:R1-SERVICE",
+        "PROVIDER:A2"
+      ],
+      "depends_on": [
+        "BFF-FE-001",
+        "BFF-FE-007",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:R02",
+        "CORE:R03",
+        "CORE:R04",
+        "CORE-GATE:R1-SERVICE",
+        "PROVIDER:A2"
+      ],
+      "iteration": "A3",
+      "requirement": "Research list/create/get/cancel；stream subscribe/replay；Artifact/Evidence get；Snapshot list/get；统一 cursor/filter、sequence/afterSequence 和 202 状态引用",
+      "requirements": [
+        "- 需求描述：Research list/create/get/cancel；stream subscribe/replay；Artifact/Evidence get；Snapshot list/get；统一 cursor/filter、sequence/afterSequence 和 202 状态引用",
+        "- 目标阶段与验收：FEP-2/G2：创建、取消、断线续传、重复/乱序、质量/许可阻断与 Audit 关联 contract 全绿"
+      ],
+      "task_id": "BFF-FE-003",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-005",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:R01",
+        "CORE:R02",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-001",
+        "CORE:R01",
+        "CORE:R02",
+        "CORE-GATE:R1-SERVICE",
+        "PROVIDER:A2"
+      ],
+      "depends_on": [
+        "BFF-FE-001",
+        "CORE:R01",
+        "CORE:R02",
+        "CORE-GATE:R1-SERVICE",
+        "PROVIDER:A2"
+      ],
+      "iteration": "A3",
+      "requirement": "instrument catalog/watchlist；authorized VenueQuote；candle series/history/realtime；series metadata、quality/gaps/event markers；symbol/venue/product/timezone/interval capability",
+      "requirements": [
+        "- 需求描述：instrument catalog/watchlist；authorized VenueQuote；candle series/history/realtime；series metadata、quality/gaps/event markers；symbol/venue/product/timezone/interval capability",
+        "- 目标阶段与验收：FEP-4/G4：报价和 candle 均含 source/venue/asOf/quality/license；切换维度不混用缓存，断流可回补且不拼接"
+      ],
+      "task_id": "BFF-FE-005",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-006",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE:TP07",
+        "CORE-GATE:X3-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE:TP07",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A3"
+      ],
+      "depends_on": [
+        "BFF-FE-003",
+        "BFF-FE-005",
+        "BFF-FE-007",
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE:TP07",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A3"
+      ],
+      "iteration": "A4",
+      "requirement": "portfolio/risk projection；proposal list/get/evaluate；preflight/order capabilities；approval list/get/decide/MFA；command-ref submit；order list/get/cancel request/stream",
+      "requirements": [
+        "- 需求描述：portfolio/risk projection；proposal list/get/evaluate；preflight/order capabilities；approval list/get/decide/MFA；command-ref submit；order list/get/cancel request/stream",
+        "- 目标阶段与验收：FEP-5/G5：七类拒绝、职责分离、重复 1,000 次幂等、202 受理和订单事实流全部通过"
+      ],
+      "task_id": "BFF-FE-006",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-004",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:S01",
+        "CORE:S02",
+        "CORE:S03",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:S04"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "CORE:S01",
+        "CORE:S02",
+        "CORE:S03",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:S04",
+        "PROVIDER:A3"
+      ],
+      "depends_on": [
+        "BFF-FE-003",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "CORE:S01",
+        "CORE:S02",
+        "CORE:S03",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:S04",
+        "PROVIDER:A3"
+      ],
+      "iteration": "A4",
+      "requirement": "strategy list/draft get/save；static check；backtest create/get/stream；release create/list/get；allowedTargets；approval timeline；expectedVersion/409 diff",
+      "requirements": [
+        "- 需求描述：strategy list/draft get/save；static check；backtest create/get/stream；release create/list/get；allowedTargets；approval timeline；expectedVersion/409 diff",
+        "- 目标阶段与验收：FEP-3/G3：并发编辑无静默覆盖；校验失败、未审批及非法 target 均由服务端拒绝"
+      ],
+      "task_id": "BFF-FE-004",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-009",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:X05",
+        "CORE-GATE:X3-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "CORE:X05",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A4"
+      ],
+      "depends_on": [
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "CORE:X05",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A4"
+      ],
+      "iteration": "A5",
+      "requirement": "reconciliation list/get；break list/get；ledger entries；request rerun/re-evaluation；status stream；Order/Fill/Audit/Alert evidence refs；禁止任何 edit-ledger operation",
+      "requirements": [
+        "- 需求描述：reconciliation list/get；break list/get；ledger entries；request rerun/re-evaluation；status stream；Order/Fill/Audit/Alert evidence refs；禁止任何 edit-ledger operation",
+        "- 目标阶段与验收：FEP-5/G5：差异状态跨页面一致；重跑幂等；schema 和权限负向测试证明前端无法改账"
+      ],
+      "task_id": "BFF-FE-009",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-008",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:X01",
+        "CORE:X05",
+        "CORE-GATE:X3-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-009",
+        "CORE:X01",
+        "CORE:X05",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A4"
+      ],
+      "depends_on": [
+        "BFF-FE-009",
+        "CORE:X01",
+        "CORE:X05",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A4"
+      ],
+      "iteration": "A5",
+      "requirement": "performance summary/time series/attribution/drawdown/fees；valuation and ledger versions；report create/status/get/download；period/method/currency/coverage/provisional",
+      "requirements": [
+        "- 需求描述：performance summary/time series/attribution/drawdown/fees；valuation and ledger versions；report create/status/get/download；period/method/currency/coverage/provisional",
+        "- 目标阶段与验收：FEP-4/G4：所有结果含 account/currency/method/asOf/ledgerVersion/valuationSnapshotId；未对账数据强制 provisional"
+      ],
+      "task_id": "BFF-FE-008",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-010",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:F09",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-009",
+        "CORE:F09",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "PROVIDER:A4"
+      ],
+      "depends_on": [
+        "BFF-FE-001",
+        "BFF-FE-007",
+        "BFF-FE-009",
+        "CORE:F09",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "PROVIDER:A4"
+      ],
+      "iteration": "A5",
+      "requirement": "service health/metrics projection；incident list/get/timeline；approved Runbook actions/prechecks；member/role/policy/capability/flag CRUD with versioning；alert list/get/ack/unack/subscriptions/stream",
+      "requirements": [
+        "- 需求描述：service health/metrics projection；incident list/get/timeline；approved Runbook actions/prechecks；member/role/policy/capability/flag CRUD with versioning；alert list/get/ack/unack/subscriptions/stream",
+        "- 目标阶段与验收：FEP-6/G6：无任意命令参数；最后管理员和职责分离保护；ack 不改变 resolved；所有治理变更可审计"
+      ],
+      "task_id": "BFF-FE-010",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-002",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:F09",
+        "CORE-GATE:X3-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-010",
+        "CORE:F09",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A5"
+      ],
+      "depends_on": [
+        "BFF-FE-003",
+        "BFF-FE-006",
+        "BFF-FE-010",
+        "CORE:F09",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A5"
+      ],
+      "iteration": "A6",
+      "requirement": "authorized command summary、priority queue、system health、risk/data/order/run counters、recent activity；返回 sampledAt/asOf、source 和资源级跳转引用",
+      "requirements": [
+        "- 需求描述：authorized command summary、priority queue、system health、risk/data/order/run counters、recent activity；返回 sampledAt/asOf、source 和资源级跳转引用",
+        "- 目标阶段与验收：FEP-1/G1：单次聚合或受控并发、不同角色字段裁剪和无权对象负向测试通过；开发记录请求/延迟预算基线，无界扇出须修复，目标负载性能预算在 RELEASE 达标"
+      ],
+      "task_id": "BFF-FE-002",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:BFF-FE-011",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE-GATE:X3-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-010",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A5"
+      ],
+      "depends_on": [
+        "BFF-FE-001",
+        "BFF-FE-010",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A5"
+      ],
+      "iteration": "A6",
+      "requirement": "server-visible BrowserCapabilities、浏览器权限策略/permission state、下载记录与平台降级说明；不得返回 token、secret 或本地敏感内容",
+      "requirements": [
+        "- 需求描述：server-visible BrowserCapabilities、浏览器权限策略/permission state、下载记录与平台降级说明；不得返回 token、secret 或本地敏感内容",
+        "- 目标阶段与验收：FEP-1/G1：浏览器 capability、permission state、短时下载与敏感字段负向测试通过"
+      ],
+      "task_id": "BFF-FE-011",
+      "task_type": "PAGE_API",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-103",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:PRE-02",
+        "FE:PRE-03",
+        "FE:PRE-06",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "PRE-02",
+        "PRE-03",
+        "PRE-06",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "QuantOS UI/domain-ui、主题、i18n、表格/时间线/确认框",
+      "requirements": [
+        "- 需求描述：QuantOS UI/domain-ui、主题、i18n、表格/时间线/确认框",
+        "- 验收重点：所有组件状态进 Storybook；键盘、焦点、200% 缩放和读屏通过"
+      ],
+      "task_id": "UI-103",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-VIS-000",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-103",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "UI-103",
+        "BFF-FE-001",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "BFF-FE-000",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "P01–P15/P17–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准",
+      "requirements": [
+        "- 需求描述：P01–P15/P17–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准",
+        "- 页面级完成标准：抽取为 `packages/ui`/`domain-ui`，禁止逐页复制样式；开发建立 1440 视觉基线并验证关键状态，RELEASE 完成基准视觉回归设计签署；语义色不得挪作装饰色"
+      ],
+      "task_id": "UI-VIS-000",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-102",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "UI-VIS-000",
+        "BFF-FE-001",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "OIDC、callback、MFA、401/403/404/maintenance/offline",
+      "requirements": [
+        "- 需求描述：OIDC、callback、MFA、401/403/404/maintenance/offline",
+        "- 验收重点：401 清内存态；403/404 不泄露对象存在性；return path 不含敏感参数"
+      ],
+      "task_id": "UI-102",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-101",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-102",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "UI-102",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "App Shell、路由守卫、主工作区/账户/mode/数据新鲜度/风险/连接状态",
+      "requirements": [
+        "- 需求描述：App Shell、路由守卫、主工作区/账户/mode/数据新鲜度/风险/连接状态",
+        "- 验收重点：守卫严格按 session → tenant/workspace → RBAC/capability → resource → mode → data 顺序；任一步失败停止后续请求"
+      ],
+      "task_id": "UI-101",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-104",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-101",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-011",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "UI-101",
+        "BFF-FE-001",
+        "BFF-FE-011",
+        "BFF-FE-000",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "Profile/安全/通知/浏览器能力",
+      "requirements": [
+        "- 需求描述：Profile/安全/通知/浏览器能力",
+        "- 验收重点：会话撤销、通知降级、下载说明可用；小屏无高风险按钮"
+      ],
+      "task_id": "UI-104",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:WEB-101",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-103",
+        "FE:UI-102",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "UI-103",
+        "UI-102",
+        "BFF-FE-001",
+        "BFF-FE-000",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "官网首页、产品、架构安全、场景、访问申请、登录",
+      "requirements": [
+        "- 需求描述：官网首页、产品、架构安全、场景、访问申请、登录",
+        "- 验收重点：开发验证 SEO、隐私、防滥用和禁用词功能；Lighthouse 采集基线，评分目标在 RELEASE 通过"
+      ],
+      "task_id": "WEB-101",
+      "task_type": "WEBSITE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P01",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-102",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "UI-102",
+        "UI-VIS-000",
+        "BFF-FE-001",
+        "BFF-FE-000",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "`P01-Identity-Access-Recovery-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P01-Identity-Access-Recovery-High-Fidelity-v1.png`",
+        "- 页面级完成标准：登录、MFA、访问申请、恢复与返回安全路由均可运行；错误不泄露账户存在性"
+      ],
+      "task_id": "UI-P01",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P02",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-101",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "UI-101",
+        "UI-VIS-000",
+        "BFF-FE-002",
+        "BFF-FE-006",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "`P02-Command-Center-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P02-Command-Center-High-Fidelity-v1.png`",
+        "- 页面级完成标准：卡片按 capability 裁剪；汇总状态、待办、健康与最近活动来自 BFF；无静态业务数据"
+      ],
+      "task_id": "UI-P02",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P15",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-104",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-011",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "UI-104",
+        "UI-VIS-000",
+        "BFF-FE-001",
+        "BFF-FE-011",
+        "BFF-FE-000",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "`P15-Profile-Security-and-Notification-Settings-High-Fidelity-v2.png`",
+      "requirements": [
+        "- 需求描述：`P15-Profile-Security-and-Notification-Settings-High-Fidelity-v2.png`",
+        "- 页面级完成标准：资料、区域、通知矩阵、MFA、会话、可信设备和安全操作全部接入接口"
+      ],
+      "task_id": "UI-P15",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P17",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-104",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-011",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "UI-104",
+        "UI-VIS-000",
+        "BFF-FE-001",
+        "BFF-FE-011",
+        "BFF-FE-000",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G0"
+      ],
+      "iteration": "I1",
+      "requirement": "`P17-Web-Browser-Capability-High-Fidelity-v2.png`",
+      "requirements": [
+        "- 需求描述：`P17-Web-Browser-Capability-High-Fidelity-v2.png`",
+        "- 页面级完成标准：浏览器权限、下载、存储、兼容性与响应式能力检测落地；非浏览器能力不进入一期范围"
+      ],
+      "task_id": "UI-P17",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:FEP-1",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE:F06",
+        "CORE:F09"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FE:PRE-06",
+        "CORE:F06",
+        "CORE:F09",
+        "FE:UI-103",
+        "FE:UI-VIS-000",
+        "FE:UI-102",
+        "FE:UI-101",
+        "FE:UI-104",
+        "FE:WEB-101",
+        "FE:UI-P01",
+        "FE:UI-P02",
+        "FE:UI-P15",
+        "FE:UI-P17",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PRE-06",
+        "CORE:F06",
+        "CORE:F09",
+        "UI-103",
+        "UI-VIS-000",
+        "UI-102",
+        "UI-101",
+        "UI-104",
+        "WEB-101",
+        "UI-P01",
+        "UI-P02",
+        "UI-P15",
+        "UI-P17",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I1",
+      "requirement": "官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态",
+      "requirements": [
+        "- 需求描述：官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态",
+        "- 交付节点与放行条件：G1：认证/RBAC/模式/陈旧/离线/响应式可用，官网内容合规"
+      ],
+      "task_id": "FEP-1",
+      "task_type": "MILESTONE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-507",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-101",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "UI-101",
+        "BFF-FE-007",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I2",
+      "requirement": "Audit Explorer 与受控导出",
+      "requirements": [
+        "- 需求描述：Audit Explorer 与受控导出",
+        "- 验收重点：correlation/causation 链完整；导出异步、短时 URL、授权和审计"
+      ],
+      "task_id": "UI-507",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P12",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-507",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "UI-507",
+        "UI-VIS-000",
+        "BFF-FE-007",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I2",
+      "requirement": "`P12-Audit-Explorer-and-Export-Jobs-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P12-Audit-Explorer-and-Export-Jobs-High-Fidelity-v1.png`",
+        "- 页面级完成标准：服务端搜索/分页、因果链、脱敏载荷、异步导出和短时下载状态落地"
+      ],
+      "task_id": "UI-P12",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-204",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-101",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "UI-101",
+        "BFF-FE-003",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I2",
+      "requirement": "DataSnapshot 目录/详情、质量/许可/时效",
+      "requirements": [
+        "- 需求描述：DataSnapshot 目录/详情、质量/许可/时效",
+        "- 验收重点：`failed/degraded/expired/license missing` 明确阻断后续策略/交易用途"
+      ],
+      "task_id": "UI-204",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P05",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-204",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "UI-204",
+        "UI-VIS-000",
+        "BFF-FE-003",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I2",
+      "requirement": "`P05-Data-Snapshot-Catalog-and-Detail-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P05-Data-Snapshot-Catalog-and-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：目录、详情、血缘、质量、许可、时效与阻断状态均由接口驱动"
+      ],
+      "task_id": "UI-P05",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-201",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-204",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "UI-204",
+        "BFF-FE-003",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I2",
+      "requirement": "Research 列表、新建与表单校验",
+      "requirements": [
+        "- 需求描述：Research 列表、新建与表单校验",
+        "- 验收重点：请求含 capability、snapshot、budget、deadline；后端拒绝字段原位显示"
+      ],
+      "task_id": "UI-201",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P03",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-201",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "UI-201",
+        "UI-VIS-000",
+        "BFF-FE-003",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I2",
+      "requirement": "`P03-Research-List-and-New-Research-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P03-Research-List-and-New-Research-High-Fidelity-v1.png`",
+        "- 页面级完成标准：列表分页/筛选与创建表单落地；预算、deadline、snapshot、capability 校验与 202 受理正确"
+      ],
+      "task_id": "UI-P03",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-202",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-201",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "UI-201",
+        "BFF-FE-003",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I2",
+      "requirement": "Research 详情、SSE 流、取消与恢复",
+      "requirements": [
+        "- 需求描述：Research 详情、SSE 流、取消与恢复",
+        "- 验收重点：以 sequence/cursor 去重；断线从最后确认游标回补；取消返回受理态而非伪造已取消"
+      ],
+      "task_id": "UI-202",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-203",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-202",
+        "FE:UI-507",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "UI-202",
+        "UI-507",
+        "BFF-FE-003",
+        "BFF-FE-007",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I2",
+      "requirement": "Artifact/Evidence 详情与交叉跳转",
+      "requirements": [
+        "- 需求描述：Artifact/Evidence 详情与交叉跳转",
+        "- 验收重点：显示 input/content/environment hash、Engine/prompt/code 版本、证据与 correlation ID"
+      ],
+      "task_id": "UI-203",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P04",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-202",
+        "FE:UI-203",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "depends_on": [
+        "UI-202",
+        "UI-203",
+        "UI-VIS-000",
+        "BFF-FE-003",
+        "BFF-FE-007",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1"
+      ],
+      "iteration": "I2",
+      "requirement": "`P04-Research-and-Artifact-Detail-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P04-Research-and-Artifact-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：SSE 续传/去重、取消受理、Artifact/Evidence/Audit 跳转及全部终态落地"
+      ],
+      "task_id": "UI-P04",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:FEP-2",
+    {
+      "closes_core": [
+        "CORE:U01",
+        "CORE:TP01"
+      ],
+      "core_prerequisites": [
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FE:UI-P17",
+        "CORE-GATE:R1-SERVICE",
+        "FE:UI-204",
+        "FE:UI-P05",
+        "FE:UI-201",
+        "FE:UI-P03",
+        "FE:UI-202",
+        "FE:UI-203",
+        "FE:UI-P04",
+        "FRONTEND-GATE:G2"
+      ],
+      "depends_on": [
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "UI-P17",
+        "CORE-GATE:R1-SERVICE",
+        "UI-204",
+        "UI-P05",
+        "UI-201",
+        "UI-P03",
+        "UI-202",
+        "UI-203",
+        "UI-P04",
+        "FRONTEND-GATE:G2"
+      ],
+      "iteration": "I2",
+      "requirement": "P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot",
+      "requirements": [
+        "- 需求描述：P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot",
+        "- 交付节点与放行条件：G2 功能准入验证固定输入可追溯与重放、取消/超时/终态/资源释放和基本浏览器用例；取消 ≤2s 在功能联调采样并于 RELEASE 指定环境验收，目标 Web 浏览器完整同用例全绿亦由 RELEASE 收口"
+      ],
+      "task_id": "FEP-2",
+      "task_type": "MILESTONE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-301",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-203",
+        "FE:UI-204",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "depends_on": [
+        "UI-203",
+        "UI-204",
+        "BFF-FE-004",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "iteration": "I3",
+      "requirement": "Strategy 目录与 Lab 草稿",
+      "requirements": [
+        "- 需求描述：Strategy 目录与 Lab 草稿",
+        "- 验收重点：自动保存带版本；409 保留草稿并提供 diff，不覆盖服务端"
+      ],
+      "task_id": "UI-301",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P06",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-301",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "depends_on": [
+        "UI-301",
+        "UI-VIS-000",
+        "BFF-FE-004",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "iteration": "I3",
+      "requirement": "`P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png`",
+        "- 页面级完成标准：目录、Lab、版本化草稿、自动保存、校验与 409 diff 可用"
+      ],
+      "task_id": "UI-P06",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-302",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-301",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "depends_on": [
+        "UI-301",
+        "BFF-FE-004",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "iteration": "I3",
+      "requirement": "静态检查、回测队列与报告",
+      "requirements": [
+        "- 需求描述：静态检查、回测队列与报告",
+        "- 验收重点：固定 snapshot/clock/cost/slippage/environment hash；泄漏检查失败阻断 Release"
+      ],
+      "task_id": "UI-302",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-303",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-302",
+        "FE:UI-507",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "depends_on": [
+        "UI-302",
+        "UI-507",
+        "BFF-FE-004",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-005",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "iteration": "I3",
+      "requirement": "不可变 Release、审批申请与目标选择",
+      "requirements": [
+        "- 需求描述：不可变 Release、审批申请与目标选择",
+        "- 验收重点：hash/参数/回测/数据/证据齐全；目标完全取自后端 `allowedTargets`"
+      ],
+      "task_id": "UI-303",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P07",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-302",
+        "FE:UI-303",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "depends_on": [
+        "UI-302",
+        "UI-303",
+        "UI-VIS-000",
+        "BFF-FE-004",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-005",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G2"
+      ],
+      "iteration": "I3",
+      "requirement": "`P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png`",
+        "- 页面级完成标准：回测详情、校验报告、不可变 Release、审批时间线和 allowedTargets 落地"
+      ],
+      "task_id": "UI-P07",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:FEP-3",
+    {
+      "closes_core": [
+        "CORE:S04"
+      ],
+      "core_prerequisites": [
+        "CORE-GATE:S2-SERVICE",
+        "SERVICE:S04"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FE:UI-P04",
+        "CORE-GATE:S2-SERVICE",
+        "SERVICE:S04",
+        "FE:UI-301",
+        "FE:UI-P06",
+        "FE:UI-302",
+        "FE:UI-303",
+        "FE:UI-P07",
+        "FRONTEND-GATE:G3"
+      ],
+      "depends_on": [
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "UI-P04",
+        "CORE-GATE:S2-SERVICE",
+        "SERVICE:S04",
+        "UI-301",
+        "UI-P06",
+        "UI-302",
+        "UI-303",
+        "UI-P07",
+        "FRONTEND-GATE:G3"
+      ],
+      "iteration": "I3",
+      "requirement": "P06–P07；草稿、静态检查、回测、Release、审批时间线",
+      "requirements": [
+        "- 需求描述：P06–P07；草稿、静态检查、回测、Release、审批时间线",
+        "- 交付节点与放行条件：G3：未验证/未审批不可部署；M3/M4 仅 Paper/Shadow"
+      ],
+      "task_id": "FEP-3",
+      "task_type": "MILESTONE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-401",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-101",
+        "FE:UI-204",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "depends_on": [
+        "UI-101",
+        "UI-204",
+        "BFF-FE-005",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "iteration": "I4",
+      "requirement": "Market Catalog、Watchlist、VenueQuote",
+      "requirements": [
+        "- 需求描述：Market Catalog、Watchlist、VenueQuote",
+        "- 验收重点：每行含 source、venue、asOf、latency、quality、capability；不同产品不前端合并"
+      ],
+      "task_id": "UI-401",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P18",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-401",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "depends_on": [
+        "UI-401",
+        "UI-VIS-000",
+        "BFF-FE-005",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "iteration": "I4",
+      "requirement": "`P18-Markets-Overview-and-Instrument-Detail-High-Fidelity-v2.png`",
+      "requirements": [
+        "- 需求描述：`P18-Markets-Overview-and-Instrument-Detail-High-Fidelity-v2.png`",
+        "- 页面级完成标准：市场目录、自选、报价比较、标的详情、许可/质量/as_of 与告警偏好接口化"
+      ],
+      "task_id": "UI-P18",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-501",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-101",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "depends_on": [
+        "UI-101",
+        "BFF-FE-006",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "iteration": "I4",
+      "requirement": "Portfolio 与 Risk",
+      "requirements": [
+        "- 需求描述：Portfolio 与 Risk",
+        "- 验收重点：asOf/stale、仓位、P&L、敞口、规则命中、kill switch 常驻；陈旧即阻断写操作"
+      ],
+      "task_id": "UI-501",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P08",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-501",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "depends_on": [
+        "UI-501",
+        "UI-VIS-000",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "iteration": "I4",
+      "requirement": "`P08-Portfolio-and-Risk-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P08-Portfolio-and-Risk-High-Fidelity-v1.png`",
+        "- 页面级完成标准：仓位、估值、P&L、敞口、规则、stale 与 kill switch 状态可验证；陈旧时禁写"
+      ],
+      "task_id": "UI-P08",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-502",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-203",
+        "FE:UI-501",
+        "FE:UI-507",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "depends_on": [
+        "UI-203",
+        "UI-501",
+        "UI-507",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "iteration": "I4",
+      "requirement": "Proposal 与风险评估",
+      "requirements": [
+        "- 需求描述：Proposal 与风险评估",
+        "- 验收重点：永久显示 `executable=false` 语义；过期 Proposal 不允许评估"
+      ],
+      "task_id": "UI-502",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P09",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-502",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "depends_on": [
+        "UI-502",
+        "UI-VIS-000",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G3"
+      ],
+      "iteration": "I4",
+      "requirement": "`P09-TradeProposal-List-and-Detail-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P09-TradeProposal-List-and-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：列表/详情/证据/反方观点/失效时间落地；始终显示不可执行语义"
+      ],
+      "task_id": "UI-P09",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-503",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-401",
+        "FE:UI-501",
+        "FE:UI-502",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "depends_on": [
+        "UI-401",
+        "UI-501",
+        "UI-502",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "iteration": "I5",
+      "requirement": "Trade Ticket preflight",
+      "requirements": [
+        "- 需求描述：Trade Ticket preflight",
+        "- 验收重点：每一步重新取报价、余额、限额、venue 健康、对象版本和 mode；只预填 intent，不生成 command"
+      ],
+      "task_id": "UI-503",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-504",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-503",
+        "FE:UI-102",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "depends_on": [
+        "UI-503",
+        "UI-102",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "iteration": "I5",
+      "requirement": "Approval、MFA、职责分离",
+      "requirements": [
+        "- 需求描述：Approval、MFA、职责分离",
+        "- 验收重点：自批/过期/冲突/额度变化明确拒绝；不采用乐观更新"
+      ],
+      "task_id": "UI-504",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P10",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-504",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "depends_on": [
+        "UI-504",
+        "UI-VIS-000",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "iteration": "I5",
+      "requirement": "`P10-Approvals-and-RiskDecision-Detail-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P10-Approvals-and-RiskDecision-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：RiskDecision、规则命中、MFA、职责分离、同意/拒绝/过期/冲突状态落地"
+      ],
+      "task_id": "UI-P10",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-505",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-504",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "depends_on": [
+        "UI-504",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "iteration": "I5",
+      "requirement": "Command 提交、Order/Fill 时间线、撤单请求",
+      "requirements": [
+        "- 需求描述：Command 提交、Order/Fill 时间线、撤单请求",
+        "- 验收重点：提交只传服务端 command ref 与 Idempotency-Key；重复提交只产生一笔下游订单"
+      ],
+      "task_id": "UI-505",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P20",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-503",
+        "FE:UI-504",
+        "FE:UI-505",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "depends_on": [
+        "UI-503",
+        "UI-504",
+        "UI-505",
+        "UI-VIS-000",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "iteration": "I5",
+      "requirement": "`P20-Trade-Ticket-Controlled-Order-Entry-High-Fidelity-v3.png`",
+      "requirements": [
+        "- 需求描述：`P20-Trade-Ticket-Controlled-Order-Entry-High-Fidelity-v3.png`",
+        "- 页面级完成标准：订单意图、执行上下文、preflight、证据关联、风险评估、审批与 command ref 提交严格按服务端时序实现"
+      ],
+      "task_id": "UI-P20",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P11",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-505",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "depends_on": [
+        "UI-505",
+        "UI-VIS-000",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-009",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-008",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I4"
+      ],
+      "iteration": "I5",
+      "requirement": "`P11-Orders-and-Execution-Detail-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P11-Orders-and-Execution-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：Order/Fill 时间线、部分成交、拒绝、撤单请求、断流回补与证据链落地"
+      ],
+      "task_id": "UI-P11",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-506",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-505",
+        "FE:UI-507",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I5"
+      ],
+      "depends_on": [
+        "UI-505",
+        "UI-507",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I5"
+      ],
+      "iteration": "I6",
+      "requirement": "Reconciliation 与账本差异",
+      "requirements": [
+        "- 需求描述：Reconciliation 与账本差异",
+        "- 验收重点：不能手工改账；差异贯通 Order/Fill/Performance/Alert/Audit"
+      ],
+      "task_id": "UI-506",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P22",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-506",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I5"
+      ],
+      "depends_on": [
+        "UI-506",
+        "UI-VIS-000",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-009",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-008",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-WINDOW:I5"
+      ],
+      "iteration": "I6",
+      "requirement": "`P22-Reconciliation-and-Funds-Ledger-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P22-Reconciliation-and-Funds-Ledger-High-Fidelity-v1.png`",
+        "- 页面级完成标准：对账运行、差异、资金账本、证据、重跑请求与状态流落地；无手工改账入口"
+      ],
+      "task_id": "UI-P22",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:FEP-5",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FE:UI-P07",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "FE:UI-507",
+        "FE:UI-P12",
+        "FE:UI-501",
+        "FE:UI-P08",
+        "FE:UI-502",
+        "FE:UI-P09",
+        "FE:UI-503",
+        "FE:UI-504",
+        "FE:UI-P10",
+        "FE:UI-505",
+        "FE:UI-P20",
+        "FE:UI-P11",
+        "FE:UI-506",
+        "FE:UI-P22",
+        "FRONTEND-GATE:G5",
+        "FRONTEND-WINDOW:I5"
+      ],
+      "depends_on": [
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "UI-P07",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "UI-507",
+        "UI-P12",
+        "UI-501",
+        "UI-P08",
+        "UI-502",
+        "UI-P09",
+        "UI-503",
+        "UI-504",
+        "UI-P10",
+        "UI-505",
+        "UI-P20",
+        "UI-P11",
+        "UI-506",
+        "UI-P22",
+        "FRONTEND-GATE:G5",
+        "FRONTEND-WINDOW:I5"
+      ],
+      "iteration": "I6",
+      "requirement": "P08–P12、P20、P22；Portfolio/Risk、Proposal、Trade Ticket、Approval、Order、Reconciliation、Audit",
+      "requirements": [
+        "- 需求描述：P08–P12、P20、P22；Portfolio/Risk、Proposal、Trade Ticket、Approval、Order、Reconciliation、Audit",
+        "- 交付节点与放行条件：G5 功能准入验证七类高风险用例全绿、完整证据链可还原、无直连 venue；≤5 分钟还原在 RELEASE 指定数据规模验收"
+      ],
+      "task_id": "FEP-5",
+      "task_type": "MILESTONE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-402",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-401",
+        "FE:UI-505",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G5"
+      ],
+      "depends_on": [
+        "UI-401",
+        "UI-505",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G5"
+      ],
+      "iteration": "I7",
+      "requirement": "OHLCV/K 线、指标、订单/成交标记",
+      "requirements": [
+        "- 需求描述：OHLCV/K 线、指标、订单/成交标记",
+        "- 验收重点：series 元数据完整；切 venue/product 清空旧 series；断流停在最后确认时间"
+      ],
+      "task_id": "UI-402",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P19",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-402",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G5"
+      ],
+      "depends_on": [
+        "UI-402",
+        "UI-VIS-000",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G5"
+      ],
+      "iteration": "I7",
+      "requirement": "`P19-Candlestick-and-Market-Analysis-High-Fidelity-v4.png`",
+      "requirements": [
+        "- 需求描述：`P19-Candlestick-and-Market-Analysis-High-Fidelity-v4.png`",
+        "- 页面级完成标准：Symbol/Venue/Product/Timezone/Quality 可选；周期仅 1m/5m/15m/1h/4h/1D/1W/自定义；K 线、指标、事件、数据缺口和元数据落地"
+      ],
+      "task_id": "UI-P19",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-403",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-506",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G5"
+      ],
+      "depends_on": [
+        "UI-506",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G5"
+      ],
+      "iteration": "I7",
+      "requirement": "Performance、归因、周期报表",
+      "requirements": [
+        "- 需求描述：Performance、归因、周期报表",
+        "- 验收重点：金额/币种/估值/账本版本/口径齐全；未对账数据标为 provisional"
+      ],
+      "task_id": "UI-403",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P21",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-403",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G5"
+      ],
+      "depends_on": [
+        "UI-403",
+        "UI-VIS-000",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G5"
+      ],
+      "iteration": "I7",
+      "requirement": "`P21-Performance-and-Reports-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P21-Performance-and-Reports-High-Fidelity-v1.png`",
+        "- 页面级完成标准：收益、归因、回撤、费用、口径、provisional 和报表生成/下载落地"
+      ],
+      "task_id": "UI-P21",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:FEP-4",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE-GATE:X3-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FE:UI-P07",
+        "CORE-GATE:X3-SERVICE",
+        "FE:UI-401",
+        "FE:UI-P18",
+        "FE:UI-402",
+        "FE:UI-P19",
+        "FE:UI-403",
+        "FE:UI-P21",
+        "FRONTEND-GATE:G4"
+      ],
+      "depends_on": [
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "UI-P07",
+        "CORE-GATE:X3-SERVICE",
+        "UI-401",
+        "UI-P18",
+        "UI-402",
+        "UI-P19",
+        "UI-403",
+        "UI-P21",
+        "FRONTEND-GATE:G4"
+      ],
+      "iteration": "I7",
+      "requirement": "P18–P19、P21；市场目录、报价、K 线、订单标记、收益与报表",
+      "requirements": [
+        "- 需求描述：P18–P19、P21；市场目录、报价、K 线、订单标记、收益与报表",
+        "- 交付节点与放行条件：G4：来源/venue/as_of/quality/口径完整；断流不拼接；provisional 正确"
+      ],
+      "task_id": "FEP-4",
+      "task_type": "MILESTONE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-603",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-506",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "depends_on": [
+        "UI-506",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "iteration": "I8",
+      "requirement": "Alerts 收件箱",
+      "requirements": [
+        "- 需求描述：Alerts 收件箱",
+        "- 验收重点：BFF 授权/去重/限速；ack 仅代表已读，不代表解决；离线禁写"
+      ],
+      "task_id": "UI-603",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P23",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-603",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "depends_on": [
+        "UI-603",
+        "UI-VIS-000",
+        "BFF-FE-007",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "iteration": "I8",
+      "requirement": "`P23-Alerts-Inbox-and-Response-High-Fidelity-v1.png`",
+      "requirements": [
+        "- 需求描述：`P23-Alerts-Inbox-and-Response-High-Fidelity-v1.png`",
+        "- 页面级完成标准：授权收件箱、详情、ack/unack、处置导航、订阅与实时状态落地；ack 不等于 resolved"
+      ],
+      "task_id": "UI-P23",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-601",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-603",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "depends_on": [
+        "UI-603",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "iteration": "I8",
+      "requirement": "Operations/Incident/Runbook",
+      "requirements": [
+        "- 需求描述：Operations/Incident/Runbook",
+        "- 验收重点：只能触发服务端批准 actionId；无任意命令/脚本入口"
+      ],
+      "task_id": "UI-601",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P13",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-601",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "depends_on": [
+        "UI-601",
+        "UI-VIS-000",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "iteration": "I8",
+      "requirement": "`P13-Operations-and-Incident-Detail-High-Fidelity-v2.png`",
+      "requirements": [
+        "- 需求描述：`P13-Operations-and-Incident-Detail-High-Fidelity-v2.png`",
+        "- 页面级完成标准：7 个服务健康视图、告警、incident 时间线、Runbook 检查与受控 actionId 调用落地"
+      ],
+      "task_id": "UI-P13",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-602",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-601",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "depends_on": [
+        "UI-601",
+        "BFF-FE-001",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "iteration": "I8",
+      "requirement": "Admin 治理",
+      "requirements": [
+        "- 需求描述：Admin 治理",
+        "- 验收重点：成员、角色、policy、capability、flag 全量审计；最后管理员保护；职责分离"
+      ],
+      "task_id": "UI-602",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:UI-P14",
+    {
+      "closes_core": [],
+      "core_prerequisites": [],
+      "dependencies": [
+        "FE:UI-602",
+        "FE:UI-VIS-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "depends_on": [
+        "UI-602",
+        "UI-VIS-000",
+        "BFF-FE-001",
+        "BFF-FE-010",
+        "BFF-FE-000",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-011",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G4"
+      ],
+      "iteration": "I8",
+      "requirement": "`P14-Admin-Governance-High-Fidelity-v2.png`",
+      "requirements": [
+        "- 需求描述：`P14-Admin-Governance-High-Fidelity-v2.png`",
+        "- 页面级完成标准：成员/角色/策略/能力/开关、版本冲突、职责分离、签名与审计落地"
+      ],
+      "task_id": "UI-P14",
+      "task_type": "FRONTEND",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:FEP-6",
+    {
+      "closes_core": [
+        "CORE:X06"
+      ],
+      "core_prerequisites": [
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FE:UI-P21",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "FE:UI-603",
+        "FE:UI-P23",
+        "FE:UI-601",
+        "FE:UI-P13",
+        "FE:UI-602",
+        "FE:UI-P14",
+        "FRONTEND-GATE:G6"
+      ],
+      "depends_on": [
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "UI-P21",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "UI-603",
+        "UI-P23",
+        "UI-601",
+        "UI-P13",
+        "UI-602",
+        "UI-P14",
+        "FRONTEND-GATE:G6"
+      ],
+      "iteration": "I8",
+      "requirement": "P13、P14、P23；Operations、Admin、Alerts",
+      "requirements": [
+        "- 需求描述：P13、P14、P23；Operations、Admin、Alerts",
+        "- 交付节点与放行条件：G6：受控 Runbook、职责分离、Web 通知、权限与离线禁写通过"
+      ],
+      "task_id": "FEP-6",
+      "task_type": "MILESTONE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:FEP-7",
+    {
+      "closes_core": [],
+      "core_prerequisites": [
+        "CORE-GATE:R1",
+        "CORE-GATE:S2",
+        "CORE-GATE:X3",
+        "CORE:TP01"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FE:UI-P01",
+        "FE:UI-P02",
+        "FE:UI-P03",
+        "FE:UI-P04",
+        "FE:UI-P05",
+        "FE:UI-P06",
+        "FE:UI-P07",
+        "FE:UI-P08",
+        "FE:UI-P09",
+        "FE:UI-P10",
+        "FE:UI-P11",
+        "FE:UI-P12",
+        "FE:UI-P13",
+        "FE:UI-P14",
+        "FE:UI-P15",
+        "FE:UI-P17",
+        "FE:UI-P18",
+        "FE:UI-P19",
+        "FE:UI-P20",
+        "FE:UI-P21",
+        "FE:UI-P22",
+        "FE:UI-P23",
+        "FE:WEB-101",
+        "CORE-GATE:R1",
+        "CORE-GATE:S2",
+        "CORE-GATE:X3",
+        "CORE:TP01",
+        "FRONTEND-GATE:G7"
+      ],
+      "depends_on": [
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "UI-P01",
+        "UI-P02",
+        "UI-P03",
+        "UI-P04",
+        "UI-P05",
+        "UI-P06",
+        "UI-P07",
+        "UI-P08",
+        "UI-P09",
+        "UI-P10",
+        "UI-P11",
+        "UI-P12",
+        "UI-P13",
+        "UI-P14",
+        "UI-P15",
+        "UI-P17",
+        "UI-P18",
+        "UI-P19",
+        "UI-P20",
+        "UI-P21",
+        "UI-P22",
+        "UI-P23",
+        "WEB-101",
+        "CORE-GATE:R1",
+        "CORE-GATE:S2",
+        "CORE-GATE:X3",
+        "CORE:TP01",
+        "FRONTEND-GATE:G7"
+      ],
+      "iteration": "I9",
+      "requirement": "全业务链功能回归、可访问性与安全、故障恢复；汇总兼容/性能/视觉基线和待优化项，在 RELEASE 完成全量目标验收",
+      "requirements": [
+        "- 需求描述：全业务链功能回归、可访问性与安全、故障恢复；汇总兼容/性能/视觉基线和待优化项，在 RELEASE 完成全量目标验收",
+        "- 交付节点与放行条件：G7：Paper + Shadow Beta 功能候选通过，功能阻断级缺陷为 0；发布需另通过 RELEASE-GATE:BETA"
+      ],
+      "task_id": "FEP-7",
+      "task_type": "MILESTONE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "FE:FEP-8",
+    {
+      "closes_core": [
+        "CORE:L03",
+        "CORE:L04"
+      ],
+      "core_prerequisites": [
+        "CORE:L01",
+        "CORE:L02",
+        "SERVICE:L03",
+        "SERVICE:L04",
+        "CORE-GATE:L4-SERVICE"
+      ],
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FE:FEP-7",
+        "CORE:L01",
+        "CORE:L02",
+        "SERVICE:L03",
+        "SERVICE:L04",
+        "CORE-GATE:L4-SERVICE",
+        "FRONTEND-GATE:G8"
+      ],
+      "depends_on": [
+        "BFF-FE-000",
+        "BFF-FE-001",
+        "BFF-FE-002",
+        "BFF-FE-003",
+        "BFF-FE-004",
+        "BFF-FE-005",
+        "BFF-FE-006",
+        "BFF-FE-007",
+        "BFF-FE-008",
+        "BFF-FE-009",
+        "BFF-FE-010",
+        "BFF-FE-011",
+        "FEP-7",
+        "CORE:L01",
+        "CORE:L02",
+        "SERVICE:L03",
+        "SERVICE:L04",
+        "CORE-GATE:L4-SERVICE",
+        "FRONTEND-GATE:G8"
+      ],
+      "iteration": "I10",
+      "requirement": "P10/P11 的 testnet 条件入口、MFA 与双人审批",
+      "requirements": [
+        "- 需求描述：P10/P11 的 testnet 条件入口、MFA 与双人审批",
+        "- 交付节点与放行条件：G8：获准 testnet 范围内功能联调完成，flag 关闭时 UI/API 不可达；正式准备验收进入核心 RELEASE-GATE:LIVE-READINESS，不开启生产实盘"
+      ],
+      "task_id": "FEP-8",
+      "task_type": "MILESTONE",
+      "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+    }
+  ],
+  [
+    "CORE-GATE:F0",
+    {
+      "acceptance_window": "F0",
+      "checkpoint_id": "CORE-GATE:F0",
+      "dependencies": [
+        "CORE:F01",
+        "CORE:F02",
+        "CORE:F03",
+        "CORE:F04",
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:F09",
+        "CORE:TP01-A",
+        "CORE:TP01-B"
+      ],
+      "depends_on": [
+        "CORE:F01",
+        "CORE:F02",
+        "CORE:F03",
+        "CORE:F04",
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:F09",
+        "CORE:TP01-A",
+        "CORE:TP01-B"
+      ],
+      "required_scope": "沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。"
+    }
+  ],
+  [
+    "CORE-GATE:R1-SERVICE",
+    {
+      "acceptance_window": "R1-SERVICE",
+      "checkpoint_id": "CORE-GATE:R1-SERVICE",
+      "dependencies": [
+        "CORE:R01",
+        "CORE:R02",
+        "CORE:TP01-C",
+        "CORE:TP01-D",
+        "CORE:TP02",
+        "CORE:TP03",
+        "CORE:TP04",
+        "CORE:TP05",
+        "CORE:TP08",
+        "CORE:TP09",
+        "CORE:TP10",
+        "CORE:TP11",
+        "CORE:R03",
+        "CORE:R04"
+      ],
+      "depends_on": [
+        "CORE:R01",
+        "CORE:R02",
+        "CORE:TP01-C",
+        "CORE:TP01-D",
+        "CORE:TP02",
+        "CORE:TP03",
+        "CORE:TP04",
+        "CORE:TP05",
+        "CORE:TP08",
+        "CORE:TP09",
+        "CORE:TP10",
+        "CORE:TP11",
+        "CORE:R03",
+        "CORE:R04"
+      ],
+      "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。"
+    }
+  ],
+  [
+    "SERVICE:TP01",
+    {
+      "acceptance_window": "TP01-SERVICE",
+      "checkpoint_id": "SERVICE:TP01",
+      "dependencies": [
+        "CORE:TP01-A",
+        "CORE:TP01-B",
+        "CORE:TP01-C",
+        "CORE:TP01-D",
+        "CORE:TP01-E",
+        "CORE:TP01-F",
+        "CORE:TP01-G",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:TP01-A",
+        "CORE:TP01-B",
+        "CORE:TP01-C",
+        "CORE:TP01-D",
+        "CORE:TP01-E",
+        "CORE:TP01-F",
+        "CORE:TP01-G",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "required_scope": "TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。"
+    }
+  ],
+  [
+    "SERVICE:S04",
+    {
+      "acceptance_window": "S2-SERVICE",
+      "checkpoint_id": "SERVICE:S04",
+      "dependencies": [
+        "CORE:S01",
+        "CORE:S02",
+        "CORE:S03",
+        "CORE:F06",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "depends_on": [
+        "CORE:S01",
+        "CORE:S02",
+        "CORE:S03",
+        "CORE:F06",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "required_scope": "策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。"
+    }
+  ],
+  [
+    "EVALUATION:TP07",
+    {
+      "acceptance_window": "S2-SERVICE",
+      "checkpoint_id": "EVALUATION:TP07",
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F08"
+      ],
+      "depends_on": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F08"
+      ],
+      "required_scope": "固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。"
+    }
+  ],
+  [
+    "EVALUATION:TP12",
+    {
+      "acceptance_window": "S2-SERVICE",
+      "checkpoint_id": "EVALUATION:TP12",
+      "dependencies": [
+        "CORE:F07",
+        "EVALUATION:TP07"
+      ],
+      "depends_on": [
+        "CORE:F07",
+        "EVALUATION:TP07"
+      ],
+      "required_scope": "基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。"
+    }
+  ],
+  [
+    "CORE-GATE:S2-SERVICE",
+    {
+      "acceptance_window": "S2-SERVICE",
+      "checkpoint_id": "CORE-GATE:S2-SERVICE",
+      "dependencies": [
+        "CORE-GATE:R1-SERVICE",
+        "SERVICE:TP01",
+        "CORE:S01",
+        "CORE:TP06",
+        "CORE:S02",
+        "CORE:S03",
+        "SERVICE:S04",
+        "CORE:TP08",
+        "CORE:TP09",
+        "CORE:TP10",
+        "CORE:TP11",
+        "EVALUATION:TP07",
+        "EVALUATION:TP12"
+      ],
+      "depends_on": [
+        "CORE-GATE:R1-SERVICE",
+        "SERVICE:TP01",
+        "CORE:S01",
+        "CORE:TP06",
+        "CORE:S02",
+        "CORE:S03",
+        "SERVICE:S04",
+        "CORE:TP08",
+        "CORE:TP09",
+        "CORE:TP10",
+        "CORE:TP11",
+        "EVALUATION:TP07",
+        "EVALUATION:TP12"
+      ],
+      "required_scope": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。"
+    }
+  ],
+  [
+    "SERVICE:X06",
+    {
+      "acceptance_window": "X3-SERVICE",
+      "checkpoint_id": "SERVICE:X06",
+      "dependencies": [
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE:X05",
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F09"
+      ],
+      "depends_on": [
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
+        "CORE:X05",
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F09"
+      ],
+      "required_scope": "执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务功能。P08–P14/P20–P23页面及真实BFF消费者在CORE:X06及G4/G5/G6联调；性能/完整视觉/部署验收归 RELEASE-GATE:BETA。"
+    }
+  ],
+  [
+    "CORE-GATE:X3-SERVICE",
+    {
+      "acceptance_window": "X3-SERVICE",
+      "checkpoint_id": "CORE-GATE:X3-SERVICE",
+      "dependencies": [
+        "CORE-GATE:S2-SERVICE",
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:TP07",
+        "CORE:TP12",
+        "CORE:X04",
+        "CORE:X05",
+        "SERVICE:X06"
+      ],
+      "depends_on": [
+        "CORE-GATE:S2-SERVICE",
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:TP07",
+        "CORE:TP12",
+        "CORE:X04",
+        "CORE:X05",
+        "SERVICE:X06"
+      ],
+      "required_scope": "X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类差异检测定位、命令重复=0、恢复/kill switch/数据陈旧拒绝和无venue submit。X06页面联调在G4/G5/G6；连续10个交易日Shadow、真实日终未解释差异=0、负载P95与部署演练由 RELEASE-GATE:BETA 验收，不阻塞API和页面功能开发。"
+    }
+  ],
+  [
+    "CORE-GATE:R1",
+    {
+      "acceptance_window": "I2",
+      "checkpoint_id": "CORE-GATE:R1",
+      "dependencies": [
+        "CORE-GATE:R1-SERVICE",
+        "CORE:U01",
+        "FRONTEND-GATE:G2"
+      ],
+      "depends_on": [
+        "CORE-GATE:R1-SERVICE",
+        "CORE:U01",
+        "FRONTEND-GATE:G2"
+      ],
+      "required_scope": "关闭R1功能联调清单：研究/Signal/Proposal可回放且无交易副作用，U01/Web Research真实服务E2E、Artifact/Audit与adapter隔离。不得以mock替代真实模块集成；R01新鲜度/持续运行、各性能目标、完整浏览器矩阵及部署证据移交 RELEASE-GATE:BETA，原正式复审仍单独维护。"
+    }
+  ],
+  [
+    "CORE-GATE:S2",
+    {
+      "acceptance_window": "I3",
+      "checkpoint_id": "CORE-GATE:S2",
+      "dependencies": [
+        "CORE-GATE:R1",
+        "CORE-GATE:S2-SERVICE",
+        "CORE:S04",
+        "FRONTEND-GATE:G3"
+      ],
+      "depends_on": [
+        "CORE-GATE:R1",
+        "CORE-GATE:S2-SERVICE",
+        "CORE:S04",
+        "FRONTEND-GATE:G3"
+      ],
+      "required_scope": "关闭S2功能联调清单及S04真实页面/策略UI拒绝回归，确保不可变Release、审批与Paper/Shadow目标约束；性能、完整发布回归及目标部署证据移交 RELEASE-GATE:BETA。"
+    }
+  ],
+  [
+    "CORE-GATE:X3",
+    {
+      "acceptance_window": "I8",
+      "checkpoint_id": "CORE-GATE:X3",
+      "dependencies": [
+        "CORE-GATE:S2",
+        "CORE-GATE:X3-SERVICE",
+        "CORE:X06",
+        "FRONTEND-GATE:G4",
+        "FRONTEND-GATE:G5",
+        "FRONTEND-GATE:G6"
+      ],
+      "depends_on": [
+        "CORE-GATE:S2",
+        "CORE-GATE:X3-SERVICE",
+        "CORE:X06",
+        "FRONTEND-GATE:G4",
+        "FRONTEND-GATE:G5",
+        "FRONTEND-GATE:G6"
+      ],
+      "required_scope": "关闭X3功能联调清单：执行/审计/运维真实页面、Paper/Shadow短链路对账、恢复/拒绝/证据重建；I9/FEP-7据此形成Beta功能候选。10个交易日Shadow、正式对账长稳和性能/部署证据由 RELEASE-GATE:BETA 收口；不将功能候选视作正式Beta发布。"
+    }
+  ],
+  [
+    "SERVICE:L03",
+    {
+      "acceptance_window": "L4-SERVICE",
+      "checkpoint_id": "SERVICE:L03",
+      "dependencies": [
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:L02",
+        "FE:FEP-7"
+      ],
+      "depends_on": [
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:L02",
+        "FE:FEP-7"
+      ],
+      "required_scope": "L03服务功能范围：feature/capability、双人职责分离、MFA、额度/白名单；M5 flag关闭时API100%拒绝，50次双人审批签名审计用例及自批/超额/过期100%拒绝。UI和真实testnet代表性闭环在CORE:L03/G8联调；正式部署/签字归 RELEASE-GATE:LIVE-READINESS。"
+    }
+  ],
+  [
+    "SERVICE:L04",
+    {
+      "acceptance_window": "L4-SERVICE",
+      "checkpoint_id": "SERVICE:L04",
+      "dependencies": [
+        "CORE:X05",
+        "SERVICE:X06",
+        "CORE:L01",
+        "CORE:L02",
+        "SERVICE:L03",
+        "FE:FEP-7"
+      ],
+      "depends_on": [
+        "CORE:X05",
+        "SERVICE:X06",
+        "CORE:L01",
+        "CORE:L02",
+        "SERVICE:L03",
+        "FE:FEP-7"
+      ],
+      "required_scope": "L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、无重复Command/订单与审计持久化100%，四类受控演练和受影响安全检查。F07/F09监控与证据采集机制须可用；持续窗口、真实部署/主机死亡通知、目标负载及最终安全/发布回执归对应 RELEASE Gate，不能用组件样本宣称这些正式验收通过。"
+    }
+  ],
+  [
+    "CORE-GATE:L4-SERVICE",
+    {
+      "acceptance_window": "L4-SERVICE",
+      "checkpoint_id": "CORE-GATE:L4-SERVICE",
+      "dependencies": [
+        "CORE-GATE:X3",
+        "FE:FEP-7",
+        "CORE:L01",
+        "CORE:L02",
+        "SERVICE:L03",
+        "SERVICE:L04"
+      ],
+      "depends_on": [
+        "CORE-GATE:X3",
+        "FE:FEP-7",
+        "CORE:L01",
+        "CORE:L02",
+        "SERVICE:L03",
+        "SERVICE:L04"
+      ],
+      "required_scope": "L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权限、MFA/审批/默认关闭、恢复与观测机制。拟上线部署、目标容量/长稳与正式回执由 RELEASE-GATE:LIVE-READINESS 验收；I10仍须完成获准真实testnet代表性联调，不产生生产发布授权。"
+    }
+  ],
+  [
+    "CORE-GATE:L4",
+    {
+      "acceptance_window": "L4-TOTAL",
+      "checkpoint_id": "CORE-GATE:L4",
+      "dependencies": [
+        "CORE-GATE:L4-SERVICE",
+        "CORE:L03",
+        "CORE:L04",
+        "FRONTEND-GATE:G8"
+      ],
+      "depends_on": [
+        "CORE-GATE:L4-SERVICE",
+        "CORE:L03",
+        "CORE:L04",
+        "FRONTEND-GATE:G8"
+      ],
+      "required_scope": "关闭L4功能联调范围：UI/API flag拒绝、获准testnet代表性MFA/双人审批E2E、恢复/审计与证据包生成功能。F07/F09移交项、目标容量/部署演练及最终发布证据由 RELEASE-GATE:BETA 和 RELEASE-GATE:LIVE-READINESS 按适用范围收口；生产实盘另须计划外批准。"
+    }
+  ],
+  [
+    "RELEASE-GATE:LIVE-READINESS",
+    {
+      "acceptance_window": "RELEASE-LIVE",
+      "checkpoint_id": "RELEASE-GATE:LIVE-READINESS",
+      "dependencies": [
+        "RELEASE-GATE:BETA",
+        "CORE-GATE:L4",
+        "FE:FEP-8"
+      ],
+      "depends_on": [
+        "RELEASE-GATE:BETA",
+        "CORE-GATE:L4",
+        "FE:FEP-8"
+      ],
+      "required_scope": "在Beta发布验收和L4/I10功能联调基础上，完成L01–L04原目标环境全部要求：200笔真实testnet、50次双人审批审计、MFA/默认关闭、mTLS与受限执行区、秘密轮换≤5分钟、目标负载无重复Command/订单且审计持久化100%、四类恢复演练和高危安全缺陷=0；补齐F07/F09新增执行区的部署/持续采样/实际通知及完整证据包。所有正式回执绑定候选完整源码SHA，取得远程同SHA CI及适用发布签字/许可；运行须有新的有效环境和范围授权，任何开发或历史回执不能替代。此Gate仅完成Assisted Live testnet/上线评审准备，生产实盘仍须计划外单独批准。"
+    }
+  ],
+  [
+    "PREPARATION:P0",
+    {
+      "acceptance_window": "P0",
+      "checkpoint_id": "PREPARATION:P0",
+      "dependencies": [
+        "FE:PRE-01",
+        "FE:PRE-02",
+        "FE:PRE-03",
+        "FE:PRE-04",
+        "FE:PRE-05",
+        "FE:PRE-06"
+      ],
+      "depends_on": [
+        "FE:PRE-01",
+        "FE:PRE-02",
+        "FE:PRE-03",
+        "FE:PRE-04",
+        "FE:PRE-05",
+        "FE:PRE-06"
+      ],
+      "required_scope": "准备任务全部标准与PoC通过，owner/环境/mock/设计/接口台账和测试基线齐备；仅放行A1，不宣称正式OpenAPI或全部provider验收。"
+    }
+  ],
+  [
+    "PROVIDER:A1",
+    {
+      "acceptance_window": "A1",
+      "checkpoint_id": "PROVIDER:A1",
+      "dependencies": [
+        "FE:BFF-FE-000",
+        "PREPARATION:P0"
+      ],
+      "depends_on": [
+        "FE:BFF-FE-000",
+        "PREPARATION:P0"
+      ],
+      "required_scope": "A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现功能的 provider/consumer harness，按输入清单评估阶段 READY；A2–A6 未交付 provider 不属 A1 实现范围。B-01 staging 继续 DEFERRED_TO_FINAL_REVIEW，正式目标回执和签署由 RELEASE 收口，不能据工程通过改为正式 ACCEPTED。"
+    }
+  ],
+  [
+    "FRONTEND-GATE:G0",
+    {
+      "acceptance_window": "A1",
+      "checkpoint_id": "FRONTEND-GATE:G0",
+      "dependencies": [
+        "PREPARATION:P0",
+        "PROVIDER:A1",
+        "FE:BFF-FE-000"
+      ],
+      "depends_on": [
+        "PREPARATION:P0",
+        "PROVIDER:A1",
+        "FE:BFF-FE-000"
+      ],
+      "required_scope": "G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范围确认后评估阶段 READY；新页面还须全量 API 的 PROVIDER:ALL 阶段准入。正式 G0 用户确认、staging 与发布证据在 RELEASE 完成，历史正式复审状态独立保留。"
+    }
+  ],
+  [
+    "PROVIDER:A2",
+    {
+      "acceptance_window": "A2",
+      "checkpoint_id": "PROVIDER:A2",
+      "dependencies": [
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-007",
+        "PROVIDER:A1"
+      ],
+      "depends_on": [
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-007",
+        "PROVIDER:A1"
+      ],
+      "required_scope": "A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。"
+    }
+  ],
+  [
+    "PROVIDER:A3",
+    {
+      "acceptance_window": "A3",
+      "checkpoint_id": "PROVIDER:A3",
+      "dependencies": [
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
+        "PROVIDER:A2"
+      ],
+      "depends_on": [
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
+        "PROVIDER:A2"
+      ],
+      "required_scope": "A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。"
+    }
+  ],
+  [
+    "PROVIDER:A4",
+    {
+      "acceptance_window": "A4",
+      "checkpoint_id": "PROVIDER:A4",
+      "dependencies": [
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-004",
+        "PROVIDER:A3"
+      ],
+      "depends_on": [
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-004",
+        "PROVIDER:A3"
+      ],
+      "required_scope": "A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。"
+    }
+  ],
+  [
+    "PROVIDER:A5",
+    {
+      "acceptance_window": "A5",
+      "checkpoint_id": "PROVIDER:A5",
+      "dependencies": [
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-010",
+        "PROVIDER:A4"
+      ],
+      "depends_on": [
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-010",
+        "PROVIDER:A4"
+      ],
+      "required_scope": "A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。"
+    }
+  ],
+  [
+    "PROVIDER:A6",
+    {
+      "acceptance_window": "A6",
+      "checkpoint_id": "PROVIDER:A6",
+      "dependencies": [
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-011",
+        "PROVIDER:A5"
+      ],
+      "depends_on": [
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-011",
+        "PROVIDER:A5"
+      ],
+      "required_scope": "A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。"
+    }
+  ],
+  [
+    "PROVIDER:ALL",
+    {
+      "acceptance_window": "A6",
+      "checkpoint_id": "PROVIDER:ALL",
+      "dependencies": [
+        "PROVIDER:A1",
+        "PROVIDER:A2",
+        "PROVIDER:A3",
+        "PROVIDER:A4",
+        "PROVIDER:A5",
+        "PROVIDER:A6",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FRONTEND-GATE:G0"
+      ],
+      "depends_on": [
+        "PROVIDER:A1",
+        "PROVIDER:A2",
+        "PROVIDER:A3",
+        "PROVIDER:A4",
+        "PROVIDER:A5",
+        "PROVIDER:A6",
+        "FE:BFF-FE-000",
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-002",
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-004",
+        "FE:BFF-FE-005",
+        "FE:BFF-FE-006",
+        "FE:BFF-FE-007",
+        "FE:BFF-FE-008",
+        "FE:BFF-FE-009",
+        "FE:BFF-FE-010",
+        "FE:BFF-FE-011",
+        "FRONTEND-GATE:G0"
+      ],
+      "required_scope": "全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。"
+    }
+  ],
+  [
+    "FRONTEND-GATE:G1",
+    {
+      "acceptance_window": "I1",
+      "checkpoint_id": "FRONTEND-GATE:G1",
+      "dependencies": [
+        "FE:UI-103",
+        "FE:UI-VIS-000",
+        "FE:UI-102",
+        "FE:UI-101",
+        "FE:UI-104",
+        "FE:WEB-101",
+        "FE:UI-P01",
+        "FE:UI-P02",
+        "FE:UI-P15",
+        "FE:UI-P17",
+        "CORE:F06",
+        "CORE:F09",
+        "PROVIDER:ALL"
+      ],
+      "depends_on": [
+        "FE:UI-103",
+        "FE:UI-VIS-000",
+        "FE:UI-102",
+        "FE:UI-101",
+        "FE:UI-104",
+        "FE:WEB-101",
+        "FE:UI-P01",
+        "FE:UI-P02",
+        "FE:UI-P15",
+        "FE:UI-P17",
+        "CORE:F06",
+        "CORE:F09",
+        "PROVIDER:ALL"
+      ],
+      "required_scope": "按 FEP-1 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。"
+    }
+  ],
+  [
+    "FRONTEND-GATE:G2",
+    {
+      "acceptance_window": "I2",
+      "checkpoint_id": "FRONTEND-GATE:G2",
+      "dependencies": [
+        "FE:UI-204",
+        "FE:UI-P05",
+        "FE:UI-201",
+        "FE:UI-P03",
+        "FE:UI-202",
+        "FE:UI-203",
+        "FE:UI-P04",
+        "CORE-GATE:R1-SERVICE",
+        "PROVIDER:ALL"
+      ],
+      "depends_on": [
+        "FE:UI-204",
+        "FE:UI-P05",
+        "FE:UI-201",
+        "FE:UI-P03",
+        "FE:UI-202",
+        "FE:UI-203",
+        "FE:UI-P04",
+        "CORE-GATE:R1-SERVICE",
+        "PROVIDER:ALL"
+      ],
+      "required_scope": "按 FEP-2 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。"
+    }
+  ],
+  [
+    "FRONTEND-GATE:G3",
+    {
+      "acceptance_window": "I3",
+      "checkpoint_id": "FRONTEND-GATE:G3",
+      "dependencies": [
+        "FE:UI-301",
+        "FE:UI-P06",
+        "FE:UI-302",
+        "FE:UI-303",
+        "FE:UI-P07",
+        "CORE-GATE:S2-SERVICE",
+        "SERVICE:S04",
+        "PROVIDER:ALL"
+      ],
+      "depends_on": [
+        "FE:UI-301",
+        "FE:UI-P06",
+        "FE:UI-302",
+        "FE:UI-303",
+        "FE:UI-P07",
+        "CORE-GATE:S2-SERVICE",
+        "SERVICE:S04",
+        "PROVIDER:ALL"
+      ],
+      "required_scope": "按 FEP-3 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。"
+    }
+  ],
+  [
+    "FRONTEND-WINDOW:I4",
+    {
+      "acceptance_window": "I4",
+      "checkpoint_id": "FRONTEND-WINDOW:I4",
+      "dependencies": [
+        "FE:UI-401",
+        "FE:UI-P18",
+        "FE:UI-501",
+        "FE:UI-P08",
+        "FE:UI-502",
+        "FE:UI-P09",
+        "PROVIDER:ALL"
+      ],
+      "depends_on": [
+        "FE:UI-401",
+        "FE:UI-P18",
+        "FE:UI-501",
+        "FE:UI-P08",
+        "FE:UI-502",
+        "FE:UI-P09",
+        "PROVIDER:ALL"
+      ],
+      "required_scope": "I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。"
+    }
+  ],
+  [
+    "FRONTEND-WINDOW:I5",
+    {
+      "acceptance_window": "I5",
+      "checkpoint_id": "FRONTEND-WINDOW:I5",
+      "dependencies": [
+        "FE:UI-503",
+        "FE:UI-504",
+        "FE:UI-P10",
+        "FE:UI-505",
+        "FE:UI-P20",
+        "FE:UI-P11",
+        "PROVIDER:ALL"
+      ],
+      "depends_on": [
+        "FE:UI-503",
+        "FE:UI-504",
+        "FE:UI-P10",
+        "FE:UI-505",
+        "FE:UI-P20",
+        "FE:UI-P11",
+        "PROVIDER:ALL"
+      ],
+      "required_scope": "I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。"
+    }
+  ],
+  [
+    "FRONTEND-GATE:G5",
+    {
+      "acceptance_window": "I6",
+      "checkpoint_id": "FRONTEND-GATE:G5",
+      "dependencies": [
+        "FE:UI-507",
+        "FE:UI-P12",
+        "FE:UI-501",
+        "FE:UI-P08",
+        "FE:UI-502",
+        "FE:UI-P09",
+        "FE:UI-503",
+        "FE:UI-504",
+        "FE:UI-P10",
+        "FE:UI-505",
+        "FE:UI-P20",
+        "FE:UI-P11",
+        "FE:UI-506",
+        "FE:UI-P22",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "PROVIDER:ALL"
+      ],
+      "depends_on": [
+        "FE:UI-507",
+        "FE:UI-P12",
+        "FE:UI-501",
+        "FE:UI-P08",
+        "FE:UI-502",
+        "FE:UI-P09",
+        "FE:UI-503",
+        "FE:UI-504",
+        "FE:UI-P10",
+        "FE:UI-505",
+        "FE:UI-P20",
+        "FE:UI-P11",
+        "FE:UI-506",
+        "FE:UI-P22",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "PROVIDER:ALL"
+      ],
+      "required_scope": "按 FEP-5 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。"
+    }
+  ],
+  [
+    "FRONTEND-GATE:G4",
+    {
+      "acceptance_window": "I7",
+      "checkpoint_id": "FRONTEND-GATE:G4",
+      "dependencies": [
+        "FE:UI-401",
+        "FE:UI-P18",
+        "FE:UI-402",
+        "FE:UI-P19",
+        "FE:UI-403",
+        "FE:UI-P21",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:ALL"
+      ],
+      "depends_on": [
+        "FE:UI-401",
+        "FE:UI-P18",
+        "FE:UI-402",
+        "FE:UI-P19",
+        "FE:UI-403",
+        "FE:UI-P21",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:ALL"
+      ],
+      "required_scope": "按 FEP-4 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。"
+    }
+  ],
+  [
+    "FRONTEND-GATE:G6",
+    {
+      "acceptance_window": "I8",
+      "checkpoint_id": "FRONTEND-GATE:G6",
+      "dependencies": [
+        "FE:UI-603",
+        "FE:UI-P23",
+        "FE:UI-601",
+        "FE:UI-P13",
+        "FE:UI-602",
+        "FE:UI-P14",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "PROVIDER:ALL"
+      ],
+      "depends_on": [
+        "FE:UI-603",
+        "FE:UI-P23",
+        "FE:UI-601",
+        "FE:UI-P13",
+        "FE:UI-602",
+        "FE:UI-P14",
+        "CORE-GATE:X3-SERVICE",
+        "SERVICE:X06",
+        "PROVIDER:ALL"
+      ],
+      "required_scope": "按 FEP-6 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。"
+    }
+  ],
+  [
+    "FRONTEND-GATE:G7",
+    {
+      "acceptance_window": "I9",
+      "checkpoint_id": "FRONTEND-GATE:G7",
+      "dependencies": [
+        "CORE-GATE:R1",
+        "CORE-GATE:S2",
+        "CORE-GATE:X3",
+        "CORE:TP01",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1",
+        "FRONTEND-GATE:G2",
+        "FRONTEND-GATE:G3",
+        "FRONTEND-GATE:G4",
+        "FRONTEND-GATE:G5",
+        "FRONTEND-GATE:G6"
+      ],
+      "depends_on": [
+        "CORE-GATE:R1",
+        "CORE-GATE:S2",
+        "CORE-GATE:X3",
+        "CORE:TP01",
+        "PROVIDER:ALL",
+        "FRONTEND-GATE:G1",
+        "FRONTEND-GATE:G2",
+        "FRONTEND-GATE:G3",
+        "FRONTEND-GATE:G4",
+        "FRONTEND-GATE:G5",
+        "FRONTEND-GATE:G6"
+      ],
+      "required_scope": "G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及关键浏览器回归，汇总所有性能/兼容/视觉基线和待整改项后评估 INTEGRATION 阶段 READY，形成 Beta 功能候选；核心完整功能范围保持独立验证。Beta 正式发布必须另通过 RELEASE-GATE:BETA，不能用功能候选替代性能、长稳、部署或签署。"
+    }
+  ],
+  [
+    "FRONTEND-GATE:G8",
+    {
+      "acceptance_window": "I10",
+      "checkpoint_id": "FRONTEND-GATE:G8",
+      "dependencies": [
+        "CORE:L01",
+        "CORE:L02",
+        "SERVICE:L03",
+        "SERVICE:L04",
+        "CORE-GATE:L4-SERVICE",
+        "PROVIDER:ALL",
+        "FE:FEP-7"
+      ],
+      "depends_on": [
+        "CORE:L01",
+        "CORE:L02",
+        "SERVICE:L03",
+        "SERVICE:L04",
+        "CORE-GATE:L4-SERVICE",
+        "PROVIDER:ALL",
+        "FE:FEP-7"
+      ],
+      "required_scope": "G8 在 I10 完成获准 testnet 范围内的真实功能联调，验证 UI/API flag 关闭不可达、模式/权限/审批与审计恢复后评估 INTEGRATION 阶段 READY；不启用生产实盘。部署环境、长稳与正式签署转核心 RELEASE-GATE:LIVE-READINESS，testnet 实际运行仍须有效范围授权。"
+    }
+  ],
+  [
+    "RELEASE-GATE:BETA",
+    {
+      "acceptance_window": "RELEASE-BETA",
+      "checkpoint_id": "RELEASE-GATE:BETA",
+      "dependencies": [
+        "CORE-GATE:R1",
+        "CORE-GATE:S2",
+        "CORE-GATE:X3",
+        "FE:FEP-7",
+        "PROVIDER:ALL"
+      ],
+      "depends_on": [
+        "CORE-GATE:R1",
+        "CORE-GATE:S2",
+        "CORE-GATE:X3",
+        "FE:FEP-7",
+        "PROVIDER:ALL"
+      ],
+      "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。"
+    }
+  ]
+]

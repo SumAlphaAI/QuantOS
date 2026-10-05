@@ -2,7 +2,7 @@
 
 > 日期：2026-10-05（Asia/Shanghai）。冻结功能源码：`04229ce1f93e2d6732411d68a38504702238093e`。
 > 结论：**工程整改和复验通过；G0/FEP-0 保持 BLOCKED，等待当前范围的项目用户确认**。完整 F0/A1 检查 **86/86 PASS**，G0 工程 **16/16 PASS**，FEP-0 自身 **2/2 PASS**。
-> 本报告更新当前整改事实；[初审原件](./FEP-0-comprehensive-review-2026-10-05.md)及各次失败证据保持不变。正式 ACCEPTED、RELEASE 与同 SHA hosted CI 不由本报告产生。
+> 本报告更新当前整改事实；[初审原件](./FEP-0-findings-archive-2026-10-05.md)及各次失败证据保持不变。正式 ACCEPTED、RELEASE 与同 SHA hosted CI 不由本报告产生。
 
 ## 一、任务完成概况
 

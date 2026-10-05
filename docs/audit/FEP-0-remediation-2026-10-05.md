@@ -2,7 +2,7 @@
 
 > 日期：2026-10-05（Asia/Shanghai）。冻结功能源码：`04229ce1f93e2d6732411d68a38504702238093e`；用户确认后的 FEP-0 聚合实际执行于文档提交 `a805b5002f5ac3e690e1ce772e3ef9113ca1e760`。
 > 结论：**DEVELOPMENT READY；20/20 控制点满足**。完整 F0/A1 检查 **86/86 PASS**，G0 工程 **16/16 PASS**，FEP-0 自身 **2/2 PASS**。
-> 本报告更新当前整改事实；[初审原件](./FEP-0-comprehensive-review-2026-10-05.md)及各次失败证据保持不变。正式 ACCEPTED、RELEASE 与同 SHA hosted CI 不由本报告产生。
+> 本报告更新当前整改事实；[初审原件](./FEP-0-findings-archive-2026-10-05.md)及各次失败证据保持不变。正式 ACCEPTED、RELEASE 与同 SHA hosted CI 不由本报告产生。
 
 ## 一、任务完成概况
 

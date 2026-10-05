@@ -1,0 +1,62 @@
+[
+  {
+    "id": "missing-F0",
+    "result": "EXPECTED_REJECTION",
+    "message": "FEP-0 all eight dependency receipts required\n+ actual - expected\n\n  [\n-   'CORE-GATE:F0',\n    'FE:PRE-01',\n    'FE:PRE-02',\n    'FE:PRE-03',\n    'FE:PRE-04',\n    'FE:PRE-05',\n"
+  },
+  {
+    "id": "missing-PRE",
+    "result": "EXPECTED_REJECTION",
+    "message": "FEP-0 all eight dependency receipts required\n+ actual - expected\n\n  [\n    'CORE-GATE:F0',\n    'FE:PRE-01',\n    'FE:PRE-02',\n-   'FE:PRE-03',\n    'FE:PRE-04',\n    'FE:PRE-05',\n    'FE:PRE-06',\n    'FRONTEND-GATE:G0'\n  ]\n"
+  },
+  {
+    "id": "source-input-drift",
+    "result": "EXPECTED_REJECTION",
+    "message": "FEP-0 source/config/test inputs changed\n+ actual - expected\n\n  [\n    {\n      path: '.github/workflows/ci.yml',\n      role: 'config',\n+     sha256: 'sha256:d67e2e944994496c8d8ec76eed0cf9f09679448d584b532bebf941852a37f5ed'\n-     sha256: 'sha256:bf198da794f90cbe1cf400b90a3041c7b6bfa86c3ad273f9f82aefa55"
+  },
+  {
+    "id": "normative-scope-drift",
+    "result": "EXPECTED_REJECTION",
+    "message": "FEP-0 normative scope changed\n+ actual - expected\n... Skipped lines\n\n  {\n    closes_core: [],\n    core_prerequisites: [\n      'CORE-GATE:F0'\n    ],\n...\n      '- 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结',\n+     'unapproved'\n    ],\n    task_id: 'FEP-0',\n    task_type: 'MILESTONE',\n    workflo"
+  },
+  {
+    "id": "unexecuted-check",
+    "result": "EXPECTED_REJECTION",
+    "message": "failed or unexecuted milestone check\n\nnull !== 0\n"
+  },
+  {
+    "id": "missing-own-check",
+    "result": "EXPECTED_REJECTION",
+    "message": "FEP-0 required check execution missing or duplicated\n+ actual - expected\n\n  [\n    'plans',\n-   'negative'\n  ]\n"
+  },
+  {
+    "id": "substituted-dependency-digest",
+    "result": "EXPECTED_REJECTION",
+    "message": "dependency digest changed\n+ actual - expected\n\n+ 'sha256:b5d54c39e66671c9731b9f471e585d8262cd4f54963f0c93082d8dcf334d4c78'\n- 'sha256:2b9f93ec99cf35ad6a21e2e50db4511a31c5c3bdd379981a865c5c03e212178b'\n"
+  },
+  {
+    "id": "changed-dependency-bytes",
+    "result": "EXPECTED_REJECTION",
+    "message": "dependency actual manifest content changed\n+ actual - expected\n\n+ 'sha256:2b9f93ec99cf35ad6a21e2e50db4511a31c5c3bdd379981a865c5c03e212178b'\n- 'sha256:610596d9e86f3f8746b42ecc946b290f3906411e4ac1c513b1c981b96026d291'\n"
+  },
+  {
+    "id": "tampered-execution-log",
+    "result": "EXPECTED_REJECTION",
+    "message": "milestone log content changed\n+ actual - expected\n\n+ 'sha256:095c6354bd688bf944a86259036a96c08bb6cccb3d91534db03cfe0bc0830d69'\n- 'sha256:cb5815c0d203ebeb22e3482c589b5d9245ec8525d2385a14bfbcd463c140bb1b'\n"
+  },
+  {
+    "id": "historical-report-as-receipt",
+    "result": "EXPECTED_REJECTION",
+    "message": "FEP-0 cannot use arbitrary historical evidence"
+  },
+  {
+    "id": "unready-F0",
+    "result": "EXPECTED_REJECTION",
+    "message": "CORE-GATE:F0: dependency is not READY\n+ actual - expected\n\n+ 'NOT_ASSESSED'\n- 'READY'\n"
+  },
+  {
+    "id": "changed-G0-confirmation-scope",
+    "result": "EXPECTED_REJECTION",
+    "message": "G0 functional input inventory changed\n+ actual - expected\n... Skipped lines\n\n  {\n    confirmationMode: 'AGENT_DRAFT_USER_CONFIRMATION',\n    excluded: [\n      'RELEASE staging deployment/real IdP',\n      'RELEASE user confirmation and same-SHA hosted CI',\n...\n    scope: 'Phase-one Web; current publis"
+  }
+]

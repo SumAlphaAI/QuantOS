@@ -1,12 +1,14 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 版本：3.28
+> 版本：3.29
 > 更新时间：2026-10-05
 > 状态：FEP-0 当前 DEVELOPMENT READY；20/20 控制点、8/8 直接依赖通过，PROVIDER:ALL 与 RELEASE 独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.29`：在 `72d12b0` 再次核验 FEP-0 原 2 个阻塞项均已关闭；5 项当前门禁、141 项专项回归、12 项独立反证通过，161 份证据摘要一致，20/20 控制点、8/8 直接依赖、23/23 闭包节点 READY。主报告整理为[当前结论](./audit/FEP-0-comprehensive-review-2026-10-05.md)，原始发现及关闭依据独立归档。本轮未重跑完整工程或 Supabase，既有功能回执和用户确认保持有效。
 
 - `3.28`：项目用户确认 G0 当前文稿（范围 `9630623790b8`），原始答复与文稿/范围摘要绑定；保留原 pending 工程 manifest。严格 G0 READY 核验通过，在文档提交 `a805b50` 实际重评 FEP-0 两项并消费八个 READY 依赖，FEP-0 DEVELOPMENT READY、20/20 控制点、23/23 闭包节点 READY。86/16 项工程执行仍准确绑定冻结源码 `04229ce`，没有冒充新 SHA 正式验收；发布要求继续独立。见[最终整改复验报告](./audit/FEP-0-remediation-2026-10-05.md)。
 
@@ -32,7 +34,7 @@
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.28、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.29、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -460,6 +462,8 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - 主要后端依赖：CORE-GATE:F0
 - 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结
 - 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
+
+当前功能复核：原 2/2 阻塞项已关闭，20/20 控制点满足；[主报告](./audit/FEP-0-comprehensive-review-2026-10-05.md)与[关闭依据](./audit/FEP-0-closed-findings-2026-10-05.md)记录当前准入及历史追溯。
 
 #### 迭代 A2：页面 API 开发与 provider 功能验证
 
