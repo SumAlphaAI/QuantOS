@@ -1,5 +1,5 @@
 import {expect,it} from "vitest";
-import {createBffFetch} from "../src/bff-transport";
+import {createBffFetch} from "../src/bff-transport.js";
 it("keeps caller stream cancellation connected after SSE headers return", async () => {
   const caller=new AbortController();let forwarded:AbortSignal|undefined;
   const impl=(async (_:unknown,init?:RequestInit)=>{forwarded=init?.signal??undefined;return new Response("data: {}\n\n",{headers:{"content-type":"text/event-stream"}});}) as typeof fetch;
