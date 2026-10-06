@@ -1,0 +1,131 @@
+node --test scripts/tests/glib-backport.test.mjs scripts/braces-backport.test.mjs
+✔ installed backport rejects nested strings and supplied/cyclic AST while preserving regular globs (6.286ms)
+✔ missing resolver selection fails closed (2.369792ms)
+✔ changed patch bytes fail closed (1.587375ms)
+✔ unpatched lock consumer fails closed (1.924125ms)
+✔ changed installed implementation fails closed (4.371541ms)
+✔ backport decision applies to one exact advisory/package/version and never other vulnerabilities (1.9545ms)
+✔ GLib backport rejects source rollback, missing files, and registry fallback (58.402ms)
+✔ optimized GLib iterator preserves a C variadic out-pointer for all five affected methods (635.170959ms)
+✔ Desktop SCA invokes its independent manifest and rejects scanner failures or unwaived findings (823.832041ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1550.779916
+node scripts/check-sca.mjs
+{
+  "status": "FAIL",
+  "passed": false,
+  "scope": "all runtime, dev, build and security dependencies; includes independent Desktop Rust lock",
+  "source": "2faef8ea05517d7bb77abde0fc0d0a8299a77308",
+  "dirty": true,
+  "lockDigests": {
+    "Cargo.lock": "3cd820f433f47c7aef1ece0a1db845498cf91a1371caf9c51c008c01c7b86a04",
+    "pnpm-lock.yaml": "c8ec45da162e72cd3a81d90a6b6741e49f09d55559725f9ab2163d6e7267098a",
+    "engines/uv.lock": "8f9e8ce7f28710653ab72ac5b18d5db93d2ebf21beaf304e5409be71e5fa2a58",
+    "apps/terminal-desktop/src-tauri/Cargo.lock": "be99df0c1e077f33775578b59d56f8fb2f0bc0f81d4fa138164233ef321eef17"
+  },
+  "startedAt": "2026-10-06T01:40:15.787Z",
+  "scanners": {
+    "npm": {
+      "status": "FAIL",
+      "findings": [
+        {
+          "ecosystem": "npm",
+          "id": "GHSA-vfj7-8cjw-p6xm",
+          "package": "braces",
+          "version": "3.0.3",
+          "severity": "high",
+          "waived": false,
+          "backportVerified": true
+        },
+        {
+          "ecosystem": "npm",
+          "id": "GHSA-68fv-2mgg-jv7q",
+          "package": "source-map-js",
+          "version": "1.2.1",
+          "severity": "high",
+          "waived": false
+        }
+      ]
+    },
+    "pypi": {
+      "status": "PASS",
+      "findings": []
+    },
+    "cargo": {
+      "status": "PASS",
+      "findings": []
+    },
+    "cargo-desktop": {
+      "status": "PASS",
+      "findings": [],
+      "maintenanceWarnings": [
+        {
+          "id": "RUSTSEC-2024-0370",
+          "package": "proc-macro-error",
+          "version": "1.0.4",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0081",
+          "package": "unic-char-property",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0075",
+          "package": "unic-char-range",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0080",
+          "package": "unic-common",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0100",
+          "package": "unic-ucd-ident",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0098",
+          "package": "unic-ucd-version",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        }
+      ]
+    }
+  },
+  "bracesBackport": {
+    "advisory": "GHSA-vfj7-8cjw-p6xm",
+    "package": "braces",
+    "version": "3.0.3",
+    "status": "BACKPORT_VERIFIED",
+    "upstreamPatchedVersion": null,
+    "patchSha256": "42bc2b75ecce13c9e695565d1b5dc53f733add034542c2e13f57db4cceeb9b87",
+    "files": 10,
+    "tests": {
+      "stringCases": 18,
+      "astCases": 6,
+      "compatibilityCases": 5
+    }
+  },
+  "glibBackport": {
+    "advisory": "RUSTSEC-2024-0429",
+    "status": "BACKPORT_VERIFIED",
+    "upstreamFix": "https://github.com/gtk-rs/gtk-rs-core/pull/1343",
+    "files": 120
+  },
+  "error": "Unwaived dependency vulnerabilities",
+  "completedAt": "2026-10-06T01:40:37.789Z"
+}
+Unwaived dependency vulnerabilities
+make: *** [sca-check] Error 1
