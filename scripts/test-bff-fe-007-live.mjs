@@ -13,6 +13,7 @@ process.loadEnvFile(path.join(root, ".env.local"));
 fs.mkdirSync(output, { recursive: true });
 const sourceCommitAtStart=execFileSync("git",["rev-parse","HEAD"],{encoding:"utf8"}).trim();
 const records = [];
+const transportAttempts = [];
 const assertions = [];
 const correlations=[];
 let cleanupVerified=false;
@@ -81,8 +82,18 @@ async function call(server,session,id,options={}) {
   const commandKey=options.key??randomUUID();
   if(id==="setupMfa")enrollmentKeys.add(commandKey);
   const headers={origin,"X-Request-Id":randomUUID(),"Idempotency-Key":commandKey,...(session?{cookie:session.cookie,"X-CSRF-Token":session.csrf}:{}),...options.headers};
-  const response=await fetch(server.base+route,{method:operation.method,headers:{...headers,...(body!==undefined?{"content-type":"application/json"}:{})},
-    ...(body!==undefined?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(id==="subscribeSessionRevocations"?240000:30000)});
+  let response;
+  try {
+    response=await fetch(server.base+route,{method:operation.method,headers:{...headers,...(body!==undefined?{"content-type":"application/json"}:{})},
+      ...(body!==undefined?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(id==="subscribeSessionRevocations"?240000:30000)});
+  } catch(error) {
+    const transient=error.name==='TimeoutError'||error instanceof TypeError&&error.message==='fetch failed';
+    if(!transient)throw error;
+    transportAttempts.push({operationId:id,attempt:(options.transportAttempt??0)+1,outcome:error.name==='TimeoutError'?'CLIENT_TIMEOUT':'NETWORK_UNAVAILABLE',at:new Date().toISOString()});
+    if(operation.method!=='get'||(options.transportAttempt??0)>=2)throw error;
+    await new Promise(r=>setTimeout(r,1000));
+    return call(server,session,id,{...options,key:commandKey,transportAttempt:(options.transportAttempt??0)+1});
+  }
   const issues=await validateResponse(id,response);
   const payload=response.headers.get("content-type")?.includes("application/json")?await response.clone().json():undefined;
   fs.writeFileSync(path.join(output,"progress.json"),JSON.stringify({operationId:id,status:response.status,calls:records.length+1,updatedAt:new Date().toISOString()}));
@@ -273,5 +284,5 @@ finally {
  }catch(e){failure=(failure?failure+'; ':'')+'Controlled cleanup not verified';}
  if(admin)await admin.end();
 }
-const receipt={schema:'quantos-bff-audit-live/v1',sourceCommit:sourceCommitAtStart,sourceMatchesCommit:inputPaths.every(p=>{try{return createHash('sha256').update(execFileSync('git',['show',sourceCommitAtStart+':'+p],{stdio:['ignore','pipe','ignore']})).digest('hex')===sourceHashes[p];}catch{return false;}}),status:failure?'FAIL':'PASS',sourceHashes,fixture,assertions,records,cleanupVerified,target:'configured-supabase',formalAccepted:false,failure:failure??null,cleanup:'restore capabilities, quotas and factor set; delete own exports, objects and sessions; preserve append-only audit fixtures'};
+const receipt={schema:'quantos-bff-audit-live/v1',sourceCommit:sourceCommitAtStart,sourceMatchesCommit:inputPaths.every(p=>{try{return createHash('sha256').update(execFileSync('git',['show',sourceCommitAtStart+':'+p],{stdio:['ignore','pipe','ignore']})).digest('hex')===sourceHashes[p];}catch{return false;}}),status:failure?'FAIL':'PASS',sourceHashes,fixture,assertions,records,cleanupVerified,target:'configured-supabase',formalAccepted:false,failure:failure??null,transportAttempts,cleanup:'restore capabilities, quotas and factor set; delete own exports, objects and sessions; preserve append-only audit fixtures'};
 fs.writeFileSync(path.join(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify({status:receipt.status,records:records.length,assertions:assertions.length,cleanupVerified,failure:failure??null}));if(failure)process.exitCode=1;
