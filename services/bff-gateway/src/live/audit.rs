@@ -130,8 +130,8 @@ fn admit(
     scope(tx, identity)?;
     capability(tx, identity, cap, op)
 }
-fn rows(tx: &mut Transaction<'_>) -> Result<Vec<Value>, ApiError> {
-    let records=tx.query("select a.id,coalesce(a.event_id,a.id) as domain_event_id,a.correlation_id,a.causation_id,a.action,a.details,a.recorded_at,e.event_kind,e.sequence,e.aggregate_type,e.aggregate_id,e.payload from quantos.audit_entries a left join quantos.event_log e on e.tenant_id=a.tenant_id and e.event_id=a.event_id order by a.recorded_at,a.id limit 10001",&[])?;
+fn rows(tx: &mut Transaction<'_>, correlations: &[Uuid]) -> Result<Vec<Value>, ApiError> {
+    let records=tx.query("select a.id,coalesce(a.event_id,a.id) as domain_event_id,a.correlation_id,a.causation_id,a.action,a.details,a.recorded_at,e.event_kind,e.sequence,e.aggregate_type,e.aggregate_id,e.payload from quantos.audit_entries a left join quantos.event_log e on e.tenant_id=a.tenant_id and e.event_id=a.event_id where (cardinality($1::uuid[])=0 or a.correlation_id=any($1)) order by a.recorded_at,a.id limit 10001",&[&correlations])?;
     if records.len() > MAX_EVENTS {
         return Err(ApiError::new(StatusCode::TOO_MANY_REQUESTS, "RATE_LIMITED"));
     }
@@ -232,7 +232,14 @@ fn page(
             row.get::<_, i32>(2) as usize,
         )
     } else {
-        let mut events = filter(rows(tx)?, q)?;
+        let correlations = q["correlationId"]
+            .as_str()
+            .map(Uuid::parse_str)
+            .transpose()
+            .map_err(|_| invalid())?
+            .into_iter()
+            .collect::<Vec<_>>();
+        let mut events = filter(rows(tx, &correlations)?, q)?;
         if chain.is_some() {
             let mut seen = std::collections::BTreeSet::new();
             events.retain(|e| seen.insert(e["eventId"].to_string()));
@@ -367,7 +374,8 @@ async fn create(
   if let Some(value)=settings::replay(&mut tx,identity.0.user_id,"createExport",key,&intent)?{tx.commit()?;return Ok(value);}
   if let Err(e)=capability(&mut tx,&identity,"audit:export","createExport"){tx.commit()?;return Err(e);}
   if let Err(e)=settings::recent(&mut tx,&identity.1,&headers,"createExport"){log(&mut tx,&identity,"export.create_denied",Uuid::new_v4(),"exports",json!({"outcome":"denied"}))?;tx.commit()?;return Err(e);}
-  let records=rows(&mut tx)?;
+  let correlations=input.scope.correlation_ids.iter().map(|id|Uuid::parse_str(id).map_err(|_|invalid())).collect::<Result<Vec<_>,_>>()?;
+  let records=rows(&mut tx,&correlations)?;
   if input.scope.correlation_ids.iter().any(|id|!records.iter().any(|e|e["correlationId"].as_str()==Some(id))){log(&mut tx,&identity,"export.scope_denied",Uuid::new_v4(),"exports",json!({"outcome":"denied"}))?;tx.commit()?;return Err(hidden());}
   let records=records.into_iter().filter(|e|input.includes(e)).collect::<Vec<_>>();
   let id=Uuid::new_v4();let correlation=Uuid::new_v4();let now:DateTime<Utc>=tx.query_one("select now()",&[])?.get(0);let retention=now+Duration::days(input.retention_days);
