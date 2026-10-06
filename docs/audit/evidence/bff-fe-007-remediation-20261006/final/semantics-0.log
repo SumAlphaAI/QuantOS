@@ -2,16 +2,16 @@
 running 15 tests
 test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... ignored, Supabase target test: run explicitly with QUANTOS_RUN_F09_POSTGRES_TESTS=1
 test live::settings_policy::tests::live_challenge_has_five_minute_lifetime ... ok
-test live::settings_policy::tests::current_factor_status_overrides_cancel_checkpoint ... ok
 test live::settings_policy::tests::revoked_delivery_is_terminal ... ok
+test live::settings_policy::tests::current_factor_status_overrides_cancel_checkpoint ... ok
 test live::settings_policy::tests::live_csrf_requires_bound_cookie_and_header ... ok
 test live::settings_policy::tests::first_factor_cannot_create_after_any_verified_factor_exists ... ok
 test live::settings_policy::tests::last_verified_factor_cannot_be_removed_even_with_unverified_siblings ... ok
 test live::settings_policy::tests::malformed_factor_state_cannot_be_treated_as_unenrolled ... ok
 test live::settings_policy::tests::verification_time_comes_from_auth_facts_not_session_expiry ... ok
 test live::tests::live_session_requires_opaque_cookie_and_exact_origin ... ok
-test live::tests::live_errors_hide_account_existence_and_include_correlation ... ok
 test live::cors_tests::trusted_browser_can_read_contract_response_headers ... ok
+test live::tests::live_errors_hide_account_existence_and_include_correlation ... ok
 test live::cors_tests::untrusted_origin_and_undeclared_headers_are_not_allowed ... ok
 test live::cors_tests::trusted_recent_auth_preflight_allows_contract_headers ... ok
 test live::f09_trace_tests::auth_write_returns_queryable_correlation_trace ... ok
@@ -21,27 +21,27 @@ test result: ok. 14 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; fin
 
 running 9 tests
 test audit_sort_filter_is_executed_and_unknown_expressions_are_rejected ... ok
-test evidence_chain_preserves_causation_order_and_hides_missing_resources ... ok
-test opaque_snapshot_cursors_reject_tampering_and_query_reuse ... ok
 test redaction_hashes_and_retention_are_enforced_by_business_calls ... ok
-test audit_search_is_capability_guarded_redacted_and_cursor_paginated ... ok
 test export_cancel_expiry_and_validation_fail_closed ... ok
+test evidence_chain_preserves_causation_order_and_hides_missing_resources ... ok
 test complete_scope_intent_conflicts_without_side_effects_and_rejects_invalid_scope ... ok
+test opaque_snapshot_cursors_reject_tampering_and_query_reuse ... ok
 test export_lifecycle_is_idempotent_watermarked_short_lived_and_audited ... ok
+test audit_search_is_capability_guarded_redacted_and_cursor_paginated ... ok
 test export_commands_reject_changed_intents_before_audit_or_cancellation ... ok
 
 test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
 
 
 running 12 tests
+test logout_expires_secure_http_only_same_site_cookie ... ok
 test public_access_request_validates_origin_and_body_and_writes_audit ... ok
 test authentication_csrf_and_resource_failures_fail_closed ... ok
-test mfa_rate_limit_is_account_neutral ... ok
-test logout_expires_secure_http_only_same_site_cookie ... ok
-test session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit ... ok
 test current_session_and_last_mfa_factor_are_protected ... ok
-test challenges_are_fresh_single_use_and_cooldown_precedes_verification ... ok
+test mfa_rate_limit_is_account_neutral ... ok
+test session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit ... ok
 test stale_settings_write_returns_current_version_without_mutation ... ok
+test challenges_are_fresh_single_use_and_cooldown_precedes_verification ... ok
 test notification_save_is_idempotent_and_audited ... ok
 test settings_roundtrip_preserves_inputs_and_separates_idempotent_intents ... ok
 test security_retries_execute_once_and_match_success_correlation ... ok
@@ -49,7 +49,7 @@ test session_stream_stays_open_for_other_session_and_closes_revoked_target ... o
 
 test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.11s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
      Running unittests src/lib.rs (target/debug/deps/bff_gateway-68c4eb783de3751f)
      Running tests/audit_export_provider.rs (target/debug/deps/audit_export_provider-b58c41578c8e3ee4)
      Running tests/auth_settings_provider.rs (target/debug/deps/auth_settings_provider-01c227c7f07b7a53)

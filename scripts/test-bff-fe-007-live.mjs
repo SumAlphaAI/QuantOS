@@ -68,7 +68,13 @@ async function start() {
 }
 async function stop(server) {if(server.child.pid && server.child.exitCode===null && server.child.signalCode===null){const closed=new Promise(r=>server.child.once("close",r));server.child.kill("SIGTERM");const timer=setTimeout(()=>server.child.kill("SIGKILL"),5000);await closed;clearTimeout(timer);}}
 async function login(server,token) {
-  const response=await fetch(server.base+"/v1/auth/session",{method:"POST",headers:{origin,authorization:"Bearer "+token},signal:AbortSignal.timeout(25000)});
+  let response;
+  for(let attempt=0;attempt<3;attempt++) {
+    response=await fetch(server.base+"/v1/auth/session",{method:"POST",headers:{origin,authorization:"Bearer "+token},signal:AbortSignal.timeout(30000)});
+    if(response.status!==503)break;
+    transportAttempts.push({operationId:'sessionHandshake',attempt:attempt+1,outcome:'UPSTREAM_503',recovery:'EXPLICIT_SESSION_HANDSHAKE',at:new Date().toISOString()});
+    if(attempt<2)await new Promise(r=>setTimeout(r,1000));
+  }
   assert(response.status===204,"BFF handshake returned "+response.status);
   const cookie=response.headers.getSetCookie().map(value=>value.split(";")[0]).join("; ");
   const csrf=/(?:^|; )quantos_csrf=([^;]+)/.exec(cookie)?.[1];assert(csrf,"Missing CSRF cookie");
