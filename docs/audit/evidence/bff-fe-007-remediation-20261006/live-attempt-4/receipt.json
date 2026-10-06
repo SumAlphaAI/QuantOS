@@ -1,0 +1,188 @@
+{
+  "schema": "quantos-bff-audit-live/v1",
+  "sourceCommit": "ce4907cd819cdca30cba2a59f66cc51dc30fffda",
+  "status": "FAIL",
+  "sourceHashes": {
+    "services/bff-gateway/src/audit_core.rs": "5879b6e56c6db79acffdedeb1cd1916740c43910dc8ef1d0dc5d6eef4eff200a",
+    "services/bff-gateway/src/lib.rs": "92329179c5525fdab5538b653d6e0705500d6492b8694b54abd221be6255f455",
+    "services/bff-gateway/src/input_contract.rs": "55e8df4b65e09402a6414364be468be36528f1fe5d238a85b668062abf6bfcb6",
+    "services/bff-gateway/src/live/audit.rs": "4b852c1918287f93f2ca367f363302c318d1c070c66ae86a847992422274ee28",
+    "services/bff-gateway/src/live.rs": "3fb33e957c4b7e6caafd64cb901b92d417180e0fd409f9d6bce5321f50b4e7fd",
+    "services/bff-gateway/src/live/settings.rs": "5142e2d15b3f994dac314061cd4f07475a68e668f8dde88cbb77f85238758e6b",
+    "supabase/migrations/20261006100000_bff_audit_exports.sql": "4a301bce609cbe89ca94d7be04684ca79dc6cf6da3667e65b46182d0059b51b6",
+    "bff/openapi/quantos-bff.v1.yaml": "e783bcd0fc250ca8d458d4c4a0e48b9b000ba71dd72bd66e3b92f1020f87b0a8",
+    "scripts/test-bff-fe-007-live.mjs": "ee7fc9d3374857a2b874084b00a9f6e8e60b656f5a109f479cae0ed19d70f141"
+  },
+  "fixture": "9fccb239-acdc-4ed3-89fc-5536e9346483",
+  "assertions": [
+    "configured-scope-context",
+    "persistent-ledger-redaction",
+    "canonical-payload-hash",
+    "canonical-payload-hash",
+    "canonical-payload-hash",
+    "snapshot-no-repeat-no-omission",
+    "persistent-causal-chain",
+    "durable-identical-intent-replay",
+    "conflicts-have-no-business-or-audit-side-effects",
+    "consume-200",
+    "actual-storage-integrity",
+    "ephemeral-exports-cleaned"
+  ],
+  "records": [
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSession",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 404,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 200,
+      "issues": []
+    }
+  ],
+  "cleanupVerified": true,
+  "target": "configured-supabase",
+  "formalAccepted": false,
+  "failure": "full-scope-and-watermarked-redaction",
+  "cleanup": "restore capabilities, quotas and factor set; delete own exports, objects and sessions; preserve append-only audit fixtures"
+}

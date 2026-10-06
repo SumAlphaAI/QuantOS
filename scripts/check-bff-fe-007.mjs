@@ -121,5 +121,5 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (report.failures.length) {
     report.failures.forEach((failure) => console.error(`FAIL  ${failure}`));
     process.exitCode = 1;
-  } else console.log(`BFF-FE-007 Gate PASS: ${report.operations} C10 operations, redacted evidence pagination, controlled export lifecycle and fail-closed download checks.`);
+  } else console.log(`BFF-FE-007 local contract Gate PASS: ${report.operations} C10 operations, redacted evidence pagination, controlled export lifecycle and fail-closed download checks.`);
 }

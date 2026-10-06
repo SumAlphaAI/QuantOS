@@ -1,15 +1,17 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 2026-10-06 当前范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当前 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 已通过，后续文档提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
+> 2026-10-06 BFF-FE-007 整改：新增 live 审计/私有导出与严格功能门禁；共享源码变化后，当前阶段回执重新执行，不沿用历史 G0 `09bcaf7f28d9` 范围批准或 hosted CI。历史确认原件保留。
 
 
-> 版本：3.35
+> 版本：3.36
 > 更新时间：2026-10-06
-> 状态：BFF-FE-001 当前 DEVELOPMENT READY；24/24 控制点、20/20 API 满足；F0/G0/FEP-0 以当前有效 stage_gate 为准，PROVIDER:ALL 与 RELEASE 独立验收
+> 状态：BFF-FE-007 整改后的当前内容门禁复验中；以各 task stage_gate 为准，PROVIDER:ALL 与 RELEASE 独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.36`：补齐 BFF-FE-007 live 六 API、F05 主体隔离读模型、持久导出 worker/私有产物/原子一次性下载及范围、脱敏、完整性、分页、过期、consumer 与功能准入整改。原复审报告与失败尝试保留；当前源码和依赖的实际工程/目标回执重评，变更后的 G0 范围需项目用户确认。见[当前报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)与[runtime 说明](./BFF-FE-007-runtime.md)。
 
 - `3.35`：项目用户明确确认当前 G0 文稿，原答复/文稿/范围摘要保存并核验；原 PENDING 工程回执保留，G0 严格 READY。确认后实际重评 FEP-0 两项 PASS，八依赖及其 23 节点闭包 READY，连同 A2 当前共 24 READY、0 BLOCKED。完整 87/16 项实际工程回执仍绑定原冻结源码，formal/RELEASE 独立。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
@@ -182,7 +184,7 @@
 - task_id: `PRE-01`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:48a6a96dbb4f77fc7b1e6acca247f2fc068f48adf42ad357efa452af4053e592","evidence":["audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/fe-pre-01.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -201,7 +203,7 @@
 - task_id: `PRE-02`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:67a4e24f217c3ebf17e753c2839e9e386f44798f9f03b6214e678b90ab05fc4a","evidence":["audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/fe-pre-02.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-01"]
 - core_prerequisites: []
 - closes_core: []
@@ -219,7 +221,7 @@
 - task_id: `PRE-03`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:8ab04b901293ff4a87bb71d8a8313dbb50e209caed4cb2c81d3a2501d0e64481","evidence":["audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/fe-pre-03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-02", "CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -237,7 +239,7 @@
 - task_id: `PRE-04`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:9c9c2a99969aa67562f61265fbd9f092b5431ffa130484c97d9f9b23116d3651","evidence":["audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/fe-pre-04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
 - core_prerequisites: ["CORE:F03", "CORE:F06"]
 - closes_core: []
@@ -255,7 +257,7 @@
 - task_id: `PRE-05`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f5d1b08181f0ce97347009f4da1b3cccf8b0fdb7963b19a043030f8e2acb4738","evidence":["audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/fe-pre-05.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-03", "PRE-04"]
 - core_prerequisites: []
 - closes_core: []
@@ -273,7 +275,7 @@
 - task_id: `PRE-06`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:3e57694eede2e8e7ca034fbc1ee16d20b7fe2391b2b505a305aa072b448099c1","evidence":["audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/fe-pre-06.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-04", "PRE-05"]
 - core_prerequisites: []
 - closes_core: []
@@ -312,11 +314,9 @@
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:bb918eaccbae537d290cdef245041f323637aede3bb9c7333f9d88da8e55af8f",
-    "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/preparation-p0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -375,7 +375,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:d889d4fce51ed3f75371ddaf9f1b69a51d606afacedaeb20d73cd3125b2e7711","evidence":["audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/fe-bff-fe-000.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -408,11 +408,9 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:d2d665fd5883c584f5561d4c4905cec9e351373562f8088bde48a408419a9447",
-    "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/provider-a1.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -451,11 +449,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:3e56c6fb83f4ecaf317d34f51c4509435370fc752fca91b68cf795246a69271f",
-    "evidence": [
-      "audit/evidence/frontend-g0-fep0-remediation-20261005/g0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -466,7 +462,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `FEP-0`
 - task_type: `MILESTONE`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c38ea0ee87115348aca1371f66e74c2610d3d6f5053c7bae9e6c24fc2f534d75","evidence":["audit/evidence/fep0-remediation-20261005/user-confirmed-20261006-09bcaf7f28d9/fep0.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE-GATE:F0", "PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06", "FRONTEND-GATE:G0"]
 - core_prerequisites: ["CORE-GATE:F0"]
 - closes_core: []
@@ -488,7 +484,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `BFF-FE-001`
 - task_type: `PAGE_API`
 - iteration: `A2`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:82cf4d0091fc66fe588e727a10a98eca3d83f0175324edaf314324d4e54b1151","evidence":["audit/evidence/bff-fe-001-remediation-20261005/ci-cold-cache-lint-final-20261006/a2.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-000", "CORE:F06", "PROVIDER:A1"]
 - core_prerequisites: ["CORE:F06"]
 - closes_core: []

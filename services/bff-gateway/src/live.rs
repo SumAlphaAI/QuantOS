@@ -1,3 +1,4 @@
+mod audit;
 mod settings;
 mod settings_policy;
 
@@ -119,12 +120,14 @@ pub fn router(
         terminal_origin,
         environment,
     });
+    audit::start_worker(database_url, observability.clone())?;
     Ok(Router::new()
         .route("/v1/session", get(session))
         .route("/v1/context", get(session))
         .route("/v1/auth/session", post(establish_session))
         .route("/v1/auth/logout", post(logout))
         .merge(settings::routes())
+        .merge(audit::routes())
         .fallback(|| async { settings::ApiError::new(StatusCode::NOT_FOUND, "NOT_FOUND") })
         .layer(middleware::from_fn_with_state(
             state.clone(),
@@ -181,7 +184,26 @@ async fn trace_write_request(
     if matches!(
         method,
         Method::POST | Method::PUT | Method::DELETE | Method::PATCH
-    ) {
+    ) || path.starts_with("/v1/audit/")
+        || path.starts_with("/v1/exports")
+        || path.starts_with("/_bff/export-content/")
+    {
+        let path = if path.starts_with("/_bff/export-content/") {
+            "/_bff/export-content/{ticket}/{signature}".to_owned()
+        } else if path.starts_with("/v1/audit/evidence-chains/") {
+            "/v1/audit/evidence-chains/{correlationId}".to_owned()
+        } else if path.starts_with("/v1/exports/") {
+            if path.ends_with("/download") {
+                "/v1/exports/{exportId}/download"
+            } else if path.ends_with("/cancel") {
+                "/v1/exports/{exportId}/cancel"
+            } else {
+                "/v1/exports/{exportId}"
+            }
+            .to_owned()
+        } else {
+            path
+        };
         let correlation_id = response
             .headers()
             .get("x-correlation-id")

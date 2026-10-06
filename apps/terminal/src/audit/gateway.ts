@@ -1,4 +1,4 @@
-import { createBffClient } from "@sumalpha/api-client";
+import { createBffClient, parseBffResponse, bffZodSchemas, type BffOperationId } from "@sumalpha/api-client";
 import type { BffComponents, BffOperations } from "@sumalpha/api-client";
 
 export type AuditSearch = NonNullable<BffOperations["searchAuditEvents"]["parameters"]["query"]>;
@@ -30,14 +30,33 @@ function failure(operation: string, result: { response: Response; error?: { corr
   return new AuditGatewayError(message, operation, status, result.error?.correlationId);
 }
 
+function required<T>(operation: BffOperationId, result: {data?: T; error?: unknown; response: Response}): T {
+  if (result.data === undefined) {
+    const checked = bffZodSchemas.ErrorEnvelope.safeParse(result.error);
+    throw failure(operation, {response: result.response, error: checked.success ? checked.data : undefined});
+  }
+  try {
+    const value = parseBffResponse(operation, result.response.status, result.data) as T;
+    if (operation === "getExportDownload") {
+      const meta = value as ExportDownloadMetadata;
+      const url = new URL(meta.downloadUrl);
+      const expires = Date.parse(meta.expiresAt);
+      const retention = Date.parse(meta.retentionUntil);
+      if (url.protocol !== "https:" || url.username || url.password || expires <= Date.now() || expires > Date.now() + 300_000 || expires > retention || retention <= Date.now()) throw Error("Invalid download lease");
+    }
+    return value;
+  } catch {
+    throw new AuditGatewayError("审计服务响应无效，请稍后重试。", operation, result.response.status);
+  }
+}
+
 export async function searchAuditEvents(
   origin: string,
   query: AuditSearch,
   fetchImpl: typeof fetch = fetch,
 ): Promise<AuditEventPage> {
   const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).GET("/v1/audit/events", { params: { query } });
-  if (!result.data) throw failure("searchAuditEvents", result);
-  return result.data;
+  return required("searchAuditEvents", result);
 }
 
 export async function loadEvidenceChain(
@@ -49,8 +68,7 @@ export async function loadEvidenceChain(
   const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).GET("/v1/audit/evidence-chains/{correlationId}", {
     params: { path: { correlationId }, query },
   });
-  if (!result.data) throw failure("getEvidenceChain", result);
-  return result.data;
+  return required("getEvidenceChain", result);
 }
 
 export async function createControlledExport(
@@ -65,14 +83,12 @@ export async function createControlledExport(
     body,
     params: { header: { "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef } },
   });
-  if (!result.data) throw failure("createExport", result);
-  return result.data;
+  return required("createExport", result);
 }
 
 export async function loadExportStatus(origin: string, exportId: string, fetchImpl: typeof fetch = fetch): Promise<ExportJob> {
   const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).GET("/v1/exports/{exportId}", { params: { path: { exportId } } });
-  if (!result.data) throw failure("getExportStatus", result);
-  return result.data;
+  return required("getExportStatus", result);
 }
 
 export async function cancelControlledExport(
@@ -89,8 +105,7 @@ export async function cancelControlledExport(
       header: { "Idempotency-Key": idempotencyKey, "X-Request-Id": crypto.randomUUID(), "X-CSRF-Token": csrfToken, "X-Reauth-Token-Ref": reauthTokenRef },
     },
   });
-  if (!result.data) throw failure("cancelExport", result);
-  return result.data;
+  return required("cancelExport", result);
 }
 
 export async function getControlledExportDownload(
@@ -101,6 +116,5 @@ export async function getControlledExportDownload(
   const result = await createBffClient({ baseUrl: origin, fetch: fetchImpl }).GET("/v1/exports/{exportId}/download", {
     params: { path: { exportId } },
   });
-  if (!result.data) throw failure("getExportDownload", result);
-  return result.data;
+  return required("getExportDownload", result);
 }

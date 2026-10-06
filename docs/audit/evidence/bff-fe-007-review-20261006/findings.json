@@ -1,0 +1,92 @@
+{
+  "sourceCommit": "ce4907cd819cdca30cba2a59f66cc51dc30fffda",
+  "severityCounts": {
+    "阻塞级": 1,
+    "高危": 1,
+    "中危": 7,
+    "低危": 0
+  },
+  "findings": [
+    {
+      "id": "B-01",
+      "severity": "阻塞级",
+      "module": "live BFF / F05 Audit read model / export worker 与 Storage",
+      "manifestation": "六个契约 operation 均只在参考 router 中；live router 没有 Audit/exports 路由。没有持久查询、资源授权的真实实现、导出生成器、真实文件/签名 URL/一次性消费以及完整目标验证。status GET 在内存把 queued 改 ready；下载是占位元数据。",
+      "impact": "本任务六 API、十个消费页面及 PROVIDER:A2 的 DEVELOPMENT 实现/功能准入；阻断本任务认定 COMPLETED/READY。不是 staging 不可用导致的阻塞。",
+      "evidence": "source-inventory.json；main.rs:31、live.rs:123、lib.rs:1529/1648；runtime read_promotes_placeholder_ready",
+      "recommendation": "在实际 live router 中实现本任务六 API，接入 F05 和持久 job/私有对象存储；提供完整资源授权/恢复/配额；使用现有 Supabase 做正常和负向功能测试，不建立本地数据库。"
+    },
+    {
+      "id": "H-01",
+      "severity": "高危",
+      "module": "ExportScope / create_export / idempotency / request contract",
+      "manifestation": "OpenAPI 的 eventKinds/startAt/endAt 被 ExportScopeInput 反序列化丢弃；审计 scope 和幂等 intent 都缺这些字段。相同 key 改这些条件仍返回 202 和同一 exportId。逆序日期、重复 correlationIds、未知 correlation scope 均被 202 接受。通用 validator 未落实 uniqueItems。",
+      "impact": "请求范围、幂等冲突和审计理由的语义不一致；一旦接入产物，可能生成比请求更宽的内容或复用错误导出。已证实参考实现错误，未声称当前生产数据已经泄漏。",
+      "evidence": "lib.rs:1407–1483；input_contract.rs:64–81；runtime changed_scope_replays/scope_fields_dropped/reversed_export_range/unique_items_unenforced/unknown_scope_accepted",
+      "recommendation": "完整保留并校验 ExportScope；规范化全部业务意图后持久保存 actor/key/target；验证 uniqueItems、时间顺序与资源授权；同 key 改任一有效范围字段应 409 且零副作用。"
+    },
+    {
+      "id": "M-01",
+      "severity": "中危",
+      "module": "审计载荷脱敏 / record_audit_action",
+      "manifestation": "record_audit_action 原样保存用户 reason、水印等自由文本，并固定 redactionApplied=true；包含合成完整账户标识的 reason 经 audit search 原样返回。只对种子 fixture 写 REDACTED，不构成运行时脱敏器。",
+      "impact": "脱敏 attestation 与实际处理不符，参考调用可观察未遮盖文本；未来移植到真实审计链有秘密/标识泄露风险。本轮仅合成值，没有实测生产泄露。",
+      "evidence": "lib.rs:1422–1442/1495–1504；runtime unredacted_user_reason",
+      "recommendation": "统一字段白名单与结构化敏感信息清理，对自由文本处理后再输出；绑定真实 redaction 策略版本；以合成 token/完整标识做业务反证，不仅检查 schema enum。"
+    },
+    {
+      "id": "M-02",
+      "severity": "中危",
+      "module": "Audit payloadHash / evidence integrity / download metadata",
+      "manifestation": "种子及新增事件 payloadHash 为 sequence 的 64 位填充，未做 SHA-256；导出 sha256 恒为 42，sizeBytes 恒为 1024。不同产物没有实际字节可供核对。",
+      "impact": "哈希面板无法证明载荷或文件完整性，不能作为验收的可验证证据。参考占位的限制已确认，真实下载缺口另由 B-01 阻断。",
+      "evidence": "lib.rs:267/1440/1649；runtime noncryptographic_payload_hash/read_promotes_placeholder_ready",
+      "recommendation": "定义可重放的 canonical serialization/hash 规则，输出账本真实摘要和真实文件摘要/大小；篡改载荷或产物应被检测，保留完整性反证。"
+    },
+    {
+      "id": "M-03",
+      "severity": "中危",
+      "module": "audit cursor / evidence pagination / complete",
+      "manifestation": "cursor 只解析 audit:usize，没有查询/链/主体/快照绑定。已有 8 节点的链使用 audit:999 返回 200、items=[]、complete=true；仅由 offset>=events.len() 判定完整。",
+      "impact": "客户端可构造跳页或混用游标并获得误导性的完整标记；并发写入下 offset 排序分页没有稳定快照保证。后者为源码推导风险，本轮直接复现的是伪造游标与空完整页。",
+      "evidence": "lib.rs:1190–1215/1332/1395；runtime forged_cursor_complete",
+      "recommendation": "服务端签名或服务端状态型 cursor，绑定授权、筛选、链和快照；未知/跨范围/超边界游标拒绝；增加篡改、换筛选、写入间分页、不漏不重反证。"
+    },
+    {
+      "id": "M-04",
+      "severity": "中危",
+      "module": "export retention / expiry / deterministic clock",
+      "manifestation": "到期只依赖人为 status=expired，没有比较 retentionUntil，也没有 sweeper；新的下载每次以 Utc::now()+5min 发票。参考时钟推进 31 天并续期 fixture session 后仍返回下载 200，业务时钟与认证参考时钟不一致。",
+      "impact": "retention 与过期语义没有落实，无法验收到期后不可再次签发和取消/吊销联动。虚拟时间测试不是实际经过 31 天的目标实测；真实过期限制缺失由源码明确确认。",
+      "evidence": "lib.rs:1519–1541/1616–1651；runtime reference_clock_does_not_expire_exports",
+      "recommendation": "统一注入可测业务时钟，在读取/签发下载时根据权威时间及持久状态校验 retention/expiry；实现 sweeper 和取消吊销；测试过去/现在/临界时刻而非只用一个预置 expired fixture。"
+    },
+    {
+      "id": "M-05",
+      "severity": "中危",
+      "module": "Terminal audit gateway / response validation",
+      "manifestation": "六个 gateway 函数直接 return result.data，不调用现有 parseBffResponse。缺 sha256/sizeBytes/mediaType/auditRef、expiresAt=2000、watermarked=false 的下载响应被成功接受；redactionApplied=false 且不完整的 AuditEvent 同样被接受。",
+      "impact": "TypeScript 类型不能保护运行时安全语义，调用方把错误/未脱敏/过期对象当正常成功结果。没有把安全 BffTransportError 本身列为缺陷。",
+      "evidence": "apps/terminal/src/audit/gateway.ts:39/52/68/75/93/105；gateway-probes.json；既有 audit-gateway.test.ts 最后一段还肯定缺字段响应成功",
+      "recommendation": "每个 operation/status 使用现有生成 runtime parser；下载 additionally 校验有效时间及允许 URL 规则；缺必填/不合枚举等成功响应必须失败；将现有肯定畸形成功的测试改成拒绝断言。"
+    },
+    {
+      "id": "M-06",
+      "severity": "中危",
+      "module": "BFF-FE-007 Gate / stage evidence / completion accounting",
+      "manifestation": "Gate 仅检查文案、schema、marker 和 development_status=COMPLETED；把整个 provider 换成只有 marker 的注释、把前置 BFF-FE-001 stage_gate 改 NOT_ASSESSED，仍 PASS。没有功能输入/业务执行/目标证据/依赖 READY 的本任务严格门禁。当前 stage NOT_ASSESSED 是诚实状态，但旧 COMPLETED 无法代表当前 DEVELOPMENT 完成。",
+      "impact": "结构 green 无法检测实现/依赖/目标失效，本轮已复现的语义问题未被 11 项 Gate 测试发现；PROVIDER:A2 不能据此准入。",
+      "evidence": "scripts/check-bff-fe-007.mjs:60–133；gate-mutations.json；task stage_gate in source-inventory.json",
+      "recommendation": "保留 local_contract Gate 标签，另建任务功能 manifest 与严格 DEVELOPMENT checker，绑定全部功能输入/实际业务日志/目标及三依赖；加入真实 mutation/替换回执/陈旧依赖反证；把开发状态调整为尚未完成当前准入，复验后再发布 READY。"
+    },
+    {
+      "id": "M-07",
+      "severity": "中危",
+      "module": "restricted audit reads / export lifecycle audit",
+      "manifestation": "search_audit_events/get_evidence_chain 不记录受限访问；多次授权审计/证据读取后事件仍为原 8 项。导出四种成功动作写内存，但 queued->ready 本身没有生成完成审计，失败/拒绝与实际下载消费没有完整生命周期事实。",
+      "impact": "不符合 C10 x-quantos-policy 的受限读取留痕和导出全过程追踪；既有 count 只证明四种成功动作。持久目标链缺口另计 B-01，不把读取副作用当业务状态修改。",
+      "evidence": "lib.rs:1218–1340/1349–1403/1533–1550；runtime restricted_reads_add_no_audit_events；OpenAPI C10 policy.audit",
+      "recommendation": "明确并实现受限访问与各生命周期状态/失败/消费的审计事件，绑定 actor/scope/outcome/correlation/causation，持久接入 F05；避免自记录访问时递归污染业务 evidence chain，独立测试留痕。"
+    }
+  ]
+}

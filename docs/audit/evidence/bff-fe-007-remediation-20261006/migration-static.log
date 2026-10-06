@@ -1,0 +1,18 @@
+bash ./scripts/check-migration-filenames.sh
+Supabase migration filenames are valid.
+bash ./scripts/check-rls-baseline.sh
+file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-rls-baseline.mjs:15
+ const reject=()=>{throw new Error('RLS_BASELINE: unsupported dynamic RLS block; require unconditional literal FOREACH/format DDL');};
+                         ^
+
+Error: RLS_BASELINE: unsupported dynamic RLS block; require unconditional literal FOREACH/format DDL
+    at reject (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-rls-baseline.mjs:15:26)
+    at expandRlsLoop (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-rls-baseline.mjs:26:67)
+    at scrub (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-rls-baseline.mjs:37:80)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-rls-baseline.mjs:43:12
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.12.0
+make: *** [db-migration-check] Error 1

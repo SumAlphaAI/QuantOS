@@ -1,3 +1,4 @@
+mod audit_core;
 use std::{collections::BTreeMap, sync::Arc};
 
 mod input_contract;
@@ -63,6 +64,8 @@ struct ProviderData {
     events: Vec<Value>,
     audits: Vec<Value>,
     exports: BTreeMap<String, Value>,
+    export_artifacts: BTreeMap<String, (Vec<u8>, String)>,
+    audit_cursors: BTreeMap<String, (String, Vec<Value>, usize, chrono::DateTime<Utc>)>,
     idempotency: BTreeMap<String, Value>,
     idempotency_intents: BTreeMap<String, Value>,
 }
@@ -124,6 +127,8 @@ impl Default for ProviderData {
                     "auditRef":"eeeeeeee-2222-4222-8222-222222222222"
                 }),
             )]),
+            export_artifacts: BTreeMap::new(),
+            audit_cursors: BTreeMap::new(),
             idempotency: BTreeMap::new(),
             idempotency_intents: BTreeMap::new(),
         }
@@ -264,7 +269,7 @@ fn seed_audits() -> Vec<Value> {
                 "sequence":index + 1,"kind":kind,"actor":"quantos-service",
                 "objectRef":object_ref,"occurredAt":format!("2026-09-16T10:00:{index:02}Z"),
                 "redactionApplied":true,"redactedPayload":{"account":"acct-…xxx","redactionSummary":"[REDACTED]"},
-                "payloadHash":format!("sha256:{:064x}", index + 1),"route":route,
+                "payloadHash":audit_core::payload_hash(&json!({"account":"acct-…xxx","redactionSummary":"[REDACTED]"})),"route":route,
                 "retentionUntil":"2027-09-16T10:00:00Z"
             });
             if let Some(causation_id) = causation_id {
@@ -1172,7 +1177,7 @@ async fn browser_capabilities(
     )
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 struct AuditQuery {
     cursor: Option<String>,
@@ -1187,6 +1192,51 @@ struct AuditQuery {
     end_at: Option<String>,
 }
 
+type ReferencePage = (Vec<Value>, usize, Option<String>);
+fn reference_page(
+    state: &mut ProviderData,
+    cursor: Option<&str>,
+    binding: &str,
+    events: Vec<Value>,
+    size: usize,
+) -> Result<ReferencePage, Box<Response>> {
+    state
+        .audit_cursors
+        .retain(|_, (_, _, _, until)| *until > Utc::now());
+    let (events, offset) = if let Some(token) = cursor {
+        match state.audit_cursors.get(token) {
+            Some((owner, rows, offset, until)) if owner == binding && *until > state.now() => {
+                (rows.clone(), *offset)
+            }
+            _ => {
+                return Err(Box::new(error(
+                    StatusCode::UNPROCESSABLE_ENTITY,
+                    "INVALID_CURSOR",
+                    "分页游标无效。",
+                )));
+            }
+        }
+    } else {
+        (events, 0)
+    };
+    let next = if offset + size < events.len() {
+        let token = Uuid::new_v4().to_string();
+        state.audit_cursors.insert(
+            token.clone(),
+            (
+                binding.to_owned(),
+                events.clone(),
+                offset + size,
+                state.now() + Duration::minutes(5),
+            ),
+        );
+        Some(token)
+    } else {
+        None
+    };
+    Ok((events, offset, next))
+}
+
 fn page_window(
     cursor: Option<&str>,
     page_size: Option<usize>,
@@ -1199,19 +1249,8 @@ fn page_window(
             "分页参数无效。",
         )));
     }
-    let offset = match cursor {
-        None => 0,
-        Some(value) => value
-            .strip_prefix("audit:")
-            .and_then(|raw| raw.parse::<usize>().ok())
-            .ok_or_else(|| {
-                Box::new(error(
-                    StatusCode::UNPROCESSABLE_ENTITY,
-                    "INVALID_CURSOR",
-                    "分页游标无效。",
-                ))
-            })?,
-    };
+    let _ = cursor;
+    let offset = 0;
     Ok((offset, size))
 }
 
@@ -1223,7 +1262,7 @@ async fn search_audit_events(
     if let Err(response) = require_capability(&headers, &data, "audit:read").await {
         return response;
     }
-    let (offset, size) = match page_window(query.cursor.as_deref(), query.page_size) {
+    let (_, size) = match page_window(query.cursor.as_deref(), query.page_size) {
         Ok(window) => window,
         Err(response) => return *response,
     };
@@ -1278,7 +1317,7 @@ async fn search_audit_events(
             }
         },
     };
-    let state = data.lock().await;
+    let mut state = data.lock().await;
     let mut matching = state
         .audits
         .iter()
@@ -1323,19 +1362,44 @@ async fn search_audit_events(
             order
         }
     });
+    let mut binding = serde_json::to_value(&query).unwrap();
+    binding.as_object_mut().unwrap().remove("cursor");
+    let binding = format!(
+        "search:{}:{}",
+        cookies(&headers)
+            .get("quantos_session")
+            .copied()
+            .unwrap_or_default(),
+        binding
+    );
+    let (matching, offset, next) = match reference_page(
+        &mut state,
+        query.cursor.as_deref(),
+        &binding,
+        matching,
+        size,
+    ) {
+        Ok(page) => page,
+        Err(r) => return *r,
+    };
     let items = matching
         .iter()
         .skip(offset)
         .take(size)
         .cloned()
         .collect::<Vec<_>>();
-    let next =
-        (offset + items.len() < matching.len()).then(|| format!("audit:{}", offset + items.len()));
     let correlation = correlation_id();
     let mut payload = json!({"items":items});
     if let Some(next) = next {
         payload["nextCursor"] = json!(next);
     }
+    record_audit_action(
+        &mut state,
+        "audit.search_accessed",
+        &correlation,
+        "audit",
+        json!({"outcome":"succeeded"}),
+    );
     response(StatusCode::OK, payload, &correlation)
 }
 
@@ -1358,11 +1422,11 @@ async fn get_evidence_chain(
     if Uuid::parse_str(&correlation_id_value).is_err() {
         return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
     }
-    let (offset, size) = match page_window(query.cursor.as_deref(), query.page_size) {
+    let (_, size) = match page_window(query.cursor.as_deref(), query.page_size) {
         Ok(window) => window,
         Err(response) => return *response,
     };
-    let state = data.lock().await;
+    let mut state = data.lock().await;
     let events = state
         .audits
         .iter()
@@ -1371,10 +1435,25 @@ async fn get_evidence_chain(
                 == Some(correlation_id_value.as_str())
                 && entry.get("eventId").is_some()
         })
+        .cloned()
         .collect::<Vec<_>>();
     if events.is_empty() {
         return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
     }
+    let binding = format!(
+        "chain:{}:{}:{}",
+        cookies(&headers)
+            .get("quantos_session")
+            .copied()
+            .unwrap_or_default(),
+        correlation_id_value,
+        size
+    );
+    let (events, offset, next) =
+        match reference_page(&mut state, query.cursor.as_deref(), &binding, events, size) {
+            Ok(page) => page,
+            Err(r) => return *r,
+        };
     let items = events
         .iter()
         .skip(offset)
@@ -1393,31 +1472,24 @@ async fn get_evidence_chain(
         })
         .collect::<Vec<_>>();
     let complete = offset + items.len() >= events.len();
-    let next = (!complete).then(|| format!("audit:{}", offset + items.len()));
+
     let correlation = correlation_id();
     let mut payload =
         json!({"correlationId":correlation_id_value,"items":items,"complete":complete});
     if let Some(next) = next {
         payload["nextCursor"] = json!(next);
     }
+    record_audit_action(
+        &mut state,
+        "audit.chain_accessed",
+        &correlation,
+        "audit",
+        json!({"outcome":"succeeded"}),
+    );
     response(StatusCode::OK, payload, &correlation)
 }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct ExportScopeInput {
-    correlation_ids: Vec<String>,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct ExportInput {
-    scope: ExportScopeInput,
-    format: String,
-    reason: String,
-    watermark: String,
-    retention_days: i64,
-}
+use audit_core::ExportInput;
 
 fn record_audit_action(
     data: &mut ProviderData,
@@ -1433,12 +1505,13 @@ fn record_audit_action(
         .filter(|entry| entry.get("eventId").is_some())
         .count()
         + 1;
+    let redacted_payload = audit_core::redacted(&redacted_payload);
     data.audits.push(json!({
         "auditRef":audit_ref,"eventId":Uuid::now_v7(),"correlationId":correlation,
         "sequence":sequence,"kind":action,"actor":"audit-user","objectRef":object_ref,
-        "occurredAt":Utc::now().to_rfc3339(),"redactionApplied":true,
-        "redactedPayload":redacted_payload,"payloadHash":format!("sha256:{:064x}", sequence),
-        "route":format!("/exports/{object_ref}"),"retentionUntil":(Utc::now() + Duration::days(365)).to_rfc3339()
+        "occurredAt":data.now().to_rfc3339(),"redactionApplied":true,
+        "redactedPayload":redacted_payload,"payloadHash":audit_core::payload_hash(&redacted_payload),
+        "route":format!("/exports/{object_ref}"),"retentionUntil":(data.now() + Duration::days(365)).to_rfc3339()
     }));
     audit_ref
 }
@@ -1457,29 +1530,17 @@ async fn create_export(
     if let Err(response) = require_reauth(&headers, &data).await {
         return response;
     }
-    if input.scope.correlation_ids.is_empty()
-        || input.scope.correlation_ids.len() > 100
-        || input
-            .scope
-            .correlation_ids
-            .iter()
-            .any(|value| Uuid::parse_str(value).is_err())
-        || !matches!(input.format.as_str(), "jsonl" | "csv" | "pdf")
-        || input.reason.trim().len() < 8
-        || input.watermark.trim().len() < 3
-        || !(1..=30).contains(&input.retention_days)
-    {
-        return error(
-            StatusCode::UNPROCESSABLE_ENTITY,
-            "VALIDATION_FAILED",
-            "导出范围或保留策略无效。",
-        );
-    }
-    let intent = json!({
-        "scope":{"correlationIds":input.scope.correlation_ids},
-        "format":input.format,"reason":input.reason,"watermark":input.watermark,
-        "retentionDays":input.retention_days
-    });
+    let input = match input.normalize() {
+        Ok(input) => input,
+        Err(()) => {
+            return error(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "VALIDATION_FAILED",
+                "导出范围或保留策略无效。",
+            );
+        }
+    };
+    let intent = serde_json::to_value(&input).expect("export input");
     let command = match IdempotentCommand::new(&headers, "createExport", "exports", &intent) {
         Ok(command) => command,
         Err(response) => return *response,
@@ -1490,6 +1551,14 @@ async fn create_export(
         Err(response) => return *response,
         Ok(None) => {}
     }
+    if input.scope.correlation_ids.iter().any(|id| {
+        !state
+            .audits
+            .iter()
+            .any(|e| e["correlationId"].as_str() == Some(id))
+    }) {
+        return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
+    }
     let export_id = Uuid::now_v7().to_string();
     let correlation = input.scope.correlation_ids[0].clone();
     let audit_ref = record_audit_action(
@@ -1498,19 +1567,43 @@ async fn create_export(
         &correlation,
         &export_id,
         json!({
-            "scope":{"correlationIds":input.scope.correlation_ids},
+            "scope":input.scope,
             "format":input.format,"reason":input.reason,"watermark":input.watermark,
             "retentionDays":input.retention_days
         }),
     );
-    let now = Utc::now();
+    let now = state.now();
     let payload = json!({
         "exportId":export_id,"status":"queued","format":input.format,"requestedBy":"audit-user",
-        "requestedAt":now.to_rfc3339(),"watermark":input.watermark,
+        "requestedAt":now.to_rfc3339(),"watermark":audit_core::watermark(&input.watermark),
         "retentionUntil":(now + Duration::days(input.retention_days)).to_rfc3339(),
         "correlationId":correlation,"auditRef":audit_ref
     });
-    state.exports.insert(export_id, payload.clone());
+    state.exports.insert(export_id.clone(), payload.clone());
+    let events = state
+        .audits
+        .iter()
+        .filter(|e| input.includes(e))
+        .cloned()
+        .collect::<Vec<_>>();
+    let (bytes, media) = audit_core::artifact(
+        &input.format,
+        payload["watermark"].as_str().unwrap(),
+        &events,
+    );
+    state
+        .export_artifacts
+        .insert(export_id.clone(), (bytes, media.to_owned()));
+    let job = state.exports.get_mut(&export_id).unwrap();
+    job["status"] = json!("ready");
+    job["completedAt"] = json!(now.to_rfc3339());
+    record_audit_action(
+        &mut state,
+        "export.ready",
+        &correlation,
+        &export_id,
+        json!({"status":"ready"}),
+    );
     command.save(&mut state, payload.clone());
     let response_correlation = correlation_id();
     response(StatusCode::ACCEPTED, payload, &response_correlation)
@@ -1529,10 +1622,8 @@ async fn get_export_status(
         let Some(job) = state.exports.get_mut(&export_id) else {
             return error(StatusCode::NOT_FOUND, "NOT_FOUND", "资源不存在或无权访问。");
         };
-        if job["status"] == "queued" {
-            job["status"] = json!("ready");
-            job["completedAt"] = json!(Utc::now().to_rfc3339());
-        }
+        // Status reads do not execute generation.
+
         job.clone()
     };
     let job_correlation = payload["correlationId"]
@@ -1627,7 +1718,17 @@ async fn get_export_download(
         return error(StatusCode::CONFLICT, "EXPORT_NOT_READY", "导出尚未就绪。");
     }
     let job_correlation = job["correlationId"].as_str().unwrap_or(AUDIT_CORRELATION);
-    let expires_at = Utc::now() + Duration::minutes(5);
+    let retention = chrono::DateTime::parse_from_rfc3339(job["retentionUntil"].as_str().unwrap())
+        .unwrap()
+        .with_timezone(&Utc);
+    if retention <= state.now() {
+        return error(
+            StatusCode::GONE,
+            "EXPORT_EXPIRED",
+            "导出已过期，请重新创建。",
+        );
+    }
+    let expires_at = (state.now() + Duration::minutes(5)).min(retention);
     let audit_ref = record_audit_action(
         &mut state,
         "export.download_issued",
@@ -1643,11 +1744,15 @@ async fn get_export_download(
         Some("pdf") => "application/pdf",
         _ => "application/x-ndjson",
     };
+    let (bytes, _) = state
+        .export_artifacts
+        .get(&export_id)
+        .expect("reference artifact");
     let payload = json!({
         "exportId":export_id,
         "downloadUrl":format!("https://downloads.invalid/v1/exports/{export_id}?ticket={}", Uuid::now_v7()),
-        "expiresAt":expires_at.to_rfc3339(),"sha256":format!("{:064x}", 42),
-        "sizeBytes":1024,"mediaType":media_type,"watermarked":true,
+        "expiresAt":expires_at.to_rfc3339(),"sha256":audit_core::digest(bytes),
+        "sizeBytes":bytes.len(),"mediaType":media_type,"watermarked":true,
         "retentionUntil":job["retentionUntil"],"auditRef":audit_ref
     });
     let correlation = correlation_id();

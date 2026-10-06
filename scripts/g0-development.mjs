@@ -9,6 +9,7 @@ import { root, digest, inventory, confined, nodesFromPlans, planInput, validateR
 import { confirmationPolicy, confirmationMode, reviewDimensions, validateUserConfirmation } from './user-acceptance-confirmation.mjs';
 import { sourceDigest } from './pre03-build-receipt.mjs';
 export const evidenceDirectory='docs/audit/evidence/frontend-g0-fep0-remediation-20261005';
+export function approvedDirectory(path){assert(typeof path==='string'&&(path===evidenceDirectory||(path.startsWith(evidenceDirectory+'/')&&/^[a-z0-9/-]+$/.test(path)&&!path.includes('..'))),'G0 receipt outside approved directory');return path;}
 const read=p=>readFileSync(confined(p),'utf8');
 const json=p=>JSON.parse(read(p));
 export const requiredReviewDimensions=reviewDimensions;
@@ -69,6 +70,7 @@ export function validateConfirmations(c,request,p=policy(),readRecord=path=>read
  return validateUserConfirmation(c.approval,confirmationRequest(request),readRecord);
 }
 export function validateManifest(m,{p=policy(),request=scopeRequest(p),confirmations=json('docs/gate-records/G0-current-scope-confirmations.json'),nodes=nodesFromPlans(),readBytes=path=>readFileSync(confined(path)),validateDependency=id=>validateReceipt(id,{nodes}),requireReady=false}={}) {
+ const directory=approvedDirectory(m.assessmentDirectory??evidenceDirectory);
  const n=nodes.get('FRONTEND-GATE:G0');assert(n,'G0 checkpoint missing');
  assert.equal(m.schema,'quantos-g0-development-manifest/v1');assert.equal(m.nodeId,n.id);assert.equal(m.stage,'DEVELOPMENT');assert.equal(m.formalAccepted,false);assert.equal(m.engineeringStatus,'PASS');
  assert.deepEqual(m.planInput,planInput(n),'G0 functional plan changed');assert.deepEqual(m.scopeRequest,request,'G0 functional input inventory changed');
@@ -82,10 +84,10 @@ export function validateManifest(m,{p=policy(),request=scopeRequest(p),confirmat
  assert.deepEqual(m.residuals,status==='READY'?[]:['M-01: project user development scope confirmation missing'],'G0 residual inventory differs');
  assert.deepEqual(m.checks.map(c=>c.id).sort(),Object.keys(p.checks).sort(),'G0 required functional execution missing or extra');
  for(const c of m.checks){const spec=p.checks[c.id];assert.deepEqual(c.command,spec.command,'G0 command differs from required check');assert.equal(c.exitCode,0,'G0 failed or unexecuted check');assert.equal(c.status,'PASS');assert(Number.isFinite(Date.parse(c.executedAt)) && Date.parse(c.executedAt)<=Date.now(),'G0 execution timestamp missing');
-  assert(c.log.startsWith(evidenceDirectory+'/logs/'),'G0 log path outside evidence directory');const bytes=readBytes(c.log);assert.equal(digest(bytes),c.logSha256,'G0 log content changed');assert(new RegExp(spec.marker).test(bytes.toString()),`G0 execution marker missing ${c.id}`);
+  assert(c.log.startsWith(directory+'/logs/'),'G0 log path outside evidence directory');const bytes=readBytes(c.log);assert.equal(digest(bytes),c.logSha256,'G0 log content changed');assert(new RegExp(spec.marker).test(bytes.toString()),`G0 execution marker missing ${c.id}`);
  }
  assert.equal(m.webBuild.schema,'quantos-pre03-build/v1');assert.equal(m.webBuild.app,'terminal');assert.equal(m.webBuild.output,'export');assert(m.webBuild.buildId);assert.equal(m.webBuild.sourceDigest,sourceDigest(root,developmentEnvironment(read(p.developmentProfile.file),p.developmentProfile.overrides)),'G0 Web PoC build source changed');
- assert.equal(m.webBuildSha256,digest(readBytes(evidenceDirectory+'/terminal-build.json')),'G0 build artifact changed');assert.deepEqual(JSON.parse(readBytes(evidenceDirectory+'/terminal-build.json')),m.webBuild);
+ assert.equal(m.webBuildSha256,digest(readBytes(directory+'/terminal-build.json')),'G0 build artifact changed');assert.deepEqual(JSON.parse(readBytes(directory+'/terminal-build.json')),m.webBuild);
  assert.deepEqual(m.dependencies.map(d=>d.nodeId).sort(),[...n.dependencies].sort(),'G0 dependency receipt missing');
  for(const d of m.dependencies){const dep=nodes.get(d.nodeId);assert.equal(dep.stage_gate.status,'READY','G0 dependency not READY');assert.equal(d.inputDigest,dep.stage_gate.input_digest,'G0 dependency digest changed');assert.equal(d.manifest,'docs/'+dep.stage_gate.evidence[0]);validateDependency(d.nodeId);}
  if(requireReady)assert.equal(status,'READY','G0 BLOCKED: project user scope confirmation missing');
@@ -94,7 +96,7 @@ export function validateManifest(m,{p=policy(),request=scopeRequest(p),confirmat
 export function check({requireReady=false}={}) {
  const nodes=nodesFromPlans();const gate=nodes.get('FRONTEND-GATE:G0').stage_gate;
  assert(['READY','BLOCKED'].includes(gate.status),'G0 functional assessment absent');assert.equal(gate.stage,'DEVELOPMENT');assert(gate.input_digest && gate.evidence.length===1,'G0 BLOCKED: current engineering replay and project user confirmation required');
- assert.equal('docs/'+gate.evidence[0],evidenceDirectory+'/g0.json','G0 cannot accept arbitrary/historical receipt');const bytes=readFileSync(confined('docs/'+gate.evidence[0]));assert.equal(digest(bytes),gate.input_digest,'G0 manifest digest mismatch');const m=JSON.parse(bytes);assert.equal(m.status,gate.status,'G0 plan/receipt status mismatch');return validateManifest(m,{nodes,requireReady});
+ const path='docs/'+gate.evidence[0];assert(path.endsWith('/g0.json'),'G0 manifest filename changed');approvedDirectory(path.slice(0,-'/g0.json'.length));const bytes=readFileSync(confined('docs/'+gate.evidence[0]));assert.equal(digest(bytes),gate.input_digest,'G0 manifest digest mismatch');const m=JSON.parse(bytes);assert.equal(m.status,gate.status,'G0 plan/receipt status mismatch');return validateManifest(m,{nodes,requireReady});
 }
 export function assertG0ExecutionSnapshot(before,after,originalNode,currentNode) {
  assert.deepEqual(after,before,'G0 inputs changed during execution');
@@ -104,26 +106,27 @@ export function assertG0Worktree(status) {
  const dirty=status.split('\n').filter(line=>line.trim());
  assert(dirty.every(line=>!line.includes(' -> ') && /^.. (?:docs\/audit\/|docs\/SumAlpha-QuantOS-(?:Frontend-Development-Execution|Development)-Plan\.md$)/.test(line)),'commit functional source before G0 execution');
 }
-export function assess() {
+export function assess(outputDirectory=evidenceDirectory) {
+ const directory=approvedDirectory(outputDirectory);assert(!existsSync(resolve(root,directory,'execution-results.json')) || directory===evidenceDirectory,'G0 evidence already exists; select a fresh child directory');
  const p=policy();const nodes=nodesFromPlans();const n=nodes.get('FRONTEND-GATE:G0');for(const dep of n.dependencies)validateReceipt(dep,{nodes});
  const before=scopeRequest(p);const confirmations=json('docs/gate-records/G0-current-scope-confirmations.json');const confirmed=validateConfirmations(confirmations,before,p);
  const source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();assertG0Worktree(execFileSync('git',['status','--porcelain'],{encoding:'utf8'}));
  const env=staticEnvironment(developmentEnvironment(read(p.developmentProfile.file),p.developmentProfile.overrides));env.CI='true';const protoBaseline=execFileSync('git',['rev-parse','--verify',`${source}^`],{encoding:'utf8'}).trim();env.QUANTOS_PROTO_BASE=protoBaseline;
- mkdirSync(resolve(root,evidenceDirectory,'logs'),{recursive:true});const checks=[];
+ mkdirSync(resolve(root,directory,'logs'),{recursive:true});const checks=[];
  for(const [id,spec]of Object.entries(p.checks)){
   const executedAt=new Date().toISOString();const result=spawnSync(spec.command[0]==='node'?process.execPath:spec.command[0],spec.command.slice(1),{cwd:root,env,encoding:'utf8',timeout:600000,maxBuffer:32*1024*1024});
-  const output=(result.stdout??'')+(result.stderr??'');const log=evidenceDirectory+'/logs/'+id+'.log';writeFileSync(resolve(root,log),output);checks.push({id,command:spec.command,executedAt,status:result.status===0?'PASS':'FAIL',exitCode:result.status,log,logSha256:digest(output)});console.log(id,result.status);
-  writeFileSync(resolve(root,evidenceDirectory,'execution-results.json'),JSON.stringify(checks,null,2)+'\n');assert.equal(result.status,0,`G0 check failed ${id}; see ${log}`);assert(new RegExp(spec.marker).test(output),`G0 execution marker missing ${id}`);
+  const output=(result.stdout??'')+(result.stderr??'');const log=directory+'/logs/'+id+'.log';writeFileSync(resolve(root,log),output);checks.push({id,command:spec.command,executedAt,status:result.status===0?'PASS':'FAIL',exitCode:result.status,log,logSha256:digest(output)});console.log(id,result.status);
+  writeFileSync(resolve(root,directory,'execution-results.json'),JSON.stringify(checks,null,2)+'\n');assert.equal(result.status,0,`G0 check failed ${id}; see ${log}`);assert(new RegExp(spec.marker).test(output),`G0 execution marker missing ${id}`);
  }
  const after=scopeRequest(p);const currentNodes=nodesFromPlans();assertG0ExecutionSnapshot(before,after,n,currentNodes.get(n.id));assert.equal(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),source,'G0 source commit changed during execution');
- const buildBytes=readFileSync(resolve(root,'apps/terminal/out/pre03-build.json'));writeFileSync(resolve(root,evidenceDirectory,'terminal-build.json'),buildBytes);
- const m={schema:'quantos-g0-development-manifest/v1',nodeId:n.id,stage:'DEVELOPMENT',status:confirmed.status==='CONFIRMED'?'READY':'BLOCKED',engineeringStatus:'PASS',formalAccepted:false,observedSourceCommit:source,
+ const buildBytes=readFileSync(resolve(root,'apps/terminal/out/pre03-build.json'));writeFileSync(resolve(root,directory,'terminal-build.json'),buildBytes);
+ const m={schema:'quantos-g0-development-manifest/v1',assessmentDirectory:directory,nodeId:n.id,stage:'DEVELOPMENT',status:confirmed.status==='CONFIRMED'?'READY':'BLOCKED',engineeringStatus:'PASS',formalAccepted:false,observedSourceCommit:source,
   environment:{node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,profile:'local-mock',databaseExecuted:false,protoBaseline},planInput:planInput(n),scopeRequest:before,confirmations:confirmed,confirmationLedgerSnapshot:read('docs/gate-records/G0-current-scope-confirmations.json'),confirmationsSha256:digest(readFileSync(confined('docs/gate-records/G0-current-scope-confirmations.json'))),checks,
   webBuild:JSON.parse(buildBytes),webBuildSha256:digest(buildBytes),dependencies:n.dependencies.map(id=>({nodeId:id,inputDigest:nodes.get(id).stage_gate.input_digest,manifest:'docs/'+nodes.get(id).stage_gate.evidence[0]})),excluded:p.excluded,residuals:confirmed.status==='CONFIRMED'?[]:['M-01: project user development scope confirmation missing']};
- validateManifest(m,{nodes:currentNodes});const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,evidenceDirectory,'g0.json'),bytes);
- n.stage_gate={stage:'DEVELOPMENT',status:m.status,input_digest:digest(bytes),evidence:[evidenceDirectory.slice(5)+'/g0.json']};
+ validateManifest(m,{nodes:currentNodes});const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,directory,'g0.json'),bytes);
+ n.stage_gate={stage:'DEVELOPMENT',status:m.status,input_digest:digest(bytes),evidence:[directory.slice(5)+'/g0.json']};
  const plan='docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md';writeFileSync(resolve(root,plan),publishStages(read(plan),new Map([[n.id,n]]),'FE:'));
- writeFileSync(resolve(root,evidenceDirectory,'scope-request.json'),JSON.stringify(before,null,2)+'\n');console.log(JSON.stringify(check(),null,2));
+ writeFileSync(resolve(root,directory,'scope-request.json'),JSON.stringify(before,null,2)+'\n');console.log(JSON.stringify(check(),null,2));
 }
 export function applyConfirmation(m,{nodes=nodesFromPlans(),confirmations=json('docs/gate-records/G0-current-scope-confirmations.json'),ledgerBytes=read('docs/gate-records/G0-current-scope-confirmations.json'),readBytes=p=>readFileSync(confined(p)),...options}={}){
  assert.equal(m.status,'BLOCKED','only a completed pending engineering assessment can be finalized');
@@ -134,8 +137,8 @@ export function applyConfirmation(m,{nodes=nodesFromPlans(),confirmations=json('
 }
 export function finalize(){
  const nodes=nodesFromPlans();const n=nodes.get('FRONTEND-GATE:G0');if(n.stage_gate.status==='READY')return check({requireReady:true});
- const path=evidenceDirectory+'/g0.json';assert.deepEqual(n.stage_gate.evidence,[path.slice(5)]);const bytes=readFileSync(confined(path));assert.equal(digest(bytes),n.stage_gate.input_digest);const m=applyConfirmation(JSON.parse(bytes),{nodes});
- const archived=evidenceDirectory+'/pending-g0-'+digest(bytes).slice(7,19)+'.json';if(existsSync(resolve(root,archived)))assert.equal(readFileSync(resolve(root,archived),'utf8'),bytes.toString());else writeFileSync(resolve(root,archived),bytes);
+ const path='docs/'+n.stage_gate.evidence[0];assert(path.endsWith('/g0.json'));const directory=approvedDirectory(path.slice(0,-'/g0.json'.length));const bytes=readFileSync(confined(path));assert.equal(digest(bytes),n.stage_gate.input_digest);const m=applyConfirmation(JSON.parse(bytes),{nodes});
+ const archived=directory+'/pending-g0-'+digest(bytes).slice(7,19)+'.json';if(existsSync(resolve(root,archived)))assert.equal(readFileSync(resolve(root,archived),'utf8'),bytes.toString());else writeFileSync(resolve(root,archived),bytes);
  const updated=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,path),updated);n.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(updated),evidence:[path.slice(5)]};const plan='docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md';writeFileSync(resolve(root,plan),publishStages(read(plan),new Map([[n.id,n]]),'FE:'));return check({requireReady:true});
 }
-if(process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{const mode=process.argv[2];assert(['--engineering','--ready','--assess','--finalize','--scope','--draft',undefined].includes(mode),'unknown G0 mode');if(mode==='--assess')assess();else if(mode==='--finalize')console.log(JSON.stringify(finalize(),null,2));else if(mode==='--draft')console.log(JSON.stringify(draftConfirmation(),null,2));else if(mode==='--scope')console.log(JSON.stringify(scopeRequest(),null,2));else console.log(JSON.stringify(check({requireReady:mode!=='--engineering'}),null,2));}catch(e){console.error(e.message);process.exitCode=1;}}
+if(process.argv[1] && import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{const mode=process.argv[2];assert(['--engineering','--ready','--assess','--finalize','--scope','--draft',undefined].includes(mode),'unknown G0 mode');if(mode==='--assess')assess(process.argv[3]);else if(mode==='--finalize')console.log(JSON.stringify(finalize(),null,2));else if(mode==='--draft')console.log(JSON.stringify(draftConfirmation(),null,2));else if(mode==='--scope')console.log(JSON.stringify(scopeRequest(),null,2));else console.log(JSON.stringify(check({requireReady:mode!=='--engineering'}),null,2));}catch(e){console.error(e.message);process.exitCode=1;}}

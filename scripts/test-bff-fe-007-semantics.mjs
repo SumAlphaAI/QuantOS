@@ -1,0 +1,5 @@
+import {mkdirSync,writeFileSync} from 'node:fs';import {resolve} from 'node:path';import {spawnSync} from 'node:child_process';
+import {root,inventory,digest} from './provider-a1-receipts.mjs';import {selectors,commands} from './bff-fe-007-development.mjs';
+const out=process.argv[2]??'docs/audit/evidence/bff-fe-007-remediation-20261006/final';mkdirSync(resolve(root,out),{recursive:true});const before=inventory(selectors);const results=[];
+for(const [command,args]of commands){const run=spawnSync(command,args,{cwd:root,encoding:'utf8',timeout:300000,maxBuffer:16*1024*1024});const bytes=Buffer.from((run.stdout??'')+(run.stderr??''));const log=out+'/semantics-'+results.length+'.log';writeFileSync(resolve(root,log),bytes);results.push({command,args,exitCode:run.status,log,logSha256:digest(bytes)});console.log(command,run.status);if(run.status!==0)break;}
+const status=results.length===commands.length&&results.every(r=>r.exitCode===0)&&JSON.stringify(before)===JSON.stringify(inventory(selectors))?'PASS':'FAIL';writeFileSync(resolve(root,out,'semantics.json'),JSON.stringify({status,inputs:before,results},null,2)+'\n');if(status!=='PASS')process.exitCode=1;

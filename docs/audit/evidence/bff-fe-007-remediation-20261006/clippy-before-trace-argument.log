@@ -1,0 +1,25 @@
+    Checking bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0061]: this function takes 3 arguments but 2 arguments were supplied
+   --> services/bff-gateway/src/live/audit.rs:737:5
+    |
+737 |     tick(client.as_mut().unwrap(),&Objects::configured()?)
+    |     ^^^^-------------------------------------------------- argument #3 of type `&quantos_observability::service::ServiceObservability` is missing
+    |
+note: function defined here
+   --> services/bff-gateway/src/live/audit.rs:620:4
+    |
+620 | fn tick(
+    |    ^^^^
+...
+623 |     observer: &quantos_observability::service::ServiceObservability,
+    |     ---------------------------------------------------------------
+help: provide the argument
+    |
+737 -     tick(client.as_mut().unwrap(),&Objects::configured()?)
+737 +     tick(client.as_mut().unwrap(), &Objects::configured()?, /* &quantos_observability::service::ServiceObservability */)
+    |
+
+For more information about this error, try `rustc --explain E0061`.
+error: could not compile `bff-gateway` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `bff-gateway` (lib test) due to 1 previous error

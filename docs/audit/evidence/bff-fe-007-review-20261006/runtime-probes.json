@@ -1,0 +1,141 @@
+{
+  "databaseExecuted": false,
+  "observations": [
+    {
+      "apis": [
+        {
+          "method": "GET",
+          "path": "/v1/audit/events",
+          "unauthenticated": 401,
+          "viewer": 403
+        },
+        {
+          "method": "GET",
+          "path": "/v1/audit/evidence-chains/aaaaaaaa-1111-4111-8111-111111111111",
+          "unauthenticated": 401,
+          "viewer": 403
+        },
+        {
+          "method": "POST",
+          "path": "/v1/exports",
+          "unauthenticated": 401,
+          "viewer": 403
+        },
+        {
+          "method": "GET",
+          "path": "/v1/exports/eeeeeeee-1111-4111-8111-111111111111",
+          "unauthenticated": 401,
+          "viewer": 403
+        },
+        {
+          "method": "POST",
+          "path": "/v1/exports/eeeeeeee-1111-4111-8111-111111111111/cancel",
+          "unauthenticated": 401,
+          "viewer": 403
+        },
+        {
+          "method": "GET",
+          "path": "/v1/exports/eeeeeeee-1111-4111-8111-111111111111/download",
+          "unauthenticated": 401,
+          "viewer": 403
+        }
+      ],
+      "healthy": true,
+      "id": "reference_auth_matrix",
+      "missingCsrf": 403,
+      "missingReauth": 403
+    },
+    {
+      "elapsedMicroseconds": 835,
+      "events": 8,
+      "healthy": true,
+      "id": "reference_restore_baseline",
+      "pages": 3,
+      "targetScaleAcceptance": false
+    },
+    {
+      "afterRestrictedReads": 8,
+      "id": "restricted_reads_add_no_audit_events",
+      "initialAuditEvents": 8
+    },
+    {
+      "actual": {
+        "complete": true,
+        "correlationId": "aaaaaaaa-1111-4111-8111-111111111111",
+        "items": []
+      },
+      "baselineEvents": 8,
+      "id": "forged_cursor_complete",
+      "status": 200
+    },
+    {
+      "id": "changed_scope_replays",
+      "sameExport": true,
+      "status": 202
+    },
+    {
+      "actual": {
+        "correlationIds": [
+          "aaaaaaaa-1111-4111-8111-111111111111"
+        ]
+      },
+      "id": "scope_fields_dropped"
+    },
+    {
+      "id": "reversed_export_range",
+      "status": 202
+    },
+    {
+      "id": "unknown_scope_accepted",
+      "status": 202
+    },
+    {
+      "id": "unique_items_unenforced",
+      "status": 202
+    },
+    {
+      "actual": {
+        "format": "jsonl",
+        "reason": "Review SYNTHETIC_PRIVATE_VALUE_007 account=acct-test-sensitive-full-007",
+        "retentionDays": 7,
+        "scope": {
+          "correlationIds": [
+            "aaaaaaaa-1111-4111-8111-111111111111"
+          ]
+        },
+        "watermark": "QuantOS audit copy"
+      },
+      "id": "unredacted_user_reason",
+      "redactionApplied": true
+    },
+    {
+      "hash": "sha256:000000000000000000000000000000000000000000000000000000000000000d",
+      "id": "noncryptographic_payload_hash",
+      "sequence": 13
+    },
+    {
+      "actual": {
+        "auditRef": "01a1107c-eb3e-73f2-abe6-d178cf348f42",
+        "downloadUrl": "https://downloads.invalid/v1/exports/01a1107c-eb3c-7091-a39d-3cbba2e67589?ticket=01a1107c-eb3e-73f2-abe6-d19cae032ef4",
+        "expiresAt": "2026-10-06T09:18:04.574671+00:00",
+        "exportId": "01a1107c-eb3c-7091-a39d-3cbba2e67589",
+        "mediaType": "application/x-ndjson",
+        "retentionUntil": "2026-10-13T09:13:04.572131+00:00",
+        "sha256": "000000000000000000000000000000000000000000000000000000000000002a",
+        "sizeBytes": 1024,
+        "watermarked": true
+      },
+      "id": "read_promotes_placeholder_ready",
+      "status": "ready"
+    },
+    {
+      "advancedDays": 31,
+      "id": "reference_clock_does_not_expire_exports",
+      "note": "reference clock only; static source confirms no retentionUntil comparison",
+      "status": 200
+    }
+  ],
+  "profile": "reference-only in-memory Axum requests",
+  "runAt": "2026-10-06T09:13:04.574994+00:00",
+  "sourceCommit": "ce4907cd819cdca30cba2a59f66cc51dc30fffda"
+}

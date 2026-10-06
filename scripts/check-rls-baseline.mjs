@@ -23,7 +23,10 @@ function expandRlsLoop(body) {
   const ddl=match[1].replaceAll("''", "'");
   const alter=/^alter\s+table\s+quantos\.%I\s+(?:enable|disable|force|no\s+force)\s+row\s+level\s+security$/i.test(ddl);
   const policy=new RegExp(`^(?:create|drop)\\s+policy\\s+(?:if\\s+exists\\s+)?${identifier}\\s+on\\s+quantos\\.%I(?:\\s|$)`,'i').test(ddl);
-  if((!alter&&!policy)||ddl.replace('%I','').includes('%'))return reject();templates.push(ddl);
+  // Permissions in the same literal loop do not establish RLS, but are safe
+  // to expand when their table and roles are literal and tightly constrained.
+  const privilege=/^(?:revoke\s+all\s+on\s+quantos\.%I\s+from\s+anon\s*,\s*authenticated|grant\s+select\s*,\s*insert\s*,\s*update\s*,\s*delete\s+on\s+quantos\.%I\s+to\s+quantos_bff)$/i.test(ddl);
+  if((!alter&&!policy&&!privilege)||ddl.replace('%I','').includes('%'))return reject();templates.push(ddl);
  }
  if(!templates.length)return reject();
  return names.flatMap(name=>templates.map(ddl=>ddl.replace('%I',name))).join(';\n')+';';

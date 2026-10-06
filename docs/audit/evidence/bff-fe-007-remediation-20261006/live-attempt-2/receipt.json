@@ -1,0 +1,163 @@
+{
+  "schema": "quantos-bff-audit-live/v1",
+  "sourceCommit": "ce4907cd819cdca30cba2a59f66cc51dc30fffda",
+  "status": "FAIL",
+  "sourceHashes": {
+    "services/bff-gateway/src/audit_core.rs": "ed2563645d8f0f60ba501eee5b0ae96934f08e7b7f1e39872dba78787cd59f1b",
+    "services/bff-gateway/src/lib.rs": "92329179c5525fdab5538b653d6e0705500d6492b8694b54abd221be6255f455",
+    "services/bff-gateway/src/input_contract.rs": "55e8df4b65e09402a6414364be468be36528f1fe5d238a85b668062abf6bfcb6",
+    "services/bff-gateway/src/live/audit.rs": "6d2140aea9a1b3d6f0754d6992758a9cf7d77f7dae5f2ee20cc37d1b944285c7",
+    "services/bff-gateway/src/live.rs": "073520c27a6e9ea998396c0518e5af9d91f44425f6aac2960de0229b5eb3a3b4",
+    "services/bff-gateway/src/live/settings.rs": "5142e2d15b3f994dac314061cd4f07475a68e668f8dde88cbb77f85238758e6b",
+    "supabase/migrations/20261006100000_bff_audit_exports.sql": "4a301bce609cbe89ca94d7be04684ca79dc6cf6da3667e65b46182d0059b51b6",
+    "bff/openapi/quantos-bff.v1.yaml": "e783bcd0fc250ca8d458d4c4a0e48b9b000ba71dd72bd66e3b92f1020f87b0a8",
+    "scripts/test-bff-fe-007-live.mjs": "1c5844e539e33acea90add8a275a9f44d8fa188f51c60854b70a8d98eafe7f67"
+  },
+  "assertions": [
+    "persistent-ledger-redaction",
+    "canonical-payload-hash",
+    "canonical-payload-hash",
+    "canonical-payload-hash",
+    "snapshot-no-repeat-no-omission",
+    "persistent-causal-chain",
+    "durable-identical-intent-replay",
+    "ephemeral-exports-cleaned"
+  ],
+  "records": [
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSession",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 404,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 409,
+      "issues": []
+    }
+  ],
+  "cleanupVerified": true,
+  "target": "configured-supabase",
+  "formalAccepted": false,
+  "failure": "conflicts-have-no-business-or-audit-side-effects",
+  "cleanup": "restore capabilities, quotas and factor set; delete own exports, objects and sessions; preserve append-only audit fixtures"
+}

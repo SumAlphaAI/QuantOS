@@ -143,7 +143,7 @@ impl A2Store {
     }
 }
 
-async fn authorized(
+pub(super) async fn authorized(
     state: Arc<LiveState>,
     headers: HeaderMap,
     write: bool,
@@ -197,7 +197,7 @@ fn respond(mut payload: Value) -> Response {
         .unwrap_or_else(|| Uuid::new_v4().to_string());
     crate::response(StatusCode::OK, payload, &correlation)
 }
-fn recent(
+pub(super) fn recent(
     tx: &mut Transaction<'_>,
     session: &str,
     headers: &HeaderMap,
@@ -240,14 +240,14 @@ fn audit(
     tx.execute("insert into quantos.bff_settings_audits(audit_ref,user_id,tenant_id,actor_id,action,object_ref,correlation_id) values($1,$2,$3,$4,$5,$6,$7) on conflict(audit_ref) do nothing", &[&audit_ref,&context.user_id,context.auth.tenant_id.as_uuid(),context.auth.actor_id.as_uuid(),&action,&resource,&correlation])?;
     Ok(())
 }
-fn command_key(headers: &HeaderMap) -> Result<Uuid, ApiError> {
+pub(super) fn command_key(headers: &HeaderMap) -> Result<Uuid, ApiError> {
     headers
         .get("idempotency-key")
         .and_then(|v| v.to_str().ok())
         .and_then(|v| Uuid::parse_str(v).ok())
         .ok_or_else(|| ApiError::new(StatusCode::UNPROCESSABLE_ENTITY, "INVALID_REQUEST"))
 }
-fn replay(
+pub(super) fn replay(
     tx: &mut Transaction<'_>,
     user: Uuid,
     operation: &str,
@@ -260,7 +260,7 @@ fn replay(
     }
     Ok(None)
 }
-fn save_command(
+pub(super) fn save_command(
     tx: &mut Transaction<'_>,
     user: Uuid,
     operation: &str,

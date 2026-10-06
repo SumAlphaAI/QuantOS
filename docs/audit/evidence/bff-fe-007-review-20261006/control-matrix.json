@@ -1,0 +1,232 @@
+{
+  "sourceCommit": "ce4907cd819cdca30cba2a59f66cc51dc30fffda",
+  "stage": "DEVELOPMENT",
+  "weighting": "equal weight; PASS=1, PARTIAL/FAIL=0; RELEASE/consumer integration excluded",
+  "counts": {
+    "PASS": 13,
+    "PARTIAL": 6,
+    "FAIL": 12
+  },
+  "completed": 13,
+  "total": 31,
+  "completionRatePercent": 41.94,
+  "controls": [
+    {
+      "id": "C01",
+      "control": "六个 operation 与请求/响应 schema 发布",
+      "status": "PASS",
+      "evidence": "OpenAPI 1.5.0；六个 published operation",
+      "findings": "无"
+    },
+    {
+      "id": "C02",
+      "control": "C10 owner 与十个消费页面映射",
+      "status": "PASS",
+      "evidence": "P04/P07/P09–P14/P22/P23，catalog 对应一致",
+      "findings": "无"
+    },
+    {
+      "id": "C03",
+      "control": "client/Zod/JSON Schema/MSW 同源生成及无漂移",
+      "status": "PASS",
+      "evidence": "check:bff-generated 与 contract coverage 实际通过",
+      "findings": "无"
+    },
+    {
+      "id": "C04",
+      "control": "参考搜索条件与有界 pageSize、sort/filter、时间输入",
+      "status": "PASS",
+      "evidence": "Rust 搜索及 sort/filter 测试通过；pageSize 1–200",
+      "findings": "无"
+    },
+    {
+      "id": "C05",
+      "control": "固定参考链的 correlation/causation 分页还原",
+      "status": "PASS",
+      "evidence": "8 个节点、7 条种子 causation；3 页还原",
+      "findings": "无"
+    },
+    {
+      "id": "C06",
+      "control": "六接口参考 cookie/capability 的 401/403",
+      "status": "PASS",
+      "evidence": "新增六接口授权矩阵实际通过，12 个状态断言",
+      "findings": "无"
+    },
+    {
+      "id": "C07",
+      "control": "参考 create/cancel 的 CSRF、recent-auth",
+      "status": "PASS",
+      "evidence": "共享 guard、既有取消测试与新增缺 CSRF/reauth 拒绝",
+      "findings": "无"
+    },
+    {
+      "id": "C08",
+      "control": "参考敏感响应 no-store 与错误外观隐藏",
+      "status": "PASS",
+      "evidence": "统一 response/error；已有未知资源与未就绪/过期拒绝",
+      "findings": "无"
+    },
+    {
+      "id": "C09",
+      "control": "完整业务意图的幂等、冲突与恢复",
+      "status": "PARTIAL",
+      "evidence": "normal reason/watermark/retention 冲突通过；scope 可选字段变化未冲突，只有进程内保存",
+      "findings": "H-01/B-01"
+    },
+    {
+      "id": "C10",
+      "control": "不透明且不可篡改、绑定查询的稳定游标",
+      "status": "FAIL",
+      "evidence": "audit:offset 可任意构造，不绑定查询/主体/快照",
+      "findings": "M-03"
+    },
+    {
+      "id": "C11",
+      "control": "证据链完整性判定与真实因果覆盖",
+      "status": "PARTIAL",
+      "evidence": "种子链通过；audit:999 返回空 items、complete=true；未验证真实账本",
+      "findings": "M-03/B-01"
+    },
+    {
+      "id": "C12",
+      "control": "服务端字段级脱敏、禁止完整标识/秘密输出",
+      "status": "FAIL",
+      "evidence": "用户 reason/watermark 直接进入 redactedPayload，固定声明 redactionApplied=true",
+      "findings": "M-01"
+    },
+    {
+      "id": "C13",
+      "control": "真实 payload hash 与可验证证据摘要",
+      "status": "FAIL",
+      "evidence": "payloadHash 是 sequence 的十六进制填充；下载摘要是常量 42",
+      "findings": "M-02"
+    },
+    {
+      "id": "C14",
+      "control": "六接口可由实际 live BFF 接收与处理",
+      "status": "FAIL",
+      "evidence": "main live 分支仅挂载身份/settings 路由，本任务六接口未挂载",
+      "findings": "B-01"
+    },
+    {
+      "id": "C15",
+      "control": "F05 持久审计读模型及数据库功能连接",
+      "status": "FAIL",
+      "evidence": "参考 Vec 与种子事件；live 无 Audit 查询；本轮不执行目标数据库",
+      "findings": "B-01"
+    },
+    {
+      "id": "C16",
+      "control": "资源级主体/账号授权与无权资源隐藏",
+      "status": "PARTIAL",
+      "evidence": "全局参考 capability 拒绝通过；无资源 owner/context 过滤，未知导出范围获 202",
+      "findings": "B-01/H-01"
+    },
+    {
+      "id": "C17",
+      "control": "完整 ExportScope：eventKinds/time range/unique IDs",
+      "status": "FAIL",
+      "evidence": "serde 丢弃可选字段；逆序时间和重复 correlationIds 获 202",
+      "findings": "H-01"
+    },
+    {
+      "id": "C18",
+      "control": "持久异步导出、生成产物、重启恢复与取消工作流",
+      "status": "FAIL",
+      "evidence": "无 export worker/对象；GET status 将 queued 直接变 ready",
+      "findings": "B-01"
+    },
+    {
+      "id": "C19",
+      "control": "queued/generating/ready/cancel/expired/failed 状态机制",
+      "status": "PARTIAL",
+      "evidence": "参考 queued/ready/cancelled/seeded expired 通过；生成、失败、恢复不具备真实执行",
+      "findings": "B-01/M-04"
+    },
+    {
+      "id": "C20",
+      "control": "真实短时、一次性签名 URL、实际水印与文件元数据",
+      "status": "FAIL",
+      "evidence": "downloads.invalid；constant sha256/sizeBytes，无真实文件/签名器/一次性消费",
+      "findings": "B-01/M-02"
+    },
+    {
+      "id": "C21",
+      "control": "retention/到期拒绝与下载吊销联动",
+      "status": "FAIL",
+      "evidence": "只有 status==expired 判定；没有 retentionUntil 当前时间比较或过期机制",
+      "findings": "M-04/B-01"
+    },
+    {
+      "id": "C22",
+      "control": "导出与受限访问全过程审计、持久可追溯",
+      "status": "PARTIAL",
+      "evidence": "四种成功导出动作写内存事件；受限审计读取不留事件，未接 F05",
+      "findings": "M-07/B-01"
+    },
+    {
+      "id": "C23",
+      "control": "六个 typed gateway、cookie 与安全头携带",
+      "status": "PASS",
+      "evidence": "gateway 六函数及客户端 credentials:include；既有 5 项 consumer 测试通过",
+      "findings": "无"
+    },
+    {
+      "id": "C24",
+      "control": "403/404/410 gateway 安全文案与 correlation 信息",
+      "status": "PASS",
+      "evidence": "拒绝资源、过期下载不泄露 transport 返回的内部 message",
+      "findings": "无"
+    },
+    {
+      "id": "C25",
+      "control": "成功响应 runtime schema 与安全约束校验",
+      "status": "FAIL",
+      "evidence": "过期/缺字段/watermarked=false 元数据及 redactionApplied=false 的审计页被成功接受",
+      "findings": "M-05"
+    },
+    {
+      "id": "C26",
+      "control": "基础 transport 截止时间与写请求不自动重试",
+      "status": "PASS",
+      "evidence": "共享 bff-transport 缓冲 JSON、默认 30 秒、无自动 retry；网络错误为安全 BffTransportError",
+      "findings": "无"
+    },
+    {
+      "id": "C27",
+      "control": "三项直接依赖的实际内容绑定 READY",
+      "status": "PASS",
+      "evidence": "BFF-FE-001 严格门禁；CORE:F05 与 PROVIDER:A1 当前回执独立核验",
+      "findings": "无"
+    },
+    {
+      "id": "C28",
+      "control": "工程规范与既有本任务正负/业务/consumer 回归实际执行",
+      "status": "PASS",
+      "evidence": "Terminal 类型/定向 ESLint、Rust fmt/clippy 通过；11 Gate、6 Rust、5 gateway 通过；不把通过率当功能完成率",
+      "findings": "无"
+    },
+    {
+      "id": "C29",
+      "control": "任务级功能 manifest、输入/目标摘要与严格阶段 Gate",
+      "status": "FAIL",
+      "evidence": "stage_gate=NOT_ASSESSED/null/[]，无任务功能门禁；结构 Gate 可被 comments-only provider 绕过",
+      "findings": "M-06"
+    },
+    {
+      "id": "C30",
+      "control": "六接口真实目标正常/安全负向/恢复/清理验收",
+      "status": "FAIL",
+      "evidence": "不存在六接口的目标功能证据；NOT RUN / NO RECEIPT，未用 A2 身份证据代替",
+      "findings": "B-01/M-06"
+    },
+    {
+      "id": "C31",
+      "control": "请求资源限制与每主体/操作的配额",
+      "status": "PARTIAL",
+      "evidence": "body 64KiB/pageSize 200 有限制；C10 无 provider 配额/429 执行配置，实际服务未实现",
+      "findings": "B-01"
+    }
+  ]
+}

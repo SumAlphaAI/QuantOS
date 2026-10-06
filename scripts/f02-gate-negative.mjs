@@ -65,6 +65,20 @@ test('RLS preflight recognizes the actual ten-table A2 migration and rejects inc
  ]) {assert(good.includes(removed));fs.writeFileSync(f,good.replace(removed,''));reject(scan(),/RLS_BASELINE/);}
  fs.writeFileSync(f,good);pass(scan());
 });
+test('RLS preflight expands audit export permissions without treating grants as RLS',t=>{
+ const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});
+ const f=path.join(dir,'20261006100000_bff_audit_exports.sql');
+ const good=fs.readFileSync(path.join(repo,'supabase/migrations/20261006100000_bff_audit_exports.sql'),'utf8');
+ const scan=()=>run('node',[path.join(repo,'scripts/check-rls-baseline.mjs')],repo,{QUANTOS_GATE_ROOT:d});
+ fs.writeFileSync(f,good);const positive=scan();pass(positive);assert.match(positive.stdout,/passed for 4 tables/);
+ for(const removed of [
+  "execute format('alter table quantos.%I enable row level security',item);",
+  "execute format('alter table quantos.%I force row level security',item);",
+  "execute format('create policy bff_role_only on quantos.%I for all to quantos_bff using(true) with check(true)',item);"
+ ]) {fs.writeFileSync(f,good.replace(removed,''));reject(scan(),/RLS_BASELINE/);}
+ fs.writeFileSync(f,good.replace('to quantos_bff\',item)','to public\',item)'));reject(scan(),/RLS_BASELINE/);
+ fs.writeFileSync(f,good);pass(scan());
+});
 test('RLS literal loops preserve late disabling, NO FORCE and policy deletion',t=>{
  const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});
  const f=path.join(dir,'20260101000000_baseline.sql');

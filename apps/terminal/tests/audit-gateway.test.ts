@@ -102,5 +102,21 @@ it("every controlled audit operation conceals denied resources and rejects trans
     expect((error as Error).message).not.toContain("internal detail");
   }
   const fetchImpl=(async()=>new Response(JSON.stringify({exportId:EXPORT_ID,url:"https://download.example",expiresAt:"2026-10-02T00:00:00Z"}),{headers:{"content-type":"application/json"}})) as typeof fetch;
-  expect(await getControlledExportDownload("https://bff.example",EXPORT_ID,fetchImpl)).toHaveProperty("exportId");
+  await expect(getControlledExportDownload("https://bff.example",EXPORT_ID,fetchImpl)).rejects.toBeInstanceOf(AuditGatewayError);
+});
+
+it("validates every success schema and rejects unsafe download leases", async () => {
+ const operations=[
+  (f:typeof fetch)=>searchAuditEvents("https://bff.example",{},f),
+  (f:typeof fetch)=>loadEvidenceChain("https://bff.example",CORRELATION_ID,undefined,f),
+  (f:typeof fetch)=>createControlledExport("https://bff.example",{scope:{correlationIds:[CORRELATION_ID]},format:"jsonl",reason:"Regulatory review",watermark:"audit",retentionDays:7},"key","csrf","reauth",f),
+  (f:typeof fetch)=>loadExportStatus("https://bff.example",EXPORT_ID,f),
+  (f:typeof fetch)=>cancelControlledExport("https://bff.example",EXPORT_ID,"key","csrf","reauth",f),
+  (f:typeof fetch)=>getControlledExportDownload("https://bff.example",EXPORT_ID,f),
+ ];
+ for(const op of operations){const f=(async()=>new Response(JSON.stringify({unexpected:true}),{headers:{"content-type":"application/json"}})) as typeof fetch;await expect(op(f)).rejects.toBeInstanceOf(AuditGatewayError);}
+ const metadata={exportId:EXPORT_ID,downloadUrl:"https://bff.example/_bff/export-content/ticket/signature",expiresAt:new Date(Date.now()+60_000).toISOString(),retentionUntil:new Date(Date.now()+86_400_000).toISOString(),sha256:"a".repeat(64),sizeBytes:12,mediaType:"application/x-ndjson",watermarked:true,auditRef:AUDIT_REF};
+ for(const patch of [{watermarked:false},{expiresAt:"2000-01-01T00:00:00Z"},{expiresAt:new Date(Date.now()+600_000).toISOString()},{downloadUrl:"http://bff.example/object"},{downloadUrl:"https://user:password@bff.example/object"},{retentionUntil:"2000-01-01T00:00:00Z"}]){const f=(async()=>new Response(JSON.stringify({...metadata,...patch}),{headers:{"content-type":"application/json"}})) as typeof fetch;await expect(getControlledExportDownload("https://bff.example",EXPORT_ID,f)).rejects.toBeInstanceOf(AuditGatewayError);}
+ const valid=(async()=>new Response(JSON.stringify(metadata),{headers:{"content-type":"application/json"}})) as typeof fetch;expect(await getControlledExportDownload("https://bff.example",EXPORT_ID,valid)).toEqual(metadata);
+ const unsafe=(async()=>new Response(JSON.stringify({items:[{redactionApplied:false}]}),{headers:{"content-type":"application/json"}})) as typeof fetch;await expect(searchAuditEvents("https://bff.example",{},unsafe)).rejects.toBeInstanceOf(AuditGatewayError);
 });

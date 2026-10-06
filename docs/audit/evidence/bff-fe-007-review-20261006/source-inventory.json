@@ -1,0 +1,331 @@
+{
+  "sourceCommit": "ce4907cd819cdca30cba2a59f66cc51dc30fffda",
+  "openapiVersion": "1.5.0",
+  "apis": [
+    {
+      "operationId": "searchAuditEvents",
+      "path": "/v1/audit/events",
+      "method": "get",
+      "contractPublished": true,
+      "referenceRoutePresent": true,
+      "liveRoutePresent": false,
+      "capability": "audit:read",
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:read",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [
+          "occurredAt",
+          "kind",
+          "eventId"
+        ],
+        "filter": [
+          "kind",
+          "eventId"
+        ],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      }
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "path": "/v1/audit/evidence-chains/{correlationId}",
+      "method": "get",
+      "contractPublished": true,
+      "referenceRoutePresent": true,
+      "liveRoutePresent": false,
+      "capability": "audit:read",
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:read",
+        "pagination": "cursor/pageSize; max 200",
+        "sort": [],
+        "filter": [],
+        "expression": "sort=field:asc|desc; filter=field:eq:value; only listed fields allowed; unsupported fields/operators return 422",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.",
+        "sortFilterNotApplicable": "Evidence chain preserves causation order; filtering would remove required nodes"
+      }
+    },
+    {
+      "operationId": "createExport",
+      "path": "/v1/exports",
+      "method": "post",
+      "contractPublished": true,
+      "referenceRoutePresent": true,
+      "liveRoutePresent": false,
+      "capability": "audit:export",
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:export",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      }
+    },
+    {
+      "operationId": "getExportStatus",
+      "path": "/v1/exports/{exportId}",
+      "method": "get",
+      "contractPublished": true,
+      "referenceRoutePresent": true,
+      "liveRoutePresent": false,
+      "capability": "audit:read",
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:read",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      }
+    },
+    {
+      "operationId": "cancelExport",
+      "path": "/v1/exports/{exportId}/cancel",
+      "method": "post",
+      "contractPublished": true,
+      "referenceRoutePresent": true,
+      "liveRoutePresent": false,
+      "capability": "audit:export",
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:export",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      }
+    },
+    {
+      "operationId": "getExportDownload",
+      "path": "/v1/exports/{exportId}/download",
+      "method": "get",
+      "contractPublished": true,
+      "referenceRoutePresent": true,
+      "liveRoutePresent": false,
+      "capability": "audit:export",
+      "policy": {
+        "owner": "BFF-FE-007",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "audit:export",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      }
+    }
+  ],
+  "liveRoutes": [
+    "/v1/session",
+    "/v1/context",
+    "/v1/auth/session",
+    "/v1/auth/logout",
+    "/v1/auth/logout",
+    "/v1/settings/profile",
+    "/v1/settings/notification-preferences",
+    "/v1/settings/security",
+    "/v1/settings/sessions",
+    "/v1/settings/sessions/{id}",
+    "/v1/settings/sessions/stream",
+    "/v1/settings/trusted-devices",
+    "/v1/settings/trusted-devices/{id}",
+    "/v1/settings/mfa/setup",
+    "/v1/settings/mfa/factors/{id}",
+    "/v1/settings/downloads",
+    "/v1/platform/browser-capabilities",
+    "/v1/auth/mfa/challenges",
+    "/v1/auth/reauth",
+    "/v1/access-requests"
+  ],
+  "dependencies": [
+    {
+      "nodeId": "FE:BFF-FE-001",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:82cf4d0091fc66fe588e727a10a98eca3d83f0175324edaf314324d4e54b1151",
+        "evidence": [
+          "audit/evidence/bff-fe-001-remediation-20261005/ci-cold-cache-lint-final-20261006/a2.json"
+        ]
+      }
+    },
+    {
+      "nodeId": "CORE:F05",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:c9063eec05ae0330a26806351448a82349b6e2399b5d0753ea868de7b7c144ed",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/core-f05.json"
+        ]
+      },
+      "validation": {
+        "status": "READY",
+        "nodeId": "CORE:F05",
+        "inputDigest": "sha256:c9063eec05ae0330a26806351448a82349b6e2399b5d0753ea868de7b7c144ed",
+        "formalAccepted": false
+      }
+    },
+    {
+      "nodeId": "PROVIDER:A1",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "READY",
+        "input_digest": "sha256:d2d665fd5883c584f5561d4c4905cec9e351373562f8088bde48a408419a9447",
+        "evidence": [
+          "audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-confirmed-20261006/provider-a1.json"
+        ]
+      },
+      "validation": {
+        "status": "READY",
+        "nodeId": "PROVIDER:A1",
+        "inputDigest": "sha256:d2d665fd5883c584f5561d4c4905cec9e351373562f8088bde48a408419a9447",
+        "formalAccepted": false
+      }
+    }
+  ],
+  "taskStageGate": {
+    "stage": "DEVELOPMENT",
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
+  },
+  "hashes": [
+    {
+      "path": "services/bff-gateway/src/main.rs",
+      "sha256": "sha256:59d503ecb0f5dc82f4d8a4406c8ea1e5a56e8c345f0a4714265b3e7c41e80f2b"
+    },
+    {
+      "path": "services/bff-gateway/src/live.rs",
+      "sha256": "sha256:6371fb0d515b2fa2d62c5d156b99b19339ea5830b25259d6a11bb69dcfdce95c"
+    },
+    {
+      "path": "services/bff-gateway/src/live/settings.rs",
+      "sha256": "sha256:133fe5932d33c9a755895b130c9f3fbd158418bbc1103b351fd56ae047065043"
+    },
+    {
+      "path": "services/bff-gateway/src/lib.rs",
+      "sha256": "sha256:c495b85d27764c23f7cd069ea5cc563ffeb0faaafdcc47e1c8b914d6efe6064a"
+    },
+    {
+      "path": "services/bff-gateway/src/input_contract.rs",
+      "sha256": "sha256:90b86bd0b6917c91c7068764d74d4cfd06f3a149699e186ae09bedec3edc7ec8"
+    },
+    {
+      "path": "services/bff-gateway/tests/audit_export_provider.rs",
+      "sha256": "sha256:ac17fd30ffed65e5e0e95a3e39fcf72b03b1c2669d7d5caf6a572d710751d175"
+    },
+    {
+      "path": "apps/terminal/src/audit/gateway.ts",
+      "sha256": "sha256:e7a9beae9755bf74e3823d938628e8f15c149478a2bec40d8bba9639947cef55"
+    },
+    {
+      "path": "apps/terminal/tests/audit-gateway.test.ts",
+      "sha256": "sha256:2772a3e8a7443f059aa8b5ddc25b5a8d65d8a6c8633dac61b9a2234d4462a204"
+    },
+    {
+      "path": "packages/api-client/src/bff.ts",
+      "sha256": "sha256:e1a765a8254d3a5686e54ca3539e362aeb679868c1e53f0aefd93d2b69d9812b"
+    },
+    {
+      "path": "bff/openapi/quantos-bff.v1.yaml",
+      "sha256": "sha256:e783bcd0fc250ca8d458d4c4a0e48b9b000ba71dd72bd66e3b92f1020f87b0a8"
+    },
+    {
+      "path": "bff/page-operation-catalog.yaml",
+      "sha256": "sha256:d849b35b60861edff8956d3db9bf03a4e06c13cbc12621a0983af65fb8412622"
+    },
+    {
+      "path": "scripts/check-bff-fe-007.mjs",
+      "sha256": "sha256:99f901fd8243251649b73fd82aec988479eb1bdfe800131a4cdd322e9773b1c9"
+    },
+    {
+      "path": "scripts/bff-fe-007-gate-negative.mjs",
+      "sha256": "sha256:0fc694c716a016dd5849e9d0c696a16171c4a4710a8340bdcbddd9d0c73a413c"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "sha256:3cd820f433f47c7aef1ece0a1db845498cf91a1371caf9c51c008c01c7b86a04"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "sha256:2bf12ce50b6b9239744be69865701e7f625a7407d7e2d74b0085961432ea8e8b"
+    }
+  ]
+}

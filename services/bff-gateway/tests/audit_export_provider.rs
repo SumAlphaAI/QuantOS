@@ -154,7 +154,7 @@ async fn audit_search_is_capability_guarded_redacted_and_cursor_paginated() {
     assert_eq!(first.status(), StatusCode::OK);
     let first_body = json_body(first).await;
     assert_eq!(first_body["items"].as_array().unwrap().len(), 3);
-    assert_eq!(first_body["nextCursor"], "audit:3");
+    assert!(uuid::Uuid::parse_str(first_body["nextCursor"].as_str().unwrap()).is_ok());
     for item in first_body["items"].as_array().unwrap() {
         assert_eq!(item["redactionApplied"], true);
         assert!(item["redactedPayload"].get("secret").is_none());
@@ -166,7 +166,10 @@ async fn audit_search_is_capability_guarded_redacted_and_cursor_paginated() {
         .clone()
         .oneshot(authenticated(
             "GET",
-            &format!("/v1/audit/events?correlationId={CORRELATION}&pageSize=3&cursor=audit%3A3"),
+            &format!(
+                "/v1/audit/events?correlationId={CORRELATION}&pageSize=3&cursor={}",
+                first_body["nextCursor"].as_str().unwrap()
+            ),
             None,
         ))
         .await
@@ -200,7 +203,7 @@ async fn evidence_chain_preserves_causation_order_and_hides_missing_resources() 
     assert_eq!(first.status(), StatusCode::OK);
     let first_body = json_body(first).await;
     assert_eq!(first_body["complete"], false);
-    assert_eq!(first_body["nextCursor"], "audit:4");
+    assert!(uuid::Uuid::parse_str(first_body["nextCursor"].as_str().unwrap()).is_ok());
     assert_eq!(first_body["items"][0]["sequence"], 1);
     assert!(first_body["items"][0].get("causationId").is_none());
     assert_eq!(
@@ -212,7 +215,10 @@ async fn evidence_chain_preserves_causation_order_and_hides_missing_resources() 
         .clone()
         .oneshot(authenticated(
             "GET",
-            &format!("/v1/audit/evidence-chains/{CORRELATION}?pageSize=4&cursor=audit%3A4"),
+            &format!(
+                "/v1/audit/evidence-chains/{CORRELATION}?pageSize=4&cursor={}",
+                first_body["nextCursor"].as_str().unwrap()
+            ),
             None,
         ))
         .await
@@ -282,8 +288,8 @@ async fn export_lifecycle_is_idempotent_watermarked_short_lived_and_audited() {
     let audit_body = json_body(audit).await;
     let audit_payload = &audit_body["items"][0]["redactedPayload"];
     assert_eq!(audit_payload["format"], "jsonl");
-    assert_eq!(audit_payload["reason"], "Regulatory evidence review");
-    assert_eq!(audit_payload["watermark"], "QuantOS audit copy");
+    assert_eq!(audit_payload["reason"], "[REDACTED]");
+    assert_eq!(audit_payload["watermark"], "[REDACTED]");
     assert_eq!(audit_payload["retentionDays"], 7);
 
     let status = router
@@ -537,4 +543,168 @@ async fn export_commands_reject_changed_intents_before_audit_or_cancellation() {
         .await
         .unwrap();
     assert_eq!(json_body(unaffected).await["status"], "ready");
+}
+
+#[tokio::test]
+async fn complete_scope_intent_conflicts_without_side_effects_and_rejects_invalid_scope() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let grant = recent_auth(&router).await;
+    let mut original = export_body();
+    original["scope"]["eventKinds"] = json!(["fill.recorded"]);
+    original["scope"]["startAt"] = json!("2026-09-01T00:00:00Z");
+    original["scope"]["endAt"] = json!("2026-09-30T00:00:00Z");
+    let created = router
+        .clone()
+        .oneshot(export_mutation(
+            "/v1/exports",
+            "scope-original",
+            &grant,
+            Some(original.clone()),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(created.status(), StatusCode::ACCEPTED);
+    for (name, value) in [
+        ("eventKinds", json!(["order.accepted"])),
+        ("startAt", json!("2026-09-02T00:00:00Z")),
+        ("endAt", json!("2026-09-29T00:00:00Z")),
+    ] {
+        let count = provider.audit_action_count("export.created").await;
+        let mut changed = original.clone();
+        changed["scope"][name] = value;
+        let r = router
+            .clone()
+            .oneshot(export_mutation(
+                "/v1/exports",
+                "scope-original",
+                &grant,
+                Some(changed),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(r.status(), StatusCode::CONFLICT);
+        assert_eq!(provider.audit_action_count("export.created").await, count);
+    }
+    for (label, patch, expected) in [
+        (
+            "duplicate",
+            json!({"correlationIds":[CORRELATION,CORRELATION]}),
+            StatusCode::UNPROCESSABLE_ENTITY,
+        ),
+        (
+            "reverse",
+            json!({"correlationIds":[CORRELATION],"startAt":"2026-09-30T00:00:00Z","endAt":"2026-09-01T00:00:00Z"}),
+            StatusCode::UNPROCESSABLE_ENTITY,
+        ),
+        (
+            "hidden",
+            json!({"correlationIds":[uuid::Uuid::new_v4()]}),
+            StatusCode::NOT_FOUND,
+        ),
+    ] {
+        let mut body = export_body();
+        body["scope"] = patch;
+        assert_eq!(
+            router
+                .clone()
+                .oneshot(export_mutation("/v1/exports", label, &grant, Some(body)))
+                .await
+                .unwrap()
+                .status(),
+            expected
+        );
+    }
+}
+#[tokio::test]
+async fn opaque_snapshot_cursors_reject_tampering_and_query_reuse() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let first = json_body(
+        router
+            .clone()
+            .oneshot(authenticated(
+                "GET",
+                &format!("/v1/audit/events?correlationId={CORRELATION}&pageSize=3"),
+                None,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let token = first["nextCursor"].as_str().unwrap();
+    for path in [
+        format!("/v1/audit/events?correlationId={CORRELATION}&pageSize=3&cursor=audit:999"),
+        format!("/v1/audit/events?kind=fill.recorded&pageSize=3&cursor={token}"),
+        format!("/v1/audit/evidence-chains/{CORRELATION}?pageSize=3&cursor={token}"),
+    ] {
+        assert_eq!(
+            router
+                .clone()
+                .oneshot(authenticated("GET", &path, None))
+                .await
+                .unwrap()
+                .status(),
+            StatusCode::UNPROCESSABLE_ENTITY
+        );
+    }
+    assert!(provider.audit_action_count("audit.search_accessed").await > 0);
+}
+#[tokio::test]
+async fn redaction_hashes_and_retention_are_enforced_by_business_calls() {
+    use sha2::{Digest, Sha256};
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let grant = recent_auth(&router).await;
+    let secret = "synthetic-account-12345678901234567890 Bearer SECRET_TOKEN";
+    let mut body = export_body();
+    body["reason"] = json!(secret);
+    body["watermark"] = json!(secret);
+    let job = json_body(
+        router
+            .clone()
+            .oneshot(export_mutation(
+                "/v1/exports",
+                "redaction",
+                &grant,
+                Some(body),
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let audit = json_body(
+        router
+            .clone()
+            .oneshot(authenticated(
+                "GET",
+                "/v1/audit/events?kind=export.created",
+                None,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert!(!audit.to_string().contains(secret));
+    let entry = &audit["items"][0];
+    let canonical = quantos_core::canonical_json_bytes(&entry["redactedPayload"]).unwrap();
+    assert_eq!(
+        entry["payloadHash"],
+        format!("sha256:{:x}", Sha256::digest(canonical))
+    );
+    provider.advance_reference_time(Duration::days(31)).await;
+    provider.renew_reference_session().await;
+    assert_eq!(
+        router
+            .clone()
+            .oneshot(authenticated(
+                "GET",
+                &format!("/v1/exports/{}/download", job["exportId"].as_str().unwrap()),
+                None
+            ))
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::GONE
+    );
 }

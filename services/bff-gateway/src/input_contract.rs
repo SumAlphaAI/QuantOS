@@ -67,6 +67,14 @@ fn valid(schema: &Value, value: &Value) -> bool {
             {
                 return false;
             }
+            if schema["uniqueItems"] == true
+                && items
+                    .iter()
+                    .enumerate()
+                    .any(|(i, v)| items[..i].contains(v))
+            {
+                return false;
+            }
             if items.iter().any(|v| !valid(&schema["items"], v)) {
                 return false;
             }
