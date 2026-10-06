@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "cacheInitiallyEmpty": true,
+  "compiledTargetInitiallyEmpty": true,
+  "prefetch": "cargo fetch --locked",
+  "temporaryProbeNetworkOverrides": {
+    "CARGO_HTTP_MULTIPLEXING": "false",
+    "CARGO_HTTP_TIMEOUT": "30",
+    "CARGO_NET_RETRY": "1"
+  },
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib"
+      ],
+      "executedAt": "2026-10-06T04:13:12.720738+00:00",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "quantos-ci-5da474e-cold-lib-after.log",
+      "sha256": "sha256:1f9e7907da2af345e655855cb3b465400892f5790cfd185ea8e4791216be8fee"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider"
+      ],
+      "executedAt": "2026-10-06T04:13:33.981887+00:00",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "quantos-ci-5da474e-cold-reference-after.log",
+      "sha256": "sha256:43772fcef79611910a91c95771d0b7f5d6c2cd7cbded671223f6ff4defdcfd39"
+    }
+  ]
+}

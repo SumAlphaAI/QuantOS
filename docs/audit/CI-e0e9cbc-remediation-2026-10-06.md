@@ -1,5 +1,7 @@
 # e0e9cbc CI 后续故障整改与复验报告
 
+> 历史修复快照：5da474e 推送后的新 CI 失败及当前复验见[最新整改报告](CI-5da474e-remediation-2026-10-06.md)。下文保存本轮原结论，固定路径 G0 的旧原件见[独立归档](evidence/frontend-g0-fep0-remediation-20261006-before-ci-5da474e/archive-index.json)。
+
 ## 一、任务完成概况
 
 2026-10-06 复核已推送提交 `e0e9cbc` 的 GitHub Actions：[12 条运行](evidence/ci-e0e9cbc-remediation-20261006/github-e0e9cbc-final.json)全部结束，10 成功、2 失败；定位并修复两条失败运行的两个根因，并修复完整复验发现的一项新增依赖漏洞。修复源码冻结于 `14bf36cbe9f1730f45f3bb1993e5c69fff4b2445`，完整 F0/A1 **87/87 PASS**；G0 **16/16**、FEP-0 **2/2** 工程检查 PASS，A2 当前内容门禁 READY。当前阶段台账共 **22 READY、2 BLOCKED**；两个 BLOCKED 均来自新 G0 范围的项目用户确认待办。修复提交未推送，最新 hosted CI **NOT_RUN**，formal/RELEASE 未批准。
@@ -19,7 +21,7 @@
 | F02 全套正负控制 | 21/21 PASS；[原件](evidence/ci-e0e9cbc-remediation-20261006/f02-negative.log) |
 | 回执策略回归 | 43/43 PASS；[原件](evidence/ci-e0e9cbc-remediation-20261006/receipt-negative.log) |
 | 完整 F0/A1 | 87/87 PASS，21 节点 READY；[执行明细](evidence/provider-a1-remediation-20261004/ci-submodule-rls-sca-20261006/execution-results.json) |
-| G0 工程 | 16/16 PASS，BLOCKED 仅限 ProjectUser 当前范围待确认；[manifest](evidence/frontend-g0-fep0-remediation-20261005/g0.json) |
+| G0 工程 | 16/16 PASS，BLOCKED 仅限 ProjectUser 当前范围待确认；[manifest](evidence/frontend-g0-fep0-remediation-20261006-before-ci-5da474e/g0.json) |
 | A2 本地及内容回执 | 14 Rust lib（另 1 F09 ignored）、12 reference、29 consumer；8 mutation 拒绝、22 契约负向、14 阶段正负、3 transport PASS；[manifest](evidence/bff-fe-001-remediation-20261005/ci-submodule-rls-sca-20261006/a2.json) |
 | FEP-0 聚合工程 | 2/2 PASS，消费 7 READY 与 1 G0 工程 PASS/BLOCKED；[manifest](evidence/fep0-remediation-20261005/ci-submodule-rls-sca-20261006/fep0.json) |
 

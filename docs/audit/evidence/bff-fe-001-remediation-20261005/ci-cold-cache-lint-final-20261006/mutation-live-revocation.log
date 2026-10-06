@@ -1,0 +1,45 @@
+
+running 15 tests
+test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... ignored, Supabase target test: run explicitly with QUANTOS_RUN_F09_POSTGRES_TESTS=1
+test live::settings_policy::tests::first_factor_cannot_create_after_any_verified_factor_exists ... ok
+test live::settings_policy::tests::current_factor_status_overrides_cancel_checkpoint ... ok
+test live::settings_policy::tests::live_challenge_has_five_minute_lifetime ... ok
+test live::settings_policy::tests::last_verified_factor_cannot_be_removed_even_with_unverified_siblings ... ok
+test live::settings_policy::tests::malformed_factor_state_cannot_be_treated_as_unenrolled ... ok
+test live::settings_policy::tests::revoked_delivery_is_terminal ... FAILED
+test live::settings_policy::tests::live_csrf_requires_bound_cookie_and_header ... ok
+test live::settings_policy::tests::verification_time_comes_from_auth_facts_not_session_expiry ... ok
+test live::tests::live_session_requires_opaque_cookie_and_exact_origin ... ok
+test live::tests::live_errors_hide_account_existence_and_include_correlation ... ok
+test live::cors_tests::trusted_browser_can_read_contract_response_headers ... ok
+test live::cors_tests::untrusted_origin_and_undeclared_headers_are_not_allowed ... ok
+test live::cors_tests::trusted_recent_auth_preflight_allows_contract_headers ... ok
+test live::f09_trace_tests::auth_write_returns_queryable_correlation_trace ... ok
+
+failures:
+
+---- live::settings_policy::tests::revoked_delivery_is_terminal stdout ----
+
+thread 'live::settings_policy::tests::revoked_delivery_is_terminal' (847540) panicked at services/bff-gateway/src/live/settings_policy.rs:197:9:
+assertion failed: !delivery_authorized(false)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    live::settings_policy::tests::revoked_delivery_is_terminal
+
+test result: FAILED. 13 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Compiling bff-gateway v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-a2-mutants-BmtI5W/services/bff-gateway)
+warning: unused variable: `authorized`
+  --> services/bff-gateway/src/live/settings_policy.rs:76:35
+   |
+76 | pub(super) fn delivery_authorized(authorized: bool) -> bool {
+   |                                   ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_authorized`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `bff-gateway` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.79s
+     Running unittests src/lib.rs (target/bff-fe-001-mutants/debug/deps/bff_gateway-68c4eb783de3751f)
+error: test failed, to rerun pass `-p bff-gateway --lib`

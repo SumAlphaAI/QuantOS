@@ -1,0 +1,65 @@
+{
+  "schema": "quantos-same-source-reexecution/v1",
+  "sourceCommit": "dd8672c81981c0db2a59b572197382fc849cafa4",
+  "originalResults": "docs/audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-final-20261006/execution-results.json",
+  "originalResultsSha256": "sha256:89b68d2cd98b62ceb5e98b5d0e0b27a3e46b55b914963be1063cb237b2e0f795",
+  "functionalInputsUnchanged": true,
+  "comparedToCleanCommit": "dd8672c81981c0db2a59b572197382fc849cafa4",
+  "reusedPasses": 85,
+  "reexecutedChecks": [
+    {
+      "id": "f01-lint",
+      "previous": {
+        "id": "f01-lint",
+        "command": [
+          "make",
+          "lint"
+        ],
+        "exitCode": 0,
+        "status": "PASS",
+        "executedAt": "2026-10-06T04:05:34.719Z",
+        "log": "docs/audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-final-20261006/logs/f01-lint.log",
+        "logSha256": "sha256:eba4d4cbd5a1a593150a17f203ea853269c19b6bd3f6d98899da519d82365a42"
+      },
+      "rerun": {
+        "id": "f01-lint",
+        "command": [
+          "make",
+          "lint"
+        ],
+        "executedAt": "2026-10-06T04:50:14.895Z",
+        "exitCode": 0,
+        "status": "PASS",
+        "logSha256": "sha256:8b100f9b86d3be8adca2f6494a7a8fda82cfa351a6883c680f3fcd02b3ff8d31"
+      },
+      "reason": "New audit-only producer formatted; all 21 functional input snapshots equal clean committed dd8672c."
+    },
+    {
+      "id": "f08-functional",
+      "previous": {
+        "id": "f08-functional",
+        "command": [
+          "make",
+          "f08-check"
+        ],
+        "exitCode": 2,
+        "status": "FAIL",
+        "executedAt": "2026-10-06T04:44:16.402Z",
+        "log": "docs/audit/evidence/provider-a1-remediation-20261004/ci-cold-cache-lint-final-20261006/logs/f08-functional.log",
+        "logSha256": "sha256:9d7addbad201560cc4b07ca0961f2cb2bea4ddf107cb0a1fbbac257764f6d4ce"
+      },
+      "rerun": {
+        "id": "f08-functional",
+        "command": [
+          "make",
+          "f08-check"
+        ],
+        "executedAt": "2026-10-06T04:48:10.096Z",
+        "exitCode": 0,
+        "status": "PASS",
+        "logSha256": "sha256:4d9fd118c7ce9d4551e77aaec99bbc7f275419bb58341b936e4da0ecfdecd9c0"
+      },
+      "reason": "New audit-only producer formatted; all 21 functional input snapshots equal clean committed dd8672c."
+    }
+  ]
+}
