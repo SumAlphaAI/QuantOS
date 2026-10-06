@@ -1,0 +1,102 @@
+verify	Validate migration baseline	﻿2026-10-06T00:47:08.2821767Z ##[group]Run make db-migration-check
+verify	Validate migration baseline	2026-10-06T00:47:08.2822077Z ^[[36;1mmake db-migration-check^[[0m
+verify	Validate migration baseline	2026-10-06T00:47:08.2880588Z shell: /usr/bin/bash -e {0}
+verify	Validate migration baseline	2026-10-06T00:47:08.2880816Z env:
+verify	Validate migration baseline	2026-10-06T00:47:08.2880985Z   QUANTOS_SKIP_ENV: 1
+verify	Validate migration baseline	2026-10-06T00:47:08.2881268Z   F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres
+verify	Validate migration baseline	2026-10-06T00:47:08.2881650Z   GITLEAKS_BIN: /home/runner/work/QuantOS/QuantOS/artifacts/tools/gitleaks
+verify	Validate migration baseline	2026-10-06T00:47:08.2882005Z   QUANTOS_BFF_BASE: f764bc677a1655481a7f5e9e1467221ee962df82
+verify	Validate migration baseline	2026-10-06T00:47:08.2882324Z   QUANTOS_PROTO_BASE: f764bc677a1655481a7f5e9e1467221ee962df82
+verify	Validate migration baseline	2026-10-06T00:47:08.2882639Z   QUANTOS_SOURCE_SHA: e0e9cbc649ffd610cfa5ee7e576117ce70c6bae5
+verify	Validate migration baseline	2026-10-06T00:47:08.2882910Z   CARGO_TERM_COLOR: always
+verify	Validate migration baseline	2026-10-06T00:47:08.2883116Z   NEXT_PUBLIC_QUANTOS_ENV: local-mock
+verify	Validate migration baseline	2026-10-06T00:47:08.2883372Z   NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai
+verify	Validate migration baseline	2026-10-06T00:47:08.2883665Z   NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: http://localhost:3190
+verify	Validate migration baseline	2026-10-06T00:47:08.2884005Z   NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: http://localhost:4010
+verify	Validate migration baseline	2026-10-06T00:47:08.2884316Z   NEXT_PUBLIC_QUANTOS_OIDC_ISSUER: https://mock.idp.local
+verify	Validate migration baseline	2026-10-06T00:47:08.2884609Z   NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: quantos-terminal-ci
+verify	Validate migration baseline	2026-10-06T00:47:08.2884953Z   NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: http://localhost:3190/auth/callback
+verify	Validate migration baseline	2026-10-06T00:47:08.2885292Z   NEXT_PUBLIC_QUANTOS_DEFAULT_MODE: paper
+verify	Validate migration baseline	2026-10-06T00:47:08.2885529Z   NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: true
+verify	Validate migration baseline	2026-10-06T00:47:08.2885765Z   NEXT_PUBLIC_QUANTOS_OBS_ENABLED: false
+verify	Validate migration baseline	2026-10-06T00:47:08.2886021Z   NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET: off
+verify	Validate migration baseline	2026-10-06T00:47:08.2886282Z   CARGO_HOME: /home/runner/.cargo
+verify	Validate migration baseline	2026-10-06T00:47:08.2886494Z   CARGO_INCREMENTAL: 0
+verify	Validate migration baseline	2026-10-06T00:47:08.2886727Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.10/x64
+verify	Validate migration baseline	2026-10-06T00:47:08.2887061Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.10/x64/lib/pkgconfig
+verify	Validate migration baseline	2026-10-06T00:47:08.2887601Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.10/x64
+verify	Validate migration baseline	2026-10-06T00:47:08.2887917Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.10/x64
+verify	Validate migration baseline	2026-10-06T00:47:08.2888228Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.10/x64
+verify	Validate migration baseline	2026-10-06T00:47:08.2888525Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.10/x64/lib
+verify	Validate migration baseline	2026-10-06T00:47:08.2888827Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+verify	Validate migration baseline	2026-10-06T00:47:08.2889068Z ##[endgroup]
+verify	Validate migration baseline	2026-10-06T00:47:08.2975755Z bash ./scripts/check-migration-filenames.sh
+verify	Validate migration baseline	2026-10-06T00:47:08.3535995Z Supabase migration filenames are valid.
+verify	Validate migration baseline	2026-10-06T00:47:08.3537119Z bash ./scripts/check-rls-baseline.sh
+verify	Validate migration baseline	2026-10-06T00:47:08.3859552Z file:///home/runner/work/QuantOS/QuantOS/scripts/check-rls-baseline.mjs:28
+verify	Validate migration baseline	2026-10-06T00:47:08.3861065Z for(const [name,t] of tables)if(!t.enabled||!t.force||!t.policies.size)throw new Error(`RLS_BASELINE: ${name} requires final ENABLE, FORCE and CREATE POLICY`);
+verify	Validate migration baseline	2026-10-06T00:47:08.3861976Z                                                                              ^
+verify	Validate migration baseline	2026-10-06T00:47:08.3862348Z 
+verify	Validate migration baseline	2026-10-06T00:47:08.3862942Z Error: RLS_BASELINE: quantos.bff_profiles requires final ENABLE, FORCE and CREATE POLICY
+verify	Validate migration baseline	2026-10-06T00:47:08.3864084Z     at file:///home/runner/work/QuantOS/QuantOS/scripts/check-rls-baseline.mjs:28:78
+verify	Validate migration baseline	2026-10-06T00:47:08.3864741Z     at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+verify	Validate migration baseline	2026-10-06T00:47:08.3865375Z     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+verify	Validate migration baseline	2026-10-06T00:47:08.3866082Z     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+verify	Validate migration baseline	2026-10-06T00:47:08.3866452Z 
+verify	Validate migration baseline	2026-10-06T00:47:08.3866564Z Node.js v24.12.0
+verify	Validate migration baseline	2026-10-06T00:47:08.3881457Z make: *** [Makefile:395: db-migration-check] Error 1
+verify	Validate migration baseline	2026-10-06T00:47:08.3890282Z ##[error]Process completed with exit code 2.
+verify	Archive F02 validation evidence	﻿2026-10-06T00:47:08.3970261Z ##[group]Run actions/upload-artifact@v4
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3970507Z with:
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3970685Z   name: f02-validation-evidence
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3970915Z   path: artifacts/f02/
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3971112Z   if-no-files-found: error
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3971346Z   compression-level: 6
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3971527Z   overwrite: false
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3971711Z   include-hidden-files: false
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3971917Z env:
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3972081Z   QUANTOS_SKIP_ENV: 1
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3972340Z   F02_PG_ADMIN_URL: postgresql://postgres@127.0.0.1:5432/postgres
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3972725Z   GITLEAKS_BIN: /home/runner/work/QuantOS/QuantOS/artifacts/tools/gitleaks
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3973077Z   QUANTOS_BFF_BASE: f764bc677a1655481a7f5e9e1467221ee962df82
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3973393Z   QUANTOS_PROTO_BASE: f764bc677a1655481a7f5e9e1467221ee962df82
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3973728Z   QUANTOS_SOURCE_SHA: e0e9cbc649ffd610cfa5ee7e576117ce70c6bae5
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3974016Z   CARGO_TERM_COLOR: always
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3974252Z   NEXT_PUBLIC_QUANTOS_ENV: local-mock
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3974513Z   NEXT_PUBLIC_SITE_ORIGIN: https://sumalpha.ai
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3974814Z   NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: http://localhost:3190
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3975149Z   NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: http://localhost:4010
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3975493Z   NEXT_PUBLIC_QUANTOS_OIDC_ISSUER: https://mock.idp.local
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3975810Z   NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: quantos-terminal-ci
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3976191Z   NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: http://localhost:3190/auth/callback
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3976550Z   NEXT_PUBLIC_QUANTOS_DEFAULT_MODE: paper
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3976814Z   NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: true
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3977081Z   NEXT_PUBLIC_QUANTOS_OBS_ENABLED: false
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3977557Z   NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET: off
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3977863Z   CARGO_HOME: /home/runner/.cargo
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3978098Z   CARGO_INCREMENTAL: 0
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3978360Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.10/x64
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3978718Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.10/x64/lib/pkgconfig
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3979056Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.10/x64
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3979387Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.10/x64
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3979688Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.10/x64
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3980008Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.10/x64/lib
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3980308Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.3980566Z ##[endgroup]
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.5506197Z (node:32238) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.5506912Z (Use `node --trace-deprecation ...` to show where the warning was created)
+verify	Archive F02 validation evidence	2026-10-06T00:47:08.5522814Z ##[error]No files were found with the provided path: artifacts/f02/. No artifacts will be uploaded.
+verify-download	Require the event-specific download verification	﻿2026-10-06T00:47:20.1843464Z ##[group]Run if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.1845330Z ^[[36;1mif [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then^[[0m
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.1846390Z ^[[36;1m  test "$MAIN_RESULT" = success^[[0m
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.1847180Z ^[[36;1melif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then^[[0m
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.1847989Z ^[[36;1m  test "$PR_RESULT" = success^[[0m
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.1848585Z ^[[36;1melse^[[0m
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.1849052Z ^[[36;1m  exit 1^[[0m
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.1849523Z ^[[36;1mfi^[[0m
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.2729651Z shell: /usr/bin/bash -e {0}
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.2730650Z env:
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.2731210Z   MAIN_RESULT: skipped
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.2731783Z   PR_RESULT: skipped
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.2732298Z ##[endgroup]
+verify-download	Require the event-specific download verification	2026-10-06T00:47:20.2968858Z ##[error]Process completed with exit code 1.

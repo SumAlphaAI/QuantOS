@@ -71,7 +71,7 @@ for(const [name,mutate]of [
  ['only two builds',r=>r.runs.pop()],['missing Python build',r=>r.runs[1].commands.pop()],['failed command',r=>r.runs[2].commands[0].exitCode=1],['different output digest',r=>r.runs[1].combinedSha256='c'.repeat(64)],['substituted inventory',r=>r.runs[0].rust.files[0].sha256='d'.repeat(64)],['dirty source',r=>r.source.dirty=true],['old source',r=>r.source.commit='e'.repeat(40)]
 ])test('reproducibility rejects '+name,()=>{const r=reproducibleFixture();mutate(r);assert.throws(()=>validateReproducibility(r,'a'.repeat(40)));});
 test('development policy retains explicit build, coverage, volume and target storage obligations',()=>{
- const p=policy();for(const [node,checks]of [['CORE:F01',['f01-reproducibility','f01-lint','f01-test']],['CORE:F04',['f04-branch-coverage']],['CORE:F05',['f05-volume','storage-database','storage-target','rls-target']]])for(const check of checks)assert(p.nodes[node].checks.includes(check),node+' missing '+check);
+ const p=policy();for(const [node,checks]of [['CORE:F02',['f02-migration-preflight','f02-negative','f02-database']],['CORE:F01',['f01-reproducibility','f01-lint','f01-test']],['CORE:F04',['f04-branch-coverage']],['CORE:F05',['f05-volume','storage-database','storage-target','rls-target']]])for(const check of checks)assert(p.nodes[node].checks.includes(check),node+' missing '+check);
  assert(p.checks['f05-volume'].database);assert(p.checks['storage-target'].database);assert(!p.excluded.some(e=>/volume|10000|10,000|three.*build/i.test(e)));
 });
 

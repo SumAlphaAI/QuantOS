@@ -802,6 +802,14 @@
       ],
       "staticOnly": true,
       "marker": "fail 0"
+    },
+    "f02-migration-preflight": {
+      "command": [
+        "make",
+        "db-migration-check"
+      ],
+      "marker": "RLS static preflight passed",
+      "staticOnly": true
     }
   },
   "nodes": {
@@ -1105,6 +1113,7 @@
         "apps/terminal-desktop/src-tauri/Cargo.lock"
       ],
       "checks": [
+        "f02-migration-preflight",
         "f02-negative",
         "f02-secrets",
         "f02-license",

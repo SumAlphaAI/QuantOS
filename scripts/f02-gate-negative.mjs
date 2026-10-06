@@ -51,6 +51,51 @@ test('RLS baseline rejects policy deletion and late disabling with recovery',t=>
  }
  fs.writeFileSync(f,good.replace('create policy tenant on quantos.example using (true)','create index tenant on quantos.example(id)'));reject(scan(),/RLS_BASELINE/);
 });
+test('RLS preflight recognizes the actual ten-table A2 migration and rejects incomplete loops',t=>{
+ const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});
+ const f=path.join(dir,'20261003090000_bff_a2_identity_settings.sql');
+ const good=fs.readFileSync(path.join(repo,'supabase/migrations/20261003090000_bff_a2_identity_settings.sql'),'utf8');
+ const scan=()=>run('node',[path.join(repo,'scripts/check-rls-baseline.mjs')],repo,{QUANTOS_GATE_ROOT:d});
+ fs.writeFileSync(f,good);const positive=scan();pass(positive);assert.match(positive.stdout,/passed for 10 tables/);
+ for(const removed of [
+  "execute format('alter table quantos.%I enable row level security', item);",
+  "execute format('alter table quantos.%I force row level security', item);",
+  "execute format('create policy bff_role_only on quantos.%I for all to quantos_bff using (true) with check (true)', item);",
+  "'bff_profiles',"
+ ]) {assert(good.includes(removed));fs.writeFileSync(f,good.replace(removed,''));reject(scan(),/RLS_BASELINE/);}
+ fs.writeFileSync(f,good);pass(scan());
+});
+test('RLS literal loops preserve late disabling, NO FORCE and policy deletion',t=>{
+ const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});
+ const f=path.join(dir,'20260101000000_baseline.sql');
+ const good='create table quantos.example(id int); alter table quantos.example enable row level security; alter table quantos.example force row level security; create policy tenant on quantos.example using (true);';
+ const loop=ddl=>`do $rls$ declare item text; begin foreach item in array array['example'] loop execute format('${ddl}', item); end loop; end $rls$;`;
+ const scan=()=>run('node',[path.join(repo,'scripts/check-rls-baseline.mjs')],repo,{QUANTOS_GATE_ROOT:d});
+ for(const ddl of ['alter table quantos.%I disable row level security','alter table quantos.%I no force row level security','drop policy tenant on quantos.%I']) {
+  fs.writeFileSync(f,good+loop(ddl));reject(scan(),/RLS_BASELINE/);fs.writeFileSync(f,good);pass(scan());
+ }
+});
+test('RLS preflight cannot count conditional loops, comments, literals or function bodies as execution',t=>{
+ const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});
+ const f=path.join(dir,'20260101000000_baseline.sql');
+ const body="declare item text; begin foreach item in array array['example'] loop execute format('alter table quantos.%I enable row level security', item); execute format('alter table quantos.%I force row level security', item); execute format('create policy tenant on quantos.%I using (true)', item); end loop; end";
+ const scan=()=>run('node',[path.join(repo,'scripts/check-rls-baseline.mjs')],repo,{QUANTOS_GATE_ROOT:d});
+ const prefix='create table quantos.example(id int);';
+ for(const fake of [
+  `/* do $$ ${body} $$; */`, `select 'do $$ ${body.replaceAll("'","''")} $$;';`,
+  `create function ignored() returns void language plpgsql as $$ ${body} $$;`,
+  `do $$ ${body.replace('loop execute','loop if false then execute').replace('end loop;','end if; end loop;')} $$;`,
+  `do $$ ${body.replace("array['example']","array[]")} $$;`,
+  `do $$ ${body.replace('text;','text; unused text;')} $$;`,
+  `do $$ ${body.replace(', item)',', upper(item))')} $$;`
+ ]) {fs.writeFileSync(f,prefix+fake);reject(scan(),/RLS_BASELINE/);}
+});
+test('quoted SQL examples inside expanded policy expressions cannot enable RLS',t=>{
+ const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});
+ const f=path.join(dir,'20260101000000_baseline.sql');
+ fs.writeFileSync(f,"create table quantos.example(id int); alter table quantos.example force row level security; do $$ declare item text; begin foreach item in array array['example'] loop execute format('create policy tenant on quantos.%I using (''; alter table quantos.example enable row level security;'' is not null)', item); end loop; end $$;");
+ reject(run('node',[path.join(repo,'scripts/check-rls-baseline.mjs')],repo,{QUANTOS_GATE_ROOT:d}),/RLS_BASELINE/);
+});
 test('migration filename control, rejection and recovery',t=>{
  const d=fixture(t),dir=path.join(d,'supabase/migrations');fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(path.join(dir,'20260101000000_valid.sql'),'select 1;');
  const scan=()=>run('bash',[path.join(repo,'scripts/check-migration-filenames.sh')],repo,{QUANTOS_GATE_ROOT:d});pass(scan());
