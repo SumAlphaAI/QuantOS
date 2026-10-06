@@ -1,0 +1,24 @@
+
+running 1 test
+test redaction_hashes_and_retention_are_enforced_by_business_calls ... FAILED
+
+failures:
+
+---- redaction_hashes_and_retention_are_enforced_by_business_calls stdout ----
+
+thread 'redaction_hashes_and_retention_are_enforced_by_business_calls' (2299170) panicked at services/bff-gateway/tests/audit_export_provider.rs:691:5:
+assertion `left == right` failed
+  left: String("sha256:000000000000000000000000000000000000000000000000000000000000002a")
+ right: "sha256:7f5c3ae2ca81d80c68b7d78df7e488f748c5b87cfb6d8bbf7958a84cbacf90c3"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    redaction_hashes_and_retention_are_enforced_by_business_calls
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.01s
+
+   Compiling bff-gateway v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-audit-mutants-HCFC87/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.54s
+     Running tests/audit_export_provider.rs (target/bff-fe-007-mutants/debug/deps/audit_export_provider-b58c41578c8e3ee4)
+error: test failed, to rerun pass `-p bff-gateway --test audit_export_provider`

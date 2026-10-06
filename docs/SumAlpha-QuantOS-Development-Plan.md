@@ -1,17 +1,19 @@
-> 2026-10-06：BFF-FE-007 新增持久审计/导出与迁移，共享功能输入已改变，F0/A1 当前回执按内容重评；历史批准及 hosted CI 不迁移到本轮源码。
+> 2026-10-07：BFF-FE-007 持久审计/导出整改完成，F0/A1 基础前置已实际刷新 READY，含 Supabase 执行；当前 23 READY、2 BLOCKED（G0 新范围确认及 FEP-0）。旧批准和 hosted CI 不迁移到本轮源码。见[整改结论](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。
 
 # SumAlpha QuantOS 可执行开发计划
 
-> 2026-10-06 当前范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当前 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 已通过，后续文档提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
+> 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
 > 版本：3.32
-> 更新时间：2026-10-06
+> 更新时间：2026-10-07
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.32`：BFF-FE-007 原 9 项问题关闭、31/31 控制点通过；F0/A1 当前 87 个独立命令组实际通过，21 个基础节点 READY，身份/审计 A2 严格内容回执刷新。完整 F05 八项独立重跑与原执行超时记录均保留；G0/FEP-0 工程通过，新增范围用户确认待办，当前 23 READY、2 BLOCKED。历史批准与新 hosted CI/RELEASE 边界独立。见[整改复验报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。
 
 - `3.31`：项目用户明确确认当前 G0 文稿，原答复/文稿/范围摘要保存并核验；原 PENDING 工程回执保留，G0 严格 READY。确认后实际重评 FEP-0 两项 PASS，八依赖及其 23 节点闭包 READY，连同 A2 当前共 24 READY、0 BLOCKED。完整 87/16 项实际工程回执仍绑定原冻结源码，formal/RELEASE 独立。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
@@ -310,7 +312,7 @@ flowchart TD
 - task_id: `F01`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:9ccbcb1947e7518a6ec516f63678ab219bc4bd02803187213ffe7ecb06e60354","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f01.json"]}
 - depends_on: []
 - development_status: `COMPLETED`
 - 状态范围：2026-09-17 再次复核通过；20/20（100%）检查点、3/3 量化验收通过，当前未解决问题为 0。适用源码与环境边界见复审报告；F0 总体 Gate 不随本项放行。
@@ -339,7 +341,7 @@ flowchart TD
 - task_id: `F02`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:6d1f8c132ea1bd6b67c5a7e38c9732a146bed60d68427a9572c0b1b58ea1418f","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f02.json"]}
 - depends_on: ["CORE:F01"]
 - development_status: `COMPLETED`
 - 状态范围：2026-09-26 F02-A11 全部关闭；12/12原问题、24/24检查点通过。验收基线为main `bb4ef3c95753c1db15c7f2e2ba3ae22abb7a0b1f`，8/8 required checks、7/7主线工作流、正式签名与独立下载验签全部成功；文档归档提交不自动继承该源码回执，F0总体不随本项放行。
@@ -367,7 +369,7 @@ flowchart TD
 - task_id: `F03`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:041ff6ab3d9d9b74e799031a9388ad48b270248c4641c95008b09276c93de5ac","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f03.json"]}
 - depends_on: ["CORE:F01"]
 - development_status: `COMPLETED`
 - 状态范围：2026-09-20原六项问题及C12全部关闭，20/20（100%）检查点、4/4量化标准通过。c3be28d独立协议验收#2成功，同SHA制品/日志摘要和92份生成文件哈希均核验一致；不代表F02 A11或其他CI通过。
@@ -393,7 +395,7 @@ flowchart TD
 - task_id: `F04`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7afc9e704bc0245b1a64aefc32f52f686d92602c2ee6408aee20bd1721cfe0ac","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f04.json"]}
 - depends_on: ["CORE:F03"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f04)
@@ -418,7 +420,7 @@ flowchart TD
 - task_id: `F05`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7243fa9588b18fec55f448f55ce7c6a853c410c1427b02d9f0704a522ba67c99","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f05.json"]}
 - depends_on: ["CORE:F03", "CORE:F04"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f05)
@@ -444,7 +446,7 @@ flowchart TD
 - task_id: `F06`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:bf19322d46e76d94b9cb1ec041acb9365d27c414be3927311060103afd15cc5c","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f06.json"]}
 - depends_on: ["CORE:F03", "CORE:F05"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f06)
@@ -471,7 +473,7 @@ flowchart TD
 - task_id: `F07`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:d7868b2b9ab2a455a0bdda01aa36255577f6a0bedd41679855621d2f81546557","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f07.json"]}
 - depends_on: ["CORE:F04", "CORE:F05", "CORE:F06"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f07)
@@ -498,7 +500,7 @@ flowchart TD
 - task_id: `F08`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:8468951ed2dd13a9f18e493a6b42cbef83bd0a243b76da9b690afe27a0db0a21","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f08.json"]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F07"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f08)
@@ -524,7 +526,7 @@ flowchart TD
 - task_id: `F09`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:5b0c72c26ac40a66a7a05dc1aab63ec3f224711f6a046c1db474c027315e1df6","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f09.json"]}
 - depends_on: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-f09)
@@ -551,7 +553,7 @@ flowchart TD
 - task_id: `TP01-A`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c480fcb7069fe3b85822eb42ebc3e667a426cefb6ccff8d5e5fcad3bf04cd01a","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-tp01-a.json"]}
 - depends_on: ["CORE:F01", "CORE:F02"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-a)
@@ -577,7 +579,7 @@ flowchart TD
 - task_id: `TP01-B`
 - task_type: `CORE`
 - acceptance_window: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e4fd6a474de98bf5c8438de42797ed75a90fd2ef7a6b620e95d39decec933fca","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-tp01-b.json"]}
 - depends_on: ["CORE:TP01-A", "CORE:F07"]
 - development_status: `COMPLETED`
 - review_entry: [GPT-6 Astra 复审入口](#review-tp01-b)
@@ -645,9 +647,11 @@ flowchart TD
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:6eca9a2ba4f49742f10a592910ab32bef1563bf02c245b17b00737a2f31a433d",
+    "evidence": [
+      "audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-gate-f0.json"
+    ]
   }
 }
 ```

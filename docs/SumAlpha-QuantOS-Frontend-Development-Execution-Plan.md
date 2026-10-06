@@ -1,17 +1,17 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 2026-10-06 BFF-FE-007 整改：新增 live 审计/私有导出与严格功能门禁；共享源码变化后，当前阶段回执重新执行，不沿用历史 G0 `09bcaf7f28d9` 范围批准或 hosted CI。历史确认原件保留。
+> 2026-10-07 BFF-FE-007 整改完成：原 9 项问题 CLOSED，31/31 控制点 PASS、六 API 实际 Supabase 复验及严格 DEVELOPMENT 门禁 READY；基础前置和身份 API 已刷新。新 G0 工程 PASS，新增范围待项目用户确认，G0/FEP-0 BLOCKED；历史 `09bcaf7f28d9` 确认及 hosted CI 不迁移。
 
 
 > 版本：3.36
-> 更新时间：2026-10-06
-> 状态：BFF-FE-007 整改后的当前内容门禁复验中；以各 task stage_gate 为准，PROVIDER:ALL 与 RELEASE 独立验收
+> 更新时间：2026-10-07
+> 状态：BFF-FE-007 DEVELOPMENT READY；当前 23 READY、2 BLOCKED（G0 新范围确认及 FEP-0）；PROVIDER:ALL 与 RELEASE 独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
 
-- `3.36`：补齐 BFF-FE-007 live 六 API、F05 主体隔离读模型、持久导出 worker/私有产物/原子一次性下载及范围、脱敏、完整性、分页、过期、consumer 与功能准入整改。原复审报告与失败尝试保留；当前源码和依赖的实际工程/目标回执重评，变更后的 G0 范围需项目用户确认。见[当前报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)与[runtime 说明](./BFF-FE-007-runtime.md)。
+- `3.36`：补齐 BFF-FE-007 live 六 API、F05 主体隔离读模型、持久导出 worker/私有产物/原子一次性下载及范围、脱敏、完整性、分页、过期、consumer 与功能准入整改。原复审报告与失败尝试保留；当前源码和依赖的实际工程/目标回执已复评通过；F0/A1 的 87 个独立命令组、身份 20 API 和 Audit 六 API 通过，G0 16 项及 FEP-0 两项工程检查通过，变更后的 G0 范围待项目用户确认。见[当前报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)与[runtime 说明](./BFF-FE-007-runtime.md)。
 
 - `3.35`：项目用户明确确认当前 G0 文稿，原答复/文稿/范围摘要保存并核验；原 PENDING 工程回执保留，G0 严格 READY。确认后实际重评 FEP-0 两项 PASS，八依赖及其 23 节点闭包 READY，连同 A2 当前共 24 READY、0 BLOCKED。完整 87/16 项实际工程回执仍绑定原冻结源码，formal/RELEASE 独立。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
@@ -205,7 +205,7 @@
 - task_id: `PRE-01`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:8c18a181588dada0e4cda3e8c7dc7aedc59fe0dd6a784a7f7def0d44bd4e9bfa","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-01.json"]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -224,7 +224,7 @@
 - task_id: `PRE-02`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:6ee0fc8da236782687468f108a2741c9e4a58a9db7295efeb4cf49b0d8adab80","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-02.json"]}
 - depends_on: ["PRE-01"]
 - core_prerequisites: []
 - closes_core: []
@@ -242,7 +242,7 @@
 - task_id: `PRE-03`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:6c8a47d5b739c667b225ccc96a4219a3f1b5ca8ebc579d4d2294bcd7dcac1202","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-03.json"]}
 - depends_on: ["PRE-02", "CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -260,7 +260,7 @@
 - task_id: `PRE-04`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:dfe99a6b0648521ab6efbac37bda10d4f5799eefd1615d1e1df0bcc0ee543a13","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-04.json"]}
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
 - core_prerequisites: ["CORE:F03", "CORE:F06"]
 - closes_core: []
@@ -278,7 +278,7 @@
 - task_id: `PRE-05`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4319f80d0bc2e3e9083a498dac0008aa1ae9f23df5fa83a0ffb6a329b56a2fa0","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-05.json"]}
 - depends_on: ["PRE-03", "PRE-04"]
 - core_prerequisites: []
 - closes_core: []
@@ -296,7 +296,7 @@
 - task_id: `PRE-06`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:17e9db8686eb05f230f79e7bf6a3934d5ef5bbad939c66a135797410e3728ff3","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-06.json"]}
 - depends_on: ["PRE-04", "PRE-05"]
 - core_prerequisites: []
 - closes_core: []
@@ -335,9 +335,11 @@
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:2f404b402bd769cffa63d125e05422b9b6616ba02a40ecb34fc95726b787563e",
+    "evidence": [
+      "audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/preparation-p0.json"
+    ]
   }
 }
 ```
@@ -396,7 +398,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7aef1dd9604908a3dfba92739696af643425b8cfd917ac357e21ab20dffdc35d","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-bff-fe-000.json"]}
 - depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -429,9 +431,11 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:5abf7d6c0279c897a33ee7ae656ff02182a1c425a9903e6eecbf3da0a5bb56dd",
+    "evidence": [
+      "audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/provider-a1.json"
+    ]
   }
 }
 ```
@@ -470,9 +474,11 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "BLOCKED",
+    "input_digest": "sha256:37ac815c24ee4588b4017ad10b532268d46c1403cbc28ccca1b3ebf5ac98feb1",
+    "evidence": [
+      "audit/evidence/frontend-g0-fep0-remediation-20261005/bff007-sharp-20261007/g0.json"
+    ]
   }
 }
 ```
@@ -483,7 +489,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `FEP-0`
 - task_type: `MILESTONE`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:a5d87c7320ef863bc960e92f1a81b9a6e8abc3f3b14546fae1ce8755462abde3","evidence":["audit/evidence/fep0-remediation-20261005/bff007-sharp-20261007/fep0.json"]}
 - depends_on: ["CORE-GATE:F0", "PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06", "FRONTEND-GATE:G0"]
 - core_prerequisites: ["CORE-GATE:F0"]
 - closes_core: []
@@ -505,7 +511,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `BFF-FE-001`
 - task_type: `PAGE_API`
 - iteration: `A2`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:9544dc25a2e347cdf6b814ca377f70a5c137a69eeee5d9ac1fa55c2f30c74dc1","evidence":["audit/evidence/bff-fe-001-remediation-20261005/bff007-sharp-20261007/a2.json"]}
 - depends_on: ["BFF-FE-000", "CORE:F06", "PROVIDER:A1"]
 - core_prerequisites: ["CORE:F06"]
 - closes_core: []
@@ -518,7 +524,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - 工程整改与复验：[当前复审结论](./audit/BFF-FE-001-comprehensive-review-2026-10-05.md)、[逐项关闭依据](./audit/BFF-FE-001-closed-findings-2026-10-05.md)、[2026-10-05 整改记录](./audit/BFF-FE-001-remediation-2026-10-05.md)。当前 API 1.5.0 / 62 operations / 52 schemas；reference 与实际 Supabase + 本机 live BFF 分别验证。staging 与签署仍按 FINAL 评审执行，PROVIDER:A2/G1 的正式复审状态由对应正式回执决定；功能准入另按 stage_gate 评估。
 - 阶段执行：`pnpm check:bff-fe-001` 为 local_contract；`pnpm check:bff-fe-001:development` 校验本任务源码/执行/目标证据及 BFF-FE-000、CORE:F06、PROVIDER:A1 的递归有效 READY 回执；正负门禁为 `pnpm test:bff-fe-001:development`。当前整改入口：[2026-10-05 问题关闭与复验](./audit/BFF-FE-001-remediation-2026-10-05.md)。
 
-当前功能复核（2026-10-05 / `f2283fa`）：原 2 高危、4 中危均 CLOSED；活动问题 0，24/24 控制点、20/20 API 满足，BFF-FE-001 DEVELOPMENT READY。目标证据源码内容一致，未重跑 Supabase；PROVIDER:A2/ALL 与 RELEASE 仍独立验收。
+历史功能复核（2026-10-05 / `f2283fa`）：原 2 高危、4 中危均 CLOSED；活动问题 0，24/24 控制点、20/20 API 满足，BFF-FE-001 DEVELOPMENT READY。目标证据源码内容一致，未重跑 Supabase；PROVIDER:A2/ALL 与 RELEASE 仍独立验收。
+
+当前依赖复验（2026-10-07）：共享 BFF/迁移改动后，BFF-FE-001 已重新执行实际 Supabase 身份/设置回归和清理，当前严格 DEVELOPMENT READY；见[新回执](./audit/evidence/bff-fe-001-remediation-20261005/bff007-sharp-20261007/a2.json)。旧源码回执保留历史。
 
 <a id="task-bff-fe-007"></a>
 ##### BFF-FE-007：Audit 与导出 API
@@ -526,7 +534,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `BFF-FE-007`
 - task_type: `PAGE_API`
 - iteration: `A2`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:07150c4b8385de7ddff34b6f5f7cd64fa0e32e68e585a443740fcd4b6e75371c","evidence":["audit/evidence/bff-fe-007-remediation-20261006/final-sharp/development.json"]}
 - depends_on: ["BFF-FE-001", "CORE:F05", "PROVIDER:A1"]
 - core_prerequisites: ["CORE:F05"]
 - closes_core: []
@@ -536,6 +544,8 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - 领域接口背景：F05/X06 有审计账本目标，未定义 Explorer 搜索、证据链和安全导出页面 API
 - 覆盖契约/页面：C10；P04/P07/P09–P14/P22/P23
 - 目标阶段与验收：FEP-5/G5：功能联调验证 correlation ID 证据链完整、越权/过期下载拒绝和导出全过程审计；≤5 分钟还原在 RELEASE 的目标数据规模下验收，开发/联调记录基线
+
+工程整改与复验（2026-10-07）：原 1 阻塞、1 高危、7 中危全部 CLOSED；活动问题 0，31/31 控制点 PASS。六 live API、F05 读模型与身份桥接、持久 worker/私有 Storage、真实三格式/一次性下载、范围/脱敏/完整性/分页/retention 与全过程审计实测通过；当前严格 DEVELOPMENT READY。见[当前复审报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)、[功能回执](./audit/evidence/bff-fe-007-remediation-20261006/final-sharp/development.json)及[runtime 说明](./BFF-FE-007-runtime.md)。`pnpm check:bff-fe-007:development` 严格校验当前输入、依赖、业务语义/变异及冻结源码目标回执；`pnpm check:bff-fe-007` 仅为 local contract。consumer 十页面联调、五分钟目标规模还原、staging/hosted CI 与 RELEASE 仍独立验收。
 
 <a id="acceptance-provider-a2"></a>
 ##### PROVIDER:A2：验收检查点
