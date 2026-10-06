@@ -1,0 +1,531 @@
+{
+  "schema": "quantos-bff-audit-live/v1",
+  "sourceCommit": "5a8f3969be5951cc7bf57ca4ef4a64add36c45a4",
+  "sourceMatchesCommit": true,
+  "status": "PASS",
+  "sourceHashes": {
+    "services/bff-gateway/src/audit_core.rs": "5879b6e56c6db79acffdedeb1cd1916740c43910dc8ef1d0dc5d6eef4eff200a",
+    "services/bff-gateway/src/lib.rs": "92329179c5525fdab5538b653d6e0705500d6492b8694b54abd221be6255f455",
+    "services/bff-gateway/src/input_contract.rs": "55e8df4b65e09402a6414364be468be36528f1fe5d238a85b668062abf6bfcb6",
+    "services/bff-gateway/src/live/audit.rs": "706e4057cce139b05e26e586abca8b788232ff0c08523aba6b46bf42b9fa2b05",
+    "services/bff-gateway/src/live.rs": "4366179c1ff3fcde4029b869d2cad1a896d36f37ad7bff618f09ef0fb3316090",
+    "services/bff-gateway/src/live/settings.rs": "5142e2d15b3f994dac314061cd4f07475a68e668f8dde88cbb77f85238758e6b",
+    "supabase/migrations/20261006100000_bff_audit_exports.sql": "4a301bce609cbe89ca94d7be04684ca79dc6cf6da3667e65b46182d0059b51b6",
+    "supabase/migrations/20261006110000_bff_audit_scope_indexes.sql": "b85a7c682d10b945c12970e8ffa56c547afa4974717edc958b1181d5f013ffa2",
+    "supabase/migrations/20261006120000_bff_domain_audit_read_model.sql": "8de66d2d4f594d28e2cf20d0e1ded718ea617104fc57a4be51baebebb546def0",
+    "supabase/migrations/20261006130000_bff_settings_audit_bridge.sql": "392ae4a82bd92fdf657c9968562177fb116155dc18771126b0dd81b649d4b533",
+    "supabase/migrations/20261006140000_bff_audit_causal_roots.sql": "3fb516b40d0fc31a1e6b9a25fdd5ae586c7aa90645ec0275bf9b878cda5282fb",
+    "bff/openapi/quantos-bff.v1.yaml": "e783bcd0fc250ca8d458d4c4a0e48b9b000ba71dd72bd66e3b92f1020f87b0a8",
+    "scripts/test-bff-fe-007-live.mjs": "504ed4ed7c6f6daada1dbbb8e1e134e5a4e90e12daf8a0d491edefe7676d4a9b"
+  },
+  "fixture": "75322dc8-a29f-487b-9923-75fd187f30f7",
+  "assertions": [
+    "identity-audit-bridged-to-f05",
+    "identity-audit-causal-root",
+    "configured-scope-context",
+    "live-six-operation-authentication-matrix",
+    "restricted-read-response-correlation",
+    "f05-domain-event-id-sequence",
+    "persistent-ledger-redaction",
+    "canonical-payload-hash",
+    "canonical-payload-hash",
+    "canonical-payload-hash",
+    "snapshot-no-repeat-no-omission",
+    "persistent-causal-chain",
+    "durable-identical-intent-replay",
+    "conflicts-have-no-business-or-audit-side-effects",
+    "consume-200",
+    "actual-storage-integrity",
+    "full-scope-and-watermarked-redaction",
+    "consume-410",
+    "concurrent-ticket-consumption-once",
+    "consume-410",
+    "consume-200",
+    "real-csv-artifact",
+    "consume-200",
+    "real-pdf-artifact",
+    "per-actor-create-quota",
+    "consume-410",
+    "cancel-revokes-issued-leases",
+    "consume-410",
+    "retention-denies-issuance-and-consumption",
+    "status-read-does-not-generate",
+    "restart-recovers-expired-worker-lease",
+    "consume-503",
+    "tampered-private-artifact-denied",
+    "resource-owner-hidden",
+    "resource-account-scope-hidden",
+    "generation-failure-terminal-and-audited",
+    "persistent-export-lifecycle",
+    "export-lifecycle-causal-root",
+    "restricted-read-audit",
+    "live-six-operation-capability-matrix",
+    "revoked-capability-denies-replay",
+    "ephemeral-exports-cleaned"
+  ],
+  "records": [
+    {
+      "operationId": "getSecuritySettings",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "setupMfa",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getSession",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "cancelExport",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 401,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 422,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 404,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 409,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 429,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "cancelExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "cancelExport",
+      "status": 202,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 410,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 404,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 404,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 404,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 404,
+      "issues": []
+    },
+    {
+      "operationId": "mfaChallenge",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "reauth",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 200,
+      "issues": []
+    },
+    {
+      "operationId": "searchAuditEvents",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "getEvidenceChain",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "getExportStatus",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "cancelExport",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "getExportDownload",
+      "status": 403,
+      "issues": []
+    },
+    {
+      "operationId": "createExport",
+      "status": 403,
+      "issues": []
+    }
+  ],
+  "cleanupVerified": true,
+  "target": "configured-supabase",
+  "formalAccepted": false,
+  "failure": null,
+  "transportAttempts": [
+    {
+      "operationId": "searchAuditEvents",
+      "attempt": 1,
+      "outcome": "CLIENT_TIMEOUT",
+      "at": "2026-10-06T11:13:15.020Z"
+    }
+  ],
+  "cleanup": "restore capabilities, quotas and factor set; delete own exports, objects and sessions; preserve append-only audit fixtures"
+}

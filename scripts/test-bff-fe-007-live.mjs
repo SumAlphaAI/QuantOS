@@ -14,6 +14,8 @@ fs.mkdirSync(output, { recursive: true });
 const sourceCommitAtStart=execFileSync("git",["rev-parse","HEAD"],{encoding:"utf8"}).trim();
 const records = [];
 const transportAttempts = [];
+const jobCorrelations = new Set();
+let databaseRunStart;
 const assertions = [];
 const correlations=[];
 let cleanupVerified=false;
@@ -97,7 +99,7 @@ async function call(server,session,id,options={}) {
   const issues=await validateResponse(id,response);
   const payload=response.headers.get("content-type")?.includes("application/json")?await response.clone().json():undefined;
   fs.writeFileSync(path.join(output,"progress.json"),JSON.stringify({operationId:id,status:response.status,calls:records.length+1,updatedAt:new Date().toISOString()}));
-  if(id==="createExport"&&payload?.exportId&&!jobs.includes(payload.exportId))jobs.push(payload.exportId);
+  if(id==="createExport"&&payload?.exportId){jobCorrelations.add(payload.correlationId);if(!jobs.includes(payload.exportId))jobs.push(payload.exportId);}
   if(id==="createExport"||id==="cancelExport")keys.push(commandKey);
   if(payload?.nextCursor)cursorHashes.add(createHash("sha256").update(payload.nextCursor).digest("hex"));
   records.push({operationId:id,status:response.status,issues,...(options.label?{label:options.label}:{})});
@@ -163,7 +165,7 @@ try {
  execFileSync('cargo',['build','-p','bff-gateway','--locked','--offline'],{cwd:root,stdio:'ignore'});
  const auth=await authRequest('token?grant_type=password',null,'POST',{email:process.env.QUANTOS_F06_TEST_EMAIL,password:process.env.QUANTOS_F06_TEST_PASSWORD});cleanupBearer=auth.access_token;
  const user=await authRequest('user',cleanupBearer);assert(user.id===process.env.QUANTOS_F06_TEST_USER_ID,'Configured test subject mismatch');originalFactors=(user.factors??[]).map(f=>f.id).sort();assert(originalFactors.length===0,'Existing MFA factors will not be changed');
- admin=pgClient();await admin.connect();
+ admin=pgClient();await admin.connect();databaseRunStart=(await admin.query("select now() as at")).rows[0].at;
  originalContext=(await admin.query('select id,tenant_id from quantos.actors where user_id=$1 order by id',[user.id])).rows;assert(originalContext.length===1,'Unambiguous existing test actor required');actor=originalContext[0];
  originalCapabilityRows=(await admin.query("select * from quantos.actor_capabilities where actor_id=$1 and capability in ('audit:read','audit:export')",[actor.id])).rows;
  originalCaps=originalCapabilityRows.map(r=>r.capability);
@@ -252,10 +254,10 @@ checked('identity-audit-bridged-to-f05',(await admin.query("select count(*)::int
  // bucket configuration are touched. Worker rejects before Storage upload.
  await admin.query("update quantos.bff_export_jobs set status='queued',job=jsonb_set(job,'{status}','\"queued\"'),snapshot=$2::jsonb,attempts=0,lease_token=null,lease_until=null where export_id=$1",[recovery,JSON.stringify([{synthetic:'x'.repeat(17*1024*1024)}])]);
  await poll(server,active,recovery,'failed');checked('generation-failure-terminal-and-audited',true);
- const after=(await admin.query("select distinct action from quantos.audit_entries where actor_id=$1 and action like 'export.%'",[actor.id])).rows.map(r=>r.action);
+ const after=(await admin.query("select distinct action from quantos.audit_entries where actor_id=$1 and recorded_at >= $2 and (correlation_id=any($3::uuid[]) or action in ('export.consume_denied','export.resource_denied')) and action like 'export.%'",[actor.id,databaseRunStart,[...jobCorrelations]])).rows.map(r=>r.action);
  checked('persistent-export-lifecycle', ['export.created','export.generating','export.ready','export.status_viewed','export.download_issued','export.download_consumed','export.cancelled','export.expired','export.consume_denied','export.failed','export.integrity_failed','export.resource_denied'].every(a=>after.includes(a)));
  const lifecycleChain=(await call(server,active,'getEvidenceChain',{params:{correlationId:created.payload.correlationId},query:{pageSize:'200'},expected:200})).payload;checked('export-lifecycle-causal-root',lifecycleChain.complete&&lifecycleChain.items.some(e=>e.eventId===created.payload.auditRef)&&lifecycleChain.items.every(e=>lifecycleChain.items.some(parent=>parent.eventId===e.causationId)));
- checked('restricted-read-audit',(await admin.query("select count(*)::int as n from quantos.audit_entries where actor_id=$1 and action in ('audit.search_accessed','audit.chain_accessed')",[actor.id])).rows[0].n>=5);
+ checked('restricted-read-audit',(await admin.query("select count(*)::int as n from quantos.audit_entries where actor_id=$1 and recorded_at >= $2 and action in ('audit.search_accessed','audit.chain_accessed')",[actor.id,databaseRunStart])).rows[0].n>=5);
  // Restore capability grants and verify a freshly established lower-capability
  // context is denied by all six provider operations, without fixture cookies.
  for(const cap of ['audit:read','audit:export'])await admin.query('delete from quantos.actor_capabilities where actor_id=$1 and capability=$2',[actor.id,cap]);const denied=await login(server,cleanupBearer);
@@ -284,5 +286,5 @@ finally {
  }catch(e){failure=(failure?failure+'; ':'')+'Controlled cleanup not verified';}
  if(admin)await admin.end();
 }
-const receipt={schema:'quantos-bff-audit-live/v1',sourceCommit:sourceCommitAtStart,sourceMatchesCommit:inputPaths.every(p=>{try{return createHash('sha256').update(execFileSync('git',['show',sourceCommitAtStart+':'+p],{stdio:['ignore','pipe','ignore']})).digest('hex')===sourceHashes[p];}catch{return false;}}),status:failure?'FAIL':'PASS',sourceHashes,fixture,assertions,records,cleanupVerified,target:'configured-supabase',formalAccepted:false,failure:failure??null,transportAttempts,cleanup:'restore capabilities, quotas and factor set; delete own exports, objects and sessions; preserve append-only audit fixtures'};
+const receipt={schema:'quantos-bff-audit-live/v1',sourceCommit:sourceCommitAtStart,sourceMatchesCommit:inputPaths.every(p=>{try{return createHash('sha256').update(execFileSync('git',['show',sourceCommitAtStart+':'+p],{stdio:['ignore','pipe','ignore']})).digest('hex')===sourceHashes[p];}catch{return false;}}),status:failure?'FAIL':'PASS',sourceHashes,fixture,assertions,records,cleanupVerified,target:'configured-supabase',formalAccepted:false,failure:failure??null,transportAttempts,databaseRunStart,jobCorrelations:[...jobCorrelations],cleanup:'restore capabilities, quotas and factor set; delete own exports, objects and sessions; preserve append-only audit fixtures'};
 fs.writeFileSync(path.join(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify({status:receipt.status,records:records.length,assertions:assertions.length,cleanupVerified,failure:failure??null}));if(failure)process.exitCode=1;
