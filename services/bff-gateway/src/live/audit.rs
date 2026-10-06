@@ -22,6 +22,9 @@ use uuid::Uuid;
 const BUCKET: &str = "quantos-bff-exports";
 const MAX_EVENTS: usize = 10_000;
 const MAX_BYTES: usize = 16 * 1024 * 1024;
+// Status/authorization/cleanup must never fetch a job snapshot. Workers reject
+// oversized snapshots in PostgreSQL before transferring them to the process.
+const JOB_COLUMNS: &str = "export_id,user_id,tenant_id,actor_id,workspace_id,account_id,job,status,retention_until,object_key,sha256,size_bytes,media_type,attempts,lease_token,lease_until";
 fn invalid() -> ApiError {
     ApiError::new(StatusCode::UNPROCESSABLE_ENTITY, "VALIDATION_FAILED")
 }
@@ -46,6 +49,9 @@ fn scope(tx: &mut Transaction<'_>, identity: &TrustedIdentity) -> Result<(), Api
     tx.query_one("select set_config('quantos.audit_tenant',$1,true),set_config('quantos.audit_actor',$2,true),set_config('quantos.audit_workspace',$3,true),set_config('quantos.audit_account',$4,true)", &[&c.auth.tenant_id.to_string(),&c.auth.actor_id.to_string(),&c.auth.workspace_id.to_string(),&c.auth.account_id.map(|a|a.to_string()).unwrap_or_default()])?;
     Ok(())
 }
+fn cause(tx: &mut Transaction<'_>, correlation: Uuid, root: Uuid) -> Result<Uuid, ApiError> {
+    Ok(tx.query_opt("select coalesce(event_id,id) from quantos.audit_entries where correlation_id=$1 order by recorded_at,id limit 1", &[&correlation])?.map(|r|r.get(0)).unwrap_or(root))
+}
 fn log(
     tx: &mut Transaction<'_>,
     identity: &TrustedIdentity,
@@ -58,7 +64,8 @@ fn log(
     let c = &identity.0;
     let clean = audit_core::redacted(&details);
     let details = json!({"objectRef":object,"redactedPayload":clean,"payloadHash":audit_core::payload_hash(&clean),"redactionPolicy":"audit-v1","workspaceId":c.auth.workspace_id,"accountId":c.auth.account_id});
-    tx.execute("insert into quantos.audit_entries(id,tenant_id,actor_id,actor_user_id,correlation_id,causation_id,action,details) values($1,$2,$3,$4,$5,$5,$6,$7)", &[&id,c.auth.tenant_id.as_uuid(),c.auth.actor_id.as_uuid(),&c.user_id,&correlation,&action,&details])?;
+    let cause = cause(tx, correlation, id)?;
+    tx.execute("insert into quantos.audit_entries(id,tenant_id,actor_id,actor_user_id,correlation_id,causation_id,action,details) values($1,$2,$3,$4,$5,$6,$7,$8)", &[&id,c.auth.tenant_id.as_uuid(),c.auth.actor_id.as_uuid(),&c.user_id,&correlation,&cause,&action,&details])?;
     Ok(id)
 }
 fn permission(
@@ -297,7 +304,7 @@ async fn read(
     if let Some(chain) = chain {
         q["correlationId"] = json!(chain.to_string());
     }
-    let value = tokio::task::spawn_blocking(move || {
+    let (value, access_correlation) = tokio::task::spawn_blocking(move || {
         let mut store = state.a2.lock().map_err(|_| ApiError::unavailable())?;
         let mut tx = store.client.transaction()?;
         if let Err(e) = admit(&mut tx, &identity, "audit:read", op) {
@@ -305,6 +312,7 @@ async fn read(
             return Err(e);
         }
         let result = page(&mut tx, &identity, &q, op, chain);
+        let access_correlation = Uuid::new_v4();
         log(
             &mut tx,
             &identity,
@@ -313,16 +321,20 @@ async fn read(
             } else {
                 "audit.search_accessed"
             },
-            Uuid::new_v4(),
+            access_correlation,
             "audit",
             json!({"outcome":if result.is_ok(){"succeeded"}else{"denied"},"scope":q}),
         )?;
         tx.commit()?;
-        result
+        result.map(|value| (value, access_correlation))
     })
     .await
     .map_err(|_| ApiError::unavailable())??;
-    Ok(response(StatusCode::OK, value))
+    Ok(crate::response(
+        StatusCode::OK,
+        value,
+        &access_correlation.to_string(),
+    ))
 }
 async fn search(
     axum::Extension(identity): axum::Extension<TrustedIdentity>,
@@ -372,7 +384,7 @@ fn job_row(
     identity: &TrustedIdentity,
     id: Uuid,
 ) -> Result<postgres::Row, ApiError> {
-    tx.query_opt("select * from quantos.bff_export_jobs where export_id=$1 and user_id=$2 and tenant_id=$3 and actor_id=$4 and workspace_id=$5 and account_id is not distinct from $6 for update", &[&id,&identity.0.user_id,identity.0.auth.tenant_id.as_uuid(),identity.0.auth.actor_id.as_uuid(),identity.0.auth.workspace_id.as_uuid(),&identity.0.auth.account_id.map(|a|*a.as_uuid())])?.ok_or_else(hidden)
+    tx.query_opt(&format!("select {JOB_COLUMNS} from quantos.bff_export_jobs where export_id=$1 and user_id=$2 and tenant_id=$3 and actor_id=$4 and workspace_id=$5 and account_id is not distinct from $6 for update"), &[&id,&identity.0.user_id,identity.0.auth.tenant_id.as_uuid(),identity.0.auth.actor_id.as_uuid(),identity.0.auth.workspace_id.as_uuid(),&identity.0.auth.account_id.map(|a|*a.as_uuid())])?.ok_or_else(hidden)
 }
 fn expire(
     tx: &mut Transaction<'_>,
@@ -645,7 +657,9 @@ fn worker_log(
         &json!({"status":status,"outcome":if status=="failed"{"failed"}else{"succeeded"}}),
     );
     let details = json!({"workspaceId":row.get::<_,Uuid>("workspace_id"),"accountId":row.get::<_,Option<Uuid>>("account_id"),"objectRef":id,"redactedPayload":clean,"payloadHash":audit_core::payload_hash(&clean)});
-    tx.execute("insert into quantos.audit_entries(id,tenant_id,actor_id,actor_user_id,correlation_id,causation_id,action,details) values($1,$2,$3,$4,$5,$5,$6,$7)", &[&Uuid::new_v4(),&row.get::<_,Uuid>("tenant_id"),&row.get::<_,Uuid>("actor_id"),&row.get::<_,Uuid>("user_id"),&correlation,&action,&details])?;
+    let event = Uuid::new_v4();
+    let cause = cause(tx, correlation, event)?;
+    tx.execute("insert into quantos.audit_entries(id,tenant_id,actor_id,actor_user_id,correlation_id,causation_id,action,details) values($1,$2,$3,$4,$5,$6,$7,$8)", &[&event,&row.get::<_,Uuid>("tenant_id"),&row.get::<_,Uuid>("actor_id"),&row.get::<_,Uuid>("user_id"),&correlation,&cause,&action,&details])?;
     Ok(())
 }
 fn tick(
@@ -655,7 +669,7 @@ fn tick(
 ) -> Result<(), ApiError> {
     // Expiry is authoritative even without a consumer polling the resource.
     let mut tx = client.transaction()?;
-    let requested=tx.query("select * from quantos.bff_export_jobs where status='cancel_requested' for update skip locked limit 20",&[])?;
+    let requested=tx.query(&format!("select {JOB_COLUMNS} from quantos.bff_export_jobs where status='cancel_requested' for update skip locked limit 20"),&[])?;
     for row in requested {
         let id: Uuid = row.get("export_id");
         let mut job: Value = row.get("job");
@@ -663,7 +677,7 @@ fn tick(
         tx.execute("update quantos.bff_export_jobs set status='cancelled',job=$2,updated_at=now() where export_id=$1", &[&id,&job])?;
         worker_log(&mut tx, &row, "export.cancelled", "cancelled")?;
     }
-    let expired=tx.query("select * from quantos.bff_export_jobs where retention_until<=now() and status not in ('expired','cancelled','failed') for update skip locked limit 20",&[])?;
+    let expired=tx.query(&format!("select {JOB_COLUMNS} from quantos.bff_export_jobs where retention_until<=now() and status not in ('expired','cancelled','failed') for update skip locked limit 20"),&[])?;
     for row in expired {
         let id: Uuid = row.get("export_id");
         let mut job: Value = row.get("job");
@@ -691,7 +705,7 @@ fn tick(
         client.execute("update quantos.bff_export_jobs set object_deleted_at=now(),snapshot='[]'::jsonb where export_id=$1", &[&row.get::<_,Uuid>("export_id")])?;
     }
     let mut tx = client.transaction()?;
-    let candidate=tx.query_opt("select * from quantos.bff_export_jobs where (status='queued' or status='generating' and lease_until<now()) and retention_until>now() order by created_at for update skip locked limit 1",&[])?;
+    let candidate=tx.query_opt(&format!("select {JOB_COLUMNS},octet_length(snapshot::text)>{MAX_BYTES} as oversized,case when octet_length(snapshot::text)>{MAX_BYTES} then '[]'::jsonb else snapshot end as snapshot from quantos.bff_export_jobs where (status='queued' or status='generating' and lease_until<now()) and retention_until>now() order by created_at for update skip locked limit 1"),&[])?;
     let Some(row) = candidate else {
         tx.commit()?;
         return Ok(());
@@ -720,7 +734,7 @@ fn tick(
     );
     let hash = audit_core::digest(&bytes);
     let size = bytes.len();
-    let generated = if size <= MAX_BYTES {
+    let generated = if !row.get::<_, bool>("oversized") && size <= MAX_BYTES {
         objects.put(&object, bytes, media)
     } else {
         Err(ApiError::unavailable())

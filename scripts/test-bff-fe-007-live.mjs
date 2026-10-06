@@ -17,7 +17,7 @@ const assertions = [];
 const correlations=[];
 let cleanupVerified=false;
 function checked(name, ok) { assert(ok, name); assertions.push(name); }
-const inputPaths = ["services/bff-gateway/src/audit_core.rs", "services/bff-gateway/src/lib.rs", "services/bff-gateway/src/input_contract.rs", "services/bff-gateway/src/live/audit.rs", "services/bff-gateway/src/live.rs", "services/bff-gateway/src/live/settings.rs", "supabase/migrations/20261006100000_bff_audit_exports.sql", "supabase/migrations/20261006110000_bff_audit_scope_indexes.sql", "supabase/migrations/20261006120000_bff_domain_audit_read_model.sql", "supabase/migrations/20261006130000_bff_settings_audit_bridge.sql", "bff/openapi/quantos-bff.v1.yaml", "scripts/test-bff-fe-007-live.mjs"];
+const inputPaths = ["services/bff-gateway/src/audit_core.rs", "services/bff-gateway/src/lib.rs", "services/bff-gateway/src/input_contract.rs", "services/bff-gateway/src/live/audit.rs", "services/bff-gateway/src/live.rs", "services/bff-gateway/src/live/settings.rs", "supabase/migrations/20261006100000_bff_audit_exports.sql", "supabase/migrations/20261006110000_bff_audit_scope_indexes.sql", "supabase/migrations/20261006120000_bff_domain_audit_read_model.sql", "supabase/migrations/20261006130000_bff_settings_audit_bridge.sql", "supabase/migrations/20261006140000_bff_audit_causal_roots.sql", "bff/openapi/quantos-bff.v1.yaml", "scripts/test-bff-fe-007-live.mjs"];
 const sourceHashes = Object.fromEntries(inputPaths.map(p => [p, createHash("sha256").update(fs.readFileSync(path.join(root,p))).digest("hex")]));
 const factors = new Set();
 const enrollmentKeys = new Set();
@@ -164,6 +164,7 @@ try {
  const verified=await verifyMfa(server,active,enrollment.uri);
  const grant=await call(server,active,'reauth',{expected:200,body:{challengeRef:verified.payload.challengeRef}});const reauth={'X-Reauth-Token-Ref':grant.payload.reauthTokenRef};activeSession=active;liveReauthHeaders=reauth;mfaUri=enrollment.uri;refreshedAt=Date.now();
 checked('identity-audit-bridged-to-f05',(await admin.query("select count(*)::int as n from quantos.audit_entries where id in (select audit_ref from quantos.bff_settings_audits where user_id=$1 and action='auth.reauth' and created_at>now()-interval '5 minutes')",[user.id])).rows[0].n>0);
+ const identityCorrelation=grant.response.headers.get('x-correlation-id');const identityAudit=(await admin.query('select audit_ref::text from quantos.bff_settings_audits where correlation_id=$1 and user_id=$2',[identityCorrelation,user.id])).rows[0].audit_ref;const identityChain=(await call(server,active,'getEvidenceChain',{params:{correlationId:identityCorrelation},expected:200})).payload;checked('identity-audit-causal-root',identityChain.complete&&identityChain.items.some(e=>e.eventId===identityAudit&&e.causationId===e.eventId));
  const sessionHash=createHash('sha256').update(/quantos_session=([^;]+)/.exec(active.cookie)[1]).digest('hex');
  const context=(await call(server,active,'getSession',{expected:200})).payload;const ctx={workspace_id:context.workspaceId,account_id:context.accountId};
  checked("configured-scope-context",context.capabilities.includes("audit:read")&&context.capabilities.includes("audit:export"));
@@ -176,8 +177,9 @@ checked('identity-audit-bridged-to-f05',(await admin.query("select count(*)::int
   await admin.query('insert into quantos.event_log(tenant_id,stream_id,event_id,actor_id,correlation_id,causation_id,aggregate_type,aggregate_id,sequence,event_kind,schema_version,payload,payload_hash,occurred_at) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)',[actor.tenant_id,streamId,eventIds[i],actor.id,fixture,i?eventIds[i-1]:eventIds[i],'bff-audit-fixture',fixture,i+1,kind,'v1',payload,hash,at]);
   await admin.query("insert into quantos.audit_entries(id,tenant_id,actor_id,actor_user_id,correlation_id,causation_id,event_id,action,details,recorded_at) values($1,$2,$3,$4,$5,$6,$7,'event.appended',$8,$9)",[auditIds[i],actor.tenant_id,actor.id,user.id,fixture,i?eventIds[i-1]:eventIds[i],eventIds[i],{workspaceId:ctx.workspace_id,accountId:ctx.account_id,event_kind:kind,payload_hash:hash,sequence:i+1},at]);
  }
- await call(server,null,'searchAuditEvents',{expected:401});
- const first=(await call(server,active,'searchAuditEvents',{query:{correlationId:fixture,pageSize:'3'},expected:200})).payload;
+ for(const operationId of ['searchAuditEvents','getEvidenceChain','createExport','getExportStatus','cancelExport','getExportDownload'])await call(server,null,operationId,{params:{correlationId:fixture,exportId:randomUUID()},expected:401});checked('live-six-operation-authentication-matrix',true);
+ const firstResult=await call(server,active,'searchAuditEvents',{query:{correlationId:fixture,pageSize:'3'},expected:200});const first=firstResult.payload;
+ checked('restricted-read-response-correlation',(await admin.query("select count(*)::int as n from quantos.audit_entries where correlation_id=$1 and actor_id=$2 and action='audit.search_accessed'",[firstResult.response.headers.get('x-correlation-id'),actor.id])).rows[0].n===1);
  checked('f05-domain-event-id-sequence',first.items.every((e,i)=>e.eventId===eventIds[i]&&e.auditRef===auditIds[i]&&e.sequence===i+1));
  checked('persistent-ledger-redaction',first.items.length===3 && !JSON.stringify(first).includes('SYNTHETIC_TOKEN') && !JSON.stringify(first).includes('12345678901234567890'));
  for(const e of first.items)checked('canonical-payload-hash',e.payloadHash==='sha256:'+createHash('sha256').update(JSON.stringify(canonical(e.redactedPayload))).digest('hex'));
@@ -232,12 +234,16 @@ checked('identity-audit-bridged-to-f05',(await admin.query("select count(*)::int
  await admin.query('update quantos.bff_export_jobs set user_id=$2 where export_id=$1',[recovery,randomUUID()]);
  await call(server,active,'getExportStatus',{params:{exportId:recovery},expected:404});await call(server,active,'getExportDownload',{params:{exportId:recovery},expected:404});
  await admin.query('update quantos.bff_export_jobs set user_id=$2 where export_id=$1',[recovery,user.id]);checked('resource-owner-hidden',true);
+ await admin.query('update quantos.bff_export_jobs set account_id=$2 where export_id=$1',[recovery,randomUUID()]);
+ await call(server,active,'getExportStatus',{params:{exportId:recovery},expected:404});await call(server,active,'getExportDownload',{params:{exportId:recovery},expected:404});
+ await admin.query('update quantos.bff_export_jobs set account_id=$2 where export_id=$1',[recovery,ctx.account_id??null]);checked('resource-account-scope-hidden',true);
  // Force a recoverable oversized snapshot on our own job; no foreign objects or
  // bucket configuration are touched. Worker rejects before Storage upload.
  await admin.query("update quantos.bff_export_jobs set status='queued',job=jsonb_set(job,'{status}','\"queued\"'),snapshot=$2::jsonb,attempts=0,lease_token=null,lease_until=null where export_id=$1",[recovery,JSON.stringify([{synthetic:'x'.repeat(17*1024*1024)}])]);
  await poll(server,active,recovery,'failed');checked('generation-failure-terminal-and-audited',true);
  const after=(await admin.query("select distinct action from quantos.audit_entries where actor_id=$1 and action like 'export.%'",[actor.id])).rows.map(r=>r.action);
  checked('persistent-export-lifecycle', ['export.created','export.generating','export.ready','export.status_viewed','export.download_issued','export.download_consumed','export.cancelled','export.expired','export.consume_denied','export.failed','export.integrity_failed','export.resource_denied'].every(a=>after.includes(a)));
+ const lifecycleChain=(await call(server,active,'getEvidenceChain',{params:{correlationId:created.payload.correlationId},query:{pageSize:'200'},expected:200})).payload;checked('export-lifecycle-causal-root',lifecycleChain.complete&&lifecycleChain.items.some(e=>e.eventId===created.payload.auditRef)&&lifecycleChain.items.every(e=>lifecycleChain.items.some(parent=>parent.eventId===e.causationId)));
  checked('restricted-read-audit',(await admin.query("select count(*)::int as n from quantos.audit_entries where actor_id=$1 and action in ('audit.search_accessed','audit.chain_accessed')",[actor.id])).rows[0].n>=5);
  // Restore capability grants and verify a freshly established lower-capability
  // context is denied by all six provider operations, without fixture cookies.

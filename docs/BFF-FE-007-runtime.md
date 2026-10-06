@@ -6,7 +6,7 @@ C10 的六个 API 保持 OpenAPI 1.5.0 和生成客户端契约。`QUANTOS_BFF_M
 
 使用现有 `QUANTOS_BFF_DATABASE_URL`（专用 BFF 登录、TLS CA）、`SUPABASE_URL`、`SUPABASE_PUBLISHABLE_KEY`、`QUANTOS_TERMINAL_ORIGIN`、`QUANTOS_BFF_ENVIRONMENT`、`QUANTOS_TRACE_EXPORT_PATH`。新增服务端 `QUANTOS_BFF_STORAGE_KEY` 用于私有 Storage；开发配置可使用现有 `SUPABASE_SERVICE_ROLE_KEY`，只在服务端读取。缺少 Storage 配置时 live 启动失败，不发布占位下载。
 
-应用 `20261006100000_bff_audit_exports.sql` 、`20261006110000_bff_audit_scope_indexes.sql`、`20261006120000_bff_domain_audit_read_model.sql` 和 `20261006130000_bff_settings_audit_bridge.sql`。bucket `quantos-bff-exports` 必须为 private，最大对象 16 MiB。Terminal origin 需反向代理 `/_bff/export-content/*` 到同一 live BFF；该路径是下载 URL 指向的二进制资源，不是新增页面 API operation，也不向消费者暴露 Storage 凭据或对象键。
+应用 `20261006100000_bff_audit_exports.sql` 、`20261006110000_bff_audit_scope_indexes.sql`、`20261006120000_bff_domain_audit_read_model.sql`、`20261006130000_bff_settings_audit_bridge.sql` 和 `20261006140000_bff_audit_causal_roots.sql`。bucket `quantos-bff-exports` 必须为 private，最大对象 16 MiB。Terminal origin 需反向代理 `/_bff/export-content/*` 到同一 live BFF；该路径是下载 URL 指向的二进制资源，不是新增页面 API operation，也不向消费者暴露 Storage 凭据或对象键。
 
 ## 授权、范围与审计
 
@@ -16,7 +16,7 @@ F05 `audit_entries` 的 BFF RLS 限定当前 actor 与 tenant，并匹配已声�
 
 `audit-v1` 采用字段白名单，自由 reason/watermark 与未知敏感字段不进入导出的审计载荷；可见水印为服务端固定标签与请求文本摘要。`payloadHash` 对实际返回的脱敏载荷做 canonical JSON SHA-256，文件摘要/长度来自最终字节。原始 F05 数据没有被改写，也不把脱敏载荷摘要冒充原始业务载荷摘要。
 
-读取、拒绝、导出创建/生成/完成/失败/取消/过期、票据签发/消费/拒绝留持久 F05 记录。读取访问记录使用独立 correlation，避免污染被读取的业务因果链。无可验证主体的请求拒绝记录在服务 trace 中；下载票据和签名不写入 trace。
+读取、拒绝、导出创建/生成/完成/失败/取消/过期、票据签发/消费/拒绝留持久 F05 记录。生命周期节点以创建审计事件 ID 为因果根，身份事实以自身审计事件为根。读取访问记录的独立 correlation 与响应头和 trace 绑定，避免污染被读取的业务因果链。无可验证主体的请求拒绝记录在服务 trace 中；下载票据和签名不写入 trace。
 
 ## 分页、生成与下载
 
