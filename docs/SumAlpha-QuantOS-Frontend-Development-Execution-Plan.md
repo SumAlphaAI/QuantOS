@@ -1,15 +1,19 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 2026-10-06 最新 CI 整改：补齐离线 Rust 依赖预取，精确隔离固定上游 lint/pytest；冻结 `dd8672c` 完整 87/87 PASS，22 READY，G0/FEP-0 工程 PASS、当前范围确认待办 BLOCKED。见[整改复验报告](./audit/CI-5da474e-remediation-2026-10-06.md)。
+> 2026-10-06 当前范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当前 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 已通过，后续文档提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.33
+> 版本：3.35
 > 更新时间：2026-10-06
 > 状态：BFF-FE-001 当前 DEVELOPMENT READY；24/24 控制点、20/20 API 满足；F0/G0/FEP-0 以当前有效 stage_gate 为准，PROVIDER:ALL 与 RELEASE 独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.35`：项目用户明确确认当前 G0 文稿，原答复/文稿/范围摘要保存并核验；原 PENDING 工程回执保留，G0 严格 READY。确认后实际重评 FEP-0 两项 PASS，八依赖及其 23 节点闭包 READY，连同 A2 当前共 24 READY、0 BLOCKED。完整 87/16 项实际工程回执仍绑定原冻结源码，formal/RELEASE 独立。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
+
+- `3.34`：核验已推送 `3799c4c` 的 9/9 hosted CI 全部成功，原失败步骤、Python 129 PASS / 91.20% 覆盖、A2 离线语义与构建下载验签实际通过，CI 整改技术验收闭环。既有完整 87/87 工程回执按当前内容核验有效；22 READY、2 BLOCKED（G0 当前范围确认），formal/RELEASE 独立。见[验收报告](./audit/CI-3799c4c-acceptance-2026-10-06.md)。
 
 - `3.33`：修复 5da474e 的上游 Python lint 扫描和 A2 离线 Rust 缺少依赖预取，补齐失败日志归档及 pytest 归属边界；完整 87/87、G0 16/16、FEP-0 2/2 工程 PASS，A2 当前内容 READY。22 READY、2 BLOCKED（当前 G0 用户确认待办），历史原件保留，未推送、新 hosted CI 待验证。见[整改报告](./audit/CI-5da474e-remediation-2026-10-06.md)。
 
@@ -447,8 +451,8 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "BLOCKED",
-    "input_digest": "sha256:ade28228a62a51cf654765330f2e689d97ee637a1fe8a5dd3dc79de087613d52",
+    "status": "READY",
+    "input_digest": "sha256:3e56c6fb83f4ecaf317d34f51c4509435370fc752fca91b68cf795246a69271f",
     "evidence": [
       "audit/evidence/frontend-g0-fep0-remediation-20261005/g0.json"
     ]
@@ -462,7 +466,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `FEP-0`
 - task_type: `MILESTONE`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:8a350a0367604d62c47938b4d874bf615d3986886b3b7256eabcb210792d011e","evidence":["audit/evidence/fep0-remediation-20261005/ci-cold-cache-lint-final-20261006/fep0.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c38ea0ee87115348aca1371f66e74c2610d3d6f5053c7bae9e6c24fc2f534d75","evidence":["audit/evidence/fep0-remediation-20261005/user-confirmed-20261006-09bcaf7f28d9/fep0.json"]}
 - depends_on: ["CORE-GATE:F0", "PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06", "FRONTEND-GATE:G0"]
 - core_prerequisites: ["CORE-GATE:F0"]
 - closes_core: []

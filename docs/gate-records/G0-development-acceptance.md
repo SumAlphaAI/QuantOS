@@ -1,5 +1,7 @@
 # G0 DEVELOPMENT 验收规程
 
+> 最新确认（2026-10-06）：项目用户确认范围 `09bcaf7f28d9`，G0/FEP-0 严格 DEVELOPMENT READY；见[当前确认验收报告](../audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。下文含历史确认和执行说明，当前台账绑定最新用户答复。
+
 G0 最低契约、追踪关系、Web/OIDC/SSE PoC 由 `scripts/g0-policy.json` 定义。人工确认统一按 [用户确认流程](./user-acceptance-confirmation-workflow.md)：Codex 拟稿，项目用户一人确认。
 
 - `pnpm scope:g0-development` 输出当前 API、published、planned 排除、一期 Web、输入清单与 `scopeDigest`。

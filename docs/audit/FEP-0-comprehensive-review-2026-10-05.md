@@ -1,6 +1,6 @@
 # A1 / FEP-0：准备与契约历史已批准范围复审结论
 
-> 当前范围更新（2026-10-06）：本文件下文保存此前已批准范围的关闭快照。CI 修复改变功能输入后，FEP-0 已完成新的工程复验并 PASS；新 G0 项目用户确认待办，当前 stage_gate=BLOCKED。旧批准不自动沿用，当前证据与文稿见[CI 整改报告](CI-5da474e-remediation-2026-10-06.md)。
+> 当前范围更新（2026-10-06）：项目用户已确认范围 `09bcaf7f28d9`，FEP-0 严格 DEVELOPMENT READY；当前 24 READY、0 BLOCKED。见[当前确认验收报告](G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。下文保留此前已批准范围的复审快照，未改写历史执行事实。
 
 > 再复核日期：2026-10-05（Asia/Shanghai）
 > 再复核基线：`72d12b05efef8d06f1349f2bc63d190fc3ea1df0`；开始时工作区干净。

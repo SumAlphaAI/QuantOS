@@ -2,7 +2,7 @@
   "schema": "quantos-g0-development-manifest/v1",
   "nodeId": "FRONTEND-GATE:G0",
   "stage": "DEVELOPMENT",
-  "status": "READY",
+  "status": "BLOCKED",
   "engineeringStatus": "PASS",
   "formalAccepted": false,
   "observedSourceCommit": "dd8672c81981c0db2a59b572197382fc849cafa4",
@@ -3138,11 +3138,11 @@
     "scopeDigest": "sha256:09bcaf7f28d960843c63fa61649fc1fe7a22d265f8b9b545e09d6f7d35354587"
   },
   "confirmations": {
-    "status": "CONFIRMED",
-    "approver": "ProjectUser"
+    "status": "PENDING",
+    "missingApproval": "ProjectUser"
   },
-  "confirmationLedgerSnapshot": "{\n  \"schema\": \"quantos-g0-scope-confirmations/v2\",\n  \"status\": \"CONFIRMED\",\n  \"scopeDigest\": \"sha256:09bcaf7f28d960843c63fa61649fc1fe7a22d265f8b9b545e09d6f7d35354587\",\n  \"approval\": {\n    \"record\": \"docs/gate-records/G0-user-confirmation-2026-10-06-09bcaf7f28d9.json\",\n    \"recordSha256\": \"sha256:161beffd32146eb6e15645a68911dc0a4b984ae41978379e776a0efd17afcb57\"\n  }\n}\n",
-  "confirmationsSha256": "sha256:efa653c9a371e8500afe0fa9dbf3d5665a48bcb2d6aeb03a58e2d342557fffd6",
+  "confirmationLedgerSnapshot": "{\n  \"schema\": \"quantos-g0-scope-confirmations/v2\",\n  \"status\": \"PENDING\",\n  \"scopeDigest\": null,\n  \"approval\": null,\n  \"reason\": \"CI remediation changes functional test and gate inputs. Previous user confirmation is preserved in G0-user-confirmations-before-ci-remediation-f764bc6.json and its original records; current engineering replay does not transfer approval.\"\n}\n",
+  "confirmationsSha256": "sha256:fd4e77de6926fe5b227a7c0752708fffe02300d08f5a0ad98b12608a6422676e",
   "checks": [
     {
       "id": "records",
@@ -3400,6 +3400,7 @@
     "unimplemented A2-A6 providers",
     "P16 and Desktop phase two"
   ],
-  "residuals": [],
-  "confirmationAppliedAt": "2026-10-06T05:47:18.185Z"
+  "residuals": [
+    "M-01: project user development scope confirmation missing"
+  ]
 }

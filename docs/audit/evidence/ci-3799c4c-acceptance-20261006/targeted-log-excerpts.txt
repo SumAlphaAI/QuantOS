@@ -1,0 +1,39 @@
+verify	Checkout repository	2026-10-06T05:00:19.9891937Z Submodule 'vibe-trading-upstream' (https://github.com/HKUDS/Vibe-Trading.git) registered for path 'third_party/vibe-trading/upstream-src'
+verify	Checkout repository	2026-10-06T05:00:19.9920555Z Cloning into '/home/runner/work/QuantOS/QuantOS/third_party/vibe-trading/upstream-src'...
+verify	Checkout repository	2026-10-06T05:00:27.2185035Z Submodule path 'third_party/vibe-trading/upstream-src': checked out 'c33133f4fd5e978d21d2a61fdd8787fb352b4687'
+verify	Checkout repository	2026-10-06T05:00:27.2441382Z Entering 'third_party/vibe-trading/upstream-src'
+verify	Checkout repository	2026-10-06T05:00:27.3029580Z Entering 'third_party/vibe-trading/upstream-src'
+verify	Checkout repository	2026-10-06T05:00:27.3318479Z Entering 'third_party/vibe-trading/upstream-src'
+verify	Checkout repository	2026-10-06T05:00:27.3631780Z Entering 'third_party/vibe-trading/upstream-src'
+verify	Checkout repository	2026-10-06T05:00:27.3898914Z Entering 'third_party/vibe-trading/upstream-src'
+verify	Install uv	2026-10-06T05:00:59.7044749Z /home/runner/work/QuantOS/QuantOS/third_party/vibe-trading/upstream-src/agent/requirements.txt
+verify	Install uv	2026-10-06T05:00:59.9085319Z /home/runner/work/QuantOS/QuantOS/third_party/vibe-trading/upstream-src/desktop/electron/requirements-windows-lock.txt
+verify	Install uv	2026-10-06T05:00:59.9316053Z /home/runner/work/QuantOS/QuantOS/third_party/vibe-trading/upstream-src/requirements-lock.txt
+verify	Bootstrap workspace	2026-10-06T05:03:59.6160263Z cargo fetch --locked
+verify	Validate BFF OpenAPI and generated contracts	2026-10-06T05:06:34.7936078Z   "scope": "engineering compatibility; no owner/staging signature implied"
+verify	Validate F04 core primitives and deterministic fixtures	2026-10-06T05:11:24.5594056Z TOTAL                             643                21    96.73%          92                 2    97.83%         442                10    97.74%           0                 0         -
+verify	Validate F05 event, storage and audit source Gate	2026-10-06T05:12:12.8911319Z TOTAL                                  1753                97    94.47%         117                16    86.32%        1296                63    95.14%           0                 0         -
+verify	Validate F09 local observability and ADR source Gate	2026-10-06T05:12:29.9764629Z uv run --locked --project engines --all-packages pytest engines/tests/test_engine_observability.py engines/tests/test_mock_engine_recovery.py
+verify	Lint workspace	2026-10-06T05:13:40.9941518Z uv run --locked --project engines --all-packages ruff check . --extend-exclude third_party/vibe-trading/upstream-src
+verify	Test workspace	2026-10-06T05:15:08.7289297Z test tests::approved_command_carries_approval_signature ... ok
+verify	Test workspace	2026-10-06T05:15:28.7969695Z test tests::fifty_deny_fixtures_cover_every_rule_and_include_limits_and_signature ... ok
+verify	Test workspace	2026-10-06T05:15:36.5582818Z uv run --locked --project engines --all-packages pytest engines/tests
+verify	Test workspace	2026-10-06T05:15:39.3085333Z ============================= 129 passed in 2.46s ==============================
+verify	Check Python coverage	2026-10-06T05:15:47.8577867Z uv run --locked --project engines --all-packages pytest engines/tests --cov=engines --cov-config=engines/pyproject.toml --cov-report=term-missing
+verify	Check Python coverage	2026-10-06T05:15:51.6254312Z TOTAL                                                             2193    135    408     88    91%
+verify	Check Python coverage	2026-10-06T05:15:51.6255161Z Required test coverage of 85.0% reached. Total coverage: 91.20%
+verify	Check Python coverage	2026-10-06T05:15:51.6256008Z ============================= 129 passed in 3.39s ==============================
+verify	Check Rust coverage	2026-10-06T05:16:08.0434896Z TOTAL                             643                21    96.73%          92                 2    97.83%         442                10    97.74%           0                 0         -
+verify	Check Rust coverage	2026-10-06T05:16:46.7198105Z test tests::approved_command_carries_approval_signature ... ok
+verify	Check Rust coverage	2026-10-06T05:16:47.8744872Z test tests::fifty_deny_fixtures_cover_every_rule_and_include_limits_and_signature ... ok
+verify	Check Rust coverage	2026-10-06T05:16:47.9562706Z TOTAL                                   4686               309    93.41%         311                25    91.96%        3363               205    93.90%           0                 0         -
+verify	Post Checkout repository	2026-10-06T05:21:29.4980606Z Entering 'third_party/vibe-trading/upstream-src'
+verify	Post Checkout repository	2026-10-06T05:21:29.5448954Z Entering 'third_party/vibe-trading/upstream-src'
+verify	Post Checkout repository	2026-10-06T05:21:29.5835849Z Entering 'third_party/vibe-trading/upstream-src'
+verify-download-main	Verify downloaded payload and formal signature; record receipt	﻿2026-10-06T05:22:20.5374934Z ##[group]Run node scripts/write-f02-ci-receipt.mjs
+verify-download-main	Verify downloaded payload and formal signature; record receipt	2026-10-06T05:22:20.5375422Z ^[[36;1mnode scripts/write-f02-ci-receipt.mjs^[[0m
+verify-download-main	Verify downloaded payload and formal signature; record receipt	2026-10-06T05:22:20.7119826Z Verified 252 release files for 3799c4c8adb44089e93c110cff8e71ddace5aabb
+verify-download-main	Verify downloaded payload and formal signature; record receipt	2026-10-06T05:22:20.7239654Z Verified HMAC-SHA256 signature for artifacts/release/manifest.json
+verify-download-main	Run actions/upload-artifact@v4	2026-10-06T05:22:20.7355445Z   name: f02-download-receipt
+verify-download-main	Run actions/upload-artifact@v4	2026-10-06T05:22:21.7516770Z Artifact f02-download-receipt.zip successfully finalized. Artifact ID 11391479293
+verify-download-main	Run actions/upload-artifact@v4	2026-10-06T05:22:21.7518900Z Artifact f02-download-receipt has been successfully uploaded! Final size is 378 bytes. Artifact ID is 11391479293

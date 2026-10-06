@@ -1,5 +1,9 @@
 # 5da474e CI 故障整改与复验报告
 
+> 后续范围确认（2026-10-06）：项目用户明确确认 G0 当前文稿，G0/FEP-0 严格 DEVELOPMENT READY，当前 24 READY、0 BLOCKED。见[确认验收报告](G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。下文保留确认前的 CI 验收/整改快照。
+
+> 后续验收（2026-10-06）：推送后的 `3799c4c` 同 SHA 9/9 hosted CI 成功，本轮 CI 整改技术验收通过，见[验收报告](CI-3799c4c-acceptance-2026-10-06.md)。下文保留整改完成时的执行与待推送历史快照；G0/FEP-0 当前范围确认仍待办。
+
 ## 一、任务完成概况
 
 2026-10-06 复核已推送提交 `5da474e8bd715a25d1d7b98cfe7ca41dfc554439`。两条失败运行分别停在 Python lint 与 A2 离线语义测试，前轮子模块 pin、迁移 RLS 预检问题已通过原失败步骤。本次修复依赖准备和 Python 检查范围，冻结源码 `dd8672c81981c0db2a59b572197382fc849cafa4`；完整 F0/A1 **87/87 PASS**，A2 DEVELOPMENT READY，G0 **16/16**、FEP-0 **2/2** 工程 PASS。阶段台账 **22 READY、2 BLOCKED**；两个 BLOCKED 仅来自当前 G0 范围的项目用户确认待办。本次未推送，新提交 hosted CI 待用户推送后验证。
