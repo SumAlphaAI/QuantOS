@@ -144,7 +144,7 @@ lint-rust:
 	cargo clippy --workspace --all-targets -- -D warnings
 
 lint-python:
-	uv run --locked --project engines --all-packages ruff check .
+	uv run --locked --project engines --all-packages ruff check . --extend-exclude third_party/vibe-trading/upstream-src
 	uv run --locked --project engines --all-packages pyright --project engines
 
 coverage-python:
@@ -219,7 +219,7 @@ f08-check:
 	cargo fmt --check
 	cargo clippy -p quantos-engine-manager --all-targets --locked -- -D warnings
 	cargo test -p quantos-engine-manager --locked
-	uv run --locked --project engines --all-packages ruff check .
+	uv run --locked --project engines --all-packages ruff check . --extend-exclude third_party/vibe-trading/upstream-src
 	uv run --locked --project engines --all-packages pyright --project engines
 	uv run --locked --project engines --all-packages pytest engines/tests --cov=quantos_engine_sdk --cov=mock_engine --cov-config=engines/pyproject.toml --cov-report=json:target/f08-python-coverage.json --cov-report=term-missing
 	node scripts/check-f08-python-coverage.mjs target/f08-python-coverage.json

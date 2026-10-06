@@ -49,6 +49,9 @@ jobs:
       - name: Bootstrap workspace
         run: pnpm install --frozen-lockfile
 
+      - name: Fetch locked Rust dependencies for offline A2 tests
+        run: cargo fetch --locked
+
       - name: Development plan cross-document order and negative probes
         run: pnpm check:development-plans && pnpm test:development-plans
 
@@ -87,6 +90,14 @@ jobs:
 
       - name: A2 BFF-FE-001 auth and settings contract Gate
         run: pnpm check:bff-fe-001 && pnpm test:bff-fe-001
+
+      - name: Archive A2 semantic regression diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-a2-semantics-${{ github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/bff-fe-001/semantics*
+          if-no-files-found: warn
 
       - name: A2 current development receipt and dependency Gate
         run: pnpm check:bff-fe-001:development && pnpm test:bff-fe-001:development
