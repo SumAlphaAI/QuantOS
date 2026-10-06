@@ -148,7 +148,7 @@ lint-python:
 	uv run --locked --project engines --all-packages pyright --project engines
 
 coverage-python:
-	uv run --locked --project engines --all-packages pytest --cov=engines --cov-config=engines/pyproject.toml --cov-report=term-missing
+	uv run --locked --project engines --all-packages pytest engines/tests --cov=engines --cov-config=engines/pyproject.toml --cov-report=term-missing
 
 coverage-web:
 	pnpm coverage:web
@@ -373,7 +373,7 @@ test-supabase-storage-live:
 	QUANTOS_RUN_SUPABASE_STORAGE_TESTS=1 cargo test -p quantos-storage --test supabase_storage_integration -- --nocapture
 
 test-python:
-	uv run --locked --project engines --all-packages pytest
+	uv run --locked --project engines --all-packages pytest engines/tests
 
 test-web:
 	pnpm test
