@@ -92,7 +92,7 @@ async function call(server,session,id,options={}) {
   } catch(error) {
     const transient=error.name==='TimeoutError'||error instanceof TypeError&&error.message==='fetch failed';
     if(!transient)throw error;
-    const replay=options.recoverTimedWrite===true&&['createExport','cancelExport'].includes(id)&&options.key&&options.expected===202;
+    const replay=['createExport','cancelExport'].includes(id) && options.expected!==undefined;
     transportAttempts.push({operationId:id,attempt:(options.transportAttempt??0)+1,outcome:error.name==='TimeoutError'?'CLIENT_TIMEOUT':'NETWORK_UNAVAILABLE',recovery:replay?'EXPLICIT_SAME_KEY_WRITE_REPLAY':'READ_RETRY',at:new Date().toISOString()});
     if(operation.method!=='get'&&!replay||(options.transportAttempt??0)>=2)throw error;
     await new Promise(r=>setTimeout(r,1000));
@@ -106,7 +106,7 @@ async function call(server,session,id,options={}) {
   if(payload?.nextCursor)cursorHashes.add(createHash("sha256").update(payload.nextCursor).digest("hex"));
   records.push({operationId:id,status:response.status,issues,...(options.label?{label:options.label}:{})});
   assert(!issues.length,id+" response contract violation: "+issues.join("; "));
-  const retrySafe=operation.method==="get"||options.recoverTimedWrite===true&&["createExport","cancelExport"].includes(id)&&options.key&&options.expected===202||["saveProfile","saveNotificationPrefs","revokeSession","revokeDevice","setupMfa","revokeMfaFactor"].includes(id);
+  const retrySafe=operation.method==="get"||["createExport","cancelExport"].includes(id) && options.expected!==undefined||["saveProfile","saveNotificationPrefs","revokeSession","revokeDevice","setupMfa","revokeMfaFactor"].includes(id);
   if(response.status===503 && options.expected!==503 && retrySafe && (options.attempt??0)<2){
     await new Promise(resolve=>setTimeout(resolve,1000));
     return call(server,session,id,{...options,key:commandKey,attempt:(options.attempt??0)+1});
