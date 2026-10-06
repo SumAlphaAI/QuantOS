@@ -51,12 +51,14 @@ try {
  reauth=(await call('reauth',{challengeRef:challenge})).payload.reauthTokenRef;
  const catalog=YAML.parse(readFileSync(resolve(root,'bff/page-operation-catalog.yaml'),'utf8'));
  const scope=['C01','C17','C10'].flatMap(id=>catalog.contracts[id].publishedOperations);
+ // Positive requests must reference the correlation seeded by this provider.
+ const exportBody=structuredClone(operations.get('createExport').requestBody.content['application/json'].example);
+ exportBody.scope.correlationIds=[uuid];
  for(const id of scope.filter(id=>!['logout','mfaChallenge','reauth','getExportStatus','getExportDownload','cancelExport'].includes(id))) {
-  let body;
+  let body=id==='createExport'?exportBody:undefined;
   if(id==='submitAccessRequest')body={teamName:'Research',contactEmail:'synthetic@example.invalid',purpose:'Paper research',markets:['digital-assets'],expectedMode:'paper',privacyNoticeVersion:'2026-10-03'};
   const result=await call(id,body);if(id==='createExport')exportId=result.payload?.exportId;
  }
- const exportBody=operations.get('createExport').requestBody.content['application/json'].example;
  const createKey=randomUUID();const created=(await call('createExport',exportBody,false,202,{'Idempotency-Key':createKey})).payload;
  const replay=(await call('createExport',exportBody,false,202,{'Idempotency-Key':createKey})).payload;
  if(JSON.stringify(created)!==JSON.stringify(replay))throw Error('export same intent must replay the original result');

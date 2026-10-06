@@ -2,6 +2,9 @@
 // default would hide an omitted identity or caller idempotency token.
 const explicitKeys = new Set([
   'bff_access_requests.request_id',
+  'bff_audit_quotas.user_id',
+  'bff_export_jobs.export_id',
+  'bff_export_tickets.ticket_id',
   'bff_auth_challenges.challenge_ref',
   'bff_devices.device_id',
   'bff_reauth_grants.grant_ref',
