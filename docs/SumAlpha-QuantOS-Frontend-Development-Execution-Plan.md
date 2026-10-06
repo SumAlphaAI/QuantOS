@@ -150,7 +150,28 @@
 ### 2.1 统一阶段与依赖消费规则
 
 ```json
-{"schema":"quantos-plan-stages/v1","dependency_basis":"stage_gate","early_required":["contracts","data-integrity","authorization","idempotency-recovery","deadline-semantics"],"release_required":["performance","soak","deployment","same-sha-ci","release-authorization"],"release_checkpoints":["RELEASE-GATE:BETA","RELEASE-GATE:LIVE-READINESS"]}
+{
+  "schema": "quantos-plan-stages/v1",
+  "dependency_basis": "stage_gate",
+  "early_required": [
+    "contracts",
+    "data-integrity",
+    "authorization",
+    "idempotency-recovery",
+    "deadline-semantics"
+  ],
+  "release_required": [
+    "performance",
+    "soak",
+    "deployment",
+    "same-sha-ci",
+    "release-authorization"
+  ],
+  "release_checkpoints": [
+    "RELEASE-GATE:BETA",
+    "RELEASE-GATE:LIVE-READINESS"
+  ]
+}
 ```
 
 | 阶段 | 目标与准入证据 | 阻塞范围 |

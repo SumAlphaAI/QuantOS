@@ -207,7 +207,28 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
 以下 `quantos-plan-stages/v1` 对象与前端计划保持一致，由联合校验器检查。阶段是验证目的，窗口是排期：后续 L4 功能开发可以依赖前面已完成的业务联调，但任何功能开发/联调节点不得依赖 RELEASE 节点。
 
 ```json
-{"schema":"quantos-plan-stages/v1","dependency_basis":"stage_gate","early_required":["contracts","data-integrity","authorization","idempotency-recovery","deadline-semantics"],"release_required":["performance","soak","deployment","same-sha-ci","release-authorization"],"release_checkpoints":["RELEASE-GATE:BETA","RELEASE-GATE:LIVE-READINESS"]}
+{
+  "schema": "quantos-plan-stages/v1",
+  "dependency_basis": "stage_gate",
+  "early_required": [
+    "contracts",
+    "data-integrity",
+    "authorization",
+    "idempotency-recovery",
+    "deadline-semantics"
+  ],
+  "release_required": [
+    "performance",
+    "soak",
+    "deployment",
+    "same-sha-ci",
+    "release-authorization"
+  ],
+  "release_checkpoints": [
+    "RELEASE-GATE:BETA",
+    "RELEASE-GATE:LIVE-READINESS"
+  ]
+}
 ```
 
 任何节点登记 READY 前，其 `depends_on` 前置阶段记录必须全部 READY；RELEASE 节点还必须有正式 `review_status: ACCEPTED`、完整源码 SHA 和发布证据，不能只凭开发回执登记发布就绪。结构校验仅验证这些记录一致性，实际证据范围仍需复审。

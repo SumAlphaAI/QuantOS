@@ -1,0 +1,64 @@
+{
+  "schema": "quantos-f07-target-service/v1",
+  "sourceCommit": "d758c839fbd57366346d0f2b9ef2081c68ab51e6",
+  "dirty": true,
+  "targetClass": "configured-supabase-local-service-development",
+  "formalAccepted": false,
+  "status": "DIAGNOSTIC_ONLY",
+  "checks": [
+    "private Artifact Storage bucket exists",
+    "real Supabase Auth identity and isolated owner/capability fixture",
+    "real Supabase login and BFF opaque session",
+    "separate real Auth tenant denied run, cancellation and Artifact access",
+    "dedicated BFF/Runtime logins, strict TLS, HTTP schedule/worker/Storage/retrieval/hash, missing-cookie rejection",
+    "BFF logout revokes Runtime access; missing CSRF rejected"
+  ],
+  "startedAt": "2026-10-06T15:04:49.510Z",
+  "targetProjectRefHash": "23e97d4459dee70c",
+  "storageCredentialScope": "temporary-admin-key",
+  "startupPhases": [
+    {
+      "phase": "bff_auth",
+      "status": "started",
+      "attempt": 1
+    },
+    {
+      "phase": "runtime_store",
+      "status": "started",
+      "attempt": 1
+    },
+    {
+      "phase": "worker_store",
+      "status": "started",
+      "attempt": 1
+    },
+    {
+      "phase": "runtime_store",
+      "status": "ready",
+      "attempt": 1,
+      "elapsedMs": 2565
+    },
+    {
+      "phase": "worker_store",
+      "status": "ready",
+      "attempt": 1,
+      "elapsedMs": 2675
+    },
+    {
+      "phase": "bff_auth",
+      "status": "ready",
+      "attempt": 1,
+      "elapsedMs": 4662
+    }
+  ],
+  "runId": "aadeeb07-895c-4256-a78b-7bd10abf8e50",
+  "artifactId": "01a111bf-8974-7321-86e3-33e1be9e100f",
+  "engineeringStatus": "PASS",
+  "excluded": [
+    "deployed HTTPS",
+    "restricted Runtime Storage credential",
+    "scheduling P95",
+    "hosted CI"
+  ],
+  "completedAt": "2026-10-06T15:05:58.947Z"
+}
