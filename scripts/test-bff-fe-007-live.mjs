@@ -119,7 +119,17 @@ async function event(reader) {
 let activeSession;let refreshedAt=0;let liveReauthHeaders;let mfaUri;
 async function refreshSession(server,session) {
  const fresh=await login(server,cleanupBearer);Object.assign(session,fresh);refreshedAt=Date.now();
- const proof=await call(server,session,'mfaChallenge',{expected:200,body:{purpose:'security_change',code:totp(mfaUri)}});
+ let proof;
+ // The configured Auth service can time out while creating/verifying a pending
+ // challenge. Explicit test-driver retries retain each 503 record, reuse the
+ // provider's pending challenge and calculate a fresh TOTP. Business denials
+ // and successful-but-unverified challenges are never retried or accepted.
+ for(let attempt=0;attempt<3;attempt++) {
+  proof=await call(server,session,'mfaChallenge',{body:{purpose:'security_change',code:totp(mfaUri)}});
+  if(proof.response.status!==503)break;
+  if(attempt<2)await new Promise(r=>setTimeout(r,1000));
+ }
+ assert(proof.response.status===200&&proof.payload.status==='verified','Refresh MFA challenge did not verify');
  const grant=await call(server,session,'reauth',{expected:200,body:{challengeRef:proof.payload.challengeRef}});liveReauthHeaders['X-Reauth-Token-Ref']=grant.payload.reauthTokenRef;
 }
 const cursorHashes=new Set();const deviceIds=new Set();const jobs=[];const keys=[];const fixture=randomUUID();let actor;let originalCaps;let originalCapabilityRows;let originalQuotas;let failure;let latestServer;let originalContext;
