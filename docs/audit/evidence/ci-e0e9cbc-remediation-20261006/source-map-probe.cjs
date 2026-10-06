@@ -1,0 +1,7 @@
+const assert=require('node:assert/strict');const fs=require('node:fs');const {performance}=require('node:perf_hooks');
+const location=process.argv[2]||'./node_modules/source-map-js';const lib=require(location);const pkg=require(location+'/package.json');assert.equal(pkg.version,'1.2.2');
+const flat={version:3,sources:['source.js'],names:[],mappings:'AAAA',sourcesContent:['let x=1;\n']};const indexed=line=>({version:3,sections:[{offset:{line,column:0},map:flat}]});const records=[];
+for(const line of [1e7+1,Number.MAX_SAFE_INTEGER,Infinity,-1,0.5]){const start=performance.now();assert.throws(()=>new lib.SourceMapConsumer(indexed(line)),/Section offset/);records.push({kind:'invalid-offset',line:String(line),rejected:true,millis:performance.now()-start});}
+const nested={version:3,sections:[{offset:{line:6000000,column:0},map:indexed(6000000)}]};assert.throws(()=>new lib.SourceMapConsumer(nested),/Section offset/);records.push({kind:'cumulative-offset',rejected:true});
+const consumer=new lib.SourceMapConsumer(indexed(0));const mappings=[];consumer.eachMapping(m=>mappings.push(m));assert.equal(mappings.length,1);assert.equal(mappings[0].source,'source.js');assert.equal(mappings[0].generatedLine,1);assert.equal(mappings[0].generatedColumn,0);assert.equal(lib.SourceNode.fromStringWithSourceMap('let x=1;\n',consumer).toString(),'let x=1;\n');records.push({kind:'normal-indexed-map',status:'PASS'});
+console.log(JSON.stringify({schema:'quantos-source-map-js-probe/v1',version:pkg.version,status:'PASS',records},null,2));

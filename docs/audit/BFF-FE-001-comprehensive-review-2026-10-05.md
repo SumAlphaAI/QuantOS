@@ -1,8 +1,7 @@
 # A2 / BFF-FE-001 身份、会话与设置 API 当前复审结论
 
-> 当前 CI 修复（2026-10-06）：e0e9cbc 后续失败定位为子模块检出及 RLS 静态预检。门禁输入已改变，当前准入等待新回执；旧六项关闭及原目标回执保留。
 
-> 最新复验：2026-10-06，CI 整改冻结源码 `02f26c0`；A2 严格 DEVELOPMENT 门禁已刷新为 READY。旧六项问题继续 CLOSED，当前活动问题为 0。详见[CI 整改报告](CI-f764bc6-remediation-2026-10-05.md)。
+> 最新复验：2026-10-06，CI 整改冻结源码 `14bf36c`；A2 严格 DEVELOPMENT 门禁已刷新为 READY。旧六项问题继续 CLOSED，当前活动问题为 0。详见[CI 整改报告](CI-e0e9cbc-remediation-2026-10-06.md)。
 
 > 再复核日期：2026-10-05（Asia/Shanghai）
 > 再复核基线：`f2283fab37386354e19ffe32df2c86a1a7e9676f`；开始时工作区干净。
@@ -17,7 +16,7 @@
 
 本节点及 BFF-FE-000、CORE:F06、PROVIDER:A1 的内容绑定证据和递归依赖均有效，严格门禁返回 READY、`formalAccepted=false`。A2 闭包 15 个节点 READY；连同独立 F0 范围共 22 个节点 READY。G0/FEP-0 工程检查 PASS，新 G0 范围用户确认待办，保持 BLOCKED；历史人工批准不自动迁移。
 
-2026-10-05 在 `f2283fa` 的关闭复核重新执行本地检查并核对旧目标 52 次调用。2026-10-06 CI 整改新增正常 Supabase 目标回归绑定 `fab00ba`：**51 次调用、20 API、14 强断言，cleanupVerified=true**；全部 7 个目标源码摘要与冻结源码 `02f26c0` 一致。当前本地语义、mutation、正负门禁和递归依赖已重新验证；新目标原件独立保存，旧目标未覆盖。环境为已配置 Supabase Auth/PostgreSQL + 本机 live BFF、合成 HTTPS Origin；未获取新 hosted CI 回执。
+2026-10-05 在 `f2283fa` 的关闭复核重新执行本地检查并核对旧目标 52 次调用。2026-10-06 CI 整改新增正常 Supabase 目标回归绑定 `fab00ba`：**51 次调用、20 API、14 强断言，cleanupVerified=true**；全部 7 个目标源码摘要与当前冻结源码 `14bf36c` 一致。本轮未重跑 MFA live，沿用该正常目标内容证据。当前本地语义、mutation、正负门禁和递归依赖已重新验证；新目标原件独立保存，旧目标未覆盖。环境为已配置 Supabase Auth/PostgreSQL + 本机 live BFF、合成 HTTPS Origin；未获取新 hosted CI 回执。
 
 历史问题已从主报告移出；[初审归档](BFF-FE-001-findings-archive-2026-10-05.md)与原文逐字节一致，[逐项关闭复核](BFF-FE-001-closed-findings-2026-10-05.md)保存六项依据，[整改记录](BFF-FE-001-remediation-2026-10-05.md)保留实现及各次失败历史。
 
@@ -72,7 +71,7 @@
 | A2 / PROVIDER:A1 严格门禁 | READY，源码、执行、目标回执及依赖内容有效 |
 | 计划结构与阶段依赖 | PASS；35 项计划负向通过 |
 
-套件范围可能重叠，不累加成总验收用例数。详情见[原关闭复核命令](evidence/bff-fe-001-closure-recheck-20261005/recheck.json)、[最新 CI 复验](CI-f764bc6-remediation-2026-10-05.md)和[当前 A2 manifest](evidence/bff-fe-001-remediation-20261005/ci-final-precision-20261006/a2.json)。
+套件范围可能重叠，不累加成总验收用例数。详情见[原关闭复核命令](evidence/bff-fe-001-closure-recheck-20261005/recheck.json)、[最新 CI 复验](CI-e0e9cbc-remediation-2026-10-06.md)和[当前 A2 manifest](evidence/bff-fe-001-remediation-20261005/ci-submodule-rls-sca-20261006/a2.json)。
 
 ## 三、活动问题与适用边界
 

@@ -1,0 +1,863 @@
+cargo test --workspace --locked
+
+running 15 tests
+test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... ignored, Supabase target test: run explicitly with QUANTOS_RUN_F09_POSTGRES_TESTS=1
+test live::settings_policy::tests::revoked_delivery_is_terminal ... ok
+test live::settings_policy::tests::live_challenge_has_five_minute_lifetime ... ok
+test live::settings_policy::tests::current_factor_status_overrides_cancel_checkpoint ... ok
+test live::settings_policy::tests::first_factor_cannot_create_after_any_verified_factor_exists ... ok
+test live::settings_policy::tests::last_verified_factor_cannot_be_removed_even_with_unverified_siblings ... ok
+test live::settings_policy::tests::malformed_factor_state_cannot_be_treated_as_unenrolled ... ok
+test live::settings_policy::tests::live_csrf_requires_bound_cookie_and_header ... ok
+test live::settings_policy::tests::verification_time_comes_from_auth_facts_not_session_expiry ... ok
+test live::tests::live_session_requires_opaque_cookie_and_exact_origin ... ok
+test live::tests::live_errors_hide_account_existence_and_include_correlation ... ok
+test live::cors_tests::trusted_browser_can_read_contract_response_headers ... ok
+test live::cors_tests::untrusted_origin_and_undeclared_headers_are_not_allowed ... ok
+test live::cors_tests::trusted_recent_auth_preflight_allows_contract_headers ... ok
+test live::f09_trace_tests::auth_write_returns_queryable_correlation_trace ... ok
+
+test result: ok. 14 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 6 tests
+test evidence_chain_preserves_causation_order_and_hides_missing_resources ... ok
+test audit_sort_filter_is_executed_and_unknown_expressions_are_rejected ... ok
+test audit_search_is_capability_guarded_redacted_and_cursor_paginated ... ok
+test export_cancel_expiry_and_validation_fail_closed ... ok
+test export_lifecycle_is_idempotent_watermarked_short_lived_and_audited ... ok
+test export_commands_reject_changed_intents_before_audit_or_cancellation ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 12 tests
+test logout_expires_secure_http_only_same_site_cookie ... ok
+test public_access_request_validates_origin_and_body_and_writes_audit ... ok
+test authentication_csrf_and_resource_failures_fail_closed ... ok
+test current_session_and_last_mfa_factor_are_protected ... ok
+test session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit ... ok
+test mfa_rate_limit_is_account_neutral ... ok
+test stale_settings_write_returns_current_version_without_mutation ... ok
+test challenges_are_fresh_single_use_and_cooldown_precedes_verification ... ok
+test notification_save_is_idempotent_and_audited ... ok
+test settings_roundtrip_preserves_inputs_and_separates_idempotent_intents ... ok
+test security_retries_execute_once_and_match_success_correlation ... ok
+test session_stream_stays_open_for_other_session_and_closes_revoked_target ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test tests::expired_and_denied_commands_never_reach_kernel ... ok
+test tests::allowed_command_submits_once_and_replay_rechecks_session ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test tests::nautilus_gateway_builder_is_available_for_bootstrap ... ok
+test tests::paper_gateway_builder_is_available_for_bootstrap ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test binance::tests::owned_stop_pipe_is_bounded_and_eof_stops_requests ... ok
+test binance::tests::retry_after_is_strict_and_fatal_errors_do_not_churn ... ok
+test binance::tests::endpoint_cannot_redirect_native_calls_to_other_hosts ... ok
+test binance::tests::server_clock_diagnostics_preserve_unknowns_and_rtt_bounds ... ok
+test binance::tests::aggregate_mapping_identity_and_gap_boundaries ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 3 tests
+test cli_transport_outage_recovers_from_committed_cursor_and_restarts ... ok
+test supabase_pages_are_atomic_and_empty_polls_are_transport_health ... ok
+test cli_rejects_unbounded_and_unapproved_configuration ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s
+
+
+running 2 tests
+test cli_supabase_fixture_and_recovery_paths ... ok
+test cli_success_rejection_and_config_paths ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 4 tests
+test tests::user_request_context_can_represent_primary_workspace_session ... ok
+test tests::auth_context_projects_policy_context ... ok
+test tests::application_urls_require_certificate_verification ... ok
+test tests::verified_claims_bind_subject_role_mfa_and_expiry ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 9 tests
+test dedicated_bff_login_uses_verified_tls_and_narrow_role ... ok
+test bff_session_is_bound_to_its_primary_account_and_revocation ... ok
+test gateway_auth_loads_primary_workspace_context_and_enforces_capability_checks ... ok
+test operator_connection_cannot_be_reused_without_verified_tls ... ok
+test gateway_auth_only_allows_service_secret_resolution_via_allowlist_session ... ok
+test authenticated_role_cannot_read_other_tenant_workspace ... ok
+test f06_dedicated_bff_auth_read_p95 ... ok
+test cross_tenant_authorization_edges_are_rejected_by_database_constraints ... ok
+test f06_four_category_denial_matrix ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 10 tests
+test clocks_are_utc_fixed_and_strictly_parsed ... ok
+test workspace_health_contract_is_stable ... ok
+test typed_ids_cover_all_public_construction_paths ... ok
+test every_error_code_and_constructor_is_stable ... ok
+test money_and_quantity_enforce_constructor_and_serde_boundaries ... ok
+test money_deserialization_rejects_every_malformed_shape ... ok
+test versions_and_hashes_cover_valid_and_invalid_wire_forms ... ok
+test fixtures_are_canonical_verified_and_serde_safe ... ok
+test fixture_rejects_hash_tampering_and_malformed_shapes ... ok
+test builder_maps_serialization_failures_and_fixture_hashes_are_repeatable ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+
+running 8 tests
+test durable::tests::world_readable_state_directory_is_rejected ... ok
+test tests::remaining_time_rejects_expired_deadlines ... ok
+test tests::review_manifest_rejects_duplicate_capabilities ... ok
+test durable::tests::corrupt_ledger_fails_closed ... ok
+test tests::signed_route_policy_and_reregistration_fail_closed ... ok
+test tests::approval_fails_closed_on_unsigned_or_modified_manifest ... ok
+test durable::tests::pending_key_is_exclusive_and_completed_result_survives_reopen ... ok
+test tests::manager_opens_backoff_window_after_three_recorded_failures ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 8 tests
+test machine_codes_are_stable_for_all_manager_failures ... ok
+test manager_diagnostics_do_not_expose_approval_key ... ok
+test manifest_rejects_each_invalid_boundary ... ok
+test invalid_request_and_signed_route_dimensions_fail_before_network ... ok
+test malformed_approvals_never_register ... ok
+test malformed_rpc_inputs_fail_before_transport ... ok
+test supervised_release_requires_durable_state_and_exact_artifact ... ok
+test reviewed_registration_rejects_capability_takeover_and_live_sidecar_replacement ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.09s
+
+
+running 2 tests
+test python_llmquant_rejects_forbidden_boundary_fields ... ok
+test python_llmquant_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 25 tests
+test durable_child_execute_entry ... ok
+test observed_sidecar_rss_excess_quarantines_shared_route ... ok
+test duplicate_key_returns_same_result_and_changed_input_is_rejected ... ok
+test metadata_health_and_cancel_failures_preserve_route_state ... ok
+test manager_rejects_broken_execute_and_interrupted_streams ... ok
+test missing_vibe_adapter_does_not_block_mock_workflow_routing ... ok
+test manager_cancel_interrupts_owned_running_execution ... ok
+test dispatch_reprobes_ready_engine_without_background_monitor ... ok
+test python_mock_engine_contracts_round_trip_over_uds ... ok
+test approval_cli_signs_reviewed_manifest_and_refuses_overwrite ... ok
+test python_mock_engine_recovers_after_three_unavailable_failures ... ok
+test heartbeat_removes_failed_engine_and_restores_ready_route ... ok
+test durable_result_and_circuit_survive_manager_reconstruction ... ok
+test supervised_sidecar_refuses_tampered_artifact_then_recovers ... ok
+test unavailable_socket_fails_fast_then_recovers_without_request_loss ... ok
+test manager_supervises_three_real_crashes_without_test_owned_restarts ... ok
+test handshake_rejects_each_unreviewed_identity_and_readiness_dimension ... ok
+test execution_concurrency_and_rss_quotas_reject_excess_work ... ok
+test untrusted_engine_cannot_bypass_manager_response_identity_checks ... ok
+test python_mock_engine_deadline_timeout_is_deterministic ... ok
+test one_request_survives_three_real_engine_process_crashes ... ok
+test readiness_accepts_exact_metadata_echo_across_second_boundary ... ok
+test os_killed_manager_replays_pending_key_into_one_durable_result ... ok
+test signed_rate_limit_and_stream_deadline_are_enforced ... ok
+test control_rpcs_timeout_within_two_seconds_on_untrusted_engine ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.17s
+
+
+running 2 tests
+test python_openbb_adapter_blocks_production_license_enablement ... ok
+test python_openbb_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 2 tests
+test python_rd_agent_rejects_forbidden_boundary_fields ... ok
+test python_rd_agent_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 4 tests
+test python_strategy_lab_rejects_forbidden_boundary_fields ... ok
+test python_strategy_lab_static_check_failure_blocks_release ... ok
+test python_strategy_lab_contracts_round_trip_over_uds ... ok
+test python_strategy_lab_rejects_hundred_malicious_prompts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+
+running 2 tests
+test python_trading_agents_rejects_forbidden_boundary_fields ... ok
+test python_trading_agents_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+
+running 2 tests
+test python_vibe_adapter_rejects_forbidden_boundary_fields ... ok
+test python_vibe_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 10 tests
+test tests::duplicate_events_are_rejected_at_append_time ... ok
+test tests::projection_ignores_duplicate_deliveries ... ok
+test tests::append_rejects_sequence_gaps ... ok
+test tests::projection_buffers_out_of_order_events_and_replays_in_sequence ... ok
+test tests::provenance_is_required_and_replay_filters_the_tenant_boundary ... ok
+test tests::projection_can_resume_after_restart_from_checkpoint ... ok
+test tests::projection_continues_with_buffered_event_after_dead_letter ... ok
+test tests::projection_sends_poison_messages_to_dead_letter_after_max_attempts ... ok
+test tests::projection_ignores_old_sequences_and_keeps_first_buffered_delivery ... ok
+test tests::ledger_replays_ten_thousand_events_without_loss ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+
+running 11 tests
+test postgres_polling_worker_dead_letters_poison_events_after_retry_budget ... ok
+test postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts ... ok
+test postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent ... ok
+test postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_attempts ... ok
+test correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation ... ok
+test postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry ... ok
+test stale_outbox_and_inbox_lease_tokens_cannot_commit_after_reclaim ... ok
+test batched_success_rolls_back_when_either_lease_token_changes ... ok
+test postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correlation ... ok
+test postgres_connection_failures_are_closed_for_plain_and_tls_clients ... ok
+test postgres_tls_root_configuration_fails_closed ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.79s
+
+
+running 1 test
+test tests::evidence_package_is_go_ready_and_tamper_evident ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+
+
+running 31 tests
+test gateway::tests::limit_intent_without_price_is_rejected_before_the_kernel ... ok
+test paper::tests::duplicate_submit_only_calls_downstream_once ... ok
+test paper::tests::illegal_transitions_are_rejected_by_the_state_machine ... ok
+test paper::tests::cancel_latency_and_rejections_are_auditable ... ok
+test gateway::tests::nautilus_adapter_replay_also_produces_one_outbox_entry ... ok
+test gateway::tests::boundary_command_carries_no_session_or_identity_material ... ok
+test gateway::tests::nautilus_adapter_maps_wire_shape_and_client_order_id_is_stable ... ok
+test dual::tests::m5_flag_off_makes_assisted_live_unreachable ... ok
+test gateway::tests::all_six_boundary_rejection_classes_are_enforced_before_the_kernel ... ok
+test gateway::tests::order_and_fill_events_map_back_to_owned_schema ... ok
+test gateway::tests::nautilus_events_map_back_to_owned_schema_through_the_gateway ... ok
+test venue::tests::venue_config_rejects_production_endpoints_and_keys ... ok
+test venue::tests::network_and_authentication_failures_are_classified ... ok
+test tests::approved_command_carries_approval_signature ... ok
+test dual::tests::self_approval_cap_expiry_and_allowlist_are_all_rejected ... ok
+test gateway::tests::thousand_replays_with_same_key_produce_exactly_one_downstream_submission ... ok
+test venue::tests::precision_and_rate_limits_are_mapped ... ok
+test zone::tests::expired_sessions_and_commands_are_rejected ... ok
+test zone::tests::mtls_identity_enforces_expiry_and_revocation ... ok
+test zone::tests::only_execution_gateway_can_resolve_vault_references ... ok
+test zone::tests::rotation_recovers_within_five_minutes_then_stales ... ok
+test zone::tests::unlisted_egress_hosts_are_blocked ... ok
+test tests::seven_rejection_classes_are_all_enforced ... ok
+test zone::tests::zone_fixtures_contain_no_secret_material ... ok
+test paper::tests::every_fill_is_traceable_to_a_command ... ok
+test gateway::tests::hundred_precision_and_limit_variants_are_fully_intercepted ... ok
+test tests::thousand_concurrent_issuances_with_same_key_emit_exactly_one_command ... ok
+test venue::tests::two_hundred_testnet_scenarios_map_fully_to_internal_schema ... ok
+test dual::tests::fifty_dual_approvals_all_write_signed_audit_entries ... ok
+test tests::issuance_stays_under_two_hundred_millis_p95_and_is_short_lived ... ok
+test paper::tests::one_hundred_thousand_order_events_all_transition_legally ... ok
+
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+
+
+running 13 tests
+test tests::rejects_unapproved_providers_and_normalizes_symbols ... ok
+test tests::instrument_identity_is_unambiguous_and_venue_scoped ... ok
+test tests::freshness_and_quality_anomalies_emit_events_within_five_seconds ... ok
+test tests::identity_is_tenant_scoped_and_conflicting_content_is_rejected ... ok
+test tests::provider_configuration_fails_closed_and_supports_revocation ... ok
+test tests::processing_clock_detects_backlog_future_receive_and_future_event ... ok
+test tests::failed_batch_does_not_publish_partial_ledger_or_identity ... ok
+test tests::invalid_numeric_ticks_emit_quality_with_raw_values_and_continue ... ok
+test tests::out_of_order_and_duplicate_ticks_are_deduplicated ... ok
+test tests::pure_domain_p95_under_fifty_milliseconds ... ok
+test tests::error_codes_and_io_failures_are_deterministic ... ok
+test tests::replay_and_parser_are_bounded_and_invalid_specs_return_errors ... ok
+test tests::replay_dataset_ingests_one_hundred_thousand_ticks_without_parse_failures ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.52s
+
+
+running 1 test
+test supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 20 tests
+test service::tests::multiprocess_jsonl_fixture ... ok
+test capacity::tests::required_external_metric_inventory_is_complete_and_unique ... ok
+test tests::duplicate_or_backward_ticks_do_not_advance_consecutive_windows ... ok
+test tests::capacity_duration_and_consecutive_windows_reset_after_missing_tick ... ok
+test service::tests::live_write_trace_sink_requires_absolute_path ... ok
+test tests::health_report_requires_all_components_ready ... ok
+test tests::quota_alert_is_immediate_and_requires_exceeding_seventy_percent ... ok
+test capacity::tests::capacity_evidence_serializes_for_the_adr_generator ... ok
+test tests::fault_proxy_redacts_secrets_and_preserves_recovery_trace ... ok
+test service::tests::returns_stable_structured_errors ... ok
+test tests::capacity_alerts_cover_required_thresholds_and_adr_inputs ... ok
+test tests::telemetry_redacts_secret_fields ... ok
+test capacity::tests::target_connection_accepts_verified_tls_options_without_relaxing_validation ... ok
+test tests::db_event_consumer_and_engine_faults_recover_without_secret_leaks ... ok
+test tests::observable_writes_are_indexed_by_correlation_id ... ok
+test service::tests::persisted_trace_redacts_nested_credentials_and_rejects_remote_listener ... ok
+test service::tests::exposes_health_metrics_and_correlation_trace ... ok
+test capacity::tests::postgres_tls_backend_keeps_peer_validation_and_rejects_missing_ca ... ok
+test service::tests::multiple_processes_write_complete_jsonl_records ... ok
+test service::tests::stalled_client_does_not_stop_listener_and_listener_failure_changes_readiness ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.01s
+
+
+running 4 tests
+test fault_proxy_retries_real_postgres_event_and_consumer_chain ... ok
+test restricted_runtime_role_records_only_real_storage_outcomes ... ok
+test live_database_session_termination_preserves_ordered_event_chain ... ok
+test live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 6 tests
+test tests::execution_capability_requires_account_even_without_caller_flag ... ok
+test tests::secret_resolution_rejects_non_service_roles ... ok
+test tests::owner_role_is_allowed_without_explicit_capability_row ... ok
+test tests::explicit_capability_can_unlock_service_secret_resolution ... ok
+test tests::owner_does_not_inherit_secret_resolution_or_unknown_capabilities ... ok
+test tests::viewer_role_cannot_execute_without_explicit_capability ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 4 tests
+test tests::out_of_order_and_duplicate_events_are_rejected ... ok
+test tests::ten_thousand_event_replay_matches_golden_snapshot ... ok
+test tests::rebuild_is_fully_repeatable ... ok
+test tests::portfolio_queries_stay_under_three_hundred_millis_p95 ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+
+running 2 tests
+test f09_portfolio_and_risk_queries_persist_actual_latency_samples ... ok
+test postgres_portfolio_store_persists_and_reads_projection ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 4 tests
+test validation::tests::accepts_complete_security_metadata ... ok
+test validation::tests::rejects_missing_and_empty_security_metadata ... ok
+test validation::exhaustive_tests::nested_event_paths_are_checked ... ok
+test validation::exhaustive_tests::all_25_types_reject_each_identity_gap ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 4 tests
+test trade_proposal_verdict_values_are_stable ... ok
+test command_metadata_schema_requires_audit_fields ... ok
+test trade_command_roundtrips_across_one_thousand_fixtures ... ok
+test every_planned_domain_type_roundtrips_across_one_thousand_fixture_sets ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 3 tests
+test tests::exception_queue_enforces_acknowledge_then_close_lifecycle ... ok
+test tests::ten_consecutive_shadow_days_reconcile_with_zero_unexplained_breaks ... ok
+test tests::twenty_injected_breaks_are_detected_and_located_within_sla ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test tests::post_trade_rules_catch_daily_loss_and_leverage_breach ... ok
+test tests::fifty_allow_fixtures_all_pass ... ok
+test tests::fifty_deny_fixtures_cover_every_rule_and_include_limits_and_signature ... ok
+test tests::fifty_approval_required_fixtures_all_route_to_approval ... ok
+test tests::kill_switch_rejects_new_commands_under_one_second_p95 ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 12 tests
+test pg::tests::runtime_role_membership_requires_only_the_runtime_role ... ok
+test pg::tests::broad_admin_login_cannot_impersonate_runtime_service ... ok
+test tests::persisted_status_and_retry_bounds_are_explicit ... ok
+test pg::tests::remote_runtime_rejects_unverified_transport_before_connecting ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test tests::kernel_fences_cancelled_timed_out_and_exhausted_runs ... ok
+test tests::kernel_rejects_invalid_schedule_and_stale_worker_operations ... ok
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test pg::tests::local_transport_and_query_options_are_handled_explicitly ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 5 tests
+test postgres_runtime_worker_child_claims_checkpoints_and_waits ... ignored, helper process invoked by the PostgreSQL recovery test
+test postgres_runtime_rejects_revocation_capability_conflicts_and_rate_overflow ... ok
+test postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test postgres_runtime_fences_old_attempt_and_enforces_cost_and_retry_budget ... ok
+test postgres_runtime_records_cancel_and_timeout_audits ... ok
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test research_workflow_cancel_confirms_within_two_seconds ... ok
+test research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.24s
+
+
+running 3 tests
+test signal_proposal_workflow_rejects_forbidden_order_tools ... ok
+test signal_proposal_workflow_replay_keeps_signal_and_proposal_hashes_stable ... ok
+test signal_proposal_workflow_runs_hundred_cases_with_evidence_expiry_and_non_executable_proposals ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.54s
+
+
+running 13 tests
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test snapshot::tests::optional_license_rule_accepts_complete_unlicensed_metadata ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+
+running 1 test
+test postgres_storage_store_persists_artifacts_and_schema_registry ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 3 tests
+test registration_failure_compensates_upload_and_success_persists ... ok
+test invalid_configuration_fails_before_requests ... ok
+test http_success_errors_and_corrupt_downloads ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+
+running 1 test
+test supabase_storage_adapter_round_trips_artifacts_and_registers_manifest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 16 tests
+test release::tests::assisted_live_is_not_representable_before_m5 ... ok
+test generated::tests::unsupported_rules_are_rejected ... ok
+test release::tests::approved_release_deploys_to_paper_and_shadow_and_stays_immutable ... ok
+test release::tests::duplicate_publish_returns_same_hash_and_modified_content_conflicts ... ok
+test release::tests::hundred_unverified_or_unapproved_deployments_are_all_rejected ... ok
+test tests::unauthorized_actor_cannot_save_or_initiate_validation ... ok
+test tests::unapproved_references_are_rejected_at_save_time ... ok
+test tests::drafts_without_snapshot_or_artifacts_cannot_initiate_validation ... ok
+test generated::tests::hundred_static_check_failures_all_block_release_path ... ok
+test backtest::tests::validation_report_contains_costs_environment_and_input_hash ... ok
+test generated::tests::clean_generated_draft_replays_through_backtest_pipeline ... ok
+test backtest::tests::series_not_bound_to_snapshot_is_rejected ... ok
+test backtest::tests::ten_replays_produce_identical_metrics_and_hashes ... ok
+test tests::draft_saves_stay_under_three_hundred_millis_p95 ... ok
+test tests::fifty_concurrent_editors_never_silently_overwrite ... ok
+test backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+
+running 1 test
+test postgres_strategy_store_persists_versions_and_rejects_conflicts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test postgres_release_store_enforces_dedupe_conflict_and_deployment_gate ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 3 tests
+test tests::fixed_ids_and_clock_are_replayable ... ok
+test tests::domain_operations_stay_below_fifty_milliseconds_p95 ... ok
+test tests::thousand_fixture_corpus_is_deterministic ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 10 tests
+test live::tests::f09_runtime_real_write_trace ... ok
+test live::tests::gateway_executes_owned_run_and_retrieves_verified_artifact ... ok
+test live::tests::malformed_cookie_is_rejected_before_database_access ... ok
+test live::tests::remote_test_connection_rejects_missing_ca - should panic ... ok
+test live::tests::remote_test_connection_keeps_verified_ca_for_all_consumers ... ok
+test startup::tests::independent_connections_start_together ... ok
+test startup::tests::certificate_or_role_failure_is_not_retried_and_peers_are_dropped ... ok
+test live::f09_trace_tests::failed_write_has_structured_error_and_matching_trace ... ok
+test live::f09_trace_tests::write_returns_queryable_correlation_trace ... ok
+test startup::tests::retries_only_transient_transport_and_stops_at_three ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.02s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+uv run --locked --project engines --all-packages pytest
+============================= test session starts ==============================
+platform darwin -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/anray/Documents/project/SumAlpha/QuantOS
+plugins: cov-6.2.1
+collected 129 items
+
+engines/tests/test_engine_contract.py .................................  [ 25%]
+engines/tests/test_engine_observability.py ..                            [ 27%]
+engines/tests/test_llmquant_contract.py .......                          [ 32%]
+engines/tests/test_mock_engine_recovery.py .......                       [ 37%]
+engines/tests/test_openbb_adapter_contract.py .........                  [ 44%]
+engines/tests/test_proto_sdk.py ..                                       [ 46%]
+engines/tests/test_protocol_metadata_completeness.py .......             [ 51%]
+engines/tests/test_rd_agent_contract.py .....                            [ 55%]
+engines/tests/test_strategy_lab_contract.py .......                      [ 61%]
+engines/tests/test_tp08_qlib_mapping_samples.py .....                    [ 65%]
+engines/tests/test_tp09_trendradar_mapping_samples.py ......             [ 69%]
+engines/tests/test_tp10_valuecell_evaluation.py .......                  [ 75%]
+engines/tests/test_tp11_openstock_fixtures.py .....                      [ 79%]
+engines/tests/test_tp12_nautilus_agents_rules.py .......                 [ 84%]
+engines/tests/test_trading_agents_contract.py .......                    [ 89%]
+engines/tests/test_vibe_adapter_contract.py ......                       [ 94%]
+engines/tests/test_workspace.py .......                                  [100%]
+
+============================= 129 passed in 33.45s =============================
+pnpm test
+
+> @sumalpha/quantos@ test /Users/anray/Documents/project/SumAlpha/QuantOS
+> pnpm -r test
+
+Scope: 7 of 8 workspace projects
+packages/config test$ vitest run
+packages/ui test$ vitest run
+packages/config test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/packages/config
+packages/ui test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/packages/ui
+packages/config test:  Test Files  1 passed (1)
+packages/config test:       Tests  26 passed (26)
+packages/config test:    Start at  10:19:49
+packages/config test:    Duration  434ms (transform 59ms, setup 0ms, import 69ms, tests 288ms, environment 0ms)
+packages/config test: Done
+packages/ui test:  Test Files  4 passed (4)
+packages/ui test:       Tests  19 passed (19)
+packages/ui test:    Start at  10:19:49
+packages/ui test:    Duration  506ms (transform 262ms, setup 0ms, import 559ms, tests 55ms, environment 277ms)
+packages/ui test: Done
+packages/platform test$ vitest run
+packages/api-client test$ vitest run
+packages/api-client test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/packages/api-client
+packages/platform test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/packages/platform
+packages/platform test:  Test Files  1 passed (1)
+packages/platform test:       Tests  2 passed (2)
+packages/platform test:    Start at  10:19:49
+packages/platform test:    Duration  109ms (transform 22ms, setup 0ms, import 28ms, tests 1ms, environment 0ms)
+packages/platform test: Done
+packages/api-client test:  Test Files  7 passed (7)
+packages/api-client test:       Tests  64 passed (64)
+packages/api-client test:    Start at  10:19:49
+packages/api-client test:    Duration  733ms (transform 373ms, setup 0ms, import 731ms, tests 628ms, environment 0ms)
+packages/api-client test: Done
+apps/website test$ vitest run
+packages/domain-ui test$ vitest run
+apps/website test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/apps/website
+packages/domain-ui test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/packages/domain-ui
+packages/domain-ui test:  Test Files  3 passed (3)
+packages/domain-ui test:       Tests  19 passed (19)
+packages/domain-ui test:    Start at  10:19:50
+packages/domain-ui test:    Duration  179ms (transform 150ms, setup 0ms, import 241ms, tests 11ms, environment 0ms)
+packages/domain-ui test: Done
+apps/website test:  Test Files  2 passed (2)
+apps/website test:       Tests  7 passed (7)
+apps/website test:    Start at  10:19:50
+apps/website test:    Duration  236ms (transform 126ms, setup 0ms, import 200ms, tests 6ms, environment 0ms)
+apps/website test: Done
+apps/terminal test$ vitest run
+apps/terminal test:  RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS/apps/terminal
+apps/terminal test:  Test Files  11 passed (11)
+apps/terminal test:       Tests  85 passed (85)
+apps/terminal test:    Start at  10:19:51
+apps/terminal test:    Duration  378ms (transform 1.17s, setup 0ms, import 2.12s, tests 130ms, environment 1ms)
+apps/terminal test: Done
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+   Compiling quantos-evidence v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-evidence)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+   Compiling market-ingestor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/market-ingestor)
+   Compiling capacity-monitor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/capacity-monitor)
+   Compiling replay-cli v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/replay-cli)
+   Compiling runtime-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/runtime-gateway)
+   Compiling portfolio-rebuild v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/portfolio-rebuild)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 27.39s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-77df55dc7d73a2b0)
+     Running unittests src/main.rs (target/debug/deps/bff_gateway-c7f28125c9619314)
+     Running tests/audit_export_provider.rs (target/debug/deps/audit_export_provider-a3d3c224ca73c22e)
+     Running tests/auth_settings_provider.rs (target/debug/deps/auth_settings_provider-7550b4cdb57ebbc0)
+     Running unittests src/main.rs (target/debug/deps/capacity_monitor-0ce0b027373c2e1e)
+     Running unittests src/lib.rs (target/debug/deps/execution_gateway-00a215381e832ade)
+     Running unittests src/main.rs (target/debug/deps/execution_gateway-9412cb16a22135b5)
+     Running unittests src/main.rs (target/debug/deps/market_ingestor-4387af6ed538067c)
+     Running tests/binance.rs (target/debug/deps/binance-9c8aaee2bd1989f4)
+     Running tests/cli.rs (target/debug/deps/cli-e0a8a67b67c54793)
+     Running unittests src/main.rs (target/debug/deps/portfolio_rebuild-e8689325334a341a)
+     Running unittests src/lib.rs (target/debug/deps/quantos_auth-5b04fbecfb303371)
+     Running tests/postgres_auth_context.rs (target/debug/deps/postgres_auth_context-83fc9ef7e0eb9f0a)
+     Running unittests src/lib.rs (target/debug/deps/quantos_core-102bc22d1f0d6f5e)
+     Running tests/core_contract.rs (target/debug/deps/core_contract-99135d89a627a9d8)
+     Running unittests src/lib.rs (target/debug/deps/quantos_engine_manager-81e661526ee25d20)
+     Running unittests src/bin/f08-approval.rs (target/debug/deps/f08_approval-312b5de3d3869ab2)
+     Running tests/manager_negative.rs (target/debug/deps/manager_negative-2d5edfe11dbe833c)
+     Running tests/python_llmquant.rs (target/debug/deps/python_llmquant-b78ee317b750fec4)
+     Running tests/python_mock_engine.rs (target/debug/deps/python_mock_engine-1a2ee2e7fd99c7e0)
+Error: "approval output exists; choose a new path"
+     Running tests/python_openbb_adapter.rs (target/debug/deps/python_openbb_adapter-d05352a8cf69198c)
+     Running tests/python_rd_agent.rs (target/debug/deps/python_rd_agent-3307696062c779cf)
+     Running tests/python_strategy_lab.rs (target/debug/deps/python_strategy_lab-6db98d12e97babf8)
+     Running tests/python_trading_agents.rs (target/debug/deps/python_trading_agents-18a3f82c448840fe)
+     Running tests/python_vibe_adapter.rs (target/debug/deps/python_vibe_adapter-7982f2c1a1c6f85a)
+     Running unittests src/lib.rs (target/debug/deps/quantos_event-9e49298f2336433b)
+     Running tests/postgres_persistence.rs (target/debug/deps/postgres_persistence-22fcf9f01f582182)
+     Running unittests src/lib.rs (target/debug/deps/quantos_evidence-aa5e655988e10fee)
+     Running unittests src/lib.rs (target/debug/deps/quantos_execution-0959bbecaf6eb3da)
+     Running unittests src/lib.rs (target/debug/deps/quantos_market-94024bcd7bab012d)
+     Running tests/postgres_ingestion.rs (target/debug/deps/postgres_ingestion-08c7f0864d671847)
+     Running unittests src/lib.rs (target/debug/deps/quantos_observability-41dcab9ba5ff5a8e)
+     Running tests/postgres_capacity_monitor.rs (target/debug/deps/postgres_capacity_monitor-5688e918ccb6cd91)
+     Running unittests src/lib.rs (target/debug/deps/quantos_policy-63f953e56c9f8035)
+     Running unittests src/lib.rs (target/debug/deps/quantos_portfolio-771ee032992b27c5)
+     Running tests/postgres_portfolio.rs (target/debug/deps/postgres_portfolio-a405231c2e31bb48)
+     Running unittests src/lib.rs (target/debug/deps/quantos_proto-7252ee0e623f0f09)
+     Running tests/protocol_roundtrip.rs (target/debug/deps/protocol_roundtrip-dec807af88fba738)
+     Running unittests src/main.rs (target/debug/deps/quantos_proto_json_codegen-58d09e76ca9aa796)
+     Running unittests src/lib.rs (target/debug/deps/quantos_reconcile-2b4d0b9d57de46bd)
+     Running unittests src/lib.rs (target/debug/deps/quantos_risk-ec4b421768615ee9)
+     Running unittests src/lib.rs (target/debug/deps/quantos_runtime-bc2599feabe00842)
+     Running tests/postgres_runtime.rs (target/debug/deps/postgres_runtime-69adf29450a92320)
+     Running tests/research_orchestration.rs (target/debug/deps/research_orchestration-709b38a701bbaa43)
+     Running tests/signal_proposal_orchestration.rs (target/debug/deps/signal_proposal_orchestration-933b47cef3a8ca4b)
+     Running unittests src/lib.rs (target/debug/deps/quantos_storage-05bc5547e86a4b1a)
+     Running tests/postgres_persistence.rs (target/debug/deps/postgres_persistence-3d7fe9907b238708)
+     Running tests/storage_http.rs (target/debug/deps/storage_http-8f6e253d81dc53dd)
+     Running tests/supabase_storage_integration.rs (target/debug/deps/supabase_storage_integration-2fbe3aa44d69676e)
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-b36f73b91a2e8ed7)
+     Running tests/postgres_drafts.rs (target/debug/deps/postgres_drafts-531eb9697eb735cf)
+     Running tests/postgres_releases.rs (target/debug/deps/postgres_releases-6e47c1495c7be0e1)
+     Running unittests src/lib.rs (target/debug/deps/quantos_testkit-23bdbc345e66bc7f)
+     Running unittests src/bin/fixture-corpus.rs (target/debug/deps/fixture_corpus-8cf0e9cd88e27184)
+     Running unittests src/main.rs (target/debug/deps/replay_cli-565eb9738722fad3)
+     Running unittests src/main.rs (target/debug/deps/runtime_gateway-ac722efbba71fdd5)
+   Doc-tests bff_gateway
+   Doc-tests execution_gateway
+   Doc-tests quantos_auth
+   Doc-tests quantos_core
+   Doc-tests quantos_engine_manager
+   Doc-tests quantos_event
+   Doc-tests quantos_evidence
+   Doc-tests quantos_execution
+   Doc-tests quantos_market
+   Doc-tests quantos_observability
+   Doc-tests quantos_policy
+   Doc-tests quantos_portfolio
+   Doc-tests quantos_proto
+   Doc-tests quantos_reconcile
+   Doc-tests quantos_risk
+   Doc-tests quantos_runtime
+   Doc-tests quantos_storage
+   Doc-tests quantos_strategy
+   Doc-tests quantos_testkit
