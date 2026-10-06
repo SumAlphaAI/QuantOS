@@ -14,6 +14,7 @@ fs.mkdirSync(output, { recursive: true });
 const sourceCommitAtStart=execFileSync("git",["rev-parse","HEAD"],{encoding:"utf8"}).trim();
 const records = [];
 const transportAttempts = [];
+const connectionAttempts = [];
 const jobCorrelations = new Set();
 let databaseRunStart;
 const assertions = [];
@@ -40,7 +41,7 @@ const database = new URL(process.env.DATABASE_URL);
 assert(/\.supabase\.(com|co)$/.test(database.hostname), "Configured hosted Supabase PostgreSQL required");
 function pgClient() {
   return new Client({ host: database.hostname, port: Number(database.port || 5432), user: decodeURIComponent(database.username),
-    password: decodeURIComponent(database.password), database: database.pathname.slice(1),
+    password: decodeURIComponent(database.password), database: database.pathname.slice(1), connectionTimeoutMillis:20000,
     ssl: { rejectUnauthorized: true, ...(process.env.QUANTOS_BFF_SSLROOTCERT ? {ca:fs.readFileSync(process.env.QUANTOS_BFF_SSLROOTCERT,"utf8")} : {}) } });
 }
 async function authRequest(route, token, method="GET", body) {
@@ -91,8 +92,9 @@ async function call(server,session,id,options={}) {
   } catch(error) {
     const transient=error.name==='TimeoutError'||error instanceof TypeError&&error.message==='fetch failed';
     if(!transient)throw error;
-    transportAttempts.push({operationId:id,attempt:(options.transportAttempt??0)+1,outcome:error.name==='TimeoutError'?'CLIENT_TIMEOUT':'NETWORK_UNAVAILABLE',at:new Date().toISOString()});
-    if(operation.method!=='get'||(options.transportAttempt??0)>=2)throw error;
+    const replay=options.recoverTimedWrite===true&&['createExport','cancelExport'].includes(id)&&options.key&&options.expected===202;
+    transportAttempts.push({operationId:id,attempt:(options.transportAttempt??0)+1,outcome:error.name==='TimeoutError'?'CLIENT_TIMEOUT':'NETWORK_UNAVAILABLE',recovery:replay?'EXPLICIT_SAME_KEY_WRITE_REPLAY':'READ_RETRY',at:new Date().toISOString()});
+    if(operation.method!=='get'&&!replay||(options.transportAttempt??0)>=2)throw error;
     await new Promise(r=>setTimeout(r,1000));
     return call(server,session,id,{...options,key:commandKey,transportAttempt:(options.transportAttempt??0)+1});
   }
@@ -104,7 +106,7 @@ async function call(server,session,id,options={}) {
   if(payload?.nextCursor)cursorHashes.add(createHash("sha256").update(payload.nextCursor).digest("hex"));
   records.push({operationId:id,status:response.status,issues,...(options.label?{label:options.label}:{})});
   assert(!issues.length,id+" response contract violation: "+issues.join("; "));
-  const retrySafe=operation.method==="get"||["saveProfile","saveNotificationPrefs","revokeSession","revokeDevice","setupMfa","revokeMfaFactor"].includes(id);
+  const retrySafe=operation.method==="get"||options.recoverTimedWrite===true&&["createExport","cancelExport"].includes(id)&&options.key&&options.expected===202||["saveProfile","saveNotificationPrefs","revokeSession","revokeDevice","setupMfa","revokeMfaFactor"].includes(id);
   if(response.status===503 && options.expected!==503 && retrySafe && (options.attempt??0)<2){
     await new Promise(resolve=>setTimeout(resolve,1000));
     return call(server,session,id,{...options,key:commandKey,attempt:(options.attempt??0)+1});
@@ -165,7 +167,11 @@ try {
  execFileSync('cargo',['build','-p','bff-gateway','--locked','--offline'],{cwd:root,stdio:'ignore'});
  const auth=await authRequest('token?grant_type=password',null,'POST',{email:process.env.QUANTOS_F06_TEST_EMAIL,password:process.env.QUANTOS_F06_TEST_PASSWORD});cleanupBearer=auth.access_token;
  const user=await authRequest('user',cleanupBearer);assert(user.id===process.env.QUANTOS_F06_TEST_USER_ID,'Configured test subject mismatch');originalFactors=(user.factors??[]).map(f=>f.id).sort();assert(originalFactors.length===0,'Existing MFA factors will not be changed');
- admin=pgClient();await admin.connect();databaseRunStart=(await admin.query("select now() as at")).rows[0].at;
+ for(let attempt=0;attempt<3;attempt++) {
+  admin=pgClient();
+  try {await admin.connect();databaseRunStart=(await admin.query('select now() as at')).rows[0].at;connectionAttempts.push({attempt:attempt+1,outcome:'CONNECTED'});break;}
+  catch(error){await admin.end().catch(()=>{});admin=undefined;connectionAttempts.push({attempt:attempt+1,outcome:String(error.code??'CONNECTION_FAILED')});if(!['ECONNRESET','ETIMEDOUT','ECONNREFUSED'].includes(error.code)||attempt===2)throw error;await new Promise(r=>setTimeout(r,1000));}
+ }
  originalContext=(await admin.query('select id,tenant_id from quantos.actors where user_id=$1 order by id',[user.id])).rows;assert(originalContext.length===1,'Unambiguous existing test actor required');actor=originalContext[0];
  originalCapabilityRows=(await admin.query("select * from quantos.actor_capabilities where actor_id=$1 and capability in ('audit:read','audit:export')",[actor.id])).rows;
  originalCaps=originalCapabilityRows.map(r=>r.capability);
@@ -206,7 +212,7 @@ checked('identity-audit-bridged-to-f05',(await admin.query("select count(*)::int
  do{chainPage=(await call(server,active,'getEvidenceChain',{params:{correlationId:fixture},query:{pageSize:'3',...(cursor?{cursor}:{})},expected:200})).payload;chainIds.push(...chainPage.items.map(e=>e.eventId));cursor=chainPage.nextCursor;}while(cursor);
  checked('persistent-causal-chain',chainPage.complete===true && chainIds.length===8 && eventIds.every(id=>chainIds.includes(id)));
  const request={scope:{correlationIds:[fixture],eventKinds:['fill.recorded'],startAt:new Date(fixtureTime-60000).toISOString(),endAt:new Date(fixtureTime+60000).toISOString()},format:'jsonl',reason:'Synthetic-account-12345678901234567890 regulatory review',watermark:'Synthetic SECRET_TOKEN watermark',retentionDays:1};
- const make=async(body=request)=>{const key=randomUUID();keys.push(key);const result=await call(server,active,'createExport',{body,key,headers:reauth,expected:202});if(!jobs.includes(result.payload.exportId))jobs.push(result.payload.exportId);return {...result,key};};
+ const make=async(body=request)=>{const key=randomUUID();keys.push(key);const result=await call(server,active,'createExport',{body,key,headers:reauth,expected:202,recoverTimedWrite:true});if(!jobs.includes(result.payload.exportId))jobs.push(result.payload.exportId);checked('recovered-create-is-single-job',(await admin.query("select count(*)::int as n from quantos.bff_export_jobs where user_id=$1 and job->>'correlationId'=$2",[user.id,result.payload.correlationId])).rows[0].n===1);return {...result,key};};
  await call(server,active,'createExport',{body:request,headers:{...reauth,'X-CSRF-Token':''},expected:403});
  await call(server,active,'createExport',{body:request,expected:403});
  for(const body of [{...request,scope:{...request.scope,startAt:request.scope.endAt,endAt:request.scope.startAt}},{...request,scope:{correlationIds:[fixture,fixture]}},{...request,scope:{correlationIds:[fixture],unexpected:true}}])await call(server,active,'createExport',{body,headers:reauth,expected:422});
@@ -232,7 +238,7 @@ checked('identity-audit-bridged-to-f05',(await admin.query("select count(*)::int
  for(const format of ['csv','pdf']){const made=await make({...request,format});await poll(server,active,made.payload.exportId);const m=(await call(server,active,'getExportDownload',{params:{exportId:made.payload.exportId},expected:200})).payload;const b=Buffer.from(await(await consume(server,active,m)).arrayBuffer());checked('real-'+format+'-artifact',b.length===m.sizeBytes && createHash('sha256').update(b).digest('hex')===m.sha256 && (format==='pdf'?b.toString().startsWith('%PDF-1.4'):b.toString().startsWith('watermark,event')));}
  await admin.query("insert into quantos.bff_audit_quotas(user_id,operation,window_at,used) select $1,'createExport',date_trunc('minute',now())+n*interval '1 minute',5 from generate_series(0,1) n on conflict(user_id,operation,window_at) do update set used=5",[user.id]);await call(server,active,'createExport',{body:request,headers:reauth,expected:429});checked('per-actor-create-quota',true);
  const cancelLease=(await call(server,active,'getExportDownload',{params:{exportId:id},expected:200})).payload;
- const cancelKey=randomUUID();keys.push(cancelKey);await call(server,active,'cancelExport',{params:{exportId:id},headers:reauth,key:cancelKey,expected:202});await call(server,active,'cancelExport',{params:{exportId:id},headers:reauth,key:cancelKey,expected:202});await consume(server,active,cancelLease,410);
+ const cancelKey=randomUUID();keys.push(cancelKey);await call(server,active,'cancelExport',{params:{exportId:id},headers:reauth,key:cancelKey,expected:202,recoverTimedWrite:true});await call(server,active,'cancelExport',{params:{exportId:id},headers:reauth,key:cancelKey,expected:202,recoverTimedWrite:true});await consume(server,active,cancelLease,410);
  checked('cancel-revokes-issued-leases',true);
  const expires=jobs[1];const expiredLease=(await call(server,active,'getExportDownload',{params:{exportId:expires},expected:200})).payload;
  await admin.query("update quantos.bff_export_jobs set retention_until=now()-interval '1 second' where export_id=$1",[expires]);await call(server,active,'getExportDownload',{params:{exportId:expires},expected:410});await consume(server,active,expiredLease,410);checked('retention-denies-issuance-and-consumption',true);
@@ -286,5 +292,5 @@ finally {
  }catch(e){failure=(failure?failure+'; ':'')+'Controlled cleanup not verified';}
  if(admin)await admin.end();
 }
-const receipt={schema:'quantos-bff-audit-live/v1',sourceCommit:sourceCommitAtStart,sourceMatchesCommit:inputPaths.every(p=>{try{return createHash('sha256').update(execFileSync('git',['show',sourceCommitAtStart+':'+p],{stdio:['ignore','pipe','ignore']})).digest('hex')===sourceHashes[p];}catch{return false;}}),status:failure?'FAIL':'PASS',sourceHashes,fixture,assertions,records,cleanupVerified,target:'configured-supabase',formalAccepted:false,failure:failure??null,transportAttempts,databaseRunStart,jobCorrelations:[...jobCorrelations],cleanup:'restore capabilities, quotas and factor set; delete own exports, objects and sessions; preserve append-only audit fixtures'};
+const receipt={schema:'quantos-bff-audit-live/v1',sourceCommit:sourceCommitAtStart,sourceMatchesCommit:inputPaths.every(p=>{try{return createHash('sha256').update(execFileSync('git',['show',sourceCommitAtStart+':'+p],{stdio:['ignore','pipe','ignore']})).digest('hex')===sourceHashes[p];}catch{return false;}}),status:failure?'FAIL':'PASS',sourceHashes,fixture,assertions,records,cleanupVerified,target:'configured-supabase',formalAccepted:false,failure:failure??null,transportAttempts,connectionAttempts,databaseRunStart,jobCorrelations:[...jobCorrelations],cleanup:'restore capabilities, quotas and factor set; delete own exports, objects and sessions; preserve append-only audit fixtures'};
 fs.writeFileSync(path.join(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify({status:receipt.status,records:records.length,assertions:assertions.length,cleanupVerified,failure:failure??null}));if(failure)process.exitCode=1;
