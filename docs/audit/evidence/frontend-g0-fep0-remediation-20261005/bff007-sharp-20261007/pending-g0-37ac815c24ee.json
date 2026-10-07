@@ -3,7 +3,7 @@
   "assessmentDirectory": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/bff007-sharp-20261007",
   "nodeId": "FRONTEND-GATE:G0",
   "stage": "DEVELOPMENT",
-  "status": "READY",
+  "status": "BLOCKED",
   "engineeringStatus": "PASS",
   "formalAccepted": false,
   "observedSourceCommit": "5227d25611a621e2d954b58b73fe10869246250d",
@@ -3164,11 +3164,11 @@
     "scopeDigest": "sha256:900e809c60dd3f08b7b7314416e22d0ff3edf86627d59bbef0a45fc842e7aa40"
   },
   "confirmations": {
-    "status": "CONFIRMED",
-    "approver": "ProjectUser"
+    "status": "PENDING",
+    "missingApproval": "ProjectUser"
   },
-  "confirmationLedgerSnapshot": "{\n  \"schema\": \"quantos-g0-scope-confirmations/v2\",\n  \"status\": \"CONFIRMED\",\n  \"scopeDigest\": \"sha256:900e809c60dd3f08b7b7314416e22d0ff3edf86627d59bbef0a45fc842e7aa40\",\n  \"approval\": {\n    \"record\": \"docs/gate-records/G0-user-confirmation-2026-10-07-900e809c60dd.json\",\n    \"recordSha256\": \"sha256:214a219bc566058495d1d72944f29a8ee268fd07ccb0b61d4c4d240fb7697693\"\n  }\n}\n",
-  "confirmationsSha256": "sha256:cd7b7d4447c20681df21e3342d4c1a369930f4dba9074663d6f4d98b12358ca5",
+  "confirmationLedgerSnapshot": "{\n  \"schema\": \"quantos-g0-scope-confirmations/v2\",\n  \"status\": \"PENDING\",\n  \"scopeDigest\": null,\n  \"approval\": null,\n  \"reason\": \"BFF-FE-007 live 实现与共享门禁改变了当前功能输入；原 09bcaf7f28d9 用户确认保留，变更范围待用户确认。\"\n}\n",
+  "confirmationsSha256": "sha256:db82a83481dc9ef759c27b59e34542eb37c136b44b6e77e54c3671b40733cdd7",
   "checks": [
     {
       "id": "records",
@@ -3426,6 +3426,7 @@
     "unimplemented A2-A6 providers",
     "P16 and Desktop phase two"
   ],
-  "residuals": [],
-  "confirmationAppliedAt": "2026-10-07T00:01:17.033Z"
+  "residuals": [
+    "M-01: project user development scope confirmation missing"
+  ]
 }

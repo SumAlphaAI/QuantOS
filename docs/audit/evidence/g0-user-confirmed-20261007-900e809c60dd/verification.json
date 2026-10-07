@@ -1,0 +1,184 @@
+{
+  "schema": "quantos-user-confirmed-development-verification/v1",
+  "status": "PASS",
+  "executedAt": "2026-10-07T00:04:01.587Z",
+  "observedSourceCommit": "ec92d43cd032cf9b9e5c6450130447146ab6a4db",
+  "scopeDigest": "sha256:900e809c60dd3f08b7b7314416e22d0ff3edf86627d59bbef0a45fc842e7aa40",
+  "confirmation": {
+    "record": "docs/gate-records/G0-user-confirmation-2026-10-07-900e809c60dd.json",
+    "recordSha256": "sha256:214a219bc566058495d1d72944f29a8ee268fd07ccb0b61d4c4d240fb7697693",
+    "document": "docs/gate-records/G0-user-confirmation-draft-2026-10-07-900e809c60dd.md",
+    "documentSha256": "sha256:c89a5864263a401608094034a6143b14967d32374535d12099cbde3bbb31273d",
+    "originalUserText": "确认 G0 DEVELOPMENT 文稿"
+  },
+  "preservation": {
+    "pendingG0": "docs/audit/evidence/frontend-g0-fep0-remediation-20261005/bff007-sharp-20261007/pending-g0-37ac815c24ee.json",
+    "pendingG0Sha256": "sha256:37ac815c24ee4588b4017ad10b532268d46c1403cbc28ccca1b3ebf5ac98feb1",
+    "pendingLedger": "docs/gate-records/G0-user-confirmations-before-user-approval-20261007-900e809c60dd.json",
+    "pendingLedgerSha256": "sha256:db82a83481dc9ef759c27b59e34542eb37c136b44b6e77e54c3671b40733cdd7",
+    "draftAndOldFep0Unchanged": true
+  },
+  "checks": [
+    {
+      "id": "g0-ready",
+      "command": [
+        "node",
+        "scripts/g0-development.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-07T00:03:55.074Z",
+      "exitCode": 0,
+      "signal": null,
+      "status": "PASS",
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/g0-ready.log",
+      "logSha256": "sha256:f7db44a9befc69ee87c5fdabf73529872f28eb35308872d48d81c7c7ec6f0d25"
+    },
+    {
+      "id": "fep0-ready",
+      "command": [
+        "node",
+        "scripts/fep0-development.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-07T00:03:55.075Z",
+      "exitCode": 0,
+      "signal": null,
+      "status": "PASS",
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/fep0-ready.log",
+      "logSha256": "sha256:9e9b4bfc79b64be68927b9611855aa3e45f66d3df4b79bfcc27eef2c6bbc0424"
+    },
+    {
+      "id": "foundation",
+      "command": [
+        "node",
+        "scripts/provider-a1-receipts.mjs",
+        "--f0"
+      ],
+      "executedAt": "2026-10-07T00:03:55.076Z",
+      "exitCode": 0,
+      "signal": null,
+      "status": "PASS",
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/foundation.log",
+      "logSha256": "sha256:3b60b2ae7d3be1d4ad52a3d5f77846966213e264ecc195adb8f1e24b6597cd93"
+    },
+    {
+      "id": "provider-a1",
+      "command": [
+        "node",
+        "scripts/provider-a1-receipts.mjs"
+      ],
+      "executedAt": "2026-10-07T00:03:55.076Z",
+      "exitCode": 0,
+      "signal": null,
+      "status": "PASS",
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/provider-a1.log",
+      "logSha256": "sha256:b66ce4b705340f32a1dc0116811b78f356ce437d6a3b8e17874970174f6d8b9a"
+    },
+    {
+      "id": "bff001",
+      "command": [
+        "node",
+        "scripts/bff-fe-001-development.mjs"
+      ],
+      "executedAt": "2026-10-07T00:03:55.077Z",
+      "exitCode": 0,
+      "signal": null,
+      "status": "PASS",
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/bff001.log",
+      "logSha256": "sha256:fb0eec3c57af298063a8bdba9b0eff1762b8902ba03349f8067c4fc41c00f9b8"
+    },
+    {
+      "id": "bff007",
+      "command": [
+        "node",
+        "scripts/bff-fe-007-development.mjs"
+      ],
+      "executedAt": "2026-10-07T00:03:55.077Z",
+      "exitCode": 0,
+      "signal": null,
+      "status": "PASS",
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/bff007.log",
+      "logSha256": "sha256:35baaeb1c5db5445d48934592fce2c571a89e766f052a093784a8243afc4dc4c"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "executedAt": "2026-10-07T00:03:55.078Z",
+      "exitCode": 0,
+      "signal": null,
+      "status": "PASS",
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/plans.log",
+      "logSha256": "sha256:3af1b730a38c34ed6887feee801f23be3b6587db8e3f839daa242f76b75ce79d"
+    },
+    {
+      "id": "g0-records",
+      "command": [
+        "node",
+        "scripts/check-g0-records.mjs"
+      ],
+      "executedAt": "2026-10-07T00:03:55.078Z",
+      "exitCode": 0,
+      "signal": null,
+      "status": "PASS",
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/g0-records.log",
+      "logSha256": "sha256:95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c"
+    }
+  ],
+  "negativeChecks": [
+    {
+      "id": "confirmation-negative",
+      "pass": 59,
+      "fail": 0,
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/confirmation-negative.log",
+      "logSha256": "sha256:a08915e4192ac86342c04e97fa7891c2734f14fd2ff1ebb946de6af7eaae3e66"
+    },
+    {
+      "id": "plan-negative",
+      "pass": 35,
+      "fail": 0,
+      "log": "docs/audit/evidence/g0-user-confirmed-20261007-900e809c60dd/logs/plan-negative.log",
+      "logSha256": "sha256:ad80fdcf58a9a5a419d57283caacef8f3264d1c1b98b988dc644327ecb75471b"
+    }
+  ],
+  "stageCounts": {
+    "NOT_ASSESSED": 134,
+    "READY": 25,
+    "BLOCKED": 0
+  },
+  "fep0Closure": {
+    "nodes": [
+      "CORE:F01",
+      "CORE:F02",
+      "CORE:F03",
+      "CORE:F04",
+      "CORE:F05",
+      "CORE:F06",
+      "CORE:F07",
+      "CORE:F08",
+      "CORE:F09",
+      "CORE:TP01-A",
+      "CORE:TP01-B",
+      "CORE-GATE:F0",
+      "FE:PRE-01",
+      "FE:PRE-02",
+      "FE:PRE-03",
+      "FE:PRE-04",
+      "FE:PRE-05",
+      "FE:PRE-06",
+      "PREPARATION:P0",
+      "FE:BFF-FE-000",
+      "PROVIDER:A1",
+      "FRONTEND-GATE:G0",
+      "FE:FEP-0"
+    ],
+    "ready": 23,
+    "blocked": 0
+  },
+  "formalAccepted": false,
+  "databaseExecutedThisTurn": false,
+  "hostedCiCurrentCommit": "NOT_RUN",
+  "scope": "User confirmation applied to unchanged current functional inputs; existing 16 and 87 command groups verified, not rerun. FEP-0 two checks rerun independently; no new database/Auth/Storage effects."
+}

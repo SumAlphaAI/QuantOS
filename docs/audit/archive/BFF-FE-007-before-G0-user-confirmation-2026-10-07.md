@@ -1,7 +1,6 @@
 # BFF-FE-007：Audit 与导出 API 整改复验报告
 
 > 初审与整改启动：2026-10-06（Asia/Shanghai）；阶段：A2 DEVELOPMENT。
-> 用户范围确认更新：2026-10-07T08:02:59+08:00；详见独立确认验收记录。
 > 复验报告生成：2026-10-07T07:34:57+08:00。
 > Audit 目标运行源码：`5e3339c9e5cc95d550c6e67ffa36701998cb0e2f`，目标回执逐文件核验 `sourceMatchesCommit=true`。文档提交另行生成，功能证据按内容绑定，不冒充新 HEAD 的 hosted CI 或正式验收。
 > 当前工程冻结源码：`5227d25611a621e2d954b58b73fe10869246250d`；严格门禁已核对 Audit 目标的 13 项运行源码与当前内容一致。
@@ -14,7 +13,7 @@
 
 [功能 manifest](evidence/bff-fe-007-remediation-20261006/final-sharp/development.json)严格核验当前源码/规范计划、三项直接依赖、执行日志、语义变异以及不可变提交上的目标证据。BFF-FE-001/F05/PROVIDER:A1 当前依赖已复评 READY。本结论不批准 PROVIDER:A2/ALL、十个消费页面联调、RELEASE 或 `review_status=ACCEPTED`。
 
-2026-10-07，项目用户明确答复“确认 G0 DEVELOPMENT 文稿”，当前范围 `900e809c60dd` 已核验并登记。G0 消费原 16/16 工程 PASS 后严格 READY；确认后重新执行 FEP-0 两项检查，严格 READY，当前 25 READY、0 BLOCKED。原 PENDING 回执、台账及[确认前报告](archive/BFF-FE-007-before-G0-user-confirmation-2026-10-07.md)保留；见[本次确认验收记录](G0-FEP0-user-confirmed-acceptance-2026-10-07.md)。
+变更影响 G0 功能输入，历史用户签署与历史回执原件保留。新 G0 **16/16 工程检查 PASS、用户确认 PENDING，因此 G0/FEP-0 为 BLOCKED**；FEP-0 两项工程检查通过。该新范围确认遵循 AGENTS.md 与 [用户确认规程](../gate-records/user-acceptance-confirmation-workflow.md)，未由 Codex 自行批准，不作为 BFF-FE-007 的未修复问题。
 
 ## 二、完成情况明细统计
 
@@ -88,7 +87,7 @@
 | 实际 Supabase 迁移/目标 | 五项迁移真实 APPLIED；六 API / Auth / 私有 Storage / 清理 PASS | [目标回执](evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json)；migration*.log |
 | F0/A1 当前前置复验 | 87/87 执行项 PASS，含三轮独立构建、真实 F06/数据库/Storage/恢复/量测 | [完整执行结果](evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/execution-results.json) |
 | 身份/设置跨模块回归 | 当前 BFF-FE-001 源码/目标/14 项强断言、8 项变异及清理 PASS | [当前 A2 manifest](evidence/bff-fe-001-remediation-20261005/bff007-sharp-20261007/a2.json) |
-| G0/FEP-0 | 项目用户当前范围 CONFIRMED；两阶段严格 DEVELOPMENT READY | [G0 当前回执](evidence/frontend-g0-fep0-remediation-20261005/bff007-sharp-20261007/g0.json)；[FEP-0 确认后回执](evidence/fep0-remediation-20261005/user-confirmed-20261007-900e809c60dd/fep0.json) |
+| G0/FEP-0 | 工程 PASS；新范围待项目用户确认，阶段 BLOCKED | [G0 工程](evidence/frontend-g0-fep0-remediation-20261005/bff007-sharp-20261007/g0.json)；[FEP-0](evidence/fep0-remediation-20261005/bff007-sharp-20261007/fep0.json) |
 | hosted CI / 部署 / 目标规模 SLA / 正式签署 | 本轮未执行/没有新提交回执 | RELEASE 单独验收，不沿用旧 SHA green |
 
 [历次目标执行台账](evidence/bff-fe-007-remediation-20261006/target-run-history.json)保留各轮源码、结果、断言数与清理边界；仅 live-final-15 为当前完整通过基线。此前字段/计数/会话/传输失败及 diagnostic PASS 均未拼接为最终通过。attempt-3 原清理声明未覆盖意外创建的额外任务，[追加清理纠正回执](evidence/bff-fe-007-remediation-20261006/attempt-3-cleanup-correction.log)已单独记录删除。
@@ -130,4 +129,4 @@ G0 首次工程执行在 Buf 远程插件步骤遇到网络不可达，前七项
 
 9 项原始整改建议全部落实。本阶段继续以 `pnpm check:bff-fe-007:development` 作为内容门禁，保留语义变异、真实字节和清理断言；功能源码/计划/前置变化必须重评，不能只更新 stage 字段。
 
-项目用户已确认[当前 G0 文稿](../gate-records/G0-user-confirmation-draft-2026-10-07-900e809c60dd.md)，G0/FEP-0 已通过严格 DEVELOPMENT 门禁，可按已准入范围继续开发。PROVIDER:A2/ALL、十个页面联调、真实部署/IdP、发布性能/长稳、同 SHA hosted CI 和 RELEASE 确认仍按对应窗口办理，不因本报告自动放行。
+项目用户按 [当前待确认 G0 文稿](../gate-records/G0-user-confirmation-draft-2026-10-07-900e809c60dd.md)确认新增功能范围后，可消费已通过的工程回执推进 G0/FEP-0。PROVIDER:A2/ALL、十个页面联调、真实部署/IdP、发布性能/长稳、同 SHA hosted CI 和 RELEASE 确认仍按对应窗口办理，不因本报告自动放行。

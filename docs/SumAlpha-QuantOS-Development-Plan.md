@@ -1,17 +1,21 @@
-> 2026-10-07：BFF-FE-007 持久审计/导出整改完成，F0/A1 基础前置已实际刷新 READY，含 Supabase 执行；当前 23 READY、2 BLOCKED（G0 新范围确认及 FEP-0）。旧批准和 hosted CI 不迁移到本轮源码。见[整改结论](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。
+> 2026-10-07：BFF-FE-007 持久审计/导出整改完成，F0/A1 基础前置已实际刷新 READY，含 Supabase 执行；当前 25 READY、0 BLOCKED（G0 当前范围已确认，FEP-0 严格 READY）。旧批准和 hosted CI 不迁移到本轮源码。见[整改结论](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。
 
 # SumAlpha QuantOS 可执行开发计划
+
+> 2026-10-07 当前范围确认：项目用户已确认 G0 DEVELOPMENT 文稿（`900e809c60dd`），G0/FEP-0 严格 READY；当前 25 READY、0 BLOCKED。见[当前确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-07.md)。
 
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.32
+> 版本：3.33
 > 更新时间：2026-10-07
 > 状态：技术执行基线  
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.33`：项目用户明确答复“确认 G0 DEVELOPMENT 文稿”，当前范围 `900e809c60dd` 与功能输入一致；保存原答复/文稿/范围摘要，G0 核验原 16/16 工程执行后严格 READY。确认后 FEP-0 两项实际重评 PASS、八依赖及 23 节点闭包 READY；加上身份与 Audit 两项 A2 当前共 25 READY、0 BLOCKED。原 PENDING 及历史确认保留，hosted CI/RELEASE 独立。见[当前确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-07.md)。
 
 - `3.32`：BFF-FE-007 原 9 项问题关闭、31/31 控制点通过；F0/A1 当前 87 个独立命令组实际通过，21 个基础节点 READY，身份/审计 A2 严格内容回执刷新。完整 F05 八项独立重跑与原执行超时记录均保留；G0/FEP-0 工程通过，新增范围用户确认待办，当前 23 READY、2 BLOCKED。历史批准与新 hosted CI/RELEASE 边界独立。见[整改复验报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。
 
