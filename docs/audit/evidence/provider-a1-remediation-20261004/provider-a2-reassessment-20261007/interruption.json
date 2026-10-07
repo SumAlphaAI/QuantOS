@@ -1,0 +1,119 @@
+{
+  "status": "INTERRUPTED_NO_READY_PUBLISHED",
+  "sourceCommit": "f5cd6e3276980fc500491862550ac088edce5378",
+  "cause": "Sandbox denied uv cache access and DNS to npm/configured Supabase; task-owned process tree stopped after recording failures. Retry requires cache/network permissions and a new evidence directory.",
+  "completedChecks": [
+    {
+      "id": "f01-reproducibility",
+      "command": [
+        "node",
+        "scripts/verify-reproducible-builds.mjs",
+        "--mode",
+        "reproducibility",
+        "--runs",
+        "3"
+      ],
+      "exitCode": 1,
+      "status": "FAIL",
+      "executedAt": "2026-10-07T03:06:47.552Z",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a2-reassessment-20261007/logs/f01-reproducibility.log",
+      "logSha256": "sha256:8b2ad9012fb287635706535b367630fae5b241c02bf6a498af4898ce6c942b70"
+    },
+    {
+      "id": "f06-target",
+      "command": [
+        "node",
+        "scripts/run-p0-f06-target.mjs"
+      ],
+      "exitCode": 1,
+      "status": "FAIL",
+      "executedAt": "2026-10-07T03:08:00.125Z",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a2-reassessment-20261007/logs/f06-target.log",
+      "logSha256": "sha256:1fc9cd696ea48c865ebf928289e2195804e3f9727f4b16afcdb438f46a103b7f",
+      "attempts": [
+        {
+          "attempt": 1,
+          "exitCode": 1,
+          "transient": false
+        }
+      ]
+    },
+    {
+      "id": "f09-target",
+      "command": [
+        "node",
+        "scripts/f09-target-gate.cjs"
+      ],
+      "exitCode": 1,
+      "status": "FAIL",
+      "executedAt": "2026-10-07T03:08:07.323Z",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a2-reassessment-20261007/logs/f09-target.log",
+      "logSha256": "sha256:c46bd182b4b7a037ed36d503f9979a01b6db44f251845ce635c9d35832a7e796",
+      "environmentOverrides": {
+        "QUANTOS_RUN_F09_POSTGRES_TESTS": "1"
+      },
+      "target": "configured-supabase"
+    },
+    {
+      "id": "pre01",
+      "command": [
+        "pnpm",
+        "check:pre01"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "executedAt": "2026-10-07T03:08:13.441Z",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a2-reassessment-20261007/logs/pre01.log",
+      "logSha256": "sha256:11a8ae6898ef48994a050a62b884cd188c8f4f220f8d7e26e6b9fe6041cef688"
+    },
+    {
+      "id": "pre01-negative",
+      "command": [
+        "pnpm",
+        "test:pre01"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "executedAt": "2026-10-07T03:08:13.683Z",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a2-reassessment-20261007/logs/pre01-negative.log",
+      "logSha256": "sha256:1f057f2ccaf0003f3f645c847ed5b76cf4a751669a272a619df9bf52b0856b9b"
+    },
+    {
+      "id": "f01",
+      "command": [
+        "node",
+        "scripts/check-f01.mjs"
+      ],
+      "exitCode": 1,
+      "status": "FAIL",
+      "executedAt": "2026-10-07T03:08:13.981Z",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a2-reassessment-20261007/logs/f01.log",
+      "logSha256": "sha256:4eec098f53ab3550d163636d7e8d929bd68b17597068562f946efe9b714d7133"
+    },
+    {
+      "id": "f01-negative",
+      "command": [
+        "node",
+        "--test",
+        "scripts/f01-gate-negative.mjs"
+      ],
+      "exitCode": 1,
+      "status": "FAIL",
+      "executedAt": "2026-10-07T03:08:14.219Z",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a2-reassessment-20261007/logs/f01-negative.log",
+      "logSha256": "sha256:a6ca73e11f8bcf10257180c91add448f7a71a76dd3c409eedcaa2b8ab60fe52b"
+    },
+    {
+      "id": "f01-lint",
+      "command": [
+        "make",
+        "lint"
+      ],
+      "exitCode": 2,
+      "status": "FAIL",
+      "executedAt": "2026-10-07T03:08:17.813Z",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a2-reassessment-20261007/logs/f01-lint.log",
+      "logSha256": "sha256:0ff95b513d78738946aa895656834fde58e7e2ceb10ffc552d16037fc09f2ad7"
+    }
+  ]
+}

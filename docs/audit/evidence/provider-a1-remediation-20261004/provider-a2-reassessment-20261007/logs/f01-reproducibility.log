@@ -1,0 +1,80 @@
+node scripts/check-toolchains.mjs
+{
+  "node": "24.12.0",
+  "uv": "0.7.0",
+  "pnpm": "10.20.0",
+  "rustc": "1.91.0"
+}
+/Library/Developer/CommandLineTools/usr/bin/make -j3 bootstrap-rust bootstrap-python bootstrap-node
+cargo fetch --locked
+uv sync --locked --project engines --all-packages --all-groups
+pnpm install --frozen-lockfile
+Scope: all 8 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +620
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ WARN  GET https://registry.npmjs.org/pg/-/pg-8.16.3.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/pg-cloudflare/-/pg-cloudflare-1.4.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/@axe-core/playwright/-/playwright-4.13.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/axe-core/-/axe-core-4.13.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/playwright-core/-/playwright-core-1.62.1.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/@bufbuild/buf/-/buf-1.72.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/@bufbuild/buf-darwin-arm64/-/buf-darwin-arm64-1.72.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/@bufbuild/protobuf/-/protobuf-2.13.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/@eslint/js/-/js-9.33.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/@next/eslint-plugin-next/-/eslint-plugin-next-15.5.24.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/fast-glob/-/fast-glob-3.3.1.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/@nodelib/fs.stat/-/fs.stat-2.0.5.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/@nodelib/fs.walk/-/fs.walk-1.2.8.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/run-parallel/-/run-parallel-1.2.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+Progress: resolved 620, reused 0, downloaded 0, added 0
+ WARN  GET https://registry.npmjs.org/pg/-/pg-8.16.3.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/pg-cloudflare/-/pg-cloudflare-1.4.0.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/@axe-core/playwright/-/playwright-4.13.0.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/axe-core/-/axe-core-4.13.0.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/playwright-core/-/playwright-core-1.62.1.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/@bufbuild/buf/-/buf-1.72.0.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/@bufbuild/buf-darwin-arm64/-/buf-darwin-arm64-1.72.0.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/@bufbuild/protobuf/-/protobuf-2.13.0.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/@eslint/js/-/js-9.33.0.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/@next/eslint-plugin-next/-/eslint-plugin-next-15.5.24.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/fast-glob/-/fast-glob-3.3.1.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/@nodelib/fs.stat/-/fs.stat-2.0.5.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/@nodelib/fs.walk/-/fs.walk-1.2.8.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/run-parallel/-/run-parallel-1.2.0.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ WARN  GET https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz error (ENOTFOUND). Will retry in 1 minute. 1 retries left.
+ ENOTFOUND  request to https://registry.npmjs.org/pg/-/pg-8.16.3.tgz failed, reason: getaddrinfo ENOTFOUND registry.npmjs.org
+
+FetchError: request to https://registry.npmjs.org/pg/-/pg-8.16.3.tgz failed, reason: getaddrinfo ENOTFOUND registry.npmjs.org
+    at ClientRequest.<anonymous> (/Users/anray/.cache/node/corepack/v1/pnpm/10.20.0/dist/pnpm.cjs:41882:18)
+    at ClientRequest.emit (node:events:508:28)
+    at emitErrorEvent (node:_http_client:108:11)
+    at TLSSocket.socketErrorListener (node:_http_client:575:5)
+    at TLSSocket.emit (node:events:520:35)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
+ WARN  GET https://registry.npmjs.org/fastq/-/fastq-1.20.1.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.15.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmjs.org/split2/-/split2-4.2.0.tgz error (ENOTFOUND). Will retry in 10 seconds. 2 retries left.
+error: failed to open file `/Users/anray/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+make[1]: *** [bootstrap-python] Error 2
+make[1]: *** Waiting for unfinished jobs....
+warning: a `-j` argument was passed to Cargo but Cargo is also configured with an external jobserver in its environment, ignoring the `-j` parameter
+make[1]: *** [bootstrap-node] Error 1
+make: *** [bootstrap] Error 2
+Command failed: make bootstrap

@@ -1,0 +1,20 @@
+cargo fmt --check
+cargo clippy --workspace --all-targets -- -D warnings
+uv run --locked --project engines --all-packages ruff check . --extend-exclude third_party/vibe-trading/upstream-src
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Checking quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Checking bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Checking market-ingestor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/market-ingestor)
+    Checking replay-cli v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/replay-cli)
+    Checking runtime-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/runtime-gateway)
+    Checking capacity-monitor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/capacity-monitor)
+    Checking portfolio-rebuild v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/portfolio-rebuild)
+    Checking execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Checking quantos-evidence v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-evidence)
+    Checking quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 30.14s
+error: failed to open file `/Users/anray/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+make: *** [lint-python] Error 2
