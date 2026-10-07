@@ -1,0 +1,33 @@
+
+running 9 tests
+AUDIT_DEFECT blank source identifiers and empty lineage element accepted
+AUDIT_DEFECT duplicate rules depend on input order and silently relax freshness
+AUDIT_OBSERVATION expiry remains valid at exact expires_at; boundary semantics require specification
+AUDIT_DEFECT future capture/window accepted as fresh
+test blank_source_and_lineage_fields_are_accepted ... ok
+test duplicate_rules_silently_replace_strict_policy ... ok
+AUDIT_DEFECT no payload reference/symbols and unknown schema accepted
+test expiry_boundary_is_inclusive ... ok
+test future_capture_and_future_window_are_accepted ... ok
+AUDIT_DEFECT forged quality/expiry with unchanged hash accepted through public and serde boundary
+test absent_artifacts_symbols_and_unknown_schema_are_accepted ... ok
+test mutable_record_keeps_hash_and_passes_gate_after_quality_and_expiry_rewrite ... ok
+AUDIT_DEFECT window end after capture accepted
+AUDIT_DEFECT failed/expired/unlicensed snapshot allowed by permissive strategy/trading rules
+test window_after_capture_is_accepted ... ok
+test permissive_strategy_trading_rules_disable_three_required_rejections ... ok
+AUDIT_DEFECT positive max_age can panic instead of returning SnapshotError
+test extreme_max_age_panics_in_result_returning_constructor ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.14s
+     Running tests/r02_audit_probes.rs (target/debug/deps/r02_audit_probes-dc5175d39bee3fe6)
+
+thread 'extreme_max_age_panics_in_result_returning_constructor' (4269419) panicked at /Users/anray/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/chrono-0.4.45/src/lib.rs:717:17:
+TimeDelta::seconds out of bounds
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'extreme_max_age_panics_in_result_returning_constructor' (4269419) panicked at crates/quantos-storage/src/snapshot.rs:239:26:
+`DateTime + TimeDelta` overflowed

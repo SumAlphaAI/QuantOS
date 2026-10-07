@@ -660,7 +660,7 @@ flowchart TD
 - 量化验收标准：相同输入生成相同 hash；过期/质量不合格/许可证缺失的 300 个 fixture 100% 被拒用于策略/交易；查询 P95 <300ms
 - 阶段执行：确定性 hash、300 个质量/时效/许可证拒绝 fixture、真实 Supabase 查询/权限与 Storage 完整性为开发硬门槛；查询 P95 <300ms 保留基线并移交 RELEASE-GATE:BETA。
 - 依赖：R01、F06
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：[2026-10-07 全面复审基线](./audit/R02-comprehensive-review-2026-10-07.md)发现 13 项问题（阻塞 1、高危 5、中危 6、低危 1）；本轮按[逐项整改验证](./audit/R02-remediation-2026-10-07.md)修复模型/时间/规则/引用、成员读取、对象恢复、原子审计、行为及覆盖 Gate 和文档。工程修复不自动产生阶段 READY 或正式 ACCEPTED，stage_gate 仍 NOT_ASSESSED；真实 R01 来源/用途及持久化消费者全链、成员 HTTP/BFF 部署、候选同 SHA 远程 CI、发布规模/P95和用户正式确认继续独立验收。历史报告及失败事实保留；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r02)不迁移为本轮批准。
 
 <a id="task-tp01-c"></a>
 ### TP01-C：`vibe_adapter` skeleton

@@ -1,4 +1,7 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    ops::Deref,
+};
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use quantos_core::{
@@ -147,6 +150,19 @@ impl SnapshotQualityRule {
         }
     }
 
+    pub fn validate(&self) -> Result<(), SnapshotError> {
+        if self.usage != SnapshotUsage::Research
+            && (self.allow_pending
+                || self.allow_degraded
+                || self.allow_failed
+                || !self.require_license
+                || !self.require_freshness)
+        {
+            return Err(SnapshotError::UnsafeRule);
+        }
+        Ok(())
+    }
+
     #[must_use]
     pub fn allows_quality(&self, quality: SnapshotQuality) -> bool {
         match quality {
@@ -191,7 +207,7 @@ pub struct DataSnapshotInput {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct DataSnapshotRecord {
+pub struct DataSnapshotFields {
     pub snapshot_id: SnapshotId,
     pub tenant_id: TenantId,
     pub schema_name: String,
@@ -212,16 +228,60 @@ pub struct DataSnapshotRecord {
     pub created_at: DateTime<Utc>,
 }
 
+/// Read-only record. Wire input is untrusted until invariants are checked.
+/// ```compile_fail
+/// fn mutate(snapshot: &mut quantos_storage::DataSnapshotRecord) {
+///     snapshot.quality = quantos_storage::SnapshotQuality::Passed;
+/// }
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct DataSnapshotRecord {
+    #[serde(deserialize_with = "deserialize_snapshot_fields")]
+    pub(crate) fields: DataSnapshotFields,
+}
+
+impl Deref for DataSnapshotRecord {
+    type Target = DataSnapshotFields;
+    fn deref(&self) -> &Self::Target {
+        &self.fields
+    }
+}
+
+fn deserialize_snapshot_fields<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<DataSnapshotFields, D::Error> {
+    let fields = DataSnapshotFields::deserialize(deserializer)?;
+    let record = DataSnapshotRecord { fields };
+    record
+        .validate_integrity()
+        .map_err(serde::de::Error::custom)?;
+    Ok(record.fields)
+}
+
+pub const MAX_SNAPSHOT_AGE_SECS: i64 = 86_400;
+pub const MAX_SNAPSHOT_ITEMS: usize = 1_024;
+pub const MAX_SNAPSHOT_BYTES: usize = 1_048_576;
+
+fn micros(time: DateTime<Utc>) -> DateTime<Utc> {
+    DateTime::from_timestamp_micros(time.timestamp_micros())
+        .expect("existing timestamp fits microseconds")
+}
+
 impl DataSnapshotRecord {
     pub fn new(
         tenant_id: TenantId,
-        input: DataSnapshotInput,
+        mut input: DataSnapshotInput,
         created_at: DateTime<Utc>,
     ) -> Result<Self, SnapshotError> {
+        input.window.start_at = micros(input.window.start_at);
+        input.window.end_at = micros(input.window.end_at);
+        input.captured_at = micros(input.captured_at);
+        let created_at = micros(created_at);
         if input.window.end_at < input.window.start_at {
             return Err(SnapshotError::InvalidWindow);
         }
-        if input.max_age_secs < 0 {
+        if !(0..=MAX_SNAPSHOT_AGE_SECS).contains(&input.max_age_secs) {
             return Err(SnapshotError::InvalidMaxAge {
                 max_age_secs: input.max_age_secs,
             });
@@ -232,32 +292,91 @@ impl DataSnapshotRecord {
             return Err(SnapshotError::InvalidSchemaName);
         }
 
+        if schema_name != "DataSnapshot" || input.schema_version.as_str() != "v1" {
+            return Err(SnapshotError::InvalidSchemaName);
+        }
+        if input.window.end_at > input.captured_at || input.captured_at > created_at {
+            return Err(SnapshotError::InvalidChronology);
+        }
+        if [
+            input.sources.len(),
+            input.lineage.len(),
+            input.artifact_refs.len(),
+            input.symbols.len(),
+            input.quality_findings.len(),
+        ]
+        .into_iter()
+        .any(|n| n > MAX_SNAPSHOT_ITEMS)
+            || serde_json::to_vec(&input)?.len() > MAX_SNAPSHOT_BYTES
+        {
+            return Err(SnapshotError::InputBudget);
+        }
         let normalized = NormalizedSnapshotInput::from_input(input);
         let content_hash = ContentHash::sha256_bytes(&canonical_json_bytes(
             &normalized.canonical_payload(schema_name.as_str()),
         )?);
-        let expires_at = normalized.captured_at + ChronoDuration::seconds(normalized.max_age_secs);
+        let expires_at = normalized
+            .captured_at
+            .checked_add_signed(ChronoDuration::seconds(normalized.max_age_secs))
+            .ok_or(SnapshotError::InvalidChronology)?;
 
         Ok(Self {
-            snapshot_id: SnapshotId::new(),
-            tenant_id,
-            schema_name,
-            schema_version: normalized.schema_version,
-            schema_entry_id: normalized.schema_entry_id,
-            window: normalized.window,
-            sources: normalized.sources,
-            quality: normalized.quality,
-            quality_findings: normalized.quality_findings,
-            license_label: normalized.license_label,
-            captured_at: normalized.captured_at,
-            max_age_secs: normalized.max_age_secs,
-            expires_at,
-            symbols: normalized.symbols,
-            artifact_refs: normalized.artifact_refs,
-            lineage: normalized.lineage,
-            content_hash,
-            created_at,
+            fields: DataSnapshotFields {
+                snapshot_id: SnapshotId::new(),
+                tenant_id,
+                schema_name,
+                schema_version: normalized.schema_version,
+                schema_entry_id: normalized.schema_entry_id,
+                window: normalized.window,
+                sources: normalized.sources,
+                quality: normalized.quality,
+                quality_findings: normalized.quality_findings,
+                license_label: normalized.license_label,
+                captured_at: normalized.captured_at,
+                max_age_secs: normalized.max_age_secs,
+                expires_at,
+                symbols: normalized.symbols,
+                artifact_refs: normalized.artifact_refs,
+                lineage: normalized.lineage,
+                content_hash,
+                created_at,
+            },
         })
+    }
+
+    pub fn input(&self) -> DataSnapshotInput {
+        DataSnapshotInput {
+            schema_name: self.schema_name.clone(),
+            schema_version: self.schema_version.clone(),
+            schema_entry_id: self.schema_entry_id,
+            window: self.window.clone(),
+            sources: self.sources.clone(),
+            quality: self.quality,
+            quality_findings: self.quality_findings.clone(),
+            license_label: self.license_label.clone(),
+            captured_at: self.captured_at,
+            max_age_secs: self.max_age_secs,
+            symbols: self.symbols.clone(),
+            artifact_refs: self.artifact_refs.clone(),
+            lineage: self.lineage.clone(),
+        }
+    }
+
+    pub fn canonical_payload_bytes(&self) -> Result<Vec<u8>, SnapshotError> {
+        Ok(canonical_json_bytes(
+            &NormalizedSnapshotInput::from_input(self.input()).canonical_payload(&self.schema_name),
+        )?)
+    }
+
+    pub fn validate_integrity(&self) -> Result<(), SnapshotError> {
+        let expected = Self::new(self.tenant_id, self.input(), self.created_at)?;
+        if expected.fields.expires_at != self.expires_at
+            || expected.fields.content_hash != self.content_hash
+            || expected.input() != self.input()
+        {
+            return Err(SnapshotError::Integrity);
+        }
+        Ok(())
     }
 
     #[must_use]
@@ -272,11 +391,20 @@ pub struct SnapshotQualityRuleset {
 }
 
 impl SnapshotQualityRuleset {
-    #[must_use]
-    pub fn from_rules(rules: impl IntoIterator<Item = SnapshotQualityRule>) -> Self {
-        Self {
-            rules: rules.into_iter().map(|rule| (rule.usage, rule)).collect(),
+    pub fn from_rules(
+        rules: impl IntoIterator<Item = SnapshotQualityRule>,
+    ) -> Result<Self, SnapshotError> {
+        let mut indexed = BTreeMap::new();
+        let mut tenant = None;
+        for rule in rules {
+            rule.validate()?;
+            if tenant.is_some_and(|id| id != rule.tenant_id) || indexed.contains_key(&rule.usage) {
+                return Err(SnapshotError::RuleConflict);
+            }
+            tenant = Some(rule.tenant_id);
+            indexed.insert(rule.usage, rule);
         }
+        Ok(Self { rules: indexed })
     }
 
     #[must_use]
@@ -321,12 +449,55 @@ impl SnapshotQualityGate {
         };
 
         let mut violations = Vec::new();
-        if rule.require_license && snapshot.license_label.trim().is_empty() {
+        if snapshot.validate_integrity().is_err() {
+            violations.push(SnapshotGateViolation::MetadataIncomplete { field: "integrity" });
+        }
+        if snapshot.captured_at > observed_at || snapshot.window.end_at > snapshot.captured_at {
+            violations.push(SnapshotGateViolation::MetadataIncomplete {
+                field: "chronology",
+            });
+        }
+        let strict = usage != SnapshotUsage::Research;
+        if strict && (snapshot.symbols.is_empty() || snapshot.artifact_refs.is_empty()) {
+            violations.push(SnapshotGateViolation::MetadataIncomplete {
+                field: "data_dependencies",
+            });
+        }
+        if snapshot.sources.iter().any(|s| {
+            [
+                s.source_id.as_str(),
+                s.provider.as_str(),
+                s.dataset.as_str(),
+            ]
+            .into_iter()
+            .any(|v| v.trim().is_empty())
+        }) {
+            violations.push(SnapshotGateViolation::MetadataIncomplete {
+                field: "source_identity",
+            });
+        }
+        if snapshot.lineage.iter().any(|l| {
+            l.lineage_kind.trim().is_empty()
+                || l.reference.trim().is_empty()
+                || !l.details.is_object()
+        }) {
+            violations.push(SnapshotGateViolation::MetadataIncomplete { field: "lineage" });
+        }
+        if snapshot.artifact_refs.iter().any(|a| {
+            a.media_type.trim().is_empty()
+                || a.storage_bucket.trim().is_empty()
+                || a.object_key.trim().is_empty()
+        }) {
+            violations.push(SnapshotGateViolation::MetadataIncomplete {
+                field: "artifact_refs",
+            });
+        }
+        if (strict || rule.require_license) && snapshot.license_label.trim().is_empty() {
             violations.push(SnapshotGateViolation::LicenseMissing);
         }
         if snapshot.sources.is_empty() {
             violations.push(SnapshotGateViolation::MetadataIncomplete { field: "sources" });
-        } else if rule.require_license
+        } else if (strict || rule.require_license)
             && snapshot
                 .sources
                 .iter()
@@ -339,10 +510,19 @@ impl SnapshotQualityGate {
         if snapshot.lineage.is_empty() {
             violations.push(SnapshotGateViolation::MetadataIncomplete { field: "lineage" });
         }
-        if rule.require_freshness && snapshot.is_expired(observed_at) {
+        if (strict || rule.require_freshness)
+            && (snapshot.is_expired(observed_at)
+                || snapshot
+                    .window
+                    .end_at
+                    .checked_add_signed(ChronoDuration::seconds(snapshot.max_age_secs))
+                    .is_none_or(|deadline| observed_at > deadline))
+        {
             violations.push(SnapshotGateViolation::Expired);
         }
-        if !rule.allows_quality(snapshot.quality) {
+        if (strict && snapshot.quality != SnapshotQuality::Passed)
+            || !rule.allows_quality(snapshot.quality)
+        {
             violations.push(SnapshotGateViolation::QualityInsufficient {
                 quality: snapshot.quality,
             });
@@ -367,13 +547,17 @@ impl InMemoryDataSnapshotCatalog {
         Self::default()
     }
 
-    pub fn upsert(&mut self, snapshot: DataSnapshotRecord) -> &DataSnapshotRecord {
+    pub fn upsert(
+        &mut self,
+        snapshot: DataSnapshotRecord,
+    ) -> Result<&DataSnapshotRecord, SnapshotError> {
+        snapshot.validate_integrity()?;
         let hash_key = (snapshot.tenant_id, snapshot.content_hash.clone());
         let id_key = (snapshot.tenant_id, snapshot.snapshot_id);
         let snapshot = self.snapshots_by_hash.entry(hash_key).or_insert(snapshot);
         self.hash_by_id
             .insert(id_key, snapshot.content_hash.clone());
-        snapshot
+        Ok(snapshot)
     }
 
     #[must_use]
@@ -412,6 +596,22 @@ impl InMemoryDataSnapshotCatalog {
 pub enum SnapshotError {
     #[error(transparent)]
     Core(#[from] CoreError),
+    #[error(transparent)]
+    Json(#[from] serde_json::Error),
+    #[error("SNAPSHOT_REFERENCE: persisted schema, artifact or lineage reference is invalid")]
+    Reference,
+    #[error("SNAPSHOT_WRITE_CONTEXT: tenant, actor, correlation, cause and reason are required")]
+    WriteContext,
+    #[error("SNAPSHOT_INTEGRITY: content hash or derived fields are inconsistent")]
+    Integrity,
+    #[error("SNAPSHOT_INVALID_CHRONOLOGY: window, capture or creation time is inconsistent")]
+    InvalidChronology,
+    #[error("SNAPSHOT_INPUT_BUDGET: input exceeds bounded collection or byte budget")]
+    InputBudget,
+    #[error("SNAPSHOT_UNSAFE_RULE: strategy/trading safety floor cannot be disabled")]
+    UnsafeRule,
+    #[error("SNAPSHOT_RULE_CONFLICT: duplicate usage or mixed tenant")]
+    RuleConflict,
     #[error("SNAPSHOT_INVALID_WINDOW: snapshot window end precedes start")]
     InvalidWindow,
     #[error("SNAPSHOT_INVALID_MAX_AGE: max_age_secs `{max_age_secs}` must be >= 0")]
@@ -429,6 +629,14 @@ impl SnapshotError {
     pub fn machine_code(&self) -> &'static str {
         match self {
             Self::Core(error) => error.machine_code(),
+            Self::Json(_) => "SNAPSHOT_JSON",
+            Self::WriteContext => "SNAPSHOT_WRITE_CONTEXT",
+            Self::Reference => "SNAPSHOT_REFERENCE",
+            Self::Integrity => "SNAPSHOT_INTEGRITY",
+            Self::InvalidChronology => "SNAPSHOT_INVALID_CHRONOLOGY",
+            Self::InputBudget => "SNAPSHOT_INPUT_BUDGET",
+            Self::UnsafeRule => "SNAPSHOT_UNSAFE_RULE",
+            Self::RuleConflict => "SNAPSHOT_RULE_CONFLICT",
             Self::InvalidWindow => "SNAPSHOT_INVALID_WINDOW",
             Self::InvalidMaxAge { .. } => "SNAPSHOT_INVALID_MAX_AGE",
             Self::InvalidSchemaName => "SNAPSHOT_INVALID_SCHEMA_NAME",
@@ -573,345 +781,5 @@ impl NormalizedSnapshotInput {
 }
 
 #[cfg(test)]
-mod tests {
-    use chrono::{Duration as ChronoDuration, TimeZone, Utc};
-    use serde_json::json;
-
-    use super::{
-        DataSnapshotInput, DataSnapshotRecord, InMemoryDataSnapshotCatalog, SnapshotArtifactRef,
-        SnapshotError, SnapshotGateViolation, SnapshotLineageEntry, SnapshotQuality,
-        SnapshotQualityFinding, SnapshotQualityGate, SnapshotQualityRuleset, SnapshotSourceRef,
-        SnapshotUsage, SnapshotWindow, default_quality_rules,
-    };
-    use quantos_core::{ArtifactId, ContentHash, SchemaVersion, TenantId};
-
-    fn baseline_input() -> DataSnapshotInput {
-        DataSnapshotInput {
-            schema_name: "DataSnapshot".to_owned(),
-            schema_version: SchemaVersion::parse("v1").expect("schema version parses"),
-            schema_entry_id: None,
-            window: SnapshotWindow {
-                start_at: Utc
-                    .with_ymd_and_hms(2026, 7, 31, 0, 0, 0)
-                    .single()
-                    .expect("valid timestamp"),
-                end_at: Utc
-                    .with_ymd_and_hms(2026, 7, 31, 1, 0, 0)
-                    .single()
-                    .expect("valid timestamp"),
-            },
-            sources: vec![
-                SnapshotSourceRef {
-                    source_id: "coinbase-btc".to_owned(),
-                    provider: "approved.coinbase.spot".to_owned(),
-                    dataset: "crypto.top_of_book.v1".to_owned(),
-                    license_label: "internal-approved".to_owned(),
-                },
-                SnapshotSourceRef {
-                    source_id: "binance-btc".to_owned(),
-                    provider: "approved.binance.spot".to_owned(),
-                    dataset: "crypto.top_of_book.v1".to_owned(),
-                    license_label: "internal-approved".to_owned(),
-                },
-            ],
-            quality: SnapshotQuality::Passed,
-            quality_findings: vec![SnapshotQualityFinding {
-                code: "spread_within_expected_range".to_owned(),
-                detail: "spread remains below threshold".to_owned(),
-            }],
-            license_label: "internal-approved".to_owned(),
-            captured_at: Utc
-                .with_ymd_and_hms(2026, 7, 31, 1, 0, 5)
-                .single()
-                .expect("valid timestamp"),
-            max_age_secs: 30,
-            symbols: vec!["ETHUSDT".to_owned(), "BTCUSDT".to_owned()],
-            artifact_refs: vec![
-                SnapshotArtifactRef {
-                    artifact_id: ArtifactId::new(),
-                    media_type: "application/json".to_owned(),
-                    content_hash: ContentHash::sha256_bytes(br#"{"kind":"a"}"#),
-                    storage_bucket: "quantos-artifacts".to_owned(),
-                    object_key: "tenant/example/artifacts/a".to_owned(),
-                },
-                SnapshotArtifactRef {
-                    artifact_id: ArtifactId::new(),
-                    media_type: "application/json".to_owned(),
-                    content_hash: ContentHash::sha256_bytes(br#"{"kind":"b"}"#),
-                    storage_bucket: "quantos-artifacts".to_owned(),
-                    object_key: "tenant/example/artifacts/b".to_owned(),
-                },
-            ],
-            lineage: vec![
-                SnapshotLineageEntry {
-                    lineage_kind: "market_event_range".to_owned(),
-                    reference: "market:BTCUSDT".to_owned(),
-                    details: json!({ "first_sequence": 1, "last_sequence": 100 }),
-                },
-                SnapshotLineageEntry {
-                    lineage_kind: "schema_registry".to_owned(),
-                    reference: "research/DataSnapshot/v1".to_owned(),
-                    details: json!({ "domain": "research" }),
-                },
-            ],
-        }
-    }
-
-    #[test]
-    fn quality_and_usage_wire_values_round_trip_and_reject_unknown_values() {
-        for (quality, wire) in [
-            (SnapshotQuality::Pending, "pending"),
-            (SnapshotQuality::Passed, "passed"),
-            (SnapshotQuality::Degraded, "degraded"),
-            (SnapshotQuality::Failed, "failed"),
-        ] {
-            assert_eq!(quality.as_str(), wire);
-            assert_eq!(
-                SnapshotQuality::parse(wire).expect("quality parses"),
-                quality
-            );
-        }
-        let quality_error = SnapshotQuality::parse("unknown").expect_err("unknown quality fails");
-        assert_eq!(quality_error.machine_code(), "SNAPSHOT_INVALID_QUALITY");
-
-        for (usage, wire) in [
-            (SnapshotUsage::Research, "research"),
-            (SnapshotUsage::Strategy, "strategy"),
-            (SnapshotUsage::Trading, "trading"),
-        ] {
-            assert_eq!(usage.as_str(), wire);
-            assert_eq!(SnapshotUsage::parse(wire).expect("usage parses"), usage);
-        }
-        let usage_error = SnapshotUsage::parse("unknown").expect_err("unknown usage fails");
-        assert_eq!(usage_error.machine_code(), "SNAPSHOT_INVALID_USAGE");
-    }
-
-    #[test]
-    fn data_snapshot_hash_is_stable_for_equivalent_inputs() {
-        let tenant_id = TenantId::new();
-        let created_at = Utc
-            .with_ymd_and_hms(2026, 7, 31, 1, 0, 10)
-            .single()
-            .expect("valid timestamp");
-        let original = baseline_input();
-        let first = DataSnapshotRecord::new(tenant_id, original.clone(), created_at)
-            .expect("snapshot builds");
-
-        let mut reordered = original;
-        reordered.sources.reverse();
-        reordered.symbols.reverse();
-        reordered.artifact_refs.reverse();
-        reordered.lineage.reverse();
-        let second =
-            DataSnapshotRecord::new(tenant_id, reordered, created_at).expect("snapshot builds");
-
-        assert_eq!(first.content_hash, second.content_hash);
-
-        let mut catalog = InMemoryDataSnapshotCatalog::new();
-        let stored_first = catalog.upsert(first).clone();
-        let stored_second = catalog.upsert(second).clone();
-        assert_eq!(stored_first.snapshot_id, stored_second.snapshot_id);
-    }
-
-    #[test]
-    fn data_snapshot_rejects_invalid_window_age_and_schema() {
-        let tenant_id = TenantId::new();
-        let created_at = Utc
-            .with_ymd_and_hms(2026, 7, 31, 1, 0, 10)
-            .single()
-            .expect("valid timestamp");
-
-        let mut invalid_window = baseline_input();
-        invalid_window.window.end_at = invalid_window.window.start_at - ChronoDuration::seconds(1);
-        assert!(matches!(
-            DataSnapshotRecord::new(tenant_id, invalid_window, created_at),
-            Err(SnapshotError::InvalidWindow)
-        ));
-
-        let mut invalid_age = baseline_input();
-        invalid_age.max_age_secs = -1;
-        assert!(matches!(
-            DataSnapshotRecord::new(tenant_id, invalid_age, created_at),
-            Err(SnapshotError::InvalidMaxAge { max_age_secs: -1 })
-        ));
-
-        let mut invalid_schema = baseline_input();
-        invalid_schema.schema_name = "  ".to_owned();
-        assert!(matches!(
-            DataSnapshotRecord::new(tenant_id, invalid_schema, created_at),
-            Err(SnapshotError::InvalidSchemaName)
-        ));
-    }
-
-    #[test]
-    fn strategy_and_trading_gates_reject_three_hundred_invalid_fixtures() {
-        let tenant_id = TenantId::new();
-        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(
-            tenant_id,
-            Utc.with_ymd_and_hms(2026, 7, 31, 1, 0, 0)
-                .single()
-                .expect("valid timestamp"),
-        ));
-
-        for index in 0..300 {
-            let mut input = baseline_input();
-            if index < 100 {
-                input.captured_at = input.window.end_at;
-                input.max_age_secs = 1;
-            } else if index < 200 {
-                input.quality = SnapshotQuality::Failed;
-            } else {
-                input.license_label.clear();
-            }
-
-            let snapshot = DataSnapshotRecord::new(
-                tenant_id,
-                input,
-                Utc.with_ymd_and_hms(2026, 7, 31, 1, 0, 30)
-                    .single()
-                    .expect("valid timestamp"),
-            )
-            .expect("snapshot builds");
-            let observed_at = if index < 100 {
-                snapshot.expires_at + ChronoDuration::seconds(1)
-            } else {
-                snapshot.captured_at
-            };
-
-            for usage in [SnapshotUsage::Strategy, SnapshotUsage::Trading] {
-                let decision = SnapshotQualityGate::evaluate(&snapshot, usage, observed_at, &rules);
-                assert!(
-                    !decision.allowed,
-                    "fixture {index} should be rejected for {usage:?}"
-                );
-                if index < 100 {
-                    assert!(
-                        decision
-                            .violations
-                            .contains(&SnapshotGateViolation::Expired)
-                    );
-                } else if index < 200 {
-                    assert!(decision.violations.contains(
-                        &SnapshotGateViolation::QualityInsufficient {
-                            quality: SnapshotQuality::Failed,
-                        },
-                    ));
-                } else {
-                    assert!(
-                        decision
-                            .violations
-                            .contains(&SnapshotGateViolation::LicenseMissing)
-                    );
-                }
-            }
-        }
-    }
-
-    #[test]
-    fn optional_license_rule_accepts_complete_unlicensed_metadata() {
-        let tenant = TenantId::new();
-        let mut input = baseline_input();
-        input.license_label.clear();
-        for source in &mut input.sources {
-            source.license_label.clear();
-        }
-        let observed = input.captured_at;
-        let snapshot = DataSnapshotRecord::new(tenant, input, observed).unwrap();
-        let mut rules = default_quality_rules(tenant, observed);
-        for rule in &mut rules {
-            rule.require_license = false;
-        }
-        let rules = SnapshotQualityRuleset::from_rules(rules);
-        for usage in [SnapshotUsage::Strategy, SnapshotUsage::Trading] {
-            assert!(SnapshotQualityGate::evaluate(&snapshot, usage, observed, &rules).allowed);
-        }
-    }
-
-    #[test]
-    fn research_gate_allows_degraded_non_expired_snapshots() {
-        let tenant_id = TenantId::new();
-        let mut input = baseline_input();
-        input.quality = SnapshotQuality::Degraded;
-        let snapshot = DataSnapshotRecord::new(
-            tenant_id,
-            input,
-            Utc.with_ymd_and_hms(2026, 7, 31, 1, 0, 10)
-                .single()
-                .expect("valid timestamp"),
-        )
-        .expect("snapshot builds");
-        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(
-            tenant_id,
-            snapshot.created_at,
-        ));
-
-        let decision = SnapshotQualityGate::evaluate(
-            &snapshot,
-            SnapshotUsage::Research,
-            snapshot.captured_at,
-            &rules,
-        );
-        assert!(decision.allowed);
-    }
-
-    #[test]
-    fn snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage() {
-        let tenant_id = TenantId::new();
-        let other_tenant_id = TenantId::new();
-        let now = Utc
-            .with_ymd_and_hms(2026, 7, 31, 1, 0, 10)
-            .single()
-            .expect("valid timestamp");
-        let snapshot =
-            DataSnapshotRecord::new(tenant_id, baseline_input(), now).expect("snapshot builds");
-        let cross_tenant_rules =
-            SnapshotQualityRuleset::from_rules(default_quality_rules(other_tenant_id, now));
-        let cross_tenant = SnapshotQualityGate::evaluate(
-            &snapshot,
-            SnapshotUsage::Trading,
-            snapshot.captured_at,
-            &cross_tenant_rules,
-        );
-        assert_eq!(
-            cross_tenant.violations,
-            vec![SnapshotGateViolation::RuleMissing {
-                usage: SnapshotUsage::Trading,
-            }]
-        );
-
-        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(tenant_id, now));
-        for (field, mutate) in [
-            (
-                "sources",
-                (|input: &mut DataSnapshotInput| input.sources.clear())
-                    as fn(&mut DataSnapshotInput),
-            ),
-            (
-                "source_license",
-                (|input: &mut DataSnapshotInput| input.sources[0].license_label.clear())
-                    as fn(&mut DataSnapshotInput),
-            ),
-            (
-                "lineage",
-                (|input: &mut DataSnapshotInput| input.lineage.clear())
-                    as fn(&mut DataSnapshotInput),
-            ),
-        ] {
-            let mut input = baseline_input();
-            mutate(&mut input);
-            let incomplete = DataSnapshotRecord::new(tenant_id, input, now)
-                .expect("incomplete snapshot remains inspectable");
-            let decision = SnapshotQualityGate::evaluate(
-                &incomplete,
-                SnapshotUsage::Trading,
-                incomplete.captured_at,
-                &rules,
-            );
-            assert!(
-                decision
-                    .violations
-                    .contains(&SnapshotGateViolation::MetadataIncomplete { field })
-            );
-        }
-    }
-}
+#[path = "../tests/unit/snapshot.rs"]
+mod tests;

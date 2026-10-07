@@ -1,0 +1,149 @@
+{
+  "schema": "quantos-r02-target-readback/v1",
+  "result": "PASS",
+  "migrations": [
+    {
+      "filename": "20261007180000_r02_snapshot_boundaries.sql",
+      "expected": "b58d2bef2dd9c9d313adc0f0a913a3ffffe3d75bef64c24bab8a99b797527406",
+      "actual": "b58d2bef2dd9c9d313adc0f0a913a3ffffe3d75bef64c24bab8a99b797527406",
+      "matches": true
+    },
+    {
+      "filename": "20261007181000_r02_snapshot_lineage_alias.sql",
+      "expected": "b02ec819302656bf4aa4c3e5e52a63acf2efacdd1e5ce996381db54a5f9a7958",
+      "actual": "b02ec819302656bf4aa4c3e5e52a63acf2efacdd1e5ce996381db54a5f9a7958",
+      "matches": true
+    },
+    {
+      "filename": "20261007182000_r02_writer_role_set_option.sql",
+      "expected": "ea30a95b5494e3f5e1457f6132ac5581d5386b2e6a3d77270a150c1b1f6b7d38",
+      "actual": "ea30a95b5494e3f5e1457f6132ac5581d5386b2e6a3d77270a150c1b1f6b7d38",
+      "matches": true
+    },
+    {
+      "filename": "20261007183000_r02_reference_read_guard.sql",
+      "expected": "f440ae8037780764c8ca3d86a80039e0225b95a12bf75653bf5d1995809d7130",
+      "actual": "f440ae8037780764c8ca3d86a80039e0225b95a12bf75653bf5d1995809d7130",
+      "matches": true
+    },
+    {
+      "filename": "20261007184000_r02_canonical_read_guard.sql",
+      "expected": "11927540ead5803d5a631f6491ce2469f077a7ffca0d3345e21c53e7bbbf9c4e",
+      "actual": "11927540ead5803d5a631f6491ce2469f077a7ffca0d3345e21c53e7bbbf9c4e",
+      "matches": true
+    },
+    {
+      "filename": "20261007185000_r02_recovery_deny_policy.sql",
+      "expected": "82f642a5b482768c0292fd2acf116b8b8ac70d77e7a41b106dd9ae87c8a1f036",
+      "actual": "82f642a5b482768c0292fd2acf116b8b8ac70d77e7a41b106dd9ae87c8a1f036",
+      "matches": true
+    },
+    {
+      "filename": "20261007190000_r02_writer_no_inherit.sql",
+      "expected": "2554e6fff7aaad0dd84ccd82c8616f8250c4898b975e0ac3ebe4bd97d4692b15",
+      "actual": "2554e6fff7aaad0dd84ccd82c8616f8250c4898b975e0ac3ebe4bd97d4692b15",
+      "matches": true
+    }
+  ],
+  "rls": [
+    {
+      "relname": "data_snapshots",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true
+    },
+    {
+      "relname": "data_snapshot_quality_rules",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true
+    },
+    {
+      "relname": "artifact_upload_attempts",
+      "relrowsecurity": true,
+      "relforcerowsecurity": true
+    }
+  ],
+  "recoveryPolicy": [
+    {
+      "polname": "artifact_upload_attempts_deny_direct",
+      "using_expr": "false",
+      "check_expr": "false"
+    }
+  ],
+  "permissions": {
+    "member_api_usage": true,
+    "member_read_execute": true,
+    "member_direct_select": false,
+    "writer_direct_access": false,
+    "anon_read_execute": false
+  },
+  "writerMembership": {
+    "memberships": [
+      {
+        "set_option": false,
+        "inherit_option": false,
+        "admin_option": true,
+        "grantor": "supabase_admin"
+      },
+      {
+        "set_option": true,
+        "inherit_option": false,
+        "admin_option": false,
+        "grantor": "postgres"
+      }
+    ],
+    "effectiveSet": true,
+    "inheritEnabled": false
+  },
+  "cleanup": [
+    {
+      "attempt": "target-attempt01",
+      "run": "7fd3bf8b-843e-461d-8130-6aaecfda05ad",
+      "total": 1,
+      "active": 0
+    },
+    {
+      "attempt": "target-attempt02",
+      "run": "094c8643-a8dd-4c2d-b98e-ba94518af15d",
+      "total": 4,
+      "active": 0
+    },
+    {
+      "attempt": "target-attempt03",
+      "run": "4cadfd73-0067-43ce-9f07-e2030aef00f1",
+      "total": 5,
+      "active": 0
+    },
+    {
+      "attempt": "target-attempt04",
+      "run": "cf163ab6-627e-4cf4-9ef8-cc76b4c84306",
+      "total": 6,
+      "active": 0
+    },
+    {
+      "attempt": "target-attempt05",
+      "run": "49407eb3-07be-421c-ab33-fa17b9d1e6b6",
+      "total": 1,
+      "active": 0
+    },
+    {
+      "attempt": "target-attempt06",
+      "run": "aa0fb2fd-ec30-42a4-aafe-8813d2b43396",
+      "total": 6,
+      "active": 0
+    },
+    {
+      "attempt": "target-attempt07",
+      "run": "3b951d05-177d-4c0e-8b06-cdacd301b8c0",
+      "total": 6,
+      "active": 0
+    },
+    {
+      "attempt": "target-attempt08",
+      "run": "81a5b225-b799-46f8-ad4c-6266a845b283",
+      "total": 6,
+      "active": 0
+    }
+  ],
+  "temporaryFaultTriggers": [],
+  "metadata": "RETAINED"
+}

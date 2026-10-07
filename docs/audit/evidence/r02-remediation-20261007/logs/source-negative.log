@@ -1,0 +1,45 @@
+✔ current R02 repository Gate passes (0.496792ms)
+✔ tenant rule binding deletion is rejected (0.164625ms)
+✔ 300 fixture regression is rejected (0.127166ms)
+✖ lineage Gate deletion is rejected (2.008833ms)
+✔ immutable insert regression is rejected (0.154291ms)
+✔ update trigger deletion is rejected (0.125333ms)
+✔ forced RLS deletion is rejected (0.126125ms)
+✔ tenant query predicate deletion is rejected (0.0995ms)
+✔ P95 bound weakening is rejected (0.115ms)
+✔ default Gate live-test regression is rejected (0.132542ms)
+✔ R02 status regression is rejected (0.1715ms)
+✔ uncached SQL measurement cannot become a cache hit (0.092875ms)
+✔ forward tenant schema check cannot disappear (0.086042ms)
+✔ behavior mutation wiring cannot disappear (0.092667ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36.283333
+
+✖ failing tests:
+
+test at scripts/r02-gate-negative.mjs:13:66
+✖ lineage Gate deletion is rejected (2.008833ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert(validateR02(inputs).failures.includes(expected))
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/r02-gate-negative.mjs:15:3)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

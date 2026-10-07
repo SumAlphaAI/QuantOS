@@ -9,7 +9,10 @@ use reqwest::{
 use thiserror::Error;
 use url::Url;
 
-use crate::{ArtifactManifest, pg::PgStorageStore};
+use crate::{
+    ArtifactManifest, object_key_for_content,
+    pg::{PgStorageStore, SnapshotWriteContext},
+};
 use quantos_core::ContentHash;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -28,7 +31,7 @@ impl Default for SupabaseStorageConfig {
             bucket_name: "quantos-artifacts".to_owned(),
             api_key: "replace-with-service-role-key".to_owned(),
             authorization_token: None,
-            upsert: true,
+            upsert: false,
         }
     }
 }
@@ -45,6 +48,12 @@ pub enum SupabaseStorageError {
     Url(#[from] url::ParseError),
     #[error("Supabase Storage request failed with status {status}: {body}")]
     HttpStatus { status: StatusCode, body: String },
+    #[error("ARTIFACT_INVALID_MANIFEST: tenant/hash path, bucket, media type or size is invalid")]
+    InvalidManifest,
+    #[error(
+        "ARTIFACT_REGISTRATION_RECOVERY_PENDING: upload attempt {attempt} retained for reconciliation"
+    )]
+    RecoveryPending { attempt: uuid::Uuid },
     #[error("artifact hash mismatch: expected {expected}, got {actual}")]
     HashMismatch { expected: String, actual: String },
 }
@@ -78,6 +87,10 @@ impl SupabaseStorageAdapter {
         manifest: &ArtifactManifest,
         payload: Bytes,
     ) -> Result<(), SupabaseStorageError> {
+        self.validate_manifest(manifest)?;
+        if manifest.size_bytes != payload.len() as u64 {
+            return Err(SupabaseStorageError::InvalidManifest);
+        }
         validate_payload_hash(&manifest.content_hash, &payload)?;
 
         let response = self
@@ -95,6 +108,7 @@ impl SupabaseStorageAdapter {
     }
 
     pub fn get_artifact(&self, manifest: &ArtifactManifest) -> Result<Bytes, SupabaseStorageError> {
+        self.validate_manifest(manifest)?;
         let response = self.client.get(self.object_url(manifest)).send()?;
         let response = self.ensure_success_response(response)?;
         let bytes = response.bytes()?;
@@ -103,28 +117,105 @@ impl SupabaseStorageAdapter {
     }
 
     pub fn delete_artifact(&self, manifest: &ArtifactManifest) -> Result<(), SupabaseStorageError> {
+        self.validate_manifest(manifest)?;
         let response = self.client.delete(self.object_url(manifest)).send()?;
         self.ensure_success(response)
     }
 
+    /// Persist recovery intent before HTTP. An uncertain upload is reconciled;
+    /// registration failure never deletes a content-addressed existing object.
     pub fn upload_and_register(
         &self,
         storage: &mut PgStorageStore,
         manifest: &ArtifactManifest,
         payload: Bytes,
+        context: &SnapshotWriteContext,
     ) -> Result<ArtifactManifest, SupabaseStorageError> {
-        let upload = self.put_artifact(manifest, payload);
+        self.validate_manifest(manifest)?;
+        context
+            .validate(manifest.tenant_id)
+            .map_err(crate::pg::PgStorageError::from)?;
+        if manifest.size_bytes != payload.len() as u64 {
+            return Err(SupabaseStorageError::InvalidManifest);
+        }
+        validate_payload_hash(&manifest.content_hash, &payload)?;
+        let attempt = storage.prepare_artifact_upload(manifest, context)?;
+        // Force create-only even when a low-level caller configured upsert.
+        let response = self
+            .client
+            .post(self.object_url(manifest))
+            .header(CONTENT_TYPE, &manifest.media_type)
+            .header("x-upsert", "false")
+            .body(payload.to_vec())
+            .send();
+        let upload = response
+            .map_err(SupabaseStorageError::from)
+            .and_then(|response| {
+                if response.status().is_success() {
+                    return Ok(());
+                }
+                let status = response.status();
+                let body = response.text().unwrap_or_default();
+                let duplicate = status == StatusCode::CONFLICT
+                    || (status == StatusCode::BAD_REQUEST
+                        && serde_json::from_str::<serde_json::Value>(&body)
+                            .ok()
+                            .is_some_and(|b| {
+                                b["statusCode"] == "409" || b["error"] == "Duplicate"
+                            }));
+                if duplicate {
+                    self.get_artifact(manifest).map(|_| ())
+                } else {
+                    Err(SupabaseStorageError::HttpStatus { status, body })
+                }
+            });
         storage.record_storage_outcome(manifest.tenant_id, upload.is_err());
-        upload?;
-
+        if let Err(error) = upload {
+            if storage
+                .finish_artifact_upload(attempt, false, context)
+                .is_err()
+            {
+                return Err(SupabaseStorageError::RecoveryPending { attempt });
+            }
+            return Err(error);
+        }
         match storage.upsert_artifact(manifest) {
-            Ok(persisted) => Ok(persisted),
-            Err(error) => {
-                let cleanup = self.delete_artifact(manifest);
-                storage.record_storage_outcome(manifest.tenant_id, cleanup.is_err());
-                Err(error.into())
+            Ok(persisted) => {
+                storage.finish_artifact_upload(attempt, true, context)?;
+                Ok(persisted)
+            }
+            Err(_) => {
+                let _ = storage.finish_artifact_upload(attempt, false, context);
+                Err(SupabaseStorageError::RecoveryPending { attempt })
             }
         }
+    }
+
+    /// Explicit retry after checking the existing object. Never deletes an object;
+    /// unknown/missing/corrupt objects retain their prepared/reconcile state.
+    pub fn reconcile_upload(
+        &self,
+        storage: &mut PgStorageStore,
+        attempt: uuid::Uuid,
+        context: &SnapshotWriteContext,
+    ) -> Result<ArtifactManifest, SupabaseStorageError> {
+        let manifest = storage.artifact_upload_manifest(attempt, context)?;
+        self.get_artifact(&manifest)?;
+        let persisted = storage.upsert_artifact(&manifest)?;
+        storage.finish_artifact_upload(attempt, true, context)?;
+        Ok(persisted)
+    }
+
+    fn validate_manifest(&self, manifest: &ArtifactManifest) -> Result<(), SupabaseStorageError> {
+        if manifest.storage_bucket != self.config.bucket_name
+            || manifest.object_key
+                != object_key_for_content(&manifest.tenant_id, &manifest.content_hash)
+            || manifest.media_type.trim().is_empty()
+            || manifest.size_bytes > i64::MAX as u64
+        {
+            return Err(SupabaseStorageError::InvalidManifest);
+        }
+        Ok(())
     }
 
     pub fn get_artifact_recorded(
@@ -203,55 +294,5 @@ fn validate_payload_hash(
 }
 
 #[cfg(test)]
-mod tests {
-    use bytes::Bytes;
-
-    use super::{SupabaseStorageAdapter, SupabaseStorageConfig, validate_payload_hash};
-    use crate::ArtifactManifest;
-    use chrono::{TimeZone, Utc};
-    use quantos_core::{ContentHash, TenantId};
-
-    #[test]
-    fn object_url_points_to_supabase_storage_endpoint() {
-        let tenant_id = TenantId::new();
-        let payload = Bytes::from_static(br#"{"artifact":"payload"}"#);
-        let manifest = ArtifactManifest::new(
-            tenant_id,
-            "application/json",
-            ContentHash::sha256_bytes(&payload),
-            "quantos-artifacts",
-            payload.len() as u64,
-            Utc.with_ymd_and_hms(2026, 7, 28, 12, 0, 0)
-                .single()
-                .expect("valid timestamp"),
-        );
-
-        let adapter = SupabaseStorageAdapter::connect(SupabaseStorageConfig {
-            project_url: "https://example.supabase.co/".to_owned(),
-            bucket_name: "quantos-artifacts".to_owned(),
-            api_key: "test-key".to_owned(),
-            authorization_token: None,
-            upsert: true,
-        })
-        .expect("adapter builds");
-
-        assert_eq!(
-            adapter.object_url(&manifest),
-            format!(
-                "https://example.supabase.co/storage/v1/object/{}/{}",
-                manifest.storage_bucket, manifest.object_key
-            )
-        );
-    }
-
-    #[test]
-    fn payload_hash_validation_rejects_mismatch() {
-        let error = validate_payload_hash(
-            &ContentHash::sha256_bytes(br#"{"expected":"payload"}"#),
-            &Bytes::from_static(br#"{"actual":"payload"}"#),
-        )
-        .expect_err("hash mismatch should be rejected");
-
-        assert!(error.to_string().contains("artifact hash mismatch"));
-    }
-}
+#[path = "../tests/unit/supabase_storage.rs"]
+mod tests;

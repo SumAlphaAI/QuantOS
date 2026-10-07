@@ -1,0 +1,161 @@
+{
+  "schema": "quantos-r02-findings/v1",
+  "findings": [
+    {
+      "id": "B01",
+      "priority": "阻塞级",
+      "status": "OPEN",
+      "moduleAndLocation": "PostgreSQL 权限 / 可用 snapshot 查询路径；base migration:52–81、`pg.rs:245–297`",
+      "manifestation": "两表 enable/force RLS、member policy 存在，但目标 authenticated 无 schema usage/SELECT，BFF 无 SELECT，service_role 也无快照权限；成员正向读取 42501，仅管理连接库查询可用",
+      "impact": "R02 所需租户可见性/服务查询无法验收。应交付明确的受限查询角色/服务授权路径，不能用管理连接加 tenant 谓词代替成员 RLS。不是要求所有前端页面本轮完成",
+      "evidence": [
+        "target-probe.json",
+        "target-privileges.json"
+      ]
+    },
+    {
+      "id": "H01",
+      "priority": "高危",
+      "status": "OPEN",
+      "moduleAndLocation": "快照内容 hash / serde / PG 映射；`snapshot.rs:194–259,308–355`，`pg.rs:183–239,444–475`",
+      "manifestation": "Record 所有字段公开并直接 Deserialize；质量/expiry 改动后 hash 不变，constructor 校验可绕过。目标 native 将任意合法格式 hash、30 天 expiry 与 max_age=120 保存并冷读，Trading Gate 在一天后仍允许",
+      "impact": "快照引用与实际语义不再一致，去重/重放与交易质量判断失去可信输入。未宣称外部攻击者已利用或实际交易已受污染",
+      "evidence": [
+        "boundary-probes.log",
+        "native-target-attempt03-configured.log",
+        "native-cleanup-final.json"
+      ]
+    },
+    {
+      "id": "H02",
+      "priority": "高危",
+      "status": "OPEN",
+      "moduleAndLocation": "质量规则硬约束；`snapshot.rs:117–156,324–350`，`pg.rs:339–370`",
+      "manifestation": "可用配置关闭 Strategy/Trading 的 license/freshness 检查并 allow_failed；坏质量、过期、无许可同时获准；DB trading rule 也可写入此配置。现有 optional-license test 甚至明确允许策略/交易无许可",
+      "impact": "默认 300 fixture 通过无法保证交易安全；缺强制底线和受控例外范围，不得将可调研究规则直接复用为交易放行",
+      "evidence": [
+        "boundary-probes.log",
+        "target-probe.json"
+      ]
+    },
+    {
+      "id": "H03",
+      "priority": "高危",
+      "status": "OPEN",
+      "moduleAndLocation": "时间窗/新鲜度；`snapshot.rs:222–239,263–265,347–349`",
+      "manifestation": "只检查 end≥start、age≥0；未来一年 captured_at、未来数据窗或 window end>capture 都可用；freshness 只依赖可声明的 captured/expiry",
+      "impact": "可把未来数据或陈旧来源重新标为新鲜；影响无 look-ahead 的研究/策略可信度。只证明构造/Gate 接受，不断言下游已发生 look-ahead 事故",
+      "evidence": [
+        "boundary-probes.log"
+      ]
+    },
+    {
+      "id": "H04",
+      "priority": "高危",
+      "status": "OPEN",
+      "moduleAndLocation": "来源、血缘、schema/对象元数据；`snapshot.rs:224–258,327–346`",
+      "manifestation": "sources/lineage 只检查容器非空；空 source_id/provider/dataset、空 lineage kind/reference/null details 仍允许；artifact_refs/symbols 为空和未知 schema_name 也可获准",
+      "impact": "无法保证可重放输入、有效来源/许可或可解析血缘。仅非空 license_label 不提供批准/适用用途证明；需要明确字段语义和真实引用验证",
+      "evidence": [
+        "boundary-probes.log"
+      ]
+    },
+    {
+      "id": "H05",
+      "priority": "高危",
+      "status": "OPEN",
+      "moduleAndLocation": "引用租户/schema 完整性；base migration:6，`pg.rs:193–216`",
+      "manifestation": "schema_entry_id 仅对全局 id 做 FK；目标 tenant A 快照引用 tenant B 的 UnrelatedContract/v9，快照仍称 DataSnapshot/v1。artifact refs/lineage JSON 也未在当前写入/Gate 中解析验证",
+      "impact": "租户隔离停留在顶层行，跨租户关联可成立、schema 声明与注册项不一致；用户读取策略不能替代写入引用约束",
+      "evidence": [
+        "target-probe.json"
+      ]
+    },
+    {
+      "id": "M01",
+      "priority": "中危",
+      "status": "OPEN",
+      "moduleAndLocation": "ruleset 配置；`snapshot.rs:272–277`",
+      "manifestation": "相同 usage collect 到 BTreeMap，后项静默覆盖；strict/relaxed 顺序不同即可改变过期结果；无重复或混 tenant 配置错误",
+      "impact": "同一配置集合结果依赖排列，误配可能放宽策略；应返回可诊断冲突，不让配置覆盖悄悄生效",
+      "evidence": [
+        "boundary-probes.log"
+      ]
+    },
+    {
+      "id": "M02",
+      "priority": "中危",
+      "status": "OPEN",
+      "moduleAndLocation": "constructor 错误与资源边界；`snapshot.rs:225–239`",
+      "manifestation": "`i64::MAX` 触发 TimeDelta::seconds panic；9e12 秒触发 DateTime 加法溢出，Result API 未返回 SnapshotError；容器也没有明确输入预算",
+      "impact": "无效输入可使同步调用或 worker 崩溃，影响恢复。两个 panic 已复现；无界容器为源码风险，未做 OOM 压测",
+      "evidence": [
+        "boundary-probes.log"
+      ]
+    },
+    {
+      "id": "M03",
+      "priority": "中危",
+      "status": "OPEN",
+      "moduleAndLocation": "Storage 登记/补偿；`supabase_storage.rs:20–33,129–147,176–181`",
+      "manifestation": "默认 upsert=true；上传到既有 key 后登记失败即无条件 DELETE，未确认对象由本次新建。新 tenant 的失败 manifest 保留同 owned object key，真实补偿删掉原已登记对象；metadata 留存、独立读回 Object not found。cleanup 错误只记 metric，返回原 Persist error，无 durable 修复任务",
+      "impact": "重试/错误 manifest/共享路径可导致已有对象丢失和悬空引用；hash 检查能拒绝坏读取，却无法恢复已删对象。复现只操作审计临时对象，没有删除业务对象",
+      "evidence": [
+        "native-target-attempt03-configured.log",
+        "native-cleanup-final.json"
+      ]
+    },
+    {
+      "id": "M04",
+      "priority": "中危",
+      "status": "OPEN",
+      "moduleAndLocation": "测试 Gate / 覆盖；`scripts/check-r02.mjs:33–82`、`r02-gate-negative.mjs`、Makefile:132–140",
+      "manifestation": "JS 多为 marker 存在检查；核心坏输入在 Gate PASS 时仍复现。默认库测试不含当前目标 RLS/补偿边界；本地 PG 0%、Storage region 37.04%，R02 没有完整当前目标/独立生产行覆盖证明",
+      "impact": "不能阻止上述回归；有 CI/F05 历史覆盖不等于 R02 新边界通过。nightly 是发布义务，本轮未采集不另算开发缺陷",
+      "evidence": [
+        "r02-local-only.log",
+        "boundary-probes.log",
+        "coverage-local.json"
+      ]
+    },
+    {
+      "id": "M05",
+      "priority": "中危",
+      "status": "OPEN",
+      "moduleAndLocation": "P95 验收测试；`postgres_persistence.rs:234–251`，`pg.rs:245–254`",
+      "manifestation": "persist/get 已填 cache，随后同 store/id 的 25 次 get 直接 cache return；P95 测的是内存 clone，非 PG query。独立真实 SQL P95 669.563ms",
+      "impact": "既有绿色性能断言不能证明计划的真实查询指标；修复测量入口即可，当前不要求持续调优跨区域链路或删除原失败",
+      "evidence": [
+        "target-probe.json"
+      ]
+    },
+    {
+      "id": "M06",
+      "priority": "中危",
+      "status": "OPEN",
+      "moduleAndLocation": "snapshot/规则写入审计；`pg.rs:183–240,339–377` 与两项 snapshot migration",
+      "manifestation": "写入入口/表不保存执行 actor/correlation，规则更新仅 updated_at；未找到快照创建/规则放宽的 atomic audit/event/outbox 链。protobuf 所需 CommandMetadata 也未映射到这些写入",
+      "impact": "难以回答谁、为何、在哪次请求改变质量准入；规则可变时不能靠 fixture actor 或 Storage outcome metric补齐业务审计",
+      "evidence": []
+    },
+    {
+      "id": "L01",
+      "priority": "低危",
+      "status": "OPEN",
+      "moduleAndLocation": "storage README / R02 交付指引 / 命令边界",
+      "manifestation": "README 推荐 fresh disposable PostgreSQL；`make r02-check` 自动 include 环境，实际触发 Runtime 目标连接，未显式 skip 时并非完全 local-only。历史 summary 的旧计数与 NOT RUN 是当时事实，当前 README 缺少独立的目标/本地入口及新结果说明",
+      "impact": "易误执行禁止的本地数据库路径或把环境/早返当功能 PASS；保留历史 summary 不构成缺陷，需完善当前交付指引",
+      "evidence": [
+        "r02-check.log",
+        "r02-local-only.log"
+      ]
+    }
+  ],
+  "severityCounts": {
+    "阻塞级": 1,
+    "高危": 5,
+    "中危": 6,
+    "低危": 1
+  },
+  "allOpen": true
+}

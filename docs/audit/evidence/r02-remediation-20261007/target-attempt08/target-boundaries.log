@@ -1,0 +1,44 @@
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.70s
+     Running tests/postgres_persistence.rs (target/debug/deps/postgres_persistence-ad7b7ad58a3813ca)
+
+running 1 test
+test postgres_storage_store_persists_artifacts_and_schema_registry ... R02_SQL_P95_BASELINE_MS=947.300 samples=25 path=uncached_sql operation=id result_scope=one_snapshot list_limit=5
+R02_SQL_P95_BASELINE_MS=936.857 samples=25 path=uncached_sql operation=content_hash result_scope=one_snapshot list_limit=5
+R02_SQL_P95_BASELINE_MS=1024.334 samples=25 path=uncached_sql operation=symbol_list result_scope=one_snapshot list_limit=5
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 67.59s
+
+     Running tests/r02_boundaries.rs (target/debug/deps/r02_boundaries-3dc8d2c369af1937)
+
+running 2 tests
+test real_snapshot_permissions_invariants_and_atomic_audit ... R02_FIXTURE {"actor":"01a11691-ac88-7101-abcc-e5f52c6851c5","run":"81a5b225-b799-46f8-ad4c-6266a845b283","tenant":"01a11691-ac88-7101-abcc-e5e1448daa9f"}
+R02_FIXTURE {"actor":"01a11691-e256-7c21-a2b0-106f57f00807","run":"81a5b225-b799-46f8-ad4c-6266a845b283","tenant":"01a11691-e256-7c21-a2b0-105a03b3126e"}
+R02_TARGET_SNAPSHOT PASS member-read/cross-tenant-deny/hash-expiry/ref/rule-floor/atomic-audit; not HTTP JWT
+R02_ACTOR_INACTIVE 01a11691-e256-7c21-a2b0-106f57f00807
+R02_ACTOR_INACTIVE 01a11691-ac88-7101-abcc-e5f52c6851c5
+ok
+test real_storage_registration_failure_preserves_existing_object_and_reconciles ... R02_FIXTURE {"actor":"01a11692-afac-7a22-a6ab-85fe3dd66a15","run":"81a5b225-b799-46f8-ad4c-6266a845b283","tenant":"01a11692-afac-7a22-a6ab-85ecebfecbca"}
+R02_TARGET_STORAGE PASS real-roundtrip/existing-object-preserved/durable-reconcile/retry/path-deny; attempt=79b05385-6335-4acc-b599-8eb35a97d662
+R02_ACTOR_INACTIVE 01a11692-afac-7a22-a6ab-85fe3dd66a15
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 94.31s
+
+     Running tests/storage_http.rs (target/debug/deps/storage_http-c3430988ff807610)
+
+running 3 tests
+test http_success_errors_and_corrupt_downloads ... ok
+test invalid_configuration_fails_before_requests ... ok
+test invalid_tenant_is_rejected_before_upload_and_success_persists ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.23s
+
+     Running tests/supabase_storage_integration.rs (target/debug/deps/supabase_storage_integration-e915b5bc76e0c77f)
+
+running 1 test
+test supabase_storage_adapter_round_trips_artifacts_and_registers_manifest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 32.51s
+

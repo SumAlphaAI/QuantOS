@@ -1,0 +1,375 @@
+{
+  "schema": "quantos-r02-engineering-closure/v1",
+  "baseline": "6aa5b9ee5c42e1527fbad47cfec4e71282340db9",
+  "findings": [
+    {
+      "id": "B01",
+      "priority": "阻塞",
+      "module": "PG权限/成员查询",
+      "remediation": "独立 `quantos_snapshot_api`，仅schema usage/函数execute；真实auth.users/membership + authenticated role/claims正向读取、非成员/跨租户42501；writer可函数写、直接SELECT42501",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED（组件权限路径）；真实HTTP JWT/BFF部署留后续",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "H01",
+      "priority": "高危",
+      "module": "Record/serde/hash/冷读",
+      "remediation": "只读Deref、自定义反序列化、canonical重算与派生expiry；数据库payload/列/hash一致性；PG/member API读取拒绝无canonical、伪造质量/expiry和无效引用的历史记录；旧事实保留",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "H02",
+      "priority": "高危",
+      "module": "规则/交易Gate",
+      "remediation": "Strategy/Trading Passed+license+freshness不可关闭，Rust校验与DB约束双侧拒绝；Research可显式例外且不扩张许可",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "H03",
+      "priority": "高危",
+      "module": "时间/新鲜度",
+      "remediation": "时间关系、可信observed、DBclock及实际window.end/source-age独立检查；修正两处Strategy和两处Runtime旧fixture未来窗口，100look-ahead/leakage拒绝保留",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "H04",
+      "priority": "高危",
+      "module": "元数据/血缘语义",
+      "remediation": "source身份、lineage元素、标的/对象/已知schema及预算校验；DB解析本租户真实引用。上游批准记录不是label，实际获准用途仍由R01提供",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED（所述输入缺陷）；R01许可/实际链不冒充已验收",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "H05",
+      "priority": "高危",
+      "module": "schema/对象关联",
+      "remediation": "tenant/name/version完整schema元组、artifact完整manifest、已提交market范围校验；跨租户/缺对象23503；读取再验引用、移除缓存",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "M01",
+      "priority": "中危",
+      "module": "Ruleset",
+      "remediation": "duplicate usage、混tenant直接Result错误，禁止顺序覆盖",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "M02",
+      "priority": "中危",
+      "module": "age/资源",
+      "remediation": "0–86400、checked_add、1MiB/1024界限与极值错误；拒绝panic路径",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "M03",
+      "priority": "中危",
+      "module": "Storage失败补偿",
+      "remediation": "强制不覆盖、重复对象GET/hash、HTTP前durable prepared intent；失败保留对象与reconcile状态，显式恢复登记；实际目标注入失败后既有对象仍可读",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "M04",
+      "priority": "中危",
+      "module": "Gate/覆盖",
+      "remediation": "四类mutation必须编译成功后测试失败；结构负向仅补充；覆盖clean+排除tests+五生产文件逐项阈值及8项判定负向；默认Gate显式禁DB",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "M05",
+      "priority": "中危",
+      "module": "SQL性能测量",
+      "remediation": "移除snapshot缓存，真实ID/hash/列表分别25次；nearest-rank P95，记录规模/limit/连接模式；RELEASE opt-in独立强制<300ms",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED（错误测量）；C25数值目标待验收",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "M06",
+      "priority": "中危",
+      "module": "context/审计",
+      "remediation": "活跃actor与capability检查、typedCommandMetadata桥接、atomic audit、rule revision、correlation/causation/reason；目标成功/幂等/拒绝边界验证",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    },
+    {
+      "id": "L01",
+      "priority": "低危",
+      "module": "运维/环境/历史",
+      "remediation": "删除本地临时DB建议、默认Gate不受.env误连接影响；当前summary与历史证据分开；记录新证据目录、失败保留、actor停用和向前恢复",
+      "status": "CLOSED_ENGINEERING",
+      "remainingBoundary": "CLOSED",
+      "evidence": [
+        "target-attempt08/receipt.json",
+        "target-attempt06/coverage-summary.json",
+        "logs/r02-default-final.log",
+        "target-state.json"
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "C01",
+      "requirement": "R01/F06/F0 依赖与阶段准入",
+      "status": "PARTIAL",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C02",
+      "requirement": "snapshot Rust API 与模型字段",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C03",
+      "requirement": "相同输入产生相同 hash",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C04",
+      "requirement": "hash 与实际快照内容保持可信一致",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C05",
+      "requirement": "PostgreSQL 去重与已有行 UPDATE 拒绝",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C06",
+      "requirement": "时间/schema/quality 基础类型与错误枚举",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C07",
+      "requirement": "capture/window/observed 时间关系",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C08",
+      "requirement": "age/expiry 的确定性错误与资源边界",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C09",
+      "requirement": "来源、许可证、血缘完整性与可追溯性",
+      "status": "PARTIAL",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C10",
+      "requirement": "schema 及关联引用的租户一致性",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C11",
+      "requirement": "snapshot 元数据与质量规则持久化",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C12",
+      "requirement": "两张表 RLS 启用、force、迁移版本",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C13",
+      "requirement": "真实成员可读、跨租户拒绝的完整权限路径",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C14",
+      "requirement": "默认规则下 300 个非法 fixture 拒绝",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C15",
+      "requirement": "缺规则、跨 tenant 规则的默认拒绝",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C16",
+      "requirement": "策略/交易不可关闭的质量/时效/许可约束",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C17",
+      "requirement": "重复规则与配置冲突确定性",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C18",
+      "requirement": "Strategy/Runtime 消费质量 Gate",
+      "status": "PARTIAL",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C19",
+      "requirement": "实际 Supabase Storage 上传/登记/读取",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C20",
+      "requirement": "上传前、读取后的 payload hash 检查",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C21",
+      "requirement": "登记失败补偿不伤害既有对象",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C22",
+      "requirement": "受影响包 fmt/Clippy/原有功能单测",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C23",
+      "requirement": "成功/拒绝/恢复的行为 Gate 与故障覆盖",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C24",
+      "requirement": "覆盖率与可审计范围",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C25",
+      "requirement": "查询 P95 <300ms（RELEASE）",
+      "status": "PARTIAL",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C26",
+      "requirement": "接口/协议与跨模块兼容证明",
+      "status": "PARTIAL",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C27",
+      "requirement": "snapshot/规则写入审计与可观测性",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    },
+    {
+      "id": "C28",
+      "requirement": "运维、回滚与可复制文档",
+      "status": "PASS",
+      "detail": "docs/audit/R02-remediation-2026-10-07.md#2-完成明细与统计"
+    }
+  ],
+  "counts": {
+    "PASS": 23,
+    "PARTIAL": 5,
+    "FAIL": 0
+  },
+  "strictPassRate": 82.14,
+  "functionalPassRate": 85.19,
+  "formalAcceptance": "NOT_ACCEPTED",
+  "stageGate": "DEVELOPMENT / NOT_ASSESSED",
+  "remaining": [
+    "C01 prerequisites/admission",
+    "C09 actual source permission/provenance",
+    "C18 persisted end-to-end consumer chain",
+    "C25 release performance",
+    "C26 deployed service/HTTP compatibility",
+    "same-SHA hosted CI and formal ProjectUser confirmation"
+  ]
+}

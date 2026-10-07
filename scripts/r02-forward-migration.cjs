@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+const fs=require('node:fs'),crypto=require('node:crypto');const {targetUrl,client}=require('./lib/r01-db.cjs');
+const migrations=['20261007180000_r02_snapshot_boundaries.sql','20261007181000_r02_snapshot_lineage_alias.sql','20261007182000_r02_writer_role_set_option.sql','20261007183000_r02_reference_read_guard.sql','20261007184000_r02_canonical_read_guard.sql','20261007185000_r02_recovery_deny_policy.sql','20261007190000_r02_writer_no_inherit.sql'];
+(async()=>{const c=client(targetUrl(),'quantos-r02-forward',15000);try{await c.connect();for(const filename of migrations){const sql=fs.readFileSync('supabase/migrations/'+filename,'utf8'),hash=crypto.createHash('sha256').update(sql).digest('hex');
+ await c.query('begin');try{await c.query('select pg_advisory_xact_lock(8020718)');const prior=(await c.query('select sha256 from quantos.schema_migrations where filename=$1',[filename])).rows[0];
+ if(prior){if(prior.sha256!==hash)throw Error('R02_APPLIED_MIGRATION_CHECKSUM');console.log('UNCHANGED '+filename);}else{await c.query(sql.replace(/^begin;\s*/,'').replace(/commit;\s*$/,''));await c.query('insert into quantos.schema_migrations(filename,sha256) values($1,$2)',[filename,hash]);console.log('APPLIED '+filename);}
+ await c.query('commit');}catch(e){await c.query('rollback');throw e;}}}finally{await c.end();}})().catch(e=>{console.error(JSON.stringify({result:'FAIL',sqlstate:e.code||null,message:e.message}));process.exitCode=1;});

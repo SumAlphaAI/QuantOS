@@ -8,7 +8,8 @@ use quantos_core::{ContentHash, SchemaVersion, TenantId};
 use quantos_storage::{
     ArtifactManifest, DataSnapshotInput, DataSnapshotRecord, SnapshotArtifactRef,
     SnapshotLineageEntry, SnapshotQuality, SnapshotSourceRef, SnapshotWindow,
-    default_quality_rules, pg::PgStorageStore,
+    default_quality_rules,
+    pg::{PgStorageStore, SnapshotWriteContext},
 };
 use serde_json::json;
 use url::Url;
@@ -16,14 +17,18 @@ use url::Url;
 struct TenantCleanup {
     database_url: String,
     tenant_id: TenantId,
+    actor_id: quantos_core::ActorId,
 }
 
 impl Drop for TenantCleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
             let _ = client.execute_typed(
-                "delete from quantos.tenants where id = $1",
-                &[(self.tenant_id.as_uuid(), Type::UUID)],
+                "update quantos.actors set is_active=false where tenant_id=$1 and id=$2",
+                &[
+                    (self.tenant_id.as_uuid(), Type::UUID),
+                    (self.actor_id.as_uuid(), Type::UUID),
+                ],
             );
         }
     }
@@ -50,7 +55,14 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
     };
 
     let tenant_id = TenantId::new();
-    let _cleanup = seed_tenant(&database_url, tenant_id);
+    let cleanup = seed_tenant(&database_url, tenant_id);
+    let context = SnapshotWriteContext {
+        tenant_id,
+        actor_id: cleanup.actor_id,
+        correlation_id: quantos_core::CorrelationId::new(),
+        causation_id: quantos_core::EventId::new(),
+        reason: "owned integration fixture".into(),
+    };
     let mut store = PgStorageStore::connect(&database_url).expect("connects to PostgreSQL");
 
     let hash = ContentHash::sha256_bytes(br#"{"artifact":"payload"}"#);
@@ -82,7 +94,7 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
         .register_schema(
             tenant_id,
             "events",
-            "TradeCommand",
+            "DataSnapshot",
             &schema_version,
             &json!({
                 "type": "object",
@@ -92,7 +104,7 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
         )
         .expect("schema registers");
     let fetched_schema = store
-        .get_schema(tenant_id, "events", "TradeCommand", &schema_version)
+        .get_schema(tenant_id, "events", "DataSnapshot", &schema_version)
         .expect("schema query succeeds")
         .expect("schema exists");
     assert_eq!(registered.schema_entry_id, fetched_schema.schema_entry_id);
@@ -100,7 +112,7 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
 
     for rule in default_quality_rules(tenant_id, Utc::now()) {
         store
-            .upsert_snapshot_quality_rule(&rule)
+            .upsert_snapshot_quality_rule(&rule, &context)
             .expect("quality rule persists");
     }
     let rules = store
@@ -138,8 +150,8 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
                 object_key: persisted.object_key.clone(),
             }],
             lineage: vec![SnapshotLineageEntry {
-                lineage_kind: "market_event_range".to_owned(),
-                reference: "market:BTCUSDT".to_owned(),
+                lineage_kind: "artifact".to_owned(),
+                reference: persisted.artifact_id.to_string(),
                 details: json!({ "from_sequence": 1, "to_sequence": 100 }),
             }],
         },
@@ -147,10 +159,10 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
     )
     .expect("snapshot builds");
     let persisted_snapshot = store
-        .upsert_data_snapshot(&snapshot)
+        .upsert_data_snapshot(&snapshot, &context)
         .expect("snapshot persists");
     let persisted_snapshot_again = store
-        .upsert_data_snapshot(&snapshot)
+        .upsert_data_snapshot(&snapshot, &context)
         .expect("snapshot deduplicates by hash");
     assert_eq!(
         persisted_snapshot.snapshot_id,
@@ -199,7 +211,7 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
     );
     assert!(cold.find_artifact_by_hash(other, &hash).unwrap().is_none());
     assert!(
-        cold.get_schema(other, "events", "TradeCommand", &schema_version)
+        cold.get_schema(other, "events", "DataSnapshot", &schema_version)
             .unwrap()
             .is_none()
     );
@@ -234,26 +246,55 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
         }
     }
 
-    let mut samples = Vec::new();
-    for _ in 0..25 {
-        let started_at = Instant::now();
-        let _ = store
-            .get_data_snapshot(tenant_id, persisted_snapshot.snapshot_id)
-            .expect("snapshot query succeeds");
-        samples.push(started_at.elapsed());
+    for path in ["id", "content_hash", "symbol_list"] {
+        let mut samples = Vec::new();
+        for _ in 0..25 {
+            let started_at = Instant::now();
+            match path {
+                "id" => assert!(
+                    store
+                        .get_data_snapshot_uncached(tenant_id, persisted_snapshot.snapshot_id)
+                        .unwrap()
+                        .is_some()
+                ),
+                "content_hash" => assert!(
+                    store
+                        .find_data_snapshot_by_hash(tenant_id, &persisted_snapshot.content_hash)
+                        .unwrap()
+                        .is_some()
+                ),
+                _ => assert!(
+                    !store
+                        .list_data_snapshots_for_symbol(tenant_id, "BTCUSDT", 5)
+                        .unwrap()
+                        .is_empty()
+                ),
+            }
+            samples.push(started_at.elapsed());
+        }
+        samples.sort();
+        let p95 = samples[(samples.len() * 95).div_ceil(100) - 1];
+        eprintln!(
+            "R02_SQL_P95_BASELINE_MS={:.3} samples=25 path=uncached_sql operation={path} result_scope=one_snapshot list_limit=5",
+            p95.as_secs_f64() * 1000.0
+        );
+        if env::var("QUANTOS_R02_RELEASE_PERFORMANCE").ok().as_deref() == Some("1") {
+            assert!(
+                p95.as_millis() < 300,
+                "snapshot {path} p95 must stay under 300ms, got {}ms",
+                p95.as_millis()
+            );
+        }
     }
-    samples.sort();
-    let p95 = samples[(samples.len() * 95 / 100).min(samples.len() - 1)];
-    assert!(
-        p95.as_millis() < 300,
-        "snapshot get_data_snapshot p95 must stay under 300ms, got {}ms",
-        p95.as_millis()
-    );
 }
 
 fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
     let mut client = connect_client(database_url).expect("connects for setup");
-    let slug = format!("f05-storage-{}", tenant_id);
+    let slug = format!(
+        "r02-{}-{}",
+        std::env::var("QUANTOS_R02_RUN_ID").unwrap_or_else(|_| uuid::Uuid::new_v4().to_string()),
+        tenant_id
+    );
     client
         .execute_typed(
             "insert into quantos.tenants (id, slug, name) values ($1, $2, $3)
@@ -266,7 +307,13 @@ fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
         )
         .expect("tenant inserts");
 
+    let actor_id = quantos_core::ActorId::new();
+    client.execute_typed("insert into quantos.actors(id,tenant_id,actor_kind,service_name,display_name) values($1,$2,'service','r02-fixture','R02 integration fixture')", &[(actor_id.as_uuid(),Type::UUID),(tenant_id.as_uuid(),Type::UUID)]).unwrap();
+    for capability in ["snapshot.write", "snapshot.rule.write", "artifact.write"] {
+        client.execute_typed("insert into quantos.actor_capabilities(tenant_id,actor_id,capability) values($1,$2,$3)", &[(tenant_id.as_uuid(),Type::UUID),(actor_id.as_uuid(),Type::UUID),(&capability,Type::TEXT)]).unwrap();
+    }
     TenantCleanup {
+        actor_id,
         database_url: database_url.to_owned(),
         tenant_id,
     }

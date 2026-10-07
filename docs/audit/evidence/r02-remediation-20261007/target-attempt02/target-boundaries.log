@@ -1,0 +1,35 @@
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.96s
+     Running tests/postgres_persistence.rs (target/debug/deps/postgres_persistence-ad7b7ad58a3813ca)
+
+running 1 test
+test postgres_storage_store_persists_artifacts_and_schema_registry ... R02_SQL_P95_BASELINE_MS=964.559 samples=25 path=uncached_sql
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 42.78s
+
+     Running tests/r02_boundaries.rs (target/debug/deps/r02_boundaries-3dc8d2c369af1937)
+
+running 2 tests
+test real_snapshot_permissions_invariants_and_atomic_audit ... R02_FIXTURE {"actor":"01a11652-bce6-7ca2-8bc8-60405a395ab9","run":"094c8643-a8dd-4c2d-b98e-ba94518af15d","tenant":"01a11652-bce6-7ca2-8bc8-603917f58bab"}
+R02_FIXTURE {"actor":"01a11652-e250-7282-b0d6-4232faa6d241","run":"094c8643-a8dd-4c2d-b98e-ba94518af15d","tenant":"01a11652-e250-7282-b0d6-42206e66386d"}
+
+thread 'real_snapshot_permissions_invariants_and_atomic_audit' (4370480) panicked at crates/quantos-storage/tests/r02_boundaries.rs:381:10:
+called `Result::unwrap()` on an `Err` value: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E42501), message: "permission denied to set role \"quantos_snapshot_writer\"", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("guc.c"), line: Some(6938), routine: Some("call_string_check_hook") }) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+R02_ACTOR_INACTIVE 01a11652-e250-7282-b0d6-4232faa6d241
+R02_ACTOR_INACTIVE 01a11652-bce6-7ca2-8bc8-60405a395ab9
+FAILED
+test real_storage_registration_failure_preserves_existing_object_and_reconciles ... R02_FIXTURE {"actor":"01a11653-54ca-7c71-8204-4b9020f374ec","run":"094c8643-a8dd-4c2d-b98e-ba94518af15d","tenant":"01a11653-54ca-7c71-8204-4b884ae02670"}
+R02_TARGET_STORAGE PASS real-roundtrip/existing-object-preserved/durable-reconcile/retry/path-deny; attempt=4ee3e613-4e85-4f65-bc4a-8d958ac40295
+R02_ACTOR_INACTIVE 01a11653-54ca-7c71-8204-4b9020f374ec
+ok
+
+failures:
+
+failures:
+    real_snapshot_permissions_invariants_and_atomic_audit
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 62.49s
+
+error: test failed, to rerun pass `-p quantos-storage --test r02_boundaries`

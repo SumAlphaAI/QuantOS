@@ -283,10 +283,7 @@ fn snapshot_catalog(tenant_id: TenantId) -> InMemoryDataSnapshotCatalog {
                         .with_ymd_and_hms(2026, 1, 1, 0, 0, 0)
                         .single()
                         .expect("valid timestamp"),
-                    end_at: Utc
-                        .with_ymd_and_hms(2026, 1, 1, 0, 30, 0)
-                        .single()
-                        .expect("valid timestamp"),
+                    end_at: captured_at,
                 },
                 sources: vec![SnapshotSourceRef {
                     source_id: source_id.to_owned(),
@@ -319,7 +316,7 @@ fn snapshot_catalog(tenant_id: TenantId) -> InMemoryDataSnapshotCatalog {
         )
         .expect("snapshot builds")
         .clone();
-        catalog.upsert(snapshot);
+        catalog.upsert(snapshot).expect("valid snapshot");
     }
     catalog
 }
@@ -384,7 +381,8 @@ async fn signal_proposal_workflow_runs_hundred_cases_with_evidence_expiry_and_no
         let runtime_deadline = Utc::now() + ChronoDuration::minutes(5);
         let auth = auth_context();
         let snapshots = snapshot_catalog(auth.tenant_id);
-        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now));
+        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now))
+            .expect("valid snapshot rules");
 
         let mut runtime = InMemoryRuntimeKernel::new();
         runtime.register_tool(tool_registration())?;
@@ -556,7 +554,8 @@ async fn signal_proposal_workflow_replay_keeps_signal_and_proposal_hashes_stable
         let runtime_deadline = Utc::now() + ChronoDuration::minutes(5);
         let auth = auth_context();
         let snapshots = snapshot_catalog(auth.tenant_id);
-        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now));
+        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now))
+            .expect("valid snapshot rules");
         let snapshot_id = snapshot_id_for_symbol(&snapshots, auth.tenant_id, "BTCUSDT");
         let shared_correlation_id = CorrelationId::new();
 
@@ -707,7 +706,8 @@ async fn signal_proposal_workflow_rejects_forbidden_order_tools() -> Result<()> 
         let runtime_deadline = Utc::now() + ChronoDuration::minutes(5);
         let auth = auth_context();
         let snapshots = snapshot_catalog(auth.tenant_id);
-        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now));
+        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now))
+            .expect("valid snapshot rules");
         let snapshot_id = snapshot_id_for_symbol(&snapshots, auth.tenant_id, "BTCUSDT");
 
         let mut runtime = InMemoryRuntimeKernel::new();

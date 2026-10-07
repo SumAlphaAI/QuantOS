@@ -1,0 +1,99 @@
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling futures-util v0.3.33
+   Compiling tokio v1.53.1
+   Compiling tempfile v3.27.0
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+   Compiling prost-build v0.13.5
+   Compiling pbjson-types v0.7.0
+   Compiling axum-core v0.4.5
+   Compiling tokio-util v0.7.19
+   Compiling tower v0.5.3
+   Compiling tokio-stream v0.1.19
+   Compiling tokio-rustls v0.26.4
+   Compiling tokio-native-tls v0.3.1
+   Compiling tower-http v0.6.11
+   Compiling h2 v0.4.16
+   Compiling tokio-postgres v0.7.18
+   Compiling tower v0.4.13
+   Compiling axum v0.7.9
+   Compiling postgres-native-tls v0.5.3
+   Compiling postgres v0.19.14
+   Compiling hyper v1.11.0
+   Compiling hyper-util v0.1.20
+   Compiling hyper-timeout v0.5.2
+   Compiling hyper-rustls v0.27.9
+   Compiling tonic v0.12.3
+   Compiling reqwest v0.13.4
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.74s
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_storage-ab52dc8b575c3e1f)
+
+running 19 tests
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test snapshot::tests::optional_license_rule_is_research_only ... ok
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test snapshot::tests::regression_forged_wire_hash_quality_and_expiry_are_rejected ... ok
+test snapshot::tests::regression_future_capture_window_and_overflow_are_errors ... ok
+test snapshot::tests::regression_metadata_source_age_and_input_budget_reject ... ok
+test snapshot::tests::regression_strict_floor_duplicate_and_mixed_tenant_rules_reject ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test wire::tests::incomplete_or_invalid_metadata_cannot_become_write_context ... ok
+test wire::tests::wire_projection_preserves_identity_and_all_quality_variants ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/postgres_persistence.rs (target/llvm-cov-target/debug/deps/postgres_persistence-ad7b7ad58a3813ca)
+
+running 1 test
+test postgres_storage_store_persists_artifacts_and_schema_registry ... R02_SQL_P95_BASELINE_MS=1075.813 samples=25 path=uncached_sql
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 29.64s
+
+     Running tests/r02_boundaries.rs (target/llvm-cov-target/debug/deps/r02_boundaries-3dc8d2c369af1937)
+
+running 2 tests
+test real_snapshot_permissions_invariants_and_atomic_audit ... R02_FIXTURE {"actor":"01a1165b-4155-75d0-89d0-4ab45ab87fdf","run":"4cadfd73-0067-43ce-9f07-e2030aef00f1","tenant":"01a1165b-4155-75d0-89d0-4aa010586c88"}
+R02_FIXTURE {"actor":"01a1165b-583e-7b92-9f68-ba76a82856d7","run":"4cadfd73-0067-43ce-9f07-e2030aef00f1","tenant":"01a1165b-583e-7b92-9f68-ba684270609c"}
+R02_TARGET_SNAPSHOT PASS member-read/cross-tenant-deny/hash-expiry/ref/rule-floor/atomic-audit; not HTTP JWT
+R02_ACTOR_INACTIVE 01a1165b-583e-7b92-9f68-ba76a82856d7
+R02_ACTOR_INACTIVE 01a1165b-4155-75d0-89d0-4ab45ab87fdf
+ok
+test real_storage_registration_failure_preserves_existing_object_and_reconciles ... R02_FIXTURE {"actor":"01a1165b-cc83-7211-9e5f-632049319028","run":"4cadfd73-0067-43ce-9f07-e2030aef00f1","tenant":"01a1165b-cc83-7211-9e5f-6317eb0cbcef"}
+R02_TARGET_STORAGE PASS real-roundtrip/existing-object-preserved/durable-reconcile/retry/path-deny; attempt=3c588dc1-4b5b-49c8-a3e3-4544a62cb6ac
+R02_ACTOR_INACTIVE 01a1165b-cc83-7211-9e5f-632049319028
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 57.82s
+
+     Running tests/storage_http.rs (target/llvm-cov-target/debug/deps/storage_http-c3430988ff807610)
+
+running 3 tests
+test http_success_errors_and_corrupt_downloads ... 
+thread 'http_success_errors_and_corrupt_downloads' (4390043) panicked at crates/quantos-storage/tests/storage_http.rs:131:5:
+assertion failed: matches!(a.put_artifact(&m, Bytes::from_static(b"wrong")),
+    Err(SupabaseStorageError::HashMismatch { .. }))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test invalid_configuration_fails_before_requests ... ok
+test invalid_tenant_is_rejected_before_upload_and_success_persists ... ok
+
+failures:
+
+failures:
+    http_success_errors_and_corrupt_downloads
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.49s
+
+error: test failed, to rerun pass `-p quantos-storage --test storage_http`
+error: process didn't exit successfully: `/Users/anray/.rustup/toolchains/1.91.0-aarch64-apple-darwin/bin/cargo test --manifest-path /Users/anray/Documents/project/SumAlpha/QuantOS/Cargo.toml --target-dir /Users/anray/Documents/project/SumAlpha/QuantOS/target/llvm-cov-target -p quantos-storage --lib --test postgres_persistence --test storage_http --test supabase_storage_integration --test r02_boundaries --locked -- --test-threads=1 --nocapture` (exit status: 101)

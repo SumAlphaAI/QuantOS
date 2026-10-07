@@ -1,0 +1,38 @@
+bash ./scripts/check-proto.sh
+Validated 6 pinned Buf plugins and locked generation workflow.
+✔ proto generation configuration is pinned and lock-preserving (36.635042ms)
+✔ proto generation configuration rejects an unpinned remote plugin (36.514417ms)
+✔ proto generation configuration rejects implicit dependency updates (35.986792ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 139.567
+Extracted 50 JSON schema documents.
+Validated 50 standalone JSON schemas and 11 planned domain schemas.
+✔ standalone JSON schema gate passes the complete generated catalog (139.184541ms)
+✔ standalone JSON schema gate rejects a missing planned domain schema (49.04975ms)
+✔ standalone JSON schema gate rejects an unresolved reference (135.481416ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 359.745792
+Proto compatibility checked against 68924e1efd6471db6831b666648f3834dc40d140
+Proto checks passed.
+/Library/Developer/CommandLineTools/usr/bin/make proto-compat-check
+pnpm --filter @sumalpha/api-client build
+
+> @sumalpha/api-client@0.1.0 build /Users/anray/Documents/project/SumAlpha/QuantOS/packages/api-client
+> rm -rf dist && tsc --project tsconfig.build.json
+
+node scripts/check-proto-compatibility.mjs
+Validated 11,000 fixtures (1,000 per domain message) across all six binary language directions.
+Validated all six ProtoJSON directions, including all nine event payloads.
+Three frozen Python golden fixtures: unknown binary field, open enums, timestamp extrema, decimal and int64 boundaries; 15 invalid-JSON rejection probes passed.

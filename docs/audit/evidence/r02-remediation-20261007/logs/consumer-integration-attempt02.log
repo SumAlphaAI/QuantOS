@@ -1,0 +1,32 @@
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.76s
+     Running tests/research_orchestration.rs (target/debug/deps/research_orchestration-c5f0e690f42eb2e3)
+
+running 2 tests
+test research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence ... FAILED
+test research_workflow_cancel_confirms_within_two_seconds ... FAILED
+
+failures:
+
+---- research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence stdout ----
+
+thread 'research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence' (4407412) panicked at crates/quantos-runtime/tests/research_orchestration.rs:202:6:
+snapshot builds: InvalidChronology
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- research_workflow_cancel_confirms_within_two_seconds stdout ----
+
+thread 'research_workflow_cancel_confirms_within_two_seconds' (4407411) panicked at crates/quantos-runtime/tests/research_orchestration.rs:202:6:
+snapshot builds: InvalidChronology
+
+
+failures:
+    research_workflow_cancel_confirms_within_two_seconds
+    research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+error: test failed, to rerun pass `-p quantos-runtime --test research_orchestration`

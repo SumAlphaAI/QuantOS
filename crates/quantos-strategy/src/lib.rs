@@ -441,7 +441,7 @@ mod tests {
         .expect("snapshot builds");
         let snapshot_id = snapshot.snapshot_id;
         let mut catalog = InMemoryDataSnapshotCatalog::new();
-        catalog.upsert(snapshot);
+        catalog.upsert(snapshot).expect("valid snapshot");
         (catalog, snapshot_id)
     }
 
@@ -567,7 +567,8 @@ mod tests {
         ));
 
         let rules =
-            SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, fixed_now()));
+            SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, fixed_now()))
+                .expect("valid snapshot rules");
         let validate_error = store
             .initiate_validation(&intruder, draft.draft_id, &snapshots, &rules, fixed_now())
             .expect_err("unauthorized validation fails");
@@ -583,7 +584,8 @@ mod tests {
         let (snapshots, snapshot_id) = approved_snapshot(auth.tenant_id);
         let (artifacts, artifact_ref) = approved_artifact(auth.tenant_id);
         let rules =
-            SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, fixed_now()));
+            SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, fixed_now()))
+                .expect("valid snapshot rules");
         let mut store = InMemoryStrategyDraftStore::new();
         let draft = store
             .create_draft(&auth, "trend.incomplete", fixed_now())

@@ -1,0 +1,81 @@
+node ./scripts/check-r02.mjs
+R02 Gate PASS: deterministic immutable snapshots, tenant-bound quality Gate, 300 rejection fixtures, RLS migration, storage hash validation and live-check wiring.
+node --test ./scripts/r02-gate-negative.mjs
+✔ current R02 repository Gate passes (0.526625ms)
+✔ tenant rule binding deletion is rejected (0.165042ms)
+✔ 300 fixture regression is rejected (0.115083ms)
+✔ lineage Gate deletion is rejected (0.127ms)
+✔ immutable insert regression is rejected (0.13075ms)
+✔ update trigger deletion is rejected (0.101083ms)
+✔ forced RLS deletion is rejected (0.394958ms)
+✔ tenant query predicate deletion is rejected (0.092167ms)
+✔ P95 bound weakening is rejected (0.099917ms)
+✔ default Gate live-test regression is rejected (0.119292ms)
+✔ R02 status regression is rejected (0.14375ms)
+✔ R01 dependency regression is rejected (0.122584ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 35.197209
+cargo test -p quantos-storage --lib
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (target/debug/deps/quantos_storage-357ed894a5974822)
+
+running 13 tests
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::optional_license_rule_accepts_complete_unlicensed_metadata ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+cargo test -p quantos-strategy -p quantos-runtime --lib
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 29.83s
+     Running unittests src/lib.rs (target/debug/deps/quantos_runtime-ffb21a743160371f)
+
+running 12 tests
+test pg::tests::runtime_role_membership_requires_only_the_runtime_role ... ok
+test tests::persisted_status_and_retry_bounds_are_explicit ... ok
+test pg::tests::remote_runtime_rejects_unverified_transport_before_connecting ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test tests::kernel_fences_cancelled_timed_out_and_exhausted_runs ... ok
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test tests::kernel_rejects_invalid_schedule_and_stale_worker_operations ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test pg::tests::broad_admin_login_cannot_impersonate_runtime_service ... FAILED
+test pg::tests::local_transport_and_query_options_are_handled_explicitly ... ok
+
+failures:
+
+---- pg::tests::broad_admin_login_cannot_impersonate_runtime_service stdout ----
+
+thread 'pg::tests::broad_admin_login_cannot_impersonate_runtime_service' (4262431) panicked at crates/quantos-runtime/src/pg.rs:1090:9:
+assertion failed: matches!(PgRuntimeStore::connect_as_runtime(url.as_str()),
+    Err(PgRuntimeError::RuntimeRoleRequired))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    pg::tests::broad_admin_login_cannot_impersonate_runtime_service
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p quantos-runtime --lib`
+make: *** [r02-check] Error 101

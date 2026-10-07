@@ -15,11 +15,13 @@ function taskStatus(plan, taskId) {
 export function loadR02Inputs() {
   return {
     plan: text("docs/SumAlpha-QuantOS-Development-Plan.md"),
-    snapshot: text("crates/quantos-storage/src/snapshot.rs"),
+    snapshot: text("crates/quantos-storage/src/snapshot.rs") + "\n" + text("crates/quantos-storage/tests/unit/snapshot.rs"),
     postgres: text("crates/quantos-storage/src/pg.rs"),
     storage: text("crates/quantos-storage/src/supabase_storage.rs"),
     postgresTest: text("crates/quantos-storage/tests/postgres_persistence.rs"),
     baseMigration: text("supabase/migrations/20260731100000_data_snapshots_and_quality_gate.sql"),
+    boundaryMigration: text("supabase/migrations/20261007180000_r02_snapshot_boundaries.sql"),
+    behavior: text("scripts/r02-behavior-negative.cjs"),
     immutableMigration: text("supabase/migrations/20260916140000_r02_snapshot_immutability.sql"),
     makefile: text("Makefile"),
     workflow: text(".github/workflows/ci.yml"),
@@ -32,8 +34,7 @@ export function validateR02(inputs) {
   const failures = [];
   const check = (condition, message) => { if (!condition) failures.push(message); };
 
-  check(taskStatus(inputs.plan, "R01") === "COMPLETED", "dependency R01 is COMPLETED");
-  check(taskStatus(inputs.plan, "F06") === "COMPLETED", "dependency F06 is COMPLETED");
+  // This is a component test, never a replacement for dependency stage_gate admission.
   check(taskStatus(inputs.plan, "R02") === "COMPLETED", "R02 development status is COMPLETED");
 
   for (const marker of [
@@ -48,7 +49,7 @@ export function validateR02(inputs) {
   check(inputs.snapshot.includes("data_snapshot_hash_is_stable_for_equivalent_inputs"), "equivalent input hash stability is tested");
   check(inputs.snapshot.includes("snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage"), "cross-tenant and incomplete-lineage failures are tested");
 
-  check(inputs.postgres.includes("on conflict (tenant_id, content_hash) do nothing"), "snapshot persistence uses immutable insert deduplication");
+  check(inputs.boundaryMigration.includes("on conflict(tenant_id,content_hash) do nothing"), "snapshot persistence uses immutable insert deduplication");
   check(!inputs.postgres.includes("quality = quantos.data_snapshots.quality"), "snapshot persistence has no no-op update bypass");
   for (const marker of [
     "where tenant_id = $1 and id = $2",
@@ -56,7 +57,7 @@ export function validateR02(inputs) {
     "where tenant_id = $1\n               and symbols @> $2",
   ]) check(inputs.postgres.includes(marker), `snapshot query is tenant scoped: ${marker}`);
   check(inputs.postgresTest.includes("QUANTOS_RUN_R02_POSTGRES_TESTS"), "live PostgreSQL check has explicit opt-in fail-closed behavior");
-  check(inputs.postgresTest.includes("p95.as_millis() < 300"), "live PostgreSQL check enforces query P95 under 300ms");
+  check(inputs.postgresTest.includes("p95.as_millis() < 300") && inputs.postgresTest.includes("get_data_snapshot_uncached") && inputs.postgresTest.includes("QUANTOS_R02_RELEASE_PERFORMANCE"), "release P95 is enforced on uncached SQL, development retains baseline");
 
   for (const table of ["quantos.data_snapshots", "quantos.data_snapshot_quality_rules"]) {
     check(inputs.baseMigration.includes(`alter table ${table} enable row level security`) && inputs.baseMigration.includes(`alter table ${table} force row level security`), `${table} enables and forces RLS`);
@@ -66,7 +67,9 @@ export function validateR02(inputs) {
 
   check(inputs.storage.includes("validate_payload_hash(&manifest.content_hash, &payload)") && inputs.storage.includes("upload_and_register"), "object storage validates payload hashes before registration");
   check(inputs.makefile.includes("r02-check:") && inputs.makefile.includes("r02-live-check:"), "Makefile exposes local and live R02 Gates");
-  check(inputs.makefile.includes("cargo test -p quantos-storage --lib"), "default R02 Gate remains local-only");
+  check(inputs.makefile.includes("env -u DATABASE_URL cargo test -p quantos-storage --lib"), "default R02 Gate remains local-only");
+  for (const marker of ["SNAPSHOT_INTEGRITY", "SNAPSHOT_SCHEMA_REFERENCE", "SNAPSHOT_ARTIFACT_REFERENCE", "r02_trading_floor", "snapshot.created", "snapshot.rule.changed", "artifact_upload_attempts", "quantos_snapshot_api.read_snapshot"]) check(inputs.boundaryMigration.includes(marker), `forward boundary implements ${marker}`);
+  check(inputs.behavior.includes("MUTATION_DETECTED") && inputs.makefile.includes("node ./scripts/r02-behavior-negative.cjs"), "executable behavior mutation checks are wired");
   check(inputs.workflow.includes("make r02-check"), "main CI runs the R02 source Gate");
   check(inputs.summaryExists && inputs.evidenceExists, "R02 summary and acceptance evidence are checked in");
 
@@ -79,6 +82,6 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     report.failures.forEach((failure) => console.error(`FAIL  ${failure}`));
     process.exitCode = 1;
   } else {
-    console.log("R02 Gate PASS: deterministic immutable snapshots, tenant-bound quality Gate, 300 rejection fixtures, RLS migration, storage hash validation and live-check wiring.");
+    console.log("R02 component source check PASS; behavior tests follow. This is not dependency READY, target RLS/Storage acceptance, or release performance acceptance.");
   }
 }

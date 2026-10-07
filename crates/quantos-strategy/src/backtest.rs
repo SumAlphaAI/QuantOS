@@ -484,8 +484,8 @@ mod tests {
                 schema_version: SchemaVersion::parse("v1").expect("schema version parses"),
                 schema_entry_id: None,
                 window: SnapshotWindow {
-                    start_at: series_start(),
-                    end_at: series_start() + ChronoDuration::hours(4),
+                    start_at: captured_at - ChronoDuration::hours(4),
+                    end_at: captured_at,
                 },
                 sources: vec![SnapshotSourceRef {
                     source_id: "approved.binance.spot:BTCUSDT".to_owned(),

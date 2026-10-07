@@ -1,0 +1,31 @@
+
+running 2 tests
+test actual_storage_compensation_deletes_preexisting_owned_object_on_registration_failure ... AUDIT_STEP setup connected tenant=01a1161b-8d17-7f60-858b-0866ca5b4296
+AUDIT_OWNED tenant=01a1161b-8d17-7f60-858b-0866ca5b4296 actor=01a1161b-8d17-7f60-858b-0874f71069e4
+AUDIT_TARGET real Supabase Storage upload/register/download PASS key=tenant/01a1161b-8d17-7f60-858b-0866ca5b4296/artifacts/74/7431a63f076e9d6f81b408c4801eee0c13af4858505b591a124376ae455cd0eb
+AUDIT_OWNED actor_inactive=true tenant_retained=01a1161b-8d17-7f60-858b-0866ca5b4296 actor=01a1161b-8d17-7f60-858b-0874f71069e4
+FAILED
+test native_pg_adapter_persists_and_loads_unverified_snapshot_hash_and_expiry ... AUDIT_STEP setup connected tenant=01a1161b-df47-7ec2-9933-9b249d5befaa
+AUDIT_OWNED tenant=01a1161b-df47-7ec2-9933-9b249d5befaa actor=01a1161b-df47-7ec2-9933-9b373304c507
+AUDIT_DEFECT native persisted and cold loaded forged hash/expiry; gate accepted at one day
+AUDIT_OWNED actor_inactive=true tenant_retained=01a1161b-df47-7ec2-9933-9b249d5befaa actor=01a1161b-df47-7ec2-9933-9b373304c507
+ok
+
+failures:
+
+failures:
+    actual_storage_compensation_deletes_preexisting_owned_object_on_registration_failure
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 31.88s
+
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.12s
+     Running tests/r02_audit_target.rs (target/debug/deps/r02_audit_target-b541a797a9e00e90)
+storage operation metric persist failed: db error
+storage operation metric persist failed: db error
+
+thread 'actual_storage_compensation_deletes_preexisting_owned_object_on_registration_failure' (4297343) panicked at crates/quantos-storage/tests/r02_audit_target.rs:45:39:
+assertion failed: matches!(read,Err(SupabaseStorageError::HttpStatus{status,..}) if
+    status.as_u16()==404)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p quantos-storage --test r02_audit_target`

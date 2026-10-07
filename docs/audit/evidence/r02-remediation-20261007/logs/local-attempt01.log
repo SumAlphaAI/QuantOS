@@ -1,0 +1,109 @@
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.74s
+     Running unittests src/lib.rs (target/debug/deps/quantos_runtime-ffb21a743160371f)
+
+running 12 tests
+test pg::tests::broad_admin_login_cannot_impersonate_runtime_service ... ok
+test pg::tests::runtime_role_membership_requires_only_the_runtime_role ... ok
+test tests::persisted_status_and_retry_bounds_are_explicit ... ok
+test pg::tests::remote_runtime_rejects_unverified_transport_before_connecting ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test tests::kernel_rejects_invalid_schedule_and_stale_worker_operations ... ok
+test tests::kernel_fences_cancelled_timed_out_and_exhausted_runs ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test pg::tests::local_transport_and_query_options_are_handled_explicitly ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_storage-6a7194457c018ed2)
+
+running 17 tests
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test snapshot::tests::regression_strict_floor_duplicate_and_mixed_tenant_rules_reject ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::optional_license_rule_is_research_only ... ok
+test snapshot::tests::regression_future_capture_window_and_overflow_are_errors ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test snapshot::tests::regression_forged_wire_hash_quality_and_expiry_are_rejected ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test snapshot::tests::regression_metadata_source_age_and_input_budget_reject ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-3ee4d58928a2f3c7)
+
+running 16 tests
+test generated::tests::unsupported_rules_are_rejected ... ok
+test release::tests::assisted_live_is_not_representable_before_m5 ... ok
+test release::tests::approved_release_deploys_to_paper_and_shadow_and_stays_immutable ... ok
+test backtest::tests::ten_replays_produce_identical_metrics_and_hashes ... FAILED
+test backtest::tests::series_not_bound_to_snapshot_is_rejected ... FAILED
+test backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail ... FAILED
+test backtest::tests::validation_report_contains_costs_environment_and_input_hash ... FAILED
+test generated::tests::clean_generated_draft_replays_through_backtest_pipeline ... FAILED
+test release::tests::duplicate_publish_returns_same_hash_and_modified_content_conflicts ... ok
+test tests::unapproved_references_are_rejected_at_save_time ... ok
+test release::tests::hundred_unverified_or_unapproved_deployments_are_all_rejected ... ok
+test tests::unauthorized_actor_cannot_save_or_initiate_validation ... ok
+test tests::drafts_without_snapshot_or_artifacts_cannot_initiate_validation ... ok
+test generated::tests::hundred_static_check_failures_all_block_release_path ... ok
+test tests::fifty_concurrent_editors_never_silently_overwrite ... ok
+test tests::draft_saves_stay_under_three_hundred_millis_p95 ... ok
+
+failures:
+
+---- backtest::tests::ten_replays_produce_identical_metrics_and_hashes stdout ----
+
+thread 'backtest::tests::ten_replays_produce_identical_metrics_and_hashes' (4346287) panicked at crates/quantos-strategy/src/backtest.rs:517:10:
+snapshot builds: InvalidChronology
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- backtest::tests::series_not_bound_to_snapshot_is_rejected stdout ----
+
+thread 'backtest::tests::series_not_bound_to_snapshot_is_rejected' (4346286) panicked at crates/quantos-strategy/src/backtest.rs:517:10:
+snapshot builds: InvalidChronology
+
+---- backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail stdout ----
+
+thread 'backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail' (4346285) panicked at crates/quantos-strategy/src/backtest.rs:517:10:
+snapshot builds: InvalidChronology
+
+---- backtest::tests::validation_report_contains_costs_environment_and_input_hash stdout ----
+
+thread 'backtest::tests::validation_report_contains_costs_environment_and_input_hash' (4346288) panicked at crates/quantos-strategy/src/backtest.rs:517:10:
+snapshot builds: InvalidChronology
+
+---- generated::tests::clean_generated_draft_replays_through_backtest_pipeline stdout ----
+
+thread 'generated::tests::clean_generated_draft_replays_through_backtest_pipeline' (4346289) panicked at crates/quantos-strategy/src/generated.rs:169:10:
+snapshot builds: InvalidChronology
+
+
+failures:
+    backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail
+    backtest::tests::series_not_bound_to_snapshot_is_rejected
+    backtest::tests::ten_replays_produce_identical_metrics_and_hashes
+    backtest::tests::validation_report_contains_costs_environment_and_input_hash
+    generated::tests::clean_generated_draft_replays_through_backtest_pipeline
+
+test result: FAILED. 11 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p quantos-strategy --lib`

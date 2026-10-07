@@ -15,7 +15,7 @@ endif
 
 endif
 
-.PHONY: f05-db-coverage f05-target-coverage toolchain-check f01-check f01-clean-room-check f04-check f05-check f05-db-check f05-target-check f05-coverage build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-rust-branch coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-deps-update proto-generate proto-check proto-compat-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
+.PHONY: f05-db-coverage f05-target-coverage toolchain-check f01-check f01-clean-room-check f04-check f05-check f05-db-check f05-target-check f05-coverage build-python bootstrap bootstrap-rust bootstrap-python bootstrap-node lint lint-rust lint-python lint-web test test-rust test-python test-web test-browser coverage-rust coverage-rust-branch coverage-python coverage-web build build-rust build-web test-f05-live test-f09-live test-supabase-storage-live ensure-node lockfile-check proto-deps-update proto-generate proto-check proto-compat-check bff-contract-check bff-provider-test quality-gate-self-test f01-reproducibility-check r01-check r02-check r02-live-check r02-target-coverage r02-release-performance db-apply db-reset db-migration-check db-schema-diff db-replay-check rls-policy-test license-check sca-check waiver-check tp-intake-check build-manifest sbom sign-artifacts verify-artifact-signatures observability-check f09-capacity-snapshot f09-adr-input tp01-vibe-readonly-check tp01-vibe-repository-check tp01-vibe-bootstrap tp01-vibe-provision tp01-vibe-monitor tp01-vibe-sync tp01-vibe-canary tp01-vibe-rollback ci-local
 
 bootstrap: toolchain-check
 	$(MAKE) -j3 bootstrap-rust bootstrap-python bootstrap-node
@@ -131,13 +131,19 @@ r01-nightly-coverage:
 
 r02-check:
 	node ./scripts/check-r02.mjs
-	node --test ./scripts/r02-gate-negative.mjs
-	cargo test -p quantos-storage --lib
-	cargo test -p quantos-strategy -p quantos-runtime --lib
+	node --test ./scripts/r02-gate-negative.mjs ./scripts/r02-coverage-negative.mjs
+	env -u DATABASE_URL cargo test -p quantos-storage --lib --locked
+	env -u DATABASE_URL cargo test -p quantos-strategy -p quantos-runtime --lib --locked
+	node ./scripts/r02-behavior-negative.cjs
 
 r02-live-check:
-	@test -n "$$DATABASE_URL" || (echo "DATABASE_URL is required for the R02 PostgreSQL persistence, RLS, and P95 check." >&2; exit 1)
-	QUANTOS_RUN_R02_POSTGRES_TESTS=1 cargo test -p quantos-storage --test postgres_persistence -- --test-threads=1 --nocapture
+	node ./scripts/r02-live-check.cjs
+
+r02-target-coverage:
+	QUANTOS_R02_COVERAGE=1 node ./scripts/r02-live-check.cjs
+
+r02-release-performance:
+	QUANTOS_R02_RELEASE_PERFORMANCE=1 node ./scripts/r02-live-check.cjs
 
 lint: lint-rust lint-python lint-web
 

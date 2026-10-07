@@ -167,10 +167,7 @@ fn snapshot_catalog(tenant_id: TenantId) -> InMemoryDataSnapshotCatalog {
                     .with_ymd_and_hms(2026, 7, 31, 0, 0, 0)
                     .single()
                     .expect("valid timestamp"),
-                end_at: Utc
-                    .with_ymd_and_hms(2026, 7, 31, 0, 30, 0)
-                    .single()
-                    .expect("valid timestamp"),
+                end_at: captured_at,
             },
             sources: vec![SnapshotSourceRef {
                 source_id: "approved.binance.spot:BTCUSDT".to_owned(),
@@ -201,7 +198,7 @@ fn snapshot_catalog(tenant_id: TenantId) -> InMemoryDataSnapshotCatalog {
     )
     .expect("snapshot builds")
     .clone();
-    catalog.upsert(snapshot);
+    catalog.upsert(snapshot).expect("valid snapshot");
     catalog
 }
 
@@ -228,7 +225,8 @@ async fn research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_e
         let auth = auth_context();
         let snapshots = snapshot_catalog(auth.tenant_id);
         let snapshot_id = snapshots.list_by_symbol(auth.tenant_id, "BTCUSDT")[0].snapshot_id;
-        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now));
+        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now))
+            .expect("valid snapshot rules");
 
         let mut runtime = InMemoryRuntimeKernel::new();
         runtime.register_tool(tool_registration(capability))?;
@@ -332,7 +330,8 @@ async fn research_workflow_cancel_confirms_within_two_seconds() -> Result<()> {
         let auth = auth_context();
         let snapshots = snapshot_catalog(auth.tenant_id);
         let snapshot_id = snapshots.list_by_symbol(auth.tenant_id, "BTCUSDT")[0].snapshot_id;
-        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now));
+        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now))
+            .expect("valid snapshot rules");
 
         let mut runtime = InMemoryRuntimeKernel::new();
         runtime.register_tool(tool_registration(capability))?;

@@ -1,0 +1,46 @@
+{
+  "identity": {
+    "login": "postgres",
+    "session_login": "postgres",
+    "rolsuper": false,
+    "rolcreaterole": true,
+    "rolinherit": true
+  },
+  "privileges": [
+    {
+      "function": "quantos.persist_data_snapshot(jsonb,text,jsonb)",
+      "login_execute": true,
+      "writer_execute": true,
+      "owner": "postgres"
+    },
+    {
+      "function": "quantos.persist_snapshot_quality_rule(jsonb,jsonb)",
+      "login_execute": true,
+      "writer_execute": true,
+      "owner": "postgres"
+    },
+    {
+      "function": "quantos.prepare_artifact_upload(jsonb,jsonb)",
+      "login_execute": true,
+      "writer_execute": true,
+      "owner": "postgres"
+    },
+    {
+      "function": "quantos.finish_artifact_upload(uuid,boolean,jsonb)",
+      "login_execute": true,
+      "writer_execute": true,
+      "owner": "postgres"
+    },
+    {
+      "function": "quantos.artifact_upload_manifest(uuid,jsonb)",
+      "login_execute": true,
+      "writer_execute": true,
+      "owner": "postgres"
+    }
+  ],
+  "role": {
+    "schema_usage": true,
+    "snapshot_table_access": false,
+    "login_member": true
+  }
+}

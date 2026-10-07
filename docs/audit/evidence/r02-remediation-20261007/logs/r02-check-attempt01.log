@@ -1,0 +1,104 @@
+node ./scripts/check-r02.mjs
+R02 component source check PASS; behavior tests follow. This is not dependency READY, target RLS/Storage acceptance, or release performance acceptance.
+node --test ./scripts/r02-gate-negative.mjs
+✔ current R02 repository Gate passes (0.51925ms)
+✔ tenant rule binding deletion is rejected (0.183125ms)
+✔ 300 fixture regression is rejected (0.124917ms)
+✔ lineage Gate deletion is rejected (0.415083ms)
+✔ immutable insert regression is rejected (0.162833ms)
+✔ update trigger deletion is rejected (0.107291ms)
+✔ forced RLS deletion is rejected (0.103333ms)
+✔ tenant query predicate deletion is rejected (0.1015ms)
+✔ P95 bound weakening is rejected (0.1115ms)
+✔ default Gate live-test regression is rejected (0.136417ms)
+✔ R02 status regression is rejected (0.161208ms)
+✔ uncached SQL measurement cannot become a cache hit (0.091875ms)
+✔ forward tenant schema check cannot disappear (0.093916ms)
+✔ behavior mutation wiring cannot disappear (0.089542ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34.719917
+env -u DATABASE_URL cargo test -p quantos-storage --lib --locked
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.76s
+     Running unittests src/lib.rs (target/debug/deps/quantos_storage-ab52dc8b575c3e1f)
+
+running 19 tests
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test snapshot::tests::regression_strict_floor_duplicate_and_mixed_tenant_rules_reject ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test wire::tests::incomplete_or_invalid_metadata_cannot_become_write_context ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test snapshot::tests::regression_future_capture_window_and_overflow_are_errors ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::optional_license_rule_is_research_only ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test wire::tests::wire_projection_preserves_identity_and_all_quality_variants ... ok
+test snapshot::tests::regression_forged_wire_hash_quality_and_expiry_are_rejected ... ok
+test snapshot::tests::regression_metadata_source_age_and_input_budget_reject ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+env -u DATABASE_URL cargo test -p quantos-strategy -p quantos-runtime --lib --locked
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.31s
+     Running unittests src/lib.rs (target/debug/deps/quantos_runtime-571f059525a57a23)
+
+running 12 tests
+test pg::tests::runtime_role_membership_requires_only_the_runtime_role ... ok
+test pg::tests::broad_admin_login_cannot_impersonate_runtime_service ... ok
+test tests::persisted_status_and_retry_bounds_are_explicit ... ok
+test pg::tests::remote_runtime_rejects_unverified_transport_before_connecting ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test tests::kernel_fences_cancelled_timed_out_and_exhausted_runs ... ok
+test tests::kernel_rejects_invalid_schedule_and_stale_worker_operations ... ok
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test pg::tests::local_transport_and_query_options_are_handled_explicitly ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-983339cd54c32f2c)
+
+running 16 tests
+test release::tests::assisted_live_is_not_representable_before_m5 ... ok
+test generated::tests::unsupported_rules_are_rejected ... ok
+test release::tests::approved_release_deploys_to_paper_and_shadow_and_stays_immutable ... ok
+test release::tests::duplicate_publish_returns_same_hash_and_modified_content_conflicts ... ok
+test tests::unauthorized_actor_cannot_save_or_initiate_validation ... ok
+test tests::drafts_without_snapshot_or_artifacts_cannot_initiate_validation ... ok
+test tests::unapproved_references_are_rejected_at_save_time ... ok
+test release::tests::hundred_unverified_or_unapproved_deployments_are_all_rejected ... ok
+test generated::tests::hundred_static_check_failures_all_block_release_path ... ok
+test backtest::tests::validation_report_contains_costs_environment_and_input_hash ... ok
+test generated::tests::clean_generated_draft_replays_through_backtest_pipeline ... ok
+test backtest::tests::series_not_bound_to_snapshot_is_rejected ... ok
+test backtest::tests::ten_replays_produce_identical_metrics_and_hashes ... ok
+test tests::draft_saves_stay_under_three_hundred_millis_p95 ... ok
+test tests::fifty_concurrent_editors_never_silently_overwrite ... ok
+test backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+node ./scripts/r02-behavior-negative.cjs
+MUTATION_DETECTED wire-integrity
+MUTATION_DETECTED strict-rule-floor
+MUTATION_DETECTED duplicate-rules
+MUTATION_DETECTED trusted-clock
+{"schema":"quantos-r02-behavior/v1","baseline":"PASS","mutations":[{"name":"wire-integrity","result":"MUTATION_DETECTED","test":"regression_forged_wire_hash_quality_and_expiry_are_rejected"},{"name":"strict-rule-floor","result":"MUTATION_DETECTED","test":"regression_strict_floor_duplicate_and_mixed_tenant_rules_reject"},{"name":"duplicate-rules","result":"MUTATION_DETECTED","test":"regression_strict_floor_duplicate_and_mixed_tenant_rules_reject"},{"name":"trusted-clock","result":"MUTATION_DETECTED","test":"regression_future_capture_window_and_overflow_are_errors"}],"sourceCopyOnly":true,"liveDatabase":false}

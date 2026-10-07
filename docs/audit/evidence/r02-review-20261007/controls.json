@@ -1,0 +1,213 @@
+{
+  "schema": "quantos-r02-controls/v1",
+  "controls": [
+    {
+      "id": "C01",
+      "requirement": "R01/F06/F0 依赖与阶段准入",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "历史记录存在，当前前置 stage_gate 均未登记 READY；`check-r02` 只检查部分 COMPLETED 标记，不能代替准入评估",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C02",
+      "requirement": "snapshot Rust API 与模型字段",
+      "result": "PASS",
+      "evidenceAndLimits": "`DataSnapshotInput/Record`、constructor、id/hash/symbol 查询及 quality API 存在；这是库 API，不等同于已交付 BFF HTTP 页面链",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C03",
+      "requirement": "相同输入产生相同 hash",
+      "result": "PASS",
+      "evidenceAndLimits": "排序、canonical JSON、SHA256；原有等价输入重排/JSON key 顺序测试本轮通过。不同 artifact ID 是不同输入，不将其误判为该标准失败",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C04",
+      "requirement": "hash 与实际快照内容保持可信一致",
+      "result": "FAIL",
+      "evidenceAndLimits": "公共字段/serde 可改质量及 expiry 而保留 hash；原生 PG 保存、冷读后 Gate 仍允许，H01",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C05",
+      "requirement": "PostgreSQL 去重与已有行 UPDATE 拒绝",
+      "result": "PASS",
+      "evidenceAndLimits": "同 tenant/hash 冲突不改写原行；目标触发器 SQLSTATE 55000；不推导为任何新输入都已校验",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C06",
+      "requirement": "时间/schema/quality 基础类型与错误枚举",
+      "result": "PASS",
+      "evidenceAndLimits": "UTC DateTime、SchemaVersion、quality/usage parse、反向窗口/负 age/空 schema 的既有拒绝测试通过",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C07",
+      "requirement": "capture/window/observed 时间关系",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "基础 start≤end 检查存在，未来 capture、window end 超过 capture 仍可用于策略/交易，H03",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C08",
+      "requirement": "age/expiry 的确定性错误与资源边界",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "非负值检查存在，极大正值触发 panic；expiry 可绕过派生关系，M02/H01",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C09",
+      "requirement": "来源、许可证、血缘完整性与可追溯性",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "检查 vec 非空/许可证字符串非空；空 provider/source/dataset、空 lineage 元素仍允许，H04。label 本身不证明获准用途",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C10",
+      "requirement": "schema 及关联引用的租户一致性",
+      "result": "FAIL",
+      "evidenceAndLimits": "tenant A snapshot 可引用 tenant B 的不匹配 schema 注册项，目标事务实测，H05",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C11",
+      "requirement": "snapshot 元数据与质量规则持久化",
+      "result": "PASS",
+      "evidenceAndLimits": "目标 SQL 持久查询与规则写入执行；原生 PG 快照写入/冷读也执行。可信内容与策略安全分别由 C04/C16 判定",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C12",
+      "requirement": "两张表 RLS 启用、force、迁移版本",
+      "result": "PASS",
+      "evidenceAndLimits": "目标 flags 和两项 migration SHA 与仓库一致；不是成员访问通过的替代证据",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C13",
+      "requirement": "真实成员可读、跨租户拒绝的完整权限路径",
+      "result": "FAIL",
+      "evidenceAndLimits": "authenticated 的成员正向 SELECT 返回 42501；authenticated/BFF/service_role 均无快照 SELECT grant。跨租户测试被正向失败中断，不能将全拒绝称作隔离完整通过，B01",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C14",
+      "requirement": "默认规则下 300 个非法 fixture 拒绝",
+      "result": "PASS",
+      "evidenceAndLimits": "100 过期、100 Failed、100 缺总许可证，各对 Strategy/Trading 判定，共 600 个拒绝断言通过",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C15",
+      "requirement": "缺规则、跨 tenant 规则的默认拒绝",
+      "result": "PASS",
+      "evidenceAndLimits": "缺失或 tenant 不匹配时 RuleMissing；既有行为测试通过",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C16",
+      "requirement": "策略/交易不可关闭的质量/时效/许可约束",
+      "result": "FAIL",
+      "evidenceAndLimits": "allow_failed=true、require_license=false、require_freshness=false 可使三类非法条件同时获准；数据库也接受该 trading rule，H02",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C17",
+      "requirement": "重复规则与配置冲突确定性",
+      "result": "FAIL",
+      "evidenceAndLimits": "同 usage 后项静默覆盖前项；调换顺序即可改变过期判断，M01",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C18",
+      "requirement": "Strategy/Runtime 消费质量 Gate",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "Strategy validation、Research、SignalProposal 的内存目录调用存在且单测通过；未闭合实际 R01→可信快照→持久规则→消费者链，不声称 Trading 生产链已完成",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C19",
+      "requirement": "实际 Supabase Storage 上传/登记/读取",
+      "result": "PASS",
+      "evidenceAndLimits": "原生探针在配置项目完成基础往返，有准确对象 key/数据比对；整个探针套件另有失败，不将该分项 PASS 写为整体 PASS",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C20",
+      "requirement": "上传前、读取后的 payload hash 检查",
+      "result": "PASS",
+      "evidenceAndLimits": "源码两侧校验；当前 unit 与真实往返字节一致。不能据此证明任意 manifest 路径/关系都合法",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C21",
+      "requirement": "登记失败补偿不伤害既有对象",
+      "result": "FAIL",
+      "evidenceAndLimits": "复用既有路径后登记失败，补偿 DELETE 删除之前已登记对象，manifest 留存；独立读回确认缺失，M03",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C22",
+      "requirement": "受影响包 fmt/Clippy/原有功能单测",
+      "result": "PASS",
+      "evidenceAndLimits": "fmt、三个 crate all-targets Clippy 零 warning；显式跳过环境加载的本地 R02 suite 通过，目标早返不充作数据库验收",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C23",
+      "requirement": "成功/拒绝/恢复的行为 Gate 与故障覆盖",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "原 12 个 JS 负向主要破坏字符串；正常 Gate 通过时本次 8 类坏行为仍可复现。缺新边界回归、目标成员权限与补偿所有权断言，M04",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C24",
+      "requirement": "覆盖率与可审计范围",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "本轮 file summary：snapshot line 93.28%/region 92.54%，含内嵌单测；PG 本地 0%，Storage 41.40%/37.04%。没有重采目标覆盖或独立生产行口径；不以汇总/历史覆盖替代，M04",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C25",
+      "requirement": "查询 P95 <300ms（RELEASE）",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "实际 SQL 25 次 P95 669.563ms；小样本/跨区域开发链诊断，尚未正式性能验收。原 live test 25 次读已命中内存缓存，不能证明 PG 指标，M05",
+      "phase": "RELEASE"
+    },
+    {
+      "id": "C26",
+      "requirement": "接口/协议与跨模块兼容证明",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "protobuf/serde/库契约存在，未找到 DataSnapshotRecord 到带 CommandMetadata 的 wire 对象的完整映射与当前服务集成回执；后续 API/消费者联调须明确承接",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C27",
+      "requirement": "snapshot/规则写入审计与可观测性",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "Storage 有 F09 outcome metric；snapshot/规则写入 API 不含执行 actor/correlation、未连 atomic audit/event/outbox，M06。测试 actor 的创建不等于业务写入已审计",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    },
+    {
+      "id": "C28",
+      "requirement": "运维、回滚与可复制文档",
+      "result": "PARTIAL",
+      "evidenceAndLimits": "storage README 存在；“fresh disposable PostgreSQL”与当前 AGENTS 约束冲突，本地 Gate 自动加载环境，缺少区分历史 summary 与当前目标入口的交付指引，L01",
+      "phase": "DEVELOPMENT_OR_INTEGRATION"
+    }
+  ],
+  "totals": {
+    "PARTIAL": 11,
+    "PASS": 11,
+    "FAIL": 6
+  },
+  "strictPassRate": 0.39285714285714285,
+  "functionalCounts": {
+    "PARTIAL": 10,
+    "PASS": 11,
+    "FAIL": 6
+  },
+  "functionalPassRate": 0.4074074074074074
+}

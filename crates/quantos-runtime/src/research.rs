@@ -714,7 +714,7 @@ mod tests {
         )
         .expect("snapshot builds")
         .clone();
-        catalog.upsert(snapshot);
+        catalog.upsert(snapshot).expect("valid snapshot");
         catalog
     }
 
@@ -784,7 +784,8 @@ mod tests {
             .expect("tool registers");
         let session = runtime.open_session(&auth, now, now + ChronoDuration::hours(1));
         let snapshots = snapshot_catalog(auth.tenant_id);
-        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now));
+        let rules = SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now))
+            .expect("valid snapshot rules");
         let mut repository = InMemoryResearchArtifactRepository::new();
         let mut engine_manager =
             EngineManager::new(quantos_engine_manager::BackoffPolicy::default());

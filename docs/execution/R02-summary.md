@@ -1,19 +1,9 @@
 # CORE:R02 DataSnapshot、血缘与质量 Gate
 
-## 交付范围
+2026-10-07 当前交付：只读且自校验的 DataSnapshot/v1、canonical hash/微秒时间规范化、source-age 与交易硬底线、租户引用校验、具名 actor 的原子写审计、成员受限读取 API、对象 durable intent/显式恢复、CommandMetadata/wire 桥接及行为/目标覆盖 Gate。当前整改见[逐项报告](../audit/R02-remediation-2026-10-07.md)，基线问题与失败证据见[全面复审](../audit/R02-comprehensive-review-2026-10-07.md)。
 
-R02 提供确定性的 `DataSnapshot` 契约：schema、时间窗、来源与许可证、质量状态、对象引用、血缘、有效期和内容 hash。等价输入经规范化后生成相同 hash；PostgreSQL 以 `(tenant_id, content_hash)` 去重，并由触发器拒绝已有快照的更新。
+`make QUANTOS_SKIP_ENV=1 r02-check` 为无数据库功能检查；`make r02-live-check` / `make r02-target-coverage` 连接配置 Supabase，必须使用空的新证据目录并确认具名 actor 停用/对象清理。禁止建立本地 PostgreSQL/Supabase 或临时容器数据库。操作与恢复见[规程](../runbooks/r02_snapshot_operations.md)。
 
-策略和交易入口使用租户绑定的质量规则，缺少规则、来源、来源许可证或血缘时均 fail closed；过期、质量失败或许可证缺失的 300 个固定 fixture 全部被拒绝。对象存储适配器在上传和读取时校验内容 hash。
+工程修复验证不自动产生 READY/ACCEPTED。R01真实来源/用途/实时健康、完整持久化消费者链、部署 HTTP/BFF 读取、发布容量/P95与同 SHA远程CI继续独立验收。开发目标保留真实 SQL 基线，<300ms 位于 RELEASE-GATE:BETA。
 
-## 验证入口
-
-- `make r02-check`：静态交付 Gate、12 个破坏性 Gate 测试、storage/strategy/runtime Rust 测试。
-- `make r02-live-check`：需要显式提供 `DATABASE_URL`，执行 PostgreSQL 持久化、租户访问和查询 P95 `<300ms` 检查。
-- `make db-migration-check`：migration 文件名及 RLS 基线检查。
-
-## 验收边界
-
-本次不使用生产或外部环境凭据。源码、migration、单元/集成边界和 CI 接线可在本地验收；真实 PostgreSQL P95、目标 Supabase RLS 行为和 Supabase Storage 往返均为 `NOT RUN / NO RECEIPT`，不能由本地绿色测试替代。
-
-详细证据见 [R02 验收证据](../audit/R02-acceptance-evidence-2026-09-16.md)。
+2026-09-16 的未连接目标数据库/Storage 结论仅属于[历史验收证据](../audit/R02-acceptance-evidence-2026-09-16.md)；该记录与当时 SHA 保留，不代表 2026-10-07 的执行结果。

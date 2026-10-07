@@ -4,7 +4,7 @@ use chrono::Utc;
 use quantos_core::{ContentHash, TenantId};
 use quantos_storage::{
     ArtifactManifest,
-    pg::PgStorageStore,
+    pg::{PgStorageStore, SnapshotWriteContext},
     supabase_storage::{SupabaseStorageAdapter, SupabaseStorageConfig, SupabaseStorageError},
 };
 use std::{
@@ -129,7 +129,7 @@ fn http_success_errors_and_corrupt_downloads() {
     );
     server.join().unwrap();
     assert!(matches!(
-        a.put_artifact(&m, Bytes::from_static(b"wrong")),
+        a.put_artifact(&m, Bytes::from_static(b"forged!")),
         Err(SupabaseStorageError::HashMismatch { .. })
     ));
     assert!(matches!(
@@ -161,7 +161,7 @@ fn invalid_configuration_fails_before_requests() {
     ));
 }
 #[test]
-fn registration_failure_compensates_upload_and_success_persists() {
+fn invalid_tenant_is_rejected_before_upload_and_success_persists() {
     let Ok(url) = std::env::var("DATABASE_URL") else {
         assert_ne!(
             std::env::var("QUANTOS_RUN_F05_POSTGRES_TESTS")
@@ -174,9 +174,22 @@ fn registration_failure_compensates_upload_and_success_persists() {
     };
     let mut store = PgStorageStore::connect(&url).unwrap();
     let m = manifest(TenantId::new()); // no tenant: FK must reject registration
-    let (base, server) = serve(vec![("POST", "200 OK", b""), ("DELETE", "200 OK", b"")]);
+    let actor = quantos_core::ActorId::new();
+    let context = SnapshotWriteContext {
+        tenant_id: m.tenant_id,
+        actor_id: actor,
+        correlation_id: quantos_core::CorrelationId::new(),
+        causation_id: quantos_core::EventId::new(),
+        reason: "owned HTTP fixture".into(),
+    };
+    let (base, server) = serve(vec![]);
     assert!(matches!(
-        adapter(base, true).upload_and_register(&mut store, &m, Bytes::from_static(b"payload")),
+        adapter(base, true).upload_and_register(
+            &mut store,
+            &m,
+            Bytes::from_static(b"payload"),
+            &context
+        ),
         Err(SupabaseStorageError::Persist(_))
     ));
     server.join().unwrap();
@@ -197,12 +210,22 @@ fn registration_failure_compensates_upload_and_success_persists() {
     let mut db = postgres::Client::connect(&url, tls).unwrap();
     db.execute(
         "insert into quantos.tenants(id,slug,name) values ($1,$2,'http-test')",
-        &[m.tenant_id.as_uuid(), &format!("http-{}", m.tenant_id)],
+        &[
+            m.tenant_id.as_uuid(),
+            &format!(
+                "r02-{}-{}",
+                std::env::var("QUANTOS_R02_RUN_ID")
+                    .unwrap_or_else(|_| uuid::Uuid::new_v4().to_string()),
+                m.tenant_id
+            ),
+        ],
     )
     .unwrap();
+    db.execute("insert into quantos.actors(id,tenant_id,actor_kind,service_name,display_name) values($1,$2,'service','r02-http','R02 HTTP fixture')", &[actor.as_uuid(), m.tenant_id.as_uuid()]).unwrap();
+    db.execute("insert into quantos.actor_capabilities(tenant_id,actor_id,capability) values($1,$2,'artifact.write')", &[m.tenant_id.as_uuid(), actor.as_uuid()]).unwrap();
     let (base, server) = serve(vec![("POST", "200 OK", b"")]);
     let persisted = adapter(base, true)
-        .upload_and_register(&mut store, &m, Bytes::from_static(b"payload"))
+        .upload_and_register(&mut store, &m, Bytes::from_static(b"payload"), &context)
         .unwrap();
     assert_eq!(persisted.content_hash, m.content_hash);
     server.join().unwrap();
@@ -239,5 +262,10 @@ fn registration_failure_compensates_upload_and_success_persists() {
         2.0,
         "HTTP failures must persist failed outcomes"
     );
+    db.execute(
+        "update quantos.actors set is_active=false where id=$1 and tenant_id=$2",
+        &[actor.as_uuid(), m.tenant_id.as_uuid()],
+    )
+    .unwrap();
     // Preserve the tenant: cascading deletion must not bypass append-only ledger triggers.
 }

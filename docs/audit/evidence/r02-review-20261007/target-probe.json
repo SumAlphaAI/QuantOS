@@ -1,0 +1,117 @@
+{
+  "schema": "quantos-r02-audit-target/v1",
+  "target": "configured Supabase PostgreSQL",
+  "connectionMode": "same-project transaction pool explicitly selected",
+  "owned": {
+    "tenant": "9fb30ab3-6c9f-49b2-a92b-1e4b783a3df8",
+    "foreignTenant": "c8c11af4-f62a-4fac-aa25-c29c9eb9e1ae",
+    "user": "fad7d401-ac8d-43ed-9430-64fb8077ecc7",
+    "actor": "7ab54171-f961-40e0-beae-e146a78b2cd5",
+    "schema": "d9997ef5-7f82-4b9e-9f92-980d1672abed",
+    "snapshot": "5910a46d-73ea-4b18-af32-da1bd0ba2be1"
+  },
+  "checks": [
+    {
+      "name": "migration hashes",
+      "result": "PASS"
+    },
+    {
+      "name": "backend persistence/query",
+      "result": "PASS"
+    },
+    {
+      "name": "same tenant hash conflict preserves row",
+      "result": "PASS"
+    },
+    {
+      "name": "snapshot UPDATE rejected",
+      "result": "PASS",
+      "sqlstate": "55000"
+    },
+    {
+      "name": "RLS enabled/forced",
+      "result": "PASS",
+      "flags": [
+        {
+          "relname": "data_snapshots",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true
+        },
+        {
+          "relname": "data_snapshot_quality_rules",
+          "relrowsecurity": true,
+          "relforcerowsecurity": true
+        }
+      ]
+    },
+    {
+      "name": "member own rows / foreign denied",
+      "result": "FAIL",
+      "sqlstate": "42501",
+      "assertion": "member read failed"
+    }
+  ],
+  "defects": [
+    {
+      "id": "CROSS_TENANT_SCHEMA_REF",
+      "observed": "tenant A snapshot accepts tenant B unrelated schema registry row without checking schema name/version"
+    },
+    {
+      "id": "NO_HASH_EXPIRY_PAYLOAD_INVARIANT",
+      "observed": "valid sha256 format with unrelated payload and expires_at != captured_at + max_age persisted"
+    },
+    {
+      "id": "PERMISSIVE_TRADING_RULE",
+      "observed": "database accepts allow_failed=true require_license=false require_freshness=false for trading"
+    }
+  ],
+  "status": "FAIL_SCOPED_TARGET_CHECKS",
+  "rlsMethod": "SET LOCAL ROLE authenticated + transaction-local auth.uid claims; not real Auth JWT HTTP",
+  "migrationHashes": [
+    {
+      "filename": "20260731100000_data_snapshots_and_quality_gate.sql",
+      "sha256": "bd96c9f9ade727d75f1493c021a523ad18064478a19c11e0fa1d53e2ec7d9451",
+      "localSha256": "bd96c9f9ade727d75f1493c021a523ad18064478a19c11e0fa1d53e2ec7d9451"
+    },
+    {
+      "filename": "20260916140000_r02_snapshot_immutability.sql",
+      "sha256": "ae2c048f176a61102d10b0c6d5e2c61bab454a139afddb1bfdcb28be22cf3d1e",
+      "localSha256": "ae2c048f176a61102d10b0c6d5e2c61bab454a139afddb1bfdcb28be22cf3d1e"
+    }
+  ],
+  "queryBaseline": {
+    "path": "actual SQL round trip, no Rust cache",
+    "rowsInFixture": 2,
+    "samplesMs": [
+      235.28325,
+      234.960375,
+      235.2625,
+      671.108292,
+      235.225375,
+      234.323334,
+      231.226625,
+      235.385834,
+      667.318458,
+      235.618875,
+      235.725334,
+      236.248917,
+      235.269417,
+      238.340416,
+      236.464833,
+      240.810417,
+      235.09025,
+      228.631625,
+      666.402375,
+      232.607375,
+      244.5555,
+      235.584958,
+      234.939708,
+      241.105042,
+      669.562625
+    ],
+    "p95Ms": 669.562625,
+    "releaseTargetMs": 300,
+    "formalPerformanceAcceptance": "NOT_ASSESSED; single small fixture / current developer-to-target path"
+  },
+  "fixtureRollback": "PASS"
+}

@@ -8,7 +8,7 @@ use postgres_native_tls::MakeTlsConnector;
 use quantos_core::{ContentHash, TenantId};
 use quantos_storage::{
     ArtifactManifest,
-    pg::PgStorageStore,
+    pg::{PgStorageStore, SnapshotWriteContext},
     supabase_storage::{SupabaseStorageAdapter, SupabaseStorageConfig},
 };
 use url::Url;
@@ -16,14 +16,18 @@ use url::Url;
 struct TenantCleanup {
     database_url: String,
     tenant_id: TenantId,
+    actor_id: quantos_core::ActorId,
 }
 
 impl Drop for TenantCleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
             let _ = client.execute_typed(
-                "delete from quantos.tenants where id = $1",
-                &[(self.tenant_id.as_uuid(), Type::UUID)],
+                "update quantos.actors set is_active=false where tenant_id=$1 and id=$2",
+                &[
+                    (self.tenant_id.as_uuid(), Type::UUID),
+                    (self.actor_id.as_uuid(), Type::UUID),
+                ],
             );
         }
     }
@@ -56,7 +60,14 @@ fn supabase_storage_adapter_round_trips_artifacts_and_registers_manifest() {
         .filter(|value| !value.is_empty())
         .unwrap_or_else(|| service_role_key.clone());
     let tenant_id = TenantId::new();
-    let _cleanup = seed_tenant(&database_url, tenant_id);
+    let cleanup = seed_tenant(&database_url, tenant_id);
+    let context = SnapshotWriteContext {
+        tenant_id,
+        actor_id: cleanup.actor_id,
+        correlation_id: quantos_core::CorrelationId::new(),
+        causation_id: quantos_core::EventId::new(),
+        reason: "owned integration fixture".into(),
+    };
     let mut storage = PgStorageStore::connect(&database_url).expect("connects to PostgreSQL");
     let adapter = SupabaseStorageAdapter::connect(SupabaseStorageConfig {
         project_url,
@@ -80,7 +91,7 @@ fn supabase_storage_adapter_round_trips_artifacts_and_registers_manifest() {
     manifest.metadata = BTreeMap::from([("source".to_owned(), "supabase-storage-live".to_owned())]);
 
     let persisted = adapter
-        .upload_and_register(&mut storage, &manifest, payload.clone())
+        .upload_and_register(&mut storage, &manifest, payload.clone(), &context)
         .expect("artifact uploads and registers");
     assert_eq!(persisted.content_hash, hash);
 
@@ -138,7 +149,11 @@ fn supabase_storage_adapter_round_trips_artifacts_and_registers_manifest() {
 
 fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
     let mut client = connect_client(database_url).expect("connects for setup");
-    let slug = format!("f05-supabase-storage-{}", tenant_id);
+    let slug = format!(
+        "r02-{}-{}",
+        std::env::var("QUANTOS_R02_RUN_ID").unwrap_or_else(|_| uuid::Uuid::new_v4().to_string()),
+        tenant_id
+    );
     client
         .execute_typed(
             "insert into quantos.tenants (id, slug, name) values ($1, $2, $3)
@@ -151,7 +166,13 @@ fn seed_tenant(database_url: &str, tenant_id: TenantId) -> TenantCleanup {
         )
         .expect("tenant inserts");
 
+    let actor_id = quantos_core::ActorId::new();
+    client.execute_typed("insert into quantos.actors(id,tenant_id,actor_kind,service_name,display_name) values($1,$2,'service','r02-fixture','R02 integration fixture')", &[(actor_id.as_uuid(),Type::UUID),(tenant_id.as_uuid(),Type::UUID)]).unwrap();
+    for capability in ["snapshot.write", "snapshot.rule.write", "artifact.write"] {
+        client.execute_typed("insert into quantos.actor_capabilities(tenant_id,actor_id,capability) values($1,$2,$3)", &[(tenant_id.as_uuid(),Type::UUID),(actor_id.as_uuid(),Type::UUID),(&capability,Type::TEXT)]).unwrap();
+    }
     TenantCleanup {
+        actor_id,
         database_url: database_url.to_owned(),
         tenant_id,
     }
