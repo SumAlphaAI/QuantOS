@@ -26,13 +26,14 @@ function approved(path) {
 export function validateWiring(readBytes = read) {
   const pkg = JSON.parse(readBytes('package.json'));
   assert.equal(pkg.scripts['check:provider-a2'], 'node scripts/provider-a2-development.mjs');
+  assert.equal(pkg.scripts['check:provider-a2:ci'], 'node scripts/ci-stage-disposition.mjs PROVIDER:A2');
   assert.equal(pkg.scripts['test:provider-a2'], 'node --test scripts/provider-a2-development.test.mjs');
   const makefile = readBytes('Makefile').toString();
   assert(/^provider-a2-check:\s*\n\tpnpm check:provider-a2\s*\n\tpnpm test:provider-a2\s*$/m.test(makefile), 'A2 executable Makefile target missing');
   const workflow = parse(readBytes('.github/workflows/frontend-baseline.yml').toString());
   const unconditional = value => value === undefined || value === true || value === 'true' || value === '${{ true }}';
   assert(Object.values(workflow.jobs).some(job => unconditional(job.if) && job['continue-on-error'] !== true && job.steps.some(step =>
-    unconditional(step.if) && step['continue-on-error'] !== true && String(step.run).trim() === 'pnpm check:provider-a2 && pnpm test:provider-a2'
+    unconditional(step.if) && step['continue-on-error'] !== true && String(step.run).trim() === 'pnpm check:provider-a2:ci && pnpm test:provider-a2'
   )), 'A2 mandatory CI command missing or conditional');
 }
 export function coverage(nodes, readBytes = read) {

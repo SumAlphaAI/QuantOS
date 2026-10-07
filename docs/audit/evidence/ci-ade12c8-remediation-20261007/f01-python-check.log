@@ -1,0 +1,32 @@
+node scripts/check-f01.mjs
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: uv run --locked --project engines --all-packages --group build python scripts/f01-inventory.py
+error: failed to open file `/Users/anray/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at run (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-lib.mjs:6:12)
+    at inventory (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f01-lib.mjs:16:31)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-f01.mjs:20:18
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  status: 2,
+  signal: null,
+  output: [
+    null,
+    '',
+    'error: failed to open file `/Users/anray/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)\n'
+  ],
+  pid: 18316,
+  stdout: '',
+  stderr: 'error: failed to open file `/Users/anray/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)\n'
+}
+
+Node.js v24.12.0
+make: *** [f01-check] Error 1

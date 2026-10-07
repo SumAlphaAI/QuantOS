@@ -1,0 +1,92 @@
+bash ./scripts/check-lockfiles.sh
+Resolved 52 packages in 2ms
+Scope: all 8 workspace projects
+Done in 193ms using pnpm v10.20.0
+All phase-1 locks parse and match their manifests.
+pnpm check:development-plans
+
+> @sumalpha/quantos@ check:development-plans /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-development-plans.mjs
+
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 159,
+    "READY": 0,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1462,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22
+}
+pnpm test:development-plans
+
+> @sumalpha/quantos@ test:development-plans /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/development-plan-order-negative.mjs
+
+✔ joint schedule is acyclic and preserves task/status boundaries (22.810459ms)
+✔ restoring a complete R1 prerequisite for S2 services creates a rejected cycle (7.138292ms)
+✔ research service waiting on its consumer page is rejected (6.146042ms)
+✔ historical CORE:R04 to CORE:L04 probe now fails closed (6.269416ms)
+✔ an early identity API cannot silently depend on later research services (8.308875ms)
+✔ a provider cannot wait for the consumer frontend Gate (6.158209ms)
+✔ removing S2 service admission from a core execution task is rejected (6.707458ms)
+✔ S2 service Gate cannot omit TP12 advance evaluation (6.57225ms)
+✔ I10 cannot drop testnet service admission even if metadata is edited with it (7.804458ms)
+✔ a new or existing frontend cannot skip the full provider Gate (9.481791ms)
+✔ G5 cannot be marked as closing in I4 before reconciliation (9.472417ms)
+✔ moving the G1 block above I1 tasks is rejected (7.667458ms)
+✔ milestone cannot omit its last child while retaining a Gate summary (7.1285ms)
+✔ prose-only backend dependencies cannot drift from structured prerequisites (7.342875ms)
+✔ core closure mapping cannot become an implicit service alias (6.789333ms)
+✔ ACCEPTED checkpoint needs SHA and evidence, not only a green word (7.738208ms)
+✔ accepted checkpoint evidence must resolve (3.428416ms)
+✔ missing checkpoint and unknown dependency fail closed (8.288291ms)
+✔ API windows cannot skip their preceding provider checkpoint (6.242583ms)
+✔ UI windows cannot skip the preceding reconciliation window (6.472708ms)
+✔ Web intake preserves the explicit no-model-review schema (2.13475ms)
+✔ missing Web task fields still fail closed (1.922583ms)
+✔ both plans must publish exactly the same stage contract (7.430875ms)
+✔ changing both plans cannot defer correctness or functional deadlines to release (16.948958ms)
+✔ both plans must retain every deferred release obligation (19.087458ms)
+✔ tasks and checkpoints cannot omit, invent, or misclassify their stage gate (26.487375ms)
+✔ release prerequisites cannot block either development or integration (17.304458ms)
+✔ release gates cannot skip business closure or inherit the wrong stage (18.186542ms)
+✔ historical ACCEPTED and completed tasks do not automatically become READY (15.442833ms)
+✔ READY needs its own input digest and resolvable evidence (49.589958ms)
+✔ unassessed stage gates cannot carry an apparent ready receipt (10.080875ms)
+✔ BLOCKED retains failure evidence and digest without being counted as READY (19.611959ms)
+✔ a READY chain needs READY prerequisites and its own evidence at every node (25.639416ms)
+✔ stage readiness never substitutes for formal acceptance evidence (4.352209ms)
+✔ release READY requires formal acceptance and all functional prerequisites (11.558083ms)
+✔ core intake follows the frontend audit-report format (8.77925ms)
+✔ core review summary must be unique and link to audit evidence (11.576042ms)
+✔ core shared task fields and existing window must stay consistent (21.184917ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 501.314791

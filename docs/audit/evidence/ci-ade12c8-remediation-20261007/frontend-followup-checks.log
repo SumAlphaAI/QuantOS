@@ -1,0 +1,158 @@
+COMMAND pnpm check:pre04
+
+> @sumalpha/quantos@ check:pre04 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/pre04-inventory.mjs
+
+{
+  "schema": "quantos-pre04/v1",
+  "status": "PASS",
+  "contracts": 17,
+  "gaps": 17,
+  "p0_pages": 23,
+  "field_rows": 413,
+  "openapi_operations": 62,
+  "openapi_schemas": 52,
+  "proto": {
+    "files": 6,
+    "messages": 38,
+    "enums": 15,
+    "services": 2,
+    "rpcs": 7,
+    "jsonSchemas": 50
+  }
+}
+COMMAND pnpm test:pre04
+
+> @sumalpha/quantos@ test:pre04 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/pre04-gate-negative.mjs
+
+✔ current full phase-one inventory passes (14.540708ms)
+✔ missing Gap is rejected (5.069041ms)
+✔ undecided realtime dependency is rejected (4.71875ms)
+✔ deleted required actorId field is rejected (4.717584ms)
+✔ nonexistent field source is rejected (3.979167ms)
+✔ wrong field type and optionality are rejected (4.053875ms)
+✔ generated operation deletion is rejected (4.253125ms)
+✔ generated method and path drift are rejected (8.893375ms)
+✔ same-count schema rename is rejected (3.260583ms)
+✔ schema required and enum drift are rejected (8.951958ms)
+✔ same-count Proto message rename is rejected (3.902584ms)
+✔ removed Proto declaration is rejected (3.888625ms)
+✔ same-count JSON Schema replacement is rejected (4.721042ms)
+✔ duplicate contract row is rejected before Map collapse (3.834375ms)
+✔ duplicate Gap row is rejected before Map collapse (3.797083ms)
+✔ nonexistent role owner is rejected (4.343458ms)
+✔ nonexistent backend task is rejected (3.719334ms)
+✔ nonexistent BFF task is rejected (4.062625ms)
+✔ unknown Gap page is rejected (4.317ms)
+✔ each missing website P0 page is rejected (19.736041ms)
+✔ missing auxiliary risk/audit/order contract is rejected (12.797791ms)
+✔ closing partly published Gap is rejected (3.930875ms)
+✔ omitting planned operation is rejected (3.821208ms)
+✔ unpublished Inventory Fixture cannot claim Implemented (3.526875ms)
+✔ generated-only contract cannot claim Integrated (3.613792ms)
+✔ missing provider evidence is rejected (4.295375ms)
+✔ changed provider receipt is rejected (4.515083ms)
+✔ missing Inventory Fixture is rejected (4.462792ms)
+✔ Desktop contamination is rejected by Web inventory (4.07675ms)
+✔ nonexistent domain field mappings including the former engine-version anchor are rejected (8.002333ms)
+✔ removed referenced core task is rejected (3.952625ms)
+✔ catalog source drift is rejected (3.854417ms)
+✔ empty implementation artifact lists are rejected for every implemented contract (11.361792ms)
+✔ each missing implementation evidence category is rejected (40.245042ms)
+✔ duplicate artifacts cannot substitute for test or receipt evidence (4.262834ms)
+✔ another contract receipt cannot substitute for required evidence (4.734417ms)
+✔ unknown task suffixes are rejected in both backend task columns (26.045333ms)
+✔ ambiguous cross-prefix ranges cannot impersonate reviewed backend tasks (7.591334ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 383.014334
+COMMAND pnpm check:pre06
+
+> @sumalpha/quantos@ check:pre06 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-pre06.mjs
+
+{
+  "schema": "quantos-pre06/v1",
+  "status": "PASS",
+  "bff_operations": 62,
+  "bff_schemas": 52,
+  "visual_baselines": 24
+}
+COMMAND pnpm test:pre06
+
+> @sumalpha/quantos@ test:pre06 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/pre06-gate-negative.mjs scripts/pre06-runtime-negative.mjs
+
+✔ current PRE-06 Web baseline passes (26.3745ms)
+✔ website browser Gate deletion is rejected (10.76825ms)
+✔ Desktop coupling in phase-one compatibility is rejected (8.321209ms)
+✔ Desktop deep-link inclusion in phase-one Terminal is rejected (7.525458ms)
+✔ generated operation coverage drift is rejected (6.937334ms)
+✔ visual baseline integrity failure is rejected (6.2865ms)
+✔ performance budget weakening is rejected (6.192125ms)
+✔ disabled CI steps and comment-only commands are rejected (17.249834ms)
+✔ contract assertion deletion and visual comparison deletion fail closed (10.210042ms)
+✔ website performance and critical coverage gates cannot be removed (10.336625ms)
+✔ CI retry policy must reject flaky outcomes and archive failure evidence (11.074166ms)
+✔ comments cannot restore weakened budget or critical coverage policy (15.700583ms)
+✔ skipped suites and inactive screenshot assertions cannot satisfy the baseline (38.242959ms)
+✔ critical contract callbacks cannot return early, hide assertions, or remove runtime counting (23.412125ms)
+✔ unknown and corrupted fixtures are rejected, explicit sabotage fixtures remain expected failures (32.038167ms)
+✔ empty assets and empty route manifest are never a zero-sized performance PASS (28.240667ms)
+✔ actual CI configs return nonzero for first-fail-then-pass policy probe (1345.929625ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1459.977334
+COMMAND pnpm test:p0
+
+> @sumalpha/quantos@ test:p0 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/p0-acceptance-negative.mjs
+
+✔ complete synthetic acceptance satisfies the receipt schema only (1.784375ms)
+✔ missing receipt is rejected (0.379084ms)
+✔ old SHA is rejected (0.592167ms)
+✔ FAIL receipt is rejected (0.544125ms)
+✔ missing check is rejected (0.597625ms)
+✔ duplicate check is rejected (0.776167ms)
+✔ fake command is rejected (0.505334ms)
+✔ failed command is rejected (0.467083ms)
+✔ corrupted log is rejected (0.491083ms)
+✔ URL instead of artifact is rejected (1.420125ms)
+✔ missing F06 is rejected (0.442458ms)
+✔ old F06 is rejected (0.4985ms)
+✔ incomplete PRE is rejected (0.811625ms)
+✔ unrejected mutation is rejected (0.420208ms)
+✔ extra admission is rejected (0.401ms)
+✔ unclosed control is rejected (0.38575ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 52.822292
+COMMAND pnpm check:g0-records
+
+> @sumalpha/quantos@ check:g0-records /Users/anray/Documents/project/SumAlpha/QuantOS
+> node ./scripts/check-g0-records.mjs
+
+{
+  "schema": "quantos-g0-governance/v1",
+  "status": "PASS",
+  "historical_signature": "RECORDED_NOT_REVALIDATED",
+  "current_formal_g0": "NOT_STARTED / NO CURRENT RECEIPT",
+  "leftovers": 10,
+  "overdue": 9
+}

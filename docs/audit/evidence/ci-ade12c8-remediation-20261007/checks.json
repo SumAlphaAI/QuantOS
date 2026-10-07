@@ -1,0 +1,91 @@
+{
+  "schema": "quantos-ci-remediation-checks/v1",
+  "baseCommit": "ade12c8907254a8fa1fa69481fe2e1ca3536b0aa",
+  "scope": "local-component-ci-remediation",
+  "localStatus": "PASS",
+  "formalAccepted": false,
+  "stageAdmissionPublished": false,
+  "databaseExecuted": false,
+  "hostedCiCandidate": "NOT_RUN",
+  "linuxCleanRoom": "NOT_RUN",
+  "threeBuildReproducibility": "NOT_RUN",
+  "checks": [
+    {
+      "command": "make QUANTOS_SKIP_ENV=1 bff-contract-check",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "bff-contract-check.log"
+    },
+    {
+      "command": "node --test (eight affected stage/lint regression suites)",
+      "status": "PASS",
+      "exitCode": 0,
+      "passed": 241,
+      "log": "all-stage-regressions.log"
+    },
+    {
+      "command": "pnpm check:*:ci (seven DEVELOPMENT nodes)",
+      "status": "PASS",
+      "exitCode": 0,
+      "stageStatus": "NOT_ASSESSED",
+      "admitted": false,
+      "log": "ci-dispositions.log"
+    },
+    {
+      "command": "node scripts/provider-a1-receipts.mjs",
+      "status": "EXPECTED_REJECTION",
+      "exitCode": 1,
+      "log": "strict-admission-still-blocked.log"
+    },
+    {
+      "command": "make QUANTOS_SKIP_ENV=1 lockfile-check development-plan-check",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "plan-lockfile-check.log"
+    },
+    {
+      "command": "pnpm PRE-04/PRE-06/P0/G0 static/negative checks",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "frontend-followup-checks.log"
+    },
+    {
+      "command": "make QUANTOS_SKIP_ENV=1 f01-check lint test",
+      "status": "PASS",
+      "exitCode": 0,
+      "rustPassed": 325,
+      "rustIgnored": 2,
+      "pythonPassed": 129,
+      "webPassed": 223,
+      "databaseExecuted": false,
+      "log": "workspace-checks-escalated.log"
+    },
+    {
+      "command": "make QUANTOS_SKIP_ENV=1 f08-check",
+      "status": "PASS",
+      "exitCode": 0,
+      "pythonPassed": 129,
+      "stableCoverageNegativePassed": 4,
+      "nightlyBranchNegativeSkipped": 1,
+      "log": "f08-check.log"
+    },
+    {
+      "command": "initial make lint test",
+      "status": "ENVIRONMENT_BLOCKED",
+      "exitCode": 2,
+      "log": "workspace-lint-test.log"
+    },
+    {
+      "command": "initial make f01-check lint-python",
+      "status": "ENVIRONMENT_BLOCKED",
+      "exitCode": 2,
+      "log": "f01-python-check.log"
+    },
+    {
+      "command": "temporary empty uv cache retry",
+      "status": "ENVIRONMENT_BLOCKED",
+      "exitCode": 2,
+      "log": "workspace-checks-retry.log"
+    }
+  ]
+}

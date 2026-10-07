@@ -1,3 +1,4 @@
+import {validateCiWiring} from './ci-stage-disposition.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { execFileSync } from 'node:child_process';
@@ -49,7 +50,7 @@ test('one document-bound current user confirmation replaces all role receipts',(
  const document='docs/gate-records/unit-draft.md',record='docs/gate-records/unit-approval.json';const raw=JSON.stringify({schema:'quantos-user-acceptance-confirmation/v1',mode:confirmationMode,request:expected,decision:'CONFIRMED',approver:'ProjectUser',identity:'unit-test fixture only',confirmedAt:new Date().toISOString(),document,documentSha256:bytesDigest(doc),confirmationSource:{kind:'USER_MESSAGE',text:'Unit test only: confirm this draft'}});
  const files=new Map([[document,doc],[record,raw]]);assert.equal(validateConfirmations({schema:'quantos-g0-scope-confirmations/v2',status:'CONFIRMED',scopeDigest:request.scopeDigest,approval:{record,recordSha256:bytesDigest(raw)}},request,p,path=>files.get(path)).status,'CONFIRMED');
 });
-test('CI must always validate engineering receipts and G0 negatives',()=>{const workflow=readFileSync('.github/workflows/frontend-baseline.yml','utf8');assert(workflow.includes('run: pnpm check:g0-engineering && pnpm test:g0-development'));});
+test('CI must validate G0 disposition and preserve strict admission and negatives',()=>{validateCiWiring();const workflow=readFileSync('.github/workflows/frontend-baseline.yml','utf8');assert(workflow.includes('run: pnpm check:g0:ci && pnpm test:g0-development'));});
 test('G0 rejects normative plan drift during execution before publishing',()=>{const f=fixture();const original=f.nodes.get(f.m.nodeId);const changed={...original,required_scope:'changed normative scope'};assert.throws(()=>assertG0ExecutionSnapshot(f.options.request,f.options.request,original,changed),/normative plan changed during execution/);});
 test('G0 rejects code inventory drift during execution before publishing',()=>{const f=fixture();const node=f.nodes.get(f.m.nodeId);const after=structuredClone(f.options.request);after.inputs.pop();assert.throws(()=>assertG0ExecutionSnapshot(f.options.request,after,node,node),/inputs changed during execution/);});
 test('lifecycle metadata alone does not change normative G0 inputs',()=>{const f=fixture();const original=f.nodes.get(f.m.nodeId);assert.doesNotThrow(()=>assertG0ExecutionSnapshot(f.options.request,f.options.request,original,{...original,stage_gate:{status:'BLOCKED'}}));});

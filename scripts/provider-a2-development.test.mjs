@@ -66,8 +66,8 @@ for (const [name, mutate] of [
   ['log substituted', f => f.files.set(f.m.checks[0].log, Buffer.from('fake'))],
   ['negative tests not executed', f => f.m.checks[1].logSha256 = f.put(f.m.checks[1].log, '# pass 0\n# fail 0\n')],
   ['negative tests failed', f => f.m.checks[1].logSha256 = f.put(f.m.checks[1].log, '# pass 25\n# fail 1\n')],
-  ['mandatory CI removed', f => f.changeWorkflow(w => {w.jobs['frontend-baseline'].steps = w.jobs['frontend-baseline'].steps.filter(s => s.run !== 'pnpm check:provider-a2 && pnpm test:provider-a2');})],
-  ['mandatory CI disabled', f => f.changeWorkflow(w => {w.jobs['frontend-baseline'].steps.find(s => s.run === 'pnpm check:provider-a2 && pnpm test:provider-a2')['continue-on-error'] = true;})],
-  ['mandatory CI conditional', f => f.changeWorkflow(w => {w.jobs['frontend-baseline'].steps.find(s => s.run === 'pnpm check:provider-a2 && pnpm test:provider-a2').if = 'false';})],
+  ['mandatory CI removed', f => f.changeWorkflow(w => {w.jobs['frontend-baseline'].steps = w.jobs['frontend-baseline'].steps.filter(s => s.run !== 'pnpm check:provider-a2:ci && pnpm test:provider-a2');})],
+  ['mandatory CI disabled', f => f.changeWorkflow(w => {w.jobs['frontend-baseline'].steps.find(s => s.run === 'pnpm check:provider-a2:ci && pnpm test:provider-a2')['continue-on-error'] = true;})],
+  ['mandatory CI conditional', f => f.changeWorkflow(w => {w.jobs['frontend-baseline'].steps.find(s => s.run === 'pnpm check:provider-a2:ci && pnpm test:provider-a2').if = 'false';})],
 ]) test(name + ' is rejected', () => {const f = fixture(); mutate(f); assert.throws(() => validateManifest(f.m, f.options));});
-test('current Makefile/package/CI invoke the strict A2 checkpoint', () => validateWiring());
+test('current Makefile/package retain strict admission and CI validates its disposition', () => validateWiring());

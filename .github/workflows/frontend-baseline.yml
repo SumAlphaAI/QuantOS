@@ -64,11 +64,11 @@ jobs:
       - name: PRE-01 page, permission, state and traceability contract
         run: pnpm check:pre01 && pnpm test:pre01
 
-      - name: Verify PROVIDER A1 functional receipts and rejection probes
-        run: pnpm check:provider-a1 && pnpm test:provider-a1
+      - name: PROVIDER A1 stage disposition and receipt rejection probes
+        run: pnpm check:provider-a1:ci && pnpm test:provider-a1 && pnpm test:ci-stage-disposition
 
-      - name: FEP-0 full milestone receipts and rejection probes
-        run: pnpm check:f0-development && pnpm check:fep0:engineering && pnpm test:fep0
+      - name: F0 and FEP-0 stage dispositions and receipt rejection probes
+        run: pnpm check:f0-development:ci && pnpm check:fep0:ci && pnpm test:fep0
 
       - name: Frozen BFF OpenAPI structure
         run: pnpm check:bff-openapi
@@ -99,14 +99,14 @@ jobs:
           path: artifacts/bff-fe-001/semantics*
           if-no-files-found: warn
 
-      - name: A2 current development receipt and dependency Gate
-        run: pnpm check:bff-fe-001:development && pnpm test:bff-fe-001:development
+      - name: A2 development disposition and dependency receipt rejection probes
+        run: pnpm check:bff-fe-001:ci && pnpm test:bff-fe-001:development
 
       - name: A2 BFF-FE-007 audit and controlled export contract Gate
-        run: pnpm check:bff-fe-007 && pnpm test:bff-fe-007 && pnpm check:bff-fe-007:development && pnpm test:bff-fe-007:development
+        run: pnpm check:bff-fe-007 && pnpm test:bff-fe-007 && pnpm check:bff-fe-007:ci && pnpm test:bff-fe-007:development
 
-      - name: A2 complete provider window development Gate
-        run: pnpm check:provider-a2 && pnpm test:provider-a2
+      - name: A2 provider window disposition and receipt rejection probes
+        run: pnpm check:provider-a2:ci && pnpm test:provider-a2
 
       - name: Interface inventory (PRE-04)
         run: pnpm check:pre04 && pnpm test:pre04
@@ -120,10 +120,10 @@ jobs:
       - name: G0 historical records and current stage disposition
         run: pnpm check:g0-records
 
-      - name: G0 functional engineering receipt and fail-closed rejection probes
-        # Pending organizational scope confirmation stays BLOCKED in the plan.
-        # This check validates engineering evidence; it never grants G0 READY.
-        run: pnpm check:g0-engineering && pnpm test:g0-development
+      - name: G0 stage disposition and fail-closed receipt rejection probes
+        # NOT_ASSESSED remains explicit; READY/BLOCKED still validate current receipts.
+        # Component CI does not assess or publish stage admission.
+        run: pnpm check:g0:ci && pnpm test:g0-development
 
       - name: Contract fixture tests (PRE-06)
         run: pnpm exec vitest run tests/contract
