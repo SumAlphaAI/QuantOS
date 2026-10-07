@@ -43,7 +43,7 @@
 
 当前全计划 26 READY、0 BLOCKED。项目用户已确认当前 G0 范围 `52fee5f6e499`，G0/FEP-0 严格 READY。
 
-本轮 CI fixture 修复后，重新执行本任务语义/负向/变异并严格核验当前依赖；详见[CI 整改报告](CI-47cb743-remediation-2026-10-07.md)。旧当前报告快照保留，`64acc87` 的 hosted CI 已核验10/10成功，见[本轮远程核验](evidence/provider-a2-recheck-64acc87-20261007/hosted/verification.json)；后续提交按自身SHA验收。
+本轮 CI fixture 修复后，重新执行本任务语义/负向/变异并严格核验当前依赖；详见[CI 整改报告](CI-47cb743-remediation-2026-10-07.md)。旧当前报告快照保留，新候选 hosted CI 尚未执行。
 
 ## 三、问题与风险
 

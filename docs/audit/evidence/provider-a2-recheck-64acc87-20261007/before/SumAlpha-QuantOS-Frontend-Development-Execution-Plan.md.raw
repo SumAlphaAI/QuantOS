@@ -1,4 +1,4 @@
-> 2026-10-07 PROVIDER:A2 再复核完成：原四项问题全部关闭，当前活动问题0、24/24控制点PASS、26/26 API证据完整；26 READY、0 BLOCKED，G0范围52fee5f6e499已确认。64acc87的9项工程工作流及Dependency Graph共10/10成功；后续文档提交的hosted CI独立核验。见[当前复核报告](./audit/PROVIDER-A2-comprehensive-review-2026-10-07.md)。
+> 2026-10-07 CI `47cb743` 的 F02/F05 Storage fixture 缺列已修复；冻结源码 `d00041e` 的87个命令组有效结果、A2子门禁及聚合、G0/FEP-0工程均通过。当前 26 READY、0 BLOCKED；项目用户已确认当前 G0 范围 `52fee5f6e499`，G0/FEP-0 严格 READY。 新候选 hosted CI 待推送验证，原失败保留。见[整改报告](./audit/CI-47cb743-remediation-2026-10-07.md)。
 
 # SumAlpha QuantOS 前端开发执行计划
 
@@ -9,15 +9,13 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.42
+> 版本：3.41
 > 更新时间：2026-10-07
-> 状态：A2 DEVELOPMENT复核通过；26 READY、0 BLOCKED；64acc87 hosted CI已核验成功
+> 状态：CI fixture修复及当前工程复评完成；26 READY、0 BLOCKED；新候选hosted CI待推送验证
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
-
-- `3.42`：再次核验PROVIDER:A2原四项问题全部关闭；本轮127项针对性测试、11项真实证据异常探针及26个READY节点内容核验通过，20项目标源码与原提交/当前文件一致。核验64acc87 hosted CI 10/10成功（9项工程及Dependency Graph），数据库重建、签名/下载验签与A2聚合成功。当前报告移除已关闭问题及整改过程，保留初审、关闭记录和重构前原件；仅文档/证据变化，不修改功能输入、阶段回执或G0已确认范围。
 
 - `3.41`：修复共享Storage fixture缺列；87组有效结果PASS，原86PASS/1协议I/O失败与同源完整补测分开保留，21基础回执重新发布。两BFF语义/变异及127门禁负向通过，A2严格READY；当前 26 READY、0 BLOCKED。项目用户已确认当前 G0 范围 `52fee5f6e499`，G0/FEP-0 严格 READY。 新hosted CI未执行，历史正式字段不迁移。
 
@@ -69,7 +67,7 @@
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.42、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.41、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -600,7 +598,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 }
 ```
 
-当前工程复核（2026-10-07）：当前活动问题0，24/24控制点PASS，26/26 API成功目标证据及三项直接依赖有效，DEVELOPMENT严格READY、formalAccepted=false。本轮127项针对性回归、11项异常证据拒绝及26个READY节点核验通过；64acc87的A2聚合及全部工程hosted CI成功。当前[功能manifest](./audit/evidence/provider-a2-remediation-20261007/ci-47cb743-reassessment-20261007/provider-a2.json)继续按内容绑定；执行 `pnpm check:provider-a2 && pnpm test:provider-a2`。见[当前复核报告](./audit/PROVIDER-A2-comprehensive-review-2026-10-07.md)及[本轮核验](./audit/evidence/provider-a2-recheck-64acc87-20261007/verification.json)。
+当前工程复核（2026-10-07）：24/24 控制点 PASS，26/26 API 有契约允许的成功目标证据，三个直接依赖及递归回执有效，DEVELOPMENT 严格 READY、formalAccepted=false。窗口自身 [功能 manifest](./audit/evidence/provider-a2-remediation-20261007/ci-47cb743-reassessment-20261007/provider-a2.json) 绑定规范输入、依赖、API 覆盖及三组实际执行。执行 `pnpm check:provider-a2 && pnpm test:provider-a2` 或 `make provider-a2-check`；31 项专用负向和 CI 强制接线已验证。关闭依据见[当前复核报告](./audit/PROVIDER-A2-comprehensive-review-2026-10-07.md)。
 
 #### 迭代 A3：页面 API 开发与 provider 功能验证
 

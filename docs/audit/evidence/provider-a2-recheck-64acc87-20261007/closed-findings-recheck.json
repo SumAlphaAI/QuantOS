@@ -1,0 +1,86 @@
+{
+  "schema": "quantos-provider-a2-audit-findings/v1",
+  "counts": {
+    "BLOCKER": 0,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0
+  },
+  "items": [
+    {
+      "id": "B-01",
+      "severity": "BLOCKER",
+      "module": "PROVIDER:A2 窗口聚合门禁 / plan / CI",
+      "manifestation": "只有两项子任务及 A1 回执；A2 自身 NOT_ASSESSED、无 digest/evidence，缺少专用聚合校验器、窗口级负向测试及 CI 入口。",
+      "impact": "无法证明并准入整个 A2 窗口；依赖 PROVIDER:A2 的 A3 任务尚不能据此推进。",
+      "controls": [
+        "C22",
+        "C23",
+        "C24"
+      ],
+      "status": "CLOSED",
+      "closureEvidence": [
+        "verification.json",
+        "hosted/verification.json",
+        "logs/negative-127.log"
+      ],
+      "recheckedAtCommit": "64acc8720147bd4224946cb4dca11e11db6777b7"
+    },
+    {
+      "id": "H-01",
+      "severity": "HIGH",
+      "module": "scripts/bff-fe-001-development.mjs:28-32",
+      "manifestation": "只检查 operationId 存在和 issues 为空，未要求每 API 成功状态；全部 500/401、SSE 状态 500 的合成回执仍 READY。",
+      "impact": "失败目标结果可被重新打包成通过回执，污染 FE:BFF-FE-001 及递归依赖/未来 A2 准入。不是现网越权漏洞或实际 API 失败。",
+      "controls": [
+        "C19"
+      ],
+      "status": "CLOSED",
+      "closureEvidence": [
+        "actual-receipt-negative-probes.json",
+        "logs/negative-127.log"
+      ],
+      "recheckedAtCommit": "64acc8720147bd4224946cb4dca11e11db6777b7"
+    },
+    {
+      "id": "M-01",
+      "severity": "MEDIUM",
+      "module": "scripts/bff-fe-001-development.mjs:28-32 / scripts/bff-fe-007-development.mjs:24-27",
+      "manifestation": "删除 live.sourceCommit 并重算 wrapper digest 后两个子门禁仍 READY；007 的 sourceMatchesCommit=true 不能替代不可变提交标识校验。",
+      "impact": "证据缺少执行提交仍可准入，降低可复现性和排查准确度；实际两份目标原件本轮仍成功溯源。",
+      "controls": [
+        "C20"
+      ],
+      "status": "CLOSED",
+      "closureEvidence": [
+        "actual-receipt-negative-probes.json",
+        "verification.json"
+      ],
+      "recheckedAtCommit": "64acc8720147bd4224946cb4dca11e11db6777b7"
+    },
+    {
+      "id": "L-01",
+      "severity": "LOW",
+      "module": "docs/audit/BFF-FE-001-comprehensive-review-2026-10-05.md",
+      "manifestation": "标题/措辞仍称当前；引用 dd8672c / ci-cold-cache 回执、22 READY、新 G0 待确认/BLOCKED，落后于当前25 READY、G0已确认和格式复评后回执。",
+      "impact": "人工复审易误认证据和前置状态；不改变实际严格子门禁结果。",
+      "controls": [
+        "C21"
+      ],
+      "status": "CLOSED",
+      "closureEvidence": [
+        "verification.json",
+        "document-verification.json",
+        "../../BFF-FE-001-comprehensive-review-2026-10-05.md",
+        "../../BFF-FE-007-comprehensive-review-2026-10-06.md"
+      ],
+      "recheckedAtCommit": "64acc8720147bd4224946cb4dca11e11db6777b7"
+    }
+  ],
+  "closedCounts": {
+    "BLOCKER": 1,
+    "HIGH": 1,
+    "MEDIUM": 1,
+    "LOW": 1
+  }
+}
