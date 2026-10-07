@@ -3,15 +3,15 @@
 > 任务：FEP-0 / PRE-05 环境方案
 > 版本：3.1
 > 日期：2026-10-02
-> 范围：第一期官网与 Web Terminal；Desktop 环境迁入[第二期计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)
+> 范围：第一期官网与 Web Terminal；Desktop 环境迁入[第二期计划](../SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)
 
 ## 1. 三套 Web 环境
 
 | profile | 用途 | BFF / 认证 | mock | 模板 |
 |---|---|---|---|---|
-| `local-mock` | 本地配置、静态/fixture UI及带拦截的测试 | 普通dev无MSW worker；OIDC仅测试route拦截 | 必须开启 | [`env/local-mock.env.example`](../env/local-mock.env.example) |
-| `local-integrated` | 本地 Web 对接本机 BFF 与开发/测试 IdP | `http://localhost:8080`；Web callback | 必须关闭 | [`env/local-integrated.env.example`](../env/local-integrated.env.example) |
-| `staging` | 目标 Web 集成与验收 | HTTPS BFF、IdP、官网、Terminal 与 callback | 禁止开启 | [`env/staging.env.example`](../env/staging.env.example) |
+| `local-mock` | 本地配置、静态/fixture UI及带拦截的测试 | 普通dev无MSW worker；OIDC仅测试route拦截 | 必须开启 | [`env/local-mock.env.example`](../../env/local-mock.env.example) |
+| `local-integrated` | 本地 Web 对接本机 BFF 与开发/测试 IdP | `http://localhost:8080`；Web callback | 必须关闭 | [`env/local-integrated.env.example`](../../env/local-integrated.env.example) |
+| `staging` | 目标 Web 集成与验收 | HTTPS BFF、IdP、官网、Terminal 与 callback | 禁止开启 | [`env/staging.env.example`](../../env/staging.env.example) |
 
 Desktop 不是第四套一期环境。`env/desktop.env.example` 只保留为第二期未授权草案，不进入 `check:pre05`、一期构建矩阵或 PRE-05 Gate。
 

@@ -7,8 +7,8 @@
 ## 1. 回填前提与当前状态
 
 - 执行计划 5.7 要求：每个页面开发前建立一行 Page API Coverage 记录；每个 `UI-Pxx` 必须可追踪到 operationId。
-- **版本化 [quantos-bff.v1.yaml](../bff/openapi/quantos-bff.v1.yaml) 当前为 1.5.0，62 个 operationId 已发布并生成 client/schema/MSW。**
-- [page-operation-catalog.yaml](../bff/page-operation-catalog.yaml) 冻结 C01–C17 与一期 22 页的 operationId 命名；`planned` 只关闭命名和追踪缺口，不代表 OpenAPI schema、provider 或 staging 已交付。
+- **版本化 [quantos-bff.v1.yaml](../../bff/openapi/quantos-bff.v1.yaml) 当前为 1.5.0，62 个 operationId 已发布并生成 client/schema/MSW。**
+- [page-operation-catalog.yaml](../../bff/page-operation-catalog.yaml) 冻结 C01–C17 与一期 22 页的 operationId 命名；`planned` 只关闭命名和追踪缺口，不代表 OpenAPI schema、provider 或 staging 已交付。
 - C02/C11–C16 及 C04/C05 的未发布扩展按 catalog 的逐 operation `planned` 状态交付；C10 已发布，不再整体列作未发布域。`published` 仅表示契约/生成物发布，新页面开发须 G0 DEVELOPMENT 与 PROVIDER:ALL 阶段 READY；Integrated 须满足对应任务的 INTEGRATION 门禁，正式 staging/签署按 RELEASE 执行。
 - 任何一行缺少稳定 operationId 或仍为占位符时，对应 `UI-Pxx` DoR 阻断。
 

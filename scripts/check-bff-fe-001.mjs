@@ -42,7 +42,7 @@ export function loadBffFe001Inputs() {
   return {
     ...executionInputs(root),
     executionProof: readExecutionProof(root),
-    summary: text("docs/BFF-FE-001-summary.md"),
+    summary: text("docs/execution/BFF-FE-001-summary.md"),
     activeEvidenceExists: existsSync(resolve(root, "docs/audit/BFF-FE-001-remediation-2026-10-03.md")),
     activeEvidence: JSON.parse(text("docs/audit/evidence/bff-fe-001-remediation-20261003/baseline.json")),
     openapi: YAML.parse(text("bff/openapi/quantos-bff.v1.yaml")),
@@ -58,7 +58,7 @@ export function loadBffFe001Inputs() {
     makefile: text("Makefile"),
     frontendWorkflow: text(".github/workflows/frontend-baseline.yml"),
     ciWorkflow: text(".github/workflows/ci.yml"),
-    summaryExists: existsSync(resolve(root, "docs/BFF-FE-001-summary.md")),
+    summaryExists: existsSync(resolve(root, "docs/execution/BFF-FE-001-summary.md")),
     evidenceExists: existsSync(resolve(root, "docs/audit/BFF-FE-001-acceptance-evidence-2026-09-16.md")),
   };
 }

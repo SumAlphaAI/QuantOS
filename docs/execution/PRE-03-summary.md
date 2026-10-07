@@ -4,7 +4,7 @@
 
 ## 工程产出
 
-- [运行时 ADR](./adr/20260814-pre03-runtime-stack.md)冻结现行 Next 15.5.24、React 19.2.8、Node 24.12.0、pnpm 10.20.0，以及测试/组件依赖；pnpm frozen 安装保证声明与锁一致。
+- [运行时 ADR](../adr/20260814-pre03-runtime-stack.md)冻结现行 Next 15.5.24、React 19.2.8、Node 24.12.0、pnpm 10.20.0，以及测试/组件依赖；pnpm frozen 安装保证声明与锁一致。
 - 官网、Terminal 独立 Next App Router 静态导出；build 生成来源摘要和实际配置/build ID 回执。默认 PRE-03 Gate 仅覆盖一期 Web。
 - `pnpm check:pre03` / `check:pre03:web` 逐应用隔离读取最终生效配置和公开环境变量，验证29项关键依赖、ADR、完整workspace importer/精确链接目标/overrides及声明/锁/解析图、构建来源及两目标路由资源与 Chromium 渲染；`pnpm test:pre03` 为相应正负回归。
 - 两应用 `start` 提供静态产物预览，官网3000、Terminal3100；未知资源/路由真实404。构建前复制 `env/local-mock.env.example` 到两个应用 `.env.local`，或注入同一公开变量 profile。构建和检查使用相同 profile。
@@ -13,7 +13,7 @@
 
 ## 证据与状态
 
-[PRE-03 全面复审报告](./audit/PRE-03-comprehensive-review-2026-10-02.md)为当前验收入口：10/10问题关闭、15/15控制点通过；详见[本轮证据清单](./audit/evidence/pre03-recheck-20261002/manifest.json)。[初审历史](./audit/PRE-03-comprehensive-review-history-2026-10-02.md)与[首轮整改记录](./audit/PRE-03-remediation-2026-10-02.md)独立保留。原[2026-09-16验收](./audit/PRE-03-acceptance-evidence-2026-09-16.md)属于其历史 SHA，不能替代当前版本的检查结果。
+[PRE-03 全面复审报告](../audit/PRE-03-comprehensive-review-2026-10-02.md)为当前验收入口：10/10问题关闭、15/15控制点通过；详见[本轮证据清单](../audit/evidence/pre03-recheck-20261002/manifest.json)。[初审历史](../audit/PRE-03-comprehensive-review-history-2026-10-02.md)与[首轮整改记录](../audit/PRE-03-remediation-2026-10-02.md)独立保留。原[2026-09-16验收](../audit/PRE-03-acceptance-evidence-2026-09-16.md)属于其历史 SHA，不能替代当前版本的检查结果。
 
 干净 workspace 的时限验证必须说明下载缓存、工具链和 profile 条件。仓库通过不等于 GitHub 实际 CI、正式 G0、指定模型或 provider/staging 验收。
 

@@ -7,11 +7,11 @@
 
 ## 当前整改（2026-10-05）
 
-本轮高危 2 项、中危 4 项全部 CLOSED；24/24 控制点、20/20 API 满足当前 DEVELOPMENT 范围，严格阶段门禁 READY，formalAccepted=false。逐项复验与阶段状态见 [整改报告](audit/BFF-FE-001-remediation-2026-10-05.md)。客户端默认 30 秒 deadline，可传调用方 AbortSignal；不自动重试写操作，未知结果须沿用原 idempotency key、版本和草稿。`lastVerifiedAt` 表示最近可信主认证或 MFA 成功时间，不由 session expiry 倒推。`check:bff-fe-001:development` 与 local_contract、RELEASE 分账。
+本轮高危 2 项、中危 4 项全部 CLOSED；24/24 控制点、20/20 API 满足当前 DEVELOPMENT 范围，严格阶段门禁 READY，formalAccepted=false。逐项复验与阶段状态见 [整改报告](../audit/BFF-FE-001-remediation-2026-10-05.md)。客户端默认 30 秒 deadline，可传调用方 AbortSignal；不自动重试写操作，未知结果须沿用原 idempotency key、版本和草稿。`lastVerifiedAt` 表示最近可信主认证或 MFA 成功时间，不由 session expiry 倒推。`check:bff-fe-001:development` 与 local_contract、RELEASE 分账。
 
 ## 既有基线（2026-10-03）
 
-API 1.5.0：62 operations / 52 schemas；C01/C17 20 operations。当前整改入口为 [整改复验记录](audit/BFF-FE-001-remediation-2026-10-03.md)，基线清单为 [baseline.json](audit/evidence/bff-fe-001-remediation-20261003/baseline.json)。原始 2026-09-16 交付内容及其证据保留在下文，不能代表当前验收。
+API 1.5.0：62 operations / 52 schemas；C01/C17 20 operations。当前整改入口为 [整改复验记录](../audit/BFF-FE-001-remediation-2026-10-03.md)，基线清单为 [baseline.json](../audit/evidence/bff-fe-001-remediation-20261003/baseline.json)。原始 2026-09-16 交付内容及其证据保留在下文，不能代表当前验收。
 
 真实 Supabase Auth/PostgreSQL 与本机 live BFF 联调单独记录；staging consumer/provider、联合签署延至 FINAL 评审。PROVIDER:A2/G1 与 Desktop 不由本次工程整改代为签署。
 
@@ -46,4 +46,4 @@ API 1.5.0：62 operations / 52 schemas；C01/C17 20 operations。当前整改入
 
 按执行计划依赖拓扑进入 **A2 / BFF-FE-007：Audit 与导出 API**。该任务依赖本任务与 CORE:F05；不得复用本地 `auditRef` 作为目标环境审计账本验收回执。
 
-2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。
+2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](../gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。

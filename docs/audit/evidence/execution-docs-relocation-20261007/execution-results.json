@@ -1,0 +1,121 @@
+[
+  {
+    "id": "development-plans",
+    "command": "pnpm check:development-plans",
+    "exitCode": 0,
+    "status": "PASS",
+    "durationSeconds": 0.18,
+    "log": "logs/development-plans.log"
+  },
+  {
+    "id": "pre01",
+    "command": "pnpm check:pre01",
+    "exitCode": 0,
+    "status": "PASS",
+    "durationSeconds": 0.24,
+    "log": "logs/pre01.log"
+  },
+  {
+    "id": "pre02",
+    "command": "pnpm check:pre02",
+    "exitCode": 0,
+    "status": "PASS",
+    "durationSeconds": 0.45,
+    "log": "logs/pre02.log"
+  },
+  {
+    "id": "pre04",
+    "command": "pnpm check:pre04",
+    "exitCode": 0,
+    "status": "PASS",
+    "durationSeconds": 0.24,
+    "log": "logs/pre04.log"
+  },
+  {
+    "id": "coverage",
+    "command": "pnpm check:bff-contract-coverage",
+    "exitCode": 0,
+    "status": "PASS",
+    "durationSeconds": 0.22,
+    "log": "logs/coverage.log"
+  },
+  {
+    "id": "bff000",
+    "command": "pnpm check:bff-fe-000",
+    "exitCode": 0,
+    "status": "PASS",
+    "durationSeconds": 0.23,
+    "log": "logs/bff000.log"
+  },
+  {
+    "id": "bff001",
+    "command": "pnpm check:bff-fe-001",
+    "exitCode": 0,
+    "status": "PASS",
+    "durationSeconds": 58.76,
+    "log": "logs/bff001.log"
+  },
+  {
+    "id": "bff007",
+    "command": "pnpm check:bff-fe-007",
+    "exitCode": 0,
+    "status": "PASS",
+    "durationSeconds": 0.22,
+    "log": "logs/bff007.log"
+  },
+  {
+    "id": "negative-tests",
+    "command": "node --test scripts/tests/check-pre01.test.mjs scripts/pre04-gate-negative.mjs scripts/development-plan-order-negative.mjs scripts/bff-fe-000-gate-negative.mjs scripts/bff-fe-001-gate-negative.mjs scripts/bff-fe-007-gate-negative.mjs scripts/provider-a1-receipts.test.mjs scripts/g0-development.test.mjs scripts/fep0-development.test.mjs scripts/provider-a2-development.test.mjs",
+    "exitCode": 1,
+    "status": "FAIL",
+    "durationSeconds": 5.24,
+    "log": "logs/negative-tests.log"
+  },
+  {
+    "id": "pre02-tests",
+    "command": "pnpm test:pre02",
+    "exitCode": 0,
+    "status": "PASS",
+    "durationSeconds": 0.65,
+    "log": "logs/pre02-tests.log"
+  },
+  {
+    "id": "lint",
+    "command": "pnpm exec eslint packages/ui/scripts/pre02-checks.mjs scripts/check-bff-contract-coverage.mjs scripts/check-bff-fe-000.mjs scripts/check-bff-fe-001.mjs scripts/check-bff-fe-007.mjs scripts/check-pre01.mjs scripts/pre04-fields.mjs scripts/pre04-inventory.mjs scripts/pre04-render-fields.mjs scripts/tests/check-pre01.test.mjs tests/e2e/command.spec.ts tests/e2e/ui102-auth.spec.ts tests/e2e/ui104-settings.spec.ts",
+    "exitCode": 1,
+    "status": "FAIL",
+    "durationSeconds": 1.0,
+    "log": "logs/lint.log"
+  },
+  {
+    "id": "negative-tests-final",
+    "command": "node --test scripts/tests/check-pre01.test.mjs scripts/pre04-gate-negative.mjs scripts/development-plan-order-negative.mjs scripts/bff-fe-000-gate-negative.mjs scripts/bff-fe-001-gate-negative.mjs scripts/bff-fe-007-gate-negative.mjs scripts/provider-a1-receipts.test.mjs scripts/g0-development.test.mjs scripts/fep0-development.test.mjs scripts/provider-a2-development.test.mjs",
+    "status": "PASS",
+    "exitCode": 0,
+    "tests": 315,
+    "log": "logs/negative-tests-final.log",
+    "note": "Fix current G0 disposition active evidence path; initial failure retained."
+  },
+  {
+    "id": "lint-comparison",
+    "status": "PASS",
+    "diagnosticsUnchanged": 39,
+    "evidence": "lint-baseline-comparison.json",
+    "note": "Direct lint failed with pre-existing diagnostics; do not claim lint PASS."
+  },
+  {
+    "id": "g0-records",
+    "command": "pnpm check:g0-records",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "logs/g0-records.log"
+  },
+  {
+    "id": "generator",
+    "command": "pnpm generate:pre04-fields",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "logs/generator.log",
+    "note": "Exact output bytes preserved"
+  }
+]

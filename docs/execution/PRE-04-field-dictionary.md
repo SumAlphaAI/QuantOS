@@ -1,7 +1,7 @@
 # PRE-04 字段字典
 
 > 版本：1.2；日期：2026-10-02；范围：一期官网与 Web Terminal。
-> 由 `scripts/pre04-fields.mjs` 渲染；控制来源：[盘点基线](./PRE-04-inventory-baseline.json)、[OpenAPI](../bff/openapi/quantos-bff.v1.yaml)、[operation catalog](../bff/page-operation-catalog.yaml)。
+> 由 `scripts/pre04-fields.mjs` 渲染；控制来源：[盘点基线](./PRE-04-inventory-baseline.json)、[OpenAPI](../../bff/openapi/quantos-bff.v1.yaml)、[operation catalog](../../bff/page-operation-catalog.yaml)。
 
 ## 1. 字段与来源口径
 

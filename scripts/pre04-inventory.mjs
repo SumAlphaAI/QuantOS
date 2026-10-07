@@ -64,17 +64,17 @@ export function loadPre04Inputs(root = repoRoot) {
     .filter((entry) => entry.isDirectory())
     .map((entry) => readFileSync(join(protoRoot, entry.name, "v1", `${entry.name}.proto`), "utf8"));
   return {
-    baseline: JSON.parse(readFileSync(join(root, "docs/PRE-04-inventory-baseline.json"), "utf8")),
+    baseline: JSON.parse(readFileSync(join(root, "docs/execution/PRE-04-inventory-baseline.json"), "utf8")),
     catalog: parseYaml(readFileSync(join(root, "bff/page-operation-catalog.yaml"), "utf8")),
     frontendPlan: readFileSync(join(root, "docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md"), "utf8"),
     corePlan: readFileSync(join(root, "docs/SumAlpha-QuantOS-Development-Plan.md"), "utf8"),
-    evidenceFiles: Object.fromEntries(Object.values(JSON.parse(readFileSync(join(root, "docs/PRE-04-inventory-baseline.json"), "utf8")).implementations).flatMap(entry => entry.artifacts.map(({path}) => [path, readFileSync(join(root, path), "utf8")]))),
+    evidenceFiles: Object.fromEntries(Object.values(JSON.parse(readFileSync(join(root, "docs/execution/PRE-04-inventory-baseline.json"), "utf8")).implementations).flatMap(entry => entry.artifacts.map(({path}) => [path, readFileSync(join(root, path), "utf8")]))),
     fixtureFiles: Object.fromEntries(readdirSync(join(root, "tests/contract/fixtures"), { withFileTypes: true }).filter(entry => entry.isDirectory()).flatMap(entry => readdirSync(join(root, "tests/contract/fixtures", entry.name)).filter(name => name.endsWith(".json")).map(name => {const path = `tests/contract/fixtures/${entry.name}/${name}`;return [path,readFileSync(join(root,path),"utf8")];}))),
     jsonSchemaFiles: Object.fromEntries(readdirSync(join(root, "proto/jsonschema")).filter(name => name.endsWith(".schema.json")).sort().map(name => [name, readFileSync(join(root,"proto/jsonschema",name),"utf8")])),
-    ledger: readFileSync(join(root, "docs/PRE-04-contract-ledger.md"), "utf8"),
-    gaps: readFileSync(join(root, "docs/PRE-04-openapi-gap-list.md"), "utf8"),
-    fields: readFileSync(join(root, "docs/PRE-04-field-dictionary.md"), "utf8"),
-    pre01Ledger: readFileSync(join(root, "docs/PRE-01-page-ledger-and-stories.md"), "utf8"),
+    ledger: readFileSync(join(root, "docs/execution/PRE-04-contract-ledger.md"), "utf8"),
+    gaps: readFileSync(join(root, "docs/execution/PRE-04-openapi-gap-list.md"), "utf8"),
+    fields: readFileSync(join(root, "docs/execution/PRE-04-field-dictionary.md"), "utf8"),
+    pre01Ledger: readFileSync(join(root, "docs/execution/PRE-01-page-ledger-and-stories.md"), "utf8"),
     openapi: parseYaml(readFileSync(join(root, "bff/openapi/quantos-bff.v1.yaml"), "utf8")),
     manifest: JSON.parse(readFileSync(join(root, "tests/contract/generated/quantos-bff.operations.json"), "utf8")),
     protoSources,

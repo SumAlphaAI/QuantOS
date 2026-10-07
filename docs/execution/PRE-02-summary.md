@@ -7,13 +7,13 @@
 
 | 要求产出 | 交付 | 位置 |
 |---|---|---|
-| Design token ADR | 已冻结 10 项决策：色彩/主题、排版、密度、断点、状态枚举、金融数值、图表、表格、危险动作模式、i18n | [docs/adr/20260814-pre02-design-tokens.md](./adr/20260814-pre02-design-tokens.md) |
-| token 事实来源 | tokens.json（双主题色板、状态枚举与 stateColor 映射、密度/断点/排版）+ 类型化导出 | [packages/ui/src/tokens/](../packages/ui/src/tokens/tokens.json) |
-| 组件清单 | 19 个通用组件/组件族条目 + 25 个领域组件族条目，含绑定页面、状态覆盖要求、Storybook 约定；分组名称不冒充逐项实现 | [docs/PRE-02-component-inventory.md](./PRE-02-component-inventory.md) |
-| Storybook 骨架 | main/preview 配置（双主题、4 视口基线、axe 面板约定）+ StateBadge 基准组件与 7 个示例 story（含未知枚举 fail closed、浅主题、390 只读视口） | [packages/ui/.storybook/](../packages/ui/.storybook/main.ts)、[StateBadge](../packages/ui/src/components/StateBadge/StateBadge.stories.tsx) |
-| 通用安全文案入 i18n | 设计规格 3.3 节 18 条全部入库（safety.*），中英文 key 集合一致 | [en.json](../packages/ui/src/i18n/en.json)、[zh-CN.json](../packages/ui/src/i18n/zh-CN.json) |
-| 基础检查脚本 | token/状态、252 组适用 WCAG 2.2 AA 对比度、18 条规范 i18n、安全占位符、组件清单与 Storybook 骨架校验，非零退出进入 CI | [pre02-checks.mjs](../packages/ui/scripts/pre02-checks.mjs)（`pnpm check:pre02`） |
-| Gate 负向测试 | 完整 Web token、受控译文/状态色、AST 配置、组件身份及原 10 类遗漏均被拦截；原生最小窗口不属于一期门槛 | [pre02-gate-negative.mjs](../packages/ui/scripts/pre02-gate-negative.mjs)（`pnpm test:pre02`） |
+| Design token ADR | 已冻结 10 项决策：色彩/主题、排版、密度、断点、状态枚举、金融数值、图表、表格、危险动作模式、i18n | [docs/adr/20260814-pre02-design-tokens.md](../adr/20260814-pre02-design-tokens.md) |
+| token 事实来源 | tokens.json（双主题色板、状态枚举与 stateColor 映射、密度/断点/排版）+ 类型化导出 | [packages/ui/src/tokens/](../../packages/ui/src/tokens/tokens.json) |
+| 组件清单 | 19 个通用组件/组件族条目 + 25 个领域组件族条目，含绑定页面、状态覆盖要求、Storybook 约定；分组名称不冒充逐项实现 | [docs/execution/PRE-02-component-inventory.md](./PRE-02-component-inventory.md) |
+| Storybook 骨架 | main/preview 配置（双主题、4 视口基线、axe 面板约定）+ StateBadge 基准组件与 7 个示例 story（含未知枚举 fail closed、浅主题、390 只读视口） | [packages/ui/.storybook/](../../packages/ui/.storybook/main.ts)、[StateBadge](../../packages/ui/src/components/StateBadge/StateBadge.stories.tsx) |
+| 通用安全文案入 i18n | 设计规格 3.3 节 18 条全部入库（safety.*），中英文 key 集合一致 | [en.json](../../packages/ui/src/i18n/en.json)、[zh-CN.json](../../packages/ui/src/i18n/zh-CN.json) |
+| 基础检查脚本 | token/状态、252 组适用 WCAG 2.2 AA 对比度、18 条规范 i18n、安全占位符、组件清单与 Storybook 骨架校验，非零退出进入 CI | [pre02-checks.mjs](../../packages/ui/scripts/pre02-checks.mjs)（`pnpm check:pre02`） |
+| Gate 负向测试 | 完整 Web token、受控译文/状态色、AST 配置、组件身份及原 10 类遗漏均被拦截；原生最小窗口不属于一期门槛 | [pre02-gate-negative.mjs](../../packages/ui/scripts/pre02-gate-negative.mjs)（`pnpm test:pre02`） |
 
 ## 2. 完成标准自检
 
@@ -31,7 +31,7 @@
 | WCAG 2.2 AA 基础检查通过 | 达成 | 252/252 配对通过（正文 ≥4.5:1，图形 ≥3:1）；首轮发现 dark brand.bgHover 3.74:1 不达标，修正为 #115E59（7.58:1）后复测全绿 |
 | 通用安全文案全部入 i18n | 达成 | safety.* 18/18 条；中文规范、英文受控译文、key/占位符与非空强制；state.* 同源消费 |
 
-补充验证：`pnpm --filter @sumalpha/ui typecheck`、`lint`、`test` 与 `build-storybook` 均须通过；Storybook 的 `.tsx`、UI 组件和测试均已纳入当前 TypeScript/构建链。当前执行证据见 [PRE-02 当前报告](./audit/PRE-02-comprehensive-review-2026-10-02.md)；[2026-09-16 验收记录](./audit/PRE-02-acceptance-evidence-2026-09-16.md)仅为历史基线。
+补充验证：`pnpm --filter @sumalpha/ui typecheck`、`lint`、`test` 与 `build-storybook` 均须通过；Storybook 的 `.tsx`、UI 组件和测试均已纳入当前 TypeScript/构建链。当前执行证据见 [PRE-02 当前报告](../audit/PRE-02-comprehensive-review-2026-10-02.md)；[2026-09-16 验收记录](../audit/PRE-02-acceptance-evidence-2026-09-16.md)仅为历史基线。
 
 本轮再复验补齐 Storybook 对象展开/重复字段覆盖与未执行 JSX 的门禁遗漏；配置采用明确的声明式字段和无条件返回的 provider/Story 链。当前 27 项 Gate 回归、18 项 UI 测试通过，历史问题关闭依据归档于当前报告的复验证据中。
 
@@ -43,4 +43,4 @@
 4. 2026-08-14 G0 六方联合评审仅适用历史版本；本次修订未重新联合签署，页面级七态与当前 G0 治理仍独立验收。
 5. 2026-10-02 仓库复核不代表重新取得六方签署或完成 GPT-6 Astra 功能复审。
 
-2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。
+2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](../gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。

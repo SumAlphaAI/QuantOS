@@ -1,7 +1,7 @@
 # Desktop 二期：PRE-04 原生接口承接
 
 > 日期：2026-10-02；需求输入，NOT ACCEPTED；不授权二期启动或发布。
-> 依据：[Desktop 独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)、[原生需求承接](./DESK-PRE-01-requirements-transfer.md)。一期 C17 只覆盖 Web P15/P17。
+> 依据：[Desktop 独立执行计划](../SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)、[原生需求承接](./DESK-PRE-01-requirements-transfer.md)。一期 C17 只覆盖 Web P15/P17。
 
 | 原来源 | 二期能力 / 字段决策 | 承接任务 | 当前依据 / 状态 |
 |---|---|---|---|

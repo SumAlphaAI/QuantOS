@@ -25,7 +25,7 @@ const cell = value => String(value).replaceAll('|', '&#124;').replaceAll('\n', '
 export function renderFieldDictionary(inputs) {
   const { baseline, openapi, catalog } = inputs; const schemas = openapi.components.schemas;
   const lines = ['# PRE-04 字段字典', '', '> 版本：1.2；日期：2026-10-02；范围：一期官网与 Web Terminal。',
-    '> 由 `scripts/pre04-fields.mjs` 渲染；控制来源：[盘点基线](./PRE-04-inventory-baseline.json)、[OpenAPI](../bff/openapi/quantos-bff.v1.yaml)、[operation catalog](../bff/page-operation-catalog.yaml)。', '',
+    '> 由 `scripts/pre04-fields.mjs` 渲染；控制来源：[盘点基线](./PRE-04-inventory-baseline.json)、[OpenAPI](../../bff/openapi/quantos-bff.v1.yaml)、[operation catalog](../../bff/page-operation-catalog.yaml)。', '',
     '## 1. 字段与来源口径', '',
     '已发布字段以 OpenAPI 的 wire 名称、required 和完整约束为准；`$ref` 指向同文件 schema。领域字段与 HTTP 字段不同，由 transport/BFF 转换，页面不手写 DTO。`proto:` 是可解析的领域锚；“页面模型新增”不声称存在同名 Proto。', '',
     '`planned:` 指盘点基线中的字段决策，并由 catalog 的后续任务承接；它不是已发布 schema。计划字段已有名称/类型/必需性决策，发布时必须补 wire schema 与映射；未发布能力不得升级为 Implemented/Integrated。', '',

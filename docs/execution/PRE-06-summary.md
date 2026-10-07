@@ -1,7 +1,7 @@
 # PRE-06 Web 测试基线
 
 > 日期：2026-10-03；版本：3.2；范围：一期官网与Web Terminal。
-> 最新再复核见[当前复审报告](./audit/PRE-06-comprehensive-review-2026-10-02.md)及[再复核证据](./audit/evidence/pre06-recheck-20261002/manifest.json)，包含测试跳过与非执行截图断言防护。上一轮工程修复与验证见[整改验收记录](./audit/PRE-06-remediation-2026-10-02.md)及[证据清单](./audit/evidence/pre06-remediation-20261002/manifest.json)。2026-09-16结果是历史回执，不代表当前源码或远端验收。
+> 最新再复核见[当前复审报告](../audit/PRE-06-comprehensive-review-2026-10-02.md)及[再复核证据](../audit/evidence/pre06-recheck-20261002/manifest.json)，包含测试跳过与非执行截图断言防护。上一轮工程修复与验证见[整改验收记录](../audit/PRE-06-remediation-2026-10-02.md)及[证据清单](../audit/evidence/pre06-remediation-20261002/manifest.json)。2026-09-16结果是历史回执，不代表当前源码或远端验收。
 
 ## 1. 交付与门禁
 
@@ -15,7 +15,7 @@
 | 覆盖率 | 全局TS行≥80%；六个关键风险政策文件（新增 SSE 状态策略）独立逐文件行/语句/函数/分支100%，包括风险提示TSX |
 | 失败证据 | 应用隔离的JSON与test-results（trace、图片、上下文）归入artifacts/browser；两workflow均always上传，保留14天 |
 
-范围与隔离决定见[工程ADR](./adr/20261002-pre06-fixture-and-critical-baseline.md)。生成操作数量不等于所有业务mock/provider验收；新增fixture、关键逻辑、平台或预算须同步模型与回归。
+范围与隔离决定见[工程ADR](../adr/20261002-pre06-fixture-and-critical-baseline.md)。生成操作数量不等于所有业务mock/provider验收；新增fixture、关键逻辑、平台或预算须同步模型与回归。
 
 ## 2. 操作
 
@@ -25,10 +25,10 @@
 
 ## 3. 当前证据与边界
 
-2026-10-03 的 A1 关联整改新增同源请求/响应校验、24 项 contract 与 SSE 状态 100% 政策门禁，实际结果见 [BFF-FE-000 整改报告](./audit/BFF-FE-000-remediation-validation-2026-10-03.md)；不覆盖下面 2026-10-02 的浏览器/视觉历史证据。
+2026-10-03 的 A1 关联整改新增同源请求/响应校验、24 项 contract 与 SSE 状态 100% 政策门禁，实际结果见 [BFF-FE-000 整改报告](../audit/BFF-FE-000-remediation-validation-2026-10-03.md)；不覆盖下面 2026-10-02 的浏览器/视觉历史证据。
 
 本轮按当前Git基线叠加修复、冻结离线依赖，以macOS本地CI mock配置重放；完整命令、测试数量、构建指标和源码SHA-256绑定见整改记录。本地生成与核对macOS缺图后另行重放；原Linux和macOS17张基线未改写。
 
-[2026-09-16回执](./audit/PRE-06-acceptance-evidence-2026-09-16.md)保留其历史SHA及跳过结论。当前三浏览器不继承旧“有跳过PASS”；Linux只可先证明12张基线完整，当前Linux执行/远端CI仍需独立回执。
+[2026-09-16回执](../audit/PRE-06-acceptance-evidence-2026-09-16.md)保留其历史SHA及跳过结论。当前三浏览器不继承旧“有跳过PASS”；Linux只可先证明12张基线完整，当前Linux执行/远端CI仍需独立回执。
 
 正式G0、组织复审、风险/QA/设计owner签署、staging/provider/BFF/IdP/Sentry/账号、数据库、全业务与Desktop/native保持独立 **NOT RUN / NO RECEIPT**。本轮未连接数据库，也不提前宣称后续页面任务全部通过。

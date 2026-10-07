@@ -1,7 +1,7 @@
 # BFF-FE-000 页面 BFF OpenAPI 基线
 
-> 更新：2026-10-03；规范：[OpenAPI](../bff/openapi/quantos-bff.v1.yaml)，OpenAPI 3.1 / 当前 API 1.5.0 / 62 operations / 52 schemas；1.4.0 是 A1 安全修正版本。
-> 命名：[catalog](../bff/page-operation-catalog.yaml)，C01–C17 / 一期 22 页 / 62 published + 46 planned；P16 为二期。
+> 更新：2026-10-03；规范：[OpenAPI](../../bff/openapi/quantos-bff.v1.yaml)，OpenAPI 3.1 / 当前 API 1.5.0 / 62 operations / 52 schemas；1.4.0 是 A1 安全修正版本。
+> 命名：[catalog](../../bff/page-operation-catalog.yaml)，C01–C17 / 一期 22 页 / 62 published + 46 planned；P16 为二期。
 > 开发 Gate：`pnpm check:bff-a1-development` / `make bff-contract-check`；最后评审验收：`pnpm check:bff-a1-final-review`。
 
 ## 范围与联调
@@ -20,17 +20,17 @@
 
 ## 兼容与自动化
 
-六项生成资产逐字节漂移检查进入 CI。BFF 独立兼容 Gate 从 Git full SHA 获取历史 OpenAPI，拒绝未登记破坏性差异。本次安全修正的工程准入范围、迁移条件、到期日见 [ADR](./adr/ADR-A1-security-contract-correction.md)；不构成生产发布或签署授权。
+六项生成资产逐字节漂移检查进入 CI。BFF 独立兼容 Gate 从 Git full SHA 获取历史 OpenAPI，拒绝未登记破坏性差异。本次安全修正的工程准入范围、迁移条件、到期日见 [ADR](../adr/ADR-A1-security-contract-correction.md)；不构成生产发布或签署授权。
 
 MSW resolver 经同源请求/响应 validator 包装，Cookie 认证、CSRF、必需头、闭合输入、幂等冲突及敏感字段均受检；缺 resolver 501 明确报错。`pnpm test:bff-provider-contract` 启动仅内存参考模式，实际 HTTP 覆盖 C01/C17/C10 的 26 接口，并反校验 schema/header；不启动数据库、不访问 IdP/存储，不记为 staging 验收。全窗口真实 provider 测试仍需目标环境。
 
 ## 验收回执
 
-按 2026-10-03 用户要求，B-01 真实 staging 验收移至最后评审（代码与对应 provider 实现完成后、RE_REVIEW → ACCEPTED 前）。开发阶段运行工程 Gate，staging 标为 DEFERRED_TO_FINAL_REVIEW；无需提供真实环境资料即可完成代码开发、修复验证并进入 REVIEW_READY。正式 PROVIDER:A1/G0 仍保持 NOT_STARTED，不把延期写作目标 PASS。阶段策略见 [调整记录](./audit/BFF-FE-000-review-stage-policy-2026-10-03.md)与 [机器策略](../bff/a1-review-policy.json)。到最后评审时按以下步骤关闭目标验收项：
+按 2026-10-03 用户要求，B-01 真实 staging 验收移至最后评审（代码与对应 provider 实现完成后、RE_REVIEW → ACCEPTED 前）。开发阶段运行工程 Gate，staging 标为 DEFERRED_TO_FINAL_REVIEW；无需提供真实环境资料即可完成代码开发、修复验证并进入 REVIEW_READY。正式 PROVIDER:A1/G0 仍保持 NOT_STARTED，不把延期写作目标 PASS。阶段策略见 [调整记录](../audit/BFF-FE-000-review-stage-policy-2026-10-03.md)与 [机器策略](../../bff/a1-review-policy.json)。到最后评审时按以下步骤关闭目标验收项：
 
 1. 先固定待验收的完整 source SHA，并计算 OpenAPI 原始字节与生成 Zod 原始字节按此顺序拼接后的 SHA-256（inputsDigest）。在该 SHA 的实际 staging 部署上验证 Cookie session、请求/响应 schema、CSRF/Origin、幂等/版本、correlation/审计、SSE 恢复/权限撤销、敏感字段七类检查；每项保留 requestId、原始日志文件及 SHA-256。
 2. 创建 `schema=quantos-bff-a1-acceptance/v2` 的 JSON：sourceCommit、inputsDigest、status=PASS、environment=staging、实际 HTTPS baseUrl；checks 数组各有 name/status/requestId/evidence/logSha256。evidence 指向 docs/audit/evidence 下真实日志，不写 Cookie/token/数据库凭据。
-3. Codex 根据当前候选完整源码 SHA、契约/生成摘要、七类目标证据及 Product/Frontend/BFF/QA/Security/Risk/Domain 审阅维度拟定一份文稿；由项目用户一人确认。Codex 保存原始用户答复、时间、文稿/范围摘要，形成 `quantos-user-acceptance-confirmation/v1`，主回执 `confirmation` 引用其 `record`/`recordSha256`；格式见[统一流程](./gate-records/user-acceptance-confirmation-workflow.md)。
+3. Codex 根据当前候选完整源码 SHA、契约/生成摘要、七类目标证据及 Product/Frontend/BFF/QA/Security/Risk/Domain 审阅维度拟定一份文稿；由项目用户一人确认。Codex 保存原始用户答复、时间、文稿/范围摘要，形成 `quantos-user-acceptance-confirmation/v1`，主回执 `confirmation` 引用其 `record`/`recordSha256`；格式见[统一流程](../gate-records/user-acceptance-confirmation-workflow.md)。
 4. 保存主回执到 `docs/audit/evidence/bff-a1-staging-acceptance.json`，或通过 QUANTOS_BFF_A1_RECEIPT 指向文件，运行 `pnpm check:bff-a1-final-review`。主回执使用 `quantos-bff-a1-acceptance/v2`；门禁校验当前 HEAD/输入摘要、七类证据文件哈希及单份用户确认记录/文稿。缺文件、假域名、错误 SHA、修改证据或缺用户确认一律 NOT_ACCEPTED。
 5. 只有完整目标证据与用户确认获复核后才能更新 PROVIDER:A1/G0 记录；新提交重新验收。配置数据库相关验证仅连接工程已配置的 Supabase PostgreSQL，另存实际执行回执。
 

@@ -2,7 +2,7 @@
 
 > 任务：PRE-01 需求拆解（FEP-0）
 > 版本：1.2  日期：2026-10-02
-> 依据：[前端开发执行计划](./SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md)（第 1、3.1、4、5 节）、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)（第 1–6 节）、[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)（第 4–6 节）
+> 依据：[前端开发执行计划](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md)（第 1、3.1、4、5 节）、[Terminal 全量前端页面设计规格](../SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)（第 1–6 节）、[网站与终端设计方案](../SumAlpha-QuantOS-Web-and-Terminal-Design.md)（第 4–6 节）
 > 配套文件：[路由/权限矩阵](./PRE-01-route-permission-matrix.md)、[验收场景表](./PRE-01-acceptance-scenarios.md)、[执行总结与风险登记](./PRE-01-summary-and-risks.md)
 
 ## 1. 标注口径

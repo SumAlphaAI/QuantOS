@@ -73,7 +73,7 @@ FEP-0 必须在页面开发前冻结设计系统决策，避免逐页复制样�
 
 ## 2026-10-02 整改决策
 
-- 受控规则基线：[PRE-02-design-system-baseline.json](../PRE-02-design-system-baseline.json)；Web token 全字段/值、状态色映射、英文安全文案、状态标签和组件身份冻结。变更必须先同步规格、本 ADR、基线并重新评审，不能仅改基线让错误实现通过。
+- 受控规则基线：[PRE-02-design-system-baseline.json](../execution/PRE-02-design-system-baseline.json)；Web token 全字段/值、状态色映射、英文安全文案、状态标签和组件身份冻结。变更必须先同步规格、本 ADR、基线并重新评审，不能仅改基线让错误实现通过。
 - 控件识别边界使用 border.strong：dark `#6B7D99`、light `#73839A`；default border 仅作装饰分隔，不可独自识别交互控件。浅主题 warning 改为 `#92400E`，确保在 surface.2 上普通状态文字达标。
 - 对比度矩阵 252 组：保留原 36 组；增加 surface.2 文本与焦点 6 组、控件边界 6 组、分类图形 48 组、25 状态及 unknown 在三背景/双主题 156 组。普通文字至少 4.5:1，必要图形、控件边界和焦点至少 3:1；disabled/decorative 例外不冒充有交互控件通过。
 - StateBadge 继承 ThemeProvider/I18nProvider，显式 prop 可覆盖；standalone 保留 dark/zh-CN 默认。只识别 own-property 合法映射，未知与非法运行值均使用 unknown，不抛错、不显示调用方伪造的 allow 标签；动作授权仍由消费方与服务端裁决。字号/行高/间距直接消费 token。

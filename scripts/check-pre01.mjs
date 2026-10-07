@@ -7,7 +7,7 @@ import { parse as parseYaml } from "yaml";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const read = file => readFileSync(resolve(root, file), "utf8");
-export const requirements = JSON.parse(read("docs/PRE-01-requirements-baseline.json"));
+export const requirements = JSON.parse(read("docs/execution/PRE-01-requirements-baseline.json"));
 const openapiVersion = parseYaml(read("bff/openapi/quantos-bff.v1.yaml")).info.version;
 const mockVersion = JSON.parse(read("tests/contract/generated/quantos-bff.operations.json")).version;
 const catalog = parseYaml(read("bff/page-operation-catalog.yaml"));
@@ -44,9 +44,9 @@ function taskField(value, known, id) {
   unique(tokens, `${id}: duplicate task`); return tokens;
 }
 export function loadPre01Inputs() {
-  return { ledger: read("docs/PRE-01-page-ledger-and-stories.md"), matrix: read("docs/PRE-01-route-permission-matrix.md"), scenarios: read("docs/PRE-01-acceptance-scenarios.md"), coverage: read("docs/PRE-01-page-api-coverage-register.md") };
+  return { ledger: read("docs/execution/PRE-01-page-ledger-and-stories.md"), matrix: read("docs/execution/PRE-01-route-permission-matrix.md"), scenarios: read("docs/execution/PRE-01-acceptance-scenarios.md"), coverage: read("docs/execution/PRE-01-page-api-coverage-register.md") };
 }
-export function validatePre01({ ledger, matrix, scenarios, coverage = read("docs/PRE-01-page-api-coverage-register.md") }) {
+export function validatePre01({ ledger, matrix, scenarios, coverage = read("docs/execution/PRE-01-page-api-coverage-register.md") }) {
   assert.equal(requirements.schema, "quantos-pre01-requirements/v1");
   assert.deepEqual(expectedPages, ["GS", ...Array.from({length:7}, (_,i)=>`WEB-${String(i+1).padStart(2,"0")}`), ...catalog.scope.pages], "requirement scope must match phase-one catalog");
   assert(plan.includes("P01–P15/P17–P23") && catalog.scope.excludedPages.P16.includes("Desktop phase two"), "phase-one scope basis must remain explicit");

@@ -19,7 +19,7 @@
 
 `pnpm test:pre04` 的38项回归覆盖字段删除/假来源/类型与required漂移、同数量源替换、重复行、缺官网页、缺辅助契约、假任务/owner、错误Gap关闭、虚假mock升级、证据/fixture缺失、空或不完整实现证据、未知任务后缀/错误范围和原生范围混入。Frontend Baseline继续调用正负Gate，并保留OpenAPI、生成漂移及PRE-01覆盖检查。
 
-本轮完整验证见[当前复验报告](./audit/PRE-04-comprehensive-review-2026-10-02.md)和[证据清单](./audit/evidence/pre04-recheck-20261002/manifest.json)。[初审报告](./audit/PRE-04-comprehensive-review-history-2026-10-02.md)为修复前基线；[2026-09-16验收](./audit/PRE-04-acceptance-evidence-2026-09-16.md)仅代表其记录的历史SHA与环境。
+本轮完整验证见[当前复验报告](../audit/PRE-04-comprehensive-review-2026-10-02.md)和[证据清单](../audit/evidence/pre04-recheck-20261002/manifest.json)。[初审报告](../audit/PRE-04-comprehensive-review-history-2026-10-02.md)为修复前基线；[2026-09-16验收](../audit/PRE-04-acceptance-evidence-2026-09-16.md)仅代表其记录的历史SHA与环境。
 
 ## 3. 变更与维护
 
@@ -33,4 +33,4 @@
 
 ## 2026-10-03 A2 兼容扩展同步
 
-API 1.5.0 / 62 operations / 52 schemas；字段字典 413 行。新增 MFA 注册材料与能力引用的映射说明，更新当前 provider/test 内容摘要；历史签署 SHA 保留在 baseline 的 historicalReviewedSourceSha，当前快照的正式 reviewedSourceSha 为 null。当前源码的工程回归与 Git notes 见 [BFF-FE-001 整改记录](audit/BFF-FE-001-remediation-2026-10-03.md)。
+API 1.5.0 / 62 operations / 52 schemas；字段字典 413 行。新增 MFA 注册材料与能力引用的映射说明，更新当前 provider/test 内容摘要；历史签署 SHA 保留在 baseline 的 historicalReviewedSourceSha，当前快照的正式 reviewedSourceSha 为 null。当前源码的工程回归与 Git notes 见 [BFF-FE-001 整改记录](../audit/BFF-FE-001-remediation-2026-10-03.md)。

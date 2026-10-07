@@ -8,10 +8,10 @@ import { loadG0Inputs, validateG0Records } from "../check-g0-records.mjs";
 
 const root = resolve(new URL("../..", import.meta.url).pathname);
 const valid = {
-  ledger: readFileSync(resolve(root, "docs/PRE-01-page-ledger-and-stories.md"), "utf8"),
-  matrix: readFileSync(resolve(root, "docs/PRE-01-route-permission-matrix.md"), "utf8"),
-  scenarios: readFileSync(resolve(root, "docs/PRE-01-acceptance-scenarios.md"), "utf8"),
-  coverage: readFileSync(resolve(root, "docs/PRE-01-page-api-coverage-register.md"), "utf8"),
+  ledger: readFileSync(resolve(root, "docs/execution/PRE-01-page-ledger-and-stories.md"), "utf8"),
+  matrix: readFileSync(resolve(root, "docs/execution/PRE-01-route-permission-matrix.md"), "utf8"),
+  scenarios: readFileSync(resolve(root, "docs/execution/PRE-01-acceptance-scenarios.md"), "utf8"),
+  coverage: readFileSync(resolve(root, "docs/execution/PRE-01-page-api-coverage-register.md"), "utf8"),
 };
 
 test("current PRE-01 artifacts satisfy the executable contract", () => {

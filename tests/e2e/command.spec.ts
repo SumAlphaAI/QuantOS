@@ -5,7 +5,7 @@ import { AxeBuilder } from "@axe-core/playwright";
  * PRE-06 基线 E2E：/command（关联 ACC-GS-S1、ACC-P02-S1）。
  * 后续每个 UI-Pxx 任务在同一目录追加页面 spec（七态 + 键盘 + 视觉）。
  * 视觉基线按平台入库（<name>-chromium-<platform>.png）；本平台基线缺失时测试失败，
- * 由 QA 在对应平台 runner 生成并提交基线（见 docs/PRE-06-summary.md 遗留项 3）。
+ * 由 QA 在对应平台 runner 生成并提交基线（见 docs/execution/PRE-06-summary.md 遗留项 3）。
  * 视觉门禁有效性由 scripts/pre06-sabotage-check.mjs 独立保证。
  */
 

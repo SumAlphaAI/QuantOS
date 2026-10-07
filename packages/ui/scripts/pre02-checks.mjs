@@ -65,7 +65,7 @@ function tableRows(markdown, start, end) {
   return markdown.slice(startIndex, endIndex).split("\n").filter((line) => /^\|[^-].*\|$/.test(line)).slice(1);
 }
 
-const baseline = JSON.parse(readFileSync(join(repoRoot, "docs/PRE-02-design-system-baseline.json"), "utf8"));
+const baseline = JSON.parse(readFileSync(join(repoRoot, "docs/execution/PRE-02-design-system-baseline.json"), "utf8"));
 const source = text => ts.createSourceFile("config.tsx", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 function unwrap(node) {
   while (node && (ts.isAsExpression(node) || ts.isSatisfiesExpression(node) || ts.isParenthesizedExpression(node))) node = node.expression;
@@ -254,7 +254,7 @@ export function loadCurrentPre02() {
     storybookMain: readFileSync(join(packageRoot, ".storybook/main.ts"), "utf8"),
     storybookPreview: readFileSync(join(packageRoot, ".storybook/preview.tsx"), "utf8"),
     stateBadgeStories: readFileSync(join(packageRoot, "src/components/StateBadge/StateBadge.stories.tsx"), "utf8"),
-    componentInventory: readFileSync(join(repoRoot, "docs/PRE-02-component-inventory.md"), "utf8"),
+    componentInventory: readFileSync(join(repoRoot, "docs/execution/PRE-02-component-inventory.md"), "utf8"),
   };
 }
 

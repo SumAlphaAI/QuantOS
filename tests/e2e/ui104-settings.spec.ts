@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 
 // 视觉基线按平台入库（<name>-<project>-<platform>.png）；本平台基线缺失时测试失败，
-// 由 QA 在对应平台 runner 生成并提交基线（同 command.spec.ts，见 docs/PRE-06-summary.md 遗留项 3）
+// 由 QA 在对应平台 runner 生成并提交基线（同 command.spec.ts，见 docs/execution/PRE-06-summary.md 遗留项 3）
 
 test.describe("UI-104 profile, security, notifications and browser settings", () => {
   test("P15/P17 routes render the shared settings workspace", async ({ page }) => {

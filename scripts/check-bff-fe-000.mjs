@@ -40,7 +40,7 @@ export function loadBffFe000Inputs() {
     manifest: JSON.parse(text("tests/contract/generated/quantos-bff.operations.json")),
     corePlan: text("docs/SumAlpha-QuantOS-Development-Plan.md"),
     frontendPlan: text("docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md"),
-    coverage: text("docs/PRE-01-page-api-coverage-register.md"),
+    coverage: text("docs/execution/PRE-01-page-api-coverage-register.md"),
     packageJson: JSON.parse(text("package.json")),
     apiClientIndex: text("packages/api-client/src/index.ts"),
     makefile: text("Makefile"),

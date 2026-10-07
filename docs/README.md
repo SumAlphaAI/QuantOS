@@ -11,6 +11,7 @@ Current baseline documents:
 - `SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md`
 - `SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md`
 - `SumAlpha-QuantOS-Web-and-Terminal-Design.md`
-- `PRE-05-environment-guide.md`: first-phase Web environment profiles and fail-fast contract
+- [`execution/`](./execution/README.md): BFF/PRE execution artifacts, controlled baselines, runtime guides, and Desktop preparation inputs
+- [`execution/PRE-05-environment-guide.md`](./execution/PRE-05-environment-guide.md): first-phase Web environment profiles and fail-fast contract
 - `adr/`: architecture decision records such as TP01 controlled-fork boundaries
 - `operations/`: runbooks, alert definitions, and TP01 inventory / progress trackers

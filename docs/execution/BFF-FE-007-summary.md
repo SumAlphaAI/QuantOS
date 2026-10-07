@@ -16,4 +16,4 @@
 
 本次 `COMPLETED` 仅表示源码、生成物、本地参考 provider、前端 gateway、测试、文档与可破坏 Gate 已闭环。以下不据此视为完成：真实 PostgreSQL 审计投影查询、对象存储签名与一次性下载语义、staging consumer/provider contract 签署、目标环境五分钟还原实测、GitHub Actions 远端运行、GPT-6 Astra 功能复审。
 
-详细命令、结果与风险见 [验收证据](./audit/BFF-FE-007-acceptance-evidence-2026-09-16.md)。
+详细命令、结果与风险见 [验收证据](../audit/BFF-FE-007-acceptance-evidence-2026-09-16.md)。

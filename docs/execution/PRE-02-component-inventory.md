@@ -60,7 +60,7 @@
 | AlertFeed / AlertDetail / SubscriptionRuleEditor | P23 | ack≠resolved | P1 |
 | MoneyText / DecimalText / AsOfText / ProvisionalTag / CorrelationIdChip / HashText | 全部 | 十进制定点；币种/精度/时区；复制 correlation ID | P0 |
 
-P16 原生通知、文件、窗口与离线缓存组件归[Desktop 二期计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)，不进入一期组件验收。共享 token 的 desktopMin 仅供二期参考。
+P16 原生通知、文件、窗口与离线缓存组件归[Desktop 二期计划](../SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)，不进入一期组件验收。共享 token 的 desktopMin 仅供二期参考。
 
 ## 3. Storybook 覆盖约定
 

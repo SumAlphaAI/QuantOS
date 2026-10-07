@@ -1,7 +1,7 @@
 # Desktop 二期：PRE-01 需求承接
 
 > 日期：2026-10-02；状态：需求输入，NOT ACCEPTED；不授权二期启动或发布。
-> 依据：[Desktop 二期计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)；一期 [PRE-01](./PRE-01-page-ledger-and-stories.md) 只含 Web。
+> 依据：[Desktop 二期计划](../SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)；一期 [PRE-01](./PRE-01-page-ledger-and-stories.md) 只含 Web。
 
 ## 原生 Story 与共享流程扩展
 

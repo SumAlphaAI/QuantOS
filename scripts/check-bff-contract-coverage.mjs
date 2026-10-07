@@ -10,7 +10,7 @@ const openapi = YAML.parse(readFileSync(resolve(root, "bff/openapi/quantos-bff.v
 const catalog = YAML.parse(readFileSync(resolve(root, "bff/page-operation-catalog.yaml"), "utf8"));
 const manifest = JSON.parse(readFileSync(resolve(root, "tests/contract/generated/quantos-bff.operations.json"), "utf8"));
 const schemas = JSON.parse(readFileSync(resolve(root, "tests/contract/generated/quantos-bff.components.schema.json"), "utf8"));
-const coverage = readFileSync(resolve(root, "docs/PRE-01-page-api-coverage-register.md"), "utf8");
+const coverage = readFileSync(resolve(root, "docs/execution/PRE-01-page-api-coverage-register.md"), "utf8");
 
 const requiredTags = ["session", "research", "data", "strategy", "risk", "proposal", "approval", "execution", "settings", "audit"];
 const sourceOperations = [];
@@ -50,7 +50,7 @@ for (const operation of sourceOperations) {
   if (!referencedIds.has(operation.operationId)) failures.push(`frozen operation has no page coverage reference: ${operation.operationId}`);
 }
 
-const forbiddenFiles = ["docs/PRE-01-page-api-coverage-register.md"];
+const forbiddenFiles = ["docs/execution/PRE-01-page-api-coverage-register.md"];
 for (const relative of forbiddenFiles) {
   const text = readFileSync(resolve(root, relative), "utf8");
   if (text.includes("1.0.0-transition")) failures.push(`${relative} still references transition schema`);

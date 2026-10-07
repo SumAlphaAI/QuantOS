@@ -45,7 +45,7 @@ export function loadBffFe007Inputs() {
     packageJson: JSON.parse(text("package.json")),
     makefile: text("Makefile"),
     workflow: text(".github/workflows/frontend-baseline.yml"),
-    summaryExists: existsSync(resolve(root, "docs/BFF-FE-007-summary.md")),
+    summaryExists: existsSync(resolve(root, "docs/execution/BFF-FE-007-summary.md")),
     evidenceExists: existsSync(resolve(root, "docs/audit/BFF-FE-007-acceptance-evidence-2026-09-16.md")),
   };
 }

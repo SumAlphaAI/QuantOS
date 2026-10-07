@@ -35,13 +35,13 @@
 | 官网合规和性能 | 中 | Product/Compliance + QA | ST-WEB-08 保留禁用词与 Lighthouse/LCP 要求，页面阶段独立复验 |
 | 角色需与服务端 policy 对齐 | 高 | Security/BFF TL | 当前需求默认拒绝；任何扩权需正式需求变更与 policy 证据 |
 | 小屏与离线安全 | 高 | FE TL + QA | <768px 隐藏高风险入口；Web 无持久领域缓存/写队列；逐页负向验收 |
-| 历史 G0 遗留项已过期 | 中 | G0 各 owner | [当前治理记录](./gate-records/G0-current-governance.json) 逐项保留日期、owner、状态；缺完整回执则逾期待补证/重排 |
+| 历史 G0 遗留项已过期 | 中 | G0 各 owner | [当前治理记录](../gate-records/G0-current-governance.json) 逐项保留日期、owner、状态；缺完整回执则逾期待补证/重排 |
 
 ## 4. 复审、历史签署与统计版本
 
-- 2026-08-14 六方用户确认的签署记录予以保留，仅适用历史范围；不将其扩展到 2026-10-02 修订产物。参见 [历史记录与当前状态](./gate-records/G0-PRE-01-review-record.md)。
+- 2026-08-14 六方用户确认的签署记录予以保留，仅适用历史范围；不将其扩展到 2026-10-02 修订产物。参见 [历史记录与当前状态](../gate-records/G0-PRE-01-review-record.md)。
 - 42 operations 是历史 OpenAPI 1.0.0 数量；2026-09-16 的 31/130/217/31 是旧双端结构基线。当前一期为 30/124/210/30，另 8 流程 Story 和 10 流程场景。
 - 指定模型复审、六方重新签署、远程 CI、浏览器/真实 IdP/provider/staging/数据库验收未由本次文档修复执行，保持 `NOT RUN / NO NEW RECEIPT`。
-- 当前工程复验见 [全面复审报告](./audit/PRE-01-comprehensive-review-2026-10-02.md)；历史发现保留在 [历史报告](./audit/PRE-01-comprehensive-review-history-2026-10-02.md)，上一轮结果见 [整改复验报告](./audit/PRE-01-remediation-validation-2026-10-02.md)。本轮补齐 P05/P21 的 operation 追踪并增加负向回归，不覆盖旧证据。
+- 当前工程复验见 [全面复审报告](../audit/PRE-01-comprehensive-review-2026-10-02.md)；历史发现保留在 [历史报告](../audit/PRE-01-comprehensive-review-history-2026-10-02.md)，上一轮结果见 [整改复验报告](../audit/PRE-01-remediation-validation-2026-10-02.md)。本轮补齐 P05/P21 的 operation 追踪并增加负向回归，不覆盖旧证据。
 
-2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。
+2026-10-05 人工验收流程更新：当前及后续原六方/多角色验收确认统一按[用户确认流程](../gate-records/user-acceptance-confirmation-workflow.md)，由 Codex 拟稿、项目用户单人确认。本文此前多人签署描述保留历史口径；当前要求以新规程为准，实际测试/目标证据仍独立验收。
