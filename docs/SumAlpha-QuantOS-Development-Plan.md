@@ -321,7 +321,7 @@ flowchart TD
 - task_id: `F01`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:baa4c15a20aeb71a0f1ebe26e5b59075e87a3610d129735b55402def1da78315","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f01.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -342,7 +342,7 @@ flowchart TD
 - task_id: `F02`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:0dbf33e3fa1814e9f919cd73dffab87ba1f9315c8982bd8a5bf2cb6f35a122fe","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f02.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -364,7 +364,7 @@ flowchart TD
 - task_id: `F03`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7488c0c74e537b52fdad042999c5f85a33ab5a522e9dff7d5dc6352b4b80291b","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -384,7 +384,7 @@ flowchart TD
 - task_id: `F04`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:b2ed61a3a2204fb0adc1ad45b43bf9906b386ffe94a8f47fbacc30e4a4806328","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03"]
 - core_prerequisites: ["CORE:F03"]
 - closes_core: []
@@ -404,7 +404,7 @@ flowchart TD
 - task_id: `F05`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7cf8f6ef1ac5730910fcef77aeca2d9becfe24bdc9af83de7b8ee0c039a17937","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f05.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F04"]
 - core_prerequisites: ["CORE:F03", "CORE:F04"]
 - closes_core: []
@@ -425,7 +425,7 @@ flowchart TD
 - task_id: `F06`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e87fd29604401a682381d79a1752918e4d668c9ae0559eab0635b3fff00a37f3","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f06.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F05"]
 - core_prerequisites: ["CORE:F03", "CORE:F05"]
 - closes_core: []
@@ -446,7 +446,7 @@ flowchart TD
 - task_id: `F07`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:aeb3a84c1602ca09163991816a5317f8ce101a81ea9ea1ade7b9322b046df6cc","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f07.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F04", "CORE:F05", "CORE:F06"]
 - core_prerequisites: ["CORE:F04", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -468,7 +468,7 @@ flowchart TD
 - task_id: `F08`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e1025151602bb54cffe41eadee3b19df77218e4da119b686440a7600bfdbb752","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f08.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F07"]
 - core_prerequisites: ["CORE:F03", "CORE:F06", "CORE:F07"]
 - closes_core: []
@@ -488,7 +488,7 @@ flowchart TD
 - task_id: `F09`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:73e396b0552696026c0f3c75306b5cb8710d576592fe5e104f31050b3edd0cd2","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f09.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
 - core_prerequisites: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
 - closes_core: []
@@ -510,7 +510,7 @@ flowchart TD
 - task_id: `TP01-A`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4263a9818aa2062b6dffb1d7b4bf35915a886ce3266ab5ea7141d79bc64e7d4d","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-tp01-a.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01", "CORE:F02"]
 - core_prerequisites: ["CORE:F01", "CORE:F02"]
 - closes_core: []
@@ -531,7 +531,7 @@ flowchart TD
 - task_id: `TP01-B`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:d81ad3d355fa3cfa5ba7cd0345518df95cf11f0b102314b2c64ce159f3b78a50","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-tp01-b.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-A", "CORE:F07"]
 - core_prerequisites: ["CORE:TP01-A", "CORE:F07"]
 - closes_core: []
@@ -594,11 +594,9 @@ flowchart TD
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:ee690df8f45d4b3c3528bdc990704ea15f4e314b746b1337d2cec4ba06ab9a64",
-    "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-gate-f0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
