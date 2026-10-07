@@ -1,6 +1,6 @@
 # P0 阶段核验与正式同提交验收规程
 
-当前规则以[执行计划第 2.1 节](./SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#21-统一阶段与依赖消费规则)为准。P0 的 DEVELOPMENT READY 只放行 A1 功能开发；通过 `pnpm check:provider-a1` 递归核验 P0 与前置的功能输入清单、日志及依赖证据。受检输入变化后重评相关范围，单纯文档变化不要求重跑全部真实环境。
+当前规则以[执行计划第 2.1 节](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#21-统一阶段与依赖消费规则)为准。P0 的 DEVELOPMENT READY 只放行 A1 功能开发；通过 `pnpm check:provider-a1` 递归核验 P0 与前置的功能输入清单、日志及依赖证据。受检输入变化后重评相关范围，单纯文档变化不要求重跑全部真实环境。
 
 `check:development-plans` 仅检查排期结构；`pnpm check:p0` 仍检查当前 HEAD 的正式同 SHA 回执，缺少回执时返回 FAIL，不代表阶段 READY 自动失效，也不能将 READY 解释为正式 ACCEPTED。以下提交、目标重放和 notes 操作仅用于独立的正式验收声明；正式 G0、全量 provider、页面及 RELEASE 各自评估。
 

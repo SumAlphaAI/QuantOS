@@ -23,7 +23,7 @@ export function loadR02Inputs() {
     immutableMigration: text("supabase/migrations/20260916140000_r02_snapshot_immutability.sql"),
     makefile: text("Makefile"),
     workflow: text(".github/workflows/ci.yml"),
-    summaryExists: existsSync(resolve(root, "docs/R02-summary.md")),
+    summaryExists: existsSync(resolve(root, "docs/execution/R02-summary.md")),
     evidenceExists: existsSync(resolve(root, "docs/audit/R02-acceptance-evidence-2026-09-16.md")),
   };
 }

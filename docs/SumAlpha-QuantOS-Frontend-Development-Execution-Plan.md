@@ -1,3 +1,5 @@
+> 2026-10-07 第二轮执行文档整理：8 份 P0/A1 验收规程及 R01/R02/UI 交付记录保留迁入 `docs/execution/`，同步活动引用与 R01/R02 读取路径；阶段准入与当前 G0 PENDING 状态保持不变。见[整理报告](./audit/Execution-document-organization-round2-2026-10-07.md)。
+
 > 2026-10-07 执行文档目录整理：25 份 BFF/PRE/Desktop 准备产物保留并迁入 `docs/execution/`；读取脚本及输入策略已同步。原 26 READY 和 `52fee5f6e499` 确认为迁移前历史记录，当前受影响功能准入均为 NOT_ASSESSED，需独立内容复评。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
 > 迁移前历史快照：2026-10-07 PROVIDER:A2 再复核完成：原四项问题全部关闭，当前活动问题0、24/24控制点PASS、26/26 API证据完整；26 READY、0 BLOCKED，G0范围52fee5f6e499已确认。64acc87的9项工程工作流及Dependency Graph共10/10成功；后续文档提交的hosted CI独立核验。见[当前复核报告](./audit/PROVIDER-A2-comprehensive-review-2026-10-07.md)。
@@ -11,13 +13,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.43
+> 版本：3.44
 > 更新时间：2026-10-07
 > 状态：执行文档目录迁移与本地回归；原 26 功能准入待当前输入复评，stage_gate 为 NOT_ASSESSED；迁移前 hosted CI 和确认原件保留。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.44`：第二轮 8 份根目录文档均有用途，全部保留迁入 execution；保留业务正文、历史交付/验收状态，同步活动引用和两项检查脚本。目录合计 33 份执行产物，历史审计/回执/签署原件不重写；原 159 个 stage_gate 继续 NOT_ASSESSED，不用本轮静态验证恢复 READY。
 
 - `3.43`：完成执行文档用途核对，25 份全部保留迁入 `docs/execution/`；同步当前计划、ADR、读取脚本、受控输入路径和字段字典生成器。历史审计/回执/确认原件不改字节，旧路径由[目录索引](./execution/README.md)定位。路径/门禁输入变化后，旧 26 READY 明确归档并清为 NOT_ASSESSED，G0 新输入确认恢复 PENDING；本次只验收迁移及相关本地回归，不冒充 Supabase 重跑、新 hosted CI 或正式验收。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
@@ -364,7 +368,7 @@
 }
 ```
 
-上方 `required_scope/review_status/source_commit/evidence` 保留历史完整范围及原回执事实。当前 P0 的 `stage_gate` 按第 2.1 节 DEVELOPMENT 范围核验工程标准、PoC、owner/环境/mock/设计/接口台账与测试基线，以功能输入清单和实际证据决定准入；NOT_ASSESSED 仍须聚焦评估。上方正式 `source_commit/evidence` 登记历史版本，不迁移旧 PASS。`pnpm check:p0`、`refs/notes/p0-acceptance` 及同 SHA F06 回执继续用于其原有正式验收范围；若需对新候选作正式同 SHA 声明，须独立生成该候选回执。仅本计划文字调整不触发全套真实 Supabase 验收重跑。原操作见[P0验收规程](./P0-acceptance-runbook.md)，命令范围按第 2.1 节核对。
+上方 `required_scope/review_status/source_commit/evidence` 保留历史完整范围及原回执事实。当前 P0 的 `stage_gate` 按第 2.1 节 DEVELOPMENT 范围核验工程标准、PoC、owner/环境/mock/设计/接口台账与测试基线，以功能输入清单和实际证据决定准入；NOT_ASSESSED 仍须聚焦评估。上方正式 `source_commit/evidence` 登记历史版本，不迁移旧 PASS。`pnpm check:p0`、`refs/notes/p0-acceptance` 及同 SHA F06 回执继续用于其原有正式验收范围；若需对新候选作正式同 SHA 声明，须独立生成该候选回执。仅本计划文字调整不触发全套真实 Supabase 验收重跑。原操作见[P0验收规程](./execution/P0-acceptance-runbook.md)，命令范围按第 2.1 节核对。
 
 2026-10-05 [P0 聚焦复核](./audit/PREPARATION-P0-comprehensive-review-2026-10-02.md)：原 3 项发现均已关闭，12 节点 DEVELOPMENT 证据递归核验通过；历史 formal 字段及阶段输入摘要保持不变。当前 formal `check:p0` 缺少本提交回执时仍按原规则失败，不将 DEVELOPMENT READY 改写为正式 ACCEPTED。
 
@@ -433,7 +437,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 <a id="acceptance-provider-a1"></a>
 ##### PROVIDER:A1：验收检查点
 
-当前功能复验（2026-10-05）：原 1 阻塞、1 高危、3 中危、1 低危全部 CLOSED；活动问题 0，21/21 控制点通过，含本节点的 14 节点 DEVELOPMENT READY。`pnpm check:provider-a1` 复核当前输入/日志/产物及递归依赖，41 项回执测试、24 项非 DB Rust、38 次 reference HTTP、2 项业务 mutation 和 DB 执行状态检查通过。既有 65 项功能结果继续有效，本轮未重跑 Supabase。当前结论见[活跃复核报告](./audit/PROVIDER-A1-comprehensive-review-2026-10-04.md)，原始发现见[历史归档](./audit/PROVIDER-A1-findings-archive-2026-10-04.md)，修复过程见[整改报告](./audit/PROVIDER-A1-remediation-2026-10-05.md)；持续验收按[功能验收规程](./PROVIDER-A1-functional-acceptance.md)。可作为后续 API 开发前置；G0、PROVIDER:ALL 和 RELEASE 独立评估。下方正式 review_status/source_commit/evidence 保留原事实。
+当前功能复验（2026-10-05）：原 1 阻塞、1 高危、3 中危、1 低危全部 CLOSED；活动问题 0，21/21 控制点通过，含本节点的 14 节点 DEVELOPMENT READY。`pnpm check:provider-a1` 复核当前输入/日志/产物及递归依赖，41 项回执测试、24 项非 DB Rust、38 次 reference HTTP、2 项业务 mutation 和 DB 执行状态检查通过。既有 65 项功能结果继续有效，本轮未重跑 Supabase。当前结论见[活跃复核报告](./audit/PROVIDER-A1-comprehensive-review-2026-10-04.md)，原始发现见[历史归档](./audit/PROVIDER-A1-findings-archive-2026-10-04.md)，修复过程见[整改报告](./audit/PROVIDER-A1-remediation-2026-10-05.md)；持续验收按[功能验收规程](./execution/PROVIDER-A1-functional-acceptance.md)。可作为后续 API 开发前置；G0、PROVIDER:ALL 和 RELEASE 独立评估。下方正式 review_status/source_commit/evidence 保留原事实。
 
 A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现功能的 provider/consumer harness，按输入清单评估阶段 READY；A2–A6 未交付 provider 不属 A1 实现范围。B-01 staging 继续 DEFERRED_TO_FINAL_REVIEW，正式目标回执和签署由 RELEASE 收口，不能据工程通过改为正式 ACCEPTED。
 

@@ -16,4 +16,4 @@ R02 提供确定性的 `DataSnapshot` 契约：schema、时间窗、来源与许
 
 本次不使用生产或外部环境凭据。源码、migration、单元/集成边界和 CI 接线可在本地验收；真实 PostgreSQL P95、目标 Supabase RLS 行为和 Supabase Storage 往返均为 `NOT RUN / NO RECEIPT`，不能由本地绿色测试替代。
 
-详细证据见 [R02 验收证据](./audit/R02-acceptance-evidence-2026-09-16.md)。
+详细证据见 [R02 验收证据](../audit/R02-acceptance-evidence-2026-09-16.md)。
