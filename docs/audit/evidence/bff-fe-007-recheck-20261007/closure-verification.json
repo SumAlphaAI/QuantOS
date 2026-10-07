@@ -1,0 +1,370 @@
+{
+  "schema": "quantos-bff-audit-closure-recheck/v1",
+  "status": "PASS",
+  "checkedAt": "2026-10-07T02:02:00.133Z",
+  "observedSourceCommit": "b274a7ef3c03478ac9ec3746efea509d6a01592d",
+  "originalSeverityCounts": {
+    "阻塞级": 1,
+    "高危": 1,
+    "中危": 7,
+    "低危": 0
+  },
+  "activeSeverityCounts": {
+    "阻塞级": 0,
+    "高危": 0,
+    "中危": 0,
+    "低危": 0
+  },
+  "closed": 9,
+  "findings": [
+    {
+      "id": "B-01",
+      "severity": "阻塞级",
+      "module": "live BFF / F05 Audit read model / export worker 与 Storage",
+      "status": "CLOSED",
+      "verification": {
+        "source": [
+          "services/bff-gateway/src/live.rs:123",
+          "services/bff-gateway/src/live/audit.rs:289",
+          "services/bff-gateway/src/live/audit.rs:673",
+          "supabase/migrations/20261006100000_bff_audit_exports.sql:1"
+        ],
+        "assertions": [
+          "persistent-ledger-redaction",
+          "restart-recovers-expired-worker-lease",
+          "per-actor-create-quota",
+          "actual-storage-integrity",
+          "live-six-operation-capability-matrix",
+          "live-six-operation-authentication-matrix"
+        ]
+      },
+      "liveReceipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json"
+    },
+    {
+      "id": "H-01",
+      "severity": "高危",
+      "module": "ExportScope / create_export / idempotency / request contract",
+      "status": "CLOSED",
+      "verification": {
+        "source": [
+          "services/bff-gateway/src/audit_core.rs:73",
+          "services/bff-gateway/src/live/audit.rs:361",
+          "services/bff-gateway/src/input_contract.rs"
+        ],
+        "assertions": [
+          "durable-identical-intent-replay",
+          "conflicts-have-no-business-or-audit-side-effects",
+          "full-scope-and-watermarked-redaction",
+          "revoked-capability-denies-replay"
+        ]
+      },
+      "liveReceipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json"
+    },
+    {
+      "id": "M-01",
+      "severity": "中危",
+      "module": "审计载荷脱敏 / record_audit_action",
+      "status": "CLOSED",
+      "verification": {
+        "source": [
+          "services/bff-gateway/src/audit_core.rs:16",
+          "services/bff-gateway/src/live/audit.rs:133"
+        ],
+        "assertions": [
+          "persistent-ledger-redaction",
+          "full-scope-and-watermarked-redaction"
+        ]
+      },
+      "liveReceipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json"
+    },
+    {
+      "id": "M-02",
+      "severity": "中危",
+      "module": "Audit payloadHash / evidence integrity / download metadata",
+      "status": "CLOSED",
+      "verification": {
+        "source": [
+          "services/bff-gateway/src/audit_core.rs:8",
+          "services/bff-gateway/src/live/audit.rs:630",
+          "services/bff-gateway/src/live/audit.rs:736"
+        ],
+        "assertions": [
+          "canonical-payload-hash",
+          "actual-storage-integrity",
+          "tampered-private-artifact-denied"
+        ]
+      },
+      "liveReceipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json"
+    },
+    {
+      "id": "M-03",
+      "severity": "中危",
+      "module": "audit cursor / evidence pagination / complete",
+      "status": "CLOSED",
+      "verification": {
+        "source": [
+          "services/bff-gateway/src/live/audit.rs:198",
+          "services/bff-gateway/tests/audit_export_provider.rs:620"
+        ],
+        "assertions": [
+          "snapshot-no-repeat-no-omission",
+          "persistent-causal-chain",
+          "f05-domain-event-id-sequence",
+          "export-lifecycle-causal-root"
+        ]
+      },
+      "liveReceipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json"
+    },
+    {
+      "id": "M-04",
+      "severity": "中危",
+      "module": "export retention / expiry / deterministic clock",
+      "status": "CLOSED",
+      "verification": {
+        "source": [
+          "services/bff-gateway/src/live/audit.rs:397",
+          "services/bff-gateway/src/live/audit.rs:593",
+          "services/bff-gateway/src/live/audit.rs:613",
+          "services/bff-gateway/src/live/audit.rs:673"
+        ],
+        "assertions": [
+          "cancel-revokes-issued-leases",
+          "retention-denies-issuance-and-consumption",
+          "concurrent-ticket-consumption-once"
+        ]
+      },
+      "liveReceipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json"
+    },
+    {
+      "id": "M-05",
+      "severity": "中危",
+      "module": "Terminal audit gateway / response validation",
+      "status": "CLOSED",
+      "verification": {
+        "source": [
+          "apps/terminal/src/audit/gateway.ts:33",
+          "apps/terminal/tests/audit-gateway.test.ts"
+        ],
+        "localProof": "docs/audit/evidence/bff-fe-007-recheck-20261007/semantics-1.log",
+        "assertions": []
+      },
+      "liveReceipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json"
+    },
+    {
+      "id": "M-06",
+      "severity": "中危",
+      "module": "BFF-FE-007 Gate / stage evidence / completion accounting",
+      "status": "CLOSED",
+      "verification": {
+        "source": [
+          "scripts/bff-fe-007-development.mjs:13",
+          "scripts/bff-fe-007-development.test.mjs",
+          "scripts/bff-fe-007-gate-negative.mjs"
+        ],
+        "localProof": "docs/audit/evidence/bff-fe-007-recheck-20261007/semantics-2.log",
+        "assertions": [
+          "persistent-ledger-redaction",
+          "canonical-payload-hash",
+          "snapshot-no-repeat-no-omission",
+          "persistent-causal-chain",
+          "durable-identical-intent-replay",
+          "conflicts-have-no-business-or-audit-side-effects",
+          "actual-storage-integrity",
+          "full-scope-and-watermarked-redaction",
+          "real-csv-artifact",
+          "real-pdf-artifact",
+          "per-actor-create-quota",
+          "cancel-revokes-issued-leases",
+          "retention-denies-issuance-and-consumption",
+          "status-read-does-not-generate",
+          "restart-recovers-expired-worker-lease",
+          "persistent-export-lifecycle",
+          "restricted-read-audit",
+          "live-six-operation-capability-matrix",
+          "ephemeral-exports-cleaned",
+          "tampered-private-artifact-denied",
+          "resource-owner-hidden",
+          "generation-failure-terminal-and-audited",
+          "concurrent-ticket-consumption-once",
+          "revoked-capability-denies-replay",
+          "f05-domain-event-id-sequence",
+          "identity-audit-bridged-to-f05",
+          "identity-audit-causal-root",
+          "restricted-read-response-correlation",
+          "export-lifecycle-causal-root",
+          "live-six-operation-authentication-matrix",
+          "resource-account-scope-hidden",
+          "recovered-create-is-single-job"
+        ]
+      },
+      "liveReceipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json"
+    },
+    {
+      "id": "M-07",
+      "severity": "中危",
+      "module": "restricted audit reads / export lifecycle audit",
+      "status": "CLOSED",
+      "verification": {
+        "source": [
+          "services/bff-gateway/src/live/audit.rs:55",
+          "services/bff-gateway/src/live/audit.rs:300",
+          "services/bff-gateway/src/live/audit.rs:654",
+          "supabase/migrations/20261006130000_bff_settings_audit_bridge.sql"
+        ],
+        "assertions": [
+          "persistent-export-lifecycle",
+          "restricted-read-audit",
+          "generation-failure-terminal-and-audited",
+          "identity-audit-bridged-to-f05",
+          "identity-audit-causal-root",
+          "restricted-read-response-correlation"
+        ]
+      },
+      "liveReceipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json"
+    }
+  ],
+  "currentNodes": [
+    {
+      "nodeId": "FE:BFF-FE-007",
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:23efe34c98d9b44384dbdfdd5b9ab05878090419bf1b53e9855bc32b98dc8751",
+      "evidence": [
+        "audit/evidence/bff-fe-007-remediation-20261006/core-plan-format-reassessment-20261007/development.json"
+      ]
+    },
+    {
+      "nodeId": "FE:BFF-FE-001",
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:0a2fc351dac36544088a5938acc0142d63f50fc668e2f8828d449ace7e5ecb2c",
+      "evidence": [
+        "audit/evidence/bff-fe-001-remediation-20261005/core-plan-format-reassessment-20261007/a2.json"
+      ]
+    },
+    {
+      "nodeId": "CORE:F05",
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:7cf8f6ef1ac5730910fcef77aeca2d9becfe24bdc9af83de7b8ee0c039a17937",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/core-f05.json"
+      ]
+    },
+    {
+      "nodeId": "PROVIDER:A1",
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:e21f7d6afb8e69da4b45bcf6a07df8ebed1339d28ce2ab932d84448b5b5624ab",
+      "evidence": [
+        "audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/provider-a1.json"
+      ]
+    },
+    {
+      "nodeId": "FRONTEND-GATE:G0",
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:13aa5eba18503e1a488030eb3a908d52cf00d677f3c1c1ea2e6f4b63bab74d2f",
+      "evidence": [
+        "audit/evidence/frontend-g0-fep0-remediation-20261005/core-plan-format-reassessment-20261007/g0.json"
+      ]
+    },
+    {
+      "nodeId": "FE:FEP-0",
+      "stage": "DEVELOPMENT",
+      "status": "READY",
+      "input_digest": "sha256:763830a5f5dfd03d6eed62bed59a84c607273f70184bc05767f2f6c4f8d41ef2",
+      "evidence": [
+        "audit/evidence/fep0-remediation-20261005/user-confirmed-20261007-1d2bce97fcfb/fep0.json"
+      ]
+    }
+  ],
+  "currentG0Scope": "sha256:1d2bce97fcfb44f7a3995d6364e2d018171260dce243e03b5f7bb671111f76ac",
+  "confirmation": {
+    "record": "docs/gate-records/G0-user-confirmation-2026-10-07-1d2bce97fcfb.json",
+    "recordSha256": "sha256:a0accd1ccf154b6336135a1edaaccfa72d54073d13c450f654eac7baf3a3d77c"
+  },
+  "live": {
+    "receipt": "docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json",
+    "sha256": "sha256:5847070e4f935b62ba5930d29d90313dee05b097add4a6f5a641a60164e09489",
+    "sourceCommit": "5e3339c9e5cc95d550c6e67ffa36701998cb0e2f",
+    "sourceHashesMatchCurrentAndOriginalCommit": true,
+    "verifiedSourceFiles": [
+      {
+        "path": "services/bff-gateway/src/audit_core.rs",
+        "sha256": "sha256:5879b6e56c6db79acffdedeb1cd1916740c43910dc8ef1d0dc5d6eef4eff200a"
+      },
+      {
+        "path": "services/bff-gateway/src/lib.rs",
+        "sha256": "sha256:92329179c5525fdab5538b653d6e0705500d6492b8694b54abd221be6255f455"
+      },
+      {
+        "path": "services/bff-gateway/src/input_contract.rs",
+        "sha256": "sha256:55e8df4b65e09402a6414364be468be36528f1fe5d238a85b668062abf6bfcb6"
+      },
+      {
+        "path": "services/bff-gateway/src/live/audit.rs",
+        "sha256": "sha256:eb0a5a7f165e652df8e2c952cdc37cd7ea43e4f01adad8b979548f9cedefe958"
+      },
+      {
+        "path": "services/bff-gateway/src/live.rs",
+        "sha256": "sha256:4366179c1ff3fcde4029b869d2cad1a896d36f37ad7bff618f09ef0fb3316090"
+      },
+      {
+        "path": "services/bff-gateway/src/live/settings.rs",
+        "sha256": "sha256:5142e2d15b3f994dac314061cd4f07475a68e668f8dde88cbb77f85238758e6b"
+      },
+      {
+        "path": "supabase/migrations/20261006100000_bff_audit_exports.sql",
+        "sha256": "sha256:4a301bce609cbe89ca94d7be04684ca79dc6cf6da3667e65b46182d0059b51b6"
+      },
+      {
+        "path": "supabase/migrations/20261006110000_bff_audit_scope_indexes.sql",
+        "sha256": "sha256:b85a7c682d10b945c12970e8ffa56c547afa4974717edc958b1181d5f013ffa2"
+      },
+      {
+        "path": "supabase/migrations/20261006120000_bff_domain_audit_read_model.sql",
+        "sha256": "sha256:8de66d2d4f594d28e2cf20d0e1ded718ea617104fc57a4be51baebebb546def0"
+      },
+      {
+        "path": "supabase/migrations/20261006130000_bff_settings_audit_bridge.sql",
+        "sha256": "sha256:392ae4a82bd92fdf657c9968562177fb116155dc18771126b0dd81b649d4b533"
+      },
+      {
+        "path": "supabase/migrations/20261006140000_bff_audit_causal_roots.sql",
+        "sha256": "sha256:3fb516b40d0fc31a1e6b9a25fdd5ae586c7aa90645ec0275bf9b878cda5282fb"
+      },
+      {
+        "path": "bff/openapi/quantos-bff.v1.yaml",
+        "sha256": "sha256:e783bcd0fc250ca8d458d4c4a0e48b9b000ba71dd72bd66e3b92f1020f87b0a8"
+      },
+      {
+        "path": "scripts/test-bff-fe-007-live.mjs",
+        "sha256": "sha256:c481c8189603b34196fd9b956835ce931d944ddd47aab799264708faa3ea66d4"
+      }
+    ],
+    "apiCalls": 83,
+    "executedAssertions": 45,
+    "requiredAssertions": 32,
+    "cleanupVerified": true,
+    "executedThisTurn": false
+  },
+  "local": {
+    "semantics": "docs/audit/evidence/bff-fe-007-recheck-20261007/semantics.json",
+    "sha256": "sha256:bd1c795c814936ccca58b351c0495e409d5f7b9aad0dc875d84f0f987c80448c",
+    "executedThisTurn": true,
+    "commands": 3
+  },
+  "mutationProof": {
+    "id": "mutations",
+    "path": "docs/audit/evidence/bff-fe-007-remediation-20261006/core-plan-format-reassessment-20261007/mutations.json",
+    "sha256": "sha256:2a981064eab4515b6ccdb6ba0b5e0ae88619d4d6cbc6e2a2458bbebb7af9580d",
+    "status": "PASS",
+    "exitCode": 0
+  },
+  "currentFunctionalManifest": {
+    "path": "docs/audit/evidence/bff-fe-007-remediation-20261006/core-plan-format-reassessment-20261007/development.json",
+    "sha256": "sha256:23efe34c98d9b44384dbdfdd5b9ab05878090419bf1b53e9855bc32b98dc8751"
+  },
+  "formalAccepted": false
+}

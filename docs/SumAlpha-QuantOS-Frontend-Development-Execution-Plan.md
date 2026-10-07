@@ -2,16 +2,18 @@
 
 > 2026-10-07 旧 READY 复评完成：F0/A1 87/87、G0 16/16、FEP-0 2/2 工程检查通过；项目用户已确认当前 G0 文稿，确认后 FEP-0 2/2 实际重评通过；当前 25 READY、0 BLOCKED。历史正式/hosted CI 不迁移。见[复评报告](./audit/Core-plan-READY-reassessment-2026-10-07.md)。
 
-> 2026-10-07 格式重构前 BFF-FE-007 整改记录：原 9 项问题 CLOSED，31/31 控制点 PASS、六 API 实际 Supabase 复验及严格 DEVELOPMENT 门禁 READY；基础前置和身份 API 已刷新。项目用户已确认新增 G0 范围，G0/FEP-0 严格 READY；历史 `09bcaf7f28d9` 确认及 hosted CI 不迁移。
+> 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.38
+> 版本：3.39
 > 更新时间：2026-10-07
 > 状态：旧 READY 复评完成；当前 25 READY、0 BLOCKED（G0 当前文稿已确认，FEP-0 确认后实际重评 READY）；PROVIDER:ALL 与 RELEASE 独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.39`：再次核对 BFF-FE-007 原 9 项问题，均已解决；三组业务回归重跑通过，13 项目标源码摘要与不可变执行提交一致。当前复审报告仅保留结论、完成统计、验证依据和后续边界；历史问题与过程完整归档，任务卡同步当前有效功能回执。未修改功能源码、规范需求或 G0 已确认范围。
 
 - `3.38`：完成核心任务格式重构引起的旧 READY 复评：F0/A1 完整 87/87、G0 16/16、FEP-0 2/2 工程检查通过，基础 21 节点及两项 BFF 当前严格 READY。身份/审计 BFF 自身功能输入未变，实际重跑本地语义/变异并核对旧目标证据的 7/13 项摘要，未将原目标调用改记为本轮执行。旧 G0 确认 `900e809c60dd` 完整归档，新 `1d2bce97fcfb` 文稿已由项目用户本会话明确确认；原答复与文稿/范围摘要已保存，确认后 FEP-0 两项实际重评通过，当前 25 READY、0 BLOCKED，历史正式和 hosted CI 不迁移。见[复评报告](./audit/Core-plan-READY-reassessment-2026-10-07.md)。
 
@@ -555,9 +557,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - 覆盖契约/页面：C10；P04/P07/P09–P14/P22/P23
 - 目标阶段与验收：FEP-5/G5：功能联调验证 correlation ID 证据链完整、越权/过期下载拒绝和导出全过程审计；≤5 分钟还原在 RELEASE 的目标数据规模下验收，开发/联调记录基线
 
-重构前工程整改与复验（2026-10-07）：原 1 阻塞、1 高危、7 中危全部 CLOSED；活动问题 0，31/31 控制点 PASS。六 live API、F05 读模型与身份桥接、持久 worker/私有 Storage、真实三格式/一次性下载、范围/脱敏/完整性/分页/retention 与全过程审计实测通过；当前严格 DEVELOPMENT READY。见[当前复审报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)、[功能回执](./audit/evidence/bff-fe-007-remediation-20261006/final-sharp/development.json)及[runtime 说明](./BFF-FE-007-runtime.md)。`pnpm check:bff-fe-007:development` 严格校验当前输入、依赖、业务语义/变异及冻结源码目标回执；`pnpm check:bff-fe-007` 仅为 local contract。consumer 十页面联调、五分钟目标规模还原、staging/hosted CI 与 RELEASE 仍独立验收。
+当前复核（2026-10-07）：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。本轮重跑三组业务回归，核对 13 项目标源码与原执行内容一致，复用原 Supabase 83 次调用/45 条断言及清理回执；本轮未重跑目标。见[当前复审报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)、[当前功能回执](./audit/evidence/bff-fe-007-remediation-20261006/core-plan-format-reassessment-20261007/development.json)和[逐项复核记录](./audit/evidence/bff-fe-007-recheck-20261007/closure-verification.json)。
 
-- 当前工程复核：2026-10-07，格式重构后的三项依赖已刷新，DEVELOPMENT 严格 READY；三组语义与 5 项真实变异拒绝通过；13 项目标源码摘要未变，复用原 83 次 Supabase 调用/45 条断言及清理回执，未在本轮重跑目标。见[新功能回执](./audit/evidence/bff-fe-007-remediation-20261006/core-plan-format-reassessment-20261007/development.json)和[复评报告](./audit/Core-plan-READY-reassessment-2026-10-07.md)。
+已关闭问题和整改过程见[历史归档](./audit/BFF-FE-007-remediation-history-2026-10-07.md)。`pnpm check:bff-fe-007:development` 验证当前输入、三项依赖、业务语义/变异及目标证据；local contract 检查单独通过不构成功能准入。十页面联调、目标规模下五分钟还原、部署/hosted CI 与 RELEASE 继续按对应阶段验收；运行配置见[runtime 说明](./BFF-FE-007-runtime.md)。
 
 <a id="acceptance-provider-a2"></a>
 ##### PROVIDER:A2：验收检查点

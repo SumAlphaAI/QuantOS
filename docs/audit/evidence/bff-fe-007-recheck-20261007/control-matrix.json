@@ -1,0 +1,239 @@
+{
+  "sourceCommit": "b274a7ef3c03478ac9ec3746efea509d6a01592d",
+  "stage": "DEVELOPMENT",
+  "formalAccepted": false,
+  "weighting": "equal weight; PASS=1, PARTIAL/FAIL=0; RELEASE/consumer integration excluded",
+  "counts": {
+    "PASS": 31,
+    "PARTIAL": 0,
+    "FAIL": 0
+  },
+  "completed": 31,
+  "total": 31,
+  "completionRatePercent": 100,
+  "controls": [
+    {
+      "id": "C01",
+      "control": "六个 operation 与请求/响应 schema 发布",
+      "status": "PASS",
+      "evidence": "OpenAPI 1.5.0 六 operation 未扩展；实际契约/生成门禁通过",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C02",
+      "control": "C10 owner 与十个消费页面映射",
+      "status": "PASS",
+      "evidence": "C10 十页面映射保持一致；页面实现与集成独立验收",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C03",
+      "control": "client/Zod/JSON Schema/MSW 同源生成及无漂移",
+      "status": "PASS",
+      "evidence": "当前生成物、page contract coverage 通过，无生成漂移",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C04",
+      "control": "参考搜索条件与有界 pageSize、sort/filter、时间输入",
+      "status": "PASS",
+      "evidence": "搜索范围、排序、时间和 pageSize 1–200 的业务回归通过",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C05",
+      "control": "固定参考链的 correlation/causation 分页还原",
+      "status": "PASS",
+      "evidence": "参考链与真实域事件链分开验证；8 域 eventId/独立 auditRef/sequence 实测一致",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C06",
+      "control": "六接口参考 cookie/capability 的 401/403",
+      "status": "PASS",
+      "evidence": "参考六接口 401/403，目标六接口缺身份 401 与 capability 403 矩阵全部通过",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C07",
+      "control": "参考 create/cancel 的 CSRF、recent-auth",
+      "status": "PASS",
+      "evidence": "实际创建缺 CSRF/recent-auth 返回 403；当前 session recent-auth 五分钟绑定",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C08",
+      "control": "参考敏感响应 no-store 与错误外观隐藏",
+      "status": "PASS",
+      "evidence": "错误/no-store 规范回归通过；未知资源隐藏，trace 不记签名或票据",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C09",
+      "control": "完整业务意图的幂等、冲突与恢复",
+      "status": "PASS",
+      "evidence": "完整范围规范化、主体/账号/目标绑定、持久相同 key 重放；改任一范围字段 409 且无业务/审计变化",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C10",
+      "control": "不透明且不可篡改、绑定查询的稳定游标",
+      "status": "PASS",
+      "evidence": "服务器五分钟快照及高熵 token 摘要；伪造、不同 pageSize、跨搜索/链游标 422",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C11",
+      "control": "证据链完整性判定与真实因果覆盖",
+      "status": "PASS",
+      "evidence": "真实 event_log causation 链三页完整还原；身份/完整导出生命周期因果根也实测，complete 结合依赖节点完整性",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C12",
+      "control": "服务端字段级脱敏、禁止完整标识/秘密输出",
+      "status": "PASS",
+      "evidence": "白名单 audit-v1 脱敏真实载荷/自由文本；合成账号/秘密不进入返回/产物",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C13",
+      "control": "真实 payload hash 与可验证证据摘要",
+      "status": "PASS",
+      "evidence": "实际脱敏载荷 canonical SHA-256；实际下载字节 SHA-256/sizeBytes 核对一致",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C14",
+      "control": "六接口可由实际 live BFF 接收与处理",
+      "status": "PASS",
+      "evidence": "live 挂载并实际执行六 API，成功和无能力拒绝均有 schema 验证",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C15",
+      "control": "F05 持久审计读模型及数据库功能连接",
+      "status": "PASS",
+      "evidence": "Supabase audit_entries LEFT JOIN event_log、域 eventId/sequence；身份审计同事务桥接 F05",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C16",
+      "control": "资源级主体/账号授权与无权资源隐藏",
+      "status": "PASS",
+      "evidence": "RLS tenant/actor 与显式 scope，job owner/context；自有测试 job 改 owner/account scope 后 404，恢复原值",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C17",
+      "control": "完整 ExportScope：eventKinds/time range/unique IDs",
+      "status": "PASS",
+      "evidence": "eventKinds/startAt/endAt 进入规范化意图及产物过滤；重复/逆序/未知字段 422，未知链 404",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C18",
+      "control": "持久异步导出、生成产物、重启恢复与取消工作流",
+      "status": "PASS",
+      "evidence": "持久队列/独立 worker/私有 Storage，lease 与 fencing；真实重启恢复和取消吊销通过",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C19",
+      "control": "queued/generating/ready/cancel/expired/failed 状态机制",
+      "status": "PASS",
+      "evidence": "queued/generating/ready/cancelled/expired/failed 实际状态；受控 oversized 触发三次失败后 failed 并留审计",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C20",
+      "control": "真实短时、一次性签名 URL、实际水印与文件元数据",
+      "status": "PASS",
+      "evidence": "三种真实带水印产物；HMAC 签名资源票据五分钟内/一次消费；串行和并发二次消费 410",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C21",
+      "control": "retention/到期拒绝与下载吊销联动",
+      "status": "PASS",
+      "evidence": "DB now 检查 retention；受控推进过期后签发/消费均 410；取消已发票据同样 410",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C22",
+      "control": "导出与受限访问全过程审计、持久可追溯",
+      "status": "PASS",
+      "evidence": "F05 持久记录受限读、拒绝、生成、完成、消费、取消、过期及失败；trace 掩盖 URL 签名",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C23",
+      "control": "六个 typed gateway、cookie 与安全头携带",
+      "status": "PASS",
+      "evidence": "六 typed gateway 保留 cookie、CSRF、reauth 与业务头，consumer 回归通过",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C24",
+      "control": "403/404/410 gateway 安全文案与 correlation 信息",
+      "status": "PASS",
+      "evidence": "安全 ErrorEnvelope 校验，403/404/410 外观隐藏内部消息与详情",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C25",
+      "control": "成功响应 runtime schema 与安全约束校验",
+      "status": "PASS",
+      "evidence": "六响应 runtime schema；未脱敏、非水印、畸形/过期/越过 retention 的 lease 全部拒绝",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C26",
+      "control": "基础 transport 截止时间与写请求不自动重试",
+      "status": "PASS",
+      "evidence": "共享 30 秒截止、写请求不自动重试保持；Auth 暂态重试仅在受控测试驱动内显式执行",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C27",
+      "control": "三项直接依赖的实际内容绑定 READY",
+      "status": "PASS",
+      "evidence": "严格递归校验 BFF-FE-001、CORE:F05、PROVIDER:A1 当前输入/依赖/执行日志 READY",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C28",
+      "control": "工程规范与既有本任务正负/业务/consumer 回归实际执行",
+      "status": "PASS",
+      "evidence": "Rust/Terminal 业务语义、变异、类型、ESLint、fmt/Clippy 与迁移静态/目标检查通过",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C29",
+      "control": "任务级功能 manifest、输入/目标摘要与严格阶段 Gate",
+      "status": "PASS",
+      "evidence": "独立 development manifest 绑定功能输入/计划/日志/依赖/目标提交；注释冒充与失效前置等负向测试拒绝",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C30",
+      "control": "六接口真实目标正常/安全负向/恢复/清理验收",
+      "status": "PASS",
+      "evidence": "真实 Supabase Auth/PostgreSQL/private Storage + 本机 live BFF 正常、拒绝、完整性、恢复及清理回执 PASS",
+      "findings": "无活动问题"
+    },
+    {
+      "id": "C31",
+      "control": "请求资源限制与每主体/操作的配额",
+      "status": "PASS",
+      "evidence": "64 KiB/pageSize 200/快照 10000/产物16MiB；持久每主体操作配额，创建5/min，其他120/min，目标429通过",
+      "findings": "无活动问题"
+    }
+  ],
+  "evidence": [
+    "closure-verification.json",
+    "semantics.json",
+    "docs/audit/evidence/bff-fe-007-remediation-20261006/core-plan-format-reassessment-20261007/development.json"
+  ],
+  "verificationMethod": "Current source review, three locally rerun semantic command groups, strict dependency and immutable target evidence verification; target calls not rerun this turn."
+}
