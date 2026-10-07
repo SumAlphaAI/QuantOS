@@ -1,15 +1,19 @@
 # SumAlpha QuantOS 前端开发执行计划
 
-> 2026-10-07 BFF-FE-007 整改完成：原 9 项问题 CLOSED，31/31 控制点 PASS、六 API 实际 Supabase 复验及严格 DEVELOPMENT 门禁 READY；基础前置和身份 API 已刷新。项目用户已确认新增 G0 范围，G0/FEP-0 严格 READY；历史 `09bcaf7f28d9` 确认及 hosted CI 不迁移。
+> 2026-10-07 旧 READY 复评完成：F0/A1 87/87、G0 16/16、FEP-0 2/2 工程检查通过；项目用户已确认当前 G0 文稿，确认后 FEP-0 2/2 实际重评通过；当前 25 READY、0 BLOCKED。历史正式/hosted CI 不迁移。见[复评报告](./audit/Core-plan-READY-reassessment-2026-10-07.md)。
+
+> 2026-10-07 格式重构前 BFF-FE-007 整改记录：原 9 项问题 CLOSED，31/31 控制点 PASS、六 API 实际 Supabase 复验及严格 DEVELOPMENT 门禁 READY；基础前置和身份 API 已刷新。项目用户已确认新增 G0 范围，G0/FEP-0 严格 READY；历史 `09bcaf7f28d9` 确认及 hosted CI 不迁移。
 
 
-> 版本：3.37
+> 版本：3.38
 > 更新时间：2026-10-07
-> 状态：BFF-FE-007 DEVELOPMENT READY；当前 25 READY、0 BLOCKED（G0 当前范围已确认，FEP-0 严格 READY）；PROVIDER:ALL 与 RELEASE 独立验收
+> 状态：旧 READY 复评完成；当前 25 READY、0 BLOCKED（G0 当前文稿已确认，FEP-0 确认后实际重评 READY）；PROVIDER:ALL 与 RELEASE 独立验收
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.38`：完成核心任务格式重构引起的旧 READY 复评：F0/A1 完整 87/87、G0 16/16、FEP-0 2/2 工程检查通过，基础 21 节点及两项 BFF 当前严格 READY。身份/审计 BFF 自身功能输入未变，实际重跑本地语义/变异并核对旧目标证据的 7/13 项摘要，未将原目标调用改记为本轮执行。旧 G0 确认 `900e809c60dd` 完整归档，新 `1d2bce97fcfb` 文稿已由项目用户本会话明确确认；原答复与文稿/范围摘要已保存，确认后 FEP-0 两项实际重评通过，当前 25 READY、0 BLOCKED，历史正式和 hosted CI 不迁移。见[复评报告](./audit/Core-plan-READY-reassessment-2026-10-07.md)。
 
 - `3.37`：项目用户明确答复“确认 G0 DEVELOPMENT 文稿”，当前范围 `900e809c60dd` 与功能输入一致；保存原答复/文稿/范围摘要，G0 核验原 16/16 工程执行后严格 READY。确认后 FEP-0 两项实际重评 PASS、八依赖及 23 节点闭包 READY；加上身份与 Audit 两项 A2 当前共 25 READY、0 BLOCKED。原 PENDING 及历史确认保留，hosted CI/RELEASE 独立。见[当前确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-07.md)。
 
@@ -53,7 +57,7 @@
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.31、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.38、第 2.1 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -207,7 +211,7 @@
 - task_id: `PRE-01`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:8c18a181588dada0e4cda3e8c7dc7aedc59fe0dd6a784a7f7def0d44bd4e9bfa","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-01.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ef99c9c2f307f5004a622add8354e3220c0113ce3307ac0a229c6f6204834018","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/fe-pre-01.json"]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -226,7 +230,7 @@
 - task_id: `PRE-02`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:6ee0fc8da236782687468f108a2741c9e4a58a9db7295efeb4cf49b0d8adab80","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-02.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:bcffd3538d99b06f4d3089cbf37899fec152862fa0094f39158818eb9c1a9ec1","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/fe-pre-02.json"]}
 - depends_on: ["PRE-01"]
 - core_prerequisites: []
 - closes_core: []
@@ -244,7 +248,7 @@
 - task_id: `PRE-03`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:6c8a47d5b739c667b225ccc96a4219a3f1b5ca8ebc579d4d2294bcd7dcac1202","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ecd10a2bba500ac13579fd7c622e935a6e5b4971e1d11094e0e5c6de0676e0b4","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/fe-pre-03.json"]}
 - depends_on: ["PRE-02", "CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -262,7 +266,7 @@
 - task_id: `PRE-04`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:dfe99a6b0648521ab6efbac37bda10d4f5799eefd1615d1e1df0bcc0ee543a13","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:42de21fe06a011a8723eb59762bcc9748ff5e26489b2862bc87ea1a22b4bcfee","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/fe-pre-04.json"]}
 - depends_on: ["PRE-01", "CORE:F03", "CORE:F06"]
 - core_prerequisites: ["CORE:F03", "CORE:F06"]
 - closes_core: []
@@ -280,7 +284,7 @@
 - task_id: `PRE-05`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4319f80d0bc2e3e9083a498dac0008aa1ae9f23df5fa83a0ffb6a329b56a2fa0","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-05.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:65cdbf006963ff36f841f685d36eeb71d88185e3d6593f61fb4db19cec585c1d","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/fe-pre-05.json"]}
 - depends_on: ["PRE-03", "PRE-04"]
 - core_prerequisites: []
 - closes_core: []
@@ -298,7 +302,7 @@
 - task_id: `PRE-06`
 - task_type: `PREPARATION`
 - iteration: `P0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:17e9db8686eb05f230f79e7bf6a3934d5ef5bbad939c66a135797410e3728ff3","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-pre-06.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:8fb215c3e3660ec9bdc69cf5f86c7980f353b9a27564d6691a350e270a0e270a","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/fe-pre-06.json"]}
 - depends_on: ["PRE-04", "PRE-05"]
 - core_prerequisites: []
 - closes_core: []
@@ -338,9 +342,9 @@
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "READY",
-    "input_digest": "sha256:2f404b402bd769cffa63d125e05422b9b6616ba02a40ecb34fc95726b787563e",
+    "input_digest": "sha256:7827205a6c3bf6bf015c8c00ab94f2e7ed9a6b0ea105158635c1d3955bd0068c",
     "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/preparation-p0.json"
+      "audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/preparation-p0.json"
     ]
   }
 }
@@ -400,7 +404,7 @@ F03 的领域协议和 R/S/X 服务能力不能替代页面 BFF 契约。以下 
 - task_id: `BFF-FE-000`
 - task_type: `PAGE_API`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7aef1dd9604908a3dfba92739696af643425b8cfd917ac357e21ab20dffdc35d","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/fe-bff-fe-000.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:631864c3ff1c44d113cc5675a6385670f3e7f281df88add134def57d90a847e2","evidence":["audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/fe-bff-fe-000.json"]}
 - depends_on: ["PRE-04", "PRE-06", "CORE:F03", "CORE:F05", "CORE:F06", "PREPARATION:P0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -434,9 +438,9 @@ A1 DEVELOPMENT 验证 OpenAPI/生成 client、schema、安全负向及已实现�
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "READY",
-    "input_digest": "sha256:5abf7d6c0279c897a33ee7ae656ff02182a1c425a9903e6eecbf3da0a5bb56dd",
+    "input_digest": "sha256:e21f7d6afb8e69da4b45bcf6a07df8ebed1339d28ce2ab932d84448b5b5624ab",
     "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/provider-a1.json"
+      "audit/evidence/provider-a1-remediation-20261004/core-plan-format-reassessment-20261007/provider-a1.json"
     ]
   }
 }
@@ -477,9 +481,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "stage_gate": {
     "stage": "DEVELOPMENT",
     "status": "READY",
-    "input_digest": "sha256:83743d85b014e06b027e51f003052b6e6d9bc96e112b8939da94eb9ea2d57d4e",
+    "input_digest": "sha256:13aa5eba18503e1a488030eb3a908d52cf00d677f3c1c1ea2e6f4b63bab74d2f",
     "evidence": [
-      "audit/evidence/frontend-g0-fep0-remediation-20261005/bff007-sharp-20261007/g0.json"
+      "audit/evidence/frontend-g0-fep0-remediation-20261005/core-plan-format-reassessment-20261007/g0.json"
     ]
   }
 }
@@ -491,7 +495,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `FEP-0`
 - task_type: `MILESTONE`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:6e998f5f4265c9b18b4ffb6561b315558f270b189dde5021eb42e11c413890b9","evidence":["audit/evidence/fep0-remediation-20261005/user-confirmed-20261007-900e809c60dd/fep0.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:763830a5f5dfd03d6eed62bed59a84c607273f70184bc05767f2f6c4f8d41ef2","evidence":["audit/evidence/fep0-remediation-20261005/user-confirmed-20261007-1d2bce97fcfb/fep0.json"]}
 - depends_on: ["CORE-GATE:F0", "PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06", "FRONTEND-GATE:G0"]
 - core_prerequisites: ["CORE-GATE:F0"]
 - closes_core: []
@@ -503,7 +507,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - 交付节点与放行条件：G0：Web 栈、OpenAPI、会话、错误、mock 与浏览器 PoC 冻结
 - 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
-当前功能复核：原 2/2 阻塞项已关闭，20/20 控制点满足；[主报告](./audit/FEP-0-comprehensive-review-2026-10-05.md)与[关闭依据](./audit/FEP-0-closed-findings-2026-10-05.md)记录当前准入及历史追溯。
+重构前功能复核：原 2/2 阻塞项已关闭，20/20 控制点满足；[主报告](./audit/FEP-0-comprehensive-review-2026-10-05.md)与[关闭依据](./audit/FEP-0-closed-findings-2026-10-05.md)记录当前准入及历史追溯。
+
+- 当前工程复核：2026-10-07，用户确认当前 G0 文稿后，两项实际检查重新执行通过，八依赖严格 READY，FEP-0 为 READY；确认前 BLOCKED 工程回执另行保留。见[旧 READY 复评报告](./audit/Core-plan-READY-reassessment-2026-10-07.md)和[当前功能回执](./audit/evidence/fep0-remediation-20261005/user-confirmed-20261007-1d2bce97fcfb/fep0.json)。
 
 #### 迭代 A2：页面 API 开发与 provider 功能验证
 
@@ -513,7 +519,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `BFF-FE-001`
 - task_type: `PAGE_API`
 - iteration: `A2`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:9544dc25a2e347cdf6b814ca377f70a5c137a69eeee5d9ac1fa55c2f30c74dc1","evidence":["audit/evidence/bff-fe-001-remediation-20261005/bff007-sharp-20261007/a2.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:0a2fc351dac36544088a5938acc0142d63f50fc668e2f8828d449ace7e5ecb2c","evidence":["audit/evidence/bff-fe-001-remediation-20261005/core-plan-format-reassessment-20261007/a2.json"]}
 - depends_on: ["BFF-FE-000", "CORE:F06", "PROVIDER:A1"]
 - core_prerequisites: ["CORE:F06"]
 - closes_core: []
@@ -528,7 +534,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 
 历史功能复核（2026-10-05 / `f2283fa`）：原 2 高危、4 中危均 CLOSED；活动问题 0，24/24 控制点、20/20 API 满足，BFF-FE-001 DEVELOPMENT READY。目标证据源码内容一致，未重跑 Supabase；PROVIDER:A2/ALL 与 RELEASE 仍独立验收。
 
-当前依赖复验（2026-10-07）：共享 BFF/迁移改动后，BFF-FE-001 已重新执行实际 Supabase 身份/设置回归和清理，当前严格 DEVELOPMENT READY；见[新回执](./audit/evidence/bff-fe-001-remediation-20261005/bff007-sharp-20261007/a2.json)。旧源码回执保留历史。
+重构前依赖复验（2026-10-07）：共享 BFF/迁移改动后，BFF-FE-001 已重新执行实际 Supabase 身份/设置回归和清理，当前严格 DEVELOPMENT READY；见[新回执](./audit/evidence/bff-fe-001-remediation-20261005/bff007-sharp-20261007/a2.json)。旧源码回执保留历史。
+
+- 当前工程复核：2026-10-07，格式重构后的依赖已刷新，DEVELOPMENT 严格 READY；三组语义回归、22/14 项负向及 8 项真实变异拒绝通过；7 项目标源码摘要未变，复用原 51 次 Supabase 调用/14 条断言及清理回执，未在本轮重跑目标。见[新功能回执](./audit/evidence/bff-fe-001-remediation-20261005/core-plan-format-reassessment-20261007/a2.json)和[复评报告](./audit/Core-plan-READY-reassessment-2026-10-07.md)。
 
 <a id="task-bff-fe-007"></a>
 ##### BFF-FE-007：Audit 与导出 API
@@ -536,7 +544,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `BFF-FE-007`
 - task_type: `PAGE_API`
 - iteration: `A2`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:07150c4b8385de7ddff34b6f5f7cd64fa0e32e68e585a443740fcd4b6e75371c","evidence":["audit/evidence/bff-fe-007-remediation-20261006/final-sharp/development.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:23efe34c98d9b44384dbdfdd5b9ab05878090419bf1b53e9855bc32b98dc8751","evidence":["audit/evidence/bff-fe-007-remediation-20261006/core-plan-format-reassessment-20261007/development.json"]}
 - depends_on: ["BFF-FE-001", "CORE:F05", "PROVIDER:A1"]
 - core_prerequisites: ["CORE:F05"]
 - closes_core: []
@@ -547,7 +555,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - 覆盖契约/页面：C10；P04/P07/P09–P14/P22/P23
 - 目标阶段与验收：FEP-5/G5：功能联调验证 correlation ID 证据链完整、越权/过期下载拒绝和导出全过程审计；≤5 分钟还原在 RELEASE 的目标数据规模下验收，开发/联调记录基线
 
-工程整改与复验（2026-10-07）：原 1 阻塞、1 高危、7 中危全部 CLOSED；活动问题 0，31/31 控制点 PASS。六 live API、F05 读模型与身份桥接、持久 worker/私有 Storage、真实三格式/一次性下载、范围/脱敏/完整性/分页/retention 与全过程审计实测通过；当前严格 DEVELOPMENT READY。见[当前复审报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)、[功能回执](./audit/evidence/bff-fe-007-remediation-20261006/final-sharp/development.json)及[runtime 说明](./BFF-FE-007-runtime.md)。`pnpm check:bff-fe-007:development` 严格校验当前输入、依赖、业务语义/变异及冻结源码目标回执；`pnpm check:bff-fe-007` 仅为 local contract。consumer 十页面联调、五分钟目标规模还原、staging/hosted CI 与 RELEASE 仍独立验收。
+重构前工程整改与复验（2026-10-07）：原 1 阻塞、1 高危、7 中危全部 CLOSED；活动问题 0，31/31 控制点 PASS。六 live API、F05 读模型与身份桥接、持久 worker/私有 Storage、真实三格式/一次性下载、范围/脱敏/完整性/分页/retention 与全过程审计实测通过；当前严格 DEVELOPMENT READY。见[当前复审报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)、[功能回执](./audit/evidence/bff-fe-007-remediation-20261006/final-sharp/development.json)及[runtime 说明](./BFF-FE-007-runtime.md)。`pnpm check:bff-fe-007:development` 严格校验当前输入、依赖、业务语义/变异及冻结源码目标回执；`pnpm check:bff-fe-007` 仅为 local contract。consumer 十页面联调、五分钟目标规模还原、staging/hosted CI 与 RELEASE 仍独立验收。
+
+- 当前工程复核：2026-10-07，格式重构后的三项依赖已刷新，DEVELOPMENT 严格 READY；三组语义与 5 项真实变异拒绝通过；13 项目标源码摘要未变，复用原 83 次 Supabase 调用/45 条断言及清理回执，未在本轮重跑目标。见[新功能回执](./audit/evidence/bff-fe-007-remediation-20261006/core-plan-format-reassessment-20261007/development.json)和[复评报告](./audit/Core-plan-READY-reassessment-2026-10-07.md)。
 
 <a id="acceptance-provider-a2"></a>
 ##### PROVIDER:A2：验收检查点
