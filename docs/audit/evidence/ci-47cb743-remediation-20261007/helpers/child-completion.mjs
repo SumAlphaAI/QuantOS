@@ -1,0 +1,30 @@
+import fs from 'node:fs';
+import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+const root=process.cwd();
+const base='docs/audit/evidence/ci-47cb743-remediation-20261007';
+const identity='docs/audit/evidence/bff-fe-001-remediation-20261005/ci-47cb743-final-reassessment-20261007';
+const audit='docs/audit/evidence/bff-fe-007-remediation-20261006/ci-47cb743-reassessment-20261007';
+const window='docs/audit/evidence/provider-a2-remediation-20261007/ci-47cb743-reassessment-20261007';
+const g0='docs/audit/evidence/frontend-g0-fep0-remediation-20261005/ci-47cb743-reassessment-20261007';
+const fep0='docs/audit/evidence/fep0-remediation-20261005/ci-47cb743-reassessment-20261007';
+fs.mkdirSync(base+'/refresh-logs',{recursive:true});fs.mkdirSync(identity,{recursive:true});
+const results=[];
+function run(id,command,args,log=base+'/refresh-logs/completion-'+id+'.log'){
+ const startedAt=new Date().toISOString();const r=spawnSync(command,args,{cwd:root,encoding:'utf8',timeout:1800000,maxBuffer:32*1024*1024});
+ const bytes=Buffer.from((r.stdout||'')+(r.stderr||''));fs.writeFileSync(log,bytes);
+ results.push({id,command,args,startedAt,exitCode:r.status,status:r.status===0?'PASS':'FAIL',log,logSha256:createHash('sha256').update(bytes).digest('hex')});
+ fs.writeFileSync(base+'/refresh-completion-execution-results.json',JSON.stringify(results,null,2)+'\n');
+ console.log(id,r.status);if(r.status!==0)throw Error('refresh failed '+id+'; see '+log);
+}
+const previousIdentity='docs/audit/evidence/bff-fe-001-remediation-20261005/ci-47cb743-reassessment-20261007';
+fs.copyFileSync(previousIdentity+'/stage-negative.log',identity+'/stage-negative.log');
+fs.writeFileSync(base+'/identity-refresh-recovery.json',JSON.stringify({schema:'quantos-audit-invocation-recovery/v1',sourceCommit:'d00041ee354701a08fa7483e948b74f374439b13',originalExecution:base+'/refresh-execution-results.json',originalIdentityDirectory:previousIdentity,currentIdentityDirectory:identity,reason:'22 successful contract tests emitted the default reporter; strict receipt requires TAP fail marker. Rerun only this complete group with explicit TAP; no validator changed.',reusedPassedGroups:['identity-semantics','identity-stage-negative','identity-mutations'],failedPublicationPreserved:true},null,2)+'\n');
+run('identity-contract-tap',process.execPath,['--test','--test-reporter=tap','scripts/bff-fe-001-gate-negative.mjs'],identity+'/contract-negative.log');
+run('identity-record',process.execPath,['scripts/bff-fe-001-development.mjs','--record',identity,'docs/audit/evidence/bff-fe-001-remediation-20261005/bff007-live-20261006']);
+run('audit-semantics',process.execPath,['scripts/test-bff-fe-007-semantics.mjs',audit]);
+run('audit-mutations',process.execPath,['scripts/test-bff-fe-007-mutations.mjs',audit]);
+run('audit-record',process.execPath,['scripts/bff-fe-007-development.mjs','--record',audit,'docs/audit/evidence/bff-fe-007-remediation-20261006/live-final-15']);
+run('window-assessment',process.execPath,['scripts/provider-a2-development.mjs','--assess',window]);
+run('g0-assessment',process.execPath,['scripts/g0-development.mjs','--assess',g0]);
+run('fep0-assessment',process.execPath,['scripts/fep0-development.mjs','--assess',fep0]);

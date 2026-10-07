@@ -1,0 +1,70 @@
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling capacity-monitor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/capacity-monitor)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.41s
+   Compiling portfolio-rebuild v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/portfolio-rebuild)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.36s
+F09 scheduler smoke PASS: 2 real Supabase missing-coverage ticks
+QUANTOS_RUN_F09_POSTGRES_TESTS=1 cargo test -p quantos-observability --test postgres_capacity_monitor --locked -- --test-threads=1 --skip restricted_runtime_role_records_only_real_storage_outcomes --nocapture
+
+running 3 tests
+test fault_proxy_retries_real_postgres_event_and_consumer_chain ... ok
+test live_database_session_termination_preserves_ordered_event_chain ... ok
+test live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 493.52s
+
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.16s
+     Running tests/postgres_capacity_monitor.rs (target/debug/deps/postgres_capacity_monitor-9574dfcf6ab1c033)
+F09 database termination recovered; correlation=01a11517-cb9c-7a12-af74-45469d312840; ordered_events=2
+F09 capacity continuity tick 0/17
+F09 capacity continuity tick 3/17
+F09 capacity continuity tick 6/17
+F09 capacity continuity tick 9/17
+F09 capacity continuity tick 12/17
+F09 capacity continuity tick 15/17
+
+running 1 test
+test f09_portfolio_and_risk_queries_persist_actual_latency_samples ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 18.16s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
+     Running tests/postgres_portfolio.rs (target/debug/deps/postgres_portfolio-6f684ef8228c8a8c)
+
+running 1 test
+test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... F09 BFF real session revoke and persistent trace share correlation_id=01a1151f-3c2a-7170-9326-903d7a6fe8c7
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 11.41s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.08s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-68c4eb783de3751f)
+
+running 1 test
+F09 Runtime persisted run and trace share correlation_id=01a1151f-851b-74d0-9c7f-a27ea964d272
+test live::tests::f09_runtime_real_write_trace ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 26.05s
+
+   Compiling runtime-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/runtime-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.53s
+     Running unittests src/main.rs (target/debug/deps/runtime_gateway-1b2dfe6edba358ee)
+{"event":"F09_PORTFOLIO_WRITE_TRACE_PASS","correlationId":"01a1151f-cbf7-7bb3-b52b-94660855b446","snapshotHash":"sha256:2081d8c86e1a95ae74d66be445e82db83a81e22d36bad8fc3d843640e2d416c1","lastEventSequence":23,"positionCount":3}
+
+running 1 test
+test manager_supervises_three_real_crashes_without_test_owned_restarts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 0.86s
+
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.53s
+     Running tests/python_mock_engine.rs (target/debug/deps/python_mock_engine-a14b3ed6aaf7410e)

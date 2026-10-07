@@ -1,0 +1,33 @@
+
+running 1 test
+test opaque_snapshot_cursors_reject_tampering_and_query_reuse ... FAILED
+
+failures:
+
+---- opaque_snapshot_cursors_reject_tampering_and_query_reuse stdout ----
+
+thread 'opaque_snapshot_cursors_reject_tampering_and_query_reuse' (3961630) panicked at services/bff-gateway/tests/audit_export_provider.rs:641:9:
+assertion `left == right` failed
+  left: 200
+ right: 422
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    opaque_snapshot_cursors_reject_tampering_and_query_reuse
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.01s
+
+   Compiling bff-gateway v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-audit-mutants-WHbs8m/services/bff-gateway)
+warning: unused variable: `owner`
+    --> services/bff-gateway/src/lib.rs:1208:19
+     |
+1208 |             Some((owner, rows, offset, until)) if *until > state.now() => {
+     |                   ^^^^^ help: if this is intentional, prefix it with an underscore: `_owner`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `bff-gateway` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.40s
+     Running tests/audit_export_provider.rs (target/bff-fe-007-mutants/debug/deps/audit_export_provider-b58c41578c8e3ee4)
+error: test failed, to rerun pass `-p bff-gateway --test audit_export_provider`

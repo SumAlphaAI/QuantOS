@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const {scopeRequest,confirmationRequest,finalize}=await import(process.cwd()+'/scripts/g0-development.mjs');
+const {digest}=await import(process.cwd()+'/scripts/provider-a1-receipts.mjs');
+const base='docs/audit/evidence/ci-47cb743-remediation-20261007';
+const request=confirmationRequest(scopeRequest());
+assert.equal(request.inputsDigest,'sha256:52fee5f6e4996ed688922eda8e073a167f6239506d81b2ab546dadb50c8cd809');
+const document='docs/gate-records/G0-user-confirmation-draft-2026-10-07-52fee5f6e499.md';
+const record='docs/gate-records/G0-user-confirmation-2026-10-07-52fee5f6e499.json';
+assert(!fs.existsSync(record));
+const ledger='docs/gate-records/G0-current-scope-confirmations.json';
+assert.equal(JSON.parse(fs.readFileSync(ledger)).status,'PENDING');
+fs.copyFileSync(base+'/closure-verification.json',base+'/pending-closure-verification.json');
+const data={schema:'quantos-user-acceptance-confirmation/v1',mode:'AGENT_DRAFT_USER_CONFIRMATION',decision:'CONFIRMED',approver:'ProjectUser',identity:'项目用户（本会话）',confirmedAt:new Date().toISOString(),request,document,documentSha256:digest(fs.readFileSync(document)),confirmationSource:{kind:'USER_MESSAGE',text:'确认当前 G0 DEVELOPMENT 文稿',questionItemId:'["request_user_input_async","call_d010d89f2a114accb958e2df77650301",0]',question:'是否确认[当前 G0 DEVELOPMENT 文稿](/Users/anray/Documents/project/SumAlpha/QuantOS/docs/gate-records/G0-user-confirmation-draft-2026-10-07-52fee5f6e499.md)（范围 `52fee5f6e499`）？当前 F0/A1、A2、G0 16/16、FEP-0 2/2 工程已通过。需要重新确认是因为[项目用户确认规程](/Users/anray/Documents/project/SumAlpha/QuantOS/docs/gate-records/user-acceptance-confirmation-workflow.md)第5步要求：“实质范围、功能输入或文稿变化时，Codex 更新文稿并重新请用户确认”；本次共享 fixture 与回归测试改变了功能输入。确认仅覆盖文稿的开发范围和遗留安排；我会继续整理证据并完成 Git 提交。'},scopeSummary:{apiVersion:'1.5.0',platform:'phase-one Web',publishedOperations:62,plannedExcluded:46,scopeDocument:'docs/gate-records/G0-user-scope-request-2026-10-07-52fee5f6e499.json'}};
+fs.writeFileSync(record,JSON.stringify(data,null,2)+'\n');
+fs.writeFileSync(ledger,JSON.stringify({schema:'quantos-g0-scope-confirmations/v2',status:'CONFIRMED',scopeDigest:request.inputsDigest,approval:{record,recordSha256:digest(fs.readFileSync(record))}},null,2)+'\n');
+console.log(JSON.stringify(finalize(),null,2));

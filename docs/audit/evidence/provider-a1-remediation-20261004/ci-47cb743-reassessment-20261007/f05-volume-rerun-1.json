@@ -1,0 +1,73 @@
+{
+  "schema": "quantos-same-source-f05-volume-rerun/v1",
+  "sourceCommit": "d00041ee354701a08fa7483e948b74f374439b13",
+  "inputsDigest": "sha256:354da28d04525ec298fd1eaaa36507c26f0636326ce340cd95f8835483f4edbd",
+  "attempt": 1,
+  "executedAt": "2026-10-07T07:39:36.435Z",
+  "completedAt": "2026-10-07T07:50:26.643Z",
+  "id": "f05-volume",
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "-p",
+    "quantos-event",
+    "--test",
+    "postgres_persistence",
+    "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+    "--",
+    "--exact",
+    "--test-threads=1"
+  ],
+  "status": "PASS",
+  "exitCode": 0,
+  "log": "docs/audit/evidence/provider-a1-remediation-20261004/ci-47cb743-reassessment-20261007/logs/f05-volume-rerun-1.log",
+  "logSha256": "sha256:3b3ff353b8061499f2814c73b288607a79c300e85f897654250c93df66f63584",
+  "originalFailure": {
+    "id": "f05-volume",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-event",
+      "--test",
+      "postgres_persistence",
+      "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+      "--",
+      "--exact",
+      "--test-threads=1"
+    ],
+    "exitCode": 101,
+    "status": "FAIL",
+    "executedAt": "2026-10-07T07:06:24.515Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/ci-47cb743-reassessment-20261007/logs/f05-volume.log",
+    "logSha256": "sha256:dc771acae7ca82d9d96c5630293e852d2fed2b4f8badf545ad047b564740fd61",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exitCode": 101,
+        "transient": false
+      }
+    ],
+    "environmentOverrides": {
+      "QUANTOS_F05_TARGET_ISOLATED": "1"
+    },
+    "target": "configured-supabase"
+  },
+  "target": "configured-supabase",
+  "environmentOverrides": {
+    "QUANTOS_F05_TARGET_ISOLATED": "1"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "exitCode": 0,
+      "transient": false
+    }
+  ],
+  "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/ci-47cb743-reassessment-20261007/f05-volume-rerun-measurements-1.json",
+  "artifactSha256": "sha256:32fd78c1093790123f1e62ee9bca73ba56ba81a1854b73fcf857bac94986f141"
+}

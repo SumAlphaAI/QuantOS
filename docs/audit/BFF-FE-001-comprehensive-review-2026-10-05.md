@@ -1,6 +1,6 @@
 # BFF-FE-001：身份、会话与设置 API 当前复核报告
 
-> 复核日期：2026-10-07；阶段：A2 DEVELOPMENT；工程冻结提交 `fac94ef3f9a7c5cb67f15f2c1d1ed84f40bdf094`。
+> 复核日期：2026-10-07；阶段：A2 DEVELOPMENT；工程冻结提交 `d00041ee354701a08fa7483e948b74f374439b13`。
 
 ## 一、任务完成概况
 
@@ -37,11 +37,13 @@
 | R23 | CI 接线/前置功能准入/输入绑定 | PASS |
 | R24 | 版本/总结/历史与验收边界 | PASS |
 
-本轮重跑三组provider/consumer语义、契约/阶段负向及8项业务变异。新增逐20API成功缺失、全500/401、SSE断言、缺失/未知提交与原提交源码不匹配等反例全部拒绝。当前回执绑定全部规范输入及三个前置依赖，见[当前功能回执](evidence/bff-fe-001-remediation-20261005/provider-a2-final-reassessment-20261007/a2.json)、[本轮真实原件负向探针](evidence/provider-a2-remediation-20261007/actual-receipt-negative-probes.json)。
+本轮重跑三组provider/consumer语义、契约/阶段负向及8项业务变异。新增逐20API成功缺失、全500/401、SSE断言、缺失/未知提交与原提交源码不匹配等反例全部拒绝。当前回执绑定全部规范输入及三个前置依赖，见[当前功能回执](evidence/bff-fe-001-remediation-20261005/ci-47cb743-final-reassessment-20261007/a2.json)、[本轮真实原件负向探针](evidence/provider-a2-remediation-20261007/actual-receipt-negative-probes.json)。
 
-原Supabase身份目标51次调用/20 API/14强断言、cleanupVerified=true，原执行提交`d758c839fbd57366346d0f2b9ef2081c68ab51e6`。七项目标源码与不可变提交及当前字节一致，本轮未重跑MFA/资料修改目标调用。环境为配置Supabase Auth/PostgreSQL + 本机live BFF、合成HTTPS Origin，不等于staging。源码/回执明细见[严格复核](evidence/provider-a2-remediation-20261007/closure-verification.json)。
+原Supabase身份目标51次调用/20 API/14强断言、cleanupVerified=true，原执行提交`d758c839fbd57366346d0f2b9ef2081c68ab51e6`。七项目标源码与不可变提交及当前字节一致，本轮未重跑MFA/资料修改目标调用。环境为配置Supabase Auth/PostgreSQL + 本机live BFF、合成HTTPS Origin，不等于staging。源码/回执明细见[严格复核](evidence/ci-47cb743-remediation-20261007/closure-verification.json)。
 
-当前全计划 26 READY、0 BLOCKED。当前 G0 用户确认已核验，G0/FEP-0 严格 READY。
+当前全计划 26 READY、0 BLOCKED。项目用户已确认当前 G0 范围 `52fee5f6e499`，G0/FEP-0 严格 READY。
+
+本轮 CI fixture 修复后，重新执行本任务语义/负向/变异并严格核验当前依赖；详见[CI 整改报告](CI-47cb743-remediation-2026-10-07.md)。旧当前报告快照保留，新候选 hosted CI 尚未执行。
 
 ## 三、问题与风险
 

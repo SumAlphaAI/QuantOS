@@ -1,6 +1,6 @@
 # BFF-FE-007：Audit 与导出 API 当前复核报告
 
-> 复核日期：2026-10-07；阶段：A2 DEVELOPMENT；工程冻结提交 `fac94ef3f9a7c5cb67f15f2c1d1ed84f40bdf094`。
+> 复核日期：2026-10-07；阶段：A2 DEVELOPMENT；工程冻结提交 `d00041ee354701a08fa7483e948b74f374439b13`。
 
 ## 一、任务完成概况
 
@@ -44,11 +44,13 @@
 | C30 | 六接口真实目标正常/安全负向/恢复/清理验收 | PASS |
 | C31 | 请求资源限制与每主体/操作的配额 | PASS |
 
-完整矩阵见[31项当前复核](evidence/provider-a2-remediation-20261007/audit-control-matrix.json)。本轮三组provider/consumer/门禁语义、5项业务变异实际执行通过，当前功能回执为[Audit回执](evidence/bff-fe-007-remediation-20261006/provider-a2-final-reassessment-20261007/development.json)。新源头溯源校验要求40位可解析commit对象，逐文件核对原Git字节及当前功能输入；缺失/未知/blob提交反例全部拒绝，见[真实原件负向探针](evidence/provider-a2-remediation-20261007/actual-receipt-negative-probes.json)。
+完整矩阵见[31项当前复核](evidence/provider-a2-remediation-20261007/audit-control-matrix.json)。本轮三组provider/consumer/门禁语义、5项业务变异实际执行通过，当前功能回执为[Audit回执](evidence/bff-fe-007-remediation-20261006/ci-47cb743-reassessment-20261007/development.json)。新源头溯源校验要求40位可解析commit对象，逐文件核对原Git字节及当前功能输入；缺失/未知/blob提交反例全部拒绝，见[真实原件负向探针](evidence/provider-a2-remediation-20261007/actual-receipt-negative-probes.json)。
 
-原Supabase目标83次调用（含身份准备）/45执行断言、cleanupVerified=true，实际目标提交`5e3339c9e5cc95d550c6e67ffa36701998cb0e2f`。13项源码与原Git提交及当前内容一致，本轮未重跑Audit目标。持久审计、脱敏/摘要/分页、完整意图幂等、真实Storage字节/三格式产物、短时一次性下载、吊销/retention和生命周期审计保持原验收范围。源码及依赖见[严格复核记录](evidence/provider-a2-remediation-20261007/closure-verification.json)。
+原Supabase目标83次调用（含身份准备）/45执行断言、cleanupVerified=true，实际目标提交`5e3339c9e5cc95d550c6e67ffa36701998cb0e2f`。13项源码与原Git提交及当前内容一致，本轮未重跑Audit目标。持久审计、脱敏/摘要/分页、完整意图幂等、真实Storage字节/三格式产物、短时一次性下载、吊销/retention和生命周期审计保持原验收范围。源码及依赖见[严格复核记录](evidence/ci-47cb743-remediation-20261007/closure-verification.json)。
 
-当前全计划 26 READY、0 BLOCKED。当前 G0 用户确认已核验，G0/FEP-0 严格 READY。 A2聚合门禁严格READY。
+当前全计划 26 READY、0 BLOCKED。项目用户已确认当前 G0 范围 `52fee5f6e499`，G0/FEP-0 严格 READY。 A2聚合门禁严格READY。
+
+本轮 CI fixture 修复后，重新执行本任务语义/负向/变异并严格核验当前依赖；详见[CI 整改报告](CI-47cb743-remediation-2026-10-07.md)。旧当前报告快照保留，新候选 hosted CI 尚未执行。
 
 ## 三、问题及验收边界
 

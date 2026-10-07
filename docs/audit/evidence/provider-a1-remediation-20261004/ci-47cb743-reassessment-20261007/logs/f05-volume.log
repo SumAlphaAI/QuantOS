@@ -1,0 +1,22 @@
+Target attempt 1 exit 101
+
+running 1 test
+test postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent ... FAILED
+
+failures:
+
+---- postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent stdout ----
+
+thread 'postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent' (3848851) panicked at crates/quantos-event/tests/postgres_persistence.rs:866:14:
+volume events process through the production consumer: Postgres(Error { kind: Io, cause: Some(Custom { kind: Other, error: "bytes remaining on stream" }) })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 315.27s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running tests/postgres_persistence.rs (target/debug/deps/postgres_persistence-bb6a3adedd004446)
+error: test failed, to rerun pass `-p quantos-event --test postgres_persistence`

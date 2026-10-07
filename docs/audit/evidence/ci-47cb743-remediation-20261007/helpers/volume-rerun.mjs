@@ -1,0 +1,15 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';import {execFileSync,spawnSync} from 'node:child_process';
+const {policy,developmentEnvironment,digest,validateArtifact,nodesFromPlans,closure,captureInputs}=await import(process.cwd()+'/scripts/provider-a1-receipts.mjs');
+const directory='docs/audit/evidence/provider-a1-remediation-20261004/ci-47cb743-reassessment-20261007';
+const attempt=Number(process.argv[2]);assert([1,2].includes(attempt),'only two additional full attempts allowed');
+const all=JSON.parse(fs.readFileSync(directory+'/execution-results.json'));assert.equal(all.length,87);const failed=all.filter(r=>r.status!=='PASS');assert.deepEqual(failed.map(r=>r.id),['f05-volume']);
+assert.match(fs.readFileSync(failed[0].log,'utf8'),/bytes remaining on stream/);
+const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();assert.equal(sourceCommit,'d00041ee354701a08fa7483e948b74f374439b13');
+const p=policy(),spec=p.checks['f05-volume'];const nodes=nodesFromPlans(),selected=[...new Set(['PROVIDER:A1','CORE-GATE:F0'].flatMap(id=>closure(nodes,id)))],inputsDigest=digest(JSON.stringify([...captureInputs(nodes,selected,p)]));assert.deepEqual(failed[0].command,spec.command);
+const record=directory+'/f05-volume-rerun-'+attempt+'.json',measurement=directory+'/f05-volume-rerun-measurements-'+attempt+'.json',log=directory+'/logs/f05-volume-rerun-'+attempt+'.log';assert(!fs.existsSync(record)&&!fs.existsSync(measurement));
+process.loadEnvFile('.env.local');const env=developmentEnvironment(fs.readFileSync(p.developmentProfile.file,'utf8'),p.developmentProfile.overrides);assert(new URL(env.DATABASE_URL).hostname.endsWith('.supabase.com'));
+Object.assign(env,spec.env,{QUANTOS_RUN_F05_POSTGRES_TESTS:'1',QUANTOS_F05_MEASUREMENTS_PATH:process.cwd()+'/'+measurement});
+const executedAt=new Date().toISOString();const run=spawnSync(spec.command[0],spec.command.slice(1),{env,encoding:'utf8',timeout:spec.timeoutMs,maxBuffer:32*1024*1024});let output=(run.stdout||'')+(run.stderr||'');for(const[k,v]of Object.entries(env))if(v&&v.length>=6&&/PASSWORD|TOKEN|KEY|DATABASE_URL|TEST_EMAIL/i.test(k))output=output.split(v).join('[REDACTED]');
+fs.writeFileSync(log,output);const result={schema:'quantos-same-source-f05-volume-rerun/v1',sourceCommit,inputsDigest,attempt,executedAt,completedAt:new Date().toISOString(),id:'f05-volume',command:spec.command,status:run.status===0?'PASS':'FAIL',exitCode:run.status,log,logSha256:digest(output),originalFailure:failed[0],target:'configured-supabase',environmentOverrides:spec.env,attempts:[{attempt:1,exitCode:run.status,transient:false}],artifact:fs.existsSync(measurement)?measurement:null};
+if(result.status==='PASS'){assert.match(output,/1 passed; 0 failed/);validateArtifact('f05-volume',measurement,sourceCommit);result.artifactSha256=digest(fs.readFileSync(measurement));}
+fs.writeFileSync(record,JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({status:result.status,sourceCommit,attempt,record}));if(result.status!=='PASS')process.exitCode=1;
