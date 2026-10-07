@@ -1,0 +1,19 @@
+QUANTOS_RUN_F09_POSTGRES_TESTS=1 cargo test -p quantos-observability --test postgres_capacity_monitor --locked -- --test-threads=1 --skip restricted_runtime_role_records_only_real_storage_outcomes --nocapture
+
+running 3 tests
+test fault_proxy_retries_real_postgres_event_and_consumer_chain ... ok
+test live_database_session_termination_preserves_ordered_event_chain ... ok
+test live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 302.53s
+
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.94s
+     Running tests/postgres_capacity_monitor.rs (target/debug/deps/postgres_capacity_monitor-9574dfcf6ab1c033)
+F09 database termination recovered; correlation=01a1149c-aee0-7bf2-bf22-beb83b772ccf; ordered_events=2
+F09 capacity continuity tick 0/17
+F09 capacity continuity tick 3/17
+F09 capacity continuity tick 6/17
+F09 capacity continuity tick 9/17
+F09 capacity continuity tick 12/17
+F09 capacity continuity tick 15/17

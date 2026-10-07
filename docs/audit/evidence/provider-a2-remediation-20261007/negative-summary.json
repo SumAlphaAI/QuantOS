@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "scope": "Four actual independent invocations; composite log is not one invocation; includes positive baselines and negative cases",
+  "passed": 127,
+  "failed": 0,
+  "records": [
+    {
+      "id": "identity-contract",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/bff-fe-001-gate-negative.mjs"
+      ],
+      "log": "docs/audit/evidence/bff-fe-001-remediation-20261005/provider-a2-final-reassessment-20261007/contract-negative.log",
+      "sha256": "sha256:98ca2a5ca124eceaba7be4a31ff566f032ce24e378d2f3505d4f585a4333263c",
+      "passed": 22,
+      "failed": 0
+    },
+    {
+      "id": "identity-stage",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/bff-fe-001-development.test.mjs"
+      ],
+      "log": "docs/audit/evidence/bff-fe-001-remediation-20261005/provider-a2-final-reassessment-20261007/stage-negative.log",
+      "sha256": "sha256:98eabd863d573d6147c6aee40da596edc0a117d3f52782064fbec2d9f33a338d",
+      "passed": 44,
+      "failed": 0
+    },
+    {
+      "id": "audit-contract-stage",
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-007-gate-negative.mjs",
+        "scripts/bff-fe-007-development.test.mjs"
+      ],
+      "log": "docs/audit/evidence/bff-fe-007-remediation-20261006/provider-a2-final-reassessment-20261007/semantics-2.log",
+      "sha256": "sha256:36b082f445c751e9bff0de6786139c253dc501093ba45640b23ed7c0fe53f197",
+      "passed": 30,
+      "failed": 0
+    },
+    {
+      "id": "window-stage",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a2-development.test.mjs"
+      ],
+      "log": "docs/audit/evidence/provider-a2-remediation-20261007/development/logs/negative.log",
+      "sha256": "sha256:016b7f54ac0da7d7820db2efdf9dbb14b4caeb6d368896052adc75f83da0f131",
+      "passed": 31,
+      "failed": 0
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "schema": "quantos-provider-a2-control-matrix/v1",
+  "baselineCommit": "fac94ef3f9a7c5cb67f15f2c1d1ed84f40bdf094",
+  "total": 24,
+  "pass": 24,
+  "partial": 0,
+  "fail": 0,
+  "fullCompletionPercent": 100,
+  "method": "Original 24 equal-weight controls, all independently rechecked after remediation; original findings/evidence retained.",
+  "rows": [
+    {
+      "id": "C01",
+      "module": "范围与依赖",
+      "criterion": "C01/C17/C10 26 API、两任务及 A1；Desktop/其他窗口边界明确",
+      "result": "PASS",
+      "evidence": "catalog、OpenAPI、前端计划 A2"
+    },
+    {
+      "id": "C02",
+      "module": "契约与开发规范",
+      "criterion": "OpenAPI/client/Zod/schema/MSW 生成一致；现有规范输入绑定有效",
+      "result": "PASS",
+      "evidence": "87组新F0/A1检查：lint/typecheck/格式/契约/生成均实际执行通过"
+    },
+    {
+      "id": "C03",
+      "module": "依赖门禁",
+      "criterion": "三项直接依赖当前严格 DEVELOPMENT READY",
+      "result": "PASS",
+      "evidence": "identity-gate.log / audit-gate.log / provider-a1-gate.log"
+    },
+    {
+      "id": "C04",
+      "module": "实际 provider",
+      "criterion": "26 API 在 live Router 挂载，均有实际目标成功记录",
+      "result": "PASS",
+      "evidence": "api-matrix.json；live.rs:124、settings.rs:285、audit.rs:290"
+    },
+    {
+      "id": "C05",
+      "module": "身份与授权",
+      "criterion": "opaque cookie、Origin、capability、workspace/account/owner 范围",
+      "result": "PASS",
+      "evidence": "Rust 回归；两目标回执正常及拒绝记录"
+    },
+    {
+      "id": "C06",
+      "module": "敏感操作保护",
+      "criterion": "CSRF、recent authentication、MFA 恢复与最后有效因素保护",
+      "result": "PASS",
+      "evidence": "auth/settings 回归、14 条身份目标强断言"
+    },
+    {
+      "id": "C07",
+      "module": "schema 与错误",
+      "criterion": "输入/响应 schema、安全错误及资源隐藏、过期拒绝",
+      "result": "PASS",
+      "evidence": "契约检查、consumer 回归、目标 records issues 为空"
+    },
+    {
+      "id": "C08",
+      "module": "幂等与并发",
+      "criterion": "相同意图回放、改变意图拒绝、If-Match 与无副作用冲突",
+      "result": "PASS",
+      "evidence": "provider 回归、目标 durable-identical-intent-replay 等"
+    },
+    {
+      "id": "C09",
+      "module": "持久化与恢复",
+      "criterion": "资料/偏好持久化、MFA 中间态、export worker 重启租约恢复",
+      "result": "PASS",
+      "evidence": "原实际 Supabase 回执及已执行断言；不是本轮数据库重测"
+    },
+    {
+      "id": "C10",
+      "module": "会话实时流",
+      "criterion": "SSE 撤销关联、会话/设备撤销及安全终止",
+      "result": "PASS",
+      "evidence": "身份实际 stream/revocation 目标证据及策略回归"
+    },
+    {
+      "id": "C11",
+      "module": "审计可追溯",
+      "criterion": "响应 correlation、F05 账本桥接、causation 与导出全生命周期",
+      "result": "PASS",
+      "evidence": "目标 traces、identity-audit-bridged-to-f05 / export-lifecycle-causal-root"
+    },
+    {
+      "id": "C12",
+      "module": "审计查询",
+      "criterion": "稳定快照/分页、脱敏、canonical payload hash、证据链",
+      "result": "PASS",
+      "evidence": "audit_export_provider 回归及真实账本目标断言"
+    },
+    {
+      "id": "C13",
+      "module": "导出内容",
+      "criterion": "真实 Storage 字节、摘要、全范围水印脱敏、JSON/CSV/PDF",
+      "result": "PASS",
+      "evidence": "actual-storage-integrity / real-csv-artifact / real-pdf-artifact"
+    },
+    {
+      "id": "C14",
+      "module": "下载与吊销",
+      "criterion": "短时一次性下载、过期/retention/取消/权限撤销拒绝",
+      "result": "PASS",
+      "evidence": "目标 concurrent-ticket-consumption-once 等；consumer 到期错误映射"
+    },
+    {
+      "id": "C15",
+      "module": "资源边界",
+      "criterion": "分页/快照/产物限制、每 actor 导出 quota",
+      "result": "PASS",
+      "evidence": "目标 per-actor-create-quota；audit 源码与运行说明"
+    },
+    {
+      "id": "C16",
+      "module": "业务测试",
+      "criterion": "Rust provider + Terminal consumer 本轮语义回归通过",
+      "result": "PASS",
+      "evidence": "新身份/Audit语义回归通过，仍保留 F09 默认 ignored 的目标边界"
+    },
+    {
+      "id": "C17",
+      "module": "业务安全负向与变异",
+      "criterion": "已有 62 门禁负向回归；旧 8+5 业务变异实际拒绝证据有效",
+      "result": "PASS",
+      "evidence": "新127项门禁正负向回归通过；新8+5业务变异实际拒绝"
+    },
+    {
+      "id": "C18",
+      "module": "实际目标证据复用",
+      "criterion": "26/26 成功、20 项摘要匹配原提交/当前文件、清理回执有效",
+      "result": "PASS",
+      "evidence": "api-matrix.json / source-inventory.json；本轮无目标调用"
+    },
+    {
+      "id": "C19",
+      "module": "证据语义防误放行",
+      "criterion": "成功状态/SSE 状态负向检查：007 拒绝，001 错误接受",
+      "result": "PASS",
+      "evidence": "actual-receipt-negative-probes.json：失败/全拒绝/SSE失败全部拒绝"
+    },
+    {
+      "id": "C20",
+      "module": "执行提交溯源门禁",
+      "criterion": "两实际回执可溯源，但两个子门禁均接受删除 sourceCommit",
+      "result": "PASS",
+      "evidence": "actual-receipt-negative-probes.json：两子任务缺失/未知/blob冒充执行提交全部拒绝；7+13项源码内容绑定"
+    },
+    {
+      "id": "C21",
+      "module": "当前文档一致性",
+      "criterion": "007 当前报告有效；001 当前报告仍引用旧 G0/READY 数/回执",
+      "result": "PASS",
+      "evidence": "当前身份/Audit/A2报告与当前计划/回执/G0确认待办一致，原报告归档"
+    },
+    {
+      "id": "C22",
+      "module": "窗口聚合回执",
+      "criterion": "A2 自身规范输入、26 API 覆盖、依赖摘要、执行结果未聚合",
+      "result": "PASS",
+      "evidence": "当前A2聚合manifest绑定规范输入、26API覆盖、三依赖及执行结果"
+    },
+    {
+      "id": "C23",
+      "module": "窗口专用检查与 CI",
+      "criterion": "缺少 A2 聚合校验器、负向套件及 CI 强制检查入口",
+      "result": "PASS",
+      "evidence": "31项A2专用反例；package/Makefile/CI强制入口经语义校验"
+    },
+    {
+      "id": "C24",
+      "module": "窗口阶段准入",
+      "criterion": "PROVIDER:A2 未执行阶段评估，仍 NOT_ASSESSED",
+      "result": "PASS",
+      "evidence": "check:provider-a2实际严格READY，formalAccepted=false"
+    }
+  ]
+}

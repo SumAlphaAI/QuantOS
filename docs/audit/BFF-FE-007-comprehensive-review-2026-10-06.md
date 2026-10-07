@@ -1,52 +1,61 @@
 # BFF-FE-007：Audit 与导出 API 当前复核报告
 
-> 复核日期：2026-10-07；阶段：A2 DEVELOPMENT。
-> 检查基线：`b274a7ef3c03478ac9ec3746efea509d6a01592d`。依据：[前端任务卡](../SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#task-bff-fe-007)、OpenAPI 1.5.0 / C10、[运行说明](../BFF-FE-007-runtime.md)。
+> 复核日期：2026-10-07；阶段：A2 DEVELOPMENT；工程冻结提交 `fac94ef3f9a7c5cb67f15f2c1d1ed84f40bdf094`。
 
 ## 一、任务完成概况
 
-**原 9 项问题（1 阻塞、1 高危、7 中危、0 低危）均已解决，当前活动问题为 0。** 本次再次核对源码、业务测试和当前有效回执，未发现原问题复现或需要进一步修复的代码缺口。31 个等权控制点全部 PASS，完整完成率 **100%**；BFF-FE-007 严格 DEVELOPMENT 门禁为 **READY**。
+原9项业务问题继续CLOSED；本轮PROVIDER:A2新增M-01执行提交溯源缺口已修复，当前活动问题0。31个原控制点全部PASS，完整完成率100%；六个C10 API正常/401/403实际目标覆盖完整，严格DEVELOPMENT门禁READY、formalAccepted=false。
 
-已关闭问题明细、失败尝试及整改过程移出当前报告，保存在[历史整改报告](BFF-FE-007-remediation-history-2026-10-07.md)、[初审原件](archive/BFF-FE-007-initial-review-2026-10-06.md)和[逐项复核记录](evidence/bff-fe-007-recheck-20261007/closure-verification.json)。历史证据保留。
+旧报告保存在[本轮前原件](BFF-FE-007-before-provider-a2-remediation-2026-10-07.md)，原业务整改过程仍在[历史整改报告](BFF-FE-007-remediation-history-2026-10-07.md)和[初审](archive/BFF-FE-007-initial-review-2026-10-06.md)。本轮窗口整改见[PROVIDER:A2当前报告](PROVIDER-A2-comprehensive-review-2026-10-07.md)。
 
-## 二、完成情况与验证依据
+## 二、完成情况与证据
 
-| 检查分组 | 控制点 | PASS | PARTIAL / FAIL | 完成率 |
-|---|---:|---:|---:|---:|
-| 契约与参考行为 C01–C08 | 8 | 8 | 0 / 0 | 100% |
-| 业务、安全与 live 实现 C09–C22 | 14 | 14 | 0 / 0 | 100% |
-| consumer、依赖、验收与资源限制 C23–C31 | 9 | 9 | 0 / 0 | 100% |
-| 合计 | 31 | 31 | 0 / 0 | 100% |
-
-完整逐项统计见[31 项控制矩阵](evidence/bff-fe-007-recheck-20261007/control-matrix.json)。PASS 按完整满足计数，PARTIAL 不折算完成。
-
-六接口 `searchAuditEvents`、`getEvidenceChain`、`createExport`、`getExportStatus`、`cancelExport`、`getExportDownload` 均有实际 live 实现及正常、401、403 目标证据。覆盖持久审计读取、资源授权、完整范围幂等、脱敏、真实摘要、稳定分页、异步生成、三格式产物、短时一次性下载、取消/过期吊销及生命周期审计。
-
-| 验证层 | 结果与执行边界 | 证据 |
+| ID | 原控制点 | 当前结果 |
 |---|---|---|
-| 本轮业务回归 | 三组命令实际重跑通过：Rust lib 14、Audit 9、身份 12；gateway 6；契约/功能门禁 26。另有 1 项 F09 Supabase 专项按默认配置忽略，不计为通过 | [本轮语义执行](evidence/bff-fe-007-recheck-20261007/semantics.json) |
-| 当前严格功能门禁 | 当前功能输入、规范计划、三项依赖、语义日志、5 项有效变异拒绝和 live 回执均核验通过 | [当前功能回执](evidence/bff-fe-007-remediation-20261006/core-plan-format-reassessment-20261007/development.json) |
-| Audit 实际目标 | 复用原 83 次 API 调用（含身份准备）/45 条执行断言；六接口、真实 Storage 字节、权限拒绝、重启恢复及清理通过 | [不可变目标回执](evidence/bff-fe-007-remediation-20261006/live-final-15/receipt.json) |
-| 目标内容绑定 | 13 项目标源码与当前文件、原执行提交 `5e3339c` 的内容摘要全部一致；`cleanupVerified=true`。本轮未重跑 Supabase 目标调用 | [本轮逐文件核验](evidence/bff-fe-007-recheck-20261007/closure-verification.json) |
-| 前置与阶段 | BFF-FE-001、CORE:F05、PROVIDER:A1 当前严格 READY；G0 当前范围 `1d2bce97fcfb` 已确认，FEP-0 READY；全计划当前 25 READY、0 BLOCKED | [当前阶段复评](Core-plan-READY-reassessment-2026-10-07.md)、[本轮门禁核验](evidence/bff-fe-007-recheck-20261007/current-gates.json) |
+| C01 | 六个 operation 与请求/响应 schema 发布 | PASS |
+| C02 | C10 owner 与十个消费页面映射 | PASS |
+| C03 | client/Zod/JSON Schema/MSW 同源生成及无漂移 | PASS |
+| C04 | 参考搜索条件与有界 pageSize、sort/filter、时间输入 | PASS |
+| C05 | 固定参考链的 correlation/causation 分页还原 | PASS |
+| C06 | 六接口参考 cookie/capability 的 401/403 | PASS |
+| C07 | 参考 create/cancel 的 CSRF、recent-auth | PASS |
+| C08 | 参考敏感响应 no-store 与错误外观隐藏 | PASS |
+| C09 | 完整业务意图的幂等、冲突与恢复 | PASS |
+| C10 | 不透明且不可篡改、绑定查询的稳定游标 | PASS |
+| C11 | 证据链完整性判定与真实因果覆盖 | PASS |
+| C12 | 服务端字段级脱敏、禁止完整标识/秘密输出 | PASS |
+| C13 | 真实 payload hash 与可验证证据摘要 | PASS |
+| C14 | 六接口可由实际 live BFF 接收与处理 | PASS |
+| C15 | F05 持久审计读模型及数据库功能连接 | PASS |
+| C16 | 资源级主体/账号授权与无权资源隐藏 | PASS |
+| C17 | 完整 ExportScope：eventKinds/time range/unique IDs | PASS |
+| C18 | 持久异步导出、生成产物、重启恢复与取消工作流 | PASS |
+| C19 | queued/generating/ready/cancel/expired/failed 状态机制 | PASS |
+| C20 | 真实短时、一次性签名 URL、实际水印与文件元数据 | PASS |
+| C21 | retention/到期拒绝与下载吊销联动 | PASS |
+| C22 | 导出与受限访问全过程审计、持久可追溯 | PASS |
+| C23 | 六个 typed gateway、cookie 与安全头携带 | PASS |
+| C24 | 403/404/410 gateway 安全文案与 correlation 信息 | PASS |
+| C25 | 成功响应 runtime schema 与安全约束校验 | PASS |
+| C26 | 基础 transport 截止时间与写请求不自动重试 | PASS |
+| C27 | 三项直接依赖的实际内容绑定 READY | PASS |
+| C28 | 工程规范与既有本任务正负/业务/consumer 回归实际执行 | PASS |
+| C29 | 任务级功能 manifest、输入/目标摘要与严格阶段 Gate | PASS |
+| C30 | 六接口真实目标正常/安全负向/恢复/清理验收 | PASS |
+| C31 | 请求资源限制与每主体/操作的配额 | PASS |
 
-当前引用已同步到计划格式复评后的有效回执；旧 `final-sharp` 工程回执及旧 G0 范围保留为历史。
+完整矩阵见[31项当前复核](evidence/provider-a2-remediation-20261007/audit-control-matrix.json)。本轮三组provider/consumer/门禁语义、5项业务变异实际执行通过，当前功能回执为[Audit回执](evidence/bff-fe-007-remediation-20261006/provider-a2-final-reassessment-20261007/development.json)。新源头溯源校验要求40位可解析commit对象，逐文件核对原Git字节及当前功能输入；缺失/未知/blob提交反例全部拒绝，见[真实原件负向探针](evidence/provider-a2-remediation-20261007/actual-receipt-negative-probes.json)。
 
-## 三、当前问题与验收边界
+原Supabase目标83次调用（含身份准备）/45执行断言、cleanupVerified=true，实际目标提交`5e3339c9e5cc95d550c6e67ffa36701998cb0e2f`。13项源码与原Git提交及当前内容一致，本轮未重跑Audit目标。持久审计、脱敏/摘要/分页、完整意图幂等、真实Storage字节/三格式产物、短时一次性下载、吊销/retention和生命周期审计保持原验收范围。源码及依赖见[严格复核记录](evidence/provider-a2-remediation-20261007/closure-verification.json)。
 
-| 优先级 | 未解决数量 |
-|---|---:|
-| 阻塞级 | 0 |
-| 高危 | 0 |
-| 中危 | 0 |
-| 低危 | 0 |
+当前全计划 26 READY、0 BLOCKED。当前 G0 用户确认已核验，G0/FEP-0 严格 READY。 A2聚合门禁严格READY。
 
-本结论适用于当前 A2 DEVELOPMENT 范围。审计查询限于 authenticated actor 自身授权账本及显式 workspace/account scope；最大快照 10,000 条、产物 16 MiB、短时下载不超过 5 分钟，运行与部署配置见运行说明。
+## 三、问题及验收边界
 
-实际目标使用配置的 Supabase 和本机 live BFF。十个消费页面的完整业务联调、PROVIDER:A2/ALL、部署/真实 IdP、目标规模下五分钟还原、长稳与 RELEASE 正式验收由对应阶段执行。本轮没有新提交的 hosted CI 回执，不将 DEVELOPMENT READY 改记为正式 `ACCEPTED`。
+当前活动问题：阻塞0、高危0、中危0、低危0。本轮仅补强门禁与证据，未修改Audit业务实现、数据库迁移或OpenAPI。
+
+查询限于authenticated actor授权账本及显式workspace/account scope；快照最大10000条、产物16 MiB、短时下载不超过5分钟，见[运行说明](../BFF-FE-007-runtime.md)。十消费页面完整联调、真实部署/IdP、目标规模五分钟还原、长稳、hosted CI与RELEASE正式验收仍在对应阶段执行，不以DEVELOPMENT READY代替ACCEPTED。
 
 ## 四、后续维护
 
-本任务无剩余整改项。后续按计划推进已准入范围；源码、契约、规范计划或依赖变化时，重新执行受影响回归及 `pnpm check:bff-fe-007:development`。仅 `pnpm check:bff-fe-007` 的 local contract 通过不能替代严格功能门禁。
-
-本次仅重构报告、更新前端计划的证据引用并补充复核记录，未修改业务代码或数据库。当前文档简化不改变已确认的 G0 功能范围。
+保持 `pnpm check:bff-fe-007:development` 和A2聚合检查；源码、契约、规范计划或依赖变化后复评受影响回执。功能内容变化执行相应Supabase目标测试；功能字节不变允许保留原执行时间/提交进行内容绑定复用。

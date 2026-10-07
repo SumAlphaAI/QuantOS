@@ -1,0 +1,79 @@
+{
+  "schema": "quantos-bff-a2-semantic-mutations/v1",
+  "sourceSha256": "92329179c5525fdab5538b653d6e0705500d6492b8694b54abd221be6255f455",
+  "livePolicySha256": "d8e78c1ea645226a1567a5cf0143997df11190dcdc33a735544c1e2b4f31159d",
+  "records": [
+    {
+      "name": "last-factor-protection",
+      "scope": "reference provider",
+      "expectedTest": "current_session_and_last_mfa_factor_are_protected",
+      "exitCode": 101,
+      "rejected": true,
+      "mutatedSourceSha256": "e0a2bef2a1bdc02b336b704c4bf126527ee6b6633f16bdb0255eb480df7acb53",
+      "outputSha256": "c92c2f7a3fdb335dfaf0273443e5ebe6cda407f82139fa1a0200c6280d950627"
+    },
+    {
+      "name": "csrf-enforcement",
+      "scope": "reference provider",
+      "expectedTest": "authentication_csrf_and_resource_failures_fail_closed",
+      "exitCode": 101,
+      "rejected": true,
+      "mutatedSourceSha256": "75973fd205d3f0bd91238932a85f7b4153d52d0d24299f4c63e93b42349d63fc",
+      "outputSha256": "f710ce06f5c6dfb2a3e0b58a291c798c95d4e096297ffa12975bd8fbb6120a33"
+    },
+    {
+      "name": "challenge-freshness",
+      "scope": "reference provider",
+      "expectedTest": "challenges_are_fresh_single_use_and_cooldown_precedes_verification",
+      "exitCode": 101,
+      "rejected": true,
+      "mutatedSourceSha256": "51ded387dbebb39a589ceb29e2ee940f780aaa25e82a66c483479221b3907d13",
+      "outputSha256": "daaf8df231e141bf36870d7632b72420f0327b70ade8b66eec46a7361b9d6f14"
+    },
+    {
+      "name": "live-last-factor",
+      "scope": "actual live policy",
+      "expectedTest": "last_verified_factor_cannot_be_removed_even_with_unverified_siblings",
+      "exitCode": 101,
+      "rejected": true,
+      "mutatedSourceSha256": "70f4026ad3e48755350536180cc2ffc5368185e5f9beff7994674e1df84f0ad1",
+      "outputSha256": "a967d88a4c147517c47cfc9ed7d76589a251106f76a00b1538141359b7950d59"
+    },
+    {
+      "name": "live-first-factor-state",
+      "scope": "actual live policy",
+      "expectedTest": "first_factor_cannot_create_after_any_verified_factor_exists",
+      "exitCode": 101,
+      "rejected": true,
+      "mutatedSourceSha256": "fbaa68537b58b039999f4db8a4e6071025eaffaabe184a2863392c409f092be4",
+      "outputSha256": "f985d7a2337c2bf9c533aea9dbfb341f17ab0d040b17e479ddccde24963568b9"
+    },
+    {
+      "name": "live-csrf",
+      "scope": "actual live policy",
+      "expectedTest": "live_csrf_requires_bound_cookie_and_header",
+      "exitCode": 101,
+      "rejected": true,
+      "mutatedSourceSha256": "f0e0506d4d89b2c0e0ab8a8c6d8ad7082a2fa8fbff4f0a178643aa48315de73c",
+      "outputSha256": "b0ca4f0f1a26b9cbbef2be5ced605d3f3b284f2fbb9e31a5d4f686c3e133b580"
+    },
+    {
+      "name": "live-challenge-ttl",
+      "scope": "actual live policy",
+      "expectedTest": "live_challenge_has_five_minute_lifetime",
+      "exitCode": 101,
+      "rejected": true,
+      "mutatedSourceSha256": "8d95cc8cab88ed90748b1526c3efec82d6687e825a6fcd3cde54ea4f87d4543a",
+      "outputSha256": "9ca7d5952c820719b604e63ab5709b8227cdac054e7f21880185448682c9f744"
+    },
+    {
+      "name": "live-revocation",
+      "scope": "actual live policy",
+      "expectedTest": "revoked_delivery_is_terminal",
+      "exitCode": 101,
+      "rejected": true,
+      "mutatedSourceSha256": "93d9f1b037ab36c025a67fa600140efe7a35b7dd38f3c60088562afe7d06e227",
+      "outputSha256": "03a3e3e9d1f779fac35ef3551242ee94e5c34362a82583a2148b137e569c8e73"
+    }
+  ]
+}
