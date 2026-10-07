@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, URL } from 'node:url';
 
 const policy = JSON.parse(readFileSync(new URL('./development-plan-order-policy.json', import.meta.url), 'utf8'));
 const checkpointAnchor = (id) => `acceptance-${id.toLowerCase().replaceAll(':', '-')}`;
@@ -127,6 +127,8 @@ export function validatePlanOrder(coreText, frontendText, core, frontend, { root
     if (node.id.startsWith('CORE:')) {
       assert.equal(node.window, policy.coreWindows[node.task_id], `${node.id}: core acceptance window mismatch`);
       equalSet(node.dependencies, policy.corePrerequisites[node.task_id].map(canonical), `${node.id}: incomplete core prerequisites`);
+      equalSet(node.core_prerequisites, node.depends_on.filter(id => /^(CORE:|CORE-GATE:|SERVICE:)/.test(id)), `${node.id}: core prerequisites differ from depends_on`);
+      equalSet(node.closes_core, [], `${node.id}: core task cannot carry frontend closes_core mappings`);
     }
     if (node.checkpoint_id) {
       assert.equal(node.window, policy.checkpointWindows[node.id], `${node.id}: checkpoint window mismatch`);

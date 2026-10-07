@@ -70,30 +70,7 @@ function checkMarkdown(text, name) {
   return anchors(text);
 }
 
-function reviewRecords(body, key, value, required, id) {
-  if (value === "[]") return [];
-  assert.equal(value, "", `${id}: ${key} must be [] or a nested list`);
-  const start = body.indexOf(`- ${key}:\n`);
-  assert(start >= 0, `${id}: invalid ${key} list`);
-  const lines = body.slice(start + key.length + 4).split("\n");
-  const records = [];
-  for (const line of lines) {
-    if (!line.startsWith("  ")) break;
-    const match = /^( {2}- | {4})([a-z_]+): (.+)$/.exec(line);
-    assert(match, `${id}: invalid nested ${key} field`);
-    if (match[1] === "  - ") records.push({});
-    const record = records.at(-1);
-    assert(record && !(match[2] in record), `${id}: duplicate/misplaced ${key} field`);
-    record[match[2]] = unquote(match[3]);
-  }
-  assert(records.length > 0, `${id}: use [] for an empty ${key} list`);
-  for (const record of records) {
-    assert.deepEqual(Object.keys(record).sort(), [...required].sort(), `${id}: incomplete ${key} record`);
-  }
-  return records;
-}
-
-function parseTasks(text, expected, freshReview, reviewRequired = true) {
+function parseTasks(text, expected, corePlan = false) {
   const markers = [...text.matchAll(/^<a id="task-([^"]+)"><\/a>\n(#{3,5}) (.+)\n/gm)];
   const records = markers.map((marker, index) => {
     const body = text.slice(marker.index, markers[index + 1]?.index ?? text.length);
@@ -104,56 +81,39 @@ function parseTasks(text, expected, freshReview, reviewRequired = true) {
     }
     const id = fields.task_id;
     assert(id, `${marker[1]}: missing task_id`);
-    // Web tasks intentionally omit designated-model intake after 695c5f0.
-    // An absent review is NOT_STARTED, never an implied acceptance.
-    if (!reviewRequired) {
-      const reviewKeys = ["review_entry", "review_model", "review_status", "review_conclusion", "issues", "fix_tracking"];
-      assert(reviewKeys.every((key) => !(key in fields)), `${id}: Web review metadata must be kept in the audit report`);
-      assert(!body.includes(`<a id="review-${id.toLowerCase()}">`), `${id}: stale Web review anchor`);
-      Object.assign(fields, { review_status: "NOT_STARTED", review_conclusion: "null", issues: "[]", fix_tracking: "[]" });
-    }
-    for (const key of ["task_id", "task_type", "development_status", "stage_gate", "review_status", "review_conclusion", "issues", "fix_tracking", "depends_on", ...(reviewRequired ? ["review_entry", "review_model"] : [])]) {
+    // Both plans track engineering review in audit reports. This intake state
+    // never promotes historical acceptance text to a current formal receipt.
+    const reviewKeys = ["review_entry", "review_model", "review_status", "review_conclusion", "issues", "fix_tracking"];
+    const label = corePlan ? "Core" : "Web";
+    assert(reviewKeys.every((key) => !(key in fields)), `${id}: ${label} review metadata must be kept in the audit report`);
+    assert(!body.includes(`<a id="review-${id.toLowerCase()}">`), `${id}: stale ${label} review anchor`);
+    for (const key of ["task_id", "task_type", "iteration", "stage_gate", "depends_on", "core_prerequisites", "closes_core", "development_status", "workflow", ...(corePlan ? ["acceptance_window"] : [])]) {
       assert(key in fields, `${id ?? marker[1]}: missing ${key}`);
     }
     assert.equal(marker[1], id.toLowerCase(), `${id}: task anchor mismatch`);
     assert(marker[3].startsWith(`${id}：`), `${id}: title ID mismatch`);
-    if (reviewRequired) {
-      assert(body.includes(`<a id="review-${id.toLowerCase()}"></a>\n${"#".repeat(marker[2].length + 1)} GPT-6 Astra 功能复审`), `${id}: missing nested review module`);
-    assert.equal(fields.review_entry, `[GPT-6 Astra 复审入口](#review-${id.toLowerCase()})`, `${id}: review link mismatch`);
-    assert.equal(fields.review_model, "GPT-6 Astra", `${id}: wrong review model`);
-    }
     assert(["COMPLETED", "IMPLEMENTED_PENDING_ACCEPTANCE", "PARTIAL", "UNSPECIFIED"].includes(fields.development_status), `${id}: invalid development status`);
-    assert(["NOT_STARTED", "IN_REVIEW", "CHANGES_REQUESTED", "FIX_VALIDATION", "RE_REVIEW", "ACCEPTED", "BLOCKED"].includes(fields.review_status), `${id}: invalid review status`);
+    assert.equal(fields.workflow, workflow, `${id}: workflow mismatch`);
     assert(/^- 需求描述：\S.*$/m.test(body), `${id}: missing requirement`);
     assert(/^- (量化验收标准|集成验收标准|验收标准|完成标准|目标阶段与验收|验收重点|页面级完成标准|交付节点与放行条件)：\S.*$/m.test(body), `${id}: missing acceptance criteria`);
-    if (freshReview || fields.review_status === "NOT_STARTED") {
-      assert.equal(fields.review_status, "NOT_STARTED", `${id}: review must be reset`);
-      assert.equal(fields.review_conclusion, "null", `${id}: conclusion must be empty`);
-      assert.equal(fields.issues, "[]", `${id}: issues must be empty at intake`);
-      assert.equal(fields.fix_tracking, "[]", `${id}: fix tracking must be empty at intake`);
+    fields.core_prerequisites = JSON.parse(fields.core_prerequisites);
+    fields.closes_core = JSON.parse(fields.closes_core);
+    for (const key of ["core_prerequisites", "closes_core"]) {
+      assert(Array.isArray(fields[key]) && fields[key].every(dep => typeof dep === "string"), `${id}: ${key} must be a string array`);
+      assert.equal(new Set(fields[key]).size, fields[key].length, `${id}: duplicate ${key}`);
     }
-    fields.issues = reviewRecords(body, "issues", fields.issues, ["issue_id", "severity", "description", "evidence", "status"], id);
-    fields.fix_tracking = reviewRecords(body, "fix_tracking", fields.fix_tracking, ["issue_id", "fix_ref", "verification_command", "verification_environment", "verification_evidence", "verification_status"], id);
-    const issueIds = fields.issues.map((issue) => issue.issue_id);
-    assert.equal(new Set(issueIds).size, issueIds.length, `${id}: duplicate issue ID`);
-    assert(fields.fix_tracking.every((fix) => issueIds.includes(fix.issue_id)), `${id}: fix references unknown issue`);
-    if (fields.review_status === "ACCEPTED") {
-      assert(fields.review_conclusion && fields.review_conclusion !== "null", `${id}: accepted review needs a conclusion`);
-      for (const issue of fields.issues) {
-        assert.equal(issue.status, "CLOSED", `${id}: accepted review has an open issue`);
-        assert.equal(fields.fix_tracking.filter((fix) => fix.issue_id === issue.issue_id).at(-1)?.verification_status, "PASS", `${id}: accepted issue lacks passing validation`);
-      }
-    }
+    Object.assign(fields, { review_status: "NOT_STARTED", review_conclusion: "null", issues: [], fix_tracking: [] });
     fields.stage_gate = JSON.parse(fields.stage_gate);
     fields.depends_on = JSON.parse(fields.depends_on);
     assert(Array.isArray(fields.depends_on) && fields.depends_on.every((dep) => typeof dep === "string"), `${id}: depends_on must be a string array`);
     if (fields.task_type === "CORE") {
       assert(/^- (阶段\/依赖|依赖)：\S.*$/m.test(body), `${id}: missing original dependency definition`);
+      assert.equal(fields.iteration, fields.acceptance_window, `${id}: iteration differs from acceptance_window`);
+      const summaries = [...body.matchAll(/^- 当前工程复核：(\S.*)$/gm)];
+      assert.equal(summaries.length, 1, `${id}: exactly one current engineering review summary required`);
+      assert(/\[[^\]]+\]\([^)]+\)/.test(summaries[0][1]), `${id}: engineering review needs a report or evidence link`);
     } else {
-      assert.equal(fields.workflow, workflow, `${id}: workflow mismatch`);
       assert(iterations.includes(fields.iteration), `${id}: invalid iteration`);
-      fields.core_prerequisites = JSON.parse(fields.core_prerequisites);
-      fields.closes_core = JSON.parse(fields.closes_core);
       assert(Array.isArray(fields.depends_on) && fields.depends_on.every((dep) => typeof dep === "string"), `${id}: depends_on must be a string array`);
       assert.equal(new Set(fields.depends_on).size, fields.depends_on.length, `${id}: duplicate dependency`);
       assert(["PREPARATION", "PAGE_API", "FRONTEND", "WEBSITE", "MILESTONE"].includes(fields.task_type), `${id}: invalid task type`);
@@ -170,7 +130,7 @@ function parseTasks(text, expected, freshReview, reviewRequired = true) {
   return records;
 }
 
-export function validatePlans(coreText, frontendText, { root = projectRoot, freshReview = false } = {}) {
+export function validatePlans(coreText, frontendText, { root = projectRoot } = {}) {
   const texts = [coreText, frontendText];
   const desktopPlanPath = resolve(root, desktopPlanFilename);
   assert(existsSync(desktopPlanPath), `missing ${desktopPlanFilename}`);
@@ -181,8 +141,8 @@ export function validatePlans(coreText, frontendText, { root = projectRoot, fres
     assert(desktopText.includes(marker), `${desktopPlanFilename}: missing migrated Desktop marker ${marker}`);
   }
   const anchorSets = texts.map((text, i) => checkMarkdown(text, filenames[i]));
-  const core = parseTasks(coreText, coreIds, freshReview);
-  const frontend = parseTasks(frontendText, frontendIds, freshReview, false);
+  const core = parseTasks(coreText, coreIds, true);
+  const frontend = parseTasks(frontendText, frontendIds);
   assert(core.every((record) => record.task_type === "CORE"), "core task type mismatch");
   assert(!/^#### 10\.1\.\d+|FEP-1 交付核查记录|复验证据：|审查修复：/m.test(texts.join("\n")), "historical review block remains");
   const byId = new Map(frontend.map((record) => [record.task_id, record]));
@@ -229,7 +189,7 @@ export function validatePlans(coreText, frontendText, { root = projectRoot, fres
       }
     }
   }
-  return { ...planOrder, schema: "quantos-plan-review/v1", order_schema: planOrder.schema, structure: "PASS", frontend_task_schema: "quantos-web-task/v1", desktop_scope_split: "PASS", platform_load: "NOT_RUN", model_review: "NOT_RUN", core_tasks: core.length, frontend_tasks: frontend.length, page_api_tasks: apis.length, page_tasks: ui.filter((r) => /^UI-P\d+$/.test(r.task_id)).length, tasks: [...core, ...frontend] };
+  return { ...planOrder, schema: "quantos-plan-review/v1", order_schema: planOrder.schema, structure: "PASS", core_task_schema: "quantos-core-task/v1", frontend_task_schema: "quantos-web-task/v1", desktop_scope_split: "PASS", platform_load: "NOT_RUN", model_review: "NOT_RUN", core_tasks: core.length, frontend_tasks: frontend.length, page_api_tasks: apis.length, page_tasks: ui.filter((r) => /^UI-P\d+$/.test(r.task_id)).length, tasks: [...core, ...frontend] };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

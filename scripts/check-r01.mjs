@@ -1,10 +1,19 @@
 #!/usr/bin/env node
 // Static assembly checks complement, never replace, the Rust behavior and Supabase Gates.
 import {existsSync,readFileSync} from 'node:fs';
+import process from 'node:process';
+import console from 'node:console';
 import {dirname,resolve} from 'node:path';import {fileURLToPath,pathToFileURL} from 'node:url';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');const text=p=>readFileSync(resolve(root,p),'utf8');
 function taskStatus(plan,id){return plan.match(new RegExp('- task_id: `'+id+'`([\\s\\S]*?)(?=\\n<a id=|$)'))?.[1].match(/- development_status: `([^`]+)`/)?.[1];}
-function review(plan,id){return plan.split(`<a id="review-${id.toLowerCase()}"></a>`)[1]?.split('<a id=')[0].match(/- review_status: `([^`]+)`/)?.[1];}
+function review(plan,id) {
+ const parts=plan.split(`<a id="task-${id.toLowerCase()}"></a>`);
+ if(parts.length!==2)return null;
+ const summaries=[...parts[1].split('<a id=')[0].matchAll(/^- 当前工程复核：(\S.*)$/gm)];
+ if(summaries.length!==1)return null;
+ const statuses=[...summaries[0][1].matchAll(/历史正式复审：`([^`]+)`/g)];
+ return statuses.length===1?statuses[0][1]:null;
+}
 export function loadR01Inputs(){return{plan:text('docs/SumAlpha-QuantOS-Development-Plan.md'),source:text('crates/quantos-market/src/lib.rs'),tests:text('crates/quantos-market/src/tests.rs'),durable:text('crates/quantos-market/src/durable.rs'),service:text('services/market-ingestor/src/main.rs')+text('services/market-ingestor/src/cli.rs'),fixture:JSON.parse(text('crates/quantos-market/fixtures/market_replay_catalog.json')),makefile:text('Makefile'),workflow:text('.github/workflows/ci.yml'),foundation:JSON.parse(text('docs/audit/evidence/f0-91e222f/index.json')),migration:text('supabase/migrations/20261002100000_r01_atomic_ingest_function.sql'),summaryExists:existsSync(resolve(root,'docs/R01-summary.md'))};}
 export function validateR01(i){const failures=[];const check=(c,m)=>{if(!c)failures.push(m);};
  for(const id of ['F03','F05']){check(taskStatus(i.plan,id)==='COMPLETED',`dependency ${id} is COMPLETED`);check(review(i.plan,id)==='ACCEPTED',`dependency ${id} is ACCEPTED`);}

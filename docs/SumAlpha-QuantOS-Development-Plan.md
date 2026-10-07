@@ -1,19 +1,22 @@
-> 2026-10-07：BFF-FE-007 持久审计/导出整改完成，F0/A1 基础前置已实际刷新 READY，含 Supabase 执行；当前 25 READY、0 BLOCKED（G0 当前范围已确认，FEP-0 严格 READY）。旧批准和 hosted CI 不迁移到本轮源码。见[整改结论](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。
+> 2026-10-07 格式重构前工程快照：BFF-FE-007 持久审计/导出整改完成，F0/A1 基础前置已实际刷新 READY，含 Supabase 执行；当时 25 READY、0 BLOCKED（G0 当前范围已确认，FEP-0 严格 READY）。旧批准和 hosted CI 不迁移到本轮源码。见[整改结论](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。
 
 # SumAlpha QuantOS 可执行开发计划
 
-> 2026-10-07 当前范围确认：项目用户已确认 G0 DEVELOPMENT 文稿（`900e809c60dd`），G0/FEP-0 严格 READY；当前 25 READY、0 BLOCKED。见[当前确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-07.md)。
+> 2026-10-07 格式重构前范围确认：项目用户已确认 G0 DEVELOPMENT 文稿（`900e809c60dd`），G0/FEP-0 当时严格 READY；25 READY、0 BLOCKED。见[当前确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-07.md)。
 
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.33
+> 版本：3.34
 > 更新时间：2026-10-07
 > 状态：技术执行基线  
+> 本轮变更：统一任务与复核格式；上方 25 READY/0 BLOCKED 为格式重构前已登记记录。门禁脚本输入已变更，保留原回执，不将其声明为本轮严格内容验收；重新消费准入前须复评受影响输入。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.34`：以现行前端任务卡为标准，统一 47 个核心任务的字段顺序、workflow 和“当前工程复核”摘要；新增与既有窗口一致的 iteration、核心前置子集及空 closes_core。原指定模型复审模块、状态范围、问题与修复追踪完整归档，业务要求、任务 ID/顺序、依赖、开发状态、阶段记录和检查点保持原事实。同步更新结构与旧格式读取门禁；脚本属于内容绑定输入，旧 25 READY 为重构前已登记结果，当前严格内容有效性须独立复评，不以本轮静态验证继承。
 
 - `3.33`：项目用户明确答复“确认 G0 DEVELOPMENT 文稿”，当前范围 `900e809c60dd` 与功能输入一致；保存原答复/文稿/范围摘要，G0 核验原 16/16 工程执行后严格 READY。确认后 FEP-0 两项实际重评 PASS、八依赖及 23 节点闭包 READY；加上身份与 Audit 两项 A2 当前共 25 READY、0 BLOCKED。原 PENDING 及历史确认保留，hosted CI/RELEASE 独立。见[当前确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-07.md)。
 
@@ -140,33 +143,31 @@
 10. 在未完成 ADR 和容量评审前，不得预置 Supabase 生态外的独立事件、缓存、时序或秘密基础设施；仅当达到第 F09/L04 定义的阈值，方可比较 Supabase 原生索引/分区/聚合/批处理/Realtime Broadcast/可选 Queues 与外部方案。
 
 <a id="plan-review-schema"></a>
-### 2.5 GPT-6 Astra 复审字段与遍历约定
+### 2.5 统一任务格式与工程复核
 
-本节定义项目约定 `quantos-plan-review/v1`，供 Codex 按 Markdown 标题和固定字段遍历；它不是已经核实的 Codex 官方专有导入 schema。校验命令为仓库根目录执行 `node scripts/check-development-plans.mjs`。本地结构校验与平台实际加载、模型复审、目标环境验收分别记录，结构通过不代表后三者通过。
+以[前端执行计划的 BFF-FE-000 任务卡](./SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#task-bff-fe-000)为标准：稳定任务锚点、任务标题、固定字段、业务要求和一条“当前工程复核”摘要。核心任务使用 `quantos-core-task/v1`，与前端任务采用相同字段顺序；标题层级按所属章节调整。项目联合校验入口继续使用 `quantos-plan-review/v1`，它是仓库约定，不代表平台实际加载或模型复审。
 
 | 字段 | 含义与格式 |
 |---|---|
-| `task_id` | 唯一任务标识；每个任务只有一个定义，使用 `task-<小写 ID>` 稳定锚点。 |
-| `task_type` | 任务类型标签；核心为 `CORE`，前端计划使用 `PREPARATION`、`PAGE_API`、`FRONTEND`、`WEBSITE`、`MILESTONE`。 |
-| `iteration` | 迭代周期；前端计划按两周一个 Sprint 分组，阶段 ID 与排期解耦。 |
-| `depends_on` | 核心与前端均使用 JSON 字符串数组，空依赖为 `[]`；`CORE:<ID>` 标识核心任务，依赖只消费其已声明阶段的功能准入；拆分服务准入使用 SERVICE/CORE-GATE；命名空间及跨文档准入见第 2.8 节。原“依赖/阶段依赖”保留业务背景，执行前置以结构化依赖为准。 |
-| `stage_gate` | 独立阶段准入 JSON：`stage/status/input_digest/evidence`；字段与证据规则见第 2.9 节，不代替历史复审。 |
-| `development_status` | `COMPLETED` 已开发完成；`IMPLEMENTED_PENDING_ACCEPTANCE` 已实现待验收；`PARTIAL` 部分完成；`UNSPECIFIED` 原计划未明确状态，待盘点。不得把未注明状态的任务推定为未开发或已完成。 |
-| `review_entry` | 指向本任务 `review-<小写 ID>` 的 Markdown 链接。 |
-| `workflow` | 开发-复审流转节点，详见前端计划；与开发状态、接口集成状态分别维护。 |
-| `review_model` | 固定为 `GPT-6 Astra`，指定预期复审模型；不代表已启动或已验证模型调用。 |
-| `review_status` | `NOT_STARTED`、`IN_REVIEW`、`CHANGES_REQUESTED`、`FIX_VALIDATION`、`RE_REVIEW`、`ACCEPTED`、`BLOCKED`。新增复审入口初始化为 `NOT_STARTED`；已有复审状态保持原记录。 |
-| `review_conclusion` | 复审结论；尚未执行为 `null`，不得填“通过”或“无问题”。 |
-| `issues` | 问题记录；预留为 `[]`，表示尚未录入，不代表零缺陷。录入后每项含 `issue_id`、`severity`、`description`、`evidence`、`status`。 |
-| `fix_tracking` | 修复验证追踪项；预留为 `[]`。录入后每项含 `issue_id`、`fix_ref`、`verification_command`、`verification_environment`、`verification_evidence`、`verification_status`。 |
+| `task_id` | 唯一任务 ID；使用 `task-<小写 ID>` 稳定锚点，每个任务仅定义一次。 |
+| `task_type` | 核心为 `CORE`；前端使用 `PREPARATION`、`PAGE_API`、`FRONTEND`、`WEBSITE`、`MILESTONE`。 |
+| `iteration` | 所属执行窗口；核心沿用 F0、R1-SERVICE、TP01-SERVICE、S2-SERVICE、X3-SERVICE、R1/S2/X3、L4-SERVICE/L4；不转换为前端 Sprint。 |
+| `stage_gate` | 独立阶段准入 JSON：`stage/status/input_digest/evidence`，规则见第 2.9 节。 |
+| `depends_on` | JSON 字符串数组；空依赖为 `[]`。原“依赖/阶段依赖”保留业务背景，实际执行前置以本字段为准。命名空间见第 2.8 节。 |
+| `core_prerequisites` | `depends_on` 中 CORE、CORE-GATE、SERVICE 命名空间的原样子集，用于快速读取核心前置，不创建新依赖。 |
+| `closes_core` | 前端页面闭环后需复审的核心总任务映射；核心任务本身为 `[]`，总 Gate 依赖仍由检查点声明。 |
+| `development_status` | `COMPLETED`、`IMPLEMENTED_PENDING_ACCEPTANCE`、`PARTIAL`、`UNSPECIFIED`；只表示实现进度，不推定验收结果。 |
+| `workflow` | 固定为 `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`；表示流转路径，不是当前状态。 |
+| `acceptance_window` | 核心排期扩展字段，与 `iteration` 一致；保留既有调度 policy 和检查点接口。 |
+| 当前工程复核 | 单行中文摘要及报告/证据链接，位于业务要求之后；记录检查范围、结论、活动问题、修复验证、阶段准入和剩余验收边界。 |
 
-复审按任务标题逐项进入，读取原需求、技术要求、交付物、验收标准和依赖，再填写上述四个复审字段。问题和修复记录使用两空格缩进的嵌套列表；`issue_id` 在任务内唯一，修复记录必须引用已存在的问题。空值只用 `null` 或 `[]`，不用“待补充”代替结构值。
+任务卡不再内嵌 `review_entry/review_model/review_status/review_conclusion/issues/fix_tracking` 或指定模型复审子章节。复审从任务需求、技术要求、交付物、验收标准和依赖进入；检查矩阵、问题清单与修复追踪写在各任务审计报告，任务卡仅引用当前结论。摘要保留“历史正式复审：`ACCEPTED`/`FIX_VALIDATION`”时，只陈述原报告状态，不能作为当前 SHA 的批准。未开始的正式复审明确说明尚无结论，不把空记录解释为通过。
 
-录入时将 `- issues: []` 改为 `- issues:`，下一行以 `  - issue_id: <ID>` 开始，其他字段采用四空格缩进的 `字段: 值`；`fix_tracking` 同样处理。各记录字段使用单行值，长说明与证据用文档链接引用。复审接受时必须有非空结论，全部问题为 `CLOSED`，每个问题最后一次修复验证为 `PASS`。
+复核摘要应先链接当前报告，再说明已关闭与活动问题、整改/复验结果及证据，最后说明阶段和正式验收边界。OPEN/PARTIAL、DEFERRED_TO_FINAL_REVIEW、NOT_RUN 等原事实按适用范围保留；关闭记录移入审计归档，不在任务卡重复展开。正式接受仍要求非空结论、适用问题全部 CLOSED、最后修复验证 PASS，以及相应源码/环境回执；不得由格式迁移自动批准。
 
-`node scripts/check-development-plans.mjs --fresh-review` 额外检查所有复审入口已清空；后续填写复审记录后使用不带此参数的结构校验。加 `--json` 可输出解析后的任务清单，供任务编排读取；它不自动调用模型或启动平台任务。
+[格式重构前复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md)完整保留 47 个任务的原字段与原结论。F06/R01 的既有门禁改读任务卡复核摘要，继续验证其原有问题关闭和同 SHA 证据要求；检查点 fenced JSON 的 `review_status/source_commit/evidence` 保持原接口和事实。
 
-开发完成标记仅迁移原文状态；F01/F02 的开发状态与外部验收状态分开，TP01 的子任务完成不等于整个 adapter 完成，TP02–TP05 的评估完成不等于生产准入。各阶段末尾的 Gate 保留原有勾选及总验收记录；勾选不能替代任务复审与绑定源码 SHA 的证据；v3.0 从空白复审入口开始，后续复审以各任务当前记录为准。
+仓库根目录运行 `node scripts/check-development-plans.mjs` 与 `node --test scripts/development-plan-order-negative.mjs`，检查任务结构、链接、阶段和联合依赖；`--json` 输出任务清单，`--fresh-review` 仅作无旧内嵌复审字段的结构检查，不清空审计报告。本地结构 PASS 不等于实际 Gate、数据库、hosted CI 或正式验收 PASS。
 
 ### 2.6 通用第三方接入流程（每个 TP 任务均强制执行）
 
@@ -200,7 +201,7 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
 
 ### 2.8 跨计划验收单位与证据规则
 
-- `CORE:<ID>`、`FE:<ID>` 标识任务；前端本地 ID 等价于 FE 前缀。依赖读取 `stage_gate` 所属阶段的就绪范围，正式 `review_status` 单独保留。
+- `CORE:<ID>`、`FE:<ID>` 标识任务；前端本地 ID 等价于 FE 前缀。依赖读取 `stage_gate` 所属阶段的就绪范围，正式复审状态在任务审计报告和检查点 JSON 中单独保留。
 - `SERVICE:TP01/S04/X06/L03/L04` 是服务子范围；`CORE-GATE:<阶段>-SERVICE` 为服务功能准入；原 `CORE-GATE:R1/S2/X3/L4` 关闭业务功能联调。保留原 ID、稳定锚点与量化要求，延期项交给指定发布检查点。
 - `FRONTEND-GATE:G0–G8`、`PROVIDER:A1–A6/ALL`、`PREPARATION:P0`、`EVALUATION:TP07/TP12` 按各自窗口声明 DEVELOPMENT 或 INTEGRATION；`RELEASE-GATE:BETA`、`RELEASE-GATE:LIVE-READINESS` 只用于最终发布前验收。
 - 检查点 fenced JSON 包含原 checkpoint_id、acceptance_window、depends_on、required_scope、review_status、source_commit、evidence，加上独立 `stage_gate`。原正式 ACCEPTED 仍需完整源码 SHA 与证据；F0 的历史回执保持原始边界，不能转移到新 HEAD。
@@ -239,7 +240,7 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
 
 任何节点登记 READY 前，其 `depends_on` 前置阶段记录必须全部 READY；RELEASE 节点还必须有正式 `review_status: ACCEPTED`、完整源码 SHA 和发布证据，不能只凭开发回执登记发布就绪。结构校验仅验证这些记录一致性，实际证据范围仍需复审。
 
-每个 `stage_gate` 使用 `stage`（DEVELOPMENT/INTEGRATION/RELEASE）、`status`（NOT_ASSESSED/READY/BLOCKED）、`input_digest`、`evidence` 四个字段。NOT_ASSESSED 必须为 null/[]；BLOCKED 可以保留合法摘要与失败证据，不能作为已满足依赖。此次重排全部初始化为 NOT_ASSESSED/null/[]，不改历史 `development_status/review_status/issues/fix_tracking`，也不把既有完成标记自动换成新准入结论。
+每个 `stage_gate` 使用 `stage`（DEVELOPMENT/INTEGRATION/RELEASE）、`status`（NOT_ASSESSED/READY/BLOCKED）、`input_digest`、`evidence` 四个字段。NOT_ASSESSED 必须为 null/[]；BLOCKED 可以保留合法摘要与失败证据，不能作为已满足依赖。本轮格式重构保留已登记的阶段记录及开发状态，原复审状态、问题和修复追踪移入归档；不把既有完成标记自动换成新准入结论。脚本输入变更后的严格内容有效性需复评，保留的 READY 回执不能单凭结构通过继续放行。
 
 准入评估只审查该阶段必需功能与实际下游使用范围。READY 必须有 `sha256:<64位小写hex>` 输入清单摘要及可定位证据；清单记录源码/契约/测试/配置版本、涉及的数据库迁移和环境、执行命令、结果、尚存风险与适用消费者。未评估和阻塞都不能作为已满足的依赖；先复用并核对既有证据的相关输入，补测受影响内容，再登记 READY，不要求为了登记而重跑无关长稳任务。文档排期改动不使未变化功能失效，源码/契约/配置或目标环境变化必须重新评估受影响准入；这不放宽正式候选版本同 SHA 回执。
 
@@ -315,41 +316,35 @@ flowchart TD
 
 - task_id: `F01`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:9ccbcb1947e7518a6ec516f63678ab219bc4bd02803187213ffe7ecb06e60354","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f01.json"]}
 - depends_on: []
+- core_prerequisites: []
+- closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：2026-09-17 再次复核通过；20/20（100%）检查点、3/3 量化验收通过，当前未解决问题为 0。适用源码与环境边界见复审报告；F0 总体 Gate 不随本项放行。
-- review_entry: [GPT-6 Astra 复审入口](#review-f01)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：初始化 Polyglot Monorepo
 - 技术要求：建立 Cargo workspace、`proto/`、`crates/`、`services/`、`engines/`、`apps/website`、`apps/terminal`、`packages/*`、`supabase/`；固定 Rust、uv、Node 工具链
 - 交付物：目录树、锁文件、Make 任务、本地开发环境基线、`DATABASE_URL` 约定
 - 量化验收标准：新环境在 ≤30 分钟内运行 `bootstrap`、`lint`、`test`；所有目录有 README 与明确模块边界；跨语言构建连续 3 次可重复
 - 阶段执行：功能开发验证 bootstrap/lint/test 可用、边界 README 和连续 3 次构建可复现；≤30 分钟的新环境时限在开发记录基线，正式新环境回执归 RELEASE-GATE:BETA。
 - 依赖：无
-
-<a id="review-f01"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: 全部问题已解决；本次锁检查、16 项负向测试、8 个后端漂移探针及既有验收回执核验通过，实现相对验收源码无变更。详见 [F01 全面复审报告](./audit/F01-comprehensive-review-2026-09-17.md)。
-- issues: []
-- fix_tracking: []
-- 后续基线变更：F02 经用户批准升级 Python 至 3.12；原 F01 冷启动与三次构建回执仍仅适用于其记录源码，新基线结果另见 F02 整改记录。
-- 历史追溯：已关闭问题及逐项验证已归档至 [F01 整改记录](./audit/F01-remediation-2026-09-17.md)；本任务活动清单只保留未解决问题。
+- 当前工程复核：[全面复审报告](./audit/F01-comprehensive-review-2026-09-17.md)；历史正式复审：`ACCEPTED`；原 20/20 检查点、3/3 量化标准及问题关闭结论保留；Python 3.12 等后续基线按 F02 记录。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f01.json)；原完整工程执行见[整改报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。历史正式/hosted CI 不迁移到新 HEAD；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f01)完整保留。
 
 <a id="task-f02"></a>
 ### F02：CI、制品与供应链门禁
 
 - task_id: `F02`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:6d1f8c132ea1bd6b67c5a7e38c9732a146bed60d68427a9572c0b1b58ea1418f","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f02.json"]}
 - depends_on: ["CORE:F01"]
+- core_prerequisites: ["CORE:F01"]
+- closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：2026-09-26 F02-A11 全部关闭；12/12原问题、24/24检查点通过。验收基线为main `bb4ef3c95753c1db15c7f2e2ba3ae22abb7a0b1f`，8/8 required checks、7/7主线工作流、正式签名与独立下载验签全部成功；文档归档提交不自动继承该源码回执，F0总体不随本项放行。
-- review_entry: [GPT-6 Astra 复审入口](#review-f02)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：CI、制品与供应链门禁
 - 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest
 - 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本
@@ -357,130 +352,103 @@ flowchart TD
 - 阶段执行：secret/proto/锁依赖/RLS/schema drift 负向机制及新增高危漏洞处置在开发期验证；目标远程 CI、主干制品 digest/SBOM/签名回执归 RELEASE-GATE:BETA。缺失 CI 发布回执不等于可跳过安全检查。
 - 执行流程：修复已通过PR #4正常合入main；required checks真实阻断与恢复、新main同SHA的完整检查和正式制品回执均已闭环。保留strict、8项GitHub Actions来源检查及零bypass。详见 [F02主线验收收尾](./audit/F02-A11-main-acceptance-2026-09-26.md)。
 - 依赖：F01
-
-<a id="review-f02"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: F02-A11 CLOSED；原物理目录下callback与UI短模块ID冲突已精确重现并修复，两份实际Next配置采用固定八位空间且遇冲突失败。真实编译5/5回归、完整Terminal两种顺序61/61文件一致；main bb4ef3c完整SHA的8项检查及正式签名下载回执全部通过。当前未解决问题0，详见 [F02当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)。
-- issues: []
-- fix_tracking: []
+- 当前工程复核：[当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)；历史正式复审：`ACCEPTED`；F02-A11 及原 12/12 问题关闭，24/24 检查点通过；main `bb4ef3c` 的远程检查、正式签名和下载验签属于原基线，见[主线收尾](./audit/F02-A11-main-acceptance-2026-09-26.md)。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f02.json)；原完整工程执行见[整改报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。历史正式/hosted CI 不迁移到新 HEAD；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f02)完整保留。
 
 <a id="task-f03"></a>
 ### F03：领域协议 v1 与 SDK 生成
 
 - task_id: `F03`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:041ff6ab3d9d9b74e799031a9388ad48b270248c4641c95008b09276c93de5ac","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f03.json"]}
 - depends_on: ["CORE:F01"]
+- core_prerequisites: ["CORE:F01"]
+- closes_core: []
 - development_status: `COMPLETED`
-- 状态范围：2026-09-20原六项问题及C12全部关闭，20/20（100%）检查点、4/4量化标准通过。c3be28d独立协议验收#2成功，同SHA制品/日志摘要和92份生成文件哈希均核验一致；不代表F02 A11或其他CI通过。
-- review_entry: [GPT-6 Astra 复审入口](#review-f03)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：领域协议 v1 与 SDK 生成
 - 技术要求：定义 `DataSnapshot`、`ResearchArtifact`、`StrategyRelease`、`Signal`、`TradeProposal`、`RiskDecision`、`TradeCommand`、Order/Fill/Position、Engine/Event API；Buf + OpenAPI 生成
 - 交付物：`proto/*/v1`、JSON schema、Rust/Python/TS SDK、兼容性测试
 - 量化验收标准：SDK 三语言编译；100% 必填元数据（tenant/actor/correlation 等）测试；Buf breaking check 阻止破坏性变更；序列化往返 1,000 组 fixture 无差异
 - 依赖：F01
-
-<a id="review-f03"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: COMPLETED / ACCEPTED。c3be28d的F03 Protocol Acceptance #2完整执行proto-check并成功，生成物无漂移；50份Schema、六方向二进制与ProtoJSON、11003组样本及15项非法JSON探针通过。下载包及日志摘要、sourceSha/expectedSha、92份文件哈希均核验一致。C12已关闭，既有Rust8/Python127/TS46项本地证据保留。详见 [F03 全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)。 2026-09-28 补充：手动基线缺陷 F0-H01 已修复，必须提供非 HEAD 的完整祖先 SHA；main `91e222f` 的独立手动 Gate、92 个生成物摘要通过。 详见 [F0 整改与主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。
-- issues: []
-- fix_tracking: []
+- 当前工程复核：[全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)；历史正式复审：`ACCEPTED`；原六项问题及 C12 关闭，20/20 检查点、4/4 量化标准通过；生成物与手动基线修复见[F0 主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f03.json)；原完整工程执行见[整改报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。历史正式/hosted CI 不迁移到新 HEAD；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f03)完整保留。
 
 <a id="task-f04"></a>
 ### F04：Core、错误、时钟与 ID
 
 - task_id: `F04`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7afc9e704bc0245b1a64aefc32f52f686d92602c2ee6408aee20bd1721cfe0ac","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f04.json"]}
 - depends_on: ["CORE:F03"]
+- core_prerequisites: ["CORE:F03"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-f04)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：Core、错误、时钟与 ID
 - 技术要求：实现强类型 ID、UTC clock、领域错误码、金额/数量精度、版本与 hash primitives
 - 交付物：`quantos-core`、fixture builder
 - 量化验收标准：金额/精度边界与时区测试分支覆盖 ≥90%；任意错误可映射为稳定机器码；相同 fixture hash 100% 一致
 - 依赖：F03
-
-<a id="review-f04"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: 2026-09-21 验收通过：c769897de9b1f94fbd6dd9ac3e35b6aca2e8945a 同 SHA 的 QuantOS CI、F01 Clean Room、Frontend Baseline、F03、F04 branch 和 Compatibility 全部 SUCCESS。chacha20 阻断经远端 SCA 验证关闭；数据库/RLS、F02 recovery、运行时打包、main-only 签名策略、正式签名及独立下载验签全部成功，236 个发布文件与 HMAC-SHA256 签名验证通过。原九项问题及 23 个检查点全部完成，F02 A11 独立保持开放。详见 [完整远端验收回执](audit/F04-remote-acceptance-c769897-2026-09-21.md)。
-- issues: []
-- fix_tracking: []
+- 当前工程复核：[远端验收回执](./audit/F04-remote-acceptance-c769897-2026-09-21.md)；历史正式复审：`ACCEPTED`；原九项问题和 23 个检查点通过；`c769897` 的远程工作流、数据库/RLS、打包和验签属于原基线，其他任务后续状态分别维护。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f04.json)；原完整工程执行见[整改报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。历史正式/hosted CI 不迁移到新 HEAD；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f04)完整保留。
 
 <a id="task-f05"></a>
 ### F05：事件、存储与审计账本
 
 - task_id: `F05`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7243fa9588b18fec55f448f55ce7c6a853c410c1427b02d9f0704a522ba67c99","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f05.json"]}
 - depends_on: ["CORE:F03", "CORE:F04"]
+- core_prerequisites: ["CORE:F03", "CORE:F04"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-f05)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：事件、存储与审计账本
 - 技术要求：Supabase PostgreSQL migration、业务 schema、RLS 基线、Supabase Storage、transactional outbox/inbox、schema registry、append-only audit；建立 `outbox_event`、`inbox_receipt`、`dead_letter_event`、`projection_checkpoint` 与基于租约/`FOR UPDATE SKIP LOCKED` 的轮询消费者。Realtime 只发送唤醒/投影通知，绝不作为事件真相或唯一调度；早期不引入 Supabase 生态外的独立消息、缓存或时序基础设施
 - 交付物：`quantos-event`、`quantos-storage`、`supabase/migrations/*`、policy/sql、replay CLI、消费者恢复 Runbook
 - 量化验收标准：重复/乱序/重启/死信四类测试全过；隔离 Supabase 线上项目或数据库分支可由 migration 重建 `quantos` schema；所有 tenant 表 RLS 默认拒绝且负向权限测试全过；1 万条测试事件无丢失、消费者最终一致；模拟 Realtime 漏通知、断连和重连后，数据库扫描在测试 deadline 内处理全部已提交事件；1,000 次同事件并发投递只产生一次业务副作用；按 correlation ID 在 ≤5 秒取回完整事件链
 - 阶段执行：开发期保留全部数据正确性规模用例（1 万事件、1,000 次并发）、真实 Supabase RLS/事务/补偿测试；重建能力须有迁移与可执行检查，受控整库重建只在对应授权内进行。相关查询耗时作为基线；≤5 秒检索完整链和候选版本重建/drift 回执归 RELEASE-GATE:BETA。
 - 依赖：F03、F04
-
-<a id="review-f05"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: 2026-09-23 以完整 SHA 48d837692b81e56bd88e13189f0cf15ee34976d3 完成三项同 SHA 验收：QuantOS CI #117 整体 SUCCESS，正式签名与独立下载验签确认 236 个发布文件；F05 Event Nightly #7 SUCCESS，10,000 条正式消费和唯一副作用全部对齐、完整事件链取回 160.233317ms，Linux pg.rs region 607/714=85.014%；隔离 Supabase 目标 Gate PASS，15 项 migration、RLS、真实 Storage 及万条一致性通过。30/30 检查点 PASS，初审 11/11 问题关闭。目标 Supabase 的跨区域 ID 链时延仅作完整性观测，不能外推为该环境完整载荷 ≤5 秒。详见 [F05 全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)及[同 SHA 正式验收](./audit/F05-acceptance-48d8376-2026-09-23.md)。 2026-09-28 补充：F0-B01 共享库测试串扰已修复；main `91e222f` 的 CI/Nightly 通过，万条事件及唯一副作用一致、完整查询 159.374ms、分支覆盖 87.013%。经用户授权重建当前测试项目 quantos schema，同 main SHA 的 Supabase 完整 target、独立远程参考库 drift 与实际 RLS 全部通过，F0 7/7 闭环。 详见 [F0 整改与主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。
-- issues: []
-- fix_tracking: []
+- 当前工程复核：[全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)；历史正式复审：`ACCEPTED`；原 11/11 问题关闭、30/30 检查点通过；共享库串扰修复、万条一致性、受控重建/drift/RLS 历史回执见[F0 主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。跨区域 ID 链时延不代表完整载荷性能验收。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f05.json)；原完整工程执行见[整改报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。历史正式/hosted CI 不迁移到新 HEAD；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f05)完整保留。
 
 <a id="task-f06"></a>
 ### F06：身份、授权、秘密引用与主上下文
 
 - task_id: `F06`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:bf19322d46e76d94b9cb1ec041acb9365d27c414be3927311060103afd15cc5c","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f06.json"]}
 - depends_on: ["CORE:F03", "CORE:F05"]
+- core_prerequisites: ["CORE:F03", "CORE:F05"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-f06)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：身份、授权、秘密引用与主上下文
 - 技术要求：Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝；Vault 仅存静态加密秘密，Execution Gateway 通过受控角色与 allowlist 函数取得所需引用，短时授权由服务会话/命令过期/轮换状态控制
 - 交付物：`quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration、Vault 访问 policy/函数
 - 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API。开发机跨区域鉴权读 P95 仅作诊断，不作为 F06 放行条件。
 - 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及拒绝矩阵；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。开发机本地网络到托管数据库的长尾不作为 F06/A09 Gate；同区域 P95 <100ms 移至首次同区域部署后的性能验证。真实浏览器登录/E2E、MFA 页面交互及全部页面 API 功能联调属于 Web 前端 G1/页面与接口阶段；Terminal 实际部署归 RELEASE-GATE:BETA，不作为 F06 开发准入 Gate。
 - 依赖：F03、F05
-
-<a id="review-f06"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- 状态解释：ACCEPTED 表示已列明基线的 F06 服务端范围验收；development_status=COMPLETED 只标识开发完成。对任一新 HEAD，仍必须具备绑定该完整 SHA 的 refs/notes/f06-acceptance 回执、全部问题 CLOSED、干净工作树及 make f06-acceptance-gate PASS。文档提交不转移历史回执；下游本地契约 Gate 不代表 F06 目标验收。
-- review_conclusion: F06-A01–A10 全部关闭：阻塞级 2/2、高危 5/5、中危 2/2、低危 1/1，共 10/10（100%），活动问题 0。保持已确认服务端范围的 ACCEPTED；新 HEAD 仍须通过同 SHA 总 Gate。详见 [当前复审结论](./audit/F06-comprehensive-review-2026-09-24.md)、[已关闭问题与修复追踪](./audit/F06-closed-findings-2026-09-25.md)和[性能范围修订](./audit/F06-A09-remote-latency-gate-withdrawal-2026-09-25.md)。
-- issues: []
-- fix_tracking: []
+- 当前工程复核：[当前复审报告](./audit/F06-comprehensive-review-2026-09-24.md)；历史正式复审：`ACCEPTED`；F06-A01–A10 全部关闭，活动问题 0；[已关闭问题与修复追踪](./audit/F06-closed-findings-2026-09-25.md)和[性能范围修订](./audit/F06-A09-remote-latency-gate-withdrawal-2026-09-25.md)保留。历史 ACCEPTED 仅覆盖已确认服务端范围；新候选仍须完整 SHA 的 `refs/notes/f06-acceptance`、问题关闭、干净工作树及 `make f06-acceptance-gate` PASS。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f06.json)；原完整工程执行见[整改报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。历史正式/hosted CI 不迁移到新 HEAD；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f06)完整保留。
 
 <a id="task-f07"></a>
 ### F07：Runtime 最小可恢复工作流
 
 - task_id: `F07`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:d7868b2b9ab2a455a0bdda01aa36255577f6a0bedd41679855621d2f81546557","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f07.json"]}
 - depends_on: ["CORE:F04", "CORE:F05", "CORE:F06"]
+- core_prerequisites: ["CORE:F04", "CORE:F05", "CORE:F06"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-f07)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：Runtime 最小可恢复工作流
 - 技术要求：session、持久任务、tool registry、deadline、cancel、retry、checkpoint、Artifact API、成本/速率限额
 - 交付物：`quantos-runtime`、workflow fixtures
@@ -488,52 +456,41 @@ flowchart TD
 - 阶段执行：worker 恢复、checkpoint、Artifact 去重及 cancel/timeout 审计为开发硬门槛；调度 P95 <200ms 移交 RELEASE-GATE:BETA；拟发布 HTTPS/受限 Storage 验证由 L04 归档，在服务首次发布前完成。
 - 依赖：F04–F06
 - 阶段验收边界：F07 原开发验收回执的源码/环境范围保留在复审记录；当前功能准入使用工程 BFF/Runtime、已配置 Supabase 的真实功能、拒绝与恢复证据。P95、正式同 SHA CI、部署 HTTPS 入口和仅可访问 `quantos-artifacts` 的 Runtime Storage 凭据由 L04 负责归档，并在首次使用这些服务的 RELEASE-GATE:BETA 验收；新增执行区范围归 RELEASE-GATE:LIVE-READINESS，不以开发准入代替发布批准。
-
-<a id="review-f07"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: 2026-09-25 再次逐项复核，F07-A01–A12 全部关闭：阻塞级 2/2、高危 5/5、中危 4/4、低危 1/1，共 12/12（100%），活动清单清空。f5993743420cc7f5f2de0544e3b83404eea88cdc 的开发验收维持 18/18、量化 3/3；当前实现与该基线无差异，本轮本地 Runtime 12/12、Gateway cookie 拒绝 1/1 通过，缺库强制验收负向探针按预期拒绝。部署 HTTPS 入口与受限 Storage 凭据继续列为 L04 上线前 Gate；历史回执不自动转移到新 HEAD。详见 [当前全面复审](./audit/F07-comprehensive-review-2026-09-24.md)和[逐项关闭复核](./audit/F07-closure-recheck-2026-09-25.md)，已关闭问题及修复追踪移至后者。
-- issues: []
-- fix_tracking: []
+- 当前工程复核：[当前全面复审](./audit/F07-comprehensive-review-2026-09-24.md)；历史正式复审：`ACCEPTED`；原 12/12 问题关闭，18/18 开发检查及 3/3 量化标准属于 `f599374` 基线；逐项证据见[关闭复核](./audit/F07-closure-recheck-2026-09-25.md)。部署 HTTPS、受限 Storage 与调度性能继续由 L04/RELEASE 收口。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f07.json)；原完整工程执行见[整改报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。历史正式/hosted CI 不迁移到新 HEAD；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f07)完整保留。
 
 <a id="task-f08"></a>
 ### F08：Engine SDK、Manager 与 Mock Engine
 
 - task_id: `F08`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:8468951ed2dd13a9f18e493a6b42cbef83bd0a243b76da9b690afe27a0db0a21","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f08.json"]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F07"]
+- core_prerequisites: ["CORE:F03", "CORE:F06", "CORE:F07"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-f08)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：Engine SDK、Manager 与 Mock Engine
 - 技术要求：Engine manifest 审核、UDS gRPC、health/readiness、routing、限流、熔断、退避、资源配额、contract harness
 - 交付物：`quantos-engine-manager`、Python common SDK、mock engine
 - 量化验收标准：`GetMetadata/Health/Execute/StreamExecute/Cancel` 100% contract 通过；连续 3 次崩溃触发退避且不丢请求；deadline 超时 ≤2 秒返回确定性错误
 - 依赖：F03、F06、F07
-
-<a id="review-f08"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- 状态解释：ACCEPTED 绑定完整源码 SHA `830c0c547f08d1667725fee55015fc09608b8f48` 的 F08 开发阶段基线。远程 CI、Nightly、隔离目标回执均与该 SHA 一致；后续源码、文档或合并新 SHA 不自动继承回执，生产部署不在本阶段验收范围。
-- review_conclusion: 2026-09-26 完成 PR #1 合并后的主线同 SHA 正式验收（合并触发的 7 个工作流及补充 Nightly/目标共 9 个工作流均成功）：主线 CI 36238199294、Nightly 36239409436、隔离目标 36239615322 均首次执行 SUCCESS，目标九项 release 场景 9/9 PASS；跨秒回归在两道远程 Gate 均通过。原阻塞级 2/2、高危 5/5、中危 3/3、低危 1/1，共 11/11 问题关闭，24/24 检查点完成，活动代码问题 0。CPU/GPU 硬隔离按用户决定移除，127 项可审计覆盖率豁免保持既定范围。详见 [当前复审结论](./audit/F08-comprehensive-review-2026-09-25.md)、[主线验收收尾](./audit/main-acceptance-closeout-830c0c5-2026-09-26.md)、[逐项关闭复核](./audit/F08-closure-recheck-2026-09-26.md)、[初审归档](./audit/F08-initial-review-2026-09-25.md)和[已关闭问题及修复追踪](./audit/F08-closed-findings-2026-09-26.md)。
-- issues: []
-- fix_tracking: []
+- 当前工程复核：[当前复审报告](./audit/F08-comprehensive-review-2026-09-25.md)；历史正式复审：`ACCEPTED`；原 11/11 问题关闭、24/24 检查点完成；`830c0c5` 的 9 个主线/补充工作流与目标九项场景通过，见[主线收尾](./audit/main-acceptance-closeout-830c0c5-2026-09-26.md)。CPU/GPU 硬隔离移除及 127 项覆盖率豁免保持既定范围。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f08.json)；原完整工程执行见[整改报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。历史正式/hosted CI 不迁移到新 HEAD；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f08)完整保留。
 
 <a id="task-f09"></a>
 ### F09：本地可观测性、容量阈值与故障注入
 
 - task_id: `F09`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:5b0c72c26ac40a66a7a05dc1aab63ec3f224711f6a046c1db474c027315e1df6","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f09.json"]}
 - depends_on: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
+- core_prerequisites: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-f09)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：本地可观测性、容量阈值与故障注入
 - 技术要求：trace、metrics、结构化日志、健康检查、test fault proxy；为 outbox 年龄/DLQ、Realtime 投影延迟与配额、读模型查询/MV 新鲜度、Storage 错误与秘密轮换配置可执行告警和 ADR 证据采集
 - 交付物：dashboards、alert rules、fault tests、容量 ADR 模板
@@ -541,67 +498,49 @@ flowchart TD
 - 阶段执行：本节原标准及历史同 SHA 回执保留；当前功能准入评估持久 trace、确定性告警/断采与受影响真实 Supabase 功能，持续采样/实际通知和远程 CI/Nightly 归发布检查点。Beta 范围在 RELEASE-GATE:BETA 完成，新增 testnet 执行区范围在 RELEASE-GATE:LIVE-READINESS 完成。
 - 上线前量化验收（移交 L04）：在拟上线的隔离部署环境中，逐个已部署 F0 写入口可由 trace 查到同一 correlation ID；注入 DB/事件消费者/Engine 故障时无秘密泄露，恢复后同链事件完整；九类真实指标生产者和每分钟 monitor 持续运行，阈值自动告警、实际通知并生成可信 ADR 输入：outbox 最老事件 >60 秒持续 15 分钟或 DLQ >0.1%，Realtime 投影延迟 >5 秒持续 15 分钟或配额 >70%，风险/组合查询 P95 >300ms 持续 15 分钟，风险 MV >1 分钟或运营聚合 >5 分钟连续 3 次，Storage 错误 >1% 或秘密轮换/读取失败。未交付的业务来源仍须由所属业务任务实现，缺采样不能算健康。
 - 依赖：F05–F08
-
-<a id="review-f09"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `ACCEPTED`
-- review_conclusion: 2026-09-28 最终源码 `81cb5ae43f87e7d4b4be059b9eed036b755b4986` 的 CI、F09 push 目标和手动调度/Nightly 路径回执全部通过；内部完整 SHA、下载验证、两份目标各 7 个日志摘要和三类真实写入口 trace 均核验，F09-B04 关闭。原 14 项现为 9 项关闭（8 项代码修复及 B04 回执闭环）、5 项部分修复／移交，B01–B03/H05/M03 的运行期剩余范围仍由业务任务/L04 追踪。手动调度不代表已观察实际 cron；后续文档提交不自动继承该源码回执。详见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)、[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)、[逐项复核归档](./audit/F09-findings-recheck-2026-09-28.md)。F0 总 Gate 最新结论见第 4.2 节，F02 main 正式签名约束不变。
-- issues: []
-- fix_tracking: []
+- 当前工程复核：[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)；历史正式复审：`ACCEPTED`；原 14 项中 9 项关闭、5 项部分修复/移交，B01–B03/H05/M03 的运行期范围继续由业务任务/L04 追踪；`81cb5ae` 的 CI/目标/手动路径回执见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)。手动调度不证明实际 cron，缺采样不算健康。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-f09.json)；原完整工程执行见[整改报告](./audit/BFF-FE-007-comprehensive-review-2026-10-06.md)。历史正式/hosted CI 不迁移到新 HEAD；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f09)完整保留。
 
 <a id="task-tp01-a"></a>
 ### TP01-A：上游只读副本与 Fork 基线
 
 - task_id: `TP01-A`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c480fcb7069fe3b85822eb42ebc3e667a426cefb6ccff8d5e5fcad3bf04cd01a","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-tp01-a.json"]}
 - depends_on: ["CORE:F01", "CORE:F02"]
+- core_prerequisites: ["CORE:F01", "CORE:F02"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-a)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：上游只读副本与 Fork 基线
 - 路线阶段：V0 建基线
 - 开发范围：建立 `third_party/vibe-trading`、`forks/vibe-trading`、remote、分支保护、`UPSTREAM.md` 模板与变更监测
 - 交付物：baseline SHA、监测 workflow、初始 SBOM/NOTICE、目录 README
 - 验收标准：新 tag/commit 只生成 candidate 记录，不更新生产依赖；baseline 可重建
 - 依赖：F01、F02
-
-<a id="review-tp01-a"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-a)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-tp01-a.json)，不据此补写正式 ACCEPTED。
 
 <a id="task-tp01-b"></a>
 ### TP01-B：capability inventory 与禁止耦合清单
 
 - task_id: `TP01-B`
 - task_type: `CORE`
-- acceptance_window: `F0`
+- iteration: `F0`
 - stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e4fd6a474de98bf5c8438de42797ed75a90fd2ef7a6b620e95d39decec933fca","evidence":["audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-tp01-b.json"]}
 - depends_on: ["CORE:TP01-A", "CORE:F07"]
+- core_prerequisites: ["CORE:TP01-A", "CORE:F07"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-b)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `F0`
 - 需求描述：capability inventory 与禁止耦合清单
 - 路线阶段：V0 建基线
 - 开发范围：枚举 workflow、skill、MCP、memory、tool、streaming、UX 与副作用，映射 QuantOS 边界
 - 交付物：capability matrix、threat model 补充、禁止耦合 ADR
 - 验收标准：每项能力都有输入/输出/副作用/权限/替换策略；交易/秘密路径全部标记拒绝
 - 依赖：TP01-A、F07
-
-<a id="review-tp01-b"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-b)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。 重构前 DEVELOPMENT 功能证据见[阶段回执](./audit/evidence/provider-a1-remediation-20261004/bff007-final-6-20261007/core-tp01-b.json)，不据此补写正式 ACCEPTED。
 
 ### 4.1 TP01–TP05 初步评估检查点
 
@@ -672,471 +611,287 @@ flowchart TD
 
 - task_id: `R01`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F05", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:F03", "CORE:F05", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-r01)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：Market ingestion 与标准化行情契约
 - 技术要求：归一化 symbol、时间、精度、来源、质量；只允许已批准 provider；写 `MarketEvent`
 - 交付物：`quantos-market`、ingestor、replay dataset
 - 量化验收标准：10万条 replay 事件解析成功率 100%；乱序/重复数据正确去重；新鲜度/质量异常在 ≤5s 内发出事件
 - 阶段执行：开发验证 10 万 replay、归一化/去重、原子游标、重试/补偿与受控异常提交 ≤5s；source-age、processing、自然告警精确 ACK 与采样缺口分别报告。真实持续运行的新鲜度/readiness 和部署 SLO 归 RELEASE-GATE:BETA；不能以 pending=0 或持续写入冒充健康，已知不健康数据必须明确标识并由策略/交易消费者拒绝。FA-H01/B01 保持 OPEN/PARTIAL，功能准入仅针对有证据支撑的允许用途。
 - 依赖：F03、F05
-
-<a id="review-r01"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `FIX_VALIDATION`
-- review_conclusion: 2026-10-03 补齐 Binance 持续监督、受控异常 ≤5s 提交与事务池完整八并发 Gate 验证；fixture/真实进程故障最大 2164ms/1919ms。9 项关闭，B01 的长期部署、远程同 SHA CI 和许可验收仍待完成，R01 未 ACCEPTED；本轮为整改验证，未产生新的独立 Astra 复审。 2026-10-04：经用户明确选择新增 30 分钟有界内部评估授权；实际 1801.473s、6243 唯一成交、F05 11195/11195 与 actor 清理通过。readiness 30.43%、2623 tick 新鲜度降级，保持健康风险与 B01 PARTIAL；详见[扩大窗口报告](./audit/R01-window-validation-2026-10-04.md)。专项只读评估确认 source-age P95 3686.049ms、processing 到检测 P95 17.437ms；运行期 ready=35/114（30.70% 点样本），44 条自然 tick 告警检测到 progress >5s、native ACK 缺测、trace 共写坏行待整改。未启动新窗口；scope 1800 秒/两标的/用途/到期日不变，24h 或部署须新范围授权；Linux/systemd、父启动器/主机死亡通知、商用许可、远程同 SHA CI 均待验收，B01 OPEN/PARTIAL。详见[专项评估报告](./audit/R01-freshness-assessment-2026-10-04.md)。 专项整改验证补齐精确 ACK/HTTP-SQL 分段、跨进程 trace、共享 watchdog 身份、固定 deadline 采样与时钟诊断，并修复监控读超时连接恢复和在途页停止。新独立 1800s 窗口完整性通过：8530 成交、9461/9461 精确 ACK，自然 tick/source 异常最大 3454.521/1577.815ms；检测降级 8.37%、effective ready 109/120，不能记为健康通过。专项 5/7 关闭，FA-H01 与 B01 OPEN/PARTIAL；前次失败、缺测和原不可变事实保留，范围及期限未扩大。详见[专项整改报告](./audit/R01-freshness-remediation-2026-10-04.md)。
-- issues:
-  - issue_id: B01
-    severity: BLOCKER
-    description: Binance REST、真实补偿与历史受控五秒异常回执已取得；自然运行新鲜度/readiness 降级、精确告警 ACK/trace 补证、长期部署及父启动器/主机死亡通知、远程同 SHA CI 与商用许可未验收
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: OPEN
-  - issue_id: H01
-    severity: HIGH
-    description: 来源身份、序号、事件与 outbox 原子提交；失败重试安全
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: CLOSED
-  - issue_id: H02
-    severity: HIGH
-    description: tenant/provider/source ID 唯一键与内容 hash 冲突校验
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: CLOSED
-  - issue_id: H03
-    severity: HIGH
-    description: 显式 instrument map 与 BASE/QUOTE v2 契约
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: CLOSED
-  - issue_id: H04
-    severity: HIGH
-    description: 非法数值质量事件及坏帧隔离，继续后续摄取
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: CLOSED
-  - issue_id: M01
-    severity: MEDIUM
-    description: 实际 processing clock、持久 watchdog 与目标异常提交测试；真实源边界见 B01
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: CLOSED
-  - issue_id: M02
-    severity: MEDIUM
-    description: registry 元数据、审批引用、版本、过期及撤销校验
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: CLOSED
-  - issue_id: M03
-    severity: MEDIUM
-    description: 行为测试、真实 mutant 与按文件 stable/nightly 覆盖 Gate
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: CLOSED
-  - issue_id: M04
-    severity: MEDIUM
-    description: replay spec Result、流式读取、帧/数量上限
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: CLOSED
-  - issue_id: L01
-    severity: LOW
-    description: trace 示例、v2 ADR、故障恢复与 provider 申请指南
-    evidence: docs/audit/R01-remediation-validation-2026-10-02.md
-    status: CLOSED
-- fix_tracking:
-  - issue_id: B01
-    fix_ref: docs/audit/R01-supervision-validation-2026-10-03.md
-    verification_command: make r01-check；QUANTOS_R01_POOL_MODE=transaction node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate；r01-supervision-check.cjs 与 --live
-    verification_environment: 同一配置 Supabase 事务池；保留八并发完整 Gate；fixture 异常与 Binance 真实进程故障分开验收
-    verification_evidence: docs/audit/evidence/r01-supervision-20261003/index.json
-    verification_status: PARTIAL
-  - issue_id: H01
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
-    verification_status: PASS
-  - issue_id: H02
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
-    verification_status: PASS
-  - issue_id: H03
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
-    verification_status: PASS
-  - issue_id: H04
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
-    verification_status: PASS
-  - issue_id: M01
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
-    verification_status: PASS
-  - issue_id: M02
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
-    verification_status: PASS
-  - issue_id: M03
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
-    verification_status: PASS
-  - issue_id: M04
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
-    verification_status: PASS
-  - issue_id: L01
-    fix_ref: docs/audit/R01-remediation-validation-2026-10-02.md
-    verification_command: make r01-check；node --env-file=.env.local scripts/r01-live-check.cjs；stable/nightly coverage Gate
-    verification_environment: local Rust 与配置的 Supabase PostgreSQL；fixture only
-    verification_evidence: docs/audit/evidence/r01-remediation-20261002/index.json
-    verification_status: PASS
+- 当前工程复核：[专项整改报告](./audit/R01-freshness-remediation-2026-10-04.md)；历史正式复审：`FIX_VALIDATION`；原十项问题中 9 项关闭，B01 OPEN/PARTIAL，专项 FA-H01 仍未关闭。1800 秒窗口完整性通过（8,530 成交、9,461/9,461 精确 ACK），检测降级 8.37%、effective ready 109/120，未认定实时健康或 ACCEPTED。Linux/systemd、父启动器/主机死亡通知、长期部署、远程同 SHA CI 和商用许可仍待验收；1800 秒/两标的/原内部用途及到期范围不自动扩大。原始失败、问题清单和修复验证见[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r01)；阶段准入保持 NOT_ASSESSED。
 
 <a id="task-r02"></a>
 ### R02：DataSnapshot、血缘与质量 Gate
 
 - task_id: `R02`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R01", "CORE:F06", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:R01", "CORE:F06", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `COMPLETED`
-- review_entry: [GPT-6 Astra 复审入口](#review-r02)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：DataSnapshot、血缘与质量 Gate
 - 技术要求：不可变 hash、时间窗、schema、质量、许可证、来源；快照元数据与质量 Gate 存于 Supabase PostgreSQL，并通过 RLS 保护租户可见性；交易相关调用必须检查质量/时效
 - 交付物：snapshot API、对象存储、quality rules、snapshot migration
 - 量化验收标准：相同输入生成相同 hash；过期/质量不合格/许可证缺失的 300 个 fixture 100% 被拒用于策略/交易；查询 P95 <300ms
 - 阶段执行：确定性 hash、300 个质量/时效/许可证拒绝 fixture、真实 Supabase 查询/权限与 Storage 完整性为开发硬门槛；查询 P95 <300ms 保留基线并移交 RELEASE-GATE:BETA。
 - 依赖：R01、F06
-
-<a id="review-r02"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp01-c"></a>
 ### TP01-C：`vibe_adapter` skeleton
 
 - task_id: `TP01-C`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-B", "CORE:F08", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:TP01-B", "CORE:F08", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-c)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：`vibe_adapter` skeleton
 - 路线阶段：V1 最小适配
 - 开发范围：实现 manifest、UDS gRPC、Artifact API、context translator、工具 allowlist、mock fixture
 - 交付物：`engines/vibe-adapter`、contract tests、mock adapter
 - 验收标准：五个 Engine RPC 100% 通过；无未授权 egress、secret 或 venue capability
 - 依赖：TP01-B、F08
-
-<a id="review-tp01-c"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-c)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp01-d"></a>
 ### TP01-D：选择性吸收与最小 patch 队列
 
 - task_id: `TP01-D`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-C", "CORE:R02", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:TP01-C", "CORE:R02", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-d)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：选择性吸收与最小 patch 队列
 - 路线阶段：V1 最小适配
 - 开发范围：只迁移通过 inventory 的研究 workflow/streaming 设计，替换 session/审计/权限调用
 - 交付物：fork patch queue、adapter modules、sync ADR
 - 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow
 - 依赖：TP01-C、R02
-
-<a id="review-tp01-d"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-d)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp02"></a>
 ### TP02：RD-Agent：自动研究/实验 Engine
 
 - task_id: `TP02`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:F08", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp02)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：RD-Agent：自动研究/实验 Engine
 - 接入范围与改造：独立 Python Engine，映射 hypothesis/experiment capability 到自有 `ResearchArtifact`；限制网络、数据权限和 Artifact 写入
 - 交付物：`engines/rd-agent`、manifest、运行时打包、adapter、fixtures
 - 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s
 - 阶段执行：contract、确定性 hash 与交易/secret/网络拒绝在开发验证；P95 接收响应 <1s 归 RELEASE-GATE:BETA，deadline 内确定性受理或错误仍是开发功能要求。
 - 阶段/依赖：F08；R1
-
-<a id="review-tp02"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp03"></a>
 ### TP03：LLMQuant：特征、因子、模型、Signal Engine
 
 - task_id: `TP03`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp03)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：LLMQuant：特征、因子、模型、Signal Engine
 - 接入范围与改造：封装为 `quant.signal.v1`；输入必须是 release/feature snapshot，输出自有 Signal/diagnostics，不暴露上游类型
 - 交付物：`engines/llmquant`、manifest、Signal mapper、model provenance
 - 集成验收标准：100 组固定输入结果 schema 100% 有效；每条 Signal 含策略/模型/数据版本、置信度和时效；无 OMS/venue/secret import；流式取消 ≤2s 生效
 - 阶段执行：schema、版本/置信度/时效与禁止 import 在开发验证；流式取消 ≤2s 用受控 clock/真实进程测功能语义，Research UI 联调覆盖取消后无副作用；部署负载下同一时限在 RELEASE-GATE:BETA 重验，不删除超时语义。
 - 阶段/依赖：F08、F05；R1
-
-<a id="review-tp03"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp04"></a>
 ### TP04：TradingAgents：多 Agent 决策 Engine
 
 - task_id: `TP04`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp04)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：TradingAgents：多 Agent 决策 Engine
 - 接入范围与改造：封装为 `decision.proposal.v1`；保留多观点与证据，输出仅 `TradeProposal`；移除/屏蔽任何订单工具
 - 交付物：`engines/trading-agents`、proposal mapper、policy fixtures
 - 集成验收标准：100% Proposal 带证据、反方观点、失效时间；所有输出 `executable=false`；尝试调用 order/secret tool 必失败并审计；固定 fixture 可重放
 - 阶段/依赖：F08、TP03；R1
-
-<a id="review-tp04"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp05"></a>
 ### TP05：OpenBB：数据/研究适配服务
 
 - task_id: `TP05`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE:F08", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:F05", "CORE:F08", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp05)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：OpenBB：数据/研究适配服务
 - 接入范围与改造：隔离为 `data.query.v1` provider；实现自有 Data Contract、缓存/血缘/许可证标签；AGPL/商业许可未结论前只在隔离评估环境启用
 - 交付物：`engines/openbb-adapter`、provider interface、法律决策 ADR、替代 provider mock
 - 集成验收标准：结果 100% 含来源/许可/schema/hash；未经批准的数据不可进入交易流程；服务端无核心领域依赖；许可证 Gate 未通过时生产构建拒绝包含该制品
 - 阶段/依赖：F05、F08；R1
-
-<a id="review-tp05"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp05)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp08"></a>
 ### TP08：Qlib
 
 - task_id: `TP08`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:F05", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp08)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：Qlib
 - 评估问题与限定范围：评估数据集、因子实验、工作流复现能力；不引入第二 Quant Core
 - 交付物：ADR、capability matrix、与 `DataSnapshot/ResearchArtifact` 映射样例
 - 验收标准：固定 commit、许可证/SBOM/CVE 记录齐全；完成 3 个离线实验映射；结论明确“仅参考/隔离 adapter/拒绝”及替换成本
 - 阶段/依赖：R1，F05
-
-<a id="review-tp08"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp08)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp09"></a>
 ### TP09：TrendRadar
 
 - task_id: `TP09`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP03", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:TP03", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp09)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：TrendRadar
 - 评估问题与限定范围：评估趋势检测、新闻/主题信号的输入质量与血缘要求
 - 交付物：ADR、趋势 signal schema 样例、数据许可清单
 - 验收标准：3 组离线输入可映射至自有 Signal；缺少许可证/来源的输出 100% 被标为不可交易；无生产依赖进入 lockfile
 - 阶段/依赖：R1，TP03
-
-<a id="review-tp09"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp09)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp10"></a>
 ### TP10：ValueCell
 
 - task_id: `TP10`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE-GATE:F0"]
+- core_prerequisites: ["CORE-GATE:F0"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp10)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：ValueCell
 - 评估问题与限定范围：评估投研 UI/工作流的信息架构，不复制其数据模型或账户体系
 - 交付物：UX gap report、可复用交互清单、禁止耦合清单
 - 验收标准：至少 10 个 UI 模式映射至 Terminal design spec；无源码复制/运行时依赖；所有差异写 ADR
 - 阶段/依赖：U01 前
-
-<a id="review-tp10"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp10)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp11"></a>
 ### TP11：OpenStock
 
 - task_id: `TP11`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP05", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:TP05", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp11)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：OpenStock
 - 评估问题与限定范围：评估公开市场数据、策略/投研展示能力与数据许可风险
 - 交付物：provider comparison、Data Contract fixture、许可证结论
 - 验收标准：2 个 provider fixture 完成血缘/质量映射；任何未授权数据无法生成可用 DataSnapshot；无 Day-1 依赖
 - 阶段/依赖：R1，TP05
-
-<a id="review-tp11"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp11)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-r03"></a>
 ### R03：Research orchestration 与 Artifact lifecycle
 
 - task_id: `R03`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-r03)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：Research orchestration 与 Artifact lifecycle
 - 技术要求：Runtime 组合研究 Engine、预算、deadline、流式事件、Artifact 归档与重放
 - 交付物：research workflow、Artifact repository
 - 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact
 - 阶段执行：10 次确定性运行、取消 ≤2s 确认与无重复 Artifact 为开发要求；获准工程环境的 Runtime/Engine 组合在联调验证，部署/负载回执在 RELEASE-GATE:BETA 重验。
 - 依赖：F07、F08、R02、TP02
-
-<a id="review-r03"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-r04"></a>
 ### R04：Signal 与 TradeProposal 工作流
 
 - task_id: `R04`
 - task_type: `CORE`
-- acceptance_window: `R1-SERVICE`
+- iteration: `R1-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R03", "CORE:TP03", "CORE:TP04", "CORE-GATE:F0"]
+- core_prerequisites: ["CORE:R03", "CORE:TP03", "CORE:TP04", "CORE-GATE:F0"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-r04)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `R1-SERVICE`
 - 需求描述：Signal 与 TradeProposal 工作流
 - 技术要求：仅接收版本化 Signal/研究输入；生成不可执行 Proposal、反方观点、失效时间、证据
 - 交付物：signal/proposal service、schema validator
 - 量化验收标准：100 个 Proposal fixture 100% 含证据/失效时间/`executable=false`；过期 Proposal 100% 拒绝评估；无订单 API 被调用
 - 依赖：R03、TP03、TP04
-
-<a id="review-r04"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-core-gate-r1-service"></a>
 ### CORE-GATE:R1-SERVICE：验收检查点
@@ -1184,37 +939,35 @@ flowchart TD
 
 - task_id: `TP01-E`
 - task_type: `CORE`
-- acceptance_window: `TP01-SERVICE`
+- iteration: `TP01-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
+- core_prerequisites: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-e)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `TP01-SERVICE`
 - 需求描述：同步自动化与分级阻断
 - 路线阶段：V2 受控同步
 - 开发范围：实现 S0–S3 分级、diff/range-diff、许可证/依赖 diff、candidate issue、质量流水线
 - 交付物：`sync-vibe` 工具、CI workflow、decision records
 - 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果
 - 依赖：TP01-D、F02
-
-<a id="review-tp01-e"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-e)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp01-f"></a>
 ### TP01-F：canary、观测与回滚
 
 - task_id: `TP01-F`
 - task_type: `CORE`
-- acceptance_window: `TP01-SERVICE`
+- iteration: `TP01-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-E", "CORE:F09", "CORE-GATE:R1-SERVICE"]
+- core_prerequisites: ["CORE:TP01-E", "CORE:F09", "CORE-GATE:R1-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-f)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `TP01-SERVICE`
 - 需求描述：canary、观测与回滚
 - 路线阶段：V2 受控同步
 - 开发范围：capability flag、影子任务、阈值告警、签名制品、一键禁用/回滚
@@ -1222,41 +975,28 @@ flowchart TD
 - 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整
 - 阶段执行：功能开发完成 flag、影子任务、告警阈值、签名校验、一键禁用/回滚与 in-flight 请求处理的受控测试；连续 7 天 canary 和真实环境 ≤5 分钟回滚归 RELEASE-GATE:BETA，不作为 TP01-G/TP06 开始开发的前置。
 - 依赖：TP01-E、F09
-
-<a id="review-tp01-f"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-f)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp01-g"></a>
 ### TP01-G：上游贡献与脱钩替换
 
 - task_id: `TP01-G`
 - task_type: `CORE`
-- acceptance_window: `TP01-SERVICE`
+- iteration: `TP01-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
+- core_prerequisites: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01-g)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `TP01-SERVICE`
 - 需求描述：上游贡献与脱钩替换
 - 路线阶段：V3 演进
 - 开发范围：将通用 bugfix 回馈上游，逐步以 QuantOS-native trait/protocol 替换 fork 内耦合模块
 - 交付物：upstream PR 记录、deprecation plan、替换测试
 - 验收标准：不依赖 fork 内部类型；任一模块可替换且业务协议不变
 - 依赖：TP01-F、R03
-
-<a id="review-tp01-g"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-g)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-service-tp01"></a>
 ### SERVICE:TP01：验收检查点
@@ -1298,101 +1038,81 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 
 - task_id: `S01`
 - task_type: `CORE`
-- acceptance_window: `S2-SERVICE`
+- iteration: `S2-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R02", "CORE:R03", "CORE-GATE:R1-SERVICE"]
+- core_prerequisites: ["CORE:R02", "CORE:R03", "CORE-GATE:R1-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-s01)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `S2-SERVICE`
 - 需求描述：策略草稿与参数模型
 - 技术要求：草稿可版本化、自动保存、冲突检测；策略只引用已批准数据/Artifact；草稿/参数表默认启用 RLS 并保留 `auth.users` 审计链
 - 交付物：`quantos-strategy` draft API、strategy fixtures、draft migration
 - 量化验收标准：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms
 - 阶段执行：50 组并发无静默覆盖及授权/快照/Artifact 约束在开发验证；草稿保存 P95 <300ms 归 RELEASE-GATE:BETA，开发记录基线。
 - 依赖：R02、R03
-
-<a id="review-s01"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp06"></a>
 ### TP06：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选
 
 - task_id: `TP06`
 - task_type: `CORE`
-- acceptance_window: `S2-SERVICE`
+- iteration: `S2-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "SERVICE:TP01", "CORE-GATE:R1-SERVICE"]
+- core_prerequisites: ["CORE:F08", "SERVICE:TP01", "CORE-GATE:R1-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp06)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `S2-SERVICE`
 - 需求描述：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选
 - 接入范围与改造：单独评估策略生成、静态检查与回测编排；输出策略草稿和检查 Artifact，绝不部署或进入 OMS
 - 交付物：`engines/strategy-lab` 或 ADR、generator adapter、静态分析 fixtures
 - 集成验收标准：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现
 - 阶段/依赖：F08、SERVICE:TP01；S2 服务窗口；TP01 总项的 Web E2E 随 U01 后续验收
-
-<a id="review-tp06"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp06)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-s02"></a>
 ### S02：回测与成本/滑点验证
 
 - task_id: `S02`
 - task_type: `CORE`
-- acceptance_window: `S2-SERVICE`
+- iteration: `S2-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:S01", "CORE:TP06", "CORE:TP08", "CORE-GATE:R1-SERVICE"]
+- core_prerequisites: ["CORE:S01", "CORE:TP06", "CORE:TP08", "CORE-GATE:R1-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-s02)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `S2-SERVICE`
 - 需求描述：回测与成本/滑点验证
 - 技术要求：固定 DataSnapshot、clock、成本/滑点模型、look-ahead/数据泄漏检测、环境 hash
 - 交付物：backtest adapter、validation report
 - 量化验收标准：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash
 - 依赖：S01、TP06、TP08
-
-<a id="review-s02"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-s03"></a>
 ### S03：StrategyRelease 与部署目标控制
 
 - task_id: `S03`
 - task_type: `CORE`
-- acceptance_window: `S2-SERVICE`
+- iteration: `S2-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:S02", "CORE:F06", "CORE-GATE:R1-SERVICE"]
+- core_prerequisites: ["CORE:S02", "CORE:F06", "CORE-GATE:R1-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-s03)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `S2-SERVICE`
 - 需求描述：StrategyRelease 与部署目标控制
 - 技术要求：生成不可变发布物，含源码/构建产物 hash、参数、数据、回测、审批；M3/M4 只允许 Paper/Shadow
 - 交付物：release service、deployment policy、migration
 - 量化验收标准：未验证/未审批 Release 的部署请求 100% 被拒；目标枚举不含 Assisted Live（M5 前）；同一内容重复发布返回同一 hash 或确定性冲突
 - 依赖：S02、F06
-
-<a id="review-s03"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-service-s04"></a>
 ### SERVICE:S04：验收检查点
@@ -1521,181 +1241,146 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 
 - task_id: `X01`
 - task_type: `CORE`
-- acceptance_window: `X3-SERVICE`
+- iteration: `X3-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
+- core_prerequisites: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-x01)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `X3-SERVICE`
 - 需求描述：Portfolio 读模型与风险输入快照
 - 技术要求：Position、valuation、P&L、exposure、账户状态、数据时间；只读模型可从事件重建，并持久化到 Supabase PostgreSQL 受控 schema
 - 交付物：`quantos-portfolio`、rebuild CLI、portfolio projection migration
 - 量化验收标准：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms
 - 阶段执行：1 万订单/成交黄金回放与读模型重建在开发验证；查询 P95 <300ms 归 RELEASE-GATE:BETA。
 - 依赖：F05、R01
-
-<a id="review-x01"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-x02"></a>
 ### X02：Pre/Post-trade Risk 与 kill switch
 
 - task_id: `X02`
 - task_type: `CORE`
-- acceptance_window: `X3-SERVICE`
+- iteration: `X3-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
+- core_prerequisites: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-x02)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `X3-SERVICE`
 - 需求描述：Pre/Post-trade Risk 与 kill switch
 - 技术要求：规则：策略发布、数据时效、账户、精度、名义、杠杆、集中度、venue 健康、重复、审批；global/account kill switch
 - 交付物：`quantos-risk`、rule fixtures、kill switch API
 - 量化验收标准：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名
 - 阶段执行：全部规则与分支覆盖、kill switch 生效后立即拒绝新命令的逻辑及受控时限测试在开发验证；实际负载下 P95 <1s 归 RELEASE-GATE:BETA。不得将 kill switch 无效或异步传播错误归为可延期性能问题。
 - 依赖：X01、S03、F06
-
-<a id="review-x02"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-x03"></a>
 ### X03：TradeCommand 签发与审批状态机
 
 - task_id: `X03`
 - task_type: `CORE`
-- acceptance_window: `X3-SERVICE`
+- iteration: `X3-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
+- core_prerequisites: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-x03)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `X3-SERVICE`
 - 需求描述：TradeCommand 签发与审批状态机
 - 技术要求：将有效 Proposal + RiskDecision + Approval 转为短期、签名、幂等 Command；禁止自批
 - 交付物：`quantos-execution` command issuer、approval verifier
 - 量化验收标准：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms
 - 阶段执行：全部拒绝矩阵、1,000 并发单命令与持久审计在开发验证；签发 P95 <200ms 归 RELEASE-GATE:BETA。
 - 依赖：R04、X02
-
-<a id="review-x03"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp07"></a>
 ### TP07：NautilusTrader：研究、仿真、OMS、执行内核
 
 - task_id: `TP07`
 - task_type: `CORE`
-- acceptance_window: `X3-SERVICE`
+- iteration: `X3-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE-GATE:S2-SERVICE"]
+- core_prerequisites: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE-GATE:S2-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp07)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `X3-SERVICE`
 - 需求描述：NautilusTrader：研究、仿真、OMS、执行内核
 - 接入范围与改造：独立服务/进程边界；将 QuantOS Trading Protocol 映射为其 API；不引入其类型到 core；LGPL 合规与替换预案
 - 交付物：`services/execution-gateway`、Nautilus boundary adapter、Paper kernel、LICENSE ADR
 - 集成验收标准：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session
 - 执行定位：S2 Gate 前仅完成固定版本、许可证、capability inventory 和 ADR 评估；本节在 X03 后完成 adapter/Paper 内核与集成验收。S2 的评估完成不代表本项 ACCEPTED。
 - 阶段/依赖：F03、F06、F08；X3
-
-<a id="review-tp07"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp07)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp12"></a>
 ### TP12：nautilus_agents
 
 - task_id: `TP12`
 - task_type: `CORE`
-- acceptance_window: `X3-SERVICE`
+- iteration: `X3-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F07", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
+- core_prerequisites: ["CORE:F07", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-tp12)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `X3-SERVICE`
 - 需求描述：nautilus_agents
 - 评估问题与限定范围：评估 Agent 与交易内核协作边界，提取反模式与工具设计经验
 - 交付物：ADR、threat model 补充、接口差异清单
 - 验收标准：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖
 - 执行定位：S2 Gate 前基于 TP07 评估材料归档评估结论和 ADR；本项完整复审在 TP07 的 X3 集成验收之后执行。
 - 阶段/依赖：F07、TP07
-
-<a id="review-tp12"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp12)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-x04"></a>
 ### X04：Nautilus 边界、Paper OMS 与订单状态机
 
 - task_id: `X04`
 - task_type: `CORE`
-- acceptance_window: `X3-SERVICE`
+- iteration: `X3-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
+- core_prerequisites: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-x04)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `X3-SERVICE`
 - 需求描述：Nautilus 边界、Paper OMS 与订单状态机
 - 技术要求：通过 TP07 adapter 提交/取消、映射 ack/fill/reject，维护 append-only 订单事实
 - 交付物：execution gateway、Paper kernel、state machine
 - 量化验收标准：10万条订单事件 state transition 100% 合法；重复 submit 仅一次下游调用；cancel 延迟/拒绝可审计；所有 Fill 可追溯 Command
 - 依赖：X03、TP07
-
-<a id="review-x04"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-x05"></a>
 ### X05：Shadow 运行、对账与异常队列
 
 - task_id: `X05`
 - task_type: `CORE`
-- acceptance_window: `X3-SERVICE`
+- iteration: `X3-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
+- core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-x05)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `X3-SERVICE`
 - 需求描述：Shadow 运行、对账与异常队列
 - 技术要求：在真实行情产生对照建议而不下单；日终对账订单/成交/仓位/虚拟账本；异常关闭流程
 - 交付物：shadow runner、reconciler、exception queue
 - 量化验收标准：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用
 - 阶段执行：开发以固定输入和受控时间验证对账、20 类差异检测/定位、告警及无 venue submit；联调验证 Paper/Shadow 到订单/审计 UI 的短链路闭环。连续 10 个交易日、真实日终零未解释差异和 ≤15 分钟发现定位归 RELEASE-GATE:BETA，未经新运行范围授权不启动长稳窗口。
 - 依赖：X01–X04
-
-<a id="review-x05"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x05)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-service-x06"></a>
 ### SERVICE:X06：验收检查点
@@ -1772,39 +1457,35 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 
 - task_id: `U01`
 - task_type: `CORE`
-- acceptance_window: `I2`
+- iteration: `I2`
 - stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F06", "CORE:F07", "CORE:F08", "CORE:F09", "CORE:R02", "CORE:R03", "CORE:R04", "FE:FEP-2"]
+- core_prerequisites: ["CORE:F06", "CORE:F07", "CORE:F08", "CORE:F09", "CORE:R02", "CORE:R03", "CORE:R04"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-u01)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `I2`
 - 需求描述：Web Terminal 壳、认证与 Research 页面
 - 技术要求：建立 React/Next Web 应用、BFF typed client、OIDC/MFA、App Shell、P01–P05 页面
 - 交付物：`apps/terminal`、`packages/ui/domain-ui/api-client`、P01–P05
 - 量化验收标准：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作
 - 阶段执行：Research 真实 BFF/领域服务的创建/流式/取消/证据跳转、noindex 与小屏风险动作在 I2 联调；完整多浏览器视觉/性能矩阵归 RELEASE-GATE:BETA。
 - 依赖：F06–F09、R02–R04
-
-<a id="review-u01"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-u01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-tp01"></a>
 ### TP01：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
 
 - task_id: `TP01`
 - task_type: `CORE`
-- acceptance_window: `I2`
+- iteration: `I2`
 - stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["SERVICE:TP01", "CORE:U01", "FE:FEP-2"]
+- core_prerequisites: ["SERVICE:TP01", "CORE:U01"]
+- closes_core: []
 - development_status: `PARTIAL`
-- 状态范围：固定版本、许可证与 capability inventory 评估已完成；整体适配与生产准入仍依任务标准判定。
-- review_entry: [GPT-6 Astra 复审入口](#review-tp01)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `I2`
 - 需求描述：Vibe-Trading：研究工作流/工具/MCP/记忆 UX 参考与受控 Fork
 - 接入范围与改造：仅评估后吸收可独立测试的 workflow/skill/streaming 设计；建立 `vibe_adapter`，会话、权限、事件、审计全部替换为 QuantOS 接口；按 S0–S3 分级执行官方仓库同步、选择性吸收、canary 与回滚；禁止其成为状态源或执行器
 - 交付物：capability inventory、许可证报告、只读副本、fork、`UPSTREAM.md`、sync decision records、adapter ADR、自动化回归测试
@@ -1812,15 +1493,7 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 - 阶段执行：I2 关闭 adapter/Artifact API、网络秘密隔离、20 个回放、同步阻断及 Research Web 功能联调；TP01-F 的 7 天 canary/回滚时限和完整发布供应链归 RELEASE-GATE:BETA，原业务与许可要求保留。
 - 执行定位：A–G 的服务证据先在 SERVICE:TP01 验收；本总项包含 Web Research E2E，在 U01/FEP-2 后完成业务功能联调评估，canary/发布回执仍由发布 Gate 收口；不能用服务 Gate 把本项提前标为 ACCEPTED。
 - 阶段/依赖：F07、F08；TP01-C 可在 R1 开始时执行，TP01-D 在 R02 功能准入后执行；最小适配须在 R1 服务功能 Gate 前完成
-
-<a id="review-tp01"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="102-r1-gate"></a>
 <a id="gate-r1"></a>
@@ -1863,26 +1536,21 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 
 - task_id: `S04`
 - task_type: `CORE`
-- acceptance_window: `I3`
+- iteration: `I3`
 - stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE:U01", "SERVICE:S04", "FE:FEP-3"]
+- core_prerequisites: ["CORE:S01", "CORE:S02", "CORE:S03", "CORE:U01", "SERVICE:S04"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-s04)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `I3`
 - 需求描述：策略审批与 Terminal Strategy 页面
 - 技术要求：实现策略目录、Lab、Backtest、Release、审批时间线；前端通过 capability 显示目标
 - 交付物：P06–P07、approval integration、E2E
 - 量化验收标准：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过
 - 阶段执行：I3 完成 20 个研究到 Release UI fixture、真实服务拒绝/过期/并发审批与可访问状态；完整视觉/多浏览器发布回归归 RELEASE-GATE:BETA。
 - 依赖：S01–S03、U01
-
-<a id="review-s04"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="103-s2-gate"></a>
 <a id="gate-s2"></a>
@@ -1925,27 +1593,21 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 
 - task_id: `X06`
 - task_type: `CORE`
-- acceptance_window: `I8`
+- iteration: `I8`
 - stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:X05", "CORE:U01", "SERVICE:X06", "FRONTEND-GATE:G5", "FRONTEND-GATE:G4", "FRONTEND-GATE:G6"]
+- core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE:X05", "CORE:U01", "SERVICE:X06"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-x06)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `I8`
 - 需求描述：执行/审计/运维 Terminal 页面
 - 技术要求：实现 P08–P14；实时事件投影、危险操作确认、MFA、导出与 Runbook 入口
 - 交付物：Portfolio/Risk/Proposal/Approval/Order/Audit/Ops Web UI
 - 量化验收标准：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web 回归通过
 - 阶段执行：I8 完成订单/审批/kill switch 功能 E2E、证据链可定位与禁止直连 venue；≤5 分钟操作还原目标、完整 Web 视觉/浏览器矩阵归 RELEASE-GATE:BETA，开发/联调记录基线。
 - 依赖：X01–X05、U01
-
-<a id="review-x06"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x06)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="104-x3-gate"></a>
 <a id="gate-x3"></a>
@@ -1995,52 +1657,42 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 
 - task_id: `L01`
 - task_type: `CORE`
-- acceptance_window: `L4-SERVICE`
+- iteration: `L4-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X04", "CORE:TP07", "CORE-GATE:X3", "FE:FEP-7"]
+- core_prerequisites: ["CORE:X04", "CORE:TP07", "CORE-GATE:X3"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-l01)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `L4-SERVICE`
 - 需求描述：优先 venue testnet 适配
 - 技术要求：仅接入已批准的单一 venue；订单意图/精度/限流映射；永不在 CI 使用生产 key
 - 交付物：venue plugin、testnet fixtures、compat report
 - 量化验收标准：200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品
 - 阶段执行：开发验证 200 个对应场景的协议 fixture、精度/限流/错误分类、生产端点/秘密拒绝；I10 必须以获准真实 testnet 完成代表性功能联调；200 笔目标 testnet 回执及发布环境兼容证据归 RELEASE-GATE:LIVE-READINESS，fixture 不能冒充真实 testnet 验收。
 - 依赖：X04、TP07
-
-<a id="review-l01"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-l02"></a>
 ### L02：Supabase Vault、mTLS 与受限执行区
 
 - task_id: `L02`
 - task_type: `CORE`
-- acceptance_window: `L4-SERVICE`
+- iteration: `L4-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F06", "CORE:L01", "CORE-GATE:X3", "FE:FEP-7"]
+- core_prerequisites: ["CORE:F06", "CORE:L01", "CORE-GATE:X3"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-l02)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `L4-SERVICE`
 - 需求描述：Supabase Vault、mTLS 与受限执行区
 - 技术要求：Vault 静态秘密/引用、Execution Gateway 专用受控数据库角色与 allowlist 函数、服务会话/命令 TTL、网络 allowlist、mTLS、最少 egress、轮换/撤销；不实现 Vault 动态租约
 - 交付物：secret integration、database grants/function、network policy、rotation runbook
 - 量化验收标准：secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断
 - 阶段执行：开发验证 secret 隔离、拒绝过期/越权/egress、mTLS 双向身份认证及缺失/过期/不可信证书拒绝、轮换与撤销恢复机制；受控认证与受限执行边界不能延期，真实数据库权限在现有 Supabase 测试。实际部署的证书/网络策略、受限执行区与轮换后 ≤5 分钟恢复回执归 RELEASE-GATE:LIVE-READINESS。
 - 依赖：F06、L01
-
-<a id="review-l02"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-service-l03"></a>
 ### SERVICE:L03：验收检查点
@@ -2137,37 +1789,35 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 
 - task_id: `L03`
 - task_type: `CORE`
-- acceptance_window: `I10`
+- iteration: `I10`
 - stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X02", "CORE:X03", "CORE:L02", "SERVICE:L03", "FE:FEP-8"]
+- core_prerequisites: ["CORE:X02", "CORE:X03", "CORE:L02", "SERVICE:L03"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-l03)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `I10`
 - 需求描述：双人审批、MFA 与 Assisted Live UI Gate
 - 技术要求：仅在服务端 feature/capability 返回时显示 Assisted Live；双人职责分离、额度与白名单
 - 交付物：approval policy、P10/P11 M5 UI、E2E
 - 量化验收标准：M5 flag 关闭时 UI/API 100% 不可达；开启 testnet flag 后 50 次双人审批均写签名审计；自批/额度超限/过期 100% 拒绝
 - 阶段执行：I10 完成默认关闭、获准 testnet flag 下 UI/API 双人职责分离、MFA/额度/过期拒绝及 50 次签名审计用例；目标部署与发布签字归 RELEASE-GATE:LIVE-READINESS。
 - 依赖：X02、X03、L02
-
-<a id="review-l03"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="task-l04"></a>
 ### L04：容量、恢复、安全与上线证据包
 
 - task_id: `L04`
 - task_type: `CORE`
-- acceptance_window: `L4-TOTAL`
+- iteration: `L4-TOTAL`
 - stage_gate: {"stage":"INTEGRATION","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X05", "CORE:X06", "CORE:L01", "CORE:L02", "CORE:L03", "SERVICE:L04", "FE:FEP-8"]
+- core_prerequisites: ["CORE:X05", "CORE:X06", "CORE:L01", "CORE:L02", "CORE:L03", "SERVICE:L04"]
+- closes_core: []
 - development_status: `UNSPECIFIED`
-- review_entry: [GPT-6 Astra 复审入口](#review-l04)
+- workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- acceptance_window: `L4-TOTAL`
 - 需求描述：容量、恢复、安全与上线证据包
 - 技术要求：压测、混沌、DB/事件恢复、订单对账、告警、回滚；生成不可篡改测试证据
 - 交付物：SLO report、drill report、release checklist
@@ -2176,16 +1826,7 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 - 依赖：X05、X06、L01–L03
 - F07 上线前移交：在拟上线的隔离部署环境中验证外部 HTTPS BFF/Runtime 入口、真实身份与会话、worker 恢复、私有 Artifact 取回及跨租户拒绝；为 Runtime 配置只能访问 `quantos-artifacts` 的 Storage 凭据，证明其他 bucket 读写被拒并记录轮换和撤销。两项均需绑定候选发布源码 SHA 的目标回执；未通过不得发布 Runtime。开发阶段的临时管理员 Storage key 诊断回执不能替代此 Gate。
 - F09 上线前移交：原 F09-B01–B03、H05、M03 的未解决运行期范围继续开放（见 [当前清单](./audit/F09-comprehensive-review-2026-09-27.md)）；移交不算修复完成。按 F09 所列运行期量化标准，在实际部署的业务生产者、每分钟 monitor、dashboard 与通知目标上验证九类来源、持续阈值、真实通知、三类同链故障与无秘密泄露；取得绑定候选发布完整 SHA 的回执。缺失来源或服务未部署时保持 `NOT RUN / NO RECEIPT`，不得用开发阶段的人工样本、组件探针或 ADR 模板代替。
-
-<a id="review-l04"></a>
-#### GPT-6 Astra 功能复审
-
-- review_model: `GPT-6 Astra`
-- review_status: `NOT_STARTED`
-- review_conclusion: null
-- issues: []
-- fix_tracking: []
-
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="105-l4-gate"></a>
 <a id="gate-l4"></a>

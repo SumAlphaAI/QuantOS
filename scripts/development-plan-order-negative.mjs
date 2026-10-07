@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { URL } from 'node:url';
 import { validatePlans } from './check-development-plans.mjs';
 
 const actualCore = readFileSync(new URL('../docs/SumAlpha-QuantOS-Development-Plan.md', import.meta.url), 'utf8');
@@ -57,7 +58,8 @@ test('joint schedule is acyclic and preserves task/status boundaries', () => {
   assert.equal(report.dependency_basis, 'stage_gate');
   assert.equal(Object.values(report.stage_status_counts).reduce((sum, count) => sum + count, 0), report.acceptance_node_count);
   assert.equal(report.stage_counts.RELEASE, 2);
-  assert(report.tasks.filter(x => x.task_type !== 'CORE').every(x => x.review_status === 'NOT_STARTED'));
+  assert(report.tasks.every(x => x.review_status === 'NOT_STARTED'));
+  assert.equal(report.core_task_schema, 'quantos-core-task/v1');
   const order = report.execution_order;
   for (const [a,b] of [['CORE-GATE:R1-SERVICE','CORE-GATE:S2-SERVICE'], ['CORE-GATE:S2-SERVICE','CORE-GATE:X3-SERVICE'], ['PROVIDER:ALL','FE:UI-201'], ['FE:FEP-2','CORE:U01'], ['CORE:U01','CORE-GATE:R1'], ['CORE-GATE:X3','FE:FEP-7'], ['CORE-GATE:L4-SERVICE','FE:FEP-8'], ['FE:FEP-8','CORE:L04']]) {
     assert(order.indexOf(a) < order.indexOf(b), `${a} precedes ${b}`);
@@ -214,9 +216,9 @@ test('release gates cannot skip business closure or inherit the wrong stage', ()
 });
 test('historical ACCEPTED and completed tasks do not automatically become READY', () => {
   const report = check();
-  const accepted = report.tasks.filter(task => task.review_status === 'ACCEPTED');
-  assert(accepted.length > 0);
-  assert(accepted.every(task => task.stage_gate.status === 'NOT_ASSESSED'));
+  assert(core.includes('历史正式复审：`ACCEPTED`'));
+  assert(report.tasks.every(task => task.review_status === 'NOT_STARTED'));
+  assert(report.tasks.every(task => task.stage_gate.status === 'NOT_ASSESSED'));
   const complete = report.tasks.filter(task => task.development_status === 'COMPLETED');
   assert(complete.length > 0);
   assert(complete.every(task => task.stage_gate.status === 'NOT_ASSESSED'));
@@ -277,4 +279,32 @@ test('release READY requires formal acceptance and all functional prerequisites'
     ready(cp); cp.review_status = 'ACCEPTED'; cp.source_commit = 'e'.repeat(40); cp.evidence = ['./audit/F01-remediation-2026-09-17.md'];
   });
   assert.throws(() => check(core, unreadyDependencies), /READY requires READY prerequisite CORE-GATE:R1/);
+});
+
+
+test('core intake follows the frontend audit-report format', () => {
+  for (const field of ['review_entry', 'review_model', 'review_status', 'review_conclusion', 'issues', 'fix_tracking']) {
+    const changed = core.replace('- task_id: `F01`', '- task_id: `F01`\n- ' + field + ': `ACCEPTED`');
+    assert.throws(() => check(changed), /Core review metadata/);
+  }
+  const oldAnchor = core.replace('- task_id: `F01`', '<a id="review-f01"></a>\n- task_id: `F01`');
+  assert.throws(() => check(oldAnchor), /stale Core review anchor/);
+});
+test('core review summary must be unique and link to audit evidence', () => {
+  const summary = core.match(/^- 当前工程复核：.+$/m)[0];
+  for (const replacement of ['', summary + '\n' + summary]) {
+    assert.throws(() => check(core.replace(summary, replacement)), /exactly one current engineering review/);
+  }
+  assert.throws(() => check(core.replace(summary, '- 当前工程复核：通过')), /engineering review needs a report or evidence link/);
+  assert.throws(() => check(core.replace(summary, '- 当前工程复核：[缺失报告](./audit/missing-core-report.md)')), /broken local link/);
+});
+test('core shared task fields and existing window must stay consistent', () => {
+  for (const field of ['iteration', 'workflow', 'core_prerequisites', 'closes_core', 'acceptance_window']) {
+    const changed = core.replace(new RegExp('^- ' + field + ': .+\n', 'm'), '');
+    assert.throws(() => check(changed), new RegExp('missing ' + field));
+  }
+  assert.throws(() => check(core.replace('- iteration: `F0`', '- iteration: `A1`')), /iteration differs from acceptance_window/);
+  assert.throws(() => check(core.replace('- workflow: `DEVELOPMENT → REVIEW_READY', '- workflow: `REVIEW_READY → DEVELOPMENT')), /workflow mismatch/);
+  assert.throws(() => check(changeTask(core, 'F02', 'core_prerequisites', () => [])), /core prerequisites differ from depends_on/);
+  assert.throws(() => check(changeTask(core, 'F01', 'closes_core', () => ['CORE:F02'])), /core task cannot carry frontend closes_core/);
 });
