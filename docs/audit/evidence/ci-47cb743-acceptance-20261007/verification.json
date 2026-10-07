@@ -1,0 +1,95 @@
+{
+  "schema": "quantos-ci-acceptance-verification/v1",
+  "verifiedAt": "2026-10-07T06:15:19.912Z",
+  "sourceCommit": "47cb743c4587f2eb866f39c594a472a86d262dfc",
+  "evidenceVerification": "PASS",
+  "acceptanceDisposition": "FAIL",
+  "formalAccepted": false,
+  "workflows": {
+    "success": 8,
+    "failure": 1,
+    "total": 9
+  },
+  "jobs": {
+    "success": 14,
+    "failure": 2,
+    "skipped": 4,
+    "total": 20
+  },
+  "rootCauses": 1,
+  "rootCause": "F02 Supabase Storage bucket fixture lacks file_size_limit required by the Audit export migration",
+  "downstreamFailure": "verify-download rejects MAIN_RESULT=skipped",
+  "databaseArtifactSourceVerified": true,
+  "semanticLogDigestsVerified": 3,
+  "a2Hosted": {
+    "status": "READY",
+    "operations": 26,
+    "negativeCasesPassed": 31,
+    "stepConclusions": [
+      {
+        "name": "FEP-0 full milestone receipts and rejection probes",
+        "conclusion": "success"
+      },
+      {
+        "name": "A2 BFF-FE-001 auth and settings contract Gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "A2 current development receipt and dependency Gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "A2 BFF-FE-007 audit and controlled export contract Gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "A2 complete provider window development Gate",
+        "conclusion": "success"
+      },
+      {
+        "name": "G0 functional engineering receipt and fail-closed rejection probes",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "sourceBindings": [
+    {
+      "path": "scripts/f02-db-gate.cjs",
+      "sha256": "b170831dba1b7a1efc9f35a322a63579644e7b9c47a7b718d1cfddbefca098d8"
+    },
+    {
+      "path": "supabase/migrations/20261006100000_bff_audit_exports.sql",
+      "sha256": "4a301bce609cbe89ca94d7be04684ca79dc6cf6da3667e65b46182d0059b51b6"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "c3ddc0cf3f428c84b9daf3fb0f5c687afe827ed21c661f625dcb4a86f9a49f8f"
+    },
+    {
+      "path": ".github/workflows/frontend-baseline.yml",
+      "sha256": "be41ae8cb9ff44820a53838cecc3994fcac4a77dcaae579c76cd358839e4e7e6"
+    },
+    {
+      "path": "scripts/f05-db-gate.cjs",
+      "sha256": "d975f3826eb16830c0853b06beb30b280eb759eb88ce6f04de2574b2d84d7f46"
+    }
+  ],
+  "remoteRequiredStatusChecks": {
+    "enforcement_level": "off",
+    "contexts": [],
+    "checks": []
+  },
+  "localDatabaseExecuted": false,
+  "remoteReexecutionRequested": false,
+  "latentAffectedScope": {
+    "module": "F05 disposable database fixture",
+    "verification": "STATIC_ONLY",
+    "hostedExecution": "SKIPPED",
+    "reason": "same storage.buckets fixture lacks file_size_limit and applies the complete migration directory"
+  },
+  "secretScan": "PASS",
+  "priorA2IndexedFilesUnchanged": 284,
+  "diffCheck": "PASS",
+  "report": "docs/audit/CI-47cb743-acceptance-2026-10-07.md",
+  "reportSha256": "9cdf7cb102b2914fa18963ec60dceb8261e1164d14b1730736142b5b3406a848"
+}

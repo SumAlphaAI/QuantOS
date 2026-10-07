@@ -482,7 +482,7 @@ f02-package:
 	$(MAKE) build-manifest
 
 f02-check:
-	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/playwright-git-history.test.mjs
+	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/playwright-git-history.test.mjs scripts/storage-fixture.test.cjs
 
 .PHONY: r01-window-check
 r01-window-check:

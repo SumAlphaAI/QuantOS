@@ -3,6 +3,7 @@ const path=require('node:path');
 const crypto=require('node:crypto');
 const {spawnSync,execFileSync}=require('node:child_process');
 const {Client}=require('pg');
+const {storageBucketsSql}=require('./lib/supabase-storage-fixture.cjs');
 const root=path.resolve(__dirname,'..');
 const output=path.join(root,'artifacts/f02/database.json');
 const receipt={status:'RUNNING',passed:false,source:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),dirty:!!execFileSync('git',['status','--porcelain','--untracked-files=normal'],{cwd:root,encoding:'utf8'}).trim(),startedAt:new Date().toISOString(),checks:[]};
@@ -26,7 +27,7 @@ async function main(){
    const c=new Client({connectionString:urls[i]});await c.connect();clients.push(c);
    await c.query(`create schema auth; create schema extensions; create schema storage;
      create table auth.users(id uuid primary key);
-     create table storage.buckets(id text primary key, name text not null, public boolean not null default false);
+     ${storageBucketsSql}
      create function auth.uid() returns uuid language sql stable as 'select nullif(current_setting(''request.jwt.claim.sub'',true),'''')::uuid';
      grant usage on schema auth to authenticated,anon,service_role;`);
    const p=spawnSync(process.execPath,[path.join(root,'scripts/db-cli.cjs'),'apply'],{cwd:root,env:{...process.env,DATABASE_URL:urls[i]},encoding:'utf8'});

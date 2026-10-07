@@ -1,0 +1,35 @@
+{
+  "schema": "quantos-ci-storage-fixture-remediation/v1",
+  "status": "PASS",
+  "hostedCi": "NOT_RUN_FOR_REPAIR",
+  "observedHead": "47cb743c4587f2eb866f39c594a472a86d262dfc",
+  "executedWithUncommittedPatch": true,
+  "sourceHashes": {
+    "scripts/f02-db-gate.cjs": "837bf6abd7ad3070a6e86c9a7b80bb6a0e362b154bf717f5c781018063991d25",
+    "scripts/f05-db-gate.cjs": "7c480092989f249154b248b10f468ca293e71b28ae8ffdcebeb6c80dd96fc8c4",
+    "scripts/lib/supabase-storage-fixture.cjs": "7b288c8d19d9ce4c2050db5cab9cf1614a6bdf02ae4ee8f733c349ca4bc8dc34",
+    "scripts/storage-fixture.test.cjs": "6740eecc58e69888fbdcd32d3756c026c29a4367486c9e2483765e3995c9678f",
+    "Makefile": "425692c7b8c12a988112bc82296d548ccc2f85484ce26ce4cb53532a17893be1"
+  },
+  "staticAndF02": {
+    "passed": 23,
+    "skippedDatabaseCase": 1,
+    "failed": 0,
+    "log": "f02-focused-negative-initial.log",
+    "note": "Before explicit CA configuration was added to the opt-in test connection"
+  },
+  "supabaseFixtureRegression": {
+    "passed": 5,
+    "failed": 0,
+    "log": "storage-target-pass.log",
+    "rollback": true,
+    "businessTablesModified": false,
+    "tlsVerification": true
+  },
+  "initialAttempt": {
+    "status": "FAIL",
+    "reason": "self-signed certificate chain; no test transaction started",
+    "log": "storage-target-initial-tls-failure.log"
+  },
+  "localPostgresExecuted": false
+}
