@@ -5,13 +5,23 @@ import {execFileSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
 import {root,digest,confined,inventory,nodesFromPlans,planInput,validateReceipt,publishStages} from './provider-a1-receipts.mjs';
 import {executionSources} from './bff-fe-001-execution.mjs';
-export const selectors=['services/bff-gateway/','crates/quantos-auth/','packages/api-client/','apps/terminal/src/auth/','apps/terminal/src/settings/','apps/terminal/tests/auth-bff.test.ts','apps/terminal/tests/ui104-settings.test.ts','bff/','supabase/migrations/20261003090000_bff_a2_identity_settings.sql','supabase/migrations/20261006*bff*.sql','scripts/bff-fe-001*','scripts/check-bff-fe-001.mjs','scripts/test-bff-fe-001*','scripts/provider-a1-receipts.mjs','scripts/provider-a1-policy.json','scripts/generate-bff-contracts.mjs','Cargo.toml','Cargo.lock','package.json','pnpm-lock.yaml','Makefile','.github/workflows/frontend-baseline.yml'];
+import {parse} from 'yaml';
+import {validateTargetSource} from './target-source-provenance.mjs';
+export const selectors=['services/bff-gateway/','crates/quantos-auth/','packages/api-client/','apps/terminal/src/auth/','apps/terminal/src/settings/','apps/terminal/tests/auth-bff.test.ts','apps/terminal/tests/ui104-settings.test.ts','bff/','supabase/migrations/20261003090000_bff_a2_identity_settings.sql','supabase/migrations/20261006*bff*.sql','scripts/target-source-provenance.mjs','scripts/bff-fe-001*','scripts/check-bff-fe-001.mjs','scripts/test-bff-fe-001*','scripts/provider-a1-receipts.mjs','scripts/provider-a1-policy.json','scripts/generate-bff-contracts.mjs','Cargo.toml','Cargo.lock','package.json','pnpm-lock.yaml','Makefile','.github/workflows/frontend-baseline.yml'];
 export const targetSourcePaths=['services/bff-gateway/src/live/settings.rs','services/bff-gateway/src/live/settings_policy.rs','services/bff-gateway/src/live.rs','crates/quantos-auth/src/lib.rs','supabase/migrations/20261003090000_bff_a2_identity_settings.sql','bff/openapi/quantos-bff.v1.yaml','scripts/test-bff-fe-001-live.mjs'];
 export const targetAssertions=['audit-response-saveProfile','profile-replay-stable-correlation','audit-response-saveNotificationPrefs','primary-auth-timestamp','audit-response-mfa.verify','mfa-auth-timestamp','stale-first-factor-new-enrollment-denied','verified-enrollment-completed-replay','pending-existing-factor-recovery','pending-absent-factor-denied','verified-factor-overrides-cancel-checkpoint','audit-response-auth.reauth','revocation-event-correlation','audit-response-revokeSession'];
 export const mutantNames=['last-factor-protection','csrf-enforcement','challenge-freshness','live-last-factor','live-first-factor-state','live-csrf','live-challenge-ttl','live-revocation'];
-const expectedOperations=['getSession','getContext','reauth','mfaChallenge','logout','submitAccessRequest','getProfile','saveProfile','getNotificationPrefs','saveNotificationPrefs','getSecuritySettings','listSessions','revokeSession','subscribeSessionRevocations','listDevices','revokeDevice','setupMfa','revokeMfaFactor','listDownloads','getPlatformCapabilities'];
+export const expectedOperations=['getSession','getContext','reauth','mfaChallenge','logout','submitAccessRequest','getProfile','saveProfile','getNotificationPrefs','saveNotificationPrefs','getSecuritySettings','listSessions','revokeSession','subscribeSessionRevocations','listDevices','revokeDevice','setupMfa','revokeMfaFactor','listDownloads','getPlatformCapabilities'];
+export function successStatuses() {
+ const api=parse(readFileSync(resolve(root,'bff/openapi/quantos-bff.v1.yaml'),'utf8'));
+ const catalog=parse(readFileSync(resolve(root,'bff/page-operation-catalog.yaml'),'utf8'));
+ assert.deepEqual([...catalog.contracts.C01.publishedOperations,...catalog.contracts.C17.publishedOperations].sort(),expectedOperations.toSorted(),'identity catalog scope changed');
+ assert(catalog.contracts.C01.plannedOperations.length===0&&catalog.contracts.C17.plannedOperations.length===0,'identity planned operations cannot count as implemented');
+ const statuses=new Map();for(const item of Object.values(api.paths))for(const op of Object.values(item))if(expectedOperations.includes(op?.operationId))statuses.set(op.operationId,Object.keys(op.responses).filter(s=>/^2[0-9]{2}$/.test(s)).map(Number));
+ assert.equal(statuses.size,20,'identity OpenAPI scope incomplete');return statuses;
+}
 const sha=bytes=>digest(bytes).slice(7);
-export function validateEvidence(m,{currentInputs,currentPlan,dependencies,read,validateDependency}) {
+export function validateEvidence(m,{currentInputs,currentPlan,dependencies,read,validateDependency,provenance}) {
  assert.equal(m.schema,'quantos-bff-a2-development-manifest/v1');assert.equal(m.nodeId,'FE:BFF-FE-001');assert.equal(m.stage,'DEVELOPMENT');assert.equal(m.status,'PASS');assert.equal(m.formalAccepted,false);assert.deepEqual(m.residuals,[]);assert(/^[0-9a-f]{40}$/.test(m.observedSourceCommit),'source commit absent');assert(m.environment?.node&&m.environment?.rust&&m.environment?.target==='configured-supabase','execution environment absent');
  assert.deepEqual(m.inputs,currentInputs,'A2 functional inputs changed');assert.deepEqual(m.planInput,currentPlan,'A2 functional plan changed');
  assert.deepEqual(m.dependencies.map(d=>d.nodeId).sort(),[...dependencies.keys()].sort(),'dependency inventory differs');
@@ -28,7 +38,8 @@ export function validateEvidence(m,{currentInputs,currentPlan,dependencies,read,
  const live=proofs.get('live');assert.equal(live.status,'PASS');assert.equal(live.failure,null);assert.equal(live.schema,'quantos-bff-a2-live-regression/v1');assert(live.scope.startsWith('configured existing Supabase Auth/PostgreSQL; local live BFF'));
  assert.deepEqual(live.assertions.slice().sort(),targetAssertions.slice().sort(),'target regression assertions missing');
  for(const [path,hash]of Object.entries(live.sourceHashes))assert.equal(hash,currentInputs.find(i=>i.path===path)?.sha256.slice(7),`target proof stale ${path}`);
- assert.deepEqual(Object.keys(live.sourceHashes).sort(),targetSourcePaths.slice().sort(),'target source inventory differs');for(const op of expectedOperations)assert(live.records.some(r=>r.operationId===op),'target operation not executed');assert(live.records.every(r=>!r.issues?.length),'target contract failed');
+ assert.deepEqual(Object.keys(live.sourceHashes).sort(),targetSourcePaths.slice().sort(),'target source inventory differs');const statuses=successStatuses();for(const op of expectedOperations)assert(live.records.some(r=>r.operationId===op&&statuses.get(op).includes(r.status)),'target successful operation missing '+op);assert(live.records.some(r=>r.operationId==='subscribeSessionRevocations'&&r.status===200),'target SSE success missing');assert(live.records.every(r=>Array.isArray(r.issues)&&r.issues.length===0),'target contract failed');
+ validateTargetSource(live,provenance);
  assert.equal(live.cleanupVerified,true,'restoration not verified');
  const traces=proofs.get('traces').trim().split('\n').map(JSON.parse);assert(live.correlations.length>=5);for(const correlation of live.correlations)assert(traces.some(t=>t.correlation_id===correlation&&t.status==='succeeded'),'response/audit trace missing');
  for(const id of ['contract-negative','stage-negative'])assert(/# fail 0\b/.test(proofs.get(id)),'negative gate tests missing or failed');

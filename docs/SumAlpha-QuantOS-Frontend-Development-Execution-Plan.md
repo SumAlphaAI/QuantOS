@@ -1,5 +1,7 @@
 # SumAlpha QuantOS 前端开发执行计划
 
+> 2026-10-07 PROVIDER:A2 整改进行中：目标成功状态与不可变执行提交校验已加强，窗口聚合门禁已新增。功能脚本/CI 输入变化后旧工程回执正在重新评估；G0/FEP-0 已撤销失效准入，当前 G0 文稿须项目用户确认。以下旧复评结果保留历史，不作为本轮通过声明。
+
 > 2026-10-07 旧 READY 复评完成：F0/A1 87/87、G0 16/16、FEP-0 2/2 工程检查通过；项目用户已确认当前 G0 文稿，确认后 FEP-0 2/2 实际重评通过；当前 25 READY、0 BLOCKED。历史正式/hosted CI 不迁移。见[复评报告](./audit/Core-plan-READY-reassessment-2026-10-07.md)。
 
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
@@ -482,11 +484,9 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:13aa5eba18503e1a488030eb3a908d52cf00d677f3c1c1ea2e6f4b63bab74d2f",
-    "evidence": [
-      "audit/evidence/frontend-g0-fep0-remediation-20261005/core-plan-format-reassessment-20261007/g0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -497,7 +497,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `FEP-0`
 - task_type: `MILESTONE`
 - iteration: `A1`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:763830a5f5dfd03d6eed62bed59a84c607273f70184bc05767f2f6c4f8d41ef2","evidence":["audit/evidence/fep0-remediation-20261005/user-confirmed-20261007-1d2bce97fcfb/fep0.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE-GATE:F0", "PRE-01", "PRE-02", "PRE-03", "PRE-04", "PRE-05", "PRE-06", "FRONTEND-GATE:G0"]
 - core_prerequisites: ["CORE-GATE:F0"]
 - closes_core: []

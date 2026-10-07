@@ -487,3 +487,8 @@ f02-check:
 .PHONY: r01-window-check
 r01-window-check:
 	node ./scripts/r01-window-check.cjs
+
+.PHONY: provider-a2-check
+provider-a2-check:
+	pnpm check:provider-a2
+	pnpm test:provider-a2

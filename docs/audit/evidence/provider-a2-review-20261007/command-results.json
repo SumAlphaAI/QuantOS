@@ -1,0 +1,90 @@
+{
+  "baselineCommit": "2835e41fcaa9f3924e9f03f95c62727b9e6c69b9",
+  "scope": "Local checks executed this audit; no new target/hosted CI runs. Exit codes observed from tool sessions. Existing live receipts independently revalidated.",
+  "results": [
+    {
+      "command": "node scripts/bff-fe-001-development.mjs",
+      "exitCode": 0,
+      "result": "READY",
+      "log": "identity-gate.log"
+    },
+    {
+      "command": "node scripts/bff-fe-007-development.mjs",
+      "exitCode": 0,
+      "result": "READY",
+      "log": "audit-gate.log"
+    },
+    {
+      "command": "node scripts/provider-a1-receipts.mjs",
+      "exitCode": 0,
+      "result": "READY",
+      "log": "provider-a1-gate.log"
+    },
+    {
+      "command": "node scripts/check-development-plans.mjs",
+      "exitCode": 0,
+      "result": "structural PASS; 25 READY / 0 BLOCKED / 134 NOT_ASSESSED",
+      "log": "plans.log"
+    },
+    {
+      "command": "cargo test --locked --offline -p bff-gateway --lib --test auth_settings_provider --test audit_export_provider",
+      "exitCode": 0,
+      "result": "14+12+9 passed; 1 live DB test ignored, not counted as passed",
+      "log": "provider-regressions.log"
+    },
+    {
+      "command": "pnpm --filter @sumalpha/terminal exec vitest run tests/auth-bff.test.ts tests/ui104-settings.test.ts tests/audit-gateway.test.ts",
+      "exitCode": 0,
+      "result": "35 passed",
+      "log": "consumer-regressions.log"
+    },
+    {
+      "command": "node --test scripts/bff-fe-001-gate-negative.mjs scripts/bff-fe-001-development.test.mjs scripts/bff-fe-007-gate-negative.mjs scripts/bff-fe-007-development.test.mjs",
+      "exitCode": 0,
+      "result": "62 passed",
+      "log": "gate-regressions.log"
+    },
+    {
+      "command": "node scripts/check-bff-fe-001.mjs && node scripts/check-bff-fe-007.mjs",
+      "exitCode": 0,
+      "result": "001 and 007 local contract PASS; complete stdout saved separately",
+      "logs": [
+        "identity-contract.log",
+        "contract.log"
+      ]
+    },
+    {
+      "command": "node scripts/check-bff-generated.mjs && node scripts/check-bff-contract-coverage.mjs && node scripts/check-bff-openapi.mjs",
+      "exitCode": 0,
+      "result": "Generated six artifacts match; 62 operations / 52 schemas / 62 page references; complete stdout saved separately",
+      "logs": [
+        "generated-artifacts.log",
+        "contract-coverage.log",
+        "generated.log"
+      ]
+    },
+    {
+      "command": "node docs/audit/evidence/provider-a2-review-20261007/receipt-negative-probes.mjs",
+      "exitCode": 0,
+      "result": "Five malformed cases wrongly accepted, one 007 all-500 case correctly rejected; in-memory only",
+      "evidence": [
+        "receipt-negative-probes.json",
+        "audit-receipt-negative-probes.json",
+        "checkpoint-validator-probe.json"
+      ]
+    },
+    {
+      "command": "node docs/audit/evidence/provider-a2-review-20261007/collect-inventory.mjs",
+      "exitCode": 0,
+      "result": "26 actual API successes; 20 source checks, 17 unique files match current and immutable target commits",
+      "evidence": [
+        "api-matrix.json",
+        "source-inventory.json"
+      ]
+    }
+  ],
+  "environment": {
+    "pnpm": "10.20.0 via /private/tmp/quantos-a2-remediation-bin",
+    "database": "No connection performed this audit; prior configured Supabase receipts reused; no local database"
+  }
+}
