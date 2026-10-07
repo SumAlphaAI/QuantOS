@@ -1,0 +1,87 @@
+pnpm check:development-plans
+
+> @sumalpha/quantos@ check:development-plans /Users/anray/Documents/project/SumAlpha/QuantOS
+> node scripts/check-development-plans.mjs
+
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 159,
+    "READY": 0,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1462,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22
+}
+pnpm test:development-plans
+
+> @sumalpha/quantos@ test:development-plans /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/development-plan-order-negative.mjs
+
+✔ joint schedule is acyclic and preserves task/status boundaries (18.902959ms)
+✔ restoring a complete R1 prerequisite for S2 services creates a rejected cycle (6.519667ms)
+✔ research service waiting on its consumer page is rejected (4.669334ms)
+✔ historical CORE:R04 to CORE:L04 probe now fails closed (4.465833ms)
+✔ an early identity API cannot silently depend on later research services (5.920667ms)
+✔ a provider cannot wait for the consumer frontend Gate (4.214666ms)
+✔ removing S2 service admission from a core execution task is rejected (4.638958ms)
+✔ S2 service Gate cannot omit TP12 advance evaluation (4.816ms)
+✔ I10 cannot drop testnet service admission even if metadata is edited with it (5.644917ms)
+✔ a new or existing frontend cannot skip the full provider Gate (5.595583ms)
+✔ G5 cannot be marked as closing in I4 before reconciliation (5.721916ms)
+✔ moving the G1 block above I1 tasks is rejected (5.11775ms)
+✔ milestone cannot omit its last child while retaining a Gate summary (5.648708ms)
+✔ prose-only backend dependencies cannot drift from structured prerequisites (5.619416ms)
+✔ core closure mapping cannot become an implicit service alias (4.943083ms)
+✔ ACCEPTED checkpoint needs SHA and evidence, not only a green word (5.390375ms)
+✔ accepted checkpoint evidence must resolve (2.527917ms)
+✔ missing checkpoint and unknown dependency fail closed (6.483417ms)
+✔ API windows cannot skip their preceding provider checkpoint (4.870042ms)
+✔ UI windows cannot skip the preceding reconciliation window (4.635791ms)
+✔ Web intake preserves the explicit no-model-review schema (1.345916ms)
+✔ missing Web task fields still fail closed (1.318125ms)
+✔ both plans must publish exactly the same stage contract (5.247125ms)
+✔ changing both plans cannot defer correctness or functional deadlines to release (13.799792ms)
+✔ both plans must retain every deferred release obligation (12.086833ms)
+✔ tasks and checkpoints cannot omit, invent, or misclassify their stage gate (18.153083ms)
+✔ release prerequisites cannot block either development or integration (11.186667ms)
+✔ release gates cannot skip business closure or inherit the wrong stage (13.0105ms)
+✔ historical ACCEPTED and completed tasks do not automatically become READY (10.875458ms)
+✔ READY needs its own input digest and resolvable evidence (33.475958ms)
+✔ unassessed stage gates cannot carry an apparent ready receipt (6.478042ms)
+✔ BLOCKED retains failure evidence and digest without being counted as READY (13.643459ms)
+✔ a READY chain needs READY prerequisites and its own evidence at every node (18.102375ms)
+✔ stage readiness never substitutes for formal acceptance evidence (2.486875ms)
+✔ release READY requires formal acceptance and all functional prerequisites (8.277291ms)
+✔ core intake follows the frontend audit-report format (5.938541ms)
+✔ core review summary must be unique and link to audit evidence (7.453834ms)
+✔ core shared task fields and existing window must stay consistent (13.760125ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 358.686583

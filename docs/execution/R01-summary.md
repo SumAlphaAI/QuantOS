@@ -1,17 +1,27 @@
 # CORE:R01 Market ingestion 与标准化行情契约交付摘要
 
-更新日期：2026-10-04。状态：FIX_VALIDATION；9 项复审问题关闭，B01 已完成 Binance 原生接入、真实补偿及历史受控异常五秒提交验证，自然运行健康与精确异常提交补证、长期部署、远程同 SHA CI 与许可验收待完成，R01 未 ACCEPTED。
+更新日期：2026-10-07。原十项复审问题关闭 9/10（90%），B01 OPEN/PARTIAL；新鲜度专项 FA-H01 独立保持开放。代码功能及 Supabase 恢复能力已实现，部署/主机死亡通知、长期运行、拟发布候选同 SHA CI、用途许可及实时健康仍待验收。正式复审保持 FIX_VALIDATION，DEVELOPMENT 准入保持 NOT_ASSESSED，未认定 ACCEPTED。
 
 - MarketEvent v2 使用显式标的映射与 BASE/QUOTE；来源身份包含 tenant/provider/ID，并对同 ID 的不同内容报冲突。原始数值错误产生质量事件，坏帧隔离后继续处理。
 - `ingest-source` / `poll-source` 将 receipt、序号、事件、审计和 F05 outbox 原子写入配置的 Supabase；重启去重、失败安全重试、F05 inbox/checkpoint、死信重放已有目标 fixture 测试。
-- 实际 processing clock 与持久 watchdog 检测积压和断流；历史 replay 明确使用 fixture 时间。稳定及 nightly 覆盖按生产文件单独检查，门槛为 line ≥90%、region ≥85%、branch ≥85%。
+- 实际 processing clock 与持久 watchdog 检测积压和断流；历史 replay 明确使用 fixture 时间。覆盖按生产文件单独检查：line ≥90%、region ≥85%，nightly 另要求 branch ≥85%。
 - Replay 限 100,000 条、frame 限 16KiB，非法 spec 返回错误；本地领域/CLI 测试与真实编译 mutation Gate 阻止回归。
 
-完整修复状态、计数、覆盖及 Supabase 回执见 [整改验证报告](../audit/R01-remediation-validation-2026-10-02.md)。[全面复审报告](../audit/R01-comprehensive-review-2026-10-02.md)保留修复前历史结论。
+当前状态及本轮回归见[全面复审报告](../audit/R01-comprehensive-review-2026-10-02.md)，原问题逐项依据见[关闭台账](../audit/R01-closure-recheck-2026-10-07.md)。[初审快照](../audit/R01-initial-review-2026-10-02.md)及[首次整改](../audit/R01-remediation-validation-2026-10-02.md)保留当时事实。
 
 使用 [摄取 Runbook](../runbooks/r01_market_ingestion.md)配置必要 trace sink、有效 tenant/actor、受控审批文件；Binance 原生 REST 使用下方专门 Runbook。[provider 获取与审批指南](../runbooks/r01_provider_onboarding.md)说明官方渠道及内部申请流程。公共入口可访问不能代替使用许可；JSONL `poll-source` 仍需标准化 adapter。
 
-本地领域、Supabase fixture、Binance 真实源、CI 工作流与正式供应商验收分别记录。部署端告警与远程同 SHA CI 验收尚未执行。原 session pool 饱和仍保留为历史环境故障；本轮显式使用同一 Supabase 项目的事务池，保留八独立连接并发与旧断言，完整目标 Gate 的最终结果见[持续运行验证报告](../audit/R01-supervision-validation-2026-10-03.md)。不能由此宣布整个 R1 服务验收完成。
+本地领域、Supabase fixture、Binance 真实源、CI 工作流与正式供应商验收分别记录。当前拟发布范围的部署端告警与候选同 SHA CI 尚未完成验收。原 session pool 饱和仍保留为历史环境故障；2026-10-07 显式使用同一项目事务池，保留八独立连接并发与旧断言，结果见[当前目标回执](../audit/evidence/r01-closure-recheck-20261007/target-functional/target-receipt.json)。不能由此宣布整个 R1 服务验收完成。
+
+## 当前专项结果与后续范围
+
+最终专项修复窗口（历史 `live-recovered/attempt-01`）完成固定 1800 秒，两标的 8,530 成交、9,461/9,461 精确 ACK；新鲜度检测降级 8.37%、effective ready 109/120，仍为 DEGRADED。自然 tick 响应头→ACK 最大 3454.521ms、source 已观测 origin→ACK 最大 1577.815ms；受控故障最终 16/16 通过。详见[专项整改报告](../audit/R01-freshness-remediation-2026-10-04.md)。2026-10-07 仅离线复算该窗口并验证当前目标功能，没有新真实源摄取。
+
+完整性、processing、source-age、自然告警提交与 readiness 分别判定；pending=0 不能覆盖降级，采样 ready 比例不是连续 uptime。旧失败/UNKNOWN 保留。scope 仍固定 1800 秒、BTCUSDT/ETHUSDT、原内部用途及 2026-10-10T00:00:00Z 到期日；24 小时、部署或扩大用途需新授权。功能准入按计划独立评估，实际健康及部署义务归 RELEASE-GATE:BETA。
+
+## 以下为历史阶段记录
+
+以下数字属于各次运行，不能替代上方当前结论或最终窗口，也不能将后续通过回写到早期失败。
 
 ## 2026-10-03 Binance 接入补充
 

@@ -272,7 +272,7 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
 | L01–L04 | 协议映射、MFA/审批/额度、默认关闭、秘密隔离、轮换与恢复机制；获准 testnet 的代表性 UI/API 真实联调 | `RELEASE-GATE:LIVE-READINESS`：200 笔目标 testnet、真实 mTLS/受限执行区、轮换 ≤5 分钟、目标负载/四类演练、完整安全与证据包。仍不授权生产实盘 |
 | U01/S04/X06/前端 FEP | 可访问性与风险交互、真实主流程、稳定错误/恢复状态 | `RELEASE-GATE:BETA` 及涉及 testnet 的 `RELEASE-GATE:LIVE-READINESS`：完整多浏览器/视觉签字、前端性能预算、部署目标与组织签字 |
 
-R01 当前按[专项整改报告](./audit/R01-freshness-remediation-2026-10-04.md)保留 FA-H01、B01 OPEN/PARTIAL 和 FIX_VALIDATION；不能据此声称实时健康或 R1 正式 ACCEPTED。可先评估回放、研究/拒绝陈旧数据所需功能，再推进 R02 及后续研发；要求实时健康的消费者仍受新鲜度风险阻塞。已有 scope 固定 1800 秒、BTCUSDT/ETHUSDT 和原内部用途，不自动续期。24 小时、Linux/systemd/其他部署、扩大标的/用途须新的范围授权；具名 actor、空证据目录、提前失败保留、结束停进程并停用 actor 规则继续有效。不删除或重建现有 Supabase，不以计划变更扩张许可。
+R01 经[2026-10-07 原问题复核](./audit/R01-comprehensive-review-2026-10-02.md)确认原十项关闭 9 项，B01 及专项 FA-H01 仍 OPEN/PARTIAL，正式复审保留 FIX_VALIDATION；不能据此声称实时健康或 R1 正式 ACCEPTED。可先评估回放、研究/拒绝陈旧数据所需功能，再推进 R02 及后续研发；要求实时健康的消费者仍受新鲜度风险阻塞。已有 scope 固定 1800 秒、BTCUSDT/ETHUSDT 和原内部用途，不自动续期。24 小时、Linux/systemd/其他部署、扩大标的/用途须新的范围授权；具名 actor、空证据目录、提前失败保留、结束停进程并停用 actor 规则继续有效。不删除或重建现有 Supabase，不以计划变更扩张许可。
 
 ### 2.10 执行入口与混合 Gate 的处理
 
@@ -639,7 +639,7 @@ flowchart TD
 - 量化验收标准：10万条 replay 事件解析成功率 100%；乱序/重复数据正确去重；新鲜度/质量异常在 ≤5s 内发出事件
 - 阶段执行：开发验证 10 万 replay、归一化/去重、原子游标、重试/补偿与受控异常提交 ≤5s；source-age、processing、自然告警精确 ACK 与采样缺口分别报告。真实持续运行的新鲜度/readiness 和部署 SLO 归 RELEASE-GATE:BETA；不能以 pending=0 或持续写入冒充健康，已知不健康数据必须明确标识并由策略/交易消费者拒绝。FA-H01/B01 保持 OPEN/PARTIAL，功能准入仅针对有证据支撑的允许用途。
 - 依赖：F03、F05
-- 当前工程复核：[专项整改报告](./audit/R01-freshness-remediation-2026-10-04.md)；历史正式复审：`FIX_VALIDATION`；原十项问题中 9 项关闭，B01 OPEN/PARTIAL，专项 FA-H01 仍未关闭。1800 秒窗口完整性通过（8,530 成交、9,461/9,461 精确 ACK），检测降级 8.37%、effective ready 109/120，未认定实时健康或 ACCEPTED。Linux/systemd、父启动器/主机死亡通知、长期部署、远程同 SHA CI 和商用许可仍待验收；1800 秒/两标的/原内部用途及到期范围不自动扩大。原始失败、问题清单和修复验证见[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r01)；阶段准入保持 NOT_ASSESSED。
+- 当前工程复核：[当前全面复审](./audit/R01-comprehensive-review-2026-10-02.md)（2026-10-07）；历史正式复审：`FIX_VALIDATION`；原十项问题严格关闭 9/10（90%），已关闭项移至[逐项台账](./audit/R01-closure-recheck-2026-10-07.md)，B01 OPEN/PARTIAL；专项 FA-H01 独立保留。当前本地功能与配置 Supabase 目标验证通过；历史窗口离线重算一致，检测降级 8.37%、effective ready 109/120，未认定实时健康。部署/主机死亡通知、长期运行、拟发布候选同 SHA CI 和用途许可由 RELEASE-GATE:BETA 收口；不自动阻塞所有研发，也不以本轮检查自动登记 READY。1800 秒/两标的/原内部用途及到期范围不变，阶段准入保持 NOT_ASSESSED；[初审快照](./audit/R01-initial-review-2026-10-02.md)及[历史复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r01)保留。
 
 <a id="task-r02"></a>
 ### R02：DataSnapshot、血缘与质量 Gate

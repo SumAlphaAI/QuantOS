@@ -59,12 +59,18 @@ cargo run -p market-ingestor --locked -- requeue --tenant '<tenant-uuid>' --acto
 
 ```bash
 make r01-check
-# 已加载 .env.local 时直接 make；以下 Node 原生 --env-file 不会打印变量值。
-node --env-file=.env.local scripts/r01-live-check.cjs
-QUANTOS_R01_COVERAGE=1 node --env-file=.env.local scripts/r01-live-check.cjs
-node scripts/check-r01-coverage.mjs artifacts/r01/coverage.json
-RUSTUP_TOOLCHAIN=nightly QUANTOS_R01_BRANCH=1 QUANTOS_R01_COVERAGE=1 node --env-file=.env.local scripts/r01-live-check.cjs
-node scripts/check-r01-coverage.mjs artifacts/r01/coverage.json --require-branches
+# node --env-file 读取现有配置，不打印变量值。
+# 三次运行各用一个全新目录；mktemp 避免默认 artifacts/r01 已非空而拒绝。
+r01_functional_dir=$(mktemp -d /private/tmp/quantos-r01-functional.XXXXXX)
+QUANTOS_R01_EVIDENCE_DIR="$r01_functional_dir" node --env-file=.env.local scripts/r01-live-check.cjs
+r01_stable_dir=$(mktemp -d /private/tmp/quantos-r01-stable.XXXXXX)
+QUANTOS_R01_EVIDENCE_DIR="$r01_stable_dir" QUANTOS_R01_COVERAGE=1 node --env-file=.env.local scripts/r01-live-check.cjs
+node scripts/check-r01-coverage.mjs "$r01_stable_dir/coverage.json"
+r01_nightly_dir=$(mktemp -d /private/tmp/quantos-r01-nightly.XXXXXX)
+RUSTUP_TOOLCHAIN=nightly QUANTOS_R01_EVIDENCE_DIR="$r01_nightly_dir" QUANTOS_R01_BRANCH=1 QUANTOS_R01_COVERAGE=1 node --env-file=.env.local scripts/r01-live-check.cjs
+node scripts/check-r01-coverage.mjs "$r01_nightly_dir/coverage.json" --require-branches
 ```
 
 目标 Gate 只创建具名 r01-check fixture 租户/actor，账本事实保留，结束停用本次 actor。不要删除 append-only 验收数据。真实 provider、许可证、source 断连补偿及部署端告警还需要独立回执；没有参数/批准记录时明确 NOT RUN，而不是复用 fixture PASS。
+
+以上是独立验收入口，按变更影响选用，并非每次文档调整都需执行三轮。完成后把所需目录归档到本次审计证据，保留失败及 actor-cleanup 回执；不要清空旧目录后把重试伪装成首次通过。若需使用配置项目的 transaction pool，显式设置 `QUANTOS_R01_POOL_MODE=transaction`，不更换项目或凭据。
