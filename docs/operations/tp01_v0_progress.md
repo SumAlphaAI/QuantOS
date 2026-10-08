@@ -1,6 +1,8 @@
 # TP01 V0-V1 Progress Tracker
 
-> 2026-10-08 engineering update: scheduled TP01-E runs now monitor candidates with explicit BLOCKED summaries; manual sync gates retain fail-on-block. Failure summaries/artifacts are always published. Local tests and a real public upstream report were verified; the new remote workflow and candidate adoption remain separate pending steps. See [remediation](../audit/TP01-E-scheduled-remediation-2026-10-08.md) and [runbook](../runbooks/tp01_vibe_sync_monitoring.md). The historical implementation board below is not current stage acceptance.
+> 2026-10-08 remote engineering verification: 8408122 completed six simulations and 23 CLI tests on GitHub Ubuntu. The real strict gate remained BLOCKED; summary, live upload and original artifact download all succeeded. Natural schedule execution and candidate adoption remain pending. See [remote verification](../audit/TP01-E-remote-verification-2026-10-08.md). Main push runs are 8/8; F04 did not match the path filter and is not counted as a current-SHA pass.
+
+> 2026-10-08 engineering update (historical local snapshot before remote verification): scheduled TP01-E runs now monitor candidates with explicit BLOCKED summaries; manual sync gates retain fail-on-block. Failure summaries/artifacts are always published. Local tests and a real public upstream report were verified; the new remote workflow and candidate adoption remain separate pending steps. See [remediation](../audit/TP01-E-scheduled-remediation-2026-10-08.md) and [runbook](../runbooks/tp01_vibe_sync_monitoring.md). The historical implementation board below is not current stage acceptance.
 
 ## Objective
 

@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-08T12:29:05.685Z",
+  "baseline": {
+    "schemaVersion": 1,
+    "component": "vibe-trading",
+    "recordedAt": "2026-08-13T00:00:00Z",
+    "upstream": {
+      "owner": "HKUDS",
+      "repo": "Vibe-Trading",
+      "repositoryUrl": "https://github.com/HKUDS/Vibe-Trading.git",
+      "browseUrl": "https://github.com/HKUDS/Vibe-Trading",
+      "defaultBranch": "main",
+      "tag": "v0.1.13",
+      "commit": "c33133f4fd5e978d21d2a61fdd8787fb352b4687",
+      "observedMainHeadAtCapture": "69b41987de76e04e92786adec3d4efa29e719a5a"
+    },
+    "license": {
+      "spdx": "MIT",
+      "concluded": "MIT",
+      "licenseFile": {
+        "path": "LICENSE",
+        "sha256": "b155549b8bc4e43a9b96b2288dbf4eb1bc0c697f14b3f5ec6b36bf64d5a18679"
+      },
+      "noticeFile": {
+        "path": "NOTICE",
+        "sha256": "a898503c041b27d1046748144666a1309b6b25fa4d75a1b0a06ce2f8acd3b07c"
+      }
+    },
+    "dependencyDigests": {
+      "pythonLock": {
+        "path": "requirements-lock.txt",
+        "sha256": "ccb225f8ae17888dc181cb788f46564ee1b9e930cc69cfc8eac8087871cc23ec"
+      },
+      "projectDescriptor": {
+        "path": "pyproject.toml",
+        "sha256": "1ac63259fd6e94173c41f7e956c6310183861d31ab33743d646c16d5a39c3b64"
+      },
+      "uvLock": null,
+      "pnpmLock": null
+    },
+    "policy": {
+      "readOnlyReference": true,
+      "productionArtifactSource": "engines/vibe-adapter",
+      "allowedAbsorptionModes": [
+        "minimal cherry-pick to controlled fork",
+        "adapter-side equivalent rewrite",
+        "design or test reference only"
+      ],
+      "forbiddenSurfaces": [
+        "session IDs",
+        "persistent memory files",
+        "trading connector profiles",
+        "broker order tools",
+        "shell and arbitrary file mutation tools",
+        "internal frontend store contracts"
+      ]
+    },
+    "cveAudit": {
+      "status": "passed",
+      "tool": "pip-audit 2.9.0 --disable-pip",
+      "lastAttemptedAt": "2026-08-14T00:00:00Z",
+      "dependencyCount": 185,
+      "vulnerabilityCount": 0,
+      "rawEvidence": "cve-audit-pip-audit.json"
+    }
+  },
+  "patchQueue": {
+    "schemaVersion": 1,
+    "upstream": {
+      "repository": "https://github.com/HKUDS/Vibe-Trading.git",
+      "commit": "43331c3221be37c5cc1ed8dddc4c7988bcddc5cd"
+    },
+    "queue": [
+      {
+        "id": "0001",
+        "title": "research workflow shape",
+        "severity": "S3",
+        "adapterModule": "engines/vibe-adapter/src/vibe_adapter/workflow.py",
+        "status": "absorbed"
+      },
+      {
+        "id": "0002",
+        "title": "streaming phase projection",
+        "severity": "S3",
+        "adapterModule": "engines/vibe-adapter/src/vibe_adapter/streaming.py",
+        "status": "absorbed"
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "schemaVersion": 1,
+      "generatedAt": "2026-10-08T12:29:05.685Z",
+      "slug": "planned-sync-s2",
+      "title": "planned monthly sync candidate",
+      "candidateRef": "v0.1.16@deadbeef0005",
+      "releaseTag": "v0.1.16",
+      "severity": "S2",
+      "blocked": false,
+      "baseline": {
+        "tag": "v0.1.13",
+        "commit": "c33133f4fd5e978d21d2a61fdd8787fb352b4687"
+      },
+      "reasons": [],
+      "requiredActions": [
+        "record candidate evidence and continue through the planned sync review window"
+      ],
+      "securityAdvisories": [],
+      "diffSummary": [
+        {
+          "category": "ux",
+          "count": 1
+        },
+        {
+          "category": "workflow",
+          "count": 1
+        }
+      ],
+      "rangeDiffSummary": [],
+      "expectedSeverity": "S2",
+      "expectedBlocked": false,
+      "issueTitle": "TP01-E [S2] v0.1.16@deadbeef0005"
+    }
+  ],
+  "executionMode": "report",
+  "monitoringStatus": "COMPLETED",
+  "syncGateStatus": "CLEAR",
+  "blockedCandidateCount": 0,
+  "syncApproved": false
+}

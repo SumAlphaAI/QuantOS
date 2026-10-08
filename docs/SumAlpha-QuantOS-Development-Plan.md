@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-08）：41a3b27同SHA主线9/9 CI验收已独立归档；本轮TP01-E定时监测与严格同步分开记账，失败时摘要/证据上传已补齐，本地23/23及真实公开候选双模式验证通过，新修复的远程workflow待验证。上游依赖漂移候选仍BLOCKED，未批准升级；当前159节点NOT_ASSESSED，R02 C01待新内容复评。见[TP01-E整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
+> 当前工程状态（2026-10-08）：8408122实际触发8/8个push工作流成功，F04路径未匹配、当前SHA未运行；TP01-E远程六场景/23回归、真实严格候选阻断及失败后摘要/原件上传下载通过。自然schedule实时回执与候选采用仍待验。当前159节点NOT_ASSESSED，R02 C01待必要功能复评。见[远程验证报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
 
 > 迁移时历史快照：2026-10-07 执行文档目录整理：25 份 BFF/PRE/Desktop 准备产物保留并迁入 `docs/execution/`；读取脚本及输入策略已同步。原 26 READY 和 `52fee5f6e499` 确认为迁移前历史记录，当前受影响功能准入均为 NOT_ASSESSED，需独立内容复评。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
@@ -17,14 +17,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.43
+> 版本：3.44
 > 更新时间：2026-10-08
 > 状态：技术执行基线  
-> 本轮变更：TP01-E定时监测/严格同步语义修复与失败证据补齐；本地与真实公开读取分别记录，候选批准和新SHA远程CI独立验收。
+> 本轮变更：归档8408122的TP01-E远程工程验证与失败后原始制品；自然定时、候选采用及阶段准入继续独立记录。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.44`：归档8408122的TP01-E远程工程验证：六场景与23回归通过，严格候选阻断后摘要/原件实际上传并下载；主线8/8 push成功，F04未触发不计PASS。自然schedule及上游候选采用保持待验，不授予阶段或正式验收。见[报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
 
 - `3.43`：修复TP01-E定时任务混淆监测完成与候选同步阻断的问题，保留严格人工同步Gate；补齐失败摘要/原报告/决策上传、异常输入及严重性保留。真实上游候选仍BLOCKED；新SHA远程workflow待验证，159节点NOT_ASSESSED不变。见[整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
 
@@ -981,6 +983,7 @@ F0 DEVELOPMENT功能闭包于2026-10-08冻结5547211实际复评曾READY；本�
 - 交付物：`sync-vibe` 工具、CI workflow、decision records
 - 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果
 - 局部修复验证（2026-10-08）：定时monitor保留候选BLOCKED并完成监测，人工同步Gate仍退出2；失败摘要与原始证据上传补齐。23/23本地回归与真实上游双模式通过，新SHA远程workflow及候选采用待独立验收；不替代本任务全量复评。见[整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
+- 远程工程验证（2026-10-08）：8408122六场景/23回归通过，真实严格Gate依赖漂移阻断，失败后摘要/原件实际上传并下载。本专项工程检查7/7通过；自然event=schedule实时回执和候选采用仍待验，不计全任务ACCEPTED或阶段READY。见[远程报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
 - 依赖：TP01-D、F02
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-e)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 

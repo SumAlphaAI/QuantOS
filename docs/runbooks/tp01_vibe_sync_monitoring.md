@@ -1,5 +1,7 @@
 # TP01-E 定时监测与同步 Gate
 
+> 2026-10-08：8408122 的远程六场景/23 回归、真实人工严格阻断及失败后原件上传/下载已验证。自然 event=schedule 的实时运行尚无回执，候选仍未批准。详见[远程验证报告](../audit/TP01-E-remote-verification-2026-10-08.md)。
+
 `TP01 Vibe Sync Gate` 保留两种执行语义。每天的 `schedule` 用 `--monitor-only` 采集并评估候选；人工 `workflow_dispatch` 用 `--fail-on-block` 检查候选同步准入。两种运行均先执行六个模拟场景及 CLI 回归。
 
 | 指标 | 含义与处理 |
