@@ -128,7 +128,7 @@ export function runTargetAttempts(execute,maxAttempts=3) {
  assert(Number.isInteger(maxAttempts)&&maxAttempts>=1&&maxAttempts<=3,'target attempt budget must be between 1 and 3');
  const runs=[];
  for(let attempt=1;attempt<=maxAttempts;attempt++){
-  const run=execute(attempt);run.transient=run.status!==0&&/(?:session handshake returned HTTP 503|BFF did not establish the real Auth session \(HTTP 503|operation was aborted due to timeout)/.test(run.diagnostic??'');runs.push(run);
+  const run=execute(attempt);run.transient=run.status!==0&&/(?:session handshake returned HTTP 503|BFF did not establish the real Auth session \(HTTP 503|operation was aborted due to timeout|F06 BFF preflight failed: Connection terminated unexpectedly(?:\r?\n|$))/.test(run.diagnostic??'');runs.push(run);
   if(run.status===0||!run.transient)break;
  }
  return runs;
@@ -161,7 +161,7 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1']) {
   if(spec.reproducibility)command.push('--output',resolve(external,'f01-reproducibility.json'));
   if(spec.output){command.push(resolve(out,spec.output));}
   const executedAt=new Date().toISOString();const execute=args=>spawnSync(command[0],args,{cwd:root,env,encoding:'utf8',timeout:spec.timeoutMs??900000,maxBuffer:32*1024*1024});let runs;
-  if(spec.target){runs=runTargetAttempts(attempt=>{const evidenceDir=resolve(external,'attempt-'+attempt);const run=execute([...command.slice(1),evidenceDir]);let diagnostic='';const summary=resolve(evidenceDir,'target-results.json');if(existsSync(summary)){const last=JSON.parse(readFileSync(summary)).results.at(-1);if(['auth-bff','auth-runtime'].includes(last?.name)&&last.exit_code!==0)diagnostic=readFileSync(resolve(evidenceDir,last.name+'.log'),'utf8');}return {...run,evidenceDir,diagnostic};},spec.maxAttempts);}else if(spec.transientDatabase)runs=runDatabaseAttempts(()=>{if(spec.measurement)rmSync(env.QUANTOS_F05_MEASUREMENTS_PATH,{force:true});return execute(command.slice(1));},spec.maxAttempts);else runs=[execute(command.slice(1))];
+  if(spec.target){runs=runTargetAttempts(attempt=>{const evidenceDir=resolve(external,'attempt-'+attempt);const run=execute([...command.slice(1),evidenceDir]);let diagnostic='';const summary=resolve(evidenceDir,'target-results.json');if(existsSync(summary)){const last=JSON.parse(readFileSync(summary)).results.at(-1);if(['preflight','auth-bff','auth-runtime'].includes(last?.name)&&last.exit_code!==0)diagnostic=readFileSync(resolve(evidenceDir,last.name+'.log'),'utf8');}return {...run,evidenceDir,diagnostic};},spec.maxAttempts);}else if(spec.transientDatabase)runs=runDatabaseAttempts(()=>{if(spec.measurement)rmSync(env.QUANTOS_F05_MEASUREMENTS_PATH,{force:true});return execute(command.slice(1));},spec.maxAttempts);else runs=[execute(command.slice(1))];
   const run=runs.at(-1);let output=runs.map((r,i)=>((spec.target||spec.transientDatabase)?'Target attempt '+(i+1)+' exit '+r.status+'\n':'')+(r.stdout??'')+(r.stderr??'')).join('\n');
   for(const [key,value]of Object.entries(env))if(value&&value.length>=6&&/PASSWORD|TOKEN|KEY|DATABASE_URL|TEST_EMAIL/i.test(key))output=output.split(value).join('[REDACTED]');
   const log=directory+'/logs/'+id+'.log';const result={id,command:spec.command,exitCode:run.status,status:run.status===0?'PASS':'FAIL',executedAt,log,logSha256:digest(output)};

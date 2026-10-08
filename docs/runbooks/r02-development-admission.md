@@ -19,3 +19,5 @@
 远程开发服务启动探针使用最多60秒墙钟预算，必须收到预期HTTP状态且进程仍存活才记READY；超时保持失败。该预算只允许初始化等待，不改行情source-age/readiness、新鲜度、原受控异常提交≤5s或任何发布P95标准。
 
 先执行`make bootstrap`同步`engines/.venv`。集成fixture直接启动其中的Python并持有/回收实际PID，错误路径使用kill_on_drop；不通过uv启动器再间接终止服务。本轮完整复评分配独立8位scope到fixture socket名称，最终独立检查本scope新进程；发现残留即FAIL，清理后仍保留failure，不影响其他scope或既有进程。
+
+只读F06 preflight的精确Connection terminated unexpectedly可按既定最多3次预算重跑完整target，保留所有失败尝试；权限、role、环境配置或业务断言失败不能重试为PASS。Linux进程命令读取使用ps -ww避免截断；平台部署验收仍独立。

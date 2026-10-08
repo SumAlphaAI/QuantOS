@@ -17,3 +17,5 @@
 须在提交修复后的干净源码上，以空的新attempt-02执行完整57项、14节点闭包；生成来源/内容绑定的工程DEVELOPMENT回执后，再校验R02自身和当前R01/F06/F0依赖。未完成前不写READY或正式ACCEPTED。C25/C26部署/性能及远程同SHA CI留在Beta，不在本轮重复发布评估。
 
 仅使用既有Supabase，不删除/重建现有事实；原授权1800秒、BTCUSDT/ETHUSDT、内部用途与2026-10-10T00:00:00Z到期保持。没有新真实provider ingestion或自动延长窗口。所有历史失败和metadata留存；本次commit仅本地，不推送。
+
+第二轮`attempt-02`在冻结55b4999完成3项后，因F06只读preflight瞬时PG断开保留FAIL；F09当前目标收尾后停止，全57未执行，owned scope残留0。修复有上限的preflight transport retry后，以新源码/空`attempt-03`复评。嵌套`supporting/r01-target/target`及`supporting/r02-target/target`受全局target/忽略规则影响，提交时须显式`git add -f`本轮这两个证据子树，禁止漏提交actor/coverage/血缘原件。
