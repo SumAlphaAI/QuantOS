@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-08）：c7a4d65 远程 CI 两处失败已定位并整改；本轮测试输入变更使14份旧开发回执失效，当前159节点NOT_ASSESSED。5547211的57/57历史执行、开发27/27与Supabase事实保留；当前C01需新内容复评，不重标旧证据。发布/正式范围不变。见[CI整改报告](./audit/CI-c7a4d65-remediation-2026-10-08.md)。
+> 当前工程状态（2026-10-08）：c6e55f6远程CI剩余共享角色创建错误已定位并整改，前次R02/F05与前端修复已获该SHA远程验证；当前159节点NOT_ASSESSED，5547211的57/57历史证据保留，当前C01待内容复评。发布/正式范围不变。见[CI续修报告](./audit/CI-c6e55f6-remediation-2026-10-08.md)。
 
 > 迁移时历史快照：2026-10-07 第二轮执行文档整理：8 份 P0/A1 验收规程及 R01/R02/UI 交付记录保留迁入 `docs/execution/`，同步活动引用与 R01/R02 读取路径；阶段准入与当前 G0 PENDING 状态保持不变。见[整理报告](./audit/Execution-document-organization-round2-2026-10-07.md)。
 
@@ -15,13 +15,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.46
+> 版本：3.47
 > 更新时间：2026-10-08
 > 状态：本轮CI测试输入变更后159节点NOT_ASSESSED；原57/57功能证据保留，当前准入待内容复评。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.47`：修复c6e55f6 CI同集群双库重建的共享角色重复创建，并补齐R02 API schema事务回放映射；历史迁移字节与checksum不变，权限/漂移/签名Gate保留。聚焦静态及已配置Supabase角色验证分别记账；当前159节点NOT_ASSESSED，不恢复旧准入或扩大范围。见[CI续修报告](./audit/CI-c6e55f6-remediation-2026-10-08.md)。
 
 - `3.46`：修复c7a4d65远程CI的R02破坏测试Cargo缓存污染与PRE-03版本检查遗漏；原14份开发回执因当前输入漂移不再有效，转NOT_ASSESSED并保留全部原件。没有降低Gate或重建数据库；功能完成状态、发布移交及历史正式确认不变。见[整改报告](./audit/CI-c7a4d65-remediation-2026-10-08.md)。
 

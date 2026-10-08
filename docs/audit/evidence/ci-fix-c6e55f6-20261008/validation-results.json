@@ -1,0 +1,138 @@
+{
+  "schema": "quantos-ci-fix-validation/v1",
+  "failedRemoteSource": "c6e55f67dede46e4d47eec0b7dcfc70bf0f15ab6",
+  "scope": "focused-local-checks-and-configured-supabase-role-regression",
+  "remoteFixedShaCI": "NOT_RUN",
+  "fullTwoDatabaseRebuild": "NOT_RUN",
+  "fullReplay": "NOT_RUN",
+  "results": [
+    {
+      "id": "db-migration-check",
+      "command": [
+        "make",
+        "db-migration-check"
+      ],
+      "scope": "static-only",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "db-migration-check.log"
+    },
+    {
+      "id": "migration-unit-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/db-migration-sql.test.cjs",
+        "scripts/db-uuid-defaults.test.cjs"
+      ],
+      "scope": "static-only",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "migration-unit-tests.log"
+    },
+    {
+      "id": "configured-role-test",
+      "command": [
+        "node",
+        "--env-file=.env.local",
+        "--test",
+        "scripts/db-migration-roles.test.cjs"
+      ],
+      "scope": "configured-supabase",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "configured-role-test.log",
+      "environmentOverrides": {
+        "QUANTOS_RUN_MIGRATION_ROLE_TESTS": "1"
+      },
+      "fixtureCleanup": "ROLLED_BACK_AND_ABSENT"
+    },
+    {
+      "id": "f02-check",
+      "command": [
+        "make",
+        "f02-check"
+      ],
+      "scope": "local-static-and-rejection",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "f02-check.log",
+      "tests": 24,
+      "passed": 23,
+      "failed": 0,
+      "skipped": 1,
+      "databaseBucketTest": "NOT_RUN",
+      "environmentOverrides": {
+        "GITLEAKS_BIN": "artifacts/tools/gitleaks"
+      }
+    },
+    {
+      "id": "r02-source-check",
+      "command": [
+        "node",
+        "scripts/check-r02.mjs"
+      ],
+      "scope": "static-only",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "r02-source-check.log"
+    },
+    {
+      "id": "r02-stage-check",
+      "command": [
+        "node",
+        "scripts/r02-stage-check.mjs"
+      ],
+      "scope": "component-policy-only",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "r02-stage-check.log"
+    },
+    {
+      "id": "plans-check",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "scope": "static-only",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "plans-check.log"
+    },
+    {
+      "id": "plans-negative",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ],
+      "scope": "local-rejection",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "plans-negative.log"
+    },
+    {
+      "id": "ci-disposition-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/ci-stage-disposition.test.mjs"
+      ],
+      "scope": "local-rejection",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "ci-disposition-tests.log"
+    },
+    {
+      "id": "f0-disposition",
+      "command": [
+        "node",
+        "scripts/ci-stage-disposition.mjs",
+        "CORE-GATE:F0"
+      ],
+      "scope": "component-record-only",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "f0-disposition.log"
+    }
+  ]
+}

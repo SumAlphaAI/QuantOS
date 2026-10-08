@@ -35,6 +35,9 @@ async function main(){
    // Explicit Supabase API grants fixture: RLS, not a missing SQL grant, must deny.
    await c.query(`grant usage on schema quantos to authenticated,anon; grant select,insert,update,delete on all tables in schema quantos to authenticated,anon;`);
   }
+  const roleTest=spawnSync(process.execPath,['--test',path.join(root,'scripts/db-migration-roles.test.cjs')],{cwd:root,env:{...process.env,DATABASE_URL:urls[0],QUANTOS_RUN_MIGRATION_ROLE_TESTS:'1'},encoding:'utf8',timeout:60000});
+  if(roleTest.status!==0)throw Error(`Cluster role regression failed: ${roleTest.stdout}${roleTest.stderr}`);
+  receipt.checks.push('cluster-shared snapshot role reuse, unsafe role rejection and transactional fixture cleanup');
   const c=clients[0];
   const alias=new URL(urls[0]);alias.searchParams.set('application_name','f02-reference-alias');
   const self=spawnSync(process.execPath,[path.join(root,'scripts/db-cli.cjs'),'schema-diff'],{cwd:root,env:{...process.env,DATABASE_URL:urls[0],QUANTOS_REFERENCE_DATABASE_URL:alias.toString()},encoding:'utf8'});

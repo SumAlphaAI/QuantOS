@@ -416,6 +416,7 @@ db-reset: ensure-node
 	bash ./scripts/db-reset.sh
 
 db-migration-check:
+	node --test scripts/db-migration-sql.test.cjs
 	bash ./scripts/check-migration-filenames.sh
 	bash ./scripts/check-rls-baseline.sh
 

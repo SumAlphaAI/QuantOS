@@ -1,0 +1,84 @@
+node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/playwright-git-history.test.mjs scripts/storage-fixture.test.cjs
+✔ complete Linux matrix passes; deletion and pixel tampering fail (392.522625ms)
+✔ acceptance never updates snapshots or skips missing snapshots (0.903958ms)
+✔ only main signing and verification jobs receive the signing environment (10.03525ms)
+✔ signing policy rejects missing protection, wildcards, tags and extra branches (0.250791ms)
+✔ candidate import rejects tampering and stale source before writing, then imports the reviewed matrix (364.853125ms)
+✔ required download check rejects skipped or failed event-specific verification (22.902875ms)
+✔ PR receipts bind the checked out head while main signing stays on the event SHA (3.55675ms)
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Verified 2 release files for aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+✖ real Gitleaks positive control and GitHub/Slack leaks (38.805875ms)
+✖ historical digest exceptions do not waive fresh credentials in audit JSON (37.987209ms)
+✔ RLS baseline rejects policy deletion and late disabling with recovery (189.73425ms)
+✔ RLS preflight recognizes the actual ten-table A2 migration and rejects incomplete loops (146.130959ms)
+✔ RLS preflight expands audit export permissions without treating grants as RLS (146.456834ms)
+✔ RLS literal loops preserve late disabling, NO FORCE and policy deletion (144.482416ms)
+✔ RLS preflight cannot count conditional loops, comments, literals or function bodies as execution (162.789875ms)
+✔ quoted SQL examples inside expanded policy expressions cannot enable RLS (25.035958ms)
+✔ migration filename control, rejection and recovery (16.056375ms)
+✔ waivers only authorize exact advisory/ecosystem/package/version before expiry (1.186709ms)
+✔ license expression policy does not globally allow LGPL or unknown licenses (0.356667ms)
+✔ release binds complete payload and SBOM to source; rejects corruption and build-only native files (3.847333ms)
+✔ Buf compares against distinct historical source and detects removed fields (660.975542ms)
+✔ SCA scanner adapter consumes exact waivers and never waives scanner failures (1385.130459ms)
+✔ Playwright PR reporting preserves complete history for downstream security scans (1626.631917ms)
+✔ all bucket migration INSERT columns exist in the shared CI fixture (0.377333ms)
+﹣ PostgreSQL compiles bucket migrations and preserves private export limits (0.041875ms) # SKIP
+ℹ tests 24
+ℹ suites 0
+ℹ pass 21
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 3003.373791
+
+✖ failing tests:
+
+test at scripts/f02-gate-negative.mjs:16:1
+✖ real Gitleaks positive control and GitHub/Slack leaks (38.805875ms)
+  AssertionError [ERR_ASSERTION]: /Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-secrets.sh: line 5: gitleaks: command not found
+  Expected Gitleaks 8.28.0
+  
+  
+  2 !== 0
+  
+      at pass (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:14:25)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:22:2)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/f02-gate-negative.mjs:29:1
+✖ historical digest exceptions do not waive fresh credentials in audit JSON (37.987209ms)
+  AssertionError [ERR_ASSERTION]: /Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-secrets.sh: line 5: gitleaks: command not found
+  Expected Gitleaks 8.28.0
+  
+  
+  2 !== 0
+  
+      at pass (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:14:25)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/f02-gate-negative.mjs:35:87)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+make: *** [f02-check] Error 1

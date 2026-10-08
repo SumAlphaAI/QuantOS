@@ -7,6 +7,7 @@ const { Client } = require("pg");
 
 const repoRoot = process.env.QUANTOS_GATE_ROOT || path.resolve(__dirname, "..");
 const { schemaState, assertSchemaMatches } = require("./db-schema-state.cjs");
+const { migrationSql, replayMigrationSql } = require("./db-migration-sql.cjs");
 const migrationsDir = path.join(repoRoot, "supabase", "migrations");
 const migrationsTable = "quantos.schema_migrations";
 
@@ -113,7 +114,7 @@ async function applyMigrations() {
 
       const sql = fs.readFileSync(path.join(migrationsDir, filename), "utf8");
       console.log(`Applying migration: ${filename}`);
-      await client.query(sql);
+      await client.query(migrationSql(filename, sql));
       await client.query(
         `insert into ${migrationsTable} (filename, sha256) values ($1,$2);`,
         [filename, checksum],
@@ -193,9 +194,7 @@ async function replayMigrationsInIsolatedSchema() {
     try {
       for (const filename of migrationFiles) {
         const source = fs.readFileSync(path.join(migrationsDir, filename), "utf8");
-        const isolatedSql = source
-          .replace(/^\s*(begin|commit)\s*;\s*$/gim, "")
-          .replace(/\bquantos\b/g, replaySchema);
+        const isolatedSql = replayMigrationSql(filename, source, replaySchema);
         await client.query(isolatedSql);
       }
 
@@ -445,7 +444,7 @@ function connectionHint(error) {
   return null;
 }
 
-module.exports = { assertMigrationLedgerMatches };
+module.exports = { assertMigrationLedgerMatches, buildClientConfig };
 
 if (require.main === module) {
   main().catch((error) => {

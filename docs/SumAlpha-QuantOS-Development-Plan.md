@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-08）：c7a4d65 远程 CI 两处失败已定位并整改；本轮测试输入变更使14份旧开发回执失效，当前159节点NOT_ASSESSED。5547211的57/57历史执行、开发27/27与Supabase事实保留；当前C01需新内容复评，不重标旧证据。发布/正式范围不变。见[CI整改报告](./audit/CI-c7a4d65-remediation-2026-10-08.md)。
+> 当前工程状态（2026-10-08）：c6e55f6远程CI剩余共享角色创建错误已定位并整改，前次R02/F05与前端修复已获该SHA远程验证；当前159节点NOT_ASSESSED，5547211的57/57历史证据保留，当前C01待内容复评。发布/正式范围不变。见[CI续修报告](./audit/CI-c6e55f6-remediation-2026-10-08.md)。
 
 > 迁移时历史快照：2026-10-07 执行文档目录整理：25 份 BFF/PRE/Desktop 准备产物保留并迁入 `docs/execution/`；读取脚本及输入策略已同步。原 26 READY 和 `52fee5f6e499` 确认为迁移前历史记录，当前受影响功能准入均为 NOT_ASSESSED，需独立内容复评。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
@@ -17,14 +17,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.40
+> 版本：3.41
 > 更新时间：2026-10-08
 > 状态：技术执行基线  
-> 本轮变更：隔离R02破坏测试编译产物，同步PRE-03安全补丁版本；严格内容漂移拒绝保留，14份旧阶段回执转为NOT_ASSESSED，原功能完成状态与历史证据保留。
+> 本轮变更：修复F02共享角色初始化与R02 API schema回放映射，保持历史迁移/checksum和当前NOT_ASSESSED；原功能完成状态与历史证据保留。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.41`：修复c6e55f6 CI同集群双库重建的共享角色重复创建，并补齐R02 API schema事务回放映射；历史迁移字节与checksum不变，权限/漂移/签名Gate保留。聚焦静态及已配置Supabase角色验证分别记账；当前159节点NOT_ASSESSED，不恢复旧准入或扩大范围。见[CI续修报告](./audit/CI-c6e55f6-remediation-2026-10-08.md)。
 
 - `3.40`：修复c7a4d65远程CI的R02破坏测试Cargo缓存污染与PRE-03版本检查遗漏；原14份开发回执因当前输入漂移不再有效，转NOT_ASSESSED并保留全部原件。没有降低Gate或重建数据库；功能完成状态、发布移交及历史正式确认不变。见[整改报告](./audit/CI-c7a4d65-remediation-2026-10-08.md)。
 
