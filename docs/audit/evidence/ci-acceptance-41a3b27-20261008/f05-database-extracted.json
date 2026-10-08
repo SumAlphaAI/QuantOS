@@ -1,0 +1,42 @@
+{
+  "extractedFrom": "f05-database-ci.log",
+  "receipt": {
+    "schema": "quantos-f05-acceptance/v1",
+    "status": "PASS",
+    "passed": true,
+    "targetClass": "disposable-loopback-postgresql",
+    "source": "41a3b27af9f19229d549c604b43956354ffeb212",
+    "dirty": false,
+    "migrationDigest": "sha256:0f97f8e1c0d2cc36cfd544d371b99400c454498af48cf8c3e4a00969fcdb9c92",
+    "startedAt": "2026-10-08T10:44:01.233Z",
+    "acceptance": {
+      "eventCount": 10000,
+      "concurrentDeliveryAttempts": 1000,
+      "correlationLookupBudgetSeconds": 5,
+      "rlsRoles": [
+        "anon",
+        "authenticated",
+        "service_role"
+      ],
+      "storageRoundTrip": "not-applicable"
+    },
+    "checks": [
+      "fresh migration rebuild",
+      "RLS, FORCE RLS, policy and privileged-path catalog checks",
+      "fencing, tenant replay, append-only, dead-letter replay, realtime recovery, 1,000 concurrency and 10,000-event consistency",
+      "PostgreSQL artifact, schema-registry and snapshot persistence"
+    ],
+    "measurements": {
+      "appliedReceipts": 10000,
+      "checkpointNextSequence": 10001,
+      "consumerPath": "PgEventStore::poll_outbox_once",
+      "consumptionMillis": 3658,
+      "correlationLookupMillis": 169.418095,
+      "dispatched": 10000,
+      "eventCount": 10000,
+      "lookupScope": "complete-client-retrieval",
+      "uniqueSideEffects": 10000
+    },
+    "completedAt": "2026-10-08T10:44:15.714Z"
+  }
+}
