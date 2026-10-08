@@ -1,0 +1,20 @@
+
+running 1 test
+test supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter ... FAILED
+
+failures:
+
+failures:
+    supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.15s
+
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.69s
+     Running tests/postgres_ingestion.rs (target/debug/deps/postgres_ingestion-4d43b87424483617)
+
+thread 'supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter' (1165750) panicked at crates/quantos-market/tests/postgres_ingestion.rs:37:86:
+called `Result::unwrap()` on an `Err` value: Store(Postgres(Error { kind: Tls, cause: Some(Error { code: -67901, message: "The validity period in the certificate exceeds the maximum allowed." }) }))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p quantos-market --test postgres_ingestion`

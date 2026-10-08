@@ -377,6 +377,29 @@ fn postgres_runtime_records_cancel_and_timeout_audits() {
         1
     );
 
+    // Equal business timestamps must retain serialized database insertion order.
+    let mut audit_client = connect_client(&database_url).expect("audit sequence query connects");
+    let sequences = audit_client
+        .query_typed(
+            "select append_sequence, recorded_at from quantos.audit_entries
+         where tenant_id=$1 and details->>'workflow_run_id'=$2
+         order by append_sequence",
+            &[
+                (fixture.auth.tenant_id.as_uuid(), Type::UUID),
+                (&cancellable.workflow_run_id.to_string(), Type::TEXT),
+            ],
+        )
+        .expect("actual audit sequence query succeeds");
+    assert_eq!(sequences.len(), 2);
+    assert!(sequences[0].get::<_, i64>("append_sequence") > 0);
+    assert!(
+        sequences[1].get::<_, i64>("append_sequence")
+            > sequences[0].get::<_, i64>("append_sequence")
+    );
+    assert_eq!(
+        sequences[0].get::<_, chrono::DateTime<Utc>>("recorded_at"),
+        sequences[1].get::<_, chrono::DateTime<Utc>>("recorded_at")
+    );
     let cancel_actions = store
         .audit_actions_for_run(cancellable.workflow_run_id)
         .expect("cancel audit query succeeds");

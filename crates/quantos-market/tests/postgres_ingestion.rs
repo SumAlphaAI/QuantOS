@@ -195,19 +195,27 @@ fn supabase_atomic_restart_conflict_concurrency_replay_and_dead_letter() {
             .unwrap()
     );
     let consumer = "r01-market-projection";
-    let failed = store
-        .poll_outbox_once(
-            "r01-test",
-            consumer,
-            100,
-            Utc::now() + chrono::Duration::seconds(6),
-            chrono::Duration::seconds(30),
-            1,
-            |_, _| Err("injected".into()),
-            |_| Ok(()),
-        )
-        .unwrap();
-    assert_eq!(failed.dead_lettered, 8);
+    // Poison outcomes take multiple remote transactions. Acquire each event's
+    // existing 30-second lease immediately before handling it; this functional
+    // test does not require all eight failures to fit one batch's wall clock.
+    let mut dead_lettered = 0;
+    for _ in 0..8 {
+        let failed = store
+            .poll_outbox_once(
+                "r01-test",
+                consumer,
+                1,
+                Utc::now() + chrono::Duration::seconds(6),
+                chrono::Duration::seconds(30),
+                1,
+                |_, _| Err("injected".into()),
+                |_| Ok(()),
+            )
+            .unwrap();
+        assert_eq!(failed.claimed, 1);
+        dead_lettered += failed.dead_lettered;
+    }
+    assert_eq!(dead_lettered, 8);
     let dead = store.dead_letters(tenant, consumer).unwrap();
     assert_eq!(dead.len(), 16);
     let dead = dead

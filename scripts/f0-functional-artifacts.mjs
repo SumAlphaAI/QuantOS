@@ -5,20 +5,21 @@ import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {verifyBracesBackport,isBracesBackportFinding} from './braces-backport.mjs';
 import {createRequire} from 'node:module';
+const {validateBootstrap}=createRequire(import.meta.url)('./lib/postgres-bootstrap.cjs');
 const {validateLoginAttempts}=createRequire(import.meta.url)('./lib/auth-login-retry.cjs');
 export function validateF0Artifact(kind,path,source){
  const r=JSON.parse(readFileSync(path));assert.equal(r.sourceCommit??r.source,source,'F0 artifact source differs');
  if(kind==='f02-database'){assert.equal(r.schema,'quantos-f02-development-database/v1');assert.equal(r.status,'PASS');assert.equal(r.targetClass,'configured-supabase');assert.equal(r.formalAccepted,false);assert.equal(r.fullReferenceRebuild,false);assert.equal(r.checks.length,7);}
  else if(kind==='f02-sca'){assert.equal(r.status,'PASS');assert.equal(r.passed,true);assert.deepEqual(Object.keys(r.scanners).sort(),['cargo','cargo-desktop','npm','pypi']);const proof=verifyBracesBackport(resolve(import.meta.dirname,'..'));assert.deepEqual(r.bracesBackport,proof,'SCA backport proof differs');assert(Object.values(r.scanners).every(c=>c.status==='PASS'&&c.findings.every(f=>f.waived||(f.backportVerified&&isBracesBackportFinding(f,proof)))),'unwaived vulnerabilities');}
  else if(kind==='f07-recovery'||kind==='f07-coverage'){
-  assert.equal(r.schema,'quantos-f07-acceptance/v1');assert.equal(r.status,'DIAGNOSTIC_ONLY');assert.equal(r.targetPostgresMajor,17);assert(r.targetProjectRefHash);const m=r.measurements;assert.equal(m.schema,'quantos-f07-recovery-measurements/v1');assert.equal(m.recoveryCompleted,true);
+  validateBootstrap(r.bootstrapConnection);assert.equal(r.schema,'quantos-f07-acceptance/v1');assert.equal(r.status,'DIAGNOSTIC_ONLY');assert.equal(r.targetPostgresMajor,17);assert(r.targetProjectRefHash);const m=r.measurements;assert.equal(m.schema,'quantos-f07-recovery-measurements/v1');assert.equal(m.recoveryCompleted,true);
   for(const key of ['scheduledRuns','recoveredRuns','uniqueArtifactBindings'])assert.equal(m[key],kind==='f07-recovery'?100:10,'checkpoint/Artifact count differs');
   assert(r.checks.some(c=>kind==='f07-recovery'?c.includes('100 task recoveries after an OS-killed worker'):c.includes('diagnostic coverage')),'actual recovery/coverage check missing');
   if(kind==='f07-coverage')execFileSync(process.execPath,[resolve(import.meta.dirname,'f07-coverage-check.cjs'),resolve(dirname(path),'coverage.json')],{encoding:'utf8'});
  }
  else if(kind==='f07-service'){
   assert.equal(r.schema,'quantos-f07-target-service/v1');assert.equal(r.targetClass,'configured-supabase-local-service-development');assert.equal(r.status,'DIAGNOSTIC_ONLY');assert.equal(r.engineeringStatus,'PASS');assert.equal(r.formalAccepted,false);assert.equal(r.checks.length,6);assert.equal(r.storageCredentialScope,'temporary-admin-key');assert(r.checks.some(c=>c.includes('separate real Auth tenant denied')));assert(r.checks.some(c=>c.includes('logout revokes')));assert.deepEqual(r.excluded,['deployed HTTPS','restricted Runtime Storage credential','scheduling P95','hosted CI']);
-  validateLoginAttempts(r.authLoginRequests);
+  validateBootstrap(r.bootstrapConnection);validateLoginAttempts(r.authLoginRequests);
   const cleanup=r.fixtureCleanup;assert.equal(cleanup?.status,'PASS');assert.equal(cleanup.metadata,'RETAINED');assert.deepEqual(cleanup.failures,[]);
   assert(Array.isArray(cleanup.sessionRetirements)&&cleanup.sessionRetirements.some(s=>s.kind==='separate'&&[204,401].includes(s.status)),'separate fixture session retirement missing');
   assert(cleanup.sessionRetirements.every(s=>[204,401].includes(s.status)),'fixture session retirement failed');

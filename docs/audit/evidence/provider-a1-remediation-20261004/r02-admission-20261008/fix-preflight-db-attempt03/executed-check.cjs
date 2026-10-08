@@ -1,0 +1,24 @@
+// Actual existing Supabase only; retain hashes for all pre-existing audit rows.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const {createRequire}=require('node:module');const {spawnSync}=require('node:child_process');
+const root='/Users/anray/Documents/project/SumAlpha/QuantOS';const {Client}=createRequire(root+'/package.json')('pg');
+process.loadEnvFile(root+'/.env.local');
+const u=new URL(process.env.DATABASE_URL);if(!u.hostname.endsWith('.supabase.com'))throw Error('configured Supabase required');
+const redact=text=>{for(const [key,value]of Object.entries(process.env))if(value&&value.length>=6&&/PASSWORD|TOKEN|KEY|DATABASE_URL|TEST_EMAIL/i.test(key))text=text.split(value).join('[REDACTED]');return text;}; const output=process.argv[2];if(!output||fs.existsSync(output))throw Error('new integrity output required');
+const r={schema:'quantos-audit-sequence-migration-integrity/v1',status:'RUNNING',formalAccepted:false,startedAt:new Date().toISOString(),backfillExecuted:false};
+const q="select count(*)::int as count, md5(string_agg(md5((to_jsonb(a)-'append_sequence')::text),'' order by id)) as content_hash from quantos.audit_entries a where id=any($1::uuid[])";
+(async()=>{let client;try{client=new Client({host:u.hostname,port:Number(u.port||5432),user:decodeURIComponent(u.username),password:decodeURIComponent(u.password),database:u.pathname.slice(1),ssl:{ca:fs.readFileSync(process.env.QUANTOS_BFF_SSLROOTCERT,'utf8'),rejectUnauthorized:true},connectionTimeoutMillis:10000,query_timeout:310000,application_name:'quantos-r02-audit-integrity'});await client.connect();console.log('CONNECTED');await client.query("set statement_timeout='300s'");
+ console.log('SESSION_CONFIGURED');r.backendBefore=(await client.query('select pg_backend_pid() as pid')).rows[0].pid;
+ console.log('BASELINE_COPY_STARTED');await client.query("create temporary table r02_audit_baseline as select id, to_jsonb(a) as original from quantos.audit_entries a");
+ console.log('BASELINE_COPIED');await client.query('create unique index on r02_audit_baseline(id)');
+ console.log('BASELINE_INDEXED');r.before=(await client.query("select count(*)::int as count, md5(string_agg(md5(original::text),'' order by id)) as content_hash from r02_audit_baseline")).rows[0];
+ if(r.before.count===0)throw Error('nonvacuous historical inventory required');
+ fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(r,null,2)+'\n');
+ console.log('BASELINE_RECORDED');const migration='20261008090000_f07_audit_append_sequence.sql';r.migration={path:'supabase/migrations/'+migration,sha256:crypto.createHash('sha256').update(fs.readFileSync(root+'/supabase/migrations/'+migration)).digest('hex')};
+ const applied=spawnSync(process.execPath,['scripts/db-cli.cjs','apply'],{cwd:root,env:process.env,encoding:'utf8',maxBuffer:8*1024*1024});fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(path.dirname(output)+'/migration-apply.log',redact((applied.stdout??'')+(applied.stderr??'')));if(applied.status!==0)throw Error('forward migration apply failed');
+ r.backendAfter=(await client.query('select pg_backend_pid() as pid')).rows[0].pid;
+ if(r.backendBefore!==r.backendAfter)throw Error('same database session required');
+ r.comparison=(await client.query("select count(*)::int as baseline_count, count(a.id)::int as retained_count, count(*) filter (where a.id is not null and (to_jsonb(a)-'append_sequence')=b.original)::int as unchanged_count, count(*) filter(where a.append_sequence is null and a.id is not null)::int as historical_null_count from r02_audit_baseline b left join quantos.audit_entries a using(id)")).rows[0];
+ if(Object.values(r.comparison).some(n=>n!==r.before.count))throw Error('historical audit content or NULL boundary changed');
+ r.ledger=(await client.query('select filename,sha256 from quantos.schema_migrations where filename=$1',[migration])).rows[0];if(!r.ledger||r.ledger.sha256!==r.migration.sha256)throw Error('actual migration checksum differs');r.status='PASS';
+ }catch(e){r.status='FAIL';r.errorCode=e.code??'INTEGRITY_CHECK_FAILED';console.error(r.errorCode);}finally{if(client)await client.end().catch(()=>{});r.completedAt=new Date().toISOString();fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(r,null,2)+'\n');if(r.status!=='PASS')process.exitCode=1;console.log('AUDIT_SEQUENCE_INTEGRITY '+r.status);}})();

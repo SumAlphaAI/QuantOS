@@ -830,7 +830,7 @@ impl PgRuntimeStore {
             "select action
              from quantos.audit_entries
              where details ->> 'workflow_run_id' = $1
-             order by recorded_at asc",
+             order by recorded_at asc, append_sequence asc nulls first, id asc",
             &[(&run_id.to_string(), Type::TEXT)],
         )?;
         Ok(rows.into_iter().map(|row| row.get("action")).collect())

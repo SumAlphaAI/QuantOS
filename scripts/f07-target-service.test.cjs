@@ -55,7 +55,7 @@ test('missing, excessive and unfinished Auth attempts cannot establish acceptanc
 
 function receipt() {
   const actorId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', tenantId = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
-  return { schema: 'quantos-f07-target-service/v1', sourceCommit: 'a'.repeat(40), targetClass: 'configured-supabase-local-service-development',
+  return { bootstrapConnection:{schema:'quantos-postgres-bootstrap/v1',phase:'BEFORE_STATEMENTS',status:'PASS',maxAttempts:3,attempts:[{attempt:1,status:'PASS',transient:false,elapsedMs:1}]}, schema: 'quantos-f07-target-service/v1', sourceCommit: 'a'.repeat(40), targetClass: 'configured-supabase-local-service-development',
     status: 'DIAGNOSTIC_ONLY', engineeringStatus: 'PASS', formalAccepted: false, storageCredentialScope: 'temporary-admin-key',
     checks: ['one', 'two', 'three', 'four', 'separate real Auth tenant denied', 'logout revokes'],
     excluded: ['deployed HTTPS', 'restricted Runtime Storage credential', 'scheduling P95', 'hosted CI'],

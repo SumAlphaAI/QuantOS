@@ -833,7 +833,10 @@
       "output": "supporting/r01-target/receipt.json",
       "artifactKind": "r01-target",
       "timeoutMs": 1800000,
-      "marker": "R1_DEVELOPMENT_TARGET_PASS CORE:R01"
+      "marker": "R1_DEVELOPMENT_TARGET_PASS CORE:R01",
+      "env": {
+        "QUANTOS_R01_VERIFY_FULL": "1"
+      }
     },
     "r1-receipt-negative": {
       "command": [
@@ -843,7 +846,8 @@
         "scripts/provider-a1-receipts.test.mjs",
         "scripts/r02-stage-check.test.mjs",
         "scripts/test-engine-processes.test.cjs",
-        "scripts/f07-target-service.test.cjs"
+        "scripts/f07-target-service.test.cjs",
+        "scripts/postgres-bootstrap.test.cjs"
       ],
       "staticOnly": true,
       "marker": "fail 0",

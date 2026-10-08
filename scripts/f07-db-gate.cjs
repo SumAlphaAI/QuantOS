@@ -3,6 +3,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { execFileSync, spawnSync } = require('node:child_process');
 const { Client } = require('pg');
+const {connectBeforeStatements}=require('./lib/postgres-bootstrap.cjs');
+const observeClientErrors=require('./lib/target-client-errors.cjs');
 
 const root = path.resolve(__dirname, '..');
 const runKind = process.env.QUANTOS_F07_MIGRATION_ONLY === '1' ? 'migration-only'
@@ -51,14 +53,17 @@ function targetConfig() {
 async function main() {
   const target = targetConfig();
   const url = target.url;
-  const client = new Client({
+  receipt.bootstrapConnection = {};
+  const client = await connectBeforeStatements(() => new Client({
     host: url.hostname, port: Number(url.port || 5432),
     user: decodeURIComponent(url.username), password: decodeURIComponent(url.password),
     database: url.pathname.slice(1) || 'postgres',
     ssl: { ca: fs.readFileSync(target.caPath, 'utf8'), rejectUnauthorized: true },
     connectionTimeoutMillis: 10000,
+  }), {record:receipt.bootstrapConnection,onAttempt:save});
+  const assertDatabaseHealthy=observeClientErrors(client,()=>{
+    receipt.status='FAIL';receipt.error='Target database connection failed outside a query';save();
   });
-  await client.connect();
   try {
     const info = (await client.query(`select current_setting('server_version_num')::int as version,
       exists(select 1 from pg_namespace where nspname='auth') as has_auth,
@@ -133,6 +138,7 @@ async function main() {
     receipt.status = 'PASS';
   } finally {
     await client.end();
+    assertDatabaseHealthy();
   }
 }
 save();

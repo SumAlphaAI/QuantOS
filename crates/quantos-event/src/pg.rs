@@ -1,10 +1,10 @@
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
-use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{
     Client, NoTls, Row, Transaction,
     types::{Json, Type},
 };
-use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector;
 use std::time::{Duration, Instant};
 use thiserror::Error;
 use url::Url;
@@ -77,7 +77,7 @@ pub enum PgEventStoreError {
     #[error(transparent)]
     Url(#[from] url::ParseError),
     #[error(transparent)]
-    Tls(#[from] native_tls::Error),
+    Tls(#[from] openssl::error::ErrorStack),
     #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error(transparent)]
@@ -1174,7 +1174,7 @@ impl PgEventStore {
             "select id, tenant_id, actor_id, correlation_id, causation_id, event_id, action, details, recorded_at
              from quantos.audit_entries
              where tenant_id = $1 and correlation_id = $2
-             order by recorded_at asc",
+             order by recorded_at asc, append_sequence asc nulls first, id asc",
             &[
                 (tenant_id.as_uuid(), Type::UUID),
                 (correlation_id.as_uuid(), Type::UUID),
@@ -1500,13 +1500,21 @@ fn connect_client(database_url: &str) -> Result<Client, PgEventStoreError> {
     if disable_tls || (local && !explicit_tls_mode) {
         Ok(config.connect(NoTls)?)
     } else {
-        let mut builder = TlsConnector::builder();
+        // Use the same verified connector as Runtime across macOS and Linux.
+        // Explicit require/prefer keeps its existing encrypted-only semantics.
+        let mut builder = SslConnector::builder(SslMethod::tls())?;
         if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
-        } else if let Some(root) = root {
-            builder.add_root_certificate(native_tls::Certificate::from_pem(&std::fs::read(root)?)?);
+            builder.set_verify(SslVerifyMode::NONE);
+        } else {
+            builder.set_verify(SslVerifyMode::PEER);
+            if let Some(root) = root {
+                std::fs::metadata(&root)?;
+                builder.set_ca_file(root)?;
+            } else {
+                builder.set_default_verify_paths()?;
+            }
         }
-        let connector = builder.build()?;
+        let connector = builder.build();
         config.ssl_mode(postgres::config::SslMode::Require);
         Ok(config.connect(MakeTlsConnector::new(connector))?)
     }

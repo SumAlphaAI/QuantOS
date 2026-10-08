@@ -1,3 +1,4 @@
+const {connectBeforeStatements}=require('./lib/postgres-bootstrap.cjs');
 const { runAuthLoginAttempts } = require('./lib/auth-login-retry.cjs');
 const ready = require('./lib/service-readiness.cjs');
 const observeClientErrors = require('./lib/target-client-errors.cjs');
@@ -159,12 +160,8 @@ async function seed(db, userId) {
 
 async function main() {
   const api = target();
-  const db = adminClient();
-  const assertDatabaseHealthy = observeClientErrors(db, () => {
-    receipt.status = 'FAIL';
-    receipt.databaseError = 'Target database connection failed outside a query';
-    save();
-  });
+  let db;
+  let assertDatabaseHealthy = () => {};
   let tenantId;
   let bff;
   let runtime;
@@ -172,7 +169,13 @@ async function main() {
   let otherCookie;
   try {
     receipt.phase = 'database-connect'; save();
-    await db.connect();
+    receipt.bootstrapConnection = {};
+    db = await connectBeforeStatements(adminClient, {record:receipt.bootstrapConnection,onAttempt:save});
+    assertDatabaseHealthy = observeClientErrors(db, () => {
+      receipt.status = 'FAIL';
+      receipt.databaseError = 'Target database connection failed outside a query';
+      save();
+    });
     const bucket = (await db.query(`select exists(
       select 1 from storage.buckets where id='quantos-artifacts' and public=false
     ) as private_bucket`)).rows[0];
@@ -334,7 +337,7 @@ async function main() {
       }
     } catch (error) { cleanup.failures.push(redact(error.message)); }
     finally {
-      try { await db.end(); } catch (error) { cleanup.failures.push(redact(error.message)); }
+      try { if (db) await db.end(); } catch (error) { cleanup.failures.push(redact(error.message)); }
     }
     cleanup.completedAt = new Date().toISOString();
     cleanup.status = cleanup.failures.length === 0 ? 'PASS' : 'FAIL';

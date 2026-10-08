@@ -1,0 +1,3 @@
+# Local fix preflight
+
+HEAD 40e11b8 with dirty source; not admission. Node114 PASS and focused29 PASS, fmt/Clippy/all-targets PASS. Only initial PostgreSQL connection establishment has max3 transport attempts; no SQL/write replay. New forward append-sequence migration: all337443 old audit IDs and original JSON fields unchanged, old sequence NULL, actual ledger hash matches. All initial pre-read failures and query-cancel intent retained. Actual equal-time cancel/timeout PG regression PASS, fixture pending0. R01 preflight uses mocks, original30s leases and unchanged controlled anomaly≤5s, four owned actors must be inactive. Full admission must use a fresh frozen-source run.

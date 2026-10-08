@@ -8,6 +8,11 @@ const sourceHashesNow=()=>Object.fromEntries(sourceFiles.map(p=>[p,crypto.create
 function run(args,extra={}){const result=spawnSync('cargo',args,{env:{...process.env,...extra},encoding:'utf8',timeout:600000,maxBuffer:16*1024*1024});fs.appendFileSync(path.join(output,'target-tests.log'),(result.stdout||'')+(result.stderr||''));if(result.status!==0)throw Error('R01_TARGET_TEST_FAILED');}
 async function main(){
  process.env.DATABASE_URL=targetUrl();
+ if(process.env.QUANTOS_R01_VERIFY_FULL==='1'){
+  const u=new URL(process.env.DATABASE_URL),ca=u.searchParams.get('sslrootcert')||process.env.QUANTOS_BFF_SSLROOTCERT;
+  if(!ca||!path.isAbsolute(ca)||!fs.existsSync(ca))throw Error('R01_VERIFIED_CA_REQUIRED');
+  u.searchParams.set('sslmode','verify-full');u.searchParams.set('sslrootcert',ca);process.env.DATABASE_URL=u.toString();
+ }
  run(['test','-p','quantos-market','-p','market-ingestor','--locked','--no-run']);
  client=databaseClient(process.env.DATABASE_URL);await client.connect();
  const migration=await client.query("select sha256 from quantos.schema_migrations where filename='20261002090000_r01_atomic_source_receipt.sql'");
