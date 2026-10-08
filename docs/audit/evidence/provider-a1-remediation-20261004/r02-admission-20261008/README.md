@@ -25,3 +25,5 @@
 后续F07修复只对password-token登录传输超时/已知连接关闭最多重试3次，记录每次失败；创建身份、角色/HTTP拒绝、缺token、显式取消和业务断言不重试。新增phase/确切fixture ID，成功失败路径都停用自身actor、核验session retirement及两个本地服务PID回收；清理失败拒绝。控制器保存失败artifact原件，不只有一行错误。
 
 `fix-preflight-f07`为未提交修复源码下的实际Supabase预检：63项针对性Node测试、真实Auth/BFF/Runtime/worker/Storage与六组功能检查通过，自己的actor inactive、foreign fixture session HTTP204、两服务PID回收。`source-state.json`记录实际字节和dirty源码；该预检不计同SHA准入。修复提交后须以空`attempt-04`重新完整57项，不改旧目标源码SHA。
+
+第四轮 `attempt-04` 冻结 c8aa8f8：F01 PASS、F06 无效 bearer 的 HTTP503/预期401 FAIL、F09 目标 PASS 后提前退出143，完整57项未执行。本轮 scope3ba7c491残留0；原始trace、原件与退出记录保留。认证格式修复预检6项单元与Clippy通过，合法格式仍须远端验证；未计入准入。随后须在干净修复提交/空attempt-05完整复跑。

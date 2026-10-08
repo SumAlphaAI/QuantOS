@@ -1,0 +1,42 @@
+{
+  "schema": "quantos-fix-preflight/v1",
+  "observedHead": "c8aa8f830261285704b4e40ae3c85191cb40b40b",
+  "dirty": true,
+  "status": "PASS",
+  "formalAccepted": false,
+  "databaseExecuted": false,
+  "checks": [
+    {
+      "command": "cargo test -p quantos-auth --lib",
+      "passed": 6,
+      "failed": 0,
+      "tests": [
+        "malformed_bearer_is_rejected_without_an_auth_request",
+        "well_formed_bearer_still_requires_remote_verification"
+      ]
+    },
+    {
+      "command": "cargo clippy -p quantos-auth --lib --tests -- -D warnings",
+      "exitCode": 0
+    },
+    {
+      "command": "cargo fmt --all",
+      "exitCode": 0
+    },
+    {
+      "command": "node --check scripts/f06-bff-live-smoke.cjs",
+      "exitCode": 0
+    }
+  ],
+  "inputs": [
+    {
+      "path": "crates/quantos-auth/src/lib.rs",
+      "sha256": "541552a85ab5721a73602bdce4c1308014bc5940efff1bcb102ae4d38b7a7a0b"
+    },
+    {
+      "path": "scripts/f06-bff-live-smoke.cjs",
+      "sha256": "f608940211912e8c7559e491cf28e925be5bc76d257e98f0cbfa80548bbff7e5"
+    }
+  ],
+  "recordedAt": "2026-10-08T05:09:23.444111+00:00"
+}

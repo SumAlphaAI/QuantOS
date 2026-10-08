@@ -211,9 +211,7 @@ impl SupabaseAuthVerifier {
     }
 
     pub fn verify_access_token(&self, token: &str) -> Result<VerifiedUser, AuthError> {
-        if token.is_empty() || token.chars().any(char::is_whitespace) {
-            return Err(AuthError::UnverifiedSession);
-        }
+        require_signed_jwt_format(token)?;
         let response = self
             .client
             .get(self.user_endpoint.clone())
@@ -238,6 +236,34 @@ impl SupabaseAuthVerifier {
         }
         verified_user_claims(token, id)
     }
+}
+
+// A malformed compact JWT cannot be verified by Supabase. Reject its syntax
+// locally even when Auth is unavailable; decoded fields never establish a user.
+// Every well-formed token still needs the exact bearer verified remotely above.
+fn require_signed_jwt_format(token: &str) -> Result<(), AuthError> {
+    let segments: Vec<_> = token.split('.').collect();
+    let [header, payload, signature] = segments.as_slice() else {
+        return Err(AuthError::UnverifiedSession);
+    };
+    let decode_object = |value: &str| {
+        URL_SAFE_NO_PAD
+            .decode(value)
+            .ok()
+            .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok())
+            .filter(serde_json::Value::is_object)
+    };
+    let algorithm =
+        decode_object(header).and_then(|value| value.get("alg")?.as_str().map(str::to_owned));
+    if algorithm.is_none_or(|value| value.is_empty() || value == "none")
+        || decode_object(payload).is_none()
+        || URL_SAFE_NO_PAD
+            .decode(signature)
+            .map_or(true, |bytes| bytes.is_empty())
+    {
+        return Err(AuthError::UnverifiedSession);
+    }
+    Ok(())
 }
 
 // Called only after Supabase Auth verifies this exact bearer token. The claim
@@ -812,7 +838,8 @@ fn row_to_auth_context(
 #[cfg(test)]
 mod tests {
     use super::{
-        AuthContext, UserRequestContext, require_verified_transport, verified_user_claims,
+        AuthContext, AuthError, SupabaseAuthVerifier, UserRequestContext,
+        require_verified_transport, verified_user_claims,
     };
     use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
     use chrono::{Duration, Utc};
@@ -820,6 +847,111 @@ mod tests {
     use quantos_policy::{Capability, Role, RunMode};
     use std::collections::BTreeSet;
     use uuid::Uuid;
+
+    fn compact_token(header: serde_json::Value, payload: serde_json::Value) -> String {
+        format!(
+            "{}.{}.{}",
+            URL_SAFE_NO_PAD.encode(header.to_string()),
+            URL_SAFE_NO_PAD.encode(payload.to_string()),
+            URL_SAFE_NO_PAD.encode([1, 2, 3])
+        )
+    }
+
+    #[test]
+    fn malformed_bearer_is_rejected_without_an_auth_request() {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let verifier = SupabaseAuthVerifier {
+            user_endpoint: format!("http://{}/auth/v1/user", listener.local_addr().unwrap())
+                .parse()
+                .unwrap(),
+            publishable_key: "test-public-key".to_owned(),
+            client: reqwest::blocking::Client::builder()
+                .timeout(std::time::Duration::from_millis(100))
+                .build()
+                .unwrap(),
+        };
+        let valid_shape = compact_token(
+            serde_json::json!({"alg":"HS256"}),
+            serde_json::json!({"sub":"untrusted"}),
+        );
+        let malformed = [
+            String::new(),
+            "invalid-token".to_owned(),
+            "a.b.c.d".to_owned(),
+            "a.b.c".to_owned(),
+            valid_shape.replace('.', ". "),
+            compact_token(serde_json::json!({"alg":"none"}), serde_json::json!({})),
+            compact_token(serde_json::json!({"alg":""}), serde_json::json!({})),
+            compact_token(serde_json::json!({}), serde_json::json!({})),
+            compact_token(serde_json::json!({"alg":"HS256"}), serde_json::json!([])),
+            valid_shape.rsplit_once('.').unwrap().0.to_owned() + ".",
+        ];
+        for token in malformed {
+            assert!(matches!(
+                verifier.verify_access_token(&token),
+                Err(AuthError::UnverifiedSession)
+            ));
+        }
+        assert_eq!(
+            listener.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock
+        );
+    }
+
+    #[test]
+    fn well_formed_bearer_still_requires_remote_verification() {
+        use std::io::{Read, Write};
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let endpoint = format!("http://{}/auth/v1/user", listener.local_addr().unwrap());
+        let token = compact_token(
+            serde_json::json!({"alg":"HS256"}),
+            serde_json::json!({
+                "sub": Uuid::now_v7().to_string(), "role":"authenticated", "aal":"aal2",
+                "exp": (Utc::now()+Duration::minutes(2)).timestamp()
+            }),
+        );
+        let expected_token = token.clone();
+        let server = std::thread::spawn(move || {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(3);
+            let mut connection = loop {
+                if let Ok((connection, _)) = listener.accept() {
+                    break connection;
+                }
+                assert!(
+                    std::time::Instant::now() < deadline,
+                    "well-shaped JWT never reached Auth"
+                );
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            };
+            connection
+                .set_read_timeout(Some(std::time::Duration::from_secs(2)))
+                .unwrap();
+            let mut bytes = [0; 4096];
+            let count = connection.read(&mut bytes).unwrap();
+            let request = String::from_utf8_lossy(&bytes[..count]);
+            assert!(request.contains(&format!("Bearer {expected_token}")));
+            connection
+                .write_all(
+                    b"HTTP/1.1 401 Unauthorized\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+                )
+                .unwrap();
+        });
+        let verifier = SupabaseAuthVerifier {
+            user_endpoint: endpoint.parse().unwrap(),
+            publishable_key: "test-public-key".to_owned(),
+            client: reqwest::blocking::Client::builder()
+                .timeout(std::time::Duration::from_secs(2))
+                .build()
+                .unwrap(),
+        };
+        assert!(matches!(
+            verifier.verify_access_token(&token),
+            Err(AuthError::UnverifiedSession)
+        ));
+        server.join().unwrap();
+    }
 
     #[test]
     fn verified_claims_bind_subject_role_mfa_and_expiry() {

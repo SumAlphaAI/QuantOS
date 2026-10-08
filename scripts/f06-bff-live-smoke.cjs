@@ -59,7 +59,7 @@ async function main() {
     assert(wrongOrigin.status === 403, 'foreign Origin was not rejected');
     const invalidToken = await request('/v1/auth/session', { method: 'POST',
       headers: { origin, authorization: 'Bearer invalid-token' } });
-    assert(invalidToken.status === 401, 'unverified bearer was not rejected');
+    assert(invalidToken.status === 401, `unverified bearer was not rejected (HTTP ${invalidToken.status})`);
     const established = await request('/v1/auth/session', { method: 'POST',
       headers: { origin, authorization: `Bearer ${token}` } });
     assert(established.status === 204, `session handshake returned HTTP ${established.status}`);
@@ -114,5 +114,7 @@ async function main() {
 
 main().catch(error => {
   console.error(`F06 live BFF smoke failed: ${error.message}`);
+  console.error(JSON.stringify({ status: 'FAIL', httpTimeoutMs, requestTimings,
+    originKind: 'synthetic_http_smoke', formalAccepted: false }));
   process.exitCode = 1;
 });
