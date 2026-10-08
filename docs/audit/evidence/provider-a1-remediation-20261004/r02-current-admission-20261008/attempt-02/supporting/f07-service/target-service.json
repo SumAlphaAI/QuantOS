@@ -1,0 +1,151 @@
+{
+  "schema": "quantos-f07-target-service/v1",
+  "sourceCommit": "79ea170ed64b19d252761138c6eb64c4dbaf1ed0",
+  "dirty": true,
+  "targetClass": "configured-supabase-local-service-development",
+  "formalAccepted": false,
+  "status": "DIAGNOSTIC_ONLY",
+  "checks": [
+    "private Artifact Storage bucket exists",
+    "real Supabase Auth identity and isolated owner/capability fixture",
+    "real Supabase login and BFF opaque session",
+    "separate real Auth tenant denied run, cancellation and Artifact access",
+    "dedicated BFF/Runtime logins, strict TLS, HTTP schedule/worker/Storage/retrieval/hash, missing-cookie rejection",
+    "BFF logout revokes Runtime access; missing CSRF rejected"
+  ],
+  "startedAt": "2026-10-08T14:49:35.530Z",
+  "phase": "owned-fixture-cleanup",
+  "authLoginRequests": [
+    {
+      "id": 1,
+      "route": "/auth/v1/token?grant_type=password",
+      "timeoutMs": 15000,
+      "maxAttempts": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "PASS",
+          "transient": false,
+          "elapsedMs": 628.682417
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "route": "/auth/v1/token?grant_type=password",
+      "timeoutMs": 15000,
+      "maxAttempts": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "PASS",
+          "transient": false,
+          "elapsedMs": 772.5205419999984
+        }
+      ]
+    }
+  ],
+  "targetProjectRefHash": "23e97d4459dee70c",
+  "storageCredentialScope": "temporary-admin-key",
+  "bootstrapConnection": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 4184.438959
+      }
+    ]
+  },
+  "fixture": {
+    "tenantId": "e619e114-f194-4aed-a252-2ffc5191b4ad",
+    "actorId": "099606ab-a19e-4791-a3a6-661f89ef21b5"
+  },
+  "startupPhases": [
+    {
+      "phase": "bff_auth",
+      "status": "started",
+      "attempt": 1
+    },
+    {
+      "phase": "runtime_store",
+      "status": "started",
+      "attempt": 1
+    },
+    {
+      "phase": "worker_store",
+      "status": "started",
+      "attempt": 1
+    },
+    {
+      "phase": "bff_auth",
+      "status": "ready",
+      "attempt": 1,
+      "elapsedMs": 3408
+    },
+    {
+      "phase": "runtime_store",
+      "status": "ready",
+      "attempt": 1,
+      "elapsedMs": 4018
+    },
+    {
+      "phase": "worker_store",
+      "status": "ready",
+      "attempt": 1,
+      "elapsedMs": 6335
+    }
+  ],
+  "startupReadiness": {
+    "bff": {
+      "status": "READY",
+      "budgetMs": 60000,
+      "elapsedMs": 8378,
+      "probes": 11,
+      "performanceAccepted": false
+    },
+    "runtime": {
+      "status": "READY",
+      "budgetMs": 60000,
+      "elapsedMs": 7736,
+      "probes": 39,
+      "performanceAccepted": false
+    }
+  },
+  "runId": "14583d85-a4a1-4152-ac24-3c5192d9a223",
+  "artifactId": "01a11bfe-67ed-70e1-bbb8-08f2edb52076",
+  "engineeringStatus": "PASS",
+  "excluded": [
+    "deployed HTTPS",
+    "restricted Runtime Storage credential",
+    "scheduling P95",
+    "hosted CI"
+  ],
+  "fixtureCleanup": {
+    "status": "PASS",
+    "metadata": "RETAINED",
+    "startedServices": 2,
+    "stoppedPids": [
+      88295,
+      88304
+    ],
+    "sessionRetirements": [
+      {
+        "kind": "separate",
+        "status": 204
+      }
+    ],
+    "failures": [],
+    "actor": {
+      "id": "099606ab-a19e-4791-a3a6-661f89ef21b5",
+      "tenant_id": "e619e114-f194-4aed-a252-2ffc5191b4ad",
+      "is_active": false
+    },
+    "completedAt": "2026-10-08T14:50:50.793Z"
+  },
+  "completedAt": "2026-10-08T14:50:50.795Z"
+}

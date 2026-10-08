@@ -6,6 +6,7 @@ import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import {validateCoverage as r01Coverage} from './check-r01-coverage.mjs';
 import {validateCoverage as r02Coverage} from './check-r02-coverage.mjs';
+const {validateBootstrap}=createRequire(import.meta.url)('./lib/postgres-bootstrap.cjs');
 const {retainedSourcePolicy}=createRequire(import.meta.url)('./r02-retained-source-policy.cjs');
 const root=resolve(import.meta.dirname,'..');
 export const hash=b=>'sha256:'+createHash('sha256').update(b).digest('hex');
@@ -30,6 +31,10 @@ export function validateR1Artifact(kind,path,source,{sourcePolicy=retainedSource
  }else{
   assert.equal(kind,'r02-target');const combined=json('receipt.json'),c=json('chain/receipt.json'),b=json('boundaries/receipt.json'),chain=json('chain/chain-result.json');
   assert.equal(combined.result,'PASS_SCOPED_TARGET');assert.equal(combined.steps.length,3);assert(combined.steps.every(s=>s.exitCode===0));assert(combined.steps[2].args.includes('scripts/r02-live-check.cjs'));
+  validateBootstrap(c.bootstrapConnection);validateBootstrap(c.cleanupBootstrapConnection);
+  assert.equal(c.bootstrapConnection.connectionClosed,true);assert.equal(c.cleanupBootstrapConnection.connectionClosed,true);
+  for(const record of [c.bootstrapConnection,c.cleanupBootstrapConnection])assert((record.transportErrors??[]).every(e=>e.afterStatements===false),'R02 post-SQL transport failure cannot admit');
+  validateBootstrap(b.cleanupBootstrapConnection);assert.equal(b.cleanupBootstrapConnection.connectionClosed,true);assert((b.cleanupBootstrapConnection.transportErrors??[]).every(e=>e.afterStatements===false));
   assert.equal(c.schema,'quantos-r02-persisted-chain/v1');assert.equal(c.result,'PASS_SCOPED_TARGET');assert.equal(c.ingestionStarted,false);assert.equal(c.deployment,'NOT_RUN_RELEASE_STAGE');assert.equal(c.formalAcceptance,'NOT_ACCEPTED');assert.equal(c.test.code,0);assert.equal(c.test.timedOut,false);assert.equal(c.cleanup.result,'PASS');assert.equal(c.cleanup.actor.id,c.actor);assert.equal(c.cleanup.actor.is_active,false);assert.equal(c.cleanup.providerProcessesStarted,0);assert.equal(c.cleanup.immutableFacts,'RETAINED');sources(c.sourceFiles);
   assert.deepEqual(json('chain/source-policy.json'),sourcePolicy(),'current approved retained-purpose policy changed or expired');assert.deepEqual(c.approval,sourcePolicy().evidence);
   assert.equal(chain.result,'PASS');assert.equal(chain.actualMarketEvents,32);assert.equal(chain.quality,'degraded');assert(chain.sourceAgeSecs>0);assert.equal(chain.strategyTrading,'REJECTED');assert.equal(chain.crossTenant,'REJECTED');assert.equal(chain.persistentSignalConsumer,'REJECTED_BEFORE_ENGINE');assert.equal(chain.engineStopped,true);assert.equal(chain.research.length,2);assert.equal(chain.sourceApprovalNegatives,4);assert.equal(chain.readerAuthorizationNegatives,2);assert.equal(chain.wireTamperingNegatives,4);assert.match(log('chain/target-chain.log'),/1 passed; 0 failed/);

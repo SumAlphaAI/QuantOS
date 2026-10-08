@@ -18,7 +18,7 @@ function client(databaseUrl, name = 'quantos-r01', timeout = 10000) {
   const u = new URL(databaseUrl), ca = u.searchParams.get('sslrootcert');
   return new Client({ host: u.hostname, port: Number(u.port || 5432), user: decodeURIComponent(u.username),
     password: decodeURIComponent(u.password), database: u.pathname.slice(1), connectionTimeoutMillis: 10000,
-    query_timeout: timeout, application_name: name,
+    query_timeout: timeout, application_name: name, keepAlive: true, keepAliveInitialDelayMillis: 10000,
     ssl: { rejectUnauthorized: !['require', 'prefer'].includes(u.searchParams.get('sslmode')), ...(ca ? { ca: fs.readFileSync(ca, 'utf8') } : {}) } });
 }
 function connectionMode(databaseUrl) {

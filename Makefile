@@ -132,7 +132,7 @@ r01-nightly-coverage:
 
 r02-check:
 	node ./scripts/check-r02.mjs
-	node --test ./scripts/r02-gate-negative.mjs ./scripts/r02-coverage-negative.mjs ./scripts/r02-retained-source-policy.test.cjs ./scripts/r02-stage-check.test.mjs
+	node --test ./scripts/r02-gate-negative.mjs ./scripts/r02-coverage-negative.mjs ./scripts/r02-retained-source-policy.test.cjs ./scripts/r02-stage-check.test.mjs ./scripts/r02-chain-connection.test.cjs
 	node ./scripts/r02-stage-check.mjs
 	env -u DATABASE_URL cargo test -p quantos-storage --lib --locked
 	env -u DATABASE_URL cargo test -p quantos-strategy -p quantos-runtime --lib --locked
@@ -506,7 +506,7 @@ f02-package:
 	$(MAKE) build-manifest
 
 f02-check:
-	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/playwright-git-history.test.mjs scripts/storage-fixture.test.cjs
+	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/playwright-git-history.test.mjs scripts/storage-fixture.test.cjs scripts/f02-development-database.test.cjs
 
 .PHONY: r01-window-check
 r01-window-check:

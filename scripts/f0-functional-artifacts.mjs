@@ -9,7 +9,14 @@ const {validateBootstrap}=createRequire(import.meta.url)('./lib/postgres-bootstr
 const {validateLoginAttempts}=createRequire(import.meta.url)('./lib/auth-login-retry.cjs');
 export function validateF0Artifact(kind,path,source){
  const r=JSON.parse(readFileSync(path));assert.equal(r.sourceCommit??r.source,source,'F0 artifact source differs');
- if(kind==='f02-database'){assert.equal(r.schema,'quantos-f02-development-database/v1');assert.equal(r.status,'PASS');assert.equal(r.targetClass,'configured-supabase');assert.equal(r.formalAccepted,false);assert.equal(r.fullReferenceRebuild,false);assert.equal(r.checks.length,7);}
+ if(kind==='f02-database'){
+  assert.equal(r.schema,'quantos-f02-development-database/v2');assert.equal(r.status,'PASS');assert.equal(r.passed,true);assert.equal(r.phase,'COMPLETE');
+  assert.equal(r.targetClass,'configured-supabase');assert.equal(r.formalAccepted,false);assert.equal(r.fullReferenceRebuild,false);assert.equal(r.checks.length,7);
+  validateBootstrap(r.bootstrapConnection);validateBootstrap(r.cleanup?.bootstrapConnection);
+  assert.equal(r.cleanup.status,'PASS');assert.equal(r.cleanup.readOnly,true);assert.equal(r.cleanup.catalogMatchesBefore,true);assert.equal(r.cleanup.ledgerUnchanged,true);assert.equal(r.cleanup.connectionsClosed,true);
+  assert(/^sha256:[a-f0-9]{64}$/.test(r.catalogDigest));assert.equal(r.cleanup.catalogDigest,r.catalogDigest);
+  assert(Array.isArray(r.transportErrors)&&r.transportErrors.every(e=>e.afterStatements===false),'post-statement transport failures cannot admit F02');
+ }
  else if(kind==='f02-sca'){assert.equal(r.status,'PASS');assert.equal(r.passed,true);assert.deepEqual(Object.keys(r.scanners).sort(),['cargo','cargo-desktop','npm','pypi']);const proof=verifyBracesBackport(resolve(import.meta.dirname,'..'));assert.deepEqual(r.bracesBackport,proof,'SCA backport proof differs');assert(Object.values(r.scanners).every(c=>c.status==='PASS'&&c.findings.every(f=>f.waived||(f.backportVerified&&isBracesBackportFinding(f,proof)))),'unwaived vulnerabilities');}
  else if(kind==='f07-recovery'||kind==='f07-coverage'){
   validateBootstrap(r.bootstrapConnection);assert.equal(r.schema,'quantos-f07-acceptance/v1');assert.equal(r.status,'DIAGNOSTIC_ONLY');assert.equal(r.targetPostgresMajor,17);assert(r.targetProjectRefHash);const m=r.measurements;assert.equal(m.schema,'quantos-f07-recovery-measurements/v1');assert.equal(m.recoveryCompleted,true);

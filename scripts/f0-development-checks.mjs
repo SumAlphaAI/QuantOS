@@ -1,38 +1,16 @@
 import assert from 'node:assert/strict';
-import {readFileSync,writeFileSync,mkdirSync,readdirSync,rmSync} from 'node:fs';
+import {readFileSync,rmSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {execFileSync,spawnSync} from 'node:child_process';
 import {createRequire} from 'node:module';
-import {digest,root} from './provider-a1-receipts.mjs';
+import {root} from './provider-a1-receipts.mjs';
 const require=createRequire(import.meta.url);
-const {Client}=require('pg');
-const {schemaState,assertSchemaMatches}=require('./db-schema-state.cjs');
-const {validateF09MigrationLedger}=require('./lib/f09-migration-ledger.cjs');
 function run(command,args){const r=spawnSync(command,args,{cwd:root,env:process.env,encoding:'utf8',timeout:900000,maxBuffer:32*1024*1024});process.stdout.write((r.stdout??'')+(r.stderr??''));assert.equal(r.status,0,`${command} failed`);}
 async function database(){
- const url=new URL(process.env.DATABASE_URL);const api=new URL(process.env.SUPABASE_URL);const ref=url.hostname.startsWith('db.')?url.hostname.split('.')[1]:decodeURIComponent(url.username).split('.').at(-1);
- assert(api.protocol==='https:'&&api.hostname.endsWith('.supabase.co')&&ref===api.hostname.split('.')[0]&&url.port!=='6543','configured same-project Supabase session endpoint required');
- const ca=readFileSync(process.env.QUANTOS_BFF_SSLROOTCERT);const client=new Client({host:url.hostname,port:Number(url.port||5432),user:decodeURIComponent(url.username),password:decodeURIComponent(url.password),database:url.pathname.slice(1),ssl:{ca,rejectUnauthorized:true},connectionTimeoutMillis:10000});
- const results=[];await client.connect();
- try{
-  const local=new Map(readdirSync(resolve(root,'supabase/migrations')).filter(p=>p.endsWith('.sql')).sort().map(p=>[p,readFileSync(resolve(root,'supabase/migrations',p))]));
-  const ledger=(await client.query('select filename,sha256 from quantos.schema_migrations order by filename')).rows;validateF09MigrationLedger(ledger,local);results.push('actual migration ledger matches repository');
-  const before=await schemaState(client);assert(before.tables.length>0);assertSchemaMatches(before,before);
-  const policies=before.policies.filter(p=>p.tablename==='tenants');assert(policies.length,'tenant policies required');
-  const quote=s=>'"'+s.replaceAll('"','""')+'"';
-  const mutations=[['disable RLS','alter table quantos.tenants disable row level security'],['disable FORCE RLS','alter table quantos.tenants no force row level security'],['drop tenant policies',policies.map(p=>'drop policy '+quote(p.policyname)+' on quantos.tenants').join(';')],['column drift','alter table quantos.tenants add column fep0_drift_probe text'],['index drift','create index fep0_drift_probe on quantos.tenants(slug)']];
-  for(const [name,sql]of mutations){
-   await client.query('begin');
-   try {await client.query("set local lock_timeout='2s'; set local statement_timeout='10s'");await client.query(sql);const changed=await schemaState(client);assert.throws(()=>assertSchemaMatches(changed,before),/SCHEMA_DRIFT/);results.push('reject '+name);}
-   finally {await client.query('rollback');}
-   assertSchemaMatches(await schemaState(client),before);
-  }
-  for(const mutate of [rows=>rows.slice(1),rows=>rows.map((r,i)=>i? r:{...r,sha256:'0'.repeat(64)})])assert.throws(()=>validateF09MigrationLedger(mutate(ledger),local));
-  results.push('reject missing/changed applied SQL; unchanged catalog after every rollback');
-  const receipt={schema:'quantos-f02-development-database/v1',status:'PASS',sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),targetClass:'configured-supabase',formalAccepted:false,fullReferenceRebuild:false,checks:results,catalogDigest:digest(JSON.stringify(before)),completedAt:new Date().toISOString()};
-  mkdirSync(resolve(root,'artifacts/f02'),{recursive:true});writeFileSync(resolve(root,'artifacts/f02/development-database.json'),JSON.stringify(receipt,null,2)+'\n');console.log('F02 configured Supabase transactional negatives PASS',results.length);
- }finally{await client.query('rollback').catch(()=>{});await client.end();}
+ const {runDatabase}=require('./lib/f02-development-database.cjs');
+ await runDatabase({root,sourceCommit:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim()});
 }
+
 function capability(){
  const text=readFileSync(resolve(root,'docs/operations/tp01_vibe_inventory_and_threats.md'),'utf8');const rows=text.split('\n').filter(l=>l.startsWith('| ')&&!l.startsWith('| ---')&&!l.startsWith('| Capability')&&!l.startsWith('| Threat')).slice(0,11);
  assert.equal(rows.length,11);for(const row of rows){const cells=row.split('|').slice(1,-1).map(s=>s.trim());assert.equal(cells.length,8);assert(cells.every(Boolean),'capability input/output/side effect/permission/replacement missing');}

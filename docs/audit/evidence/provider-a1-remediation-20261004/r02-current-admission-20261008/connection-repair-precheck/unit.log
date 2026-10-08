@@ -1,0 +1,37 @@
+✔ successful checks publish only after all seven negatives, independent read-only verification and close (7.845542ms)
+✔ an idle error after mutation is handled, no SQL is replayed and independent cleanup cannot convert FAIL to PASS (1.30975ms)
+✔ initial known transport failure closes the failed connection before a fresh connection, preserving bootstrap (1.868125ms)
+✔ 28P01 initial failure never retries (0.679458ms)
+✔ 42501 initial failure never retries (0.625833ms)
+✔ CERT_HAS_EXPIRED initial failure never retries (0.605292ms)
+✔ configuration failure overwrites historic PASS with current-source FAIL (0.508417ms)
+✔ cleanup catalog mismatch fails even after seven successful checks (2.176958ms)
+✔ a mutation that does not affect schema is rejected (1.37975ms)
+✔ strict artifact acceptance rejects stale success, unclosed sessions, missing bootstrap and post-SQL errors (5.401375ms)
+✔ two closed initial connections are retained, closed, then the third succeeds before any statement (0.574542ms)
+✔ persistent closure fails after three and retains every failure (0.750084ms)
+✔ auth bootstrap failure never retries (0.145458ms)
+✔ permission bootstrap failure never retries (0.097333ms)
+✔ TLS bootstrap failure never retries (0.068292ms)
+✔ cancel bootstrap failure never retries (0.055917ms)
+✔ unknown bootstrap failure never retries (0.06275ms)
+✔ initial transport timeout retries but a later query error never reconnects (0.106125ms)
+✔ failure to close an initial connection prevents retry (0.099ms)
+✔ budget cannot exceed three (0.212125ms)
+✔ acceptance rejects missing, unfinished, reordered, semantic or unclosed attempts (2.726167ms)
+✔ evidence-save failure closes the connected client and never reconnects (0.084834ms)
+✔ retained chain preserves transient initial failures and closes preparation before separate cleanup (0.669292ms)
+✔ idle error after SQL is captured with phase and never reconnects or replays (0.535792ms)
+✔ 28P01 never retries during retained chain startup (0.111417ms)
+✔ 42501 never retries during retained chain startup (0.113167ms)
+✔ CERT_HAS_EXPIRED never retries during retained chain startup (0.069916ms)
+✔ persistent initial timeout fails after three; no SQL or actor creation (0.15075ms)
+✔ Node operator verifies an explicit trusted CA without rewriting the Rust URL (0.762833ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63.848042

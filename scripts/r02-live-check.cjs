@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Configured Supabase only. Fresh evidence directory and a unique named fixture scope.
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{spawn}=require('node:child_process');
-const {targetUrl,client,connectionMode}=require('./lib/r01-db.cjs');
+const {targetUrl,connectionMode}=require('./lib/r01-db.cjs');
+const {openConnection}=require('./lib/r02-chain-connection.cjs');
 const run=crypto.randomUUID(),out=path.resolve(process.env.QUANTOS_R02_EVIDENCE_DIR||`artifacts/r02/${run}`);
 if(fs.existsSync(out)&&fs.readdirSync(out).length)throw Error('R02_EVIDENCE_DIRECTORY_NOT_EMPTY');fs.mkdirSync(out,{recursive:true});
-const sourcePaths=['crates/quantos-storage/src','crates/quantos-storage/tests','crates/quantos-strategy/src','crates/quantos-runtime/src','crates/quantos-runtime/tests','supabase/migrations','scripts/r02-live-check.cjs','scripts/r02-chain-check.cjs','scripts/r02-retained-source-policy.cjs','scripts/r02-stage-check.mjs','scripts/r02-combined-coverage.cjs','scripts/check-r02.mjs','scripts/r02-behavior-negative.cjs','scripts/check-r02-coverage.mjs','scripts/r02-coverage-negative.mjs','scripts/r02-forward-migration.cjs','Makefile','Cargo.lock'];
+const sourcePaths=['crates/quantos-storage/src','crates/quantos-storage/tests','crates/quantos-strategy/src','crates/quantos-runtime/src','crates/quantos-runtime/tests','supabase/migrations','scripts/r02-live-check.cjs','scripts/r02-chain-check.cjs','scripts/r02-retained-source-policy.cjs','scripts/r02-stage-check.mjs','scripts/r02-combined-coverage.cjs','scripts/check-r02.mjs','scripts/r02-behavior-negative.cjs','scripts/check-r02-coverage.mjs','scripts/r02-coverage-negative.mjs','scripts/r02-forward-migration.cjs','scripts/lib/r02-chain-connection.cjs','scripts/lib/postgres-bootstrap.cjs','scripts/lib/r01-db.cjs','Makefile','Cargo.lock'];
 const walk=p=>fs.statSync(p).isDirectory()?fs.readdirSync(p).sort().flatMap(n=>walk(path.join(p,n))):[p];
 const sourceFiles=sourcePaths.flatMap(p=>fs.existsSync(p)?walk(p):[]).map(p=>({path:p,sha256:crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')}));
 const receipt={schema:'quantos-r02-live/v2',run,connectionMode:connectionMode(targetUrl()),target:'configured Supabase only',sourceFiles,result:'RUNNING',tests:[],cleanup:null,formalAcceptance:'NOT_ACCEPTED',releasePerformance:process.env.QUANTOS_R02_RELEASE_PERFORMANCE==='1'?'DIAGNOSTIC_ONLY':'NOT_RUN_RELEASE_STAGE'};
@@ -21,7 +22,7 @@ async function cargo(args,name){
  fs.writeFileSync(path.join(out,name+'.log'),redact(log));receipt.tests.push({name,args,...exit,timedOut,result:exit.code===0&&!timedOut?'PASS':'FAIL'});save();console.log(`${name}: ${receipt.tests.at(-1).result}`);
  if(timedOut||exit.code!==0)throw Error('R02_TARGET_TEST_FAILED:'+name);
 }
-async function cleanup(){const db=client(targetUrl(),'quantos-r02-cleanup',15000);try{await db.connect();
+async function cleanup(){const phase={value:'CLEANUP_CONNECTION'};receipt.cleanupBootstrapConnection={};const db=await openConnection(targetUrl(),'quantos-r02-cleanup',{record:receipt.cleanupBootstrapConnection,phase,save});try{phase.value='OWNED_FIXTURE_SQL';
  const rows=(await db.query("select a.id,a.tenant_id,a.is_active from quantos.actors a join quantos.tenants t on t.id=a.tenant_id where left(t.slug,$1)=$2 and a.service_name in ('r02-target','r02-fixture','r02-http')",[('r02-'+run+'-').length,'r02-'+run+'-'])).rows;
  for(const a of rows)await db.query('update quantos.actors set is_active=false where id=$1 and tenant_id=$2',[a.id,a.tenant_id]);
  const after=(await db.query("select a.id,a.tenant_id,a.is_active from quantos.actors a join quantos.tenants t on t.id=a.tenant_id where left(t.slug,$1)=$2",[('r02-'+run+'-').length,'r02-'+run+'-'])).rows;

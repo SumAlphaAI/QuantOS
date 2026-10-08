@@ -1,0 +1,22 @@
+{
+  "schema": "quantos-r02-combined-coverage/v1",
+  "result": "FAIL",
+  "steps": [
+    {
+      "bin": "cargo",
+      "args": [
+        "llvm-cov",
+        "clean",
+        "--workspace"
+      ],
+      "exitCode": 0
+    },
+    {
+      "bin": "node",
+      "args": [
+        "scripts/r02-chain-check.cjs"
+      ],
+      "exitCode": 1
+    }
+  ]
+}
