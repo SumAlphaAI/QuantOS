@@ -1,11 +1,11 @@
 // No local database. Seed only owned fixtures on the configured Supabase target.
-const fs=require('node:fs');const path=require('node:path');const crypto=require('node:crypto');const {spawnSync}=require('node:child_process');const {Client}=require('pg');
+const fs=require('node:fs');const path=require('node:path');const crypto=require('node:crypto');const {spawnSync}=require('node:child_process');
 const output=path.resolve(process.env.QUANTOS_R01_EVIDENCE_DIR||'artifacts/r01');fs.mkdirSync(output,{recursive:true});if(fs.readdirSync(output).length)throw Error('R01_EVIDENCE_NOT_EMPTY');
 const {targetUrl,client:databaseClient,connectionMode}=require('./lib/r01-db.cjs');
 const owned=[];let client;
 const sourceFiles=['package.json','pnpm-lock.yaml','crates/quantos-market/src/lib.rs','crates/quantos-market/src/durable.rs','services/market-ingestor/src/main.rs','services/market-ingestor/src/cli.rs','crates/quantos-event/src/pg.rs','crates/quantos-market/src/tests.rs','crates/quantos-market/tests/postgres_ingestion.rs','services/market-ingestor/tests/cli.rs','services/market-ingestor/src/binance.rs','services/market-ingestor/tests/binance.rs','services/market-ingestor/src/binance/tests.rs','scripts/lib/r01-db.cjs','scripts/binance-supervisor.cjs','scripts/r01-supervision-check.cjs','scripts/tests/binance-supervisor.test.cjs','supabase/migrations/20261003120000_r01_binance_cursor.sql'];
 const sourceHashesNow=()=>Object.fromEntries(sourceFiles.map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')]));
-function run(args,extra={}){const result=spawnSync('cargo',args,{env:{...process.env,...extra},encoding:'utf8'});fs.appendFileSync(path.join(output,'target-tests.log'),(result.stdout||'')+(result.stderr||''));if(result.status!==0)throw Error('R01_TARGET_TEST_FAILED');}
+function run(args,extra={}){const result=spawnSync('cargo',args,{env:{...process.env,...extra},encoding:'utf8',timeout:600000,maxBuffer:16*1024*1024});fs.appendFileSync(path.join(output,'target-tests.log'),(result.stdout||'')+(result.stderr||''));if(result.status!==0)throw Error('R01_TARGET_TEST_FAILED');}
 async function main(){
  process.env.DATABASE_URL=targetUrl();
  run(['test','-p','quantos-market','-p','market-ingestor','--locked','--no-run']);
@@ -35,4 +35,15 @@ async function main(){
  const sourceHashes=sourceHashesNow();if(JSON.stringify(sourceHashes)!==JSON.stringify(sourceBefore))throw Error('R01_SOURCE_CHANGED_DURING_TEST');
  const report={sourceHashes,receiptImmutability:'PASS',schema:'quantos-r01-target/v1',connectionMode:connectionMode(process.env.DATABASE_URL),sourceCommit:spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).stdout.trim(),workingTreeModified:spawnSync('git',['status','--porcelain'],{encoding:'utf8'}).stdout.trim().length>0,status:'PASS',target:'configured Supabase PostgreSQL',migrationHash:expected,binanceMigrationHash:binanceHash,counts:counts.rows[0],rls:'PASS',provider:'FIXTURE_ONLY_NO_REAL_PROVIDER_RECEIPT',evidence:'target-tests.log'};fs.writeFileSync(path.join(output,'target-receipt.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
 }
-(async()=>{try{await main();}catch(e){fs.writeFileSync(path.join(output,'failure.json'),JSON.stringify({status:'FAIL',reason:/^R01_/.test(e.message)?e.message:'R01_TARGET_ENVIRONMENT_FAILURE',ownedTenants:owned},null,2)+'\n');console.error(e.message.startsWith('R01_')||e.message.endsWith('_REQUIRED')?e.message:'R01_TARGET_ENVIRONMENT_FAILURE');process.exitCode=1;}finally{if(!client&&owned.length){client=databaseClient(process.env.DATABASE_URL);await client.connect();}if(client){for(const tenant of owned)await client.query('update quantos.actors set is_active=false where tenant_id=$1 and service_name like $2',[tenant,'r01-%']);const actors=(await client.query('select id,is_active from quantos.actors where tenant_id=any($1::uuid[]) and service_name like $2',[owned,'r01-%'])).rows;fs.writeFileSync(path.join(output,'actor-cleanup.json'),JSON.stringify({status:actors.every(a=>a.is_active===false)?'PASS':'FAIL',actors},null,2)+'\n');if(actors.some(a=>a.is_active))process.exitCode=1;await client.end();}}})();
+(async()=>{
+ try{await main();}catch(e){fs.writeFileSync(path.join(output,'failure.json'),JSON.stringify({status:'FAIL',reason:/^R01_/.test(e.message)?e.message:'R01_TARGET_ENVIRONMENT_FAILURE',ownedTenants:owned},null,2)+'\n');console.error(e.message.startsWith('R01_')||e.message.endsWith('_REQUIRED')?e.message:'R01_TARGET_ENVIRONMENT_FAILURE');process.exitCode=1;}
+ finally{
+  let cleanup={status:'FAIL',actors:[]};
+  try{
+   if(!client&&owned.length){client=databaseClient(process.env.DATABASE_URL);await client.connect();}
+   if(client){for(const tenant of owned)await client.query('update quantos.actors set is_active=false where tenant_id=$1 and service_name like $2',[tenant,'r01-%']);cleanup.actors=(await client.query('select id,is_active from quantos.actors where tenant_id=any($1::uuid[]) and service_name like $2',[owned,'r01-%'])).rows;}
+   cleanup.status=owned.length===4&&cleanup.actors.length===4&&cleanup.actors.every(a=>a.is_active===false)?'PASS':'FAIL';
+  }catch{cleanup.reason='R01_ACTOR_CLEANUP_FAILED';}
+  finally{fs.writeFileSync(path.join(output,'actor-cleanup.json'),JSON.stringify(cleanup,null,2)+'\n');if(cleanup.status!=='PASS')process.exitCode=1;if(client)await client.end();}
+ }
+})();

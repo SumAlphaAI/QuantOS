@@ -811,6 +811,80 @@
       ],
       "marker": "RLS static preflight passed",
       "staticOnly": true
+    },
+    "r01-functional": {
+      "command": [
+        "make",
+        "r01-check"
+      ],
+      "staticOnly": true,
+      "timeoutMs": 1800000,
+      "marker": "R01 assembly Gate PASS"
+    },
+    "r01-target": {
+      "command": [
+        "node",
+        "scripts/r1-target-assessment.mjs",
+        "CORE:R01"
+      ],
+      "database": true,
+      "artifact": "supporting/r01-target/receipt.json",
+      "output": "supporting/r01-target/receipt.json",
+      "artifactKind": "r01-target",
+      "timeoutMs": 1800000,
+      "marker": "R1_DEVELOPMENT_TARGET_PASS CORE:R01"
+    },
+    "r1-receipt-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/r1-functional-artifacts.test.mjs",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/r02-stage-check.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "r02-functional": {
+      "command": [
+        "make",
+        "r02-check"
+      ],
+      "staticOnly": true,
+      "timeoutMs": 1800000,
+      "marker": "R02 component source check PASS"
+    },
+    "r02-target": {
+      "command": [
+        "node",
+        "scripts/r1-target-assessment.mjs",
+        "CORE:R02"
+      ],
+      "database": true,
+      "artifact": "supporting/r02-target/receipt.json",
+      "output": "supporting/r02-target/receipt.json",
+      "artifactKind": "r02-target",
+      "timeoutMs": 1800000,
+      "marker": "R1_DEVELOPMENT_TARGET_PASS CORE:R02"
+    },
+    "r02-engine-consumers": {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "quantos-runtime",
+        "--locked",
+        "--test",
+        "research_orchestration",
+        "--test",
+        "signal_proposal_orchestration",
+        "--",
+        "--skip",
+        "r02_retained_market_persistent_research_chain"
+      ],
+      "staticOnly": true,
+      "timeoutMs": 900000,
+      "marker": "test result: ok"
     }
   },
   "nodes": {
@@ -1212,6 +1286,43 @@
         "plans",
         "plans-negative",
         "fep0-negative"
+      ]
+    },
+    "CORE:R01": {
+      "scope": "Development replay/normalization/deduplication, atomic source receipts/cursor, retry/backfill and controlled anomaly commit <=5s; configured Supabase fixture target and production coverage. Retained source approval/research is assessed by R02; B01/FA-H01 remain OPEN/PARTIAL, sustained realtime freshness/readiness, long-running/deployed hosts, commercial licenses and hosted CI excluded.",
+      "inputs": [
+        "crates/quantos-market/",
+        "services/market-ingestor/",
+        "crates/quantos-event/",
+        "supabase/",
+        "docs/provider-approvals/",
+        "docs/runbooks/r01_provider_onboarding.md"
+      ],
+      "checks": [
+        "r01-functional",
+        "r01-target",
+        "r1-receipt-negative"
+      ]
+    },
+    "CORE:R02": {
+      "scope": "Development immutable snapshot/hash/window/schema, actual Supabase RLS/Storage/lineage/current rules and approved retained Degraded internal-research facts through persisted reader/typed wire/Python consumers; controlled quality/license/freshness denials and six production-file coverage. C25 representative P95 and C26 deployed BFF/Runtime/JWT/hosted CI belong to RELEASE-GATE:BETA; no new ingestion, trading, commercial or extended scope.",
+      "inputs": [
+        "crates/quantos-storage/",
+        "crates/quantos-runtime/",
+        "crates/quantos-strategy/",
+        "crates/quantos-engine-manager/",
+        "engines/rd-agent/",
+        "engines/llmquant/",
+        "engines/engine-sdk/",
+        "supabase/",
+        "docs/provider-approvals/",
+        "docs/audit/evidence/r01-freshness-remediation-20261004/live-recovered/attempt-01/receipt.json"
+      ],
+      "checks": [
+        "r02-functional",
+        "r02-target",
+        "r02-engine-consumers",
+        "r1-receipt-negative"
       ]
     }
   },
