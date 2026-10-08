@@ -1,0 +1,165 @@
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.87s
+     Running unittests src/lib.rs (target/debug/deps/quantos_engine_manager-634df56a1e1fceee)
+
+running 8 tests
+test tests::remaining_time_rejects_expired_deadlines ... ok
+test tests::review_manifest_rejects_duplicate_capabilities ... ok
+test durable::tests::world_readable_state_directory_is_rejected ... ok
+test durable::tests::corrupt_ledger_fails_closed ... ok
+test tests::signed_route_policy_and_reregistration_fail_closed ... ok
+test tests::approval_fails_closed_on_unsigned_or_modified_manifest ... ok
+test tests::manager_opens_backoff_window_after_three_recorded_failures ... ok
+test durable::tests::pending_key_is_exclusive_and_completed_result_survives_reopen ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/bin/f08-approval.rs (target/debug/deps/f08_approval-d1b9730cd1ce748b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/manager_negative.rs (target/debug/deps/manager_negative-08116ed288ffcae9)
+
+running 8 tests
+test manager_diagnostics_do_not_expose_approval_key ... ok
+test machine_codes_are_stable_for_all_manager_failures ... ok
+test manifest_rejects_each_invalid_boundary ... ok
+test invalid_request_and_signed_route_dimensions_fail_before_network ... ok
+test malformed_rpc_inputs_fail_before_transport ... ok
+test malformed_approvals_never_register ... ok
+test supervised_release_requires_durable_state_and_exact_artifact ... ok
+test reviewed_registration_rejects_capability_takeover_and_live_sidecar_replacement ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.04s
+
+     Running tests/python_llmquant.rs (target/debug/deps/python_llmquant-252b0f14449bd11d)
+
+running 2 tests
+test python_llmquant_rejects_forbidden_boundary_fields ... ok
+test python_llmquant_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/python_mock_engine.rs (target/debug/deps/python_mock_engine-0c34d64c4a3e06e6)
+
+running 25 tests
+test durable_child_execute_entry ... ok
+test observed_sidecar_rss_excess_quarantines_shared_route ... ok
+test missing_vibe_adapter_does_not_block_mock_workflow_routing ... ok
+test duplicate_key_returns_same_result_and_changed_input_is_rejected ... ok
+test metadata_health_and_cancel_failures_preserve_route_state ... ok
+test manager_rejects_broken_execute_and_interrupted_streams ... ok
+test manager_cancel_interrupts_owned_running_execution ... ok
+Error: "approval output exists; choose a new path"
+test approval_cli_signs_reviewed_manifest_and_refuses_overwrite ... ok
+test dispatch_reprobes_ready_engine_without_background_monitor ... ok
+test python_mock_engine_contracts_round_trip_over_uds ... ok
+test python_mock_engine_recovers_after_three_unavailable_failures ... ok
+test durable_result_and_circuit_survive_manager_reconstruction ... ok
+test heartbeat_removes_failed_engine_and_restores_ready_route ... ok
+test supervised_sidecar_refuses_tampered_artifact_then_recovers ... ok
+test unavailable_socket_fails_fast_then_recovers_without_request_loss ... ok
+test manager_supervises_three_real_crashes_without_test_owned_restarts ... ok
+test handshake_rejects_each_unreviewed_identity_and_readiness_dimension ... ok
+test execution_concurrency_and_rss_quotas_reject_excess_work ... ok
+test untrusted_engine_cannot_bypass_manager_response_identity_checks ... ok
+test python_mock_engine_deadline_timeout_is_deterministic ... ok
+test one_request_survives_three_real_engine_process_crashes ... ok
+test readiness_accepts_exact_metadata_echo_across_second_boundary ... ok
+test os_killed_manager_replays_pending_key_into_one_durable_result ... ok
+test signed_rate_limit_and_stream_deadline_are_enforced ... ok
+test control_rpcs_timeout_within_two_seconds_on_untrusted_engine ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.17s
+
+     Running tests/python_openbb_adapter.rs (target/debug/deps/python_openbb_adapter-4299e39967ede352)
+
+running 2 tests
+test python_openbb_adapter_blocks_production_license_enablement ... ok
+test python_openbb_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/python_rd_agent.rs (target/debug/deps/python_rd_agent-bc5a2a79cf12920a)
+
+running 2 tests
+test python_rd_agent_rejects_forbidden_boundary_fields ... ok
+test python_rd_agent_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running tests/python_strategy_lab.rs (target/debug/deps/python_strategy_lab-5d073ca435ede061)
+
+running 4 tests
+test python_strategy_lab_rejects_forbidden_boundary_fields ... ok
+test python_strategy_lab_static_check_failure_blocks_release ... ok
+test python_strategy_lab_contracts_round_trip_over_uds ... ok
+test python_strategy_lab_rejects_hundred_malicious_prompts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+     Running tests/python_trading_agents.rs (target/debug/deps/python_trading_agents-2b82555c202f2c82)
+
+running 2 tests
+test python_trading_agents_rejects_forbidden_boundary_fields ... ok
+test python_trading_agents_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+     Running tests/python_vibe_adapter.rs (target/debug/deps/python_vibe_adapter-24c6582fa7367d48)
+
+running 2 tests
+test python_vibe_adapter_rejects_forbidden_boundary_fields ... ok
+test python_vibe_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running unittests src/lib.rs (target/debug/deps/quantos_runtime-571f059525a57a23)
+
+running 12 tests
+test pg::tests::broad_admin_login_cannot_impersonate_runtime_service ... ok
+test pg::tests::runtime_role_membership_requires_only_the_runtime_role ... ok
+test pg::tests::remote_runtime_rejects_unverified_transport_before_connecting ... ok
+test tests::persisted_status_and_retry_bounds_are_explicit ... ok
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test tests::kernel_fences_cancelled_timed_out_and_exhausted_runs ... ok
+test tests::kernel_rejects_invalid_schedule_and_stale_worker_operations ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test pg::tests::local_transport_and_query_options_are_handled_explicitly ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/postgres_runtime.rs (target/debug/deps/postgres_runtime-642f5935cdf56023)
+
+running 5 tests
+test postgres_runtime_worker_child_claims_checkpoints_and_waits ... ignored, helper process invoked by the PostgreSQL recovery test
+test postgres_runtime_records_cancel_and_timeout_audits ... ok
+test postgres_runtime_fences_old_attempt_and_enforces_cost_and_retry_budget ... ok
+test postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test postgres_runtime_rejects_revocation_capability_conflicts_and_rate_overflow ... ok
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/research_orchestration.rs (target/debug/deps/research_orchestration-c5f0e690f42eb2e3)
+
+running 2 tests
+test research_workflow_cancel_confirms_within_two_seconds ... ok
+test research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.25s
+
+     Running tests/signal_proposal_orchestration.rs (target/debug/deps/signal_proposal_orchestration-d1edaa8d55815b2e)
+
+running 3 tests
+test signal_proposal_workflow_rejects_forbidden_order_tools ... ok
+test signal_proposal_workflow_replay_keeps_signal_and_proposal_hashes_stable ... ok
+test signal_proposal_workflow_runs_hundred_cases_with_evidence_expiry_and_non_executable_proposals ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.64s
+

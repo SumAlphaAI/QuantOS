@@ -1,0 +1,58 @@
+cargo llvm-cov --package quantos-event --package quantos-storage --lib --ignore-filename-regex '(pg|supabase_storage)\.rs' --fail-under-lines 90 --fail-under-regions 85 --summary-only
+Filename                              Regions    Missed Regions     Cover   Functions  Missed Functions  Executed       Lines      Missed Lines     Cover    Branches   Missed Branches     Cover
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+quantos-event/src/lib.rs                  747                36    95.18%          56                 7    87.50%         519                22    95.76%           0                 0         -
+quantos-storage/src/lib.rs                103                 3    97.09%          10                 1    90.00%          91                 1    98.90%           0                 0         -
+quantos-storage/src/provenance.rs         106                 1    99.06%           8                 0   100.00%          91                 0   100.00%           0                 0         -
+quantos-storage/src/snapshot.rs           592                76    87.16%          49                 9    81.63%         506                54    89.33%           0                 0         -
+quantos-storage/src/wire.rs               147                56    61.90%           6                 1    83.33%         105                33    68.57%           0                 0         -
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                    1695               172    89.85%         129                18    86.05%        1312               110    91.62%           0                 0         -
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.72s
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_event-08ede22582b57234)
+
+running 10 tests
+test tests::duplicate_events_are_rejected_at_append_time ... ok
+test tests::projection_ignores_duplicate_deliveries ... ok
+test tests::projection_continues_with_buffered_event_after_dead_letter ... ok
+test tests::append_rejects_sequence_gaps ... ok
+test tests::projection_sends_poison_messages_to_dead_letter_after_max_attempts ... ok
+test tests::provenance_is_required_and_replay_filters_the_tenant_boundary ... ok
+test tests::projection_buffers_out_of_order_events_and_replays_in_sequence ... ok
+test tests::projection_can_resume_after_restart_from_checkpoint ... ok
+test tests::projection_ignores_old_sequences_and_keeps_first_buffered_delivery ... ok
+test tests::ledger_replays_ten_thousand_events_without_loss ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_storage-ab52dc8b575c3e1f)
+
+running 21 tests
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test snapshot::tests::regression_strict_floor_duplicate_and_mixed_tenant_rules_reject ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test wire::tests::incomplete_or_invalid_metadata_cannot_become_write_context ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::optional_license_rule_is_research_only ... ok
+test snapshot::tests::regression_future_capture_window_and_overflow_are_errors ... ok
+test provenance::tests::revoked_expired_ambiguous_or_empty_approvals_never_authorize ... ok
+test provenance::tests::actual_identity_time_quality_and_purpose_are_required ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test wire::tests::wire_projection_preserves_identity_and_all_quality_variants ... ok
+test snapshot::tests::regression_forged_wire_hash_quality_and_expiry_are_rejected ... ok
+test snapshot::tests::regression_metadata_source_age_and_input_budget_reject ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+

@@ -1,0 +1,37 @@
+
+> @sumalpha/quantos@ build /Users/anray/Documents/project/SumAlpha/QuantOS
+> pnpm -r build
+
+Scope: 7 of 8 workspace projects
+packages/ui build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/config build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/config build: Done
+packages/ui build: Done
+packages/api-client build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/platform build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/platform build: Done
+packages/api-client build: Done
+apps/website build$ next build && node ../../scripts/pre03-build-receipt.mjs website && node ../../scripts/check-client-secrets.mjs out
+packages/domain-ui build$ rm -rf dist && tsc --project tsconfig.build.json
+packages/domain-ui build: Done
+apps/website build:  ⨯ Failed to load next.config.ts, see more info here https://nextjs.org/docs/messages/next-config-error
+apps/website build: > Build error occurred
+apps/website build: Error: [quantos-config] 环境配置校验失败（fail-fast）：
+apps/website build:   - NEXT_PUBLIC_QUANTOS_ENV: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_SITE_ORIGIN: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_QUANTOS_BFF_ORIGIN: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_QUANTOS_OIDC_ISSUER: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_QUANTOS_OIDC_CLIENT_ID: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_QUANTOS_DEFAULT_MODE: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_QUANTOS_MOCK_ENABLED: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_QUANTOS_OBS_ENABLED: 缺少必需变量（fail-fast）
+apps/website build:   - NEXT_PUBLIC_QUANTOS_FEATURE_ASSISTED_LIVE_TESTNET: 缺少必需变量（fail-fast）
+apps/website build:     at assertEnv (../../packages/config/src/env.ts:528:15)
+apps/website build:     at Object.<anonymous> (next.config.compiled.js:14:105)
+apps/website build: Failed
+/Users/anray/Documents/project/SumAlpha/QuantOS/apps/website:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sumalpha/website@0.1.0 build: `next build && node ../../scripts/pre03-build-receipt.mjs website && node ../../scripts/check-client-secrets.mjs out`
+Exit status 1
+ ELIFECYCLE  Command failed with exit code 1.

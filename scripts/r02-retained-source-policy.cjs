@@ -22,7 +22,8 @@ function retainedSourcePolicy({read = p => readFileSync(p), now = Date.now()} = 
   assert.deepEqual(scope.forbidden_uses, ['trading','withdrawals','customer-display','redistribution','commercial-use','permanent-production']);
   assert(String(bytes.document).includes('30 分钟（建议，完成后提交）'), 'original user authorization absent');
   assert.equal(receipt.status, 'PASS_BOUNDED_INTEGRITY'); assert.equal(receipt.fixture, false);
-  assert.equal(receipt.runtime_seconds, 1800); assert.equal(receipt.authorization.scope_id, scope.scope_id);
+  assert.equal(receipt.runtime_seconds, 1800);
+  assert.deepEqual(receipt.authorization, scope, 'retained facts original authorization scope changed');
   assert.equal(receipt.actorActive, false); assert.equal(receipt.provider, scope.provider);
   assert.equal(providers.length, 1); const p = providers[0];
   assert.equal(p.enabled, true); assert.equal(p.expires_at, scope.expires_at);

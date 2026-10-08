@@ -76,7 +76,7 @@ bff-provider-test:
 	cargo test -p bff-gateway
 
 quality-gate-self-test:
-	node --test scripts/f06-test-identity-context.test.cjs scripts/runtime-startup-evidence.test.cjs
+	node --test scripts/f06-test-identity-context.test.cjs scripts/runtime-startup-evidence.test.cjs scripts/service-readiness.test.cjs
 	bash ./scripts/check-secrets.sh
 	node ./scripts/test-quality-gates.mjs
 
@@ -387,7 +387,7 @@ f06-bff-live-smoke:
 	@node scripts/f06-bff-live-smoke.cjs
 
 f06-acceptance-gate:
-	node --test scripts/f06-test-identity-context.test.cjs scripts/runtime-startup-evidence.test.cjs
+	node --test scripts/f06-test-identity-context.test.cjs scripts/runtime-startup-evidence.test.cjs scripts/service-readiness.test.cjs
 	node --test scripts/f06-acceptance-gate-negative.mjs
 	node scripts/check-f06-acceptance.mjs
 

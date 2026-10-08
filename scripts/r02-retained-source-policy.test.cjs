@@ -21,3 +21,9 @@ for(const [name,key,mutate] of [
   const changed=JSON.parse(fs.readFileSync(paths[key]));mutate(changed);
   assert.throws(()=>retainedSourcePolicy({now,read:p=>p===paths[key]?Buffer.from(JSON.stringify(changed)):fs.readFileSync(p)}));
 });
+
+for(const mode of ['extend expiry under same scope ID','expand permissions under same scope ID'])test(mode+' rejects without replacing historical authorization',()=>{
+ const scope=JSON.parse(fs.readFileSync(paths.scope)),providers=JSON.parse(fs.readFileSync(paths.providers));
+ if(mode.startsWith('extend')){scope.expires_at='2030-10-10T00:00:00Z';providers[0].expires_at=scope.expires_at;}else scope.permissions.push('append-snapshot');
+ assert.throws(()=>retainedSourcePolicy({now,read:p=>p===paths.scope?Buffer.from(JSON.stringify(scope)):p===paths.providers?Buffer.from(JSON.stringify(providers)):fs.readFileSync(p)}),/original authorization scope changed/);
+});

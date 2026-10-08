@@ -151,7 +151,8 @@
         "node",
         "--test",
         "scripts/f06-acceptance-gate-negative.mjs",
-        "scripts/f06-http-budget.test.cjs"
+        "scripts/f06-http-budget.test.cjs",
+        "scripts/service-readiness.test.cjs"
       ],
       "marker": "fail 0"
     },
@@ -840,10 +841,14 @@
         "--test",
         "scripts/r1-functional-artifacts.test.mjs",
         "scripts/provider-a1-receipts.test.mjs",
-        "scripts/r02-stage-check.test.mjs"
+        "scripts/r02-stage-check.test.mjs",
+        "scripts/test-engine-processes.test.cjs"
       ],
       "staticOnly": true,
-      "marker": "fail 0"
+      "marker": "fail 0",
+      "env": {
+        "QUANTOS_R1_PROCESS_PROBE": "1"
+      }
     },
     "r02-functional": {
       "command": [
@@ -885,6 +890,18 @@
       "staticOnly": true,
       "timeoutMs": 900000,
       "marker": "test result: ok"
+    },
+    "r1-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/r1-process-cleanup/receipt.json",
+      "output": "supporting/r1-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1322,7 +1339,8 @@
         "r02-functional",
         "r02-target",
         "r02-engine-consumers",
-        "r1-receipt-negative"
+        "r1-receipt-negative",
+        "r1-process-cleanup"
       ]
     }
   },

@@ -47,12 +47,23 @@ fn repo_root() -> &'static Path {
         .expect("repo root exists")
 }
 
+fn fixture_id() -> String {
+    let id = Uuid::now_v7();
+    match std::env::var("QUANTOS_TEST_ENGINE_SCOPE") {
+        Ok(scope) => {
+            assert!(scope.len() == 8 && scope.bytes().all(|b| b.is_ascii_hexdigit()));
+            format!("{scope}-{id}")
+        }
+        Err(_) => id.to_string(),
+    }
+}
+
 fn engines_dir() -> PathBuf {
     repo_root().join("engines")
 }
 
 fn short_socket_path() -> PathBuf {
-    PathBuf::from("/tmp").join(format!("quantos-rd-agent-{}.sock", Uuid::now_v7()))
+    PathBuf::from("/tmp").join(format!("quantos-rd-agent-{}.sock", fixture_id()))
 }
 
 fn manifest_for_socket(socket_path: PathBuf) -> EngineManifest {
@@ -136,20 +147,16 @@ fn timestamp_after(duration: Duration) -> Timestamp {
 }
 
 async fn spawn_python_rd_agent(socket_path: &Path) -> anyhow::Result<Child> {
-    let mut command = Command::new("uv");
+    let mut command = Command::new(engines_dir().join(".venv/bin/python"));
     command
-        .arg("run")
-        .arg("--directory")
-        .arg(engines_dir())
-        .arg("--package")
-        .arg("quantos-rd-agent")
-        .arg("python")
+        .current_dir(engines_dir())
         .arg("-m")
         .arg("rd_agent.server")
         .arg("--socket")
         .arg(socket_path)
         .stdout(Stdio::null())
-        .stderr(Stdio::null());
+        .stderr(Stdio::null())
+        .kill_on_drop(true);
     let child = command.spawn()?;
 
     for _ in 0..100 {
@@ -168,7 +175,10 @@ async fn spawn_python_rd_agent(socket_path: &Path) -> anyhow::Result<Child> {
 
 async fn shutdown_child(mut child: Child, socket_path: &Path) {
     let _ = child.kill().await;
-    let _ = child.wait().await;
+    child
+        .wait()
+        .await
+        .expect("owned Python Engine must be reaped");
     if socket_path.exists() {
         let _ = std::fs::remove_file(socket_path);
     }

@@ -1,3 +1,5 @@
+import {snapshot as engineSnapshot} from './lib/test-engine-processes.cjs';
+import {randomBytes} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,mkdirSync,realpathSync,statSync,existsSync,mkdtempSync,cpSync,rmSync} from 'node:fs';
 import {resolve,relative,sep,dirname} from 'node:path';
@@ -85,7 +87,7 @@ export function validateArtifact(kind,path,source) {
  if(kind==='f01-reproducibility')validateReproducibility(r,source);
  else if(kind==='f05-volume')readMeasurements(path,true);
  else if(kind==='f04-branch')execFileSync(process.execPath,[resolve(root,'scripts/check-f04-branch.mjs'),path],{encoding:'utf8'});
- else if(['r01-target','r02-target'].includes(kind))validateR1Artifact(kind,path,source);
+ else if(['r01-target','r02-target','r1-process-cleanup'].includes(kind))validateR1Artifact(kind,path,source);
  else validateF0Artifact(kind,path,source);
 }
 export function supportingArtifactPaths(kind,r) {
@@ -112,7 +114,7 @@ export function validateReceipt(id,{nodes=nodesFromPlans(),base=root,record,visi
   if(check.database)assert.equal(c.target,'configured-supabase','actual database execution missing');
   if(check.transientDatabase){assert(Array.isArray(c.attempts)&&c.attempts.length>=1&&c.attempts.length<=check.maxAttempts,'database attempt outcomes missing');for(const [i,a]of c.attempts.entries()){assert.equal(a.attempt,i+1);if(i===c.attempts.length-1)assert.equal(a.exitCode,0);else {assert.notEqual(a.exitCode,0);assert.equal(a.transient,true,'semantic database failures cannot be retried');}}}
   if(check.env)assert.deepEqual(c.environmentOverrides,check.env,'required execution environment differs');
-  if(check.reproducibility||check.measurement||check.artifact){assert(c.artifact?.startsWith(directory+'/'),'functional artifact missing');const artifact=confined(c.artifact,base);assert.equal(digest(readFileSync(artifact)),c.artifactSha256,'functional artifact changed');validateArtifact(check.reproducibility?'f01-reproducibility':check.measurement?'f05-volume':check.artifactKind,artifact,m.observedSourceCommit);const required=supportingArtifactPaths(check.artifactKind,JSON.parse(readFileSync(artifact)));assert.deepEqual((c.supportingArtifacts??[]).map(a=>a.path),required.map(p=>dirname(c.artifact)+'/'+p),'required supporting artifacts differ');for(const a of c.supportingArtifacts??[])assert.equal(digest(readFileSync(confined(a.path,base))),a.sha256,'supporting artifact content changed');}
+  if(check.reproducibility||check.measurement||check.artifact){assert(c.artifact?.startsWith(directory+'/'),'functional artifact missing');const artifact=confined(c.artifact,base);assert.equal(digest(readFileSync(artifact)),c.artifactSha256,'functional artifact changed');validateArtifact(check.reproducibility?'f01-reproducibility':check.measurement?'f05-volume':check.artifactKind,artifact,m.observedSourceCommit);if(check.artifactKind==='r1-process-cleanup')assert.equal(JSON.parse(readFileSync(artifact)).scopeTag,m.environment.engineProcessScope,'process cleanup ownership scope differs');const required=supportingArtifactPaths(check.artifactKind,JSON.parse(readFileSync(artifact)));assert.deepEqual((c.supportingArtifacts??[]).map(a=>a.path),required.map(p=>dirname(c.artifact)+'/'+p),'required supporting artifacts differ');for(const a of c.supportingArtifacts??[])assert.equal(digest(readFileSync(confined(a.path,base))),a.sha256,'supporting artifact content changed');}
   if(check.target){if(check.maxAttempts)assert(Array.isArray(c.attempts),'target attempt outcomes missing');if(c.attempts){assert(c.attempts.length>=1&&c.attempts.length<=(check.maxAttempts??1),'invalid target attempt count');for(const [index,attempt]of c.attempts.entries()){assert.equal(attempt.attempt,index+1);if(index===c.attempts.length-1)assert.equal(attempt.exitCode,0);else {assert.notEqual(attempt.exitCode,0);assert.equal(attempt.transient,true,'semantic failures cannot be retried');}}}assert.equal(c.target,'configured-supabase','target database execution required');assert(c.targetEvidence,'target receipt required');const raw=readFileSync(confined(c.targetEvidence,base));assert.equal(digest(raw),c.targetEvidenceSha256,'target receipt changed');const r=JSON.parse(raw);assert.equal(r.schema,'quantos-f06-target-acceptance/v2');assert.equal(r.status,'PASS');assert.equal(r.targetClass,'configured-test-supabase-local-services');assert.equal(r.sourceCommit,m.observedSourceCommit);assert.deepEqual(r.evidence.map(e=>e.name),['build','preflight','auth-bff','auth-runtime','execution','vault','database']);assert.deepEqual(r.failures,[]);for(const key of ['realOidcBff','executionRoleAndVault','denialMatrix'])assert.equal(r[key]?.status,'PASS');for(const e of r.evidence){assert.equal(e.exit_code,0);assert.equal(createHash('sha256').update(gunzipSync(Buffer.from(e.logGzipBase64,'base64'))).digest('hex'),e.logSha256,'target execution log digest mismatch');}}
  }
  assert.deepEqual(m.dependencies.map(d=>d.nodeId).sort(),[...n.dependencies].sort(),'dependency receipt inventory mismatch');
@@ -143,10 +145,16 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1']) {
  const texts=planPaths.map(p=>readFileSync(resolve(root,p),'utf8'));const nodes=nodesFromPlans(texts);const selected=[...new Set(rootIds.flatMap(id=>closure(nodes,id)))];const p=policy();const initialInputs=captureInputs(nodes,selected,p);const out=resolve(root,directory);assert(!existsSync(resolve(out,'execution-results.json')),'assessment evidence already exists; select a fresh directory');mkdirSync(resolve(out,'logs'),{recursive:true});
  const source=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();const environment={node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),rust:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,clientProfile:'local-mock'};
  const priority=id=>p.checks[id].reproducibility?3:(p.checks[id].target||p.checks[id].cleanSource)?2:0;const all=[...new Set(selected.flatMap(id=>p.nodes[id].checks))].sort((a,b)=>priority(b)-priority(a));const results=new Map();const deferred=[];
+ const engineBaselineDir=all.includes('r1-process-cleanup')?mkdtempSync(resolve(tmpdir(),'quantos-r1-engine-scope-')):null;
+ const engineBaseline=engineBaselineDir?resolve(engineBaselineDir,'baseline.json'):null;
+ const engineScope=engineBaseline?randomBytes(4).toString('hex'):null;
+ if(engineBaseline){environment.engineProcessScope=engineScope;writeFileSync(engineBaseline,JSON.stringify({...engineSnapshot(root),scopeTag:engineScope}));}
  for(const id of all){const spec=p.checks[id];const env=developmentEnvironment(readFileSync(confined(p.developmentProfile.file),'utf8'),p.developmentProfile.overrides);let external;
   if(spec.database){process.loadEnvFile(resolve(root,'.env.local'));Object.assign(env,Object.fromEntries(Object.entries(process.env).filter(([key])=>!key.startsWith('NEXT_PUBLIC_'))));env.QUANTOS_RUN_F05_POSTGRES_TESTS='1';const url=new URL(env.DATABASE_URL);assert(url.hostname.endsWith('.supabase.com'),'only configured Supabase database permitted');}
   if(spec.staticOnly){const isolated=staticEnvironment(env);for(const key of Object.keys(env))delete env[key];Object.assign(env,isolated);}
   Object.assign(env,spec.env??{});
+  if(engineScope)env.QUANTOS_TEST_ENGINE_SCOPE=engineScope;
+  if(id==='r1-process-cleanup')env.QUANTOS_R1_ENGINE_BASELINE=engineBaseline;
   if(spec.measurement){env.QUANTOS_F05_MEASUREMENTS_PATH=resolve(out,'f05-volume.json');rmSync(env.QUANTOS_F05_MEASUREMENTS_PATH,{force:true});}
   let command=spec.command.map(c=>c==='node'?process.execPath:c);
   if(spec.target||spec.reproducibility)external=mkdtempSync(resolve(tmpdir(),'quantos-a1-f06-'));
@@ -164,6 +172,7 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1']) {
   if(run.status!==0)console.error(`functional execution failed ${id}; see ${log}`);
  }
  for(const save of deferred.splice(0))save();
+ if(engineBaselineDir)rmSync(engineBaselineDir,{recursive:true,force:true});
  assert([...results.values()].every(r=>r.exitCode===0),'functional execution failed; no READY records published');
  const currentNodes=nodesFromPlans();assertInputSnapshot(initialInputs,captureInputs(currentNodes,selected,policy()));
  assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),source,'source commit changed during execution');

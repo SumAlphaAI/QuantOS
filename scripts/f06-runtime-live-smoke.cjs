@@ -1,3 +1,4 @@
+const ready = require('./lib/service-readiness.cjs');
 const startupEvidence = require('./lib/runtime-startup-evidence.cjs');
 const { spawn } = require('node:child_process');
 const crypto = require('node:crypto');
@@ -59,18 +60,6 @@ function start(binary, port, extra) {
       .replace(/postgres(?:ql)?:\/\/\S+/gi, '[redacted database URL]')
       .replace(/(?:sb_secret_|eyJ)[A-Za-z0-9_.-]+/g, '[redacted credential]')
       .slice(-6000) };
-}
-
-async function ready(service, route, expected) {
-  for (let attempt = 0; attempt < 100; attempt++) {
-    if (service.child.exitCode !== null) break;
-    try {
-      const response = await fetch(`${service.base}${route}`, { signal: AbortSignal.timeout(1000) });
-      if (response.status === expected) return;
-    } catch { /* service has not started */ }
-    await new Promise(resolve => setTimeout(resolve, 200));
-  }
-  throw Error(`${route} did not become ready (exit=${service.child.exitCode}; ${service.diagnostic()})`);
 }
 
 async function main() {
@@ -153,6 +142,7 @@ async function main() {
       realSupabaseAuth: true, independentBffAndRuntimeLogins: true,
       temporaryAdminStorageKey: true, storageOperationPerformed: false,
       startupPhases: runtime.startupPhases(),
+      startupReadiness: { bff: bff.readiness, runtime: runtime.readiness },
       originKind: 'synthetic_https_server_probe',
       httpStatuses: { missingCookie: missing.status, authorizedUnknownRun: authorized.status,
         foreignOrigin: wrongOrigin.status, deniedRole: deniedRole.status,

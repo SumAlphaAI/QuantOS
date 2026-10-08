@@ -1,3 +1,4 @@
+const ready = require('./lib/service-readiness.cjs');
 const observeClientErrors = require('./lib/target-client-errors.cjs');
 const startupEvidence = require('./lib/runtime-startup-evidence.cjs');
 const { spawn, execFileSync } = require('node:child_process');
@@ -86,18 +87,6 @@ function start(binary, port, extra) {
     diagnostic: () => redact(diagnostic).slice(-6000) };
 }
 
-async function ready(service, route, status) {
-  for (let attempt = 0; attempt < 100; attempt++) {
-    if (service.child.exitCode !== null) break;
-    try {
-      const response = await fetch(`${service.base}${route}`, { signal: AbortSignal.timeout(1000) });
-      if (response.status === status) return;
-    } catch { /* server is starting */ }
-    await new Promise(resolve => setTimeout(resolve, 200));
-  }
-  throw Error(`${route} not ready (exit=${service.child.exitCode}; ${service.diagnostic()})`);
-}
-
 async function request(base, route, cookie, method = 'GET', body) {
   const csrf = /(?:^|; )quantos_csrf=([^;]+)/.exec(cookie ?? '')?.[1];
   return fetch(`${base}${route}`, { method,
@@ -180,6 +169,7 @@ async function main() {
     });
     await ready(runtime, '/healthz', 204);
     receipt.startupPhases = runtime.startupPhases();
+    receipt.startupReadiness = { bff: bff.readiness, runtime: runtime.readiness };
     const tool = { tool_name: 'runtime.fixture', capability: 'research.write',
       description: 'F07 target fixture', max_cost_units: 100,
       rate_limit_per_minute: 100, enabled: true };

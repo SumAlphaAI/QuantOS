@@ -55,3 +55,15 @@ for(const [name,mutate] of [
  ['RLS failed',f=>{const t=f.json('target-receipt.json');t.rls='FAIL';f.write('target-receipt.json',t);}],
  ['migration mismatched',f=>{const t=f.json('target-receipt.json');t.migrationHash='b'.repeat(64);f.write('target-receipt.json',t);}],
 ])test('R01 reject '+name,()=>r01Fixture(f=>{mutate(f);f.save();assert.throws(f.validate);}));
+
+function cleanupFixture(fn){const base=mkdtempSync(resolve(tmpdir(),'quantos-r1-process-artifact-'));try{const file=resolve(base,'receipt.json'),now=new Date().toISOString();const r={schema:'quantos-r1-process-cleanup/v1',sourceCommit:source,scopeTag:'1234abcd',baselineCapturedAt:now,checkedAt:now,platform:'linux',processCheckingExecuted:true,status:'PASS',formalAccepted:false,discovered:[],remaining:[]};fn(r,()=>{writeFileSync(file,JSON.stringify(r));return validateR1Artifact('r1-process-cleanup',file,source);});}finally{rmSync(base,{recursive:true,force:true});}}
+test('real process inventory outcome is separately required by R02',()=>cleanupFixture((_,validate)=>assert.equal(validate().status,'PASS')));
+for(const [name,mutate]of [
+ ['leak cleaned after discovery',r=>{r.discovered=[{pid:1}];}],
+ ['process inspection skipped',r=>{r.processCheckingExecuted=false;}],
+ ['residual child left alive',r=>{r.remaining=[{pid:1}];}],
+ ['failed cleanup relabeled',r=>{r.status='FAIL';}],
+ ['unbounded ownership scope',r=>{r.scopeTag='';}],
+ ['wrong source',r=>{r.sourceCommit='b'.repeat(40);}],
+ ['missing baseline capture',r=>{delete r.baselineCapturedAt;}],
+])test('process cleanup reject '+name,()=>cleanupFixture((r,validate)=>{mutate(r);assert.throws(validate);}));

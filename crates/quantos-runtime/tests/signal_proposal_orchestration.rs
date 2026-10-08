@@ -56,26 +56,31 @@ fn repo_root() -> &'static Path {
         .expect("repo root exists")
 }
 
+fn fixture_id() -> String {
+    let id = Uuid::now_v7();
+    match std::env::var("QUANTOS_TEST_ENGINE_SCOPE") {
+        Ok(scope) => {
+            assert!(scope.len() == 8 && scope.bytes().all(|b| b.is_ascii_hexdigit()));
+            format!("{scope}-{id}")
+        }
+        Err(_) => id.to_string(),
+    }
+}
+
 fn engines_dir() -> PathBuf {
     repo_root().join("engines")
 }
 
 fn llmquant_socket_path() -> PathBuf {
-    PathBuf::from("/tmp").join(format!("quantos-r04-llmquant-{}.sock", Uuid::now_v7()))
+    PathBuf::from("/tmp").join(format!("quantos-r04-llmquant-{}.sock", fixture_id()))
 }
 
 fn trading_agents_socket_path() -> PathBuf {
-    PathBuf::from("/tmp").join(format!(
-        "quantos-r04-trading-agents-{}.sock",
-        Uuid::now_v7()
-    ))
+    PathBuf::from("/tmp").join(format!("quantos-r04-trading-agents-{}.sock", fixture_id()))
 }
 
 fn openbb_adapter_socket_path() -> PathBuf {
-    PathBuf::from("/tmp").join(format!(
-        "quantos-r04-openbb-adapter-{}.sock",
-        Uuid::now_v7()
-    ))
+    PathBuf::from("/tmp").join(format!("quantos-r04-openbb-adapter-{}.sock", fixture_id()))
 }
 
 fn llmquant_manifest(socket_path: PathBuf) -> EngineManifest {
@@ -134,20 +139,16 @@ fn openbb_adapter_manifest(socket_path: PathBuf) -> EngineManifest {
 }
 
 async fn spawn_python_llmquant(socket_path: &Path) -> Result<Child> {
-    let mut command = Command::new("uv");
+    let mut command = Command::new(engines_dir().join(".venv/bin/python"));
     command
-        .arg("run")
-        .arg("--directory")
-        .arg(engines_dir())
-        .arg("--package")
-        .arg("quantos-llmquant")
-        .arg("python")
+        .current_dir(engines_dir())
         .arg("-m")
         .arg("llmquant.server")
         .arg("--socket")
         .arg(socket_path)
         .stdout(Stdio::null())
-        .stderr(Stdio::null());
+        .stderr(Stdio::null())
+        .kill_on_drop(true);
     let child = command.spawn()?;
 
     for _ in 0..100 {
@@ -165,20 +166,16 @@ async fn spawn_python_llmquant(socket_path: &Path) -> Result<Child> {
 }
 
 async fn spawn_python_trading_agents(socket_path: &Path) -> Result<Child> {
-    let mut command = Command::new("uv");
+    let mut command = Command::new(engines_dir().join(".venv/bin/python"));
     command
-        .arg("run")
-        .arg("--directory")
-        .arg(engines_dir())
-        .arg("--package")
-        .arg("quantos-trading-agents")
-        .arg("python")
+        .current_dir(engines_dir())
         .arg("-m")
         .arg("trading_agents.server")
         .arg("--socket")
         .arg(socket_path)
         .stdout(Stdio::null())
-        .stderr(Stdio::null());
+        .stderr(Stdio::null())
+        .kill_on_drop(true);
     let child = command.spawn()?;
 
     for _ in 0..100 {
@@ -196,20 +193,16 @@ async fn spawn_python_trading_agents(socket_path: &Path) -> Result<Child> {
 }
 
 async fn spawn_python_openbb_adapter(socket_path: &Path) -> Result<Child> {
-    let mut command = Command::new("uv");
+    let mut command = Command::new(engines_dir().join(".venv/bin/python"));
     command
-        .arg("run")
-        .arg("--directory")
-        .arg(engines_dir())
-        .arg("--package")
-        .arg("quantos-openbb-adapter")
-        .arg("python")
+        .current_dir(engines_dir())
         .arg("-m")
         .arg("openbb_adapter.server")
         .arg("--socket")
         .arg(socket_path)
         .stdout(Stdio::null())
-        .stderr(Stdio::null());
+        .stderr(Stdio::null())
+        .kill_on_drop(true);
     let child = command.spawn()?;
 
     for _ in 0..100 {
@@ -228,7 +221,10 @@ async fn spawn_python_openbb_adapter(socket_path: &Path) -> Result<Child> {
 
 async fn shutdown_child(mut child: Child, socket_path: &Path) {
     let _ = child.kill().await;
-    let _ = child.wait().await;
+    child
+        .wait()
+        .await
+        .expect("owned Python Engine must be reaped");
     if socket_path.exists() {
         let _ = std::fs::remove_file(socket_path);
     }
