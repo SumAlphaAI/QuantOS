@@ -1,3 +1,4 @@
+use crate::snapshot_source::SnapshotConsumerSource;
 use std::collections::{BTreeMap, BTreeSet};
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
@@ -135,6 +136,8 @@ pub enum ResearchWorkflowError {
     Core(#[from] CoreError),
     #[error(transparent)]
     Json(#[from] serde_json::Error),
+    #[error(transparent)]
+    PersistentSnapshot(#[from] quantos_storage::pg::PgStorageError),
     #[error("RESEARCH_SNAPSHOT_NOT_FOUND: snapshot `{snapshot_id}` is not available")]
     SnapshotNotFound { snapshot_id: SnapshotId },
     #[error("RESEARCH_SNAPSHOT_GATE_REJECTED: {details}")]
@@ -161,8 +164,7 @@ struct ResearchCheckpointPayload {
 
 pub struct ResearchWorkflowCoordinator<'a> {
     runtime: &'a mut InMemoryRuntimeKernel,
-    snapshots: &'a InMemoryDataSnapshotCatalog,
-    quality_rules: &'a SnapshotQualityRuleset,
+    snapshot_source: SnapshotConsumerSource<'a>,
     artifact_repository: &'a mut InMemoryResearchArtifactRepository,
     engine_manager: &'a mut EngineManager,
     worker_name: String,
@@ -189,8 +191,28 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
     ) -> Self {
         Self {
             runtime,
-            snapshots,
-            quality_rules,
+            snapshot_source: SnapshotConsumerSource::InMemory(snapshots, quality_rules),
+            artifact_repository,
+            engine_manager,
+            worker_name: config.worker_name,
+            lease_duration: config.lease_duration,
+            storage_bucket: config.storage_bucket,
+        }
+    }
+
+    /// Persistent snapshots/rules and actual approved lineage are reloaded before every dispatch.
+    #[must_use]
+    pub fn new_persisted(
+        runtime: &'a mut InMemoryRuntimeKernel,
+        storage: &'a mut quantos_storage::pg::PgStorageStore,
+        policy: &'a quantos_storage::provenance::SnapshotSourcePolicy,
+        artifact_repository: &'a mut InMemoryResearchArtifactRepository,
+        engine_manager: &'a mut EngineManager,
+        config: ResearchWorkflowCoordinatorConfig,
+    ) -> Self {
+        Self {
+            runtime,
+            snapshot_source: SnapshotConsumerSource::Postgres(storage, policy),
             artifact_repository,
             engine_manager,
             worker_name: config.worker_name,
@@ -307,17 +329,18 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
             .ok_or(ResearchWorkflowError::MissingCheckpoint { run_id })?;
         let payload: ResearchCheckpointPayload =
             serde_json::from_value(checkpoint.payload.clone())?;
-        let snapshot = self
-            .snapshots
-            .get(
+        let id = SnapshotId::parse_str(&payload.data_snapshot_id)?;
+        let (snapshot, rules) = self
+            .snapshot_source
+            .load(
                 lease.run.tenant_id,
-                SnapshotId::parse_str(&payload.data_snapshot_id)?,
-            )
-            .cloned()
-            .ok_or(ResearchWorkflowError::SnapshotNotFound {
-                snapshot_id: SnapshotId::parse_str(&payload.data_snapshot_id)?,
-            })?;
-        ensure_snapshot_allowed(&snapshot, observed_at, self.quality_rules)?;
+                lease.run.actor_id,
+                id,
+                SnapshotUsage::Research,
+                observed_at,
+            )?
+            .ok_or(ResearchWorkflowError::SnapshotNotFound { snapshot_id: id })?;
+        ensure_snapshot_allowed(&snapshot, observed_at, &rules)?;
 
         self.runtime.save_checkpoint(
             run_id,

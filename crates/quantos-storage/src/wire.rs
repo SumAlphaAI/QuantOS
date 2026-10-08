@@ -98,3 +98,41 @@ pub fn snapshot_to_wire(
 #[cfg(test)]
 #[path = "../tests/unit/wire.rs"]
 mod tests;
+
+impl crate::pg::PgStorageStore {
+    /// Resolve an untrusted wire projection using an independently authenticated
+    /// server context. Canonical PG state and current source/quality rules win.
+    pub fn resolve_snapshot_reference(
+        &mut self,
+        reference: &DataSnapshot,
+        context: &SnapshotWriteContext,
+        usage: crate::SnapshotUsage,
+        observed_at: DateTime<Utc>,
+        policy: &crate::provenance::SnapshotSourcePolicy,
+    ) -> Result<DataSnapshotRecord, crate::pg::PgStorageError> {
+        let metadata = reference
+            .metadata
+            .as_ref()
+            .ok_or(SnapshotError::WriteContext)?;
+        let supplied = SnapshotWriteContext::from_command_metadata(metadata, &context.reason)?;
+        context.validate(context.tenant_id)?;
+        if supplied.tenant_id != context.tenant_id
+            || supplied.actor_id != context.actor_id
+            || supplied.correlation_id != context.correlation_id
+            || supplied.causation_id != context.causation_id
+        {
+            return Err(SnapshotError::WriteContext.into());
+        }
+        self.authorize_snapshot_reader(context.tenant_id, context.actor_id)?;
+        let id = quantos_core::SnapshotId::parse_str(&reference.snapshot_id)?;
+        let (snapshot, _) =
+            self.load_authorized_snapshot(context.tenant_id, id, usage, observed_at, policy)?;
+        if snapshot_to_wire(&snapshot, metadata.clone())? != *reference {
+            return Err(crate::provenance::SourceAuthorizationError(
+                "wire projection differs from persisted snapshot",
+            )
+            .into());
+        }
+        Ok(snapshot)
+    }
+}

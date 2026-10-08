@@ -2483,7 +2483,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
 <a id="acceptance-release-gate-beta"></a>
 ### RELEASE-GATE:BETA：Paper/Shadow 正式发布验收检查点
 
-在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。
+在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。
 
 ```json
 {
@@ -2496,7 +2496,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
     "FE:FEP-7",
     "PROVIDER:ALL"
   ],
-  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。",
+  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

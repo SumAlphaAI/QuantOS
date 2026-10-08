@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-export const productionFiles = ['lib.rs', 'pg.rs', 'snapshot.rs', 'supabase_storage.rs', 'wire.rs'].map(n => 'crates/quantos-storage/src/' + n);
+export const productionFiles = ['lib.rs', 'pg.rs', 'snapshot.rs', 'supabase_storage.rs', 'wire.rs', 'provenance.rs'].map(n => 'crates/quantos-storage/src/' + n);
 export function validateCoverage(report) {
   assert.equal(report.type, 'llvm.coverage.json.export');
   const files = report.data.flatMap(d => d.files);

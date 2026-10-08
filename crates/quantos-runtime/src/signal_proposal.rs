@@ -1,3 +1,4 @@
+use crate::snapshot_source::SnapshotConsumerSource;
 use std::collections::BTreeMap;
 
 use chrono::{DateTime, Duration as ChronoDuration, TimeZone, Utc};
@@ -238,6 +239,8 @@ pub enum SignalProposalWorkflowError {
     Core(#[from] CoreError),
     #[error(transparent)]
     Json(#[from] serde_json::Error),
+    #[error(transparent)]
+    PersistentSnapshot(#[from] quantos_storage::pg::PgStorageError),
     #[error("SIGNAL_PROPOSAL_SNAPSHOT_NOT_FOUND: snapshot `{snapshot_id}` is not available")]
     SnapshotNotFound { snapshot_id: SnapshotId },
     #[error("SIGNAL_PROPOSAL_SNAPSHOT_GATE_REJECTED: {details}")]
@@ -284,8 +287,7 @@ struct SignalProposalCheckpointPayload {
 
 pub struct SignalProposalWorkflowCoordinator<'a> {
     runtime: &'a mut InMemoryRuntimeKernel,
-    snapshots: &'a InMemoryDataSnapshotCatalog,
-    quality_rules: &'a SnapshotQualityRuleset,
+    snapshot_source: SnapshotConsumerSource<'a>,
     repository: &'a mut InMemorySignalProposalRepository,
     engine_manager: &'a mut EngineManager,
     worker_name: String,
@@ -318,8 +320,31 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
     ) -> Self {
         Self {
             runtime,
-            snapshots,
-            quality_rules,
+            snapshot_source: SnapshotConsumerSource::InMemory(snapshots, quality_rules),
+            repository,
+            engine_manager,
+            worker_name: config.worker_name,
+            lease_duration: config.lease_duration,
+            storage_bucket: config.storage_bucket,
+            data_query_capability: config.data_query_capability,
+            signal_capability: config.signal_capability,
+            proposal_capability: config.proposal_capability,
+        }
+    }
+
+    /// Strategy dispatch resolves persisted provenance and current rules, with no client override.
+    #[must_use]
+    pub fn new_persisted(
+        runtime: &'a mut InMemoryRuntimeKernel,
+        storage: &'a mut quantos_storage::pg::PgStorageStore,
+        policy: &'a quantos_storage::provenance::SnapshotSourcePolicy,
+        repository: &'a mut InMemorySignalProposalRepository,
+        engine_manager: &'a mut EngineManager,
+        config: SignalProposalWorkflowCoordinatorConfig,
+    ) -> Self {
+        Self {
+            runtime,
+            snapshot_source: SnapshotConsumerSource::Postgres(storage, policy),
             repository,
             engine_manager,
             worker_name: config.worker_name,
@@ -413,12 +438,17 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         let payload: SignalProposalCheckpointPayload =
             serde_json::from_value(checkpoint.payload.clone())?;
         let snapshot_id = SnapshotId::parse_str(&payload.feature_snapshot_id)?;
-        let snapshot = self
-            .snapshots
-            .get(lease.run.tenant_id, snapshot_id)
-            .cloned()
+        let (snapshot, rules) = self
+            .snapshot_source
+            .load(
+                lease.run.tenant_id,
+                lease.run.actor_id,
+                snapshot_id,
+                SnapshotUsage::Strategy,
+                observed_at,
+            )?
             .ok_or(SignalProposalWorkflowError::SnapshotNotFound { snapshot_id })?;
-        ensure_snapshot_allowed(&snapshot, observed_at, self.quality_rules)?;
+        ensure_snapshot_allowed(&snapshot, observed_at, &rules)?;
 
         self.runtime.save_checkpoint(
             run_id,

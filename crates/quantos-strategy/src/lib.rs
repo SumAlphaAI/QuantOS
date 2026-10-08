@@ -263,6 +263,44 @@ impl InMemoryStrategyDraftStore {
             .collect()
     }
 
+    /// Load current persisted rules and approved source lineage before strategy validation.
+    pub fn initiate_validation_persisted(
+        &self,
+        auth: &AuthContext,
+        draft_id: StrategyDraftId,
+        storage: &mut quantos_storage::pg::PgStorageStore,
+        policy: &quantos_storage::provenance::SnapshotSourcePolicy,
+        observed_at: DateTime<Utc>,
+    ) -> Result<ValidationHandoff, StrategyDraftError> {
+        ensure_strategy_write(auth)?;
+        let id = self
+            .head_version(auth.tenant_id, draft_id)
+            .ok_or(StrategyDraftError::DraftNotFound { draft_id })?
+            .data_snapshot_id
+            .ok_or(StrategyDraftError::ValidationMissingSnapshot { draft_id })?;
+        storage
+            .authorize_snapshot_reader(auth.tenant_id, auth.actor_id)
+            .map_err(|_| StrategyDraftError::ValidationSnapshotGateRejected {
+                details: "persistent reader authorization rejected".into(),
+            })?;
+        let (snapshot, rules) = storage
+            .load_authorized_snapshot(
+                auth.tenant_id,
+                id,
+                SnapshotUsage::Strategy,
+                observed_at,
+                policy,
+            )
+            .map_err(|_| StrategyDraftError::ValidationSnapshotGateRejected {
+                details: "persistent snapshot provenance/rules rejected".into(),
+            })?;
+        let mut catalog = InMemoryDataSnapshotCatalog::new();
+        catalog
+            .upsert(snapshot)
+            .map_err(|_| StrategyDraftError::SnapshotRefUnresolved { snapshot_id: id })?;
+        self.initiate_validation(auth, draft_id, &catalog, &rules, observed_at)
+    }
+
     pub fn initiate_validation(
         &self,
         auth: &AuthContext,

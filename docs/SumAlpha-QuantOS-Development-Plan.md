@@ -658,9 +658,9 @@ flowchart TD
 - 技术要求：不可变 hash、时间窗、schema、质量、许可证、来源；快照元数据与质量 Gate 存于 Supabase PostgreSQL，并通过 RLS 保护租户可见性；交易相关调用必须检查质量/时效
 - 交付物：snapshot API、对象存储、quality rules、snapshot migration
 - 量化验收标准：相同输入生成相同 hash；过期/质量不合格/许可证缺失的 300 个 fixture 100% 被拒用于策略/交易；查询 P95 <300ms
-- 阶段执行：确定性 hash、300 个质量/时效/许可证拒绝 fixture、真实 Supabase 查询/权限与 Storage 完整性为开发硬门槛；查询 P95 <300ms 保留基线并移交 RELEASE-GATE:BETA。
+- 阶段执行：确定性 hash、300 个质量/时效/许可证拒绝 fixture、真实 Supabase 查询/权限与 Storage 完整性、有效内部用途来源批准及 R01 已保留事实→持久化快照/当前规则→实际消费者为开发硬门槛。C26 开发范围为 typed wire 可信引用解析和实际 Python Engine/模块联调；C25 代表性发布环境 P95<300ms、C26 已部署 BFF/Runtime 完整 HTTP/JWT 权限链及候选同 SHA 远程 CI 移交 RELEASE-GATE:BETA。未部署不阻塞组件功能开发；不免除租户/来源/质量/时效底线或前置依赖准入。
 - 依赖：R01、F06
-- 当前工程复核：[2026-10-07 全面复审基线](./audit/R02-comprehensive-review-2026-10-07.md)发现 13 项问题（阻塞 1、高危 5、中危 6、低危 1）；本轮按[逐项整改验证](./audit/R02-remediation-2026-10-07.md)修复模型/时间/规则/引用、成员读取、对象恢复、原子审计、行为及覆盖 Gate 和文档。工程修复不自动产生阶段 READY 或正式 ACCEPTED，stage_gate 仍 NOT_ASSESSED；真实 R01 来源/用途及持久化消费者全链、成员 HTTP/BFF 部署、候选同 SHA 远程 CI、发布规模/P95和用户正式确认继续独立验收。历史报告及失败事实保留；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r02)不迁移为本轮批准。
+- 当前工程复核：[全面复审基线](./audit/R02-comprehensive-review-2026-10-07.md)的13个原工程缺陷按[原整改](./audit/R02-remediation-2026-10-07.md)关闭；[2026-10-08续修](./audit/R02-partial-remediation-2026-10-08.md)补齐C09受控实际来源/用途、C18持久化快照/规则→真实Research Engine及Signal拒绝、C26 typed投影/reader权限与模块消费。组件功能26/26；开发含准入26/27，C01 R01/F06/F0当前准入仍PENDING，独立入口fail closed，stage_gate保持NOT_ASSESSED。按用户阶段调整，C25代表性P95、C26部署HTTP/JWT及候选同SHA远程CI归RELEASE-GATE:BETA，不以移交计PASS；原完整28项严格PASS25/28。旧窗口明确Degraded、只准原内部Research，不产生新鲜度/交易/商业或长稳授权。当前工程验证不自动产生READY或ACCEPTED；历史原报告、失败与[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r02)保留。
 
 <a id="task-tp01-c"></a>
 ### TP01-C：`vibe_adapter` skeleton

@@ -1,4 +1,5 @@
 pub mod pg;
+pub mod provenance;
 pub mod snapshot;
 pub mod supabase_storage;
 pub mod wire;

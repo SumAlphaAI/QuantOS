@@ -102,7 +102,8 @@ async fn spawn_python_rd_agent(socket_path: &Path) -> Result<Child> {
         .arg("--socket")
         .arg(socket_path)
         .stdout(Stdio::null())
-        .stderr(Stdio::null());
+        .stderr(Stdio::null())
+        .kill_on_drop(true);
     let child = command.spawn()?;
 
     for _ in 0..100 {
@@ -411,3 +412,6 @@ async fn research_workflow_cancel_confirms_within_two_seconds() -> Result<()> {
     shutdown_child(child, &socket_path).await;
     result
 }
+
+#[path = "support/r02_persisted_chain.rs"]
+mod r02_persisted_chain;

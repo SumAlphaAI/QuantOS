@@ -24,5 +24,15 @@ try {
   if(result.status===null || !result.stdout.includes('test result: FAILED.') || !result.stdout.includes(filter))throw Error('R02_MUTATION_NOT_DETECTED:'+name);
   summary.push({name,result:'MUTATION_DETECTED',test:filter});console.log(`MUTATION_DETECTED ${name}`);
  }
+ const policyPath=path.join(copy,'crates/quantos-storage/src/provenance.rs'),policyOriginal=fs.readFileSync(policyPath,'utf8');
+ fs.writeFileSync(p,original);
+ const policyBaseline=run('actual_identity_time_quality_and_purpose_are_required');if(policyBaseline.status!==0)throw Error('R02_POLICY_BEHAVIOR_BASELINE_FAILED');
+ for(const [name,from,to] of [
+  ['source-purpose','!approval.allowed_usages.contains(&usage)','false'],
+  ['approval-reference','event["approval_reference"] != approval.approval_reference','false'],
+ ]) {if(!policyOriginal.includes(from))throw Error('R02_MUTATION_NOT_APPLIED:'+name);fs.writeFileSync(policyPath,policyOriginal.replace(from,to));const filter='actual_identity_time_quality_and_purpose_are_required',result=run(filter);
+  if(result.status===null||!result.stdout.includes('test result: FAILED.')||!result.stdout.includes(filter))throw Error('R02_MUTATION_NOT_DETECTED:'+name);
+  summary.push({name,result:'MUTATION_DETECTED',test:filter});console.log(`MUTATION_DETECTED ${name}`);
+ }
  console.log(JSON.stringify({schema:'quantos-r02-behavior/v1',baseline:'PASS',mutations:summary,sourceCopyOnly:true,liveDatabase:false}));
 }finally{fs.rmSync(copy,{recursive:true,force:true});}

@@ -246,6 +246,12 @@ fn postgres_storage_store_persists_artifacts_and_schema_registry() {
         }
     }
 
+    // Development has already exercised all three functional queries above.
+    // Repeated timing and the numerical threshold belong to RELEASE only.
+    if env::var("QUANTOS_R02_RELEASE_PERFORMANCE").ok().as_deref() != Some("1") {
+        eprintln!("R02_RELEASE_PERFORMANCE_NOT_RUN: development verifies functional reads only");
+        return;
+    }
     for path in ["id", "content_hash", "symbol_list"] {
         let mut samples = Vec::new();
         for _ in 0..25 {

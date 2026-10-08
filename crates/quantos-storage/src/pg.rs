@@ -33,6 +33,8 @@ pub enum PgStorageError {
     Json(#[from] serde_json::Error),
     #[error(transparent)]
     Snapshot(#[from] SnapshotError),
+    #[error(transparent)]
+    SourceAuthorization(#[from] crate::provenance::SourceAuthorizationError),
     #[error("SNAPSHOT_PERSISTENCE_INVARIANT: conflict row is missing after immutable insert")]
     SnapshotPersistenceInvariant,
 }
@@ -327,6 +329,27 @@ impl PgStorageStore {
         Ok(serde_json::from_value(row.get("document"))?)
     }
 
+    /// Require a live server actor grant before resolving a consumer reference.
+    pub fn authorize_snapshot_reader(
+        &mut self,
+        tenant: TenantId,
+        actor: ActorId,
+    ) -> Result<(), PgStorageError> {
+        let allowed: bool = self.client.query_typed_one(
+            "select exists(select 1 from quantos.actors a join quantos.actor_capabilities g on g.tenant_id=a.tenant_id and g.actor_id=a.id where a.tenant_id=$1 and a.id=$2 and a.is_active and g.capability='snapshot.read' and g.mode_scope is null and g.account_id is null and (a.actor_kind='service' or (a.actor_kind='user' and a.user_id=auth.uid())))",
+            &[(tenant.as_uuid(), Type::UUID), (actor.as_uuid(), Type::UUID)],
+        )?.get(0);
+        if !allowed {
+            return Err(crate::provenance::SourceAuthorizationError(
+                "snapshot reader not authorized",
+            )
+            .into());
+        }
+        Ok(())
+    }
+
+    /// Quality-only diagnostic; consumer admission must use load_authorized_snapshot
+    /// plus independently authenticated reader authorization.
     /// Cold database reads prevent a local cache from hiding corruption or rule changes.
     pub fn evaluate_snapshot(
         &mut self,
@@ -347,6 +370,101 @@ impl PgStorageStore {
             observed_at,
             &rules,
         ))
+    }
+
+    /// Cold-load both rules and canonical snapshot, then resolve every market
+    /// lineage event against server-approved purposes. No cached rule or client label
+    /// can grant permission to a persistent consumer.
+    pub fn load_authorized_snapshot(
+        &mut self,
+        tenant_id: TenantId,
+        snapshot_id: SnapshotId,
+        usage: crate::SnapshotUsage,
+        observed_at: DateTime<Utc>,
+        policy: &crate::provenance::SnapshotSourcePolicy,
+    ) -> Result<(DataSnapshotRecord, crate::SnapshotQualityRuleset), PgStorageError> {
+        use crate::provenance::SourceAuthorizationError;
+        let snapshot = self
+            .get_data_snapshot_uncached(tenant_id, snapshot_id)?
+            .ok_or(PgStorageError::SnapshotPersistenceInvariant)?;
+        let rules = crate::SnapshotQualityRuleset::from_rules(
+            self.list_snapshot_quality_rules(tenant_id)?,
+        )?;
+        if !crate::SnapshotQualityGate::evaluate(&snapshot, usage, observed_at, &rules).allowed {
+            return Err(SourceAuthorizationError("persistent quality Gate rejected").into());
+        }
+        let mut bound_sources = std::collections::BTreeSet::new();
+        let mut bound_symbols = std::collections::BTreeSet::new();
+        let mut total = 0_i64;
+        for lineage in snapshot
+            .lineage
+            .iter()
+            .filter(|l| l.lineage_kind == "market_event_range")
+        {
+            let lo = lineage.details["from_sequence"]
+                .as_i64()
+                .or_else(|| lineage.details["first_sequence"].as_i64())
+                .ok_or(SourceAuthorizationError("range start missing"))?;
+            let hi = lineage.details["to_sequence"]
+                .as_i64()
+                .or_else(|| lineage.details["last_sequence"].as_i64())
+                .ok_or(SourceAuthorizationError("range end missing"))?;
+            if lo < 1 || hi < lo || hi - lo >= 10_000 || total + hi - lo + 1 > 10_000 {
+                return Err(SourceAuthorizationError("consumer lineage budget exceeded").into());
+            }
+            let aggregate = lineage
+                .reference
+                .strip_prefix("market:")
+                .ok_or(SourceAuthorizationError("market reference malformed"))?;
+            let rows = self.client.query_typed(
+                "select payload from quantos.event_log where tenant_id=$1 and aggregate_type='market' and aggregate_id=$2 and sequence between $3 and $4 order by sequence",
+                &[(tenant_id.as_uuid(), Type::UUID), (&aggregate, Type::TEXT), (&lo, Type::INT8), (&hi, Type::INT8)],
+            )?;
+            if rows.len() as i64 != hi - lo + 1 {
+                return Err(SourceAuthorizationError("market lineage gap").into());
+            }
+            total += rows.len() as i64;
+            for row in rows {
+                let event: serde_json::Value = row.get(0);
+                policy.validate_event(&snapshot, &event, usage, observed_at)?;
+                let symbol = event["normalized_symbol"]
+                    .as_str()
+                    .ok_or(SourceAuthorizationError("symbol missing"))?;
+                bound_symbols.insert(symbol.to_owned());
+                for source in &snapshot.sources {
+                    if event["provider"] == source.provider
+                        && event["dataset"] == source.dataset
+                        && event["license_label"] == source.license_label
+                        && (source.source_id == format!("market:{}:{symbol}", source.provider)
+                            || event["source_tick_id"] == source.source_id)
+                    {
+                        bound_sources.insert((
+                            source.provider.clone(),
+                            source.dataset.clone(),
+                            source.license_label.clone(),
+                            source.source_id.clone(),
+                        ));
+                    }
+                }
+            }
+        }
+        if total == 0
+            || snapshot.sources.iter().any(|s| {
+                !bound_sources.contains(&(
+                    s.provider.clone(),
+                    s.dataset.clone(),
+                    s.license_label.clone(),
+                    s.source_id.clone(),
+                ))
+            })
+            || snapshot.symbols.iter().any(|s| !bound_symbols.contains(s))
+        {
+            return Err(SourceAuthorizationError(
+                "every source and symbol requires actual market lineage",
+            )
+            .into());
+        }
+        Ok((snapshot, rules))
     }
 
     pub(crate) fn prepare_artifact_upload(
