@@ -1,0 +1,125 @@
+[
+  {
+    "id": "f01-reproducibility",
+    "command": [
+      "node",
+      "scripts/verify-reproducible-builds.mjs",
+      "--mode",
+      "reproducibility",
+      "--runs",
+      "3"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-08T12:53:53.321Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/logs/f01-reproducibility.log",
+    "logSha256": "sha256:e63091ed55120f90680baf1ec015fde73d5768392b0712a87d3e92ecc8d47220",
+    "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/f01-reproducibility.json",
+    "artifactSha256": "sha256:ed0cf7f2a0b42cd62d1cd247e2d3e0ea6f4dde9c10b7a92f8f014909b89eb97a",
+    "supportingArtifacts": []
+  },
+  {
+    "id": "f06-target",
+    "command": [
+      "node",
+      "scripts/run-p0-f06-target.mjs"
+    ],
+    "exitCode": 1,
+    "status": "FAIL",
+    "executedAt": "2026-10-08T12:57:19.162Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/logs/f06-target.log",
+    "logSha256": "sha256:57e7b405a321170de91a0bdfec101b15990625516b17eb00c667250a11a7f1ba",
+    "attempts": [
+      {
+        "attempt": 1,
+        "exitCode": 1,
+        "transient": false
+      }
+    ]
+  },
+  {
+    "id": "f09-target",
+    "command": [
+      "node",
+      "scripts/f09-target-gate.cjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-08T12:59:39.592Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/logs/f09-target.log",
+    "logSha256": "sha256:139602a6b72103fb087c3225c8224c99493a03f01b6beb255d14ea9e44d47127",
+    "environmentOverrides": {
+      "QUANTOS_RUN_F09_POSTGRES_TESTS": "1"
+    },
+    "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/supporting/f09-target/target.json",
+    "artifactSha256": "sha256:48cb60dbc57bca16b6ec65f3d57f4d130f2e250a8aca717fd537d9e864e3ac09",
+    "supportingArtifacts": [
+      {
+        "path": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/supporting/f09-target/bff-write-trace.log",
+        "sha256": "sha256:22b4dc90165751de58bd044613c17574285229db1086ed0ac86f3eb4d1f7f8d3"
+      },
+      {
+        "path": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/supporting/f09-target/engine-crash.log",
+        "sha256": "sha256:5fa33649602b16ef3f2fae2ad4ac15badb33233957feb668d38361c863ca1ab1"
+      },
+      {
+        "path": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/supporting/f09-target/portfolio-query.log",
+        "sha256": "sha256:cfe2037c9c0fa913288a698c12b66b9f96d1e08ffa6da3f9739b7cd9d976ec0a"
+      },
+      {
+        "path": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/supporting/f09-target/portfolio-write-trace.log",
+        "sha256": "sha256:f8343d2e00824260e45daf5b0c21feea1bf09a82edee48030d4605b1884bc2ee"
+      },
+      {
+        "path": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/supporting/f09-target/postgres-exercises.log",
+        "sha256": "sha256:8aa0b11a429fd0ecb101947c5532e810af458d67596a3af8e50d9cacab033d34"
+      },
+      {
+        "path": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/supporting/f09-target/runtime-write-trace.log",
+        "sha256": "sha256:1fa48a1ca75c6de53cf2ad9724e20a8334f850a134b9fc991fce41e1effb6e7e"
+      },
+      {
+        "path": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/supporting/f09-target/scheduler-smoke.log",
+        "sha256": "sha256:d4a17caabfdc6d30e334c4d2d23111290adaf3b2f8d34815f24cb85a2530e69a"
+      }
+    ],
+    "target": "configured-supabase"
+  },
+  {
+    "id": "f01",
+    "command": [
+      "node",
+      "scripts/check-f01.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-08T13:11:36.672Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/logs/f01.log",
+    "logSha256": "sha256:f57bcb04ee2c912c26ec5768ffb698bd8088a663ed28bab21b5476205d28d9e0"
+  },
+  {
+    "id": "f01-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/f01-gate-negative.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-08T13:11:38.638Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/logs/f01-negative.log",
+    "logSha256": "sha256:ead227a21161ed0b7293b77f9f2266a460a7ab0fcecea8c9cb2d82911b4c91f0"
+  },
+  {
+    "id": "f01-lint",
+    "command": [
+      "make",
+      "lint"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "executedAt": "2026-10-08T13:11:43.840Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-01/logs/f01-lint.log",
+    "logSha256": "sha256:ca30499b47a8fad709064541c604fd434a1aa94657b307e1b5e8667899729548"
+  }
+]

@@ -3,11 +3,13 @@ const { spawnSync } = require('node:child_process');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const { connectBeforeStatements } = require('./lib/postgres-bootstrap.cjs');
 
 const assert = (condition, message) => { if (!condition) throw Error(message); };
 const projectRef = url => new URL(url).hostname.split('.')[0];
 
-async function main() {
+async function main({ createClient = options => new Client(options), pause,
+  log = value => console.log(value), phase = { value: 'CONFIGURATION' } } = {}) {
   assert(process.env.QUANTOS_F06_ISOLATED_PROJECT === '1' &&
     process.env.QUANTOS_F06_TARGET_ISOLATED === '1',
   'F06 command smoke requires both isolated-project guards');
@@ -28,7 +30,7 @@ async function main() {
   const caPath = executionUrl.searchParams.get('sslrootcert');
   assert(caPath && path.isAbsolute(caPath) && fs.statSync(caPath).isFile(),
     'Execution URL must carry an absolute trusted CA path');
-  const client = new Client({
+  const connectionOptions = {
     host: operatorUrl.hostname,
     port: 5432,
     user: decodeURIComponent(operatorUrl.username),
@@ -36,8 +38,13 @@ async function main() {
     database: operatorUrl.pathname.slice(1) || 'postgres',
     ssl: { ca: fs.readFileSync(caPath, 'utf8'), rejectUnauthorized: true },
     connectionTimeoutMillis: 10000,
+  };
+  const bootstrap = {};
+  phase.value = 'INITIAL_CONNECTION';
+  const client = await connectBeforeStatements(() => createClient(connectionOptions), {
+    record: bootstrap, pause,
+    onAttempt: () => log(JSON.stringify({ event: 'F06_COMMAND_BOOTSTRAP', ...bootstrap })),
   });
-  await client.connect();
   const fixture = {
     tenant: crypto.randomUUID(), workspace: crypto.randomUUID(), account: crypto.randomUUID(),
     actor: crypto.randomUUID(), suffix: crypto.randomBytes(8).toString('hex'),
@@ -80,6 +87,7 @@ async function main() {
       'isolated command fixture data cleanup was incomplete');
   };
   const probe = scenario => {
+    phase.value = 'EXECUTION_' + scenario.toUpperCase();
     const child = spawnSync(path.resolve('target/debug/execution-gateway'), ['--f06-paper-probe'], {
       env: { ...process.env, QUANTOS_F06_PROBE_SCENARIO: scenario,
         QUANTOS_F06_PROBE_ACCOUNT_ID: fixture.account,
@@ -95,6 +103,9 @@ async function main() {
     scenarios.push(scenario);
   };
   try {
+    phase.value = 'SQL_PREFLIGHT';
+    log(JSON.stringify({ event: 'F06_COMMAND_FIXTURE_CANDIDATE', plannedTenant: fixture.tenant,
+      actor: fixture.actor, serviceName: `f06-command-${fixture.suffix}` }));
     const role = (await client.query(`select
       has_table_privilege(current_user,'vault.secrets','DELETE') as can_clean_vault`)).rows[0];
     assert(role.can_clean_vault,
@@ -109,10 +120,16 @@ async function main() {
     if (existing.length === 1) {
       fixture.tenant = existing[0].id;
       reusedTenant = true;
+      log(JSON.stringify({ event: 'F06_COMMAND_FIXTURE_BOUND', tenant: fixture.tenant,
+        actor: fixture.actor, serviceName: `f06-command-${fixture.suffix}` }));
       const oldId = existing[0].vault_path?.match(/^vault:\/\/([0-9a-f-]{36})$/)?.[1];
       assert(!existing[0].vault_path || oldId, 'existing F06 Vault reference is malformed');
+      phase.value = 'PRIOR_FIXTURE_CLEANUP';
       await cleanFixture(fixture.tenant, oldId);
     }
+    if (!reusedTenant) log(JSON.stringify({ event: 'F06_COMMAND_FIXTURE_BOUND',
+      tenant: fixture.tenant, actor: fixture.actor, serviceName: `f06-command-${fixture.suffix}` }));
+    phase.value = 'SQL_FIXTURE_SETUP';
     await client.query('begin');
     try {
       vaultId = (await client.query('select vault.create_secret($1,$2) as id',
@@ -142,32 +159,43 @@ async function main() {
     probe('active');
     probe('account_mismatch');
     probe('expired');
+    phase.value = 'SQL_REFERENCE_UPDATE';
     await client.query("update quantos.secret_references set rotation_state='rotating' where tenant_id=$1",
       [fixture.tenant]);
     probe('reference_rotating');
+    phase.value = 'SQL_REFERENCE_UPDATE';
     await client.query("update quantos.secret_references set rotation_state='revoked' where tenant_id=$1",
       [fixture.tenant]);
     probe('reference_revoked');
+    phase.value = 'SQL_SESSION_REVOKE';
     await client.query("update quantos.execution_service_sessions set revoked_at=now() where tenant_id=$1",
       [fixture.tenant]);
     probe('session_revoked');
+  } catch (error) {
+    error.f06Phase = phase.value;
+    throw error;
   } finally {
     try {
       if (committed) {
+        phase.value = 'FINAL_FIXTURE_CLEANUP';
         await cleanFixture(fixture.tenant, vaultId);
         cleaned = true;
       }
     } finally { await client.end(); }
   }
   assert(cleaned && scenarios.length === 6, 'F06 command smoke did not complete');
-  console.log(JSON.stringify({ status: 'PASS', liveRestrictedVaultCall: true,
+  log(JSON.stringify({ bootstrap, status: 'PASS', liveRestrictedVaultCall: true,
     paperKernelSubmission: 1, deniedKernelSubmissions: 0,
     scenarios, fixtureDataCleaned: cleaned, emptyIsolatedTenantRetained: true,
     secretMaterialLogged: false,
     x03IssuerOrTransportAcceptance: 'NOT_TESTED' }));
 }
 
-main().catch(error => {
-  console.error(`F06 command smoke failed: ${error.message}`);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  const phase = { value: 'CONFIGURATION' };
+  main({ phase }).catch(error => {
+    console.error(`F06 command smoke failed [phase=${error.f06Phase || phase.value}]: ${error.message}`);
+    process.exitCode = 1;
+  });
+}
+module.exports = { main };
