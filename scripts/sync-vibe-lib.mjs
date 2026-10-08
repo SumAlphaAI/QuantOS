@@ -64,9 +64,22 @@ export function summarizeChangedPaths(changedPaths = []) {
 }
 
 export function normalizeMonitorCandidate({ baseline, candidate }) {
+  if (
+    !candidate || !["S0", "S1", "S2", "S3"].includes(candidate.severity) ||
+    typeof candidate.title !== "string" || !candidate.title.trim() ||
+    typeof candidate.ref !== "string" || !/^.+@[a-f0-9]{40}$/.test(candidate.ref)
+  ) {
+    throw new Error("invalid upstream candidate: require severity, title and immutable ref");
+  }
   const refParts = String(candidate.ref || "").split("@");
   const refName = refParts[0] || "candidate";
   const digests = candidate.digests || {};
+  if (refParts[0] !== baseline.upstream.defaultBranch &&
+      ["license", "notice", "pyprojectToml", "requirementsLock"].some(
+        (key) => typeof digests[key] !== "string" || !/^[a-f0-9]{64}$/.test(digests[key]),
+      )) {
+    throw new Error("invalid upstream release candidate: require license and dependency digests");
+  }
   const licenseChange =
     Boolean(digests.license) && digests.license !== baseline.license.licenseFile.sha256;
   const noticeChange =
@@ -95,17 +108,26 @@ export function normalizeMonitorCandidate({ baseline, candidate }) {
       String(candidate.severity || "").toUpperCase() === "S3" &&
       String(candidate.title || "").includes("main advanced"),
     expectedSeverity: candidate.severity,
+    severityFloor: candidate.severity,
     expectedBlocked: ["S0", "S1"].includes(String(candidate.severity || "").toUpperCase()),
   };
 }
 
 export function loadScenarios({ baseline, scenarioPath, candidateReportPath }) {
+  if (scenarioPath && candidateReportPath) {
+    throw new Error("--scenario and --candidate-report are mutually exclusive");
+  }
   if (scenarioPath) {
     return [loadJson(scenarioPath)];
   }
   if (candidateReportPath) {
     const report = loadJson(candidateReportPath);
-    return (report.candidates || []).map((candidate) =>
+    if (report.schemaVersion !== 1 || !Array.isArray(report.candidates) ||
+        report.baseline?.upstream?.commit !== baseline.upstream.commit ||
+        report.baseline?.upstream?.tag !== baseline.upstream.tag) {
+      throw new Error("invalid upstream candidate report: schema, candidates or baseline mismatch");
+    }
+    return report.candidates.map((candidate) =>
       normalizeMonitorCandidate({ baseline, candidate }),
     );
   }
@@ -148,7 +170,9 @@ function computeBlocked(scenario, severity) {
 function buildReasons(scenario, severity) {
   const reasons = [];
   if (severity === "S0") {
-    reasons.push("security advisory or supply-chain incident touches the candidate");
+    reasons.push(scenario.severityFloor === "S0"
+      ? "upstream S0 signal requires manual review; retain the blocking severity"
+      : "security advisory or supply-chain incident touches the candidate");
   }
   for (const advisory of scenario.securityAdvisories || []) {
     const advisoryParts = [advisory.cve, advisory.package, advisory.summary].filter(Boolean);
@@ -235,7 +259,10 @@ function buildIssueTitle(severity, scenario) {
 }
 
 export function classifyScenario({ baseline, patchQueue, scenario }) {
-  const severity = computeSeverity(scenario);
+  const computedSeverity = computeSeverity(scenario);
+  // A monitor's S0/S1 signal must never be downgraded by absent scenario details.
+  const severity = scenario.severityFloor && scenario.severityFloor < computedSeverity
+    ? scenario.severityFloor : computedSeverity;
   const blocked = computeBlocked(scenario, severity);
   const diffSummary = summarizeChangedPaths(scenario.changedPaths || []);
   const rangeDiffSummary = buildRangeDiffSummary(scenario, patchQueue);
@@ -275,6 +302,11 @@ export function renderSummaryMarkdown(summary) {
   lines.push(`- generated at: \`${summary.generatedAt}\``);
   lines.push(`- baseline: \`${summary.baseline.upstream.tag}\` @ \`${summary.baseline.upstream.commit}\``);
   lines.push(`- decisions: \`${summary.decisions.length}\``);
+  lines.push(`- execution mode: \`${summary.executionMode}\``);
+  lines.push(`- monitoring status: \`${summary.monitoringStatus}\``);
+  lines.push(`- sync gate status: \`${summary.syncGateStatus}\``);
+  lines.push(`- blocked candidates: \`${summary.blockedCandidateCount}\``);
+  lines.push("- sync approved: `false` (candidate classification does not authorize adoption)");
   lines.push("");
   for (const decision of summary.decisions) {
     lines.push(`## ${decision.severity} ${decision.title}`);

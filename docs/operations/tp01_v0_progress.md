@@ -1,5 +1,7 @@
 # TP01 V0-V1 Progress Tracker
 
+> 2026-10-08 engineering update: scheduled TP01-E runs now monitor candidates with explicit BLOCKED summaries; manual sync gates retain fail-on-block. Failure summaries/artifacts are always published. Local tests and a real public upstream report were verified; the new remote workflow and candidate adoption remain separate pending steps. See [remediation](../audit/TP01-E-scheduled-remediation-2026-10-08.md) and [runbook](../runbooks/tp01_vibe_sync_monitoring.md). The historical implementation board below is not current stage acceptance.
+
 ## Objective
 
 Track TP01 execution against the Development Plan baseline for:

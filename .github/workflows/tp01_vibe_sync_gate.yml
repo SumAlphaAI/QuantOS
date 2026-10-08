@@ -33,7 +33,7 @@ jobs:
 
       - name: Verify sync-vibe unit tests
         if: matrix.scenario == 'api-break'
-        run: node --test ./scripts/tests/sync-vibe.test.mjs
+        run: node --test ./scripts/tests/sync-vibe.test.mjs ./scripts/tests/sync-vibe-cli.test.mjs
 
       - name: Evaluate simulation scenario
         run: >
@@ -48,6 +48,7 @@ jobs:
           --verify-expected
 
       - name: Upload simulation artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tp01-vibe-sync-${{ matrix.scenario }}
@@ -75,23 +76,35 @@ jobs:
           --markdown-output ./artifacts/third_party/vibe-trading/upstream-candidates.md
 
       - name: Evaluate live sync candidates
-        run: >
-          node ./scripts/sync-vibe.mjs
-          --baseline ./third_party/vibe-trading/baseline.lock.json
-          --patch-queue ./forks/vibe-trading/patch-queue/queue.json
-          --candidate-report ./artifacts/third_party/vibe-trading/upstream-candidates.json
-          --json-output ./artifacts/third_party/vibe-trading/sync-vibe/live-summary.json
-          --markdown-output ./artifacts/third_party/vibe-trading/sync-vibe/live-summary.md
-          --decision-dir ./artifacts/third_party/vibe-trading/sync-vibe/live-decisions
-          --issue-dir ./artifacts/third_party/vibe-trading/sync-vibe/live-issues
-          --fail-on-block
+        env:
+          SYNC_EVENT: ${{ github.event_name }}
+        run: |
+          # Schedules observe candidates; manual dispatch retains the strict adoption gate.
+          mode_flag=--fail-on-block
+          if [ "$SYNC_EVENT" = schedule ]; then
+            mode_flag=--monitor-only
+          fi
+          node ./scripts/sync-vibe.mjs \
+            --baseline ./third_party/vibe-trading/baseline.lock.json \
+            --patch-queue ./forks/vibe-trading/patch-queue/queue.json \
+            --candidate-report ./artifacts/third_party/vibe-trading/upstream-candidates.json \
+            --json-output ./artifacts/third_party/vibe-trading/sync-vibe/live-summary.json \
+            --markdown-output ./artifacts/third_party/vibe-trading/sync-vibe/live-summary.md \
+            --decision-dir ./artifacts/third_party/vibe-trading/sync-vibe/live-decisions \
+            --issue-dir ./artifacts/third_party/vibe-trading/sync-vibe/live-issues \
+            "$mode_flag"
 
       - name: Publish workflow summary
+        if: always()
         run: cat ./artifacts/third_party/vibe-trading/sync-vibe/live-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload live sync artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tp01-vibe-sync-live
-          path: artifacts/third_party/vibe-trading/sync-vibe/
+          path: |
+            artifacts/third_party/vibe-trading/sync-vibe/
+            artifacts/third_party/vibe-trading/upstream-candidates.json
+            artifacts/third_party/vibe-trading/upstream-candidates.md
           if-no-files-found: error

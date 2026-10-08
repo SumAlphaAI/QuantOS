@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-08）：41a3b27已在远端main，9/9个push工作流成功，F02双库重建/回放、F05数据库Gate及主干签名/下载验签通过；另有TP01定时同步因候选待人工决策阻断，单独保留。当前159节点NOT_ASSESSED，5547211历史57/57不迁移，R02 C01待新内容复评。见[CI验收报告](./audit/CI-41a3b27-acceptance-2026-10-08.md)。
+> 当前工程状态（2026-10-08）：41a3b27同SHA主线9/9 CI验收已独立归档；本轮TP01-E定时监测与严格同步分开记账，失败时摘要/证据上传已补齐，本地23/23及真实公开候选双模式验证通过，新修复的远程workflow待验证。上游依赖漂移候选仍BLOCKED，未批准升级；当前159节点NOT_ASSESSED，R02 C01待新内容复评。见[TP01-E整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
 
 > 迁移时历史快照：2026-10-07 第二轮执行文档整理：8 份 P0/A1 验收规程及 R01/R02/UI 交付记录保留迁入 `docs/execution/`，同步活动引用与 R01/R02 读取路径；阶段准入与当前 G0 PENDING 状态保持不变。见[整理报告](./audit/Execution-document-organization-round2-2026-10-07.md)。
 
@@ -15,13 +15,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.48
+> 版本：3.49
 > 更新时间：2026-10-08
 > 状态：本轮CI测试输入变更后159节点NOT_ASSESSED；原57/57功能证据保留，当前准入待内容复评。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.49`：修复TP01-E定时任务混淆监测完成与候选同步阻断的问题，保留严格人工同步Gate；补齐失败摘要/原报告/决策上传、异常输入及严重性保留。真实上游候选仍BLOCKED；新SHA远程workflow待验证，159节点NOT_ASSESSED不变。见[整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
 
 - `3.48`：记录41a3b27同SHA主线CI修复验收9/9 PASS及F02/F05/正式下载原始回执；全部运行10成功/1定时TP01同步阻断，不隐藏待人工决策与失败时上传缺口。本机补充payload下载超时记NOT_RUN；当前159节点NOT_ASSESSED，未授予阶段/正式/发布准入。见[验收报告](./audit/CI-41a3b27-acceptance-2026-10-08.md)。
 

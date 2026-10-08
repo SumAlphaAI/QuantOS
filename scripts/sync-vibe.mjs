@@ -50,12 +50,17 @@ const decisionDir = path.resolve(repoRoot, requireArg(args, "decision-dir"));
 const issueDir = path.resolve(repoRoot, requireArg(args, "issue-dir"));
 const verifyExpected = args.get("verify-expected") === "true";
 const failOnBlock = args.get("fail-on-block") === "true";
+const monitorOnly = args.get("monitor-only") === "true";
 const scenarioPath = args.get("scenario")
   ? path.resolve(repoRoot, args.get("scenario"))
   : null;
 const candidateReportPath = args.get("candidate-report")
   ? path.resolve(repoRoot, args.get("candidate-report"))
   : null;
+
+if (monitorOnly && (!candidateReportPath || scenarioPath || failOnBlock || verifyExpected)) {
+  throw new Error("--monitor-only requires --candidate-report and cannot be combined with gate/simulation flags");
+}
 
 const baseline = loadJson(baselinePath);
 const patchQueue = loadJson(patchQueuePath);
@@ -83,6 +88,11 @@ const summary = {
   baseline,
   patchQueue,
   decisions,
+  executionMode: monitorOnly ? "monitor" : failOnBlock ? "gate" : "report",
+  monitoringStatus: "COMPLETED",
+  syncGateStatus: decisions.some((decision) => decision.blocked) ? "BLOCKED" : "CLEAR",
+  blockedCandidateCount: decisions.filter((decision) => decision.blocked).length,
+  syncApproved: false,
 };
 
 writeText(jsonOutputPath, `${JSON.stringify(summary, null, 2)}\n`);
@@ -96,6 +106,11 @@ for (const decision of decisions) {
 console.log(`Wrote ${path.relative(repoRoot, jsonOutputPath)}`);
 console.log(`Wrote ${path.relative(repoRoot, markdownOutputPath)}`);
 console.log(`Generated ${decisions.length} decision record(s).`);
+console.log(`Sync gate: ${summary.syncGateStatus}; blocked candidates: ${summary.blockedCandidateCount}; sync approved: false.`);
+
+if (monitorOnly && summary.blockedCandidateCount > 0) {
+  console.warn(`::warning::TP01-E monitoring completed; ${summary.blockedCandidateCount} candidate(s) remain BLOCKED pending manual review. No sync approved.`);
+}
 
 if (failOnBlock && decisions.some((decision) => decision.blocked)) {
   console.error("TP01-E blocked: one or more sync decisions require manual action.");

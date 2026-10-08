@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-08）：41a3b27已在远端main，9/9个push工作流成功，F02双库重建/回放、F05数据库Gate及主干签名/下载验签通过；另有TP01定时同步因候选待人工决策阻断，单独保留。当前159节点NOT_ASSESSED，5547211历史57/57不迁移，R02 C01待新内容复评。见[CI验收报告](./audit/CI-41a3b27-acceptance-2026-10-08.md)。
+> 当前工程状态（2026-10-08）：41a3b27同SHA主线9/9 CI验收已独立归档；本轮TP01-E定时监测与严格同步分开记账，失败时摘要/证据上传已补齐，本地23/23及真实公开候选双模式验证通过，新修复的远程workflow待验证。上游依赖漂移候选仍BLOCKED，未批准升级；当前159节点NOT_ASSESSED，R02 C01待新内容复评。见[TP01-E整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
 
 > 迁移时历史快照：2026-10-07 执行文档目录整理：25 份 BFF/PRE/Desktop 准备产物保留并迁入 `docs/execution/`；读取脚本及输入策略已同步。原 26 READY 和 `52fee5f6e499` 确认为迁移前历史记录，当前受影响功能准入均为 NOT_ASSESSED，需独立内容复评。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
@@ -17,14 +17,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.42
+> 版本：3.43
 > 更新时间：2026-10-08
 > 状态：技术执行基线  
-> 本轮变更：归档41a3b27同SHA主线CI、F02/F05数据库与下载验签证据；记录独立TP01候选阻断，阶段状态及正式/发布边界保持原事实。
+> 本轮变更：TP01-E定时监测/严格同步语义修复与失败证据补齐；本地与真实公开读取分别记录，候选批准和新SHA远程CI独立验收。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.43`：修复TP01-E定时任务混淆监测完成与候选同步阻断的问题，保留严格人工同步Gate；补齐失败摘要/原报告/决策上传、异常输入及严重性保留。真实上游候选仍BLOCKED；新SHA远程workflow待验证，159节点NOT_ASSESSED不变。见[整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
 
 - `3.42`：记录41a3b27同SHA主线CI修复验收9/9 PASS及F02/F05/正式下载原始回执；全部运行10成功/1定时TP01同步阻断，不隐藏待人工决策与失败时上传缺口。本机补充payload下载超时记NOT_RUN；当前159节点NOT_ASSESSED，未授予阶段/正式/发布准入。见[验收报告](./audit/CI-41a3b27-acceptance-2026-10-08.md)。
 
@@ -978,6 +980,7 @@ F0 DEVELOPMENT功能闭包于2026-10-08冻结5547211实际复评曾READY；本�
 - 开发范围：实现 S0–S3 分级、diff/range-diff、许可证/依赖 diff、candidate issue、质量流水线
 - 交付物：`sync-vibe` 工具、CI workflow、decision records
 - 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果
+- 局部修复验证（2026-10-08）：定时monitor保留候选BLOCKED并完成监测，人工同步Gate仍退出2；失败摘要与原始证据上传补齐。23/23本地回归与真实上游双模式通过，新SHA远程workflow及候选采用待独立验收；不替代本任务全量复评。见[整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
 - 依赖：TP01-D、F02
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-e)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
