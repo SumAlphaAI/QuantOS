@@ -1,13 +1,19 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { execFileSync, spawnSync } = require('node:child_process');
-const { Client } = require('pg');
+const { execFileSync } = require('node:child_process');
+const { executeTarget } = require('./lib/development-target-command.cjs');
+const { openConnection } = require('./lib/r02-chain-connection.cjs');
+const { retireF09Fixtures, validateF09Cleanup } = require('./lib/f09-fixtures.cjs');
 const { validateF09MigrationLedger } = require('./lib/f09-migration-ledger.cjs');
 
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'artifacts/f09/target.json');
 const sourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+const fixtureRun=crypto.randomUUID(), fixtureName='capacity-fixtures-'+fixtureRun+'.jsonl', fixtureManifest=path.join(root,'artifacts/f09',fixtureName);
+const cancellation=new AbortController();
+const terminate=()=>cancellation.abort();process.on('SIGTERM',terminate);process.on('SIGINT',terminate);
+const connectionPhase={value:'CONFIGURATION'};
 const dirty = Boolean(execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim());
 const receipt = {
   schema: 'quantos-f09-target-gate/v3', sourceCommit, dirty,
@@ -29,36 +35,17 @@ function save() {
   fs.writeFileSync(output, `${JSON.stringify(receipt, null, 2)}\n`);
 }
 
-function run(command, args, logName, env = process.env) {
-  const result = spawnSync(command, args, {
-    cwd: root, env, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024,
-  });
-  let outputText = `${result.stdout ?? ''}${result.stderr ?? ''}`;
-  const sensitiveValues = [
-    process.env.DATABASE_URL,
-    process.env.QUANTOS_RUNTIME_DATABASE_URL,
-    process.env.QUANTOS_EXECUTION_DATABASE_URL,
-    process.env.QUANTOS_RUNTIME_STORAGE_KEY,
-    process.env.QUANTOS_F06_PROBE_SESSION_HASH,
-  ].filter((value) => typeof value === 'string' && value.length > 8);
-  for (const value of sensitiveValues) {
-    if (outputText.includes(value)) {
-      outputText = outputText.replaceAll(value, '[REDACTED]');
-      receipt.secretLeakDetected = true;
-    }
-  }
-  process.stdout.write(outputText);
-  if (logName) {
-    const logPath = path.join(root, 'artifacts/f09', logName);
-    fs.mkdirSync(path.dirname(logPath), { recursive: true });
-    fs.writeFileSync(logPath, outputText);
-    receipt.logs ??= {};
-    receipt.logs[logName] = crypto.createHash('sha256').update(outputText).digest('hex');
-  }
-  if (receipt.secretLeakDetected) throw new Error('F09 exercise output included a configured secret');
-  if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed with ${result.status}`);
+async function run(command, args, logName, env = process.env) {
+  const phase=logName||command+' '+args.join(' '); receipt.phase=phase;
+  const record={command,args,phase,status:'RUNNING'};receipt.commands??=[];receipt.commands.push(record);save();
+  const result=await executeTarget(command,args,{cwd:root,env:{...env,QUANTOS_F09_FIXTURE_RUN:fixtureRun,QUANTOS_F09_FIXTURE_MANIFEST:fixtureManifest},timeoutMs:logName==='postgres-exercises.log'?900000:300000,abortSignal:cancellation.signal,onStart:progress=>{Object.assign(record,progress);save();}});
+  const {output:outputText,...diagnostics}=result;Object.assign(record,diagnostics,{status:result.exitCode===0?'PASS':'FAIL'});
+  if(logName){const logPath=path.join(root,'artifacts/f09',logName);fs.writeFileSync(logPath,outputText);receipt.logs??={};receipt.logs[logName]=crypto.createHash('sha256').update(outputText).digest('hex');}
+  receipt.secretLeakDetected||=result.secretLeakDetected;save();process.stdout.write(outputText);
+  if(result.exitCode!==0)throw Object.assign(Error('F09 command failed: '+phase),{code:result.errorCode||'COMMAND_FAILED'});
   return outputText;
 }
+function checkpoint(value){receipt.checks.push(value);save();}
 
 function traceId(outputText, pattern) {
   const id = outputText.match(pattern)?.[1];
@@ -68,22 +55,6 @@ function traceId(outputText, pattern) {
   return id;
 }
 
-async function connectTarget(config) {
-  let lastError;
-  for (let attempt = 1; attempt <= 4; attempt += 1) {
-    const client = new Client(config);
-    try {
-      await client.connect();
-      if (attempt > 1) receipt.connectionAttempts = attempt;
-      return client;
-    } catch (error) {
-      lastError = error;
-      await client.end().catch(() => {});
-      if (attempt < 4) await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-  }
-  throw lastError;
-}
 
 async function main() {
   save();
@@ -111,14 +82,10 @@ async function main() {
   }
   receipt.targetRefHash = crypto.createHash('sha256')
     .update(`${database.hostname}/${api.hostname}`).digest('hex').slice(0, 16);
-  const client = await connectTarget({
-    host: database.hostname, port: Number(database.port || 5432),
-    user: decodeURIComponent(database.username), password: decodeURIComponent(database.password),
-    database: database.pathname.slice(1) || 'postgres',
-    ssl: { ca: fs.readFileSync(caPath, 'utf8'), rejectUnauthorized: true },
-    connectionTimeoutMillis: 10000,
-  });
+  receipt.bootstrapConnection={};connectionPhase.value='INITIAL_CONNECTION';receipt.phase=connectionPhase.value;save();
+  const client=await openConnection(rawDatabase,'quantos-f09-ledger-check',{record:receipt.bootstrapConnection,phase:connectionPhase,save});
   try {
+    connectionPhase.value='MIGRATION_LEDGER';receipt.phase=connectionPhase.value;save();
     const remote = (await client.query(`select filename, sha256 from quantos.schema_migrations
       order by filename`)).rows;
     const migrationDir = path.join(root, 'supabase/migrations');
@@ -127,28 +94,28 @@ async function main() {
   } finally {
     await client.end();
   }
-  receipt.checks.push('same source migration ledger and checksums');
-  run('cargo', ['build', '-p', 'capacity-monitor', '--locked']);
-  run('cargo', ['build', '-p', 'portfolio-rebuild', '--locked']);
-  run('node', ['scripts/f09-scheduler-smoke.cjs'], 'scheduler-smoke.log');
-  receipt.checks.push('two one-minute Supabase scheduler ticks fail closed on missing metrics');
-  run('make', ['test-f09-live'], 'postgres-exercises.log');
-  receipt.checks.push('live capacity, own-session termination, consumer recovery and redaction tests');
-  run('cargo', [
+  checkpoint('same source migration ledger and checksums');
+  await run('cargo', ['build', '-p', 'capacity-monitor', '--locked']);
+  await run('cargo', ['build', '-p', 'portfolio-rebuild', '--locked']);
+  await run('node', ['scripts/f09-scheduler-smoke.cjs'], 'scheduler-smoke.log');
+  checkpoint('two one-minute Supabase scheduler ticks fail closed on missing metrics');
+  await run('make', ['test-f09-live'], 'postgres-exercises.log');
+  checkpoint('live capacity, own-session termination, consumer recovery and redaction tests');
+  await run('cargo', [
     'test', '-p', 'quantos-portfolio', '--test', 'postgres_portfolio', '--locked',
     'f09_portfolio_and_risk_queries_persist_actual_latency_samples', '--', '--exact', '--nocapture',
   ], 'portfolio-query.log');
-  receipt.checks.push('real portfolio and risk query samples');
+  checkpoint('real portfolio and risk query samples');
   const liveEnv = { ...process.env, QUANTOS_RUN_F09_POSTGRES_TESTS: '1' };
-  const bffOutput = run('cargo', [
+  const bffOutput = await run('cargo', [
     'test', '-p', 'bff-gateway', '--lib', 'f09_live_tests', '--locked',
     '--', '--ignored', '--test-threads=1', '--nocapture',
   ], 'bff-write-trace.log', liveEnv);
-  const runtimeOutput = run('cargo', [
+  const runtimeOutput = await run('cargo', [
     'test', '-p', 'runtime-gateway', '--bin', 'runtime-gateway',
     'f09_runtime_real_write_trace', '--locked', '--', '--nocapture',
   ], 'runtime-write-trace.log', liveEnv);
-  const portfolioOutput = run('node', [
+  const portfolioOutput = await run('node', [
     'scripts/f09-portfolio-write-trace.cjs',
   ], 'portfolio-write-trace.log');
   const portfolioEvidence = portfolioOutput.split('\n')
@@ -163,21 +130,23 @@ async function main() {
     runtimeRunSchedule: traceId(runtimeOutput, /F09 Runtime persisted run and trace share correlation_id=([0-9a-f-]{36})/),
     portfolioProjection: portfolioEvidence,
   };
-  receipt.checks.push('real BFF, Runtime and Portfolio writes linked to persistent trace');
-  run('cargo', [
+  checkpoint('real BFF, Runtime and Portfolio writes linked to persistent trace');
+  await run('cargo', [
     'test', '-p', 'quantos-engine-manager', '--test', 'python_mock_engine', '--locked',
     'manager_supervises_three_real_crashes_without_test_owned_restarts', '--', '--exact', '--nocapture',
   ], 'engine-crash.log');
-  receipt.checks.push('local supervised Engine process crash and recovery');
-  receipt.status = 'PASS';
+  checkpoint('local supervised Engine process crash and recovery');
+  receipt.status = 'PASS';receipt.phase='COMPLETE';
 }
 
-main().catch((error) => {
-  receipt.status = 'FAIL';
-  receipt.error = error.message;
-  process.exitCode = 1;
-  console.error(error.message);
-}).finally(() => {
-  receipt.completedAt = new Date().toISOString();
-  save();
+main().catch((error)=>{receipt.status='FAIL';receipt.failure={phase:receipt.phase||connectionPhase.value,code:error.code||'F09_TARGET_FAILED'};process.exitCode=1;console.error(receipt.failure.code);}).finally(async()=>{
+ try{
+  const fixtures=fs.existsSync(fixtureManifest)?fs.readFileSync(fixtureManifest,'utf8').trim().split('\n').filter(Boolean).map(JSON.parse):[];
+  receipt.fixtureCleanup=await retireF09Fixtures(fixtures,fixtureRun,{databaseUrl:process.env.DATABASE_URL});
+  const cleanupName='capacity-fixture-cleanup-'+fixtureRun+'.json',bytes=JSON.stringify(receipt.fixtureCleanup,null,2)+'\n';fs.writeFileSync(path.join(root,'artifacts/f09',cleanupName),bytes);receipt.logs??={};receipt.logs[cleanupName]=crypto.createHash('sha256').update(bytes).digest('hex');
+  if(fs.existsSync(fixtureManifest))receipt.logs[fixtureName]=crypto.createHash('sha256').update(fs.readFileSync(fixtureManifest)).digest('hex');
+  if(receipt.status==='PASS')validateF09Cleanup(receipt.fixtureCleanup);
+  else if(receipt.fixtureCleanup.status==='FAIL')throw Error('F09_FIXTURE_CLEANUP_FAILED');
+ }catch(error){receipt.status='FAIL';receipt.cleanupFailure={code:error.code||'F09_FIXTURE_CLEANUP_FAILED'};process.exitCode=1;}
+ receipt.completedAt=new Date().toISOString();save();process.removeListener('SIGTERM',terminate);process.removeListener('SIGINT',terminate);
 });

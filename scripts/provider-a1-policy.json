@@ -739,7 +739,10 @@
         "node",
         "--test",
         "scripts/f09-migration-ledger.test.cjs",
-        "scripts/tests/f09-rule-contract.test.mjs"
+        "scripts/tests/f09-rule-contract.test.mjs",
+        "scripts/development-target-command.test.cjs",
+        "scripts/f09-fixtures.test.cjs",
+        "scripts/f09-artifact.test.mjs"
       ],
       "staticOnly": true,
       "marker": "fail 0"
@@ -884,22 +887,12 @@
     },
     "r02-engine-consumers": {
       "command": [
-        "cargo",
-        "test",
-        "-p",
-        "quantos-runtime",
-        "--locked",
-        "--test",
-        "research_orchestration",
-        "--test",
-        "signal_proposal_orchestration",
-        "--",
-        "--skip",
-        "r02_retained_market_persistent_research_chain"
+        "node",
+        "scripts/r02-engine-consumers.cjs"
       ],
       "staticOnly": true,
       "timeoutMs": 900000,
-      "marker": "test result: ok"
+      "marker": "R02_ENGINE_CONSUMERS PASS"
     },
     "r1-process-cleanup": {
       "command": [

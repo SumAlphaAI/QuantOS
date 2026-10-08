@@ -75,6 +75,7 @@ try {
 
   git("-C", fixtureFork, "remote", "set-url", "origin", "https://example.invalid/uncontrolled.git");
   checkFork(false);
+  execFileSync(process.execPath, ["--test", "scripts/public-remote-branch.test.mjs"], { cwd: repoRoot, stdio: "inherit" });
   console.log("TP01 controlled fork gate positive and negative checks passed.");
 } finally {
   fs.rmSync(temporaryDirectory, { recursive: true, force: true });

@@ -7,6 +7,7 @@ import {verifyBracesBackport,isBracesBackportFinding} from './braces-backport.mj
 import {createRequire} from 'node:module';
 const {validateBootstrap}=createRequire(import.meta.url)('./lib/postgres-bootstrap.cjs');
 const {validateLoginAttempts}=createRequire(import.meta.url)('./lib/auth-login-retry.cjs');
+const {validateF09Cleanup}=createRequire(import.meta.url)('./lib/f09-fixtures.cjs');
 export function validateF0Artifact(kind,path,source){
  const r=JSON.parse(readFileSync(path));assert.equal(r.sourceCommit??r.source,source,'F0 artifact source differs');
  if(kind==='f02-database'){
@@ -43,8 +44,15 @@ export function validateF0Artifact(kind,path,source){
  }
  else if(kind==='f09-target'){
   assert.equal(r.schema,'quantos-f09-target-gate/v3');assert.equal(r.status,'PASS');assert.equal(r.dirty,false);assert.equal(r.targetClass,'test-supabase-postgresql');assert.equal(r.f09Accepted,false);assert.equal(r.secretLeakDetected??false,false);assert.equal(r.checks.length,6);assert.deepEqual(r.remainingDevelopmentAcceptance,[]);assert.deepEqual(r.deferredToRelease,['same-SHA remote CI and Nightly receipts']);
-  assert.deepEqual(Object.keys(r.logs).sort(),['bff-write-trace.log','engine-crash.log','portfolio-query.log','portfolio-write-trace.log','postgres-exercises.log','runtime-write-trace.log','scheduler-smoke.log']);
+  validateBootstrap(r.bootstrapConnection);assert.equal(r.bootstrapConnection.connectionClosed,true);validateF09Cleanup(r.fixtureCleanup);
+  assert.equal(r.phase,'COMPLETE');assert.equal(r.commands?.length,9);
+  assert.deepEqual(r.commands.map(c=>c.phase),['cargo build -p capacity-monitor --locked','cargo build -p portfolio-rebuild --locked','scheduler-smoke.log','postgres-exercises.log','portfolio-query.log','bff-write-trace.log','runtime-write-trace.log','portfolio-write-trace.log','engine-crash.log']);
+  for(const c of r.commands){assert.equal(c.status,'PASS');assert.equal(c.exitCode,0);assert.equal(c.signal,null);assert.equal(c.errorCode,null);assert.equal(c.timedOut,false);assert.equal(c.processGroupClosed,true);assert.equal(c.orphanDetected,false);assert.equal(c.secretLeakDetected,false);assert(Number.isFinite(c.elapsedMs)&&c.elapsedMs>=0&&c.elapsedMs<c.timeoutMs);}
+  assert.deepEqual(Object.keys(r.logs).sort(),['bff-write-trace.log','capacity-fixture-cleanup-'+r.fixtureCleanup.run+'.json','capacity-fixtures-'+r.fixtureCleanup.run+'.jsonl','engine-crash.log','portfolio-query.log','portfolio-write-trace.log','postgres-exercises.log','runtime-write-trace.log','scheduler-smoke.log'].sort());
   for(const [name,hash]of Object.entries(r.logs)){assert.equal(createHash('sha256').update(readFileSync(resolve(dirname(path),name))).digest('hex'),hash,'F09 nested log changed');}
+  assert.deepEqual(JSON.parse(readFileSync(resolve(dirname(path),'capacity-fixture-cleanup-'+r.fixtureCleanup.run+'.json'))),r.fixtureCleanup,'F09 embedded cleanup differs from actual retained receipt');
+  const inventory=readFileSync(resolve(dirname(path),'capacity-fixtures-'+r.fixtureCleanup.run+'.jsonl'),'utf8').trim().split('\n').map(JSON.parse);
+  assert.deepEqual(inventory,r.fixtureCleanup.fixtures.map(({run,tenantId,actorId,scope})=>({run,tenantId,actorId,scope})),'F09 registered fixture inventory differs');
   for(const key of ['bffSessionRevoke','runtimeRunSchedule'])assert(/^[a-f0-9-]{36}$/.test(r.writeTraces[key]),'persistent trace missing');assert(r.writeTraces.portfolioProjection.lastEventSequence>=20);
  }else assert.fail('unknown F0 artifact kind');
  return r;

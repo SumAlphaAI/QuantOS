@@ -1,0 +1,43 @@
+
+running 5 tests
+test binance::tests::aggregate_mapping_identity_and_gap_boundaries ... ok
+test binance::tests::endpoint_cannot_redirect_native_calls_to_other_hosts ... ok
+test binance::tests::owned_stop_pipe_is_bounded_and_eof_stops_requests ... ok
+test binance::tests::retry_after_is_strict_and_fatal_errors_do_not_churn ... ok
+test binance::tests::server_clock_diagnostics_preserve_unknowns_and_rtt_bounds ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 3 tests
+test cli_rejects_unbounded_and_unapproved_configuration ... ok
+test cli_transport_outage_recovers_from_committed_cursor_and_restarts ... Binance CLI source outage/restart/429/418/schema/gap/body-cap/bootstrap PASS
+ok
+test supabase_pages_are_atomic_and_empty_polls_are_transport_health ... Binance target atomic rollback/retry/restart/actor/watchdog/empty-health PASS
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 55.68s
+
+
+running 2 tests
+test cli_success_rejection_and_config_paths ... ok
+test cli_supabase_fixture_and_recovery_paths ... info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+   Compiling quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling market-ingestor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/market-ingestor)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.23s
+     Running unittests src/main.rs (target/llvm-cov-target/debug/deps/market_ingestor-330a5c8b2c206b06)
+     Running tests/binance.rs (target/llvm-cov-target/debug/deps/binance-4a5500eafd408178)
+     Running tests/cli.rs (target/llvm-cov-target/debug/deps/cli-77401b0ba22dc129)
+
+thread 'cli_supabase_fixture_and_recovery_paths' (2444436) panicked at services/market-ingestor/tests/cli.rs:292:10:
+called `Result::unwrap()` on an `Err` value: Postgres(Error { kind: Io, cause: Some(Os { code: 54, kind: ConnectionReset, message: "Connection reset by peer" }) })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

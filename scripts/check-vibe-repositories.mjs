@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { publicRemoteBranch } from "./lib/public-remote-branch.mjs";
 
 function parseArgs(argv) {
   const args = new Map();
@@ -30,32 +31,6 @@ function git(repository, ...args) {
   }).trim();
 }
 
-function publicRemoteBranch(remoteUrl, branch) {
-  try {
-    return execFileSync(
-      "git",
-      [
-        "-c",
-        "credential.helper=",
-        "ls-remote",
-        "--exit-code",
-        remoteUrl,
-        `refs/heads/${branch}`,
-      ],
-      {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "pipe"],
-        timeout: 15_000,
-        env: { ...process.env, GIT_TERMINAL_PROMPT: "0", GCM_INTERACTIVE: "Never" },
-      },
-    ).trim();
-  } catch (error) {
-    if (error.status === 2) {
-      throw new Error(`required remote branch ${branch} is missing from ${remoteUrl}`);
-    }
-    throw error;
-  }
-}
 
 function sha256(file) {
   return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");

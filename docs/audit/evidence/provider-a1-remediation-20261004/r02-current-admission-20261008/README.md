@@ -24,3 +24,11 @@ connection-repair-precheck只算未冻结开发预检：真实F02与chain-02 PAS
 attempt-03/80b70e5仅完成6组、5PASS/1FAIL，F06数据库步骤统一300秒截止，原日志只完成5测试、null退出且缺超时诊断，不能臆测第6测试内部阶段。F09目标PASS后在静态阶段停止，控制器143、owned子进程无残留，Engine scopecdd354ea独立检查PASS。核对单次执行窗口、随机tenant slug与合成auth user后，7fixture的14actor实际停用，账户和会话失效；事实保留。
 
 后续修复：Rust在SQL前登记随机scope/fixture，保留事实停用替代忽略删除错误；父运行器独立核对身份与停用8fixture，严格回执要求全部actor/账户/会话为0、连接关闭。命令记录预算/耗时/信号/超时码；数据库整组功能预算900秒、HTTP步骤300秒不变，外层有界60分钟；不是发布性能阈值。124静态回归PASS；实际八测试与独立8fixture收尾PASS，只算未冻结开发预检（输入哈希保留）。首个临时启动器相对路径FAIL原件保留。下一轮冻结新源码，空attempt-04执行完整57组。
+
+## 第四轮（失败）
+
+attempt-04/c0c1fe9完成57组，52PASS/5FAIL，未发布READY。失败为F09外层30分钟截止并残留子进程、TP01只读git远程15秒超时、R01 SQL期间连接重置、R02静态Engine consumers15分钟截止与收尾发现3进程。F067步/8fixture、F02v2七断言/只读收尾和R02持久目标链均PASS；不能掩盖整轮FAIL。F09三个actor和遗留make/Cargo/Rust已精确收尾，事件数保留；R01四actor inactive，R02actor inactive，Engine发现3/remaining0仍保留FAIL。F09采样162条、窗口最后tick3及只读同查询约1.63s只是诊断，不臆测等待根因、不作新鲜度或性能PASS。
+
+### 命令生命周期续修预检
+
+当前未冻结源码：19 项生命周期/fixture/回执/只读重试负例与 82 项严格 Gate 回归通过；静态 Engine 五场景通过且无进程组残留；F09 Rust 仅编译与格式检查通过。未进行目标数据库验收，不能据此发布 READY。第四轮失败与未知 SQL/驱动卡点均保留；SQL 后业务操作不重放。

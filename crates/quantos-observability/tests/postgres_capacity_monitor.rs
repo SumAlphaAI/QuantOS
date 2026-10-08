@@ -30,7 +30,7 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
     let tenant_id = TenantId::new();
     let correlation_id = CorrelationId::new();
     let actor_id = ActorId::new();
-    let scope = format!("f09-live-{tenant_id}");
+    let scope = fixture_scope("live", tenant_id);
     let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
 
     let event = RecordedEvent::new(NewRecordedEvent {
@@ -142,6 +142,7 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
         correlation_id,
         first_observation,
     );
+    eprintln!("F09 capacity phase seed_remaining_metric_minutes");
     seed_remaining_metric_minutes(&mut direct, tenant_id, correlation_id, first_observation);
     let mut monitor = retry_target_connection(|| {
         PgCapacityMonitor::connect_scoped_for_tenant(
@@ -152,11 +153,10 @@ fn live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence
     })
     .expect("capacity monitor connects");
     for minute in 0..=17 {
-        if minute % 3 == 0 {
-            eprintln!("F09 capacity continuity tick {minute}/17");
-        }
+        eprintln!("F09 capacity continuity tick {minute}/17");
         let observed_at = first_observation + ChronoDuration::minutes(minute);
         if minute == 8 {
+            eprintln!("F09 capacity phase reconnect_tick8");
             monitor = retry_target_connection(|| {
                 PgCapacityMonitor::connect_scoped_for_tenant(
                     &database_url,
@@ -258,7 +258,7 @@ fn fault_proxy_retries_real_postgres_event_and_consumer_chain() {
     let tenant_id = TenantId::new();
     let actor_id = ActorId::new();
     let correlation_id = CorrelationId::new();
-    let scope = format!("f09-fault-{tenant_id}");
+    let scope = fixture_scope("fault", tenant_id);
     let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
     let now = Utc::now();
     let event = RecordedEvent::new(NewRecordedEvent {
@@ -412,7 +412,7 @@ fn live_database_session_termination_preserves_ordered_event_chain() {
     let tenant_id = TenantId::new();
     let actor_id = ActorId::new();
     let correlation_id = CorrelationId::new();
-    let scope = format!("f09-db-disconnect-{tenant_id}");
+    let scope = fixture_scope("db-disconnect", tenant_id);
     let _cleanup = Cleanup::seed(&database_url, tenant_id, actor_id, &scope);
     let mut store = retry_target_connection(|| PgEventStore::connect(&database_url))
         .expect("event store connects");
@@ -561,10 +561,22 @@ struct Cleanup {
     database_url: String,
     tenant_id: TenantId,
     scope: String,
+    actor_id: ActorId,
 }
 
 impl Cleanup {
     fn seed(database_url: &str, tenant_id: TenantId, actor_id: ActorId, scope: &str) -> Self {
+        if let Ok(manifest) = env::var("QUANTOS_F09_FIXTURE_MANIFEST") {
+            use std::io::Write;
+            let run = env::var("QUANTOS_F09_FIXTURE_RUN").expect("fixture run required");
+            uuid::Uuid::parse_str(&run).expect("fixture run UUID");
+            let mut file = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(manifest)
+                .expect("fixture manifest");
+            writeln!(file,"{}",json!({"run":run,"tenantId":tenant_id.as_uuid(),"actorId":actor_id.as_uuid(),"scope":scope})).expect("fixture registered before SQL");
+        }
         let mut client = connect_client(database_url).expect("setup client connects");
         client
             .execute_typed(
@@ -588,6 +600,7 @@ impl Cleanup {
             database_url: database_url.to_owned(),
             tenant_id,
             scope: scope.to_owned(),
+            actor_id,
         }
     }
 }
@@ -595,19 +608,14 @@ impl Cleanup {
 impl Drop for Cleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
-            let _ = client.execute(
-                "delete from quantos.capacity_alerts where scope = $1",
-                &[&self.scope],
-            );
-            let _ = client.execute(
-                "delete from quantos.capacity_alert_window_state where scope = $1",
-                &[&self.scope],
-            );
-            let _ = client.execute_typed(
-                "delete from quantos.operational_metric_samples where tenant_id = $1",
-                &[(self.tenant_id.as_uuid(), Type::UUID)],
-            );
+            let _=client.execute_typed("update quantos.actors set is_active=false where id=$1 and tenant_id=$2 and service_name=$3 and exists(select 1 from quantos.tenants where id=$2 and slug=$4)",&[(self.actor_id.as_uuid(),Type::UUID),(self.tenant_id.as_uuid(),Type::UUID),(&format!("f09-test-{}",self.actor_id),Type::TEXT),(&self.scope,Type::TEXT)]);
         }
+    }
+}
+fn fixture_scope(kind: &str, tenant_id: TenantId) -> String {
+    match env::var("QUANTOS_F09_FIXTURE_RUN") {
+        Ok(run) => format!("f09-{kind}-{run}-{tenant_id}"),
+        Err(_) => format!("f09-{kind}-{tenant_id}"),
     }
 }
 

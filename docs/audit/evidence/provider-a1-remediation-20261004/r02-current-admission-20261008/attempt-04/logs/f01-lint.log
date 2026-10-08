@@ -1,0 +1,75 @@
+cargo fmt --check
+cargo clippy --workspace --all-targets -- -D warnings
+node --test scripts/python-lint-scope.test.mjs
+✔ both Python lint targets reject active code errors and preserve archived evidence (64.993167ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 94.477708
+uv run --locked --project engines --all-packages ruff check . --extend-exclude third_party/vibe-trading/upstream-src,docs/audit/evidence
+All checks passed!
+uv run --locked --project engines --all-packages pyright --project engines
+0 errors, 0 warnings, 0 informations 
+WARNING: there is a new pyright version available (v1.1.403 -> v1.1.414).
+Please install the new version or set PYRIGHT_PYTHON_FORCE_VERSION to `latest`
+
+pnpm lint
+
+> @sumalpha/quantos@ lint /Users/anray/Documents/project/SumAlpha/QuantOS
+> pnpm -r lint
+
+Scope: 7 of 8 workspace projects
+packages/config lint$ eslint src tests --ext .ts
+packages/ui lint$ eslint src tests --ext .ts,.tsx
+packages/config lint: Done
+packages/ui lint: Done
+packages/api-client lint$ eslint src tests --ext .ts
+packages/platform lint$ eslint src tests --ext .ts
+packages/platform lint: Done
+packages/api-client lint: Done
+apps/website lint$ eslint app src tests
+packages/domain-ui lint$ eslint src tests --ext .ts,.tsx
+packages/domain-ui lint: Done
+apps/website lint: Done
+apps/terminal lint$ eslint app src tests --ext .ts,.tsx
+apps/terminal lint: Done
+pnpm typecheck
+
+> @sumalpha/quantos@ typecheck /Users/anray/Documents/project/SumAlpha/QuantOS
+> pnpm -r typecheck
+
+Scope: 7 of 8 workspace projects
+packages/config typecheck$ tsc --project tsconfig.json --noEmit
+packages/ui typecheck$ tsc --project tsconfig.json --noEmit
+packages/config typecheck: Done
+packages/ui typecheck: Done
+packages/platform typecheck$ tsc --project tsconfig.json --noEmit
+packages/api-client typecheck$ tsc --project tsconfig.json --noEmit
+packages/platform typecheck: Done
+packages/api-client typecheck: Done
+apps/website typecheck$ tsc --project tsconfig.json --noEmit
+packages/domain-ui typecheck$ tsc --project tsconfig.json --noEmit
+apps/website typecheck: Done
+packages/domain-ui typecheck: Done
+apps/terminal typecheck$ tsc --project tsconfig.json --noEmit
+apps/terminal typecheck: Done
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Checking quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+    Checking quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+    Checking quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Checking bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Checking portfolio-rebuild v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/portfolio-rebuild)
+    Checking runtime-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/runtime-gateway)
+    Checking capacity-monitor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/capacity-monitor)
+    Checking market-ingestor v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/market-ingestor)
+    Checking replay-cli v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/replay-cli)
+    Checking execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Checking quantos-evidence v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-evidence)
+    Checking quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 39.45s
