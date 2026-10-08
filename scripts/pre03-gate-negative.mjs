@@ -18,7 +18,7 @@ test('current Web contract passes and never loads Desktop inputs', () => {
   assert.equal(validate().scope,'web-only');
   assert.equal(current.tauriConfig,undefined);
 });
-for (const importer of ['apps/terminal','apps/website']) for (const version of ['15.5.23','16.0.0']) {
+for (const importer of ['apps/terminal','apps/website']) for (const version of ['15.5.23','15.5.24','16.0.0']) {
   test(`${importer} rejects Next ${version}`, () => {
     const pnpmLock=structuredClone(current.pnpmLock);pnpmLock.importers[importer].dependencies.next.version=version;rejected({pnpmLock});
   });
@@ -31,7 +31,7 @@ for (const [name,change] of [
   ['dependency inserted',lock=>lock.importers['apps/terminal'].dependencies.fake={specifier:'1.0.0',version:'1.0.0'}],
 ]) test(name,()=>{const pnpmLock=structuredClone(current.pnpmLock);change(pnpmLock);rejected({pnpmLock});});
 test('manifest drift fails without changing lock',()=>{const manifests=structuredClone(current.manifests);manifests['apps/terminal'].dependencies.next='16.0.0';rejected({manifests});});
-test('ADR drift fails',()=>rejected({runtimeAdr:current.runtimeAdr.replace('| next | 15.5.24 |','| next | 15.5.23 |')}));
+test('ADR drift fails',()=>rejected({runtimeAdr:current.runtimeAdr.replace('| next | 15.5.27 |','| next | 15.5.24 |')}));
 test('duplicate ADR version row fails',()=>rejected({runtimeAdr:current.runtimeAdr+'\n| next | 15.5.23 |\n'}));
 test('missing transitive snapshot fails',()=>{const pnpmLock=structuredClone(current.pnpmLock);delete pnpmLock.snapshots['is-potential-custom-element-name@1.0.1'];rejected({pnpmLock});});
 test('Node pin drift fails',()=>rejected({nodeVersion:'25.0.0'}));

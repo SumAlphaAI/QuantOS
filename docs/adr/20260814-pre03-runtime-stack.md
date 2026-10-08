@@ -11,12 +11,12 @@
 
 Node 固定 24.12.0，pnpm 固定 10.20.0；安装执行 `pnpm install --frozen-lockfile`。根 Rust 工具链归 CORE:F01；第一期 PRE-03 不读取 Desktop 工程文件。
 
-以下版本为当前冻结锁的解析值，作为 PRE-03 Gate 的一致性输入。Next 从历史 15.5.23 对齐已有升级基线 15.5.24，本轮不降级框架。新增同版本 Next ESLint 插件与 React Testing Library/jsdom，以落实既定开发和组件测试规范。
+以下版本为当前冻结锁的解析值，作为 PRE-03 Gate 的一致性输入。Next 与 Next ESLint 插件已从历史 15.5.24 升级到安全修复版本 15.5.27，同步 smoke 版本检查；React Testing Library/jsdom 继续落实既定开发和组件测试规范。
 
 | 依赖 | 锁定版本 |
 |---|---|
-| @next/eslint-plugin-next | 15.5.24 |
-| next | 15.5.24 |
+| @next/eslint-plugin-next | 15.5.27 |
+| next | 15.5.27 |
 | react | 19.2.8 |
 | react-dom | 19.2.8 |
 | @tanstack/react-query | 5.101.4 |

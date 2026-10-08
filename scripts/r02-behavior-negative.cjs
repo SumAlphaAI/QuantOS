@@ -2,7 +2,9 @@
 // Mutate a disposable SOURCE copy, not a database. Never changes the working tree.
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..'),copy=fs.mkdtempSync(path.join(os.tmpdir(),'quantos-r02-behavior-'));
-const env={...process.env,CARGO_TARGET_DIR:path.join(root,'target'),DATABASE_URL:'',QUANTOS_RUN_R02_POSTGRES_TESTS:'0',QUANTOS_RUN_SUPABASE_STORAGE_TESTS:'0'};
+// Mutants must never share Cargo fingerprints or binaries with the real workspace.
+// Cargo can reuse a newer mutant binary after returning to the older source tree.
+const env={...process.env,CARGO_TARGET_DIR:path.join(copy,'target'),DATABASE_URL:'',QUANTOS_RUN_R02_POSTGRES_TESTS:'0',QUANTOS_RUN_SUPABASE_STORAGE_TESTS:'0'};
 const summary=[];
 try {
  for(const name of ['crates','services','tools'])fs.cpSync(path.join(root,name),path.join(copy,name),{recursive:true});
@@ -34,5 +36,8 @@ try {
   if(result.status===null||!result.stdout.includes('test result: FAILED.')||!result.stdout.includes(filter))throw Error('R02_MUTATION_NOT_DETECTED:'+name);
   summary.push({name,result:'MUTATION_DETECTED',test:filter});console.log(`MUTATION_DETECTED ${name}`);
  }
- console.log(JSON.stringify({schema:'quantos-r02-behavior/v1',baseline:'PASS',mutations:summary,sourceCopyOnly:true,liveDatabase:false}));
+ // Exercise the same unmodified package after the probes, as F05 does in CI.
+ const workspace=spawnSync('cargo',['test','-p','quantos-storage','--lib','--locked','--offline'],{cwd:root,env:{...process.env,DATABASE_URL:'',QUANTOS_RUN_R02_POSTGRES_TESTS:'0',QUANTOS_RUN_SUPABASE_STORAGE_TESTS:'0'},encoding:'utf8',timeout:120000});
+ if(workspace.status!==0){console.error(workspace.stdout+workspace.stderr);throw Error('R02_WORKSPACE_AFTER_MUTATIONS_FAILED');}
+ console.log(JSON.stringify({schema:'quantos-r02-behavior/v1',baseline:'PASS',mutations:summary,sourceCopyOnly:true,isolatedCargoTarget:true,workspaceAfterMutations:'PASS',liveDatabase:false}));
 }finally{fs.rmSync(copy,{recursive:true,force:true});}

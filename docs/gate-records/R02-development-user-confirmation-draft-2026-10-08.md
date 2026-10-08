@@ -1,6 +1,6 @@
 # R02 DEVELOPMENT 用户确认文稿
 
-状态：PENDING。Codex拟稿；尚无项目用户针对本稿的确认，不登记正式ACCEPTED。
+状态：SUPERSEDED_UNCONFIRMED。本稿从未取得用户确认；[CI整改](../audit/CI-c7a4d65-remediation-2026-10-08.md)改变受控测试输入，旧摘要失效。保留下文原稿；当前NOT_ASSESSED，需新内容复评后重新拟稿，不能以本稿登记正式ACCEPTED。
 
 ```json
 {

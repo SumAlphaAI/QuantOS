@@ -1,0 +1,224 @@
+{
+  "schema": "quantos-ci-fix-validation/v1",
+  "scope": "local-focused-regression",
+  "remoteFixedShaCI": "NOT_RUN",
+  "database": "NOT_RUN",
+  "results": [
+    {
+      "name": "r02-check",
+      "command": [
+        "make",
+        "r02-check"
+      ],
+      "exitCode": 0,
+      "log": "r02-check.log"
+    },
+    {
+      "name": "f05-check",
+      "command": [
+        "make",
+        "f05-check"
+      ],
+      "exitCode": 0,
+      "log": "f05-check.log"
+    },
+    {
+      "name": "pre03-negative-retry",
+      "command": [
+        "pnpm",
+        "test:pre03"
+      ],
+      "startedAt": "2026-10-08T09:21:47.162Z",
+      "finishedAt": "2026-10-08T09:22:03.463Z",
+      "exitCode": 0,
+      "log": "pre03-negative-retry.log"
+    },
+    {
+      "name": "website-build",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/website",
+        "build"
+      ],
+      "startedAt": "2026-10-08T09:22:03.467Z",
+      "finishedAt": "2026-10-08T09:22:11.881Z",
+      "exitCode": 0,
+      "log": "website-build.log"
+    },
+    {
+      "name": "terminal-build",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "build"
+      ],
+      "startedAt": "2026-10-08T09:22:11.881Z",
+      "finishedAt": "2026-10-08T09:22:20.435Z",
+      "exitCode": 0,
+      "log": "terminal-build.log"
+    },
+    {
+      "name": "pre03-web",
+      "command": [
+        "pnpm",
+        "check:pre03:web"
+      ],
+      "startedAt": "2026-10-08T09:22:20.435Z",
+      "finishedAt": "2026-10-08T09:22:22.597Z",
+      "exitCode": 0,
+      "log": "pre03-web.log"
+    },
+    {
+      "name": "plans-check",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ],
+      "startedAt": "2026-10-08T09:25:30.161Z",
+      "finishedAt": "2026-10-08T09:25:30.317Z",
+      "exitCode": 0,
+      "log": "plans-check.log"
+    },
+    {
+      "name": "plans-negative",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ],
+      "startedAt": "2026-10-08T09:25:30.318Z",
+      "finishedAt": "2026-10-08T09:25:30.797Z",
+      "exitCode": 0,
+      "log": "plans-negative.log"
+    },
+    {
+      "name": "ci-disposition-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/ci-stage-disposition.test.mjs"
+      ],
+      "startedAt": "2026-10-08T09:25:30.797Z",
+      "finishedAt": "2026-10-08T09:25:30.913Z",
+      "exitCode": 0,
+      "log": "ci-disposition-tests.log"
+    },
+    {
+      "name": "disposition-CORE-GATE-F0",
+      "command": [
+        "node",
+        "scripts/ci-stage-disposition.mjs",
+        "CORE-GATE:F0"
+      ],
+      "startedAt": "2026-10-08T09:25:30.914Z",
+      "finishedAt": "2026-10-08T09:25:30.975Z",
+      "exitCode": 0,
+      "log": "disposition-CORE-GATE-F0.log"
+    },
+    {
+      "name": "disposition-PROVIDER-A1",
+      "command": [
+        "node",
+        "scripts/ci-stage-disposition.mjs",
+        "PROVIDER:A1"
+      ],
+      "startedAt": "2026-10-08T09:25:30.975Z",
+      "finishedAt": "2026-10-08T09:25:31.037Z",
+      "exitCode": 0,
+      "log": "disposition-PROVIDER-A1.log"
+    },
+    {
+      "name": "disposition-FE-FEP-0",
+      "command": [
+        "node",
+        "scripts/ci-stage-disposition.mjs",
+        "FE:FEP-0"
+      ],
+      "startedAt": "2026-10-08T09:25:31.037Z",
+      "finishedAt": "2026-10-08T09:25:31.098Z",
+      "exitCode": 0,
+      "log": "disposition-FE-FEP-0.log"
+    },
+    {
+      "name": "disposition-FRONTEND-GATE-G0",
+      "command": [
+        "node",
+        "scripts/ci-stage-disposition.mjs",
+        "FRONTEND-GATE:G0"
+      ],
+      "startedAt": "2026-10-08T09:25:31.098Z",
+      "finishedAt": "2026-10-08T09:25:31.163Z",
+      "exitCode": 0,
+      "log": "disposition-FRONTEND-GATE-G0.log"
+    },
+    {
+      "name": "disposition-FE-BFF-FE-001",
+      "command": [
+        "node",
+        "scripts/ci-stage-disposition.mjs",
+        "FE:BFF-FE-001"
+      ],
+      "startedAt": "2026-10-08T09:25:31.163Z",
+      "finishedAt": "2026-10-08T09:25:31.226Z",
+      "exitCode": 0,
+      "log": "disposition-FE-BFF-FE-001.log"
+    },
+    {
+      "name": "disposition-FE-BFF-FE-007",
+      "command": [
+        "node",
+        "scripts/ci-stage-disposition.mjs",
+        "FE:BFF-FE-007"
+      ],
+      "startedAt": "2026-10-08T09:25:31.226Z",
+      "finishedAt": "2026-10-08T09:25:31.297Z",
+      "exitCode": 0,
+      "log": "disposition-FE-BFF-FE-007.log"
+    },
+    {
+      "name": "disposition-PROVIDER-A2",
+      "command": [
+        "node",
+        "scripts/ci-stage-disposition.mjs",
+        "PROVIDER:A2"
+      ],
+      "startedAt": "2026-10-08T09:25:31.298Z",
+      "finishedAt": "2026-10-08T09:25:31.365Z",
+      "exitCode": 0,
+      "log": "disposition-PROVIDER-A2.log"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "startedAt": "2026-10-08T09:25:31.366Z",
+      "finishedAt": "2026-10-08T09:25:31.399Z",
+      "exitCode": 0,
+      "log": "diff-check.log"
+    },
+    {
+      "name": "terminal-perf-budget",
+      "command": [
+        "node",
+        "scripts/check-perf-budget.mjs",
+        "apps/terminal/out"
+      ],
+      "exitCode": 0,
+      "log": "terminal-perf-budget.log"
+    },
+    {
+      "name": "website-perf-budget",
+      "command": [
+        "node",
+        "scripts/check-perf-budget.mjs",
+        "apps/website/out"
+      ],
+      "exitCode": 0,
+      "log": "website-perf-budget.log"
+    }
+  ]
+}

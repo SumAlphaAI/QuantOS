@@ -14,17 +14,17 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain", ".woff2": "font/woff2" };
 
 export const expectedLockedVersions = {
-  ".": { devDependencies: { "@next/eslint-plugin-next": "15.5.24" } },
+  ".": { devDependencies: { "@next/eslint-plugin-next": "15.5.27" } },
   "apps/terminal": {
     dependencies: {
       "@tanstack/react-query": "5.101.4", "@tanstack/react-table": "8.21.3", "@tanstack/react-virtual": "3.14.9",
-      echarts: "6.1.0", "lightweight-charts": "5.2.1", next: "15.5.24", "next-intl": "4.13.6",
+      echarts: "6.1.0", "lightweight-charts": "5.2.1", next: "15.5.27", "next-intl": "4.13.6",
       react: "19.2.8", "react-dom": "19.2.8", "react-hook-form": "7.85.0", zod: "4.4.3", zustand: "5.0.15",
     },
     devDependencies: { msw: "2.15.0", tailwindcss: "4.3.3", "@tailwindcss/postcss": "4.3.3" },
   },
   "apps/website": {
-    dependencies: { next: "15.5.24", react: "19.2.8", "react-dom": "19.2.8" },
+    dependencies: { next: "15.5.27", react: "19.2.8", "react-dom": "19.2.8" },
     devDependencies: { tailwindcss: "4.3.3", "@tailwindcss/postcss": "4.3.3" },
   },
   "packages/ui": {

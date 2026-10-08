@@ -1,0 +1,151 @@
+
+> @sumalpha/quantos@ test:development-plans /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/development-plan-order-negative.mjs
+
+✖ joint schedule is acyclic and preserves task/status boundaries (10.963875ms)
+✔ restoring a complete R1 prerequisite for S2 services creates a rejected cycle (5.349791ms)
+✔ research service waiting on its consumer page is rejected (5.132791ms)
+✔ historical CORE:R04 to CORE:L04 probe now fails closed (4.977625ms)
+✔ an early identity API cannot silently depend on later research services (6.194708ms)
+✔ a provider cannot wait for the consumer frontend Gate (4.716791ms)
+✔ removing S2 service admission from a core execution task is rejected (5.098375ms)
+✔ S2 service Gate cannot omit TP12 advance evaluation (5.309333ms)
+✔ I10 cannot drop testnet service admission even if metadata is edited with it (6.002666ms)
+✔ a new or existing frontend cannot skip the full provider Gate (6.327167ms)
+✔ G5 cannot be marked as closing in I4 before reconciliation (6.403417ms)
+✔ moving the G1 block above I1 tasks is rejected (5.712583ms)
+✔ milestone cannot omit its last child while retaining a Gate summary (5.448541ms)
+✔ prose-only backend dependencies cannot drift from structured prerequisites (5.958167ms)
+✔ core closure mapping cannot become an implicit service alias (5.187583ms)
+✔ ACCEPTED checkpoint needs SHA and evidence, not only a green word (5.9905ms)
+✔ accepted checkpoint evidence must resolve (2.44975ms)
+✔ missing checkpoint and unknown dependency fail closed (6.806583ms)
+✔ API windows cannot skip their preceding provider checkpoint (5.150125ms)
+✔ UI windows cannot skip the preceding reconciliation window (5.370459ms)
+✔ Web intake preserves the explicit no-model-review schema (1.494209ms)
+✔ missing Web task fields still fail closed (1.671542ms)
+✔ both plans must publish exactly the same stage contract (5.855042ms)
+✔ changing both plans cannot defer correctness or functional deadlines to release (14.108166ms)
+✔ both plans must retain every deferred release obligation (15.31875ms)
+✔ tasks and checkpoints cannot omit, invent, or misclassify their stage gate (20.235709ms)
+✔ release prerequisites cannot block either development or integration (12.639166ms)
+✔ release gates cannot skip business closure or inherit the wrong stage (14.393208ms)
+✖ historical ACCEPTED and completed tasks do not automatically become READY (5.565792ms)
+✖ READY needs its own input digest and resolvable evidence (32.122292ms)
+✔ unassessed stage gates cannot carry an apparent ready receipt (7.937333ms)
+✖ BLOCKED retains failure evidence and digest without being counted as READY (6.168625ms)
+✖ a READY chain needs READY prerequisites and its own evidence at every node (14.657166ms)
+✔ stage readiness never substitutes for formal acceptance evidence (3.016709ms)
+✔ release READY requires formal acceptance and all functional prerequisites (9.352292ms)
+✔ core intake follows the frontend audit-report format (6.690625ms)
+✔ core review summary must be unique and link to audit evidence (7.998833ms)
+✔ core shared task fields and existing window must stay consistent (15.031208ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 33
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 352.478125
+
+✖ failing tests:
+
+test at scripts/development-plan-order-negative.mjs:52:1
+✖ joint schedule is acyclic and preserves task/status boundaries (10.963875ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./audit/CI-c7a4d65-remediation-2026-10-08.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:184:7)
+      at check (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:50:43)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:53:18)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-plan-order-negative.mjs:217:1
+✖ historical ACCEPTED and completed tasks do not automatically become READY (5.565792ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./audit/CI-c7a4d65-remediation-2026-10-08.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:184:7)
+      at check (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:50:43)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:218:18)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-plan-order-negative.mjs:226:1
+✖ READY needs its own input digest and resolvable evidence (32.122292ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./audit/CI-c7a4d65-remediation-2026-10-08.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:184:7)
+      at check (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:50:43)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:236:18)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-plan-order-negative.mjs:247:1
+✖ BLOCKED retains failure evidence and digest without being counted as READY (6.168625ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./audit/CI-c7a4d65-remediation-2026-10-08.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:184:7)
+      at check (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:50:43)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:249:18)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/development-plan-order-negative.mjs:255:1
+✖ a READY chain needs READY prerequisites and its own evidence at every node (14.657166ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./audit/CI-c7a4d65-remediation-2026-10-08.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:184:7)
+      at check (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:50:43)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/development-plan-order-negative.mjs:262:18)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+ ELIFECYCLE  Command failed with exit code 1.

@@ -1,0 +1,52 @@
+✔ pending metadata never admits or executes a stage assessment (0.634958ms)
+✔ reject pending digest (0.43975ms)
+✔ reject pending evidence (0.235042ms)
+✔ reject wrong stage (0.0765ms)
+✔ reject missing evidence array (0.065458ms)
+✔ reject unknown status (0.050625ms)
+✔ reject unknown dependency (0.050834ms)
+✔ reject unsupported blocked node (0.047042ms)
+✔ READY propagates receipt failures without falling back to pending (0.145666ms)
+✔ READY requires exact validated receipt status and invokes strict admission (0.153ms)
+✔ BLOCKED requires a valid engineering receipt and grants no admission (0.104541ms)
+✔ READY requires current receipt metadata before invoking its strict validator (0.09375ms)
+✔ unsupported nodes cannot become CI stage gates (0.05325ms)
+✖ reading current plan dispositions does not alter lifecycle or evidence (10.962041ms)
+✔ current component CI wiring preserves strict admission commands (5.808459ms)
+✔ CI wiring rejects conditional job (6.325042ms)
+✔ CI wiring rejects ignored job (3.525792ms)
+✔ CI wiring rejects missing disposition (3.655833ms)
+✔ CI wiring rejects conditional disposition (2.679333ms)
+✔ CI wiring rejects ignored disposition (2.363ms)
+✔ CI wiring rejects missing negative tests (2.716542ms)
+✔ CI wiring rejects replacement of strict admission by the CI disposition command (1.151083ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 21
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98.916333
+
+✖ failing tests:
+
+test at scripts/ci-stage-disposition.test.mjs:62:1
+✖ reading current plan dispositions does not alter lifecycle or evidence (10.962041ms)
+  AssertionError [ERR_ASSERTION]: docs/SumAlpha-QuantOS-Development-Plan.md: broken local link ./audit/CI-c7a4d65-remediation-2026-10-08.md
+      at validatePlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs:184:7)
+      at nodesFromPlans (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:23:14)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/ci-stage-disposition.test.mjs:63:20)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
