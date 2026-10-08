@@ -20,12 +20,18 @@ struct Cleanup {
 impl Drop for Cleanup {
     fn drop(&mut self) {
         if let Ok(mut client) = connect_client(&self.database_url) {
+            // Preserve fixture facts/audits. Deletion can be rejected by immutable
+            // references; leaving its actors active would silently leak authority.
             let _ = client.execute_typed(
-                "delete from quantos.tenants where id = $1",
+                "update quantos.actors set is_active=false where tenant_id=$1",
                 &[(self.tenant_id.as_uuid(), Type::UUID)],
             );
             let _ = client.execute_typed(
-                "delete from auth.users where id = $1",
+                "update quantos.execution_service_sessions set revoked_at=coalesce(revoked_at,now()) where tenant_id=$1",
+                &[(self.tenant_id.as_uuid(), Type::UUID)],
+            );
+            let _ = client.execute_typed(
+                "update quantos.bff_sessions set expires_at=least(expires_at,now()) where user_id=$1",
                 &[(&self.user_id, Type::UUID)],
             );
         }
@@ -741,6 +747,24 @@ struct SeededFixture {
 }
 
 fn seed_auth_fixture(database_url: &str, tenant_id: TenantId, user_id: Uuid) -> SeededFixture {
+    // Register before the first SQL so the parent can retire a partial fixture
+    // even after panic or process timeout. No connection parameters are recorded.
+    if let Ok(manifest) = env::var("QUANTOS_F06_DATABASE_FIXTURE_MANIFEST") {
+        use std::io::Write;
+        let run = env::var("QUANTOS_F06_DATABASE_SCOPE").expect("fixture scope required");
+        Uuid::parse_str(&run).expect("fixture scope UUID");
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(manifest)
+            .expect("fixture manifest");
+        writeln!(file, "{}", serde_json::json!({"run":run,"tenantId":tenant_id.as_uuid(),"userId":user_id,"slug":format!("f06-{tenant_id}")})).expect("fixture registered");
+    }
+    let cleanup = Cleanup {
+        database_url: database_url.to_owned(),
+        tenant_id,
+        user_id,
+    };
     let mut client = connect_client(database_url).expect("connects for setup");
     ensure_auth_user(&mut client, user_id, &format!("f06-{user_id}@example.com"));
 
@@ -889,12 +913,6 @@ fn seed_auth_fixture(database_url: &str, tenant_id: TenantId, user_id: Uuid) -> 
             ],
         )
         .expect("service session inserts");
-
-    let cleanup = Cleanup {
-        database_url: database_url.to_owned(),
-        tenant_id,
-        user_id,
-    };
 
     SeededFixture {
         account_id: AccountId::from_uuid(account_uuid),

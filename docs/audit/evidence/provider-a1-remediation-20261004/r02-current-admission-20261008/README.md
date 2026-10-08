@@ -18,3 +18,9 @@ attempt-02/79ea170完整57组：55 PASS、2 FAIL（F02未捕获ECONNRESET且留�
 connection-repair-precheck只算未冻结开发预检：真实F02与chain-02 PASS、actor inactive、两连接关闭。chain第一次因临时启动器使用Rust不支持的SSL值FAIL、收尾PASS，原件保留。29连接/10F02生命周期/82严格回执回归与33项F02负向通过（1数据库条件项NOT_RUN）；不能把预检重标为新提交同SHA准入。下一轮须冻结新源码、空attempt-03完整57组。
 
 提交前再次检查修正未关闭连接分支的未定义变量，新增关闭失败负向；最后静态回归30项连接与34项F02负向PASS（1条件数据库项NOT_RUN），见 final-close-regression。前述实际数据库预检及当时源码哈希原样保留。
+
+## 第三轮与 F06 fixture 收尾
+
+attempt-03/80b70e5仅完成6组、5PASS/1FAIL，F06数据库步骤统一300秒截止，原日志只完成5测试、null退出且缺超时诊断，不能臆测第6测试内部阶段。F09目标PASS后在静态阶段停止，控制器143、owned子进程无残留，Engine scopecdd354ea独立检查PASS。核对单次执行窗口、随机tenant slug与合成auth user后，7fixture的14actor实际停用，账户和会话失效；事实保留。
+
+后续修复：Rust在SQL前登记随机scope/fixture，保留事实停用替代忽略删除错误；父运行器独立核对身份与停用8fixture，严格回执要求全部actor/账户/会话为0、连接关闭。命令记录预算/耗时/信号/超时码；数据库整组功能预算900秒、HTTP步骤300秒不变，外层有界60分钟；不是发布性能阈值。124静态回归PASS；实际八测试与独立8fixture收尾PASS，只算未冻结开发预检（输入哈希保留）。首个临时启动器相对路径FAIL原件保留。下一轮冻结新源码，空attempt-04执行完整57组。
