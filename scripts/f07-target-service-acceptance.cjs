@@ -1,3 +1,4 @@
+const { runAuthLoginAttempts } = require('./lib/auth-login-retry.cjs');
 const ready = require('./lib/service-readiness.cjs');
 const observeClientErrors = require('./lib/target-client-errors.cjs');
 const startupEvidence = require('./lib/runtime-startup-evidence.cjs');
@@ -17,7 +18,7 @@ const dirty = Boolean(execFileSync('git', ['status', '--porcelain'], { cwd: root
 const configuredDevelopment = process.env.QUANTOS_F07_TARGET_MODE === 'configured-development';
 const receipt = { schema: 'quantos-f07-target-service/v1', sourceCommit, dirty,
   targetClass: configuredDevelopment ? 'configured-supabase-local-service-development' : 'isolated-supabase-local-service', formalAccepted: false, status: 'RUNNING', checks: [],
-  startedAt: new Date().toISOString() };
+  startedAt: new Date().toISOString(), phase: 'validate-target', authLoginRequests: [] };
 fs.mkdirSync(path.dirname(output), { recursive: true });
 const save = () => fs.writeFileSync(output, `${JSON.stringify(receipt, null, 2)}\n`);
 const assert = (value, message) => { if (!value) throw Error(message); };
@@ -62,15 +63,48 @@ function adminClient() {
 }
 
 async function authRequest(api, route, method, body, key) {
-  const response = await fetch(new URL(route, api), {
-    method, headers: { apikey: key, authorization: `Bearer ${key}`,
-      'content-type': 'application/json' },
-    body: body ? JSON.stringify(body) : undefined,
-    signal: AbortSignal.timeout(15000),
+  const login = route === '/auth/v1/token?grant_type=password';
+  const execute = async () => {
+    const response = await fetch(new URL(route, api), {
+      method, headers: { apikey: key, authorization: `Bearer ${key}`,
+        'content-type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(15000),
+    });
+    const data = await response.json().catch(() => ({}));
+    assert(response.ok, `Supabase Auth ${route} returned HTTP ${response.status}`);
+    if (login) assert(data.access_token, 'Supabase login returned no access token');
+    return data;
+  };
+  if (!login) return execute();
+  const request = { id: receipt.authLoginRequests.length + 1, route, timeoutMs: 15000, maxAttempts: 3, attempts: [] };
+  receipt.authLoginRequests.push(request);
+  save();
+  return runAuthLoginAttempts(execute, { onAttempt: attempt => {
+    request.attempts.push(attempt); save();
+  } });
+}
+
+async function stopService(service) {
+  if (!service) return null;
+  const child = service.child;
+  if (child.exitCode !== null || child.signalCode !== null) return child.pid;
+  await new Promise((resolve, reject) => {
+    let grace, limit;
+    const done = error => {
+      clearTimeout(grace); clearTimeout(limit);
+      child.off('exit', exited);
+      error ? reject(error) : resolve();
+    };
+    const exited = () => done();
+    child.once('exit', exited);
+    child.kill('SIGTERM');
+    grace = setTimeout(() => {
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+    }, 3000);
+    limit = setTimeout(() => done(Error('owned service did not stop after SIGKILL')), 6000);
   });
-  const data = await response.json().catch(() => ({}));
-  assert(response.ok, `Supabase Auth ${route} returned HTTP ${response.status}`);
-  return data;
+  return child.pid;
 }
 
 function start(binary, port, extra) {
@@ -111,6 +145,8 @@ async function seed(db, userId) {
   const actorId = (await db.query(`insert into quantos.actors
     (tenant_id,user_id,actor_kind,display_name)
     values ($1,$2,'user','F07 target owner') returning id`, [tenantId, userId])).rows[0].id;
+  receipt.fixture = { tenantId, actorId };
+  save();
   await db.query(`insert into quantos.workspace_memberships
     (tenant_id,workspace_id,actor_id,role) values ($1,$2,$3,'owner')`,
   [tenantId, workspaceId, actorId]);
@@ -135,6 +171,7 @@ async function main() {
   let cookie;
   let otherCookie;
   try {
+    receipt.phase = 'database-connect'; save();
     await db.connect();
     const bucket = (await db.query(`select exists(
       select 1 from storage.buckets where id='quantos-artifacts' and public=false
@@ -143,17 +180,21 @@ async function main() {
     receipt.checks.push('private Artifact Storage bucket exists');
     const email = `f07-target-${crypto.randomUUID()}@example.com`;
     const password = crypto.randomBytes(32).toString('base64url');
+    receipt.phase = 'auth-create-fixture'; save();
     const created = await authRequest(api, '/auth/v1/admin/users', 'POST',
       { email, password, email_confirm: true }, process.env.SUPABASE_SERVICE_ROLE_KEY);
     const userId = created.id || created.user?.id;
     assert(userId, 'Supabase Auth did not create a test identity');
+    receipt.phase = 'database-seed-fixture'; save();
     tenantId = await seed(db, userId);
     receipt.checks.push('real Supabase Auth identity and isolated owner/capability fixture');
+    receipt.phase = 'auth-login-owner'; save();
     const token = (await authRequest(api, '/auth/v1/token?grant_type=password', 'POST',
       { email, password }, process.env.SUPABASE_PUBLISHABLE_KEY)).access_token;
     assert(token, 'Supabase login returned no access token');
     const bffPort = 52000 + crypto.randomInt(1000);
     const runtimePort = 53000 + crypto.randomInt(1000);
+    receipt.phase = 'bff-startup-session'; save();
     bff = start('bff-gateway', bffPort, { QUANTOS_BFF_MODE: 'live',
       QUANTOS_BFF_BIND: `127.0.0.1:${bffPort}`, QUANTOS_BFF_ENVIRONMENT: 'dev' });
     await ready(bff, '/v1/session', 401);
@@ -163,6 +204,7 @@ async function main() {
     cookie = established.headers.getSetCookie().map(value => value.split(';')[0]).join('; ');
     assert(cookie?.startsWith('quantos_session=') && /(?:^|; )quantos_csrf=/.test(cookie), 'BFF did not issue opaque session and CSRF cookies');
     receipt.checks.push('real Supabase login and BFF opaque session');
+    receipt.phase = 'runtime-startup'; save();
     runtime = start('runtime-gateway', runtimePort, {
       QUANTOS_RUNTIME_BIND: `127.0.0.1:${runtimePort}`,
       QUANTOS_RUNTIME_STORAGE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -170,6 +212,7 @@ async function main() {
     await ready(runtime, '/healthz', 204);
     receipt.startupPhases = runtime.startupPhases();
     receipt.startupReadiness = { bff: bff.readiness, runtime: runtime.readiness };
+    receipt.phase = 'runtime-functional-http'; save();
     const tool = { tool_name: 'runtime.fixture', capability: 'research.write',
       description: 'F07 target fixture', max_cost_units: 100,
       rate_limit_per_minute: 100, enabled: true };
@@ -210,6 +253,7 @@ async function main() {
     const missing = await request(runtime.base, `/v1/runtime/runs/${runId}`);
     assert(missing.status === 401, 'Runtime accepted missing BFF cookie');
     if (process.env.QUANTOS_F06_TEST_EMAIL && process.env.QUANTOS_F06_TEST_PASSWORD) {
+      receipt.phase = 'auth-login-separate-tenant'; save();
       const otherToken = (await authRequest(api, '/auth/v1/token?grant_type=password', 'POST',
         { email: process.env.QUANTOS_F06_TEST_EMAIL,
           password: process.env.QUANTOS_F06_TEST_PASSWORD },
@@ -231,6 +275,7 @@ async function main() {
       receipt.checks.push('separate real Auth tenant denied run, cancellation and Artifact access');
     }
     receipt.checks.push('dedicated BFF/Runtime logins, strict TLS, HTTP schedule/worker/Storage/retrieval/hash, missing-cookie rejection');
+    receipt.phase = 'session-revocation'; save();
     const missingCsrf = await fetch(`${bff.base}/v1/auth/logout`, { method: 'POST',
       headers: { origin, cookie }, signal: AbortSignal.timeout(15000) });
     assert(missingCsrf.status === 403, 'BFF logout accepted missing CSRF token');
@@ -246,25 +291,55 @@ async function main() {
     receipt.status = 'DIAGNOSTIC_ONLY';
     receipt.engineeringStatus = 'PASS';
     receipt.excluded = ['deployed HTTPS', 'restricted Runtime Storage credential', 'scheduling P95', 'hosted CI'];
+  } catch (error) {
+    receipt.failurePhase = receipt.phase;
+    receipt.primaryError = redact(error.message);
+    receipt.serviceDiagnostics = { bff: bff?.diagnostic(), runtime: runtime?.diagnostic() };
+    throw error;
   } finally {
-    if (otherCookie && bff) {
-      await request(bff.base, '/v1/auth/logout', otherCookie, 'POST').catch(() => {});
+    receipt.phase = 'owned-fixture-cleanup'; save();
+    const cleanup = { status: 'RUNNING', metadata: 'RETAINED', startedServices: [bff, runtime].filter(Boolean).length,
+      stoppedPids: [], sessionRetirements: [], failures: [] };
+    receipt.fixtureCleanup = cleanup;
+    for (const [kind, sessionCookie] of [['separate', otherCookie], ['owner', cookie]]) {
+      if (sessionCookie && bff) {
+        try {
+          const response = await request(bff.base, '/v1/auth/logout', sessionCookie, 'POST');
+          cleanup.sessionRetirements.push({ kind, status: response.status });
+          assert([204, 401].includes(response.status), `${kind} fixture session retirement unconfirmed`);
+        } catch (error) { cleanup.failures.push(redact(error.message)); }
+      }
     }
-    if (cookie && bff) {
-      await request(bff.base, '/v1/auth/logout', cookie, 'POST').catch(() => {});
+    const stopped = await Promise.allSettled([stopService(bff), stopService(runtime)]);
+    for (const result of stopped) {
+      if (result.status === 'fulfilled' && result.value) cleanup.stoppedPids.push(result.value);
+      if (result.status === 'rejected') cleanup.failures.push(redact(result.reason.message));
     }
-    runtime?.child.kill('SIGTERM');
-    bff?.child.kill('SIGTERM');
     try {
-      if (tenantId) {
+      const fixture = receipt.fixture;
+      if (fixture) {
+        const actor = (await db.query(`update quantos.actors set is_active=false
+          where id=$1 and tenant_id=$2 returning id,tenant_id,is_active`, [fixture.actorId, fixture.tenantId])).rows;
+        assert(actor.length === 1 && actor[0].is_active === false, 'owned F07 actor was not deactivated');
+        cleanup.actor = actor[0];
+      }
+      const ownedTenant = tenantId ?? fixture?.tenantId;
+      if (ownedTenant) {
         await db.query(`update quantos.workflow_runs set status='failed', completed_at=now(),
           lease_owner=null, lease_expires_at=null, attempt_id=null,
           last_error='F07 target fixture retired', updated_at=now()
-          where tenant_id=$1 and status in ('queued','running','cancel_requested')`, [tenantId]);
+          where tenant_id=$1 and status in ('queued','running','cancel_requested')`, [ownedTenant]);
         await db.query(`update quantos.tool_registry set enabled=false, updated_at=now()
-          where tenant_id=$1 and enabled=true`, [tenantId]);
+          where tenant_id=$1 and enabled=true`, [ownedTenant]);
       }
-    } finally { await db.end(); }
+    } catch (error) { cleanup.failures.push(redact(error.message)); }
+    finally {
+      try { await db.end(); } catch (error) { cleanup.failures.push(redact(error.message)); }
+    }
+    cleanup.completedAt = new Date().toISOString();
+    cleanup.status = cleanup.failures.length === 0 ? 'PASS' : 'FAIL';
+    save();
+    if (cleanup.status !== 'PASS') throw Error('owned F07 fixture cleanup failed');
     assertDatabaseHealthy();
   }
 }

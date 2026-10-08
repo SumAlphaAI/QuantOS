@@ -1,0 +1,50 @@
+{
+  "schema": "quantos-f09-target-gate/v3",
+  "sourceCommit": "73784c75ab01616a7d344e186d0e1247ec9ab929",
+  "dirty": false,
+  "targetClass": "test-supabase-postgresql",
+  "status": "PASS",
+  "checks": [
+    "same source migration ledger and checksums",
+    "two one-minute Supabase scheduler ticks fail closed on missing metrics",
+    "live capacity, own-session termination, consumer recovery and redaction tests",
+    "real portfolio and risk query samples",
+    "real BFF, Runtime and Portfolio writes linked to persistent trace",
+    "local supervised Engine process crash and recovery"
+  ],
+  "acceptanceScope": "F09 development database and Engine component probes",
+  "f09Accepted": false,
+  "remainingDevelopmentAcceptance": [],
+  "deferredToRelease": [
+    "same-SHA remote CI and Nightly receipts"
+  ],
+  "deferredToL04": [
+    "nine deployed business metric producers and one-minute monitor",
+    "cross-service same-chain fault exercises and secret leak scan",
+    "sustained live thresholds, dashboard queries and notification delivery"
+  ],
+  "startedAt": "2026-10-08T03:24:04.504Z",
+  "targetRefHash": "a70aa14f6acb257e",
+  "migrationHead": "20261007190000_r02_writer_no_inherit.sql",
+  "logs": {
+    "scheduler-smoke.log": "d4a17caabfdc6d30e334c4d2d23111290adaf3b2f8d34815f24cb85a2530e69a",
+    "postgres-exercises.log": "366d442d376b10e2dd051567666afcfeb3871d7002ffd1600f88b7ab7a79fe9e",
+    "portfolio-query.log": "a66fc42898ba5de34726547424d747c7fcdf817652214511c1661b37b23c1a7a",
+    "bff-write-trace.log": "6957d20195cf85592b143fe6e7eb3d29f373494e1d82389746eae329637249d1",
+    "runtime-write-trace.log": "febe976e4f9b2652a5c1cc353b29e3887d332790269852017ce38d96f301b170",
+    "portfolio-write-trace.log": "ced10a6271043774f274f1ccb81da09ece7cc18a351bd651f490d4bedb495344",
+    "engine-crash.log": "9ec16312a989b9ab2c136fd128e2cccfa06df1f695f28c7243c2188301fc3ff7"
+  },
+  "writeTraces": {
+    "bffSessionRevoke": "01a11991-3b19-7910-b4c0-16011a584ad6",
+    "runtimeRunSchedule": "01a11991-70dc-7113-b496-cbc89835e6fe",
+    "portfolioProjection": {
+      "event": "F09_PORTFOLIO_WRITE_TRACE_PASS",
+      "correlationId": "01a11991-9d60-7663-9799-73d304098824",
+      "snapshotHash": "sha256:2081d8c86e1a95ae74d66be445e82db83a81e22d36bad8fc3d843640e2d416c1",
+      "lastEventSequence": 23,
+      "positionCount": 3
+    }
+  },
+  "completedAt": "2026-10-08T03:32:24.151Z"
+}

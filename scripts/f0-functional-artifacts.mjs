@@ -4,6 +4,8 @@ import {dirname,resolve} from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {verifyBracesBackport,isBracesBackportFinding} from './braces-backport.mjs';
+import {createRequire} from 'node:module';
+const {validateLoginAttempts}=createRequire(import.meta.url)('./lib/auth-login-retry.cjs');
 export function validateF0Artifact(kind,path,source){
  const r=JSON.parse(readFileSync(path));assert.equal(r.sourceCommit??r.source,source,'F0 artifact source differs');
  if(kind==='f02-database'){assert.equal(r.schema,'quantos-f02-development-database/v1');assert.equal(r.status,'PASS');assert.equal(r.targetClass,'configured-supabase');assert.equal(r.formalAccepted,false);assert.equal(r.fullReferenceRebuild,false);assert.equal(r.checks.length,7);}
@@ -16,6 +18,14 @@ export function validateF0Artifact(kind,path,source){
  }
  else if(kind==='f07-service'){
   assert.equal(r.schema,'quantos-f07-target-service/v1');assert.equal(r.targetClass,'configured-supabase-local-service-development');assert.equal(r.status,'DIAGNOSTIC_ONLY');assert.equal(r.engineeringStatus,'PASS');assert.equal(r.formalAccepted,false);assert.equal(r.checks.length,6);assert.equal(r.storageCredentialScope,'temporary-admin-key');assert(r.checks.some(c=>c.includes('separate real Auth tenant denied')));assert(r.checks.some(c=>c.includes('logout revokes')));assert.deepEqual(r.excluded,['deployed HTTPS','restricted Runtime Storage credential','scheduling P95','hosted CI']);
+  validateLoginAttempts(r.authLoginRequests);
+  const cleanup=r.fixtureCleanup;assert.equal(cleanup?.status,'PASS');assert.equal(cleanup.metadata,'RETAINED');assert.deepEqual(cleanup.failures,[]);
+  assert(Array.isArray(cleanup.sessionRetirements)&&cleanup.sessionRetirements.some(s=>s.kind==='separate'&&[204,401].includes(s.status)),'separate fixture session retirement missing');
+  assert(cleanup.sessionRetirements.every(s=>[204,401].includes(s.status)),'fixture session retirement failed');
+  assert.equal(cleanup.startedServices,2);assert.equal(cleanup.stoppedPids?.length,2);assert.equal(new Set(cleanup.stoppedPids).size,2);assert(cleanup.stoppedPids.every(pid=>Number.isSafeInteger(pid)&&pid>0));
+  assert(/^[a-f0-9-]{36}$/.test(r.fixture?.actorId)&&/^[a-f0-9-]{36}$/.test(r.fixture?.tenantId),'owned actor identity missing');
+  assert.equal(cleanup.actor?.id,r.fixture.actorId);assert.equal(cleanup.actor?.tenant_id,r.fixture.tenantId);assert.equal(cleanup.actor?.is_active,false);
+  assert(Number.isFinite(Date.parse(cleanup.completedAt))&&Date.parse(cleanup.completedAt)<=Date.parse(r.completedAt),'actual cleanup time missing');
  }
  else if(kind==='f08-service'){
   assert.equal(r.schema,'quantos-f08-target-service/v1');assert.equal(r.status,'PASS');assert.equal(r.installedFromWheel,true);assert.equal(r.targetDirectoryMode,'700');

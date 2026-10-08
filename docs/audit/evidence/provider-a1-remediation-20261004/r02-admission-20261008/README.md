@@ -19,3 +19,9 @@
 仅使用既有Supabase，不删除/重建现有事实；原授权1800秒、BTCUSDT/ETHUSDT、内部用途与2026-10-10T00:00:00Z到期保持。没有新真实provider ingestion或自动延长窗口。所有历史失败和metadata留存；本次commit仅本地，不推送。
 
 第二轮`attempt-02`在冻结55b4999完成3项后，因F06只读preflight瞬时PG断开保留FAIL；F09当前目标收尾后停止，全57未执行，owned scope残留0。修复有上限的preflight transport retry后，以新源码/空`attempt-03`复评。嵌套`supporting/r01-target/target`及`supporting/r02-target/target`受全局target/忽略规则影响，提交时须显式`git add -f`本轮这两个证据子树，禁止漏提交actor/coverage/血缘原件。
+
+第三轮`attempt-03`在冻结`73784c75ab01616a7d344e186d0e1247ec9ab929`完整执行57项，56PASS/1FAIL：F07新具名fixture已创建后，Supabase Auth密码登录请求15秒超时，BFF/Runtime尚未启动；原失败回执另存`failed-f07-service/receipt.json`。无READY发布。R01/R02实际目标、覆盖、owned actor/Engine及scope5269c7ba最终进程残留0均通过；不替代F07失败。唯一F07新建actor按源码命名、Auth测试身份、tenant及创建时间窗口独立核对后停用，`actor-retirement.json`保存实际结果，原FAIL不改判。
+
+后续F07修复只对password-token登录传输超时/已知连接关闭最多重试3次，记录每次失败；创建身份、角色/HTTP拒绝、缺token、显式取消和业务断言不重试。新增phase/确切fixture ID，成功失败路径都停用自身actor、核验session retirement及两个本地服务PID回收；清理失败拒绝。控制器保存失败artifact原件，不只有一行错误。
+
+`fix-preflight-f07`为未提交修复源码下的实际Supabase预检：63项针对性Node测试、真实Auth/BFF/Runtime/worker/Storage与六组功能检查通过，自己的actor inactive、foreign fixture session HTTP204、两服务PID回收。`source-state.json`记录实际字节和dirty源码；该预检不计同SHA准入。修复提交后须以空`attempt-04`重新完整57项，不改旧目标源码SHA。

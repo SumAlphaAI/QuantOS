@@ -1,0 +1,85 @@
+cargo test -p quantos-observability --lib --locked
+
+running 20 tests
+test service::tests::multiprocess_jsonl_fixture ... ok
+test capacity::tests::required_external_metric_inventory_is_complete_and_unique ... ok
+test service::tests::live_write_trace_sink_requires_absolute_path ... ok
+test tests::health_report_requires_all_components_ready ... ok
+test tests::duplicate_or_backward_ticks_do_not_advance_consecutive_windows ... ok
+test tests::capacity_duration_and_consecutive_windows_reset_after_missing_tick ... ok
+test tests::quota_alert_is_immediate_and_requires_exceeding_seventy_percent ... ok
+test tests::telemetry_redacts_secret_fields ... ok
+test service::tests::returns_stable_structured_errors ... ok
+test capacity::tests::capacity_evidence_serializes_for_the_adr_generator ... ok
+test tests::fault_proxy_redacts_secrets_and_preserves_recovery_trace ... ok
+test tests::capacity_alerts_cover_required_thresholds_and_adr_inputs ... ok
+test tests::db_event_consumer_and_engine_faults_recover_without_secret_leaks ... ok
+test service::tests::persisted_trace_redacts_nested_credentials_and_rejects_remote_listener ... ok
+test capacity::tests::target_connection_accepts_verified_tls_options_without_relaxing_validation ... ok
+test tests::observable_writes_are_indexed_by_correlation_id ... ok
+test service::tests::exposes_health_metrics_and_correlation_trace ... ok
+test capacity::tests::postgres_tls_backend_keeps_peer_validation_and_rejects_missing_ca ... ok
+test service::tests::multiple_processes_write_complete_jsonl_records ... ok
+test service::tests::stalled_client_does_not_stop_listener_and_listener_failure_changes_readiness ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.01s
+
+cargo test -p bff-gateway --lib f09_trace_tests --locked
+
+running 1 test
+test live::f09_trace_tests::auth_write_returns_queryable_correlation_trace ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 0.00s
+
+cargo test -p runtime-gateway --bin runtime-gateway f09_trace_tests --locked
+
+running 2 tests
+test live::f09_trace_tests::write_returns_queryable_correlation_trace ... ok
+test live::f09_trace_tests::failed_write_has_structured_error_and_matching_trace ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.01s
+
+cargo build -p market-ingestor -p portfolio-rebuild --locked
+node scripts/f09-batch-trace-smoke.cjs
+F09 batch write outputs and persistent traces share correlation IDs.
+uv run --locked --project engines --all-packages pytest engines/tests/test_engine_observability.py engines/tests/test_mock_engine_recovery.py
+============================= test session starts ==============================
+platform darwin -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/anray/Documents/project/SumAlpha/QuantOS/engines
+configfile: pyproject.toml
+plugins: cov-6.2.1
+collected 9 items
+
+engines/tests/test_engine_observability.py ..                            [ 22%]
+engines/tests/test_mock_engine_recovery.py .......                       [100%]
+
+============================== 9 passed in 0.65s ===============================
+node ./scripts/test-f09-adr-input.mjs
+F09 ADR input generation checks passed.
+node ./scripts/check-f09-observability-config.mjs
+F09 alert rules and dashboard inventory agree with the evaluator.
+node --test scripts/tests/f09-rule-contract.test.mjs
+✔ F09 rule semantics match the development-plan thresholds (0.671083ms)
+✔ unchanged rule IDs cannot hide threshold, duration, count or severity drift (0.685ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.694292
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.98s
+     Running unittests src/lib.rs (target/debug/deps/quantos_observability-c6b34f935487907e)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.87s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-d12a65752bc484f1)
+   Compiling runtime-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/runtime-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.07s
+     Running unittests src/main.rs (target/debug/deps/runtime_gateway-10c42f263fd4cdce)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s

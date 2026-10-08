@@ -1,0 +1,74 @@
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.49s
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_storage-ab52dc8b575c3e1f)
+
+running 21 tests
+test provenance::tests::actual_identity_time_quality_and_purpose_are_required ... ok
+test provenance::tests::revoked_expired_ambiguous_or_empty_approvals_never_authorize ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test snapshot::tests::optional_license_rule_is_research_only ... ok
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test snapshot::tests::regression_forged_wire_hash_quality_and_expiry_are_rejected ... ok
+test snapshot::tests::regression_future_capture_window_and_overflow_are_errors ... ok
+test snapshot::tests::regression_metadata_source_age_and_input_budget_reject ... ok
+test snapshot::tests::regression_strict_floor_duplicate_and_mixed_tenant_rules_reject ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test wire::tests::incomplete_or_invalid_metadata_cannot_become_write_context ... ok
+test wire::tests::wire_projection_preserves_identity_and_all_quality_variants ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/postgres_persistence.rs (target/llvm-cov-target/debug/deps/postgres_persistence-ad7b7ad58a3813ca)
+
+running 1 test
+test postgres_storage_store_persists_artifacts_and_schema_registry ... R02_RELEASE_PERFORMANCE_NOT_RUN: development verifies functional reads only
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 23.72s
+
+     Running tests/r02_boundaries.rs (target/llvm-cov-target/debug/deps/r02_boundaries-3dc8d2c369af1937)
+
+running 2 tests
+test real_snapshot_permissions_invariants_and_atomic_audit ... R02_FIXTURE {"actor":"01a119cb-8cb4-7053-9068-24860dac9ebc","run":"871c8864-ec2e-4d6f-a2ed-d6838dbafc4c","tenant":"01a119cb-8cb4-7053-9068-24715d28487e"}
+R02_FIXTURE {"actor":"01a119cb-a1ae-7dd3-8070-c6ace5a46ead","run":"871c8864-ec2e-4d6f-a2ed-d6838dbafc4c","tenant":"01a119cb-a1ae-7dd3-8070-c69977e42cf2"}
+R02_TARGET_SNAPSHOT PASS member-read/cross-tenant-deny/hash-expiry/ref/rule-floor/atomic-audit; not HTTP JWT
+R02_ACTOR_INACTIVE 01a119cb-a1ae-7dd3-8070-c6ace5a46ead
+R02_ACTOR_INACTIVE 01a119cb-8cb4-7053-9068-24860dac9ebc
+ok
+test real_storage_registration_failure_preserves_existing_object_and_reconciles ... R02_FIXTURE {"actor":"01a119cc-5065-7332-9761-6fa7ffdfd701","run":"871c8864-ec2e-4d6f-a2ed-d6838dbafc4c","tenant":"01a119cc-5065-7332-9761-6f9ef38a3618"}
+R02_TARGET_STORAGE PASS real-roundtrip/existing-object-preserved/durable-reconcile/retry/path-deny; attempt=8d3cc0b0-5583-4f1d-a196-bdf5496e961d
+R02_ACTOR_INACTIVE 01a119cc-5065-7332-9761-6fa7ffdfd701
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 78.79s
+
+     Running tests/storage_http.rs (target/llvm-cov-target/debug/deps/storage_http-c3430988ff807610)
+
+running 3 tests
+test http_success_errors_and_corrupt_downloads ... ok
+test invalid_configuration_fails_before_requests ... ok
+test invalid_tenant_is_rejected_before_upload_and_success_persists ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.26s
+
+     Running tests/supabase_storage_integration.rs (target/llvm-cov-target/debug/deps/supabase_storage_integration-e915b5bc76e0c77f)
+
+running 1 test
+test supabase_storage_adapter_round_trips_artifacts_and_registers_manifest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 18.52s
+
+
+    Finished report saved to /Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-03/supporting/r02-target/target/boundaries/coverage.json
