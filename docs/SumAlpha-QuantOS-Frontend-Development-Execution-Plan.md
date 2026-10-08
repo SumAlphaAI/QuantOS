@@ -1,6 +1,8 @@
-> 2026-10-07 第二轮执行文档整理：8 份 P0/A1 验收规程及 R01/R02/UI 交付记录保留迁入 `docs/execution/`，同步活动引用与 R01/R02 读取路径；阶段准入与当前 G0 PENDING 状态保持不变。见[整理报告](./audit/Execution-document-organization-round2-2026-10-07.md)。
+> 当前工程状态（2026-10-08）：R02开发闭包57/57实际检查通过；F01–F09、TP01-A/B、F0、R01/R02共14节点DEVELOPMENT READY，其余145节点NOT_ASSESSED。R02开发27/27，完整范围26/28；C25/C26发布欠项及R01 B01/FA-H01保留，正式/hosted CI未继承。见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。
 
-> 2026-10-07 执行文档目录整理：25 份 BFF/PRE/Desktop 准备产物保留并迁入 `docs/execution/`；读取脚本及输入策略已同步。原 26 READY 和 `52fee5f6e499` 确认为迁移前历史记录，当前受影响功能准入均为 NOT_ASSESSED，需独立内容复评。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
+> 迁移时历史快照：2026-10-07 第二轮执行文档整理：8 份 P0/A1 验收规程及 R01/R02/UI 交付记录保留迁入 `docs/execution/`，同步活动引用与 R01/R02 读取路径；阶段准入与当前 G0 PENDING 状态保持不变。见[整理报告](./audit/Execution-document-organization-round2-2026-10-07.md)。
+
+> 迁移时历史快照：2026-10-07 执行文档目录整理：25 份 BFF/PRE/Desktop 准备产物保留并迁入 `docs/execution/`；读取脚本及输入策略已同步。原 26 READY 和 `52fee5f6e499` 确认为迁移前历史记录，当前受影响功能准入均为 NOT_ASSESSED，需独立内容复评。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
 > 迁移前历史快照：2026-10-07 PROVIDER:A2 再复核完成：原四项问题全部关闭，当前活动问题0、24/24控制点PASS、26/26 API证据完整；26 READY、0 BLOCKED，G0范围52fee5f6e499已确认。64acc87的9项工程工作流及Dependency Graph共10/10成功；后续文档提交的hosted CI独立核验。见[当前复核报告](./audit/PROVIDER-A2-comprehensive-review-2026-10-07.md)。
 
@@ -13,13 +15,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.44
-> 更新时间：2026-10-07
-> 状态：执行文档目录迁移与本地回归；原 26 功能准入待当前输入复评，stage_gate 为 NOT_ASSESSED；迁移前 hosted CI 和确认原件保留。
+> 版本：3.45
+> 更新时间：2026-10-08
+> 状态：R02开发依赖闭包14节点READY；页面/G0/A1/FEP-0和发布阶段分别待验，历史确认保留。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.45`：R02当前开发准入闭合，完整57/57实际复评通过，14节点DEVELOPMENT READY、145节点NOT_ASSESSED。R02调整后开发27/27、原完整范围26/28；C25代表性性能/C26部署与候选同SHA CI留Beta，R01 B01/FA-H01继续OPEN/PARTIAL。仅当前功能工程回执，不补写正式ACCEPTED、不迁移G0或旧hosted CI；失败历史和原批准完整保留。见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。
 
 - `3.44`：第二轮 8 份根目录文档均有用途，全部保留迁入 execution；保留业务正文、历史交付/验收状态，同步活动引用和两项检查脚本。目录合计 33 份执行产物，历史审计/回执/签署原件不重写；原 159 个 stage_gate 继续 NOT_ASSESSED，不用本轮静态验证恢复 READY。
 

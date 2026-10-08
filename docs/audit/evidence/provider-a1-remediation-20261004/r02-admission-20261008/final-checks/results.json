@@ -1,0 +1,94 @@
+{
+  "schema": "quantos-r02-final-document-checks/v1",
+  "recordedAt": "2026-10-08T08:40:09.782Z",
+  "formalAccepted": false,
+  "checks": [
+    {
+      "id": "r02-dependency-admission",
+      "command": [
+        "make",
+        "r02-admission-check"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "r02-dependency-admission.log"
+    },
+    {
+      "id": "r02-own-receipt",
+      "command": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "import {validateReceipt} from './scripts/provider-a1-receipts.mjs'; console.log(JSON.stringify(validateReceipt('CORE:R02'),null,2));"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "r02-own-receipt.log"
+    },
+    {
+      "id": "r01-own-receipt",
+      "command": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "import {validateReceipt} from './scripts/provider-a1-receipts.mjs'; console.log(JSON.stringify(validateReceipt('CORE:R01'),null,2));"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "r01-own-receipt.log"
+    },
+    {
+      "id": "f0-strict-closure",
+      "command": [
+        "node",
+        "scripts/provider-a1-receipts.mjs",
+        "--f0"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "f0-strict-closure.log"
+    },
+    {
+      "id": "joint-plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "joint-plans.log"
+    },
+    {
+      "id": "plan-negatives",
+      "command": [
+        "node",
+        "--test",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "plan-negatives.log"
+    },
+    {
+      "id": "component-stage-disposition",
+      "command": [
+        "node",
+        "scripts/r02-stage-check.mjs"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "component-stage-disposition.log"
+    },
+    {
+      "id": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "diff-check.log"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "snapshot_id": "01a11aa8-8fb4-7c50-9150-abb700077a9b",
+  "tenant_id": "d8e6ea57-5499-4465-9cbb-595f32e2770c",
+  "schema_name": "DataSnapshot",
+  "schema_version": "v1",
+  "schema_entry_id": "6f395bc9-e28c-447b-acc7-772bdbf424f9",
+  "window": {
+    "start_at": "2026-10-04T05:20:41.308Z",
+    "end_at": "2026-10-04T05:21:01.995Z"
+  },
+  "sources": [
+    {
+      "source_id": "market:binance.spot.aggtrades:BTC/USDT",
+      "provider": "binance.spot.aggtrades",
+      "dataset": "binance.spot.aggregate-trades.v1",
+      "license_label": "public-market-data-owner-authorized-internal-evaluation-only"
+    },
+    {
+      "source_id": "market:binance.spot.aggtrades:ETH/USDT",
+      "provider": "binance.spot.aggtrades",
+      "dataset": "binance.spot.aggregate-trades.v1",
+      "license_label": "public-market-data-owner-authorized-internal-evaluation-only"
+    }
+  ],
+  "quality": "degraded",
+  "quality_findings": [
+    {
+      "code": "retained-source-age",
+      "detail": "Retained historical window: current capture does not imply fresh source"
+    }
+  ],
+  "license_label": "public-market-data-owner-authorized-internal-evaluation-only",
+  "captured_at": "2026-10-08T08:36:50.937606Z",
+  "max_age_secs": 86400,
+  "expires_at": "2026-10-09T08:36:50.937606Z",
+  "symbols": [
+    "BTC/USDT",
+    "ETH/USDT"
+  ],
+  "artifact_refs": [
+    {
+      "artifact_id": "01a11aa8-8131-70c0-868c-41a9dcf33cad",
+      "media_type": "application/json",
+      "content_hash": "sha256:0d5678d237428b7d179ad45910241717a668e19e2f71f28dbcf3663e8868ff00",
+      "storage_bucket": "quantos-bucket",
+      "object_key": "tenant/d8e6ea57-5499-4465-9cbb-595f32e2770c/artifacts/0d/0d5678d237428b7d179ad45910241717a668e19e2f71f28dbcf3663e8868ff00"
+    }
+  ],
+  "lineage": [
+    {
+      "lineage_kind": "market_event_range",
+      "reference": "market:binance.spot.aggtrades:BTC/USDT",
+      "details": {
+        "from_sequence": 1,
+        "to_sequence": 16
+      }
+    },
+    {
+      "lineage_kind": "market_event_range",
+      "reference": "market:binance.spot.aggtrades:ETH/USDT",
+      "details": {
+        "from_sequence": 1,
+        "to_sequence": 16
+      }
+    }
+  ],
+  "content_hash": "sha256:cfac499204da1b466cc5b882a96411ffb77055572b7b0394f8a7718666ad9954",
+  "created_at": "2026-10-08T08:36:50.937606Z"
+}

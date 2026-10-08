@@ -1,6 +1,6 @@
 # R01：Market ingestion 与标准化行情契约全面复审报告
 
-更新日期：2026-10-07。文件名保留原入口；当前结论取代初审活动清单，初审原文完整保存在[历史快照](./R01-initial-review-2026-10-02.md)，逐项关闭依据见[复核台账](./R01-closure-recheck-2026-10-07.md)。
+更新日期：2026-10-08；原十项关闭复核为2026-10-07。文件名保留原入口；当前结论取代初审活动清单，初审原文完整保存在[历史快照](./R01-initial-review-2026-10-02.md)，逐项关闭依据见[复核台账](./R01-closure-recheck-2026-10-07.md)。
 
 ## 一、任务完成概况
 
@@ -8,9 +8,9 @@
 
 R01 已具备 Binance 公共现货 REST 聚合成交接入、标准化 v2 行情、Supabase 原子写入/游标、重启去重与补偿、质量隔离、监督及 F05 交付恢复能力。B01 原先“只有内存 replay、无真实源和持久化”的实现缺口已经补齐；剩余为完整服务与发布范围验收。
 
-依据[开发计划](../SumAlpha-QuantOS-Development-Plan.md#task-r01)现行三阶段规则：`development_status=COMPLETED` 保留，历史正式复审为 `FIX_VALIDATION`，`stage_gate=DEVELOPMENT / NOT_ASSESSED`。本轮核查原问题关闭状态，不自行登记阶段 READY 或正式 ACCEPTED。发布欠项不自动阻塞所有功能研发；实际不健康行情仍不能被需要实时健康的消费者当作合格输入。
+依据[开发计划](../SumAlpha-QuantOS-Development-Plan.md#task-r01)现行三阶段规则：`development_status=COMPLETED`及历史正式`FIX_VALIDATION`保留。2026-10-07原十项复核时开发阶段为NOT_ASSESSED；2026-10-08已按当前内容完成R02开发依赖闭包57/57实际检查，R01限定功能范围DEVELOPMENT READY，见[续验报告](./R02-development-admission-2026-10-08.md)。本次R01是local mock/真实Supabase目标及四文件覆盖，不是新真实provider采集或正式ACCEPTED。B01/FA-H01仍OPEN/PARTIAL；不健康行情不能被需要实时健康的消费者当作合格输入。
 
-本轮源码基线为 `68924e1`，完整 SHA、命令、文件摘要和回执见[本轮证据](./evidence/r01-closure-recheck-20261007/index.json)。范围包括 market/ingestor、原子事件写入、Binance 监督、相关测试/Gate 和文档。数据库验证直接连接工程已配置 Supabase；没有本地数据库、reset 或删除历史事实。
+2026-10-07原十项关闭复核的源码基线为 `68924e1`，完整 SHA、命令、文件摘要和回执见[本轮证据](./evidence/r01-closure-recheck-20261007/index.json)。范围包括 market/ingestor、原子事件写入、Binance 监督、相关测试/Gate 和文档。数据库验证直接连接工程已配置 Supabase；没有本地数据库、reset 或删除历史事实。
 
 ## 二、完成情况明细统计
 
@@ -24,7 +24,7 @@ R01 已具备 Binance 公共现货 REST 聚合成交接入、标准化 v2 行情
 
 以上是原问题关闭率，不是代码工作量或整项正式验收率。初审 24 个检查点的 8/24 属于原基线，后续 18/24 属于首次整改基线，均留在历史报告，不冒充本轮重算。R01 正式验收仍为 0/1；开发完成标记不能替代验收。
 
-| 验证对象 | 本轮核查结论与范围 |
+| 验证对象 | 2026-10-07关闭复核结论与范围（2026-10-08另见续验报告） |
 |---|---|
 | 100,000 条 replay、归一化、质量处理、重复/乱序 | 当前领域/CLI 回归通过；包含空 spec、歧义 symbol、同 ID 异内容、失败重试、非法数值和资源上限 |
 | 持久去重、原子页/游标、恢复和租户边界 | 配置 Supabase 的独立目标 runner 验证；不使用本地套件中未启用数据库的用例充数，详见[目标日志](./evidence/r01-closure-recheck-20261007/target-functional/target-tests.log) |
@@ -55,7 +55,7 @@ R01 已具备 Binance 公共现货 REST 聚合成交接入、标准化 v2 行情
 
 ## 四、整改建议与后续安排
 
-1. **功能推进：** 下一步按当前前置阶段记录、输入摘要和实际消费者用途评估 R01 DEVELOPMENT 准入，具备条件后推进 R02 等依赖功能。保留原子性、授权、质量拒绝、恢复与截止时间语义检查；不为关闭报告反复启动无关长稳测试。
+1. **功能推进：** 2026-10-08 R01及R02限定开发范围已严格READY；后续按当前前置记录、输入摘要和实际消费者用途继续R03/R04等功能。保留原子性、授权、质量拒绝、恢复与截止时间语义检查；不为关闭报告反复启动无关长稳测试。
 2. **健康验收：** R01 负责 source-age、processing、自然告警 origin→ACK、readiness 和采样缺口分别测量；R02/策略消费者负责质量准入与拒绝联调。实际持续健康由 `RELEASE-GATE:BETA` 收口，2s 新鲜度和 ≤5s 异常提交的现有定义不放宽。
 3. **部署与许可：** R01/F09/L04 在获准部署范围验证 Linux/systemd、父启动器/主机死亡通知、恢复/清理与持续运行；拟发布版本补候选同 SHA CI 和对应用途许可。内部两标的评估不能替代这些项目。
 4. **范围与收尾：** 既有真实源 scope 固定 1800 秒、BTCUSDT/ETHUSDT、原内部用途及 `2026-10-10T00:00:00Z` 到期日，不自动延长。24 小时、部署或扩大用途须新范围授权；有效批准、具名 actor、空证据目录、提前退出保留 failure、结束停止本次进程并停用 actor 的要求继续有效，不删除/重建 Supabase。

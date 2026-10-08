@@ -1,0 +1,123 @@
+{
+  "schema": "quantos-f06-target-acceptance/v2",
+  "sourceCommit": "5547211a740d2c61d3d2d66d3f44c55c40d68d43",
+  "status": "PASS",
+  "failures": [],
+  "targetClass": "configured-test-supabase-local-services",
+  "realOidcBff": {
+    "status": "PASS",
+    "checks": [
+      "real Auth/BFF",
+      "real Auth/BFF/Runtime"
+    ]
+  },
+  "executionRoleAndVault": {
+    "status": "PASS",
+    "checks": [
+      "six paper scenarios",
+      "eight role denials"
+    ]
+  },
+  "denialMatrix": {
+    "status": "PASS",
+    "checks": [
+      "eight actual PostgreSQL tests including four-category denials"
+    ]
+  },
+  "evidence": [
+    {
+      "name": "build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "-p",
+        "runtime-gateway",
+        "-p",
+        "execution-gateway"
+      ],
+      "exit_code": 0,
+      "logSha256": "4d1b20b909402d7eaf02f046424c1af8dc890dcd510ecbe14e504737abbeae84",
+      "logGzipBase64": "H4sIAAAAAAAAE63RwUoDMRCA4XufYo4t0k2rvoAoXqUUTyI0m53djmwmaWayWp9eKlXsai+Sa2D+j5kAwG3wkXriDnbZsgaZ44CsMCyqZbWAqXkUTGIsJ7s3d8Flj6xiYgov6NSss7/p49aa1WH6YW1csopiTmKzCfwFpcxKHktRx9wZLNSCabA19aT7UuRJ9AyMb+iyUuBiJ/0KjsDv93lnFV/t/7c8LEUOxfxKjsi6bcthP2Ij5viz5ahR8JODe2KSLTawaXDYQEyhpR7hKXOISp7esYELaLDOHXEbnkFt6lCnMgNiuL6qLpcy+QB2ZuayUgMAAA=="
+    },
+    {
+      "name": "preflight",
+      "command": [
+        "/Users/anray/.nvm/versions/node/v24.12.0/bin/node",
+        "scripts/f06-bff-preflight.cjs"
+      ],
+      "exit_code": 0,
+      "logSha256": "4cf8ad82d5cf4a7a3e79aae129093eea1fd8e7b8415a3f805099acc8112540a5",
+      "logGzipBase64": "H4sIAAAAAAAAE1WOQU+DQBCF7/6MOdODJxNuWNCQUmkoNvFEBpil20x3m5ldY2P876axKr2+97355hM0YIgKKTRFlr91T3XTVeWu6HZZVeZZW9YvkIDikTbiDzQESINESmDEgD0qLb1zNATr3dqPBCkoqVrvOi/daOWy+Ie3ylfqncSa88JEZkhgQLcUwkCNZ9JfRW/Ms/h4Kj6shnla+cm62/TkNUxCusaDF0jvH5IfhaWx5T9qj7qJPVvdY8+0ovOseDQmv775KjwrWpKjdci12Mk6SA2y0s35QuQidZH56+4bIBKYBFMBAAA="
+    },
+    {
+      "name": "auth-bff",
+      "command": [
+        "/Users/anray/.nvm/versions/node/v24.12.0/bin/node",
+        "scripts/f06-bff-live-smoke.cjs"
+      ],
+      "exit_code": 0,
+      "logSha256": "8f891924e108f90b6fc4ae9079ff220b551ea98d2b900b54268e50c738ae137c",
+      "logGzipBase64": "H4sIAAAAAAAAE62TUW/aMBSF3/crqvscqUkKbE21B1qhTdom0MLbVEXGuSR3JHZqX6MixH+fHAwtdNKG1Fc79/M5555swbJgZyGD2TjPIYKauZtTi9rxDwvZKI7jOAKDTw4tz6klVVnIfm3BaMcIGVyvk2uL1pJWEEGLXOsSMvgymUN0pA/iJAJsRGex9NhkF50ShOP6b5jZND/l3LwT5330pPHghDO6TUfnqH+Gk/qEX4v5NEjPIVIrxmf+f0iaxLcXQwZndtJh8kZJn0yjK+34gmCSYfJGzsWt+Xgz3D1GoA1VpL6R8hN2o7hGJln45ha21SsEX1jR5K4TC2Fx7LiGjI3DCEiV2KEqUfH9cvldV6QOV2s0tCQsc7f4jZIPx1LrFeFMNyQ3kEGO0hm8u/rK3E1Vs7m7ykWLOTF+ztmQ9KGwXqG6106Vk+eOzOaA8grz3htayLbQkrWkqof+hWB3qQ1Spaa9x1B4UmvRUDn32PBZyG5iWSwasjWWIfNw8RNFGUrRGWqF2TyE5e8PaypLVGMptVMcFh+WuucYXOsVlnnYkX91F4GsUa78/w++BkXT5xcdjBT7rODootivCo4Wij4aiEB34snhy0CQXbxUNMh+dbLXXIgg2g+ZNZrCS5WCvczH3Yc/ByajPtMEAAA="
+    },
+    {
+      "name": "auth-runtime",
+      "command": [
+        "/Users/anray/.nvm/versions/node/v24.12.0/bin/node",
+        "scripts/f06-runtime-live-smoke.cjs"
+      ],
+      "exit_code": 0,
+      "logSha256": "4a58972486100cf3ebbfff53629f626de8aca193440bfbcaa5a70b0d36cddd7b",
+      "logGzipBase64": "H4sIAAAAAAAAE61Ty27bMBC89zP2zIMiO1XMm9rmlBQx7PZQFIWwNlcSIYkUlqsErqF/Lyg/e2jTAD2R2OXM7HDIPQRBGQJoWObrNSioRfovtiM/yOcA+n2SJImCGp0JNTZ032IfyMTWIrlNFAhyRQIabPAtCpkiDD1uMFDR+i22BQ9ObEeggAnb9bGZD1KDFh5IgXWGenKGnHwoy9yZ1QHy6CvrwumUUNd7Rt7lprNuLZ6xogfanfrhUHnqiVGsd0vi0nNHBnSJbZhOIMvQL2sMFEB/30Mft6DhOGMROeKk50uZIGRAAUocQEDfjOoC3JRlgdHKGzAvnhvi/6PFhGb3G0IBXSKazWfpNcUffb7Gk2XZv1h4jWaRzscf5yBWhMY6CgH0PrqLy5lqdZ9/+gYKNoOp6PopXvHdJemdgp79JuYZt4fM0W0p326pl3P6ozqZf7PKbZotLipp9leZUYFnW1n3YJ2Joe6c1CR2W8SPFYpA/ExcTGzH37aehqHpFjobgnXVR+8bS6DnyY2CmLln+5PMV9c4/+JWg4utuYLSM9nKPU2KsTZTYMhZMivf0rGwKctHX/lBQKcRxPTsGzJXGuP47hfYAShDCQQAAA=="
+    },
+    {
+      "name": "execution",
+      "command": [
+        "/Users/anray/.nvm/versions/node/v24.12.0/bin/node",
+        "scripts/f06-execution-command-smoke.cjs"
+      ],
+      "exit_code": 0,
+      "logSha256": "4ff97b5e279acf6c5024f932c667a2057a783577d79eb4931c6d58b873d928e4",
+      "logGzipBase64": "H4sIAAAAAAAAE12Oy0oDQRBF935GrXsRcTe7kGQRfEQygxuRoey5Ewt7uoeq6hAR/10MKOr2nAP3vpM5ezVq6H7ZthQoyRF7mKtEx/DANfmKU6LGtSLQzDP0GpqR2vo8iZmUTM1loAFZMPxXRs0ikEVkVilGzSNxdDmCAnGMpWbvJ7GJPb5QIJxmUQwUSDFCkSN6Lc4u+fAX4lhez6HhPPRDngKNcvKqWLPzKoEzhu/7mGZ/21pJ7Bg6ZM6+h7P8SgxR4bfsUOF0Uw6HLzdyMgQ6La62ZhW6004521zUlzFids4R1NDdruu7Tdtt1vRx8QkuzMOMXgEAAA=="
+    },
+    {
+      "name": "vault",
+      "command": [
+        "/Users/anray/.nvm/versions/node/v24.12.0/bin/node",
+        "scripts/f06-vault-gate.cjs"
+      ],
+      "exit_code": 0,
+      "logSha256": "201e707377da7daa1936e7f2ec5021b2e54dc324e10dbd5d0ef8b6852a75e4db",
+      "logGzipBase64": "H4sIAAAAAAAAE6VTXUsdMRB9768I8xyolRYu65OligULbS/ti4hMk7N7U7PJOpnde0X875K1yG3xo+rbhDnnzJmPXFFR1rFQQ1/3l0uy5FZw54WaE+JhiMGxhpxMOyY3B5y88XByOSi8mQLWZpAwhYgOpmeVsCFLHSvWfGk4xryG3zN9KD2rW8Ebl/u+qrBzeUw6K2IzBNnKCX7DKTxZkqysIXVG0EKQHP7KYsrn8I8nC2QKDqaglNrDFmTxdmHY6cjRLL8dG48UOBbTZjE/PlszFog1Hw8PZ5cHqQsJRnJEodNqLeLTLYOak6v5TQ1xyoksDawrauhuWGd1WGSpXMQ684p8v/th5x1d2weogpLjBHmKNOoKSeuq5p5eVPh+jf90cDFy0lzOfrXtC+vfq/DM6pjX80oD/4o86uHUUr0YeGoWljQrxzkqcAL9wgoJHI9z11VIy7HA0hBZ2yz98vYqv+eInwHrg43DUL8YNSoj7Pb3q5hylKPf4vzRu35zA3fVJLHDAwAA"
+    },
+    {
+      "name": "database",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-auth",
+        "--test",
+        "postgres_auth_context",
+        "--",
+        "--test-threads=1",
+        "--skip",
+        "f06_dedicated_bff_auth_read_p95"
+      ],
+      "exit_code": 0,
+      "logSha256": "c1b61156591a266812534a6a2ff0c4fc0a41e942699845d16ce2e85f39d65dbc",
+      "logGzipBase64": "H4sIAAAAAAAAE62TTW8TQQyG7/kVc2yFupvQqh/0hEBcEVScEHK9M97NkMl4sT1Jt78ezaYBRaI3LiMf7MevX3sWUnKOeXC3zkhNF/V1WGxN2aJHowDCicBjzmwghAHY1iRglDEb7Fk2OqIn1zSN482B0PU9KKlGzhAVOi45gDFEUxglblEmQO+5ZAPMAYR27NEi5xOMF1Y9dqqqWOLznAYUBlJAIRD6Sb4K7SYIaNihEnjOaoIxm54QA4WXsarExEPMUJQUdiSxjxTAks6SMorwfp7+hNAvr6HnIlAxA8sEgXLEBFs0iU8nuQMa7XGapUNiDH+n/+NblWr0dPCBcs/iScHjiF1M0Sbwa/IbfZ3LOU2AKfFeQUl20RMoeaG6LuVUZr92EQ9JKaodd3MC5ZEEjaUKyuTnqpe1d9XlohRgH23NxU7sOlIOGCEtyd453jTu1o2oSuHeLV2PMR2iOGSWQ7gl1DLHK9fHZCQUHBe7d33MUdcUXMxudXvX3K10sXDOfeDtGFM92V8Fs7FejJyin9xu2ayapTtrvymJtpgFp/Yj+7KlbNqOwvVM2oeyfZ/GNbZfavnnh9YLGml7Sjv/d6vq9/9qVFlzG/fpOOpjNfDRjcJ9TOS+l8yjxW18puDeuEBdGWLu+YczlIHsTM+rO5fNzZXOIPf15TfPf7kdWW2Q+kvqmbycWSPqzg717UxsA42v5F7c3Sy7q2WgZXd5TVf92/PFb6fPx5AxBAAA"
+    }
+  ],
+  "notes": [
+    "No local database; existing configured Supabase test project; no provision/schema reset/migration.",
+    "Runtime temporary admin Storage key is confined to the existing identity smoke; no Storage operation.",
+    "Remote DEVELOPMENT HTTP probes have a bounded 60s transport budget and report elapsed times; this is not latency acceptance.",
+    "Excluded developer latency diagnostic remains NOT RUN."
+  ]
+}
