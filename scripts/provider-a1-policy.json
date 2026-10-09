@@ -960,6 +960,39 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp02-development": {
+      "command": [
+        "node",
+        "engines/rd-agent/check-development.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp02-20261009/receipt.json",
+      "artifactKind": "tp02-development",
+      "timeoutMs": 900000
+    },
+    "tp02-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp02-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp02-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp02-process-cleanup/receipt.json",
+      "output": "supporting/tp02-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1435,6 +1468,24 @@
         "tp01-d-absorption",
         "tp01-d-negatives",
         "tp01-d-process-cleanup"
+      ]
+    },
+    "CORE:TP02": {
+      "scope": "TP02 QuantOS-native fixture research/experiment provider; five RPC, scoped immutable development Artifacts, cancellation/deadline/idempotency, locked installed wheels; no upstream or live data/tool admission",
+      "inputs": [
+        "engines/rd-agent/",
+        "engines/engine-sdk/",
+        "engines/tests/",
+        "engines/pyproject.toml",
+        "engines/uv.lock",
+        "crates/quantos-engine-manager/",
+        "crates/quantos-runtime/",
+        "third_party/tp02-rd-agent/"
+      ],
+      "checks": [
+        "tp02-development",
+        "tp02-negatives",
+        "tp02-process-cleanup"
       ]
     }
   },

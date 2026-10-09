@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-09）：TP01-D新源码16节点/62组开发闭包实际复评及严格核验通过；16 READY、143 NOT_ASSESSED。页面/联调/部署/发布及候选hostedCI分别待验，见[核心报告](./audit/TP01-D-selective-absorption-2026-10-09.md)。
+> 当前工程状态（2026-10-09）：TP02源码与验收策略补齐后，原16节点输入回执撤销为NOT_ASSESSED；TP02及F08/F0必要闭包待冻结源码完整复评。历史正式确认及CI回执保留，不自动继承，见[本轮报告](./audit/TP02-development-2026-10-09.md)。
 
 > 迁移时历史快照：2026-10-07 第二轮执行文档整理：8 份 P0/A1 验收规程及 R01/R02/UI 交付记录保留迁入 `docs/execution/`，同步活动引用与 R01/R02 读取路径；阶段准入与当前 G0 PENDING 状态保持不变。见[整理报告](./audit/Execution-document-organization-round2-2026-10-07.md)。
 
@@ -15,13 +15,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.54
+> 版本：3.55
 > 更新时间：2026-10-09
-> 状态：TP01-D必要开发闭包16节点DEVELOPMENT READY、143 NOT_ASSESSED；页面、正式及发布验收独立。
+> 状态：TP02必要开发闭包待当前源码复评；159 NOT_ASSESSED；页面、正式及发布验收独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.55`：TP02实现改变功能输入，撤销16旧Gate为NOT_ASSESSED，必要13节点/53组开发复评待执行；历史正式确认与原CI保留。见[核心报告](./audit/TP02-development-2026-10-09.md)。
 
 - `3.54`：同步TP01-D当前16节点/62组开发闭包严格READY及143 NOT_ASSESSED，前端任务/页面/正式和发布范围保持独立；原失败与历史回执保留。见[核心报告](./audit/TP01-D-selective-absorption-2026-10-09.md)。
 

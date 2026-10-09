@@ -14,6 +14,7 @@ import {validateR1Artifact,r1SupportingPaths} from './r1-functional-artifacts.mj
 import {validateF0Artifact} from './f0-functional-artifacts.mjs';
 import {validatePlans} from './check-development-plans.mjs';
 import {verify as verifyTp01CSkeleton} from '../engines/vibe-adapter/check-development.mjs';
+import {verifyTp02} from '../engines/rd-agent/check-development.mjs';
 import {verifyAbsorption} from '../engines/vibe-adapter/check-absorption.mjs';
 export const root=resolve(import.meta.dirname,'..');
 export const digest=bytes=>'sha256:'+createHash('sha256').update(bytes).digest('hex');
@@ -88,6 +89,10 @@ export function validateReproducibility(r,source) {
 export function validateArtifact(kind,path,source) {
  const r=JSON.parse(readFileSync(path));
  if(kind==='f01-reproducibility')validateReproducibility(r,source);
+ else if(kind==='tp02-development'){
+  assert.equal(r.observedSourceCommit,source,'TP02 execution source differs');
+  verifyTp02(r,{checkDependencies:false,logDirectory:dirname(path)});
+ }
  else if(kind==='tp01-d-absorption'){
   assert.equal(r.observedSourceCommit,source,'TP01-D execution source differs');
   verifyAbsorption(r,{checkDependencies:false,logDirectory:dirname(path)});
@@ -102,6 +107,7 @@ export function validateArtifact(kind,path,source) {
  else validateF0Artifact(kind,path,source);
 }
 export function supportingArtifactPaths(kind,r) {
+ if(kind==='tp02-development')return [...r.checks.map(c=>c.id+'.log'),...r.package.wheels.map(w=>'wheels/'+w.file)].sort();
  if(['tp01-c-skeleton','tp01-d-absorption'].includes(kind))return r.checks.map(c=>c.id+'.log').sort();
  if(['r01-target','r02-target'].includes(kind))return r1SupportingPaths(r);
  if(kind==='f09-target')return Object.keys(r.logs??{}).sort();
@@ -193,4 +199,4 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1']) {
  const admitted=new Map(selected.map(id=>[id,nodes.get(id)]));const updated=[publishStages(texts[0],admitted,'CORE:'),publishStages(texts[1],admitted,'FE:')];validatePlans(...updated);for(let i=0;i<2;i++)writeFileSync(resolve(root,planPaths[i]),updated[i]);
  for(const id of rootIds)console.log(JSON.stringify(validateReceipt(id,{nodes}),null,2));
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--assess'||process.argv[2]==='--assess-f0'||process.argv[2]==='--assess-r02'||process.argv[2]==='--assess-tp01-c'||process.argv[2]==='--assess-tp01-d'){assert(process.argv.length<=4,'usage: --assess [evidence-directory]');assess(process.argv[3],process.argv[2]==='--assess-tp01-d'?['CORE:TP01-D']:process.argv[2]==='--assess-tp01-c'?['CORE:TP01-C']:process.argv[2]==='--assess-r02'?['CORE:R02']:process.argv[2]==='--assess-f0'?['PROVIDER:A1','CORE-GATE:F0']:undefined);}else {assert(process.argv.length===2 || (process.argv.length===3&&process.argv[2]==='--f0'),'usage: [--assess | --assess-f0 | --f0]');console.log(JSON.stringify(validateReceipt(process.argv[2]==='--f0'?'CORE-GATE:F0':'PROVIDER:A1'),null,2));}}catch(e){console.error(e.message);process.exitCode=1;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--assess'||process.argv[2]==='--assess-f0'||process.argv[2]==='--assess-r02'||process.argv[2]==='--assess-tp01-c'||process.argv[2]==='--assess-tp01-d'||process.argv[2]==='--assess-tp02'){assert(process.argv.length<=4,'usage: --assess [evidence-directory]');assess(process.argv[3],process.argv[2]==='--assess-tp02'?['CORE:TP02']:process.argv[2]==='--assess-tp01-d'?['CORE:TP01-D']:process.argv[2]==='--assess-tp01-c'?['CORE:TP01-C']:process.argv[2]==='--assess-r02'?['CORE:R02']:process.argv[2]==='--assess-f0'?['PROVIDER:A1','CORE-GATE:F0']:undefined);}else {assert(process.argv.length===2 || (process.argv.length===3&&process.argv[2]==='--f0'),'usage: [--assess | --assess-f0 | --f0]');console.log(JSON.stringify(validateReceipt(process.argv[2]==='--f0'?'CORE-GATE:F0':'PROVIDER:A1'),null,2));}}catch(e){console.error(e.message);process.exitCode=1;}}

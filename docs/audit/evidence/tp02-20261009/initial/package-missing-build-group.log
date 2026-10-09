@@ -1,0 +1,19 @@
+COMMAND ["uv", "build", "--project", "engines/engine-sdk", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "--wheel", "--no-build-isolation", "--out-dir", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp02-packaged/wheels"]
+Building wheel...
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ModuleNotFoundError: No module named 'hatchling'
+  × Failed to build
+  │ `/Users/anray/Documents/project/SumAlpha/QuantOS/engines/engine-sdk`
+  ├─▶ The build backend returned an error
+  ╰─▶ Call to `hatchling.build.build_wheel` failed (exit status: 1)
+      hint: This usually indicates a problem with the package or the build
+      environment.
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-packaged-service.py", line 23, in <module>
+    run(['uv', 'build', '--project', project, '--python', ROOT/'engines/.venv/bin/python', '--wheel', '--no-build-isolation', '--out-dir', wheels])
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-packaged-service.py", line 20, in run
+    subprocess.run([str(a) for a in args], cwd=ROOT, env=clean_env, check=True, timeout=180)
+  File "/Users/anray/.local/share/uv/python/cpython-3.12.10-macos-aarch64-none/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['uv', 'build', '--project', 'engines/engine-sdk', '--python', '/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python', '--wheel', '--no-build-isolation', '--out-dir', '/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp02-packaged/wheels']' returned non-zero exit status 2.

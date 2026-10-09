@@ -25,7 +25,9 @@ from rd_agent.manifest import EXPERIMENT_CAPABILITY, HYPOTHESIS_CAPABILITY
 from rd_agent.service import RdAgentService
 
 
-def build_metadata(index: int, *, capabilities: list[str] | None = None) -> common_pb2.CommandMetadata:
+def build_metadata(
+    index: int, *, capabilities: list[str] | None = None
+) -> common_pb2.CommandMetadata:
     return common_pb2.CommandMetadata(
         request_id=f"req-{index}",
         tenant_id="tenant-primary",
@@ -54,9 +56,7 @@ def build_request(index: int, capability: str, payload: dict) -> engine_pb2.Exec
         data_snapshot_ref="snapshot-fixed-1",
         policy_context_ref="policy-1",
         input=json_document_from_mapping(payload),
-        deadline=timestamp_from_datetime(
-            datetime.now(tz=timezone.utc) + timedelta(seconds=5)
-        ),
+        deadline=timestamp_from_datetime(datetime.now(tz=timezone.utc) + timedelta(seconds=5)),
     )
 
 
@@ -110,7 +110,7 @@ def test_rd_agent_contract_all_rpcs() -> None:
         assert json_document_to_mapping(stream[0].delta)["phase"] == "validated"
         assert json_document_to_mapping(stream[1].delta)["phase"] == "research_artifact_ready"
         assert json_document_to_mapping(stream[2].delta)["phase"] == "completed"
-        assert stream[2].artifact_refs[0].artifact_id == "research-artifact:run-1"
+        assert stream[2].artifact_refs == execute_response.artifact_refs
 
         cancel = client.cancel(
             engine_pb2.CancelRequest(
@@ -201,9 +201,7 @@ def test_rd_agent_requires_matching_actor_capability() -> None:
             EXPERIMENT_CAPABILITY,
             {"fixture": fixture_names()[1]},
         )
-        request.metadata.CopyFrom(
-            build_metadata(4, capabilities=[HYPOTHESIS_CAPABILITY])
-        )
+        request.metadata.CopyFrom(build_metadata(4, capabilities=[HYPOTHESIS_CAPABILITY]))
         try:
             client.execute(request, timeout=5)
         except grpc.RpcError as error:

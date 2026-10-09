@@ -1,0 +1,66 @@
+COMMAND ["uv", "sync", "--locked", "--project", "engines", "--all-packages", "--all-groups"]
+Resolved 52 packages in 4ms
+Installed 29 packages in 37ms
+ + boolean-py==5.0
+ + cachecontrol==0.14.4
+ + certifi==2026.7.22
+ + charset-normalizer==3.5.1
+ + cyclonedx-python-lib==9.1.0
+ + defusedxml==0.7.1
+ + filelock==4.0.0
+ + hatchling==1.27.0
+ + idna==3.19
+ + license-expression==30.4.4
+ + markdown-it-py==4.2.0
+ + mdurl==0.1.2
+ + msgpack==1.2.2
+ + packageurl-python==0.17.6
+ + pathspec==1.1.1
+ + pip==26.2.1
+ + pip-api==0.0.35
+ + pip-audit==2.9.0
+ + pip-requirements-parser==32.0.1
+ + platformdirs==4.11.9
+ + py-serializable==2.1.0
+ + pyparsing==3.3.2
+ + requests==2.34.2
+ + rich==15.0.0
+ + sortedcontainers==2.4.0
+ + toml==0.10.2
+ + tomli==2.2.1
+ + trove-classifiers==2026.6.1.19
+ + urllib3==2.8.0
+COMMAND ["uv", "build", "--project", "engines/engine-sdk", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "--wheel", "--no-build-isolation", "--out-dir", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp02-packaged/wheels"]
+Building wheel...
+Successfully built artifacts/tp02-packaged/wheels/quantos_engine_sdk-0.1.0-py3-none-any.whl
+COMMAND ["uv", "build", "--project", "engines/rd-agent", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "--wheel", "--no-build-isolation", "--out-dir", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp02-packaged/wheels"]
+Building wheel...
+Successfully built artifacts/tp02-packaged/wheels/quantos_rd_agent-0.1.0-py3-none-any.whl
+COMMAND ["uv", "venv", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "/private/tmp/tp02-vbvdr88h/venv"]
+Using CPython 3.12.10 interpreter at: engines/.venv/bin/python
+Creating virtual environment at: /private/tmp/tp02-vbvdr88h/venv
+Activate with: source /private/tmp/tp02-vbvdr88h/venv/bin/activate
+COMMAND ["uv", "pip", "install", "--offline", "--python", "/private/tmp/tp02-vbvdr88h/venv/bin/python", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp02-packaged/wheels/quantos_engine_sdk-0.1.0-py3-none-any.whl", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp02-packaged/wheels/quantos_rd_agent-0.1.0-py3-none-any.whl"]
+Using Python 3.12.10 environment at: /private/tmp/tp02-vbvdr88h/venv
+WARN protobuf==5.29.6 needs to be downloaded from a registry
+WARN grpcio==1.74.0 needs to be downloaded from a registry
+WARN grpcio needs to be downloaded from a registry
+  × No solution found when resolving dependencies:
+  ╰─▶ Because grpcio==1.74.0 needs to be downloaded from a registry and
+      quantos-engine-sdk==0.1.0 depends on grpcio==1.74.0, we can conclude
+      that quantos-engine-sdk==0.1.0 cannot be used.
+      And because only quantos-engine-sdk==0.1.0 is available and you
+      require quantos-engine-sdk, we can conclude that your requirements are
+      unsatisfiable.
+
+      hint: Packages were unavailable because the network was disabled. When
+      the network is disabled, registry packages may only be read from the
+      cache.
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-packaged-service.py", line 33, in <module>
+    run(['uv', 'pip', 'install', '--offline', '--python', interpreter, *package_paths])
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-packaged-service.py", line 20, in run
+    subprocess.run([str(a) for a in args], cwd=ROOT, env=clean_env, check=True, timeout=180)
+  File "/Users/anray/.local/share/uv/python/cpython-3.12.10-macos-aarch64-none/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['uv', 'pip', 'install', '--offline', '--python', '/private/tmp/tp02-vbvdr88h/venv/bin/python', '/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp02-packaged/wheels/quantos_engine_sdk-0.1.0-py3-none-any.whl', '/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp02-packaged/wheels/quantos_rd_agent-0.1.0-py3-none-any.whl']' returned non-zero exit status 1.

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
+from pathlib import Path
+
 from quantos_engine_sdk import input_hash, json_document_from_mapping
 
 from rd_agent.adapter import ResearchExecutionContext
@@ -30,11 +33,31 @@ def build_research_artifact(
         "data_snapshot_ref": context.data_snapshot_ref,
         "policy_context_ref": context.policy_context_ref,
         "requested_tools": list(context.requested_tools),
+        "input_hash": context.input_hash,
+        "prompt_sha256": "sha256:" + hashlib.sha256(context.prompt.encode()).hexdigest(),
+        "audit": {
+            "tenant_id": context.tenant_id,
+            "workspace_id": context.workspace_id,
+            "actor_id": context.actor_id,
+            "request_id": context.request_id,
+            "correlation_id": context.correlation_id,
+            "causation_id": context.causation_id,
+            "workflow_run_id": context.workflow_run_id,
+            "data_snapshot_ref": context.data_snapshot_ref,
+            "policy_context_ref": context.policy_context_ref,
+            "decision": "allowed-fixture-only",
+        },
         "trade_executable": False,
         "environment": {
             "engine_version": "0.1.0",
             "runtime": "python-sidecar",
             "deterministic_fixture": True,
+            "fixture_catalog_sha256": "sha256:"
+            + hashlib.sha256(
+                (Path(__file__).with_name("fixtures") / "catalog.json").read_bytes()
+            ).hexdigest(),
+            "tools_executed": False,
+            "snapshot_bytes_resolved": False,
         },
     }
     artifact["artifact_hash"] = input_hash(json_document_from_mapping(artifact))
