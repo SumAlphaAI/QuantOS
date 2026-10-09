@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-09）：冻结7f18b8b完整R02必要闭包57/57实际执行及严格内容校验PASS；14节点DEVELOPMENT READY、145 NOT_ASSESSED。C01当前依赖与R02自身准入闭合，开发27/27，原完整范围26/28；C25性能/C26部署与候选同SHA CI留Beta，项目用户已确认当前DEVELOPMENT范围，确认/内容门禁PASS；发布及新SHA正式验收仍待办。见[当前报告](./audit/R02-current-development-admission-2026-10-09.md)。8408122的TP01-E远程六场景/23回归及8/8 push仍为历史事实；自然schedule与候选采用继续待验。
+> 当前工程状态（2026-10-09）：冻结cd4e819完成TP01-D前置59组复评（58 PASS/1连接FAIL）及同源F07完整独立补测PASS；严格组合15 DEVELOPMENT READY、144 NOT_ASSESSED。F08/F0、TP01-C与R01/R02已刷新，TP01-D可进入实现；正式/hosted CI/发布不继承。见[前置报告](./audit/TP01-D-prerequisite-admission-2026-10-09.md)。
 
 > 迁移时历史快照：2026-10-07 第二轮执行文档整理：8 份 P0/A1 验收规程及 R01/R02/UI 交付记录保留迁入 `docs/execution/`，同步活动引用与 R01/R02 读取路径；阶段准入与当前 G0 PENDING 状态保持不变。见[整理报告](./audit/Execution-document-organization-round2-2026-10-07.md)。
 

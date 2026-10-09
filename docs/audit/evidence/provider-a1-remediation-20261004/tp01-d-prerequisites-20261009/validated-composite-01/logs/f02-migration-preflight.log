@@ -1,0 +1,19 @@
+node --test scripts/db-migration-sql.test.cjs
+✔ only the exact historical role declaration is adapted; all R02 SQL and raw checksum stay intact (0.58775ms)
+✔ modified historical SQL is rejected instead of silently normalized (0.243625ms)
+✔ unregistered migrations are not rewritten (9.840458ms)
+✔ rollback replay remaps both data and API schemas but preserves shared role identities (0.459708ms)
+✔ every migration replays without embedded transaction boundaries (2.030084ms)
+✔ replay schema injection, truncation and non-replay names are rejected (0.103291ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 50.131792
+bash ./scripts/check-migration-filenames.sh
+Supabase migration filenames are valid.
+bash ./scripts/check-rls-baseline.sh
+RLS static preflight passed for 55 tables; database execution is separately mandatory.

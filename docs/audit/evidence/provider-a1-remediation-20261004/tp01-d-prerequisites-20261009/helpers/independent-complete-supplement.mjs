@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,mkdirSync,cpSync,existsSync} from 'node:fs';
+import {resolve,dirname} from 'node:path';
+import {spawnSync,execFileSync} from 'node:child_process';
+import {root,policy,developmentEnvironment,digest,validateArtifact,supportingArtifactPaths,nodesFromPlans,closure,captureInputs,planInput,inventory,publishStages,validateReceipt} from '/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs';
+import {validatePlans} from '/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plans.mjs';
+const base='docs/audit/evidence/provider-a1-remediation-20261004/'+process.argv[3];
+const original=base+'/attempt-01', supplement=base+'/supplement-01', combined=base+'/validated-composite-01';
+const json=p=>JSON.parse(readFileSync(resolve(root,p)));
+const p=policy();const source=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
+const results=json(original+'/execution-results.json');
+const failed=results.filter(r=>r.exitCode!==0);assert.equal(failed.length,1);assert.equal(failed[0].id,'f07-recovery');
+const selected=[...new Set((process.argv[3].startsWith('tp01-d-prerequisites')?['CORE:TP01-C','CORE:R02']:['CORE:TP01-D']).flatMap(id=>closure(nodesFromPlans(),id)))];
+for(const item of new Map(selected.flatMap(id=>inventory([...p.commonInputs,...p.nodes[id].inputs]).map(f=>[f.path,f]))).values()){if(item.role==='third-party')continue;assert.equal(item.sha256,digest(execFileSync('git',['show',source+':'+item.path],{cwd:root})), 'functional input differs from frozen commit: '+item.path);}
+const expected=[...new Set(selected.flatMap(id=>p.nodes[id].checks))];assert.equal(results.length,expected.length);assert.deepEqual(results.map(r=>r.id).sort(),expected.sort());
+const reproducibility=results.find(r=>r.id==='f01-reproducibility');assert.equal(json(reproducibility.artifact).source.commit,source);
+if(process.argv[2]==='run'){
+ assert(!existsSync(resolve(root,supplement+'/result.json')));mkdirSync(resolve(root,supplement+'/logs'),{recursive:true});
+ const spec=p.checks['f07-recovery'];const env=developmentEnvironment(readFileSync(resolve(root,p.developmentProfile.file),'utf8'),p.developmentProfile.overrides);process.loadEnvFile(resolve(root,'.env.local'));Object.assign(env,Object.fromEntries(Object.entries(process.env).filter(([key])=>!key.startsWith('NEXT_PUBLIC_'))));env.QUANTOS_RUN_F05_POSTGRES_TESTS='1';assert(new URL(env.DATABASE_URL).hostname.endsWith('.supabase.com'));
+ const before=captureInputs(nodesFromPlans(),selected,p);const executedAt=new Date().toISOString();const run=spawnSync(spec.command[0],spec.command.slice(1),{cwd:root,env,encoding:'utf8',timeout:spec.timeoutMs,maxBuffer:32*1024*1024});let output=(run.stdout??'')+(run.stderr??'');for(const [key,value]of Object.entries(env))if(value&&value.length>=6&&/PASSWORD|TOKEN|KEY|DATABASE_URL|TEST_EMAIL/i.test(key))output=output.split(value).join('[REDACTED]');
+ const log=supplement+'/logs/f07-recovery.log';writeFileSync(resolve(root,log),output);
+ const r={id:'f07-recovery',command:spec.command,exitCode:run.status,status:run.status===0?'PASS':'FAIL',executedAt,log,logSha256:digest(output),target:'configured-supabase'};
+ const artifact=supplement+'/supporting/f07-recovery/recovery-diagnostic.json';mkdirSync(dirname(resolve(root,artifact)),{recursive:true});cpSync(resolve(root,spec.artifact),resolve(root,artifact));r.artifact=artifact;r.artifactSha256=digest(readFileSync(resolve(root,artifact)));r.supportingArtifacts=[];
+ writeFileSync(resolve(root,supplement+'/result.json'),JSON.stringify(r,null,2)+'\n');assert.equal(run.status,0);assert.match(output,new RegExp(spec.marker));validateArtifact(spec.artifactKind,resolve(root,artifact),source);assert.deepEqual(before,captureInputs(nodesFromPlans(),selected,p));assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),source);console.log('Independent complete F07 recovery PASS; original failure retained');
+}else{
+ assert.equal(process.argv[2],'publish');assert(!existsSync(resolve(root,combined)));const fresh=json(supplement+'/result.json');assert.equal(fresh.exitCode,0);cpSync(resolve(root,original),resolve(root,combined),{recursive:true});cpSync(resolve(root,supplement),resolve(root,combined+'/supplement'),{recursive:true});
+ const effective=results.map(r=>r.id==='f07-recovery'?fresh:r).map(r=>JSON.parse(JSON.stringify(r).replaceAll(original+'/',combined+'/').replaceAll(supplement+'/',combined+'/supplement/')));
+ // Manifest logs are required directly under logs; preserve the fresh run separately too.
+ const recovery=effective.find(r=>r.id==='f07-recovery');recovery.log=combined+'/logs/f07-recovery.log';cpSync(resolve(root,fresh.log),resolve(root,recovery.log));
+ writeFileSync(resolve(root,combined+'/execution-results.json'),JSON.stringify(effective,null,2)+'\n');
+ const scope=json(results.find(r=>r.id==='r1-process-cleanup').artifact).scopeTag;
+ const environment={node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),rust:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,clientProfile:'local-mock',engineProcessScope:scope};
+ const texts=['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'].map(path=>readFileSync(resolve(root,path),'utf8'));const nodes=nodesFromPlans(texts);
+ for(const id of selected){const n=nodes.get(id),spec=p.nodes[id];const m={schema:'quantos-stage-functional-manifest/v1',nodeId:id,stage:'DEVELOPMENT',status:'PASS',scope:spec.scope,formalAccepted:false,observedSourceCommit:source,environment,planInput:planInput(n),inputs:inventory([...p.commonInputs,...spec.inputs]),checks:spec.checks.map(check=>effective.find(r=>r.id===check)),dependencies:n.dependencies.map(dep=>({nodeId:dep,inputDigest:nodes.get(dep).stage_gate.input_digest,manifest:'docs/'+nodes.get(dep).stage_gate.evidence[0]})),excluded:p.excluded,residuals:[]};const path=combined+'/'+id.toLowerCase().replaceAll(':','-')+'.json';const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,path),bytes);n.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(bytes),evidence:[path.slice(5)]};validateReceipt(id,{nodes});}
+ const admitted=new Map(selected.map(id=>[id,nodes.get(id)]));const updated=[publishStages(texts[0],admitted,'CORE:'),publishStages(texts[1],admitted,'FE:')];validatePlans(...updated);['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'].forEach((path,i)=>writeFileSync(resolve(root,path),updated[i]));
+ writeFileSync(resolve(root,combined+'/provenance.json'),JSON.stringify({schema:'quantos-independent-supplement/v1',sourceCommit:source,originalResults:original+'/execution-results.json',originalSha256:digest(readFileSync(resolve(root,original+'/execution-results.json'))),originalCounts:{pass:results.length-1,fail:1},supplementResult:supplement+'/result.json',supplementSha256:digest(readFileSync(resolve(root,supplement+'/result.json'))),effectiveChecks:effective.length,actualExecutions:results.length+1,automaticRetryPolicyChanged:false,formalAccepted:false,strictlyValidatedNodes:selected},null,2)+'\n');for(const id of selected)validateReceipt(id);console.log('Strict composite READY '+selected.length+' nodes; '+results.length+' original + 1 complete independent supplement');
+}
