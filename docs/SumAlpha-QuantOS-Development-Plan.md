@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-08）：8408122实际触发8/8个push工作流成功，F04路径未匹配、当前SHA未运行；TP01-E远程六场景/23回归、真实严格候选阻断及失败后摘要/原件上传下载通过。自然schedule实时回执与候选采用仍待验。当前159节点NOT_ASSESSED，R02 C01待必要功能复评。见[远程验证报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
+> 当前工程状态（2026-10-09）：冻结7f18b8b完整R02必要闭包57/57实际执行及严格内容校验PASS；14节点DEVELOPMENT READY、145 NOT_ASSESSED。C01当前依赖与R02自身准入闭合，开发27/27，原完整范围26/28；C25性能/C26部署与候选同SHA CI留Beta，正式用户确认未取得。见[当前报告](./audit/R02-current-development-admission-2026-10-09.md)。8408122的TP01-E远程六场景/23回归及8/8 push仍为历史事实；自然schedule与候选采用继续待验。
 
 > 迁移时历史快照：2026-10-07 执行文档目录整理：25 份 BFF/PRE/Desktop 准备产物保留并迁入 `docs/execution/`；读取脚本及输入策略已同步。原 26 READY 和 `52fee5f6e499` 确认为迁移前历史记录，当前受影响功能准入均为 NOT_ASSESSED，需独立内容复评。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
@@ -17,14 +17,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.44
-> 更新时间：2026-10-08
+> 版本：3.45
+> 更新时间：2026-10-09
 > 状态：技术执行基线  
-> 本轮变更：归档8408122的TP01-E远程工程验证与失败后原始制品；自然定时、候选采用及阶段准入继续独立记录。
+> 本轮变更：补齐R02当前开发准入，57/57实际检查与严格内容校验通过；保留全部失败和发布/正式边界。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.45`：冻结7f18b8b重新执行R02必要14节点/57组并严格验收，恢复DEVELOPMENT READY14/NOT_ASSESSED145；修复F06/F02/R02连接生命周期、F09/Engine进程监督与当前失败回执，保留全部历史轮次FAIL/提前退出及实际收尾。R02开发27/27、原完整26/28，正式确认/发布/新hosted CI分别待验。见[当前报告](./audit/R02-current-development-admission-2026-10-09.md)。
 
 - `3.44`：归档8408122的TP01-E远程工程验证：六场景与23回归通过，严格候选阻断后摘要/原件实际上传并下载；主线8/8 push成功，F04未触发不计PASS。自然schedule及上游候选采用保持待验，不授予阶段或正式验收。见[报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
 
@@ -347,7 +349,7 @@ flowchart TD
 - task_id: `F01`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f7d9e81b4bd0e332516bbd84ac5c1957c057ea2c1afa402dce8423048ac2d71b","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f01.json"]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -360,7 +362,7 @@ flowchart TD
 - 量化验收标准：新环境在 ≤30 分钟内运行 `bootstrap`、`lint`、`test`；所有目录有 README 与明确模块边界；跨语言构建连续 3 次可重复
 - 阶段执行：功能开发验证 bootstrap/lint/test 可用、边界 README 和连续 3 次构建可复现；≤30 分钟的新环境时限在开发记录基线，正式新环境回执归 RELEASE-GATE:BETA。
 - 依赖：无
-- 当前工程复核：[全面复审报告](./audit/F01-comprehensive-review-2026-09-17.md)；历史正式复审：`ACCEPTED`；原 20/20 检查点、3/3 量化标准及问题关闭结论保留；Python 3.12 等后续基线按 F02 记录。 2026-10-08冻结5547211的DEVELOPMENT复评曾READY，当前脚本输入漂移后NOT_ASSESSED；历史功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-f01.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f01)及迁移失败/旧回执保留。
+- 当前工程复核：[全面复审报告](./audit/F01-comprehensive-review-2026-09-17.md)；历史正式复审：`ACCEPTED`；原 20/20 检查点、3/3 量化标准及问题关闭结论保留；Python 3.12 等后续基线按 F02 记录。 2026-10-09冻结7f18b8b的DEVELOPMENT实际复评通过，当前READY；当前功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f01.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f01)及迁移失败/旧回执保留。
 
 <a id="task-f02"></a>
 ### F02：CI、制品与供应链门禁
@@ -368,7 +370,7 @@ flowchart TD
 - task_id: `F02`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4b2cdc452c26421255c8376d3535f129b55e75b6847d6b68bd7956a4042c8d3d","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f02.json"]}
 - depends_on: ["CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -382,7 +384,7 @@ flowchart TD
 - 阶段执行：secret/proto/锁依赖/RLS/schema drift 负向机制及新增高危漏洞处置在开发期验证；目标远程 CI、主干制品 digest/SBOM/签名回执归 RELEASE-GATE:BETA。缺失 CI 发布回执不等于可跳过安全检查。
 - 执行流程：修复已通过PR #4正常合入main；required checks真实阻断与恢复、新main同SHA的完整检查和正式制品回执均已闭环。保留strict、8项GitHub Actions来源检查及零bypass。详见 [F02主线验收收尾](./audit/F02-A11-main-acceptance-2026-09-26.md)。
 - 依赖：F01
-- 当前工程复核：[当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)；历史正式复审：`ACCEPTED`；F02-A11 及原 12/12 问题关闭，24/24 检查点通过；main `bb4ef3c` 的远程检查、正式签名和下载验签属于原基线，见[主线收尾](./audit/F02-A11-main-acceptance-2026-09-26.md)。 2026-10-08冻结5547211的DEVELOPMENT复评曾READY，当前脚本输入漂移后NOT_ASSESSED；历史功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-f02.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f02)及迁移失败/旧回执保留。
+- 当前工程复核：[当前复审报告](./audit/F02-comprehensive-review-2026-09-17.md)；历史正式复审：`ACCEPTED`；F02-A11 及原 12/12 问题关闭，24/24 检查点通过；main `bb4ef3c` 的远程检查、正式签名和下载验签属于原基线，见[主线收尾](./audit/F02-A11-main-acceptance-2026-09-26.md)。 2026-10-09冻结7f18b8b的DEVELOPMENT实际复评通过，当前READY；当前功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f02.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f02)及迁移失败/旧回执保留。
 
 <a id="task-f03"></a>
 ### F03：领域协议 v1 与 SDK 生成
@@ -390,7 +392,7 @@ flowchart TD
 - task_id: `F03`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4faa00e750afc75a2f721a55983937188fbf28cfbafa85965e527410ed8b2cbe","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f03.json"]}
 - depends_on: ["CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -402,7 +404,7 @@ flowchart TD
 - 交付物：`proto/*/v1`、JSON schema、Rust/Python/TS SDK、兼容性测试
 - 量化验收标准：SDK 三语言编译；100% 必填元数据（tenant/actor/correlation 等）测试；Buf breaking check 阻止破坏性变更；序列化往返 1,000 组 fixture 无差异
 - 依赖：F01
-- 当前工程复核：[全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)；历史正式复审：`ACCEPTED`；原六项问题及 C12 关闭，20/20 检查点、4/4 量化标准通过；生成物与手动基线修复见[F0 主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。 2026-10-08冻结5547211的DEVELOPMENT复评曾READY，当前脚本输入漂移后NOT_ASSESSED；历史功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-f03.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f03)及迁移失败/旧回执保留。
+- 当前工程复核：[全面复审报告](./audit/F03-comprehensive-review-2026-09-20.md)；历史正式复审：`ACCEPTED`；原六项问题及 C12 关闭，20/20 检查点、4/4 量化标准通过；生成物与手动基线修复见[F0 主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。 2026-10-09冻结7f18b8b的DEVELOPMENT实际复评通过，当前READY；当前功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f03.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f03)及迁移失败/旧回执保留。
 
 <a id="task-f04"></a>
 ### F04：Core、错误、时钟与 ID
@@ -410,7 +412,7 @@ flowchart TD
 - task_id: `F04`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:1c3df433c337bbbc7e1dae4116b0bacd19aece5cba6c43c3a23ca9c0e64c5e28","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f04.json"]}
 - depends_on: ["CORE:F03"]
 - core_prerequisites: ["CORE:F03"]
 - closes_core: []
@@ -422,7 +424,7 @@ flowchart TD
 - 交付物：`quantos-core`、fixture builder
 - 量化验收标准：金额/精度边界与时区测试分支覆盖 ≥90%；任意错误可映射为稳定机器码；相同 fixture hash 100% 一致
 - 依赖：F03
-- 当前工程复核：[远端验收回执](./audit/F04-remote-acceptance-c769897-2026-09-21.md)；历史正式复审：`ACCEPTED`；原九项问题和 23 个检查点通过；`c769897` 的远程工作流、数据库/RLS、打包和验签属于原基线，其他任务后续状态分别维护。 2026-10-08冻结5547211的DEVELOPMENT复评曾READY，当前脚本输入漂移后NOT_ASSESSED；历史功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-f04.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f04)及迁移失败/旧回执保留。
+- 当前工程复核：[远端验收回执](./audit/F04-remote-acceptance-c769897-2026-09-21.md)；历史正式复审：`ACCEPTED`；原九项问题和 23 个检查点通过；`c769897` 的远程工作流、数据库/RLS、打包和验签属于原基线，其他任务后续状态分别维护。 2026-10-09冻结7f18b8b的DEVELOPMENT实际复评通过，当前READY；当前功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f04.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f04)及迁移失败/旧回执保留。
 
 <a id="task-f05"></a>
 ### F05：事件、存储与审计账本
@@ -430,7 +432,7 @@ flowchart TD
 - task_id: `F05`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f67efad241e4f6d8b412212b55eb3d826892eee2ecf5604d37e68787c281a626","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f05.json"]}
 - depends_on: ["CORE:F03", "CORE:F04"]
 - core_prerequisites: ["CORE:F03", "CORE:F04"]
 - closes_core: []
@@ -443,7 +445,7 @@ flowchart TD
 - 量化验收标准：重复/乱序/重启/死信四类测试全过；隔离 Supabase 线上项目或数据库分支可由 migration 重建 `quantos` schema；所有 tenant 表 RLS 默认拒绝且负向权限测试全过；1 万条测试事件无丢失、消费者最终一致；模拟 Realtime 漏通知、断连和重连后，数据库扫描在测试 deadline 内处理全部已提交事件；1,000 次同事件并发投递只产生一次业务副作用；按 correlation ID 在 ≤5 秒取回完整事件链
 - 阶段执行：开发期保留全部数据正确性规模用例（1 万事件、1,000 次并发）、真实 Supabase RLS/事务/补偿测试；重建能力须有迁移与可执行检查，受控整库重建只在对应授权内进行。相关查询耗时作为基线；≤5 秒检索完整链和候选版本重建/drift 回执归 RELEASE-GATE:BETA。
 - 依赖：F03、F04
-- 当前工程复核：[全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)；历史正式复审：`ACCEPTED`；原 11/11 问题关闭、30/30 检查点通过；共享库串扰修复、万条一致性、受控重建/drift/RLS 历史回执见[F0 主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。跨区域 ID 链时延不代表完整载荷性能验收。 2026-10-08冻结5547211的DEVELOPMENT复评曾READY，当前脚本输入漂移后NOT_ASSESSED；历史功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-f05.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f05)及迁移失败/旧回执保留。
+- 当前工程复核：[全面复审报告](./audit/F05-comprehensive-review-2026-09-21.md)；历史正式复审：`ACCEPTED`；原 11/11 问题关闭、30/30 检查点通过；共享库串扰修复、万条一致性、受控重建/drift/RLS 历史回执见[F0 主线验收](./audit/F0-F05-F03-main-acceptance-2026-09-28.md)。跨区域 ID 链时延不代表完整载荷性能验收。 2026-10-09冻结7f18b8b的DEVELOPMENT实际复评通过，当前READY；当前功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f05.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f05)及迁移失败/旧回执保留。
 
 <a id="task-f06"></a>
 ### F06：身份、授权、秘密引用与主上下文
@@ -451,7 +453,7 @@ flowchart TD
 - task_id: `F06`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e3488b8cfe6a1b7c18eec33e2cb0ef98fb7281cf380627e59c2ad282f630a4d6","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f06.json"]}
 - depends_on: ["CORE:F03", "CORE:F05"]
 - core_prerequisites: ["CORE:F03", "CORE:F05"]
 - closes_core: []
@@ -464,7 +466,7 @@ flowchart TD
 - 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API。开发机跨区域鉴权读 P95 仅作诊断，不作为 F06 放行条件。
 - 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及拒绝矩阵；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。开发机本地网络到托管数据库的长尾不作为 F06/A09 Gate；同区域 P95 <100ms 移至首次同区域部署后的性能验证。真实浏览器登录/E2E、MFA 页面交互及全部页面 API 功能联调属于 Web 前端 G1/页面与接口阶段；Terminal 实际部署归 RELEASE-GATE:BETA，不作为 F06 开发准入 Gate。
 - 依赖：F03、F05
-- 当前工程复核：[当前复审报告](./audit/F06-comprehensive-review-2026-09-24.md)；历史正式复审：`ACCEPTED`；F06-A01–A10 全部关闭，活动问题 0；[已关闭问题与修复追踪](./audit/F06-closed-findings-2026-09-25.md)和[性能范围修订](./audit/F06-A09-remote-latency-gate-withdrawal-2026-09-25.md)保留。历史 ACCEPTED 仅覆盖已确认服务端范围；新候选仍须完整 SHA 的 `refs/notes/f06-acceptance`、问题关闭、干净工作树及 `make f06-acceptance-gate` PASS。 2026-10-08冻结5547211的DEVELOPMENT复评曾READY，当前脚本输入漂移后NOT_ASSESSED；历史功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-f06.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f06)及迁移失败/旧回执保留。
+- 当前工程复核：[当前复审报告](./audit/F06-comprehensive-review-2026-09-24.md)；历史正式复审：`ACCEPTED`；F06-A01–A10 全部关闭，活动问题 0；[已关闭问题与修复追踪](./audit/F06-closed-findings-2026-09-25.md)和[性能范围修订](./audit/F06-A09-remote-latency-gate-withdrawal-2026-09-25.md)保留。历史 ACCEPTED 仅覆盖已确认服务端范围；新候选仍须完整 SHA 的 `refs/notes/f06-acceptance`、问题关闭、干净工作树及 `make f06-acceptance-gate` PASS。 2026-10-09冻结7f18b8b的DEVELOPMENT实际复评通过，当前READY；当前功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f06.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f06)及迁移失败/旧回执保留。
 
 <a id="task-f07"></a>
 ### F07：Runtime 最小可恢复工作流
@@ -472,7 +474,7 @@ flowchart TD
 - task_id: `F07`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:1ef53e94024f2f2fbe608e6ba21d9a783fd5971096ade66a5ada41e447b37a3c","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f07.json"]}
 - depends_on: ["CORE:F04", "CORE:F05", "CORE:F06"]
 - core_prerequisites: ["CORE:F04", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -486,7 +488,7 @@ flowchart TD
 - 阶段执行：worker 恢复、checkpoint、Artifact 去重及 cancel/timeout 审计为开发硬门槛；调度 P95 <200ms 移交 RELEASE-GATE:BETA；拟发布 HTTPS/受限 Storage 验证由 L04 归档，在服务首次发布前完成。
 - 依赖：F04–F06
 - 阶段验收边界：F07 原开发验收回执的源码/环境范围保留在复审记录；当前功能准入使用工程 BFF/Runtime、已配置 Supabase 的真实功能、拒绝与恢复证据。P95、正式同 SHA CI、部署 HTTPS 入口和仅可访问 `quantos-artifacts` 的 Runtime Storage 凭据由 L04 负责归档，并在首次使用这些服务的 RELEASE-GATE:BETA 验收；新增执行区范围归 RELEASE-GATE:LIVE-READINESS，不以开发准入代替发布批准。
-- 当前工程复核：[当前全面复审](./audit/F07-comprehensive-review-2026-09-24.md)；历史正式复审：`ACCEPTED`；原 12/12 问题关闭，18/18 开发检查及 3/3 量化标准属于 `f599374` 基线；逐项证据见[关闭复核](./audit/F07-closure-recheck-2026-09-25.md)。部署 HTTPS、受限 Storage 与调度性能继续由 L04/RELEASE 收口。 2026-10-08冻结5547211的DEVELOPMENT复评曾READY，当前脚本输入漂移后NOT_ASSESSED；历史功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-f07.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f07)及迁移失败/旧回执保留。
+- 当前工程复核：[当前全面复审](./audit/F07-comprehensive-review-2026-09-24.md)；历史正式复审：`ACCEPTED`；原 12/12 问题关闭，18/18 开发检查及 3/3 量化标准属于 `f599374` 基线；逐项证据见[关闭复核](./audit/F07-closure-recheck-2026-09-25.md)。部署 HTTPS、受限 Storage 与调度性能继续由 L04/RELEASE 收口。 2026-10-09冻结7f18b8b的DEVELOPMENT实际复评通过，当前READY；当前功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f07.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f07)及迁移失败/旧回执保留。
 
 <a id="task-f08"></a>
 ### F08：Engine SDK、Manager 与 Mock Engine
@@ -494,7 +496,7 @@ flowchart TD
 - task_id: `F08`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:49680c59789c492ce2fdb1e5f10b7fd40d3ca77c85fb5b5ce5f3b76c3401172a","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f08.json"]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F07"]
 - core_prerequisites: ["CORE:F03", "CORE:F06", "CORE:F07"]
 - closes_core: []
@@ -506,7 +508,7 @@ flowchart TD
 - 交付物：`quantos-engine-manager`、Python common SDK、mock engine
 - 量化验收标准：`GetMetadata/Health/Execute/StreamExecute/Cancel` 100% contract 通过；连续 3 次崩溃触发退避且不丢请求；deadline 超时 ≤2 秒返回确定性错误
 - 依赖：F03、F06、F07
-- 当前工程复核：[当前复审报告](./audit/F08-comprehensive-review-2026-09-25.md)；历史正式复审：`ACCEPTED`；原 11/11 问题关闭、24/24 检查点完成；`830c0c5` 的 9 个主线/补充工作流与目标九项场景通过，见[主线收尾](./audit/main-acceptance-closeout-830c0c5-2026-09-26.md)。CPU/GPU 硬隔离移除及 127 项覆盖率豁免保持既定范围。 2026-10-08冻结5547211的DEVELOPMENT复评曾READY，当前脚本输入漂移后NOT_ASSESSED；历史功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-f08.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f08)及迁移失败/旧回执保留。
+- 当前工程复核：[当前复审报告](./audit/F08-comprehensive-review-2026-09-25.md)；历史正式复审：`ACCEPTED`；原 11/11 问题关闭、24/24 检查点完成；`830c0c5` 的 9 个主线/补充工作流与目标九项场景通过，见[主线收尾](./audit/main-acceptance-closeout-830c0c5-2026-09-26.md)。CPU/GPU 硬隔离移除及 127 项覆盖率豁免保持既定范围。 2026-10-09冻结7f18b8b的DEVELOPMENT实际复评通过，当前READY；当前功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f08.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f08)及迁移失败/旧回执保留。
 
 <a id="task-f09"></a>
 ### F09：本地可观测性、容量阈值与故障注入
@@ -514,7 +516,7 @@ flowchart TD
 - task_id: `F09`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:3dc20ba27eded5096ccadfcae3127045803cf3fbd2c4faa45c24c4510926f496","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f09.json"]}
 - depends_on: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
 - core_prerequisites: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
 - closes_core: []
@@ -528,7 +530,7 @@ flowchart TD
 - 阶段执行：本节原标准及历史同 SHA 回执保留；当前功能准入评估持久 trace、确定性告警/断采与受影响真实 Supabase 功能，持续采样/实际通知和远程 CI/Nightly 归发布检查点。Beta 范围在 RELEASE-GATE:BETA 完成，新增 testnet 执行区范围在 RELEASE-GATE:LIVE-READINESS 完成。
 - 上线前量化验收（移交 L04）：在拟上线的隔离部署环境中，逐个已部署 F0 写入口可由 trace 查到同一 correlation ID；注入 DB/事件消费者/Engine 故障时无秘密泄露，恢复后同链事件完整；九类真实指标生产者和每分钟 monitor 持续运行，阈值自动告警、实际通知并生成可信 ADR 输入：outbox 最老事件 >60 秒持续 15 分钟或 DLQ >0.1%，Realtime 投影延迟 >5 秒持续 15 分钟或配额 >70%，风险/组合查询 P95 >300ms 持续 15 分钟，风险 MV >1 分钟或运营聚合 >5 分钟连续 3 次，Storage 错误 >1% 或秘密轮换/读取失败。未交付的业务来源仍须由所属业务任务实现，缺采样不能算健康。
 - 依赖：F05–F08
-- 当前工程复核：[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)；历史正式复审：`ACCEPTED`；原 14 项中 9 项关闭、5 项部分修复/移交，B01–B03/H05/M03 的运行期范围继续由业务任务/L04 追踪；`81cb5ae` 的 CI/目标/手动路径回执见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)。手动调度不证明实际 cron，缺采样不算健康。 2026-10-08冻结5547211的DEVELOPMENT复评曾READY，当前脚本输入漂移后NOT_ASSESSED；历史功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-f09.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-development-admission-2026-10-08.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f09)及迁移失败/旧回执保留。
+- 当前工程复核：[当前剩余问题](./audit/F09-comprehensive-review-2026-09-27.md)；历史正式复审：`ACCEPTED`；原 14 项中 9 项关闭、5 项部分修复/移交，B01–B03/H05/M03 的运行期范围继续由业务任务/L04 追踪；`81cb5ae` 的 CI/目标/手动路径回执见[最终验收](./audit/F09-final-acceptance-2026-09-28.md)。手动调度不证明实际 cron，缺采样不算健康。 2026-10-09冻结7f18b8b的DEVELOPMENT实际复评通过，当前READY；当前功能回执见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-f09.json)；完整57组开发闭包执行见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)。历史正式/hosted CI不迁移；[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-f09)及迁移失败/旧回执保留。
 
 <a id="task-tp01-a"></a>
 ### TP01-A：上游只读副本与 Fork 基线
@@ -536,7 +538,7 @@ flowchart TD
 - task_id: `TP01-A`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:afe081d255e0373bef27c349a47709297c4c2528abd2f9e770a8589f0a6d00cf","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-tp01-a.json"]}
 - depends_on: ["CORE:F01", "CORE:F02"]
 - core_prerequisites: ["CORE:F01", "CORE:F02"]
 - closes_core: []
@@ -549,7 +551,7 @@ flowchart TD
 - 交付物：baseline SHA、监测 workflow、初始 SBOM/NOTICE、目录 README
 - 验收标准：新 tag/commit 只生成 candidate 记录，不更新生产依赖；baseline 可重建
 - 依赖：F01、F02
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-a)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。 2026-10-08冻结5547211的DEVELOPMENT功能复评曾READY，当前脚本输入漂移后NOT_ASSESSED，见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-tp01-a.json)，正式全量评审/hosted CI不由功能回执补写。
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-a)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。 2026-10-09冻结7f18b8b的DEVELOPMENT功能实际复评通过，当前READY，见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-tp01-a.json)，正式全量评审/hosted CI不由功能回执补写。
 
 <a id="task-tp01-b"></a>
 ### TP01-B：capability inventory 与禁止耦合清单
@@ -557,7 +559,7 @@ flowchart TD
 - task_id: `TP01-B`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:2e0de7c06c4cc14cd5d327866d6e8b8e5782ab31f96c454c69d97fa990fff2e6","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-tp01-b.json"]}
 - depends_on: ["CORE:TP01-A", "CORE:F07"]
 - core_prerequisites: ["CORE:TP01-A", "CORE:F07"]
 - closes_core: []
@@ -570,7 +572,7 @@ flowchart TD
 - 交付物：capability matrix、threat model 补充、禁止耦合 ADR
 - 验收标准：每项能力都有输入/输出/副作用/权限/替换策略；交易/秘密路径全部标记拒绝
 - 依赖：TP01-A、F07
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-b)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。 2026-10-08冻结5547211的DEVELOPMENT功能复评曾READY，当前脚本输入漂移后NOT_ASSESSED，见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-tp01-b.json)，正式全量评审/hosted CI不由功能回执补写。
+- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-b)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。 2026-10-09冻结7f18b8b的DEVELOPMENT功能实际复评通过，当前READY，见[阶段manifest](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-tp01-b.json)，正式全量评审/hosted CI不由功能回执补写。
 
 ### 4.1 TP01–TP05 初步评估检查点
 
@@ -620,16 +622,18 @@ flowchart TD
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:7790983cdf77e95c3aa9b132cec1fde3510c9e5332bd4c5096bc7a4012a49783",
+    "evidence": [
+      "audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-gate-f0.json"
+    ]
   }
 }
 ```
 
 当前功能入口：`pnpm assess:f0-development <独立证据目录>` 实际执行 F0 与 PROVIDER:A1 的功能闭包；`pnpm check:f0-development` 逐项校验 11 个前置的代码/契约/配置/测试、日志/产物和递归依赖。任何缺测或漂移均拒绝。
 
-F0 DEVELOPMENT功能闭包于2026-10-08冻结5547211实际复评曾READY；本轮CI脚本输入漂移后当前NOT_ASSESSED，见[当前回执](./audit/evidence/provider-a1-remediation-20261004/r02-admission-20261008/attempt-06/core-gate-f0.json)。
+F0 DEVELOPMENT必要闭包于2026-10-09冻结7f18b8b实际复评通过，当前READY；见[当前回执](./audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-gate-f0.json)和[当前报告](./audit/R02-current-development-admission-2026-10-09.md)。原5547211及旧正式/hosted CI回执按历史范围保留。
 
 上方 `required_scope/review_status/source_commit/evidence` 保留 F0 原始 7/7 历史验收事实；当前 `stage_gate` 的 DEVELOPMENT 范围为 F01–F09/TP01-A/B 的工程、契约、安全、数据与恢复功能基线，按第 2.9 节核对相关输入和受影响功能。无需因本文排期调整重跑完整同 SHA 签名、远程重建或长稳；正式候选仍由 RELEASE 检查点取得自身回执。
 
@@ -642,7 +646,7 @@ F0 DEVELOPMENT功能闭包于2026-10-08冻结5547211实际复评曾READY；本�
 - task_id: `R01`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:2ae4eba0ca11ac09505398e513dcd8a54d315f32589fa17b0dfe3146a8961fef","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-r01.json"]}
 - depends_on: ["CORE:F03", "CORE:F05", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F03", "CORE:F05", "CORE-GATE:F0"]
 - closes_core: []
@@ -655,7 +659,7 @@ F0 DEVELOPMENT功能闭包于2026-10-08冻结5547211实际复评曾READY；本�
 - 量化验收标准：10万条 replay 事件解析成功率 100%；乱序/重复数据正确去重；新鲜度/质量异常在 ≤5s 内发出事件
 - 阶段执行：开发验证 10 万 replay、归一化/去重、原子游标、重试/补偿与受控异常提交 ≤5s；source-age、processing、自然告警精确 ACK 与采样缺口分别报告。真实持续运行的新鲜度/readiness 和部署 SLO 归 RELEASE-GATE:BETA；不能以 pending=0 或持续写入冒充健康，已知不健康数据必须明确标识并由策略/交易消费者拒绝。FA-H01/B01 保持 OPEN/PARTIAL，功能准入仅针对有证据支撑的允许用途。
 - 依赖：F03、F05
-- 当前工程复核：[当前全面复审](./audit/R01-comprehensive-review-2026-10-02.md)与[原关闭台账](./audit/R01-closure-recheck-2026-10-07.md)保留；历史正式复审：`FIX_VALIDATION`；原十项9/10关闭，B01及专项FA-H01仍OPEN/PARTIAL，历史检测降级8.37%、effective ready109/120，未认定实时健康。2026-10-08冻结5547211的开发回放/归一化/持久去重/原子游标/受控异常≤5s及配置Supabase fixture/四文件覆盖复评曾READY；本轮脚本漂移后当前NOT_ASSESSED，见[本轮报告](./audit/R02-development-admission-2026-10-08.md)；不是新真实provider或发布验收。Linux/systemd、父启动器/主机死亡通知、长期运行、用途许可与候选同SHA CI留Beta；1800秒/两标的/原内部用途与到期范围不变，[初审快照](./audit/R01-initial-review-2026-10-02.md)及[历史正式记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r01)保留。
+- 当前工程复核：[当前全面复审](./audit/R01-comprehensive-review-2026-10-02.md)与[原关闭台账](./audit/R01-closure-recheck-2026-10-07.md)保留；历史正式复审：`FIX_VALIDATION`；原十项9/10关闭，B01及专项FA-H01仍OPEN/PARTIAL，历史检测降级8.37%、effective ready109/120，未认定实时健康。2026-10-09冻结7f18b8b的开发回放/归一化/持久去重/原子游标/受控异常≤5s及配置Supabase fixture/四文件覆盖本轮实际复评通过，当前DEVELOPMENT READY，见[本轮报告](./audit/R02-current-development-admission-2026-10-09.md)；不是新真实provider或发布验收。Linux/systemd、父启动器/主机死亡通知、长期运行、用途许可与候选同SHA CI留Beta；1800秒/两标的/原内部用途与到期范围不变，[初审快照](./audit/R01-initial-review-2026-10-02.md)及[历史正式记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r01)保留。
 
 <a id="task-r02"></a>
 ### R02：DataSnapshot、血缘与质量 Gate
@@ -663,7 +667,7 @@ F0 DEVELOPMENT功能闭包于2026-10-08冻结5547211实际复评曾READY；本�
 - task_id: `R02`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:50ac94f84d0f52f5c81cb0ba706c3b1a00fc04ab17f043a15a0b1f9ed3122117","evidence":["audit/evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-r02.json"]}
 - depends_on: ["CORE:R01", "CORE:F06", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:R01", "CORE:F06", "CORE-GATE:F0"]
 - closes_core: []
@@ -676,7 +680,7 @@ F0 DEVELOPMENT功能闭包于2026-10-08冻结5547211实际复评曾READY；本�
 - 量化验收标准：相同输入生成相同 hash；过期/质量不合格/许可证缺失的 300 个 fixture 100% 被拒用于策略/交易；查询 P95 <300ms
 - 阶段执行：确定性 hash、300 个质量/时效/许可证拒绝 fixture、真实 Supabase 查询/权限与 Storage 完整性、有效内部用途来源批准及 R01 已保留事实→持久化快照/当前规则→实际消费者为开发硬门槛。C26 开发范围为 typed wire 可信引用解析和实际 Python Engine/模块联调；C25 代表性发布环境 P95<300ms、C26 已部署 BFF/Runtime 完整 HTTP/JWT 权限链及候选同 SHA 远程 CI 移交 RELEASE-GATE:BETA。未部署不阻塞组件功能开发；不免除租户/来源/质量/时效底线或前置依赖准入。
 - 依赖：R01、F06
-- 当前工程复核：[原全面复审](./audit/R02-comprehensive-review-2026-10-07.md)的13个工程缺陷保持CLOSED；[续修](./audit/R02-partial-remediation-2026-10-08.md)及[本轮开发准入报告](./audit/R02-development-admission-2026-10-08.md)证明C01当前R01/F06/F0依赖及R02自身严格回执闭合，冻结5547211完整57/57实际检查曾通过，DEVELOPMENT曾READY；本轮脚本输入漂移后C01当前准入待复评、NOT_ASSESSED。原调整后开发27/27，原完整28项PASS26、PARTIAL1(C26部署)、DEFERRED_RELEASE1(C25)。实际保留来源/持久规则/reader/wire/两Research Python RPC和质量拒绝、六文件覆盖及actor/Engine清理复验通过。旧行情仍Degraded，仅原内部Research；C25代表性P95、C26部署HTTP/JWT与候选同SHA远程CI留RELEASE-GATE:BETA，正式用户确认未取得，不补写ACCEPTED。原失败/原批准及[历史复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r02)保留。
+- 当前工程复核：[原全面复审](./audit/R02-comprehensive-review-2026-10-07.md)的13个工程缺陷保持CLOSED；[当前准入报告](./audit/R02-current-development-admission-2026-10-09.md)证明C01当前R01/F06/F0依赖及R02自身严格回执闭合，冻结7f18b8b完整57/57实际检查通过，当前DEVELOPMENT READY。调整后开发27/27，原完整28项PASS26、PARTIAL1(C26部署)、DEFERRED_RELEASE1(C25)。实际保留来源/规则/reader/wire/两Research Python RPC和质量拒绝、六文件覆盖与actor/Engine收尾通过；旧行情仍Degraded，仅原内部Research。C25代表性P95、C26部署HTTP/JWT及候选远程CI留RELEASE-GATE:BETA，正式用户确认未取得，不补写ACCEPTED。原失败/原批准及[历史复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r02)保留。
 
 <a id="task-tp01-c"></a>
 ### TP01-C：`vibe_adapter` skeleton

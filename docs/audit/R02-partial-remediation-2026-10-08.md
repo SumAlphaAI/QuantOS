@@ -1,5 +1,7 @@
 # R02 剩余 PARTIAL 续修与阶段调整报告
 
+> 历史报告提示：下文为原执行时点的结论，原失败/源码/批准及事实保留。当前7f18b8b必要闭包57/57和严格回执已通过，R02 DEVELOPMENT READY；原13工程缺陷CLOSED，C25/C26发布部分与正式确认仍未完成。当前结论以[本轮准入报告](./R02-current-development-admission-2026-10-09.md)为准。
+
 日期：2026-10-08（Asia/Shanghai）。修复起点：`f3d110b9c9999beb06db7852bcd8ba3bc6c7e9f0`。承接[原13项整改报告](./R02-remediation-2026-10-07.md)，不改写[原全面复审](./R02-comprehensive-review-2026-10-07.md)、历史失败、旧 hash 或已提交 Supabase 事实。执行用户本会话的[阶段调整指令](../gate-records/20261008-r02-development-release-scope.md)：发布环境相关 Gate 交由发布阶段，不要求开发阶段先部署。
 
 ## 1. 任务完成概况

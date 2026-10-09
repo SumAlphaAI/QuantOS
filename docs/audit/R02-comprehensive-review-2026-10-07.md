@@ -1,5 +1,7 @@
 # R02：DataSnapshot、血缘与质量 Gate 全面复审报告
 
+> 历史报告提示：下文为原执行时点的结论，原失败/源码/批准及事实保留。当前7f18b8b必要闭包57/57和严格回执已通过，R02 DEVELOPMENT READY；原13工程缺陷CLOSED，C25/C26发布部分与正式确认仍未完成。当前结论以[本轮准入报告](./R02-current-development-admission-2026-10-09.md)为准。
+
 日期：2026-10-07（Asia/Shanghai）。源码基线：`6aa5b9ee5c42e1527fbad47cfec4e71282340db9`；初始工作区 clean。依据[开发计划 R02](../SumAlpha-QuantOS-Development-Plan.md#task-r02)、§2.2–2.4、§2.9–2.10，以及[架构](../SumAlpha-QuantOS-Architecture.md)、[技术方案](../SumAlpha-QuantOS-Technical-Solution.md)。
 
 ## 一、任务完成概况

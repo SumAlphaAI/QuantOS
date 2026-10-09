@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-08）：8408122实际触发8/8个push工作流成功，F04路径未匹配、当前SHA未运行；TP01-E远程六场景/23回归、真实严格候选阻断及失败后摘要/原件上传下载通过。自然schedule实时回执与候选采用仍待验。当前159节点NOT_ASSESSED，R02 C01待必要功能复评。见[远程验证报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
+> 当前工程状态（2026-10-09）：冻结7f18b8b完整R02必要闭包57/57实际执行及严格内容校验PASS；14节点DEVELOPMENT READY、145 NOT_ASSESSED。C01当前依赖与R02自身准入闭合，开发27/27，原完整范围26/28；C25性能/C26部署与候选同SHA CI留Beta，正式用户确认未取得。见[当前报告](./audit/R02-current-development-admission-2026-10-09.md)。8408122的TP01-E远程六场景/23回归及8/8 push仍为历史事实；自然schedule与候选采用继续待验。
 
 > 迁移时历史快照：2026-10-07 第二轮执行文档整理：8 份 P0/A1 验收规程及 R01/R02/UI 交付记录保留迁入 `docs/execution/`，同步活动引用与 R01/R02 读取路径；阶段准入与当前 G0 PENDING 状态保持不变。见[整理报告](./audit/Execution-document-organization-round2-2026-10-07.md)。
 
@@ -15,13 +15,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.50
-> 更新时间：2026-10-08
-> 状态：本轮CI测试输入变更后159节点NOT_ASSESSED；原57/57功能证据保留，当前准入待内容复评。
+> 版本：3.51
+> 更新时间：2026-10-09
+> 状态：当前R02必要闭包14节点DEVELOPMENT READY、145 NOT_ASSESSED；正式及发布验收独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.51`：冻结7f18b8b重新执行R02必要14节点/57组并严格验收，恢复DEVELOPMENT READY14/NOT_ASSESSED145；修复F06/F02/R02连接生命周期、F09/Engine进程监督与当前失败回执，保留全部历史轮次FAIL/提前退出及实际收尾。R02开发27/27、原完整26/28，正式确认/发布/新hosted CI分别待验。见[当前报告](./audit/R02-current-development-admission-2026-10-09.md)。
 
 - `3.50`：归档8408122的TP01-E远程工程验证：六场景与23回归通过，严格候选阻断后摘要/原件实际上传并下载；主线8/8 push成功，F04未触发不计PASS。自然schedule及上游候选采用保持待验，不授予阶段或正式验收。见[报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
 
