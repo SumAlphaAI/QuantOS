@@ -4,7 +4,7 @@
 
 ## 1. 任务完成概况
 
-**R02 当前 C01 开发准入已闭合：14节点/57组完整执行PASS，R01/F06/F0依赖和R02自身严格回执校验PASS，R02 DEVELOPMENT READY。** 调整后开发控制27/27；原完整28项PASS26、PARTIAL1（C26部署部分）、DEFERRED_RELEASE1（C25）。原13项R02工程缺陷保持CLOSED；项目用户已确认本轮DEVELOPMENT结论，人工确认门禁与工程证据独立核验；仅关闭当前开发范围确认，未登记发布或新SHA正式ACCEPTED。
+**R02 当前 C01 开发准入已闭合：14节点/57组完整执行PASS，R01/F06/F0依赖和R02自身严格回执校验PASS，R02 DEVELOPMENT READY。** 调整后开发控制27/27；原完整28项PASS26、PARTIAL1（C26部署部分）、DEFERRED_RELEASE1（C25）。原13项R02工程缺陷保持CLOSED；没有正式用户确认，未登记ACCEPTED。
 
 原5547211的57/57与8408122的远程CI属于各自历史源码。CI与TP01改变受控脚本后，本轮重新执行必要闭包，不手工迁移旧READY。联合计划当前14 READY、145 NOT_ASSESSED；不据此放行R1总Gate、后续研究工作流、页面、G0/A1/FEP-0或Beta。
 
@@ -20,7 +20,7 @@
 | 原13项工程问题 | CLOSED13/13 | 不包含发布/正式验收 |
 | C01依赖与R02自身 | 严格回执/实际源码与输入/嵌套目标和清理全部校验PASS | 当前内容绑定有效 |
 | 联合计划159节点 | READY14、NOT_ASSESSED145 | 只恢复实际必需闭包 |
-| 当前DEVELOPMENT用户确认 | 本会话明确确认，原答复/文稿/范围摘要严格核验PASS | CONFIRMED1/1；发布与同SHA正式验收独立 |
+| 正式人工确认 | 未取得本轮确认，formalAccepted=false | ACCEPTED0/1 |
 | 新源码hosted CI / 部署 | NOT_RUN | 不迁移8408122远程结果 |
 
 逐项机器台账：[28项control-matrix](./evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/control-matrix.json)；[57组实际执行](./evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/execution-results.json)。下列PASS指当前开发范围；C26完整范围仍PARTIAL。
@@ -96,7 +96,7 @@
 - **时效与授权**：本轮复用32条原批准真实保留行情，quality=degraded，sourceAge=413961秒。新captured_at/RPC成功/写入持续/pending=0不改变source age，不证明实时readiness或自然告警/采样缺口恢复。processing、source-age、受控异常提交≤5s含义分别保留。
 - **用途不扩展**：原scope固定1800秒，BTCUSDT/ETHUSDT，内部工程/研究，2026-10-10T00:00:00Z到期；本轮没有新provider摄取或自动延长。24小时、部署、客户展示、再分发、交易、商业用途需要新范围授权。
 - **后续功能**：两个Research能力实际Python RPC证明持久快照/规则被消费；不证明R03/R04完整工作流/输出repository或商业LLM/策略效果。Strategy/Trading拒绝，不合格Signal在Engine派发前拒绝。
-- **人工与源码边界**：项目用户已确认当前DEVELOPMENT范围，见[确认验收报告](./R02-user-confirmed-development-acceptance-2026-10-09.md)。原功能manifest的formalAccepted=false保留，表示其仅为工程证据；人工确认另存绑定记录。未登记新HEAD正式同SHAACCEPTED，不声称已取得远程CI或发布验收。
+- **人工与源码边界**：当前DEVELOPMENT内容回执不等于正式ACCEPTED。仅文档提交后重新校验受控内容，不声称新HEAD有远程CI或发布同SHA验收。
 
 ## 4. 整改结果、验证证据与后续建议
 
@@ -117,8 +117,6 @@
 | wire.rs | 99.05% | 91.16% |
 | provenance.rs | 100.00% | 99.06% |
 
-当前功能源码整改和严格开发准入已完成，可按计划推进R03/R04等未完成功能。项目用户已按[原文稿](../gate-records/R02-current-development-user-confirmation-draft-2026-10-09.md)和[统一规程](../gate-records/user-acceptance-confirmation-workflow.md)确认本轮DEVELOPMENT范围，见[当前确认记录](../gate-records/R02-current-development-confirmation.json)；发布欠项留至候选形成后按代表性环境和新范围授权集中执行。
+当前功能源码整改和严格开发准入已完成，可按计划推进R03/R04等未完成功能。正式验收使用[当前待确认文稿](../gate-records/R02-current-development-user-confirmation-draft-2026-10-09.md)与[统一规程](../gate-records/user-acceptance-confirmation-workflow.md)，项目用户确认前不自批；发布欠项留至候选形成后按代表性环境和新范围授权集中执行。
 
 证据：[本轮索引](./evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/README.md)、[R02严格manifest](./evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/attempt-05/core-r02.json)、[文档更新后严格内容校验](./evidence/provider-a1-remediation-20261004/r02-current-admission-20261008/strict-validation.json)、SHA256SUMS。历史[5547211报告](./R02-development-admission-2026-10-08.md)与全部失败原件保留。文档与证据提交状态见本次任务最终回执；不推送。
-
-确认前的报告原件见[归档](./archive/R02-current-development-admission-before-user-confirmation-2026-10-09.md)。文稿仍保留拟稿时PENDING状态和原始字节，当前CONFIRMED状态以独立确认台账与验证记录为准。

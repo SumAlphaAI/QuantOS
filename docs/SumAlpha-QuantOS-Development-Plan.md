@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-09）：冻结7f18b8b完整R02必要闭包57/57实际执行及严格内容校验PASS；14节点DEVELOPMENT READY、145 NOT_ASSESSED。C01当前依赖与R02自身准入闭合，开发27/27，原完整范围26/28；C25性能/C26部署与候选同SHA CI留Beta，正式用户确认未取得。见[当前报告](./audit/R02-current-development-admission-2026-10-09.md)。8408122的TP01-E远程六场景/23回归及8/8 push仍为历史事实；自然schedule与候选采用继续待验。
+> 当前工程状态（2026-10-09）：冻结7f18b8b完整R02必要闭包57/57实际执行及严格内容校验PASS；14节点DEVELOPMENT READY、145 NOT_ASSESSED。C01当前依赖与R02自身准入闭合，开发27/27，原完整范围26/28；C25性能/C26部署与候选同SHA CI留Beta，项目用户已确认当前DEVELOPMENT范围，确认/内容门禁PASS；发布及新SHA正式验收仍待办。见[当前报告](./audit/R02-current-development-admission-2026-10-09.md)。8408122的TP01-E远程六场景/23回归及8/8 push仍为历史事实；自然schedule与候选采用继续待验。
 
 > 迁移时历史快照：2026-10-07 执行文档目录整理：25 份 BFF/PRE/Desktop 准备产物保留并迁入 `docs/execution/`；读取脚本及输入策略已同步。原 26 READY 和 `52fee5f6e499` 确认为迁移前历史记录，当前受影响功能准入均为 NOT_ASSESSED，需独立内容复评。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
@@ -17,14 +17,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.45
+> 版本：3.46
 > 更新时间：2026-10-09
 > 状态：技术执行基线  
-> 本轮变更：补齐R02当前开发准入，57/57实际检查与严格内容校验通过；保留全部失败和发布/正式边界。
+> 本轮变更：保存R02当前DEVELOPMENT用户确认，独立核验人工确认与工程证据；发布、新SHA远程CI和R01遗留范围保持待验。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.46`：项目用户明确确认CORE:R02当前DEVELOPMENT文稿及边界；原答复、记录时间、不可变文稿与范围摘要单独保存，人工确认和57/57工程证据严格核验PASS。当前14 DEVELOPMENT READY/145 NOT_ASSESSED不扩展，开发27/27、原完整26/28保持；发布C25/C26、新SHA远程CI、R01 B01/FA-H01及用途许可待办。原manifest正式字段与历史文稿不重写。见[确认验收报告](./audit/R02-user-confirmed-development-acceptance-2026-10-09.md)。
 
 - `3.45`：冻结7f18b8b重新执行R02必要14节点/57组并严格验收，恢复DEVELOPMENT READY14/NOT_ASSESSED145；修复F06/F02/R02连接生命周期、F09/Engine进程监督与当前失败回执，保留全部历史轮次FAIL/提前退出及实际收尾。R02开发27/27、原完整26/28，正式确认/发布/新hosted CI分别待验。见[当前报告](./audit/R02-current-development-admission-2026-10-09.md)。
 
@@ -680,7 +682,7 @@ F0 DEVELOPMENT必要闭包于2026-10-09冻结7f18b8b实际复评通过，当前R
 - 量化验收标准：相同输入生成相同 hash；过期/质量不合格/许可证缺失的 300 个 fixture 100% 被拒用于策略/交易；查询 P95 <300ms
 - 阶段执行：确定性 hash、300 个质量/时效/许可证拒绝 fixture、真实 Supabase 查询/权限与 Storage 完整性、有效内部用途来源批准及 R01 已保留事实→持久化快照/当前规则→实际消费者为开发硬门槛。C26 开发范围为 typed wire 可信引用解析和实际 Python Engine/模块联调；C25 代表性发布环境 P95<300ms、C26 已部署 BFF/Runtime 完整 HTTP/JWT 权限链及候选同 SHA 远程 CI 移交 RELEASE-GATE:BETA。未部署不阻塞组件功能开发；不免除租户/来源/质量/时效底线或前置依赖准入。
 - 依赖：R01、F06
-- 当前工程复核：[原全面复审](./audit/R02-comprehensive-review-2026-10-07.md)的13个工程缺陷保持CLOSED；[当前准入报告](./audit/R02-current-development-admission-2026-10-09.md)证明C01当前R01/F06/F0依赖及R02自身严格回执闭合，冻结7f18b8b完整57/57实际检查通过，当前DEVELOPMENT READY。调整后开发27/27，原完整28项PASS26、PARTIAL1(C26部署)、DEFERRED_RELEASE1(C25)。实际保留来源/规则/reader/wire/两Research Python RPC和质量拒绝、六文件覆盖与actor/Engine收尾通过；旧行情仍Degraded，仅原内部Research。C25代表性P95、C26部署HTTP/JWT及候选远程CI留RELEASE-GATE:BETA，正式用户确认未取得，不补写ACCEPTED。原失败/原批准及[历史复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r02)保留。
+- 当前工程复核：[原全面复审](./audit/R02-comprehensive-review-2026-10-07.md)的13个工程缺陷保持CLOSED；[当前准入报告](./audit/R02-current-development-admission-2026-10-09.md)证明C01当前R01/F06/F0依赖及R02自身严格回执闭合，冻结7f18b8b完整57/57实际检查通过，当前DEVELOPMENT READY。调整后开发27/27，原完整28项PASS26、PARTIAL1(C26部署)、DEFERRED_RELEASE1(C25)。实际保留来源/规则/reader/wire/两Research Python RPC和质量拒绝、六文件覆盖与actor/Engine收尾通过；旧行情仍Degraded，仅原内部Research。C25代表性P95、C26部署HTTP/JWT及候选远程CI留RELEASE-GATE:BETA，项目用户已确认当前DEVELOPMENT结论，见[确认验收报告](./audit/R02-user-confirmed-development-acceptance-2026-10-09.md)；发布及新SHA正式ACCEPTED不补写。原失败/原批准及[历史复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r02)保留。
 
 <a id="task-tp01-c"></a>
 ### TP01-C：`vibe_adapter` skeleton
