@@ -1,0 +1,153 @@
+{
+  "schema": "quantos-r02-finding-closure-recheck/v1",
+  "date": "2026-10-09",
+  "reviewedHead": "137c1aa1a42c6bd93fda96673b7ac11464a3c45a",
+  "originalExecutionSource": "7f18b8bc0d90e832b66f3e59652c5b40934c19ac",
+  "findings": [
+    {
+      "id": "B01",
+      "severity": "阻塞",
+      "module": "PostgreSQL 成员查询",
+      "status": "CLOSED",
+      "resolution": "受限 API schema/function 提供成员正向读取，非成员/跨租户及直接表访问拒绝；没有广泛开放表权限。",
+      "source": "crates/quantos-storage/tests/r02_boundaries.rs",
+      "verification": "real_snapshot_permissions_invariants_and_atomic_audit",
+      "boundary": "真实 SQL role/claims 路径通过；部署 HTTP/JWT 留 C26"
+    },
+    {
+      "id": "H01",
+      "severity": "高危",
+      "module": "快照 hash / serde / 冷读",
+      "status": "CLOSED",
+      "resolution": "只读 Record、受控反序列化、canonical 重算和派生 expiry；写入/冷读/Gate 均验证。",
+      "source": "crates/quantos-storage/src/snapshot.rs",
+      "verification": "regression_forged_wire_hash_quality_and_expiry_are_rejected",
+      "boundary": "旧不可验证事实保留并拒读"
+    },
+    {
+      "id": "H02",
+      "severity": "高危",
+      "module": "策略/交易质量规则",
+      "status": "CLOSED",
+      "resolution": "Rust 规则校验和数据库 r02_trading_floor 双侧强制 Passed、license、freshness 底线。",
+      "source": "crates/quantos-storage/src/snapshot.rs",
+      "verification": "regression_strict_floor_duplicate_and_mixed_tenant_rules_reject",
+      "boundary": "Research 例外不授予交易或商用许可"
+    },
+    {
+      "id": "H03",
+      "severity": "高危",
+      "module": "时间窗与 source-age",
+      "status": "CLOSED",
+      "resolution": "start≤end≤capture≤created；可信 observed/DB clock 拒绝未来时间，来源窗口时效独立检查。",
+      "source": "crates/quantos-storage/src/snapshot.rs",
+      "verification": "regression_future_capture_window_and_overflow_are_errors",
+      "boundary": "保留数据仍 Degraded；新 capture 不恢复来源新鲜度"
+    },
+    {
+      "id": "H04",
+      "severity": "高危",
+      "module": "来源/血缘/元数据",
+      "status": "CLOSED",
+      "resolution": "Gate 拒绝空来源身份、无效血缘、缺严格用途依赖；受控 policy 解析实际事件/批准/用途。",
+      "source": "crates/quantos-storage/src/provenance.rs",
+      "verification": "regression_metadata_source_age_and_input_budget_reject; actual_identity_time_quality_and_purpose_are_required",
+      "boundary": "仅原批准内部 Research 范围；R01 B01/FA-H01 独立"
+    },
+    {
+      "id": "H05",
+      "severity": "高危",
+      "module": "租户/schema/对象引用",
+      "status": "CLOSED",
+      "resolution": "写入与读取验证 tenant/name/version/schema、完整 artifact 和 market 范围，不再只依赖全局 FK。",
+      "source": "supabase/migrations/20261007183000_r02_reference_read_guard.sql",
+      "verification": "real_snapshot_permissions_invariants_and_atomic_audit",
+      "boundary": "跨租户、缺对象和失效历史引用拒绝"
+    },
+    {
+      "id": "M01",
+      "severity": "中危",
+      "module": "规则配置冲突",
+      "status": "CLOSED",
+      "resolution": "同 usage 重复或混 tenant 返回 RuleConflict；不同排列均拒绝。",
+      "source": "crates/quantos-storage/src/snapshot.rs",
+      "verification": "regression_strict_floor_duplicate_and_mixed_tenant_rules_reject",
+      "boundary": "不再静默后项覆盖"
+    },
+    {
+      "id": "M02",
+      "severity": "中危",
+      "module": "age/资源预算",
+      "status": "CLOSED",
+      "resolution": "age 0–86400、checked_add、向量≤1024、输入≤1MiB；极值返回错误。",
+      "source": "crates/quantos-storage/src/snapshot.rs",
+      "verification": "regression_future_capture_window_and_overflow_are_errors; regression_metadata_source_age_and_input_budget_reject",
+      "boundary": "有界无效输入回归；未声称容量压测"
+    },
+    {
+      "id": "M03",
+      "severity": "中危",
+      "module": "Storage 登记与恢复",
+      "status": "CLOSED",
+      "resolution": "HTTP 前 durable prepared intent、create-only、重复对象读回校验；登记失败保留对象并显式 reconcile。",
+      "source": "crates/quantos-storage/src/supabase_storage.rs",
+      "verification": "real_storage_registration_failure_preserves_existing_object_and_reconciles",
+      "boundary": "实际目标故障注入证明既有对象仍存在；未删除原事实"
+    },
+    {
+      "id": "M04",
+      "severity": "中危",
+      "module": "行为 Gate / 生产覆盖",
+      "status": "CLOSED",
+      "resolution": "6 类变异须编译成功且被行为测试拒绝；排除 tests 的六生产文件逐项 line≥90%/region≥85%。",
+      "source": "scripts/r02-behavior-negative.cjs",
+      "verification": "6 MUTATION_DETECTED; check-r02-coverage.mjs; r1-functional-artifacts.test.mjs",
+      "boundary": "本轮重跑组件/变异；目标覆盖复核原实际执行，未冒称重采"
+    },
+    {
+      "id": "M05",
+      "severity": "中危",
+      "module": "SQL P95 测量",
+      "status": "CLOSED",
+      "resolution": "取消快照缓存，ID/hash/标的列表直接 SQL；发布 opt-in 各25次 nearest-rank，开发明确 NOT_RUN。",
+      "source": "crates/quantos-storage/tests/postgres_persistence.rs",
+      "verification": "uncached SQL measurement cannot become a cache hit; release handoff and dependency checks",
+      "boundary": "仅关闭缓存误测缺陷；C25 数值目标仍 DEFERRED_RELEASE"
+    },
+    {
+      "id": "M06",
+      "severity": "中危",
+      "module": "写入 context / 原子审计",
+      "status": "CLOSED",
+      "resolution": "活跃 actor/capability、tenant/correlation/causation/reason 校验；成功写入与 audit 同事务、规则 revision 递增。",
+      "source": "supabase/migrations/20261007180000_r02_snapshot_boundaries.sql",
+      "verification": "real_snapshot_permissions_invariants_and_atomic_audit",
+      "boundary": "目标幂等不重复成功审计，拒绝不产生成功审计"
+    },
+    {
+      "id": "L01",
+      "severity": "低危",
+      "module": "运维/环境/交付指引",
+      "status": "CLOSED",
+      "resolution": "禁止本地数据库、默认功能 Gate 去除 DATABASE_URL；目标空目录/actor收尾/事实保留/向前恢复有明确规程。",
+      "source": "docs/runbooks/r02_snapshot_operations.md",
+      "verification": "default Gate live-test regression is rejected; 本轮 make r02-check",
+      "boundary": "本轮发布独立操作说明勘误，明确当前准入/六变异/六文件/发布入口；受控原字节保留"
+    }
+  ],
+  "total": 13,
+  "closed": 13,
+  "open": 0,
+  "development": {
+    "pass": 27,
+    "total": 27
+  },
+  "full": {
+    "pass": 26,
+    "partial": 1,
+    "deferredRelease": 1,
+    "total": 28
+  },
+  "targetRerun": false,
+  "scopeExpanded": false
+}
