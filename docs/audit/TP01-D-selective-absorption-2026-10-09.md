@@ -1,5 +1,7 @@
 # TP01-D 选择性吸收与最小 patch 队列
 
+> 历史快照：TP02功能输入变化后原16节点Gate已撤销；最新必要13节点开发准入见[TP02报告](./TP02-development-2026-10-09.md)。本报告的READY/当前字样仅指冻结6a393eb，不自动迁移。
+
 日期：2026-10-09。范围为 R1 DEVELOPMENT；依据开发计划 TP01-D、TP01-C/R02/F0 依赖及既有 inventory/ADR。正式用户确认、部署、发布与候选同 SHA hosted CI 分别待验。
 
 ## 当前结论

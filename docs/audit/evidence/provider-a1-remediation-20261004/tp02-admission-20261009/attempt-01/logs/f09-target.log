@@ -1,0 +1,71 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.13s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
+F09 scheduler smoke PASS: 2 real Supabase missing-coverage ticks
+QUANTOS_RUN_F09_POSTGRES_TESTS=1 cargo test -p quantos-observability --test postgres_capacity_monitor --locked -- --test-threads=1 --skip restricted_runtime_role_records_only_real_storage_outcomes --nocapture
+
+running 3 tests
+test fault_proxy_retries_real_postgres_event_and_consumer_chain ... ok
+test live_database_session_termination_preserves_ordered_event_chain ... ok
+test live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 397.04s
+
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.10s
+     Running tests/postgres_capacity_monitor.rs (target/debug/deps/postgres_capacity_monitor-20923b866370cecf)
+F09 database termination recovered; correlation=01a1207f-2273-7122-b9ee-3ce8338e0e6c; ordered_events=2
+F09 capacity phase seed_remaining_metric_minutes
+F09 capacity continuity tick 0/17
+F09 capacity continuity tick 1/17
+F09 capacity continuity tick 2/17
+F09 capacity continuity tick 3/17
+F09 capacity continuity tick 4/17
+F09 capacity continuity tick 5/17
+F09 capacity continuity tick 6/17
+F09 capacity continuity tick 7/17
+F09 capacity continuity tick 8/17
+F09 capacity phase reconnect_tick8
+F09 capacity continuity tick 9/17
+F09 capacity continuity tick 10/17
+F09 capacity continuity tick 11/17
+F09 capacity continuity tick 12/17
+F09 capacity continuity tick 13/17
+F09 capacity continuity tick 14/17
+F09 capacity continuity tick 15/17
+F09 capacity continuity tick 16/17
+F09 capacity continuity tick 17/17
+
+running 1 test
+test f09_portfolio_and_risk_queries_persist_actual_latency_samples ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 15.69s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/postgres_portfolio.rs (target/debug/deps/postgres_portfolio-6f684ef8228c8a8c)
+
+running 1 test
+test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... F09 BFF real session revoke and persistent trace share correlation_id=01a12085-24e9-75a1-96cf-3c2de977a0aa
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 8.95s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-33bc45ce11b4f712)
+
+running 1 test
+F09 Runtime persisted run and trace share correlation_id=01a12085-6008-72d3-8602-1b01a78e6c99
+test live::tests::f09_runtime_real_write_trace ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 21.56s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/main.rs (target/debug/deps/runtime_gateway-7281ee9d42ce80f0)
+{"event":"F09_PORTFOLIO_WRITE_TRACE_PASS","correlationId":"01a12085-925e-7a52-96e3-0af3224fae3c","snapshotHash":"sha256:2081d8c86e1a95ae74d66be445e82db83a81e22d36bad8fc3d843640e2d416c1","lastEventSequence":23,"positionCount":3}
+
+running 1 test
+test manager_supervises_three_real_crashes_without_test_owned_restarts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 0.76s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/python_mock_engine.rs (target/debug/deps/python_mock_engine-a14b3ed6aaf7410e)

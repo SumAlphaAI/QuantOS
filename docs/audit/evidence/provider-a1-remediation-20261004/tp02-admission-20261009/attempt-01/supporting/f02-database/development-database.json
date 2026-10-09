@@ -1,0 +1,59 @@
+{
+  "schema": "quantos-f02-development-database/v2",
+  "status": "PASS",
+  "passed": true,
+  "sourceCommit": "c3f86f5f4c5ded17ec1ce3cd6d7d4ca1bf81ebb8",
+  "targetClass": "configured-supabase",
+  "formalAccepted": false,
+  "fullReferenceRebuild": false,
+  "startedAt": "2026-10-09T12:54:14.655Z",
+  "phase": "COMPLETE",
+  "checks": [
+    "actual migration ledger matches repository",
+    "reject disable RLS",
+    "reject disable FORCE RLS",
+    "reject drop tenant policies",
+    "reject column drift",
+    "reject index drift",
+    "reject missing/changed applied SQL; unchanged catalog after every rollback"
+  ],
+  "transportErrors": [],
+  "bootstrapConnection": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 3375.9242090000002
+      }
+    ]
+  },
+  "cleanup": {
+    "status": "PASS",
+    "readOnly": true,
+    "bootstrapConnection": {
+      "schema": "quantos-postgres-bootstrap/v1",
+      "phase": "BEFORE_STATEMENTS",
+      "maxAttempts": 3,
+      "status": "PASS",
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "PASS",
+          "transient": false,
+          "elapsedMs": 2892.400834
+        }
+      ]
+    },
+    "catalogDigest": "sha256:1ba06b7d970dce1373130d650d6c1fafe64817bc9b22bf5b7e55ca41a7bff4ea",
+    "ledgerUnchanged": true,
+    "catalogMatchesBefore": true,
+    "connectionsClosed": true
+  },
+  "catalogDigest": "sha256:1ba06b7d970dce1373130d650d6c1fafe64817bc9b22bf5b7e55ca41a7bff4ea",
+  "completedAt": "2026-10-09T12:58:02.541Z"
+}
