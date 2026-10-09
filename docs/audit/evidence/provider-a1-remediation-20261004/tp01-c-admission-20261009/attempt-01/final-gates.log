@@ -1,0 +1,196 @@
+TP01-C final content gate verification 2026-10-09T04:09:17.554Z
+Source b1603bfbd760230e342f68990e402a98ab0642de
+{"status":"READY","nodeId":"CORE:F01","inputDigest":"sha256:f7d87a5be52bb139f961722d8db15c1985bf28d36e9f517b02087d18f16fdcb7","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:F02","inputDigest":"sha256:9f3edb38d3798725cbaa65be76b4404822125eec05c7c4b22dfd18cb01928deb","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:TP01-A","inputDigest":"sha256:ca73d4807f7fcb75ce41e587fe6d9aa21b26e38053acfd55161292c1c0b57a0e","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:F03","inputDigest":"sha256:14110b2caa1be35dfd7d49b1fa569a9668e223eb29dac6be0e502bbae79fffec","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:F04","inputDigest":"sha256:744a428872443a6b1c12f979fd71e5f2af9274fc98c07306fc319cbb80076ad1","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:F05","inputDigest":"sha256:ecea18d59e695b4453357e37e8590448cdf781bc5a9bf68b495290d7d1a526ed","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:F06","inputDigest":"sha256:450f654e0ebcad935fd19208068388f4adf5c158a5575353bedb0244ab33fb5c","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:F07","inputDigest":"sha256:d5b982b39fcb1082424c969d0b053c41cfb16534bdc6803fd0df3147342963c3","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:TP01-B","inputDigest":"sha256:05dcc18d2a8ec7044941469057ae24fded40346b74cda365b39ff7b96b3743a1","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:F08","inputDigest":"sha256:7a1a7d1a567999606da679529c3639f95e81333a3b4c297fdf4867134ca8c629","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:F09","inputDigest":"sha256:81b32ac5d8cdf157f0e8c4313ef74837eca29cdd298917c06a31bc93d408fb9b","formalAccepted":false}
+{"status":"READY","nodeId":"CORE-GATE:F0","inputDigest":"sha256:4a0aebf660bf1b37d9093fbc7c314816695723c805da3af2265dc444a3ca3ed8","formalAccepted":false}
+{"status":"READY","nodeId":"CORE:TP01-C","inputDigest":"sha256:1b5421cfb28d2cd7e6e0a7b1aa18376f3d9d5288a5152e7849ac46bc728eb831","formalAccepted":false}
+{"states":{"READY":13,"NOT_ASSESSED":146}}
+negative PASS: manifest digest tamper
+negative PASS: unready dependency
+negative PASS: changed dependency receipt
+negative PASS: source inventory
+negative PASS: log digest
+negative PASS: formal claim
+$ node engines/vibe-adapter/check-development.mjs --verify
+{"engineeringStatus":"PASS","stageGate":"READY","formalAccepted":false}
+exit 0
+$ node engines/vibe-adapter/check-development.mjs --ready
+{"engineeringStatus":"PASS","stageGate":"READY","formalAccepted":false}
+exit 0
+$ node --test scripts/provider-a1-receipts.test.mjs scripts/tp01-c-functional-artifacts.test.mjs
+✔ valid source and execution-bound dependency chain is READY without release signatures (39.81475ms)
+✔ missing required execution (30.99525ms)
+✔ failed execution (29.937917ms)
+✔ wrong actual command (32.139417ms)
+✔ unresolved issue (25.0075ms)
+✔ wrong node (23.32125ms)
+✔ missing source inventory (28.770208ms)
+✔ plan scope changed (25.299166ms)
+✔ outside log path (29.384ms)
+✔ wrong log digest (31.220542ms)
+✔ missing dependency (28.803ms)
+✔ dependency digest substituted (32.281ms)
+✔ tampered manifest bytes are rejected (22.65175ms)
+✔ changed source content is rejected despite unchanged gate digest (25.49725ms)
+✔ dependency must independently be READY (27.470917ms)
+✔ arbitrary log cannot masquerade as successful execution (26.995542ms)
+✔ input file symlink cannot escape the repository (27.188916ms)
+✔ database execution cannot be inferred from a normal local PASS (32.2115ms)
+✔ Supabase target receipt verifies each compressed execution log (33.3935ms)
+✔ source drift during execution invalidates the original input snapshot (40.498625ms)
+✔ requirement drift during execution invalidates the original input snapshot (46.176875ms)
+✔ controlled public development profile overrides stale values and preserves server inputs (0.14975ms)
+✔ private credentials cannot be injected through a public development profile (0.10375ms)
+✔ transient Auth 503 can retry only a complete target execution (0.109291ms)
+✔ persistent target timeout never becomes PASS and stops at its budget (0.08375ms)
+✔ semantic target failures stop without retry or PASS (0.025916ms)
+✔ target retry budget cannot be unbounded (0.096417ms)
+✔ configured target retries require explicit attempt outcomes in the receipt (33.218208ms)
+✔ three successful full builds bind output inventories (0.35375ms)
+✔ reproducibility rejects only two builds (0.113167ms)
+✔ reproducibility rejects missing Python build (0.130041ms)
+✔ reproducibility rejects failed command (0.122917ms)
+✔ reproducibility rejects different output digest (0.08325ms)
+✔ reproducibility rejects substituted inventory (0.067709ms)
+✔ reproducibility rejects dirty source (0.0595ms)
+✔ reproducibility rejects old source (0.056416ms)
+✔ development policy retains explicit build, coverage, volume and target storage obligations (0.306417ms)
+✔ static make commands cannot reload .env.local or inherit target database opt-ins (0.082667ms)
+✔ volume retry restarts the complete check only on a closed PostgreSQL transport (0.048584ms)
+✔ volume correctness and certificate errors cannot be retried into PASS (0.028709ms)
+✔ persistent database transport failure stays failed at the retry limit (0.028375ms)
+✔ separate assessment snapshot preserves historical manifests and binds its own logs (36.706708ms)
+✔ third-party Git link binds the actual clean checkout and rejects dirty/advanced source (143.160791ms)
+✔ transient read-only preflight connection closure retries the complete target (0.098292ms)
+✔ preflight permission and role failures are not transport retries (0.062292ms)
+✔ persistent preflight closure exhausts three attempts without PASS (0.064583ms)
+✔ engineering snapshot never grants admission when dependencies are not assessed (149.864875ms)
+✔ skeleton artifact rejects omitted check (142.496417ms)
+✔ skeleton artifact rejects failed execution (139.287917ms)
+✔ skeleton artifact rejects fake command (130.976708ms)
+✔ skeleton artifact rejects changed source (130.388541ms)
+✔ skeleton artifact rejects changed log (127.36075ms)
+✔ skeleton artifact rejects formal acceptance claim (66.100334ms)
+✔ skeleton artifact rejects future execution (121.348959ms)
+✔ unified artifact rejects a receipt executed on another source SHA (63.424458ms)
+✔ copied artifact verifies its bound supporting logs instead of mutable original logs (173.919708ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1290.132334
+exit 0
+$ node scripts/check-development-plans.mjs
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 146,
+    "READY": 13,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1462,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22
+}
+exit 0
+$ pnpm test:development-plans
+
+> @sumalpha/quantos@ test:development-plans /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/development-plan-order-negative.mjs
+
+✔ joint schedule is acyclic and preserves task/status boundaries (17.966667ms)
+✔ restoring a complete R1 prerequisite for S2 services creates a rejected cycle (5.728417ms)
+✔ research service waiting on its consumer page is rejected (5.237042ms)
+✔ historical CORE:R04 to CORE:L04 probe now fails closed (4.673125ms)
+✔ an early identity API cannot silently depend on later research services (6.026333ms)
+✔ a provider cannot wait for the consumer frontend Gate (4.279542ms)
+✔ removing S2 service admission from a core execution task is rejected (5.110333ms)
+✔ S2 service Gate cannot omit TP12 advance evaluation (5.418292ms)
+✔ I10 cannot drop testnet service admission even if metadata is edited with it (5.764917ms)
+✔ a new or existing frontend cannot skip the full provider Gate (5.75475ms)
+✔ G5 cannot be marked as closing in I4 before reconciliation (5.840625ms)
+✔ moving the G1 block above I1 tasks is rejected (5.457667ms)
+✔ milestone cannot omit its last child while retaining a Gate summary (5.208916ms)
+✔ prose-only backend dependencies cannot drift from structured prerequisites (5.614875ms)
+✔ core closure mapping cannot become an implicit service alias (5.404583ms)
+✔ ACCEPTED checkpoint needs SHA and evidence, not only a green word (5.440125ms)
+✔ accepted checkpoint evidence must resolve (2.908209ms)
+✔ missing checkpoint and unknown dependency fail closed (6.704708ms)
+✔ API windows cannot skip their preceding provider checkpoint (5.344916ms)
+✔ UI windows cannot skip the preceding reconciliation window (5.397708ms)
+✔ Web intake preserves the explicit no-model-review schema (1.6675ms)
+✔ missing Web task fields still fail closed (1.439667ms)
+✔ both plans must publish exactly the same stage contract (6.367833ms)
+✔ changing both plans cannot defer correctness or functional deadlines to release (15.30625ms)
+✔ both plans must retain every deferred release obligation (13.525042ms)
+✔ tasks and checkpoints cannot omit, invent, or misclassify their stage gate (19.913625ms)
+✔ release prerequisites cannot block either development or integration (12.21025ms)
+✔ release gates cannot skip business closure or inherit the wrong stage (13.658667ms)
+✔ historical ACCEPTED and completed tasks do not automatically become READY (10.948333ms)
+✔ READY needs its own input digest and resolvable evidence (35.924708ms)
+✔ unassessed stage gates cannot carry an apparent ready receipt (7.282166ms)
+✔ BLOCKED retains failure evidence and digest without being counted as READY (14.149167ms)
+✔ a READY chain needs READY prerequisites and its own evidence at every node (18.997458ms)
+✔ stage readiness never substitutes for formal acceptance evidence (2.627875ms)
+✔ release READY requires formal acceptance and all functional prerequisites (8.535459ms)
+✔ core intake follows the frontend audit-report format (6.114458ms)
+✔ core review summary must be unique and link to audit evidence (7.649291ms)
+✔ core shared task fields and existing window must stay consistent (15.69925ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 374.959791
+exit 0
+$ git diff --check
+exit 0
+$ bash scripts/check-secrets.sh
+scripts/check-secrets.sh: line 5: gitleaks: command not found
+Expected Gitleaks 8.28.0
+exit 2
+12:11PM INF 423 commits scanned.
+12:11PM INF scanned ~261377731 bytes (261.38 MB) in 1.91s
+12:11PM INF no leaks found
+Supplementary rerun: GITLEAKS_BIN=$PWD/artifacts/tools/gitleaks bash scripts/check-secrets.sh
+exit 0; pinned Gitleaks 8.28.0, 423 commits, no leaks
+FINAL PASS: 13 strict READY / 52 actual checks / 6 tamper probes / 56 receipt tests / 38 plan tests / no formal acceptance
+$ artifacts/tools/gitleaks git --staged --config .gitleaks.toml --gitleaks-ignore-path .gitleaksignore --redact --no-banner
+12:11PM INF 0 commits scanned.
+12:11PM INF scanned ~4868613 bytes (4.87 MB) in 154ms
+12:11PM INF no leaks found
+exit 0; staged documentation and evidence, no leaks

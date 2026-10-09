@@ -1,0 +1,41 @@
+{
+  "schema": "quantos-f07-acceptance/v1",
+  "sourceCommit": "b1603bfbd760230e342f68990e402a98ab0642de",
+  "dirty": true,
+  "status": "DIAGNOSTIC_ONLY",
+  "targetClass": "isolated-supabase-postgresql",
+  "checks": [
+    "same-project, verified-TLS target and checksum-guarded forward migrations",
+    "private quantos-artifacts Storage bucket",
+    "target RLS baseline",
+    "diagnostic coverage; 10 recovery tasks and no P95 acceptance"
+  ],
+  "startedAt": "2026-10-09T03:56:25.407Z",
+  "bootstrapConnection": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 2047.6168750000002
+      }
+    ]
+  },
+  "targetProjectRefHash": "23e97d4459dee70c",
+  "targetPostgresMajor": 17,
+  "migrationBefore": "20261008090000_f07_audit_append_sequence.sql",
+  "measurements": {
+    "recoveredRuns": 10,
+    "recoveryCompleted": true,
+    "scheduleP95LimitMs": 200,
+    "scheduleP95Ms": 781.350917,
+    "scheduledRuns": 10,
+    "schema": "quantos-f07-recovery-measurements/v1",
+    "uniqueArtifactBindings": 10
+  },
+  "completedAt": "2026-10-09T04:00:48.982Z"
+}

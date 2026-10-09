@@ -2,7 +2,7 @@
 
 > 本文为首次工程交付的历史报告；当时BLOCKED的receipt和日志已原样保留在[initial-blocked](./evidence/tp01-c-20261009/initial-blocked/receipt.json)。当前必要闭包复评与准入以[本轮报告](./TP01-C-development-admission-2026-10-09.md)为准，下文状态、未提交事实及旧Gate属于首次交付时点。
 
-日期：2026-10-09（Asia/Shanghai）。依据：开发计划 R1-SERVICE 的 TP01-C；修改仓库仅 QuantOS。执行前 HEAD `3105e0de273e64010297d6a9d1e5509338cd46dd`，工作区干净；本轮源码未提交，实际内容绑定见 [receipt.json](./evidence/tp01-c-20261009/receipt.json) 的 `inputs`，不把 observed HEAD 当作包含未提交改动的候选 SHA。
+日期：2026-10-09（Asia/Shanghai）。依据：开发计划 R1-SERVICE 的 TP01-C；修改仓库仅 QuantOS。执行前 HEAD `3105e0de273e64010297d6a9d1e5509338cd46dd`，工作区干净；本轮源码未提交，实际内容绑定见 [receipt.json](./evidence/tp01-c-20261009/initial-blocked/receipt.json) 的 `inputs`，不把 observed HEAD 当作包含未提交改动的候选 SHA。
 
 **工程实现与检查 PASS；DEVELOPMENT 准入 BLOCKED；正式 ACCEPTED 未授予。**
 
@@ -30,25 +30,25 @@
 
 | 命令 | 结果 / 日志 |
 | --- | --- |
-| `engines/.venv/bin/python -m pytest engines/tests -q` | **263 passed**；[Python日志](./evidence/tp01-c-20261009/python.log)；含140项adapter检查（原6+新增134） |
-| `cargo test --locked --offline -p quantos-engine-manager` | **55 passed / 0 failed**；[Manager日志](./evidence/tp01-c-20261009/manager.log)；含adapter真实UDS 2项及其他Engine回归 |
-| `engines/.venv/bin/ruff check engines/vibe-adapter engines/tests/test_vibe_adapter_skeleton.py` | PASS；[lint](./evidence/tp01-c-20261009/ruff.log) |
-| `engines/.venv/bin/ruff format --check` 加receipt中列明的6个Python文件 | PASS，6 files already formatted；[format](./evidence/tp01-c-20261009/format.log) |
-| `engines/.venv/bin/pyright --project engines --pythonpath engines/.venv/bin/python engines/vibe-adapter/src engines/tests/test_vibe_adapter_skeleton.py` | PASS，0 errors / 0 warnings；[types](./evidence/tp01-c-20261009/pyright.log) |
-| `uv lock --check --offline --project engines` | PASS，52 packages；[lock](./evidence/tp01-c-20261009/lock.log)；未变更lockfile或依赖 |
-| `node scripts/check-development-plans.mjs` | PASS，结构/顺序检查；[运行时计划日志](./evidence/tp01-c-20261009/plans.log)，日志时仍有历史14 READY，最终记录另见post-gates日志 |
+| `engines/.venv/bin/python -m pytest engines/tests -q` | **263 passed**；[Python日志](./evidence/tp01-c-20261009/initial-blocked/python.log)；含140项adapter检查（原6+新增134） |
+| `cargo test --locked --offline -p quantos-engine-manager` | **55 passed / 0 failed**；[Manager日志](./evidence/tp01-c-20261009/initial-blocked/manager.log)；含adapter真实UDS 2项及其他Engine回归 |
+| `engines/.venv/bin/ruff check engines/vibe-adapter engines/tests/test_vibe_adapter_skeleton.py` | PASS；[lint](./evidence/tp01-c-20261009/initial-blocked/ruff.log) |
+| `engines/.venv/bin/ruff format --check` 加receipt中列明的6个Python文件 | PASS，6 files already formatted；[format](./evidence/tp01-c-20261009/initial-blocked/format.log) |
+| `engines/.venv/bin/pyright --project engines --pythonpath engines/.venv/bin/python engines/vibe-adapter/src engines/tests/test_vibe_adapter_skeleton.py` | PASS，0 errors / 0 warnings；[types](./evidence/tp01-c-20261009/initial-blocked/pyright.log) |
+| `uv lock --check --offline --project engines` | PASS，52 packages；[lock](./evidence/tp01-c-20261009/initial-blocked/lock.log)；未变更lockfile或依赖 |
+| `node scripts/check-development-plans.mjs` | PASS，结构/顺序检查；[运行时计划日志](./evidence/tp01-c-20261009/initial-blocked/plans.log)，日志时仍有历史14 READY，最终记录另见post-gates日志 |
 | `node engines/vibe-adapter/check-development.mjs --verify` | 内容/日志/命令/当前依赖验证 PASS；工程PASS、stage BLOCKED |
 | `node engines/vibe-adapter/check-development.mjs --ready` | 预期退出2，严格阻止阶段准入 |
 
-初次沙箱内UDS绑定失败6项，保留[sandbox-uds-failure.log](./evidence/tp01-c-20261009/sandbox-uds-failure.log)；取得本地mock测试权限后真实UDS通过。初次pyright选中系统Python3.14产生导入错误，明确指定工程Python3.12后类型检查通过；uv缓存读取沙箱限制后只读离线校验通过。首次自动审批超时，按工具指示重试后成功；不存在待处理审批拒绝。
+初次沙箱内UDS绑定失败6项，保留[sandbox-uds-failure.log](./evidence/tp01-c-20261009/initial-blocked/sandbox-uds-failure.log)；取得本地mock测试权限后真实UDS通过。初次pyright选中系统Python3.14产生导入错误，明确指定工程Python3.12后类型检查通过；uv缓存读取沙箱限制后只读离线校验通过。首次自动审批超时，按工具指示重试后成功；不存在待处理审批拒绝。
 
 ## Gate 与依赖事实
 
 执行前严格 `validateReceipt` 分别验证 `CORE:TP01-B`、`CORE:F08`、`CORE-GATE:F0` 全部READY。代码修改后，严格内容检查对原14个登记READY节点全部报 `source/contract/config/test inventory or content changed`（包括通过依赖递归传播的节点），本轮完整组件回归不能替代各节点要求的全部检查和聚合receipt。
 
-原阶段字段原样保存在[失效前快照](./evidence/tp01-c-20261009/prior-stage-records.json)，原57组日志/manifest、历史确认和正式签署均保留；开发计划将原14节点转NOT_ASSESSED。TP01-C登记 **COMPLETED（工程交付） / BLOCKED（阶段准入）**，证据摘要绑定本次receipt。当前计划登记 **0 READY、158 NOT_ASSESSED、1 BLOCKED**。不是撤销历史执行事实或用户确认，而是防止新输入复用旧放行。
+原阶段字段原样保存在[失效前快照](./evidence/tp01-c-20261009/initial-blocked/prior-stage-records.json)，原57组日志/manifest、历史确认和正式签署均保留；开发计划将原14节点转NOT_ASSESSED。TP01-C登记 **COMPLETED（工程交付） / BLOCKED（阶段准入）**，证据摘要绑定本次receipt。当前计划登记 **0 READY、158 NOT_ASSESSED、1 BLOCKED**。不是撤销历史执行事实或用户确认，而是防止新输入复用旧放行。
 
-`--verify`校验当前输入清单、每组实际命令/日志哈希与成功标记，并重新调用现有严格依赖验证；`--ready`只在依赖也有效时退出0。Gate摘要与失败门禁、篡改负向探针见[post-gates.log](./evidence/tp01-c-20261009/post-gates.log)。无需人工确认替代失败的工程依赖，也不自行批准正式验收。
+`--verify`校验当前输入清单、每组实际命令/日志哈希与成功标记，并重新调用现有严格依赖验证；`--ready`只在依赖也有效时退出0。Gate摘要与失败门禁、篡改负向探针见[post-gates.log](./evidence/tp01-c-20261009/initial-blocked/post-gates.log)。无需人工确认替代失败的工程依赖，也不自行批准正式验收。
 
 ## 未决风险与后续边界
 
