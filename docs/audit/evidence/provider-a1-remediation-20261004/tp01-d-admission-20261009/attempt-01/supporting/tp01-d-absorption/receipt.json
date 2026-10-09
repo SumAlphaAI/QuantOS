@@ -1,0 +1,975 @@
+{
+  "schema": "quantos-tp01-d-absorption/v1",
+  "nodeId": "CORE:TP01-D",
+  "stage": "DEVELOPMENT",
+  "status": "BLOCKED",
+  "engineeringStatus": "PASS",
+  "formalAccepted": false,
+  "observedSourceCommit": "6a393eb081d1d9629a1ca1ff451ac1e25c15fede",
+  "environment": {
+    "node": "v24.12.0",
+    "python": "Python 3.12.10",
+    "rust": "rustc 1.91.0 (f8297e351 2025-10-28)"
+  },
+  "planInput": {
+    "acceptance_window": "R1-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE:TP01-C",
+      "CORE:R02",
+      "CORE-GATE:F0"
+    ],
+    "dependencies": [
+      "CORE:TP01-C",
+      "CORE:R02",
+      "CORE-GATE:F0"
+    ],
+    "depends_on": [
+      "CORE:TP01-C",
+      "CORE:R02",
+      "CORE-GATE:F0"
+    ],
+    "iteration": "R1-SERVICE",
+    "requirement": "选择性吸收与最小 patch 队列",
+    "requirements": [
+      "- 需求描述：选择性吸收与最小 patch 队列",
+      "- 交付物：fork patch queue、adapter modules、sync ADR",
+      "- 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow"
+    ],
+    "task_id": "TP01-D",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
+  "inputs": [
+    {
+      "path": "crates/quantos-engine-manager/Cargo.toml",
+      "role": "config",
+      "sha256": "sha256:1ee509c52ddadf0994d68378e8774ec7adac32bc41516d3f97e7c2c23d139271"
+    },
+    {
+      "path": "crates/quantos-engine-manager/README.md",
+      "role": "code",
+      "sha256": "sha256:da8fcb32cfd7e753e22487802e4d54e6ad2072e8a257ebc859c09f9c29fbd1d2"
+    },
+    {
+      "path": "crates/quantos-engine-manager/src/bin/f08-approval.rs",
+      "role": "code",
+      "sha256": "sha256:85c64e1a4f11f9fa1852718b21d8bd6c013cd3d6ca6d9b85a507c1bfb8abed6b"
+    },
+    {
+      "path": "crates/quantos-engine-manager/src/durable.rs",
+      "role": "code",
+      "sha256": "sha256:f7dcc6ae6621041a41ebf5b9f0bbf9ee5bc2bdf3b6d4ed1ad2df57a4d336390f"
+    },
+    {
+      "path": "crates/quantos-engine-manager/src/lib.rs",
+      "role": "code",
+      "sha256": "sha256:a94bc3d73256c1e123260a263d113bd549754cdd4dcf6476dbb7f43218ce789b"
+    },
+    {
+      "path": "crates/quantos-engine-manager/tests/fixtures/f08_malformed_server.py",
+      "role": "test",
+      "sha256": "sha256:cb73ddb6cc8d340d1c30cb368843e6c8e3a5bbdf94bfd7e80a07f97667d4500b"
+    },
+    {
+      "path": "crates/quantos-engine-manager/tests/manager_negative.rs",
+      "role": "test",
+      "sha256": "sha256:e6886238c2b6b1eaf807886edcbf40d3e258867e4da2027c17ee8f6271a3b173"
+    },
+    {
+      "path": "crates/quantos-engine-manager/tests/python_llmquant.rs",
+      "role": "test",
+      "sha256": "sha256:1f93080d4681cc4d291728cbd4725aa233845b1cf21522ec428db14e29a269b5"
+    },
+    {
+      "path": "crates/quantos-engine-manager/tests/python_mock_engine.rs",
+      "role": "test",
+      "sha256": "sha256:9800c464343beeda70aa57f857a29e0a38200080f1248917a3acfbbbe93de61d"
+    },
+    {
+      "path": "crates/quantos-engine-manager/tests/python_openbb_adapter.rs",
+      "role": "test",
+      "sha256": "sha256:9b3b0e3ad0f43063cd8e17f1851997ba2aa7a39e7074a63211a9bce12970da0c"
+    },
+    {
+      "path": "crates/quantos-engine-manager/tests/python_rd_agent.rs",
+      "role": "test",
+      "sha256": "sha256:87106010df20fc772e903d188ca3e1510f3541fe74e35738f0843eab1e648eeb"
+    },
+    {
+      "path": "crates/quantos-engine-manager/tests/python_strategy_lab.rs",
+      "role": "test",
+      "sha256": "sha256:49286fc98ebc078bc82af57d41288eedd0340778fb5cb8df21eddc28af2be44a"
+    },
+    {
+      "path": "crates/quantos-engine-manager/tests/python_trading_agents.rs",
+      "role": "test",
+      "sha256": "sha256:5ceb497d473422fde7e7c1e1bbe85c0186b4d5e22eccbdc2392bae0790844b0c"
+    },
+    {
+      "path": "crates/quantos-engine-manager/tests/python_vibe_adapter.rs",
+      "role": "test",
+      "sha256": "sha256:05b35e05191d94cdf2e81f69f9759c81d6ca164506dc6a9ec62553b81b9e6f9f"
+    },
+    {
+      "path": "crates/quantos-runtime/Cargo.toml",
+      "role": "config",
+      "sha256": "sha256:dab9342474f19a24421c7552aeaa16a660af486e4f6e10979f8bc74c20d2b1bd"
+    },
+    {
+      "path": "crates/quantos-runtime/README.md",
+      "role": "code",
+      "sha256": "sha256:0e0d662085d15586b0ea2db74d987ed2bb353792dfb4db9a3280849d9efb0661"
+    },
+    {
+      "path": "crates/quantos-runtime/src/lib.rs",
+      "role": "code",
+      "sha256": "sha256:5e68fbe141d5ba081f79a901ef8eb043e92b44d43a454922d42e5c04fa5492af"
+    },
+    {
+      "path": "crates/quantos-runtime/src/pg.rs",
+      "role": "code",
+      "sha256": "sha256:b0ea5e4d2b22396b16a55617312e035525f37e1b4b8fa74fc70b9718598f0d6e"
+    },
+    {
+      "path": "crates/quantos-runtime/src/research.rs",
+      "role": "code",
+      "sha256": "sha256:f85a7ae02453c0633946f55a710d4520e908318015b5191406c78ee31859a23b"
+    },
+    {
+      "path": "crates/quantos-runtime/src/signal_proposal.rs",
+      "role": "code",
+      "sha256": "sha256:643eca3c3a53902d71f5168dc5f8bcd902d17578cc7dec45996426cd69965e7f"
+    },
+    {
+      "path": "crates/quantos-runtime/src/snapshot_source.rs",
+      "role": "code",
+      "sha256": "sha256:7b3bd4ac720366913b925741121f107a12defe799b8b79bf27f601b82985402f"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/fixtures/f07-workflow.json",
+      "role": "test",
+      "sha256": "sha256:b0671a452bc81687ee1f0917c1585f5533cecd8a4cf2682f2042b1296f673a98"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/postgres_runtime.rs",
+      "role": "test",
+      "sha256": "sha256:1838701641950cac03fbe497fddc4c582bec19e36748ae943b3fcfa1f26ad8c7"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/research_orchestration.rs",
+      "role": "test",
+      "sha256": "sha256:3015d542c6bacd9f965362ffea67f09b68a408873fcb1f7430af2fce4cba165e"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/signal_proposal_orchestration.rs",
+      "role": "test",
+      "sha256": "sha256:fe93375580eb226c6dea40656a4262bd237d09a7f012c778df54bb9e4ea92764"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/support/r02_persisted_chain.rs",
+      "role": "test",
+      "sha256": "sha256:af8f880816f09d163eadd06934ae322a9aac85064bf04026cd1712a2acab42e7"
+    },
+    {
+      "path": "docs/adr/20260730-tp01-vibe-selective-absorption.md",
+      "role": "code",
+      "sha256": "sha256:d22c44c09549acf7af6a721243427fc333623b8e04f481d3188f25430bd65bd3"
+    },
+    {
+      "path": "docs/operations/tp01_vibe_inventory_and_threats.md",
+      "role": "code",
+      "sha256": "sha256:48b3fbdc4a2d1147ea135488ad54f6578e687b4d49bb60721d0c27de2a61efca"
+    },
+    {
+      "path": "engines/engine-sdk/README.md",
+      "role": "code",
+      "sha256": "sha256:a995de5c242431ecdd4ebbffa3e82731035f63b702d5a253961c7fcdeeaa3932"
+    },
+    {
+      "path": "engines/engine-sdk/pyproject.toml",
+      "role": "config",
+      "sha256": "sha256:8244fa1ca437c0192175b1d9a86ebfdc1ce45d1cf40f3c0bd756a107ad094b4b"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/__init__.py",
+      "role": "code",
+      "sha256": "sha256:fddbc9e14091b6561491b88a02287bbc3f29663b1d1ec58016f335fac4eeaaf2"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py",
+      "role": "code",
+      "sha256": "sha256:3d5fd8af40d06b41d6f30c788702e2079d948a1cf8d4fe9a738db840dc8ff837"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/manifest.py",
+      "role": "code",
+      "sha256": "sha256:d321cd7e2ed83b69aa90b540396fec261570d0b1aaaa5b2c72aff998295d0ba0"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/observability.py",
+      "role": "code",
+      "sha256": "sha256:981e54835bbbe6926ecbd6e499ac01e62f5ea8ce8ec21186ede0a67eb1024736"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/validation.py",
+      "role": "code",
+      "sha256": "sha256:b2d902cd31e8c4b4ffdb7e7d031549f96412e1de5430eaac820d8b2fca0d0373"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/annotations_pb2.py",
+      "role": "code",
+      "sha256": "sha256:f74917ceff0effca2e7c5f4ccdd1353c32a56640d6d734a9e4b609c919284a5f"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/annotations_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:5d047ee8c12977eff404f662cfe004e5a873497ed78f58cb0b1d9565bcfd8695"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/field_behavior_pb2.py",
+      "role": "code",
+      "sha256": "sha256:341fad00d2c3662475935f8e781a7f486c5c4bed189d69af9cd0b5d27a46410b"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/field_behavior_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:88f35dc58ecdcd87546f1fe31488865c3972658ad78565626df0a035fac83428"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/http_pb2.py",
+      "role": "code",
+      "sha256": "sha256:62d48633d1b68165767061260b7c9c38aaf808a7fc736dc700f87a436b246647"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/http_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:c993d359d52cf503e622cd05e43096ebe5956a17b9419134b1d922aad5170a52"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/common/v1/common_pb2.py",
+      "role": "code",
+      "sha256": "sha256:2677496ef3059ab052bce176fc2afb7b046898886fb08898c60711c1a8514330"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/common/v1/common_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:1d4a54ca5fe9fd90643c22c2a2bf6d9f0c675599c807d179a1e1a4181e188f74"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/engine/v1/engine_pb2.py",
+      "role": "code",
+      "sha256": "sha256:711ce4cf5b00c2ca7a2fb10fb1d98980a16e0bc48453614b44911a058edb20d3"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/engine/v1/engine_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:744b8631d636f7e0b2de2f2d9ee32233d2caae5b52979a2b5080439a6a50eeb0"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/events/v1/events_pb2.py",
+      "role": "code",
+      "sha256": "sha256:91865cb5c75fdf50bd45cfd04cbb1831bedc493ade5d1ae4fb10d412724b5c48"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/events/v1/events_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:a8ec31b5982ad2b5c32a9f13dc2c7af31e7830c20886b41f02bc2e47b0cd014d"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/research/v1/research_pb2.py",
+      "role": "code",
+      "sha256": "sha256:6ffcb7fcd899e5f747eca0cebfb8bfb107936ed03bb40e6b266e91bd34c5a1c5"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/research/v1/research_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:f13f2be7370adb4654b93aa592fd1e0b2910c642a4936acaa5216decf35a804a"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/strategy/v1/strategy_pb2.py",
+      "role": "code",
+      "sha256": "sha256:0fe4404b6f312313af8324226f28dd6f951f0291bdf312741ba1ee34b4891638"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/strategy/v1/strategy_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:53992296c27ecf40cfed1be1ed41ac1f49820f3f859d08f6f2716014c64b4b83"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/trading/v1/trading_pb2.py",
+      "role": "code",
+      "sha256": "sha256:4b2a75d071e165e6d47c4c8dc541605b1fa0ae2dfd75198e21c2d9dbeb756f23"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/trading/v1/trading_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:5e15bc65ab2b4a3f82c02067a10d4ed5d363de87634865846a3d59826dee7785"
+    },
+    {
+      "path": "engines/tests/conftest.py",
+      "role": "test",
+      "sha256": "sha256:a3522e31534af22fc10255568dfcce563e7f8f4beddd8d4f7592320274b0ea9b"
+    },
+    {
+      "path": "engines/tests/engine_contract_harness.py",
+      "role": "test",
+      "sha256": "sha256:8d22b0e5ba3c40f47adc42bcd01cc37b7736cc013b772d65976df376071476d2"
+    },
+    {
+      "path": "engines/tests/test_engine_contract.py",
+      "role": "test",
+      "sha256": "sha256:2d0db4d58d914c9c5654aab7992dafd237a639dddac9ebfde3af21ecd7a4a46f"
+    },
+    {
+      "path": "engines/tests/test_engine_observability.py",
+      "role": "test",
+      "sha256": "sha256:7c445358a15ee7393404c98d70917ee893b87f5ef52389599cca861974620d01"
+    },
+    {
+      "path": "engines/tests/test_llmquant_contract.py",
+      "role": "test",
+      "sha256": "sha256:ba16bf010170c5b82bc7ffa51bc38088b1d579b01d0aee702e6aa28a94e3cf31"
+    },
+    {
+      "path": "engines/tests/test_mock_engine_recovery.py",
+      "role": "test",
+      "sha256": "sha256:9aeaf9d349c573063f91f23c4848f4037ad80823e24391f454b60cc7a02f19c6"
+    },
+    {
+      "path": "engines/tests/test_openbb_adapter_contract.py",
+      "role": "test",
+      "sha256": "sha256:c31bf5d429fb3a28dc6724a2e28b216b12efe89026078a4fd3bf5b6b2bf89863"
+    },
+    {
+      "path": "engines/tests/test_proto_sdk.py",
+      "role": "test",
+      "sha256": "sha256:87d86b22c7425b95bf3ea39579d056398e29966db863c460695c22066d06fea8"
+    },
+    {
+      "path": "engines/tests/test_protocol_metadata_completeness.py",
+      "role": "test",
+      "sha256": "sha256:1c30422838edf384d47e8877fa62733d8536b474a4f6f101cf89250a4fab20af"
+    },
+    {
+      "path": "engines/tests/test_rd_agent_contract.py",
+      "role": "test",
+      "sha256": "sha256:471afb4f296abd13046e6522d81e0df2f4975601fcbc29de72ec9b78a120f8b9"
+    },
+    {
+      "path": "engines/tests/test_strategy_lab_contract.py",
+      "role": "test",
+      "sha256": "sha256:859fa22b72d39e28796b355518f33dbe9f49d2485caf68bec1fefa2bc249ce81"
+    },
+    {
+      "path": "engines/tests/test_tp08_qlib_mapping_samples.py",
+      "role": "test",
+      "sha256": "sha256:28b67c5570446fffcc56ea55f6c201191031effd8954fb8bb063b54204993dd6"
+    },
+    {
+      "path": "engines/tests/test_tp09_trendradar_mapping_samples.py",
+      "role": "test",
+      "sha256": "sha256:8e4f28d92d1e91ac03cfc969c6590a31072787906c750278f2f6d48661d634c3"
+    },
+    {
+      "path": "engines/tests/test_tp10_valuecell_evaluation.py",
+      "role": "test",
+      "sha256": "sha256:39fae5169b5451cb7cf1c4085e08b4df6885610c95e61eb853a9613a666ad6b7"
+    },
+    {
+      "path": "engines/tests/test_tp11_openstock_fixtures.py",
+      "role": "test",
+      "sha256": "sha256:746e4fa5f1bd1f941632d0bfe4c3b834e8db1cad6b05b103604f3f12e2f5c699"
+    },
+    {
+      "path": "engines/tests/test_tp12_nautilus_agents_rules.py",
+      "role": "test",
+      "sha256": "sha256:0e320c27537b53868403a33f94b5b64330aa7788b221895ea8621b0a27308eab"
+    },
+    {
+      "path": "engines/tests/test_trading_agents_contract.py",
+      "role": "test",
+      "sha256": "sha256:6fefa79b0c71aa27ad83e74d0de689678095ef51aeb859dc702fa733d7bf1920"
+    },
+    {
+      "path": "engines/tests/test_vibe_adapter_absorption.py",
+      "role": "test",
+      "sha256": "sha256:d4666a61ab214815ef0f76536b4745b202bec92c24f137e6b3051ddcb2c95107"
+    },
+    {
+      "path": "engines/tests/test_vibe_adapter_contract.py",
+      "role": "test",
+      "sha256": "sha256:7ca7db1d798fad8486d8884ce07f448a8fcd588d08910425433eb6b0af10f5ef"
+    },
+    {
+      "path": "engines/tests/test_vibe_adapter_skeleton.py",
+      "role": "test",
+      "sha256": "sha256:1c3180b89b36ccfc81991923e90d9829f5f8cbd5a622022f37d81e207b27abe8"
+    },
+    {
+      "path": "engines/tests/test_workspace.py",
+      "role": "test",
+      "sha256": "sha256:59a03c568f4765210a9145b4add15516a8555efa5bf4739961047c7d62827069"
+    },
+    {
+      "path": "engines/vibe-adapter/README.md",
+      "role": "code",
+      "sha256": "sha256:6f731c262bd2c23e8e67deaefb14d2b277d6eac91b17a7f9472bc099a6a22f62"
+    },
+    {
+      "path": "engines/vibe-adapter/check-absorption.mjs",
+      "role": "code",
+      "sha256": "sha256:410a001bb2df69317370bab0f3f32667a10dc23e2bf1c16bedcdf018b69ea6a2"
+    },
+    {
+      "path": "engines/vibe-adapter/check-development.mjs",
+      "role": "code",
+      "sha256": "sha256:22fa8809c267dd208295b9c1e927238a4b0168af8dc632717f7c8469efab007a"
+    },
+    {
+      "path": "engines/vibe-adapter/pyproject.toml",
+      "role": "config",
+      "sha256": "sha256:ea67ebf9eec30266975f06a1cd56f0f4fc72c1264ecd5760c185653c1de4f7f1"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/__init__.py",
+      "role": "code",
+      "sha256": "sha256:daec6bc32bb4916856c5e3fbe8d7dac21d273416476ec927b8fb5219ad9b1422"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/allowlist.py",
+      "role": "code",
+      "sha256": "sha256:ead5245ab46248111649ae558b5e64d8c8c4c9c77239e8e57cbc3e0617bcf66c"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/artifact_api.py",
+      "role": "code",
+      "sha256": "sha256:573353f3fec34e1e22274911c5d7d8c497c84c48d42616cd87c37721ccb34c1c"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/audit.py",
+      "role": "code",
+      "sha256": "sha256:cffcaeb42fb5d8244f251b3441f3a3768881c211c86dda01e9e28eab005912a3"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/context.py",
+      "role": "code",
+      "sha256": "sha256:00ed67e17520c7bdc7e1184ca96ea24b1a8de7973d71c7092baddc21c2ff1744"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/fixtures.py",
+      "role": "test",
+      "sha256": "sha256:a07427495432cea4a5049068f730c9f4db89924e763f73b909d58812aa14ccb8"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/fixtures/catalog.json",
+      "role": "test",
+      "sha256": "sha256:5b8cad6a58ff5d6b37b3ec5dcbbcce37e2582c2f8a61c94ab667922eb12a87f2"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/fixtures/research_workflow_fixture.json",
+      "role": "test",
+      "sha256": "sha256:f3e785864ee864eabf1132f8a85f650586292b0f5a2407504d8b563b266fbb8a"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/manifest.py",
+      "role": "code",
+      "sha256": "sha256:308d412209565dee870fd1599cd0e0681e71f4078ebcd015f1cf7ed4e6a52f58"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/protocols.py",
+      "role": "code",
+      "sha256": "sha256:fd06c35ec1baa6b6ae0590adfd53adc47694c0a4ff3df5a06a1edefb5c7314b8"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/providers.py",
+      "role": "code",
+      "sha256": "sha256:c957e33c9ee1ae3ef0c2d97cf900cfa9152ef3ab8f05520e3ab6b53f394f0a6f"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/server.py",
+      "role": "code",
+      "sha256": "sha256:d040b026de87aef9da2f804e3c1d3681cc9f606ce1825eeb91aa4ff751cfe332"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/service.py",
+      "role": "code",
+      "sha256": "sha256:32b347916460d87c0a0abfa95ee5945a8ff71b33e178c89a6c5de83e1bfa3d7f"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/streaming.py",
+      "role": "code",
+      "sha256": "sha256:110de0f595215b3b85e9178667e8f2b8951968825e4afba955054b4093d84485"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/workflow.py",
+      "role": "code",
+      "sha256": "sha256:cdbcecd79463c1bf29c5a8f6fa9b730226b9310256f4bafe84288b1287681121"
+    },
+    {
+      "path": "forks/vibe-trading/patch-queue/0001-research-workflow-shape.md",
+      "role": "code",
+      "sha256": "sha256:5bcabd53c57ad52225e8e5ff93588ee6c091631c8a1bb574b0c2770adec099ff"
+    },
+    {
+      "path": "forks/vibe-trading/patch-queue/0002-streaming-phase-projection.md",
+      "role": "code",
+      "sha256": "sha256:8a6ddd1a41ea572928d861756d55bb7eca5343f584b4cb859527a660cf3dc2af"
+    },
+    {
+      "path": "forks/vibe-trading/patch-queue/README.md",
+      "role": "code",
+      "sha256": "sha256:6745aa024624886cc2957442cf10b48895124722ad1cf39dca4ba3f350f250be"
+    },
+    {
+      "path": "forks/vibe-trading/patch-queue/queue.json",
+      "role": "config",
+      "sha256": "sha256:327fa7200e944d4aea9d8fe244b6f4908a8162d1ebb163b3c17d39cf8b1a552f"
+    },
+    {
+      "path": "proto/README.md",
+      "role": "contract",
+      "sha256": "sha256:6b62cfc7c4a3f87ee4ed1e72028726cd8500d076e22e920d4418c5dce91d55cd"
+    },
+    {
+      "path": "proto/jsonschema/protobufAny.schema.json",
+      "role": "contract",
+      "sha256": "sha256:14ee2845e44f8938b8e9ba45b8008462fd60ad2044feb10991b8d3e50e842f9d"
+    },
+    {
+      "path": "proto/jsonschema/protobufNullValue.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1c9aa7640ab34e7f6fb2d9149009900cb4d80740d670568ccbc9d41191fc1066"
+    },
+    {
+      "path": "proto/jsonschema/rpcStatus.schema.json",
+      "role": "contract",
+      "sha256": "sha256:c564e97454b52c2fa40023af23c5544ba3a06e112a64cd3a050453659554c989"
+    },
+    {
+      "path": "proto/jsonschema/v1ActorKind.schema.json",
+      "role": "contract",
+      "sha256": "sha256:300a847ce484d3cdacfb24b37d569ad0c05c13f702eab93dc11c01fe79394f2e"
+    },
+    {
+      "path": "proto/jsonschema/v1ActorRef.schema.json",
+      "role": "contract",
+      "sha256": "sha256:bad77c3b9d6de393bf17ba0b9adffbec163be27f4bef8be1545fa16652a9fb5a"
+    },
+    {
+      "path": "proto/jsonschema/v1ArtifactRef.schema.json",
+      "role": "contract",
+      "sha256": "sha256:5fc535cb832651f5b79e61706240599e808655f3bc5da26ea7bf0e5bd8089e93"
+    },
+    {
+      "path": "proto/jsonschema/v1AuditTags.schema.json",
+      "role": "contract",
+      "sha256": "sha256:f605a080d5ecff491be866b42e191934eca0ee6538f7d40ff9f801840bcaccbd"
+    },
+    {
+      "path": "proto/jsonschema/v1CancelRequest.schema.json",
+      "role": "contract",
+      "sha256": "sha256:0009dd40ed6389a6f3ada170ed927827267d9ae7a0dd772e4c118c4542f07f07"
+    },
+    {
+      "path": "proto/jsonschema/v1CancelResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:e058a4b39118051a41b5dd77bf7c8380879dab329775803af0831b6dcf41f5bb"
+    },
+    {
+      "path": "proto/jsonschema/v1Capability.schema.json",
+      "role": "contract",
+      "sha256": "sha256:03390c3fbb9fd7e0f4990c9cf75f238274d5d16d3be17ee9ba98bfdd4166115b"
+    },
+    {
+      "path": "proto/jsonschema/v1CommandMetadata.schema.json",
+      "role": "contract",
+      "sha256": "sha256:6b9bfeb1449cc43c1f61509f07fa518ef720654f8180fda3e158fa088ea25515"
+    },
+    {
+      "path": "proto/jsonschema/v1DataClassification.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1ff457079eb2da6cbd4796ac273510ae1064586258d399fa4f3e22cdcdd1ea78"
+    },
+    {
+      "path": "proto/jsonschema/v1DataQuality.schema.json",
+      "role": "contract",
+      "sha256": "sha256:ec1a45b7615c87a6c0b865c0e3ed5009b833dcfa2e00957fece565dfa6100020"
+    },
+    {
+      "path": "proto/jsonschema/v1DataSnapshot.schema.json",
+      "role": "contract",
+      "sha256": "sha256:f246f40fabc19dde12ad0b893a3563775179e7a9b03ddda5bc3e566c92c5ea95"
+    },
+    {
+      "path": "proto/jsonschema/v1DataSourceRef.schema.json",
+      "role": "contract",
+      "sha256": "sha256:704d50cdca47ad7ad4ba2c22cfac2a0bdb708749612c8d9ac247fe4f83257e42"
+    },
+    {
+      "path": "proto/jsonschema/v1DecimalValue.schema.json",
+      "role": "contract",
+      "sha256": "sha256:152a7d14489e8ece83126b67d63cf5bc3c9a1806e8de1cc236c668b63caa0370"
+    },
+    {
+      "path": "proto/jsonschema/v1DeploymentTarget.schema.json",
+      "role": "contract",
+      "sha256": "sha256:a01ec89eabfa9e2e17391f0cf56b81517e39fb18428ce1a1ee52db757ac5db5a"
+    },
+    {
+      "path": "proto/jsonschema/v1Environment.schema.json",
+      "role": "contract",
+      "sha256": "sha256:4a67b4ab30ab5b6c912f7f84047e40ff3800be59457023cc48c91412f430beff"
+    },
+    {
+      "path": "proto/jsonschema/v1EventEnvelope.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1c24bd7a7b085d7add601e2d356e8ef425ef95e7b9a0e819d3893c0f546a7efa"
+    },
+    {
+      "path": "proto/jsonschema/v1EventKind.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1756f32f82a9d62459a9fdd1b0a3d7c8636015f70b3eadbea73626937f320235"
+    },
+    {
+      "path": "proto/jsonschema/v1EvidenceRef.schema.json",
+      "role": "contract",
+      "sha256": "sha256:53421239239fc4401ee714a694b318e9f428ab945faf63203c398d15038eadbd"
+    },
+    {
+      "path": "proto/jsonschema/v1ExecuteRequest.schema.json",
+      "role": "contract",
+      "sha256": "sha256:61cf34ec1eba5039beef260ebcad41c15988005e30c0d327f68eba091ac55b55"
+    },
+    {
+      "path": "proto/jsonschema/v1ExecuteResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:52ab96921b6d2da39b27f625c42c6cba1b2c9ce176630486ed65315ab8c31d23"
+    },
+    {
+      "path": "proto/jsonschema/v1Fill.schema.json",
+      "role": "contract",
+      "sha256": "sha256:07404af36b7f73104c9def656bf08c174d9528d9d2543caf86d8ef9b7f5beea3"
+    },
+    {
+      "path": "proto/jsonschema/v1GetEventResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:4e8584d6e1d7cb1be6c235416be73d881f121a19ff28c36ad3de52121b66e861"
+    },
+    {
+      "path": "proto/jsonschema/v1GetMetadataResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:14c9531e5e9c79dadf9cd2271daee45a4d6d843c014b4163b10e60bbf08d8baf"
+    },
+    {
+      "path": "proto/jsonschema/v1HealthResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:8601aaea7987616ca5cd86839ed17f4a00f38d2560c4b0239abccc195b955c81"
+    },
+    {
+      "path": "proto/jsonschema/v1JsonDocument.schema.json",
+      "role": "contract",
+      "sha256": "sha256:044bd1bc370194b6ee4a2bbfa81bd4ce741d068069e595e99a01029a30726bab"
+    },
+    {
+      "path": "proto/jsonschema/v1ListEventsResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:2ae2d734b76aafca407bc714dba71775b496fa52ccaf5d1629f217bdfbfe6c91"
+    },
+    {
+      "path": "proto/jsonschema/v1MoneyValue.schema.json",
+      "role": "contract",
+      "sha256": "sha256:311da94b03ad3d83397ab422278c50d9801cd97763d7c9c51ea9a9d14b805b19"
+    },
+    {
+      "path": "proto/jsonschema/v1Order.schema.json",
+      "role": "contract",
+      "sha256": "sha256:e34890cf7aae5204d88f691688a8a72b776e83bfd246a1ec986d67cff0a3abed"
+    },
+    {
+      "path": "proto/jsonschema/v1OrderIntentType.schema.json",
+      "role": "contract",
+      "sha256": "sha256:23b3529050fb4d1b0aec782f99ceb3a8456ed4540d0b4d954376c25a4918a1d8"
+    },
+    {
+      "path": "proto/jsonschema/v1OrderSide.schema.json",
+      "role": "contract",
+      "sha256": "sha256:e02ab4a3ba0c6d9bcaddfa4a361598bd33b0db01c48ac038ad5fc733aad91965"
+    },
+    {
+      "path": "proto/jsonschema/v1OrderStatus.schema.json",
+      "role": "contract",
+      "sha256": "sha256:76152eb331526cb96e33f76105cc27227d2e050795a31a8016cb3bae29e5e876"
+    },
+    {
+      "path": "proto/jsonschema/v1Position.schema.json",
+      "role": "contract",
+      "sha256": "sha256:c566871918b5909e68b70a0194100fa1f615709241fbbc22ffd1a194561df2ad"
+    },
+    {
+      "path": "proto/jsonschema/v1PositionSide.schema.json",
+      "role": "contract",
+      "sha256": "sha256:11503904fc75753419c2d5b629b04b6e17b7b08e4aa4618304a39d293a82c9c2"
+    },
+    {
+      "path": "proto/jsonschema/v1ProposalAction.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1b6322b05a477dc1cfecd7247ad2a0b819abb696251a452d492abe6407f8de63"
+    },
+    {
+      "path": "proto/jsonschema/v1ResearchArtifact.schema.json",
+      "role": "contract",
+      "sha256": "sha256:39cd3e3bed629628d2c0aea81a90d6290e4728b4e11e0b14603389be9ec24520"
+    },
+    {
+      "path": "proto/jsonschema/v1RiskDecision.schema.json",
+      "role": "contract",
+      "sha256": "sha256:5b394be7577149018f2a7a597d77084bce6fe106d392540e077ec0e7bb10311d"
+    },
+    {
+      "path": "proto/jsonschema/v1RiskVerdict.schema.json",
+      "role": "contract",
+      "sha256": "sha256:4852de92de29aa5f996964204cf0920c7463ab77e421d0a668eaa650207418bb"
+    },
+    {
+      "path": "proto/jsonschema/v1RuntimeMode.schema.json",
+      "role": "contract",
+      "sha256": "sha256:118c9385075af4866c2f6c3e1ce257b8bce483ee3044ad8e9b083d276b155304"
+    },
+    {
+      "path": "proto/jsonschema/v1Signal.schema.json",
+      "role": "contract",
+      "sha256": "sha256:0515890f1d6b710c176aac4b967868fb50ed0e1781361fc9509e6dc322b0f18c"
+    },
+    {
+      "path": "proto/jsonschema/v1SignalDirection.schema.json",
+      "role": "contract",
+      "sha256": "sha256:4c039bf437af212d0f4c8db42979a53c3e688009c912c5afb04344ab680ff733"
+    },
+    {
+      "path": "proto/jsonschema/v1StrategyRelease.schema.json",
+      "role": "contract",
+      "sha256": "sha256:83b528bc1a73029e095c32dd77fa4700c4e62ea20fe393e6bd2b7f4f07e1f996"
+    },
+    {
+      "path": "proto/jsonschema/v1StreamExecuteRequest.schema.json",
+      "role": "contract",
+      "sha256": "sha256:6c17c7dee5f27db6e61cf6fb093fffc7a8fa8567a4d2618643e6d5bde0ed615c"
+    },
+    {
+      "path": "proto/jsonschema/v1StreamExecuteResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:8b8ece00ec680948fb21db24d9091d410ec5f3e7d6d657060933da8fa2c4302f"
+    },
+    {
+      "path": "proto/jsonschema/v1TimeWindow.schema.json",
+      "role": "contract",
+      "sha256": "sha256:44c0eb1a2506c8018b746d1a661ae33fc5cc3e1d3842a16b2225aad94ab77892"
+    },
+    {
+      "path": "proto/jsonschema/v1TradeCommand.schema.json",
+      "role": "contract",
+      "sha256": "sha256:a43a7aca73b052b17470af7e3ca745c7fce8e7f5ea1ff208793ee12d71f5a914"
+    },
+    {
+      "path": "proto/jsonschema/v1TradeProposal.schema.json",
+      "role": "contract",
+      "sha256": "sha256:20f8c3b5ad5a0cf8d334bee70dcaef3317a81b8a1609b5c87b762d3fd5886b67"
+    },
+    {
+      "path": "proto/jsonschema/v1VenueKind.schema.json",
+      "role": "contract",
+      "sha256": "sha256:ab7db082e8b6da2f446817ed2848795ddb94adbdd05a19f696c53c4824efa005"
+    },
+    {
+      "path": "proto/openapi/quantos.swagger.json",
+      "role": "contract",
+      "sha256": "sha256:d96ebef2a0064d4fc502ff256f7e4813e5c07c2392e31d8659710a25e9eda0b5"
+    },
+    {
+      "path": "proto/quantos/common/v1/common.proto",
+      "role": "contract",
+      "sha256": "sha256:8d02461f2197b52c7957ea5372c53813cbcda086907af9b8629927748fdec6e9"
+    },
+    {
+      "path": "proto/quantos/engine/v1/engine.proto",
+      "role": "contract",
+      "sha256": "sha256:96065ca6950c1dfb81a046d8e01bbacd0f77e225dcf0df573b03cfbeefce9c97"
+    },
+    {
+      "path": "proto/quantos/events/v1/events.proto",
+      "role": "contract",
+      "sha256": "sha256:46731dd324e169b9509419386d8ae8e1c2db8dbdc9677004c6f54b913c1985c3"
+    },
+    {
+      "path": "proto/quantos/research/v1/research.proto",
+      "role": "contract",
+      "sha256": "sha256:2a2f048fb6ae82deb0a62041e5ce02fe6b1067f21364c0e8fd4e0a8bd2d202d7"
+    },
+    {
+      "path": "proto/quantos/strategy/v1/strategy.proto",
+      "role": "contract",
+      "sha256": "sha256:2655e561849dc08be5bfa5738daf8aedf348f59f30e994d969062147d22170b7"
+    },
+    {
+      "path": "proto/quantos/trading/v1/trading.proto",
+      "role": "contract",
+      "sha256": "sha256:88b2acabd037acb03e951c07d424ab91736f069e39dd946f7243ff66fad3daed"
+    },
+    {
+      "path": "scripts/provider-a1-policy.json",
+      "role": "config",
+      "sha256": "sha256:e6b1bf537fb5e85b269edd8771c27312bca2bc4b5eaa9a96728825982c3e9ae6"
+    },
+    {
+      "path": "scripts/provider-a1-receipts.mjs",
+      "role": "code",
+      "sha256": "sha256:b5aeb44f1e0d6b9ea4ea8a0f77d98424c3ca1eedc465b076fbee31eee353012a"
+    },
+    {
+      "path": "scripts/tp01-d-patch-queue.mjs",
+      "role": "code",
+      "sha256": "sha256:d45a21afb09463df6758a4e216ab7162aa7e073f315f48c4787489e111acf294"
+    },
+    {
+      "path": "scripts/tp01-d-patch-queue.test.mjs",
+      "role": "test",
+      "sha256": "sha256:4a0b6e941b73a61efaaa74944052fee3e072a6fefa4867b5f7a999e2af3859d7"
+    },
+    {
+      "path": "third_party/vibe-trading/baseline.lock.json",
+      "role": "config",
+      "sha256": "sha256:fd4ec508ff39ad923bbac349c51323022f955e5fd824477e5d80f8892d100815"
+    },
+    {
+      "path": "third_party/vibe-trading/upstream-src",
+      "role": "third-party",
+      "gitCommit": "c33133f4fd5e978d21d2a61fdd8787fb352b4687",
+      "sha256": "sha256:a07cc2dcac378f8abf71b7bc82ff99766d1104bfae3dcd94ec3f5fbe68fb1d94"
+    }
+  ],
+  "queue": {
+    "status": "PASS",
+    "entries": 2,
+    "upstream": "c33133f4fd5e978d21d2a61fdd8787fb352b4687",
+    "mode": "adapter-side-equivalent-rewrite"
+  },
+  "fixtures": [
+    "workflow_briefing_equities_01",
+    "workflow_briefing_macro_02",
+    "workflow_memo_crypto_03",
+    "workflow_memo_fx_04",
+    "workflow_compare_sector_05",
+    "workflow_compare_factor_06",
+    "workflow_screen_growth_07",
+    "workflow_screen_quality_08",
+    "workflow_summary_sentiment_09",
+    "workflow_summary_event_10",
+    "workflow_streaming_intraday_11",
+    "workflow_streaming_open_12",
+    "workflow_note_earnings_13",
+    "workflow_note_guidance_14",
+    "workflow_timeline_policy_15",
+    "workflow_timeline_snapshot_16",
+    "workflow_watchlist_rotation_17",
+    "workflow_watchlist_risk_18",
+    "workflow_report_weekly_19",
+    "workflow_report_monthly_20"
+  ],
+  "checks": [
+    {
+      "id": "queue",
+      "command": [
+        "node",
+        "scripts/tp01-d-patch-queue.mjs"
+      ],
+      "executedAt": "2026-10-09T07:24:36.821Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp01-d-20261009/queue.log",
+      "logSha256": "sha256:4ac2eeb689b89acf59a3f40ca1139f7a34aee45ed8eb6eb4ef0b11c495163f4d"
+    },
+    {
+      "id": "replay",
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "pytest",
+        "engines/tests/test_vibe_adapter_absorption.py",
+        "-vv"
+      ],
+      "executedAt": "2026-10-09T07:24:36.847Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp01-d-20261009/replay.log",
+      "logSha256": "sha256:82fb9c233b9ec8b1fed42381c0ee0e815b43a8a9220ba075e63217c12e78b5d5"
+    },
+    {
+      "id": "runtime",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-runtime",
+        "--test",
+        "research_orchestration",
+        "research_workflow_",
+        "--",
+        "--nocapture"
+      ],
+      "executedAt": "2026-10-09T07:24:37.172Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp01-d-20261009/runtime.log",
+      "logSha256": "sha256:a560d0fac306761fa85e47bcf7c20ae8d365f0465ec5b8be42e92039472f14ac"
+    },
+    {
+      "id": "format",
+      "command": [
+        "engines/.venv/bin/ruff",
+        "format",
+        "--check",
+        "engines/vibe-adapter/src/vibe_adapter/protocols.py",
+        "engines/vibe-adapter/src/vibe_adapter/workflow.py",
+        "engines/vibe-adapter/src/vibe_adapter/streaming.py",
+        "engines/vibe-adapter/src/vibe_adapter/context.py",
+        "engines/vibe-adapter/src/vibe_adapter/service.py",
+        "engines/vibe-adapter/src/vibe_adapter/audit.py",
+        "engines/tests/test_vibe_adapter_absorption.py"
+      ],
+      "executedAt": "2026-10-09T07:24:37.552Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp01-d-20261009/format.log",
+      "logSha256": "sha256:0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5"
+    }
+  ],
+  "dependencies": [
+    {
+      "nodeId": "CORE:TP01-C",
+      "status": "BLOCKED",
+      "reason": "CORE:TP01-C: dependency is not READY"
+    },
+    {
+      "nodeId": "CORE:R02",
+      "status": "BLOCKED",
+      "reason": "CORE:R02: dependency is not READY"
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "status": "BLOCKED",
+      "reason": "CORE-GATE:F0: dependency is not READY"
+    }
+  ],
+  "excluded": [
+    "direct upstream runtime/code imports",
+    "real tools or LLM egress",
+    "production credentials or publication",
+    "persistent Artifact or audit delivery",
+    "deployed BFF/Runtime/JWT",
+    "performance or sustained realtime health",
+    "hosted same-SHA CI or formal ACCEPTED"
+  ]
+}

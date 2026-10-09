@@ -1,6 +1,6 @@
 # TP01 V0-V1 Progress Tracker
 
-> 2026-10-09 current development review: TP01-D two-family queue, contract rejection before side effects, QuantOS audit/identity mapping and 20 double-RPC replays are implemented. Python307/Manager55, Runtime research with vibe imports prohibited, and88 receipt/queue tests pass locally. Source changes invalidated15 prior gates;16-node full development reassessment is pending. See [current report](../audit/TP01-D-selective-absorption-2026-10-09.md); historical board entries below do not grant current acceptance.
+> 2026-10-09 current development review: TP01-D is DEVELOPMENT READY with16 strictly validated prerequisite/self nodes and62 actual functional command groups on frozen6a393eb. Python307/Manager55,44 new tests,20 double-RPC replays and actual Runtime research/cancel with vibe imports prohibited pass. Formal acceptance, hosted same-SHA CI and release remain unassessed. See [current report](../audit/TP01-D-selective-absorption-2026-10-09.md); historical board entries below do not grant current acceptance.
 
 > 2026-10-08 remote engineering verification: 8408122 completed six simulations and 23 CLI tests on GitHub Ubuntu. The real strict gate remained BLOCKED; summary, live upload and original artifact download all succeeded. Natural schedule execution and candidate adoption remain pending. See [remote verification](../audit/TP01-E-remote-verification-2026-10-08.md). Main push runs are 8/8; F04 did not match the path filter and is not counted as a current-SHA pass.
 

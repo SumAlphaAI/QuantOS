@@ -1,5 +1,7 @@
 # TP01-C 必要依赖闭包与 DEVELOPMENT 准入复评
 
+> 本报告保留TP01-C冻结b1603bf的52组/13节点历史开发准入。 TP01-D源码变更后的最新16节点开发准入见[当前报告](./TP01-D-selective-absorption-2026-10-09.md)；下文当前字样以本报告原冻结范围为准。
+
 2026-10-09，QuantOS。**52/52组实际检查通过，13个必要节点严格DEVELOPMENT READY；当前计划13 READY、146 NOT_ASSESSED、0 BLOCKED。** TP01-C工程交付及本轮必要依赖准入完成；正式ACCEPTED、发布、部署和候选同SHA hosted CI未授予。
 
 冻结源码提交：`b1603bfbd760230e342f68990e402a98ab0642de`（`feat(tp01-c): implement research adapter skeleton and admission policy`）。进入评估前工作区干净；本轮后续dirty来自生成证据与阶段记录，前后功能输入摘要一致。实际命令从2026-10-09 11:00:50至12:06:08（Asia/Shanghai，末项开始时间）；完整命令、时间、退出码、日志及摘要见[52组执行记录](./evidence/provider-a1-remediation-20261004/tp01-c-admission-20261009/attempt-01/execution-results.json)。证据提交与源码提交分开；最终提交SHA在任务完成回复中报告，无推送或外部发布。

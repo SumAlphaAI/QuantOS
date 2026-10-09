@@ -1,0 +1,136 @@
+{
+  "schema": "quantos-tp01-d-final-checks/v1",
+  "observedSourceCommit": "6a393eb081d1d9629a1ca1ff451ac1e25c15fede",
+  "formalAccepted": false,
+  "results": [
+    {
+      "name": "C-ready",
+      "command": [
+        "node",
+        "engines/vibe-adapter/check-development.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-09T07:30:02.488Z",
+      "exitCode": 0
+    },
+    {
+      "name": "D-ready",
+      "command": [
+        "node",
+        "engines/vibe-adapter/check-absorption.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-09T07:30:06.031Z",
+      "exitCode": 0
+    },
+    {
+      "name": "full-strict",
+      "command": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "import {nodesFromPlans,closure,validateReceipt} from './scripts/provider-a1-receipts.mjs';const nodes=nodesFromPlans();const ids=closure(nodes,'CORE:TP01-D');for(const id of ids)validateReceipt(id);console.log(JSON.stringify({strictReady:ids.length,formalAccepted:false}));"
+      ],
+      "executedAt": "2026-10-09T07:30:10.637Z",
+      "exitCode": 0
+    },
+    {
+      "name": "focused",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/tp01-c-functional-artifacts.test.mjs",
+        "scripts/tp01-d-patch-queue.test.mjs",
+        "scripts/tp01-d-functional-artifacts.test.mjs"
+      ],
+      "executedAt": "2026-10-09T07:30:20.880Z",
+      "exitCode": 0
+    },
+    {
+      "name": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "executedAt": "2026-10-09T07:30:23.268Z",
+      "exitCode": 0
+    },
+    {
+      "name": "plan-negative",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ],
+      "executedAt": "2026-10-09T07:30:23.312Z",
+      "exitCode": 0
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "executedAt": "2026-10-09T07:30:23.802Z",
+      "exitCode": 0
+    },
+    {
+      "name": "secret-history",
+      "command": [
+        "bash",
+        "scripts/check-secrets.sh"
+      ],
+      "executedAt": "2026-10-09T07:30:23.841Z",
+      "exitCode": 0
+    },
+    {
+      "name": "secret-D",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "dir",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner",
+        "docs/audit/evidence/tp01-d-20261009"
+      ],
+      "executedAt": "2026-10-09T07:30:26.233Z",
+      "exitCode": 0
+    },
+    {
+      "name": "secret-admission",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "dir",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner",
+        "docs/audit/evidence/provider-a1-remediation-20261004/tp01-d-admission-20261009"
+      ],
+      "executedAt": "2026-10-09T07:30:26.447Z",
+      "exitCode": 0
+    },
+    {
+      "name": "secret-prerequisite",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "dir",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner",
+        "docs/audit/evidence/provider-a1-remediation-20261004/tp01-d-prerequisites-20261009"
+      ],
+      "executedAt": "2026-10-09T07:30:26.712Z",
+      "exitCode": 0
+    }
+  ]
+}
