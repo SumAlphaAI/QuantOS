@@ -1,0 +1,89 @@
+...................                                   [100%]
+=================================== FAILURES ===================================
+_________ test_boundary_rejection_has_no_side_effect[case-41-execute] __________
+
+engine = (LlmQuantService(manifest=EngineManifest(engine_name='llmquant', engine_version='0.1.0', capabilities=(EngineCapabilit...read.lock object at 0x10716ddc0>), EngineClient(target='unix:/tmp/quantos-tp02-ce8d1fe0c48a461d990ecdbf0ee82b5d.sock'))
+rpc = 'execute', payload = {'feature_snapshot_id': 'other'}
+code = <StatusCode.INVALID_ARGUMENT: (3, 'invalid argument')>
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize(
+        "payload,code",
+        [(p, grpc.StatusCode.PERMISSION_DENIED) for p in DENIED]
+        + [(p, grpc.StatusCode.INVALID_ARGUMENT) for p in INVALID],
+        ids=[f"case-{i:02}" for i in range(len(DENIED) + len(INVALID))],
+    )
+    def test_boundary_rejection_has_no_side_effect(engine, rpc, payload, code):
+        service, client = engine
+>       with pytest.raises(grpc.RpcError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'grpc.RpcError'>
+
+engines/tests/test_llmquant_development.py:198: Failed
+__________ test_boundary_rejection_has_no_side_effect[case-41-stream] __________
+
+engine = (LlmQuantService(manifest=EngineManifest(engine_name='llmquant', engine_version='0.1.0', capabilities=(EngineCapabilit...read.lock object at 0x10716e4c0>), EngineClient(target='unix:/tmp/quantos-tp02-0d6096dc610b4d9d9fb54d77296c080e.sock'))
+rpc = 'stream', payload = {'feature_snapshot_id': 'other'}
+code = <StatusCode.INVALID_ARGUMENT: (3, 'invalid argument')>
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize(
+        "payload,code",
+        [(p, grpc.StatusCode.PERMISSION_DENIED) for p in DENIED]
+        + [(p, grpc.StatusCode.INVALID_ARGUMENT) for p in INVALID],
+        ids=[f"case-{i:02}" for i in range(len(DENIED) + len(INVALID))],
+    )
+    def test_boundary_rejection_has_no_side_effect(engine, rpc, payload, code):
+        service, client = engine
+>       with pytest.raises(grpc.RpcError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'grpc.RpcError'>
+
+engines/tests/test_llmquant_development.py:198: Failed
+_________ test_boundary_rejection_has_no_side_effect[case-42-execute] __________
+
+engine = (LlmQuantService(manifest=EngineManifest(engine_name='llmquant', engine_version='0.1.0', capabilities=(EngineCapabilit...read.lock object at 0x10716e9c0>), EngineClient(target='unix:/tmp/quantos-tp02-895c6b91212140b6867d879b934f72d1.sock'))
+rpc = 'execute', payload = {'policy_context_ref': 'other'}
+code = <StatusCode.INVALID_ARGUMENT: (3, 'invalid argument')>
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize(
+        "payload,code",
+        [(p, grpc.StatusCode.PERMISSION_DENIED) for p in DENIED]
+        + [(p, grpc.StatusCode.INVALID_ARGUMENT) for p in INVALID],
+        ids=[f"case-{i:02}" for i in range(len(DENIED) + len(INVALID))],
+    )
+    def test_boundary_rejection_has_no_side_effect(engine, rpc, payload, code):
+        service, client = engine
+>       with pytest.raises(grpc.RpcError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'grpc.RpcError'>
+
+engines/tests/test_llmquant_development.py:198: Failed
+__________ test_boundary_rejection_has_no_side_effect[case-42-stream] __________
+
+engine = (LlmQuantService(manifest=EngineManifest(engine_name='llmquant', engine_version='0.1.0', capabilities=(EngineCapabilit...read.lock object at 0x107310fc0>), EngineClient(target='unix:/tmp/quantos-tp02-bdef89ef1b38466dba79ea46929b1af2.sock'))
+rpc = 'stream', payload = {'policy_context_ref': 'other'}
+code = <StatusCode.INVALID_ARGUMENT: (3, 'invalid argument')>
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize(
+        "payload,code",
+        [(p, grpc.StatusCode.PERMISSION_DENIED) for p in DENIED]
+        + [(p, grpc.StatusCode.INVALID_ARGUMENT) for p in INVALID],
+        ids=[f"case-{i:02}" for i in range(len(DENIED) + len(INVALID))],
+    )
+    def test_boundary_rejection_has_no_side_effect(engine, rpc, payload, code):
+        service, client = engine
+>       with pytest.raises(grpc.RpcError) as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'grpc.RpcError'>
+
+engines/tests/test_llmquant_development.py:198: Failed
+=========================== short test summary info ============================
+FAILED engines/tests/test_llmquant_development.py::test_boundary_rejection_has_no_side_effect[case-41-execute]
+FAILED engines/tests/test_llmquant_development.py::test_boundary_rejection_has_no_side_effect[case-41-stream]
+FAILED engines/tests/test_llmquant_development.py::test_boundary_rejection_has_no_side_effect[case-42-execute]
+FAILED engines/tests/test_llmquant_development.py::test_boundary_rejection_has_no_side_effect[case-42-stream]
+4 failed, 250 passed in 2.03s
+

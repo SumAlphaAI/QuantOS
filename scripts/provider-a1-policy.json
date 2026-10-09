@@ -993,6 +993,39 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp03-development": {
+      "command": [
+        "node",
+        "engines/llmquant/check-development.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp03-20261010/receipt.json",
+      "artifactKind": "tp03-development",
+      "timeoutMs": 900000
+    },
+    "tp03-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp03-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp03-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp03-process-cleanup/receipt.json",
+      "output": "supporting/tp03-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1486,6 +1519,30 @@
         "tp02-development",
         "tp02-negatives",
         "tp02-process-cleanup"
+      ]
+    },
+    "CORE:TP03": {
+      "scope": "Development controlled LLMQuant adapter (no selected upstream/weights): 100 actual Signal JSON schemas and double unary/stream replay, release/feature references, version/confidence/time/provenance, denied OMS/venue/secret/network imports and inputs, scoped atomic readable mock Artifact bundles, cancellation/deadline/idempotency, actual installed-wheel stream cancellation <2s and local UDS-to-Research-UI response bridge; no deployed HTTP, persistence or trading authority",
+      "inputs": [
+        "engines/llmquant/",
+        "engines/engine-sdk/",
+        "engines/tests/",
+        "engines/pyproject.toml",
+        "engines/uv.lock",
+        "crates/quantos-engine-manager/",
+        "crates/quantos-runtime/",
+        "third_party/tp03-llmquant/",
+        "scripts/tp03-signal-probe.py",
+        "scripts/tp03-signal-schema.mjs",
+        "scripts/tp03-ui-cancel.mjs",
+        "packages/domain-ui/src/research.ts",
+        "packages/domain-ui/tests/tp03-research-cancel.test.ts",
+        "packages/api-client/src/terminal.ts"
+      ],
+      "checks": [
+        "tp03-development",
+        "tp03-negatives",
+        "tp03-process-cleanup"
       ]
     }
   },

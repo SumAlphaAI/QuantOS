@@ -29,7 +29,9 @@ from quantos_engine_sdk import (
 from quantos_engine_sdk.grpc import serve_engine
 
 
-def build_metadata(index: int, *, capabilities: list[str] | None = None) -> common_pb2.CommandMetadata:
+def build_metadata(
+    index: int, *, capabilities: list[str] | None = None
+) -> common_pb2.CommandMetadata:
     return common_pb2.CommandMetadata(
         request_id=f"req-{index}",
         tenant_id="tenant-primary",
@@ -63,9 +65,7 @@ def build_request(
         data_snapshot_ref=data_snapshot_ref or str(payload["feature_snapshot_id"]),
         policy_context_ref=str(payload.get("policy_context_ref", f"policy-{index}")),
         input=json_document_from_mapping(payload),
-        deadline=timestamp_from_datetime(
-            datetime.now(tz=timezone.utc) + timedelta(seconds=5)
-        ),
+        deadline=timestamp_from_datetime(datetime.now(tz=timezone.utc) + timedelta(seconds=5)),
     )
 
 
@@ -77,10 +77,7 @@ def parse_signal_output(payload: dict) -> strategy_pb2.Signal:
 
 def signal_required_fields() -> set[str]:
     schema_path = (
-        Path(__file__).resolve().parents[2]
-        / "proto"
-        / "jsonschema"
-        / "v1Signal.schema.json"
+        Path(__file__).resolve().parents[2] / "proto" / "jsonschema" / "v1Signal.schema.json"
     )
     parsed = json.loads(schema_path.read_text(encoding="utf-8"))
     return set(parsed["required"])
@@ -129,7 +126,9 @@ def test_llmquant_contract_all_rpcs() -> None:
         assert signal.strategy_release_id == "strategy.trend.v3.release.primary"
         assert signal.symbol == "BTCUSDT"
         assert diagnostics["model_version"] == "llmquant-factor-2026.07.31"
-        assert diagnostics["model_provenance"]["feature_snapshot_id"] == "feature-snapshot-btc-primary"
+        assert (
+            diagnostics["model_provenance"]["feature_snapshot_id"] == "feature-snapshot-btc-primary"
+        )
 
         stream = client.stream_execute(
             engine_pb2.StreamExecuteRequest(request=execute_request),
@@ -286,9 +285,12 @@ def test_llmquant_validates_100_fixed_inputs_against_signal_proto() -> None:
             assert required.issubset(payload.keys())
             assert signal.strategy_release_id == case.strategy_release_id
             assert signal.valid_until.seconds > signal.generated_at.seconds
-            assert json_document_to_mapping(signal.diagnostics)["model_provenance"][
-                "feature_snapshot_id"
-            ] == case.feature_snapshot_id
+            assert (
+                json_document_to_mapping(signal.diagnostics)["model_provenance"][
+                    "feature_snapshot_id"
+                ]
+                == case.feature_snapshot_id
+            )
     finally:
         client.close()
         server.stop(grace=0)

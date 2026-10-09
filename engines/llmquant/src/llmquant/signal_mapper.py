@@ -16,9 +16,6 @@ from llmquant.adapter import SignalExecutionContext
 from llmquant.fixtures import SignalFixture
 
 
-_BASE_GENERATED_AT = datetime(2026, 1, 1, tzinfo=timezone.utc)
-
-
 @dataclass(frozen=True)
 class MappedSignal:
     """Deterministic Signal payload plus auxiliary provenance artifacts."""
@@ -37,7 +34,7 @@ def map_signal(
 ) -> MappedSignal:
     """Map a fixture-backed request to a QuantOS-native Signal payload."""
 
-    generated_at, valid_until = _deterministic_window(context, fixture)
+    generated_at, valid_until = _deterministic_window(metadata, fixture)
     diagnostics = build_model_provenance(context, fixture)
     signal = strategy_pb2.Signal(
         metadata=metadata,
@@ -75,6 +72,22 @@ def build_model_provenance(
         "engine": "llmquant",
         "runtime": "python-sidecar",
         "deterministic_fixture": True,
+        "upstream_runtime_loaded": False,
+        "tools_executed": False,
+        "snapshot_bytes_resolved": False,
+        "release_resolved": False,
+        "time_basis": "command_issued_at_replay",
+        "trade_executable": False,
+        "model_digest_scope": "fixture_definition_not_weights",
+        "input_hash": context.input_hash,
+        "audit": {
+            "tenant_id": context.tenant_id,
+            "workspace_id": context.workspace_id,
+            "actor_id": context.actor_id,
+            "request_id": context.request_id,
+            "correlation_id": context.correlation_id,
+            "causation_id": context.causation_id,
+        },
         "summary": fixture.summary,
         "strategy_version": fixture.strategy_version,
         "model_version": fixture.model_version,
@@ -108,6 +121,8 @@ def build_model_artifact(
 
     artifact = {
         "artifact_type": "ModelDiagnosticsArtifact",
+        "artifact_id": _model_artifact_id(context, fixture),
+        "trade_executable": False,
         "engine": "llmquant",
         "workflow_run_id": context.workflow_run_id,
         "strategy_release_id": context.strategy_release_id,
@@ -159,56 +174,62 @@ def build_data_query_context(data_query: dict) -> dict:
         "query_id": data_query.get("query_id"),
         "response_hash": data_query.get("response_hash"),
         "license_label": license_payload.get("label"),
-        "approved_for_production": bool(license_payload.get("approved_for_production", False)),
+        "approved_for_production": False,
         "content_hash": lineage_payload.get("content_hash"),
         "schema_hash": lineage_payload.get("schema_hash"),
-        "trading_approved": bool(data_query.get("usage", {}).get("trading_approved", False)),
+        "trading_approved": False,
     }
 
 
 def _deterministic_window(
-    context: SignalExecutionContext,
-    fixture: SignalFixture,
+    metadata: common_pb2.CommandMetadata, fixture: SignalFixture
 ) -> tuple[datetime, datetime]:
-    seed = "|".join(
-        (
+    # Replay uses the bound command's issued_at, never a pseudo-random calendar window.
+    generated_at = metadata.issued_at.ToDatetime(tzinfo=timezone.utc)
+    return generated_at, generated_at + timedelta(minutes=fixture.validity_minutes)
+
+
+def _identity(context: SignalExecutionContext, fixture: SignalFixture, kind: str) -> str:
+    import json
+
+    seed = json.dumps(
+        [
+            context.tenant_id,
+            context.workspace_id,
+            context.actor_id,
             context.workflow_run_id,
-            context.strategy_release_id,
-            context.feature_snapshot_id,
-            fixture.fixture_name,
-        )
-    ).encode("utf-8")
-    digest = hashlib.sha256(seed).digest()
-    offset_minutes = int.from_bytes(digest[:4], "big") % (366 * 24 * 60)
-    generated_at = _BASE_GENERATED_AT + timedelta(minutes=offset_minutes)
-    valid_until = generated_at + timedelta(minutes=fixture.validity_minutes)
-    return generated_at, valid_until
+            context.input_hash,
+            context.metadata_hash,
+            fixture.model_digest,
+            kind,
+        ],
+        separators=(",", ":"),
+    ).encode()
+    return hashlib.sha256(seed).hexdigest()
 
 
 def _signal_id(context: SignalExecutionContext, fixture: SignalFixture) -> str:
-    seed = "|".join(
-        (
-            context.workflow_run_id,
-            context.strategy_release_id,
-            context.feature_snapshot_id,
-            fixture.fixture_name,
-        )
-    ).encode("utf-8")
-    return f"signal:{hashlib.sha256(seed).hexdigest()[:16]}"
+    return "signal:" + _identity(context, fixture, "signal")
+
+
+def _model_artifact_id(context: SignalExecutionContext, fixture: SignalFixture) -> str:
+    return "model-diagnostics:" + _identity(context, fixture, "model")
 
 
 def _build_evidence_refs(
     context: SignalExecutionContext,
     fixture: SignalFixture,
 ) -> tuple[common_pb2.EvidenceRef, ...]:
-    model_artifact_id = f"model-diagnostics:{context.workflow_run_id}"
-    signal_artifact_id = f"signal:{context.workflow_run_id}"
+    model_artifact_id = _model_artifact_id(context, fixture)
+    signal_artifact_id = _signal_id(context, fixture)
     evidence_refs: list[common_pb2.EvidenceRef] = []
     for index, summary in enumerate(fixture.evidence, start=1):
         evidence_refs.append(
             common_pb2.EvidenceRef(
                 evidence_id=f"signal-evidence:{context.workflow_run_id}:{index}",
-                artifact_id=model_artifact_id if summary.startswith("artifact:") else signal_artifact_id,
+                artifact_id=model_artifact_id
+                if summary.startswith("artifact:")
+                else signal_artifact_id,
                 summary=summary,
             )
         )

@@ -1,3 +1,5 @@
+> 2026-10-10: TP03 functional input changes withdrew this historical TP02 gate. Current TP02 NOT_ASSESSED; this round does not re-admit it.
+
 # TP02 RD-Agent Progress
 
 Current review (2026-10-09): DEVELOPMENT READY on frozen source c3f86f5;

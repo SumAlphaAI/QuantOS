@@ -1,24 +1,5 @@
-# TP03 LLMQuant Progress
+# TP03 LLMQuant 开发进度
 
-## Status
+2026-10-10：受控Research Signal adapter工程完成。100输入双Execute/双Stream回放、真实JSON Schema、版本/置信度/时效/fixture模型来源、递归边界、scoped原子Artifact/取消/deadline/幂等、独立wheel五RPC与取消、Research UI响应桥接已实现。第三方LLMQuant未选定upstream/weights，原intake不变；引用、模型和feature未真实解析/计算。
 
-`implemented`
-
-## Delivered scope
-
-- `engines/llmquant` package with QuantOS-native manifest, request adapter, deterministic fixtures, `Signal` mapper, model provenance, and UDS gRPC server;
-- support for `quant.signal.v1` with release/feature snapshot boundary validation;
-- deterministic `quantos.strategy.v1.Signal` output carrying strategy/model/data version metadata inside diagnostics;
-- negative boundary validation for OMS, venue, secrets, arbitrary external networking, and non-allowlisted tools;
-- Python and Rust contract harness coverage, including 100 fixed-input replay validation and stream-cancel timing checks.
-
-## Acceptance evidence
-
-- `engines/tests/test_llmquant_contract.py`
-- `crates/quantos-engine-manager/tests/python_llmquant.rs`
-- `engines/llmquant/src/llmquant/*`
-
-## Notes
-
-- TP03 now satisfies the repository-side implementation for the plan item at `docs/SumAlpha-QuantOS-Development-Plan.md#L145`.
-- The next natural integration step is wiring LLMQuant into the R03 research orchestration flow so released strategy artifacts and feature snapshots can drive end-to-end replay in runtime.
+严格TP03/F08/F05/F0必要13节点/53组实际复评待冻结源码执行；旧准入不迁移。详见[验收报告](../audit/TP03-development-2026-10-10.md)。生产凭据、发布、正式验收、hosted CI、部署HTTP/UI E2E、真实模型/持久化与性能保持独立。

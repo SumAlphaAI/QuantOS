@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache
@@ -46,6 +47,26 @@ def _catalog_path() -> Path:
 @lru_cache(maxsize=1)
 def fixture_catalog() -> tuple[SignalFixture, ...]:
     parsed = json.loads(_catalog_path().read_text(encoding="utf-8"))
+    for entry in parsed["fixtures"]:
+        definition = {k: v for k, v in entry.items() if k != "model_digest"}
+        expected = (
+            "sha256:"
+            + hashlib.sha256(
+                json.dumps(definition, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest()
+        )
+        if entry["model_digest"] != expected:
+            raise ValueError("ENGINE_FIXTURE_DIGEST_INVALID")
+        for name in ("strength", "confidence"):
+            value = Decimal(entry[name])
+            if not value.is_finite() or not 0 <= value <= 1:
+                raise ValueError("ENGINE_FIXTURE_CONFIDENCE_INVALID")
+        if (
+            not isinstance(entry["validity_minutes"], int)
+            or isinstance(entry["validity_minutes"], bool)
+            or not 0 < entry["validity_minutes"] <= 1440
+        ):
+            raise ValueError("ENGINE_FIXTURE_WINDOW_INVALID")
     return tuple(
         SignalFixture(
             fixture_name=entry["fixture_name"],
