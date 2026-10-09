@@ -1,23 +1,57 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "upstream": {
     "repository": "https://github.com/HKUDS/Vibe-Trading.git",
-    "commit": "43331c3221be37c5cc1ed8dddc4c7988bcddc5cd"
+    "commit": "c33133f4fd5e978d21d2a61fdd8787fb352b4687",
+    "tag": "v0.1.13"
   },
+  "originCommit": "43331c3221be37c5cc1ed8dddc4c7988bcddc5cd",
   "queue": [
     {
       "id": "0001",
       "title": "research workflow shape",
       "severity": "S3",
       "adapterModule": "engines/vibe-adapter/src/vibe_adapter/workflow.py",
-      "status": "absorbed"
+      "status": "absorbed",
+      "mode": "adapter-side-equivalent-rewrite",
+      "designFamily": "workflow_decomposition",
+      "document": "0001-research-workflow-shape.md",
+      "referenceSources": [
+        {
+          "path": "agent/src/session/models.py",
+          "sha256": "sha256:0ff6fe294674324836f15ef23d8331e8e051f1ee77b3733b220b5f15d150802a"
+        }
+      ],
+      "boundaryReplacements": {
+        "session": "QuantOS workflow_run_id",
+        "auth": "QuantOS Engine metadata and research allowlist",
+        "audit": "QuantOS audit envelope",
+        "storage": "QuantOS Artifact API facade",
+        "stream": "QuantOS Engine StreamExecute"
+      }
     },
     {
       "id": "0002",
       "title": "streaming phase projection",
       "severity": "S3",
       "adapterModule": "engines/vibe-adapter/src/vibe_adapter/streaming.py",
-      "status": "absorbed"
+      "status": "absorbed",
+      "mode": "adapter-side-equivalent-rewrite",
+      "designFamily": "streaming_phase_projection",
+      "document": "0002-streaming-phase-projection.md",
+      "referenceSources": [
+        {
+          "path": "agent/src/session/events.py",
+          "sha256": "sha256:47780e4e82fb3a8fb1293a49b0745b27258e97b54d371d99148bfab34922ae31"
+        }
+      ],
+      "boundaryReplacements": {
+        "session": "QuantOS workflow_run_id",
+        "auth": "QuantOS Engine metadata and research allowlist",
+        "audit": "QuantOS audit envelope",
+        "storage": "QuantOS Artifact API facade",
+        "stream": "QuantOS Engine StreamExecute"
+      }
     }
   ]
 }

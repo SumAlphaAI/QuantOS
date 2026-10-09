@@ -13,7 +13,7 @@ export const selectors = ['engines/vibe-adapter/', 'engines/engine-sdk/', 'engin
   'Cargo.toml', 'Cargo.lock', 'proto/', 'scripts/provider-a1-receipts.mjs',
   'scripts/provider-a1-policy.json', 'docs/operations/tp01_vibe_inventory_and_threats.md'];
 const checks = [
-  {id: 'python', command: ['engines/.venv/bin/python', '-m', 'pytest', 'engines/tests', '-q'], marker: /263 passed/},
+  {id: 'python', command: ['engines/.venv/bin/python', '-m', 'pytest', 'engines/tests', '-q'], marker: /[0-9]+ passed/},
   {id: 'manager', command: ['cargo', 'test', '--locked', '--offline', '-p', 'quantos-engine-manager'], marker: /test python_vibe_adapter_contracts_round_trip_over_uds \.\.\. ok/},
   {id: 'ruff', command: ['engines/.venv/bin/ruff', 'check', 'engines/vibe-adapter', 'engines/tests/test_vibe_adapter_skeleton.py'], marker: /All checks passed/},
   {id: 'format', command: ['engines/.venv/bin/ruff', 'format', '--check', 'engines/vibe-adapter/src/vibe_adapter/service.py', 'engines/vibe-adapter/src/vibe_adapter/context.py', 'engines/vibe-adapter/src/vibe_adapter/allowlist.py', 'engines/vibe-adapter/src/vibe_adapter/artifact_api.py', 'engines/vibe-adapter/src/vibe_adapter/server.py', 'engines/tests/test_vibe_adapter_skeleton.py'], marker: /6 files already formatted/},
@@ -58,6 +58,7 @@ export function verify(record, {checkDependencies = true, logDirectory} = {}) {
     const log = readFileSync(logDirectory ? resolve(logDirectory, spec.id + '.log') : resolve(root, result.log));
     assert.equal(digest(log), result.logSha256, 'execution log changed');
     assert.match(log.toString(), spec.marker);
+    if (spec.id === 'python') assert(Number(log.toString().match(/([0-9]+) passed/)?.[1]) >= 263, 'Python regression count below the established 263-test baseline');
     if (spec.id === 'manager') {
       assert.match(log.toString(), /missing_vibe_adapter_does_not_block_mock_workflow_routing \.\.\. ok/);
       assert(!/test result: FAILED/.test(log.toString()));

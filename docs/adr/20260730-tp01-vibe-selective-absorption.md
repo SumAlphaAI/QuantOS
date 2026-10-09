@@ -42,3 +42,11 @@ All absorption is mediated through:
 1. Python replay tests prove all 20 fixtures execute and stream deterministically.
 2. Rust UDS tests prove `quantos-engine-manager` can run the adapter and continue routing other engines when the adapter is absent.
 3. The minimal patch queue records only approved design absorption, not a direct code fork.
+
+## 2026-10-09 implementation validation
+
+The original two-family decision and exclusions remain in force. The conceptual queue now validates against the already controlled v0.1.13 SHA `c33133f4fd5e978d21d2a61fdd8787fb352b4687`, with model/event source digests; v0.1.12 remains historical inspiration. This is equivalent adapter-side rewriting, with no direct upstream import or fork patch application.
+
+Provider output is validated before ownership/Artifact registration and in both projections. QuantOS request, tenant/workspace, actor/run, correlation/causation and snapshot/policy references form the audit envelope. Twenty fixtures must repeat Execute/Stream identically; Runtime-to-RD-Agent tests prohibit vibe_adapter imports and still execute ten research runs and cancellation. Owned process closure is checked after the adapter checks.
+
+Current development admission is separately source/log/dependency bound. Mock Artifacts/audit projections, trusted reference resolution, deployed JWT, performance, sustained freshness, licensing and formal acceptance retain their existing task/release boundaries; no new retained-source purpose is granted.

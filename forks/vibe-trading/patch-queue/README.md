@@ -14,3 +14,5 @@ The current queue is intentionally minimal: it documents which upstream design i
 - queue entries describe approved design absorption, not direct runtime reuse;
 - every queue entry must reference the locked upstream SHA and the QuantOS adapter module that absorbs the design;
 - any entry that would reintroduce upstream session, memory, auth, audit, broker, or shell semantics must be rejected.
+
+Schema v2 binds the current controlled v0.1.13 baseline and exact source hashes, preserves the v0.1.12 origin, and admits only the two existing design families. Run `node scripts/tp01-d-patch-queue.mjs`; 18 focused tests reject drift, direct reuse and boundary replacement loss. No fork or upstream source is modified.

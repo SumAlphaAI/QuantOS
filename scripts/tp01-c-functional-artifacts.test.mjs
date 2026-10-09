@@ -4,7 +4,7 @@ import {readFileSync, writeFileSync, mkdtempSync, cpSync, rmSync} from 'node:fs'
 import {resolve} from 'node:path';
 import {tmpdir} from 'node:os';
 import {verify, selectors} from '../engines/vibe-adapter/check-development.mjs';
-import {inventory, nodesFromPlans, planInput, validateArtifact, supportingArtifactPaths} from './provider-a1-receipts.mjs';
+import {digest, inventory, nodesFromPlans, planInput, validateArtifact, supportingArtifactPaths} from './provider-a1-receipts.mjs';
 
 function fixture(fn) {
   const archive = resolve('docs/audit/evidence/tp01-c-20261009/initial-blocked');
@@ -48,4 +48,10 @@ test('copied artifact verifies its bound supporting logs instead of mutable orig
   validateArtifact('tp01-c-skeleton', path, r.observedSourceCommit);
   writeFileSync(resolve(directory, 'python.log'), 'fake PASS');
   assert.throws(() => validateArtifact('tp01-c-skeleton', path, r.observedSourceCommit), /execution log changed/);
+}));
+
+test('Python regression count cannot fall below the established baseline', () => fixture((r, directory) => {
+  const path=resolve(directory, 'python.log');const output=readFileSync(path,'utf8').replace('263 passed','262 passed');
+  writeFileSync(path,output);r.checks.find(c=>c.id==='python').logSha256=digest(output);
+  assert.throws(()=>verify(r,{checkDependencies:false,logDirectory:directory}),/below the established/);
 }));

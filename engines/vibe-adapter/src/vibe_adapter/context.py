@@ -25,6 +25,8 @@ class ContextTranslationError(ValueError):
 @dataclass(frozen=True)
 class VibeExecutionContext:
     request_id: str
+    correlation_id: str
+    causation_id: str
     tenant_id: str
     workspace_id: str
     actor_id: str
@@ -110,6 +112,8 @@ class VibeContextTranslator:
 
         context = VibeExecutionContext(
             request_id=request.metadata.request_id,
+            correlation_id=request.metadata.correlation_id,
+            causation_id=request.metadata.causation_id,
             tenant_id=request.metadata.tenant_id,
             workspace_id=request.metadata.workspace_id,
             actor_id=request.metadata.actor.actor_id,

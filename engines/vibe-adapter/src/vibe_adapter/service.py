@@ -24,7 +24,7 @@ from vibe_adapter.artifact_api import VibeArtifactApi
 from vibe_adapter.context import ContextTranslationError, VibeContextTranslator
 from vibe_adapter.fixtures import default_contract_provider
 from vibe_adapter.manifest import build_manifest
-from vibe_adapter.protocols import ResearchContractProvider
+from vibe_adapter.protocols import ResearchContractError, ResearchContractProvider
 from vibe_adapter.streaming import build_stream_deltas
 from vibe_adapter.workflow import build_workflow_plan
 
@@ -157,6 +157,9 @@ class VibeAdapterService:
                         request.policy_context_ref,
                         request.workflow_run_id,
                         request.idempotency_key,
+                        request.metadata.request_id,
+                        request.metadata.correlation_id,
+                        request.metadata.causation_id,
                     ]
                 )
                 previous = self._inputs.get(owner)
@@ -167,6 +170,9 @@ class VibeAdapterService:
                 self._inputs[owner] = request_digest
                 self._owners.add(owner)
             return translated, contract, plan, output
+        except ResearchContractError:
+            logging.getLogger(__name__).warning("vibe_adapter.contract decision=denied")
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_CONTRACT_INVALID")
         except FileNotFoundError:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_FIXTURE_UNAVAILABLE")
         except ContextTranslationError as error:
@@ -185,7 +191,12 @@ class VibeAdapterService:
 
     @staticmethod
     def _owner(metadata, execution_id: str) -> tuple[str, str, str, str]:
-        return (metadata.tenant_id, metadata.workspace_id, metadata.actor.actor_id, execution_id)
+        return (
+            metadata.tenant_id,
+            metadata.workspace_id,
+            metadata.actor.actor_id,
+            execution_id,
+        )
 
     def _check_active(self, request, context: grpc.ServicerContext) -> None:
         owner = self._owner(request.metadata, self._execution_id(request))

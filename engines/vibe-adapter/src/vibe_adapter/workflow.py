@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import cast
 
 from vibe_adapter.context import VibeExecutionContext
-from vibe_adapter.protocols import ResearchExecutionContract
+from vibe_adapter.protocols import ResearchExecutionContract, validate_research_contract
 
 
 @dataclass(frozen=True)
@@ -38,9 +38,7 @@ class WorkflowPlan:
             "provenance": self.provenance,
             # Compatibility aliases kept until TP01 deprecation plan is executed.
             "upstream_surface": str(self.provenance["source_surface"]),
-            "absorbed_designs": list(
-                cast(list[str], self.provenance["absorbed_designs"])
-            ),
+            "absorbed_designs": list(cast(list[str], self.provenance["absorbed_designs"])),
             "tool_allowlist": list(self.tool_allowlist),
             "prompt": self.prompt,
             "artifact_api": "quantos-artifact-api",
@@ -55,6 +53,7 @@ def build_workflow_plan(
 ) -> WorkflowPlan:
     """Translate an approved fixture into a QuantOS-native workflow plan."""
 
+    validate_research_contract(contract, fixture_name=context.fixture_name)
     return WorkflowPlan(
         fixture_name=contract.fixture_name,
         workflow_family=contract.workflow_family,

@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-09）：冻结cd4e819完成TP01-D前置59组复评（58 PASS/1连接FAIL）及同源F07完整独立补测PASS；严格组合15 DEVELOPMENT READY、144 NOT_ASSESSED。F08/F0、TP01-C与R01/R02已刷新，TP01-D可进入实现；正式/hosted CI/发布不继承。见[前置报告](./audit/TP01-D-prerequisite-admission-2026-10-09.md)。
+> 当前工程状态（2026-10-09）：TP01-D实现使原15节点输入回执失效，当前NOT_ASSESSED，待16节点完整复评；页面/部署/发布各自待验，见[核心报告](./audit/TP01-D-selective-absorption-2026-10-09.md)。
 
 > 迁移时历史快照：2026-10-07 第二轮执行文档整理：8 份 P0/A1 验收规程及 R01/R02/UI 交付记录保留迁入 `docs/execution/`，同步活动引用与 R01/R02 读取路径；阶段准入与当前 G0 PENDING 状态保持不变。见[整理报告](./audit/Execution-document-organization-round2-2026-10-07.md)。
 

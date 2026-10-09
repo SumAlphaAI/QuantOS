@@ -14,6 +14,7 @@ import {validateR1Artifact,r1SupportingPaths} from './r1-functional-artifacts.mj
 import {validateF0Artifact} from './f0-functional-artifacts.mjs';
 import {validatePlans} from './check-development-plans.mjs';
 import {verify as verifyTp01CSkeleton} from '../engines/vibe-adapter/check-development.mjs';
+import {verifyAbsorption} from '../engines/vibe-adapter/check-absorption.mjs';
 export const root=resolve(import.meta.dirname,'..');
 export const digest=bytes=>'sha256:'+createHash('sha256').update(bytes).digest('hex');
 export const directory='docs/audit/evidence/provider-a1-remediation-20261004';
@@ -87,6 +88,10 @@ export function validateReproducibility(r,source) {
 export function validateArtifact(kind,path,source) {
  const r=JSON.parse(readFileSync(path));
  if(kind==='f01-reproducibility')validateReproducibility(r,source);
+ else if(kind==='tp01-d-absorption'){
+  assert.equal(r.observedSourceCommit,source,'TP01-D execution source differs');
+  verifyAbsorption(r,{checkDependencies:false,logDirectory:dirname(path)});
+ }
  else if(kind==='tp01-c-skeleton'){
   assert.equal(r.observedSourceCommit,source,'TP01-C execution source differs');
   verifyTp01CSkeleton(r,{checkDependencies:false,logDirectory:dirname(path)});
@@ -97,7 +102,7 @@ export function validateArtifact(kind,path,source) {
  else validateF0Artifact(kind,path,source);
 }
 export function supportingArtifactPaths(kind,r) {
- if(kind==='tp01-c-skeleton')return r.checks.map(c=>c.id+'.log').sort();
+ if(['tp01-c-skeleton','tp01-d-absorption'].includes(kind))return r.checks.map(c=>c.id+'.log').sort();
  if(['r01-target','r02-target'].includes(kind))return r1SupportingPaths(r);
  if(kind==='f09-target')return Object.keys(r.logs??{}).sort();
  if(kind==='f08-service')return ['installed-module.log',...r.cases.map(c=>c.log),'wheels/'+r.mockWheel.file].sort();
@@ -152,7 +157,7 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1']) {
  const texts=planPaths.map(p=>readFileSync(resolve(root,p),'utf8'));const nodes=nodesFromPlans(texts);const selected=[...new Set(rootIds.flatMap(id=>closure(nodes,id)))];const p=policy();const initialInputs=captureInputs(nodes,selected,p);const out=resolve(root,directory);assert(!existsSync(resolve(out,'execution-results.json')),'assessment evidence already exists; select a fresh directory');mkdirSync(resolve(out,'logs'),{recursive:true});
  const source=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();const environment={node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),rust:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,clientProfile:'local-mock'};
  const priority=id=>p.checks[id].reproducibility?3:(p.checks[id].target||p.checks[id].cleanSource)?2:0;const all=[...new Set(selected.flatMap(id=>p.nodes[id].checks))].sort((a,b)=>priority(b)-priority(a));const results=new Map();const deferred=[];
- const engineBaselineDir=all.includes('r1-process-cleanup')?mkdtempSync(resolve(tmpdir(),'quantos-r1-engine-scope-')):null;
+ const engineBaselineDir=all.some(id=>p.checks[id].artifactKind==='r1-process-cleanup')?mkdtempSync(resolve(tmpdir(),'quantos-r1-engine-scope-')):null;
  const engineBaseline=engineBaselineDir?resolve(engineBaselineDir,'baseline.json'):null;
  const engineScope=engineBaseline?randomBytes(4).toString('hex'):null;
  if(engineBaseline){environment.engineProcessScope=engineScope;writeFileSync(engineBaseline,JSON.stringify({...engineSnapshot(root),scopeTag:engineScope}));}
@@ -161,7 +166,7 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1']) {
   if(spec.staticOnly){const isolated=staticEnvironment(env);for(const key of Object.keys(env))delete env[key];Object.assign(env,isolated);}
   Object.assign(env,spec.env??{});
   if(engineScope)env.QUANTOS_TEST_ENGINE_SCOPE=engineScope;
-  if(id==='r1-process-cleanup')env.QUANTOS_R1_ENGINE_BASELINE=engineBaseline;
+  if(spec.artifactKind==='r1-process-cleanup')env.QUANTOS_R1_ENGINE_BASELINE=engineBaseline;
   if(spec.measurement){env.QUANTOS_F05_MEASUREMENTS_PATH=resolve(out,'f05-volume.json');rmSync(env.QUANTOS_F05_MEASUREMENTS_PATH,{force:true});}
   let command=spec.command.map(c=>c==='node'?process.execPath:c);
   if(spec.target||spec.reproducibility)external=mkdtempSync(resolve(tmpdir(),'quantos-a1-f06-'));
@@ -188,4 +193,4 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1']) {
  const admitted=new Map(selected.map(id=>[id,nodes.get(id)]));const updated=[publishStages(texts[0],admitted,'CORE:'),publishStages(texts[1],admitted,'FE:')];validatePlans(...updated);for(let i=0;i<2;i++)writeFileSync(resolve(root,planPaths[i]),updated[i]);
  for(const id of rootIds)console.log(JSON.stringify(validateReceipt(id,{nodes}),null,2));
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--assess'||process.argv[2]==='--assess-f0'||process.argv[2]==='--assess-r02'||process.argv[2]==='--assess-tp01-c'){assert(process.argv.length<=4,'usage: --assess [evidence-directory]');assess(process.argv[3],process.argv[2]==='--assess-tp01-c'?['CORE:TP01-C']:process.argv[2]==='--assess-r02'?['CORE:R02']:process.argv[2]==='--assess-f0'?['PROVIDER:A1','CORE-GATE:F0']:undefined);}else {assert(process.argv.length===2 || (process.argv.length===3&&process.argv[2]==='--f0'),'usage: [--assess | --assess-f0 | --f0]');console.log(JSON.stringify(validateReceipt(process.argv[2]==='--f0'?'CORE-GATE:F0':'PROVIDER:A1'),null,2));}}catch(e){console.error(e.message);process.exitCode=1;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--assess'||process.argv[2]==='--assess-f0'||process.argv[2]==='--assess-r02'||process.argv[2]==='--assess-tp01-c'||process.argv[2]==='--assess-tp01-d'){assert(process.argv.length<=4,'usage: --assess [evidence-directory]');assess(process.argv[3],process.argv[2]==='--assess-tp01-d'?['CORE:TP01-D']:process.argv[2]==='--assess-tp01-c'?['CORE:TP01-C']:process.argv[2]==='--assess-r02'?['CORE:R02']:process.argv[2]==='--assess-f0'?['PROVIDER:A1','CORE-GATE:F0']:undefined);}else {assert(process.argv.length===2 || (process.argv.length===3&&process.argv[2]==='--f0'),'usage: [--assess | --assess-f0 | --f0]');console.log(JSON.stringify(validateReceipt(process.argv[2]==='--f0'?'CORE-GATE:F0':'PROVIDER:A1'),null,2));}}catch(e){console.error(e.message);process.exitCode=1;}}

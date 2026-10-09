@@ -100,11 +100,31 @@ fn manifest_for_socket(socket_path: PathBuf) -> EngineManifest {
 }
 
 async fn spawn_python_rd_agent(socket_path: &Path) -> Result<Child> {
+    // Prove that real Runtime -> Manager -> RD-Agent workflows boot with vibe absent.
+    // The deliberate import probe fails the child if the removal guard is lost.
+    const WITHOUT_VIBE: &str = r#"
+import importlib.abc
+import runpy
+import sys
+class VibeUnavailable(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == 'vibe_adapter' or fullname.startswith('vibe_adapter.'):
+            raise ImportError('TP01_D_ADAPTER_REMOVED')
+sys.meta_path.insert(0, VibeUnavailable())
+try:
+    __import__('vibe_adapter')
+except ImportError:
+    pass
+else:
+    raise AssertionError('vibe_adapter must be unavailable')
+runpy.run_module('rd_agent.server', run_name='__main__')
+"#;
+    eprintln!("TP01-D: Python child cannot import vibe_adapter");
     let mut command = Command::new(engines_dir().join(".venv/bin/python"));
     command
         .current_dir(engines_dir())
-        .arg("-m")
-        .arg("rd_agent.server")
+        .arg("-c")
+        .arg(WITHOUT_VIBE)
         .arg("--socket")
         .arg(socket_path)
         .stdout(Stdio::null())

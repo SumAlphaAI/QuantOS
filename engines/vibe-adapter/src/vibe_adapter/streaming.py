@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from vibe_adapter.audit import build_audit_envelope
 from vibe_adapter.context import VibeExecutionContext
-from vibe_adapter.protocols import ResearchExecutionContract
+from vibe_adapter.protocols import ResearchExecutionContract, validate_research_contract
 from vibe_adapter.workflow import WorkflowPlan
 
 
@@ -15,6 +15,7 @@ def build_stream_deltas(
 ) -> list[dict]:
     """Project a workflow plan into QuantOS-native streaming deltas."""
 
+    validate_research_contract(contract, fixture_name=context.fixture_name)
     phases = list(contract.stream_profile)
     audit = build_audit_envelope(context, contract, policy_decision="allowed")
 

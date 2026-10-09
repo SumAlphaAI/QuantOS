@@ -926,6 +926,40 @@
       ],
       "staticOnly": true,
       "marker": "fail 0"
+    },
+    "tp01-d-absorption": {
+      "command": [
+        "node",
+        "engines/vibe-adapter/check-absorption.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp01-d-20261009/receipt.json",
+      "artifactKind": "tp01-d-absorption",
+      "timeoutMs": 900000
+    },
+    "tp01-d-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp01-d-patch-queue.test.mjs",
+        "scripts/tp01-d-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp01-d-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp01-d-process-cleanup/receipt.json",
+      "output": "supporting/tp01-d-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1380,6 +1414,27 @@
       "checks": [
         "tp01-c-skeleton",
         "tp01-c-evidence-negative"
+      ]
+    },
+    "CORE:TP01-D": {
+      "scope": "Development selective design absorption of workflow decomposition and streaming projection; current locked reference digests and a two-entry conceptual patch queue, QuantOS context/allowlist/audit and mock Artifact facades, 20 deterministic double-RPC replays, malformed contract rejection before side effects, actual Runtime-to-RD-Agent workflows with vibe imports disabled, and owned process closure. No direct upstream runtime imports, real tools, persistent audit/Artifact, deployed JWT, new source purposes, performance or formal acceptance.",
+      "inputs": [
+        "engines/vibe-adapter/",
+        "engines/engine-sdk/",
+        "engines/tests/",
+        "crates/quantos-runtime/",
+        "crates/quantos-engine-manager/",
+        "proto/",
+        "forks/vibe-trading/patch-queue/",
+        "third_party/vibe-trading/baseline.lock.json",
+        "docs/adr/20260730-tp01-vibe-selective-absorption.md",
+        "docs/operations/tp01_vibe_inventory_and_threats.md",
+        "third_party/vibe-trading/upstream-src"
+      ],
+      "checks": [
+        "tp01-d-absorption",
+        "tp01-d-negatives",
+        "tp01-d-process-cleanup"
       ]
     }
   },

@@ -79,3 +79,38 @@ the unified TP01-C manifest and its whole dependency chain.
 The initial blocked logs/receipt are retained under `initial-blocked/`; see the
 [dependency refresh report](../../docs/audit/TP01-C-development-admission-2026-10-09.md)
 for current admission and source/evidence commit boundaries.
+
+TP01-D keeps exactly two design families: workflow decomposition and streaming
+phase projection. The conceptual patch queue now binds the already controlled
+v0.1.13 baseline and the hashes of its model/event reference files. The original
+v0.1.12 inspiration remains historical provenance; no upstream module is imported
+and no fork patch is applied or published.
+
+Provider contracts must use `quantos.research.v1`, match the requested fixture,
+contain nonempty immutable design/provenance fields and the three QuantOS phases
+in order. Invalid contracts return `ENGINE_CONTRACT_INVALID` before ownership or
+Artifact registration. Audit envelopes retain the QuantOS tenant/workspace,
+actor/run/request, correlation/causation and snapshot/policy references. These are
+metadata projections; they do not replace durable audit or deployed JWT checks.
+The logical command binds request/correlation/causation IDs to its execution key;
+changing these with the same key returns `ENGINE_IDEMPOTENCY_CONFLICT`.
+
+```sh
+node scripts/tp01-d-patch-queue.mjs
+node --test scripts/tp01-d-patch-queue.test.mjs scripts/tp01-d-functional-artifacts.test.mjs
+node engines/vibe-adapter/check-absorption.mjs --record
+node scripts/provider-a1-receipts.mjs --assess-tp01-d docs/audit/evidence/provider-a1-remediation-20261004/tp01-d-admission-20261009/attempt-01
+node engines/vibe-adapter/check-development.mjs --admit
+node engines/vibe-adapter/check-absorption.mjs --admit
+node engines/vibe-adapter/check-absorption.mjs --ready
+```
+
+The TP01-D recorder checks the exact patch queue, 20 deterministic double-RPC
+replays and invalid contracts, two actual Runtime research paths with Python
+`vibe_adapter` imports prohibited, and formatting. Engineering-only artifact
+validation returns `NOT_ASSESSED`; strict unified dependency admission and
+`--admit` are required for READY. Databases, production execution, upstream code
+adoption, publication and formal ACCEPTED are outside this recorder.
+
+Development evidence and retained limitations are recorded in
+[the TP01-D acceptance report](../../docs/audit/TP01-D-selective-absorption-2026-10-09.md).

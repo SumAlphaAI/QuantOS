@@ -1,0 +1,97 @@
+Final Gate verification 2026-10-09T02:08:13.575Z
+["node","engines/vibe-adapter/check-development.mjs","--verify"] exit=0 expected=0
+{"engineeringStatus":"PASS","stageGate":"BLOCKED","formalAccepted":false}
+
+["node","engines/vibe-adapter/check-development.mjs","--ready"] exit=2 expected=2
+{"engineeringStatus":"PASS","stageGate":"BLOCKED","formalAccepted":false}
+
+["node","scripts/check-development-plans.mjs"] exit=0 expected=0
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 158,
+    "READY": 0,
+    "BLOCKED": 1
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1462,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22
+}
+
+["node","--test","scripts/development-plan-order-negative.mjs"] exit=0 expected=0
+✔ joint schedule is acyclic and preserves task/status boundaries (18.195958ms)
+✔ restoring a complete R1 prerequisite for S2 services creates a rejected cycle (5.723667ms)
+✔ research service waiting on its consumer page is rejected (5.269542ms)
+✔ historical CORE:R04 to CORE:L04 probe now fails closed (5.632541ms)
+✔ an early identity API cannot silently depend on later research services (6.272ms)
+✔ a provider cannot wait for the consumer frontend Gate (4.686292ms)
+✔ removing S2 service admission from a core execution task is rejected (5.399042ms)
+✔ S2 service Gate cannot omit TP12 advance evaluation (5.847208ms)
+✔ I10 cannot drop testnet service admission even if metadata is edited with it (6.217041ms)
+✔ a new or existing frontend cannot skip the full provider Gate (6.4205ms)
+✔ G5 cannot be marked as closing in I4 before reconciliation (6.43675ms)
+✔ moving the G1 block above I1 tasks is rejected (5.818666ms)
+✔ milestone cannot omit its last child while retaining a Gate summary (6.00625ms)
+✔ prose-only backend dependencies cannot drift from structured prerequisites (6.261375ms)
+✔ core closure mapping cannot become an implicit service alias (5.390458ms)
+✔ ACCEPTED checkpoint needs SHA and evidence, not only a green word (6.184625ms)
+✔ accepted checkpoint evidence must resolve (3.203667ms)
+✔ missing checkpoint and unknown dependency fail closed (7.668583ms)
+✔ API windows cannot skip their preceding provider checkpoint (7.305125ms)
+✔ UI windows cannot skip the preceding reconciliation window (6.11275ms)
+✔ Web intake preserves the explicit no-model-review schema (1.977916ms)
+✔ missing Web task fields still fail closed (1.622334ms)
+✔ both plans must publish exactly the same stage contract (6.569333ms)
+✔ changing both plans cannot defer correctness or functional deadlines to release (16.668917ms)
+✔ both plans must retain every deferred release obligation (14.779ms)
+✔ tasks and checkpoints cannot omit, invent, or misclassify their stage gate (21.322375ms)
+✔ release prerequisites cannot block either development or integration (13.435875ms)
+✔ release gates cannot skip business closure or inherit the wrong stage (14.516375ms)
+✔ historical ACCEPTED and completed tasks do not automatically become READY (11.792667ms)
+✔ READY needs its own input digest and resolvable evidence (37.855916ms)
+✔ unassessed stage gates cannot carry an apparent ready receipt (7.896333ms)
+✔ BLOCKED retains failure evidence and digest without being counted as READY (16.141375ms)
+✔ a READY chain needs READY prerequisites and its own evidence at every node (21.063083ms)
+✔ stage readiness never substitutes for formal acceptance evidence (2.982417ms)
+✔ release READY requires formal acceptance and all functional prerequisites (9.464ms)
+✔ core intake follows the frontend audit-report format (6.8975ms)
+✔ core review summary must be unique and link to audit evidence (8.930625ms)
+✔ core shared task fields and existing window must stay consistent (16.07325ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 404.211042
+
+["git","diff","--check"] exit=0 expected=0
+
+Negative evidence probe: forged READY rejected PASS
+Negative evidence probe: failed check rejected PASS
+Negative evidence probe: missing source input rejected PASS
+Negative evidence probe: altered log digest rejected PASS
+Negative evidence probe: forged dependency READY rejected PASS
+Negative evidence probe: formal acceptance laundering rejected PASS
+Registered stage Gate digest and BLOCKED binding PASS
