@@ -905,6 +905,27 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp01-c-skeleton": {
+      "command": [
+        "node",
+        "engines/vibe-adapter/check-development.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp01-c-20261009/receipt.json",
+      "artifactKind": "tp01-c-skeleton",
+      "timeoutMs": 900000
+    },
+    "tp01-c-evidence-negative": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp01-c-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
     }
   },
   "nodes": {
@@ -1344,6 +1365,21 @@
         "r02-engine-consumers",
         "r1-receipt-negative",
         "r1-process-cleanup"
+      ]
+    },
+    "CORE:TP01-C": {
+      "scope": "Local research-only vibe_adapter skeleton: five UDS Engine RPCs, strict context/tool deny-by-default, 100 boundary fixtures on unary/stream paths, 20 deterministic replays, tenant-scoped readable mock Artifacts, cancellation/deadline/idempotency and independent Engine startup; no persistent storage, deployed authorization or production tool execution",
+      "inputs": [
+        "engines/vibe-adapter/",
+        "engines/engine-sdk/",
+        "engines/tests/",
+        "crates/quantos-engine-manager/",
+        "proto/",
+        "docs/operations/tp01_vibe_inventory_and_threats.md"
+      ],
+      "checks": [
+        "tp01-c-skeleton",
+        "tp01-c-evidence-negative"
       ]
     }
   },

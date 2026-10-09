@@ -17,12 +17,15 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    socket_path = Path(args.socket).resolve()
+    socket_path = Path(args.socket)
+    if not socket_path.is_absolute():
+        raise ValueError("ENGINE_SOCKET_MUST_BE_ABSOLUTE")
     socket_path.parent.mkdir(parents=True, exist_ok=True)
-    if socket_path.exists():
-        socket_path.unlink()
+    if socket_path.exists() or socket_path.is_symlink():
+        raise FileExistsError("ENGINE_SOCKET_ALREADY_EXISTS")
 
     server = serve_engine(socket_path, VibeAdapterService())
+    socket_path.chmod(0o600)
     try:
         server.wait_for_termination()
     finally:

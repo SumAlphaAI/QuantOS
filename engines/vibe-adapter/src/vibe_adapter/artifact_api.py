@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
+from threading import Lock
+from urllib.parse import quote
 
 from quantos.common.v1 import common_pb2
 
@@ -18,10 +20,19 @@ class ArtifactBundle:
 
 
 class VibeArtifactApi:
-    """Research-only facade that returns QuantOS artifact references."""
+    """Tenant-scoped in-memory mock; no Supabase upload is implied by its refs."""
 
     def __init__(self, bucket_name: str = "quantos-artifacts") -> None:
         self.bucket_name = bucket_name
+        self._objects: dict[tuple[str, str], bytes] = {}
+        self._lock = Lock()
+
+    def read_json_artifact(self, *, tenant_id: str, artifact_id: str) -> dict:
+        with self._lock:
+            encoded = self._objects.get((tenant_id, artifact_id))
+        if encoded is None:
+            raise PermissionError("ENGINE_ARTIFACT_UNAVAILABLE")
+        return json.loads(encoded)
 
     def record_json_artifact(
         self,
@@ -33,12 +44,19 @@ class VibeArtifactApi:
     ) -> ArtifactBundle:
         encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
         digest = hashlib.sha256(encoded).hexdigest()
-        artifact_id = f"artifact:{workflow_run_id}:{artifact_kind}"
-        evidence_id = f"evidence:{workflow_run_id}:{artifact_kind}"
+        identity = hashlib.sha256(
+            json.dumps(
+                [tenant_id, workflow_run_id, artifact_kind, digest], separators=(",", ":")
+            ).encode()
+        ).hexdigest()
+        artifact_id = f"artifact:{identity}:{artifact_kind}"
+        evidence_id = f"evidence:{identity}:{artifact_kind}"
         uri = (
-            f"supabase://{self.bucket_name}/tenant/{tenant_id}/vibe-adapter/"
-            f"{workflow_run_id}/{artifact_kind}.json"
+            f"mock-artifact://{quote(self.bucket_name, safe='')}/tenant/"
+            f"{quote(tenant_id, safe='')}/vibe-adapter/{identity}.json"
         )
+        with self._lock:
+            self._objects[(tenant_id, artifact_id)] = encoded
         artifact_ref = common_pb2.ArtifactRef(
             artifact_id=artifact_id,
             uri=uri,

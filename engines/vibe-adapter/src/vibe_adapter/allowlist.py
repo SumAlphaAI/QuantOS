@@ -39,21 +39,23 @@ class ToolAllowlistPolicy:
     allowed_tools: tuple[str, ...] = SAFE_TOOL_ALLOWLIST
 
     def normalize(self, requested_tools: list[str] | tuple[str, ...] | None) -> tuple[str, ...]:
-        if not requested_tools:
+        if requested_tools is None:
             return self.allowed_tools
+        if not isinstance(requested_tools, (list, tuple)) or any(
+            not isinstance(name, str) or not name.strip() for name in requested_tools
+        ):
+            raise ToolPolicyError("ENGINE_TOOL_INPUT_INVALID")
 
         normalized = []
         allowed = set(self.allowed_tools)
         for tool_name in requested_tools:
-            name = str(tool_name).strip()
-            if not name:
-                continue
+            name = tool_name.strip()
             if name in FORBIDDEN_TOOL_NAMES or any(
                 name.startswith(prefix) for prefix in FORBIDDEN_TOOL_PREFIXES
             ):
-                raise ToolPolicyError(f"tool `{name}` is forbidden by TP01 policy")
+                raise ToolPolicyError("ENGINE_TOOL_FORBIDDEN: tool is forbidden by TP01 policy")
             if name not in allowed:
-                raise ToolPolicyError(f"tool `{name}` is not in the vibe-adapter allowlist")
+                raise ToolPolicyError("ENGINE_TOOL_FORBIDDEN: tool is not in the allowlist")
             normalized.append(name)
 
         return tuple(dict.fromkeys(normalized))

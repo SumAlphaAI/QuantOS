@@ -13,6 +13,7 @@ import {parseEnv} from 'node:util';
 import {validateR1Artifact,r1SupportingPaths} from './r1-functional-artifacts.mjs';
 import {validateF0Artifact} from './f0-functional-artifacts.mjs';
 import {validatePlans} from './check-development-plans.mjs';
+import {verify as verifyTp01CSkeleton} from '../engines/vibe-adapter/check-development.mjs';
 export const root=resolve(import.meta.dirname,'..');
 export const digest=bytes=>'sha256:'+createHash('sha256').update(bytes).digest('hex');
 export const directory='docs/audit/evidence/provider-a1-remediation-20261004';
@@ -86,12 +87,17 @@ export function validateReproducibility(r,source) {
 export function validateArtifact(kind,path,source) {
  const r=JSON.parse(readFileSync(path));
  if(kind==='f01-reproducibility')validateReproducibility(r,source);
+ else if(kind==='tp01-c-skeleton'){
+  assert.equal(r.observedSourceCommit,source,'TP01-C execution source differs');
+  verifyTp01CSkeleton(r,{checkDependencies:false,logDirectory:dirname(path)});
+ }
  else if(kind==='f05-volume')readMeasurements(path,true);
  else if(kind==='f04-branch')execFileSync(process.execPath,[resolve(root,'scripts/check-f04-branch.mjs'),path],{encoding:'utf8'});
  else if(['r01-target','r02-target','r1-process-cleanup'].includes(kind))validateR1Artifact(kind,path,source);
  else validateF0Artifact(kind,path,source);
 }
 export function supportingArtifactPaths(kind,r) {
+ if(kind==='tp01-c-skeleton')return r.checks.map(c=>c.id+'.log').sort();
  if(['r01-target','r02-target'].includes(kind))return r1SupportingPaths(r);
  if(kind==='f09-target')return Object.keys(r.logs??{}).sort();
  if(kind==='f08-service')return ['installed-module.log',...r.cases.map(c=>c.log),'wheels/'+r.mockWheel.file].sort();
@@ -182,4 +188,4 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1']) {
  const admitted=new Map(selected.map(id=>[id,nodes.get(id)]));const updated=[publishStages(texts[0],admitted,'CORE:'),publishStages(texts[1],admitted,'FE:')];validatePlans(...updated);for(let i=0;i<2;i++)writeFileSync(resolve(root,planPaths[i]),updated[i]);
  for(const id of rootIds)console.log(JSON.stringify(validateReceipt(id,{nodes}),null,2));
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--assess'||process.argv[2]==='--assess-f0'||process.argv[2]==='--assess-r02'){assert(process.argv.length<=4,'usage: --assess [evidence-directory]');assess(process.argv[3],process.argv[2]==='--assess-r02'?['CORE:R02']:process.argv[2]==='--assess-f0'?['PROVIDER:A1','CORE-GATE:F0']:undefined);}else {assert(process.argv.length===2 || (process.argv.length===3&&process.argv[2]==='--f0'),'usage: [--assess | --assess-f0 | --f0]');console.log(JSON.stringify(validateReceipt(process.argv[2]==='--f0'?'CORE-GATE:F0':'PROVIDER:A1'),null,2));}}catch(e){console.error(e.message);process.exitCode=1;}}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{if(process.argv[2]==='--assess'||process.argv[2]==='--assess-f0'||process.argv[2]==='--assess-r02'||process.argv[2]==='--assess-tp01-c'){assert(process.argv.length<=4,'usage: --assess [evidence-directory]');assess(process.argv[3],process.argv[2]==='--assess-tp01-c'?['CORE:TP01-C']:process.argv[2]==='--assess-r02'?['CORE:R02']:process.argv[2]==='--assess-f0'?['PROVIDER:A1','CORE-GATE:F0']:undefined);}else {assert(process.argv.length===2 || (process.argv.length===3&&process.argv[2]==='--f0'),'usage: [--assess | --assess-f0 | --f0]');console.log(JSON.stringify(validateReceipt(process.argv[2]==='--f0'?'CORE-GATE:F0':'PROVIDER:A1'),null,2));}}catch(e){console.error(e.message);process.exitCode=1;}}

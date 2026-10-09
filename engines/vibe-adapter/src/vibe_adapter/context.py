@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 import grpc
 
+from quantos.common.v1 import common_pb2
 from quantos.engine.v1 import engine_pb2
 from quantos_engine_sdk import json_document_to_mapping
 
@@ -54,9 +55,7 @@ class VibeContextTranslator:
 
     def translate(self, request: engine_pb2.ExecuteRequest) -> TranslationResult:
         if not request.HasField("metadata"):
-            raise ContextTranslationError(
-                grpc.StatusCode.INVALID_ARGUMENT, "metadata is required"
-            )
+            raise ContextTranslationError(grpc.StatusCode.INVALID_ARGUMENT, "metadata is required")
         if not request.metadata.HasField("actor"):
             raise ContextTranslationError(
                 grpc.StatusCode.INVALID_ARGUMENT, "metadata.actor is required"
@@ -79,9 +78,30 @@ class VibeContextTranslator:
                 grpc.StatusCode.PERMISSION_DENIED,
                 "actor is missing required research capability",
             )
+        if request.metadata.mode != common_pb2.RUNTIME_MODE_RESEARCH:
+            raise ContextTranslationError(grpc.StatusCode.PERMISSION_DENIED, "ENGINE_RESEARCH_ONLY")
 
         payload = json_document_to_mapping(request.input)
         self._reject_forbidden_fields(payload)
+        if set(payload) - {"prompt", "fixture", "tools", "sleep_ms"}:
+            raise ContextTranslationError(
+                grpc.StatusCode.PERMISSION_DENIED, "ENGINE_INPUT_FORBIDDEN"
+            )
+        for name in ("prompt", "fixture"):
+            if name in payload and (
+                not isinstance(payload[name], str) or len(payload[name]) > 8192
+            ):
+                raise ContextTranslationError(
+                    grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_INPUT_INVALID"
+                )
+        sleep_ms = payload.get("sleep_ms", 0)
+        if (
+            isinstance(sleep_ms, bool)
+            or not isinstance(sleep_ms, (int, float))
+            or not 0 <= sleep_ms <= 5000
+            or int(sleep_ms) != sleep_ms
+        ):
+            raise ContextTranslationError(grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_INPUT_INVALID")
 
         try:
             allowed_tools = self.tool_policy.normalize(payload.get("tools"))
@@ -110,16 +130,31 @@ class VibeContextTranslator:
         return TranslationResult(context=context, payload=payload)
 
     @staticmethod
-    def _reject_forbidden_fields(payload: dict) -> None:
-        if payload.get("network_access") is True:
-            raise ContextTranslationError(
-                grpc.StatusCode.PERMISSION_DENIED,
-                "network_access is forbidden for vibe-adapter",
-            )
-        for forbidden_key in ("venue", "secret_ref", "broker_connection", "shell", "file_write"):
-            value = payload.get(forbidden_key)
-            if value not in (None, "", False, []):
-                raise ContextTranslationError(
-                    grpc.StatusCode.PERMISSION_DENIED,
-                    f"`{forbidden_key}` is forbidden for vibe-adapter",
-                )
+    def _reject_forbidden_fields(payload: object) -> None:
+        forbidden = {
+            "venue",
+            "secret_ref",
+            "broker_connection",
+            "shell",
+            "file_write",
+            "network_access",
+            "tenant_id",
+            "workspace_id",
+            "actor_id",
+            "capabilities",
+            "api_key",
+            "authorization",
+            "session",
+            "memory",
+        }
+        if isinstance(payload, dict):
+            for key, value in payload.items():
+                if key.lower().replace("-", "_") in forbidden:
+                    raise ContextTranslationError(
+                        grpc.StatusCode.PERMISSION_DENIED,
+                        "ENGINE_BOUNDARY_FORBIDDEN: field is forbidden for vibe-adapter",
+                    )
+                VibeContextTranslator._reject_forbidden_fields(value)
+        elif isinstance(payload, list):
+            for value in payload:
+                VibeContextTranslator._reject_forbidden_fields(value)

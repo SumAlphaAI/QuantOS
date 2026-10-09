@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import time
+import logging
+import json
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from threading import Lock
 
 import grpc
 
@@ -27,15 +31,16 @@ from vibe_adapter.workflow import build_workflow_plan
 
 @dataclass
 class VibeAdapterService:
-    """Contract-complete selective absorption adapter for TP01-D / TP01-G."""
+    """TP01-C mock skeleton with replaceable research contract and Artifact facades."""
 
     manifest: EngineManifest = field(default_factory=build_manifest)
     artifact_api: VibeArtifactApi = field(default_factory=VibeArtifactApi)
     context_translator: VibeContextTranslator = field(default_factory=VibeContextTranslator)
-    contract_provider: ResearchContractProvider = field(
-        default_factory=default_contract_provider
-    )
-    _cancelled: set[str] = field(default_factory=set)
+    contract_provider: ResearchContractProvider = field(default_factory=default_contract_provider)
+    _cancelled: set[tuple[str, str, str, str]] = field(default_factory=set)
+    _owners: set[tuple[str, str, str, str]] = field(default_factory=set)
+    _inputs: dict[tuple[str, str, str, str], str] = field(default_factory=dict)
+    _lock: Lock = field(default_factory=Lock)
 
     def get_metadata(
         self,
@@ -65,16 +70,9 @@ class VibeAdapterService:
     ) -> engine_pb2.ExecuteResponse:
         translated, _contract, plan, output = self._prepare_execution(request, context)
         execution_id = self._execution_id(request)
-        self._maybe_sleep(translated.payload)
-        if execution_id in self._cancelled:
-            context.abort(grpc.StatusCode.CANCELLED, "execution was cancelled")
+        self._wait(request, translated.payload, context)
 
-        bundle = self.artifact_api.record_json_artifact(
-            workflow_run_id=translated.context.workflow_run_id,
-            tenant_id=translated.context.tenant_id,
-            artifact_kind="research-output",
-            payload=output,
-        )
+        bundle = self._record_artifact(request, output, "research-output", context)
 
         return engine_pb2.ExecuteResponse(
             metadata=request.metadata,
@@ -94,18 +92,12 @@ class VibeAdapterService:
     ):
         translated, contract, plan, output = self._prepare_execution(request.request, context)
         execution_id = self._execution_id(request.request)
-        self._maybe_sleep(translated.payload)
-        if execution_id in self._cancelled:
-            context.abort(grpc.StatusCode.CANCELLED, "execution was cancelled")
+        self._wait(request.request, translated.payload, context)
 
-        bundle = self.artifact_api.record_json_artifact(
-            workflow_run_id=translated.context.workflow_run_id,
-            tenant_id=translated.context.tenant_id,
-            artifact_kind="stream-output",
-            payload=output,
-        )
+        bundle = self._record_artifact(request.request, output, "stream-output", context)
         deltas = build_stream_deltas(translated.context, contract, plan)
         for index, delta in enumerate(deltas, start=1):
+            self._check_active(request.request, context)
             is_last = index == len(deltas)
             yield engine_pb2.StreamExecuteResponse(
                 metadata=request.request.metadata,
@@ -122,8 +114,14 @@ class VibeAdapterService:
         request: engine_pb2.CancelRequest,
         context: grpc.ServicerContext,
     ) -> engine_pb2.CancelResponse:
-        del context
-        self._cancelled.add(request.execution_id)
+        owner = self._owner(request.metadata, request.execution_id)
+        with self._lock:
+            known = owner in self._owners
+            if known:
+                self._cancelled.add(owner)
+        if not known:
+            logging.getLogger(__name__).warning("vibe_adapter.cancel decision=denied")
+            context.abort(grpc.StatusCode.PERMISSION_DENIED, "ENGINE_EXECUTION_UNAVAILABLE")
         return engine_pb2.CancelResponse(
             metadata=request.metadata,
             execution_id=request.execution_id,
@@ -150,11 +148,35 @@ class VibeAdapterService:
                 contract,
                 policy_decision="allowed",
             )
+            with self._lock:
+                owner = self._owner(request.metadata, self._execution_id(request))
+                request_digest = json.dumps(
+                    [
+                        input_hash(request.input),
+                        request.data_snapshot_ref,
+                        request.policy_context_ref,
+                        request.workflow_run_id,
+                        request.idempotency_key,
+                    ]
+                )
+                previous = self._inputs.get(owner)
+                if previous is not None and previous != request_digest:
+                    raise ContextTranslationError(
+                        grpc.StatusCode.ALREADY_EXISTS, "ENGINE_IDEMPOTENCY_CONFLICT"
+                    )
+                self._inputs[owner] = request_digest
+                self._owners.add(owner)
             return translated, contract, plan, output
-        except FileNotFoundError as error:
-            context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(error))
+        except FileNotFoundError:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_FIXTURE_UNAVAILABLE")
         except ContextTranslationError as error:
+            logging.getLogger(__name__).warning(
+                "vibe_adapter.policy decision=denied code=%s", error.code.name
+            )
             context.abort(error.code, str(error))
+        except Exception:
+            logging.getLogger(__name__).error("vibe_adapter.provider decision=failed")
+            context.abort(grpc.StatusCode.INTERNAL, "ENGINE_PROVIDER_FAILED")
         raise AssertionError("gRPC abort should have terminated request handling")
 
     @staticmethod
@@ -162,7 +184,41 @@ class VibeAdapterService:
         return f"{request.workflow_run_id}:{request.idempotency_key}"
 
     @staticmethod
-    def _maybe_sleep(payload: dict) -> None:
-        sleep_ms = int(payload.get("sleep_ms", 0) or 0)
-        if sleep_ms > 0:
-            time.sleep(sleep_ms / 1000)
+    def _owner(metadata, execution_id: str) -> tuple[str, str, str, str]:
+        return (metadata.tenant_id, metadata.workspace_id, metadata.actor.actor_id, execution_id)
+
+    def _check_active(self, request, context: grpc.ServicerContext) -> None:
+        owner = self._owner(request.metadata, self._execution_id(request))
+        with self._lock:
+            cancelled = owner in self._cancelled
+        self._assert_active(request, context, cancelled)
+
+    @staticmethod
+    def _assert_active(request, context: grpc.ServicerContext, cancelled: bool) -> None:
+        if cancelled:
+            context.abort(grpc.StatusCode.CANCELLED, "ENGINE_EXECUTION_CANCELLED")
+        if request.deadline.ToDatetime(tzinfo=timezone.utc) <= datetime.now(tz=timezone.utc):
+            context.abort(grpc.StatusCode.DEADLINE_EXCEEDED, "ENGINE_DEADLINE_EXCEEDED")
+        if not context.is_active():
+            context.abort(grpc.StatusCode.CANCELLED, "ENGINE_TRANSPORT_CANCELLED")
+
+    def _record_artifact(self, request, output: dict, kind: str, context):
+        # Commit and Cancel share a lock: an acknowledged cancellation cannot race a write.
+        owner = self._owner(request.metadata, self._execution_id(request))
+        with self._lock:
+            self._assert_active(request, context, owner in self._cancelled)
+            return self.artifact_api.record_json_artifact(
+                workflow_run_id=request.workflow_run_id,
+                tenant_id=request.metadata.tenant_id,
+                artifact_kind=kind,
+                payload=output,
+            )
+
+    def _wait(self, request, payload: dict, context: grpc.ServicerContext) -> None:
+        until = time.monotonic() + payload.get("sleep_ms", 0) / 1000
+        while True:
+            self._check_active(request, context)
+            remaining = until - time.monotonic()
+            if remaining <= 0:
+                return
+            time.sleep(min(remaining, 0.01))
