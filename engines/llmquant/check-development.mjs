@@ -10,8 +10,8 @@ const receiptPath=directory+'/receipt.json';
 export const selectors=['engines/llmquant/','engines/engine-sdk/','engines/tests/','engines/uv.lock','engines/pyproject.toml','crates/quantos-engine-manager/','crates/quantos-runtime/','proto/','third_party/tp03-llmquant/','scripts/tp03-packaged-service.py','scripts/tp03-signal-probe.py','scripts/tp03-signal-schema.mjs','scripts/tp03-ui-cancel.mjs','packages/domain-ui/src/research.ts','packages/domain-ui/tests/tp03-research-cancel.test.ts','packages/api-client/src/terminal.ts','scripts/tp03-functional-artifacts.test.mjs','scripts/provider-a1-receipts.mjs','scripts/provider-a1-policy.json'];
 const formatFiles=['adapter','artifacts','fixtures','manifest','signal_mapper','server','service','__init__'].map(f=>'engines/llmquant/src/llmquant/'+f+'.py').concat(['engines/tests/test_llmquant_contract.py','engines/tests/test_llmquant_development.py']);
 export const checks=[
- {id:'contract',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_llmquant_contract.py','engines/tests/test_llmquant_development.py','-vv'],marker:/269 passed/},
- {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/695 passed/},
+ {id:'contract',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_llmquant_contract.py','engines/tests/test_llmquant_development.py','-vv'],marker:/273 passed/},
+ {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/699 passed/},
  {id:'manager',command:['cargo','test','--locked','--offline','-p','quantos-engine-manager','--test','python_llmquant'],marker:/2 passed; 0 failed/},
  {id:'runtime',command:['cargo','test','--locked','--offline','-p','quantos-runtime','--test','signal_proposal_orchestration','--','--nocapture'],marker:/3 passed; 0 failed/},
  {id:'schema',command:['node','scripts/tp03-signal-schema.mjs'],marker:/TP03_SIGNAL_SCHEMA_PASS 100/},

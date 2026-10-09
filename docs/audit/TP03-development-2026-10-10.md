@@ -27,13 +27,13 @@ UI证据是本地真实UDS取消回执到既有Research状态处理器的响应�
 
 ## 检查与原始失败
 
-组件12组覆盖：269项LLMQuant契约/开发、全Python695项、Manager2项、Runtime3项、100条实际schema与4项schema破坏、UI桥接3项、独立wheel服务、Ruff/format、Pyright、锁文件与第三方intake。实际结果见[组件回执](./evidence/tp03-20261010/receipt.json)。
+组件12组覆盖：273项LLMQuant契约/开发、全Python699项、Manager2项、Runtime3项、100条实际schema与4项schema破坏、UI桥接3项、独立wheel服务、Ruff/format、Pyright、锁文件与第三方intake。实际结果见[组件回执](./evidence/tp03-20261010/receipt.json)。
 
 初次边界测试4 FAIL/250 PASS：测试请求构造器错误地把冲突payload policy/snapshot回填为外层权威字段；已固定独立外层字段，补充缺失引用与fixture篡改用例。原失败见[原始日志](./evidence/tp03-20261010/initial/boundary-builder.log)。初轮261项工程回执保留于[首轮记录](./evidence/tp03-20261010/initial/preflight-record/receipt.json)，后续增加嵌套policy与provenance标量类型校验；首轮记录不作当前准入。
 
 ```sh
 node engines/llmquant/check-development.mjs --record
-node scripts/provider-a1-receipts.mjs --assess-tp03 docs/audit/evidence/provider-a1-remediation-20261004/tp03-admission-20261010/attempt-01
+node scripts/provider-a1-receipts.mjs --assess-tp03 docs/audit/evidence/provider-a1-remediation-20261004/tp03-admission-20261010/attempt-02
 node engines/llmquant/check-development.mjs --admit
 node engines/llmquant/check-development.mjs --ready
 node --test scripts/provider-a1-receipts.test.mjs scripts/tp01-c-functional-artifacts.test.mjs scripts/tp01-d-functional-artifacts.test.mjs scripts/tp02-functional-artifacts.test.mjs scripts/tp03-functional-artifacts.test.mjs
@@ -42,6 +42,10 @@ pnpm test:p0
 ```
 
 必要依赖闭包13节点、53唯一命令组将对冻结提交实际执行，数据库仅使用已有开发Supabase配置，不建立本地数据库。实际数据库执行与静态检查单独记录。最终manifest/执行台账、9项严格破坏探针、Git字节追踪和实际测量将在复评后补齐。
+
+新增四项双RPC回归：改变policy引用的两项真实复现Artifact标识冲突；另外两项初始断言错误地要求相同内容在不同幂等键下不去重（[原始日志](./evidence/tp03-20261010/initial/artifact-identity.log)）。初次同时绑定幂等键触发Runtime重放哈希回归（2 PASS/1 FAIL，见[原始日志](./evidence/tp03-20261010/initial/identity-replay-regression/runtime.log)）；最终仅将外层policy引用纳入Artifact内容标识，保留同内容去重和Runtime重放。最终四项及完整12组组件已重跑通过（273/全Python699、Runtime3）。冻结7a1923a9的首轮准入在F01结束、F06仍构建阶段停止，未执行目标数据库场景，未发布READY；[未完成记录](./evidence/tp03-20261010/initial/interrupted-admission-01/interruption.json)保留，后续在新冻结源码重跑全部检查。
+
+一次聚焦证据测试与组件回执写入并行，读取到上一轮FAIL回执而拒绝（[原始日志](./evidence/tp03-20261010/initial/negative-during-record.log)）；组件结束后按顺序重跑，最终108项结果单独保存。
 
 ## 风险与下一任务
 

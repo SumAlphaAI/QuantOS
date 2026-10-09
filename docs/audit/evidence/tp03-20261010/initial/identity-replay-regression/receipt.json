@@ -3,7 +3,7 @@
   "nodeId": "CORE:TP03",
   "stage": "DEVELOPMENT",
   "status": "BLOCKED",
-  "engineeringStatus": "PASS",
+  "engineeringStatus": "FAIL",
   "formalAccepted": false,
   "observedSourceCommit": "7a1923a9ecfa22989b9dbb4b59bc3f9fe513fa7a",
   "environment": {
@@ -320,7 +320,7 @@
     {
       "path": "engines/llmquant/src/llmquant/adapter.py",
       "role": "code",
-      "sha256": "sha256:79f7cede0f7875082ce539a621545ab9b813ae3b629cd070adaf00e38278e257"
+      "sha256": "sha256:04e698749e4cd4de4257118f589610c7dd2a5324a1f590c90bff7f0325cdf45c"
     },
     {
       "path": "engines/llmquant/src/llmquant/artifacts.py",
@@ -355,7 +355,7 @@
     {
       "path": "engines/llmquant/src/llmquant/signal_mapper.py",
       "role": "code",
-      "sha256": "sha256:c596c0fea8a43b0c43424d4b282eaed7a85eecd5b57a6fbc11dc987e4b7669de"
+      "sha256": "sha256:75016be28f8f615431781eb1b701fd1d96a71ae43cda5400230b808a48d00c1c"
     },
     {
       "path": "engines/pyproject.toml",
@@ -390,7 +390,7 @@
     {
       "path": "engines/tests/test_llmquant_development.py",
       "role": "test",
-      "sha256": "sha256:3cc8b0ad6a1c87bbfae0513b71caf270d51e88c89335b4589e1ae6e746b71057"
+      "sha256": "sha256:c0e036f2363b23c30062a00e934727b654677b1a710825833d67bfcb66f343dd"
     },
     {
       "path": "engines/tests/test_mock_engine_recovery.py",
@@ -859,7 +859,7 @@
       },
       {
         "file": "quantos_llmquant-0.1.0-py3-none-any.whl",
-        "sha256": "e99f118526bd30bea2a4547fa9f47cbf6f049556337ca5efd9b5ec222d2b2f36"
+        "sha256": "cd18eaa0f30087b6c97c7676115d52e5a29bbb210e5d755c43204d4c2642a547"
       }
     ],
     "installedIsolated": true,
@@ -867,7 +867,7 @@
     "rpcCount": 5,
     "capabilities": 1,
     "cancellation": {
-      "cancelMillis": 12.756957999954466,
+      "cancelMillis": 12.676834000103554,
       "cancelStatus": "CANCELLED",
       "finalArtifactSeen": false
     },
@@ -876,11 +876,11 @@
   "outputs": [
     {
       "file": "signal-matrix.json",
-      "sha256": "sha256:56ca4558f525215927bbd23115ca0fc6454d52d20c50b6f2cb8b80eaad31f827"
+      "sha256": "sha256:36401c0f7c47ff82017d24aba84bd014cf42902da038d2bc1a621adee7f103b8"
     },
     {
       "file": "ui-cancel.json",
-      "sha256": "sha256:69fc83d71b1a569338c31879b36a066c7960150dbecf8f00309c4145caf39565"
+      "sha256": "sha256:7ac76d83d45bb770b9778681a329aedeeae111fd7a95f32027848c5a74788d2e"
     }
   ],
   "checks": [
@@ -894,11 +894,11 @@
         "engines/tests/test_llmquant_development.py",
         "-vv"
       ],
-      "executedAt": "2026-10-09T23:48:05.454Z",
+      "executedAt": "2026-10-09T23:47:04.990Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/contract.log",
-      "logSha256": "sha256:db83cc3333eaf4a71e59ffdf4c9243bf01c2a34101fdd0ead56a8829f54c650b"
+      "logSha256": "sha256:b1ece303eb849548ec571c39237f372fd75c29fb617c5c7ed9cf97f6da345341"
     },
     {
       "id": "python",
@@ -909,11 +909,11 @@
         "engines/tests",
         "-q"
       ],
-      "executedAt": "2026-10-09T23:48:07.613Z",
+      "executedAt": "2026-10-09T23:47:07.245Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/python.log",
-      "logSha256": "sha256:630bf462f5ffc4ec8432ff35cb946edbf2260ba06e6f3af1402ba1f452097a1a"
+      "logSha256": "sha256:b8dcea39df8eca07e73d70f64fced2280388f6e6f80642ce7d3b3961c8a2f7bc"
     },
     {
       "id": "manager",
@@ -927,11 +927,11 @@
         "--test",
         "python_llmquant"
       ],
-      "executedAt": "2026-10-09T23:48:13.354Z",
+      "executedAt": "2026-10-09T23:47:12.760Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/manager.log",
-      "logSha256": "sha256:a67be1545d09987a81f6c054656cd17c49cbeed83d241c5c9499fc71ada2fce4"
+      "logSha256": "sha256:a1f10e93eec73f39a7499c60dbadb5ba406ee341f23c568433c52720f0d63f52"
     },
     {
       "id": "runtime",
@@ -947,11 +947,11 @@
         "--",
         "--nocapture"
       ],
-      "executedAt": "2026-10-09T23:48:13.679Z",
-      "exitCode": 0,
-      "status": "PASS",
+      "executedAt": "2026-10-09T23:47:13.097Z",
+      "exitCode": 101,
+      "status": "FAIL",
       "log": "docs/audit/evidence/tp03-20261010/runtime.log",
-      "logSha256": "sha256:3802cdc498d01bd93a51e517138dce217bd0e8e8ad4535cdc09607adcdb198af"
+      "logSha256": "sha256:daea7dbddd756c73e7f28f540655bec3466f5eb0912f757240a84605107bdeb9"
     },
     {
       "id": "schema",
@@ -959,7 +959,7 @@
         "node",
         "scripts/tp03-signal-schema.mjs"
       ],
-      "executedAt": "2026-10-09T23:48:15.440Z",
+      "executedAt": "2026-10-09T23:47:14.911Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/schema.log",
@@ -971,11 +971,11 @@
         "node",
         "scripts/tp03-ui-cancel.mjs"
       ],
-      "executedAt": "2026-10-09T23:48:15.849Z",
+      "executedAt": "2026-10-09T23:47:15.328Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/ui.log",
-      "logSha256": "sha256:60f71389ce6ab2b93d101a6a336ff318286b154cacfc7bcdf16989e9399fed4a"
+      "logSha256": "sha256:a5fafb7c9de33fde331b0941ead72ecc00bb52a83a3766bfa609769ca514c84a"
     },
     {
       "id": "package",
@@ -983,11 +983,11 @@
         "engines/.venv/bin/python",
         "scripts/tp03-packaged-service.py"
       ],
-      "executedAt": "2026-10-09T23:48:16.251Z",
+      "executedAt": "2026-10-09T23:47:15.737Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/package.log",
-      "logSha256": "sha256:dd8856e9a9f72cb73d9a1cfc6ac7655ffaeb2d0db22e29583a6f45bbef2358e8"
+      "logSha256": "sha256:8215cf45a53e0eebeefb6bf037b8634565fc2a654d8ea6af405900480688eb1d"
     },
     {
       "id": "lint",
@@ -998,7 +998,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-09T23:48:18.218Z",
+      "executedAt": "2026-10-09T23:47:17.781Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/lint.log",
@@ -1021,7 +1021,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-09T23:48:18.229Z",
+      "executedAt": "2026-10-09T23:47:17.792Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/format.log",
@@ -1039,7 +1039,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-09T23:48:18.237Z",
+      "executedAt": "2026-10-09T23:47:17.800Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/types.log",
@@ -1051,11 +1051,11 @@
         "bash",
         "scripts/check-lockfiles.sh"
       ],
-      "executedAt": "2026-10-09T23:48:20.636Z",
+      "executedAt": "2026-10-09T23:47:19.304Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/locks.log",
-      "logSha256": "sha256:861b091e6da6d72c3ddced06cf18b4e6a0d33f2d7d003a99c78e5d57641667c8"
+      "logSha256": "sha256:7b3c63b601ee57da86dba4d6a02626e763bd306eca0c7c0cecd15e9ae978402b"
     },
     {
       "id": "intake",
@@ -1063,7 +1063,7 @@
         "node",
         "scripts/check-tp-intake.mjs"
       ],
-      "executedAt": "2026-10-09T23:48:21.036Z",
+      "executedAt": "2026-10-09T23:47:19.691Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/intake.log",

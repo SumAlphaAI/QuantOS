@@ -519,3 +519,23 @@ def test_fixture_definition_tampering_is_rejected(tmp_path, monkeypatch, corrupt
                 fixtures.fixture_catalog()
     finally:
         fixtures.fixture_catalog.cache_clear()
+
+
+@pytest.mark.parametrize("rpc", ["execute", "stream"])
+@pytest.mark.parametrize("new_policy", [False, True])
+def test_distinct_execution_keys_and_policy_bind_artifact_ids(engine, rpc, new_policy):
+    service, client = engine
+    request = build_request(980, SIGNAL_CAPABILITY, {})
+    first = client.execute(request, timeout=3)
+    request.idempotency_key = "distinct-execution"
+    if new_policy:
+        request.policy_context_ref = "distinct-policy"
+    result = invoke(client, request, rpc)
+    refs = result.artifact_refs if rpc == "execute" else result[-1].artifact_refs
+    if new_policy:
+        assert {r.artifact_id for r in refs}.isdisjoint(r.artifact_id for r in first.artifact_refs)
+        assert service.artifacts.count == 4
+    else:
+        # Distinct execution keys may reuse exactly the same immutable content.
+        assert refs == first.artifact_refs
+        assert service.artifacts.count == 2

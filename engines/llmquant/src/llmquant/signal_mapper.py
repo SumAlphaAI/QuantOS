@@ -198,6 +198,7 @@ def _identity(context: SignalExecutionContext, fixture: SignalFixture, kind: str
             context.workspace_id,
             context.actor_id,
             context.workflow_run_id,
+            context.policy_context_ref,
             context.input_hash,
             context.metadata_hash,
             fixture.model_digest,

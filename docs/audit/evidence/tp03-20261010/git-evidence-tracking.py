@@ -2,7 +2,7 @@ from pathlib import Path
 import json,hashlib,subprocess,sys
 root=Path(__file__).resolve().parents[4]
 base=root/'docs/audit/evidence/provider-a1-remediation-20261004'
-ledgers=[base/'tp03-admission-20261010/attempt-01/execution-results.json']
+ledgers=[base/'tp03-admission-20261010/attempt-02/execution-results.json']
 refs={}
 for ledger in ledgers:
  for c in json.loads(ledger.read_text()):
