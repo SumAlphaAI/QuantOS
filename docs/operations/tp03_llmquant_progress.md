@@ -1,3 +1,5 @@
+> TP05更新：以下保留原冻结源码的历史开发记录。当前4875b140的必要闭包未包含该Engine自身，旧READY不转授；当前结果以[TP05报告](../audit/TP05-development-2026-10-10.md)和计划Gate为准。
+
 # TP03 LLMQuant 开发进度
 
 2026-10-10更新：TP03已随TP04在冻结e27d5dab重新执行必要闭包；当前结果见[TP04报告](../audit/TP04-development-2026-10-10.md)，以下保留原TP03记录。
