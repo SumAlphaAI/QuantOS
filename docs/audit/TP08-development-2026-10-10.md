@@ -9,3 +9,5 @@
 交付：third_party/qlib 的实验/fixture/映射/实际对象/来源记录/许可证和 CVE 记录；当前映射测试；scripts/tp08* 来源、schema、生产排除及回执校验；统一 provider-a1 policy/recorder 与构建入口；ADR、能力矩阵、进度与双计划。
 
 未决：解析依赖图和当前 advisory 未执行，运行时 DENIED；真实数据用途许可未授予；F05/F07 性能/Release 风险待当前目标实测记录；无 hosted CI、外部发布或正式 ACCEPTED。本任务不新增生产凭据动作或本地数据库。
+
+全仓 Ruff 另发现保存的上游原文有 15 项既有风格错误；保留原始文件字节，按既有上游参考惯例从全仓 Ruff 排除该只读目录，自有实验继续检查。首个源码轮次在 F01/F06 通过后中断，F09 使用内建取消并清理 PASS；记录见 initial/interrupted-admission-01。修复后 make lint 与组件 9 组通过，须新源码完整重评。
