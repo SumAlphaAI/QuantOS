@@ -1,4 +1,4 @@
-> 当前工程状态（2026-10-10）：TP03受控Signal Engine工程完成，功能输入变化后撤销13旧Gate；当前0 READY、159 NOT_ASSESSED。TP03/F08/F05/F0必要13节点/53组实际复评待冻结源码执行，历史正式/CI不迁移。见[本轮报告](./audit/TP03-development-2026-10-10.md)。
+> 当前工程状态（2026-10-10）：冻结3ab1df6完成TP03/F08/F05/F0必要13节点、53组实际功能复评及严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。TP02/TP01-C/D/R01/R02旧Gate本轮未重授，正式/hosted CI/发布独立。见[本轮报告](./audit/TP03-development-2026-10-10.md)。
 
 > 上轮工程快照（2026-10-09）：冻结c3f86f5完成TP02与F08/F0必要13节点、53组实际功能检查及严格内容校验，13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。旧TP01-C/D、R01/R02未在本轮重新准入；正式确认、hosted CI和发布独立，见[本轮报告](./audit/TP02-development-2026-10-09.md)。
 
@@ -17,13 +17,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.57
+> 版本：3.58
 > 更新时间：2026-10-10
-> 状态：TP03工程完成、必要依赖复评待执行；0 READY/159 NOT_ASSESSED；正式/发布独立。
+> 状态：TP03与F08/F05/F0必要13节点DEVELOPMENT READY；146 NOT_ASSESSED；页面、正式和发布独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.58`：冻结3ab1df6完成TP03/F08/F05/F0必要13节点、53组实际功能复评及严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。TP02/TP01-C/D/R01/R02旧Gate本轮未重授，正式/hosted CI/发布独立。见[本轮报告](./audit/TP03-development-2026-10-10.md)。
 
 - `3.57`：TP03受控Signal adapter、100条实际schema/双RPC重放、scoped Artifact/取消/deadline、独立wheel和Research UI响应桥接完成；13旧Gate撤销，必要13节点/53组实际复评待执行。见[本轮报告](./audit/TP03-development-2026-10-10.md)。
 
