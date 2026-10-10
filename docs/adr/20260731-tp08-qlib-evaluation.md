@@ -1,50 +1,25 @@
-# ADR: TP08 Qlib Evaluation — Reference-Only, No Adapter
+# ADR: TP08 Qlib — reference only, no adapter
 
 ## Status
 
-Accepted as evaluation conclusion.
+Engineering evaluation decision refreshed 2026-10-10. Formal acceptance: false. This decision grants no runtime, data-purpose or production permission.
 
-## Context
+## Evidence and decision
 
-TP08 requires an evaluation of Qlib for dataset handling, factor experimentation, and workflow reproducibility, with the explicit constraint that Qlib must not become a second Quant Core. The evaluation is pinned to `microsoft/qlib@d5379c520f66a39953bad76234a7019a72796fd0` (`v0.9.7-31-gd5379c52`, MIT) and covers three deliverables: a capability matrix, an SBOM/CVE record, and three offline experiment mappings into `DataSnapshot` / `ResearchArtifact` contracts.
+The baseline is `microsoft/qlib@d5379c520f66a39953bad76234a7019a72796fd0`, MIT. Six pinned source files were retrieved read-only and hashed; their notices are retained. Review scope covers the handler, benchmark YAML, recorder and dependency descriptors. The source inventory is not a resolved transitive SBOM, and current CVE advisory scanning has not run.
 
-Findings from the capability matrix:
+Classify Qlib as **reference_only**. Do not create `engines/qlib-adapter`, import Qlib or admit its dependencies to production. The useful concepts are declarative handlers, experiment configuration, and recorder evidence. Three QuantOS-owned offline experiments demonstrate a small mean5/return1 subset, a zero-return diagnostic baseline, and local deterministic replay into current typed DataSnapshot/ResearchArtifact contracts. They do not execute full Alpha158, LightGBM, MLflow or the actual Runtime. Synthetic data has a synthetic-test-only label; software MIT rights do not confer market data rights.
 
-1. Qlib's valuable assets are design-level: the expression/handler dataset model, the declarative `qrun` experiment config, and the experiment-recorder reproducibility model. All three are expressible inside QuantOS contracts, as proven by the three mapping samples.
-2. Every runtime surface (binary data store + cache, redis/mongo client-server infra, mlflow tracking, in-process training, backtest/execution, RL) conflicts with existing QuantOS boundaries: F05 snapshot catalog and license gate, F08 engine isolation, TP03 engine ownership, and the artifact store.
-3. Supply-chain posture is weak for admission: no upstream lockfile, several unpinned heavy dependencies (`mlflow`, `gym`, `jupyter`), and the CVE audit is currently `blocked` by local host bootstrap failures.
+F05 owns snapshots and data-purpose gates; TP02/TP03 own controlled research/model paths; QuantOS orchestration and Artifact interfaces retain authority. A parallel Qlib data/training/tracking/execution system would duplicate those responsibilities. The scope-aware in-memory reference store proves local refusal/dedup behavior only, not deployed authorization or persistent F05 storage.
 
-## Decision
+## Replacement cost and alternatives
 
-1. Qlib is classified as **reference only** (`reference_only`). No `engines/qlib-adapter` will be built.
-2. Qlib designs may be absorbed only as design/test reference or as offline mapping samples, per `baseline.lock.json` policy.
-3. QuantOS dataset, factor, and reproducibility needs are served by the owned path: F05 `DataSnapshot` catalog, TP03 `llmquant`, TP02 `rd-agent`, and R03/R04 orchestration.
-4. The pinned baseline (`third_party/qlib/`) is retained for monitoring; CVE audit must be rerun and classified before this decision can be revisited.
+| Option | Cost / required evidence | Decision |
+| --- | --- | --- |
+| Design reference | Maintain six pinned files, small executable fixtures, contract/schema and hash regression checks | Selected; lowest current maintenance cost |
+| Isolated adapter | Freeze platform-specific dependency graph; audit complete SBOM/CVE; implement five Engine RPCs, cancellation, scope, Artifact and purpose controls; prove OS egress isolation | Deferred; substantial build/operations cost with no established unmet need |
+| Data migration | Convert source dumps to F05 snapshots with full bytes, lineage and independently authorized source rights | Not undertaken; synthetic fixture grants no source rights |
+| Tracking replacement | Translate experiment state/config/metrics to owned persistent Artifact and audit semantics, recovery and dedup | Not undertaken; local transcript does not establish delivery |
+| Direct second Quant Core | Parallel storage, training, tracking or execution authority | Rejected |
 
-## Consequences
-
-Positive:
-
-- No second Quant Core, no duplicate data infra, no mlflow dependency in the QuantOS runtime.
-- Mapping samples keep the door open for absorbing Qlib experiment-design ideas without taking code dependencies.
-- MIT license removes legal blockers for design reference.
-
-Trade-offs:
-
-- QuantOS reimplements handler-style factor definitions inside `llmquant` fixtures rather than reusing Qlib's mature factor library.
-- Qlib's benchmark model zoo remains external; QuantOS keeps its own deterministic fixtures.
-
-## Replacement cost
-
-If this decision were reversed in favor of an isolated adapter:
-
-- **Adapter build**: a `data.query.v1`-style provider translating Qlib handler/dataset definitions into the QuantOS Data Contract — comparable to TP05's `openbb-adapter` scope.
-- **Data migration**: Qlib binary dumps would need conversion into F05 snapshots with per-source license and lineage labels; the community dumps currently lack production-grade licenses, so production use would additionally require a licensed data source.
-- **Tracking replacement**: mlflow recorder semantics would need reimplementation on the QuantOS artifact store to satisfy hash dedup and tenant isolation.
-- **Supply chain**: a pinned lockfile plus a passing CVE audit would be a hard prerequisite; the heavy dependency set (`mlflow`, `gym`, `jupyter`) is the dominant cost.
-- **Net assessment**: replacement cost is high relative to the value, because the three valuable capabilities are design patterns that QuantOS already expresses natively. Reversal is not recommended without a concrete requirement that TP03/TP02 cannot meet.
-
-## Follow-up
-
-- Rerun the CVE audit on a clean Python 3.11+ host with a resolver-frozen lock for the pinned commit; record findings per `cve-audit.md`.
-- Revisit this ADR only if R1/R03 surfaces a requirement that the owned engines cannot satisfy.
+Revisit only for a concrete requirement the owned path cannot satisfy, with explicit decision change and the above evidence. No effort estimate is claimed without that requirement. The historical ensurepip SIGABRT scan failure remains archived; it is not a current host result. Runtime admission remains DENIED until a frozen graph, current advisory triage, isolation and relevant rights are approved.

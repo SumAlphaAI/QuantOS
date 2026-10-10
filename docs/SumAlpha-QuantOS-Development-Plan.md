@@ -23,7 +23,7 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.58
+> 版本：3.59
 > 更新时间：2026-10-10
 > 状态：技术执行基线  
 > 本轮变更：TP05工程实现与必要依赖闭包复评；OpenBB上游/法律/生产用途独立。
@@ -31,6 +31,8 @@
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.59`：TP08 固定来源重验、三项可执行离线映射与许可证/隔离边界刷新；原回执因功能输入变化全部转 NOT_ASSESSED，必要 F05/F0 闭包重建后单独登记。详见 [TP08 报告](./audit/TP08-development-2026-10-10.md)。
 
 - `3.58`：冻结4875b140完成TP05受控数据provider、许可证与生产制品排除Gate，必要13节点/53组实际复评PASS；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。见[本轮报告](./audit/TP05-development-2026-10-10.md)。
 - `3.57`：冻结e27d5dab完成TP04/TP03/F08/F0必要14节点、56组实际功能复评及严格内容校验；14 DEVELOPMENT READY、145 NOT_ASSESSED、0 BLOCKED，正式/hosted CI/发布独立。见[本轮报告](./audit/TP04-development-2026-10-10.md)。
@@ -380,7 +382,7 @@ flowchart TD
 - task_id: `F01`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f12d9903cd0390c236ffea8bcfeb0369d42a9f74ad5575e98d3ac8107d58109e","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-f01.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: []
 - core_prerequisites: []
 - closes_core: []
@@ -401,7 +403,7 @@ flowchart TD
 - task_id: `F02`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:5869dc7e8d04481ea7595be9a0fbac1abb6ec496633cac7dc3230c8ac22da2f3","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-f02.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -423,7 +425,7 @@ flowchart TD
 - task_id: `F03`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:cd7ff7c9766e1631f63e9e8bdce69cd07e9adb43f97c65e3e9f34cd3db33cac8","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-f03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01"]
 - core_prerequisites: ["CORE:F01"]
 - closes_core: []
@@ -443,7 +445,7 @@ flowchart TD
 - task_id: `F04`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:7d2fcaca95f39bfbb17df9d8228a7ff7231137dd33ebafa7905f54afade7a175","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-f04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03"]
 - core_prerequisites: ["CORE:F03"]
 - closes_core: []
@@ -463,7 +465,7 @@ flowchart TD
 - task_id: `F05`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:d2843619a263be895d6a252bcf84bc6202127c43f8125b39f2a2f2fff78755da","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-f05.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F04"]
 - core_prerequisites: ["CORE:F03", "CORE:F04"]
 - closes_core: []
@@ -484,7 +486,7 @@ flowchart TD
 - task_id: `F06`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:74c6366f72751fbe4215703aae181baae7b097ea61e469adf87a121206ddee93","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-f06.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F05"]
 - core_prerequisites: ["CORE:F03", "CORE:F05"]
 - closes_core: []
@@ -505,7 +507,7 @@ flowchart TD
 - task_id: `F07`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:0859e06f6356ca6a4efafb5a1c818e0f77d3bac6dd69fd043052f03036be000f","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-f07.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F04", "CORE:F05", "CORE:F06"]
 - core_prerequisites: ["CORE:F04", "CORE:F05", "CORE:F06"]
 - closes_core: []
@@ -527,7 +529,7 @@ flowchart TD
 - task_id: `F08`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4962404be66ded6b33c07c6bfcf8d2a03f8dbc1a81800b6b720a865feedd0a38","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-f08.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F07"]
 - core_prerequisites: ["CORE:F03", "CORE:F06", "CORE:F07"]
 - closes_core: []
@@ -547,7 +549,7 @@ flowchart TD
 - task_id: `F09`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:252174c8c51ccbaf72ed969c863698344d356c55cfbf7a29d12e4687dd16bbe4","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-f09.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
 - core_prerequisites: ["CORE:F05", "CORE:F06", "CORE:F07", "CORE:F08"]
 - closes_core: []
@@ -569,7 +571,7 @@ flowchart TD
 - task_id: `TP01-A`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:8ad76a97b8ce05cf449c64d496e8dd4a07f4d0bc3a749765f9041ba411a36aa1","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-tp01-a.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F01", "CORE:F02"]
 - core_prerequisites: ["CORE:F01", "CORE:F02"]
 - closes_core: []
@@ -590,7 +592,7 @@ flowchart TD
 - task_id: `TP01-B`
 - task_type: `CORE`
 - iteration: `F0`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:85a23a152bfe578ea33ef9d003acd6e01903c82f30697ae42e50c54c7be75c71","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-tp01-b.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-A", "CORE:F07"]
 - core_prerequisites: ["CORE:TP01-A", "CORE:F07"]
 - closes_core: []
@@ -653,11 +655,9 @@ flowchart TD
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:b96f867c8256720be5f9546aba57184eb810cd592dfba08bf2f9b7c4c8c55a43",
-    "evidence": [
-      "audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-gate-f0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -824,7 +824,7 @@ F0 DEVELOPMENT必要闭包在冻结c3f86f5随TP02重新实际执行并严格READ
 - task_id: `TP05`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:da6b99acfd81b2679e7b44243adeaf9e70409066ff99e2b726f372e5f15f406d","evidence":["audit/evidence/provider-a1-remediation-20261004/tp05-admission-20261010/attempt-02/core-tp05.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE:F08", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F05", "CORE:F08", "CORE-GATE:F0"]
 - closes_core: []
@@ -836,7 +836,7 @@ F0 DEVELOPMENT必要闭包在冻结c3f86f5随TP02重新实际执行并严格READ
 - 交付物：`engines/openbb-adapter`、provider interface、法律决策 ADR、替代 provider mock
 - 集成验收标准：结果 100% 含来源/许可/schema/hash；未经批准的数据不可进入交易流程；服务端无核心领域依赖；许可证 Gate 未通过时生产构建拒绝包含该制品
 - 阶段/依赖：F05、F08；R1
-- 当前工程复核：本轮受控fixture provider实现、测试及必要依赖闭包严格DEVELOPMENT READY；详见[TP05报告](./audit/TP05-development-2026-10-10.md)。不授予upstream运行时、法律/数据用途、R1整体、正式ACCEPTED或发布。历史[复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp05)保留。
+- 当前工程复核：历史 TP05 受控 fixture provider 曾获 DEVELOPMENT READY；当前输入变化后须重新准入；详见[TP05报告](./audit/TP05-development-2026-10-10.md)。不授予upstream运行时、法律/数据用途、R1整体、正式ACCEPTED或发布。历史[复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp05)保留。
 
 <a id="task-tp08"></a>
 ### TP08：Qlib
@@ -848,7 +848,7 @@ F0 DEVELOPMENT必要闭包在冻结c3f86f5随TP02重新实际执行并严格READ
 - depends_on: ["CORE:F05", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F05", "CORE-GATE:F0"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `R1-SERVICE`
 - 需求描述：Qlib
@@ -856,7 +856,7 @@ F0 DEVELOPMENT必要闭包在冻结c3f86f5随TP02重新实际执行并严格READ
 - 交付物：ADR、capability matrix、与 `DataSnapshot/ResearchArtifact` 映射样例
 - 验收标准：固定 commit、许可证/SBOM/CVE 记录齐全；完成 3 个离线实验映射；结论明确“仅参考/隔离 adapter/拒绝”及替换成本
 - 阶段/依赖：R1，F05
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp08)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：仅参考评估实现已刷新；当前准入以 stage_gate 和 [TP08 报告](./audit/TP08-development-2026-10-10.md)为准，功能检查不授予正式 ACCEPTED、运行时或生产权限。
 
 <a id="task-tp09"></a>
 ### TP09：TrendRadar

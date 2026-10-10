@@ -1,0 +1,45 @@
+F.......................................                                 [100%]
+=================================== FAILURES ===================================
+__________ test_three_experiments_are_executed_with_real_byte_hashes ___________
+
+    def test_three_experiments_are_executed_with_real_byte_hashes():
+        docs, store = module.evaluate(FIXTURE)
+        snapshot = docs[0]["quantos_data_snapshot"]
+        research = docs[1]["quantos_research_artifact"]
+        ParseDict(snapshot, research_pb2.DataSnapshot(), ignore_unknown_fields=False)
+        ParseDict(research, research_pb2.ResearchArtifact(), ignore_unknown_fields=False)
+        assert research["data_snapshot_id"] == snapshot["snapshot_id"]
+        assert research["code_version"] == module.digest(
+            (ROOT / "third_party/qlib/experiments.py").read_bytes()
+        )
+        for doc in docs:
+            assert doc["content_hash"] == module.digest(
+                module.canonical({k: v for k, v in doc.items() if k != "content_hash"})
+            )
+            assert doc["trading_approved"] is False and doc["upstream_runtime_loaded"] is False
+        refs = docs[2]["offline_replay"]["artifact_refs"]
+        assert len(refs) == 3 and len(store.objects) == 3
+        for ref in refs:
+            assert module.digest(store.read(module.SCOPE, ref["artifact_id"])) == ref["sha256"]
+        assert {r["artifact_id"] for r in research["evidence_refs"]} == {
+            r["artifact_id"] for r in research["attachments"]
+        }
+        features = json.loads(store.read(module.SCOPE, refs[0]["artifact_id"]))["records"]
+        assert len(features) == 24 and features[0] == {
+            "symbol": "SYN_A",
+            "day": 5,
+            "mean5": "102.60000000",
+            "return1": "0.01923077",
+        }
+        metrics = json.loads(store.read(module.SCOPE, refs[2]["artifact_id"]))
+        assert metrics["samples"] == 21 and metrics["baseline"] == "zero-return"
+>       assert metrics["mean_absolute_error"] == "0.03300126"
+E       AssertionError: assert '0.02485689' == '0.03300126'
+E         
+E         - 0.03300126
+E         + 0.02485689
+
+engines/tests/test_tp08_qlib_mapping_samples.py:53: AssertionError
+=========================== short test summary info ============================
+FAILED engines/tests/test_tp08_qlib_mapping_samples.py::test_three_experiments_are_executed_with_real_byte_hashes
+1 failed, 39 passed in 0.04s

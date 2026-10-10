@@ -37,7 +37,7 @@
   },
   "policy": {
     "readOnlyReference": true,
-    "productionArtifactSource": "engines/llmquant",
+    "productionArtifactSource": null,
     "decision": "reference_only",
     "allowedAbsorptionModes": [
       "design or test reference only",
@@ -49,12 +49,23 @@
       "mlflow recorder as QuantOS artifact store",
       "qlib backtest or execution stack",
       "redis/mongo client-server data infra"
-    ]
+    ],
+    "runtimeAdmission": "DENIED"
   },
   "cveAudit": {
-    "status": "blocked",
+    "status": "NOT_ASSESSED_RESOLVED_GRAPH",
     "tool": "pip-audit (uvx, Python 3.12)",
     "lastAttemptedAt": "2026-07-31T00:00:00Z",
-    "reason": "Local audit host aborted during virtualenv bootstrap (ensurepip SIGABRT) while resolving the unpinned pyqlib dependency set; upstream ships no lockfile, so no trustworthy resolved dependency list exists yet."
-  }
+    "reason": "Reference-only evaluation admits no upstream package. No resolver-frozen Qlib dependency graph or current vulnerability result exists; runtime admission remains denied. Historical host failure is not a current-host result.",
+    "historicalAttempt": {
+      "status": "blocked",
+      "tool": "pip-audit (uvx, Python 3.12)",
+      "lastAttemptedAt": "2026-07-31T00:00:00Z",
+      "reason": "Local audit host aborted during virtualenv bootstrap (ensurepip SIGABRT) while resolving the unpinned pyqlib dependency set; upstream ships no lockfile, so no trustworthy resolved dependency list exists yet."
+    }
+  },
+  "task": "TP08",
+  "productionApproved": false,
+  "sourceDisposition": "reference_only_no_upstream_runtime_admitted",
+  "reviewedAt": "2026-10-10"
 }

@@ -1092,6 +1092,39 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp08-development": {
+      "command": [
+        "node",
+        "third_party/qlib/check-development.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp08-20261010/receipt.json",
+      "artifactKind": "tp08-development",
+      "timeoutMs": 900000
+    },
+    "tp08-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp08-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp08-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp08-process-cleanup/receipt.json",
+      "output": "supporting/tp08-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1664,6 +1697,27 @@
         "tp05-development",
         "tp05-negatives",
         "tp05-process-cleanup"
+      ]
+    },
+    "CORE:TP08": {
+      "scope": "Reference-only Qlib pinned source evaluation: three executable QuantOS-owned synthetic mappings, actual typed protobuf and JSON schemas, scoped immutable mock Artifact bytes and deterministic offline replay; no upstream runtime, full Alpha158, trained model, MLflow, deployed Runtime, persistence, current resolved CVE clearance or production admission.",
+      "inputs": [
+        "third_party/qlib/",
+        "engines/engine-sdk/",
+        "engines/tests/test_tp08_qlib_mapping_samples.py",
+        "engines/pyproject.toml",
+        "engines/uv.lock",
+        "proto/",
+        "scripts/tp08*",
+        "scripts/check-tp-intake.mjs",
+        "scripts/generate-build-manifest.mjs",
+        "Makefile",
+        "docs/adr/20260731-tp08-qlib-evaluation.md"
+      ],
+      "checks": [
+        "tp08-development",
+        "tp08-negatives",
+        "tp08-process-cleanup"
       ]
     }
   },

@@ -1,0 +1,80 @@
+{
+  "mapping_id": "tp08-qlib-02-lightgbm-experiment-research-artifact",
+  "purpose": "Map a Qlib qrun LightGBM-on-Alpha158 experiment definition into a QuantOS ResearchArtifact contract.",
+  "qlib_source": {
+    "commit": "d5379c520f66a39953bad76234a7019a72796fd0",
+    "surface": "qlib.workflow.cli (qrun) + qlib.contrib.model.gbdt.LGBModel",
+    "experiment_config": "examples/benchmarks/LightGBM/workflow_config_lightgbm_Alpha158.yaml",
+    "model": "LightGBM (qlib.contrib.model.gbdt.LGBModel)",
+    "dataset": "Alpha158 handler over csi300 (see mapping 01)",
+    "recorded_outputs": [
+      "sig_analysis: IC / ICIR / Rank IC / Rank ICIR",
+      "trained model parameters and metrics via mlflow recorder"
+    ]
+  },
+  "quantos_research_artifact": {
+    "metadata": {
+      "tenant_id": "tenant-primary",
+      "workspace_id": "workspace-primary",
+      "actor_id": "actor-tp08-mapping",
+      "correlation_id": "corr-tp08-qlib-02",
+      "causation_id": "cause-tp08-qlib-02",
+      "mode": "RUNTIME_MODE_RESEARCH",
+      "environment": "ENVIRONMENT_TEST",
+      "issued_at": "2026-07-31T00:00:00Z"
+    },
+    "artifact_id": "research-artifact-tp08-lgbm-alpha158-csi300-2020",
+    "title": "LightGBM on Alpha158 factor set, csi300, 2020",
+    "hypothesis": "A gradient-boosted tree trained on the Alpha158 expression set produces positive rank IC on the csi300 universe during the 2020 calendar year.",
+    "summary": "Offline experiment mapping: qrun-equivalent LightGBM workflow over the Alpha158 handler; signal analysis outputs (IC, ICIR, Rank IC, Rank ICIR) are attached as evidence, mirroring the TP02 research artifact contract.",
+    "engine_version": "qlib-reference-mapping 0.1.0",
+    "prompt_version": "n/a",
+    "code_version": "d5379c520f66a39953bad76234a7019a72796fd0",
+    "environment_hash": "sha256:qlib-mapping-env-py3.11-lightgbm",
+    "data_snapshot_id": "snapshot-tp08-qlib-alpha158-csi300-2020",
+    "evidence_refs": [
+      {
+        "evidence_id": "tp08-lgbm-evidence-ic",
+        "artifact_id": "artifact-tp08-lgbm-sig-analysis",
+        "summary": "sig_analysis metrics: IC / ICIR / Rank IC / Rank ICIR for the 2020 test window"
+      },
+      {
+        "evidence_id": "tp08-lgbm-evidence-config",
+        "artifact_id": "artifact-tp08-lgbm-experiment-config",
+        "summary": "frozen qrun-equivalent experiment config (handler + model + dataset + records)"
+      }
+    ],
+    "attachments": [
+      {
+        "artifact_id": "artifact-tp08-lgbm-sig-analysis",
+        "media_type": "application/json",
+        "content_hash": "sha256:placeholder-sig-analysis",
+        "storage_bucket": "quantos-artifacts",
+        "object_key": "tp08/lgbm-alpha158-csi300-2020/sig_analysis.json"
+      },
+      {
+        "artifact_id": "artifact-tp08-lgbm-experiment-config",
+        "media_type": "application/yaml",
+        "content_hash": "sha256:placeholder-experiment-config",
+        "storage_bucket": "quantos-artifacts",
+        "object_key": "tp08/lgbm-alpha158-csi300-2020/experiment_config.yaml"
+      }
+    ],
+    "created_at": "2026-07-31T00:00:00Z",
+    "expires_at": null,
+    "audit_tags": {
+      "tags": [
+        "tp08",
+        "qlib-reference-only",
+        "offline-mapping",
+        "research_only"
+      ]
+    }
+  },
+  "boundary_notes": [
+    "the artifact records the experiment definition and evidence; no qlib training runtime is executed inside QuantOS",
+    "mlflow recorder output is translated into attachments; mlflow itself is not a QuantOS artifact store",
+    "prompt_version is n/a because this is a non-LLM factor experiment"
+  ],
+  "content_hash": "sha256:9dd231ff6c839110b9a2d2e678e60d3690089a6d8c4cea80a46f1e8b744edf21"
+}

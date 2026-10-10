@@ -1,122 +1,173 @@
-"""TP08: validate the Qlib -> QuantOS contract mapping samples.
+"""Execute three offline reference mappings and probe rejected inputs/byte evidence."""
 
-The three samples under `third_party/qlib/mappings/` prove that Qlib's
-dataset, experiment, and reproducibility concepts fit inside QuantOS
-DataSnapshot / ResearchArtifact / runtime-run contracts. These tests keep
-the samples replayable and structurally aligned with the proto contracts.
-"""
-
-from __future__ import annotations
-
-import hashlib
+from copy import deepcopy
+import importlib.util
 import json
 from pathlib import Path
 
-MAPPINGS_DIR = Path(__file__).resolve().parents[2] / "third_party" / "qlib" / "mappings"
+from google.protobuf.json_format import ParseDict
+import pytest
+from quantos.research.v1 import research_pb2
 
-REQUIRED_METADATA_KEYS = {
-    "tenant_id",
-    "workspace_id",
-    "actor_id",
-    "correlation_id",
-    "causation_id",
-    "mode",
-    "environment",
-    "issued_at",
-}
-
-
-def _load(name: str) -> dict:
-    return json.loads((MAPPINGS_DIR / name).read_text(encoding="utf-8"))
+ROOT = Path(__file__).resolve().parents[2]
+SPEC = importlib.util.spec_from_file_location(
+    "tp08_reference", ROOT / "third_party/qlib/experiments.py"
+)
+assert SPEC and SPEC.loader
+module = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(module)
+FIXTURE = json.loads((ROOT / "third_party/qlib/fixture.json").read_text())
 
 
-def _canonical_hash(doc: dict) -> str:
-    payload = {key: value for key, value in doc.items() if key != "content_hash"}
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-
-
-def test_alpha158_mapping_matches_datasnapshot_contract() -> None:
-    doc = _load("01-alpha158-to-datasnapshot.json")
-    snapshot = doc["quantos_data_snapshot"]
-
-    assert REQUIRED_METADATA_KEYS.issubset(snapshot["metadata"].keys())
-    for field in (
-        "snapshot_id",
-        "schema_version",
-        "window",
-        "quality",
-        "license_label",
-        "captured_at",
-        "max_age",
-    ):
-        assert snapshot[field], f"missing DataSnapshot field `{field}`"
-
-    assert {"start_at", "end_at"}.issubset(snapshot["window"].keys())
-    assert snapshot["sources"], "DataSnapshot requires at least one source"
-    for source in snapshot["sources"]:
-        assert {"source_id", "provider", "dataset", "license_label"}.issubset(source.keys())
-    assert snapshot["symbols"], "DataSnapshot should carry the mapped universe symbols"
-    for ref in snapshot["artifact_refs"]:
-        assert {"artifact_id", "media_type", "content_hash", "storage_bucket", "object_key"}.issubset(
-            ref.keys()
-        )
-        assert ref["content_hash"].startswith("sha256:")
-
-
-def test_lightgbm_mapping_matches_research_artifact_contract() -> None:
-    doc = _load("02-lightgbm-experiment-to-research-artifact.json")
-    artifact = doc["quantos_research_artifact"]
-
-    assert REQUIRED_METADATA_KEYS.issubset(artifact["metadata"].keys())
-    for field in (
-        "artifact_id",
-        "title",
-        "hypothesis",
-        "summary",
-        "engine_version",
-        "prompt_version",
-        "code_version",
-        "environment_hash",
-        "data_snapshot_id",
-        "created_at",
-    ):
-        assert artifact[field] is not None, f"missing ResearchArtifact field `{field}`"
-
-    assert artifact["evidence_refs"], "ResearchArtifact must carry evidence refs"
-    for ref in artifact["evidence_refs"]:
-        assert {"evidence_id", "artifact_id", "summary"}.issubset(ref.keys())
-    for attachment in artifact["attachments"]:
-        assert attachment["content_hash"].startswith("sha256:")
-
-
-def test_experiment_mapping_references_the_snapshot_mapping() -> None:
-    snapshot_doc = _load("01-alpha158-to-datasnapshot.json")
-    artifact_doc = _load("02-lightgbm-experiment-to-research-artifact.json")
-    assert (
-        artifact_doc["quantos_research_artifact"]["data_snapshot_id"]
-        == snapshot_doc["quantos_data_snapshot"]["snapshot_id"]
+def test_three_experiments_are_executed_with_real_byte_hashes():
+    docs, store = module.evaluate(FIXTURE)
+    snapshot = docs[0]["quantos_data_snapshot"]
+    research = docs[1]["quantos_research_artifact"]
+    ParseDict(snapshot, research_pb2.DataSnapshot(), ignore_unknown_fields=False)
+    ParseDict(research, research_pb2.ResearchArtifact(), ignore_unknown_fields=False)
+    assert research["data_snapshot_id"] == snapshot["snapshot_id"]
+    assert research["code_version"] == module.digest(
+        (ROOT / "third_party/qlib/experiments.py").read_bytes()
     )
+    for doc in docs:
+        assert doc["content_hash"] == module.digest(
+            module.canonical({k: v for k, v in doc.items() if k != "content_hash"})
+        )
+        assert doc["trading_approved"] is False and doc["upstream_runtime_loaded"] is False
+    refs = docs[2]["offline_replay"]["artifact_refs"]
+    assert len(refs) == 3 and len(store.objects) == 3
+    for ref in refs:
+        assert module.digest(store.read(module.SCOPE, ref["artifact_id"])) == ref["sha256"]
+    assert {r["artifact_id"] for r in research["evidence_refs"]} == {
+        r["artifact_id"] for r in research["attachments"]
+    }
+    features = json.loads(store.read(module.SCOPE, refs[0]["artifact_id"]))["records"]
+    assert len(features) == 24 and features[0] == {
+        "symbol": "SYN_A",
+        "day": 5,
+        "mean5": "102.60000000",
+        "return1": "0.01923077",
+    }
+    metrics = json.loads(store.read(module.SCOPE, refs[2]["artifact_id"]))
+    assert metrics["samples"] == 21 and metrics["baseline"] == "zero-return"
+    assert metrics["mean_absolute_error"] == "0.02485689"
 
 
-def test_workflow_replay_mapping_matches_runtime_run_semantics() -> None:
-    doc = _load("03-workflow-replay-to-runtime-run.json")
-    run = doc["quantos_run_record"]
-
-    for field in ("tool_name", "capability", "idempotency_key", "correlation_id", "input_hash"):
-        assert run[field], f"missing run field `{field}`"
-    assert run["input_hash"].startswith("sha256:")
-    assert run["artifact_manifests"], "replay mapping must record artifact manifests"
-
-    semantics = doc["replay_semantics"]
-    assert {"same_input_same_hash", "artifact_dedup", "evidence_locatable"}.issubset(semantics.keys())
+def test_replay_is_byte_identical_and_deduplicated():
+    docs, store = module.evaluate(FIXTURE)
+    again, _ = module.evaluate(FIXTURE, store=store)
+    assert docs == again and len(store.objects) == 3
 
 
-def test_mapping_samples_are_replayable() -> None:
-    for name in (
-        "01-alpha158-to-datasnapshot.json",
-        "02-lightgbm-experiment-to-research-artifact.json",
-        "03-workflow-replay-to-runtime-run.json",
-    ):
-        doc = _load(name)
-        assert doc["content_hash"] == _canonical_hash(doc), f"{name} content hash drifted"
+@pytest.mark.parametrize("field", list(module.SCOPE))
+def test_cross_scope_reads_and_dedup_are_isolated(field):
+    docs, store = module.evaluate(FIXTURE)
+    foreign = {**module.SCOPE, field: "foreign-研究"}
+    with pytest.raises(PermissionError):
+        store.read(foreign, docs[2]["offline_replay"]["artifact_refs"][0]["artifact_id"])
+    other, _ = module.evaluate(FIXTURE, scope=foreign, store=store)
+    assert other[0]["input_hash"] != docs[0]["input_hash"] and len(store.objects) == 6
+    assert other[2]["offline_replay"]["physical_object_count"] == 3
+
+
+@pytest.mark.parametrize("mode", ["paper", "shadow", "assisted_live", "guarded_live", True, None])
+def test_trading_modes_are_denied_before_writes(mode):
+    store = module.ReferenceStore()
+    with pytest.raises(PermissionError):
+        module.evaluate(FIXTURE, mode=mode, store=store)
+    assert not store.objects
+
+
+@pytest.mark.parametrize("environment", ["production", "staging", "local", True, None])
+def test_non_test_environments_are_denied(environment):
+    with pytest.raises(PermissionError):
+        module.evaluate(FIXTURE, environment=environment)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "tools",
+        "order",
+        "secret_ref",
+        "tenant_id",
+        "network_access",
+        "approved_for_production",
+        "executable",
+    ],
+)
+def test_input_is_closed_without_tools_or_authority(field):
+    value = {**FIXTURE, field: "denied"}
+    with pytest.raises(ValueError):
+        module.evaluate(value)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "license",
+        "dataset",
+        "calendar",
+        "symbol",
+        "missing",
+        "negative",
+        "bool",
+        "nan",
+        "infinity",
+        "row-extra",
+    ],
+)
+def test_unlicensed_or_malformed_rows_are_denied(mutation):
+    value = deepcopy(FIXTURE)
+    if mutation in ["license", "dataset"]:
+        value[mutation] = "external-unlicensed"
+    elif mutation == "calendar":
+        value["rows"][0]["day"] = 12
+    elif mutation == "symbol":
+        value["symbols"][0] = "real-symbol"
+    elif mutation == "missing":
+        value["rows"].pop()
+    elif mutation == "row-extra":
+        value["rows"][0]["secret_ref"] = "denied"
+    else:
+        value["rows"][0]["close"] = {
+            "negative": -1,
+            "bool": True,
+            "nan": float("nan"),
+            "infinity": float("inf"),
+        }[mutation]
+    store = module.ReferenceStore()
+    with pytest.raises((ValueError, PermissionError)):
+        module.evaluate(value, store=store)
+    assert not store.objects
+
+
+@pytest.mark.parametrize("value", ["", " ", None, True, "x" * 129])
+def test_scope_validation(value):
+    with pytest.raises(ValueError):
+        module.evaluate(FIXTURE, scope={**module.SCOPE, "tenant_id": value})
+
+
+def test_future_rows_do_not_change_prior_features():
+    docs, store = module.evaluate(FIXTURE)
+    changed = deepcopy(FIXTURE)
+    changed["rows"][11]["close"] += 100
+    other, other_store = module.evaluate(changed)
+
+    def rows(ds, s):
+        return json.loads(
+            s.read(module.SCOPE, ds[2]["offline_replay"]["artifact_refs"][0]["artifact_id"])
+        )["records"]
+
+    assert [r for r in rows(docs, store) if r["day"] < 12] == [
+        r for r in rows(other, other_store) if r["day"] < 12
+    ]
+
+
+def test_cli_generated_samples_match_tracked_bytes(tmp_path):
+    receipt = module.run(tmp_path)
+    assert receipt["replayIdentical"] and receipt["mappingCount"] == 3
+    for entry in receipt["files"]:
+        raw = (tmp_path / entry["file"]).read_bytes()
+        assert module.digest(raw) == entry["sha256"]
+        assert raw == (ROOT / "third_party/qlib/mappings" / entry["file"]).read_bytes()
