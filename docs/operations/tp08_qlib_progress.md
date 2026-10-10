@@ -1,6 +1,6 @@
 # TP08 Qlib progress — 2026-10-10
 
-Engineering implementation refreshed; unified DEVELOPMENT admission pending. FormalAccepted=false.
+DEVELOPMENT READY for the reference-only evaluation and necessary F05/F0 closure; 13 strict nodes / 53 execution groups PASS. FormalAccepted=false.
 
 Deliverables: pinned six-file upstream provenance and MIT notices; descriptor-only SPDX and direct requirements; explicit NOT_ASSESSED CVE disposition; capability matrix and reference-only ADR; three executable synthetic mappings with actual object bytes and typed/current schema validation; source/production exclusion and receipt negative tests.
 

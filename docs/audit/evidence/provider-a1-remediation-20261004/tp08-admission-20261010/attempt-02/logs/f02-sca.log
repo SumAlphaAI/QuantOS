@@ -1,0 +1,120 @@
+node --test scripts/tests/glib-backport.test.mjs scripts/braces-backport.test.mjs
+✔ installed backport rejects nested strings and supplied/cyclic AST while preserving regular globs (6.179666ms)
+✔ missing resolver selection fails closed (2.292167ms)
+✔ changed patch bytes fail closed (1.68325ms)
+✔ unpatched lock consumer fails closed (1.886583ms)
+✔ changed installed implementation fails closed (4.339ms)
+✔ backport decision applies to one exact advisory/package/version and never other vulnerabilities (1.991291ms)
+✔ GLib backport rejects source rollback, missing files, and registry fallback (51.74525ms)
+✔ optimized GLib iterator preserves a C variadic out-pointer for all five affected methods (666.867625ms)
+✔ Desktop SCA invokes its independent manifest and rejects scanner failures or unwaived findings (810.746458ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1562.481791
+node scripts/check-sca.mjs
+{
+  "status": "PASS",
+  "passed": true,
+  "scope": "all runtime, dev, build and security dependencies; includes independent Desktop Rust lock",
+  "source": "5c084c5e0d39d88dea2844980cebfafa085ad47a",
+  "dirty": true,
+  "lockDigests": {
+    "Cargo.lock": "7b68722a70346e42bbcbdca87b7b8cdb93794a2d6b185b5cf13510ee2688604e",
+    "pnpm-lock.yaml": "5e64ea8d5c6adc3d47d6233d46ed96b67bda0d1817b985a931c3c8be4c3fe0a9",
+    "engines/uv.lock": "8f9e8ce7f28710653ab72ac5b18d5db93d2ebf21beaf304e5409be71e5fa2a58",
+    "apps/terminal-desktop/src-tauri/Cargo.lock": "be99df0c1e077f33775578b59d56f8fb2f0bc0f81d4fa138164233ef321eef17"
+  },
+  "startedAt": "2026-10-10T13:38:29.338Z",
+  "scanners": {
+    "npm": {
+      "status": "PASS",
+      "findings": [
+        {
+          "ecosystem": "npm",
+          "id": "GHSA-vfj7-8cjw-p6xm",
+          "package": "braces",
+          "version": "3.0.3",
+          "severity": "high",
+          "waived": false,
+          "backportVerified": true
+        }
+      ]
+    },
+    "pypi": {
+      "status": "PASS",
+      "findings": []
+    },
+    "cargo": {
+      "status": "PASS",
+      "findings": []
+    },
+    "cargo-desktop": {
+      "status": "PASS",
+      "findings": [],
+      "maintenanceWarnings": [
+        {
+          "id": "RUSTSEC-2024-0370",
+          "package": "proc-macro-error",
+          "version": "1.0.4",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0081",
+          "package": "unic-char-property",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0075",
+          "package": "unic-char-range",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0080",
+          "package": "unic-common",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0100",
+          "package": "unic-ucd-ident",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        },
+        {
+          "id": "RUSTSEC-2025-0098",
+          "package": "unic-ucd-version",
+          "version": "0.9.0",
+          "kind": "unmaintained"
+        }
+      ]
+    }
+  },
+  "bracesBackport": {
+    "advisory": "GHSA-vfj7-8cjw-p6xm",
+    "package": "braces",
+    "version": "3.0.3",
+    "status": "BACKPORT_VERIFIED",
+    "upstreamPatchedVersion": null,
+    "patchSha256": "42bc2b75ecce13c9e695565d1b5dc53f733add034542c2e13f57db4cceeb9b87",
+    "files": 10,
+    "tests": {
+      "stringCases": 18,
+      "astCases": 6,
+      "compatibilityCases": 5
+    }
+  },
+  "glibBackport": {
+    "advisory": "RUSTSEC-2024-0429",
+    "status": "BACKPORT_VERIFIED",
+    "upstreamFix": "https://github.com/gtk-rs/gtk-rs-core/pull/1343",
+    "files": 120
+  },
+  "completedAt": "2026-10-10T13:38:51.263Z"
+}

@@ -27,7 +27,7 @@
 
 ## 版本变更说明
 
-- `3.61`：TP08 固定来源重验、三项可执行离线映射与许可证/隔离边界刷新；原回执因功能输入变化全部转 NOT_ASSESSED，必要 F05/F0 闭包重建后单独登记。详见 [TP08 报告](./audit/TP08-development-2026-10-10.md)。
+- `3.61`：TP08 固定来源重验、三项可执行离线映射与许可证/隔离边界刷新；原回执因功能输入变化全部转 NOT_ASSESSED，必要 F05/F0 闭包 13 节点/53 组实测通过，严格 DEVELOPMENT READY；正式 ACCEPTED/运行时/发布仍未授予。详见 [TP08 报告](./audit/TP08-development-2026-10-10.md)。
 
 - `3.60`：冻结4875b140完成TP05受控数据provider、许可证与生产制品排除Gate，必要13节点/53组实际复评PASS；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。见[本轮报告](./audit/TP05-development-2026-10-10.md)。
 - `3.59`：冻结e27d5dab完成TP04/TP03/F08/F0必要14节点、56组实际功能复评及严格内容校验；14 DEVELOPMENT READY、145 NOT_ASSESSED、0 BLOCKED，正式/hosted CI/发布独立。见[本轮报告](./audit/TP04-development-2026-10-10.md)。

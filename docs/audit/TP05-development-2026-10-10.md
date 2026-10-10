@@ -1,5 +1,7 @@
 # TP05 OpenBB 数据/研究适配服务开发验收
 
+> 当前性注记（TP08 刷新后）：下文为 TP05 冻结源码的历史结果。本轮 TP08 输入变化后 TP05 stage_gate 为 NOT_ASSESSED，未转授准入；当前状态见 [TP08 报告](./TP08-development-2026-10-10.md)。
+
 日期：2026-10-10。R1 DEVELOPMENT；必要前置F05、F08、F0。
 
 **TP05 DEVELOPMENT READY**。冻结源码`4875b1405a472a787f0d3f5543db87e06c9a6957`的必要13节点/53唯一命令组全部实际PASS，严格递归内容校验通过；当前13 READY、146 NOT_ASSESSED、0 BLOCKED，formalAccepted=false。F05/F08/F0均本轮重评；TP02/TP03/TP04、TP01-C/D、R01/R02本轮未重授准入。R1-SERVICE整体、正式ACCEPTED、hosted CI与发布独立。本轮不加载OpenBB upstream，不取得法律/生产/外部数据用途许可，不使用生产凭据或执行外部发布。
