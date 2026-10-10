@@ -1,3 +1,5 @@
+> TP05本轮新增功能输入后，本报告保留原冻结源码的历史结论；当前准入以[TP05报告](./TP05-development-2026-10-10.md)及计划Gate为准，历史READY不自动转移。
+
 # TP03 LLMQuant Signal Engine 开发验收
 
 日期：2026-10-10。依据核心计划 TP03；范围 R1 DEVELOPMENT，必要前置 F08、F05、F0。

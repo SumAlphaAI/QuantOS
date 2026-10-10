@@ -86,7 +86,15 @@ f01-check:
 	node --test scripts/capture-build-outputs.test.mjs
 	node --test scripts/webpack-module-ids.test.mjs
 
+.PHONY: build-python-production tp05-license-gate-check
+build-python-production:
+	QUANTOS_SKIP_ENV=1 QUANTOS_BUILD_PROFILE=production $(MAKE) build-python
+
+tp05-license-gate-check:
+	node --test scripts/tp05-release-gate.test.mjs
+
 build-python:
+	@if [[ "$${QUANTOS_BUILD_PROFILE:-development}" == production ]]; then node scripts/tp05-release-gate.mjs --workspace; fi
 	uv sync --locked --project engines --all-packages --all-groups
 	uv build --project engines --python engines/.venv/bin/python --all-packages --wheel --no-build-isolation --out-dir artifacts/python
 

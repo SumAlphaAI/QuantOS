@@ -45,3 +45,9 @@ Trade-offs:
 - Record final legal decision and NOTICE/SBOM obligations before enabling OpenBB outside isolated evaluation.
 - If commercial terms are approved, update `license_gate.json`, CI release gating, and deployment manifests together.
 - If OpenBB is rejected, keep the Data Contract and swap the provider implementation without changing downstream callers.
+
+## 2026-10-10 development implementation clarification
+
+The selected OpenBB reference remains tag `4.4.5`, commit `34de2f61427f2879df4ebbf5906ca0508c6e84f3`; the runtime policy now uses this exact pin instead of the previous descriptive develop label. No legal permission or upstream-runtime admission is added. Both provider labels currently resolve QuantOS synthetic fixture bytes. Software-license metadata and dataset rights are explicitly separate; real source data licenses are not assessed.
+
+The production Python build target rejects the current evaluation-only package before sync/build. Production manifest generation also rejects OpenBB artifacts. Development wheels remain evaluation artifacts and do not establish production entitlement. The build exclusion, runtime environment/use denial and upstream-absent lock checks are separate mechanisms. OS egress enforcement and independent deployment isolation remain unassessed.

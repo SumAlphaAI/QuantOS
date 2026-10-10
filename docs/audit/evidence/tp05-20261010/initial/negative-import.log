@@ -1,0 +1,72 @@
+✔ valid source and execution-bound dependency chain is READY without release signatures (35.455375ms)
+✔ missing required execution (27.772125ms)
+✔ failed execution (24.719916ms)
+✔ wrong actual command (23.894417ms)
+✔ unresolved issue (19.4535ms)
+✔ wrong node (18.781667ms)
+✔ missing source inventory (22.591416ms)
+✔ plan scope changed (18.757125ms)
+✔ outside log path (24.479125ms)
+✔ wrong log digest (22.597083ms)
+✔ missing dependency (22.838459ms)
+✔ dependency digest substituted (23.425875ms)
+✔ tampered manifest bytes are rejected (18.723125ms)
+✔ changed source content is rejected despite unchanged gate digest (23.850417ms)
+✔ dependency must independently be READY (23.08275ms)
+✔ arbitrary log cannot masquerade as successful execution (23.040208ms)
+✔ input file symlink cannot escape the repository (23.061ms)
+✔ database execution cannot be inferred from a normal local PASS (27.708708ms)
+✔ Supabase target receipt verifies each compressed execution log (28.882291ms)
+✔ source drift during execution invalidates the original input snapshot (34.81325ms)
+✔ requirement drift during execution invalidates the original input snapshot (42.1405ms)
+✔ controlled public development profile overrides stale values and preserves server inputs (0.113084ms)
+✔ private credentials cannot be injected through a public development profile (0.095917ms)
+✔ transient Auth 503 can retry only a complete target execution (0.109292ms)
+✔ persistent target timeout never becomes PASS and stops at its budget (0.075541ms)
+✔ semantic target failures stop without retry or PASS (0.024458ms)
+✔ target retry budget cannot be unbounded (0.084625ms)
+✔ configured target retries require explicit attempt outcomes in the receipt (27.43475ms)
+✔ three successful full builds bind output inventories (0.317708ms)
+✔ reproducibility rejects only two builds (0.10425ms)
+✔ reproducibility rejects missing Python build (0.124083ms)
+✔ reproducibility rejects failed command (0.117ms)
+✔ reproducibility rejects different output digest (0.089291ms)
+✔ reproducibility rejects substituted inventory (0.069333ms)
+✔ reproducibility rejects dirty source (0.062083ms)
+✔ reproducibility rejects old source (0.062667ms)
+✔ development policy retains explicit build, coverage, volume and target storage obligations (0.331667ms)
+✔ static make commands cannot reload .env.local or inherit target database opt-ins (0.076917ms)
+✔ volume retry restarts the complete check only on a closed PostgreSQL transport (0.046958ms)
+✔ volume correctness and certificate errors cannot be retried into PASS (0.028791ms)
+✔ persistent database transport failure stays failed at the retry limit (0.023959ms)
+✔ separate assessment snapshot preserves historical manifests and binds its own logs (28.669833ms)
+✔ third-party Git link binds the actual clean checkout and rejects dirty/advanced source (119.08025ms)
+✔ transient read-only preflight connection closure retries the complete target (0.078333ms)
+✔ preflight permission and role failures are not transport retries (0.052125ms)
+✔ persistent preflight closure exhausts three attempts without PASS (0.063834ms)
+✔ inventory reads a Git file list over 1 MiB without truncating selected inputs (177.625166ms)
+file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:6
+import {verifyTp05,selectors,directory} from '../engines/trading-agents/check-development.mjs';
+        ^^^^^^^^^^
+SyntaxError: The requested module '../engines/trading-agents/check-development.mjs' does not provide an export named 'verifyTp05'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:302:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:405:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.12.0
+✖ scripts/tp05-functional-artifacts.test.mjs (35.495042ms)
+ℹ tests 48
+ℹ suites 0
+ℹ pass 47
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 948.316125
+
+✖ failing tests:
+
+test at scripts/tp05-functional-artifacts.test.mjs:1:1
+✖ scripts/tp05-functional-artifacts.test.mjs (35.495042ms)
+  'test failed'

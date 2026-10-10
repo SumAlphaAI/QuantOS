@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 import json
+import hashlib
+from copy import deepcopy
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -18,6 +22,7 @@ class QuerySource:
 
 @dataclass(frozen=True)
 class QueryFixture:
+    fixture_digest: str
     fixture_name: str
     dataset: str
     schema_ref: str
@@ -54,8 +59,10 @@ def _catalog_path() -> Path:
 @lru_cache(maxsize=1)
 def fixture_catalog() -> tuple[QueryFixture, ...]:
     parsed = json.loads(_catalog_path().read_text(encoding="utf-8"))
+    validate_catalog(parsed)
     return tuple(
         QueryFixture(
+            fixture_digest=entry["fixture_digest"],
             fixture_name=entry["fixture_name"],
             dataset=entry["dataset"],
             schema_ref=entry["schema_ref"],
@@ -87,7 +94,7 @@ def fixture_names() -> tuple[str, ...]:
 def load_fixture(fixture_name: str) -> QueryFixture:
     for fixture in fixture_catalog():
         if fixture.fixture_name == fixture_name:
-            return fixture
+            return deepcopy(fixture)
     raise FileNotFoundError(f"fixture `{fixture_name}` was not found")
 
 
@@ -117,3 +124,49 @@ def fixed_input_cases(total: int = 100) -> tuple[FixedQueryInput, ...]:
             )
         )
     return tuple(cases)
+
+
+def validate_catalog(parsed: dict) -> None:
+    for entry in parsed["fixtures"]:
+        definition = {k: v for k, v in entry.items() if k != "fixture_digest"}
+        digest = (
+            "sha256:"
+            + hashlib.sha256(
+                json.dumps(
+                    definition, sort_keys=True, separators=(",", ":"), allow_nan=False
+                ).encode()
+            ).hexdigest()
+        )
+        if entry.get("fixture_digest") != digest:
+            raise ValueError("ENGINE_FIXTURE_DIGEST")
+        ttl = entry["cache_ttl_secs"]
+        if type(ttl) is not int or not 1 <= ttl <= 3600:
+            raise ValueError("ENGINE_FIXTURE_TTL")
+        if (
+            not entry["sources"]
+            or not entry["records"]
+            or not entry["symbols"]
+            or not entry["schema_ref"]
+        ):
+            raise ValueError("ENGINE_FIXTURE_EMPTY")
+        if entry["allowed_workflows"] != ["research", "evaluation"]:
+            raise ValueError("ENGINE_FIXTURE_USE")
+        if datetime.fromisoformat(entry["window"]["start_at"]) > datetime.fromisoformat(
+            entry["window"]["end_at"]
+        ):
+            raise ValueError("ENGINE_FIXTURE_WINDOW")
+        if any(
+            s["dataset"] != entry["dataset"] or not s["license_label"] or not s["source_id"]
+            for s in entry["sources"]
+        ):
+            raise ValueError("ENGINE_FIXTURE_SOURCE")
+        for record in entry["records"]:
+            for key, value in record.items():
+                if not isinstance(value, str) or not value:
+                    raise ValueError("ENGINE_FIXTURE_RECORD")
+                if key not in {"symbol", "series", "unit"}:
+                    try:
+                        if not Decimal(value).is_finite():
+                            raise ValueError("ENGINE_FIXTURE_RECORD")
+                    except InvalidOperation:
+                        raise ValueError("ENGINE_FIXTURE_RECORD") from None

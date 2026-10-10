@@ -27,7 +27,9 @@ from quantos_engine_sdk import (
 from quantos_engine_sdk.grpc import serve_engine
 
 
-def build_metadata(index: int, *, capabilities: list[str] | None = None) -> common_pb2.CommandMetadata:
+def build_metadata(
+    index: int, *, capabilities: list[str] | None = None
+) -> common_pb2.CommandMetadata:
     return common_pb2.CommandMetadata(
         request_id=f"req-{index}",
         tenant_id="tenant-primary",
@@ -56,9 +58,7 @@ def build_request(index: int, payload: dict) -> engine_pb2.ExecuteRequest:
         data_snapshot_ref=f"query-snapshot-{index}",
         policy_context_ref=f"policy-{index}",
         input=json_document_from_mapping(payload),
-        deadline=timestamp_from_datetime(
-            datetime.now(tz=timezone.utc) + timedelta(seconds=5)
-        ),
+        deadline=timestamp_from_datetime(datetime.now(tz=timezone.utc) + timedelta(seconds=5)),
     )
 
 

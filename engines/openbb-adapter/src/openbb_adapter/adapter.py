@@ -1,37 +1,59 @@
-"""Boundary validation and request translation for TP05 OpenBB adapter."""
+"""Closed Research/evaluation request boundary; no caller-controlled authority."""
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
-
+from typing import NoReturn
 import grpc
-
+from quantos.common.v1 import common_pb2
 from quantos.engine.v1 import engine_pb2
-from quantos_engine_sdk import json_document_to_mapping
-
+from quantos_engine_sdk import input_hash, json_document_to_mapping
 from openbb_adapter.fixtures import fixture_names, load_fixture
 from openbb_adapter.manifest import DATA_QUERY_CAPABILITY
 
-
-SUPPORTED_CAPABILITIES = {DATA_QUERY_CAPABILITY}
 ALLOWED_TOOLS = {"query_snapshot", "query_artifact"}
 FORBIDDEN_FIELDS = {
     "venue",
     "order",
+    "order_tool",
     "trade_command",
     "signal",
     "secret_ref",
+    "api_key",
+    "authorization",
     "network_access",
     "external_url",
+    "shell",
+    "file_write",
+    "broker_connection",
+    "executable",
+    "trading_approved",
+    "approved_for_production",
+    "tenant_id",
+    "workspace_id",
+    "actor_id",
+    "capabilities",
+    "policy_context_ref",
+    "data_snapshot_ref",
+    "tools_executed",
 }
 
 
 class RequestBoundaryError(Exception):
-    """Raised when a request crosses the TP05 boundary."""
-
-    def __init__(self, code: grpc.StatusCode, detail: str) -> None:
+    def __init__(self, code: grpc.StatusCode, detail: str):
         super().__init__(detail)
         self.code = code
+
+
+def reject(detail="ENGINE_INPUT_INVALID", code=grpc.StatusCode.INVALID_ARGUMENT) -> NoReturn:
+    raise RequestBoundaryError(code, detail)
+
+
+def identifier(value):
+    if not isinstance(value, str) or not value.strip() or len(value) > 512 or "://" in value:
+        reject()
+    return value
 
 
 @dataclass(frozen=True)
@@ -39,7 +61,12 @@ class DataQueryExecutionContext:
     capability: str
     workflow_run_id: str
     tenant_id: str
+    workspace_id: str
     actor_id: str
+    input_hash: str
+    metadata_hash: str
+    policy_context_ref: str
+    data_snapshot_ref: str
     provider_name: str
     dataset: str
     schema_ref: str
@@ -58,97 +85,129 @@ class TranslatedRequest:
 
 
 class OpenBBAdapterRequestAdapter:
-    """Translate and validate QuantOS ExecuteRequest payloads for TP05."""
-
     def translate(self, request: engine_pb2.ExecuteRequest) -> TranslatedRequest:
-        if request.input_schema_version != "v1":
-            raise RequestBoundaryError(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                f"unsupported schema version `{request.input_schema_version}`",
+        if request.input_schema_version != "v1" or request.capability != DATA_QUERY_CAPABILITY:
+            reject("ENGINE_CONTRACT_INVALID")
+        if request.capability not in request.metadata.actor.capabilities:
+            reject("ENGINE_CAPABILITY_REQUIRED", grpc.StatusCode.PERMISSION_DENIED)
+        if request.metadata.mode != common_pb2.RUNTIME_MODE_RESEARCH:
+            reject("ENGINE_RESEARCH_ONLY", grpc.StatusCode.PERMISSION_DENIED)
+        if request.metadata.environment not in {
+            common_pb2.ENVIRONMENT_LOCAL,
+            common_pb2.ENVIRONMENT_TEST,
+        }:
+            reject(
+                "OpenBB restricted to isolated evaluation: environment denied",
+                grpc.StatusCode.FAILED_PRECONDITION,
             )
-        if request.capability not in SUPPORTED_CAPABILITIES:
-            raise RequestBoundaryError(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                f"unsupported capability `{request.capability}`",
-            )
-
-        actor_capabilities = set(request.metadata.actor.capabilities)
-        if request.capability not in actor_capabilities:
-            raise RequestBoundaryError(
-                grpc.StatusCode.PERMISSION_DENIED,
-                "actor is missing required openbb-adapter capability",
-            )
-
+        for value in (
+            request.metadata.tenant_id,
+            request.metadata.workspace_id,
+            request.metadata.actor.actor_id,
+            request.workflow_run_id,
+            request.idempotency_key,
+        ):
+            identifier(value)
         payload = json_document_to_mapping(request.input)
         self._reject_forbidden_fields(payload)
-
-        requested_tools = tuple(str(tool).strip() for tool in payload.get("tools", []))
-        self._reject_forbidden_tools(requested_tools)
-
-        provider_name = str(payload.get("provider", "mock")).strip() or "mock"
-        if provider_name not in {"mock", "openbb"}:
-            raise RequestBoundaryError(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                f"unsupported provider `{provider_name}`",
-            )
-
-        fixture_name = str(payload.get("fixture", fixture_names()[0])).strip() or fixture_names()[0]
+        if set(payload) - {
+            "provider",
+            "fixture",
+            "dataset",
+            "schema_ref",
+            "query_text",
+            "symbols",
+            "intended_use",
+            "deployment_target",
+            "tools",
+            "sleep_ms",
+            "stream_delay_ms",
+        }:
+            reject("ENGINE_INPUT_FORBIDDEN", grpc.StatusCode.PERMISSION_DENIED)
+        tools = payload.get("tools", [])
+        if (
+            not isinstance(tools, list)
+            or len(tools) > len(ALLOWED_TOOLS)
+            or any(not isinstance(t, str) for t in tools)
+        ):
+            reject("ENGINE_TOOLS_INVALID")
+        if any(t not in ALLOWED_TOOLS for t in tools):
+            reject("ENGINE_TOOL_FORBIDDEN: tool forbidden", grpc.StatusCode.PERMISSION_DENIED)
+        provider = identifier(payload.get("provider", "mock"))
+        if provider not in {"mock", "openbb"}:
+            reject("ENGINE_PROVIDER_INVALID")
+        fixture_name = identifier(payload.get("fixture", fixture_names()[0]))
         fixture = load_fixture(fixture_name)
-        dataset = str(payload.get("dataset", fixture.dataset)).strip() or fixture.dataset
-        schema_ref = str(payload.get("schema_ref", fixture.schema_ref)).strip() or fixture.schema_ref
-        query_text = str(payload.get("query_text", "")).strip() or f"query {dataset}"
-        symbols = tuple(str(symbol).strip() for symbol in payload.get("symbols", list(fixture.symbols)))
-        if not symbols:
-            raise RequestBoundaryError(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                "`symbols` is required for openbb-adapter",
+        dataset = identifier(payload.get("dataset", fixture.dataset))
+        schema = identifier(payload.get("schema_ref", fixture.schema_ref))
+        symbols = payload.get("symbols", list(fixture.symbols))
+        if not isinstance(symbols, list) or any(not isinstance(x, str) for x in symbols):
+            reject("ENGINE_SYMBOLS_INVALID")
+        if (
+            dataset != fixture.dataset
+            or schema != fixture.schema_ref
+            or tuple(symbols) != fixture.symbols
+        ):
+            reject("ENGINE_FIXTURE_QUERY_MISMATCH")
+        query = identifier(payload.get("query_text", f"query {dataset}"))
+        intended = payload.get("intended_use", "research")
+        if not isinstance(intended, str) or intended not in {"research", "evaluation"}:
+            reject("ENGINE_USE_DENIED", grpc.StatusCode.PERMISSION_DENIED)
+        target = payload.get("deployment_target", "test")
+        if not isinstance(target, str) or target not in {"test", "evaluation", "production"}:
+            reject("ENGINE_DEPLOYMENT_INVALID")
+        if target == "production":
+            reject(
+                "OpenBB restricted to isolated evaluation: production denied",
+                grpc.StatusCode.FAILED_PRECONDITION,
             )
-
-        intended_use = str(payload.get("intended_use", "research")).strip().lower()
-        if intended_use not in {"research", "evaluation"}:
-            raise RequestBoundaryError(
-                grpc.StatusCode.PERMISSION_DENIED,
-                "openbb-adapter results are not approved for trading workflows",
-            )
-
-        deployment_target = str(payload.get("deployment_target", "test")).strip().lower()
-        if deployment_target not in {"test", "evaluation", "production"}:
-            raise RequestBoundaryError(
-                grpc.StatusCode.INVALID_ARGUMENT,
-                f"unsupported deployment_target `{deployment_target}`",
-            )
-
-        context = DataQueryExecutionContext(
-            capability=request.capability,
-            workflow_run_id=request.workflow_run_id,
-            tenant_id=request.metadata.tenant_id,
-            actor_id=request.metadata.actor.actor_id,
-            provider_name=provider_name,
-            dataset=dataset,
-            schema_ref=schema_ref,
-            query_text=query_text,
-            symbols=symbols,
-            intended_use=intended_use,
-            deployment_target=deployment_target,
-            requested_tools=requested_tools,
-            fixture_name=fixture_name,
+        if provider == "openbb" and target != "evaluation":
+            reject("OpenBB restricted to isolated evaluation", grpc.StatusCode.FAILED_PRECONDITION)
+        for name in ("sleep_ms", "stream_delay_ms"):
+            v = payload.get(name, 0)
+            if (
+                isinstance(v, bool)
+                or not isinstance(v, (int, float))
+                or not 0 <= v <= 5000
+                or v != int(v)
+            ):
+                reject("ENGINE_DELAY_INVALID")
+        return TranslatedRequest(
+            DataQueryExecutionContext(
+                request.capability,
+                request.workflow_run_id,
+                request.metadata.tenant_id,
+                request.metadata.workspace_id,
+                request.metadata.actor.actor_id,
+                input_hash(request.input),
+                hashlib.sha256(request.metadata.SerializeToString(deterministic=True)).hexdigest(),
+                request.policy_context_ref,
+                request.data_snapshot_ref,
+                provider,
+                dataset,
+                schema,
+                query,
+                tuple(symbols),
+                intended,
+                target,
+                tuple(tools),
+                fixture_name,
+            ),
+            payload,
         )
-        return TranslatedRequest(context=context, payload=payload)
 
     @staticmethod
-    def _reject_forbidden_fields(payload: dict) -> None:
-        for key in FORBIDDEN_FIELDS:
-            if key in payload:
-                raise RequestBoundaryError(
-                    grpc.StatusCode.PERMISSION_DENIED,
-                    f"`{key}` is forbidden for openbb-adapter",
-                )
-
-    @staticmethod
-    def _reject_forbidden_tools(requested_tools: tuple[str, ...]) -> None:
-        for tool in requested_tools:
-            if tool not in ALLOWED_TOOLS:
-                raise RequestBoundaryError(
-                    grpc.StatusCode.PERMISSION_DENIED,
-                    f"tool `{tool}` is forbidden for openbb-adapter",
-                )
+    def _reject_forbidden_fields(value):
+        if isinstance(value, dict):
+            for key, nested in value.items():
+                if key.lower().replace("_", "").replace("-", "") in {
+                    k.replace("_", "") for k in FORBIDDEN_FIELDS
+                }:
+                    reject(
+                        "ENGINE_BOUNDARY_FORBIDDEN: field forbidden",
+                        grpc.StatusCode.PERMISSION_DENIED,
+                    )
+                OpenBBAdapterRequestAdapter._reject_forbidden_fields(nested)
+        elif isinstance(value, list):
+            for nested in value:
+                OpenBBAdapterRequestAdapter._reject_forbidden_fields(nested)

@@ -1,0 +1,178 @@
+✔ valid source and execution-bound dependency chain is READY without release signatures (43.8325ms)
+✔ missing required execution (35.62425ms)
+✔ failed execution (34.080375ms)
+✔ wrong actual command (33.536583ms)
+✔ unresolved issue (24.609333ms)
+✔ wrong node (28.304042ms)
+✔ missing source inventory (32.856459ms)
+✔ plan scope changed (28.331959ms)
+✔ outside log path (34.95375ms)
+✔ wrong log digest (32.864375ms)
+✔ missing dependency (34.156083ms)
+✔ dependency digest substituted (33.8385ms)
+✔ tampered manifest bytes are rejected (27.488625ms)
+✔ changed source content is rejected despite unchanged gate digest (32.96325ms)
+✔ dependency must independently be READY (33.117334ms)
+✔ arbitrary log cannot masquerade as successful execution (34.394083ms)
+✔ input file symlink cannot escape the repository (33.060667ms)
+✔ database execution cannot be inferred from a normal local PASS (40.311ms)
+✔ Supabase target receipt verifies each compressed execution log (41.057334ms)
+✔ source drift during execution invalidates the original input snapshot (53.200167ms)
+✔ requirement drift during execution invalidates the original input snapshot (55.840125ms)
+✔ controlled public development profile overrides stale values and preserves server inputs (0.156042ms)
+✔ private credentials cannot be injected through a public development profile (0.118458ms)
+✔ transient Auth 503 can retry only a complete target execution (0.127083ms)
+✔ persistent target timeout never becomes PASS and stops at its budget (0.089875ms)
+✔ semantic target failures stop without retry or PASS (0.03075ms)
+✔ target retry budget cannot be unbounded (0.112542ms)
+✔ configured target retries require explicit attempt outcomes in the receipt (34.884791ms)
+✔ three successful full builds bind output inventories (0.475292ms)
+✔ reproducibility rejects only two builds (0.145459ms)
+✔ reproducibility rejects missing Python build (0.12825ms)
+✔ reproducibility rejects failed command (0.115416ms)
+✔ reproducibility rejects different output digest (0.083459ms)
+✔ reproducibility rejects substituted inventory (0.069625ms)
+✔ reproducibility rejects dirty source (0.058458ms)
+✔ reproducibility rejects old source (0.057458ms)
+✔ development policy retains explicit build, coverage, volume and target storage obligations (0.348458ms)
+✔ static make commands cannot reload .env.local or inherit target database opt-ins (0.098708ms)
+✔ volume retry restarts the complete check only on a closed PostgreSQL transport (0.059708ms)
+✔ volume correctness and certificate errors cannot be retried into PASS (0.033583ms)
+✔ persistent database transport failure stays failed at the retry limit (0.027542ms)
+✔ separate assessment snapshot preserves historical manifests and binds its own logs (35.701292ms)
+✔ third-party Git link binds the actual clean checkout and rejects dirty/advanced source (150.740333ms)
+✔ transient read-only preflight connection closure retries the complete target (0.090208ms)
+✔ preflight permission and role failures are not transport retries (0.0625ms)
+✔ persistent preflight closure exhausts three attempts without PASS (0.064917ms)
+✔ inventory reads a Git file list over 1 MiB without truncating selected inputs (249.525125ms)
+✖ engineering-only evidence cannot admit TP05 (212.709584ms)
+✔ all execution logs and installed wheels must travel with a copied receipt (104.0585ms)
+✔ TP05 receipt rejects omitted check (198.327125ms)
+✔ TP05 receipt rejects failed execution (194.190916ms)
+✔ TP05 receipt rejects fake command (174.713916ms)
+✔ TP05 receipt rejects source inventory (164.373334ms)
+✔ TP05 receipt rejects log digest (194.240417ms)
+✔ TP05 receipt rejects fixture omission (162.205666ms)
+✔ TP05 receipt rejects formal claim (89.475917ms)
+✔ TP05 receipt rejects future execution (169.08975ms)
+✔ TP05 receipt rejects unreaped package child (169.607458ms)
+✔ TP05 receipt rejects editable package claim (155.771083ms)
+✔ TP05 receipt rejects upstream claim (157.671292ms)
+✔ TP05 receipt rejects production gate omission (172.818667ms)
+✔ TP05 receipt rejects upstream package present (158.218375ms)
+✔ execution source must match unified manifest (85.358ms)
+✖ copied logs are independent of canonical logs (156.8725ms)
+✖ tampered wheel bytes are rejected (152.494709ms)
+✔ actual output evidence rejects URI collision (157.899333ms)
+✔ actual output evidence rejects matrix sample omission (156.225334ms)
+✔ actual output evidence rejects missing sources (170.311ms)
+✔ actual output evidence rejects production data claim (159.469333ms)
+✔ actual output evidence rejects trading data claim (158.303458ms)
+✔ actual output evidence rejects response hash (154.952167ms)
+✔ actual output evidence rejects cross-tenant scope (158.635875ms)
+✔ actual output evidence rejects false source schema (156.339583ms)
+✔ actual output evidence rejects upstream commit (156.340625ms)
+✔ UI transcript rejects cancel timeout (155.763625ms)
+✔ UI transcript rejects cancel side effect (155.399375ms)
+ℹ tests 76
+ℹ suites 0
+ℹ pass 73
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4683.639125
+
+✖ failing tests:
+
+test at scripts/tp05-functional-artifacts.test.mjs:9:1
+✖ engineering-only evidence cannot admit TP05 (212.709584ms)
+  AssertionError [ERR_ASSERTION]: TP05 log changed
+  + actual - expected
+  
+  + 'sha256:0e648369e0715a10a360b34c630baedfb64dd84f716565e29d326c17f158a3ed'
+  - 'sha256:984e4b4a3b9c338fcfabe22b002e8204c553a2051fd310898fe3346eca8e6c5e'
+  
+      at verifyTp05 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/openbb-adapter/check-development.mjs:32:366)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:9:99
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:9:56)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'sha256:0e648369e0715a10a360b34c630baedfb64dd84f716565e29d326c17f158a3ed',
+    expected: 'sha256:984e4b4a3b9c338fcfabe22b002e8204c553a2051fd310898fe3346eca8e6c5e',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tp05-functional-artifacts.test.mjs:15:1
+✖ copied logs are independent of canonical logs (156.8725ms)
+  AssertionError [ERR_ASSERTION]: TP05 log changed
+  + actual - expected
+  
+  + 'sha256:0e648369e0715a10a360b34c630baedfb64dd84f716565e29d326c17f158a3ed'
+  - 'sha256:984e4b4a3b9c338fcfabe22b002e8204c553a2051fd310898fe3346eca8e6c5e'
+  
+      at verifyTp05 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/openbb-adapter/check-development.mjs:32:366)
+      at validateArtifact (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:95:113)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:15:143
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:15:58)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'sha256:0e648369e0715a10a360b34c630baedfb64dd84f716565e29d326c17f158a3ed',
+    expected: 'sha256:984e4b4a3b9c338fcfabe22b002e8204c553a2051fd310898fe3346eca8e6c5e',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tp05-functional-artifacts.test.mjs:16:1
+✖ tampered wheel bytes are rejected (152.494709ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /wheel changed/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: TP05 log changed\n' +
+    '+ actual - expected\n' +
+    '\n' +
+    "+ 'sha256:0e648369e0715a10a360b34c630baedfb64dd84f716565e29d326c17f158a3ed'\n" +
+    "- 'sha256:984e4b4a3b9c338fcfabe22b002e8204c553a2051fd310898fe3346eca8e6c5e'\n"
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:16:158
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:16:46)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: TP05 log changed
+    + actual - expected
+    
+    + 'sha256:0e648369e0715a10a360b34c630baedfb64dd84f716565e29d326c17f158a3ed'
+    - 'sha256:984e4b4a3b9c338fcfabe22b002e8204c553a2051fd310898fe3346eca8e6c5e'
+    
+        at verifyTp05 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/openbb-adapter/check-development.mjs:32:366)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:16:169
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:16:158
+        at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:8:290)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:16:46)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18),
+    expected: /wheel changed/,
+    operator: 'throws',
+    diff: 'simple'
+  }

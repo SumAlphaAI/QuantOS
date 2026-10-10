@@ -1,25 +1,5 @@
-# TP05 OpenBB Adapter Progress
+# TP05 OpenBB adapter 开发进度
 
-## Status
+当前受控QuantOS fixture adapter工程实现完成；依赖F05/F08/F0正在本轮冻结源码重评，DEVELOPMENT READY尚未授予。详见[TP05报告](../audit/TP05-development-2026-10-10.md)。历史implemented描述与旧行号引用已归档于Git，不能作为当前准入。
 
-`implemented`
-
-## Delivered scope
-
-- `engines/openbb-adapter` package with QuantOS-native manifest, request adapter, deterministic fixtures, isolated provider abstraction, mock replacement provider, license gate, and UDS gRPC server;
-- support for `data.query.v1` with QuantOS-owned Data Contract fields covering source, license, schema, lineage, and hash metadata;
-- enforcement that data queries remain research or evaluation only and never enter trading workflows;
-- production gate that rejects OpenBB enablement until legal approval exists;
-- Python and Rust contract harness coverage, including 100 fixed-input replay validation and stream-cancel timing checks.
-
-## Acceptance evidence
-
-- `engines/tests/test_openbb_adapter_contract.py`
-- `crates/quantos-engine-manager/tests/python_openbb_adapter.rs`
-- `docs/adr/20260731-tp05-openbb-license-gate.md`
-- `engines/openbb-adapter/src/openbb_adapter/*`
-
-## Notes
-
-- TP05 now satisfies the repository-side implementation for the plan item at `docs/SumAlpha-QuantOS-Development-Plan.md#L147`.
-- OpenBB remains evaluation-only by default. Production enablement still requires explicit legal approval and synchronized gate, NOTICE, and release-manifest updates.
+OpenBB upstream仍descriptor-only / evaluation_only / productionApproved=false。mock与openbb标签均为自有synthetic fixtures；无真实数据权限、真实上游执行或法律结论。生产Python构建和生产manifest拒绝该评估制品；开发wheel不等于生产许可。formalAccepted=false。

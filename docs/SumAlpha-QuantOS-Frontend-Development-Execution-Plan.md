@@ -1,4 +1,6 @@
-> 当前工程状态（2026-10-10）：冻结3ab1df6完成TP03/F08/F05/F0必要13节点、53组实际功能复评及严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。TP02/TP01-C/D/R01/R02旧Gate本轮未重授，正式/hosted CI/发布独立。见[本轮报告](./audit/TP03-development-2026-10-10.md)。
+> 当前工程状态（2026-10-10）：TP05受控fixture数据服务实现与许可证Gate补全，必要依赖闭包重评中；历史READY撤销，当前未授予正式/hosted CI/发布。见[本轮报告](./audit/TP05-development-2026-10-10.md)。
+
+> 上轮工程快照（TP03，2026-10-10）：冻结3ab1df6完成TP03/F08/F05/F0必要13节点、53组实际功能复评及严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。TP02/TP01-C/D/R01/R02旧Gate本轮未重授，正式/hosted CI/发布独立。见[本轮报告](./audit/TP03-development-2026-10-10.md)。
 
 > 上轮工程快照（2026-10-09）：冻结c3f86f5完成TP02与F08/F0必要13节点、53组实际功能检查及严格内容校验，13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。旧TP01-C/D、R01/R02未在本轮重新准入；正式确认、hosted CI和发布独立，见[本轮报告](./audit/TP02-development-2026-10-09.md)。
 
@@ -17,14 +19,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.59
+> 版本：3.60
 > 更新时间：2026-10-10
-> 状态：TP03与F08/F05/F0必要13节点DEVELOPMENT READY；146 NOT_ASSESSED；页面、正式和发布独立。
+> 状态：TP05必要依赖闭包复评中；页面、正式和发布独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
 
+- `3.60`：TP05受控数据adapter、许可证/隔离与生产制品排除Gate补全；必要依赖闭包复评中，历史READY不转移。见[本轮报告](./audit/TP05-development-2026-10-10.md)。
 - `3.59`：冻结e27d5dab完成TP04/TP03/F08/F0必要14节点、56组实际功能复评及严格内容校验；14 DEVELOPMENT READY、145 NOT_ASSESSED、0 BLOCKED，正式/hosted CI/发布独立。见[本轮报告](./audit/TP04-development-2026-10-10.md)。
 
 - `3.58`：冻结3ab1df6完成TP03/F08/F05/F0必要13节点、53组实际功能复评及严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。TP02/TP01-C/D/R01/R02旧Gate本轮未重授，正式/hosted CI/发布独立。见[本轮报告](./audit/TP03-development-2026-10-10.md)。

@@ -33,6 +33,24 @@ class LicenseGateDecision:
     def load_default(cls) -> "LicenseGateDecision":
         policy_path = Path(__file__).with_name("policy") / "license_gate.json"
         parsed = json.loads(policy_path.read_text(encoding="utf-8"))
+        for key in (
+            "commercial_license",
+            "allow_evaluation",
+            "allow_production",
+            "notice_required",
+        ):
+            if type(parsed.get(key)) is not bool:
+                raise ValueError("TP05_LICENSE_POLICY_INVALID")
+        if (
+            parsed["provider"] != "openbb"
+            or parsed["status"] != "evaluation_only"
+            or parsed["allow_production"] is not False
+            or parsed["commercial_license"] is not False
+            or parsed["license_label"] != "AGPL-3.0-only"
+            or len(parsed["upstream_ref"]) != 40
+            or any(c not in "0123456789abcdef" for c in parsed["upstream_ref"])
+        ):
+            raise ValueError("TP05_LICENSE_POLICY_INVALID")
         return cls(
             provider=parsed["provider"],
             upstream_repo=parsed["upstream_repo"],
@@ -56,15 +74,17 @@ class LicenseGateDecision:
         dataset: str,
     ) -> None:
         if provider_name != self.provider:
-            return
+            raise LicenseGateError(
+                grpc.StatusCode.PERMISSION_DENIED, "TP05_LICENSE_PROVIDER_INVALID"
+            )
         if dataset not in self.approved_datasets:
             raise LicenseGateError(
                 grpc.StatusCode.PERMISSION_DENIED,
-                f"dataset `{dataset}` is not approved for isolated OpenBB evaluation",
+                "TP05_LICENSE_DATASET_DENIED",
             )
 
         target = deployment_target.strip().lower()
-        if target == "production":
+        if target != "evaluation":
             raise LicenseGateError(
                 grpc.StatusCode.FAILED_PRECONDITION,
                 self.blocked_reason,

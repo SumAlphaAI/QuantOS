@@ -1059,6 +1059,39 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp05-development": {
+      "command": [
+        "node",
+        "engines/openbb-adapter/check-development.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp05-20261010/receipt.json",
+      "artifactKind": "tp05-development",
+      "timeoutMs": 900000
+    },
+    "tp05-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp05-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp05-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp05-process-cleanup/receipt.json",
+      "output": "supporting/tp05-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1601,6 +1634,35 @@
         "tp04-development",
         "tp04-negatives",
         "tp04-process-cleanup"
+      ]
+    },
+    "CORE:TP05": {
+      "scope": "Development-only QuantOS fixture data.query.v1 provider: 100 actual UDS Data Contracts with full-byte mock artifacts, sources/license/schema/lineage hashes, bounded scoped TTL cache, research/evaluation-only denial, scoped cancellation/deadlines/identity, independent installed-wheel five RPC and local UI response bridge; production build artifact rejection. No admitted OpenBB upstream, data rights, legal approval, network isolation, persistent storage or deployed provider.",
+      "inputs": [
+        "engines/openbb-adapter/",
+        "engines/engine-sdk/",
+        "engines/tests/",
+        "engines/pyproject.toml",
+        "engines/uv.lock",
+        "crates/quantos-engine-manager/",
+        "third_party/tp05-openbb/",
+        "scripts/tp05-data-query-probe.py",
+        "scripts/tp05-data-query-schema.mjs",
+        "scripts/tp05-packaged-service.py",
+        "scripts/tp05-ui-cancel.mjs",
+        "scripts/tp05-release-gate.mjs",
+        "scripts/tp05-release-gate.test.mjs",
+        "scripts/generate-build-manifest.mjs",
+        "Makefile",
+        "packages/domain-ui/src/research.ts",
+        "packages/domain-ui/tests/tp05-research-cancel.test.ts",
+        "packages/api-client/src/terminal.ts",
+        "docs/adr/20260731-tp05-openbb-license-gate.md"
+      ],
+      "checks": [
+        "tp05-development",
+        "tp05-negatives",
+        "tp05-process-cleanup"
       ]
     }
   },

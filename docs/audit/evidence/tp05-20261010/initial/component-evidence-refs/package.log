@@ -1,0 +1,25 @@
+COMMAND ["uv", "sync", "--locked", "--project", "engines", "--all-packages", "--all-groups"]
+COMMAND ["uv", "build", "--project", "engines/engine-sdk", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "--wheel", "--no-build-isolation", "--out-dir", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp05-packaged/wheels"]
+COMMAND ["uv", "build", "--project", "engines/openbb-adapter", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "--wheel", "--no-build-isolation", "--out-dir", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp05-packaged/wheels"]
+COMMAND ["uv", "venv", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "/private/tmp/tp05-7tze9yp9/venv"]
+COMMAND ["uv", "pip", "install", "--offline", "--no-deps", "--python", "/private/tmp/tp05-7tze9yp9/venv/bin/python", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp05-packaged/wheels/quantos_engine_sdk-0.1.0-py3-none-any.whl", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp05-packaged/wheels/quantos_openbb_adapter-0.1.0-py3-none-any.whl"]
+COMMAND ["/private/tmp/tp05-7tze9yp9/venv/bin/python", "-I", "-c", "import openbb_adapter,quantos_engine_sdk; assert \"/site-packages/\" in openbb_adapter.__file__; assert \"/site-packages/\" in quantos_engine_sdk.__file__; print(\"TP05_INSTALLED_WHEEL\",openbb_adapter.__file__,quantos_engine_sdk.__file__)"]
+TP05_INSTALLED_WHEEL /private/tmp/tp05-7tze9yp9/venv/lib/python3.12/site-packages/openbb_adapter/__init__.py /private/tmp/tp05-7tze9yp9/venv/lib/python3.12/site-packages/quantos_engine_sdk/__init__.py
+TP05_PACKAGED_FIVE_RPC_PASS actual installed child stream cancelled <2s
+{"cancellation": {"cancelMillis": 12.038041997584514, "cancelStatus": "CANCELLED", "finalArtifactSeen": false}, "capabilities": 1, "formalAccepted": false, "installedIsolated": true, "ownedChildReaped": true, "productionDenied": true, "realUpstreamRuntime": false, "rpcCount": 5, "schema": "quantos-tp05-packaged-service/v1", "status": "PASS", "upstreamPackageAbsent": true, "wheels": [{"file": "quantos_engine_sdk-0.1.0-py3-none-any.whl", "sha256": "7d9a43e4c7dfc0ba43a8fa89f1bd72a033c55aab7e61ce6fde3258158a2ea519"}, {"file": "quantos_openbb_adapter-0.1.0-py3-none-any.whl", "sha256": "4c907062b5c457294a6248fb00be7152f6c4481555b28aab610a0f5452bf57ea"}]}
+TP05_PACKAGED_SERVICE_PASS
+Resolved 52 packages in 1ms
+Audited 50 packages in 0.19ms
+Building wheel...
+Successfully built artifacts/tp05-packaged/wheels/quantos_engine_sdk-0.1.0-py3-none-any.whl
+Building wheel...
+Successfully built artifacts/tp05-packaged/wheels/quantos_openbb_adapter-0.1.0-py3-none-any.whl
+Using CPython 3.12.10 interpreter at: engines/.venv/bin/python
+Creating virtual environment at: /private/tmp/tp05-7tze9yp9/venv
+Activate with: source /private/tmp/tp05-7tze9yp9/venv/bin/activate
+Using Python 3.12.10 environment at: /private/tmp/tp05-7tze9yp9/venv
+Resolved 2 packages in 0.78ms
+Prepared 2 packages in 4ms
+Installed 2 packages in 2ms
+ + quantos-engine-sdk==0.1.0 (from file:///Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp05-packaged/wheels/quantos_engine_sdk-0.1.0-py3-none-any.whl)
+ + quantos-openbb-adapter==0.1.0 (from file:///Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp05-packaged/wheels/quantos_openbb_adapter-0.1.0-py3-none-any.whl)

@@ -1,3 +1,4 @@
+import { assertProductionArtifactsAllowed } from "./tp05-release-gate.mjs";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -72,6 +73,7 @@ const manifest = {
 
 if (!metadataOnly) {
   manifest.files = digest(files(releaseRoot).filter(p=>p!==path.join(releaseRoot,"manifest.json")),releaseRoot).files;
+  if (process.argv.includes("--production") || process.env.QUANTOS_BUILD_PROFILE === "production") assertProductionArtifactsAllowed(manifest.files.map(f=>f.path));
   const sbom=JSON.parse(fs.readFileSync(path.join(releaseRoot,"sbom/quantos.spdx.json")));
   if(sbom.packages.find(p=>p.SPDXID==="SPDXRef-Package-QuantOS")?.versionInfo!==source.commit) throw new Error("SBOM source mismatch");
 }

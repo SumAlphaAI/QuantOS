@@ -1,0 +1,112 @@
+{
+  "schema.crypto.market.v1": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:quantos:schema.crypto.market.v1",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "symbol",
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume"
+    ],
+    "properties": {
+      "symbol": {
+        "type": "string",
+        "minLength": 1
+      },
+      "open": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "high": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "low": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "close": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "volume": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      }
+    }
+  },
+  "schema.equity.fundamentals.v1": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:quantos:schema.equity.fundamentals.v1",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "symbol",
+      "market_cap",
+      "pe_ratio",
+      "eps_ttm",
+      "revenue_growth_yoy"
+    ],
+    "properties": {
+      "symbol": {
+        "type": "string",
+        "minLength": 1
+      },
+      "market_cap": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "pe_ratio": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "eps_ttm": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "revenue_growth_yoy": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      }
+    }
+  },
+  "schema.macro.rates.v1": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:quantos:schema.macro.rates.v1",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "series",
+      "value",
+      "unit"
+    ],
+    "properties": {
+      "series": {
+        "type": "string",
+        "minLength": 1
+      },
+      "value": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "unit": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}
