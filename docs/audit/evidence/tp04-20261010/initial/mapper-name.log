@@ -1,0 +1,328 @@
+FF..F.F                                                                  [100%]
+=================================== FAILURES ===================================
+____________________ test_trading_agents_contract_all_rpcs _____________________
+
+    def test_trading_agents_contract_all_rpcs() -> None:
+        socket_path = Path("/tmp") / f"quantos-trading-agents-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+        server = serve_engine(socket_path, TradingAgentsService())
+        client = EngineClient(uds_target(socket_path))
+    
+        try:
+            metadata = build_metadata(1)
+            metadata_response = client.get_metadata(
+                engine_pb2.GetMetadataRequest(metadata=metadata),
+                timeout=5,
+            )
+            assert metadata_response.engine_name == "trading-agents"
+            assert metadata_response.supported_schema_versions == ["v1"]
+            assert len(metadata_response.capabilities) == 1
+    
+            health_response = client.health(
+                engine_pb2.HealthRequest(metadata=metadata),
+                timeout=5,
+            )
+            assert health_response.ready is True
+    
+            fixture = load_fixture("committee_bull_breakout")
+            execute_request = build_request(
+                1,
+                {
+                    "fixture": fixture.fixture_name,
+                    "account_id": "paper-account-primary",
+                    "policy_snapshot_id": fixture.policy_snapshot_id,
+                    "portfolio_snapshot_id": fixture.portfolio_snapshot_id,
+                    "signal": build_signal_payload(fixture, request_seed="contract-primary"),
+                    "tools": ["query_signal", "query_snapshot", "query_artifact"],
+                },
+            )
+>           assert_five_rpc_contract(client, execute_request, "trading-agents")
+
+engines/tests/test_trading_agents_contract.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/tests/engine_contract_harness.py:30: in assert_five_rpc_contract
+    executed = client.execute(request, timeout=5)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:314: in execute
+    return self._execute(request, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1178: in __call__
+    return _end_unary_response_blocking(state, call, False, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = <grpc._channel._RPCState object at 0x1093c8500>
+call = <grpc._cython.cygrpc.SegregatedCall object at 0x109206600>
+with_call = False, deadline = None
+
+    def _end_unary_response_blocking(
+        state: _RPCState,
+        call: cygrpc.SegregatedCall,
+        with_call: bool,
+        deadline: Optional[float],
+    ) -> Union[ResponseType, Tuple[ResponseType, grpc.Call]]:
+        if state.code is grpc.StatusCode.OK:
+            if with_call:
+                rendezvous = _MultiThreadedRendezvous(state, call, None, deadline)
+                return state.response, rendezvous
+            else:
+                return state.response
+        else:
+>           raise _InactiveRpcError(state)  # pytype: disable=not-instantiable
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+E           	status = StatusCode.UNKNOWN
+E           	details = "Exception calling application: 'MappedProposal' object has no attribute 'signal_payload'"
+E           	debug_error_string = "UNKNOWN:Error received from peer  {grpc_status:2, grpc_message:"Exception calling application: \'MappedProposal\' object has no attribute \'signal_payload\'"}"
+E           >
+
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1006: _InactiveRpcError
+------------------------------ Captured log call -------------------------------
+ERROR    grpc._server:_server.py:638 Exception calling application: 'MappedProposal' object has no attribute 'signal_payload'
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
+    response_or_iterator = behavior(argument, context)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py", line 164, in observed
+    response = checked_response(method(request, context), request, context)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/trading-agents/src/trading_agents/service.py", line 58, in execute
+    output=json_document_from_mapping(mapped.signal_payload),
+                                      ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MappedProposal' object has no attribute 'signal_payload'
+____________ test_trading_agents_is_deterministic_for_fixed_signal _____________
+
+    def test_trading_agents_is_deterministic_for_fixed_signal() -> None:
+        socket_path = Path("/tmp") / f"quantos-trading-agents-deterministic-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+        server = serve_engine(socket_path, TradingAgentsService())
+        client = EngineClient(uds_target(socket_path))
+    
+        try:
+            fixture = load_fixture("committee_reduce_overheat")
+            request = build_request(
+                2,
+                {
+                    "fixture": fixture.fixture_name,
+                    "account_id": "paper-account-primary",
+                    "policy_snapshot_id": fixture.policy_snapshot_id,
+                    "portfolio_snapshot_id": fixture.portfolio_snapshot_id,
+                    "signal": build_signal_payload(fixture, request_seed="deterministic-primary"),
+                    "tools": ["query_signal"],
+                },
+            )
+>           first = client.execute(request, timeout=5)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engines/tests/test_trading_agents_contract.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:314: in execute
+    return self._execute(request, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1178: in __call__
+    return _end_unary_response_blocking(state, call, False, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = <grpc._channel._RPCState object at 0x1096a7350>
+call = <grpc._cython.cygrpc.SegregatedCall object at 0x1098c77c0>
+with_call = False, deadline = None
+
+    def _end_unary_response_blocking(
+        state: _RPCState,
+        call: cygrpc.SegregatedCall,
+        with_call: bool,
+        deadline: Optional[float],
+    ) -> Union[ResponseType, Tuple[ResponseType, grpc.Call]]:
+        if state.code is grpc.StatusCode.OK:
+            if with_call:
+                rendezvous = _MultiThreadedRendezvous(state, call, None, deadline)
+                return state.response, rendezvous
+            else:
+                return state.response
+        else:
+>           raise _InactiveRpcError(state)  # pytype: disable=not-instantiable
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+E           	status = StatusCode.UNKNOWN
+E           	details = "Exception calling application: 'MappedProposal' object has no attribute 'signal_payload'"
+E           	debug_error_string = "UNKNOWN:Error received from peer  {grpc_status:2, grpc_message:"Exception calling application: \'MappedProposal\' object has no attribute \'signal_payload\'"}"
+E           >
+
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1006: _InactiveRpcError
+------------------------------ Captured log call -------------------------------
+ERROR    grpc._server:_server.py:638 Exception calling application: 'MappedProposal' object has no attribute 'signal_payload'
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
+    response_or_iterator = behavior(argument, context)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py", line 164, in observed
+    response = checked_response(method(request, context), request, context)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/trading-agents/src/trading_agents/service.py", line 58, in execute
+    output=json_document_from_mapping(mapped.signal_payload),
+                                      ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MappedProposal' object has no attribute 'signal_payload'
+_ test_trading_agents_validates_100_fixed_inputs_against_trade_proposal_proto __
+
+    def test_trading_agents_validates_100_fixed_inputs_against_trade_proposal_proto() -> None:
+        socket_path = Path("/tmp") / f"quantos-trading-agents-schema-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+        server = serve_engine(socket_path, TradingAgentsService())
+        client = EngineClient(uds_target(socket_path))
+        required = proposal_required_fields()
+    
+        try:
+            for index, case in enumerate(fixed_input_cases(100), start=1):
+                request = build_request(
+                    index + 100,
+                    {
+                        "fixture": case.fixture_name,
+                        "account_id": case.account_id,
+                        "policy_snapshot_id": case.policy_snapshot_id,
+                        "portfolio_snapshot_id": case.portfolio_snapshot_id,
+                        "signal": case.signal_payload,
+                        "tools": list(case.requested_tools),
+                    },
+                )
+>               response = client.execute(request, timeout=5)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engines/tests/test_trading_agents_contract.py:293: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:314: in execute
+    return self._execute(request, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1178: in __call__
+    return _end_unary_response_blocking(state, call, False, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = <grpc._channel._RPCState object at 0x10997c320>
+call = <grpc._cython.cygrpc.SegregatedCall object at 0x1097b6040>
+with_call = False, deadline = None
+
+    def _end_unary_response_blocking(
+        state: _RPCState,
+        call: cygrpc.SegregatedCall,
+        with_call: bool,
+        deadline: Optional[float],
+    ) -> Union[ResponseType, Tuple[ResponseType, grpc.Call]]:
+        if state.code is grpc.StatusCode.OK:
+            if with_call:
+                rendezvous = _MultiThreadedRendezvous(state, call, None, deadline)
+                return state.response, rendezvous
+            else:
+                return state.response
+        else:
+>           raise _InactiveRpcError(state)  # pytype: disable=not-instantiable
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+E           	status = StatusCode.UNKNOWN
+E           	details = "Exception calling application: 'MappedProposal' object has no attribute 'signal_payload'"
+E           	debug_error_string = "UNKNOWN:Error received from peer  {grpc_status:2, grpc_message:"Exception calling application: \'MappedProposal\' object has no attribute \'signal_payload\'"}"
+E           >
+
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1006: _InactiveRpcError
+------------------------------ Captured log call -------------------------------
+ERROR    grpc._server:_server.py:638 Exception calling application: 'MappedProposal' object has no attribute 'signal_payload'
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
+    response_or_iterator = behavior(argument, context)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py", line 164, in observed
+    response = checked_response(method(request, context), request, context)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/trading-agents/src/trading_agents/service.py", line 58, in execute
+    output=json_document_from_mapping(mapped.signal_payload),
+                                      ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MappedProposal' object has no attribute 'signal_payload'
+___________ test_trading_agents_p95_response_stays_under_one_second ____________
+
+    def test_trading_agents_p95_response_stays_under_one_second() -> None:
+        socket_path = Path("/tmp") / f"quantos-trading-agents-latency-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+        server = serve_engine(socket_path, TradingAgentsService())
+        client = EngineClient(uds_target(socket_path))
+    
+        try:
+            durations = []
+            fixture_names = [
+                "committee_bull_breakout",
+                "committee_reduce_overheat",
+                "committee_hold_crosscurrents",
+            ]
+            for index in range(20):
+                fixture = load_fixture(fixture_names[index % len(fixture_names)])
+                request = build_request(
+                    200 + index,
+                    {
+                        "fixture": fixture.fixture_name,
+                        "account_id": f"paper-account-{index % 3}",
+                        "policy_snapshot_id": f"{fixture.policy_snapshot_id}-{index:03d}",
+                        "portfolio_snapshot_id": f"{fixture.portfolio_snapshot_id}-{index:03d}",
+                        "signal": build_signal_payload(fixture, request_seed=f"latency-{index:03d}"),
+                    },
+                )
+                started_at = time.monotonic()
+>               client.execute(request, timeout=5)
+
+engines/tests/test_trading_agents_contract.py:389: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:314: in execute
+    return self._execute(request, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1178: in __call__
+    return _end_unary_response_blocking(state, call, False, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = <grpc._channel._RPCState object at 0x109607980>
+call = <grpc._cython.cygrpc.SegregatedCall object at 0x1098c35c0>
+with_call = False, deadline = None
+
+    def _end_unary_response_blocking(
+        state: _RPCState,
+        call: cygrpc.SegregatedCall,
+        with_call: bool,
+        deadline: Optional[float],
+    ) -> Union[ResponseType, Tuple[ResponseType, grpc.Call]]:
+        if state.code is grpc.StatusCode.OK:
+            if with_call:
+                rendezvous = _MultiThreadedRendezvous(state, call, None, deadline)
+                return state.response, rendezvous
+            else:
+                return state.response
+        else:
+>           raise _InactiveRpcError(state)  # pytype: disable=not-instantiable
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+E           	status = StatusCode.UNKNOWN
+E           	details = "Exception calling application: 'MappedProposal' object has no attribute 'signal_payload'"
+E           	debug_error_string = "UNKNOWN:Error received from peer  {grpc_message:"Exception calling application: \'MappedProposal\' object has no attribute \'signal_payload\'", grpc_status:2}"
+E           >
+
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1006: _InactiveRpcError
+------------------------------ Captured log call -------------------------------
+ERROR    grpc._server:_server.py:638 Exception calling application: 'MappedProposal' object has no attribute 'signal_payload'
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
+    response_or_iterator = behavior(argument, context)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py", line 164, in observed
+    response = checked_response(method(request, context), request, context)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/trading-agents/src/trading_agents/service.py", line 58, in execute
+    output=json_document_from_mapping(mapped.signal_payload),
+                                      ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MappedProposal' object has no attribute 'signal_payload'
+=========================== short test summary info ============================
+FAILED engines/tests/test_trading_agents_contract.py::test_trading_agents_contract_all_rpcs
+FAILED engines/tests/test_trading_agents_contract.py::test_trading_agents_is_deterministic_for_fixed_signal
+FAILED engines/tests/test_trading_agents_contract.py::test_trading_agents_validates_100_fixed_inputs_against_trade_proposal_proto
+FAILED engines/tests/test_trading_agents_contract.py::test_trading_agents_p95_response_stays_under_one_second
+4 failed, 3 passed in 0.14s

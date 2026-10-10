@@ -110,7 +110,12 @@ fn execute_request(request_id: &str, input: JsonDocument) -> ExecuteRequest {
         capability: "decision.proposal.v1".to_owned(),
         input_schema_version: "v1".to_owned(),
         data_snapshot_ref: format!("portfolio-snapshot-{request_id}"),
-        policy_context_ref: format!("policy-{request_id}"),
+        policy_context_ref: if request_id == "stream" {
+            "policy-snapshot-eth-reduce"
+        } else {
+            "policy-snapshot-btc-breakout"
+        }
+        .to_owned(),
         input: Some(input),
         deadline: Some(timestamp_after(Duration::from_secs(5))),
     }
@@ -188,7 +193,9 @@ fn proposal_input(spec: ProposalInputSpec<'_>) -> JsonDocument {
                             ("model_version", string_value("llmquant-factor-2026.07.31")),
                             (
                                 "model_digest",
-                                string_value("sha256:llmquant-model-trend-long"),
+                                string_value(
+                                    "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                ),
                             ),
                             (
                                 "data_version",

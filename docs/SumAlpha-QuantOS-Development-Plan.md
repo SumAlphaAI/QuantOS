@@ -21,7 +21,7 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.56
+> 版本：3.57
 > 更新时间：2026-10-10
 > 状态：技术执行基线  
 > 本轮变更：TP03受控Signal Engine与必要13节点严格DEVELOPMENT READY；保留历史正式、失败、回执及其他旧Gate撤销状态。
@@ -29,6 +29,8 @@
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.57`：TP04受控TradingAgents adapter补齐Proposal反方观点/有效期/证据、权限与取消隔离、真实mock Artifact和安装包测试；必要依赖闭包复评中，最终Gate见[本轮报告](./audit/TP04-development-2026-10-10.md)。
 
 - `3.56`：冻结3ab1df6完成TP03/F08/F05/F0必要13节点、53组实际功能复评及严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。TP02/TP01-C/D/R01/R02旧Gate本轮未重授，正式/hosted CI/发布独立。见[本轮报告](./audit/TP03-development-2026-10-10.md)。
 
@@ -803,7 +805,7 @@ F0 DEVELOPMENT必要闭包在冻结c3f86f5随TP02重新实际执行并严格READ
 - depends_on: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - closes_core: []
-- development_status: `PARTIAL`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `R1-SERVICE`
 - 需求描述：TradingAgents：多 Agent 决策 Engine

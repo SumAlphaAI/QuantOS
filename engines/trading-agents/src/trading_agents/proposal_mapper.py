@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+import json
 
 from google.protobuf import json_format
 
@@ -14,9 +15,6 @@ from quantos_engine_sdk import input_hash, json_document_from_mapping, timestamp
 
 from trading_agents.adapter import ProposalExecutionContext
 from trading_agents.fixtures import DecisionFixture
-
-
-_BASE_EXPIRES_AT = datetime(2026, 1, 1, tzinfo=timezone.utc)
 
 
 @dataclass(frozen=True)
@@ -57,6 +55,7 @@ def map_proposal(
         confidence=common_pb2.DecimalValue(value=str(fixture.proposal_confidence)),
         expires_at=timestamp_from_datetime(expires_at),
         executable=False,
+        counter_views=list(fixture.counter_views),
     )
     if fixture.limit_price is not None:
         proposal.limit_price.CopyFrom(common_pb2.DecimalValue(value=str(fixture.limit_price)))
@@ -71,8 +70,8 @@ def map_proposal(
         proposal=proposal,
         proposal_payload=proposal_payload,
         proposal_hash=proposal_hash,
-        committee_artifact=committee_artifact | {"artifact_hash": _artifact_hash(committee_artifact)},
-        policy_artifact=policy_artifact | {"artifact_hash": _artifact_hash(policy_artifact)},
+        committee_artifact=committee_artifact,
+        policy_artifact=policy_artifact,
         stream_events=build_stream_events(proposal_payload, committee_artifact, policy_artifact),
     )
 
@@ -85,6 +84,8 @@ def build_committee_artifact(
 
     return {
         "artifact_type": "CommitteeDebateArtifact",
+        "artifact_id": "committee-debate:" + _content_id(context, fixture),
+        **_provenance(context, fixture),
         "engine": "trading-agents",
         "workflow_run_id": context.workflow_run_id,
         "proposal_symbol": context.signal.symbol,
@@ -105,6 +106,8 @@ def build_policy_artifact(
 
     return {
         "artifact_type": "PolicyFixtureArtifact",
+        "artifact_id": "policy-fixture:" + _content_id(context, fixture),
+        **_provenance(context, fixture),
         "engine": "trading-agents",
         "workflow_run_id": context.workflow_run_id,
         "policy_snapshot_id": context.policy_snapshot_id,
@@ -147,41 +150,59 @@ def _proposal_expiry(
     context: ProposalExecutionContext,
     fixture: DecisionFixture,
 ) -> datetime:
-    seed = "|".join(
-        (
-            context.workflow_run_id,
-            context.account_id,
-            context.signal.signal_id,
-            fixture.fixture_name,
-        )
-    ).encode("utf-8")
-    digest = hashlib.sha256(seed).digest()
-    offset_minutes = int.from_bytes(digest[:4], "big") % (366 * 24 * 60)
-    deterministic_start = _BASE_EXPIRES_AT + timedelta(minutes=offset_minutes)
+    generated = context.signal.generated_at.ToDatetime(tzinfo=timezone.utc)
+    valid_until = context.signal.valid_until.ToDatetime(tzinfo=timezone.utc)
+    return min(valid_until, generated + timedelta(minutes=fixture.validity_minutes))
 
-    signal_valid_until = context.signal.valid_until.ToDatetime().astimezone(timezone.utc)
-    proposal_window_end = deterministic_start + timedelta(minutes=fixture.validity_minutes)
-    return min(signal_valid_until, proposal_window_end)
+
+def _content_id(context: ProposalExecutionContext, fixture: DecisionFixture) -> str:
+    seed = json.dumps(
+        [
+            context.tenant_id,
+            context.workspace_id,
+            context.actor_id,
+            context.workflow_run_id,
+            context.input_hash,
+            context.metadata_hash,
+            context.policy_context_ref,
+            fixture.fixture_digest,
+        ],
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(seed.encode()).hexdigest()
 
 
 def _proposal_id(context: ProposalExecutionContext, fixture: DecisionFixture) -> str:
-    seed = "|".join(
-        (
-            context.workflow_run_id,
-            context.account_id,
-            context.signal.signal_id,
-            fixture.fixture_name,
-        )
-    ).encode("utf-8")
-    return f"proposal:{hashlib.sha256(seed).hexdigest()[:16]}"
+    return "proposal:" + _content_id(context, fixture)
+
+
+def _provenance(context: ProposalExecutionContext, fixture: DecisionFixture) -> dict:
+    return {
+        "audit": {
+            "tenant_id": context.tenant_id,
+            "workspace_id": context.workspace_id,
+            "actor_id": context.actor_id,
+            "input_hash": context.input_hash,
+            "metadata_hash": context.metadata_hash,
+        },
+        "fixture_digest": fixture.fixture_digest,
+        "decision_basis": "deterministic_committee_fixture_not_live_agents",
+        "time_basis": "input_signal_generation_replay",
+        "upstream_runtime_loaded": False,
+        "tools_executed": False,
+        "snapshots_resolved": False,
+        "risk_evaluation_performed": False,
+        "executable": False,
+        "data_query_context": context.data_query_context,
+    }
 
 
 def _build_evidence_refs(
     context: ProposalExecutionContext,
     fixture: DecisionFixture,
 ) -> tuple[common_pb2.EvidenceRef, ...]:
-    committee_artifact_id = f"committee-debate:{context.workflow_run_id}"
-    policy_artifact_id = f"policy-fixture:{context.workflow_run_id}"
+    committee_artifact_id = "committee-debate:" + _content_id(context, fixture)
+    policy_artifact_id = "policy-fixture:" + _content_id(context, fixture)
     evidence_refs = [
         common_pb2.EvidenceRef(
             evidence_id=f"proposal-evidence:{context.workflow_run_id}:1",

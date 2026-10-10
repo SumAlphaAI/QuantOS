@@ -29,7 +29,9 @@ from trading_agents.manifest import PROPOSAL_CAPABILITY
 from trading_agents.service import TradingAgentsService
 
 
-def build_metadata(index: int, *, capabilities: list[str] | None = None) -> common_pb2.CommandMetadata:
+def build_metadata(
+    index: int, *, capabilities: list[str] | None = None
+) -> common_pb2.CommandMetadata:
     return common_pb2.CommandMetadata(
         request_id=f"req-{index}",
         tenant_id="tenant-primary",
@@ -63,9 +65,7 @@ def build_request(
         data_snapshot_ref=data_snapshot_ref or str(payload["portfolio_snapshot_id"]),
         policy_context_ref=str(payload.get("policy_snapshot_id", f"policy-{index}")),
         input=json_document_from_mapping(payload),
-        deadline=timestamp_from_datetime(
-            datetime.now(tz=timezone.utc) + timedelta(seconds=5)
-        ),
+        deadline=timestamp_from_datetime(datetime.now(tz=timezone.utc) + timedelta(seconds=5)),
     )
 
 
@@ -77,10 +77,7 @@ def parse_proposal_output(payload: dict) -> trading_pb2.TradeProposal:
 
 def proposal_required_fields() -> set[str]:
     schema_path = (
-        Path(__file__).resolve().parents[2]
-        / "proto"
-        / "jsonschema"
-        / "v1TradeProposal.schema.json"
+        Path(__file__).resolve().parents[2] / "proto" / "jsonschema" / "v1TradeProposal.schema.json"
     )
     parsed = json.loads(schema_path.read_text(encoding="utf-8"))
     return set(parsed["required"])
@@ -301,7 +298,9 @@ def test_trading_agents_validates_100_fixed_inputs_against_trade_proposal_proto(
             assert proposal.executable is False
             assert proposal.expires_at.seconds > 0
             counter_summaries = [
-                ref.summary for ref in proposal.evidence_refs if ref.summary.startswith("Counterpoint:")
+                ref.summary
+                for ref in proposal.evidence_refs
+                if ref.summary.startswith("Counterpoint:")
             ]
             assert counter_summaries == list(load_fixture(case.fixture_name).counter_views)
     finally:

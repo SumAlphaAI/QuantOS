@@ -1,24 +1,9 @@
 # TP04 TradingAgents Progress
 
-## Status
+2026-10-10: controlled adapter implementation complete; current dependency admission is being assessed. The previous unqualified `implemented` summary did not establish a current stage Gate.
 
-`implemented`
+Delivered: five RPC, non-executable TradeProposal, explicit counter views/evidence/expiry, versioned and scoped Signal input, policy/portfolio envelope validation, recursive denied tool/authority inputs with sanitized audit, actual immutable mock Artifact byte bundles, scoped cancellation/deadline/idempotency, 100 replay/schema cases and isolated installed-wheel tests.
 
-## Delivered scope
+The selected external TradingAgents reference remains descriptor-only and not admitted for runtime/production. Committee views and policy rules are deterministic fixtures; no real LLM agents, tools, risk evaluation or snapshot resolution is performed. Local UDS UI response integration is separate from deployed BFF HTTP/browser E2E. Formal acceptance, hosted CI, deployment and performance remain separately assessed.
 
-- `engines/trading-agents` package with QuantOS-native manifest, request adapter, deterministic fixtures, `TradeProposal` mapper, committee/policy artifacts, and UDS gRPC server;
-- support for `decision.proposal.v1` with versioned Signal input and policy/portfolio snapshot boundary validation;
-- deterministic `quantos.trading.v1.TradeProposal` output that always keeps `executable=false`;
-- negative boundary validation for order tools, venue access, secrets, arbitrary external networking, and non-allowlisted tools;
-- Python and Rust contract harness coverage, including 100 fixed-input replay validation and stream-cancel timing checks.
-
-## Acceptance evidence
-
-- `engines/tests/test_trading_agents_contract.py`
-- `crates/quantos-engine-manager/tests/python_trading_agents.rs`
-- `engines/trading-agents/src/trading_agents/*`
-
-## Notes
-
-- TP04 now satisfies the repository-side implementation for the plan item at `docs/SumAlpha-QuantOS-Development-Plan.md#L146`.
-- The next natural integration step is wiring TradingAgents into the R04 signal/proposal workflow so released Signals and governed snapshot inputs can drive end-to-end replay and risk-evaluation handoff.
+Current results and raw failures: [TP04 development report](../audit/TP04-development-2026-10-10.md).

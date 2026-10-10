@@ -673,7 +673,10 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             &lease.run,
             &self.proposal_capability,
             &payload.proposal_input_schema_version,
-            &payload.feature_snapshot_id,
+            proposal_input
+                .get("portfolio_snapshot_id")
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or(""),
             &payload.policy_context_ref,
             &proposal_input,
             "proposal",

@@ -14,6 +14,7 @@ from pathlib import Path
 @dataclass(frozen=True)
 class DecisionFixture:
     fixture_name: str
+    fixture_digest: str
     symbol: str
     action: str
     quantity: Decimal
@@ -63,9 +64,50 @@ def _catalog_path() -> Path:
 @lru_cache(maxsize=1)
 def fixture_catalog() -> tuple[DecisionFixture, ...]:
     parsed = json.loads(_catalog_path().read_text(encoding="utf-8"))
+    for entry in parsed["fixtures"]:
+        canonical = json.dumps(
+            {k: v for k, v in entry.items() if k != "fixture_digest"},
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+        if entry["fixture_digest"] != "sha256:" + hashlib.sha256(canonical).hexdigest():
+            raise ValueError("ENGINE_FIXTURE_DIGEST")
+        for name in (
+            "proposal_confidence",
+            "signal_strength",
+            "signal_confidence",
+            "quantity",
+            "notional",
+            "limit_price",
+            "stop_price",
+        ):
+            if entry[name] is not None:
+                value = Decimal(entry[name])
+                if (
+                    not value.is_finite()
+                    or value < 0
+                    or (
+                        name in {"proposal_confidence", "signal_strength", "signal_confidence"}
+                        and value > 1
+                    )
+                ):
+                    raise ValueError("ENGINE_FIXTURE_DECIMAL")
+        for name in ("validity_minutes", "signal_validity_minutes"):
+            if type(entry[name]) is not int or not 1 <= entry[name] <= 1440:
+                raise ValueError("ENGINE_FIXTURE_TTL")
+        for name in ("supporting_views", "counter_views", "evidence", "policy_rules"):
+            if (
+                not isinstance(entry[name], list)
+                or not entry[name]
+                or any(not isinstance(v, str) or not v.strip() for v in entry[name])
+            ):
+                raise ValueError("ENGINE_FIXTURE_VIEWS")
+        if entry["action"] not in {"buy", "sell", "hold", "reduce"}:
+            raise ValueError("ENGINE_FIXTURE_ACTION")
     return tuple(
         DecisionFixture(
             fixture_name=entry["fixture_name"],
+            fixture_digest=entry["fixture_digest"],
             symbol=entry["symbol"],
             action=entry["action"],
             quantity=Decimal(entry["quantity"]),
@@ -148,7 +190,8 @@ def build_signal_payload(
             "value": {
                 "strategy_version": fixture.signal_strategy_version,
                 "model_version": fixture.signal_model_version,
-                "model_digest": fixture.signal_model_digest,
+                "model_digest": "sha256:"
+                + hashlib.sha256(fixture.signal_model_digest.encode()).hexdigest(),
                 "data_version": fixture.signal_data_version,
                 "summary": fixture.signal_summary,
                 "policy_snapshot_id": fixture.policy_snapshot_id,

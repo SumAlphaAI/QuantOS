@@ -11,7 +11,7 @@ export const selectors=['engines/llmquant/','engines/engine-sdk/','engines/tests
 const formatFiles=['adapter','artifacts','fixtures','manifest','signal_mapper','server','service','__init__'].map(f=>'engines/llmquant/src/llmquant/'+f+'.py').concat(['engines/tests/test_llmquant_contract.py','engines/tests/test_llmquant_development.py']);
 export const checks=[
  {id:'contract',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_llmquant_contract.py','engines/tests/test_llmquant_development.py','-vv'],marker:/273 passed/},
- {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/699 passed/},
+ {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/1002 passed/},
  {id:'manager',command:['cargo','test','--locked','--offline','-p','quantos-engine-manager','--test','python_llmquant'],marker:/2 passed; 0 failed/},
  {id:'runtime',command:['cargo','test','--locked','--offline','-p','quantos-runtime','--test','signal_proposal_orchestration','--','--nocapture'],marker:/3 passed; 0 failed/},
  {id:'schema',command:['node','scripts/tp03-signal-schema.mjs'],marker:/TP03_SIGNAL_SCHEMA_PASS 100/},

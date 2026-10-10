@@ -1026,6 +1026,39 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp04-development": {
+      "command": [
+        "node",
+        "engines/trading-agents/check-development.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp04-20261010/receipt.json",
+      "artifactKind": "tp04-development",
+      "timeoutMs": 900000
+    },
+    "tp04-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp04-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp04-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp04-process-cleanup/receipt.json",
+      "output": "supporting/tp04-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1543,6 +1576,31 @@
         "tp03-development",
         "tp03-negatives",
         "tp03-process-cleanup"
+      ]
+    },
+    "CORE:TP04": {
+      "scope": "Development controlled TradingAgents adapter, not admitted upstream: five RPC, 100 actual non-executable Proposal JSON schemas and double unary/stream replay, counter views/evidence/expiry, versioned Signal and authoritative policy/portfolio references, denied tools with sanitized audit, scoped atomic readable mock committee/policy bundles, cancellation/deadline/idempotency, installed-wheel process cancellation and local UDS UI bridge; no real agents, risk execution, HTTP deployment or persistence",
+      "inputs": [
+        "engines/llmquant/",
+        "engines/trading-agents/",
+        "engines/engine-sdk/",
+        "engines/tests/",
+        "engines/pyproject.toml",
+        "engines/uv.lock",
+        "crates/quantos-engine-manager/",
+        "crates/quantos-runtime/",
+        "third_party/tp04-trading-agents/",
+        "scripts/tp04-proposal-probe.py",
+        "scripts/tp04-proposal-schema.mjs",
+        "scripts/tp04-ui-cancel.mjs",
+        "packages/domain-ui/src/research.ts",
+        "packages/domain-ui/tests/tp04-research-cancel.test.ts",
+        "packages/api-client/src/terminal.ts"
+      ],
+      "checks": [
+        "tp04-development",
+        "tp04-negatives",
+        "tp04-process-cleanup"
       ]
     }
   },

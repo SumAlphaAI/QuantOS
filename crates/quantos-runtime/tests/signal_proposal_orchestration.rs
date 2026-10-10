@@ -431,7 +431,7 @@ async fn signal_proposal_workflow_runs_hundred_cases_with_evidence_expiry_and_no
                         idempotency_key: format!("signal-proposal-{index:03}"),
                         correlation_id: CorrelationId::new(),
                         feature_snapshot_id: snapshot_id,
-                        policy_context_ref: format!("policy-context-{index:03}"),
+                        policy_context_ref: format!("policy-snapshot-{index:03}"),
                         data_query_input_schema_version: Some("v1".to_owned()),
                         data_query_input: Some(serde_json::json!({
                             "provider": "mock",
@@ -602,7 +602,7 @@ async fn signal_proposal_workflow_replay_keeps_signal_and_proposal_hashes_stable
                         idempotency_key: format!("signal-proposal-replay-{index:03}"),
                         correlation_id: shared_correlation_id,
                         feature_snapshot_id: snapshot_id,
-                        policy_context_ref: "policy-context-replay".to_owned(),
+                        policy_context_ref: "policy-snapshot-replay".to_owned(),
                         data_query_input_schema_version: Some("v1".to_owned()),
                         data_query_input: Some(serde_json::json!({
                             "provider": "mock",
@@ -752,7 +752,7 @@ async fn signal_proposal_workflow_rejects_forbidden_order_tools() -> Result<()> 
                     idempotency_key: "signal-proposal-deny".to_owned(),
                     correlation_id: CorrelationId::new(),
                     feature_snapshot_id: snapshot_id,
-                    policy_context_ref: "policy-context-deny".to_owned(),
+                    policy_context_ref: "policy-snapshot-deny".to_owned(),
                     data_query_input_schema_version: Some("v1".to_owned()),
                     data_query_input: Some(serde_json::json!({
                         "provider": "mock",
