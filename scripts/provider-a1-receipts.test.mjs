@@ -97,3 +97,19 @@ test('third-party Git link binds the actual clean checkout and rejects dirty/adv
 test('transient read-only preflight connection closure retries the complete target',()=>{let n=0;const runs=runTargetAttempts(()=>++n===1?{status:1,diagnostic:'F06 BFF preflight failed: Connection terminated unexpectedly\n'}:{status:0});assert.equal(runs.length,2);assert.equal(runs[0].transient,true);assert.equal(runs[1].status,0);});
 test('preflight permission and role failures are not transport retries',()=>{for(const diagnostic of ['F06 BFF preflight failed: permission denied for table actors','F06 BFF preflight failed: current role differs','F06 BFF preflight failed: Connection terminated unexpectedly for permission denied']){let n=0;const runs=runTargetAttempts(()=>{n++;return{status:1,diagnostic};});assert.equal(n,1);assert.equal(runs[0].transient,false);}});
 test('persistent preflight closure exhausts three attempts without PASS',()=>{const runs=runTargetAttempts(()=>({status:1,diagnostic:'F06 BFF preflight failed: Connection terminated unexpectedly'}));assert.equal(runs.length,3);assert(runs.every(r=>r.status!==0));});
+
+test('inventory reads a Git file list over 1 MiB without truncating selected inputs',()=>{
+ const base=mkdtempSync(resolve(tmpdir(),'quantos-large-inventory-'));
+ try{
+  execFileSync('git',['init','-q'],{cwd:base});
+  const relative=Array.from({length:4},(_,i)=>String(i)+'x'.repeat(159)).join('/');
+  mkdirSync(resolve(base,relative),{recursive:true});
+  for(let i=0;i<1700;i++)writeFileSync(resolve(base,relative,'file-'+String(i).padStart(4,'0')),'');
+  writeFileSync(resolve(base,'zz-selected.ts'),'selected bytes');
+  const listing=execFileSync('git',['ls-files','--cached','--others','--exclude-standard'],{cwd:base,maxBuffer:4*1024*1024});
+  assert(listing.length>1024*1024,'regression must exceed the child_process default buffer');
+  let result;
+  try{result=inventory(['zz-selected.ts'],base);}catch(error){assert.fail('large inventory failed: '+error.code);}
+  assert.deepEqual(result,[{path:'zz-selected.ts',role:'code',sha256:digest('selected bytes')}]);
+ }finally{rmSync(base,{recursive:true,force:true});}
+});

@@ -12,7 +12,7 @@ const snapshot = mkdtempSync(path.join(tmpdir(), "quantos-proto-bootstrap-"));
 const generated = "crates/quantos-proto/src/generated";
 const hash = file => createHash("sha256").update(readFileSync(file)).digest("hex");
 try {
-  const files = execFileSync("git", ["ls-files", "-z"], {cwd: root, encoding: "utf8"}).split("\0").filter(Boolean);
+  const files = execFileSync("git", ["ls-files", "-z"], {cwd: root, encoding: "utf8", maxBuffer: 32 * 1024 * 1024}).split("\0").filter(Boolean);
   for (const file of files) {
     if (file.startsWith(`${generated}/`) || !existsSync(path.join(root, file))) continue;
     if (file !== "Cargo.lock" && !file.endsWith("Cargo.toml") && !file.endsWith(".rs")) continue;

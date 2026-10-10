@@ -6,7 +6,7 @@ const root=resolve(import.meta.dirname,'../../../..'),base=root+'/docs/audit/evi
 const commands=[
  ['TP03-ready',['node','engines/llmquant/check-development.mjs','--ready'],/"stageGate":"READY"/],
  ['full-strict',['node','--input-type=module','-e',"import {nodesFromPlans,closure,validateReceipt} from './scripts/provider-a1-receipts.mjs';const nodes=nodesFromPlans();const ids=closure(nodes,'CORE:TP03');for(const id of ids)validateReceipt(id);console.log(JSON.stringify({strictReady:ids.length,formalAccepted:false}));"],/"strictReady":13/],
- ['focused',['node','--test','scripts/provider-a1-receipts.test.mjs','scripts/tp01-c-functional-artifacts.test.mjs','scripts/tp01-d-functional-artifacts.test.mjs','scripts/tp02-functional-artifacts.test.mjs','scripts/tp03-functional-artifacts.test.mjs'],/tests\s+108/],
+ ['focused',['node','--test','scripts/provider-a1-receipts.test.mjs','scripts/tp01-c-functional-artifacts.test.mjs','scripts/tp01-d-functional-artifacts.test.mjs','scripts/tp02-functional-artifacts.test.mjs','scripts/tp03-functional-artifacts.test.mjs'],/tests\s+109/],
  ['plans',['node','scripts/check-development-plans.mjs'],/"READY": 13/],
  ['plan-negative',['pnpm','test:development-plans'],/tests\s+38/],
  ['p0-negative',['node','--test','scripts/p0-acceptance-negative.mjs'],/tests\s+16/],

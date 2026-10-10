@@ -1,0 +1,171 @@
+QUANTOS_F07_COVERAGE_DIAGNOSTIC=1 node scripts/f07-db-gate.cjs
+Skipping already applied migration: 20260727000000_initial_platform_baseline.sql
+Skipping already applied migration: 20260728010000_event_storage_audit_ledger.sql
+Skipping already applied migration: 20260730090000_f05_polling_consumer_alignment.sql
+Skipping already applied migration: 20260730110000_auth_policy_context.sql
+Skipping already applied migration: 20260730130000_runtime_workflows.sql
+Skipping already applied migration: 20260731100000_data_snapshots_and_quality_gate.sql
+Skipping already applied migration: 20260801090000_strategy_drafts.sql
+Skipping already applied migration: 20260801100000_strategy_releases.sql
+Skipping already applied migration: 20260801110000_portfolio_projection.sql
+Skipping already applied migration: 20260801120000_execution_secret_zone.sql
+Skipping already applied migration: 20260808150000_f0_gate_hardening.sql
+Skipping already applied migration: 20260811120000_f09_operational_metrics.sql
+Skipping already applied migration: 20260811130000_f09_metric_ingest_function.sql
+Skipping already applied migration: 20260916140000_r02_snapshot_immutability.sql
+Skipping already applied migration: 20260921090000_f05_ledger_integrity_and_replay.sql
+Skipping already applied migration: 20260924090000_f06_identity_boundary.sql
+Skipping already applied migration: 20260924091000_f06_vault_boundary.sql
+Skipping already applied migration: 20260924092000_f06_vault_column_fix.sql
+Skipping already applied migration: 20260924093000_f06_application_roles.sql
+Skipping already applied migration: 20260924094000_f06_bff_sessions.sql
+Skipping already applied migration: 20260924095000_f06_auth_read_indexes.sql
+Skipping already applied migration: 20260924100000_f06_capability_mode_required.sql
+Skipping already applied migration: 20260924101000_f06_bff_mfa_state.sql
+Skipping already applied migration: 20260924102000_f07_runtime_hardening.sql
+Skipping already applied migration: 20260924103000_f07_artifact_binding_cascade.sql
+Skipping already applied migration: 20260924110000_f07_atomic_schedule.sql
+Skipping already applied migration: 20260925100000_f06_command_bound_vault.sql
+Skipping already applied migration: 20260925110000_f06_execution_capability_account_required.sql
+Skipping already applied migration: 20260925120000_f07_actor_identity_uniqueness.sql
+Skipping already applied migration: 20260925121000_f07_artifact_bucket.sql
+Skipping already applied migration: 20260927090000_f09_metric_quality.sql
+Skipping already applied migration: 20260927091000_f09_runtime_storage_metric.sql
+Skipping already applied migration: 20260927092000_f09_runtime_metric_returning.sql
+Skipping already applied migration: 20260927093000_f09_execution_metric_returning.sql
+Skipping already applied migration: 20261002090000_r01_atomic_source_receipt.sql
+Skipping already applied migration: 20261002100000_r01_atomic_ingest_function.sql
+Skipping already applied migration: 20261002110000_r01_receipt_immutability.sql
+Skipping already applied migration: 20261003090000_bff_a2_identity_settings.sql
+Skipping already applied migration: 20261003120000_r01_binance_cursor.sql
+Skipping already applied migration: 20261006100000_bff_audit_exports.sql
+Skipping already applied migration: 20261006110000_bff_audit_scope_indexes.sql
+Skipping already applied migration: 20261006120000_bff_domain_audit_read_model.sql
+Skipping already applied migration: 20261006130000_bff_settings_audit_bridge.sql
+Skipping already applied migration: 20261006140000_bff_audit_causal_roots.sql
+Skipping already applied migration: 20261007180000_r02_snapshot_boundaries.sql
+Skipping already applied migration: 20261007181000_r02_snapshot_lineage_alias.sql
+Skipping already applied migration: 20261007182000_r02_writer_role_set_option.sql
+Skipping already applied migration: 20261007183000_r02_reference_read_guard.sql
+Skipping already applied migration: 20261007184000_r02_canonical_read_guard.sql
+Skipping already applied migration: 20261007185000_r02_recovery_deny_policy.sql
+Skipping already applied migration: 20261007190000_r02_writer_no_inherit.sql
+Skipping already applied migration: 20261008090000_f07_audit_append_sequence.sql
+Remote RLS checks passed for quantos schema.
+
+running 12 tests
+test pg::tests::broad_admin_login_cannot_impersonate_runtime_service ... ok
+test pg::tests::local_transport_and_query_options_are_handled_explicitly ... ok
+test pg::tests::remote_runtime_rejects_unverified_transport_before_connecting ... ok
+test pg::tests::runtime_role_membership_requires_only_the_runtime_role ... ok
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test tests::kernel_fences_cancelled_timed_out_and_exhausted_runs ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test tests::kernel_rejects_invalid_schedule_and_stale_worker_operations ... ok
+test tests::persisted_status_and_retry_bounds_are_explicit ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.30s
+
+
+running 5 tests
+test postgres_runtime_fences_old_attempt_and_enforces_cost_and_retry_budget ... ok
+test postgres_runtime_records_cancel_and_timeout_audits ... ok
+test postgres_runtime_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test postgres_runtime_rejects_revocation_capability_conflicts_and_rate_overflow ... ok
+test postgres_runtime_worker_child_claims_checkpoints_and_waits ... ignored, helper process invoked by the PostgreSQL recovery test
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 99.27s
+
+
+running 10 tests
+test live::f09_trace_tests::failed_write_has_structured_error_and_matching_trace ... ok
+test live::f09_trace_tests::write_returns_queryable_correlation_trace ... ok
+test live::tests::f09_runtime_real_write_trace ... ok
+test live::tests::gateway_executes_owned_run_and_retrieves_verified_artifact ... ok
+test live::tests::malformed_cookie_is_rejected_before_database_access ... ok
+test live::tests::remote_test_connection_keeps_verified_ca_for_all_consumers ... ok
+test live::tests::remote_test_connection_rejects_missing_ca - should panic ... ok
+test startup::tests::certificate_or_role_failure_is_not_retried_and_peers_are_dropped ... ok
+test startup::tests::independent_connections_start_together ... ok
+test startup::tests::retries_only_transient_transport_and_stops_at_three ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 85.01s
+
+{"retiredRuns":0,"disabledTools":0}
+{"schema":"quantos-f07-fixture-retirement/v1","retainedAuditTenants":403,"retainedTestUsers":659,"pendingRuns":0}
+{
+  "schema": "quantos-f07-coverage/v1",
+  "files": [
+    "crates/quantos-runtime/src/lib.rs",
+    "crates/quantos-runtime/src/pg.rs",
+    "services/runtime-gateway/src/live.rs"
+  ],
+  "lines": {
+    "count": 2337,
+    "covered": 2180,
+    "percent": 93.28198545143346
+  },
+  "regions": {
+    "count": 2955,
+    "covered": 2613,
+    "percent": 88.42639593908629
+  }
+}
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling runtime-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/runtime-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.14s
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_runtime-386b6ade63ca98ec)
+     Running tests/postgres_runtime.rs (target/llvm-cov-target/debug/deps/postgres_runtime-f57f8b7c68c6bf7d)
+runtime schedule direct PostgreSQL P95: 441.90 ms (limit: 200 ms, samples: 10)
+     Running unittests src/main.rs (target/llvm-cov-target/debug/deps/runtime_gateway-7281ee9d42ce80f0)
+
+thread '<unnamed>' (450581) panicked at services/runtime-gateway/src/live_tests.rs:1021:13:
+intentional F07 poisoned-store probe
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread '<unnamed>' (450625) panicked at services/runtime-gateway/src/live_tests.rs:1038:13:
+intentional F07 poisoned-auth probe
+
+thread 'live::tests::remote_test_connection_rejects_missing_ca' (450758) panicked at services/runtime-gateway/src/live_tests.rs:216:35:
+configured Supabase CA is required
+{"attempt":1,"event":"startup_phase","phase":"bff_auth","service":"runtime-gateway","status":"started"}
+{"attempt":1,"event":"startup_phase","phase":"worker_store","service":"runtime-gateway","status":"started"}
+{"attempt":1,"event":"startup_phase","phase":"runtime_store","service":"runtime-gateway","status":"started"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"bff_auth","service":"runtime-gateway","status":"failed"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"worker_store","service":"runtime-gateway","status":"ready"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"runtime_store","service":"runtime-gateway","status":"ready"}
+{"attempt":1,"event":"startup_phase","phase":"bff_auth","service":"runtime-gateway","status":"started"}
+{"attempt":1,"event":"startup_phase","phase":"runtime_store","service":"runtime-gateway","status":"started"}
+{"attempt":1,"event":"startup_phase","phase":"worker_store","service":"runtime-gateway","status":"started"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"bff_auth","service":"runtime-gateway","status":"failed"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"runtime_store","service":"runtime-gateway","status":"ready"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"worker_store","service":"runtime-gateway","status":"ready"}
+{"attempt":1,"event":"startup_phase","phase":"bff_auth","service":"runtime-gateway","status":"started"}
+{"attempt":1,"event":"startup_phase","phase":"worker_store","service":"runtime-gateway","status":"started"}
+{"attempt":1,"event":"startup_phase","phase":"runtime_store","service":"runtime-gateway","status":"started"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"runtime_store","service":"runtime-gateway","status":"ready"}
+{"attempt":1,"elapsed_ms":1,"event":"startup_phase","phase":"bff_auth","service":"runtime-gateway","status":"ready"}
+{"attempt":1,"elapsed_ms":1,"event":"startup_phase","phase":"worker_store","service":"runtime-gateway","status":"ready"}
+{"attempt":1,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"started"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"retry_transport"}
+{"attempt":2,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"started"}
+{"attempt":2,"elapsed_ms":255,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"ready"}
+{"attempt":1,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"started"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"retry_transport"}
+{"attempt":2,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"started"}
+{"attempt":2,"elapsed_ms":254,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"retry_transport"}
+{"attempt":3,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"started"}
+{"attempt":3,"elapsed_ms":755,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"failed"}
+{"attempt":1,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"started"}
+{"attempt":1,"elapsed_ms":0,"event":"startup_phase","phase":"test","service":"runtime-gateway","status":"failed"}
+
+    Finished report saved to /Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/f07/coverage.json

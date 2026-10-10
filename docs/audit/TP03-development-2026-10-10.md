@@ -33,7 +33,7 @@ UI证据是本地真实UDS取消回执到既有Research状态处理器的响应�
 
 ```sh
 node engines/llmquant/check-development.mjs --record
-node scripts/provider-a1-receipts.mjs --assess-tp03 docs/audit/evidence/provider-a1-remediation-20261004/tp03-admission-20261010/attempt-02
+node scripts/provider-a1-receipts.mjs --assess-tp03 docs/audit/evidence/provider-a1-remediation-20261004/tp03-admission-20261010/attempt-03
 node engines/llmquant/check-development.mjs --admit
 node engines/llmquant/check-development.mjs --ready
 node --test scripts/provider-a1-receipts.test.mjs scripts/tp01-c-functional-artifacts.test.mjs scripts/tp01-d-functional-artifacts.test.mjs scripts/tp02-functional-artifacts.test.mjs scripts/tp03-functional-artifacts.test.mjs
@@ -45,7 +45,9 @@ pnpm test:p0
 
 新增四项双RPC回归：改变policy引用的两项真实复现Artifact标识冲突；另外两项初始断言错误地要求相同内容在不同幂等键下不去重（[原始日志](./evidence/tp03-20261010/initial/artifact-identity.log)）。初次同时绑定幂等键触发Runtime重放哈希回归（2 PASS/1 FAIL，见[原始日志](./evidence/tp03-20261010/initial/identity-replay-regression/runtime.log)）；最终仅将外层policy引用纳入Artifact内容标识，保留同内容去重和Runtime重放。最终四项及完整12组组件已重跑通过（273/全Python699、Runtime3）。冻结7a1923a9的首轮准入在F01结束、F06仍构建阶段停止，未执行目标数据库场景，未发布READY；[未完成记录](./evidence/tp03-20261010/initial/interrupted-admission-01/interruption.json)保留，后续在新冻结源码重跑全部检查。
 
-一次聚焦证据测试与组件回执写入并行，读取到上一轮FAIL回执而拒绝（[原始日志](./evidence/tp03-20261010/initial/negative-during-record.log)）；组件结束后按顺序重跑，最终108项结果单独保存。
+一次聚焦证据测试与组件回执写入并行，读取到上一轮FAIL回执而拒绝（[原始日志](./evidence/tp03-20261010/initial/negative-during-record.log)）；组件结束后按顺序重跑，最终109项结果单独保存。
+
+第二轮冻结b0f90059实际完成52/53组；TP03负向22项因整体Git文件清单1,050,477字节超过Node默认1MiB缓冲区而在读取阶段失败，严格门禁拒绝发布READY。原[完整台账](./evidence/provider-a1-remediation-20261004/tp03-admission-20261010/attempt-02/execution-results.json)和[失败日志](./evidence/provider-a1-remediation-20261004/tp03-admission-20261010/attempt-02/logs/tp03-negatives.log)保留。新增超过1MiB清单的真实临时Git仓库回归（[修复前失败](./evidence/tp03-20261010/initial/inventory-buffer-regression.log)），将功能清单和独立ProtoJSON bootstrap的整仓Git读取缓冲区提升到32MiB，保持选择器/内容校验不变；新源码须重新执行全部53组。
 
 ## 风险与下一任务
 

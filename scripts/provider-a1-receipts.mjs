@@ -49,7 +49,7 @@ export function confined(path,base=root) {
 }
 function matches(path,selector){if(selector.endsWith('/'))return path.startsWith(selector);if(!selector.includes('*'))return path===selector;return new RegExp('^'+selector.split('*').map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('.*')+'$').test(path);}
 export function inventory(selectors,base=root) {
- const paths=[...new Set(execFileSync('git',['ls-files','--cached','--others','--exclude-standard'],{cwd:base,encoding:'utf8'}).trim().split('\n'))].filter(p=>p&&selectors.some(s=>matches(p,s))).sort();
+ const paths=[...new Set(execFileSync('git',['ls-files','--cached','--others','--exclude-standard'],{cwd:base,encoding:'utf8',maxBuffer:32*1024*1024}).trim().split('\n'))].filter(p=>p&&selectors.some(s=>matches(p,s))).sort();
  for(const selector of selectors)assert(paths.some(p=>matches(p,selector)),`missing required input selector ${selector}`);
  return paths.map(path=>{
   const actual=realpathSync(resolve(base,path));assert(actual.startsWith(realpathSync(base)+sep),'input path escapes repository');

@@ -1,0 +1,25 @@
+COMMAND ["uv", "sync", "--locked", "--project", "engines", "--all-packages", "--all-groups"]
+COMMAND ["uv", "build", "--project", "engines/engine-sdk", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "--wheel", "--no-build-isolation", "--out-dir", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp03-packaged/wheels"]
+COMMAND ["uv", "build", "--project", "engines/llmquant", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "--wheel", "--no-build-isolation", "--out-dir", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp03-packaged/wheels"]
+COMMAND ["uv", "venv", "--python", "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python", "/private/tmp/tp03-7lbxfxan/venv"]
+COMMAND ["uv", "pip", "install", "--offline", "--no-deps", "--python", "/private/tmp/tp03-7lbxfxan/venv/bin/python", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp03-packaged/wheels/quantos_engine_sdk-0.1.0-py3-none-any.whl", "/Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp03-packaged/wheels/quantos_llmquant-0.1.0-py3-none-any.whl"]
+COMMAND ["/private/tmp/tp03-7lbxfxan/venv/bin/python", "-I", "-c", "import llmquant,quantos_engine_sdk; assert \"/site-packages/\" in llmquant.__file__; assert \"/site-packages/\" in quantos_engine_sdk.__file__; print(\"TP03_INSTALLED_WHEEL\",llmquant.__file__,quantos_engine_sdk.__file__)"]
+TP03_INSTALLED_WHEEL /private/tmp/tp03-7lbxfxan/venv/lib/python3.12/site-packages/llmquant/__init__.py /private/tmp/tp03-7lbxfxan/venv/lib/python3.12/site-packages/quantos_engine_sdk/__init__.py
+TP03_PACKAGED_FIVE_RPC_PASS actual installed child stream cancelled <2s
+{"cancellation": {"cancelMillis": 15.382249999674968, "cancelStatus": "CANCELLED", "finalArtifactSeen": false}, "capabilities": 1, "formalAccepted": false, "installedIsolated": true, "ownedChildReaped": true, "realUpstreamRuntime": false, "rpcCount": 5, "schema": "quantos-tp03-packaged-service/v1", "status": "PASS", "wheels": [{"file": "quantos_engine_sdk-0.1.0-py3-none-any.whl", "sha256": "7d9a43e4c7dfc0ba43a8fa89f1bd72a033c55aab7e61ce6fde3258158a2ea519"}, {"file": "quantos_llmquant-0.1.0-py3-none-any.whl", "sha256": "e99f118526bd30bea2a4547fa9f47cbf6f049556337ca5efd9b5ec222d2b2f36"}]}
+TP03_PACKAGED_SERVICE_PASS
+Resolved 52 packages in 1ms
+Audited 50 packages in 0.18ms
+Building wheel...
+Successfully built artifacts/tp03-packaged/wheels/quantos_engine_sdk-0.1.0-py3-none-any.whl
+Building wheel...
+Successfully built artifacts/tp03-packaged/wheels/quantos_llmquant-0.1.0-py3-none-any.whl
+Using CPython 3.12.10 interpreter at: engines/.venv/bin/python
+Creating virtual environment at: /private/tmp/tp03-7lbxfxan/venv
+Activate with: source /private/tmp/tp03-7lbxfxan/venv/bin/activate
+Using Python 3.12.10 environment at: /private/tmp/tp03-7lbxfxan/venv
+Resolved 2 packages in 1ms
+Prepared 2 packages in 5ms
+Installed 2 packages in 1ms
+ + quantos-engine-sdk==0.1.0 (from file:///Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp03-packaged/wheels/quantos_engine_sdk-0.1.0-py3-none-any.whl)
+ + quantos-llmquant==0.1.0 (from file:///Users/anray/Documents/project/SumAlpha/QuantOS/artifacts/tp03-packaged/wheels/quantos_llmquant-0.1.0-py3-none-any.whl)
