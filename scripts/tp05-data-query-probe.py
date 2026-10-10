@@ -48,6 +48,14 @@ try:
                 "tools": list(case.requested_tools),
             },
         )
+        if index in (0, 1):
+            from quantos_engine_sdk import json_document_from_mapping
+
+            value = json_document_to_mapping(request.input)
+            value["query_text"] = "比特币研究" if index == 0 else "market 🚀 research"
+            request.input.CopyFrom(json_document_from_mapping(value))
+        if index == 2:
+            request.metadata.actor.actor_id = "研究员"
         first = client.execute(request, timeout=3)
         second = client.execute(request, timeout=3)
         assert (

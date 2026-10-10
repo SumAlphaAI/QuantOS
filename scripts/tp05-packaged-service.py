@@ -147,13 +147,15 @@ meta=c.CommandMetadata(request_id='packaged-request',tenant_id='tenant-packaged'
 assert client.get_metadata(e.GetMetadataRequest(metadata=meta),timeout=3).engine_name=='openbb-adapter'
 assert client.health(e.HealthRequest(metadata=meta),timeout=3).ready
 fixture=load_fixture('crypto_market_btc')
-payload={'fixture':fixture.fixture_name,'provider':'mock','dataset':fixture.dataset,'schema_ref':fixture.schema_ref,'symbols':list(fixture.symbols),'query_text':'packaged research','intended_use':'research','deployment_target':'test'}
+payload={'fixture':fixture.fixture_name,'provider':'mock','dataset':fixture.dataset,'schema_ref':fixture.schema_ref,'symbols':list(fixture.symbols),'query_text':'打包研究 🚀','intended_use':'research','deployment_target':'test'}
 request=e.ExecuteRequest(metadata=meta,workflow_run_id='packaged-run',idempotency_key='packaged-key',capability='data.query.v1',input_schema_version='v1',data_snapshot_ref='portfolio-packaged',policy_context_ref='packaged-policy',input=doc(payload),deadline=ts(datetime.now(timezone.utc)+timedelta(seconds=10)))
 a=client.execute(request,timeout=3);b=client.execute(request,timeout=3)
 assert a.output==b.output and a.input_hash==b.input_hash and a.artifact_refs==b.artifact_refs
 assert len({r.uri for r in a.artifact_refs})==2
 assert len(a.artifact_refs)==2 and all(r.uri.startswith('mock-artifact://') for r in a.artifact_refs)
 assert mapping(a.output)['usage']['trading_approved'] is False and mapping(a.output)['sources']
+from openbb_adapter.providers import content_hash
+result=mapping(a.output);assert result['response_hash']==content_hash({k:v for k,v in result.items() if k!='response_hash'})
 stream=client.stream_execute(e.StreamExecuteRequest(request=request),timeout=3)
 assert len(stream)==3 and stream[-1].done and stream[-1].artifact_refs==a.artifact_refs
 request.idempotency_key='stream-cancel';request.input.CopyFrom(doc({**payload,'stream_delay_ms':1200}))

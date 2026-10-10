@@ -10,9 +10,10 @@ const receiptPath=directory+'/receipt.json';
 export const selectors=['engines/openbb-adapter/','engines/engine-sdk/','engines/tests/','engines/uv.lock','engines/pyproject.toml','crates/quantos-engine-manager/','crates/quantos-runtime/','proto/','third_party/tp05-openbb/','scripts/tp05-packaged-service.py','scripts/tp05-data-query-probe.py','scripts/tp05-data-query-schema.mjs','scripts/tp05-ui-cancel.mjs','packages/domain-ui/src/research.ts','packages/domain-ui/tests/tp05-research-cancel.test.ts','packages/api-client/src/terminal.ts','docs/adr/20260731-tp05-openbb-license-gate.md','Makefile','scripts/generate-build-manifest.mjs','scripts/tp05-release-gate.mjs','scripts/tp05-release-gate.test.mjs','scripts/tp05-functional-artifacts.test.mjs','scripts/provider-a1-receipts.mjs','scripts/provider-a1-policy.json'];
 const formatFiles=['adapter','artifacts','fixtures','license_gate','manifest','providers','server','service','__init__'].map(f=>'engines/openbb-adapter/src/openbb_adapter/'+f+'.py').concat(['engines/tests/test_openbb_adapter_contract.py','engines/tests/test_openbb_adapter_development.py']);
 export const checks=[
- {id:'contract',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_openbb_adapter_contract.py','engines/tests/test_openbb_adapter_development.py','-vv'],marker:/256 passed/},
- {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/1249 passed/},
+ {id:'contract',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_openbb_adapter_contract.py','engines/tests/test_openbb_adapter_development.py','-vv'],marker:/259 passed/},
+ {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/1252 passed/},
  {id:'manager',command:['cargo','test','--locked','--offline','-p','quantos-engine-manager','--test','python_openbb_adapter'],marker:/2 passed; 0 failed/},
+ {id:'runtime',command:['cargo','test','--locked','--offline','-p','quantos-runtime','--test','signal_proposal_orchestration','--','--nocapture'],marker:/3 passed; 0 failed/},
  {id:'license',command:['node','--test','scripts/tp05-release-gate.test.mjs'],marker:/tests\s+8/},
  {id:'schema',command:['node','scripts/tp05-data-query-schema.mjs'],marker:/TP05_DATA_QUERY_SCHEMA_PASS 100/},
  {id:'ui',command:['node','scripts/tp05-ui-cancel.mjs'],marker:/TP05_UI_CANCEL_BRIDGE_PASS/},

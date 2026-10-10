@@ -31,7 +31,12 @@ class DataArtifactStore:
             (mapped.lineage_artifact["artifact_id"], mapped.lineage_artifact),
         ]
         encoded = [
-            (artifact_id, json.dumps(payload, sort_keys=True, separators=(",", ":")).encode())
+            (
+                artifact_id,
+                json.dumps(
+                    payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+                ).encode(),
+            )
             for artifact_id, payload in entries
         ]
         with self._lock:

@@ -453,3 +453,33 @@ def test_fixture_validation_rejects_invalid_content_even_with_updated_digest(cas
     )
     with pytest.raises(ValueError):
         validate_catalog(catalog)
+
+
+@pytest.mark.parametrize("case", ["chinese-query", "emoji-query", "unicode-owner"])
+def test_utf8_response_and_artifact_hashes_survive_actual_uds(engine, case):
+    service, client = engine
+    request = build_request(
+        query_text="比特币研究" if case == "chinese-query" else "market 🚀 research"
+    )
+    if case == "unicode-owner":
+        request.metadata.actor.actor_id = "研究员"
+    response = client.execute(request, timeout=3)
+    result = mapping(response.output)
+    body = {k: v for k, v in result.items() if k != "response_hash"}
+    body["cache"]["ttl_secs"] = int(body["cache"]["ttl_secs"])
+    expected = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+    assert result["response_hash"] == "sha256:" + hashlib.sha256(expected).hexdigest()
+    for ref in response.artifact_refs:
+        raw = service.artifacts.read(
+            request.metadata.tenant_id,
+            request.metadata.workspace_id,
+            request.metadata.actor.actor_id,
+            ref.artifact_id,
+        )
+        assert (
+            raw
+            == json.dumps(
+                json.loads(raw), sort_keys=True, separators=(",", ":"), ensure_ascii=False
+            ).encode()
+        )
+        assert ref.sha256 == "sha256:" + hashlib.sha256(raw).hexdigest()

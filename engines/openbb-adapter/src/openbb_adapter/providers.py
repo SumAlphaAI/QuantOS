@@ -29,7 +29,11 @@ def canonical_bytes(value: dict) -> bytes:
         return item
 
     return json.dumps(
-        wire_numbers(value), sort_keys=True, separators=(",", ":"), allow_nan=False
+        wire_numbers(value),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
     ).encode()
 
 

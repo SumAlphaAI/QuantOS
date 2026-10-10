@@ -565,6 +565,22 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             },
         };
 
+        // Preserve the complete source contract in the repository, but forward only
+        // checked Research metadata. Provenance scope is never an Engine authority override.
+        let data_query_payload_value = data_query_payload_value
+            .as_ref()
+            .map(|value| {
+                research_data_query_context(
+                    value,
+                    [
+                        &lease.run.tenant_id.to_string(),
+                        &lease.run.workspace_id.to_string(),
+                        &lease.run.actor_id.to_string(),
+                    ],
+                )
+            })
+            .transpose()?;
+
         let signal_input = match data_query_payload_value.as_ref() {
             Some(data_query_payload) => inject_named_object(
                 payload.signal_input.clone(),
@@ -769,7 +785,14 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         snapshot_id: SnapshotId,
         data_query_output: Value,
     ) -> Result<DataQueryRecord, SignalProposalWorkflowError> {
-        SignalProposalSchemaValidator::validate_data_query(&data_query_output)?;
+        let _ = research_data_query_context(
+            &data_query_output,
+            [
+                &run.tenant_id.to_string(),
+                &run.workspace_id.to_string(),
+                &run.actor_id.to_string(),
+            ],
+        )?;
         let parsed = ParsedDataQuery::try_from(&data_query_output)?;
         let completed_at = run.created_at;
         let output_bytes = canonical_json_bytes(&data_query_output)?;
@@ -819,7 +842,14 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         stream: &[quantos_proto::quantos::engine::v1::StreamExecuteResponse],
         observed_at: DateTime<Utc>,
     ) -> Result<DataQueryRecord, SignalProposalWorkflowError> {
-        SignalProposalSchemaValidator::validate_data_query(&data_query_output)?;
+        let _ = research_data_query_context(
+            &data_query_output,
+            [
+                &run.tenant_id.to_string(),
+                &run.workspace_id.to_string(),
+                &run.actor_id.to_string(),
+            ],
+        )?;
         let parsed = ParsedDataQuery::try_from(&data_query_output)?;
         let completed_at =
             timestamp_to_datetime(execute.completed_at.as_ref()).unwrap_or(observed_at);
@@ -1277,6 +1307,54 @@ fn inject_signal(
     Ok(proposal_input)
 }
 
+fn research_data_query_context(
+    value: &Value,
+    owner: [&str; 3],
+) -> Result<Value, SignalProposalWorkflowError> {
+    SignalProposalSchemaValidator::validate_data_query(value)?;
+    if value.get("scope").is_some() || value.get("contract_version").is_some() {
+        let scope = value
+            .get("scope")
+            .and_then(Value::as_object)
+            .ok_or_else(|| SignalProposalWorkflowError::InvalidDataQuery {
+                detail: "TP05 provenance scope required".to_owned(),
+            })?;
+        for (name, expected) in ["tenant_id", "workspace_id", "actor_id"]
+            .into_iter()
+            .zip(owner)
+        {
+            if scope.get(name).and_then(Value::as_str) != Some(expected) {
+                return Err(SignalProposalWorkflowError::InvalidDataQuery {
+                    detail: "TP05 provenance scope mismatch".to_owned(),
+                });
+            }
+        }
+        if scope
+            .get("workflow_run_id")
+            .and_then(Value::as_str)
+            .is_none_or(str::is_empty)
+        {
+            return Err(SignalProposalWorkflowError::InvalidDataQuery {
+                detail: "TP05 workflow provenance required".to_owned(),
+            });
+        }
+    }
+    let mut context = Map::new();
+    for name in [
+        "provider",
+        "dataset",
+        "schema_ref",
+        "query_id",
+        "response_hash",
+        "license",
+        "lineage",
+        "usage",
+    ] {
+        context.insert(name.to_owned(), value[name].clone());
+    }
+    Ok(Value::Object(context))
+}
+
 fn inject_named_object(
     mut input: Value,
     field_name: &str,
@@ -1480,9 +1558,9 @@ impl TryFrom<&Value> for ParsedDataQuery {
         let response_hash = ContentHash::parse(payload.response_hash.as_str())?;
         let _ = ContentHash::parse(payload.lineage.schema_hash.as_str())?;
         let _ = ContentHash::parse(payload.lineage.content_hash.as_str())?;
-        if payload.usage.trading_approved {
+        if payload.usage.trading_approved || payload.license.approved_for_production {
             return Err(SignalProposalWorkflowError::InvalidDataQuery {
-                detail: "TP05 data_query must keep trading_approved=false".to_owned(),
+                detail: "TP05 data_query must keep trading_approved=false and approved_for_production=false".to_owned(),
             });
         }
         let evidence_refs = vec![
@@ -1743,4 +1821,52 @@ fn parse_timestamp(value: &str) -> Result<DateTime<Utc>, String> {
     DateTime::parse_from_rfc3339(value)
         .map(|value| value.with_timezone(&Utc))
         .map_err(|error| format!("invalid RFC3339 timestamp `{value}`: {error}"))
+}
+
+#[cfg(test)]
+mod tp05_projection_tests {
+    use super::*;
+    fn fixture() -> Value {
+        let digest = format!("sha256:{}", "a".repeat(64));
+        json!({"response_type":"DataQueryResponse","contract_version":"v1","provider":"mock",
+            "dataset":"crypto.market.snapshot","schema_ref":"schema.crypto.market.v1","query_id":"query:fixture",
+            "response_hash":digest,"sources":[{"source_id":"synthetic"}],
+            "license":{"label":"internal-test-only","approved_for_production":false},
+            "lineage":{"schema_hash":digest,"content_hash":digest},"usage":{"trading_approved":false},
+            "scope":{"tenant_id":"tenant","workspace_id":"workspace","actor_id":"actor","workflow_run_id":"source-workflow"},
+            "diagnostics":{"tools_executed":false}})
+    }
+    #[test]
+    fn scoped_provenance_is_retained_without_forwarding_authority_fields() {
+        let original = fixture();
+        let projected =
+            research_data_query_context(&original, ["tenant", "workspace", "actor"]).unwrap();
+        assert!(projected.get("scope").is_none());
+        assert!(projected.get("diagnostics").is_none());
+        assert_eq!(projected["response_hash"], original["response_hash"]);
+        assert_eq!(projected["lineage"], original["lineage"]);
+        assert_eq!(original["scope"]["workflow_run_id"], "source-workflow");
+    }
+    #[test]
+    fn foreign_or_missing_provenance_is_rejected_before_projection() {
+        for field in ["tenant_id", "workspace_id", "actor_id"] {
+            let mut value = fixture();
+            value["scope"][field] = json!("foreign");
+            assert!(research_data_query_context(&value, ["tenant", "workspace", "actor"]).is_err());
+        }
+        let mut value = fixture();
+        value.as_object_mut().unwrap().remove("scope");
+        assert!(research_data_query_context(&value, ["tenant", "workspace", "actor"]).is_err());
+    }
+    #[test]
+    fn production_or_trading_claims_cannot_survive_projection() {
+        for (section, flag) in [
+            ("license", "approved_for_production"),
+            ("usage", "trading_approved"),
+        ] {
+            let mut value = fixture();
+            value[section][flag] = json!(true);
+            assert!(research_data_query_context(&value, ["tenant", "workspace", "actor"]).is_err());
+        }
+    }
 }

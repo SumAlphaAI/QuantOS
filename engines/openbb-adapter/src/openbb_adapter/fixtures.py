@@ -133,7 +133,11 @@ def validate_catalog(parsed: dict) -> None:
             "sha256:"
             + hashlib.sha256(
                 json.dumps(
-                    definition, sort_keys=True, separators=(",", ":"), allow_nan=False
+                    definition,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                    allow_nan=False,
                 ).encode()
             ).hexdigest()
         )
