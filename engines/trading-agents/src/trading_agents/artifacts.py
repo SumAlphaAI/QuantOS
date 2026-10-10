@@ -44,7 +44,7 @@ class ProposalArtifactStore:
         return [
             common_pb2.ArtifactRef(
                 artifact_id=artifact_id,
-                uri=f"mock-artifact://trading-agents/{artifact_id.split(':')[1]}.json",
+                uri=f"mock-artifact://trading-agents/{artifact_id.replace(':', '/')}.json",
                 media_type="application/json",
                 sha256="sha256:" + hashlib.sha256(raw).hexdigest(),
                 classification=common_pb2.DATA_CLASSIFICATION_INTERNAL,

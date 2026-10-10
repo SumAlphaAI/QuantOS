@@ -113,6 +113,7 @@ def test_hundred_replay_schema_provenance_and_artifact(engine, case):
         proposal.signal.valid_until.ToDatetime(timezone.utc),
     )
     assert len(first.artifact_refs) == service.artifacts.count == 2
+    assert len({ref.uri for ref in first.artifact_refs}) == 2
     assert {r.artifact_id for r in first.artifact_refs} == {
         r.artifact_id for r in proposal.evidence_refs
     }

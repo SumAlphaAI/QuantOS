@@ -151,6 +151,7 @@ payload={'fixture':fixture.fixture_name,'account_id':'paper-account','policy_sna
 request=e.ExecuteRequest(metadata=meta,workflow_run_id='packaged-run',idempotency_key='packaged-key',capability='decision.proposal.v1',input_schema_version='v1',data_snapshot_ref='portfolio-packaged',policy_context_ref='packaged-policy',input=doc(payload),deadline=ts(datetime.now(timezone.utc)+timedelta(seconds=10)))
 a=client.execute(request,timeout=3);b=client.execute(request,timeout=3)
 assert a.output==b.output and a.input_hash==b.input_hash and a.artifact_refs==b.artifact_refs
+assert len({r.uri for r in a.artifact_refs})==2
 assert len(a.artifact_refs)==2 and all(r.uri.startswith('mock-artifact://') for r in a.artifact_refs)
 assert mapping(a.output)['executable'] is False and len(mapping(a.output)['counter_views'])>0
 stream=client.stream_execute(e.StreamExecuteRequest(request=request),timeout=3)

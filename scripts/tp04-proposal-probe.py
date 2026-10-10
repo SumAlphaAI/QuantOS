@@ -73,6 +73,7 @@ try:
             refs.append(
                 {
                     "artifactId": ref.artifact_id,
+                    "uri": ref.uri,
                     "sha256": ref.sha256,
                     "payload": json.loads(raw),
                 }

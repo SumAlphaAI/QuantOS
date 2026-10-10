@@ -12,7 +12,7 @@ Only `query_signal`, `query_snapshot`, `query_artifact` labels are accepted; non
 
 ```sh
 node engines/trading-agents/check-development.mjs --record
-node scripts/provider-a1-receipts.mjs --assess-tp04 docs/audit/evidence/provider-a1-remediation-20261004/tp04-admission-20261010/attempt-01
+node scripts/provider-a1-receipts.mjs --assess-tp04 docs/audit/evidence/provider-a1-remediation-20261004/tp04-admission-20261010/attempt-02
 node engines/trading-agents/check-development.mjs --admit
 node engines/trading-agents/check-development.mjs --ready
 ```

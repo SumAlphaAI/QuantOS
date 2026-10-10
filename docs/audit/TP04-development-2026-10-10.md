@@ -22,7 +22,7 @@
 
 ```sh
 node engines/trading-agents/check-development.mjs --record
-node scripts/provider-a1-receipts.mjs --assess-tp04 docs/audit/evidence/provider-a1-remediation-20261004/tp04-admission-20261010/attempt-01
+node scripts/provider-a1-receipts.mjs --assess-tp04 docs/audit/evidence/provider-a1-remediation-20261004/tp04-admission-20261010/attempt-02
 node engines/trading-agents/check-development.mjs --admit
 node engines/trading-agents/check-development.mjs --ready
 node --test scripts/provider-a1-receipts.test.mjs scripts/tp01-c-functional-artifacts.test.mjs scripts/tp01-d-functional-artifacts.test.mjs scripts/tp02-functional-artifacts.test.mjs scripts/tp03-functional-artifacts.test.mjs scripts/tp04-functional-artifacts.test.mjs
@@ -38,6 +38,8 @@ make test
 首轮复用生命周期时残留 `mapped.signal_payload`，4失败/3通过；已修正为 Proposal，保留[原始日志](./evidence/tp04-20261010/initial/mapper-name.log)。下一轮 2失败/253通过：空 Signal 被错误归为 scope 拒绝；已在解析前判空并返回 INVALID_ARGUMENT，保留[原始日志](./evidence/tp04-20261010/initial/development-01.log)。随后296项通过，再新增typed data-query与digest边界，最终310项单独记录。Pyright发现终止helper缺少NoReturn及可空错误details，已修正，0 errors。
 
 额外全仓format探针发现20个既有未格式化文件，均不在本轮修改范围；专项10文件format通过，未为TP04扩散格式变更。[原始结果](./evidence/tp04-20261010/initial/global-format-baseline.log)保留。全仓Ruff check与Pyright均通过。
+
+复核发现committee/policy两份不同字节Artifact共用mock URI后，补充100组唯一URI断言、独立wheel断言及URI碰撞证据破坏测试，URI改为包含Artifact种类和digest。旧冻结16994064仅完成F01三轮构建、F06和F09目标检查；在目标检查结束后停止自有旧复评进程，未发布READY。[中断范围与原始回归](./evidence/tp04-20261010/initial/interrupted-admission-01/scope.json)及目标原始回执保留，修复后需重新冻结并执行完整56组。
 
 ## 风险与下一任务
 

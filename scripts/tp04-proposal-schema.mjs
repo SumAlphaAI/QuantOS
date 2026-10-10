@@ -16,12 +16,12 @@ export function validateProposalMatrix(records){
   assert(p.counter_views.length>0&&p.counter_views.every(x=>typeof x==='string'&&x.trim()));assert(p.evidence_refs.length>0);
   assert(+p.confidence.value>=0&&+p.confidence.value<=1);assert(+p.quantity.value>=0&&+p.notional.value>=0);
   assert(Date.parse(p.expires_at)>Date.parse(p.signal.generated_at)&&Date.parse(p.expires_at)<=Date.parse(p.signal.valid_until));
-  assert.equal(row.replays.execute,2);assert.equal(row.replays.stream,2);assert.equal(row.artifacts.length,2);
+  assert.equal(row.replays.execute,2);assert.equal(row.replays.stream,2);assert.equal(row.artifacts.length,2);assert.equal(new Set(row.artifacts.map(a=>a.uri)).size,2);
   assert.deepEqual([...new Set(p.evidence_refs.map(e=>e.artifact_id))].sort(),row.artifacts.map(a=>a.artifactId).sort());
   for(const a of row.artifacts){
    const canonical=v=>v&&typeof v==='object'?(Array.isArray(v)?v.map(canonical):Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])]))):v;
    assert.equal(a.sha256,'sha256:'+createHash('sha256').update(JSON.stringify(canonical(a.payload))).digest('hex'));
-   assert.equal(a.payload.artifact_id,a.artifactId);assert.equal(a.payload.audit.input_hash,row.inputHash);
+   assert.equal(a.uri,'mock-artifact://trading-agents/'+a.artifactId.replace(':','/')+'.json');assert.equal(a.payload.artifact_id,a.artifactId);assert.equal(a.payload.audit.input_hash,row.inputHash);
    assert.equal(a.payload.time_basis,'input_signal_generation_replay');
    assert.match(a.payload.fixture_digest,/^sha256:[a-f0-9]{64}$/);
    for(const f of ['executable','upstream_runtime_loaded','tools_executed','snapshots_resolved','risk_evaluation_performed'])assert.equal(a.payload[f],false);
