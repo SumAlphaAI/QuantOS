@@ -2,6 +2,8 @@
 
 日期：2026-10-10。依据核心计划 TP03；范围 R1 DEVELOPMENT，必要前置 F08、F05、F0。
 
+> 范围更新：本报告保留3ab1df6的TP03历史验收快照。2026-10-10当前必要TP03依赖闭包已随TP04在冻结e27d5dab重新执行并严格READY，详见[TP04当前报告](./TP04-development-2026-10-10.md)。
+
 ## 当前结论
 
 **TP03 DEVELOPMENT READY。** 冻结源码 `3ab1df6bfc427555bb1a6e4ccae2db36a9905c20` 完成必要13节点/53唯一命令组实际功能复评及递归内容校验；当前13 READY、146 NOT_ASSESSED、0 BLOCKED，formalAccepted=false。仅恢复本轮闭包；TP02、TP01-C/D、R01/R02保持NOT_ASSESSED。历史正式确认和CI保留原范围；R1-SERVICE整体、正式ACCEPTED、hosted CI和发布分别验收。
@@ -27,7 +29,7 @@ UI证据是本地真实UDS取消回执到既有Research状态处理器的响应�
 
 ## 检查与原始失败
 
-组件12组覆盖：273项LLMQuant契约/开发、全Python699项、Manager2项、Runtime3项、100条实际schema与4项schema破坏、UI桥接3项、独立wheel服务、Ruff/format、Pyright、锁文件与第三方intake。实际结果见[组件回执](./evidence/tp03-20261010/receipt.json)。
+组件12组覆盖：273项LLMQuant契约/开发、全Python699项、Manager2项、Runtime3项、100条实际schema与4项schema破坏、UI桥接3项、独立wheel服务、Ruff/format、Pyright、锁文件与第三方intake。实际结果见[组件历史回执](./evidence/provider-a1-remediation-20261004/tp03-admission-20261010/attempt-03/supporting/tp03-development/receipt.json)。
 
 初次边界测试4 FAIL/250 PASS：测试请求构造器错误地把冲突payload policy/snapshot回填为外层权威字段；已固定独立外层字段，补充缺失引用与fixture篡改用例。原失败见[原始日志](./evidence/tp03-20261010/initial/boundary-builder.log)。初轮261项工程回执保留于[首轮记录](./evidence/tp03-20261010/initial/preflight-record/receipt.json)，后续增加嵌套policy与provenance标量类型校验；首轮记录不作当前准入。
 

@@ -25,7 +25,7 @@
 
 ## 版本变更说明
 
-- `3.59`：TP04受控TradingAgents adapter补齐Proposal反方观点/有效期/证据、权限与取消隔离、真实mock Artifact和安装包测试；必要依赖闭包复评中，最终Gate见[本轮报告](./audit/TP04-development-2026-10-10.md)。
+- `3.59`：冻结e27d5dab完成TP04/TP03/F08/F0必要14节点、56组实际功能复评及严格内容校验；14 DEVELOPMENT READY、145 NOT_ASSESSED、0 BLOCKED，正式/hosted CI/发布独立。见[本轮报告](./audit/TP04-development-2026-10-10.md)。
 
 - `3.58`：冻结3ab1df6完成TP03/F08/F05/F0必要13节点、53组实际功能复评及严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。TP02/TP01-C/D/R01/R02旧Gate本轮未重授，正式/hosted CI/发布独立。见[本轮报告](./audit/TP03-development-2026-10-10.md)。
 

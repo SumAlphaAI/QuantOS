@@ -1,0 +1,284 @@
+Command ["node","engines/trading-agents/check-development.mjs","--ready"]
+Exit 0
+{"engineeringStatus":"PASS","stageGate":"READY","formalAccepted":false}
+
+Command ["node","--input-type=module","-e","import {nodesFromPlans,closure,validateReceipt} from './scripts/provider-a1-receipts.mjs';const nodes=nodesFromPlans();const ids=closure(nodes,'CORE:TP04');for(const id of ids)validateReceipt(id);console.log(JSON.stringify({strictReady:ids.length,formalAccepted:false}));"]
+Exit 0
+{"strictReady":14,"formalAccepted":false}
+
+Command ["node","--test","scripts/provider-a1-receipts.test.mjs","scripts/tp01-c-functional-artifacts.test.mjs","scripts/tp01-d-functional-artifacts.test.mjs","scripts/tp02-functional-artifacts.test.mjs","scripts/tp03-functional-artifacts.test.mjs","scripts/tp04-functional-artifacts.test.mjs"]
+Exit 0
+✔ valid source and execution-bound dependency chain is READY without release signatures (47.072041ms)
+✔ missing required execution (35.844916ms)
+✔ failed execution (31.925334ms)
+✔ wrong actual command (30.958541ms)
+✔ unresolved issue (27.912042ms)
+✔ wrong node (27.141584ms)
+✔ missing source inventory (33.21125ms)
+✔ plan scope changed (28.568791ms)
+✔ outside log path (39.186208ms)
+✔ wrong log digest (33.90175ms)
+✔ missing dependency (34.664833ms)
+✔ dependency digest substituted (37.328625ms)
+✔ tampered manifest bytes are rejected (30.073208ms)
+✔ changed source content is rejected despite unchanged gate digest (37.119833ms)
+✔ dependency must independently be READY (34.796042ms)
+✔ arbitrary log cannot masquerade as successful execution (33.812834ms)
+✔ input file symlink cannot escape the repository (35.644875ms)
+✔ database execution cannot be inferred from a normal local PASS (41.433625ms)
+✔ Supabase target receipt verifies each compressed execution log (44.324542ms)
+✔ source drift during execution invalidates the original input snapshot (52.190583ms)
+✔ requirement drift during execution invalidates the original input snapshot (58.559208ms)
+✔ controlled public development profile overrides stale values and preserves server inputs (0.148667ms)
+✔ private credentials cannot be injected through a public development profile (0.115125ms)
+✔ transient Auth 503 can retry only a complete target execution (0.180083ms)
+✔ persistent target timeout never becomes PASS and stops at its budget (0.141333ms)
+✔ semantic target failures stop without retry or PASS (0.038375ms)
+✔ target retry budget cannot be unbounded (0.136875ms)
+✔ configured target retries require explicit attempt outcomes in the receipt (41.199292ms)
+✔ three successful full builds bind output inventories (0.419792ms)
+✔ reproducibility rejects only two builds (0.138917ms)
+✔ reproducibility rejects missing Python build (0.136333ms)
+✔ reproducibility rejects failed command (0.13625ms)
+✔ reproducibility rejects different output digest (0.091166ms)
+✔ reproducibility rejects substituted inventory (0.069667ms)
+✔ reproducibility rejects dirty source (0.063292ms)
+✔ reproducibility rejects old source (0.056041ms)
+✔ development policy retains explicit build, coverage, volume and target storage obligations (0.351917ms)
+✔ static make commands cannot reload .env.local or inherit target database opt-ins (0.0875ms)
+✔ volume retry restarts the complete check only on a closed PostgreSQL transport (0.059625ms)
+✔ volume correctness and certificate errors cannot be retried into PASS (0.033959ms)
+✔ persistent database transport failure stays failed at the retry limit (0.02825ms)
+✔ separate assessment snapshot preserves historical manifests and binds its own logs (40.652958ms)
+✔ third-party Git link binds the actual clean checkout and rejects dirty/advanced source (176.076083ms)
+✔ transient read-only preflight connection closure retries the complete target (0.113208ms)
+✔ preflight permission and role failures are not transport retries (0.071083ms)
+✔ persistent preflight closure exhausts three attempts without PASS (0.072042ms)
+✔ inventory reads a Git file list over 1 MiB without truncating selected inputs (260.12275ms)
+✔ engineering snapshot never grants admission when dependencies are not assessed (223.24925ms)
+✔ skeleton artifact rejects omitted check (206.426333ms)
+✔ skeleton artifact rejects failed execution (195.860208ms)
+✔ skeleton artifact rejects fake command (208.100208ms)
+✔ skeleton artifact rejects changed source (181.824958ms)
+✔ skeleton artifact rejects changed log (201.436458ms)
+✔ skeleton artifact rejects formal acceptance claim (102.253291ms)
+✔ skeleton artifact rejects future execution (161.596209ms)
+✔ unified artifact rejects a receipt executed on another source SHA (99.075833ms)
+✔ copied artifact verifies its bound supporting logs instead of mutable original logs (276.982792ms)
+✔ Python regression count cannot fall below the established baseline (184.087791ms)
+✔ engineering-only validation never grants TP01-D admission (301.187709ms)
+✔ all copied supporting logs are required (149.365583ms)
+✔ TP01-D artifact rejects omitted check (290.719875ms)
+✔ TP01-D artifact rejects failed execution (275.562ms)
+✔ TP01-D artifact rejects fake command (283.629333ms)
+✔ TP01-D artifact rejects source inventory (221.989292ms)
+✔ TP01-D artifact rejects log digest (218.512917ms)
+✔ TP01-D artifact rejects fixture omission (238.984ms)
+✔ TP01-D artifact rejects queue drift (216.806ms)
+✔ TP01-D artifact rejects formal claim (117.106ms)
+✔ TP01-D artifact rejects future execution (223.978459ms)
+✔ source commit must match execution manifest (115.781583ms)
+✔ copied logs are validated independently of mutable canonical logs (334.125292ms)
+✔ engineering-only evidence cannot admit TP02 (240.09475ms)
+✔ all execution logs and installed wheels must travel with a copied receipt (111.822791ms)
+✔ TP02 receipt rejects omitted check (219.974208ms)
+✔ TP02 receipt rejects failed execution (198.550417ms)
+✔ TP02 receipt rejects fake command (211.957542ms)
+✔ TP02 receipt rejects source inventory (206.688042ms)
+✔ TP02 receipt rejects log digest (208.162ms)
+✔ TP02 receipt rejects fixture omission (183.422167ms)
+✔ TP02 receipt rejects formal claim (94.970334ms)
+✔ TP02 receipt rejects future execution (199.743458ms)
+✔ TP02 receipt rejects unreaped package child (181.903875ms)
+✔ TP02 receipt rejects editable package claim (168.512708ms)
+✔ TP02 receipt rejects upstream claim (171.412959ms)
+✔ execution source must match unified manifest (94.244333ms)
+✔ copied logs are independent of canonical logs (257.60325ms)
+✔ tampered wheel bytes are rejected (182.41ms)
+✔ engineering-only evidence cannot admit TP03 (268.759792ms)
+✔ all execution logs and installed wheels must travel with a copied receipt (137.11025ms)
+✔ TP03 receipt rejects omitted check (241.582916ms)
+✔ TP03 receipt rejects failed execution (225.618583ms)
+✔ TP03 receipt rejects fake command (232.287041ms)
+✔ TP03 receipt rejects source inventory (212.838125ms)
+✔ TP03 receipt rejects log digest (179.791541ms)
+✔ TP03 receipt rejects fixture omission (179.896125ms)
+✔ TP03 receipt rejects formal claim (104.0885ms)
+✔ TP03 receipt rejects future execution (187.127542ms)
+✔ TP03 receipt rejects unreaped package child (180.95ms)
+✔ TP03 receipt rejects editable package claim (166.123375ms)
+✔ TP03 receipt rejects upstream claim (178.963125ms)
+✔ execution source must match unified manifest (91.479583ms)
+✔ copied logs are independent of canonical logs (266.760958ms)
+✔ tampered wheel bytes are rejected (170.3325ms)
+✔ actual output evidence rejects matrix sample omission (167.724ms)
+✔ actual output evidence rejects Signal confidence (162.056584ms)
+✔ actual output evidence rejects Signal time (167.300458ms)
+✔ actual output evidence rejects Signal source claim (151.013167ms)
+✔ UI transcript rejects cancel timeout (180.01375ms)
+✔ UI transcript rejects cancel side effect (174.903791ms)
+✔ engineering-only evidence cannot admit TP04 (272.041ms)
+✔ all execution logs and installed wheels must travel with a copied receipt (133.030667ms)
+✔ TP04 receipt rejects omitted check (239.095541ms)
+✔ TP04 receipt rejects failed execution (227.164542ms)
+✔ TP04 receipt rejects fake command (231.761084ms)
+✔ TP04 receipt rejects source inventory (214.768292ms)
+✔ TP04 receipt rejects log digest (175.859375ms)
+✔ TP04 receipt rejects fixture omission (184.475375ms)
+✔ TP04 receipt rejects formal claim (104.984917ms)
+✔ TP04 receipt rejects future execution (186.250708ms)
+✔ TP04 receipt rejects unreaped package child (180.426541ms)
+✔ TP04 receipt rejects editable package claim (166.216459ms)
+✔ TP04 receipt rejects upstream claim (175.5395ms)
+✔ execution source must match unified manifest (93.806209ms)
+✔ copied logs are independent of canonical logs (267.404375ms)
+✔ tampered wheel bytes are rejected (169.710167ms)
+✔ actual output evidence rejects URI collision (169.650042ms)
+✔ actual output evidence rejects matrix sample omission (159.571167ms)
+✔ actual output evidence rejects Proposal confidence (164.611167ms)
+✔ actual output evidence rejects Proposal time (158.715375ms)
+✔ actual output evidence rejects Proposal executable claim (173.482208ms)
+✔ UI transcript rejects cancel timeout (179.900084ms)
+✔ UI transcript rejects cancel side effect (145.322791ms)
+ℹ tests 132
+ℹ suites 0
+ℹ pass 132
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4242.359458
+
+Command ["node","scripts/check-development-plans.mjs"]
+Exit 0
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 145,
+    "READY": 14,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1462,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22
+}
+
+Command ["pnpm","test:development-plans"]
+Exit 0
+
+> @sumalpha/quantos@ test:development-plans /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/development-plan-order-negative.mjs
+
+✔ joint schedule is acyclic and preserves task/status boundaries (14.754542ms)
+✔ restoring a complete R1 prerequisite for S2 services creates a rejected cycle (5.348542ms)
+✔ research service waiting on its consumer page is rejected (4.773083ms)
+✔ historical CORE:R04 to CORE:L04 probe now fails closed (4.742ms)
+✔ an early identity API cannot silently depend on later research services (5.947209ms)
+✔ a provider cannot wait for the consumer frontend Gate (4.396625ms)
+✔ removing S2 service admission from a core execution task is rejected (4.568292ms)
+✔ S2 service Gate cannot omit TP12 advance evaluation (4.932833ms)
+✔ I10 cannot drop testnet service admission even if metadata is edited with it (5.514708ms)
+✔ a new or existing frontend cannot skip the full provider Gate (5.593916ms)
+✔ G5 cannot be marked as closing in I4 before reconciliation (5.778542ms)
+✔ moving the G1 block above I1 tasks is rejected (5.118208ms)
+✔ milestone cannot omit its last child while retaining a Gate summary (5.148542ms)
+✔ prose-only backend dependencies cannot drift from structured prerequisites (5.2995ms)
+✔ core closure mapping cannot become an implicit service alias (5.053791ms)
+✔ ACCEPTED checkpoint needs SHA and evidence, not only a green word (5.618917ms)
+✔ accepted checkpoint evidence must resolve (2.757667ms)
+✔ missing checkpoint and unknown dependency fail closed (6.87625ms)
+✔ API windows cannot skip their preceding provider checkpoint (5.028875ms)
+✔ UI windows cannot skip the preceding reconciliation window (4.955917ms)
+✔ Web intake preserves the explicit no-model-review schema (1.437125ms)
+✔ missing Web task fields still fail closed (1.343959ms)
+✔ both plans must publish exactly the same stage contract (5.518958ms)
+✔ changing both plans cannot defer correctness or functional deadlines to release (14.786667ms)
+✔ both plans must retain every deferred release obligation (13.573834ms)
+✔ tasks and checkpoints cannot omit, invent, or misclassify their stage gate (19.617625ms)
+✔ release prerequisites cannot block either development or integration (11.833875ms)
+✔ release gates cannot skip business closure or inherit the wrong stage (13.7165ms)
+✔ historical ACCEPTED and completed tasks do not automatically become READY (9.134125ms)
+✔ READY needs its own input digest and resolvable evidence (34.249875ms)
+✔ unassessed stage gates cannot carry an apparent ready receipt (7.193625ms)
+✔ BLOCKED retains failure evidence and digest without being counted as READY (12.842334ms)
+✔ a READY chain needs READY prerequisites and its own evidence at every node (17.428208ms)
+✔ stage readiness never substitutes for formal acceptance evidence (2.898875ms)
+✔ release READY requires formal acceptance and all functional prerequisites (8.630458ms)
+✔ core intake follows the frontend audit-report format (6.453375ms)
+✔ core review summary must be unique and link to audit evidence (7.92275ms)
+✔ core shared task fields and existing window must stay consistent (15.184916ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 354.447541
+
+Command ["node","--test","scripts/p0-acceptance-negative.mjs"]
+Exit 0
+✔ complete synthetic acceptance satisfies the receipt schema only (1.405292ms)
+✔ missing receipt is rejected (0.328333ms)
+✔ old SHA is rejected (0.59ms)
+✔ FAIL receipt is rejected (0.554417ms)
+✔ missing check is rejected (0.596792ms)
+✔ duplicate check is rejected (0.931459ms)
+✔ fake command is rejected (0.52925ms)
+✔ failed command is rejected (0.45225ms)
+✔ corrupted log is rejected (0.485875ms)
+✔ URL instead of artifact is rejected (1.017042ms)
+✔ missing F06 is rejected (0.426417ms)
+✔ old F06 is rejected (0.469958ms)
+✔ incomplete PRE is rejected (0.660209ms)
+✔ unrejected mutation is rejected (0.434375ms)
+✔ extra admission is rejected (0.34375ms)
+✔ unclosed control is rejected (0.353792ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.075167
+
+Command ["git","diff","--check"]
+Exit 0
+
+Command ["bash","scripts/check-secrets.sh"]
+Exit 0
+11:30AM INF 436 commits scanned.
+11:30AM INF scanned ~323031933 bytes (323.03 MB) in 2.04s
+11:30AM INF no leaks found
+
+Command ["artifacts/tools/gitleaks","dir","--config",".gitleaks.toml","--gitleaks-ignore-path",".gitleaksignore","--redact","--no-banner","docs/audit/evidence/tp04-20261010"]
+Exit 0
+11:30AM INF scanned ~1284216 bytes (1.28 MB) in 23.5ms
+11:30AM INF no leaks found
+
+Command ["artifacts/tools/gitleaks","dir","--config",".gitleaks.toml","--gitleaks-ignore-path",".gitleaksignore","--redact","--no-banner","docs/audit/evidence/provider-a1-remediation-20261004/tp04-admission-20261010"]
+Exit 0
+11:30AM INF scanned ~8530470 bytes (8.53 MB) in 83.4ms
+11:30AM INF no leaks found
+

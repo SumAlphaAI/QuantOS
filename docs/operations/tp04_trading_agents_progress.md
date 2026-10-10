@@ -1,6 +1,6 @@
 # TP04 TradingAgents Progress
 
-2026-10-10: controlled adapter implementation complete; current dependency admission is being assessed. The previous unqualified `implemented` summary did not establish a current stage Gate.
+2026-10-10: TP04 DEVELOPMENT READY at frozen source `e27d5dab`: strict 14-node / 56-group closure PASS, formalAccepted=false. The previous unqualified `implemented` summary did not establish a current stage Gate.
 
 Delivered: five RPC, non-executable TradeProposal, explicit counter views/evidence/expiry, versioned and scoped Signal input, policy/portfolio envelope validation, recursive denied tool/authority inputs with sanitized audit, actual immutable mock Artifact byte bundles, scoped cancellation/deadline/idempotency, 100 replay/schema cases and isolated installed-wheel tests.
 
