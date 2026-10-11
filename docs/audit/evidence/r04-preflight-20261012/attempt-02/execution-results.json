@@ -1,0 +1,151 @@
+[
+  {
+    "id": "r03-admission",
+    "command": [
+      "make",
+      "r03-admission-check"
+    ],
+    "executedAt": "2026-10-11T23:21:21.891Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS"
+  },
+  {
+    "id": "tp03-receipt",
+    "command": [
+      "node",
+      "engines/llmquant/check-development.mjs",
+      "--verify"
+    ],
+    "executedAt": "2026-10-11T23:21:30.994Z",
+    "exitCode": 1,
+    "expectedExitCode": 1,
+    "verdict": "EXPECTED_REJECTION"
+  },
+  {
+    "id": "tp04-receipt",
+    "command": [
+      "node",
+      "engines/trading-agents/check-development.mjs",
+      "--verify"
+    ],
+    "executedAt": "2026-10-11T23:21:31.097Z",
+    "exitCode": 1,
+    "expectedExitCode": 1,
+    "verdict": "EXPECTED_REJECTION"
+  },
+  {
+    "id": "f0-receipt",
+    "command": [
+      "node",
+      "scripts/provider-a1-receipts.mjs",
+      "--f0"
+    ],
+    "executedAt": "2026-10-11T23:21:31.206Z",
+    "exitCode": 1,
+    "expectedExitCode": 1,
+    "verdict": "EXPECTED_REJECTION"
+  },
+  {
+    "id": "python",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests",
+      "-q"
+    ],
+    "executedAt": "2026-10-11T23:21:31.271Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS"
+  },
+  {
+    "id": "runtime",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--test",
+      "signal_proposal_orchestration",
+      "--",
+      "--nocapture"
+    ],
+    "executedAt": "2026-10-11T23:21:40.657Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS"
+  },
+  {
+    "id": "signal-schema",
+    "command": [
+      "node",
+      "scripts/tp03-signal-schema.mjs"
+    ],
+    "executedAt": "2026-10-11T23:21:42.542Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS"
+  },
+  {
+    "id": "proposal-schema",
+    "command": [
+      "node",
+      "scripts/tp04-proposal-schema.mjs"
+    ],
+    "executedAt": "2026-10-11T23:21:42.957Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS"
+  },
+  {
+    "id": "adapter-negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tp03-functional-artifacts.test.mjs",
+      "scripts/tp04-functional-artifacts.test.mjs"
+    ],
+    "executedAt": "2026-10-11T23:21:43.438Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS"
+  },
+  {
+    "id": "locks",
+    "command": [
+      "bash",
+      "scripts/check-lockfiles.sh"
+    ],
+    "executedAt": "2026-10-11T23:21:48.002Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "executedAt": "2026-10-11T23:21:50.009Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS"
+  },
+  {
+    "id": "process-cleanup",
+    "command": [
+      "node",
+      "scripts/r1-process-cleanup.cjs",
+      "docs/audit/evidence/r04-preflight-20261012/attempt-02/process-cleanup.json"
+    ],
+    "executedAt": "2026-10-11T23:21:50.048Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS"
+  }
+]

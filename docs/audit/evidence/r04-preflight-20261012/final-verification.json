@@ -1,0 +1,72 @@
+{
+  "schema": "quantos-r04-preflight-final-verification/v1",
+  "checkedAt": "2026-10-11T23:27:47.247652+00:00",
+  "status": "PASS",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "scope": "evidence integrity and documentation only; R04 requirement gaps remain",
+  "supplementalIntegrity": [
+    {
+      "file": "attempt-01/failure.json",
+      "status": "PASS"
+    },
+    {
+      "file": "runtime-contract/failure.json",
+      "status": "PASS"
+    },
+    {
+      "file": "runtime-contract-attempt-02/receipt.json",
+      "status": "PASS"
+    }
+  ],
+  "reportLinks": 10,
+  "runtimeMutationCases": 9,
+  "runtimeInvalidInputsAccepted": 7,
+  "productDiffAtPreflightStart": "",
+  "manifestSha256": "sha256:0081f4d5e2bcb99ac44f65d47ba61c8a16712dc4d46cee8ab82f96b1a9abb9f8",
+  "finalChecks": [
+    {
+      "id": "preflight-integrity",
+      "command": [
+        "node",
+        "/Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/r04-preflight-20261012/preflight.mjs",
+        "--verify",
+        "/Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/r04-preflight-20261012/attempt-02"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/r04-preflight-20261012/final-preflight-integrity.log",
+      "logSha256": "sha256:f412da38725fa52341cc281e7b83f70a2401c068b82e0195b644b3e827121740"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/r04-preflight-20261012/final-plans.log",
+      "logSha256": "sha256:bc23be56c6269e6299899811398fb9844478dd51288e245ca01541594a25e3ec"
+    },
+    {
+      "id": "r03-admission",
+      "command": [
+        "make",
+        "r03-admission-check"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/r04-preflight-20261012/final-r03-admission.log",
+      "logSha256": "sha256:e276c4a4d669aea542cff439ad58aa76e6b7f3150367e858ac93195fecb31ed5"
+    },
+    {
+      "id": "diff-whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "log": "docs/audit/evidence/r04-preflight-20261012/final-diff-whitespace.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
