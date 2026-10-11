@@ -1,3 +1,5 @@
+> 当前刷新中（2026-10-11）：TP05检查器移除陈旧总数等值假设，保留全套命令、最低基线与失败拒绝。共同输入已变化，历史READY先撤销，正在重新执行必要依赖闭包。
+
 > 当前工程状态（2026-10-11）：冻结8fbedfe8完成TP10/F08/F0必要13节点、53组实际功能复评，严格DEVELOPMENT READY；当前13 READY、146 NOT_ASSESSED、0 BLOCKED。限定IA评估，无上游源码/运行时；正式、UI实现与发布独立。见[TP10报告](./audit/TP10-development-2026-10-11.md)。
 
 > 上轮工程快照（2026-10-10）：冻结4875b140完成TP05/F05/F08/F0必要13节点、53组实际功能复评与严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。TP02/TP03/TP04等旧Gate本轮未重授，正式/hosted CI/发布独立。见[本轮报告](./audit/TP05-development-2026-10-10.md)。
