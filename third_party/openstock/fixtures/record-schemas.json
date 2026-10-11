@@ -1,0 +1,87 @@
+{
+  "quote": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "symbol",
+      "close",
+      "high",
+      "low",
+      "open",
+      "previous_close",
+      "ts"
+    ],
+    "properties": {
+      "symbol": {
+        "type": "string",
+        "minLength": 1
+      },
+      "close": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "high": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "low": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "open": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "previous_close": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+      },
+      "ts": {
+        "type": "string",
+        "minLength": 1,
+        "format": "date-time"
+      }
+    }
+  },
+  "company_news": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "symbol",
+      "ts",
+      "headline",
+      "source",
+      "url"
+    ],
+    "properties": {
+      "symbol": {
+        "type": "string",
+        "minLength": 1
+      },
+      "ts": {
+        "type": "string",
+        "minLength": 1,
+        "format": "date-time"
+      },
+      "headline": {
+        "type": "string",
+        "minLength": 1
+      },
+      "source": {
+        "type": "string",
+        "minLength": 1
+      },
+      "url": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

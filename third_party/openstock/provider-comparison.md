@@ -1,30 +1,31 @@
-# TP11 OpenStock Provider Comparison
+# TP11 OpenStock provider / display evaluation
 
-Baseline: `Open-Dev-Society/OpenStock@4597c9a668118844b588f95eddb9342eed31c41d` (AGPL-3.0-only).
+Baseline: [Open-Dev-Society/OpenStock@4597c9a](https://github.com/Open-Dev-Society/OpenStock/tree/4597c9a668118844b588f95eddb9342eed31c41d). Reference only. Public README/API/market-support statements were read without running the application; `provenance.json` binds six public file observations. No upstream source/assets are retained, dependencies installed, credentials requested, market data fetched, or UI behavior verified.
 
-Scope: evaluate OpenStock's market-data and research-display surfaces against TP05 Data Contract requirements (source, license, schema, lineage, hash, quality, trading-approval gate).
-
-## Providers used by OpenStock
-
-| Provider | Role in OpenStock | Data classes | License / terms posture | Delay / quality posture | QuantOS fit | Verdict |
-| --- | --- | --- | --- | --- | --- | --- |
-| Finnhub (`finnhub.io/api/v1`) | symbols, profiles, quotes, market news | quotes, company profiles, market news | free tier requires attribution and forbids redistribution/derived trading products; real-time and redistribution need paid commercial terms | free tier is delayed (per provider rules); no per-record quality metadata | maps cleanly onto TP05 Data Contract as research-only provider; see fixture 01/02 | reference (research-only candidate via `data.query.v1`, pending commercial decision) |
-| TradingView widgets | charts and market views | rendered chart/market widgets | display-only embed license; **not a data API** — no extraction or redistribution rights | n/a (rendered client-side) | cannot produce a DataSnapshot at all; see fixture 02 rejection case | reject as data source |
-| ADANOS (optional, `api.adanos.org`) | optional data backend | operator-configured | indeterminate; no license manifest in repo | indeterminate | no verifiable license => fails `require_license` gate | reject until license manifest exists |
-| AI providers (Gemini / MiniMax via multi-provider fallback) | generative research summaries | AI-generated text | provider terms govern output; no provenance for embedded claims | n/a | same posture as TP09: research-only, never a signal source | reject as data source |
-
-## Comparison against TP05 Data Contract requirements
-
-| Requirement | Finnhub free tier | TradingView widgets | ADANOS optional |
+| Surface | Documented role / data | Rights and quality posture | QuantOS mapping / decision |
 | --- | --- | --- | --- |
-| per-source attribution (`sources[]`) | partial: provider+dataset known, no per-record source id | none | unknown |
-| license label (`license.label`) | derivable from tier terms (`finnhub-free-attribution-research-only`) | none available | none available |
-| schema/hash (`lineage.schema_hash`, `content_hash`) | computable after normalization (fixture demonstrates) | n/a | n/a |
-| quality mapping (`quality.status`, delay metadata) | mappable: delayed => `degraded` for strategy/trading, `passed` for research | n/a | n/a |
-| production approval (`approved_for_production`) | false without commercial terms | false | false |
+| Finnhub quote | Prospective quote-shaped owned input; upstream market-data reference | [Official terms](https://finnhub.io/terms-of-service) require written approval for business use of personal plans and for sharing data/derived results. Free tier is **not** automatic QuantOS research permission. Timing depends on market/plan; 1,200 seconds here is an owned test scenario, not a provider guarantee. | Synthetic quote fixture maps `c/h/l/o/pc/t` to a typed `DataSnapshot`, source/quality/schema/content/lineage hashes. Real provider bytes DENIED. No volume is invented. Current TP05 provider and record enums require separate extension. |
+| Finnhub company news | Documented market/news summaries; owned company-news field subset is a prospective contract reference | Business data rights and each news publisher's rights remain unverified. No headline, URL content or live query is fetched. | Owned synthetic headline, `example.invalid` URL and attribution map to typed `DataSnapshot`; news schema is experimental. Current TP05 has no news record. Real data DENIED. |
+| TradingView widget | Documented stock charts, market overview and technical displays | [Official widget FAQ](https://www.tradingview.com/widget-docs/faq/data/) provides no export/data API; embedding and data extraction are separate rights. No widget embedded here. | Third provider fixture records failed quality, missing data license and mapping gap. Rejected before normalized Artifact / DataSnapshot construction. |
+| Optional ADANOS | Upstream documentation describes optional sentiment backend | No applicable business data-rights receipt reviewed. | DENIED; no request, adapter or runtime adoption. |
+| AI summaries / Inngest / MongoDB / account watchlists | Documented summaries/alerts, orchestration, persistence and personalized displays | Public docs do not prove reliability, data provenance, rights, tenant isolation or strategy suitability. | Display/design reference only. Owned Research/Artifact/permissions remain authoritative. No upstream auth, event pipeline, database or secret handling adopted. |
 
-## Conclusion inputs for the ADR
+## Contract and Gate limits
 
-1. Only Finnhub is a credible future `data.query.v1` provider candidate, and only as research-only until commercial terms exist.
-2. TradingView widgets and ADANOS cannot produce usable DataSnapshots: no redistributable license and no per-source attribution.
-3. OpenStock's own display/UX layer (watchlist, research views) is design reference for U-series work, not a data path.
+Two positive synthetic mappings plus one separate provider rejection cover two provider identities (Finnhub / TradingView). Both positive samples use the **actual** `quantos.research.v1.DataSnapshot` protobuf, generated JSON schema, exact normalized/lineage bytes and deterministic replay. They are offline contract experiments, not TP05 `DataQueryResponse` or an enabled provider. The current TP05 schema is tested to reject candidate Finnhub provider/dataset shapes. Quote has no volume; news is unsupported by current TP05 record schemas. Future onboarding must implement and review a new provider plus record/schema validation, cache/scope/cancellation and written data-use rights.
+
+The experiment accepts only repository-owned synthetic input under a fixed test/research scope. A license string, `research` use, upstream software license or free account does not grant real data rights. Missing/foreign labels, real-data origin, widget/unknown providers, non-research/non-test use, malformed records and recursive authority fields are rejected before a snapshot or Artifact is produced.
+
+The Rust experiment invokes the existing **F05 `SnapshotQualityGate`** for 63 cases. F05 checks metadata/license presence, quality and freshness; it is **not** a legal entitlement registry and has no `trading_approved` input. Fresh synthetic news can pass F05's structural strategy/trading checks; the reference intake still denies those uses. Effective permission is the conjunction of intake and F05, never a copied boolean from a fixture. These local tests do not prove database persistence or deployed authorization. The refreshed F0/TP05 closure records target database evidence independently.
+
+## Research display and strategy boundary
+
+OpenStock documents watchlists, stock detail widgets, search and personalized summaries. These suggest future display affordances, not a delivered QuantOS page. The fixed market-support document lists paper trading among future improvements: no upstream strategy, factor, model, signal, backtest or execution capability is admitted. Trading intent, account persistence and exchange access stay outside this evaluation. U-series reimplementation, if scheduled, needs its own design/API/provider and license Gates.
+
+## Supply chain
+
+The SPDX file is observation metadata for one pinned project and six observed public files; Git commit belongs in version/download provenance, never in an archive SHA-256 field. Upstream dependencies are not installed or resolved here. The preserved historical npm report has 39 findings (2 critical, 13 high, 24 moderate), **including 5 direct entries**, not all transitive. Current advisory scan is NOT_ASSESSED; no current clearance is claimed. Runtime admission stays DENIED regardless of vulnerability counts.
+
+Only the two exact fixture digests registered in the owned experiment are accepted. Self-asserted synthetic origin/license plus a recomputed hash cannot admit arbitrary data; modifying the registry is a functional source change that invalidates current receipts. This registry is offline test scope, not deployed data-use authority.
+
+The owned fixtures encode decimals/timestamps as strings and use a minimal field subset. They do not prove real Finnhub HTTP response parsing or endpoint conformance. The official [quote](https://finnhub.io/docs/api/quote) and [company-news](https://finnhub.io/docs/api/company-news) documentation pages were reachable but their dynamic bodies were unavailable to the text reader; no stronger transport compatibility claim is made. Future provider onboarding must verify the actual authenticated transport separately.

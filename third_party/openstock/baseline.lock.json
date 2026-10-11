@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "component": "openstock",
-  "recordedAt": "2026-07-31T00:00:00Z",
+  "recordedAt": "2026-10-11T02:00:02Z",
   "upstream": {
     "owner": "Open-Dev-Society",
     "repo": "OpenStock",
@@ -24,7 +24,7 @@
     "noticeFile": null,
     "copyleft": true,
     "networkCopyleft": true,
-    "consequence": "no code absorption and no hosted-service reuse; reference and fixture samples only"
+    "consequence": "QuantOS policy denies upstream code absorption, runtime and hosted reuse pending separate review; AGPL obligations are not a blanket legal impossibility of reuse."
   },
   "dependencyDigests": {
     "npmLock": {
@@ -40,7 +40,7 @@
   },
   "policy": {
     "readOnlyReference": true,
-    "productionArtifactSource": "engines/openbb-adapter (data.query.v1)",
+    "productionArtifactSource": "QuantOS owned TP05 data.query.v1 after separate provider/schema and data-rights admission; TP11 only offline synthetic experiments",
     "decision": "reference_only",
     "allowedAbsorptionModes": [
       "design or test reference only",
@@ -53,10 +53,11 @@
       "Inngest event pipeline",
       "MongoDB persistence layer",
       "Better Auth integration"
-    ]
+    ],
+    "runtimeAdmission": "DENIED",
+    "realProviderDataRights": "DENIED_PENDING_WRITTEN_PROVIDER_AUTHORIZATION"
   },
   "cveAudit": {
-    "status": "completed_with_findings",
     "tool": "npm audit --omit=dev (npm 11)",
     "lastAttemptedAt": "2026-07-31T00:00:00Z",
     "summary": {
@@ -64,9 +65,17 @@
       "high": 13,
       "moderate": 24,
       "total": 39,
-      "allTransitive": true,
-      "dominantChain": "inngest -> @opentelemetry/* -> @grpc/grpc-js"
+      "allTransitive": false,
+      "dominantChain": "inngest -> @opentelemetry/* -> @grpc/grpc-js",
+      "directFindings": 5
     },
-    "rawEvidence": "cve-audit-npm-audit.json"
-  }
+    "rawEvidence": "cve-audit-npm-audit.json",
+    "historicalStatus": "completed_with_findings",
+    "status": "HISTORICAL_FINDINGS_CURRENT_NOT_ASSESSED",
+    "currentAdvisoryScanExecuted": false,
+    "noVulnerabilitiesClaimed": false,
+    "historicalRawSha256": "fd7d0149582dbb7cc19084b47e25f278d30f0363c0f83ebab4415d003f576f20"
+  },
+  "productionApproved": false,
+  "sourceDisposition": "reference_only_no_source_or_runtime_admitted"
 }

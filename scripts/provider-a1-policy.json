@@ -1158,6 +1158,39 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp11-development": {
+      "command": [
+        "node",
+        "third_party/openstock/check-development.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp11-20261011/receipt.json",
+      "artifactKind": "tp11-development",
+      "timeoutMs": 900000
+    },
+    "tp11-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp11-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp11-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp11-process-cleanup/receipt.json",
+      "output": "supporting/tp11-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1769,6 +1802,29 @@
         "tp10-development",
         "tp10-negatives",
         "tp10-process-cleanup"
+      ]
+    },
+    "CORE:TP11": {
+      "scope": "Reference-only OpenStock pinned public-document and data-rights evaluation: two owned synthetic typed DataSnapshot mappings and a separate widget-provider rejection, recomputed schema/normalized/lineage byte hashes and deterministic replay; actual F05 structural Gate matrix composed with pre-snapshot test/research intake denial. No upstream source/assets/runtime, real provider data rights, enabled TP05 provider/schema extension, current CVE clearance, deployed UI or production admission.",
+      "inputs": [
+        "third_party/openstock/",
+        "engines/engine-sdk/",
+        "engines/openbb-adapter/src/openbb_adapter/contracts/",
+        "engines/tests/test_tp11_openstock_fixtures.py",
+        "engines/pyproject.toml",
+        "engines/uv.lock",
+        "proto/",
+        "crates/quantos-storage/",
+        "scripts/tp11*",
+        "scripts/check-tp-intake.mjs",
+        "scripts/generate-build-manifest.mjs",
+        "Makefile",
+        "docs/adr/20260731-tp11-openstock-evaluation.md"
+      ],
+      "checks": [
+        "tp11-development",
+        "tp11-negatives",
+        "tp11-process-cleanup"
       ]
     }
   },

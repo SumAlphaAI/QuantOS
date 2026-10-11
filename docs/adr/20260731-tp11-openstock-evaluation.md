@@ -1,50 +1,27 @@
-# ADR: TP11 OpenStock Evaluation — Reference-Only, No Day-1 Dependency
+# ADR: TP11 OpenStock — reference only and real data denied
 
-## Status
+## Status and scope
 
-Accepted as evaluation conclusion.
-
-## Context
-
-TP11 requires an evaluation of OpenStock for public market data access, strategy/research display capability, and data-license risk. The evaluation is pinned to `Open-Dev-Society/OpenStock@4597c9a668118844b588f95eddb9342eed31c41d` (2026-07-04, package version `0.1.0`) and covers three deliverables: a provider comparison, Data Contract fixtures, and a license conclusion.
-
-Findings:
-
-1. **Upstream license blocks everything beyond reference.** OpenStock is AGPL-3.0-only (network copyleft), so no code absorption and no hosted-service reuse are possible.
-2. **Data providers split cleanly by license posture.** Finnhub is the only credible provider candidate and only as research-only on free-tier terms; TradingView widgets are display-only and can never produce a DataSnapshot; the optional ADANOS backend has no verifiable license manifest. See `provider-comparison.md`.
-3. **The Data Contract mapping works and the gate holds.** The two provider fixtures show Finnhub data maps into the TP05 Data Contract with complete lineage/quality mapping, while unauthorized variants (stripped license, widget data) are rejected by the recomputed F05 gate for 100% of usage classes.
-4. **Supply chain is weak.** `npm audit` on the pinned lockfile reports 2 critical and 13 high findings, all transitive via the Inngest/OpenTelemetry/gRPC chain; admission would be blocked even if the license allowed it.
+Bounded engineering evaluation refreshed 2026-10-11; formal ACCEPTED remains unregistered. Baseline `Open-Dev-Society/OpenStock@4597c9a668118844b588f95eddb9342eed31c41d`, project classification AGPL-3.0-only. Public license, README, descriptors and API/market-support documents were read in memory; no upstream code/assets retained or application/dependencies executed. See [provider comparison](../../third_party/openstock/provider-comparison.md) and [public observations](../../third_party/openstock/provenance.json).
 
 ## Decision
 
-1. OpenStock is classified as **reference only** (`reference_only`). No Day-1 dependency, no adapter, no lockfile entry anywhere in QuantOS.
-2. The license conclusion is: **upstream AGPL-3.0-only; Finnhub free tier is research-only pending a commercial decision; TradingView widgets and ADANOS are rejected as data sources**.
-3. Market data enters QuantOS only through owned paths: TP05 `data.query.v1` providers with license gates and the F05 snapshot catalog.
-4. OpenStock's watchlist/research display UX may be used as design reference for the U-series terminal work only.
-5. The standing gate rule is reaffirmed with executable evidence: **any data without a verifiable license label or per-source attribution cannot produce a usable DataSnapshot, for any usage class**.
+1. `reference_only`, runtimeAdmission=DENIED, productionApproved=false. QuantOS policy permits owned documentation and offline synthetic contract experiments, and prohibits source absorption, Day-1 dependencies and hosted reuse absent a separate decision. This is a project admission decision, **not** a statement that AGPL universally makes hosting legally impossible.
+2. Real Finnhub data is denied pending verified written business/use/redistribution rights. [Official terms](https://finnhub.io/terms-of-service) do not authorize business internal research merely because a free/personal tier is available. Synthetic fixture rights belong to QuantOS; their label grants no rights to provider or publisher content. Remove the historical automatic “free tier research-only” assumption.
+3. TradingView widgets are display references, not a data API or extraction source. [Official FAQ](https://www.tradingview.com/widget-docs/faq/data/) offers no export or data-access API. ADANOS and AI content have no admitted data-rights/provenance path.
+4. Two owned positive Finnhub-shaped samples and a separate TradingView rejection sample cover lineage/quality mapping. The positives actually round-trip `DataSnapshot` protobuf and generated JSON schema; raw/normalized/lineage hashes are real byte digests. There is **no enabled TP05 Finnhub provider**. Quote lacks volume and news lacks a current TP05 record schema; both require reviewed provider/schema extensions. No missing market field is invented.
+5. The offline intake denies real origin, unrecognized license, unknown/display providers, non-test/non-research use and nested authority before constructing any usable snapshot/Artifact. Actual F05 Gate tests enforce its present metadata/quality/freshness semantics. F05 is not a legal registry, and does not consume `trading_approved`; fresh synthetic news can pass its structural strict checks. Combined intake still rejects strategy/trading. Keep these controls distinct.
+6. OpenStock watchlist/research-display and documented automation are design references only. No UI, account database, alerts, backtest, signal or execution runtime is delivered by this evaluation. Documented roadmap paper trading is not shipped evidence.
+7. The historical npm report remains evidence of 39 findings, including five direct entries. Correct the prior all-transitive claim and invalid Git-SHA-as-SHA256 SPDX field. Current resolved graph/CVE clearance remains NOT_ASSESSED, and runtime is denied independently.
 
-## Consequences
+## Replacement cost and future admission
 
-Positive:
+A future provider requires written market/news data rights for the actual tenant, dataset, use, retention and redistribution; an owned TP05 provider implementation and schema extension; numeric/time/source/hash/quality validation; scope/cache/cancellation tests; persistent artifact and deployed authorization evidence. Cost exceeds adding an API URL: current OHLCV schema cannot accept quotes lacking volume, and no news schema exists. Neither upstream AGPL admission nor data-rights approval is implied by this evaluation.
 
-- AGPL and unlicensed data paths stay fully outside the QuantOS runtime and supply chain.
-- The unauthorized-rejection rule is regression-tested against recomputed F05 gate semantics, not just documented.
-- Provider comparison gives R1 a concrete shortlist: one research-only candidate (Finnhub) with a clear commercial-decision path.
+Reimplement any display pattern in the owned terminal against admitted APIs and page Gates. Do not copy upstream components, assets, auth/data models or event pipelines. Public documentation is static, unexecuted evidence; no availability or investment-quality claim follows.
 
-Trade-offs:
+## Acceptance boundary
 
-- QuantOS does not reuse OpenStock's polished research-display implementation; equivalent views must be built in the owned terminal frontend.
-- Finnhub real-time or redistribution use requires a future commercial decision before any strategy/trading usage.
+TP11 development admission requires fresh `CORE:TP05` and `CORE-GATE:F0` receipts, component execution logs, exact supporting bytes and recursive content checks. Engineering evidence cannot self-approve formal user confirmation, same-SHA hosted CI, deployment, production, current CVE or data-use rights. No production credentials, real provider query or external publication is authorized or performed.
 
-## Replacement cost
-
-If a future requirement demands Finnhub-class market data:
-
-- **Provider onboarding**: add a TP05 `data.query.v1` provider using the fixture schema from this evaluation — small scope, the contract is already defined.
-- **License decision**: commercial Finnhub terms must be recorded in the TP05 license gate before `approved_for_production` flips.
-- **What is not required**: OpenStock itself. Its UI, Inngest pipeline, MongoDB layer, and auth stack are all rejected; only the provider analysis and fixture schema carry forward.
-
-## Follow-up
-
-- Revisit only if R1 requires a provider that TP05's current mock/OpenBB paths cannot cover; then onboard via `data.query.v1` using these fixtures as the contract baseline.
-- Monitor the upstream npm audit chain; re-run if the baseline is ever re-pinned.
+Only the two exact fixture digests registered in the owned experiment are accepted. Self-asserted synthetic origin/license plus a recomputed hash cannot admit arbitrary data; modifying the registry is a functional source change that invalidates current receipts. This registry is offline test scope, not deployed data-use authority.

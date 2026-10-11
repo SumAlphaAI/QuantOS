@@ -1,144 +1,140 @@
-"""TP11: validate the OpenStock provider Data Contract fixtures.
-
-The two fixtures under `third_party/openstock/fixtures/` prove that
-OpenStock-consumed provider data (Finnhub) fits inside the QuantOS TP05
-Data Contract with lineage and quality mapping, and that any unauthorized
-data (missing license / display-only widget data) cannot produce a usable
-DataSnapshot under F05 gate rules. These tests recompute the gate decision
-from the fixture data instead of trusting the recorded decision.
-"""
+"""Executable reference-only mapping and pre-snapshot denial; no provider credentials."""
 
 from __future__ import annotations
 
-import hashlib
+from copy import deepcopy
+import importlib.util
 import json
 from pathlib import Path
 
-FIXTURES_DIR = Path(__file__).resolve().parents[2] / "third_party" / "openstock" / "fixtures"
+from google.protobuf.json_format import ParseDict
+from quantos.research.v1 import research_pb2
+import pytest
 
-DATA_CONTRACT_REQUIRED_FIELDS = (
-    "provider",
-    "query_id",
-    "dataset",
-    "schema_ref",
-    "query_text",
-    "symbols",
-    "window",
-    "records",
-    "sources",
-    "license",
-    "cache",
-    "lineage",
-    "usage",
+ROOT = Path(__file__).resolve().parents[2]
+SPEC = importlib.util.spec_from_file_location(
+    "tp11_experiments", ROOT / "third_party/openstock/experiments.py"
 )
-
-LINEAGE_REQUIRED_FIELDS = ("snapshot_id", "schema_hash", "content_hash", "lineage_tags", "artifact_hash")
-
-
-def _load(name: str) -> dict:
-    return json.loads((FIXTURES_DIR / name).read_text(encoding="utf-8"))
+assert SPEC and SPEC.loader
+experiment = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(experiment)
 
 
-def _canonical_hash(doc: dict) -> str:
-    payload = {key: value for key, value in doc.items() if key != "content_hash"}
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+@pytest.mark.parametrize("index", [0, 1])
+def test_actual_typed_snapshot_lineage_bytes_and_replay(index):
+    fixture = experiment.load_fixtures()[index]
+    mapped = experiment.map_fixture(fixture)
+    assert mapped == experiment.map_fixture(deepcopy(fixture))
+    wire = ParseDict(mapped["snapshot"], research_pb2.DataSnapshot())
+    assert wire.sources[0].license_label == experiment.LICENSE
+    assert wire.license_label == experiment.LICENSE
+    assert len(wire.artifact_refs) == 2
+    assert wire.content_hash == experiment.digest(mapped["normalized"])
+    assert wire.artifact_refs[0].sha256 == wire.content_hash
+    assert wire.artifact_refs[1].sha256 == experiment.digest(mapped["lineage"])
+    schemas = json.loads((experiment.BASE / "fixtures/record-schemas.json").read_text())
+    assert mapped["lineage"]["schema_hash"] == experiment.digest(schemas[fixture["kind"]])
+    assert mapped["normalized"]["records"][0]["symbol"] == "SYNTH-A"
+    assert mapped["normalized"]["sources"][0]["provider"] == "quantos-offline-fixture"
+    assert not mapped["normalized"]["approved_for_production"]
 
 
-def _gate_allows(sources: list, license_label: str | None, quality_status: str, usage: str) -> bool:
-    """Recompute the F05 snapshot gate decision from first principles."""
-
-    if not license_label or any(not source.get("license_label") for source in sources):
-        return False  # require_license for every usage class
-    if usage == "research":
-        return quality_status in {"passed", "pending", "degraded"}
-    return quality_status == "passed" and False  # strategy/trading also require freshness + trading approval
+@pytest.mark.parametrize("usage", ["strategy", "trading", "evaluation", "unknown"])
+@pytest.mark.parametrize("index", [0, 1, 2])
+def test_nonresearch_intake_cannot_create_snapshot(index, usage):
+    with pytest.raises(ValueError, match="TP11_USE_DENIED"):
+        experiment.map_fixture(experiment.load_fixtures()[index], usage=usage)
 
 
-def _expected_decisions(sources: list, license_label: str | None, quality_status: str) -> dict:
-    return {
-        "research": bool(license_label)
-        and all(source.get("license_label") for source in sources)
-        and quality_status in {"passed", "pending", "degraded"},
-        "strategy": False,
-        "trading": False,
-    }
+@pytest.mark.parametrize("environment", ["production", "staging", "development", "unknown"])
+def test_nontest_environment_cannot_create_snapshot(environment):
+    with pytest.raises(ValueError, match="TP11_USE_DENIED"):
+        experiment.map_fixture(experiment.load_fixtures()[0], environment=environment)
 
 
-def test_provider_fixtures_match_data_contract() -> None:
-    for name in (
-        "01-finnhub-quote-to-data-contract.json",
-        "02-finnhub-news-and-widget-rejection.json",
-    ):
-        contract = _load(name)["data_contract"]
-
-        for field in DATA_CONTRACT_REQUIRED_FIELDS:
-            assert field in contract, f"{name}: missing Data Contract field `{field}`"
-
-        for source in contract["sources"]:
-            assert {"source_id", "provider", "dataset", "license_label"}.issubset(source.keys())
-            assert source["license_label"], f"{name}: source without license label"
-
-        license_block = contract["license"]
-        assert license_block["label"]
-        assert license_block["approved_for_production"] is False
-        assert contract["usage"]["trading_approved"] is False
-
-        lineage = contract["lineage"]
-        for field in LINEAGE_REQUIRED_FIELDS:
-            assert lineage[field], f"{name}: missing lineage field `{field}`"
-        assert lineage["schema_hash"].startswith("sha256:")
-        assert lineage["content_hash"].startswith("sha256:")
-
-
-def test_lineage_and_quality_mapping_present_in_both_fixtures() -> None:
-    for name in (
-        "01-finnhub-quote-to-data-contract.json",
-        "02-finnhub-news-and-widget-rejection.json",
-    ):
-        doc = _load(name)
-        quality = doc["quality_mapping"]
-        assert quality["status"] in {"passed", "degraded"}
-        assert "findings" in quality
-        decisions = {entry["usage"]: entry["allowed"] for entry in doc["snapshot_gate"]["decisions"]}
-        assert set(decisions) == {"research", "strategy", "trading"}
-
-
-def test_gate_decisions_match_recomputed_rules() -> None:
-    for name in (
-        "01-finnhub-quote-to-data-contract.json",
-        "02-finnhub-news-and-widget-rejection.json",
-    ):
-        doc = _load(name)
-        contract = doc["data_contract"]
-        expected = _expected_decisions(
-            contract["sources"],
-            contract["license"]["label"],
-            doc["quality_mapping"]["status"],
+@pytest.mark.parametrize("index", [0, 1])
+@pytest.mark.parametrize(
+    "mutate,reason",
+    [
+        (lambda f: f.update(data_license=None), "TP11_DATA_RIGHTS_DENIED"),
+        (
+            lambda f: f.update(data_license="finnhub-free-attribution-research-only"),
+            "TP11_DATA_RIGHTS_DENIED",
+        ),
+        (lambda f: f.update(origin="real_provider_data"), "TP11_DATA_RIGHTS_DENIED"),
+        (lambda f: f.update(provider="adanos"), "TP11_PROVIDER_DENIED"),
+        (lambda f: f.update(fixture_hash="sha256:" + "0" * 64), "TP11_FIXTURE_HASH"),
+        (lambda f: f["records"][0].update(extra="unknown"), "TP11_RECORD_SCHEMA"),
+        (lambda f: f["quality"].update(status="failed"), "TP11_QUALITY_MAPPING"),
+        (lambda f: f.update(records=[]), "TP11_RECORDS"),
+    ],
+)
+def test_unauthorized_or_corrupted_input_denied_before_artifacts(index, mutate, reason):
+    fixture = experiment.load_fixtures()[index]
+    mutate(fixture)
+    if reason != "TP11_FIXTURE_HASH":
+        fixture["fixture_hash"] = experiment.digest(
+            {k: v for k, v in fixture.items() if k != "fixture_hash"}
         )
-        recorded = {entry["usage"]: entry["allowed"] for entry in doc["snapshot_gate"]["decisions"]}
-        assert recorded == expected, f"{name}: recorded gate decisions diverge from recomputed rules"
-        assert recorded["research"] is True
+    with pytest.raises(ValueError, match=reason):
+        experiment.map_fixture(fixture)
 
 
-def test_unauthorized_data_never_produces_usable_snapshot() -> None:
-    quote_variant = _load("01-finnhub-quote-to-data-contract.json")["unauthorized_variant"]
-    widget_case = _load("02-finnhub-news-and-widget-rejection.json")["rejected_widget_case"]
+@pytest.mark.parametrize(
+    "field",
+    [
+        "api_key",
+        "credentials",
+        "trading_approved",
+        "approved_for_production",
+        "order",
+        "venue",
+    ],
+)
+def test_recursive_authority_denied(field):
+    fixture = experiment.load_fixtures()[0]
+    fixture["records"][0]["nested"] = [{field: "forbidden"}]
+    with pytest.raises(ValueError, match="TP11_AUTHORITY_DENIED"):
+        experiment.map_fixture(fixture)
 
-    for case in (quote_variant, widget_case):
-        sources = case.get("sources") or case.get("attempted_sources")
-        license_label = case["license"]["label"]
-        for entry in case["gate_decisions"]:
-            assert entry["allowed"] is False, "unauthorized data must be rejected for every usage"
-        # the recorded 100% rejection must match the recomputed rule
-        for usage in ("research", "strategy", "trading"):
-            assert _gate_allows(sources, license_label, "passed", usage) is False
+
+def test_widget_never_constructs_snapshot_or_artifacts():
+    with pytest.raises(ValueError, match="TP11_PROVIDER_DENIED"):
+        experiment.map_fixture(experiment.load_fixtures()[2])
 
 
-def test_fixtures_are_replayable() -> None:
-    for name in (
-        "01-finnhub-quote-to-data-contract.json",
-        "02-finnhub-news-and-widget-rejection.json",
-    ):
-        doc = _load(name)
-        assert doc["content_hash"] == _canonical_hash(doc), f"{name} content hash drifted"
+def test_no_volume_or_price_fabrication_and_nonfinite_denial():
+    fixture = experiment.load_fixtures()[0]
+    result = experiment.map_fixture(fixture)
+    assert "volume" not in result["normalized"]["records"][0]
+    assert result["normalized"]["records"][0]["close"] == "101.25"
+    fixture["records"][0]["c"] = "NaN"
+    fixture["fixture_hash"] = experiment.digest(
+        {k: v for k, v in fixture.items() if k != "fixture_hash"}
+    )
+    with pytest.raises(ValueError, match="TP11_NUMERIC"):
+        experiment.map_fixture(fixture)
+
+
+def test_output_denial_and_deterministic_bytes(tmp_path):
+    result = experiment.run(tmp_path)
+    assert result["syntheticMappings"] == 2 and result["displayOnlyDenied"] == 1
+    widget = json.loads((tmp_path / "tp11-widget.json").read_text())
+    assert widget["snapshot"] is None and widget["artifacts"] == []
+    first = {f["file"]: (tmp_path / f["file"]).read_bytes() for f in result["files"]}
+    assert result == experiment.run(tmp_path)
+    assert all((tmp_path / name).read_bytes() == raw for name, raw in first.items())
+
+
+@pytest.mark.parametrize("index", [0, 1])
+def test_relabelled_self_hashed_arbitrary_data_is_not_registered(index):
+    fixture = experiment.load_fixtures()[index]
+    if index == 0:
+        fixture["records"][0]["c"] = "101.30"
+    else:
+        fixture["records"][0]["headline"] = "Unregistered provider data disguised as synthetic"
+    fixture["fixture_hash"] = experiment.digest(
+        {k: v for k, v in fixture.items() if k != "fixture_hash"}
+    )
+    with pytest.raises(ValueError, match="TP11_FIXTURE_NOT_REGISTERED"):
+        experiment.map_fixture(fixture)

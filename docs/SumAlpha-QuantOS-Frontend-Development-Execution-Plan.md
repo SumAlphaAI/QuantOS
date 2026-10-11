@@ -1,3 +1,5 @@
+> TP11刷新中（2026-10-11）：先行TP05当前准入已完成并归档；TP11功能输入变更后旧Gate撤销，正在冻结新源码并重验含TP05/F0的必要闭包。
+
 > 当前工程状态（TP05，2026-10-11）：冻结ddae9d52完成TP05/F08/F0必要13节点、53组实测与严格内容准入；13 READY、146 NOT_ASSESSED、0 BLOCKED，正式/hosted CI/生产发布独立。见[TP05刷新报告](./audit/TP05-readmission-2026-10-11.md)。
 
 > 上轮工程快照（TP10，2026-10-11）：冻结8fbedfe8完成TP10/F08/F0必要13节点、53组实际功能复评，严格DEVELOPMENT READY；当前13 READY、146 NOT_ASSESSED、0 BLOCKED。限定IA评估，无上游源码/运行时；正式、UI实现与发布独立。见[TP10报告](./audit/TP10-development-2026-10-11.md)。

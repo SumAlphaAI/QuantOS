@@ -1,68 +1,42 @@
 {
-  "fixture_id": "tp11-openstock-01-finnhub-quote",
-  "purpose": "Map a Finnhub quote dataset (as consumed by OpenStock) into the QuantOS TP05 Data Contract with lineage and quality mapping, plus the unauthorized variant that must fail the snapshot gate.",
-  "upstream": {
-    "commit": "4597c9a668118844b588f95eddb9342eed31c41d",
-    "surface": "OpenStock stock detail pages -> finnhub.io/api/v1 quote/profile endpoints"
+  "schema": "quantos-tp11-provider-fixture/v2",
+  "origin": "quantos_owned_synthetic",
+  "data_license": "quantos-owned-synthetic-test-only",
+  "runtime_admission": "DENIED",
+  "contract_target": "quantos.research.v1.DataSnapshot",
+  "tp05_compatibility": "REQUIRES_PROVIDER_AND_RECORD_SCHEMA_EXTENSION",
+  "fixture_id": "tp11-quote",
+  "provider": "finnhub",
+  "kind": "quote",
+  "records": [
+    {
+      "symbol": "SYNTH-A",
+      "c": "101.25",
+      "h": "102.00",
+      "l": "99.00",
+      "o": "100.00",
+      "pc": "98.00",
+      "t": "1791675600"
+    }
+  ],
+  "mapping": {
+    "c": "close",
+    "h": "high",
+    "l": "low",
+    "o": "open",
+    "pc": "previous_close",
+    "t": "ts",
+    "gap": "quote has no volume; current TP05 OHLCV/crypto record schema is incompatible; no volume is invented"
   },
-  "data_contract": {
-    "response_type": "DataQueryResponse",
-    "provider": "finnhub",
-    "query_id": "query:tp11-finnhub-quote-aapl-20260730",
-    "dataset": "finnhub/quote",
-    "schema_ref": "quantos.data.market_quote.v1",
-    "query_text": "quote for AAPL",
-    "symbols": ["AAPL"],
-    "window": {"start": "2026-07-30T00:00:00Z", "end": "2026-07-30T23:59:59Z"},
-    "records": [
-      {"symbol": "AAPL", "ts": "2026-07-30T20:00:00Z", "open": "212.40", "high": "214.10", "low": "211.85", "close": "213.62", "volume": "48123000"}
-    ],
-    "sources": [
-      {"source_id": "finnhub-quote-aapl-20260730", "provider": "finnhub", "dataset": "finnhub/quote", "license_label": "finnhub-free-attribution-research-only"}
-    ],
-    "license": {
-      "label": "finnhub-free-attribution-research-only",
-      "status": "evaluation_only",
-      "approved_for_production": false,
-      "decision_ref": "docs/adr/20260731-tp11-openstock-evaluation.md"
-    },
-    "cache": {"strategy": "short_lived_query_cache", "ttl_secs": 300, "cache_key": "finnhub/quote/AAPL/2026-07-30"},
-    "lineage": {
-      "snapshot_id": "data-query-snapshot:tp11-finnhub-quote-20260730",
-      "schema_hash": "sha256:tp11-schema-market-quote-v1",
-      "content_hash": "sha256:tp11-content-finnhub-quote-aapl-20260730",
-      "lineage_tags": ["tp11", "provider-fixture", "delayed-data"],
-      "artifact_hash": "sha256:tp11-lineage-finnhub-quote"
-    },
-    "usage": {"intended_use": "research", "trading_approved": false, "allowed_workflows": ["research"]}
-  },
-  "quality_mapping": {
+  "quality": {
     "status": "degraded",
+    "delay_seconds": 1200,
     "findings": [
-      {"code": "provider_delay", "detail": "finnhub free tier quotes are delayed (~15 minutes) per provider rules"}
-    ],
-    "delay_seconds": 900,
-    "note": "delayed free-tier data maps to degraded quality: usable for research, rejected for strategy/trading freshness gates"
-  },
-  "snapshot_gate": {
-    "ruleset": "F05 SnapshotQualityRule defaults (research: allow_degraded, no freshness; strategy/trading: strict + freshness + license)",
-    "decisions": [
-      {"usage": "research", "allowed": true, "reason": "degraded quality allowed for research; license label present"},
-      {"usage": "strategy", "allowed": false, "reason": "degraded quality and stale data rejected by strategy gate"},
-      {"usage": "trading", "allowed": false, "reason": "degraded quality and stale data rejected by trading gate; trading_approved=false"}
+      {
+        "code": "synthetic_delay",
+        "detail": "Owned scenario is twenty minutes old; not a claim about Finnhub plan latency."
+      }
     ]
   },
-  "unauthorized_variant": {
-    "description": "same records with the license label stripped, simulating unauthorized redistribution",
-    "sources": [
-      {"source_id": "finnhub-quote-aapl-20260730", "provider": "finnhub", "dataset": "finnhub/quote", "license_label": null}
-    ],
-    "license": {"label": null, "status": "unlicensed", "approved_for_production": false, "decision_ref": null},
-    "gate_decisions": [
-      {"usage": "research", "allowed": false, "reason": "require_license: no license label on source"},
-      {"usage": "strategy", "allowed": false, "reason": "require_license: no license label on source"},
-      {"usage": "trading", "allowed": false, "reason": "require_license: no license label on source"}
-    ]
-  },
-  "content_hash": "sha256:c712119fae571ad705ddd9c96345a590d042a9560090251abf0ce357fa6a5601"
+  "fixture_hash": "sha256:ca85bb365b30bc9045240d21a08413858dfa40910a1e8c3524d62bf933ec6021"
 }
