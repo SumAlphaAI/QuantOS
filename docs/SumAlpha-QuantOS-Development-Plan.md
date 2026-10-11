@@ -1,6 +1,8 @@
-> 当前预检（R04，2026-10-12）：冻结2c6e1fb4完成接口/fixture预检；Python 1366项、Runtime 100条Proposal/过期拒绝/重放/订单工具拒绝、两组100条schema及49项回执负向PASS。TP03/TP04/F0当前仍NOT_ASSESSED，旧回执存在内容漂移；TP04完整套件计数校验待修复。R03_LOCAL继续READY，本轮未授予R04 Gate。见[预检报告](./audit/R04-interface-fixture-preflight-2026-10-12.md)。
+> 当前复评（TP04 Python校验，2026-10-12）：修复完整套件增长后的回执计数校验并新增负向测试，TP03/TP04/F0必要闭包待新冻结源码复评。源码输入改变后R03旧READY撤为NOT_ASSESSED，历史回执保留；全图0 READY、159 NOT_ASSESSED、0 BLOCKED。见[本轮记录](./audit/TP04-python-receipt-readmission-2026-10-12.md)。
 
-> 当前工程快照（R03本地开发Gate，2026-10-11）：冻结b2511e1d完成15节点/49组本地前置与R03七组实际复验，R03 DEVELOPMENT READY（R03_LOCAL）；全图1 READY、158 NOT_ASSESSED、0 BLOCKED。13组Supabase前置及R03真实生命周期移交RELEASE-GATE:BETA，NOT RUN。原只读/失败/退役pending=0历史保留；用户工程确认、同SHA CI及发布独立。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
+> 历史预检（R04，2026-10-12）：冻结2c6e1fb4完成接口/fixture预检；Python 1366项、Runtime 100条Proposal/过期拒绝/重放/订单工具拒绝、两组100条schema及49项回执负向PASS。TP03/TP04/F0当前仍NOT_ASSESSED，旧回执存在内容漂移；TP04完整套件计数校验待修复。R03_LOCAL继续READY，本轮未授予R04 Gate。见[预检报告](./audit/R04-interface-fixture-preflight-2026-10-12.md)。
+
+> 历史工程快照（R03本地开发Gate，2026-10-11）：冻结b2511e1d完成15节点/49组本地前置与R03七组实际复验，R03 DEVELOPMENT READY（R03_LOCAL）；全图1 READY、158 NOT_ASSESSED、0 BLOCKED。13组Supabase前置及R03真实生命周期移交RELEASE-GATE:BETA，NOT RUN。原只读/失败/退役pending=0历史保留；用户工程确认、同SHA CI及发布独立。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 > 历史工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 
@@ -39,14 +41,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.69
+> 版本：3.70
 > 更新时间：2026-10-12
 > 状态：技术执行基线  
-> 本轮变更：R04接口与fixture预检，核对TP03/TP04/F0当前准入；R03_LOCAL保持READY，Supabase验收仍移交发布阶段。
+> 本轮变更：TP04完整Python套件回执计数修复、负向测试及必要前置复评；R03旧回执因源码漂移撤为待复评。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.70`：修复TP04完整Python计数校验，保留失败/旧组件证据；从冻结源码复评TP03/TP04/F0必要前置，源码漂移撤销R03旧READY。见[本轮记录](./audit/TP04-python-receipt-readmission-2026-10-12.md)。
 
 - `3.69`：R04接口/fixture预检与TP03/TP04/F0当前准入核对；修正TP03说明中的历史READY歧义，保留旧回执及未准入状态。见[预检报告](./audit/R04-interface-fixture-preflight-2026-10-12.md)。
 - `3.68`：R03限定本地功能准入与Supabase最终发布验收分离；功能/取消/恢复/权限/质量要求保留，LOCAL_READY不授予上游数据库READY；历史失败与32事实限时用途保留。见[范围调整](./audit/R03-local-gate-policy-2026-10-11.md)。
@@ -973,7 +977,7 @@ flowchart TD
 - task_id: `R03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:05c684e1953bf8e696d2c8679c1c13b3f0d609490203b3d095140ce4ec05fe7c","evidence":["audit/evidence/r03-20261011/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - closes_core: []
@@ -986,7 +990,7 @@ flowchart TD
 - 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact
 - 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。LOCAL_READY仅供R03消费，不授予上游数据库READY或发布权限。
 - 依赖：F07、F08、R02、TP02
-- 当前工程复核：冻结b2511e1d完成15节点/49组本地前置与R03七组复验、97功能输入及日志/制品递归校验，R03_LOCAL DEVELOPMENT READY。124项门禁测试PASS，Supabase13组前置与真实R03生命周期为NOT RUN并移交RELEASE-GATE:BETA；不重授上游严格Gate或发布权限。旧失败与退役历史保留，用户工程确认/同SHA CI/发布独立，formalAccepted=false。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
+- 当前工程复核：2026-10-12修复TP04回执校验后，scripts/Engine源码输入变化；R03_LOCAL原READY撤为NOT_ASSESSED，需按新冻结提交刷新受影响回执。原b2511e1d完整15节点/49组前置及R03七组PASS与用户待确认文稿保留为历史。见[当前复评](./audit/TP04-python-receipt-readmission-2026-10-12.md)和[历史本地准入](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 <a id="task-r04"></a>
 ### R04：Signal 与 TradeProposal 工作流

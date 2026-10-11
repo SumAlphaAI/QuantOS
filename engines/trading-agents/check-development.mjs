@@ -11,7 +11,7 @@ export const selectors=['engines/llmquant/','engines/trading-agents/','engines/e
 const formatFiles=['adapter','artifacts','fixtures','manifest','proposal_mapper','server','service','__init__'].map(f=>'engines/trading-agents/src/trading_agents/'+f+'.py').concat(['engines/tests/test_trading_agents_contract.py','engines/tests/test_trading_agents_development.py']);
 export const checks=[
  {id:'contract',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_trading_agents_contract.py','engines/tests/test_trading_agents_development.py','-vv'],marker:/310 passed/},
- {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/1002 passed/},
+ {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/\b\d+ passed(?:, \d+ warnings?)? in /},
  {id:'manager',command:['cargo','test','--locked','--offline','-p','quantos-engine-manager','--test','python_trading_agents'],marker:/2 passed; 0 failed/},
  {id:'runtime',command:['cargo','test','--locked','--offline','-p','quantos-runtime','--test','signal_proposal_orchestration','--','--nocapture'],marker:/3 passed; 0 failed/},
  {id:'schema',command:['node','scripts/tp04-proposal-schema.mjs'],marker:/TP04_PROPOSAL_SCHEMA_PASS 100/},
@@ -25,11 +25,22 @@ export const checks=[
 ];
 const excluded=['admitted TradingAgents upstream runtime, resolved external dependency audit or live LLM agents','real release or policy/portfolio bytes, deployed reference resolution or BFF HTTP/UI E2E','persistent Artifact or audit delivery','OS egress sandbox enforcement','production credentials or external publication','representative P95, soak, deployment, hosted same-SHA CI or formal ACCEPTED'];
 function dependencies(){return nodesFromPlans().get('CORE:TP04').dependencies.map(nodeId=>{try{return {nodeId,...validateReceipt(nodeId)};}catch(e){return {nodeId,status:'BLOCKED',reason:e.message.split('\n')[0]};}});}
+export function verifyPythonSuiteSummary(text){
+ // The receipt binds the complete directory command, source inputs and log.
+ // Permit suite growth while retaining the original 1002-test minimum.
+ const summary=text.trim().split(/\r?\n/).at(-1);
+ const match=/^(\d+) passed(?:, \d+ warnings?)? in \d+(?:\.\d+)?s(?: \([\d:]+\))?$/.exec(summary);
+ assert(match,'TP04 full Python suite must finish with a pass-only summary');
+ assert(Number(match[1])>=1002,'TP04 Python suite fell below its 1002-test baseline');
+ assert(!/\b[1-9]\d* (?:failed|errors?|skipped|deselected|xfailed|xpassed)\b/.test(text),'TP04 full Python suite contains failures or incomplete coverage');
+ return Number(match[1]);
+}
 export function verifyTp04(r,{checkDependencies=true,logDirectory=resolve(root,directory)}={}){
  assert.equal(r.schema,'quantos-tp04-development/v1');assert.equal(r.nodeId,'CORE:TP04');assert.equal(r.stage,'DEVELOPMENT');assert.equal(r.formalAccepted,false);assert.equal(r.engineeringStatus,'PASS');assert.deepEqual(r.excluded,excluded);assert(['READY','BLOCKED'].includes(r.status));
  assert.deepEqual(r.inputs,inventory(selectors),'TP04 functional inputs changed');assert.deepEqual(r.planInput,planInput(nodesFromPlans().get(r.nodeId)));assert(/^[a-f0-9]{40}$/.test(r.observedSourceCommit));assert(r.environment.node&&r.environment.python&&r.environment.rust);
  assert.deepEqual(r.fixtures,['committee_bull_breakout','committee_reduce_overheat','committee_hold_crosscurrents']);assert.deepEqual(r.checks.map(c=>c.id),checks.map(c=>c.id));
  for(const [i,c]of r.checks.entries()){const spec=checks[i];assert.deepEqual(c.command,spec.command);assert.equal(c.exitCode,0);assert.equal(c.status,'PASS');assert(Number.isFinite(Date.parse(c.executedAt))&&Date.parse(c.executedAt)<=Date.now());assert.equal(c.log,directory+'/'+spec.id+'.log');const bytes=readFileSync(resolve(logDirectory,spec.id+'.log'));assert.equal(digest(bytes),c.logSha256,'TP04 log changed');assert.match(bytes.toString(),spec.marker);
+  if(c.id==='python')verifyPythonSuiteSummary(bytes.toString());
   if(c.id==='contract')for(let i=0;i<100;i++)assert.match(bytes.toString(),new RegExp('test_hundred_replay_schema_provenance_and_artifact\\[case-'+String(i).padStart(3,'0')+'\\] PASSED'));
   if(c.id==='package'){assert.match(bytes.toString(),/TP04_INSTALLED_WHEEL/);assert.match(bytes.toString(),/TP04_PACKAGED_FIVE_RPC_PASS/);const records=bytes.toString().split('\n').filter(l=>l.startsWith('{"cancellation":'));assert.equal(records.length,1,'package result missing from actual execution log');assert.deepEqual(JSON.parse(records[0]),r.package);}
  }
