@@ -1,0 +1,81 @@
+["node","engines/llmquant/check-development.mjs","--ready"]
+{"engineeringStatus":"PASS","stageGate":"READY","formalAccepted":false}
+
+["node","--input-type=module","-e","import {nodesFromPlans,closure,validateReceipt} from './scripts/provider-a1-receipts.mjs';const ids=closure(nodesFromPlans(),'CORE:TP03');for(const id of ids)validateReceipt(id);console.log('STRICT_READY',ids.length);"]
+STRICT_READY 13
+
+["node","--test","scripts/tp03-functional-artifacts.test.mjs"]
+✔ engineering-only evidence cannot admit TP03 (184.831709ms)
+✔ all execution logs and installed wheels must travel with a copied receipt (90.681875ms)
+✔ TP03 receipt rejects omitted check (154.76025ms)
+✔ TP03 receipt rejects failed execution (154.77575ms)
+✔ TP03 receipt rejects fake command (153.434583ms)
+✔ TP03 receipt rejects source inventory (141ms)
+✔ TP03 receipt rejects log digest (153.365ms)
+✔ TP03 receipt rejects fixture omission (176.854667ms)
+✔ TP03 receipt rejects formal claim (93.001667ms)
+✔ TP03 receipt rejects future execution (157.080959ms)
+✔ TP03 receipt rejects unreaped package child (160.56875ms)
+✔ TP03 receipt rejects editable package claim (163.63025ms)
+✔ TP03 receipt rejects upstream claim (162.787583ms)
+✔ execution source must match unified manifest (88.348416ms)
+✔ copied logs are independent of canonical logs (239.865209ms)
+✔ tampered wheel bytes are rejected (155.957625ms)
+✔ actual output evidence rejects matrix sample omission (166.882292ms)
+✔ actual output evidence rejects Signal confidence (166.485459ms)
+✔ actual output evidence rejects Signal time (172.069792ms)
+✔ actual output evidence rejects Signal source claim (171.584042ms)
+✔ UI transcript rejects cancel timeout (169.087167ms)
+✔ UI transcript rejects cancel side effect (172.83175ms)
+✔ full Python regression expanded suite (172.945958ms)
+✔ full Python regression below baseline (160.326834ms)
+✔ full Python regression failed suite (159.31375ms)
+✔ full Python regression empty suite (164.813375ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4171.666459
+
+["node","scripts/check-development-plans.mjs"]
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 146,
+    "READY": 13,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1462,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22
+}
+
+["git","diff","--check"]
+
+["artifacts/tools/gitleaks","dir","--config",".gitleaks.toml","--gitleaks-ignore-path",".gitleaksignore","--redact","--no-banner","docs/audit/evidence/provider-a1-remediation-20261004/tp03-readmission-20261011"]
+1:42PM INF scanned ~13743193 bytes (13.74 MB) in 86.6ms
+1:42PM INF no leaks found
+

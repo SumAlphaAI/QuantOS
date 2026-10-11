@@ -1,0 +1,72 @@
+{
+  "schema": "quantos-tp03-readmission-final/v1",
+  "formalAccepted": false,
+  "results": [
+    {
+      "name": "ready",
+      "command": [
+        "node",
+        "engines/llmquant/check-development.mjs",
+        "--ready"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T05:42:14.160Z"
+    },
+    {
+      "name": "strict",
+      "command": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "import {nodesFromPlans,closure,validateReceipt} from './scripts/provider-a1-receipts.mjs';const ids=closure(nodesFromPlans(),'CORE:TP03');for(const id of ids)validateReceipt(id);console.log('STRICT_READY',ids.length);"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T05:42:22.110Z"
+    },
+    {
+      "name": "negatives",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp03-functional-artifacts.test.mjs"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T05:42:26.306Z"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T05:42:26.348Z"
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T05:42:26.392Z"
+    },
+    {
+      "name": "secrets",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "dir",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner",
+        "docs/audit/evidence/provider-a1-remediation-20261004/tp03-readmission-20261011"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T05:42:26.683Z"
+    }
+  ]
+}
