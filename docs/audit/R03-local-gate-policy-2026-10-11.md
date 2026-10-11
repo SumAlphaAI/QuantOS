@@ -17,3 +17,9 @@
 没有本地PostgreSQL/Supabase容器；不连接只读开发库、不产生新fixture、不读取32条真实事实、不扩展用途/到期时间、不调用生产凭据或外部发布。仅用自有合成输入；原限时复验范围仍于北京时间10月14日08:00到期。Supabase数据库验收仍为NOT RUN。
 
 历史：[原R03 manifest](./evidence/r03-local-gate-policy-20261011/history/r03-supabase-prerequisite-manifest.json)、[旧确认稿](./evidence/r03-local-gate-policy-20261011/history/r03-prior-confirmation-draft.md)、[容量与退役](./R03-supabase-recovery-2026-10-11.md)。本轮工程人工确认不由修改Gate指令推定。
+
+## 初轮与修正
+
+冻结2962c53e的首轮49组中，27 PASS、1 FAIL、1 INTERRUPTED、20 NOT RUN；R03七组尚未开始，不发布READY。新增gateway命令误用不存在的`--lib`目标，实际返回101。修正为`--bin runtime-gateway`并显式过滤两项真实数据库用例，定向8 PASS；新增Cargo metadata目标存在性检查，门禁124 PASS。失败不是Supabase指标，也未豁免。
+
+[首轮逐项处置](./evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-01/disposition.json)、[中断与原因](./evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-01/interrupted.json)、[专属Engine清理PASS](./evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-01/interrupted-process-cleanup.json)、[修正验证](./evidence/r03-local-gate-policy-20261011/gateway-target-fix.log)保留。后续从新干净提交完整复验，不拼装旧源码结果。

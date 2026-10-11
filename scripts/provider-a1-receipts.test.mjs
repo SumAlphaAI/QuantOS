@@ -6,7 +6,7 @@ import {resolve} from 'node:path';
 import {gzipSync} from 'node:zlib';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot,developmentEnvironment,runTargetAttempts,validateReproducibility,policy,staticEnvironment,runDatabaseAttempts} from './provider-a1-receipts.mjs';
+import {root,validateReceipt,digest,directory,inventory,planInput,captureInputs,assertInputSnapshot,developmentEnvironment,runTargetAttempts,validateReproducibility,policy,staticEnvironment,runDatabaseAttempts} from './provider-a1-receipts.mjs';
 function fixture(fn){const base=mkdtempSync(resolve(tmpdir(),'quantos-stage-receipt-'));try{
  execFileSync('git',['init','-q'],{cwd:base});mkdirSync(resolve(base,'scripts'));mkdirSync(resolve(base,directory,'logs'),{recursive:true});writeFileSync(resolve(base,'code.ts'),'trusted code');
  const spec={scope:'implemented functionality only',inputs:['code.ts'],checks:['actual']};const p={commonInputs:['scripts/provider-a1-policy.json'],excluded:['release'],nodes:{child:spec,parent:spec},checks:{actual:{command:['node','run.mjs'],marker:'ACTUAL_PASS'}}};writeFileSync(resolve(base,'scripts/provider-a1-policy.json'),JSON.stringify(p));const nodes=new Map([['child',{id:'child',dependencies:[]}],['parent',{id:'parent',dependencies:['child']}]]);
@@ -125,4 +125,10 @@ test('local policy retains every Supabase command for release and F07 local cove
  for(const item of deferred){assert(p.checks[item.id].database||p.checks[item.id].target);assert.equal(item.status,'NOT_RUN');assert.equal(item.checkpoint,'RELEASE-GATE:BETA');}
  const selected=[...new Set(p.r03Local.roots.flatMap(id=>closure(nodesFromPlans(),id)))];for(const nodeId of selected){for(const id of localChecks(nodeId,p)){assert(!p.checks[id].database&&!p.checks[id].target);}}
  assert.deepEqual(localChecks('CORE:F07',p),['r03-f07-runtime','r03-f07-gateway']);
+});
+
+test('R03 local Cargo targets exist in workspace metadata',()=>{
+ const p=JSON.parse(readFileSync(resolve(root,'scripts/provider-a1-policy.json')));
+ const metadata=JSON.parse(execFileSync('cargo',['metadata','--no-deps','--format-version','1','--offline','--locked'],{cwd:root,encoding:'utf8',maxBuffer:32*1024*1024}));
+ for(const id of Object.values(p.r03Local.nodeChecks).flat()){const command=p.checks[id].command,packageName=command[command.indexOf('-p')+1],targets=metadata.packages.find(x=>x.name===packageName).targets;if(command.includes('--lib'))assert(targets.some(t=>t.kind.includes('lib')),id+' requires a library target');if(command.includes('--bin'))assert(targets.some(t=>t.kind.includes('bin')&&t.name===command[command.indexOf('--bin')+1]),id+' requires its binary target');}
 });
