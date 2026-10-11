@@ -1191,6 +1191,39 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp09-development": {
+      "command": [
+        "node",
+        "third_party/trendradar/check-development.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp09-20261011/receipt.json",
+      "artifactKind": "tp09-development",
+      "timeoutMs": 900000
+    },
+    "tp09-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp09-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp09-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp09-process-cleanup/receipt.json",
+      "output": "supporting/tp09-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1825,6 +1858,27 @@
         "tp11-development",
         "tp11-negatives",
         "tp11-process-cleanup"
+      ]
+    },
+    "CORE:TP09": {
+      "scope": "Reference-only TrendRadar pinned public metadata and data-rights evaluation: three registered owned synthetic inputs mapped to actual Signal protobuf and JSON schema, independently recomputed quality/attribution/schema/content hashes, six physical evidence objects, deterministic replay and test/research-only denial. No upstream code/assets/runtime, real hotlist/RSS/API/AI data rights, upstream algorithm/model reproduction, resolved release/snapshot, persistence, deployed consumer, current CVE clearance or production admission.",
+      "inputs": [
+        "third_party/trendradar/",
+        "engines/engine-sdk/",
+        "engines/tests/test_tp09_trendradar_mapping_samples.py",
+        "engines/pyproject.toml",
+        "engines/uv.lock",
+        "proto/",
+        "scripts/tp09*",
+        "scripts/check-tp-intake.mjs",
+        "scripts/generate-build-manifest.mjs",
+        "Makefile",
+        "docs/adr/20260731-tp09-trendradar-evaluation.md"
+      ],
+      "checks": [
+        "tp09-development",
+        "tp09-negatives",
+        "tp09-process-cleanup"
       ]
     }
   },

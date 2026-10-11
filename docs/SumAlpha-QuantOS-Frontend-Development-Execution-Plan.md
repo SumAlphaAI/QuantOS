@@ -1,4 +1,6 @@
-> 当前工程快照（TP03，2026-10-11）：冻结13c4096f完成TP03/F08/F05/F0必要13节点、原53组52PASS/1连接重置FAIL，同源完整补测PASS，53有效组与严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。正式用户确认、同SHA hosted CI、发布独立。见[本轮报告](./audit/TP03-readmission-2026-10-11.md)。
+> TP09实现中（2026-10-11）：TP03先行准入已提交df369822；功能输入变更后旧Gate撤销，待冻结源码重评TP09/TP03/F08/F05/F0必要闭包。
+
+> 先行准入快照（TP03，2026-10-11）：冻结13c4096f完成TP03/F08/F05/F0必要13节点、原53组52PASS/1连接重置FAIL，同源完整补测PASS，53有效组与严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。正式用户确认、同SHA hosted CI、发布独立。见[本轮报告](./audit/TP03-readmission-2026-10-11.md)。
 
 > 上轮工程快照（TP11，2026-10-11）：先行TP05已刷新；冻结05d3b78f完成TP11/TP05/F0必要14节点、原56组55PASS/1超时FAIL及同源完整补测PASS，并通过严格组合递归内容校验；14 DEVELOPMENT READY、145 NOT_ASSESSED、0 BLOCKED。限定reference_only，无真实数据或上游运行时准入；正式/hosted CI/部署/发布独立。见[TP11报告](./audit/TP11-development-2026-10-11.md)。
 

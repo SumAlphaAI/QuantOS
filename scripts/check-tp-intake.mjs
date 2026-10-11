@@ -1,3 +1,4 @@
+import {verifyEvaluation as verifyTrendRadar,assertTrendRadarProductionExcluded} from './tp09-evaluation.mjs';
 import {verifyEvaluation as verifyOpenStock,assertOpenStockProductionExcluded} from './tp11-evaluation.mjs';
 import {verifyEvaluation,assertValueCellProductionExcluded} from './tp10-evaluation.mjs';
 import {verifySourceEvidence,assertQlibProductionExcluded} from "./tp08-evaluation.mjs";
@@ -84,4 +85,5 @@ for (const forbiddenRepository of [
 }
 
 verifyOpenStock();assertOpenStockProductionExcluded([]);verifySourceEvidence();assertQlibProductionExcluded([]);verifyEvaluation();assertValueCellProductionExcluded([]);
-console.log("TP02-TP05 and TP08/TP10/TP11 intake evidence is complete; unapproved upstream packages are absent from production locks.");
+verifyTrendRadar();assertTrendRadarProductionExcluded([]);
+console.log("TP02-TP05 and TP08/TP09/TP10/TP11 intake evidence is complete; unapproved upstream packages are absent from production locks.");

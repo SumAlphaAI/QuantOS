@@ -1,49 +1,68 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "component": "trendradar",
-  "recordedAt": "2026-07-31T00:00:00Z",
   "upstreamCommit": "8ee26026ba6c11dec41a95fb3895a7162876caa1",
-  "rule": "any input class without a verifiable redistributable license or without per-item source attribution is trading_approved=false; trend signals derived from it may only flow into research workflows",
+  "recordedAt": "2026-10-11T04:24:01.261Z",
+  "realDataAdmitted": false,
+  "softwareLicenseIsDataAuthorization": false,
+  "syntheticException": "REGISTERED_QUANTOS_OWNED_FIXTURES_TEST_RESEARCH_ONLY",
+  "rule": "All actual source data denied pending per-source license, permitted purpose, attribution and provenance review. Missing attribution/license remains non-tradable. Owned synthetic fixture exceptions authorize only offline test/research.",
   "inputClasses": [
     {
       "input_class": "hot_list_aggregation",
-      "upstream_surface": "trendradar.crawler.fetcher via newsnow API",
-      "example_platforms": ["weibo", "zhihu", "baidu", "douyin", "toutiao", "bilibili"],
-      "source_attribution": "per-item platform id + url",
-      "license_status": "no redistributable license; platform terms of service restrict scraping and redistribution",
-      "license_label": "unlicensed-hotlist-research-only",
+      "upstream_surface": "README newsnow API",
+      "source_attribution": "Per-item source_id, URL and RSS guid where applicable",
+      "license_status": "NOT_VERIFIED",
+      "realDataAdmission": "DENIED",
       "trading_approved": false,
-      "quantos_handling": "reference only; production trend inputs must come from licensed providers via data.query.v1"
+      "requiredEvidence": [
+        "written per-source use and redistribution rights",
+        "actual source bytes/hash and capture time",
+        "per-item attribution and current quality/freshness"
+      ],
+      "quantos_handling": "No fetch, persistence or runtime admission; metadata/design reference only"
     },
     {
       "input_class": "rss_feed",
-      "upstream_surface": "trendradar.crawler.rss",
-      "example_platforms": ["per-publisher RSS feeds configured in config.yaml"],
-      "source_attribution": "per-item feed id + guid + url",
-      "license_status": "per-publisher copyright; RSS access does not grant redistribution or derived-signal trading rights",
-      "license_label": "publisher-copyright-research-only",
+      "upstream_surface": "README RSS",
+      "source_attribution": "Per-item source_id, URL and RSS guid where applicable",
+      "license_status": "NOT_VERIFIED",
+      "realDataAdmission": "DENIED",
       "trading_approved": false,
-      "quantos_handling": "reference only; requires per-feed license review before any trading-adjacent use"
+      "requiredEvidence": [
+        "written per-source use and redistribution rights",
+        "actual source bytes/hash and capture time",
+        "per-item attribution and current quality/freshness"
+      ],
+      "quantos_handling": "No fetch, persistence or runtime admission; metadata/design reference only"
     },
     {
       "input_class": "ai_analysis_output",
-      "upstream_surface": "trendradar.ai via litellm providers",
-      "example_platforms": ["openai-compatible endpoints configured by the operator"],
-      "source_attribution": "none for underlying training data; prompt and model version recorded by operator",
-      "license_status": "provider terms govern output use; no provenance for embedded source claims",
-      "license_label": "ai-generated-unverified-research-only",
+      "upstream_surface": "README AI analysis",
+      "source_attribution": "Per-item source_id, URL and RSS guid where applicable",
+      "license_status": "NOT_VERIFIED",
+      "realDataAdmission": "DENIED",
       "trading_approved": false,
-      "quantos_handling": "rejected as a signal source; TP03 llmquant owns model provenance and diagnostics"
+      "requiredEvidence": [
+        "written per-source use and redistribution rights",
+        "actual source bytes/hash and capture time",
+        "per-item attribution and current quality/freshness"
+      ],
+      "quantos_handling": "No fetch, persistence or runtime admission; metadata/design reference only"
     },
     {
       "input_class": "custom_api_self_hosted",
-      "upstream_surface": "newsnow self-hosted instance configured via api_url",
-      "example_platforms": ["operator-defined"],
-      "source_attribution": "depends on operator configuration",
-      "license_status": "indeterminate; inherits the upstream platform restrictions of whatever the self-hosted instance scrapes",
-      "license_label": "indeterminate-research-only",
+      "upstream_surface": "README configurable API URL",
+      "source_attribution": "Per-item source_id, URL and RSS guid where applicable",
+      "license_status": "NOT_VERIFIED",
+      "realDataAdmission": "DENIED",
       "trading_approved": false,
-      "quantos_handling": "rejected unless the operator supplies a per-source license manifest"
+      "requiredEvidence": [
+        "written per-source use and redistribution rights",
+        "actual source bytes/hash and capture time",
+        "per-item attribution and current quality/freshness"
+      ],
+      "quantos_handling": "No fetch, persistence or runtime admission; metadata/design reference only"
     }
   ]
 }

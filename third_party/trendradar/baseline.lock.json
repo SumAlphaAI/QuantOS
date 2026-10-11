@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "component": "trendradar",
-  "recordedAt": "2026-07-31T00:00:00Z",
+  "recordedAt": "2026-10-11T04:24:01.261Z",
   "upstream": {
     "owner": "sansan0",
     "repo": "TrendRadar",
@@ -23,39 +23,41 @@
     },
     "noticeFile": null,
     "copyleft": true,
-    "consequence": "no code absorption into QuantOS (MIT/Apache mixed codebase); reference and mapping samples only"
+    "consequence": "QuantOS policy: reference-only; no source absorption or runtime admission. Software license review does not grant data rights."
   },
   "dependencyDigests": {
-    "pythonLock": null,
     "projectDescriptor": {
       "path": "pyproject.toml",
       "sha256": "891068fbf8bd9421f02bc71f74943704942a62a540868e3ee68222eb7b7f143c"
     },
-    "uvLock": null,
-    "pnpmLock": null,
-    "note": "all 10 runtime dependencies are exactly pinned in pyproject.toml; uv.lock exists upstream but is not required for the reference baseline"
+    "uvLock": {
+      "path": "uv.lock",
+      "sha256": "e5b46d7e7b2b1828c67a108de705dc373391e7d199a5414190769580777b3d48"
+    },
+    "note": "Public descriptor and upstream lock metadata only; no dependencies installed or admitted."
   },
   "policy": {
     "readOnlyReference": true,
-    "productionArtifactSource": "engines/llmquant",
+    "productionArtifactSource": "NONE_REFERENCE_ONLY",
     "decision": "reference_only",
     "allowedAbsorptionModes": [
-      "design or test reference only",
-      "offline trend signal mapping samples into the QuantOS Signal contract"
+      "Owned synthetic offline test/research Signal contract evaluation"
     ],
     "forbiddenSurfaces": [
-      "any production dependency or lockfile entry",
-      "hot-list crawling via newsnow API as a QuantOS data provider",
-      "RSS crawling or storage layer",
-      "notification/push pipeline",
-      "MCP server exposure of trend data",
-      "litellm-based AI analysis runtime"
-    ]
+      "upstream source/assets/runtime/dependency lock entry",
+      "real hotlist/RSS/API data without written per-source rights",
+      "notification/MCP/AI runtime",
+      "trading authority or production artifact"
+    ],
+    "runtimeAdmission": "DENIED",
+    "realDataRights": "NOT_VERIFIED_DENIED"
   },
   "cveAudit": {
-    "status": "blocked",
-    "tool": "pip-audit (uvx, Python 3.12)",
-    "lastAttemptedAt": "2026-07-31T00:00:00Z",
-    "reason": "Local audit host aborted during virtualenv bootstrap (ensurepip SIGABRT) while resolving the pinned dependency set."
-  }
+    "status": "NOT_ASSESSED",
+    "currentAdvisoryScanExecuted": false,
+    "noVulnerabilitiesClaimed": false,
+    "historicalAttempt": "2026-07-31 ensurepip SIGABRT reported; no retained trustworthy raw scan; not current CVE evidence"
+  },
+  "productionApproved": false,
+  "sourceDisposition": "reference_only_no_source_or_runtime_admitted"
 }

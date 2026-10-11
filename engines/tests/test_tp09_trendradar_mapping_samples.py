@@ -1,125 +1,162 @@
-"""TP09: validate the TrendRadar -> QuantOS Signal mapping samples.
+"""Executable owned Signal mapping and denial tests; no external data or runtime."""
 
-The three samples under `third_party/trendradar/mappings/` prove that
-TrendRadar-style trend/news inputs fit inside the QuantOS Signal contract,
-and that any input missing a license label or source attribution is marked
-100% non-tradable. These tests keep the samples replayable and enforce the
-non-tradable rule.
-"""
-
-from __future__ import annotations
-
+from copy import deepcopy
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 
-TP09_DIR = Path(__file__).resolve().parents[2] / "third_party" / "trendradar"
-MAPPINGS_DIR = TP09_DIR / "mappings"
+from google.protobuf.json_format import ParseDict
+import pytest
+from quantos.strategy.v1 import strategy_pb2
 
-REQUIRED_METADATA_KEYS = {
-    "tenant_id",
-    "workspace_id",
-    "actor_id",
-    "correlation_id",
-    "causation_id",
-    "mode",
-    "environment",
-    "issued_at",
-}
-
-MAPPING_FILES = (
-    "01-hotlist-theme-to-signal.json",
-    "02-rss-theme-to-signal.json",
-    "03-missing-license-non-tradable.json",
-)
+BASE = Path(__file__).resolve().parents[2] / "third_party/trendradar"
+spec = importlib.util.spec_from_file_location("tp09_experiments", BASE / "experiments.py")
+assert spec and spec.loader
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
 
 
-def _load(name: str) -> dict:
-    return json.loads((MAPPINGS_DIR / name).read_text(encoding="utf-8"))
-
-
-def _canonical_hash(doc: dict) -> str:
-    payload = {key: value for key, value in doc.items() if key != "content_hash"}
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-
-
-def _input_is_degraded(doc: dict) -> bool:
-    return any(
-        not item.get("license_label") or not item.get("source_id")
-        for item in doc["trendradar_input"]["items"]
-    )
-
-
-def test_trend_mappings_match_signal_contract() -> None:
-    for name in MAPPING_FILES:
-        signal = _load(name)["quantos_signal"]
-
-        assert REQUIRED_METADATA_KEYS.issubset(signal["metadata"].keys())
-        for field in (
-            "signal_id",
-            "strategy_release_id",
-            "symbol",
-            "direction",
-            "generated_at",
-            "valid_until",
-        ):
-            assert signal[field], f"{name}: missing Signal field `{field}`"
-
-        assert signal["direction"].startswith("SIGNAL_DIRECTION_")
-        assert signal["strength"]["value"]
-        assert signal["confidence"]["value"]
-        assert signal["evidence_refs"], f"{name}: Signal must carry evidence refs"
-        for ref in signal["evidence_refs"]:
-            assert {"evidence_id", "artifact_id", "summary"}.issubset(ref.keys())
-
-        diagnostics = signal["diagnostics"]["value"]
-        assert "trading_approved" in diagnostics
-        assert diagnostics["provenance"]["sources"], f"{name}: provenance sources required"
-
-
-def test_degraded_inputs_are_always_non_tradable() -> None:
-    for name in MAPPING_FILES:
-        doc = _load(name)
-        diagnostics = doc["quantos_signal"]["diagnostics"]["value"]
-        tags = set(diagnostics["diagnostics_tags"])
-
-        if _input_is_degraded(doc):
-            assert diagnostics["trading_approved"] is False, f"{name}: degraded input became tradable"
-            assert "not_tradable" in tags
-            assert diagnostics["rejection_reasons"], f"{name}: degraded input without rejection reasons"
-
-
-def test_all_trend_signals_remain_research_only() -> None:
-    for name in MAPPING_FILES:
-        diagnostics = _load(name)["quantos_signal"]["diagnostics"]["value"]
-        assert diagnostics["trading_approved"] is False
-        assert "research_only" in diagnostics["diagnostics_tags"]
-
-
-def test_missing_license_and_source_markers_present_in_degraded_sample() -> None:
-    doc = _load("03-missing-license-non-tradable.json")
-    diagnostics = doc["quantos_signal"]["diagnostics"]["value"]
-    tags = set(diagnostics["diagnostics_tags"])
-
-    assert _input_is_degraded(doc)
-    assert {"missing_license", "missing_source", "not_tradable"}.issubset(tags)
+@pytest.mark.parametrize("index", range(3))
+def test_actual_signal_wire_round_trip(index):
+    fixture = module.load_fixtures()[index]
+    result = module.map_fixture(fixture)
+    signal = ParseDict(result["signal"], strategy_pb2.Signal())
+    raw = signal.SerializeToString(deterministic=True)
+    assert result["wire_sha256"] == "sha256:" + hashlib.sha256(raw).hexdigest()
+    replay = strategy_pb2.Signal.FromString(raw)
+    assert replay.SerializeToString(deterministic=True) == raw
+    assert result == module.map_fixture(deepcopy(fixture))
+    diagnostics = result["signal"]["diagnostics"]["value"]
     assert diagnostics["trading_approved"] is False
+    assert diagnostics["trade_executable"] is False
+    assert diagnostics["strategy_release_resolved"] is False
+    assert result["lineage"]["content_hash"] == module.digest(result["normalized"])
+    assert result["lineage"]["schema_hash"] == module.digest(
+        json.loads((BASE / "mappings/input-schema.json").read_text())
+    )
+    assert signal.valid_until.seconds - signal.generated_at.seconds == 900
+    if index == 2:
+        assert diagnostics["quality"]["reasons"] == [
+            "missing_license",
+            "missing_source",
+        ]
+        assert result["normalized"]["items"][0]["license_label"] is None
+        assert result["normalized"]["items"][1]["source_id"] is None
 
 
-def test_data_license_inventory_flags_every_class_non_tradable() -> None:
-    inventory = json.loads((TP09_DIR / "data-license-inventory.json").read_text(encoding="utf-8"))
-    assert inventory["inputClasses"], "inventory must enumerate TrendRadar input classes"
+@pytest.mark.parametrize("license_present", [False, True])
+@pytest.mark.parametrize("source_present", [False, True])
+def test_missing_metadata_matrix_is_computed_non_tradable(license_present, source_present):
+    items = deepcopy(module.load_fixtures()[0]["items"])
+    if not license_present:
+        items[0]["license_label"] = None
+    if not source_present:
+        items[0]["source_id"] = None
+    expected = sorted(
+        (["missing_license"] if not license_present else [])
+        + (["missing_source"] if not source_present else [])
+    )
+    result = module.quality(items)
+    assert result["reasons"] == expected
+    assert result["status"] == ("degraded" if expected else "passed")
+    assert result["trading_approved"] is result["trade_executable"] is False
 
-    for entry in inventory["inputClasses"]:
-        for field in ("input_class", "source_attribution", "license_status", "license_label"):
-            assert entry[field], f"inventory entry missing `{field}`"
-        assert entry["trading_approved"] is False, (
-            f"input class `{entry['input_class']}` must stay non-tradable"
+
+@pytest.mark.parametrize(
+    "usage,environment",
+    [
+        ("trading", "test"),
+        ("strategy", "test"),
+        ("research", "production"),
+        ("research", "staging"),
+    ],
+)
+def test_scope_denied_before_mapping(usage, environment):
+    with pytest.raises(ValueError, match="TP09_USE_DENIED"):
+        module.map_fixture(module.load_fixtures()[0], usage=usage, environment=environment)
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "order",
+        "venue",
+        "api_key",
+        "access_token",
+        "authorization",
+        "credentials",
+        "trading-approved",
+        "trade_executable",
+        "approved_for_production",
+    ],
+)
+def test_recursive_authority_denied(key):
+    fixture = deepcopy(module.load_fixtures()[0])
+    fixture["items"][0]["nested"] = [{key: True}]
+    with pytest.raises(ValueError, match="TP09_AUTHORITY_DENIED"):
+        module.map_fixture(fixture)
+
+
+def test_real_data_origin_denied():
+    fixture = deepcopy(module.load_fixtures()[0])
+    fixture["origin"] = "real_feed"
+    with pytest.raises(ValueError, match="TP09_REAL_DATA_DENIED"):
+        module.map_fixture(fixture)
+
+
+@pytest.mark.parametrize(
+    "mutation", ["source", "license", "title", "rank", "id", "class", "origin"]
+)
+def test_rehashed_self_assertions_cannot_register_new_fixture(mutation):
+    fixture = deepcopy(module.load_fixtures()[0])
+    if mutation in {"source", "license", "title", "rank"}:
+        key = {"source": "source_id", "license": "license_label"}.get(mutation, mutation)
+        fixture["items"][0][key] = "injected"
+    else:
+        fixture[{"id": "fixture_id", "class": "input_class", "origin": "origin"}[mutation]] = (
+            "injected"
         )
+    fixture["fixture_hash"] = module.digest(
+        {k: v for k, v in fixture.items() if k != "fixture_hash"}
+    )
+    with pytest.raises(ValueError, match="TP09_FIXTURE_NOT_REGISTERED|TP09_REAL_DATA_DENIED"):
+        module.map_fixture(fixture)
 
 
-def test_mapping_samples_are_replayable() -> None:
-    for name in MAPPING_FILES:
-        doc = _load(name)
-        assert doc["content_hash"] == _canonical_hash(doc), f"{name} content hash drifted"
+def test_changed_fixture_without_rehash_denied():
+    fixture = deepcopy(module.load_fixtures()[0])
+    fixture["items"][0]["rank"] = 99
+    with pytest.raises(ValueError, match="TP09_FIXTURE_HASH"):
+        module.map_fixture(fixture)
+
+
+def test_stale_quality_is_diagnostic_and_non_tradable():
+    items = deepcopy(module.load_fixtures()[0]["items"])
+    items[0]["published_at"] = "2026-10-10T00:00:00Z"
+    result = module.quality(items)
+    assert result["reasons"] == ["stale_input"]
+    assert result["max_age_seconds"] == "86400"
+    assert result["trading_approved"] is False
+
+
+@pytest.mark.parametrize("stamp", ["2026-10-12T00:00:00Z", "2026-10-11T00:00:00", "malformed"])
+def test_future_or_ambiguous_time_denied(stamp):
+    items = deepcopy(module.load_fixtures()[0]["items"])
+    items[0]["published_at"] = stamp
+    with pytest.raises(ValueError):
+        module.quality(items)
+
+
+def test_empty_input_denied():
+    with pytest.raises(ValueError, match="TP09_EMPTY"):
+        module.quality([])
+
+
+def test_execution_writes_every_referenced_object(tmp_path):
+    receipt = module.run(tmp_path)
+    assert receipt["syntheticMappings"] == receipt["nonTradable"] == 3
+    assert len(receipt["files"]) == 9
+    for item in receipt["files"]:
+        value = json.loads((tmp_path / item["file"]).read_text())
+        assert module.digest(value) == item["sha256"]
