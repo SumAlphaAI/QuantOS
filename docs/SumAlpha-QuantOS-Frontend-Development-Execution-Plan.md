@@ -1,3 +1,5 @@
+> TP03刷新中（2026-10-11）：修复全Python回归旧总数判断，撤销功能输入变化后的旧Gate；待冻结源码完成TP03/F08/F05/F0必要闭包。
+
 > 当前工程状态（TP11，2026-10-11）：先行TP05已刷新；冻结05d3b78f完成TP11/TP05/F0必要14节点、原56组55PASS/1超时FAIL及同源完整补测PASS，并通过严格组合递归内容校验；14 DEVELOPMENT READY、145 NOT_ASSESSED、0 BLOCKED。限定reference_only，无真实数据或上游运行时准入；正式/hosted CI/部署/发布独立。见[TP11报告](./audit/TP11-development-2026-10-11.md)。
 
 > 先行准入快照（TP05，2026-10-11）：冻结ddae9d52完成TP05/F08/F0必要13节点、53组实测与严格内容准入；13 READY、146 NOT_ASSESSED、0 BLOCKED，正式/hosted CI/生产发布独立。见[TP05刷新报告](./audit/TP05-readmission-2026-10-11.md)。
