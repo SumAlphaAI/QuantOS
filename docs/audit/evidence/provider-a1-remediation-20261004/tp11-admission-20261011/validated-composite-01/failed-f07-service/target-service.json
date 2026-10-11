@@ -1,0 +1,73 @@
+{
+  "schema": "quantos-f07-target-service/v1",
+  "sourceCommit": "05d3b78fbcd18a700d3c5358f69cd5db42ada65e",
+  "dirty": true,
+  "targetClass": "configured-supabase-local-service-development",
+  "formalAccepted": false,
+  "status": "FAIL",
+  "checks": [
+    "private Artifact Storage bucket exists",
+    "real Supabase Auth identity and isolated owner/capability fixture"
+  ],
+  "startedAt": "2026-10-11T03:56:22.939Z",
+  "phase": "owned-fixture-cleanup",
+  "authLoginRequests": [
+    {
+      "id": 1,
+      "route": "/auth/v1/token?grant_type=password",
+      "timeoutMs": 15000,
+      "maxAttempts": 3,
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "PASS",
+          "transient": false,
+          "elapsedMs": 1168.5286669999996
+        }
+      ]
+    }
+  ],
+  "targetProjectRefHash": "23e97d4459dee70c",
+  "storageCredentialScope": "temporary-admin-key",
+  "bootstrapConnection": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 1828.875375
+      }
+    ]
+  },
+  "fixture": {
+    "tenantId": "e93784a2-dc74-4354-81ef-55d48d57759e",
+    "actorId": "5b6d9677-a01a-4d51-bddc-67c353123325"
+  },
+  "failurePhase": "bff-startup-session",
+  "primaryError": "The operation was aborted due to timeout",
+  "serviceDiagnostics": {
+    "bff": ""
+  },
+  "fixtureCleanup": {
+    "status": "PASS",
+    "metadata": "RETAINED",
+    "startedServices": 1,
+    "stoppedPids": [
+      20058
+    ],
+    "sessionRetirements": [],
+    "failures": [],
+    "actor": {
+      "id": "5b6d9677-a01a-4d51-bddc-67c353123325",
+      "tenant_id": "e93784a2-dc74-4354-81ef-55d48d57759e",
+      "is_active": false
+    },
+    "completedAt": "2026-10-11T03:56:57.099Z"
+  },
+  "error": "The operation was aborted due to timeout",
+  "completedAt": "2026-10-11T03:56:57.102Z"
+}
