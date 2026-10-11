@@ -1,0 +1,328 @@
+{
+  "schema": "quantos-tp10-patterns/v1",
+  "task": "TP10",
+  "disposition": "reference_only",
+  "formalAccepted": false,
+  "sourceCommit": "9793e9c0563fbf56fc096757d8bb80e209ac7aab",
+  "adr": "docs/adr/20260731-tp10-valuecell-evaluation.md",
+  "patterns": [
+    {
+      "id": "VC-01",
+      "name": "按对象域导航",
+      "basis": "QUANTOS_EXTENSION",
+      "sourceRefs": [
+        "SRC-01"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-01",
+      "surface": "P01–P23 / App Shell",
+      "owner": "U01",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D01",
+        "D10"
+      ],
+      "requirement": "对象域导航保留路由、资源权限和返回上下文；不得新增上游四工作区或自动交易入口。",
+      "acceptance": "验证直接深链、无权限菜单、返回筛选状态。"
+    },
+    {
+      "id": "VC-02",
+      "name": "研究输入与产物双区",
+      "basis": "DOCUMENTED",
+      "sourceRefs": [
+        "SRC-02"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-02",
+      "surface": "P03 / P04",
+      "owner": "U01",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D03",
+        "D10"
+      ],
+      "requirement": "研究使用受控 Composer；流式中间输出与最终 ResearchArtifact 分区，证据固定可见。",
+      "acceptance": "断线补齐、sequence 去重、取消须服务端确认；中间文本不可呈现为最终结论。"
+    },
+    {
+      "id": "VC-03",
+      "name": "结论到证据下钻",
+      "basis": "QUANTOS_EXTENSION",
+      "sourceRefs": [
+        "SRC-02"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-03",
+      "surface": "P04 / P05 / P12",
+      "owner": "U01",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D03",
+        "D10"
+      ],
+      "requirement": "列表→Research详情→Artifact/快照→Audit；面包屑与返回栈保留过滤条件。",
+      "acceptance": "键盘可达证据；权限拒绝不泄漏存在性；hash/lineage/关联ID可核对。"
+    },
+    {
+      "id": "VC-04",
+      "name": "历史时间线",
+      "basis": "ROADMAP",
+      "sourceRefs": [
+        "SRC-05"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-04",
+      "surface": "P04 / P12",
+      "owner": "U01",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D03",
+        "D10"
+      ],
+      "requirement": "时间线显示版本、content hash、时间、主体与关联ID；去重不覆盖历史。",
+      "acceptance": "重复事件去重；版本变化和证据失效可见；原始字段按权限脱敏。"
+    },
+    {
+      "id": "VC-05",
+      "name": "标的筛选到详情",
+      "basis": "DOCUMENTED",
+      "sourceRefs": [
+        "SRC-03"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-05",
+      "surface": "P03 / P18 / P19",
+      "owner": "U01",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D05",
+        "D10",
+        "D06"
+      ],
+      "requirement": "筛选与排序同步 URL；以 QuantOS 数据来源、许可、时效为准，Signal 展示引用与诊断。",
+      "acceptance": "返回恢复条件；Stale/Unavailable 不伪装 Live；无许可只显示最小元数据。"
+    },
+    {
+      "id": "VC-06",
+      "name": "实验参数与结果对比",
+      "basis": "QUANTOS_EXTENSION",
+      "sourceRefs": [
+        "SRC-02"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-06",
+      "surface": "P06 / P07",
+      "owner": "S02",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D04",
+        "D10"
+      ],
+      "requirement": "参数、快照、Engine版本、成本和结果表并列；只创建草稿/回测或发布候选。",
+      "acceptance": "失败验证阻断候选；历史结果不可改；回测不得提供自动实盘动作。"
+    },
+    {
+      "id": "VC-07",
+      "name": "多观点对比",
+      "basis": "QUANTOS_EXTENSION",
+      "sourceRefs": [
+        "SRC-02"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-07",
+      "surface": "P09 / P10",
+      "owner": "X06",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D04",
+        "D10"
+      ],
+      "requirement": "supporting/counter views 并列显示及各自证据，Proposal 默认为 executable=false。",
+      "acceptance": "无证据观点标明不足；分歧不转为投票交易授权；到期或 policy 变化需刷新。"
+    },
+    {
+      "id": "VC-08",
+      "name": "统一状态语言",
+      "basis": "QUANTOS_EXTENSION",
+      "sourceRefs": [
+        "SRC-01"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-08",
+      "surface": "§3.2 / P04 / P05 / P09",
+      "owner": "U01",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D03",
+        "D10"
+      ],
+      "requirement": "文本+图标+颜色呈现任务、expired proposal、stale snapshot、degraded engine。",
+      "acceptance": "过期原因/时间可读，禁用动作给出原因；前端不得覆盖服务端状态。"
+    },
+    {
+      "id": "VC-09",
+      "name": "详情分区与原始字段",
+      "basis": "QUANTOS_EXTENSION",
+      "sourceRefs": [
+        "SRC-02"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-09",
+      "surface": "P04 / P09 / P11 / P12",
+      "owner": "U01",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D03",
+        "D10"
+      ],
+      "requirement": "概览、证据、审批、原始JSON分区；原始字段折叠且脱敏，资源权限一致。",
+      "acceptance": "各分区键盘导航；未授权字段不得加载；原始内容不可绕过BFF直接执行。"
+    },
+    {
+      "id": "VC-10",
+      "name": "空态与下一步",
+      "basis": "QUANTOS_EXTENSION",
+      "sourceRefs": [
+        "SRC-01"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-10",
+      "surface": "§3.2 / P03 / P06",
+      "owner": "U01",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D07",
+        "D10"
+      ],
+      "requirement": "空、加载、失败、无权限分别显示原因和获准的下一步。",
+      "acceptance": "无权限不可引导绕过；空态创建研究遵守快照/预算/deadline限制。"
+    },
+    {
+      "id": "VC-11",
+      "name": "通知与降级",
+      "basis": "ROADMAP",
+      "sourceRefs": [
+        "SRC-04"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-11",
+      "surface": "P15 / P16 / P17 / P23",
+      "owner": "X06",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D08",
+        "D10"
+      ],
+      "requirement": "Web授权拒绝降级页面内；桌面遵守系统设置；通知只含脱敏摘要与安全深链。",
+      "acceptance": "拒绝授权、离线和重复通知可恢复；通知不可批准、签名或提交交易。"
+    },
+    {
+      "id": "VC-12",
+      "name": "隐私与数据驻留展示",
+      "basis": "DOCUMENTED",
+      "sourceRefs": [
+        "SRC-01",
+        "SRC-06"
+      ],
+      "terminalSpec": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-12",
+      "surface": "P14 / P15 / P16",
+      "owner": "U01",
+      "decision": "REIMPLEMENT_PATTERN_ONLY",
+      "implementationStatus": "NOT_ASSESSED",
+      "differenceRefs": [
+        "D09",
+        "D10",
+        "D02",
+        "D06"
+      ],
+      "requirement": "展示实际数据驻留、缓存、遥测策略与数据权利；不得承诺所有业务数据仅在本机。",
+      "acceptance": "明确 Supabase/BFF 远端处理；离线只读；不得在设置页保存生产密钥。"
+    }
+  ],
+  "gaps": [
+    {
+      "id": "G01",
+      "name": "证据动线",
+      "owner": "U01",
+      "patternRefs": [
+        "VC-03",
+        "VC-04"
+      ],
+      "status": "DESIGNED_PENDING_IMPLEMENTATION",
+      "resolution": "已有P04/P12需补充导航顺序及返回栈，不再声称完全未定义。"
+    },
+    {
+      "id": "G02",
+      "name": "委员会并列观点",
+      "owner": "X06",
+      "patternRefs": [
+        "VC-07"
+      ],
+      "status": "DESIGNED_PENDING_IMPLEMENTATION",
+      "resolution": "P09/P10补充观点证据和分歧表现，实际UI待验。"
+    },
+    {
+      "id": "G03",
+      "name": "过期/失效视觉",
+      "owner": "U01",
+      "patternRefs": [
+        "VC-08"
+      ],
+      "status": "DESIGNED_PENDING_IMPLEMENTATION",
+      "resolution": "§3.2已有状态规范，补充snapshot/engine/proposal组合边界。"
+    },
+    {
+      "id": "G04",
+      "name": "危险操作确认",
+      "owner": "X06",
+      "patternRefs": [
+        "VC-07",
+        "VC-09"
+      ],
+      "status": "DESIGNED_PENDING_IMPLEMENTATION",
+      "resolution": "§3.2/§6.1已有确认流程；服务端最终校验及MFA适用性保持。"
+    },
+    {
+      "id": "G05",
+      "name": "小屏与离线降级",
+      "owner": "U01",
+      "patternRefs": [
+        "VC-10",
+        "VC-11",
+        "VC-12"
+      ],
+      "status": "DESIGNED_PENDING_IMPLEMENTATION",
+      "resolution": "§6.3已有要求；小屏隐藏高风险动作，离线禁写；实现待跨端验收。"
+    }
+  ],
+  "forbidden": [
+    {
+      "id": "NC-01",
+      "rule": "源码、样式、图标、资源和签名发布配置均不得复制。"
+    },
+    {
+      "id": "NC-02",
+      "rule": "不得复用账户、权限、数据模型或表结构。"
+    },
+    {
+      "id": "NC-03",
+      "rule": "不得引入agent运行时、MCP/A2A或其他依赖。"
+    },
+    {
+      "id": "NC-04",
+      "rule": "不得借用自动交易UI/API或订单权限。"
+    },
+    {
+      "id": "NC-05",
+      "rule": "不得接入上游数据adapter或借用第三方widget/API许可。"
+    },
+    {
+      "id": "NC-06",
+      "rule": "不得引入production/runtime/lock/submodule引用。"
+    },
+    {
+      "id": "NC-07",
+      "rule": "不得复制本地隐私承诺或将通知作为业务授权。"
+    }
+  ]
+}

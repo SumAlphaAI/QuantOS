@@ -1,50 +1,52 @@
-# TP10 ValueCell UX Gap Report 与交互模式映射
+# TP10 ValueCell UX gap report 与模式清单
 
-Baseline: `ValueCell-ai/valuecell@9793e9c0563fbf56fc096757d8bb80e209ac7aab`（2026-02-11，main HEAD，Apache-2.0）。
+结论 **reference_only**。固定 `9793e9c0563fbf56fc096757d8bb80e209ac7aab`；未声称当前 main HEAD。仅静态阅读公开文档/许可证/描述文件，在内存中计算摘要，不保留上游字节，不执行上游。来源见 [provenance](./provenance.json)，机器可验映射见 [patterns](./patterns.json)。
 
-评估范围：投研 UI/工作流的**信息架构（IA）与交互模式**。明确不复制：ValueCell 的数据模型、账户体系、多 agent 运行时、自动交易表面、第三方数据 adapter。
+## 来源分级与纠正
 
-## 一、ValueCell 信息架构摘要
+README确认研究摘要、多Agent及多市场描述，并列出通知/历史路线图；不能据此证明四工作区、双栏布局、证据下钻、委员会、回测UI、桌面通知已经交付。旧报告的这些推定撤回；12项现为3项文档启发、2项路线图启发、7项QuantOS扩展，全部以QuantOS设计为准。未启动App、未做上游浏览器或易用性实测。
 
-主信息轴：**Market Observation / Industry Research / Stock Exploration / Strategy Backtest** 四个工作区 + 会话式 agent 对话流 + 组合管理面板。值得借鉴的是“研究对象 → 分析产物 → 可追踪证据”的浏览动线，以及会话产物与结构化面板并存的双栏组织。
+## 可复用交互清单
 
-## 二、可复用交互清单（12 个 UI 模式 → Terminal design spec 映射）
+| ID | 模式 | 依据等级 | Terminal design spec | 归属 |
+|---|---|---|---|---|
+| VC-01 | 按对象域导航 | QUANTOS_EXTENSION | [P01–P23 / App Shell](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-01) | U01 |
+| VC-02 | 研究输入与产物双区 | DOCUMENTED | [P03 / P04](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-02) | U01 |
+| VC-03 | 结论到证据下钻 | QUANTOS_EXTENSION | [P04 / P05 / P12](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-03) | U01 |
+| VC-04 | 历史时间线 | ROADMAP | [P04 / P12](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-04) | U01 |
+| VC-05 | 标的筛选到详情 | DOCUMENTED | [P03 / P18 / P19](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-05) | U01 |
+| VC-06 | 实验参数与结果对比 | QUANTOS_EXTENSION | [P06 / P07](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-06) | S02 |
+| VC-07 | 多观点对比 | QUANTOS_EXTENSION | [P09 / P10](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-07) | X06 |
+| VC-08 | 统一状态语言 | QUANTOS_EXTENSION | [§3.2 / P04 / P05 / P09](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-08) | U01 |
+| VC-09 | 详情分区与原始字段 | QUANTOS_EXTENSION | [P04 / P09 / P11 / P12](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-09) | U01 |
+| VC-10 | 空态与下一步 | QUANTOS_EXTENSION | [§3.2 / P03 / P06](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-10) | U01 |
+| VC-11 | 通知与降级 | ROADMAP | [P15 / P16 / P17 / P23](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-11) | X06 |
+| VC-12 | 隐私与数据驻留展示 | DOCUMENTED | [P14 / P15 / P16](../../docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md#tp10-vc-12) | U01 |
 
-| # | ValueCell 模式 | QuantOS Terminal 映射（U01 P01–P05 / X06 P08–P14） | 采纳判定 |
-| --- | --- | --- | --- |
-| 1 | 四工作区主导航（观察/研究/选股/回测） | Terminal 左栏按 QuantOS 对象域组织：Research / Signal / Proposal / Portfolio / Risk / Audit / Ops（P01–P14） | adopt（IA 结构，不复制命名） |
-| 2 | 会话式研究流（对话 → 结构化结论卡） | P03 Research 页：流式研究会话 + 结论收敛为 ResearchArtifact 卡 | adopt |
-| 3 | 结论卡 → 证据下钻 | ResearchArtifact/Signal 卡片点击 → 证据面板（evidence_refs → artifact 预览） | adopt（X06 证据链还原 ≤5 分钟的关键路径） |
-| 4 | 研究产物历史时间线 | Research/Signal 列表页：版本化时间线 + content-hash 去重标识 | adopt |
-| 5 | 选股探索器（筛选 → 详情） | Signal 探索：按 symbol/direction/confidence 过滤 → Signal 详情（含 diagnostics/data_query_context） | adopt |
-| 6 | 回测工作区（参数 → 结果对比） | S02 回测页（U 系列后续）：参数卡 + 结果对比表 + artifact 引用 | adopt（交互骨架，不复制实现） |
-| 7 | 多 agent 观点并列展示 | TP04 委员会视图：supporting/counter views 并排 + 证据锚点 | adopt（R04 已有多观点数据，UI 借鉴并列呈现） |
-| 8 | 状态徽标体系（进行中/完成/失败） | 统一 run 状态徽标：queued/leased/running/succeeded/failed/cancelled + 过期 proposal 的 expired 态 | adopt（语义色板自绘） |
-| 9 | 详情页分区滚动（概览 → 明细 → 原始数据） | Proposal/Order 详情：概览 → 证据 → 审批 → 原始 JSON（可折叠） | adopt |
-| 10 | 空态引导（无数据时给出下一步动作） | 各列表页空态：引导创建 Research run / 连接 snapshot / 查看 runbook | adopt |
-| 11 | 桌面通知（任务完成/异常提醒） | desktop notifications（X06 已列入范围）：run 完成、proposal 过期、kill switch 触发 | adopt（复用 Tauri adapter，不复制其通知实现） |
-| 12 | 本地优先隐私姿态（数据不出设备的承诺展示） | Terminal 设置页：数据驻留/遥测开关展示（F09 脱敏 + 本地优先叙事） | adopt（叙事框架，不复制文案） |
+12项均为 REIMPLEMENT_PATTERN_ONLY；UI实现状态全部 NOT_ASSESSED。逐项约束与可判定验证已写入设计规格§9，非仅页面名称。
 
-## 三、UX gap report（QuantOS Terminal 相对差距）
+## UX gap report
 
-| Gap | 说明 | 建议归属 |
-| --- | --- | --- |
-| 证据下钻动线未定义 | 从列表到 artifact 证据面板的跳转层级、面包屑与返回栈未规范 | U01 design spec 增补 |
-| 委员会观点可视化缺失 | R04 已产出 counter_views，UI 尚无并列/对比呈现规范 | X06 P10 Proposal 页 |
-| 过期/失效状态视觉规范缺失 | proposal expired、snapshot stale、engine degraded 的统一视觉语言未定义 | U01 design spec 增补 |
-| 危险操作确认模式未定义 | kill switch / 审批放行需要分级确认（type-to-confirm、MFA）交互规范 | X06（已列范围，模式可借鉴本报告 §8/§12） |
-| 小屏降级策略缺失 | U01 要求小屏不显示高风险动作；ValueCell 无对应约束，需自研规范 | U01 design spec 增补 |
+| Gap | 归属 | 处理与边界 |
+|---|---|---|
+| G01 证据动线 | U01 | 已有P04/P12需补充导航顺序及返回栈，不再声称完全未定义。 |
+| G02 委员会并列观点 | X06 | P09/P10补充观点证据和分歧表现，实际UI待验。 |
+| G03 过期/失效视觉 | U01 | §3.2已有状态规范，补充snapshot/engine/proposal组合边界。 |
+| G04 危险操作确认 | X06 | §3.2/§6.1已有确认流程；服务端最终校验及MFA适用性保持。 |
+| G05 小屏与离线降级 | U01 | §6.3已有要求；小屏隐藏高风险动作，离线禁写；实现待跨端验收。 |
 
-## 四、禁止耦合清单
+5项均 DESIGNED_PENDING_IMPLEMENTATION；危险确认、状态及小屏规范早已存在，不再标为完全缺失；补充设计不代表实现闭合。
 
-1. 不复制 ValueCell 任何组件源码、样式表或图标资产（交互模式重新实现）。
-2. 不采用其数据模型（conversation/task/result 表结构）或账户体系（本地用户模型）——QuantOS 走 F02 租户/工作区模型。
-3. 不引入其多 agent 运行时（orchestrator/agno/LangChain 集成）。
-4. 不引入自动交易 agent 的任何 UI 或 API 表面——QuantOS 决策链是 Proposal（`executable=false`）+ 审批 + 风控。
-5. 不接入其第三方数据 adapter（yfinance/akshare/crypto）——数据走 TP05 `data.query.v1` 持牌 provider。
-6. 不复制其 MCP 集成面（TP01 已拒绝的边界）。
-7. 桌面壳不参考其 Tauri 配置的签名/发布管道细节（供应链口径不同）。
+## 禁止耦合清单
 
-## 五、结论
+- NC-01：源码、样式、图标、资源和签名发布配置均不得复制。
+- NC-02：不得复用账户、权限、数据模型或表结构。
+- NC-03：不得引入agent运行时、MCP/A2A或其他依赖。
+- NC-04：不得借用自动交易UI/API或订单权限。
+- NC-05：不得接入上游数据adapter或借用第三方widget/API许可。
+- NC-06：不得引入production/runtime/lock/submodule引用。
+- NC-07：不得复制本地隐私承诺或将通知作为业务授权。
 
-12 个交互模式全部以“模式级采纳、实现级自绘”映射到 Terminal design spec；5 个 gap 已分配归属（U01/X06/S02）。差异全部记录于 ADR。无源码复制、无运行时依赖。
+## 许可证与风险
+
+Apache-2.0仅涉及原作者软件；TradingView widget、交易所API、市场数据与视觉资产的权利不随之转授。无上游软件交付，因此不生成已解析依赖SBOM/CVE通过结论；完整图/当前advisory扫描NOT RUN、runtimeAdmission=DENIED。所有差异及历史勘误见 [ADR](../../docs/adr/20260731-tp10-valuecell-evaluation.md)。

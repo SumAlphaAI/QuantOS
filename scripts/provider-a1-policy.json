@@ -1125,6 +1125,39 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp10-development": {
+      "command": [
+        "node",
+        "third_party/valuecell/check-development.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp10-20261011/receipt.json",
+      "artifactKind": "tp10-development",
+      "timeoutMs": 900000
+    },
+    "tp10-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp10-functional-artifacts.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp10-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp10-process-cleanup/receipt.json",
+      "output": "supporting/tp10-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1718,6 +1751,24 @@
         "tp08-development",
         "tp08-negatives",
         "tp08-process-cleanup"
+      ]
+    },
+    "CORE:TP10": {
+      "scope": "Reference-only ValueCell IA evaluation: 12 source-graded mappings to exact Terminal spec constraints, five design follow-ups, ten ADR differences, pinned public metadata digest refresh and current-source/lock/build exclusion; no upstream source or assets, runtime, implemented UI, account/data schema, widget/data rights or formal acceptance.",
+      "inputs": [
+        "third_party/valuecell/",
+        "engines/tests/test_tp10_valuecell_evaluation.py",
+        "scripts/tp10*",
+        "scripts/check-tp-intake.mjs",
+        "scripts/generate-build-manifest.mjs",
+        "Makefile",
+        "docs/adr/20260731-tp10-valuecell-evaluation.md",
+        "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md"
+      ],
+      "checks": [
+        "tp10-development",
+        "tp10-negatives",
+        "tp10-process-cleanup"
       ]
     }
   },

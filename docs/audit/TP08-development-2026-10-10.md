@@ -1,3 +1,5 @@
+> 2026-10-11后续：TP10变更已使共同功能输入发生变化；下文READY只属于冻结5c084c5e的历史范围。当前状态见 [TP10报告](./TP10-development-2026-10-11.md)。
+
 # TP08 Qlib 开发验收 — 2026-10-10
 
 **TP08 DEVELOPMENT READY**。冻结源码 `5c084c5e0d39d88dea2844980cebfafa085ad47a` 的必要 13 节点、53 唯一命令组实际通过，递归内容绑定校验通过。当前 13 READY、146 NOT_ASSESSED、0 BLOCKED；formalAccepted=false。结论 **reference_only**，不建立 Qlib adapter，不引入第二 Quant Core。不授予 R1 整体、正式 ACCEPTED、法律/数据用途、upstream 运行时、hosted CI 或发布权限。

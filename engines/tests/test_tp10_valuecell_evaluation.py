@@ -1,9 +1,4 @@
-"""TP10: validate the ValueCell evaluation deliverables and boundary.
-
-The UX gap report must map at least 10 UI patterns to the Terminal design
-spec, the no-coupling list must be complete, and no upstream reference may
-leak into QuantOS protocol, core, frontend source, or lockfiles.
-"""
+"""Independent TP10 mapping and current-workspace boundary checks; no upstream runtime."""
 
 from __future__ import annotations
 
@@ -11,61 +6,86 @@ import json
 import re
 from pathlib import Path
 
-QUANTOS_ROOT = Path(__file__).resolve().parents[2]
-TP10_DIR = QUANTOS_ROOT / "third_party" / "valuecell"
-FRONTEND_SRC = Path("/Users/anray/Documents/project/SumAlpha/SumAlpha/apps/desktop_frontend/src")
+import pytest
+
+ROOT = Path(__file__).resolve().parents[2]
+REFERENCE = ROOT / "third_party/valuecell"
+INVENTORY = json.loads((REFERENCE / "patterns.json").read_text())
+SPEC = (ROOT / "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md").read_text()
 
 
-def _report() -> str:
-    return (TP10_DIR / "ux-gap-report.md").read_text(encoding="utf-8")
+def test_twelve_unique_spec_mappings() -> None:
+    patterns = INVENTORY["patterns"]
+    assert len(patterns) >= 10
+    assert len({p["id"] for p in patterns}) == len(patterns)
+    for pattern in patterns:
+        path, anchor = pattern["terminalSpec"].split("#")
+        assert (ROOT / path).is_file()
+        assert SPEC.count(f'<a id="{anchor}"></a>') == 1
+        section = SPEC.split(f'<a id="{anchor}"></a>')[1].split('<a id="')[0]
+        assert pattern["requirement"] in section
+        assert pattern["acceptance"] in section
+        assert pattern["implementationStatus"] == "NOT_ASSESSED"
 
 
-def test_at_least_ten_ui_patterns_mapped() -> None:
-    rows = re.findall(r"^\| (\d+) \| ", _report(), flags=re.MULTILINE)
-    assert len(rows) >= 10, "TP10 requires at least 10 UI patterns mapped to the Terminal design spec"
-    assert len(set(rows)) == len(rows), "pattern rows must be unique"
+def test_five_gaps_are_design_followups_not_ui_closure() -> None:
+    assert len(INVENTORY["gaps"]) == 5
+    ids = {p["id"] for p in INVENTORY["patterns"]}
+    for gap in INVENTORY["gaps"]:
+        assert gap["owner"] in {"U01", "X06", "S02"}
+        assert gap["status"] == "DESIGNED_PENDING_IMPLEMENTATION"
+        assert set(gap["patternRefs"]) <= ids
+    assert len(INVENTORY["forbidden"]) == 7
 
 
-def test_each_pattern_maps_to_a_terminal_surface() -> None:
-    doc = _report()
-    for marker in ("P03", "Research", "Proposal", "Terminal", "X06", "U01"):
-        assert marker in doc, f"pattern mappings must reference Terminal surfaces (`{marker}`)"
+def test_no_upstream_source_or_assets_in_reference_directory() -> None:
+    assert {p.name for p in REFERENCE.iterdir()} == {
+        "README.md",
+        "baseline.lock.json",
+        "patterns.json",
+        "provenance.json",
+        "ux-gap-report.md",
+        "check-development.mjs",
+    }
 
 
-def test_no_coupling_list_is_complete() -> None:
-    items = re.findall(r"^\d+\. ", _report().split("禁止耦合清单")[1], flags=re.MULTILINE)
-    assert len(items) >= 7, "no-coupling list must cover data model, account system, runtime, trading, data sources, MCP, and assets"
+def test_source_grades_do_not_equate_roadmap_to_shipped_behavior() -> None:
+    grades = [p["basis"] for p in INVENTORY["patterns"]]
+    assert grades.count("DOCUMENTED") == 3
+    assert grades.count("ROADMAP") == 2
+    assert grades.count("QUANTOS_EXTENSION") == 7
+    assert INVENTORY["formalAccepted"] is False
 
 
-def test_ux_gaps_have_assigned_owners() -> None:
-    section = _report().split("UX gap report")[1]
-    for owner in ("U01", "X06", "S02"):
-        assert owner in section, f"gap report must assign gaps to `{owner}`"
+@pytest.mark.parametrize("scope", ["proto", "crates", "apps", "packages", "engines"])
+def test_current_source_scopes_exist_and_are_uncoupled(scope: str) -> None:
+    folder = ROOT / scope
+    assert folder.is_dir()
+    files = []
+    for path in folder.rglob("*"):
+        if not path.is_file() or path.suffix not in {".proto", ".rs", ".py", ".ts", ".tsx"}:
+            continue
+        if set(path.parts) & {"node_modules", ".next", "target", ".venv", "__pycache__", "tests"}:
+            continue
+        if ".test." in path.name:
+            continue
+        files.append(path)
+        assert not re.search(r"value[\s_.-]*cell", path.read_text(), re.I), path
+    assert files, f"must scan the actual {scope} sources"
 
 
-def test_baseline_lock_is_reference_only_and_pinned() -> None:
-    baseline = json.loads((TP10_DIR / "baseline.lock.json").read_text(encoding="utf-8"))
-    assert baseline["upstream"]["commit"] == "9793e9c0563fbf56fc096757d8bb80e209ac7aab"
-    assert baseline["license"]["spdx"] == "Apache-2.0"
-    assert baseline["policy"]["decision"] == "reference_only"
-    assert any("verbatim source" in surface for surface in baseline["policy"]["forbiddenSurfaces"])
-
-
-def test_no_upstream_reference_in_protocol_core_or_frontend() -> None:
-    targets = [
-        *QUANTOS_ROOT.glob("proto/**/*.proto"),
-        QUANTOS_ROOT / "crates" / "quantos-core" / "src" / "lib.rs",
-    ]
-    if FRONTEND_SRC.is_dir():
-        targets.extend(FRONTEND_SRC.rglob("*.ts"))
-        targets.extend(FRONTEND_SRC.rglob("*.tsx"))
-    assert targets, "expected proto/core/frontend sources to exist"
-    for target in targets:
-        content = target.read_text(encoding="utf-8").lower()
-        assert "valuecell" not in content, f"upstream reference leaked into {target}"
-
-
-def test_no_upstream_dependency_in_lockfiles() -> None:
-    for lockfile in ("Cargo.lock", "engines/uv.lock"):
-        content = (QUANTOS_ROOT / lockfile).read_text(encoding="utf-8").lower()
-        assert "valuecell" not in content, f"upstream leaked into {lockfile}"
+@pytest.mark.parametrize(
+    "file",
+    [
+        "Cargo.lock",
+        "pnpm-lock.yaml",
+        "engines/uv.lock",
+        "Cargo.toml",
+        "package.json",
+        "pnpm-workspace.yaml",
+        "engines/pyproject.toml",
+        ".gitmodules",
+    ],
+)
+def test_manifest_lock_and_submodule_exclusion(file: str) -> None:
+    assert not re.search(r"value[\s_.-]*cell", (ROOT / file).read_text(), re.I)

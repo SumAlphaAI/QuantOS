@@ -1,3 +1,4 @@
+import {verifyEvaluation,assertValueCellProductionExcluded} from './tp10-evaluation.mjs';
 import {verifySourceEvidence,assertQlibProductionExcluded} from "./tp08-evaluation.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -81,5 +82,5 @@ for (const forbiddenRepository of [
   }
 }
 
-verifySourceEvidence();assertQlibProductionExcluded([]);
-console.log("TP02-TP05 and TP08 intake evidence is complete; unapproved upstream packages are absent from production locks.");
+verifySourceEvidence();assertQlibProductionExcluded([]);verifyEvaluation();assertValueCellProductionExcluded([]);
+console.log("TP02-TP05 and TP08/TP10 intake evidence is complete; unapproved upstream packages are absent from production locks.");

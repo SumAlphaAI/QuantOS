@@ -1,27 +1,20 @@
-# TP10 Read-Only Reference
+# TP10 read-only evaluation
 
-This directory holds the evaluation baseline for `ValueCell-ai/valuecell`.
+This directory contains QuantOS-owned metadata, IA observations and validation only. No upstream source or assets are retained. Fixed historical version and public-file digests are in `baseline.lock.json` and `provenance.json`; no current-main claim is made.
 
-## Purpose
+- `patterns.json`: 12 uniquely identified, graded references to actual Terminal spec anchors, five design follow-ups and seven forbidden couplings.
+- `ux-gap-report.md`: human-readable report and upstream observation limitations.
+- `check-development.mjs`: content-bound engineering recorder and strict DEVELOPMENT admission verification.
 
-- lock the upstream repository, commit, license, and descriptor digests;
-- store the UX gap report, reusable interaction list, and no-coupling list for TP10;
-- record a reproducible reference without copying source or taking any runtime dependency.
-
-## Files
-
-- `baseline.lock.json`: authoritative baseline metadata for TP10 monitoring.
-- `ux-gap-report.md`: UX gap report + 12 UI patterns mapped to the QuantOS Terminal design spec + no-coupling list.
-
-## Rebuild procedure
-
-```bash
-git init valuecell-readonly
-git -C valuecell-readonly remote add upstream https://github.com/ValueCell-ai/valuecell.git
-git -C valuecell-readonly fetch upstream 9793e9c0563fbf56fc096757d8bb80e209ac7aab
-git -C valuecell-readonly checkout --detach 9793e9c0563fbf56fc096757d8bb80e209ac7aab
+```sh
+node scripts/tp10-evaluation.mjs --workspace
+node scripts/tp10-evaluation.mjs --verify-upstream
+node --test scripts/tp10-evaluation.test.mjs
+engines/.venv/bin/python -m pytest engines/tests/test_tp10_valuecell_evaluation.py -vv
+node third_party/valuecell/check-development.mjs --record
+# After clean-source unified F0/TP10 assessment succeeds:
+node third_party/valuecell/check-development.mjs --admit
+node third_party/valuecell/check-development.mjs --ready
 ```
 
-## Hard boundary
-
-`third_party/valuecell/` is not a production source tree. ValueCell is evaluated for research UI/workflow information architecture only. Its data model, account system, agent runtime, and auto-trading surfaces must not be copied; no source code may be copied verbatim and no dependency may enter a QuantOS lockfile.
+The optional online command reads exactly four pinned public documentation/license/descriptor files into memory and checks their digests; it never writes upstream bytes, installs dependencies or launches ValueCell. Offline checks validate recorded observations and mapping integrity; they cannot substitute for an online provenance refresh. Runtime, production inventory, package locks and upstream source/asset copying are denied. Formal acceptance, implemented UI, external widget/API/data rights and current CVE clearance remain separate.
