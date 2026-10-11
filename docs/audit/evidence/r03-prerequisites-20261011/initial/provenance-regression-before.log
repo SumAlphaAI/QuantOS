@@ -1,0 +1,80 @@
+✔ retained facts grant internal research only, without a new ingestion window (2.284083ms)
+✔ confirmed retained-only purpose is separate from expired ingestion authorization (0.622875ms)
+✖ retained-use grant preserves immutable ingestion provenance and binds its own authority separately (0.697333ms)
+✔ retained-only authorization rejects scope revoked (0.958875ms)
+✔ retained-only authorization rejects scope pending (0.322209ms)
+✔ retained-only authorization rejects new expiry (0.304542ms)
+✔ retained-only authorization rejects new source ingestion (0.304083ms)
+✔ retained-only authorization rejects expanded permission (0.280167ms)
+✔ retained-only authorization rejects foreign tenant (0.313375ms)
+✔ retained-only authorization rejects third symbol (0.356708ms)
+✔ retained-only authorization rejects commercial purpose (0.50275ms)
+✔ retained-only authorization rejects unconfirmed record (0.331708ms)
+✔ retained-only authorization rejects agent approval (0.233875ms)
+✔ retained-only authorization rejects ambiguous continue message (0.226208ms)
+✔ retained-only authorization rejects different question (0.209042ms)
+✔ retained-only authorization rejects engineering approval claim (0.186334ms)
+✔ retained-only authorization rejects third party license claim (0.196959ms)
+✔ retained-only authorization rejects altered draft (0.210416ms)
+✔ retained-only authorization rejects altered inventory bytes (0.254417ms)
+✔ retained-only authorization rejects duplicate event ID even if resealed (0.267667ms)
+✔ retained-only authorization rejects wrong sequence even if resealed (0.279125ms)
+✔ retained-only authorization rejects extra event even if resealed (0.232667ms)
+✔ retained-only authorization rejects unclosed inventory connection (0.250291ms)
+✔ new retained authorization expires independently and cannot start before confirmation (0.453334ms)
+✔ expired ingestion authorization has no fallback when retained confirmation is missing (0.181875ms)
+✔ all 32 locked event IDs and actual payload digests must match (0.572541ms)
+✔ retained rows reject event substituted (0.361375ms)
+✔ retained rows reject lineage hash substituted (0.317375ms)
+✔ retained rows reject payload changed (0.282667ms)
+✔ retained rows reject range expanded (0.275958ms)
+✔ retained rows reject range incomplete (0.261583ms)
+✔ retained rows reject sequence changed (0.224583ms)
+✔ retained rows reject symbol changed (0.239292ms)
+✔ retained rows cannot outlive their authorization (0.224334ms)
+✔ revoked scope cannot authorize retained source consumption (0.12775ms)
+✔ expired scope cannot authorize retained source consumption (0.185333ms)
+✔ extended window cannot authorize retained source consumption (0.104208ms)
+✔ expanded symbol cannot authorize retained source consumption (0.10275ms)
+✔ commercial purpose cannot authorize retained source consumption (0.091833ms)
+✔ removed trading exclusion cannot authorize retained source consumption (0.10225ms)
+✔ license label substituted cannot authorize retained source consumption (0.123125ms)
+✔ different approval version cannot authorize retained source consumption (0.333083ms)
+✔ fixture receipt cannot authorize retained source consumption (0.164542ms)
+✔ early exit receipt cannot authorize retained source consumption (0.14ms)
+✔ active historical actor cannot authorize retained source consumption (0.138959ms)
+✔ extend expiry under same scope ID rejects without replacing historical authorization (0.208792ms)
+✔ expand permissions under same scope ID rejects without replacing historical authorization (0.188667ms)
+ℹ tests 47
+ℹ suites 0
+ℹ pass 46
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 51.772291
+
+✖ failing tests:
+
+test at scripts/r02-retained-source-policy.test.cjs:24:1
+✖ retained-use grant preserves immutable ingestion provenance and binds its own authority separately (0.697333ms)
+  AssertionError [ERR_ASSERTION]: immutable ingestion approval_reference changed
+  + actual - expected
+  
+  + 'docs/gate-records/R02-retained-data-disposition-draft-2026-10-11.md'
+  - 'docs/provider-approvals/20261004-binance-window-evaluation.md'
+  
+      at TestContext.<anonymous> (/Users/anray/Documents/project/SumAlpha/QuantOS/scripts/r02-retained-source-policy.test.cjs:27:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'docs/gate-records/R02-retained-data-disposition-draft-2026-10-11.md',
+    expected: 'docs/provider-approvals/20261004-binance-window-evaluation.md',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

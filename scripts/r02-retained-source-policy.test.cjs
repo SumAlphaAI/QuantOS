@@ -21,6 +21,19 @@ test('confirmed retained-only purpose is separate from expired ingestion authori
   assert.deepEqual(p.approvals[0].allowed_usages,['research']);assert.equal(p.approvals[0].expires_at,'2026-10-14T00:00:00Z');
   assert.equal(JSON.parse(fs.readFileSync(paths.scope)).expires_at,'2026-10-10T00:00:00Z');assert.equal(p.evidence.length,8);
 });
+test('retained-use grant preserves immutable ingestion provenance and binds its own authority separately',()=>{
+  const original=retainedSourcePolicy({now}),current=retainedSourcePolicy({now:retainedNow});
+  for(const key of ['approval_reference','approval_version','approval_document_hash','scope_hash'])
+    assert.equal(current.approvals[0][key],original.approvals[0][key],`immutable ingestion ${key} changed`);
+  assert.equal(current.retained_authorization.approval_reference,retainedPaths.document);
+  assert.equal(current.retained_authorization.scope_id,'r02-retained-32-revalidation-20261011');
+  assert.equal(current.retained_authorization.approval_version,'v3-retained32-only-20261011');
+  assert.equal(current.retained_authorization.original_ingestion_expires_at,'2026-10-10T00:00:00Z');
+  assert.equal(current.retained_authorization.expires_at,'2026-10-14T00:00:00Z');
+  assert.equal(current.retained_authorization.approval_document_hash,digest(fs.readFileSync(retainedPaths.document)));
+  assert.equal(current.retained_authorization.scope_hash,digest(fs.readFileSync(retainedPaths.scope)));
+  assert.equal(original.approvals[0].expires_at,'2026-10-10T00:00:00Z');
+});
 for(const [name,key,mutate,reseal] of [
   ['scope revoked','scope',s=>{s.enabled=false;},true],
   ['scope pending','scope',s=>{s.status='PENDING';},true],

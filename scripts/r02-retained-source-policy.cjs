@@ -53,13 +53,19 @@ function revalidationPolicy(base, {read, now}) {
   }
   assert.equal(base.approvals[0].tenant_id, s.tenant_id);
   return {...base, purpose:s.purpose, retained_events:inv.events,
-    approvals:[{...base.approvals[0], approval_reference:s.approval_reference, approval_version:s.approval_version,
-      approval_document_hash:hash(bytes.document), scope_hash:hash(bytes.scope), expires_at:s.expires_at}],
+    retained_authorization:{scope_id:s.scope_id, approval_reference:s.approval_reference, approval_version:s.approval_version,
+      approval_document_hash:hash(bytes.document), scope_hash:hash(bytes.scope), confirmation:s.confirmation,
+      original_ingestion_expires_at:base.approvals[0].expires_at, valid_from:s.valid_from, expires_at:s.expires_at, event_count:s.event_count},
+    // Consumers compare these identity fields with immutable ingestion payloads.
+    // Only the consumption deadline comes from the independently confirmed grant;
+    // the original ingestion reference/version/hashes and scope file stay intact.
+    approvals:[{...base.approvals[0], expires_at:s.expires_at}],
     evidence:[...base.evidence, ...Object.entries(retainedPaths).map(([k,path]) => ({path,sha256:hash(bytes[k])}))]};
 }
 function validateRetainedRows(policy, rows, now=Date.now()) {
   assert(now < Date.parse(policy.approvals[0].expires_at), 'retained-use authorization expired');
   if(!policy.retained_events) return true; // Original, time-bounded historical policy.
+  assert.equal(policy.approvals[0].expires_at,policy.retained_authorization.expires_at,'retained consumption deadline is unbound');
   assert.equal(rows.length, 32, 'retained source range expanded or incomplete');
   for(const [i,row] of rows.entries()) {
     const event = policy.retained_events[i];

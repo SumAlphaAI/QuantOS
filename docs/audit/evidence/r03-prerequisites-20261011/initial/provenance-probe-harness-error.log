@@ -1,0 +1,17 @@
+[stdin]:1
+const assert=require('node:assert/strict'),fs=require('fs');const {retainedSourcePolicy,paths}=require('./scripts/r02-retained-source-policy.cjs');const p=retainedSourcePolicy(),raw=JSON.parse(fs.readFileSync(paths.providers)).providers[0];assert.equal(p.approvals[0].approval_reference,raw.approval_reference,'retained permission must preserve immutable ingestion approval reference');assert.equal(p.approvals[0].approval_version,raw.approval_version,'retained permission must preserve immutable ingestion approval version');console.log('PROVENANCE_COMPATIBILITY_PASS');
+                                                                                                                                                                                                                                            ^
+
+TypeError: Cannot read properties of undefined (reading '0')
+    at [stdin]:1:237
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:451:12
+    at [stdin]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:449:60)
+    at evalFunction (node:internal/process/execution:283:30)
+    at evalTypeScript (node:internal/process/execution:295:3)
+    at node:internal/main/eval_stdin:51:5
+    at ReadStream.<anonymous> (node:internal/process/execution:205:5)
+    at ReadStream.emit (node:events:508:28)
+
+Node.js v24.12.0

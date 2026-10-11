@@ -10,6 +10,10 @@ use quantos_storage::{
 };
 use serde_json::{Value, json};
 
+#[path = "r02_retained_input.rs"]
+mod retained_input;
+use retained_input::retained_research_input;
+
 #[test]
 fn r02_retained_market_persistent_research_chain() -> Result<()> {
     if std::env::var("QUANTOS_RUN_R02_CHAIN_TESTS").as_deref() != Ok("1") {
@@ -263,7 +267,7 @@ fn r02_retained_market_persistent_research_chain() -> Result<()> {
             let mut output=Vec::new();
             for (cap,fixture_name) in [("research.hypothesis.v1","hypothesis_regime_shift"),("research.experiment.v1","experiment_factor_stability")] {
                 let mut c=ResearchWorkflowCoordinator::new_persisted(&mut runtime,&mut store,&policy,&mut repo,&mut manager,ResearchWorkflowCoordinatorConfig{worker_name:"r02-persisted".into(),lease_duration:ChronoDuration::seconds(30),storage_bucket:artifact.storage_bucket.clone()});
-                c.schedule_research_run(ResearchWorkflowInput{runtime_session_id:session.runtime_session_id,tool_name:cap.into(),capability:Capability::parse(cap)?,workflow_kind:"research".into(),idempotency_key:format!("{}-{cap}",fixture["run"]),correlation_id:CorrelationId::new(),data_snapshot_id:snapshot.snapshot_id,policy_context_ref:a.approval_reference.clone(),input_schema_version:"v1".into(),input:json!({"fixture":fixture_name,"prompt":"Evaluate retained historical market facts","retained_market":rows}),max_attempts:1,deadline_at:now+ChronoDuration::minutes(10),cost_budget_units:250,rate_limit_per_minute:60},Utc::now())?;
+                c.schedule_research_run(ResearchWorkflowInput{runtime_session_id:session.runtime_session_id,tool_name:cap.into(),capability:Capability::parse(cap)?,workflow_kind:"research".into(),idempotency_key:format!("{}-{cap}",fixture["run"]),correlation_id:CorrelationId::new(),data_snapshot_id:snapshot.snapshot_id,policy_context_ref:a.approval_reference.clone(),input_schema_version:"v1".into(),input:retained_research_input(fixture_name,rows)?,max_attempts:1,deadline_at:now+ChronoDuration::minutes(10),cost_budget_units:250,rate_limit_per_minute:60},Utc::now())?;
                 let result=c.execute_next(Utc::now()).await?.expect("actual persisted run");assert_eq!(result.run.status,WorkflowRunStatus::Succeeded);assert!(!result.artifact.evidence_refs.is_empty());output.push(json!({"run":result.run.workflow_run_id,"input_hash":result.run.input_hash,"artifact":result.artifact.engine_artifact_id}));
             }
             use quantos_runtime::signal_proposal::{InMemorySignalProposalRepository, SignalProposalWorkflowCoordinator, SignalProposalWorkflowCoordinatorConfig, SignalProposalWorkflowInput, SignalProposalWorkflowError};

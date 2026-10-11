@@ -1,0 +1,76 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
+F09 scheduler smoke PASS: 2 real Supabase missing-coverage ticks
+QUANTOS_RUN_F09_POSTGRES_TESTS=1 cargo test -p quantos-observability --test postgres_capacity_monitor --locked -- --test-threads=1 --skip restricted_runtime_role_records_only_real_storage_outcomes --nocapture
+
+running 3 tests
+test fault_proxy_retries_real_postgres_event_and_consumer_chain ... ok
+test live_database_session_termination_preserves_ordered_event_chain ... ok
+test live_metrics_drive_restart_safe_windows_persist_alerts_and_build_adr_evidence ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 285.55s
+
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.44s
+     Running tests/postgres_capacity_monitor.rs (target/debug/deps/postgres_capacity_monitor-2c7c9da69c427c78)
+F09 database termination recovered; correlation=01a12a82-a104-7571-b463-a1904b87664e; ordered_events=2
+F09 capacity phase seed_remaining_metric_minutes
+F09 capacity continuity tick 0/17
+F09 capacity continuity tick 1/17
+F09 capacity continuity tick 2/17
+F09 capacity continuity tick 3/17
+F09 capacity continuity tick 4/17
+F09 capacity continuity tick 5/17
+F09 capacity continuity tick 6/17
+F09 capacity continuity tick 7/17
+F09 capacity continuity tick 8/17
+F09 capacity phase reconnect_tick8
+F09 capacity continuity tick 9/17
+F09 capacity continuity tick 10/17
+F09 capacity continuity tick 11/17
+F09 capacity continuity tick 12/17
+F09 capacity continuity tick 13/17
+F09 capacity continuity tick 14/17
+F09 capacity continuity tick 15/17
+F09 capacity continuity tick 16/17
+F09 capacity continuity tick 17/17
+
+running 1 test
+test f09_portfolio_and_risk_queries_persist_actual_latency_samples ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 13.61s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running tests/postgres_portfolio.rs (target/debug/deps/postgres_portfolio-6f684ef8228c8a8c)
+
+running 1 test
+test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... F09 BFF real session revoke and persistent trace share correlation_id=01a12a86-fcf3-7da0-9f4b-2a5c00022fca
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 14 filtered out; finished in 8.26s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.08s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-adf140588a032b35)
+
+running 1 test
+F09 Runtime persisted run and trace share correlation_id=01a12a87-28fd-7751-9362-f79db5d698ba
+test live::tests::f09_runtime_real_write_trace ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 16.07s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/main.rs (target/debug/deps/runtime_gateway-ab57a44d1cfa27be)
+{"event":"F09_PORTFOLIO_WRITE_TRACE_PASS","correlationId":"01a12a87-4a32-7230-9ec8-0e1114360242","snapshotHash":"sha256:2081d8c86e1a95ae74d66be445e82db83a81e22d36bad8fc3d843640e2d416c1","lastEventSequence":23,"positionCount":3}
+
+running 1 test
+test manager_supervises_three_real_crashes_without_test_owned_restarts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 0.59s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running tests/python_mock_engine.rs (target/debug/deps/python_mock_engine-a14b3ed6aaf7410e)
