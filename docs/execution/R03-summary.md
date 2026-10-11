@@ -1,6 +1,6 @@
 # R03 Research orchestration 与 Artifact lifecycle
 
-开发实现提供 `ResearchWorkflowCoordinator`（内存测试）与 `PgResearchWorkflowCoordinator`（配置的 Supabase PostgreSQL + 私有 Storage）。持久化路径复用既有 Runtime 表，无新增迁移、数据库重建或本地数据库。原实现见[执行报告](../audit/R03-development-2026-10-11.md)，当前准入/只读阻塞与收尾见[前置复评报告](../audit/R03-prerequisite-readmission-2026-10-11.md)。
+开发实现提供 `ResearchWorkflowCoordinator`（内存测试）与 `PgResearchWorkflowCoordinator`（配置的 Supabase PostgreSQL + 私有 Storage）。持久化路径复用既有 Runtime 表，无新增迁移、数据库重建或本地数据库。原实现见[执行报告](../audit/R03-development-2026-10-11.md)，当前准入采用[R03_LOCAL策略](../audit/R03-local-gate-policy-2026-10-11.md)；原Supabase复评与退役收尾见[历史前置报告](../audit/R03-prerequisite-readmission-2026-10-11.md)。
 
 ## 请求与调度
 
@@ -32,13 +32,18 @@ Manager RPC deadline 与 worker lease deadline 共同约束执行，超时/失�
 ## 执行命令与准入
 
 ```sh
+# 干净提交上完整执行本地前置与R03，生成限定开发回执。
+make r03-assess-local
 QUANTOS_SKIP_ENV=1 make r03-check
-# 仅使用既有开发 Supabase；生成专属合成 fixture，并停用 actor/session/tool。
+# 发布验收时另行执行：仅配置的Supabase，需可写目标与适用授权。
 QUANTOS_R03_EVIDENCE_DIR=artifacts/r03-target/<fresh-attempt> make r03-target-check
 node scripts/r03-stage-check.mjs --verify
 make r03-admission-check
+make r03-release-check # 本地准入不能满足发布验收
 ```
 
 本地 UDS fixture 服务需要允许建立本机 socket；静态/本地通过不代表数据库验收。目标脚本拒绝非 Supabase、项目不匹配与缺失 CA，使用配置凭据且不打印凭据；所有失败及清理结果保留。目标使用专属合成来源；R02的32条保留事实仅按独立限时许可内部复验，原采集授权仍已到期。
 
-R03 工程证据、五个当前前置 Gate、项目用户确认、同 SHA hosted CI 与发布分别验证。主轮前置53 PASS/5 FAIL/2 NOT RUN，TP02两项已在68acfa67修正复验PASS；开发Supabase默认只读，100个自有任务已精确退役并独立读回pending=0，见[恢复记录](../audit/R03-supabase-recovery-2026-10-11.md)；R03新目标/回归工程PASS、admission拒绝，Gate BLOCKED。恢复开发目标与完整前置复验后才可重新准入，不放行TP03/TP04/R04/R1总Gate；参考 [统一确认规程](../gate-records/user-acceptance-confirmation-workflow.md)。
+R03开发Gate仅消费15节点闭包的LOCAL_READY功能投影，要求全部非Supabase命令、F07本地Runtime/gateway与R03七组回归实际通过；不发布其他任务的全范围READY。真实数据库前置及R03目标项按清单移交RELEASE-GATE:BETA，标记NOT RUN。当前新范围待完整执行，NOT_ASSESSED。
+
+开发Supabase默认只读与历史失败保留；100个自有任务已退役，独立读回pending=0，见[恢复记录](../audit/R03-supabase-recovery-2026-10-11.md)。不升级订阅、不建立本地数据库。本地准入、用户工程确认、同SHA CI与最终发布分别验证，formalAccepted=false；参考[统一规程](../gate-records/user-acceptance-confirmation-workflow.md)。

@@ -525,7 +525,7 @@ provider-a2-check:
 	pnpm check:provider-a2
 	pnpm test:provider-a2
 
-.PHONY: r03-check r03-target-check r03-admission-check
+.PHONY: r03-check r03-target-check r03-admission-check r03-assess-local r03-release-check
 r03-check:
 	env -u DATABASE_URL cargo test -p quantos-runtime --lib --locked
 	env -u DATABASE_URL cargo test -p quantos-runtime --locked --test research_orchestration -- --skip r02_retained_market_persistent_research_chain --skip r03_configured_supabase_lifecycle --skip r03_worker
@@ -536,3 +536,11 @@ r03-target-check:
 
 r03-admission-check:
 	node scripts/r03-stage-check.mjs --admission
+
+# R03 local development never loads target database credentials.
+r03-assess-local:
+	node scripts/r03-record-development.mjs
+
+# Final publication still requires actual Supabase and formal Beta evidence.
+r03-release-check:
+	node scripts/r03-stage-check.mjs --release

@@ -1224,6 +1224,34 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "r03-f07-runtime": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-runtime",
+        "--lib"
+      ],
+      "staticOnly": true,
+      "marker": "test result: ok",
+      "timeoutMs": 900000
+    },
+    "r03-f07-gateway": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "runtime-gateway",
+        "--lib"
+      ],
+      "staticOnly": true,
+      "marker": "test result: ok",
+      "timeoutMs": 900000
     }
   },
   "nodes": {
@@ -1888,5 +1916,20 @@
       "NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN": "http://localhost:3190",
       "NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI": "http://localhost:3190/auth/callback"
     }
+  },
+  "r03Local": {
+    "owner": "CORE:R03",
+    "profile": "R03_LOCAL",
+    "roots": [
+      "CORE:R02",
+      "CORE:TP02"
+    ],
+    "nodeChecks": {
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA"
   }
 }

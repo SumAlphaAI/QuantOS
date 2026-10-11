@@ -179,7 +179,7 @@ test('changing both plans cannot defer correctness or functional deadlines to re
   }
 });
 test('both plans must retain every deferred release obligation', () => {
-  for (const requirement of ['performance', 'soak', 'deployment', 'same-sha-ci', 'release-authorization']) {
+  for (const requirement of ['performance', 'soak', 'deployment', 'same-sha-ci', 'release-authorization','r03-supabase-target-acceptance']) {
     const drop = contract => contract.release_required = contract.release_required.filter(item => item !== requirement);
     assert.throws(() => check(stageContract(core, drop), stageContract(frontend, drop)), /stage contract differs from required policy/);
   }
@@ -307,4 +307,14 @@ test('core shared task fields and existing window must stay consistent', () => {
   assert.throws(() => check(core.replace('- workflow: `DEVELOPMENT → REVIEW_READY', '- workflow: `REVIEW_READY → DEVELOPMENT')), /workflow mismatch/);
   assert.throws(() => check(changeTask(core, 'F02', 'core_prerequisites', () => [])), /core prerequisites differ from depends_on/);
   assert.throws(() => check(changeTask(core, 'F01', 'closes_core', () => ['CORE:F02'])), /core task cannot carry frontend closes_core/);
+});
+
+test('R03 cannot claim local readiness using an old Supabase manifest', () => {
+ const ready=changeTask(core,'R03','stage_gate',gate=>({...gate,status:'READY',input_digest:`sha256:${'c'.repeat(64)}`,evidence:['audit/evidence/r03-20261011/manifest.json']}));
+ assert.throws(()=>check(ready),/R03 local manifest digest differs/);
+});
+test('R03 local dependency exception cannot be invented for another task', () => {
+ const changed=stageContract(core,c=>c.local_dependency_receipts['CORE:R04']=c.local_dependency_receipts['CORE:R03']);
+ const other=stageContract(frontend,c=>c.local_dependency_receipts['CORE:R04']=c.local_dependency_receipts['CORE:R03']);
+ assert.throws(()=>check(changed,other),/stage contract differs from required policy/);
 });

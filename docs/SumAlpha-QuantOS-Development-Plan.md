@@ -1,4 +1,4 @@
-> 当前工程快照（R03前置复评，2026-10-11）：项目用户确认32条保留事实仅限内部复验至北京时间10月14日08:00；冻结b358581d必要前置60组处置为53 PASS/5 FAIL/2 NOT RUN；TP02两项随后在68acfa67修正复验PASS，原记录保留，完整前置须重跑。开发Supabase进入只读，F07失败；100个自有fixture任务后续已精确退役并确认pending=0，服务器默认只读恢复仍待办。R03新目标/七组回归工程PASS，但admission实际拒绝、Gate BLOCKED；0 READY、158 NOT_ASSESSED、1 BLOCKED，正式/CI/发布独立。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)。
+> 当前工程快照（R03本地开发Gate调整，2026-10-11）：按用户指令，R03仅消费本地功能前置回执；Supabase目标全部移交最终RELEASE-GATE:BETA，当前新范围NOT_ASSESSED待实际复验。原平台只读与失败证据保留，fixture已退役pending=0；无升级/新采集/发布授权。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 > 历史工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 
@@ -37,7 +37,7 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.67
+> 版本：3.68
 > 更新时间：2026-10-11
 > 状态：技术执行基线  
 > 本轮变更：R02限时用途独立确认；当前前置复验及Supabase只读阻塞证据；R03新目标/回归PASS、admission拒绝，Gate BLOCKED。
@@ -45,6 +45,8 @@
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.68`：R03限定本地功能准入与Supabase最终发布验收分离；功能/取消/恢复/权限/质量要求保留，LOCAL_READY不授予上游数据库READY；历史失败与32事实限时用途保留。见[范围调整](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 - `3.67`：开发Supabase平台超限/磁盘压力确认；精确退役本轮100任务和1工具，独立读回pending=0、32事实hash不变；普通新连接写入25006，待平台容量恢复后完整复验。R03 Gate仍BLOCKED。见[恢复报告](./audit/R03-supabase-recovery-2026-10-11.md)。
 
@@ -322,12 +324,28 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
     "soak",
     "deployment",
     "same-sha-ci",
-    "release-authorization"
+    "release-authorization",
+    "r03-supabase-target-acceptance"
   ],
   "release_checkpoints": [
     "RELEASE-GATE:BETA",
     "RELEASE-GATE:LIVE-READINESS"
-  ]
+  ],
+  "local_dependency_receipts": {
+    "CORE:R03": {
+      "profile": "R03_LOCAL",
+      "schema": "quantos-r03-development/v2",
+      "manifest": "audit/evidence/r03-20261011/manifest.json",
+      "prerequisites": [
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:R02",
+        "CORE:TP02",
+        "CORE-GATE:F0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    }
+  }
 }
 ```
 
@@ -952,7 +970,7 @@ flowchart TD
 - task_id: `R03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:ee865d512d9bfed1ab135b3bea3667bdd951dec1ed488374aac37efa2d4b4cb2","evidence":["audit/evidence/r03-20261011/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - closes_core: []
@@ -963,9 +981,9 @@ flowchart TD
 - 技术要求：Runtime 组合研究 Engine、预算、deadline、流式事件、Artifact 归档与重放
 - 交付物：research workflow、Artifact repository
 - 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact
-- 阶段执行：10 次确定性运行、取消 ≤2s 确认与无重复 Artifact 为开发要求；获准工程环境的 Runtime/Engine 组合在联调验证，部署/负载回执在 RELEASE-GATE:BETA 重验。
+- 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。LOCAL_READY仅供R03消费，不授予上游数据库READY或发布权限。
 - 依赖：F07、F08、R02、TP02
-- 当前工程复核：冻结b358581d的R03七组回归与Supabase生命周期重新实际PASS，74功能输入绑定新回执；主轮必要前置53 PASS/5 FAIL/2 NOT RUN；TP02两项已在68acfa67修正复验PASS，完整闭包须重新执行。开发Supabase只读、100任务待收尾，五项直接前置未准入。R03 admission实际拒绝，Gate BLOCKED、formalAccepted=false；32条限时内部用途独立确认，不重开采集窗口。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)与[manifest](./audit/evidence/r03-20261011/manifest.json)。
+- 当前工程复核：按项目用户本会话调整，R03改用限定本地功能准入，旧Supabase前置阻塞/失败/退役证据保留，当前新范围待重新执行。见[Gate范围调整](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 <a id="task-r04"></a>
 ### R04：Signal 与 TradeProposal 工作流

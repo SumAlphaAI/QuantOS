@@ -113,3 +113,16 @@ test('inventory reads a Git file list over 1 MiB without truncating selected inp
   assert.deepEqual(result,[{path:'zz-selected.ts',role:'code',sha256:digest('selected bytes')}]);
  }finally{rmSync(base,{recursive:true,force:true});}
 });
+
+test('R03 local projection validates functional evidence without granting global readiness',()=>fixture(f=>{
+ const path=resolve(f.base,'scripts/provider-a1-policy.json'),p=JSON.parse(readFileSync(path));p.r03Local={owner:'CORE:R03',profile:'R03_LOCAL',roots:['parent'],nodeChecks:{}};writeFileSync(path,JSON.stringify(p));
+ for(const id of ['child','parent']){const m=f.read(id);Object.assign(m,{schema:'quantos-stage-local-manifest/v1',owner:'CORE:R03',profile:'R03_LOCAL',databaseExecution:false,scope:'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA',inputs:inventory([...p.commonInputs,...p.nodes[id].inputs],f.base)});if(id==='parent')m.dependencies[0].inputDigest=f.nodes.get('child').stage_gate.input_digest;f.store(id,m);}
+ const result=validateReceipt('parent',{base:f.base,nodes:f.nodes,profile:'R03_LOCAL'});assert.equal(result.status,'LOCAL_READY');assert.equal(result.owner,'CORE:R03');assert.throws(f.validate,/schema|functional-manifest/);
+ const changed=f.read('parent');changed.checks[0].exitCode=1;f.store('parent',changed);assert.throws(()=>validateReceipt('parent',{base:f.base,nodes:f.nodes,profile:'R03_LOCAL'}),/failed or unexecuted/);
+}));
+test('local policy retains every Supabase command for release and F07 local coverage',async()=>{
+ const {localChecks,localDeferred,nodesFromPlans,closure}=await import('./provider-a1-receipts.mjs');const p=policy();const deferred=localDeferred(nodesFromPlans(),p);assert(deferred.length>0);
+ for(const item of deferred){assert(p.checks[item.id].database||p.checks[item.id].target);assert.equal(item.status,'NOT_RUN');assert.equal(item.checkpoint,'RELEASE-GATE:BETA');}
+ const selected=[...new Set(p.r03Local.roots.flatMap(id=>closure(nodesFromPlans(),id)))];for(const nodeId of selected){for(const id of localChecks(nodeId,p)){assert(!p.checks[id].database&&!p.checks[id].target);}}
+ assert.deepEqual(localChecks('CORE:F07',p),['r03-f07-runtime','r03-f07-gateway']);
+});

@@ -1,4 +1,6 @@
-# R03 当前前置复评与 R02 保留事实用途处置
+# R03 历史Supabase前置复评与 R02 保留事实用途处置
+
+> 本报告保留旧Supabase前置profile及失败事实。当前R03开发准入依据[R03_LOCAL策略与复验](./R03-local-gate-policy-2026-10-11.md)；下文“当前”均指本次历史检查点。原manifest已[按字节归档](./evidence/r03-local-gate-policy-20261011/history/r03-supabase-prerequisite-manifest.json)。
 
 **R03 engineering PASS；DEVELOPMENT Gate BLOCKED，formalAccepted=false。** 项目用户已确认独立限时数据用途；主轮冻结源码 `b358581d24e51d1e7dd4200176467c833d12a0f0` 的必要前置60唯一命令组已逐项处置：53 PASS、5 FAIL、2 NOT RUN。其中TP02两项随后在68acfa67修正并实际复验PASS，原失败保留；共享输入变化后的完整前置仍须重跑。开发Supabase在F07执行中进入只读，恢复/覆盖/服务失败，100个自有fixture任务当时无法收尾；后续已精确退役并读回pending=0，默认只读恢复仍待办，见[恢复记录](./R03-supabase-recovery-2026-10-11.md)。R03七组回归与完整生命周期在只读发生前实际PASS，但五项当前前置未准入；admission实际拒绝，未新增READY。
 
@@ -34,7 +36,7 @@
 | F08/TP01/TP02及剩余静态项 | 19组独立续验PASS，含F08功能/分支/实际wheel-UDS服务、只读Git治理、R01/R02静态组件与Research2/Proposal3；TP02十条命令均exit0，但旧433计数假设导致校验及负向两项FAIL，修正后组件另行实际复验PASS；数据库凭据隔离，仅组件工程证据，不授予前置READY。 |
 | R01/R02当前数据库目标 | NOT RUN：服务器已只读，不继续创建fixture。此前[独立32事实链](./evidence/r03-prerequisites-20261011/initial/retained-compat-02/receipt.json)仅PASS_SCOPED_TARGET，不代替本轮完整目标。 |
 | R03当前新目标 | [实际目标](./evidence/r03-prerequisites-20261011/r03-current/target/receipt.json)及七组回归PASS；74功能输入绑定b358581d，十次同hash、排队/运行中取消225/553ms，独立进程恢复、无重复Artifact/成本与目标清理PASS。目标在只读发生前执行，不能据此推定当前数据库仍可写。 |
-| R03 admission | [当前manifest](./evidence/r03-20261011/manifest.json)摘要 `sha256:ee865d512d9bfed1ab135b3bea3667bdd951dec1ed488374aac37efa2d4b4cb2`；engineering PASS、Gate BLOCKED、formalAccepted=false。`make r03-admission-check`实际exit2，[日志](./evidence/r03-prerequisites-20261011/final/r03-admission.log)确认五项当前前置未准入；`--verify` exit0仅证明BLOCKED回执内容一致。 |
+| R03 admission | [原manifest](./evidence/r03-local-gate-policy-20261011/history/r03-supabase-prerequisite-manifest.json)摘要 `sha256:ee865d512d9bfed1ab135b3bea3667bdd951dec1ed488374aac37efa2d4b4cb2`；engineering PASS、Gate BLOCKED、formalAccepted=false。`make r03-admission-check`实际exit2，[日志](./evidence/r03-prerequisites-20261011/final/r03-admission.log)确认五项当前前置未准入；`--verify` exit0仅证明BLOCKED回执内容一致。 |
 
 TP02后续修正冻结于 `68acfa67a6b1079ab3a3ad05179a6b8221101479`：[独立实际复验](./evidence/r03-prerequisites-20261011/tp02-postfix/summary.json)10组组件全部PASS，完整Python1366 PASS、实际隔离wheel五RPC PASS，26项回执/不完整套件拒绝测试PASS，Engine清理PASS。完整套件可增长但必须有仅通过的最终摘要且不少于历史433项，不接受失败/跳过/未完成。原两项失败保留，不覆盖53/5/2台账；共享功能输入发生变化，全部必要前置必须从新提交重新完整复验，不能拼装为READY。R03自己的74功能输入未受该校验器修正影响，与b358581d目标逐项一致。
 

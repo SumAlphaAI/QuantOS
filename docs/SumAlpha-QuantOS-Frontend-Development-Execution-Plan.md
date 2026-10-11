@@ -1,4 +1,4 @@
-> 当前工程快照（R03前置复评，2026-10-11）：项目用户确认32条保留事实仅限内部复验至北京时间10月14日08:00；冻结b358581d必要前置60组处置为53 PASS/5 FAIL/2 NOT RUN；TP02两项随后在68acfa67修正复验PASS，原记录保留，完整前置须重跑。开发Supabase进入只读，F07失败；100个自有fixture任务后续已精确退役并确认pending=0，服务器默认只读恢复仍待办。R03新目标/七组回归工程PASS，但admission实际拒绝、Gate BLOCKED；0 READY、158 NOT_ASSESSED、1 BLOCKED，正式/CI/发布独立。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)。
+> 当前工程快照（R03本地开发Gate调整，2026-10-11）：按用户指令，R03仅消费本地功能前置回执；Supabase目标全部移交最终RELEASE-GATE:BETA，当前新范围NOT_ASSESSED待实际复验。原平台只读与失败证据保留，fixture已退役pending=0；无升级/新采集/发布授权。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 > 历史工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 
@@ -33,13 +33,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.68
+> 版本：3.69
 > 更新时间：2026-10-11
 > 状态：TP10/F08/F0必要13节点DEVELOPMENT READY；页面、正式和发布独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.69`：R03限定本地功能准入与Supabase最终发布验收分离；功能/取消/恢复/权限/质量要求保留，LOCAL_READY不授予上游数据库READY；历史失败与32事实限时用途保留。见[范围调整](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 - `3.68`：开发Supabase平台超限/磁盘压力确认；精确退役本轮100任务和1工具，独立读回pending=0、32事实hash不变；普通新连接写入25006，待平台容量恢复后完整复验。R03 Gate仍BLOCKED。见[恢复报告](./audit/R03-supabase-recovery-2026-10-11.md)。
 
@@ -256,12 +258,28 @@
     "soak",
     "deployment",
     "same-sha-ci",
-    "release-authorization"
+    "release-authorization",
+    "r03-supabase-target-acceptance"
   ],
   "release_checkpoints": [
     "RELEASE-GATE:BETA",
     "RELEASE-GATE:LIVE-READINESS"
-  ]
+  ],
+  "local_dependency_receipts": {
+    "CORE:R03": {
+      "profile": "R03_LOCAL",
+      "schema": "quantos-r03-development/v2",
+      "manifest": "audit/evidence/r03-20261011/manifest.json",
+      "prerequisites": [
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:R02",
+        "CORE:TP02",
+        "CORE-GATE:F0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    }
+  }
 }
 ```
 
@@ -2548,7 +2566,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
 <a id="acceptance-release-gate-beta"></a>
 ### RELEASE-GATE:BETA：Paper/Shadow 正式发布验收检查点
 
-在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。
+在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。
 
 ```json
 {
@@ -2561,7 +2579,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
     "FE:FEP-7",
     "PROVIDER:ALL"
   ],
-  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。",
+  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

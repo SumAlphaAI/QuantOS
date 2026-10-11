@@ -1,5 +1,5 @@
 // Own synthetic fixtures only; no migration/reset, provider ingestion or deployment.
-const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{spawnSync}=require('node:child_process');
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{spawnSync,execFileSync}=require('node:child_process');
 const {targetUrl,client}=require('./lib/r01-db.cjs');
 const {operatorUrl}=require('./lib/r02-chain-connection.cjs');
 const {connectBeforeStatements}=require('./lib/postgres-bootstrap.cjs');
@@ -35,7 +35,7 @@ const redact=s=>{for(const [k,v]of Object.entries(process.env))if(/KEY|TOKEN|SEC
  fs.writeFileSync(path.join(out,'fixture.json'),JSON.stringify({tenant,actor,workspace,session,at,context,provider,symbol,aggregate},null,2)+'\n');
  await db.end();db=null;
  const args=['test','-p','quantos-runtime','--locked','--test','research_orchestration','r03_persisted::r03_configured_supabase_lifecycle','--','--exact','--nocapture'];
- receipt.sourceInputs=(await import('./r03-stage-check.mjs')).inventory();receipt.command=['cargo',...args];receipt.startedAt=new Date().toISOString();save();
+ receipt.sourceCommit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();receipt.sourceInputs=(await import('./r03-stage-check.mjs')).inventory();receipt.command=['cargo',...args];receipt.startedAt=new Date().toISOString();save();
  const run=spawnSync('cargo',args,{env:{...process.env,DATABASE_URL:url,QUANTOS_R03_TARGET_DIR:out},encoding:'utf8',timeout:600000,maxBuffer:16*1024*1024});
  fs.writeFileSync(path.join(out,'target.log'),redact((run.stdout||'')+(run.stderr||'')));receipt.exitCode=run.status;receipt.timedOut=run.error?.code==='ETIMEDOUT';
  if(run.status!==0||run.error)throw Error('R03_TARGET_EXECUTION_FAILED');

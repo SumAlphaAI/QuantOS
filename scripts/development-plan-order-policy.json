@@ -1223,12 +1223,28 @@
       "soak",
       "deployment",
       "same-sha-ci",
-      "release-authorization"
+      "release-authorization",
+      "r03-supabase-target-acceptance"
     ],
     "release_checkpoints": [
       "RELEASE-GATE:BETA",
       "RELEASE-GATE:LIVE-READINESS"
-    ]
+    ],
+    "local_dependency_receipts": {
+      "CORE:R03": {
+        "profile": "R03_LOCAL",
+        "schema": "quantos-r03-development/v2",
+        "manifest": "audit/evidence/r03-20261011/manifest.json",
+        "prerequisites": [
+          "CORE:F07",
+          "CORE:F08",
+          "CORE:R02",
+          "CORE:TP02",
+          "CORE-GATE:F0"
+        ],
+        "release_checkpoint": "RELEASE-GATE:BETA"
+      }
+    }
   },
   "windowStages": {
     "F0": "DEVELOPMENT",

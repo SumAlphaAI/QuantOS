@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
@@ -75,6 +76,19 @@ function parseCheckpoints(text, document, root) {
   });
 }
 
+// Only R03 may consume explicit local dependency receipts. This shape check
+// never grants readiness to the upstream Supabase gates or validates execution.
+function usesLocalDependencies(node,root) {
+ const scope=policy.stageContract.local_dependency_receipts?.[node.id];
+ if(!scope||node.stage_gate.stage!=='DEVELOPMENT'||node.stage_gate.status!=='READY')return false;
+ assert.deepEqual(node.stage_gate.evidence,[scope.manifest],'R03 local gate must use its declared manifest');
+ const bytes=readFileSync(resolve(root,'docs',scope.manifest));assert.equal('sha256:'+createHash('sha256').update(bytes).digest('hex'),node.stage_gate.input_digest,'R03 local manifest digest differs');
+ const r=JSON.parse(bytes);assert.equal(r.schema,scope.schema);assert.equal(r.nodeId,node.id);assert.equal(r.profile,scope.profile);assert.equal(r.status,'READY');assert.equal(r.databaseExecution,false);assert.equal(r.formalAccepted,false);
+ assert.deepEqual(r.dependencies.map(d=>d.nodeId),scope.prerequisites);assert(r.dependencies.every(d=>d.status==='LOCAL_READY'&&d.owner===node.id&&/^sha256:[0-9a-f]{64}$/.test(d.inputDigest)),'R03 local dependency proof missing');
+ assert.equal(r.release.checkpoint,scope.release_checkpoint);assert.equal(r.release.status,'NOT_RUN');assert(r.release.handoff.length>0);assert(r.release.prerequisiteChecks.length>0);
+ return true;
+}
+
 // Static scheduling and receipt-shape validation only. It never promotes historical
 // acceptance to stage readiness, verifies evidence contents, or executes any gate.
 export function validatePlanOrder(coreText, frontendText, core, frontend, { root = fileURLToPath(new URL("../", import.meta.url)) } = {}) {
@@ -122,7 +136,7 @@ export function validatePlanOrder(coreText, frontendText, core, frontend, { root
       const dep = nodes.get(id);
       assert(policy.windows.indexOf(dep.window) <= policy.windows.indexOf(node.window), `${node.id}: later-window prerequisite ${id} (${dep.window} > ${node.window})`);
       if (dep.document === node.document) assert(dep.offset < node.offset, `${node.id}: prerequisite ${id} must precede its close/execute position`);
-      if (node.stage_gate.status === 'READY') assert.equal(dep.stage_gate.status, 'READY', `${node.id}: READY requires READY prerequisite ${id}`);
+      if (node.stage_gate.status === 'READY' && !usesLocalDependencies(node,root)) assert.equal(dep.stage_gate.status, 'READY', `${node.id}: READY requires READY prerequisite ${id}`);
     }
     if (node.id.startsWith('CORE:')) {
       assert.equal(node.window, policy.coreWindows[node.task_id], `${node.id}: core acceptance window mismatch`);
