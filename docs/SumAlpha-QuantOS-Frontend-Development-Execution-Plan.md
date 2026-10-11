@@ -1,4 +1,4 @@
-> 当前工程快照（R03本地开发Gate调整，2026-10-11）：按用户指令，R03仅消费本地功能前置回执；Supabase目标全部移交最终RELEASE-GATE:BETA，当前新范围NOT_ASSESSED待实际复验。原平台只读与失败证据保留，fixture已退役pending=0；无升级/新采集/发布授权。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
+> 当前工程快照（R03本地开发Gate，2026-10-11）：冻结b2511e1d完成15节点/49组本地前置与R03七组实际复验，R03 DEVELOPMENT READY（R03_LOCAL）；全图1 READY、158 NOT_ASSESSED、0 BLOCKED。13组Supabase前置及R03真实生命周期移交RELEASE-GATE:BETA，NOT RUN。原只读/失败/退役pending=0历史保留；用户工程确认、同SHA CI及发布独立。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 > 历史工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 

@@ -1,4 +1,4 @@
-> 当前工程快照（R03本地开发Gate调整，2026-10-11）：按用户指令，R03仅消费本地功能前置回执；Supabase目标全部移交最终RELEASE-GATE:BETA，当前新范围NOT_ASSESSED待实际复验。原平台只读与失败证据保留，fixture已退役pending=0；无升级/新采集/发布授权。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
+> 当前工程快照（R03本地开发Gate，2026-10-11）：冻结b2511e1d完成15节点/49组本地前置与R03七组实际复验，R03 DEVELOPMENT READY（R03_LOCAL）；全图1 READY、158 NOT_ASSESSED、0 BLOCKED。13组Supabase前置及R03真实生命周期移交RELEASE-GATE:BETA，NOT RUN。原只读/失败/退役pending=0历史保留；用户工程确认、同SHA CI及发布独立。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 > 历史工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 
@@ -970,7 +970,7 @@ flowchart TD
 - task_id: `R03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:05c684e1953bf8e696d2c8679c1c13b3f0d609490203b3d095140ce4ec05fe7c","evidence":["audit/evidence/r03-20261011/manifest.json"]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - closes_core: []
@@ -983,7 +983,7 @@ flowchart TD
 - 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact
 - 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。LOCAL_READY仅供R03消费，不授予上游数据库READY或发布权限。
 - 依赖：F07、F08、R02、TP02
-- 当前工程复核：按项目用户本会话调整，R03改用限定本地功能准入，旧Supabase前置阻塞/失败/退役证据保留，当前新范围待重新执行。见[Gate范围调整](./audit/R03-local-gate-policy-2026-10-11.md)。
+- 当前工程复核：冻结b2511e1d完成15节点/49组本地前置与R03七组复验、97功能输入及日志/制品递归校验，R03_LOCAL DEVELOPMENT READY。124项门禁测试PASS，Supabase13组前置与真实R03生命周期为NOT RUN并移交RELEASE-GATE:BETA；不重授上游严格Gate或发布权限。旧失败与退役历史保留，用户工程确认/同SHA CI/发布独立，formalAccepted=false。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
 
 <a id="task-r04"></a>
 ### R04：Signal 与 TradeProposal 工作流

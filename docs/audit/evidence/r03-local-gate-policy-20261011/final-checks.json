@@ -1,0 +1,107 @@
+{
+  "schema": "quantos-r03-local-final-checks/v1",
+  "status": "PASS",
+  "commands": [
+    {
+      "id": "r03-verify",
+      "command": [
+        "node",
+        "scripts/r03-stage-check.mjs",
+        "--verify"
+      ],
+      "startedAt": "2026-10-11T14:04:47.860Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/r03-local-gate-policy-20261011/r03-verify.log"
+    },
+    {
+      "id": "r03-admission",
+      "command": [
+        "make",
+        "r03-admission-check"
+      ],
+      "startedAt": "2026-10-11T14:04:58.254Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/r03-local-gate-policy-20261011/r03-admission.log"
+    },
+    {
+      "id": "r03-release-denied",
+      "command": [
+        "make",
+        "r03-release-check"
+      ],
+      "startedAt": "2026-10-11T14:05:08.589Z",
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "PASS",
+      "log": "docs/audit/evidence/r03-local-gate-policy-20261011/r03-release-denied.log"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-11T14:05:08.668Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/r03-local-gate-policy-20261011/plans.log"
+    },
+    {
+      "id": "gate-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/r03-stage-check.test.mjs",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "startedAt": "2026-10-11T14:05:08.708Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/r03-local-gate-policy-20261011/gate-tests.log"
+    }
+  ],
+  "strictUpstreamGuards": [
+    {
+      "nodeId": "CORE:F07",
+      "status": "REJECTED",
+      "reason": "CORE:F07: dependency is not READY\n+ actual - expected\n\n+ 'NOT_ASSESSED'\n- 'READY'\n"
+    },
+    {
+      "nodeId": "CORE:F08",
+      "status": "REJECTED",
+      "reason": "CORE:F08: dependency is not READY\n+ actual - expected\n\n+ 'NOT_ASSESSED'\n- 'READY'\n"
+    },
+    {
+      "nodeId": "CORE:R02",
+      "status": "REJECTED",
+      "reason": "CORE:R02: dependency is not READY\n+ actual - expected\n\n+ 'NOT_ASSESSED'\n- 'READY'\n"
+    },
+    {
+      "nodeId": "CORE:TP02",
+      "status": "REJECTED",
+      "reason": "CORE:TP02: dependency is not READY\n+ actual - expected\n\n+ 'NOT_ASSESSED'\n- 'READY'\n"
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "status": "REJECTED",
+      "reason": "CORE-GATE:F0: dependency is not READY\n+ actual - expected\n\n+ 'NOT_ASSESSED'\n- 'READY'\n"
+    }
+  ],
+  "gate": {
+    "engineeringStatus": "PASS",
+    "stageGate": "READY",
+    "profile": "R03_LOCAL",
+    "databaseAcceptance": "NOT_RUN",
+    "releaseGate": "NOT_ASSESSED",
+    "formalAccepted": false
+  },
+  "databaseExecution": false,
+  "formalAccepted": false
+}

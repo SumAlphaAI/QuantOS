@@ -1,11 +1,51 @@
 {
-  "schema": "quantos-r03-development/v1",
+  "schema": "quantos-r03-development/v2",
   "nodeId": "CORE:R03",
   "stage": "DEVELOPMENT",
-  "status": "BLOCKED",
+  "profile": "R03_LOCAL",
+  "status": "READY",
   "engineeringStatus": "PASS",
   "formalAccepted": false,
-  "observedSourceCommit": "b358581d24e51d1e7dd4200176467c833d12a0f0",
+  "databaseExecution": false,
+  "production": false,
+  "observedSourceCommit": "b2511e1d63508c61be5f304f0f0c02ec5001faae",
+  "planInput": {
+    "acceptance_window": "R1-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE:F07",
+      "CORE:F08",
+      "CORE:R02",
+      "CORE:TP02",
+      "CORE-GATE:F0"
+    ],
+    "dependencies": [
+      "CORE:F07",
+      "CORE:F08",
+      "CORE:R02",
+      "CORE:TP02",
+      "CORE-GATE:F0"
+    ],
+    "depends_on": [
+      "CORE:F07",
+      "CORE:F08",
+      "CORE:R02",
+      "CORE:TP02",
+      "CORE-GATE:F0"
+    ],
+    "iteration": "R1-SERVICE",
+    "requirement": "Research orchestration 与 Artifact lifecycle",
+    "requirements": [
+      "- 需求描述：Research orchestration 与 Artifact lifecycle",
+      "- 技术要求：Runtime 组合研究 Engine、预算、deadline、流式事件、Artifact 归档与重放",
+      "- 交付物：research workflow、Artifact repository",
+      "- 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact",
+      "- 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。LOCAL_READY仅供R03消费，不授予上游数据库READY或发布权限。"
+    ],
+    "task_id": "R03",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
   "inputs": [
     {
       "path": "Cargo.lock",
@@ -108,8 +148,20 @@
       "sha256": "sha256:b0671a452bc81687ee1f0917c1585f5533cecd8a4cf2682f2042b1296f673a98"
     },
     {
+      "path": "crates/quantos-runtime/tests/fixtures/f07-workflow.json",
+      "sha256": "sha256:b0671a452bc81687ee1f0917c1585f5533cecd8a4cf2682f2042b1296f673a98"
+    },
+    {
       "path": "crates/quantos-runtime/tests/postgres_runtime.rs",
       "sha256": "sha256:1838701641950cac03fbe497fddc4c582bec19e36748ae943b3fcfa1f26ad8c7"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/postgres_runtime.rs",
+      "sha256": "sha256:1838701641950cac03fbe497fddc4c582bec19e36748ae943b3fcfa1f26ad8c7"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/r02_retained_input.rs",
+      "sha256": "sha256:bf0371e668d34ee16e405d324672e24751f33c37bbfe64f9ccce2356c5865386"
     },
     {
       "path": "crates/quantos-runtime/tests/r02_retained_input.rs",
@@ -120,6 +172,14 @@
       "sha256": "sha256:d29e2719c7b6cc3b09e428151fd430d7eb87a49f5f6b55f16ddece381a2bba59"
     },
     {
+      "path": "crates/quantos-runtime/tests/research_orchestration.rs",
+      "sha256": "sha256:d29e2719c7b6cc3b09e428151fd430d7eb87a49f5f6b55f16ddece381a2bba59"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/signal_proposal_orchestration.rs",
+      "sha256": "sha256:f9365700e092c6dbd0aee8c600c38f88eea964e930c0598f2be4bece708df1f7"
+    },
+    {
       "path": "crates/quantos-runtime/tests/signal_proposal_orchestration.rs",
       "sha256": "sha256:f9365700e092c6dbd0aee8c600c38f88eea964e930c0598f2be4bece708df1f7"
     },
@@ -128,8 +188,20 @@
       "sha256": "sha256:19b5649394613c4ada4c7ade9dad4381c7562126b2b192a57d8b28c9f0a32185"
     },
     {
+      "path": "crates/quantos-runtime/tests/support/r02_persisted_chain.rs",
+      "sha256": "sha256:19b5649394613c4ada4c7ade9dad4381c7562126b2b192a57d8b28c9f0a32185"
+    },
+    {
       "path": "crates/quantos-runtime/tests/support/r02_retained_input.rs",
       "sha256": "sha256:3be221f914105c1bbd32c55e8227fcc4d72b09fa98ac152dec72e155a9b242b1"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/support/r02_retained_input.rs",
+      "sha256": "sha256:3be221f914105c1bbd32c55e8227fcc4d72b09fa98ac152dec72e155a9b242b1"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/support/r03_persisted.rs",
+      "sha256": "sha256:19266a3bf75dd6838745507fd4ae7e819238b25247dbf0d9e0ec587fce34a842"
     },
     {
       "path": "crates/quantos-runtime/tests/support/r03_persisted.rs",
@@ -172,8 +244,20 @@
       "sha256": "sha256:abb3fff8d6338796c6441556852620224ca2617fdbf147c379a1c4651513a13c"
     },
     {
+      "path": "crates/quantos-storage/tests/postgres_persistence.rs",
+      "sha256": "sha256:abb3fff8d6338796c6441556852620224ca2617fdbf147c379a1c4651513a13c"
+    },
+    {
       "path": "crates/quantos-storage/tests/r02_boundaries.rs",
       "sha256": "sha256:5d7f959efef3b2d0bd65985b2b45696f8b03cac7b8fcbcf77ac22a1e8c0fa9ad"
+    },
+    {
+      "path": "crates/quantos-storage/tests/r02_boundaries.rs",
+      "sha256": "sha256:5d7f959efef3b2d0bd65985b2b45696f8b03cac7b8fcbcf77ac22a1e8c0fa9ad"
+    },
+    {
+      "path": "crates/quantos-storage/tests/storage_http.rs",
+      "sha256": "sha256:65efbedeabdccaa3f0d315a6ac34b03812f1af3c4ac91fc8415d6cffb6ceca19"
     },
     {
       "path": "crates/quantos-storage/tests/storage_http.rs",
@@ -184,8 +268,20 @@
       "sha256": "sha256:ea17cd2d1a74c5c5a3be60dcf47ca6b792d2f6e1437163f4dd324527f87f1365"
     },
     {
+      "path": "crates/quantos-storage/tests/supabase_storage_integration.rs",
+      "sha256": "sha256:ea17cd2d1a74c5c5a3be60dcf47ca6b792d2f6e1437163f4dd324527f87f1365"
+    },
+    {
       "path": "crates/quantos-storage/tests/tp11_reference_gate.rs",
       "sha256": "sha256:648b27c7e74815fa2b1288fa21061e689f37bf378cf8d30651fa7c7c5ad13b9b"
+    },
+    {
+      "path": "crates/quantos-storage/tests/tp11_reference_gate.rs",
+      "sha256": "sha256:648b27c7e74815fa2b1288fa21061e689f37bf378cf8d30651fa7c7c5ad13b9b"
+    },
+    {
+      "path": "crates/quantos-storage/tests/unit/lib.rs",
+      "sha256": "sha256:0d329b2125e4df01dc509b647119a6f19fa300b34194f3e8cea279853f5ffbbd"
     },
     {
       "path": "crates/quantos-storage/tests/unit/lib.rs",
@@ -196,12 +292,28 @@
       "sha256": "sha256:f809fb198504bfe017d24f53cb961501739211dbc00359882dfbd421167baf1e"
     },
     {
+      "path": "crates/quantos-storage/tests/unit/provenance.rs",
+      "sha256": "sha256:f809fb198504bfe017d24f53cb961501739211dbc00359882dfbd421167baf1e"
+    },
+    {
+      "path": "crates/quantos-storage/tests/unit/snapshot.rs",
+      "sha256": "sha256:4bb0dcc3190ba9e7884ca63eb73a204a779c468ae081eac41bbbd8ceeb2911cc"
+    },
+    {
       "path": "crates/quantos-storage/tests/unit/snapshot.rs",
       "sha256": "sha256:4bb0dcc3190ba9e7884ca63eb73a204a779c468ae081eac41bbbd8ceeb2911cc"
     },
     {
       "path": "crates/quantos-storage/tests/unit/supabase_storage.rs",
       "sha256": "sha256:e6d2db9b0f65dfe59861ef28885964a5398c19af8cf2a18845186484e1c68323"
+    },
+    {
+      "path": "crates/quantos-storage/tests/unit/supabase_storage.rs",
+      "sha256": "sha256:e6d2db9b0f65dfe59861ef28885964a5398c19af8cf2a18845186484e1c68323"
+    },
+    {
+      "path": "crates/quantos-storage/tests/unit/wire.rs",
+      "sha256": "sha256:0d2406b3d1f4d9802b6419d24f41e766f74a3d88e3d1ca54d780d71d5577c4b8"
     },
     {
       "path": "crates/quantos-storage/tests/unit/wire.rs",
@@ -273,19 +385,39 @@
     },
     {
       "path": "Makefile",
-      "sha256": "sha256:e3990781f2db9a40940e5a78c01d645b61fad9445a0b71ec93021ff5bf3b926c"
+      "sha256": "sha256:14099cb3442917fb61eab688fab24b6133b9364ce161312ae7eb834ed1705ae9"
+    },
+    {
+      "path": "scripts/check-development-plan-order.mjs",
+      "sha256": "sha256:1632f893f582370d2cd8e19cdcd341811e50b51ceff8067328c1ef11453d1033"
+    },
+    {
+      "path": "scripts/development-plan-order-policy.json",
+      "sha256": "sha256:e7f5414b82d36e2356c354f7136401538f09bfd9a8bb7b10741705dc7d9ebaac"
+    },
+    {
+      "path": "scripts/provider-a1-policy.json",
+      "sha256": "sha256:913068d3cece406f77fe7b042a22d2019f8e6bb5283ce40a9620e43e88507432"
+    },
+    {
+      "path": "scripts/provider-a1-receipts.mjs",
+      "sha256": "sha256:277cc45444de5393c201b1a34647ec14bc0ce5c5d3586ff0a6f87f6a8ed21f7a"
+    },
+    {
+      "path": "scripts/r03-record-development.mjs",
+      "sha256": "sha256:09124462279119bfc394c3b870f092edf4d5f3417842a77fada0418535d1b3d7"
     },
     {
       "path": "scripts/r03-stage-check.mjs",
-      "sha256": "sha256:5edfe611f37f38c0dc9fb094ad7c0785d073ef08f3988f43b62643413762ea8e"
+      "sha256": "sha256:40f823f3a67d66f5b5441e410a0c03a55b1d49907237c31d4eebf0fe1c8e16d4"
     },
     {
       "path": "scripts/r03-stage-check.test.mjs",
-      "sha256": "sha256:22797839bd1d7d1dd9ba6e431b6604c76002d9b22771950415afe5d45fb2b19b"
+      "sha256": "sha256:cc02ec21dffe45f4ef0a0816c4b821348f4bf3908c6b2299cc38d6e785540354"
     },
     {
       "path": "scripts/r03-target-check.cjs",
-      "sha256": "sha256:16077f3313217b7cd724e75eeb432203f4fc7dfea27fb640cd2915560aa07c97"
+      "sha256": "sha256:5ec1beca70e191a5dfd8d755c8ba39688fe33f9b1f1c5fa72e589368342ada3a"
     },
     {
       "path": "services/runtime-gateway/src/live_tests.rs",
@@ -320,10 +452,11 @@
         "--lib",
         "--locked"
       ],
-      "executedAt": "2026-10-11T11:00:42.860Z",
+      "executedAt": "2026-10-11T14:03:21.053Z",
       "exitCode": 0,
-      "log": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/logs/runtime.log",
-      "logSha256": "sha256:e96dfe0f22adf13943ad6e2493936a35a5a0b479735ed5c07ec44271005e5b2b"
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/runtime.log",
+      "logSha256": "sha256:71ab9ac15e6a39b5b45d2e2d8e88205018c50049111f75d4ab2fbd54e0260d55"
     },
     {
       "id": "engines",
@@ -348,10 +481,11 @@
         "--skip",
         "r03_worker"
       ],
-      "executedAt": "2026-10-11T11:00:43.211Z",
+      "executedAt": "2026-10-11T14:03:29.279Z",
       "exitCode": 0,
-      "log": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/logs/engines.log",
-      "logSha256": "sha256:06b15638fbc46f692a5606996793f474fef00c2f99277274f09b3610eea306cb"
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/engines.log",
+      "logSha256": "sha256:01f51b1e6aca98001c8c742526a7fe484034f0bd40974f276610d88850602a94"
     },
     {
       "id": "tp02",
@@ -363,10 +497,11 @@
         "engines/tests/test_rd_agent_development.py",
         "-q"
       ],
-      "executedAt": "2026-10-11T11:00:47.937Z",
+      "executedAt": "2026-10-11T14:03:31.425Z",
       "exitCode": 0,
-      "log": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/logs/tp02.log",
-      "logSha256": "sha256:8a4ed8ff12ac8ee863a9d5468dadb7a2aedfa8375b1d9f9c7096bd45475c19e9"
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/tp02.log",
+      "logSha256": "sha256:6688690e64ea226ab705895c9c09e7922364d753214b3848369ca8cf75a9a65f"
     },
     {
       "id": "manager",
@@ -380,10 +515,11 @@
         "quantos-engine-manager",
         "--locked"
       ],
-      "executedAt": "2026-10-11T11:00:50.320Z",
+      "executedAt": "2026-10-11T14:03:32.847Z",
       "exitCode": 0,
-      "log": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/logs/manager.log",
-      "logSha256": "sha256:a4aa2c53d2fb4e9c7e287447b9a45d6ed99cea199855b95f2fdd3e00c3942526"
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/manager.log",
+      "logSha256": "sha256:a5c4b559763cc2c834f534285fb9be6d502f0a680e96b1c468f2f9abb25c8b65"
     },
     {
       "id": "clippy",
@@ -402,10 +538,11 @@
         "-D",
         "warnings"
       ],
-      "executedAt": "2026-10-11T11:02:16.933Z",
+      "executedAt": "2026-10-11T14:03:51.666Z",
       "exitCode": 0,
-      "log": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/logs/clippy.log",
-      "logSha256": "sha256:1195eb722452e92744339ca205661dcfafecff2b4cd946ea309a30df9520b482"
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/clippy.log",
+      "logSha256": "sha256:4e199661dfeba960e1a5aff8488d54cf46577659102e70e0d07da43b287ee6ba"
     },
     {
       "id": "plans",
@@ -413,10 +550,11 @@
         "node",
         "scripts/check-development-plans.mjs"
       ],
-      "executedAt": "2026-10-11T11:02:31.581Z",
+      "executedAt": "2026-10-11T14:04:14.046Z",
       "exitCode": 0,
-      "log": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/logs/plans.log",
-      "logSha256": "sha256:b073f4e4f28b40a65a0bc781958b1e794260d10a11d3411ff9bb44db90a6c86a"
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/plans.log",
+      "logSha256": "sha256:f4f6f1a007ec1b54e9b8e6ef3b90009459c10d46c8108700fc12a6335f187922"
     },
     {
       "id": "gate-negatives",
@@ -425,91 +563,219 @@
         "--test",
         "scripts/r03-stage-check.test.mjs"
       ],
-      "executedAt": "2026-10-11T11:02:31.623Z",
+      "executedAt": "2026-10-11T14:04:14.090Z",
       "exitCode": 0,
-      "log": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/logs/gate-negatives.log",
-      "logSha256": "sha256:203c2be6b63408a51b83d136ecf5c1c9f9c5407d71838ff45a5e2818e7267829"
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/gate-negatives.log",
+      "logSha256": "sha256:d37fb34dbe2c98cca50f1c21602b4b9b079df2d7ea4b9cc029424ac1a492c960"
     }
   ],
-  "targetDirectory": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/target",
-  "targetFiles": [
-    {
-      "path": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/target/fixture.json",
-      "sha256": "sha256:4a05ba3655f0430d0375270457b1b649ed4f3d50d201be9f6635c64374da7a33"
-    },
-    {
-      "path": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/target/lifecycle-result.json",
-      "sha256": "sha256:ef0c34e45a7d3966c2b9f8923e9bb514bc8f1a740e5b5ab453b26ee7d26ebd6f"
-    },
-    {
-      "path": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/target/prepare-worker.log",
-      "sha256": "sha256:7024582fa981fe2d0238f989b2ba6a30a0cf44ee376678cc1c3ef276974860d9"
-    },
-    {
-      "path": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/target/receipt.json",
-      "sha256": "sha256:b24b8faaa2e931985e7404b89a4eb6f57be2c1143ed8c543694d0831071f1efd"
-    },
-    {
-      "path": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/target/recover-worker.log",
-      "sha256": "sha256:329aef51d717ff9b41a07514b9dd8b2858fbe1e941cb24781d587b9759beb838"
-    },
-    {
-      "path": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/target/recovery-run.json",
-      "sha256": "sha256:fc2a5c179899ce334a07c5262baf231fda51afda653337117c4a2eab907c547b"
-    },
-    {
-      "path": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/target/restarted-artifact.json",
-      "sha256": "sha256:639afc86485a2ce055a2cbeed00b4ea29c29d25a6daf1cca9be102bfdd9bd1db"
-    },
-    {
-      "path": "docs/audit/evidence/r03-prerequisites-20261011/r03-current/target/target.log",
-      "sha256": "sha256:6d9bced5e1da0610f7b1e2d32bfc97768bb4cb4f41c3072714c211b7b49e0d97"
-    }
-  ],
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/local-prerequisites.json",
+    "inputDigest": "sha256:0463fae8888d255f72741db9c749528ea6fc54e01e8f6a3fd9873f263d4a6ef7"
+  },
   "dependencies": [
     {
       "nodeId": "CORE:F07",
-      "status": "BLOCKED",
-      "reason": "CORE:F07: dependency is not READY"
+      "status": "LOCAL_READY",
+      "owner": "CORE:R03",
+      "inputDigest": "sha256:8e4e8848a87f20c707743350de726c221be727277f1d25cbdcfe6a1e0d0eb45c"
     },
     {
       "nodeId": "CORE:F08",
-      "status": "BLOCKED",
-      "reason": "CORE:F08: dependency is not READY"
+      "status": "LOCAL_READY",
+      "owner": "CORE:R03",
+      "inputDigest": "sha256:453f1d0bbe9d2047f13878f4d816c761c659362e961b9c5ceca7d8f662b8a5cb"
     },
     {
       "nodeId": "CORE:R02",
-      "status": "BLOCKED",
-      "reason": "CORE:R02: dependency is not READY"
+      "status": "LOCAL_READY",
+      "owner": "CORE:R03",
+      "inputDigest": "sha256:3bba60c2c5750c78f16d540b942fd9a6c69787ff0e6c981465888cc85997ac24"
     },
     {
       "nodeId": "CORE:TP02",
-      "status": "BLOCKED",
-      "reason": "CORE:TP02: dependency is not READY"
+      "status": "LOCAL_READY",
+      "owner": "CORE:R03",
+      "inputDigest": "sha256:441f0b2f9b591ad49286e27a8f391acd8c4b09bad89c9b7af59823397b528f65"
     },
     {
       "nodeId": "CORE-GATE:F0",
-      "status": "BLOCKED",
-      "reason": "CORE-GATE:F0: dependency is not READY"
+      "status": "LOCAL_READY",
+      "owner": "CORE:R03",
+      "inputDigest": "sha256:230324f55e18cf7e4c29f04f2a5e9429a01f5fcb8e4bef6b68df987b7beb460b"
     }
   ],
-  "excluded": [
-    "expired historical source authorization",
-    "current prerequisite closure admission",
-    "deployed HTTP/JWT/least-privilege Storage",
-    "real providers, models, tools or token/currency budgets",
-    "representative performance, soak, hosted same-SHA CI, release or formal acceptance"
-  ],
-  "readmission": {
-    "sourceCommit": "b358581d24e51d1e7dd4200176467c833d12a0f0",
-    "observedAt": "2026-10-11T11:57:53.090Z",
-    "previousManifest": "docs/audit/evidence/r03-prerequisites-20261011/initial/r03-before-readmission-manifest.json",
-    "previousManifestSha256": "sha256:292fd8081300da79684f79cb061cad3612af6912417e8ea7115e83ce46278ecb",
-    "freshResearchExecution": true,
-    "inputTransition": "docs/audit/evidence/r03-prerequisites-20261011/final/r03-input-transition.json",
-    "dataUseConfirmation": "docs/provider-approvals/20261011-r02-retained-revalidation-confirmation.json",
-    "prerequisiteAssessment": "docs/audit/evidence/r03-prerequisites-20261011/final/interrupted-assessment.json",
-    "blocker": "Development Supabase default_transaction_read_only=on; F07 failed, 100 fixture runs pending retirement",
-    "formalAccepted": false
+  "cleanup": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-process-cleanup.json",
+    "inputDigest": "sha256:cb63524eb1c0b4b539d5068f2d369db5a4f2dae3663ccf870f42e8396385d81d"
+  },
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。",
+    "prerequisiteChecks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r01-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R01"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r02-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R02"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ]
   }
 }
