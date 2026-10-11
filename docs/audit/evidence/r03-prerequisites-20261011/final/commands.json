@@ -1,0 +1,83 @@
+[
+  {
+    "id": "r02-admission",
+    "command": [
+      "make",
+      "r02-admission-check"
+    ],
+    "observedAt": "2026-10-11T12:14:30.770Z",
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "verdict": "PASS_EXPECTED_REJECTION",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/final/r02-admission.log",
+    "sha256": "sha256:17f1ddc0068ef9bd39c6930aa39dc892708acf52cb15a5a2d507c1b72a50d0e0"
+  },
+  {
+    "id": "r03-admission",
+    "command": [
+      "make",
+      "r03-admission-check"
+    ],
+    "observedAt": "2026-10-11T12:14:30.856Z",
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "verdict": "PASS_EXPECTED_REJECTION",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/final/r03-admission.log",
+    "sha256": "sha256:44aad06d2e732c666ff62165a8f040425733849ecb915e7385323a0b8f6d4b4b"
+  },
+  {
+    "id": "r03-verify",
+    "command": [
+      "node",
+      "scripts/r03-stage-check.mjs",
+      "--verify"
+    ],
+    "observedAt": "2026-10-11T12:14:30.937Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/final/r03-verify.log",
+    "sha256": "sha256:f3386b50b2df0b640ba47282a24e36b219f09794f04951f1d0850e9ef638eb8d"
+  },
+  {
+    "id": "r03-unit-negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/r03-stage-check.test.mjs"
+    ],
+    "observedAt": "2026-10-11T12:14:31.008Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/final/r03-unit-negatives.log",
+    "sha256": "sha256:cd32d483f70725fc159abbb94b721280c437a6e74ff7e790d2a1dcb1e22caa02"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "observedAt": "2026-10-11T12:14:31.091Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/final/plans.log",
+    "sha256": "sha256:b073f4e4f28b40a65a0bc781958b1e794260d10a11d3411ff9bb44db90a6c86a"
+  },
+  {
+    "id": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "observedAt": "2026-10-11T12:14:31.128Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "verdict": "PASS",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/final/diff-check.log",
+    "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

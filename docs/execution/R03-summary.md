@@ -1,6 +1,6 @@
 # R03 Research orchestration 与 Artifact lifecycle
 
-开发实现提供 `ResearchWorkflowCoordinator`（内存测试）与 `PgResearchWorkflowCoordinator`（配置的 Supabase PostgreSQL + 私有 Storage）。持久化路径复用既有 Runtime 表，无新增迁移、数据库重建或本地数据库。验收与限制见 [本轮报告](../audit/R03-development-2026-10-11.md)。
+开发实现提供 `ResearchWorkflowCoordinator`（内存测试）与 `PgResearchWorkflowCoordinator`（配置的 Supabase PostgreSQL + 私有 Storage）。持久化路径复用既有 Runtime 表，无新增迁移、数据库重建或本地数据库。原实现见[执行报告](../audit/R03-development-2026-10-11.md)，当前准入/只读阻塞与收尾见[前置复评报告](../audit/R03-prerequisite-readmission-2026-10-11.md)。
 
 ## 请求与调度
 
@@ -39,6 +39,6 @@ node scripts/r03-stage-check.mjs --verify
 make r03-admission-check
 ```
 
-本地 UDS fixture 服务需要允许建立本机 socket；静态/本地通过不代表数据库验收。目标脚本拒绝非 Supabase、项目不匹配与缺失 CA，使用配置凭据且不打印凭据；所有失败及清理结果保留。目标合成来源策略不能替代 R02 历史行情已到期授权。
+本地 UDS fixture 服务需要允许建立本机 socket；静态/本地通过不代表数据库验收。目标脚本拒绝非 Supabase、项目不匹配与缺失 CA，使用配置凭据且不打印凭据；所有失败及清理结果保留。目标使用专属合成来源；R02的32条保留事实仅按独立限时许可内部复验，原采集授权仍已到期。
 
-R03 工程证据、五个当前前置 Gate、项目用户确认、同 SHA hosted CI 与发布分别验证。当前前置未闭合，禁止据本摘要将 R04/R1 总 Gate 自动标为 READY；参考 [统一确认规程](../gate-records/user-acceptance-confirmation-workflow.md)。
+R03 工程证据、五个当前前置 Gate、项目用户确认、同 SHA hosted CI 与发布分别验证。主轮前置53 PASS/5 FAIL/2 NOT RUN，TP02两项已在68acfa67修正复验PASS；开发Supabase只读、100个自有任务待收尾；R03新目标/回归工程PASS、admission拒绝，Gate BLOCKED。恢复开发目标与完整前置复验后才可重新准入，不放行TP03/TP04/R04/R1总Gate；参考 [统一确认规程](../gate-records/user-acceptance-confirmation-workflow.md)。

@@ -1,4 +1,6 @@
-> 当前工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
+> 当前工程快照（R03前置复评，2026-10-11）：项目用户确认32条保留事实仅限内部复验至北京时间10月14日08:00；冻结b358581d必要前置60组处置为53 PASS/5 FAIL/2 NOT RUN；TP02两项随后在68acfa67修正复验PASS，原记录保留，完整前置须重跑。开发Supabase进入只读，F07失败且100个自有fixture任务待收尾。R03新目标/七组回归工程PASS，但admission实际拒绝、Gate BLOCKED；0 READY、158 NOT_ASSESSED、1 BLOCKED，正式/CI/发布独立。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)。
+
+> 历史工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 
 > 上轮工程快照（TP09，2026-10-11）：冻结fbb5775e完成TP09/TP03/F08/F05/F0必要14节点、56组实际功能复评与严格内容校验；14 DEVELOPMENT READY、145 NOT_ASSESSED、0 BLOCKED。正式用户确认、同SHA hosted CI、发布独立。见[本轮报告](./audit/TP09-development-2026-10-11.md)。
 
@@ -31,13 +33,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.66
+> 版本：3.67
 > 更新时间：2026-10-11
 > 状态：TP10/F08/F0必要13节点DEVELOPMENT READY；页面、正式和发布独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.67`：R02保留32事实限时用途独立确认；当前前置53 PASS/5 FAIL/2 NOT RUN，开发Supabase只读使F07和fixture收尾阻塞；R03新工程目标PASS、admission实际拒绝，Gate BLOCKED。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)。
 
 - `3.66`：TP09当前必要闭包刷新，14节点/56实际命令组PASS，严格DEVELOPMENT READY；工程和正式/发布验收独立。见[本轮报告](./audit/TP09-development-2026-10-11.md)。
 - `3.65`：TP03当前必要闭包刷新，13节点/53实际命令组PASS，严格DEVELOPMENT READY；工程和正式/发布验收独立。见[本轮报告](./audit/TP03-readmission-2026-10-11.md)。

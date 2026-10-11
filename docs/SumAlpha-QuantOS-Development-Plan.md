@@ -1,4 +1,6 @@
-> 当前工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
+> 当前工程快照（R03前置复评，2026-10-11）：项目用户确认32条保留事实仅限内部复验至北京时间10月14日08:00；冻结b358581d必要前置60组处置为53 PASS/5 FAIL/2 NOT RUN；TP02两项随后在68acfa67修正复验PASS，原记录保留，完整前置须重跑。开发Supabase进入只读，F07失败且100个自有fixture任务待收尾。R03新目标/七组回归工程PASS，但admission实际拒绝、Gate BLOCKED；0 READY、158 NOT_ASSESSED、1 BLOCKED，正式/CI/发布独立。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)。
+
+> 历史工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 
 > 上轮工程快照（TP09，2026-10-11）：冻结fbb5775e完成TP09/TP03/F08/F05/F0必要14节点、56组实际功能复评与严格内容校验；14 DEVELOPMENT READY、145 NOT_ASSESSED、0 BLOCKED。正式用户确认、同SHA hosted CI、发布独立。见[本轮报告](./audit/TP09-development-2026-10-11.md)。
 
@@ -35,14 +37,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.65
+> 版本：3.66
 > 更新时间：2026-10-11
 > 状态：技术执行基线  
-> 本轮变更：R03限定工程实现与目标验证PASS；五项当前依赖未闭合，开发Gate BLOCKED；未授予正式、CI、部署或发布。
+> 本轮变更：R02限时用途独立确认；当前前置复验及Supabase只读阻塞证据；R03新目标/回归PASS、admission拒绝，Gate BLOCKED。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.66`：R02保留32事实限时用途独立确认；当前前置53 PASS/5 FAIL/2 NOT RUN，开发Supabase只读使F07和fixture收尾阻塞；R03新工程目标PASS、admission实际拒绝，Gate BLOCKED。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)。
 
 - `3.65`：R03原子研究调度、持久Artifact/重放与取消验证；旧Gate因功能输入变化撤销，当前R03 BLOCKED，R02来源授权到期待用户决策。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 
@@ -686,7 +690,7 @@ flowchart TD
 
 当前功能入口：`pnpm assess:f0-development <独立证据目录>` 实际执行 F0 与 PROVIDER:A1 的功能闭包；`pnpm check:f0-development` 逐项校验 11 个前置的代码/契约/配置/测试、日志/产物和递归依赖。任何缺测或漂移均拒绝。
 
-F0 DEVELOPMENT必要闭包在冻结8fbedfe8随TP10重新实际执行并严格READY；见[当前回执](./audit/evidence/provider-a1-remediation-20261004/tp10-admission-20261011/attempt-01/core-gate-f0.json)及[本轮报告](./audit/TP10-development-2026-10-11.md)。旧冻结源码及正式/hosted CI按历史范围保留。
+历史F0 DEVELOPMENT必要闭包曾在冻结8fbedfe8随TP10实际执行并严格READY；当前输入已变化，不迁移至本轮。见[历史回执](./audit/evidence/provider-a1-remediation-20261004/tp10-admission-20261011/attempt-01/core-gate-f0.json)及[本轮报告](./audit/TP10-development-2026-10-11.md)。旧冻结源码及正式/hosted CI按历史范围保留。
 
 上方 `required_scope/review_status/source_commit/evidence` 保留 F0 原始 7/7 历史验收事实；当前 `stage_gate` 的 DEVELOPMENT 范围为 F01–F09/TP01-A/B 的工程、契约、安全、数据与恢复功能基线，按第 2.9 节核对相关输入和受影响功能。无需因本文排期调整重跑完整同 SHA 签名、远程重建或长稳；正式候选仍由 RELEASE 检查点取得自身回执。
 
@@ -796,7 +800,7 @@ F0 DEVELOPMENT必要闭包在冻结8fbedfe8随TP10重新实际执行并严格REA
 - 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s
 - 阶段执行：contract、确定性 hash 与交易/secret/网络拒绝在开发验证；P95 接收响应 <1s 归 RELEASE-GATE:BETA，deadline 内确定性受理或错误仍是开发功能要求。
 - 阶段/依赖：F08；R1
-- 当前工程复核：保留TP02原冻结源码的历史工程记录；当前4875b140必要闭包未包含该Engine自身，本轮未重授其DEVELOPMENT Gate，当前为NOT_ASSESSED。见[TP02历史报告](./audit/TP02-development-2026-10-09.md)与[当前TP05报告](./audit/TP05-development-2026-10-10.md)。
+- 当前工程复核：68acfa67修正完整Python套件增长后的回执校验，10组组件、1366项Python、实际隔离wheel五RPC、26项负向与Engine清理实际PASS。F08/F0完整前置仍因开发Supabase只读未重新准入，TP02保持NOT_ASSESSED，不把组件PASS作为READY。原计数失败保留。见[当前复评](./audit/R03-prerequisite-readmission-2026-10-11.md)、[组件证据](./audit/evidence/r03-prerequisites-20261011/tp02-postfix/summary.json)及[历史报告](./audit/TP02-development-2026-10-09.md)。
 
 
 <a id="task-tp03"></a>
@@ -946,7 +950,7 @@ F0 DEVELOPMENT必要闭包在冻结8fbedfe8随TP10重新实际执行并严格REA
 - task_id: `R03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:292fd8081300da79684f79cb061cad3612af6912417e8ea7115e83ce46278ecb","evidence":["audit/evidence/r03-20261011/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:ee865d512d9bfed1ab135b3bea3667bdd951dec1ed488374aac37efa2d4b4cb2","evidence":["audit/evidence/r03-20261011/manifest.json"]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - closes_core: []
@@ -959,7 +963,7 @@ F0 DEVELOPMENT必要闭包在冻结8fbedfe8随TP10重新实际执行并严格REA
 - 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact
 - 阶段执行：10 次确定性运行、取消 ≤2s 确认与无重复 Artifact 为开发要求；获准工程环境的 Runtime/Engine 组合在联调验证，部署/负载回执在 RELEASE-GATE:BETA 重验。
 - 依赖：F07、F08、R02、TP02
-- 当前工程复核：冻结0819addc限定工程验证PASS；七组回归、配置Supabase十次同hash/证据、取消230/621ms、独立进程恢复及清理通过。五项当前依赖未闭合，R02历史来源授权到期，DEVELOPMENT Gate BLOCKED；正式/CI/部署/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)、[manifest](./audit/evidence/r03-20261011/manifest.json)与[运行说明](./execution/R03-summary.md)。
+- 当前工程复核：冻结b358581d的R03七组回归与Supabase生命周期重新实际PASS，74功能输入绑定新回执；主轮必要前置53 PASS/5 FAIL/2 NOT RUN；TP02两项已在68acfa67修正复验PASS，完整闭包须重新执行。开发Supabase只读、100任务待收尾，五项直接前置未准入。R03 admission实际拒绝，Gate BLOCKED、formalAccepted=false；32条限时内部用途独立确认，不重开采集窗口。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)与[manifest](./audit/evidence/r03-20261011/manifest.json)。
 
 <a id="task-r04"></a>
 ### R04：Signal 与 TradeProposal 工作流

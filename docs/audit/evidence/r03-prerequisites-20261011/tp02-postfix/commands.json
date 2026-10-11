@@ -1,0 +1,72 @@
+[
+  {
+    "id": "component",
+    "command": [
+      "node",
+      "engines/rd-agent/check-development.mjs",
+      "--record"
+    ],
+    "observedAt": "2026-10-11T12:09:43.501Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/tp02-postfix/component.log",
+    "sha256": "sha256:f9fd22d28ecbd65a4066ac3dbd5d6a1916bca58209e617462a6a1205475b2c24"
+  },
+  {
+    "id": "negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tp02-functional-artifacts.test.mjs"
+    ],
+    "observedAt": "2026-10-11T12:10:05.830Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/tp02-postfix/negatives.log",
+    "sha256": "sha256:ec44be28c58e81535c03f9dccea361349ab1c2ddbb1e6fa9486b460d57c09036"
+  },
+  {
+    "id": "verify",
+    "command": [
+      "node",
+      "engines/rd-agent/check-development.mjs",
+      "--verify"
+    ],
+    "observedAt": "2026-10-11T12:10:08.016Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/tp02-postfix/verify.log",
+    "sha256": "sha256:f3386b50b2df0b640ba47282a24e36b219f09794f04951f1d0850e9ef638eb8d"
+  },
+  {
+    "id": "ready",
+    "command": [
+      "node",
+      "engines/rd-agent/check-development.mjs",
+      "--ready"
+    ],
+    "observedAt": "2026-10-11T12:10:08.180Z",
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "status": "PASS_EXPECTED_REJECTION",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/tp02-postfix/ready.log",
+    "sha256": "sha256:f3386b50b2df0b640ba47282a24e36b219f09794f04951f1d0850e9ef638eb8d"
+  },
+  {
+    "id": "cleanup",
+    "command": [
+      "node",
+      "scripts/r1-process-cleanup.cjs",
+      "docs/audit/evidence/r03-prerequisites-20261011/tp02-postfix/engine-cleanup.json"
+    ],
+    "observedAt": "2026-10-11T12:10:08.338Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/r03-prerequisites-20261011/tp02-postfix/cleanup.log",
+    "sha256": "sha256:5d6406de28323f4c7c0d80855bdcb5695a5dae85bdc8bc259b58d10be1f1be7b"
+  }
+]
