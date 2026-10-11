@@ -1,6 +1,6 @@
-> 当前刷新中（2026-10-11）：TP05检查器移除陈旧总数等值假设，保留全套命令、最低基线与失败拒绝。共同输入已变化，历史READY先撤销，正在重新执行必要依赖闭包。
+> 当前工程状态（TP05，2026-10-11）：冻结ddae9d52完成TP05/F08/F0必要13节点、53组实测与严格内容准入；13 READY、146 NOT_ASSESSED、0 BLOCKED，正式/hosted CI/生产发布独立。见[TP05刷新报告](./audit/TP05-readmission-2026-10-11.md)。
 
-> 当前工程状态（2026-10-11）：冻结8fbedfe8完成TP10/F08/F0必要13节点、53组实际功能复评，严格DEVELOPMENT READY；当前13 READY、146 NOT_ASSESSED、0 BLOCKED。限定IA评估，无上游源码/运行时；正式、UI实现与发布独立。见[TP10报告](./audit/TP10-development-2026-10-11.md)。
+> 上轮工程快照（TP10，2026-10-11）：冻结8fbedfe8完成TP10/F08/F0必要13节点、53组实际功能复评，严格DEVELOPMENT READY；当前13 READY、146 NOT_ASSESSED、0 BLOCKED。限定IA评估，无上游源码/运行时；正式、UI实现与发布独立。见[TP10报告](./audit/TP10-development-2026-10-11.md)。
 
 > 上轮工程快照（2026-10-10）：冻结4875b140完成TP05/F05/F08/F0必要13节点、53组实际功能复评与严格内容校验；13 DEVELOPMENT READY、146 NOT_ASSESSED、0 BLOCKED。TP02/TP03/TP04等旧Gate本轮未重授，正式/hosted CI/发布独立。见[本轮报告](./audit/TP05-development-2026-10-10.md)。
 
@@ -23,13 +23,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.62
+> 版本：3.63
 > 更新时间：2026-10-11
 > 状态：TP10/F08/F0必要13节点DEVELOPMENT READY；页面、正式和发布独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.63`：先行刷新TP05当前开发准入；修复旧Python总数等值检查，完整13节点/53组实测与严格内容校验PASS，正式与生产独立。见[TP05刷新报告](./audit/TP05-readmission-2026-10-11.md)。
 
 - `3.62`：TP10 ValueCell限定信息架构评估刷新，12项来源分级与可验设计锚点、5项设计后续、10项ADR差异、源码/运行时排除；功能输入变化后原回执全部转NOT_ASSESSED，必要F0/TP10闭包13节点/53组实际PASS，严格DEVELOPMENT READY；12项补充UI源结构只读审阅单独绑定。正式/页面/发布独立。见 [TP10报告](./audit/TP10-development-2026-10-11.md)。
 

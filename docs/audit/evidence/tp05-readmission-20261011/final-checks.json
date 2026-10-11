@@ -1,0 +1,72 @@
+{
+  "schema": "quantos-tp05-readmission-final/v1",
+  "formalAccepted": false,
+  "results": [
+    {
+      "name": "ready",
+      "command": [
+        "node",
+        "engines/openbb-adapter/check-development.mjs",
+        "--ready"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T02:56:37.875Z"
+    },
+    {
+      "name": "strict",
+      "command": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "import {nodesFromPlans,closure,validateReceipt} from './scripts/provider-a1-receipts.mjs';const ids=closure(nodesFromPlans(),'CORE:TP05');for(const id of ids)validateReceipt(id);console.log('STRICT_READY',ids.length);"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T02:56:45.238Z"
+    },
+    {
+      "name": "negatives",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp05-functional-artifacts.test.mjs"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T02:56:50.077Z"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T02:56:50.115Z"
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T02:56:50.154Z"
+    },
+    {
+      "name": "secrets",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "dir",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner",
+        "docs/audit/evidence/provider-a1-remediation-20261004/tp05-readmission-20261011"
+      ],
+      "exitCode": 0,
+      "executedAt": "2026-10-11T02:56:50.436Z"
+    }
+  ]
+}

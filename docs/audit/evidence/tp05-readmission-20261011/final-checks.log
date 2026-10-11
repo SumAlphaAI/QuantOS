@@ -1,0 +1,88 @@
+["node","engines/openbb-adapter/check-development.mjs","--ready"]
+{"engineeringStatus":"PASS","stageGate":"READY","formalAccepted":false}
+
+["node","--input-type=module","-e","import {nodesFromPlans,closure,validateReceipt} from './scripts/provider-a1-receipts.mjs';const ids=closure(nodesFromPlans(),'CORE:TP05');for(const id of ids)validateReceipt(id);console.log('STRICT_READY',ids.length);"]
+STRICT_READY 13
+
+["node","--test","scripts/tp05-functional-artifacts.test.mjs"]
+✔ engineering-only evidence cannot admit TP05 (179.347041ms)
+✔ all execution logs and installed wheels must travel with a copied receipt (81.667333ms)
+✔ TP05 receipt rejects omitted check (144.565125ms)
+✔ TP05 receipt rejects failed execution (142.165334ms)
+✔ TP05 receipt rejects fake command (141.012291ms)
+✔ TP05 receipt rejects source inventory (129.042041ms)
+✔ TP05 receipt rejects log digest (140.418125ms)
+✔ TP05 receipt rejects fixture omission (138.556625ms)
+✔ TP05 receipt rejects formal claim (79.962041ms)
+✔ TP05 receipt rejects future execution (143.630042ms)
+✔ TP05 receipt rejects unreaped package child (141.876083ms)
+✔ TP05 receipt rejects editable package claim (139.802417ms)
+✔ TP05 receipt rejects upstream claim (141.818625ms)
+✔ TP05 receipt rejects production gate omission (141.371667ms)
+✔ TP05 receipt rejects upstream package present (140.882375ms)
+✔ execution source must match unified manifest (80.853084ms)
+✔ copied logs are independent of canonical logs (221.768667ms)
+✔ tampered wheel bytes are rejected (140.144ms)
+✔ actual output evidence rejects URI collision (153.342209ms)
+✔ actual output evidence rejects matrix sample omission (157.527208ms)
+✔ actual output evidence rejects missing sources (156.393208ms)
+✔ actual output evidence rejects production data claim (154.212917ms)
+✔ actual output evidence rejects trading data claim (154.007875ms)
+✔ actual output evidence rejects response hash (156.165417ms)
+✔ actual output evidence rejects cross-tenant scope (157.992292ms)
+✔ actual output evidence rejects false source schema (158.66975ms)
+✔ actual output evidence rejects upstream commit (155.465791ms)
+✔ UI transcript rejects cancel timeout (156.103167ms)
+✔ UI transcript rejects cancel side effect (153.340875ms)
+✔ full Python regression expanded suite (151.970208ms)
+✔ full Python regression below baseline (142.58825ms)
+✔ full Python regression failed suite (140.40525ms)
+✔ full Python regression empty suite (140.265125ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4816.23925
+
+["node","scripts/check-development-plans.mjs"]
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 146,
+    "READY": 13,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1462,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22
+}
+
+["git","diff","--check"]
+
+["artifacts/tools/gitleaks","dir","--config",".gitleaks.toml","--gitleaks-ignore-path",".gitleaksignore","--redact","--no-banner","docs/audit/evidence/provider-a1-remediation-20261004/tp05-readmission-20261011"]
+10:56AM INF scanned ~7007488 bytes (7.01 MB) in 84ms
+10:56AM INF no leaks found
+
