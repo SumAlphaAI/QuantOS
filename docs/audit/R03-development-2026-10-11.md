@@ -1,5 +1,7 @@
 # R03 开发实现与验收证据（2026-10-11）
 
+> 后续当前复评：项目用户已确认独立的32条保留事实限时复验用途，原采集授权仍过期且不改写。本报告以下为此前冻结证据与BLOCKED快照；当前前置复评见[R03前置重新准入报告](./R03-prerequisite-readmission-2026-10-11.md)，未完成复评前不升级Gate。
+
 **限定开发工程验证 PASS；DEVELOPMENT Gate BLOCKED；formalAccepted=false。** 冻结源码 `0819addc639208dc5f2ae66d96a771a08fb9db87`，七组开发回归全部通过；已配置开发 Supabase 的完整生命周期测试通过。当前五项前置回执未重新准入，R02 历史真实行情来源授权已过期，因此不授予 R03 READY、R04 联调、R1 总 Gate、正式 ACCEPTED、同 SHA hosted CI 或发布。
 
 [内容绑定 manifest](./evidence/r03-20261011/manifest.json) 摘要 `sha256:292fd8081300da79684f79cb061cad3612af6912417e8ea7115e83ce46278ecb`；[执行台账](./evidence/r03-20261011/final/execution-results.json)、[目标回执](./evidence/r03-20261011/final/target/receipt.json)、[完整目标结果](./evidence/r03-20261011/final/target/lifecycle-result.json)与[前置核验](./evidence/r03-20261011/final/prerequisites.json)分别保存原始事实。后续提交只收尾文档/证据，源码字节仍由 manifest 独立验证，不把历史 source SHA 迁移为新 HEAD 的正式批准。

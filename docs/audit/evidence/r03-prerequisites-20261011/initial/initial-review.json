@@ -1,0 +1,270 @@
+{
+  "schema": "quantos-r03-prerequisite-initial-review/v1",
+  "observedAt": "2026-10-11T08:47:40.628Z",
+  "nodes": [
+    {
+      "nodeId": "CORE:F01",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:F03",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F01"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:F04",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F03"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:F05",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F04"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:F06",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F05"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:F07",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F04",
+        "CORE:F05",
+        "CORE:F06"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:F08",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F07"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:F02",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F01"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:F09",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:TP01-A",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F01",
+        "CORE:F02"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:TP01-B",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:TP01-A",
+        "CORE:F07"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F01",
+        "CORE:F02",
+        "CORE:F03",
+        "CORE:F04",
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:F09",
+        "CORE:TP01-A",
+        "CORE:TP01-B"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:R01",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F03",
+        "CORE:F05",
+        "CORE-GATE:F0"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:R02",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:R01",
+        "CORE:F06",
+        "CORE-GATE:F0"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    },
+    {
+      "nodeId": "CORE:TP02",
+      "stageGate": {
+        "stage": "DEVELOPMENT",
+        "status": "NOT_ASSESSED",
+        "input_digest": null,
+        "evidence": []
+      },
+      "dependencies": [
+        "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "validation": {
+        "status": "REJECTED",
+        "reason": "one functional manifest required"
+      }
+    }
+  ]
+}

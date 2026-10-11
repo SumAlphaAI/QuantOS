@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Reuse retained approved immutable facts. No provider ingestion or deployment.
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{spawn}=require('node:child_process');
-const {retainedSourcePolicy}=require('./r02-retained-source-policy.cjs');
+const {retainedSourcePolicy,validateRetainedRows}=require('./r02-retained-source-policy.cjs');
 const {targetUrl}=require('./lib/r01-db.cjs');
 const {openConnection}=require('./lib/r02-chain-connection.cjs');
 const run=crypto.randomUUID(),out=path.resolve(process.env.QUANTOS_R02_EVIDENCE_DIR||`artifacts/r02-chain/${run}`);
@@ -15,16 +15,20 @@ const errorCode=e=>e.code||(/^R02_[A-Z_]+$/.test(e.message?.split(':')[0])?e.mes
 async function main(){let db,actor,context,ownsRules=false;save();
  try {for(const k of ['DATABASE_URL','SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','SUPABASE_STORAGE_BUCKET'])if(!process.env[k])throw Error('R02_TARGET_CONFIG_MISSING');
   const policy=retainedSourcePolicy();const approval=policy.approvals[0];receipt.tenant=approval.tenant_id;receipt.approval=policy.evidence;
+  const assertAuthorized=()=>{try{if(JSON.stringify(retainedSourcePolicy())!==JSON.stringify(policy))throw Error();}catch{throw Error('R02_SOURCE_AUTHORIZATION_CHANGED');}};
   fs.writeFileSync(path.join(out,'source-policy.json'),JSON.stringify(policy,null,2)+'\n');
   setPhase('INITIAL_CONNECTION');receipt.bootstrapConnection={};
   db=await openConnection(targetUrl(),'quantos-r02-retained-chain',{record:receipt.bootstrapConnection,phase,save});
   setPhase('RETAINED_SOURCE_SQL');
   const rows=[];for(const symbol of approval.symbols){const aggregate=approval.provider+':'+symbol;
-    const r=(await db.query("select aggregate_id,sequence,payload from quantos.event_log where tenant_id=$1 and aggregate_type='market' and aggregate_id=$2 and sequence between 1 and 16 order by sequence",[approval.tenant_id,aggregate])).rows;
+    assertAuthorized();
+    const r=(await db.query("select event_id,aggregate_id,sequence,payload_hash,payload from quantos.event_log where tenant_id=$1 and aggregate_type='market' and aggregate_id=$2 and sequence between 1 and 16 order by sequence",[approval.tenant_id,aggregate])).rows;
     if(r.length!==16||r.some((r,i)=>Number(r.sequence)!==i+1))throw Error('R02_RETAINED_LINEAGE_GAP');rows.push(...r);}
+  assertAuthorized();validateRetainedRows(policy,rows);
   ownsRules=Number((await db.query('select count(*) as n from quantos.data_snapshot_quality_rules where tenant_id=$1',[approval.tenant_id])).rows[0].n)===0;
   setPhase('ACTOR_PROVISIONING');
   actor=crypto.randomUUID();context={tenant_id:approval.tenant_id,actor_id:actor,correlation_id:crypto.randomUUID(),causation_id:crypto.randomUUID(),reason:'R02 retained internal research chain '+run};receipt.actor=actor;receipt.ownsRules=ownsRules;save();
+  assertAuthorized();
   await db.query("insert into quantos.actors(id,tenant_id,actor_kind,service_name,display_name) values($1,$2,'service',$3,$4)",[actor,approval.tenant_id,'r02-chain-'+run,'R02 owned retained-facts research '+run]);
   for(const cap of ['snapshot.write','snapshot.rule.write','artifact.write','snapshot.read','research.hypothesis.v1','research.experiment.v1'])await db.query('insert into quantos.actor_capabilities(tenant_id,actor_id,capability) values($1,$2,$3)',[approval.tenant_id,actor,cap]);
   fs.writeFileSync(path.join(out,'fixture.json'),JSON.stringify({run,context,ownsRules,rows},null,2)+'\n');
@@ -33,13 +37,18 @@ async function main(){let db,actor,context,ownsRules=false;save();
   receipt.sourceFiles=roots.flatMap(walk).map(p=>({path:p,sha256:crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')}));save();
   setPhase('PREPARATION_CLOSE');const prepared=db;db=null;await prepared.end();
   setPhase('RUST_CHAIN');
+  assertAuthorized();
   const child=spawn('cargo',[...(process.env.QUANTOS_R02_COVERAGE==='1'?['llvm-cov','test','--no-report']:['test']),'-p','quantos-runtime','--locked','--test','research_orchestration','r02_retained_market_persistent_research_chain','--','--nocapture'],{detached:true,env:{...process.env,DATABASE_URL:targetUrl(),QUANTOS_RUN_R02_CHAIN_TESTS:'1',QUANTOS_R02_CHAIN_DIR:out},stdio:['ignore','pipe','pipe']});
   let log='',timedOut=false;const stop=signal=>{try{process.kill(-child.pid,signal);}catch{}};
+  let authorizationChanged=false,authorizationKill;
+  const authorizationWatch=setInterval(()=>{try{assertAuthorized();}catch{authorizationChanged=true;stop('SIGTERM');authorizationKill??=setTimeout(()=>stop('SIGKILL'),1000);}},1000);
   const timer=setTimeout(()=>{timedOut=true;stop('SIGTERM');},600000),kill=setTimeout(()=>stop('SIGKILL'),610000),progress=setInterval(()=>fs.writeFileSync(path.join(out,'target-chain.log'),redact(log)),10000);
   child.stdout.on('data',b=>log+=b);child.stderr.on('data',b=>log+=b);
-  const exit=await new Promise((resolve,reject)=>{child.on('error',reject);child.on('close',(code,signal)=>resolve({code,signal}));});clearTimeout(timer);clearTimeout(kill);clearInterval(progress);
+  let exit;try{exit=await new Promise((resolve,reject)=>{child.on('error',reject);child.on('close',(code,signal)=>resolve({code,signal}));});}
+  finally{clearTimeout(timer);clearTimeout(kill);clearInterval(progress);clearInterval(authorizationWatch);if(authorizationKill)clearTimeout(authorizationKill);}
   // Kill any owned descendant left by an early test panic, even after Cargo exited.
   stop('SIGTERM');fs.writeFileSync(path.join(out,'target-chain.log'),redact(log));receipt.test={...exit,timedOut};
+  if(authorizationChanged)throw Error('R02_SOURCE_AUTHORIZATION_CHANGED');assertAuthorized();
   if(exit.code!==0||timedOut)throw Error('R02_TARGET_CHAIN_FAILED');
   if(receipt.sourceFiles.some(f=>crypto.createHash('sha256').update(fs.readFileSync(f.path)).digest('hex')!==f.sha256))throw Error('R02_EXECUTION_SOURCE_CHANGED');
   receipt.chain=JSON.parse(fs.readFileSync(path.join(out,'chain-result.json')));if(receipt.chain.result!=='PASS')throw Error('R02_CHAIN_RECEIPT_MISSING');receipt.result='PASS_SCOPED_TARGET';
