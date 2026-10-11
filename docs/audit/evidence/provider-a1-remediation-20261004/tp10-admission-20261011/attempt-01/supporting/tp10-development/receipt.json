@@ -1,0 +1,244 @@
+{
+  "schema": "quantos-tp10-development/v1",
+  "nodeId": "CORE:TP10",
+  "stage": "DEVELOPMENT",
+  "status": "BLOCKED",
+  "engineeringStatus": "PASS",
+  "formalAccepted": false,
+  "observedSourceCommit": "8fbedfe80ff3c1cf64bd7841c374989430d0d334",
+  "environment": {
+    "node": "v24.12.0",
+    "python": "Python 3.12.10"
+  },
+  "planInput": {
+    "acceptance_window": "R1-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE-GATE:F0"
+    ],
+    "dependencies": [
+      "CORE-GATE:F0"
+    ],
+    "depends_on": [
+      "CORE-GATE:F0"
+    ],
+    "iteration": "R1-SERVICE",
+    "requirement": "ValueCell",
+    "requirements": [
+      "- 需求描述：ValueCell",
+      "- 交付物：UX gap report、可复用交互清单、禁止耦合清单",
+      "- 验收标准：至少 10 个 UI 模式映射至 Terminal design spec；无源码复制/运行时依赖；所有差异写 ADR"
+    ],
+    "task_id": "TP10",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
+  "inputs": [
+    {
+      "path": "Makefile",
+      "role": "config",
+      "sha256": "sha256:aff7d9558fe2887db115358bb6909fe956dcf949c2e7e4528b922b65f2437a21"
+    },
+    {
+      "path": "docs/SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md",
+      "role": "code",
+      "sha256": "sha256:88486262839ed5beaf80b02c61b62758724efdf868662d4b038dfa9f6b0f7949"
+    },
+    {
+      "path": "docs/adr/20260731-tp10-valuecell-evaluation.md",
+      "role": "code",
+      "sha256": "sha256:62929b35a9edc4e00dde0f0e8d9934c9ef9df49066c5705a7bf4d11d21af1937"
+    },
+    {
+      "path": "engines/tests/test_tp10_valuecell_evaluation.py",
+      "role": "test",
+      "sha256": "sha256:6cf31b1c3c05002217a390b3f9bcf340b70a718e210974faf4827186d2523509"
+    },
+    {
+      "path": "scripts/check-tp-intake.mjs",
+      "role": "code",
+      "sha256": "sha256:cdfe07de921b8d1043262ffc89512ae08d50dbedc4b90c1d240c7fe37fc8527a"
+    },
+    {
+      "path": "scripts/generate-build-manifest.mjs",
+      "role": "code",
+      "sha256": "sha256:3a8d064ed9086ffcef58e25ab33bfcc067ac3ad924f7be94021353be3a2fc528"
+    },
+    {
+      "path": "scripts/provider-a1-policy.json",
+      "role": "config",
+      "sha256": "sha256:2281f810ca9f78195dee3a671f2a0888931ed6f726bf9665f67bf9e0431e9a31"
+    },
+    {
+      "path": "scripts/provider-a1-receipts.mjs",
+      "role": "code",
+      "sha256": "sha256:6523e519e23f8091d69d2751919e8f26657054f3e196a19bc5efbf0e1935d604"
+    },
+    {
+      "path": "scripts/tp10-evaluation.mjs",
+      "role": "code",
+      "sha256": "sha256:b0a15c49aa034b0ab7dd68c272deebee026577623ac20772d59d594db9005579"
+    },
+    {
+      "path": "scripts/tp10-evaluation.test.mjs",
+      "role": "test",
+      "sha256": "sha256:30c136ef6cf786fe90c8f77feaa5c20cda9f40527968cd2c0e91b58747d57152"
+    },
+    {
+      "path": "scripts/tp10-functional-artifacts.test.mjs",
+      "role": "test",
+      "sha256": "sha256:0b778b71501bae794756bae9e7de5512c28a28871f0bd3a2d6c3267fc508f071"
+    },
+    {
+      "path": "third_party/valuecell/README.md",
+      "role": "code",
+      "sha256": "sha256:4795823b9a55cd526ca310f0c559992e50ee461d7f23c729d3cc18cbbbffaa29"
+    },
+    {
+      "path": "third_party/valuecell/baseline.lock.json",
+      "role": "config",
+      "sha256": "sha256:05723480217dc79cfe7cc852d2cf09ee4f2be513f57513e49e73011308c1484c"
+    },
+    {
+      "path": "third_party/valuecell/check-development.mjs",
+      "role": "code",
+      "sha256": "sha256:d62b11d848eaffbcacd01e4b4219340e89460175cb9f0ade65e5fd8be1972032"
+    },
+    {
+      "path": "third_party/valuecell/patterns.json",
+      "role": "config",
+      "sha256": "sha256:2041de9377ba3b338746fd575f0b8b22e3588a3d54cafab1c3ec85f2e405fcda"
+    },
+    {
+      "path": "third_party/valuecell/provenance.json",
+      "role": "config",
+      "sha256": "sha256:d3ad71ea0507080c205e5a43d21ef9e8fe08d3874dec7e183a3cf5c5736d6a57"
+    },
+    {
+      "path": "third_party/valuecell/ux-gap-report.md",
+      "role": "code",
+      "sha256": "sha256:3af6410f00239dd5afd91564e3d5be7ed56fd06018cbe5a7f17da347fb9c9208"
+    }
+  ],
+  "checks": [
+    {
+      "id": "evaluation",
+      "command": [
+        "node",
+        "scripts/tp10-evaluation.mjs",
+        "--workspace"
+      ],
+      "executedAt": "2026-10-11T01:19:30.837Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp10-20261011/evaluation.log",
+      "logSha256": "sha256:1e815cd23d293cb4408dbb69a5861886d2d17ac08c06d5990d51632a9d72b1c2"
+    },
+    {
+      "id": "upstream",
+      "command": [
+        "node",
+        "scripts/tp10-evaluation.mjs",
+        "--verify-upstream"
+      ],
+      "executedAt": "2026-10-11T01:19:30.892Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp10-20261011/upstream.log",
+      "logSha256": "sha256:28e86bee0f131708d20d9814e7eeec8db4931b515e45b30191c737f80b109344"
+    },
+    {
+      "id": "contract",
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "pytest",
+        "engines/tests/test_tp10_valuecell_evaluation.py",
+        "-vv"
+      ],
+      "executedAt": "2026-10-11T01:19:33.370Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp10-20261011/contract.log",
+      "logSha256": "sha256:34cd37e7b0ae117d5014b8766a46f2214985f5bff595a2418b69cdec7a7fb688"
+    },
+    {
+      "id": "negatives",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp10-evaluation.test.mjs"
+      ],
+      "executedAt": "2026-10-11T01:19:33.659Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp10-20261011/negatives.log",
+      "logSha256": "sha256:18e90c861f18d80f9cf0842df5cff229980ef87c1f131ab68c0aae78ca1deb41"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "engines/.venv/bin/ruff",
+        "check",
+        "engines/tests/test_tp10_valuecell_evaluation.py"
+      ],
+      "executedAt": "2026-10-11T01:19:33.906Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp10-20261011/lint.log",
+      "logSha256": "sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "id": "format",
+      "command": [
+        "engines/.venv/bin/ruff",
+        "format",
+        "--check",
+        "engines/tests/test_tp10_valuecell_evaluation.py"
+      ],
+      "executedAt": "2026-10-11T01:19:33.915Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp10-20261011/format.log",
+      "logSha256": "sha256:fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "id": "locks",
+      "command": [
+        "bash",
+        "scripts/check-lockfiles.sh"
+      ],
+      "executedAt": "2026-10-11T01:19:33.922Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp10-20261011/locks.log",
+      "logSha256": "sha256:1344c6366167d7cd26c0b54b29298e9a625aa930621f7e74bdbb20d68eefbe74"
+    },
+    {
+      "id": "intake",
+      "command": [
+        "node",
+        "scripts/check-tp-intake.mjs"
+      ],
+      "executedAt": "2026-10-11T01:19:34.332Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp10-20261011/intake.log",
+      "logSha256": "sha256:a0395dfc8c3373b19581ea0ff387e08e0cb5b21b32ad22c95a01335757199cbb"
+    }
+  ],
+  "dependencies": [
+    {
+      "nodeId": "CORE-GATE:F0",
+      "status": "BLOCKED",
+      "reason": "CORE-GATE:F0: dependency is not READY"
+    }
+  ],
+  "excluded": [
+    "upstream source, assets, components, data/account schemas or runtime dependencies",
+    "implemented UI, browser usability or cross-platform acceptance",
+    "resolved upstream dependency graph or current CVE advisory clearance",
+    "third-party widget, market data, API or trading rights",
+    "production credentials, release, publication, hosted same-SHA CI or formal ACCEPTED"
+  ]
+}
