@@ -1,4 +1,4 @@
-> 当前工程快照（R03，2026-10-11）：研究编排与持久Artifact实现验证中；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
+> 当前工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 
 > 上轮工程快照（TP09，2026-10-11）：冻结fbb5775e完成TP09/TP03/F08/F05/F0必要14节点、56组实际功能复评与严格内容校验；14 DEVELOPMENT READY、145 NOT_ASSESSED、0 BLOCKED。正式用户确认、同SHA hosted CI、发布独立。见[本轮报告](./audit/TP09-development-2026-10-11.md)。
 
@@ -38,7 +38,7 @@
 > 版本：3.65
 > 更新时间：2026-10-11
 > 状态：技术执行基线  
-> 本轮变更：TP05当前准入及必要依赖闭包刷新，源码/产物/依赖内容绑定；随后TP11改动须重新准入。
+> 本轮变更：R03限定工程实现与目标验证PASS；五项当前依赖未闭合，开发Gate BLOCKED；未授予正式、CI、部署或发布。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
@@ -946,7 +946,7 @@ F0 DEVELOPMENT必要闭包在冻结8fbedfe8随TP10重新实际执行并严格REA
 - task_id: `R03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":null,"evidence":["audit/R03-development-2026-10-11.md"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:292fd8081300da79684f79cb061cad3612af6912417e8ea7115e83ce46278ecb","evidence":["audit/evidence/r03-20261011/manifest.json"]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - closes_core: []
@@ -959,7 +959,7 @@ F0 DEVELOPMENT必要闭包在冻结8fbedfe8随TP10重新实际执行并严格REA
 - 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact
 - 阶段执行：10 次确定性运行、取消 ≤2s 确认与无重复 Artifact 为开发要求；获准工程环境的 Runtime/Engine 组合在联调验证，部署/负载回执在 RELEASE-GATE:BETA 重验。
 - 依赖：F07、F08、R02、TP02
-- 当前工程复核：本轮实现研究工作流与持久Artifact repository，开发验证与当前五项依赖分开核验；R02历史来源授权到期，当前Gate BLOCKED，未授予正式ACCEPTED、R1总Gate、同SHA hostedCI或发布。见[本轮报告](./audit/R03-development-2026-10-11.md)与[运行说明](./execution/R03-summary.md)。
+- 当前工程复核：冻结0819addc限定工程验证PASS；七组回归、配置Supabase十次同hash/证据、取消230/621ms、独立进程恢复及清理通过。五项当前依赖未闭合，R02历史来源授权到期，DEVELOPMENT Gate BLOCKED；正式/CI/部署/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)、[manifest](./audit/evidence/r03-20261011/manifest.json)与[运行说明](./execution/R03-summary.md)。
 
 <a id="task-r04"></a>
 ### R04：Signal 与 TradeProposal 工作流
