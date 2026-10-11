@@ -16,9 +16,10 @@
 - R02消费者检查首次实际运行成功返回 Research 5 / Proposal 3，但误把三个未启用的R03目标测试计数纳入旧五场景标记。增加显式筛选后 Research 2 / Proposal 3，检查通过；未将无目标执行的测试记为数据库证据。
 - 新授权记录要求唯一ProjectUser的明确答复、完整文稿/范围摘要、独立期限和32条事实清单。旧授权的历史时钟单元fixture只用于拒绝机制回归，生产CLI使用当前时间。
 - 初次复评在新用途确认后主动停止，未执行完的F01全量测试及其余命令不计PASS，不发布任何READY。该次专属Engine残留核查PASS。详见[原始证据](./evidence/r03-prerequisites-20261011/initial/interrupted-assessment.json)与[第一轮执行台账](./evidence/provider-a1-remediation-20261004/r03-prerequisites-20261011/attempt-01/execution-results.json)。
+- 冻结 `c224a330` 的第二轮完成37/60组，36 PASS、F07覆盖1 FAIL；原日志确认通用worker只领取 `runtime.fixture.v1`，旧目标测试仍要求领取 `unsupported` 并失败，造成确定性契约冲突。修正测试为非所属工作流保持Queued，并将budget/retry调用顺序与实际领取一致。该轮主动停止、未完成23组不计PASS、未发布READY；[专属Engine核查](./evidence/r03-prerequisites-20261011/initial/attempt-02-engine-cleanup.json)无残留。修正后的Supabase定向完整gateway用例实际PASS（1 passed、96.24s，含预算/上传重试/归属/清理；原poison探针的预期panic不作失败）。[定向日志](./evidence/r03-prerequisites-20261011/initial/f07-worker-fix-target.log)保留。测试文件属于R03功能输入，新冻结源码必须重新执行R03回归及目标，不再沿用此前72文件字节一致的准入路径。
 
 ## 当前工程步骤与边界
 
-在新提交的干净源码上使用既有严格策略，完整执行 `CORE:R02` 与 `CORE:TP02` 的并集闭包（含F07/F08/F0与R01），保留每条实际命令、目标/构建/覆盖产物与日志hash；全部通过才发布当前递归门禁。之后核对R03功能输入字节，更新当前依赖绑定并运行 `make r03-admission-check`。
+在新提交的干净源码上使用既有严格策略，完整执行 `CORE:R02` 与 `CORE:TP02` 的并集闭包（含F07/F08/F0与R01），保留每条实际命令、目标/构建/覆盖产物与日志hash；全部通过才发布当前递归门禁。重新执行R03七组回归及完整Supabase生命周期目标，保存新的源码输入/原始日志/目标回执，绑定当前依赖后运行 `make r03-admission-check`。原失败、原BLOCKED manifest及原目标证据保留历史字节。
 
 当前目标仅已配置开发Supabase，无本地PostgreSQL/Supabase、生产凭据、发布或推送。正式ACCEPTED、候选同SHA hosted CI、部署HTTP/JWT身份链、受限Storage身份、代表性性能/长稳与R1总Gate仍单独验收。下一阶段结果将追加到本报告，原失败不删除。

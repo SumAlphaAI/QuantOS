@@ -920,10 +920,11 @@ fn gateway_executes_owned_run_and_retrieves_verified_artifact() {
             })
             .unwrap();
             worker_once(&mut store, &storage).unwrap();
-            worker_once(&mut store, &storage).unwrap();
+            // This worker owns fixture workflows only. Other workflow kinds
+            // remain queued for their coordinator and must not consume this tick.
             assert_eq!(
                 store.load_run(unsupported_id).unwrap().unwrap().status,
-                quantos_runtime::WorkflowRunStatus::Failed
+                quantos_runtime::WorkflowRunStatus::Queued
             );
             assert_eq!(
                 store.load_run(budget_id).unwrap().unwrap().status,

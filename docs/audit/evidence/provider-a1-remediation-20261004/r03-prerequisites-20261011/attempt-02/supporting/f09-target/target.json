@@ -1,0 +1,340 @@
+{
+  "schema": "quantos-f09-target-gate/v3",
+  "sourceCommit": "c224a330414de78902ad71a5a4917a862743bf00",
+  "dirty": false,
+  "targetClass": "test-supabase-postgresql",
+  "status": "PASS",
+  "checks": [
+    "same source migration ledger and checksums",
+    "two one-minute Supabase scheduler ticks fail closed on missing metrics",
+    "live capacity, own-session termination, consumer recovery and redaction tests",
+    "real portfolio and risk query samples",
+    "real BFF, Runtime and Portfolio writes linked to persistent trace",
+    "local supervised Engine process crash and recovery"
+  ],
+  "acceptanceScope": "F09 development database and Engine component probes",
+  "f09Accepted": false,
+  "remainingDevelopmentAcceptance": [],
+  "deferredToRelease": [
+    "same-SHA remote CI and Nightly receipts"
+  ],
+  "deferredToL04": [
+    "nine deployed business metric producers and one-minute monitor",
+    "cross-service same-chain fault exercises and secret leak scan",
+    "sustained live thresholds, dashboard queries and notification delivery"
+  ],
+  "startedAt": "2026-10-11T09:23:31.227Z",
+  "targetRefHash": "a70aa14f6acb257e",
+  "bootstrapConnection": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 2207.751667
+      }
+    ],
+    "connectionClosed": true
+  },
+  "phase": "COMPLETE",
+  "migrationHead": "20261008090000_f07_audit_append_sequence.sql",
+  "commands": [
+    {
+      "command": "cargo",
+      "args": [
+        "build",
+        "-p",
+        "capacity-monitor",
+        "--locked"
+      ],
+      "phase": "cargo build -p capacity-monitor --locked",
+      "status": "PASS",
+      "pid": 59998,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T09:23:34.475Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 170.48750000000018,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "build",
+        "-p",
+        "portfolio-rebuild",
+        "--locked"
+      ],
+      "phase": "cargo build -p portfolio-rebuild --locked",
+      "status": "PASS",
+      "pid": 60034,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T09:23:34.642Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 136.28716699999995,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "node",
+      "args": [
+        "scripts/f09-scheduler-smoke.cjs"
+      ],
+      "phase": "scheduler-smoke.log",
+      "status": "PASS",
+      "pid": 60043,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T09:23:34.778Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 71580.00204200001,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "make",
+      "args": [
+        "test-f09-live"
+      ],
+      "phase": "postgres-exercises.log",
+      "status": "PASS",
+      "pid": 60104,
+      "timeoutMs": 900000,
+      "startedAt": "2026-10-11T09:24:46.361Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 288208.253792,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "test",
+        "-p",
+        "quantos-portfolio",
+        "--test",
+        "postgres_portfolio",
+        "--locked",
+        "f09_portfolio_and_risk_queries_persist_actual_latency_samples",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "phase": "portfolio-query.log",
+      "status": "PASS",
+      "pid": 60421,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T09:29:34.572Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 12711.967333999986,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "test",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "f09_live_tests",
+        "--locked",
+        "--",
+        "--ignored",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "phase": "bff-write-trace.log",
+      "status": "PASS",
+      "pid": 60488,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T09:29:47.287Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 6972.476250000007,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "test",
+        "-p",
+        "runtime-gateway",
+        "--bin",
+        "runtime-gateway",
+        "f09_runtime_real_write_trace",
+        "--locked",
+        "--",
+        "--nocapture"
+      ],
+      "phase": "runtime-write-trace.log",
+      "status": "PASS",
+      "pid": 60524,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T09:29:54.261Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 14752.278166999982,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "node",
+      "args": [
+        "scripts/f09-portfolio-write-trace.cjs"
+      ],
+      "phase": "portfolio-write-trace.log",
+      "status": "PASS",
+      "pid": 60952,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T09:30:09.015Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 11342.803750000021,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "test",
+        "-p",
+        "quantos-engine-manager",
+        "--test",
+        "python_mock_engine",
+        "--locked",
+        "manager_supervises_three_real_crashes_without_test_owned_restarts",
+        "--",
+        "--exact",
+        "--nocapture"
+      ],
+      "phase": "engine-crash.log",
+      "status": "PASS",
+      "pid": 61414,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T09:30:20.359Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 721.6358749999781,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    }
+  ],
+  "secretLeakDetected": false,
+  "logs": {
+    "scheduler-smoke.log": "d4a17caabfdc6d30e334c4d2d23111290adaf3b2f8d34815f24cb85a2530e69a",
+    "postgres-exercises.log": "27214cf2ee01d5e573729865e822eb1ffe5a2a9c4188e093dec6f04375efe209",
+    "portfolio-query.log": "0e631edc63a81b2b57342a1a39ee2dd7075a435adf8ff1f5eef61bacf71c8826",
+    "bff-write-trace.log": "643329754c595b8eee36ec66cc8fde99b69d082789c55cf6bce72c8cf4349c3e",
+    "runtime-write-trace.log": "4873832d8ef525707a0c396b6000460940969bcc7398e91e4ad4fbaf3b912cca",
+    "portfolio-write-trace.log": "b37c9a4303c6e626011c5f1fade758b3d172a26381b4aeddfa03941dc92784ad",
+    "engine-crash.log": "c517fd94c9156a125463f97512212e498af19f1ff6ae0ef34200c3c96a7822aa",
+    "capacity-fixture-cleanup-99ae5519-cd47-4988-866d-7b7257270d57.json": "2ef87104f98377f0887fb34bbb442b88bc468050f8a6085bde82e4db3ea97a4e",
+    "capacity-fixtures-99ae5519-cd47-4988-866d-7b7257270d57.jsonl": "d7df2128b2f370d0ddb4f2518aa5a09289b63d82a6c43be8bc22d4a91f87fcd3"
+  },
+  "writeTraces": {
+    "bffSessionRevoke": "01a12a4c-1c98-74d1-9083-371e9bf88768",
+    "runtimeRunSchedule": "01a12a4c-422b-7493-8244-d16d6189d0a7",
+    "portfolioProjection": {
+      "event": "F09_PORTFOLIO_WRITE_TRACE_PASS",
+      "correlationId": "01a12a4c-65e9-7173-bf94-5a5a9b3af3b3",
+      "snapshotHash": "sha256:2081d8c86e1a95ae74d66be445e82db83a81e22d36bad8fc3d843640e2d416c1",
+      "lastEventSequence": 23,
+      "positionCount": 3
+    }
+  },
+  "fixtureCleanup": {
+    "schema": "quantos-f09-fixture-cleanup/v1",
+    "run": "99ae5519-cd47-4988-866d-7b7257270d57",
+    "fixtureClass": "capacity-monitor-component-tests",
+    "status": "PASS",
+    "immutableFacts": "RETAINED",
+    "fixtures": [
+      {
+        "actorId": "01a12a47-6d4e-72d2-81f2-53892be69c25",
+        "run": "99ae5519-cd47-4988-866d-7b7257270d57",
+        "scope": "f09-fault-99ae5519-cd47-4988-866d-7b7257270d57-01a12a47-6d4e-72d2-81f2-5377c229f58d",
+        "tenantId": "01a12a47-6d4e-72d2-81f2-5377c229f58d",
+        "tenantPresent": true,
+        "actorPresent": true,
+        "activeActors": 0,
+        "eventsBefore": 1,
+        "eventsAfter": 1
+      },
+      {
+        "actorId": "01a12a47-d092-7b03-b042-90a40d907ee3",
+        "run": "99ae5519-cd47-4988-866d-7b7257270d57",
+        "scope": "f09-db-disconnect-99ae5519-cd47-4988-866d-7b7257270d57-01a12a47-d092-7b03-b042-909c151aa487",
+        "tenantId": "01a12a47-d092-7b03-b042-909c151aa487",
+        "tenantPresent": true,
+        "actorPresent": true,
+        "activeActors": 0,
+        "eventsBefore": 2,
+        "eventsAfter": 2
+      },
+      {
+        "actorId": "01a12a48-0c56-73f2-8900-00bace365523",
+        "run": "99ae5519-cd47-4988-866d-7b7257270d57",
+        "scope": "f09-live-99ae5519-cd47-4988-866d-7b7257270d57-01a12a48-0c56-73f2-8900-00982fcc45d5",
+        "tenantId": "01a12a48-0c56-73f2-8900-00982fcc45d5",
+        "tenantPresent": true,
+        "actorPresent": true,
+        "activeActors": 0,
+        "eventsBefore": 1,
+        "eventsAfter": 1
+      }
+    ],
+    "bootstrapConnection": {
+      "schema": "quantos-postgres-bootstrap/v1",
+      "phase": "BEFORE_STATEMENTS",
+      "maxAttempts": 3,
+      "status": "PASS",
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "PASS",
+          "transient": false,
+          "elapsedMs": 1330.1701250000042
+        }
+      ],
+      "connectionClosed": true
+    }
+  },
+  "completedAt": "2026-10-11T09:30:26.722Z"
+}
