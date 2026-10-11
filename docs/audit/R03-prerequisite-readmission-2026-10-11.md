@@ -1,6 +1,6 @@
 # R03 当前前置复评与 R02 保留事实用途处置
 
-**R03 engineering PASS；DEVELOPMENT Gate BLOCKED，formalAccepted=false。** 项目用户已确认独立限时数据用途；主轮冻结源码 `b358581d24e51d1e7dd4200176467c833d12a0f0` 的必要前置60唯一命令组已逐项处置：53 PASS、5 FAIL、2 NOT RUN。其中TP02两项随后在68acfa67修正并实际复验PASS，原失败保留；共享输入变化后的完整前置仍须重跑。开发Supabase在F07执行中进入只读，恢复/覆盖/服务失败，100个自有fixture任务无法收尾。R03七组回归与完整生命周期在只读发生前实际PASS，但五项当前前置未准入；admission实际拒绝，未新增READY。
+**R03 engineering PASS；DEVELOPMENT Gate BLOCKED，formalAccepted=false。** 项目用户已确认独立限时数据用途；主轮冻结源码 `b358581d24e51d1e7dd4200176467c833d12a0f0` 的必要前置60唯一命令组已逐项处置：53 PASS、5 FAIL、2 NOT RUN。其中TP02两项随后在68acfa67修正并实际复验PASS，原失败保留；共享输入变化后的完整前置仍须重跑。开发Supabase在F07执行中进入只读，恢复/覆盖/服务失败，100个自有fixture任务当时无法收尾；后续已精确退役并读回pending=0，默认只读恢复仍待办，见[恢复记录](./R03-supabase-recovery-2026-10-11.md)。R03七组回归与完整生命周期在只读发生前实际PASS，但五项当前前置未准入；admission实际拒绝，未新增READY。
 
 ## 已确认的数据处置
 
@@ -44,7 +44,7 @@ TP02后续修正冻结于 `68acfa67a6b1079ab3a3ad05179a6b8221101479`：[独立�
 
 [严格TLS只读探针](./evidence/r03-prerequisites-20261011/final/database-readonly-probe.json)于11:54:37 UTC确认 `pg_is_in_recovery=false`、`transaction_read_only=on`、`default_transaction_read_only=on`、数据库1610894483 bytes（约1.61GB）。探针只读事务ROLLBACK、连接关闭，没有更改服务器设置。实际触发原因尚未确认，容量数据不作为配额根因证明。
 
-本轮自有fixture tenant `01a12acb-6530-7432-88b5-a71f4ee28668`（slug同UUID的f07前缀），11:48:57 UTC创建，100个任务仍为pending；原Drop及retire均因只读写入失败。数据库清理 **BLOCKED，未宣称PASS**；[仅该fixture的退役SQL](./evidence/r03-prerequisites-20261011/final/pending-fixture-retirement.sql)已准备但NOT RUN，须先恢复开发目标可写性。保留审计，不删除原始事件、不批量触碰历史tenant，不尝试关闭服务器只读保护。[本轮Engine核查](./evidence/r03-prerequisites-20261011/final/attempt-04-engine-cleanup.json)PASS，独立R03目标自有actor/Engine清理也PASS。
+本轮自有fixture tenant `01a12acb-6530-7432-88b5-a71f4ee28668` 的初始100个pending任务及原Drop/retire失败保留为历史事实。2026-10-11 12:28 UTC已按官方维护会话方式精确退役100任务、禁用1工具，独立新连接读回pending=0；[当前恢复记录](./R03-supabase-recovery-2026-10-11.md)及[COMMIT回执](./evidence/r03-supabase-recovery-20261011/retirement.json)闭合该fixture收尾。普通新连接默认仍只读，完整前置复验尚不能启动。保留审计和原始事件，没有批量清理历史tenant或永久覆盖服务器保护。[本轮Engine核查](./evidence/r03-prerequisites-20261011/final/attempt-04-engine-cleanup.json)及独立R03目标自有actor/Engine清理PASS。
 
 [性能诊断](./evidence/r03-prerequisites-20261011/final/performance-diagnostics.json)：F05派发/副作用/回执各10000，消费359.636秒，单次event-ID取回8681.873ms（不是三路径P95）。F07仅完成100次调度，P95 878.490ms，超过200ms；恢复失败，性能及恢复验收均不得记PASS。
 
@@ -83,7 +83,7 @@ node --test scripts/r03-stage-check.test.mjs
 ## 未决风险、Gate与下一可执行任务
 
 - **当前Gate：R03 BLOCKED、formalAccepted=false。** 计划0 READY、158 NOT_ASSESSED、1 BLOCKED；五项直接前置严格校验仍BLOCKED。没有推送、发布、部署、生产凭据或本地数据库。
-- **下一可执行任务：核查并恢复既有开发Supabase可写性**，先确认实际只读原因；恢复后只退役上述100任务/工具并读回pending=0，再在干净提交上完整重跑R02/TP02必要前置闭包和R03 admission。不得把本轮53项PASS拼装为完整READY。R03闭合后再做TP03/TP04当前准入，之后才可执行R04/R1总Gate。
+- **下一可执行任务：核查并恢复既有开发Supabase可写性**，指定100任务/工具已退役并确认pending=0；项目用户已完成控制台登录，平台超限/磁盘压力已确认；解决容量限制并恢复普通新连接可写后，在干净提交上完整重跑R02/TP02必要前置闭包和R03 admission。不得把本轮53项PASS拼装为完整READY。R03闭合后再做TP03/TP04当前准入，之后才可执行R04/R1总Gate。
 - 数据用途于北京时间10月14日08:00到期，撤销/变更即停止；过期不能复用，禁止新采集、交易、展示、再分发和商用。原30分钟采集授权仍过期。
 - R03工程人工确认仍待办；R02 C25代表性查询P95/C26部署HTTP-JWT、受限Storage身份、候选同SHA hosted CI、代表性性能/长稳、研究lease heartbeat与真实模型费用仍未验收。
 

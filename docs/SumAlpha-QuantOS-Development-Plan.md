@@ -1,4 +1,4 @@
-> 当前工程快照（R03前置复评，2026-10-11）：项目用户确认32条保留事实仅限内部复验至北京时间10月14日08:00；冻结b358581d必要前置60组处置为53 PASS/5 FAIL/2 NOT RUN；TP02两项随后在68acfa67修正复验PASS，原记录保留，完整前置须重跑。开发Supabase进入只读，F07失败且100个自有fixture任务待收尾。R03新目标/七组回归工程PASS，但admission实际拒绝、Gate BLOCKED；0 READY、158 NOT_ASSESSED、1 BLOCKED，正式/CI/发布独立。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)。
+> 当前工程快照（R03前置复评，2026-10-11）：项目用户确认32条保留事实仅限内部复验至北京时间10月14日08:00；冻结b358581d必要前置60组处置为53 PASS/5 FAIL/2 NOT RUN；TP02两项随后在68acfa67修正复验PASS，原记录保留，完整前置须重跑。开发Supabase进入只读，F07失败；100个自有fixture任务后续已精确退役并确认pending=0，服务器默认只读恢复仍待办。R03新目标/七组回归工程PASS，但admission实际拒绝、Gate BLOCKED；0 READY、158 NOT_ASSESSED、1 BLOCKED，正式/CI/发布独立。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)。
 
 > 历史工程快照（R03，2026-10-11）：冻结0819addc的研究编排与持久Artifact限定工程验证PASS，取消230/621ms、独立进程恢复通过；旧功能输入变化后撤销失效开发Gate，R03 BLOCKED。R02历史来源授权到期，合成目标证据不能替代真实来源准入；正式/CI/发布独立。见[本轮报告](./audit/R03-development-2026-10-11.md)。
 
@@ -37,7 +37,7 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.66
+> 版本：3.67
 > 更新时间：2026-10-11
 > 状态：技术执行基线  
 > 本轮变更：R02限时用途独立确认；当前前置复验及Supabase只读阻塞证据；R03新目标/回归PASS、admission拒绝，Gate BLOCKED。
@@ -45,6 +45,8 @@
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.67`：开发Supabase平台超限/磁盘压力确认；精确退役本轮100任务和1工具，独立读回pending=0、32事实hash不变；普通新连接写入25006，待平台容量恢复后完整复验。R03 Gate仍BLOCKED。见[恢复报告](./audit/R03-supabase-recovery-2026-10-11.md)。
 
 - `3.66`：R02保留32事实限时用途独立确认；当前前置53 PASS/5 FAIL/2 NOT RUN，开发Supabase只读使F07和fixture收尾阻塞；R03新工程目标PASS、admission实际拒绝，Gate BLOCKED。见[当前报告](./audit/R03-prerequisite-readmission-2026-10-11.md)。
 

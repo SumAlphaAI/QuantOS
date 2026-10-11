@@ -41,4 +41,4 @@ make r03-admission-check
 
 本地 UDS fixture 服务需要允许建立本机 socket；静态/本地通过不代表数据库验收。目标脚本拒绝非 Supabase、项目不匹配与缺失 CA，使用配置凭据且不打印凭据；所有失败及清理结果保留。目标使用专属合成来源；R02的32条保留事实仅按独立限时许可内部复验，原采集授权仍已到期。
 
-R03 工程证据、五个当前前置 Gate、项目用户确认、同 SHA hosted CI 与发布分别验证。主轮前置53 PASS/5 FAIL/2 NOT RUN，TP02两项已在68acfa67修正复验PASS；开发Supabase只读、100个自有任务待收尾；R03新目标/回归工程PASS、admission拒绝，Gate BLOCKED。恢复开发目标与完整前置复验后才可重新准入，不放行TP03/TP04/R04/R1总Gate；参考 [统一确认规程](../gate-records/user-acceptance-confirmation-workflow.md)。
+R03 工程证据、五个当前前置 Gate、项目用户确认、同 SHA hosted CI 与发布分别验证。主轮前置53 PASS/5 FAIL/2 NOT RUN，TP02两项已在68acfa67修正复验PASS；开发Supabase默认只读，100个自有任务已精确退役并独立读回pending=0，见[恢复记录](../audit/R03-supabase-recovery-2026-10-11.md)；R03新目标/回归工程PASS、admission拒绝，Gate BLOCKED。恢复开发目标与完整前置复验后才可重新准入，不放行TP03/TP04/R04/R1总Gate；参考 [统一确认规程](../gate-records/user-acceptance-confirmation-workflow.md)。

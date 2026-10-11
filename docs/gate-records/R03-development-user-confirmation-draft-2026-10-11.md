@@ -43,6 +43,6 @@
 | BFF | owner/tenant/actor 归属检查、可信调用上下文与真实 Storage bytes；HTTP/JWT 身份链未验收。 |
 | QA | Runtime19、Storage22、编排5、TP02 131、Manager55、Gate16、本轮manifest探针9通过，TP02另行实际复验完整Python1366与26项拒绝测试PASS；目标十次同 hash、取消225/553ms、独立进程恢复无重复 Artifact/成本、清理通过。 |
 | Security | create-only Storage、实际字节 hash、当前 actor/capability 取消拒绝、attempt fencing、verify-full/CA；部署受限凭据与RLS闭包另验。 |
-| Risk | 五项当前前置未闭合；开发Supabase只读、F07三项失败与100个fixture任务待收尾；32条历史事实独立内部用途仅限北京时间10月14日08:00前，旧采集授权仍到期、无研究 heartbeat/真实模型预算、性能/长稳/候选CI/发布待办；不扩大数据用途、标的或运行时长。 |
+| Risk | 五项当前前置未闭合；开发Supabase默认只读、F07三项失败；100个fixture任务后续已精确退役并确认pending=0，完整前置仍待复验；32条历史事实独立内部用途仅限北京时间10月14日08:00前，旧采集授权仍到期、无研究 heartbeat/真实模型预算、性能/长稳/候选CI/发布待办；不扩大数据用途、标的或运行时长。 |
 
 唯一确认人为项目用户。Codex 在收到本会话实际确认或修改后保存原始答复、时间、文稿/范围摘要并独立执行门禁；继续开发指令不视为本稿确认。任何确认不能续签真实来源许可、补齐失败/未执行证据或绕过 BLOCKED 前置。按[统一规程](./user-acceptance-confirmation-workflow.md)执行。
