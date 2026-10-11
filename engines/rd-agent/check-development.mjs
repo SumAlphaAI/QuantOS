@@ -10,7 +10,7 @@ export const selectors=['engines/rd-agent/','engines/engine-sdk/','engines/tests
 const formatFiles=['adapter','artifacts','fixtures','manifest','research_artifact','server','service','__init__'].map(f=>'engines/rd-agent/src/rd_agent/'+f+'.py').concat(['engines/tests/test_rd_agent_contract.py','engines/tests/test_rd_agent_development.py']);
 export const checks=[
  {id:'contract',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_rd_agent_contract.py','engines/tests/test_rd_agent_development.py','-vv'],marker:/131 passed/},
- {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/433 passed/},
+ {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/\b[1-9]\d* passed\b/},
  {id:'manager',command:['cargo','test','--locked','--offline','-p','quantos-engine-manager','--test','python_rd_agent'],marker:/2 passed; 0 failed/},
  {id:'runtime',command:['cargo','test','--locked','--offline','-p','quantos-runtime','--test','research_orchestration','research_workflow_','--','--nocapture'],marker:/2 passed; 0 failed/},
  {id:'package',command:['engines/.venv/bin/python','scripts/tp02-packaged-service.py'],marker:/TP02_PACKAGED_SERVICE_PASS/},
@@ -22,11 +22,21 @@ export const checks=[
 ];
 const excluded=['upstream RD-Agent runtime, LLMs or real tools','real DataSnapshot bytes or deployed trusted reference resolution','persistent Artifact or audit delivery','OS egress sandbox enforcement','production credentials or external publication','representative P95, soak, deployment, hosted same-SHA CI or formal ACCEPTED'];
 function dependencies(){return nodesFromPlans().get('CORE:TP02').dependencies.map(nodeId=>{try{return {nodeId,...validateReceipt(nodeId)};}catch(e){return {nodeId,status:'BLOCKED',reason:e.message.split('\n')[0]};}});}
+export function verifyPythonSuiteSummary(text){
+ // The full directory command and source inventory bind the suite. Its size can
+ // grow beyond the original baseline; require a complete, pass-only summary.
+ const summary=text.trim().split(/\r?\n/).at(-1);
+ const match=/^(\d+) passed(?:, \d+ warnings?)? in \d+(?:\.\d+)?s(?: \([\d:]+\))?$/.exec(summary);
+ assert(match,'TP02 full Python suite must finish with a pass-only summary');
+ assert(Number(match[1])>=433,'TP02 Python suite fell below its 433-test baseline');
+ return Number(match[1]);
+}
 export function verifyTp02(r,{checkDependencies=true,logDirectory=resolve(root,directory)}={}){
  assert.equal(r.schema,'quantos-tp02-development/v1');assert.equal(r.nodeId,'CORE:TP02');assert.equal(r.stage,'DEVELOPMENT');assert.equal(r.formalAccepted,false);assert.equal(r.engineeringStatus,'PASS');assert.deepEqual(r.excluded,excluded);assert(['READY','BLOCKED'].includes(r.status));
  assert.deepEqual(r.inputs,inventory(selectors),'TP02 functional inputs changed');assert.deepEqual(r.planInput,planInput(nodesFromPlans().get(r.nodeId)));assert(/^[a-f0-9]{40}$/.test(r.observedSourceCommit));assert(r.environment.node&&r.environment.python&&r.environment.rust);
  assert.deepEqual(r.fixtures,['hypothesis_regime_shift','experiment_factor_stability']);assert.deepEqual(r.checks.map(c=>c.id),checks.map(c=>c.id));
  for(const [i,c]of r.checks.entries()){const spec=checks[i];assert.deepEqual(c.command,spec.command);assert.equal(c.exitCode,0);assert.equal(c.status,'PASS');assert(Number.isFinite(Date.parse(c.executedAt))&&Date.parse(c.executedAt)<=Date.now());assert.equal(c.log,directory+'/'+spec.id+'.log');const bytes=readFileSync(resolve(logDirectory,spec.id+'.log'));assert.equal(digest(bytes),c.logSha256,'TP02 log changed');assert.match(bytes.toString(),spec.marker);
+  if(c.id==='python')verifyPythonSuiteSummary(bytes.toString());
   if(c.id==='contract')for(const name of r.fixtures)assert.match(bytes.toString(),new RegExp('test_replay_contract_and_readable_artifact\\['+name+'\\] PASSED'));
   if(c.id==='package'){assert.match(bytes.toString(),/TP02_INSTALLED_WHEEL/);assert.match(bytes.toString(),/TP02_PACKAGED_FIVE_RPC_PASS/);const records=bytes.toString().split('\n').filter(l=>l.startsWith('{"capabilities":'));assert.equal(records.length,1,'package result missing from actual execution log');assert.deepEqual(JSON.parse(records[0]),r.package);}
  }

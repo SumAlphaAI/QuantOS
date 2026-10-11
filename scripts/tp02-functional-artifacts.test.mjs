@@ -3,7 +3,7 @@ import test from 'node:test';
 import {readFileSync,writeFileSync,mkdtempSync,cpSync,rmSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {tmpdir} from 'node:os';
-import {verifyTp02,selectors,directory} from '../engines/rd-agent/check-development.mjs';
+import {verifyTp02,verifyPythonSuiteSummary,selectors,directory} from '../engines/rd-agent/check-development.mjs';
 import {inventory,nodesFromPlans,planInput,validateArtifact,supportingArtifactPaths} from './provider-a1-receipts.mjs';
 function fixture(fn){const temporary=mkdtempSync(resolve(tmpdir(),'tp02-artifact-'));try{cpSync(directory,temporary,{recursive:true});const r=JSON.parse(readFileSync(resolve(temporary,'receipt.json')));r.inputs=inventory(selectors);r.planInput=planInput(nodesFromPlans().get('CORE:TP02'));fn(r,temporary);}finally{rmSync(temporary,{recursive:true,force:true});}}
 test('engineering-only evidence cannot admit TP02',()=>fixture((r,logDirectory)=>assert.deepEqual(verifyTp02(r,{checkDependencies:false,logDirectory}),{engineeringStatus:'PASS',stageGate:'NOT_ASSESSED',formalAccepted:false})));
@@ -14,3 +14,11 @@ for(const [name,change]of [
 test('execution source must match unified manifest',()=>fixture((r,d)=>{const p=resolve(d,'receipt.json');writeFileSync(p,JSON.stringify(r));assert.throws(()=>validateArtifact('tp02-development',p,'0'.repeat(40)),/source differs/);}));
 test('copied logs are independent of canonical logs',()=>fixture((r,d)=>{const p=resolve(d,'receipt.json');writeFileSync(p,JSON.stringify(r));validateArtifact('tp02-development',p,r.observedSourceCommit);writeFileSync(resolve(d,'contract.log'),'129 passed');assert.throws(()=>validateArtifact('tp02-development',p,r.observedSourceCommit),/log changed/);}));
 test('tampered wheel bytes are rejected',()=>fixture((r,logDirectory)=>{writeFileSync(resolve(logDirectory,'wheels',r.package.wheels[0].file),'fake');assert.throws(()=>verifyTp02(r,{checkDependencies:false,logDirectory}),/wheel changed/);}));
+test('complete Python suite can grow beyond the historical count',()=>{
+ assert.equal(verifyPythonSuiteSummary('...\n433 passed in 3.00s\n'),433);
+ assert.equal(verifyPythonSuiteSummary('...\n1366 passed in 8.97s\n'),1366);
+ assert.equal(verifyPythonSuiteSummary('...\n1367 passed, 1 warning in 9.00s\n'),1367);
+});
+for(const summary of ['432 passed in 3.00s','0 passed in 0.00s','no tests ran in 0.01s','1366 passed, 1 failed in 9.00s','1366 passed, 1 error in 9.00s','1366 passed, 1 skipped in 9.00s','1366 passed, 1 deselected in 9.00s','1366 passed, 1 xfailed in 9.00s','1366 passed in 9.00s\nexecution interrupted']){
+ test('incomplete Python suite is rejected: '+summary,()=>assert.throws(()=>verifyPythonSuiteSummary(summary)));
+}
