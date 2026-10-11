@@ -1,5 +1,6 @@
 pub mod pg;
 pub mod research;
+pub mod research_pg;
 pub mod signal_proposal;
 mod snapshot_source;
 

@@ -1,12 +1,12 @@
 use std::collections::BTreeMap;
 
 use chrono::{DateTime, Utc};
-use native_tls::TlsConnector;
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
 use postgres::{
     Client, NoTls, Row,
     types::{Json, Type},
 };
-use postgres_native_tls::MakeTlsConnector;
+use postgres_openssl::MakeTlsConnector;
 use thiserror::Error;
 use url::Url;
 use uuid::Uuid;
@@ -26,7 +26,7 @@ pub enum PgStorageError {
     #[error(transparent)]
     Url(#[from] url::ParseError),
     #[error(transparent)]
-    Tls(#[from] native_tls::Error),
+    Tls(#[from] openssl::error::ErrorStack),
     #[error(transparent)]
     Core(#[from] CoreError),
     #[error(transparent)]
@@ -533,34 +533,46 @@ impl PgStorageStore {
 }
 
 fn connect_client(database_url: &str) -> Result<Client, PgStorageError> {
-    let mut bounded = Url::parse(database_url)?;
-    if !bounded.query_pairs().any(|(k, _)| k == "connect_timeout") {
-        bounded
-            .query_pairs_mut()
-            .append_pair("connect_timeout", "10");
+    let mut url = Url::parse(database_url)?;
+    if !url.query_pairs().any(|(k, _)| k == "connect_timeout") {
+        url.query_pairs_mut().append_pair("connect_timeout", "10");
     }
-    let database_url = bounded.as_str();
-    let url = Url::parse(database_url)?;
-    let disable_tls = url
+    let mode = url
         .query_pairs()
-        .any(|(key, value)| key == "sslmode" && value == "disable");
-    let relaxed_tls = url
+        .find(|(k, _)| k == "sslmode")
+        .map(|(_, v)| v.into_owned());
+    let root = url
         .query_pairs()
-        .any(|(key, value)| key == "sslmode" && (value == "require" || value == "prefer"));
-
-    if disable_tls {
-        Ok(Client::connect(database_url, NoTls)?)
+        .find(|(k, _)| k == "sslrootcert")
+        .map(|(_, v)| v.into_owned())
+        .or_else(|| std::env::var("QUANTOS_BFF_SSLROOTCERT").ok());
+    // postgres-rust does not parse libpq verify-full/sslrootcert options.
+    // Verification belongs to the TLS connector; never downgrade verify-full.
+    let options: Vec<_> = url
+        .query_pairs()
+        .filter(|(k, _)| k != "sslmode" && k != "sslrootcert")
+        .map(|(k, v)| (k.into_owned(), v.into_owned()))
+        .collect();
+    url.set_query(None);
+    url.query_pairs_mut().extend_pairs(options);
+    let mut config: postgres::Config = url.as_str().parse()?;
+    if mode.as_deref() == Some("disable") {
+        config.ssl_mode(postgres::config::SslMode::Disable);
+        return Ok(config.connect(NoTls)?);
+    }
+    let mut builder = SslConnector::builder(SslMethod::tls())?;
+    if matches!(mode.as_deref(), Some("require" | "prefer")) {
+        builder.set_verify(SslVerifyMode::NONE);
     } else {
-        let mut builder = TlsConnector::builder();
-        if relaxed_tls {
-            builder.danger_accept_invalid_certs(true);
+        builder.set_verify(SslVerifyMode::PEER);
+        if let Some(root) = root {
+            builder.set_ca_file(root)?;
+        } else {
+            builder.set_default_verify_paths()?;
         }
-        let connector = builder.build()?;
-        Ok(Client::connect(
-            database_url,
-            MakeTlsConnector::new(connector),
-        )?)
     }
+    config.ssl_mode(postgres::config::SslMode::Require);
+    Ok(config.connect(MakeTlsConnector::new(builder.build()))?)
 }
 
 fn row_to_artifact_manifest(row: &Row) -> Result<ArtifactManifest, PgStorageError> {
@@ -639,4 +651,15 @@ fn row_to_snapshot_quality_rule(row: &Row) -> Result<SnapshotQualityRule, PgStor
         require_freshness: row.get("require_freshness"),
         updated_at: row.get("updated_at"),
     })
+}
+
+#[cfg(test)]
+mod connection_tests {
+    #[test]
+    fn verify_full_loads_the_configured_ca_before_network_access() {
+        let result = super::connect_client(
+            "postgresql://test:unused@db.example.invalid/postgres?sslmode=verify-full&sslrootcert=/nonexistent/r03-ca.pem",
+        );
+        assert!(matches!(result, Err(super::PgStorageError::Tls(_))));
+    }
 }

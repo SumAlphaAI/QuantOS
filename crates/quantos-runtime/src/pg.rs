@@ -218,6 +218,17 @@ impl PgRuntimeStore {
         input: &NewWorkflowRun,
         queued_at: DateTime<Utc>,
     ) -> Result<WorkflowRun, PgRuntimeError> {
+        self.schedule_run_with_checkpoint(input, queued_at, None)
+    }
+
+    /// The initial research checkpoint is committed in the same SQL statement as
+    /// scheduling. Conflicting idempotency requests cannot overwrite checkpoints.
+    pub fn schedule_run_with_checkpoint(
+        &mut self,
+        input: &NewWorkflowRun,
+        queued_at: DateTime<Utc>,
+        initial_checkpoint: Option<&serde_json::Value>,
+    ) -> Result<WorkflowRun, PgRuntimeError> {
         if input.deadline_at <= queued_at || input.rate_limit_per_minute == 0 {
             return Err(crate::RuntimeError::rejected("deadline or rate limit is invalid").into());
         }
@@ -293,6 +304,14 @@ impl PgRuntimeStore {
                       cancel_requested_at, completed_at, last_error, created_at, updated_at,
                       request_fingerprint, (xmax = '0'::xid) as inserted
             ),
+            initial_request as (
+                insert into quantos.workflow_run_checkpoints
+                    (workflow_run_id, checkpoint_key, step_index, payload, recorded_at)
+                select inserted.id, 'research.request', 0,
+                       jsonb_set($14::jsonb, '{execution_id}', to_jsonb(inserted.id::text || ':' || inserted.idempotency_key)), $12
+                from inserted where $14::jsonb is not null and inserted.request_fingerprint = $13
+                on conflict (workflow_run_id) do nothing
+            ),
             rate_row as (
                 insert into quantos.workflow_tool_rate_windows
                     (tenant_id, tool_name, window_start, accepted_count, effective_limit)
@@ -321,6 +340,7 @@ impl PgRuntimeStore {
                 (&(input.rate_limit_per_minute as i32), Type::INT4),
                 (&queued_at, Type::TIMESTAMPTZ),
                 (&fingerprint.as_str(), Type::TEXT),
+                (&initial_checkpoint.map(Json), Type::JSONB),
             ],
         ).map_err(|error| {
             if error.as_db_error().and_then(|db| db.constraint())
@@ -350,6 +370,25 @@ impl PgRuntimeStore {
         observed_at: DateTime<Utc>,
         lease_duration: ChronoDuration,
     ) -> Result<Vec<LeasedWorkflowRun>, PgRuntimeError> {
+        self.claim_runs_of_kind(
+            tenant_id,
+            worker_name,
+            limit,
+            observed_at,
+            lease_duration,
+            None,
+        )
+    }
+
+    pub fn claim_runs_of_kind(
+        &mut self,
+        tenant_id: TenantId,
+        worker_name: &str,
+        limit: i64,
+        observed_at: DateTime<Utc>,
+        lease_duration: ChronoDuration,
+        kind: Option<&str>,
+    ) -> Result<Vec<LeasedWorkflowRun>, PgRuntimeError> {
         self.mark_timed_out_runs(tenant_id, observed_at)?;
         self.client.execute_typed(
             "update quantos.workflow_runs set status = 'failed', completed_at = $2,
@@ -367,6 +406,7 @@ impl PgRuntimeStore {
                 select run.id
                 from quantos.workflow_runs as run
                 where run.tenant_id = $5
+                  and ($6::text is null or run.workflow_kind = $6)
                   and run.next_attempt_at <= $3
                   and run.deadline_at > $3
                   and run.cancel_requested_at is null
@@ -402,6 +442,7 @@ impl PgRuntimeStore {
                 (&observed_at, Type::TIMESTAMPTZ),
                 (&limit, Type::INT8),
                 (tenant_id.as_uuid(), Type::UUID),
+                (&kind, Type::TEXT),
             ],
         )?;
 
@@ -706,6 +747,73 @@ impl PgRuntimeStore {
             cancelled_at,
         )?;
         tx.commit()?;
+        Ok(())
+    }
+
+    /// Authenticated service callers pass their trusted tenant/actor context.
+    /// Queue cancellation completes immediately; running cancellation waits for
+    /// an Engine ACK. The state transition and audit are one atomic round trip.
+    pub fn request_research_cancel(
+        &mut self,
+        tenant: TenantId,
+        actor: ActorId,
+        id: WorkflowRunId,
+        at: DateTime<Utc>,
+    ) -> Result<WorkflowRunStatus, PgRuntimeError> {
+        let row = self.client.query_typed_opt(
+            "with changed as (
+               update quantos.workflow_runs as run
+               set status=case when status='queued' then 'cancelled' else 'cancel_requested' end,
+                   cancel_requested_at=$4,
+                   completed_at=case when status='queued' then $4 else null end,
+                   updated_at=$4
+               where id=$1 and tenant_id=$2 and actor_id=$3 and workflow_kind='research'
+                 and status in ('queued','running')
+                 and exists (select 1 from quantos.actors a
+                   join quantos.workspace_memberships m on m.actor_id=a.id and m.tenant_id=a.tenant_id
+                   join quantos.actor_capabilities c on c.actor_id=a.id and c.tenant_id=a.tenant_id
+                   where a.id=$3 and a.tenant_id=$2 and a.is_active
+                     and m.workspace_id=run.workspace_id and c.capability=run.capability
+                     and (c.workspace_id is null or c.workspace_id=run.workspace_id)
+                     and (c.account_id is null or c.account_id=run.account_id)
+                     and (c.mode_scope is null or c.mode_scope=(select mode from quantos.runtime_sessions where id=run.runtime_session_id)))
+               returning tenant_id,actor_id,correlation_id,id,status
+             ), audited as (
+               insert into quantos.audit_entries(tenant_id,actor_id,correlation_id,causation_id,action,details,recorded_at)
+               select tenant_id,actor_id,correlation_id,correlation_id,
+                 case when status='cancelled' then 'runtime.cancelled' else 'runtime.cancel_requested' end,
+                 jsonb_build_object('workflow_run_id',id,'queued',status='cancelled'),$4 from changed
+             ) select status from changed",
+            &[(id.as_uuid(),Type::UUID),(tenant.as_uuid(),Type::UUID),(actor.as_uuid(),Type::UUID),(&at,Type::TIMESTAMPTZ)])?
+            .ok_or_else(|| crate::RuntimeError::run_not_found(id))?;
+        Ok(WorkflowRunStatus::from_database(
+            row.get::<_, String>("status").as_str(),
+        )?)
+    }
+
+    /// A matching attempt acknowledges its Engine has stopped. Audit and terminal
+    /// state commit atomically; an old worker cannot finish a new attempt.
+    pub fn acknowledge_engine_cancelled(
+        &mut self,
+        lease: &LeasedWorkflowRun,
+        at: DateTime<Utc>,
+    ) -> Result<(), PgRuntimeError> {
+        let row = self.client.query_typed_one(
+            "with changed as (
+               update quantos.workflow_runs set status='cancelled', completed_at=$4,
+                 lease_owner=null,lease_expires_at=null,attempt_id=null,updated_at=$4
+               where id=$1 and lease_owner=$2 and attempt_id=$3 and status='cancel_requested'
+               returning tenant_id,actor_id,correlation_id,id
+             ), audited as (
+               insert into quantos.audit_entries(tenant_id,actor_id,correlation_id,causation_id,action,details,recorded_at)
+               select tenant_id,actor_id,correlation_id,correlation_id,'runtime.cancelled',
+                 jsonb_build_object('workflow_run_id',id,'engine_acknowledged',true),$4 from changed
+             ) select count(*)::bigint as n from changed",
+            &[(lease.run.workflow_run_id.as_uuid(),Type::UUID),(&lease.lease_owner,Type::TEXT),
+              (lease.task_attempt_id.as_uuid(),Type::UUID),(&at,Type::TIMESTAMPTZ)])?;
+        if row.get::<_, i64>("n") != 1 {
+            return Err(crate::RuntimeError::lease_conflict(lease.run.workflow_run_id).into());
+        }
         Ok(())
     }
 

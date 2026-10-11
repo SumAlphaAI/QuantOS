@@ -1,0 +1,55 @@
+env -u DATABASE_URL cargo test -p quantos-runtime --lib --locked
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/lib.rs (target/debug/deps/quantos_runtime-571f059525a57a23)
+
+running 19 tests
+test pg::tests::broad_admin_login_cannot_impersonate_runtime_service ... ok
+test pg::tests::runtime_role_membership_requires_only_the_runtime_role ... ok
+test pg::tests::remote_runtime_rejects_unverified_transport_before_connecting ... ok
+test research::tests::engine_hash_encoding_preserves_unicode_and_struct_numbers ... ok
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test research::tests::invalid_research_inputs_are_rejected_before_scheduling ... ok
+test signal_proposal::tp05_projection_tests::scoped_provenance_is_retained_without_forwarding_authority_fields ... ok
+test signal_proposal::tp05_projection_tests::production_or_trading_claims_cannot_survive_projection ... ok
+test tests::kernel_fences_cancelled_timed_out_and_exhausted_runs ... ok
+test tests::persisted_status_and_retry_bounds_are_explicit ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test signal_proposal::tp05_projection_tests::foreign_or_missing_provenance_is_rejected_before_projection ... ok
+test research::tests::semantic_hash_binds_snapshot_policy_schema_and_capability ... ok
+test research::tests::idempotent_schedule_preserves_checkpoints_and_rejects_reference_conflicts ... ok
+test tests::kernel_rejects_invalid_schedule_and_stale_worker_operations ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test pg::tests::local_transport_and_query_options_are_handled_explicitly ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+env -u DATABASE_URL cargo test -p quantos-runtime --locked --test research_orchestration -- --skip r02_retained_market_persistent_research_chain --skip r03_configured_supabase_lifecycle --skip r03_worker
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.93s
+     Running tests/research_orchestration.rs (target/debug/deps/research_orchestration-c5f0e690f42eb2e3)
+
+running 2 tests
+test research_workflow_cancel_confirms_within_two_seconds ... FAILED
+test research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence ... FAILED
+
+failures:
+
+---- research_workflow_cancel_confirms_within_two_seconds stdout ----
+TP01-D: Python child cannot import vibe_adapter
+Error: rd-agent socket did not appear at /tmp/quantos-r03-rd-agent-01a129f2-cf6b-7062-a2f9-fce050bcb56d.sock
+
+---- research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence stdout ----
+TP01-D: Python child cannot import vibe_adapter
+Error: rd-agent socket did not appear at /tmp/quantos-r03-rd-agent-01a129f2-cf6b-7062-a2f9-fcf454556a5c.sock
+
+
+failures:
+    research_workflow_cancel_confirms_within_two_seconds
+    research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 4 filtered out; finished in 5.20s
+
+error: test failed, to rerun pass `-p quantos-runtime --test research_orchestration`
+make: *** [r03-check] Error 101

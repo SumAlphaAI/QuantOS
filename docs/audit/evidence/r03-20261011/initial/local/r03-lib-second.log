@@ -1,0 +1,25 @@
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+error[E0505]: cannot move out of `record` because it is borrowed
+   --> crates/quantos-runtime/src/research_pg.rs:252:18
+    |
+195 |         let record = if let Some(prepared) = cp.payload.get("artifact") {
+    |             ------ binding `record` declared here
+...
+251 |         let manifest = &record.artifact_manifest;
+    |                        ------------------------- borrow of `record.artifact_manifest` occurs here
+252 |         blocking(|| {
+    |                  ^^ move out of `record` occurs here
+...
+256 |             if let Err(error) = self.storage.put_artifact(manifest, bytes.clone().into()) {
+    |                                                           -------- borrow later captured here by closure
+...
+293 |                 artifact: record,
+    |                           ------ move occurs due to use in closure
+    |
+help: consider cloning the value if the performance cost is acceptable
+    |
+251 |         let manifest = &record.artifact_manifest.clone();
+    |                                                 ++++++++
+
+For more information about this error, try `rustc --explain E0505`.
+error: could not compile `quantos-runtime` (lib test) due to 1 previous error

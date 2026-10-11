@@ -331,12 +331,12 @@ async fn research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_e
             assert_eq!(output.artifact.stream_events.len(), 3);
             assert!(
                 repository
-                    .record_for_run(output.run.workflow_run_id)
+                    .record_for_run(auth.tenant_id, output.run.workflow_run_id)
                     .is_some()
             );
             assert!(
                 repository
-                    .find_by_artifact_id(&output.artifact.engine_artifact_id)
+                    .find_by_artifact_id(auth.tenant_id, &output.artifact.engine_artifact_id)
                     .is_some()
             );
         }
@@ -444,3 +444,6 @@ async fn research_workflow_cancel_confirms_within_two_seconds() -> Result<()> {
 
 #[path = "support/r02_persisted_chain.rs"]
 mod r02_persisted_chain;
+
+#[path = "support/r03_persisted.rs"]
+mod r03_persisted;

@@ -1,5 +1,5 @@
 use crate::snapshot_source::SnapshotConsumerSource;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use pbjson_types::{ListValue, Struct, Timestamp, Value as ProtoValue, value::Kind};
@@ -72,11 +72,12 @@ pub struct ResearchRunResult {
     pub artifact: ResearchArtifactRecord,
 }
 
+/// Per-run evidence is retained independently from physical content deduplication.
 #[derive(Debug, Default, Clone)]
 pub struct InMemoryResearchArtifactRepository {
-    records_by_hash: BTreeMap<(quantos_core::TenantId, ContentHash), ResearchArtifactRecord>,
-    hash_by_run: BTreeMap<quantos_core::WorkflowRunId, ContentHash>,
-    run_to_engine_artifacts: BTreeMap<quantos_core::WorkflowRunId, BTreeSet<String>>,
+    manifests: BTreeMap<(quantos_core::TenantId, ContentHash), ArtifactManifest>,
+    records:
+        BTreeMap<(quantos_core::TenantId, quantos_core::WorkflowRunId), ResearchArtifactRecord>,
 }
 
 impl InMemoryResearchArtifactRepository {
@@ -85,49 +86,57 @@ impl InMemoryResearchArtifactRepository {
         Self::default()
     }
 
-    pub fn upsert(&mut self, record: ResearchArtifactRecord) -> &ResearchArtifactRecord {
-        let key = (
-            record.artifact_manifest.tenant_id,
-            record.artifact_manifest.content_hash.clone(),
-        );
-        let run_id = record.workflow_run_id;
-        let engine_artifact_id = record.engine_artifact_id.clone();
-        let stored = self.records_by_hash.entry(key).or_insert(record);
-        self.hash_by_run
-            .insert(run_id, stored.artifact_manifest.content_hash.clone());
-        self.run_to_engine_artifacts
-            .entry(run_id)
-            .or_default()
-            .insert(engine_artifact_id);
-        stored
+    pub fn upsert(&mut self, mut record: ResearchArtifactRecord) -> &ResearchArtifactRecord {
+        let tenant = record.artifact_manifest.tenant_id;
+        record.artifact_manifest = self
+            .manifests
+            .entry((tenant, record.artifact_manifest.content_hash.clone()))
+            .or_insert_with(|| record.artifact_manifest.clone())
+            .clone();
+        self.records
+            .entry((tenant, record.workflow_run_id))
+            .or_insert(record)
     }
 
     #[must_use]
     pub fn record_for_run(
         &self,
-        run_id: quantos_core::WorkflowRunId,
+        tenant: quantos_core::TenantId,
+        run: quantos_core::WorkflowRunId,
     ) -> Option<&ResearchArtifactRecord> {
-        let hash = self.hash_by_run.get(&run_id)?;
-        self.records_by_hash
-            .values()
-            .find(|record| &record.artifact_manifest.content_hash == hash)
+        self.records.get(&(tenant, run))
     }
 
     #[must_use]
-    pub fn find_by_artifact_id(&self, artifact_id: &str) -> Option<&ResearchArtifactRecord> {
-        self.records_by_hash
-            .values()
-            .find(|record| record.engine_artifact_id == artifact_id)
+    pub fn find_by_artifact_id(
+        &self,
+        tenant: quantos_core::TenantId,
+        artifact_id: &str,
+    ) -> Option<&ResearchArtifactRecord> {
+        self.records.values().find(|r| {
+            r.artifact_manifest.tenant_id == tenant && r.engine_artifact_id == artifact_id
+        })
     }
 
     #[must_use]
     pub fn physical_artifact_count(&self) -> usize {
-        self.records_by_hash.len()
+        self.manifests.len()
     }
 }
 
 #[derive(Debug, Error)]
 pub enum ResearchWorkflowError {
+    #[error(transparent)]
+    PersistentRuntime(#[from] crate::pg::PgRuntimeError),
+    #[error(transparent)]
+    Storage(#[from] quantos_storage::supabase_storage::SupabaseStorageError),
+    #[error("RESEARCH_INVALID_RESULT: {0}")]
+    InvalidResult(&'static str),
+    #[error("RESEARCH_CANCEL_NOT_CONFIRMED")]
+    CancelNotConfirmed,
+    #[error("RESEARCH_CANCELLED: engine acknowledged cancellation")]
+    Cancelled,
+
     #[error(transparent)]
     Runtime(#[from] RuntimeError),
     #[error(transparent)]
@@ -153,13 +162,13 @@ pub enum ResearchWorkflowError {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-struct ResearchCheckpointPayload {
-    capability: String,
-    data_snapshot_id: String,
-    execution_id: String,
-    policy_context_ref: String,
-    input_schema_version: String,
-    input: Value,
+pub(super) struct ResearchCheckpointPayload {
+    pub(super) capability: String,
+    pub(super) data_snapshot_id: String,
+    pub(super) execution_id: String,
+    pub(super) policy_context_ref: String,
+    pub(super) input_schema_version: String,
+    pub(super) input: Value,
 }
 
 pub struct ResearchWorkflowCoordinator<'a> {
@@ -226,29 +235,13 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
         input: ResearchWorkflowInput,
         queued_at: DateTime<Utc>,
     ) -> Result<WorkflowRun, ResearchWorkflowError> {
-        let input_hash = ContentHash::sha256_bytes(&canonical_json_bytes(&input.input)?);
-        let new_run = NewWorkflowRun {
-            runtime_session_id: input.runtime_session_id,
-            tool_name: input.tool_name,
-            capability: input.capability.clone(),
-            workflow_kind: input.workflow_kind,
-            idempotency_key: input.idempotency_key.clone(),
-            correlation_id: input.correlation_id,
-            input_hash,
-            max_attempts: input.max_attempts,
-            deadline_at: input.deadline_at,
-            cost_budget_units: input.cost_budget_units,
-            rate_limit_per_minute: input.rate_limit_per_minute,
-        };
+        let (new_run, mut checkpoint) = prepare_research_input(input)?;
         let run = self.runtime.schedule_run(new_run, queued_at)?;
-        let checkpoint = ResearchCheckpointPayload {
-            capability: input.capability.as_str().to_owned(),
-            data_snapshot_id: input.data_snapshot_id.to_string(),
-            execution_id: format!("{}:{}", run.workflow_run_id, run.idempotency_key),
-            policy_context_ref: input.policy_context_ref,
-            input_schema_version: input.input_schema_version,
-            input: input.input,
-        };
+        // An exact idempotent retry must not replace an execution/completion checkpoint.
+        if self.runtime.load_checkpoint(run.workflow_run_id).is_some() {
+            return Ok(run);
+        }
+        checkpoint.execution_id = format!("{}:{}", run.workflow_run_id, run.idempotency_key);
         self.runtime.save_checkpoint(
             run.workflow_run_id,
             "research.request",
@@ -272,7 +265,23 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
             return Ok(None);
         };
 
-        Ok(Some(self.execute_claimed_run(lease, observed_at).await?))
+        let result = self.execute_claimed_run(lease.clone(), observed_at).await;
+        if let Err(error) = &result {
+            self.runtime.mark_timed_out_runs(Utc::now());
+            if self
+                .runtime
+                .run(lease.run.workflow_run_id)
+                .is_some_and(|r| r.status == crate::WorkflowRunStatus::Running)
+            {
+                self.runtime.fail_and_retry(
+                    lease.run.workflow_run_id,
+                    &self.worker_name,
+                    &error.to_string(),
+                    observed_at,
+                )?;
+            }
+        }
+        result.map(Some)
     }
 
     pub async fn cancel_run(
@@ -280,6 +289,16 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
         run_id: quantos_core::WorkflowRunId,
         requested_at: DateTime<Utc>,
     ) -> Result<ChronoDuration, ResearchWorkflowError> {
+        if self
+            .runtime
+            .run(run_id)
+            .ok_or(RuntimeError::run_not_found(run_id))?
+            .status
+            .is_terminal()
+        {
+            return Err(ResearchWorkflowError::CancelNotConfirmed);
+        }
+        let started = std::time::Instant::now();
         let was_queued = self
             .runtime
             .run(run_id)
@@ -294,9 +313,9 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
             .ok_or(ResearchWorkflowError::MissingCheckpoint { run_id })?;
         let payload: ResearchCheckpointPayload = serde_json::from_value(checkpoint.payload)?;
 
-        let confirmed_at = requested_at + ChronoDuration::milliseconds(50);
         if !was_queued {
-            self.engine_manager
+            let response = self
+                .engine_manager
                 .cancel_capability(
                     &payload.capability,
                     CancelRequest {
@@ -311,9 +330,14 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
                     },
                 )
                 .await?;
+            if !response.cancelled {
+                return Err(ResearchWorkflowError::CancelNotConfirmed);
+            }
         }
+        let elapsed = ChronoDuration::from_std(started.elapsed()).expect("bounded cancellation");
+        let confirmed_at = requested_at + elapsed;
         self.runtime.finalize_cancelled(run_id, confirmed_at)?;
-        Ok(confirmed_at - requested_at)
+        Ok(elapsed)
     }
 
     async fn execute_claimed_run(
@@ -350,87 +374,16 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
             observed_at,
         )?;
 
-        let execute_request = build_execute_request(&lease.run, &payload);
-        let stream_messages = self
-            .engine_manager
-            .stream_execute_collect(
-                &payload.capability,
-                StreamExecuteRequest {
-                    request: Some(execute_request.clone()),
-                },
-            )
-            .await?;
-        let execute = match self
-            .engine_manager
-            .execute(&payload.capability, execute_request)
-            .await
-        {
-            Ok(response) => response,
-            Err(error) => {
-                let _ = self.runtime.fail_and_retry(
-                    run_id,
-                    &self.worker_name,
-                    error.to_string().as_str(),
-                    observed_at,
-                )?;
-                return Err(error.into());
-            }
-        };
-
-        let completed_at =
-            timestamp_to_datetime(execute.completed_at.as_ref()).unwrap_or(observed_at);
-        let output = json_document_to_value(
-            execute
-                .output
-                .as_ref()
-                .ok_or(ResearchWorkflowError::MissingOutput)?,
-        )?;
-        let output_bytes = canonical_json_bytes(&output)?;
-        let artifact_ref = execute
-            .artifact_refs
-            .first()
-            .ok_or(ResearchWorkflowError::MissingArtifactRef)?;
-        let content_hash = if artifact_ref.sha256.trim().is_empty() {
-            ContentHash::sha256_bytes(&output_bytes)
-        } else {
-            ContentHash::parse(artifact_ref.sha256.as_str())?
-        };
-        let manifest = ArtifactManifest::new(
-            lease.run.tenant_id,
-            artifact_ref.media_type.as_str(),
-            content_hash.clone(),
-            self.storage_bucket.as_str(),
-            output_bytes.len() as u64,
-            completed_at,
+        let record = dispatch_research(
+            self.engine_manager,
+            &lease.run,
+            &payload,
+            &self.storage_bucket,
         )
-        .with_metadata("workflow_run_id", lease.run.workflow_run_id.to_string())
-        .with_metadata("data_snapshot_id", snapshot.snapshot_id.to_string())
-        .with_metadata("capability", payload.capability.as_str())
-        .with_metadata("engine_artifact_id", artifact_ref.artifact_id.as_str())
-        .with_metadata("engine_artifact_uri", artifact_ref.uri.as_str());
-        let stored_manifest = self
-            .runtime
-            .record_artifact(run_id, manifest, completed_at)?;
-
-        let record = ResearchArtifactRecord {
-            workflow_run_id: run_id,
-            artifact_manifest: stored_manifest,
-            engine_artifact_id: artifact_ref.artifact_id.clone(),
-            data_snapshot_id: snapshot.snapshot_id,
-            capability: payload.capability.clone(),
-            input_hash: lease.run.input_hash.clone(),
-            output,
-            evidence_refs: execute
-                .evidence_refs
-                .iter()
-                .map(evidence_ref_to_record)
-                .collect(),
-            stream_events: stream_messages
-                .iter()
-                .map(stream_event_from_proto)
-                .collect::<Result<Vec<_>, _>>()?,
-            created_at: completed_at,
-        };
+        .await?;
+        let completed_at = Utc::now();
+        self.runtime
+            .record_artifact(run_id, record.artifact_manifest.clone(), completed_at)?;
         let artifact = self.artifact_repository.upsert(record).clone();
         self.runtime.save_checkpoint(
             run_id,
@@ -454,7 +407,202 @@ impl<'a> ResearchWorkflowCoordinator<'a> {
     }
 }
 
-fn ensure_snapshot_allowed(
+/// Hash the semantic request, including the snapshot and policy references. Run IDs
+/// and correlation IDs are deliberately excluded so repeated fixtures remain stable.
+pub(super) fn prepare_research_input(
+    input: ResearchWorkflowInput,
+) -> Result<(NewWorkflowRun, ResearchCheckpointPayload), ResearchWorkflowError> {
+    if input.workflow_kind != "research"
+        || !matches!(
+            input.capability.as_str(),
+            "research.hypothesis.v1" | "research.experiment.v1"
+        )
+        || !input.input.is_object()
+        || input.policy_context_ref.trim().is_empty()
+        || input.input_schema_version != "v1"
+        || input.cost_budget_units == 0
+        || input.rate_limit_per_minute == 0
+        || input.idempotency_key.trim().is_empty()
+    {
+        return Err(ResearchWorkflowError::InvalidResult(
+            "invalid research request or budget",
+        ));
+    }
+    let checkpoint = ResearchCheckpointPayload {
+        capability: input.capability.as_str().to_owned(),
+        data_snapshot_id: input.data_snapshot_id.to_string(),
+        execution_id: String::new(),
+        policy_context_ref: input.policy_context_ref,
+        input_schema_version: input.input_schema_version,
+        input: input.input,
+    };
+    let input_hash =
+        ContentHash::sha256_bytes(&canonical_json_bytes(&serde_json::to_value(&checkpoint)?)?);
+    let run = NewWorkflowRun {
+        runtime_session_id: input.runtime_session_id,
+        tool_name: input.tool_name,
+        capability: input.capability,
+        workflow_kind: input.workflow_kind,
+        idempotency_key: input.idempotency_key,
+        correlation_id: input.correlation_id,
+        input_hash,
+        max_attempts: input.max_attempts,
+        deadline_at: input.deadline_at,
+        cost_budget_units: input.cost_budget_units,
+        rate_limit_per_minute: input.rate_limit_per_minute,
+    };
+    Ok((run, checkpoint))
+}
+
+/// Python Engine SDK JSON uses ASCII escapes. Canonical storage bytes use native
+/// UTF-8; the two hashes have different jobs and must never be interchanged.
+fn engine_json_bytes(value: &Value) -> Result<Vec<u8>, ResearchWorkflowError> {
+    let text = String::from_utf8(canonical_json_bytes(value)?).expect("JSON is UTF-8");
+    let mut ascii = String::new();
+    for c in text.chars() {
+        if c.is_ascii() {
+            ascii.push(c);
+        } else {
+            use std::fmt::Write;
+            for unit in c.encode_utf16(&mut [0; 2]) {
+                write!(ascii, "\\u{unit:04x}").expect("string write");
+            }
+        }
+    }
+    Ok(ascii.into_bytes())
+}
+
+pub(super) async fn dispatch_research(
+    manager: &mut EngineManager,
+    run: &WorkflowRun,
+    payload: &ResearchCheckpointPayload,
+    bucket: &str,
+) -> Result<ResearchArtifactRecord, ResearchWorkflowError> {
+    if run.cost_budget_units < 1 {
+        return Err(ResearchWorkflowError::InvalidResult(
+            "artifact budget exhausted",
+        ));
+    }
+    let request = build_execute_request(run, payload);
+    let expected_input_hash = ContentHash::sha256_bytes(&engine_json_bytes(
+        &json_document_to_value(request.input.as_ref().expect("input built"))?,
+    )?);
+    let stream = manager
+        .stream_execute_collect(
+            &payload.capability,
+            StreamExecuteRequest {
+                request: Some(request.clone()),
+            },
+        )
+        .await?;
+    let response = manager.execute(&payload.capability, request).await?;
+    let completed_at = Utc::now();
+    if completed_at >= run.deadline_at {
+        return Err(ResearchWorkflowError::InvalidResult("deadline exceeded"));
+    }
+    if response.execution_id != payload.execution_id
+        || response.input_hash != expected_input_hash.as_str()
+    {
+        return Err(ResearchWorkflowError::InvalidResult(
+            "execution or input hash mismatch",
+        ));
+    }
+    let output = json_document_to_value(
+        response
+            .output
+            .as_ref()
+            .ok_or(ResearchWorkflowError::MissingOutput)?,
+    )?;
+    let artifact = response
+        .artifact_refs
+        .first()
+        .ok_or(ResearchWorkflowError::MissingArtifactRef)?;
+    if response.artifact_refs.len() != 1
+        || artifact.artifact_id.trim().is_empty()
+        || artifact.media_type != "application/json"
+        || ContentHash::parse(&artifact.sha256)?
+            != ContentHash::sha256_bytes(&engine_json_bytes(&output)?)
+    {
+        return Err(ResearchWorkflowError::InvalidResult(
+            "artifact hash or reference mismatch",
+        ));
+    }
+    if output["artifact_type"] != "ResearchArtifact"
+        || output["workflow_run_id"] != run.workflow_run_id.to_string()
+        || output["data_snapshot_ref"] != payload.data_snapshot_id
+        || output["policy_context_ref"] != payload.policy_context_ref
+        || output["capability"] != payload.capability
+        || output["trade_executable"] != false
+        || output["audit"]["tenant_id"] != run.tenant_id.to_string()
+        || output["audit"]["workspace_id"] != run.workspace_id.to_string()
+        || output["audit"]["actor_id"] != run.actor_id.to_string()
+    {
+        return Err(ResearchWorkflowError::InvalidResult(
+            "research output identity mismatch",
+        ));
+    }
+    if response.evidence_refs.is_empty()
+        || response.evidence_refs.iter().any(|e| {
+            e.evidence_id.trim().is_empty()
+                || e.artifact_id != artifact.artifact_id
+                || e.summary.trim().is_empty()
+        })
+    {
+        return Err(ResearchWorkflowError::InvalidResult("unlocatable evidence"));
+    }
+    let mut sequences = std::collections::BTreeSet::new();
+    if stream.is_empty()
+        || !stream.last().is_some_and(|e| e.done)
+        || stream.iter().enumerate().any(|(i, e)| {
+            e.execution_id != payload.execution_id
+                || e.sequence_id.is_empty()
+                || !sequences.insert(&e.sequence_id)
+                || (e.done && i + 1 != stream.len())
+        })
+    {
+        return Err(ResearchWorkflowError::InvalidResult(
+            "invalid stream sequence",
+        ));
+    }
+    let output_bytes = canonical_json_bytes(&output)?;
+    if output_bytes.len() > 4 * 1024 * 1024 {
+        return Err(ResearchWorkflowError::InvalidResult("artifact oversized"));
+    }
+    let manifest = ArtifactManifest::new(
+        run.tenant_id,
+        "application/json",
+        ContentHash::sha256_bytes(&output_bytes),
+        bucket,
+        output_bytes.len() as u64,
+        completed_at,
+    )
+    .with_metadata("workflow_run_id", run.workflow_run_id.to_string())
+    .with_metadata("data_snapshot_id", payload.data_snapshot_id.clone())
+    .with_metadata("capability", payload.capability.clone())
+    .with_metadata("engine_artifact_id", &artifact.artifact_id)
+    .with_metadata("engine_artifact_uri", &artifact.uri);
+    Ok(ResearchArtifactRecord {
+        workflow_run_id: run.workflow_run_id,
+        artifact_manifest: manifest,
+        engine_artifact_id: artifact.artifact_id.clone(),
+        data_snapshot_id: SnapshotId::parse_str(&payload.data_snapshot_id)?,
+        capability: payload.capability.clone(),
+        input_hash: run.input_hash.clone(),
+        output,
+        evidence_refs: response
+            .evidence_refs
+            .iter()
+            .map(evidence_ref_to_record)
+            .collect(),
+        stream_events: stream
+            .iter()
+            .map(stream_event_from_proto)
+            .collect::<Result<Vec<_>, _>>()?,
+        created_at: completed_at,
+    })
+}
+
+pub(super) fn ensure_snapshot_allowed(
     snapshot: &DataSnapshotRecord,
     observed_at: DateTime<Utc>,
     rules: &SnapshotQualityRuleset,
@@ -504,7 +652,7 @@ fn build_execute_request(run: &WorkflowRun, payload: &ResearchCheckpointPayload)
     }
 }
 
-fn build_command_metadata(run: &WorkflowRun, capability: &str) -> CommandMetadata {
+pub(super) fn build_command_metadata(run: &WorkflowRun, capability: &str) -> CommandMetadata {
     CommandMetadata {
         request_id: format!("research-{}", run.workflow_run_id),
         tenant_id: run.tenant_id.to_string(),
@@ -667,7 +815,7 @@ mod tests {
             mode: RunMode::Paper,
             account_id: Some(AccountId::new()),
             capabilities: BTreeSet::from([
-                Capability::parse(Capability::EXECUTION_OPERATE).expect("capability parses")
+                Capability::parse("research.hypothesis.v1").expect("capability parses")
             ]),
         }
     }
@@ -675,8 +823,7 @@ mod tests {
     fn tool_registration() -> ToolRegistration {
         ToolRegistration {
             tool_name: "research.execute".to_owned(),
-            capability: Capability::parse(Capability::EXECUTION_OPERATE)
-                .expect("capability parses"),
+            capability: Capability::parse("research.hypothesis.v1").expect("capability parses"),
             description: "Run deterministic research".to_owned(),
             max_cost_units: 10_000,
             rate_limit_per_minute: 600,
@@ -780,16 +927,51 @@ mod tests {
 
         let mut repository = InMemoryResearchArtifactRepository::new();
         let stored_first = repository.upsert(record.clone()).clone();
-        let stored_second = repository.upsert(record).clone();
+        let stored_second = repository.upsert(record.clone()).clone();
 
         assert_eq!(
             stored_first.artifact_manifest.artifact_id,
             stored_second.artifact_manifest.artifact_id
         );
         assert_eq!(repository.physical_artifact_count(), 1);
+        let mut second_run = record.clone();
+        second_run.workflow_run_id = quantos_core::WorkflowRunId::new();
+        second_run.engine_artifact_id = "research-artifact:run-2".into();
+        repository.upsert(second_run.clone());
+        assert_eq!(
+            repository
+                .record_for_run(tenant_id, second_run.workflow_run_id)
+                .unwrap()
+                .engine_artifact_id,
+            second_run.engine_artifact_id
+        );
         assert!(
             repository
-                .find_by_artifact_id("research-artifact:run-1")
+                .record_for_run(TenantId::new(), record.workflow_run_id)
+                .is_none()
+        );
+        assert!(
+            repository
+                .find_by_artifact_id(TenantId::new(), "research-artifact:run-1")
+                .is_none()
+        );
+        assert_eq!(repository.physical_artifact_count(), 1);
+        let mut foreign = record.clone();
+        foreign.artifact_manifest.tenant_id = TenantId::new();
+        repository.upsert(foreign.clone());
+        assert_eq!(repository.physical_artifact_count(), 2);
+        assert_eq!(
+            repository
+                .record_for_run(foreign.artifact_manifest.tenant_id, record.workflow_run_id)
+                .unwrap()
+                .artifact_manifest
+                .tenant_id,
+            foreign.artifact_manifest.tenant_id
+        );
+
+        assert!(
+            repository
+                .find_by_artifact_id(tenant_id, "research-artifact:run-1")
                 .is_some()
         );
     }
@@ -833,7 +1015,7 @@ mod tests {
                     ResearchWorkflowInput {
                         runtime_session_id: session.runtime_session_id,
                         tool_name: "research.execute".to_owned(),
-                        capability: Capability::parse(Capability::EXECUTION_OPERATE)
+                        capability: Capability::parse("research.hypothesis.v1")
                             .expect("capability parses"),
                         workflow_kind: "research".to_owned(),
                         idempotency_key: format!("stable-run-{index}"),
@@ -853,5 +1035,138 @@ mod tests {
             input_hashes.insert(run.input_hash.clone());
         }
         assert_eq!(input_hashes.len(), 1);
+    }
+    fn research_input(session: quantos_core::RuntimeSessionId) -> ResearchWorkflowInput {
+        ResearchWorkflowInput {
+            runtime_session_id: session,
+            tool_name: "research.execute".into(),
+            capability: Capability::parse("research.hypothesis.v1").unwrap(),
+            workflow_kind: "research".into(),
+            idempotency_key: "one-request".into(),
+            correlation_id: CorrelationId::new(),
+            data_snapshot_id: SnapshotId::new(),
+            policy_context_ref: "policy-fixture".into(),
+            input_schema_version: "v1".into(),
+            input: json!({"fixture":"hypothesis_regime_shift","prompt":"研究 🧪"}),
+            max_attempts: 2,
+            deadline_at: Utc::now() + ChronoDuration::minutes(5),
+            cost_budget_units: 2,
+            rate_limit_per_minute: 10,
+        }
+    }
+
+    #[test]
+    fn semantic_hash_binds_snapshot_policy_schema_and_capability() {
+        let input = research_input(quantos_core::RuntimeSessionId::new());
+        let digest = super::prepare_research_input(input.clone())
+            .unwrap()
+            .0
+            .input_hash;
+        for variant in 0..4 {
+            let mut changed = input.clone();
+            match variant {
+                0 => changed.data_snapshot_id = SnapshotId::new(),
+                1 => changed.policy_context_ref = "different-policy".into(),
+                2 => changed.capability = Capability::parse("research.experiment.v1").unwrap(),
+                _ => changed.input["prompt"] = json!("different prompt"),
+            }
+            assert_ne!(
+                super::prepare_research_input(changed).unwrap().0.input_hash,
+                digest
+            );
+        }
+    }
+
+    #[test]
+    fn invalid_research_inputs_are_rejected_before_scheduling() {
+        let input = research_input(quantos_core::RuntimeSessionId::new());
+        for variant in 0..8 {
+            let mut bad = input.clone();
+            match variant {
+                0 => bad.workflow_kind = "trading".into(),
+                1 => bad.capability = Capability::parse(Capability::EXECUTION_OPERATE).unwrap(),
+                2 => bad.input = json!([]),
+                3 => bad.policy_context_ref.clear(),
+                4 => bad.input_schema_version = "v2".into(),
+                5 => bad.cost_budget_units = 0,
+                6 => bad.rate_limit_per_minute = 0,
+                _ => bad.idempotency_key.clear(),
+            }
+            assert!(super::prepare_research_input(bad).is_err());
+        }
+    }
+
+    #[test]
+    fn engine_hash_encoding_preserves_unicode_and_struct_numbers() {
+        assert_eq!(
+            super::engine_json_bytes(&json!({"prompt":"研究 🧪", "sleep_ms":1500.0})).unwrap(),
+            br#"{"prompt":"\u7814\u7a76 \ud83e\uddea","sleep_ms":1500.0}"#
+        );
+    }
+
+    #[test]
+    fn idempotent_schedule_preserves_checkpoints_and_rejects_reference_conflicts() {
+        let now = Utc::now();
+        let auth = auth_context();
+        let mut runtime = InMemoryRuntimeKernel::new();
+        runtime.register_tool(tool_registration()).unwrap();
+        let session = runtime.open_session(&auth, now, now + ChronoDuration::hours(1));
+        let snapshots = snapshot_catalog(auth.tenant_id);
+        let rules =
+            SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now)).unwrap();
+        let mut repo = InMemoryResearchArtifactRepository::new();
+        let mut manager = EngineManager::new(quantos_engine_manager::BackoffPolicy::default());
+        let input = research_input(session.runtime_session_id);
+        let config = ResearchWorkflowCoordinatorConfig {
+            worker_name: "worker".into(),
+            lease_duration: ChronoDuration::seconds(30),
+            storage_bucket: "quantos-artifacts".into(),
+        };
+        let run = ResearchWorkflowCoordinator::new(
+            &mut runtime,
+            &snapshots,
+            &rules,
+            &mut repo,
+            &mut manager,
+            config.clone(),
+        )
+        .schedule_research_run(input.clone(), now)
+        .unwrap();
+        runtime
+            .save_checkpoint(
+                run.workflow_run_id,
+                "research.completed",
+                3,
+                json!({"sentinel":true}),
+                now,
+            )
+            .unwrap();
+        {
+            let mut coordinator = ResearchWorkflowCoordinator::new(
+                &mut runtime,
+                &snapshots,
+                &rules,
+                &mut repo,
+                &mut manager,
+                config,
+            );
+            assert_eq!(
+                coordinator
+                    .schedule_research_run(input.clone(), now)
+                    .unwrap()
+                    .workflow_run_id,
+                run.workflow_run_id
+            );
+            let mut changed = input;
+            changed.data_snapshot_id = SnapshotId::new();
+            assert!(coordinator.schedule_research_run(changed, now).is_err());
+        }
+        assert_eq!(
+            runtime
+                .load_checkpoint(run.workflow_run_id)
+                .unwrap()
+                .payload,
+            json!({"sentinel":true})
+        );
     }
 }

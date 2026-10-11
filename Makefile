@@ -524,3 +524,15 @@ r01-window-check:
 provider-a2-check:
 	pnpm check:provider-a2
 	pnpm test:provider-a2
+
+.PHONY: r03-check r03-target-check r03-admission-check
+r03-check:
+	env -u DATABASE_URL cargo test -p quantos-runtime --lib --locked
+	env -u DATABASE_URL cargo test -p quantos-runtime --locked --test research_orchestration -- --skip r02_retained_market_persistent_research_chain --skip r03_configured_supabase_lifecycle --skip r03_worker
+	node --test scripts/r03-stage-check.test.mjs
+
+r03-target-check:
+	QUANTOS_RUN_R03_TARGET_TESTS=1 node scripts/r03-target-check.cjs
+
+r03-admission-check:
+	node scripts/r03-stage-check.mjs --admission

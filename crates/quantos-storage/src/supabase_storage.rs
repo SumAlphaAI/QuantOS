@@ -107,6 +107,39 @@ impl SupabaseStorageAdapter {
         self.ensure_success(response)
     }
 
+    /// Create-only content-addressed write, independent of the adapter's legacy
+    /// upsert setting. Duplicate/uncertain writes succeed only after byte verification.
+    pub fn put_artifact_immutable(
+        &self,
+        manifest: &ArtifactManifest,
+        payload: Bytes,
+    ) -> Result<(), SupabaseStorageError> {
+        self.validate_manifest(manifest)?;
+        if manifest.size_bytes != payload.len() as u64 {
+            return Err(SupabaseStorageError::InvalidManifest);
+        }
+        validate_payload_hash(&manifest.content_hash, &payload)?;
+        let result = self
+            .client
+            .post(self.object_url(manifest))
+            .header(CONTENT_TYPE, &manifest.media_type)
+            .header("x-upsert", "false")
+            .body(payload.to_vec())
+            .send()
+            .map_err(SupabaseStorageError::from)
+            .and_then(|response| self.ensure_success(response));
+        match result {
+            Ok(()) => Ok(()),
+            Err(error) => {
+                if self.get_artifact(manifest).ok().as_deref() == Some(payload.as_ref()) {
+                    Ok(())
+                } else {
+                    Err(error)
+                }
+            }
+        }
+    }
+
     pub fn get_artifact(&self, manifest: &ArtifactManifest) -> Result<Bytes, SupabaseStorageError> {
         self.validate_manifest(manifest)?;
         let response = self.client.get(self.object_url(manifest)).send()?;

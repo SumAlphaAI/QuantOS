@@ -578,12 +578,13 @@ fn worker_loop(mut store: PgRuntimeStore, storage: SupabaseStorageAdapter, healt
 fn worker_once(store: &mut PgRuntimeStore, storage: &SupabaseStorageAdapter) -> Result<()> {
     for tenant in store.pending_tenants()? {
         store.finalize_pending_cancellations(tenant, Utc::now())?;
-        for lease in store.claim_runs(
+        for lease in store.claim_runs_of_kind(
             tenant,
             "runtime-gateway",
             1,
             Utc::now(),
             ChronoDuration::seconds(120),
+            Some("runtime.fixture.v1"),
         )? {
             if lease.run.workflow_kind != "runtime.fixture.v1" {
                 store.fail_and_retry(&lease, "unsupported workflow kind", Utc::now())?;
