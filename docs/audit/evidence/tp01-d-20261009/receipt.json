@@ -2,10 +2,10 @@
   "schema": "quantos-tp01-d-absorption/v1",
   "nodeId": "CORE:TP01-D",
   "stage": "DEVELOPMENT",
-  "status": "READY",
+  "status": "BLOCKED",
   "engineeringStatus": "PASS",
   "formalAccepted": false,
-  "observedSourceCommit": "6a393eb081d1d9629a1ca1ff451ac1e25c15fede",
+  "observedSourceCommit": "4fe846efe3d6187118c82fbffd69ed9bd00bcdac",
   "environment": {
     "node": "v24.12.0",
     "python": "Python 3.12.10",
@@ -34,7 +34,8 @@
     "requirements": [
       "- 需求描述：选择性吸收与最小 patch 队列",
       "- 交付物：fork patch queue、adapter modules、sync ADR",
-      "- 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow"
+      "- 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow",
+      "- 验收边界：TP01-D_LOCAL独立本地准入；完整16节点必要功能闭包、20组双RPC/80次调用、18类畸形合约拒绝、Runtime去适配器运行、R02合成输入消费及专用负向门禁须绑定同一冻结源码。仅CORE:TP01-D登记READY，上游与R1-SERVICE不自动放行；Supabase、真实来源/用途许可、外部环境及性能/长稳由RELEASE-GATE:BETA最终验收。"
     ],
     "task_id": "TP01-D",
     "task_type": "CORE",
@@ -104,7 +105,7 @@
     {
       "path": "crates/quantos-engine-manager/tests/python_trading_agents.rs",
       "role": "test",
-      "sha256": "sha256:5ceb497d473422fde7e7c1e1bbe85c0186b4d5e22eccbdc2392bae0790844b0c"
+      "sha256": "sha256:85121354635fbe22dc0a6e1c192893293f46c0a80c26688f12966916b9c77b44"
     },
     {
       "path": "crates/quantos-engine-manager/tests/python_vibe_adapter.rs",
@@ -124,22 +125,27 @@
     {
       "path": "crates/quantos-runtime/src/lib.rs",
       "role": "code",
-      "sha256": "sha256:5e68fbe141d5ba081f79a901ef8eb043e92b44d43a454922d42e5c04fa5492af"
+      "sha256": "sha256:0b8465d460d917e18c6a457c8656aa5bbd7bf359cff7171bb7b30f260c171746"
     },
     {
       "path": "crates/quantos-runtime/src/pg.rs",
       "role": "code",
-      "sha256": "sha256:b0ea5e4d2b22396b16a55617312e035525f37e1b4b8fa74fc70b9718598f0d6e"
+      "sha256": "sha256:406f7bdea746428a9cb731981bb373262d19b30b2baec901fa57c8565ddf71ec"
     },
     {
       "path": "crates/quantos-runtime/src/research.rs",
       "role": "code",
-      "sha256": "sha256:f85a7ae02453c0633946f55a710d4520e908318015b5191406c78ee31859a23b"
+      "sha256": "sha256:b3541544b44c5e6e53694384cec0c1ea62dec1d30ef42ea8fe981405dc586d7f"
+    },
+    {
+      "path": "crates/quantos-runtime/src/research_pg.rs",
+      "role": "code",
+      "sha256": "sha256:3e6b1df05cf73b98d15c0c7801974093ace69f931054c89df373726a394ea677"
     },
     {
       "path": "crates/quantos-runtime/src/signal_proposal.rs",
       "role": "code",
-      "sha256": "sha256:643eca3c3a53902d71f5168dc5f8bcd902d17578cc7dec45996426cd69965e7f"
+      "sha256": "sha256:22e6dafbb1469f37431343470c0ee4a72582655f88dca0c32b5062e25ec39357"
     },
     {
       "path": "crates/quantos-runtime/src/snapshot_source.rs",
@@ -157,19 +163,39 @@
       "sha256": "sha256:1838701641950cac03fbe497fddc4c582bec19e36748ae943b3fcfa1f26ad8c7"
     },
     {
+      "path": "crates/quantos-runtime/tests/r02_retained_input.rs",
+      "role": "test",
+      "sha256": "sha256:bf0371e668d34ee16e405d324672e24751f33c37bbfe64f9ccce2356c5865386"
+    },
+    {
       "path": "crates/quantos-runtime/tests/research_orchestration.rs",
       "role": "test",
-      "sha256": "sha256:3015d542c6bacd9f965362ffea67f09b68a408873fcb1f7430af2fce4cba165e"
+      "sha256": "sha256:d29e2719c7b6cc3b09e428151fd430d7eb87a49f5f6b55f16ddece381a2bba59"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/signal_proposal_contracts.rs",
+      "role": "test",
+      "sha256": "sha256:83a9dcc847f21a63767c4ca6d7ffc66d164fc4c9a790ea1fb1fd75ca6fd3a52a"
     },
     {
       "path": "crates/quantos-runtime/tests/signal_proposal_orchestration.rs",
       "role": "test",
-      "sha256": "sha256:fe93375580eb226c6dea40656a4262bd237d09a7f012c778df54bb9e4ea92764"
+      "sha256": "sha256:ab825d59ac653bfcb67e7d404da767a98f413e6c50a42d6222ca66537c233dd7"
     },
     {
       "path": "crates/quantos-runtime/tests/support/r02_persisted_chain.rs",
       "role": "test",
-      "sha256": "sha256:af8f880816f09d163eadd06934ae322a9aac85064bf04026cd1712a2acab42e7"
+      "sha256": "sha256:4953c352ec18edda4fc6fd81a90c9153685ca9f13c8a9bed6321cc1a86960ca6"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/support/r02_retained_input.rs",
+      "role": "test",
+      "sha256": "sha256:3be221f914105c1bbd32c55e8227fcc4d72b09fa98ac152dec72e155a9b242b1"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/support/r03_persisted.rs",
+      "role": "test",
+      "sha256": "sha256:19266a3bf75dd6838745507fd4ae7e819238b25247dbf0d9e0ec587fce34a842"
     },
     {
       "path": "docs/adr/20260730-tp01-vibe-selective-absorption.md",
@@ -329,7 +355,12 @@
     {
       "path": "engines/tests/test_llmquant_contract.py",
       "role": "test",
-      "sha256": "sha256:ba16bf010170c5b82bc7ffa51bc38088b1d579b01d0aee702e6aa28a94e3cf31"
+      "sha256": "sha256:6bfa1bb6ec4ba543067888f2848e557f8d04e15ea7082b92b8d0c58b4ed372de"
+    },
+    {
+      "path": "engines/tests/test_llmquant_development.py",
+      "role": "test",
+      "sha256": "sha256:3cc8b0ad6a1c87bbfae0513b71caf270d51e88c89335b4589e1ae6e746b71057"
     },
     {
       "path": "engines/tests/test_mock_engine_recovery.py",
@@ -339,7 +370,12 @@
     {
       "path": "engines/tests/test_openbb_adapter_contract.py",
       "role": "test",
-      "sha256": "sha256:c31bf5d429fb3a28dc6724a2e28b216b12efe89026078a4fd3bf5b6b2bf89863"
+      "sha256": "sha256:03559a5cd63920a2525e769d5b79afdadd057d0dbd0beefc1cf24d61e866dab9"
+    },
+    {
+      "path": "engines/tests/test_openbb_adapter_development.py",
+      "role": "test",
+      "sha256": "sha256:5a0e2ec11fead47715e1ddcc562e9da48942e55f5725275764733c53c5ef2b05"
     },
     {
       "path": "engines/tests/test_proto_sdk.py",
@@ -352,9 +388,19 @@
       "sha256": "sha256:1c30422838edf384d47e8877fa62733d8536b474a4f6f101cf89250a4fab20af"
     },
     {
+      "path": "engines/tests/test_r04_research_context.py",
+      "role": "test",
+      "sha256": "sha256:11f4e708182c2221eccfdd49afeeeba1c2ddbc5f2e1ba00fda14a0123678951d"
+    },
+    {
       "path": "engines/tests/test_rd_agent_contract.py",
       "role": "test",
-      "sha256": "sha256:471afb4f296abd13046e6522d81e0df2f4975601fcbc29de72ec9b78a120f8b9"
+      "sha256": "sha256:04f29448790c685b9cb645e16c46e16b4082919f6f2b550b07f792818a077f00"
+    },
+    {
+      "path": "engines/tests/test_rd_agent_development.py",
+      "role": "test",
+      "sha256": "sha256:0667cd9071473a2e173e9b114a83dae206432c6f487d60e99deacc59d2a7728e"
     },
     {
       "path": "engines/tests/test_strategy_lab_contract.py",
@@ -364,22 +410,22 @@
     {
       "path": "engines/tests/test_tp08_qlib_mapping_samples.py",
       "role": "test",
-      "sha256": "sha256:28b67c5570446fffcc56ea55f6c201191031effd8954fb8bb063b54204993dd6"
+      "sha256": "sha256:b4fb0bf3a01de04da1974989e932799fb1c9115a095a2eb09333e7b7dec7c622"
     },
     {
       "path": "engines/tests/test_tp09_trendradar_mapping_samples.py",
       "role": "test",
-      "sha256": "sha256:8e4f28d92d1e91ac03cfc969c6590a31072787906c750278f2f6d48661d634c3"
+      "sha256": "sha256:97649079d09d4f3bb4fbe2872c0bda41200ef9e5e0b6c43da54d19ed2f634da1"
     },
     {
       "path": "engines/tests/test_tp10_valuecell_evaluation.py",
       "role": "test",
-      "sha256": "sha256:39fae5169b5451cb7cf1c4085e08b4df6885610c95e61eb853a9613a666ad6b7"
+      "sha256": "sha256:6cf31b1c3c05002217a390b3f9bcf340b70a718e210974faf4827186d2523509"
     },
     {
       "path": "engines/tests/test_tp11_openstock_fixtures.py",
       "role": "test",
-      "sha256": "sha256:746e4fa5f1bd1f941632d0bfe4c3b834e8db1cad6b05b103604f3f12e2f5c699"
+      "sha256": "sha256:9abbadd78e352ab5125977268d90011a9ab17facf27c824844f5f0a8e2a5eceb"
     },
     {
       "path": "engines/tests/test_tp12_nautilus_agents_rules.py",
@@ -389,7 +435,12 @@
     {
       "path": "engines/tests/test_trading_agents_contract.py",
       "role": "test",
-      "sha256": "sha256:6fefa79b0c71aa27ad83e74d0de689678095ef51aeb859dc702fa733d7bf1920"
+      "sha256": "sha256:2b7631c5d5f527a210c1a7fd31c954c5619cb461958cf0beda277b67d702bef8"
+    },
+    {
+      "path": "engines/tests/test_trading_agents_development.py",
+      "role": "test",
+      "sha256": "sha256:104a697b3330ed0ac459428476056d0639521f8f4262db1a640937f178fa8330"
     },
     {
       "path": "engines/tests/test_vibe_adapter_absorption.py",
@@ -414,7 +465,7 @@
     {
       "path": "engines/vibe-adapter/README.md",
       "role": "code",
-      "sha256": "sha256:6f731c262bd2c23e8e67deaefb14d2b277d6eac91b17a7f9472bc099a6a22f62"
+      "sha256": "sha256:f90f5310c295a20a02814ac5c50654a73bc16a901b7032dfec45c2017108a3d7"
     },
     {
       "path": "engines/vibe-adapter/check-absorption.mjs",
@@ -819,12 +870,12 @@
     {
       "path": "scripts/provider-a1-policy.json",
       "role": "config",
-      "sha256": "sha256:e6b1bf537fb5e85b269edd8771c27312bca2bc4b5eaa9a96728825982c3e9ae6"
+      "sha256": "sha256:ee4cf04307d34f12deea5898ef1f94706f6ede3d2abf415d381039dad4de77e9"
     },
     {
       "path": "scripts/provider-a1-receipts.mjs",
       "role": "code",
-      "sha256": "sha256:b5aeb44f1e0d6b9ea4ea8a0f77d98424c3ca1eedc465b076fbee31eee353012a"
+      "sha256": "sha256:d88413d583769581a95cedd779261ff2ddf8a4a0a8ee74f4af8a0645b21d9718"
     },
     {
       "path": "scripts/tp01-d-patch-queue.mjs",
@@ -883,7 +934,7 @@
         "node",
         "scripts/tp01-d-patch-queue.mjs"
       ],
-      "executedAt": "2026-10-09T07:24:36.821Z",
+      "executedAt": "2026-10-12T10:09:35.512Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-d-20261009/queue.log",
@@ -898,11 +949,11 @@
         "engines/tests/test_vibe_adapter_absorption.py",
         "-vv"
       ],
-      "executedAt": "2026-10-09T07:24:36.847Z",
+      "executedAt": "2026-10-12T10:09:35.536Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-d-20261009/replay.log",
-      "logSha256": "sha256:82fb9c233b9ec8b1fed42381c0ee0e815b43a8a9220ba075e63217c12e78b5d5"
+      "logSha256": "sha256:3112fdf9e364fdf885dc3893adb55a9457d12be701a42a7c1846335590b7b000"
     },
     {
       "id": "runtime",
@@ -919,11 +970,11 @@
         "--",
         "--nocapture"
       ],
-      "executedAt": "2026-10-09T07:24:37.172Z",
+      "executedAt": "2026-10-12T10:09:35.820Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-d-20261009/runtime.log",
-      "logSha256": "sha256:a560d0fac306761fa85e47bcf7c20ae8d365f0465ec5b8be42e92039472f14ac"
+      "logSha256": "sha256:4a71123a064acbfdae04d0ae15efe9f68f2f8ca8cbac0984d137f5438fdfb102"
     },
     {
       "id": "format",
@@ -939,7 +990,7 @@
         "engines/vibe-adapter/src/vibe_adapter/audit.py",
         "engines/tests/test_vibe_adapter_absorption.py"
       ],
-      "executedAt": "2026-10-09T07:24:37.552Z",
+      "executedAt": "2026-10-12T10:09:36.207Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-d-20261009/format.log",
@@ -949,21 +1000,18 @@
   "dependencies": [
     {
       "nodeId": "CORE:TP01-C",
-      "status": "READY",
-      "inputDigest": "sha256:7468fe12f1af60357e442364b2bee412e9198fbc2b7d8237d3f774a8bbf0c7fd",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE:TP01-C: dependency is not READY"
     },
     {
       "nodeId": "CORE:R02",
-      "status": "READY",
-      "inputDigest": "sha256:ddcd15aaec7f8d814b63367b64afe7a0e5dd045acfe3b50f87aa48d843c9d739",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE:R02: dependency is not READY"
     },
     {
       "nodeId": "CORE-GATE:F0",
-      "status": "READY",
-      "inputDigest": "sha256:c2d5b3c539eaed93de52b2453ea7f2fa4f1e0d7f25e00440bf09d883628c4cd0",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE-GATE:F0: dependency is not READY"
     }
   ],
   "excluded": [

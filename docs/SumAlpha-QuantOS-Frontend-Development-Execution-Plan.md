@@ -1,4 +1,4 @@
-> TP01-D_LOCAL 实现中（2026-10-12）：新公共输入使旧TP01-C本地READY撤回；历史回执和失败保留。本轮须从干净冻结提交完整执行16节点/54组必要本地闭包；14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。
+> TP01-D_LOCAL 当前复验（2026-10-12）：冻结4fe846ef完整执行16节点/54组必要本地检查全部PASS；仅TP01-D限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。旧TP01-C本地READY因公共输入变化撤回，历史回执和失败保留。14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。见[完成报告](./audit/TP01-D-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-d-local-admission.md)。
 
 > 历史 TP01-C_LOCAL 复验（2026-10-12）：冻结bacc3b60完成13节点/45组必要本地检查及递归内容验证，全部PASS；仅TP01-C限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。原5个限定本地READY因公共输入变化撤回，历史证据保留。12组目标/远程治理检查及外部环境/性能由测试和RELEASE-GATE:BETA验收，formalAccepted=false。见[完成报告](./audit/TP01-C-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-c-local-admission.md)。
 

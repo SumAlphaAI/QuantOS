@@ -1,4 +1,4 @@
-> TP01-D_LOCAL 实现中（2026-10-12）：新公共输入使旧TP01-C本地READY撤回；历史回执和失败保留。本轮须从干净冻结提交完整执行16节点/54组必要本地闭包；14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。
+> TP01-D_LOCAL 当前复验（2026-10-12）：冻结4fe846ef完整执行16节点/54组必要本地检查全部PASS；仅TP01-D限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。旧TP01-C本地READY因公共输入变化撤回，历史回执和失败保留。14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。见[完成报告](./audit/TP01-D-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-d-local-admission.md)。
 
 > 历史 TP01-C_LOCAL 复验（2026-10-12）：冻结bacc3b60完成13节点/45组必要本地检查及递归内容验证，全部PASS；仅TP01-C限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。原5个限定本地READY因公共输入变化撤回，历史证据保留。12组目标/远程治理检查及外部环境/性能由测试和RELEASE-GATE:BETA验收，formalAccepted=false。见[完成报告](./audit/TP01-C-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-c-local-admission.md)。
 
@@ -897,7 +897,7 @@ flowchart TD
 - 交付物：`engines/vibe-adapter`、contract tests、mock adapter
 - 验收标准：五个 Engine RPC 100% 通过；无未授权 egress、secret 或 venue capability
 - 依赖：TP01-B、F08
-- 当前工程复核：当前因TP02输入变化为NOT_ASSESSED，本轮不重授；下述为冻结6a393eb历史复核：冻结6a393eb的五RPC、20回放、100组双RPC边界拒绝、租户Artifact/取消/截止/幂等和独立Engine回归通过，Python307/Manager55；随TP01-D完整16节点/62组当前复评，DEVELOPMENT READY，见[当前报告](./audit/TP01-D-selective-absorption-2026-10-09.md)及[当前manifest](./audit/evidence/provider-a1-remediation-20261004/tp01-d-admission-20261009/attempt-01/core-tp01-c.json)。[首次BLOCKED](./audit/TP01-C-skeleton-2026-10-09.md)、[原准入](./audit/TP01-C-development-admission-2026-10-09.md)与全部失败保留，正式/持久化/部署/性能/长稳/候选CI未授予。
+- 当前工程复核：当前因TP01-D_LOCAL公共输入变化撤回独立READY，本轮仅作为owner=CORE:TP01-D的同候选LOCAL_READY投影，不重授C独立准入；下述为冻结6a393eb历史复核：冻结6a393eb的五RPC、20回放、100组双RPC边界拒绝、租户Artifact/取消/截止/幂等和独立Engine回归通过，Python307/Manager55；随TP01-D完整16节点/62组当前复评，DEVELOPMENT READY，见[当前报告](./audit/TP01-D-selective-absorption-2026-10-09.md)及[当前manifest](./audit/evidence/provider-a1-remediation-20261004/tp01-d-admission-20261009/attempt-01/core-tp01-c.json)。[首次BLOCKED](./audit/TP01-C-skeleton-2026-10-09.md)、[原准入](./audit/TP01-C-development-admission-2026-10-09.md)与全部失败保留，正式/持久化/部署/性能/长稳/候选CI未授予。
 
 - 验收边界：TP01-C_LOCAL独立本地准入；完整13节点必要功能闭包、五RPC/20回放/100组双RPC拒绝与实际进程清理须绑定同一冻结源码。Supabase、GitHub远程治理、部署、OS egress、持久化及性能/长稳由RELEASE-GATE:BETA最终验收；不授予上游READY或R1-SERVICE。
 
@@ -907,7 +907,7 @@ flowchart TD
 - task_id: `TP01-D`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4e66fa45f128763eccd1b29cb55cd79f9bd5dbf76f57ee6fca2385084456cbc4","evidence":["audit/evidence/tp01-d-local-20261012/manifest.json"]}
 - depends_on: ["CORE:TP01-C", "CORE:R02", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:TP01-C", "CORE:R02", "CORE-GATE:F0"]
 - closes_core: []
@@ -920,7 +920,7 @@ flowchart TD
 - 交付物：fork patch queue、adapter modules、sync ADR
 - 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow
 - 依赖：TP01-C、R02
-- 当前工程复核：当前因TP02输入变化为NOT_ASSESSED，本轮不重授；下述为冻结6a393eb历史复核：冻结6a393eb完成两项受控设计queue、QuantOS边界替换、畸形合约前置拒绝、审计身份幂等、20双RPC回放及禁止vibe导入的实际Runtime研究/取消；Python307/Manager55、新增44/queue18/artifact13和完整16节点/62组检查通过，DEVELOPMENT READY，见[本轮报告](./audit/TP01-D-selective-absorption-2026-10-09.md)及[当前manifest](./audit/evidence/provider-a1-remediation-20261004/tp01-d-admission-20261009/attempt-01/core-tp01-d.json)。组件与前置失败保留；正式ACCEPTED、持久Artifact/audit、部署、性能/长稳及候选CI未验收。
+- 当前工程复核：冻结4fe846ef完整16节点/54组本地闭包PASS；仅TP01-D_LOCAL DEVELOPMENT READY，formalAccepted=false。20组双RPC/80调用、18类坏合约、R02合成Engine消费、去适配器Runtime及专用门禁负向均通过，见[当前报告](./audit/TP01-D-local-admission-2026-10-12.md)及[当前manifest](./audit/evidence/tp01-d-local-20261012/manifest.json)。上游独立准入与R1-SERVICE不自动放行；真实目标/外部环境/性能移交发布。历史冻结6a393eb复核见[原报告](./audit/TP01-D-selective-absorption-2026-10-09.md)，全部失败证据保留。
 
 - 验收边界：TP01-D_LOCAL独立本地准入；完整16节点必要功能闭包、20组双RPC/80次调用、18类畸形合约拒绝、Runtime去适配器运行、R02合成输入消费及专用负向门禁须绑定同一冻结源码。仅CORE:TP01-D登记READY，上游与R1-SERVICE不自动放行；Supabase、真实来源/用途许可、外部环境及性能/长稳由RELEASE-GATE:BETA最终验收。
 

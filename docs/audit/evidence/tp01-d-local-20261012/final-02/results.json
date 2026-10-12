@@ -1,0 +1,244 @@
+[
+  {
+    "id": "evidence",
+    "command": [
+      "node",
+      "docs/audit/evidence/tp01-d-local-20261012/verify-evidence.mjs",
+      "--record"
+    ],
+    "executedAt": "2026-10-12T10:11:57.421Z",
+    "completedAt": "2026-10-12T10:12:12.792Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/evidence.log",
+    "logSha256": "sha256:c7422a5ec5856c3a2de1c1c8ef13c8c48ab6aa835b2fa65024c4a0be1f662160",
+    "status": "PASS"
+  },
+  {
+    "id": "admission",
+    "command": [
+      "make",
+      "tp01-d-local-check"
+    ],
+    "executedAt": "2026-10-12T10:12:12.793Z",
+    "completedAt": "2026-10-12T10:12:26.809Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/admission.log",
+    "logSha256": "sha256:297d6cf5fd52e44fead6a5e2ec26a64bebe6a7dda26f753db681a5df5cc22869",
+    "status": "PASS"
+  },
+  {
+    "id": "gate-negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tp01-d-local-gate.test.mjs",
+      "scripts/tp01-c-local-gate.test.mjs",
+      "scripts/provider-a1-receipts.test.mjs"
+    ],
+    "executedAt": "2026-10-12T10:12:26.809Z",
+    "completedAt": "2026-10-12T10:12:28.090Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/gate-negatives.log",
+    "logSha256": "sha256:0ea315ec394da11cdf731d29eb369d93938c77b5458c4b09af58552152ffd915",
+    "status": "PASS"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "make",
+      "tp01-d-release-check"
+    ],
+    "executedAt": "2026-10-12T10:12:28.090Z",
+    "completedAt": "2026-10-12T10:12:28.161Z",
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/release-refusal.log",
+    "logSha256": "sha256:a71507bc615d772debf943f8145961ed4bc0d321a5a0d99703806175e690ae35",
+    "status": "PASS"
+  },
+  {
+    "id": "old-c-refusal",
+    "command": [
+      "make",
+      "tp01-c-local-check"
+    ],
+    "executedAt": "2026-10-12T10:12:28.161Z",
+    "completedAt": "2026-10-12T10:12:28.231Z",
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/old-c-refusal.log",
+    "logSha256": "sha256:48eed436cb80654bf6b8c105a22ec6de547163de2f22f0c7520222740613ddb7",
+    "status": "PASS"
+  },
+  {
+    "id": "strict-d-refusal",
+    "command": [
+      "node",
+      "engines/vibe-adapter/check-absorption.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-12T10:12:28.231Z",
+    "completedAt": "2026-10-12T10:12:28.457Z",
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/strict-d-refusal.log",
+    "logSha256": "sha256:f3386b50b2df0b640ba47282a24e36b219f09794f04951f1d0850e9ef638eb8d",
+    "status": "PASS"
+  },
+  {
+    "id": "strict-f0-refusal",
+    "command": [
+      "node",
+      "scripts/provider-a1-receipts.mjs",
+      "--f0"
+    ],
+    "executedAt": "2026-10-12T10:12:28.457Z",
+    "completedAt": "2026-10-12T10:12:28.520Z",
+    "exitCode": 1,
+    "expectedExitCode": 1,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/strict-f0-refusal.log",
+    "logSha256": "sha256:66d3ad06fc11bcfbf2c88d911e155b34d0cfd30149f1f590c84a67b08bb52919",
+    "status": "PASS"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "pnpm",
+      "check:development-plans"
+    ],
+    "executedAt": "2026-10-12T10:12:28.520Z",
+    "completedAt": "2026-10-12T10:12:28.679Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/plans.log",
+    "logSha256": "sha256:62526367f706d67a6f42958a4e75c61c123a7b4e2b22b6c0df171ff48ee391d1",
+    "status": "PASS"
+  },
+  {
+    "id": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "executedAt": "2026-10-12T10:12:28.679Z",
+    "completedAt": "2026-10-12T10:12:29.217Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/plans-negative.log",
+    "logSha256": "sha256:c877600c27c0bfddc83c952fc30be0f9394e7e1ac9234f40d4503df18c6b4f68",
+    "status": "PASS"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-12T10:12:29.217Z",
+    "completedAt": "2026-10-12T10:12:29.250Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a",
+    "status": "PASS"
+  },
+  {
+    "id": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "executedAt": "2026-10-12T10:12:29.250Z",
+    "completedAt": "2026-10-12T10:12:29.284Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/diff.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": "PASS"
+  },
+  {
+    "id": "secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/tp01-d-local-20261012"
+    ],
+    "executedAt": "2026-10-12T10:12:29.284Z",
+    "completedAt": "2026-10-12T10:12:29.513Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/secrets.log",
+    "logSha256": "sha256:c54daf684d817273ff07ac81ba92f2cf109d5d2bc588e9fbde2f74c0d8ced684",
+    "status": "PASS"
+  },
+  {
+    "id": "attempt-secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/provider-a1-remediation-20261004/tp01-d-local-20261012"
+    ],
+    "executedAt": "2026-10-12T10:12:29.514Z",
+    "completedAt": "2026-10-12T10:12:29.749Z",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-d-local-20261012/final-02/attempt-secrets.log",
+    "logSha256": "sha256:44932c0f2b62255b1f1063ef9efa7e5ebffe71cb1b49d4f902e339576de3e5f7",
+    "status": "PASS"
+  }
+]

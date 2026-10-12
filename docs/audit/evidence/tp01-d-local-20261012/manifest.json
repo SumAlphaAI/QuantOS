@@ -1,0 +1,246 @@
+{
+  "schema": "quantos-tp01-d-local-development/v1",
+  "nodeId": "CORE:TP01-D",
+  "stage": "DEVELOPMENT",
+  "profile": "TP01-D_LOCAL",
+  "status": "READY",
+  "engineeringStatus": "PASS",
+  "databaseExecution": false,
+  "production": false,
+  "formalAccepted": false,
+  "observedSourceCommit": "4fe846efe3d6187118c82fbffd69ed9bd00bcdac",
+  "planInput": {
+    "acceptance_window": "R1-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE:TP01-C",
+      "CORE:R02",
+      "CORE-GATE:F0"
+    ],
+    "dependencies": [
+      "CORE:TP01-C",
+      "CORE:R02",
+      "CORE-GATE:F0"
+    ],
+    "depends_on": [
+      "CORE:TP01-C",
+      "CORE:R02",
+      "CORE-GATE:F0"
+    ],
+    "iteration": "R1-SERVICE",
+    "requirement": "选择性吸收与最小 patch 队列",
+    "requirements": [
+      "- 需求描述：选择性吸收与最小 patch 队列",
+      "- 交付物：fork patch queue、adapter modules、sync ADR",
+      "- 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow",
+      "- 验收边界：TP01-D_LOCAL独立本地准入；完整16节点必要功能闭包、20组双RPC/80次调用、18类畸形合约拒绝、Runtime去适配器运行、R02合成输入消费及专用负向门禁须绑定同一冻结源码。仅CORE:TP01-D登记READY，上游与R1-SERVICE不自动放行；Supabase、真实来源/用途许可、外部环境及性能/长稳由RELEASE-GATE:BETA最终验收。"
+    ],
+    "task_id": "TP01-D",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-d-local-20261012/attempt-01/local-prerequisites.json",
+    "inputDigest": "sha256:890647bc5f2850dc27c506110273b5c5a55af7705cc5d80a9d2d74c0fcb18145"
+  },
+  "functionalManifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-d-local-20261012/attempt-01/core-tp01-d.json",
+  "functionalDigest": "sha256:b5500ac13f7f0bab18d6d13c941b5b3e8d1ba1e5b8e00f0085385e2ad5cb0aaa",
+  "dependencies": [
+    {
+      "nodeId": "CORE:TP01-C",
+      "status": "LOCAL_READY",
+      "owner": "CORE:TP01-D",
+      "inputDigest": "sha256:c3e2e8158859ec347aa47342ea98cfba0609bfd990bf7f6a06d5cdcc7410213b"
+    },
+    {
+      "nodeId": "CORE:R02",
+      "status": "LOCAL_READY",
+      "owner": "CORE:TP01-D",
+      "inputDigest": "sha256:781a0be2b3a7b1b5358159646895f38e28270118f51e63d50283b9f829db2a85"
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "status": "LOCAL_READY",
+      "owner": "CORE:TP01-D",
+      "inputDigest": "sha256:01e94a69f4f35e2a8acfced27622e8ff353a4b1d86c51c095f5564f76b4ac89b"
+    }
+  ],
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。",
+    "prerequisiteChecks": [
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp01-baseline",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--repository"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r01-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R01"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r02-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R02"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ]
+  }
+}
