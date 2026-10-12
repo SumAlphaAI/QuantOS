@@ -101,5 +101,6 @@ for (const [route, files] of routes.sort((a, b) => a[0].localeCompare(b[0]))) {
   console.log(`  ${(routeJs / 1024).toFixed(1).padStart(6)}KB  ${route}`);
 }
 
-if (failures > 0) process.exit(1);
+if (failures > 0 && !process.argv.includes("--diagnostic")) process.exit(1);
+if(process.argv.includes("--diagnostic")){console.log(JSON.stringify({scope:"development-performance-diagnostic",thresholdStatus:failures>0?"EXCEEDED":"WITHIN_BUDGET",releaseAcceptance:"NOT_RUN",formalAccepted:false}));process.exit(0);}
 console.log("\n性能预算校验通过");

@@ -1,3 +1,5 @@
+> 当前执行（2026-10-12）：新增A2_LOCAL、R1_LOCAL与BFF003_LOCAL完整功能闭包，验收执行中。外部环境/性能移交发布；以下旧统计为历史，不代表当前准入。见[本地规程](./operations/research-local-admission.md)。
+
 > A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
 
 > TP01-D_LOCAL 历史复验（2026-10-12）：冻结4fe846ef完整执行16节点/54组必要本地检查全部PASS；仅TP01-D限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。旧TP01-C本地READY因公共输入变化撤回，历史回执和失败保留。14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。见[完成报告](./audit/TP01-D-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-d-local-admission.md)。
@@ -430,6 +432,56 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE:TP01-C",
         "CORE:R02",
         "CORE-GATE:F0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PROVIDER:A2": {
+      "profile": "A2_LOCAL",
+      "schema": "quantos-research-local-admission/v1",
+      "manifest": "audit/evidence/research-local-20261012/a2-local.json",
+      "prerequisites": [
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-007",
+        "PROVIDER:A1"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE-GATE:R1-SERVICE": {
+      "profile": "R1_LOCAL",
+      "schema": "quantos-research-local-admission/v1",
+      "manifest": "audit/evidence/research-local-20261012/r1-local.json",
+      "prerequisites": [
+        "CORE:R01",
+        "CORE:R02",
+        "CORE:TP01-C",
+        "CORE:TP01-D",
+        "CORE:TP02",
+        "CORE:TP03",
+        "CORE:TP04",
+        "CORE:TP05",
+        "CORE:TP08",
+        "CORE:TP09",
+        "CORE:TP10",
+        "CORE:TP11",
+        "CORE:R03",
+        "CORE:R04"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-003": {
+      "profile": "BFF003_LOCAL",
+      "schema": "quantos-research-local-admission/v1",
+      "manifest": "audit/evidence/research-local-20261012/bff003-local.json",
+      "prerequisites": [
+        "FE:BFF-FE-001",
+        "FE:BFF-FE-007",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:R02",
+        "CORE:R03",
+        "CORE:R04",
+        "CORE-GATE:R1-SERVICE",
+        "PROVIDER:A2"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }
@@ -1138,7 +1190,7 @@ flowchart TD
 <a id="acceptance-core-gate-r1-service"></a>
 ### CORE-GATE:R1-SERVICE：验收检查点
 
-本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
+本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 当前开发按A2_LOCAL/R1_LOCAL/BFF003_LOCAL分别校验17/27/40节点必要功能闭包，绑定同一冻结源码、实际测试日志和产物摘要；只有对应消费者登记DEVELOPMENT READY，上游独立Gate不自动放行。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。
 
 ```json
 {
@@ -1160,7 +1212,7 @@ flowchart TD
     "CORE:R03",
     "CORE:R04"
   ],
-  "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
+  "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 当前开发按A2_LOCAL/R1_LOCAL/BFF003_LOCAL分别校验17/27/40节点必要功能闭包，绑定同一冻结源码、实际测试日志和产物摘要；只有对应消费者登记DEVELOPMENT READY，上游独立Gate不自动放行。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

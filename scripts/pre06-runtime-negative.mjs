@@ -15,7 +15,7 @@ test('unknown and corrupted fixtures are rejected, explicit sabotage fixtures re
 }));
 test('empty assets and empty route manifest are never a zero-sized performance PASS',()=>fixture(dir=>{
   mkdirSync(join(dir,'out/_next'),{recursive:true});mkdirSync(join(dir,'.next'));writeFileSync(join(dir,'.next/app-build-manifest.json'),' {"pages":{}} ');
-  assert.notEqual(spawnSync(process.execPath,[join(root,'scripts/check-perf-budget.mjs'),join(dir,'out')],{env:{}}).status,0);
+  for(const mode of [[],['--diagnostic']])assert.notEqual(spawnSync(process.execPath,[join(root,'scripts/check-perf-budget.mjs'),join(dir,'out'),...mode],{env:{}}).status,0);
 }));
 test('actual CI configs return nonzero for first-fail-then-pass policy probe',()=>fixture(dir=>{
   symlinkSync(join(root,'node_modules'),join(dir,'node_modules'),'dir');

@@ -587,3 +587,25 @@ tp01-d-local-check:
 	node scripts/tp01-d-local-gate.mjs --ready
 tp01-d-release-check:
 	node scripts/tp01-d-local-gate.mjs --release
+
+.PHONY: research-local-check r1-local-check a2-local-check bff003-local-check research-local-assess r01-release-performance
+research-local-check:
+	node --test scripts/research-local-gate.test.mjs
+	node scripts/research-local-gate.mjs A2_LOCAL
+	node scripts/research-local-gate.mjs R1_LOCAL
+	node scripts/research-local-gate.mjs BFF003_LOCAL
+r1-local-check:
+	node scripts/research-local-gate.mjs R1_LOCAL
+a2-local-check:
+	node scripts/research-local-gate.mjs A2_LOCAL
+bff003-local-check:
+	node scripts/research-local-gate.mjs BFF003_LOCAL
+research-local-assess:
+	node scripts/record-research-local.mjs $(ATTEMPT)
+r01-release-performance:
+	cargo test -p quantos-market --locked --lib pure_domain_p95_under_fifty_milliseconds -- --ignored --nocapture
+
+.PHONY: frontend-release-performance
+frontend-release-performance:
+	node scripts/check-perf-budget.mjs apps/terminal/out
+	node scripts/check-perf-budget.mjs apps/website/out

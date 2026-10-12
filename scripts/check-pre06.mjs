@@ -64,8 +64,8 @@ export function validatePre06(inputs) {
     ["pnpm exec playwright test --project=chromium", "Frontend Baseline runs Terminal Chromium E2E"],
     ["node scripts/pre06-sabotage-check.mjs", "Frontend Baseline runs actual sabotage Gate"],
     ["pnpm exec vitest run tests/contract", "Frontend Baseline runs actual contract tests"],
-    ["node scripts/check-perf-budget.mjs apps/terminal/out", "Frontend Baseline runs Terminal performance Gate"],
-    ["node scripts/check-perf-budget.mjs apps/website/out", "Frontend Baseline runs website performance Gate"],
+    ["node scripts/check-perf-budget.mjs apps/terminal/out --diagnostic", "Frontend Baseline runs Terminal performance diagnostic"],
+    ["node scripts/check-perf-budget.mjs apps/website/out --diagnostic", "Frontend Baseline runs website performance diagnostic"],
     ["pnpm coverage:critical", "Frontend Baseline runs critical branch coverage"],
   ];
   for (const [command, message] of required) check(active(frontend, command), message);
@@ -93,9 +93,9 @@ export function validatePre06(inputs) {
   }
   check(configValue(inputs.terminalPlaywright,["testIgnore"])?.includes('"deep-link-reauth.spec.ts"'), "phase-one Terminal excludes the Desktop deep-link spec");
 
-  check(inputs.operations.version === "1.5.0", "BFF fixture manifest is version 1.5.0");
-  check(inputs.operations.operations?.length === 62, "BFF fixture manifest covers 62 operations");
-  check(Object.keys(inputs.schemas.$defs ?? {}).length === 52, "BFF fixture schema bundle covers 52 schemas");
+  check(inputs.operations.version === "1.6.0", "BFF fixture manifest is version 1.6.0");
+  check(inputs.operations.operations?.length === 63, "BFF fixture manifest covers 63 operations");
+  check(Object.keys(inputs.schemas.$defs ?? {}).length === 54, "BFF fixture schema bundle covers 54 schemas");
   for (const failure of validateTestStructure(inputs.contractTests, inputs.visualTests)) failures.push(failure);
   const criticalPaths=["packages/api-client/src/sse-contract.ts","packages/domain-ui/src/ui101.ts","packages/domain-ui/src/indicators.tsx","packages/ui/src/components/DangerConfirmDialog/confirmation-policy.ts","apps/terminal/src/auth/flow.ts","apps/terminal/src/audit/gateway.ts"];
   check(inputs.criticalInventory.schema === "quantos-critical-branches/v1" && criticalPaths.every(path=>inputs.criticalInventory.files.some(entry=>entry.path===path&&entry.policy)), "critical policy inventory cannot shrink");

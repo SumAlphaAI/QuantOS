@@ -7,7 +7,7 @@ import { digest } from "./bff-fe-001-execution.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const scratch = mkdtempSync(join(tmpdir(), "quantos-a2-mutants-"));
-const evidence = resolve(root, "artifacts/bff-fe-001");
+const evidence = resolve(root, process.argv[2] ?? "artifacts/bff-fe-001");
 mkdirSync(evidence, { recursive: true });
 const original = readFileSync(resolve(root, "services/bff-gateway/src/lib.rs"), "utf8");
 const livePolicyPath="services/bff-gateway/src/live/settings_policy.rs";

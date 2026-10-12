@@ -4,6 +4,7 @@ import {resolve} from 'node:path';
 import {execFileSync, spawnSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
 import {parse} from 'yaml';
+import {verifyPublished as verifyLocal, schema as localSchema} from './research-local-gate.mjs';
 import {root, digest, inventory, confined, nodesFromPlans, planInput, validateReceipt, publishStages} from './provider-a1-receipts.mjs';
 import {validateA2, expectedOperations} from './bff-fe-001-development.mjs';
 import {validateAudit, operations as auditOperations} from './bff-fe-007-development.mjs';
@@ -104,7 +105,7 @@ export function validateManifest(m, {
   }
   return {nodeId: n.id, status: 'READY', operations: 26, dependencies: 3, formalAccepted: false};
 }
-export function check() {
+export function checkTarget() {
   const nodes = nodesFromPlans(), gate = nodes.get('PROVIDER:A2').stage_gate;
   assert.equal(gate.stage, 'DEVELOPMENT'); assert.equal(gate.status, 'READY', 'A2 current assessment is not READY');
   assert.equal(gate.evidence.length, 1); const path = 'docs/' + gate.evidence[0];
@@ -112,6 +113,11 @@ export function check() {
   const bytes = read(path); assert.equal(digest(bytes), gate.input_digest, 'A2 manifest digest differs');
   const m = JSON.parse(bytes); assert.equal(path, m.assessmentDirectory + '/provider-a2.json');
   return validateManifest(m, {nodes});
+}
+export function check() {
+ const nodes=nodesFromPlans(),gate=nodes.get('PROVIDER:A2').stage_gate;
+ if(gate.status==='READY'&&gate.evidence.length===1&&JSON.parse(read('docs/'+gate.evidence[0])).schema===localSchema)return verifyLocal('A2_LOCAL',{nodes});
+ return checkTarget();
 }
 export function assess(outputDirectory) {
   approved(outputDirectory); assert(!existsSync(resolve(root, outputDirectory)), 'A2 evidence directory already exists');
@@ -148,6 +154,6 @@ export function assess(outputDirectory) {
   return check();
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  try { assert([undefined, '--assess'].includes(process.argv[2])); assert(process.argv.length === (process.argv[2] ? 4 : 2)); console.log(JSON.stringify(process.argv[2] ? assess(process.argv[3]) : check(), null, 2)); }
+  try { assert([undefined, '--assess','--target'].includes(process.argv[2])); assert(process.argv.length === (process.argv[2]==='--assess' ? 4 : process.argv[2] ? 3 : 2)); console.log(JSON.stringify(process.argv[2]==='--assess' ? assess(process.argv[3]) : process.argv[2]==='--target' ? checkTarget() : check(), null, 2)); }
   catch (error) { console.error(error.message); process.exitCode = 1; }
 }

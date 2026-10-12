@@ -1319,6 +1319,333 @@
       ],
       "staticOnly": true,
       "marker": "fail 0"
+    },
+    "r03-local-runtime": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-runtime",
+        "-p",
+        "quantos-storage",
+        "--lib"
+      ],
+      "marker": "test result: ok",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "r03-local-engines": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-runtime",
+        "--test",
+        "research_orchestration",
+        "--test",
+        "signal_proposal_orchestration",
+        "--",
+        "--skip",
+        "r02_retained_market_persistent_research_chain",
+        "--skip",
+        "r03_configured_supabase_lifecycle",
+        "--skip",
+        "r03_worker"
+      ],
+      "marker": "test result: ok",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "r03-local-tp02": {
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "pytest",
+        "engines/tests/test_rd_agent_contract.py",
+        "engines/tests/test_rd_agent_development.py",
+        "-q"
+      ],
+      "marker": "passed",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "r03-local-manager": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-engine-manager"
+      ],
+      "marker": "test result: ok",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "r03-local-clippy": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-runtime",
+        "-p",
+        "quantos-storage",
+        "-p",
+        "runtime-gateway",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "marker": "Finished `dev` profile",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "research-local-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/research-local-gate.test.mjs",
+        "scripts/r03-stage-check.test.mjs",
+        "scripts/r04-stage-check.test.mjs",
+        "scripts/execution-outcome.test.mjs"
+      ],
+      "marker": "fail 0",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "a2-local-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "--test",
+        "auth_settings_provider",
+        "--test",
+        "audit_export_provider",
+        "--",
+        "--skip",
+        "real_logout_db_write_matches_persistent_trace"
+      ],
+      "marker": "test result: ok",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "a2-local-web": {
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/terminal",
+        "exec",
+        "vitest",
+        "run",
+        "tests/auth-bff.test.ts",
+        "tests/ui104-settings.test.ts",
+        "tests/audit-gateway.test.ts"
+      ],
+      "marker": "passed",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "a2-local-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-001-gate-negative.mjs",
+        "scripts/bff-fe-001-development.test.mjs",
+        "scripts/bff-fe-007-gate-negative.mjs",
+        "scripts/bff-fe-007-development.test.mjs",
+        "scripts/provider-a2-development.test.mjs"
+      ],
+      "marker": "fail 0",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "a2-local-identity-mutations": {
+      "command": [
+        "node",
+        "scripts/research-local-products.mjs",
+        "identity-mutations"
+      ],
+      "marker": "LOCAL_PRODUCTS_PASS",
+      "staticOnly": true,
+      "timeoutMs": 900000,
+      "output": "supporting/a2-identity-mutations/receipt.json",
+      "artifact": "supporting/a2-identity-mutations/receipt.json",
+      "artifactKind": "a2-local-mutations"
+    },
+    "a2-local-audit-mutations": {
+      "command": [
+        "node",
+        "scripts/research-local-products.mjs",
+        "audit-mutations"
+      ],
+      "marker": "LOCAL_PRODUCTS_PASS",
+      "staticOnly": true,
+      "timeoutMs": 900000,
+      "output": "supporting/a2-audit-mutations/receipt.json",
+      "artifact": "supporting/a2-audit-mutations/receipt.json",
+      "artifactKind": "a2-local-mutations"
+    },
+    "bff003-local-reference": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--test",
+        "auth_settings_provider",
+        "--test",
+        "audit_export_provider"
+      ],
+      "marker": "test result: ok",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "bff003-local-clippy": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "-p",
+        "quantos-runtime",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "marker": "Finished `dev` profile",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "bff003-local-web": {
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/contract",
+        "packages/api-client/tests"
+      ],
+      "marker": "Tests\\s+\\d+ passed",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "bff003-local-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-003-development.test.mjs"
+      ],
+      "marker": "fail 0",
+      "staticOnly": true,
+      "timeoutMs": 900000
+    },
+    "r04-local-products": {
+      "command": [
+        "node",
+        "scripts/research-local-products.mjs",
+        "r04"
+      ],
+      "staticOnly": true,
+      "marker": "LOCAL_PRODUCTS_PASS",
+      "output": "supporting/r04/products.json",
+      "artifact": "supporting/r04/products.json",
+      "artifactKind": "research-local-products",
+      "timeoutMs": 900000
+    },
+    "a2-local-http": {
+      "command": [
+        "node",
+        "scripts/research-local-products.mjs",
+        "a2"
+      ],
+      "staticOnly": true,
+      "marker": "LOCAL_PRODUCTS_PASS",
+      "output": "supporting/a2/reference-http.json",
+      "artifact": "supporting/a2/reference-http.json",
+      "artifactKind": "a2-local-http",
+      "timeoutMs": 900000
+    },
+    "bff003-local-rust": {
+      "command": [
+        "node",
+        "scripts/research-local-products.mjs",
+        "bff003"
+      ],
+      "staticOnly": true,
+      "marker": "LOCAL_PRODUCTS_PASS",
+      "output": "supporting/bff003/provider-responses.json",
+      "artifact": "supporting/bff003/provider-responses.json",
+      "artifactKind": "bff003-local-probes",
+      "timeoutMs": 900000
+    },
+    "a2-identity-target": {
+      "command": [
+        "node",
+        "scripts/test-bff-fe-001-live.mjs"
+      ],
+      "database": true,
+      "targetPhase": "RELEASE"
+    },
+    "a2-audit-target": {
+      "command": [
+        "node",
+        "scripts/test-bff-fe-007-live.mjs"
+      ],
+      "database": true,
+      "targetPhase": "RELEASE"
+    },
+    "r03-release-target": {
+      "command": [
+        "node",
+        "scripts/r03-target-check.cjs"
+      ],
+      "database": true,
+      "targetPhase": "RELEASE"
+    },
+    "r04-release-target": {
+      "command": [
+        "node",
+        "scripts/r04-stage-check.mjs",
+        "--release"
+      ],
+      "database": true,
+      "targetPhase": "RELEASE"
+    },
+    "bff003-release-target": {
+      "command": [
+        "node",
+        "scripts/test-bff-fe-003-live.mjs"
+      ],
+      "database": true,
+      "targetPhase": "RELEASE"
+    },
+    "research-local-final-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/r1-process-cleanup/receipt.json",
+      "output": "supporting/research-final-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1977,6 +2304,125 @@
         "tp09-negatives",
         "tp09-process-cleanup"
       ]
+    },
+    "CORE:R03": {
+      "scope": "Local Research scheduling, fixed-input Engine orchestration, verified mock Artifact lifecycle, cancellation/replay and denial; all Supabase/external/performance acceptance is RELEASE NOT_RUN",
+      "inputs": [
+        "crates/quantos-runtime/",
+        "crates/quantos-storage/",
+        "crates/quantos-engine-manager/",
+        "services/runtime-gateway/",
+        "engines/rd-agent/"
+      ],
+      "checks": [
+        "r03-local-runtime",
+        "r03-local-engines",
+        "r03-local-tp02",
+        "r03-local-manager",
+        "r03-local-clippy",
+        "research-local-negatives",
+        "r03-release-target"
+      ]
+    },
+    "CORE:R04": {
+      "scope": "Current public Signal/Proposal validators, 100 nonexecutable proposals, Research Artifact consumption with 22 forged-reference denials and zero orders; persistence/external/performance RELEASE NOT_RUN",
+      "inputs": [
+        "crates/quantos-runtime/",
+        "engines/",
+        "scripts/r04*"
+      ],
+      "checks": [
+        "r04-local-products",
+        "research-local-negatives",
+        "r04-release-target"
+      ]
+    },
+    "CORE-GATE:R1-SERVICE": {
+      "scope": "R1_LOCAL complete 27-node consumer-scoped local research/data/Engine/Signal/Proposal functional closure; never upstream database or formal acceptance",
+      "inputs": [
+        "scripts/research-local-*"
+      ],
+      "checks": [
+        "research-local-negatives"
+      ]
+    },
+    "FE:BFF-FE-001": {
+      "scope": "A2_LOCAL actual reference identity/settings provider and consumer, schema/permissions/CSRF/recent-auth/MFA/session revocation/idempotency negatives and actual live-policy mutations; IdP/Supabase RELEASE NOT_RUN",
+      "inputs": [
+        "services/bff-gateway/",
+        "crates/quantos-auth/",
+        "apps/terminal/src/auth/",
+        "apps/terminal/src/settings/",
+        "apps/terminal/tests/",
+        "bff/",
+        "packages/api-client/"
+      ],
+      "checks": [
+        "a2-local-rust",
+        "a2-local-web",
+        "a2-local-negatives",
+        "a2-local-identity-mutations",
+        "a2-local-http",
+        "a2-identity-target"
+      ]
+    },
+    "FE:BFF-FE-007": {
+      "scope": "A2_LOCAL actual reference Audit/export provider and consumer, redaction/causal chain/quota/ownership/retention/idempotency/revocation and actual mutations; persistent storage RELEASE NOT_RUN",
+      "inputs": [
+        "services/bff-gateway/",
+        "apps/terminal/src/audit/",
+        "apps/terminal/tests/audit-gateway.test.ts",
+        "bff/",
+        "packages/api-client/"
+      ],
+      "checks": [
+        "a2-local-rust",
+        "a2-local-web",
+        "a2-local-negatives",
+        "a2-local-audit-mutations",
+        "a2-local-http",
+        "a2-audit-target"
+      ]
+    },
+    "PROVIDER:A2": {
+      "scope": "A2_LOCAL current full seventeen-node function closure and 26 HTTP operation coverage; real target execution, performance and formal acceptance separate",
+      "inputs": [
+        "bff/",
+        "scripts/provider-a2*",
+        "scripts/research-local-*"
+      ],
+      "checks": [
+        "a2-local-http",
+        "research-local-negatives"
+      ]
+    },
+    "FE:BFF-FE-003": {
+      "scope": "BFF003_LOCAL current forty-node functional closure and nine Research/Snapshot/Artifact APIs; Supabase/Auth/Storage/R03 worker target, UI integration and performance not accepted",
+      "inputs": [
+        "services/bff-gateway/",
+        "crates/quantos-runtime/",
+        "bff/",
+        "packages/api-client/",
+        "tests/contract/",
+        "supabase/migrations/20261012150000_bff_research_pages.sql",
+        "scripts/*bff-fe-003*",
+        "scripts/research-local-*"
+      ],
+      "checks": [
+        "bff003-local-rust",
+        "bff003-local-reference",
+        "bff003-local-clippy",
+        "bff003-local-web",
+        "client-typecheck",
+        "openapi",
+        "generated",
+        "catalog",
+        "compatibility",
+        "plans",
+        "bff003-local-negatives",
+        "bff003-release-target",
+        "research-local-final-cleanup"
+      ]
     }
   },
   "developmentProfile": {
@@ -2068,6 +2514,99 @@
       ],
       "CORE:TP01-D": [
         "tp01-d-local-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA"
+  },
+  "r1Local": {
+    "owner": "CORE-GATE:R1-SERVICE",
+    "profile": "R1_LOCAL",
+    "roots": [
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA"
+  },
+  "a2Local": {
+    "owner": "PROVIDER:A2",
+    "profile": "A2_LOCAL",
+    "roots": [
+      "PROVIDER:A2"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA"
+  },
+  "bff003Local": {
+    "owner": "FE:BFF-FE-003",
+    "profile": "BFF003_LOCAL",
+    "roots": [
+      "FE:BFF-FE-003"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
       ]
     },
     "releaseCheckpoint": "RELEASE-GATE:BETA"

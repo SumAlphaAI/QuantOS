@@ -416,6 +416,7 @@ fn replay_and_parser_are_bounded_and_invalid_specs_return_errors() -> Result<()>
     Ok(())
 }
 #[test]
+#[ignore = "release performance; run make r01-release-performance"]
 fn pure_domain_p95_under_fifty_milliseconds() -> Result<()> {
     let mut i = MarketIngestor::new(default_approved_providers());
     let t = TenantId::new();
