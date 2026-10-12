@@ -1,0 +1,753 @@
+{
+  "schema": "quantos-tp02-local-scope/v1",
+  "profile": "TP02_LOCAL",
+  "owner": "CORE:TP02",
+  "registration": "PROPOSED_NOT_REGISTERED",
+  "stage": "DEVELOPMENT",
+  "roots": [
+    "CORE:TP02"
+  ],
+  "directDependencies": [
+    "CORE:F08",
+    "CORE-GATE:F0"
+  ],
+  "necessaryClosure": [
+    "CORE:F01",
+    "CORE:F03",
+    "CORE:F04",
+    "CORE:F05",
+    "CORE:F06",
+    "CORE:F07",
+    "CORE:F08",
+    "CORE:F02",
+    "CORE:F09",
+    "CORE:TP01-A",
+    "CORE:TP01-B",
+    "CORE-GATE:F0",
+    "CORE:TP02"
+  ],
+  "checksByNode": [
+    {
+      "nodeId": "CORE:F01",
+      "checks": [
+        "f01",
+        "f01-negative",
+        "f01-reproducibility",
+        "f01-lint",
+        "f01-test"
+      ]
+    },
+    {
+      "nodeId": "CORE:F03",
+      "checks": [
+        "proto",
+        "proto-client",
+        "api-client-tests"
+      ]
+    },
+    {
+      "nodeId": "CORE:F04",
+      "checks": [
+        "foundation-rust",
+        "f04",
+        "f04-negative",
+        "f04-line-coverage",
+        "f04-branch-coverage"
+      ]
+    },
+    {
+      "nodeId": "CORE:F05",
+      "checks": [
+        "event-rust",
+        "f05",
+        "f05-negative",
+        "storage-rust",
+        "f05-coverage"
+      ]
+    },
+    {
+      "nodeId": "CORE:F06",
+      "checks": [
+        "auth-rust",
+        "f06-negative"
+      ]
+    },
+    {
+      "nodeId": "CORE:F07",
+      "checks": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ]
+    },
+    {
+      "nodeId": "CORE:F08",
+      "checks": [
+        "f08-functional",
+        "f08-branches",
+        "f08-service"
+      ]
+    },
+    {
+      "nodeId": "CORE:F02",
+      "checks": [
+        "f02-migration-preflight",
+        "f02-negative",
+        "f02-secrets",
+        "f02-license",
+        "f02-sca",
+        "f02-waivers",
+        "f01-negative",
+        "proto"
+      ]
+    },
+    {
+      "nodeId": "CORE:F09",
+      "checks": [
+        "f09-functional",
+        "f09-negative"
+      ]
+    },
+    {
+      "nodeId": "CORE:TP01-A",
+      "checks": [
+        "tp01-negative",
+        "tp01-sync",
+        "tp01-local-baseline"
+      ]
+    },
+    {
+      "nodeId": "CORE:TP01-B",
+      "checks": [
+        "tp01-capability",
+        "tp-intake"
+      ]
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "checks": [
+        "plans",
+        "plans-negative",
+        "fep0-negative"
+      ]
+    },
+    {
+      "nodeId": "CORE:TP02",
+      "checks": [
+        "tp02-development",
+        "tp02-negatives",
+        "tp02-process-cleanup"
+      ]
+    }
+  ],
+  "existingLocalChecks": [
+    {
+      "id": "f01",
+      "command": [
+        "node",
+        "scripts/check-f01.mjs"
+      ]
+    },
+    {
+      "id": "f01-negative",
+      "command": [
+        "node",
+        "--test",
+        "scripts/f01-gate-negative.mjs"
+      ]
+    },
+    {
+      "id": "f01-reproducibility",
+      "command": [
+        "node",
+        "scripts/verify-reproducible-builds.mjs",
+        "--mode",
+        "reproducibility",
+        "--runs",
+        "3"
+      ]
+    },
+    {
+      "id": "f01-lint",
+      "command": [
+        "make",
+        "lint"
+      ]
+    },
+    {
+      "id": "f01-test",
+      "command": [
+        "make",
+        "test"
+      ]
+    },
+    {
+      "id": "proto",
+      "command": [
+        "bash",
+        "scripts/check-proto.sh"
+      ]
+    },
+    {
+      "id": "proto-client",
+      "command": [
+        "make",
+        "proto-compat-check"
+      ]
+    },
+    {
+      "id": "api-client-tests",
+      "command": [
+        "pnpm",
+        "--filter",
+        "@sumalpha/api-client",
+        "test"
+      ]
+    },
+    {
+      "id": "foundation-rust",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-core",
+        "-p",
+        "quantos-testkit",
+        "--lib"
+      ]
+    },
+    {
+      "id": "f04",
+      "command": [
+        "node",
+        "scripts/check-f04.mjs"
+      ]
+    },
+    {
+      "id": "f04-negative",
+      "command": [
+        "node",
+        "--test",
+        "scripts/f04-gate-negative.mjs"
+      ]
+    },
+    {
+      "id": "f04-line-coverage",
+      "command": [
+        "cargo",
+        "llvm-cov",
+        "--package",
+        "quantos-core",
+        "--all-features",
+        "--release",
+        "--fail-under-lines",
+        "90",
+        "--fail-under-regions",
+        "90",
+        "--summary-only"
+      ]
+    },
+    {
+      "id": "f04-branch-coverage",
+      "command": [
+        "make",
+        "coverage-rust-branch"
+      ]
+    },
+    {
+      "id": "event-rust",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-event",
+        "--lib"
+      ]
+    },
+    {
+      "id": "f05",
+      "command": [
+        "node",
+        "scripts/check-f05.mjs"
+      ]
+    },
+    {
+      "id": "f05-negative",
+      "command": [
+        "node",
+        "--test",
+        "scripts/f05-gate-negative.mjs",
+        "scripts/f05-coverage.test.mjs",
+        "scripts/db-uuid-defaults.test.cjs"
+      ]
+    },
+    {
+      "id": "storage-rust",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--lib",
+        "--test",
+        "storage_http"
+      ]
+    },
+    {
+      "id": "f05-coverage",
+      "command": [
+        "make",
+        "f05-coverage"
+      ]
+    },
+    {
+      "id": "auth-rust",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-auth",
+        "--lib"
+      ]
+    },
+    {
+      "id": "f06-negative",
+      "command": [
+        "node",
+        "--test",
+        "scripts/f06-acceptance-gate-negative.mjs",
+        "scripts/f06-http-budget.test.cjs",
+        "scripts/service-readiness.test.cjs",
+        "scripts/f06-execution-command-smoke.test.cjs",
+        "scripts/postgres-bootstrap.test.cjs",
+        "scripts/f06-database-fixtures.test.cjs",
+        "scripts/f06-target-command.test.mjs",
+        "scripts/target-database-writability.test.cjs"
+      ]
+    },
+    {
+      "id": "r03-f07-runtime",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-runtime",
+        "--lib"
+      ]
+    },
+    {
+      "id": "r03-f07-gateway",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "runtime-gateway",
+        "--bin",
+        "runtime-gateway",
+        "--",
+        "--skip",
+        "f09_runtime_real_write_trace",
+        "--skip",
+        "gateway_executes_owned_run_and_retrieves_verified_artifact"
+      ]
+    },
+    {
+      "id": "f08-functional",
+      "command": [
+        "make",
+        "f08-check"
+      ]
+    },
+    {
+      "id": "f08-branches",
+      "command": [
+        "make",
+        "f08-nightly-check"
+      ]
+    },
+    {
+      "id": "f08-service",
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--engine"
+      ]
+    },
+    {
+      "id": "f02-migration-preflight",
+      "command": [
+        "make",
+        "db-migration-check"
+      ]
+    },
+    {
+      "id": "f02-negative",
+      "command": [
+        "make",
+        "f02-check"
+      ]
+    },
+    {
+      "id": "f02-secrets",
+      "command": [
+        "bash",
+        "scripts/check-secrets.sh"
+      ]
+    },
+    {
+      "id": "f02-license",
+      "command": [
+        "make",
+        "license-check"
+      ]
+    },
+    {
+      "id": "f02-sca",
+      "command": [
+        "make",
+        "sca-check"
+      ]
+    },
+    {
+      "id": "f02-waivers",
+      "command": [
+        "make",
+        "waiver-check"
+      ]
+    },
+    {
+      "id": "f09-functional",
+      "command": [
+        "make",
+        "observability-check"
+      ]
+    },
+    {
+      "id": "f09-negative",
+      "command": [
+        "node",
+        "--test",
+        "scripts/f09-migration-ledger.test.cjs",
+        "scripts/tests/f09-rule-contract.test.mjs",
+        "scripts/development-target-command.test.cjs",
+        "scripts/f09-fixtures.test.cjs",
+        "scripts/f09-artifact.test.mjs",
+        "scripts/f09-scheduler-smoke.test.cjs"
+      ]
+    },
+    {
+      "id": "tp01-negative",
+      "command": [
+        "node",
+        "scripts/test-vibe-repository-gate.mjs"
+      ]
+    },
+    {
+      "id": "tp01-sync",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tests/sync-vibe.test.mjs"
+      ]
+    },
+    {
+      "id": "tp01-local-baseline",
+      "command": [
+        "node",
+        "scripts/check-vibe-repositories.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--remote-lock",
+        "forks/vibe-trading/repository.lock.json",
+        "--readonly",
+        "third_party/vibe-trading/upstream-src",
+        "--fork",
+        "artifacts/third_party/vibe-trading/controlled-fork",
+        "--skip-remote-governance",
+        "1"
+      ]
+    },
+    {
+      "id": "tp01-capability",
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--capability"
+      ]
+    },
+    {
+      "id": "tp-intake",
+      "command": [
+        "make",
+        "tp-intake-check"
+      ]
+    },
+    {
+      "id": "plans",
+      "command": [
+        "pnpm",
+        "check:development-plans"
+      ]
+    },
+    {
+      "id": "plans-negative",
+      "command": [
+        "pnpm",
+        "test:development-plans"
+      ]
+    },
+    {
+      "id": "fep0-negative",
+      "command": [
+        "node",
+        "--test",
+        "scripts/fep0-development.test.mjs"
+      ]
+    },
+    {
+      "id": "tp02-development",
+      "command": [
+        "node",
+        "engines/rd-agent/check-development.mjs",
+        "--record"
+      ]
+    },
+    {
+      "id": "tp02-negatives",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp02-functional-artifacts.test.mjs"
+      ]
+    },
+    {
+      "id": "tp02-process-cleanup",
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ]
+    }
+  ],
+  "requiredNewChecks": [
+    "dedicated TP02_LOCAL same-candidate, scope, receipt integrity, publication rollback and release-refusal negative tests"
+  ],
+  "admissionRequirements": {
+    "sameFrozenSource": true,
+    "completeClosure": true,
+    "actualInputsAndArtifacts": true,
+    "abnormalExecutionRejected": true,
+    "consumerBoundDependencies": true,
+    "publishOnlyOwner": true,
+    "priorConsumerReceiptsCannotBeSpliced": true
+  },
+  "fixture": {
+    "count": 2,
+    "names": [
+      "hypothesis_regime_shift",
+      "experiment_factor_stability"
+    ],
+    "capabilities": [
+      "research.hypothesis.v1",
+      "research.experiment.v1"
+    ],
+    "rpcs": [
+      "Execute",
+      "StreamExecute"
+    ],
+    "callsPerRpc": 2,
+    "denyTradingSecretNetwork": true,
+    "artifactOwnerHashIsolation": true,
+    "cancelDeadlineIdempotency": true,
+    "snapshotBytesResolved": false,
+    "toolsExecuted": false,
+    "retiredHistoricalFactsConsumed": 0,
+    "newCollection": false,
+    "realSourceLicenseGranted": false
+  },
+  "package": {
+    "wheelFiles": [
+      "quantos_engine_sdk-0.1.0-py3-none-any.whl",
+      "quantos_rd_agent-0.1.0-py3-none-any.whl"
+    ],
+    "offline": true,
+    "isolatedVenv": true,
+    "installedSitePackages": true,
+    "embeddedCatalog": true,
+    "fiveRpc": true,
+    "ownedChildReaped": true,
+    "realUpstreamRuntime": false
+  },
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "checks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "tp01-baseline",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--repository"
+        ],
+        "status": "NOT_RUN"
+      }
+    ],
+    "obligations": [
+      "Supabase writability, PostgreSQL migration/RLS/transactions/Auth/Storage",
+      "persistent Artifact/audit/cancellation and independent-process recovery",
+      "deployed BFF/Runtime/JWT and real provider/LLM/tool integration",
+      "GitHub branch protection and remote fork governance",
+      "OS egress sandbox enforcement",
+      "representative P95 receive <1s, capacity/soak and platform matrix",
+      "authorized real data purposes, same-SHA hosted CI and ProjectUser release confirmation"
+    ]
+  },
+  "gate": {
+    "tp02": "NOT_ASSESSED",
+    "r1Service": "NOT_ASSESSED",
+    "databaseExecution": false,
+    "production": false,
+    "formalAccepted": false
+  },
+  "implementationNext": "Register TP02_LOCAL, add dedicated admission negatives, recompute the complete check count, freeze new clean source and execute the full thirteen-node closure; preflight cannot grant READY."
+}
