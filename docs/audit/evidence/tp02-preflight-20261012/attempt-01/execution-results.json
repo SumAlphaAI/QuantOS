@@ -1,0 +1,796 @@
+[
+  {
+    "id": "scope",
+    "command": [
+      "node",
+      "docs/audit/evidence/tp02-preflight-20261012/scope.mjs"
+    ],
+    "executedAt": "2026-10-12T10:25:42.718Z",
+    "completedAt": "2026-10-12T10:25:42.785Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "PROPOSED_NOT_REGISTERED",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/scope.log",
+    "logSha256": "sha256:47a5efbe11374f7ec7916b8b1c20a1a103f2be62fac8a3a37205d2578cc3ccf5",
+    "supporting": []
+  },
+  {
+    "id": "scope-negative",
+    "command": [
+      "node",
+      "--test",
+      "docs/audit/evidence/tp02-preflight-20261012/scope.test.mjs"
+    ],
+    "executedAt": "2026-10-12T10:25:42.786Z",
+    "completedAt": "2026-10-12T10:25:43.537Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/scope-negative.log",
+    "logSha256": "sha256:5a3a32092036ed90da09fb63ea2f57fcdcbf4af4b01beca308ed3c2ea893f5ae",
+    "supporting": []
+  },
+  {
+    "id": "tp01-d-current-local",
+    "command": [
+      "make",
+      "tp01-d-local-check"
+    ],
+    "executedAt": "2026-10-12T10:25:43.537Z",
+    "completedAt": "2026-10-12T10:25:57.767Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "\"stageGate\": \"READY\"",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp01-d-current-local.log",
+    "logSha256": "sha256:297d6cf5fd52e44fead6a5e2ec26a64bebe6a7dda26f753db681a5df5cc22869",
+    "supporting": []
+  },
+  {
+    "id": "historical-tp02-rejected",
+    "command": [
+      "node",
+      "engines/rd-agent/check-development.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-12T10:25:57.767Z",
+    "completedAt": "2026-10-12T10:25:57.896Z",
+    "exitCode": 1,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      1
+    ],
+    "expectedMarker": "TP02 functional inputs changed",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/historical-tp02-rejected.log",
+    "logSha256": "sha256:04026b82c4f0036c9fc2de76d5cc607a27712c388d1e7dcb24347726517ab3b7",
+    "supporting": []
+  },
+  {
+    "id": "strict-f0-rejected",
+    "command": [
+      "node",
+      "scripts/provider-a1-receipts.mjs",
+      "--f0"
+    ],
+    "executedAt": "2026-10-12T10:25:57.896Z",
+    "completedAt": "2026-10-12T10:25:57.963Z",
+    "exitCode": 1,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      1
+    ],
+    "expectedMarker": "dependency is not READY",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/strict-f0-rejected.log",
+    "logSha256": "sha256:66d3ad06fc11bcfbf2c88d911e155b34d0cfd30149f1f590c84a67b08bb52919",
+    "supporting": []
+  },
+  {
+    "id": "tp01-local-baseline",
+    "command": [
+      "node",
+      "scripts/check-vibe-repositories.mjs",
+      "--baseline",
+      "third_party/vibe-trading/baseline.lock.json",
+      "--remote-lock",
+      "forks/vibe-trading/repository.lock.json",
+      "--readonly",
+      "third_party/vibe-trading/upstream-src",
+      "--fork",
+      "artifacts/third_party/vibe-trading/controlled-fork",
+      "--skip-remote-governance",
+      "1"
+    ],
+    "executedAt": "2026-10-12T10:25:57.963Z",
+    "completedAt": "2026-10-12T10:25:58.024Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fork=verified",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp01-local-baseline.log",
+    "logSha256": "sha256:246ce513255ecc62789ed50ebd85d478576196df288bf371145d731fe64e0c29",
+    "supporting": []
+  },
+  {
+    "id": "capability",
+    "command": [
+      "node",
+      "scripts/f0-development-checks.mjs",
+      "--capability"
+    ],
+    "executedAt": "2026-10-12T10:25:58.024Z",
+    "completedAt": "2026-10-12T10:25:58.073Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "11 complete capabilities",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/capability.log",
+    "logSha256": "sha256:a98ff857c08b34702eabbc6dff8f0c9a2947587bcfb5e12d30498a8dcd0a4d74",
+    "supporting": []
+  },
+  {
+    "id": "intake",
+    "command": [
+      "make",
+      "tp-intake-check"
+    ],
+    "executedAt": "2026-10-12T10:25:58.073Z",
+    "completedAt": "2026-10-12T10:25:58.245Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "intake evidence is complete",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/intake.log",
+    "logSha256": "sha256:296be14bc2f9d9e197a58f5d244f0947fff93f11e87012e2cfdc50f88158abf2",
+    "supporting": []
+  },
+  {
+    "id": "f08-functional",
+    "command": [
+      "make",
+      "f08-check"
+    ],
+    "executedAt": "2026-10-12T10:25:58.246Z",
+    "completedAt": "2026-10-12T10:29:20.896Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "1382 passed",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/f08-functional.log",
+    "logSha256": "sha256:27c066882da5aa4884d6b7ffc01a6ffcaea4a040c9bb620d9fb864e826dede78",
+    "supporting": [
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-python-coverage.json.gz",
+        "sha256": "sha256:115f9dcd9f039b95b992bc4ddc1a22c5045fc8b040d0cefe9b96e048b3efd6dc",
+        "uncompressedSha256": "sha256:897cd94a7d1fd1cbe90c6c3f10c967c2b28f6f5a321d612207998ca647504974"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-rust-coverage.json.gz",
+        "sha256": "sha256:56605346fbbaa383a84813c4c1cde5b758f238d0d69b29f995f84530f55ee86a",
+        "uncompressedSha256": "sha256:086447911cc541d093dbcd54b459c4589d9b3eb7fe5b20617195c0079814bf6a"
+      }
+    ]
+  },
+  {
+    "id": "f08-branches",
+    "command": [
+      "make",
+      "f08-nightly-check"
+    ],
+    "executedAt": "2026-10-12T10:29:21.053Z",
+    "completedAt": "2026-10-12T10:29:39.550Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/f08-branches.log",
+    "logSha256": "sha256:379c6bbfd69d59f14c66216a7cdf429d9e8f0bbcef011f7d38b29e52dd3db31a",
+    "supporting": [
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-rust-nightly-coverage.json.gz",
+        "sha256": "sha256:f7254d4801222cf6c1702f340a8ff73ca4bf2d99b3b8df45dee719f2906a1324",
+        "uncompressedSha256": "sha256:8df970b96be48c9a5e3be65d6b3430b80bcc3cb3b8c78347287350e3c0e9c3b1"
+      }
+    ]
+  },
+  {
+    "id": "f08-service",
+    "command": [
+      "node",
+      "scripts/f0-development-checks.mjs",
+      "--engine"
+    ],
+    "executedAt": "2026-10-12T10:29:39.704Z",
+    "completedAt": "2026-10-12T10:29:46.713Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "PASS",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/f08-service.log",
+    "logSha256": "sha256:327a6ff8d74881e021982d9857537e413541be9bfc71ad4871c7afaf48e0cb09",
+    "supporting": [
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/receipt.json",
+        "sha256": "sha256:fe06d9e73dbd3913f2cb6792fae6891d9f09bae8aeb8dc78125e7cada5a7b0b0"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/deadline_two_seconds.log",
+        "sha256": "sha256:f6aafacea6b17c9af01c12979e9155d151a2965ee4d717de826fca843b5a52ab"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/durable_reconstruction.log",
+        "sha256": "sha256:12ee2fcc1c251645629c949fbf5108d32b6ed3682ce4b7a1fd80c9d4947b6a58"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/five_rpc_and_tenant_denial.log",
+        "sha256": "sha256:38be814f101c6588e935b53373e1a1903b3229c99c1c9576fd5d658a073221bf"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/idempotency_and_changed_input.log",
+        "sha256": "sha256:e2c9e4f95cfdc9b58dec1a30e8c8a9940e5c9dae80566b6587d367c3f7031aec"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/installed-module.log",
+        "sha256": "sha256:cdcb540c3ca2b3fb160e9c360adbc3046c686dfe957e3b80f2a1051dc8bc9f27"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/manager_os_kill_and_replay_policy.log",
+        "sha256": "sha256:edb90a3476ef289ae78d8355e7313171c479d6fc9ab4d55fd9ea19857cd29058"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/running_cancel.log",
+        "sha256": "sha256:3c78f3f9f1cef5038123fc6e248cbf2af8569126283064b5e0a3a74493464286"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/sidecar_artifact_integrity.log",
+        "sha256": "sha256:2c5089c12a78625a787eff2760b26986800fb0d312b6e49bd030c97f055f3c85"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/three_supervised_crashes.log",
+        "sha256": "sha256:fbc278be31d9b696d2c48eb40e4c2f2bca6dd51a56f395db06bc1d72fa268323"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/untrusted_rpc_rejection.log",
+        "sha256": "sha256:81128fdd1e08c6fcfd9922f8dd40be5728d8c40f3916f71ab9d08584ee0314b6"
+      },
+      {
+        "path": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/supporting/f08-service/wheels/quantos_mock_engine-0.1.0-py3-none-any.whl",
+        "sha256": "sha256:6675eab60ecb6d26bdefc20f52406b5fe713a1370d60d4b0d76b160afe2237fd"
+      }
+    ]
+  },
+  {
+    "id": "f0-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/fep0-development.test.mjs"
+    ],
+    "executedAt": "2026-10-12T10:29:46.716Z",
+    "completedAt": "2026-10-12T10:29:47.179Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/f0-negative.log",
+    "logSha256": "sha256:f68415974b6a95d9b5e907fe4ed9269cbf4e98dd39f7d70ff00bb28acf35cde7",
+    "supporting": []
+  },
+  {
+    "id": "tp02-contract",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests/test_rd_agent_contract.py",
+      "engines/tests/test_rd_agent_development.py",
+      "-vv"
+    ],
+    "executedAt": "2026-10-12T10:29:47.179Z",
+    "completedAt": "2026-10-12T10:29:48.615Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "131 passed",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-contract.log",
+    "logSha256": "sha256:2325718bc490ba4439b2cc9d4d087a54a77693e63b7002536f4712432e516e83",
+    "supporting": []
+  },
+  {
+    "id": "tp02-python",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests",
+      "-q"
+    ],
+    "executedAt": "2026-10-12T10:29:48.615Z",
+    "completedAt": "2026-10-12T10:29:57.843Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "\\b[1-9]\\d* passed\\b",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-python.log",
+    "logSha256": "sha256:01adb5ffc741f27684f733d90786c3bc23f424697b9948aed8fd2c77a952b89e",
+    "supporting": []
+  },
+  {
+    "id": "tp02-manager",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-engine-manager",
+      "--test",
+      "python_rd_agent"
+    ],
+    "executedAt": "2026-10-12T10:29:57.844Z",
+    "completedAt": "2026-10-12T10:29:58.166Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "2 passed; 0 failed",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-manager.log",
+    "logSha256": "sha256:e438f5b2c3d185874262ad08f05a5e4548b959f52b7c7989d5b7c62fd735685b",
+    "supporting": []
+  },
+  {
+    "id": "tp02-runtime",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--test",
+      "research_orchestration",
+      "research_workflow_",
+      "--",
+      "--nocapture"
+    ],
+    "executedAt": "2026-10-12T10:29:58.166Z",
+    "completedAt": "2026-10-12T10:30:01.405Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "2 passed; 0 failed",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-runtime.log",
+    "logSha256": "sha256:c205885f4a2cd331fe6ef55d6ef5085fd4e782b9680c19c21aa9abd2e05c929a",
+    "supporting": []
+  },
+  {
+    "id": "tp02-package",
+    "command": [
+      "engines/.venv/bin/python",
+      "scripts/tp02-packaged-service.py"
+    ],
+    "executedAt": "2026-10-12T10:30:01.405Z",
+    "completedAt": "2026-10-12T10:30:03.430Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "TP02_PACKAGED_SERVICE_PASS",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-package.log",
+    "logSha256": "sha256:c983568480cc30f6636f3712edd19a8bab39fd5cc338a72f52cb2ee2a884d800",
+    "supporting": []
+  },
+  {
+    "id": "tp02-lint",
+    "command": [
+      "engines/.venv/bin/ruff",
+      "check",
+      "engines/rd-agent/src/rd_agent",
+      "engines/tests/test_rd_agent_contract.py",
+      "engines/tests/test_rd_agent_development.py"
+    ],
+    "executedAt": "2026-10-12T10:30:03.430Z",
+    "completedAt": "2026-10-12T10:30:03.441Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "All checks passed",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-lint.log",
+    "logSha256": "sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "supporting": []
+  },
+  {
+    "id": "tp02-format",
+    "command": [
+      "engines/.venv/bin/ruff",
+      "format",
+      "--check",
+      "engines/rd-agent/src/rd_agent/adapter.py",
+      "engines/rd-agent/src/rd_agent/artifacts.py",
+      "engines/rd-agent/src/rd_agent/fixtures.py",
+      "engines/rd-agent/src/rd_agent/manifest.py",
+      "engines/rd-agent/src/rd_agent/research_artifact.py",
+      "engines/rd-agent/src/rd_agent/server.py",
+      "engines/rd-agent/src/rd_agent/service.py",
+      "engines/rd-agent/src/rd_agent/__init__.py",
+      "engines/tests/test_rd_agent_contract.py",
+      "engines/tests/test_rd_agent_development.py"
+    ],
+    "executedAt": "2026-10-12T10:30:03.441Z",
+    "completedAt": "2026-10-12T10:30:03.448Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "10 files already formatted",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-format.log",
+    "logSha256": "sha256:5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34",
+    "supporting": []
+  },
+  {
+    "id": "tp02-types",
+    "command": [
+      "engines/.venv/bin/pyright",
+      "--pythonpath",
+      "engines/.venv/bin/python",
+      "--pythonversion",
+      "3.12",
+      "engines/rd-agent/src/rd_agent",
+      "engines/tests/test_rd_agent_contract.py",
+      "engines/tests/test_rd_agent_development.py"
+    ],
+    "executedAt": "2026-10-12T10:30:03.448Z",
+    "completedAt": "2026-10-12T10:30:05.416Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "0 errors",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-types.log",
+    "logSha256": "sha256:5639b878e3f6784fd89c098f6b23be90374e30993245d88697fd35a5a4cd7f1e",
+    "supporting": []
+  },
+  {
+    "id": "tp02-locks",
+    "command": [
+      "bash",
+      "scripts/check-lockfiles.sh"
+    ],
+    "executedAt": "2026-10-12T10:30:05.416Z",
+    "completedAt": "2026-10-12T10:30:07.807Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "All phase-1 locks parse and match their manifests",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-locks.log",
+    "logSha256": "sha256:2abc9c196e47b03ad509f8996ce965a3d36f786a06b8c70740cd0bb001e6ce5f",
+    "supporting": []
+  },
+  {
+    "id": "tp02-intake",
+    "command": [
+      "node",
+      "scripts/check-tp-intake.mjs"
+    ],
+    "executedAt": "2026-10-12T10:30:07.807Z",
+    "completedAt": "2026-10-12T10:30:07.937Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "unapproved upstream packages are absent",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-intake.log",
+    "logSha256": "sha256:8afcbd2ebcd47f0ff32b8c323fb7d5913ac3b312232a83221421a6b9490ead71",
+    "supporting": []
+  },
+  {
+    "id": "wheel-inspection",
+    "command": [
+      "engines/.venv/bin/python",
+      "docs/audit/evidence/tp02-preflight-20261012/inspect-wheel.py",
+      "docs/audit/evidence/tp02-preflight-20261012/attempt-01/wheel-inspection.json"
+    ],
+    "executedAt": "2026-10-12T10:30:07.937Z",
+    "completedAt": "2026-10-12T10:30:07.961Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "\"status\": \"PASS\"",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/wheel-inspection.log",
+    "logSha256": "sha256:3087ec22fe9576419a2902d5c2a8bb993dd9a00506dfc507afdcc79df61db41c",
+    "supporting": []
+  },
+  {
+    "id": "component-proof",
+    "command": [
+      "node",
+      "docs/audit/evidence/tp02-preflight-20261012/component-proof.mjs",
+      "docs/audit/evidence/tp02-preflight-20261012/attempt-01"
+    ],
+    "executedAt": "2026-10-12T10:30:08.122Z",
+    "completedAt": "2026-10-12T10:30:08.353Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "\"engineeringStatus\": \"PASS\"",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/component-proof.log",
+    "logSha256": "sha256:b6b190f06c7e2f3572feb32c21060e0d0df4cb4e6f9749809d5fa2641cec0c3a",
+    "supporting": []
+  },
+  {
+    "id": "tp02-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tp02-functional-artifacts.test.mjs"
+    ],
+    "executedAt": "2026-10-12T10:30:08.353Z",
+    "completedAt": "2026-10-12T10:30:11.277Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/tp02-negative.log",
+    "logSha256": "sha256:75e663a6476c69e788b04537e8575c1d67228ec6f0b212b424ca91905e3cabe3",
+    "supporting": []
+  },
+  {
+    "id": "r1-receipt-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/r1-functional-artifacts.test.mjs",
+      "scripts/provider-a1-receipts.test.mjs",
+      "scripts/r02-stage-check.test.mjs",
+      "scripts/test-engine-processes.test.cjs",
+      "scripts/f07-target-service.test.cjs",
+      "scripts/postgres-bootstrap.test.cjs"
+    ],
+    "executedAt": "2026-10-12T10:30:11.277Z",
+    "completedAt": "2026-10-12T10:30:13.313Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/r1-receipt-negative.log",
+    "logSha256": "sha256:61ab50eed4a1a46b59b601937353a4e300c7a1fdf0d22655c8441eee2b1acefc",
+    "supporting": []
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "executedAt": "2026-10-12T10:30:13.314Z",
+    "completedAt": "2026-10-12T10:30:13.354Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "PASS",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/plans.log",
+    "logSha256": "sha256:ad5b07c520dfbc17b18064a580e5f7c8d896658aad2efa0234c76d8f19a2a294",
+    "supporting": []
+  },
+  {
+    "id": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "executedAt": "2026-10-12T10:30:13.354Z",
+    "completedAt": "2026-10-12T10:30:13.854Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/plans-negative.log",
+    "logSha256": "sha256:1c800e8f164ec350912714ab94ef1e2f71b9b4c507773b03d99614e45bcbc069",
+    "supporting": []
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-12T10:30:13.855Z",
+    "completedAt": "2026-10-12T10:30:13.885Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "PASS",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a",
+    "supporting": []
+  },
+  {
+    "id": "process-cleanup",
+    "command": [
+      "node",
+      "scripts/r1-process-cleanup.cjs",
+      "docs/audit/evidence/tp02-preflight-20261012/attempt-01/process-cleanup.json"
+    ],
+    "executedAt": "2026-10-12T10:30:13.885Z",
+    "completedAt": "2026-10-12T10:30:13.939Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 30000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "R1_PROCESS_CLEANUP PASS",
+    "log": "docs/audit/evidence/tp02-preflight-20261012/attempt-01/logs/process-cleanup.log",
+    "logSha256": "sha256:5d6406de28323f4c7c0d80855bdcb5695a5dae85bdc8bc259b58d10be1f1be7b",
+    "supporting": []
+  }
+]
