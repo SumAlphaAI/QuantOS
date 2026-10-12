@@ -1,0 +1,189 @@
+[
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "executedAt": "2026-10-12T11:34:58.571Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 0,
+    "expectedExit": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/plans.log",
+    "sha256": "sha256:c281384d2ccb881d3efe6a0d3359444d0a0b25bef26808838526f157d7a931d7",
+    "status": "PASS"
+  },
+  {
+    "id": "frontend-handoff",
+    "command": [
+      "node",
+      "scripts/check-frontend-gate-handoff.mjs"
+    ],
+    "executedAt": "2026-10-12T11:34:58.624Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 0,
+    "expectedExit": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/frontend-handoff.log",
+    "sha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af",
+    "status": "PASS"
+  },
+  {
+    "id": "core-handoff",
+    "command": [
+      "node",
+      "scripts/check-development-gate-handoff.mjs"
+    ],
+    "executedAt": "2026-10-12T11:34:58.658Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 0,
+    "expectedExit": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/core-handoff.log",
+    "sha256": "sha256:1268842f49fe6416839b7200fa561c669a867b5217251861caf396f12312f100",
+    "status": "PASS"
+  },
+  {
+    "id": "plan-negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/frontend-gate-handoff.test.mjs",
+      "scripts/development-gate-handoff.test.mjs",
+      "scripts/development-plan-order-negative.mjs"
+    ],
+    "executedAt": "2026-10-12T11:34:58.680Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 0,
+    "expectedExit": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/plan-negatives.log",
+    "sha256": "sha256:7bfa5ea461ab455d79f1dd008bfcd3b50588083304b2dbae37a54f14f9f1aae0",
+    "status": "PASS"
+  },
+  {
+    "id": "receipt-negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/provider-a2-development.test.mjs",
+      "scripts/bff-fe-001-development.test.mjs",
+      "scripts/bff-fe-007-development.test.mjs",
+      "scripts/r1-functional-artifacts.test.mjs",
+      "scripts/tp01-d-local-gate.test.mjs"
+    ],
+    "executedAt": "2026-10-12T11:34:59.101Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 0,
+    "expectedExit": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/receipt-negatives.log",
+    "sha256": "sha256:402bf050087abcd37cc3564194625331337543b0efe80a8299061f5f561adf1a",
+    "status": "PASS"
+  },
+  {
+    "id": "coverage",
+    "command": [
+      "node",
+      "scripts/check-bff-contract-coverage.mjs"
+    ],
+    "executedAt": "2026-10-12T11:35:30.397Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 0,
+    "expectedExit": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/coverage.log",
+    "sha256": "sha256:e0252bb1acee1ac2bb1c213988916a8fd4327a7253557cd5737dd2c344ad1e48",
+    "status": "PASS"
+  },
+  {
+    "id": "a2-strict-rejected",
+    "command": [
+      "node",
+      "scripts/provider-a2-development.mjs"
+    ],
+    "executedAt": "2026-10-12T11:35:30.483Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 1,
+    "expectedExit": 1,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/a2-strict-rejected.log",
+    "sha256": "sha256:64884bad7d86e11e17a0cdc471b167e958cf451d85ee8d7c81da7de16293eff0",
+    "status": "PASS"
+  },
+  {
+    "id": "tp01-d-stale-rejected",
+    "command": [
+      "node",
+      "scripts/tp01-d-local-gate.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-12T11:35:30.557Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 2,
+    "expectedExit": 2,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/tp01-d-stale-rejected.log",
+    "sha256": "sha256:e01132893c60aaa63781ed3ae7a4b36f256dc65425bd3e96f643ec8c33d452d1",
+    "status": "PASS"
+  },
+  {
+    "id": "release-rejected",
+    "command": [
+      "node",
+      "scripts/tp01-d-local-gate.mjs",
+      "--release"
+    ],
+    "executedAt": "2026-10-12T11:35:30.624Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 2,
+    "expectedExit": 2,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/release-rejected.log",
+    "sha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049",
+    "status": "PASS"
+  },
+  {
+    "id": "prerequisites",
+    "command": [
+      "node",
+      "scripts/reassess-a3-prerequisites.mjs"
+    ],
+    "executedAt": "2026-10-12T11:35:30.691Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 2,
+    "expectedExit": 2,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/prerequisites.log",
+    "sha256": "sha256:a0358ae5cdd21f3d0e271bc5831bbfffc7007cfef15851140e1752afacc1ab01",
+    "status": "PASS"
+  },
+  {
+    "id": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "executedAt": "2026-10-12T11:35:30.943Z",
+    "sourceCommit": "cf48f8522b015e218f4d9e15245de06b4bea69a7",
+    "exitCode": 0,
+    "expectedExit": 0,
+    "signal": null,
+    "errorCode": null,
+    "log": "docs/audit/evidence/frontend-gate-handoff-20261012/frozen-01/logs/diff.log",
+    "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "status": "PASS"
+  }
+]

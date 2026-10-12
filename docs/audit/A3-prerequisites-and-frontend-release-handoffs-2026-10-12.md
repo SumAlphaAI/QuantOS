@@ -37,6 +37,28 @@ G8 原“获准 testnet 范围内真实联调”早期门槛改为本机条件�
 
 执行命令、结果、时间、日志摘要、源码/配置绑定、撤回前后回执及变更文件见 [证据目录](./evidence/frontend-gate-handoff-20261012/) 与 [执行清单](./evidence/frontend-gate-handoff-20261012/execution-results.json)。本地检查结果限静态、回执与负向功能验证；不是目标 DB、hosted CI 或发布验收。
 
+冻结源码提交：`cf48f8522b015e218f4d9e15245de06b4bea69a7`。全部8份规范/源码/配置输入与提交及当前工作区逐字一致；11组完整执行结果均符合预期。历史A2的9份manifest/日志/依赖/目标回执哈希保持一致，但26项源码输入已变化，所以不能消费为当前READY。
+
+| 实际命令 | 结果 |
+|---|---|
+| `node docs/audit/evidence/frontend-gate-handoff-20261012/run-checks.mjs` | 11组符合预期，绑定冻结源码；无数据库/外部执行 |
+| `node scripts/check-development-plans.mjs` | PASS；全图0 READY/158 NOT_ASSESSED/1 BLOCKED，阶段/依赖结构有效 |
+| `node scripts/check-frontend-gate-handoff.mjs` | PASS；64任务/16检查点，外部/性能早期门槛为0 |
+| `node scripts/check-development-gate-handoff.mjs` | PASS；核心原22任务/16检查点移交未损坏 |
+| `node --test scripts/frontend-gate-handoff.test.mjs scripts/development-gate-handoff.test.mjs scripts/development-plan-order-negative.mjs` | 77 PASS，0失败/跳过；含本轮21项前端移交测试 |
+| `node --test scripts/provider-a2-development.test.mjs scripts/bff-fe-001-development.test.mjs scripts/bff-fe-007-development.test.mjs scripts/r1-functional-artifacts.test.mjs scripts/tp01-d-local-gate.test.mjs` | 170 PASS，0失败/跳过；验证回执与拒绝机制，不是实际外部provider执行 |
+| `node scripts/check-bff-contract-coverage.mjs` | PASS，覆盖63项published operation的目录/契约声明 |
+| `node scripts/provider-a2-development.mjs` | exit1，按预期拒绝当前NOT_ASSESSED |
+| `node scripts/tp01-d-local-gate.mjs --ready` / `--release` | 各exit2，按预期拒绝缺失功能准入/发布目标回执 |
+| `node scripts/reassess-a3-prerequisites.mjs` | exit2；只读完整盘点A2/R1闭包，不授予READY |
+| `node --test docs/audit/evidence/frontend-gate-handoff-20261012/verify-evidence.test.mjs` | 8 PASS；拒绝假目标PASS/正式批准、缺检查、忽略失败、伪READY、丢失撤回依据、日志替换 |
+| `node docs/audit/evidence/frontend-gate-handoff-20261012/verify-evidence.mjs` | PASS；源码、执行日志、历史绑定、撤回前后状态全部有效 |
+| `git diff --check` | PASS |
+
+总计 **255项测试PASS，0失败/跳过**。原始日志、检查命令与退出码保存在执行清单；非零退出只有明确的拒绝探针，不能解释成对应Gate通过。[内容验证](./evidence/frontend-gate-handoff-20261012/verification.json)、[撤回前盘点](./evidence/frontend-gate-handoff-20261012/prerequisites-before-withdrawal.json)、[冻结源码当前盘点](./evidence/frontend-gate-handoff-20261012/prerequisites-after-withdrawal.json)可独立复核。没有运行与本轮未改运行时代码无关的完整Rust/UI/数据库套件。
+
+变更文件见[完整清单](./evidence/frontend-gate-handoff-20261012/changed-files.txt)。本轮Gitleaks证据扫描与变更补丁扫描均无泄漏；全部归档文件另有[哈希索引](./evidence/frontend-gate-handoff-20261012/evidence-index.json)。
+
 ## Gate、风险与下一任务
 
 本轮发布移交完整性 PASS；A2/R1-SERVICE NOT_ASSESSED，BFF-FE-003 BLOCKED；全部目标/性能验收 NOT_RUN，发布 Gate NOT_ASSESSED，formalAccepted=false。撤回失效 TP01-D 后全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED。
