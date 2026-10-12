@@ -1,4 +1,6 @@
-> 当前 TP01-C_LOCAL 复验（2026-10-12）：冻结bacc3b60完成13节点/45组必要本地检查及递归内容验证，全部PASS；仅TP01-C限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。原5个限定本地READY因公共输入变化撤回，历史证据保留。12组目标/远程治理检查及外部环境/性能由测试和RELEASE-GATE:BETA验收，formalAccepted=false。见[完成报告](./audit/TP01-C-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-c-local-admission.md)。
+> TP01-D_LOCAL 实现中（2026-10-12）：新公共输入使旧TP01-C本地READY撤回；历史回执和失败保留。本轮须从干净冻结提交完整执行16节点/54组必要本地闭包；14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。
+
+> 历史 TP01-C_LOCAL 复验（2026-10-12）：冻结bacc3b60完成13节点/45组必要本地检查及递归内容验证，全部PASS；仅TP01-C限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。原5个限定本地READY因公共输入变化撤回，历史证据保留。12组目标/远程治理检查及外部环境/性能由测试和RELEASE-GATE:BETA验收，formalAccepted=false。见[完成报告](./audit/TP01-C-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-c-local-admission.md)。
 
 > 历史本地复验（2026-10-12）：冻结54aeff32完成17节点/56组本地必要前置、R03七组和R04四组全部PASS；F0/TP03/TP04/R03/R04限定本地READY，全图5 READY/154 NOT_ASSESSED/0 BLOCKED。Supabase、外部环境、性能与正式发布仍待测试/RELEASE-GATE:BETA；formalAccepted=false。见[完成报告](./audit/R04-development-2026-10-12.md)。
 
@@ -414,6 +416,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "CORE:TP01-B",
         "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP01-D": {
+      "profile": "TP01-D_LOCAL",
+      "schema": "quantos-tp01-d-local-development/v1",
+      "manifest": "audit/evidence/tp01-d-local-20261012/manifest.json",
+      "prerequisites": [
+        "CORE:TP01-C",
+        "CORE:R02",
         "CORE-GATE:F0"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -871,7 +884,7 @@ flowchart TD
 - task_id: `TP01-C`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:d2c65106d9741231302903a013a47972fdb156dfd074cdd33c1decca18cd5197","evidence":["audit/evidence/tp01-c-local-20261012/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-B", "CORE:F08", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:TP01-B", "CORE:F08", "CORE-GATE:F0"]
 - closes_core: []
@@ -908,6 +921,8 @@ flowchart TD
 - 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow
 - 依赖：TP01-C、R02
 - 当前工程复核：当前因TP02输入变化为NOT_ASSESSED，本轮不重授；下述为冻结6a393eb历史复核：冻结6a393eb完成两项受控设计queue、QuantOS边界替换、畸形合约前置拒绝、审计身份幂等、20双RPC回放及禁止vibe导入的实际Runtime研究/取消；Python307/Manager55、新增44/queue18/artifact13和完整16节点/62组检查通过，DEVELOPMENT READY，见[本轮报告](./audit/TP01-D-selective-absorption-2026-10-09.md)及[当前manifest](./audit/evidence/provider-a1-remediation-20261004/tp01-d-admission-20261009/attempt-01/core-tp01-d.json)。组件与前置失败保留；正式ACCEPTED、持久Artifact/audit、部署、性能/长稳及候选CI未验收。
+
+- 验收边界：TP01-D_LOCAL独立本地准入；完整16节点必要功能闭包、20组双RPC/80次调用、18类畸形合约拒绝、Runtime去适配器运行、R02合成输入消费及专用负向门禁须绑定同一冻结源码。仅CORE:TP01-D登记READY，上游与R1-SERVICE不自动放行；Supabase、真实来源/用途许可、外部环境及性能/长稳由RELEASE-GATE:BETA最终验收。
 
 <a id="task-tp02"></a>
 ### TP02：RD-Agent：自动研究/实验 Engine

@@ -1310,6 +1310,15 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "tp01-d-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp01-d-local-gate.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
     }
   },
   "nodes": {
@@ -1780,7 +1789,8 @@
         "third_party/vibe-trading/baseline.lock.json",
         "docs/adr/20260730-tp01-vibe-selective-absorption.md",
         "docs/operations/tp01_vibe_inventory_and_threats.md",
-        "third_party/vibe-trading/upstream-src"
+        "third_party/vibe-trading/upstream-src",
+        "docs/operations/tp01-d-local-admission.md"
       ],
       "checks": [
         "tp01-d-absorption",
@@ -2031,6 +2041,33 @@
       "CORE:TP01-C": [
         "tp01-c-local-policy",
         "tp01-c-process-cleanup"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA"
+  },
+  "tp01DLocal": {
+    "owner": "CORE:TP01-D",
+    "profile": "TP01-D_LOCAL",
+    "roots": [
+      "CORE:TP01-D"
+    ],
+    "deferredChecks": [
+      "tp01-baseline"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
       ]
     },
     "releaseCheckpoint": "RELEASE-GATE:BETA"

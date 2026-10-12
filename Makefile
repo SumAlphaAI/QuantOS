@@ -579,3 +579,11 @@ r04-gate-check:
 	node scripts/r04-stage-check.mjs
 r04-release-check:
 	node scripts/r04-stage-check.mjs --release
+
+.PHONY: tp01-d-assess-local tp01-d-local-check tp01-d-release-check
+tp01-d-assess-local:
+	node scripts/record-tp01-d-local.mjs
+tp01-d-local-check:
+	node scripts/tp01-d-local-gate.mjs --ready
+tp01-d-release-check:
+	node scripts/tp01-d-local-gate.mjs --release

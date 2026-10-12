@@ -1,0 +1,56 @@
+[
+  {
+    "id": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "signal": null,
+    "error": null,
+    "logSha256": "sha256:0869f25bed6ffed14b7304f2ab462049b3ee424c7c8e941e492a7b349e25d3ea",
+    "status": "PASS"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "signal": null,
+    "error": null,
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a",
+    "status": "PASS"
+  },
+  {
+    "id": "admission-before-record",
+    "command": [
+      "node",
+      "scripts/tp01-d-local-gate.mjs",
+      "--ready"
+    ],
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "signal": null,
+    "error": null,
+    "logSha256": "sha256:e01132893c60aaa63781ed3ae7a4b36f256dc65425bd3e96f643ec8c33d452d1",
+    "status": "PASS"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/tp01-d-local-gate.mjs",
+      "--release"
+    ],
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "signal": null,
+    "error": null,
+    "logSha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049",
+    "status": "PASS"
+  }
+]

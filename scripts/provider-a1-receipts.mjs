@@ -138,15 +138,16 @@ export function supportingArtifactPaths(kind,r) {
 }
 // Explicit local profiles never publish upstream database readiness.
 export function localPolicy(profile='R03_LOCAL',p=policy()) {
- const registration={R03_LOCAL:['r03Local','CORE:R03'],R04_LOCAL:['r04Local','CORE:R04'],'TP01-C_LOCAL':['tp01CLocal','CORE:TP01-C']}[profile];
+ const registration={R03_LOCAL:['r03Local','CORE:R03'],R04_LOCAL:['r04Local','CORE:R04'],'TP01-C_LOCAL':['tp01CLocal','CORE:TP01-C'],'TP01-D_LOCAL':['tp01DLocal','CORE:TP01-D']}[profile];
  assert(registration,'unsupported local profile');
  const spec=p[registration[0]];
  assert.equal(spec.profile,profile);assert.equal(spec.owner,registration[1]);
  if(profile==='TP01-C_LOCAL')assert.deepEqual(spec.roots,['CORE:TP01-C'],'TP01-C local roots cannot grant R1 admission');
+ if(profile==='TP01-D_LOCAL')assert.deepEqual(spec.roots,['CORE:TP01-D'],'TP01-D local roots cannot grant R1 admission');
  return spec;
 }
-export const localScope=profile=>({R03_LOCAL:'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA',R04_LOCAL:'R04 local functional prerequisites; Supabase target acceptance deferred to RELEASE-GATE:BETA','TP01-C_LOCAL':'TP01-C local functional closure; Supabase and remote governance acceptance deferred to RELEASE-GATE:BETA'}[profile]);
-const localIndexSchema=profile=>({R03_LOCAL:'quantos-r03-local-prerequisites/v1',R04_LOCAL:'quantos-r04-local-prerequisites/v1','TP01-C_LOCAL':'quantos-tp01-c-local-prerequisites/v1'}[profile]);
+export const localScope=profile=>({R03_LOCAL:'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA',R04_LOCAL:'R04 local functional prerequisites; Supabase target acceptance deferred to RELEASE-GATE:BETA','TP01-C_LOCAL':'TP01-C local functional closure; Supabase and remote governance acceptance deferred to RELEASE-GATE:BETA','TP01-D_LOCAL':'TP01-D synthetic research functional closure; Supabase, external environment and performance acceptance deferred to RELEASE-GATE:BETA'}[profile]);
+const localIndexSchema=profile=>({R03_LOCAL:'quantos-r03-local-prerequisites/v1',R04_LOCAL:'quantos-r04-local-prerequisites/v1','TP01-C_LOCAL':'quantos-tp01-c-local-prerequisites/v1','TP01-D_LOCAL':'quantos-tp01-d-local-prerequisites/v1'}[profile]);
 export function localChecks(id,p=policy(),profile='R03_LOCAL') {
  const spec=localPolicy(profile,p);
  return [...p.nodes[id].checks.filter(c=>!p.checks[c].database&&!p.checks[c].target&&!(spec.deferredChecks??[]).includes(c)),...(spec.nodeChecks[id]??[])];
