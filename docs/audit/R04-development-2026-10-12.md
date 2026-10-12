@@ -1,6 +1,6 @@
 # R04 本地开发完成记录（2026-10-12）
 
-状态：R04实现和专用回执已完成；冻结d475a61c的完整前置尝试56组中50 PASS/6 FAIL，未发布READY。已修正runner预算、编排回执场景验证和Python格式；撤销旧源码Gate，等待新冻结提交完整复验。
+状态：R04实现已完成；冻结3b0cbfaa的56/56必要本地命令全部PASS，但publishLocal写入F0回执后递归校验读到旧计划摘要，未启动R03/R04专用检查，未发布新READY。已修复准备/写入顺序与失败回滚，待新冻结提交完整复验。
 
 范围为 R04_LOCAL：公共 Signal/Proposal 校验器；版本化 R03 仓库引用消费；真实本地 RD-Agent、LLMQuant、TradingAgents 合成 Engine 链；100 Proposal、过期等值拒绝、重放、订单工具拒绝；专用完成回执。内存服务和自有合成输入不证明目标数据库或上线可用。
 
@@ -17,3 +17,5 @@
 冻结d475a61c的完整失败见 [failed-attempt-02](./evidence/r04-completion-20261012/failed-attempt-02/failure.json)。新runner保存timeout/errorCode/signal；完整make test预算30分钟，只是本机验证进程的有界时限，不作为产品性能验收。R02、TP03、TP04共享编排场景验证器，要求四项命名场景全部成功并允许套件增长，拒绝缺场景、缩减、失败或ignored回执。
 
 第三次冻结307567de首组构建实际PASS，但回执封装错误地拒绝既有90分钟预算，零有效完成回执；构建报告和collector日志保留于failed-attempt-03。修正为Node支持的正整数时限，并添加遍历全部现有策略预算的兼容性测试。
+
+第四次冻结3b0cbfaa的56/56执行PASS与发布失败见[failed-attempt-04](./evidence/r04-completion-20261012/failed-attempt-04/failure.json)。已保存中间F0字节并恢复原canonical，撤销此前遗漏的旧F0 READY；发布器现在先校验全部新回执再写入匹配计划，失败恢复原文件，新增四项回归覆盖已有READY替换、后续校验失败零写入、写入失败回滚、发布后失败回滚。R03发布也在替换manifest之前读取对应任务记录，避免同类旧摘要读取。

@@ -792,11 +792,9 @@ flowchart TD
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:89ddf78c850d94627f2023e9aed74919f909695ed965ca4e610f42d99e8c149c",
-    "evidence": [
-      "audit/evidence/local-development-20261012/core-gate-f0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```

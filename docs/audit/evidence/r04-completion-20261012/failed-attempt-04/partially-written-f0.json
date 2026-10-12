@@ -1,0 +1,284 @@
+{
+  "schema": "quantos-local-development/v1",
+  "nodeId": "CORE-GATE:F0",
+  "stage": "DEVELOPMENT",
+  "status": "READY",
+  "profile": "R04_LOCAL",
+  "databaseExecution": false,
+  "production": false,
+  "formalAccepted": false,
+  "observedSourceCommit": "3b0cbfaa0be5f2918c0dbc50aaac0e861421cb63",
+  "planInput": {
+    "acceptance_window": "F0",
+    "checkpoint_id": "CORE-GATE:F0",
+    "dependencies": [
+      "CORE:F01",
+      "CORE:F02",
+      "CORE:F03",
+      "CORE:F04",
+      "CORE:F05",
+      "CORE:F06",
+      "CORE:F07",
+      "CORE:F08",
+      "CORE:F09",
+      "CORE:TP01-A",
+      "CORE:TP01-B"
+    ],
+    "depends_on": [
+      "CORE:F01",
+      "CORE:F02",
+      "CORE:F03",
+      "CORE:F04",
+      "CORE:F05",
+      "CORE:F06",
+      "CORE:F07",
+      "CORE:F08",
+      "CORE:F09",
+      "CORE:TP01-A",
+      "CORE:TP01-B"
+    ],
+    "required_scope": "沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。 R04_LOCAL本地功能准入独立验证；Supabase目标与原严格失败证据由RELEASE-GATE:BETA最终验收。"
+  },
+  "functionalManifest": "docs/audit/evidence/provider-a1-remediation-20261004/r04-completion-20261012/attempt-04/core-gate-f0.json",
+  "functionalDigest": "sha256:8e5d5324d68188c18fcf0b26eca14081587171676414bf2861ac68cebd778dee",
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/r04-completion-20261012/attempt-04/local-prerequisites.json",
+    "inputDigest": "sha256:5286884f69c0920154eaf608ea5fd2e91602de7e8941067c18e58d2d7b22d96b"
+  },
+  "dependencies": [
+    {
+      "nodeId": "CORE:F01",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:b3db84380cfb330d169ab505fb2d05541804ea03057c5a0b5431440f76e53552"
+    },
+    {
+      "nodeId": "CORE:F02",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:859e58b8b93807b560661b4bbb95ca38f7bcc72e2822444929b6b0f980c33a36"
+    },
+    {
+      "nodeId": "CORE:F03",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:bc9e3281de8a4bec91a11ec7b4794f31a2f31dcdebc6911d3f59c8766460e3ee"
+    },
+    {
+      "nodeId": "CORE:F04",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:4dc2195db23939b94994cd80a266147a3c422eb57d78bbefda43b4609efc608e"
+    },
+    {
+      "nodeId": "CORE:F05",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:06ac4235b8ab282cec7564e89dc1f525bf6099b931b0e51c1f710dd71e129f48"
+    },
+    {
+      "nodeId": "CORE:F06",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:e2e7a87fb51f7365af0f2a6eda09f09d0b27b504a7475a706f194fab98a1f293"
+    },
+    {
+      "nodeId": "CORE:F07",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:16ccffb2fda999027455d6db1aa653633a337b32fac95b0381eb0c56df2f4b59"
+    },
+    {
+      "nodeId": "CORE:F08",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:003e1bd8ce085b12d0b4c338d1bb94da8f7b6a02dd090f4926b4f7564480231e"
+    },
+    {
+      "nodeId": "CORE:F09",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:9a6154feb88627bbae110b6369ffcb77a314f1ff1f4453d0d5ef0a2f59f98caf"
+    },
+    {
+      "nodeId": "CORE:TP01-A",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:1332787ba2e402b855c3a58dc52479c8823c72fec1624ea3af154b859d5d30c0"
+    },
+    {
+      "nodeId": "CORE:TP01-B",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:F0",
+      "inputDigest": "sha256:b0b7a0dbd31ac4a0492e546129cf2f549cee1fffb7f1067d47e8511fdaae4a3d"
+    }
+  ],
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。",
+    "prerequisiteChecks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r01-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R01"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r02-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R02"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ]
+  }
+}
