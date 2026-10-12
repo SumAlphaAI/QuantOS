@@ -1,0 +1,70 @@
+
+running 8 tests
+test batched_success_rolls_back_when_either_lease_token_changes ... FAILED
+test correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation ... FAILED
+test postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_attempts ... FAILED
+test postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry ... FAILED
+test postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correlation ... FAILED
+test postgres_polling_worker_dead_letters_poison_events_after_retry_budget ... FAILED
+test postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts ... FAILED
+test stale_outbox_and_inbox_lease_tokens_cannot_commit_after_reclaim ... FAILED
+
+failures:
+
+---- batched_success_rolls_back_when_either_lease_token_changes stdout ----
+
+thread 'batched_success_rolls_back_when_either_lease_token_changes' (656354) panicked at crates/quantos-event/tests/postgres_persistence.rs:1346:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation stdout ----
+
+thread 'correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation' (656635) panicked at crates/quantos-event/tests/postgres_persistence.rs:1346:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+
+---- postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_attempts stdout ----
+
+thread 'postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_attempts' (656651) panicked at crates/quantos-event/tests/postgres_persistence.rs:1346:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+
+---- postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry stdout ----
+
+thread 'postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry' (656676) panicked at crates/quantos-event/tests/postgres_persistence.rs:1346:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+
+---- postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correlation stdout ----
+
+thread 'postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correlation' (656690) panicked at crates/quantos-event/tests/postgres_persistence.rs:1346:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+
+---- postgres_polling_worker_dead_letters_poison_events_after_retry_budget stdout ----
+
+thread 'postgres_polling_worker_dead_letters_poison_events_after_retry_budget' (656705) panicked at crates/quantos-event/tests/postgres_persistence.rs:1346:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+
+---- postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts stdout ----
+
+thread 'postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts' (656768) panicked at crates/quantos-event/tests/postgres_persistence.rs:1346:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+
+---- stale_outbox_and_inbox_lease_tokens_cannot_commit_after_reclaim stdout ----
+
+thread 'stale_outbox_and_inbox_lease_tokens_cannot_commit_after_reclaim' (656788) panicked at crates/quantos-event/tests/postgres_persistence.rs:1346:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+
+
+failures:
+    batched_success_rolls_back_when_either_lease_token_changes
+    correlation_queries_are_tenant_scoped_and_append_only_tables_reject_mutation
+    postgres_inbox_receipt_only_allows_one_side_effect_across_thousand_delivery_attempts
+    postgres_polling_claims_with_skip_locked_and_recovers_after_lease_expiry
+    postgres_polling_worker_compensates_for_realtime_misses_and_replays_by_correlation
+    postgres_polling_worker_dead_letters_poison_events_after_retry_budget
+    postgres_rejects_invalid_appends_and_recovers_busy_and_duplicate_receipts
+    stale_outbox_and_inbox_lease_tokens_cannot_commit_after_reclaim
+
+test result: FAILED. 0 passed; 8 failed; 0 ignored; 0 measured; 3 filtered out; finished in 28.46s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running tests/postgres_persistence.rs (target/debug/deps/postgres_persistence-d0e59364ea700006)
+error: test failed, to rerun pass `-p quantos-event --test postgres_persistence`

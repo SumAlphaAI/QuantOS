@@ -1,0 +1,104 @@
+[
+  {
+    "id": "tp03-verify",
+    "command": [
+      "node",
+      "engines/llmquant/check-development.mjs",
+      "--verify"
+    ],
+    "expectedExit": 0,
+    "exitCode": 0,
+    "expectationMet": true,
+    "log": "docs/audit/evidence/f0-target-diagnostics-20261012/final-checks/tp03-verify.log",
+    "logSha256": "sha256:f3386b50b2df0b640ba47282a24e36b219f09794f04951f1d0850e9ef638eb8d"
+  },
+  {
+    "id": "tp04-verify",
+    "command": [
+      "node",
+      "engines/trading-agents/check-development.mjs",
+      "--verify"
+    ],
+    "expectedExit": 0,
+    "exitCode": 0,
+    "expectationMet": true,
+    "log": "docs/audit/evidence/f0-target-diagnostics-20261012/final-checks/tp04-verify.log",
+    "logSha256": "sha256:f3386b50b2df0b640ba47282a24e36b219f09794f04951f1d0850e9ef638eb8d"
+  },
+  {
+    "id": "tp03-ready",
+    "command": [
+      "node",
+      "engines/llmquant/check-development.mjs",
+      "--ready"
+    ],
+    "expectedExit": 2,
+    "exitCode": 2,
+    "expectationMet": true,
+    "log": "docs/audit/evidence/f0-target-diagnostics-20261012/final-checks/tp03-ready.log",
+    "logSha256": "sha256:f3386b50b2df0b640ba47282a24e36b219f09794f04951f1d0850e9ef638eb8d"
+  },
+  {
+    "id": "tp04-ready",
+    "command": [
+      "node",
+      "engines/trading-agents/check-development.mjs",
+      "--ready"
+    ],
+    "expectedExit": 2,
+    "exitCode": 2,
+    "expectationMet": true,
+    "log": "docs/audit/evidence/f0-target-diagnostics-20261012/final-checks/tp04-ready.log",
+    "logSha256": "sha256:f3386b50b2df0b640ba47282a24e36b219f09794f04951f1d0850e9ef638eb8d"
+  },
+  {
+    "id": "f0-ready",
+    "command": [
+      "node",
+      "scripts/provider-a1-receipts.mjs",
+      "--f0"
+    ],
+    "expectedExit": 1,
+    "exitCode": 1,
+    "expectationMet": true,
+    "log": "docs/audit/evidence/f0-target-diagnostics-20261012/final-checks/f0-ready.log",
+    "logSha256": "sha256:4ee250f4366b8c1899d494737500aa47a14be610eb573a27b2ddc28f8b52f3d9"
+  },
+  {
+    "id": "r03-admission",
+    "command": [
+      "make",
+      "r03-admission-check"
+    ],
+    "expectedExit": 2,
+    "exitCode": 2,
+    "expectationMet": true,
+    "log": "docs/audit/evidence/f0-target-diagnostics-20261012/final-checks/r03-admission.log",
+    "logSha256": "sha256:dc204a3dfa3b094e9f32d74c5eb633b9c4e3e474757dfeb08ed181fc01ca8618"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExit": 0,
+    "exitCode": 0,
+    "expectationMet": true,
+    "log": "docs/audit/evidence/f0-target-diagnostics-20261012/final-checks/plans.log",
+    "logSha256": "sha256:90f7d3488bcd5fa658223c731c04d19344ef68867853d1f093b075afc438f14c"
+  },
+  {
+    "id": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "expectedExit": 0,
+    "exitCode": 0,
+    "expectationMet": true,
+    "log": "docs/audit/evidence/f0-target-diagnostics-20261012/final-checks/diff-check.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

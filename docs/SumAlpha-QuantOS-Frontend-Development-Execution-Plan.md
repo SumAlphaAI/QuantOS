@@ -1,4 +1,4 @@
-> 当前复评（F06/F07/F09目标诊断，2026-10-12）：修复目标写入预检、Auth错误诊断及F09进程/连接收尾；TP03/TP04/F0必要闭包待新冻结提交完整复验，旧失败证据保留。当前0 READY、159 NOT_ASSESSED、0 BLOCKED；formalAccepted=false。见[本轮报告](./audit/F0-target-failures-remediation-2026-10-12.md)。
+> 当前复评（F06/F07/F09目标诊断，2026-10-12）：冻结e4c45a7c完成14节点/56组实际复验，46 PASS、10 FAIL（本地45/45、目标1/11）。F09收尾/超时缺陷已修复，F06/F07/F09只读前置明确拒绝；平台Auth服务与真实调度写入仍未恢复验收。严格F0/TP03/TP04为BLOCKED；全图0 READY、156 NOT_ASSESSED、3 BLOCKED，formalAccepted=false。见[本轮报告](./audit/F0-target-failures-remediation-2026-10-12.md)。
 
 > 历史工程快照（R03本地开发Gate，2026-10-11）：冻结b2511e1d完成15节点/49组本地前置与R03七组实际复验，R03 DEVELOPMENT READY（R03_LOCAL）；全图1 READY、158 NOT_ASSESSED、0 BLOCKED。13组Supabase前置及R03真实生命周期移交RELEASE-GATE:BETA，NOT RUN。原只读/失败/退役pending=0历史保留；用户工程确认、同SHA CI及发布独立。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
 

@@ -1,0 +1,64 @@
+{
+  "schema": "quantos-f09-target-gate/v3",
+  "sourceCommit": "e4c45a7ca7f5ab716e0e001246b38a20559e9869",
+  "dirty": false,
+  "targetClass": "test-supabase-postgresql",
+  "status": "FAIL",
+  "checks": [
+    "same source migration ledger and checksums"
+  ],
+  "acceptanceScope": "F09 development database and Engine component probes",
+  "f09Accepted": false,
+  "remainingDevelopmentAcceptance": [],
+  "deferredToRelease": [
+    "same-SHA remote CI and Nightly receipts"
+  ],
+  "deferredToL04": [
+    "nine deployed business metric producers and one-minute monitor",
+    "cross-service same-chain fault exercises and secret leak scan",
+    "sustained live thresholds, dashboard queries and notification delivery"
+  ],
+  "startedAt": "2026-10-12T00:58:44.916Z",
+  "targetRefHash": "a70aa14f6acb257e",
+  "bootstrapConnection": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 1311.8138749999998
+      }
+    ],
+    "connectionClosed": true
+  },
+  "phase": "DATABASE_WRITABILITY",
+  "migrationHead": "20261008090000_f07_audit_append_sequence.sql",
+  "databaseWritability": {
+    "schema": "quantos-target-database-writability/v1",
+    "transactionReadOnly": "on",
+    "defaultTransactionReadOnly": "on",
+    "inRecovery": false,
+    "status": "READ_ONLY"
+  },
+  "failure": {
+    "phase": "DATABASE_WRITABILITY",
+    "code": "TARGET_DATABASE_READ_ONLY"
+  },
+  "fixtureCleanup": {
+    "schema": "quantos-f09-fixture-cleanup/v1",
+    "run": "ae533909-b8fd-4991-9e3c-3c037fc2d679",
+    "fixtureClass": "capacity-monitor-component-tests",
+    "status": "NOT_NEEDED_NO_REGISTERED_FIXTURE",
+    "immutableFacts": "RETAINED",
+    "fixtures": [],
+    "bootstrapConnection": {}
+  },
+  "logs": {
+    "capacity-fixture-cleanup-ae533909-b8fd-4991-9e3c-3c037fc2d679.json": "c44dce1480110a32f4629f94d296e145146ba1a7f86a386a1268ea5bbd9a13e4"
+  },
+  "completedAt": "2026-10-12T00:58:46.926Z"
+}

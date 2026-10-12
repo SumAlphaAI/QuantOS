@@ -1,0 +1,22 @@
+
+running 1 test
+test supabase_storage_adapter_round_trips_artifacts_and_registers_manifest ... FAILED
+
+failures:
+
+---- supabase_storage_adapter_round_trips_artifacts_and_registers_manifest stdout ----
+
+thread 'supabase_storage_adapter_round_trips_artifacts_and_registers_manifest' (660352) panicked at crates/quantos-storage/tests/supabase_storage_integration.rs:167:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supabase_storage_adapter_round_trips_artifacts_and_registers_manifest
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.21s
+
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.02s
+     Running tests/supabase_storage_integration.rs (target/debug/deps/supabase_storage_integration-e2bc0d98d35e7660)
+error: test failed, to rerun pass `-p quantos-storage --test supabase_storage_integration`
