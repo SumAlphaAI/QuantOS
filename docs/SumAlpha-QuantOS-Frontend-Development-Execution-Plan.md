@@ -1,4 +1,4 @@
-> 当前复评（TP04 Python校验，2026-10-12）：修复完整套件增长后的回执计数校验并新增负向测试，TP03/TP04/F0必要闭包待新冻结源码复评。源码输入改变后R03旧READY撤为NOT_ASSESSED，历史回执保留；全图0 READY、159 NOT_ASSESSED、0 BLOCKED。见[本轮记录](./audit/TP04-python-receipt-readmission-2026-10-12.md)。
+> 当前复评（TP04 Python校验，2026-10-12）：冻结d644b8c2完成14节点/56组实际检查，46 PASS、10 FAIL（本地45/45，目标1/11）。TP03/TP04组件各12组及完整Python1366项通过；严格F0/TP03/TP04为BLOCKED，R03旧READY因输入漂移撤为NOT_ASSESSED。全图0 READY、156 NOT_ASSESSED、3 BLOCKED；formalAccepted=false。见[本轮记录](./audit/TP04-python-receipt-readmission-2026-10-12.md)。
 
 > 历史工程快照（R03本地开发Gate，2026-10-11）：冻结b2511e1d完成15节点/49组本地前置与R03七组实际复验，R03 DEVELOPMENT READY（R03_LOCAL）；全图1 READY、158 NOT_ASSESSED、0 BLOCKED。13组Supabase前置及R03真实生命周期移交RELEASE-GATE:BETA，NOT RUN。原只读/失败/退役pending=0历史保留；用户工程确认、同SHA CI及发布独立。见[本轮报告](./audit/R03-local-gate-policy-2026-10-11.md)。
 

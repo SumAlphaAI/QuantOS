@@ -1,0 +1,22 @@
+Target attempt 1 exit 101
+
+running 1 test
+test postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent ... FAILED
+
+failures:
+
+---- postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent stdout ----
+
+thread 'postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent' (329718) panicked at crates/quantos-event/tests/postgres_persistence.rs:1346:10:
+tenant inserts: Error { kind: Db, cause: Some(DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E25006), message: "cannot execute INSERT in a read-only transaction", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("utility.c"), line: Some(407), routine: Some("PreventCommandIfReadOnly") }) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 5.92s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.07s
+     Running tests/postgres_persistence.rs (target/debug/deps/postgres_persistence-d0e59364ea700006)
+error: test failed, to rerun pass `-p quantos-event --test postgres_persistence`

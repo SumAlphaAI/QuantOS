@@ -2,10 +2,10 @@
   "schema": "quantos-tp04-development/v1",
   "nodeId": "CORE:TP04",
   "stage": "DEVELOPMENT",
-  "status": "READY",
+  "status": "BLOCKED",
   "engineeringStatus": "PASS",
   "formalAccepted": false,
-  "observedSourceCommit": "e27d5dab2e12e64ade9272a724d02f68024954c5",
+  "observedSourceCommit": "d644b8c21384ed626bde029aea8f8e2aca4a528b",
   "environment": {
     "node": "v24.12.0",
     "python": "Python 3.12.10",
@@ -124,22 +124,27 @@
     {
       "path": "crates/quantos-runtime/src/lib.rs",
       "role": "code",
-      "sha256": "sha256:5e68fbe141d5ba081f79a901ef8eb043e92b44d43a454922d42e5c04fa5492af"
+      "sha256": "sha256:0b8465d460d917e18c6a457c8656aa5bbd7bf359cff7171bb7b30f260c171746"
     },
     {
       "path": "crates/quantos-runtime/src/pg.rs",
       "role": "code",
-      "sha256": "sha256:b0ea5e4d2b22396b16a55617312e035525f37e1b4b8fa74fc70b9718598f0d6e"
+      "sha256": "sha256:406f7bdea746428a9cb731981bb373262d19b30b2baec901fa57c8565ddf71ec"
     },
     {
       "path": "crates/quantos-runtime/src/research.rs",
       "role": "code",
-      "sha256": "sha256:f85a7ae02453c0633946f55a710d4520e908318015b5191406c78ee31859a23b"
+      "sha256": "sha256:b3541544b44c5e6e53694384cec0c1ea62dec1d30ef42ea8fe981405dc586d7f"
+    },
+    {
+      "path": "crates/quantos-runtime/src/research_pg.rs",
+      "role": "code",
+      "sha256": "sha256:3e6b1df05cf73b98d15c0c7801974093ace69f931054c89df373726a394ea677"
     },
     {
       "path": "crates/quantos-runtime/src/signal_proposal.rs",
       "role": "code",
-      "sha256": "sha256:cab20a96a3eed7ed968d94cac4695e2aecdd55ab3ec58e329932fc69a2843d8a"
+      "sha256": "sha256:9a4b551bccc72d2b91b0b25e78712c869ee78acdb8c838fd48aefb8944affa2d"
     },
     {
       "path": "crates/quantos-runtime/src/snapshot_source.rs",
@@ -157,9 +162,14 @@
       "sha256": "sha256:1838701641950cac03fbe497fddc4c582bec19e36748ae943b3fcfa1f26ad8c7"
     },
     {
+      "path": "crates/quantos-runtime/tests/r02_retained_input.rs",
+      "role": "test",
+      "sha256": "sha256:bf0371e668d34ee16e405d324672e24751f33c37bbfe64f9ccce2356c5865386"
+    },
+    {
       "path": "crates/quantos-runtime/tests/research_orchestration.rs",
       "role": "test",
-      "sha256": "sha256:3015d542c6bacd9f965362ffea67f09b68a408873fcb1f7430af2fce4cba165e"
+      "sha256": "sha256:d29e2719c7b6cc3b09e428151fd430d7eb87a49f5f6b55f16ddece381a2bba59"
     },
     {
       "path": "crates/quantos-runtime/tests/signal_proposal_orchestration.rs",
@@ -169,7 +179,17 @@
     {
       "path": "crates/quantos-runtime/tests/support/r02_persisted_chain.rs",
       "role": "test",
-      "sha256": "sha256:af8f880816f09d163eadd06934ae322a9aac85064bf04026cd1712a2acab42e7"
+      "sha256": "sha256:19b5649394613c4ada4c7ade9dad4381c7562126b2b192a57d8b28c9f0a32185"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/support/r02_retained_input.rs",
+      "role": "test",
+      "sha256": "sha256:3be221f914105c1bbd32c55e8227fcc4d72b09fa98ac152dec72e155a9b242b1"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/support/r03_persisted.rs",
+      "role": "test",
+      "sha256": "sha256:19266a3bf75dd6838745507fd4ae7e819238b25247dbf0d9e0ec587fce34a842"
     },
     {
       "path": "engines/engine-sdk/README.md",
@@ -304,7 +324,7 @@
     {
       "path": "engines/llmquant/check-development.mjs",
       "role": "code",
-      "sha256": "sha256:1b8aa862c6f988bd2c45dd8783d8bacf44db166616092fed027720ed0bc9efe9"
+      "sha256": "sha256:a9dee979939d578a3a1be10fa8ee0c7beeb88a03a0578dc34df6e5483fff3760"
     },
     {
       "path": "engines/llmquant/pyproject.toml",
@@ -399,7 +419,12 @@
     {
       "path": "engines/tests/test_openbb_adapter_contract.py",
       "role": "test",
-      "sha256": "sha256:c31bf5d429fb3a28dc6724a2e28b216b12efe89026078a4fd3bf5b6b2bf89863"
+      "sha256": "sha256:03559a5cd63920a2525e769d5b79afdadd057d0dbd0beefc1cf24d61e866dab9"
+    },
+    {
+      "path": "engines/tests/test_openbb_adapter_development.py",
+      "role": "test",
+      "sha256": "sha256:5a0e2ec11fead47715e1ddcc562e9da48942e55f5725275764733c53c5ef2b05"
     },
     {
       "path": "engines/tests/test_proto_sdk.py",
@@ -429,22 +454,22 @@
     {
       "path": "engines/tests/test_tp08_qlib_mapping_samples.py",
       "role": "test",
-      "sha256": "sha256:28b67c5570446fffcc56ea55f6c201191031effd8954fb8bb063b54204993dd6"
+      "sha256": "sha256:b4fb0bf3a01de04da1974989e932799fb1c9115a095a2eb09333e7b7dec7c622"
     },
     {
       "path": "engines/tests/test_tp09_trendradar_mapping_samples.py",
       "role": "test",
-      "sha256": "sha256:8e4f28d92d1e91ac03cfc969c6590a31072787906c750278f2f6d48661d634c3"
+      "sha256": "sha256:97649079d09d4f3bb4fbe2872c0bda41200ef9e5e0b6c43da54d19ed2f634da1"
     },
     {
       "path": "engines/tests/test_tp10_valuecell_evaluation.py",
       "role": "test",
-      "sha256": "sha256:39fae5169b5451cb7cf1c4085e08b4df6885610c95e61eb853a9613a666ad6b7"
+      "sha256": "sha256:6cf31b1c3c05002217a390b3f9bcf340b70a718e210974faf4827186d2523509"
     },
     {
       "path": "engines/tests/test_tp11_openstock_fixtures.py",
       "role": "test",
-      "sha256": "sha256:746e4fa5f1bd1f941632d0bfe4c3b834e8db1cad6b05b103604f3f12e2f5c699"
+      "sha256": "sha256:9abbadd78e352ab5125977268d90011a9ab17facf27c824844f5f0a8e2a5eceb"
     },
     {
       "path": "engines/tests/test_tp12_nautilus_agents_rules.py",
@@ -489,7 +514,7 @@
     {
       "path": "engines/trading-agents/check-development.mjs",
       "role": "code",
-      "sha256": "sha256:780820f01995c776d8be3b8ef84749d0c16d67b29f597bd2a63405a60d143a55"
+      "sha256": "sha256:3172e06b35bbd919b52a1453679f2d647d4e32bdf7537c7f6ee1ace28c7fc241"
     },
     {
       "path": "engines/trading-agents/pyproject.toml",
@@ -854,17 +879,17 @@
     {
       "path": "scripts/provider-a1-policy.json",
       "role": "config",
-      "sha256": "sha256:6184be5060861d8af240c630806f2ef30516502197f2e2eed641b9c22d0485d8"
+      "sha256": "sha256:913068d3cece406f77fe7b042a22d2019f8e6bb5283ce40a9620e43e88507432"
     },
     {
       "path": "scripts/provider-a1-receipts.mjs",
       "role": "code",
-      "sha256": "sha256:cc2d865c1ebe691affe5b79bafd989d81bb4457d5886c6dcd83d34e04c3f4e5c"
+      "sha256": "sha256:277cc45444de5393c201b1a34647ec14bc0ce5c5d3586ff0a6f87f6a8ed21f7a"
     },
     {
       "path": "scripts/tp04-functional-artifacts.test.mjs",
       "role": "test",
-      "sha256": "sha256:859391d745139784e65e9adac31826e4015b0c637c3e6ed548b757f6b5815ac6"
+      "sha256": "sha256:269edf881300e9785991c5af19f89db91c870d0daf82b61aca1c73f3e8cdcf77"
     },
     {
       "path": "scripts/tp04-packaged-service.py",
@@ -931,7 +956,7 @@
     "rpcCount": 5,
     "capabilities": 1,
     "cancellation": {
-      "cancelMillis": 12.680417001320166,
+      "cancelMillis": 12.842207999710809,
       "cancelStatus": "CANCELLED",
       "finalArtifactSeen": false
     },
@@ -940,11 +965,11 @@
   "outputs": [
     {
       "file": "proposal-matrix.json",
-      "sha256": "sha256:9891cc3722980b8e93ad6c3d9c1ca0f9cf7d7955c02e5436fdfda89e405ed498"
+      "sha256": "sha256:958db31cb00b5ee7b154ac4d8a2ffef812b78cb113b63440f5492d0c9749da0a"
     },
     {
       "file": "ui-cancel.json",
-      "sha256": "sha256:88875c839fc092c8aea76776d5c259f865f752271d2c4eef48c2e01b06b86977"
+      "sha256": "sha256:f9da3100e874e6897176d00ac4452df80d61f2721f0af89550067f4c4503409c"
     }
   ],
   "checks": [
@@ -958,11 +983,11 @@
         "engines/tests/test_trading_agents_development.py",
         "-vv"
       ],
-      "executedAt": "2026-10-10T03:25:34.782Z",
+      "executedAt": "2026-10-12T00:13:48.361Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/contract.log",
-      "logSha256": "sha256:8db7bb6e5b74f7d1c00992b98634cbc945e17d0cbea9c70ba2e58a7c687bdde7"
+      "logSha256": "sha256:a40964db529867418b1e7fafa9134c7d79e60dff8ce7330b092bb9da85994665"
     },
     {
       "id": "python",
@@ -973,11 +998,11 @@
         "engines/tests",
         "-q"
       ],
-      "executedAt": "2026-10-10T03:25:37.493Z",
+      "executedAt": "2026-10-12T00:13:50.813Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/python.log",
-      "logSha256": "sha256:ec0ee073466cd90b4442150e9439aacb65561e04fff2deaabcf87d1d8388b360"
+      "logSha256": "sha256:8b7bc6bf111a6204828bb12ee32fa07d673e9da8f7361a358a9957926b386468"
     },
     {
       "id": "manager",
@@ -991,7 +1016,7 @@
         "--test",
         "python_trading_agents"
       ],
-      "executedAt": "2026-10-10T03:25:45.270Z",
+      "executedAt": "2026-10-12T00:13:59.905Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/manager.log",
@@ -1011,11 +1036,11 @@
         "--",
         "--nocapture"
       ],
-      "executedAt": "2026-10-10T03:25:45.597Z",
+      "executedAt": "2026-10-12T00:14:00.237Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/runtime.log",
-      "logSha256": "sha256:0a499a59549f670c06ce55e434409e1d0ed0e4efa46740d19bb863ce1fc67e7b"
+      "logSha256": "sha256:84fbecfb48e71fbadaccd44dcf94179045e0ef8c407d7903ad1b3bf589b0f827"
     },
     {
       "id": "schema",
@@ -1023,7 +1048,7 @@
         "node",
         "scripts/tp04-proposal-schema.mjs"
       ],
-      "executedAt": "2026-10-10T03:25:47.456Z",
+      "executedAt": "2026-10-12T00:14:02.342Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/schema.log",
@@ -1035,11 +1060,11 @@
         "node",
         "scripts/tp04-ui-cancel.mjs"
       ],
-      "executedAt": "2026-10-10T03:25:47.929Z",
+      "executedAt": "2026-10-12T00:14:02.855Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/ui.log",
-      "logSha256": "sha256:3e2f1cb1b4227aefb041d57ec5ff1a8cb6b3da4ca6aeede32f6a70b1332deaef"
+      "logSha256": "sha256:63d3851f27fca0b92ce832491c8b0266a16db60410674940720c7cd74218b033"
     },
     {
       "id": "package",
@@ -1047,11 +1072,11 @@
         "engines/.venv/bin/python",
         "scripts/tp04-packaged-service.py"
       ],
-      "executedAt": "2026-10-10T03:25:48.328Z",
+      "executedAt": "2026-10-12T00:14:05.398Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/package.log",
-      "logSha256": "sha256:13732e0e38e22569e1b852f390e7f5df5ab1da14dc5250d9d4daabfd4dd74c43"
+      "logSha256": "sha256:2b8587e758f885910b7c724af81833571bbc534ada8eb0d9756d05fc747408c8"
     },
     {
       "id": "lint",
@@ -1062,7 +1087,7 @@
         "engines/tests/test_trading_agents_contract.py",
         "engines/tests/test_trading_agents_development.py"
       ],
-      "executedAt": "2026-10-10T03:25:49.904Z",
+      "executedAt": "2026-10-12T00:14:07.490Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/lint.log",
@@ -1085,7 +1110,7 @@
         "engines/tests/test_trading_agents_contract.py",
         "engines/tests/test_trading_agents_development.py"
       ],
-      "executedAt": "2026-10-10T03:25:49.913Z",
+      "executedAt": "2026-10-12T00:14:07.503Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/format.log",
@@ -1103,7 +1128,7 @@
         "engines/tests/test_trading_agents_contract.py",
         "engines/tests/test_trading_agents_development.py"
       ],
-      "executedAt": "2026-10-10T03:25:49.921Z",
+      "executedAt": "2026-10-12T00:14:07.512Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/types.log",
@@ -1115,11 +1140,11 @@
         "bash",
         "scripts/check-lockfiles.sh"
       ],
-      "executedAt": "2026-10-10T03:25:52.166Z",
+      "executedAt": "2026-10-12T00:14:09.423Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/locks.log",
-      "logSha256": "sha256:7b3c63b601ee57da86dba4d6a02626e763bd306eca0c7c0cecd15e9ae978402b"
+      "logSha256": "sha256:0cd9e94a69d3af98ad0b0165b55aef27fa94088be973d7256ed0be817d704066"
     },
     {
       "id": "intake",
@@ -1127,31 +1152,28 @@
         "node",
         "scripts/check-tp-intake.mjs"
       ],
-      "executedAt": "2026-10-10T03:25:52.550Z",
+      "executedAt": "2026-10-12T00:14:11.644Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/intake.log",
-      "logSha256": "sha256:36a96634941daa840bb24d24ae27604785a87cbe5e5ec27a0bb062fb6207c6d1"
+      "logSha256": "sha256:8afcbd2ebcd47f0ff32b8c323fb7d5913ac3b312232a83221421a6b9490ead71"
     }
   ],
   "dependencies": [
     {
       "nodeId": "CORE:F08",
-      "status": "READY",
-      "inputDigest": "sha256:8f8fd229c986e7a75f8bded1e4ba233dbc042cf088c7ddfdadd726dc45752ada",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE:F08: dependency is not READY"
     },
     {
       "nodeId": "CORE:TP03",
-      "status": "READY",
-      "inputDigest": "sha256:6063fca4af6402edf6af569ed4b123816271077bb6d15f4275e8a3987d36ba84",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE:TP03: dependency is not READY"
     },
     {
       "nodeId": "CORE-GATE:F0",
-      "status": "READY",
-      "inputDigest": "sha256:58c57d31b266030053e330e2f57bc791dc7eb8fc42d04da11dd7fe71268922c2",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE-GATE:F0: dependency is not READY"
     }
   ],
   "excluded": [

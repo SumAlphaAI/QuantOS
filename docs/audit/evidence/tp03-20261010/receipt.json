@@ -2,10 +2,10 @@
   "schema": "quantos-tp03-development/v1",
   "nodeId": "CORE:TP03",
   "stage": "DEVELOPMENT",
-  "status": "READY",
+  "status": "BLOCKED",
   "engineeringStatus": "PASS",
   "formalAccepted": false,
-  "observedSourceCommit": "fbb5775e9d8de57f8c93f4ed7f3c6065dddcb342",
+  "observedSourceCommit": "d644b8c21384ed626bde029aea8f8e2aca4a528b",
   "environment": {
     "node": "v24.12.0",
     "python": "Python 3.12.10",
@@ -125,17 +125,22 @@
     {
       "path": "crates/quantos-runtime/src/lib.rs",
       "role": "code",
-      "sha256": "sha256:5e68fbe141d5ba081f79a901ef8eb043e92b44d43a454922d42e5c04fa5492af"
+      "sha256": "sha256:0b8465d460d917e18c6a457c8656aa5bbd7bf359cff7171bb7b30f260c171746"
     },
     {
       "path": "crates/quantos-runtime/src/pg.rs",
       "role": "code",
-      "sha256": "sha256:b0ea5e4d2b22396b16a55617312e035525f37e1b4b8fa74fc70b9718598f0d6e"
+      "sha256": "sha256:406f7bdea746428a9cb731981bb373262d19b30b2baec901fa57c8565ddf71ec"
     },
     {
       "path": "crates/quantos-runtime/src/research.rs",
       "role": "code",
-      "sha256": "sha256:f85a7ae02453c0633946f55a710d4520e908318015b5191406c78ee31859a23b"
+      "sha256": "sha256:b3541544b44c5e6e53694384cec0c1ea62dec1d30ef42ea8fe981405dc586d7f"
+    },
+    {
+      "path": "crates/quantos-runtime/src/research_pg.rs",
+      "role": "code",
+      "sha256": "sha256:3e6b1df05cf73b98d15c0c7801974093ace69f931054c89df373726a394ea677"
     },
     {
       "path": "crates/quantos-runtime/src/signal_proposal.rs",
@@ -158,9 +163,14 @@
       "sha256": "sha256:1838701641950cac03fbe497fddc4c582bec19e36748ae943b3fcfa1f26ad8c7"
     },
     {
+      "path": "crates/quantos-runtime/tests/r02_retained_input.rs",
+      "role": "test",
+      "sha256": "sha256:bf0371e668d34ee16e405d324672e24751f33c37bbfe64f9ccce2356c5865386"
+    },
+    {
       "path": "crates/quantos-runtime/tests/research_orchestration.rs",
       "role": "test",
-      "sha256": "sha256:3015d542c6bacd9f965362ffea67f09b68a408873fcb1f7430af2fce4cba165e"
+      "sha256": "sha256:d29e2719c7b6cc3b09e428151fd430d7eb87a49f5f6b55f16ddece381a2bba59"
     },
     {
       "path": "crates/quantos-runtime/tests/signal_proposal_orchestration.rs",
@@ -170,7 +180,17 @@
     {
       "path": "crates/quantos-runtime/tests/support/r02_persisted_chain.rs",
       "role": "test",
-      "sha256": "sha256:af8f880816f09d163eadd06934ae322a9aac85064bf04026cd1712a2acab42e7"
+      "sha256": "sha256:19b5649394613c4ada4c7ade9dad4381c7562126b2b192a57d8b28c9f0a32185"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/support/r02_retained_input.rs",
+      "role": "test",
+      "sha256": "sha256:3be221f914105c1bbd32c55e8227fcc4d72b09fa98ac152dec72e155a9b242b1"
+    },
+    {
+      "path": "crates/quantos-runtime/tests/support/r03_persisted.rs",
+      "role": "test",
+      "sha256": "sha256:19266a3bf75dd6838745507fd4ae7e819238b25247dbf0d9e0ec587fce34a842"
     },
     {
       "path": "engines/engine-sdk/README.md",
@@ -800,12 +820,12 @@
     {
       "path": "scripts/provider-a1-policy.json",
       "role": "config",
-      "sha256": "sha256:911a5c86112c3cb1e1d80eea0a954a644476747b8d2dd1aaf45708d5b571c361"
+      "sha256": "sha256:913068d3cece406f77fe7b042a22d2019f8e6bb5283ce40a9620e43e88507432"
     },
     {
       "path": "scripts/provider-a1-receipts.mjs",
       "role": "code",
-      "sha256": "sha256:e4702e23ec4f796f2d10acf822ca6c97e8790001cc7e636b0787793d08c7bef4"
+      "sha256": "sha256:277cc45444de5393c201b1a34647ec14bc0ce5c5d3586ff0a6f87f6a8ed21f7a"
     },
     {
       "path": "scripts/tp03-functional-artifacts.test.mjs",
@@ -877,7 +897,7 @@
     "rpcCount": 5,
     "capabilities": 1,
     "cancellation": {
-      "cancelMillis": 11.926792001759168,
+      "cancelMillis": 11.101082999630307,
       "cancelStatus": "CANCELLED",
       "finalArtifactSeen": false
     },
@@ -886,11 +906,11 @@
   "outputs": [
     {
       "file": "signal-matrix.json",
-      "sha256": "sha256:4cded5775b3ae0975554cf0df000363537c560be1398a6b1002b9ea3c75e1cdf"
+      "sha256": "sha256:7c59a5d5c8a7999b575da01c8088a8986b260a94e8808b2eedf867eeeb3dff9d"
     },
     {
       "file": "ui-cancel.json",
-      "sha256": "sha256:9e0fcf98193b820ab817f9eb53d89f97bc2512e54c5913a19fc44038c3f09cda"
+      "sha256": "sha256:cebe056a21ce614bd0698704e03e05800108dd3a0e93f97d30c912accb622207"
     }
   ],
   "checks": [
@@ -904,11 +924,11 @@
         "engines/tests/test_llmquant_development.py",
         "-vv"
       ],
-      "executedAt": "2026-10-11T07:21:21.443Z",
+      "executedAt": "2026-10-12T00:13:14.235Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/contract.log",
-      "logSha256": "sha256:74670eef94beacf50446dbbefcfe9709ff44018d5761319457347cf60fc30296"
+      "logSha256": "sha256:53eb18c2c348db89220c302d79a017e26388174d79cf39a567854bb652d915be"
     },
     {
       "id": "python",
@@ -919,11 +939,11 @@
         "engines/tests",
         "-q"
       ],
-      "executedAt": "2026-10-11T07:21:23.687Z",
+      "executedAt": "2026-10-12T00:13:16.379Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/python.log",
-      "logSha256": "sha256:7a5c647a6962fead4bd0925d8e910f549710e4be8bb04bb399aec99b068040d8"
+      "logSha256": "sha256:b0a9ecdfebb14514ffd9e50b26fb589dfc10df67a209b7a5d51d908790961281"
     },
     {
       "id": "manager",
@@ -937,11 +957,11 @@
         "--test",
         "python_llmquant"
       ],
-      "executedAt": "2026-10-11T07:21:32.750Z",
+      "executedAt": "2026-10-12T00:13:25.401Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/manager.log",
-      "logSha256": "sha256:a67be1545d09987a81f6c054656cd17c49cbeed83d241c5c9499fc71ada2fce4"
+      "logSha256": "sha256:87f40649cdbd74d598cc46bdc4bf6d74b0d2ac7b986ee30a768b8a5229c43d08"
     },
     {
       "id": "runtime",
@@ -957,11 +977,11 @@
         "--",
         "--nocapture"
       ],
-      "executedAt": "2026-10-11T07:21:33.075Z",
+      "executedAt": "2026-10-12T00:13:25.729Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/runtime.log",
-      "logSha256": "sha256:e09e741beb9e9322e0b46d60baea67fc62827258d7975f51286c79fee06105e0"
+      "logSha256": "sha256:2d477f198c487db8076b5ee949aecf6035e44899bde5be605df1d7846d4fc88d"
     },
     {
       "id": "schema",
@@ -969,7 +989,7 @@
         "node",
         "scripts/tp03-signal-schema.mjs"
       ],
-      "executedAt": "2026-10-11T07:21:41.443Z",
+      "executedAt": "2026-10-12T00:13:34.789Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/schema.log",
@@ -981,11 +1001,11 @@
         "node",
         "scripts/tp03-ui-cancel.mjs"
       ],
-      "executedAt": "2026-10-11T07:21:41.858Z",
+      "executedAt": "2026-10-12T00:13:35.212Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/ui.log",
-      "logSha256": "sha256:6b903a99b25aedeb2f8fcdf806cf53e490f8b7076f2a38160964e11af01d38fe"
+      "logSha256": "sha256:c95a38e3f50acbd090f4afd77b5809c6071879e91e2263c727db158fea91b87d"
     },
     {
       "id": "package",
@@ -993,11 +1013,11 @@
         "engines/.venv/bin/python",
         "scripts/tp03-packaged-service.py"
       ],
-      "executedAt": "2026-10-11T07:21:42.325Z",
+      "executedAt": "2026-10-12T00:13:37.351Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/package.log",
-      "logSha256": "sha256:1a030712d5ef9b32d648934ef4957739e11262c88cd6b73062f047e544fa5f90"
+      "logSha256": "sha256:5c9a3d79608193eabf741c24425e5f4ae6ee9c6ea9d745232767966532a4b58b"
     },
     {
       "id": "lint",
@@ -1008,7 +1028,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-11T07:21:45.300Z",
+      "executedAt": "2026-10-12T00:13:39.455Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/lint.log",
@@ -1031,7 +1051,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-11T07:21:45.310Z",
+      "executedAt": "2026-10-12T00:13:39.464Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/format.log",
@@ -1049,11 +1069,11 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-11T07:21:45.319Z",
+      "executedAt": "2026-10-12T00:13:39.472Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/types.log",
-      "logSha256": "sha256:1d044deee37a17d52f4dd31d7de6ebd21c68eb5d08e8b3b0822f58940a3392bb"
+      "logSha256": "sha256:5639b878e3f6784fd89c098f6b23be90374e30993245d88697fd35a5a4cd7f1e"
     },
     {
       "id": "locks",
@@ -1061,11 +1081,11 @@
         "bash",
         "scripts/check-lockfiles.sh"
       ],
-      "executedAt": "2026-10-11T07:21:49.908Z",
+      "executedAt": "2026-10-12T00:13:41.622Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/locks.log",
-      "logSha256": "sha256:750e8b07b3767e0d0e7c477fd25be06d3a9f1250d98b9ded0dc600912dd1594c"
+      "logSha256": "sha256:f2d499bcee42fc1fae773cd87e712955fe9f289fdd514483bd16b6dce9ab6172"
     },
     {
       "id": "intake",
@@ -1073,7 +1093,7 @@
         "node",
         "scripts/check-tp-intake.mjs"
       ],
-      "executedAt": "2026-10-11T07:21:50.298Z",
+      "executedAt": "2026-10-12T00:13:43.732Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/intake.log",
@@ -1083,21 +1103,18 @@
   "dependencies": [
     {
       "nodeId": "CORE:F08",
-      "status": "READY",
-      "inputDigest": "sha256:0e0fedf62cde169efea6579fd7ee0b214005676497f096ec21f9705bb74ce528",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE:F08: dependency is not READY"
     },
     {
       "nodeId": "CORE:F05",
-      "status": "READY",
-      "inputDigest": "sha256:446171ad5f0c1ee7beb95a4c36b2a4496326770c74c2094893c54d468e2d4d5f",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE:F05: dependency is not READY"
     },
     {
       "nodeId": "CORE-GATE:F0",
-      "status": "READY",
-      "inputDigest": "sha256:9492284f763b09895137ef7177d479326bf19eb7a0416809ea77cf669fd43d95",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE-GATE:F0: dependency is not READY"
     }
   ],
   "excluded": [

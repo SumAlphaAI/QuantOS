@@ -1,0 +1,124 @@
+{
+  "schema": "quantos-f09-target-gate/v3",
+  "sourceCommit": "d644b8c21384ed626bde029aea8f8e2aca4a528b",
+  "dirty": false,
+  "targetClass": "test-supabase-postgresql",
+  "status": "FAIL",
+  "checks": [
+    "same source migration ledger and checksums"
+  ],
+  "acceptanceScope": "F09 development database and Engine component probes",
+  "f09Accepted": false,
+  "remainingDevelopmentAcceptance": [],
+  "deferredToRelease": [
+    "same-SHA remote CI and Nightly receipts"
+  ],
+  "deferredToL04": [
+    "nine deployed business metric producers and one-minute monitor",
+    "cross-service same-chain fault exercises and secret leak scan",
+    "sustained live thresholds, dashboard queries and notification delivery"
+  ],
+  "startedAt": "2026-10-11T23:39:21.512Z",
+  "targetRefHash": "a70aa14f6acb257e",
+  "bootstrapConnection": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 1447.504083
+      }
+    ],
+    "connectionClosed": true
+  },
+  "phase": "scheduler-smoke.log",
+  "migrationHead": "20261008090000_f07_audit_append_sequence.sql",
+  "commands": [
+    {
+      "command": "cargo",
+      "args": [
+        "build",
+        "-p",
+        "capacity-monitor",
+        "--locked"
+      ],
+      "phase": "cargo build -p capacity-monitor --locked",
+      "status": "PASS",
+      "pid": 66443,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T23:39:23.431Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 203.36812499999996,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "build",
+        "-p",
+        "portfolio-rebuild",
+        "--locked"
+      ],
+      "phase": "cargo build -p portfolio-rebuild --locked",
+      "status": "PASS",
+      "pid": 66479,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T23:39:23.629Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 136.66858300000013,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "node",
+      "args": [
+        "scripts/f09-scheduler-smoke.cjs"
+      ],
+      "phase": "scheduler-smoke.log",
+      "status": "FAIL",
+      "pid": 66483,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-11T23:39:23.765Z",
+      "exitCode": null,
+      "signal": "SIGTERM",
+      "timedOut": true,
+      "errorCode": "ETIMEDOUT",
+      "elapsedMs": 300008.322,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    }
+  ],
+  "secretLeakDetected": false,
+  "logs": {
+    "scheduler-smoke.log": "742284b241e0ea33c71f983f265805dd01d354f8a03043017845c895873d8773",
+    "capacity-fixture-cleanup-89d5b420-7b74-449c-90bb-ac32cfa7475f.json": "eb8437be1206c52c2afc24f50a1dd74a4cf3c3378bcffd2003e31871eca23064"
+  },
+  "failure": {
+    "phase": "scheduler-smoke.log",
+    "code": "ETIMEDOUT"
+  },
+  "fixtureCleanup": {
+    "schema": "quantos-f09-fixture-cleanup/v1",
+    "run": "89d5b420-7b74-449c-90bb-ac32cfa7475f",
+    "fixtureClass": "capacity-monitor-component-tests",
+    "status": "NOT_NEEDED_NO_REGISTERED_FIXTURE",
+    "immutableFacts": "RETAINED",
+    "fixtures": [],
+    "bootstrapConnection": {}
+  },
+  "completedAt": "2026-10-11T23:44:23.777Z"
+}
