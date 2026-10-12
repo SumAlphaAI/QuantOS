@@ -3,9 +3,10 @@ import test from 'node:test';
 import {readFileSync,writeFileSync,mkdtempSync,cpSync,rmSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {tmpdir} from 'node:os';
+import orchestrationReceipt from './r04-orchestration-receipt.cjs';
 import {verifyTp05,selectors,directory} from '../engines/openbb-adapter/check-development.mjs';
 import {digest,inventory,nodesFromPlans,planInput,validateArtifact,supportingArtifactPaths} from './provider-a1-receipts.mjs';
-function fixture(fn){const temporary=mkdtempSync(resolve(tmpdir(),'tp05-artifact-'));try{cpSync(directory,temporary,{recursive:true});const r=JSON.parse(readFileSync(resolve(temporary,'receipt.json')));r.inputs=inventory(selectors);r.planInput=planInput(nodesFromPlans().get('CORE:TP05'));fn(r,temporary);}finally{rmSync(temporary,{recursive:true,force:true});}}
+function fixture(fn){const temporary=mkdtempSync(resolve(tmpdir(),'tp05-artifact-'));try{cpSync(directory,temporary,{recursive:true});const r=JSON.parse(readFileSync(resolve(temporary,'receipt.json')));const runtime=orchestrationReceipt.required.map(name=>'test '+name+' ... ok').join('\n')+'\ntest result: ok. 4 passed; 0 failed; 0 ignored;\n';writeFileSync(resolve(temporary,'runtime.log'),runtime);r.checks.find(c=>c.id==='runtime').logSha256=digest(runtime);r.inputs=inventory(selectors);r.planInput=planInput(nodesFromPlans().get('CORE:TP05'));fn(r,temporary);}finally{rmSync(temporary,{recursive:true,force:true});}}
 test('engineering-only evidence cannot admit TP05',()=>fixture((r,logDirectory)=>assert.deepEqual(verifyTp05(r,{checkDependencies:false,logDirectory}),{engineeringStatus:'PASS',stageGate:'NOT_ASSESSED',formalAccepted:false})));
 test('all execution logs and installed wheels must travel with a copied receipt',()=>fixture(r=>{const paths=supportingArtifactPaths('tp05-development',r);assert.equal(paths.length,17);assert.equal(paths.filter(p=>p.startsWith('wheels/')).length,2);}));
 for(const [name,change]of [

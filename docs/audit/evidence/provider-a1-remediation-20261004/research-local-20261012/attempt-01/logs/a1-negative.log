@@ -1,0 +1,61 @@
+✖ current BFF-FE-000 repository Gate passes (4.256ms)
+✔ missing phase-one page mapping is rejected (2.124166ms)
+✔ published operation drift is rejected (1.949458ms)
+✔ planned operation traceability deletion is rejected (1.794375ms)
+✔ shared idempotency baseline deletion is rejected (3.391083ms)
+✔ dependency regression is rejected (1.581791ms)
+✔ error correlation header deletion is rejected (2.493417ms)
+✔ generated Zod export deletion is rejected (1.479417ms)
+✔ missing staging permits development readiness and never claims formal acceptance (1.330166ms)
+✔ stage deferral cannot bypass engineering failures, final receipt requirements or unknown stages (0.067292ms)
+✔ final review command cannot be rewired to the development stage (5.045916ms)
+✔ current semantic A1 gate passes (4.105375ms)
+✔ rejects cookie semantic regression (3.427916ms)
+✔ rejects idempotency semantic regression (2.869042ms)
+✔ rejects sort semantic regression (3.528333ms)
+✔ rejects page semantic regression (3.371333ms)
+✔ rejects ci semantic regression (2.587333ms)
+✔ rejects decimal semantic regression (2.519667ms)
+✔ rejects version semantic regression (2.726708ms)
+✔ rejects csrf semantic regression (2.334959ms)
+✔ exact registered security correction is accepted only within its window (12.190792ms)
+✔ unregistered breaking type, enum or missing baseline fails closed (23.531042ms)
+✔ new required parameters and constraints cannot silently bypass compatibility (0.938375ms)
+✔ absent, invented and reference-only staging receipts never close A1 (0.495292ms)
+✔ final receipt requires technical evidence plus one input-bound user confirmation (1.064084ms)
+✔ optional property within an existing allOf is additive, required changes are rejected (0.104833ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 25
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 177.08225
+
+✖ failing tests:
+
+test at scripts/bff-fe-000-gate-negative.mjs:8:1
+✖ current BFF-FE-000 repository Gate passes (4.256ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      17,
+      22,
+  +   63
+  -   62
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-000-gate-negative.mjs:11:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 17, 22, 63 ],
+    expected: [ 17, 22, 62 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

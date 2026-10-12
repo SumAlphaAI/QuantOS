@@ -1,6 +1,6 @@
 # BFF-FE-007 live Audit / export runtime
 
-C10 的六个 API 保持 OpenAPI 1.5.0 和生成客户端契约。`QUANTOS_BFF_MODE=live` 接入配置的 Supabase Auth/PostgreSQL；reference 模式仅供 loopback 回归。数据库迁移使用 `scripts/apply-reviewed-migrations.cjs`，不启动本地数据库。
+C10 的六个 API 保持 OpenAPI 1.6.0 和生成客户端契约。`QUANTOS_BFF_MODE=live` 接入配置的 Supabase Auth/PostgreSQL；reference 模式仅供 loopback 回归。数据库迁移使用 `scripts/apply-reviewed-migrations.cjs`，不启动本地数据库。
 
 ## 配置与接线
 

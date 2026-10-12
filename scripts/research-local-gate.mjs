@@ -20,7 +20,7 @@ export function verify(r,{nodes=nodesFromPlans(),validateLocal=validateLocalPrer
  assert.deepEqual(local.nodes.map(x=>x.nodeId),closure(nodes,n.id),'full closure missing');
  const own=local.nodes.find(x=>x.nodeId===n.id);assert.equal(r.functionalManifest,own.manifest);assert.equal(r.functionalDigest,own.inputDigest);
  assert.deepEqual(r.dependencies,n.dependencies.map(nodeId=>({nodeId,status:'LOCAL_READY',owner:n.id,inputDigest:local.nodes.find(x=>x.nodeId===nodeId).inputDigest})),'dependency proof changed');
- return {nodeId:n.id,status:'READY',stageGate:'READY',profile:r.profile,engineeringStatus:'PASS',necessaryNodes:spec.count,observedSourceCommit:r.observedSourceCommit,databaseAcceptance:'NOT_RUN',performanceAcceptance:'NOT_RUN',formalAccepted:false};
+ return {nodeId:n.id,status:'READY',stageGate:'READY',profile:r.profile,engineeringStatus:'PASS',necessaryNodes:spec.count,localPrerequisites:{manifest:r.localPrerequisites.manifest,inputDigest:local.inputDigest,nodes:local.nodes},observedSourceCommit:r.observedSourceCommit,databaseAcceptance:'NOT_RUN',performanceAcceptance:'NOT_RUN',formalAccepted:false};
 }
 export function verifyPublished(profile,{nodes=nodesFromPlans(),validate=verify}={}){
  assert(registrations[profile]);const gate=nodes.get(registrations[profile].owner).stage_gate,path=manifest(profile);assert.equal(gate.stage,'DEVELOPMENT');assert.equal(gate.status,'READY','local admission not READY');assert.deepEqual(gate.evidence,[path.slice(5)]);

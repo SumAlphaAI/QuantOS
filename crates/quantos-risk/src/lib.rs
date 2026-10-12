@@ -646,6 +646,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "release performance; run make research-release-performance-smokes"]
     fn kill_switch_rejects_new_commands_under_one_second_p95() {
         let account_id = AccountId::new();
         let mut engine = RiskEngine::new(RiskLimits::default());

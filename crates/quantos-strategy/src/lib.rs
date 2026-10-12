@@ -735,6 +735,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "release performance; run make research-release-performance-smokes"]
     fn draft_saves_stay_under_three_hundred_millis_p95() {
         let auth = auth_context();
         let (snapshots, snapshot_id) = approved_snapshot(auth.tenant_id);

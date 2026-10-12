@@ -1,3 +1,8 @@
+export function validateFunctionalRuns(first, second) {
+ if (!/^sha256:[0-9a-f]{64}$/.test(first?.digest) || first.digest !== second?.digest) throw new Error("F04 fixture corpus digests differ or are missing");
+ for(const run of [first,second])if(run.fixtures!==1000)throw new Error("F04 requires 1,000 fixtures per process");
+ return {acceptance:"PASS",fixtures:1000,digest:first.digest,performanceAcceptance:"NOT_RUN"};
+}
 export function validateRuns(first, second) {
   if (!/^sha256:[0-9a-f]{64}$/.test(first?.digest) || first.digest !== second?.digest) {
     throw new Error("F04 fixture corpus digests differ or are missing");

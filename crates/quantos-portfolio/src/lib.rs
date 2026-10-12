@@ -457,6 +457,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "release performance; run make research-release-performance-smokes"]
     fn portfolio_queries_stay_under_three_hundred_millis_p95() {
         let tenant_id = TenantId::new();
         let events = replay_events();

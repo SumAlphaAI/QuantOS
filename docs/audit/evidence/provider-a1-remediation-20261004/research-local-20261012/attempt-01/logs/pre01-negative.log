@@ -1,0 +1,295 @@
+
+> @sumalpha/quantos@ test:pre01 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test ./scripts/tests/check-pre01.test.mjs
+
+✖ current PRE-01 artifacts satisfy the executable contract (7.250625ms)
+✔ missing a page state fails closed (1.8965ms)
+✔ invalid story priority fails closed (0.639042ms)
+✔ missing traceability row fails closed (1.521375ms)
+✔ published operation cannot regress to planned fails closed (2.065416ms)
+✔ unknown role fails closed (0.825792ms)
+✔ unknown route fails closed (0.622625ms)
+✔ duplicate story fails closed (0.595667ms)
+✔ missing flow stories fails closed (1.212416ms)
+✔ missing flow scenarios fails closed (1.636375ms)
+✔ unsafe proposal criterion fails closed (3.562542ms)
+✔ unknown trace task fails closed (1.556458ms)
+✔ unauthorized admin grant fails closed (1.230208ms)
+✔ missing permission route fails closed (0.740709ms)
+✔ phase-one P16 fails closed (0.101666ms)
+✔ missing contract owner fails closed (2.582916ms)
+✔ empty flow role fails closed (0.7745ms)
+✔ empty flow route fails closed (0.704084ms)
+✔ state label mismatch fails closed (0.986167ms)
+✔ desktop-only story fails closed (0.581292ms)
+✔ persistent offline cache fails closed (1.177625ms)
+✔ admin domain permission fails closed (0.869292ms)
+✔ missing page story fails closed (0.553125ms)
+✔ cross-page route fails closed (0.480667ms)
+✔ current G0 governance preserves history without granting current acceptance (3.898416ms)
+✔ past-due G0 item cannot silently remain OPEN (1.296542ms)
+✔ fabricated G0 acceptance fails against current checkpoint (0.991584ms)
+✔ missing G0 leftover owner fails (1.001667ms)
+✖ P05 cannot bind metadata download to an untraced audit export operation (2.316583ms)
+✖ P21 cannot drop alert ownership from both ledger and trace while retaining the subscription (2.399583ms)
+✖ unknown unlabelled operation in API register is rejected (2.004333ms)
+✖ P05 quality alerts require C16 ownership on the consumer page (1.801917ms)
+✔ API register rejects current version 1.4.0 (1.672375ms)
+✔ API register rejects current version 99.99.0 (1.657167ms)
+✖ published register row cannot omit API version (1.687625ms)
+✖ published register row cannot omit generated mock version (1.658792ms)
+✔ all ten historical compatibility strategies cannot be cleared (1.289542ms)
+✔ current disposition cannot drop a historical parent (1.392708ms)
+✔ current disposition requires effective checkpoint deadline (1.169333ms)
+✔ current disposition cannot claim target RELEASE completion (1.248666ms)
+✔ current disposition requires nonempty compatibility strategy (1.154541ms)
+✔ current disposition presentation must match structured source (1.133875ms)
+✔ current deadline cannot defer DEVELOPMENT provider obligations to integration (1.242167ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 36
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 175.107083
+
+✖ failing tests:
+
+test at scripts/tests/check-pre01.test.mjs:17:1
+✖ current PRE-01 artifacts satisfy the executable contract (7.250625ms)
+  AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI
+  
+  '1.5.0' !== '1.6.0'
+  
+      at validatePre01 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-pre01.mjs:135:82)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:18:18)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '1.5.0',
+    expected: '1.6.0',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tests/check-pre01.test.mjs:83:1
+✖ P05 cannot bind metadata download to an untraced audit export operation (2.316583ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /P05: operation createExport requires traced contract C10/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI\n' +
+    '\n' +
+    "'1.5.0' !== '1.6.0'\n"
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:90:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI
+    
+    '1.5.0' !== '1.6.0'
+    
+        at validatePre01 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-pre01.mjs:135:82)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:90:23
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:90:10)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+        at Test.postRun (node:internal/test_runner/test:1235:19)
+        at Test.run (node:internal/test_runner/test:1163:12),
+    expected: /P05: operation createExport requires traced contract C10/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tests/check-pre01.test.mjs:93:1
+✖ P21 cannot drop alert ownership from both ledger and trace while retaining the subscription (2.399583ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /P21: operation subscribeAlerts requires traced contract C16/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI\n' +
+    '\n' +
+    "'1.5.0' !== '1.6.0'\n"
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:98:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI
+    
+    '1.5.0' !== '1.6.0'
+    
+        at validatePre01 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-pre01.mjs:135:82)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:98:23
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:98:10)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+        at Test.postRun (node:internal/test_runner/test:1235:19)
+        at Test.run (node:internal/test_runner/test:1163:12),
+    expected: /P21: operation subscribeAlerts requires traced contract C16/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tests/check-pre01.test.mjs:101:1
+✖ unknown unlabelled operation in API register is rejected (2.004333ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /unknown operation getUnknownSnapshot/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI\n' +
+    '\n' +
+    "'1.5.0' !== '1.6.0'\n"
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:104:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI
+    
+    '1.5.0' !== '1.6.0'
+    
+        at validatePre01 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-pre01.mjs:135:82)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:104:23
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:104:10)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+        at Test.postRun (node:internal/test_runner/test:1235:19)
+        at Test.run (node:internal/test_runner/test:1163:12),
+    expected: /unknown operation getUnknownSnapshot/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tests/check-pre01.test.mjs:107:1
+✖ P05 quality alerts require C16 ownership on the consumer page (1.801917ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /P05: operation subscribeAlerts requires traced contract C16/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI\n' +
+    '\n' +
+    "'1.5.0' !== '1.6.0'\n"
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:112:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI
+    
+    '1.5.0' !== '1.6.0'
+    
+        at validatePre01 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-pre01.mjs:135:82)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:112:23
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:112:10)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+        at Test.postRun (node:internal/test_runner/test:1235:19)
+        at Test.run (node:internal/test_runner/test:1163:12),
+    expected: /P05: operation subscribeAlerts requires traced contract C16/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tests/check-pre01.test.mjs:116:1
+✖ published register row cannot omit API version (1.687625ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /published API version missing/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI\n' +
+    '\n' +
+    "'1.5.0' !== '1.6.0'\n"
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:116:66)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI
+    
+    '1.5.0' !== '1.6.0'
+    
+        at validatePre01 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-pre01.mjs:135:82)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:116:77
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:116:66)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+        at Test.postRun (node:internal/test_runner/test:1235:19)
+        at Test.run (node:internal/test_runner/test:1163:12),
+    expected: /published API version missing/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tests/check-pre01.test.mjs:117:1
+✖ published register row cannot omit generated mock version (1.658792ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /generated mock version missing/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI\n' +
+    '\n' +
+    "'1.5.0' !== '1.6.0'\n"
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:117:77)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: API register version differs from current OpenAPI
+    
+    '1.5.0' !== '1.6.0'
+    
+        at validatePre01 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-pre01.mjs:135:82)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:117:88
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:117:77)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+        at Test.postRun (node:internal/test_runner/test:1235:19)
+        at Test.run (node:internal/test_runner/test:1163:12),
+    expected: /generated mock version missing/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+ ELIFECYCLE  Command failed with exit code 1.
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.

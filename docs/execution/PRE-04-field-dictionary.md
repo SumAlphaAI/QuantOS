@@ -32,6 +32,8 @@
 | AsyncAccepted | {"type":"object","required":["jobId","status","correlationId"],"properties":{"jobId":{"$ref":"#/components/schemas/UUID"},"status":{"type":"string","enum":["accepted","cancel_requested"]},"correlationId":{"$ref":"#/components/schemas/UUID"}}} |
 | AuditedAsyncAccepted | {"allOf":[{"$ref":"#/components/schemas/AsyncAccepted"},{"type":"object","required":["auditRef"],"properties":{"auditRef":{"$ref":"#/components/schemas/UUID"},"mfaEnrollment":{"$ref":"#/components/schemas/MfaEnrollment"}}}]} |
 | StreamEvent | {"type":"object","required":["streamId","sequence","eventId","occurredAt","correlationId","payloadVersion","payload"],"properties":{"streamId":{"$ref":"#/components/schemas/UUID"},"sequence":{"type":"integer","format":"int64","minimum":1},"eventId":{"$ref":"#/components/schemas/UUID"},"occurredAt":{"$ref":"#/components/schemas/DateTime"},"correlationId":{"$ref":"#/components/schemas/UUID"},"payloadVersion":{"type":"string","enum":["v1","1"]},"payload":{"type":"object"}}} |
+| ResearchAccepted | {"allOf":[{"$ref":"#/components/schemas/AsyncAccepted"},{"type":"object","required":["statusRef","auditRef"],"properties":{"statusRef":{"type":"string","pattern":"^/v1/research-runs/[a-f0-9-]{36}$"},"auditRef":{"$ref":"#/components/schemas/UUID"}}}]} |
+| ArtifactAttachment | {"type":"object","required":["artifactId","mediaType","contentHash","content","auditRef"],"properties":{"artifactId":{"$ref":"#/components/schemas/UUID"},"mediaType":{"type":"string","enum":["application/json"]},"contentHash":{"type":"string","pattern":"^sha256:[a-f0-9]{64}$"},"content":{"type":"object"},"auditRef":{"$ref":"#/components/schemas/UUID"},"correlationId":{"$ref":"#/components/schemas/UUID"}}} |
 
 ## 2. C01 Session/Context
 
@@ -81,18 +83,19 @@
 | ResearchRun.costUnits | {"$ref":"#/components/schemas/DecimalValue"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.costUnits |
 | ResearchRun.deadlineAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.deadlineAt |
 | ResearchRun.status | {"$ref":"#/components/schemas/TaskStatus"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.status |
-| ResearchRun.inputHash | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.inputHash |
+| ResearchRun.inputHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.inputHash |
 | ResearchRun.engineVersion | {"type":"string"} | 是 | proto:engine.v1.GetMetadataResponse.engine_version | 领域引擎版本，HTTP string | bff:ResearchRun.engineVersion |
 | ResearchRun.artifactRefs | {"type":"array","items":{"$ref":"#/components/schemas/UUID"}} | 否 | proto:common.v1.ArtifactRef.artifact_id | 领域引用对象提取 artifact_id，HTTP 为 UUID[] | bff:ResearchRun.artifactRefs |
 | ResearchRun.evidenceRefs | {"type":"array","items":{"$ref":"#/components/schemas/UUID"}} | 是 | proto:common.v1.EvidenceRef.evidence_id | 领域引用对象提取 evidence_id，HTTP 为 UUID[] | bff:ResearchRun.evidenceRefs |
 | ResearchRun.correlationId | {"$ref":"#/components/schemas/UUID"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.correlationId |
 | ResearchRun.createdAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.createdAt |
-| createResearchRun.request.capability | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.capability |
+| ResearchRun.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:ResearchRun.auditRef |
+| createResearchRun.request.capability | {"type":"string","enum":["research.hypothesis.v1","research.experiment.v1"]} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.capability |
 | createResearchRun.request.dataSnapshotId | {"type":"string","format":"uuid"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.dataSnapshotId |
-| createResearchRun.request.question | {"type":"string"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.question |
-| createResearchRun.request.budget | {"$ref":"#/components/schemas/DecimalValue"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.budget |
+| createResearchRun.request.question | {"type":"string","minLength":1,"maxLength":8000} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.question |
+| createResearchRun.request.budget | {"type":"string","pattern":"^[1-9][0-9]{0,6}$"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.budget |
 | createResearchRun.request.deadlineAt | {"$ref":"#/components/schemas/DateTime"} | 是 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.deadlineAt |
-| createResearchRun.request.attachments | {"type":"array","items":{"type":"string","format":"uuid"}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.attachments |
+| createResearchRun.request.attachments | {"type":"array","items":{"type":"string","format":"uuid"},"maxItems":16,"uniqueItems":true} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:operation:createResearchRun.request.attachments |
 
 ## 5. C04 Snapshot/Artifact
 
@@ -101,26 +104,26 @@
 | DataSnapshot.snapshotId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:research.v1.DataSnapshot.snapshot_id | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:DataSnapshot.snapshotId |
 | DataSnapshot.schemaVersion | {"type":"string"} | 是 | proto:research.v1.DataSnapshot.schema_version | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:DataSnapshot.schemaVersion |
 | DataSnapshot.window | {"$ref":"#/components/schemas/TimeWindow"} | 是 | proto:research.v1.DataSnapshot.window | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:DataSnapshot.window |
-| DataSnapshot.sources | {"type":"array","items":{"type":"string"}} | 否 | proto:common.v1.DataSourceRef.source_id | 领域 DataSourceRef[] 提取 source_id；HTTP string[]，可选 | bff:DataSnapshot.sources |
+| DataSnapshot.sources | {"type":"array","items":{"type":"string"},"minItems":1} | 是 | proto:common.v1.DataSourceRef.source_id | 领域 DataSourceRef[] 提取 source_id；HTTP string[]，可选 | bff:DataSnapshot.sources |
 | DataSnapshot.quality | {"$ref":"#/components/schemas/DataQuality"} | 是 | proto:research.v1.DataSnapshot.quality | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:DataSnapshot.quality |
 | DataSnapshot.qualityBlocked | {"type":"boolean"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:DataSnapshot.qualityBlocked |
-| DataSnapshot.contentHash | {"type":"string"} | 是 | proto:research.v1.DataSnapshot.content_hash | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:DataSnapshot.contentHash |
-| DataSnapshot.licenseLabel | {"type":"string"} | 是 | proto:research.v1.DataSnapshot.license_label | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:DataSnapshot.licenseLabel |
+| DataSnapshot.contentHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | proto:research.v1.DataSnapshot.content_hash | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:DataSnapshot.contentHash |
+| DataSnapshot.licenseLabel | {"type":"string","minLength":1} | 是 | proto:research.v1.DataSnapshot.license_label | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:DataSnapshot.licenseLabel |
 | DataSnapshot.capturedAt | {"$ref":"#/components/schemas/DateTime"} | 是 | proto:research.v1.DataSnapshot.captured_at | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:DataSnapshot.capturedAt |
-| DataSnapshot.maxAgeSeconds | {"type":"integer","format":"int64"} | 是 | proto:research.v1.DataSnapshot.max_age | Proto Duration 转为 int64 秒；HTTP 名 maxAgeSeconds | bff:DataSnapshot.maxAgeSeconds |
+| DataSnapshot.maxAgeSeconds | {"type":"integer","format":"int64","minimum":0} | 是 | proto:research.v1.DataSnapshot.max_age | Proto Duration 转为 int64 秒；HTTP 名 maxAgeSeconds | bff:DataSnapshot.maxAgeSeconds |
+| DataSnapshot.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:DataSnapshot.auditRef |
 | Artifact.artifactId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:research.v1.ResearchArtifact.artifact_id | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.artifactId |
 | Artifact.hypothesis | {"type":"string"} | 是 | proto:research.v1.ResearchArtifact.hypothesis | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.hypothesis |
 | Artifact.summary | {"type":"string"} | 是 | proto:research.v1.ResearchArtifact.summary | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.summary |
 | Artifact.engineVersion | {"type":"string"} | 是 | proto:research.v1.ResearchArtifact.engine_version | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.engineVersion |
 | Artifact.promptVersion | {"type":"string"} | 是 | proto:research.v1.ResearchArtifact.prompt_version | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.promptVersion |
 | Artifact.codeVersion | {"type":"string"} | 是 | proto:research.v1.ResearchArtifact.code_version | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.codeVersion |
-| Artifact.environmentHash | {"type":"string"} | 是 | proto:research.v1.ResearchArtifact.environment_hash | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.environmentHash |
+| Artifact.environmentHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | proto:research.v1.ResearchArtifact.environment_hash | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.environmentHash |
 | Artifact.dataSnapshotId | {"$ref":"#/components/schemas/UUID"} | 是 | proto:research.v1.ResearchArtifact.data_snapshot_id | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.dataSnapshotId |
-| Artifact.contentHash | {"type":"string"} | 是 | proto:research.v1.ResearchArtifact.content_hash | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.contentHash |
+| Artifact.contentHash | {"type":"string","pattern":"^sha256:[a-f0-9]{64}$"} | 是 | proto:research.v1.ResearchArtifact.content_hash | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.contentHash |
 | Artifact.lineageRefs | {"type":"array","items":{"$ref":"#/components/schemas/UUID"}} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Artifact.lineageRefs |
 | Artifact.createdAt | {"$ref":"#/components/schemas/DateTime"} | 是 | proto:research.v1.ResearchArtifact.created_at | 领域字段由 BFF/transport 转为本行 wire 名称与约束；required/枚举裁剪以已发布 OpenAPI 为准，未知值阻断 | bff:Artifact.createdAt |
-
-尚未发布 operation：getArtifactAttachment；责任任务 BFF-FE-003。以上已发布字段不能用于证明这些 operation 的请求、响应或实时载荷已冻结。
+| Artifact.auditRef | {"$ref":"#/components/schemas/UUID"} | 否 | none | 页面模型新增/服务读模型；不声明同名 Proto 字段 | bff:Artifact.auditRef |
 
 ## 6. C05 Strategy
 
@@ -551,7 +554,7 @@
 
 ## 19. 完备性与验收边界
 
-- 共 413 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
+- 共 416 行契约字段（展开后的 wire 属性与计划字段行）；共享 schema 摘要另计，不沿用旧144行口径。
 - 必填字段、可选字段、请求与响应按真实 schema 区分；SSE 信封为共享 StreamEvent，载荷版本和实时恢复仍按各 operation 规则执行。
 - 已发布部分只证明仓库契约；未配置生成式 MSW 返回501。本地参考 provider 不替代 staging、真实数据库/身份/对象存储或正式签署。
 - 当前一期不包含原生控制面；原生接口独立见 [DESK-PRE-04 承接表](./DESK-PRE-04-interface-transfer.md)。

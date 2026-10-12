@@ -1,0 +1,111 @@
+
+> @sumalpha/quantos@ test:pre04 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/pre04-gate-negative.mjs
+
+✖ current full phase-one inventory passes (11.931334ms)
+✔ missing Gap is rejected (5.078792ms)
+✔ undecided realtime dependency is rejected (4.308583ms)
+✔ deleted required actorId field is rejected (4.762125ms)
+✔ nonexistent field source is rejected (4.1885ms)
+✔ wrong field type and optionality are rejected (4.912333ms)
+✔ generated operation deletion is rejected (4.072334ms)
+✔ generated method and path drift are rejected (8.360625ms)
+✔ same-count schema rename is rejected (3.36125ms)
+✔ schema required and enum drift are rejected (8.965042ms)
+✔ same-count Proto message rename is rejected (3.924125ms)
+✔ removed Proto declaration is rejected (3.853625ms)
+✔ same-count JSON Schema replacement is rejected (4.070125ms)
+✔ duplicate contract row is rejected before Map collapse (3.94325ms)
+✔ duplicate Gap row is rejected before Map collapse (3.887167ms)
+✔ nonexistent role owner is rejected (4.002ms)
+✔ nonexistent backend task is rejected (3.764542ms)
+✔ nonexistent BFF task is rejected (3.691041ms)
+✔ unknown Gap page is rejected (3.860708ms)
+✔ each missing website P0 page is rejected (18.779084ms)
+✔ missing auxiliary risk/audit/order contract is rejected (11.025167ms)
+✖ closing partly published Gap is rejected (3.849875ms)
+✔ omitting planned operation is rejected (3.729375ms)
+✔ unpublished Inventory Fixture cannot claim Implemented (3.622ms)
+✔ generated-only contract cannot claim Integrated (3.822083ms)
+✔ missing provider evidence is rejected (3.590958ms)
+✔ changed provider receipt is rejected (3.699083ms)
+✔ missing Inventory Fixture is rejected (4.17525ms)
+✔ Desktop contamination is rejected by Web inventory (4.077416ms)
+✔ nonexistent domain field mappings including the former engine-version anchor are rejected (7.673875ms)
+✔ removed referenced core task is rejected (3.744458ms)
+✔ catalog source drift is rejected (3.827916ms)
+✔ empty implementation artifact lists are rejected for every implemented contract (12.230792ms)
+✔ each missing implementation evidence category is rejected (34.084541ms)
+✔ duplicate artifacts cannot substitute for test or receipt evidence (4.059667ms)
+✔ another contract receipt cannot substitute for required evidence (4.08125ms)
+✔ unknown task suffixes are rejected in both backend task columns (23.302958ms)
+✔ ambiguous cross-prefix ranges cannot impersonate reviewed backend tasks (7.46575ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 36
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 360.803333
+
+✖ failing tests:
+
+test at scripts/pre04-gate-negative.mjs:17:1
+✖ current full phase-one inventory passes (11.931334ms)
+  AssertionError [ERR_ASSERTION]: OpenAPI source identity matches reviewed baseline
+  operation catalog identity matches reviewed baseline
+  C01 provider/test/historical receipt matches services/bff-gateway/src/lib.rs
+  C17 provider/test/historical receipt matches services/bff-gateway/src/lib.rs
+  C10 provider/test/historical receipt matches services/bff-gateway/src/lib.rs
+  GAP-04 status matches published/planned operations
+  GAP-04 accounts exactly for published/planned operation decisions
+  field dictionary exactly matches reviewed wire/domain/planned mapping
+  BFF OpenAPI inventory version is 1.5.0
+  BFF OpenAPI inventory has 62 operations
+  BFF OpenAPI inventory has 52 schemas
+  
+  'FAIL' !== 'PASS'
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:19:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/pre04-gate-negative.mjs:51:1
+✖ closing partly published Gap is rejected (3.849875ms)
+  AssertionError [ERR_ASSERTION]: OpenAPI source identity matches reviewed baseline
+  operation catalog identity matches reviewed baseline
+  C01 provider/test/historical receipt matches services/bff-gateway/src/lib.rs
+  C17 provider/test/historical receipt matches services/bff-gateway/src/lib.rs
+  C10 provider/test/historical receipt matches services/bff-gateway/src/lib.rs
+  GAP-04 accounts exactly for published/planned operation decisions
+  field dictionary exactly matches reviewed wire/domain/planned mapping
+  BFF OpenAPI inventory version is 1.5.0
+  BFF OpenAPI inventory has 62 operations
+  BFF OpenAPI inventory has 52 schemas
+      at rejected (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:10:16)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:51:56)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+ ELIFECYCLE  Command failed with exit code 1.
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.patchedDependencies". See https://pnpm.io/settings for the new home of each setting.

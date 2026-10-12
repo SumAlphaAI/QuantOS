@@ -17,7 +17,7 @@ function fieldMutation(input, alter) {
 test('current full phase-one inventory passes', () => {
   const report = validatePre04Inventory(current);
   assert.equal(report.status, 'PASS', report.failures.join('\n'));
-  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 413]);
+  assert.deepEqual([report.contracts, report.gaps, report.p0_pages, report.field_rows], [17, 17, 23, 416]);
 });
 test('missing Gap is rejected', () => rejected(i => {i.gaps = i.gaps.replace(/^\| GAP-13 \|.*\n/m, '');}, 'gap list contains'));
 test('undecided realtime dependency is rejected', () => rejected(i => {i.ledger = change(i.ledger, 'C13 preflight/quote refresh', '待开发时再定');}, 'P20 Realtime dependency is explicit'));
@@ -48,8 +48,8 @@ test('each missing website P0 page is rejected', () => {
 test('missing auxiliary risk/audit/order contract is rejected', () => {
   for (const [from,to] of [['C07 proposal/evaluation context + ',''],[' + C09 linked order facts',''],[' + C10 audit/evidence chain','']]) rejected(i => {i.ledger = change(i.ledger, from, to);}, 'dependencies match reviewed');
 });
-test('closing partly published Gap is rejected', () => rejected(i => {const row = i.gaps.split('\n').find(l => l.startsWith('| GAP-04 '));i.gaps = change(i.gaps, row, row.replace('| Partial |','| Closed |'));}, 'status matches published/planned'));
-test('omitting planned operation is rejected', () => rejected(i => {i.gaps = change(i.gaps, '未发布：getArtifactAttachment', '未发布：无');}, 'accounts exactly'));
+test('closing partly published Gap is rejected', () => rejected(i => {const row = i.gaps.split('\n').find(l => l.startsWith('| GAP-05 '));i.gaps = change(i.gaps, row, row.replace('| Partial |','| Closed |'));}, 'status matches published/planned'));
+test('omitting planned operation is rejected', () => rejected(i => {i.gaps = change(i.gaps, '未发布：subscribeBacktestRun', '未发布：无');}, 'accounts exactly'));
 test('unpublished Inventory Fixture cannot claim Implemented', () => rejected(i => {i.ledger = change(i.ledger, 'Inventory Fixture（未发布 OpenAPI；不得升级 Implemented）', 'Implemented；生产已验收');}, 'mock status matches'));
 test('generated-only contract cannot claim Integrated', () => rejected(i => {i.ledger = change(i.ledger, 'Contract Mocked（已发布面同源生成 client/schema/MSW；未配置场景返回501；planned 能力未冻结）', 'Integrated；目标已验收');}, 'mock status matches'));
 test('missing provider evidence is rejected', () => rejected(i => {delete i.evidenceFiles['services/bff-gateway/tests/auth_settings_provider.rs'];}, 'provider/test/historical receipt matches'));

@@ -115,13 +115,14 @@ export function validateArtifact(kind,path,source) {
   assert.equal(r.observedSourceCommit,source,'TP01-C execution source differs');
   verifyTp01CSkeleton(r,{checkDependencies:false,logDirectory:dirname(path)});
  }
- else if(['research-local-products','a2-local-http','bff003-local-probes','a2-local-mutations'].includes(kind))execFileSync(process.execPath,[resolve(root,'scripts/research-local-products.mjs'),'--verify',kind,path,source],{encoding:'utf8'});
+ else if(['research-local-products','a2-local-http','bff003-local-probes','a2-local-mutations','a2-local-semantics'].includes(kind))execFileSync(process.execPath,[resolve(root,'scripts/research-local-products.mjs'),'--verify',kind,path,source],{encoding:'utf8'});
  else if(kind==='f05-volume')readMeasurements(path,true);
  else if(kind==='f04-branch')execFileSync(process.execPath,[resolve(root,'scripts/check-f04-branch.mjs'),path],{encoding:'utf8'});
  else if(['r01-target','r02-target','r1-process-cleanup'].includes(kind))validateR1Artifact(kind,path,source);
  else validateF0Artifact(kind,path,source);
 }
 export function supportingArtifactPaths(kind,r) {
+ if(kind==='a2-local-semantics')return r.results.map((_,i)=>'semantics-'+i+'.log');
  if(kind==='a2-local-mutations')return r.records.map(x=>x.log.file).sort();
  if(kind==='research-local-products')return [...r.files.map(x=>x.file),...r.checks.map(x=>x.log.file)].sort();
  if(kind==='tp09-development')return [...r.checks.map(c=>c.id+'.log'),...r.outputs.map(x=>x.file)].sort();
@@ -154,11 +155,11 @@ export const localScope=profile=>({R1_LOCAL:'R1 local research service closure; 
 export const localIndexSchema=profile=>({R1_LOCAL:'quantos-r1-local-prerequisites/v1',A2_LOCAL:'quantos-a2-local-prerequisites/v1',BFF003_LOCAL:'quantos-bff003-local-prerequisites/v1',R03_LOCAL:'quantos-r03-local-prerequisites/v1',R04_LOCAL:'quantos-r04-local-prerequisites/v1','TP01-C_LOCAL':'quantos-tp01-c-local-prerequisites/v1','TP01-D_LOCAL':'quantos-tp01-d-local-prerequisites/v1'}[profile]);
 export function localChecks(id,p=policy(),profile='R03_LOCAL') {
  const spec=localPolicy(profile,p);
- return [...p.nodes[id].checks.filter(c=>!p.checks[c].database&&!p.checks[c].target&&!(spec.deferredChecks??[]).includes(c)),...(spec.nodeChecks[id]??[])];
+ return [...p.nodes[id].checks.filter(c=>!p.checks[c].database&&!p.checks[c].target&&!p.checks[c].performance&&!(spec.deferredChecks??[]).includes(c)),...(spec.nodeChecks[id]??[])];
 }
 export function localDeferred(nodes=nodesFromPlans(),p=policy(),profile='R03_LOCAL') {
  const selected=[...new Set(localPolicy(profile,p).roots.flatMap(id=>closure(nodes,id)))];
- return [...new Set(selected.flatMap(id=>p.nodes[id].checks))].filter(c=>p.checks[c].database||p.checks[c].target||(localPolicy(profile,p).deferredChecks??[]).includes(c)).map(id=>({id,command:p.checks[id].command,status:'NOT_RUN',checkpoint:'RELEASE-GATE:BETA'}));
+ return [...new Set(selected.flatMap(id=>p.nodes[id].checks).concat(localPolicy(profile,p).releaseChecks??[]))].filter(c=>p.checks[c].database||p.checks[c].target||p.checks[c].performance||(localPolicy(profile,p).deferredChecks??[]).includes(c)).map(id=>({id,command:p.checks[id].command,status:'NOT_RUN',checkpoint:'RELEASE-GATE:BETA'}));
 }
 export function validateLocalPrerequisites(path,{nodes=nodesFromPlans(),base=root,profile='R03_LOCAL'}={}) {
  const p=policy(base),bytes=readFileSync(confined(path,base)),index=JSON.parse(bytes);
@@ -233,11 +234,11 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1'],{profil
  const engineBaseline=engineBaselineDir?resolve(engineBaselineDir,'baseline.json'):null;
  const engineScope=engineBaseline?randomBytes(4).toString('hex'):null;
  if(engineBaseline){environment.engineProcessScope=engineScope;writeFileSync(engineBaseline,JSON.stringify({...engineSnapshot(root),scopeTag:engineScope}));}
- for(const id of all){const spec=p.checks[id];if(profile){assert(!spec.database&&!spec.target,'local profiles cannot execute target checks');assert(Object.keys(spec.env??{}).every(k=>! /DATABASE_URL|SUPABASE|PASSWORD|TOKEN|SECRET|(?:^|_)KEY$|QUANTOS_RUN_.*TESTS/.test(k)),'local check cannot inject credentials or database switches');}const env=developmentEnvironment(readFileSync(confined(p.developmentProfile.file),'utf8'),p.developmentProfile.overrides);let external;
+ for(const id of all){const spec=p.checks[id];if(profile){assert(!spec.database&&!spec.target&&!spec.performance,'local profiles cannot execute target checks');assert(Object.keys(spec.env??{}).every(k=>! /DATABASE_URL|SUPABASE|PASSWORD|TOKEN|SECRET|(?:^|_)KEY$|QUANTOS_RUN_.*TESTS/.test(k)),'local check cannot inject credentials or database switches');}const env=developmentEnvironment(readFileSync(confined(p.developmentProfile.file),'utf8'),p.developmentProfile.overrides);let external;
   if(spec.database){process.loadEnvFile(resolve(root,'.env.local'));Object.assign(env,Object.fromEntries(Object.entries(process.env).filter(([key])=>!key.startsWith('NEXT_PUBLIC_'))));env.QUANTOS_RUN_F05_POSTGRES_TESTS='1';const url=new URL(env.DATABASE_URL);assert(url.hostname.endsWith('.supabase.com'),'only configured Supabase database permitted');}
   if(spec.staticOnly||profile){const isolated=staticEnvironment(env);for(const key of Object.keys(env))delete env[key];Object.assign(env,isolated);}
   Object.assign(env,spec.env??{});
-  if(['R1_LOCAL','A2_LOCAL','BFF003_LOCAL'].includes(profile)){env.CARGO_NET_OFFLINE='true';env.UV_OFFLINE='1';env.npm_config_offline='true';}
+  if(['R1_LOCAL','A2_LOCAL','BFF003_LOCAL'].includes(profile)){env.CARGO_NET_OFFLINE='true';env.UV_OFFLINE='1';env.npm_config_offline='true';env.QUANTOS_RELEASE_PERFORMANCE='0';}
   if(engineScope)env.QUANTOS_TEST_ENGINE_SCOPE=engineScope;
   if(spec.artifactKind==='r1-process-cleanup')env.QUANTOS_R1_ENGINE_BASELINE=engineBaseline;
   if(spec.measurement){env.QUANTOS_F05_MEASUREMENTS_PATH=resolve(out,'f05-volume.json');rmSync(env.QUANTOS_F05_MEASUREMENTS_PATH,{force:true});}

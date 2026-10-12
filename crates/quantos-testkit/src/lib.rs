@@ -125,6 +125,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "release performance; run make research-release-performance-smokes"]
     fn domain_operations_stay_below_fifty_milliseconds_p95() {
         let p95 = domain_operation_p95(1_000);
         assert!(p95 < Duration::from_millis(50), "P95 was {p95:?}");

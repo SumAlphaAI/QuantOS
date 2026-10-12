@@ -10,7 +10,7 @@
 | GAP-01 | C01 | 已发布：getSession、getContext、reauth、mfaChallenge、logout、submitAccessRequest；未发布：无 | P01、P15、GS、WEB-06、WEB-07 | F06、L03 | P0 | FEP-0/G0 冻结 | BFF-FE-001 | Closed |
 | GAP-02 | C02 | 已发布：无；未发布：getCommandSummary、subscribeCommandEvents | P02 | F09、R03、X01、X02、X03、X04、X05、X06 | P0 | FEP-1/G1 | BFF-FE-002 | Open |
 | GAP-03 | C03 | 已发布：listResearchRuns、createResearchRun、getResearchRun、cancelResearchRun、subscribeResearchRun；未发布：无 | P03、P04 | F07、F08、R03、U01 | P0 | FEP-2/G2 | BFF-FE-003 | Closed |
-| GAP-04 | C04 | 已发布：listDataSnapshots、getDataSnapshot、getArtifact；未发布：getArtifactAttachment | P04、P05 | R02、R03、F05 | P0 | FEP-2/G2 | BFF-FE-003 | Partial |
+| GAP-04 | C04 | 已发布：listDataSnapshots、getDataSnapshot、getArtifact、getArtifactAttachment；未发布：无 | P04、P05 | R02、R03、F05 | P0 | FEP-2/G2 | BFF-FE-003 | Closed |
 | GAP-05 | C05 | 已发布：listStrategies、getStrategyDraft、saveStrategyDraft、runStaticCheck、createBacktest、getBacktest、listReleases、createRelease、getRelease、submitReleaseApproval、requestReleaseRollback；未发布：subscribeBacktestRun | P06、P07 | S01、S02、S03、S04 | P0 | FEP-3/G3 | BFF-FE-004 | Partial |
 | GAP-06 | C06 | 已发布：getPortfolio、getRiskView、engageKillSwitch、releaseKillSwitch、subscribePortfolio；未发布：无 | P02、P08 | X01、X02 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |
 | GAP-07 | C07 | 已发布：listProposals、getProposal、requestRiskEvaluation、subscribeProposal；未发布：无 | P09、P20 | R04、X02 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |

@@ -1,10 +1,11 @@
 import { spawnSync } from "node:child_process";
-import { validateRuns } from "./f04-measurements.mjs";
+import { validateRuns, validateFunctionalRuns } from "./f04-measurements.mjs";
 
+const functional=process.argv.includes("--functional");
 function corpusRun() {
   const result = spawnSync(
     "cargo",
-    ["run", "--quiet", "--locked", "-p", "quantos-testkit", "--bin", "fixture-corpus"],
+    ["run", "--quiet", "--locked", "-p", "quantos-testkit", "--bin", "fixture-corpus",...(functional?["--","--functional"]:[])],
     { encoding: "utf8" },
   );
   if (result.status !== 0) {
@@ -16,4 +17,4 @@ function corpusRun() {
 
 const first = corpusRun();
 const second = corpusRun();
-console.log(JSON.stringify(validateRuns(first, second)));
+console.log(JSON.stringify((functional?validateFunctionalRuns:validateRuns)(first, second)));

@@ -1,6 +1,11 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
-import {nodesFromPlans,planInput,closure,localPolicy,localChecks,localDeferred,policy,staticEnvironment} from './provider-a1-receipts.mjs';
+import {readFileSync,writeFileSync,mkdtempSync,cpSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {resolve} from 'node:path';
+import {nodesFromPlans,planInput,closure,digest,localPolicy,localChecks,localDeferred,policy,staticEnvironment} from './provider-a1-receipts.mjs';
+import {reassess} from './reassess-a3-prerequisites.mjs';
+import {validateFunctionalRuns,validateRuns} from './f04-measurements.mjs';
+import {normalizeDigest,verifyArtifact} from './research-local-products.mjs';
 import {schema,registrations,handoff,verify,publish} from './research-local-gate.mjs';
 function fixture(profile='R1_LOCAL'){
  const nodes=nodesFromPlans(),owner=registrations[profile].owner,entries=closure(nodes,owner).map((nodeId,i)=>({nodeId,manifest:'local/'+i+'.json',inputDigest:'sha256:'+String(i).padStart(64,'0')}));
@@ -23,3 +28,24 @@ test('publication is transactional if post-write validation fails',()=>{
 test('partial profile publication rejected before writing',()=>assert.throws(()=>publish({R1_LOCAL:'index.json'}),/all three/));
 
 test('release performance thresholds retained and development CI diagnostic only',()=>{const rust=readFileSync('crates/quantos-market/src/tests.rs','utf8'),perf=readFileSync('scripts/check-perf-budget.mjs','utf8'),workflow=readFileSync('.github/workflows/frontend-baseline.yml','utf8'),make=readFileSync('Makefile','utf8');assert(rust.includes('#[ignore = "release performance; run make r01-release-performance"]'));assert(rust.includes('p95 < 50_000_000'));assert(perf.includes('sharedFirstLoadJs: 250 * 1024, singleChunk: 200 * 1024, totalCss: 60 * 1024'));assert(workflow.includes('apps/terminal/out --diagnostic'));assert(workflow.includes('apps/website/out --diagnostic'));assert(make.includes('frontend-release-performance:'));assert(make.includes('pure_domain_p95_under_fifty_milliseconds -- --ignored --nocapture'));});
+
+for(const valid of [true,false])test('reassessment root and closure agree with consumer receipt '+valid,()=>{
+ const nodes=nodesFromPlans();for(const r of Object.values(registrations))nodes.get(r.owner).stage_gate.status='READY';
+ const r=reassess({nodes,checkLocalReceipt:profile=>{if(!valid)throw Error('functional proof missing');const f=fixture(profile);return {localPrerequisites:{nodes:f.local.nodes}};}});
+ assert.equal(r.roots.length,3);for(const x of r.roots){assert.equal(x.admission,valid?'LOCAL_READY':'NOT_READY');assert.equal(x.aggregateReceipt.valid,valid);for(const d of x.closure){assert.equal(d.consumerLocalReceipt?.status??null,valid?'LOCAL_READY':null);if(!Object.values(registrations).some(a=>a.owner===d.nodeId))assert.notEqual(d.stageGate.status,'READY');}}
+});
+test('functional F04 proves corpus equality while release retains timing rejection',()=>{
+ const a={digest:'sha256:'+'a'.repeat(64),fixtures:1000,p95Micros:1000000};assert.equal(validateFunctionalRuns(a,a).performanceAcceptance,'NOT_RUN');assert.throws(()=>validateRuns(a,a),/P95/);assert.throws(()=>validateFunctionalRuns(a,{...a,fixtures:999}),/1,000/);assert.throws(()=>validateFunctionalRuns(a,{...a,digest:'sha256:'+'b'.repeat(64)}),/digests/);
+});
+test('legacy digest normalization preserves checksum and rejects malformed data',()=>{const a='a'.repeat(64);assert.equal(normalizeDigest(a),'sha256:'+a);assert.equal(normalizeDigest('sha256:'+a),'sha256:'+a);assert.throws(()=>normalizeDigest('garbage'));});
+test('all local profiles defer performance commands',()=>{const p=policy();for(const profile of Object.keys(registrations)){assert(localPolicy(profile,p).releaseChecks.length>=2);for(const c of localDeferred(undefined,p,profile).filter(c=>p.checks[c.id].performance))assert.equal(c.status,'NOT_RUN');assert(closure(nodesFromPlans(),registrations[profile].owner).flatMap(id=>localChecks(id,p,profile)).every(id=>!p.checks[id].performance));}});
+
+for(const mutation of ['none','rehashed failed suite','rehashed incomplete product','changed log'])test('R04 artifact validates actual historical fixture: '+mutation,async()=>{
+ const dir=mkdtempSync(resolve(tmpdir(),'research-artifact-test-'));try{
+ cpSync('docs/audit/evidence/provider-a1-remediation-20261004/research-local-20261012/attempt-01/supporting/r04',dir,{recursive:true});const path=resolve(dir,'products.json'),r=JSON.parse(readFileSync(path));
+ if(mutation==='rehashed failed suite'){const c=r.checks.at(-1),bytes=readFileSync(resolve(dir,c.log.file),'utf8')+'\nℹ fail 1\n';writeFileSync(resolve(dir,c.log.file),bytes);c.log.sha256=digest(bytes);}
+ if(mutation==='changed log')writeFileSync(resolve(dir,r.checks[0].log.file),'PASS');
+ if(mutation==='rehashed incomplete product'){const f=r.files[0],file=resolve(dir,f.file),matrix=JSON.parse(readFileSync(file));matrix.proposals.pop();const bytes=JSON.stringify(matrix);writeFileSync(file,bytes);f.sha256=digest(bytes);}
+ writeFileSync(path,JSON.stringify(r));const run=()=>verifyArtifact('research-local-products',path,r.sourceCommit);if(mutation==='none')assert.equal((await run()).status,'PASS');else await assert.rejects(run);
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});

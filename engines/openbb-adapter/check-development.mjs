@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import orchestrationReceipt from '../../scripts/r04-orchestration-receipt.cjs';
 import {readFileSync,writeFileSync,mkdirSync,cpSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {execFileSync,spawnSync} from 'node:child_process';
@@ -7,13 +8,13 @@ import {validateDataQueryMatrix} from '../../scripts/tp05-data-query-schema.mjs'
 import {root,digest,inventory,nodesFromPlans,planInput,validateReceipt} from '../../scripts/provider-a1-receipts.mjs';
 export const directory='docs/audit/evidence/tp05-20261010';
 const receiptPath=directory+'/receipt.json';
-export const selectors=['engines/openbb-adapter/','engines/engine-sdk/','engines/tests/','engines/uv.lock','engines/pyproject.toml','crates/quantos-engine-manager/','crates/quantos-runtime/','proto/','third_party/tp05-openbb/','scripts/tp05-packaged-service.py','scripts/tp05-data-query-probe.py','scripts/tp05-data-query-schema.mjs','scripts/tp05-ui-cancel.mjs','packages/domain-ui/src/research.ts','packages/domain-ui/tests/tp05-research-cancel.test.ts','packages/api-client/src/terminal.ts','docs/adr/20260731-tp05-openbb-license-gate.md','Makefile','scripts/generate-build-manifest.mjs','scripts/tp05-release-gate.mjs','scripts/tp05-release-gate.test.mjs','scripts/tp05-functional-artifacts.test.mjs','scripts/provider-a1-receipts.mjs','scripts/provider-a1-policy.json'];
+export const selectors=['scripts/r04-orchestration-receipt.cjs','engines/openbb-adapter/','engines/engine-sdk/','engines/tests/','engines/uv.lock','engines/pyproject.toml','crates/quantos-engine-manager/','crates/quantos-runtime/','proto/','third_party/tp05-openbb/','scripts/tp05-packaged-service.py','scripts/tp05-data-query-probe.py','scripts/tp05-data-query-schema.mjs','scripts/tp05-ui-cancel.mjs','packages/domain-ui/src/research.ts','packages/domain-ui/tests/tp05-research-cancel.test.ts','packages/api-client/src/terminal.ts','docs/adr/20260731-tp05-openbb-license-gate.md','Makefile','scripts/generate-build-manifest.mjs','scripts/tp05-release-gate.mjs','scripts/tp05-release-gate.test.mjs','scripts/tp05-functional-artifacts.test.mjs','scripts/provider-a1-receipts.mjs','scripts/provider-a1-policy.json'];
 const formatFiles=['adapter','artifacts','fixtures','license_gate','manifest','providers','server','service','__init__'].map(f=>'engines/openbb-adapter/src/openbb_adapter/'+f+'.py').concat(['engines/tests/test_openbb_adapter_contract.py','engines/tests/test_openbb_adapter_development.py']);
 export const checks=[
  {id:'contract',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_openbb_adapter_contract.py','engines/tests/test_openbb_adapter_development.py','-vv'],marker:/259 passed/},
  {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/\b\d+ passed(?:, \d+ (?:skipped|deselected|warnings?))* in /},
  {id:'manager',command:['cargo','test','--locked','--offline','-p','quantos-engine-manager','--test','python_openbb_adapter'],marker:/2 passed; 0 failed/},
- {id:'runtime',command:['cargo','test','--locked','--offline','-p','quantos-runtime','--test','signal_proposal_orchestration','--','--nocapture'],marker:/3 passed; 0 failed/},
+ {id:'runtime',command:['cargo','test','--locked','--offline','-p','quantos-runtime','--test','signal_proposal_orchestration','--','--nocapture'],marker:/test result: ok\. \d+ passed; 0 failed/},
  {id:'license',command:['node','--test','scripts/tp05-release-gate.test.mjs'],marker:/tests\s+8/},
  {id:'schema',command:['node','scripts/tp05-data-query-schema.mjs'],marker:/TP05_DATA_QUERY_SCHEMA_PASS 100/},
  {id:'ui',command:['node','scripts/tp05-ui-cancel.mjs'],marker:/TP05_UI_CANCEL_BRIDGE_PASS/},
@@ -31,6 +32,7 @@ export function verifyTp05(r,{checkDependencies=true,logDirectory=resolve(root,d
  assert.deepEqual(r.inputs,inventory(selectors),'TP05 functional inputs changed');assert.deepEqual(r.planInput,planInput(nodesFromPlans().get(r.nodeId)));assert(/^[a-f0-9]{40}$/.test(r.observedSourceCommit));assert(r.environment.node&&r.environment.python&&r.environment.rust);
  assert.deepEqual(r.fixtures,['crypto_market_btc','equity_fundamentals_nvda','macro_research_rates']);assert.deepEqual(r.checks.map(c=>c.id),checks.map(c=>c.id));
  for(const [i,c]of r.checks.entries()){const spec=checks[i];assert.deepEqual(c.command,spec.command);assert.equal(c.exitCode,0);assert.equal(c.status,'PASS');assert(Number.isFinite(Date.parse(c.executedAt))&&Date.parse(c.executedAt)<=Date.now());assert.equal(c.log,directory+'/'+spec.id+'.log');const bytes=readFileSync(resolve(logDirectory,spec.id+'.log'));assert.equal(digest(bytes),c.logSha256,'TP05 log changed');assert.match(bytes.toString(),spec.marker);
+  if(c.id==='runtime')orchestrationReceipt.validateSignalProposalOutput(bytes.toString());
   if(c.id==='python'){const summary=bytes.toString().match(/\b(\d+) passed(?:, \d+ (?:skipped|deselected|warnings?))* in /);assert(summary&&Number(summary[1])>=1252,'full Python regression count below TP05 baseline');assert(!/\b\d+ (?:failed|errors?)\b/.test(bytes.toString()),'Python regression failures');}
   if(c.id==='contract')for(let i=0;i<100;i++)assert.match(bytes.toString(),new RegExp('test_hundred_replay_schema_provenance_and_artifact\\[case-'+String(i).padStart(3,'0')+'\\] PASSED'));
   if(c.id==='package'){assert.match(bytes.toString(),/TP05_INSTALLED_WHEEL/);assert.match(bytes.toString(),/TP05_PACKAGED_FIVE_RPC_PASS/);const records=bytes.toString().split('\n').filter(l=>l.startsWith('{"cancellation":'));assert.equal(records.length,1,'package result missing from actual execution log');assert.deepEqual(JSON.parse(records[0]),r.package);}

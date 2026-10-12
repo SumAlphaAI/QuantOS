@@ -44,7 +44,7 @@ export function loadBffFe001Inputs() {
     executionProof: readExecutionProof(root),
     summary: text("docs/execution/BFF-FE-001-summary.md"),
     activeEvidenceExists: existsSync(resolve(root, "docs/audit/BFF-FE-001-remediation-2026-10-03.md")),
-    activeEvidence: JSON.parse(text("docs/audit/evidence/bff-fe-001-remediation-20261003/baseline.json")),
+    activeEvidence: JSON.parse(text("docs/execution/BFF-FE-001-current-inventory.json")),
     openapi: YAML.parse(text("bff/openapi/quantos-bff.v1.yaml")),
     catalog: YAML.parse(text("bff/page-operation-catalog.yaml")),
     corePlan: text("docs/SumAlpha-QuantOS-Development-Plan.md"),

@@ -1646,6 +1646,33 @@
       "artifactKind": "r1-process-cleanup",
       "marker": "R1_PROCESS_CLEANUP PASS",
       "timeoutMs": 30000
+    },
+    "research-release-performance-smokes": {
+      "command": [
+        "make",
+        "research-release-performance-smokes"
+      ],
+      "performance": true,
+      "targetPhase": "RELEASE"
+    },
+    "frontend-release-performance": {
+      "command": [
+        "make",
+        "frontend-release-performance"
+      ],
+      "performance": true,
+      "targetPhase": "RELEASE"
+    },
+    "a2-local-positive": {
+      "command": [
+        "node",
+        "scripts/check-bff-fe-001.mjs"
+      ],
+      "marker": "local contract Gate PASS",
+      "staticOnly": true,
+      "artifact": "artifacts/bff-fe-001/semantics.json",
+      "artifactKind": "a2-local-semantics",
+      "timeoutMs": 900000
     }
   },
   "nodes": {
@@ -2355,9 +2382,12 @@
         "apps/terminal/src/settings/",
         "apps/terminal/tests/",
         "bff/",
-        "packages/api-client/"
+        "packages/api-client/",
+        "docs/execution/BFF-FE-001-current-inventory.json",
+        "docs/execution/BFF-FE-001-summary.md"
       ],
       "checks": [
+        "a2-local-positive",
         "a2-local-rust",
         "a2-local-web",
         "a2-local-negatives",
@@ -2547,7 +2577,11 @@
         "local-gate-policy"
       ]
     },
-    "releaseCheckpoint": "RELEASE-GATE:BETA"
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
   },
   "a2Local": {
     "owner": "PROVIDER:A2",
@@ -2578,7 +2612,11 @@
         "local-gate-policy"
       ]
     },
-    "releaseCheckpoint": "RELEASE-GATE:BETA"
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
   },
   "bff003Local": {
     "owner": "FE:BFF-FE-003",
@@ -2609,6 +2647,10 @@
         "local-gate-policy"
       ]
     },
-    "releaseCheckpoint": "RELEASE-GATE:BETA"
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
   }
 }

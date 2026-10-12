@@ -5,7 +5,11 @@
 > 历史仓库 Gate：**PASS（本地参考 provider）**
 > 历史目标环境：**NOT RUN / NO RECEIPT**
 
-## 当前整改（2026-10-05）
+## 当前功能范围（2026-10-12）
+
+API 1.6.0：63 operations / 54 schemas；C01/C17 共20项。当前台账为 [current inventory](./BFF-FE-001-current-inventory.json)，本地功能准入按 [A2_LOCAL规程](../operations/research-local-admission.md) 的同候选实际回归和26项HTTP记录校验；上游独立Gate与真实Supabase/staging及正式确认分账。原 [2026-10-03整改](../audit/BFF-FE-001-remediation-2026-10-03.md) 与其baseline原件保持历史范围，不转移为当前回执。
+
+## 历史整改（2026-10-05）
 
 本轮高危 2 项、中危 4 项全部 CLOSED；24/24 控制点、20/20 API 满足当前 DEVELOPMENT 范围，严格阶段门禁 READY，formalAccepted=false。逐项复验与阶段状态见 [整改报告](../audit/BFF-FE-001-remediation-2026-10-05.md)。客户端默认 30 秒 deadline，可传调用方 AbortSignal；不自动重试写操作，未知结果须沿用原 idempotency key、版本和草稿。`lastVerifiedAt` 表示最近可信主认证或 MFA 成功时间，不由 session expiry 倒推。`check:bff-fe-001:development` 与 local_contract、RELEASE 分账。
 
