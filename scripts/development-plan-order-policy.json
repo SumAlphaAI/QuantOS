@@ -1224,7 +1224,9 @@
       "deployment",
       "same-sha-ci",
       "release-authorization",
-      "r03-supabase-target-acceptance"
+      "r03-supabase-target-acceptance",
+      "supabase-target-acceptance",
+      "external-environment-acceptance"
     ],
     "release_checkpoints": [
       "RELEASE-GATE:BETA",
@@ -1240,6 +1242,47 @@
           "CORE:F08",
           "CORE:R02",
           "CORE:TP02",
+          "CORE-GATE:F0"
+        ],
+        "release_checkpoint": "RELEASE-GATE:BETA"
+      },
+      "CORE-GATE:F0": {
+        "profile": "R04_LOCAL",
+        "schema": "quantos-local-development/v1",
+        "manifest": "audit/evidence/local-development-20261012/core-gate-f0.json",
+        "prerequisites": [
+          "CORE:F01",
+          "CORE:F02",
+          "CORE:F03",
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08",
+          "CORE:F09",
+          "CORE:TP01-A",
+          "CORE:TP01-B"
+        ],
+        "release_checkpoint": "RELEASE-GATE:BETA"
+      },
+      "CORE:TP03": {
+        "profile": "R04_LOCAL",
+        "schema": "quantos-local-development/v1",
+        "manifest": "audit/evidence/local-development-20261012/core-tp03.json",
+        "prerequisites": [
+          "CORE:F08",
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "release_checkpoint": "RELEASE-GATE:BETA"
+      },
+      "CORE:TP04": {
+        "profile": "R04_LOCAL",
+        "schema": "quantos-local-development/v1",
+        "manifest": "audit/evidence/local-development-20261012/core-tp04.json",
+        "prerequisites": [
+          "CORE:F08",
+          "CORE:TP03",
           "CORE-GATE:F0"
         ],
         "release_checkpoint": "RELEASE-GATE:BETA"

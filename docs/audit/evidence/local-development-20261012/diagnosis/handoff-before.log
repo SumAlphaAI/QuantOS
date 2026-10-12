@@ -1,0 +1,60 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: all tasks after R04 must have exactly one handoff row
++ actual - expected
+
++ []
+- [
+-   'CORE:TP01-E',
+-   'CORE:TP01-F',
+-   'CORE:TP01-G',
+-   'CORE:S01',
+-   'CORE:TP06',
+-   'CORE:S02',
+-   'CORE:S03',
+-   'CORE:X01',
+-   'CORE:X02',
+-   'CORE:X03',
+-   'CORE:TP07',
+-   'CORE:TP12',
+-   'CORE:X04',
+-   'CORE:X05',
+-   'CORE:U01',
+-   'CORE:TP01',
+-   'CORE:S04',
+-   'CORE:X06',
+-   'CORE:L01',
+-   'CORE:L02',
+-   'CORE:L03',
+-   'CORE:L04'
+- ]
+
+    at validateHandoffs (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-gate-handoff.mjs:9:9)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/[eval1]:1:116
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:268:26)
+    at async ModuleLoader.executeModuleJob (node:internal/modules/esm/loader:265:20)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [],
+  expected: [
+    'CORE:TP01-E', 'CORE:TP01-F',
+    'CORE:TP01-G', 'CORE:S01',
+    'CORE:TP06',   'CORE:S02',
+    'CORE:S03',    'CORE:X01',
+    'CORE:X02',    'CORE:X03',
+    'CORE:TP07',   'CORE:TP12',
+    'CORE:X04',    'CORE:X05',
+    'CORE:U01',    'CORE:TP01',
+    'CORE:S04',    'CORE:X06',
+    'CORE:L01',    'CORE:L02',
+    'CORE:L03',    'CORE:L04'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.12.0

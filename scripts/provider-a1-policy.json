@@ -1260,6 +1260,16 @@
       "staticOnly": true,
       "marker": "test result: ok",
       "timeoutMs": 900000
+    },
+    "local-gate-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/local-development-gate.test.mjs",
+        "scripts/development-gate-handoff.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
     }
   },
   "nodes": {
@@ -1936,6 +1946,26 @@
       "CORE:F07": [
         "r03-f07-runtime",
         "r03-f07-gateway"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA"
+  },
+  "r04Local": {
+    "owner": "CORE:R04",
+    "profile": "R04_LOCAL",
+    "roots": [
+      "CORE:R02",
+      "CORE:TP02",
+      "CORE:TP03",
+      "CORE:TP04"
+    ],
+    "nodeChecks": {
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
       ]
     },
     "releaseCheckpoint": "RELEASE-GATE:BETA"

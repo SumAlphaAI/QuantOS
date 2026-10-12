@@ -1,0 +1,315 @@
+{
+  "schema": "quantos-development-handoffs/v1",
+  "after": "CORE:R04",
+  "earlyRequired": [
+    "contracts",
+    "data-integrity",
+    "authorization",
+    "idempotency-recovery",
+    "deadline-semantics"
+  ],
+  "tasks": [
+    {
+      "nodeId": "CORE:TP01-E",
+      "development": "本地开发验证API/许可证/CVE/patch 冲突分级、同步阻断和确定性故障注入；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:TP01-F",
+      "development": "本地开发验证flag、影子任务、告警阈值、签名拒绝、禁用/回滚与在途请求收尾；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:TP01-G",
+      "development": "本地开发验证内部类型隔离、模块替换与业务协议不变；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：不依赖 fork 内部类型；任一模块可替换且业务协议不变；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:S01",
+      "development": "本地开发验证50组并发编辑无静默覆盖、授权/快照/Artifact约束和保存正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:TP06",
+      "development": "本地开发验证100个恶意提示拒绝、Artifact唯一输出、静态失败阻断Release及可替换性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:S02",
+      "development": "本地开发验证10次确定性回放、100个未来数据泄漏拒绝、成本/环境/输入hash；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:S03",
+      "development": "本地开发验证未验证/审批拒绝、Paper/Shadow目标约束、重复内容hash与冲突；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：未验证/未审批 Release 的部署请求 100% 被拒；目标枚举不含 Assisted Live（M5 前）；同一内容重复发布返回同一 hash 或确定性冲突；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:X01",
+      "development": "本地开发验证1万订单/成交黄金回放、Position/P&L一致和重建正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:X02",
+      "development": "本地开发验证三类各50规则fixture、95%分支覆盖、kill switch立即拒绝及命中规则证据；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:X03",
+      "development": "本地开发验证七类拒绝、1000并发单命令、审计生成与幂等语义；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:TP07",
+      "development": "本地开发验证内核隔离、边界精度/限额/过期/kill switch、幂等下游提交和事件映射；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:TP12",
+      "development": "本地开发验证ADR、威胁模型、至少5条禁止耦合规则与无运行时依赖；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:X04",
+      "development": "本地开发验证10万订单事件合法状态转换、重复submit单次调用、cancel审计及Fill溯源；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：10万条订单事件 state transition 100% 合法；重复 submit 仅一次下游调用；cancel 延迟/拒绝可审计；所有 Fill 可追溯 Command；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:X05",
+      "development": "本地开发验证受控时间下20类差异定位、对账/告警机制及禁止venue submit；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:U01",
+      "development": "本地开发验证Research创建/流式/取消/证据交互、noindex、小屏高风险动作隐藏；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:TP01",
+      "development": "本地开发验证20个workflow回放、网络/secret拒绝、Artifact契约、同步阻断及脱钩启动；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:S04",
+      "development": "本地开发验证20个策略UI fixture、拒绝/过期/并发审批状态和可访问性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:X06",
+      "development": "本地开发验证订单证据链可定位、审批/kill switch功能E2E及禁止直连venue；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web 回归通过；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:L01",
+      "development": "本地开发验证200个自有协议fixture、精度/限流/网络认证错误分类及生产端点秘密拒绝；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:L02",
+      "development": "本地开发验证秘密隔离、双向身份与证书拒绝、过期/越权/egress拒绝、轮换撤销恢复机制；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:L03",
+      "development": "本地开发验证默认关闭、MFA/职责分离/额度/过期拒绝和50次审批审计fixture；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：M5 flag 关闭时 UI/API 100% 不可达；开启 testnet flag 后 50 次双人审批均写签名审计；自批/额度超限/过期 100% 拒绝；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "CORE:L04",
+      "development": "本地开发验证去重、审计输出、四类受控恢复/故障/kill switch机制与证据包生成；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。",
+      "testing": "INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。",
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS",
+      "release": "实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0；未执行保持NOT_RUN。",
+      "externalDevelopmentGate": false,
+      "performanceDevelopmentGate": false,
+      "targetStatus": "NOT_RUN"
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpointId": "CORE-GATE:R1-SERVICE",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "SERVICE:TP01",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "SERVICE:S04",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "EVALUATION:TP07",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "EVALUATION:TP12",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "CORE-GATE:S2-SERVICE",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "SERVICE:X06",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "CORE-GATE:X3-SERVICE",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "CORE-GATE:R1",
+      "stage": "INTEGRATION",
+      "handoff": "阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "CORE-GATE:S2",
+      "stage": "INTEGRATION",
+      "handoff": "阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "CORE-GATE:X3",
+      "stage": "INTEGRATION",
+      "handoff": "阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "SERVICE:L03",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "SERVICE:L04",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "CORE-GATE:L4-SERVICE",
+      "stage": "DEVELOPMENT",
+      "handoff": "阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "CORE-GATE:L4",
+      "stage": "INTEGRATION",
+      "handoff": "阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。"
+    },
+    {
+      "checkpointId": "RELEASE-GATE:LIVE-READINESS",
+      "stage": "RELEASE",
+      "handoff": "阶段移交：本Gate必须补齐责任任务原外部目标环境与全部性能/持续/部署回执；无候选同SHA目标证据不得READY。"
+    }
+  ]
+}

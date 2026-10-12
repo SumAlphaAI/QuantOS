@@ -80,7 +80,7 @@ export function developmentEnvironment(template,overrides={},base=process.env) {
  return {...privateEnv,...vars,...overrides,QUANTOS_CLIENT_PROFILE:'mock',QUANTOS_RUN_F09_POSTGRES_TESTS:'0'};
 }
 export function staticEnvironment(base) {
- const env={...base,QUANTOS_SKIP_ENV:'1'};for(const key of Object.keys(env))if(/DATABASE_URL|SUPABASE|QUANTOS_RUN_.*TESTS/.test(key))delete env[key];return env;
+ const env={...base,QUANTOS_SKIP_ENV:'1'};for(const key of Object.keys(env))if(/DATABASE_URL|SUPABASE|PASSWORD|TOKEN|SECRET|(?:^|_)KEY$|QUANTOS_RUN_.*TESTS/.test(key))delete env[key];return env;
 }
 export function policy(base=root){return JSON.parse(readFileSync(resolve(base,'scripts/provider-a1-policy.json'),'utf8'));}
 export function validateReproducibility(r,source) {
@@ -136,38 +136,45 @@ export function supportingArtifactPaths(kind,r) {
  if(kind==='f07-coverage')return ['coverage.json'];
  return [];
 }
-// R03 consumes local projections without publishing upstream database readiness.
-export function localChecks(id,p=policy()) {
- assert.equal(p.r03Local.owner,'CORE:R03');assert.equal(p.r03Local.profile,'R03_LOCAL');
- return [...p.nodes[id].checks.filter(c=>!p.checks[c].database&&!p.checks[c].target),...(p.r03Local.nodeChecks[id]??[])];
+// Explicit local profiles never publish upstream database readiness.
+export function localPolicy(profile='R03_LOCAL',p=policy()) {
+ assert(['R03_LOCAL','R04_LOCAL'].includes(profile),'unsupported local profile');
+ const spec=profile==='R03_LOCAL'?p.r03Local:p.r04Local;
+ assert.equal(spec.profile,profile);assert.equal(spec.owner,profile==='R03_LOCAL'?'CORE:R03':'CORE:R04');
+ return spec;
 }
-export function localDeferred(nodes=nodesFromPlans(),p=policy()) {
- const selected=[...new Set(p.r03Local.roots.flatMap(id=>closure(nodes,id)))];
+export const localScope=profile=>profile==='R03_LOCAL'?'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA':'R04 local functional prerequisites; Supabase target acceptance deferred to RELEASE-GATE:BETA';
+export function localChecks(id,p=policy(),profile='R03_LOCAL') {
+ const spec=localPolicy(profile,p);
+ return [...p.nodes[id].checks.filter(c=>!p.checks[c].database&&!p.checks[c].target),...(spec.nodeChecks[id]??[])];
+}
+export function localDeferred(nodes=nodesFromPlans(),p=policy(),profile='R03_LOCAL') {
+ const selected=[...new Set(localPolicy(profile,p).roots.flatMap(id=>closure(nodes,id)))];
  return [...new Set(selected.flatMap(id=>p.nodes[id].checks))].filter(c=>p.checks[c].database||p.checks[c].target).map(id=>({id,command:p.checks[id].command,status:'NOT_RUN',checkpoint:'RELEASE-GATE:BETA'}));
 }
-export function validateLocalPrerequisites(path,{nodes=nodesFromPlans(),base=root}={}) {
+export function validateLocalPrerequisites(path,{nodes=nodesFromPlans(),base=root,profile='R03_LOCAL'}={}) {
  const p=policy(base),bytes=readFileSync(confined(path,base)),index=JSON.parse(bytes);
- assert.equal(index.schema,'quantos-r03-local-prerequisites/v1');assert.equal(index.owner,'CORE:R03');assert.equal(index.profile,'R03_LOCAL');assert.equal(index.status,'PASS');assert.equal(index.formalAccepted,false);
- assert.equal(index.databaseExecution,false);assert.deepEqual(index.deferred,localDeferred(nodes,p));
- const selected=[...new Set(p.r03Local.roots.flatMap(id=>closure(nodes,id)))];assert.deepEqual(index.nodes.map(n=>n.nodeId),selected);
+ const spec=localPolicy(profile,p);assert.equal(index.schema,profile==='R03_LOCAL'?'quantos-r03-local-prerequisites/v1':'quantos-r04-local-prerequisites/v1');assert.equal(index.owner,spec.owner);assert.equal(index.profile,profile);assert.equal(index.status,'PASS');assert.equal(index.formalAccepted,false);
+ assert.equal(index.databaseExecution,false);assert.deepEqual(index.deferred,localDeferred(nodes,p,profile));
+ const selected=[...new Set(spec.roots.flatMap(id=>closure(nodes,id)))];assert.deepEqual(index.nodes.map(n=>n.nodeId),selected);
  const projected=new Map([...nodes].map(([id,n])=>[id,{...n}]));
  for(const n of index.nodes){assert(n.manifest.startsWith(dirname(path)+'/'));const raw=readFileSync(confined(n.manifest,base));assert.equal(JSON.parse(raw).observedSourceCommit,index.observedSourceCommit,'local execution SHA differs');assert.equal(digest(raw),n.inputDigest,'local prerequisite manifest changed');projected.get(n.nodeId).stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:n.inputDigest,evidence:[n.manifest.slice(5)]};}
- for(const id of selected)validateReceipt(id,{nodes:projected,base,profile:'R03_LOCAL'});
- return {status:'LOCAL_READY',owner:'CORE:R03',profile:'R03_LOCAL',manifest:path,inputDigest:digest(bytes),observedSourceCommit:index.observedSourceCommit,nodes:index.nodes};
+ for(const id of selected)validateReceipt(id,{nodes:projected,base,profile});
+ return {status:'LOCAL_READY',owner:spec.owner,profile,manifest:path,inputDigest:digest(bytes),observedSourceCommit:index.observedSourceCommit,nodes:index.nodes};
 }
 export function validateReceipt(id,{nodes=nodesFromPlans(),base=root,record,visited=new Set(),requireReady=true,profile}={}) {
  if(visited.has(id))return;visited.add(id);
- assert(profile===undefined||profile==='R03_LOCAL','unsupported functional profile');
+ if(profile)localPolicy(profile,policy(base));
  const n=nodes.get(id);assert(n,`unknown receipt node ${id}`);const p=policy(base);const spec=p.nodes[id];assert(spec,`node outside A1 functional policy ${id}`);
  if(requireReady)assert.equal(n.stage_gate.status,'READY',`${id}: dependency is not READY`);
  const gate=record??n.stage_gate;assert.equal(gate.stage,'DEVELOPMENT');assert.equal(gate.evidence.length,1,'one functional manifest required');
  const path='docs/'+gate.evidence[0];assert(path.startsWith(directory+'/'),`${id}: functional manifest must be under approved evidence directory`);
  const bytes=readFileSync(confined(path,base));assert.equal(digest(bytes),gate.input_digest,`${id}: manifest digest mismatch`);
- const m=JSON.parse(bytes);assert.equal(m.schema,profile?'quantos-stage-local-manifest/v1':'quantos-stage-functional-manifest/v1');if(profile){assert.equal(m.owner,'CORE:R03');assert.equal(m.profile,profile);assert.equal(m.databaseExecution,false);}assert.equal(m.nodeId,id);assert.equal(m.stage,'DEVELOPMENT');assert.equal(m.status,'PASS');assert.equal(m.scope,profile?'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA':spec.scope);assert.equal(m.formalAccepted,false);
+ const m=JSON.parse(bytes);assert.equal(m.schema,profile?'quantos-stage-local-manifest/v1':'quantos-stage-functional-manifest/v1');if(profile){assert.equal(m.owner,localPolicy(profile,p).owner);assert.equal(m.profile,profile);assert.equal(m.databaseExecution,false);}assert.equal(m.nodeId,id);assert.equal(m.stage,'DEVELOPMENT');assert.equal(m.status,'PASS');assert.equal(m.scope,profile?localScope(profile):spec.scope);assert.equal(m.formalAccepted,false);
  assert.deepEqual(m.residuals,[],'unresolved functional findings');assert.deepEqual(m.excluded,p.excluded);assert.deepEqual(m.planInput,planInput(n),'changed functional plan inputs');
  assert.deepEqual(m.inputs,inventory([...p.commonInputs,...spec.inputs],base),'source/contract/config/test inventory or content changed');
  assert(m.environment?.node&&m.environment?.pnpm&&m.environment?.rust&&m.environment?.platform,'execution environment missing');assert(/^[0-9a-f]{40}$/.test(m.observedSourceCommit),'execution source commit missing');
- assert.deepEqual(m.checks.map(c=>c.id).sort(),[...(profile?localChecks(id,p):spec.checks)].sort(),'required functional checks missing or extra');
+ assert.deepEqual(m.checks.map(c=>c.id).sort(),[...(profile?localChecks(id,p,profile):spec.checks)].sort(),'required functional checks missing or extra');
  for(const c of m.checks){const check=p.checks[c.id];assert.deepEqual(c.command,check.command,'actual command differs from policy');assert.equal(c.exitCode,0,'failed or unexecuted check');assert.equal(c.status,'PASS');assert(Number.isFinite(Date.parse(c.executedAt))&&Date.parse(c.executedAt)<=Date.now(),'actual execution time missing');
   assert(c.log.startsWith(dirname(path)+'/logs/'),'log outside evidence directory');const log=readFileSync(confined(c.log,base));assert.equal(digest(log),c.logSha256,'log content changed');assert(log.length>0,'empty execution log');if(check.marker)assert(new RegExp(check.marker).test(log.toString()),`required execution marker missing ${c.id}`);
   if(check.database)assert.equal(c.target,'configured-supabase','actual database execution missing');
@@ -178,7 +185,7 @@ export function validateReceipt(id,{nodes=nodesFromPlans(),base=root,record,visi
  }
  assert.deepEqual(m.dependencies.map(d=>d.nodeId).sort(),[...n.dependencies].sort(),'dependency receipt inventory mismatch');
  for(const d of m.dependencies){const dep=nodes.get(d.nodeId);assert(dep&&dep.stage_gate.status==='READY',`unready dependency ${d.nodeId}`);assert.equal(d.inputDigest,dep.stage_gate.input_digest,'dependency receipt changed');assert.equal(d.manifest,'docs/'+dep.stage_gate.evidence[0]);validateReceipt(d.nodeId,{nodes,base,visited,profile});}
- return {status:profile?'LOCAL_READY':'READY',nodeId:id,inputDigest:gate.input_digest,formalAccepted:false,...(profile?{owner:'CORE:R03',profile}:{} )};
+ return {status:profile?'LOCAL_READY':'READY',nodeId:id,inputDigest:gate.input_digest,formalAccepted:false,...(profile?{owner:localPolicy(profile,p).owner,profile}:{} )};
 }
 export function publishStages(text,nodes,namespace) {
  return text.replace(/^- stage_gate: (\{.*\})$/gm,(block,raw,offset)=>{const task=[...text.slice(0,offset).matchAll(/^- task_id: `([^`]+)`/gm)].at(-1)?.[1];return nodes.has(namespace+task)?'- stage_gate: '+JSON.stringify(nodes.get(namespace+task).stage_gate):block;}).replace(/```json\n([\s\S]*?)\n```/g,(block,raw)=>{const data=JSON.parse(raw);if(!nodes.has(data.checkpoint_id))return block;data.stage_gate=nodes.get(data.checkpoint_id).stage_gate;return '```json\n'+JSON.stringify(data,null,2)+'\n```';});
@@ -199,12 +206,12 @@ export function runDatabaseAttempts(execute,maxAttempts=3) {
 export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1'],{profile}={}) {
  const approvedDirectory='docs/audit/evidence/provider-a1-remediation-20261004';
  assert(outputDirectory===approvedDirectory || (outputDirectory.startsWith(approvedDirectory+'/') && /^[a-z0-9/-]+$/.test(outputDirectory) && !outputDirectory.includes('..')), 'unsafe assessment evidence directory');
- assert(profile===undefined||profile==='R03_LOCAL','unsupported assessment profile');if(profile)assert.deepEqual(rootIds,policy().r03Local.roots,'local projection is scoped to R03 prerequisites');
+ if(profile)assert.deepEqual(rootIds,localPolicy(profile).roots,'local projection roots differ from authorized profile');
  const directory=outputDirectory;
  assert.equal(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim(),'','commit source before recording functional execution');
  const texts=planPaths.map(p=>readFileSync(resolve(root,p),'utf8'));const nodes=nodesFromPlans(texts);const selected=[...new Set(rootIds.flatMap(id=>closure(nodes,id)))];const p=policy();const initialInputs=captureInputs(nodes,selected,p);const out=resolve(root,directory);assert(!existsSync(resolve(out,'execution-results.json')),'assessment evidence already exists; select a fresh directory');mkdirSync(resolve(out,'logs'),{recursive:true});
  const source=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();const environment={node:process.version,pnpm:execFileSync('pnpm',['--version'],{encoding:'utf8'}).trim(),rust:execFileSync('rustc',['--version'],{encoding:'utf8'}).trim(),platform:process.platform,clientProfile:'local-mock'};
- const priority=id=>p.checks[id].reproducibility?3:(p.checks[id].target||p.checks[id].cleanSource)?2:0;const all=[...new Set(selected.flatMap(id=>profile?localChecks(id,p):p.nodes[id].checks))].sort((a,b)=>priority(b)-priority(a));const results=new Map();const deferred=[];
+ const priority=id=>p.checks[id].reproducibility?3:(p.checks[id].target||p.checks[id].cleanSource)?2:0;const all=[...new Set(selected.flatMap(id=>profile?localChecks(id,p,profile):p.nodes[id].checks))].sort((a,b)=>priority(b)-priority(a));const results=new Map();const deferred=[];
  const engineBaselineDir=all.some(id=>p.checks[id].artifactKind==='r1-process-cleanup')?mkdtempSync(resolve(tmpdir(),'quantos-r1-engine-scope-')):null;
  const engineBaseline=engineBaselineDir?resolve(engineBaselineDir,'baseline.json'):null;
  const engineScope=engineBaseline?randomBytes(4).toString('hex'):null;
@@ -237,8 +244,8 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1'],{profil
  assert([...results.values()].every(r=>r.exitCode===0),'functional execution failed; no READY records published');
  const currentNodes=nodesFromPlans();assertInputSnapshot(initialInputs,captureInputs(currentNodes,selected,policy()));
  assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),source,'source commit changed during execution');
- for(const id of selected){const n=nodes.get(id);const spec=p.nodes[id];const m={schema:profile?'quantos-stage-local-manifest/v1':'quantos-stage-functional-manifest/v1',...(profile?{owner:'CORE:R03',profile,databaseExecution:false}:{}),nodeId:id,stage:'DEVELOPMENT',status:'PASS',scope:profile?'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA':spec.scope,formalAccepted:false,observedSourceCommit:source,environment,planInput:initialInputs.get(id).planInput,inputs:initialInputs.get(id).inputs,checks:(profile?localChecks(id,p):spec.checks).map(c=>results.get(c)),dependencies:n.dependencies.map(dep=>({nodeId:dep,inputDigest:nodes.get(dep).stage_gate.input_digest,manifest:'docs/'+nodes.get(dep).stage_gate.evidence[0]})),excluded:p.excluded,residuals:[]};const path=directory+'/'+id.toLowerCase().replaceAll(':','-')+'.json';const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,path),bytes);n.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(bytes),evidence:[path.slice(5)]};validateReceipt(id,{nodes,profile});}
- if(profile){const index={schema:'quantos-r03-local-prerequisites/v1',owner:'CORE:R03',profile,status:'PASS',formalAccepted:false,databaseExecution:false,observedSourceCommit:source,nodes:selected.map(nodeId=>({nodeId,manifest:'docs/'+nodes.get(nodeId).stage_gate.evidence[0],inputDigest:nodes.get(nodeId).stage_gate.input_digest})),deferred:localDeferred(currentNodes,p)};const path=directory+'/local-prerequisites.json';writeFileSync(resolve(root,path),JSON.stringify(index,null,2)+'\n');console.log(JSON.stringify(validateLocalPrerequisites(path)));return;}
+ for(const id of selected){const n=nodes.get(id);const spec=p.nodes[id];const m={schema:profile?'quantos-stage-local-manifest/v1':'quantos-stage-functional-manifest/v1',...(profile?{owner:localPolicy(profile,p).owner,profile,databaseExecution:false}:{}),nodeId:id,stage:'DEVELOPMENT',status:'PASS',scope:profile?localScope(profile):spec.scope,formalAccepted:false,observedSourceCommit:source,environment,planInput:initialInputs.get(id).planInput,inputs:initialInputs.get(id).inputs,checks:(profile?localChecks(id,p,profile):spec.checks).map(c=>results.get(c)),dependencies:n.dependencies.map(dep=>({nodeId:dep,inputDigest:nodes.get(dep).stage_gate.input_digest,manifest:'docs/'+nodes.get(dep).stage_gate.evidence[0]})),excluded:p.excluded,residuals:[]};const path=directory+'/'+id.toLowerCase().replaceAll(':','-')+'.json';const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,path),bytes);n.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(bytes),evidence:[path.slice(5)]};validateReceipt(id,{nodes,profile});}
+ if(profile){const index={schema:profile==='R03_LOCAL'?'quantos-r03-local-prerequisites/v1':'quantos-r04-local-prerequisites/v1',owner:localPolicy(profile,p).owner,profile,status:'PASS',formalAccepted:false,databaseExecution:false,observedSourceCommit:source,nodes:selected.map(nodeId=>({nodeId,manifest:'docs/'+nodes.get(nodeId).stage_gate.evidence[0],inputDigest:nodes.get(nodeId).stage_gate.input_digest})),deferred:localDeferred(currentNodes,p,profile)};const path=directory+'/local-prerequisites.json';writeFileSync(resolve(root,path),JSON.stringify(index,null,2)+'\n');console.log(JSON.stringify(validateLocalPrerequisites(path,{profile})));return;}
  const admitted=new Map(selected.map(id=>[id,nodes.get(id)]));const updated=[publishStages(texts[0],admitted,'CORE:'),publishStages(texts[1],admitted,'FE:')];validatePlans(...updated);for(let i=0;i<2;i++)writeFileSync(resolve(root,planPaths[i]),updated[i]);
  for(const id of rootIds)console.log(JSON.stringify(validateReceipt(id,{nodes}),null,2));
 }

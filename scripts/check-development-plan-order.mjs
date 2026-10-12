@@ -76,7 +76,7 @@ function parseCheckpoints(text, document, root) {
   });
 }
 
-// Only R03 may consume explicit local dependency receipts. This shape check
+// Only explicitly registered nodes may consume local dependency receipts. This shape check
 // never grants readiness to the upstream Supabase gates or validates execution.
 function usesLocalDependencies(node,root) {
  const scope=policy.stageContract.local_dependency_receipts?.[node.id];

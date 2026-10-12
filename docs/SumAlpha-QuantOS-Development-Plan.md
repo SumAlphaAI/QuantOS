@@ -1,4 +1,6 @@
-> 当前复评（F06/F07/F09目标诊断，2026-10-12）：冻结e4c45a7c完成14节点/56组实际复验，46 PASS、10 FAIL（本地45/45、目标1/11）。F09收尾/超时缺陷已修复，F06/F07/F09只读前置明确拒绝；平台Auth服务与真实调度写入仍未恢复验收。严格F0/TP03/TP04为BLOCKED；全图0 READY、156 NOT_ASSESSED、3 BLOCKED，formalAccepted=false。见[本轮报告](./audit/F0-target-failures-remediation-2026-10-12.md)。
+> 当前工作：TP03/TP04/F0采用独立R04_LOCAL本地开发Gate；Supabase目标移交最终发布。R04之后22任务逐卡登记测试/发布验收；冻结复验结果见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)。
+
+> 历史严格复评（F06/F07/F09目标诊断，2026-10-12）：冻结e4c45a7c完成14节点/56组实际复验，46 PASS、10 FAIL（本地45/45、目标1/11）。F09收尾/超时缺陷已修复，F06/F07/F09只读前置明确拒绝；平台Auth服务与真实调度写入仍未恢复验收。严格F0/TP03/TP04为BLOCKED；全图0 READY、156 NOT_ASSESSED、3 BLOCKED，formalAccepted=false。见[本轮报告](./audit/F0-target-failures-remediation-2026-10-12.md)。
 
 > 历史预检（R04，2026-10-12）：冻结2c6e1fb4完成接口/fixture预检；Python 1366项、Runtime 100条Proposal/过期拒绝/重放/订单工具拒绝、两组100条schema及49项回执负向PASS。TP03/TP04/F0当前仍NOT_ASSESSED，旧回执存在内容漂移；TP04完整套件计数校验待修复。R03_LOCAL继续READY，本轮未授予R04 Gate。见[预检报告](./audit/R04-interface-fixture-preflight-2026-10-12.md)。
 
@@ -41,7 +43,7 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.71
+> 版本：3.72
 > 更新时间：2026-10-12
 > 状态：技术执行基线  
 > 本轮变更：F06/F07目标Auth错误诊断、数据库写入预检和F09有界收尾修复；从新冻结源码复验必要前置。
@@ -49,6 +51,8 @@
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.72`：实现TP03/TP04/F0独立本地开发Gate与R04实施准入，后续22任务外部环境/性能移交测试和发布；保留原严格失败证据。
 
 - `3.71`：定位Supabase Auth数据库500和只读状态，新增写入前置拒绝、错误白名单及F09有界收尾回归；冻结新源码完整复验TP03/TP04/F0。见[本轮报告](./audit/F0-target-failures-remediation-2026-10-12.md)。
 
@@ -334,7 +338,9 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
     "deployment",
     "same-sha-ci",
     "release-authorization",
-    "r03-supabase-target-acceptance"
+    "r03-supabase-target-acceptance",
+    "supabase-target-acceptance",
+    "external-environment-acceptance"
   ],
   "release_checkpoints": [
     "RELEASE-GATE:BETA",
@@ -350,6 +356,47 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE:F08",
         "CORE:R02",
         "CORE:TP02",
+        "CORE-GATE:F0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE-GATE:F0": {
+      "profile": "R04_LOCAL",
+      "schema": "quantos-local-development/v1",
+      "manifest": "audit/evidence/local-development-20261012/core-gate-f0.json",
+      "prerequisites": [
+        "CORE:F01",
+        "CORE:F02",
+        "CORE:F03",
+        "CORE:F04",
+        "CORE:F05",
+        "CORE:F06",
+        "CORE:F07",
+        "CORE:F08",
+        "CORE:F09",
+        "CORE:TP01-A",
+        "CORE:TP01-B"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP03": {
+      "profile": "R04_LOCAL",
+      "schema": "quantos-local-development/v1",
+      "manifest": "audit/evidence/local-development-20261012/core-tp03.json",
+      "prerequisites": [
+        "CORE:F08",
+        "CORE:F05",
+        "CORE-GATE:F0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP04": {
+      "profile": "R04_LOCAL",
+      "schema": "quantos-local-development/v1",
+      "manifest": "audit/evidence/local-development-20261012/core-tp04.json",
+      "prerequisites": [
+        "CORE:F08",
+        "CORE:TP03",
         "CORE-GATE:F0"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -372,7 +419,7 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
 | R01/R02 | 10 万 replay、原子游标/去重、来源/许可证与质量拒绝、断线补偿、受控异常提交 ≤5s；消费侧必须诚实展示并拒绝不合格实时数据 | `RELEASE-GATE:BETA`：实际 source-age/readiness、自然告警与采样完整性、授权的持续窗口/部署验证。processing、source-age、异常提交时限分别验收，写入持续或 pending=0 不代表新鲜度通过 |
 | TP01-F/TP01 | flag、阈值告警、回滚/禁用的受控功能测试，in-flight 请求有确定性结果；Research 消费联调 | `RELEASE-GATE:BETA`：连续 7 天 canary 无未解释 P1、目标回滚 ≤5 分钟及对应制品回执；依赖许可证在引入时就必须获准 |
 | X05/X06 | 固定输入 Paper/Shadow 与 20 类差异注入可定位、无 venue submit、证据链完整、命令重复=0；UI 拒绝/审计链联调 | `RELEASE-GATE:BETA`：连续 10 个交易日 Shadow、日终未解释差异=0、实际告警定位 ≤15 分钟、订单 UI 证据链还原 ≤5 分钟 |
-| F07/F09 → L04 | 授权工程环境的真实服务恢复/RLS/Storage 功能；监测缺口、阈值/连续窗口的确定性测试 | L04 负责归档；Beta 使用的服务由 `RELEASE-GATE:BETA` 验收部署 HTTPS/受限凭据、真实生产者/持续窗口/通知，同 SHA CI；testnet 执行区新增范围归 `RELEASE-GATE:LIVE-READINESS`，不能以 L04 排期较晚推迟 Beta 实际使用范围的验收 |
+| F07/F09 → L04 | 本地恢复/RLS/Storage契约与拒绝机制；目标Supabase功能归最终发布；监测缺口、阈值/连续窗口的确定性测试 | L04 负责归档；Beta 使用的服务由 `RELEASE-GATE:BETA` 验收部署 HTTPS/受限凭据、真实生产者/持续窗口/通知，同 SHA CI；testnet 执行区新增范围归 `RELEASE-GATE:LIVE-READINESS`，不能以 L04 排期较晚推迟 Beta 实际使用范围的验收 |
 | L01–L04 | 协议映射、MFA/审批/额度、默认关闭、秘密隔离、轮换与恢复机制；获准 testnet 的代表性 UI/API 真实联调 | `RELEASE-GATE:LIVE-READINESS`：200 笔目标 testnet、真实 mTLS/受限执行区、轮换 ≤5 分钟、目标负载/四类演练、完整安全与证据包。仍不授权生产实盘 |
 | U01/S04/X06/前端 FEP | 可访问性与风险交互、真实主流程、稳定错误/恢复状态 | `RELEASE-GATE:BETA` 及涉及 testnet 的 `RELEASE-GATE:LIVE-READINESS`：完整多浏览器/视觉签字、前端性能预算、部署目标与组织签字 |
 
@@ -380,11 +427,44 @@ R01 经[2026-10-07 原问题复核](./audit/R01-comprehensive-review-2026-10-02.
 
 ### 2.10 执行入口与混合 Gate 的处理
 
-本次调整计划与结构校验，不宣称所有运行脚本已支持 `--stage`。`make r01-check` 的纯领域 P95、`make r02-live-check` 的查询 P95、前端聚合 baseline 的 bundle 预算仍可能与功能检查混合；不能通过删除断言、忽略失败或将整条失败命令记为 PASS 来“解除阻塞”。先使用已有独立功能子检查，分别记录功能结果和性能诊断；缺少可分离入口时，在对应任务内拆分 runner/报告并加负向测试后再登记阶段 READY。正式发布仍运行完整门槛。A1 已有 development/final-review 入口可按前端计划使用，不推定其覆盖其他 API。
+本次已实现 TP03/TP04/F0 的 R04_LOCAL 与 R04 admission；其余任务逐卡定义阶段范围，不宣称所有运行脚本已支持 `--stage`。`make r01-check` 的纯领域 P95、`make r02-live-check` 的查询 P95、前端聚合 baseline 的 bundle 预算仍可能与功能检查混合；不能通过删除断言、忽略失败或将整条失败命令记为 PASS 来“解除阻塞”。先使用已有独立功能子检查，分别记录功能结果和性能诊断；缺少可分离入口时，在对应任务内拆分 runner/报告并加负向测试后再登记阶段 READY。正式发布仍运行完整门槛。A1 已有 development/final-review 入口可按前端计划使用，不推定其覆盖其他 API。
 
 日常按改动影响选择测试；基础契约/领域共享库扩大回归到所有消费者。只有纯计划/文档改动时执行结构、链接、依赖和负向测试，不启动 Supabase、provider 窗口或全套签字/同 SHA 环境验证。正式发布回执仍绑定候选完整 SHA，旧回执仅作为历史事实。
 
 人工验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)：所有原需多个项目角色确认的场景由 Codex 综合审阅维度拟稿，项目用户一人确认；不替代本节的工程/目标环境证据。
+
+### 2.11 R04之后全部任务的开发、测试与发布移交
+
+本次用户授权覆盖 TP03/TP04/F0 本地开发 Gate 和 R04 之后全部 22 个任务。INTEGRATION 是测试阶段；开发阶段以本机真实组件、自有合成输入、受控时钟验证契约、权限、幂等、恢复、期限和数据正确性。Supabase 目标验收统一归最终发布阶段；任何外部服务、testnet、云端权限/网络/证书、部署或代表性性能指标均不能作为 DEVELOPMENT 阻塞条件。真实 testnet 代表性闭环在获准测试阶段 I10，完整目标/容量回执在 LIVE-READINESS；数据用途和生产权限不因移交扩大。
+
+任务卡的“阶段执行/验收边界”定义当前阶段准入范围；原量化/集成验收标准完整保留为最终目标。本节优先于历史“开发须真实数据库”文字。本地测试发现的越权、重复副作用、错误schema、数据丢失或取消/期限语义错误仍阻塞开发；受控时钟或进程的deadline测试是正确性检查，生产负载时延、P95、吞吐、长稳均移交。目标NOT_RUN不能记为PASS或删除义务。
+
+逐任务机器清单为 `scripts/development-gate-handoff-policy.json`，校验入口 `make development-handoff-check`；22行完整覆盖，开发/测试/发布范围与任务卡逐字绑定。所有后续服务检查点的 DEVELOPMENT required_scope 仅消费对应任务本地功能范围；其中持久审计、目标数据库恢复、实际外部调用与性能要求按本节移交最终发布。INTEGRATION 检查点仍验证真实模块组合，不能用组件mock冒充完成。
+
+| 后续任务 | 测试/发布归属 | 保留的目标环境与性能义务 |
+|---|---|---|
+| CORE:TP01-E | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果；未执行保持NOT_RUN。 |
+| CORE:TP01-F | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整；未执行保持NOT_RUN。 |
+| CORE:TP01-G | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：不依赖 fork 内部类型；任一模块可替换且业务协议不变；未执行保持NOT_RUN。 |
+| CORE:S01 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms；未执行保持NOT_RUN。 |
+| CORE:TP06 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现；未执行保持NOT_RUN。 |
+| CORE:S02 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash；未执行保持NOT_RUN。 |
+| CORE:S03 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：未验证/未审批 Release 的部署请求 100% 被拒；目标枚举不含 Assisted Live（M5 前）；同一内容重复发布返回同一 hash 或确定性冲突；未执行保持NOT_RUN。 |
+| CORE:X01 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms；未执行保持NOT_RUN。 |
+| CORE:X02 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名；未执行保持NOT_RUN。 |
+| CORE:X03 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms；未执行保持NOT_RUN。 |
+| CORE:TP07 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session；未执行保持NOT_RUN。 |
+| CORE:TP12 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖；未执行保持NOT_RUN。 |
+| CORE:X04 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：10万条订单事件 state transition 100% 合法；重复 submit 仅一次下游调用；cancel 延迟/拒绝可审计；所有 Fill 可追溯 Command；未执行保持NOT_RUN。 |
+| CORE:X05 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用；未执行保持NOT_RUN。 |
+| CORE:U01 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作；未执行保持NOT_RUN。 |
+| CORE:TP01 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动；未执行保持NOT_RUN。 |
+| CORE:S04 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过；未执行保持NOT_RUN。 |
+| CORE:X06 | INTEGRATION测试 / `RELEASE-GATE:BETA` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web 回归通过；未执行保持NOT_RUN。 |
+| CORE:L01 | INTEGRATION测试 / `RELEASE-GATE:LIVE-READINESS` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品；未执行保持NOT_RUN。 |
+| CORE:L02 | INTEGRATION测试 / `RELEASE-GATE:LIVE-READINESS` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断；未执行保持NOT_RUN。 |
+| CORE:L03 | INTEGRATION测试 / `RELEASE-GATE:LIVE-READINESS` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：M5 flag 关闭时 UI/API 100% 不可达；开启 testnet flag 后 50 次双人审批均写签名审计；自批/额度超限/过期 100% 拒绝；未执行保持NOT_RUN。 |
+| CORE:L04 | INTEGRATION测试 / `RELEASE-GATE:LIVE-READINESS` | 实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0；未执行保持NOT_RUN。 |
 
 ## 3. 全项目功能开发、联调与发布顺序
 
@@ -683,7 +763,7 @@ flowchart TD
 <a id="acceptance-core-gate-f0"></a>
 ### CORE-GATE:F0：验收检查点
 
-沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。
+沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。 R04_LOCAL本地功能准入独立验证；Supabase目标与原严格失败证据由RELEASE-GATE:BETA最终验收。
 
 ```json
 {
@@ -702,7 +782,7 @@ flowchart TD
     "CORE:TP01-A",
     "CORE:TP01-B"
   ],
-  "required_scope": "沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。",
+  "required_scope": "沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。 R04_LOCAL本地功能准入独立验证；Supabase目标与原严格失败证据由RELEASE-GATE:BETA最终验收。",
   "review_status": "ACCEPTED",
   "source_commit": "91e222f744fd350ab9db80ba7554bd1fee9194fa",
   "evidence": [
@@ -721,7 +801,7 @@ flowchart TD
 
 当前功能入口：`pnpm assess:f0-development <独立证据目录>` 实际执行 F0 与 PROVIDER:A1 的功能闭包；`pnpm check:f0-development` 逐项校验 11 个前置的代码/契约/配置/测试、日志/产物和递归依赖。任何缺测或漂移均拒绝。
 
-当前核对（2026-10-12，e4c45a7c）：F0必要12节点/50组实际复验40 PASS、10项目标只读FAIL，严格DEVELOPMENT为BLOCKED。三轮独立构建、lint/test和本地必要检查通过；平台Auth服务与真实调度写入未恢复验收。见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)和[失败manifest](./audit/evidence/f0-target-diagnostics-20261012/gates/core-gate-f0.json)。R03_LOCAL投影仅供R03消费。
+历史严格核对（2026-10-12，e4c45a7c）：F0必要12节点/50组实际复验40 PASS、10项目标只读FAIL，严格DEVELOPMENT为BLOCKED。三轮独立构建、lint/test和本地必要检查通过；平台Auth服务与真实调度写入未恢复验收。见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)和[失败manifest](./audit/evidence/f0-target-diagnostics-20261012/gates/core-gate-f0.json)。R03_LOCAL投影仅供R03消费。
 
 上方 `required_scope/review_status/source_commit/evidence` 保留 F0 原始 7/7 历史验收事实；当前 `stage_gate` 的 DEVELOPMENT 范围为 F01–F09/TP01-A/B 的工程、契约、安全、数据与恢复功能基线，按第 2.9 节核对相关输入和受影响功能。无需因本文排期调整重跑完整同 SHA 签名、远程重建或长稳；正式候选仍由 RELEASE 检查点取得自身回执。
 
@@ -853,8 +933,10 @@ flowchart TD
 - 集成验收标准：100 组固定输入结果 schema 100% 有效；每条 Signal 含策略/模型/数据版本、置信度和时效；无 OMS/venue/secret import；流式取消 ≤2s 生效
 - 阶段执行：schema、版本/置信度/时效与禁止 import 在开发验证；流式取消 ≤2s 用受控 clock/真实进程测功能语义，Research UI 联调覆盖取消后无副作用；部署负载下同一时限在 RELEASE-GATE:BETA 重验，不删除超时语义。
 - 阶段/依赖：F08、F05；R1
-- 当前工程复核：2026-10-12冻结e4c45a7c，12组组件检查（完整Python1366项、100条schema/重放、wheel五RPC与UI取消）及26项回执负向通过；engineeringStatus=PASS。严格必要闭包53组中43 PASS、10项目标只读FAIL，DEVELOPMENT为BLOCKED。见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)及[失败manifest](./audit/evidence/f0-target-diagnostics-20261012/gates/core-tp03.json)。原失败、计数修复及组件归档保留；不迁移正式/发布准入。
+- 当前工程复核：本轮按[本地Gate报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)从新冻结提交复验；以下为保留的严格历史：2026-10-12冻结e4c45a7c，12组组件检查（完整Python1366项、100条schema/重放、wheel五RPC与UI取消）及26项回执负向通过；engineeringStatus=PASS。严格必要闭包53组中43 PASS、10项目标只读FAIL，DEVELOPMENT为BLOCKED。见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)及[失败manifest](./audit/evidence/f0-target-diagnostics-20261012/gates/core-tp03.json)。原失败、计数修复及组件归档保留；不迁移正式/发布准入。
 
+
+- 验收边界：R04_LOCAL独立本地开发Gate；严格Supabase失败回执保留，目标验收归RELEASE-GATE:BETA。
 <a id="task-tp04"></a>
 ### TP04：TradingAgents：多 Agent 决策 Engine
 
@@ -873,8 +955,10 @@ flowchart TD
 - 交付物：`engines/trading-agents`、proposal mapper、policy fixtures
 - 集成验收标准：100% Proposal 带证据、反方观点、失效时间；所有输出 `executable=false`；尝试调用 order/secret tool 必失败并审计；固定 fixture 可重放
 - 阶段/依赖：F08、TP03；R1
-- 当前工程复核：2026-10-12冻结e4c45a7c，12组组件检查（完整Python1366项、100条schema/重放、wheel五RPC与UI取消）及42项回执负向通过；engineeringStatus=PASS。严格必要闭包56组中46 PASS、10项目标只读FAIL，DEVELOPMENT为BLOCKED。见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)及[失败manifest](./audit/evidence/f0-target-diagnostics-20261012/gates/core-tp04.json)。原失败、计数修复及组件归档保留；不迁移正式/发布准入。
+- 当前工程复核：本轮按[本地Gate报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)从新冻结提交复验；以下为保留的严格历史：2026-10-12冻结e4c45a7c，12组组件检查（完整Python1366项、100条schema/重放、wheel五RPC与UI取消）及42项回执负向通过；engineeringStatus=PASS。严格必要闭包56组中46 PASS、10项目标只读FAIL，DEVELOPMENT为BLOCKED。见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)及[失败manifest](./audit/evidence/f0-target-diagnostics-20261012/gates/core-tp04.json)。原失败、计数修复及组件归档保留；不迁移正式/发布准入。
 
+
+- 验收边界：R04_LOCAL独立本地开发Gate；严格Supabase失败回执保留，目标验收归RELEASE-GATE:BETA。
 <a id="task-tp05"></a>
 ### TP05：OpenBB：数据/研究适配服务
 
@@ -992,9 +1076,9 @@ flowchart TD
 - 技术要求：Runtime 组合研究 Engine、预算、deadline、流式事件、Artifact 归档与重放
 - 交付物：research workflow、Artifact repository
 - 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact
-- 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。LOCAL_READY仅供R03消费，不授予上游数据库READY或发布权限。
+- 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。R03_LOCAL或显式登记的R04_LOCAL前置档案仅证明本地功能，不授予上游数据库READY或发布权限。
 - 依赖：F07、F08、R02、TP02
-- 当前工程复核：2026-10-12冻结e4c45a7c修复F06/F07目标诊断与F09收尾；共同源码/测试/政策输入变化，R03_LOCAL旧回执继续失效，R03为NOT_ASSESSED。本轮只复验TP03/TP04/F0严格必要前置，不重授R03。见[当前复评](./audit/F0-target-failures-remediation-2026-10-12.md)。原b2511e1d完整15节点/49组本地前置及R03七组PASS保留为[历史本地准入](./audit/R03-local-gate-policy-2026-10-11.md)，不能转移正式/发布验收。
+- 当前工程复核：本轮按[本地Gate报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)从新冻结提交复验；以下为保留的严格历史：2026-10-12冻结e4c45a7c修复F06/F07目标诊断与F09收尾；共同源码/测试/政策输入变化，R03_LOCAL旧回执继续失效，R03为NOT_ASSESSED。本轮只复验TP03/TP04/F0严格必要前置，不重授R03。见[当前复评](./audit/F0-target-failures-remediation-2026-10-12.md)。原b2511e1d完整15节点/49组本地前置及R03七组PASS保留为[历史本地准入](./audit/R03-local-gate-policy-2026-10-11.md)，不能转移正式/发布验收。
 
 <a id="task-r04"></a>
 ### R04：Signal 与 TradeProposal 工作流
@@ -1019,7 +1103,7 @@ flowchart TD
 <a id="acceptance-core-gate-r1-service"></a>
 ### CORE-GATE:R1-SERVICE：验收检查点
 
-本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。
+本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1041,7 +1125,7 @@ flowchart TD
     "CORE:R03",
     "CORE:R04"
   ],
-  "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。",
+  "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1075,6 +1159,8 @@ flowchart TD
 - 开发范围：实现 S0–S3 分级、diff/range-diff、许可证/依赖 diff、candidate issue、质量流水线
 - 交付物：`sync-vibe` 工具、CI workflow、decision records
 - 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果
+- 阶段执行：本地开发验证API/许可证/CVE/patch 冲突分级、同步阻断和确定性故障注入；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 局部修复验证（2026-10-08）：定时monitor保留候选BLOCKED并完成监测，人工同步Gate仍退出2；失败摘要与原始证据上传补齐。23/23本地回归与真实上游双模式通过，新SHA远程workflow及候选采用待独立验收；不替代本任务全量复评。见[整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
 - 远程工程验证（2026-10-08）：8408122六场景/23回归通过，真实严格Gate依赖漂移阻断，失败后摘要/原件实际上传并下载。本专项工程检查7/7通过；自然event=schedule实时回执和候选采用仍待验，不计全任务ACCEPTED或阶段READY。见[远程报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
 - 依赖：TP01-D、F02
@@ -1098,7 +1184,8 @@ flowchart TD
 - 开发范围：capability flag、影子任务、阈值告警、签名制品、一键禁用/回滚
 - 交付物：dashboards、alert rules、rollback runbook、drill report
 - 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整
-- 阶段执行：功能开发完成 flag、影子任务、告警阈值、签名校验、一键禁用/回滚与 in-flight 请求处理的受控测试；连续 7 天 canary 和真实环境 ≤5 分钟回滚归 RELEASE-GATE:BETA，不作为 TP01-G/TP06 开始开发的前置。
+- 阶段执行：本地开发验证flag、影子任务、告警阈值、签名拒绝、禁用/回滚与在途请求收尾；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：TP01-E、F09
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-f)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1120,13 +1207,15 @@ flowchart TD
 - 开发范围：将通用 bugfix 回馈上游，逐步以 QuantOS-native trait/protocol 替换 fork 内耦合模块
 - 交付物：upstream PR 记录、deprecation plan、替换测试
 - 验收标准：不依赖 fork 内部类型；任一模块可替换且业务协议不变
+- 阶段执行：本地开发验证内部类型隔离、模块替换与业务协议不变；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：不依赖 fork 内部类型；任一模块可替换且业务协议不变；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：TP01-F、R03
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-g)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-service-tp01"></a>
 ### SERVICE:TP01：验收检查点
 
-TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。
+TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1142,7 +1231,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
     "CORE:TP01-G",
     "CORE-GATE:R1-SERVICE"
   ],
-  "required_scope": "TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。",
+  "required_scope": "TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1175,7 +1264,8 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 技术要求：草稿可版本化、自动保存、冲突检测；策略只引用已批准数据/Artifact；草稿/参数表默认启用 RLS 并保留 `auth.users` 审计链
 - 交付物：`quantos-strategy` draft API、strategy fixtures、draft migration
 - 量化验收标准：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms
-- 阶段执行：50 组并发无静默覆盖及授权/快照/Artifact 约束在开发验证；草稿保存 P95 <300ms 归 RELEASE-GATE:BETA，开发记录基线。
+- 阶段执行：本地开发验证50组并发编辑无静默覆盖、授权/快照/Artifact约束和保存正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：R02、R03
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1196,6 +1286,8 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 接入范围与改造：单独评估策略生成、静态检查与回测编排；输出策略草稿和检查 Artifact，绝不部署或进入 OMS
 - 交付物：`engines/strategy-lab` 或 ADR、generator adapter、静态分析 fixtures
 - 集成验收标准：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现
+- 阶段执行：本地开发验证100个恶意提示拒绝、Artifact唯一输出、静态失败阻断Release及可替换性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 阶段/依赖：F08、SERVICE:TP01；S2 服务窗口；TP01 总项的 Web E2E 随 U01 后续验收
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp06)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1216,6 +1308,8 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 技术要求：固定 DataSnapshot、clock、成本/滑点模型、look-ahead/数据泄漏检测、环境 hash
 - 交付物：backtest adapter、validation report
 - 量化验收标准：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash
+- 阶段执行：本地开发验证10次确定性回放、100个未来数据泄漏拒绝、成本/环境/输入hash；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：S01、TP06、TP08
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1236,13 +1330,15 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 技术要求：生成不可变发布物，含源码/构建产物 hash、参数、数据、回测、审批；M3/M4 只允许 Paper/Shadow
 - 交付物：release service、deployment policy、migration
 - 量化验收标准：未验证/未审批 Release 的部署请求 100% 被拒；目标枚举不含 Assisted Live（M5 前）；同一内容重复发布返回同一 hash 或确定性冲突
+- 阶段执行：本地开发验证未验证/审批拒绝、Paper/Shadow目标约束、重复内容hash与冲突；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：未验证/未审批 Release 的部署请求 100% 被拒；目标枚举不含 Assisted Live（M5 前）；同一内容重复发布返回同一 hash 或确定性冲突；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：S02、F06
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-service-s04"></a>
 ### SERVICE:S04：验收检查点
 
-策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。
+策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1255,7 +1351,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
     "CORE:F06",
     "CORE-GATE:R1-SERVICE"
   ],
-  "required_scope": "策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。",
+  "required_scope": "策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1271,7 +1367,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 <a id="acceptance-evaluation-tp07"></a>
 ### EVALUATION:TP07：验收检查点
 
-固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。
+固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1282,7 +1378,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
     "CORE:F06",
     "CORE:F08"
   ],
-  "required_scope": "固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。",
+  "required_scope": "固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1298,7 +1394,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 <a id="acceptance-evaluation-tp12"></a>
 ### EVALUATION:TP12：验收检查点
 
-基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。
+基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1308,7 +1404,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
     "CORE:F07",
     "EVALUATION:TP07"
   ],
-  "required_scope": "基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。",
+  "required_scope": "基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1324,7 +1420,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 <a id="acceptance-core-gate-s2-service"></a>
 ### CORE-GATE:S2-SERVICE：验收检查点
 
-策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。
+策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1345,7 +1441,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
     "EVALUATION:TP07",
     "EVALUATION:TP12"
   ],
-  "required_scope": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。",
+  "required_scope": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1378,7 +1474,8 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 技术要求：Position、valuation、P&L、exposure、账户状态、数据时间；只读模型可从事件重建，并持久化到 Supabase PostgreSQL 受控 schema
 - 交付物：`quantos-portfolio`、rebuild CLI、portfolio projection migration
 - 量化验收标准：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms
-- 阶段执行：1 万订单/成交黄金回放与读模型重建在开发验证；查询 P95 <300ms 归 RELEASE-GATE:BETA。
+- 阶段执行：本地开发验证1万订单/成交黄金回放、Position/P&L一致和重建正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：F05、R01
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1399,7 +1496,8 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 技术要求：规则：策略发布、数据时效、账户、精度、名义、杠杆、集中度、venue 健康、重复、审批；global/account kill switch
 - 交付物：`quantos-risk`、rule fixtures、kill switch API
 - 量化验收标准：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名
-- 阶段执行：全部规则与分支覆盖、kill switch 生效后立即拒绝新命令的逻辑及受控时限测试在开发验证；实际负载下 P95 <1s 归 RELEASE-GATE:BETA。不得将 kill switch 无效或异步传播错误归为可延期性能问题。
+- 阶段执行：本地开发验证三类各50规则fixture、95%分支覆盖、kill switch立即拒绝及命中规则证据；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01、S03、F06
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1420,7 +1518,8 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 技术要求：将有效 Proposal + RiskDecision + Approval 转为短期、签名、幂等 Command；禁止自批
 - 交付物：`quantos-execution` command issuer、approval verifier
 - 量化验收标准：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms
-- 阶段执行：全部拒绝矩阵、1,000 并发单命令与持久审计在开发验证；签发 P95 <200ms 归 RELEASE-GATE:BETA。
+- 阶段执行：本地开发验证七类拒绝、1000并发单命令、审计生成与幂等语义；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：R04、X02
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1441,6 +1540,8 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 接入范围与改造：独立服务/进程边界；将 QuantOS Trading Protocol 映射为其 API；不引入其类型到 core；LGPL 合规与替换预案
 - 交付物：`services/execution-gateway`、Nautilus boundary adapter、Paper kernel、LICENSE ADR
 - 集成验收标准：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session
+- 阶段执行：本地开发验证内核隔离、边界精度/限额/过期/kill switch、幂等下游提交和事件映射；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 执行定位：S2 Gate 前仅完成固定版本、许可证、capability inventory 和 ADR 评估；本节在 X03 后完成 adapter/Paper 内核与集成验收。S2 的评估完成不代表本项 ACCEPTED。
 - 阶段/依赖：F03、F06、F08；X3
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp07)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
@@ -1462,6 +1563,8 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 评估问题与限定范围：评估 Agent 与交易内核协作边界，提取反模式与工具设计经验
 - 交付物：ADR、threat model 补充、接口差异清单
 - 验收标准：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖
+- 阶段执行：本地开发验证ADR、威胁模型、至少5条禁止耦合规则与无运行时依赖；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 执行定位：S2 Gate 前基于 TP07 评估材料归档评估结论和 ADR；本项完整复审在 TP07 的 X3 集成验收之后执行。
 - 阶段/依赖：F07、TP07
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp12)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
@@ -1483,6 +1586,8 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 技术要求：通过 TP07 adapter 提交/取消、映射 ack/fill/reject，维护 append-only 订单事实
 - 交付物：execution gateway、Paper kernel、state machine
 - 量化验收标准：10万条订单事件 state transition 100% 合法；重复 submit 仅一次下游调用；cancel 延迟/拒绝可审计；所有 Fill 可追溯 Command
+- 阶段执行：本地开发验证10万订单事件合法状态转换、重复submit单次调用、cancel审计及Fill溯源；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：10万条订单事件 state transition 100% 合法；重复 submit 仅一次下游调用；cancel 延迟/拒绝可审计；所有 Fill 可追溯 Command；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X03、TP07
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1503,14 +1608,15 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 技术要求：在真实行情产生对照建议而不下单；日终对账订单/成交/仓位/虚拟账本；异常关闭流程
 - 交付物：shadow runner、reconciler、exception queue
 - 量化验收标准：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用
-- 阶段执行：开发以固定输入和受控时间验证对账、20 类差异检测/定位、告警及无 venue submit；联调验证 Paper/Shadow 到订单/审计 UI 的短链路闭环。连续 10 个交易日、真实日终零未解释差异和 ≤15 分钟发现定位归 RELEASE-GATE:BETA，未经新运行范围授权不启动长稳窗口。
+- 阶段执行：本地开发验证受控时间下20类差异定位、对账/告警机制及禁止venue submit；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01–X04
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x05)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-service-x06"></a>
 ### SERVICE:X06：验收检查点
 
-执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务功能。P08–P14/P20–P23页面及真实BFF消费者在CORE:X06及G4/G5/G6联调；性能/完整视觉/部署验收归 RELEASE-GATE:BETA。
+执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务功能。P08–P14/P20–P23页面及真实BFF消费者在CORE:X06及G4/G5/G6联调；性能/完整视觉/部署验收归 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1526,7 +1632,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
     "CORE:F06",
     "CORE:F09"
   ],
-  "required_scope": "执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务功能。P08–P14/P20–P23页面及真实BFF消费者在CORE:X06及G4/G5/G6联调；性能/完整视觉/部署验收归 RELEASE-GATE:BETA。",
+  "required_scope": "执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务功能。P08–P14/P20–P23页面及真实BFF消费者在CORE:X06及G4/G5/G6联调；性能/完整视觉/部署验收归 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1542,7 +1648,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 <a id="acceptance-core-gate-x3-service"></a>
 ### CORE-GATE:X3-SERVICE：验收检查点
 
-X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类差异检测定位、命令重复=0、恢复/kill switch/数据陈旧拒绝和无venue submit。X06页面联调在G4/G5/G6；连续10个交易日Shadow、真实日终未解释差异=0、负载P95与部署演练由 RELEASE-GATE:BETA 验收，不阻塞API和页面功能开发。
+X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类差异检测定位、命令重复=0、恢复/kill switch/数据陈旧拒绝和无venue submit。X06页面联调在G4/G5/G6；连续10个交易日Shadow、真实日终未解释差异=0、负载P95与部署演练由 RELEASE-GATE:BETA 验收，不阻塞API和页面功能开发。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1559,7 +1665,7 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
     "CORE:X05",
     "SERVICE:X06"
   ],
-  "required_scope": "X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类差异检测定位、命令重复=0、恢复/kill switch/数据陈旧拒绝和无venue submit。X06页面联调在G4/G5/G6；连续10个交易日Shadow、真实日终未解释差异=0、负载P95与部署演练由 RELEASE-GATE:BETA 验收，不阻塞API和页面功能开发。",
+  "required_scope": "X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类差异检测定位、命令重复=0、恢复/kill switch/数据陈旧拒绝和无venue submit。X06页面联调在G4/G5/G6；连续10个交易日Shadow、真实日终未解释差异=0、负载P95与部署演练由 RELEASE-GATE:BETA 验收，不阻塞API和页面功能开发。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1594,7 +1700,8 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 - 技术要求：建立 React/Next Web 应用、BFF typed client、OIDC/MFA、App Shell、P01–P05 页面
 - 交付物：`apps/terminal`、`packages/ui/domain-ui/api-client`、P01–P05
 - 量化验收标准：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作
-- 阶段执行：Research 真实 BFF/领域服务的创建/流式/取消/证据跳转、noindex 与小屏风险动作在 I2 联调；完整多浏览器视觉/性能矩阵归 RELEASE-GATE:BETA。
+- 阶段执行：本地开发验证Research创建/流式/取消/证据交互、noindex、小屏高风险动作隐藏；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：F06–F09、R02–R04
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-u01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1615,7 +1722,8 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 - 接入范围与改造：仅评估后吸收可独立测试的 workflow/skill/streaming 设计；建立 `vibe_adapter`，会话、权限、事件、审计全部替换为 QuantOS 接口；按 S0–S3 分级执行官方仓库同步、选择性吸收、canary 与回滚；禁止其成为状态源或执行器
 - 交付物：capability inventory、许可证报告、只读副本、fork、`UPSTREAM.md`、sync decision records、adapter ADR、自动化回归测试
 - 集成验收标准：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动
-- 阶段执行：I2 关闭 adapter/Artifact API、网络秘密隔离、20 个回放、同步阻断及 Research Web 功能联调；TP01-F 的 7 天 canary/回滚时限和完整发布供应链归 RELEASE-GATE:BETA，原业务与许可要求保留。
+- 阶段执行：本地开发验证20个workflow回放、网络/secret拒绝、Artifact契约、同步阻断及脱钩启动；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 执行定位：A–G 的服务证据先在 SERVICE:TP01 验收；本总项包含 Web Research E2E，在 U01/FEP-2 后完成业务功能联调评估，canary/发布回执仍由发布 Gate 收口；不能用服务 Gate 把本项提前标为 ACCEPTED。
 - 阶段/依赖：F07、F08；TP01-C 可在 R1 开始时执行，TP01-D 在 R02 功能准入后执行；最小适配须在 R1 服务功能 Gate 前完成
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
@@ -1632,7 +1740,7 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 <a id="acceptance-core-gate-r1"></a>
 ### CORE-GATE:R1：验收检查点
 
-关闭R1功能联调清单：研究/Signal/Proposal可回放且无交易副作用，U01/Web Research真实服务E2E、Artifact/Audit与adapter隔离。不得以mock替代真实模块集成；R01新鲜度/持续运行、各性能目标、完整浏览器矩阵及部署证据移交 RELEASE-GATE:BETA，原正式复审仍单独维护。
+关闭R1功能联调清单：研究/Signal/Proposal可回放且无交易副作用，U01/Web Research真实服务E2E、Artifact/Audit与adapter隔离。不得以mock替代真实模块集成；R01新鲜度/持续运行、各性能目标、完整浏览器矩阵及部署证据移交 RELEASE-GATE:BETA，原正式复审仍单独维护。 阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。
 
 ```json
 {
@@ -1643,7 +1751,7 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
     "CORE:U01",
     "FRONTEND-GATE:G2"
   ],
-  "required_scope": "关闭R1功能联调清单：研究/Signal/Proposal可回放且无交易副作用，U01/Web Research真实服务E2E、Artifact/Audit与adapter隔离。不得以mock替代真实模块集成；R01新鲜度/持续运行、各性能目标、完整浏览器矩阵及部署证据移交 RELEASE-GATE:BETA，原正式复审仍单独维护。",
+  "required_scope": "关闭R1功能联调清单：研究/Signal/Proposal可回放且无交易副作用，U01/Web Research真实服务E2E、Artifact/Audit与adapter隔离。不得以mock替代真实模块集成；R01新鲜度/持续运行、各性能目标、完整浏览器矩阵及部署证据移交 RELEASE-GATE:BETA，原正式复审仍单独维护。 阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1673,7 +1781,8 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 - 技术要求：实现策略目录、Lab、Backtest、Release、审批时间线；前端通过 capability 显示目标
 - 交付物：P06–P07、approval integration、E2E
 - 量化验收标准：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过
-- 阶段执行：I3 完成 20 个研究到 Release UI fixture、真实服务拒绝/过期/并发审批与可访问状态；完整视觉/多浏览器发布回归归 RELEASE-GATE:BETA。
+- 阶段执行：本地开发验证20个策略UI fixture、拒绝/过期/并发审批状态和可访问性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：S01–S03、U01
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1688,7 +1797,7 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 <a id="acceptance-core-gate-s2"></a>
 ### CORE-GATE:S2：验收检查点
 
-关闭S2功能联调清单及S04真实页面/策略UI拒绝回归，确保不可变Release、审批与Paper/Shadow目标约束；性能、完整发布回归及目标部署证据移交 RELEASE-GATE:BETA。
+关闭S2功能联调清单及S04真实页面/策略UI拒绝回归，确保不可变Release、审批与Paper/Shadow目标约束；性能、完整发布回归及目标部署证据移交 RELEASE-GATE:BETA。 阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。
 
 ```json
 {
@@ -1700,7 +1809,7 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
     "CORE:S04",
     "FRONTEND-GATE:G3"
   ],
-  "required_scope": "关闭S2功能联调清单及S04真实页面/策略UI拒绝回归，确保不可变Release、审批与Paper/Shadow目标约束；性能、完整发布回归及目标部署证据移交 RELEASE-GATE:BETA。",
+  "required_scope": "关闭S2功能联调清单及S04真实页面/策略UI拒绝回归，确保不可变Release、审批与Paper/Shadow目标约束；性能、完整发布回归及目标部署证据移交 RELEASE-GATE:BETA。 阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1730,7 +1839,8 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 - 技术要求：实现 P08–P14；实时事件投影、危险操作确认、MFA、导出与 Runbook 入口
 - 交付物：Portfolio/Risk/Proposal/Approval/Order/Audit/Ops Web UI
 - 量化验收标准：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web 回归通过
-- 阶段执行：I8 完成订单/审批/kill switch 功能 E2E、证据链可定位与禁止直连 venue；≤5 分钟操作还原目标、完整 Web 视觉/浏览器矩阵归 RELEASE-GATE:BETA，开发/联调记录基线。
+- 阶段执行：本地开发验证订单证据链可定位、审批/kill switch功能E2E及禁止直连venue；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web 回归通过；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01–X05、U01
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x06)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1745,7 +1855,7 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 <a id="acceptance-core-gate-x3"></a>
 ### CORE-GATE:X3：验收检查点
 
-关闭X3功能联调清单：执行/审计/运维真实页面、Paper/Shadow短链路对账、恢复/拒绝/证据重建；I9/FEP-7据此形成Beta功能候选。10个交易日Shadow、正式对账长稳和性能/部署证据由 RELEASE-GATE:BETA 收口；不将功能候选视作正式Beta发布。
+关闭X3功能联调清单：执行/审计/运维真实页面、Paper/Shadow短链路对账、恢复/拒绝/证据重建；I9/FEP-7据此形成Beta功能候选。10个交易日Shadow、正式对账长稳和性能/部署证据由 RELEASE-GATE:BETA 收口；不将功能候选视作正式Beta发布。 阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。
 
 ```json
 {
@@ -1759,7 +1869,7 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
     "FRONTEND-GATE:G5",
     "FRONTEND-GATE:G6"
   ],
-  "required_scope": "关闭X3功能联调清单：执行/审计/运维真实页面、Paper/Shadow短链路对账、恢复/拒绝/证据重建；I9/FEP-7据此形成Beta功能候选。10个交易日Shadow、正式对账长稳和性能/部署证据由 RELEASE-GATE:BETA 收口；不将功能候选视作正式Beta发布。",
+  "required_scope": "关闭X3功能联调清单：执行/审计/运维真实页面、Paper/Shadow短链路对账、恢复/拒绝/证据重建；I9/FEP-7据此形成Beta功能候选。10个交易日Shadow、正式对账长稳和性能/部署证据由 RELEASE-GATE:BETA 收口；不将功能候选视作正式Beta发布。 阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1794,7 +1904,8 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 - 技术要求：仅接入已批准的单一 venue；订单意图/精度/限流映射；永不在 CI 使用生产 key
 - 交付物：venue plugin、testnet fixtures、compat report
 - 量化验收标准：200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品
-- 阶段执行：开发验证 200 个对应场景的协议 fixture、精度/限流/错误分类、生产端点/秘密拒绝；I10 必须以获准真实 testnet 完成代表性功能联调；200 笔目标 testnet 回执及发布环境兼容证据归 RELEASE-GATE:LIVE-READINESS，fixture 不能冒充真实 testnet 验收。
+- 阶段执行：本地开发验证200个自有协议fixture、精度/限流/网络认证错误分类及生产端点秘密拒绝；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:LIVE-READINESS；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X04、TP07
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1815,14 +1926,15 @@ X01–X05/TP07/TP12服务功能准入：固定输入Paper/Shadow对账、20类�
 - 技术要求：Vault 静态秘密/引用、Execution Gateway 专用受控数据库角色与 allowlist 函数、服务会话/命令 TTL、网络 allowlist、mTLS、最少 egress、轮换/撤销；不实现 Vault 动态租约
 - 交付物：secret integration、database grants/function、network policy、rotation runbook
 - 量化验收标准：secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断
-- 阶段执行：开发验证 secret 隔离、拒绝过期/越权/egress、mTLS 双向身份认证及缺失/过期/不可信证书拒绝、轮换与撤销恢复机制；受控认证与受限执行边界不能延期，真实数据库权限在现有 Supabase 测试。实际部署的证书/网络策略、受限执行区与轮换后 ≤5 分钟恢复回执归 RELEASE-GATE:LIVE-READINESS。
+- 阶段执行：本地开发验证秘密隔离、双向身份与证书拒绝、过期/越权/egress拒绝、轮换撤销恢复机制；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:LIVE-READINESS；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：F06、L01
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
 <a id="acceptance-service-l03"></a>
 ### SERVICE:L03：验收检查点
 
-L03服务功能范围：feature/capability、双人职责分离、MFA、额度/白名单；M5 flag关闭时API100%拒绝，50次双人审批签名审计用例及自批/超额/过期100%拒绝。UI和真实testnet代表性闭环在CORE:L03/G8联调；正式部署/签字归 RELEASE-GATE:LIVE-READINESS。
+L03服务功能范围：feature/capability、双人职责分离、MFA、额度/白名单；M5 flag关闭时API100%拒绝，50次双人审批签名审计用例及自批/超额/过期100%拒绝。UI和真实testnet代表性闭环在CORE:L03/G8联调；正式部署/签字归 RELEASE-GATE:LIVE-READINESS。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1834,7 +1946,7 @@ L03服务功能范围：feature/capability、双人职责分离、MFA、额度/�
     "CORE:L02",
     "FE:FEP-7"
   ],
-  "required_scope": "L03服务功能范围：feature/capability、双人职责分离、MFA、额度/白名单；M5 flag关闭时API100%拒绝，50次双人审批签名审计用例及自批/超额/过期100%拒绝。UI和真实testnet代表性闭环在CORE:L03/G8联调；正式部署/签字归 RELEASE-GATE:LIVE-READINESS。",
+  "required_scope": "L03服务功能范围：feature/capability、双人职责分离、MFA、额度/白名单；M5 flag关闭时API100%拒绝，50次双人审批签名审计用例及自批/超额/过期100%拒绝。UI和真实testnet代表性闭环在CORE:L03/G8联调；正式部署/签字归 RELEASE-GATE:LIVE-READINESS。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1850,7 +1962,7 @@ L03服务功能范围：feature/capability、双人职责分离、MFA、额度/�
 <a id="acceptance-service-l04"></a>
 ### SERVICE:L04：验收检查点
 
-L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、无重复Command/订单与审计持久化100%，四类受控演练和受影响安全检查。F07/F09监控与证据采集机制须可用；持续窗口、真实部署/主机死亡通知、目标负载及最终安全/发布回执归对应 RELEASE Gate，不能用组件样本宣称这些正式验收通过。
+L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、无重复Command/订单与审计持久化100%，四类受控演练和受影响安全检查。F07/F09监控与证据采集机制须可用；持续窗口、真实部署/主机死亡通知、目标负载及最终安全/发布回执归对应 RELEASE Gate，不能用组件样本宣称这些正式验收通过。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1864,7 +1976,7 @@ L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、�
     "SERVICE:L03",
     "FE:FEP-7"
   ],
-  "required_scope": "L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、无重复Command/订单与审计持久化100%，四类受控演练和受影响安全检查。F07/F09监控与证据采集机制须可用；持续窗口、真实部署/主机死亡通知、目标负载及最终安全/发布回执归对应 RELEASE Gate，不能用组件样本宣称这些正式验收通过。",
+  "required_scope": "L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、无重复Command/订单与审计持久化100%，四类受控演练和受影响安全检查。F07/F09监控与证据采集机制须可用；持续窗口、真实部署/主机死亡通知、目标负载及最终安全/发布回执归对应 RELEASE Gate，不能用组件样本宣称这些正式验收通过。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1880,7 +1992,7 @@ L04服务功能范围：DB事件恢复、订单对账、告警/回滚机制、�
 <a id="acceptance-core-gate-l4-service"></a>
 ### CORE-GATE:L4-SERVICE：验收检查点
 
-L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权限、MFA/审批/默认关闭、恢复与观测机制。拟上线部署、目标容量/长稳与正式回执由 RELEASE-GATE:LIVE-READINESS 验收；I10仍须完成获准真实testnet代表性联调，不产生生产发布授权。
+L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权限、MFA/审批/默认关闭、恢复与观测机制。拟上线部署、目标容量/长稳与正式回执由 RELEASE-GATE:LIVE-READINESS 验收；I10仍须完成获准真实testnet代表性联调，不产生生产发布授权。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
 
 ```json
 {
@@ -1894,7 +2006,7 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
     "SERVICE:L03",
     "SERVICE:L04"
   ],
-  "required_scope": "L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权限、MFA/审批/默认关闭、恢复与观测机制。拟上线部署、目标容量/长稳与正式回执由 RELEASE-GATE:LIVE-READINESS 验收；I10仍须完成获准真实testnet代表性联调，不产生生产发布授权。",
+  "required_scope": "L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权限、MFA/审批/默认关闭、恢复与观测机制。拟上线部署、目标容量/长稳与正式回执由 RELEASE-GATE:LIVE-READINESS 验收；I10仍须完成获准真实testnet代表性联调，不产生生产发布授权。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1926,7 +2038,8 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 - 技术要求：仅在服务端 feature/capability 返回时显示 Assisted Live；双人职责分离、额度与白名单
 - 交付物：approval policy、P10/P11 M5 UI、E2E
 - 量化验收标准：M5 flag 关闭时 UI/API 100% 不可达；开启 testnet flag 后 50 次双人审批均写签名审计；自批/额度超限/过期 100% 拒绝
-- 阶段执行：I10 完成默认关闭、获准 testnet flag 下 UI/API 双人职责分离、MFA/额度/过期拒绝及 50 次签名审计用例；目标部署与发布签字归 RELEASE-GATE:LIVE-READINESS。
+- 阶段执行：本地开发验证默认关闭、MFA/职责分离/额度/过期拒绝和50次审批审计fixture；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:LIVE-READINESS；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：M5 flag 关闭时 UI/API 100% 不可达；开启 testnet flag 后 50 次双人审批均写签名审计；自批/额度超限/过期 100% 拒绝；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X02、X03、L02
 - 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-l03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
 
@@ -1947,7 +2060,8 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 - 技术要求：压测、混沌、DB/事件恢复、订单对账、告警、回滚；生成不可篡改测试证据
 - 交付物：SLO report、drill report、release checklist
 - 量化验收标准：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0
-- 阶段执行：L4 功能联调验证去重、审计持久化及重放/恢复/Engine 故障/kill switch 机制和证据采集；目标容量、四类部署演练、安全全量与最终证据包归 RELEASE-GATE:LIVE-READINESS。F07/F09 在 Beta 中实际使用的服务回执先由 RELEASE-GATE:BETA 收口，不等待 L4 全部完成。
+- 阶段执行：本地开发验证去重、审计输出、四类受控恢复/故障/kill switch机制与证据包生成；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:LIVE-READINESS；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0；未执行保持NOT_RUN。
+- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X05、X06、L01–L03
 - F07 上线前移交：在拟上线的隔离部署环境中验证外部 HTTPS BFF/Runtime 入口、真实身份与会话、worker 恢复、私有 Artifact 取回及跨租户拒绝；为 Runtime 配置只能访问 `quantos-artifacts` 的 Storage 凭据，证明其他 bucket 读写被拒并记录轮换和撤销。两项均需绑定候选发布源码 SHA 的目标回执；未通过不得发布 Runtime。开发阶段的临时管理员 Storage key 诊断回执不能替代此 Gate。
 - F09 上线前移交：原 F09-B01–B03、H05、M03 的未解决运行期范围继续开放（见 [当前清单](./audit/F09-comprehensive-review-2026-09-27.md)）；移交不算修复完成。按 F09 所列运行期量化标准，在实际部署的业务生产者、每分钟 monitor、dashboard 与通知目标上验证九类来源、持续阈值、真实通知、三类同链故障与无秘密泄露；取得绑定候选发布完整 SHA 的回执。缺失来源或服务未部署时保持 `NOT RUN / NO RECEIPT`，不得用开发阶段的人工样本、组件探针或 ADR 模板代替。
@@ -1966,7 +2080,7 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 <a id="acceptance-core-gate-l4"></a>
 ### CORE-GATE:L4：验收检查点
 
-关闭L4功能联调范围：UI/API flag拒绝、获准testnet代表性MFA/双人审批E2E、恢复/审计与证据包生成功能。F07/F09移交项、目标容量/部署演练及最终发布证据由 RELEASE-GATE:BETA 和 RELEASE-GATE:LIVE-READINESS 按适用范围收口；生产实盘另须计划外批准。
+关闭L4功能联调范围：UI/API flag拒绝、获准testnet代表性MFA/双人审批E2E、恢复/审计与证据包生成功能。F07/F09移交项、目标容量/部署演练及最终发布证据由 RELEASE-GATE:BETA 和 RELEASE-GATE:LIVE-READINESS 按适用范围收口；生产实盘另须计划外批准。 阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。
 
 ```json
 {
@@ -1978,7 +2092,7 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
     "CORE:L04",
     "FRONTEND-GATE:G8"
   ],
-  "required_scope": "关闭L4功能联调范围：UI/API flag拒绝、获准testnet代表性MFA/双人审批E2E、恢复/审计与证据包生成功能。F07/F09移交项、目标容量/部署演练及最终发布证据由 RELEASE-GATE:BETA 和 RELEASE-GATE:LIVE-READINESS 按适用范围收口；生产实盘另须计划外批准。",
+  "required_scope": "关闭L4功能联调范围：UI/API flag拒绝、获准testnet代表性MFA/双人审批E2E、恢复/审计与证据包生成功能。F07/F09移交项、目标容量/部署演练及最终发布证据由 RELEASE-GATE:BETA 和 RELEASE-GATE:LIVE-READINESS 按适用范围收口；生产实盘另须计划外批准。 阶段移交：本Gate属于测试阶段，验证真实模块集成；Supabase目标统一最终发布，外部测试需授权，代表性性能/持续/部署由最终发布验收，目标NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -2000,7 +2114,7 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 | 计划结构 | `check:development-plans`、`test:development-plans` | 两份计划、阶段/依赖和校验规则变更时；不连接数据库 |
 | 格式与静态检查 | `fmt`、`lint-rust`、`lint-python`、`lint-web`、`typecheck` | 开发按受影响模块执行；共享基础变更扩大范围 |
 | 单元与覆盖率 | `test-rust`、`test-python`、`test-web`、`coverage-check` | 开发/联调按影响回归；发布执行完整矩阵与 nightly 覆盖 |
-| 数据库 | `db-apply`、`db-migration-check`、`rls-policy-test`；`db-reset`、`db-schema-diff` | 受影响 SQL/RLS 功能在已配置 Supabase 实测；发布候选受控重建/drift 需相应授权，不能自动 reset |
+| 数据库 | `db-apply`、`db-migration-check`、`rls-policy-test`；`db-reset`、`db-schema-diff` | 开发验证SQL/RLS静态契约和拒绝机制，实际Supabase验收归最终发布；发布候选受控重建/drift 需相应授权，不能自动 reset |
 | 协议与契约 | `proto-check`、`sdk-generate-check`、`engine-contract-test` | 开发；协议变化复测全部受影响消费者 |
 | 集成与回放 | `integration-test`、`event-replay-test`、`market-replay-test`、`order-state-test` | 开发确定性机制测试，联调真实模块组合；发布重复完整关键路径 |
 | 安全与供应链 | `sbom`、`license-check`、`sca`、`secret-scan`、`artifact-sign-verify`、`sync-vibe-check` | 引入依赖即检查许可/安全，开发验证签名拒绝机制；发布补目标制品签名及远程 CI 回执 |
@@ -2009,7 +2123,7 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 
 ## 12. 阶段完成定义与禁止项
 
-功能开发完成必须满足开发范围与必要自动化/真实数据库证据；功能联调完成必须证明真实模块的成功、拒绝和恢复闭环；正式发布验收必须补齐全部性能、长稳、部署和授权回执。每次汇报分别记录这三种状态及剩余问题，不以“代码可运行”“阶段 READY”或“页面可打开”声称正式 ACCEPTED。
+功能开发完成必须满足本地开发范围与必要自动化证据；Supabase目标证据在最终发布阶段验收；功能联调完成必须证明真实模块的成功、拒绝和恢复闭环；正式发布验收必须补齐全部性能、长稳、部署和授权回执。每次汇报分别记录这三种状态及剩余问题，不以“代码可运行”“阶段 READY”或“页面可打开”声称正式 ACCEPTED。
 
 以下行为在开发期就禁止：
 
@@ -2029,7 +2143,7 @@ Paper + Shadow Beta 的统一检查点为前端计划的 [RELEASE-GATE:BETA](./S
 <a id="acceptance-release-gate-live-readiness"></a>
 ### RELEASE-GATE:LIVE-READINESS：testnet 上线评审验收检查点
 
-在Beta发布验收和L4/I10功能联调基础上，完成L01–L04原目标环境全部要求：200笔真实testnet、50次双人审批审计、MFA/默认关闭、mTLS与受限执行区、秘密轮换≤5分钟、目标负载无重复Command/订单且审计持久化100%、四类恢复演练和高危安全缺陷=0；补齐F07/F09新增执行区的部署/持续采样/实际通知及完整证据包。所有正式回执绑定候选完整源码SHA，取得远程同SHA CI及适用发布签字/许可；运行须有新的有效环境和范围授权，任何开发或历史回执不能替代。此Gate仅完成Assisted Live testnet/上线评审准备，生产实盘仍须计划外单独批准。
+在Beta发布验收和L4/I10功能联调基础上，完成L01–L04原目标环境全部要求：200笔真实testnet、50次双人审批审计、MFA/默认关闭、mTLS与受限执行区、秘密轮换≤5分钟、目标负载无重复Command/订单且审计持久化100%、四类恢复演练和高危安全缺陷=0；补齐F07/F09新增执行区的部署/持续采样/实际通知及完整证据包。所有正式回执绑定候选完整源码SHA，取得远程同SHA CI及适用发布签字/许可；运行须有新的有效环境和范围授权，任何开发或历史回执不能替代。此Gate仅完成Assisted Live testnet/上线评审准备，生产实盘仍须计划外单独批准。 阶段移交：本Gate必须补齐责任任务原外部目标环境与全部性能/持续/部署回执；无候选同SHA目标证据不得READY。
 
 ```json
 {
@@ -2040,7 +2154,7 @@ Paper + Shadow Beta 的统一检查点为前端计划的 [RELEASE-GATE:BETA](./S
     "CORE-GATE:L4",
     "FE:FEP-8"
   ],
-  "required_scope": "在Beta发布验收和L4/I10功能联调基础上，完成L01–L04原目标环境全部要求：200笔真实testnet、50次双人审批审计、MFA/默认关闭、mTLS与受限执行区、秘密轮换≤5分钟、目标负载无重复Command/订单且审计持久化100%、四类恢复演练和高危安全缺陷=0；补齐F07/F09新增执行区的部署/持续采样/实际通知及完整证据包。所有正式回执绑定候选完整源码SHA，取得远程同SHA CI及适用发布签字/许可；运行须有新的有效环境和范围授权，任何开发或历史回执不能替代。此Gate仅完成Assisted Live testnet/上线评审准备，生产实盘仍须计划外单独批准。",
+  "required_scope": "在Beta发布验收和L4/I10功能联调基础上，完成L01–L04原目标环境全部要求：200笔真实testnet、50次双人审批审计、MFA/默认关闭、mTLS与受限执行区、秘密轮换≤5分钟、目标负载无重复Command/订单且审计持久化100%、四类恢复演练和高危安全缺陷=0；补齐F07/F09新增执行区的部署/持续采样/实际通知及完整证据包。所有正式回执绑定候选完整源码SHA，取得远程同SHA CI及适用发布签字/许可；运行须有新的有效环境和范围授权，任何开发或历史回执不能替代。此Gate仅完成Assisted Live testnet/上线评审准备，生产实盘仍须计划外单独批准。 阶段移交：本Gate必须补齐责任任务原外部目标环境与全部性能/持续/部署回执；无候选同SHA目标证据不得READY。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

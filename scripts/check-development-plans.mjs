@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import process from "node:process";
+import {validateHandoffs} from "./check-development-gate-handoff.mjs";
 import { validatePlanOrder } from "./check-development-plan-order.mjs";
 
 // Project Markdown intake contract, not a Codex platform import/launch test.
@@ -194,10 +195,11 @@ export function validatePlans(coreText, frontendText, { root = projectRoot } = {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
+    const handoffs=validateHandoffs(readFileSync(resolve(projectRoot,filenames[0]),"utf8"),JSON.parse(readFileSync(resolve(projectRoot,"scripts/development-gate-handoff-policy.json"))));
     const report = validatePlans(...filenames.map((name) => readFileSync(resolve(projectRoot, name), "utf8")), { freshReview: process.argv.includes("--fresh-review") });
     if (process.argv.includes("--json")) process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     else {
-      const summary = { ...report };
+      const summary = { ...report,development_handoffs:handoffs };
       delete summary.tasks;
       delete summary.execution_order;
       process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);

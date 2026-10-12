@@ -544,3 +544,19 @@ r03-assess-local:
 # Final publication still requires actual Supabase and formal Beta evidence.
 r03-release-check:
 	node scripts/r03-stage-check.mjs --release
+
+.PHONY: r04-assess-local r04-admission-check f0-local-check tp03-local-check tp04-local-check local-release-check development-handoff-check
+r04-assess-local:
+	node scripts/record-r04-local-prerequisites.mjs
+r04-admission-check:
+	node scripts/local-development-gate.mjs --admission
+f0-local-check:
+	node scripts/local-development-gate.mjs CORE-GATE:F0
+tp03-local-check:
+	node scripts/local-development-gate.mjs CORE:TP03
+tp04-local-check:
+	node scripts/local-development-gate.mjs CORE:TP04
+local-release-check:
+	node scripts/local-development-gate.mjs --release
+development-handoff-check:
+	node scripts/check-development-gate-handoff.mjs
