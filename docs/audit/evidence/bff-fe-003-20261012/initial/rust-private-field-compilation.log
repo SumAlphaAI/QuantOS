@@ -1,0 +1,22 @@
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+error[E0616]: field `client` of struct `PgRuntimeStore` is private
+  --> crates/quantos-runtime/src/research_pg.rs:33:25
+   |
+33 |         let rows = self.client.query_typed(
+   |                         ^^^^^^ private field
+
+error[E0308]: mismatched types
+  --> crates/quantos-runtime/src/research_pg.rs:37:109
+   |
+37 | ...r.as_uuid(),postgres::types::Type::UUID),(&id.to_string(),postgres::types::Type::TEXT)],
+   |                                              ^^^^^^^^^^^^^^^ expected `&Uuid`, found `&String`
+   |
+   = note: expected reference `&Uuid`
+              found reference `&std::string::String`
+
+Some errors have detailed explanations: E0308, E0616.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `quantos-runtime` (lib) due to 2 previous errors

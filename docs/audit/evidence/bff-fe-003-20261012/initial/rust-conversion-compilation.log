@@ -1,0 +1,43 @@
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+error: cannot find macro `json` in this scope
+    --> crates/quantos-runtime/src/pg.rs:1224:87
+     |
+1224 |         Ok(rows.into_iter().filter(|r|r.get::<_,i64>("sequence") as u64>after).map(|r|json!({
+     |                                                                                       ^^^^
+     |
+help: consider importing this macro
+     |
+   1 + use serde_json::json;
+     |
+
+error[E0277]: `?` couldn't convert the error to `ResearchWorkflowError`
+    --> crates/quantos-runtime/src/pg.rs:1222:10
+     |
+1217 |           let rows = self.client.query_typed(
+     |  ________________________________-
+1218 | |             "select id, action, recorded_at, row_number() over(order by append_sequence,id) as sequence
+1219 | |              from quantos.audit_entries where tenant_id=$1 and actor_id=$2 and details->>'workflow_run_id'=$3
+1220 | |              order by append_sequence,id limit 2001",
+1221 | |             &[(tenant.as_uuid(),postgres::types::Type::UUID),(actor.as_uuid(),postgres::types::Type::UUID)...
+1222 | |         )?;
+     | |         -^ the trait `From<postgres::Error>` is not implemented for `ResearchWorkflowError`
+     | |_________|
+     |           this can't be annotated with `?` because it has type `Result<_, postgres::Error>`
+     |
+note: `ResearchWorkflowError` needs to implement `From<postgres::Error>`
+    --> crates/quantos-runtime/src/research.rs:128:1
+     |
+ 128 | pub enum ResearchWorkflowError {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     = note: the question mark operation (`?`) implicitly performs a conversion on the error value using the `From` trait
+     = help: the following other types implement trait `From<T>`:
+               `ResearchWorkflowError` implements `From<CoreError>`
+               `ResearchWorkflowError` implements `From<EngineManagerError>`
+               `ResearchWorkflowError` implements `From<PgRuntimeError>`
+               `ResearchWorkflowError` implements `From<PgStorageError>`
+               `ResearchWorkflowError` implements `From<RuntimeError>`
+               `ResearchWorkflowError` implements `From<SupabaseStorageError>`
+               `ResearchWorkflowError` implements `From<serde_json::Error>`
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `quantos-runtime` (lib) due to 2 previous errors

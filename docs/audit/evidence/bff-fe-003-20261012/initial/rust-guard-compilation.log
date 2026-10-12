@@ -1,0 +1,37 @@
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Checking quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Checking bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0308]: `?` operator has incompatible types
+  --> services/bff-gateway/src/live/research.rs:33:43
+   |
+33 | ...tch(&mut repo,&mut pages().lock().map_err(|_|Fault::unavailable())?,&scope,&method,&path,&q,&headers,&body,Utc::now())
+   |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Pages`, found `MutexGuard<'_, Pages>`
+   |
+   = note: `?` operator cannot convert from `std::sync::MutexGuard<'_, Pages>` to `Pages`
+   = note: expected struct `Pages`
+              found struct `std::sync::MutexGuard<'_, Pages>`
+note: return type inferred to be `Pages` here
+  --> services/bff-gateway/src/live/research.rs:32:42
+   |
+32 |         let scope=scope(&c);let mut repo=PgPages::connect(database,&c)?;
+   |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0277]: `research::Fixture` doesn't implement `std::fmt::Debug`
+   --> services/bff-gateway/src/lib.rs:52:5
+    |
+ 50 | #[derive(Debug)]
+    |          ----- in this derive macro expansion
+ 51 | struct ProviderData {
+ 52 |     research: research::Fixture,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `std::fmt::Debug` is not implemented for `research::Fixture`
+   --> services/bff-gateway/src/research.rs:139:1
+    |
+139 | pub(crate) struct Fixture {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: add `#[derive(Debug)]` to `research::Fixture` or manually `impl std::fmt::Debug for research::Fixture`
+
+Some errors have detailed explanations: E0277, E0308.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `bff-gateway` (lib) due to 2 previous errors

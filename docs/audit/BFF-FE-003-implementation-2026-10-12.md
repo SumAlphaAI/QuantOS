@@ -43,3 +43,37 @@
 DEVELOPMENT：BLOCKED；本地工程：PASS（以实际 manifest 成立为前提）；数据库验收：NOT_RUN；RELEASE：NOT_ASSESSED；formalAccepted=false。完整任务尚未获得阶段验收，不能记作 ACCEPTED。
 
 下一可执行任务：刷新受影响的 A2/核心前置回执并推进 R1-SERVICE 准入；另可开始同迭代 BFF-FE-005 实现。具备获准非生产资源后，执行目标迁移/功能/安全负向/恢复验证，再重评 BFF-FE-003 和 PROVIDER:A3。
+
+## 变更文件与提交范围
+
+完整逐文件清单：[changed-files.json](./evidence/bff-fe-003-20261012/changed-files.json)。实现提交覆盖33个文件，证据提交另含本报告、计划Gate摘要和证据目录。
+
+| 分组 | 变更文件 |
+|---|---|
+| Provider | services/bff-gateway/src/research.rs、research_tests.rs、live/research.rs、lib.rs、live.rs、generated-input-policy.json；Cargo.toml、README.md |
+| R03适配 | crates/quantos-runtime/src/pg.rs、research_pg.rs；Cargo.lock |
+| 迁移 | supabase/migrations/20261012150000_bff_research_pages.sql |
+| 契约 | bff/openapi/quantos-bff.v1.yaml、page-operation-catalog.yaml、compatibility/a1-security-correction.json |
+| 生成物/客户端 | packages/api-client/src/bff-gen/quantos-bff.ts、quantos-bff.zod.ts；tests/contract/generated/ 下4份生成文件；packages/api-client/tests/bff-response.test.ts、tests/contract/bff-remediation.test.ts |
+| 测试/Gate/CI | scripts/bff-fe-003-development.mjs、bff-fe-003-development.test.mjs、check-bff-fe-003-probes.mjs、test-bff-fe-003-live.mjs；package.json、.github/workflows/frontend-baseline.yml |
+| 文档 | 前端执行计划、PRE-01-page-api-coverage-register.md、BFF-FE-003-summary.md、ADR-BFF-FE-003-research-page-provider.md、本报告 |
+
+独立响应 Schema 检查曾发现 Snapshot.window 字段映射错误，本轮已修复；原响应、失败日志和原候选 SHA 记录均保存在 initial/。运行环境仅检查配置是否存在，不读取/输出凭据值，结果见 target-configuration-presence.json；所需 dev 目标配置均未设置。
+
+## 最终工程结果
+
+冻结源码：`ecf893e385e7a09d9c3ac3124418809086c0956d`。12组检查全部 PASS：
+
+| 命令 | 结果 |
+|---|---|
+| cargo test -p bff-gateway -p quantos-runtime --lib --locked --offline -- --skip real_logout_db_write_matches_persistent_trace | BFF 32 + Runtime 19，共51项通过；1项目标 logout test 明确排除 |
+| cargo test -p bff-gateway --test auth_settings_provider --test audit_export_provider --locked --offline | 12 + 9，共21项通过 |
+| cargo clippy -p bff-gateway -p quantos-runtime --all-targets --locked --offline -- -D warnings | 通过，无警告 |
+| node node_modules/vitest/vitest.mjs run tests/contract packages/api-client/tests | 9文件、89项通过；含loopback SSE恢复/重复/乱序/撤权 |
+| node node_modules/typescript/bin/tsc --project packages/api-client/tsconfig.json --noEmit | 通过 |
+| node scripts/check-bff-openapi.mjs / check-bff-generated.mjs / check-bff-contract-coverage.mjs / check-bff-compatibility.mjs | 分别通过；63 operations、54 schemas；85项累计工程兼容修正匹配 |
+| node scripts/check-development-plans.mjs | 通过 |
+| node --test scripts/bff-fe-003-development.test.mjs | 21项通过 |
+| node scripts/check-bff-fe-003-probes.mjs docs/audit/evidence/bff-fe-003-20261012/provider-responses.json | 九项真实reference路由响应均通过独立Schema检查 |
+
+每项完整参数、实际执行时间、退出码和日志hash均已写入 manifest。九个前置节点的发布状态均为 NOT_ASSESSED，当前不能递归获得READY；strict Gate按此事实拒绝。本轮没有执行目标迁移或数据库测试。

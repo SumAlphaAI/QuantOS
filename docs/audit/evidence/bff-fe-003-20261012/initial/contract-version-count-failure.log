@@ -1,0 +1,66 @@
+
+ RUN  v4.1.11 /Users/anray/Documents/project/SumAlpha/QuantOS
+
+ ❯ packages/api-client/tests/bff-response.test.ts (2 tests | 2 failed) 4ms
+     × validates populated specimens for every component and rejects invalid types 3ms
+     × rejects malformed success/error payloads for all published operations 0ms
+ ❯ tests/contract/bff-remediation.test.ts (8 tests | 1 failed) 124ms
+     × rejects provider response schema, header, status and sensitive-field drift 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/contract/bff-remediation.test.ts > A1 OpenAPI semantic remediation > rejects provider response schema, header, status and sensitive-field drift
+AssertionError: expected '1.6.0' to be '1.5.0' // Object.is equality
+
+Expected: "1.5.0"
+Received: "1.6.0"
+
+ ❯ tests/contract/bff-remediation.test.ts:49:32
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/api-client/tests/bff-response.test.ts > published BFF runtime response coverage > validates populated specimens for every component and rejects invalid types
+AssertionError: expected [ 'UUID', 'DateTime', …(52) ] to have a length of 52 but got 54
+
+- Expected
++ Received
+
+- 52
++ 54
+
+ ❯ packages/api-client/tests/bff-response.test.ts:47:40
+     45| describe("published BFF runtime response coverage", () => {
+     46|   it("validates populated specimens for every component and rejects in…
+     47|     expect(Object.keys(bffZodSchemas)).toHaveLength(52);
+       |                                        ^
+     48|     for (const [name, schema] of Object.entries(bffZodSchemas)) {
+     49|       const value = specimen(components.$defs[name]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  packages/api-client/tests/bff-response.test.ts > published BFF runtime response coverage > rejects malformed success/error payloads for all published operations
+AssertionError: expected [ 'getSession', 'getContext', …(61) ] to have a length of 62 but got 63
+
+- Expected
++ Received
+
+- 62
++ 63
+
+ ❯ packages/api-client/tests/bff-response.test.ts:56:45
+     54|
+     55|   it("rejects malformed success/error payloads for all published opera…
+     56|     expect(Object.keys(bffResponseSchemas)).toHaveLength(62);
+       |                                             ^
+     57|     for (const [operation, responses] of Object.entries(bffResponseSch…
+     58|       for (const [status, schema] of Object.entries(responses)) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 2 passed (4)
+      Tests  3 failed | 27 passed (30)
+   Start at  18:47:31
+   Duration  487ms (transform 268ms, setup 0ms, import 757ms, tests 225ms, environment 0ms)
+

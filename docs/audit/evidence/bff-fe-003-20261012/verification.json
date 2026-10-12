@@ -1,0 +1,50 @@
+{
+  "schema": "quantos-bff-fe-003-verification/v1",
+  "engineeringStatus": "PASS",
+  "stageGate": "BLOCKED",
+  "databaseAcceptance": "NOT_RUN",
+  "formalAccepted": false,
+  "operations": 9,
+  "sourceCommit": "ecf893e385e7a09d9c3ac3124418809086c0956d",
+  "results": [
+    {
+      "id": "engineering",
+      "command": [
+        "node",
+        "scripts/bff-fe-003-development.mjs"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "executedAt": "2026-10-12T11:10:29.043Z",
+      "log": "docs/audit/evidence/bff-fe-003-20261012/engineering-final.log",
+      "logSha256": "sha256:5c5c3a4a3d275cff6ece4e917a1521346314ade56a49e7694f504dde227a258c"
+    },
+    {
+      "id": "strict",
+      "command": [
+        "node",
+        "scripts/bff-fe-003-development.mjs",
+        "--ready"
+      ],
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "executedAt": "2026-10-12T11:10:29.603Z",
+      "log": "docs/audit/evidence/bff-fe-003-20261012/strict-final.log",
+      "logSha256": "sha256:15dc7a4ee86fc8e7b41a10f617ed00d87b5545587a992048bf40a744dc06d79b"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "executedAt": "2026-10-12T11:10:30.157Z",
+      "log": "docs/audit/evidence/bff-fe-003-20261012/plans-final.log",
+      "logSha256": "sha256:6a7e3e3570780d9ef65e90173193bb82239736142c1357ee0d622ba10b455ea1"
+    }
+  ],
+  "databaseExecution": false,
+  "production": false
+}
