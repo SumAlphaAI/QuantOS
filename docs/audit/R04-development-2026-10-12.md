@@ -15,3 +15,5 @@
 目标环境、Supabase持久Signal/Proposal/私有Storage读回、RLS/事务/独立进程恢复、实际BFF及页面、外部上游集成、性能/容量/长稳和同SHA CI继续移交RELEASE-GATE:BETA，全部NOT_RUN。正式项目用户验收独立，formalAccepted=false。未升级订阅，未使用生产凭据，未发布或推送。
 
 冻结d475a61c的完整失败见 [failed-attempt-02](./evidence/r04-completion-20261012/failed-attempt-02/failure.json)。新runner保存timeout/errorCode/signal；完整make test预算30分钟，只是本机验证进程的有界时限，不作为产品性能验收。R02、TP03、TP04共享编排场景验证器，要求四项命名场景全部成功并允许套件增长，拒绝缺场景、缩减、失败或ignored回执。
+
+第三次冻结307567de首组构建实际PASS，但回执封装错误地拒绝既有90分钟预算，零有效完成回执；构建报告和collector日志保留于failed-attempt-03。修正为Node支持的正整数时限，并添加遍历全部现有策略预算的兼容性测试。

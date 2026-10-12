@@ -1,0 +1,76 @@
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+error[E0603]: function `build_command_metadata` is private
+   --> crates/quantos-runtime/src/research_pg.rs:9:9
+    |
+  9 |         build_command_metadata, dispatch_research, ensure_snapshot_allowed, prepare_research_input,
+    |         ^^^^^^^^^^^^^^^^^^^^^^ private function
+    |
+note: the function `build_command_metadata` is defined here
+   --> crates/quantos-runtime/src/research.rs:649:1
+    |
+649 | fn build_command_metadata(run: &WorkflowRun, capability: &str) -> CommandMetadata {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0603]: function `dispatch_research` is private
+   --> crates/quantos-runtime/src/research_pg.rs:9:33
+    |
+  9 |         build_command_metadata, dispatch_research, ensure_snapshot_allowed, prepare_research_input,
+    |                                 ^^^^^^^^^^^^^^^^^ private function
+    |
+note: the function `dispatch_research` is defined here
+   --> crates/quantos-runtime/src/research.rs:469:1
+    |
+469 | / async fn dispatch_research(
+470 | |     manager: &mut EngineManager,
+471 | |     run: &WorkflowRun,
+472 | |     payload: &ResearchCheckpointPayload,
+...   |
+596 | |     })
+597 | | }
+    | |_^
+
+error[E0603]: function `ensure_snapshot_allowed` is private
+   --> crates/quantos-runtime/src/research_pg.rs:9:52
+    |
+  9 |         build_command_metadata, dispatch_research, ensure_snapshot_allowed, prepare_research_input,
+    |                                                    ^^^^^^^^^^^^^^^^^^^^^^^ private function
+    |
+note: the function `ensure_snapshot_allowed` is defined here
+   --> crates/quantos-runtime/src/research.rs:599:1
+    |
+599 | / fn ensure_snapshot_allowed(
+600 | |     snapshot: &DataSnapshotRecord,
+601 | |     observed_at: DateTime<Utc>,
+602 | |     rules: &SnapshotQualityRuleset,
+...   |
+616 | |     Err(ResearchWorkflowError::SnapshotGateRejected { details })
+617 | | }
+    | |_^
+
+error[E0616]: field `data_snapshot_id` of struct `ResearchCheckpointPayload` is private
+   --> crates/quantos-runtime/src/research_pg.rs:189:62
+    |
+189 |                 quantos_core::SnapshotId::parse_str(&request.data_snapshot_id)?,
+    |                                                              ^^^^^^^^^^^^^^^^ private field
+
+error[E0616]: field `capability` of struct `ResearchCheckpointPayload` is private
+   --> crates/quantos-runtime/src/research_pg.rs:227:86
+    |
+227 | ...                   let response = cancel_manager.cancel_capability(&request.capability,
+    |                                                                                ^^^^^^^^^^ private field
+
+error[E0616]: field `capability` of struct `ResearchCheckpointPayload` is private
+   --> crates/quantos-runtime/src/research_pg.rs:229:89
+    |
+229 | ...                   metadata: Some(build_command_metadata(run, &request.capability)),
+    |                                                                           ^^^^^^^^^^ private field
+
+error[E0616]: field `execution_id` of struct `ResearchCheckpointPayload` is private
+   --> crates/quantos-runtime/src/research_pg.rs:230:59
+    |
+230 | ...                   execution_id: request.execution_id.clone(), reason: "operator-request".into(),
+    |                                             ^^^^^^^^^^^^ private field
+
+Some errors have detailed explanations: E0603, E0616.
+For more information about an error, try `rustc --explain E0603`.
+error: could not compile `quantos-runtime` (lib test) due to 7 previous errors

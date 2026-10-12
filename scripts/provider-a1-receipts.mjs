@@ -205,7 +205,7 @@ export function runDatabaseAttempts(execute,maxAttempts=3) {
 }
 // Command time limits bound the harness; they are not product performance acceptance.
 export function executionOutcome(run, timeoutMs) {
- assert(Number.isInteger(timeoutMs)&&timeoutMs>0&&timeoutMs<=3600000,'invalid execution timeout');
+ assert(Number.isInteger(timeoutMs)&&timeoutMs>0&&timeoutMs<=2147483647,'invalid execution timeout');
  const code=run.error?.code;
  const executionErrorCode=code?(typeof code==='string'&&/^[A-Z0-9_]{1,40}$/.test(code)?code:'UNKNOWN_EXECUTION_ERROR'):run.error?'UNKNOWN_EXECUTION_ERROR':null;
  const signal=run.signal??null;
