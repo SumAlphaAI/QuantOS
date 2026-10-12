@@ -1,0 +1,1026 @@
+{
+  "schema": "quantos-frontend-development-handoffs/v1",
+  "after": "FE:BFF-FE-003",
+  "baselineSourceCommit": "a099f39b773c072a3cdf38174b462766c7a5af3c",
+  "earlyRequired": [
+    "contracts",
+    "data-integrity",
+    "authorization",
+    "idempotency-recovery",
+    "deadline-semantics"
+  ],
+  "releaseRequirements": "按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+  "releaseHandoff": "前端BFF-FE-003之后全部任务的外部环境及性能验收，按前端计划第2.3节与scripts/frontend-gate-handoff-policy.json逐项移交；Beta范围归RELEASE-GATE:BETA，I10/testnet范围归RELEASE-GATE:LIVE-READINESS。DEVELOPMENT和INTEGRATION不要求目标环境或性能达标；发布须补齐原目标与候选同SHA实际证据，未执行NOT_RUN。",
+  "tasks": [
+    {
+      "nodeId": "FE:BFF-FE-005",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:BFF-FE-005",
+      "requirements": [
+        "- 需求描述：instrument catalog/watchlist；authorized VenueQuote；candle series/history/realtime；series metadata、quality/gaps/event markers；symbol/venue/product/timezone/interval capability",
+        "- 目标阶段与验收：FEP-4/G4：报价和 candle 均含 source/venue/asOf/quality/license；切换维度不混用缓存，断流可回补且不拼接"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:BFF-FE-006",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:BFF-FE-006",
+      "requirements": [
+        "- 需求描述：portfolio/risk projection；proposal list/get/evaluate；preflight/order capabilities；approval list/get/decide/MFA；command-ref submit；order list/get/cancel request/stream",
+        "- 目标阶段与验收：FEP-5/G5：七类拒绝、职责分离、重复 1,000 次幂等、202 受理和订单事实流全部通过"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:BFF-FE-004",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:BFF-FE-004",
+      "requirements": [
+        "- 需求描述：strategy list/draft get/save；static check；backtest create/get/stream；release create/list/get；allowedTargets；approval timeline；expectedVersion/409 diff",
+        "- 目标阶段与验收：FEP-3/G3：并发编辑无静默覆盖；校验失败、未审批及非法 target 均由服务端拒绝"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:BFF-FE-009",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:BFF-FE-009",
+      "requirements": [
+        "- 需求描述：reconciliation list/get；break list/get；ledger entries；request rerun/re-evaluation；status stream；Order/Fill/Audit/Alert evidence refs；禁止任何 edit-ledger operation",
+        "- 目标阶段与验收：FEP-5/G5：差异状态跨页面一致；重跑幂等；schema 和权限负向测试证明前端无法改账"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:BFF-FE-008",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:BFF-FE-008",
+      "requirements": [
+        "- 需求描述：performance summary/time series/attribution/drawdown/fees；valuation and ledger versions；report create/status/get/download；period/method/currency/coverage/provisional",
+        "- 目标阶段与验收：FEP-4/G4：所有结果含 account/currency/method/asOf/ledgerVersion/valuationSnapshotId；未对账数据强制 provisional"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:BFF-FE-010",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:BFF-FE-010",
+      "requirements": [
+        "- 需求描述：service health/metrics projection；incident list/get/timeline；approved Runbook actions/prechecks；member/role/policy/capability/flag CRUD with versioning；alert list/get/ack/unack/subscriptions/stream",
+        "- 目标阶段与验收：FEP-6/G6：无任意命令参数；最后管理员和职责分离保护；ack 不改变 resolved；所有治理变更可审计"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:BFF-FE-002",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:BFF-FE-002",
+      "requirements": [
+        "- 需求描述：authorized command summary、priority queue、system health、risk/data/order/run counters、recent activity；返回 sampledAt/asOf、source 和资源级跳转引用",
+        "- 目标阶段与验收：FEP-1/G1：单次聚合或受控并发、不同角色字段裁剪和无权对象负向测试通过；开发记录请求/延迟预算基线，无界扇出须修复，目标负载性能预算在 RELEASE 达标"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:BFF-FE-011",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:BFF-FE-011",
+      "requirements": [
+        "- 需求描述：server-visible BrowserCapabilities、浏览器权限策略/permission state、下载记录与平台降级说明；不得返回 token、secret 或本地敏感内容",
+        "- 目标阶段与验收：FEP-1/G1：浏览器 capability、permission state、短时下载与敏感字段负向测试通过"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-103",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-103",
+      "requirements": [
+        "- 需求描述：QuantOS UI/domain-ui、主题、i18n、表格/时间线/确认框",
+        "- 验收重点：所有组件状态进 Storybook；键盘、焦点、200% 缩放和读屏通过"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-VIS-000",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-VIS-000",
+      "requirements": [
+        "- 需求描述：P01–P15/P17–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准",
+        "- 页面级完成标准：抽取为 `packages/ui`/`domain-ui`，禁止逐页复制样式；开发建立 1440 视觉基线并验证关键状态，RELEASE 完成基准视觉回归设计签署；语义色不得挪作装饰色"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-102",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-102",
+      "requirements": [
+        "- 需求描述：OIDC、callback、MFA、401/403/404/maintenance/offline",
+        "- 验收重点：401 清内存态；403/404 不泄露对象存在性；return path 不含敏感参数"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-101",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-101",
+      "requirements": [
+        "- 需求描述：App Shell、路由守卫、主工作区/账户/mode/数据新鲜度/风险/连接状态",
+        "- 验收重点：守卫严格按 session → tenant/workspace → RBAC/capability → resource → mode → data 顺序；任一步失败停止后续请求"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-104",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-104",
+      "requirements": [
+        "- 需求描述：Profile/安全/通知/浏览器能力",
+        "- 验收重点：会话撤销、通知降级、下载说明可用；小屏无高风险按钮"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:WEB-101",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:WEB-101",
+      "requirements": [
+        "- 需求描述：官网首页、产品、架构安全、场景、访问申请、登录",
+        "- 验收重点：开发验证 SEO、隐私、防滥用和禁用词功能；Lighthouse 采集基线，评分目标在 RELEASE 通过"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P01",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P01",
+      "requirements": [
+        "- 需求描述：`P01-Identity-Access-Recovery-High-Fidelity-v1.png`",
+        "- 页面级完成标准：登录、MFA、访问申请、恢复与返回安全路由均可运行；错误不泄露账户存在性"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P02",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P02",
+      "requirements": [
+        "- 需求描述：`P02-Command-Center-High-Fidelity-v1.png`",
+        "- 页面级完成标准：卡片按 capability 裁剪；汇总状态、待办、健康与最近活动来自 BFF；无静态业务数据"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P15",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P15",
+      "requirements": [
+        "- 需求描述：`P15-Profile-Security-and-Notification-Settings-High-Fidelity-v2.png`",
+        "- 页面级完成标准：资料、区域、通知矩阵、MFA、会话、可信设备和安全操作全部接入接口"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P17",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P17",
+      "requirements": [
+        "- 需求描述：`P17-Web-Browser-Capability-High-Fidelity-v2.png`",
+        "- 页面级完成标准：浏览器权限、下载、存储、兼容性与响应式能力检测落地；非浏览器能力不进入一期范围"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:FEP-1",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:FEP-1",
+      "requirements": [
+        "- 需求描述：官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态",
+        "- 交付节点与放行条件：G1：认证/RBAC/模式/陈旧/离线/响应式可用，官网内容合规"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-507",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-507",
+      "requirements": [
+        "- 需求描述：Audit Explorer 与受控导出",
+        "- 验收重点：correlation/causation 链完整；导出异步、短时 URL、授权和审计"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P12",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P12",
+      "requirements": [
+        "- 需求描述：`P12-Audit-Explorer-and-Export-Jobs-High-Fidelity-v1.png`",
+        "- 页面级完成标准：服务端搜索/分页、因果链、脱敏载荷、异步导出和短时下载状态落地"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-204",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-204",
+      "requirements": [
+        "- 需求描述：DataSnapshot 目录/详情、质量/许可/时效",
+        "- 验收重点：`failed/degraded/expired/license missing` 明确阻断后续策略/交易用途"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P05",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P05",
+      "requirements": [
+        "- 需求描述：`P05-Data-Snapshot-Catalog-and-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：目录、详情、血缘、质量、许可、时效与阻断状态均由接口驱动"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-201",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-201",
+      "requirements": [
+        "- 需求描述：Research 列表、新建与表单校验",
+        "- 验收重点：请求含 capability、snapshot、budget、deadline；后端拒绝字段原位显示"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P03",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P03",
+      "requirements": [
+        "- 需求描述：`P03-Research-List-and-New-Research-High-Fidelity-v1.png`",
+        "- 页面级完成标准：列表分页/筛选与创建表单落地；预算、deadline、snapshot、capability 校验与 202 受理正确"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-202",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-202",
+      "requirements": [
+        "- 需求描述：Research 详情、SSE 流、取消与恢复",
+        "- 验收重点：以 sequence/cursor 去重；断线从最后确认游标回补；取消返回受理态而非伪造已取消"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-203",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-203",
+      "requirements": [
+        "- 需求描述：Artifact/Evidence 详情与交叉跳转",
+        "- 验收重点：显示 input/content/environment hash、Engine/prompt/code 版本、证据与 correlation ID"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P04",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P04",
+      "requirements": [
+        "- 需求描述：`P04-Research-and-Artifact-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：SSE 续传/去重、取消受理、Artifact/Evidence/Audit 跳转及全部终态落地"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:FEP-2",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:FEP-2",
+      "requirements": [
+        "- 需求描述：P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot",
+        "- 交付节点与放行条件：G2 功能准入验证固定输入可追溯与重放、取消/超时/终态/资源释放和基本浏览器用例；取消 ≤2s 在功能联调采样并于 RELEASE 指定环境验收，目标 Web 浏览器完整同用例全绿亦由 RELEASE 收口"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-301",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-301",
+      "requirements": [
+        "- 需求描述：Strategy 目录与 Lab 草稿",
+        "- 验收重点：自动保存带版本；409 保留草稿并提供 diff，不覆盖服务端"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P06",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P06",
+      "requirements": [
+        "- 需求描述：`P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png`",
+        "- 页面级完成标准：目录、Lab、版本化草稿、自动保存、校验与 409 diff 可用"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-302",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-302",
+      "requirements": [
+        "- 需求描述：静态检查、回测队列与报告",
+        "- 验收重点：固定 snapshot/clock/cost/slippage/environment hash；泄漏检查失败阻断 Release"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-303",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-303",
+      "requirements": [
+        "- 需求描述：不可变 Release、审批申请与目标选择",
+        "- 验收重点：hash/参数/回测/数据/证据齐全；目标完全取自后端 `allowedTargets`"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P07",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P07",
+      "requirements": [
+        "- 需求描述：`P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png`",
+        "- 页面级完成标准：回测详情、校验报告、不可变 Release、审批时间线和 allowedTargets 落地"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:FEP-3",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:FEP-3",
+      "requirements": [
+        "- 需求描述：P06–P07；草稿、静态检查、回测、Release、审批时间线",
+        "- 交付节点与放行条件：G3：未验证/未审批不可部署；M3/M4 仅 Paper/Shadow"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-401",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-401",
+      "requirements": [
+        "- 需求描述：Market Catalog、Watchlist、VenueQuote",
+        "- 验收重点：每行含 source、venue、asOf、latency、quality、capability；不同产品不前端合并"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P18",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P18",
+      "requirements": [
+        "- 需求描述：`P18-Markets-Overview-and-Instrument-Detail-High-Fidelity-v2.png`",
+        "- 页面级完成标准：市场目录、自选、报价比较、标的详情、许可/质量/as_of 与告警偏好接口化"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-501",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-501",
+      "requirements": [
+        "- 需求描述：Portfolio 与 Risk",
+        "- 验收重点：asOf/stale、仓位、P&L、敞口、规则命中、kill switch 常驻；陈旧即阻断写操作"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P08",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P08",
+      "requirements": [
+        "- 需求描述：`P08-Portfolio-and-Risk-High-Fidelity-v1.png`",
+        "- 页面级完成标准：仓位、估值、P&L、敞口、规则、stale 与 kill switch 状态可验证；陈旧时禁写"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-502",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-502",
+      "requirements": [
+        "- 需求描述：Proposal 与风险评估",
+        "- 验收重点：永久显示 `executable=false` 语义；过期 Proposal 不允许评估"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P09",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P09",
+      "requirements": [
+        "- 需求描述：`P09-TradeProposal-List-and-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：列表/详情/证据/反方观点/失效时间落地；始终显示不可执行语义"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-503",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-503",
+      "requirements": [
+        "- 需求描述：Trade Ticket preflight",
+        "- 验收重点：每一步重新取报价、余额、限额、venue 健康、对象版本和 mode；只预填 intent，不生成 command"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-504",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-504",
+      "requirements": [
+        "- 需求描述：Approval、MFA、职责分离",
+        "- 验收重点：自批/过期/冲突/额度变化明确拒绝；不采用乐观更新"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P10",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P10",
+      "requirements": [
+        "- 需求描述：`P10-Approvals-and-RiskDecision-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：RiskDecision、规则命中、MFA、职责分离、同意/拒绝/过期/冲突状态落地"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-505",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-505",
+      "requirements": [
+        "- 需求描述：Command 提交、Order/Fill 时间线、撤单请求",
+        "- 验收重点：提交只传服务端 command ref 与 Idempotency-Key；重复提交只产生一笔下游订单"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P20",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P20",
+      "requirements": [
+        "- 需求描述：`P20-Trade-Ticket-Controlled-Order-Entry-High-Fidelity-v3.png`",
+        "- 页面级完成标准：订单意图、执行上下文、preflight、证据关联、风险评估、审批与 command ref 提交严格按服务端时序实现"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P11",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P11",
+      "requirements": [
+        "- 需求描述：`P11-Orders-and-Execution-Detail-High-Fidelity-v1.png`",
+        "- 页面级完成标准：Order/Fill 时间线、部分成交、拒绝、撤单请求、断流回补与证据链落地"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-506",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-506",
+      "requirements": [
+        "- 需求描述：Reconciliation 与账本差异",
+        "- 验收重点：不能手工改账；差异贯通 Order/Fill/Performance/Alert/Audit"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P22",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P22",
+      "requirements": [
+        "- 需求描述：`P22-Reconciliation-and-Funds-Ledger-High-Fidelity-v1.png`",
+        "- 页面级完成标准：对账运行、差异、资金账本、证据、重跑请求与状态流落地；无手工改账入口"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:FEP-5",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:FEP-5",
+      "requirements": [
+        "- 需求描述：P08–P12、P20、P22；Portfolio/Risk、Proposal、Trade Ticket、Approval、Order、Reconciliation、Audit",
+        "- 交付节点与放行条件：G5 功能准入验证七类高风险用例全绿、完整证据链可还原、无直连 venue；≤5 分钟还原在 RELEASE 指定数据规模验收"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-402",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-402",
+      "requirements": [
+        "- 需求描述：OHLCV/K 线、指标、订单/成交标记",
+        "- 验收重点：series 元数据完整；切 venue/product 清空旧 series；断流停在最后确认时间"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P19",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P19",
+      "requirements": [
+        "- 需求描述：`P19-Candlestick-and-Market-Analysis-High-Fidelity-v4.png`",
+        "- 页面级完成标准：Symbol/Venue/Product/Timezone/Quality 可选；周期仅 1m/5m/15m/1h/4h/1D/1W/自定义；K 线、指标、事件、数据缺口和元数据落地"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-403",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-403",
+      "requirements": [
+        "- 需求描述：Performance、归因、周期报表",
+        "- 验收重点：金额/币种/估值/账本版本/口径齐全；未对账数据标为 provisional"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P21",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P21",
+      "requirements": [
+        "- 需求描述：`P21-Performance-and-Reports-High-Fidelity-v1.png`",
+        "- 页面级完成标准：收益、归因、回撤、费用、口径、provisional 和报表生成/下载落地"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:FEP-4",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:FEP-4",
+      "requirements": [
+        "- 需求描述：P18–P19、P21；市场目录、报价、K 线、订单标记、收益与报表",
+        "- 交付节点与放行条件：G4：来源/venue/as_of/quality/口径完整；断流不拼接；provisional 正确"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-603",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-603",
+      "requirements": [
+        "- 需求描述：Alerts 收件箱",
+        "- 验收重点：BFF 授权/去重/限速；ack 仅代表已读，不代表解决；离线禁写"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P23",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P23",
+      "requirements": [
+        "- 需求描述：`P23-Alerts-Inbox-and-Response-High-Fidelity-v1.png`",
+        "- 页面级完成标准：授权收件箱、详情、ack/unack、处置导航、订阅与实时状态落地；ack 不等于 resolved"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-601",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-601",
+      "requirements": [
+        "- 需求描述：Operations/Incident/Runbook",
+        "- 验收重点：只能触发服务端批准 actionId；无任意命令/脚本入口"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P13",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P13",
+      "requirements": [
+        "- 需求描述：`P13-Operations-and-Incident-Detail-High-Fidelity-v2.png`",
+        "- 页面级完成标准：7 个服务健康视图、告警、incident 时间线、Runbook 检查与受控 actionId 调用落地"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-602",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-602",
+      "requirements": [
+        "- 需求描述：Admin 治理",
+        "- 验收重点：成员、角色、policy、capability、flag 全量审计；最后管理员保护；职责分离"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:UI-P14",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:UI-P14",
+      "requirements": [
+        "- 需求描述：`P14-Admin-Governance-High-Fidelity-v2.png`",
+        "- 页面级完成标准：成员/角色/策略/能力/开关、版本冲突、职责分离、签名与审计落地"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:FEP-6",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:FEP-6",
+      "requirements": [
+        "- 需求描述：P13、P14、P23；Operations、Admin、Alerts",
+        "- 交付节点与放行条件：G6：受控 Runbook、职责分离、Web 通知、权限与离线禁写通过"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:FEP-7",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "owner": "FE:FEP-7",
+      "requirements": [
+        "- 需求描述：全业务链功能回归、可访问性与安全、故障恢复；汇总兼容/性能/视觉基线和待优化项，在 RELEASE 完成全量目标验收",
+        "- 交付节点与放行条件：G7：Paper + Shadow Beta 功能候选通过，功能阻断级缺陷为 0；发布需另通过 RELEASE-GATE:BETA"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "nodeId": "FE:FEP-8",
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS",
+      "owner": "FE:FEP-8",
+      "requirements": [
+        "- 需求描述：P10/P11 的 testnet 条件入口、MFA 与双人审批",
+        "- 交付节点与放行条件：G8：本机真实 UI/BFF/服务组合验证 testnet 条件入口、flag 关闭不可达、MFA/职责分离、模式/权限/审批和审计恢复；实际 testnet 连接、运行与全部环境/性能验收归 RELEASE-GATE:LIVE-READINESS，不开启生产实盘"
+      ],
+      "phaseLine": "- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:LIVE-READINESS；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。",
+      "boundary": "外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "externalEarlyGate": false,
+      "performanceEarlyGate": false,
+      "targetStatus": "NOT_RUN"
+    }
+  ],
+  "checkpoints": [
+    {
+      "checkpointId": "PROVIDER:A3",
+      "stage": "DEVELOPMENT",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "PROVIDER:A4",
+      "stage": "DEVELOPMENT",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "PROVIDER:A5",
+      "stage": "DEVELOPMENT",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "PROVIDER:A6",
+      "stage": "DEVELOPMENT",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "PROVIDER:ALL",
+      "stage": "DEVELOPMENT",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-GATE:G1",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "按 FEP-1 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-GATE:G2",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "按 FEP-2 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-GATE:G3",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "按 FEP-3 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-WINDOW:I4",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-WINDOW:I5",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-GATE:G5",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "按 FEP-5 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-GATE:G4",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "按 FEP-4 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-GATE:G6",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "按 FEP-6 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-GATE:G7",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及关键浏览器回归，汇总所有性能/兼容/视觉基线和待整改项后评估 INTEGRATION 阶段 READY，形成 Beta 功能候选；核心完整功能范围保持独立验证。Beta 正式发布必须另通过 RELEASE-GATE:BETA，不能用功能候选替代性能、长稳、部署或签署。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "FRONTEND-GATE:G8",
+      "stage": "INTEGRATION",
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS",
+      "requiredScope": "G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testnet 条件入口、UI/API flag 关闭不可达、模式/权限/MFA/职责分离、审批与审计恢复，评估 INTEGRATION 阶段 READY；实际 testnet 连接和运行、外部环境、性能/长稳/部署与正式签署全部归 RELEASE-GATE:LIVE-READINESS，实际运行仍须有效范围授权，不启用生产实盘。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "checkpointId": "RELEASE-GATE:BETA",
+      "stage": "RELEASE",
+      "releaseCheckpoint": "RELEASE-GATE:BETA",
+      "requiredScope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。 F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。 后续22任务的外部环境与性能移交按核心计划2.11和机器清单逐项验收，缺目标保持NOT_RUN。 R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。 TP01-C_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地研究fixture不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 前端BFF-FE-003之后全部任务的外部环境及性能验收，按前端计划第2.3节与scripts/frontend-gate-handoff-policy.json逐项移交；Beta范围归RELEASE-GATE:BETA，I10/testnet范围归RELEASE-GATE:LIVE-READINESS。DEVELOPMENT和INTEGRATION不要求目标环境或性能达标；发布须补齐原目标与候选同SHA实际证据，未执行NOT_RUN。",
+      "targetStatus": "NOT_RUN"
+    }
+  ]
+}

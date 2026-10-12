@@ -1,4 +1,6 @@
-> TP01-D_LOCAL 当前复验（2026-10-12）：冻结4fe846ef完整执行16节点/54组必要本地检查全部PASS；仅TP01-D限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。旧TP01-C本地READY因公共输入变化撤回，历史回执和失败保留。14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。见[完成报告](./audit/TP01-D-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-d-local-admission.md)。
+> A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
+
+> TP01-D_LOCAL 历史复验（2026-10-12）：冻结4fe846ef完整执行16节点/54组必要本地检查全部PASS；仅TP01-D限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。旧TP01-C本地READY因公共输入变化撤回，历史回执和失败保留。14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。见[完成报告](./audit/TP01-D-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-d-local-admission.md)。
 
 > 历史 TP01-C_LOCAL 复验（2026-10-12）：冻结bacc3b60完成13节点/45组必要本地检查及递归内容验证，全部PASS；仅TP01-C限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。原5个限定本地READY因公共输入变化撤回，历史证据保留。12组目标/远程治理检查及外部环境/性能由测试和RELEASE-GATE:BETA验收，formalAccepted=false。见[完成报告](./audit/TP01-C-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-c-local-admission.md)。
 
@@ -41,13 +43,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.73
+> 版本：3.74
 > 更新时间：2026-10-12
 > 状态：TP10/F08/F0必要13节点DEVELOPMENT READY；页面、正式和发布独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.74`：复评A2/R1-SERVICE前置回执；逐项登记BFF-FE-003之后全部任务和检查点的外部环境/性能发布移交，取消G8实际testnet的早期门槛；保留本机功能联调和全部原目标。
 
 - `3.73`：R04公共校验与研究消费专用本地完成Gate；同步Beta目标验收义务，正式验收独立。
 
@@ -160,7 +164,7 @@
 
 - `3.17`：统一 DEVELOPMENT 功能开发、INTEGRATION 功能联调、RELEASE 发布前验收。保留全部任务、依赖、业务指标和历史状态；增加独立 `stage_gate` 记录。全量 API 功能准入后推进页面开发，G0–G8 按各窗口功能范围评估；性能、长稳、部署/staging、远程同 SHA CI 与发布签署集中到 RELEASE-GATE:BETA 及核心 LIVE-READINESS。所有新增阶段记录为 NOT_ASSESSED，本次规划调整不产生验收通过。
 
-以下版本条目是历史决策记录；当前阶段归属以 3.42、第 2.1 节及各检查点为准。
+以下版本条目是历史决策记录；当前阶段归属以 3.74、第 2.1/2.3 节及各检查点为准。
 
 - `3.16`：按用户要求将 B-01 的真实 staging 验收移至 A1 最后评审（RE_REVIEW → ACCEPTED 前）；开发阶段只运行工程基线检查，staging 待执行不阻塞开发完成或 REVIEW_READY。保留最终目标证据、联合签署和正式检查点；其他阶段要求不变。
 
@@ -367,7 +371,7 @@
 | 阶段 | 目标与准入证据 | 阻塞范围 |
 |---|---|---|
 | DEVELOPMENT | P0、A1–A6：可运行实现、冻结契约/生成 client、数据正确性、权限隔离、幂等/恢复、超时与取消语义、基本回归；涉及数据库执行时使用现有配置的 Supabase 并记录实际结果 | 功能、契约、安全或不可恢复的数据错误阻塞相关依赖；性能基线记录不达标项 |
-| INTEGRATION | I1–I10：逐页实现及真实 BFF/服务的完整业务链、跨模块一致性、受控失败与恢复；可用获准工程环境完成，环境身份和能力边界必须写入证据 | 对应功能链路未通过阻塞其依赖的功能联调；不要求先取得发布环境签署 |
+| INTEGRATION | I1–I10：逐页实现及本机真实 UI/BFF/服务组合的完整业务链、跨模块一致性、受控失败与恢复；外部连接使用自有合成输入或端口适配器，环境与替代范围写入证据；全部外部环境验收归 RELEASE | 对应功能链路未通过阻塞其依赖的功能联调；不要求先取得发布环境签署 |
 | RELEASE | 功能闭环后在明确目标环境、负载、用途与授权下验证性能、长稳、staging/部署、远程同 SHA CI、发布回滚及签署 | 不达标阻止 Beta 发布或 testnet/Live 准备正式验收；仍可推进不依赖缺陷的功能 |
 
 任务与检查点的 `stage_gate` 记录阶段准入；原 `development_status` 继续描述实现进度，原 `review_status`、`source_commit`、`evidence` 继续保留正式全量复审与历史回执。三个维度分别统计，不能把待发布验收计成未实现功能，也不能把阶段 READY 计成正式 ACCEPTED。
@@ -382,6 +386,16 @@
 ### 2.2 验收人工确认
 
 所有原六方/多角色项目验收确认统一按[用户确认流程](./gate-records/user-acceptance-confirmation-workflow.md)：Codex 拟稿，项目用户一人确认；无需各角色分别签署。适用于本计划所有 Gate/provider 与后续 RELEASE。角色保留审阅维度与工程 owner，技术验证及范围边界照常执行。历史版本中的多方签署仅按当时事实保留。
+
+### 2.3 BFF-FE-003 后续任务的发布移交契约
+
+本节适用于 BFF-FE-005 起的全部后续任务、PROVIDER:A3–A6/ALL、FRONTEND-GATE:G1–G8、FRONTEND-WINDOW:I4/I5 和 FEP-1–FEP-8。外部环境与性能指标仅在 RELEASE 阻止发布，不阻止 DEVELOPMENT/INTEGRATION 功能准入；未实现、契约不一致、越权、错误数据、重复副作用或恢复错误仍阻塞对应功能。依赖 ID、阶段顺序、授权/许可和正式用户确认规则保持有效。当前任务 BFF-FE-003 及其上游回执不由本次后续范围迁移自动放行。
+
+每张任务卡登记责任任务、发布入口和 NOT_RUN；机器清单为 `scripts/frontend-gate-handoff-policy.json`，`node scripts/check-frontend-gate-handoff.mjs` 校验完整覆盖及原条款保留。混合 runner 未拆分时记录其实际失败，不得忽略失败宣称 READY；需先提供功能 runner 与独立目标回执入口。当前修改只落实阶段契约，不生成缺失的功能准入。
+
+按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+
+第7.4节全部原阈值、每路由G0预算、取消≤2s、证据还原≤5分钟、Lighthouse/帧率/延迟、持续窗口，以及第10节全量发布要求均保留。开发期性能采样属于诊断，不作为 Gate；功能测试的deadline/取消、限流、幂等、资源有界与故障恢复正确性不得延期。G8/FEP-8 以本机组合验证条件入口，实际testnet与外部venue运行归核心 RELEASE-GATE:LIVE-READINESS；本机证据不扩大任何真实用途授权。
 
 ## 3. 前期准备窗口（P0）
 
@@ -799,6 +813,8 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：instrument catalog/watchlist；authorized VenueQuote；candle series/history/realtime；series metadata、quality/gaps/event markers；symbol/venue/product/timezone/interval capability
 - 领域接口背景：R01/R02 定义行情与快照，未定义市场目录、跨 venue 报价、K 线与图表元数据页面 API
 - 覆盖契约/页面：C12/C16；P18/P19/P20
@@ -807,7 +823,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-provider-a3"></a>
 ##### PROVIDER:A3：验收检查点
 
-A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。
+A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -818,7 +834,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "FE:BFF-FE-005",
     "PROVIDER:A2"
   ],
-  "required_scope": "A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。",
+  "required_scope": "A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -845,6 +861,8 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：portfolio/risk projection；proposal list/get/evaluate；preflight/order capabilities；approval list/get/decide/MFA；command-ref submit；order list/get/cancel request/stream
 - 领域接口背景：X01–X04 定义风险和执行服务，缺 Portfolio/Proposal/Approval/Trade Ticket/Order 页面组合契约
 - 覆盖契约/页面：C06–C09/C13；P08–P11/P20
@@ -862,6 +880,8 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：strategy list/draft get/save；static check；backtest create/get/stream；release create/list/get；allowedTargets；approval timeline；expectedVersion/409 diff
 - 领域接口背景：S01–S04 有 Strategy/Backtest/Release 能力，缺完整页面 API 与编辑冲突模型
 - 覆盖契约/页面：C05/C08；P06/P07
@@ -870,7 +890,7 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-provider-a4"></a>
 ##### PROVIDER:A4：验收检查点
 
-A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。
+A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -881,7 +901,7 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "FE:BFF-FE-004",
     "PROVIDER:A3"
   ],
-  "required_scope": "A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。",
+  "required_scope": "A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -908,6 +928,8 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：reconciliation list/get；break list/get；ledger entries；request rerun/re-evaluation；status stream；Order/Fill/Audit/Alert evidence refs；禁止任何 edit-ledger operation
 - 领域接口背景：X05 定义 reconciliation worker/ledger，但未定义完整页面读写契约
 - 覆盖契约/页面：C15/C09/C10/C16；P22/P11/P21
@@ -925,6 +947,8 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：performance summary/time series/attribution/drawdown/fees；valuation and ledger versions；report create/status/get/download；period/method/currency/coverage/provisional
 - 领域接口背景：X01/X05 提供 Portfolio/对账基础；总计划未定义 Performance/Report API，原 C14 已标记“需 BFF 新增页面模型”
 - 覆盖契约/页面：C14/C15；P21
@@ -942,6 +966,8 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：service health/metrics projection；incident list/get/timeline；approved Runbook actions/prechecks；member/role/policy/capability/flag CRUD with versioning；alert list/get/ack/unack/subscriptions/stream
 - 领域接口背景：F09/X06 有观测、运维目标；F06 有策略能力，未定义 Incident/Admin/Alert 页面 API
 - 覆盖契约/页面：C11/C16；P13/P14/P23/P02
@@ -950,7 +976,7 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-provider-a5"></a>
 ##### PROVIDER:A5：验收检查点
 
-A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。
+A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -962,7 +988,7 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "FE:BFF-FE-010",
     "PROVIDER:A4"
   ],
-  "required_scope": "A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。",
+  "required_scope": "A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -989,6 +1015,8 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：authorized command summary、priority queue、system health、risk/data/order/run counters、recent activity；返回 sampledAt/asOf、source 和资源级跳转引用
 - 领域接口背景：F09、R/X 有指标和事件，未定义 Command Center 聚合页面模型
 - 覆盖契约/页面：C02；P02
@@ -1006,6 +1034,8 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：server-visible BrowserCapabilities、浏览器权限策略/permission state、下载记录与平台降级说明；不得返回 token、secret 或本地敏感内容
 - 领域接口背景：浏览器权限和下载策略需要页面级 BFF 模型，不能直接暴露内部会话或存储实现
 - 覆盖契约/页面：C17；P17
@@ -1014,7 +1044,7 @@ A5 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-provider-a6"></a>
 ##### PROVIDER:A6：验收检查点
 
-A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。
+A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -1025,7 +1055,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "FE:BFF-FE-011",
     "PROVIDER:A5"
   ],
-  "required_scope": "A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。",
+  "required_scope": "A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1041,7 +1071,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-provider-all"></a>
 ##### PROVIDER:ALL：验收检查点
 
-全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。
+全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -1068,7 +1098,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "FE:BFF-FE-011",
     "FRONTEND-GATE:G0"
   ],
-  "required_scope": "全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。",
+  "required_scope": "全部 12 个 API 的实现、OpenAPI/生成 client、权限/幂等/错误/实时恢复/审计/敏感字段功能检查和 G0 功能冻结通过后，评估 DEVELOPMENT 阶段 READY，允许 I1 起新页面实现；不要求全部 API 先取得正式 ACCEPTED。staging、部署、性能与完整签署由 RELEASE 汇总，Paper/Shadow 功能准入不启用 M5 target。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1104,6 +1134,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete。组件及 Storybook 属于交付范围，本轮复审从空白开始。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：QuantOS UI/domain-ui、主题、i18n、表格/时间线/确认框
 - 接口绑定：无业务接口
 - 验收重点：所有组件状态进 Storybook；键盘、焦点、200% 缩放和读屏通过
@@ -1120,6 +1152,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：P01–P15/P17–P23 共用视觉体系；以 P02 与 P20 v3 为全局基准
 - 实际页面/路由交付：App Shell、导航、顶栏、状态条、栅格、token、边框、表格、表单、图表、Badge、危险确认与状态语义
 - 契约绑定：C01、C16、C17
@@ -1139,6 +1173,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete / Contract Integrated。真实 IdP/MFA 功能联调是 G1 阶段 READY 的前置；staging 签署是正式 Done 的前置。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：OIDC、callback、MFA、401/403/404/maintenance/offline
 - 接口绑定：C01、C08
 - 验收重点：401 清内存态；403/404 不泄露对象存在性；return path 不含敏感参数
@@ -1156,6 +1192,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete / Mocked。BFF-FE-002 发布后使用生成 client + 同 schema MSW；真实 BFF 功能联调前不得升级 Integrated，staging 签署在 RELEASE 完成。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：App Shell、路由守卫、主工作区/账户/mode/数据新鲜度/风险/连接状态
 - 接口绑定：C01、C02、C16
 - 验收重点：守卫严格按 session → tenant/workspace → RBAC/capability → resource → mode → data 顺序；任一步失败停止后续请求
@@ -1173,6 +1211,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete / Local Provider Implemented。BFF-FE-001/011 Web 契约完成真实功能联调后才可 Integrated，staging 签署在 RELEASE 完成。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Profile/安全/通知/浏览器能力
 - 接口绑定：C17
 - 验收重点：会话撤销、通知降级、下载说明可用；小屏无高风险按钮
@@ -1190,6 +1230,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - development_status: `COMPLETED`
 - 状态范围：已开发完成；UI Complete / Local Provider Implemented。Terminal Auth/BFF 真实功能联调后配置获准环境的 BFF origin 并评估 G1 阶段准入；发布前取得 staging/目标 CDN origin 证据并验证 Lighthouse。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：官网首页、产品、架构安全、场景、访问申请、登录
 - 接口绑定：Access Request/Auth
 - 验收重点：开发验证 SEO、隐私、防滥用和禁用词功能；Lighthouse 采集基线，评分目标在 RELEASE 通过
@@ -1207,6 +1249,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P01-Identity-Access-Recovery-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/login`、`/mfa`、`/access-request`、`/unauthorized`、`/offline`
 - 契约绑定：C01
@@ -1225,6 +1269,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P02-Command-Center-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/command`
 - 契约绑定：C02、C06、C16
@@ -1243,6 +1289,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P15-Profile-Security-and-Notification-Settings-High-Fidelity-v2.png`
 - 实际页面/路由交付：`/settings/profile`、`/settings/notifications`、`/settings/security`
 - 契约绑定：C01、C17
@@ -1261,6 +1309,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P17-Web-Browser-Capability-High-Fidelity-v2.png`
 - 实际页面/路由交付：`/settings/browser`
 - 契约绑定：C17、BrowserCapabilities
@@ -1270,7 +1320,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-frontend-gate-g1"></a>
 ##### FRONTEND-GATE:G1：验收检查点
 
-按 FEP-1 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
+按 FEP-1 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -1291,7 +1341,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "CORE:F09",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按 FEP-1 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
+  "required_scope": "按 FEP-1 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1317,6 +1367,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - development_status: `COMPLETED`
 - 状态范围：已开发完成范围为 UI-101–UI-104、WEB-101；逐页 UI-Pxx 与 G1 的集成验收仍按独立条目判定。
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：官网首期；P01、P02、P15、P17；App Shell、路由、主题、i18n、全局状态
 - 主要后端依赖：CORE:F06、CORE:F09
 - 交付节点与放行条件：G1：认证/RBAC/模式/陈旧/离线/响应式可用，官网内容合规
@@ -1336,6 +1388,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Audit Explorer 与受控导出
 - 接口绑定：C10
 - 验收重点：correlation/causation 链完整；导出异步、短时 URL、授权和审计
@@ -1352,6 +1406,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P12-Audit-Explorer-and-Export-Jobs-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/audit`、`/audit/:correlationId`、`/exports/:exportId`
 - 契约绑定：C10
@@ -1370,6 +1426,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：DataSnapshot 目录/详情、质量/许可/时效
 - 接口绑定：C04
 - 验收重点：`failed/degraded/expired/license missing` 明确阻断后续策略/交易用途
@@ -1386,6 +1444,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P05-Data-Snapshot-Catalog-and-Detail-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/data-snapshots`、`/data-snapshots/:snapshotId`
 - 契约绑定：C04
@@ -1404,6 +1464,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Research 列表、新建与表单校验
 - 接口绑定：C03、C04
 - 验收重点：请求含 capability、snapshot、budget、deadline；后端拒绝字段原位显示
@@ -1420,6 +1482,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P03-Research-List-and-New-Research-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/research`、`/research/new`
 - 契约绑定：C03、C04
@@ -1438,6 +1502,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Research 详情、SSE 流、取消与恢复
 - 接口绑定：C03
 - 验收重点：以 sequence/cursor 去重；断线从最后确认游标回补；取消返回受理态而非伪造已取消
@@ -1454,6 +1520,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Artifact/Evidence 详情与交叉跳转
 - 接口绑定：C04、C10
 - 验收重点：显示 input/content/environment hash、Engine/prompt/code 版本、证据与 correlation ID
@@ -1470,6 +1538,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P04-Research-and-Artifact-Detail-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/research/:runId`、`/artifacts/:artifactId`
 - 契约绑定：C03、C04、C10
@@ -1479,7 +1549,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-frontend-gate-g2"></a>
 ##### FRONTEND-GATE:G2：验收检查点
 
-按 FEP-2 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
+按 FEP-2 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -1496,7 +1566,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "CORE-GATE:R1-SERVICE",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按 FEP-2 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
+  "required_scope": "按 FEP-2 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1521,6 +1591,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: ["CORE:U01", "CORE:TP01"]
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：P03–P05；Research 创建、流式、取消、Artifact、DataSnapshot
 - 主要后端依赖：CORE-GATE:R1-SERVICE
 - 交付节点与放行条件：G2 功能准入验证固定输入可追溯与重放、取消/超时/终态/资源释放和基本浏览器用例；取消 ≤2s 在功能联调采样并于 RELEASE 指定环境验收，目标 Web 浏览器完整同用例全绿亦由 RELEASE 收口
@@ -1540,6 +1612,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Strategy 目录与 Lab 草稿
 - 接口绑定：C05
 - 验收重点：自动保存带版本；409 保留草稿并提供 diff，不覆盖服务端
@@ -1556,6 +1630,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P06-Strategy-Catalog-and-Strategy-Lab-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/strategies`、`/strategies/new`、`/strategies/:strategyId/lab`
 - 契约绑定：C05
@@ -1574,6 +1650,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：静态检查、回测队列与报告
 - 接口绑定：C05
 - 验收重点：固定 snapshot/clock/cost/slippage/environment hash；泄漏检查失败阻断 Release
@@ -1590,6 +1668,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：不可变 Release、审批申请与目标选择
 - 接口绑定：C05、C08
 - 验收重点：hash/参数/回测/数据/证据齐全；目标完全取自后端 `allowedTargets`
@@ -1606,6 +1686,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P07-Backtest-Detail-and-Strategy-Release-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/backtests/:runId`、`/releases`、`/releases/:releaseId`
 - 契约绑定：C05、C08、C10
@@ -1615,7 +1697,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-frontend-gate-g3"></a>
 ##### FRONTEND-GATE:G3：验收检查点
 
-按 FEP-3 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
+按 FEP-3 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -1631,7 +1713,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "SERVICE:S04",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按 FEP-3 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
+  "required_scope": "按 FEP-3 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1656,6 +1738,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: ["CORE:S04"]
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：P06–P07；草稿、静态检查、回测、Release、审批时间线
 - 主要后端依赖：CORE-GATE:S2-SERVICE、SERVICE:S04
 - 交付节点与放行条件：G3：未验证/未审批不可部署；M3/M4 仅 Paper/Shadow
@@ -1675,6 +1759,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Market Catalog、Watchlist、VenueQuote
 - 接口绑定：C12
 - 验收重点：每行含 source、venue、asOf、latency、quality、capability；不同产品不前端合并
@@ -1691,6 +1777,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P18-Markets-Overview-and-Instrument-Detail-High-Fidelity-v2.png`
 - 实际页面/路由交付：`/markets`、`/markets/:symbol`
 - 契约绑定：C12、C16
@@ -1709,6 +1797,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Portfolio 与 Risk
 - 接口绑定：C06、C16
 - 验收重点：asOf/stale、仓位、P&L、敞口、规则命中、kill switch 常驻；陈旧即阻断写操作
@@ -1725,6 +1815,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P08-Portfolio-and-Risk-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/portfolio`、`/risk`、`/risk/rules/:ruleId`
 - 契约绑定：C06
@@ -1743,6 +1835,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Proposal 与风险评估
 - 接口绑定：C07
 - 验收重点：永久显示 `executable=false` 语义；过期 Proposal 不允许评估
@@ -1759,6 +1853,8 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P09-TradeProposal-List-and-Detail-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/proposals`、`/proposals/:proposalId`
 - 契约绑定：C07、C10
@@ -1768,7 +1864,7 @@ A6 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 <a id="acceptance-frontend-window-i4"></a>
 ##### FRONTEND-WINDOW:I4：验收检查点
 
-I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。
+I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -1783,7 +1879,7 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
     "FE:UI-P09",
     "PROVIDER:ALL"
   ],
-  "required_scope": "I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。",
+  "required_scope": "I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1810,6 +1906,8 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Trade Ticket preflight
 - 接口绑定：C12、C13、C07
 - 验收重点：每一步重新取报价、余额、限额、venue 健康、对象版本和 mode；只预填 intent，不生成 command
@@ -1826,6 +1924,8 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Approval、MFA、职责分离
 - 接口绑定：C08
 - 验收重点：自批/过期/冲突/额度变化明确拒绝；不采用乐观更新
@@ -1842,6 +1942,8 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P10-Approvals-and-RiskDecision-Detail-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/approvals`、`/approvals/:approvalId`
 - 契约绑定：C07、C08、C10
@@ -1860,6 +1962,8 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Command 提交、Order/Fill 时间线、撤单请求
 - 接口绑定：C09
 - 验收重点：提交只传服务端 command ref 与 Idempotency-Key；重复提交只产生一笔下游订单
@@ -1876,6 +1980,8 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P20-Trade-Ticket-Controlled-Order-Entry-High-Fidelity-v3.png`
 - 实际页面/路由交付：`/trade`、`/trade/:symbol`
 - 契约绑定：C07–C09、C12、C13
@@ -1894,6 +2000,8 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P11-Orders-and-Execution-Detail-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/orders`、`/orders/:orderId`
 - 契约绑定：C09、C10、C15
@@ -1903,7 +2011,7 @@ I4 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 <a id="acceptance-frontend-window-i5"></a>
 ##### FRONTEND-WINDOW:I5：验收检查点
 
-I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。
+I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -1918,7 +2026,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
     "FE:UI-P11",
     "PROVIDER:ALL"
   ],
-  "required_scope": "I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。",
+  "required_scope": "I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估 INTEGRATION 阶段 READY，允许进入下一功能窗口；G4/G5 跨窗口功能闭环随后完成，性能、staging 与正式发布验收不作为本窗口开发准入。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -1945,6 +2053,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Reconciliation 与账本差异
 - 接口绑定：C15、C16
 - 验收重点：不能手工改账；差异贯通 Order/Fill/Performance/Alert/Audit
@@ -1961,6 +2071,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P22-Reconciliation-and-Funds-Ledger-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/reconciliation`、`/reconciliation/:runId`
 - 契约绑定：C09、C10、C15
@@ -1970,7 +2082,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 <a id="acceptance-frontend-gate-g5"></a>
 ##### FRONTEND-GATE:G5：验收检查点
 
-按 FEP-5 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
+按 FEP-5 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -1995,7 +2107,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
     "SERVICE:X06",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按 FEP-5 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
+  "required_scope": "按 FEP-5 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -2020,6 +2132,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：P08–P12、P20、P22；Portfolio/Risk、Proposal、Trade Ticket、Approval、Order、Reconciliation、Audit
 - 主要后端依赖：CORE-GATE:X3-SERVICE、SERVICE:X06
 - 交付节点与放行条件：G5 功能准入验证七类高风险用例全绿、完整证据链可还原、无直连 venue；≤5 分钟还原在 RELEASE 指定数据规模验收
@@ -2039,6 +2153,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：OHLCV/K 线、指标、订单/成交标记
 - 接口绑定：C12、C09
 - 验收重点：series 元数据完整；切 venue/product 清空旧 series；断流停在最后确认时间
@@ -2055,6 +2171,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P19-Candlestick-and-Market-Analysis-High-Fidelity-v4.png`
 - 实际页面/路由交付：`/markets/:symbol/chart`
 - 契约绑定：C09、C12
@@ -2073,6 +2191,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Performance、归因、周期报表
 - 接口绑定：C14、C15
 - 验收重点：金额/币种/估值/账本版本/口径齐全；未对账数据标为 provisional
@@ -2089,6 +2209,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P21-Performance-and-Reports-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/performance`、`/performance/reports/:reportId`
 - 契约绑定：C14、C15
@@ -2098,7 +2220,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 <a id="acceptance-frontend-gate-g4"></a>
 ##### FRONTEND-GATE:G4：验收检查点
 
-按 FEP-4 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
+按 FEP-4 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -2114,7 +2236,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
     "CORE-GATE:X3-SERVICE",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按 FEP-4 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
+  "required_scope": "按 FEP-4 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -2139,6 +2261,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：P18–P19、P21；市场目录、报价、K 线、订单标记、收益与报表
 - 主要后端依赖：CORE-GATE:X3-SERVICE
 - 交付节点与放行条件：G4：来源/venue/as_of/quality/口径完整；断流不拼接；provisional 正确
@@ -2158,6 +2282,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Alerts 收件箱
 - 接口绑定：C16
 - 验收重点：BFF 授权/去重/限速；ack 仅代表已读，不代表解决；离线禁写
@@ -2174,6 +2300,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P23-Alerts-Inbox-and-Response-High-Fidelity-v1.png`
 - 实际页面/路由交付：`/alerts`、`/alerts/:alertId`
 - 契约绑定：C10、C11、C16
@@ -2192,6 +2320,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Operations/Incident/Runbook
 - 接口绑定：C11、C16
 - 验收重点：只能触发服务端批准 actionId；无任意命令/脚本入口
@@ -2208,6 +2338,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P13-Operations-and-Incident-Detail-High-Fidelity-v2.png`
 - 实际页面/路由交付：`/operations`、`/operations/incidents/:incidentId`
 - 契约绑定：C11、C16
@@ -2226,6 +2358,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：Admin 治理
 - 接口绑定：C11、C01
 - 验收重点：成员、角色、policy、capability、flag 全量审计；最后管理员保护；职责分离
@@ -2242,6 +2376,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：`P14-Admin-Governance-High-Fidelity-v2.png`
 - 实际页面/路由交付：`/admin/members`、`/admin/policies`、`/admin/capabilities`、`/admin/flags`
 - 契约绑定：C01、C11
@@ -2251,7 +2387,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 <a id="acceptance-frontend-gate-g6"></a>
 ##### FRONTEND-GATE:G6：验收检查点
 
-按 FEP-6 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。
+按 FEP-6 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -2268,7 +2404,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
     "SERVICE:X06",
     "PROVIDER:ALL"
   ],
-  "required_scope": "按 FEP-6 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。",
+  "required_scope": "按 FEP-6 业务范围、页面功能标准及第 7 节 INTEGRATION 要求，验证真实 BFF/服务的权限、实时、错误、审计、关键浏览器用例与恢复一致性后评估阶段 READY；受影响安全与正确性缺陷必须修复。页面闭环后复审 closes_core 的完整核心功能；性能目标、staging/部署、完整视觉/浏览器矩阵及正式签署由 RELEASE 收口。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -2293,6 +2429,8 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 - closes_core: ["CORE:X06"]
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：P13、P14、P23；Operations、Admin、Alerts
 - 主要后端依赖：CORE-GATE:X3-SERVICE、SERVICE:X06
 - 交付节点与放行条件：G6：受控 Runbook、职责分离、Web 通知、权限与离线禁写通过
@@ -2303,7 +2441,7 @@ I5 本窗口任务完成功能实现与必要的真实 BFF/服务联调后评估
 <a id="acceptance-frontend-gate-g7"></a>
 ##### FRONTEND-GATE:G7：验收检查点
 
-G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及关键浏览器回归，汇总所有性能/兼容/视觉基线和待整改项后评估 INTEGRATION 阶段 READY，形成 Beta 功能候选；核心完整功能范围保持独立验证。Beta 正式发布必须另通过 RELEASE-GATE:BETA，不能用功能候选替代性能、长稳、部署或签署。
+G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及关键浏览器回归，汇总所有性能/兼容/视觉基线和待整改项后评估 INTEGRATION 阶段 READY，形成 Beta 功能候选；核心完整功能范围保持独立验证。Beta 正式发布必须另通过 RELEASE-GATE:BETA，不能用功能候选替代性能、长稳、部署或签署。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -2322,7 +2460,7 @@ G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及
     "FRONTEND-GATE:G5",
     "FRONTEND-GATE:G6"
   ],
-  "required_scope": "G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及关键浏览器回归，汇总所有性能/兼容/视觉基线和待整改项后评估 INTEGRATION 阶段 READY，形成 Beta 功能候选；核心完整功能范围保持独立验证。Beta 正式发布必须另通过 RELEASE-GATE:BETA，不能用功能候选替代性能、长稳、部署或签署。",
+  "required_scope": "G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及关键浏览器回归，汇总所有性能/兼容/视觉基线和待整改项后评估 INTEGRATION 阶段 READY，形成 Beta 功能候选；核心完整功能范围保持独立验证。Beta 正式发布必须另通过 RELEASE-GATE:BETA，不能用功能候选替代性能、长稳、部署或签署。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -2347,6 +2485,8 @@ G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及
 - closes_core: []
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：全业务链功能回归、可访问性与安全、故障恢复；汇总兼容/性能/视觉基线和待优化项，在 RELEASE 完成全量目标验收
 - 主要后端依赖：CORE-GATE:R1、CORE-GATE:S2、CORE-GATE:X3、CORE:TP01
 - 交付节点与放行条件：G7：Paper + Shadow Beta 功能候选通过，功能阻断级缺陷为 0；发布需另通过 RELEASE-GATE:BETA
@@ -2357,7 +2497,7 @@ G7 在 I9 完成 Paper/Shadow 全业务链功能联调、权限/审计/恢复及
 <a id="acceptance-frontend-gate-g8"></a>
 ##### FRONTEND-GATE:G8：验收检查点
 
-G8 在 I10 完成获准 testnet 范围内的真实功能联调，验证 UI/API flag 关闭不可达、模式/权限/审批与审计恢复后评估 INTEGRATION 阶段 READY；不启用生产实盘。部署环境、长稳与正式签署转核心 RELEASE-GATE:LIVE-READINESS，testnet 实际运行仍须有效范围授权。
+G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testnet 条件入口、UI/API flag 关闭不可达、模式/权限/MFA/职责分离、审批与审计恢复，评估 INTEGRATION 阶段 READY；实际 testnet 连接和运行、外部环境、性能/长稳/部署与正式签署全部归 RELEASE-GATE:LIVE-READINESS，实际运行仍须有效范围授权，不启用生产实盘。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 
 ```json
 {
@@ -2372,7 +2512,7 @@ G8 在 I10 完成获准 testnet 范围内的真实功能联调，验证 UI/API f
     "PROVIDER:ALL",
     "FE:FEP-7"
   ],
-  "required_scope": "G8 在 I10 完成获准 testnet 范围内的真实功能联调，验证 UI/API flag 关闭不可达、模式/权限/审批与审计恢复后评估 INTEGRATION 阶段 READY；不启用生产实盘。部署环境、长稳与正式签署转核心 RELEASE-GATE:LIVE-READINESS，testnet 实际运行仍须有效范围授权。",
+  "required_scope": "G8 在 I10 以本机真实 UI/BFF/服务组合及自有合成 venue 验证 testnet 条件入口、UI/API flag 关闭不可达、模式/权限/MFA/职责分离、审批与审计恢复，评估 INTEGRATION 阶段 READY；实际 testnet 连接和运行、外部环境、性能/长稳/部署与正式签署全部归 RELEASE-GATE:LIVE-READINESS，实际运行仍须有效范围授权，不启用生产实盘。 外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
@@ -2397,9 +2537,11 @@ G8 在 I10 完成获准 testnet 范围内的真实功能联调，验证 UI/API f
 - closes_core: ["CORE:L03", "CORE:L04"]
 - development_status: `UNSPECIFIED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
+- 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:LIVE-READINESS；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
+- 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：P10/P11 的 testnet 条件入口、MFA 与双人审批
 - 主要后端依赖：CORE:L01、CORE:L02、SERVICE:L03、SERVICE:L04、CORE-GATE:L4-SERVICE
-- 交付节点与放行条件：G8：获准 testnet 范围内功能联调完成，flag 关闭时 UI/API 不可达；正式准备验收进入核心 RELEASE-GATE:LIVE-READINESS，不开启生产实盘
+- 交付节点与放行条件：G8：本机真实 UI/BFF/服务组合验证 testnet 条件入口、flag 关闭不可达、MFA/职责分离、模式/权限/审批和审计恢复；实际 testnet 连接、运行与全部环境/性能验收归 RELEASE-GATE:LIVE-READINESS，不开启生产实盘
 - 范围说明：本记录位于功能窗口末尾；依赖子任务和对应 Gate 的阶段准入满足后可完成本里程碑功能评估，正式全量复审仍独立。closes_core 是后续完整核心功能/正式复审映射，不作为页面前置。
 
 ## 5. 接口对接清单与契约基线
@@ -2494,7 +2636,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 
 1. **契约设计：** BFF 在实现前提交 OpenAPI/Proto 变更、示例和兼容说明；前端和 QA 在 PR 内评审字段、状态、权限、错误与时序。
 2. **生成与 mock：** CI 生成 TS client、Zod/fixture 类型；MSW 从同一契约提供成功、拒绝、冲突、限流、断流、陈旧与权限场景。
-3. **Provider contract：** A1–A6 开发阶段验证真实实现、同源 schema/示例、权限/错误/幂等/恢复及 provider harness；mock 或本地参考 adapter 的证据注明其范围，不能证明未实现的真实 provider。I1–I10 验证真实 consumer/provider 功能链；所有 staging 目标环境与签署在 RELEASE、正式 ACCEPTED 前完成。
+3. **Provider contract：** A1–A6 开发阶段验证实际代码、同源 schema/示例、权限/错误/幂等/恢复及 provider harness；I1–I10 使用本机真实 consumer/provider 模块组合验证功能链。外部端口可用自有合成输入/adapter，须记录替代边界，不能以纯 MSW 页面演示证明服务实现。所有外部目标连接、staging、testnet、性能及签署在 RELEASE 完成。
 4. **功能联调：** 按“单接口 smoke → 页面 query → command → realtime → 审计链 → 故障恢复”的顺序，每个接口记录 owner、环境、版本、证据和遗留项。
 5. **Gate 回归：** 按变更和依赖运行对应功能/契约回归、受影响安全场景及基本浏览器 E2E；功能链闭环时运行完整业务旅程。RELEASE 运行全量目标环境/浏览器/性能回归。该阶段必需功能契约失败仍阻塞其准入，不以重跑筛除失败。
 
@@ -2537,7 +2679,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 | 单元 | 领域组件/状态/格式化/权限解释/错误映射/stream reducer；TypeScript 新增领域代码行覆盖率 ≥80%，关键风险状态分支 100% | 受影响代码和 P0 状态分支必须验证，不得用无断言/跳过测试充数；覆盖退化需修复 | 重跑候选相关回归，保留实际覆盖证据 |
 | 组件 | 默认、加载、空、错误、无权、陈旧、离线、危险确认；Storybook + RTL + axe | 所交付组件状态齐全，严重/高等级 a11y 问题为 0 | 覆盖全部 P01–P15/P17–P23 并签署 |
 | 契约 | OpenAPI、错误码、枚举、精度、分页、幂等、冲突、实时事件 | 开发校验 schema/生成/实现；真实 consumer/provider 不一致阻断相关功能联调 | 候选版本与 staging 契约全绿 |
-| 集成 | 缓存/失效、OIDC、MFA、SSE/WS、平台 adapter、真实服务 | 以获准工程环境真实 BFF/服务验证业务链；mock 不替代真实联调，correlation ID 不得丢失 | staging/部署身份、权限、实时与故障行为复验；差异未解决则阻发布 |
+| 集成 | 缓存/失效、OIDC、MFA、SSE/WS、平台 adapter、真实服务 | 以本机真实 UI/BFF/服务模块组合验证业务链；外部端口替代范围须记录，纯 mock 演示不替代模块联调，correlation ID 不得丢失 | staging/部署身份、权限、实时与故障行为复验；差异未解决则阻发布 |
 | E2E | 每角色关键 Web 旅程；研究、策略、风险审批、订单、审计、对账、运维 | 逐功能执行基本浏览器回归，链路闭环时 P0 旅程通过率 100%，不得重跑筛除 flaky | 全业务链和目标浏览器完整 E2E 矩阵通过 |
 | 视觉 | 1280/1440、768 折叠、390 只读、深浅主题、危险状态 | 建立 1440 基线，验证安全含义/可读性/关键布局，记录差异 | 关键页面无未批准差异；其余像素差异阈值 ≤0.5%，完成全矩阵和签署 |
 | 兼容 | Chromium/Firefox/Safari 当前稳定版；200% 缩放 | 主要目标浏览器关键功能/键盘及缩放可用，定期扩大采样并记录问题 | 完整矩阵的 P0 功能/布局/键盘任一失败均阻发布 |
@@ -2586,7 +2728,7 @@ G0 期间由 BFF 与前端共同冻结以下内容：
 |---|---|---|
 | `development_status=COMPLETED` / `REVIEW_READY` | 代码、契约、基本回归、对应权限/数据/高危交互、观测、文档和回滚方案就绪 | 工程实现完成；包含历史完成事实，不等于新 `stage_gate` 已评估 |
 | `UI Complete` | 页面、状态和同 schema fixture 可运行，组件/契约基本验证通过 | UI 实现完成；真实 BFF/服务联调仍待执行 |
-| `Integrated` | 获准工程环境的真实 provider/consumer、权限、实时、错误、审计链和恢复验证通过 | 功能联调完成；记录真实环境与能力边界，不能改称 staging/发布通过 |
+| `Integrated` | 本机真实 provider/consumer 模块组合、权限、实时、错误、审计链和恢复验证通过，外部端口替代范围明确 | 功能联调完成；记录真实环境与能力边界，不能改称 staging/发布通过 |
 | `stage_gate=READY` | 节点声明阶段的必要检查通过、全部前置阶段 READY、输入清单摘要和实际证据齐备 | 仅解锁依赖图中的对应阶段功能；RELEASE 还须自身正式 ACCEPTED 与源码 SHA/发布证据 |
 | `Done` / 正式 `ACCEPTED` | 功能完成且适用的 RELEASE 环境、性能、长稳、CI、签署等全部正式要求通过 | 对已验证版本、环境、用途的正式验收；范围外仍未验收 |
 
@@ -2649,7 +2791,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
 <a id="acceptance-release-gate-beta"></a>
 ### RELEASE-GATE:BETA：Paper/Shadow 正式发布验收检查点
 
-在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。 F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。 后续22任务的外部环境与性能移交按核心计划2.11和机器清单逐项验收，缺目标保持NOT_RUN。 R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。 TP01-C_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地研究fixture不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。
+在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。 F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。 后续22任务的外部环境与性能移交按核心计划2.11和机器清单逐项验收，缺目标保持NOT_RUN。 R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。 TP01-C_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地研究fixture不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 前端BFF-FE-003之后全部任务的外部环境及性能验收，按前端计划第2.3节与scripts/frontend-gate-handoff-policy.json逐项移交；Beta范围归RELEASE-GATE:BETA，I10/testnet范围归RELEASE-GATE:LIVE-READINESS。DEVELOPMENT和INTEGRATION不要求目标环境或性能达标；发布须补齐原目标与候选同SHA实际证据，未执行NOT_RUN。
 
 ```json
 {
@@ -2662,7 +2804,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
     "FE:FEP-7",
     "PROVIDER:ALL"
   ],
-  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。 F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。 后续22任务的外部环境与性能移交按核心计划2.11和机器清单逐项验收，缺目标保持NOT_RUN。 R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。 TP01-C_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地研究fixture不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。",
+  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。 F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。 后续22任务的外部环境与性能移交按核心计划2.11和机器清单逐项验收，缺目标保持NOT_RUN。 R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。 TP01-C_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地研究fixture不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 前端BFF-FE-003之后全部任务的外部环境及性能验收，按前端计划第2.3节与scripts/frontend-gate-handoff-policy.json逐项移交；Beta范围归RELEASE-GATE:BETA，I10/testnet范围归RELEASE-GATE:LIVE-READINESS。DEVELOPMENT和INTEGRATION不要求目标环境或性能达标；发布须补齐原目标与候选同SHA实际证据，未执行NOT_RUN。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],
