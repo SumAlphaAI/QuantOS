@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import orchestrationReceipt from '../../scripts/r04-orchestration-receipt.cjs';
 import {readFileSync,writeFileSync,mkdirSync,cpSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {execFileSync,spawnSync} from 'node:child_process';
@@ -7,13 +8,13 @@ import {validateSignalMatrix} from '../../scripts/tp03-signal-schema.mjs';
 import {root,digest,inventory,nodesFromPlans,planInput,validateReceipt} from '../../scripts/provider-a1-receipts.mjs';
 export const directory='docs/audit/evidence/tp03-20261010';
 const receiptPath=directory+'/receipt.json';
-export const selectors=['engines/llmquant/','engines/engine-sdk/','engines/tests/','engines/uv.lock','engines/pyproject.toml','crates/quantos-engine-manager/','crates/quantos-runtime/','proto/','third_party/tp03-llmquant/','scripts/tp03-packaged-service.py','scripts/tp03-signal-probe.py','scripts/tp03-signal-schema.mjs','scripts/tp03-ui-cancel.mjs','packages/domain-ui/src/research.ts','packages/domain-ui/tests/tp03-research-cancel.test.ts','packages/api-client/src/terminal.ts','scripts/tp03-functional-artifacts.test.mjs','scripts/provider-a1-receipts.mjs','scripts/provider-a1-policy.json'];
+export const selectors=['scripts/r04-orchestration-receipt.cjs','engines/llmquant/','engines/engine-sdk/','engines/tests/','engines/uv.lock','engines/pyproject.toml','crates/quantos-engine-manager/','crates/quantos-runtime/','proto/','third_party/tp03-llmquant/','scripts/tp03-packaged-service.py','scripts/tp03-signal-probe.py','scripts/tp03-signal-schema.mjs','scripts/tp03-ui-cancel.mjs','packages/domain-ui/src/research.ts','packages/domain-ui/tests/tp03-research-cancel.test.ts','packages/api-client/src/terminal.ts','scripts/tp03-functional-artifacts.test.mjs','scripts/provider-a1-receipts.mjs','scripts/provider-a1-policy.json'];
 const formatFiles=['adapter','artifacts','fixtures','manifest','signal_mapper','server','service','__init__'].map(f=>'engines/llmquant/src/llmquant/'+f+'.py').concat(['engines/tests/test_llmquant_contract.py','engines/tests/test_llmquant_development.py']);
 export const checks=[
  {id:'contract',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_llmquant_contract.py','engines/tests/test_llmquant_development.py','-vv'],marker:/273 passed/},
  {id:'python',command:['engines/.venv/bin/python','-m','pytest','engines/tests','-q'],marker:/\b\d+ passed(?:, \d+ (?:skipped|deselected|warnings?))* in /},
  {id:'manager',command:['cargo','test','--locked','--offline','-p','quantos-engine-manager','--test','python_llmquant'],marker:/2 passed; 0 failed/},
- {id:'runtime',command:['cargo','test','--locked','--offline','-p','quantos-runtime','--test','signal_proposal_orchestration','--','--nocapture'],marker:/3 passed; 0 failed/},
+ {id:'runtime',command:['cargo','test','--locked','--offline','-p','quantos-runtime','--test','signal_proposal_orchestration','--','--nocapture'],marker:/test result: ok\. \d+ passed; 0 failed/},
  {id:'schema',command:['node','scripts/tp03-signal-schema.mjs'],marker:/TP03_SIGNAL_SCHEMA_PASS 100/},
  {id:'ui',command:['node','scripts/tp03-ui-cancel.mjs'],marker:/TP03_UI_CANCEL_BRIDGE_PASS/},
  {id:'package',command:['engines/.venv/bin/python','scripts/tp03-packaged-service.py'],marker:/TP03_PACKAGED_SERVICE_PASS/},
@@ -30,6 +31,7 @@ export function verifyTp03(r,{checkDependencies=true,logDirectory=resolve(root,d
  assert.deepEqual(r.inputs,inventory(selectors),'TP03 functional inputs changed');assert.deepEqual(r.planInput,planInput(nodesFromPlans().get(r.nodeId)));assert(/^[a-f0-9]{40}$/.test(r.observedSourceCommit));assert(r.environment.node&&r.environment.python&&r.environment.rust);
  assert.deepEqual(r.fixtures,['trend_long_quality','mean_reversion_short','neutral_flat_wait']);assert.deepEqual(r.checks.map(c=>c.id),checks.map(c=>c.id));
  for(const [i,c]of r.checks.entries()){const spec=checks[i];assert.deepEqual(c.command,spec.command);assert.equal(c.exitCode,0);assert.equal(c.status,'PASS');assert(Number.isFinite(Date.parse(c.executedAt))&&Date.parse(c.executedAt)<=Date.now());assert.equal(c.log,directory+'/'+spec.id+'.log');const bytes=readFileSync(resolve(logDirectory,spec.id+'.log'));assert.equal(digest(bytes),c.logSha256,'TP03 log changed');assert.match(bytes.toString(),spec.marker);
+  if(c.id==='runtime')orchestrationReceipt.validateSignalProposalOutput(bytes.toString());
   if(c.id==='python'){const summary=bytes.toString().match(/\b(\d+) passed(?:, \d+ (?:skipped|deselected|warnings?))* in /);assert(summary&&Number(summary[1])>=1002,'full Python regression count below TP03 baseline');assert(!/\b\d+ (?:failed|errors?)\b/.test(bytes.toString()),'Python regression failures');}
   if(c.id==='contract')for(let i=0;i<100;i++)assert.match(bytes.toString(),new RegExp('test_hundred_replay_schema_provenance_and_artifact\\[case-'+String(i).padStart(3,'0')+'\\] PASSED'));
   if(c.id==='package'){assert.match(bytes.toString(),/TP03_INSTALLED_WHEEL/);assert.match(bytes.toString(),/TP03_PACKAGED_FIVE_RPC_PASS/);const records=bytes.toString().split('\n').filter(l=>l.startsWith('{"cancellation":'));assert.equal(records.length,1,'package result missing from actual execution log');assert.deepEqual(JSON.parse(records[0]),r.package);}

@@ -117,7 +117,9 @@ class LlmQuantRequestAdapter:
         }:
             raise RequestBoundaryError(grpc.StatusCode.PERMISSION_DENIED, "ENGINE_INPUT_FORBIDDEN")
         if "research_context" in payload and not isinstance(payload["research_context"], dict):
-            raise RequestBoundaryError(grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_RESEARCH_CONTEXT_INVALID")
+            raise RequestBoundaryError(
+                grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_RESEARCH_CONTEXT_INVALID"
+            )
         for name in ("strategy_release_id", "feature_snapshot_id", "policy_context_ref", "fixture"):
             if name in payload and (
                 not isinstance(payload[name], str)

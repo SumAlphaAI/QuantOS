@@ -12,7 +12,7 @@ export const checks=[
  {id:'contracts',command:['cargo','test','-p','quantos-runtime','--locked','--test','signal_proposal_contracts'],marker:/11 passed; 0 failed/},
  {id:'orchestration',command:['cargo','test','-p','quantos-runtime','--locked','--test','signal_proposal_orchestration'],marker:/4 passed; 0 failed/},
  {id:'research-boundary',command:['engines/.venv/bin/python','-m','pytest','engines/tests/test_r04_research_context.py','-q'],marker:/16 passed/},
- {id:'receipt-negatives',command:['node','--test','scripts/r04-stage-check.test.mjs'],marker:/(?:#|ℹ) fail 0/},
+ {id:'receipt-negatives',command:['node','--test','scripts/r04-stage-check.test.mjs','scripts/execution-outcome.test.mjs','scripts/r04-orchestration-receipt.test.mjs'],marker:/(?:#|ℹ) fail 0/},
 ];
 export const targetHandoff='R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。';
 export function validateProducts(products) {

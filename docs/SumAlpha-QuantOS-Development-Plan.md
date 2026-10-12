@@ -922,7 +922,7 @@ flowchart TD
 - task_id: `TP03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:db84fda2771157f8404e2cadac5ea1360a94a65a3d2d297edc55ed5d516ac187","evidence":["audit/evidence/local-development-20261012/core-tp03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - closes_core: []
@@ -945,7 +945,7 @@ flowchart TD
 - task_id: `TP04`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:892100317bb9f763d60cf142a0f4db0f132397adf85836eccb13514319df2a70","evidence":["audit/evidence/local-development-20261012/core-tp04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - closes_core: []
@@ -1067,7 +1067,7 @@ flowchart TD
 - task_id: `R03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:12a04a0f66a068d91c6484e873efff6a6966fb94662b184f7254c9a64f50b849","evidence":["audit/evidence/r03-20261011/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - closes_core: []

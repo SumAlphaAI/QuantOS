@@ -1,6 +1,6 @@
 # R04 本地开发完成记录（2026-10-12）
 
-状态：源码实现已准备，当前需从新的干净冻结提交完整执行前置闭包及专用R04 Gate。此段将由实际运行结论更新，不继承旧候选回执。
+状态：R04实现和专用回执已完成；冻结d475a61c的完整前置尝试56组中50 PASS/6 FAIL，未发布READY。已修正runner预算、编排回执场景验证和Python格式；撤销旧源码Gate，等待新冻结提交完整复验。
 
 范围为 R04_LOCAL：公共 Signal/Proposal 校验器；版本化 R03 仓库引用消费；真实本地 RD-Agent、LLMQuant、TradingAgents 合成 Engine 链；100 Proposal、过期等值拒绝、重放、订单工具拒绝；专用完成回执。内存服务和自有合成输入不证明目标数据库或上线可用。
 
@@ -13,3 +13,5 @@
 失败证据在 [red](./evidence/r04-completion-20261012/red/)：首次公共入口回归11组中2 PASS/9 FAIL；修复后冻结前11/11与四项Runtime集成、16项Python边界、81项相关回执/阶段负向及Clippy通过；研究链测试清单不匹配、重放物理去重计数断言及回执测试/Clippy调试失败均原样保留。原7/9缺口探针、Supabase Auth500/只读及调度失败保留在历史报告和证据目录。
 
 目标环境、Supabase持久Signal/Proposal/私有Storage读回、RLS/事务/独立进程恢复、实际BFF及页面、外部上游集成、性能/容量/长稳和同SHA CI继续移交RELEASE-GATE:BETA，全部NOT_RUN。正式项目用户验收独立，formalAccepted=false。未升级订阅，未使用生产凭据，未发布或推送。
+
+冻结d475a61c的完整失败见 [failed-attempt-02](./evidence/r04-completion-20261012/failed-attempt-02/failure.json)。新runner保存timeout/errorCode/signal；完整make test预算30分钟，只是本机验证进程的有界时限，不作为产品性能验收。R02、TP03、TP04共享编排场景验证器，要求四项命名场景全部成功并允许套件增长，拒绝缺场景、缩减、失败或ignored回执。

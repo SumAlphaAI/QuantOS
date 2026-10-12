@@ -3,9 +3,9 @@
   "nodeId": "CORE:TP03",
   "stage": "DEVELOPMENT",
   "status": "BLOCKED",
-  "engineeringStatus": "PASS",
+  "engineeringStatus": "FAIL",
   "formalAccepted": false,
-  "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9",
+  "observedSourceCommit": "d475a61c42128d6df2b2800882bda5c0c5fc26a4",
   "environment": {
     "node": "v24.12.0",
     "python": "Python 3.12.10",
@@ -146,7 +146,7 @@
     {
       "path": "crates/quantos-runtime/src/signal_proposal.rs",
       "role": "code",
-      "sha256": "sha256:9a4b551bccc72d2b91b0b25e78712c869ee78acdb8c838fd48aefb8944affa2d"
+      "sha256": "sha256:22e6dafbb1469f37431343470c0ee4a72582655f88dca0c32b5062e25ec39357"
     },
     {
       "path": "crates/quantos-runtime/src/snapshot_source.rs",
@@ -174,14 +174,19 @@
       "sha256": "sha256:d29e2719c7b6cc3b09e428151fd430d7eb87a49f5f6b55f16ddece381a2bba59"
     },
     {
+      "path": "crates/quantos-runtime/tests/signal_proposal_contracts.rs",
+      "role": "test",
+      "sha256": "sha256:83a9dcc847f21a63767c4ca6d7ffc66d164fc4c9a790ea1fb1fd75ca6fd3a52a"
+    },
+    {
       "path": "crates/quantos-runtime/tests/signal_proposal_orchestration.rs",
       "role": "test",
-      "sha256": "sha256:f9365700e092c6dbd0aee8c600c38f88eea964e930c0598f2be4bece708df1f7"
+      "sha256": "sha256:ab825d59ac653bfcb67e7d404da767a98f413e6c50a42d6222ca66537c233dd7"
     },
     {
       "path": "crates/quantos-runtime/tests/support/r02_persisted_chain.rs",
       "role": "test",
-      "sha256": "sha256:19b5649394613c4ada4c7ade9dad4381c7562126b2b192a57d8b28c9f0a32185"
+      "sha256": "sha256:4953c352ec18edda4fc6fd81a90c9153685ca9f13c8a9bed6321cc1a86960ca6"
     },
     {
       "path": "crates/quantos-runtime/tests/support/r02_retained_input.rs",
@@ -341,7 +346,7 @@
     {
       "path": "engines/llmquant/src/llmquant/adapter.py",
       "role": "code",
-      "sha256": "sha256:79f7cede0f7875082ce539a621545ab9b813ae3b629cd070adaf00e38278e257"
+      "sha256": "sha256:282cfb07b3f450f403f506e8d19bf7c08043a1004f94a87866aa73081ef7208f"
     },
     {
       "path": "engines/llmquant/src/llmquant/artifacts.py",
@@ -376,7 +381,7 @@
     {
       "path": "engines/llmquant/src/llmquant/signal_mapper.py",
       "role": "code",
-      "sha256": "sha256:c596c0fea8a43b0c43424d4b282eaed7a85eecd5b57a6fbc11dc987e4b7669de"
+      "sha256": "sha256:a36ea9031726321fa0890fc2b0b740a380f4b8ba3a296e92828a6583b8c381cf"
     },
     {
       "path": "engines/pyproject.toml",
@@ -437,6 +442,11 @@
       "path": "engines/tests/test_protocol_metadata_completeness.py",
       "role": "test",
       "sha256": "sha256:1c30422838edf384d47e8877fa62733d8536b474a4f6f101cf89250a4fab20af"
+    },
+    {
+      "path": "engines/tests/test_r04_research_context.py",
+      "role": "test",
+      "sha256": "sha256:ecc484173373a28f2b0cbd45e3e1536b78384475644fb56d7fbe408e113e9359"
     },
     {
       "path": "engines/tests/test_rd_agent_contract.py",
@@ -890,7 +900,7 @@
       },
       {
         "file": "quantos_llmquant-0.1.0-py3-none-any.whl",
-        "sha256": "e99f118526bd30bea2a4547fa9f47cbf6f049556337ca5efd9b5ec222d2b2f36"
+        "sha256": "60952a75f9671d42e8d9371097b88c96b34fc3f76e549e5e9f317a423c8d8826"
       }
     ],
     "installedIsolated": true,
@@ -898,7 +908,7 @@
     "rpcCount": 5,
     "capabilities": 1,
     "cancellation": {
-      "cancelMillis": 11.248249998971005,
+      "cancelMillis": 12.745291001920123,
       "cancelStatus": "CANCELLED",
       "finalArtifactSeen": false
     },
@@ -907,11 +917,11 @@
   "outputs": [
     {
       "file": "signal-matrix.json",
-      "sha256": "sha256:2c02025caf90611c8e6aab6f521fd4d9d685433e9cb599c28dde00909c5653c1"
+      "sha256": "sha256:dd06e6b286c4c0799b605b0b5af74d719f65b502b4481f38192e18ed8442feb5"
     },
     {
       "file": "ui-cancel.json",
-      "sha256": "sha256:87fcab35b60d3020bb8a943ed8232fef830d8699dac45cb4d450981141fb780e"
+      "sha256": "sha256:d9fa0a95c29d041c734d9a056f48932fea63e58b685fc91971f9b3d0b7bcc8ec"
     }
   ],
   "checks": [
@@ -925,11 +935,11 @@
         "engines/tests/test_llmquant_development.py",
         "-vv"
       ],
-      "executedAt": "2026-10-12T02:51:26.349Z",
+      "executedAt": "2026-10-12T04:23:24.424Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/contract.log",
-      "logSha256": "sha256:00236088929e7cf0f3cab9e3737c189f94a26757e028773f8fd23e7ed08e5a67"
+      "logSha256": "sha256:27656f32dc959fd10618ad0fbd3a698ae780c1e420b31fb70436d9fd8730ed47"
     },
     {
       "id": "python",
@@ -940,11 +950,11 @@
         "engines/tests",
         "-q"
       ],
-      "executedAt": "2026-10-12T02:51:28.591Z",
+      "executedAt": "2026-10-12T04:23:26.639Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/python.log",
-      "logSha256": "sha256:6c89db067b379a93150d39af1507ba2b2e3aa0fbfb10781022d19a73fb1fe54c"
+      "logSha256": "sha256:a0ad9f7761f720d66062450a090b2e564f5d4e616e937b21f138680b0961c587"
     },
     {
       "id": "manager",
@@ -958,7 +968,7 @@
         "--test",
         "python_llmquant"
       ],
-      "executedAt": "2026-10-12T02:51:37.967Z",
+      "executedAt": "2026-10-12T04:23:35.751Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/manager.log",
@@ -978,11 +988,11 @@
         "--",
         "--nocapture"
       ],
-      "executedAt": "2026-10-12T02:51:38.291Z",
+      "executedAt": "2026-10-12T04:23:36.078Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/runtime.log",
-      "logSha256": "sha256:4d784b58218eba05cd91fcd39c949c39d9dfcacf6d8b615742c944d7c56c3615"
+      "logSha256": "sha256:8d428546c436cfa918f375cb39ea17f920c60918fd41a29d8cf87e38adcbdbfc"
     },
     {
       "id": "schema",
@@ -990,7 +1000,7 @@
         "node",
         "scripts/tp03-signal-schema.mjs"
       ],
-      "executedAt": "2026-10-12T02:51:40.168Z",
+      "executedAt": "2026-10-12T04:23:38.003Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/schema.log",
@@ -1002,11 +1012,11 @@
         "node",
         "scripts/tp03-ui-cancel.mjs"
       ],
-      "executedAt": "2026-10-12T02:51:40.591Z",
+      "executedAt": "2026-10-12T04:23:38.435Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/ui.log",
-      "logSha256": "sha256:74d94c2f194e21c95477657385da30d7837b53d3df9f663b859549938dde602b"
+      "logSha256": "sha256:32281d612c5663a65c504bef5bd4a354a5b2c5f565540cd843fe1a5b9a74f22a"
     },
     {
       "id": "package",
@@ -1014,11 +1024,11 @@
         "engines/.venv/bin/python",
         "scripts/tp03-packaged-service.py"
       ],
-      "executedAt": "2026-10-12T02:51:41.002Z",
+      "executedAt": "2026-10-12T04:23:38.903Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/package.log",
-      "logSha256": "sha256:35151556a6deab9f5d9b31983732cecf5591e0fcee7f5de7d682d8765f4629e0"
+      "logSha256": "sha256:d419a2788f9396e6b62ca0a9962b4fef2178ab51d1704e9696b3aa4708e903fe"
     },
     {
       "id": "lint",
@@ -1029,7 +1039,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-12T02:51:42.801Z",
+      "executedAt": "2026-10-12T04:23:41.170Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/lint.log",
@@ -1052,11 +1062,11 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-12T02:51:42.810Z",
-      "exitCode": 0,
-      "status": "PASS",
+      "executedAt": "2026-10-12T04:23:41.180Z",
+      "exitCode": 1,
+      "status": "FAIL",
       "log": "docs/audit/evidence/tp03-20261010/format.log",
-      "logSha256": "sha256:5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34"
+      "logSha256": "sha256:fb1af28dc59ca51ef130f67f3b182de75c405f5cf5f895be1c493cf45644b6f0"
     },
     {
       "id": "types",
@@ -1070,7 +1080,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-12T02:51:42.819Z",
+      "executedAt": "2026-10-12T04:23:41.191Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/types.log",
@@ -1082,11 +1092,11 @@
         "bash",
         "scripts/check-lockfiles.sh"
       ],
-      "executedAt": "2026-10-12T02:51:45.300Z",
+      "executedAt": "2026-10-12T04:23:43.354Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/locks.log",
-      "logSha256": "sha256:b270abb81f4d132b29acd95328625a861a99fd833a3046b831a474c2fafec766"
+      "logSha256": "sha256:17834c0c1703bfef63c9cb91a887a9d8f9266c7d59e5eaf5a6b90e87920569ce"
     },
     {
       "id": "intake",
@@ -1094,7 +1104,7 @@
         "node",
         "scripts/check-tp-intake.mjs"
       ],
-      "executedAt": "2026-10-12T02:51:45.709Z",
+      "executedAt": "2026-10-12T04:23:43.764Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/intake.log",
@@ -1115,7 +1125,7 @@
     {
       "nodeId": "CORE-GATE:F0",
       "status": "BLOCKED",
-      "reason": "CORE-GATE:F0: dependency is not READY"
+      "reason": "CORE-GATE:F0: functional manifest must be under approved evidence directory"
     }
   ],
   "excluded": [
