@@ -1,0 +1,85 @@
+
+running 33 tests
+test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... ignored, Supabase target test: run explicitly with QUANTOS_RUN_F09_POSTGRES_TESTS=1
+test live::settings_policy::tests::revoked_delivery_is_terminal ... ok
+test live::settings_policy::tests::live_challenge_has_five_minute_lifetime ... ok
+test live::settings_policy::tests::current_factor_status_overrides_cancel_checkpoint ... ok
+test live::research::tests::evidence_ids_are_stable_locatable_and_bound_to_the_artifact ... ok
+test live::settings_policy::tests::first_factor_cannot_create_after_any_verified_factor_exists ... ok
+test live::settings_policy::tests::last_verified_factor_cannot_be_removed_even_with_unverified_siblings ... ok
+test live::settings_policy::tests::live_csrf_requires_bound_cookie_and_header ... ok
+test live::settings_policy::tests::verification_time_comes_from_auth_facts_not_session_expiry ... ok
+test live::settings_policy::tests::malformed_factor_state_cannot_be_treated_as_unenrolled ... ok
+test research::tests::bounded_materialization_and_invalid_sort_fail_closed ... ok
+test live::tests::live_session_requires_opaque_cookie_and_exact_origin ... ok
+test live::research::tests::live_authority_uses_server_grants_and_viewer_cannot_write ... ok
+test live::research::tests::cache_scope_changes_on_tenant_actor_workspace_account_or_mode_switch ... ok
+test live::tests::live_errors_hide_account_existence_and_include_correlation ... ok
+test research::tests::cursors_bind_scope_query_and_immutable_materialized_rows ... ok
+test research::tests::completed_intent_replays_after_its_original_deadline ... ok
+test research::tests::quota_is_actor_operation_bound_and_returns_retry_metadata ... ok
+test live::cors_tests::trusted_browser_can_read_contract_response_headers ... ok
+test live::cors_tests::untrusted_origin_and_undeclared_headers_are_not_allowed ... ok
+test live::cors_tests::trusted_recent_auth_preflight_allows_contract_headers ... ok
+test research::tests::resolved_attachments_use_the_actual_rd_agent_input_shape_and_limit ... ok
+test live::f09_trace_tests::auth_write_returns_queryable_correlation_trace ... ok
+test research::tests::attachment_content_hash_matches_the_returned_canonical_bytes ... ok
+test research::tests::method_and_attachment_limits_are_enforced_by_the_mounted_routes ... ok
+test research::tests::denied_identity_csrf_and_hidden_resource_return_no_page_data ... ok
+test research::tests::quality_license_and_unknown_attachments_fail_before_scheduling ... ok
+test research::tests::list_http_validation_and_populated_pagination_work ... ok
+test research::tests::replay_has_stable_ids_strict_sequences_and_ahead_cursor_conflict ... ok
+test research::tests::cancellation_is_idempotent_and_terminal_success_conflicts ... ok
+test research::tests::all_nine_page_operations_return_populated_contract_responses ... ok
+test research::tests::concurrent_retries_do_not_duplicate_runs_audits_or_events ... ok
+test research::tests::command_validation_rejects_forgery_empty_and_unsafe_numeric_inputs ... ok
+
+test result: ok. 32 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 9 tests
+test audit_sort_filter_is_executed_and_unknown_expressions_are_rejected ... ok
+test evidence_chain_preserves_causation_order_and_hides_missing_resources ... ok
+test opaque_snapshot_cursors_reject_tampering_and_query_reuse ... ok
+test audit_search_is_capability_guarded_redacted_and_cursor_paginated ... ok
+test redaction_hashes_and_retention_are_enforced_by_business_calls ... ok
+test export_cancel_expiry_and_validation_fail_closed ... ok
+test complete_scope_intent_conflicts_without_side_effects_and_rejects_invalid_scope ... ok
+test export_lifecycle_is_idempotent_watermarked_short_lived_and_audited ... ok
+test export_commands_reject_changed_intents_before_audit_or_cancellation ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 12 tests
+test logout_expires_secure_http_only_same_site_cookie ... ok
+test public_access_request_validates_origin_and_body_and_writes_audit ... ok
+test authentication_csrf_and_resource_failures_fail_closed ... ok
+test mfa_rate_limit_is_account_neutral ... ok
+test current_session_and_last_mfa_factor_are_protected ... ok
+test session_revocation_requires_recent_auth_is_idempotent_and_emits_sse_audit ... ok
+test stale_settings_write_returns_current_version_without_mutation ... ok
+test challenges_are_fresh_single_use_and_cooldown_precedes_verification ... ok
+test notification_save_is_idempotent_and_audited ... ok
+test settings_roundtrip_preserves_inputs_and_separates_idempotent_intents ... ok
+test security_retries_execute_once_and_match_success_correlation ... ok
+test session_stream_stays_open_for_other_session_and_closes_revoked_target ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 19.16s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-9da8f6bdac073b86)
+     Running unittests src/main.rs (target/debug/deps/bff_gateway-3de46ede443b0d65)
+     Running tests/audit_export_provider.rs (target/debug/deps/audit_export_provider-ddc5acc360d5cfad)
+     Running tests/auth_settings_provider.rs (target/debug/deps/auth_settings_provider-897b11939261fb23)

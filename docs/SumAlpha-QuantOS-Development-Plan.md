@@ -1,6 +1,6 @@
-> 当前执行（2026-10-12）：新增A2_LOCAL、R1_LOCAL与BFF003_LOCAL完整功能闭包，验收执行中。外部环境/性能移交发布；以下旧统计为历史，不代表当前准入。见[本地规程](./operations/research-local-admission.md)。
+> 当前本地准入（2026-10-12）：冻结 31f434f7，40 节点 / 135 组完整功能检查全部 PASS；A2_LOCAL、R1_LOCAL、BFF003_LOCAL 为限定 DEVELOPMENT READY。全图 3 READY / 156 NOT_ASSESSED / 0 BLOCKED；上游独立 Gate 不转授，外部环境/性能 RELEASE NOT_RUN，formalAccepted=false。见[完成报告](./audit/A3-local-admission-2026-10-12.md)。
 
-> A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
+> 历史 A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
 
 > TP01-D_LOCAL 历史复验（2026-10-12）：冻结4fe846ef完整执行16节点/54组必要本地检查全部PASS；仅TP01-D限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。旧TP01-C本地READY因公共输入变化撤回，历史回执和失败保留。14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。见[完成报告](./audit/TP01-D-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-d-local-admission.md)。
 
@@ -53,7 +53,7 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.73
+> 版本：3.74
 > 更新时间：2026-10-12
 > 状态：技术执行基线  
 > 本轮变更：F06/F07目标Auth错误诊断、数据库写入预检和F09有界收尾修复；从新冻结源码复验必要前置。
@@ -61,6 +61,8 @@
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.74`：建立并实际执行 A2/R1/BFF003 当前源码完整本地功能闭包；135 组全部 PASS，只发布三个消费者限定 READY；外部环境/性能发布移交、正式确认和 UI 集成独立。见[本轮报告](./audit/A3-local-admission-2026-10-12.md)。
 
 - `3.73`：修复R04公共校验器7类输入缺口，实现R03引用消费与专用本地完成Gate；目标环境和性能仍由Beta验收。
 
@@ -1218,9 +1220,11 @@ flowchart TD
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:946a299c07c110c9b0c3bb4cf9b50c91fad6575b9110cd0d80014d26bb60281d",
+    "evidence": [
+      "audit/evidence/research-local-20261012/r1-local.json"
+    ]
   }
 }
 ```

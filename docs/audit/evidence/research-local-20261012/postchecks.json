@@ -1,0 +1,136 @@
+{
+  "status": "PASS",
+  "scope": "local engineering and strict target rejection; no target execution",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "results": [
+    {
+      "id": "local-check",
+      "command": [
+        "make",
+        "research-local-check"
+      ],
+      "executedAt": "2026-10-12T15:04:59.710Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 600000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/research-local-20261012/local-check.log",
+      "sha256": "sha256:d1b60b632d6aceb6e0c2818618625df42786d51a4b3b6134a47af0908dfcbadd"
+    },
+    {
+      "id": "reassessment",
+      "command": [
+        "node",
+        "scripts/reassess-a3-prerequisites.mjs"
+      ],
+      "executedAt": "2026-10-12T15:05:12.781Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 600000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/research-local-20261012/reassessment.log",
+      "sha256": "sha256:503c726df82dd96448978f94d5a27fdee6379255f10cf93f6ba4f6e8e193a9c9"
+    },
+    {
+      "id": "a2-dispatch",
+      "command": [
+        "node",
+        "scripts/provider-a2-development.mjs"
+      ],
+      "executedAt": "2026-10-12T15:05:48.145Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 600000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/research-local-20261012/a2-dispatch.log",
+      "sha256": "sha256:ede1cd9db61641495fedb22a2d836d455a5e8b5753e3759ca40d55cf38823b56"
+    },
+    {
+      "id": "bff003-dispatch",
+      "command": [
+        "node",
+        "scripts/bff-fe-003-development.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-12T15:05:50.419Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 600000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/research-local-20261012/bff003-dispatch.log",
+      "sha256": "sha256:7ecb37c21b20ddca752c9cdafb74001be482b8c4c02f52a47cb1d205249f080a"
+    },
+    {
+      "id": "strict-target-denial",
+      "command": [
+        "node",
+        "scripts/provider-a2-development.mjs",
+        "--target"
+      ],
+      "executedAt": "2026-10-12T15:05:56.221Z",
+      "exitCode": 1,
+      "status": "FAIL",
+      "timeoutMs": 600000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/research-local-20261012/strict-target-denial.log",
+      "sha256": "sha256:1b37c274ec3b33c1b3cb4e31ef3d1a21a7a5cc949ced124553213a022a7a2ece"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "executedAt": "2026-10-12T15:05:56.296Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 600000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/research-local-20261012/plans.log",
+      "sha256": "sha256:d782401453f8b4e1447ee52fc1c80ecdce7f2444aaa9bbbecf158788297ad4fb"
+    },
+    {
+      "id": "frontend-handoffs",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "executedAt": "2026-10-12T15:05:56.348Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 600000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/research-local-20261012/frontend-handoffs.log",
+      "sha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+    }
+  ]
+}

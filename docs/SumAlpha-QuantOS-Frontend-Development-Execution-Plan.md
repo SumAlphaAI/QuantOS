@@ -1,6 +1,6 @@
-> 当前执行（2026-10-12）：新增A2_LOCAL、R1_LOCAL与BFF003_LOCAL完整功能闭包，验收执行中。外部环境/性能移交发布；以下旧统计为历史，不代表当前准入。见[本地规程](./operations/research-local-admission.md)。
+> 当前本地准入（2026-10-12）：冻结 31f434f7，40 节点 / 135 组完整功能检查全部 PASS；A2_LOCAL、R1_LOCAL、BFF003_LOCAL 为限定 DEVELOPMENT READY。全图 3 READY / 156 NOT_ASSESSED / 0 BLOCKED；上游独立 Gate 不转授，外部环境/性能 RELEASE NOT_RUN，formalAccepted=false。见[完成报告](./audit/A3-local-admission-2026-10-12.md)。
 
-> A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
+> 历史 A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
 
 > TP01-D_LOCAL 历史复验（2026-10-12）：冻结4fe846ef完整执行16节点/54组必要本地检查全部PASS；仅TP01-D限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。旧TP01-C本地READY因公共输入变化撤回，历史回执和失败保留。14组目标/远程检查及外部环境/性能移交RELEASE-GATE:BETA，formalAccepted=false。见[完成报告](./audit/TP01-D-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-d-local-admission.md)。
 
@@ -45,13 +45,15 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.74
+> 版本：3.75
 > 更新时间：2026-10-12
-> 状态：TP10/F08/F0必要13节点DEVELOPMENT READY；页面、正式和发布独立。
+> 状态：A2、R1-SERVICE、BFF-FE-003 限定本地 DEVELOPMENT READY；正式、UI 集成及发布独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
 ## 版本变更说明
+
+- `3.75`：建立并实际执行 A2/R1/BFF003 当前源码完整本地功能闭包；135 组全部 PASS，只发布三个消费者限定 READY；外部环境/性能发布移交、正式确认和 UI 集成独立。见[本轮报告](./audit/A3-local-admission-2026-10-12.md)。
 
 - `3.74`：复评A2/R1-SERVICE前置回执；逐项登记BFF-FE-003之后全部任务和检查点的外部环境/性能发布移交，取消G8实际testnet的早期门槛；保留本机功能联调和全部原目标。
 
@@ -773,7 +775,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - 领域接口背景：F06 定义 Auth/RBAC/主上下文；未定义完整登录恢复、个人资料、会话、可信设备、通知偏好页面 API
 - 覆盖契约/页面：C01、C17；P01/P15
 - 目标阶段与验收：FEP-1/G1：401/403/404、CSRF、recent-auth、最后有效因素保护与撤销后实时失效测试通过
-- 工程整改与复验：[当前复审结论](./audit/BFF-FE-001-comprehensive-review-2026-10-05.md)、[逐项关闭依据](./audit/BFF-FE-001-closed-findings-2026-10-05.md)、[2026-10-05 整改记录](./audit/BFF-FE-001-remediation-2026-10-05.md)。当前 API 1.5.0 / 62 operations / 52 schemas；reference 与实际 Supabase + 本机 live BFF 分别验证。staging 与签署仍按 FINAL 评审执行，PROVIDER:A2/G1 的正式复审状态由对应正式回执决定；功能准入另按 stage_gate 评估。
+- 工程整改与复验：[当前复审结论](./audit/BFF-FE-001-comprehensive-review-2026-10-05.md)、[逐项关闭依据](./audit/BFF-FE-001-closed-findings-2026-10-05.md)、[2026-10-05 整改记录](./audit/BFF-FE-001-remediation-2026-10-05.md)。历史 2026-10-05 API 1.5.0 / 62 operations / 52 schemas 的 reference 与 Supabase + 本机 live BFF 结果保留；当前 API 1.6.0 / 63 operations / 54 schemas 由 A2_LOCAL 消费者限定功能回执验证，当前目标执行 NOT_RUN。staging 与签署仍按 FINAL 评审执行，PROVIDER:A2/G1 的正式复审状态由对应正式回执决定；功能准入另按 stage_gate 评估。
 - 阶段执行：`pnpm check:bff-fe-001` 为 local_contract；`pnpm check:bff-fe-001:development` 校验本任务源码/执行/目标证据及 BFF-FE-000、CORE:F06、PROVIDER:A1 的递归有效 READY 回执；正负门禁为 `pnpm test:bff-fe-001:development`。当前整改入口：[2026-10-05 问题关闭与复验](./audit/BFF-FE-001-remediation-2026-10-05.md)。
 
 历史功能复核（2026-10-05 / `f2283fa`）：原 2 高危、4 中危均 CLOSED；活动问题 0，24/24 控制点、20/20 API 满足，BFF-FE-001 DEVELOPMENT READY。目标证据源码内容一致，未重跑 Supabase；PROVIDER:A2/ALL 与 RELEASE 仍独立验收。
@@ -823,9 +825,11 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:5dab262cead276c3fb3c78a7e6d791ba1eb0f60ef2c38a40b638687a9d9d6ba8",
+    "evidence": [
+      "audit/evidence/research-local-20261012/a2-local.json"
+    ]
   }
 }
 ```
@@ -840,11 +844,11 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-003`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:e808efe3e20d80b8451d0944796793b192f195b6814489cc22367a3ce14f5c51","evidence":["audit/evidence/bff-fe-003-20261012/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e9201b3fc5dbb92e14c692468ef9376276b30dd278d30807ac5deb4f0edac755","evidence":["audit/evidence/research-local-20261012/bff003-local.json"]}
 - depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
-- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
+- development_status: `COMPLETED`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：Research list/create/get/cancel；stream subscribe/replay；Artifact/Evidence get；Snapshot list/get；统一 cursor/filter、sequence/afterSequence 和 202 状态引用
 - 领域接口背景：R02–R04/F07 已定义 Snapshot/Research/Artifact 服务能力，缺页面级列表/筛选/详情/流式封装
