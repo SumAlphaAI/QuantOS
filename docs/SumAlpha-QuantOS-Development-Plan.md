@@ -1,4 +1,4 @@
-> 当前 TP01-C_LOCAL 实施（2026-10-12）：公共功能输入变化，原5个限定本地READY已撤回，0 READY/159 NOT_ASSESSED/0 BLOCKED；历史回执保留。新13节点准入尚待冻结完整复验，Supabase/外部/性能继续由测试和RELEASE-GATE:BETA验收。见[本地规程](./operations/tp01-c-local-admission.md)。
+> 当前 TP01-C_LOCAL 复验（2026-10-12）：冻结bacc3b60完成13节点/45组必要本地检查及递归内容验证，全部PASS；仅TP01-C限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。原5个限定本地READY因公共输入变化撤回，历史证据保留。12组目标/远程治理检查及外部环境/性能由测试和RELEASE-GATE:BETA验收，formalAccepted=false。见[完成报告](./audit/TP01-C-local-admission-2026-10-12.md)及[本地规程](./operations/tp01-c-local-admission.md)。
 
 > 历史本地复验（2026-10-12）：冻结54aeff32完成17节点/56组本地必要前置、R03七组和R04四组全部PASS；F0/TP03/TP04/R03/R04限定本地READY，全图5 READY/154 NOT_ASSESSED/0 BLOCKED。Supabase、外部环境、性能与正式发布仍待测试/RELEASE-GATE:BETA；formalAccepted=false。见[完成报告](./audit/R04-development-2026-10-12.md)。
 
@@ -871,7 +871,7 @@ flowchart TD
 - task_id: `TP01-C`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:d2c65106d9741231302903a013a47972fdb156dfd074cdd33c1decca18cd5197","evidence":["audit/evidence/tp01-c-local-20261012/manifest.json"]}
 - depends_on: ["CORE:TP01-B", "CORE:F08", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:TP01-B", "CORE:F08", "CORE-GATE:F0"]
 - closes_core: []

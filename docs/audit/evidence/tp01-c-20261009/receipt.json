@@ -2,10 +2,10 @@
   "schema": "quantos-tp01-c-skeleton-evidence/v1",
   "nodeId": "CORE:TP01-C",
   "stage": "DEVELOPMENT",
-  "status": "READY",
+  "status": "BLOCKED",
   "engineeringStatus": "PASS",
   "formalAccepted": false,
-  "observedSourceCommit": "6a393eb081d1d9629a1ca1ff451ac1e25c15fede",
+  "observedSourceCommit": "bacc3b6040f7a02bb0b3a46159c61ca00c3c59f6",
   "environment": {
     "node": "v24.12.0",
     "platform": "darwin",
@@ -35,7 +35,8 @@
     "requirements": [
       "- 需求描述：`vibe_adapter` skeleton",
       "- 交付物：`engines/vibe-adapter`、contract tests、mock adapter",
-      "- 验收标准：五个 Engine RPC 100% 通过；无未授权 egress、secret 或 venue capability"
+      "- 验收标准：五个 Engine RPC 100% 通过；无未授权 egress、secret 或 venue capability",
+      "- 验收边界：TP01-C_LOCAL独立本地准入；完整13节点必要功能闭包、五RPC/20回放/100组双RPC拒绝与实际进程清理须绑定同一冻结源码。Supabase、GitHub远程治理、部署、OS egress、持久化及性能/长稳由RELEASE-GATE:BETA最终验收；不授予上游READY或R1-SERVICE。"
     ],
     "task_id": "TP01-C",
     "task_type": "CORE",
@@ -45,7 +46,7 @@
     {
       "path": "Cargo.lock",
       "role": "config",
-      "sha256": "sha256:7b68722a70346e42bbcbdca87b7b8cdb93794a2d6b185b5cf13510ee2688604e"
+      "sha256": "sha256:3a0597265ccd3924ee8dbd5763110f632a1f572c380a28fb57ed18d64a60feea"
     },
     {
       "path": "Cargo.toml",
@@ -115,7 +116,7 @@
     {
       "path": "crates/quantos-engine-manager/tests/python_trading_agents.rs",
       "role": "test",
-      "sha256": "sha256:5ceb497d473422fde7e7c1e1bbe85c0186b4d5e22eccbdc2392bae0790844b0c"
+      "sha256": "sha256:85121354635fbe22dc0a6e1c192893293f46c0a80c26688f12966916b9c77b44"
     },
     {
       "path": "crates/quantos-engine-manager/tests/python_vibe_adapter.rs",
@@ -280,7 +281,12 @@
     {
       "path": "engines/tests/test_llmquant_contract.py",
       "role": "test",
-      "sha256": "sha256:ba16bf010170c5b82bc7ffa51bc38088b1d579b01d0aee702e6aa28a94e3cf31"
+      "sha256": "sha256:6bfa1bb6ec4ba543067888f2848e557f8d04e15ea7082b92b8d0c58b4ed372de"
+    },
+    {
+      "path": "engines/tests/test_llmquant_development.py",
+      "role": "test",
+      "sha256": "sha256:3cc8b0ad6a1c87bbfae0513b71caf270d51e88c89335b4589e1ae6e746b71057"
     },
     {
       "path": "engines/tests/test_mock_engine_recovery.py",
@@ -290,7 +296,12 @@
     {
       "path": "engines/tests/test_openbb_adapter_contract.py",
       "role": "test",
-      "sha256": "sha256:c31bf5d429fb3a28dc6724a2e28b216b12efe89026078a4fd3bf5b6b2bf89863"
+      "sha256": "sha256:03559a5cd63920a2525e769d5b79afdadd057d0dbd0beefc1cf24d61e866dab9"
+    },
+    {
+      "path": "engines/tests/test_openbb_adapter_development.py",
+      "role": "test",
+      "sha256": "sha256:5a0e2ec11fead47715e1ddcc562e9da48942e55f5725275764733c53c5ef2b05"
     },
     {
       "path": "engines/tests/test_proto_sdk.py",
@@ -303,9 +314,19 @@
       "sha256": "sha256:1c30422838edf384d47e8877fa62733d8536b474a4f6f101cf89250a4fab20af"
     },
     {
+      "path": "engines/tests/test_r04_research_context.py",
+      "role": "test",
+      "sha256": "sha256:11f4e708182c2221eccfdd49afeeeba1c2ddbc5f2e1ba00fda14a0123678951d"
+    },
+    {
       "path": "engines/tests/test_rd_agent_contract.py",
       "role": "test",
-      "sha256": "sha256:471afb4f296abd13046e6522d81e0df2f4975601fcbc29de72ec9b78a120f8b9"
+      "sha256": "sha256:04f29448790c685b9cb645e16c46e16b4082919f6f2b550b07f792818a077f00"
+    },
+    {
+      "path": "engines/tests/test_rd_agent_development.py",
+      "role": "test",
+      "sha256": "sha256:0667cd9071473a2e173e9b114a83dae206432c6f487d60e99deacc59d2a7728e"
     },
     {
       "path": "engines/tests/test_strategy_lab_contract.py",
@@ -315,22 +336,22 @@
     {
       "path": "engines/tests/test_tp08_qlib_mapping_samples.py",
       "role": "test",
-      "sha256": "sha256:28b67c5570446fffcc56ea55f6c201191031effd8954fb8bb063b54204993dd6"
+      "sha256": "sha256:b4fb0bf3a01de04da1974989e932799fb1c9115a095a2eb09333e7b7dec7c622"
     },
     {
       "path": "engines/tests/test_tp09_trendradar_mapping_samples.py",
       "role": "test",
-      "sha256": "sha256:8e4f28d92d1e91ac03cfc969c6590a31072787906c750278f2f6d48661d634c3"
+      "sha256": "sha256:97649079d09d4f3bb4fbe2872c0bda41200ef9e5e0b6c43da54d19ed2f634da1"
     },
     {
       "path": "engines/tests/test_tp10_valuecell_evaluation.py",
       "role": "test",
-      "sha256": "sha256:39fae5169b5451cb7cf1c4085e08b4df6885610c95e61eb853a9613a666ad6b7"
+      "sha256": "sha256:6cf31b1c3c05002217a390b3f9bcf340b70a718e210974faf4827186d2523509"
     },
     {
       "path": "engines/tests/test_tp11_openstock_fixtures.py",
       "role": "test",
-      "sha256": "sha256:746e4fa5f1bd1f941632d0bfe4c3b834e8db1cad6b05b103604f3f12e2f5c699"
+      "sha256": "sha256:9abbadd78e352ab5125977268d90011a9ab17facf27c824844f5f0a8e2a5eceb"
     },
     {
       "path": "engines/tests/test_tp12_nautilus_agents_rules.py",
@@ -340,7 +361,12 @@
     {
       "path": "engines/tests/test_trading_agents_contract.py",
       "role": "test",
-      "sha256": "sha256:6fefa79b0c71aa27ad83e74d0de689678095ef51aeb859dc702fa733d7bf1920"
+      "sha256": "sha256:2b7631c5d5f527a210c1a7fd31c954c5619cb461958cf0beda277b67d702bef8"
+    },
+    {
+      "path": "engines/tests/test_trading_agents_development.py",
+      "role": "test",
+      "sha256": "sha256:104a697b3330ed0ac459428476056d0639521f8f4262db1a640937f178fa8330"
     },
     {
       "path": "engines/tests/test_vibe_adapter_absorption.py",
@@ -370,7 +396,7 @@
     {
       "path": "engines/vibe-adapter/README.md",
       "role": "code",
-      "sha256": "sha256:6f731c262bd2c23e8e67deaefb14d2b277d6eac91b17a7f9472bc099a6a22f62"
+      "sha256": "sha256:f90f5310c295a20a02814ac5c50654a73bc16a901b7032dfec45c2017108a3d7"
     },
     {
       "path": "engines/vibe-adapter/check-absorption.mjs",
@@ -755,12 +781,12 @@
     {
       "path": "scripts/provider-a1-policy.json",
       "role": "config",
-      "sha256": "sha256:e6b1bf537fb5e85b269edd8771c27312bca2bc4b5eaa9a96728825982c3e9ae6"
+      "sha256": "sha256:a381d643cc0d39880460e813a879c173e432fb81fac8bea0f59ebfa9b4d81506"
     },
     {
       "path": "scripts/provider-a1-receipts.mjs",
       "role": "code",
-      "sha256": "sha256:b5aeb44f1e0d6b9ea4ea8a0f77d98424c3ca1eedc465b076fbee31eee353012a"
+      "sha256": "sha256:59ee224d58932e2a2722a3b7ef2e2e823831c527c86fe06f8936b1daca9e1024"
     }
   ],
   "checks": [
@@ -773,11 +799,11 @@
         "engines/tests",
         "-q"
       ],
-      "executedAt": "2026-10-09T07:15:15.450Z",
+      "executedAt": "2026-10-12T08:45:59.931Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-c-20261009/python.log",
-      "logSha256": "sha256:c6cbf915e5f2ba696b044e1d58407dbf2ba5af12760a7c5661c9c36a5f453df3"
+      "logSha256": "sha256:d08b9fcec5ab6eae7f600148e858a962cdde77fff44908a5908e6a178ad60150"
     },
     {
       "id": "manager",
@@ -789,11 +815,11 @@
         "-p",
         "quantos-engine-manager"
       ],
-      "executedAt": "2026-10-09T07:15:17.785Z",
+      "executedAt": "2026-10-12T08:46:09.148Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-c-20261009/manager.log",
-      "logSha256": "sha256:1e2bf51ff06b5627c8eb3ee3d3f337c18f0feffca13d2fdf3cb20c910584de8b"
+      "logSha256": "sha256:437227588695805ee3ef85fc4ecc75513d0d26e9d236d2c89d2b32e90df05e41"
     },
     {
       "id": "ruff",
@@ -803,7 +829,7 @@
         "engines/vibe-adapter",
         "engines/tests/test_vibe_adapter_skeleton.py"
       ],
-      "executedAt": "2026-10-09T07:15:30.416Z",
+      "executedAt": "2026-10-12T08:46:28.396Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-c-20261009/ruff.log",
@@ -822,7 +848,7 @@
         "engines/vibe-adapter/src/vibe_adapter/server.py",
         "engines/tests/test_vibe_adapter_skeleton.py"
       ],
-      "executedAt": "2026-10-09T07:15:30.425Z",
+      "executedAt": "2026-10-12T08:46:28.407Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-c-20261009/format.log",
@@ -839,7 +865,7 @@
         "engines/vibe-adapter/src",
         "engines/tests/test_vibe_adapter_skeleton.py"
       ],
-      "executedAt": "2026-10-09T07:15:30.435Z",
+      "executedAt": "2026-10-12T08:46:28.417Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-c-20261009/pyright.log",
@@ -855,7 +881,7 @@
         "--project",
         "engines"
       ],
-      "executedAt": "2026-10-09T07:15:36.314Z",
+      "executedAt": "2026-10-12T08:46:30.272Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-c-20261009/lock.log",
@@ -867,31 +893,28 @@
         "node",
         "scripts/check-development-plans.mjs"
       ],
-      "executedAt": "2026-10-09T07:15:36.324Z",
+      "executedAt": "2026-10-12T08:46:30.283Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp01-c-20261009/plans.log",
-      "logSha256": "sha256:f4f6f1a007ec1b54e9b8e6ef3b90009459c10d46c8108700fc12a6335f187922"
+      "logSha256": "sha256:f54bbe36d52b3842a37dd6c2a6a7f92e1e7833686b591f6052c79e6fb84a277b"
     }
   ],
   "dependencies": [
     {
       "nodeId": "CORE:TP01-B",
-      "status": "READY",
-      "inputDigest": "sha256:2fd0485cc8b6944eac72c0acb97b12366c8a55f7f5b00956e649c5d12a306f82",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE:TP01-B: dependency is not READY"
     },
     {
       "nodeId": "CORE:F08",
-      "status": "READY",
-      "inputDigest": "sha256:07a32d386aa00c44da74b78cf792bb416ec556e16a5b9d111ad247bf4921b636",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE:F08: dependency is not READY"
     },
     {
       "nodeId": "CORE-GATE:F0",
-      "status": "READY",
-      "inputDigest": "sha256:c2d5b3c539eaed93de52b2453ea7f2fa4f1e0d7f25e00440bf09d883628c4cd0",
-      "formalAccepted": false
+      "status": "BLOCKED",
+      "reason": "CORE-GATE:F0: dependency is not READY"
     }
   ],
   "excluded": [

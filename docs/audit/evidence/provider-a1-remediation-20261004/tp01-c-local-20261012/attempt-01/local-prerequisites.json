@@ -1,0 +1,229 @@
+{
+  "schema": "quantos-tp01-c-local-prerequisites/v1",
+  "owner": "CORE:TP01-C",
+  "profile": "TP01-C_LOCAL",
+  "status": "PASS",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "observedSourceCommit": "bacc3b6040f7a02bb0b3a46159c61ca00c3c59f6",
+  "nodes": [
+    {
+      "nodeId": "CORE:F01",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-f01.json",
+      "inputDigest": "sha256:4e4ead4f537eb00aa641015137de8b2c839f665f5acc6e77b04eed51c99a6421"
+    },
+    {
+      "nodeId": "CORE:F02",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-f02.json",
+      "inputDigest": "sha256:ff11496ace5a5fdde9c939594230ed6662f8471c9658d618cf2c6b69f8f0d12c"
+    },
+    {
+      "nodeId": "CORE:TP01-A",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-tp01-a.json",
+      "inputDigest": "sha256:6f016a6bb2bfe6601bc7cd4db4e62bc166726f8ad9f1df4ec78ecbbfd0ff87d9"
+    },
+    {
+      "nodeId": "CORE:F03",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-f03.json",
+      "inputDigest": "sha256:af0262ad2fce90bbf5c11e639925c03ea3270017df7aefc5384673bd3b4b01c7"
+    },
+    {
+      "nodeId": "CORE:F04",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-f04.json",
+      "inputDigest": "sha256:96c74424e84da52acbe990695218b10c25f4bdc2d29f7b509ebe0d05f5c3658d"
+    },
+    {
+      "nodeId": "CORE:F05",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-f05.json",
+      "inputDigest": "sha256:d634dd3617bda7e16a75075d8ccd9f06d469c9b44603a288c7e0c570ccfd4829"
+    },
+    {
+      "nodeId": "CORE:F06",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-f06.json",
+      "inputDigest": "sha256:05f771e3ee9dbcac5ab534f2dcc1e7d4dc727dadd5d3d61f4278ed62dd4be3d6"
+    },
+    {
+      "nodeId": "CORE:F07",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-f07.json",
+      "inputDigest": "sha256:7fffdec117761067ab721378a26abf993324b46aff5c16d2a64ea2c85afb436d"
+    },
+    {
+      "nodeId": "CORE:TP01-B",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-tp01-b.json",
+      "inputDigest": "sha256:49ac6062441deb34ac3d7a7d0fdc0d82927c5e8c7f6a7b152636e9b12dc707f8"
+    },
+    {
+      "nodeId": "CORE:F08",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-f08.json",
+      "inputDigest": "sha256:45373fa1f92f2bf37ab8f65e3a482a3297f95bdb9787e53c54c2a1b500b89a86"
+    },
+    {
+      "nodeId": "CORE:F09",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-f09.json",
+      "inputDigest": "sha256:50e67fc3739236275959270039f7a507787564e23127f686e93d7ca53d1d77b1"
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-gate-f0.json",
+      "inputDigest": "sha256:161b64cca7a4037587704b698c76ad5e007b500e4cd2808e870b9c34c13d9f12"
+    },
+    {
+      "nodeId": "CORE:TP01-C",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-c-local-20261012/attempt-01/core-tp01-c.json",
+      "inputDigest": "sha256:0081f1847c73c1534eb6697c7145893e02d80a46ab1259b3fb5daba0b2bf7515"
+    }
+  ],
+  "deferred": [
+    {
+      "id": "f02-database",
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--database"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "tp01-baseline",
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--repository"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f05-database",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "quantos-event",
+        "--test",
+        "postgres_persistence",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1",
+        "--skip",
+        "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+        "--skip",
+        "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+        "--skip",
+        "postgres_tls_root_configuration_fails_closed"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f05-volume",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-event",
+        "--test",
+        "postgres_persistence",
+        "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "storage-database",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--test",
+        "postgres_persistence",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "storage-target",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--test",
+        "supabase_storage_integration",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "rls-target",
+      "command": [
+        "node",
+        "scripts/db-cli.cjs",
+        "live-rls"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f06-target",
+      "command": [
+        "node",
+        "scripts/run-p0-f06-target.mjs"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f07-recovery",
+      "command": [
+        "make",
+        "f07-recovery-diagnostic"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f07-coverage",
+      "command": [
+        "make",
+        "f07-coverage-diagnostic"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f07-service",
+      "command": [
+        "make",
+        "f07-target-service-acceptance"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f09-target",
+      "command": [
+        "node",
+        "scripts/f09-target-gate.cjs"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    }
+  ]
+}

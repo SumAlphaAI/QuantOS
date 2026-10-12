@@ -1,0 +1,228 @@
+[
+  {
+    "id": "local-ready",
+    "command": [
+      "make",
+      "tp01-c-local-check"
+    ],
+    "executedAt": "2026-10-12T08:48:31.864Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/local-ready.log",
+    "logSha256": "sha256:18344bfdfa8e8811e79913e1f0acc509c524a7bc84946bd8350a56cdadf8df16"
+  },
+  {
+    "id": "evidence",
+    "command": [
+      "node",
+      "docs/audit/evidence/tp01-c-local-20261012/verify-evidence.mjs"
+    ],
+    "executedAt": "2026-10-12T08:48:41.188Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/evidence.log",
+    "logSha256": "sha256:9c067c86c97b6700f119b891c2110810d06c82097003cd58b0fc319a974bc7a1"
+  },
+  {
+    "id": "release-rejected",
+    "command": [
+      "make",
+      "tp01-c-release-check"
+    ],
+    "executedAt": "2026-10-12T08:49:00.446Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      2
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/release-rejected.log",
+    "logSha256": "sha256:f027b03d8e1d47e893ca44b9cf4a0d5ea07c6407d7d5c349e5e007e3a635a6ac"
+  },
+  {
+    "id": "strict-rejected",
+    "command": [
+      "node",
+      "engines/vibe-adapter/check-development.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-12T08:49:00.530Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      2
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/strict-rejected.log",
+    "logSha256": "sha256:f3386b50b2df0b640ba47282a24e36b219f09794f04951f1d0850e9ef638eb8d"
+  },
+  {
+    "id": "upstream-f0-rejected",
+    "command": [
+      "make",
+      "f0-local-check"
+    ],
+    "executedAt": "2026-10-12T08:49:00.734Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      2
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/upstream-f0-rejected.log",
+    "logSha256": "sha256:2411b7c2422d5e92614cff77a423d3b8e24b5df8872580d4120baffd95593d9a"
+  },
+  {
+    "id": "r04-rejected",
+    "command": [
+      "make",
+      "r04-gate-check"
+    ],
+    "executedAt": "2026-10-12T08:49:00.814Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      2
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/r04-rejected.log",
+    "logSha256": "sha256:c76cb402c072fb45005f51f623ee49ab0b80dd969210421ed96a489bd5111774"
+  },
+  {
+    "id": "negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tp01-c-local-gate.test.mjs",
+      "scripts/provider-a1-receipts.test.mjs",
+      "scripts/local-development-gate.test.mjs",
+      "scripts/r03-stage-check.test.mjs",
+      "scripts/r04-stage-check.test.mjs",
+      "scripts/tp01-c-functional-artifacts.test.mjs",
+      "scripts/development-plan-order-negative.mjs",
+      "scripts/development-gate-handoff.test.mjs"
+    ],
+    "executedAt": "2026-10-12T08:49:00.887Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/negative.log",
+    "logSha256": "sha256:ec58bec47eef25f630b2df29b05f4f3fc2f6740187e3f62723e5432a72e6be54"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "executedAt": "2026-10-12T08:49:02.993Z",
+    "exitCode": 1,
+    "status": "FAIL",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/plans.log",
+    "logSha256": "sha256:745168cbd5c87fdae57ce459d528a0d51a994f6eb08c7b6e5c80876a947501c5"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-12T08:49:03.034Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  },
+  {
+    "id": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "executedAt": "2026-10-12T08:49:03.065Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/diff.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/tp01-c-local-20261012"
+    ],
+    "executedAt": "2026-10-12T08:49:03.111Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "log": "docs/audit/evidence/tp01-c-local-20261012/final-01/secrets.log",
+    "logSha256": "sha256:04cab8344782f9a794fa270c93b58a7aba561ba5170c004fe21598ab96d7dbbb"
+  }
+]
