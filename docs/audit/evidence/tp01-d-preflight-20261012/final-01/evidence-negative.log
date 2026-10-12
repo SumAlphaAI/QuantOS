@@ -1,0 +1,67 @@
+✖ complete actual preflight remains NOT_ASSESSED for TP01-D and R1 (648.276959ms)
+✔ evidence rejects formal claim (33.886041ms)
+✔ evidence rejects production claim (31.34375ms)
+✔ evidence rejects database claim (32.42325ms)
+✔ evidence rejects R1 leaked READY (30.738958ms)
+✔ evidence rejects TP01-D leaked READY (30.567041ms)
+✔ evidence rejects premature registration (31.11725ms)
+✔ evidence rejects missing prerequisite (31.42ms)
+✔ evidence rejects wrong candidate (623.564667ms)
+✔ evidence rejects failed overall result (30.742041ms)
+✔ evidence rejects target waiver (30.621833ms)
+✔ evidence rejects missing execution (625.954459ms)
+✔ evidence rejects unexpected exit (648.775833ms)
+✔ evidence rejects hidden timeout (620.868625ms)
+✔ evidence rejects hidden signal (627.514333ms)
+✔ evidence rejects different command (653.064208ms)
+✔ evidence rejects fixture omitted (704.590083ms)
+✔ evidence rejects unary-only fixture (625.805ms)
+✔ evidence rejects retired data consumed (623.652958ms)
+✔ evidence rejects source license inferred (636.977834ms)
+✔ evidence rejects new ingestion (624.775583ms)
+✔ modified raw replay log is rejected (622.692334ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 21
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8641.73175
+
+✖ failing tests:
+
+test at docs/audit/evidence/tp01-d-preflight-20261012/verify-preflight.test.mjs:9:1
+✖ complete actual preflight remains NOT_ASSESSED for TP01-D and R1 (648.276959ms)
+  Error: spawnSync git ENOBUFS
+      at Object.spawnSync (node:internal/child_process:1120:20)
+      at spawnSync (node:child_process:911:24)
+      at execFileSync (node:child_process:954:15)
+      at verify (file:///Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/tp01-d-preflight-20261012/verify-preflight.mjs:44:21)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/tp01-d-preflight-20261012/verify-preflight.test.mjs:9:86)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    errno: -55,
+    code: 'ENOBUFS',
+    syscall: 'spawnSync git',
+    path: 'git',
+    spawnargs: [ 'ls-tree', '-r', '-z', '0ee2d0c697f2f2da8dbd0dd06718be283550319a' ],
+    error: Error: spawnSync git ENOBUFS
+        at Object.spawnSync (node:internal/child_process:1120:20)
+        at spawnSync (node:child_process:911:24)
+        at execFileSync (node:child_process:954:15)
+        at verify (file:///Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/tp01-d-preflight-20261012/verify-preflight.mjs:44:21)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/tp01-d-preflight-20261012/verify-preflight.test.mjs:9:86)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.start (node:internal/test_runner/test:1003:17)
+        at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17),
+    status: null,
+    signal: 'SIGTERM',
+    output: [ null, <Buffer 31 30 30 36 34 34 20 62 6c 6f 62 20 33 65 31 34 31 32 31 37 65 34 30 34 64 35 66 65 63 38 61 35 33 61 39 31 62 36 37 35 63 39 65 38 34 39 38 62 31 31 ... 1114062 more bytes>, <Buffer > ],
+    pid: 70587,
+    stdout: <Buffer 31 30 30 36 34 34 20 62 6c 6f 62 20 33 65 31 34 31 32 31 37 65 34 30 34 64 35 66 65 63 38 61 35 33 61 39 31 62 36 37 35 63 39 65 38 34 39 38 62 31 31 ... 1114062 more bytes>,
+    stderr: <Buffer >
+  }
