@@ -925,12 +925,24 @@ mod tests {
                 );
                 std::thread::sleep(std::time::Duration::from_millis(5));
             };
+            // Accepted sockets can inherit the listener's nonblocking mode on macOS.
+            // A read timeout does not switch that mode; wait for complete HTTP headers.
+            connection.set_nonblocking(false).unwrap();
             connection
                 .set_read_timeout(Some(std::time::Duration::from_secs(2)))
                 .unwrap();
-            let mut bytes = [0; 4096];
-            let count = connection.read(&mut bytes).unwrap();
-            let request = String::from_utf8_lossy(&bytes[..count]);
+            let mut bytes = Vec::new();
+            let mut chunk = [0; 1024];
+            while !bytes.windows(4).any(|part| part == b"\r\n\r\n") {
+                let count = connection.read(&mut chunk).unwrap();
+                assert!(count > 0, "Auth request closed before complete headers");
+                bytes.extend_from_slice(&chunk[..count]);
+                assert!(
+                    bytes.len() <= 8192,
+                    "Auth fixture request headers too large"
+                );
+            }
+            let request = String::from_utf8_lossy(&bytes);
             assert!(request.contains(&format!("Bearer {expected_token}")));
             connection
                 .write_all(

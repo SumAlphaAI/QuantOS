@@ -1,0 +1,30 @@
+
+running 6 tests
+test tests::user_request_context_can_represent_primary_workspace_session ... ok
+test tests::application_urls_require_certificate_verification ... ok
+test tests::verified_claims_bind_subject_role_mfa_and_expiry ... ok
+test tests::auth_context_projects_policy_context ... ok
+test tests::malformed_bearer_is_rejected_without_an_auth_request ... ok
+test tests::well_formed_bearer_still_requires_remote_verification ... FAILED
+
+failures:
+
+---- tests::well_formed_bearer_still_requires_remote_verification stdout ----
+
+thread '<unnamed>' (7781805) panicked at crates/quantos-auth/src/lib.rs:932:53:
+called `Result::unwrap()` on an `Err` value: Os { code: 35, kind: WouldBlock, message: "Resource temporarily unavailable" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'tests::well_formed_bearer_still_requires_remote_verification' (7781804) panicked at crates/quantos-auth/src/lib.rs:949:9:
+assertion failed: matches!(verifier.verify_access_token(&token),
+    Err(AuthError::UnverifiedSession))
+
+
+failures:
+    tests::well_formed_bearer_still_requires_remote_verification
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src/lib.rs (target/debug/deps/quantos_auth-cfa67ac5879631f3)
+error: test failed, to rerun pass `-p quantos-auth --lib`

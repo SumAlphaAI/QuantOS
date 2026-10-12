@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import YAML from 'yaml';
+const source='bff/openapi/quantos-bff.v1.yaml';
+const computed=createHash('sha256').update(JSON.stringify(YAML.parse(readFileSync(source,'utf8')))).digest('hex');
+const baseline=JSON.parse(readFileSync('docs/execution/PRE-04-inventory-baseline.json'));
+assert.equal(computed,baseline.openapiDigest);
+assert.equal(computed,'60a674bfda6fbeac87cf2ecc00d3059ebcf5a2bb5c2eacd3dfdb17aa697b93df');
+assert(readFileSync('.gitleaks.toml','utf8').includes("'''^"+computed+"$'''"));
+console.log(JSON.stringify({status:'PASS',source,computed,credential:false,scope:'exact public source digest classification; secret detection otherwise retained'}));
+import {execFileSync} from 'node:child_process';
+const auth=JSON.parse(readFileSync('docs/audit/evidence/provider-a1-remediation-20261004/research-local-20261012/attempt-02/auth-digest-classification.json'));
+const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
+assert.equal(hash(execFileSync('git',['show',auth.historical.commit+':'+auth.source])),auth.historical.computedDigest);
+assert.equal(hash(readFileSync(auth.source)),auth.correction.computedDigest);
+for(const value of [auth.historical.computedDigest,auth.correction.computedDigest])assert(readFileSync('.gitleaks.toml','utf8').includes("'''^"+value+"$'''"));
+console.log('AUTH_PUBLIC_SOURCE_DIGESTS_VERIFIED');

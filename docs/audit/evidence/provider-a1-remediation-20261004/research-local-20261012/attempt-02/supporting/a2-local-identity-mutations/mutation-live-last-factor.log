@@ -1,0 +1,54 @@
+
+running 33 tests
+test live::f09_live_tests::real_logout_db_write_matches_persistent_trace ... ignored, Supabase target test: run explicitly with QUANTOS_RUN_F09_POSTGRES_TESTS=1
+test live::settings_policy::tests::revoked_delivery_is_terminal ... ok
+test live::settings_policy::tests::live_challenge_has_five_minute_lifetime ... ok
+test live::settings_policy::tests::current_factor_status_overrides_cancel_checkpoint ... ok
+test live::research::tests::evidence_ids_are_stable_locatable_and_bound_to_the_artifact ... ok
+test live::settings_policy::tests::first_factor_cannot_create_after_any_verified_factor_exists ... ok
+test live::settings_policy::tests::malformed_factor_state_cannot_be_treated_as_unenrolled ... ok
+test live::settings_policy::tests::live_csrf_requires_bound_cookie_and_header ... ok
+test live::settings_policy::tests::verification_time_comes_from_auth_facts_not_session_expiry ... ok
+test research::tests::bounded_materialization_and_invalid_sort_fail_closed ... ok
+test live::tests::live_session_requires_opaque_cookie_and_exact_origin ... ok
+test live::research::tests::live_authority_uses_server_grants_and_viewer_cannot_write ... ok
+test live::research::tests::cache_scope_changes_on_tenant_actor_workspace_account_or_mode_switch ... ok
+test live::settings_policy::tests::last_verified_factor_cannot_be_removed_even_with_unverified_siblings ... FAILED
+test research::tests::cursors_bind_scope_query_and_immutable_materialized_rows ... ok
+test live::tests::live_errors_hide_account_existence_and_include_correlation ... ok
+test research::tests::completed_intent_replays_after_its_original_deadline ... ok
+test live::cors_tests::trusted_browser_can_read_contract_response_headers ... ok
+test live::cors_tests::trusted_recent_auth_preflight_allows_contract_headers ... ok
+test live::cors_tests::untrusted_origin_and_undeclared_headers_are_not_allowed ... ok
+test research::tests::quota_is_actor_operation_bound_and_returns_retry_metadata ... ok
+test research::tests::resolved_attachments_use_the_actual_rd_agent_input_shape_and_limit ... ok
+test live::f09_trace_tests::auth_write_returns_queryable_correlation_trace ... ok
+test research::tests::attachment_content_hash_matches_the_returned_canonical_bytes ... ok
+test research::tests::method_and_attachment_limits_are_enforced_by_the_mounted_routes ... ok
+test research::tests::denied_identity_csrf_and_hidden_resource_return_no_page_data ... ok
+test research::tests::quality_license_and_unknown_attachments_fail_before_scheduling ... ok
+test research::tests::list_http_validation_and_populated_pagination_work ... ok
+test research::tests::replay_has_stable_ids_strict_sequences_and_ahead_cursor_conflict ... ok
+test research::tests::cancellation_is_idempotent_and_terminal_success_conflicts ... ok
+test research::tests::all_nine_page_operations_return_populated_contract_responses ... ok
+test research::tests::concurrent_retries_do_not_duplicate_runs_audits_or_events ... ok
+test research::tests::command_validation_rejects_forgery_empty_and_unsafe_numeric_inputs ... ok
+
+failures:
+
+---- live::settings_policy::tests::last_verified_factor_cannot_be_removed_even_with_unverified_siblings stdout ----
+
+thread 'live::settings_policy::tests::last_verified_factor_cannot_be_removed_even_with_unverified_siblings' (7808174) panicked at services/bff-gateway/src/live/settings_policy.rs:167:18:
+called `Result::unwrap_err()` on an `Ok` value: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    live::settings_policy::tests::last_verified_factor_cannot_be_removed_even_with_unverified_siblings
+
+test result: FAILED. 31 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Compiling bff-gateway v0.1.0 (/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-a2-mutants-2KImHY/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.69s
+     Running unittests src/lib.rs (target/bff-fe-001-mutants/debug/deps/bff_gateway-9da8f6bdac073b86)
+error: test failed, to rerun pass `-p bff-gateway --lib`
