@@ -1,5 +1,7 @@
 const {connectBeforeStatements}=require('./lib/postgres-bootstrap.cjs');
 const { runAuthLoginAttempts } = require('./lib/auth-login-retry.cjs');
+const { requireAuthResponse } = require('./lib/supabase-auth-result.cjs');
+const { inspectTargetWritability, requireWritableTarget } = require('./lib/target-database-writability.cjs');
 const ready = require('./lib/service-readiness.cjs');
 const observeClientErrors = require('./lib/target-client-errors.cjs');
 const startupEvidence = require('./lib/runtime-startup-evidence.cjs');
@@ -73,7 +75,8 @@ async function authRequest(api, route, method, body, key) {
       signal: AbortSignal.timeout(15000),
     });
     const data = await response.json().catch(() => ({}));
-    assert(response.ok, `Supabase Auth ${route} returned HTTP ${response.status}`);
+    try { requireAuthResponse(response, data); }
+    catch (error) { receipt.authFailure = error.authFailure; save(); throw error; }
     if (login) assert(data.access_token, 'Supabase login returned no access token');
     return data;
   };
@@ -176,6 +179,9 @@ async function main() {
       receipt.databaseError = 'Target database connection failed outside a query';
       save();
     });
+    receipt.phase = 'database-writability'; save();
+    receipt.databaseWritability = await inspectTargetWritability(db); save();
+    requireWritableTarget(receipt.databaseWritability);
     const bucket = (await db.query(`select exists(
       select 1 from storage.buckets where id='quantos-artifacts' and public=false
     ) as private_bucket`)).rows[0];

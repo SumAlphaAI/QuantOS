@@ -1,4 +1,4 @@
-> 当前复评（TP04 Python校验，2026-10-12）：冻结d644b8c2完成14节点/56组实际检查，46 PASS、10 FAIL（本地45/45，目标1/11）。TP03/TP04组件各12组及完整Python1366项通过；严格F0/TP03/TP04为BLOCKED，R03旧READY因输入漂移撤为NOT_ASSESSED。全图0 READY、156 NOT_ASSESSED、3 BLOCKED；formalAccepted=false。见[本轮记录](./audit/TP04-python-receipt-readmission-2026-10-12.md)。
+> 当前复评（F06/F07/F09目标诊断，2026-10-12）：修复目标写入预检、Auth错误诊断及F09进程/连接收尾；TP03/TP04/F0必要闭包待新冻结提交完整复验，旧失败证据保留。当前0 READY、159 NOT_ASSESSED、0 BLOCKED；formalAccepted=false。见[本轮报告](./audit/F0-target-failures-remediation-2026-10-12.md)。
 
 > 历史预检（R04，2026-10-12）：冻结2c6e1fb4完成接口/fixture预检；Python 1366项、Runtime 100条Proposal/过期拒绝/重放/订单工具拒绝、两组100条schema及49项回执负向PASS。TP03/TP04/F0当前仍NOT_ASSESSED，旧回执存在内容漂移；TP04完整套件计数校验待修复。R03_LOCAL继续READY，本轮未授予R04 Gate。见[预检报告](./audit/R04-interface-fixture-preflight-2026-10-12.md)。
 
@@ -41,14 +41,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.70
+> 版本：3.71
 > 更新时间：2026-10-12
 > 状态：技术执行基线  
-> 本轮变更：TP04完整Python套件回执计数修复、负向测试及必要前置复评；R03旧回执因源码漂移撤为待复评。
+> 本轮变更：F06/F07目标Auth错误诊断、数据库写入预检和F09有界收尾修复；从新冻结源码复验必要前置。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.71`：定位Supabase Auth数据库500和只读状态，新增写入前置拒绝、错误白名单及F09有界收尾回归；冻结新源码完整复验TP03/TP04/F0。见[本轮报告](./audit/F0-target-failures-remediation-2026-10-12.md)。
 
 - `3.70`：修复TP04完整Python计数校验，保留失败/旧组件证据；从冻结源码复评TP03/TP04/F0必要前置，源码漂移撤销R03旧READY。见[本轮记录](./audit/TP04-python-receipt-readmission-2026-10-12.md)。
 
@@ -708,11 +710,9 @@ flowchart TD
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "BLOCKED",
-    "input_digest": "sha256:98620773fedbc8ac3cf030c0d3e5f7eff4bea456498f64e20f70836fb312aec8",
-    "evidence": [
-      "audit/evidence/tp04-python-readmission-20261012/gates/core-gate-f0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -838,7 +838,7 @@ flowchart TD
 - task_id: `TP03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:435c8d2f6c3878056cf5ffdcab8f1535bdffc2bda7090e579a50c4ceb34d0fdc","evidence":["audit/evidence/tp04-python-readmission-20261012/gates/core-tp03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - closes_core: []
@@ -859,7 +859,7 @@ flowchart TD
 - task_id: `TP04`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:58a0df53bd079d1ba9a0a2c20d4b65cfbc3bed41c73068c32fdebd2324838d24","evidence":["audit/evidence/tp04-python-readmission-20261012/gates/core-tp04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - closes_core: []

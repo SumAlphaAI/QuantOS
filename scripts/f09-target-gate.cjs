@@ -6,6 +6,7 @@ const { executeTarget } = require('./lib/development-target-command.cjs');
 const { openConnection } = require('./lib/r02-chain-connection.cjs');
 const { retireF09Fixtures, validateF09Cleanup } = require('./lib/f09-fixtures.cjs');
 const { validateF09MigrationLedger } = require('./lib/f09-migration-ledger.cjs');
+const { inspectTargetWritability, requireWritableTarget } = require('./lib/target-database-writability.cjs');
 
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'artifacts/f09/target.json');
@@ -91,10 +92,13 @@ async function main() {
     const migrationDir = path.join(root, 'supabase/migrations');
     const local = fs.readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort();
     receipt.migrationHead = validateF09MigrationLedger(remote, new Map(local.map(name => [name, fs.readFileSync(path.join(migrationDir, name))])));
+    checkpoint('same source migration ledger and checksums');
+    receipt.phase = 'DATABASE_WRITABILITY';
+    receipt.databaseWritability = await inspectTargetWritability(client); save();
+    requireWritableTarget(receipt.databaseWritability);
   } finally {
     await client.end();
   }
-  checkpoint('same source migration ledger and checksums');
   await run('cargo', ['build', '-p', 'capacity-monitor', '--locked']);
   await run('cargo', ['build', '-p', 'portfolio-rebuild', '--locked']);
   await run('node', ['scripts/f09-scheduler-smoke.cjs'], 'scheduler-smoke.log');

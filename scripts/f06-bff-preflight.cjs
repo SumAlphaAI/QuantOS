@@ -1,5 +1,6 @@
 const { Client } = require('pg');
 const fs = require('node:fs');
+const { inspectTargetWritability, requireWritableTarget } = require('./lib/target-database-writability.cjs');
 
 async function main() {
   if (!process.env.DATABASE_URL || !process.env.SUPABASE_URL) {
@@ -24,9 +25,15 @@ async function main() {
       rejectUnauthorized: sslmode === 'verify-full',
     },
     connectionTimeoutMillis: 10000,
+    query_timeout: 15000,
   });
   await client.connect();
   try {
+    const databaseWritability = await inspectTargetWritability(client);
+    if (databaseWritability.status !== 'WRITABLE') {
+      console.error(JSON.stringify({ status: 'BLOCKED', formalAccepted: false, sameProject, databaseWritability }));
+    }
+    requireWritableTarget(databaseWritability);
     const row = (await client.query(`select
       current_user as operator_login,
       (select rolcreaterole from pg_roles where rolname=current_user) as can_create_roles,
@@ -74,6 +81,7 @@ async function main() {
       hasBffDatabaseUrl: Boolean(process.env.QUANTOS_BFF_DATABASE_URL),
       hasTerminalOrigin: Boolean(process.env.QUANTOS_TERMINAL_ORIGIN),
       verifiedTlsError,
+      databaseWritability,
     }));
     if (!sameProject || !row.bff_group_exists || !row.can_create_roles || !verifiedTls) {
       process.exitCode = 1;

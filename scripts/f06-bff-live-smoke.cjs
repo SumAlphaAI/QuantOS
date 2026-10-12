@@ -1,6 +1,7 @@
 const { spawn } = require('node:child_process');
 const crypto = require('node:crypto');
 const path = require('node:path');
+const { requireAuthResponse } = require('./lib/supabase-auth-result.cjs');
 
 const httpTimeoutMs = require('./lib/f06-http-budget.cjs')();
 const requestTimings = [];
@@ -20,8 +21,9 @@ async function main() {
       password: process.env.QUANTOS_F06_TEST_PASSWORD }),
     signal: AbortSignal.timeout(httpTimeoutMs),
   });
-  assert(auth.ok, `Supabase test login returned HTTP ${auth.status}`);
-  const token = (await auth.json()).access_token;
+  const authBody = await auth.json().catch(() => ({}));
+  requireAuthResponse(auth, authBody);
+  const token = authBody.access_token;
   assert(token, 'Supabase test login returned no access token');
   const claims = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString('utf8'));
   assert(claims.sub === process.env.QUANTOS_F06_TEST_USER_ID, 'Supabase subject is not the configured test user');
@@ -115,6 +117,7 @@ async function main() {
 main().catch(error => {
   console.error(`F06 live BFF smoke failed: ${error.message}`);
   console.error(JSON.stringify({ status: 'FAIL', httpTimeoutMs, requestTimings,
-    originKind: 'synthetic_http_smoke', formalAccepted: false }));
+    originKind: 'synthetic_http_smoke', formalAccepted: false,
+    ...(error.authFailure ? { authFailure: error.authFailure } : {}) }));
   process.exitCode = 1;
 });
