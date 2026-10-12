@@ -1,0 +1,28 @@
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+error: this `if` statement can be collapsed
+   --> crates/quantos-runtime/src/research_pg.rs:256:13
+    |
+256 | /             if let Err(error) = self.storage.put_artifact(manifest, bytes.clone().into()) {
+257 | |                 if self.storage.get_artifact(manifest).ok().as_deref() != Some(bytes.as_slice()) {
+258 | |                     return Err(ResearchWorkflowError::Storage(error));
+259 | |                 }
+260 | |             }
+    | |_____________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+256 ~             if let Err(error) = self.storage.put_artifact(manifest, bytes.clone().into())
+257 ~                 && self.storage.get_artifact(manifest).ok().as_deref() != Some(bytes.as_slice()) {
+258 |                     return Err(ResearchWorkflowError::Storage(error));
+259 ~                 }
+    |
+
+error: could not compile `quantos-runtime` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quantos-runtime` (lib test) due to 1 previous error

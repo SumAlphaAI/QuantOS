@@ -9,7 +9,8 @@ const require=createRequire(import.meta.url),{snapshot}=require('./lib/test-engi
 assert.equal(execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(),'','freeze and commit all source before R04 assessment');
 const attempt=process.argv[2]??'docs/audit/evidence/r04-completion-20261012/attempt-01';assert(/^docs\/audit\/evidence\/r04-completion-20261012\/attempt-[a-z0-9-]+$/.test(attempt));assert(!existsSync(attempt),'use a fresh complete assessment attempt');
 const source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),inputs=inventory(),initialPlan=planInput(nodesFromPlans().get('CORE:R04'));
-execFileSync(process.execPath,['scripts/record-r04-local-prerequisites.mjs',attempt],{cwd:root,stdio:'inherit',env:process.env});
+const prerequisiteAttempt=attempt.replace('docs/audit/evidence/r04-completion-20261012/','docs/audit/evidence/provider-a1-remediation-20261004/r04-completion-20261012/');
+execFileSync(process.execPath,['scripts/record-r04-local-prerequisites.mjs',prerequisiteAttempt],{cwd:root,stdio:'inherit',env:process.env});
 const scope=randomBytes(4).toString('hex'),scratch=mkdtempSync(resolve(tmpdir(),'quantos-r04-local-')),baseline=resolve(scratch,'baseline.json');writeFileSync(baseline,JSON.stringify({...snapshot(root),scopeTag:scope}));
 const p=policy(),env=staticEnvironment(developmentEnvironment(readFileSync(p.developmentProfile.file,'utf8'),p.developmentProfile.overrides));env.QUANTOS_TEST_ENGINE_SCOPE=scope;env.QUANTOS_R1_ENGINE_BASELINE=baseline;env.QUANTOS_R04_EVIDENCE_DIR=resolve(root,attempt,'products');
 mkdirSync(attempt+'/r04-logs',{recursive:true});const results=[];let cleanupExit;

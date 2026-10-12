@@ -1,0 +1,52 @@
+{
+  "schema": "quantos-r03-target/v1",
+  "status": "FAIL",
+  "fixture": true,
+  "target": "configured-supabase",
+  "formalAccepted": false,
+  "providerIngestion": false,
+  "production": false,
+  "bootstrap": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 2944.396667
+      }
+    ]
+  },
+  "tenant": "96129ed0-586b-4599-802e-49d2d38db134",
+  "actor": "951ff91d-f881-4c36-bdc7-31602b1ceb7a",
+  "session": "f3d1c826-ca57-480e-9106-16f2517a9193",
+  "failure": {
+    "code": "23502",
+    "message": "null value in column \"causation_id\" of relation \"event_log\" violates not-null constraint"
+  },
+  "cleanupBootstrap": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 3014.9579999999987
+      }
+    ]
+  },
+  "cleanup": {
+    "status": "PASS",
+    "pending": 0,
+    "active": 0,
+    "immutableFacts": "RETAINED",
+    "objects": "RETAINED_OWNED_EVIDENCE"
+  },
+  "finishedAt": "2026-10-11T07:52:01.515Z"
+}
