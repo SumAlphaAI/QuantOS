@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.5.0
+  version: 1.6.0
   description: |
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -1588,13 +1588,20 @@ paths:
               properties:
                 capability:
                   type: string
+                  enum:
+                    - research.hypothesis.v1
+                    - research.experiment.v1
                 dataSnapshotId:
                   type: string
                   format: uuid
                 question:
                   type: string
+                  minLength: 1
+                  maxLength: 8000
                 budget:
-                  $ref: "#/components/schemas/DecimalValue"
+                  type: string
+                  pattern: ^[1-9][0-9]{0,6}$
+                  description: 整数成本单位，范围1至1000000；provider精确校验。
                 deadlineAt:
                   $ref: "#/components/schemas/DateTime"
                 attachments:
@@ -1603,24 +1610,28 @@ paths:
                     type: string
                     format: uuid
                   description: 已上传扫描后的 Artifact 引用
+                  maxItems: 16
+                  uniqueItems: true
               additionalProperties: false
             example:
-              capability: x
+              capability: research.hypothesis.v1
               dataSnapshotId: 11111111-1111-4111-8111-111111111111
               question: x
               budget: "1"
-              deadlineAt: 2026-10-03T00:00:00Z
+              deadlineAt: 2099-01-01T00:00:00Z
       responses:
         "202":
           description: 受理（不代表完成）
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AsyncAccepted"
+                $ref: "#/components/schemas/ResearchAccepted"
               example:
                 jobId: 11111111-1111-4111-8111-111111111111
                 status: accepted
+                statusRef: /v1/research-runs/11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+                auditRef: 11111111-1111-4111-8111-111111111111
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/X-Correlation-Id"
@@ -1684,7 +1695,7 @@ paths:
                 budget: "1"
                 deadlineAt: 2026-10-03T00:00:00Z
                 status: queued
-                inputHash: x
+                inputHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                 engineVersion: x
                 evidenceRefs: []
                 correlationId: 11111111-1111-4111-8111-111111111111
@@ -1747,11 +1758,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AsyncAccepted"
+                $ref: "#/components/schemas/ResearchAccepted"
               example:
                 jobId: 11111111-1111-4111-8111-111111111111
-                status: accepted
+                status: cancel_requested
+                statusRef: /v1/research-runs/11111111-1111-4111-8111-111111111111
                 correlationId: 11111111-1111-4111-8111-111111111111
+                auditRef: 11111111-1111-4111-8111-111111111111
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/X-Correlation-Id"
@@ -1939,10 +1952,12 @@ paths:
                   start: 2026-10-03T00:00:00Z
                   end: 2026-10-03T00:00:00Z
                 quality: verified
-                contentHash: x
+                contentHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                 licenseLabel: x
                 capturedAt: 2026-10-03T00:00:00Z
                 maxAgeSeconds: 0
+                sources:
+                  - example-source
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/X-Correlation-Id"
@@ -2006,9 +2021,9 @@ paths:
                 engineVersion: x
                 promptVersion: x
                 codeVersion: x
-                environmentHash: x
+                environmentHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                 dataSnapshotId: 11111111-1111-4111-8111-111111111111
-                contentHash: x
+                contentHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                 createdAt: 2026-10-03T00:00:00Z
           headers:
             X-Correlation-Id:
@@ -2597,6 +2612,8 @@ paths:
                 allowedTargets: []
                 approvalState: none
                 createdAt: 2026-10-03T00:00:00Z
+                sources:
+                  - example-source
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/X-Correlation-Id"
@@ -2667,6 +2684,8 @@ paths:
                 allowedTargets: []
                 approvalState: none
                 createdAt: 2026-10-03T00:00:00Z
+                sources:
+                  - example-source
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/X-Correlation-Id"
@@ -4593,6 +4612,69 @@ paths:
           rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/artifacts/{artifactId}/attachment:
+    get:
+      operationId: getArtifactAttachment
+      tags:
+        - data
+      summary: 读取经身份/内容hash校验的Artifact JSON附件
+      parameters:
+        - name: artifactId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Artifact
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtifactAttachment"
+              example:
+                artifactId: 11111111-1111-4111-8111-111111111111
+                mediaType: application/json
+                contentHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                content:
+                  summary: Research output
+                auditRef: 11111111-1111-4111-8111-111111111111
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+              description: Restricted responses must not be stored.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-003
+        auth: cookie + resource-scoped authorization
+        capability: Domain owner authorizes the resource/action; client capability is not authority.
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Resource-specific asOf/capturedAt/updatedAt/expiresAt where present; unsafe stale commands rejected by owner.
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
 components:
   securitySchemes:
     cookieAuth:
@@ -4978,13 +5060,17 @@ components:
               $ref: "#/components/schemas/MfaEnrollment"
     MfaEnrollment:
       type: object
-      required: [factorRef, delivery]
+      required:
+        - factorRef
+        - delivery
       properties:
         factorRef:
           $ref: "#/components/schemas/UUID"
         delivery:
           type: string
-          enum: [one_time, restart_required]
+          enum:
+            - one_time
+            - restart_required
         uri:
           type: string
           description: One-time otpauth enrollment URI for the authenticated user only; never persist, log, cache or send to analytics. Idempotent job replay omits this material.
@@ -5274,7 +5360,9 @@ components:
           type: array
           items:
             type: string
-            enum: [authenticator, passkey]
+            enum:
+              - authenticator
+              - passkey
           description: Server-enabled enrollment methods. WebAuthn requires a separately enabled provider capability; unavailable methods fail closed.
         firstFactorSetupRef:
           $ref: "#/components/schemas/UUID"
@@ -5714,6 +5802,7 @@ components:
           $ref: "#/components/schemas/TaskStatus"
         inputHash:
           type: string
+          pattern: ^sha256:[a-f0-9]{64}$
         engineVersion:
           type: string
         artifactRefs:
@@ -5728,6 +5817,8 @@ components:
           $ref: "#/components/schemas/UUID"
         createdAt:
           $ref: "#/components/schemas/DateTime"
+        auditRef: &a1
+          $ref: "#/components/schemas/UUID"
     DataSnapshot:
       type: object
       required:
@@ -5739,6 +5830,7 @@ components:
         - licenseLabel
         - capturedAt
         - maxAgeSeconds
+        - sources
       properties:
         snapshotId:
           $ref: "#/components/schemas/UUID"
@@ -5750,6 +5842,7 @@ components:
           type: array
           items:
             type: string
+          minItems: 1
         quality:
           $ref: "#/components/schemas/DataQuality"
         qualityBlocked:
@@ -5757,13 +5850,17 @@ components:
           description: 质量受限阻断标识（服务端权威，前端不可覆盖）
         contentHash:
           type: string
+          pattern: ^sha256:[a-f0-9]{64}$
         licenseLabel:
           type: string
+          minLength: 1
         capturedAt:
           $ref: "#/components/schemas/DateTime"
         maxAgeSeconds:
           type: integer
           format: int64
+          minimum: 0
+        auditRef: *a1
     Artifact:
       type: object
       required:
@@ -5792,16 +5889,19 @@ components:
           type: string
         environmentHash:
           type: string
+          pattern: ^sha256:[a-f0-9]{64}$
         dataSnapshotId:
           $ref: "#/components/schemas/UUID"
         contentHash:
           type: string
+          pattern: ^sha256:[a-f0-9]{64}$
         lineageRefs:
           type: array
           items:
             $ref: "#/components/schemas/UUID"
         createdAt:
           $ref: "#/components/schemas/DateTime"
+        auditRef: *a1
     StrategySummary:
       type: object
       required:
@@ -6220,3 +6320,37 @@ components:
           $ref: "#/components/schemas/UUID"
         submittedAt:
           $ref: "#/components/schemas/DateTime"
+    ResearchAccepted:
+      allOf:
+        - $ref: "#/components/schemas/AsyncAccepted"
+        - type: object
+          required:
+            - statusRef
+            - auditRef
+          properties:
+            statusRef:
+              type: string
+              pattern: ^/v1/research-runs/[a-f0-9-]{36}$
+            auditRef: *a1
+    ArtifactAttachment:
+      type: object
+      required:
+        - artifactId
+        - mediaType
+        - contentHash
+        - content
+        - auditRef
+      properties:
+        artifactId: *a1
+        mediaType:
+          type: string
+          enum:
+            - application/json
+        contentHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        content:
+          type: object
+        auditRef: *a1
+        correlationId: *a1
+      description: 授权后返回已校验hash的JSON内容；不返回内部存储路径或可转发的Storage凭据。

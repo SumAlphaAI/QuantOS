@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.5.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.6.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -1233,7 +1233,8 @@
           "$ref": "#/$defs/TaskStatus"
         },
         "inputHash": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
         },
         "engineVersion": {
           "type": "string"
@@ -1255,6 +1256,9 @@
         },
         "createdAt": {
           "$ref": "#/$defs/DateTime"
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
         }
       }
     },
@@ -1268,7 +1272,8 @@
         "contentHash",
         "licenseLabel",
         "capturedAt",
-        "maxAgeSeconds"
+        "maxAgeSeconds",
+        "sources"
       ],
       "properties": {
         "snapshotId": {
@@ -1284,7 +1289,8 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "minItems": 1
         },
         "quality": {
           "$ref": "#/$defs/DataQuality"
@@ -1294,17 +1300,23 @@
           "description": "质量受限阻断标识（服务端权威，前端不可覆盖）"
         },
         "contentHash": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
         },
         "licenseLabel": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "capturedAt": {
           "$ref": "#/$defs/DateTime"
         },
         "maxAgeSeconds": {
           "type": "integer",
-          "format": "int64"
+          "format": "int64",
+          "minimum": 0
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
         }
       }
     },
@@ -1342,13 +1354,15 @@
           "type": "string"
         },
         "environmentHash": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
         },
         "dataSnapshotId": {
           "$ref": "#/$defs/UUID"
         },
         "contentHash": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
         },
         "lineageRefs": {
           "type": "array",
@@ -1358,6 +1372,9 @@
         },
         "createdAt": {
           "$ref": "#/$defs/DateTime"
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
         }
       }
     },
@@ -1937,6 +1954,64 @@
           "$ref": "#/$defs/DateTime"
         }
       }
+    },
+    "ResearchAccepted": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/AsyncAccepted"
+        },
+        {
+          "type": "object",
+          "required": [
+            "statusRef",
+            "auditRef"
+          ],
+          "properties": {
+            "statusRef": {
+              "type": "string",
+              "pattern": "^/v1/research-runs/[a-f0-9-]{36}$"
+            },
+            "auditRef": {
+              "$ref": "#/$defs/UUID"
+            }
+          }
+        }
+      ]
+    },
+    "ArtifactAttachment": {
+      "type": "object",
+      "required": [
+        "artifactId",
+        "mediaType",
+        "contentHash",
+        "content",
+        "auditRef"
+      ],
+      "properties": {
+        "artifactId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mediaType": {
+          "type": "string",
+          "enum": [
+            "application/json"
+          ]
+        },
+        "contentHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "content": {
+          "type": "object"
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      },
+      "description": "授权后返回已校验hash的JSON内容；不返回内部存储路径或可转发的Storage凭据。"
     }
   }
 }

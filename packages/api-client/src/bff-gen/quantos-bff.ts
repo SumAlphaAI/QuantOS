@@ -958,6 +958,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/artifacts/{artifactId}/attachment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 读取经身份/内容hash校验的Artifact JSON附件 */
+        get: operations["getArtifactAttachment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1297,12 +1314,13 @@ export interface components {
             evidenceRefs: components["schemas"]["UUID"][];
             correlationId: components["schemas"]["UUID"];
             createdAt: components["schemas"]["DateTime"];
+            auditRef?: components["schemas"]["UUID"];
         };
         DataSnapshot: {
             snapshotId: components["schemas"]["UUID"];
             schemaVersion: string;
             window: components["schemas"]["TimeWindow"];
-            sources?: string[];
+            sources: string[];
             quality: components["schemas"]["DataQuality"];
             /** @description 质量受限阻断标识（服务端权威，前端不可覆盖） */
             qualityBlocked?: boolean;
@@ -1311,6 +1329,7 @@ export interface components {
             capturedAt: components["schemas"]["DateTime"];
             /** Format: int64 */
             maxAgeSeconds: number;
+            auditRef?: components["schemas"]["UUID"];
         };
         Artifact: {
             artifactId: components["schemas"]["UUID"];
@@ -1324,6 +1343,7 @@ export interface components {
             contentHash: string;
             lineageRefs?: components["schemas"]["UUID"][];
             createdAt: components["schemas"]["DateTime"];
+            auditRef?: components["schemas"]["UUID"];
         };
         StrategySummary: {
             strategyId: components["schemas"]["UUID"];
@@ -1473,6 +1493,20 @@ export interface components {
             mode: components["schemas"]["RuntimeMode"];
             correlationId: components["schemas"]["UUID"];
             submittedAt: components["schemas"]["DateTime"];
+        };
+        ResearchAccepted: components["schemas"]["AsyncAccepted"] & {
+            statusRef: string;
+            auditRef: components["schemas"]["UUID"];
+        };
+        /** @description 授权后返回已校验hash的JSON内容；不返回内部存储路径或可转发的Storage凭据。 */
+        ArtifactAttachment: {
+            artifactId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mediaType: "application/json";
+            contentHash: string;
+            content: Record<string, never>;
+            auditRef: components["schemas"]["UUID"];
+            correlationId?: components["schemas"]["UUID"];
         };
     };
     responses: {
@@ -2613,19 +2647,21 @@ export interface operations {
             content: {
                 /**
                  * @example {
-                 *       "capability": "x",
+                 *       "capability": "research.hypothesis.v1",
                  *       "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
                  *       "question": "x",
                  *       "budget": "1",
-                 *       "deadlineAt": "2026-10-03T00:00:00Z"
+                 *       "deadlineAt": "2099-01-01T00:00:00Z"
                  *     }
                  */
                 "application/json": {
-                    capability: string;
+                    /** @enum {string} */
+                    capability: "research.hypothesis.v1" | "research.experiment.v1";
                     /** Format: uuid */
                     dataSnapshotId: string;
                     question: string;
-                    budget: components["schemas"]["DecimalValue"];
+                    /** @description 整数成本单位，范围1至1000000；provider精确校验。 */
+                    budget: string;
                     deadlineAt: components["schemas"]["DateTime"];
                     /** @description 已上传扫描后的 Artifact 引用 */
                     attachments?: string[];
@@ -2646,10 +2682,12 @@ export interface operations {
                      * @example {
                      *       "jobId": "11111111-1111-4111-8111-111111111111",
                      *       "status": "accepted",
-                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *       "statusRef": "/v1/research-runs/11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
                      *     }
                      */
-                    "application/json": components["schemas"]["AsyncAccepted"];
+                    "application/json": components["schemas"]["ResearchAccepted"];
                 };
             };
             401: components["responses"]["Unauthorized"];
@@ -2686,7 +2724,7 @@ export interface operations {
                      *       "budget": "1",
                      *       "deadlineAt": "2026-10-03T00:00:00Z",
                      *       "status": "queued",
-                     *       "inputHash": "x",
+                     *       "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                      *       "engineVersion": "x",
                      *       "evidenceRefs": [],
                      *       "correlationId": "11111111-1111-4111-8111-111111111111",
@@ -2732,11 +2770,13 @@ export interface operations {
                     /**
                      * @example {
                      *       "jobId": "11111111-1111-4111-8111-111111111111",
-                     *       "status": "accepted",
-                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *       "status": "cancel_requested",
+                     *       "statusRef": "/v1/research-runs/11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
                      *     }
                      */
-                    "application/json": components["schemas"]["AsyncAccepted"];
+                    "application/json": components["schemas"]["ResearchAccepted"];
                 };
             };
             401: components["responses"]["Unauthorized"];
@@ -2848,10 +2888,13 @@ export interface operations {
                      *         "end": "2026-10-03T00:00:00Z"
                      *       },
                      *       "quality": "verified",
-                     *       "contentHash": "x",
+                     *       "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                      *       "licenseLabel": "x",
                      *       "capturedAt": "2026-10-03T00:00:00Z",
-                     *       "maxAgeSeconds": 0
+                     *       "maxAgeSeconds": 0,
+                     *       "sources": [
+                     *         "example-source"
+                     *       ]
                      *     }
                      */
                     "application/json": components["schemas"]["DataSnapshot"];
@@ -2891,9 +2934,9 @@ export interface operations {
                      *       "engineVersion": "x",
                      *       "promptVersion": "x",
                      *       "codeVersion": "x",
-                     *       "environmentHash": "x",
+                     *       "environmentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                      *       "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
-                     *       "contentHash": "x",
+                     *       "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                      *       "createdAt": "2026-10-03T00:00:00Z"
                      *     }
                      */
@@ -3289,7 +3332,10 @@ export interface operations {
                      *       "snapshotId": "11111111-1111-4111-8111-111111111111",
                      *       "allowedTargets": [],
                      *       "approvalState": "none",
-                     *       "createdAt": "2026-10-03T00:00:00Z"
+                     *       "createdAt": "2026-10-03T00:00:00Z",
+                     *       "sources": [
+                     *         "example-source"
+                     *       ]
                      *     }
                      */
                     "application/json": components["schemas"]["StrategyRelease"];
@@ -3334,7 +3380,10 @@ export interface operations {
                      *       "snapshotId": "11111111-1111-4111-8111-111111111111",
                      *       "allowedTargets": [],
                      *       "approvalState": "none",
-                     *       "createdAt": "2026-10-03T00:00:00Z"
+                     *       "createdAt": "2026-10-03T00:00:00Z",
+                     *       "sources": [
+                     *         "example-source"
+                     *       ]
                      *     }
                      */
                     "application/json": components["schemas"]["StrategyRelease"];
@@ -4564,6 +4613,46 @@ export interface operations {
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
             410: components["responses"]["Gone"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getArtifactAttachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                artifactId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Artifact */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    /** @description Restricted responses must not be stored. */
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "artifactId": "11111111-1111-4111-8111-111111111111",
+                     *       "mediaType": "application/json",
+                     *       "contentHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "content": {
+                     *         "summary": "Research output"
+                     *       },
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ArtifactAttachment"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
             default: components["responses"]["ServerError"];
         };
     };

@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.5.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.6.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -286,25 +286,27 @@ export const ResearchRunSchema = z.object({
   "costUnits": z.lazy(() => DecimalValueSchema).optional(),
   "deadlineAt": z.lazy(() => DateTimeSchema),
   "status": z.lazy(() => TaskStatusSchema),
-  "inputHash": z.string(),
+  "inputHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "engineVersion": z.string(),
   "artifactRefs": z.array(z.lazy(() => UUIDSchema)).optional(),
   "evidenceRefs": z.array(z.lazy(() => UUIDSchema)),
   "correlationId": z.lazy(() => UUIDSchema),
   "createdAt": z.lazy(() => DateTimeSchema),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
 export const DataSnapshotSchema = z.object({
   "snapshotId": z.lazy(() => UUIDSchema),
   "schemaVersion": z.string(),
   "window": z.lazy(() => TimeWindowSchema),
-  "sources": z.array(z.string()).optional(),
+  "sources": z.array(z.string()).min(1),
   "quality": z.lazy(() => DataQualitySchema),
   "qualityBlocked": z.boolean().describe("质量受限阻断标识（服务端权威，前端不可覆盖）").optional(),
-  "contentHash": z.string(),
-  "licenseLabel": z.string(),
+  "contentHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "licenseLabel": z.string().min(1),
   "capturedAt": z.lazy(() => DateTimeSchema),
-  "maxAgeSeconds": z.number().int(),
+  "maxAgeSeconds": z.number().int().min(0),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
 export const ArtifactSchema = z.object({
@@ -314,11 +316,12 @@ export const ArtifactSchema = z.object({
   "engineVersion": z.string(),
   "promptVersion": z.string(),
   "codeVersion": z.string(),
-  "environmentHash": z.string(),
+  "environmentHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "dataSnapshotId": z.lazy(() => UUIDSchema),
-  "contentHash": z.string(),
+  "contentHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
   "lineageRefs": z.array(z.lazy(() => UUIDSchema)).optional(),
   "createdAt": z.lazy(() => DateTimeSchema),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
 }).passthrough();
 
 export const StrategySummarySchema = z.object({
@@ -461,6 +464,22 @@ export const OrderSchema = z.object({
   "submittedAt": z.lazy(() => DateTimeSchema),
 }).passthrough();
 
+export const ResearchAcceptedSchema = z.intersection(z.lazy(() => AsyncAcceptedSchema), z.object({
+  "statusRef": z.string().regex(new RegExp("^/v1/research-runs/[a-f0-9-]{36}$")),
+  "auditRef": z.lazy(() => UUIDSchema),
+}).passthrough());
+
+export const ArtifactAttachmentSchema = z.object({
+  "artifactId": z.lazy(() => UUIDSchema),
+  "mediaType": z.literal("application/json"),
+  "contentHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "content": z.object({
+
+}).passthrough(),
+  "auditRef": z.lazy(() => UUIDSchema),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).passthrough().describe("授权后返回已校验hash的JSON内容；不返回内部存储路径或可转发的Storage凭据。");
+
 export const bffZodSchemas = {
   UUID: UUIDSchema,
   DateTime: DateTimeSchema,
@@ -514,6 +533,8 @@ export const bffZodSchemas = {
   Approval: ApprovalSchema,
   Fill: FillSchema,
   Order: OrderSchema,
+  ResearchAccepted: ResearchAcceptedSchema,
+  ArtifactAttachment: ArtifactAttachmentSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -674,7 +695,7 @@ export const bffResponseSchemas = {
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "createResearchRun": {
-    "202": z.lazy(() => AsyncAcceptedSchema),
+    "202": z.lazy(() => ResearchAcceptedSchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "422": z.lazy(() => ErrorEnvelopeSchema),
@@ -688,7 +709,7 @@ export const bffResponseSchemas = {
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "cancelResearchRun": {
-    "202": z.lazy(() => AsyncAcceptedSchema),
+    "202": z.lazy(() => ResearchAcceptedSchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
@@ -973,6 +994,13 @@ export const bffResponseSchemas = {
     "404": z.lazy(() => ErrorEnvelopeSchema),
     "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
     "410": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getArtifactAttachment": {
+    "200": z.lazy(() => ArtifactAttachmentSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
 } as const;

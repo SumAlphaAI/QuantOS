@@ -18,6 +18,19 @@ use quantos_storage::{
 };
 use serde_json::json;
 
+impl PgRuntimeStore {
+    /// Enqueue an authenticated page request with the same durable checkpoint
+    /// as the R03 coordinator. Execution remains the research worker's job.
+    pub fn enqueue_research(
+        &mut self,
+        input: ResearchWorkflowInput,
+        at: DateTime<Utc>,
+    ) -> Result<WorkflowRun, ResearchWorkflowError> {
+        let (run, request) = prepare_research_input(input)?;
+        Ok(self.schedule_run_with_checkpoint(&run, at, Some(&serde_json::to_value(request)?))?)
+    }
+}
+
 /// Sync PostgreSQL/Storage clients must run on a multi-thread executor.
 fn blocking<T>(f: impl FnOnce() -> T) -> T {
     tokio::task::block_in_place(f)

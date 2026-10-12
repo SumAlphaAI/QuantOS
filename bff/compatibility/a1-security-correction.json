@@ -5,7 +5,7 @@
   "candidateVersion": "1.4.0",
   "expiresOn": "2026-11-03",
   "admission": "ENGINEERING_ONLY_PENDING_A1",
-  "authorization": "User requested remediation of all findings on 2026-10-03; no external signatures implied.",
+  "authorization": "User requested remediation of all findings on 2026-10-03; no external signatures implied. BFF-FE-003 implementation authorized in this session; 1.6.0 Research constraints are engineering corrections pending formal release acceptance.",
   "decision": "docs/adr/ADR-A1-security-contract-correction.md",
   "changes": [
     {
@@ -114,14 +114,54 @@
       "afterDigest": "858fb274c4eabb49e0aa9471d7020a5ab3e7277f8a4948a06fbc03cbd84346b9"
     },
     {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/capability/enum",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "58e1af72b7b299801dc54e33071587274a57e18b53e79ef6aa23f3483490e801"
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/question/minLength",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/question/maxLength",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "ad5f9478d603fe97eae2bbff07f76fe7f18610343b5f3bc8e00945ee51b30d2c"
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/budget/$ref",
+      "beforeDigest": "05f2801959850e1a1b044a5afd5fbedd99fd814063c0b49b03cb66845ec56d79",
+      "afterDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/budget/pattern",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "87273a008907b74fcfdfc4016bc25316fde1262d25b0ec53b5b99a06e3b0716f"
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/attachments/maxItems",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9"
+    },
+    {
       "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/additionalProperties",
       "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
       "afterDigest": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa"
     },
     {
+      "path": "/paths/~1v1~1research-runs/post/responses/202/content/application~1json/schema/$ref",
+      "beforeDigest": "46558303c94f2368412b0a04655815b6963b622f47ec42684ab558d2db0207cc",
+      "afterDigest": "05d5ffc45bfc51b069dcacb4cd43e0868f20d3ddb9aaad6bd2de09e1c83f1ee8"
+    },
+    {
       "path": "/paths/~1v1~1research-runs~1{runId}~1cancel/post/parameters",
       "beforeDigest": "d8094917a51346eef8c0db96e6e1620b4561b55d1ac86bcf281f7ad307c580d7",
       "afterDigest": "3dd89b9f7f31c5639ef904986fff04c7ab7688585b55aa0b2c20f1eca941df6a"
+    },
+    {
+      "path": "/paths/~1v1~1research-runs~1{runId}~1cancel/post/responses/202/content/application~1json/schema/$ref",
+      "beforeDigest": "46558303c94f2368412b0a04655815b6963b622f47ec42684ab558d2db0207cc",
+      "afterDigest": "05d5ffc45bfc51b069dcacb4cd43e0868f20d3ddb9aaad6bd2de09e1c83f1ee8"
     },
     {
       "path": "/paths/~1v1~1data-snapshots/get/parameters",
@@ -352,10 +392,51 @@
       "path": "/components/schemas/StreamEvent/properties/payloadVersion/enum",
       "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
       "afterDigest": "93a25c82c71bec235906878ccbaf056a0c37f01dea5429c30bb4a0763eb38f5b"
+    },
+    {
+      "path": "/components/schemas/ResearchRun/properties/inputHash/pattern",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "fc7074de09378c23ca57193f3a3d5c1725d7223e6b21d76bf335bad50830bd90"
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/required",
+      "beforeDigest": "b25d9fc9082631efe4ba54cd5defe6c6d3d47a4f3d37cceecf49eb1e4aeeac02",
+      "afterDigest": "99e1b61b6d28f9b1f90ba1a86c81b459187e4d50206a66227312b2b43874bdc5"
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/properties/sources/minItems",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/properties/contentHash/pattern",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "fc7074de09378c23ca57193f3a3d5c1725d7223e6b21d76bf335bad50830bd90"
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/properties/licenseLabel/minLength",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/properties/maxAgeSeconds/minimum",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "path": "/components/schemas/Artifact/properties/environmentHash/pattern",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "fc7074de09378c23ca57193f3a3d5c1725d7223e6b21d76bf335bad50830bd90"
+    },
+    {
+      "path": "/components/schemas/Artifact/properties/contentHash/pattern",
+      "beforeDigest": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "afterDigest": "fc7074de09378c23ca57193f3a3d5c1725d7223e6b21d76bf335bad50830bd90"
     }
   ],
   "compatibleAdditiveVersions": [
-    "1.5.0"
+    "1.5.0",
+    "1.6.0"
   ],
   "additiveVersionDecision": "docs/adr/ADR-A2-live-auth-settings.md"
 }

@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "operations": [
     {
       "operationId": "cancelExport",
@@ -20,7 +20,7 @@
       "tags": [
         "research"
       ],
-      "responseSchema": "AsyncAccepted",
+      "responseSchema": "ResearchAccepted",
       "sse": false
     },
     {
@@ -60,7 +60,7 @@
       "tags": [
         "research"
       ],
-      "responseSchema": "AsyncAccepted",
+      "responseSchema": "ResearchAccepted",
       "sse": false
     },
     {
@@ -101,6 +101,16 @@
         "data"
       ],
       "responseSchema": "Artifact",
+      "sse": false
+    },
+    {
+      "operationId": "getArtifactAttachment",
+      "method": "GET",
+      "path": "/v1/artifacts/{artifactId}/attachment",
+      "tags": [
+        "data"
+      ],
+      "responseSchema": "ArtifactAttachment",
       "sse": false
     },
     {

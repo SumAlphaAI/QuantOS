@@ -1,4 +1,5 @@
 mod audit;
+mod research;
 mod settings;
 mod settings_policy;
 
@@ -128,6 +129,7 @@ pub fn router(
         .route("/v1/auth/logout", post(logout))
         .merge(settings::routes())
         .merge(audit::routes())
+        .merge(research::routes())
         .fallback(|| async { settings::ApiError::new(StatusCode::NOT_FOUND, "NOT_FOUND") })
         .layer(middleware::from_fn_with_state(
             state.clone(),

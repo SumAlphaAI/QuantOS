@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.5.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.6.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -21,6 +21,7 @@ export type BffOperationId =
   | "engageKillSwitch"
   | "getApproval"
   | "getArtifact"
+  | "getArtifactAttachment"
   | "getBacktest"
   | "getContext"
   | "getDataSnapshot"
@@ -135,6 +136,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getArtifact;
     if (resolver) return resolver({ request, params });
     return missingResolver("getArtifact");
+  }),
+  http.get(`${baseUrl}/v1/artifacts/:artifactId/attachment`, async ({ request, params }) => {
+    const resolver = resolvers.getArtifactAttachment;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getArtifactAttachment");
   }),
   http.get(`${baseUrl}/v1/backtests/:runId`, async ({ request, params }) => {
     const resolver = resolvers.getBacktest;

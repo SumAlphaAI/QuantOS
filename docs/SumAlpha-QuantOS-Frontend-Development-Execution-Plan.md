@@ -774,16 +774,18 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-003`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 需求描述：Research list/create/get/cancel；stream subscribe/replay；Artifact/Evidence get；Snapshot list/get；统一 cursor/filter、sequence/afterSequence 和 202 状态引用
 - 领域接口背景：R02–R04/F07 已定义 Snapshot/Research/Artifact 服务能力，缺页面级列表/筛选/详情/流式封装
 - 覆盖契约/页面：C03/C04；P03–P05
 - 目标阶段与验收：FEP-2/G2：创建、取消、断线续传、重复/乱序、质量/许可阻断与 Audit 关联 contract 全绿
+
+- 当前工程复核：2026-10-12 九项 C03/C04 页面 API、持久适配器、生成契约及本地正负验证已实现；工程结果见[交付报告](./audit/BFF-FE-003-implementation-2026-10-12.md)。依赖回执与目标闭环尚未成立，DEVELOPMENT BLOCKED；数据库、hosted CI、UI/consumer 和正式验收不由本地测试代替。
 
 <a id="task-bff-fe-005"></a>
 ##### BFF-FE-005：市场目录、报价与 K 线 API

@@ -1120,6 +1120,43 @@ fn row_to_checkpoint(row: &Row) -> Result<WorkflowCheckpoint, PgRuntimeError> {
     })
 }
 
+impl PgRuntimeStore {
+    /// Stable per-run ordering comes from F05 append_sequence, not wall time.
+    /// The page adapter has already checked workspace/account/mode ownership.
+    pub fn research_page_events(
+        &mut self,
+        tenant: TenantId,
+        actor: ActorId,
+        id: WorkflowRunId,
+        after: u64,
+    ) -> Result<Vec<serde_json::Value>, crate::research::ResearchWorkflowError> {
+        let run = self
+            .load_run(id)?
+            .filter(|r| {
+                r.tenant_id == tenant && r.actor_id == actor && r.workflow_kind == "research"
+            })
+            .ok_or(crate::research::ResearchWorkflowError::InvalidResult(
+                "research run unavailable",
+            ))?;
+        let rows = self.client.query_typed(
+            "select id, action, recorded_at, row_number() over(order by append_sequence,id) as sequence
+             from quantos.audit_entries where tenant_id=$1 and actor_id=$2 and details->>'workflow_run_id'=$3
+             order by append_sequence,id limit 2001",
+            &[(tenant.as_uuid(),postgres::types::Type::UUID),(actor.as_uuid(),postgres::types::Type::UUID),(&id.to_string(),postgres::types::Type::TEXT)],
+        ).map_err(PgRuntimeError::from)?;
+        if rows.len() > 2000 || after > rows.len() as u64 {
+            return Err(crate::research::ResearchWorkflowError::InvalidResult(
+                "research replay window invalid",
+            ));
+        }
+        Ok(rows.into_iter().filter(|r|r.get::<_,i64>("sequence") as u64>after).map(|r|serde_json::json!({
+            "streamId":id,"sequence":r.get::<_,i64>("sequence"),"eventId":r.get::<_,uuid::Uuid>("id"),
+            "occurredAt":r.get::<_,DateTime<Utc>>("recorded_at"),"correlationId":run.correlation_id,
+            "payloadVersion":"v1","payload":{"type":r.get::<_,String>("action"),"runId":id}
+        })).collect())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{PgRuntimeError, PgRuntimeStore, require_narrow_runtime_role};

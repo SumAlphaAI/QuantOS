@@ -27,3 +27,9 @@ entrypoint is `cargo run -p bff-gateway`; bind/configuration details live in
 `src/main.rs`. Never supply production credentials for local verification.
 For isolated F06 live setup, run `make f06-bff-preflight` and follow
 `docs/audit/F06-BFF-setup-runbook-2026-09-24.md`.
+
+C03/C04 Research、Snapshot、Artifact 页面 API 已在 reference/live 两种模式挂载。
+九项路由、配置、持久命令、R03 worker 要求及验收边界见
+[执行记录](../../docs/execution/BFF-FE-003-summary.md)和
+[工程决策](../../docs/adr/ADR-BFF-FE-003-research-page-provider.md)。
+新 SQL 迁移尚未在目标应用；缺少配置/角色/worker 不会降级到 reference。
