@@ -560,3 +560,14 @@ local-release-check:
 	node scripts/local-development-gate.mjs --release
 development-handoff-check:
 	node scripts/check-development-gate-handoff.mjs
+
+.PHONY: r04-check r04-record-development r04-gate-check r04-release-check
+r04-check:
+	env -u DATABASE_URL cargo test -p quantos-runtime --locked --test signal_proposal_contracts --test signal_proposal_orchestration
+	node --test scripts/r04-stage-check.test.mjs
+r04-record-development:
+	node scripts/r04-record-development.mjs
+r04-gate-check:
+	node scripts/r04-stage-check.mjs
+r04-release-check:
+	node scripts/r04-stage-check.mjs --release

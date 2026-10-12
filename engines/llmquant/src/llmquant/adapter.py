@@ -67,6 +67,7 @@ class SignalExecutionContext:
     feature_snapshot_id: str
     data_query_context: dict | None
     requested_tools: tuple[str, ...]
+    research_context: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -112,8 +113,11 @@ class LlmQuantRequestAdapter:
             "sleep_ms",
             "stream_delay_ms",
             "data_query",
+            "research_context",
         }:
             raise RequestBoundaryError(grpc.StatusCode.PERMISSION_DENIED, "ENGINE_INPUT_FORBIDDEN")
+        if "research_context" in payload and not isinstance(payload["research_context"], dict):
+            raise RequestBoundaryError(grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_RESEARCH_CONTEXT_INVALID")
         for name in ("strategy_release_id", "feature_snapshot_id", "policy_context_ref", "fixture"):
             if name in payload and (
                 not isinstance(payload[name], str)
@@ -202,6 +206,7 @@ class LlmQuantRequestAdapter:
             strategy_release_id=payload["strategy_release_id"],
             feature_snapshot_id=payload["feature_snapshot_id"],
             data_query_context=data_query,
+            research_context=payload.get("research_context"),
             requested_tools=requested_tools,
         )
         return TranslatedRequest(context=context, payload=payload)

@@ -194,6 +194,7 @@ def _provenance(context: ProposalExecutionContext, fixture: DecisionFixture) -> 
         "risk_evaluation_performed": False,
         "executable": False,
         "data_query_context": context.data_query_context,
+        "research_context": context.research_context,
     }
 
 
@@ -225,6 +226,11 @@ def _build_evidence_refs(
             summary=f"policy fixture: {fixture.policy_rules[0]}",
         )
     )
+    if context.research_context is not None:
+        evidence_refs.extend(
+            common_pb2.EvidenceRef(**evidence)
+            for evidence in context.research_context.get("evidence_refs", [])
+        )
     return tuple(evidence_refs)
 
 

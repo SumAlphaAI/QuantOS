@@ -1,4 +1,4 @@
-> 当前本地复验（2026-10-12）：冻结76789443完成17节点/56组本地必要前置及R03七组PASS；F0/TP03/TP04/R03本地READY，R04实施admission READY、完成NOT_ASSESSED。全图4 READY/155 NOT_ASSESSED/0 BLOCKED；13组Supabase目标与后续22任务/16检查点外部环境和性能移交测试/最终发布，formalAccepted=false。见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)。
+> 历史本地复验（2026-10-12）：冻结76789443完成17节点/56组本地必要前置及R03七组PASS；F0/TP03/TP04/R03本地READY，R04实施admission READY、完成NOT_ASSESSED。全图4 READY/155 NOT_ASSESSED/0 BLOCKED；13组Supabase目标与后续22任务/16检查点外部环境和性能移交测试/最终发布，formalAccepted=false。见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)。
 
 > 历史严格复评（F06/F07/F09目标诊断，2026-10-12）：冻结e4c45a7c完成14节点/56组实际复验，46 PASS、10 FAIL（本地45/45、目标1/11）。F09收尾/超时缺陷已修复，F06/F07/F09只读前置明确拒绝；平台Auth服务与真实调度写入仍未恢复验收。严格F0/TP03/TP04为BLOCKED；全图0 READY、156 NOT_ASSESSED、3 BLOCKED，formalAccepted=false。见[本轮报告](./audit/F0-target-failures-remediation-2026-10-12.md)。
 
@@ -43,7 +43,7 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.72
+> 版本：3.73
 > 更新时间：2026-10-12
 > 状态：技术执行基线  
 > 本轮变更：F06/F07目标Auth错误诊断、数据库写入预检和F09有界收尾修复；从新冻结源码复验必要前置。
@@ -51,6 +51,8 @@
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.73`：修复R04公共校验器7类输入缺口，实现R03引用消费与专用本地完成Gate；目标环境和性能仍由Beta验收。
 
 - `3.72`：实现TP03/TP04/F0独立本地开发Gate与R04实施准入，后续22任务外部环境/性能移交测试和发布；保留原严格失败证据。
 
@@ -1095,10 +1097,11 @@ flowchart TD
 - acceptance_window: `R1-SERVICE`
 - 需求描述：Signal 与 TradeProposal 工作流
 - 技术要求：仅接收版本化 Signal/研究输入；生成不可执行 Proposal、反方观点、失效时间、证据
-- 交付物：signal/proposal service、schema validator
+- 交付物：signal/proposal service、schema validator、R03研究引用消费边界、专用R04本地完成回执与负向测试
 - 量化验收标准：100 个 Proposal fixture 100% 含证据/失效时间/`executable=false`；过期 Proposal 100% 拒绝评估；无订单 API 被调用
+- 阶段执行：R04_LOCAL按单一干净冻结提交复验F0/TP03/TP04及R03本地前置，再验证公共入口拒绝、100合成Proposal、R03成功研究产物到Signal/Proposal证据绑定、过期等值拒绝、幂等重放与订单工具拒绝。Supabase持久性/BFF页面/外部服务/性能及长稳为NOT_RUN，移交RELEASE-GATE:BETA；本地READY不构成正式ACCEPTED或发布许可。
 - 依赖：R03、TP03、TP04
-- 当前工程复核：冻结76789443的实施admission READY；完成Gate仍NOT_ASSESSED。新纯Rust探针仍有7/9畸形输入被接受，R04-P03/P04待实现；不把前置放行当成产品验收。见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)及[原预检](./audit/R04-interface-fixture-preflight-2026-10-12.md)。
+- 当前工程复核：R04实现与专用回执已准备；从新干净冻结提交完整复验后再登记完成Gate。见[本轮记录](./audit/R04-development-2026-10-12.md)，原失败和预检证据保留。
 
 <a id="acceptance-core-gate-r1-service"></a>
 ### CORE-GATE:R1-SERVICE：验收检查点

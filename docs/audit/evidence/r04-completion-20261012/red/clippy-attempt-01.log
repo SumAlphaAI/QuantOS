@@ -1,0 +1,83 @@
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+error: this `if` statement can be collapsed
+   --> crates/quantos-runtime/src/signal_proposal.rs:826:17
+    |
+826 | /                 if let Some(context) = &payload.research_context {
+827 | |                     if signal_output["diagnostics"]["value"]["research_context"] != *context {
+828 | |                         return Err(SignalProposalWorkflowError::InvalidResearchInput);
+829 | |                     }
+830 | |                 }
+    | |_________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+826 ~                 if let Some(context) = &payload.research_context
+827 ~                     && signal_output["diagnostics"]["value"]["research_context"] != *context {
+828 |                         return Err(SignalProposalWorkflowError::InvalidResearchInput);
+829 ~                     }
+    |
+
+error: this `if` statement can be collapsed
+   --> crates/quantos-runtime/src/signal_proposal.rs:923:9
+    |
+923 | /         if let Some(context) = &payload.research_context {
+924 | |             if proposal_output["signal"]["diagnostics"]["value"]["research_context"] != *context {
+925 | |                 return Err(SignalProposalWorkflowError::InvalidResearchInput);
+926 | |             }
+927 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+923 ~         if let Some(context) = &payload.research_context
+924 ~             && proposal_output["signal"]["diagnostics"]["value"]["research_context"] != *context {
+925 |                 return Err(SignalProposalWorkflowError::InvalidResearchInput);
+926 ~             }
+    |
+
+error: this boolean expression can be simplified
+    --> crates/quantos-runtime/src/signal_proposal.rs:1885:16
+     |
+1885 |               if !provenance[field]
+     |  ________________^
+1886 | |                 .as_str()
+1887 | |                 .is_some_and(|v| !v.trim().is_empty())
+     | |______________________________________________________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+     = note: `-D clippy::nonminimal-bool` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::nonminimal_bool)]`
+help: try
+     |
+1885 ~             if provenance[field]
+1886 +                 .as_str().is_none_or(|v| v.trim().is_empty())
+     |
+
+error: this boolean expression can be simplified
+    --> crates/quantos-runtime/src/signal_proposal.rs:2124:12
+     |
+2124 |           if !value
+     |  ____________^
+2125 | |             .pointer(pointer)
+2126 | |             .and_then(Value::as_str)
+2127 | |             .is_some_and(|v| !v.trim().is_empty())
+     | |__________________________________________________^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+help: try
+     |
+2124 ~         if value
+2125 +             .pointer(pointer)
+2126 +             .and_then(Value::as_str).is_none_or(|v| v.trim().is_empty())
+     |
+
+error: could not compile `quantos-runtime` (lib) due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quantos-runtime` (lib test) due to 4 previous errors

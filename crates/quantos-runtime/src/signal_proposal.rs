@@ -35,12 +35,25 @@ pub struct SignalProposalWorkflowInput {
     pub signal_input_schema_version: String,
     pub signal_input: Value,
     pub provided_signal: Option<Value>,
+    #[serde(default)]
+    pub research_input: Option<ResearchInputRef>,
     pub proposal_input_schema_version: String,
     pub proposal_input: Value,
     pub max_attempts: u32,
     pub deadline_at: DateTime<Utc>,
     pub cost_budget_units: u64,
     pub rate_limit_per_minute: u32,
+}
+
+/// Reference-only API: bytes and evidence are resolved from the R03 repository.
+/// expires_at bounds this consumer request; it does not extend a source data license.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ResearchInputRef {
+    pub schema_version: String,
+    pub workflow_run_id: quantos_core::WorkflowRunId,
+    pub artifact_id: quantos_core::ArtifactId,
+    pub content_hash: ContentHash,
+    pub expires_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -247,6 +260,8 @@ pub enum SignalProposalWorkflowError {
     SnapshotGateRejected { details: String },
     #[error("SIGNAL_PROPOSAL_CHECKPOINT_MISSING: workflow run `{run_id}` is missing a checkpoint")]
     MissingCheckpoint { run_id: quantos_core::WorkflowRunId },
+    #[error("RESEARCH_INPUT_INVALID: unresolved, expired or unauthorized R03 reference")]
+    InvalidResearchInput,
     #[error("SIGNAL_OUTPUT_MISSING: engine did not return a final signal document")]
     MissingSignalOutput,
     #[error("DATA_QUERY_OUTPUT_MISSING: engine did not return a final data query document")]
@@ -281,6 +296,10 @@ struct SignalProposalCheckpointPayload {
     signal_input_schema_version: String,
     signal_input: Value,
     provided_signal: Option<Value>,
+    #[serde(default)]
+    research_input: Option<ResearchInputRef>,
+    #[serde(default)]
+    research_context: Option<Value>,
     proposal_input_schema_version: String,
     proposal_input: Value,
 }
@@ -289,6 +308,7 @@ pub struct SignalProposalWorkflowCoordinator<'a> {
     runtime: &'a mut InMemoryRuntimeKernel,
     snapshot_source: SnapshotConsumerSource<'a>,
     repository: &'a mut InMemorySignalProposalRepository,
+    research_repository: Option<&'a crate::research::InMemoryResearchArtifactRepository>,
     engine_manager: &'a mut EngineManager,
     worker_name: String,
     lease_duration: ChronoDuration,
@@ -322,6 +342,7 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             runtime,
             snapshot_source: SnapshotConsumerSource::InMemory(snapshots, quality_rules),
             repository,
+            research_repository: None,
             engine_manager,
             worker_name: config.worker_name,
             lease_duration: config.lease_duration,
@@ -346,6 +367,7 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             runtime,
             snapshot_source: SnapshotConsumerSource::Postgres(storage, policy),
             repository,
+            research_repository: None,
             engine_manager,
             worker_name: config.worker_name,
             lease_duration: config.lease_duration,
@@ -356,11 +378,130 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         }
     }
 
+    #[must_use]
+    pub fn with_research_repository(
+        mut self,
+        repository: &'a crate::research::InMemoryResearchArtifactRepository,
+    ) -> Self {
+        self.research_repository = Some(repository);
+        self
+    }
+
+    fn resolve_research(
+        &self,
+        reference: Option<&ResearchInputRef>,
+        session_id: quantos_core::RuntimeSessionId,
+        snapshot_id: SnapshotId,
+        policy_context_ref: &str,
+        observed_at: DateTime<Utc>,
+    ) -> Result<Option<Value>, SignalProposalWorkflowError> {
+        let Some(reference) = reference else {
+            return Ok(None);
+        };
+        let invalid = || SignalProposalWorkflowError::InvalidResearchInput;
+        let session = self.runtime.sessions.get(&session_id).ok_or_else(invalid)?;
+        let record = self
+            .research_repository
+            .and_then(|r| r.record_for_run(session.tenant_id, reference.workflow_run_id))
+            .ok_or_else(invalid)?;
+        let source = self
+            .runtime
+            .run(reference.workflow_run_id)
+            .ok_or_else(invalid)?;
+        let output = &record.output;
+        let bytes = canonical_json_bytes(output)?;
+        let permitted = self
+            .runtime
+            .session_capabilities
+            .get(&session_id)
+            .is_some_and(|c| c.contains(&source.capability));
+        if reference.schema_version != "v1"
+            || reference.expires_at <= observed_at
+            || !permitted
+            || source.status != crate::WorkflowRunStatus::Succeeded
+            || source.tenant_id != session.tenant_id
+            || source.workspace_id != session.workspace_id
+            || source.actor_id != session.actor_id
+            || !["research.hypothesis.v1", "research.experiment.v1"]
+                .contains(&record.capability.as_str())
+            || record.input_hash != source.input_hash
+            || !self
+                .runtime
+                .run_artifacts
+                .get(&source.workflow_run_id)
+                .is_some_and(|ids| ids.contains(&reference.artifact_id))
+            || self
+                .runtime
+                .artifacts_by_hash
+                .get(&(session.tenant_id, reference.content_hash.clone()))
+                != Some(&record.artifact_manifest)
+            || record.artifact_manifest.artifact_id != reference.artifact_id
+            || record.artifact_manifest.content_hash != reference.content_hash
+            || ContentHash::sha256_bytes(&bytes) != reference.content_hash
+            || bytes.len() as u64 != record.artifact_manifest.size_bytes
+            || record.artifact_manifest.media_type != "application/json"
+            || record.data_snapshot_id != snapshot_id
+            || output["artifact_type"] != "ResearchArtifact"
+            || output["trade_executable"] != false
+            || output["workflow_run_id"] != source.workflow_run_id.to_string()
+            || output["policy_context_ref"] != policy_context_ref
+            || output["data_snapshot_ref"] != snapshot_id.to_string()
+            || output["capability"] != record.capability
+            || record.capability != source.capability.as_str()
+            || output["audit"]["tenant_id"] != session.tenant_id.to_string()
+            || output["audit"]["workspace_id"] != session.workspace_id.to_string()
+            || output["audit"]["actor_id"] != session.actor_id.to_string()
+            || record.evidence_refs.is_empty()
+            || record.evidence_refs.iter().any(|e| {
+                e.evidence_id.trim().is_empty()
+                    || e.artifact_id != record.engine_artifact_id
+                    || e.summary.trim().is_empty()
+            })
+        {
+            return Err(invalid());
+        }
+        Ok(Some(
+            json!({"schema_version":"v1", "source":reference, "engine_artifact_id":record.engine_artifact_id, "summary":output["summary"], "hypothesis":output["hypothesis"], "findings":output["findings"], "evidence_refs":record.evidence_refs}),
+        ))
+    }
+
     pub fn schedule_workflow_run(
         &mut self,
         input: SignalProposalWorkflowInput,
         queued_at: DateTime<Utc>,
     ) -> Result<WorkflowRun, SignalProposalWorkflowError> {
+        if input.signal_input_schema_version != "v1"
+            || input.proposal_input_schema_version != "v1"
+            || input.signal_input.get("research_context").is_some()
+            || input.proposal_input.get("research_context").is_some()
+            || (input.research_input.is_some() && input.provided_signal.is_some())
+        {
+            return Err(SignalProposalWorkflowError::InvalidResearchInput);
+        }
+        if let Some(signal) = &input.provided_signal {
+            SignalProposalSchemaValidator::validate_signal(signal)?;
+            let owner = self
+                .runtime
+                .sessions
+                .get(&input.runtime_session_id)
+                .ok_or(SignalProposalWorkflowError::InvalidResearchInput)?;
+            if signal["diagnostics"]["value"]
+                .get("research_context")
+                .is_some()
+                || signal["metadata"]["tenant_id"] != owner.tenant_id.to_string()
+                || signal["metadata"]["workspace_id"] != owner.workspace_id.to_string()
+                || signal["metadata"]["actor"]["actor_id"] != owner.actor_id.to_string()
+            {
+                return Err(SignalProposalWorkflowError::InvalidResearchInput);
+            }
+        }
+        let research_context = self.resolve_research(
+            input.research_input.as_ref(),
+            input.runtime_session_id,
+            input.feature_snapshot_id,
+            &input.policy_context_ref,
+            queued_at,
+        )?;
         let input_hash = ContentHash::sha256_bytes(&canonical_json_bytes(&json!({
             "feature_snapshot_id": input.feature_snapshot_id.to_string(),
             "data_query_input_schema_version": input.data_query_input_schema_version,
@@ -369,6 +510,9 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             "signal_input_schema_version": input.signal_input_schema_version,
             "signal_input": input.signal_input,
             "provided_signal": input.provided_signal,
+            "policy_context_ref": input.policy_context_ref,
+            "research_input": input.research_input,
+            "research_context": research_context,
             "proposal_input_schema_version": input.proposal_input_schema_version,
             "proposal_input": input.proposal_input,
         }))?);
@@ -395,6 +539,8 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             signal_input_schema_version: input.signal_input_schema_version,
             signal_input: input.signal_input,
             provided_signal: input.provided_signal,
+            research_input: input.research_input,
+            research_context,
             proposal_input_schema_version: input.proposal_input_schema_version,
             proposal_input: input.proposal_input,
         };
@@ -421,7 +567,25 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             return Ok(None);
         };
 
-        Ok(Some(self.execute_claimed_run(lease, observed_at).await?))
+        let run_id = lease.run.workflow_run_id;
+        match self.execute_claimed_run(lease, observed_at).await {
+            Ok(result) => Ok(Some(result)),
+            Err(error) => {
+                if self
+                    .runtime
+                    .run(run_id)
+                    .is_some_and(|r| r.status == crate::WorkflowRunStatus::Running)
+                {
+                    self.runtime.fail_and_retry(
+                        run_id,
+                        &self.worker_name,
+                        &error.to_string(),
+                        observed_at,
+                    )?;
+                }
+                Err(error)
+            }
+        }
     }
 
     async fn execute_claimed_run(
@@ -437,7 +601,24 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             .ok_or(SignalProposalWorkflowError::MissingCheckpoint { run_id })?;
         let payload: SignalProposalCheckpointPayload =
             serde_json::from_value(checkpoint.payload.clone())?;
+        if payload
+            .research_input
+            .as_ref()
+            .is_some_and(|r| r.expires_at <= observed_at)
+        {
+            return Err(SignalProposalWorkflowError::InvalidResearchInput);
+        }
         let snapshot_id = SnapshotId::parse_str(&payload.feature_snapshot_id)?;
+        let current_context = self.resolve_research(
+            payload.research_input.as_ref(),
+            lease.run.runtime_session_id,
+            snapshot_id,
+            &payload.policy_context_ref,
+            observed_at,
+        )?;
+        if current_context != payload.research_context {
+            return Err(SignalProposalWorkflowError::InvalidResearchInput);
+        }
         let (snapshot, rules) = self
             .snapshot_source
             .load(
@@ -590,6 +771,12 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
             None => payload.signal_input.clone(),
         };
 
+        let signal_input = match &payload.research_context {
+            Some(context) => {
+                inject_named_object(signal_input, "research_context", context.clone())?
+            }
+            None => signal_input,
+        };
         let (signal_record, signal_payload_value) = match payload.provided_signal.clone() {
             Some(signal_value) => {
                 let signal_record = self.build_provided_signal_record(
@@ -654,6 +841,11 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
                         .as_ref()
                         .ok_or(SignalProposalWorkflowError::MissingSignalOutput)?,
                 )?;
+                if let Some(context) = &payload.research_context
+                    && signal_output["diagnostics"]["value"]["research_context"] != *context
+                {
+                    return Err(SignalProposalWorkflowError::InvalidResearchInput);
+                }
                 let signal_record = self.build_engine_signal_record(
                     &lease.run,
                     snapshot.snapshot_id,
@@ -682,6 +874,12 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         let proposal_input = match data_query_payload_value {
             Some(data_query_payload) => {
                 inject_named_object(proposal_input, "data_query", data_query_payload)?
+            }
+            None => proposal_input,
+        };
+        let proposal_input = match &payload.research_context {
+            Some(context) => {
+                inject_named_object(proposal_input, "research_context", context.clone())?
             }
             None => proposal_input,
         };
@@ -740,6 +938,11 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
                 .as_ref()
                 .ok_or(SignalProposalWorkflowError::MissingProposalOutput)?,
         )?;
+        if let Some(context) = &payload.research_context
+            && proposal_output["signal"]["diagnostics"]["value"]["research_context"] != *context
+        {
+            return Err(SignalProposalWorkflowError::InvalidResearchInput);
+        }
         let proposal_record = self.build_proposal_record(
             &lease.run,
             &signal_record,
@@ -913,6 +1116,14 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         signal_output: Value,
     ) -> Result<SignalRecord, SignalProposalWorkflowError> {
         SignalProposalSchemaValidator::validate_signal(&signal_output)?;
+        if signal_output["metadata"]["tenant_id"] != run.tenant_id.to_string()
+            || signal_output["metadata"]["workspace_id"] != run.workspace_id.to_string()
+            || signal_output["metadata"]["actor"]["actor_id"] != run.actor_id.to_string()
+        {
+            return Err(SignalProposalWorkflowError::InvalidSignal {
+                detail: "signal owner mismatch".into(),
+            });
+        }
         let parsed = ParsedSignal::try_from(&signal_output)?;
         let completed_at = parsed.generated_at;
         let output_bytes = canonical_json_bytes(&signal_output)?;
@@ -962,6 +1173,14 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
         observed_at: DateTime<Utc>,
     ) -> Result<SignalRecord, SignalProposalWorkflowError> {
         SignalProposalSchemaValidator::validate_signal(&signal_output)?;
+        if signal_output["metadata"]["tenant_id"] != run.tenant_id.to_string()
+            || signal_output["metadata"]["workspace_id"] != run.workspace_id.to_string()
+            || signal_output["metadata"]["actor"]["actor_id"] != run.actor_id.to_string()
+        {
+            return Err(SignalProposalWorkflowError::InvalidSignal {
+                detail: "signal owner mismatch".into(),
+            });
+        }
         let parsed = ParsedSignal::try_from(&signal_output)?;
         let completed_at =
             timestamp_to_datetime(execute.completed_at.as_ref()).unwrap_or(observed_at);
@@ -1033,6 +1252,13 @@ impl<'a> SignalProposalWorkflowCoordinator<'a> {
     ) -> Result<TradeProposalRecord, SignalProposalWorkflowError> {
         SignalProposalSchemaValidator::validate_proposal(&proposal_output)?;
         let parsed = ParsedTradeProposal::try_from(&proposal_output)?;
+        if proposal_output["signal"] != signal_record.output
+            || proposal_output["symbol"] != signal_record.symbol
+        {
+            return Err(SignalProposalWorkflowError::InvalidProposal {
+                detail: "proposal signal content mismatch".into(),
+            });
+        }
         if parsed.signal_id != signal_record.signal_id {
             return Err(SignalProposalWorkflowError::InvalidProposal {
                 detail: format!(
@@ -1594,6 +1820,7 @@ impl TryFrom<&Value> for ParsedDataQuery {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct SignalPayload {
+    metadata: Value,
     signal_id: String,
     strategy_release_id: String,
     symbol: String,
@@ -1640,12 +1867,22 @@ impl TryFrom<&Value> for ParsedSignal {
                 detail: "symbol is required".to_owned(),
             });
         }
-        if payload.direction.trim().is_empty() {
+        validate_metadata(&payload.metadata)
+            .map_err(|detail| SignalProposalWorkflowError::InvalidSignal { detail })?;
+        if ![
+            "SIGNAL_DIRECTION_LONG",
+            "SIGNAL_DIRECTION_SHORT",
+            "SIGNAL_DIRECTION_FLAT",
+        ]
+        .contains(&payload.direction.as_str())
+        {
             return Err(SignalProposalWorkflowError::InvalidSignal {
                 detail: "direction is required".to_owned(),
             });
         }
-        if payload.strength.value.trim().is_empty() || payload.confidence.value.trim().is_empty() {
+        if !valid_decimal(&payload.strength.value, true)
+            || !valid_decimal(&payload.confidence.value, true)
+        {
             return Err(SignalProposalWorkflowError::InvalidSignal {
                 detail: "strength/confidence are required".to_owned(),
             });
@@ -1656,6 +1893,39 @@ impl TryFrom<&Value> for ParsedSignal {
                 detail: "diagnostics are required".to_owned(),
             });
         }
+        let provenance = &diagnostics["value"];
+        for field in [
+            "model_version",
+            "strategy_version",
+            "data_version",
+            "model_digest",
+        ] {
+            if provenance[field]
+                .as_str()
+                .is_none_or(|v| v.trim().is_empty())
+            {
+                return Err(SignalProposalWorkflowError::InvalidSignal {
+                    detail: format!("diagnostics.value.{field} required"),
+                });
+            }
+        }
+        ContentHash::parse(provenance["model_digest"].as_str().expect("checked"))?;
+        for field in [
+            "trade_executable",
+            "release_resolved",
+            "snapshot_bytes_resolved",
+            "upstream_runtime_loaded",
+            "tools_executed",
+        ] {
+            if provenance
+                .get(field)
+                .is_some_and(|v| v != &Value::Bool(false))
+            {
+                return Err(SignalProposalWorkflowError::InvalidSignal {
+                    detail: "diagnostics cannot grant authority".into(),
+                });
+            }
+        }
         let generated_at = parse_timestamp(&payload.generated_at)
             .map_err(|detail| SignalProposalWorkflowError::InvalidSignal { detail })?;
         let valid_until = parse_timestamp(&payload.valid_until)
@@ -1665,7 +1935,7 @@ impl TryFrom<&Value> for ParsedSignal {
                 detail: "valid_until must be later than generated_at".to_owned(),
             });
         }
-        if payload.evidence_refs.is_empty() {
+        if !valid_evidence(&payload.evidence_refs) {
             return Err(SignalProposalWorkflowError::InvalidSignal {
                 detail: "evidence_refs must not be empty".to_owned(),
             });
@@ -1691,6 +1961,8 @@ impl TryFrom<&Value> for ParsedSignal {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 struct TradeProposalPayload {
+    metadata: Value,
+    counter_views: Vec<String>,
     proposal_id: String,
     account_id: String,
     symbol: String,
@@ -1742,14 +2014,23 @@ impl TryFrom<&Value> for ParsedTradeProposal {
                 detail: "symbol is required".to_owned(),
             });
         }
-        if payload.action.trim().is_empty() {
+        validate_metadata(&payload.metadata)
+            .map_err(|detail| SignalProposalWorkflowError::InvalidProposal { detail })?;
+        if ![
+            "PROPOSAL_ACTION_BUY",
+            "PROPOSAL_ACTION_SELL",
+            "PROPOSAL_ACTION_HOLD",
+            "PROPOSAL_ACTION_REDUCE",
+        ]
+        .contains(&payload.action.as_str())
+        {
             return Err(SignalProposalWorkflowError::InvalidProposal {
                 detail: "action is required".to_owned(),
             });
         }
-        if payload.quantity.value.trim().is_empty()
-            || payload.notional.value.trim().is_empty()
-            || payload.confidence.value.trim().is_empty()
+        if !valid_decimal(&payload.quantity.value, false)
+            || !valid_decimal(&payload.notional.value, false)
+            || !valid_decimal(&payload.confidence.value, true)
         {
             return Err(SignalProposalWorkflowError::InvalidProposal {
                 detail: "quantity/notional/confidence are required".to_owned(),
@@ -1760,6 +2041,13 @@ impl TryFrom<&Value> for ParsedTradeProposal {
                 detail: "rationale is required".to_owned(),
             });
         }
+        for pointer in ["/tenant_id", "/workspace_id"] {
+            if payload.metadata.pointer(pointer) != payload.signal.metadata.pointer(pointer) {
+                return Err(SignalProposalWorkflowError::InvalidProposal {
+                    detail: "nested signal scope mismatch".into(),
+                });
+            }
+        }
         let signal =
             ParsedSignal::try_from(&serde_json::to_value(payload.signal).map_err(|error| {
                 SignalProposalWorkflowError::InvalidProposal {
@@ -1768,9 +2056,21 @@ impl TryFrom<&Value> for ParsedTradeProposal {
             })?)?;
         let expires_at = parse_timestamp(&payload.expires_at)
             .map_err(|detail| SignalProposalWorkflowError::InvalidProposal { detail })?;
-        if payload.evidence_refs.is_empty() {
+        if !valid_evidence(&payload.evidence_refs) {
             return Err(SignalProposalWorkflowError::InvalidProposal {
                 detail: "evidence_refs must not be empty".to_owned(),
+            });
+        }
+        if expires_at <= signal.generated_at || expires_at > signal.valid_until {
+            return Err(SignalProposalWorkflowError::InvalidProposal {
+                detail: "expiry outside signal lifetime".into(),
+            });
+        }
+        if payload.counter_views.is_empty()
+            || payload.counter_views.iter().any(|v| v.trim().is_empty())
+        {
+            return Err(SignalProposalWorkflowError::InvalidProposal {
+                detail: "explicit counter_views required".into(),
             });
         }
         if payload.executable {
@@ -1788,21 +2088,7 @@ impl TryFrom<&Value> for ParsedTradeProposal {
                 summary: evidence.summary,
             })
             .collect::<Vec<_>>();
-        let mut committee_summaries = evidence_refs
-            .iter()
-            .filter(|evidence| evidence.artifact_id.starts_with("committee-debate:"))
-            .map(|evidence| evidence.summary.clone())
-            .collect::<Vec<_>>();
-        let counter_views = if committee_summaries.len() > 1 {
-            committee_summaries.split_off(1)
-        } else {
-            Vec::new()
-        };
-        if counter_views.is_empty() {
-            return Err(SignalProposalWorkflowError::InvalidProposal {
-                detail: "counter views are required via committee evidence".to_owned(),
-            });
-        }
+        let counter_views = payload.counter_views;
 
         Ok(Self {
             proposal_id: payload.proposal_id,
@@ -1815,6 +2101,71 @@ impl TryFrom<&Value> for ParsedTradeProposal {
             counter_views,
         })
     }
+}
+
+// Decimal wire values use unsigned fixed-point notation. Compare digits exactly,
+// avoiding f64 rounding (e.g. 1.000000000000000000000001 must fail).
+fn valid_decimal(value: &str, unit_interval: bool) -> bool {
+    if value.is_empty() || value.len() > 128 {
+        return false;
+    }
+    let parts: Vec<_> = value.split('.').collect();
+    if parts.len() > 2
+        || parts
+            .iter()
+            .any(|p| p.is_empty() || !p.bytes().all(|b| b.is_ascii_digit()))
+    {
+        return false;
+    }
+    if !unit_interval {
+        return true;
+    }
+    let whole = parts[0].trim_start_matches('0');
+    whole.is_empty() || (whole == "1" && parts.get(1).is_none_or(|p| p.bytes().all(|b| b == b'0')))
+}
+fn valid_evidence(evidence: &[EvidenceRefPayload]) -> bool {
+    !evidence.is_empty()
+        && evidence.iter().all(|e| {
+            !e.evidence_id.trim().is_empty()
+                && !e.artifact_id.trim().is_empty()
+                && !e.summary.trim().is_empty()
+        })
+}
+fn validate_metadata(value: &Value) -> Result<(), String> {
+    for pointer in [
+        "/request_id",
+        "/tenant_id",
+        "/workspace_id",
+        "/actor/actor_id",
+        "/correlation_id",
+    ] {
+        if value
+            .pointer(pointer)
+            .and_then(Value::as_str)
+            .is_none_or(|v| v.trim().is_empty())
+        {
+            return Err(format!("metadata{pointer} required"));
+        }
+    }
+    if value["mode"] != "RUNTIME_MODE_RESEARCH"
+        || ![
+            "ENVIRONMENT_LOCAL",
+            "ENVIRONMENT_TEST",
+            "ENVIRONMENT_STAGING",
+            "ENVIRONMENT_PRODUCTION",
+        ]
+        .contains(&value["environment"].as_str().unwrap_or_default())
+        || ![
+            "ACTOR_KIND_USER",
+            "ACTOR_KIND_SERVICE",
+            "ACTOR_KIND_AUTOMATION",
+        ]
+        .contains(&value["actor"]["actor_kind"].as_str().unwrap_or_default())
+    {
+        return Err("invalid metadata enum".into());
+    }
+    parse_timestamp(value["issued_at"].as_str().unwrap_or_default())?;
+    Ok(())
 }
 
 fn parse_timestamp(value: &str) -> Result<DateTime<Utc>, String> {

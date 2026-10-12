@@ -1,0 +1,53 @@
+✖ dedicated completion receipt preserves all target exclusions (22.906875ms)
+✔ completion rejects formal acceptance (14.753541ms)
+✔ completion rejects production (13.473125ms)
+✔ completion rejects database (12.518958ms)
+✔ completion rejects wrong schema (12.988209ms)
+✔ completion rejects admission receipt substituted (12.373208ms)
+✔ completion rejects source drift (12.720417ms)
+✔ completion rejects scope drift (13.763875ms)
+✔ completion rejects mixed candidate (12.938917ms)
+✔ completion rejects missing prerequisite (13.582541ms)
+✔ completion rejects changed prerequisite (12.455709ms)
+✔ completion rejects release claimed (12.6535ms)
+✔ completion rejects release obligation removed (12.246417ms)
+✔ completion rejects missing check (12.665708ms)
+✔ completion rejects different command (12.3975ms)
+✔ completion rejects failed check (12.237ms)
+✔ completion rejects future execution (11.9765ms)
+✔ completion rejects log changed (12.663417ms)
+✔ completion rejects missing product (12.209292ms)
+✔ completion rejects product tampering (12.168ms)
+✔ completion rejects path traversal (12.204542ms)
+✔ completion rejects absolute attempt (12.342875ms)
+✔ completion rejects cleanup missing (12.025083ms)
+✔ completion rejects leaked process (11.823167ms)
+✔ product checker rejects missing source, hash/evidence drift and incomplete matrix (3.649459ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 24
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 377.03625
+
+✖ failing tests:
+
+test at scripts/r04-stage-check.test.mjs:5:1
+✖ dedicated completion receipt preserves all target exclusions (22.906875ms)
+  AssertionError [ERR_ASSERTION]: R04 release obligation removed
+      at verify (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/r04-stage-check.mjs:42:144)
+      at Object.run (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/r04-stage-check.test.mjs:4:1727)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/r04-stage-check.test.mjs:5:107)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

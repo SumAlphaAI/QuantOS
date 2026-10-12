@@ -1,0 +1,80 @@
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.55s
+     Running tests/signal_proposal_contracts.rs (target/debug/deps/signal_proposal_contracts-c2582d4d38027b53)
+
+running 11 tests
+test proposal_nested_signal_and_metadata_are_checked ... FAILED
+test proposal_requires_explicit_counter_views ... FAILED
+test proposal_action_is_closed_enum ... FAILED
+test signal_decimals_are_finite_unit_interval ... FAILED
+test signal_metadata_is_required_and_scoped ... FAILED
+test malformed_evidence_and_numeric_proposal_are_rejected ... FAILED
+test signal_model_provenance_is_required ... FAILED
+test signal_direction_is_closed_enum ... FAILED
+test proposal_cannot_execute_or_hide_evidence ... ok
+test proposal_expiry_must_follow_generation ... FAILED
+test synthetic_baselines_remain_valid ... ok
+
+failures:
+
+---- proposal_nested_signal_and_metadata_are_checked stdout ----
+
+thread 'proposal_nested_signal_and_metadata_are_checked' (1478179) panicked at crates/quantos-runtime/tests/signal_proposal_contracts.rs:15:123:
+assertion failed: Validator::validate_proposal(&p).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- proposal_requires_explicit_counter_views stdout ----
+
+thread 'proposal_requires_explicit_counter_views' (1478180) panicked at crates/quantos-runtime/tests/signal_proposal_contracts.rs:12:129:
+assertion failed: Validator::validate_proposal(&p).is_err()
+
+---- proposal_action_is_closed_enum stdout ----
+
+thread 'proposal_action_is_closed_enum' (1478176) panicked at crates/quantos-runtime/tests/signal_proposal_contracts.rs:11:152:
+assertion failed: Validator::validate_proposal(&p).is_err()
+
+---- signal_decimals_are_finite_unit_interval stdout ----
+
+thread 'signal_decimals_are_finite_unit_interval' (1478181) panicked at crates/quantos-runtime/tests/signal_proposal_contracts.rs:8:237:
+strength:2
+
+---- signal_metadata_is_required_and_scoped stdout ----
+
+thread 'signal_metadata_is_required_and_scoped' (1478183) panicked at crates/quantos-runtime/tests/signal_proposal_contracts.rs:10:120:
+assertion failed: Validator::validate_signal(&s).is_err()
+
+---- malformed_evidence_and_numeric_proposal_are_rejected stdout ----
+
+thread 'malformed_evidence_and_numeric_proposal_are_rejected' (1478175) panicked at crates/quantos-runtime/tests/signal_proposal_contracts.rs:16:135:
+assertion failed: Validator::validate_signal(&s).is_err()
+
+---- signal_model_provenance_is_required stdout ----
+
+thread 'signal_model_provenance_is_required' (1478184) panicked at crates/quantos-runtime/tests/signal_proposal_contracts.rs:9:218:
+model_version
+
+---- signal_direction_is_closed_enum stdout ----
+
+thread 'signal_direction_is_closed_enum' (1478182) panicked at crates/quantos-runtime/tests/signal_proposal_contracts.rs:7:184:
+BUY
+
+---- proposal_expiry_must_follow_generation stdout ----
+
+thread 'proposal_expiry_must_follow_generation' (1478178) panicked at crates/quantos-runtime/tests/signal_proposal_contracts.rs:13:192:
+assertion failed: Validator::validate_proposal(&p).is_err()
+
+
+failures:
+    malformed_evidence_and_numeric_proposal_are_rejected
+    proposal_action_is_closed_enum
+    proposal_expiry_must_follow_generation
+    proposal_nested_signal_and_metadata_are_checked
+    proposal_requires_explicit_counter_views
+    signal_decimals_are_finite_unit_interval
+    signal_direction_is_closed_enum
+    signal_metadata_is_required_and_scoped
+    signal_model_provenance_is_required
+
+test result: FAILED. 2 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `-p quantos-runtime --test signal_proposal_contracts`

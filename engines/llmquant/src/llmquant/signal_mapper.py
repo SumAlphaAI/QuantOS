@@ -108,6 +108,8 @@ def build_model_provenance(
     }
     if context.data_query_context is not None:
         diagnostics["data_query_context"] = build_data_query_context(context.data_query_context)
+    if context.research_context is not None:
+        diagnostics["research_context"] = context.research_context
     return diagnostics
 
 
@@ -233,6 +235,11 @@ def _build_evidence_refs(
                 else signal_artifact_id,
                 summary=summary,
             )
+        )
+    if context.research_context is not None:
+        evidence_refs.extend(
+            common_pb2.EvidenceRef(**evidence)
+            for evidence in context.research_context.get("evidence_refs", [])
         )
     return tuple(evidence_refs)
 

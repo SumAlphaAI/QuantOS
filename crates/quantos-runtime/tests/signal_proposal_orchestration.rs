@@ -450,6 +450,7 @@ async fn signal_proposal_workflow_runs_hundred_cases_with_evidence_expiry_and_no
                             "tools": ["query_snapshot", "query_artifact"],
                         }),
                         provided_signal: None,
+                        research_input: None,
                         proposal_input_schema_version: "v1".to_owned(),
                         proposal_input: serde_json::json!({
                             "fixture": proposal_fixture,
@@ -514,6 +515,7 @@ async fn signal_proposal_workflow_runs_hundred_cases_with_evidence_expiry_and_no
             }
         }
 
+        write_r04_evidence("proposal-matrix.json", &serde_json::json!({"schema":"quantos-r04-proposal-matrix/v1","fixture":true,"formalAccepted":false,"databaseExecution":false,"proposals":proposals}))?;
         assert_eq!(proposals.len(), 100);
         assert_eq!(repository.physical_signal_count(), 100);
         assert_eq!(repository.physical_proposal_count(), 100);
@@ -621,6 +623,7 @@ async fn signal_proposal_workflow_replay_keeps_signal_and_proposal_hashes_stable
                             "tools": ["query_snapshot", "query_artifact"],
                         }),
                         provided_signal: None,
+                        research_input: None,
                         proposal_input_schema_version: "v1".to_owned(),
                         proposal_input: serde_json::json!({
                             "fixture": "committee_bull_breakout",
@@ -771,6 +774,7 @@ async fn signal_proposal_workflow_rejects_forbidden_order_tools() -> Result<()> 
                         "tools": ["query_snapshot", "query_artifact"],
                     }),
                     provided_signal: None,
+                    research_input: None,
                     proposal_input_schema_version: "v1".to_owned(),
                     proposal_input: serde_json::json!({
                         "fixture": "committee_bull_breakout",
@@ -805,6 +809,7 @@ async fn signal_proposal_workflow_rejects_forbidden_order_tools() -> Result<()> 
         );
         assert!(repository.signal_for_run(run_id).is_some());
         assert!(repository.proposal_for_run(run_id).is_none());
+        write_r04_evidence("order-denial.json", &serde_json::json!({"status":"REJECTED","tool":"order.execute","workflowStatus":run.status,"proposalCreated":false,"lastError":run.last_error}))?;
 
         Ok::<(), anyhow::Error>(())
     }
@@ -814,4 +819,115 @@ async fn signal_proposal_workflow_rejects_forbidden_order_tools() -> Result<()> 
     shutdown_child(llmquant_child, &llmquant_socket).await;
     shutdown_child(trading_agents_child, &trading_agents_socket).await;
     result
+}
+
+#[tokio::test]
+async fn r04_consumes_r03_artifact_with_bound_provenance_and_rejects_invalid_references()
+-> Result<()> {
+    use quantos_runtime::research::{
+        InMemoryResearchArtifactRepository, ResearchWorkflowCoordinator,
+        ResearchWorkflowCoordinatorConfig, ResearchWorkflowInput,
+    };
+    use quantos_runtime::signal_proposal::ResearchInputRef;
+    let rd_socket =
+        PathBuf::from("/tmp").join(format!("quantos-r04-rd-agent-{}.sock", fixture_id()));
+    let mut rd_command = Command::new(engines_dir().join(".venv/bin/python"));
+    let rd_child = rd_command
+        .current_dir(engines_dir())
+        .args(["-m", "rd_agent.server", "--socket"])
+        .arg(&rd_socket)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .kill_on_drop(true)
+        .spawn()?;
+    for _ in 0..100 {
+        if rd_socket.exists() {
+            sleep(Duration::from_millis(100)).await;
+            break;
+        }
+        sleep(Duration::from_millis(50)).await;
+    }
+    let llm_socket = llmquant_socket_path();
+    let ta_socket = trading_agents_socket_path();
+    let llm_child = spawn_python_llmquant(&llm_socket).await?;
+    let ta_child = spawn_python_trading_agents(&ta_socket).await?;
+    let result = async {
+        let now=Utc.with_ymd_and_hms(2026,1,1,0,1,0).single().unwrap();
+        let mut auth=auth_context(); let research_cap=Capability::parse("research.hypothesis.v1")?;
+        auth.capabilities.insert(research_cap.clone());
+        let snapshots=snapshot_catalog(auth.tenant_id);
+        let snapshot=snapshot_id_for_symbol(&snapshots,auth.tenant_id,"BTCUSDT");
+        let rules=SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id,now))?;
+        let mut runtime=InMemoryRuntimeKernel::new();runtime.register_tool(tool_registration())?;
+        runtime.register_tool(ToolRegistration {tool_name:research_cap.as_str().into(),capability:research_cap.clone(),description:"Synthetic research".into(),max_cost_units:10000,rate_limit_per_minute:600,enabled:true})?;
+        let session=runtime.open_session(&auth,now,now+ChronoDuration::hours(1));
+        let mut manager=EngineManager::with_approval_key(BackoffPolicy::default(),TEST_APPROVAL_KEY.to_vec());
+        let mut rd_manifest=llmquant_manifest(rd_socket.clone());rd_manifest.engine_name="rd-agent".into();rd_manifest.capabilities=vec![EngineCapabilityManifest {name:research_cap.as_str().into(),version:"1.0.0".into(),description:"Generate deterministic hypothesis ResearchArtifacts.".into()},EngineCapabilityManifest {name:"research.experiment.v1".into(),version:"1.0.0".into(),description:"Generate deterministic experiment ResearchArtifacts.".into()}];
+        register_reviewed_engine(&mut manager,rd_manifest)?;
+        register_reviewed_engine(&mut manager,llmquant_manifest(llm_socket.clone()))?;
+        register_reviewed_engine(&mut manager,trading_agents_manifest(ta_socket.clone()))?;
+        let mut research=InMemoryResearchArtifactRepository::new();
+        let artifact={let mut coordinator=ResearchWorkflowCoordinator::new(&mut runtime,&snapshots,&rules,&mut research,&mut manager,ResearchWorkflowCoordinatorConfig {worker_name:"r04-research".into(),lease_duration:ChronoDuration::seconds(5),storage_bucket:"quantos-artifacts".into()});
+            coordinator.schedule_research_run(ResearchWorkflowInput {runtime_session_id:session.runtime_session_id,tool_name:research_cap.as_str().into(),capability:research_cap,workflow_kind:"research".into(),idempotency_key:"r04-research-source".into(),correlation_id:CorrelationId::new(),data_snapshot_id:snapshot,policy_context_ref:"policy-r04".into(),input_schema_version:"v1".into(),input:serde_json::json!({"fixture":"hypothesis_regime_shift","prompt":"Synthetic R04 consumption"}),max_attempts:1,deadline_at:Utc::now()+ChronoDuration::minutes(5),cost_budget_units:250,rate_limit_per_minute:60},now)?;
+            coordinator.execute_next(now).await?.unwrap().artifact};
+        let reference=ResearchInputRef {schema_version:"v1".into(),workflow_run_id:artifact.workflow_run_id,artifact_id:artifact.artifact_manifest.artifact_id,content_hash:artifact.artifact_manifest.content_hash.clone(),expires_at:now+ChronoDuration::minutes(10)};
+        let base=SignalProposalWorkflowInput {runtime_session_id:session.runtime_session_id,tool_name:"signal.proposal.workflow".into(),capability:Capability::parse("signal.proposal.workflow.v1")?,workflow_kind:"signal_proposal".into(),idempotency_key:"r04-research-consumer".into(),correlation_id:CorrelationId::new(),feature_snapshot_id:snapshot,policy_context_ref:"policy-r04".into(),data_query_input_schema_version:None,data_query_input:None,provided_data_query:None,signal_input_schema_version:"v1".into(),signal_input:serde_json::json!({"fixture":"trend_long_quality","strategy_release_id":"strategy.r04","feature_snapshot_id":snapshot.to_string(),"tools":["query_snapshot","query_artifact"]}),provided_signal:None,research_input:Some(reference),proposal_input_schema_version:"v1".into(),proposal_input:serde_json::json!({"fixture":"committee_bull_breakout","account_id":"paper-r04","policy_snapshot_id":"policy-r04","portfolio_snapshot_id":"portfolio-r04","tools":["query_signal","query_snapshot","query_artifact"]}),max_attempts:1,deadline_at:Utc::now()+ChronoDuration::minutes(5),cost_budget_units:500,rate_limit_per_minute:120};
+        let mut repository=InMemorySignalProposalRepository::new();
+        let config=SignalProposalWorkflowCoordinatorConfig {worker_name:"r04-consumer".into(),lease_duration:ChronoDuration::seconds(5),storage_bucket:"quantos-artifacts".into(),data_query_capability:"data.query.v1".into(),signal_capability:"quant.signal.v1".into(),proposal_capability:"decision.proposal.v1".into()};
+        // Rejections occur before queue/artifact/Engine dispatch; malformed references cannot consume authority.
+        let mut foreign_auth=auth.clone();foreign_auth.tenant_id=TenantId::new();let foreign=runtime.open_session(&foreign_auth,now,now+ChronoDuration::hours(1));
+        let mut actor_auth=auth.clone();actor_auth.actor_id=ActorId::new();let actor=runtime.open_session(&actor_auth,now,now+ChronoDuration::hours(1));
+        let mut workspace_auth=auth.clone();workspace_auth.workspace_id=WorkspaceId::new();let workspace=runtime.open_session(&workspace_auth,now,now+ChronoDuration::hours(1));
+        let mut ungranted_auth=auth.clone();ungranted_auth.capabilities.remove(&Capability::parse("research.hypothesis.v1")?);let ungranted=runtime.open_session(&ungranted_auth,now,now+ChronoDuration::hours(1));
+        let expired_run;
+        for case in 0..8 {
+            let mut forged=artifact.clone();
+            match case {0=>forged.output["summary"]=serde_json::json!("tampered"),1=>forged.evidence_refs.clear(),2=>forged.evidence_refs[0].artifact_id="forged".into(),3=>forged.input_hash=quantos_core::ContentHash::sha256_bytes(b"other"),4=>forged.artifact_manifest.size_bytes+=1,5=>forged.capability="order.execute.v1".into(),6=>forged.artifact_manifest.media_type="text/plain".into(),7=>forged.artifact_manifest.tenant_id=TenantId::new(),_=>unreachable!()}
+            let mut forged_repository=InMemoryResearchArtifactRepository::new();forged_repository.upsert(forged);
+            let mut coordinator=SignalProposalWorkflowCoordinator::new(&mut runtime,&snapshots,&rules,&mut repository,&mut manager,config.clone()).with_research_repository(&forged_repository);
+            assert!(coordinator.schedule_workflow_run(base.clone(),now).is_err(),"forged repository {case}");
+        }
+        {let mut coordinator=SignalProposalWorkflowCoordinator::new(&mut runtime,&snapshots,&rules,&mut repository,&mut manager,config.clone()).with_research_repository(&research);
+        for case in 0..14 { let mut bad=base.clone();bad.idempotency_key=format!("bad-r04-{case}");let r=bad.research_input.as_mut().unwrap();match case {0=>r.schema_version="v2".into(),1=>r.content_hash=quantos_core::ContentHash::sha256_bytes(b"tampered"),2=>r.artifact_id=quantos_core::ArtifactId::new(),3=>r.workflow_run_id=quantos_core::WorkflowRunId::new(),4=>r.expires_at=now,5=>bad.policy_context_ref="other".into(),6=>bad.feature_snapshot_id=quantos_core::SnapshotId::new(),7=>bad.runtime_session_id=foreign.runtime_session_id,8=>bad.runtime_session_id=actor.runtime_session_id,9=>bad.runtime_session_id=workspace.runtime_session_id,10=>bad.runtime_session_id=ungranted.runtime_session_id,11=>bad.signal_input["research_context"]=serde_json::json!({"source":"forged"}),12=>bad.signal_input_schema_version="v2".into(),13=>bad.proposal_input_schema_version="v2".into(),_=>unreachable!()};assert!(coordinator.schedule_workflow_run(bad,now).is_err(),"case {case}");}
+        let run=coordinator.schedule_workflow_run(base.clone(),now)?;
+        assert_eq!(coordinator.schedule_workflow_run(base.clone(),now)?.workflow_run_id,run.workflow_run_id);
+        let consumed=coordinator.execute_next(now).await?.unwrap();
+        assert_eq!(consumed.run.status,WorkflowRunStatus::Succeeded);
+        let context=&consumed.signal.output["diagnostics"]["value"]["research_context"];
+        assert_eq!(context["source"]["content_hash"],artifact.artifact_manifest.content_hash.as_str());
+        assert_eq!(context["source"]["workflow_run_id"],artifact.workflow_run_id.to_string());
+        assert_eq!(context["summary"],artifact.output["summary"]);
+        assert_eq!(context["evidence_refs"],serde_json::to_value(&artifact.evidence_refs)?);
+        assert_eq!(&consumed.proposal.output["signal"]["diagnostics"]["value"]["research_context"],context);
+        for evidence in &artifact.evidence_refs {
+            assert!(consumed.signal.evidence_refs.iter().any(|e| e.evidence_id == evidence.evidence_id && e.artifact_id == evidence.artifact_id && e.summary == evidence.summary));
+            assert!(consumed.proposal.evidence_refs.iter().any(|e| e.evidence_id == evidence.evidence_id && e.artifact_id == evidence.artifact_id && e.summary == evidence.summary));
+        }
+        assert!(!consumed.proposal.executable);assert!(!consumed.proposal.counter_views.is_empty());
+        write_r04_evidence("research-consumption.json", &serde_json::json!({"schema":"quantos-r04-research-consumption/v1","source":artifact,"signal":consumed.signal,"proposal":consumed.proposal,"rejectedReferences":22,"ordersExecuted":0,"fixture":true,"formalAccepted":false,"databaseExecution":false}))?;
+        assert!(TradeProposalEvaluationGate::ensure_evaluable(&consumed.proposal,consumed.proposal.expires_at).is_err());
+        let mut replay=base.clone();replay.idempotency_key="r04-consumer-replay".into();let replay_run=coordinator.schedule_workflow_run(replay,now)?;let replay_result=coordinator.execute_next(now).await?.unwrap();assert_eq!(replay_result.run.workflow_run_id,replay_run.workflow_run_id);
+        // Run identity is part of Engine provenance; source binding remains exact on replay.
+        assert_eq!(replay_result.signal.output["diagnostics"]["value"]["research_context"],*context);
+        let mut expiring=base.clone();expiring.idempotency_key="r04-expiring".into();expiring.research_input.as_mut().unwrap().expires_at=now+ChronoDuration::seconds(1);expired_run=coordinator.schedule_workflow_run(expiring,now)?;assert!(matches!(coordinator.execute_next(now+ChronoDuration::seconds(1)).await,Err(SignalProposalWorkflowError::InvalidResearchInput)));
+        }
+        assert_eq!(runtime.run(expired_run.workflow_run_id).unwrap().status,WorkflowRunStatus::Failed);
+        assert_eq!(runtime.run_artifact_count(expired_run.workflow_run_id),0);
+        assert_eq!(repository.physical_proposal_count(),1);
+        assert!(runtime.audit_log().iter().all(|entry| !format!("{entry:?}").contains("order.execute")));
+        Ok::<(),anyhow::Error>(())
+    }.await;
+    shutdown_child(rd_child, &rd_socket).await;
+    shutdown_child(llm_child, &llm_socket).await;
+    shutdown_child(ta_child, &ta_socket).await;
+    result
+}
+
+fn write_r04_evidence(name: &str, value: &serde_json::Value) -> Result<()> {
+    if let Ok(directory) = std::env::var("QUANTOS_R04_EVIDENCE_DIR") {
+        let path = PathBuf::from(directory);
+        std::fs::create_dir_all(&path)?;
+        std::fs::write(path.join(name), serde_json::to_vec_pretty(value)?)?;
+    }
+    Ok(())
 }

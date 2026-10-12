@@ -69,6 +69,7 @@ class ProposalExecutionContext:
     signal: strategy_pb2.Signal
     requested_tools: tuple[str, ...]
     data_query_context: dict | None
+    research_context: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -111,8 +112,11 @@ class TradingAgentsRequestAdapter:
             "sleep_ms",
             "stream_delay_ms",
             "data_query",
+            "research_context",
         }:
             reject("ENGINE_INPUT_FORBIDDEN", grpc.StatusCode.PERMISSION_DENIED)
+        if "research_context" in payload and not isinstance(payload["research_context"], dict):
+            reject("ENGINE_RESEARCH_CONTEXT_INVALID")
         for name in ("account_id", "policy_snapshot_id", "portfolio_snapshot_id"):
             identifier(payload.get(name))
         fixture_name = identifier(payload.get("fixture", fixture_names()[0]))
@@ -239,6 +243,7 @@ class TradingAgentsRequestAdapter:
                 signal=signal,
                 requested_tools=tuple(tools),
                 data_query_context=data_query,
+                research_context=payload.get("research_context"),
             ),
             payload,
         )
