@@ -1,0 +1,583 @@
+[
+  {
+    "id": "scope",
+    "command": [
+      "node",
+      "docs/audit/evidence/tp01-d-preflight-20261012/scope.mjs"
+    ],
+    "executedAt": "2026-10-12T09:13:34.040Z",
+    "completedAt": "2026-10-12T09:13:34.111Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "PROPOSED_NOT_REGISTERED",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/scope.log",
+    "logSha256": "sha256:375103600a4f96dc5e0935585691517dc92ecafb83bf7f9c7c57871e63cb2db7"
+  },
+  {
+    "id": "scope-negative",
+    "command": [
+      "node",
+      "--test",
+      "docs/audit/evidence/tp01-d-preflight-20261012/scope.test.mjs"
+    ],
+    "executedAt": "2026-10-12T09:13:34.111Z",
+    "completedAt": "2026-10-12T09:13:34.782Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/scope-negative.log",
+    "logSha256": "sha256:22673ba6fc37f438879cf0124419235d111d877d6a0cff02c8da6b75323a8b36"
+  },
+  {
+    "id": "tp01-c-current-local",
+    "command": [
+      "make",
+      "tp01-c-local-check"
+    ],
+    "executedAt": "2026-10-12T09:13:34.782Z",
+    "completedAt": "2026-10-12T09:13:44.058Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "\"stageGate\": \"READY\"",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/tp01-c-current-local.log",
+    "logSha256": "sha256:18344bfdfa8e8811e79913e1f0acc509c524a7bc84946bd8350a56cdadf8df16"
+  },
+  {
+    "id": "historical-tp01-d-rejected",
+    "command": [
+      "node",
+      "engines/vibe-adapter/check-absorption.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-12T09:13:44.058Z",
+    "completedAt": "2026-10-12T09:13:44.208Z",
+    "exitCode": 1,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      1
+    ],
+    "expectedMarker": "TP01-D functional inputs changed",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/historical-tp01-d-rejected.log",
+    "logSha256": "sha256:213ca2797e100397bd1e5ac821c84829c80fa6ce151f5c1813b76548a9cf13e6"
+  },
+  {
+    "id": "strict-r02-admission-rejected",
+    "command": [
+      "make",
+      "r02-admission-check"
+    ],
+    "executedAt": "2026-10-12T09:13:44.208Z",
+    "completedAt": "2026-10-12T09:13:44.299Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      2
+    ],
+    "expectedMarker": "CORE:R01: current dependency admission missing",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/strict-r02-admission-rejected.log",
+    "logSha256": "sha256:17f1ddc0068ef9bd39c6930aa39dc892708acf52cb15a5a2d507c1b72a50d0e0"
+  },
+  {
+    "id": "strict-f0-rejected",
+    "command": [
+      "node",
+      "scripts/provider-a1-receipts.mjs",
+      "--f0"
+    ],
+    "executedAt": "2026-10-12T09:13:44.299Z",
+    "completedAt": "2026-10-12T09:13:44.369Z",
+    "exitCode": 1,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      1
+    ],
+    "expectedMarker": "dependency is not READY",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/strict-f0-rejected.log",
+    "logSha256": "sha256:66d3ad06fc11bcfbf2c88d911e155b34d0cfd30149f1f590c84a67b08bb52919"
+  },
+  {
+    "id": "tp01-local-baseline",
+    "command": [
+      "node",
+      "scripts/check-vibe-repositories.mjs",
+      "--baseline",
+      "third_party/vibe-trading/baseline.lock.json",
+      "--remote-lock",
+      "forks/vibe-trading/repository.lock.json",
+      "--readonly",
+      "third_party/vibe-trading/upstream-src",
+      "--fork",
+      "artifacts/third_party/vibe-trading/controlled-fork",
+      "--skip-remote-governance",
+      "1"
+    ],
+    "executedAt": "2026-10-12T09:13:44.369Z",
+    "completedAt": "2026-10-12T09:13:44.430Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fork=verified",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/tp01-local-baseline.log",
+    "logSha256": "sha256:246ce513255ecc62789ed50ebd85d478576196df288bf371145d731fe64e0c29"
+  },
+  {
+    "id": "capability",
+    "command": [
+      "node",
+      "scripts/f0-development-checks.mjs",
+      "--capability"
+    ],
+    "executedAt": "2026-10-12T09:13:44.431Z",
+    "completedAt": "2026-10-12T09:13:44.481Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "11 complete capabilities",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/capability.log",
+    "logSha256": "sha256:a98ff857c08b34702eabbc6dff8f0c9a2947587bcfb5e12d30498a8dcd0a4d74"
+  },
+  {
+    "id": "intake",
+    "command": [
+      "make",
+      "tp-intake-check"
+    ],
+    "executedAt": "2026-10-12T09:13:44.481Z",
+    "completedAt": "2026-10-12T09:13:44.622Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "intake evidence is complete",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/intake.log",
+    "logSha256": "sha256:296be14bc2f9d9e197a58f5d244f0947fff93f11e87012e2cfdc50f88158abf2"
+  },
+  {
+    "id": "tp01-d-queue",
+    "command": [
+      "node",
+      "scripts/tp01-d-patch-queue.mjs"
+    ],
+    "executedAt": "2026-10-12T09:13:44.623Z",
+    "completedAt": "2026-10-12T09:13:44.648Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "\"entries\":2",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/tp01-d-queue.log",
+    "logSha256": "sha256:4ac2eeb689b89acf59a3f40ca1139f7a34aee45ed8eb6eb4ef0b11c495163f4d"
+  },
+  {
+    "id": "tp01-d-replay",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests/test_vibe_adapter_absorption.py",
+      "-vv"
+    ],
+    "executedAt": "2026-10-12T09:13:44.648Z",
+    "completedAt": "2026-10-12T09:13:44.962Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "44 passed",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/tp01-d-replay.log",
+    "logSha256": "sha256:bba55629f39da311da33fa1bb73a085b9adf6a88e025d3ee5222e6d4b4776e34"
+  },
+  {
+    "id": "tp01-d-runtime",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--test",
+      "research_orchestration",
+      "research_workflow_",
+      "--",
+      "--nocapture"
+    ],
+    "executedAt": "2026-10-12T09:13:44.963Z",
+    "completedAt": "2026-10-12T09:13:45.360Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "2 passed; 0 failed",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/tp01-d-runtime.log",
+    "logSha256": "sha256:1c9a963b55aad4f8dfd46c32858889ec07276065b9feebcec50b7a46fa21e227"
+  },
+  {
+    "id": "tp01-d-format",
+    "command": [
+      "engines/.venv/bin/ruff",
+      "format",
+      "--check",
+      "engines/vibe-adapter/src/vibe_adapter/protocols.py",
+      "engines/vibe-adapter/src/vibe_adapter/workflow.py",
+      "engines/vibe-adapter/src/vibe_adapter/streaming.py",
+      "engines/vibe-adapter/src/vibe_adapter/context.py",
+      "engines/vibe-adapter/src/vibe_adapter/service.py",
+      "engines/vibe-adapter/src/vibe_adapter/audit.py",
+      "engines/tests/test_vibe_adapter_absorption.py"
+    ],
+    "executedAt": "2026-10-12T09:13:45.360Z",
+    "completedAt": "2026-10-12T09:13:45.370Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "7 files already formatted",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/tp01-d-format.log",
+    "logSha256": "sha256:0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5"
+  },
+  {
+    "id": "tp01-d-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tp01-d-patch-queue.test.mjs",
+      "scripts/tp01-d-functional-artifacts.test.mjs"
+    ],
+    "executedAt": "2026-10-12T09:13:45.370Z",
+    "completedAt": "2026-10-12T09:13:48.364Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/tp01-d-negative.log",
+    "logSha256": "sha256:4ec7d20f6228fde13c3ccf087f9b5533514215ce1e0b43a03955dac137f3a123"
+  },
+  {
+    "id": "python",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests",
+      "-q"
+    ],
+    "executedAt": "2026-10-12T09:13:48.364Z",
+    "completedAt": "2026-10-12T09:13:57.643Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "1382 passed",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/python.log",
+    "logSha256": "sha256:01adb5ffc741f27684f733d90786c3bc23f424697b9948aed8fd2c77a952b89e"
+  },
+  {
+    "id": "manager",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-engine-manager"
+    ],
+    "executedAt": "2026-10-12T09:13:57.643Z",
+    "completedAt": "2026-10-12T09:14:10.653Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "python_vibe_adapter_contracts_round_trip_over_uds \\.\\.\\. ok",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/manager.log",
+    "logSha256": "sha256:47b54d113ba937dcbb879d1ac572fa17668b32c4a592b6f31352c2ca8984a564"
+  },
+  {
+    "id": "r01-functional",
+    "command": [
+      "make",
+      "r01-check"
+    ],
+    "executedAt": "2026-10-12T09:14:10.653Z",
+    "completedAt": "2026-10-12T09:14:24.576Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "R01 assembly Gate PASS",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/r01-functional.log",
+    "logSha256": "sha256:e8dae7e45339263bbda1ae3810f789978284f4aabfee935bf521664f19a1d9ce"
+  },
+  {
+    "id": "r02-functional",
+    "command": [
+      "make",
+      "r02-check"
+    ],
+    "executedAt": "2026-10-12T09:14:24.576Z",
+    "completedAt": "2026-10-12T09:14:50.602Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "\"liveDatabase\":false",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/r02-functional.log",
+    "logSha256": "sha256:4f8cf68e2e5d9c79242efbac96f1fa1b48c897af273ff6aff68109e9fb3f64b8"
+  },
+  {
+    "id": "r02-engine-consumers",
+    "command": [
+      "node",
+      "scripts/r02-engine-consumers.cjs"
+    ],
+    "executedAt": "2026-10-12T09:14:50.602Z",
+    "completedAt": "2026-10-12T09:14:52.837Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "R02_ENGINE_CONSUMERS PASS",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/r02-engine-consumers.log",
+    "logSha256": "sha256:9ed108255de177ca41fa6eedaf8bdfc1fc54514aeedfea9f77b16ab37771f464"
+  },
+  {
+    "id": "r1-receipt-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/r1-functional-artifacts.test.mjs",
+      "scripts/provider-a1-receipts.test.mjs",
+      "scripts/r02-stage-check.test.mjs",
+      "scripts/test-engine-processes.test.cjs",
+      "scripts/f07-target-service.test.cjs",
+      "scripts/postgres-bootstrap.test.cjs"
+    ],
+    "executedAt": "2026-10-12T09:14:52.837Z",
+    "completedAt": "2026-10-12T09:14:54.953Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/r1-receipt-negative.log",
+    "logSha256": "sha256:dd5bd2eac2e60a99e482dc80638201bc1e835e8633c4d49dfcb170d86942712c"
+  },
+  {
+    "id": "ruff",
+    "command": [
+      "engines/.venv/bin/ruff",
+      "check",
+      "engines/vibe-adapter",
+      "engines/tests/test_vibe_adapter_absorption.py"
+    ],
+    "executedAt": "2026-10-12T09:14:54.953Z",
+    "completedAt": "2026-10-12T09:14:54.963Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "All checks passed",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/ruff.log",
+    "logSha256": "sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "id": "lock",
+    "command": [
+      "uv",
+      "lock",
+      "--check",
+      "--offline",
+      "--project",
+      "engines"
+    ],
+    "executedAt": "2026-10-12T09:14:54.963Z",
+    "completedAt": "2026-10-12T09:14:54.973Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "Resolved 52 packages",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/lock.log",
+    "logSha256": "sha256:8bad9e511173a2de8b3a1d6ab73b804255dcee9c6396d97089a5817e601188d5"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "executedAt": "2026-10-12T09:14:54.973Z",
+    "completedAt": "2026-10-12T09:14:55.016Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "PASS",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/plans.log",
+    "logSha256": "sha256:ad5b07c520dfbc17b18064a580e5f7c8d896658aad2efa0234c76d8f19a2a294"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-12T09:14:55.016Z",
+    "completedAt": "2026-10-12T09:14:55.048Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 1800000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "PASS",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  },
+  {
+    "id": "process-cleanup",
+    "command": [
+      "node",
+      "scripts/r1-process-cleanup.cjs",
+      "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/process-cleanup.json"
+    ],
+    "executedAt": "2026-10-12T09:14:55.048Z",
+    "completedAt": "2026-10-12T09:14:55.105Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 30000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "allowedExitCodes": [
+      0
+    ],
+    "expectedMarker": "R1_PROCESS_CLEANUP PASS",
+    "log": "docs/audit/evidence/tp01-d-preflight-20261012/attempt-02/logs/process-cleanup.log",
+    "logSha256": "sha256:5d6406de28323f4c7c0d80855bdcb5695a5dae85bdc8bc259b58d10be1f1be7b"
+  }
+]
