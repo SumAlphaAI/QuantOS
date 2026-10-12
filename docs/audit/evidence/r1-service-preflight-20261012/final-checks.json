@@ -1,0 +1,142 @@
+[
+  {
+    "id": "support",
+    "command": [
+      "node",
+      "docs/audit/evidence/r1-service-preflight-20261012/collect-support.mjs",
+      "docs/audit/evidence/r1-service-preflight-20261012/attempt-01"
+    ],
+    "executedAt": "2026-10-12T07:54:42.335Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 300000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/r1-service-preflight-20261012/final/support.log",
+    "logSha256": "sha256:f6fa2c8480bb3b6c18b5771ceb5f807e2d6ca836e9c3ba18ddcdd1f5c1b303fb"
+  },
+  {
+    "id": "verify",
+    "command": [
+      "node",
+      "docs/audit/evidence/r1-service-preflight-20261012/verify-preflight.mjs",
+      "docs/audit/evidence/r1-service-preflight-20261012/attempt-01"
+    ],
+    "executedAt": "2026-10-12T07:54:42.456Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 300000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/r1-service-preflight-20261012/final/verify.log",
+    "logSha256": "sha256:3bea4c09c7b7a510c55b592363811152c037310bca3c4f78cdc9803c52c2a43b"
+  },
+  {
+    "id": "negative",
+    "command": [
+      "node",
+      "--test",
+      "docs/audit/evidence/r1-service-preflight-20261012/verify-preflight.test.mjs"
+    ],
+    "executedAt": "2026-10-12T07:54:42.985Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 300000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/r1-service-preflight-20261012/final/negative.log",
+    "logSha256": "sha256:1482aeada748e92feea80ea25f213c9187578396cfc0743ff7eb274e3e99b296"
+  },
+  {
+    "id": "coverage",
+    "command": [
+      "node",
+      "docs/audit/evidence/r1-service-preflight-20261012/verify-coverage.mjs",
+      "docs/audit/evidence/r1-service-preflight-20261012/attempt-01"
+    ],
+    "executedAt": "2026-10-12T07:54:46.440Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 300000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/r1-service-preflight-20261012/final/coverage.log",
+    "logSha256": "sha256:fec207a202051e40614bd62e3e811869d1b49e21d39cac460cfbccb066b38555"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "executedAt": "2026-10-12T07:54:46.627Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 300000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/r1-service-preflight-20261012/final/plans.log",
+    "logSha256": "sha256:d79356a74dde522f829445a73ef5b215bf1c2c653c7b3e7979f09d69381606c4"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-12T07:54:46.667Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 300000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/r1-service-preflight-20261012/final/handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  },
+  {
+    "id": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "executedAt": "2026-10-12T07:54:46.697Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 300000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/r1-service-preflight-20261012/final/diff.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/r1-service-preflight-20261012"
+    ],
+    "executedAt": "2026-10-12T07:54:46.740Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 300000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "log": "docs/audit/evidence/r1-service-preflight-20261012/final/secrets.log",
+    "logSha256": "sha256:ab21589823cf66b2d491c6be732dbd8cb661db1e13af053f567fc8785fba4b99"
+  }
+]
