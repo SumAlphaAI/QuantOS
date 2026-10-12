@@ -138,23 +138,26 @@ export function supportingArtifactPaths(kind,r) {
 }
 // Explicit local profiles never publish upstream database readiness.
 export function localPolicy(profile='R03_LOCAL',p=policy()) {
- assert(['R03_LOCAL','R04_LOCAL'].includes(profile),'unsupported local profile');
- const spec=profile==='R03_LOCAL'?p.r03Local:p.r04Local;
- assert.equal(spec.profile,profile);assert.equal(spec.owner,profile==='R03_LOCAL'?'CORE:R03':'CORE:R04');
+ const registration={R03_LOCAL:['r03Local','CORE:R03'],R04_LOCAL:['r04Local','CORE:R04'],'TP01-C_LOCAL':['tp01CLocal','CORE:TP01-C']}[profile];
+ assert(registration,'unsupported local profile');
+ const spec=p[registration[0]];
+ assert.equal(spec.profile,profile);assert.equal(spec.owner,registration[1]);
+ if(profile==='TP01-C_LOCAL')assert.deepEqual(spec.roots,['CORE:TP01-C'],'TP01-C local roots cannot grant R1 admission');
  return spec;
 }
-export const localScope=profile=>profile==='R03_LOCAL'?'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA':'R04 local functional prerequisites; Supabase target acceptance deferred to RELEASE-GATE:BETA';
+export const localScope=profile=>({R03_LOCAL:'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA',R04_LOCAL:'R04 local functional prerequisites; Supabase target acceptance deferred to RELEASE-GATE:BETA','TP01-C_LOCAL':'TP01-C local functional closure; Supabase and remote governance acceptance deferred to RELEASE-GATE:BETA'}[profile]);
+const localIndexSchema=profile=>({R03_LOCAL:'quantos-r03-local-prerequisites/v1',R04_LOCAL:'quantos-r04-local-prerequisites/v1','TP01-C_LOCAL':'quantos-tp01-c-local-prerequisites/v1'}[profile]);
 export function localChecks(id,p=policy(),profile='R03_LOCAL') {
  const spec=localPolicy(profile,p);
- return [...p.nodes[id].checks.filter(c=>!p.checks[c].database&&!p.checks[c].target),...(spec.nodeChecks[id]??[])];
+ return [...p.nodes[id].checks.filter(c=>!p.checks[c].database&&!p.checks[c].target&&!(spec.deferredChecks??[]).includes(c)),...(spec.nodeChecks[id]??[])];
 }
 export function localDeferred(nodes=nodesFromPlans(),p=policy(),profile='R03_LOCAL') {
  const selected=[...new Set(localPolicy(profile,p).roots.flatMap(id=>closure(nodes,id)))];
- return [...new Set(selected.flatMap(id=>p.nodes[id].checks))].filter(c=>p.checks[c].database||p.checks[c].target).map(id=>({id,command:p.checks[id].command,status:'NOT_RUN',checkpoint:'RELEASE-GATE:BETA'}));
+ return [...new Set(selected.flatMap(id=>p.nodes[id].checks))].filter(c=>p.checks[c].database||p.checks[c].target||(localPolicy(profile,p).deferredChecks??[]).includes(c)).map(id=>({id,command:p.checks[id].command,status:'NOT_RUN',checkpoint:'RELEASE-GATE:BETA'}));
 }
 export function validateLocalPrerequisites(path,{nodes=nodesFromPlans(),base=root,profile='R03_LOCAL'}={}) {
  const p=policy(base),bytes=readFileSync(confined(path,base)),index=JSON.parse(bytes);
- const spec=localPolicy(profile,p);assert.equal(index.schema,profile==='R03_LOCAL'?'quantos-r03-local-prerequisites/v1':'quantos-r04-local-prerequisites/v1');assert.equal(index.owner,spec.owner);assert.equal(index.profile,profile);assert.equal(index.status,'PASS');assert.equal(index.formalAccepted,false);
+ const spec=localPolicy(profile,p);assert.equal(index.schema,localIndexSchema(profile));assert.equal(index.owner,spec.owner);assert.equal(index.profile,profile);assert.equal(index.status,'PASS');assert.equal(index.formalAccepted,false);
  assert.equal(index.databaseExecution,false);assert.deepEqual(index.deferred,localDeferred(nodes,p,profile));
  const selected=[...new Set(spec.roots.flatMap(id=>closure(nodes,id)))];assert.deepEqual(index.nodes.map(n=>n.nodeId),selected);
  const projected=new Map([...nodes].map(([id,n])=>[id,{...n}]));
@@ -249,12 +252,12 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1'],{profil
   if(run.status!==0)console.error(`functional execution failed ${id}; see ${log}`);
  }
  for(const save of deferred.splice(0))save();
- if(engineBaselineDir)rmSync(engineBaselineDir,{recursive:true,force:true});
+ if(engineBaselineDir){writeFileSync(resolve(out,'process-baseline.json'),readFileSync(engineBaseline));rmSync(engineBaselineDir,{recursive:true,force:true});}
  assert([...results.values()].every(r=>r.status==='PASS'&&r.exitCode===0),'functional execution failed; no READY records published');
  const currentNodes=nodesFromPlans();assertInputSnapshot(initialInputs,captureInputs(currentNodes,selected,policy()));
  assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),source,'source commit changed during execution');
  for(const id of selected){const n=nodes.get(id);const spec=p.nodes[id];const m={schema:profile?'quantos-stage-local-manifest/v1':'quantos-stage-functional-manifest/v1',...(profile?{owner:localPolicy(profile,p).owner,profile,databaseExecution:false}:{}),nodeId:id,stage:'DEVELOPMENT',status:'PASS',scope:profile?localScope(profile):spec.scope,formalAccepted:false,observedSourceCommit:source,environment,planInput:initialInputs.get(id).planInput,inputs:initialInputs.get(id).inputs,checks:(profile?localChecks(id,p,profile):spec.checks).map(c=>results.get(c)),dependencies:n.dependencies.map(dep=>({nodeId:dep,inputDigest:nodes.get(dep).stage_gate.input_digest,manifest:'docs/'+nodes.get(dep).stage_gate.evidence[0]})),excluded:p.excluded,residuals:[]};const path=directory+'/'+id.toLowerCase().replaceAll(':','-')+'.json';const bytes=JSON.stringify(m,null,2)+'\n';writeFileSync(resolve(root,path),bytes);n.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(bytes),evidence:[path.slice(5)]};validateReceipt(id,{nodes,profile});}
- if(profile){const index={schema:profile==='R03_LOCAL'?'quantos-r03-local-prerequisites/v1':'quantos-r04-local-prerequisites/v1',owner:localPolicy(profile,p).owner,profile,status:'PASS',formalAccepted:false,databaseExecution:false,observedSourceCommit:source,nodes:selected.map(nodeId=>({nodeId,manifest:'docs/'+nodes.get(nodeId).stage_gate.evidence[0],inputDigest:nodes.get(nodeId).stage_gate.input_digest})),deferred:localDeferred(currentNodes,p,profile)};const path=directory+'/local-prerequisites.json';writeFileSync(resolve(root,path),JSON.stringify(index,null,2)+'\n');console.log(JSON.stringify(validateLocalPrerequisites(path,{profile})));return;}
+ if(profile){const index={schema:localIndexSchema(profile),owner:localPolicy(profile,p).owner,profile,status:'PASS',formalAccepted:false,databaseExecution:false,observedSourceCommit:source,nodes:selected.map(nodeId=>({nodeId,manifest:'docs/'+nodes.get(nodeId).stage_gate.evidence[0],inputDigest:nodes.get(nodeId).stage_gate.input_digest})),deferred:localDeferred(currentNodes,p,profile)};const path=directory+'/local-prerequisites.json';writeFileSync(resolve(root,path),JSON.stringify(index,null,2)+'\n');console.log(JSON.stringify(validateLocalPrerequisites(path,{profile})));return;}
  const admitted=new Map(selected.map(id=>[id,nodes.get(id)]));const updated=[publishStages(texts[0],admitted,'CORE:'),publishStages(texts[1],admitted,'FE:')];validatePlans(...updated);for(let i=0;i<2;i++)writeFileSync(resolve(root,planPaths[i]),updated[i]);
  for(const id of rootIds)console.log(JSON.stringify(validateReceipt(id,{nodes}),null,2));
 }

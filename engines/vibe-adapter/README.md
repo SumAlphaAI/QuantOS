@@ -114,3 +114,6 @@ adoption, publication and formal ACCEPTED are outside this recorder.
 
 Development evidence and retained limitations are recorded in
 [the TP01-D acceptance report](../../docs/audit/TP01-D-selective-absorption-2026-10-09.md).
+## TP01-C_LOCAL admission
+
+`make tp01-c-assess-local` runs the complete thirteen-node local dependency closure from a clean frozen commit; `make tp01-c-local-check` validates its consumer-scoped receipt. It does not grant upstream database readiness or R1-SERVICE admission. `make tp01-c-release-check` requires separate target and formal release evidence and must refuse local-only receipts. See [local admission procedure](../../docs/operations/tp01-c-local-admission.md).

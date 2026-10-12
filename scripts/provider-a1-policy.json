@@ -1271,6 +1271,45 @@
       ],
       "staticOnly": true,
       "marker": "fail 0"
+    },
+    "tp01-local-baseline": {
+      "command": [
+        "node",
+        "scripts/check-vibe-repositories.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--remote-lock",
+        "forks/vibe-trading/repository.lock.json",
+        "--readonly",
+        "third_party/vibe-trading/upstream-src",
+        "--fork",
+        "artifacts/third_party/vibe-trading/controlled-fork",
+        "--skip-remote-governance",
+        "1"
+      ],
+      "staticOnly": true,
+      "marker": "fork=verified"
+    },
+    "tp01-c-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp01-c-local-gate.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
+    },
+    "tp01-c-process-cleanup": {
+      "command": [
+        "node",
+        "scripts/r1-process-cleanup.cjs"
+      ],
+      "staticOnly": true,
+      "artifact": "supporting/tp01-c-process-cleanup/receipt.json",
+      "output": "supporting/tp01-c-process-cleanup/receipt.json",
+      "artifactKind": "r1-process-cleanup",
+      "marker": "R1_PROCESS_CLEANUP PASS",
+      "timeoutMs": 30000
     }
   },
   "nodes": {
@@ -1720,7 +1759,8 @@
         "engines/tests/",
         "crates/quantos-engine-manager/",
         "proto/",
-        "docs/operations/tp01_vibe_inventory_and_threats.md"
+        "docs/operations/tp01_vibe_inventory_and_threats.md",
+        "docs/operations/tp01-c-local-admission.md"
       ],
       "checks": [
         "tp01-c-skeleton",
@@ -1967,6 +2007,30 @@
       ],
       "CORE-GATE:F0": [
         "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA"
+  },
+  "tp01CLocal": {
+    "owner": "CORE:TP01-C",
+    "profile": "TP01-C_LOCAL",
+    "roots": [
+      "CORE:TP01-C"
+    ],
+    "deferredChecks": [
+      "tp01-baseline"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
       ]
     },
     "releaseCheckpoint": "RELEASE-GATE:BETA"

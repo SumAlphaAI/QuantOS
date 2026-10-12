@@ -1,4 +1,6 @@
-> 当前本地复验（2026-10-12）：冻结54aeff32完成17节点/56组本地必要前置、R03七组和R04四组全部PASS；F0/TP03/TP04/R03/R04限定本地READY，全图5 READY/154 NOT_ASSESSED/0 BLOCKED。Supabase、外部环境、性能与正式发布仍待测试/RELEASE-GATE:BETA；formalAccepted=false。见[完成报告](./audit/R04-development-2026-10-12.md)。
+> 当前 TP01-C_LOCAL 实施（2026-10-12）：公共功能输入变化，原5个限定本地READY已撤回，0 READY/159 NOT_ASSESSED/0 BLOCKED；历史回执保留。新13节点准入尚待冻结完整复验，Supabase/外部/性能继续由测试和RELEASE-GATE:BETA验收。见[本地规程](./operations/tp01-c-local-admission.md)。
+
+> 历史本地复验（2026-10-12）：冻结54aeff32完成17节点/56组本地必要前置、R03七组和R04四组全部PASS；F0/TP03/TP04/R03/R04限定本地READY，全图5 READY/154 NOT_ASSESSED/0 BLOCKED。Supabase、外部环境、性能与正式发布仍待测试/RELEASE-GATE:BETA；formalAccepted=false。见[完成报告](./audit/R04-development-2026-10-12.md)。
 
 > 历史本地复验（2026-10-12）：冻结76789443完成17节点/56组本地必要前置及R03七组PASS；F0/TP03/TP04/R03本地READY，R04实施admission READY、完成NOT_ASSESSED。全图4 READY/155 NOT_ASSESSED/0 BLOCKED；13组Supabase目标与后续22任务/16检查点外部环境和性能移交测试/最终发布，formalAccepted=false。见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)。
 
@@ -404,6 +406,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE-GATE:F0"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP01-C": {
+      "profile": "TP01-C_LOCAL",
+      "schema": "quantos-tp01-c-local-development/v1",
+      "manifest": "audit/evidence/tp01-c-local-20261012/manifest.json",
+      "prerequisites": [
+        "CORE:TP01-B",
+        "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }
@@ -794,11 +807,9 @@ flowchart TD
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:052897c8e9e6c83da07327e6cca10cad1229e8f932ae8f095e98459380d71239",
-    "evidence": [
-      "audit/evidence/local-development-20261012/core-gate-f0.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -875,6 +886,8 @@ flowchart TD
 - 依赖：TP01-B、F08
 - 当前工程复核：当前因TP02输入变化为NOT_ASSESSED，本轮不重授；下述为冻结6a393eb历史复核：冻结6a393eb的五RPC、20回放、100组双RPC边界拒绝、租户Artifact/取消/截止/幂等和独立Engine回归通过，Python307/Manager55；随TP01-D完整16节点/62组当前复评，DEVELOPMENT READY，见[当前报告](./audit/TP01-D-selective-absorption-2026-10-09.md)及[当前manifest](./audit/evidence/provider-a1-remediation-20261004/tp01-d-admission-20261009/attempt-01/core-tp01-c.json)。[首次BLOCKED](./audit/TP01-C-skeleton-2026-10-09.md)、[原准入](./audit/TP01-C-development-admission-2026-10-09.md)与全部失败保留，正式/持久化/部署/性能/长稳/候选CI未授予。
 
+- 验收边界：TP01-C_LOCAL独立本地准入；完整13节点必要功能闭包、五RPC/20回放/100组双RPC拒绝与实际进程清理须绑定同一冻结源码。Supabase、GitHub远程治理、部署、OS egress、持久化及性能/长稳由RELEASE-GATE:BETA最终验收；不授予上游READY或R1-SERVICE。
+
 <a id="task-tp01-d"></a>
 ### TP01-D：选择性吸收与最小 patch 队列
 
@@ -924,7 +937,7 @@ flowchart TD
 - task_id: `TP03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c373ad25d17726df1598ba86d7e11bf45aa2af24b1fe40581967571ed7ad9f1b","evidence":["audit/evidence/local-development-20261012/core-tp03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - closes_core: []
@@ -947,7 +960,7 @@ flowchart TD
 - task_id: `TP04`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c823f77e30ff2044a5882c1a5b11ca485fad16c5585214de8c1959ffff4cc353","evidence":["audit/evidence/local-development-20261012/core-tp04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - closes_core: []
@@ -1069,7 +1082,7 @@ flowchart TD
 - task_id: `R03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e82899aa77416aae1679f81e829952d90c8d319028d05dbb6ff90d4b0146cec5","evidence":["audit/evidence/r03-20261011/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - closes_core: []
@@ -1090,7 +1103,7 @@ flowchart TD
 - task_id: `R04`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ad02435b4c6a6602947349adc063686b77db6debb8d4a5d1a616fbee71ee69c8","evidence":["audit/evidence/r04-completion-20261012/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R03", "CORE:TP03", "CORE:TP04", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:R03", "CORE:TP03", "CORE:TP04", "CORE-GATE:F0"]
 - closes_core: []

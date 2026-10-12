@@ -548,6 +548,14 @@ r03-release-check:
 .PHONY: r04-assess-local r04-admission-check f0-local-check tp03-local-check tp04-local-check local-release-check development-handoff-check
 r04-assess-local:
 	node scripts/record-r04-local-prerequisites.mjs
+
+.PHONY: tp01-c-assess-local tp01-c-local-check tp01-c-release-check
+tp01-c-assess-local:
+	node scripts/record-tp01-c-local.mjs
+tp01-c-local-check:
+	node scripts/tp01-c-local-gate.mjs --ready
+tp01-c-release-check:
+	node scripts/tp01-c-local-gate.mjs --release
 r04-admission-check:
 	node scripts/local-development-gate.mjs --admission
 f0-local-check:
