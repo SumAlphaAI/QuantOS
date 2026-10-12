@@ -1,0 +1,188 @@
+{
+  "schema": "quantos-future-target-preservation/v1",
+  "status": "PASS",
+  "baselineCommit": "f59000b4",
+  "candidateCommit": "767894432483879aab9c8298e342a2a18adeefb9",
+  "tasks": 22,
+  "checkpoints": 16,
+  "originalQuantifiedTargetsUnchanged": true,
+  "originalCheckpointScopesRetained": true,
+  "targets": [
+    {
+      "nodeId": "CORE:TP01-E",
+      "originalTargets": [
+        "- 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:TP01-F",
+      "originalTargets": [
+        "- 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:TP01-G",
+      "originalTargets": [
+        "- 验收标准：不依赖 fork 内部类型；任一模块可替换且业务协议不变"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:S01",
+      "originalTargets": [
+        "- 量化验收标准：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:TP06",
+      "originalTargets": [
+        "- 集成验收标准：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:S02",
+      "originalTargets": [
+        "- 量化验收标准：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:S03",
+      "originalTargets": [
+        "- 量化验收标准：未验证/未审批 Release 的部署请求 100% 被拒；目标枚举不含 Assisted Live（M5 前）；同一内容重复发布返回同一 hash 或确定性冲突"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:X01",
+      "originalTargets": [
+        "- 量化验收标准：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:X02",
+      "originalTargets": [
+        "- 量化验收标准：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:X03",
+      "originalTargets": [
+        "- 量化验收标准：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:TP07",
+      "originalTargets": [
+        "- 集成验收标准：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:TP12",
+      "originalTargets": [
+        "- 验收标准：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:X04",
+      "originalTargets": [
+        "- 量化验收标准：10万条订单事件 state transition 100% 合法；重复 submit 仅一次下游调用；cancel 延迟/拒绝可审计；所有 Fill 可追溯 Command"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:X05",
+      "originalTargets": [
+        "- 量化验收标准：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:U01",
+      "originalTargets": [
+        "- 量化验收标准：Web Playwright 场景全部通过；Research 创建/流式/取消/证据跳转 100% 可用；业务页 `noindex`；小屏不显示高风险动作"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:TP01",
+      "originalTargets": [
+        "- 集成验收标准：adapter 只能读写 QuantOS Artifact API；无 venue 网络/secret capability；上游 20 个代表性 workflow fixture 在固定输入下可重放；模拟 API 破坏、许可证变化、CVE 与 patch 冲突均能被分级并阻断；移除 adapter 后 Runtime 仍可启动"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:S04",
+      "originalTargets": [
+        "- 量化验收标准：20 个策略 UI fixture 从研究到 Release 可完成；拒绝/过期/并发审批均有明确状态；Web 视觉与功能回归通过"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:X06",
+      "originalTargets": [
+        "- 量化验收标准：从任意订单在 ≤5 分钟经 UI 还原完整证据链；订单/审批/kill switch E2E 通过率 100%；无页面含直接 venue 请求；Web 回归通过"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "nodeId": "CORE:L01",
+      "originalTargets": [
+        "- 量化验收标准：200 笔 testnet 正常/拒绝/撤单/部分成交场景 100% 映射至自有 schema；网络/认证失败明确分类；无生产 endpoint/secret 出现在测试制品"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS"
+    },
+    {
+      "nodeId": "CORE:L02",
+      "originalTargets": [
+        "- 量化验收标准：secret scan 0 泄露；研究 Engine/UI/普通 BFF 无法解析或调用 Vault 解密路径；证书/secret 轮换后 ≤5 分钟恢复；过期服务会话或命令 100% 拒绝；未允许域名 egress 100% 阻断"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS"
+    },
+    {
+      "nodeId": "CORE:L03",
+      "originalTargets": [
+        "- 量化验收标准：M5 flag 关闭时 UI/API 100% 不可达；开启 testnet flag 后 50 次双人审批均写签名审计；自批/额度超限/过期 100% 拒绝"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS"
+    },
+    {
+      "nodeId": "CORE:L04",
+      "originalTargets": [
+        "- 量化验收标准：目标负载下无重复 Command/订单、审计持久化 100%；四类演练（重放、恢复、Engine 故障、kill switch）全部通过；高危安全缺陷=0"
+      ],
+      "unchanged": true,
+      "releaseCheckpoint": "RELEASE-GATE:LIVE-READINESS"
+    }
+  ]
+}

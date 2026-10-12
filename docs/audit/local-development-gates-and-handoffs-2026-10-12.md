@@ -23,4 +23,49 @@ R04-P03公共Rust校验器接受7/9畸形输入、R04-P04研究输入消费闭�
 
 ## 实际复验
 
-待从冻结提交执行后补充实际结果。未执行项不记PASS。
+冻结候选：`767894432483879aab9c8298e342a2a18adeefb9`，开始时Git干净。实现提交为 `750a08d0`；`76789443`仅保存首次启动失败与旧回执。完整attempt-02全部重新实际执行，不拼接首次失败结果。候选之后仅保存文档/证据，源码、测试、配置与规范输入保持绑定内容。
+
+| Gate | 当前结果 | 本地必要范围 |
+|---|---|---|
+| CORE-GATE:F0 | READY / R04_LOCAL | 12节点、42组 |
+| CORE:TP03 | READY / R04_LOCAL | 13节点、45组 |
+| CORE:TP04 | READY / R04_LOCAL | 14节点、48组 |
+| CORE:R03 | READY / R03_LOCAL，依赖显式R04_LOCAL档案 | 同候选17节点/56组前置 + 自身7组 |
+| CORE:R04 admission | READY，仅允许开展本地实现 | R03、TP03、TP04、F0同候选且内容有效 |
+| CORE:R04完成 | NOT_ASSESSED | R04-P03/P04尚未关闭 |
+| Supabase / RELEASE / 正式接受 | NOT_RUN / NOT_ASSESSED / false | 原13组目标命令及目标环境/性能义务未验收 |
+
+全图 **4 READY / 155 NOT_ASSESSED / 0 BLOCKED**。原严格数据库失败状态保留在原SHA和原失败manifest中；当前本地READY不能消费为严格数据库READY，也不授予其他上游目标Gate。
+
+实际入口及结果：
+
+| 命令 | 结果 |
+|---|---|
+| `env PATH="/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin:$PATH" node scripts/record-r04-local-prerequisites.mjs docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02` | exit 0；17节点、56/56组本地PASS；R03 7/7 PASS；清理discovered=[]、remaining=[] |
+| `make f0-local-check tp03-local-check tp04-local-check r03-admission-check r04-admission-check` | exit 0；五个CLI均通过 |
+| `make local-release-check`、`make r03-release-check` | 各exit 2，预期拒绝，未授予发布 |
+| `node scripts/provider-a1-receipts.mjs --f0`、两组件 `--ready` | 各exit 1；严格入口拒绝本地档案，不作为目标DB通过 |
+| `node --test scripts/local-development-gate.test.mjs scripts/development-gate-handoff.test.mjs scripts/provider-a1-receipts.test.mjs scripts/r03-stage-check.test.mjs scripts/development-plan-order-negative.mjs scripts/tp03-functional-artifacts.test.mjs scripts/tp04-functional-artifacts.test.mjs` | 230/230 PASS，0失败/跳过 |
+| `node scripts/check-development-plans.mjs`、`make development-handoff-check` | PASS；22任务/16后续检查点，无开发外部/性能Gate |
+| `node docs/audit/evidence/local-development-20261012/verify-future-targets.mjs` | PASS；原22任务量化条款逐字未变、16检查点原scope保留 |
+| R04公开Rust校验器纯探针 | 执行exit 0，但requirementStatus=GAPS_FOUND；7/9畸形输入被接受，不能记作R04要求PASS |
+| Gitleaks 8.28.0 `dir --redact`（新证据、完整attempt、纯probe三范围） | 三组exit 0，no leaks found |
+| `git diff --check` | PASS |
+
+56组包括三轮独立构建、完整lint、`make test`、协议/API client、领域/事件/Storage、覆盖率、SQL静态/供应链/秘密扫描、F06/F07拒绝机制、F08功能/nightly/wheel服务链、F09调度负向、R01/R02、TP02/TP03/TP04全部本地必要检查。两组件各12项实际检查均通过，完整Python套件各1366项（TP03 9.24s、TP04 8.84s）；100条schema/双RPC重放、wheel五RPC、受控取消及UI bridge通过。这些耗时仅为本次诊断，不构成目标负载性能验收。
+
+实际证据：[完整执行索引](./evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/execution-results.json)、[本地前置内容档案](./evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/local-prerequisites.json)、[R03七组](./evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-execution-results.json)、[R04 admission](./evidence/local-development-20261012/r04-admission.json)、[最终CLI结果](./evidence/local-development-20261012/final-checks.json)、[目标条款保留核对](./evidence/local-development-20261012/future-target-preservation.json)、[当前R04负向缺口](./evidence/r04-preflight-20261012/runtime-contract-local-admission-20261012/receipt.json)。
+
+首次尝试没有执行检查：PATH选择了全局pnpm 11.21.0，原生启动器身份校验失败；项目固定pnpm 10.20.0。仅在任务PATH优先使用现有缓存的10.20.0，Node 24.12.0/uv 0.7.0/Rust 1.91.0全部符合固定版本；未改全局配置或锁文件。见[失败原文及处置](./evidence/local-development-20261012/diagnosis/attempt-01-launcher-failure.json)。
+
+## 变更文件与剩余风险
+
+主要实现：`scripts/provider-a1-receipts.mjs`、`scripts/provider-a1-policy.json`、`scripts/local-development-gate.mjs`、`scripts/record-r04-local-prerequisites.mjs`、`scripts/r03-stage-check.mjs`、`scripts/r03-record-development.mjs`、`scripts/check-development-plans.mjs`、`scripts/check-development-plan-order.mjs`、`scripts/development-plan-order-policy.json`、`scripts/check-development-gate-handoff.mjs`、`scripts/development-gate-handoff-policy.json`、`Makefile`。新增/调整三份相关测试；两份开发计划同步阶段契约和当前范围；组件回执与全部验收证据单独保存。
+
+[完整变更文件清单](./evidence/local-development-20261012/changed-files.txt)、[结果摘要](./evidence/local-development-20261012/summary.json)、[完整性校验](./evidence/local-development-20261012/integrity.json)、[可重跑内容验证](./evidence/local-development-20261012/verify-final-state.mjs)。
+
+未决：R04-P03七类输入校验缺口、R04-P04研究输入消费闭环/完成回执；真实Supabase容量可写性、Auth、持久恢复、外部目标/性能/长稳、hosted CI及正式用户确认均待对应阶段实际验收。本轮不重新消费已退役历史事实、不声称新pending=0；未升级订阅、未使用生产凭据、未推送或外部发布。
+
+完整性复核：544条历史SHA绑定保持一致；源文件/规范输入、全部新回执/日志/制品另行逐字核验。
+
+下一可执行任务：**实现R04公共Signal/Proposal校验一致性与R03研究输入消费闭环**，补版本/enum/数值/metadata/反方观点/期限边界负向、证据绑定和无订单调用计数，形成独立完成回执；保持目标环境与性能最终发布验收。

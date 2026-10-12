@@ -1,0 +1,77 @@
+node scripts/local-development-gate.mjs CORE-GATE:F0
+{
+  "nodeId": "CORE-GATE:F0",
+  "stageGate": "READY",
+  "profile": "R04_LOCAL",
+  "databaseAcceptance": "NOT_RUN",
+  "releaseGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9"
+}
+node scripts/local-development-gate.mjs CORE:TP03
+{
+  "nodeId": "CORE:TP03",
+  "stageGate": "READY",
+  "profile": "R04_LOCAL",
+  "databaseAcceptance": "NOT_RUN",
+  "releaseGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9"
+}
+node scripts/local-development-gate.mjs CORE:TP04
+{
+  "nodeId": "CORE:TP04",
+  "stageGate": "READY",
+  "profile": "R04_LOCAL",
+  "databaseAcceptance": "NOT_RUN",
+  "releaseGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9"
+}
+node scripts/r03-stage-check.mjs --admission
+{"engineeringStatus":"PASS","stageGate":"READY","profile":"R03_LOCAL","databaseAcceptance":"NOT_RUN","releaseGate":"NOT_ASSESSED","formalAccepted":false}
+node scripts/local-development-gate.mjs --admission
+{
+  "nodeId": "CORE:R04",
+  "admission": "READY",
+  "scope": "local implementation only",
+  "profile": "R04_LOCAL",
+  "prerequisites": [
+    {
+      "nodeId": "CORE-GATE:F0",
+      "stageGate": "READY",
+      "profile": "R04_LOCAL",
+      "databaseAcceptance": "NOT_RUN",
+      "releaseGate": "NOT_ASSESSED",
+      "formalAccepted": false,
+      "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9"
+    },
+    {
+      "nodeId": "CORE:TP03",
+      "stageGate": "READY",
+      "profile": "R04_LOCAL",
+      "databaseAcceptance": "NOT_RUN",
+      "releaseGate": "NOT_ASSESSED",
+      "formalAccepted": false,
+      "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9"
+    },
+    {
+      "nodeId": "CORE:TP04",
+      "stageGate": "READY",
+      "profile": "R04_LOCAL",
+      "databaseAcceptance": "NOT_RUN",
+      "releaseGate": "NOT_ASSESSED",
+      "formalAccepted": false,
+      "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9"
+    }
+  ],
+  "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9",
+  "implementationGate": "NOT_ASSESSED",
+  "openImplementationFindings": [
+    "R04-P03 runtime public schema negatives",
+    "R04-P04 research input consumption and completion receipt"
+  ],
+  "databaseAcceptance": "NOT_RUN",
+  "releaseGate": "NOT_ASSESSED",
+  "formalAccepted": false
+}

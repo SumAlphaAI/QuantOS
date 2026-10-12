@@ -5,7 +5,7 @@
   "status": "BLOCKED",
   "engineeringStatus": "PASS",
   "formalAccepted": false,
-  "observedSourceCommit": "e4c45a7ca7f5ab716e0e001246b38a20559e9869",
+  "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9",
   "environment": {
     "node": "v24.12.0",
     "python": "Python 3.12.10",
@@ -35,7 +35,8 @@
       "- 需求描述：LLMQuant：特征、因子、模型、Signal Engine",
       "- 交付物：`engines/llmquant`、manifest、Signal mapper、model provenance",
       "- 集成验收标准：100 组固定输入结果 schema 100% 有效；每条 Signal 含策略/模型/数据版本、置信度和时效；无 OMS/venue/secret import；流式取消 ≤2s 生效",
-      "- 阶段执行：schema、版本/置信度/时效与禁止 import 在开发验证；流式取消 ≤2s 用受控 clock/真实进程测功能语义，Research UI 联调覆盖取消后无副作用；部署负载下同一时限在 RELEASE-GATE:BETA 重验，不删除超时语义。"
+      "- 阶段执行：schema、版本/置信度/时效与禁止 import 在开发验证；流式取消 ≤2s 用受控 clock/真实进程测功能语义，Research UI 联调覆盖取消后无副作用；部署负载下同一时限在 RELEASE-GATE:BETA 重验，不删除超时语义。",
+      "- 验收边界：R04_LOCAL独立本地开发Gate；严格Supabase失败回执保留，目标验收归RELEASE-GATE:BETA。"
     ],
     "task_id": "TP03",
     "task_type": "CORE",
@@ -820,12 +821,12 @@
     {
       "path": "scripts/provider-a1-policy.json",
       "role": "config",
-      "sha256": "sha256:6b297ecc99225e64994e96f538b82738d2c90767f0d2522aa6aa28afe124365f"
+      "sha256": "sha256:323d2c62a19c194d3996491b36313b58f7ed4110f0dd2fe6bb145e52a634a6f4"
     },
     {
       "path": "scripts/provider-a1-receipts.mjs",
       "role": "code",
-      "sha256": "sha256:277cc45444de5393c201b1a34647ec14bc0ce5c5d3586ff0a6f87f6a8ed21f7a"
+      "sha256": "sha256:41b589a1ecc57313e0004138caaea004010b6ec56d2d2dab71a4525cbde199ed"
     },
     {
       "path": "scripts/tp03-functional-artifacts.test.mjs",
@@ -897,7 +898,7 @@
     "rpcCount": 5,
     "capabilities": 1,
     "cancellation": {
-      "cancelMillis": 12.680750000072294,
+      "cancelMillis": 11.248249998971005,
       "cancelStatus": "CANCELLED",
       "finalArtifactSeen": false
     },
@@ -906,11 +907,11 @@
   "outputs": [
     {
       "file": "signal-matrix.json",
-      "sha256": "sha256:0ecd72e44ba1d9bb50e9437231066bc96f7def108f4652cf1de4ee652bb8b3fe"
+      "sha256": "sha256:2c02025caf90611c8e6aab6f521fd4d9d685433e9cb599c28dde00909c5653c1"
     },
     {
       "file": "ui-cancel.json",
-      "sha256": "sha256:3ccd486c9ec359688368e2adae283b2145253d6f881ca67d78bdadefb3f5a85f"
+      "sha256": "sha256:87fcab35b60d3020bb8a943ed8232fef830d8699dac45cb4d450981141fb780e"
     }
   ],
   "checks": [
@@ -924,11 +925,11 @@
         "engines/tests/test_llmquant_development.py",
         "-vv"
       ],
-      "executedAt": "2026-10-12T01:25:29.343Z",
+      "executedAt": "2026-10-12T02:51:26.349Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/contract.log",
-      "logSha256": "sha256:ca601366554b8690529aa59207127e9720fce5fb3db9cc20eb94824925f0df5b"
+      "logSha256": "sha256:00236088929e7cf0f3cab9e3737c189f94a26757e028773f8fd23e7ed08e5a67"
     },
     {
       "id": "python",
@@ -939,11 +940,11 @@
         "engines/tests",
         "-q"
       ],
-      "executedAt": "2026-10-12T01:25:31.687Z",
+      "executedAt": "2026-10-12T02:51:28.591Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/python.log",
-      "logSha256": "sha256:bf0b16b9c8af4f67e8df65fbe77a81b414851870b84f54c0f020c00365373142"
+      "logSha256": "sha256:6c89db067b379a93150d39af1507ba2b2e3aa0fbfb10781022d19a73fb1fe54c"
     },
     {
       "id": "manager",
@@ -957,7 +958,7 @@
         "--test",
         "python_llmquant"
       ],
-      "executedAt": "2026-10-12T01:25:40.666Z",
+      "executedAt": "2026-10-12T02:51:37.967Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/manager.log",
@@ -977,11 +978,11 @@
         "--",
         "--nocapture"
       ],
-      "executedAt": "2026-10-12T01:25:40.991Z",
+      "executedAt": "2026-10-12T02:51:38.291Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/runtime.log",
-      "logSha256": "sha256:d43a052a1065ee4ffc584b07e3d2497c4981c168ec6b9a9ca9d5f7d58ccf1f4a"
+      "logSha256": "sha256:4d784b58218eba05cd91fcd39c949c39d9dfcacf6d8b615742c944d7c56c3615"
     },
     {
       "id": "schema",
@@ -989,7 +990,7 @@
         "node",
         "scripts/tp03-signal-schema.mjs"
       ],
-      "executedAt": "2026-10-12T01:25:49.735Z",
+      "executedAt": "2026-10-12T02:51:40.168Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/schema.log",
@@ -1001,11 +1002,11 @@
         "node",
         "scripts/tp03-ui-cancel.mjs"
       ],
-      "executedAt": "2026-10-12T01:25:50.163Z",
+      "executedAt": "2026-10-12T02:51:40.591Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/ui.log",
-      "logSha256": "sha256:788ef34fae3b79369ed4e648c7ab8f779b695ba79d71d37799869fccc038e01d"
+      "logSha256": "sha256:74d94c2f194e21c95477657385da30d7837b53d3df9f663b859549938dde602b"
     },
     {
       "id": "package",
@@ -1013,11 +1014,11 @@
         "engines/.venv/bin/python",
         "scripts/tp03-packaged-service.py"
       ],
-      "executedAt": "2026-10-12T01:25:52.445Z",
+      "executedAt": "2026-10-12T02:51:41.002Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/package.log",
-      "logSha256": "sha256:72b03c0077d2ee13aa2d56beb46604b29ed91751b1c8b2aae0a810f8091218f2"
+      "logSha256": "sha256:35151556a6deab9f5d9b31983732cecf5591e0fcee7f5de7d682d8765f4629e0"
     },
     {
       "id": "lint",
@@ -1028,7 +1029,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-12T01:25:54.345Z",
+      "executedAt": "2026-10-12T02:51:42.801Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/lint.log",
@@ -1051,7 +1052,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-12T01:25:54.354Z",
+      "executedAt": "2026-10-12T02:51:42.810Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/format.log",
@@ -1069,7 +1070,7 @@
         "engines/tests/test_llmquant_contract.py",
         "engines/tests/test_llmquant_development.py"
       ],
-      "executedAt": "2026-10-12T01:25:54.363Z",
+      "executedAt": "2026-10-12T02:51:42.819Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/types.log",
@@ -1081,11 +1082,11 @@
         "bash",
         "scripts/check-lockfiles.sh"
       ],
-      "executedAt": "2026-10-12T01:25:56.230Z",
+      "executedAt": "2026-10-12T02:51:45.300Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/locks.log",
-      "logSha256": "sha256:57cb9a1c7751edca4b25fcaa4d3689101e18491a948fae9dc5f8897d90192b1b"
+      "logSha256": "sha256:b270abb81f4d132b29acd95328625a861a99fd833a3046b831a474c2fafec766"
     },
     {
       "id": "intake",
@@ -1093,7 +1094,7 @@
         "node",
         "scripts/check-tp-intake.mjs"
       ],
-      "executedAt": "2026-10-12T01:25:58.259Z",
+      "executedAt": "2026-10-12T02:51:45.709Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp03-20261010/intake.log",

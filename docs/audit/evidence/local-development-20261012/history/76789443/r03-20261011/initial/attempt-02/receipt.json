@@ -1,0 +1,68 @@
+{
+  "schema": "quantos-r03-target/v1",
+  "status": "FAIL",
+  "fixture": true,
+  "target": "configured-supabase",
+  "formalAccepted": false,
+  "providerIngestion": false,
+  "production": false,
+  "bootstrap": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 2436.603625
+      }
+    ]
+  },
+  "tenant": "86da5bcc-5c0e-4899-bef1-a4e48eaba1f5",
+  "actor": "a1e17358-4e0b-4f0f-b669-05af1c8b21bb",
+  "session": "e20f0035-ddf3-46c0-b73f-1a68f56a4195",
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "quantos-runtime",
+    "--locked",
+    "--test",
+    "research_orchestration",
+    "r03_persisted::r03_configured_supabase_lifecycle",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "startedAt": "2026-10-11T07:52:37.447Z",
+  "exitCode": 101,
+  "timedOut": false,
+  "failure": {
+    "code": "R03_TARGET_FAILED",
+    "message": "R03_TARGET_EXECUTION_FAILED"
+  },
+  "cleanupBootstrap": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 1709.9644580000004
+      }
+    ]
+  },
+  "cleanup": {
+    "status": "PASS",
+    "pending": 0,
+    "active": 0,
+    "immutableFacts": "RETAINED",
+    "objects": "RETAINED_OWNED_EVIDENCE"
+  },
+  "finishedAt": "2026-10-11T07:52:41.967Z"
+}

@@ -1,4 +1,4 @@
-> 当前工作：TP03/TP04/F0采用独立R04_LOCAL本地开发Gate；Supabase目标移交最终发布。R04之后22任务逐卡登记测试/发布验收；冻结复验结果见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)。
+> 当前本地复验（2026-10-12）：冻结76789443完成17节点/56组本地必要前置及R03七组PASS；F0/TP03/TP04/R03本地READY，R04实施admission READY、完成NOT_ASSESSED。全图4 READY/155 NOT_ASSESSED/0 BLOCKED；13组Supabase目标与后续22任务/16检查点外部环境和性能移交测试/最终发布，formalAccepted=false。见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)。
 
 > 历史严格复评（F06/F07/F09目标诊断，2026-10-12）：冻结e4c45a7c完成14节点/56组实际复验，46 PASS、10 FAIL（本地45/45、目标1/11）。F09收尾/超时缺陷已修复，F06/F07/F09只读前置明确拒绝；平台Auth服务与真实调度写入仍未恢复验收。严格F0/TP03/TP04为BLOCKED；全图0 READY、156 NOT_ASSESSED、3 BLOCKED，formalAccepted=false。见[本轮报告](./audit/F0-target-failures-remediation-2026-10-12.md)。
 
@@ -790,10 +790,10 @@ flowchart TD
   ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "BLOCKED",
-    "input_digest": "sha256:17405e4891914c855ac2bc42ebeefc0f41ec9249cff2a5b03dc6904241e3b397",
+    "status": "READY",
+    "input_digest": "sha256:89ddf78c850d94627f2023e9aed74919f909695ed965ca4e610f42d99e8c149c",
     "evidence": [
-      "audit/evidence/f0-target-diagnostics-20261012/gates/core-gate-f0.json"
+      "audit/evidence/local-development-20261012/core-gate-f0.json"
     ]
   }
 }
@@ -920,7 +920,7 @@ flowchart TD
 - task_id: `TP03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:c845e3addf487e714555961170fa0ff053caaae3d632866a8817260a4968635d","evidence":["audit/evidence/f0-target-diagnostics-20261012/gates/core-tp03.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:db84fda2771157f8404e2cadac5ea1360a94a65a3d2d297edc55ed5d516ac187","evidence":["audit/evidence/local-development-20261012/core-tp03.json"]}
 - depends_on: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE:F05", "CORE-GATE:F0"]
 - closes_core: []
@@ -933,7 +933,7 @@ flowchart TD
 - 集成验收标准：100 组固定输入结果 schema 100% 有效；每条 Signal 含策略/模型/数据版本、置信度和时效；无 OMS/venue/secret import；流式取消 ≤2s 生效
 - 阶段执行：schema、版本/置信度/时效与禁止 import 在开发验证；流式取消 ≤2s 用受控 clock/真实进程测功能语义，Research UI 联调覆盖取消后无副作用；部署负载下同一时限在 RELEASE-GATE:BETA 重验，不删除超时语义。
 - 阶段/依赖：F08、F05；R1
-- 当前工程复核：本轮按[本地Gate报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)从新冻结提交复验；以下为保留的严格历史：2026-10-12冻结e4c45a7c，12组组件检查（完整Python1366项、100条schema/重放、wheel五RPC与UI取消）及26项回执负向通过；engineeringStatus=PASS。严格必要闭包53组中43 PASS、10项目标只读FAIL，DEVELOPMENT为BLOCKED。见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)及[失败manifest](./audit/evidence/f0-target-diagnostics-20261012/gates/core-tp03.json)。原失败、计数修复及组件归档保留；不迁移正式/发布准入。
+- 当前工程复核：冻结76789443重新完成全部本地必要检查，R04_LOCAL READY；组件12项、完整Python1366项、100条schema/回放、wheel五RPC与UI取消PASS。Supabase目标移交最终发布，严格失败及旧组件回执保留。见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)和[原严格失败](./audit/F0-target-failures-remediation-2026-10-12.md)。
 
 
 - 验收边界：R04_LOCAL独立本地开发Gate；严格Supabase失败回执保留，目标验收归RELEASE-GATE:BETA。
@@ -943,7 +943,7 @@ flowchart TD
 - task_id: `TP04`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:5404d8f637e2bdc7bb0c40abeda3b32aeb9a3ae254b9c9cba3f5704ebce7fc79","evidence":["audit/evidence/f0-target-diagnostics-20261012/gates/core-tp04.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:892100317bb9f763d60cf142a0f4db0f132397adf85836eccb13514319df2a70","evidence":["audit/evidence/local-development-20261012/core-tp04.json"]}
 - depends_on: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE:TP03", "CORE-GATE:F0"]
 - closes_core: []
@@ -955,7 +955,7 @@ flowchart TD
 - 交付物：`engines/trading-agents`、proposal mapper、policy fixtures
 - 集成验收标准：100% Proposal 带证据、反方观点、失效时间；所有输出 `executable=false`；尝试调用 order/secret tool 必失败并审计；固定 fixture 可重放
 - 阶段/依赖：F08、TP03；R1
-- 当前工程复核：本轮按[本地Gate报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)从新冻结提交复验；以下为保留的严格历史：2026-10-12冻结e4c45a7c，12组组件检查（完整Python1366项、100条schema/重放、wheel五RPC与UI取消）及42项回执负向通过；engineeringStatus=PASS。严格必要闭包56组中46 PASS、10项目标只读FAIL，DEVELOPMENT为BLOCKED。见[本轮复评](./audit/F0-target-failures-remediation-2026-10-12.md)及[失败manifest](./audit/evidence/f0-target-diagnostics-20261012/gates/core-tp04.json)。原失败、计数修复及组件归档保留；不迁移正式/发布准入。
+- 当前工程复核：冻结76789443重新完成全部本地必要检查，R04_LOCAL READY；组件12项、完整Python1366项、100条schema/回放、wheel五RPC与UI取消PASS。Supabase目标移交最终发布，严格失败及旧组件回执保留。见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)和[原严格失败](./audit/F0-target-failures-remediation-2026-10-12.md)。
 
 
 - 验收边界：R04_LOCAL独立本地开发Gate；严格Supabase失败回执保留，目标验收归RELEASE-GATE:BETA。
@@ -1065,7 +1065,7 @@ flowchart TD
 - task_id: `R03`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:12a04a0f66a068d91c6484e873efff6a6966fb94662b184f7254c9a64f50b849","evidence":["audit/evidence/r03-20261011/manifest.json"]}
 - depends_on: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:TP02", "CORE-GATE:F0"]
 - closes_core: []
@@ -1078,7 +1078,7 @@ flowchart TD
 - 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact
 - 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。R03_LOCAL或显式登记的R04_LOCAL前置档案仅证明本地功能，不授予上游数据库READY或发布权限。
 - 依赖：F07、F08、R02、TP02
-- 当前工程复核：本轮按[本地Gate报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)从新冻结提交复验；以下为保留的严格历史：2026-10-12冻结e4c45a7c修复F06/F07目标诊断与F09收尾；共同源码/测试/政策输入变化，R03_LOCAL旧回执继续失效，R03为NOT_ASSESSED。本轮只复验TP03/TP04/F0严格必要前置，不重授R03。见[当前复评](./audit/F0-target-failures-remediation-2026-10-12.md)。原b2511e1d完整15节点/49组本地前置及R03七组PASS保留为[历史本地准入](./audit/R03-local-gate-policy-2026-10-11.md)，不能转移正式/发布验收。
+- 当前工程复核：冻结76789443完成同候选17节点/56组R04_LOCAL前置与自身七组检查，R03_LOCAL READY。Supabase/发布/正式接受独立待验收。见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)；[原严格失败](./audit/F0-target-failures-remediation-2026-10-12.md)保留。
 
 <a id="task-r04"></a>
 ### R04：Signal 与 TradeProposal 工作流
@@ -1098,7 +1098,7 @@ flowchart TD
 - 交付物：signal/proposal service、schema validator
 - 量化验收标准：100 个 Proposal fixture 100% 含证据/失效时间/`executable=false`；过期 Proposal 100% 拒绝评估；无订单 API 被调用
 - 依赖：R03、TP03、TP04
-- 当前工程复核：2026-10-12完成接口/fixture预检：现有Runtime三项集成与两组100条schema/重放通过；未授予DEVELOPMENT Gate，保持NOT_ASSESSED。TP03/TP04/F0尚未准入，且R04专用回执/验收入口待实现。接口负向缺口、原始日志及失败尝试见[当前预检](./audit/R04-interface-fixture-preflight-2026-10-12.md)。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-r04)保留。
+- 当前工程复核：冻结76789443的实施admission READY；完成Gate仍NOT_ASSESSED。新纯Rust探针仍有7/9畸形输入被接受，R04-P03/P04待实现；不把前置放行当成产品验收。见[当前报告](./audit/local-development-gates-and-handoffs-2026-10-12.md)及[原预检](./audit/R04-interface-fixture-preflight-2026-10-12.md)。
 
 <a id="acceptance-core-gate-r1-service"></a>
 ### CORE-GATE:R1-SERVICE：验收检查点

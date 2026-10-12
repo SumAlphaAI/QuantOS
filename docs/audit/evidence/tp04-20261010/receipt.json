@@ -5,7 +5,7 @@
   "status": "BLOCKED",
   "engineeringStatus": "PASS",
   "formalAccepted": false,
-  "observedSourceCommit": "e4c45a7ca7f5ab716e0e001246b38a20559e9869",
+  "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9",
   "environment": {
     "node": "v24.12.0",
     "python": "Python 3.12.10",
@@ -34,7 +34,8 @@
     "requirements": [
       "- 需求描述：TradingAgents：多 Agent 决策 Engine",
       "- 交付物：`engines/trading-agents`、proposal mapper、policy fixtures",
-      "- 集成验收标准：100% Proposal 带证据、反方观点、失效时间；所有输出 `executable=false`；尝试调用 order/secret tool 必失败并审计；固定 fixture 可重放"
+      "- 集成验收标准：100% Proposal 带证据、反方观点、失效时间；所有输出 `executable=false`；尝试调用 order/secret tool 必失败并审计；固定 fixture 可重放",
+      "- 验收边界：R04_LOCAL独立本地开发Gate；严格Supabase失败回执保留，目标验收归RELEASE-GATE:BETA。"
     ],
     "task_id": "TP04",
     "task_type": "CORE",
@@ -879,12 +880,12 @@
     {
       "path": "scripts/provider-a1-policy.json",
       "role": "config",
-      "sha256": "sha256:6b297ecc99225e64994e96f538b82738d2c90767f0d2522aa6aa28afe124365f"
+      "sha256": "sha256:323d2c62a19c194d3996491b36313b58f7ed4110f0dd2fe6bb145e52a634a6f4"
     },
     {
       "path": "scripts/provider-a1-receipts.mjs",
       "role": "code",
-      "sha256": "sha256:277cc45444de5393c201b1a34647ec14bc0ce5c5d3586ff0a6f87f6a8ed21f7a"
+      "sha256": "sha256:41b589a1ecc57313e0004138caaea004010b6ec56d2d2dab71a4525cbde199ed"
     },
     {
       "path": "scripts/tp04-functional-artifacts.test.mjs",
@@ -956,7 +957,7 @@
     "rpcCount": 5,
     "capabilities": 1,
     "cancellation": {
-      "cancelMillis": 12.60516600086703,
+      "cancelMillis": 12.626708999960101,
       "cancelStatus": "CANCELLED",
       "finalArtifactSeen": false
     },
@@ -965,11 +966,11 @@
   "outputs": [
     {
       "file": "proposal-matrix.json",
-      "sha256": "sha256:5941341df22144ea7377effc288b953363834d2e02feab6cd83a99573e641bb3"
+      "sha256": "sha256:eb3893778786c799d211925322b9c0c871260e5fb1628a40f9719e2ecd204df3"
     },
     {
       "file": "ui-cancel.json",
-      "sha256": "sha256:b37a2cdb1c0be56a03ef49cd3ce30f1f9b0a0c98247e399d8374752007aaae31"
+      "sha256": "sha256:94a0407de26923990e269aeba924a895844f06fcb43b50071716e788fd0d1e98"
     }
   ],
   "checks": [
@@ -983,11 +984,11 @@
         "engines/tests/test_trading_agents_development.py",
         "-vv"
       ],
-      "executedAt": "2026-10-12T01:26:03.240Z",
+      "executedAt": "2026-10-12T02:51:50.503Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/contract.log",
-      "logSha256": "sha256:ab84ec8bfbb046481e3efa5198976908c5d9f9074589567ecd4da2dcca669521"
+      "logSha256": "sha256:facde483245fbeaff6dcc42f3f4db0e19330635eaa2c992068bed9d0d7de99e7"
     },
     {
       "id": "python",
@@ -998,11 +999,11 @@
         "engines/tests",
         "-q"
       ],
-      "executedAt": "2026-10-12T01:26:05.634Z",
+      "executedAt": "2026-10-12T02:51:52.910Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/python.log",
-      "logSha256": "sha256:8b54cd7fcce0e84df54cd1ac330dec14575c5c68c6ea9ee5457b8cbdda9d623a"
+      "logSha256": "sha256:bf0b16b9c8af4f67e8df65fbe77a81b414851870b84f54c0f020c00365373142"
     },
     {
       "id": "manager",
@@ -1016,7 +1017,7 @@
         "--test",
         "python_trading_agents"
       ],
-      "executedAt": "2026-10-12T01:26:14.524Z",
+      "executedAt": "2026-10-12T02:52:01.890Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/manager.log",
@@ -1036,11 +1037,11 @@
         "--",
         "--nocapture"
       ],
-      "executedAt": "2026-10-12T01:26:14.852Z",
+      "executedAt": "2026-10-12T02:52:02.214Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/runtime.log",
-      "logSha256": "sha256:ca80f9045fca2542a957e8a0e6866f0c66eb04974b1f2da183a238f4a8847740"
+      "logSha256": "sha256:d814e0a127cf1408f8b5ee7f4a9fc7c3f39ea3129a5a8eb65f57cf57e1e87327"
     },
     {
       "id": "schema",
@@ -1048,7 +1049,7 @@
         "node",
         "scripts/tp04-proposal-schema.mjs"
       ],
-      "executedAt": "2026-10-12T01:26:16.759Z",
+      "executedAt": "2026-10-12T02:52:04.072Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/schema.log",
@@ -1060,11 +1061,11 @@
         "node",
         "scripts/tp04-ui-cancel.mjs"
       ],
-      "executedAt": "2026-10-12T01:26:17.241Z",
+      "executedAt": "2026-10-12T02:52:04.556Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/ui.log",
-      "logSha256": "sha256:ac2df5f40b54b60feb30f476ebc8124815eb9f00544ba94dd929c696711a5b4a"
+      "logSha256": "sha256:1aa57e0590274db2d033930ae26c6d45f2a79bb8212d1f36f9832a49862a0230"
     },
     {
       "id": "package",
@@ -1072,11 +1073,11 @@
         "engines/.venv/bin/python",
         "scripts/tp04-packaged-service.py"
       ],
-      "executedAt": "2026-10-12T01:26:19.307Z",
+      "executedAt": "2026-10-12T02:52:04.956Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/package.log",
-      "logSha256": "sha256:b5684d019163cced3ac7ddd3feb017fd93aac7007def031fee0aaef48b2a2dab"
+      "logSha256": "sha256:5c4b648e63f3c524be354d17eac608d5141931d3144a89ab6fffd013415d64fd"
     },
     {
       "id": "lint",
@@ -1087,7 +1088,7 @@
         "engines/tests/test_trading_agents_contract.py",
         "engines/tests/test_trading_agents_development.py"
       ],
-      "executedAt": "2026-10-12T01:26:21.154Z",
+      "executedAt": "2026-10-12T02:52:06.813Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/lint.log",
@@ -1110,7 +1111,7 @@
         "engines/tests/test_trading_agents_contract.py",
         "engines/tests/test_trading_agents_development.py"
       ],
-      "executedAt": "2026-10-12T01:26:21.164Z",
+      "executedAt": "2026-10-12T02:52:06.822Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/format.log",
@@ -1128,7 +1129,7 @@
         "engines/tests/test_trading_agents_contract.py",
         "engines/tests/test_trading_agents_development.py"
       ],
-      "executedAt": "2026-10-12T01:26:21.173Z",
+      "executedAt": "2026-10-12T02:52:06.831Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/types.log",
@@ -1140,11 +1141,11 @@
         "bash",
         "scripts/check-lockfiles.sh"
       ],
-      "executedAt": "2026-10-12T01:26:23.158Z",
+      "executedAt": "2026-10-12T02:52:09.165Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/locks.log",
-      "logSha256": "sha256:13f364a7062496b99e0cb8ded0fab6b1ba0bd95acb95cb8722bc01692f99cfb6"
+      "logSha256": "sha256:2dc70dfabd6fe89d6048b63de5cf4a8fa2dec1de73710d403ab901eb21b34f35"
     },
     {
       "id": "intake",
@@ -1152,7 +1153,7 @@
         "node",
         "scripts/check-tp-intake.mjs"
       ],
-      "executedAt": "2026-10-12T01:26:25.246Z",
+      "executedAt": "2026-10-12T02:52:09.560Z",
       "exitCode": 0,
       "status": "PASS",
       "log": "docs/audit/evidence/tp04-20261010/intake.log",

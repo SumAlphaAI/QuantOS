@@ -8,7 +8,7 @@
   "formalAccepted": false,
   "databaseExecution": false,
   "production": false,
-  "observedSourceCommit": "b2511e1d63508c61be5f304f0f0c02ec5001faae",
+  "observedSourceCommit": "767894432483879aab9c8298e342a2a18adeefb9",
   "planInput": {
     "acceptance_window": "R1-SERVICE",
     "closes_core": [],
@@ -40,7 +40,7 @@
       "- 技术要求：Runtime 组合研究 Engine、预算、deadline、流式事件、Artifact 归档与重放",
       "- 交付物：research workflow、Artifact repository",
       "- 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact",
-      "- 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。LOCAL_READY仅供R03消费，不授予上游数据库READY或发布权限。"
+      "- 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。R03_LOCAL或显式登记的R04_LOCAL前置档案仅证明本地功能，不授予上游数据库READY或发布权限。"
     ],
     "task_id": "R03",
     "task_type": "CORE",
@@ -385,39 +385,51 @@
     },
     {
       "path": "Makefile",
-      "sha256": "sha256:14099cb3442917fb61eab688fab24b6133b9364ce161312ae7eb834ed1705ae9"
+      "sha256": "sha256:31736d2bbcc3c76dbd787da0d3913383985cd83faa7c774a55d03994422c0347"
     },
     {
       "path": "scripts/check-development-plan-order.mjs",
-      "sha256": "sha256:1632f893f582370d2cd8e19cdcd341811e50b51ceff8067328c1ef11453d1033"
+      "sha256": "sha256:a96a0e9384830f24c977e8315d42b6c110405b604ca98b7b8f0fdb8c71a7d26c"
     },
     {
       "path": "scripts/development-plan-order-policy.json",
-      "sha256": "sha256:e7f5414b82d36e2356c354f7136401538f09bfd9a8bb7b10741705dc7d9ebaac"
+      "sha256": "sha256:a4867d3e5d0aad8084961ced4fa8e3fab33675ad3a6e7d489f5fe0cdf20802dd"
+    },
+    {
+      "path": "scripts/local-development-gate.mjs",
+      "sha256": "sha256:3fd5991ef15a96a52deef8e81beafd047c690ecf33eb8bd91fc749e007a3f2dd"
+    },
+    {
+      "path": "scripts/local-development-gate.test.mjs",
+      "sha256": "sha256:5acf75f671da2cb2480f3eb1cd42b1d1f979f6aba7c62654ab2977ca6cb3d842"
     },
     {
       "path": "scripts/provider-a1-policy.json",
-      "sha256": "sha256:913068d3cece406f77fe7b042a22d2019f8e6bb5283ce40a9620e43e88507432"
+      "sha256": "sha256:323d2c62a19c194d3996491b36313b58f7ed4110f0dd2fe6bb145e52a634a6f4"
     },
     {
       "path": "scripts/provider-a1-receipts.mjs",
-      "sha256": "sha256:277cc45444de5393c201b1a34647ec14bc0ce5c5d3586ff0a6f87f6a8ed21f7a"
+      "sha256": "sha256:41b589a1ecc57313e0004138caaea004010b6ec56d2d2dab71a4525cbde199ed"
     },
     {
       "path": "scripts/r03-record-development.mjs",
-      "sha256": "sha256:09124462279119bfc394c3b870f092edf4d5f3417842a77fada0418535d1b3d7"
+      "sha256": "sha256:ed16b8fb3dbd7ab5c745bd27f88263335b69d26eec153a0013db64aa521cbc00"
     },
     {
       "path": "scripts/r03-stage-check.mjs",
-      "sha256": "sha256:40f823f3a67d66f5b5441e410a0c03a55b1d49907237c31d4eebf0fe1c8e16d4"
+      "sha256": "sha256:71928a12711cd3a77bb2c258efb7dfc83efc570d9ce1231144e5ce544438b3b8"
     },
     {
       "path": "scripts/r03-stage-check.test.mjs",
-      "sha256": "sha256:cc02ec21dffe45f4ef0a0816c4b821348f4bf3908c6b2299cc38d6e785540354"
+      "sha256": "sha256:00398bfe5c14e18a6b3e29ca791bd88b32237e9458e8eae1a05637848f41f6b4"
     },
     {
       "path": "scripts/r03-target-check.cjs",
       "sha256": "sha256:5ec1beca70e191a5dfd8d755c8ba39688fe33f9b1f1c5fa72e589368342ada3a"
+    },
+    {
+      "path": "scripts/record-r04-local-prerequisites.mjs",
+      "sha256": "sha256:537fd80fab519d283767ec4412c59bc7180840a3e41a65463531967ef9effdec"
     },
     {
       "path": "services/runtime-gateway/src/live_tests.rs",
@@ -452,11 +464,11 @@
         "--lib",
         "--locked"
       ],
-      "executedAt": "2026-10-11T14:03:21.053Z",
+      "executedAt": "2026-10-12T02:54:26.400Z",
       "exitCode": 0,
       "status": "PASS",
-      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/runtime.log",
-      "logSha256": "sha256:71ab9ac15e6a39b5b45d2e2d8e88205018c50049111f75d4ab2fbd54e0260d55"
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/runtime.log",
+      "logSha256": "sha256:c986b1015e312928e3b9c20303fd3b169d86fbb8c18821c4ef09c7a9d16bbac3"
     },
     {
       "id": "engines",
@@ -481,11 +493,11 @@
         "--skip",
         "r03_worker"
       ],
-      "executedAt": "2026-10-11T14:03:29.279Z",
+      "executedAt": "2026-10-12T02:54:34.268Z",
       "exitCode": 0,
       "status": "PASS",
-      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/engines.log",
-      "logSha256": "sha256:01f51b1e6aca98001c8c742526a7fe484034f0bd40974f276610d88850602a94"
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/engines.log",
+      "logSha256": "sha256:0d45d0a9a267dbe655efbae4c2638210402d2425c0f1c755205184478d59c7c3"
     },
     {
       "id": "tp02",
@@ -497,11 +509,11 @@
         "engines/tests/test_rd_agent_development.py",
         "-q"
       ],
-      "executedAt": "2026-10-11T14:03:31.425Z",
+      "executedAt": "2026-10-12T02:54:36.516Z",
       "exitCode": 0,
       "status": "PASS",
-      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/tp02.log",
-      "logSha256": "sha256:6688690e64ea226ab705895c9c09e7922364d753214b3848369ca8cf75a9a65f"
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/tp02.log",
+      "logSha256": "sha256:0a4d25393749e5e851298c3324af07f69ec7fa7a510a59e88f2bf6d02403bf0e"
     },
     {
       "id": "manager",
@@ -515,11 +527,11 @@
         "quantos-engine-manager",
         "--locked"
       ],
-      "executedAt": "2026-10-11T14:03:32.847Z",
+      "executedAt": "2026-10-12T02:54:37.948Z",
       "exitCode": 0,
       "status": "PASS",
-      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/manager.log",
-      "logSha256": "sha256:a5c4b559763cc2c834f534285fb9be6d502f0a680e96b1c468f2f9abb25c8b65"
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/manager.log",
+      "logSha256": "sha256:1fd98743b7a4eba80ea634125ed686494148c530eebbc25cd278095785d0d6d4"
     },
     {
       "id": "clippy",
@@ -538,11 +550,11 @@
         "-D",
         "warnings"
       ],
-      "executedAt": "2026-10-11T14:03:51.666Z",
+      "executedAt": "2026-10-12T02:54:56.258Z",
       "exitCode": 0,
       "status": "PASS",
-      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/clippy.log",
-      "logSha256": "sha256:4e199661dfeba960e1a5aff8488d54cf46577659102e70e0d07da43b287ee6ba"
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/clippy.log",
+      "logSha256": "sha256:f719cdb2b49eec99b11406b6a4741cc8a25ed98fadd797ef0a49b108c71956d5"
     },
     {
       "id": "plans",
@@ -550,11 +562,11 @@
         "node",
         "scripts/check-development-plans.mjs"
       ],
-      "executedAt": "2026-10-11T14:04:14.046Z",
+      "executedAt": "2026-10-12T02:55:19.903Z",
       "exitCode": 0,
       "status": "PASS",
-      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/plans.log",
-      "logSha256": "sha256:f4f6f1a007ec1b54e9b8e6ef3b90009459c10d46c8108700fc12a6335f187922"
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/plans.log",
+      "logSha256": "sha256:01adb092d7c334aa55ad030b89769953b3e400a63a717e75851ae0d28bc219c6"
     },
     {
       "id": "gate-negatives",
@@ -563,52 +575,53 @@
         "--test",
         "scripts/r03-stage-check.test.mjs"
       ],
-      "executedAt": "2026-10-11T14:04:14.090Z",
+      "executedAt": "2026-10-12T02:55:19.950Z",
       "exitCode": 0,
       "status": "PASS",
-      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-logs/gate-negatives.log",
-      "logSha256": "sha256:d37fb34dbe2c98cca50f1c21602b4b9b079df2d7ea4b9cc029424ac1a492c960"
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/gate-negatives.log",
+      "logSha256": "sha256:fe8116926ab4e2981f7f2eea92c2e27b444bad8a61d2dbba3b3b16d8ebca795e"
     }
   ],
   "localPrerequisites": {
-    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/local-prerequisites.json",
-    "inputDigest": "sha256:0463fae8888d255f72741db9c749528ea6fc54e01e8f6a3fd9873f263d4a6ef7"
+    "profile": "R04_LOCAL",
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/local-prerequisites.json",
+    "inputDigest": "sha256:4493c608b22b855218d672dc5764cad21aef3074e5222a8bd9e0038d674dfdd5"
   },
   "dependencies": [
     {
       "nodeId": "CORE:F07",
       "status": "LOCAL_READY",
       "owner": "CORE:R03",
-      "inputDigest": "sha256:8e4e8848a87f20c707743350de726c221be727277f1d25cbdcfe6a1e0d0eb45c"
+      "inputDigest": "sha256:dcc27a48d72d6098d4bd2f898082299765cdd0c2fe0488ef00c9cfd5bea36180"
     },
     {
       "nodeId": "CORE:F08",
       "status": "LOCAL_READY",
       "owner": "CORE:R03",
-      "inputDigest": "sha256:453f1d0bbe9d2047f13878f4d816c761c659362e961b9c5ceca7d8f662b8a5cb"
+      "inputDigest": "sha256:37ca8663b4c28cf0bb4ec269513d407be37bbfd7e49f06d5513a31a03870a91e"
     },
     {
       "nodeId": "CORE:R02",
       "status": "LOCAL_READY",
       "owner": "CORE:R03",
-      "inputDigest": "sha256:3bba60c2c5750c78f16d540b942fd9a6c69787ff0e6c981465888cc85997ac24"
+      "inputDigest": "sha256:4a7aeeb3a3a678ab475ed9b6892afebd3089f3eaa77a7ddc82970ab4852c8783"
     },
     {
       "nodeId": "CORE:TP02",
       "status": "LOCAL_READY",
       "owner": "CORE:R03",
-      "inputDigest": "sha256:441f0b2f9b591ad49286e27a8f391acd8c4b09bad89c9b7af59823397b528f65"
+      "inputDigest": "sha256:052aae61e700e1970bbc4f8ad60411c9a464c5bd87a207d512c63ed204e6801f"
     },
     {
       "nodeId": "CORE-GATE:F0",
       "status": "LOCAL_READY",
       "owner": "CORE:R03",
-      "inputDigest": "sha256:230324f55e18cf7e4c29f04f2a5e9429a01f5fcb8e4bef6b68df987b7beb460b"
+      "inputDigest": "sha256:a7f54184d5f8afb31fe1fd7aa7f5cb25b6377356cff1cfc12f1fbad15ecbf32b"
     }
   ],
   "cleanup": {
-    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/r03-local-development-20261011/attempt-02/r03-process-cleanup.json",
-    "inputDigest": "sha256:cb63524eb1c0b4b539d5068f2d369db5a4f2dae3663ccf870f42e8396385d81d"
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-process-cleanup.json",
+    "inputDigest": "sha256:5acaae9fe99874587075acd766a17c6eef8b0cf51e85d9f1ce49d3292e183117"
   },
   "release": {
     "checkpoint": "RELEASE-GATE:BETA",

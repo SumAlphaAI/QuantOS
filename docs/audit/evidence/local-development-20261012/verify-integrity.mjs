@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,readdirSync,statSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {resolve} from 'node:path';
+const root=resolve(import.meta.dirname,'../../../..');process.chdir(root);
+const {digest,nodesFromPlans,localPolicy,localChecks,localDeferred,closure,validateLocalPrerequisites,planInput}=await import(root+'/scripts/provider-a1-receipts.mjs');
+const {verifyPublished,admission,directory}=await import(root+'/scripts/local-development-gate.mjs');
+const {verify}=await import(root+'/scripts/r03-stage-check.mjs');
+const json=p=>JSON.parse(readFileSync(p));
+const attempt='docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02';
+const index=validateLocalPrerequisites(attempt+'/local-prerequisites.json',{profile:'R04_LOCAL'}),nodes=nodesFromPlans();
+const selected=[...new Set(localPolicy('R04_LOCAL').roots.flatMap(id=>closure(nodes,id)))];
+const results=json(attempt+'/execution-results.json');assert.equal(results.length,56);assert(results.every(r=>r.status==='PASS'&&r.exitCode===0));
+assert.deepEqual(results.map(r=>r.id).sort(),[...new Set(selected.flatMap(id=>localChecks(id,undefined,'R04_LOCAL')))].sort());
+const source=index.observedSourceCommit;
+assert(execFileSync('git',['diff','--name-only',source],{encoding:'utf8'}).trim().split('\n').filter(Boolean).every(p=>p.startsWith('docs/')),'source changed after frozen execution');
+const research=json('docs/audit/evidence/r03-20261011/manifest.json');assert.equal(research.observedSourceCommit,source);verify(research);
+const gates=['CORE-GATE:F0','CORE:TP03','CORE:TP04'].map(verifyPublished);const r04=admission();assert.equal(r04.observedSourceCommit,source);assert.equal(r04.implementationGate,'NOT_ASSESSED');
+const archives=readdirSync(directory+'/history').flatMap(name=>json(directory+'/history/'+name+'/index.json').files);
+const previous=json('docs/audit/evidence/f0-target-diagnostics-20261012/summary.json').files;
+for(const f of [...archives,...previous])assert.equal(digest(readFileSync(f.path)),f.sha256,'historical evidence changed: '+f.path);
+if(process.argv.includes('--verify')){const summary=json(directory+'/summary.json');assert.equal(summary.observedSourceCommit,source);assert.equal(summary.status,'PASS');for(const f of summary.files)assert.equal(digest(readFileSync(f.path)),f.sha256,'current evidence changed: '+f.path);const snap=json(directory+'/source-snapshot.json');for(const n of snap.nodes)assert.deepEqual(n.planInput,planInput(nodes.get(n.nodeId)));assert.deepEqual(snap.r04PlanInput,planInput(nodes.get('CORE:R04')));console.log(JSON.stringify({status:'PASS',source,checks:results.length,researchChecks:research.checks.length,historicalFiles:archives.length+previous.length,currentFiles:summary.files.length}));process.exit(0);}
+const walk=p=>statSync(p).isDirectory()?readdirSync(p).sort().flatMap(n=>walk(p+'/'+n)):[p];
+const files=[...new Set([...walk(attempt),...walk('docs/audit/evidence/r04-preflight-20261012/runtime-contract-local-admission-20261012'),...walk(directory).filter(p=>(!p.includes('/history/')||p.endsWith('/index.json'))&&!p.endsWith('/summary.json')&&!p.endsWith('/integrity.json')),...['docs/audit/evidence/r03-20261011/manifest.json','docs/audit/evidence/tp03-20261010/receipt.json','docs/audit/evidence/tp04-20261010/receipt.json']])].map(path=>({path,sha256:digest(readFileSync(path))}));
+const snapshot={schema:'quantos-local-input-snapshot/v1',observedSourceCommit:source,nodes:selected.map(id=>({nodeId:id,planInput:planInput(nodes.get(id)),manifest:index.nodes.find(n=>n.nodeId===id).manifest})),r04PlanInput:planInput(nodes.get('CORE:R04'))};writeFileSync(directory+'/source-snapshot.json',JSON.stringify(snapshot,null,2)+'\n');files.push({path:directory+'/source-snapshot.json',sha256:digest(readFileSync(directory+'/source-snapshot.json'))});
+const summary={schema:'quantos-r04-local-admission/v1',observedSourceCommit:source,completedAt:new Date().toISOString(),status:'PASS',formalAccepted:false,production:false,databaseExecution:false,roots:localPolicy('R04_LOCAL').roots,closure:selected,total:results.length,passed:results.length,failed:0,researchChecks:research.checks.length,deferred:localDeferred(nodes,undefined,'R04_LOCAL'),gates,r04,files,notes:['Full attempt-02 only; launcher failure and all strict Supabase failures preserved','R04 admission admits implementation only; R04-P03/P04 remain completion blockers','Existing retired provider facts not consumed; no fresh target DB or pending=0 claim','External environment and performance gates for 22 later tasks and 16 checkpoints assigned to testing/release']};writeFileSync(directory+'/summary.json',JSON.stringify(summary,null,2)+'\n');
+writeFileSync(directory+'/integrity.json',JSON.stringify({schema:'quantos-local-evidence-integrity/v1',status:'PASS',observedSourceCommit:source,checkedHistoricalFiles:archives.length+previous.length,checkedCurrentFiles:files.length,localNodes:selected.length,localChecks:results.length,researchChecks:research.checks.length,formalAccepted:false},null,2)+'\n');console.log(JSON.stringify({source,nodes:selected.length,checks:results.length,researchChecks:research.checks.length,historyBindings:archives.length+previous.length,currentBindings:files.length,status:'PASS'}));

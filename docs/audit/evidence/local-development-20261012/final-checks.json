@@ -1,0 +1,312 @@
+[
+  {
+    "id": "local-gates",
+    "command": [
+      "make",
+      "f0-local-check",
+      "tp03-local-check",
+      "tp04-local-check",
+      "r03-admission-check",
+      "r04-admission-check"
+    ],
+    "executedAt": "2026-10-12T02:57:39.681Z",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/local-gates.log",
+    "logSha256": "sha256:5345760a3da3d5d81958d518a50f1056867b5478ebc59b311c82168a06166249"
+  },
+  {
+    "id": "release-rejected",
+    "command": [
+      "make",
+      "local-release-check"
+    ],
+    "executedAt": "2026-10-12T02:59:23.808Z",
+    "exitCode": 2,
+    "allowedExitCodes": [
+      2
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/release-rejected.log",
+    "logSha256": "sha256:02303a76a7fcffad7fada46fee28fe6e6b9adedb4bdb8b27cfdd1ad388e5ea1d"
+  },
+  {
+    "id": "r03-release-rejected",
+    "command": [
+      "make",
+      "r03-release-check"
+    ],
+    "executedAt": "2026-10-12T02:59:23.888Z",
+    "exitCode": 2,
+    "allowedExitCodes": [
+      2
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/r03-release-rejected.log",
+    "logSha256": "sha256:7ddcb917d13cc41923b2e0520284eab06a6d085335a8f2a3588b2822299ab9f7"
+  },
+  {
+    "id": "strict-f0-rejected",
+    "command": [
+      "node",
+      "scripts/provider-a1-receipts.mjs",
+      "--f0"
+    ],
+    "executedAt": "2026-10-12T02:59:23.976Z",
+    "exitCode": 1,
+    "allowedExitCodes": [
+      1
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/strict-f0-rejected.log",
+    "logSha256": "sha256:783efb2ba332fa5b2b5f333e07a564c3bca452ba0b618cacb4ab4ec0a9c20ef1"
+  },
+  {
+    "id": "strict-tp03-rejected",
+    "command": [
+      "node",
+      "engines/llmquant/check-development.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-12T02:59:24.049Z",
+    "exitCode": 1,
+    "allowedExitCodes": [
+      1,
+      2
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/strict-tp03-rejected.log",
+    "logSha256": "sha256:cb00481ed2e814d2d0f8882cad41b6e6ba621fa714ddea5f8ee61604a949cf75"
+  },
+  {
+    "id": "strict-tp04-rejected",
+    "command": [
+      "node",
+      "engines/trading-agents/check-development.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-12T02:59:24.276Z",
+    "exitCode": 1,
+    "allowedExitCodes": [
+      1,
+      2
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/strict-tp04-rejected.log",
+    "logSha256": "sha256:cb00481ed2e814d2d0f8882cad41b6e6ba621fa714ddea5f8ee61604a949cf75"
+  },
+  {
+    "id": "negative-regression",
+    "command": [
+      "node",
+      "--test",
+      "scripts/local-development-gate.test.mjs",
+      "scripts/development-gate-handoff.test.mjs",
+      "scripts/provider-a1-receipts.test.mjs",
+      "scripts/r03-stage-check.test.mjs",
+      "scripts/development-plan-order-negative.mjs",
+      "scripts/tp03-functional-artifacts.test.mjs",
+      "scripts/tp04-functional-artifacts.test.mjs"
+    ],
+    "executedAt": "2026-10-12T02:59:24.514Z",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/negative-regression.log",
+    "logSha256": "sha256:efbe0879b43297e789a2010a555ec0bfb9e5d9282e6fe6a21da088aa6b32697c"
+  },
+  {
+    "id": "plan-check",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "executedAt": "2026-10-12T02:59:31.770Z",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/plan-check.log",
+    "logSha256": "sha256:654d709383642ca82f0872cc139f89924211c87020dc8075d07f42483f015ef8"
+  },
+  {
+    "id": "handoff-check",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-12T02:59:31.817Z",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/handoff-check.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  },
+  {
+    "id": "future-target-preservation",
+    "command": [
+      "node",
+      "docs/audit/evidence/local-development-20261012/verify-future-targets.mjs"
+    ],
+    "executedAt": "2026-10-12T02:59:31.850Z",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/future-target-preservation.log",
+    "logSha256": "sha256:ea62111806b8a0180060db357808feefb97c5c84a543a86fb4bdfbd5e1a5ff99"
+  },
+  {
+    "id": "r04-public-runtime-probe",
+    "command": [
+      "engines/.venv/bin/python",
+      "docs/audit/evidence/r04-preflight-20261012/probe-runtime-contract.py",
+      "docs/audit/evidence/r04-preflight-20261012/runtime-contract-local-admission-20261012"
+    ],
+    "executedAt": "2026-10-12T02:59:31.888Z",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/r04-public-runtime-probe.log",
+    "logSha256": "sha256:fabdf926e0ff2c2f308e89feff24742d58e2833fa7ba7c589e0de687044d77d1",
+    "requirementStatus": "GAPS_FOUND",
+    "note": "Probe execution succeeded; R04 completion remains blocked by 7 malformed inputs accepted"
+  },
+  {
+    "id": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "executedAt": "2026-10-12T02:59:35.056Z",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/diff-check.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "new-evidence-secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/local-development-20261012"
+    ],
+    "executedAt": "2026-10-12T03:03:33.185281+00:00",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/new-evidence-secrets.log",
+    "logSha256": "sha256:1b26c143849e0c5313468974e15c3795e5eee7b3183ba8fd66b08a3539b767c7"
+  },
+  {
+    "id": "new-attempt-secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02"
+    ],
+    "executedAt": "2026-10-12T03:03:33.436856+00:00",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/new-attempt-secrets.log",
+    "logSha256": "sha256:abbffe7ca1f8fe9d7a69ca0bcec7e58dcd47c4543c62a5dd73a4fec2d6be2416"
+  },
+  {
+    "id": "new-probe-secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/r04-preflight-20261012/runtime-contract-local-admission-20261012"
+    ],
+    "executedAt": "2026-10-12T03:03:33.640770+00:00",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/new-probe-secrets.log",
+    "logSha256": "sha256:f301e91f157f81eb8e0276e107429a6e62253092a431b9dff0f42022e69185e7"
+  },
+  {
+    "id": "final-documentation-secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/local-development-20261012"
+    ],
+    "executedAt": "2026-10-12T03:06:19.353710+00:00",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/final-documentation-secrets.log",
+    "logSha256": "sha256:301c6ec6c46cce703faaed1d4e2307b282fa2e117dab7e95f7fcae002375124a"
+  },
+  {
+    "id": "report-secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/local-development-gates-and-handoffs-2026-10-12.md"
+    ],
+    "executedAt": "2026-10-12T03:06:19.556498+00:00",
+    "exitCode": 0,
+    "allowedExitCodes": [
+      0
+    ],
+    "status": "PASS",
+    "log": "docs/audit/evidence/local-development-20261012/final/report-secrets.log",
+    "logSha256": "sha256:b34f17399b22f78608f7c136cb89b6bf5395e681ef423c5c64949b75ed7de517"
+  }
+]

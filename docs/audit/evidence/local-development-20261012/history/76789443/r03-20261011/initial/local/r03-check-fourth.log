@@ -1,0 +1,64 @@
+env -u DATABASE_URL cargo test -p quantos-runtime --lib --locked
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.48s
+     Running unittests src/lib.rs (target/debug/deps/quantos_runtime-8bd90003380498e4)
+
+running 19 tests
+test pg::tests::broad_admin_login_cannot_impersonate_runtime_service ... ok
+test pg::tests::runtime_role_membership_requires_only_the_runtime_role ... ok
+test pg::tests::remote_runtime_rejects_unverified_transport_before_connecting ... ok
+test research::tests::invalid_research_inputs_are_rejected_before_scheduling ... ok
+test tests::persisted_status_and_retry_bounds_are_explicit ... ok
+test research::tests::semantic_hash_binds_snapshot_policy_schema_and_capability ... ok
+test signal_proposal::tp05_projection_tests::production_or_trading_claims_cannot_survive_projection ... ok
+test research::tests::engine_hash_encoding_preserves_unicode_and_struct_numbers ... ok
+test signal_proposal::tp05_projection_tests::scoped_provenance_is_retained_without_forwarding_authority_fields ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test tests::kernel_fences_cancelled_timed_out_and_exhausted_runs ... ok
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test tests::kernel_rejects_invalid_schedule_and_stale_worker_operations ... ok
+test signal_proposal::tp05_projection_tests::foreign_or_missing_provenance_is_rejected_before_projection ... ok
+test research::tests::idempotent_schedule_preserves_checkpoints_and_rejects_reference_conflicts ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test pg::tests::local_transport_and_query_options_are_handled_explicitly ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+env -u DATABASE_URL cargo test -p quantos-runtime --locked --test research_orchestration -- --skip r02_retained_market_persistent_research_chain --skip r03_configured_supabase_lifecycle --skip r03_worker
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.93s
+     Running tests/research_orchestration.rs (target/debug/deps/research_orchestration-024edbdd05964520)
+
+running 2 tests
+test research_workflow_cancel_confirms_within_two_seconds ... ok
+test research_workflow_runs_ten_times_with_stable_input_hash_and_locatable_evidence ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.25s
+
+node --test scripts/r03-stage-check.test.mjs
+✔ scoped target accepts actual facts without granting prerequisites (0.87425ms)
+✔ no database execution is rejected (0.412625ms)
+✔ production claim is rejected (0.08525ms)
+✔ formal claim is rejected (0.078125ms)
+✔ cleanup missing is rejected (0.074958ms)
+✔ leaked run is rejected (0.069792ms)
+✔ fake ten runs is rejected (0.063292ms)
+✔ duplicate run is rejected (0.059875ms)
+✔ unstable hash is rejected (0.0735ms)
+✔ missing evidence is rejected (1.80275ms)
+✔ cancel too slow is rejected (0.093792ms)
+✔ fake restart is rejected (0.083542ms)
+✔ cross tenant accepted is rejected (0.102375ms)
+✔ stale worker accepted is rejected (0.076125ms)
+✔ wrong artifact bytes is rejected (0.056833ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.850625

@@ -1,0 +1,134 @@
+[
+  {
+    "id": "runtime",
+    "command": [
+      "env",
+      "-u",
+      "DATABASE_URL",
+      "cargo",
+      "test",
+      "-p",
+      "quantos-runtime",
+      "-p",
+      "quantos-storage",
+      "--lib",
+      "--locked"
+    ],
+    "executedAt": "2026-10-12T02:54:26.400Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/runtime.log",
+    "logSha256": "sha256:c986b1015e312928e3b9c20303fd3b169d86fbb8c18821c4ef09c7a9d16bbac3"
+  },
+  {
+    "id": "engines",
+    "command": [
+      "env",
+      "-u",
+      "DATABASE_URL",
+      "cargo",
+      "test",
+      "-p",
+      "quantos-runtime",
+      "--locked",
+      "--test",
+      "research_orchestration",
+      "--test",
+      "signal_proposal_orchestration",
+      "--",
+      "--skip",
+      "r02_retained_market_persistent_research_chain",
+      "--skip",
+      "r03_configured_supabase_lifecycle",
+      "--skip",
+      "r03_worker"
+    ],
+    "executedAt": "2026-10-12T02:54:34.268Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/engines.log",
+    "logSha256": "sha256:0d45d0a9a267dbe655efbae4c2638210402d2425c0f1c755205184478d59c7c3"
+  },
+  {
+    "id": "tp02",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests/test_rd_agent_contract.py",
+      "engines/tests/test_rd_agent_development.py",
+      "-q"
+    ],
+    "executedAt": "2026-10-12T02:54:36.516Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/tp02.log",
+    "logSha256": "sha256:0a4d25393749e5e851298c3324af07f69ec7fa7a510a59e88f2bf6d02403bf0e"
+  },
+  {
+    "id": "manager",
+    "command": [
+      "env",
+      "-u",
+      "DATABASE_URL",
+      "cargo",
+      "test",
+      "-p",
+      "quantos-engine-manager",
+      "--locked"
+    ],
+    "executedAt": "2026-10-12T02:54:37.948Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/manager.log",
+    "logSha256": "sha256:1fd98743b7a4eba80ea634125ed686494148c530eebbc25cd278095785d0d6d4"
+  },
+  {
+    "id": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "-p",
+      "quantos-runtime",
+      "-p",
+      "quantos-storage",
+      "-p",
+      "runtime-gateway",
+      "--all-targets",
+      "--locked",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "executedAt": "2026-10-12T02:54:56.258Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/clippy.log",
+    "logSha256": "sha256:f719cdb2b49eec99b11406b6a4741cc8a25ed98fadd797ef0a49b108c71956d5"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "executedAt": "2026-10-12T02:55:19.903Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/plans.log",
+    "logSha256": "sha256:01adb092d7c334aa55ad030b89769953b3e400a63a717e75851ae0d28bc219c6"
+  },
+  {
+    "id": "gate-negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/r03-stage-check.test.mjs"
+    ],
+    "executedAt": "2026-10-12T02:55:19.950Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/r04-local-20261012/attempt-02/r03-logs/gate-negatives.log",
+    "logSha256": "sha256:fe8116926ab4e2981f7f2eea92c2e27b444bad8a61d2dbba3b3b16d8ebca795e"
+  }
+]
