@@ -1,0 +1,74 @@
+[
+  {
+    "id": "contracts",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "quantos-runtime",
+      "--locked",
+      "--test",
+      "signal_proposal_contracts"
+    ],
+    "executedAt": "2026-10-12T05:59:46.448Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": {
+      "path": "docs/audit/evidence/r04-completion-20261012/attempt-05/r04-logs/contracts.log",
+      "sha256": "sha256:ebe86c2db730c6e32715dfc292765df3afe9b47442bbae66c780bd47eb3ed991"
+    }
+  },
+  {
+    "id": "orchestration",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "quantos-runtime",
+      "--locked",
+      "--test",
+      "signal_proposal_orchestration"
+    ],
+    "executedAt": "2026-10-12T05:59:54.786Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": {
+      "path": "docs/audit/evidence/r04-completion-20261012/attempt-05/r04-logs/orchestration.log",
+      "sha256": "sha256:649b02035c0da63ccf598d1b9889a286edab22bc2c90ed3492ebaf8c1b6949d2"
+    }
+  },
+  {
+    "id": "research-boundary",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests/test_r04_research_context.py",
+      "-q"
+    ],
+    "executedAt": "2026-10-12T05:59:56.769Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": {
+      "path": "docs/audit/evidence/r04-completion-20261012/attempt-05/r04-logs/research-boundary.log",
+      "sha256": "sha256:590dbc4f5c123295cd127dfad099b8f0f74b5daff9de9099967616ab6655a2b8"
+    }
+  },
+  {
+    "id": "receipt-negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/r04-stage-check.test.mjs",
+      "scripts/execution-outcome.test.mjs",
+      "scripts/r04-orchestration-receipt.test.mjs"
+    ],
+    "executedAt": "2026-10-12T05:59:56.932Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "log": {
+      "path": "docs/audit/evidence/r04-completion-20261012/attempt-05/r04-logs/receipt-negatives.log",
+      "sha256": "sha256:cf269171cc855ac2136add0d272b751628c913adfc6e5321d6310aefce82632a"
+    }
+  }
+]

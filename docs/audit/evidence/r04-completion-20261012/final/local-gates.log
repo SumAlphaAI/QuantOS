@@ -1,0 +1,88 @@
+node scripts/local-development-gate.mjs CORE-GATE:F0
+{
+  "nodeId": "CORE-GATE:F0",
+  "stageGate": "READY",
+  "profile": "R04_LOCAL",
+  "databaseAcceptance": "NOT_RUN",
+  "releaseGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "observedSourceCommit": "54aeff32d0903a6dcd94994aaedfaef80fd87baa"
+}
+node scripts/local-development-gate.mjs CORE:TP03
+{
+  "nodeId": "CORE:TP03",
+  "stageGate": "READY",
+  "profile": "R04_LOCAL",
+  "databaseAcceptance": "NOT_RUN",
+  "releaseGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "observedSourceCommit": "54aeff32d0903a6dcd94994aaedfaef80fd87baa"
+}
+node scripts/local-development-gate.mjs CORE:TP04
+{
+  "nodeId": "CORE:TP04",
+  "stageGate": "READY",
+  "profile": "R04_LOCAL",
+  "databaseAcceptance": "NOT_RUN",
+  "releaseGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "observedSourceCommit": "54aeff32d0903a6dcd94994aaedfaef80fd87baa"
+}
+node scripts/r03-stage-check.mjs --admission
+{"engineeringStatus":"PASS","stageGate":"READY","profile":"R03_LOCAL","databaseAcceptance":"NOT_RUN","releaseGate":"NOT_ASSESSED","formalAccepted":false}
+node scripts/local-development-gate.mjs --admission
+{
+  "nodeId": "CORE:R04",
+  "admission": "READY",
+  "scope": "local implementation only",
+  "profile": "R04_LOCAL",
+  "prerequisites": [
+    {
+      "nodeId": "CORE-GATE:F0",
+      "stageGate": "READY",
+      "profile": "R04_LOCAL",
+      "databaseAcceptance": "NOT_RUN",
+      "releaseGate": "NOT_ASSESSED",
+      "formalAccepted": false,
+      "observedSourceCommit": "54aeff32d0903a6dcd94994aaedfaef80fd87baa"
+    },
+    {
+      "nodeId": "CORE:TP03",
+      "stageGate": "READY",
+      "profile": "R04_LOCAL",
+      "databaseAcceptance": "NOT_RUN",
+      "releaseGate": "NOT_ASSESSED",
+      "formalAccepted": false,
+      "observedSourceCommit": "54aeff32d0903a6dcd94994aaedfaef80fd87baa"
+    },
+    {
+      "nodeId": "CORE:TP04",
+      "stageGate": "READY",
+      "profile": "R04_LOCAL",
+      "databaseAcceptance": "NOT_RUN",
+      "releaseGate": "NOT_ASSESSED",
+      "formalAccepted": false,
+      "observedSourceCommit": "54aeff32d0903a6dcd94994aaedfaef80fd87baa"
+    }
+  ],
+  "observedSourceCommit": "54aeff32d0903a6dcd94994aaedfaef80fd87baa",
+  "implementationGate": "READY",
+  "databaseAcceptance": "NOT_RUN",
+  "releaseGate": "NOT_ASSESSED",
+  "formalAccepted": false
+}
+node scripts/r04-stage-check.mjs
+{
+  "nodeId": "CORE:R04",
+  "stageGate": "READY",
+  "profile": "R04_LOCAL",
+  "observedSourceCommit": "54aeff32d0903a6dcd94994aaedfaef80fd87baa",
+  "proposals": 100,
+  "researchConsumption": "PASS",
+  "publicValidatorRegressions": 11,
+  "databaseAcceptance": "NOT_RUN",
+  "externalAcceptance": "NOT_RUN",
+  "performanceAcceptance": "NOT_RUN",
+  "releaseGate": "NOT_ASSESSED",
+  "formalAccepted": false
+}
