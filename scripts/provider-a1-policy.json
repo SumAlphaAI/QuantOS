@@ -1721,6 +1721,15 @@
       ],
       "staticOnly": true,
       "marker": "fail 0"
+    },
+    "a3-gate-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/research-local-gate.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
     }
   },
   "nodes": {
@@ -2532,13 +2541,14 @@
       ]
     },
     "PROVIDER:A3": {
-      "scope": "Execution-only union for refreshing A3 consumer closures; does not publish PROVIDER:A3 READY",
+      "scope": "A3 complete local provider aggregate; binds BFF003/BFF005/A2 published receipts and all current-source functional prerequisites; target/performance/formal acceptance remain at RELEASE",
       "inputs": [
         "bff/",
         "scripts/research-local-*"
       ],
       "checks": [
-        "plans"
+        "plans",
+        "a3-gate-policy"
       ]
     }
   },
@@ -2778,6 +2788,41 @@
   "a3Execution": {
     "owner": "PROVIDER:A3",
     "profile": "A3_EXECUTION",
+    "roots": [
+      "PROVIDER:A3"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "a3Local": {
+    "owner": "PROVIDER:A3",
+    "profile": "A3_LOCAL",
     "roots": [
       "PROVIDER:A3"
     ],

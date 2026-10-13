@@ -1,4 +1,6 @@
-> 当前执行：2026-10-13 修复 main 自动签名/目标执行与正式验收 HEAD 循环；签名/目标检查改为手动冻结候选，正式入口显式选 SHA。公共工作流/校验器功能输入变化后，旧四消费者 READY 撤回为 NOT_ASSESSED，原回执保留。仅文档/证据后续提交不改变已选候选，不自动接受新 HEAD。见[修复报告](./audit/Frozen-candidate-workflow-2026-10-13.md)。
+> 当前执行：2026-10-13 PROVIDER:A3 聚合开发验收；新增 A3_LOCAL 独立门禁，刷新 A2/R1/BFF003/BFF005 当前源码闭包。执行与准入分离，外部环境及性能移交 RELEASE，正式验收未执行。
+
+> 历史基础设施修复：2026-10-13 修复 main 自动签名/目标执行与正式验收 HEAD 循环；签名/目标检查改为手动冻结候选，正式入口显式选 SHA。公共工作流/校验器功能输入变化后，旧四消费者 READY 撤回为 NOT_ASSESSED，原回执保留。仅文档/证据后续提交不改变已选候选，不自动接受新 HEAD。见[修复报告](./audit/Frozen-candidate-workflow-2026-10-13.md)。
 
 > 历史工程快照（BFF-FE-005，本次基础设施修复前）：2026-10-13 BFF-FE-005 本地 DEVELOPMENT READY；冻结 ac4a8dc4 完整 42 节点 / 139 组 PASS，A2/R1-SERVICE/BFF003/BFF005 四消费者回执均同源复评 READY。PROVIDER:A3 未授予 READY；外部/性能 RELEASE NOT_RUN，formalAccepted=false。见[本轮报告](./audit/BFF-FE-005-development-2026-10-13.md)。
 
@@ -55,14 +57,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.77
+> 版本：3.78
 > 更新时间：2026-10-13
-> 状态：验收基础设施修复；本轮不重授业务 Gate，正式/目标/发布未执行。
+> 状态：PROVIDER:A3 聚合开发验收执行中；正式/目标/发布未执行。
 > 本轮变更：BFF-FE-005 市场 API、四消费者当前源码本地复评及发布验收移交。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.78`：建立 A3_LOCAL 聚合回执和五回执事务发布；复评当前源码完整闭包，绑定直接消费者回执同 SHA、哈希与严格内容证明。见[本地验收规程](./operations/provider-a3-local-admission.md)。
 
 - `3.77`：组件 CI 与手动候选签名/目标检查分离；正式校验显式选择冻结 SHA，文档/证据记录不追逐 HEAD；旧功能回执保留并撤回受影响 READY。
 
@@ -446,7 +450,7 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
     "PROVIDER:A2": {
       "profile": "A2_LOCAL",
       "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/research-local-20261013/a2-local.json",
+      "manifest": "audit/evidence/provider-a3-local-20261013/a2-local.json",
       "prerequisites": [
         "FE:BFF-FE-001",
         "FE:BFF-FE-007",
@@ -457,7 +461,7 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
     "CORE-GATE:R1-SERVICE": {
       "profile": "R1_LOCAL",
       "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/research-local-20261013/r1-local.json",
+      "manifest": "audit/evidence/provider-a3-local-20261013/r1-local.json",
       "prerequisites": [
         "CORE:R01",
         "CORE:R02",
@@ -479,7 +483,7 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
     "FE:BFF-FE-003": {
       "profile": "BFF003_LOCAL",
       "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/research-local-20261013/bff003-local.json",
+      "manifest": "audit/evidence/provider-a3-local-20261013/bff003-local.json",
       "prerequisites": [
         "FE:BFF-FE-001",
         "FE:BFF-FE-007",
@@ -496,12 +500,23 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
     "FE:BFF-FE-005": {
       "profile": "BFF005_LOCAL",
       "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/research-local-20261013/bff005-local.json",
+      "manifest": "audit/evidence/provider-a3-local-20261013/bff005-local.json",
       "prerequisites": [
         "FE:BFF-FE-001",
         "CORE:R01",
         "CORE:R02",
         "CORE-GATE:R1-SERVICE",
+        "PROVIDER:A2"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "PROVIDER:A3": {
+      "profile": "A3_LOCAL",
+      "schema": "quantos-research-local-admission/v1",
+      "manifest": "audit/evidence/provider-a3-local-20261013/a3-local.json",
+      "prerequisites": [
+        "FE:BFF-FE-003",
+        "FE:BFF-FE-005",
         "PROVIDER:A2"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"

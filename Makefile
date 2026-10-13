@@ -588,13 +588,14 @@ tp01-d-local-check:
 tp01-d-release-check:
 	node scripts/tp01-d-local-gate.mjs --release
 
-.PHONY: research-local-check r1-local-check a2-local-check bff003-local-check bff005-local-check research-local-assess r01-release-performance
+.PHONY: research-local-check r1-local-check a2-local-check bff003-local-check bff005-local-check research-local-assess provider-a3-local-check provider-a3-local-assess r01-release-performance
 research-local-check:
 	node --test scripts/research-local-gate.test.mjs
 	node scripts/research-local-gate.mjs A2_LOCAL
 	node scripts/research-local-gate.mjs R1_LOCAL
 	node scripts/research-local-gate.mjs BFF003_LOCAL
 	node scripts/research-local-gate.mjs BFF005_LOCAL
+	node scripts/research-local-gate.mjs A3_LOCAL
 r1-local-check:
 	node scripts/research-local-gate.mjs R1_LOCAL
 a2-local-check:
@@ -618,3 +619,8 @@ research-release-performance-smokes:
 	node scripts/check-f04.mjs
 	cargo test --locked --offline -p quantos-testkit -p quantos-market -p quantos-risk -p quantos-portfolio -p quantos-strategy --lib p95 -- --ignored --nocapture
 	QUANTOS_RELEASE_PERFORMANCE=1 engines/.venv/bin/python -m pytest engines/tests/ -k p95 -q
+
+provider-a3-local-check:
+	node scripts/research-local-gate.mjs A3_LOCAL
+provider-a3-local-assess:
+	node scripts/record-research-local.mjs $(ATTEMPT)
