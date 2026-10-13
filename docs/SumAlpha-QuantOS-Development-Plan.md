@@ -1,4 +1,4 @@
-> 当前执行：2026-10-13 BFF-FE-005 实现候选；共享源码变更后 A2/R1/BFF003 的旧 READY 已撤回，四消费者完整功能闭包待本轮实际重跑。外部/性能 RELEASE NOT_RUN；formalAccepted=false。
+> 当前执行：2026-10-13 BFF-FE-005 本地 DEVELOPMENT READY；冻结 ac4a8dc4 完整 42 节点 / 139 组 PASS，A2/R1-SERVICE/BFF003/BFF005 四消费者回执均同源复评 READY。PROVIDER:A3 未授予 READY；外部/性能 RELEASE NOT_RUN，formalAccepted=false。见[本轮报告](./audit/BFF-FE-005-development-2026-10-13.md)。
 
 > 历史 A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
 
@@ -53,14 +53,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.75
+> 版本：3.76
 > 更新时间：2026-10-13
-> 状态：技术执行基线  
-> 本轮变更：F06/F07目标Auth错误诊断、数据库写入预检和F09有界收尾修复；从新冻结源码复验必要前置。
+> 状态：A2、R1-SERVICE、BFF-FE-003、BFF-FE-005 限定本地 DEVELOPMENT READY；正式、UI 集成及发布独立。
+> 本轮变更：BFF-FE-005 市场 API、四消费者当前源码本地复评及发布验收移交。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.76`：完成 BFF-FE-005 C12 七操作与当前源全闭包；42 节点 / 139 组 PASS，四消费者本地 READY；PROVIDER:A3、正式/目标/性能独立。见[本轮报告](./audit/BFF-FE-005-development-2026-10-13.md)。
 
 - `3.74`：建立并实际执行 A2/R1/BFF003 当前源码完整本地功能闭包；135 组全部 PASS，只发布三个消费者限定 READY；外部环境/性能发布移交、正式确认和 UI 集成独立。见[本轮报告](./audit/A3-local-admission-2026-10-12.md)。
 
@@ -1233,9 +1235,11 @@ flowchart TD
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:9597d51c1af79fe27286a377e81088affc816d42fead9090f7ee8a297db1bcb5",
+    "evidence": [
+      "audit/evidence/research-local-20261013/r1-local.json"
+    ]
   }
 }
 ```

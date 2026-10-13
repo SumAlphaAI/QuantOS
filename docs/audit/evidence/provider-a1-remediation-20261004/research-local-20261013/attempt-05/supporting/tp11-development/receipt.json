@@ -1,0 +1,911 @@
+{
+  "schema": "quantos-tp11-development/v1",
+  "nodeId": "CORE:TP11",
+  "stage": "DEVELOPMENT",
+  "status": "BLOCKED",
+  "engineeringStatus": "PASS",
+  "formalAccepted": false,
+  "observedSourceCommit": "ac4a8dc4f35220e203b0db6cc128843235332824",
+  "environment": {
+    "node": "v24.12.0",
+    "python": "Python 3.12.10"
+  },
+  "planInput": {
+    "acceptance_window": "R1-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE:TP05",
+      "CORE-GATE:F0"
+    ],
+    "dependencies": [
+      "CORE:TP05",
+      "CORE-GATE:F0"
+    ],
+    "depends_on": [
+      "CORE:TP05",
+      "CORE-GATE:F0"
+    ],
+    "iteration": "R1-SERVICE",
+    "requirement": "OpenStock",
+    "requirements": [
+      "- 需求描述：OpenStock",
+      "- 交付物：provider comparison、Data Contract fixture、许可证结论",
+      "- 验收标准：2 个 provider fixture 完成血缘/质量映射；任何未授权数据无法生成可用 DataSnapshot；无 Day-1 依赖"
+    ],
+    "task_id": "TP11",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
+  "inputs": [
+    {
+      "path": "Makefile",
+      "role": "config",
+      "sha256": "sha256:dac4439fb14cacca187f12fa28714accd75692bd0e30c086b432373c806822fa"
+    },
+    {
+      "path": "crates/quantos-storage/Cargo.toml",
+      "role": "config",
+      "sha256": "sha256:438cf006e5485aa4b5349629f37be2c5a21a44609a6579005c7af528a028eed0"
+    },
+    {
+      "path": "crates/quantos-storage/README.md",
+      "role": "code",
+      "sha256": "sha256:b4364d71364b43948f332bda133e436ebfa776c700eaa3cdde392850702e0434"
+    },
+    {
+      "path": "crates/quantos-storage/src/lib.rs",
+      "role": "code",
+      "sha256": "sha256:d64225c1ddcc9ba328d9f9c00aee5482d90b0a452c05594f5bab6aaae52d7bd4"
+    },
+    {
+      "path": "crates/quantos-storage/src/pg.rs",
+      "role": "code",
+      "sha256": "sha256:c43bd354a7b8eaf17c18a081f5a0cfa3aadf8f56c0f837e49db3b63ec1355f7c"
+    },
+    {
+      "path": "crates/quantos-storage/src/provenance.rs",
+      "role": "code",
+      "sha256": "sha256:c3a812a92da2056c52723dbf93608077abe8f2ae658f0b86f9b6d74f898f60ad"
+    },
+    {
+      "path": "crates/quantos-storage/src/snapshot.rs",
+      "role": "code",
+      "sha256": "sha256:7a3fef141fa7ba4a0d5ee93d4d58541f683dbcc2d59d6493e31cdfab4650d595"
+    },
+    {
+      "path": "crates/quantos-storage/src/supabase_storage.rs",
+      "role": "code",
+      "sha256": "sha256:f32c485da905007d44cf90f905371b1168a9a24f2ea6e5c44d0cb41b107a32c4"
+    },
+    {
+      "path": "crates/quantos-storage/src/wire.rs",
+      "role": "code",
+      "sha256": "sha256:03f90c837ee342181c1fe0e84f1bd5fa61a19e045f0f740515ca5eb33f20998a"
+    },
+    {
+      "path": "crates/quantos-storage/tests/postgres_persistence.rs",
+      "role": "test",
+      "sha256": "sha256:abb3fff8d6338796c6441556852620224ca2617fdbf147c379a1c4651513a13c"
+    },
+    {
+      "path": "crates/quantos-storage/tests/r02_boundaries.rs",
+      "role": "test",
+      "sha256": "sha256:5d7f959efef3b2d0bd65985b2b45696f8b03cac7b8fcbcf77ac22a1e8c0fa9ad"
+    },
+    {
+      "path": "crates/quantos-storage/tests/storage_http.rs",
+      "role": "test",
+      "sha256": "sha256:65efbedeabdccaa3f0d315a6ac34b03812f1af3c4ac91fc8415d6cffb6ceca19"
+    },
+    {
+      "path": "crates/quantos-storage/tests/supabase_storage_integration.rs",
+      "role": "test",
+      "sha256": "sha256:ea17cd2d1a74c5c5a3be60dcf47ca6b792d2f6e1437163f4dd324527f87f1365"
+    },
+    {
+      "path": "crates/quantos-storage/tests/tp11_reference_gate.rs",
+      "role": "test",
+      "sha256": "sha256:648b27c7e74815fa2b1288fa21061e689f37bf378cf8d30651fa7c7c5ad13b9b"
+    },
+    {
+      "path": "crates/quantos-storage/tests/unit/lib.rs",
+      "role": "test",
+      "sha256": "sha256:0d329b2125e4df01dc509b647119a6f19fa300b34194f3e8cea279853f5ffbbd"
+    },
+    {
+      "path": "crates/quantos-storage/tests/unit/provenance.rs",
+      "role": "test",
+      "sha256": "sha256:f809fb198504bfe017d24f53cb961501739211dbc00359882dfbd421167baf1e"
+    },
+    {
+      "path": "crates/quantos-storage/tests/unit/snapshot.rs",
+      "role": "test",
+      "sha256": "sha256:4bb0dcc3190ba9e7884ca63eb73a204a779c468ae081eac41bbbd8ceeb2911cc"
+    },
+    {
+      "path": "crates/quantos-storage/tests/unit/supabase_storage.rs",
+      "role": "test",
+      "sha256": "sha256:e6d2db9b0f65dfe59861ef28885964a5398c19af8cf2a18845186484e1c68323"
+    },
+    {
+      "path": "crates/quantos-storage/tests/unit/wire.rs",
+      "role": "test",
+      "sha256": "sha256:0d2406b3d1f4d9802b6419d24f41e766f74a3d88e3d1ca54d780d71d5577c4b8"
+    },
+    {
+      "path": "docs/adr/20260731-tp11-openstock-evaluation.md",
+      "role": "code",
+      "sha256": "sha256:7b9c241de89e83eb3d62c5c6903e7af9d6cfc480ddb76b34e4da4812493b71cb"
+    },
+    {
+      "path": "engines/engine-sdk/README.md",
+      "role": "code",
+      "sha256": "sha256:a995de5c242431ecdd4ebbffa3e82731035f63b702d5a253961c7fcdeeaa3932"
+    },
+    {
+      "path": "engines/engine-sdk/pyproject.toml",
+      "role": "config",
+      "sha256": "sha256:8244fa1ca437c0192175b1d9a86ebfdc1ce45d1cf40f3c0bd756a107ad094b4b"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/__init__.py",
+      "role": "code",
+      "sha256": "sha256:fddbc9e14091b6561491b88a02287bbc3f29663b1d1ec58016f335fac4eeaaf2"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py",
+      "role": "code",
+      "sha256": "sha256:3d5fd8af40d06b41d6f30c788702e2079d948a1cf8d4fe9a738db840dc8ff837"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/manifest.py",
+      "role": "code",
+      "sha256": "sha256:d321cd7e2ed83b69aa90b540396fec261570d0b1aaaa5b2c72aff998295d0ba0"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/observability.py",
+      "role": "code",
+      "sha256": "sha256:981e54835bbbe6926ecbd6e499ac01e62f5ea8ce8ec21186ede0a67eb1024736"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/validation.py",
+      "role": "code",
+      "sha256": "sha256:b2d902cd31e8c4b4ffdb7e7d031549f96412e1de5430eaac820d8b2fca0d0373"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/annotations_pb2.py",
+      "role": "code",
+      "sha256": "sha256:f74917ceff0effca2e7c5f4ccdd1353c32a56640d6d734a9e4b609c919284a5f"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/annotations_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:5d047ee8c12977eff404f662cfe004e5a873497ed78f58cb0b1d9565bcfd8695"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/field_behavior_pb2.py",
+      "role": "code",
+      "sha256": "sha256:341fad00d2c3662475935f8e781a7f486c5c4bed189d69af9cd0b5d27a46410b"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/field_behavior_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:88f35dc58ecdcd87546f1fe31488865c3972658ad78565626df0a035fac83428"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/http_pb2.py",
+      "role": "code",
+      "sha256": "sha256:62d48633d1b68165767061260b7c9c38aaf808a7fc736dc700f87a436b246647"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/http_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:c993d359d52cf503e622cd05e43096ebe5956a17b9419134b1d922aad5170a52"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/common/v1/common_pb2.py",
+      "role": "code",
+      "sha256": "sha256:2677496ef3059ab052bce176fc2afb7b046898886fb08898c60711c1a8514330"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/common/v1/common_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:1d4a54ca5fe9fd90643c22c2a2bf6d9f0c675599c807d179a1e1a4181e188f74"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/engine/v1/engine_pb2.py",
+      "role": "code",
+      "sha256": "sha256:711ce4cf5b00c2ca7a2fb10fb1d98980a16e0bc48453614b44911a058edb20d3"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/engine/v1/engine_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:744b8631d636f7e0b2de2f2d9ee32233d2caae5b52979a2b5080439a6a50eeb0"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/events/v1/events_pb2.py",
+      "role": "code",
+      "sha256": "sha256:91865cb5c75fdf50bd45cfd04cbb1831bedc493ade5d1ae4fb10d412724b5c48"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/events/v1/events_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:a8ec31b5982ad2b5c32a9f13dc2c7af31e7830c20886b41f02bc2e47b0cd014d"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/research/v1/research_pb2.py",
+      "role": "code",
+      "sha256": "sha256:6ffcb7fcd899e5f747eca0cebfb8bfb107936ed03bb40e6b266e91bd34c5a1c5"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/research/v1/research_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:f13f2be7370adb4654b93aa592fd1e0b2910c642a4936acaa5216decf35a804a"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/strategy/v1/strategy_pb2.py",
+      "role": "code",
+      "sha256": "sha256:0fe4404b6f312313af8324226f28dd6f951f0291bdf312741ba1ee34b4891638"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/strategy/v1/strategy_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:53992296c27ecf40cfed1be1ed41ac1f49820f3f859d08f6f2716014c64b4b83"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/trading/v1/trading_pb2.py",
+      "role": "code",
+      "sha256": "sha256:4b2a75d071e165e6d47c4c8dc541605b1fa0ae2dfd75198e21c2d9dbeb756f23"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/trading/v1/trading_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:5e15bc65ab2b4a3f82c02067a10d4ed5d363de87634865846a3d59826dee7785"
+    },
+    {
+      "path": "engines/openbb-adapter/src/openbb_adapter/contracts/data-query-response.v1.schema.json",
+      "role": "config",
+      "sha256": "sha256:ecae2e36b9d5cc5b85bbfa691504ada6e492b63c3196e0ea63dc24cfc46193e1"
+    },
+    {
+      "path": "engines/openbb-adapter/src/openbb_adapter/contracts/record-schemas.v1.json",
+      "role": "config",
+      "sha256": "sha256:813398fd11f352c2d509a3a95c6c478394a14839a1b4fa713533478278e53b33"
+    },
+    {
+      "path": "engines/pyproject.toml",
+      "role": "config",
+      "sha256": "sha256:c4f386423e97114f47631afc8e07e4fc295ef15960ffc202a0a260ebd821e84d"
+    },
+    {
+      "path": "engines/tests/test_tp11_openstock_fixtures.py",
+      "role": "test",
+      "sha256": "sha256:9abbadd78e352ab5125977268d90011a9ab17facf27c824844f5f0a8e2a5eceb"
+    },
+    {
+      "path": "engines/uv.lock",
+      "role": "config",
+      "sha256": "sha256:8f9e8ce7f28710653ab72ac5b18d5db93d2ebf21beaf304e5409be71e5fa2a58"
+    },
+    {
+      "path": "proto/README.md",
+      "role": "contract",
+      "sha256": "sha256:6b62cfc7c4a3f87ee4ed1e72028726cd8500d076e22e920d4418c5dce91d55cd"
+    },
+    {
+      "path": "proto/jsonschema/protobufAny.schema.json",
+      "role": "contract",
+      "sha256": "sha256:14ee2845e44f8938b8e9ba45b8008462fd60ad2044feb10991b8d3e50e842f9d"
+    },
+    {
+      "path": "proto/jsonschema/protobufNullValue.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1c9aa7640ab34e7f6fb2d9149009900cb4d80740d670568ccbc9d41191fc1066"
+    },
+    {
+      "path": "proto/jsonschema/rpcStatus.schema.json",
+      "role": "contract",
+      "sha256": "sha256:c564e97454b52c2fa40023af23c5544ba3a06e112a64cd3a050453659554c989"
+    },
+    {
+      "path": "proto/jsonschema/v1ActorKind.schema.json",
+      "role": "contract",
+      "sha256": "sha256:300a847ce484d3cdacfb24b37d569ad0c05c13f702eab93dc11c01fe79394f2e"
+    },
+    {
+      "path": "proto/jsonschema/v1ActorRef.schema.json",
+      "role": "contract",
+      "sha256": "sha256:bad77c3b9d6de393bf17ba0b9adffbec163be27f4bef8be1545fa16652a9fb5a"
+    },
+    {
+      "path": "proto/jsonschema/v1ArtifactRef.schema.json",
+      "role": "contract",
+      "sha256": "sha256:5fc535cb832651f5b79e61706240599e808655f3bc5da26ea7bf0e5bd8089e93"
+    },
+    {
+      "path": "proto/jsonschema/v1AuditTags.schema.json",
+      "role": "contract",
+      "sha256": "sha256:f605a080d5ecff491be866b42e191934eca0ee6538f7d40ff9f801840bcaccbd"
+    },
+    {
+      "path": "proto/jsonschema/v1CancelRequest.schema.json",
+      "role": "contract",
+      "sha256": "sha256:0009dd40ed6389a6f3ada170ed927827267d9ae7a0dd772e4c118c4542f07f07"
+    },
+    {
+      "path": "proto/jsonschema/v1CancelResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:e058a4b39118051a41b5dd77bf7c8380879dab329775803af0831b6dcf41f5bb"
+    },
+    {
+      "path": "proto/jsonschema/v1Capability.schema.json",
+      "role": "contract",
+      "sha256": "sha256:03390c3fbb9fd7e0f4990c9cf75f238274d5d16d3be17ee9ba98bfdd4166115b"
+    },
+    {
+      "path": "proto/jsonschema/v1CommandMetadata.schema.json",
+      "role": "contract",
+      "sha256": "sha256:6b9bfeb1449cc43c1f61509f07fa518ef720654f8180fda3e158fa088ea25515"
+    },
+    {
+      "path": "proto/jsonschema/v1DataClassification.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1ff457079eb2da6cbd4796ac273510ae1064586258d399fa4f3e22cdcdd1ea78"
+    },
+    {
+      "path": "proto/jsonschema/v1DataQuality.schema.json",
+      "role": "contract",
+      "sha256": "sha256:ec1a45b7615c87a6c0b865c0e3ed5009b833dcfa2e00957fece565dfa6100020"
+    },
+    {
+      "path": "proto/jsonschema/v1DataSnapshot.schema.json",
+      "role": "contract",
+      "sha256": "sha256:f246f40fabc19dde12ad0b893a3563775179e7a9b03ddda5bc3e566c92c5ea95"
+    },
+    {
+      "path": "proto/jsonschema/v1DataSourceRef.schema.json",
+      "role": "contract",
+      "sha256": "sha256:704d50cdca47ad7ad4ba2c22cfac2a0bdb708749612c8d9ac247fe4f83257e42"
+    },
+    {
+      "path": "proto/jsonschema/v1DecimalValue.schema.json",
+      "role": "contract",
+      "sha256": "sha256:152a7d14489e8ece83126b67d63cf5bc3c9a1806e8de1cc236c668b63caa0370"
+    },
+    {
+      "path": "proto/jsonschema/v1DeploymentTarget.schema.json",
+      "role": "contract",
+      "sha256": "sha256:a01ec89eabfa9e2e17391f0cf56b81517e39fb18428ce1a1ee52db757ac5db5a"
+    },
+    {
+      "path": "proto/jsonschema/v1Environment.schema.json",
+      "role": "contract",
+      "sha256": "sha256:4a67b4ab30ab5b6c912f7f84047e40ff3800be59457023cc48c91412f430beff"
+    },
+    {
+      "path": "proto/jsonschema/v1EventEnvelope.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1c24bd7a7b085d7add601e2d356e8ef425ef95e7b9a0e819d3893c0f546a7efa"
+    },
+    {
+      "path": "proto/jsonschema/v1EventKind.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1756f32f82a9d62459a9fdd1b0a3d7c8636015f70b3eadbea73626937f320235"
+    },
+    {
+      "path": "proto/jsonschema/v1EvidenceRef.schema.json",
+      "role": "contract",
+      "sha256": "sha256:53421239239fc4401ee714a694b318e9f428ab945faf63203c398d15038eadbd"
+    },
+    {
+      "path": "proto/jsonschema/v1ExecuteRequest.schema.json",
+      "role": "contract",
+      "sha256": "sha256:61cf34ec1eba5039beef260ebcad41c15988005e30c0d327f68eba091ac55b55"
+    },
+    {
+      "path": "proto/jsonschema/v1ExecuteResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:52ab96921b6d2da39b27f625c42c6cba1b2c9ce176630486ed65315ab8c31d23"
+    },
+    {
+      "path": "proto/jsonschema/v1Fill.schema.json",
+      "role": "contract",
+      "sha256": "sha256:07404af36b7f73104c9def656bf08c174d9528d9d2543caf86d8ef9b7f5beea3"
+    },
+    {
+      "path": "proto/jsonschema/v1GetEventResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:4e8584d6e1d7cb1be6c235416be73d881f121a19ff28c36ad3de52121b66e861"
+    },
+    {
+      "path": "proto/jsonschema/v1GetMetadataResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:14c9531e5e9c79dadf9cd2271daee45a4d6d843c014b4163b10e60bbf08d8baf"
+    },
+    {
+      "path": "proto/jsonschema/v1HealthResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:8601aaea7987616ca5cd86839ed17f4a00f38d2560c4b0239abccc195b955c81"
+    },
+    {
+      "path": "proto/jsonschema/v1JsonDocument.schema.json",
+      "role": "contract",
+      "sha256": "sha256:044bd1bc370194b6ee4a2bbfa81bd4ce741d068069e595e99a01029a30726bab"
+    },
+    {
+      "path": "proto/jsonschema/v1ListEventsResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:2ae2d734b76aafca407bc714dba71775b496fa52ccaf5d1629f217bdfbfe6c91"
+    },
+    {
+      "path": "proto/jsonschema/v1MoneyValue.schema.json",
+      "role": "contract",
+      "sha256": "sha256:311da94b03ad3d83397ab422278c50d9801cd97763d7c9c51ea9a9d14b805b19"
+    },
+    {
+      "path": "proto/jsonschema/v1Order.schema.json",
+      "role": "contract",
+      "sha256": "sha256:e34890cf7aae5204d88f691688a8a72b776e83bfd246a1ec986d67cff0a3abed"
+    },
+    {
+      "path": "proto/jsonschema/v1OrderIntentType.schema.json",
+      "role": "contract",
+      "sha256": "sha256:23b3529050fb4d1b0aec782f99ceb3a8456ed4540d0b4d954376c25a4918a1d8"
+    },
+    {
+      "path": "proto/jsonschema/v1OrderSide.schema.json",
+      "role": "contract",
+      "sha256": "sha256:e02ab4a3ba0c6d9bcaddfa4a361598bd33b0db01c48ac038ad5fc733aad91965"
+    },
+    {
+      "path": "proto/jsonschema/v1OrderStatus.schema.json",
+      "role": "contract",
+      "sha256": "sha256:76152eb331526cb96e33f76105cc27227d2e050795a31a8016cb3bae29e5e876"
+    },
+    {
+      "path": "proto/jsonschema/v1Position.schema.json",
+      "role": "contract",
+      "sha256": "sha256:c566871918b5909e68b70a0194100fa1f615709241fbbc22ffd1a194561df2ad"
+    },
+    {
+      "path": "proto/jsonschema/v1PositionSide.schema.json",
+      "role": "contract",
+      "sha256": "sha256:11503904fc75753419c2d5b629b04b6e17b7b08e4aa4618304a39d293a82c9c2"
+    },
+    {
+      "path": "proto/jsonschema/v1ProposalAction.schema.json",
+      "role": "contract",
+      "sha256": "sha256:1b6322b05a477dc1cfecd7247ad2a0b819abb696251a452d492abe6407f8de63"
+    },
+    {
+      "path": "proto/jsonschema/v1ResearchArtifact.schema.json",
+      "role": "contract",
+      "sha256": "sha256:39cd3e3bed629628d2c0aea81a90d6290e4728b4e11e0b14603389be9ec24520"
+    },
+    {
+      "path": "proto/jsonschema/v1RiskDecision.schema.json",
+      "role": "contract",
+      "sha256": "sha256:5b394be7577149018f2a7a597d77084bce6fe106d392540e077ec0e7bb10311d"
+    },
+    {
+      "path": "proto/jsonschema/v1RiskVerdict.schema.json",
+      "role": "contract",
+      "sha256": "sha256:4852de92de29aa5f996964204cf0920c7463ab77e421d0a668eaa650207418bb"
+    },
+    {
+      "path": "proto/jsonschema/v1RuntimeMode.schema.json",
+      "role": "contract",
+      "sha256": "sha256:118c9385075af4866c2f6c3e1ce257b8bce483ee3044ad8e9b083d276b155304"
+    },
+    {
+      "path": "proto/jsonschema/v1Signal.schema.json",
+      "role": "contract",
+      "sha256": "sha256:0515890f1d6b710c176aac4b967868fb50ed0e1781361fc9509e6dc322b0f18c"
+    },
+    {
+      "path": "proto/jsonschema/v1SignalDirection.schema.json",
+      "role": "contract",
+      "sha256": "sha256:4c039bf437af212d0f4c8db42979a53c3e688009c912c5afb04344ab680ff733"
+    },
+    {
+      "path": "proto/jsonschema/v1StrategyRelease.schema.json",
+      "role": "contract",
+      "sha256": "sha256:83b528bc1a73029e095c32dd77fa4700c4e62ea20fe393e6bd2b7f4f07e1f996"
+    },
+    {
+      "path": "proto/jsonschema/v1StreamExecuteRequest.schema.json",
+      "role": "contract",
+      "sha256": "sha256:6c17c7dee5f27db6e61cf6fb093fffc7a8fa8567a4d2618643e6d5bde0ed615c"
+    },
+    {
+      "path": "proto/jsonschema/v1StreamExecuteResponse.schema.json",
+      "role": "contract",
+      "sha256": "sha256:8b8ece00ec680948fb21db24d9091d410ec5f3e7d6d657060933da8fa2c4302f"
+    },
+    {
+      "path": "proto/jsonschema/v1TimeWindow.schema.json",
+      "role": "contract",
+      "sha256": "sha256:44c0eb1a2506c8018b746d1a661ae33fc5cc3e1d3842a16b2225aad94ab77892"
+    },
+    {
+      "path": "proto/jsonschema/v1TradeCommand.schema.json",
+      "role": "contract",
+      "sha256": "sha256:a43a7aca73b052b17470af7e3ca745c7fce8e7f5ea1ff208793ee12d71f5a914"
+    },
+    {
+      "path": "proto/jsonschema/v1TradeProposal.schema.json",
+      "role": "contract",
+      "sha256": "sha256:20f8c3b5ad5a0cf8d334bee70dcaef3317a81b8a1609b5c87b762d3fd5886b67"
+    },
+    {
+      "path": "proto/jsonschema/v1VenueKind.schema.json",
+      "role": "contract",
+      "sha256": "sha256:ab7db082e8b6da2f446817ed2848795ddb94adbdd05a19f696c53c4824efa005"
+    },
+    {
+      "path": "proto/openapi/quantos.swagger.json",
+      "role": "contract",
+      "sha256": "sha256:d96ebef2a0064d4fc502ff256f7e4813e5c07c2392e31d8659710a25e9eda0b5"
+    },
+    {
+      "path": "proto/quantos/common/v1/common.proto",
+      "role": "contract",
+      "sha256": "sha256:8d02461f2197b52c7957ea5372c53813cbcda086907af9b8629927748fdec6e9"
+    },
+    {
+      "path": "proto/quantos/engine/v1/engine.proto",
+      "role": "contract",
+      "sha256": "sha256:96065ca6950c1dfb81a046d8e01bbacd0f77e225dcf0df573b03cfbeefce9c97"
+    },
+    {
+      "path": "proto/quantos/events/v1/events.proto",
+      "role": "contract",
+      "sha256": "sha256:46731dd324e169b9509419386d8ae8e1c2db8dbdc9677004c6f54b913c1985c3"
+    },
+    {
+      "path": "proto/quantos/research/v1/research.proto",
+      "role": "contract",
+      "sha256": "sha256:2a2f048fb6ae82deb0a62041e5ce02fe6b1067f21364c0e8fd4e0a8bd2d202d7"
+    },
+    {
+      "path": "proto/quantos/strategy/v1/strategy.proto",
+      "role": "contract",
+      "sha256": "sha256:2655e561849dc08be5bfa5738daf8aedf348f59f30e994d969062147d22170b7"
+    },
+    {
+      "path": "proto/quantos/trading/v1/trading.proto",
+      "role": "contract",
+      "sha256": "sha256:88b2acabd037acb03e951c07d424ab91736f069e39dd946f7243ff66fad3daed"
+    },
+    {
+      "path": "scripts/check-tp-intake.mjs",
+      "role": "code",
+      "sha256": "sha256:cf43c788721db5dfa8ae29e33fa3b17dd62455959b9effe4f449fb3af30cba01"
+    },
+    {
+      "path": "scripts/generate-build-manifest.mjs",
+      "role": "code",
+      "sha256": "sha256:5f8f4eac9f440747f973be44572185f97e62d8a4569231f6230db72a8f75475b"
+    },
+    {
+      "path": "scripts/provider-a1-policy.json",
+      "role": "config",
+      "sha256": "sha256:9c2f9428c6ceaa75b92fb0c9884c317bd8b20f15b3e5113965f0deb7920ea1f0"
+    },
+    {
+      "path": "scripts/provider-a1-receipts.mjs",
+      "role": "code",
+      "sha256": "sha256:9e100651f96146ac5f638ee9ec5e2ac85c2f3db08430944f4c06557d7353296e"
+    },
+    {
+      "path": "scripts/tp11-evaluation.mjs",
+      "role": "code",
+      "sha256": "sha256:578943eaad72b7b1cfee08879153bcc617e972e42bd3a68112613739f2e10d49"
+    },
+    {
+      "path": "scripts/tp11-evaluation.test.mjs",
+      "role": "test",
+      "sha256": "sha256:5efcc5518db7213ed8e35a093255b316026efe1ad250226dc32e854ad45b6311"
+    },
+    {
+      "path": "scripts/tp11-functional-artifacts.test.mjs",
+      "role": "test",
+      "sha256": "sha256:ce734740e0f10b85555409307e35aa37ed4c97145d2858e6073e3f7794de78d5"
+    },
+    {
+      "path": "third_party/openstock/README.md",
+      "role": "code",
+      "sha256": "sha256:01b9d7c2ccb4a59d9d8b803d39da56903e0f7b27a97b734d4b47bbc06c885d02"
+    },
+    {
+      "path": "third_party/openstock/baseline.lock.json",
+      "role": "config",
+      "sha256": "sha256:52864c52e1544fe147cc91d4fa292efe47838ce5c63776349ec8a289d96fa6bb"
+    },
+    {
+      "path": "third_party/openstock/check-development.mjs",
+      "role": "code",
+      "sha256": "sha256:b5b3d425223949dcf131d9727592e9bdc49d862e4a557369df567c408a6adc08"
+    },
+    {
+      "path": "third_party/openstock/cve-audit-npm-audit.json",
+      "role": "config",
+      "sha256": "sha256:fd7d0149582dbb7cc19084b47e25f278d30f0363c0f83ebab4415d003f576f20"
+    },
+    {
+      "path": "third_party/openstock/cve-audit.md",
+      "role": "code",
+      "sha256": "sha256:18ca16c6459570b7112ba6da4557e3a2e370c780f75183587d18bb44cb1252b7"
+    },
+    {
+      "path": "third_party/openstock/experiments.py",
+      "role": "code",
+      "sha256": "sha256:1628aed43e3c1cdc23a64537832c87d1153e6c43ce5a607a3548deec87a56f20"
+    },
+    {
+      "path": "third_party/openstock/fixtures/01-finnhub-quote-to-data-contract.json",
+      "role": "test",
+      "sha256": "sha256:b86f64c77f986f9f0a5373391011d3ade08284a4d1a479be265a36321c0083c6"
+    },
+    {
+      "path": "third_party/openstock/fixtures/02-finnhub-news-and-widget-rejection.json",
+      "role": "test",
+      "sha256": "sha256:02010b4ffbff9790f99f047bd1b1da5c9df5d9d7b98a1859c420d7a11ee4109a"
+    },
+    {
+      "path": "third_party/openstock/fixtures/03-tradingview-display-only.json",
+      "role": "test",
+      "sha256": "sha256:9d6dd611139f25afc0d30a16ee6b98610e222ce13884e85629d00ae56f0a8493"
+    },
+    {
+      "path": "third_party/openstock/fixtures/record-schemas.json",
+      "role": "test",
+      "sha256": "sha256:f03a65029b461212e58c1f5683e99d6d0425554b3884b9e68ff63b9b80a1d718"
+    },
+    {
+      "path": "third_party/openstock/provenance.json",
+      "role": "config",
+      "sha256": "sha256:d690483b32352f8716a1484366b1e848f5d5592699336cf663fcbc92c079de7b"
+    },
+    {
+      "path": "third_party/openstock/provider-comparison.md",
+      "role": "code",
+      "sha256": "sha256:9d823027ce5f3694701d5bc0eaa561cfd8a2f46d5665cd36c411e24247ed72f1"
+    },
+    {
+      "path": "third_party/openstock/sbom.spdx.json",
+      "role": "config",
+      "sha256": "sha256:9deb90e601cf35bbe67f6dfebdf8dd3b7896ba2953d71a3ecac6875c7253f339"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "experiments/receipt.json",
+      "sha256": "sha256:2b037be4f20ee961d0e8183d22c27fdbb10d8d03544c42b87b9e0bb23c01a929"
+    },
+    {
+      "file": "experiments/tp11-quote.json",
+      "sha256": "sha256:b4e27ef5d77c570cccce9bf517debac424f59ac357f0eb1286565bbd8701dff1"
+    },
+    {
+      "file": "experiments/objects/9f505731a32149cd85f7688698da5fc6ab18003704d4e94bdc003db63498c984.json",
+      "sha256": "sha256:9f505731a32149cd85f7688698da5fc6ab18003704d4e94bdc003db63498c984"
+    },
+    {
+      "file": "experiments/objects/9f619b726cfcc2a6b12c20bf0e0cc0dcf08b88fbe17e92431e6d083ff24919c3.json",
+      "sha256": "sha256:9f619b726cfcc2a6b12c20bf0e0cc0dcf08b88fbe17e92431e6d083ff24919c3"
+    },
+    {
+      "file": "experiments/tp11-news.json",
+      "sha256": "sha256:aa93ef048478e6afeda99ce2b7328332123f1164cf391ca353f692a583e55a89"
+    },
+    {
+      "file": "experiments/objects/bb451677e62b5ca8e909e21f6bc9c4750f98f0fbf7a64b3f874c8b7b140d9380.json",
+      "sha256": "sha256:bb451677e62b5ca8e909e21f6bc9c4750f98f0fbf7a64b3f874c8b7b140d9380"
+    },
+    {
+      "file": "experiments/objects/84b0f3a4e9e43cad3eccccdded3ff7abfdc1eb2d806c73248deafbbb11799aea.json",
+      "sha256": "sha256:84b0f3a4e9e43cad3eccccdded3ff7abfdc1eb2d806c73248deafbbb11799aea"
+    },
+    {
+      "file": "experiments/tp11-widget.json",
+      "sha256": "sha256:e10927e1382e15264cca042bd7a07433805decd96bf87bd715096e641cc4853f"
+    },
+    {
+      "file": "f05-gate.json",
+      "sha256": "sha256:1ea0701c17e1622b966594ebde808ad88d56bd5909f70653ac2c77f20b032ea8"
+    }
+  ],
+  "checks": [
+    {
+      "id": "contract",
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "pytest",
+        "engines/tests/test_tp11_openstock_fixtures.py",
+        "-vv"
+      ],
+      "executedAt": "2026-10-13T04:00:59.134Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/contract.log",
+      "logSha256": "sha256:ebda9cf402e11ae61b94cf30e503d9f6b32bbdacf14266f8a4dae580e1b747ad"
+    },
+    {
+      "id": "experiments",
+      "command": [
+        "engines/.venv/bin/python",
+        "third_party/openstock/experiments.py",
+        "--output",
+        "artifacts/tp11-development"
+      ],
+      "executedAt": "2026-10-13T04:00:59.285Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/experiments.log",
+      "logSha256": "sha256:463f1c1568b12957e01e31c74f4fe4295cfd7570d1b95a97ddbbf6a17ba84554"
+    },
+    {
+      "id": "schema",
+      "command": [
+        "node",
+        "scripts/tp11-evaluation.mjs",
+        "artifacts/tp11-development"
+      ],
+      "executedAt": "2026-10-13T04:00:59.323Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/schema.log",
+      "logSha256": "sha256:1cdeaacebf5d29763204cfe887b5e6f393141dbcf7ecbdbc54e5290e2aec473d"
+    },
+    {
+      "id": "evaluation",
+      "command": [
+        "node",
+        "scripts/tp11-evaluation.mjs",
+        "--workspace"
+      ],
+      "executedAt": "2026-10-13T04:00:59.389Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/evaluation.log",
+      "logSha256": "sha256:1bfbf04ba7af3ff2feaeffe3666ca6cb5d0da1d5cb333c2b2a50e827e09a10be"
+    },
+    {
+      "id": "upstream",
+      "command": [
+        "node",
+        "scripts/tp11-evaluation.mjs",
+        "--verify-upstream"
+      ],
+      "executedAt": "2026-10-13T04:00:59.458Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/upstream.log",
+      "logSha256": "sha256:357d1223afb1bca45ef080ee0585f2b66dc4e004c27552288934738e298eb823"
+    },
+    {
+      "id": "negatives",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp11-evaluation.test.mjs"
+      ],
+      "executedAt": "2026-10-13T04:01:06.511Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/negatives.log",
+      "logSha256": "sha256:b4388ffd4fb81e78c2b155283ab84a203c5de283c9a6f8cf604ec86ea97324bf"
+    },
+    {
+      "id": "f05",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--test",
+        "tp11_reference_gate",
+        "--",
+        "--nocapture"
+      ],
+      "executedAt": "2026-10-13T04:01:06.752Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/f05.log",
+      "logSha256": "sha256:c5ce5912eeea64ba9f7553d362c7eeb932d259b09e2ec5ae6ca4940c17ffbc5a"
+    },
+    {
+      "id": "lint",
+      "command": [
+        "engines/.venv/bin/ruff",
+        "check",
+        "third_party/openstock/experiments.py",
+        "engines/tests/test_tp11_openstock_fixtures.py"
+      ],
+      "executedAt": "2026-10-13T04:01:16.467Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/lint.log",
+      "logSha256": "sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "id": "format",
+      "command": [
+        "engines/.venv/bin/ruff",
+        "format",
+        "--check",
+        "third_party/openstock/experiments.py",
+        "engines/tests/test_tp11_openstock_fixtures.py"
+      ],
+      "executedAt": "2026-10-13T04:01:16.478Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/format.log",
+      "logSha256": "sha256:3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "id": "types",
+      "command": [
+        "engines/.venv/bin/pyright",
+        "--pythonpath",
+        "engines/.venv/bin/python",
+        "--pythonversion",
+        "3.12",
+        "third_party/openstock/experiments.py",
+        "engines/tests/test_tp11_openstock_fixtures.py"
+      ],
+      "executedAt": "2026-10-13T04:01:16.488Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/types.log",
+      "logSha256": "sha256:1d044deee37a17d52f4dd31d7de6ebd21c68eb5d08e8b3b0822f58940a3392bb"
+    },
+    {
+      "id": "locks",
+      "command": [
+        "bash",
+        "scripts/check-lockfiles.sh"
+      ],
+      "executedAt": "2026-10-13T04:01:19.197Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/locks.log",
+      "logSha256": "sha256:c9db6abfda2ef9eb524e39a730729874fea87d4675caaa23f36335bf480a4802"
+    },
+    {
+      "id": "intake",
+      "command": [
+        "node",
+        "scripts/check-tp-intake.mjs"
+      ],
+      "executedAt": "2026-10-13T04:01:19.589Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/tp11-20261011/intake.log",
+      "logSha256": "sha256:8afcbd2ebcd47f0ff32b8c323fb7d5913ac3b312232a83221421a6b9490ead71"
+    }
+  ],
+  "dependencies": [
+    {
+      "nodeId": "CORE:TP05",
+      "status": "BLOCKED",
+      "reason": "CORE:TP05: dependency is not READY"
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "status": "BLOCKED",
+      "reason": "CORE-GATE:F0: dependency is not READY"
+    }
+  ],
+  "excluded": [
+    "upstream source/assets/runtime, hosted OpenStock or Day-1 dependency",
+    "real Finnhub or widget data, written business/redistribution rights or legal approval",
+    "TP05 provider/schema extension, deployed provider, database or persistent Artifact delivery",
+    "implemented research UI, strategy Engine, trading or venue access",
+    "current advisory clearance, representative performance, hosted same-SHA CI, publication or formal ACCEPTED"
+  ]
+}
