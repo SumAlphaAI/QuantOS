@@ -11,3 +11,5 @@ watchlist 的完整 tenant/actor/workspace/account/mode 范围、幂等键/意�
 BFF005_LOCAL 完整功能闭包为 40 节点。A3_EXECUTION 仅执行两个 A3 consumer 的并集（42 节点），从同源码、同次实际检查派生 A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL 四份独立回执；不会发布 PROVIDER:A3 READY。旧回执原件保留。入口 `make bff005-local-check` / `node scripts/bff-fe-005-development.mjs`；完整运行 `make research-local-assess ATTEMPT=docs/audit/evidence/provider-a1-remediation-20261004/research-local-20261013/attempt-NN`。
 
 DEVELOPMENT 只验本机真实 Rust/R01/HTTP/生成 client/Chromium 的受控数据功能，不代表真实数据源、Supabase 迁移/RLS/事务、IdP、持久重启、多实例、性能/容量/长稳、同 SHA CI 或正式 ACCEPTED。上述外部与性能全部移交 RELEASE-GATE:BETA，未执行 NOT_RUN，原阈值保留；formalAccepted=false。不使用生产凭据，不部署或发布。
+
+四消费者 manifest 路径、profile 与 prerequisite 登记同时绑定 development-plan-order-policy 和两份 stage contract；实际发布后的静态计划校验必须通过，失败则四份回执与计划原子回滚。合成回执的形状测试不构成功能执行证据。

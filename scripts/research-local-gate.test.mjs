@@ -3,10 +3,14 @@ import {readFileSync,writeFileSync,mkdtempSync,cpSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
 import {nodesFromPlans,planInput,closure,digest,localPolicy,localChecks,localDeferred,policy,staticEnvironment} from './provider-a1-receipts.mjs';
+import {validatePlans} from './check-development-plans.mjs';
+import {validatePlanOrder} from './check-development-plan-order.mjs';
+import {mkdirSync} from 'node:fs';
+import {dirname} from 'node:path';
 import {reassess} from './reassess-a3-prerequisites.mjs';
 import {validateFunctionalRuns,validateRuns} from './f04-measurements.mjs';
 import {normalizeDigest,verifyArtifact} from './research-local-products.mjs';
-import {schema,registrations,handoff,verify,publish} from './research-local-gate.mjs';
+import {schema,registrations,handoff,verify,publish,manifest} from './research-local-gate.mjs';
 function fixture(profile='R1_LOCAL'){
  const nodes=nodesFromPlans(),owner=registrations[profile].owner,entries=closure(nodes,owner).map((nodeId,i)=>({nodeId,manifest:'local/'+i+'.json',inputDigest:'sha256:'+String(i).padStart(64,'0')}));
  const local={status:'LOCAL_READY',owner,profile,inputDigest:'sha256:'+'b'.repeat(64),observedSourceCommit:'a'.repeat(40),nodes:entries};
@@ -47,5 +51,27 @@ for(const mutation of ['none','rehashed failed suite','rehashed incomplete produ
  if(mutation==='changed log')writeFileSync(resolve(dir,r.checks[0].log.file),'PASS');
  if(mutation==='rehashed incomplete product'){const f=r.files[0],file=resolve(dir,f.file),matrix=JSON.parse(readFileSync(file));matrix.proposals.pop();const bytes=JSON.stringify(matrix);writeFileSync(file,bytes);f.sha256=digest(bytes);}
  writeFileSync(path,JSON.stringify(r));const run=()=>verifyArtifact('research-local-products',path,r.sourceCommit);if(mutation==='none')assert.equal((await run()).status,'PASS');else await assert.rejects(run);
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
+
+// Exercise the real static post-publication validator; mocked verifyAfter alone cannot
+// detect stale receipt registrations. Synthetic receipts prove shape only, never execution.
+test('all consumer registrations match the static stage contract',()=>{
+ const scopes=JSON.parse(readFileSync('scripts/development-plan-order-policy.json')).stageContract.local_dependency_receipts,nodes=nodesFromPlans();
+ for(const [profile,{owner}]of Object.entries(registrations)){
+  assert.equal(scopes[owner].profile,profile);assert.equal(scopes[owner].manifest,manifest(profile).slice(5));assert.equal(scopes[owner].schema,schema);assert.deepEqual(scopes[owner].prerequisites,nodes.get(owner).dependencies);
+ }
+});
+test('four consumer publication passes real plan order without upstream READY',()=>{
+ const dir=mkdtempSync(resolve(tmpdir(),'research-publication-order-')),paths=['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'];
+ const saved=new Map(paths.map(p=>[p,readFileSync(p,'utf8')])),parsed=validatePlans(...paths.map(p=>saved.get(p))).tasks,nodes=nodesFromPlans();
+ // Static historical checkpoint links need only exist in this isolated shape fixture.
+ for(const text of saved.values())for(const match of text.matchAll(/```json\n([\s\S]*?)\n```/g)){const record=JSON.parse(match[1]);for(const ref of record.checkpoint_id?record.evidence:[])if(!/^https:\/\//.test(ref)){const path=resolve(dir,'docs',ref);mkdirSync(dirname(path),{recursive:true});writeFileSync(path,'SYNTHETIC STATIC SHAPE ONLY; NO EXECUTION\n');}}
+ try{
+  const report=publish(Object.fromEntries(Object.keys(registrations).map(p=>[p,p])),{getNodes:()=>nodes,validateLocal:(_,o)=>fixture(o.profile).local,validate:()=>{},read:p=>saved.get(p)??null,write:(p,b)=>{if(b===null){saved.delete(p);rmSync(resolve(dir,p),{force:true});}else{saved.set(p,b);mkdirSync(dirname(resolve(dir,p)),{recursive:true});writeFileSync(resolve(dir,p),b);}},verifyAfter:()=>{
+   const tasks=parsed.map(n=>({...n,stage_gate:nodes.get((n.task_type==='CORE'?'CORE:':'FE:')+n.task_id).stage_gate}));
+   return validatePlanOrder(...paths.map(p=>saved.get(p)),tasks.filter(n=>n.task_type==='CORE'),tasks.filter(n=>n.task_type!=='CORE'),{root:dir});
+  }});
+  assert.equal(report.stage_status_counts.READY,4);assert.equal(report.stage_status_counts.BLOCKED,0);assert.equal(nodes.get('PROVIDER:A3').stage_gate.status,'NOT_ASSESSED');assert.equal(nodes.get('CORE:R01').stage_gate.status,'NOT_ASSESSED');
  }finally{rmSync(dir,{recursive:true,force:true});}
 });

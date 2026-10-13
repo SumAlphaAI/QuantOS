@@ -371,7 +371,7 @@
     "PROVIDER:A2": {
       "profile": "A2_LOCAL",
       "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/research-local-20261012/a2-local.json",
+      "manifest": "audit/evidence/research-local-20261013/a2-local.json",
       "prerequisites": [
         "FE:BFF-FE-001",
         "FE:BFF-FE-007",
@@ -382,7 +382,7 @@
     "CORE-GATE:R1-SERVICE": {
       "profile": "R1_LOCAL",
       "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/research-local-20261012/r1-local.json",
+      "manifest": "audit/evidence/research-local-20261013/r1-local.json",
       "prerequisites": [
         "CORE:R01",
         "CORE:R02",
@@ -404,7 +404,7 @@
     "FE:BFF-FE-003": {
       "profile": "BFF003_LOCAL",
       "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/research-local-20261012/bff003-local.json",
+      "manifest": "audit/evidence/research-local-20261013/bff003-local.json",
       "prerequisites": [
         "FE:BFF-FE-001",
         "FE:BFF-FE-007",
@@ -413,6 +413,19 @@
         "CORE:R02",
         "CORE:R03",
         "CORE:R04",
+        "CORE-GATE:R1-SERVICE",
+        "PROVIDER:A2"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-005": {
+      "profile": "BFF005_LOCAL",
+      "schema": "quantos-research-local-admission/v1",
+      "manifest": "audit/evidence/research-local-20261013/bff005-local.json",
+      "prerequisites": [
+        "FE:BFF-FE-001",
+        "CORE:R01",
+        "CORE:R02",
         "CORE-GATE:R1-SERVICE",
         "PROVIDER:A2"
       ],

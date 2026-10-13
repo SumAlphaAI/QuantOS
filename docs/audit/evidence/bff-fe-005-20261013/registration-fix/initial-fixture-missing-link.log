@@ -1,0 +1,73 @@
+✔ A2_LOCAL admits only complete scoped functionality (21.384583ms)
+✔ R1_LOCAL admits only complete scoped functionality (13.713291ms)
+✔ BFF003_LOCAL admits only complete scoped functionality (12.843958ms)
+✔ BFF005_LOCAL admits only complete scoped functionality (12.521958ms)
+✔ reject another owner (12.270042ms)
+✔ reject formal self approval (11.342542ms)
+✔ reject production (11.381042ms)
+✔ reject target claim (11.163792ms)
+✔ reject performance claim (11.458125ms)
+✔ reject external claim (11.064458ms)
+✔ reject failed status (12.11525ms)
+✔ reject unregistered profile (10.876042ms)
+✔ reject altered scope (11.846583ms)
+✔ reject missing dependency (12.286667ms)
+✔ reject published upstream instead of projection (11.456292ms)
+✔ reject forged dependency (11.86ms)
+✔ reject mixed SHA (11.788333ms)
+✔ reject partial closure (11.00025ms)
+✔ reject wrong local owner (11.152458ms)
+✔ reject failed local proof (11.252625ms)
+✔ reject changed index (10.925291ms)
+✔ reject swapped functional manifest (11.114042ms)
+✔ reject lost release command (11.242958ms)
+✔ reject target passed (10.780875ms)
+✔ reject lost handoff (10.976667ms)
+✔ reject release obligation removed (10.97125ms)
+✔ local profiles cannot execute target or network SCA checks (10.998583ms)
+✔ local environment strips database and production credentials (0.14625ms)
+✔ publication is transactional if post-write validation fails (59.700291ms)
+✔ partial profile publication rejected before writing (0.108667ms)
+✔ release performance thresholds retained and development CI diagnostic only (0.164584ms)
+✔ reassessment root and closure agree with consumer receipt true (369.856417ms)
+✔ reassessment root and closure agree with consumer receipt false (177.392208ms)
+✔ functional F04 proves corpus equality while release retains timing rejection (0.216708ms)
+✔ legacy digest normalization preserves checksum and rejects malformed data (0.115625ms)
+✔ all local profiles defer performance commands (87.712333ms)
+✔ R04 artifact validates actual historical fixture: none (5.670334ms)
+✔ R04 artifact validates actual historical fixture: rehashed failed suite (2.442ms)
+✔ R04 artifact validates actual historical fixture: rehashed incomplete product (7.265875ms)
+✔ R04 artifact validates actual historical fixture: changed log (2.272709ms)
+✔ all consumer registrations match the static stage contract (12.002209ms)
+✖ four consumer publication passes real plan order without upstream READY (70.926667ms)
+ℹ tests 42
+ℹ suites 0
+ℹ pass 41
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1247.865333
+
+✖ failing tests:
+
+test at scripts/research-local-gate.test.mjs:65:1
+✖ four consumer publication passes real plan order without upstream READY (70.926667ms)
+  AssertionError [ERR_ASSERTION]: CORE-GATE:F0: missing evidence reference ./audit/F0-F05-F03-main-acceptance-2026-09-28.md
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:65:7
+      at Array.map (<anonymous>)
+      at parseCheckpoints (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:52:18)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:100:50
+      at Array.flatMap (<anonymous>)
+      at validatePlanOrder (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:100:29)
+      at verifyAfter (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.test.mjs:71:11)
+      at publish (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.mjs:49:135)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.test.mjs:69:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
