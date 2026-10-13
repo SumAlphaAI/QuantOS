@@ -13,3 +13,5 @@ BFF005_LOCAL 完整功能闭包为 40 节点。A3_EXECUTION 仅执行两个 A3 c
 DEVELOPMENT 只验本机真实 Rust/R01/HTTP/生成 client/Chromium 的受控数据功能，不代表真实数据源、Supabase 迁移/RLS/事务、IdP、持久重启、多实例、性能/容量/长稳、同 SHA CI 或正式 ACCEPTED。上述外部与性能全部移交 RELEASE-GATE:BETA，未执行 NOT_RUN，原阈值保留；formalAccepted=false。不使用生产凭据，不部署或发布。
 
 四消费者 manifest 路径、profile 与 prerequisite 登记同时绑定 development-plan-order-policy 和两份 stage contract；实际发布后的静态计划校验必须通过，失败则四份回执与计划原子回滚。合成回执的形状测试不构成功能执行证据。
+
+市场证据校验为纯模块，Gate CLI 与执行器分别依赖该模块，避免顶层 await 循环导入；公开 CLI 的未准入拒绝和准入后成功均须实际复验。

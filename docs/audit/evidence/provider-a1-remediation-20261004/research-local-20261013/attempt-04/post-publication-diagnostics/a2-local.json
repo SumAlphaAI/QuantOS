@@ -1,0 +1,193 @@
+{
+  "schema": "quantos-research-local-admission/v1",
+  "nodeId": "PROVIDER:A2",
+  "stage": "DEVELOPMENT",
+  "profile": "A2_LOCAL",
+  "status": "READY",
+  "engineeringStatus": "PASS",
+  "observedSourceCommit": "e3af9ed824e6ce976ebcbcad88bf50932c6f6872",
+  "databaseExecution": false,
+  "externalExecution": false,
+  "performanceAccepted": false,
+  "production": false,
+  "formalAccepted": false,
+  "planInput": {
+    "acceptance_window": "A2",
+    "checkpoint_id": "PROVIDER:A2",
+    "dependencies": [
+      "FE:BFF-FE-001",
+      "FE:BFF-FE-007",
+      "PROVIDER:A1"
+    ],
+    "depends_on": [
+      "FE:BFF-FE-001",
+      "FE:BFF-FE-007",
+      "PROVIDER:A1"
+    ],
+    "required_scope": "A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 当前开发按A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL分别校验17/27/40/40节点必要功能闭包，绑定同一冻结源码、实际测试日志和产物摘要；只有对应消费者登记DEVELOPMENT READY，上游独立Gate不自动放行。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。"
+  },
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/research-local-20261013/attempt-04-a2-local/local-prerequisites.json",
+    "inputDigest": "sha256:d5a9380149e98d1d8d984022004c93cb9cba8e4b3e1b0ebd4ebb4425d6a7276d"
+  },
+  "functionalManifest": "docs/audit/evidence/provider-a1-remediation-20261004/research-local-20261013/attempt-04-a2-local/provider-a2.json",
+  "functionalDigest": "sha256:2030734b0500761408cb007f724bdb286b675344b39c504ec85a53277c721c8c",
+  "dependencies": [
+    {
+      "nodeId": "FE:BFF-FE-001",
+      "status": "LOCAL_READY",
+      "owner": "PROVIDER:A2",
+      "inputDigest": "sha256:d76d9bceb05bed9501a85757efc1ae6f74f5cc20a5c8c5700b5537875db7938a"
+    },
+    {
+      "nodeId": "FE:BFF-FE-007",
+      "status": "LOCAL_READY",
+      "owner": "PROVIDER:A2",
+      "inputDigest": "sha256:be3a6d42746239a7104a03756ed642d24297230be5019f6a2e68e398b407f028"
+    },
+    {
+      "nodeId": "PROVIDER:A1",
+      "status": "LOCAL_READY",
+      "owner": "PROVIDER:A2",
+      "inputDigest": "sha256:fef8067692e6ad93e74b26c5ced43083215a8b78de047aa753e37fb83ade3d3f"
+    }
+  ],
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL 发布移交：Supabase迁移/RLS/事务/Auth/Storage与身份设置/audit导出、Research/Snapshot/Artifact持久消费和worker取消恢复、market/watchlist持久事务及流撤权、真实盘口/成交来源用途许可、外部Engine/服务部署及OS隔离、远程漏洞库SCA与fork治理、代表性性能/容量/长稳、完整浏览器矩阵及候选同SHA CI；归RELEASE-GATE:BETA首次上线前实际验收。目标与性能NOT_RUN，本地回执不构成上游独立READY、正式ACCEPTED或生产/发布授权。",
+    "prerequisiteChecks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "a2-identity-target",
+        "command": [
+          "node",
+          "scripts/test-bff-fe-001-live.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "a2-audit-target",
+        "command": [
+          "node",
+          "scripts/test-bff-fe-007-live.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "research-release-performance-smokes",
+        "command": [
+          "make",
+          "research-release-performance-smokes"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "frontend-release-performance",
+        "command": [
+          "make",
+          "frontend-release-performance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ]
+  }
+}

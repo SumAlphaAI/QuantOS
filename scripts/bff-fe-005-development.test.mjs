@@ -1,4 +1,5 @@
 // Synthetic, temporary-only verifier fixtures; these are not provider execution receipts.
+import {spawnSync} from 'node:child_process';
 import test from 'node:test';import assert from 'node:assert/strict';
 import YAML from 'yaml';import {readFileSync} from 'node:fs';
 import {operations,validateMarketEvidence} from './bff-fe-005-development.mjs';
@@ -13,3 +14,11 @@ test('complete verifier fixture validates without granting target acceptance',()
 for(const [name,change] of [
  ['missing operation',r=>r.records=r.records.filter(x=>x.operationId!=='getVenueQuotes')],['wrong source',r=>r.sourceCommit='b'.repeat(40)],['database claim',r=>r.databaseExecution=true],['external claim',r=>r.externalExecution=true],['performance claim',r=>r.performanceAccepted=true],['formal self approval',r=>r.formalAccepted=true],['failed request',r=>r.records[0].status=500],['missing stream frames',r=>r.records.find(x=>x.sse).frames=[]],['mislabeled stream',r=>r.records.find(x=>x.sse).sse=false],['corrupt quote',r=>r.records.find(x=>x.operationId==='getVenueQuotes').body.items[0].lastPrice=100],['missing license',r=>delete r.records.find(x=>x.operationId==='getVenueQuotes').body.items[0].provenance.license],['recovery failure',r=>r.recovery.replacement='FAIL'],['browser failure',r=>r.browser.dimensionSwitch='FAIL'],['incomplete denials',r=>r.records=r.records.filter(x=>x.status===200)]
 ])test('reject '+name,()=>{const r=fixture();change(r);assert.throws(()=>validateMarketEvidence(r,source));});
+
+// The public entry point must settle module evaluation both before and after admission.
+// Read-only failure is expected while current-source receipts are absent/stale.
+test('public Gate CLI settles and fails closed without a valid receipt',()=>{
+ const r=spawnSync(process.execPath,['scripts/bff-fe-005-development.mjs'],{encoding:'utf8',timeout:180000,maxBuffer:8*1024*1024,env:{PATH:process.env.PATH,QUANTOS_SKIP_ENV:'1'}});
+ assert(!r.error);assert([0,2].includes(r.status),'unexpected CLI exit '+r.status+' '+r.stderr);assert(!r.stderr.includes('unsettled top-level await'));
+ if(r.status===0){const proof=JSON.parse(r.stdout);assert.equal(proof.status,'READY');assert.equal(proof.operations,7);assert.equal(proof.formalAccepted,false);}else{assert(r.stderr.trim().length>0);assert.equal(r.stdout.trim(),'');}
+});

@@ -1,4 +1,4 @@
-import {validateMarketEvidence} from './bff-fe-005-development.mjs';
+import {validateMarketEvidence} from './bff-fe-005-evidence.mjs';
 import {verifyTp09} from '../third_party/trendradar/check-development.mjs';
 import {verifyTp11} from '../third_party/openstock/check-development.mjs';
 import {verifyTp10} from '../third_party/valuecell/check-development.mjs';
