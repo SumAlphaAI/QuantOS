@@ -1,0 +1,226 @@
+{
+  "schema": "quantos-tp02-local-development/v1",
+  "nodeId": "CORE:TP02",
+  "stage": "DEVELOPMENT",
+  "profile": "TP02_LOCAL",
+  "status": "READY",
+  "engineeringStatus": "PASS",
+  "databaseExecution": false,
+  "production": false,
+  "formalAccepted": false,
+  "observedSourceCommit": "135c7bd52e0f3a8c2d59abb50b3081d6e8843b1e",
+  "planInput": {
+    "acceptance_window": "R1-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE:F08",
+      "CORE-GATE:F0"
+    ],
+    "dependencies": [
+      "CORE:F08",
+      "CORE-GATE:F0"
+    ],
+    "depends_on": [
+      "CORE:F08",
+      "CORE-GATE:F0"
+    ],
+    "iteration": "R1-SERVICE",
+    "requirement": "RD-Agent：自动研究/实验 Engine",
+    "requirements": [
+      "- 需求描述：RD-Agent：自动研究/实验 Engine",
+      "- 交付物：`engines/rd-agent`、manifest、运行时打包、adapter、fixtures",
+      "- 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s",
+      "- 阶段执行：TP02_LOCAL仅放行CORE:TP02；完整13节点必要本地闭包、44组本地检查（含专用负向），13组目标/远程检查移交测试及RELEASE-GATE:BETA；不授予上游或R1-SERVICE READY。两组双RPC回放、离线隔离安装wheel五RPC、取消/deadline与Artifact边界仍必需。规程见[TP02本地准入](./operations/tp02-local-admission.md)。 contract、确定性 hash 与交易/secret/网络拒绝在开发验证；P95 接收响应 <1s 归 RELEASE-GATE:BETA，deadline 内确定性受理或错误仍是开发功能要求。"
+    ],
+    "task_id": "TP02",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-02/local-prerequisites.json",
+    "inputDigest": "sha256:6a860398aca1707e155d970bf055a8a2ff5b300bea22c3fc19d016ed01b4add8"
+  },
+  "functionalManifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-02/core-tp02.json",
+  "functionalDigest": "sha256:b637667588689da57ad09a135ea44bfb77e1a5d67bc6b44a7b83d3d4969f93ed",
+  "dependencies": [
+    {
+      "nodeId": "CORE:F08",
+      "status": "LOCAL_READY",
+      "owner": "CORE:TP02",
+      "inputDigest": "sha256:5e653b155c85496d6259ae63876f74c0bda07b4dcbc01d1649b802e7bc0d37c3"
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "status": "LOCAL_READY",
+      "owner": "CORE:TP02",
+      "inputDigest": "sha256:f815efb63dbc821b6d930729d4ce047ec1fbd17e2d697fac1386b0d22ab49ba5"
+    }
+  ],
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "TP02_LOCAL 发布移交：Supabase可写性及PostgreSQL迁移/RLS/事务/Auth/Storage、持久Artifact/audit/取消恢复、真实DataSnapshot字节及获准来源用途、真实provider/LLM/tool与部署JWT/权限、OS egress、GitHub远程治理与SCA漏洞库查询、代表性P95接收<1s/容量/长稳/平台矩阵及候选同SHA CI和ProjectUser正式确认；由测试及RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地两组双RPC fixture与隔离安装wheel不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。",
+    "prerequisiteChecks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-sca",
+        "command": [
+          "make",
+          "sca-check"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp01-baseline",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--repository"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ]
+  }
+}
