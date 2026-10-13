@@ -624,3 +624,11 @@ provider-a3-local-check:
 	node scripts/research-local-gate.mjs A3_LOCAL
 provider-a3-local-assess:
 	node scripts/record-research-local.mjs $(ATTEMPT)
+
+.PHONY: tp02-assess-local tp02-local-check tp02-release-check
+tp02-assess-local:
+	node scripts/record-tp02-local.mjs
+tp02-local-check:
+	node scripts/tp02-local-gate.mjs --ready
+tp02-release-check:
+	node scripts/tp02-local-gate.mjs --release

@@ -1730,6 +1730,15 @@
       ],
       "staticOnly": true,
       "marker": "fail 0"
+    },
+    "tp02-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp02-local-gate.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
     }
   },
   "nodes": {
@@ -2219,7 +2228,8 @@
         "engines/uv.lock",
         "crates/quantos-engine-manager/",
         "crates/quantos-runtime/",
-        "third_party/tp02-rd-agent/"
+        "third_party/tp02-rd-agent/",
+        "docs/operations/tp02-local-admission.md"
       ],
       "checks": [
         "tp02-development",
@@ -2854,5 +2864,29 @@
       "research-release-performance-smokes",
       "frontend-release-performance"
     ]
+  },
+  "tp02Local": {
+    "owner": "CORE:TP02",
+    "profile": "TP02_LOCAL",
+    "roots": [
+      "CORE:TP02"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP02": [
+        "tp02-local-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA"
   }
 }
