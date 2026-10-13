@@ -21,7 +21,7 @@ PATH=/Users/anray/Library/pnpm/.tools/pnpm/10.20.0/bin:$PATH \
 make research-local-check
 make provider-a3-local-check
 node scripts/reassess-a3-prerequisites.mjs
-node scripts/provider-a2-development.mjs --ready
+node scripts/provider-a2-development.mjs
 node scripts/bff-fe-003-development.mjs --ready
 node scripts/bff-fe-005-development.mjs --ready
 node scripts/check-development-plans.mjs

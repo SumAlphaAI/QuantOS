@@ -1,4 +1,4 @@
-> 当前执行：2026-10-13 PROVIDER:A3 聚合开发验收；新增 A3_LOCAL 独立门禁，刷新 A2/R1/BFF003/BFF005 当前源码闭包。执行与准入分离，外部环境及性能移交 RELEASE，正式验收未执行。
+> 当前执行：2026-10-13 PROVIDER:A3 聚合开发验收完成；冻结 1ee328c7 的 42 节点 / 140 组全部 PASS，A2/R1-SERVICE/BFF003/BFF005/A3 五份限定 DEVELOPMENT READY；全图 5 READY / 154 NOT_ASSESSED / 0 BLOCKED。外部环境及性能移交 RELEASE，formalAccepted=false。见[本轮报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
 
 > 历史基础设施修复：2026-10-13 修复 main 自动签名/目标执行与正式验收 HEAD 循环；签名/目标检查改为手动冻结候选，正式入口显式选 SHA。公共工作流/校验器功能输入变化后，旧四消费者 READY 撤回为 NOT_ASSESSED，原回执保留。仅文档/证据后续提交不改变已选候选，不自动接受新 HEAD。见[修复报告](./audit/Frozen-candidate-workflow-2026-10-13.md)。
 
@@ -51,7 +51,7 @@
 
 > 版本：3.79
 > 更新时间：2026-10-13
-> 状态：PROVIDER:A3 聚合开发验收执行中；正式/目标/发布未执行。
+> 状态：PROVIDER:A3 本地聚合 DEVELOPMENT READY；正式/目标/发布未执行。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
@@ -859,14 +859,16 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:6560e0f4fdbb059ef2084e49be9ef790fbbafc40382140c784d9334ac1b88943",
+    "evidence": [
+      "audit/evidence/provider-a3-local-20261013/a2-local.json"
+    ]
   }
 }
 ```
 
-当前工程复核（2026-10-07）：当前活动问题0，24/24控制点PASS，26/26 API成功目标证据及三项直接依赖有效，DEVELOPMENT严格READY、formalAccepted=false。本轮127项针对性回归、11项异常证据拒绝及26个READY节点核验通过；64acc87的A2聚合及全部工程hosted CI成功。当前[功能manifest](./audit/evidence/provider-a2-remediation-20261007/ci-47cb743-reassessment-20261007/provider-a2.json)继续按内容绑定；执行 `pnpm check:provider-a2 && pnpm test:provider-a2`。见[当前复核报告](./audit/PROVIDER-A2-comprehensive-review-2026-10-07.md)及[本轮核验](./audit/evidence/provider-a2-recheck-64acc87-20261007/verification.json)。 以上为迁移前内容回执；本次文档路径迁移后阶段准入为 NOT_ASSESSED，见[目录整理报告](./audit/Execution-document-organization-2026-10-07.md)。
+历史工程复核（2026-10-07）：当前活动问题0，24/24控制点PASS，26/26 API成功目标证据及三项直接依赖有效，DEVELOPMENT严格READY、formalAccepted=false。本轮127项针对性回归、11项异常证据拒绝及26个READY节点核验通过；64acc87的A2聚合及全部工程hosted CI成功。当前[功能manifest](./audit/evidence/provider-a2-remediation-20261007/ci-47cb743-reassessment-20261007/provider-a2.json)继续按内容绑定；执行 `pnpm check:provider-a2 && pnpm test:provider-a2`。见[当前复核报告](./audit/PROVIDER-A2-comprehensive-review-2026-10-07.md)及[本轮核验](./audit/evidence/provider-a2-recheck-64acc87-20261007/verification.json)。 以上为迁移前内容回执；本次文档路径迁移后阶段准入为 NOT_ASSESSED，见[目录整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
 #### 迭代 A3：页面 API 开发与 provider 功能验证
 
@@ -876,7 +878,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-003`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:a07597ab1fa956d2aa8895bb4496c95a439b1d1ffc86a1240f1ac81699829ba6","evidence":["audit/evidence/provider-a3-local-20261013/bff003-local.json"]}
 - depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -889,6 +891,8 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 
 - 历史工程复核：2026-10-12 九项 C03/C04 页面 API、持久适配器、生成契约及本地正负验证已实现；工程结果见[交付报告](./audit/BFF-FE-003-implementation-2026-10-12.md)。2026-10-13 已按当前冻结源码完整重跑 BFF003_LOCAL 闭包，限定 DEVELOPMENT READY。数据库、hosted CI、UI/consumer 和正式验收保持发布/集成阶段范围。
 
+- 当前工程回执：2026-10-13 冻结 1ee328c7 的完整聚合闭包 140 组 PASS，BFF003_LOCAL 已同源复评 DEVELOPMENT READY。见[当前验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
+
 - 验收边界：BFF003_LOCAL完整40节点本地功能准入；A2_LOCAL与R1_LOCAL回执须同候选、覆盖全部必要检查与负向产物。外部环境、Supabase及性能由RELEASE-GATE:BETA实际验收，不阻塞开发。
 
 <a id="task-bff-fe-005"></a>
@@ -897,7 +901,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-005`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c7e01ef2800bc375569dd04708d987b0fd890300aac061b05ddd4824bcfef0a2","evidence":["audit/evidence/provider-a3-local-20261013/bff005-local.json"]}
 - depends_on: ["BFF-FE-001", "CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -911,6 +915,8 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 目标阶段与验收：FEP-4/G4：报价和 candle 均含 source/venue/asOf/quality/license；切换维度不混用缓存，断流可回补且不拼接
 
 - 历史工程回执（基础设施修复前）：2026-10-13 七个 C12 API、R01 许可盘口、R02 来源授权、K 线/gap/恢复及持久适配器已实现；完整本地闭包 139 组 PASS，BFF005_LOCAL READY。数据库候选迁移未应用；consumer/UI、目标环境、性能和正式确认另验。见[交付与验收报告](./audit/BFF-FE-005-development-2026-10-13.md)。
+
+- 当前工程回执：2026-10-13 冻结 1ee328c7 的完整聚合闭包 140 组 PASS，BFF005_LOCAL 已同源复评 DEVELOPMENT READY。见[当前验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
 
 <a id="acceptance-provider-a3"></a>
 ##### PROVIDER:A3：验收检查点
@@ -932,12 +938,16 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:576621d403d43932731e40b2f4dcc98c853022c35e3ffff05443a4a22731a98d",
+    "evidence": [
+      "audit/evidence/provider-a3-local-20261013/a3-local.json"
+    ]
   }
 }
 ```
+
+当前聚合工程回执：`A3_LOCAL` 绑定 BFF003/BFF005/A2 三份已发布回执及 42 节点完整功能闭包；140/140 组 PASS，DEVELOPMENT READY。正式检查点仍 NOT_STARTED，外部/性能 RELEASE NOT_RUN。见[聚合验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
 
 #### 迭代 A4：页面 API 开发与 provider 功能验证
 

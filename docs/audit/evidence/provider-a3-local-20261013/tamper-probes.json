@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "scope": "published A3 aggregate and consumer content integrity; no target execution",
+  "formalAccepted": false,
+  "probes": [
+    {
+      "name": "bound source",
+      "path": "services/bff-gateway/src/market.rs",
+      "status": "REJECTED",
+      "reason": "source/contract/config/test inventory or content changed"
+    },
+    {
+      "name": "aggregate execution log",
+      "path": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a3-local-20261013/attempt-01-a3-local/logs/bff005-rust.log",
+      "status": "REJECTED",
+      "reason": "log content changed"
+    },
+    {
+      "name": "product receipt",
+      "path": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a3-local-20261013/attempt-01/supporting/bff005-http/market-http.json",
+      "status": "REJECTED",
+      "reason": "functional artifact changed"
+    },
+    {
+      "name": "dependency manifest",
+      "path": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a3-local-20261013/attempt-01-a3-local/fe-pre-01.json",
+      "status": "REJECTED",
+      "reason": "Unexpected non-whitespace character after JSON at position 77621 (line 2213 column 1)"
+    },
+    {
+      "name": "published consumer receipt",
+      "path": "docs/audit/evidence/provider-a3-local-20261013/bff003-local.json",
+      "status": "REJECTED",
+      "reason": "R03 local manifest digest differs"
+    },
+    {
+      "name": "consumer execution log",
+      "path": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a3-local-20261013/attempt-01-bff003-local/logs/bff003-local-rust.log",
+      "status": "REJECTED",
+      "reason": "log content changed"
+    }
+  ],
+  "restored": true
+}

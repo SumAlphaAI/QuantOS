@@ -1,0 +1,158 @@
+{
+  "status": "PASS",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "externalExecution": false,
+  "results": [
+    {
+      "id": "recursive-gates",
+      "command": [
+        "make",
+        "research-local-check"
+      ],
+      "executedAt": "2026-10-13T08:50:31.188Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/recursive-gates.log",
+      "sha256": "sha256:a010fc434c8de05f31d3c21e90e0410c820bef4a0720e9b0416f068f7b5f069a"
+    },
+    {
+      "id": "a3-public",
+      "command": [
+        "make",
+        "provider-a3-local-check"
+      ],
+      "executedAt": "2026-10-13T08:51:15.689Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/a3-public.log",
+      "sha256": "sha256:8e6e1d18454a3f98c83d461ca7ce038742f5d1fe38796a4441ea454d181c821e"
+    },
+    {
+      "id": "prerequisite-reassessment",
+      "command": [
+        "node",
+        "scripts/reassess-a3-prerequisites.mjs"
+      ],
+      "executedAt": "2026-10-13T08:51:37.707Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/reassessment.json",
+      "sha256": "sha256:80a926d8678bad42ef8ba1f335d87b6f99ac31e74ddfd9303ee3f7b8845aa324"
+    },
+    {
+      "id": "a2-public",
+      "command": [
+        "node",
+        "scripts/provider-a2-development.mjs"
+      ],
+      "executedAt": "2026-10-13T08:53:05.727Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/a2-public.log",
+      "sha256": "sha256:5c06069ea375f925aa8291219902a39cec0692eaa50bb2d2e65f8de6f9f8efbb"
+    },
+    {
+      "id": "bff003-public",
+      "command": [
+        "node",
+        "scripts/bff-fe-003-development.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-13T08:53:08.539Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/bff003-public.log",
+      "sha256": "sha256:e6199e8c026e482231b172251f27c74152e629285fc627b96bc0ce8d363eb54d"
+    },
+    {
+      "id": "bff005-public",
+      "command": [
+        "node",
+        "scripts/bff-fe-005-development.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-13T08:53:15.256Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/bff005-public.log",
+      "sha256": "sha256:6ed3540e8a2de2c2a2762c880581f7eea9bcd91f4d134a48f109cd9b9283ef2b"
+    },
+    {
+      "id": "strict-target-denial",
+      "command": [
+        "node",
+        "scripts/provider-a2-development.mjs",
+        "--target"
+      ],
+      "executedAt": "2026-10-13T08:53:21.690Z",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/strict-target-denial.log",
+      "sha256": "sha256:1b37c274ec3b33c1b3cb4e31ef3d1a21a7a5cc949ced124553213a022a7a2ece"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "executedAt": "2026-10-13T08:53:21.818Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/plans.log",
+      "sha256": "sha256:1a323dbbf901c37fa81dca28fa02985fb14cc1f96ce8d8bd10af4ada08c48760"
+    },
+    {
+      "id": "handoffs",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "executedAt": "2026-10-13T08:53:21.873Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/handoffs.log",
+      "sha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+    },
+    {
+      "id": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "executedAt": "2026-10-13T08:53:21.906Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/format.log",
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "executedAt": "2026-10-13T08:53:22.348Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/provider-a3-local-20261013/diff.log",
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

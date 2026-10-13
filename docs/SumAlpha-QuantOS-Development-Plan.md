@@ -1,4 +1,4 @@
-> 当前执行：2026-10-13 PROVIDER:A3 聚合开发验收；新增 A3_LOCAL 独立门禁，刷新 A2/R1/BFF003/BFF005 当前源码闭包。执行与准入分离，外部环境及性能移交 RELEASE，正式验收未执行。
+> 当前执行：2026-10-13 PROVIDER:A3 聚合开发验收完成；冻结 1ee328c7 的 42 节点 / 140 组全部 PASS，A2/R1-SERVICE/BFF003/BFF005/A3 五份限定 DEVELOPMENT READY；全图 5 READY / 154 NOT_ASSESSED / 0 BLOCKED。外部环境及性能移交 RELEASE，formalAccepted=false。见[本轮报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
 
 > 历史基础设施修复：2026-10-13 修复 main 自动签名/目标执行与正式验收 HEAD 循环；签名/目标检查改为手动冻结候选，正式入口显式选 SHA。公共工作流/校验器功能输入变化后，旧四消费者 READY 撤回为 NOT_ASSESSED，原回执保留。仅文档/证据后续提交不改变已选候选，不自动接受新 HEAD。见[修复报告](./audit/Frozen-candidate-workflow-2026-10-13.md)。
 
@@ -59,7 +59,7 @@
 
 > 版本：3.78
 > 更新时间：2026-10-13
-> 状态：PROVIDER:A3 聚合开发验收执行中；正式/目标/发布未执行。
+> 状态：PROVIDER:A3 本地聚合 DEVELOPMENT READY；正式/目标/发布未执行。
 > 本轮变更：BFF-FE-005 市场 API、四消费者当前源码本地复评及发布验收移交。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
@@ -1254,9 +1254,11 @@ flowchart TD
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:8f481cb74053a39906175e354f03bf58adc94f49d9298373812190bf2f2fe3c9",
+    "evidence": [
+      "audit/evidence/provider-a3-local-20261013/r1-local.json"
+    ]
   }
 }
 ```
