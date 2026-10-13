@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
-import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {gunzipSync} from 'node:zlib';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {validateF06Acceptance} from './check-f06-acceptance.mjs';
+import {candidateArgument,resolveCandidate,candidateFile,candidateNote} from './acceptance-candidate.mjs';
 const root=resolve(import.meta.dirname,'..');
 export const requiredChecks=JSON.parse(readFileSync(new URL('./p0-required-checks.json',import.meta.url))).checks;
 export function validateP0Receipt({receipt,sourceCommit,plan,corePlan,f06,archivedFindings}) {
@@ -40,12 +40,11 @@ export function validateP0Receipt({receipt,sourceCommit,plan,corePlan,f06,archiv
   check(receipt?.negativeChecks?.length===negatives.length&&negatives.every(name=>receipt.negativeChecks.filter(c=>c.name===name&&c.exit_code===1).length===1),'execution-negative evidence missing or not rejected');
   return {schema:'quantos-p0-verification/v1',status:failures.length?'FAIL':'PASS',sourceCommit,admission:failures.length?'NONE':'A1_ONLY',failures};
 }
-export function readNote(ref,sha) {
-  try{return JSON.parse(execFileSync('git',['notes',`--ref=refs/notes/${ref}`,'show',sha],{cwd:root,encoding:'utf8',stdio:['ignore','pipe','ignore']}));}catch{return null;}
+export function readNote(ref,sha,{root:repository=root}={}) {return candidateNote(repository,sha,ref);}
+export function checkP0Candidate(candidate,{root:repository=root}={}) {
+ const selection=resolveCandidate(candidate,{root:repository}),sourceCommit=selection.sourceCommit;
+ return {...validateP0Receipt({sourceCommit,receipt:readNote('p0-acceptance',sourceCommit,{root:repository}),f06:readNote('f06-acceptance',sourceCommit,{root:repository}),plan:candidateFile(repository,sourceCommit,'docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md').toString(),corePlan:candidateFile(repository,sourceCommit,'docs/SumAlpha-QuantOS-Development-Plan.md').toString(),archivedFindings:candidateFile(repository,sourceCommit,'docs/audit/F06-closed-findings-2026-09-25.md').toString()}),...selection};
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href) {
-  const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
-  const result=validateP0Receipt({sourceCommit,receipt:readNote('p0-acceptance',sourceCommit),f06:readNote('f06-acceptance',sourceCommit),plan:readFileSync(resolve(root,'docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'),'utf8'),corePlan:readFileSync(resolve(root,'docs/SumAlpha-QuantOS-Development-Plan.md'),'utf8'),archivedFindings:readFileSync(resolve(root,'docs/audit/F06-closed-findings-2026-09-25.md'),'utf8')});
-  if(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim()){result.failures.push('working tree must be clean');result.status='FAIL';result.admission='NONE';}
-  console.log(JSON.stringify(result,null,2));if(result.status!=='PASS')process.exitCode=1;
+ try{const {candidate,remaining}=candidateArgument(process.argv.slice(2));if(remaining.length)throw Error('Usage: --candidate <SHA>');const result=checkP0Candidate(candidate);console.log(JSON.stringify(result,null,2));if(result.status!=='PASS')process.exitCode=1;}catch(e){console.error(e.message);process.exitCode=1;}
 }

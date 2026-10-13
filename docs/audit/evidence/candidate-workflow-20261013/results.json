@@ -1,0 +1,212 @@
+{
+  "schema": "quantos-candidate-workflow-local-verification/v1",
+  "status": "PASS",
+  "observedHead": "e4b1a730b32cd0ccb0d001f1c9f6ac78bb21e6da",
+  "sourceCommitFrozen": false,
+  "testedInputScope": "worktree byte hashes captured in inputs.json; not a formal or business Gate receipt",
+  "databaseExecution": false,
+  "externalExecution": false,
+  "signingExecution": false,
+  "deploymentPerformed": false,
+  "formalAccepted": false,
+  "checks": [
+    {
+      "id": "candidate-formal-regressions",
+      "command": [
+        "node",
+        "--test",
+        "scripts/acceptance-candidate.test.mjs",
+        "scripts/f02-a11-gate-negative.mjs",
+        "scripts/f06-acceptance-gate-negative.mjs",
+        "scripts/p0-acceptance-negative.mjs",
+        "scripts/bff-remediation-negative.mjs"
+      ],
+      "startedAt": "2026-10-13T07:27:14.379Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/candidate-formal-regressions.log",
+      "sha256": "sha256:a058f8d7fa5b8f5ebc500dc78f10ee34b984ea164251342dbcca843e19245885"
+    },
+    {
+      "id": "f02-check",
+      "command": [
+        "make",
+        "f02-check"
+      ],
+      "startedAt": "2026-10-13T07:27:15.531Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/f02-check.log",
+      "sha256": "sha256:7eb589ff588fe667fc88f1f348183cc1b074b42304d003d22b92510391bc75a6"
+    },
+    {
+      "id": "user-confirmation",
+      "command": [
+        "node",
+        "--test",
+        "scripts/user-acceptance-confirmation.test.mjs"
+      ],
+      "startedAt": "2026-10-13T07:27:21.497Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/user-confirmation.log",
+      "sha256": "sha256:fc32409b51396cb1a63da69e7eeed9c2fe6a504e02da4b9f4cd93ef102d40a9f"
+    },
+    {
+      "id": "plans-negative",
+      "command": [
+        "node",
+        "--test",
+        "scripts/development-plan-order-negative.mjs",
+        "scripts/frontend-gate-handoff.test.mjs"
+      ],
+      "startedAt": "2026-10-13T07:27:21.559Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/plans-negative.log",
+      "sha256": "sha256:97442d171fa0b2d7fbc2d24e06a64fbb952f5eb469ff20780bfc57fc722a3f7f"
+    },
+    {
+      "id": "ci-disposition",
+      "command": [
+        "node",
+        "--test",
+        "scripts/ci-stage-disposition.test.mjs"
+      ],
+      "startedAt": "2026-10-13T07:27:21.979Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/ci-disposition.log",
+      "sha256": "sha256:460bcebc1cca91ce2cd4f243de6eb7d01781ed85316d43cefc9a6436e2e209a1"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-13T07:27:22.179Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/plans.log",
+      "sha256": "sha256:3b347ae7a32d56f02d0b8c59c9ac4459b0ab082e8aa07895e5980bdeb803db6b"
+    },
+    {
+      "id": "f09-static",
+      "command": [
+        "node",
+        "scripts/check-f09-observability-config.mjs"
+      ],
+      "startedAt": "2026-10-13T07:27:22.233Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/f09-static.log",
+      "sha256": "sha256:bdc30255a1cbbeb91a4a0e75e483a810f9b77b5e785f454a8faa1f651bf81f73"
+    },
+    {
+      "id": "f06-missing-candidate-reject",
+      "command": [
+        "node",
+        "scripts/check-f06-acceptance.mjs"
+      ],
+      "startedAt": "2026-10-13T07:27:22.273Z",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/f06-missing-candidate-reject.log",
+      "sha256": "sha256:2d496518cccd48de2cc9a3b423814df745385c0f244509a74832bfd678e01221"
+    },
+    {
+      "id": "p0-missing-candidate-reject",
+      "command": [
+        "node",
+        "scripts/check-p0-acceptance.mjs"
+      ],
+      "startedAt": "2026-10-13T07:27:22.296Z",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/p0-missing-candidate-reject.log",
+      "sha256": "sha256:2d496518cccd48de2cc9a3b423814df745385c0f244509a74832bfd678e01221"
+    },
+    {
+      "id": "a1-missing-candidate-reject",
+      "command": [
+        "node",
+        "scripts/check-bff-a1-acceptance.mjs"
+      ],
+      "startedAt": "2026-10-13T07:27:22.321Z",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/a1-missing-candidate-reject.log",
+      "sha256": "sha256:2f0bc8e1471e048ff776936f1d9b4775ac31c600d102ca1e241a08c9cbdacd4e"
+    },
+    {
+      "id": "f06-no-real-receipt-reject",
+      "command": [
+        "node",
+        "scripts/check-f06-acceptance.mjs",
+        "--candidate",
+        "e4b1a730b32cd0ccb0d001f1c9f6ac78bb21e6da"
+      ],
+      "startedAt": "2026-10-13T07:27:22.354Z",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/f06-no-real-receipt-reject.log",
+      "sha256": "sha256:d13b6dd10b9693dcc54b8ae1821c91b92fe483257bf844f8209d5d32c0b3c310"
+    },
+    {
+      "id": "p0-no-real-receipt-reject",
+      "command": [
+        "node",
+        "scripts/check-p0-acceptance.mjs",
+        "--candidate",
+        "e4b1a730b32cd0ccb0d001f1c9f6ac78bb21e6da"
+      ],
+      "startedAt": "2026-10-13T07:27:22.404Z",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/p0-no-real-receipt-reject.log",
+      "sha256": "sha256:7cb1397e89105f6ea88fe286116618f00bc3fd0a9d470910506ba3a704ea0541"
+    },
+    {
+      "id": "a1-no-real-receipt-reject",
+      "command": [
+        "node",
+        "scripts/check-bff-a1-acceptance.mjs",
+        "--candidate",
+        "e4b1a730b32cd0ccb0d001f1c9f6ac78bb21e6da"
+      ],
+      "startedAt": "2026-10-13T07:27:22.466Z",
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/a1-no-real-receipt-reject.log",
+      "sha256": "sha256:ad0cde84553052825d8455f261f251a8a56a604927eee0e505aed11761edfb82"
+    },
+    {
+      "id": "diff-format",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "startedAt": "2026-10-13T07:27:22.531Z",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/candidate-workflow-20261013/diff-format.log",
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

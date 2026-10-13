@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
   security-events: write
 
 jobs:
@@ -217,81 +216,16 @@ jobs:
           path: artifacts/f02/
           if-no-files-found: error
 
-  signing-policy:
+  verify-download-ci:
     needs: verify
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      actions: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24.12.0"
-      # Read-only preflight prevents implicit creation of an unprotected Environment.
-      - run: node scripts/check-f02-signing-policy.mjs
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-  sign-main:
-    needs: [verify, signing-policy]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
-    environment: f02-signing
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: quantos-build-inputs
-          path: artifacts
-      - name: Sign main build artifacts
-        env:
-          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
-          QUANTOS_REQUIRE_FORMAL_SIGNATURE: "1"
-        run: bash scripts/sign-artifacts.sh artifacts/release/manifest.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: quantos-build-artifacts
-          path: |
-            artifacts/release/
-            artifacts/signatures/
-          if-no-files-found: error
-
-  verify-download-main:
-    needs: sign-main
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
-    environment: f02-signing
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24.12.0"
-      - uses: actions/download-artifact@v4
-        with:
-          name: quantos-build-artifacts
-          path: artifacts
-      - name: Verify downloaded payload and formal signature; record receipt
-        env:
-          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
-        run: node scripts/write-f02-ci-receipt.mjs
-      - uses: actions/upload-artifact@v4
-        with:
-          name: f02-download-receipt
-          path: artifacts/f02/download-receipt.json
-          if-no-files-found: error
-
-  verify-download-pr:
-    needs: verify
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-24.04
     env:
-      QUANTOS_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+      QUANTOS_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: "24.12.0"
@@ -299,7 +233,7 @@ jobs:
         with:
           name: quantos-build-inputs
           path: artifacts
-      - name: Verify PR payload without signing credentials
+      - name: Verify component CI payload without signing credentials
         env:
           QUANTOS_DOWNLOADED_ARTIFACT: quantos-build-inputs
         run: node scripts/write-f02-ci-receipt.mjs
@@ -311,19 +245,16 @@ jobs:
 
   # Stable required-check name: a skipped upstream job never counts as acceptance.
   verify-download:
-    needs: [verify-download-main, verify-download-pr]
+    needs: verify-download-ci
     if: always()
     runs-on: ubuntu-24.04
     steps:
       - name: Require the event-specific download verification
         env:
-          MAIN_RESULT: ${{ needs.verify-download-main.result }}
-          PR_RESULT: ${{ needs.verify-download-pr.result }}
+          CI_RESULT: ${{ needs.verify-download-ci.result }}
         run: |
-          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]]; then
-            test "$MAIN_RESULT" = success
-          elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            test "$PR_RESULT" = success
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/main" ]] || [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            test "$CI_RESULT" = success
           else
             exit 1
           fi

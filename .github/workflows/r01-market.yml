@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: "Frozen full SHA for explicit Supabase migration/coverage acceptance"
+        required: true
+        type: string
   schedule:
     - cron: '23 19 * * *'
 concurrency:
@@ -23,9 +28,25 @@ jobs:
         with:
           node-version: 24.12.0
       - run: make r01-check
+  release-candidate:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    outputs:
+      source_sha: ${{ steps.candidate.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+      - id: candidate
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: node scripts/acceptance-candidate.mjs --candidate "$CANDIDATE_SHA" --github-output
   supabase-coverage:
-    if: github.event_name != 'pull_request'
-    needs: behavior
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    needs: [behavior, release-candidate]
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -40,6 +61,8 @@ jobs:
       QUANTOS_R01_POOL_MODE: transaction
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-candidate.outputs.source_sha }}
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
@@ -70,7 +93,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: r01-${{ matrix.toolchain }}-${{ github.sha }}
+          name: r01-${{ matrix.toolchain }}-${{ needs.release-candidate.outputs.source_sha }}
           path: |
             artifacts/r01/
             artifacts/r01-supervision/

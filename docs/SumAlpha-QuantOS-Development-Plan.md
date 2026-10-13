@@ -1,4 +1,6 @@
-> 当前执行：2026-10-13 BFF-FE-005 本地 DEVELOPMENT READY；冻结 ac4a8dc4 完整 42 节点 / 139 组 PASS，A2/R1-SERVICE/BFF003/BFF005 四消费者回执均同源复评 READY。PROVIDER:A3 未授予 READY；外部/性能 RELEASE NOT_RUN，formalAccepted=false。见[本轮报告](./audit/BFF-FE-005-development-2026-10-13.md)。
+> 当前执行：2026-10-13 修复 main 自动签名/目标执行与正式验收 HEAD 循环；签名/目标检查改为手动冻结候选，正式入口显式选 SHA。公共工作流/校验器功能输入变化后，旧四消费者 READY 撤回为 NOT_ASSESSED，原回执保留。仅文档/证据后续提交不改变已选候选，不自动接受新 HEAD。见[修复报告](./audit/Frozen-candidate-workflow-2026-10-13.md)。
+
+> 历史工程快照（BFF-FE-005，本次基础设施修复前）：2026-10-13 BFF-FE-005 本地 DEVELOPMENT READY；冻结 ac4a8dc4 完整 42 节点 / 139 组 PASS，A2/R1-SERVICE/BFF003/BFF005 四消费者回执均同源复评 READY。PROVIDER:A3 未授予 READY；外部/性能 RELEASE NOT_RUN，formalAccepted=false。见[本轮报告](./audit/BFF-FE-005-development-2026-10-13.md)。
 
 > 历史 A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
 
@@ -53,14 +55,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.76
+> 版本：3.77
 > 更新时间：2026-10-13
-> 状态：A2、R1-SERVICE、BFF-FE-003、BFF-FE-005 限定本地 DEVELOPMENT READY；正式、UI 集成及发布独立。
+> 状态：验收基础设施修复；本轮不重授业务 Gate，正式/目标/发布未执行。
 > 本轮变更：BFF-FE-005 市场 API、四消费者当前源码本地复评及发布验收移交。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.77`：组件 CI 与手动候选签名/目标检查分离；正式校验显式选择冻结 SHA，文档/证据记录不追逐 HEAD；旧功能回执保留并撤回受影响 READY。
 
 - `3.76`：完成 BFF-FE-005 C12 七操作与当前源全闭包；42 节点 / 139 组 PASS，四消费者本地 READY；PROVIDER:A3、正式/目标/性能独立。见[本轮报告](./audit/BFF-FE-005-development-2026-10-13.md)。
 
@@ -1235,11 +1239,9 @@ flowchart TD
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:9597d51c1af79fe27286a377e81088affc816d42fead9090f7ee8a297db1bcb5",
-    "evidence": [
-      "audit/evidence/research-local-20261013/r1-local.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```

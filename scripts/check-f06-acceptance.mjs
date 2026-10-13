@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-import { readFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import process from "node:process";
 import console from "node:console";
 
+import {candidateArgument,resolveCandidate,candidateFile,candidateNote} from "./acceptance-candidate.mjs";
 const root = resolve(import.meta.dirname, "..");
 const archivePath = "docs/audit/F06-closed-findings-2026-09-25.md";
 const requiredChecks = ["realOidcBff", "executionRoleAndVault", "denialMatrix"];
@@ -23,7 +22,7 @@ export function validateF06Acceptance({ plan, receipt, sourceCommit, archivedFin
   const reviewStatuses = [...summary.matchAll(/历史正式复审：`([^`]+)`/g)];
   if (reviewStatuses.length !== 1 || reviewStatuses[0][1] !== "ACCEPTED") failures.push("F06 historical review is not uniquely ACCEPTED");
   // The plan summary only locates the historical closure. Acceptance still
-  // requires all archived findings and a complete current-SHA target receipt.
+  // requires all archived findings and a complete selected-candidate target receipt.
   const findings = archivedFindings;
   if (!summary.includes("./audit/F06-closed-findings-2026-09-25.md")) {
     failures.push("F06 closed findings archive link is missing");
@@ -42,7 +41,7 @@ export function validateF06Acceptance({ plan, receipt, sourceCommit, archivedFin
     failures.push("F06 target acceptance receipt is missing or invalid");
   } else {
     if (receipt.schema !== "quantos-f06-target-acceptance/v2") failures.push("F06 target receipt schema is invalid");
-    if (receipt.sourceCommit !== sourceCommit || !/^[a-f0-9]{40}$/.test(receipt.sourceCommit ?? "")) failures.push("receipt sourceCommit differs from HEAD or is not a full SHA");
+    if (receipt.sourceCommit !== sourceCommit || !/^[a-f0-9]{40}$/.test(receipt.sourceCommit ?? "")) failures.push("receipt sourceCommit differs from selected candidate or is not a full SHA");
     if (receipt.status !== "PASS" || !Array.isArray(receipt.failures) || receipt.failures.length !== 0) {
       failures.push("F06 target receipt is not a clean PASS");
     }
@@ -53,23 +52,12 @@ export function validateF06Acceptance({ plan, receipt, sourceCommit, archivedFin
   return { status: failures.length ? "FAIL" : "PASS", sourceCommit, failures };
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
-  const plan = readFileSync(resolve(root, "docs/SumAlpha-QuantOS-Development-Plan.md"), "utf8");
-  let receipt = null;
-  try {
-    receipt = JSON.parse(execFileSync("git", ["notes", "--ref=refs/notes/f06-acceptance", "show", sourceCommit],
-      { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }));
-  } catch (error) {
-    receipt = { receiptError: error.message };
-  }
-  let archivedFindings = null;
-  try { archivedFindings = readFileSync(resolve(root, archivePath), "utf8"); } catch { /* Missing closure evidence is rejected by validation. */ }
-  const report = validateF06Acceptance({ plan, receipt, sourceCommit, archivedFindings });
-  if (execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" }).trim()) {
-    report.failures.push("working tree is not clean");
-    report.status = "FAIL";
-  }
-  console.log(JSON.stringify(report));
-  if (report.failures.length) process.exitCode = 1;
+export function checkF06Candidate(candidate,{root:repository=root}={}) {
+  const selection=resolveCandidate(candidate,{root:repository});
+  const sourceCommit=selection.sourceCommit;
+  const report=validateF06Acceptance({sourceCommit,plan:candidateFile(repository,sourceCommit,'docs/SumAlpha-QuantOS-Development-Plan.md').toString(),receipt:candidateNote(repository,sourceCommit,'f06-acceptance'),archivedFindings:candidateFile(repository,sourceCommit,archivePath).toString()});
+  return {...report,...selection};
+}
+if (process.argv[1]&&import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+ try{const {candidate,remaining}=candidateArgument(process.argv.slice(2));if(remaining.length)throw Error('Usage: --candidate <SHA>');const report=checkF06Candidate(candidate);console.log(JSON.stringify(report));if(report.status!=='PASS')process.exitCode=1;}catch(e){console.error(e.message);process.exitCode=1;}
 }

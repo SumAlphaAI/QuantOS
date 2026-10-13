@@ -52,25 +52,18 @@ test('acceptance never updates snapshots or skips missing snapshots', () => {
   }
 });
 
-test('only main signing and verification jobs receive the signing environment', () => {
+test('only explicit main candidate signing receives the signing environment', () => {
   const ci = parse(fs.readFileSync('.github/workflows/ci.yml', 'utf8'));
-  for (const name of ['sign-main', 'verify-download-main']) {
-    assert.equal(ci.jobs[name].environment, 'f02-signing');
-    assert.equal(ci.jobs[name].if, "github.event_name == 'push' && github.ref == 'refs/heads/main'");
-  }
-  assert(ci.jobs['sign-main'].needs.includes('signing-policy'));
-  assert.equal(ci.jobs['signing-policy'].permissions.actions, 'read');
-  for (const name of ['verify', 'verify-download-pr']) {
-    assert.equal(ci.jobs[name].environment, undefined);
-    assert(!JSON.stringify(ci.jobs[name]).includes('secrets.QUANTOS_SIGNING_KEY'));
-  }
-  assert.equal(ci.jobs['verify-download'].if, 'always()');
-  assert(ci.jobs['verify-download'].steps[0].run.includes('test "$MAIN_RESULT" = success'));
-  assert(ci.jobs['verify-download'].steps[0].run.includes('test "$PR_RESULT" = success'));
+  const release = parse(fs.readFileSync('.github/workflows/sign-release-candidate.yml','utf8'));
+  assert.deepEqual(Object.keys(release.on),['workflow_dispatch']);
+  for(const job of Object.values(ci.jobs)){assert.equal(job.environment,undefined);assert(!JSON.stringify(job).includes('secrets.QUANTOS_SIGNING_KEY'));}
+  assert.equal(release.jobs['sign-main'].environment,'f02-signing');
+  for(const job of Object.values(release.jobs))assert.equal(job.if,"github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'");
+  assert.equal(release.jobs['sign-main'].needs,'signing-policy');assert.equal(release.permissions.actions,'read');
+  assert.equal(ci.jobs['verify-download'].if,'always()');
+  assert(ci.jobs['verify-download'].steps[0].run.includes('test "$CI_RESULT" = success'));
   const capture = parse(fs.readFileSync('.github/workflows/visual-baseline-candidates.yml', 'utf8'));
-  assert.equal(capture.permissions.contents, 'read');
-  assert.equal(capture.jobs.capture.if, "github.ref == 'refs/heads/main'");
-  assert.equal(capture.jobs.capture['runs-on'], 'ubuntu-24.04');
+  assert.equal(capture.permissions.contents,'read');assert.equal(capture.jobs.capture.if,"github.ref == 'refs/heads/main'");assert.equal(capture.jobs.capture['runs-on'],'ubuntu-24.04');
 });
 
 test('signing policy rejects missing protection, wildcards, tags and extra branches', () => {
@@ -125,25 +118,19 @@ test('candidate import rejects tampering and stale source before writing, then i
   } finally { fs.rmSync(scratch, { recursive: true, force: true }); }
 });
 
-test('required download check rejects skipped or failed event-specific verification', () => {
-  const ci = parse(fs.readFileSync('.github/workflows/ci.yml', 'utf8'));
-  const script = ci.jobs['verify-download'].steps[0].run;
-  for (const [event, main, pr, expected] of [
-    ['push', 'success', 'skipped', 0], ['push', 'skipped', 'success', 1],
-    ['push', 'failure', 'skipped', 1], ['pull_request', 'skipped', 'success', 0],
-    ['pull_request', 'success', 'skipped', 1], ['workflow_dispatch', 'success', 'success', 1],
-  ]) {
-    const result = spawnSync('bash', ['-e', '-c', script], { env: { PATH: process.env.PATH, GITHUB_EVENT_NAME: event, GITHUB_REF: 'refs/heads/main', MAIN_RESULT: main, PR_RESULT: pr } });
-    assert.equal(result.status, expected, `${event}: ${main}/${pr}`);
-  }
+test('required unsigned download check rejects skipped or failed verification', () => {
+ const ci=parse(fs.readFileSync('.github/workflows/ci.yml','utf8')),script=ci.jobs['verify-download'].steps[0].run;
+ for(const [event,result,expected]of [['push','success',0],['push','skipped',1],['push','failure',1],['pull_request','success',0],['pull_request','skipped',1],['workflow_dispatch','success',1]]){
+  const run=spawnSync('bash',['-e','-c',script],{env:{PATH:process.env.PATH,GITHUB_EVENT_NAME:event,GITHUB_REF:'refs/heads/main',CI_RESULT:result}});assert.equal(run.status,expected,event+':'+result);
+ }
 });
 
-test('PR receipts bind the checked out head while main signing stays on the event SHA', () => {
+test('component receipts bind the event source without formal promotion', () => {
   const ci = parse(fs.readFileSync('.github/workflows/ci.yml', 'utf8'));
   const head = '${{ github.event.pull_request.head.sha }}';
   assert.equal(ci.jobs.verify.steps[0].with.ref, '${{ github.event.pull_request.head.sha || github.sha }}');
-  assert.equal(ci.jobs['verify-download-pr'].steps[0].with.ref, head);
-  assert.equal(ci.jobs['verify-download-pr'].env.QUANTOS_SOURCE_SHA, head);
+  assert.equal(ci.jobs['verify-download-ci'].steps[0].with.ref, '${{ github.event.pull_request.head.sha || github.sha }}');
+  assert.equal(ci.jobs['verify-download-ci'].env.QUANTOS_SOURCE_SHA, '${{ github.event.pull_request.head.sha || github.sha }}');
   const pr = 'a'.repeat(40);
   const merge = 'b'.repeat(40);
   assert.equal(expectedCiSourceSha({

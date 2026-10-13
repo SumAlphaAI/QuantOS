@@ -514,7 +514,7 @@ f02-package:
 	$(MAKE) build-manifest
 
 f02-check:
-	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/playwright-git-history.test.mjs scripts/storage-fixture.test.cjs scripts/f02-development-database.test.cjs
+	node --test scripts/f02-gate-negative.mjs scripts/f02-a11-gate-negative.mjs scripts/acceptance-candidate.test.mjs scripts/playwright-git-history.test.mjs scripts/storage-fixture.test.cjs scripts/f02-development-database.test.cjs
 
 .PHONY: r01-window-check
 r01-window-check:

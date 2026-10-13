@@ -1,0 +1,82 @@
+name: Sign Frozen Release Candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: "Frozen full source SHA (not the later evidence/document HEAD)"
+        required: true
+        type: string
+      source_run_id:
+        description: "Successful QuantOS CI push/main run ID for exactly this candidate"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  signing-policy:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    env:
+      CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - run: node scripts/check-f02-release-candidate.mjs
+      - run: node scripts/check-f02-signing-policy.mjs
+
+  sign-main:
+    needs: signing-policy
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: f02-signing
+    env:
+      CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+    steps:
+      # Checkout the trusted workflow/validator revision, not the artifact revision.
+      # The immutable artifact manifest and source CI run bind the candidate instead.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - name: Revalidate exact source CI run before consuming artifacts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/check-f02-release-candidate.mjs
+      - uses: actions/download-artifact@v4
+        with:
+          name: quantos-build-inputs
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id }}
+          github-token: ${{ github.token }}
+          path: artifacts
+      - name: Verify complete frozen candidate payload
+        run: node scripts/verify-release.mjs artifacts/release "$CANDIDATE_SHA"
+      - name: Sign and independently verify the downloaded candidate
+        env:
+          QUANTOS_SIGNING_KEY: ${{ secrets.QUANTOS_SIGNING_KEY }}
+          QUANTOS_REQUIRE_FORMAL_SIGNATURE: "1"
+        run: |
+          bash scripts/sign-artifacts.sh artifacts/release/manifest.json
+          node scripts/write-f02-promotion-receipt.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quantos-signed-candidate-${{ inputs.candidate_sha }}
+          path: |
+            artifacts/release/
+            artifacts/signatures/
+            artifacts/f02/source-ci-run.json
+            artifacts/f02/promotion-receipt.json
+          if-no-files-found: error

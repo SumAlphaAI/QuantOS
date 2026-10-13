@@ -1,0 +1,13 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {releaseDispatch,validateSourceRun} from './check-f02-release-candidate.mjs';
+import {resolveCandidate} from './acceptance-candidate.mjs';
+import {verifyRelease} from './verify-release.mjs';
+const request=releaseDispatch(process.env),candidate=resolveCandidate(request.candidate);
+const metadata=readFileSync('artifacts/f02/source-ci-run.json');
+const proof=validateSourceRun(JSON.parse(metadata),request);
+verifyRelease('artifacts/release',candidate.sourceCommit);
+execFileSync('bash',['scripts/verify-artifact-signatures.sh','artifacts/release/manifest.json'],{stdio:'inherit'});
+mkdirSync('artifacts/f02',{recursive:true});
+writeFileSync('artifacts/f02/promotion-receipt.json',JSON.stringify({schema:'quantos-f02-candidate-promotion/v1',status:'PASS',commit:candidate.sourceCommit,validatorCommit:candidate.observedHead,sourceRun:proof,sourceRunMetadataSha256:createHash('sha256').update(metadata).digest('hex'),promotionRun:`https://github.com/${request.repository}/actions/runs/${process.env.GITHUB_RUN_ID}`,downloadVerified:true,formalSignatureVerified:true,deploymentPerformed:false,formalAccepted:false,completedAt:new Date().toISOString()},null,2)+'\n');

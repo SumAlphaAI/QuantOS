@@ -5,6 +5,11 @@ on:
   push:
     branches: [main, "codex/f09-remediation"]
   workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: "Frozen full source SHA for explicit target acceptance; no automatic HEAD selection"
+        required: true
+        type: string
   schedule:
     - cron: "17 19 * * *"
 
@@ -36,9 +41,26 @@ jobs:
       - name: Trace, Engine and ADR static Gate
         run: make observability-check
 
+  release-candidate:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    outputs:
+      source_sha: ${{ steps.candidate.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.12.0"
+      - id: candidate
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: node scripts/acceptance-candidate.mjs --candidate "$CANDIDATE_SHA" --github-output
+
   supabase-target:
-    if: github.event_name != 'pull_request'
-    needs: local-observability
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    needs: [local-observability, release-candidate]
     runs-on: ubuntu-24.04
     env:
       QUANTOS_SKIP_ENV: "1"
@@ -47,6 +69,8 @@ jobs:
       F09_CA_PEM: ${{ secrets.F07_CA_PEM }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-candidate.outputs.source_sha }}
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: 1.91.0
@@ -85,6 +109,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: f09-supabase-${{ github.sha }}
+          name: f09-supabase-${{ needs.release-candidate.outputs.source_sha }}
           path: artifacts/f09/
           if-no-files-found: warn
