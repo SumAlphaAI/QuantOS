@@ -355,6 +355,16 @@ pub(super) fn routes() -> Router<Arc<LiveState>> {
 fn reset_event(permission: bool) -> Value {
     json!({"streamId":Uuid::new_v4(),"sequence":1,"eventId":Uuid::new_v4(),"occurredAt":Utc::now(),"correlationId":Uuid::new_v4(),"payloadVersion":"v1","payload":{"type":if permission {"permission_revoked"}else{"market_reset"}}})
 }
+fn reset_for_fault(fault: Option<&Fault>) -> Value {
+    // Known access/source denial clears previously licensed data; a transient
+    // transport failure only freezes the last verified chart for recovery.
+    reset_event(fault.is_some_and(|f| {
+        matches!(
+            f.0,
+            StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN | StatusCode::NOT_FOUND
+        ) || f.1 == "DATA_BLOCKED"
+    }))
+}
 async fn handle(
     axum::Extension(identity): axum::Extension<TrustedIdentity>,
     State(state): State<Arc<LiveState>>,
@@ -450,11 +460,15 @@ async fn handle(
                 .await
                 {
                     Ok(Ok(Output::Events(e))) => events = e,
-                    _ => {
+                    failure => {
+                        let fault = match failure {
+                            Ok(Err(fault)) => Some(fault),
+                            _ => None,
+                        };
                         return Some((
                             Ok(Event::default()
                                 .event("reset")
-                                .json_data(reset_event(false))
+                                .json_data(reset_for_fault(fault.as_ref()))
                                 .unwrap()),
                             (events, state, headers, path, q, c, permit, true),
                         ));
@@ -497,6 +511,30 @@ mod tests {
     use quantos_auth::AuthContext;
     use quantos_core::{ActorId, WorkspaceId};
     use quantos_policy::{Capability, RunMode};
+    #[test]
+    fn known_source_denial_clears_data_but_transport_and_cursor_failures_freeze() {
+        for fault in [
+            Fault(StatusCode::UNPROCESSABLE_ENTITY, "DATA_BLOCKED"),
+            Fault(StatusCode::UNAUTHORIZED, "UNAUTHORIZED"),
+            Fault(StatusCode::FORBIDDEN, "FORBIDDEN"),
+            Fault(StatusCode::NOT_FOUND, "NOT_FOUND"),
+        ] {
+            assert_eq!(
+                reset_for_fault(Some(&fault))["payload"]["type"],
+                "permission_revoked"
+            );
+        }
+        for fault in [
+            Fault(StatusCode::SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE"),
+            Fault(StatusCode::CONFLICT, "STREAM_RESET_REQUIRED"),
+        ] {
+            assert_eq!(
+                reset_for_fault(Some(&fault))["payload"]["type"],
+                "market_reset"
+            );
+        }
+        assert_eq!(reset_for_fault(None)["payload"]["type"], "market_reset");
+    }
     #[test]
     fn live_capabilities_and_viewer_writes_fail_closed() {
         let mut c = BffSessionContext {
