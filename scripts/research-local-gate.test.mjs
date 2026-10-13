@@ -25,14 +25,14 @@ test('publication is transactional if post-write validation fails',()=>{
  const nodes=nodesFromPlans(),saved=new Map(['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'].map(p=>[p,readFileSync(p,'utf8')])),before=new Map(saved);
  assert.throws(()=>publish(Object.fromEntries(Object.keys(registrations).map(p=>[p,p])),{getNodes:()=>nodes,validateLocal:(_,o)=>fixture(o.profile).local,validate:()=>{},read:p=>saved.get(p)??null,write:(p,b)=>b===null?saved.delete(p):saved.set(p,b),verifyAfter:()=>{throw Error('post-write failure');}}),/post-write failure/);assert.deepEqual(saved,before);
 });
-test('partial profile publication rejected before writing',()=>assert.throws(()=>publish({R1_LOCAL:'index.json'}),/all three/));
+test('partial profile publication rejected before writing',()=>assert.throws(()=>publish({R1_LOCAL:'index.json'}),/all four/));
 
 test('release performance thresholds retained and development CI diagnostic only',()=>{const rust=readFileSync('crates/quantos-market/src/tests.rs','utf8'),perf=readFileSync('scripts/check-perf-budget.mjs','utf8'),workflow=readFileSync('.github/workflows/frontend-baseline.yml','utf8'),make=readFileSync('Makefile','utf8');assert(rust.includes('#[ignore = "release performance; run make r01-release-performance"]'));assert(rust.includes('p95 < 50_000_000'));assert(perf.includes('sharedFirstLoadJs: 250 * 1024, singleChunk: 200 * 1024, totalCss: 60 * 1024'));assert(workflow.includes('apps/terminal/out --diagnostic'));assert(workflow.includes('apps/website/out --diagnostic'));assert(make.includes('frontend-release-performance:'));assert(make.includes('pure_domain_p95_under_fifty_milliseconds -- --ignored --nocapture'));});
 
 for(const valid of [true,false])test('reassessment root and closure agree with consumer receipt '+valid,()=>{
  const nodes=nodesFromPlans();for(const r of Object.values(registrations))nodes.get(r.owner).stage_gate.status='READY';
  const r=reassess({nodes,checkLocalReceipt:profile=>{if(!valid)throw Error('functional proof missing');const f=fixture(profile);return {localPrerequisites:{nodes:f.local.nodes}};}});
- assert.equal(r.roots.length,3);for(const x of r.roots){assert.equal(x.admission,valid?'LOCAL_READY':'NOT_READY');assert.equal(x.aggregateReceipt.valid,valid);for(const d of x.closure){assert.equal(d.consumerLocalReceipt?.status??null,valid?'LOCAL_READY':null);if(!Object.values(registrations).some(a=>a.owner===d.nodeId))assert.notEqual(d.stageGate.status,'READY');}}
+ assert.equal(r.roots.length,4);for(const x of r.roots){assert.equal(x.admission,valid?'LOCAL_READY':'NOT_READY');assert.equal(x.aggregateReceipt.valid,valid);for(const d of x.closure){assert.equal(d.consumerLocalReceipt?.status??null,valid?'LOCAL_READY':null);if(!Object.values(registrations).some(a=>a.owner===d.nodeId))assert.notEqual(d.stageGate.status,'READY');}}
 });
 test('functional F04 proves corpus equality while release retains timing rejection',()=>{
  const a={digest:'sha256:'+'a'.repeat(64),fixtures:1000,p95Micros:1000000};assert.equal(validateFunctionalRuns(a,a).performanceAcceptance,'NOT_RUN');assert.throws(()=>validateRuns(a,a),/P95/);assert.throws(()=>validateFunctionalRuns(a,{...a,fixtures:999}),/1,000/);assert.throws(()=>validateFunctionalRuns(a,{...a,digest:'sha256:'+'b'.repeat(64)}),/digests/);

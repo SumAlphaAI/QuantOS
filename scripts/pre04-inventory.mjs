@@ -20,6 +20,7 @@ const implementationEvidence = Object.fromEntries([
   `services/bff-gateway/tests/${test}.rs`,
   `docs/audit/BFF-FE-${task}-acceptance-evidence-2026-09-16.md`,
 ]]));
+implementationEvidence.C12=["services/bff-gateway/src/market.rs","services/bff-gateway/src/market_tests.rs","docs/execution/BFF-FE-005-summary.md"];
 const forbiddenPlaceholder = /待开发时再定|待定义|待补充|\bTBD\b|\bTODO\b/i;
 
 function section(markdown, heading, nextHeading) {
@@ -198,13 +199,13 @@ export function validatePre04Inventory(inputs) {
   }
   const sourceIds = sourceOperations.map((operation) => operation.operationId).sort();
   const manifestIds = (inputs.manifest.operations ?? []).map((operation) => operation.operationId).sort();
-  check(inputs.openapi.info?.version === "1.6.0", "BFF OpenAPI inventory version is 1.6.0");
-  check(sourceOperations.length === 63, "BFF OpenAPI inventory has 63 operations");
-  check(Object.keys(inputs.openapi.components?.schemas ?? {}).length === 54, "BFF OpenAPI inventory has 54 schemas");
+  check(inputs.openapi.info?.version === "1.7.0", "BFF OpenAPI inventory version is 1.7.0");
+  check(sourceOperations.length === 70, "BFF OpenAPI inventory has 70 operations");
+  check(Object.keys(inputs.openapi.components?.schemas ?? {}).length === 62, "BFF OpenAPI inventory has 62 schemas");
   check(same(sourceIds, manifestIds), "generated operation IDs exactly match OpenAPI");
   const byId = entries => entries.map(({operationId, method, path}) => ({operationId, method, path})).sort((a, b) => a.operationId.localeCompare(b.operationId));
   check(same(byId(sourceOperations), byId(inputs.manifest.operations ?? [])), "generated operation manifest exactly matches OpenAPI");
-  check(inputs.ledger.includes("63 个 operation") && inputs.ledger.includes("54 个 schema"), "ledger records current BFF operation/schema counts");
+  check(inputs.ledger.includes("70 个 operation") && inputs.ledger.includes("62 个 schema"), "ledger records current BFF operation/schema counts");
 
   const protoMetrics = {
     files: inputs.protoSources.length,

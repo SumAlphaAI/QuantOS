@@ -975,6 +975,109 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/markets/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getMarketCatalog */
+        get: operations["getMarketCatalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/markets/watchlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getWatchlist */
+        get: operations["getWatchlist"];
+        /** saveWatchlist */
+        put: operations["saveWatchlist"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/markets/quotes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getVenueQuotes */
+        get: operations["getVenueQuotes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/markets/candles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getCandleSeries */
+        get: operations["getCandleSeries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/markets/quotes/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** subscribeQuotes */
+        get: operations["subscribeQuotes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/markets/candles/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** subscribeCandles */
+        get: operations["subscribeCandles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1507,6 +1610,109 @@ export interface components {
             content: Record<string, never>;
             auditRef: components["schemas"]["UUID"];
             correlationId?: components["schemas"]["UUID"];
+        };
+        MarketInstrument: {
+            instrumentId: string;
+            canonicalSymbol: string;
+            /** @enum {unknown} */
+            venue: "binance" | "coinbase";
+            /** @enum {unknown} */
+            productType: "spot";
+            intervals: string[];
+            timezones: string[];
+            /** @enum {unknown} */
+            priceKind: "top_of_book" | "last_trade";
+            topOfBook: boolean;
+            lotSize: string;
+            minNotional: string;
+        };
+        MarketCatalog: {
+            items: components["schemas"]["MarketInstrument"][];
+            asOf: components["schemas"]["DateTime"];
+        };
+        MarketProvenance: {
+            source: string;
+            /** @enum {unknown} */
+            venue: "binance" | "coinbase";
+            asOf: components["schemas"]["DateTime"];
+            /** @enum {unknown} */
+            quality: "passed" | "degraded";
+            license: string;
+            approvalRef: string;
+            approvalVersion: string;
+            dataSnapshotId: components["schemas"]["UUID"];
+            latencyMs: number;
+        };
+        VenueQuote: {
+            instrumentId: string;
+            canonicalSymbol: string;
+            /** @enum {unknown} */
+            productType: "spot";
+            bid: string | null;
+            ask: string | null;
+            mid: string | null;
+            lastPrice: string | null;
+            /** @enum {unknown} */
+            priceKind: "top_of_book" | "last_trade";
+            /** @enum {unknown} */
+            executable: false;
+            /** @enum {unknown} */
+            feeEstimate: null;
+            /** @enum {unknown} */
+            slippageEstimate: null;
+            /** @enum {unknown} */
+            estimates: true;
+            lotSize: string;
+            minNotional: string;
+            provenance: components["schemas"]["MarketProvenance"];
+            sequence: number;
+        };
+        VenueQuotes: {
+            items: components["schemas"]["VenueQuote"][];
+        };
+        MarketWatchlist: {
+            instrumentIds: string[];
+            objectVersion: string;
+            auditRef?: components["schemas"]["UUID"];
+            correlationId?: components["schemas"]["UUID"];
+        };
+        SaveMarketWatchlist: {
+            instrumentIds: string[];
+        };
+        CandleSeries: {
+            instrumentId: string;
+            canonicalSymbol: string;
+            /** @enum {unknown} */
+            venue: "binance" | "coinbase";
+            /** @enum {unknown} */
+            productType: "spot";
+            /** @enum {unknown} */
+            interval: "1m" | "5m" | "15m" | "1h" | "4h" | "1D" | "1W";
+            /** @enum {unknown} */
+            timezone: "UTC" | "Asia/Shanghai";
+            ohlcv: {
+                t: components["schemas"]["DateTime"];
+                o: string;
+                h: string;
+                l: string;
+                c: string;
+                v: string;
+            }[];
+            gaps: {
+                start: components["schemas"]["DateTime"];
+                end: components["schemas"]["DateTime"];
+            }[];
+            eventMarkers: {
+                /** @enum {unknown} */
+                kind: "data_gap";
+                at: components["schemas"]["DateTime"];
+            }[];
+            provenance: components["schemas"]["MarketProvenance"];
+            sequence: number;
+            /** @enum {unknown} */
+            replaceSeries: true;
+            /** @enum {unknown} */
+            aggregation: "trade_events";
         };
     };
     responses: {
@@ -4653,6 +4859,379 @@ export interface operations {
             401: components["responses"]["Unauthorized"];
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getMarketCatalog: {
+        parameters: {
+            query?: {
+                symbol?: string;
+                venue?: "binance" | "coinbase";
+                product?: "spot";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized market projection */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "instrumentId": "binance:spot:BTC/USDT",
+                     *           "canonicalSymbol": "BTC/USDT",
+                     *           "venue": "binance",
+                     *           "productType": "spot",
+                     *           "intervals": [
+                     *             "1m",
+                     *             "5m",
+                     *             "15m",
+                     *             "1h",
+                     *             "4h",
+                     *             "1D",
+                     *             "1W"
+                     *           ],
+                     *           "timezones": [
+                     *             "UTC",
+                     *             "Asia/Shanghai"
+                     *           ],
+                     *           "priceKind": "top_of_book",
+                     *           "topOfBook": true,
+                     *           "lotSize": "0.0001",
+                     *           "minNotional": "10"
+                     *         }
+                     *       ],
+                     *       "asOf": "2026-10-13T00:00:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MarketCatalog"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getWatchlist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized market projection */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "instrumentIds": [],
+                     *       "objectVersion": "watchlist-0"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MarketWatchlist"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    saveWatchlist: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "instrumentIds": [
+                 *         "binance:spot:BTC/USDT"
+                 *       ]
+                 *     }
+                 */
+                "application/json": components["schemas"]["SaveMarketWatchlist"];
+            };
+        };
+        responses: {
+            /** @description Authorized market projection */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "instrumentIds": [
+                     *         "binance:spot:BTC/USDT"
+                     *       ],
+                     *       "objectVersion": "watchlist-fixture",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["MarketWatchlist"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getVenueQuotes: {
+        parameters: {
+            query?: {
+                symbol?: string;
+                venue?: "binance" | "coinbase";
+                product?: "spot";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized market projection */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "instrumentId": "binance:spot:BTC/USDT",
+                     *           "canonicalSymbol": "BTC/USDT",
+                     *           "productType": "spot",
+                     *           "bid": "103.90",
+                     *           "ask": "104.10",
+                     *           "mid": "104.00",
+                     *           "lastPrice": "104",
+                     *           "priceKind": "top_of_book",
+                     *           "executable": false,
+                     *           "feeEstimate": null,
+                     *           "slippageEstimate": null,
+                     *           "estimates": true,
+                     *           "lotSize": "0.0001",
+                     *           "minNotional": "10",
+                     *           "provenance": {
+                     *             "source": "approved.binance.spot",
+                     *             "venue": "binance",
+                     *             "asOf": "2026-10-13T00:00:00Z",
+                     *             "quality": "passed",
+                     *             "license": "fixture-only",
+                     *             "approvalRef": "fixture:r01-replay-only",
+                     *             "approvalVersion": "v2",
+                     *             "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
+                     *             "latencyMs": 0
+                     *           },
+                     *           "sequence": 1
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["VenueQuotes"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getCandleSeries: {
+        parameters: {
+            query?: {
+                symbol?: string;
+                venue?: "binance" | "coinbase";
+                product?: "spot";
+                interval?: "1m" | "5m" | "15m" | "1h" | "4h" | "1D" | "1W";
+                timezone?: "UTC" | "Asia/Shanghai";
+                start?: string;
+                end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized market projection */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "instrumentId": "binance:spot:BTC/USDT",
+                     *       "canonicalSymbol": "BTC/USDT",
+                     *       "venue": "binance",
+                     *       "productType": "spot",
+                     *       "interval": "1m",
+                     *       "timezone": "UTC",
+                     *       "ohlcv": [
+                     *         {
+                     *           "t": "2026-10-13T00:00:00Z",
+                     *           "o": "100",
+                     *           "h": "100",
+                     *           "l": "100",
+                     *           "c": "100",
+                     *           "v": "0.1"
+                     *         }
+                     *       ],
+                     *       "gaps": [],
+                     *       "eventMarkers": [],
+                     *       "provenance": {
+                     *         "source": "approved.binance.spot",
+                     *         "venue": "binance",
+                     *         "asOf": "2026-10-13T00:00:00Z",
+                     *         "quality": "passed",
+                     *         "license": "fixture-only",
+                     *         "approvalRef": "fixture:r01-replay-only",
+                     *         "approvalVersion": "v2",
+                     *         "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
+                     *         "latencyMs": 0
+                     *       },
+                     *       "sequence": 1,
+                     *       "replaceSeries": true,
+                     *       "aggregation": "trade_events"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["CandleSeries"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    subscribeQuotes: {
+        parameters: {
+            query?: {
+                symbol?: string;
+                venue?: "binance" | "coinbase";
+                product?: "spot";
+                /** @description 只推送 sequence 严格大于该值的事件（断线回补） */
+                afterSequence?: components["parameters"]["AfterSequence"];
+                streamId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized snapshot replacement stream; reconnect with streamId/afterSequence. */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["StreamEvent"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    subscribeCandles: {
+        parameters: {
+            query?: {
+                symbol?: string;
+                venue?: "binance" | "coinbase";
+                product?: "spot";
+                interval?: "1m" | "5m" | "15m" | "1h" | "4h" | "1D" | "1W";
+                timezone?: "UTC" | "Asia/Shanghai";
+                start?: string;
+                end?: string;
+                /** @description 只推送 sequence 严格大于该值的事件（断线回补） */
+                afterSequence?: components["parameters"]["AfterSequence"];
+                streamId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized snapshot replacement stream; reconnect with streamId/afterSequence. */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["StreamEvent"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["Unprocessable"];
+            429: components["responses"]["RateLimited"];
             default: components["responses"]["ServerError"];
         };
     };

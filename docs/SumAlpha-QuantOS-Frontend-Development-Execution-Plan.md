@@ -1,4 +1,4 @@
-> 当前本地准入（2026-10-12）：冻结 31f434f7，40 节点 / 135 组完整功能检查全部 PASS；A2_LOCAL、R1_LOCAL、BFF003_LOCAL 为限定 DEVELOPMENT READY。全图 3 READY / 156 NOT_ASSESSED / 0 BLOCKED；上游独立 Gate 不转授，外部环境/性能 RELEASE NOT_RUN，formalAccepted=false。见[完成报告](./audit/A3-local-admission-2026-10-12.md)。
+> 当前执行：2026-10-13 BFF-FE-005 实现候选；共享源码变更后 A2/R1/BFF003 的旧 READY 已撤回，四消费者完整功能闭包待本轮实际重跑。外部/性能 RELEASE NOT_RUN；formalAccepted=false。
 
 > 历史 A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
 
@@ -45,8 +45,8 @@
 > 2026-10-07 BFF-FE-007 再次复核通过：活动问题 0，31/31 控制点 PASS，严格 DEVELOPMENT READY。当前报告已移除已关闭问题明细和整改过程，保留历史归档及当前有效证据。
 
 
-> 版本：3.75
-> 更新时间：2026-10-12
+> 版本：3.76
+> 更新时间：2026-10-13
 > 状态：A2、R1-SERVICE、BFF-FE-003 限定本地 DEVELOPMENT READY；正式、UI 集成及发布独立。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
@@ -825,11 +825,9 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:5dab262cead276c3fb3c78a7e6d791ba1eb0f60ef2c38a40b638687a9d9d6ba8",
-    "evidence": [
-      "audit/evidence/research-local-20261012/a2-local.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -844,7 +842,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-003`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e9201b3fc5dbb92e14c692468ef9376276b30dd278d30807ac5deb4f0edac755","evidence":["audit/evidence/research-local-20261012/bff003-local.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -855,7 +853,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - 覆盖契约/页面：C03/C04；P03–P05
 - 目标阶段与验收：FEP-2/G2：创建、取消、断线续传、重复/乱序、质量/许可阻断与 Audit 关联 contract 全绿
 
-- 当前工程复核：2026-10-12 九项 C03/C04 页面 API、持久适配器、生成契约及本地正负验证已实现；工程结果见[交付报告](./audit/BFF-FE-003-implementation-2026-10-12.md)。依赖回执与目标闭环尚未成立，DEVELOPMENT BLOCKED；数据库、hosted CI、UI/consumer 和正式验收不由本地测试代替。
+- 当前工程复核：2026-10-12 九项 C03/C04 页面 API、持久适配器、生成契约及本地正负验证已实现；工程结果见[交付报告](./audit/BFF-FE-003-implementation-2026-10-12.md)。2026-10-12 的本地准入已成立；当前共享源码变化后须重新执行消费者闭包。数据库、hosted CI、UI/consumer 和正式验收保持发布/集成阶段范围。
 
 - 验收边界：BFF003_LOCAL完整40节点本地功能准入；A2_LOCAL与R1_LOCAL回执须同候选、覆盖全部必要检查与负向产物。外部环境、Supabase及性能由RELEASE-GATE:BETA实际验收，不阻塞开发。
 
@@ -869,13 +867,13 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - depends_on: ["BFF-FE-001", "CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - 阶段执行：本机功能实现与真实模块组合验证；受影响成功/拒绝/恢复及基本浏览器用例必须通过；合成数据及受控边界的结果注明范围。发布阶段：RELEASE-GATE:BETA；按责任任务适用范围验收：Supabase/PostgreSQL迁移/RLS/事务、真实IdP/Auth/私有Storage、外部数据源/venue/testnet、staging/部署、远程同SHA CI及全部性能/容量/长稳/恢复时限，在有效环境与用途授权下按候选完整源码SHA实际验收；原阈值不降低，未执行NOT_RUN。
 - 验收边界：外部环境及性能指标全部移交RELEASE；DEVELOPMENT与INTEGRATION只验证本机真实模块的功能、契约、权限、数据完整性、幂等/恢复和deadline语义；目标回执NOT_RUN，不代替正式ACCEPTED。
 - 需求描述：instrument catalog/watchlist；authorized VenueQuote；candle series/history/realtime；series metadata、quality/gaps/event markers；symbol/venue/product/timezone/interval capability
 - 领域接口背景：R01/R02 定义行情与快照，未定义市场目录、跨 venue 报价、K 线与图表元数据页面 API
-- 覆盖契约/页面：C12/C16；P18/P19/P20
+- 覆盖契约/页面：C12；P18/P19/P20；C16 告警订阅由 BFF-FE-010 承接，不转授该任务完成
 - 目标阶段与验收：FEP-4/G4：报价和 candle 均含 source/venue/asOf/quality/license；切换维度不混用缓存，断流可回补且不拼接
 
 <a id="acceptance-provider-a3"></a>
@@ -2849,7 +2847,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
 <a id="acceptance-release-gate-beta"></a>
 ### RELEASE-GATE:BETA：Paper/Shadow 正式发布验收检查点
 
-在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。 F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。 后续22任务的外部环境与性能移交按核心计划2.11和机器清单逐项验收，缺目标保持NOT_RUN。 R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。 TP01-C_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地研究fixture不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 前端BFF-FE-003之后全部任务的外部环境及性能验收，按前端计划第2.3节与scripts/frontend-gate-handoff-policy.json逐项移交；Beta范围归RELEASE-GATE:BETA，I10/testnet范围归RELEASE-GATE:LIVE-READINESS。DEVELOPMENT和INTEGRATION不要求目标环境或性能达标；发布须补齐原目标与候选同SHA实际证据，未执行NOT_RUN。 A2_LOCAL/R1_LOCAL/BFF003_LOCAL 发布移交：Supabase迁移/RLS/事务/Auth/Storage与身份设置/audit导出、Research/Snapshot/Artifact持久消费和worker取消恢复、真实来源用途许可、外部Engine/服务部署及OS隔离、远程漏洞库SCA与fork治理、代表性性能/容量/长稳、完整浏览器矩阵及候选同SHA CI；归RELEASE-GATE:BETA首次上线前实际验收。目标与性能NOT_RUN，本地回执不构成上游独立READY、正式ACCEPTED或生产/发布授权。
+在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。 F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。 后续22任务的外部环境与性能移交按核心计划2.11和机器清单逐项验收，缺目标保持NOT_RUN。 R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。 TP01-C_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地研究fixture不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 前端BFF-FE-003之后全部任务的外部环境及性能验收，按前端计划第2.3节与scripts/frontend-gate-handoff-policy.json逐项移交；Beta范围归RELEASE-GATE:BETA，I10/testnet范围归RELEASE-GATE:LIVE-READINESS。DEVELOPMENT和INTEGRATION不要求目标环境或性能达标；发布须补齐原目标与候选同SHA实际证据，未执行NOT_RUN。 A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL 发布移交：Supabase迁移/RLS/事务/Auth/Storage与身份设置/audit导出、Research/Snapshot/Artifact持久消费和worker取消恢复、market/watchlist持久事务及流撤权、真实盘口/成交来源用途许可、外部Engine/服务部署及OS隔离、远程漏洞库SCA与fork治理、代表性性能/容量/长稳、完整浏览器矩阵及候选同SHA CI；归RELEASE-GATE:BETA首次上线前实际验收。目标与性能NOT_RUN，本地回执不构成上游独立READY、正式ACCEPTED或生产/发布授权。
 
 ```json
 {
@@ -2862,7 +2860,7 @@ A1 的 `DEFERRED_TO_FINAL_REVIEW` 保留，并按上述规则推广阶段边界�
     "FE:FEP-7",
     "PROVIDER:ALL"
   ],
-  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。 F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。 后续22任务的外部环境与性能移交按核心计划2.11和机器清单逐项验收，缺目标保持NOT_RUN。 R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。 TP01-C_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地研究fixture不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 前端BFF-FE-003之后全部任务的外部环境及性能验收，按前端计划第2.3节与scripts/frontend-gate-handoff-policy.json逐项移交；Beta范围归RELEASE-GATE:BETA，I10/testnet范围归RELEASE-GATE:LIVE-READINESS。DEVELOPMENT和INTEGRATION不要求目标环境或性能达标；发布须补齐原目标与候选同SHA实际证据，未执行NOT_RUN。 A2_LOCAL/R1_LOCAL/BFF003_LOCAL 发布移交：Supabase迁移/RLS/事务/Auth/Storage与身份设置/audit导出、Research/Snapshot/Artifact持久消费和worker取消恢复、真实来源用途许可、外部Engine/服务部署及OS隔离、远程漏洞库SCA与fork治理、代表性性能/容量/长稳、完整浏览器矩阵及候选同SHA CI；归RELEASE-GATE:BETA首次上线前实际验收。目标与性能NOT_RUN，本地回执不构成上游独立READY、正式ACCEPTED或生产/发布授权。",
+  "required_scope": "在 I9 与核心 R1/S2/X3 功能闭环后，完成 Paper/Shadow Beta 的全部业务链、性能指标、staging 与部署环境、安全/视觉/浏览器完整矩阵、获准长稳及 10 个交易日 Shadow、远程同 SHA CI、发布/回滚/告警证据和适用用途许可/用户验收确认；F07/F09 的 Beta 实际使用范围在此验收，L04 责任归档不构成等待全部 L4 的前置。R02 C25：代表性发布环境/数据规模/并发下，ID/hash/标的列表无缓存查询 P95<300ms；R02 C26：已部署 BFF/Runtime、真实登录 JWT/成员权限、跨租户拒绝与快照投影篡改拒绝的完整 HTTP 消费链。owner=CORE:R02，归 RELEASE-GATE:BETA，绑定候选完整源码 SHA 和远程同 SHA CI；发布环境/规模/并发/新范围授权未配置时不得记 PASS。全部正式要求通过且 review_status=ACCEPTED、完整源码 SHA/证据齐备后方可阶段 READY；当前 1800 秒、BTCUSDT/ETHUSDT、原内部用途批准不自动扩展为长稳、部署、商业或交易授权。 R03 Supabase发布验收：平台容量/默认可写性、真实PostgreSQL迁移/RLS/事务一致性、Auth/BFF/Runtime/私有Storage读写及权限拒绝、100任务强杀恢复/无重复Artifact与费用、取消≤2秒、R02获准来源持久消费链、代表性P95/长稳/清理和同SHA CI；包括R03本地准入移交的全部Supabase前置命令。owner=CORE:R03，首次上线前由RELEASE-GATE:BETA逐项实际执行并绑定候选源码；无目标或未执行为NOT RUN，不得用LOCAL_READY代替。 F0/TP03/TP04/R04 本地开发移交：全部Supabase目标命令、平台可写性、PostgreSQL迁移/RLS/事务、Auth/BFF/Runtime/Storage持久闭环和恢复、代表性负载/性能/长稳/目标部署及同SHA CI，由RELEASE-GATE:BETA在首次上线前对候选完整源码实际验收；本地READY不构成数据库、生产或正式ACCEPTED。 后续22任务的外部环境与性能移交按核心计划2.11和机器清单逐项验收，缺目标保持NOT_RUN。 R04 发布验收：Supabase持久Signal/Proposal与R03私有Artifact读回、RLS/事务/独立进程恢复、实际BFF及页面研究消费闭环、外部上游集成、代表性性能/容量/长稳与同SHA CI；本地合成Engine/内存服务READY仅供后续开发，目标和性能NOT_RUN，由RELEASE-GATE:BETA首次上线前实际验收。 TP01-C_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地研究fixture不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 TP01-D_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳与候选同SHA CI；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成研究fixture与20组双RPC回放不授予上游READY、R1-SERVICE、生产或正式ACCEPTED。 前端BFF-FE-003之后全部任务的外部环境及性能验收，按前端计划第2.3节与scripts/frontend-gate-handoff-policy.json逐项移交；Beta范围归RELEASE-GATE:BETA，I10/testnet范围归RELEASE-GATE:LIVE-READINESS。DEVELOPMENT和INTEGRATION不要求目标环境或性能达标；发布须补齐原目标与候选同SHA实际证据，未执行NOT_RUN。 A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL 发布移交：Supabase迁移/RLS/事务/Auth/Storage与身份设置/audit导出、Research/Snapshot/Artifact持久消费和worker取消恢复、market/watchlist持久事务及流撤权、真实盘口/成交来源用途许可、外部Engine/服务部署及OS隔离、远程漏洞库SCA与fork治理、代表性性能/容量/长稳、完整浏览器矩阵及候选同SHA CI；归RELEASE-GATE:BETA首次上线前实际验收。目标与性能NOT_RUN，本地回执不构成上游独立READY、正式ACCEPTED或生产/发布授权。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

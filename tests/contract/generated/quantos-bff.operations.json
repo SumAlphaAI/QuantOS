@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "operations": [
     {
       "operationId": "cancelExport",
@@ -124,6 +124,16 @@
       "sse": false
     },
     {
+      "operationId": "getCandleSeries",
+      "method": "GET",
+      "path": "/v1/markets/candles",
+      "tags": [
+        "market"
+      ],
+      "responseSchema": "CandleSeries",
+      "sse": false
+    },
+    {
       "operationId": "getContext",
       "method": "GET",
       "path": "/v1/context",
@@ -171,6 +181,16 @@
         "audit"
       ],
       "responseSchema": "ExportJob",
+      "sse": false
+    },
+    {
+      "operationId": "getMarketCatalog",
+      "method": "GET",
+      "path": "/v1/markets/catalog",
+      "tags": [
+        "market"
+      ],
+      "responseSchema": "MarketCatalog",
       "sse": false
     },
     {
@@ -291,6 +311,26 @@
         "strategy"
       ],
       "responseSchema": "StrategyDraft",
+      "sse": false
+    },
+    {
+      "operationId": "getVenueQuotes",
+      "method": "GET",
+      "path": "/v1/markets/quotes",
+      "tags": [
+        "market"
+      ],
+      "responseSchema": "VenueQuotes",
+      "sse": false
+    },
+    {
+      "operationId": "getWatchlist",
+      "method": "GET",
+      "path": "/v1/markets/watchlist",
+      "tags": [
+        "market"
+      ],
+      "responseSchema": "MarketWatchlist",
       "sse": false
     },
     {
@@ -534,6 +574,16 @@
       "sse": false
     },
     {
+      "operationId": "saveWatchlist",
+      "method": "PUT",
+      "path": "/v1/markets/watchlist",
+      "tags": [
+        "market"
+      ],
+      "responseSchema": "MarketWatchlist",
+      "sse": false
+    },
+    {
       "operationId": "searchAuditEvents",
       "method": "GET",
       "path": "/v1/audit/events",
@@ -584,6 +634,16 @@
       "sse": false
     },
     {
+      "operationId": "subscribeCandles",
+      "method": "GET",
+      "path": "/v1/markets/candles/stream",
+      "tags": [
+        "market"
+      ],
+      "responseSchema": null,
+      "sse": true
+    },
+    {
       "operationId": "subscribeOrder",
       "method": "GET",
       "path": "/v1/orders/{orderId}/stream",
@@ -609,6 +669,16 @@
       "path": "/v1/proposals/{proposalId}/stream",
       "tags": [
         "proposal"
+      ],
+      "responseSchema": null,
+      "sse": true
+    },
+    {
+      "operationId": "subscribeQuotes",
+      "method": "GET",
+      "path": "/v1/markets/quotes/stream",
+      "tags": [
+        "market"
       ],
       "responseSchema": null,
       "sse": true

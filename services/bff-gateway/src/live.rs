@@ -1,4 +1,5 @@
 mod audit;
+mod market;
 mod research;
 mod settings;
 mod settings_policy;
@@ -130,6 +131,7 @@ pub fn router(
         .merge(settings::routes())
         .merge(audit::routes())
         .merge(research::routes())
+        .merge(market::routes())
         .fallback(|| async { settings::ApiError::new(StatusCode::NOT_FOUND, "NOT_FOUND") })
         .layer(middleware::from_fn_with_state(
             state.clone(),

@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.6.0
-  description: |
+  version: 1.7.0
+  description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
 
@@ -24,6 +24,8 @@ info:
     - 数值：decimal 以字符串序列化（十进制定点，禁 IEEE-754 交易计算）；时间 RFC 3339 UTC。
 
     2026-10-03 安全修正候选 1.4.0：见 docs/adr/ADR-A1-security-contract-correction.md；尚未关闭 staging/G0。
+
+    C12 market projections publish authorized top-of-book or explicitly trade-only non-executable quotes, bounded candle replacement and scoped watchlists in 1.7.0; C16 alerts remain BFF-FE-010.
 servers:
   - url: https://bff.staging.sumalpha.ai
     description: staging
@@ -50,6 +52,8 @@ tags:
     description: C09 TradeCommand 与 Order
   - name: settings
     description: C17 资料、安全、通知与 Web 平台能力
+  - name: market
+    description: C12 authorized market data and watchlist
 security:
   - cookieAuth: []
 paths:
@@ -4675,6 +4679,671 @@ paths:
           rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/markets/catalog:
+    get:
+      operationId: getMarketCatalog
+      tags:
+        - market
+      summary: getMarketCatalog
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 49
+        - name: venue
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - binance
+              - coinbase
+        - name: product
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - spot
+      responses:
+        "200":
+          description: Authorized market projection
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketCatalog"
+              example:
+                items:
+                  - instrumentId: binance:spot:BTC/USDT
+                    canonicalSymbol: BTC/USDT
+                    venue: binance
+                    productType: spot
+                    intervals:
+                      - 1m
+                      - 5m
+                      - 15m
+                      - 1h
+                      - 4h
+                      - 1D
+                      - 1W
+                    timezones:
+                      - UTC
+                      - Asia/Shanghai
+                    priceKind: top_of_book
+                    topOfBook: true
+                    lotSize: "0.0001"
+                    minNotional: "10"
+                asOf: 2026-10-13T00:00:00Z
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-005
+        auth: cookie + resource-scoped authorization
+        capability: market.read; server-granted identity only
+        pagination: bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: source event asOf/quality/license; stale quotes degraded and never executable
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: read-only projection; no shared response cache
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/markets/watchlist:
+    get:
+      operationId: getWatchlist
+      tags:
+        - market
+      summary: getWatchlist
+      parameters: []
+      responses:
+        "200":
+          description: Authorized market projection
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketWatchlist"
+              example:
+                instrumentIds: []
+                objectVersion: watchlist-0
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-005
+        auth: cookie + resource-scoped authorization
+        capability: market.read; server-granted identity only
+        pagination: bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: source event asOf/quality/license; stale quotes degraded and never executable
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: read-only projection; no shared response cache
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+    put:
+      operationId: saveWatchlist
+      tags:
+        - market
+      summary: saveWatchlist
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "200":
+          description: Authorized market projection
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketWatchlist"
+              example:
+                instrumentIds:
+                  - binance:spot:BTC/USDT
+                objectVersion: watchlist-fixture
+                auditRef: 11111111-1111-4111-8111-111111111111
+                correlationId: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-005
+        auth: cookie + resource-scoped authorization
+        capability: market.read + market.watchlist.write; viewer writes forbidden
+        pagination: bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: source event asOf/quality/license; stale quotes degraded and never executable
+        idempotency: required; same actor/key/business intent; changed payload conflicts
+        version: If-Match; 409/currentVersion; never overwrite draft
+        audit: Domain owner records actor, intent, outcome and correlation ID before terminal response.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: read-only projection; no shared response cache
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveMarketWatchlist"
+            example:
+              instrumentIds:
+                - binance:spot:BTC/USDT
+  /v1/markets/quotes:
+    get:
+      operationId: getVenueQuotes
+      tags:
+        - market
+      summary: getVenueQuotes
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 49
+        - name: venue
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - binance
+              - coinbase
+        - name: product
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - spot
+      responses:
+        "200":
+          description: Authorized market projection
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VenueQuotes"
+              example:
+                items:
+                  - instrumentId: binance:spot:BTC/USDT
+                    canonicalSymbol: BTC/USDT
+                    productType: spot
+                    bid: "103.90"
+                    ask: "104.10"
+                    mid: "104.00"
+                    lastPrice: "104"
+                    priceKind: top_of_book
+                    executable: false
+                    feeEstimate: null
+                    slippageEstimate: null
+                    estimates: true
+                    lotSize: "0.0001"
+                    minNotional: "10"
+                    provenance:
+                      source: approved.binance.spot
+                      venue: binance
+                      asOf: 2026-10-13T00:00:00Z
+                      quality: passed
+                      license: fixture-only
+                      approvalRef: fixture:r01-replay-only
+                      approvalVersion: v2
+                      dataSnapshotId: 11111111-1111-4111-8111-111111111111
+                      latencyMs: 0
+                    sequence: 1
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-005
+        auth: cookie + resource-scoped authorization
+        capability: market.read; server-granted identity only
+        pagination: bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: source event asOf/quality/license; stale quotes degraded and never executable
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: read-only projection; no shared response cache
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/markets/candles:
+    get:
+      operationId: getCandleSeries
+      tags:
+        - market
+      summary: getCandleSeries
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 49
+        - name: venue
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - binance
+              - coinbase
+        - name: product
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - spot
+        - name: interval
+          in: query
+          required: false
+          schema:
+            enum:
+              - 1m
+              - 5m
+              - 15m
+              - 1h
+              - 4h
+              - 1D
+              - 1W
+        - name: timezone
+          in: query
+          required: false
+          schema:
+            enum:
+              - UTC
+              - Asia/Shanghai
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Authorized market projection
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CandleSeries"
+              example:
+                instrumentId: binance:spot:BTC/USDT
+                canonicalSymbol: BTC/USDT
+                venue: binance
+                productType: spot
+                interval: 1m
+                timezone: UTC
+                ohlcv:
+                  - t: 2026-10-13T00:00:00Z
+                    o: "100"
+                    h: "100"
+                    l: "100"
+                    c: "100"
+                    v: "0.1"
+                gaps: []
+                eventMarkers: []
+                provenance:
+                  source: approved.binance.spot
+                  venue: binance
+                  asOf: 2026-10-13T00:00:00Z
+                  quality: passed
+                  license: fixture-only
+                  approvalRef: fixture:r01-replay-only
+                  approvalVersion: v2
+                  dataSnapshotId: 11111111-1111-4111-8111-111111111111
+                  latencyMs: 0
+                sequence: 1
+                replaceSeries: true
+                aggregation: trade_events
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-005
+        auth: cookie + resource-scoped authorization
+        capability: market.read; server-granted identity only
+        pagination: bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: source event asOf/quality/license; stale quotes degraded and never executable
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: read-only projection; no shared response cache
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/markets/quotes/stream:
+    get:
+      operationId: subscribeQuotes
+      tags:
+        - market
+      summary: subscribeQuotes
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 49
+        - name: venue
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - binance
+              - coinbase
+        - name: product
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - spot
+        - $ref: "#/components/parameters/AfterSequence"
+        - name: streamId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Authorized snapshot replacement stream; reconnect with streamId/afterSequence.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            text/event-stream:
+              schema:
+                $ref: "#/components/schemas/StreamEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-005
+        auth: cookie + resource-scoped authorization
+        capability: market.read; server-granted identity only
+        pagination: bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: source event asOf/quality/license; stale quotes degraded and never executable
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: dimension-bound streamId + afterSequence; replace entire series; expired/rebound cursor 409 STREAM_RESET_REQUIRED
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/markets/candles/stream:
+    get:
+      operationId: subscribeCandles
+      tags:
+        - market
+      summary: subscribeCandles
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 49
+        - name: venue
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - binance
+              - coinbase
+        - name: product
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - spot
+        - name: interval
+          in: query
+          required: false
+          schema:
+            enum:
+              - 1m
+              - 5m
+              - 15m
+              - 1h
+              - 4h
+              - 1D
+              - 1W
+        - name: timezone
+          in: query
+          required: false
+          schema:
+            enum:
+              - UTC
+              - Asia/Shanghai
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - $ref: "#/components/parameters/AfterSequence"
+        - name: streamId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Authorized snapshot replacement stream; reconnect with streamId/afterSequence.
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            text/event-stream:
+              schema:
+                $ref: "#/components/schemas/StreamEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-005
+        auth: cookie + resource-scoped authorization
+        capability: market.read; server-granted identity only
+        pagination: bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: source event asOf/quality/license; stale quotes degraded and never executable
+        idempotency: "not applicable: read-only"
+        version: Owner checks immutable reference, validity and authoritative state; no blind overwrite.
+        audit: Authorized resource read; restricted audit/download accesses are audited by owner.
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request
+        realtime: dimension-bound streamId + afterSequence; replace entire series; expired/rebound cursor 409 STREAM_RESET_REQUIRED
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
 components:
   securitySchemes:
     cookieAuth:
@@ -5817,7 +6486,7 @@ components:
           $ref: "#/components/schemas/UUID"
         createdAt:
           $ref: "#/components/schemas/DateTime"
-        auditRef: &a1
+        auditRef:
           $ref: "#/components/schemas/UUID"
     DataSnapshot:
       type: object
@@ -5860,7 +6529,8 @@ components:
           type: integer
           format: int64
           minimum: 0
-        auditRef: *a1
+        auditRef:
+          $ref: "#/components/schemas/UUID"
     Artifact:
       type: object
       required:
@@ -5901,7 +6571,8 @@ components:
             $ref: "#/components/schemas/UUID"
         createdAt:
           $ref: "#/components/schemas/DateTime"
-        auditRef: *a1
+        auditRef:
+          $ref: "#/components/schemas/UUID"
     StrategySummary:
       type: object
       required:
@@ -6331,7 +7002,8 @@ components:
             statusRef:
               type: string
               pattern: ^/v1/research-runs/[a-f0-9-]{36}$
-            auditRef: *a1
+            auditRef:
+              $ref: "#/components/schemas/UUID"
     ArtifactAttachment:
       type: object
       required:
@@ -6341,7 +7013,8 @@ components:
         - content
         - auditRef
       properties:
-        artifactId: *a1
+        artifactId:
+          $ref: "#/components/schemas/UUID"
         mediaType:
           type: string
           enum:
@@ -6351,6 +7024,337 @@ components:
           pattern: ^sha256:[a-f0-9]{64}$
         content:
           type: object
-        auditRef: *a1
-        correlationId: *a1
+        auditRef:
+          $ref: "#/components/schemas/UUID"
+        correlationId:
+          $ref: "#/components/schemas/UUID"
       description: 授权后返回已校验hash的JSON内容；不返回内部存储路径或可转发的Storage凭据。
+    MarketInstrument:
+      type: object
+      additionalProperties: false
+      required:
+        - instrumentId
+        - canonicalSymbol
+        - venue
+        - productType
+        - intervals
+        - timezones
+        - priceKind
+        - topOfBook
+        - lotSize
+        - minNotional
+      properties:
+        instrumentId:
+          type: string
+        canonicalSymbol:
+          type: string
+        venue:
+          enum:
+            - binance
+            - coinbase
+        productType:
+          enum:
+            - spot
+        intervals:
+          type: array
+          items:
+            type: string
+        timezones:
+          type: array
+          items:
+            type: string
+        priceKind:
+          enum:
+            - top_of_book
+            - last_trade
+        topOfBook:
+          type: boolean
+        lotSize:
+          type: string
+          pattern: ^[0-9]+(?:\.[0-9]+)?$
+        minNotional:
+          type: string
+          pattern: ^[0-9]+(?:\.[0-9]+)?$
+    MarketCatalog:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - asOf
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MarketInstrument"
+        asOf:
+          $ref: "#/components/schemas/DateTime"
+    MarketProvenance:
+      type: object
+      additionalProperties: false
+      required:
+        - source
+        - venue
+        - asOf
+        - quality
+        - license
+        - approvalRef
+        - approvalVersion
+        - dataSnapshotId
+        - latencyMs
+      properties:
+        source:
+          type: string
+        venue:
+          enum:
+            - binance
+            - coinbase
+        asOf:
+          $ref: "#/components/schemas/DateTime"
+        quality:
+          enum:
+            - passed
+            - degraded
+        license:
+          type: string
+        approvalRef:
+          type: string
+        approvalVersion:
+          type: string
+        dataSnapshotId:
+          $ref: "#/components/schemas/UUID"
+        latencyMs:
+          type: integer
+          minimum: 0
+    VenueQuote:
+      type: object
+      additionalProperties: false
+      required:
+        - instrumentId
+        - canonicalSymbol
+        - productType
+        - bid
+        - ask
+        - mid
+        - lastPrice
+        - priceKind
+        - executable
+        - feeEstimate
+        - slippageEstimate
+        - estimates
+        - lotSize
+        - minNotional
+        - provenance
+        - sequence
+      properties:
+        instrumentId:
+          type: string
+        canonicalSymbol:
+          type: string
+        productType:
+          enum:
+            - spot
+        bid:
+          oneOf:
+            - type: string
+              pattern: ^[0-9]+(?:\.[0-9]+)?$
+            - enum:
+                - null
+        ask:
+          oneOf:
+            - type: string
+              pattern: ^[0-9]+(?:\.[0-9]+)?$
+            - enum:
+                - null
+        mid:
+          oneOf:
+            - type: string
+              pattern: ^[0-9]+(?:\.[0-9]+)?$
+            - enum:
+                - null
+        lastPrice:
+          oneOf:
+            - type: string
+              pattern: ^[0-9]+(?:\.[0-9]+)?$
+            - enum:
+                - null
+        priceKind:
+          enum:
+            - top_of_book
+            - last_trade
+        executable:
+          enum:
+            - false
+        feeEstimate:
+          enum:
+            - null
+        slippageEstimate:
+          enum:
+            - null
+        estimates:
+          enum:
+            - true
+        lotSize:
+          type: string
+          pattern: ^[0-9]+(?:\.[0-9]+)?$
+        minNotional:
+          type: string
+          pattern: ^[0-9]+(?:\.[0-9]+)?$
+        provenance:
+          $ref: "#/components/schemas/MarketProvenance"
+        sequence:
+          type: integer
+          minimum: 1
+    VenueQuotes:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/VenueQuote"
+    MarketWatchlist:
+      type: object
+      additionalProperties: false
+      required:
+        - instrumentIds
+        - objectVersion
+      properties:
+        instrumentIds:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+          uniqueItems: true
+        objectVersion:
+          type: string
+        auditRef:
+          $ref: "#/components/schemas/UUID"
+        correlationId:
+          $ref: "#/components/schemas/UUID"
+    SaveMarketWatchlist:
+      type: object
+      additionalProperties: false
+      required:
+        - instrumentIds
+      properties:
+        instrumentIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 100
+          maxItems: 100
+          uniqueItems: true
+    CandleSeries:
+      type: object
+      additionalProperties: false
+      required:
+        - instrumentId
+        - canonicalSymbol
+        - venue
+        - productType
+        - interval
+        - timezone
+        - ohlcv
+        - gaps
+        - eventMarkers
+        - provenance
+        - sequence
+        - replaceSeries
+        - aggregation
+      properties:
+        instrumentId:
+          type: string
+        canonicalSymbol:
+          type: string
+        venue:
+          enum:
+            - binance
+            - coinbase
+        productType:
+          enum:
+            - spot
+        interval:
+          enum:
+            - 1m
+            - 5m
+            - 15m
+            - 1h
+            - 4h
+            - 1D
+            - 1W
+        timezone:
+          enum:
+            - UTC
+            - Asia/Shanghai
+        ohlcv:
+          type: array
+          maxItems: 500
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - t
+              - o
+              - h
+              - l
+              - c
+              - v
+            properties:
+              t:
+                $ref: "#/components/schemas/DateTime"
+              o:
+                type: string
+                pattern: ^[0-9]+(?:\.[0-9]+)?$
+              h:
+                type: string
+                pattern: ^[0-9]+(?:\.[0-9]+)?$
+              l:
+                type: string
+                pattern: ^[0-9]+(?:\.[0-9]+)?$
+              c:
+                type: string
+                pattern: ^[0-9]+(?:\.[0-9]+)?$
+              v:
+                type: string
+                pattern: ^[0-9]+(?:\.[0-9]+)?$
+        gaps:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - start
+              - end
+            properties:
+              start:
+                $ref: "#/components/schemas/DateTime"
+              end:
+                $ref: "#/components/schemas/DateTime"
+        eventMarkers:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - kind
+              - at
+            properties:
+              kind:
+                enum:
+                  - data_gap
+              at:
+                $ref: "#/components/schemas/DateTime"
+        provenance:
+          $ref: "#/components/schemas/MarketProvenance"
+        sequence:
+          type: integer
+          minimum: 1
+        replaceSeries:
+          enum:
+            - true
+        aggregation:
+          enum:
+            - trade_events

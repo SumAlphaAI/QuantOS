@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.6.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.7.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -2012,6 +2012,482 @@
         }
       },
       "description": "授权后返回已校验hash的JSON内容；不返回内部存储路径或可转发的Storage凭据。"
+    },
+    "MarketInstrument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentId",
+        "canonicalSymbol",
+        "venue",
+        "productType",
+        "intervals",
+        "timezones",
+        "priceKind",
+        "topOfBook",
+        "lotSize",
+        "minNotional"
+      ],
+      "properties": {
+        "instrumentId": {
+          "type": "string"
+        },
+        "canonicalSymbol": {
+          "type": "string"
+        },
+        "venue": {
+          "enum": [
+            "binance",
+            "coinbase"
+          ]
+        },
+        "productType": {
+          "enum": [
+            "spot"
+          ]
+        },
+        "intervals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "timezones": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "priceKind": {
+          "enum": [
+            "top_of_book",
+            "last_trade"
+          ]
+        },
+        "topOfBook": {
+          "type": "boolean"
+        },
+        "lotSize": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "minNotional": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        }
+      }
+    },
+    "MarketCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "asOf"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MarketInstrument"
+          }
+        },
+        "asOf": {
+          "$ref": "#/$defs/DateTime"
+        }
+      }
+    },
+    "MarketProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "venue",
+        "asOf",
+        "quality",
+        "license",
+        "approvalRef",
+        "approvalVersion",
+        "dataSnapshotId",
+        "latencyMs"
+      ],
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "venue": {
+          "enum": [
+            "binance",
+            "coinbase"
+          ]
+        },
+        "asOf": {
+          "$ref": "#/$defs/DateTime"
+        },
+        "quality": {
+          "enum": [
+            "passed",
+            "degraded"
+          ]
+        },
+        "license": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        },
+        "approvalVersion": {
+          "type": "string"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "latencyMs": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "VenueQuote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentId",
+        "canonicalSymbol",
+        "productType",
+        "bid",
+        "ask",
+        "mid",
+        "lastPrice",
+        "priceKind",
+        "executable",
+        "feeEstimate",
+        "slippageEstimate",
+        "estimates",
+        "lotSize",
+        "minNotional",
+        "provenance",
+        "sequence"
+      ],
+      "properties": {
+        "instrumentId": {
+          "type": "string"
+        },
+        "canonicalSymbol": {
+          "type": "string"
+        },
+        "productType": {
+          "enum": [
+            "spot"
+          ]
+        },
+        "bid": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ]
+        },
+        "ask": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ]
+        },
+        "mid": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ]
+        },
+        "lastPrice": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ]
+        },
+        "priceKind": {
+          "enum": [
+            "top_of_book",
+            "last_trade"
+          ]
+        },
+        "executable": {
+          "enum": [
+            false
+          ]
+        },
+        "feeEstimate": {
+          "enum": [
+            null
+          ]
+        },
+        "slippageEstimate": {
+          "enum": [
+            null
+          ]
+        },
+        "estimates": {
+          "enum": [
+            true
+          ]
+        },
+        "lotSize": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "minNotional": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "provenance": {
+          "$ref": "#/$defs/MarketProvenance"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "VenueQuotes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VenueQuote"
+          }
+        }
+      }
+    },
+    "MarketWatchlist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentIds",
+        "objectVersion"
+      ],
+      "properties": {
+        "instrumentIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "SaveMarketWatchlist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentIds"
+      ],
+      "properties": {
+        "instrumentIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        }
+      }
+    },
+    "CandleSeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentId",
+        "canonicalSymbol",
+        "venue",
+        "productType",
+        "interval",
+        "timezone",
+        "ohlcv",
+        "gaps",
+        "eventMarkers",
+        "provenance",
+        "sequence",
+        "replaceSeries",
+        "aggregation"
+      ],
+      "properties": {
+        "instrumentId": {
+          "type": "string"
+        },
+        "canonicalSymbol": {
+          "type": "string"
+        },
+        "venue": {
+          "enum": [
+            "binance",
+            "coinbase"
+          ]
+        },
+        "productType": {
+          "enum": [
+            "spot"
+          ]
+        },
+        "interval": {
+          "enum": [
+            "1m",
+            "5m",
+            "15m",
+            "1h",
+            "4h",
+            "1D",
+            "1W"
+          ]
+        },
+        "timezone": {
+          "enum": [
+            "UTC",
+            "Asia/Shanghai"
+          ]
+        },
+        "ohlcv": {
+          "type": "array",
+          "maxItems": 500,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "t",
+              "o",
+              "h",
+              "l",
+              "c",
+              "v"
+            ],
+            "properties": {
+              "t": {
+                "$ref": "#/$defs/DateTime"
+              },
+              "o": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              },
+              "h": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              },
+              "l": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              },
+              "c": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              },
+              "v": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              }
+            }
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "start",
+              "end"
+            ],
+            "properties": {
+              "start": {
+                "$ref": "#/$defs/DateTime"
+              },
+              "end": {
+                "$ref": "#/$defs/DateTime"
+              }
+            }
+          }
+        },
+        "eventMarkers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "at"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "data_gap"
+                ]
+              },
+              "at": {
+                "$ref": "#/$defs/DateTime"
+              }
+            }
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/MarketProvenance"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "replaceSeries": {
+          "enum": [
+            true
+          ]
+        },
+        "aggregation": {
+          "enum": [
+            "trade_events"
+          ]
+        }
+      }
     }
   }
 }

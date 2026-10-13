@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0",
+  "version": "1.7.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -2010,6 +2010,482 @@
         }
       },
       "description": "授权后返回已校验hash的JSON内容；不返回内部存储路径或可转发的Storage凭据。"
+    },
+    "MarketInstrument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentId",
+        "canonicalSymbol",
+        "venue",
+        "productType",
+        "intervals",
+        "timezones",
+        "priceKind",
+        "topOfBook",
+        "lotSize",
+        "minNotional"
+      ],
+      "properties": {
+        "instrumentId": {
+          "type": "string"
+        },
+        "canonicalSymbol": {
+          "type": "string"
+        },
+        "venue": {
+          "enum": [
+            "binance",
+            "coinbase"
+          ]
+        },
+        "productType": {
+          "enum": [
+            "spot"
+          ]
+        },
+        "intervals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "timezones": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "priceKind": {
+          "enum": [
+            "top_of_book",
+            "last_trade"
+          ]
+        },
+        "topOfBook": {
+          "type": "boolean"
+        },
+        "lotSize": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "minNotional": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        }
+      }
+    },
+    "MarketCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "asOf"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/MarketInstrument"
+          }
+        },
+        "asOf": {
+          "$ref": "#/components/schemas/DateTime"
+        }
+      }
+    },
+    "MarketProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "venue",
+        "asOf",
+        "quality",
+        "license",
+        "approvalRef",
+        "approvalVersion",
+        "dataSnapshotId",
+        "latencyMs"
+      ],
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "venue": {
+          "enum": [
+            "binance",
+            "coinbase"
+          ]
+        },
+        "asOf": {
+          "$ref": "#/components/schemas/DateTime"
+        },
+        "quality": {
+          "enum": [
+            "passed",
+            "degraded"
+          ]
+        },
+        "license": {
+          "type": "string"
+        },
+        "approvalRef": {
+          "type": "string"
+        },
+        "approvalVersion": {
+          "type": "string"
+        },
+        "dataSnapshotId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "latencyMs": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "VenueQuote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentId",
+        "canonicalSymbol",
+        "productType",
+        "bid",
+        "ask",
+        "mid",
+        "lastPrice",
+        "priceKind",
+        "executable",
+        "feeEstimate",
+        "slippageEstimate",
+        "estimates",
+        "lotSize",
+        "minNotional",
+        "provenance",
+        "sequence"
+      ],
+      "properties": {
+        "instrumentId": {
+          "type": "string"
+        },
+        "canonicalSymbol": {
+          "type": "string"
+        },
+        "productType": {
+          "enum": [
+            "spot"
+          ]
+        },
+        "bid": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ]
+        },
+        "ask": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ]
+        },
+        "mid": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ]
+        },
+        "lastPrice": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+            },
+            {
+              "enum": [
+                null
+              ]
+            }
+          ]
+        },
+        "priceKind": {
+          "enum": [
+            "top_of_book",
+            "last_trade"
+          ]
+        },
+        "executable": {
+          "enum": [
+            false
+          ]
+        },
+        "feeEstimate": {
+          "enum": [
+            null
+          ]
+        },
+        "slippageEstimate": {
+          "enum": [
+            null
+          ]
+        },
+        "estimates": {
+          "enum": [
+            true
+          ]
+        },
+        "lotSize": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "minNotional": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        },
+        "provenance": {
+          "$ref": "#/components/schemas/MarketProvenance"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "VenueQuotes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/VenueQuote"
+          }
+        }
+      }
+    },
+    "MarketWatchlist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentIds",
+        "objectVersion"
+      ],
+      "properties": {
+        "instrumentIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "objectVersion": {
+          "type": "string"
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "SaveMarketWatchlist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentIds"
+      ],
+      "properties": {
+        "instrumentIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "maxItems": 100,
+          "uniqueItems": true
+        }
+      }
+    },
+    "CandleSeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instrumentId",
+        "canonicalSymbol",
+        "venue",
+        "productType",
+        "interval",
+        "timezone",
+        "ohlcv",
+        "gaps",
+        "eventMarkers",
+        "provenance",
+        "sequence",
+        "replaceSeries",
+        "aggregation"
+      ],
+      "properties": {
+        "instrumentId": {
+          "type": "string"
+        },
+        "canonicalSymbol": {
+          "type": "string"
+        },
+        "venue": {
+          "enum": [
+            "binance",
+            "coinbase"
+          ]
+        },
+        "productType": {
+          "enum": [
+            "spot"
+          ]
+        },
+        "interval": {
+          "enum": [
+            "1m",
+            "5m",
+            "15m",
+            "1h",
+            "4h",
+            "1D",
+            "1W"
+          ]
+        },
+        "timezone": {
+          "enum": [
+            "UTC",
+            "Asia/Shanghai"
+          ]
+        },
+        "ohlcv": {
+          "type": "array",
+          "maxItems": 500,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "t",
+              "o",
+              "h",
+              "l",
+              "c",
+              "v"
+            ],
+            "properties": {
+              "t": {
+                "$ref": "#/components/schemas/DateTime"
+              },
+              "o": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              },
+              "h": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              },
+              "l": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              },
+              "c": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              },
+              "v": {
+                "type": "string",
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+              }
+            }
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "start",
+              "end"
+            ],
+            "properties": {
+              "start": {
+                "$ref": "#/components/schemas/DateTime"
+              },
+              "end": {
+                "$ref": "#/components/schemas/DateTime"
+              }
+            }
+          }
+        },
+        "eventMarkers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "at"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "data_gap"
+                ]
+              },
+              "at": {
+                "$ref": "#/components/schemas/DateTime"
+              }
+            }
+          }
+        },
+        "provenance": {
+          "$ref": "#/components/schemas/MarketProvenance"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "replaceSeries": {
+          "enum": [
+            true
+          ]
+        },
+        "aggregation": {
+          "enum": [
+            "trade_events"
+          ]
+        }
+      }
     }
   },
   "operations": [
@@ -6172,6 +6648,557 @@
           "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
         },
         "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/markets/catalog",
+      "method": "GET",
+      "operationId": "getMarketCatalog",
+      "parameters": [
+        {
+          "name": "symbol",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "maxLength": 49
+          }
+        },
+        {
+          "name": "venue",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "binance",
+              "coinbase"
+            ]
+          }
+        },
+        {
+          "name": "product",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "spot"
+            ]
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-005",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "market.read; server-granted identity only",
+        "pagination": "bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "source event asOf/quality/license; stale quotes degraded and never executable",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "read-only projection; no shared response cache",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/markets/watchlist",
+      "method": "GET",
+      "operationId": "getWatchlist",
+      "parameters": [],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-005",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "market.read; server-granted identity only",
+        "pagination": "bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "source event asOf/quality/license; stale quotes degraded and never executable",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "read-only projection; no shared response cache",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/markets/watchlist",
+      "method": "PUT",
+      "operationId": "saveWatchlist",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/SaveMarketWatchlist"
+      },
+      "bodyExample": {
+        "instrumentIds": [
+          "binance:spot:BTC/USDT"
+        ]
+      },
+      "policy": {
+        "owner": "BFF-FE-005",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "market.read + market.watchlist.write; viewer writes forbidden",
+        "pagination": "bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "source event asOf/quality/license; stale quotes degraded and never executable",
+        "idempotency": "required; same actor/key/business intent; changed payload conflicts",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Domain owner records actor, intent, outcome and correlation ID before terminal response.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "read-only projection; no shared response cache",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/markets/quotes",
+      "method": "GET",
+      "operationId": "getVenueQuotes",
+      "parameters": [
+        {
+          "name": "symbol",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "maxLength": 49
+          }
+        },
+        {
+          "name": "venue",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "binance",
+              "coinbase"
+            ]
+          }
+        },
+        {
+          "name": "product",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "spot"
+            ]
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-005",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "market.read; server-granted identity only",
+        "pagination": "bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "source event asOf/quality/license; stale quotes degraded and never executable",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "read-only projection; no shared response cache",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/markets/candles",
+      "method": "GET",
+      "operationId": "getCandleSeries",
+      "parameters": [
+        {
+          "name": "symbol",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "maxLength": 49
+          }
+        },
+        {
+          "name": "venue",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "binance",
+              "coinbase"
+            ]
+          }
+        },
+        {
+          "name": "product",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "spot"
+            ]
+          }
+        },
+        {
+          "name": "interval",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "enum": [
+              "1m",
+              "5m",
+              "15m",
+              "1h",
+              "4h",
+              "1D",
+              "1W"
+            ]
+          }
+        },
+        {
+          "name": "timezone",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "enum": [
+              "UTC",
+              "Asia/Shanghai"
+            ]
+          }
+        },
+        {
+          "name": "start",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "end",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-005",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "market.read; server-granted identity only",
+        "pagination": "bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "source event asOf/quality/license; stale quotes degraded and never executable",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "read-only projection; no shared response cache",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/markets/quotes/stream",
+      "method": "GET",
+      "operationId": "subscribeQuotes",
+      "parameters": [
+        {
+          "name": "symbol",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "maxLength": 49
+          }
+        },
+        {
+          "name": "venue",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "binance",
+              "coinbase"
+            ]
+          }
+        },
+        {
+          "name": "product",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "spot"
+            ]
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        },
+        {
+          "name": "streamId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-005",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "market.read; server-granted identity only",
+        "pagination": "bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "source event asOf/quality/license; stale quotes degraded and never executable",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "dimension-bound streamId + afterSequence; replace entire series; expired/rebound cursor 409 STREAM_RESET_REQUIRED",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/markets/candles/stream",
+      "method": "GET",
+      "operationId": "subscribeCandles",
+      "parameters": [
+        {
+          "name": "symbol",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "maxLength": 49
+          }
+        },
+        {
+          "name": "venue",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "binance",
+              "coinbase"
+            ]
+          }
+        },
+        {
+          "name": "product",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "spot"
+            ]
+          }
+        },
+        {
+          "name": "interval",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "enum": [
+              "1m",
+              "5m",
+              "15m",
+              "1h",
+              "4h",
+              "1D",
+              "1W"
+            ]
+          }
+        },
+        {
+          "name": "timezone",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "enum": [
+              "UTC",
+              "Asia/Shanghai"
+            ]
+          }
+        },
+        {
+          "name": "start",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "end",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        },
+        {
+          "name": "streamId",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-005",
+        "auth": "cookie + resource-scoped authorization",
+        "capability": "market.read; server-granted identity only",
+        "pagination": "bounded catalog <=256 and watchlist <=100; candles <=500, narrow query otherwise",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "source event asOf/quality/license; stale quotes degraded and never executable",
+        "idempotency": "not applicable: read-only",
+        "version": "Owner checks immutable reference, validity and authoritative state; no blind overwrite.",
+        "audit": "Authorized resource read; restricted audit/download accesses are audited by owner.",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
+        },
+        "realtime": "dimension-bound streamId + afterSequence; replace entire series; expired/rebound cursor 409 STREAM_RESET_REQUIRED",
         "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
       },
       "authenticated": true

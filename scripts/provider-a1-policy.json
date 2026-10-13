@@ -1673,6 +1673,54 @@
       "artifact": "artifacts/bff-fe-001/semantics.json",
       "artifactKind": "a2-local-semantics",
       "timeoutMs": 900000
+    },
+    "bff005-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "market::",
+        "--",
+        "--nocapture"
+      ],
+      "staticOnly": true,
+      "marker": "test result: ok"
+    },
+    "bff005-http": {
+      "command": [
+        "node",
+        "scripts/test-bff-fe-005.mjs"
+      ],
+      "staticOnly": true,
+      "output": "market-http.json",
+      "artifactKind": "bff005-http",
+      "marker": "BFF005_HTTP_PASS",
+      "artifact": "artifacts/bff005-http.json"
+    },
+    "bff005-web": {
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "tests/contract/bff-market.test.ts",
+        "packages/api-client/tests/market-recovery.test.ts"
+      ],
+      "staticOnly": true,
+      "marker": "Tests"
+    },
+    "bff005-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/bff-fe-005-development.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "fail 0"
     }
   },
   "nodes": {
@@ -2453,6 +2501,45 @@
         "bff003-release-target",
         "research-local-final-cleanup"
       ]
+    },
+    "FE:BFF-FE-005": {
+      "scope": "BFF005_LOCAL complete forty-node functional closure; seven C12 market projections, watchlist authority and recovery; no external/performance/formal acceptance",
+      "inputs": [
+        "services/bff-gateway/",
+        "crates/quantos-market/",
+        "crates/quantos-storage/",
+        "bff/",
+        "packages/api-client/",
+        "tests/contract/",
+        "supabase/migrations/20261013090000_bff_market_pages.sql",
+        "scripts/*bff-fe-005*",
+        "docs/execution/BFF-FE-005-summary.md"
+      ],
+      "checks": [
+        "bff005-rust",
+        "bff005-http",
+        "bff005-web",
+        "bff003-local-clippy",
+        "client-typecheck",
+        "openapi",
+        "generated",
+        "catalog",
+        "compatibility",
+        "plans",
+        "research-local-negatives",
+        "bff005-negatives",
+        "research-local-final-cleanup"
+      ]
+    },
+    "PROVIDER:A3": {
+      "scope": "Execution-only union for refreshing A3 consumer closures; does not publish PROVIDER:A3 READY",
+      "inputs": [
+        "bff/",
+        "scripts/research-local-*"
+      ],
+      "checks": [
+        "plans"
+      ]
     }
   },
   "developmentProfile": {
@@ -2623,6 +2710,76 @@
     "profile": "BFF003_LOCAL",
     "roots": [
       "FE:BFF-FE-003"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "bff005Local": {
+    "owner": "FE:BFF-FE-005",
+    "profile": "BFF005_LOCAL",
+    "roots": [
+      "FE:BFF-FE-005"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "a3Execution": {
+    "owner": "PROVIDER:A3",
+    "profile": "A3_EXECUTION",
+    "roots": [
+      "PROVIDER:A3"
     ],
     "deferredChecks": [
       "tp01-baseline",

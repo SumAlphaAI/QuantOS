@@ -12,6 +12,7 @@ use std::{
 };
 use thiserror::Error;
 
+pub mod book;
 pub mod durable;
 pub const MAX_REPLAY_TICKS: usize = 100_000;
 pub const MAX_LINE_BYTES: usize = 16_384;

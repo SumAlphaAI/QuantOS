@@ -1,10 +1,10 @@
 {
   "schema": "quantos-pre04-baseline/v1",
-  "version": "1.5",
-  "date": "2026-10-12",
+  "version": "1.6",
+  "date": "2026-10-13",
   "reviewedSourceSha": null,
-  "openapiDigest": "60a674bfda6fbeac87cf2ecc00d3059ebcf5a2bb5c2eacd3dfdb17aa697b93df",
-  "catalogDigest": "f7731e682d4eabff67877f40d3b57e97dd158da847e1d1d825bfe21939fd6474",
+  "openapiDigest": "654daf4aba6827d5f8275db402323c752b42d0fabed715eecaa13ad12b72f71b",
+  "catalogDigest": "d37258a30159d8ec438fd249f97b1a0109408937a87b81fe525f69621e40d468",
   "protoDigests": [
     "2655e561849dc08be5bfa5738daf8aedf348f59f30e994d969062147d22170b7",
     "2a2f048fb6ae82deb0a62041e5ce02fe6b1067f21364c0e8fd4e0a8bd2d202d7",
@@ -336,7 +336,7 @@
         "X06"
       ],
       "owners": "BFF TL + Audit owner（F05/X06）",
-      "protoCoverage": "部分（EventEnvelope/EventLedgerService 为服务级；页面模型由 OpenAPI 1.6.0 补齐）",
+      "protoCoverage": "部分（EventEnvelope/EventLedgerService 为服务级；页面模型由 OpenAPI 1.7.0 补齐）",
       "models": [
         "AuditEvent",
         "AuditEventPage",
@@ -431,73 +431,22 @@
       ],
       "owners": "BFF TL + Market data owner（R01/R02）",
       "protoCoverage": "无（缺 Instrument/VenueQuote/Candle 消息）",
-      "models": [],
-      "plannedFields": [
-        {
-          "name": "canonicalSymbol / productType",
-          "type": "string / enum{spot, perp, future}",
-          "required": "是",
-          "domain": "planned-model:Instrument"
-        },
-        {
-          "name": "venue",
-          "type": "enum:VenueKind",
-          "required": "是",
-          "domain": "proto:trading.v1.VenueKind"
-        },
-        {
-          "name": "bid / ask / mid",
-          "type": "decimal",
-          "required": "是",
-          "domain": "planned-model:VenueQuote"
-        },
-        {
-          "name": "feeEstimate / slippageEstimate",
-          "type": "money / decimal（标注估算）",
-          "required": "是",
-          "domain": "planned-model:VenueQuote"
-        },
-        {
-          "name": "lotSize / minNotional",
-          "type": "decimal / money",
-          "required": "是",
-          "domain": "planned-model:VenueQuote"
-        },
-        {
-          "name": "source / asOf / latencyMs / quality",
-          "type": "string / rfc3339 / int32 / enum:DataQuality",
-          "required": "是",
-          "domain": "planned-model:VenueQuote（每行必备）"
-        },
-        {
-          "name": "interval",
-          "type": "enum{1m, 5m, 15m, 1h, 4h, 1D, 1W, custom}",
-          "required": "是",
-          "domain": "planned-model:CandleSeries"
-        },
-        {
-          "name": "timezone",
-          "type": "string（IANA）",
-          "required": "是",
-          "domain": "planned-model:CandleSeries"
-        },
-        {
-          "name": "ohlcv",
-          "type": "object[]{o,h,l,c,v:decimal, t:rfc3339}",
-          "required": "是",
-          "domain": "planned-model:CandleSeries"
-        },
-        {
-          "name": "gaps",
-          "type": "TimeWindow[]",
-          "required": "是",
-          "domain": "planned-model:CandleSeries"
-        }
+      "models": [
+        "MarketInstrument",
+        "MarketProvenance",
+        "VenueQuote",
+        "CandleSeries",
+        "MarketWatchlist",
+        "SaveMarketWatchlist"
       ],
+      "plannedFields": [],
       "priority": "P0",
       "stage": "FEP-4/G4",
       "inventoryFixtures": [],
-      "fixtures": [],
+      "fixtures": [
+        "tests/contract/fixtures/market/candle-series.json",
+        "tests/contract/fixtures/market/venue-quote.json"
+      ],
       "surface": [
         "catalog/watchlist、venue quote、candle series/history",
         "watchlist save、告警订阅（经 C16）",
@@ -940,7 +889,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "1ffdb9eb4a946ddf12776e4658fce8c430be28826d46397b900e3d031f56008d"
+          "sha256": "3c6bce930b59c0d4150c387bc03ad8c57c60b9e72338cf255092c4c23eed9677"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
@@ -958,7 +907,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "1ffdb9eb4a946ddf12776e4658fce8c430be28826d46397b900e3d031f56008d"
+          "sha256": "3c6bce930b59c0d4150c387bc03ad8c57c60b9e72338cf255092c4c23eed9677"
         },
         {
           "path": "services/bff-gateway/tests/auth_settings_provider.rs",
@@ -976,7 +925,7 @@
       "artifacts": [
         {
           "path": "services/bff-gateway/src/lib.rs",
-          "sha256": "1ffdb9eb4a946ddf12776e4658fce8c430be28826d46397b900e3d031f56008d"
+          "sha256": "3c6bce930b59c0d4150c387bc03ad8c57c60b9e72338cf255092c4c23eed9677"
         },
         {
           "path": "services/bff-gateway/tests/audit_export_provider.rs",
@@ -988,6 +937,24 @@
         }
       ],
       "targetAcceptance": "NOT_RUN / NO_RECEIPT"
+    },
+    "C12": {
+      "scope": "local-reference-only",
+      "targetAcceptance": "NOT_RUN / NO_RECEIPT",
+      "artifacts": [
+        {
+          "path": "services/bff-gateway/src/market.rs",
+          "sha256": "50fac9c735688d8dcd9f48ea4a8697bec98f4fa404e5867d550ffa2bbc9b532d"
+        },
+        {
+          "path": "services/bff-gateway/src/market_tests.rs",
+          "sha256": "81deaf43c430fc670a69a2e06ed8547ee1d6721f8e47811ce5e5a781084f82d4"
+        },
+        {
+          "path": "docs/execution/BFF-FE-005-summary.md",
+          "sha256": "01608270b38e0646aa257856b3a952172c034f4be9126a7b1594795ccb5daff4"
+        }
+      ]
     }
   },
   "domainMappings": {
@@ -1318,6 +1285,218 @@
     "SecuritySettings.firstFactorSetupRef": [
       "none",
       "绑定五分钟内已验证首因素与当前 session；只允许注册或取消未验证注册，不能替代普通安全授权"
+    ],
+    "MarketInstrument.instrumentId": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketInstrument.canonicalSymbol": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketInstrument.venue": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketInstrument.productType": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketInstrument.intervals": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketInstrument.timezones": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketInstrument.priceKind": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketInstrument.topOfBook": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketInstrument.lotSize": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketInstrument.minNotional": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketProvenance.source": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketProvenance.venue": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketProvenance.asOf": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketProvenance.quality": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketProvenance.license": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketProvenance.approvalRef": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketProvenance.approvalVersion": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketProvenance.dataSnapshotId": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketProvenance.latencyMs": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.instrumentId": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.canonicalSymbol": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.productType": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.bid": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.ask": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.mid": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.lastPrice": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.priceKind": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.executable": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.feeEstimate": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.slippageEstimate": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.estimates": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.lotSize": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.minNotional": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.provenance": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "VenueQuote.sequence": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.instrumentId": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.canonicalSymbol": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.venue": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.productType": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.interval": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.timezone": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.ohlcv": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.gaps": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.eventMarkers": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.provenance": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.sequence": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.replaceSeries": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "CandleSeries.aggregation": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketWatchlist.instrumentIds": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketWatchlist.objectVersion": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketWatchlist.auditRef": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "MarketWatchlist.correlationId": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
+    ],
+    "SaveMarketWatchlist.instrumentIds": [
+      "none",
+      "BFF-FE-005: R01 immutable licensed trade event / R02 authorized snapshot projection; nullable book/estimate fields are unavailable, never fabricated"
     ]
   },
   "amendment": {

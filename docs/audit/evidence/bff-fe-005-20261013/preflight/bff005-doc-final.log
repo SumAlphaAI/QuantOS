@@ -1,0 +1,103 @@
+{
+  "schema": "quantos-pre01/v2",
+  "status": "PASS",
+  "pages": 30,
+  "stories": 124,
+  "flow_stories": 8,
+  "acceptance_scenarios": 210,
+  "flow_scenarios": 10,
+  "states_per_page": 7,
+  "traceability_rows": 30
+}
+{
+  "schema": "quantos-pre04/v1",
+  "status": "PASS",
+  "contracts": 17,
+  "gaps": 17,
+  "p0_pages": 23,
+  "field_rows": 459,
+  "openapi_operations": 70,
+  "openapi_schemas": 62,
+  "proto": {
+    "files": 6,
+    "messages": 38,
+    "enums": 15,
+    "services": 2,
+    "rpcs": 7,
+    "jsonSchemas": 50
+  }
+}
+ok    OpenAPI 版本 3.1.0
+ok    全部本地 $ref 可解析
+ok    operation 数 70，operationId 全局唯一
+
+BFF OpenAPI 基线结构校验通过
+✨ openapi-typescript 7.13.0
+🚀 /Users/anray/Documents/project/SumAlpha/QuantOS/bff/openapi/quantos-bff.v1.yaml → /var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-bff-generated-JvLIjV/packages/api-client/src/bff-gen/quantos-bff.ts [76.3ms]
+Generated BFF 1.7.0: 70 operations, 62 schemas.
+ok    packages/api-client/src/bff-gen/quantos-bff.ts
+ok    packages/api-client/src/bff-gen/quantos-bff.zod.ts
+ok    tests/contract/generated/quantos-bff.components.schema.json
+ok    tests/contract/generated/quantos-bff.operations.json
+ok    tests/contract/generated/quantos-bff.msw.ts
+ok    services/bff-gateway/src/generated-input-policy.json
+
+BFF generated artifacts match the frozen OpenAPI.
+{
+  "status": "PASS",
+  "changes": 85,
+  "registeredCorrections": 85,
+  "failures": [],
+  "baseline": "75a563c62d3d7883d5b178111becec07d4da0301",
+  "scope": "engineering compatibility; no owner/staging signature implied"
+}
+BFF-FE-007 local contract Gate PASS: 6 C10 operations, redacted evidence pagination, controlled export lifecycle and fail-closed download checks.
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 159,
+    "READY": 0,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1462,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22,
+  "development_handoffs": {
+    "status": "PASS",
+    "tasks": 22,
+    "checkpoints": 16,
+    "externalDevelopmentGates": 0,
+    "performanceDevelopmentGates": 0,
+    "targetAcceptance": "NOT_RUN"
+  },
+  "frontend_handoffs": {
+    "status": "PASS",
+    "after": "FE:BFF-FE-003",
+    "tasks": 64,
+    "checkpoints": 16,
+    "externalEarlyGates": 0,
+    "performanceEarlyGates": 0,
+    "targetAcceptance": "NOT_RUN",
+    "formalAccepted": false
+  }
+}

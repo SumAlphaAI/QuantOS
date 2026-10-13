@@ -20,3 +20,5 @@ export * from "./gen/quantos/strategy/v1/strategy_pb.js";
 export * from "./gen/quantos/trading/v1/trading_pb.js";
 export * from "./gen/quantos/engine/v1/engine_pb.js";
 export * from "./gen/quantos/events/v1/events_pb.js";
+
+export * from "./market.js";

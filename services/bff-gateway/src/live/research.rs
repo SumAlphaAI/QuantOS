@@ -39,7 +39,7 @@ use uuid::Uuid;
 fn env(name: &str) -> Result<String> {
     std::env::var(name).map_err(|_| Fault::unavailable())
 }
-fn source_policy() -> Result<SnapshotSourcePolicy> {
+pub(super) fn source_policy() -> Result<SnapshotSourcePolicy> {
     let approvals: Vec<SourceApproval> = serde_json::from_slice(
         &std::fs::read(env("QUANTOS_BFF_RESEARCH_SOURCE_POLICY")?)
             .map_err(|_| Fault::unavailable())?,

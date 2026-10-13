@@ -1,10 +1,10 @@
-# A2、R1 与 BFF-FE-003 本地功能准入
+# A2、R1 与 A3 页面本地功能准入
 
-三个消费者使用独立的 A2_LOCAL（17 节点）、R1_LOCAL（27 节点）和 BFF003_LOCAL（40 节点）profile。完整闭包由当前执行计划计算；共同检查只执行一次，子索引从同一源码、同次实际执行派生，再分别递归验证。上游组件仅作为消费者限定的 LOCAL_READY 投影，不登记上游独立 READY。
+四个消费者使用独立的 A2_LOCAL（17 节点）、R1_LOCAL（27 节点）、BFF003_LOCAL（40 节点）和 BFF005_LOCAL（40 节点）profile。A3_EXECUTION 只运行 42 节点并集，不发布 PROVIDER:A3 READY。完整闭包由当前执行计划计算；共同检查只执行一次，子索引从同一源码、同次实际执行派生，再分别递归验证。上游组件仅作为消费者限定的 LOCAL_READY 投影，不登记上游独立 READY。
 
-`make research-local-assess ATTEMPT=docs/audit/evidence/provider-a1-remediation-20261004/research-local-20261012/attempt-NN` 要求干净 Git 和全新目录。冻结代码后执行全部必要功能检查、R04 的 100 条不可执行 Proposal/22 类伪造引用拒绝/零订单、A2 的 26 个真实回环 HTTP operation 和 8+5 个语义变异，以及 BFF003 的 9 个 provider 响应、schema/client 与权限/幂等/取消回归。临时 Engine 限定随机所有权标签，最后检查进程清理。原历史组件证据在执行期间备份并恢复；新原件、日志和产物存入新 attempt，失败不拼接为成功。
+`make research-local-assess ATTEMPT=docs/audit/evidence/provider-a1-remediation-20261004/research-local-20261013/attempt-NN` 要求干净 Git 和全新目录。冻结代码后执行全部必要功能检查、R04 的 100 条不可执行 Proposal/22 类伪造引用拒绝/零订单、A2 的 26 个真实回环 HTTP operation 和 8+5 个语义变异，以及 BFF005 的 7 个市场 HTTP API、基本 Chromium 读取、来源/维度/版本拒绝和 BFF003 的 9 个 provider 响应、schema/client 与权限/幂等/取消回归。临时 Engine 限定随机所有权标签，最后检查进程清理。原历史组件证据在执行期间备份并恢复；新原件、日志和产物存入新 attempt，失败不拼接为成功。
 
-`make research-local-check` 验证三个已发布本地回执并运行负向测试；`make r1-local-check`、`make a2-local-check`、`make bff003-local-check` 可分别复核。修改任何绑定的代码、测试、配置或规范范围后，须撤回受影响准入并重跑闭包。文档 Gate 状态和报告不进入功能输入摘要，避免自引用。
+`make research-local-check` 验证四个已发布本地回执并运行负向测试；`make r1-local-check`、`make a2-local-check`、`make bff003-local-check`、`make bff005-local-check` 可分别复核。修改任何绑定的代码、测试、配置或规范范围后，须撤回受影响准入并重跑闭包。文档 Gate 状态和报告不进入功能输入摘要，避免自引用。
 
 运行环境删除 DATABASE_URL、Supabase、令牌/密码/密钥及数据库测试开关，设置 QUANTOS_SKIP_ENV；Cargo、uv、npm 使用离线模式。回环参考 provider 和合成 Engine 是真实模块执行，使用内存边界，不运行数据库或 Docker，不使用生产凭据。
 
@@ -17,3 +17,5 @@
 纯 Rust P95 benchmark 仅发布显式 `--ignored` 执行；F04 开发检查用 `--functional` 验证两进程 1,000 fixture 的摘要一致。四类 Engine 的 20 次 RPC 仍执行并输出诊断，只有 `QUANTOS_RELEASE_PERFORMANCE=1` 才启用原 1 秒 P95 断言，本地 profile 强制为 0。发布 smoke 保留原 Rust、F04、Python 阈值。取消、deadline、权限与恢复的功能语义仍是开发要求。
 
 A2 正向检查重新执行当前源码的三个 provider/client 测试命令，产出源码 SHA、源码摘要和原始日志绑定。当前 API 1.6.0 / 63 operation / 54 schema 清单独立保存，旧正式/历史回执保持原字节。TP05 按四个必需 R04 场景和完整成功摘要验收，允许完整套件增长，拒绝缺场景或失败/ignored。不同旧组件摘要格式只做无损归一化，仍逐字验证日志。
+
+BFF005 live 数据源按服务器维护 catalog 与 R02 授权 snapshot 的 R01 事件范围冷读取，盘口由 R01 normalize_book 显式规范事件提供；缺盘口时只返回明确标注的成交价回退。市场迁移、真实 provider 数据/用途许可、watchlist 多实例事务/重启、持续流撤权和回补、全浏览器矩阵及容量性能仍为 RELEASE NOT_RUN；不把本机受控模块组合测试转授真实目标通过。

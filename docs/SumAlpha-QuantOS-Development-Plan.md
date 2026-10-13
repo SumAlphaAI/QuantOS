@@ -1,4 +1,4 @@
-> 当前本地准入（2026-10-12）：冻结 31f434f7，40 节点 / 135 组完整功能检查全部 PASS；A2_LOCAL、R1_LOCAL、BFF003_LOCAL 为限定 DEVELOPMENT READY。全图 3 READY / 156 NOT_ASSESSED / 0 BLOCKED；上游独立 Gate 不转授，外部环境/性能 RELEASE NOT_RUN，formalAccepted=false。见[完成报告](./audit/A3-local-admission-2026-10-12.md)。
+> 当前执行：2026-10-13 BFF-FE-005 实现候选；共享源码变更后 A2/R1/BFF003 的旧 READY 已撤回，四消费者完整功能闭包待本轮实际重跑。外部/性能 RELEASE NOT_RUN；formalAccepted=false。
 
 > 历史 A3 前置回执复评（2026-10-12）：A2 与 R1-SERVICE 均 NOT_ASSESSED；TP01-D 旧 READY 因当前功能输入漂移撤回。当前全图 0 READY / 158 NOT_ASSESSED / 1 BLOCKED（BFF-FE-003）；外部环境/性能为 RELEASE NOT_RUN，未自行批准。见[复评与前端发布移交](./audit/A3-prerequisites-and-frontend-release-handoffs-2026-10-12.md)。
 
@@ -53,8 +53,8 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.74
-> 更新时间：2026-10-12
+> 版本：3.75
+> 更新时间：2026-10-13
 > 状态：技术执行基线  
 > 本轮变更：F06/F07目标Auth错误诊断、数据库写入预检和F09有界收尾修复；从新冻结源码复验必要前置。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
@@ -1220,11 +1220,9 @@ flowchart TD
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:946a299c07c110c9b0c3bb4cf9b50c91fad6575b9110cd0d80014d26bb60281d",
-    "evidence": [
-      "audit/evidence/research-local-20261012/r1-local.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```

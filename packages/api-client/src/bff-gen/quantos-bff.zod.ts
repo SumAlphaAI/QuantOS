@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.6.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.7.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -480,6 +480,99 @@ export const ArtifactAttachmentSchema = z.object({
   "correlationId": z.lazy(() => UUIDSchema).optional(),
 }).passthrough().describe("授权后返回已校验hash的JSON内容；不返回内部存储路径或可转发的Storage凭据。");
 
+export const MarketInstrumentSchema = z.object({
+  "instrumentId": z.string(),
+  "canonicalSymbol": z.string(),
+  "venue": z.enum(["binance","coinbase"]),
+  "productType": z.literal("spot"),
+  "intervals": z.array(z.string()),
+  "timezones": z.array(z.string()),
+  "priceKind": z.enum(["top_of_book","last_trade"]),
+  "topOfBook": z.boolean(),
+  "lotSize": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+  "minNotional": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+}).strict();
+
+export const MarketCatalogSchema = z.object({
+  "items": z.array(z.lazy(() => MarketInstrumentSchema)),
+  "asOf": z.lazy(() => DateTimeSchema),
+}).strict();
+
+export const MarketProvenanceSchema = z.object({
+  "source": z.string(),
+  "venue": z.enum(["binance","coinbase"]),
+  "asOf": z.lazy(() => DateTimeSchema),
+  "quality": z.enum(["passed","degraded"]),
+  "license": z.string(),
+  "approvalRef": z.string(),
+  "approvalVersion": z.string(),
+  "dataSnapshotId": z.lazy(() => UUIDSchema),
+  "latencyMs": z.number().int().min(0),
+}).strict();
+
+export const VenueQuoteSchema = z.object({
+  "instrumentId": z.string(),
+  "canonicalSymbol": z.string(),
+  "productType": z.literal("spot"),
+  "bid": z.union([z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")), z.literal(null)]),
+  "ask": z.union([z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")), z.literal(null)]),
+  "mid": z.union([z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")), z.literal(null)]),
+  "lastPrice": z.union([z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")), z.literal(null)]),
+  "priceKind": z.enum(["top_of_book","last_trade"]),
+  "executable": z.literal(false),
+  "feeEstimate": z.literal(null),
+  "slippageEstimate": z.literal(null),
+  "estimates": z.literal(true),
+  "lotSize": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+  "minNotional": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+  "provenance": z.lazy(() => MarketProvenanceSchema),
+  "sequence": z.number().int().min(1),
+}).strict();
+
+export const VenueQuotesSchema = z.object({
+  "items": z.array(z.lazy(() => VenueQuoteSchema)),
+}).strict();
+
+export const MarketWatchlistSchema = z.object({
+  "instrumentIds": z.array(z.string()).max(100),
+  "objectVersion": z.string(),
+  "auditRef": z.lazy(() => UUIDSchema).optional(),
+  "correlationId": z.lazy(() => UUIDSchema).optional(),
+}).strict();
+
+export const SaveMarketWatchlistSchema = z.object({
+  "instrumentIds": z.array(z.string().min(1).max(100)).max(100),
+}).strict();
+
+export const CandleSeriesSchema = z.object({
+  "instrumentId": z.string(),
+  "canonicalSymbol": z.string(),
+  "venue": z.enum(["binance","coinbase"]),
+  "productType": z.literal("spot"),
+  "interval": z.enum(["1m","5m","15m","1h","4h","1D","1W"]),
+  "timezone": z.enum(["UTC","Asia/Shanghai"]),
+  "ohlcv": z.array(z.object({
+  "t": z.lazy(() => DateTimeSchema),
+  "o": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+  "h": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+  "l": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+  "c": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+  "v": z.string().regex(new RegExp("^[0-9]+(?:\\.[0-9]+)?$")),
+}).strict()).max(500),
+  "gaps": z.array(z.object({
+  "start": z.lazy(() => DateTimeSchema),
+  "end": z.lazy(() => DateTimeSchema),
+}).strict()),
+  "eventMarkers": z.array(z.object({
+  "kind": z.literal("data_gap"),
+  "at": z.lazy(() => DateTimeSchema),
+}).strict()),
+  "provenance": z.lazy(() => MarketProvenanceSchema),
+  "sequence": z.number().int().min(1),
+  "replaceSeries": z.literal(true),
+  "aggregation": z.literal("trade_events"),
+}).strict();
+
 export const bffZodSchemas = {
   UUID: UUIDSchema,
   DateTime: DateTimeSchema,
@@ -535,6 +628,14 @@ export const bffZodSchemas = {
   Order: OrderSchema,
   ResearchAccepted: ResearchAcceptedSchema,
   ArtifactAttachment: ArtifactAttachmentSchema,
+  MarketInstrument: MarketInstrumentSchema,
+  MarketCatalog: MarketCatalogSchema,
+  MarketProvenance: MarketProvenanceSchema,
+  VenueQuote: VenueQuoteSchema,
+  VenueQuotes: VenueQuotesSchema,
+  MarketWatchlist: MarketWatchlistSchema,
+  SaveMarketWatchlist: SaveMarketWatchlistSchema,
+  CandleSeries: CandleSeriesSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -1001,6 +1102,76 @@ export const bffResponseSchemas = {
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "404": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getMarketCatalog": {
+    "200": z.lazy(() => MarketCatalogSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "422": z.lazy(() => ErrorEnvelopeSchema),
+    "429": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getWatchlist": {
+    "200": z.lazy(() => MarketWatchlistSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "422": z.lazy(() => ErrorEnvelopeSchema),
+    "429": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "saveWatchlist": {
+    "200": z.lazy(() => MarketWatchlistSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "422": z.lazy(() => ErrorEnvelopeSchema),
+    "429": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getVenueQuotes": {
+    "200": z.lazy(() => VenueQuotesSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "422": z.lazy(() => ErrorEnvelopeSchema),
+    "429": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getCandleSeries": {
+    "200": z.lazy(() => CandleSeriesSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "422": z.lazy(() => ErrorEnvelopeSchema),
+    "429": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "subscribeQuotes": {
+    "200": z.undefined(),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "422": z.lazy(() => ErrorEnvelopeSchema),
+    "429": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "subscribeCandles": {
+    "200": z.undefined(),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "404": z.lazy(() => ErrorEnvelopeSchema),
+    "409": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
+    "422": z.lazy(() => ErrorEnvelopeSchema),
+    "429": z.intersection(z.lazy(() => ErrorEnvelopeSchema), z.unknown()),
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
 } as const;

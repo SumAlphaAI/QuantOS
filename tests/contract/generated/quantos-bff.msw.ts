@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.6.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.7.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -23,11 +23,13 @@ export type BffOperationId =
   | "getArtifact"
   | "getArtifactAttachment"
   | "getBacktest"
+  | "getCandleSeries"
   | "getContext"
   | "getDataSnapshot"
   | "getEvidenceChain"
   | "getExportDownload"
   | "getExportStatus"
+  | "getMarketCatalog"
   | "getNotificationPrefs"
   | "getOrder"
   | "getPlatformCapabilities"
@@ -40,6 +42,8 @@ export type BffOperationId =
   | "getSecuritySettings"
   | "getSession"
   | "getStrategyDraft"
+  | "getVenueQuotes"
+  | "getWatchlist"
   | "listApprovals"
   | "listDataSnapshots"
   | "listDevices"
@@ -64,14 +68,17 @@ export type BffOperationId =
   | "saveNotificationPrefs"
   | "saveProfile"
   | "saveStrategyDraft"
+  | "saveWatchlist"
   | "searchAuditEvents"
   | "setupMfa"
   | "submitAccessRequest"
   | "submitReleaseApproval"
   | "submitTradeCommand"
+  | "subscribeCandles"
   | "subscribeOrder"
   | "subscribePortfolio"
   | "subscribeProposal"
+  | "subscribeQuotes"
   | "subscribeResearchRun"
   | "subscribeSessionRevocations";
 
@@ -147,6 +154,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getBacktest");
   }),
+  http.get(`${baseUrl}/v1/markets/candles`, async ({ request, params }) => {
+    const resolver = resolvers.getCandleSeries;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getCandleSeries");
+  }),
   http.get(`${baseUrl}/v1/context`, async ({ request, params }) => {
     const resolver = resolvers.getContext;
     if (resolver) return resolver({ request, params });
@@ -171,6 +183,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getExportStatus;
     if (resolver) return resolver({ request, params });
     return missingResolver("getExportStatus");
+  }),
+  http.get(`${baseUrl}/v1/markets/catalog`, async ({ request, params }) => {
+    const resolver = resolvers.getMarketCatalog;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getMarketCatalog");
   }),
   http.get(`${baseUrl}/v1/settings/notification-preferences`, async ({ request, params }) => {
     const resolver = resolvers.getNotificationPrefs;
@@ -231,6 +248,16 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getStrategyDraft;
     if (resolver) return resolver({ request, params });
     return missingResolver("getStrategyDraft");
+  }),
+  http.get(`${baseUrl}/v1/markets/quotes`, async ({ request, params }) => {
+    const resolver = resolvers.getVenueQuotes;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getVenueQuotes");
+  }),
+  http.get(`${baseUrl}/v1/markets/watchlist`, async ({ request, params }) => {
+    const resolver = resolvers.getWatchlist;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getWatchlist");
   }),
   http.get(`${baseUrl}/v1/approvals`, async ({ request, params }) => {
     const resolver = resolvers.listApprovals;
@@ -352,6 +379,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("saveStrategyDraft");
   }),
+  http.put(`${baseUrl}/v1/markets/watchlist`, async ({ request, params }) => {
+    const resolver = resolvers.saveWatchlist;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("saveWatchlist");
+  }),
   http.get(`${baseUrl}/v1/audit/events`, async ({ request, params }) => {
     const resolver = resolvers.searchAuditEvents;
     if (resolver) return resolver({ request, params });
@@ -377,6 +409,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("submitTradeCommand");
   }),
+  http.get(`${baseUrl}/v1/markets/candles/stream`, async ({ request, params }) => {
+    const resolver = resolvers.subscribeCandles;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("subscribeCandles");
+  }),
   http.get(`${baseUrl}/v1/orders/:orderId/stream`, async ({ request, params }) => {
     const resolver = resolvers.subscribeOrder;
     if (resolver) return resolver({ request, params });
@@ -391,6 +428,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.subscribeProposal;
     if (resolver) return resolver({ request, params });
     return missingResolver("subscribeProposal");
+  }),
+  http.get(`${baseUrl}/v1/markets/quotes/stream`, async ({ request, params }) => {
+    const resolver = resolvers.subscribeQuotes;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("subscribeQuotes");
   }),
   http.get(`${baseUrl}/v1/research-runs/:runId/stream`, async ({ request, params }) => {
     const resolver = resolvers.subscribeResearchRun;

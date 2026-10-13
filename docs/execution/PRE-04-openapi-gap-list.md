@@ -18,7 +18,7 @@
 | GAP-09 | C09 | 已发布：submitTradeCommand、listOrders、getOrder、requestOrderCancel、subscribeOrder；未发布：无 | P11、P19、P20 | X03、X04、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Closed |
 | GAP-10 | C10 | 已发布：searchAuditEvents、getEvidenceChain、createExport、getExportStatus、cancelExport、getExportDownload；未发布：无 | P04、P07、P09、P10、P11、P12、P13、P14、P22、P23 | F05、X06 | P0 | FEP-5/G5 | BFF-FE-007 | Closed |
 | GAP-11 | C11 | 已发布：无；未发布：getServiceHealth、listIncidents、getIncident、listMembers、listPolicies、listCapabilities、listFeatureFlags、runApprovedRunbookAction、updateMember、savePolicy、saveCapability、saveFeatureFlag | P13、P14 | F06、F09、X06 | P1 | FEP-6/G6 | BFF-FE-010 | Open |
-| GAP-12 | C12 | 已发布：无；未发布：getMarketCatalog、getWatchlist、getVenueQuotes、getCandleSeries、saveWatchlist、subscribeQuotes、subscribeCandles | P18、P19、P20 | R01、R02、L01 | P0 | FEP-4/G4 | BFF-FE-005 | Open |
+| GAP-12 | C12 | 已发布：getMarketCatalog、getWatchlist、getVenueQuotes、getCandleSeries、saveWatchlist、subscribeQuotes、subscribeCandles；未发布：无 | P18、P19、P20 | R01、R02、L01 | P0 | FEP-4/G4 | BFF-FE-005 | Closed |
 | GAP-13 | C13 | 已发布：无；未发布：getOrderCapabilities、getTradePreflight、subscribeTradePreflight | P20 | X01、X02、X03、L01 | P0 | FEP-5/G5 | BFF-FE-006 | Open |
 | GAP-14 | C14 | 已发布：无；未发布：getPerformanceSummary、getPerformanceSeries、getPerformanceAttribution、createPerformanceReport、getReportStatus、getReportDownload | P21 | X01、X05 | P1 | FEP-4/G4 | BFF-FE-008 | Open |
 | GAP-15 | C15 | 已发布：无；未发布：listReconciliationRuns、getReconciliationRun、listReconciliationBreaks、getReconciliationBreak、listLedgerEntries、requestReconciliationRerun、subscribeReconciliationRun | P11、P21、P22 | X05 | P0 | FEP-5/G5 | BFF-FE-009 | Open |

@@ -3,6 +3,7 @@ use std::{collections::BTreeMap, sync::Arc};
 
 mod input_contract;
 pub mod live;
+mod market;
 mod research;
 
 use axum::{
@@ -50,6 +51,7 @@ struct MfaWindow {
 #[derive(Debug)]
 struct ProviderData {
     research: research::Fixture,
+    market: market::Fixture,
     session_active: bool,
     clock_offset: Duration,
     session_expires_at: chrono::DateTime<Utc>,
@@ -76,6 +78,7 @@ impl Default for ProviderData {
     fn default() -> Self {
         Self {
             research: research::Fixture::default(),
+            market: market::Fixture::default(),
             session_active: true,
             clock_offset: Duration::zero(),
             session_expires_at: Utc::now() + Duration::minutes(5),
@@ -174,6 +177,7 @@ impl BffProvider {
     pub fn router(&self) -> Router {
         Router::new()
             .merge(research::reference_routes())
+            .merge(market::reference_routes())
             .route("/v1/session", get(get_session))
             .route("/v1/context", get(get_session))
             .route("/v1/auth/mfa/challenges", post(mfa_challenge))
