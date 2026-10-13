@@ -318,3 +318,10 @@ test('R03 local dependency exception cannot be invented for another task', () =>
  const other=stageContract(frontend,c=>c.local_dependency_receipts['CORE:R04']=c.local_dependency_receipts['CORE:R03']);
  assert.throws(()=>check(changed,other),/stage contract differs from required policy/);
 });
+
+test('TP02 local stage registration cannot be removed from both plans',()=>{
+ const remove=c=>delete c.local_dependency_receipts['CORE:TP02'];assert.throws(()=>check(stageContract(core,remove),stageContract(frontend,remove)),/stage contract differs from required policy/);
+});
+test('TP02 local dependency exception cannot be assigned to a different consumer',()=>{
+ const change=c=>c.local_dependency_receipts['CORE:TP05']=c.local_dependency_receipts['CORE:TP02'];assert.throws(()=>check(stageContract(core,change),stageContract(frontend,change)),/stage contract differs from required policy/);
+});

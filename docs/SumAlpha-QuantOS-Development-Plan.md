@@ -522,6 +522,16 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "PROVIDER:A2"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP02": {
+      "profile": "TP02_LOCAL",
+      "schema": "quantos-tp02-local-development/v1",
+      "manifest": "audit/evidence/tp02-local-20261013/manifest.json",
+      "prerequisites": [
+        "CORE:F08",
+        "CORE-GATE:F0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }

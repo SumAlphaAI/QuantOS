@@ -47,3 +47,19 @@ for(const [name,mutate]of[
  ['release obligation removed',f=>{const n=structuredClone(nodes.get('RELEASE-GATE:BETA'));n.required_scope='waived';f.options.nodes=new Map(nodes);f.options.nodes.set('RELEASE-GATE:BETA',n);}],
 ])test('TP02 dedicated scope rejects '+name,()=>{const f=fixture();mutate(f);assert.throws(f.run);});
 test('remote SCA is deferred while local secret/license/waiver checks remain',()=>{assert(!localChecks('CORE:F02',p,profile).includes('f02-sca'));for(const id of ['f02-secrets','f02-license','f02-waivers'])assert(localChecks('CORE:F02',p,profile).includes(id));assert(localDeferred(nodes,p,profile).some(c=>c.id==='f02-sca'&&c.status==='NOT_RUN'));});
+
+// Parse the real staged plans against an isolated receipt path, including the shared
+// plan-stage registration. All other docs are read-only links; no live Gate is changed.
+import {mkdtempSync,mkdirSync,readdirSync,symlinkSync,writeFileSync,rmSync} from 'node:fs';
+import {resolve,dirname,join} from 'node:path';import {tmpdir} from 'node:os';
+import {validatePlans} from './check-development-plans.mjs';
+function parsePublished(change=()=>{}){const f=publication();f.options.verifyAfter=()=>{const root=mkdtempSync(join(tmpdir(),'tp02-plan-publication-')),target=resolve(process.cwd(),manifest);
+ function mirror(from,to){mkdirSync(to,{recursive:true});for(const entry of readdirSync(from)){const a=resolve(from,entry),b=resolve(to,entry);if(a===target)continue;if(target.startsWith(a+'/'))mirror(a,b);else symlinkSync(a,b);}}
+ try{mirror(resolve('docs'),resolve(root,'docs'));const r=JSON.parse(f.files.get(manifest));change(r);const bytes=JSON.stringify(r);mkdirSync(dirname(resolve(root,manifest)),{recursive:true});writeFileSync(resolve(root,manifest),bytes);
+ const core=f.files.get('docs/SumAlpha-QuantOS-Development-Plan.md').replace(digest(f.files.get(manifest)),digest(bytes));const report=validatePlans(core,f.files.get('docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'),{root});assert.equal(report.stage_status_counts.READY,1);return{stageGate:'READY'};
+ }finally{rmSync(root,{recursive:true,force:true});}};return publish('unit-index.json',f.options);}
+test('actual plan parser accepts TP02-only READY with upstream gates NOT_ASSESSED',()=>assert.equal(parsePublished().stageGate,'READY'));
+for(const[name,mutate]of[
+ ['wrong local profile',r=>r.profile='R1_LOCAL'],['wrong consumer',r=>r.nodeId='CORE:R03'],['missing F08 dependency',r=>r.dependencies.shift()],
+ ['strict dependency alias',r=>r.dependencies[0].status='READY'],['database escalation',r=>r.databaseExecution=true],['formal escalation',r=>r.formalAccepted=true],['release PASS',r=>r.release.status='PASS'],
+])test('actual plan parser rejects TP02 '+name,()=>assert.throws(()=>parsePublished(mutate)));

@@ -27,4 +27,4 @@ finally{
  writeFileSync(attempt+'/canonical-preservation.json',JSON.stringify({schema:'quantos-tp02-canonical-preservation/v1',sourceCommit:source,status:'PASS',restored:true,formalAccepted:false,files},null,2)+'\n');
 }
 if(failure){writeFileSync(attempt+'/failure.json',JSON.stringify({sourceCommit:source,status:'FAIL',message:failure.message,formalAccepted:false},null,2)+'\n');throw failure;}
-console.log(JSON.stringify(publish(attempt+'/local-prerequisites.json'),null,2));
+try{console.log(JSON.stringify(publish(attempt+'/local-prerequisites.json'),null,2));}catch(error){writeFileSync(attempt+'/publication-failure.json',JSON.stringify({sourceCommit:source,status:'FAIL',phase:'publication',reason:error.message,rolledBack:true,formalAccepted:false},null,2)+'\n');throw error;}

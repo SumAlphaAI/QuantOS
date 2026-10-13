@@ -1,0 +1,238 @@
+{
+  "schema": "quantos-tp02-local-prerequisites/v1",
+  "owner": "CORE:TP02",
+  "profile": "TP02_LOCAL",
+  "status": "PASS",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "observedSourceCommit": "5e163d62882961ea3af027385da3bb299e61d98b",
+  "nodes": [
+    {
+      "nodeId": "CORE:F01",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-f01.json",
+      "inputDigest": "sha256:c44677302a1d3a628f2d1170d4f225ea48dc2104b73521c9cb859db2c7854d36"
+    },
+    {
+      "nodeId": "CORE:F03",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-f03.json",
+      "inputDigest": "sha256:086df6a615cc8a9ae9293ca7bffe175ce6697c2aff8c8f0d1414b26fc792f10a"
+    },
+    {
+      "nodeId": "CORE:F04",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-f04.json",
+      "inputDigest": "sha256:8d07c95eaf03c77232c0fd0548bf0ceab36e84c8b6242bdce43a828695140854"
+    },
+    {
+      "nodeId": "CORE:F05",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-f05.json",
+      "inputDigest": "sha256:744778745c32ca439abd82dc62f6ec4c250d4183b41805860220efdcc1d045dd"
+    },
+    {
+      "nodeId": "CORE:F06",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-f06.json",
+      "inputDigest": "sha256:9aa7303173e66122e0c6532da8406f93a3f64c073bfe62ea39b3f412ffd5349f"
+    },
+    {
+      "nodeId": "CORE:F07",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-f07.json",
+      "inputDigest": "sha256:25eedc8296438d2ed44b72714209723143e7a96a7648a49211ca3592406d651b"
+    },
+    {
+      "nodeId": "CORE:F08",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-f08.json",
+      "inputDigest": "sha256:706f2d9c7db3e296fdad964fb443a72da6fd08dba4736615914d5f0f28a33965"
+    },
+    {
+      "nodeId": "CORE:F02",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-f02.json",
+      "inputDigest": "sha256:11f06f7e38dfaf00ff4c2c64c890f34dcb9341db3e6867e4a638cc90b4cf9bef"
+    },
+    {
+      "nodeId": "CORE:F09",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-f09.json",
+      "inputDigest": "sha256:de67ba8cd5e2e1716242abd369f5c59eab9d3ba024ddb0a35bcfe9e7b5426668"
+    },
+    {
+      "nodeId": "CORE:TP01-A",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-tp01-a.json",
+      "inputDigest": "sha256:a75a022af6fb158ade5cb584849c015a2ef168e91f5e70950eae382455b1539d"
+    },
+    {
+      "nodeId": "CORE:TP01-B",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-tp01-b.json",
+      "inputDigest": "sha256:f065237342184a2f189b032641237876e45e6ef804b195670ff05593b3272719"
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-gate-f0.json",
+      "inputDigest": "sha256:5ea5363ae318d4c9eeeaf1114a3504fd21793779a07c1af64d1f6c05a5932452"
+    },
+    {
+      "nodeId": "CORE:TP02",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp02-local-20261013/attempt-01/core-tp02.json",
+      "inputDigest": "sha256:68167da572f78ed4ea0c6e88d58054f0e529a214098541a88ea071e5ac8a27c8"
+    }
+  ],
+  "deferred": [
+    {
+      "id": "f05-database",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "quantos-event",
+        "--test",
+        "postgres_persistence",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1",
+        "--skip",
+        "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+        "--skip",
+        "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+        "--skip",
+        "postgres_tls_root_configuration_fails_closed"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f05-volume",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-event",
+        "--test",
+        "postgres_persistence",
+        "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "storage-database",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--test",
+        "postgres_persistence",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "storage-target",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--test",
+        "supabase_storage_integration",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "rls-target",
+      "command": [
+        "node",
+        "scripts/db-cli.cjs",
+        "live-rls"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f06-target",
+      "command": [
+        "node",
+        "scripts/run-p0-f06-target.mjs"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f07-recovery",
+      "command": [
+        "make",
+        "f07-recovery-diagnostic"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f07-coverage",
+      "command": [
+        "make",
+        "f07-coverage-diagnostic"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f07-service",
+      "command": [
+        "make",
+        "f07-target-service-acceptance"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f02-sca",
+      "command": [
+        "make",
+        "sca-check"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f02-database",
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--database"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f09-target",
+      "command": [
+        "node",
+        "scripts/f09-target-gate.cjs"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "tp01-baseline",
+      "command": [
+        "node",
+        "scripts/f0-development-checks.mjs",
+        "--repository"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    }
+  ]
+}
