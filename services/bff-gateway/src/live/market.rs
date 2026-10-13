@@ -193,7 +193,7 @@ fn load(c: &BffSessionContext, i: &Instrument) -> Result<Loaded> {
     } else {
         market::validate_events(i, &events, now)?
     };
-    books.sort_by_key(|b| (b.event_time, b.sequence));
+    let books = market::validate_books(i, &books, now)?;
     Ok(Loaded { trades, books })
 }
 fn watch(

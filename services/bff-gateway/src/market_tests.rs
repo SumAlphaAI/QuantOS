@@ -367,6 +367,16 @@ fn r01_events_r02_source_authority_and_market_projection_are_composed() {
             )
             .unwrap();
     }
+    let book = &fixture.books[&instrument.id()];
+    policy
+        .validate_event(
+            &snapshot,
+            &serde_json::to_value(book).unwrap(),
+            SnapshotUsage::Research,
+            now,
+        )
+        .unwrap();
+    assert!(book_quote(instrument, book, events, now).is_ok());
     assert!(quote(instrument, events, now).is_ok());
     assert!(
         policy
@@ -430,6 +440,12 @@ fn actual_licensed_book_bid_ask_mid_and_replay_are_not_trade_price_fabrications(
     assert_eq!(q["mid"], "104.00");
     assert_eq!(q["priceKind"], "top_of_book");
     assert_eq!(q["executable"], false);
+    let mut degraded = f.events[&i.id()].clone();
+    degraded.last_mut().unwrap().quality = MarketDataQuality::Degraded;
+    assert_eq!(
+        book_quote(i, book, &degraded, now).unwrap()["provenance"]["quality"],
+        "degraded"
+    );
     let frame = book_replay("a", i, book, &[], &selected(), now)
         .unwrap()
         .remove(0);
@@ -447,4 +463,74 @@ fn actual_licensed_book_bid_ask_mid_and_replay_are_not_trade_price_fabrications(
     let mut crossed = book.clone();
     crossed.bid = quantos_core::Quantity::parse_str("1000").unwrap();
     assert!(book_quote(i, &crossed, &[], now).is_err());
+}
+
+#[test]
+fn new_trade_advances_book_quote_recovery_without_inventing_book_values() {
+    let f = Fixture::default();
+    let i = &f.catalog[0];
+    let book = &f.books[&i.id()];
+    let now = Utc::now();
+    let mut trades = f.events[&i.id()].clone();
+    let mut update = trades.last().unwrap().clone();
+    update.source_tick_id = "new-trade-after-book".into();
+    update.sequence = book.sequence + 1;
+    update.event_time = now;
+    update.received_at = now;
+    update.raw_price = "105".into();
+    update.price = Some(quantos_core::Quantity::parse_str("105").unwrap());
+    trades.push(update);
+    let q = MarketQuery {
+        after_sequence: Some(book.sequence),
+        stream_id: Some(selected().binding("a", "book", i)),
+        ..selected()
+    };
+    let frames = book_replay("a", i, book, &trades, &q, now).unwrap();
+    assert_eq!(frames.len(), 1);
+    assert_eq!(frames[0]["sequence"], book.sequence + 1);
+    assert_eq!(frames[0]["payload"]["sequence"], book.sequence + 1);
+    assert_eq!(frames[0]["payload"]["lastPrice"], "105");
+    assert_eq!(frames[0]["payload"]["bid"], "103.90");
+    assert_eq!(frames[0]["payload"]["ask"], "104.10");
+    let resumed = MarketQuery {
+        after_sequence: Some(book.sequence + 1),
+        ..q
+    };
+    assert!(
+        book_replay("a", i, book, &trades, &resumed, now)
+            .unwrap()
+            .is_empty()
+    );
+}
+
+#[test]
+fn book_history_deduplicates_exact_records_and_rejects_conflicting_identity_or_sequence() {
+    let f = Fixture::default();
+    let i = &f.catalog[0];
+    let book = f.books[&i.id()].clone();
+    let now = Utc::now();
+    assert_eq!(
+        validate_books(i, &[book.clone(), book.clone()], now)
+            .unwrap()
+            .len(),
+        1
+    );
+    let mut changed = book.clone();
+    changed.ask = quantos_core::Quantity::parse_str("105").unwrap();
+    assert!(validate_books(i, &[book.clone(), changed], now).is_err());
+    let mut same_sequence = book.clone();
+    same_sequence.source_tick_id = "different-source-identity".into();
+    assert!(validate_books(i, &[book.clone(), same_sequence], now).is_err());
+    let mut future = book.clone();
+    future.received_at = now + Duration::hours(1);
+    assert!(validate_books(i, &[future], now).is_err());
+    let mut other = book.clone();
+    other.source_tick_id = "next-book".into();
+    other.sequence += 1;
+    other.event_time = now;
+    other.received_at = now;
+    assert_eq!(
+        validate_books(i, &[other, book], now).unwrap()[1].sequence,
+        7
+    );
 }

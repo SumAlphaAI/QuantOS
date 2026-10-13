@@ -264,8 +264,11 @@ pub(crate) fn book_quote(
     trades: &[MarketEvent],
     now: DateTime<Utc>,
 ) -> Result<Value> {
+    i.validate()?;
     book.validate().map_err(|_| Fault::invalid())?;
-    if book.provider != i.provider
+    if book.received_at > now
+        || book.received_at < book.event_time
+        || book.provider != i.provider
         || book.normalized_symbol != i.canonical_symbol
         || book.event_time > now
         || book.quality == MarketDataQuality::Failed
@@ -282,19 +285,53 @@ pub(crate) fn book_quote(
         .checked_add(book.ask.value())
         .and_then(|v| v.checked_div(Decimal::from(2)))
         .ok_or_else(Fault::invalid)?;
-    let last = if trades.is_empty() {
+    let trade = if trades.is_empty() {
         Value::Null
     } else {
-        quote(i, trades, now)?["lastPrice"].clone()
+        quote(i, trades, now)?
     };
-    let quality = if now - book.event_time > Duration::seconds(2) {
+    let sequence = book.sequence.max(trade["sequence"].as_u64().unwrap_or(0));
+    let quality = if now - book.event_time > Duration::seconds(2)
+        || trade["provenance"]["quality"] == "degraded"
+    {
         "degraded"
     } else {
         book.quality.as_str()
     };
     Ok(
-        json!({"instrumentId":i.id(),"canonicalSymbol":i.canonical_symbol,"productType":i.product_type,"bid":book.bid.value().to_string(),"ask":book.ask.value().to_string(),"mid":mid.to_string(),"lastPrice":last,"priceKind":"top_of_book","executable":false,"feeEstimate":null,"slippageEstimate":null,"estimates":true,"lotSize":i.lot_size,"minNotional":i.min_notional,"provenance":{"source":book.provider,"venue":i.venue,"asOf":book.event_time,"quality":quality,"license":book.license_label,"approvalRef":book.approval_reference,"approvalVersion":book.approval_version,"dataSnapshotId":i.snapshot_id,"latencyMs":(now-book.event_time).num_milliseconds().max(0)},"sequence":book.sequence}),
+        json!({"instrumentId":i.id(),"canonicalSymbol":i.canonical_symbol,"productType":i.product_type,"bid":book.bid.value().to_string(),"ask":book.ask.value().to_string(),"mid":mid.to_string(),"lastPrice":trade["lastPrice"],"priceKind":"top_of_book","executable":false,"feeEstimate":null,"slippageEstimate":null,"estimates":true,"lotSize":i.lot_size,"minNotional":i.min_notional,"provenance":{"source":book.provider,"venue":i.venue,"asOf":book.event_time,"quality":quality,"license":book.license_label,"approvalRef":book.approval_reference,"approvalVersion":book.approval_version,"dataSnapshotId":i.snapshot_id,"latencyMs":(now-book.event_time).num_milliseconds().max(0)},"sequence":sequence}),
     )
+}
+pub(crate) fn validate_books(
+    i: &Instrument,
+    books: &[quantos_market::book::MarketBookEvent],
+    now: DateTime<Utc>,
+) -> Result<Vec<quantos_market::book::MarketBookEvent>> {
+    i.validate()?;
+    if books.len() > 10000 {
+        return Err(Fault::invalid());
+    }
+    let mut ids = BTreeMap::new();
+    for book in books {
+        book_quote(i, book, &[], now)?;
+        if let Some(old) = ids.insert(book.source_tick_id.clone(), book.clone())
+            && old != *book
+        {
+            return Err(Fault(StatusCode::CONFLICT, "SOURCE_CONFLICT"));
+        }
+    }
+    let mut books = ids.into_values().collect::<Vec<_>>();
+    if books
+        .iter()
+        .map(|b| b.sequence)
+        .collect::<BTreeSet<_>>()
+        .len()
+        != books.len()
+    {
+        return Err(Fault(StatusCode::CONFLICT, "SOURCE_CONFLICT"));
+    }
+    books.sort_by_key(|b| (b.event_time, b.sequence));
+    Ok(books)
 }
 pub(crate) fn book_replay(
     scope: &str,
@@ -306,15 +343,16 @@ pub(crate) fn book_replay(
 ) -> Result<Vec<Value>> {
     let binding = q.binding(scope, "book", i);
     let after = q.after_sequence.unwrap_or(0);
-    if after > 0 && (q.stream_id.as_deref() != Some(&binding) || after > book.sequence) {
+    let payload = book_quote(i, book, trades, now)?;
+    let sequence = payload["sequence"].as_u64().ok_or_else(Fault::invalid)?;
+    if after > 0 && (q.stream_id.as_deref() != Some(&binding) || after > sequence) {
         return Err(Fault(StatusCode::CONFLICT, "STREAM_RESET_REQUIRED"));
     }
-    let payload = book_quote(i, book, trades, now)?;
-    if after == book.sequence {
+    if after == sequence {
         return Ok(vec![]);
     }
     Ok(vec![
-        json!({"streamId":binding,"sequence":book.sequence,"eventId":Uuid::new_v4(),"occurredAt":now,"correlationId":Uuid::new_v4(),"payloadVersion":"v1","payload":payload}),
+        json!({"streamId":binding,"sequence":sequence,"eventId":Uuid::new_v4(),"occurredAt":now,"correlationId":Uuid::new_v4(),"payloadVersion":"v1","payload":payload}),
     ])
 }
 pub(crate) fn candles(

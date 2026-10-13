@@ -69,3 +69,9 @@ test('optional property within an existing allOf is additive, required changes a
  after.components.schemas.Accepted.allOf[1].required.push('enrollment');
  assert.equal(validateCompatibility(before,after).status,'FAIL');
 });
+
+test('referenced watchlist request schema must still close untrusted fields',()=>{
+ const input=structuredClone(current);
+ input.openapi.components.schemas.SaveMarketWatchlist.additionalProperties=true;
+ assert(validateBffFe000(input).failures.includes('saveWatchlist closes untrusted request fields'));
+});

@@ -1,0 +1,130 @@
+
+> @sumalpha/quantos@ test:pre01 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test ./scripts/tests/check-pre01.test.mjs
+
+✔ current PRE-01 artifacts satisfy the executable contract (4.559792ms)
+✔ missing a page state fails closed (1.880208ms)
+✔ invalid story priority fails closed (0.596125ms)
+✔ missing traceability row fails closed (1.4245ms)
+✔ published operation cannot regress to planned fails closed (1.941458ms)
+✔ unknown role fails closed (0.54425ms)
+✔ unknown route fails closed (0.546708ms)
+✔ duplicate story fails closed (0.630458ms)
+✔ missing flow stories fails closed (0.660709ms)
+✔ missing flow scenarios fails closed (1.245708ms)
+✔ unsafe proposal criterion fails closed (1.183292ms)
+✔ unknown trace task fails closed (1.533834ms)
+✔ unauthorized admin grant fails closed (1.024209ms)
+✔ missing permission route fails closed (0.830833ms)
+✔ phase-one P16 fails closed (0.103334ms)
+✔ missing contract owner fails closed (1.312375ms)
+✔ empty flow role fails closed (0.738875ms)
+✔ empty flow route fails closed (0.731625ms)
+✔ state label mismatch fails closed (1.010208ms)
+✔ desktop-only story fails closed (0.536958ms)
+✔ persistent offline cache fails closed (1.144458ms)
+✔ admin domain permission fails closed (0.887958ms)
+✔ missing page story fails closed (0.760916ms)
+✔ cross-page route fails closed (0.618334ms)
+✔ current G0 governance preserves history without granting current acceptance (3.187167ms)
+✔ past-due G0 item cannot silently remain OPEN (1.068041ms)
+✔ fabricated G0 acceptance fails against current checkpoint (0.914375ms)
+✔ missing G0 leftover owner fails (0.970625ms)
+✔ P05 cannot bind metadata download to an untraced audit export operation (2.648833ms)
+✔ P21 cannot drop alert ownership from both ledger and trace while retaining the subscription (2.009667ms)
+✔ unknown unlabelled operation in API register is rejected (1.842708ms)
+✔ P05 quality alerts require C16 ownership on the consumer page (1.689709ms)
+✖ API register rejects current version 1.4.0 (1.754834ms)
+✖ API register rejects current version 99.99.0 (1.68575ms)
+✖ published register row cannot omit API version (1.812083ms)
+✖ published register row cannot omit generated mock version (1.935125ms)
+✔ all ten historical compatibility strategies cannot be cleared (1.099ms)
+✔ current disposition cannot drop a historical parent (1.331042ms)
+✔ current disposition requires effective checkpoint deadline (1.164833ms)
+✔ current disposition cannot claim target RELEASE completion (1.207459ms)
+✔ current disposition requires nonempty compatibility strategy (1.14725ms)
+✔ current disposition presentation must match structured source (1.158417ms)
+✔ current deadline cannot defer DEVELOPMENT provider obligations to integration (1.251375ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 39
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 165.639916
+
+✖ failing tests:
+
+test at scripts/tests/check-pre01.test.mjs:115:43
+✖ API register rejects current version 1.4.0 (1.754834ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:115:109)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /version differs/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tests/check-pre01.test.mjs:115:43
+✖ API register rejects current version 99.99.0 (1.68575ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:115:109)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /version differs/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tests/check-pre01.test.mjs:116:1
+✖ published register row cannot omit API version (1.812083ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:116:66)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /published API version missing/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tests/check-pre01.test.mjs:117:1
+✖ published register row cannot omit generated mock version (1.935125ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tests/check-pre01.test.mjs:117:77)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /generated mock version missing/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+ ELIFECYCLE  Command failed with exit code 1.

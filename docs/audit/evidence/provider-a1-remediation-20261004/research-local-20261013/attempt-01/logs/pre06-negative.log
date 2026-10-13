@@ -1,0 +1,53 @@
+
+> @sumalpha/quantos@ test:pre06 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/pre06-gate-negative.mjs scripts/pre06-runtime-negative.mjs
+
+✖ current PRE-06 Web baseline passes (28.352875ms)
+✔ website browser Gate deletion is rejected (11.176084ms)
+✔ Desktop coupling in phase-one compatibility is rejected (8.548375ms)
+✔ Desktop deep-link inclusion in phase-one Terminal is rejected (7.449333ms)
+✔ generated operation coverage drift is rejected (7.015792ms)
+✔ visual baseline integrity failure is rejected (6.391833ms)
+✔ performance budget weakening is rejected (5.976375ms)
+✔ disabled CI steps and comment-only commands are rejected (16.622791ms)
+✔ contract assertion deletion and visual comparison deletion fail closed (11.364167ms)
+✔ website performance and critical coverage gates cannot be removed (10.641708ms)
+✔ CI retry policy must reject flaky outcomes and archive failure evidence (11.161667ms)
+✔ comments cannot restore weakened budget or critical coverage policy (15.54575ms)
+✔ skipped suites and inactive screenshot assertions cannot satisfy the baseline (37.835917ms)
+✔ critical contract callbacks cannot return early, hide assertions, or remove runtime counting (23.256583ms)
+✔ unknown and corrupted fixtures are rejected, explicit sabotage fixtures remain expected failures (38.046916ms)
+✔ empty assets and empty route manifest are never a zero-sized performance PASS (56.242667ms)
+✔ actual CI configs return nonzero for first-fail-then-pass policy probe (1285.181291ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 16
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1428.485959
+
+✖ failing tests:
+
+test at scripts/pre06-gate-negative.mjs:8:1
+✖ current PRE-06 Web baseline passes (28.352875ms)
+  AssertionError [ERR_ASSERTION]: BFF fixture manifest is version 1.6.0
+  BFF fixture manifest covers 63 operations
+  BFF fixture schema bundle covers 54 schemas
+  
+  'FAIL' !== 'PASS'
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre06-gate-negative.mjs:10:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+ ELIFECYCLE  Command failed with exit code 1.

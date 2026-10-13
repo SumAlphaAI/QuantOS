@@ -1,0 +1,76 @@
+✖ current BFF-FE-000 repository Gate passes (5.480667ms)
+✔ missing phase-one page mapping is rejected (1.939ms)
+✔ published operation drift is rejected (1.808459ms)
+✔ planned operation traceability deletion is rejected (1.636875ms)
+✔ shared idempotency baseline deletion is rejected (3.202375ms)
+✔ dependency regression is rejected (2.019ms)
+✔ error correlation header deletion is rejected (2.873916ms)
+✔ generated Zod export deletion is rejected (1.916583ms)
+✔ missing staging permits development readiness and never claims formal acceptance (1.373166ms)
+✔ stage deferral cannot bypass engineering failures, final receipt requirements or unknown stages (0.077417ms)
+✔ final review command cannot be rewired to the development stage (5.08125ms)
+✖ current semantic A1 gate passes (3.748791ms)
+✔ rejects cookie semantic regression (3.0115ms)
+✔ rejects idempotency semantic regression (3.739708ms)
+✔ rejects sort semantic regression (3.692542ms)
+✔ rejects page semantic regression (3.188708ms)
+✔ rejects ci semantic regression (3.321042ms)
+✔ rejects decimal semantic regression (2.779792ms)
+✔ rejects version semantic regression (2.920584ms)
+✔ rejects csrf semantic regression (2.934709ms)
+✔ exact registered security correction is accepted only within its window (12.384875ms)
+✔ unregistered breaking type, enum or missing baseline fails closed (26.115834ms)
+✔ new required parameters and constraints cannot silently bypass compatibility (0.968583ms)
+✔ absent, invented and reference-only staging receipts never close A1 (0.47375ms)
+✔ final receipt requires technical evidence plus one input-bound user confirmation (0.990042ms)
+✔ optional property within an existing allOf is additive, required changes are rejected (0.10975ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 24
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 187.165042
+
+✖ failing tests:
+
+test at scripts/bff-fe-000-gate-negative.mjs:8:1
+✖ current BFF-FE-000 repository Gate passes (5.480667ms)
+  AssertionError [ERR_ASSERTION]: saveWatchlist closes untrusted request fields
+  
+  'FAIL' !== 'PASS'
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-000-gate-negative.mjs:10:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/bff-remediation-negative.mjs:24:1
+✖ current semantic A1 gate passes (3.748791ms)
+  AssertionError [ERR_ASSERTION]: ["saveWatchlist closes untrusted request fields"]
+  
+  'FAIL' !== 'PASS'
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-remediation-negative.mjs:24:51)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

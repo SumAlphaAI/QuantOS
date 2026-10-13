@@ -13,3 +13,5 @@
 预检发现并修正：sandbox 禁止回环监听（已在授权本地测试中复跑）；新 fixture 未登记（已登记）；通用 schema specimen 不支持 oneOf nullable（已支持）；Clippy 条件合并（已修正）。这些诊断不作为正式回执。固定使用缓存 pnpm 10.20.0，避免宿主 pnpm 11 自动解析依赖。
 
 数据库/外部来源/发布/性能/正式验收均 NOT_RUN；没有使用生产凭据、运行数据库或发布。formalAccepted=false。
+
+更正：冻结前最后一次计划检查 bff005-doc-final2.log 已失败，原因是新增 RELEASE handoff 未同步机器清单；该串行 shell 没有逐项检查退出码，被后续 Clippy 的成功退出掩盖，前述“开发计划检查 PASS”只适用于更早的预检。原始日志保留。完整聚合按每个 command 退出码正确捕获该失败并拒绝 READY；后续预检改为逐项检查退出码，再从新冻结源码完整重跑。

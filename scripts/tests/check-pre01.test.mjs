@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
+import YAML from "yaml";
 
 import { validatePre01 } from "../check-pre01.mjs";
 import { loadG0Inputs, validateG0Records } from "../check-g0-records.mjs";
 
 const root = resolve(new URL("../..", import.meta.url).pathname);
+const currentApiVersion = YAML.parse(readFileSync(resolve(root, "bff/openapi/quantos-bff.v1.yaml"), "utf8")).info.version;
 const valid = {
   ledger: readFileSync(resolve(root, "docs/execution/PRE-01-page-ledger-and-stories.md"), "utf8"),
   matrix: readFileSync(resolve(root, "docs/execution/PRE-01-route-permission-matrix.md"), "utf8"),
@@ -112,9 +114,9 @@ test("P05 quality alerts require C16 ownership on the consumer page", () => {
   assert.throws(() => validatePre01({ ...valid, ledger, scenarios }), /P05: operation subscribeAlerts requires traced contract C16/);
 });
 
-for(const version of ['1.4.0','99.99.0']) test(`API register rejects current version ${version}`,()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replaceAll('1.6.0',version)}),/version differs/));
-test('published register row cannot omit API version',()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replace(/^\| GS \|.*$/m,row=>row.replaceAll('1.6.0','unspecified'))}),/published API version missing/));
-test('published register row cannot omit generated mock version',()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replace('1.6.0（generated only）','未生成')}),/generated mock version missing/));
+for(const version of ['1.4.0','99.99.0']) test(`API register rejects current version ${version}`,()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replaceAll(currentApiVersion,version)}),/version differs/));
+test('published register row cannot omit API version',()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replace(/^\| GS \|.*$/m,row=>row.replaceAll(currentApiVersion,'unspecified'))}),/published API version missing/));
+test('published register row cannot omit generated mock version',()=>assert.throws(()=>validatePre01({...valid,coverage:valid.coverage.replace(`${currentApiVersion}（generated only）`,'未生成')}),/generated mock version missing/));
 test('all ten historical compatibility strategies cannot be cleared',()=>{const f=loadG0Inputs();f.review=f.review.replace(/^(\| [^|]+ \| [^|]+ \| \d{4}-\d{2}-\d{2} \|).*\|$/gm,'$1  |');assert.throws(()=>validateG0Records(f),/compatibility strategy/);});
 test('current disposition cannot drop a historical parent',()=>{const f=loadG0Inputs();f.disposition.items=f.disposition.items.filter(i=>i.parentId!=='G0-L02');assert.throws(()=>validateG0Records(f),/scope\/stage\/deadline/);});
 test('current disposition requires effective checkpoint deadline',()=>{const f=loadG0Inputs();f.disposition.items[0].deadline.before='someday';assert.throws(()=>validateG0Records(f),/scope\/stage\/deadline/);});

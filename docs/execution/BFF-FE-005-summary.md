@@ -2,7 +2,7 @@
 
 实现 7 个 C12 operation：getMarketCatalog、getWatchlist、saveWatchlist、getVenueQuotes、getCandleSeries、subscribeQuotes、subscribeCandles。OpenAPI 1.7.0 共 70 operation / 62 schema，同源生成 client、Zod、JSON Schema、MSW 和 Rust 输入策略。C16 告警仍归 BFF-FE-010。
 
-报价使用 R01 许可 top-of-book 事件的真实 bid/ask，Decimal 精确计算 mid；缺盘口时明确 priceKind=last_trade、bid/ask/mid 为空，以真实成交价回退。executable=false；费用/滑点缺真实估算来源时为空，禁止由成交价伪造盘口。spot、两 venue、七种固定 interval 和 UTC/Asia/Shanghai 为显式能力，未知组合拒绝。OHLCV 使用 Decimal，排序去重、同源冲突拒绝、显式 gaps/eventMarkers；恢复整段替换，不插值、不拼接。客户端 MarketSeriesRecovery 绑定所有维度及权限范围；断流定格、重置回补、撤权清空。
+报价使用 R01 许可 top-of-book 事件的真实 bid/ask，Decimal 精确计算 mid；缺盘口时明确 priceKind=last_trade、bid/ask/mid 为空，以真实成交价回退。盘口历史精确去重，来源身份或序列冲突拒绝；报价流序列取盘口/成交的最大已验证序列，成交更新不漏发，组合质量不提升降级成交。executable=false；费用/滑点缺真实估算来源时为空，禁止由成交价伪造盘口。spot、两 venue、七种固定 interval 和 UTC/Asia/Shanghai 为显式能力，未知组合拒绝。OHLCV 使用 Decimal，排序去重、同源冲突拒绝、显式 gaps/eventMarkers；恢复整段替换，不插值、不拼接。客户端 MarketSeriesRecovery 绑定所有维度及权限范围；断流定格、重置回补、撤权清空。
 
 live 模式只接受受信会话的 market.read；watchlist 写额外需要 market.watchlist.write 且不能是 Viewer。QUANTOS_BFF_MARKET_CATALOG 是服务器维护的有界 tenant/instrument/snapshot 引用；每次读取和流轮询均通过 R02 load_authorized_snapshot、来源用途许可与 R01 不可变 lineage 逐事件验证。使用既有 QUANTOS_BFF_SNAPSHOT_DATABASE_URL / QUANTOS_BFF_RESEARCH_SOURCE_POLICY；没有 fixture fallback。
 

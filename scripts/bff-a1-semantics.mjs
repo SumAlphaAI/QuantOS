@@ -26,7 +26,7 @@ export function validateA1Semantics(openapi,catalog,policy,workflow) {
     check(has('Idempotency-Key')&&has('X-Request-Id'),`${op.operationId} idempotency/request ID required`);
   }
   if(op.requestBody) {
-    const body=op.requestBody.content?.['application/json']?.schema;
+    const body=resolve(op.requestBody.content?.['application/json']?.schema);
     check(body?.additionalProperties===false,`${op.operationId} closes untrusted request fields`);
     check(op.requestBody.content?.['application/json']?.example!==undefined,`${op.operationId} request example`);
   }

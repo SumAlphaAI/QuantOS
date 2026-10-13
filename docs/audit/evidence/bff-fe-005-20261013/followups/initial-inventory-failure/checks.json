@@ -1,0 +1,112 @@
+{
+  "scope": "uncommitted candidate diagnostics; not a published Gate",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "results": [
+    {
+      "id": "trade-recovery-red",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "new_trade_advances_book_quote_recovery_without_inventing_book_values",
+        "--",
+        "--nocapture"
+      ],
+      "startedAt": "2026-10-13T00:55:28.920Z",
+      "exitCode": 101,
+      "expected": 101,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/bff-fe-005-20261013/followups/trade-recovery-red.log"
+    },
+    {
+      "id": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all"
+      ],
+      "startedAt": "2026-10-13T00:55:38.927Z",
+      "exitCode": 0,
+      "expected": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/bff-fe-005-20261013/followups/format.log"
+    },
+    {
+      "id": "fields",
+      "command": [
+        "node",
+        "scripts/pre04-render-fields.mjs"
+      ],
+      "startedAt": "2026-10-13T00:55:39.401Z",
+      "exitCode": 0,
+      "expected": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/bff-fe-005-20261013/followups/fields.log"
+    },
+    {
+      "id": "market-green",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "bff-gateway",
+        "--lib",
+        "market::",
+        "--",
+        "--nocapture"
+      ],
+      "startedAt": "2026-10-13T00:55:39.502Z",
+      "exitCode": 0,
+      "expected": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/bff-fe-005-20261013/followups/market-green.log"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "bff-gateway",
+        "-p",
+        "quantos-market",
+        "--all-targets",
+        "--locked",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "startedAt": "2026-10-13T00:55:59.904Z",
+      "exitCode": 0,
+      "expected": 0,
+      "expectationMet": true,
+      "log": "docs/audit/evidence/bff-fe-005-20261013/followups/clippy.log"
+    },
+    {
+      "id": "inventory-negatives",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tests/check-pre01.test.mjs",
+        "scripts/pre04-gate-negative.mjs",
+        "scripts/pre06-gate-negative.mjs",
+        "scripts/pre06-runtime-negative.mjs",
+        "scripts/bff-fe-000-gate-negative.mjs",
+        "scripts/bff-remediation-negative.mjs"
+      ],
+      "startedAt": "2026-10-13T00:56:13.312Z",
+      "exitCode": 1,
+      "expected": 0,
+      "expectationMet": false,
+      "log": "docs/audit/evidence/bff-fe-005-20261013/followups/inventory-negatives.log"
+    }
+  ]
+}

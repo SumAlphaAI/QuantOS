@@ -1,0 +1,79 @@
+
+> @sumalpha/quantos@ test:pre04 /Users/anray/Documents/project/SumAlpha/QuantOS
+> node --test scripts/pre04-gate-negative.mjs
+
+✖ current full phase-one inventory passes (13.871666ms)
+✔ missing Gap is rejected (5.669375ms)
+✔ undecided realtime dependency is rejected (4.755625ms)
+✔ deleted required actorId field is rejected (4.856416ms)
+✔ nonexistent field source is rejected (4.402167ms)
+✔ wrong field type and optionality are rejected (5.070208ms)
+✔ generated operation deletion is rejected (4.638875ms)
+✔ generated method and path drift are rejected (9.961792ms)
+✔ same-count schema rename is rejected (3.949083ms)
+✔ schema required and enum drift are rejected (10.11775ms)
+✔ same-count Proto message rename is rejected (5.173459ms)
+✔ removed Proto declaration is rejected (4.569208ms)
+✔ same-count JSON Schema replacement is rejected (4.529292ms)
+✔ duplicate contract row is rejected before Map collapse (5.532334ms)
+✔ duplicate Gap row is rejected before Map collapse (4.456083ms)
+✔ nonexistent role owner is rejected (4.3645ms)
+✔ nonexistent backend task is rejected (4.723125ms)
+✔ nonexistent BFF task is rejected (4.756583ms)
+✔ unknown Gap page is rejected (5.032417ms)
+✔ each missing website P0 page is rejected (22.858166ms)
+✔ missing auxiliary risk/audit/order contract is rejected (12.89375ms)
+✔ closing partly published Gap is rejected (4.84375ms)
+✔ omitting planned operation is rejected (5.28325ms)
+✔ unpublished Inventory Fixture cannot claim Implemented (4.474708ms)
+✔ generated-only contract cannot claim Integrated (4.73225ms)
+✔ missing provider evidence is rejected (4.364958ms)
+✔ changed provider receipt is rejected (4.663375ms)
+✔ missing Inventory Fixture is rejected (4.953375ms)
+✔ Desktop contamination is rejected by Web inventory (4.732834ms)
+✔ nonexistent domain field mappings including the former engine-version anchor are rejected (8.816083ms)
+✔ removed referenced core task is rejected (4.29725ms)
+✔ catalog source drift is rejected (4.325083ms)
+✔ empty implementation artifact lists are rejected for every implemented contract (17.42675ms)
+✔ each missing implementation evidence category is rejected (49.214417ms)
+✔ duplicate artifacts cannot substitute for test or receipt evidence (4.184875ms)
+✔ another contract receipt cannot substitute for required evidence (4.009791ms)
+✔ unknown task suffixes are rejected in both backend task columns (24.106917ms)
+✔ ambiguous cross-prefix ranges cannot impersonate reviewed backend tasks (8.454209ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 37
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 415.08025
+
+✖ failing tests:
+
+test at scripts/pre04-gate-negative.mjs:17:1
+✖ current full phase-one inventory passes (13.871666ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      17,
+      17,
+      23,
+  +   459
+  -   416
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/pre04-gate-negative.mjs:20:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 17, 17, 23, 459 ],
+    expected: [ 17, 17, 23, 416 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+ ELIFECYCLE  Command failed with exit code 1.
