@@ -325,3 +325,6 @@ test('TP02 local stage registration cannot be removed from both plans',()=>{
 test('TP02 local dependency exception cannot be assigned to a different consumer',()=>{
  const change=c=>c.local_dependency_receipts['CORE:TP05']=c.local_dependency_receipts['CORE:TP02'];assert.throws(()=>check(stageContract(core,change),stageContract(frontend,change)),/stage contract differs from required policy/);
 });
+
+test('TP01-E local stage registration cannot be removed from both plans',()=>{const remove=c=>delete c.local_dependency_receipts['CORE:TP01-E'];assert.throws(()=>check(stageContract(core,remove),stageContract(frontend,remove)),/stage contract differs from required policy/);});
+test('TP01-E local dependency exception cannot be assigned to SERVICE:TP01',()=>{const change=c=>c.local_dependency_receipts['SERVICE:TP01']=c.local_dependency_receipts['CORE:TP01-E'];assert.throws(()=>check(stageContract(core,change),stageContract(frontend,change)),/stage contract differs from required policy/);});

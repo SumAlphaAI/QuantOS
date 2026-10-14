@@ -17,3 +17,5 @@
 下一项为TP01-F_LOCAL本地功能整改及29节点准入：真实本机验签、运行中禁用/回滚及在途请求确定性收尾；7天canary和目标环境回滚性能仍由发布验收。
 
 首次完整闭包发现TP09/TP10/TP11开发生产者内嵌线上HTTP检查。所有本地profile现显式选用`--record-local`和独立`*-local-development`制品类型，仍验证固定评估/基线/许可证引用/SBOM/历史CVE材料、合成契约与禁止耦合；线上公共字节/provider条款检查作为external检查移交BETA。LOCAL回执必须声明历史metadata、线上NOT_RUN且currentPublicBytesVerified=false；原`--record`继续是UPSTREAM模式，两种制品不能互相冒充。共22组目标/外部/性能移交，88组必要本地检查数量不变。首轮2505ff8b的82 PASS/6 FAIL和全部生成原件保存，整改须新冻结提交完整重跑。
+
+计划层的`quantos-plan-stages/v1.local_dependency_receipts`同时登记在两计划和中央order policy中；仅允许TP01-E使用指定schema/manifest/三项LOCAL_READY依赖。计划静态形状检查不验证实际执行，完整28节点index仍由专用Gate强制校验。第二轮88/88内容验证PASS但发布因缺此登记被拒并恢复原件；补齐登记及5项计划层准入测试、2项登记撤销/转移负向后须从第三冻结提交完整重跑。

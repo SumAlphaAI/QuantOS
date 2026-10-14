@@ -1,0 +1,220 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+___ test_distinct_execution_keys_and_policy_bind_artifact_ids[False-execute] ___
+
+engine = (LlmQuantService(manifest=EngineManifest(engine_name='llmquant', engine_version='0.1.0', capabilities=(EngineCapabilit...read.lock object at 0x10b3d0fc0>), EngineClient(target='unix:/tmp/quantos-tp03-98c8412a2fe54fa1b57fc561ccc2b3ef.sock'))
+rpc = 'execute', new_policy = False
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize("new_policy", [False, True])
+    def test_distinct_execution_keys_and_policy_bind_artifact_ids(engine, rpc, new_policy):
+        service, client = engine
+        request = build_request(980, SIGNAL_CAPABILITY, {})
+        first = client.execute(request, timeout=3)
+        request.idempotency_key = "distinct-execution"
+        if new_policy:
+            request.policy_context_ref = "distinct-policy"
+        result = invoke(client, request, rpc)
+        refs = result.artifact_refs if rpc == "execute" else result[-1].artifact_refs
+>       assert {r.artifact_id for r in refs}.isdisjoint(r.artifact_id for r in first.artifact_refs)
+E       AssertionError: assert False
+E        +  where False = <built-in method isdisjoint of set object at 0x10b3e3e60>(<generator object test_distinct_execution_keys_and_policy_bind_artifact_ids.<locals>.<genexpr> at 0x10b3ad180>)
+E        +    where <built-in method isdisjoint of set object at 0x10b3e3e60> = {'model-diagnostics:4bf8788c738426c20215fcc90dd22a25ac9452cbda5aefcc72b6a8c9f023f3bc', 'signal:d98ff4688a4f24b0aeade8d05ad4f2ea8e3fa935825dbb8e4235b83f8e88717f'}.isdisjoint
+
+engines/tests/test_llmquant_development.py:535: AssertionError
+___ test_distinct_execution_keys_and_policy_bind_artifact_ids[False-stream] ____
+
+engine = (LlmQuantService(manifest=EngineManifest(engine_name='llmquant', engine_version='0.1.0', capabilities=(EngineCapabilit...read.lock object at 0x10b3d10c0>), EngineClient(target='unix:/tmp/quantos-tp03-b33d1ddcc840460081979e639c8af2e9.sock'))
+rpc = 'stream', new_policy = False
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize("new_policy", [False, True])
+    def test_distinct_execution_keys_and_policy_bind_artifact_ids(engine, rpc, new_policy):
+        service, client = engine
+        request = build_request(980, SIGNAL_CAPABILITY, {})
+        first = client.execute(request, timeout=3)
+        request.idempotency_key = "distinct-execution"
+        if new_policy:
+            request.policy_context_ref = "distinct-policy"
+        result = invoke(client, request, rpc)
+        refs = result.artifact_refs if rpc == "execute" else result[-1].artifact_refs
+>       assert {r.artifact_id for r in refs}.isdisjoint(r.artifact_id for r in first.artifact_refs)
+E       AssertionError: assert False
+E        +  where False = <built-in method isdisjoint of set object at 0x10b4492a0>(<generator object test_distinct_execution_keys_and_policy_bind_artifact_ids.<locals>.<genexpr> at 0x10b3ad480>)
+E        +    where <built-in method isdisjoint of set object at 0x10b4492a0> = {'model-diagnostics:fa5349956c79fd3a2c558606d227f4d8b756e164879e7e6a171475f253374af9', 'signal:dfa6bc85fb4a27ecf094370385ca03e0c0969ba52a72d303a6ffab1403912251'}.isdisjoint
+
+engines/tests/test_llmquant_development.py:535: AssertionError
+___ test_distinct_execution_keys_and_policy_bind_artifact_ids[True-execute] ____
+
+engine = (LlmQuantService(manifest=EngineManifest(engine_name='llmquant', engine_version='0.1.0', capabilities=(EngineCapabilit...read.lock object at 0x10b48a640>), EngineClient(target='unix:/tmp/quantos-tp03-e87bc52e2a3e4a0dbdbeac2f3f2d03d7.sock'))
+rpc = 'execute', new_policy = True
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize("new_policy", [False, True])
+    def test_distinct_execution_keys_and_policy_bind_artifact_ids(engine, rpc, new_policy):
+        service, client = engine
+        request = build_request(980, SIGNAL_CAPABILITY, {})
+        first = client.execute(request, timeout=3)
+        request.idempotency_key = "distinct-execution"
+        if new_policy:
+            request.policy_context_ref = "distinct-policy"
+>       result = invoke(client, request, rpc)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engines/tests/test_llmquant_development.py:533: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/tests/test_llmquant_development.py:63: in invoke
+    return client.execute(request, timeout=3)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:314: in execute
+    return self._execute(request, timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1178: in __call__
+    return _end_unary_response_blocking(state, call, False, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = <grpc._channel._RPCState object at 0x10b3b2690>
+call = <grpc._cython.cygrpc.SegregatedCall object at 0x10b488540>
+with_call = False, deadline = None
+
+    def _end_unary_response_blocking(
+        state: _RPCState,
+        call: cygrpc.SegregatedCall,
+        with_call: bool,
+        deadline: Optional[float],
+    ) -> Union[ResponseType, Tuple[ResponseType, grpc.Call]]:
+        if state.code is grpc.StatusCode.OK:
+            if with_call:
+                rendezvous = _MultiThreadedRendezvous(state, call, None, deadline)
+                return state.response, rendezvous
+            else:
+                return state.response
+        else:
+>           raise _InactiveRpcError(state)  # pytype: disable=not-instantiable
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+E           	status = StatusCode.UNKNOWN
+E           	details = "Exception calling application: ENGINE_ARTIFACT_IMMUTABLE"
+E           	debug_error_string = "UNKNOWN:Error received from peer  {grpc_message:"Exception calling application: ENGINE_ARTIFACT_IMMUTABLE", grpc_status:2}"
+E           >
+
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:1006: _InactiveRpcError
+------------------------------ Captured log call -------------------------------
+ERROR    grpc._server:_server.py:638 Exception calling application: ENGINE_ARTIFACT_IMMUTABLE
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/lib/python3.12/site-packages/grpc/_server.py", line 610, in _call_behavior
+    response_or_iterator = behavior(argument, context)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py", line 164, in observed
+    response = checked_response(method(request, context), request, context)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/src/llmquant/service.py", line 47, in execute
+    refs = self._record(request, mapped, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/src/llmquant/service.py", line 170, in _record
+    return self.artifacts.record_bundle(owner, mapped)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/src/llmquant/artifacts.py", line 41, in record_bundle
+    raise ValueError("ENGINE_ARTIFACT_IMMUTABLE")
+ValueError: ENGINE_ARTIFACT_IMMUTABLE
+____ test_distinct_execution_keys_and_policy_bind_artifact_ids[True-stream] ____
+
+engine = (LlmQuantService(manifest=EngineManifest(engine_name='llmquant', engine_version='0.1.0', capabilities=(EngineCapabilit...read.lock object at 0x10b5cfb80>), EngineClient(target='unix:/tmp/quantos-tp03-a90f38d604264f19a21d71aaf1b23372.sock'))
+rpc = 'stream', new_policy = True
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize("new_policy", [False, True])
+    def test_distinct_execution_keys_and_policy_bind_artifact_ids(engine, rpc, new_policy):
+        service, client = engine
+        request = build_request(980, SIGNAL_CAPABILITY, {})
+        first = client.execute(request, timeout=3)
+        request.idempotency_key = "distinct-execution"
+        if new_policy:
+            request.policy_context_ref = "distinct-policy"
+>       result = invoke(client, request, rpc)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engines/tests/test_llmquant_development.py:533: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/tests/test_llmquant_development.py:64: in invoke
+    return client.stream_execute(engine_pb2.StreamExecuteRequest(request=request), timeout=3)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:322: in stream_execute
+    return list(self._stream_execute(request, timeout=timeout))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:543: in __next__
+    return self._next()
+           ^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_MultiThreadedRendezvous of RPC that terminated with:
+	status = StatusCode.UNKNOWN
+	details = "Exception iterating re...264f19a21d71aaf1b23372.sock {grpc_status:2, grpc_message:"Exception iterating responses: ENGINE_ARTIFACT_IMMUTABLE"}"
+>
+
+    def _next(self) -> Any:
+        with self._state.condition:
+            if self._state.code is None:
+                event_handler = _event_handler(
+                    self._state, self._response_deserializer
+                )
+                self._state.due.add(cygrpc.OperationType.receive_message)
+                operating = self._call.operate(
+                    (cygrpc.ReceiveMessageOperation(_EMPTY_FLAGS),),
+                    event_handler,
+                )
+                if not operating:
+                    self._state.due.remove(cygrpc.OperationType.receive_message)
+            elif self._state.code is grpc.StatusCode.OK:
+                raise StopIteration()
+            else:
+                raise self
+    
+            def _response_ready():
+                return self._state.response is not None or (
+                    cygrpc.OperationType.receive_message not in self._state.due
+                    and self._state.code is not None
+                )
+    
+            _common.wait(self._state.condition.wait, _response_ready)
+            if self._state.response is not None:
+                response = self._state.response
+                self._state.response = None
+                return response
+            elif cygrpc.OperationType.receive_message not in self._state.due:
+                if self._state.code is grpc.StatusCode.OK:
+                    raise StopIteration()
+                elif self._state.code is not None:
+>                   raise self
+E                   grpc._channel._MultiThreadedRendezvous: <_MultiThreadedRendezvous of RPC that terminated with:
+E                   	status = StatusCode.UNKNOWN
+E                   	details = "Exception iterating responses: ENGINE_ARTIFACT_IMMUTABLE"
+E                   	debug_error_string = "UNKNOWN:Error received from peer unix:/tmp/quantos-tp03-a90f38d604264f19a21d71aaf1b23372.sock {grpc_status:2, grpc_message:"Exception iterating responses: ENGINE_ARTIFACT_IMMUTABLE"}"
+E                   >
+
+engines/.venv/lib/python3.12/site-packages/grpc/_channel.py:969: _MultiThreadedRendezvous
+------------------------------ Captured log call -------------------------------
+ERROR    grpc._server:_server.py:668 Exception iterating responses: ENGINE_ARTIFACT_IMMUTABLE
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/lib/python3.12/site-packages/grpc/_server.py", line 654, in _take_response_from_response_iterator
+    return next(response_iterator), True
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py", line 183, in observed
+    for response in method(request, context):
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/src/llmquant/service.py", line 71, in stream_execute
+    refs = self._record(execution, mapped, context) if done else []
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/src/llmquant/service.py", line 170, in _record
+    return self.artifacts.record_bundle(owner, mapped)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/src/llmquant/artifacts.py", line 41, in record_bundle
+    raise ValueError("ENGINE_ARTIFACT_IMMUTABLE")
+ValueError: ENGINE_ARTIFACT_IMMUTABLE
+=========================== short test summary info ============================
+FAILED engines/tests/test_llmquant_development.py::test_distinct_execution_keys_and_policy_bind_artifact_ids[False-execute]
+FAILED engines/tests/test_llmquant_development.py::test_distinct_execution_keys_and_policy_bind_artifact_ids[False-stream]
+FAILED engines/tests/test_llmquant_development.py::test_distinct_execution_keys_and_policy_bind_artifact_ids[True-execute]
+FAILED engines/tests/test_llmquant_development.py::test_distinct_execution_keys_and_policy_bind_artifact_ids[True-stream]
+4 failed, 262 deselected in 0.15s

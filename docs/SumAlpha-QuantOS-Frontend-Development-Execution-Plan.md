@@ -469,6 +469,17 @@
         "CORE-GATE:F0"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP01-E": {
+      "profile": "TP01-E_LOCAL",
+      "schema": "quantos-tp01-e-local-development/v1",
+      "manifest": "audit/evidence/tp01-e-local-20261014/manifest.json",
+      "prerequisites": [
+        "CORE:TP01-D",
+        "CORE:F02",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }
