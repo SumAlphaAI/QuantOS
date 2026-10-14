@@ -1,0 +1,175 @@
+{
+  "ownership": "QuantOS-owned synthetic OpenAPI examples; no historical market facts; no provider/DB proof",
+  "examples": [
+    {
+      "operationId": "listStrategies",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "items": []
+      }
+    },
+    {
+      "operationId": "getStrategyDraft",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "strategyId": "11111111-1111-4111-8111-111111111111",
+        "objectVersion": "x",
+        "files": {},
+        "parameters": {},
+        "updatedAt": "2026-10-03T00:00:00Z"
+      }
+    },
+    {
+      "operationId": "saveStrategyDraft",
+      "kind": "request",
+      "value": {
+        "files": {},
+        "parameters": {}
+      }
+    },
+    {
+      "operationId": "saveStrategyDraft",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "strategyId": "11111111-1111-4111-8111-111111111111",
+        "objectVersion": "x",
+        "files": {},
+        "parameters": {},
+        "updatedAt": "2026-10-03T00:00:00Z"
+      }
+    },
+    {
+      "operationId": "runStaticCheck",
+      "kind": "response",
+      "status": 202,
+      "value": {
+        "jobId": "11111111-1111-4111-8111-111111111111",
+        "status": "accepted",
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "createBacktest",
+      "kind": "request",
+      "value": {
+        "strategyId": "11111111-1111-4111-8111-111111111111",
+        "objectVersion": "x",
+        "dataSnapshotId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "createBacktest",
+      "kind": "response",
+      "status": 202,
+      "value": {
+        "jobId": "11111111-1111-4111-8111-111111111111",
+        "status": "accepted",
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "getBacktest",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "runId": "11111111-1111-4111-8111-111111111111",
+        "strategyId": "11111111-1111-4111-8111-111111111111",
+        "dataSnapshotId": "11111111-1111-4111-8111-111111111111",
+        "status": "queued",
+        "metrics": {},
+        "leakViolations": [],
+        "reportArtifactId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "listReleases",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "items": []
+      }
+    },
+    {
+      "operationId": "createRelease",
+      "kind": "request",
+      "value": {
+        "strategyId": "11111111-1111-4111-8111-111111111111",
+        "objectVersion": "x",
+        "backtestRunId": "11111111-1111-4111-8111-111111111111",
+        "parameters": {}
+      }
+    },
+    {
+      "operationId": "createRelease",
+      "kind": "response",
+      "status": 201,
+      "value": {
+        "releaseId": "11111111-1111-4111-8111-111111111111",
+        "strategyId": "11111111-1111-4111-8111-111111111111",
+        "backtestReportArtifactId": "11111111-1111-4111-8111-111111111111",
+        "sourceDigest": "x",
+        "imageDigest": "x",
+        "parameterHash": "x",
+        "parameters": {},
+        "snapshotId": "11111111-1111-4111-8111-111111111111",
+        "allowedTargets": [],
+        "approvalState": "none",
+        "createdAt": "2026-10-03T00:00:00Z",
+        "sources": [
+          "example-source"
+        ]
+      }
+    },
+    {
+      "operationId": "getRelease",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "releaseId": "11111111-1111-4111-8111-111111111111",
+        "strategyId": "11111111-1111-4111-8111-111111111111",
+        "backtestReportArtifactId": "11111111-1111-4111-8111-111111111111",
+        "sourceDigest": "x",
+        "imageDigest": "x",
+        "parameterHash": "x",
+        "parameters": {},
+        "snapshotId": "11111111-1111-4111-8111-111111111111",
+        "allowedTargets": [],
+        "approvalState": "none",
+        "createdAt": "2026-10-03T00:00:00Z",
+        "sources": [
+          "example-source"
+        ]
+      }
+    },
+    {
+      "operationId": "submitReleaseApproval",
+      "kind": "response",
+      "status": 202,
+      "value": {
+        "jobId": "11111111-1111-4111-8111-111111111111",
+        "status": "accepted",
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "requestReleaseRollback",
+      "kind": "request",
+      "value": {
+        "targetReleaseId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "requestReleaseRollback",
+      "kind": "response",
+      "status": 202,
+      "value": {
+        "jobId": "11111111-1111-4111-8111-111111111111",
+        "status": "accepted",
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    }
+  ]
+}

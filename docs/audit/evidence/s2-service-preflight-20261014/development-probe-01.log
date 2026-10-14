@@ -1,0 +1,78 @@
+✔ frozen synthetic examples match OpenAPI and are not provider proof (0.886667ms)
+✔ listStrategies response fixture (21.652583ms)
+✔ getStrategyDraft response fixture (1.710458ms)
+✔ saveStrategyDraft request fixture (2.2685ms)
+✔ saveStrategyDraft response fixture (0.273208ms)
+✔ runStaticCheck response fixture (0.939ms)
+✔ createBacktest request fixture (0.987417ms)
+✔ createBacktest response fixture (0.173ms)
+✔ getBacktest response fixture (1.337792ms)
+✔ listReleases response fixture (1.617333ms)
+✔ createRelease request fixture (0.858584ms)
+✔ createRelease response fixture (1.751041ms)
+✔ getRelease response fixture (0.203791ms)
+✔ submitReleaseApproval response fixture (0.103083ms)
+✔ requestReleaseRollback request fixture (0.72925ms)
+✔ requestReleaseRollback response fixture (0.082583ms)
+✔ listStrategies rejects absent authentication (0.204ms)
+✔ getStrategyDraft rejects absent authentication (0.106917ms)
+✔ saveStrategyDraft rejects absent authentication (0.833959ms)
+✔ runStaticCheck rejects absent authentication (0.103917ms)
+✔ createBacktest rejects absent authentication (0.189583ms)
+✔ getBacktest rejects absent authentication (0.090208ms)
+✔ listReleases rejects absent authentication (0.073083ms)
+✔ createRelease rejects absent authentication (0.129125ms)
+✔ getRelease rejects absent authentication (0.061167ms)
+✔ submitReleaseApproval rejects absent authentication (0.064042ms)
+✔ requestReleaseRollback rejects absent authentication (0.114791ms)
+✔ saveStrategyDraft rejects missing CSRF (0.134958ms)
+✔ runStaticCheck rejects missing CSRF (0.077792ms)
+✔ createBacktest rejects missing CSRF (0.097125ms)
+✔ createRelease rejects missing CSRF (0.125875ms)
+✔ submitReleaseApproval rejects missing CSRF (0.053333ms)
+✔ requestReleaseRollback rejects missing CSRF (0.079ms)
+✔ saveStrategyDraft rejects forged ownership/venue fields (0.157584ms)
+✔ createBacktest rejects forged ownership/venue fields (0.087084ms)
+✔ createRelease rejects forged ownership/venue fields (0.128875ms)
+✔ requestReleaseRollback rejects forged ownership/venue fields (0.104333ms)
+✔ draft save requires optimistic concurrency precondition (0.126834ms)
+✔ backtest create requires idempotency key (0.167709ms)
+✖ wrong response correlation is refused (1.846208ms)
+✔ closure rejects missing TP01 node (43.338667ms)
+✔ closure rejects missing evaluation node (32.374666ms)
+✔ closure rejects duplicate node (29.494291ms)
+✔ closure rejects wrong dependency (29.51ms)
+✔ closure rejects changed normative scope (29.773875ms)
+✔ closure rejects empty check mapping (30.048166ms)
+✔ closure rejects missing source pointer (27.435125ms)
+✔ closure rejects empty evidence boundary (31.904833ms)
+✔ 39/31 mapping never grants local, BFF, target, performance or formal acceptance (18.700958ms)
+✔ rollout observation tests do not prove cryptographic signature or running rollback (0.921333ms)
+✔ TP07 missing pinned supply-chain evidence is not cured by TP12 reference rules (0.207667ms)
+ℹ tests 51
+ℹ suites 0
+ℹ pass 50
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 492.422667
+
+✖ failing tests:
+
+test at docs/audit/evidence/s2-service-preflight-20261014/preflight.test.mjs:18:1
+✖ wrong response correlation is refused (1.846208ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert((await validateResponse(f.operationId,Response.json(f.value,{status:f.status,headers:{'X-Correlation-Id':'22222222-2222-4222-8222-222222222222','Cache-Control':'no-store'}}))).some(i=>i.includes('correlation')))
+  
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/s2-service-preflight-20261014/preflight.test.mjs:18:111)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

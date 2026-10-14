@@ -1,0 +1,59 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,existsSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {pathToFileURL} from 'node:url';
+import YAML from 'yaml';
+import {nodesFromPlans,closure,policy,localChecks,planInput,digest} from '../../../../scripts/provider-a1-receipts.mjs';
+
+export const base='docs/audit/evidence/s2-service-preflight-20261014';
+export const baseline='59e6f418600ec569fcdae5f1cacdb865b20d0c42';
+export const prerequisite='docs/audit/evidence/provider-a1-remediation-20261004/x03-replay-fix-20261014/attempt-01/local-prerequisites.json';
+export const owner='CORE-GATE:S2-SERVICE';
+export const doc=YAML.parse(readFileSync('bff/openapi/quantos-bff.v1.yaml','utf8'));
+const catalog=YAML.parse(readFileSync('bff/page-operation-catalog.yaml','utf8'));
+export const contract=catalog.contracts.C05;
+export const operations=Object.entries(doc.paths).flatMap(([path,item])=>Object.entries(item).filter(([,op])=>contract.publishedOperations.includes(op.operationId)).map(([method,op])=>({...op,path,method})));
+export const resolve=o=>o?.$ref?o.$ref.split('/').slice(1).reduce((v,k)=>v[k],doc):o;
+export const uuid='11111111-1111-4111-8111-111111111111';
+export const headers={cookie:'quantos_session=session-current; quantos_csrf=csrf-token-0000000000000001',Origin:'http://localhost:3190','X-CSRF-Token':'csrf-token-0000000000000001','X-Request-Id':uuid,'Idempotency-Key':uuid,'If-Match':'draft-v3','Content-Type':'application/json'};
+export function requestFor(id,overrides={}) {
+ const op=operations.find(o=>o.operationId===id);assert(op,id);
+ const params=Object.fromEntries((op.parameters??[]).map(resolve).filter(p=>p.in==='path').map(p=>[p.name,uuid]));
+ const url=new URL(op.path.replace(/\{[^}]+\}/g,uuid),'http://127.0.0.1:4010');
+ for(const p of(op.parameters??[]).map(resolve).filter(p=>p.in==='query'&&p.required))url.searchParams.set(p.name,p.schema.enum?.[0]??(p.schema.format==='uuid'?uuid:p.schema.type==='integer'?'1':'fixture'));
+ const body=op.requestBody?structuredClone(op.requestBody.content['application/json'].example):undefined;
+ return {op,params,request:new Request(url,{method:op.method.toUpperCase(),headers:{...headers,...overrides.headers},...(body!==undefined?{body:JSON.stringify(overrides.body??body)}:{})})};
+}
+export function fixtureInventory(){return operations.flatMap(op=>[
+ ...(op.requestBody?[{operationId:op.operationId,kind:'request',value:op.requestBody.content['application/json'].example}]:[]),
+ ...Object.entries(op.responses).filter(([status,r])=>/^2/.test(status)&&resolve(r).content?.['application/json']).map(([status,r])=>({operationId:op.operationId,kind:'response',status:Number(status),value:resolve(r).content['application/json'].example})),
+]);}
+// Proposed receipts only. These entries do not register a policy or grant a stage.
+export const proposed={
+ 'CORE:TP01-E':{checks:['sync-local'],sources:['scripts/sync-vibe-lib.mjs','scripts/tests/sync-vibe.test.mjs','scripts/tests/sync-vibe-cli.test.mjs'],requirements:['S0–S3 grading','API/license/CVE/patch blocking','candidate summary and original rejection evidence'],gap:'Dedicated frozen TP01-E_LOCAL receipt/policy and consumer mapping missing'},
+ 'CORE:TP01-F':{checks:['rollout-local','rollout-boundary'],sources:['scripts/tp01-vibe-rollout-lib.mjs','scripts/tests/tp01-vibe-rollout.test.mjs'],requirements:['flag/shadow/threshold transitions','cryptographic signature rejection','runtime disable/rollback and deterministic in-flight cleanup'],gap:'JSON evaluation uses signedArtifactsPresent/runtimeIsolationVerified observations; no signature verifier or running adapter rollback consumer in this library'},
+ 'CORE:TP01-G':{checks:['python-boundaries'],sources:['engines/tests/test_vibe_adapter_contract.py','docs/operations/tp01_vibe_deprecation_plan.md'],requirements:['QuantOS-owned types/protocol','20 workflow replay invariants','provider replacement preserving business protocol'],gap:'Replacement test exists; dedicated TP01-G_LOCAL receipt and complete module inventory missing'},
+ 'SERVICE:TP01':{checks:['prerequisite-proof','sync-local','rollout-local','python-boundaries'],sources:['engines/vibe-adapter/check-development.mjs','engines/vibe-adapter/check-absorption.mjs'],requirements:['three reproducible builds','20 dual-RPC workflow replays','at least 100 boundary negatives','controlled cancel ≤2s and Artifact dedupe','S0–S3, disable/rollback and replacement composite consumption'],gap:'31-node composite policy/strict receipt absent; runtime rollback closure must be implemented'},
+ 'CORE:S01':{checks:['strategy-domain'],sources:['crates/quantos-strategy/src/lib.rs'],requirements:['50 concurrent edits, no silent overwrite','authorization and approved Snapshot/Artifact references','validation handoff and save correctness'],gap:'Dedicated S01_LOCAL receipt and service-level consumer proof absent'},
+ 'CORE:TP06':{checks:['python-boundaries','strategy-bridge','strategy-domain'],sources:['engines/strategy-lab/src/strategy_lab/adapter.py','engines/tests/test_strategy_lab_contract.py','crates/quantos-engine-manager/tests/python_strategy_lab.rs','crates/quantos-strategy/src/generated.rs'],requirements:['100 malicious prompts denied','Artifact-only outputs','static failures block Release','replaceable QuantOS-native implementation'],gap:'Fixture generator and local bridge exist; dedicated TP06_LOCAL receipt/replacement consumption not registered'},
+ 'CORE:S02':{checks:['strategy-domain','strategy-bridge'],sources:['crates/quantos-strategy/src/backtest.rs','crates/quantos-strategy/src/generated.rs'],requirements:['10 identical replays','100 look-ahead/leakage rejects','cost/environment/input hashes','consume generated draft'],gap:'Dedicated S02_LOCAL receipt and API handoff absent'},
+ 'CORE:S03':{checks:['strategy-domain'],sources:['crates/quantos-strategy/src/release.rs'],requirements:['100 unverified/unapproved deployment rejects','Paper/Shadow only','immutable content dedupe or deterministic conflict'],gap:'Dedicated S03_LOCAL receipt and authoritative approval service consumption absent'},
+ 'SERVICE:S04':{checks:['fixtures-negative','actual-routes','strategy-domain'],sources:['services/bff-gateway/src/lib.rs','crates/quantos-strategy/src/release.rs','bff/openapi/quantos-bff.v1.yaml'],requirements:['authorized catalog/Lab/Backtest/Release API','approval integration and audit','capability/allowedTargets','unverified/unapproved/expired/concurrent approvals denied'],gap:'Domain methods and future BFF contracts are not an implemented service; expiry/concurrent approval and audit integration need actual service proof'},
+ 'EVALUATION:TP07':{checks:['evaluation-boundary'],sources:['docs/adr/20260731-tp07-nautilus-license-compliance.md','docs/operations/tp07_nautilus_execution_gateway.md'],requirements:['pinned commit/license/SBOM/CVE','capability inventory','boundary and replacement ADR; no runtime adoption'],gap:'ADR pins reference but third_party/nautilus_trader baseline/SBOM/CVE evidence is absent; local evaluation inventory must explicitly resolve this'},
+ 'EVALUATION:TP12':{checks:['python-boundaries','evaluation-boundary'],sources:['third_party/nautilus-agents/baseline.lock.json','third_party/nautilus-agents/no-coupling-rules.json','third_party/nautilus-agents/interface-diff.md','docs/adr/20260731-tp12-nautilus-agents-evaluation.md','docs/operations/tp12_nautilus_agents_threat_model.md'],requirements:['ADR/threat model/interface diff','at least 5 enforced no-coupling rules','no agent venue access or runtime dependency'],gap:'Reference-only tests exist; dedicated evaluation receipt and TP07 evaluation prerequisite unresolved'},
+ 'CORE-GATE:S2-SERVICE':{checks:['prerequisite-proof','fixtures-negative','strategy-domain','strategy-bridge','evaluation-boundary'],sources:['docs/SumAlpha-QuantOS-Development-Plan.md'],requirements:['39-node strict local prerequisite closure','draft→generation→backtest→Release→approval consumer chain','evaluation ADR archive'],gap:'S2_SERVICE_LOCAL not registered; 12 unmapped nodes and composite service consumption unresolved'},
+};
+export function validateMapping(rows,nodes=nodesFromPlans()){
+ const ids=closure(nodes,owner);assert.deepEqual(rows.map(r=>r.nodeId),ids,'complete topological 39-node closure required');assert.equal(new Set(rows.map(r=>r.nodeId)).size,39);
+ for(const r of rows){assert.deepEqual(r.dependencies,nodes.get(r.nodeId).dependencies);assert.deepEqual(r.normativeInput,planInput(nodes.get(r.nodeId)));assert(r.checks.length>0);assert(r.requirements.length>0);assert(r.evidenceBoundary);for(const path of r.sources)assert(existsSync(path),path);}
+ return true;
+}
+export function inspect(){
+ const nodes=nodesFromPlans(),p=policy(),ids=closure(nodes,owner),tp01=closure(nodes,'SERVICE:TP01'),r1=closure(nodes,'CORE-GATE:R1-SERVICE');
+ assert.equal(ids.length,39);assert.equal(tp01.length,31);assert.equal(r1.length,27);assert(tp01.every(id=>ids.includes(id)));assert.equal(operations.length,11);
+ const unmapped=ids.filter(id=>!p.nodes[id]);assert.deepEqual(unmapped,Object.keys(proposed));
+ const closureRows=ids.map(nodeId=>{const n=nodes.get(nodeId),newScope=proposed[nodeId];return {nodeId,dependencies:n.dependencies,normativeInput:planInput(n),stageGate:n.stage_gate.status,policyMapped:!!p.nodes[nodeId],inTp01Closure:tp01.includes(nodeId),...(newScope??{checks:localChecks(nodeId,p,'R1_LOCAL'),sources:['scripts/provider-a1-policy.json'],requirements:['Existing R1_LOCAL normative scope and strict receipts'],gap:null}),evidenceBoundary:newScope?'PROPOSED_MAPPING_NOT_ADMISSION':'VALIDATE_EXISTING_5e14e3a4_INPUT_PROOF_NOT_NEW_SHA_EXECUTION'};});
+ validateMapping(closureRows,nodes);
+ return {schema:'quantos-s2-service-preflight/v1',status:'PREFLIGHT_COMPLETE_WITH_LOCAL_GAPS',observedSourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),baselineCommit:baseline,owner,proposedProfiles:['TP01_E_LOCAL','TP01_F_LOCAL','TP01_G_LOCAL','TP01_SERVICE_LOCAL','S01_LOCAL','TP06_LOCAL','S02_LOCAL','S03_LOCAL','S04_SERVICE_LOCAL','TP07_EVALUATION_LOCAL','TP12_EVALUATION_LOCAL','S2_SERVICE_LOCAL'],registration:'PROPOSED_NOT_REGISTERED',closure:closureRows,closureNodes:39,tp01Closure:tp01,tp01ClosureNodes:31,r1ProofNodes:27,unmapped,prerequisiteProof:prerequisite,prerequisiteExecutionCommit:'5e14e3a48bc44f1629a68a9b94da88d860231417',operations:operations.map(o=>({operationId:o.operationId,method:o.method.toUpperCase(),path:o.path,policy:o['x-quantos-policy']})),interfaceBoundary:'C05 is a future BFF consumer of SERVICE:S04, outside the S2 closure; probe detects missing public provider surface, not a requirement to grant BFF-FE-004',plannedOperations:contract.plannedOperations,examples:fixtureInventory().length,openapiSha256:digest(readFileSync('bff/openapi/quantos-bff.v1.yaml')),gate:'NOT_ASSESSED',formalAccepted:false,databaseExecution:false,externalExecution:false,performanceAccepted:false,stageCounts:Object.fromEntries(['READY','NOT_ASSESSED','BLOCKED'].map(s=>[s,[...nodes.values()].filter(n=>n.stage_gate.status===s).length])),deferred:{supabase:'NOT_RUN',external:'NOT_RUN',performance:'NOT_RUN',release:'NOT_ASSESSED'},findings:[{id:'S2-G01',nodes:unmapped,detail:'12 local policies and strict/composite receipts absent'},{id:'S2-G02',node:'CORE:TP01-F',detail:proposed['CORE:TP01-F'].gap},{id:'S2-G03',node:'SERVICE:S04',detail:proposed['SERVICE:S04'].gap},{id:'S2-G04',node:'EVALUATION:TP07',detail:proposed['EVALUATION:TP07'].gap}]};
+}
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){const r=inspect();console.log(JSON.stringify(r,null,2));if(process.argv.includes('--admission')){console.error('LOCAL_ADMISSION_BLOCKED: 12 unregistered nodes and unresolved local functional/evaluation gaps');process.exitCode=2;}}
