@@ -17,11 +17,12 @@ def sha(path):
     return 'sha256:' + hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def links():
+def links(creating=False):
     refs = [x for x in re.findall(r'\]\(([^)]+)\)', REPORT.read_text())
             if '://' not in x and not x.startswith('#')]
     for ref in refs:
-        assert (REPORT.parent / ref.split('#')[0]).is_file(), ref
+        target = REPORT.parent / ref.split('#')[0]
+        assert target.is_file() or (creating and target.resolve() == SEAL.resolve()), ref
     return len(refs)
 
 
@@ -81,7 +82,7 @@ if sys.argv[1:] == ['--create']:
     SEAL.write_text(json.dumps({'schema': 'quantos-tp01-e-local-seal/v1',
                                'sourceCommit': json.loads((B / 'verification.json').read_text())['sourceCommit'],
                                'baselineCommit': BASELINE, 'files': files,
-                               'reportLinks': links(), 'formalAccepted': False}, indent=2) + '\n')
+                               'reportLinks': links(creating=True), 'formalAccepted': False}, indent=2) + '\n')
     verify()
 elif sys.argv[1:] == ['--verify']:
     verify()

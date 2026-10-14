@@ -1,0 +1,99 @@
+[
+  {
+    "id": "ready",
+    "command": [
+      "node",
+      "scripts/tp01-e-local-gate.mjs",
+      "--ready"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "signal": null,
+    "error": null,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/post-ready.log",
+    "logSha256": "sha256:e4efa511e25f904f2c62cabd43dc328b6a8e24a6d1ba8e83fc3e26d291c6040b"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/tp01-e-local-gate.mjs",
+      "--release"
+    ],
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "signal": null,
+    "error": null,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/post-release-refusal.log",
+    "logSha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049"
+  },
+  {
+    "id": "closure-negatives",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "docs/audit/evidence/tp01-e-local-20261014/closure-negatives.mjs"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "signal": null,
+    "error": null,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/post-closure-negatives.log",
+    "logSha256": "sha256:bbe8fc88266703ceb67747ef44facb7da21023d708e199680437c8ed55202d9f"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "signal": null,
+    "error": null,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/post-plans.log",
+    "logSha256": "sha256:c6ce34052c658c1d9c99d58d5637e5e11cfff2e2e9f25963021e8414b52e0e91"
+  },
+  {
+    "id": "plans-negative",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/development-plan-order-negative.mjs"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "signal": null,
+    "error": null,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/post-plans-negative.log",
+    "logSha256": "sha256:6b521cf6ae8596b006dd8954b1d01c4d2d66488fd2e7946948c8b0dd36d27e1a"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "signal": null,
+    "error": null,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/post-handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  },
+  {
+    "id": "frontend-handoff",
+    "command": [
+      "node",
+      "scripts/check-frontend-gate-handoff.mjs"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "signal": null,
+    "error": null,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/post-frontend-handoff.log",
+    "logSha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+  }
+]

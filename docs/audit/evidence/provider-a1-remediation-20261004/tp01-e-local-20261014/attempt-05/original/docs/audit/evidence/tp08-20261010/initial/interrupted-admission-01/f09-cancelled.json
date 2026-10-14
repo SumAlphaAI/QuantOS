@@ -1,0 +1,194 @@
+{
+  "schema": "quantos-f09-target-gate/v3",
+  "sourceCommit": "232a93092691bdfc8d00fcdc3ed38e517bd4be10",
+  "dirty": false,
+  "targetClass": "test-supabase-postgresql",
+  "status": "FAIL",
+  "checks": [
+    "same source migration ledger and checksums",
+    "two one-minute Supabase scheduler ticks fail closed on missing metrics"
+  ],
+  "acceptanceScope": "F09 development database and Engine component probes",
+  "f09Accepted": false,
+  "remainingDevelopmentAcceptance": [],
+  "deferredToRelease": [
+    "same-SHA remote CI and Nightly receipts"
+  ],
+  "deferredToL04": [
+    "nine deployed business metric producers and one-minute monitor",
+    "cross-service same-chain fault exercises and secret leak scan",
+    "sustained live thresholds, dashboard queries and notification delivery"
+  ],
+  "startedAt": "2026-10-10T12:35:10.438Z",
+  "targetRefHash": "a70aa14f6acb257e",
+  "bootstrapConnection": {
+    "schema": "quantos-postgres-bootstrap/v1",
+    "phase": "BEFORE_STATEMENTS",
+    "maxAttempts": 3,
+    "status": "PASS",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "PASS",
+        "transient": false,
+        "elapsedMs": 2140.251583
+      }
+    ],
+    "connectionClosed": true
+  },
+  "phase": "postgres-exercises.log",
+  "migrationHead": "20261008090000_f07_audit_append_sequence.sql",
+  "commands": [
+    {
+      "command": "cargo",
+      "args": [
+        "build",
+        "-p",
+        "capacity-monitor",
+        "--locked"
+      ],
+      "phase": "cargo build -p capacity-monitor --locked",
+      "status": "PASS",
+      "pid": 43469,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-10T12:35:13.351Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 182.63762499999984,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "cargo",
+      "args": [
+        "build",
+        "-p",
+        "portfolio-rebuild",
+        "--locked"
+      ],
+      "phase": "cargo build -p portfolio-rebuild --locked",
+      "status": "PASS",
+      "pid": 43504,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-10T12:35:13.529Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 136.13558300000022,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "node",
+      "args": [
+        "scripts/f09-scheduler-smoke.cjs"
+      ],
+      "phase": "scheduler-smoke.log",
+      "status": "PASS",
+      "pid": 43513,
+      "timeoutMs": 300000,
+      "startedAt": "2026-10-10T12:35:13.664Z",
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "errorCode": null,
+      "elapsedMs": 72163.760625,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    },
+    {
+      "command": "make",
+      "args": [
+        "test-f09-live"
+      ],
+      "phase": "postgres-exercises.log",
+      "status": "FAIL",
+      "pid": 43613,
+      "timeoutMs": 900000,
+      "startedAt": "2026-10-10T12:36:25.831Z",
+      "exitCode": null,
+      "signal": "SIGTERM",
+      "timedOut": false,
+      "errorCode": "CANCELLED",
+      "elapsedMs": 378169.981458,
+      "processGroupClosed": true,
+      "orphanDetected": false,
+      "secretLeakDetected": false
+    }
+  ],
+  "secretLeakDetected": false,
+  "logs": {
+    "scheduler-smoke.log": "d4a17caabfdc6d30e334c4d2d23111290adaf3b2f8d34815f24cb85a2530e69a",
+    "postgres-exercises.log": "2e7bdb7f419827584eabf3a88328ac4846b9f15adc29a0418d17217280ec34f3",
+    "capacity-fixture-cleanup-dfb9c1c4-6108-47c7-b1c0-332f69493170.json": "da6bbd093f4636edaf7e1dbb3ab89d4700ff16658edf62a125f517ed1d31f8f8",
+    "capacity-fixtures-dfb9c1c4-6108-47c7-b1c0-332f69493170.jsonl": "9b52f7ef71cd6962594f33236ae5cf915fa4b501f5a929ecc3356697653ad43c"
+  },
+  "failure": {
+    "phase": "postgres-exercises.log",
+    "code": "CANCELLED"
+  },
+  "fixtureCleanup": {
+    "schema": "quantos-f09-fixture-cleanup/v1",
+    "run": "dfb9c1c4-6108-47c7-b1c0-332f69493170",
+    "fixtureClass": "capacity-monitor-component-tests",
+    "status": "PASS",
+    "immutableFacts": "RETAINED",
+    "fixtures": [
+      {
+        "actorId": "01a125d0-c901-7560-9c8d-e8bc3b498be3",
+        "run": "dfb9c1c4-6108-47c7-b1c0-332f69493170",
+        "scope": "f09-fault-dfb9c1c4-6108-47c7-b1c0-332f69493170-01a125d0-c901-7560-9c8d-e8a2e7566985",
+        "tenantId": "01a125d0-c901-7560-9c8d-e8a2e7566985",
+        "tenantPresent": true,
+        "actorPresent": true,
+        "activeActors": 0,
+        "eventsBefore": 1,
+        "eventsAfter": 1
+      },
+      {
+        "actorId": "01a125d1-4c85-7632-9953-f4e2ce1a5f86",
+        "run": "dfb9c1c4-6108-47c7-b1c0-332f69493170",
+        "scope": "f09-db-disconnect-dfb9c1c4-6108-47c7-b1c0-332f69493170-01a125d1-4c85-7632-9953-f4d46b67ad27",
+        "tenantId": "01a125d1-4c85-7632-9953-f4d46b67ad27",
+        "tenantPresent": true,
+        "actorPresent": true,
+        "activeActors": 0,
+        "eventsBefore": 2,
+        "eventsAfter": 2
+      },
+      {
+        "actorId": "01a125d1-b387-7e02-8bd9-51450935966f",
+        "run": "dfb9c1c4-6108-47c7-b1c0-332f69493170",
+        "scope": "f09-live-dfb9c1c4-6108-47c7-b1c0-332f69493170-01a125d1-b387-7e02-8bd9-5124126701f1",
+        "tenantId": "01a125d1-b387-7e02-8bd9-5124126701f1",
+        "tenantPresent": true,
+        "actorPresent": true,
+        "activeActors": 0,
+        "eventsBefore": 1,
+        "eventsAfter": 1
+      }
+    ],
+    "bootstrapConnection": {
+      "schema": "quantos-postgres-bootstrap/v1",
+      "phase": "BEFORE_STATEMENTS",
+      "maxAttempts": 3,
+      "status": "PASS",
+      "attempts": [
+        {
+          "attempt": 1,
+          "status": "PASS",
+          "transient": false,
+          "elapsedMs": 4296.433958999987
+        }
+      ],
+      "connectionClosed": true
+    }
+  },
+  "completedAt": "2026-10-10T12:42:55.004Z"
+}

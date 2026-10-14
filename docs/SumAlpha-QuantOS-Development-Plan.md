@@ -1,4 +1,6 @@
-> 当前工程结果（2026-10-14）：冻结5e14e3a4完成X03缓存重放安全重验/请求人及意图绑定、TTL/P95拆分；27节点/85组已登记本地前置与12项收尾全部通过。完整X03闭包42节点仍缺15节点专用映射，未授予准入；公共输入变化后旧六项READY已撤回，全图0 READY / 159 NOT_ASSESSED / 0 BLOCKED。外部/性能留测试及RELEASE，formalAccepted=false。见[本轮报告](./audit/X03-replay-fix-2026-10-14.md)。
+> 当前工程结果（2026-10-14）：冻结9b7bb8e5完整复验TP01-E_LOCAL必要28节点/88组本地检查PASS，104项专用测试与16项完整回执负向PASS；仅TP01-E限定DEVELOPMENT READY，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。22组Supabase/外部/性能义务移交测试及RELEASE，formalAccepted=false、syncApproved=false；历史失败与中断原件保留。见[本轮报告](./audit/TP01-E-local-admission-2026-10-14.md)。
+
+> 上轮工程快照（2026-10-14，TP01-E_LOCAL前）：冻结5e14e3a4完成X03缓存重放安全重验/请求人及意图绑定、TTL/P95拆分；27节点/85组已登记本地前置与12项收尾全部通过。完整X03闭包42节点仍缺15节点专用映射，未授予准入；公共输入变化后旧六项READY已撤回，全图0 READY / 159 NOT_ASSESSED / 0 BLOCKED。外部/性能留测试及RELEASE，formalAccepted=false。见[本轮报告](./audit/X03-replay-fix-2026-10-14.md)。
 
 > 上轮工程快照（2026-10-14，X03修复前）：冻结5fa0fb04完整42节点/141组共同本地执行PASS；R1-SERVICE/A2/BFF003/BFF005/A3五项限定DEVELOPMENT READY已恢复，TP02_LOCAL以同源13节点/44组证明重新READY。全图6 READY / 153 NOT_ASSESSED / 0 BLOCKED；Supabase、外部/性能与正式验收独立待办，formalAccepted=false。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)。
 
@@ -1299,7 +1301,7 @@ flowchart TD
 - task_id: `TP01-E`
 - task_type: `CORE`
 - iteration: `TP01-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4276342bace3edacf266336592e87d7a4ccf2c4d03a67f6a38e2fe730fec055c","evidence":["audit/evidence/tp01-e-local-20261014/manifest.json"]}
 - depends_on: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1316,7 +1318,7 @@ flowchart TD
 - 局部修复验证（2026-10-08）：定时monitor保留候选BLOCKED并完成监测，人工同步Gate仍退出2；失败摘要与原始证据上传补齐。23/23本地回归与真实上游双模式通过，新SHA远程workflow及候选采用待独立验收；不替代本任务全量复评。见[整改报告](./audit/TP01-E-scheduled-remediation-2026-10-08.md)。
 - 远程工程验证（2026-10-08）：8408122六场景/23回归通过，真实严格Gate依赖漂移阻断，失败后摘要/原件实际上传并下载。本专项工程检查7/7通过；自然event=schedule实时回执和候选采用仍待验，不计全任务ACCEPTED或阶段READY。见[远程报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
 - 依赖：TP01-D、F02
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-e)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：冻结9b7bb8e5完整28节点/88组本地闭包及104项专用测试PASS，TP01-E_LOCAL限定DEVELOPMENT READY；23同步回归、12合成CLI/8预期非零拒绝、16项完整回执负向通过。formalAccepted=false、syncApproved=false，上游独立Gate/R1-SERVICE/SERVICE:TP01未放行，22组目标/外部/性能移交发布。见[本轮报告](./audit/TP01-E-local-admission-2026-10-14.md)及[当前manifest](./audit/evidence/tp01-e-local-20261014/manifest.json)。全部历史失败保留，原复审记录亦保留于[归档](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-e)。
 
 <a id="task-tp01-f"></a>
 ### TP01-F：canary、观测与回滚
