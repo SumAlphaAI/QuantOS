@@ -632,3 +632,11 @@ tp02-local-check:
 	node scripts/tp02-local-gate.mjs --ready
 tp02-release-check:
 	node scripts/tp02-local-gate.mjs --release
+
+.PHONY: tp01-e-assess-local tp01-e-local-check tp01-e-release-check
+tp01-e-assess-local:
+	node scripts/record-tp01-e-local.mjs
+tp01-e-local-check:
+	node scripts/tp01-e-local-gate.mjs --ready
+tp01-e-release-check:
+	node scripts/tp01-e-local-gate.mjs --release

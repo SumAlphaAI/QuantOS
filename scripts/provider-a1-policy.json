@@ -1739,6 +1739,38 @@
       ],
       "staticOnly": true,
       "marker": "fail 0"
+    },
+    "tp01-e-functional": {
+      "command": [
+        "node",
+        "scripts/tp01-e-functional.mjs",
+        "--record"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp01-e-local-20261014/functional/receipt.json",
+      "artifactKind": "tp01-e-functional",
+      "timeoutMs": 300000
+    },
+    "tp01-e-artifact-negative": {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tp01-e-functional.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "# tests 38\\n[\\s\\S]*# pass 38\\n[\\s\\S]*# fail 0\\n"
+    },
+    "tp01-e-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tp01-e-local-gate.test.mjs"
+      ],
+      "staticOnly": true,
+      "marker": "# tests 44\\n[\\s\\S]*# pass 44\\n[\\s\\S]*# fail 0\\n"
     }
   },
   "nodes": {
@@ -2560,6 +2592,25 @@
         "plans",
         "a3-gate-policy"
       ]
+    },
+    "CORE:TP01-E": {
+      "scope": "Local synthetic S0\u2013S3 candidate grading, API/license/CVE/patch conflict classification, strict blocking with preserved decisions/issues/raw failure evidence and monitor/strict-gate semantics. No upstream fetch, online CVE refresh, candidate adoption, remote workflow or target/performance acceptance.",
+      "inputs": [
+        "scripts/sync-vibe.mjs",
+        "scripts/sync-vibe-lib.mjs",
+        "scripts/tp01-e-functional.mjs",
+        "scripts/fixtures/tp01-vibe-sync/",
+        "scripts/fixtures/tp01-e-local/",
+        "third_party/vibe-trading/baseline.lock.json",
+        "forks/vibe-trading/patch-queue/",
+        ".github/workflows/tp01_vibe_sync_gate.yml",
+        "docs/operations/tp01-e-local-admission.md"
+      ],
+      "checks": [
+        "tp01-e-functional",
+        "tp01-e-artifact-negative",
+        "tp01-e-local-policy"
+      ]
     }
   },
   "developmentProfile": {
@@ -2891,5 +2942,40 @@
       ]
     },
     "releaseCheckpoint": "RELEASE-GATE:BETA"
+  },
+  "tp01ELocal": {
+    "owner": "CORE:TP01-E",
+    "profile": "TP01-E_LOCAL",
+    "roots": [
+      "CORE:TP01-E"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
   }
 }

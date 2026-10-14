@@ -1,0 +1,54 @@
+[
+  {
+    "id": "admission-before-execution",
+    "command": [
+      "node",
+      "scripts/tp01-e-local-gate.mjs",
+      "--ready"
+    ],
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/development-01/admission-before-execution.log",
+    "logSha256": "sha256:6cebd54e368a1b20ed2be4cf7692b4bba21ec71c6c733cd2927a0e9ecadff6db"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/tp01-e-local-gate.mjs",
+      "--release"
+    ],
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/development-01/release-refusal.log",
+    "logSha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049"
+  },
+  {
+    "id": "dedicated-negatives",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/tp01-e-functional.test.mjs",
+      "scripts/tp01-e-local-gate.test.mjs"
+    ],
+    "exitCode": 1,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/development-01/dedicated-negatives.log",
+    "logSha256": "sha256:ee748f9c7fc08599132660c057950e4a6ee26b43946ff55dfb24e65f685bf0a2"
+  },
+  {
+    "id": "receipt-regressions",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/provider-a1-receipts.test.mjs",
+      "scripts/execution-outcome.test.mjs"
+    ],
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/tp01-e-local-20261014/development-01/receipt-regressions.log",
+    "logSha256": "sha256:0c80f61f0d3b0255b7655b7d5d0c2844c750bb7f03092789fb9d6f84d01863b7"
+  }
+]
