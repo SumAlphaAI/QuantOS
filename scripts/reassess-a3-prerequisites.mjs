@@ -1,6 +1,7 @@
 // Read-only prerequisite audit. Never executes target runners or promotes a Gate.
 import {readFileSync} from 'node:fs';import {execFileSync} from 'node:child_process';import {resolve} from 'node:path';import {pathToFileURL} from 'node:url';
 import {nodesFromPlans,closure,digest,planInput,validateReceipt,policy,localPolicy} from './provider-a1-receipts.mjs';
+import {verifyPublished as checkTp02} from './tp02-local-gate.mjs';
 import {check as checkA2,inputs as a2Inputs,validateManifest as validateA2Manifest} from './provider-a2-development.mjs';
 import {validateA2 as checkIdentity} from './bff-fe-001-development.mjs';import {validateAudit as checkAudit} from './bff-fe-007-development.mjs';import {verifyPublished as checkTp01D} from './tp01-d-local-gate.mjs';
 import {verifyPublished as checkLocal} from './research-local-gate.mjs';
@@ -8,7 +9,7 @@ const historicalA2='docs/audit/evidence/provider-a2-remediation-20261007/ci-47cb
 const attempt=fn=>{try{return {valid:true,result:fn()};}catch(e){return {valid:false,reason:e.message.split('\n')[0]};}};
 export function inputChanges(old,current){const a=new Map(old.map(x=>[x.path,x.sha256])),b=new Map(current.map(x=>[x.path,x.sha256]));return [...new Set([...a.keys(),...b.keys()])].sort().filter(p=>a.get(p)!==b.get(p)).map(path=>({path,previous:a.get(path)??null,current:b.get(path)??null}));}
 export function reassess({nodes=nodesFromPlans(),checkLocalReceipt=profile=>checkLocal(profile,{nodes})}={}){
- const p=policy(),profiles={'PROVIDER:A2':'A2_LOCAL','CORE-GATE:R1-SERVICE':'R1_LOCAL','FE:BFF-FE-003':'BFF003_LOCAL','FE:BFF-FE-005':'BFF005_LOCAL'};const validate=id=>profiles[id]?checkLocalReceipt(profiles[id]):id==='PROVIDER:A2'?checkA2():id==='FE:BFF-FE-001'?checkIdentity({nodes}):id==='FE:BFF-FE-007'?checkAudit({nodes}):id==='CORE:TP01-D'?checkTp01D({nodes}):validateReceipt(id,{nodes});
+ const p=policy(),profiles={'PROVIDER:A2':'A2_LOCAL','CORE-GATE:R1-SERVICE':'R1_LOCAL','FE:BFF-FE-003':'BFF003_LOCAL','FE:BFF-FE-005':'BFF005_LOCAL'};const validate=id=>profiles[id]?checkLocalReceipt(profiles[id]):id==='PROVIDER:A2'?checkA2():id==='FE:BFF-FE-001'?checkIdentity({nodes}):id==='FE:BFF-FE-007'?checkAudit({nodes}):id==='CORE:TP01-D'?checkTp01D({nodes}):id==='CORE:TP02'?checkTp02({nodes}):validateReceipt(id,{nodes});
  const row=id=>{const n=nodes.get(id),g=n.stage_gate;return {nodeId:id,stageGate:g,receiptValidation:g.status==='READY'?attempt(()=>validate(id)):{valid:false,reason:'NO_CURRENT_READY_RECEIPT'},planInputDigest:digest(JSON.stringify(planInput(n)))};};
  const roots=['PROVIDER:A2','CORE-GATE:R1-SERVICE','FE:BFF-FE-003','FE:BFF-FE-005'];const prior=JSON.parse(readFileSync(historicalA2));
  return {schema:'quantos-a3-prerequisite-reassessment/v1',observedSourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),databaseExecution:false,externalExecution:false,formalAccepted:false,

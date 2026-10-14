@@ -32,3 +32,11 @@ node scripts/check-development-plans.mjs
 发布清单位于 `docs/audit/evidence/provider-a3-local-20261013/`。最后文档/证据提交只登记冻结候选的结果；验证器继续比较当前功能输入和规范范围，不声称自动验收后续 HEAD。功能输入变化必须重新冻结并执行完整闭包。
 
 外部数据库迁移/RLS/事务、Auth/Storage/worker 持久恢复、来源用途许可、外部服务/部署、完整浏览器矩阵、同 SHA hosted CI、性能/容量/长稳仍为 `NOT_RUN`，由 RELEASE-GATE:BETA 实际验收。UI/consumer 跨模块功能链在对应 I 迭代验证。DEVELOPMENT READY 不授予上游独立 Gate、不构成正式 ACCEPTED、生产权限或发布授权。正式验收仍按[项目用户确认规程](../gate-records/user-acceptance-confirmation-workflow.md)执行。
+
+## 2026-10-14 聚合复验
+
+当前共同执行为A3_EXECUTION的42节点/141组：原140组加TP02专用Gate负向。五消费者必要检查仍为A2 17/67、R1 27/85、BFF003 40/135、BFF005 40/135、A3 42/140；额外从同候选实际执行派生TP02_LOCAL完整13节点/44组，用其独立publisher重新准入。执行owner不等于消费者owner，逐节点重绑scope/依赖并完整验证，不能拼接旧TP02或A3回执。全图成功后仅上述五消费者与TP02六项DEVELOPMENT READY，其他上游不授予独立READY。
+
+新attempt示例：`node scripts/record-research-local.mjs docs/audit/evidence/provider-a1-remediation-20261004/provider-a3-readmission-20261014/attempt-01`；已有attempt拒绝覆盖。共同执行前保持干净冻结提交，canonical组件先存临时目录，成功/失败均保存生成差异并恢复原字节；旧五份wrapper、TP02 wrapper、publication及两份计划归档到本轮history，供同Git blob复核。六份发布发生异常时回滚全部wrapper和计划，记录publication-failure.json。
+
+测试fixture必须隔离当前其他独立Gate，不能因合法TP02 READY使聚合测试误报失败，也不能为通过聚合测试删除真实Gate。共享策略变化须撤回受影响旧READY，再从新候选完整复验；外部环境/数据库/性能/正式验收保持原NOT_RUN移交边界，不使用生产凭据、不升级订阅、不推送或外部发布。

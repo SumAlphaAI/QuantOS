@@ -1,0 +1,126 @@
+✔ A2_LOCAL admits only complete scoped functionality (23.558375ms)
+✔ R1_LOCAL admits only complete scoped functionality (14.791834ms)
+✔ BFF003_LOCAL admits only complete scoped functionality (13.583209ms)
+✔ BFF005_LOCAL admits only complete scoped functionality (13.560375ms)
+✔ A3_LOCAL admits only complete scoped functionality (52.8135ms)
+✔ reject another owner (13.279625ms)
+✔ reject formal self approval (13.482792ms)
+✔ reject production (13.747709ms)
+✔ reject target claim (13.076375ms)
+✔ reject performance claim (13.465ms)
+✔ reject external claim (12.759333ms)
+✔ reject failed status (12.479708ms)
+✔ reject unregistered profile (12.993583ms)
+✔ reject altered scope (13.414959ms)
+✔ reject missing dependency (13.924917ms)
+✔ reject published upstream instead of projection (14.071083ms)
+✔ reject forged dependency (14.731041ms)
+✔ reject mixed SHA (13.807959ms)
+✔ reject partial closure (14.0955ms)
+✔ reject wrong local owner (13.972375ms)
+✔ reject failed local proof (13.565625ms)
+✔ reject changed index (13.846292ms)
+✔ reject swapped functional manifest (14.420917ms)
+✔ reject lost release command (13.70075ms)
+✔ reject target passed (13.6525ms)
+✔ reject lost handoff (13.642583ms)
+✔ reject release obligation removed (13.412916ms)
+✔ local profiles cannot execute target or network SCA checks (14.041916ms)
+✔ local environment strips database and production credentials (0.165958ms)
+✔ publication is transactional if post-write validation fails (114.875708ms)
+✔ partial profile publication rejected before writing (0.146167ms)
+✔ release performance thresholds retained and development CI diagnostic only (0.161334ms)
+✖ reassessment root and closure agree with consumer receipt true (477.866167ms)
+✖ reassessment root and closure agree with consumer receipt false (240.69075ms)
+✔ functional F04 proves corpus equality while release retains timing rejection (0.201416ms)
+✔ legacy digest normalization preserves checksum and rejects malformed data (0.154459ms)
+✔ all local profiles defer performance commands (124.961042ms)
+✔ R04 artifact validates actual historical fixture: none (8.973458ms)
+✔ R04 artifact validates actual historical fixture: rehashed failed suite (2.347083ms)
+✔ R04 artifact validates actual historical fixture: rehashed incomplete product (9.236458ms)
+✔ R04 artifact validates actual historical fixture: changed log (2.242541ms)
+✔ all consumer registrations match the static stage contract (14.055084ms)
+✖ five local publication passes real plan order without upstream READY (127.005791ms)
+✔ A3 rejects missing consumer (52.448833ms)
+✔ A3 rejects duplicated consumer (46.741334ms)
+✔ A3 rejects wrong consumer path (48.896667ms)
+✔ A3 rejects changed consumer bytes (47.469667ms)
+✔ A3 rejects rehashed mixed candidate (47.534625ms)
+✔ A3 rejects consumer not READY (51.46ms)
+✔ A3 rejects consumer gate digest (48.541542ms)
+✔ A3 rejects consumer formal promotion (49.136459ms)
+✔ A3 execution union cannot publish aggregate admission (47.15525ms)
+✔ aggregate CLI loads without a cyclic module hang and refuses execution profile (137.065709ms)
+✔ all five publication indexes must come from the same candidate (111.797208ms)
+✔ atomic publication verifies real aggregate consumer hashes before and after writing (375.247959ms)
+ℹ tests 55
+ℹ suites 0
+ℹ pass 52
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2808.075958
+
+✖ failing tests:
+
+test at scripts/research-local-gate.test.mjs:41:33
+✖ reassessment root and closure agree with consumer receipt true (477.866167ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to:
+  
+  'READY'
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.test.mjs:44:377)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'READY',
+    expected: 'READY',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/research-local-gate.test.mjs:41:33
+✖ reassessment root and closure agree with consumer receipt false (240.69075ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to:
+  
+  'READY'
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.test.mjs:44:377)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'READY',
+    expected: 'READY',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/research-local-gate.test.mjs:70:1
+✖ five local publication passes real plan order without upstream READY (127.005791ms)
+  AssertionError [ERR_ASSERTION]: CORE:TP02: missing stage_gate evidence reference audit/evidence/tp02-local-20261013/manifest.json
+      at validateStageGate (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:46:5)
+      at validatePlanOrder (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-development-plan-order.mjs:112:5)
+      at verifyAfter (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.test.mjs:78:11)
+      at publish (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.mjs:61:135)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/research-local-gate.test.mjs:76:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

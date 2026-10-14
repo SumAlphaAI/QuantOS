@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,mkdtempSync,cpSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {resolve} from 'node:path';
-import {nodesFromPlans,planInput,closure,digest,localPolicy,localChecks,localDeferred,policy,staticEnvironment} from './provider-a1-receipts.mjs';
+import {nodesFromPlans,planInput,closure,digest,localPolicy,localChecks,localDeferred,policy,staticEnvironment,publishStages} from './provider-a1-receipts.mjs';
 import {validatePlans} from './check-development-plans.mjs';
 import {validatePlanOrder} from './check-development-plan-order.mjs';
 import {mkdirSync} from 'node:fs';
@@ -12,8 +12,11 @@ import {reassess} from './reassess-a3-prerequisites.mjs';
 import {validateFunctionalRuns,validateRuns} from './f04-measurements.mjs';
 import {normalizeDigest,verifyArtifact} from './research-local-products.mjs';
 import {schema,registrations,handoff,verify,publish,manifest} from './research-local-gate.mjs';
+// Scope fixtures start from unassessed gates, independently of legitimate live admissions.
+const unassessedPlan=text=>text.replace(/^- stage_gate: (.+)$/gm,(_,r)=>'- stage_gate: '+JSON.stringify({...JSON.parse(r),status:'NOT_ASSESSED',input_digest:null,evidence:[]})).replace(/```json\n([\s\S]*?)\n```/g,(block,raw)=>{const r=JSON.parse(raw);if(!r.checkpoint_id||!r.stage_gate)return block;r.stage_gate={...r.stage_gate,status:'NOT_ASSESSED',input_digest:null,evidence:[]};return '```json\n'+JSON.stringify(r,null,2)+'\n```';});
+const unitNodes=()=>new Map([...nodesFromPlans()].map(([id,n])=>[id,{...n,stage_gate:{...n.stage_gate,status:'NOT_ASSESSED',input_digest:null,evidence:[]}}]));
 function fixture(profile='R1_LOCAL'){
- const nodes=nodesFromPlans(),owner=registrations[profile].owner,entries=closure(nodes,owner).map((nodeId,i)=>({nodeId,manifest:'local/'+i+'.json',inputDigest:'sha256:'+String(i).padStart(64,'0')}));
+ const nodes=unitNodes(),owner=registrations[profile].owner,entries=closure(nodes,owner).map((nodeId,i)=>({nodeId,manifest:'local/'+i+'.json',inputDigest:'sha256:'+String(i).padStart(64,'0')}));
  const local={status:'LOCAL_READY',owner,profile,inputDigest:'sha256:'+'b'.repeat(64),observedSourceCommit:'a'.repeat(40),nodes:entries};
  const own=entries.at(-1),r={schema,nodeId:owner,stage:'DEVELOPMENT',profile,status:'READY',engineeringStatus:'PASS',observedSourceCommit:local.observedSourceCommit,planInput:planInput(nodes.get(owner)),databaseExecution:false,externalExecution:false,performanceAccepted:false,production:false,formalAccepted:false,localPrerequisites:{manifest:'index.json',inputDigest:local.inputDigest},functionalManifest:own.manifest,functionalDigest:own.inputDigest,dependencies:nodes.get(owner).dependencies.map(nodeId=>({nodeId,status:'LOCAL_READY',owner,inputDigest:entries.find(x=>x.nodeId===nodeId).inputDigest})),release:{checkpoint:'RELEASE-GATE:BETA',status:'NOT_RUN',handoff,prerequisiteChecks:localDeferred(nodes,undefined,profile)}};
  const proofs=new Map([[profile,local]]),files=new Map();
@@ -26,12 +29,12 @@ for(const profile of Object.keys(registrations))test(profile+' admits only compl
 for(const [name,change]of [
  ['another owner',f=>f.r.nodeId='CORE:R03'],['formal self approval',f=>f.r.formalAccepted=true],['production',f=>f.r.production=true],['target claim',f=>f.r.databaseExecution=true],['performance claim',f=>f.r.performanceAccepted=true],['external claim',f=>f.r.externalExecution=true],['failed status',f=>f.r.status='FAIL'],['unregistered profile',f=>f.r.profile='R1'],['altered scope',f=>f.r.planInput={}],['missing dependency',f=>f.r.dependencies.pop()],['published upstream instead of projection',f=>f.r.dependencies[0].status='READY'],['forged dependency',f=>f.r.dependencies[0].inputDigest='sha256:'+'f'.repeat(64)],['mixed SHA',f=>f.local.observedSourceCommit='c'.repeat(40)],['partial closure',f=>f.local.nodes.shift()],['wrong local owner',f=>f.local.owner='CORE:R04'],['failed local proof',f=>f.local.status='FAIL'],['changed index',f=>f.r.localPrerequisites.inputDigest='fake'],['swapped functional manifest',f=>f.r.functionalManifest='fake'],['lost release command',f=>f.r.release.prerequisiteChecks.pop()],['target passed',f=>f.r.release.status='PASS'],['lost handoff',f=>f.r.release.handoff='fake'],['release obligation removed',f=>f.nodes.get('RELEASE-GATE:BETA').required_scope='fake']
 ])test('reject '+name,()=>{const f=fixture();change(f);assert.throws(f.run);});
-test('local profiles cannot execute target or network SCA checks',()=>{const p=policy(),nodes=nodesFromPlans();for(const profile of Object.keys(registrations)){
+test('local profiles cannot execute target or network SCA checks',()=>{const p=policy(),nodes=unitNodes();for(const profile of Object.keys(registrations)){
  const ids=[...new Set(closure(nodes,registrations[profile].owner).flatMap(id=>localChecks(id,p,profile)))];assert(ids.length>0);assert(!ids.includes('tp01-baseline'));assert(!ids.includes('f02-sca'));assert(ids.every(id=>!p.checks[id].database&&!p.checks[id].target));if(closure(nodes,registrations[profile].owner).some(id=>p.nodes[id].checks.includes('f02-sca')))assert(localDeferred(nodes,p,profile).some(x=>x.id==='f02-sca'));assert.deepEqual(localPolicy(profile,p).roots,[registrations[profile].owner]);
 }});
 test('local environment strips database and production credentials',()=>{const e=staticEnvironment({DATABASE_URL:'secret',SUPABASE_URL:'secret',AWS_SECRET_ACCESS_KEY:'secret',QUANTOS_RUN_F05_POSTGRES_TESTS:'1',PATH:'/bin'});assert.equal(e.DATABASE_URL,undefined);assert.equal(e.SUPABASE_URL,undefined);assert.equal(e.AWS_SECRET_ACCESS_KEY,undefined);assert.equal(e.QUANTOS_RUN_F05_POSTGRES_TESTS,undefined);assert.equal(e.QUANTOS_SKIP_ENV,'1');});
 test('publication is transactional if post-write validation fails',()=>{
- const nodes=nodesFromPlans(),saved=new Map(['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'].map(p=>[p,readFileSync(p,'utf8')])),before=new Map(saved);
+ const nodes=unitNodes(),saved=new Map(['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'].map(p=>[p,unassessedPlan(readFileSync(p,'utf8'))])),before=new Map(saved);
  assert.throws(()=>publish(Object.fromEntries(Object.keys(registrations).map(p=>[p,p])),{getNodes:()=>nodes,validateLocal:(_,o)=>fixture(o.profile).local,validate:()=>{},read:p=>saved.get(p)??null,write:(p,b)=>b===null?saved.delete(p):saved.set(p,b),verifyAfter:()=>{throw Error('post-write failure');}}),/post-write failure/);assert.deepEqual(saved,before);
 });
 test('partial profile publication rejected before writing',()=>assert.throws(()=>publish({R1_LOCAL:'index.json'}),/all five/));
@@ -39,7 +42,7 @@ test('partial profile publication rejected before writing',()=>assert.throws(()=
 test('release performance thresholds retained and development CI diagnostic only',()=>{const rust=readFileSync('crates/quantos-market/src/tests.rs','utf8'),perf=readFileSync('scripts/check-perf-budget.mjs','utf8'),workflow=readFileSync('.github/workflows/frontend-baseline.yml','utf8'),make=readFileSync('Makefile','utf8');assert(rust.includes('#[ignore = "release performance; run make r01-release-performance"]'));assert(rust.includes('p95 < 50_000_000'));assert(perf.includes('sharedFirstLoadJs: 250 * 1024, singleChunk: 200 * 1024, totalCss: 60 * 1024'));assert(workflow.includes('apps/terminal/out --diagnostic'));assert(workflow.includes('apps/website/out --diagnostic'));assert(make.includes('frontend-release-performance:'));assert(make.includes('pure_domain_p95_under_fifty_milliseconds -- --ignored --nocapture'));});
 
 for(const valid of [true,false])test('reassessment root and closure agree with consumer receipt '+valid,()=>{
- const nodes=nodesFromPlans();for(const r of Object.values(registrations))nodes.get(r.owner).stage_gate.status='READY';
+ const nodes=unitNodes();for(const r of Object.values(registrations))nodes.get(r.owner).stage_gate.status='READY';
  const r=reassess({nodes,checkLocalReceipt:profile=>{if(!valid)throw Error('functional proof missing');const f=fixture(profile);return {localPrerequisites:{nodes:f.local.nodes}};}});
  assert.equal(r.providerA3.receipt.valid,valid);assert.equal(r.roots.length,4);for(const x of r.roots){assert.equal(x.admission,valid?'LOCAL_READY':'NOT_READY');assert.equal(x.aggregateReceipt.valid,valid);for(const d of x.closure){assert.equal(d.consumerLocalReceipt?.status??null,valid?'LOCAL_READY':null);if(!Object.values(registrations).some(a=>a.owner===d.nodeId))assert.notEqual(d.stageGate.status,'READY');}}
 });
@@ -47,7 +50,7 @@ test('functional F04 proves corpus equality while release retains timing rejecti
  const a={digest:'sha256:'+'a'.repeat(64),fixtures:1000,p95Micros:1000000};assert.equal(validateFunctionalRuns(a,a).performanceAcceptance,'NOT_RUN');assert.throws(()=>validateRuns(a,a),/P95/);assert.throws(()=>validateFunctionalRuns(a,{...a,fixtures:999}),/1,000/);assert.throws(()=>validateFunctionalRuns(a,{...a,digest:'sha256:'+'b'.repeat(64)}),/digests/);
 });
 test('legacy digest normalization preserves checksum and rejects malformed data',()=>{const a='a'.repeat(64);assert.equal(normalizeDigest(a),'sha256:'+a);assert.equal(normalizeDigest('sha256:'+a),'sha256:'+a);assert.throws(()=>normalizeDigest('garbage'));});
-test('all local profiles defer performance commands',()=>{const p=policy();for(const profile of Object.keys(registrations)){assert(localPolicy(profile,p).releaseChecks.length>=2);for(const c of localDeferred(undefined,p,profile).filter(c=>p.checks[c.id].performance))assert.equal(c.status,'NOT_RUN');assert(closure(nodesFromPlans(),registrations[profile].owner).flatMap(id=>localChecks(id,p,profile)).every(id=>!p.checks[id].performance));}});
+test('all local profiles defer performance commands',()=>{const p=policy();for(const profile of Object.keys(registrations)){assert(localPolicy(profile,p).releaseChecks.length>=2);for(const c of localDeferred(undefined,p,profile).filter(c=>p.checks[c.id].performance))assert.equal(c.status,'NOT_RUN');assert(closure(unitNodes(),registrations[profile].owner).flatMap(id=>localChecks(id,p,profile)).every(id=>!p.checks[id].performance));}});
 
 for(const mutation of ['none','rehashed failed suite','rehashed incomplete product','changed log'])test('R04 artifact validates actual historical fixture: '+mutation,async()=>{
  const dir=mkdtempSync(resolve(tmpdir(),'research-artifact-test-'));try{
@@ -62,14 +65,14 @@ for(const mutation of ['none','rehashed failed suite','rehashed incomplete produ
 // Exercise the real static post-publication validator; mocked verifyAfter alone cannot
 // detect stale receipt registrations. Synthetic receipts prove shape only, never execution.
 test('all consumer registrations match the static stage contract',()=>{
- const scopes=JSON.parse(readFileSync('scripts/development-plan-order-policy.json')).stageContract.local_dependency_receipts,nodes=nodesFromPlans();
+ const scopes=JSON.parse(readFileSync('scripts/development-plan-order-policy.json')).stageContract.local_dependency_receipts,nodes=unitNodes();
  for(const [profile,{owner}]of Object.entries(registrations)){
   assert.equal(scopes[owner].profile,profile);assert.equal(scopes[owner].manifest,manifest(profile).slice(5));assert.equal(scopes[owner].schema,schema);assert.deepEqual(scopes[owner].prerequisites,nodes.get(owner).dependencies);
  }
 });
 test('five local publication passes real plan order without upstream READY',()=>{
  const dir=mkdtempSync(resolve(tmpdir(),'research-publication-order-')),paths=['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'];
- const saved=new Map(paths.map(p=>[p,readFileSync(p,'utf8')])),parsed=validatePlans(...paths.map(p=>saved.get(p))).tasks,nodes=nodesFromPlans();
+ const saved=new Map(paths.map(p=>[p,unassessedPlan(readFileSync(p,'utf8'))])),parsed=validatePlans(...paths.map(p=>saved.get(p))).tasks,nodes=unitNodes();
  // Static historical checkpoint links need only exist in this isolated shape fixture.
  for(const text of saved.values())for(const match of text.matchAll(/```json\n([\s\S]*?)\n```/g)){const record=JSON.parse(match[1]);for(const ref of record.checkpoint_id?record.evidence:[])if(!/^https:\/\//.test(ref)){const path=resolve(dir,'docs',ref);mkdirSync(dirname(path),{recursive:true});writeFileSync(path,'SYNTHETIC STATIC SHAPE ONLY; NO EXECUTION\n');}}
  try{
@@ -94,12 +97,17 @@ for(const [name,change]of [
 test('A3 execution union cannot publish aggregate admission',()=>{const f=fixture('A3_LOCAL');f.r.profile='A3_EXECUTION';assert.throws(f.run,/unregistered/);});
 test('aggregate CLI loads without a cyclic module hang and refuses execution profile',()=>{const r=spawnSync(process.execPath,['scripts/research-local-gate.mjs','A3_EXECUTION'],{encoding:'utf8',timeout:30000});assert.equal(r.status,2);assert.equal(r.signal,null);});
 test('all five publication indexes must come from the same candidate',()=>{
- const nodes=nodesFromPlans(),saved=new Map(['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'].map(p=>[p,readFileSync(p,'utf8')])),before=new Map(saved);
+ const nodes=unitNodes(),saved=new Map(['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'].map(p=>[p,unassessedPlan(readFileSync(p,'utf8'))])),before=new Map(saved);
  assert.throws(()=>publish(Object.fromEntries(Object.keys(registrations).map(p=>[p,p])),{getNodes:()=>nodes,validateLocal:(_,o)=>({...fixture(o.profile).local,observedSourceCommit:o.profile==='A3_LOCAL'?'c'.repeat(40):'a'.repeat(40)}),validate:()=>{},read:p=>saved.get(p)??null,write:(p,b)=>saved.set(p,b),verifyAfter:()=>{}}),/mixed publication/);assert.deepEqual(saved,before);
 });
 test('atomic publication verifies real aggregate consumer hashes before and after writing',()=>{
- const nodes=nodesFromPlans(),saved=new Map(['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'].map(p=>[p,readFileSync(p,'utf8')]));
+ const nodes=unitNodes(),saved=new Map(['docs/SumAlpha-QuantOS-Development-Plan.md','docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md'].map(p=>[p,unassessedPlan(readFileSync(p,'utf8'))]));
  const validateLocal=(_,o)=>fixture(o.profile).local;
  const report=publish(Object.fromEntries(Object.keys(registrations).reverse().map(p=>[p,p])),{getNodes:()=>nodes,validateLocal,read:p=>saved.get(p)??null,write:(p,b)=>saved.set(p,b),verifyAfter:()=>Object.keys(registrations).map(profile=>verify(JSON.parse(saved.get(manifest(profile))),{nodes,validateLocal,read:p=>saved.get(p)}))});
  assert.equal(report.length,5);assert(report.every(r=>r.status==='READY'));assert.equal(report.at(-1).necessaryNodes,42);
 });
+
+// The union includes TP02's own dedicated admission check; deriving its proof is not
+// inheriting the old independent Gate or reusing an earlier candidate.
+test('execution union contains the complete TP02 local proof',()=>{const nodes=unitNodes(),p=policy(),all=closure(nodes,'PROVIDER:A3');assert.equal(new Set(all.flatMap(id=>localChecks(id,p,'A3_EXECUTION'))).size,141);assert.equal(new Set(all.flatMap(id=>localChecks(id,p,'A3_LOCAL'))).size,140);const tp=closure(nodes,'CORE:TP02');assert.equal(tp.length,13);for(const id of tp)for(const check of localChecks(id,p,'TP02_LOCAL'))assert(localChecks(id,p,'A3_EXECUTION').includes(check));});
+test('aggregate publication preserves an independent TP02 Gate',()=>{const nodes=unitNodes(),tp=nodes.get('CORE:TP02');tp.stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:'sha256:'+'f'.repeat(64),evidence:['unit-independent.json']};const before=structuredClone(tp.stage_gate),core='docs/SumAlpha-QuantOS-Development-Plan.md',front='docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md',saved=new Map([[core,publishStages(readFileSync(core,'utf8'),new Map([[tp.id,tp]]),'CORE:')],[front,readFileSync(front,'utf8')]]);publish(Object.fromEntries(Object.keys(registrations).map(p=>[p,p])),{getNodes:()=>nodes,validateLocal:(_,o)=>fixture(o.profile).local,validate:()=>{},read:p=>saved.get(p)??null,write:(p,b)=>saved.set(p,b),verifyAfter:()=>{}});assert.deepEqual(tp.stage_gate,before);const body=saved.get(core).split('<a id="task-tp02"></a>')[1].split('<a id=')[0];assert(body.includes('- stage_gate: '+JSON.stringify(before)));});
