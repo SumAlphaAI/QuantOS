@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {createServer} from 'node:net';
+import {mkdirSync,existsSync,writeFileSync} from 'node:fs';
+import {once} from 'node:events';
+import {setTimeout as delay} from 'node:timers/promises';
+import {staticEnvironment,digest} from '../../../../scripts/provider-a1-receipts.mjs';
+import {base,operations,requestFor,uuid,headers} from './scope.mjs';
+import {validateRequest,validateResponse} from '../../../../tests/contract/http-contract.mjs';
+const out=process.argv[2]??base+'/http-attempt-01';assert(out.startsWith(base+'/')&&!out.includes('..'));assert(!existsSync(out),'preserve HTTP attempts');mkdirSync(out,{recursive:true});
+const listener=createServer();listener.listen(0,'127.0.0.1');await once(listener,'listening');const port=listener.address().port;await new Promise(r=>listener.close(r));
+const env=staticEnvironment(process.env);for(const k of Object.keys(env))if(k.startsWith('QUANTOS_'))delete env[k];Object.assign(env,{QUANTOS_SKIP_ENV:'1',QUANTOS_BFF_MODE:'reference',QUANTOS_BFF_BIND:`127.0.0.1:${port}`});
+const child=spawn('target/debug/bff-gateway',[],{env,stdio:['ignore','pipe','pipe']});let serverLog='',spawnError;child.stdout.on('data',b=>serverLog+=b);child.stderr.on('data',b=>serverLog+=b);child.on('error',e=>spawnError=e);
+const rows=[],controls=[];let failure,closed=false;
+async function probe(request){const url=new URL(request.url);url.host=`127.0.0.1:${port}`;const response=await fetch(url,{method:request.method,headers:request.headers,...(!['GET','HEAD'].includes(request.method)?{body:await request.text()}:{}),signal:AbortSignal.timeout(5000)});const type=response.headers.get('content-type')??'';let body='';if(type.includes('text/event-stream'))await response.body.cancel();else body=await response.text();return {response:new Response(body||null,{status:response.status,headers:response.headers}),status:response.status,body,bodySha256:digest(body)};}
+try{
+ let ready=false;for(let i=0;i<150;i++){if(spawnError)throw spawnError;if(child.exitCode!==null)throw Error('reference provider exited');try{const r=await fetch(`http://127.0.0.1:${port}/v1/session`,{headers,signal:AbortSignal.timeout(500)});if(r.status===200){await r.body.cancel();ready=true;break;}}catch{}await delay(100);}assert(ready,'reference startup timeout');
+ const session=await probe(new Request('http://127.0.0.1:4010/v1/session',{headers}));assert.equal(session.status,200);controls.push({name:'session control',status:session.status});
+ for(const op of operations){const {request,params}=requestFor(op.operationId);assert.deepEqual((await validateRequest(op.operationId,request,params)).issues,[],'probe request must satisfy published contract');const r=await probe(request);rows.push({operationId:op.operationId,method:op.method.toUpperCase(),path:op.path,status:r.status,body:r.body,bodySha256:r.bodySha256,contractIssues:await validateResponse(op.operationId,r.response),implementation:r.status>=200&&r.status<300?'SUCCESS_OBSERVED_REQUIRES_FULL_PROOF':r.status===404?'MISSING_HANDLER':'REJECTED_OR_UNPROVEN'});}
+ const noAuth=await probe(new Request(`http://127.0.0.1:4010/v1/portfolio?accountId=${uuid}`));assert.equal(noAuth.status,401);controls.push({name:'unauthenticated contract guard',status:noAuth.status,scope:'guard only; not business handler proof'});
+ const forged=requestFor('submitTradeCommand',{body:{commandRef:uuid,quantity:'1'}});const invalid=await probe(forged.request);assert.equal(invalid.status,422);controls.push({name:'raw command payload guard',status:invalid.status,scope:'guard only; no business command issued'});
+}catch(e){failure=e;}
+finally{if(child.exitCode!==null||!child.pid)closed=true;else{const exited=once(child,'exit');child.kill('SIGTERM');closed=await Promise.race([exited.then(()=>true),delay(3000).then(()=>false)]);if(!closed){child.kill('SIGKILL');await exited;closed=true;}}writeFileSync(out+'/server.log',serverLog);}
+const missing=rows.filter(r=>r.implementation==='MISSING_HANDLER').length;writeFileSync(out+'/receipt.json',JSON.stringify({schema:'quantos-bff006-reference-route-preflight/v1',status:failure?'PROBE_FAILURE':missing?'LOCAL_PROVIDER_GAPS':'OBSERVED_NOT_ACCEPTED',source:'current frozen implementation, reference provider only',expectedOperations:17,observedOperations:rows.length,missingHandlers:missing,controls,operations:rows,processTerminated:closed,databaseExecution:false,externalExecution:false,performanceAcceptance:false,formalAccepted:false,...(failure?{failure:failure.message}:{})},null,2)+'\n');if(failure)throw failure;console.log(JSON.stringify({status:missing?'LOCAL_PROVIDER_GAPS':'OBSERVED_NOT_ACCEPTED',observed:rows.length,missingHandlers:missing,processTerminated:closed}));if(process.argv.includes('--require-implemented')&&missing){console.error('LOCAL_PROVIDER_GAPS: declared routes do not have success handlers');process.exitCode=2;}

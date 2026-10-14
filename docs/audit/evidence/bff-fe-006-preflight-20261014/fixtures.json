@@ -1,0 +1,254 @@
+{
+  "schema": "quantos-bff006-contract-fixtures/v1",
+  "source": "bff/openapi/quantos-bff.v1.yaml",
+  "scope": "QuantOS-owned synthetic OpenAPI examples; no provider or trading authority",
+  "examples": [
+    {
+      "operationId": "getPortfolio",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "asOf": "2026-10-03T00:00:00Z",
+        "stale": false,
+        "positions": [],
+        "pnl": {
+          "currencyCode": "USD",
+          "units": "x",
+          "nanos": 0
+        },
+        "exposure": "1"
+      }
+    },
+    {
+      "operationId": "getRiskView",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "asOf": "2026-10-03T00:00:00Z",
+        "hitRules": [],
+        "limitIds": [],
+        "killSwitch": {
+          "state": "disengaged"
+        }
+      }
+    },
+    {
+      "operationId": "engageKillSwitch",
+      "kind": "request",
+      "value": {
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "reason": "x",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111",
+        "confirmPhrase": "x"
+      }
+    },
+    {
+      "operationId": "engageKillSwitch",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "asOf": "2026-10-03T00:00:00Z",
+        "hitRules": [],
+        "limitIds": [],
+        "killSwitch": {
+          "state": "disengaged"
+        },
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "releaseKillSwitch",
+      "kind": "request",
+      "value": {
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "reason": "x",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "releaseKillSwitch",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "asOf": "2026-10-03T00:00:00Z",
+        "hitRules": [],
+        "limitIds": [],
+        "killSwitch": {
+          "state": "disengaged"
+        },
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "listProposals",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "items": []
+      }
+    },
+    {
+      "operationId": "getProposal",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "proposalId": "11111111-1111-4111-8111-111111111111",
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "symbol": "x",
+        "action": "buy",
+        "quantity": "1",
+        "notional": "1",
+        "signal": {
+          "signalId": "11111111-1111-4111-8111-111111111111",
+          "strategyReleaseId": "11111111-1111-4111-8111-111111111111",
+          "symbol": "x",
+          "direction": "long",
+          "strength": "1",
+          "confidence": "1",
+          "generatedAt": "2026-10-03T00:00:00Z",
+          "validUntil": "2026-10-03T00:00:00Z"
+        },
+        "rationale": "x",
+        "counterViews": [
+          "x"
+        ],
+        "evidenceRefs": [],
+        "confidence": "1",
+        "expiresAt": "2026-10-03T00:00:00Z",
+        "executable": false,
+        "objectVersion": "x"
+      }
+    },
+    {
+      "operationId": "requestRiskEvaluation",
+      "kind": "request",
+      "value": {
+        "contextHash": "x"
+      }
+    },
+    {
+      "operationId": "requestRiskEvaluation",
+      "kind": "response",
+      "status": 202,
+      "value": {
+        "jobId": "11111111-1111-4111-8111-111111111111",
+        "status": "accepted",
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "listApprovals",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "items": []
+      }
+    },
+    {
+      "operationId": "getApproval",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "approvalId": "11111111-1111-4111-8111-111111111111",
+        "originator": "x",
+        "objectVersion": "x",
+        "status": "pending",
+        "expiresAt": "2026-10-03T00:00:00Z",
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "decideApproval",
+      "kind": "request",
+      "value": {
+        "decision": "approve",
+        "mfaChallengeRef": "11111111-1111-4111-8111-111111111111",
+        "reauthTokenRef": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "decideApproval",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "approvalId": "11111111-1111-4111-8111-111111111111",
+        "originator": "x",
+        "objectVersion": "x",
+        "status": "pending",
+        "expiresAt": "2026-10-03T00:00:00Z",
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "submitTradeCommand",
+      "kind": "request",
+      "value": {
+        "commandRef": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "submitTradeCommand",
+      "kind": "response",
+      "status": 202,
+      "value": {
+        "jobId": "11111111-1111-4111-8111-111111111111",
+        "status": "accepted",
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "listOrders",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "items": []
+      }
+    },
+    {
+      "operationId": "getOrder",
+      "kind": "response",
+      "status": 200,
+      "value": {
+        "orderId": "11111111-1111-4111-8111-111111111111",
+        "commandId": "11111111-1111-4111-8111-111111111111",
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "venue": "x",
+        "venueKind": "binance",
+        "symbol": "x",
+        "intent": "open",
+        "side": "buy",
+        "quantity": "1",
+        "status": "draft",
+        "filledQuantity": "1",
+        "averageFillPrice": "1",
+        "fills": [],
+        "mode": "research",
+        "correlationId": "11111111-1111-4111-8111-111111111111",
+        "submittedAt": "2026-10-03T00:00:00Z"
+      }
+    },
+    {
+      "operationId": "requestOrderCancel",
+      "kind": "request",
+      "value": {
+        "commandRef": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "operationId": "requestOrderCancel",
+      "kind": "response",
+      "status": 202,
+      "value": {
+        "jobId": "11111111-1111-4111-8111-111111111111",
+        "status": "accepted",
+        "correlationId": "11111111-1111-4111-8111-111111111111"
+      }
+    }
+  ]
+}
