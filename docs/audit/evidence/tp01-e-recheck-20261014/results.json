@@ -1,0 +1,275 @@
+{
+  "schema": "quantos-tp01-e-local-recheck/v1",
+  "reviewedCommit": "b0c8897e3b8387f4e011261ef7b131f8fb7e7949",
+  "frozenCandidate": "9b7bb8e5a8d6753208427918de69c0abd94e892a",
+  "scope": "LOCAL_REGRESSIONS_AND_EXISTING_FROZEN_EVIDENCE_REVALIDATION",
+  "status": "PASS",
+  "fullClosureReexecuted": false,
+  "originalClosureNodes": 28,
+  "originalClosureChecks": 88,
+  "currentTests": 187,
+  "formalAccepted": false,
+  "syncApproved": false,
+  "databaseExecution": false,
+  "externalExecution": false,
+  "performanceAccepted": false,
+  "gatePublished": false,
+  "runnerSha256": "sha256:a145e3f9e8238741d55f63016b227eecd5c87a302b24cec3c67c471c7beb509e",
+  "executions": [
+    {
+      "id": "sync-regressions",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tests/sync-vibe.test.mjs",
+        "scripts/tests/sync-vibe-cli.test.mjs"
+      ],
+      "executedAt": "2026-10-14T12:26:30.736Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": {
+        "tests": 23,
+        "pass": 23,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/sync-regressions.log",
+      "logSha256": "sha256:1286af5764ee0620bc55b461a3584355daedb9dee2177ff9ef12a3c49e620955"
+    },
+    {
+      "id": "functional-negatives",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tp01-e-functional.test.mjs",
+        "scripts/tp-reference-local.test.mjs"
+      ],
+      "executedAt": "2026-10-14T12:26:31.249Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": {
+        "tests": 55,
+        "pass": 55,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/functional-negatives.log",
+      "logSha256": "sha256:5846dc7edd6781ba795cc7cde9d728d3fdf76ed3658f6ac927a343bafc116d5c"
+    },
+    {
+      "id": "admission-negatives",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tp01-e-local-gate.test.mjs",
+        "scripts/tp01-e-plan-contract.test.mjs"
+      ],
+      "executedAt": "2026-10-14T12:26:38.046Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": {
+        "tests": 49,
+        "pass": 49,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/admission-negatives.log",
+      "logSha256": "sha256:c3a7a843c12573068d44800d2c2f7bc57bf806dce545251bc8767ad03f169569"
+    },
+    {
+      "id": "closure-negatives",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "docs/audit/evidence/tp01-e-local-20261014/closure-negatives.mjs"
+      ],
+      "executedAt": "2026-10-14T12:26:38.293Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": {
+        "tests": 16,
+        "pass": 16,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/closure-negatives.log",
+      "logSha256": "sha256:cbed37303825ed2c2c0184bd2f092d5cfc895ff54be8a1671d05b9f4937f8da6"
+    },
+    {
+      "id": "plan-negatives",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "executedAt": "2026-10-14T12:26:45.295Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": {
+        "tests": 44,
+        "pass": 44,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/plan-negatives.log",
+      "logSha256": "sha256:4f644de54130abe02170944d371b3c0ce6ff0f0168d7844e81e1c8cf3a8bb290"
+    },
+    {
+      "id": "sealed-candidate",
+      "command": [
+        "node",
+        "docs/audit/evidence/tp01-e-local-20261014/verify.mjs"
+      ],
+      "executedAt": "2026-10-14T12:26:45.729Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": null,
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/sealed-candidate.log",
+      "logSha256": "sha256:31a770a188bdfad8d986c50c565a5fa8dfcaa1908d1bbc6530ccb4366cd7278d"
+    },
+    {
+      "id": "evidence-seal",
+      "command": [
+        "python3",
+        "docs/audit/evidence/tp01-e-local-20261014/seal.py",
+        "--verify"
+      ],
+      "executedAt": "2026-10-14T12:27:02.312Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": null,
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/evidence-seal.log",
+      "logSha256": "sha256:e5e0e8ff16333b22c934c7060de5df44529b856f74a6429476682c5cf2578489"
+    },
+    {
+      "id": "local-ready",
+      "command": [
+        "node",
+        "scripts/tp01-e-local-gate.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-14T12:27:02.631Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": null,
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/local-ready.log",
+      "logSha256": "sha256:e4efa511e25f904f2c62cabd43dc328b6a8e24a6d1ba8e83fc3e26d291c6040b"
+    },
+    {
+      "id": "release-refusal",
+      "command": [
+        "node",
+        "scripts/tp01-e-local-gate.mjs",
+        "--release"
+      ],
+      "executedAt": "2026-10-14T12:27:09.552Z",
+      "expectedExitCode": 2,
+      "exitCode": 2,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": null,
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/release-refusal.log",
+      "logSha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "executedAt": "2026-10-14T12:27:09.688Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": null,
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/plans.log",
+      "logSha256": "sha256:c6ce34052c658c1d9c99d58d5637e5e11cfff2e2e9f25963021e8414b52e0e91"
+    },
+    {
+      "id": "development-handoff",
+      "command": [
+        "make",
+        "development-handoff-check"
+      ],
+      "executedAt": "2026-10-14T12:27:09.744Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": null,
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/development-handoff.log",
+      "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+    },
+    {
+      "id": "frontend-handoff",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "executedAt": "2026-10-14T12:27:09.783Z",
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "signal": null,
+      "executionErrorCode": null,
+      "timeoutMs": 300000,
+      "expectationMet": true,
+      "testCounts": null,
+      "log": "docs/audit/evidence/tp01-e-recheck-20261014/frontend-handoff.log",
+      "logSha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+    }
+  ]
+}
