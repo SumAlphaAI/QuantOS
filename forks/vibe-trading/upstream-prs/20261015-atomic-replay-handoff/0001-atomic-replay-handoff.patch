@@ -1,0 +1,123 @@
+--- a/agent/src/session/events.py
++++ b/agent/src/session/events.py
+@@ -168,19 +168,25 @@
+             List of events that should be replayed.
+         """
+         with self._lock:
+-            buffer = self._buffers.get(session_id, [])
+-            if not last_event_id:
+-                return list(buffer) if replay_all else []  # First connect: history loaded via REST by default.
+-            found = False
+-            result: List[SSEEvent] = []
+-            for event in buffer:
+-                if found:
+-                    result.append(event)
+-                elif event.event_id == last_event_id:
+-                    found = True
+-            if not found and replay_all:
+-                return list(buffer)
+-            return result
++            return self._replay_locked(session_id, last_event_id, replay_all=replay_all)
++
++    def _replay_locked(
++        self, session_id: str, last_event_id: Optional[str], *, replay_all: bool,
++    ) -> List[SSEEvent]:
++        """Snapshot replay while the caller holds the bus lock."""
++        buffer = self._buffers.get(session_id, [])
++        if not last_event_id:
++            return list(buffer) if replay_all else []  # First connect: history loaded via REST by default.
++        found = False
++        result: List[SSEEvent] = []
++        for event in buffer:
++            if found:
++                result.append(event)
++            elif event.event_id == last_event_id:
++                found = True
++        if not found and replay_all:
++            return list(buffer)
++        return result
+ 
+     async def subscribe(
+         self,
+@@ -203,12 +209,14 @@
+         queue: asyncio.Queue[SSEEvent] = asyncio.Queue(maxsize=200)
+ 
+         with self._lock:
++            # Snapshot and registration must be atomic with publish(). Otherwise
++            # a concurrent event can appear in both replay and the live queue.
++            replay_events = self._replay_locked(session_id, last_event_id, replay_all=replay_all)
+             if session_id not in self._subscribers:
+                 self._subscribers[session_id] = []
+             self._subscribers[session_id].append(queue)
+ 
+         try:
+-            replay_events = self.replay(session_id, last_event_id, replay_all=replay_all)
+             for event in replay_events:
+                 yield event
+ 
+--- /dev/null
++++ b/tests/test_event_bus_replay_handoff.py
+@@ -0,0 +1,63 @@
++"""Run with python -m unittest discover -s tests -p test_event_bus_replay_handoff.py."""
++import asyncio
++import importlib.util
++from pathlib import Path
++import sys
++import unittest
++
++spec = importlib.util.spec_from_file_location("event_bus_under_test", Path(__file__).resolve().parents[1] / "agent/src/session/events.py")
++module = importlib.util.module_from_spec(spec)
++sys.modules[spec.name] = module
++spec.loader.exec_module(module)
++EventBus, SSEEvent = module.EventBus, module.SSEEvent
++
++
++class PublishAtUnlock:
++    """Deterministically emulate publish in the registration/replay gap."""
++    def __init__(self, bus):
++        self.bus, self.original, self.injected = bus, bus._lock, False
++    def __enter__(self):
++        self.original.acquire()
++        return self
++    def __exit__(self, *args):
++        self.original.release()
++        if self.bus._subscribers.get("session") and not self.injected:
++            self.injected = True
++            self.bus.publish(SSEEvent(event_id="handoff", session_id="session"))
++
++
++class ReplayHandoffTests(unittest.IsolatedAsyncioTestCase):
++    async def check_handoff(self, last_event_id=None, replay_all=False):
++        bus = EventBus()
++        bus.publish(SSEEvent(event_id="old", session_id="session"))
++        bus._lock = PublishAtUnlock(bus)
++        stream = bus.subscribe("session", last_event_id, replay_all=replay_all)
++        try:
++            if replay_all and last_event_id is None:
++                self.assertEqual((await anext(stream)).event_id, "old")
++            self.assertEqual((await asyncio.wait_for(anext(stream), 1)).event_id, "handoff")
++            bus.publish(SSEEvent(event_id="next", session_id="session"))
++            self.assertEqual((await asyncio.wait_for(anext(stream), 1)).event_id, "next")
++        finally:
++            await stream.aclose()
++        self.assertFalse(bus._subscribers["session"])
++
++    async def test_reconnect_has_no_duplicate_at_handoff(self):
++        await self.check_handoff(last_event_id="old")
++
++    async def test_replay_all_has_no_duplicate_at_handoff(self):
++        await self.check_handoff(replay_all=True)
++
++    async def test_first_connect_without_replay_delivers_live_event_once(self):
++        await self.check_handoff()
++
++    def test_replay_cursor_semantics_unchanged(self):
++        bus = EventBus()
++        for name in ["one", "two", "three"]:
++            bus.publish(SSEEvent(event_id=name, session_id="session"))
++        ids = lambda **kw: [e.event_id for e in bus.replay("session", **kw)]
++        self.assertEqual(ids(), [])
++        self.assertEqual(ids(last_event_id="two"), ["three"])
++        self.assertEqual(ids(last_event_id="missing"), [])
++        self.assertEqual(ids(last_event_id="missing", replay_all=True), ["one", "two", "three"])
++        self.assertEqual(bus.replay("other", replay_all=True), [])

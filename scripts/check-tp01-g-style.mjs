@@ -1,0 +1,5 @@
+import {spawnSync} from 'node:child_process';
+import {staticEnvironment} from './provider-a1-receipts.mjs';
+const files=['engines/vibe-adapter/src/vibe_adapter/modules.py','engines/vibe-adapter/src/vibe_adapter/service.py','engines/vibe-adapter/src/vibe_adapter/workflow.py','engines/vibe-adapter/src/vibe_adapter/streaming.py','engines/vibe-adapter/src/vibe_adapter/local_drill.py','engines/tests/test_vibe_adapter_replacement.py','scripts/tp01-g-upstream-patch.py'];
+for(const command of [['engines/.venv/bin/ruff','check',...files],['engines/.venv/bin/ruff','format','--check',...files],['engines/.venv/bin/pyright','--project','engines','--pythonpath','engines/.venv/bin/python','engines/vibe-adapter/src','engines/tests/test_vibe_adapter_replacement.py']]){const r=spawnSync(command[0],command.slice(1),{env:staticEnvironment(process.env),encoding:'utf8',timeout:60000});process.stdout.write((r.stdout??'')+(r.stderr??''));if(r.status!==0||r.error||r.signal)process.exit(1);}
+console.log('TP01-G local style PASS');

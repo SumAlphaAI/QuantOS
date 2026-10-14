@@ -212,8 +212,8 @@ def test_vibe_adapter_replays_twenty_representative_fixtures() -> None:
             assert output["workflow_contract"] == "quantos.research.execution_contract"
             assert output["protocol_version"] == "quantos.research.v1"
             assert len(output["design_capabilities"]) >= 2
-            assert output["upstream_surface"]
-            assert len(output["absorbed_designs"]) >= 2
+            assert output["provenance"]["source_surface"]
+            assert len(output["design_capabilities"]) >= 2
             assert output["audit"]["policy_decision"] == "allowed"
 
             stream_response = client.stream_execute(

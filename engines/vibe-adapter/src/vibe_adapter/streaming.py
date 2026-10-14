@@ -12,12 +12,15 @@ def build_stream_deltas(
     context: VibeExecutionContext,
     contract: ResearchExecutionContract,
     plan: WorkflowPlan,
+    *,
+    audit: dict | None = None,
 ) -> list[dict]:
     """Project a workflow plan into QuantOS-native streaming deltas."""
 
     validate_research_contract(contract, fixture_name=context.fixture_name)
     phases = list(contract.stream_profile)
-    audit = build_audit_envelope(context, contract, policy_decision="allowed")
+    if audit is None:
+        audit = build_audit_envelope(context, contract, policy_decision="allowed")
 
     deltas = [
         {

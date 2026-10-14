@@ -54,3 +54,30 @@ Any future provider replacement must preserve these fields and the three stream 
 1. provider-replacement tests pass with a non-catalog in-memory provider;
 2. replay contract tests pass for all 20 representative fixtures;
 3. no runtime or UI consumer depends on deprecated alias fields.
+
+## 2026-10-15 executable local transition
+
+TP01-G adds host-injected native interfaces for provider, translator, workflow,
+audit, stream and Artifact store. The mandatory host policy and protocol validators
+remain authoritative. All six seams and their complete composition are exercised
+over real local UDS for all 20 fixtures. Replacements are trusted host code; this
+interface does not sandbox arbitrary Python or approve any external backend.
+
+Phase 1 consumer migration is implemented: canonical replay assertions use
+`provenance.source_surface` and `design_capabilities`; source checks cover Runtime
+Rust and Web TypeScript consumers. Dedicated compatibility tests retain alias
+coverage. Phase 2 is available for local host rehearsal using
+`VibeAdapterService(compatibility_aliases=False)`, with all 20 fixtures checked.
+The default retains aliases until deployed consumers are independently verified.
+Removing fields changes serialized bytes, content hashes and Artifact identities;
+start a fresh host instance and do not reuse an old in-memory idempotency cache.
+
+Phase 3 package rename remains deferred: Python imports and Engine capability names
+are public integration surfaces. No fork runtime/type dependency remains in these
+native seams, so renaming is not required to prove local replaceability. Any future
+rename needs coordinated Runtime/wheel/manifest/consumer migration and new evidence.
+
+The general upstream replay-handoff fix is a reviewable, pinned patch under
+`forks/vibe-trading/upstream-prs/20261015-atomic-replay-handoff/`; no remote PR exists.
+Target deployment, real storage/consumption, performance and sustained operation
+remain NOT_RUN. See `tp01-g-local-admission.md` for execution and Gate boundaries.

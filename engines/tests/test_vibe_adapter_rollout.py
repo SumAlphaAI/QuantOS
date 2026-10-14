@@ -19,6 +19,7 @@ from quantos_engine_sdk import EngineClient, json_document_to_mapping, uds_targe
 from quantos_engine_sdk.grpc import serve_engine
 from test_vibe_adapter_contract import build_request
 from vibe_adapter.rollout import RolloutController, RolloutError, canonical, release_descriptor
+from vibe_adapter.artifact_api import VibeArtifactApi
 from vibe_adapter.service import VibeAdapterService
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -271,6 +272,7 @@ def test_shadow_tasks_write_into_separate_facade_and_compare_outputs(local):
         result = client.execute(build_request(5, {}), timeout=2)
         assert "quantos-shadow-artifacts" in result.artifact_refs[0].uri
         assert not primary.artifact_api._objects
+        assert isinstance(service.artifact_api, VibeArtifactApi)
         assert service.artifact_api._objects
         controller.observe_shadow({"answer": 1}, {"answer": 1})
         controller.observe_shadow({"answer": 1}, {"answer": 2})

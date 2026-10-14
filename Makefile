@@ -648,3 +648,11 @@ tp01-f-local-check:
 	node scripts/tp01-f-local-gate.mjs --ready
 tp01-f-release-check:
 	node scripts/tp01-f-local-gate.mjs --release
+
+.PHONY: tp01-g-assess-local tp01-g-local-check tp01-g-release-check
+tp01-g-assess-local:
+	node scripts/record-tp01-g-local.mjs
+tp01-g-local-check:
+	node scripts/tp01-g-local-gate.mjs --ready
+tp01-g-release-check:
+	node scripts/tp01-g-local-gate.mjs --release

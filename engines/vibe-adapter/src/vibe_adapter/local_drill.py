@@ -25,6 +25,7 @@ from quantos_engine_sdk import (
 )
 from quantos_engine_sdk.grpc import serve_engine
 from vibe_adapter.rollout import RolloutController, RolloutError, canonical, release_descriptor
+from vibe_adapter.artifact_api import VibeArtifactApi
 from vibe_adapter.service import VibeAdapterService
 
 # Public test-only material. Never accepted as an external/production authority.
@@ -96,6 +97,8 @@ def run(output: Path, policy_path: Path, catalog_path: Path) -> dict:
     controller = RolloutController(policy, KEY)
     service = VibeAdapterService(rollout=controller)
     shadow_service = VibeAdapterService(rollout=controller, shadow_mode=True)
+    assert isinstance(service.artifact_api, VibeArtifactApi)
+    assert isinstance(shadow_service.artifact_api, VibeArtifactApi)
     sockets = [Path("/tmp") / f"tp01-f-drill-{uuid4().hex}.sock" for _ in range(2)]
     servers, clients = [], []
     probes = []

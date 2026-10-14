@@ -1848,6 +1848,42 @@
         "scripts/check-tp01-f-style.mjs"
       ],
       "marker": "TP01-F local style PASS"
+    },
+    "tp01-g-functional": {
+      "command": [
+        "node",
+        "scripts/tp01-g-functional.mjs",
+        "--record"
+      ],
+      "artifact": "docs/audit/evidence/tp01-g-local-20261015/functional/receipt.json",
+      "artifactKind": "tp01-g-functional",
+      "marker": "PASS"
+    },
+    "tp01-g-artifact-negative": {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tp01-g-functional.test.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "tp01-g-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tp01-g-local-gate.test.mjs",
+        "scripts/tp01-g-plan-contract.test.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "tp01-g-style": {
+      "command": [
+        "node",
+        "scripts/check-tp01-g-style.mjs"
+      ],
+      "marker": "TP01-G local style PASS"
     }
   },
   "nodes": {
@@ -2716,6 +2752,26 @@
         "tp01-f-local-policy",
         "tp01-f-style"
       ]
+    },
+    "CORE:TP01-G": {
+      "scope": "Replaceable QuantOS-native provider/context/workflow/audit/stream/Artifact modules, exact business protocol differential replay and offline upstream patch review. No external publication or target acceptance.",
+      "inputs": [
+        "engines/vibe-adapter/",
+        "engines/tests/test_vibe_adapter_replacement.py",
+        "engines/tests/test_vibe_adapter_contract.py",
+        "scripts/tp01-g*",
+        "scripts/check-tp01-g-style.mjs",
+        "scripts/record-tp01-g-local.mjs",
+        "forks/vibe-trading/upstream-prs/",
+        "docs/operations/tp01-g-local-admission.md",
+        "docs/operations/tp01_vibe_deprecation_plan.md"
+      ],
+      "checks": [
+        "tp01-g-functional",
+        "tp01-g-artifact-negative",
+        "tp01-g-local-policy",
+        "tp01-g-style"
+      ]
     }
   },
   "developmentProfile": {
@@ -3088,6 +3144,41 @@
     "profile": "TP01-F_LOCAL",
     "roots": [
       "CORE:TP01-F"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "tp01GLocal": {
+    "owner": "CORE:TP01-G",
+    "profile": "TP01-G_LOCAL",
+    "roots": [
+      "CORE:TP01-G"
     ],
     "deferredChecks": [
       "tp01-baseline",

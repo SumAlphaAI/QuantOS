@@ -25,9 +25,23 @@ from vibe_adapter.artifact_api import VibeArtifactApi
 from vibe_adapter.context import ContextTranslationError, VibeContextTranslator
 from vibe_adapter.fixtures import default_contract_provider
 from vibe_adapter.manifest import build_manifest
-from vibe_adapter.protocols import ResearchContractError, ResearchContractProvider
+from vibe_adapter.protocols import (
+    ResearchContractError,
+    ResearchContractProvider,
+    validate_research_contract,
+)
 from vibe_adapter.streaming import build_stream_deltas
-from vibe_adapter.workflow import build_workflow_plan
+from vibe_adapter.workflow import WorkflowPlan, build_workflow_plan
+from vibe_adapter.modules import (
+    ResearchContextTranslator,
+    ResearchWorkflowPlanner,
+    ResearchAuditBuilder,
+    ResearchStreamProjector,
+    ResearchArtifactStore,
+    validate_plan,
+    validate_audit,
+    validate_deltas,
+)
 from vibe_adapter.rollout import RolloutController, RolloutError, RolloutLease
 
 
@@ -36,9 +50,16 @@ class VibeAdapterService:
     """TP01-C mock skeleton with replaceable research contract and Artifact facades."""
 
     manifest: EngineManifest = field(default_factory=build_manifest)
-    artifact_api: VibeArtifactApi = field(default_factory=VibeArtifactApi)
-    context_translator: VibeContextTranslator = field(default_factory=VibeContextTranslator)
+    artifact_api: ResearchArtifactStore = field(default_factory=VibeArtifactApi)
+    context_translator: ResearchContextTranslator = field(default_factory=VibeContextTranslator)
     contract_provider: ResearchContractProvider = field(default_factory=default_contract_provider)
+    planner: ResearchWorkflowPlanner = build_workflow_plan
+    auditor: ResearchAuditBuilder = build_audit_envelope
+    projector: ResearchStreamProjector = build_stream_deltas
+    compatibility_aliases: bool = True
+    _boundary_translator: VibeContextTranslator = field(
+        default_factory=VibeContextTranslator, init=False
+    )
     rollout: RolloutController | None = None
     fixture_mode: bool = False
     shadow_mode: bool = False
@@ -114,8 +135,19 @@ class VibeAdapterService:
         else:
             self._wait(request.request, translated.payload, context, lease)
 
+        # Validate the complete projection before any artifact side effect.
+        try:
+            deltas = self.projector(
+                translated.context, contract, plan, audit=json.loads(json.dumps(output["audit"]))
+            )
+            validate_plan(plan, translated.context, contract)
+            validate_audit(output["audit"], translated.context, contract)
+            validate_deltas(deltas, translated.context, contract, plan, output["audit"])
+        except ResearchContractError:
+            context.abort(grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_CONTRACT_INVALID")
+        except Exception:
+            context.abort(grpc.StatusCode.INTERNAL, "ENGINE_PROVIDER_FAILED")
         bundle = self._record_artifact(request.request, output, "stream-output", context, lease)
-        deltas = build_stream_deltas(translated.context, contract, plan)
         for index, delta in enumerate(deltas, start=1):
             self._check_active(request.request, context, lease)
             is_last = index == len(deltas)
@@ -155,7 +187,11 @@ class VibeAdapterService:
         context: grpc.ServicerContext,
     ) -> tuple:
         try:
+            # Mandatory native policy cannot be widened by a replacement translator.
+            baseline = self._boundary_translator.translate(request)
             translated = self.context_translator.translate(request)
+            if translated != baseline:
+                raise ResearchContractError("ENGINE_CONTRACT_INVALID")
             if request.metadata.environment != common_pb2.ENVIRONMENT_TEST:
                 raise ContextTranslationError(
                     grpc.StatusCode.PERMISSION_DENIED, "ENGINE_LOCAL_TEST_ONLY"
@@ -170,17 +206,22 @@ class VibeAdapterService:
             elif not self.fixture_mode:
                 raise RolloutError("ENGINE_ROLLOUT_DISABLED")
             contract = provider.load_contract(translated.context.fixture_name)
-            plan = build_workflow_plan(translated.context, contract)
-            output = plan.to_output(
+            validate_research_contract(contract, fixture_name=translated.context.fixture_name)
+            plan = self.planner(translated.context, contract)
+            validate_plan(plan, translated.context, contract)
+            output = WorkflowPlan.to_output(
+                plan,
                 engine_name=self.manifest.engine_name,
                 capability=translated.context.capability,
                 workflow_run_id=translated.context.workflow_run_id,
+                compatibility_aliases=self.compatibility_aliases,
             )
-            output["audit"] = build_audit_envelope(
+            output["audit"] = self.auditor(
                 translated.context,
                 contract,
                 policy_decision="allowed",
             )
+            validate_audit(output["audit"], translated.context, contract)
             if lease is not None:
                 output["rollout"] = {
                     "release_id": lease.release.release_id,
@@ -271,12 +312,16 @@ class VibeAdapterService:
             self._assert_active(request, context, owner in self._cancelled)
 
             def write():
-                return self.artifact_api.record_json_artifact(
-                    workflow_run_id=request.workflow_run_id,
-                    tenant_id=request.metadata.tenant_id,
-                    artifact_kind="shadow-" + kind if self.shadow_mode else kind,
-                    payload=output,
-                )
+                try:
+                    return self.artifact_api.record_json_artifact(
+                        workflow_run_id=request.workflow_run_id,
+                        tenant_id=request.metadata.tenant_id,
+                        artifact_kind="shadow-" + kind if self.shadow_mode else kind,
+                        payload=output,
+                    )
+                except Exception:
+                    context.abort(grpc.StatusCode.INTERNAL, "ENGINE_ARTIFACT_FAILED")
+                    raise AssertionError("gRPC abort returned")
 
             if self.rollout is not None and lease is not None:
                 try:

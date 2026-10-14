@@ -1,4 +1,6 @@
-> 当前执行（2026-10-14）：冻结5e555802完整29节点/92组本地检查PASS，三次跨语言可复现构建PASS；TP01-F_LOCAL限定DEVELOPMENT READY，E从同轮实际执行派生28节点新回执并恢复READY，全图2 READY / 157 NOT_ASSESSED / 0 BLOCKED。47项Python/19条实际UDS演练、94项F专用回执/准入负向及15项模拟回归PASS。22组共享目标检查和6项F发布义务NOT_RUN，formalAccepted=false；首轮79/13失败原件保留。见[本轮报告](./audit/TP01-F-local-admission-2026-10-14.md)。
+> 当前执行（2026-10-15）：TP01-G开发与离线patch复验中；共享源码变化后E/F旧READY撤回，历史结果保留，当前全图0 READY / 159 NOT_ASSESSED。无外部发布，formalAccepted=false。
+
+> 历史工程快照（2026-10-14）：冻结5e555802完整29节点/92组本地检查PASS，三次跨语言可复现构建PASS；TP01-F_LOCAL限定DEVELOPMENT READY，E从同轮实际执行派生28节点新回执并恢复READY，全图2 READY / 157 NOT_ASSESSED / 0 BLOCKED。47项Python/19条实际UDS演练、94项F专用回执/准入负向及15项模拟回归PASS。22组共享目标检查和6项F发布义务NOT_RUN，formalAccepted=false；首轮79/13失败原件保留。见[本轮报告](./audit/TP01-F-local-admission-2026-10-14.md)。
 
 > 历史工程快照（2026-10-14，TP01-F源码变更前）：冻结9b7bb8e5完整复验TP01-E_LOCAL必要28节点/88组本地检查PASS，104项专用测试与16项完整回执负向PASS；仅TP01-E限定DEVELOPMENT READY，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。22组Supabase/外部/性能义务移交测试及RELEASE，formalAccepted=false、syncApproved=false；历史失败与中断原件保留。见[本轮报告](./audit/TP01-E-local-admission-2026-10-14.md)。
 
@@ -563,6 +565,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "CORE:TP01-E",
         "CORE:F09",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP01-G": {
+      "profile": "TP01-G_LOCAL",
+      "schema": "quantos-tp01-g-local-development/v1",
+      "manifest": "audit/evidence/tp01-g-local-20261015/manifest.json",
+      "prerequisites": [
+        "CORE:TP01-F",
+        "CORE:R03",
         "CORE-GATE:R1-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -1316,7 +1329,7 @@ flowchart TD
 - task_id: `TP01-E`
 - task_type: `CORE`
 - iteration: `TP01-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4884f5d34a306b0cba9575705f2d9ff1fa999bf2cf585eed1f7ef0465f2fe859","evidence":["audit/evidence/tp01-e-readmission-20261014/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1334,7 +1347,7 @@ flowchart TD
 - 远程工程验证（2026-10-08）：8408122六场景/23回归通过，真实严格Gate依赖漂移阻断，失败后摘要/原件实际上传并下载。本专项工程检查7/7通过；自然event=schedule实时回执和候选采用仍待验，不计全任务ACCEPTED或阶段READY。见[远程报告](./audit/TP01-E-remote-verification-2026-10-08.md)。
 - 依赖：TP01-D、F02
 - 前次独立执行复验（2026-10-14）：提交de6d39fc，12项检查及187项测试PASS；重新核验原冻结闭包、日志、历史失败与封存，未执行完整88组重跑。实现完成待正式验收，syncApproved=false；目标RELEASE仍拒绝。详见[执行报告](./audit/TP01-E-execution-recheck-2026-10-14.md)及[复验回执](./audit/evidence/tp01-e-recheck-20261014/results.json)。
-- 当前工程复核：2026-10-14，最新同候选5e555802的28节点/88组E必要检查全部由F本轮实际执行派生并严格核验，TP01-E_LOCAL限定DEVELOPMENT READY，开发实现完成待正式验收。新回执见[当前manifest](./audit/evidence/tp01-e-readmission-20261014/manifest.json)，本轮来源与E/F共同准入见[TP01-F报告](./audit/TP01-F-local-admission-2026-10-14.md)。原9b7bb8e5完整执行及de6d39fc的187项复验作为历史事实保留，未重写旧原件。formalAccepted=false、syncApproved=false；22组目标/外部/性能及候选采用仍NOT_RUN，R1-SERVICE/SERVICE:TP01未放行。
+- 当前工程复核：2026-10-15，TP01-G共享源码变更后本任务独立READY撤回为NOT_ASSESSED，待新输入闭包重新准入；以下2026-10-14结果仅为历史快照：最新同候选5e555802的28节点/88组E必要检查全部由F本轮实际执行派生并严格核验，TP01-E_LOCAL限定DEVELOPMENT READY，开发实现完成待正式验收。新回执见[当前manifest](./audit/evidence/tp01-e-readmission-20261014/manifest.json)，本轮来源与E/F共同准入见[TP01-F报告](./audit/TP01-F-local-admission-2026-10-14.md)。原9b7bb8e5完整执行及de6d39fc的187项复验作为历史事实保留，未重写旧原件。formalAccepted=false、syncApproved=false；22组目标/外部/性能及候选采用仍NOT_RUN，R1-SERVICE/SERVICE:TP01未放行。
 
 <a id="task-tp01-f"></a>
 ### TP01-F：canary、观测与回滚
@@ -1342,7 +1355,7 @@ flowchart TD
 - task_id: `TP01-F`
 - task_type: `CORE`
 - iteration: `TP01-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:e50dc429dfe601fa9a4bc0f2c7b95da1421c2e976c8f40bc745cd5403e65fbe8","evidence":["audit/evidence/tp01-f-local-20261014/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-E", "CORE:F09", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:TP01-E", "CORE:F09", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1357,7 +1370,7 @@ flowchart TD
 - 阶段执行：本地开发验证flag、影子任务、告警阈值、签名拒绝、禁用/回滚与在途请求收尾；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：TP01-E、F09
-- 当前工程复核：2026-10-14，冻结5e555802完整29节点/92组本地必要闭包PASS，三次构建PASS；TP01-F_LOCAL限定DEVELOPMENT READY，47项Python、19条真实本机UDS演练、37项功能回执负向、57项专用准入/计划/成对回滚测试及15项策略模拟回归PASS。全量make test为Rust 396 PASS/8 ignored、Python 1437 PASS、Web 233 PASS/3 skipped。formalAccepted=false、targetCanaryAccepted=false、targetRollbackAccepted=false；22组共享目标及6项F发布义务NOT_RUN。首轮4f44ca5f的79 PASS/13 FAIL已保留，经文件级标准库导入边界整改后新候选完整重跑，不拼接旧SHA通过结果。见[验收证据报告](./audit/TP01-F-local-admission-2026-10-14.md)、[当前manifest](./audit/evidence/tp01-f-local-20261014/manifest.json)及[独立核验](./audit/evidence/tp01-f-local-20261014/verification.json)。不授予SERVICE:TP01、R1-SERVICE、生产或正式ACCEPTED。
+- 当前工程复核：2026-10-15，TP01-G共享源码变更后本任务独立READY撤回为NOT_ASSESSED，待新输入闭包重新准入；以下2026-10-14结果仅为历史快照：冻结5e555802完整29节点/92组本地必要闭包PASS，三次构建PASS；TP01-F_LOCAL限定DEVELOPMENT READY，47项Python、19条真实本机UDS演练、37项功能回执负向、57项专用准入/计划/成对回滚测试及15项策略模拟回归PASS。全量make test为Rust 396 PASS/8 ignored、Python 1437 PASS、Web 233 PASS/3 skipped。formalAccepted=false、targetCanaryAccepted=false、targetRollbackAccepted=false；22组共享目标及6项F发布义务NOT_RUN。首轮4f44ca5f的79 PASS/13 FAIL已保留，经文件级标准库导入边界整改后新候选完整重跑，不拼接旧SHA通过结果。见[验收证据报告](./audit/TP01-F-local-admission-2026-10-14.md)、[当前manifest](./audit/evidence/tp01-f-local-20261014/manifest.json)及[独立核验](./audit/evidence/tp01-f-local-20261014/verification.json)。不授予SERVICE:TP01、R1-SERVICE、生产或正式ACCEPTED。
 
 <a id="task-tp01-g"></a>
 ### TP01-G：上游贡献与脱钩替换
@@ -1369,18 +1382,18 @@ flowchart TD
 - depends_on: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `TP01-SERVICE`
 - 需求描述：上游贡献与脱钩替换
 - 路线阶段：V3 演进
 - 开发范围：将通用 bugfix 回馈上游，逐步以 QuantOS-native trait/protocol 替换 fork 内耦合模块
-- 交付物：upstream PR 记录、deprecation plan、替换测试
+- 交付物：upstream PR 记录（本次仅DRAFT_NOT_SUBMITTED的可审阅patch/说明）、deprecation plan、六类模块替换与20个fixture差分测试；TP01-G_LOCAL专用功能回执、30节点本地准入，规程 `docs/operations/tp01-g-local-admission.md`
 - 验收标准：不依赖 fork 内部类型；任一模块可替换且业务协议不变
 - 阶段执行：本地开发验证内部类型隔离、模块替换与业务协议不变；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：不依赖 fork 内部类型；任一模块可替换且业务协议不变；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：TP01-F、R03
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp01-g)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：2026-10-15，本地代码与上游离线patch已实现，等待冻结候选的必要闭包实际复验；formalAccepted=false、externalPublished=false、upstreamAccepted=false。E/F旧READY因共享源码输入变化撤回，原2026-10-14证据完整保留。见[本轮报告](./audit/TP01-G-local-admission-2026-10-15.md)。
 
 <a id="acceptance-service-tp01"></a>
 ### SERVICE:TP01：验收检查点

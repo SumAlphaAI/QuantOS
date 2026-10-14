@@ -24,9 +24,14 @@ class WorkflowPlan:
     provenance: dict[str, object]
 
     def to_output(
-        self, *, engine_name: str, capability: str, workflow_run_id: str
+        self,
+        *,
+        engine_name: str,
+        capability: str,
+        workflow_run_id: str,
+        compatibility_aliases: bool = True,
     ) -> dict[str, object]:
-        return {
+        output = {
             "engine": engine_name,
             "capability": capability,
             "workflow_run_id": workflow_run_id,
@@ -36,15 +41,16 @@ class WorkflowPlan:
             "workflow_family": self.workflow_family,
             "design_capabilities": list(self.design_capabilities),
             "provenance": self.provenance,
-            # Compatibility aliases kept until TP01 deprecation plan is executed.
-            "upstream_surface": str(self.provenance["source_surface"]),
-            "absorbed_designs": list(cast(list[str], self.provenance["absorbed_designs"])),
             "tool_allowlist": list(self.tool_allowlist),
             "prompt": self.prompt,
             "artifact_api": "quantos-artifact-api",
             "data_snapshot_ref": self.data_snapshot_ref,
             "policy_context_ref": self.policy_context_ref,
         }
+        if compatibility_aliases:
+            output["upstream_surface"] = str(self.provenance["source_surface"])
+            output["absorbed_designs"] = list(cast(list[str], self.provenance["absorbed_designs"]))
+        return output
 
 
 def build_workflow_plan(
