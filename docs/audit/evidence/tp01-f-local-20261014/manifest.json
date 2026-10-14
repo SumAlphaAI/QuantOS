@@ -1,0 +1,360 @@
+{
+  "schema": "quantos-tp01-f-local-development/v1",
+  "nodeId": "CORE:TP01-F",
+  "stage": "DEVELOPMENT",
+  "profile": "TP01-F_LOCAL",
+  "status": "READY",
+  "engineeringStatus": "PASS",
+  "databaseExecution": false,
+  "production": false,
+  "formalAccepted": false,
+  "externalExecution": false,
+  "performanceAccepted": false,
+  "syncApproved": false,
+  "targetCanaryAccepted": false,
+  "targetRollbackAccepted": false,
+  "observedSourceCommit": "5e5558021f1dffabbcbf246d2b1fce629b15377e",
+  "planInput": {
+    "acceptance_window": "TP01-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE:TP01-E",
+      "CORE:F09",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "dependencies": [
+      "CORE:TP01-E",
+      "CORE:F09",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "depends_on": [
+      "CORE:TP01-E",
+      "CORE:F09",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "iteration": "TP01-SERVICE",
+    "requirement": "canary、观测与回滚",
+    "requirements": [
+      "- 需求描述：canary、观测与回滚",
+      "- 交付物：dashboards、alert rules、rollback runbook、drill report；TP01-F_LOCAL 本机HMAC验签/UDS请求分流与运行中禁用/回滚、严格功能回执及29节点本地准入，规程 `docs/operations/tp01-f-local-admission.md`",
+      "- 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整",
+      "- 阶段执行：本地开发验证flag、影子任务、告警阈值、签名拒绝、禁用/回滚与在途请求收尾；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整；未执行保持NOT_RUN。",
+      "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+    ],
+    "task_id": "TP01-F",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-f-local-20261014/attempt-02/local-prerequisites.json",
+    "inputDigest": "sha256:92f1ccfad45cebc7a47e8543b9c0e2e7f17ca9bcda5848e044a3e57aaa2329bb"
+  },
+  "functionalManifest": "docs/audit/evidence/provider-a1-remediation-20261004/tp01-f-local-20261014/attempt-02/core-tp01-f.json",
+  "functionalDigest": "sha256:f124dd50e2de467d086921f967895e374c84a193f2e6b565161966dd78f079ec",
+  "dependencies": [
+    {
+      "nodeId": "CORE:TP01-E",
+      "status": "LOCAL_READY",
+      "owner": "CORE:TP01-F",
+      "inputDigest": "sha256:923f1d8ae6a167efbee6515c7797d037369fc6657a1386cf526d6be69007750f"
+    },
+    {
+      "nodeId": "CORE:F09",
+      "status": "LOCAL_READY",
+      "owner": "CORE:TP01-F",
+      "inputDigest": "sha256:0403e42e7f82e52fd1dfadedf5290699296257a2fafca1918314322446d3870c"
+    },
+    {
+      "nodeId": "CORE-GATE:R1-SERVICE",
+      "status": "LOCAL_READY",
+      "owner": "CORE:TP01-F",
+      "inputDigest": "sha256:5e0f9f9efc63fb17c54139e7d309b4a3e21af926c35bc38cf18a28f9ac6fe6fb"
+    }
+  ],
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "TP01-F_LOCAL 发布移交：继承TP01-E全部Supabase/外部目标/候选采用与性能义务，另包含连续7天真实canary无未解释P1、目标环境回滚≤5分钟、正式发布制品和drill的受信任验签、跨进程持久审计及禁用/回滚恢复、实际BFF/Runtime控制授权、真实监测导出/影子消费与候选同SHA CI；由测试及RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本机公开fixture authority的HMAC验签/UDS研究路由与可控时钟不授予生产、正式ACCEPTED、SERVICE:TP01或R1-SERVICE，不授权外部发布。",
+    "prerequisiteChecks": [
+      {
+        "id": "f02-sca",
+        "command": [
+          "make",
+          "sca-check"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp01-baseline",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--repository"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r01-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R01"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r02-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R02"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp09-development",
+        "command": [
+          "node",
+          "third_party/trendradar/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp10-development",
+        "command": [
+          "node",
+          "third_party/valuecell/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp11-development",
+        "command": [
+          "node",
+          "third_party/openstock/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r03-release-target",
+        "command": [
+          "node",
+          "scripts/r03-target-check.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r04-release-target",
+        "command": [
+          "node",
+          "scripts/r04-stage-check.mjs",
+          "--release"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "research-release-performance-smokes",
+        "command": [
+          "make",
+          "research-release-performance-smokes"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "frontend-release-performance",
+        "command": [
+          "make",
+          "frontend-release-performance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ],
+    "functionalTargets": [
+      {
+        "id": "continuous-canary",
+        "target": "7 consecutive days with no unexplained P1",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "target-rollback",
+        "target": "actual authorized target rollback <=300 seconds",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "formal-signatures",
+        "target": "trusted release artifact and drill signatures",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "durable-control",
+        "target": "persistent audit and cross-process disable/rollback recovery with business control authorization",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "target-monitoring",
+        "target": "deployed metric export and actual shadow consumption",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "same-sha-ci",
+        "target": "hosted candidate CI at the frozen source commit",
+        "status": "NOT_RUN"
+      }
+    ]
+  }
+}

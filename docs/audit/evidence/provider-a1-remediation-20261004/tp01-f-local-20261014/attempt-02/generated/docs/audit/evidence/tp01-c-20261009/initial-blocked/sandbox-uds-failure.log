@@ -1,0 +1,281 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+_____________________ test_vibe_adapter_contract_all_rpcs ______________________
+
+    def test_vibe_adapter_contract_all_rpcs() -> None:
+        socket_path = Path("/tmp") / f"quantos-vibe-adapter-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+>       server = serve_engine(socket_path, VibeAdapterService())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engines/tests/test_vibe_adapter_contract.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:248: in serve_engine
+    bound = server.add_insecure_port(uds_target(socket_path))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_server.py:1473: in add_insecure_port
+    return _common.validate_port_binding_result(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = 'unix:/tmp/quantos-vibe-adapter-e355e67366ce41f191c6bd3cfaade941.sock'
+port = 0
+
+    def validate_port_binding_result(address: str, port: int) -> int:
+        """Validates if the port binding succeed.
+    
+        If the port returned by Core is 0, the binding is failed. However, in that
+        case, the Core API doesn't return a detailed failing reason. The best we
+        can do is raising an exception to prevent further confusion.
+    
+        Args:
+            address: The address string to be bound.
+            port: An int returned by core
+        """
+        if port == 0:
+            # The Core API doesn't return a failure message. The best we can do
+            # is raising an exception to prevent further confusion.
+>           raise RuntimeError(_ERROR_MESSAGE_PORT_BINDING_FAILED % address)
+E           RuntimeError: Failed to bind to address unix:/tmp/quantos-vibe-adapter-e355e67366ce41f191c6bd3cfaade941.sock; set GRPC_VERBOSITY=debug environment variable to see detailed error message.
+
+engines/.venv/lib/python3.12/site-packages/grpc/_common.py:181: RuntimeError
+----------------------------- Captured stderr call -----------------------------
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1791510689.947099 2915753 add_port.cc:83] Failed to add port to server: No address added out of total 1 resolved for 'unix:/tmp/quantos-vibe-adapter-e355e67366ce41f191c6bd3cfaade941.sock'
+______________ test_vibe_adapter_rejects_forbidden_tool_requests _______________
+
+    def test_vibe_adapter_rejects_forbidden_tool_requests() -> None:
+        socket_path = Path("/tmp") / f"quantos-vibe-adapter-deny-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+>       server = serve_engine(socket_path, VibeAdapterService())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engines/tests/test_vibe_adapter_contract.py:156: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:248: in serve_engine
+    bound = server.add_insecure_port(uds_target(socket_path))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_server.py:1473: in add_insecure_port
+    return _common.validate_port_binding_result(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = 'unix:/tmp/quantos-vibe-adapter-deny-d8d82dec33a847e89c90a5848805b4d4.sock'
+port = 0
+
+    def validate_port_binding_result(address: str, port: int) -> int:
+        """Validates if the port binding succeed.
+    
+        If the port returned by Core is 0, the binding is failed. However, in that
+        case, the Core API doesn't return a detailed failing reason. The best we
+        can do is raising an exception to prevent further confusion.
+    
+        Args:
+            address: The address string to be bound.
+            port: An int returned by core
+        """
+        if port == 0:
+            # The Core API doesn't return a failure message. The best we can do
+            # is raising an exception to prevent further confusion.
+>           raise RuntimeError(_ERROR_MESSAGE_PORT_BINDING_FAILED % address)
+E           RuntimeError: Failed to bind to address unix:/tmp/quantos-vibe-adapter-deny-d8d82dec33a847e89c90a5848805b4d4.sock; set GRPC_VERBOSITY=debug environment variable to see detailed error message.
+
+engines/.venv/lib/python3.12/site-packages/grpc/_common.py:181: RuntimeError
+----------------------------- Captured stderr call -----------------------------
+E0000 00:00:1791510689.970450 2915753 add_port.cc:83] Failed to add port to server: No address added out of total 1 resolved for 'unix:/tmp/quantos-vibe-adapter-deny-d8d82dec33a847e89c90a5848805b4d4.sock'
+_____________ test_vibe_adapter_rejects_forbidden_boundary_fields ______________
+
+    def test_vibe_adapter_rejects_forbidden_boundary_fields() -> None:
+        socket_path = Path("/tmp") / f"quantos-vibe-adapter-boundary-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+>       server = serve_engine(socket_path, VibeAdapterService())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engines/tests/test_vibe_adapter_contract.py:179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:248: in serve_engine
+    bound = server.add_insecure_port(uds_target(socket_path))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_server.py:1473: in add_insecure_port
+    return _common.validate_port_binding_result(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = 'unix:/tmp/quantos-vibe-adapter-boundary-1cb6013dd0e248cfbe17561f969cb630.sock'
+port = 0
+
+    def validate_port_binding_result(address: str, port: int) -> int:
+        """Validates if the port binding succeed.
+    
+        If the port returned by Core is 0, the binding is failed. However, in that
+        case, the Core API doesn't return a detailed failing reason. The best we
+        can do is raising an exception to prevent further confusion.
+    
+        Args:
+            address: The address string to be bound.
+            port: An int returned by core
+        """
+        if port == 0:
+            # The Core API doesn't return a failure message. The best we can do
+            # is raising an exception to prevent further confusion.
+>           raise RuntimeError(_ERROR_MESSAGE_PORT_BINDING_FAILED % address)
+E           RuntimeError: Failed to bind to address unix:/tmp/quantos-vibe-adapter-boundary-1cb6013dd0e248cfbe17561f969cb630.sock; set GRPC_VERBOSITY=debug environment variable to see detailed error message.
+
+engines/.venv/lib/python3.12/site-packages/grpc/_common.py:181: RuntimeError
+----------------------------- Captured stderr call -----------------------------
+E0000 00:00:1791510689.979715 2915753 add_port.cc:83] Failed to add port to server: No address added out of total 1 resolved for 'unix:/tmp/quantos-vibe-adapter-boundary-1cb6013dd0e248cfbe17561f969cb630.sock'
+___________ test_vibe_adapter_replays_twenty_representative_fixtures ___________
+
+    def test_vibe_adapter_replays_twenty_representative_fixtures() -> None:
+        socket_path = Path("/tmp") / f"quantos-vibe-adapter-replay-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+>       server = serve_engine(socket_path, VibeAdapterService())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engines/tests/test_vibe_adapter_contract.py:206: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:248: in serve_engine
+    bound = server.add_insecure_port(uds_target(socket_path))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_server.py:1473: in add_insecure_port
+    return _common.validate_port_binding_result(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = 'unix:/tmp/quantos-vibe-adapter-replay-0d286c38ed384bbca546908cda3f2f8c.sock'
+port = 0
+
+    def validate_port_binding_result(address: str, port: int) -> int:
+        """Validates if the port binding succeed.
+    
+        If the port returned by Core is 0, the binding is failed. However, in that
+        case, the Core API doesn't return a detailed failing reason. The best we
+        can do is raising an exception to prevent further confusion.
+    
+        Args:
+            address: The address string to be bound.
+            port: An int returned by core
+        """
+        if port == 0:
+            # The Core API doesn't return a failure message. The best we can do
+            # is raising an exception to prevent further confusion.
+>           raise RuntimeError(_ERROR_MESSAGE_PORT_BINDING_FAILED % address)
+E           RuntimeError: Failed to bind to address unix:/tmp/quantos-vibe-adapter-replay-0d286c38ed384bbca546908cda3f2f8c.sock; set GRPC_VERBOSITY=debug environment variable to see detailed error message.
+
+engines/.venv/lib/python3.12/site-packages/grpc/_common.py:181: RuntimeError
+----------------------------- Captured stderr call -----------------------------
+E0000 00:00:1791510689.989335 2915753 add_port.cc:83] Failed to add port to server: No address added out of total 1 resolved for 'unix:/tmp/quantos-vibe-adapter-replay-0d286c38ed384bbca546908cda3f2f8c.sock'
+______ test_vibe_adapter_provider_replacement_preserves_business_protocol ______
+
+    def test_vibe_adapter_provider_replacement_preserves_business_protocol() -> None:
+        socket_path = Path("/tmp") / f"quantos-vibe-adapter-provider-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+    
+        replacement_provider = InMemoryResearchContractProvider(
+            contracts=(
+                ResearchExecutionContract(
+                    fixture_name="replacement_fixture",
+                    workflow_family="replacement_research",
+                    summary="Replacement provider emits the same QuantOS business protocol.",
+                    stream_profile=(
+                        "context_translated",
+                        "workflow_planned",
+                        "artifact_recorded",
+                    ),
+                    protocol_version="quantos.research.v1",
+                    design_capabilities=("replacement_projection", "replacement_audit"),
+                    provenance=ResearchContractProvenance(
+                        source_adapter="in-memory-replacement",
+                        source_surface="replacement_surface",
+                        absorbed_designs=("replacement_projection", "replacement_audit"),
+                    ),
+                ),
+            )
+        )
+>       server = serve_engine(
+            socket_path,
+            VibeAdapterService(contract_provider=replacement_provider),
+        )
+
+engines/tests/test_vibe_adapter_contract.py:271: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:248: in serve_engine
+    bound = server.add_insecure_port(uds_target(socket_path))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_server.py:1473: in add_insecure_port
+    return _common.validate_port_binding_result(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = 'unix:/tmp/quantos-vibe-adapter-provider-4d5bd8f7de17458b88232b7d770f1deb.sock'
+port = 0
+
+    def validate_port_binding_result(address: str, port: int) -> int:
+        """Validates if the port binding succeed.
+    
+        If the port returned by Core is 0, the binding is failed. However, in that
+        case, the Core API doesn't return a detailed failing reason. The best we
+        can do is raising an exception to prevent further confusion.
+    
+        Args:
+            address: The address string to be bound.
+            port: An int returned by core
+        """
+        if port == 0:
+            # The Core API doesn't return a failure message. The best we can do
+            # is raising an exception to prevent further confusion.
+>           raise RuntimeError(_ERROR_MESSAGE_PORT_BINDING_FAILED % address)
+E           RuntimeError: Failed to bind to address unix:/tmp/quantos-vibe-adapter-provider-4d5bd8f7de17458b88232b7d770f1deb.sock; set GRPC_VERBOSITY=debug environment variable to see detailed error message.
+
+engines/.venv/lib/python3.12/site-packages/grpc/_common.py:181: RuntimeError
+----------------------------- Captured stderr call -----------------------------
+E0000 00:00:1791510689.998542 2915753 add_port.cc:83] Failed to add port to server: No address added out of total 1 resolved for 'unix:/tmp/quantos-vibe-adapter-provider-4d5bd8f7de17458b88232b7d770f1deb.sock'
+_______________ test_vibe_adapter_rejects_unsupported_capability _______________
+
+    def test_vibe_adapter_rejects_unsupported_capability() -> None:
+        socket_path = Path("/tmp") / f"quantos-vibe-adapter-cap-{uuid4().hex}.sock"
+        if socket_path.exists():
+            socket_path.unlink()
+>       server = serve_engine(socket_path, VibeAdapterService())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+engines/tests/test_vibe_adapter_contract.py:324: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py:248: in serve_engine
+    bound = server.add_insecure_port(uds_target(socket_path))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+engines/.venv/lib/python3.12/site-packages/grpc/_server.py:1473: in add_insecure_port
+    return _common.validate_port_binding_result(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+address = 'unix:/tmp/quantos-vibe-adapter-cap-5deea7365731406d88354a6acc1e82be.sock'
+port = 0
+
+    def validate_port_binding_result(address: str, port: int) -> int:
+        """Validates if the port binding succeed.
+    
+        If the port returned by Core is 0, the binding is failed. However, in that
+        case, the Core API doesn't return a detailed failing reason. The best we
+        can do is raising an exception to prevent further confusion.
+    
+        Args:
+            address: The address string to be bound.
+            port: An int returned by core
+        """
+        if port == 0:
+            # The Core API doesn't return a failure message. The best we can do
+            # is raising an exception to prevent further confusion.
+>           raise RuntimeError(_ERROR_MESSAGE_PORT_BINDING_FAILED % address)
+E           RuntimeError: Failed to bind to address unix:/tmp/quantos-vibe-adapter-cap-5deea7365731406d88354a6acc1e82be.sock; set GRPC_VERBOSITY=debug environment variable to see detailed error message.
+
+engines/.venv/lib/python3.12/site-packages/grpc/_common.py:181: RuntimeError
+----------------------------- Captured stderr call -----------------------------
+E0000 00:00:1791510690.007653 2915753 add_port.cc:83] Failed to add port to server: No address added out of total 1 resolved for 'unix:/tmp/quantos-vibe-adapter-cap-5deea7365731406d88354a6acc1e82be.sock'
+=========================== short test summary info ============================
+FAILED engines/tests/test_vibe_adapter_contract.py::test_vibe_adapter_contract_all_rpcs
+FAILED engines/tests/test_vibe_adapter_contract.py::test_vibe_adapter_rejects_forbidden_tool_requests
+FAILED engines/tests/test_vibe_adapter_contract.py::test_vibe_adapter_rejects_forbidden_boundary_fields
+FAILED engines/tests/test_vibe_adapter_contract.py::test_vibe_adapter_replays_twenty_representative_fixtures
+FAILED engines/tests/test_vibe_adapter_contract.py::test_vibe_adapter_provider_replacement_preserves_business_protocol
+FAILED engines/tests/test_vibe_adapter_contract.py::test_vibe_adapter_rejects_unsupported_capability
+6 failed in 0.11s
