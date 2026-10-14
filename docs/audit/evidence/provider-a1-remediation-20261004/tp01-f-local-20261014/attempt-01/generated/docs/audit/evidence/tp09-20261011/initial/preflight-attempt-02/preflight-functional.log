@@ -1,0 +1,86 @@
+✔ engineering evidence never self-admits (386.400291ms)
+✔ all logs, three Signal documents, six physical object files and experiment receipt travel together (110.980875ms)
+✔ receipt rejects missing check (177.594625ms)
+✔ receipt rejects failed execution (167.413834ms)
+✔ receipt rejects forged command (166.408125ms)
+✔ receipt rejects changed inventory (170.460875ms)
+✔ receipt rejects changed log (163.488375ms)
+✔ receipt rejects future execution (159.152375ms)
+✔ receipt rejects formal claim (96.327875ms)
+✔ receipt rejects omitted output (168.31275ms)
+✔ unified source is mandatory (96.061125ms)
+✔ copied evidence is independent of canonical logs (278.451083ms)
+✔ rehashing output cannot hide foreign data rights (173.416167ms)
+✔ rehashing output cannot hide record bytes (170.741292ms)
+✔ rehashing output cannot hide schema hash (176.235666ms)
+✔ rehashing output cannot hide production use (173.051ms)
+✔ rehashing output cannot hide source attribution (171.596583ms)
+✔ rehashing output cannot hide quality broadening (183.025833ms)
+✔ rehashing output cannot hide confidence forgery (180.967333ms)
+✔ missing physical Artifact bytes fail closed (168.482ms)
+✖ output traversal fails closed (165.945833ms)
+✔ same-byte physical object symlink cannot escape evidence directory (150.632333ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 21
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3936.423084
+
+✖ failing tests:
+
+test at scripts/tp09-functional-artifacts.test.mjs:19:1
+✖ output traversal fails closed (165.945833ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /unsafe output path/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n' +
+    '+ actual - expected\n' +
+    '\n' +
+    '  [\n' +
+    "+   '../receipt.json',\n" +
+    "-   'experiments/receipt.json',\n" +
+    "    'experiments/tp09-1.json',\n" +
+    "    'experiments/objects/57298c89547916db12d66c411e35613c784bb7d2920f4e02881d20c7b13a3225.json',\n" +
+    "    'experiments/objects/93a39c6c2f1dab0d56e57b6e1c6f021252cdd0f25ae26c65364087404a29c817.json',\n" +
+    "    'experiments/tp09-2.json',\n" +
+    "    'experiments/objects/eb6dc4313d5b14927b25e3798c30013ac72ac09d86047e96f18929dcda528b43.json',\n"
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp09-functional-artifacts.test.mjs:19:101
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp09-functional-artifacts.test.mjs:8:266)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp09-functional-artifacts.test.mjs:19:42)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+    +   '../receipt.json',
+    -   'experiments/receipt.json',
+        'experiments/tp09-1.json',
+        'experiments/objects/57298c89547916db12d66c411e35613c784bb7d2920f4e02881d20c7b13a3225.json',
+        'experiments/objects/93a39c6c2f1dab0d56e57b6e1c6f021252cdd0f25ae26c65364087404a29c817.json',
+        'experiments/tp09-2.json',
+        'experiments/objects/eb6dc4313d5b14927b25e3798c30013ac72ac09d86047e96f18929dcda528b43.json',
+    
+        at verifyTp09 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/third_party/trendradar/check-development.mjs:30:101)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp09-functional-artifacts.test.mjs:19:112
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp09-functional-artifacts.test.mjs:19:101
+        at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp09-functional-artifacts.test.mjs:8:266)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp09-functional-artifacts.test.mjs:19:42)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18),
+    expected: /unsafe output path/,
+    operator: 'throws',
+    diff: 'simple'
+  }

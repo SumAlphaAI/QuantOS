@@ -1,0 +1,74 @@
+{
+  "mapping_id": "tp09-trendradar-02-rss-theme-signal",
+  "purpose": "Map a TrendRadar-style RSS theme cluster (central-bank policy theme across two publisher feeds with full attribution) into a QuantOS Signal contract.",
+  "trendradar_input": {
+    "commit": "8ee26026ba6c11dec41a95fb3895a7162876caa1",
+    "input_class": "rss_feed",
+    "captured_at": "2026-07-30T14:00:00Z",
+    "items": [
+      {
+        "feed": "example-financial-times-markets",
+        "guid": "ft-2026-07-30-policy-1",
+        "title": "Central bank signals slower easing path",
+        "url": "https://example.com/ft/policy-1",
+        "source_id": "rss-ft-20260730-policy-1",
+        "license_label": "publisher-copyright-research-only"
+      },
+      {
+        "feed": "example-reuters-economy",
+        "guid": "reuters-2026-07-30-rates-2",
+        "title": "Rate expectations reprice after policy remarks",
+        "url": "https://example.com/reuters/rates-2",
+        "source_id": "rss-reuters-20260730-rates-2",
+        "license_label": "publisher-copyright-research-only"
+      }
+    ]
+  },
+  "quantos_signal": {
+    "metadata": {
+      "tenant_id": "tenant-primary",
+      "workspace_id": "workspace-primary",
+      "actor_id": "actor-tp09-mapping",
+      "correlation_id": "corr-tp09-trendradar-02",
+      "causation_id": "cause-tp09-trendradar-02",
+      "mode": "RUNTIME_MODE_RESEARCH",
+      "environment": "ENVIRONMENT_TEST",
+      "issued_at": "2026-07-31T00:00:00Z"
+    },
+    "signal_id": "signal:tp09-rss-rates-theme-20260730",
+    "strategy_release_id": "strategy.trend-theme.v1.mapping",
+    "symbol": "THEME:RATES",
+    "direction": "SIGNAL_DIRECTION_FLAT",
+    "strength": {"value": "0.41"},
+    "confidence": {"value": "0.52"},
+    "diagnostics": {
+      "value": {
+        "engine": "trendradar-reference-mapping",
+        "mapping_only": true,
+        "theme": "central-bank-policy",
+        "feed_count": 2,
+        "trading_approved": false,
+        "diagnostics_tags": ["research_only", "not_tradable", "publisher_copyright", "trend_mapping_sample"],
+        "provenance": {
+          "input_class": "rss_feed",
+          "sources": [
+            {"source_id": "rss-ft-20260730-policy-1", "platform": "example-financial-times-markets", "license_label": "publisher-copyright-research-only"},
+            {"source_id": "rss-reuters-20260730-rates-2", "platform": "example-reuters-economy", "license_label": "publisher-copyright-research-only"}
+          ]
+        },
+        "rejection_reasons": ["publisher copyright permits reading but not derived-signal trading use"]
+      }
+    },
+    "generated_at": "2026-07-30T14:05:00Z",
+    "valid_until": "2026-07-31T14:05:00Z",
+    "evidence_refs": [
+      {"evidence_id": "tp09-02-evidence-1", "artifact_id": "artifact:tp09-rss-cluster", "summary": "ft: Central bank signals slower easing path"},
+      {"evidence_id": "tp09-02-evidence-2", "artifact_id": "artifact:tp09-rss-cluster", "summary": "reuters: Rate expectations reprice after policy remarks"}
+    ]
+  },
+  "boundary_notes": [
+    "full per-item attribution (feed + guid + url) satisfies lineage requirements, but copyright still blocks trading use",
+    "demonstrates that lineage-complete does not imply trading_approved=true"
+  ],
+  "content_hash": "sha256:17db375a983fb59919bc19db34fe3177993084190f2fdb4cb4e9e17331177beb"
+}

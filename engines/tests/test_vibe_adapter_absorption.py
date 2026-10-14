@@ -182,17 +182,41 @@ def test_adapter_imports_only_quantos_protocols_and_local_rewrites():
         "quantos_engine_sdk",
         "vibe_adapter",
     }
-    assert vibe_adapter.__file__ is not None
-    for path in Path(vibe_adapter.__file__).parent.glob("*.py"):
-        tree = ast.parse(path.read_text())
-        for node in ast.walk(tree):
+    # TP01-F needs only these standard-library additions, confined to their
+    # actual local-control/drill files. Do not allow network, process-launch,
+    # external packages or upstream runtime imports through a blanket exception.
+    local_extensions = {
+        "rollout.py": {"hmac", "math"},
+        "local_drill.py": {"hmac", "concurrent", "uuid"},
+    }
+
+    def check_imports(name, source):
+        allowed = permitted | local_extensions.get(name, set())
+        for node in ast.walk(ast.parse(source)):
             if isinstance(node, ast.Import):
-                assert all(alias.name.split(".")[0] in permitted for alias in node.names)
+                assert all(alias.name.split(".")[0] in allowed for alias in node.names)
             elif isinstance(node, ast.ImportFrom):
                 assert node.level == 0 and node.module is not None
-                assert node.module.split(".")[0] in permitted
+                assert node.module.split(".")[0] in allowed
             elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
                 assert node.func.id not in {"__import__", "eval", "exec"}
+
+    assert vibe_adapter.__file__ is not None
+    for path in Path(vibe_adapter.__file__).parent.glob("*.py"):
+        check_imports(path.name, path.read_text())
+    for name, source in [
+        ("rollout.py", "import requests"),
+        ("local_drill.py", "import subprocess"),
+        ("service.py", "import hmac"),
+        ("rollout.py", "from concurrent.futures import ThreadPoolExecutor"),
+        ("local_drill.py", "from upstream_agents.runtime import Agent"),
+        ("rollout.py", "from .providers import Provider"),
+        ("local_drill.py", "__import__('requests')"),
+        ("rollout.py", "eval('1')"),
+        ("rollout.py", "exec('pass')"),
+    ]:
+        with pytest.raises(AssertionError):
+            check_imports(name, source)
 
 
 @pytest.mark.parametrize("field", ["request_id", "correlation_id", "causation_id"])

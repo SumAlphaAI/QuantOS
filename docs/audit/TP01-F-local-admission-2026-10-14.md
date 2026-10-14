@@ -1,6 +1,6 @@
 # TP01-F canary、观测与回滚：本地开发
 
-依据[开发计划 TP01-F](../SumAlpha-QuantOS-Development-Plan.md#task-tp01-f)，先由 `ee34aed0` 同步 TP01-E 的最新复验与实现待验收状态，再补齐本项本地机制。当前为冻结前实现/回归记录；完整 29 节点准入尚未运行，E/F Gate 均 NOT_ASSESSED，formalAccepted=false、targetCanaryAccepted=false、targetRollbackAccepted=false。冻结执行结果将独立记录，不将本节预检冒称同 SHA 完整准入。
+依据[开发计划 TP01-F](../SumAlpha-QuantOS-Development-Plan.md#task-tp01-f)，先由 `ee34aed0` 同步 TP01-E 的最新复验与实现待验收状态，再补齐本项本地机制。首轮冻结 `4f44ca5f` 已完整运行 29 节点/92组，79 PASS / 13 FAIL；尚未获得准入，E/F Gate 均 NOT_ASSESSED，formalAccepted=false、targetCanaryAccepted=false、targetRollbackAccepted=false。冻结执行结果将独立记录，不将本节预检冒称同 SHA 完整准入。
 
 ## 实现
 
@@ -32,3 +32,13 @@
 继承 22 组 Supabase/外部/性能移交，另保留实际连续7天无未解释P1、目标环境≤5分钟回滚、正式 authority/签名制品、业务控制权限、持久 audit/跨进程恢复与目标监控。均 NOT_RUN。本机回滚的是已验签的研究 catalog/provider，不代表 Python wheel/容器/部署二进制回滚。未连接数据库，未派发远程 workflow、issue/PR、push 或部署。
 
 下一任务为 TP01-G 本地原生协议隔离/模块替换回归与替换计划；上游贡献只形成可审阅 patch/说明，外部提交需另行授权。SERVICE:TP01 准入须独立完整评估。
+
+## 首轮完整冻结执行与整改
+
+[attempt-01 原始结果](./evidence/provider-a1-remediation-20261004/tp01-f-local-20261014/attempt-01/execution-results.json)：三次构建 PASS；完整 make test 中 Rust 396 PASS / 8 ignored，Python 1436 PASS / 1 FAIL，Web NOT_RUN。失败原因为 TP01-D AST 导入边界拒绝新增本地 rollout/drill 所需标准库；F08/C/D/TP02/TP03/TP04/TP05 的完整 Python 回归与相关证据负向共13组拒绝。原件、失败制品与[恢复清单](./evidence/provider-a1-remediation-20261004/tp01-f-local-20261014/attempt-01/canonical-preservation.json)保留，626份 canonical 原件恢复，未生成 index、未发布 Gate。见[首轮处置](./evidence/tp01-f-local-20261014/attempt-01-disposition.json)。
+
+修复限定在 test_vibe_adapter_absorption.py：只对 rollout.py 允许 hmac/math，对 local_drill.py 允许 hmac/concurrent/uuid；同一原测试内加入网络、子进程、上游运行时、相对及动态导入拒绝探针，44项数量不变。没有降低约束或跳过失败测试。须重新冻结并完整运行29节点/92组，不能拼接4f44ca5f的通过结果。
+
+修复后非冻结预检 `engines/.venv/bin/python -m pytest engines/tests -q`：1437/1437 PASS，见[预检日志](./evidence/tp01-f-local-20261014/pre-retry-python.log)。实际冻结重跑仍必须独立执行。
+
+首次暂存检查发现原件Markdown的生成末尾空行；[原检查](./evidence/tp01-f-local-20261014/raw-whitespace-check-01.log)保留。仅对本次F捕获的 generated/original/supporting Markdown 路径标记 -whitespace，不修改原始字节或放宽源代码/手写文档检查。

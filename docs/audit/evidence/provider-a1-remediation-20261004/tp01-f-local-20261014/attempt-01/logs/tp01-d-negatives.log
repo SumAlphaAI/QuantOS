@@ -1,0 +1,87 @@
+✖ engineering-only validation never grants TP01-D admission (214.957291ms)
+✔ all copied supporting logs are required (198.52325ms)
+✔ TP01-D artifact rejects omitted check (196.93575ms)
+✔ TP01-D artifact rejects failed execution (235.033666ms)
+✔ TP01-D artifact rejects fake command (199.336125ms)
+✔ TP01-D artifact rejects source inventory (194.30675ms)
+✔ TP01-D artifact rejects log digest (195.631292ms)
+✔ TP01-D artifact rejects fixture omission (194.613459ms)
+✔ TP01-D artifact rejects queue drift (194.062ms)
+✔ TP01-D artifact rejects formal claim (195.170083ms)
+✔ TP01-D artifact rejects future execution (196.910417ms)
+✔ source commit must match execution manifest (194.334208ms)
+✖ copied logs are validated independently of mutable canonical logs (195.07225ms)
+✔ exact two-family queue binds current locked sources and QuantOS replacements (1.204625ms)
+✔ actual queue documents and inventory agree (0.699667ms)
+✔ patch queue rejects old baseline (0.894125ms)
+✔ patch queue rejects invented upstream (0.30825ms)
+✔ patch queue rejects omitted design (0.288875ms)
+✔ patch queue rejects duplicate design (0.269542ms)
+✔ patch queue rejects new session family (0.242166ms)
+✔ patch queue rejects direct import (0.274083ms)
+✔ patch queue rejects extra patch (0.334042ms)
+✔ patch queue rejects unreviewed target (0.309083ms)
+✔ patch queue rejects path escape (0.296ms)
+✔ patch queue rejects source digest (0.288709ms)
+✔ patch queue rejects unknown source (0.279375ms)
+✔ patch queue rejects missing permission replacement (0.271291ms)
+✔ patch queue rejects upstream storage (0.380542ms)
+✔ patch queue rejects false status (0.2145ms)
+✔ patch queue rejects missing document (0.199666ms)
+✔ patch queue rejects extra capability (0.307292ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 29
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2732.275625
+
+✖ failing tests:
+
+test at scripts/tp01-d-functional-artifacts.test.mjs:9:1
+✖ engineering-only validation never grants TP01-D admission (214.957291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyAbsorption (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/vibe-adapter/check-absorption.mjs:21:173)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp01-d-functional-artifacts.test.mjs:9:113
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp01-d-functional-artifacts.test.mjs:8:294)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp01-d-functional-artifacts.test.mjs:9:70)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tp01-d-functional-artifacts.test.mjs:23:1
+✖ copied logs are validated independently of mutable canonical logs (195.07225ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyAbsorption (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/vibe-adapter/check-absorption.mjs:21:173)
+      at validateArtifact (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:123:3)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp01-d-functional-artifacts.test.mjs:23:163
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp01-d-functional-artifacts.test.mjs:8:294)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp01-d-functional-artifacts.test.mjs:23:78)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

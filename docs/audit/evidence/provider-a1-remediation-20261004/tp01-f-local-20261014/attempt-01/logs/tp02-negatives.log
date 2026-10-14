@@ -1,0 +1,121 @@
+✖ engineering-only evidence cannot admit TP02 (139.432334ms)
+✔ all execution logs and installed wheels must travel with a copied receipt (143.765792ms)
+✔ TP02 receipt rejects omitted check (142.185791ms)
+✔ TP02 receipt rejects failed execution (143.352916ms)
+✔ TP02 receipt rejects fake command (175.480417ms)
+✔ TP02 receipt rejects source inventory (146.260375ms)
+✔ TP02 receipt rejects log digest (140.808417ms)
+✔ TP02 receipt rejects fixture omission (139.4745ms)
+✔ TP02 receipt rejects formal claim (140.703ms)
+✔ TP02 receipt rejects future execution (140.434875ms)
+✔ TP02 receipt rejects unreaped package child (142.129292ms)
+✔ TP02 receipt rejects editable package claim (140.160042ms)
+✔ TP02 receipt rejects upstream claim (141.699333ms)
+✔ execution source must match unified manifest (143.973125ms)
+✖ copied logs are independent of canonical logs (141.794958ms)
+✖ tampered wheel bytes are rejected (139.223834ms)
+✔ complete Python suite can grow beyond the historical count (0.15425ms)
+✔ incomplete Python suite is rejected: 432 passed in 3.00s (0.068791ms)
+✔ incomplete Python suite is rejected: 0 passed in 0.00s (0.041542ms)
+✔ incomplete Python suite is rejected: no tests ran in 0.01s (0.034833ms)
+✔ incomplete Python suite is rejected: 1366 passed, 1 failed in 9.00s (0.02625ms)
+✔ incomplete Python suite is rejected: 1366 passed, 1 error in 9.00s (0.0255ms)
+✔ incomplete Python suite is rejected: 1366 passed, 1 skipped in 9.00s (0.028041ms)
+✔ incomplete Python suite is rejected: 1366 passed, 1 deselected in 9.00s (0.024125ms)
+✔ incomplete Python suite is rejected: 1366 passed, 1 xfailed in 9.00s (0.023875ms)
+✔ incomplete Python suite is rejected: 1366 passed in 9.00s
+execution interrupted (0.024916ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 23
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2423.762667
+
+✖ failing tests:
+
+test at scripts/tp02-functional-artifacts.test.mjs:9:1
+✖ engineering-only evidence cannot admit TP02 (139.432334ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyTp02 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/rd-agent/check-development.mjs:35:170)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:9:99
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:9:56)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tp02-functional-artifacts.test.mjs:15:1
+✖ copied logs are independent of canonical logs (141.794958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyTp02 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/rd-agent/check-development.mjs:35:170)
+      at validateArtifact (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:112:3)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:15:143
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:15:58)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tp02-functional-artifacts.test.mjs:16:1
+✖ tampered wheel bytes are rejected (139.223834ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /wheel changed/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n' +
+    '\n' +
+    "'FAIL' !== 'PASS'\n"
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:16:158
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:16:46)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+    
+    'FAIL' !== 'PASS'
+    
+        at verifyTp02 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/rd-agent/check-development.mjs:35:170)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:16:169
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:16:158
+        at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:8:290)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp02-functional-artifacts.test.mjs:16:46)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18),
+    expected: /wheel changed/,
+    operator: 'throws',
+    diff: 'simple'
+  }

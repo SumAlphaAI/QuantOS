@@ -1,0 +1,144 @@
+✖ engineering-only evidence cannot admit TP03 (154.807875ms)
+✔ all execution logs and installed wheels must travel with a copied receipt (151.032333ms)
+✔ TP03 receipt rejects omitted check (150.287708ms)
+✔ TP03 receipt rejects failed execution (150.597042ms)
+✔ TP03 receipt rejects fake command (189.379ms)
+✔ TP03 receipt rejects source inventory (149.641625ms)
+✔ TP03 receipt rejects log digest (147.080042ms)
+✔ TP03 receipt rejects fixture omission (147.738208ms)
+✔ TP03 receipt rejects formal claim (147.332958ms)
+✔ TP03 receipt rejects future execution (147.9925ms)
+✔ TP03 receipt rejects unreaped package child (147.769708ms)
+✔ TP03 receipt rejects editable package claim (148.184417ms)
+✔ TP03 receipt rejects upstream claim (149.214084ms)
+✔ execution source must match unified manifest (152.629ms)
+✖ copied logs are independent of canonical logs (150.452125ms)
+✖ tampered wheel bytes are rejected (148.106958ms)
+✔ actual output evidence rejects matrix sample omission (152.951959ms)
+✔ actual output evidence rejects Signal confidence (151.81975ms)
+✔ actual output evidence rejects Signal time (151.599542ms)
+✔ actual output evidence rejects Signal source claim (152.397708ms)
+✔ UI transcript rejects cancel timeout (150.275083ms)
+✔ UI transcript rejects cancel side effect (146.885875ms)
+✖ full Python regression expanded suite (147.439333ms)
+✔ full Python regression below baseline (154.136334ms)
+✔ full Python regression failed suite (188.979708ms)
+✔ full Python regression empty suite (149.950833ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 22
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4100.38075
+
+✖ failing tests:
+
+test at scripts/tp03-functional-artifacts.test.mjs:9:1
+✖ engineering-only evidence cannot admit TP03 (154.807875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyTp03 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/check-development.mjs:30:170)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:9:99
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:9:56)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tp03-functional-artifacts.test.mjs:15:1
+✖ copied logs are independent of canonical logs (150.452125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyTp03 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/check-development.mjs:30:170)
+      at validateArtifact (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:109:113)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:15:143
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:15:58)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tp03-functional-artifacts.test.mjs:16:1
+✖ tampered wheel bytes are rejected (148.106958ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /wheel changed/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n' +
+    '\n' +
+    "'FAIL' !== 'PASS'\n"
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:16:158
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:16:46)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+    
+    'FAIL' !== 'PASS'
+    
+        at verifyTp03 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/check-development.mjs:30:170)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:16:169
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:16:158
+        at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:8:290)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:16:46)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18),
+    expected: /wheel changed/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tp03-functional-artifacts.test.mjs:23:226
+✖ full Python regression expanded suite (147.439333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyTp03 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/llmquant/check-development.mjs:30:170)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:23:410
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:8:290)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp03-functional-artifacts.test.mjs:23:266)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,151 @@
+✖ engineering-only evidence cannot admit TP05 (149.619708ms)
+✔ all execution logs and installed wheels must travel with a copied receipt (151.324833ms)
+✔ TP05 receipt rejects omitted check (148.593917ms)
+✔ TP05 receipt rejects failed execution (161.303833ms)
+✔ TP05 receipt rejects fake command (191.356792ms)
+✔ TP05 receipt rejects source inventory (149.022375ms)
+✔ TP05 receipt rejects log digest (146.412834ms)
+✔ TP05 receipt rejects fixture omission (146.087667ms)
+✔ TP05 receipt rejects formal claim (146.530167ms)
+✔ TP05 receipt rejects future execution (148.589291ms)
+✔ TP05 receipt rejects unreaped package child (146.536375ms)
+✔ TP05 receipt rejects editable package claim (146.82925ms)
+✔ TP05 receipt rejects upstream claim (147.473042ms)
+✔ TP05 receipt rejects production gate omission (154.130166ms)
+✔ TP05 receipt rejects upstream package present (149.568875ms)
+✔ execution source must match unified manifest (147.632458ms)
+✖ copied logs are independent of canonical logs (149.861959ms)
+✖ tampered wheel bytes are rejected (147.092917ms)
+✔ actual output evidence rejects URI collision (148.346417ms)
+✔ actual output evidence rejects matrix sample omission (150.754625ms)
+✔ actual output evidence rejects missing sources (151.020167ms)
+✔ actual output evidence rejects production data claim (148.992291ms)
+✔ actual output evidence rejects trading data claim (148.399417ms)
+✔ actual output evidence rejects response hash (149.571166ms)
+✔ actual output evidence rejects cross-tenant scope (148.930125ms)
+✔ actual output evidence rejects false source schema (150.377958ms)
+✔ actual output evidence rejects upstream commit (149.791541ms)
+✔ UI transcript rejects cancel timeout (146.109209ms)
+✔ UI transcript rejects cancel side effect (147.199958ms)
+✖ full Python regression expanded suite (145.619833ms)
+✔ full Python regression below baseline (147.201875ms)
+✔ full Python regression failed suite (147.170875ms)
+✔ full Python regression empty suite (146.072458ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 29
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5076.558708
+
+✖ failing tests:
+
+test at scripts/tp05-functional-artifacts.test.mjs:10:1
+✖ engineering-only evidence cannot admit TP05 (149.619708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyTp05 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/openbb-adapter/check-development.mjs:31:170)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:10:99
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:9:550)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:10:56)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tp05-functional-artifacts.test.mjs:16:1
+✖ copied logs are independent of canonical logs (149.861959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyTp05 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/openbb-adapter/check-development.mjs:31:170)
+      at validateArtifact (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a1-receipts.mjs:107:113)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:16:143
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:9:550)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:16:58)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/tp05-functional-artifacts.test.mjs:17:1
+✖ tampered wheel bytes are rejected (147.092917ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /wheel changed/. Input:
+  
+  'AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n' +
+    '\n' +
+    "'FAIL' !== 'PASS'\n"
+  
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:17:158
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:9:550)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:17:46)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+    
+    'FAIL' !== 'PASS'
+    
+        at verifyTp05 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/openbb-adapter/check-development.mjs:31:170)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:17:169
+        at getActual (node:assert:611:5)
+        at strict.throws (node:assert:759:24)
+        at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:17:158
+        at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:9:550)
+        at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:17:46)
+        at Test.runInAsyncScope (node:async_hooks:214:14)
+        at Test.run (node:internal/test_runner/test:1106:25)
+        at Test.processPendingSubtests (node:internal/test_runner/test:788:18),
+    expected: /wheel changed/,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at scripts/tp05-functional-artifacts.test.mjs:24:226
+✖ full Python regression expanded suite (145.619833ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'FAIL' !== 'PASS'
+  
+      at verifyTp05 (file:///Users/anray/Documents/project/SumAlpha/QuantOS/engines/openbb-adapter/check-development.mjs:31:170)
+      at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:24:410
+      at fixture (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:9:550)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/tp05-functional-artifacts.test.mjs:24:266)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'FAIL',
+    expected: 'PASS',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

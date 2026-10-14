@@ -1,4 +1,4 @@
-> 当前执行（2026-10-14，TP01-F实现中）：TP01-E最新复验已由ee34aed0同步；TP01-F新增本机签名研究制品、默认禁用/分流/影子隔离及运行中回滚，待冻结新提交完整29节点复验。公共代码输入变化，TP01-E旧READY撤回为NOT_ASSESSED；原冻结证据保留，本轮将从共同执行派生E新28节点回执。不得据此放行服务、数据库或发布。
+> 当前执行（2026-10-14，TP01-F整改待复验）：TP01-E最新状态已由ee34aed0同步。首轮冻结4f44ca5f完整29节点/92组为79 PASS / 13 FAIL，626份canonical恢复；旧导入白名单与新增本地标准库不兼容，按文件范围补齐并加入拒绝探针。E/F仍NOT_ASSESSED，无准入index；原件保留。须从新冻结候选完整重跑；不得据此放行服务、数据库或发布。见[本轮记录](./audit/TP01-F-local-admission-2026-10-14.md)。
 
 > 历史工程快照（2026-10-14，TP01-F源码变更前）：冻结9b7bb8e5完整复验TP01-E_LOCAL必要28节点/88组本地检查PASS，104项专用测试与16项完整回执负向PASS；仅TP01-E限定DEVELOPMENT READY，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。22组Supabase/外部/性能义务移交测试及RELEASE，formalAccepted=false、syncApproved=false；历史失败与中断原件保留。见[本轮报告](./audit/TP01-E-local-admission-2026-10-14.md)。
 

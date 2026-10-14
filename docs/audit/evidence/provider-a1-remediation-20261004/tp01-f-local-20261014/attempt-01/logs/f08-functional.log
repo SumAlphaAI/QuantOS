@@ -1,0 +1,259 @@
+node --test scripts/python-lint-scope.test.mjs
+✔ both Python lint targets reject active code errors and preserve archived evidence (65.518209ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 94.49725
+cargo fmt --check
+cargo clippy -p quantos-engine-manager --all-targets --locked -- -D warnings
+cargo test -p quantos-engine-manager --locked
+
+running 8 tests
+test durable::tests::world_readable_state_directory_is_rejected ... ok
+test durable::tests::corrupt_ledger_fails_closed ... ok
+test tests::remaining_time_rejects_expired_deadlines ... ok
+test tests::review_manifest_rejects_duplicate_capabilities ... ok
+test tests::signed_route_policy_and_reregistration_fail_closed ... ok
+test tests::approval_fails_closed_on_unsigned_or_modified_manifest ... ok
+test durable::tests::pending_key_is_exclusive_and_completed_result_survives_reopen ... ok
+test tests::manager_opens_backoff_window_after_three_recorded_failures ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 8 tests
+test machine_codes_are_stable_for_all_manager_failures ... ok
+test manager_diagnostics_do_not_expose_approval_key ... ok
+test manifest_rejects_each_invalid_boundary ... ok
+test invalid_request_and_signed_route_dimensions_fail_before_network ... ok
+test malformed_approvals_never_register ... ok
+test malformed_rpc_inputs_fail_before_transport ... ok
+test supervised_release_requires_durable_state_and_exact_artifact ... ok
+test reviewed_registration_rejects_capability_takeover_and_live_sidecar_replacement ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.07s
+
+
+running 2 tests
+test python_llmquant_rejects_forbidden_boundary_fields ... ok
+test python_llmquant_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 25 tests
+test durable_child_execute_entry ... ok
+test observed_sidecar_rss_excess_quarantines_shared_route ... ok
+test duplicate_key_returns_same_result_and_changed_input_is_rejected ... ok
+test missing_vibe_adapter_does_not_block_mock_workflow_routing ... ok
+test metadata_health_and_cancel_failures_preserve_route_state ... ok
+test manager_rejects_broken_execute_and_interrupted_streams ... ok
+test approval_cli_signs_reviewed_manifest_and_refuses_overwrite ... ok
+test manager_cancel_interrupts_owned_running_execution ... ok
+test dispatch_reprobes_ready_engine_without_background_monitor ... ok
+test python_mock_engine_contracts_round_trip_over_uds ... ok
+test python_mock_engine_recovers_after_three_unavailable_failures ... ok
+test durable_result_and_circuit_survive_manager_reconstruction ... ok
+test heartbeat_removes_failed_engine_and_restores_ready_route ... ok
+test unavailable_socket_fails_fast_then_recovers_without_request_loss ... ok
+test supervised_sidecar_refuses_tampered_artifact_then_recovers ... ok
+test manager_supervises_three_real_crashes_without_test_owned_restarts ... ok
+test handshake_rejects_each_unreviewed_identity_and_readiness_dimension ... ok
+test execution_concurrency_and_rss_quotas_reject_excess_work ... ok
+test untrusted_engine_cannot_bypass_manager_response_identity_checks ... ok
+test python_mock_engine_deadline_timeout_is_deterministic ... ok
+test one_request_survives_three_real_engine_process_crashes ... ok
+test readiness_accepts_exact_metadata_echo_across_second_boundary ... ok
+test os_killed_manager_replays_pending_key_into_one_durable_result ... ok
+test control_rpcs_timeout_within_two_seconds_on_untrusted_engine ... ok
+test signed_rate_limit_and_stream_deadline_are_enforced ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.17s
+
+
+running 2 tests
+test python_openbb_adapter_blocks_production_license_enablement ... ok
+test python_openbb_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+
+running 2 tests
+test python_rd_agent_rejects_forbidden_boundary_fields ... ok
+test python_rd_agent_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 4 tests
+test python_strategy_lab_rejects_forbidden_boundary_fields ... ok
+test python_strategy_lab_static_check_failure_blocks_release ... ok
+test python_strategy_lab_contracts_round_trip_over_uds ... ok
+test python_strategy_lab_rejects_hundred_malicious_prompts ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+
+running 2 tests
+test python_trading_agents_rejects_forbidden_boundary_fields ... ok
+test python_trading_agents_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+
+running 2 tests
+test python_vibe_adapter_rejects_forbidden_boundary_fields ... ok
+test python_vibe_adapter_contracts_round_trip_over_uds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+uv run --locked --project engines --all-packages ruff check . --extend-exclude third_party/vibe-trading/upstream-src,third_party/qlib/upstream-evidence,docs/audit/evidence
+All checks passed!
+uv run --locked --project engines --all-packages pyright --project engines
+0 errors, 0 warnings, 0 informations 
+uv run --locked --project engines --all-packages pytest engines/tests --cov=quantos_engine_sdk --cov=mock_engine --cov-config=engines/pyproject.toml --cov-report=json:target/f08-python-coverage.json --cov-report=term-missing
+============================= test session starts ==============================
+platform darwin -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/anray/Documents/project/SumAlpha/QuantOS/engines
+configfile: pyproject.toml
+plugins: cov-6.2.1
+collected 1437 items
+
+engines/tests/test_engine_contract.py .................................  [  2%]
+engines/tests/test_engine_observability.py ..                            [  2%]
+engines/tests/test_llmquant_contract.py .......                          [  2%]
+engines/tests/test_llmquant_development.py ............................. [  4%]
+........................................................................ [  9%]
+........................................................................ [ 14%]
+........................................................................ [ 19%]
+.....................                                                    [ 21%]
+engines/tests/test_mock_engine_recovery.py .......                       [ 21%]
+engines/tests/test_openbb_adapter_contract.py .........                  [ 22%]
+engines/tests/test_openbb_adapter_development.py ....................... [ 24%]
+........................................................................ [ 29%]
+........................................................................ [ 34%]
+........................................................................ [ 39%]
+...........                                                              [ 39%]
+engines/tests/test_performance_stage.py ........                         [ 40%]
+engines/tests/test_proto_sdk.py ..                                       [ 40%]
+engines/tests/test_protocol_metadata_completeness.py .......             [ 41%]
+engines/tests/test_r04_research_context.py ................              [ 42%]
+engines/tests/test_rd_agent_contract.py .....                            [ 42%]
+engines/tests/test_rd_agent_development.py ............................. [ 44%]
+........................................................................ [ 49%]
+.........................                                                [ 51%]
+engines/tests/test_strategy_lab_contract.py .......                      [ 51%]
+engines/tests/test_tp08_qlib_mapping_samples.py ........................ [ 53%]
+................                                                         [ 54%]
+engines/tests/test_tp09_trendradar_mapping_samples.py .................. [ 55%]
+.................                                                        [ 57%]
+engines/tests/test_tp10_valuecell_evaluation.py .................        [ 58%]
+engines/tests/test_tp11_openstock_fixtures.py .......................... [ 60%]
+...................                                                      [ 61%]
+engines/tests/test_tp12_nautilus_agents_rules.py .......                 [ 61%]
+engines/tests/test_trading_agents_contract.py .......                    [ 62%]
+engines/tests/test_trading_agents_development.py ....................... [ 63%]
+........................................................................ [ 68%]
+........................................................................ [ 73%]
+........................................................................ [ 78%]
+................................................................         [ 83%]
+engines/tests/test_vibe_adapter_absorption.py .......................... [ 85%]
+..............F...                                                       [ 86%]
+engines/tests/test_vibe_adapter_contract.py ......                       [ 86%]
+engines/tests/test_vibe_adapter_rollout.py ............................. [ 88%]
+..................                                                       [ 90%]
+engines/tests/test_vibe_adapter_skeleton.py ............................ [ 92%]
+........................................................................ [ 97%]
+..................................                                       [ 99%]
+engines/tests/test_workspace.py .......                                  [100%]
+
+=================================== FAILURES ===================================
+________ test_adapter_imports_only_quantos_protocols_and_local_rewrites ________
+
+    def test_adapter_imports_only_quantos_protocols_and_local_rewrites():
+        import ast
+        from pathlib import Path
+        import vibe_adapter
+    
+        permitted = {
+            "__future__",
+            "dataclasses",
+            "datetime",
+            "functools",
+            "hashlib",
+            "json",
+            "logging",
+            "pathlib",
+            "threading",
+            "time",
+            "typing",
+            "urllib",
+            "argparse",
+            "grpc",
+            "quantos",
+            "quantos_engine_sdk",
+            "vibe_adapter",
+        }
+        assert vibe_adapter.__file__ is not None
+        for path in Path(vibe_adapter.__file__).parent.glob("*.py"):
+            tree = ast.parse(path.read_text())
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+>                   assert all(alias.name.split(".")[0] in permitted for alias in node.names)
+E                   assert False
+E                    +  where False = all(<generator object test_adapter_imports_only_quantos_protocols_and_local_rewrites.<locals>.<genexpr> at 0x10c0c1fc0>)
+
+engines/tests/test_vibe_adapter_absorption.py:190: AssertionError
+================================ tests coverage ================================
+______________ coverage: platform darwin, python 3.12.10-final-0 _______________
+
+Name                                                             Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------------------------------
+engines/engine-sdk/sdk_src/quantos_engine_sdk/__init__.py            5      0      0      0   100%
+engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py              140      5     18      4    94%   31, 60, 141, 152, 250
+engines/engine-sdk/sdk_src/quantos_engine_sdk/manifest.py           21      1      2      1    91%   41
+engines/engine-sdk/sdk_src/quantos_engine_sdk/observability.py     152     19     32      6    85%   28, 65, 75-76, 133-136, 158-168, 200, 205-212, 214-221, 240-242
+engines/engine-sdk/sdk_src/quantos_engine_sdk/validation.py         39      1     26      1    97%   57
+engines/mock-engine/src/mock_engine/__init__.py                      5      0      0      0   100%
+engines/mock-engine/src/mock_engine/server.py                       26      2      4      2    87%   50, 69
+engines/mock-engine/src/mock_engine/service.py                     137     10     54      5    91%   61, 107, 137-142, 155, 206
+------------------------------------------------------------------------------------------------------------
+TOTAL                                                              525     38    136     19    91%
+Coverage JSON written to file target/f08-python-coverage.json
+Required test coverage of 85.0% reached. Total coverage: 90.77%
+=========================== short test summary info ============================
+FAILED engines/tests/test_vibe_adapter_absorption.py::test_adapter_imports_only_quantos_protocols_and_local_rewrites
+======================= 1 failed, 1436 passed in 10.73s ========================
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 48.44s
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 34.34s
+     Running unittests src/lib.rs (target/debug/deps/quantos_engine_manager-7a7c96946e5acbf4)
+     Running unittests src/bin/f08-approval.rs (target/debug/deps/f08_approval-e9ed4f21aed18e4c)
+     Running tests/manager_negative.rs (target/debug/deps/manager_negative-d87767bf842be9de)
+     Running tests/python_llmquant.rs (target/debug/deps/python_llmquant-b817fb3b9c59bb9b)
+     Running tests/python_mock_engine.rs (target/debug/deps/python_mock_engine-a14b3ed6aaf7410e)
+Error: "approval output exists; choose a new path"
+     Running tests/python_openbb_adapter.rs (target/debug/deps/python_openbb_adapter-852edf586930b7e6)
+     Running tests/python_rd_agent.rs (target/debug/deps/python_rd_agent-420a099d07254f51)
+     Running tests/python_strategy_lab.rs (target/debug/deps/python_strategy_lab-a60c5c206a5844cb)
+     Running tests/python_trading_agents.rs (target/debug/deps/python_trading_agents-cfcc6780d738a56b)
+     Running tests/python_vibe_adapter.rs (target/debug/deps/python_vibe_adapter-e04a854d01b8f200)
+   Doc-tests quantos_engine_manager
+make: *** [f08-check] Error 1
