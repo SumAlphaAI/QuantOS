@@ -355,6 +355,7 @@ mod tests {
 
     fn run_slo_load() -> SloReport {
         let originator = ActorId::new();
+        let requester = ActorId::new();
         let proposal = proposal_fixture(originator);
         let decision = allow_decision();
         let mut issuer = CommandIssuer::new(TenantId::new(), ChronoDuration::minutes(2));
@@ -373,7 +374,7 @@ mod tests {
                     &proposal,
                     &decision,
                     issuance_input(&format!("l04-load-{index:05}"), originator),
-                    ActorId::new(),
+                    requester,
                     now(),
                 )
                 .expect("issuance succeeds");
@@ -391,7 +392,7 @@ mod tests {
                     &proposal,
                     &decision,
                     issuance_input(&format!("l04-load-{:05}", index % unique), originator),
-                    ActorId::new(),
+                    requester,
                     now(),
                 )
                 .expect("duplicate issuance dedupes");

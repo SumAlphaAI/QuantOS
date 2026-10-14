@@ -617,7 +617,7 @@ frontend-release-performance:
 .PHONY: research-release-performance-smokes
 research-release-performance-smokes:
 	node scripts/check-f04.mjs
-	cargo test --locked --offline -p quantos-testkit -p quantos-market -p quantos-risk -p quantos-portfolio -p quantos-strategy --lib p95 -- --ignored --nocapture
+	cargo test --locked --offline -p quantos-testkit -p quantos-market -p quantos-risk -p quantos-portfolio -p quantos-strategy -p quantos-execution --lib p95 -- --ignored --nocapture
 	QUANTOS_RELEASE_PERFORMANCE=1 engines/.venv/bin/python -m pytest engines/tests/ -k p95 -q
 
 provider-a3-local-check:

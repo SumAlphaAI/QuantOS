@@ -1,4 +1,6 @@
-> 当前工程结果（2026-10-14）：冻结5fa0fb04完整42节点/141组共同本地执行PASS；R1-SERVICE/A2/BFF003/BFF005/A3五项限定DEVELOPMENT READY已恢复，TP02_LOCAL以同源13节点/44组证明重新READY。全图6 READY / 153 NOT_ASSESSED / 0 BLOCKED；Supabase、外部/性能与正式验收独立待办，formalAccepted=false。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)。
+> 当前执行（2026-10-14）：X03缓存重放安全条件重验、请求人/业务意图冲突及TTL/P95拆分已实现，正在从新冻结候选复验；公共功能输入变化后原R1/A2/BFF003/BFF005/A3/TP02六项READY撤回，原回执与失败保留。全图0 READY / 159 NOT_ASSESSED / 0 BLOCKED；Supabase、外部环境、性能及正式接受独立待办。
+
+> 上轮工程快照（2026-10-14，X03修复前）：冻结5fa0fb04完整42节点/141组共同本地执行PASS；R1-SERVICE/A2/BFF003/BFF005/A3五项限定DEVELOPMENT READY已恢复，TP02_LOCAL以同源13节点/44组证明重新READY。全图6 READY / 153 NOT_ASSESSED / 0 BLOCKED；Supabase、外部/性能与正式验收独立待办，formalAccepted=false。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)。
 
 > 上轮工程快照：2026-10-13 TP02_LOCAL DEVELOPMENT READY；冻结135c7bd5完整13节点/44组本地检查PASS，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED，仅TP02放行。上轮A3相关五项READY因公共输入变化撤回，历史证据保留；外部/性能归测试及RELEASE，formalAccepted=false。见[本轮报告](./audit/TP02-local-admission-2026-10-13.md)。
 
@@ -63,7 +65,7 @@
 
 > 版本：3.79
 > 更新时间：2026-10-14
-> 状态：R1/A2/BFF003/BFF005/A3与TP02限定本地DEVELOPMENT READY；正式/目标/发布未执行。
+> 状态：X03修复复验进行中；公共输入变化后阶段Gate均NOT_ASSESSED，正式/目标/发布未执行。
 > 本轮变更：BFF-FE-005 市场 API、四消费者当前源码本地复评及发布验收移交。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
@@ -1036,7 +1038,7 @@ flowchart TD
 - task_id: `TP02`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:60983108a4b74679681fe38c1ad5e5b8826b393f33328e5687b9ad3220be445e","evidence":["audit/evidence/tp02-local-20261013/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F08", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE-GATE:F0"]
 - closes_core: []
@@ -1270,11 +1272,9 @@ flowchart TD
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:cfe383042c4ce6d637a0c785ac7cc8f9eac04fb5ce606fe6ad60579570b97bb7",
-    "evidence": [
-      "audit/evidence/provider-a3-local-20261013/r1-local.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```

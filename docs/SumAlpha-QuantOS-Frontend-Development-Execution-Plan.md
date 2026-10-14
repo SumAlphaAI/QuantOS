@@ -1,4 +1,6 @@
-> 当前工程结果（2026-10-14）：冻结5fa0fb04完整42节点/141组共同本地执行PASS；R1-SERVICE/A2/BFF003/BFF005/A3五项限定DEVELOPMENT READY已恢复，TP02_LOCAL以同源13节点/44组证明重新READY。全图6 READY / 153 NOT_ASSESSED / 0 BLOCKED；Supabase、外部/性能与正式验收独立待办，formalAccepted=false。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)。
+> 当前执行（2026-10-14）：X03缓存重放安全条件重验、请求人/业务意图冲突及TTL/P95拆分已实现，正在从新冻结候选复验；公共功能输入变化后原R1/A2/BFF003/BFF005/A3/TP02六项READY撤回，原回执与失败保留。全图0 READY / 159 NOT_ASSESSED / 0 BLOCKED；Supabase、外部环境、性能及正式接受独立待办。
+
+> 上轮工程快照（2026-10-14，X03修复前）：冻结5fa0fb04完整42节点/141组共同本地执行PASS；R1-SERVICE/A2/BFF003/BFF005/A3五项限定DEVELOPMENT READY已恢复，TP02_LOCAL以同源13节点/44组证明重新READY。全图6 READY / 153 NOT_ASSESSED / 0 BLOCKED；Supabase、外部/性能与正式验收独立待办，formalAccepted=false。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)。
 
 > 上轮工程快照：2026-10-13 TP02_LOCAL DEVELOPMENT READY；冻结135c7bd5完整13节点/44组本地检查PASS，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED，仅TP02放行。上轮A3相关五项READY因公共输入变化撤回，历史证据保留；外部/性能归测试及RELEASE，formalAccepted=false。见[本轮报告](./audit/TP02-local-admission-2026-10-13.md)。
 
@@ -55,7 +57,7 @@
 
 > 版本：3.80
 > 更新时间：2026-10-14
-> 状态：R1/A2/BFF003/BFF005/A3与TP02限定本地DEVELOPMENT READY；正式/目标/发布未执行。
+> 状态：X03修复复验进行中；公共输入变化后阶段Gate均NOT_ASSESSED，正式/目标/发布未执行。
 > 依据：[网站与终端设计方案](./SumAlpha-QuantOS-Web-and-Terminal-Design.md)、[Terminal 全量前端页面设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)、[QuantOS 可执行开发计划](./SumAlpha-QuantOS-Development-Plan.md)  
 > 目标：第一期交付官网与 `app.sumalpha.ai` Web Terminal；在页面、字段、请求响应、权限、实时流、风险审批、订单与审计链路上与后端保持可验证的一致性。第二期 Desktop 范围见[独立执行计划](./SumAlpha-QuantOS-Desktop-Development-Execution-Plan.md)。
 
@@ -875,11 +877,9 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:3bb5a36fa37bfc43bea5ded2775fdfe52d37fdf80d7a2e07e7a4fbaa8f82e429",
-    "evidence": [
-      "audit/evidence/provider-a3-local-20261013/a2-local.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -894,7 +894,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-003`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:a345c6bc7437184d5ba2459ca0531c533f0ab9bc8fd8ffe2ea12ed7ff6fe16a6","evidence":["audit/evidence/provider-a3-local-20261013/bff003-local.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "BFF-FE-007", "CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:F07", "CORE:F08", "CORE:R02", "CORE:R03", "CORE:R04", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -917,7 +917,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-005`
 - task_type: `PAGE_API`
 - iteration: `A3`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:cbe0c97a623059691b07ba69d61fd2b00905defbb17c2993b8230729287aa887","evidence":["audit/evidence/provider-a3-local-20261013/bff005-local.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE", "PROVIDER:A2"]
 - core_prerequisites: ["CORE:R01", "CORE:R02", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -954,11 +954,9 @@ A3 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:863dfce855955d4e3d8001eef8ad352677627b4209d1d7cab6a6fc11ffada5f4",
-    "evidence": [
-      "audit/evidence/provider-a3-local-20261013/a3-local.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```

@@ -184,6 +184,8 @@ pub enum IssuanceRejection {
     KillSwitchEngaged,
     ReleaseInvalid,
     ApprovalMissing,
+    IdempotencyConflict,
+    CommandExpired,
 }
 
 impl std::fmt::Display for IssuanceRejection {
@@ -203,6 +205,8 @@ impl IssuanceRejection {
             Self::KillSwitchEngaged => "kill_switch_engaged",
             Self::ReleaseInvalid => "release_invalid",
             Self::ApprovalMissing => "approval_missing",
+            Self::IdempotencyConflict => "idempotency_conflict",
+            Self::CommandExpired => "command_expired",
         }
     }
 }
@@ -216,10 +220,17 @@ pub enum IssuanceError {
 }
 
 #[derive(Debug, Clone)]
+struct IssuedRequest {
+    requested_by: ActorId,
+    intent: ContentHash,
+    command: TradeCommand,
+}
+
+#[derive(Debug, Clone)]
 pub struct CommandIssuer {
     tenant_id: TenantId,
     command_ttl: ChronoDuration,
-    issued_by_key: BTreeMap<String, TradeCommand>,
+    issued_by_key: BTreeMap<String, IssuedRequest>,
     consumed_approvals: BTreeSet<(DecisionId, ActorId)>,
 }
 
@@ -236,7 +247,8 @@ impl CommandIssuer {
 
     /// Issue a short-lived, signed, idempotent TradeCommand from a valid proposal,
     /// risk decision, and (when required) approval. Re-issuing with the same
-    /// idempotency key returns the already-issued command.
+    /// idempotency key returns the already-issued command only for the same
+    /// requester and canonical business intent, after safety checks run again.
     pub fn issue(
         &mut self,
         proposal: &TradeProposalRecord,
@@ -246,10 +258,6 @@ impl CommandIssuer {
         requested_at: DateTime<Utc>,
     ) -> Result<TradeCommand, IssuanceError> {
         let key = format!("{}:{}", self.tenant_id, input.idempotency_key);
-        if let Some(existing) = self.issued_by_key.get(&key) {
-            return Ok(existing.clone());
-        }
-
         if input.kill_switch_engaged {
             return Err(reject(IssuanceRejection::KillSwitchEngaged));
         }
@@ -263,8 +271,8 @@ impl CommandIssuer {
             return Err(reject(IssuanceRejection::StaleData));
         }
 
-        let approval_signature = match decision.verdict {
-            RiskVerdict::Allow => None,
+        let (approval_signature, approval_consumption) = match decision.verdict {
+            RiskVerdict::Allow => (None, None),
             RiskVerdict::ApprovalRequired => {
                 let approval = input
                     .approval
@@ -278,21 +286,47 @@ impl CommandIssuer {
                 if ApprovalVerifier::verify(approval, decision).is_err() {
                     return Err(reject(IssuanceRejection::ApprovalMissing));
                 }
-                let consumption_key = (approval.decision_id, approval.approver);
-                if !self.consumed_approvals.insert(consumption_key) {
-                    return Err(reject(IssuanceRejection::DuplicateApproval));
-                }
-                Some(approval.signature.clone())
+                (
+                    Some(approval.signature.clone()),
+                    Some((approval.decision_id, approval.approver)),
+                )
             }
             RiskVerdict::Deny => {
                 return Err(reject(IssuanceRejection::ApprovalMissing));
             }
         };
 
+        // Bind the complete immutable proposal/decision and order intent. Do
+        // not namespace by requester: a different requester must conflict,
+        // rather than obtain a second command under the same tenant/key.
+        // Observation time and live safety flags are revalidated, not frozen.
+        let intent = issuance_intent(proposal, decision, &input, requested_by)?;
+        if let Some(existing) = self.issued_by_key.get(&key) {
+            if existing.requested_by != requested_by || existing.intent != intent {
+                return Err(reject(IssuanceRejection::IdempotencyConflict));
+            }
+            if existing.command.expires_at <= requested_at {
+                return Err(reject(IssuanceRejection::CommandExpired));
+            }
+            // Fresh data may be renewed, but cannot extend the signed command
+            // or shorten its required validity window beneath that deadline.
+            if input.data_expires_at < existing.command.expires_at {
+                return Err(reject(IssuanceRejection::StaleData));
+            }
+            return Ok(existing.command.clone());
+        }
+        if approval_consumption.is_some_and(|approval| self.consumed_approvals.contains(&approval))
+        {
+            return Err(reject(IssuanceRejection::DuplicateApproval));
+        }
+
         let expires_at = proposal
             .expires_at
             .min(requested_at + self.command_ttl)
             .min(input.data_expires_at);
+        if expires_at <= requested_at {
+            return Err(reject(IssuanceRejection::CommandExpired));
+        }
         let signature = ContentHash::sha256_bytes(&canonical_json_bytes(&json!({
             "signer": EXECUTION_SIGNER,
             "proposal_id": proposal.proposal_id,
@@ -329,7 +363,18 @@ impl CommandIssuer {
             signature,
             issued_at: requested_at,
         };
-        self.issued_by_key.insert(key, command.clone());
+        // No fallible operation or rejected replay consumes a new approval.
+        if let Some(approval) = approval_consumption {
+            self.consumed_approvals.insert(approval);
+        }
+        self.issued_by_key.insert(
+            key,
+            IssuedRequest {
+                requested_by,
+                intent,
+                command: command.clone(),
+            },
+        );
         Ok(command)
     }
 
@@ -337,6 +382,39 @@ impl CommandIssuer {
     pub fn issued_count(&self) -> usize {
         self.issued_by_key.len()
     }
+}
+
+fn issuance_intent(
+    proposal: &TradeProposalRecord,
+    decision: &RiskDecision,
+    input: &IssuanceInput,
+    requested_by: ActorId,
+) -> Result<ContentHash, CoreError> {
+    Ok(ContentHash::sha256_bytes(&canonical_json_bytes(&json!({
+        "requested_by": requested_by,
+        "proposal": proposal,
+        "decision": {
+            "decision_id": decision.decision_id,
+            "verdict": decision.verdict,
+            "hit_rules": decision.hit_rules,
+            "limit_ids": decision.limit_ids,
+            "signer": decision.signer,
+            "reason": decision.reason,
+            "signature": decision.signature,
+            "decided_at": decision.decided_at,
+        },
+        "order": {
+            "venue": input.venue,
+            "venue_kind": input.venue_kind,
+            "intent": input.intent,
+            "side": input.side,
+            "quantity": input.quantity,
+            "limit_price": input.limit_price,
+            "stop_price": input.stop_price,
+            "proposal_originator": input.proposal_originator,
+            "approval": input.approval,
+        },
+    }))?))
 }
 
 fn reject(rejection: IssuanceRejection) -> IssuanceError {
@@ -680,7 +758,8 @@ mod tests {
     }
 
     #[test]
-    fn issuance_stays_under_two_hundred_millis_p95_and_is_short_lived() {
+    #[ignore = "release performance; run cargo test -p quantos-execution --lib p95 -- --ignored"]
+    fn issuance_p95_stays_under_two_hundred_millis() {
         let tenant_id = TenantId::new();
         let actors = actors();
         let proposal = proposal_fixture(actors.originator, now() + ChronoDuration::minutes(10));
@@ -690,7 +769,7 @@ mod tests {
         let mut durations = Vec::new();
         for index in 0..200_u32 {
             let started = Instant::now();
-            let command = issuer
+            issuer
                 .issue(
                     &proposal,
                     &decision,
@@ -700,12 +779,6 @@ mod tests {
                 )
                 .expect("issuance succeeds");
             durations.push(started.elapsed());
-            assert_eq!(
-                command.expires_at,
-                now() + ChronoDuration::minutes(2),
-                "command TTL is the shortest bound"
-            );
-            assert!(!command.signature.as_str().is_empty());
         }
         durations.sort();
         let p95 = durations[(durations.len() * 95 / 100).min(durations.len() - 1)];
@@ -741,4 +814,6 @@ mod tests {
         assert_eq!(command.decision_id, decision.decision_id);
         assert!(command.expires_at <= proposal.expires_at);
     }
+
+    mod replay;
 }
