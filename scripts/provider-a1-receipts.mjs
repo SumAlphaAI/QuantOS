@@ -99,9 +99,9 @@ export function validateArtifact(kind,path,source) {
  const r=JSON.parse(readFileSync(path));
  if(kind==='bff005-http'){validateMarketEvidence(r,source);return;}
  if(kind==='f01-reproducibility')validateReproducibility(r,source);
- else if(kind==='tp09-development'){assert.equal(r.observedSourceCommit,source,'TP09 execution source differs');verifyTp09(r,{checkDependencies:false,logDirectory:dirname(path)});}
- else if(kind==='tp11-development'){assert.equal(r.observedSourceCommit,source,'TP11 execution source differs');verifyTp11(r,{checkDependencies:false,logDirectory:dirname(path)});}
- else if(kind==='tp10-development'){assert.equal(r.observedSourceCommit,source,'TP10 execution source differs');verifyTp10(r,{checkDependencies:false,logDirectory:dirname(path)});}
+ else if(['tp09-development','tp09-local-development'].includes(kind)){assert.equal(r.observedSourceCommit,source,'TP09 execution source differs');assert.equal(r.validationMode??'UPSTREAM',kind==='tp09-local-development'?'LOCAL':'UPSTREAM','local and public verification cannot substitute');verifyTp09(r,{checkDependencies:false,logDirectory:dirname(path)});}
+ else if(['tp11-development','tp11-local-development'].includes(kind)){assert.equal(r.observedSourceCommit,source,'TP11 execution source differs');assert.equal(r.validationMode??'UPSTREAM',kind==='tp11-local-development'?'LOCAL':'UPSTREAM','local and public verification cannot substitute');verifyTp11(r,{checkDependencies:false,logDirectory:dirname(path)});}
+ else if(['tp10-development','tp10-local-development'].includes(kind)){assert.equal(r.observedSourceCommit,source,'TP10 execution source differs');assert.equal(r.validationMode??'UPSTREAM',kind==='tp10-local-development'?'LOCAL':'UPSTREAM','local and public verification cannot substitute');verifyTp10(r,{checkDependencies:false,logDirectory:dirname(path)});}
  else if(kind==='tp08-development'){assert.equal(r.observedSourceCommit,source,'TP08 execution source differs');verifyTp08(r,{checkDependencies:false,logDirectory:dirname(path)});}
  else if(kind==='tp05-development'){assert.equal(r.observedSourceCommit,source,'TP05 execution source differs');verifyTp05(r,{checkDependencies:false,logDirectory:dirname(path)});}
  else if(kind==='tp04-development'){assert.equal(r.observedSourceCommit,source,'TP04 execution source differs');verifyTp04(r,{checkDependencies:false,logDirectory:dirname(path)});}
@@ -133,9 +133,9 @@ export function supportingArtifactPaths(kind,r) {
  if(kind==='a2-local-semantics')return r.results.map((_,i)=>'semantics-'+i+'.log');
  if(kind==='a2-local-mutations')return r.records.map(x=>x.log.file).sort();
  if(kind==='research-local-products')return [...r.files.map(x=>x.file),...r.checks.map(x=>x.log.file)].sort();
- if(kind==='tp09-development')return [...r.checks.map(c=>c.id+'.log'),...r.outputs.map(x=>x.file)].sort();
- if(kind==='tp11-development')return [...r.checks.map(c=>c.id+'.log'),...r.outputs.map(x=>x.file)].sort();
- if(kind==='tp10-development')return r.checks.map(c=>c.id+'.log').sort();
+ if(['tp09-development','tp09-local-development'].includes(kind))return [...r.checks.map(c=>c.id+'.log'),...r.outputs.map(x=>x.file)].sort();
+ if(['tp11-development','tp11-local-development'].includes(kind))return [...r.checks.map(c=>c.id+'.log'),...r.outputs.map(x=>x.file)].sort();
+ if(['tp10-development','tp10-local-development'].includes(kind))return r.checks.map(c=>c.id+'.log').sort();
  if(kind==='tp08-development')return [...r.checks.map(c=>c.id+'.log'),...r.outputs.map(x=>x.file)].sort();
  if(kind==='tp05-development')return [...r.checks.map(c=>c.id+'.log'),...r.package.wheels.map(w=>'wheels/'+w.file),...r.outputs.map(x=>x.file)].sort();
  if(kind==='tp04-development')return [...r.checks.map(c=>c.id+'.log'),...r.package.wheels.map(w=>'wheels/'+w.file),...r.outputs.map(x=>x.file)].sort();
@@ -165,11 +165,11 @@ export const localScope=profile=>({'TP01-E_LOCAL':'TP01-E synthetic sync classif
 export const localIndexSchema=profile=>({'TP01-E_LOCAL':'quantos-tp01-e-local-prerequisites/v1',TP02_LOCAL:'quantos-tp02-local-prerequisites/v1',R1_LOCAL:'quantos-r1-local-prerequisites/v1',A2_LOCAL:'quantos-a2-local-prerequisites/v1',BFF005_LOCAL:'quantos-bff005-local-prerequisites/v1',A3_LOCAL:'quantos-a3-local-prerequisites/v1',A3_EXECUTION:'quantos-a3-execution-prerequisites/v1',BFF003_LOCAL:'quantos-bff003-local-prerequisites/v1',R03_LOCAL:'quantos-r03-local-prerequisites/v1',R04_LOCAL:'quantos-r04-local-prerequisites/v1','TP01-C_LOCAL':'quantos-tp01-c-local-prerequisites/v1','TP01-D_LOCAL':'quantos-tp01-d-local-prerequisites/v1'}[profile]);
 export function localChecks(id,p=policy(),profile='R03_LOCAL') {
  const spec=localPolicy(profile,p);
- return [...p.nodes[id].checks.filter(c=>!p.checks[c].database&&!p.checks[c].target&&!p.checks[c].performance&&!(spec.deferredChecks??[]).includes(c)),...(spec.nodeChecks[id]??[])];
+ return [...p.nodes[id].checks.map(c=>({'tp09-development':'tp09-local-development','tp10-development':'tp10-local-development','tp11-development':'tp11-local-development'}[c]??c)).filter(c=>!p.checks[c].external&&!p.checks[c].database&&!p.checks[c].target&&!p.checks[c].performance&&!(spec.deferredChecks??[]).includes(c)),...(spec.nodeChecks[id]??[])];
 }
 export function localDeferred(nodes=nodesFromPlans(),p=policy(),profile='R03_LOCAL') {
  const selected=[...new Set(localPolicy(profile,p).roots.flatMap(id=>closure(nodes,id)))];
- return [...new Set(selected.flatMap(id=>p.nodes[id].checks).concat(localPolicy(profile,p).releaseChecks??[]))].filter(c=>p.checks[c].database||p.checks[c].target||p.checks[c].performance||(localPolicy(profile,p).deferredChecks??[]).includes(c)).map(id=>({id,command:p.checks[id].command,status:'NOT_RUN',checkpoint:'RELEASE-GATE:BETA'}));
+ return [...new Set(selected.flatMap(id=>p.nodes[id].checks).concat(localPolicy(profile,p).releaseChecks??[]))].filter(c=>p.checks[c].external||p.checks[c].database||p.checks[c].target||p.checks[c].performance||(localPolicy(profile,p).deferredChecks??[]).includes(c)).map(id=>({id,command:p.checks[id].command,status:'NOT_RUN',checkpoint:'RELEASE-GATE:BETA'}));
 }
 export function validateLocalPrerequisites(path,{nodes=nodesFromPlans(),base=root,profile='R03_LOCAL'}={}) {
  const p=policy(base),bytes=readFileSync(confined(path,base)),index=JSON.parse(bytes);
@@ -244,7 +244,7 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1'],{profil
  const engineBaseline=engineBaselineDir?resolve(engineBaselineDir,'baseline.json'):null;
  const engineScope=engineBaseline?randomBytes(4).toString('hex'):null;
  if(engineBaseline){environment.engineProcessScope=engineScope;writeFileSync(engineBaseline,JSON.stringify({...engineSnapshot(root),scopeTag:engineScope}));}
- for(const id of all){const spec=p.checks[id];if(profile){assert(!spec.database&&!spec.target&&!spec.performance,'local profiles cannot execute target checks');assert(Object.keys(spec.env??{}).every(k=>! /DATABASE_URL|SUPABASE|PASSWORD|TOKEN|SECRET|(?:^|_)KEY$|QUANTOS_RUN_.*TESTS/.test(k)),'local check cannot inject credentials or database switches');}const env=developmentEnvironment(readFileSync(confined(p.developmentProfile.file),'utf8'),p.developmentProfile.overrides);let external;
+ for(const id of all){const spec=p.checks[id];if(profile){assert(!spec.external&&!spec.database&&!spec.target&&!spec.performance,'local profiles cannot execute target checks');assert(Object.keys(spec.env??{}).every(k=>! /DATABASE_URL|SUPABASE|PASSWORD|TOKEN|SECRET|(?:^|_)KEY$|QUANTOS_RUN_.*TESTS/.test(k)),'local check cannot inject credentials or database switches');}const env=developmentEnvironment(readFileSync(confined(p.developmentProfile.file),'utf8'),p.developmentProfile.overrides);let external;
   if(spec.database){process.loadEnvFile(resolve(root,'.env.local'));Object.assign(env,Object.fromEntries(Object.entries(process.env).filter(([key])=>!key.startsWith('NEXT_PUBLIC_'))));env.QUANTOS_RUN_F05_POSTGRES_TESTS='1';const url=new URL(env.DATABASE_URL);assert(url.hostname.endsWith('.supabase.com'),'only configured Supabase database permitted');}
   if(spec.staticOnly||profile){const isolated=staticEnvironment(env);for(const key of Object.keys(env))delete env[key];Object.assign(env,isolated);}
   Object.assign(env,spec.env??{});

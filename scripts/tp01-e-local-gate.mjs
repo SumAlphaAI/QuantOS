@@ -6,7 +6,7 @@ import {pathToFileURL} from 'node:url';
 import {root,digest,nodesFromPlans,planInput,closure,localDeferred,validateLocalPrerequisites,publishStages,validateReceipt} from './provider-a1-receipts.mjs';
 export const profile='TP01-E_LOCAL',nodeId='CORE:TP01-E';
 export const manifest='docs/audit/evidence/tp01-e-local-20261014/manifest.json';
-export const handoff='TP01-E_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、上游实际候选发现/在线CVE刷新/自然schedule与候选同SHA CI、实际diff及range-diff/依赖许可证审查和候选采用、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成同步fixture与S0–S3阻断不授予上游READY、R1-SERVICE、SERVICE:TP01、生产或正式ACCEPTED，不授权sync adoption或外部发布。';
+export const handoff='TP01-E_LOCAL 发布移交：全部Supabase前置与平台可写性、PostgreSQL迁移/RLS/事务/Auth/Storage及持久Artifact/audit/取消恢复、实际BFF/Runtime部署授权、GitHub远程分支保护及fork治理、上游实际候选发现/在线CVE刷新/自然schedule与候选同SHA CI、TP09/TP10/TP11固定公共字节与provider条款线上复验、实际diff及range-diff/依赖许可证审查和候选采用、R02真实来源与用途许可、OS egress隔离、代表性性能/容量/长稳；由RELEASE-GATE:BETA首次发布前实际验收。目标NOT_RUN，本地合成同步fixture与S0–S3阻断不授予上游READY、R1-SERVICE、SERVICE:TP01、生产或正式ACCEPTED，不授权sync adoption或外部发布。';
 export const expectedNodes=["CORE:F01","CORE:F02","CORE:TP01-A","CORE:F03","CORE:F04","CORE:F05","CORE:F06","CORE:F07","CORE:TP01-B","CORE:F08","CORE:F09","CORE-GATE:F0","CORE:TP01-C","CORE:R01","CORE:R02","CORE:TP01-D","CORE:TP02","CORE:TP03","CORE:TP04","CORE:TP05","CORE:TP08","CORE:TP09","CORE:TP10","CORE:TP11","CORE:R03","CORE:R04","CORE-GATE:R1-SERVICE","CORE:TP01-E"];
 export function verify(r,{nodes=nodesFromPlans(),validateLocal=validateLocalPrerequisites}={}){
  assert.deepEqual(closure(nodes,nodeId),expectedNodes,'authorized twenty-eight-node closure changed');

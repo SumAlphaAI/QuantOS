@@ -1139,7 +1139,8 @@
       "marker": "\"engineeringStatus\":\"PASS\"",
       "artifact": "docs/audit/evidence/tp10-20261011/receipt.json",
       "artifactKind": "tp10-development",
-      "timeoutMs": 900000
+      "timeoutMs": 900000,
+      "external": true
     },
     "tp10-negatives": {
       "command": [
@@ -1172,7 +1173,8 @@
       "marker": "\"engineeringStatus\":\"PASS\"",
       "artifact": "docs/audit/evidence/tp11-20261011/receipt.json",
       "artifactKind": "tp11-development",
-      "timeoutMs": 900000
+      "timeoutMs": 900000,
+      "external": true
     },
     "tp11-negatives": {
       "command": [
@@ -1205,7 +1207,8 @@
       "marker": "\"engineeringStatus\":\"PASS\"",
       "artifact": "docs/audit/evidence/tp09-20261011/receipt.json",
       "artifactKind": "tp09-development",
-      "timeoutMs": 900000
+      "timeoutMs": 900000,
+      "external": true
     },
     "tp09-negatives": {
       "command": [
@@ -1757,10 +1760,11 @@
         "node",
         "--test",
         "--test-reporter=tap",
-        "scripts/tp01-e-functional.test.mjs"
+        "scripts/tp01-e-functional.test.mjs",
+        "scripts/tp-reference-local.test.mjs"
       ],
       "staticOnly": true,
-      "marker": "# tests 38\\n[\\s\\S]*# pass 38\\n[\\s\\S]*# fail 0\\n"
+      "marker": "# tests 55\\n[\\s\\S]*# pass 55\\n[\\s\\S]*# fail 0\\n"
     },
     "tp01-e-local-policy": {
       "command": [
@@ -1771,6 +1775,42 @@
       ],
       "staticOnly": true,
       "marker": "# tests 44\\n[\\s\\S]*# pass 44\\n[\\s\\S]*# fail 0\\n"
+    },
+    "tp09-local-development": {
+      "command": [
+        "node",
+        "third_party/trendradar/check-development.mjs",
+        "--record-local"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp09-20261011/receipt.json",
+      "artifactKind": "tp09-local-development",
+      "timeoutMs": 900000
+    },
+    "tp10-local-development": {
+      "command": [
+        "node",
+        "third_party/valuecell/check-development.mjs",
+        "--record-local"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp10-20261011/receipt.json",
+      "artifactKind": "tp10-local-development",
+      "timeoutMs": 900000
+    },
+    "tp11-local-development": {
+      "command": [
+        "node",
+        "third_party/openstock/check-development.mjs",
+        "--record-local"
+      ],
+      "staticOnly": true,
+      "marker": "\"engineeringStatus\":\"PASS\"",
+      "artifact": "docs/audit/evidence/tp11-20261011/receipt.json",
+      "artifactKind": "tp11-local-development",
+      "timeoutMs": 900000
     }
   },
   "nodes": {

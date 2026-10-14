@@ -1,0 +1,694 @@
+TAP version 13
+# Subtest: real child timeout is a failed execution with retained ETIMEDOUT and signal
+ok 1 - real child timeout is a failed execution with retained ETIMEDOUT and signal
+  ---
+  duration_ms: 34.124875
+  type: 'test'
+  ...
+# Subtest: ordinary exit, error, signal and malformed budget remain distinct
+ok 2 - ordinary exit, error, signal and malformed budget remain distinct
+  ---
+  duration_ms: 0.390458
+  type: 'test'
+  ...
+# Subtest: all configured execution budgets including F01 90-minute builds remain supported
+ok 3 - all configured execution budgets including F01 90-minute builds remain supported
+  ---
+  duration_ms: 0.463292
+  type: 'test'
+  ...
+# Subtest: valid source and execution-bound dependency chain is READY without release signatures
+ok 4 - valid source and execution-bound dependency chain is READY without release signatures
+  ---
+  duration_ms: 41.822167
+  type: 'test'
+  ...
+# Subtest: timeout cannot pass
+ok 5 - timeout cannot pass
+  ---
+  duration_ms: 31.3895
+  type: 'test'
+  ...
+# Subtest: spawn error cannot pass
+ok 6 - spawn error cannot pass
+  ---
+  duration_ms: 30.060667
+  type: 'test'
+  ...
+# Subtest: signal cannot pass
+ok 7 - signal cannot pass
+  ---
+  duration_ms: 30.839959
+  type: 'test'
+  ...
+# Subtest: timeout budget substituted
+ok 8 - timeout budget substituted
+  ---
+  duration_ms: 31.638125
+  type: 'test'
+  ...
+# Subtest: missing required execution
+ok 9 - missing required execution
+  ---
+  duration_ms: 30.558542
+  type: 'test'
+  ...
+# Subtest: failed execution
+ok 10 - failed execution
+  ---
+  duration_ms: 30.797916
+  type: 'test'
+  ...
+# Subtest: wrong actual command
+ok 11 - wrong actual command
+  ---
+  duration_ms: 31.383667
+  type: 'test'
+  ...
+# Subtest: unresolved issue
+ok 12 - unresolved issue
+  ---
+  duration_ms: 25.819208
+  type: 'test'
+  ...
+# Subtest: wrong node
+ok 13 - wrong node
+  ---
+  duration_ms: 24.597375
+  type: 'test'
+  ...
+# Subtest: missing source inventory
+ok 14 - missing source inventory
+  ---
+  duration_ms: 29.64825
+  type: 'test'
+  ...
+# Subtest: plan scope changed
+ok 15 - plan scope changed
+  ---
+  duration_ms: 23.946916
+  type: 'test'
+  ...
+# Subtest: outside log path
+ok 16 - outside log path
+  ---
+  duration_ms: 29.179541
+  type: 'test'
+  ...
+# Subtest: wrong log digest
+ok 17 - wrong log digest
+  ---
+  duration_ms: 28.852875
+  type: 'test'
+  ...
+# Subtest: missing dependency
+ok 18 - missing dependency
+  ---
+  duration_ms: 29.490166
+  type: 'test'
+  ...
+# Subtest: dependency digest substituted
+ok 19 - dependency digest substituted
+  ---
+  duration_ms: 28.865917
+  type: 'test'
+  ...
+# Subtest: tampered manifest bytes are rejected
+ok 20 - tampered manifest bytes are rejected
+  ---
+  duration_ms: 24.164292
+  type: 'test'
+  ...
+# Subtest: changed source content is rejected despite unchanged gate digest
+ok 21 - changed source content is rejected despite unchanged gate digest
+  ---
+  duration_ms: 28.111
+  type: 'test'
+  ...
+# Subtest: dependency must independently be READY
+ok 22 - dependency must independently be READY
+  ---
+  duration_ms: 28.755833
+  type: 'test'
+  ...
+# Subtest: arbitrary log cannot masquerade as successful execution
+ok 23 - arbitrary log cannot masquerade as successful execution
+  ---
+  duration_ms: 30.27125
+  type: 'test'
+  ...
+# Subtest: input file symlink cannot escape the repository
+ok 24 - input file symlink cannot escape the repository
+  ---
+  duration_ms: 29.087334
+  type: 'test'
+  ...
+# Subtest: database execution cannot be inferred from a normal local PASS
+ok 25 - database execution cannot be inferred from a normal local PASS
+  ---
+  duration_ms: 37.245833
+  type: 'test'
+  ...
+# Subtest: Supabase target receipt verifies each compressed execution log
+ok 26 - Supabase target receipt verifies each compressed execution log
+  ---
+  duration_ms: 37.28575
+  type: 'test'
+  ...
+# Subtest: source drift during execution invalidates the original input snapshot
+ok 27 - source drift during execution invalidates the original input snapshot
+  ---
+  duration_ms: 47.84075
+  type: 'test'
+  ...
+# Subtest: requirement drift during execution invalidates the original input snapshot
+ok 28 - requirement drift during execution invalidates the original input snapshot
+  ---
+  duration_ms: 53.013292
+  type: 'test'
+  ...
+# Subtest: controlled public development profile overrides stale values and preserves server inputs
+ok 29 - controlled public development profile overrides stale values and preserves server inputs
+  ---
+  duration_ms: 0.147667
+  type: 'test'
+  ...
+# Subtest: private credentials cannot be injected through a public development profile
+ok 30 - private credentials cannot be injected through a public development profile
+  ---
+  duration_ms: 0.131042
+  type: 'test'
+  ...
+# Subtest: transient Auth 503 can retry only a complete target execution
+ok 31 - transient Auth 503 can retry only a complete target execution
+  ---
+  duration_ms: 0.147708
+  type: 'test'
+  ...
+# Subtest: persistent target timeout never becomes PASS and stops at its budget
+ok 32 - persistent target timeout never becomes PASS and stops at its budget
+  ---
+  duration_ms: 0.091833
+  type: 'test'
+  ...
+# Subtest: semantic target failures stop without retry or PASS
+ok 33 - semantic target failures stop without retry or PASS
+  ---
+  duration_ms: 0.035792
+  type: 'test'
+  ...
+# Subtest: target retry budget cannot be unbounded
+ok 34 - target retry budget cannot be unbounded
+  ---
+  duration_ms: 0.1035
+  type: 'test'
+  ...
+# Subtest: configured target retries require explicit attempt outcomes in the receipt
+ok 35 - configured target retries require explicit attempt outcomes in the receipt
+  ---
+  duration_ms: 35.233084
+  type: 'test'
+  ...
+# Subtest: three successful full builds bind output inventories
+ok 36 - three successful full builds bind output inventories
+  ---
+  duration_ms: 0.386125
+  type: 'test'
+  ...
+# Subtest: reproducibility rejects only two builds
+ok 37 - reproducibility rejects only two builds
+  ---
+  duration_ms: 0.121958
+  type: 'test'
+  ...
+# Subtest: reproducibility rejects missing Python build
+ok 38 - reproducibility rejects missing Python build
+  ---
+  duration_ms: 0.135083
+  type: 'test'
+  ...
+# Subtest: reproducibility rejects failed command
+ok 39 - reproducibility rejects failed command
+  ---
+  duration_ms: 0.121
+  type: 'test'
+  ...
+# Subtest: reproducibility rejects different output digest
+ok 40 - reproducibility rejects different output digest
+  ---
+  duration_ms: 0.104708
+  type: 'test'
+  ...
+# Subtest: reproducibility rejects substituted inventory
+ok 41 - reproducibility rejects substituted inventory
+  ---
+  duration_ms: 0.071541
+  type: 'test'
+  ...
+# Subtest: reproducibility rejects dirty source
+ok 42 - reproducibility rejects dirty source
+  ---
+  duration_ms: 0.056458
+  type: 'test'
+  ...
+# Subtest: reproducibility rejects old source
+ok 43 - reproducibility rejects old source
+  ---
+  duration_ms: 0.053334
+  type: 'test'
+  ...
+# Subtest: development policy retains explicit build, coverage, volume and target storage obligations
+ok 44 - development policy retains explicit build, coverage, volume and target storage obligations
+  ---
+  duration_ms: 0.423125
+  type: 'test'
+  ...
+# Subtest: static make commands cannot reload .env.local or inherit target database opt-ins
+ok 45 - static make commands cannot reload .env.local or inherit target database opt-ins
+  ---
+  duration_ms: 0.161458
+  type: 'test'
+  ...
+# Subtest: volume retry restarts the complete check only on a closed PostgreSQL transport
+ok 46 - volume retry restarts the complete check only on a closed PostgreSQL transport
+  ---
+  duration_ms: 0.063792
+  type: 'test'
+  ...
+# Subtest: volume correctness and certificate errors cannot be retried into PASS
+ok 47 - volume correctness and certificate errors cannot be retried into PASS
+  ---
+  duration_ms: 0.056375
+  type: 'test'
+  ...
+# Subtest: persistent database transport failure stays failed at the retry limit
+ok 48 - persistent database transport failure stays failed at the retry limit
+  ---
+  duration_ms: 0.03475
+  type: 'test'
+  ...
+# Subtest: separate assessment snapshot preserves historical manifests and binds its own logs
+ok 49 - separate assessment snapshot preserves historical manifests and binds its own logs
+  ---
+  duration_ms: 35.680708
+  type: 'test'
+  ...
+# Subtest: third-party Git link binds the actual clean checkout and rejects dirty/advanced source
+ok 50 - third-party Git link binds the actual clean checkout and rejects dirty/advanced source
+  ---
+  duration_ms: 151.480083
+  type: 'test'
+  ...
+# Subtest: transient read-only preflight connection closure retries the complete target
+ok 51 - transient read-only preflight connection closure retries the complete target
+  ---
+  duration_ms: 0.1005
+  type: 'test'
+  ...
+# Subtest: preflight permission and role failures are not transport retries
+ok 52 - preflight permission and role failures are not transport retries
+  ---
+  duration_ms: 0.067792
+  type: 'test'
+  ...
+# Subtest: persistent preflight closure exhausts three attempts without PASS
+ok 53 - persistent preflight closure exhausts three attempts without PASS
+  ---
+  duration_ms: 0.036792
+  type: 'test'
+  ...
+# Subtest: inventory reads a Git file list over 1 MiB without truncating selected inputs
+ok 54 - inventory reads a Git file list over 1 MiB without truncating selected inputs
+  ---
+  duration_ms: 212.615666
+  type: 'test'
+  ...
+# Subtest: R03 local projection validates functional evidence without granting global readiness
+ok 55 - R03 local projection validates functional evidence without granting global readiness
+  ---
+  duration_ms: 57.557459
+  type: 'test'
+  ...
+# Subtest: local policy retains every Supabase command for release and F07 local coverage
+ok 56 - local policy retains every Supabase command for release and F07 local coverage
+  ---
+  duration_ms: 43.635625
+  type: 'test'
+  ...
+# Subtest: R03 local Cargo targets exist in workspace metadata
+ok 57 - R03 local Cargo targets exist in workspace metadata
+  ---
+  duration_ms: 40.503292
+  type: 'test'
+  ...
+# Subtest: A2_LOCAL admits only complete scoped functionality
+ok 58 - A2_LOCAL admits only complete scoped functionality
+  ---
+  duration_ms: 24.039834
+  type: 'test'
+  ...
+# Subtest: R1_LOCAL admits only complete scoped functionality
+ok 59 - R1_LOCAL admits only complete scoped functionality
+  ---
+  duration_ms: 14.858333
+  type: 'test'
+  ...
+# Subtest: BFF003_LOCAL admits only complete scoped functionality
+ok 60 - BFF003_LOCAL admits only complete scoped functionality
+  ---
+  duration_ms: 14.901333
+  type: 'test'
+  ...
+# Subtest: BFF005_LOCAL admits only complete scoped functionality
+ok 61 - BFF005_LOCAL admits only complete scoped functionality
+  ---
+  duration_ms: 14.153042
+  type: 'test'
+  ...
+# Subtest: A3_LOCAL admits only complete scoped functionality
+ok 62 - A3_LOCAL admits only complete scoped functionality
+  ---
+  duration_ms: 55.354917
+  type: 'test'
+  ...
+# Subtest: reject another owner
+ok 63 - reject another owner
+  ---
+  duration_ms: 14.237083
+  type: 'test'
+  ...
+# Subtest: reject formal self approval
+ok 64 - reject formal self approval
+  ---
+  duration_ms: 12.750416
+  type: 'test'
+  ...
+# Subtest: reject production
+ok 65 - reject production
+  ---
+  duration_ms: 13.282083
+  type: 'test'
+  ...
+# Subtest: reject target claim
+ok 66 - reject target claim
+  ---
+  duration_ms: 13.425125
+  type: 'test'
+  ...
+# Subtest: reject performance claim
+ok 67 - reject performance claim
+  ---
+  duration_ms: 11.894334
+  type: 'test'
+  ...
+# Subtest: reject external claim
+ok 68 - reject external claim
+  ---
+  duration_ms: 12.566083
+  type: 'test'
+  ...
+# Subtest: reject failed status
+ok 69 - reject failed status
+  ---
+  duration_ms: 12.90425
+  type: 'test'
+  ...
+# Subtest: reject unregistered profile
+ok 70 - reject unregistered profile
+  ---
+  duration_ms: 12.76125
+  type: 'test'
+  ...
+# Subtest: reject altered scope
+ok 71 - reject altered scope
+  ---
+  duration_ms: 13.038334
+  type: 'test'
+  ...
+# Subtest: reject missing dependency
+ok 72 - reject missing dependency
+  ---
+  duration_ms: 12.869541
+  type: 'test'
+  ...
+# Subtest: reject published upstream instead of projection
+ok 73 - reject published upstream instead of projection
+  ---
+  duration_ms: 12.840541
+  type: 'test'
+  ...
+# Subtest: reject forged dependency
+ok 74 - reject forged dependency
+  ---
+  duration_ms: 12.9775
+  type: 'test'
+  ...
+# Subtest: reject mixed SHA
+ok 75 - reject mixed SHA
+  ---
+  duration_ms: 13.981334
+  type: 'test'
+  ...
+# Subtest: reject partial closure
+ok 76 - reject partial closure
+  ---
+  duration_ms: 13.145792
+  type: 'test'
+  ...
+# Subtest: reject wrong local owner
+ok 77 - reject wrong local owner
+  ---
+  duration_ms: 13.197125
+  type: 'test'
+  ...
+# Subtest: reject failed local proof
+ok 78 - reject failed local proof
+  ---
+  duration_ms: 13.075666
+  type: 'test'
+  ...
+# Subtest: reject changed index
+ok 79 - reject changed index
+  ---
+  duration_ms: 13.337833
+  type: 'test'
+  ...
+# Subtest: reject swapped functional manifest
+ok 80 - reject swapped functional manifest
+  ---
+  duration_ms: 13.202541
+  type: 'test'
+  ...
+# Subtest: reject lost release command
+ok 81 - reject lost release command
+  ---
+  duration_ms: 13.46075
+  type: 'test'
+  ...
+# Subtest: reject target passed
+ok 82 - reject target passed
+  ---
+  duration_ms: 12.953416
+  type: 'test'
+  ...
+# Subtest: reject lost handoff
+ok 83 - reject lost handoff
+  ---
+  duration_ms: 12.733125
+  type: 'test'
+  ...
+# Subtest: reject release obligation removed
+ok 84 - reject release obligation removed
+  ---
+  duration_ms: 11.58475
+  type: 'test'
+  ...
+# Subtest: local profiles cannot execute target or network SCA checks
+ok 85 - local profiles cannot execute target or network SCA checks
+  ---
+  duration_ms: 13.553709
+  type: 'test'
+  ...
+# Subtest: local environment strips database and production credentials
+ok 86 - local environment strips database and production credentials
+  ---
+  duration_ms: 0.207041
+  type: 'test'
+  ...
+# Subtest: publication is transactional if post-write validation fails
+ok 87 - publication is transactional if post-write validation fails
+  ---
+  duration_ms: 120.447083
+  type: 'test'
+  ...
+# Subtest: partial profile publication rejected before writing
+ok 88 - partial profile publication rejected before writing
+  ---
+  duration_ms: 0.133459
+  type: 'test'
+  ...
+# Subtest: release performance thresholds retained and development CI diagnostic only
+ok 89 - release performance thresholds retained and development CI diagnostic only
+  ---
+  duration_ms: 0.185625
+  type: 'test'
+  ...
+# Subtest: reassessment root and closure agree with consumer receipt true
+ok 90 - reassessment root and closure agree with consumer receipt true
+  ---
+  duration_ms: 566.418417
+  type: 'test'
+  ...
+# Subtest: reassessment root and closure agree with consumer receipt false
+ok 91 - reassessment root and closure agree with consumer receipt false
+  ---
+  duration_ms: 303.256834
+  type: 'test'
+  ...
+# Subtest: functional F04 proves corpus equality while release retains timing rejection
+ok 92 - functional F04 proves corpus equality while release retains timing rejection
+  ---
+  duration_ms: 0.241084
+  type: 'test'
+  ...
+# Subtest: legacy digest normalization preserves checksum and rejects malformed data
+ok 93 - legacy digest normalization preserves checksum and rejects malformed data
+  ---
+  duration_ms: 0.154625
+  type: 'test'
+  ...
+# Subtest: all local profiles defer performance commands
+ok 94 - all local profiles defer performance commands
+  ---
+  duration_ms: 115.763291
+  type: 'test'
+  ...
+# Subtest: R04 artifact validates actual historical fixture: none
+ok 95 - R04 artifact validates actual historical fixture: none
+  ---
+  duration_ms: 5.257292
+  type: 'test'
+  ...
+# Subtest: R04 artifact validates actual historical fixture: rehashed failed suite
+ok 96 - R04 artifact validates actual historical fixture: rehashed failed suite
+  ---
+  duration_ms: 1.831375
+  type: 'test'
+  ...
+# Subtest: R04 artifact validates actual historical fixture: rehashed incomplete product
+ok 97 - R04 artifact validates actual historical fixture: rehashed incomplete product
+  ---
+  duration_ms: 6.989167
+  type: 'test'
+  ...
+# Subtest: R04 artifact validates actual historical fixture: changed log
+ok 98 - R04 artifact validates actual historical fixture: changed log
+  ---
+  duration_ms: 1.801917
+  type: 'test'
+  ...
+# Subtest: all consumer registrations match the static stage contract
+ok 99 - all consumer registrations match the static stage contract
+  ---
+  duration_ms: 11.975541
+  type: 'test'
+  ...
+# Subtest: five local publication passes real plan order without upstream READY
+ok 100 - five local publication passes real plan order without upstream READY
+  ---
+  duration_ms: 128.530417
+  type: 'test'
+  ...
+# Subtest: A3 rejects missing consumer
+ok 101 - A3 rejects missing consumer
+  ---
+  duration_ms: 51.935708
+  type: 'test'
+  ...
+# Subtest: A3 rejects duplicated consumer
+ok 102 - A3 rejects duplicated consumer
+  ---
+  duration_ms: 47.062541
+  type: 'test'
+  ...
+# Subtest: A3 rejects wrong consumer path
+ok 103 - A3 rejects wrong consumer path
+  ---
+  duration_ms: 46.508625
+  type: 'test'
+  ...
+# Subtest: A3 rejects changed consumer bytes
+ok 104 - A3 rejects changed consumer bytes
+  ---
+  duration_ms: 47.871917
+  type: 'test'
+  ...
+# Subtest: A3 rejects rehashed mixed candidate
+ok 105 - A3 rejects rehashed mixed candidate
+  ---
+  duration_ms: 49.241958
+  type: 'test'
+  ...
+# Subtest: A3 rejects consumer not READY
+ok 106 - A3 rejects consumer not READY
+  ---
+  duration_ms: 47.928541
+  type: 'test'
+  ...
+# Subtest: A3 rejects consumer gate digest
+ok 107 - A3 rejects consumer gate digest
+  ---
+  duration_ms: 49.243416
+  type: 'test'
+  ...
+# Subtest: A3 rejects consumer formal promotion
+ok 108 - A3 rejects consumer formal promotion
+  ---
+  duration_ms: 48.351292
+  type: 'test'
+  ...
+# Subtest: A3 execution union cannot publish aggregate admission
+ok 109 - A3 execution union cannot publish aggregate admission
+  ---
+  duration_ms: 48.30875
+  type: 'test'
+  ...
+# Subtest: aggregate CLI loads without a cyclic module hang and refuses execution profile
+ok 110 - aggregate CLI loads without a cyclic module hang and refuses execution profile
+  ---
+  duration_ms: 139.0765
+  type: 'test'
+  ...
+# Subtest: all five publication indexes must come from the same candidate
+ok 111 - all five publication indexes must come from the same candidate
+  ---
+  duration_ms: 114.136167
+  type: 'test'
+  ...
+# Subtest: atomic publication verifies real aggregate consumer hashes before and after writing
+ok 112 - atomic publication verifies real aggregate consumer hashes before and after writing
+  ---
+  duration_ms: 388.711333
+  type: 'test'
+  ...
+# Subtest: execution union contains the complete TP02 local proof
+ok 113 - execution union contains the complete TP02 local proof
+  ---
+  duration_ms: 12.352583
+  type: 'test'
+  ...
+# Subtest: aggregate publication preserves an independent TP02 Gate
+ok 114 - aggregate publication preserves an independent TP02 Gate
+  ---
+  duration_ms: 114.831166
+  type: 'test'
+  ...
+1..114
+# tests 114
+# suites 0
+# pass 114
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3041.690459

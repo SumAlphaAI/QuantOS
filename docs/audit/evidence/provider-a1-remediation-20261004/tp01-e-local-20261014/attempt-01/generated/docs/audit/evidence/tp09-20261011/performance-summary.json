@@ -1,0 +1,27 @@
+{
+  "schema": "quantos-tp09-performance/v1",
+  "formalAccepted": false,
+  "correctness": "PASS",
+  "representativePerformanceGate": "NOT_ASSESSED",
+  "f05": {
+    "appliedReceipts": 10000,
+    "checkpointNextSequence": 10001,
+    "consumerPath": "PgEventStore::poll_outbox_once",
+    "consumptionMillis": 691290,
+    "correlationLookupMillis": 24358.726790999997,
+    "dispatched": 10000,
+    "eventCount": 10000,
+    "lookupScope": "target-event-id-client-retrieval",
+    "uniqueSideEffects": 10000
+  },
+  "f07": {
+    "recoveredRuns": 100,
+    "recoveryCompleted": true,
+    "scheduleP95LimitMs": 200,
+    "scheduleP95Ms": 1343.713833,
+    "scheduledRuns": 100,
+    "schema": "quantos-f07-recovery-measurements/v1",
+    "uniqueArtifactBindings": 100
+  },
+  "limits": "F05 event-ID client retrieval only; F07 scheduling is diagnostic. No representative latency, full payload retrieval, soak or release acceptance."
+}
