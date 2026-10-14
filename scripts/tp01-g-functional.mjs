@@ -38,7 +38,7 @@ export function verifyFunctional(r,{logDirectory=directory,expectedOutputDirecto
  const specs=commands(r.outputDirectory);assert.deepEqual(r.checks.map(c=>c.id),specs.map(([id])=>id));
  for(const [i,c]of r.checks.entries()){
   assert.deepEqual(c.command,specs[i][1]);assert.equal(c.status,'PASS');assert.equal(c.exitCode,0);assert.equal(c.timedOut,false);assert.equal(c.signal,null);assert.equal(c.executionErrorCode,null);assert.equal(c.timeoutMs,60000);assert(Number.isFinite(Date.parse(c.executedAt))&&Date.parse(c.executedAt)<=Date.now());assert.equal(c.log,c.id+'.log');const log=get(c.log).toString();assert.equal(digest(log),c.logSha256);
-  assert.match(log,c.id==='module-replacement'?/186 passed/:/TP01-G_UPSTREAM_PATCH PASS tests=4 baseline_expected_failures=2 externalPublished=false/);
+  assert.match(log,c.id==='module-replacement'?/198 passed/:/TP01-G_UPSTREAM_PATCH PASS tests=4 baseline_expected_failures=2 externalPublished=false/);
  }
  const m=JSON.parse(read(patchDirectory+'/manifest.json')),p=JSON.parse(get('patch/patch-check.json'));
  assert.equal(p.schema,'quantos-upstream-patch-check/v1');assert.equal(p.status,'PASS');assert.equal(p.baselineCommit,'c33133f4fd5e978d21d2a61fdd8787fb352b4687');assert.equal(p.sourceSha256,m.sourceSha256);assert.equal(p.patchSha256,digest(read(patchDirectory+'/'+m.patch)).slice(7));assert.equal(p.patchSha256,m.patchSha256);
@@ -48,7 +48,7 @@ export function verifyFunctional(r,{logDirectory=directory,expectedOutputDirecto
  for(const c of p.records){assert.equal(c.log,c.id+'.log');const log=get('patch/'+c.log).toString();assert.equal(digest(log).slice(7),c.logSha256);if(c.id.endsWith('regression')){assert.match(log,/Ran 4 tests/);assert.match(log,c.id==='baseline-regression'?/FAILED \(failures=2\)/:/\nOK\n/);assert.deepEqual(c.command,[resolve('engines/.venv/bin/python'),'-B','-m','unittest','discover','-s','tests','-p','test_event_bus_replay_handoff.py','-v']);}else assert.deepEqual(c.command,['git','apply',...(c.id==='apply-check'?['--check']:[]),resolve(patchDirectory+'/'+m.patch)]);}
  assert.equal(digest(get('patch/pinned-source.py')).slice(7),m.sourceSha256);const applied=applyReviewPatch(read(patchDirectory+'/'+m.patch).toString(),get('patch/pinned-source.py').toString());assert.equal(get('patch/patched-source.py').toString(),applied.get('agent/src/session/events.py'));assert.equal(get('patch/regression.py').toString(),applied.get('tests/test_event_bus_replay_handoff.py'));
  assert.deepEqual([...files.keys()].sort(),[...used].sort(),'support inventory must be exact');
- return {engineeringStatus:'PASS',stageGate:'NOT_ASSESSED',moduleTests:186,patchTests:4,formalAccepted:false,externalPublished:false};
+ return {engineeringStatus:'PASS',stageGate:'NOT_ASSESSED',moduleTests:198,patchTests:4,formalAccepted:false,externalPublished:false};
 }
 export function record({outputDirectory=directory}={}){
  mkdirSync(outputDirectory,{recursive:true});const env={...staticEnvironment(process.env),UV_OFFLINE:'1'};delete env.NODE_TEST_CONTEXT;

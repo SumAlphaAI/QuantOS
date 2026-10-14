@@ -41,6 +41,7 @@ from vibe_adapter.modules import (
     validate_plan,
     validate_audit,
     validate_deltas,
+    validate_artifact_bundle,
 )
 from vibe_adapter.rollout import RolloutController, RolloutError, RolloutLease
 
@@ -313,12 +314,14 @@ class VibeAdapterService:
 
             def write():
                 try:
-                    return self.artifact_api.record_json_artifact(
+                    bundle = self.artifact_api.record_json_artifact(
                         workflow_run_id=request.workflow_run_id,
                         tenant_id=request.metadata.tenant_id,
                         artifact_kind="shadow-" + kind if self.shadow_mode else kind,
                         payload=output,
                     )
+                    validate_artifact_bundle(bundle, output)
+                    return bundle
                 except Exception:
                     context.abort(grpc.StatusCode.INTERNAL, "ENGINE_ARTIFACT_FAILED")
                     raise AssertionError("gRPC abort returned")

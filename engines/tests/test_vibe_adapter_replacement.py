@@ -10,6 +10,7 @@ from uuid import uuid4
 import grpc
 import pytest
 
+from quantos.common.v1 import common_pb2
 from quantos.engine.v1 import engine_pb2
 from quantos_engine_sdk import EngineClient, json_document_to_mapping, uds_target
 from quantos_engine_sdk.grpc import serve_engine
@@ -289,3 +290,44 @@ def test_no_production_consumer_uses_deprecated_aliases_or_fork_types():
                     else [node.module or ""]
                 )
                 assert not any(n.startswith(("agent.", "forks.", "third_party.")) for n in names)
+
+
+@pytest.mark.parametrize(
+    "fault", ["missing_bundle", "digest", "evidence_link", "uri", "classification", "media_type"]
+)
+@pytest.mark.parametrize("stream", [False, True])
+def test_nonconforming_store_response_cannot_change_business_refs(host, fault, stream):
+    class BadStore:
+        def __init__(self):
+            self.backend = VibeArtifactApi()
+
+        def record_json_artifact(self, **kwargs):
+            bundle = self.backend.record_json_artifact(**kwargs)
+            if fault == "missing_bundle":
+                return None
+            if fault == "digest":
+                bundle.artifact_ref.sha256 = "sha256:" + "0" * 64
+            if fault == "evidence_link":
+                bundle.evidence_ref.artifact_id = "other-artifact"
+            if fault == "uri":
+                bundle.artifact_ref.uri = ""
+            if fault == "classification":
+                bundle.artifact_ref.classification = common_pb2.DATA_CLASSIFICATION_UNSPECIFIED
+            if fault == "media_type":
+                bundle.artifact_ref.media_type = "text/plain"
+            return bundle
+
+        def read_json_artifact(self, **kwargs):
+            return self.backend.read_json_artifact(**kwargs)
+
+    service, client = host(artifact_api=BadStore())
+    request = build_request(706, {})
+    with pytest.raises(grpc.RpcError) as error:
+        if stream:
+            client.stream_execute(engine_pb2.StreamExecuteRequest(request=request), timeout=5)
+        else:
+            client.execute(request, timeout=5)
+    assert error.value.code() == grpc.StatusCode.INTERNAL
+    assert error.value.details() == "ENGINE_ARTIFACT_FAILED"
+    # The host rejects the response; a backend must supply its own transaction/compensation.
+    assert len(service.artifact_api.backend._objects) == 1

@@ -6,7 +6,7 @@
 
 服务构造时可注入 contract provider、context translator、workflow planner、audit builder、stream projector 和 Artifact store。接口位于 `engines/vibe-adapter/src/vibe_adapter/modules.py`，不引用 fork 内部类型。原生 policy、协议 codec、租户/取消/截止时间与 rollout authority 是宿主约束，不交给替换模块或请求选择。translator 不能扩大原生 allowlist；provider、plan、audit、完整 stream 在 Artifact 提交前校验。替换模块为受信任的宿主代码，不是 Python 沙箱；持久后端的事务与拒绝后补偿要在目标验收。
 
-186 条真实本机 UDS 测试覆盖六类模块独立替换和组合替换，各重放 20 个 fixture，比较输出、三阶段 stream、audit、Artifact/evidence；包含重复请求、模块拒绝/异常、零 Artifact 与重建恢复、原生权限不可扩大，以及 20 个 fixture 的无兼容别名模式。可关闭的两个别名只由宿主参数控制，默认继续兼容。关闭后实际字节/hash/Artifact identity 会改变，canonical business fields 与 stream 不变；生产迁移需新宿主实例和独立验证，不能混用旧幂等缓存。
+198 条真实本机 UDS 测试覆盖六类模块独立替换和组合替换，各重放 20 个 fixture，比较输出、三阶段 stream、audit、Artifact/evidence；包含重复请求、模块拒绝/异常、零 Artifact 与重建恢复、原生权限不可扩大，以及 20 个 fixture 的无兼容别名模式。另含12条异常store响应检查：宿主拒绝错误digest/ref/media/classification，不把后端已写入的内容视为可自动撤销；事务/补偿须由后端实现。可关闭的两个别名只由宿主参数控制，默认继续兼容。关闭后实际字节/hash/Artifact identity 会改变，canonical business fields 与 stream 不变；生产迁移需新宿主实例和独立验证，不能混用旧幂等缓存。
 
 `forks/vibe-trading/upstream-prs/20261015-atomic-replay-handoff/` 是上游固定基线的通用重复事件修复 patch。检查器从本地固定 Git 对象读取原件，在临时目录 `git apply --check` 后运行同一组测试：未修改基线预期失败2条、修复后4条通过。保存固定原件、修复原件、回归代码及日志。不得把预期失败记作现有源码失败或把 patch 称为已开启 PR。未检查最新线上分支，未修改 submodule，未发布。
 

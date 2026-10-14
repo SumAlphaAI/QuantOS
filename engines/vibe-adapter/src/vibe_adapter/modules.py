@@ -6,8 +6,11 @@ validation and rollout authority remain in the host, never in request payloads.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Protocol
 
+from quantos.common.v1 import common_pb2
 from quantos.engine.v1 import engine_pb2
 from vibe_adapter.artifact_api import ArtifactBundle
 from vibe_adapter.context import TranslationResult, VibeExecutionContext
@@ -139,4 +142,24 @@ def validate_deltas(
         {"phase": STREAM_PHASES[2], "summary": contract.summary, "audit": audit},
     ]
     if not isinstance(deltas, list) or deltas != expected:
+        raise ResearchContractError("ENGINE_CONTRACT_INVALID")
+
+
+def validate_artifact_bundle(bundle: ArtifactBundle, payload: dict) -> None:
+    """Reject a nonconforming storage response; backend transactions remain its contract."""
+    if not isinstance(bundle, ArtifactBundle):
+        raise ResearchContractError("ENGINE_CONTRACT_INVALID")
+    artifact, evidence = bundle.artifact_ref, bundle.evidence_ref
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    if (
+        not isinstance(artifact, common_pb2.ArtifactRef)
+        or not isinstance(evidence, common_pb2.EvidenceRef)
+        or not artifact.artifact_id
+        or not artifact.uri
+        or artifact.media_type != "application/json"
+        or artifact.classification != common_pb2.DataClassification.DATA_CLASSIFICATION_INTERNAL
+        or artifact.sha256 != "sha256:" + hashlib.sha256(encoded).hexdigest()
+        or not evidence.evidence_id
+        or evidence.artifact_id != artifact.artifact_id
+    ):
         raise ResearchContractError("ENGINE_CONTRACT_INVALID")
