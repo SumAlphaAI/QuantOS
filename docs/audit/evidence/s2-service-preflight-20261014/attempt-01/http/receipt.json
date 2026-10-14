@@ -1,0 +1,196 @@
+{
+  "schema": "quantos-s2-consumer-reference-route-preflight/v1",
+  "status": "LOCAL_PROVIDER_GAPS",
+  "source": "current frozen implementation, reference provider only",
+  "expectedOperations": 11,
+  "observedOperations": 11,
+  "missingHandlers": 11,
+  "controls": [
+    {
+      "name": "session control",
+      "status": 200
+    },
+    {
+      "name": "unauthenticated contract guard",
+      "status": 401,
+      "scope": "guard only; not business handler proof"
+    },
+    {
+      "name": "forged release payload guard",
+      "status": 422,
+      "scope": "guard only; no Release issued"
+    }
+  ],
+  "operations": [
+    {
+      "operationId": "listStrategies",
+      "method": "GET",
+      "path": "/v1/strategies",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "getStrategyDraft",
+      "method": "GET",
+      "path": "/v1/strategies/{strategyId}/draft",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "saveStrategyDraft",
+      "method": "PUT",
+      "path": "/v1/strategies/{strategyId}/draft",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "runStaticCheck",
+      "method": "POST",
+      "path": "/v1/strategies/{strategyId}/static-checks",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "createBacktest",
+      "method": "POST",
+      "path": "/v1/backtests",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "getBacktest",
+      "method": "GET",
+      "path": "/v1/backtests/{runId}",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "listReleases",
+      "method": "GET",
+      "path": "/v1/releases",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "createRelease",
+      "method": "POST",
+      "path": "/v1/releases",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "getRelease",
+      "method": "GET",
+      "path": "/v1/releases/{releaseId}",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "submitReleaseApproval",
+      "method": "POST",
+      "path": "/v1/releases/{releaseId}/approval-submissions",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    },
+    {
+      "operationId": "requestReleaseRollback",
+      "method": "POST",
+      "path": "/v1/releases/{releaseId}/rollback-requests",
+      "status": 404,
+      "body": "",
+      "bodySha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "contractIssues": [
+        "missing response header X-Correlation-Id",
+        "missing response header Cache-Control",
+        "response media type mismatch",
+        "invalid response JSON"
+      ],
+      "implementation": "MISSING_HANDLER"
+    }
+  ],
+  "processTerminated": true,
+  "databaseExecution": false,
+  "externalExecution": false,
+  "performanceAcceptance": false,
+  "formalAccepted": false
+}

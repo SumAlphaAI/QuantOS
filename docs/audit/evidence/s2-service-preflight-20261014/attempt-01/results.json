@@ -1,0 +1,449 @@
+[
+  {
+    "id": "prerequisite-proof",
+    "command": [
+      "node",
+      "docs/audit/evidence/x03-replay-fix-20261014/verify-local.mjs"
+    ],
+    "executedAt": "2026-10-14T04:24:45.492Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/prerequisite-proof.log",
+    "logSha256": "sha256:161c5feb2a2a529dbc5ff338af87cde434e1a0a92d7283d1b4df7d58c9c3d1b1"
+  },
+  {
+    "id": "prior-seal",
+    "command": [
+      "python3",
+      "docs/audit/evidence/x03-replay-fix-20261014/seal.py",
+      "--verify"
+    ],
+    "executedAt": "2026-10-14T04:24:50.907Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/prior-seal.log",
+    "logSha256": "sha256:56efe31df06af3b7aa5935eb32bb40b9b7094a3764b7c9b1712dbba197bdbc0c"
+  },
+  {
+    "id": "local-admission-refusal",
+    "command": [
+      "node",
+      "docs/audit/evidence/s2-service-preflight-20261014/scope.mjs",
+      "--admission"
+    ],
+    "executedAt": "2026-10-14T04:24:50.947Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "boundary": "EXPECTED_LOCAL_GAP_NOT_ADMISSION",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/local-admission-refusal.log",
+    "logSha256": "sha256:edc6acd7053cf7ff92e1a9d30b45b7b9424ffad4180d88897b5a69b3ff2bb9e9"
+  },
+  {
+    "id": "openapi",
+    "command": [
+      "node",
+      "scripts/check-bff-openapi.mjs"
+    ],
+    "executedAt": "2026-10-14T04:24:51.136Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/openapi.log",
+    "logSha256": "sha256:bc937c0fe7961432432eb722024ecc17bab3952a4506247993f083281508e4c6"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "executedAt": "2026-10-14T04:24:51.221Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/generated.log",
+    "logSha256": "sha256:048df3faef4288fcd54c104efc93374f29db253c9b1ad3f0b61b58f4004191eb"
+  },
+  {
+    "id": "catalog",
+    "command": [
+      "node",
+      "scripts/check-bff-contract-coverage.mjs"
+    ],
+    "executedAt": "2026-10-14T04:24:51.680Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/catalog.log",
+    "logSha256": "sha256:c06b1dc8cbc754ce5a9aa439802a5a5883cc9fd5e09f593307c8f51c42183ad3"
+  },
+  {
+    "id": "fixtures-negative",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "docs/audit/evidence/s2-service-preflight-20261014/preflight.test.mjs"
+    ],
+    "executedAt": "2026-10-14T04:24:51.767Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": {
+      "kind": "node",
+      "total": 51,
+      "passed": 51,
+      "failed": 0,
+      "skipped": 0
+    },
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/fixtures-negative.log",
+    "logSha256": "sha256:db4c720942fa954110644a92fc20cdf565d6e7e0526a1d2c412a01aa7f4a2482"
+  },
+  {
+    "id": "sync-local",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/tests/sync-vibe.test.mjs",
+      "scripts/tests/sync-vibe-cli.test.mjs"
+    ],
+    "executedAt": "2026-10-14T04:24:52.264Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": {
+      "kind": "node",
+      "total": 23,
+      "passed": 23,
+      "failed": 0,
+      "skipped": 0
+    },
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/sync-local.log",
+    "logSha256": "sha256:b45a4e12a18dba6cbe7184cad5ddbe6ad546fa4b53ecf28b14eca63418d312dc"
+  },
+  {
+    "id": "rollout-local",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/tests/tp01-vibe-rollout.test.mjs"
+    ],
+    "executedAt": "2026-10-14T04:24:52.697Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": {
+      "kind": "node",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    },
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/rollout-local.log",
+    "logSha256": "sha256:fd89a69c2b4820308c3917f85d73f3f3770a2dc02af1639f5fe9ba904b0e6fe5"
+  },
+  {
+    "id": "rollout-boundary",
+    "command": [
+      "node",
+      "docs/audit/evidence/s2-service-preflight-20261014/boundary-probe.mjs",
+      "rollout",
+      "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/rollout.json",
+      "--require-complete"
+    ],
+    "executedAt": "2026-10-14T04:24:52.750Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "boundary": "EXPECTED_LOCAL_GAP_NOT_ADMISSION",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/rollout-boundary.log",
+    "logSha256": "sha256:be9aa5bfcb01acd9dfe9d245989b43e310c0735af46a9cf6976290b7bd77e617",
+    "artifact": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/rollout.json",
+    "artifactSha256": "sha256:be9aa5bfcb01acd9dfe9d245989b43e310c0735af46a9cf6976290b7bd77e617"
+  },
+  {
+    "id": "evaluation-boundary",
+    "command": [
+      "node",
+      "docs/audit/evidence/s2-service-preflight-20261014/boundary-probe.mjs",
+      "evaluation",
+      "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/evaluation.json",
+      "--require-complete"
+    ],
+    "executedAt": "2026-10-14T04:24:52.900Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "boundary": "EXPECTED_LOCAL_GAP_NOT_ADMISSION",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/evaluation-boundary.log",
+    "logSha256": "sha256:9a5c40079ad9da88f62d1678517303e0a295d5a2c6fd50ed003971bbfd400ef5",
+    "artifact": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/evaluation.json",
+    "artifactSha256": "sha256:9a5c40079ad9da88f62d1678517303e0a295d5a2c6fd50ed003971bbfd400ef5"
+  },
+  {
+    "id": "strategy-domain",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-strategy",
+      "--lib"
+    ],
+    "executedAt": "2026-10-14T04:24:53.050Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": {
+      "kind": "rust",
+      "passed": 15,
+      "failed": 0,
+      "ignored": 1
+    },
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/strategy-domain.log",
+    "logSha256": "sha256:8a2fec54d6874b32be1801d073856e1a101ccd1a14b2be3873ea5cc27c6ac546"
+  },
+  {
+    "id": "python-boundaries",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests/test_strategy_lab_contract.py",
+      "engines/tests/test_vibe_adapter_contract.py",
+      "engines/tests/test_vibe_adapter_absorption.py",
+      "engines/tests/test_vibe_adapter_skeleton.py",
+      "engines/tests/test_tp12_nautilus_agents_rules.py",
+      "-q"
+    ],
+    "executedAt": "2026-10-14T04:25:34.262Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": {
+      "kind": "python",
+      "passed": 198,
+      "failed": 0,
+      "skipped": 0
+    },
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/python-boundaries.log",
+    "logSha256": "sha256:cdffe788a931240c86e2b5e854097b61a083875db595d1b570a36c267866dcbd"
+  },
+  {
+    "id": "strategy-bridge",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-engine-manager",
+      "--test",
+      "python_strategy_lab"
+    ],
+    "executedAt": "2026-10-14T04:25:35.474Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": {
+      "kind": "rust",
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    },
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/strategy-bridge.log",
+    "logSha256": "sha256:d7243709db340183e4c8117c9e9c8aeb6789f1246bbfa9607cee80268dc315b9"
+  },
+  {
+    "id": "bff-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway"
+    ],
+    "executedAt": "2026-10-14T04:25:49.651Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/bff-build.log",
+    "logSha256": "sha256:7b1dccc52f9c7d3bfbba56d65932222b7d0e6f99898ed27a64c838dbb08f1880"
+  },
+  {
+    "id": "actual-routes",
+    "command": [
+      "node",
+      "docs/audit/evidence/s2-service-preflight-20261014/route-probe.mjs",
+      "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/http",
+      "--require-implemented"
+    ],
+    "executedAt": "2026-10-14T04:26:00.347Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "boundary": "EXPECTED_LOCAL_GAP_NOT_ADMISSION",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/actual-routes.log",
+    "logSha256": "sha256:c6036462dc278b4980d92cf64d0478b76a1f1dd932671b37662e918b5a29bc76",
+    "artifact": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/http/receipt.json",
+    "artifactSha256": "sha256:197890799fca842f8c674ac6df3e2f216093e9db1cdd860638aad53bc5609f2a"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "pnpm",
+      "check:development-plans"
+    ],
+    "executedAt": "2026-10-14T04:26:04.491Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/plans.log",
+    "logSha256": "sha256:2aee780543baf30cd8edfc7d43320d14b02d9d0fb9b88692b4b2e96444c2c29e"
+  },
+  {
+    "id": "plans-negative",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/development-plan-order-negative.mjs"
+    ],
+    "executedAt": "2026-10-14T04:26:04.689Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": {
+      "kind": "node",
+      "total": 42,
+      "passed": 42,
+      "failed": 0,
+      "skipped": 0
+    },
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/plans-negative.log",
+    "logSha256": "sha256:0a56eace37c0d0c908a1a731857966590d3b9315a49986c2da341df4f7aea9ad"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-14T04:26:05.198Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "boundary": "LOCAL_CHECK_ONLY",
+    "testCounts": null,
+    "log": "docs/audit/evidence/s2-service-preflight-20261014/attempt-01/handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  }
+]
