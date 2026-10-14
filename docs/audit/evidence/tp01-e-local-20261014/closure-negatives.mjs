@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {test,after} from 'node:test';
 import {readFileSync,writeFileSync,existsSync,rmSync} from 'node:fs';
 import {validateLocalPrerequisites} from '../../../../scripts/provider-a1-receipts.mjs';
-const attempt='docs/audit/evidence/provider-a1-remediation-20261004/tp01-e-local-20261014/attempt-03',original=JSON.parse(readFileSync(attempt+'/local-prerequisites.json'));
+const attempt='docs/audit/evidence/provider-a1-remediation-20261004/tp01-e-local-20261014/attempt-04',original=JSON.parse(readFileSync(attempt+'/local-prerequisites.json'));
 const temporary=attempt+'/negative-index.json';assert(!existsSync(temporary));after(()=>rmSync(temporary,{force:true}));
 function fixture(mutate){const r=structuredClone(original);mutate(r);writeFileSync(temporary,JSON.stringify(r));return()=>validateLocalPrerequisites(temporary,{profile:'TP01-E_LOCAL'});}
 test('fresh real 28-node index validates independently of publication',()=>{assert.equal(fixture(()=>{})().nodes.length,28);});

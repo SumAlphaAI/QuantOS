@@ -4,7 +4,7 @@ import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {nodesFromPlans,closure,policy,localChecks,digest,planInput,validateLocalPrerequisites} from '../../../../scripts/provider-a1-receipts.mjs';
 import {profile,nodeId,verifyPublished} from '../../../../scripts/tp01-e-local-gate.mjs';
-const base='docs/audit/evidence/tp01-e-local-20261014',baseline='4e4316fcd1f8e4ac1babca81f0fc323dda681ea9',attempt='docs/audit/evidence/provider-a1-remediation-20261004/tp01-e-local-20261014/'+(process.argv.find(s=>/^attempt-[0-9]{2}$/.test(s))??'attempt-03'),read=p=>readFileSync(p),json=p=>JSON.parse(read(p));
+const base='docs/audit/evidence/tp01-e-local-20261014',baseline='4e4316fcd1f8e4ac1babca81f0fc323dda681ea9',attempt='docs/audit/evidence/provider-a1-remediation-20261004/tp01-e-local-20261014/'+(process.argv.find(s=>/^attempt-[0-9]{2}$/.test(s))??'attempt-04'),read=p=>readFileSync(p),json=p=>JSON.parse(read(p));
 const published=verifyPublished(),index=validateLocalPrerequisites(attempt+'/local-prerequisites.json',{profile}),nodes=nodesFromPlans(),p=policy(),source=index.observedSourceCommit;
 assert.equal(published.observedSourceCommit,source);assert.equal(index.nodes.length,28);assert.equal(index.owner,nodeId);
 const selected=closure(nodes,nodeId),checks=[...new Set(selected.flatMap(id=>localChecks(id,p,profile)))],executions=json(attempt+'/execution-results.json');assert.equal(checks.length,88);assert.deepEqual(executions.map(c=>c.id).sort(),checks.sort());

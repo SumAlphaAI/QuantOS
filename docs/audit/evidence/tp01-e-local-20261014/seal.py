@@ -49,6 +49,9 @@ def verify():
     assert len(second) == 88 and all(c['status'] == 'PASS' for c in second)
     rollback = json.loads((A / 'attempt-02/publication-failure.json').read_text())
     assert rollback['rolledBack'] is True and rollback['phase'] == 'publication'
+    interrupted = json.loads((A / 'attempt-03/interruption.json').read_text())
+    assert interrupted['status'] == 'INTERRUPTED' and interrupted['completedChecks'] == 4
+    assert not (A / 'attempt-03/local-prerequisites.json').exists()
     post = json.loads((B / 'post-checks.json').read_text())
     assert len(post) == 7 and all(c['exitCode'] == c['expectedExitCode'] for c in post)
     for check in post:
