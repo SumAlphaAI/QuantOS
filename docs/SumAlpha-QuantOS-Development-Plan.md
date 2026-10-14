@@ -1,4 +1,4 @@
-> 当前执行：2026-10-14 R1/A2/BFF003/BFF005/A3聚合复验进行中；修复测试fixture状态泄漏后，新冻结候选共同执行42节点/141组（含TP02专用负向），从同源执行证明重新准入五消费者及TP02。目标/性能仍NOT_RUN。
+> 当前工程结果（2026-10-14）：冻结5fa0fb04完整42节点/141组共同本地执行PASS；R1-SERVICE/A2/BFF003/BFF005/A3五项限定DEVELOPMENT READY已恢复，TP02_LOCAL以同源13节点/44组证明重新READY。全图6 READY / 153 NOT_ASSESSED / 0 BLOCKED；Supabase、外部/性能与正式验收独立待办，formalAccepted=false。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)。
 
 > 上轮工程快照：2026-10-13 TP02_LOCAL DEVELOPMENT READY；冻结135c7bd5完整13节点/44组本地检查PASS，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED，仅TP02放行。上轮A3相关五项READY因公共输入变化撤回，历史证据保留；外部/性能归测试及RELEASE，formalAccepted=false。见[本轮报告](./audit/TP02-local-admission-2026-10-13.md)。
 
@@ -61,14 +61,16 @@
 > 2026-10-06 历史范围确认：项目用户确认 G0 文稿（范围 `09bcaf7f28d9`），G0 严格 READY；实际重评 FEP-0 2/2 PASS、八依赖 READY。当时 24 READY、0 BLOCKED；`3799c4c` 的 9/9 CI 属历史结果，后续提交不继承其 hosted CI。见[确认验收报告](./audit/G0-FEP0-user-confirmed-acceptance-2026-10-06.md)。
 
 
-> 版本：3.78
-> 更新时间：2026-10-13
-> 状态：TP02_LOCAL DEVELOPMENT READY；上轮A3相关READY已撤回待新候选复评；正式/目标/发布未执行。
+> 版本：3.79
+> 更新时间：2026-10-14
+> 状态：R1/A2/BFF003/BFF005/A3与TP02限定本地DEVELOPMENT READY；正式/目标/发布未执行。
 > 本轮变更：BFF-FE-005 市场 API、四消费者当前源码本地复评及发布验收移交。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
 
 ## 版本变更说明
+
+- `3.79`：2026-10-14从5fa0fb04完整复验42节点/141组，共源恢复R1/A2/BFF003/BFF005/A3并重新绑定TP02；保留旧失败与canonical归档，外部/性能/正式接受仍独立。见[复验报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)。
 
 - `3.78`：建立 A3_LOCAL 聚合回执和五回执事务发布；复评当前源码完整闭包，绑定直接消费者回执同 SHA、哈希与严格内容证明。见[本地验收规程](./operations/provider-a3-local-admission.md)。
 
@@ -1034,7 +1036,7 @@ flowchart TD
 - task_id: `TP02`
 - task_type: `CORE`
 - iteration: `R1-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:60983108a4b74679681fe38c1ad5e5b8826b393f33328e5687b9ad3220be445e","evidence":["audit/evidence/tp02-local-20261013/manifest.json"]}
 - depends_on: ["CORE:F08", "CORE-GATE:F0"]
 - core_prerequisites: ["CORE:F08", "CORE-GATE:F0"]
 - closes_core: []
@@ -1047,7 +1049,7 @@ flowchart TD
 - 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s
 - 阶段执行：TP02_LOCAL仅放行CORE:TP02；完整13节点必要本地闭包、44组本地检查（含专用负向），13组目标/远程检查移交测试及RELEASE-GATE:BETA；不授予上游或R1-SERVICE READY。两组双RPC回放、离线隔离安装wheel五RPC、取消/deadline与Artifact边界仍必需。规程见[TP02本地准入](./operations/tp02-local-admission.md)。 contract、确定性 hash 与交易/secret/网络拒绝在开发验证；P95 接收响应 <1s 归 RELEASE-GATE:BETA，deadline 内确定性受理或错误仍是开发功能要求。
 - 阶段/依赖：F08；R1
-- 当前工程复核：2026-10-13冻结135c7bd5完整13节点/44组本地闭包PASS，TP02_LOCAL DEVELOPMENT READY；首次发布登记缺失已修复，失败原件及完整重跑保留。131契约/1390完整Python、Manager/Runtime各2、实际隔离wheel五RPC、55项专用负向通过。仅TP02放行，上游及R1-SERVICE不重授；Supabase/外部/性能及正式验收仍NOT_RUN。见[本轮报告](./audit/TP02-local-admission-2026-10-13.md)。
+- 当前工程复核：2026-10-14冻结5fa0fb04共同42节点/141组本地执行PASS，从同源完整13节点/44组重新发布TP02_LOCAL DEVELOPMENT READY；55项专用负向、实际安装wheel与原历史失败保留。R1/A2/BFF003/BFF005/A3另通过自身同候选闭包READY，其余上游不自动授予独立Gate；Supabase/外部/性能与正式验收仍独立待办。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)及[历史TP02报告](./audit/TP02-local-admission-2026-10-13.md)。
 
 
 <a id="task-tp03"></a>
@@ -1268,9 +1270,11 @@ flowchart TD
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:cfe383042c4ce6d637a0c785ac7cc8f9eac04fb5ce606fe6ad60579570b97bb7",
+    "evidence": [
+      "audit/evidence/provider-a3-local-20261013/r1-local.json"
+    ]
   }
 }
 ```

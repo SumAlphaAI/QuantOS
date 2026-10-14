@@ -1,0 +1,428 @@
+[
+  {
+    "id": "evidence",
+    "command": [
+      "node",
+      "docs/audit/evidence/provider-a3-readmission-20261014/verify-evidence.mjs",
+      "--record"
+    ],
+    "executedAt": "2026-10-14T01:23:46.341Z",
+    "completedAt": "2026-10-14T01:24:31.516Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "\"status\": \"PASS\"",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/evidence.log",
+    "logSha256": "sha256:1785ae00d16c01feb906948f7e2eeaf1fff4b75406cd3d8bdcc874e67b0a479a"
+  },
+  {
+    "id": "aggregate-and-consumers",
+    "command": [
+      "make",
+      "research-local-check"
+    ],
+    "executedAt": "2026-10-14T01:24:31.517Z",
+    "completedAt": "2026-10-14T01:25:18.422Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "\"profile\": \"A3_LOCAL\"",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/aggregate-and-consumers.log",
+    "logSha256": "sha256:74decd68b22d7a464061c88dec3ca6cf922527e9c1a069c46cf42c77ab3564f7"
+  },
+  {
+    "id": "aggregate-public",
+    "command": [
+      "make",
+      "provider-a3-local-check"
+    ],
+    "executedAt": "2026-10-14T01:25:18.423Z",
+    "completedAt": "2026-10-14T01:25:41.188Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "\"stageGate\": \"READY\"",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/aggregate-public.log",
+    "logSha256": "sha256:f5f117a2e5a04c9c7e8afbcae9ceddb7e7621e4167132fa6d6e03ca1fabac9f6"
+  },
+  {
+    "id": "tp02",
+    "command": [
+      "make",
+      "tp02-local-check"
+    ],
+    "executedAt": "2026-10-14T01:25:41.188Z",
+    "completedAt": "2026-10-14T01:25:43.053Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "\"stageGate\": \"READY\"",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/tp02.log",
+    "logSha256": "sha256:b3685a2613be04bc8247a2173142b2feb2ff64aa9a34474e087c955c089b9e16"
+  },
+  {
+    "id": "a3-reassessment",
+    "command": [
+      "node",
+      "scripts/reassess-a3-prerequisites.mjs"
+    ],
+    "executedAt": "2026-10-14T01:25:43.053Z",
+    "completedAt": "2026-10-14T01:27:22.746Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "\"admission\": \"LOCAL_READY\"",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/a3-reassessment.log",
+    "logSha256": "sha256:96e0a86b9f1135717669992c78d40de71b3c3e5bb27b880f7d9885b351d7a89d"
+  },
+  {
+    "id": "a2-public",
+    "command": [
+      "node",
+      "scripts/provider-a2-development.mjs"
+    ],
+    "executedAt": "2026-10-14T01:27:22.746Z",
+    "completedAt": "2026-10-14T01:27:25.651Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "READY",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/a2-public.log",
+    "logSha256": "sha256:c29cd436bc0e28d1d9919e06a38103d62ce4e7683960db3a83f436b0c6495e63"
+  },
+  {
+    "id": "bff003-public",
+    "command": [
+      "node",
+      "scripts/bff-fe-003-development.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-14T01:27:25.651Z",
+    "completedAt": "2026-10-14T01:27:32.580Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "READY",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/bff003-public.log",
+    "logSha256": "sha256:e0dd861d378919840c48e12711995306ab3a2f94158c6d1dfdeb342540a6f16b"
+  },
+  {
+    "id": "bff005-public",
+    "command": [
+      "node",
+      "scripts/bff-fe-005-development.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-14T01:27:32.580Z",
+    "completedAt": "2026-10-14T01:27:39.261Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "READY",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/bff005-public.log",
+    "logSha256": "sha256:fe22496e4f8d7fb9ce6ef17395c165d5dc7ace335abd0b3b2e92c549ea8a4406"
+  },
+  {
+    "id": "gate-negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/research-local-gate.test.mjs",
+      "scripts/tp02-local-gate.test.mjs",
+      "scripts/provider-a1-receipts.test.mjs"
+    ],
+    "executedAt": "2026-10-14T01:27:39.262Z",
+    "completedAt": "2026-10-14T01:27:42.480Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/gate-negatives.log",
+    "logSha256": "sha256:294f5ef24a916f64f053407a9afa6970af15ea90687eec27229c9c7bd55c86e4"
+  },
+  {
+    "id": "actual-probes",
+    "command": [
+      "node",
+      "docs/audit/evidence/provider-a3-readmission-20261014/probe-published.mjs",
+      "docs/audit/evidence/provider-a3-readmission-20261014/final-01/tamper-probes.json"
+    ],
+    "executedAt": "2026-10-14T01:27:42.480Z",
+    "completedAt": "2026-10-14T01:28:59.948Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "\"status\":\"PASS\"",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/actual-probes.log",
+    "logSha256": "sha256:b5e1e45153b71f22d853a05b0b3a98e5b2882b98e8c1f1d30db3876ec8c2e7aa"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "make",
+      "tp02-release-check"
+    ],
+    "executedAt": "2026-10-14T01:28:59.948Z",
+    "completedAt": "2026-10-14T01:29:00.084Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "expectedMarker": "NOT_RUN",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/release-refusal.log",
+    "logSha256": "sha256:1b7f018063782e6fc1ccbb59bd1b4f81de58af5d59c81693af3f97d7cf103abb"
+  },
+  {
+    "id": "execution-only-refusal",
+    "command": [
+      "node",
+      "scripts/research-local-gate.mjs",
+      "A3_EXECUTION"
+    ],
+    "executedAt": "2026-10-14T01:29:00.084Z",
+    "completedAt": "2026-10-14T01:29:00.226Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "expectedMarker": "assertion|registrations|falsy",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/execution-only-refusal.log",
+    "logSha256": "sha256:91eaf0d45072ce5a16e654804886de9d05568aceb55f5b28608f6a2defdb6a7d"
+  },
+  {
+    "id": "strict-f0-refusal",
+    "command": [
+      "node",
+      "scripts/provider-a1-receipts.mjs",
+      "--f0"
+    ],
+    "executedAt": "2026-10-14T01:29:00.226Z",
+    "completedAt": "2026-10-14T01:29:00.359Z",
+    "exitCode": 1,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 1,
+    "expectedMarker": "dependency is not READY",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/strict-f0-refusal.log",
+    "logSha256": "sha256:66d3ad06fc11bcfbf2c88d911e155b34d0cfd30149f1f590c84a67b08bb52919"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "pnpm",
+      "check:development-plans"
+    ],
+    "executedAt": "2026-10-14T01:29:00.359Z",
+    "completedAt": "2026-10-14T01:29:00.537Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "\"cross_plan_order\": \"PASS\"",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/plans.log",
+    "logSha256": "sha256:4d9ace947c6e071798eec253e051a450aa98398311362234e41acad8db8192da"
+  },
+  {
+    "id": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "executedAt": "2026-10-14T01:29:00.538Z",
+    "completedAt": "2026-10-14T01:29:01.108Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "fail 0",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/plans-negative.log",
+    "logSha256": "sha256:65bae9b8c3a5385e6a28d67fe85a0f5ca561b784bf197c9c9d0abf3937fa5229"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-14T01:29:01.108Z",
+    "completedAt": "2026-10-14T01:29:01.162Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "PASS",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  },
+  {
+    "id": "frontend-handoff",
+    "command": [
+      "node",
+      "scripts/check-frontend-gate-handoff.mjs"
+    ],
+    "executedAt": "2026-10-14T01:29:01.162Z",
+    "completedAt": "2026-10-14T01:29:01.196Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "PASS",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/frontend-handoff.log",
+    "logSha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+  },
+  {
+    "id": "format",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "executedAt": "2026-10-14T01:29:01.196Z",
+    "completedAt": "2026-10-14T01:29:01.649Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "^$",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/format.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "executedAt": "2026-10-14T01:29:01.649Z",
+    "completedAt": "2026-10-14T01:29:01.691Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "^$",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/diff.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/provider-a3-readmission-20261014"
+    ],
+    "executedAt": "2026-10-14T01:29:01.692Z",
+    "completedAt": "2026-10-14T01:29:01.949Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "no leaks found",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/secrets.log",
+    "logSha256": "sha256:707bd7b197b441c030cc83d540e1cdc0582d80600b979a1f05e8c94ab03113f0"
+  },
+  {
+    "id": "attempt-secrets",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "dir",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner",
+      "docs/audit/evidence/provider-a1-remediation-20261004/provider-a3-readmission-20261014"
+    ],
+    "executedAt": "2026-10-14T01:29:01.949Z",
+    "completedAt": "2026-10-14T01:29:02.284Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "expectedMarker": "no leaks found",
+    "log": "docs/audit/evidence/provider-a3-readmission-20261014/final-01/attempt-secrets.log",
+    "logSha256": "sha256:8b35300409c386a3fe0f48019dbb53887a9a82bc55a1d9c05d2298025edb64a5"
+  }
+]

@@ -1,0 +1,367 @@
+{
+  "schema": "quantos-research-local-admission/v1",
+  "nodeId": "CORE-GATE:R1-SERVICE",
+  "stage": "DEVELOPMENT",
+  "profile": "R1_LOCAL",
+  "status": "READY",
+  "engineeringStatus": "PASS",
+  "observedSourceCommit": "1ee328c7f061742d7088b26fea87baf1a44df615",
+  "databaseExecution": false,
+  "externalExecution": false,
+  "performanceAccepted": false,
+  "production": false,
+  "formalAccepted": false,
+  "planInput": {
+    "acceptance_window": "R1-SERVICE",
+    "checkpoint_id": "CORE-GATE:R1-SERVICE",
+    "dependencies": [
+      "CORE:R01",
+      "CORE:R02",
+      "CORE:TP01-C",
+      "CORE:TP01-D",
+      "CORE:TP02",
+      "CORE:TP03",
+      "CORE:TP04",
+      "CORE:TP05",
+      "CORE:TP08",
+      "CORE:TP09",
+      "CORE:TP10",
+      "CORE:TP11",
+      "CORE:R03",
+      "CORE:R04"
+    ],
+    "depends_on": [
+      "CORE:R01",
+      "CORE:R02",
+      "CORE:TP01-C",
+      "CORE:TP01-D",
+      "CORE:TP02",
+      "CORE:TP03",
+      "CORE:TP04",
+      "CORE:TP05",
+      "CORE:TP08",
+      "CORE:TP09",
+      "CORE:TP10",
+      "CORE:TP11",
+      "CORE:R03",
+      "CORE:R04"
+    ],
+    "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 当前开发按A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL分别校验17/27/40/40节点必要功能闭包，绑定同一冻结源码、实际测试日志和产物摘要；只有对应消费者登记DEVELOPMENT READY，上游独立Gate不自动放行。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。"
+  },
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a3-local-20261013/attempt-01-r1-local/local-prerequisites.json",
+    "inputDigest": "sha256:4cabd681992ee99578e5c8d9b37aa92a183fde8530c9bba68dc61ab97c8bf24e"
+  },
+  "functionalManifest": "docs/audit/evidence/provider-a1-remediation-20261004/provider-a3-local-20261013/attempt-01-r1-local/core-gate-r1-service.json",
+  "functionalDigest": "sha256:794ec4de5d03d5618b9acb389b3f6ea995c1bf466734e70d0fa8bc9fb7ec9a79",
+  "dependencies": [
+    {
+      "nodeId": "CORE:R01",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:c5cbede2dc9b807e68134b03a9b6bfcff3e89e477bc0dfb548dd81a75c2faa4b"
+    },
+    {
+      "nodeId": "CORE:R02",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:37ac1a55382351466a0495b9c52adc169050f79fc356426bae155bb52bec9d58"
+    },
+    {
+      "nodeId": "CORE:TP01-C",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:6d5acc899964a5e6d0d2119bd840421e2880e612bfeac66cfa0a4514d34f76aa"
+    },
+    {
+      "nodeId": "CORE:TP01-D",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:e335ed8bea700c1c88234cb4844ea679ce9122fe63c1f428501121f79424b6de"
+    },
+    {
+      "nodeId": "CORE:TP02",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:1d5d3c6280080183853dbbd4090518ccd8f5f1b2045f28593719425ec9fe692d"
+    },
+    {
+      "nodeId": "CORE:TP03",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:ff0ded3cef98cca8d19efcc25bb540784fe89bcd5d23b24fee1d7d667a059e99"
+    },
+    {
+      "nodeId": "CORE:TP04",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:c5fc0df1bdc5ef8d4839bd47d96d9abd3c8df89e63065a125f4422f9a0493fcf"
+    },
+    {
+      "nodeId": "CORE:TP05",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:2aa2febde6c1b108887104909a48fb2c3200478b1eab9bbe78c347e864d4053c"
+    },
+    {
+      "nodeId": "CORE:TP08",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:8cbfe04ebfe55c620666611b1f2e80f1d74a9b403fb6924860e95bd794afd2df"
+    },
+    {
+      "nodeId": "CORE:TP09",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:603a236e205e0f83419481774b40be5ec250ff15363590c926c544f0dd79a1fc"
+    },
+    {
+      "nodeId": "CORE:TP10",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:93f2a90592090e22997488f497e4af321be7dd0c56ebefc2fe274fd5adbde221"
+    },
+    {
+      "nodeId": "CORE:TP11",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:4aad142627e972d77cf37f245aefe85c862ec621afd4491fbceedcafd229136e"
+    },
+    {
+      "nodeId": "CORE:R03",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:a002b2b1a3e4737a6ac52cb8568f972556b206b3632b28292a7bb5d0ba876d2e"
+    },
+    {
+      "nodeId": "CORE:R04",
+      "status": "LOCAL_READY",
+      "owner": "CORE-GATE:R1-SERVICE",
+      "inputDigest": "sha256:80b7774ffb16d354dc94e814e87c03456ce7ea1589f8bf1178919efc32a4029e"
+    }
+  ],
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL 发布移交：Supabase迁移/RLS/事务/Auth/Storage与身份设置/audit导出、Research/Snapshot/Artifact持久消费和worker取消恢复、market/watchlist持久事务及流撤权、真实盘口/成交来源用途许可、外部Engine/服务部署及OS隔离、远程漏洞库SCA与fork治理、代表性性能/容量/长稳、完整浏览器矩阵及候选同SHA CI；归RELEASE-GATE:BETA首次上线前实际验收。目标与性能NOT_RUN，本地回执不构成上游独立READY、正式ACCEPTED或生产/发布授权。",
+    "prerequisiteChecks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-sca",
+        "command": [
+          "make",
+          "sca-check"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp01-baseline",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--repository"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r01-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R01"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r02-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R02"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r03-release-target",
+        "command": [
+          "node",
+          "scripts/r03-target-check.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r04-release-target",
+        "command": [
+          "node",
+          "scripts/r04-stage-check.mjs",
+          "--release"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "research-release-performance-smokes",
+        "command": [
+          "make",
+          "research-release-performance-smokes"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "frontend-release-performance",
+        "command": [
+          "make",
+          "frontend-release-performance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ]
+  }
+}
