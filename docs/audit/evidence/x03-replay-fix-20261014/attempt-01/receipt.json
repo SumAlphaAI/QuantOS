@@ -1,0 +1,1412 @@
+{
+  "schema": "quantos-x03-replay-fix-local/v1",
+  "status": "PASS_SCOPED_X03_FIX",
+  "sourceCommit": "5e14e3a48bc44f1629a68a9b94da88d860231417",
+  "checks": 12,
+  "necessaryMappedProof": {
+    "profile": "R1_LOCAL",
+    "nodes": 27,
+    "checks": 85,
+    "index": "docs/audit/evidence/provider-a1-remediation-20261004/x03-replay-fix-20261014/attempt-01/local-prerequisites.json"
+  },
+  "x03Closure": [
+    {
+      "nodeId": "CORE:F01",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [],
+        "dependencies": [],
+        "depends_on": [],
+        "iteration": "F0",
+        "requirement": "初始化 Polyglot Monorepo",
+        "requirements": [
+          "- 需求描述：初始化 Polyglot Monorepo",
+          "- 技术要求：建立 Cargo workspace、`proto/`、`crates/`、`services/`、`engines/`、`apps/website`、`apps/terminal`、`packages/*`、`supabase/`；固定 Rust、uv、Node 工具链",
+          "- 交付物：目录树、锁文件、Make 任务、本地开发环境基线、`DATABASE_URL` 约定",
+          "- 量化验收标准：新环境在 ≤30 分钟内运行 `bootstrap`、`lint`、`test`；所有目录有 README 与明确模块边界；跨语言构建连续 3 次可重复",
+          "- 阶段执行：功能开发验证 bootstrap/lint/test 可用、边界 README 和连续 3 次构建可复现；≤30 分钟的新环境时限在开发记录基线，正式新环境回执归 RELEASE-GATE:BETA。"
+        ],
+        "task_id": "F01",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:F03",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F01"
+        ],
+        "dependencies": [
+          "CORE:F01"
+        ],
+        "depends_on": [
+          "CORE:F01"
+        ],
+        "iteration": "F0",
+        "requirement": "领域协议 v1 与 SDK 生成",
+        "requirements": [
+          "- 需求描述：领域协议 v1 与 SDK 生成",
+          "- 技术要求：定义 `DataSnapshot`、`ResearchArtifact`、`StrategyRelease`、`Signal`、`TradeProposal`、`RiskDecision`、`TradeCommand`、Order/Fill/Position、Engine/Event API；Buf + OpenAPI 生成",
+          "- 交付物：`proto/*/v1`、JSON schema、Rust/Python/TS SDK、兼容性测试",
+          "- 量化验收标准：SDK 三语言编译；100% 必填元数据（tenant/actor/correlation 等）测试；Buf breaking check 阻止破坏性变更；序列化往返 1,000 组 fixture 无差异"
+        ],
+        "task_id": "F03",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:F04",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F03"
+        ],
+        "dependencies": [
+          "CORE:F03"
+        ],
+        "depends_on": [
+          "CORE:F03"
+        ],
+        "iteration": "F0",
+        "requirement": "Core、错误、时钟与 ID",
+        "requirements": [
+          "- 需求描述：Core、错误、时钟与 ID",
+          "- 技术要求：实现强类型 ID、UTC clock、领域错误码、金额/数量精度、版本与 hash primitives",
+          "- 交付物：`quantos-core`、fixture builder",
+          "- 量化验收标准：金额/精度边界与时区测试分支覆盖 ≥90%；任意错误可映射为稳定机器码；相同 fixture hash 100% 一致"
+        ],
+        "task_id": "F04",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:F05",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F03",
+          "CORE:F04"
+        ],
+        "dependencies": [
+          "CORE:F03",
+          "CORE:F04"
+        ],
+        "depends_on": [
+          "CORE:F03",
+          "CORE:F04"
+        ],
+        "iteration": "F0",
+        "requirement": "事件、存储与审计账本",
+        "requirements": [
+          "- 需求描述：事件、存储与审计账本",
+          "- 技术要求：Supabase PostgreSQL migration、业务 schema、RLS 基线、Supabase Storage、transactional outbox/inbox、schema registry、append-only audit；建立 `outbox_event`、`inbox_receipt`、`dead_letter_event`、`projection_checkpoint` 与基于租约/`FOR UPDATE SKIP LOCKED` 的轮询消费者。Realtime 只发送唤醒/投影通知，绝不作为事件真相或唯一调度；早期不引入 Supabase 生态外的独立消息、缓存或时序基础设施",
+          "- 交付物：`quantos-event`、`quantos-storage`、`supabase/migrations/*`、policy/sql、replay CLI、消费者恢复 Runbook",
+          "- 量化验收标准：重复/乱序/重启/死信四类测试全过；隔离 Supabase 线上项目或数据库分支可由 migration 重建 `quantos` schema；所有 tenant 表 RLS 默认拒绝且负向权限测试全过；1 万条测试事件无丢失、消费者最终一致；模拟 Realtime 漏通知、断连和重连后，数据库扫描在测试 deadline 内处理全部已提交事件；1,000 次同事件并发投递只产生一次业务副作用；按 correlation ID 在 ≤5 秒取回完整事件链",
+          "- 阶段执行：开发期保留全部数据正确性规模用例（1 万事件、1,000 次并发）、真实 Supabase RLS/事务/补偿测试；重建能力须有迁移与可执行检查，受控整库重建只在对应授权内进行。相关查询耗时作为基线；≤5 秒检索完整链和候选版本重建/drift 回执归 RELEASE-GATE:BETA。"
+        ],
+        "task_id": "F05",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:F06",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F03",
+          "CORE:F05"
+        ],
+        "dependencies": [
+          "CORE:F03",
+          "CORE:F05"
+        ],
+        "depends_on": [
+          "CORE:F03",
+          "CORE:F05"
+        ],
+        "iteration": "F0",
+        "requirement": "身份、授权、秘密引用与主上下文",
+        "requirements": [
+          "- 需求描述：身份、授权、秘密引用与主上下文",
+          "- 技术要求：Supabase Auth/OIDC 会话、`auth.users` ↔ actor/member/workspace/account 映射、tenant/actor/account/mode 上下文、RBAC + capability、secret reference、默认拒绝；Vault 仅存静态加密秘密，Execution Gateway 通过受控角色与 allowlist 函数取得所需引用，短时授权由服务会话/命令过期/轮换状态控制",
+          "- 交付物：`quantos-auth`、`quantos-policy`、鉴权中间件、身份映射 migration、Vault 访问 policy/函数",
+          "- 量化验收标准：缺失 tenant/actor、越权 capability、绕过 RLS、Engine 请求 secret 四类请求 100% 拒绝；UI、Engine、普通 BFF 与用户角色读取 Vault 解密视图/函数 100% 被拒；一期固定 Primary workspace 无切换 API。开发机跨区域鉴权读 P95 仅作诊断，不作为 F06 放行条件。",
+          "- 验收边界：F06 在隔离目标验证真实 Auth/OIDC 身份接入、BFF 服务端会话与授权、数据库/RLS、Vault/Execution 角色及拒绝矩阵；服务端 HTTP Origin 拒绝可使用明确标记的合成 HTTPS Origin。开发机本地网络到托管数据库的长尾不作为 F06/A09 Gate；同区域 P95 <100ms 移至首次同区域部署后的性能验证。真实浏览器登录/E2E、MFA 页面交互及全部页面 API 功能联调属于 Web 前端 G1/页面与接口阶段；Terminal 实际部署归 RELEASE-GATE:BETA，不作为 F06 开发准入 Gate。"
+        ],
+        "task_id": "F06",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:F07",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06"
+        ],
+        "dependencies": [
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06"
+        ],
+        "depends_on": [
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06"
+        ],
+        "iteration": "F0",
+        "requirement": "Runtime 最小可恢复工作流",
+        "requirements": [
+          "- 需求描述：Runtime 最小可恢复工作流",
+          "- 技术要求：session、持久任务、tool registry、deadline、cancel、retry、checkpoint、Artifact API、成本/速率限额",
+          "- 交付物：`quantos-runtime`、workflow fixtures",
+          "- 量化验收标准：worker 强杀后 100 个任务均从 checkpoint 恢复且不重复创建 Artifact；cancel/timeout 事件均带 audit；任务调度 P95 <200ms",
+          "- 阶段执行：worker 恢复、checkpoint、Artifact 去重及 cancel/timeout 审计为开发硬门槛；调度 P95 <200ms 移交 RELEASE-GATE:BETA；拟发布 HTTPS/受限 Storage 验证由 L04 归档，在服务首次发布前完成。"
+        ],
+        "task_id": "F07",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:F08",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F03",
+          "CORE:F06",
+          "CORE:F07"
+        ],
+        "dependencies": [
+          "CORE:F03",
+          "CORE:F06",
+          "CORE:F07"
+        ],
+        "depends_on": [
+          "CORE:F03",
+          "CORE:F06",
+          "CORE:F07"
+        ],
+        "iteration": "F0",
+        "requirement": "Engine SDK、Manager 与 Mock Engine",
+        "requirements": [
+          "- 需求描述：Engine SDK、Manager 与 Mock Engine",
+          "- 技术要求：Engine manifest 审核、UDS gRPC、health/readiness、routing、限流、熔断、退避、资源配额、contract harness",
+          "- 交付物：`quantos-engine-manager`、Python common SDK、mock engine",
+          "- 量化验收标准：`GetMetadata/Health/Execute/StreamExecute/Cancel` 100% contract 通过；连续 3 次崩溃触发退避且不丢请求；deadline 超时 ≤2 秒返回确定性错误"
+        ],
+        "task_id": "F08",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:F02",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F01"
+        ],
+        "dependencies": [
+          "CORE:F01"
+        ],
+        "depends_on": [
+          "CORE:F01"
+        ],
+        "iteration": "F0",
+        "requirement": "CI、制品与供应链门禁",
+        "requirements": [
+          "- 需求描述：CI、制品与供应链门禁",
+          "- 技术要求：PR 管道执行 fmt/lint/typecheck/unit/contract、SBOM、license、SCA、secret scan、制品签名、Supabase migration drift 与 RLS policy check；生成可追溯 build manifest",
+          "- 交付物：CI workflow、SBOM、NOTICE 模板、签名脚本、DB check 脚本",
+          "- 量化验收标准：任一故意注入 secret、破坏 proto、未锁定依赖、RLS 缺失或 schema drift 均使 CI 失败；主干制品含 commit、依赖 digest、SBOM；高危漏洞=0 或有带到期日的豁免",
+          "- 阶段执行：secret/proto/锁依赖/RLS/schema drift 负向机制及新增高危漏洞处置在开发期验证；目标远程 CI、主干制品 digest/SBOM/签名回执归 RELEASE-GATE:BETA。缺失 CI 发布回执不等于可跳过安全检查。"
+        ],
+        "task_id": "F02",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:F09",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08"
+        ],
+        "dependencies": [
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08"
+        ],
+        "depends_on": [
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08"
+        ],
+        "iteration": "F0",
+        "requirement": "本地可观测性、容量阈值与故障注入",
+        "requirements": [
+          "- 需求描述：本地可观测性、容量阈值与故障注入",
+          "- 技术要求：trace、metrics、结构化日志、健康检查、test fault proxy；为 outbox 年龄/DLQ、Realtime 投影延迟与配额、读模型查询/MV 新鲜度、Storage 错误与秘密轮换配置可执行告警和 ADR 证据采集",
+          "- 交付物：dashboards、alert rules、fault tests、容量 ADR 模板",
+          "- 量化验收标准：开发阶段 Gate 验证已交付 F0 写入口的持久 trace/correlation ID、结构化错误与健康检查；用确定性样本、断采和时间前进测试告警阈值、连续窗口及 ADR 输入；在已配置的测试 Supabase PostgreSQL 上验证 migration、真实数据库/消费者组件故障恢复、查询采样和本地 Engine 崩溃恢复。CI、Nightly 与数据库组件回执须绑定同一完整源码 SHA。此 Gate 不要求尚未部署的业务生产者持续上报或发送真实通知。",
+          "- 阶段执行：本节原标准及历史同 SHA 回执保留；当前功能准入评估持久 trace、确定性告警/断采与受影响真实 Supabase 功能，持续采样/实际通知和远程 CI/Nightly 归发布检查点。Beta 范围在 RELEASE-GATE:BETA 完成，新增 testnet 执行区范围在 RELEASE-GATE:LIVE-READINESS 完成。"
+        ],
+        "task_id": "F09",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP01-A",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F01",
+          "CORE:F02"
+        ],
+        "dependencies": [
+          "CORE:F01",
+          "CORE:F02"
+        ],
+        "depends_on": [
+          "CORE:F01",
+          "CORE:F02"
+        ],
+        "iteration": "F0",
+        "requirement": "上游只读副本与 Fork 基线",
+        "requirements": [
+          "- 需求描述：上游只读副本与 Fork 基线",
+          "- 交付物：baseline SHA、监测 workflow、初始 SBOM/NOTICE、目录 README",
+          "- 验收标准：新 tag/commit 只生成 candidate 记录，不更新生产依赖；baseline 可重建"
+        ],
+        "task_id": "TP01-A",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP01-B",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:TP01-A",
+          "CORE:F07"
+        ],
+        "dependencies": [
+          "CORE:TP01-A",
+          "CORE:F07"
+        ],
+        "depends_on": [
+          "CORE:TP01-A",
+          "CORE:F07"
+        ],
+        "iteration": "F0",
+        "requirement": "capability inventory 与禁止耦合清单",
+        "requirements": [
+          "- 需求描述：capability inventory 与禁止耦合清单",
+          "- 交付物：capability matrix、threat model 补充、禁止耦合 ADR",
+          "- 验收标准：每项能力都有输入/输出/副作用/权限/替换策略；交易/秘密路径全部标记拒绝"
+        ],
+        "task_id": "TP01-B",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE-GATE:F0",
+      "normativeInput": {
+        "acceptance_window": "F0",
+        "checkpoint_id": "CORE-GATE:F0",
+        "dependencies": [
+          "CORE:F01",
+          "CORE:F02",
+          "CORE:F03",
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08",
+          "CORE:F09",
+          "CORE:TP01-A",
+          "CORE:TP01-B"
+        ],
+        "depends_on": [
+          "CORE:F01",
+          "CORE:F02",
+          "CORE:F03",
+          "CORE:F04",
+          "CORE:F05",
+          "CORE:F06",
+          "CORE:F07",
+          "CORE:F08",
+          "CORE:F09",
+          "CORE:TP01-A",
+          "CORE:TP01-B"
+        ],
+        "required_scope": "沿用 F0 原 7/7 完整 Gate 与原始回执；其源码边界为历史 main 91e222f，不自动转移到当前 HEAD。 R04_LOCAL本地功能准入独立验证；Supabase目标与原严格失败证据由RELEASE-GATE:BETA最终验收。"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:R01",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F03",
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:F03",
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:F03",
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "Market ingestion 与标准化行情契约",
+        "requirements": [
+          "- 需求描述：Market ingestion 与标准化行情契约",
+          "- 技术要求：归一化 symbol、时间、精度、来源、质量；只允许已批准 provider；写 `MarketEvent`",
+          "- 交付物：`quantos-market`、ingestor、replay dataset",
+          "- 量化验收标准：10万条 replay 事件解析成功率 100%；乱序/重复数据正确去重；新鲜度/质量异常在 ≤5s 内发出事件",
+          "- 阶段执行：开发验证 10 万 replay、归一化/去重、原子游标、重试/补偿与受控异常提交 ≤5s；source-age、processing、自然告警精确 ACK 与采样缺口分别报告。真实持续运行的新鲜度/readiness 和部署 SLO 归 RELEASE-GATE:BETA；不能以 pending=0 或持续写入冒充健康，已知不健康数据必须明确标识并由策略/交易消费者拒绝。FA-H01/B01 保持 OPEN/PARTIAL，功能准入仅针对有证据支撑的允许用途。"
+        ],
+        "task_id": "R01",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:R02",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:R01",
+          "CORE:F06",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:R01",
+          "CORE:F06",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:R01",
+          "CORE:F06",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "DataSnapshot、血缘与质量 Gate",
+        "requirements": [
+          "- 需求描述：DataSnapshot、血缘与质量 Gate",
+          "- 技术要求：不可变 hash、时间窗、schema、质量、许可证、来源；快照元数据与质量 Gate 存于 Supabase PostgreSQL，并通过 RLS 保护租户可见性；交易相关调用必须检查质量/时效",
+          "- 交付物：snapshot API、对象存储、quality rules、snapshot migration",
+          "- 量化验收标准：相同输入生成相同 hash；过期/质量不合格/许可证缺失的 300 个 fixture 100% 被拒用于策略/交易；查询 P95 <300ms",
+          "- 阶段执行：确定性 hash、300 个质量/时效/许可证拒绝 fixture、真实 Supabase 查询/权限与 Storage 完整性、有效内部用途来源批准及 R01 已保留事实→持久化快照/当前规则→实际消费者为开发硬门槛。C26 开发范围为 typed wire 可信引用解析和实际 Python Engine/模块联调；C25 代表性发布环境 P95<300ms、C26 已部署 BFF/Runtime 完整 HTTP/JWT 权限链及候选同 SHA 远程 CI 移交 RELEASE-GATE:BETA。未部署不阻塞组件功能开发；不免除租户/来源/质量/时效底线或前置依赖准入。"
+        ],
+        "task_id": "R02",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP02",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F08",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:F08",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:F08",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "RD-Agent：自动研究/实验 Engine",
+        "requirements": [
+          "- 需求描述：RD-Agent：自动研究/实验 Engine",
+          "- 交付物：`engines/rd-agent`、manifest、运行时打包、adapter、fixtures",
+          "- 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s",
+          "- 阶段执行：TP02_LOCAL仅放行CORE:TP02；完整13节点必要本地闭包、44组本地检查（含专用负向），13组目标/远程检查移交测试及RELEASE-GATE:BETA；不授予上游或R1-SERVICE READY。两组双RPC回放、离线隔离安装wheel五RPC、取消/deadline与Artifact边界仍必需。规程见[TP02本地准入](./operations/tp02-local-admission.md)。 contract、确定性 hash 与交易/secret/网络拒绝在开发验证；P95 接收响应 <1s 归 RELEASE-GATE:BETA，deadline 内确定性受理或错误仍是开发功能要求。"
+        ],
+        "task_id": "TP02",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:R03",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F07",
+          "CORE:F08",
+          "CORE:R02",
+          "CORE:TP02",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:F07",
+          "CORE:F08",
+          "CORE:R02",
+          "CORE:TP02",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:F07",
+          "CORE:F08",
+          "CORE:R02",
+          "CORE:TP02",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "Research orchestration 与 Artifact lifecycle",
+        "requirements": [
+          "- 需求描述：Research orchestration 与 Artifact lifecycle",
+          "- 技术要求：Runtime 组合研究 Engine、预算、deadline、流式事件、Artifact 归档与重放",
+          "- 交付物：research workflow、Artifact repository",
+          "- 量化验收标准：同一 fixture 连续运行 10 次 input hash 一致且输出证据可定位；取消 ≤2s 确认；worker 重启后无重复 Artifact",
+          "- 阶段执行：R03_LOCAL 开发准入重新执行全部不依赖Supabase的前置检查与本地Runtime/Engine功能；10次input hash一致、证据可定位、取消≤2s、恢复/无重复Artifact逻辑及权限/质量/许可拒绝仍须通过。Supabase平台容量/默认可写性、真实数据库/Storage/RLS/Auth及持久强杀恢复指标在最终上线前由RELEASE-GATE:BETA实际验收；缺目标记NOT RUN。R03_LOCAL或显式登记的R04_LOCAL前置档案仅证明本地功能，不授予上游数据库READY或发布权限。"
+        ],
+        "task_id": "R03",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP03",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F08",
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:F08",
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:F08",
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "LLMQuant：特征、因子、模型、Signal Engine",
+        "requirements": [
+          "- 需求描述：LLMQuant：特征、因子、模型、Signal Engine",
+          "- 交付物：`engines/llmquant`、manifest、Signal mapper、model provenance",
+          "- 集成验收标准：100 组固定输入结果 schema 100% 有效；每条 Signal 含策略/模型/数据版本、置信度和时效；无 OMS/venue/secret import；流式取消 ≤2s 生效",
+          "- 阶段执行：schema、版本/置信度/时效与禁止 import 在开发验证；流式取消 ≤2s 用受控 clock/真实进程测功能语义，Research UI 联调覆盖取消后无副作用；部署负载下同一时限在 RELEASE-GATE:BETA 重验，不删除超时语义。",
+          "- 验收边界：R04_LOCAL独立本地开发Gate；严格Supabase失败回执保留，目标验收归RELEASE-GATE:BETA。"
+        ],
+        "task_id": "TP03",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP04",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F08",
+          "CORE:TP03",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:F08",
+          "CORE:TP03",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:F08",
+          "CORE:TP03",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "TradingAgents：多 Agent 决策 Engine",
+        "requirements": [
+          "- 需求描述：TradingAgents：多 Agent 决策 Engine",
+          "- 交付物：`engines/trading-agents`、proposal mapper、policy fixtures",
+          "- 集成验收标准：100% Proposal 带证据、反方观点、失效时间；所有输出 `executable=false`；尝试调用 order/secret tool 必失败并审计；固定 fixture 可重放",
+          "- 验收边界：R04_LOCAL独立本地开发Gate；严格Supabase失败回执保留，目标验收归RELEASE-GATE:BETA。"
+        ],
+        "task_id": "TP04",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:R04",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:R03",
+          "CORE:TP03",
+          "CORE:TP04",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:R03",
+          "CORE:TP03",
+          "CORE:TP04",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:R03",
+          "CORE:TP03",
+          "CORE:TP04",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "Signal 与 TradeProposal 工作流",
+        "requirements": [
+          "- 需求描述：Signal 与 TradeProposal 工作流",
+          "- 技术要求：仅接收版本化 Signal/研究输入；生成不可执行 Proposal、反方观点、失效时间、证据",
+          "- 交付物：signal/proposal service、schema validator、R03研究引用消费边界、专用R04本地完成回执与负向测试",
+          "- 量化验收标准：100 个 Proposal fixture 100% 含证据/失效时间/`executable=false`；过期 Proposal 100% 拒绝评估；无订单 API 被调用",
+          "- 阶段执行：R04_LOCAL按单一干净冻结提交复验F0/TP03/TP04及R03本地前置，再验证公共入口拒绝、100合成Proposal、R03成功研究产物到Signal/Proposal证据绑定、过期等值拒绝、幂等重放与订单工具拒绝。Supabase持久性/BFF页面/外部服务/性能及长稳为NOT_RUN，移交RELEASE-GATE:BETA；本地READY不构成正式ACCEPTED或发布许可。"
+        ],
+        "task_id": "R04",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP01-C",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:TP01-B",
+          "CORE:F08",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:TP01-B",
+          "CORE:F08",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:TP01-B",
+          "CORE:F08",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "`vibe_adapter` skeleton",
+        "requirements": [
+          "- 需求描述：`vibe_adapter` skeleton",
+          "- 交付物：`engines/vibe-adapter`、contract tests、mock adapter",
+          "- 验收标准：五个 Engine RPC 100% 通过；无未授权 egress、secret 或 venue capability",
+          "- 验收边界：TP01-C_LOCAL独立本地准入；完整13节点必要功能闭包、五RPC/20回放/100组双RPC拒绝与实际进程清理须绑定同一冻结源码。Supabase、GitHub远程治理、部署、OS egress、持久化及性能/长稳由RELEASE-GATE:BETA最终验收；不授予上游READY或R1-SERVICE。"
+        ],
+        "task_id": "TP01-C",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP01-D",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:TP01-C",
+          "CORE:R02",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:TP01-C",
+          "CORE:R02",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:TP01-C",
+          "CORE:R02",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "选择性吸收与最小 patch 队列",
+        "requirements": [
+          "- 需求描述：选择性吸收与最小 patch 队列",
+          "- 交付物：fork patch queue、adapter modules、sync ADR",
+          "- 验收标准：20 个代表性 fixture 可回放；移除 adapter 后 Runtime 仍可运行其他 workflow",
+          "- 验收边界：TP01-D_LOCAL独立本地准入；完整16节点必要功能闭包、20组双RPC/80次调用、18类畸形合约拒绝、Runtime去适配器运行、R02合成输入消费及专用负向门禁须绑定同一冻结源码。仅CORE:TP01-D登记READY，上游与R1-SERVICE不自动放行；Supabase、真实来源/用途许可、外部环境及性能/长稳由RELEASE-GATE:BETA最终验收。"
+        ],
+        "task_id": "TP01-D",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP05",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F05",
+          "CORE:F08",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:F05",
+          "CORE:F08",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:F05",
+          "CORE:F08",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "OpenBB：数据/研究适配服务",
+        "requirements": [
+          "- 需求描述：OpenBB：数据/研究适配服务",
+          "- 交付物：`engines/openbb-adapter`、provider interface、法律决策 ADR、替代 provider mock",
+          "- 集成验收标准：结果 100% 含来源/许可/schema/hash；未经批准的数据不可进入交易流程；服务端无核心领域依赖；许可证 Gate 未通过时生产构建拒绝包含该制品"
+        ],
+        "task_id": "TP05",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP08",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:F05",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "Qlib",
+        "requirements": [
+          "- 需求描述：Qlib",
+          "- 交付物：ADR、capability matrix、与 `DataSnapshot/ResearchArtifact` 映射样例",
+          "- 验收标准：固定 commit、许可证/SBOM/CVE 记录齐全；完成 3 个离线实验映射；结论明确“仅参考/隔离 adapter/拒绝”及替换成本"
+        ],
+        "task_id": "TP08",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP09",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:TP03",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:TP03",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:TP03",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "TrendRadar",
+        "requirements": [
+          "- 需求描述：TrendRadar",
+          "- 交付物：ADR、趋势 signal schema 样例、数据许可清单",
+          "- 验收标准：3 组离线输入可映射至自有 Signal；缺少许可证/来源的输出 100% 被标为不可交易；无生产依赖进入 lockfile"
+        ],
+        "task_id": "TP09",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP10",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "ValueCell",
+        "requirements": [
+          "- 需求描述：ValueCell",
+          "- 交付物：UX gap report、可复用交互清单、禁止耦合清单",
+          "- 验收标准：至少 10 个 UI 模式映射至 Terminal design spec；无源码复制/运行时依赖；所有差异写 ADR"
+        ],
+        "task_id": "TP10",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP11",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:TP05",
+          "CORE-GATE:F0"
+        ],
+        "dependencies": [
+          "CORE:TP05",
+          "CORE-GATE:F0"
+        ],
+        "depends_on": [
+          "CORE:TP05",
+          "CORE-GATE:F0"
+        ],
+        "iteration": "R1-SERVICE",
+        "requirement": "OpenStock",
+        "requirements": [
+          "- 需求描述：OpenStock",
+          "- 交付物：provider comparison、Data Contract fixture、许可证结论",
+          "- 验收标准：2 个 provider fixture 完成血缘/质量映射；任何未授权数据无法生成可用 DataSnapshot；无 Day-1 依赖"
+        ],
+        "task_id": "TP11",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE-GATE:R1-SERVICE",
+      "normativeInput": {
+        "acceptance_window": "R1-SERVICE",
+        "checkpoint_id": "CORE-GATE:R1-SERVICE",
+        "dependencies": [
+          "CORE:R01",
+          "CORE:R02",
+          "CORE:TP01-C",
+          "CORE:TP01-D",
+          "CORE:TP02",
+          "CORE:TP03",
+          "CORE:TP04",
+          "CORE:TP05",
+          "CORE:TP08",
+          "CORE:TP09",
+          "CORE:TP10",
+          "CORE:TP11",
+          "CORE:R03",
+          "CORE:R04"
+        ],
+        "depends_on": [
+          "CORE:R01",
+          "CORE:R02",
+          "CORE:TP01-C",
+          "CORE:TP01-D",
+          "CORE:TP02",
+          "CORE:TP03",
+          "CORE:TP04",
+          "CORE:TP05",
+          "CORE:TP08",
+          "CORE:TP09",
+          "CORE:TP10",
+          "CORE:TP11",
+          "CORE:R03",
+          "CORE:R04"
+        ],
+        "required_scope": "本节领域/Engine 的开发功能准入：固定输入研究/Signal/Proposal 回放、数据完整性与质量拒绝、权限负向、取消/Artifact 生命周期及 TP01-C/D 最小适配。各任务只消费 DEVELOPMENT 范围；R01 新鲜度风险不得影响获准消费者的正确性。页面 Research E2E 在 U01/R1 联调，性能/持续运行/部署验收移交 RELEASE-GATE:BETA，不能以功能准入宣称健康或正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 当前开发按A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL分别校验17/27/40/40节点必要功能闭包，绑定同一冻结源码、实际测试日志和产物摘要；只有对应消费者登记DEVELOPMENT READY，上游独立Gate不自动放行。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。"
+      },
+      "policyMapped": true
+    },
+    {
+      "nodeId": "CORE:TP01-E",
+      "normativeInput": {
+        "acceptance_window": "TP01-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:TP01-D",
+          "CORE:F02",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:TP01-D",
+          "CORE:F02",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:TP01-D",
+          "CORE:F02",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "iteration": "TP01-SERVICE",
+        "requirement": "同步自动化与分级阻断",
+        "requirements": [
+          "- 需求描述：同步自动化与分级阻断",
+          "- 交付物：`sync-vibe` 工具、CI workflow、decision records",
+          "- 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果",
+          "- 阶段执行：本地开发验证API/许可证/CVE/patch 冲突分级、同步阻断和确定性故障注入；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "TP01-E",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE:TP01-F",
+      "normativeInput": {
+        "acceptance_window": "TP01-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:TP01-E",
+          "CORE:F09",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:TP01-E",
+          "CORE:F09",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:TP01-E",
+          "CORE:F09",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "iteration": "TP01-SERVICE",
+        "requirement": "canary、观测与回滚",
+        "requirements": [
+          "- 需求描述：canary、观测与回滚",
+          "- 交付物：dashboards、alert rules、rollback runbook、drill report",
+          "- 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整",
+          "- 阶段执行：本地开发验证flag、影子任务、告警阈值、签名拒绝、禁用/回滚与在途请求收尾；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "TP01-F",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE:TP01-G",
+      "normativeInput": {
+        "acceptance_window": "TP01-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:TP01-F",
+          "CORE:R03",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:TP01-F",
+          "CORE:R03",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:TP01-F",
+          "CORE:R03",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "iteration": "TP01-SERVICE",
+        "requirement": "上游贡献与脱钩替换",
+        "requirements": [
+          "- 需求描述：上游贡献与脱钩替换",
+          "- 交付物：upstream PR 记录、deprecation plan、替换测试",
+          "- 验收标准：不依赖 fork 内部类型；任一模块可替换且业务协议不变",
+          "- 阶段执行：本地开发验证内部类型隔离、模块替换与业务协议不变；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：不依赖 fork 内部类型；任一模块可替换且业务协议不变；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "TP01-G",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "SERVICE:TP01",
+      "normativeInput": {
+        "acceptance_window": "TP01-SERVICE",
+        "checkpoint_id": "SERVICE:TP01",
+        "dependencies": [
+          "CORE:TP01-A",
+          "CORE:TP01-B",
+          "CORE:TP01-C",
+          "CORE:TP01-D",
+          "CORE:TP01-E",
+          "CORE:TP01-F",
+          "CORE:TP01-G",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:TP01-A",
+          "CORE:TP01-B",
+          "CORE:TP01-C",
+          "CORE:TP01-D",
+          "CORE:TP01-E",
+          "CORE:TP01-F",
+          "CORE:TP01-G",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "required_scope": "TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE:S01",
+      "normativeInput": {
+        "acceptance_window": "S2-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:R02",
+          "CORE:R03",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:R02",
+          "CORE:R03",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:R02",
+          "CORE:R03",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "iteration": "S2-SERVICE",
+        "requirement": "策略草稿与参数模型",
+        "requirements": [
+          "- 需求描述：策略草稿与参数模型",
+          "- 技术要求：草稿可版本化、自动保存、冲突检测；策略只引用已批准数据/Artifact；草稿/参数表默认启用 RLS 并保留 `auth.users` 审计链",
+          "- 交付物：`quantos-strategy` draft API、strategy fixtures、draft migration",
+          "- 量化验收标准：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms",
+          "- 阶段执行：本地开发验证50组并发编辑无静默覆盖、授权/快照/Artifact约束和保存正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "S01",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE:TP06",
+      "normativeInput": {
+        "acceptance_window": "S2-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F08",
+          "SERVICE:TP01",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:F08",
+          "SERVICE:TP01",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:F08",
+          "SERVICE:TP01",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "iteration": "S2-SERVICE",
+        "requirement": "VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选",
+        "requirements": [
+          "- 需求描述：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选",
+          "- 交付物：`engines/strategy-lab` 或 ADR、generator adapter、静态分析 fixtures",
+          "- 集成验收标准：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现",
+          "- 阶段执行：本地开发验证100个恶意提示拒绝、Artifact唯一输出、静态失败阻断Release及可替换性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "TP06",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE:S02",
+      "normativeInput": {
+        "acceptance_window": "S2-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:S01",
+          "CORE:TP06",
+          "CORE:TP08",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:S01",
+          "CORE:TP06",
+          "CORE:TP08",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:S01",
+          "CORE:TP06",
+          "CORE:TP08",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "iteration": "S2-SERVICE",
+        "requirement": "回测与成本/滑点验证",
+        "requirements": [
+          "- 需求描述：回测与成本/滑点验证",
+          "- 技术要求：固定 DataSnapshot、clock、成本/滑点模型、look-ahead/数据泄漏检测、环境 hash",
+          "- 交付物：backtest adapter、validation report",
+          "- 量化验收标准：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash",
+          "- 阶段执行：本地开发验证10次确定性回放、100个未来数据泄漏拒绝、成本/环境/输入hash；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "S02",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE:S03",
+      "normativeInput": {
+        "acceptance_window": "S2-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:S02",
+          "CORE:F06",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:S02",
+          "CORE:F06",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:S02",
+          "CORE:F06",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "iteration": "S2-SERVICE",
+        "requirement": "StrategyRelease 与部署目标控制",
+        "requirements": [
+          "- 需求描述：StrategyRelease 与部署目标控制",
+          "- 技术要求：生成不可变发布物，含源码/构建产物 hash、参数、数据、回测、审批；M3/M4 只允许 Paper/Shadow",
+          "- 交付物：release service、deployment policy、migration",
+          "- 量化验收标准：未验证/未审批 Release 的部署请求 100% 被拒；目标枚举不含 Assisted Live（M5 前）；同一内容重复发布返回同一 hash 或确定性冲突",
+          "- 阶段执行：本地开发验证未验证/审批拒绝、Paper/Shadow目标约束、重复内容hash与冲突；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：未验证/未审批 Release 的部署请求 100% 被拒；目标枚举不含 Assisted Live（M5 前）；同一内容重复发布返回同一 hash 或确定性冲突；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "S03",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "SERVICE:S04",
+      "normativeInput": {
+        "acceptance_window": "S2-SERVICE",
+        "checkpoint_id": "SERVICE:S04",
+        "dependencies": [
+          "CORE:S01",
+          "CORE:S02",
+          "CORE:S03",
+          "CORE:F06",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:S01",
+          "CORE:S02",
+          "CORE:S03",
+          "CORE:F06",
+          "CORE-GATE:R1-SERVICE"
+        ],
+        "required_scope": "策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "EVALUATION:TP07",
+      "normativeInput": {
+        "acceptance_window": "S2-SERVICE",
+        "checkpoint_id": "EVALUATION:TP07",
+        "dependencies": [
+          "CORE:F03",
+          "CORE:F06",
+          "CORE:F08"
+        ],
+        "depends_on": [
+          "CORE:F03",
+          "CORE:F06",
+          "CORE:F08"
+        ],
+        "required_scope": "固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "EVALUATION:TP12",
+      "normativeInput": {
+        "acceptance_window": "S2-SERVICE",
+        "checkpoint_id": "EVALUATION:TP12",
+        "dependencies": [
+          "CORE:F07",
+          "EVALUATION:TP07"
+        ],
+        "depends_on": [
+          "CORE:F07",
+          "EVALUATION:TP07"
+        ],
+        "required_scope": "基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE-GATE:S2-SERVICE",
+      "normativeInput": {
+        "acceptance_window": "S2-SERVICE",
+        "checkpoint_id": "CORE-GATE:S2-SERVICE",
+        "dependencies": [
+          "CORE-GATE:R1-SERVICE",
+          "SERVICE:TP01",
+          "CORE:S01",
+          "CORE:TP06",
+          "CORE:S02",
+          "CORE:S03",
+          "SERVICE:S04",
+          "CORE:TP08",
+          "CORE:TP09",
+          "CORE:TP10",
+          "CORE:TP11",
+          "EVALUATION:TP07",
+          "EVALUATION:TP12"
+        ],
+        "depends_on": [
+          "CORE-GATE:R1-SERVICE",
+          "SERVICE:TP01",
+          "CORE:S01",
+          "CORE:TP06",
+          "CORE:S02",
+          "CORE:S03",
+          "SERVICE:S04",
+          "CORE:TP08",
+          "CORE:TP09",
+          "CORE:TP10",
+          "CORE:TP11",
+          "EVALUATION:TP07",
+          "EVALUATION:TP12"
+        ],
+        "required_scope": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE:X01",
+      "normativeInput": {
+        "acceptance_window": "X3-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:F05",
+          "CORE:R01",
+          "CORE-GATE:S2-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:F05",
+          "CORE:R01",
+          "CORE-GATE:S2-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:F05",
+          "CORE:R01",
+          "CORE-GATE:S2-SERVICE"
+        ],
+        "iteration": "X3-SERVICE",
+        "requirement": "Portfolio 读模型与风险输入快照",
+        "requirements": [
+          "- 需求描述：Portfolio 读模型与风险输入快照",
+          "- 技术要求：Position、valuation、P&L、exposure、账户状态、数据时间；只读模型可从事件重建，并持久化到 Supabase PostgreSQL 受控 schema",
+          "- 交付物：`quantos-portfolio`、rebuild CLI、portfolio projection migration",
+          "- 量化验收标准：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms",
+          "- 阶段执行：本地开发验证1万订单/成交黄金回放、Position/P&L一致和重建正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "X01",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE:X02",
+      "normativeInput": {
+        "acceptance_window": "X3-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:X01",
+          "CORE:S03",
+          "CORE:F06",
+          "CORE-GATE:S2-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:X01",
+          "CORE:S03",
+          "CORE:F06",
+          "CORE-GATE:S2-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:X01",
+          "CORE:S03",
+          "CORE:F06",
+          "CORE-GATE:S2-SERVICE"
+        ],
+        "iteration": "X3-SERVICE",
+        "requirement": "Pre/Post-trade Risk 与 kill switch",
+        "requirements": [
+          "- 需求描述：Pre/Post-trade Risk 与 kill switch",
+          "- 技术要求：规则：策略发布、数据时效、账户、精度、名义、杠杆、集中度、venue 健康、重复、审批；global/account kill switch",
+          "- 交付物：`quantos-risk`、rule fixtures、kill switch API",
+          "- 量化验收标准：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名",
+          "- 阶段执行：本地开发验证三类各50规则fixture、95%分支覆盖、kill switch立即拒绝及命中规则证据；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "X02",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    },
+    {
+      "nodeId": "CORE:X03",
+      "normativeInput": {
+        "acceptance_window": "X3-SERVICE",
+        "closes_core": [],
+        "core_prerequisites": [
+          "CORE:R04",
+          "CORE:X02",
+          "CORE-GATE:S2-SERVICE"
+        ],
+        "dependencies": [
+          "CORE:R04",
+          "CORE:X02",
+          "CORE-GATE:S2-SERVICE"
+        ],
+        "depends_on": [
+          "CORE:R04",
+          "CORE:X02",
+          "CORE-GATE:S2-SERVICE"
+        ],
+        "iteration": "X3-SERVICE",
+        "requirement": "TradeCommand 签发与审批状态机",
+        "requirements": [
+          "- 需求描述：TradeCommand 签发与审批状态机",
+          "- 技术要求：将有效 Proposal + RiskDecision + Approval 转为短期、签名、幂等 Command；禁止自批",
+          "- 交付物：`quantos-execution` command issuer、approval verifier",
+          "- 量化验收标准：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms",
+          "- 阶段执行：本地开发验证七类拒绝、1000并发单命令、审计生成与幂等语义；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms；未执行保持NOT_RUN。",
+          "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+        ],
+        "task_id": "X03",
+        "task_type": "CORE",
+        "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+      },
+      "policyMapped": false
+    }
+  ],
+  "missingPolicyNodes": [
+    "CORE:TP01-E",
+    "CORE:TP01-F",
+    "CORE:TP01-G",
+    "SERVICE:TP01",
+    "CORE:S01",
+    "CORE:TP06",
+    "CORE:S02",
+    "CORE:S03",
+    "SERVICE:S04",
+    "EVALUATION:TP07",
+    "EVALUATION:TP12",
+    "CORE-GATE:S2-SERVICE",
+    "CORE:X01",
+    "CORE:X02",
+    "CORE:X03"
+  ],
+  "fullX03Admission": false,
+  "stageCounts": {
+    "READY": 0,
+    "NOT_ASSESSED": 159,
+    "BLOCKED": 0
+  },
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "externalExecution": false,
+  "performanceAccepted": false
+}

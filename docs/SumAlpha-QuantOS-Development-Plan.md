@@ -1,4 +1,4 @@
-> 当前执行（2026-10-14）：X03缓存重放安全条件重验、请求人/业务意图冲突及TTL/P95拆分已实现，正在从新冻结候选复验；公共功能输入变化后原R1/A2/BFF003/BFF005/A3/TP02六项READY撤回，原回执与失败保留。全图0 READY / 159 NOT_ASSESSED / 0 BLOCKED；Supabase、外部环境、性能及正式接受独立待办。
+> 当前工程结果（2026-10-14）：冻结5e14e3a4完成X03缓存重放安全重验/请求人及意图绑定、TTL/P95拆分；27节点/85组已登记本地前置与12项收尾全部通过。完整X03闭包42节点仍缺15节点专用映射，未授予准入；公共输入变化后旧六项READY已撤回，全图0 READY / 159 NOT_ASSESSED / 0 BLOCKED。外部/性能留测试及RELEASE，formalAccepted=false。见[本轮报告](./audit/X03-replay-fix-2026-10-14.md)。
 
 > 上轮工程快照（2026-10-14，X03修复前）：冻结5fa0fb04完整42节点/141组共同本地执行PASS；R1-SERVICE/A2/BFF003/BFF005/A3五项限定DEVELOPMENT READY已恢复，TP02_LOCAL以同源13节点/44组证明重新READY。全图6 READY / 153 NOT_ASSESSED / 0 BLOCKED；Supabase、外部/性能与正式验收独立待办，formalAccepted=false。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)。
 
@@ -65,7 +65,7 @@
 
 > 版本：3.79
 > 更新时间：2026-10-14
-> 状态：X03修复复验进行中；公共输入变化后阶段Gate均NOT_ASSESSED，正式/目标/发布未执行。
+> 状态：X03缓存修复限定本地复验PASS；完整X03及聚合准入未授予，阶段Gate均NOT_ASSESSED。
 > 本轮变更：BFF-FE-005 市场 API、四消费者当前源码本地复评及发布验收移交。
 > 依据：[架构](./SumAlpha-QuantOS-Architecture.md)、[技术方案](./SumAlpha-QuantOS-Technical-Solution.md)、[Terminal 前端设计规格](./SumAlpha-QuantOS-Terminal-Frontend-Design-Spec.md)  
 > 目标：从空仓库交付可复现、可审计、可对账的单主租户 Paper + Shadow Beta；M5 仅完成 Assisted Live 上线评审准备，不默认开启实盘。
@@ -1051,7 +1051,7 @@ flowchart TD
 - 集成验收标准：contract harness 100% 通过；固定 DataSnapshot 运行两次 output/input hash 一致；拒绝交易/secret/任意外网工具调用；P95 接收响应 <1s
 - 阶段执行：TP02_LOCAL仅放行CORE:TP02；完整13节点必要本地闭包、44组本地检查（含专用负向），13组目标/远程检查移交测试及RELEASE-GATE:BETA；不授予上游或R1-SERVICE READY。两组双RPC回放、离线隔离安装wheel五RPC、取消/deadline与Artifact边界仍必需。规程见[TP02本地准入](./operations/tp02-local-admission.md)。 contract、确定性 hash 与交易/secret/网络拒绝在开发验证；P95 接收响应 <1s 归 RELEASE-GATE:BETA，deadline 内确定性受理或错误仍是开发功能要求。
 - 阶段/依赖：F08；R1
-- 当前工程复核：2026-10-14冻结5fa0fb04共同42节点/141组本地执行PASS，从同源完整13节点/44组重新发布TP02_LOCAL DEVELOPMENT READY；55项专用负向、实际安装wheel与原历史失败保留。R1/A2/BFF003/BFF005/A3另通过自身同候选闭包READY，其余上游不自动授予独立Gate；Supabase/外部/性能与正式验收仍独立待办。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)及[历史TP02报告](./audit/TP02-local-admission-2026-10-13.md)。
+- 当前工程复核：X03修复改变公共输入后当前NOT_ASSESSED；下述为历史候选复核：2026-10-14冻结5fa0fb04共同42节点/141组本地执行PASS，从同源完整13节点/44组重新发布TP02_LOCAL DEVELOPMENT READY；55项专用负向、实际安装wheel与原历史失败保留。R1/A2/BFF003/BFF005/A3另通过自身同候选闭包READY，其余上游不自动授予独立Gate；Supabase/外部/性能与正式验收仍独立待办。见[本轮报告](./audit/PROVIDER-A3-readmission-2026-10-14.md)及[历史TP02报告](./audit/TP02-local-admission-2026-10-13.md)。
 
 
 <a id="task-tp03"></a>
@@ -1662,7 +1662,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 阶段执行：本地开发验证七类拒绝、1000并发单命令、审计生成与幂等语义；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：R04、X02
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x03)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：2026-10-14冻结5e14e3a4完成缓存安全重验/请求人及意图冲突、审批消费互斥和TTL/P95拆分；专用12项、execution42/evidence1及27节点85组映射前置通过。完整42节点仍缺15映射，阶段NOT_ASSESSED；首次签发权威/持久化/目标/性能独立待验，见[本轮报告](./audit/X03-replay-fix-2026-10-14.md)。
 
 <a id="task-tp07"></a>
 ### TP07：NautilusTrader：研究、仿真、OMS、执行内核

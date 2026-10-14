@@ -1,0 +1,243 @@
+[
+  {
+    "id": "format",
+    "command": [
+      "cargo",
+      "fmt",
+      "--all",
+      "--",
+      "--check"
+    ],
+    "executedAt": "2026-10-14T03:43:25.177Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/format.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "id": "clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "-p",
+      "quantos-evidence",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "executedAt": "2026-10-14T03:43:25.620Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/clippy.log",
+    "logSha256": "sha256:10d4d9a2984d76acffaa851e795fd7b6c342492d832c7b299b5b0345bfdc00a5"
+  },
+  {
+    "id": "owning-and-caller",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "-p",
+      "quantos-evidence",
+      "--lib"
+    ],
+    "executedAt": "2026-10-14T03:43:46.444Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/owning-and-caller.log",
+    "logSha256": "sha256:245dbb547531ff825dba1593febc1e3958e975c71970484ccf59dd88c82ef58b"
+  },
+  {
+    "id": "x-and-s2-domain",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "quantos-risk",
+      "-p",
+      "quantos-strategy",
+      "-p",
+      "quantos-reconcile",
+      "-p",
+      "execution-gateway",
+      "--lib"
+    ],
+    "executedAt": "2026-10-14T03:44:30.637Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/x-and-s2-domain.log",
+    "logSha256": "sha256:4960391c2dc5a24d30f3ab13a984d6cab5a3085c35ea77d0bf2c8a274408c980"
+  },
+  {
+    "id": "gate-negatives",
+    "command": [
+      "node",
+      "--test",
+      "scripts/research-local-gate.test.mjs",
+      "scripts/tp02-local-gate.test.mjs",
+      "scripts/provider-a1-receipts.test.mjs"
+    ],
+    "executedAt": "2026-10-14T03:45:22.027Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/gate-negatives.log",
+    "logSha256": "sha256:ddeb20d3fd92a9702d4a90aab21444a4fde5c8e9a68d66a024fa471d0ca8d4aa"
+  },
+  {
+    "id": "withdrawn-r1",
+    "command": [
+      "node",
+      "scripts/research-local-gate.mjs",
+      "R1_LOCAL"
+    ],
+    "executedAt": "2026-10-14T03:45:25.025Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/withdrawn-r1.log",
+    "logSha256": "sha256:d76636d57662584469c998902362fe2e42f710a0bc2006411ef828c6020109c9"
+  },
+  {
+    "id": "withdrawn-a3",
+    "command": [
+      "make",
+      "provider-a3-local-check"
+    ],
+    "executedAt": "2026-10-14T03:45:25.159Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/withdrawn-a3.log",
+    "logSha256": "sha256:ac157e74abcc61fc34db553a3d9a5623ecd4259938a78fd1c42b65ef8dea1d72"
+  },
+  {
+    "id": "withdrawn-tp02",
+    "command": [
+      "make",
+      "tp02-local-check"
+    ],
+    "executedAt": "2026-10-14T03:45:25.293Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/withdrawn-tp02.log",
+    "logSha256": "sha256:55a2c4a56ea8127798e79578bcbe7b3d0890f756569de18db941ce66f6da51c4"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "pnpm",
+      "check:development-plans"
+    ],
+    "executedAt": "2026-10-14T03:45:25.426Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/plans.log",
+    "logSha256": "sha256:2aee780543baf30cd8edfc7d43320d14b02d9d0fb9b88692b4b2e96444c2c29e"
+  },
+  {
+    "id": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "executedAt": "2026-10-14T03:45:25.590Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/plans-negative.log",
+    "logSha256": "sha256:67f84a6335dc68071211b7f0c0bdeb164684aa6c485d38547e3eb7ef2eae4396"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-14T03:45:26.135Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  },
+  {
+    "id": "frontend-handoff",
+    "command": [
+      "node",
+      "scripts/check-frontend-gate-handoff.mjs"
+    ],
+    "executedAt": "2026-10-14T03:45:26.184Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/x03-replay-fix-20261014/attempt-01/frontend-handoff.log",
+    "logSha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+  }
+]
