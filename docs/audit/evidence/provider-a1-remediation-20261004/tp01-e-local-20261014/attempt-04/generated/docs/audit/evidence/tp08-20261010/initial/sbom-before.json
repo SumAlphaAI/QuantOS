@@ -1,0 +1,90 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "sumalpha-quantos-tp08-qlib-baseline",
+  "documentNamespace": "https://sumalpha.ai/spdx/tp08/qlib/d5379c52",
+  "creationInfo": {
+    "created": "2026-07-31T00:00:00Z",
+    "creators": [
+      "Tool: TP08 baseline intake"
+    ]
+  },
+  "packages": [
+    {
+      "name": "microsoft/qlib",
+      "SPDXID": "SPDXRef-Qlib",
+      "versionInfo": "v0.9.7-31-gd5379c52",
+      "downloadLocation": "git+https://github.com/microsoft/qlib.git@d5379c520f66a39953bad76234a7019a72796fd0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d5379c520f66a39953bad76234a7019a72796fd0"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/microsoft/qlib@d5379c520f66a39953bad76234a7019a72796fd0"
+        }
+      ]
+    },
+    {
+      "name": "LICENSE",
+      "SPDXID": "SPDXRef-QlibLicenseFile",
+      "downloadLocation": "https://raw.githubusercontent.com/microsoft/qlib/d5379c520f66a39953bad76234a7019a72796fd0/LICENSE",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "pyproject.toml",
+      "SPDXID": "SPDXRef-QlibProjectDescriptor",
+      "downloadLocation": "https://raw.githubusercontent.com/microsoft/qlib/d5379c520f66a39953bad76234a7019a72796fd0/pyproject.toml",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "fc9d1d6f2e66aacb5eb074aa2baf9d1678b0bf5986000ed06af98649ae8200c7"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Qlib"
+    },
+    {
+      "spdxElementId": "SPDXRef-Qlib",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-QlibLicenseFile"
+    },
+    {
+      "spdxElementId": "SPDXRef-Qlib",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-QlibProjectDescriptor"
+    }
+  ],
+  "annotations": [
+    {
+      "annotationType": "OTHER",
+      "annotator": "Tool: TP08 baseline intake",
+      "annotationDate": "2026-07-31T00:00:00Z",
+      "comment": "Direct runtime dependencies recorded from pinned pyproject.toml: pyyaml, numpy, pandas>=1.1, mlflow, filelock>=3.16.0, redis, dill, fire, ruamel.yaml>=0.17.38, python-redis-lock, tqdm, pymongo, loguru, lightgbm, gym, cvxpy, joblib, matplotlib, jupyter, nbconvert, pyarrow, pydantic-settings, setuptools-scm. Upstream ships no lockfile; transitive versions are unpinned and excluded until a resolved lock exists."
+    }
+  ]
+}

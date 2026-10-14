@@ -52,6 +52,12 @@ def verify():
     interrupted = json.loads((A / 'attempt-03/interruption.json').read_text())
     assert interrupted['status'] == 'INTERRUPTED' and interrupted['completedChecks'] == 4
     assert not (A / 'attempt-03/local-prerequisites.json').exists()
+    fourth = json.loads((A / 'attempt-04/execution-results.json').read_text())
+    assert len(fourth) == 88 and sum(c['status'] == 'PASS' for c in fourth) == 87
+    timeout = next(c for c in fourth if c['id'] == 'f01-test')
+    assert timeout['status'] == 'FAIL' and timeout['timedOut'] is True
+    assert timeout['executionErrorCode'] == 'ETIMEDOUT' and timeout['timeoutMs'] == 1800000
+    assert not (A / 'attempt-04/local-prerequisites.json').exists()
     post = json.loads((B / 'post-checks.json').read_text())
     assert len(post) == 7 and all(c['exitCode'] == c['expectedExitCode'] for c in post)
     for check in post:

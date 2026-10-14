@@ -1,0 +1,61 @@
+........................................................................ [ 28%]
+........................................................................ [ 56%]
+......................................................FF................ [ 84%]
+.......................................                                  [100%]
+=================================== FAILURES ===================================
+_________ test_boundary_rejection_has_no_side_effect[case-45-execute] __________
+
+engine = (TradingAgentsService(manifest=EngineManifest(engine_name='trading-agents', engine_version='0.1.0', capabilities=(Engi...read.lock object at 0x10ae9d9c0>), EngineClient(target='unix:/tmp/quantos-tp03-8dfdf6374837461d8423775f4c257647.sock'))
+rpc = 'execute', payload = {'signal': {}}
+code = <StatusCode.INVALID_ARGUMENT: (3, 'invalid argument')>
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize(
+        "payload,code",
+        [(p, grpc.StatusCode.PERMISSION_DENIED) for p in DENIED]
+        + [(p, grpc.StatusCode.INVALID_ARGUMENT) for p in INVALID],
+        ids=[f"case-{i:02}" for i in range(len(DENIED) + len(INVALID))],
+    )
+    def test_boundary_rejection_has_no_side_effect(engine, rpc, payload, code):
+        service, client = engine
+        with pytest.raises(grpc.RpcError) as error:
+            invoke(client, build_request(200, PROPOSAL_CAPABILITY, payload), rpc)
+>       assert error.value.code() == code
+E       assert <StatusCode.PERMISSION_DENIED: (7, 'permission denied')> == <StatusCode.INVALID_ARGUMENT: (3, 'invalid argument')>
+E        +  where <StatusCode.PERMISSION_DENIED: (7, 'permission denied')> = code()
+E        +    where code = <_InactiveRpcError of RPC that terminated with:\n	status = StatusCode.PERMISSION_DENIED\n	details = "ENGINE_SIGNAL_SCOPE"\n	debug_error_string = "UNKNOWN:Error received from peer  {grpc_message:"ENGINE_SIGNAL_SCOPE", grpc_status:7}"\n>.code
+E        +      where <_InactiveRpcError of RPC that terminated with:\n	status = StatusCode.PERMISSION_DENIED\n	details = "ENGINE_SIGNAL_SCOPE"\n	debug_error_string = "UNKNOWN:Error received from peer  {grpc_message:"ENGINE_SIGNAL_SCOPE", grpc_status:7}"\n> = <ExceptionInfo <_InactiveRpcError of RPC that terminated with:\n	status = StatusCode.PERMISSION_DENIED\n	details = "ENGI...debug_error_string = "UNKNOWN:Error received from peer  {grpc_message:"ENGINE_SIGNAL_SCOPE", grpc_status:7}"\n> tblen=5>.value
+
+engines/tests/test_trading_agents_development.py:218: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  trading_agents.service:service.py:139 trading_agents.policy decision=denied code=PERMISSION_DENIED tenant=db6e892642d79c3c544a81d8e20b92954b5bf7ec980bab8b3497ceee34fd16c4 workspace=0fb0d54b32f89a83d0452ee9617b31da7535d5c39adc79d7056ace145b1d36b3 actor=d3a70a859c57e37a96e84acea68772610e2df9b11df83aac381ef8081b6fa1b8
+__________ test_boundary_rejection_has_no_side_effect[case-45-stream] __________
+
+engine = (TradingAgentsService(manifest=EngineManifest(engine_name='trading-agents', engine_version='0.1.0', capabilities=(Engi...read.lock object at 0x10b346200>), EngineClient(target='unix:/tmp/quantos-tp03-f9b4703a23f74fe2aa44f8ba3e2e0a8d.sock'))
+rpc = 'stream', payload = {'signal': {}}
+code = <StatusCode.INVALID_ARGUMENT: (3, 'invalid argument')>
+
+    @pytest.mark.parametrize("rpc", ["execute", "stream"])
+    @pytest.mark.parametrize(
+        "payload,code",
+        [(p, grpc.StatusCode.PERMISSION_DENIED) for p in DENIED]
+        + [(p, grpc.StatusCode.INVALID_ARGUMENT) for p in INVALID],
+        ids=[f"case-{i:02}" for i in range(len(DENIED) + len(INVALID))],
+    )
+    def test_boundary_rejection_has_no_side_effect(engine, rpc, payload, code):
+        service, client = engine
+        with pytest.raises(grpc.RpcError) as error:
+            invoke(client, build_request(200, PROPOSAL_CAPABILITY, payload), rpc)
+>       assert error.value.code() == code
+E       assert <StatusCode.PERMISSION_DENIED: (7, 'permission denied')> == <StatusCode.INVALID_ARGUMENT: (3, 'invalid argument')>
+E        +  where <StatusCode.PERMISSION_DENIED: (7, 'permission denied')> = code()
+E        +    where code = <_MultiThreadedRendezvous of RPC that terminated with:\n	status = StatusCode.PERMISSION_DENIED\n	details = "ENGINE_SIGNAL_SCOPE"\n	debug_error_string = "UNKNOWN:Error received from peer  {grpc_status:7, grpc_message:"ENGINE_SIGNAL_SCOPE"}"\n>.code
+E        +      where <_MultiThreadedRendezvous of RPC that terminated with:\n	status = StatusCode.PERMISSION_DENIED\n	details = "ENGINE_SIGNAL_SCOPE"\n	debug_error_string = "UNKNOWN:Error received from peer  {grpc_status:7, grpc_message:"ENGINE_SIGNAL_SCOPE"}"\n> = <ExceptionInfo <_MultiThreadedRendezvous of RPC that terminated with:\n	status = StatusCode.PERMISSION_DENIED\n	details ...debug_error_string = "UNKNOWN:Error received from peer  {grpc_status:7, grpc_message:"ENGINE_SIGNAL_SCOPE"}"\n> tblen=5>.value
+
+engines/tests/test_trading_agents_development.py:218: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  trading_agents.service:service.py:139 trading_agents.policy decision=denied code=PERMISSION_DENIED tenant=db6e892642d79c3c544a81d8e20b92954b5bf7ec980bab8b3497ceee34fd16c4 workspace=0fb0d54b32f89a83d0452ee9617b31da7535d5c39adc79d7056ace145b1d36b3 actor=d3a70a859c57e37a96e84acea68772610e2df9b11df83aac381ef8081b6fa1b8
+=========================== short test summary info ============================
+FAILED engines/tests/test_trading_agents_development.py::test_boundary_rejection_has_no_side_effect[case-45-execute]
+FAILED engines/tests/test_trading_agents_development.py::test_boundary_rejection_has_no_side_effect[case-45-stream]
+2 failed, 253 passed in 2.05s

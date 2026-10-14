@@ -8,7 +8,7 @@ import {assess,localPolicy,localChecks,closure,nodesFromPlans,policy,digest} fro
 import {profile,publish} from './tp01-e-local-gate.mjs';
 assert.equal(execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(),'','freeze all inputs before assessment');
 assert(process.argv.length<=3,'one fresh evidence directory allowed');
-const attempt=process.argv[2]??'docs/audit/evidence/provider-a1-remediation-20261004/tp01-e-local-20261014/attempt-03';
+const attempt=process.argv[2]??'docs/audit/evidence/provider-a1-remediation-20261004/tp01-e-local-20261014/attempt-05';
 assert(/^docs\/audit\/evidence\/provider-a1-remediation-20261004\/tp01-e-local-[0-9]{8}\/attempt-[0-9]{2}$/.test(attempt),'confined TP01-E attempt path required');assert(!existsSync(attempt),'choose a fresh attempt');
 const source=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),p=policy(),selected=closure(nodesFromPlans(),'CORE:TP01-E');
 const paths=[...new Set(selected.flatMap(id=>localChecks(id,p,profile)).map(id=>p.checks[id]).filter(c=>c.artifact?.startsWith('docs/')&&!c.output).map(c=>dirname(c.artifact)))];
