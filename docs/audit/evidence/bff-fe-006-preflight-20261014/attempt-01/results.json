@@ -1,0 +1,308 @@
+[
+  {
+    "id": "current-six-gates",
+    "command": [
+      "node",
+      "docs/audit/evidence/provider-a3-readmission-20261014/verify-evidence.mjs"
+    ],
+    "executedAt": "2026-10-14T02:02:53.072Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/current-six-gates.log",
+    "logSha256": "sha256:1785ae00d16c01feb906948f7e2eeaf1fff4b75406cd3d8bdcc874e67b0a479a"
+  },
+  {
+    "id": "local-admission-refusal",
+    "command": [
+      "node",
+      "docs/audit/evidence/bff-fe-006-preflight-20261014/scope.mjs",
+      "--admission"
+    ],
+    "executedAt": "2026-10-14T02:03:43.843Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "boundary": "EXPECTED_LOCAL_GAP_NOT_ADMISSION",
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/local-admission-refusal.log",
+    "logSha256": "sha256:fb835e23a063f6a500c4768a9ffae6d5dde6cb02060120c5a6680100ce184326"
+  },
+  {
+    "id": "openapi",
+    "command": [
+      "node",
+      "scripts/check-bff-openapi.mjs"
+    ],
+    "executedAt": "2026-10-14T02:03:44.034Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/openapi.log",
+    "logSha256": "sha256:bc937c0fe7961432432eb722024ecc17bab3952a4506247993f083281508e4c6"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "executedAt": "2026-10-14T02:03:44.123Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/generated.log",
+    "logSha256": "sha256:b2c1a6a94197d53d10cbd4642a53a9a9f8c4e6b55803bd1d2e80e9c7db46b600"
+  },
+  {
+    "id": "catalog",
+    "command": [
+      "node",
+      "scripts/check-bff-contract-coverage.mjs"
+    ],
+    "executedAt": "2026-10-14T02:03:44.593Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/catalog.log",
+    "logSha256": "sha256:c06b1dc8cbc754ce5a9aa439802a5a5883cc9fd5e09f593307c8f51c42183ad3"
+  },
+  {
+    "id": "fixtures-negatives",
+    "command": [
+      "node",
+      "--test",
+      "docs/audit/evidence/bff-fe-006-preflight-20261014/preflight.test.mjs"
+    ],
+    "executedAt": "2026-10-14T02:03:44.684Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/fixtures-negatives.log",
+    "logSha256": "sha256:b72f631257460dc7facbd4d40c1781159abee7b7e5e7b11526e1760ebbee04ad"
+  },
+  {
+    "id": "domain-fixtures",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-portfolio",
+      "-p",
+      "quantos-risk",
+      "-p",
+      "quantos-execution",
+      "-p",
+      "quantos-reconcile",
+      "--lib",
+      "--",
+      "--skip",
+      "issuance_stays_under_two_hundred_millis_p95_and_is_short_lived"
+    ],
+    "executedAt": "2026-10-14T02:03:44.957Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/domain-fixtures.log",
+    "logSha256": "sha256:4f082357099c92f646dd250a19fa5c6a208a9ec91d2d9e1c15aaf263ea3f9a66"
+  },
+  {
+    "id": "execution-service",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "execution-gateway"
+    ],
+    "executedAt": "2026-10-14T02:07:40.004Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/execution-service.log",
+    "logSha256": "sha256:da1d2b6a00759b65feb8b438cf13e63e74c68a181d887b06fb1f7460ab9dbf22"
+  },
+  {
+    "id": "bff-build",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway"
+    ],
+    "executedAt": "2026-10-14T02:08:37.917Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/bff-build.log",
+    "logSha256": "sha256:34dc53c249cf06649620620e9a8a305b88a98c4133217a7dabd80e586ff665d8"
+  },
+  {
+    "id": "actual-routes",
+    "command": [
+      "node",
+      "docs/audit/evidence/bff-fe-006-preflight-20261014/route-probe.mjs",
+      "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/http",
+      "--require-implemented"
+    ],
+    "executedAt": "2026-10-14T02:08:44.266Z",
+    "exitCode": 2,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 2,
+    "boundary": "EXPECTED_LOCAL_GAP_NOT_ADMISSION",
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/actual-routes.log",
+    "logSha256": "sha256:77b45097af904b6b206f9bcd3e28e6f82a2ca6a7d2934b5aa18101c2c0a9c8c9"
+  },
+  {
+    "id": "api-client",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@sumalpha/api-client",
+      "test"
+    ],
+    "executedAt": "2026-10-14T02:08:48.544Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/api-client.log",
+    "logSha256": "sha256:7106eded8ea71035c5e2bc93d2398a1806122d8ebbddf17d301474e53d58b0ac"
+  },
+  {
+    "id": "execution-ui-fixtures",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "packages/domain-ui/tests/domain-ui.test.ts",
+      "apps/terminal/tests/x06-scenarios.test.ts"
+    ],
+    "executedAt": "2026-10-14T02:08:49.648Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/execution-ui-fixtures.log",
+    "logSha256": "sha256:939234ed2373ca19d8ef12ed886b09be30cabd36435c4f5e65f63c6717b3b7bd"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "pnpm",
+      "check:development-plans"
+    ],
+    "executedAt": "2026-10-14T02:08:52.777Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/plans.log",
+    "logSha256": "sha256:4d9ace947c6e071798eec253e051a450aa98398311362234e41acad8db8192da"
+  },
+  {
+    "id": "plans-negative",
+    "command": [
+      "pnpm",
+      "test:development-plans"
+    ],
+    "executedAt": "2026-10-14T02:08:52.948Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/plans-negative.log",
+    "logSha256": "sha256:0317c42d39de0e0bfa8361b9badbdd29f9c4fa986cf75cab2ef7861fe985b4ac"
+  },
+  {
+    "id": "handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-14T02:08:53.490Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  },
+  {
+    "id": "frontend-handoff",
+    "command": [
+      "node",
+      "scripts/check-frontend-gate-handoff.mjs"
+    ],
+    "executedAt": "2026-10-14T02:08:53.528Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "expectedExitCode": 0,
+    "log": "docs/audit/evidence/bff-fe-006-preflight-20261014/attempt-01/frontend-handoff.log",
+    "logSha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+  }
+]

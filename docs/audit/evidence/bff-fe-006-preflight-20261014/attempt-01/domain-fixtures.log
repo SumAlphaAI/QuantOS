@@ -1,0 +1,72 @@
+
+running 30 tests
+test gateway::tests::limit_intent_without_price_is_rejected_before_the_kernel ... ok
+test paper::tests::cancel_latency_and_rejections_are_auditable ... ok
+test gateway::tests::boundary_command_carries_no_session_or_identity_material ... ok
+test paper::tests::duplicate_submit_only_calls_downstream_once ... ok
+test gateway::tests::all_six_boundary_rejection_classes_are_enforced_before_the_kernel ... ok
+test dual::tests::m5_flag_off_makes_assisted_live_unreachable ... ok
+test gateway::tests::order_and_fill_events_map_back_to_owned_schema ... ok
+test paper::tests::illegal_transitions_are_rejected_by_the_state_machine ... ok
+test gateway::tests::nautilus_adapter_maps_wire_shape_and_client_order_id_is_stable ... ok
+test gateway::tests::nautilus_events_map_back_to_owned_schema_through_the_gateway ... ok
+test gateway::tests::nautilus_adapter_replay_also_produces_one_outbox_entry ... ok
+test dual::tests::self_approval_cap_expiry_and_allowlist_are_all_rejected ... ok
+test venue::tests::venue_config_rejects_production_endpoints_and_keys ... ok
+test venue::tests::network_and_authentication_failures_are_classified ... ok
+test zone::tests::expired_sessions_and_commands_are_rejected ... ok
+test zone::tests::mtls_identity_enforces_expiry_and_revocation ... ok
+test zone::tests::only_execution_gateway_can_resolve_vault_references ... ok
+test zone::tests::rotation_recovers_within_five_minutes_then_stales ... ok
+test zone::tests::unlisted_egress_hosts_are_blocked ... ok
+test tests::approved_command_carries_approval_signature ... ok
+test zone::tests::zone_fixtures_contain_no_secret_material ... ok
+test venue::tests::precision_and_rate_limits_are_mapped ... ok
+test paper::tests::every_fill_is_traceable_to_a_command ... ok
+test tests::seven_rejection_classes_are_all_enforced ... ok
+test gateway::tests::thousand_replays_with_same_key_produce_exactly_one_downstream_submission ... ok
+test gateway::tests::hundred_precision_and_limit_variants_are_fully_intercepted ... ok
+test venue::tests::two_hundred_testnet_scenarios_map_fully_to_internal_schema ... ok
+test tests::thousand_concurrent_issuances_with_same_key_emit_exactly_one_command ... ok
+test dual::tests::fifty_dual_approvals_all_write_signed_audit_entries ... ok
+test paper::tests::one_hundred_thousand_order_events_all_transition_legally ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.70s
+
+
+running 4 tests
+test tests::portfolio_queries_stay_under_three_hundred_millis_p95 ... ignored, release performance; run make research-release-performance-smokes
+test tests::out_of_order_and_duplicate_events_are_rejected ... ok
+test tests::ten_thousand_event_replay_matches_golden_snapshot ... ok
+test tests::rebuild_is_fully_repeatable ... ok
+
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+
+running 3 tests
+test tests::exception_queue_enforces_acknowledge_then_close_lifecycle ... ok
+test tests::ten_consecutive_shadow_days_reconcile_with_zero_unexplained_breaks ... ok
+test tests::twenty_injected_breaks_are_detected_and_located_within_sla ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test tests::kill_switch_rejects_new_commands_under_one_second_p95 ... ignored, release performance; run make research-release-performance-smokes
+test tests::post_trade_rules_catch_daily_loss_and_leverage_breach ... ok
+test tests::fifty_allow_fixtures_all_pass ... ok
+test tests::fifty_deny_fixtures_cover_every_rule_and_include_limits_and_signature ... ok
+test tests::fifty_approval_required_fixtures_all_route_to_approval ... ok
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-reconcile v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-reconcile)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1m 46s
+     Running unittests src/lib.rs (target/debug/deps/quantos_execution-35f5b44b7a3d96dd)
+     Running unittests src/lib.rs (target/debug/deps/quantos_portfolio-674a68f1dec185ec)
+     Running unittests src/lib.rs (target/debug/deps/quantos_reconcile-500b07a79eade3ee)
+     Running unittests src/lib.rs (target/debug/deps/quantos_risk-08788b1335fc2d84)

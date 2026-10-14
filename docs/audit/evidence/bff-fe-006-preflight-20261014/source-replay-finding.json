@@ -1,0 +1,17 @@
+{
+  "id": "G06",
+  "status": "OPEN_SOURCE_CONFIRMED_NOT_EXPLOIT_TESTED",
+  "sourceCommit": "a9b6fba26c9b6e59e42501a9a535703829fb6532",
+  "file": "crates/quantos-execution/src/lib.rs",
+  "line": 248,
+  "fileSha256": "sha256:83fc4924840b5d84f145834e1e0ce4ead85e6662532a77035b16673539448d1b",
+  "excerpt": "        let key = format!(\"{}:{}\", self.tenant_id, input.idempotency_key);\n        if let Some(existing) = self.issued_by_key.get(&key) {\n            return Ok(existing.clone());\n        }\n\n        if input.kill_switch_engaged {\n            return Err(reject(IssuanceRejection::KillSwitchEngaged));\n        }\n        if !input.release_valid {\n            return Err(reject(IssuanceRejection::ReleaseInvalid));\n        }\n        if TradeProposalEvaluationGate::ensure_evaluable(proposal, requested_at).is_err() {\n            return Err(reject(IssuanceRejection::ProposalExpired));\n        }\n        if input.data_expires_at <= requested_at {\n            return Err(reject(IssuanceRejection::StaleData));\n        }\n",
+  "finding": "CommandIssuer replay cache returns before kill-switch, release, proposal expiry and data freshness checks; key contains tenant and idempotency key, no requester or business-intent comparison. Existing first-issuance rejection tests do not prove replay revalidation or changed-payload conflicts.",
+  "scope": "internal domain API; BFF006 handler absent, no deployed exploit claimed; server-side resource authorization still required",
+  "requiredLocalFollowup": [
+    "replay after kill switch/expiry/stale/invalid release rejects without another issued command",
+    "same tenant/key with changed actor or business intent must reject",
+    "separate TTL correctness from P95 performance"
+  ],
+  "formalAccepted": false
+}
