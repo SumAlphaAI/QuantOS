@@ -1,0 +1,56 @@
+{
+  "status": "PASS_SCOPED",
+  "sourceCommit": "5fa0fb04b0c3b4584eb7b405bb9d2fa5e4458842",
+  "evidenceCommit": "a63737abdce709482246f9befe83548ad8c548cb",
+  "recordedAt": "2026-10-14T01:31:11.075442+00:00",
+  "checks": [
+    {
+      "id": "archived-whitespace",
+      "command": [
+        "git",
+        "show",
+        "--format=",
+        "--check",
+        "a63737ab"
+      ],
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "EXPECTED_ARCHIVE_WHITESPACE",
+      "log": "docs/audit/evidence/provider-a3-readmission-20261014/postcommit-01/archived-whitespace.log",
+      "sha256": "sha256:264eceaea874b3bd27fb6d7f1b05ad9826db009382c32b98286acbb75605a37b"
+    },
+    {
+      "id": "active-whitespace",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "5fa0fb04",
+        "a63737ab",
+        "--",
+        ".",
+        ":(exclude)docs/audit/evidence/provider-a3-readmission-20261014/history/**"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a3-readmission-20261014/postcommit-01/active-whitespace.log",
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "sealed-evidence",
+      "command": [
+        "python3",
+        "docs/audit/evidence/provider-a3-readmission-20261014/seal-evidence.py",
+        "--verify"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "docs/audit/evidence/provider-a3-readmission-20261014/postcommit-01/sealed-evidence.log",
+      "sha256": "sha256:dc87daae51466b4f0d00b358fbc033b81aa7fd15bf6b8793562ea7cb09fa14a1"
+    }
+  ],
+  "archiveWhitespace": "PRESERVED_ORIGINAL_BYTES",
+  "formalAccepted": false
+}
