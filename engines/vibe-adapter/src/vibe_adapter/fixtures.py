@@ -10,6 +10,7 @@ from vibe_adapter.protocols import (
     ResearchContractProvider,
     ResearchContractProvenance,
     ResearchExecutionContract,
+    validate_research_contract,
 )
 
 
@@ -19,17 +20,19 @@ def _catalog_path() -> Path:
 
 @lru_cache(maxsize=1)
 def fixture_catalog() -> tuple[ResearchExecutionContract, ...]:
-    parsed = json.loads(_catalog_path().read_text(encoding="utf-8"))
-    return tuple(
+    return contracts_from_bytes(_catalog_path().read_bytes())
+
+
+def contracts_from_bytes(artifact: bytes) -> tuple[ResearchExecutionContract, ...]:
+    parsed = json.loads(artifact)
+    contracts = tuple(
         ResearchExecutionContract(
             fixture_name=entry["fixture_name"],
             workflow_family=entry["workflow_family"],
             summary=entry["summary"],
             stream_profile=tuple(entry["stream_phases"]),
             protocol_version=str(entry.get("protocol_version", "quantos.research.v1")),
-            design_capabilities=tuple(
-                entry.get("design_capabilities", entry["absorbed_designs"])
-            ),
+            design_capabilities=tuple(entry.get("design_capabilities", entry["absorbed_designs"])),
             provenance=ResearchContractProvenance(
                 source_adapter=str(entry.get("source_adapter", "vibe-catalog")),
                 source_surface=entry.get("source_surface", entry["upstream_surface"]),
@@ -38,6 +41,11 @@ def fixture_catalog() -> tuple[ResearchExecutionContract, ...]:
         )
         for entry in parsed["fixtures"]
     )
+    if not contracts or len({c.fixture_name for c in contracts}) != len(contracts):
+        raise ValueError("ENGINE_CONTRACT_INVALID")
+    for contract in contracts:
+        validate_research_contract(contract, fixture_name=contract.fixture_name)
+    return contracts
 
 
 class CatalogResearchContractProvider(ResearchContractProvider):

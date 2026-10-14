@@ -44,7 +44,7 @@ These in-memory maps are for bounded fixture runs, not a production registry.
 Run from the repository root:
 
 ```sh
-engines/.venv/bin/python -m vibe_adapter.server --socket /tmp/quantos-vibe-local.sock
+engines/.venv/bin/python -m vibe_adapter.server --socket /tmp/quantos-vibe-local.sock --fixture-routing
 engines/.venv/bin/python -m pytest engines/tests/test_vibe_adapter_contract.py engines/tests/test_vibe_adapter_skeleton.py -q
 cargo test --locked --offline -p quantos-engine-manager --test python_vibe_adapter
 node engines/vibe-adapter/check-development.mjs --record
@@ -117,3 +117,18 @@ Development evidence and retained limitations are recorded in
 ## TP01-C_LOCAL admission
 
 `make tp01-c-assess-local` runs the complete thirteen-node local dependency closure from a clean frozen commit; `make tp01-c-local-check` validates its consumer-scoped receipt. It does not grant upstream database readiness or R1-SERVICE admission. `make tp01-c-release-check` requires separate target and formal release evidence and must refuse local-only receipts. See [local admission procedure](../../docs/operations/tp01-c-local-admission.md).
+
+## TP01-F local rollout
+
+The server answers metadata/health but rejects dispatch by default. The example
+above explicitly selects unsigned TEST/RESEARCH fixture routing. For a signed
+local canary, the host supplies `RolloutController` to `VibeAdapterService` and
+verifies both immutable catalog artifacts and policy-bound HMAC descriptors
+before activation. Disable/rollback revoke uncommitted work; already committed
+results finish deterministically. Shadow services use an independent Artifact
+facade. No request can select a release, authority, rollout action or shadow mode.
+
+`python -m vibe_adapter.local_drill` exercises actual local UDS traffic and saves
+raw artifacts and audit events. The public test authority grants no production
+or target canary acceptance. See [TP01-F local admission](../../docs/operations/tp01-f-local-admission.md)
+and [rollback runbook](../../docs/runbooks/tp01_vibe_adapter_rollback.md).

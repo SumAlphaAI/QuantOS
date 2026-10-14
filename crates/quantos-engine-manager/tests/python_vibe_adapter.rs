@@ -137,6 +137,7 @@ async fn spawn_python_vibe_adapter(socket_path: &Path) -> anyhow::Result<Child> 
         .current_dir(engines_dir())
         .arg("-m")
         .arg("vibe_adapter.server")
+        .arg("--fixture-routing")
         .arg("--socket")
         .arg(socket_path)
         .stdout(Stdio::null())

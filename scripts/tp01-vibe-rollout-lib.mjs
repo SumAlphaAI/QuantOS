@@ -35,6 +35,11 @@ function buildMetricAlerts(observations, policy) {
     });
   };
 
+  if (observations.shadowTasksCompleted < 1) {
+    push("tp01_vibe_shadow_missing", "critical", observations.shadowTasksCompleted, 1,
+      "no shadow task evidence was recorded");
+  }
+
   if (observations.unexplainedP1 > policy.maxUnexplainedP1) {
     push(
       "tp01_vibe_unexplained_p1",
@@ -157,7 +162,7 @@ function buildReasons(observations, policy, alerts) {
 function determineOutcome(scenario, observations, policy, alerts) {
   const hasCriticalAlert = alerts.some((alert) => alert.severity === "critical");
   if (scenario.operation === "rollback_drill") {
-    if (!hasCriticalAlert && observations.rollbackCompletedSecs <= policy.rollbackSlaSecs) {
+    if (!hasCriticalAlert && Number.isFinite(observations.rollbackCompletedSecs) && observations.rollbackCompletedSecs <= policy.rollbackSlaSecs) {
       return { outcome: "rolled_back", blocked: false, flagState: "rolled_back" };
     }
     return { outcome: "rollback_failed", blocked: true, flagState: "disabled" };
@@ -174,12 +179,25 @@ function determineOutcome(scenario, observations, policy, alerts) {
 export function evaluateRollout({ policyDocument, scenario, buildManifest = null, syncSummary = null }) {
   const policy = policyDocument.rolloutPolicy;
   const observations = scenario.observations;
+  const numeric = ["canaryDaysObserved", "shadowTasksCompleted", "unexplainedP1", "executeP95Ms",
+    "cancelConfirmSecs", "errorRate", "shadowMismatchRate", "unauthorizedEgress", "secretOrVenueViolations"];
+  const boolean = ["signedArtifactsPresent", "auditComplete", "runtimeIsolationVerified"];
+  if (scenario.schemaVersion !== 1 || ![undefined, "canary", "rollback_drill"].includes(scenario.operation) ||
+      numeric.some(k => !Number.isFinite(observations?.[k]) || observations[k] < 0) ||
+      boolean.some(k => typeof observations?.[k] !== "boolean") ||
+      (observations.rollbackCompletedSecs != null && (!Number.isFinite(observations.rollbackCompletedSecs) || observations.rollbackCompletedSecs < 0))) {
+    throw new Error("TP01_F_INVALID_SIMULATION_INPUT");
+  }
   const alerts = buildMetricAlerts(observations, policy);
   const reasons = buildReasons(observations, policy, alerts);
   const outcome = determineOutcome(scenario, observations, policy, alerts);
 
   return {
     schemaVersion: 1,
+    evidenceMode: "SYNTHETIC_POLICY_SIMULATION",
+    formalAccepted: false,
+    targetCanaryAccepted: false,
+    targetRollbackAccepted: false,
     generatedAt: new Date().toISOString(),
     scenarioId: scenario.scenarioId,
     title: scenario.title,
@@ -187,7 +205,7 @@ export function evaluateRollout({ policyDocument, scenario, buildManifest = null
       name: policyDocument.capabilityFlag.name,
       state: outcome.flagState,
       rolloutPercent:
-        outcome.flagState === "enabled" ? 100 : policyDocument.rolloutPolicy.canaryTrafficPercent,
+        outcome.flagState === "enabled" ? 100 : outcome.flagState === "canary" ? policyDocument.rolloutPolicy.canaryTrafficPercent : 0,
       shadowMode: true,
     },
     candidateRelease: scenario.candidateRelease,
@@ -206,6 +224,9 @@ export function evaluateRollout({ policyDocument, scenario, buildManifest = null
 export function buildReleaseManifest(result) {
   return {
     schemaVersion: 1,
+    evidenceMode: result.evidenceMode,
+    formalAccepted: false,
+    targetCanaryAccepted: false,
     component: "vibe-adapter",
     generatedAt: result.generatedAt,
     capabilityFlag: result.capabilityFlag,
@@ -221,6 +242,9 @@ export function buildReleaseManifest(result) {
 export function buildRolloutState(result) {
   return {
     schemaVersion: 1,
+    evidenceMode: result.evidenceMode,
+    formalAccepted: false,
+    targetCanaryAccepted: false,
     component: "vibe-adapter",
     updatedAt: result.generatedAt,
     status: result.outcome,
@@ -240,6 +264,7 @@ export function buildRolloutState(result) {
 export function renderCanarySummaryMarkdown(result) {
   const lines = [];
   lines.push("# TP01-F Vibe Canary Summary");
+  lines.push("\nSynthetic policy simulation; target canary acceptance and release approval remain NOT_RUN.");
   lines.push("");
   lines.push(`- scenario: \`${result.scenarioId}\``);
   lines.push(`- outcome: \`${result.outcome}\``);
@@ -276,6 +301,7 @@ export function renderCanarySummaryMarkdown(result) {
 export function renderDrillReportMarkdown(result) {
   const lines = [];
   lines.push("# TP01-F Vibe Canary Drill Report");
+  lines.push("\nSynthetic durations and signedArtifactsPresent are fixture assertions; no actual signature or target SLA acceptance is implied.");
   lines.push("");
   lines.push(`- scenario: \`${result.scenarioId}\``);
   lines.push(`- operation: \`${result.operation}\``);
@@ -312,11 +338,16 @@ export function applyRollback({ state, action, reason, completedAt }) {
   if (!["disable", "rollback"].includes(action)) {
     throw new Error(`unsupported rollback action ${action}`);
   }
+  if (typeof reason !== "string" || !reason.trim() || !state?.capabilityFlag ||
+      (action === "rollback" && (!state.previousRelease?.releaseId || !state.previousRelease?.artifactDigest))) {
+    throw new Error("TP01_F_INVALID_ROLLBACK_STATE");
+  }
 
   const next = structuredClone(state);
   next.updatedAt = timestamp;
   next.status = action === "disable" ? "disabled" : "rolled_back";
-  next.blocked = false;
+  // The action cannot erase the incident or its blocking decision.
+  next.blocked = state.blocked;
   next.capabilityFlag.state = action === "disable" ? "disabled" : "rolled_back";
   next.capabilityFlag.rolloutPercent = 0;
   next.latestEvaluation = {

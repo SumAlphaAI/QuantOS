@@ -33,6 +33,9 @@ jobs:
         if: matrix.scenario == 'healthy-7d'
         run: node --test ./scripts/tests/tp01-vibe-rollout.test.mjs
 
+      - name: Identify simulation evidence scope
+        run: echo "Synthetic policy simulation only. Actual signature verification, local UDS control, target 7-day canary and target rollback acceptance are independent checks." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Evaluate TP01-F canary scenario
         run: >
           node ./scripts/tp01-vibe-canary.mjs
@@ -69,6 +72,7 @@ jobs:
           --output-report ./artifacts/third_party/vibe-trading/canary/${{ matrix.scenario }}/rollback-action.md
 
       - name: Upload canary artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tp01-vibe-canary-${{ matrix.scenario }}

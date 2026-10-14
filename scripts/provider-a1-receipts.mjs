@@ -23,6 +23,7 @@ import {verifyTp05} from '../engines/openbb-adapter/check-development.mjs';
 import {verifyTp04} from '../engines/trading-agents/check-development.mjs';
 import {verifyTp03} from '../engines/llmquant/check-development.mjs';
 import {verifyTp02} from '../engines/rd-agent/check-development.mjs';
+import {verifyFunctional as verifyTp01F,supportingPaths as tp01FSupporting} from './tp01-f-functional.mjs';
 import {verifyFunctional as verifyTp01E,supportingPaths as tp01ESupporting} from './tp01-e-functional.mjs';
 import {verifyAbsorption} from '../engines/vibe-adapter/check-absorption.mjs';
 export const root=resolve(import.meta.dirname,'..');
@@ -110,7 +111,10 @@ export function validateArtifact(kind,path,source) {
   assert.equal(r.observedSourceCommit,source,'TP02 execution source differs');
   verifyTp02(r,{checkDependencies:false,logDirectory:dirname(path)});
  }
- else if(kind==='tp01-e-functional'){
+ else if(kind==='tp01-f-functional'){
+  assert.equal(r.observedSourceCommit,source,'TP01-F execution source differs');
+  verifyTp01F(r,{logDirectory:dirname(path)});
+ } else if(kind==='tp01-e-functional'){
   assert.equal(r.observedSourceCommit,source,'TP01-E execution source differs');
   verifyTp01E(r,{logDirectory:dirname(path)});
  }
@@ -129,6 +133,7 @@ export function validateArtifact(kind,path,source) {
  else validateF0Artifact(kind,path,source);
 }
 export function supportingArtifactPaths(kind,r) {
+ if(kind==='tp01-f-functional')return tp01FSupporting(r);
  if(kind==='tp01-e-functional')return tp01ESupporting(r);
  if(kind==='a2-local-semantics')return r.results.map((_,i)=>'semantics-'+i+'.log');
  if(kind==='a2-local-mutations')return r.records.map(x=>x.log.file).sort();
@@ -150,19 +155,20 @@ export function supportingArtifactPaths(kind,r) {
 }
 // Explicit local profiles never publish upstream database readiness.
 export function localPolicy(profile='R03_LOCAL',p=policy()) {
- const registration={'TP01-E_LOCAL':['tp01ELocal','CORE:TP01-E'],TP02_LOCAL:['tp02Local','CORE:TP02'],R03_LOCAL:['r03Local','CORE:R03'],R04_LOCAL:['r04Local','CORE:R04'],'TP01-C_LOCAL':['tp01CLocal','CORE:TP01-C'],'TP01-D_LOCAL':['tp01DLocal','CORE:TP01-D'],R1_LOCAL:['r1Local','CORE-GATE:R1-SERVICE'],A2_LOCAL:['a2Local','PROVIDER:A2'],BFF003_LOCAL:['bff003Local','FE:BFF-FE-003'],BFF005_LOCAL:['bff005Local','FE:BFF-FE-005'],A3_LOCAL:['a3Local','PROVIDER:A3'],A3_EXECUTION:['a3Execution','PROVIDER:A3']}[profile];
+ const registration={'TP01-F_LOCAL':['tp01FLocal','CORE:TP01-F'],'TP01-E_LOCAL':['tp01ELocal','CORE:TP01-E'],TP02_LOCAL:['tp02Local','CORE:TP02'],R03_LOCAL:['r03Local','CORE:R03'],R04_LOCAL:['r04Local','CORE:R04'],'TP01-C_LOCAL':['tp01CLocal','CORE:TP01-C'],'TP01-D_LOCAL':['tp01DLocal','CORE:TP01-D'],R1_LOCAL:['r1Local','CORE-GATE:R1-SERVICE'],A2_LOCAL:['a2Local','PROVIDER:A2'],BFF003_LOCAL:['bff003Local','FE:BFF-FE-003'],BFF005_LOCAL:['bff005Local','FE:BFF-FE-005'],A3_LOCAL:['a3Local','PROVIDER:A3'],A3_EXECUTION:['a3Execution','PROVIDER:A3']}[profile];
  assert(registration,'unsupported local profile');
  const spec=p[registration[0]];
  assert.equal(spec.profile,profile);assert.equal(spec.owner,registration[1]);
  if(['R1_LOCAL','A2_LOCAL','BFF003_LOCAL','BFF005_LOCAL','A3_LOCAL','A3_EXECUTION'].includes(profile))assert.deepEqual(spec.roots,[registration[1]],'consumer local profile cannot grant another root');
+ if(profile==='TP01-F_LOCAL')assert.deepEqual(spec.roots,['CORE:TP01-F'],'TP01-F local roots cannot grant service admission');
  if(profile==='TP01-E_LOCAL')assert.deepEqual(spec.roots,['CORE:TP01-E'],'TP01-E local roots cannot grant service admission');
  if(profile==='TP01-C_LOCAL')assert.deepEqual(spec.roots,['CORE:TP01-C'],'TP01-C local roots cannot grant R1 admission');
  if(profile==='TP02_LOCAL')assert.deepEqual(spec.roots,['CORE:TP02'],'TP02 local roots cannot grant R1 admission');
  if(profile==='TP01-D_LOCAL')assert.deepEqual(spec.roots,['CORE:TP01-D'],'TP01-D local roots cannot grant R1 admission');
  return spec;
 }
-export const localScope=profile=>({'TP01-E_LOCAL':'TP01-E synthetic sync classification and blocking functional closure; Supabase, external governance, adoption and performance deferred to RELEASE-GATE:BETA',TP02_LOCAL:'TP02 local fixture research and installed-wheel closure; external and performance acceptance deferred to RELEASE-GATE:BETA',R1_LOCAL:'R1 local research service closure; external and performance acceptance deferred to RELEASE-GATE:BETA',A2_LOCAL:'A2 local identity/settings/audit provider closure; external and performance acceptance deferred to RELEASE-GATE:BETA',BFF005_LOCAL:'BFF005 local market page closure; external and performance acceptance deferred to RELEASE-GATE:BETA',A3_LOCAL:'A3 local complete provider aggregate; external and performance acceptance deferred to RELEASE-GATE:BETA',A3_EXECUTION:'A3 execution-only union; consumer proofs derived from actual common checks; no A3 admission published',BFF003_LOCAL:'BFF003 local research page closure; external and performance acceptance deferred to RELEASE-GATE:BETA',R03_LOCAL:'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA',R04_LOCAL:'R04 local functional prerequisites; Supabase target acceptance deferred to RELEASE-GATE:BETA','TP01-C_LOCAL':'TP01-C local functional closure; Supabase and remote governance acceptance deferred to RELEASE-GATE:BETA','TP01-D_LOCAL':'TP01-D synthetic research functional closure; Supabase, external environment and performance acceptance deferred to RELEASE-GATE:BETA'}[profile]);
-export const localIndexSchema=profile=>({'TP01-E_LOCAL':'quantos-tp01-e-local-prerequisites/v1',TP02_LOCAL:'quantos-tp02-local-prerequisites/v1',R1_LOCAL:'quantos-r1-local-prerequisites/v1',A2_LOCAL:'quantos-a2-local-prerequisites/v1',BFF005_LOCAL:'quantos-bff005-local-prerequisites/v1',A3_LOCAL:'quantos-a3-local-prerequisites/v1',A3_EXECUTION:'quantos-a3-execution-prerequisites/v1',BFF003_LOCAL:'quantos-bff003-local-prerequisites/v1',R03_LOCAL:'quantos-r03-local-prerequisites/v1',R04_LOCAL:'quantos-r04-local-prerequisites/v1','TP01-C_LOCAL':'quantos-tp01-c-local-prerequisites/v1','TP01-D_LOCAL':'quantos-tp01-d-local-prerequisites/v1'}[profile]);
+export const localScope=profile=>({'TP01-F_LOCAL':'TP01-F local signed research canary, shadow, alert and live rollback functional closure; target canary window and release acceptance deferred to RELEASE-GATE:BETA','TP01-E_LOCAL':'TP01-E synthetic sync classification and blocking functional closure; Supabase, external governance, adoption and performance deferred to RELEASE-GATE:BETA',TP02_LOCAL:'TP02 local fixture research and installed-wheel closure; external and performance acceptance deferred to RELEASE-GATE:BETA',R1_LOCAL:'R1 local research service closure; external and performance acceptance deferred to RELEASE-GATE:BETA',A2_LOCAL:'A2 local identity/settings/audit provider closure; external and performance acceptance deferred to RELEASE-GATE:BETA',BFF005_LOCAL:'BFF005 local market page closure; external and performance acceptance deferred to RELEASE-GATE:BETA',A3_LOCAL:'A3 local complete provider aggregate; external and performance acceptance deferred to RELEASE-GATE:BETA',A3_EXECUTION:'A3 execution-only union; consumer proofs derived from actual common checks; no A3 admission published',BFF003_LOCAL:'BFF003 local research page closure; external and performance acceptance deferred to RELEASE-GATE:BETA',R03_LOCAL:'R03 local functional projection; Supabase target acceptance deferred to RELEASE-GATE:BETA',R04_LOCAL:'R04 local functional prerequisites; Supabase target acceptance deferred to RELEASE-GATE:BETA','TP01-C_LOCAL':'TP01-C local functional closure; Supabase and remote governance acceptance deferred to RELEASE-GATE:BETA','TP01-D_LOCAL':'TP01-D synthetic research functional closure; Supabase, external environment and performance acceptance deferred to RELEASE-GATE:BETA'}[profile]);
+export const localIndexSchema=profile=>({'TP01-F_LOCAL':'quantos-tp01-f-local-prerequisites/v1','TP01-E_LOCAL':'quantos-tp01-e-local-prerequisites/v1',TP02_LOCAL:'quantos-tp02-local-prerequisites/v1',R1_LOCAL:'quantos-r1-local-prerequisites/v1',A2_LOCAL:'quantos-a2-local-prerequisites/v1',BFF005_LOCAL:'quantos-bff005-local-prerequisites/v1',A3_LOCAL:'quantos-a3-local-prerequisites/v1',A3_EXECUTION:'quantos-a3-execution-prerequisites/v1',BFF003_LOCAL:'quantos-bff003-local-prerequisites/v1',R03_LOCAL:'quantos-r03-local-prerequisites/v1',R04_LOCAL:'quantos-r04-local-prerequisites/v1','TP01-C_LOCAL':'quantos-tp01-c-local-prerequisites/v1','TP01-D_LOCAL':'quantos-tp01-d-local-prerequisites/v1'}[profile]);
 export function localChecks(id,p=policy(),profile='R03_LOCAL') {
  const spec=localPolicy(profile,p);
  return [...p.nodes[id].checks.map(c=>({'tp09-development':'tp09-local-development','tp10-development':'tp10-local-development','tp11-development':'tp11-local-development'}[c]??c)).filter(c=>!p.checks[c].external&&!p.checks[c].database&&!p.checks[c].target&&!p.checks[c].performance&&!(spec.deferredChecks??[]).includes(c)),...(spec.nodeChecks[id]??[])];
@@ -248,7 +254,7 @@ export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1'],{profil
   if(spec.database){process.loadEnvFile(resolve(root,'.env.local'));Object.assign(env,Object.fromEntries(Object.entries(process.env).filter(([key])=>!key.startsWith('NEXT_PUBLIC_'))));env.QUANTOS_RUN_F05_POSTGRES_TESTS='1';const url=new URL(env.DATABASE_URL);assert(url.hostname.endsWith('.supabase.com'),'only configured Supabase database permitted');}
   if(spec.staticOnly||profile){const isolated=staticEnvironment(env);for(const key of Object.keys(env))delete env[key];Object.assign(env,isolated);}
   Object.assign(env,spec.env??{});
-  if(['TP01-E_LOCAL','TP02_LOCAL','R1_LOCAL','A2_LOCAL','BFF003_LOCAL','BFF005_LOCAL','A3_LOCAL','A3_EXECUTION'].includes(profile)){env.CARGO_NET_OFFLINE='true';env.UV_OFFLINE='1';env.npm_config_offline='true';env.QUANTOS_RELEASE_PERFORMANCE='0';}
+  if(['TP01-F_LOCAL','TP01-E_LOCAL','TP02_LOCAL','R1_LOCAL','A2_LOCAL','BFF003_LOCAL','BFF005_LOCAL','A3_LOCAL','A3_EXECUTION'].includes(profile)){env.CARGO_NET_OFFLINE='true';env.UV_OFFLINE='1';env.npm_config_offline='true';env.QUANTOS_RELEASE_PERFORMANCE='0';}
   if(engineScope)env.QUANTOS_TEST_ENGINE_SCOPE=engineScope;
   if(spec.artifactKind==='r1-process-cleanup')env.QUANTOS_R1_ENGINE_BASELINE=engineBaseline;
   if(spec.measurement){env.QUANTOS_F05_MEASUREMENTS_PATH=resolve(out,'f05-volume.json');rmSync(env.QUANTOS_F05_MEASUREMENTS_PATH,{force:true});}

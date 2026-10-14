@@ -1,4 +1,6 @@
-> 当前工程结果（2026-10-14）：冻结9b7bb8e5完整复验TP01-E_LOCAL必要28节点/88组本地检查PASS，104项专用测试与16项完整回执负向PASS；仅TP01-E限定DEVELOPMENT READY，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。22组Supabase/外部/性能义务移交测试及RELEASE，formalAccepted=false、syncApproved=false；历史失败与中断原件保留。见[本轮报告](./audit/TP01-E-local-admission-2026-10-14.md)。
+> 当前执行（2026-10-14，TP01-F实现中）：TP01-E最新复验已由ee34aed0同步；TP01-F新增本机签名研究制品、默认禁用/分流/影子隔离及运行中回滚，待冻结新提交完整29节点复验。公共代码输入变化，TP01-E旧READY撤回为NOT_ASSESSED；原冻结证据保留，本轮将从共同执行派生E新28节点回执。不得据此放行服务、数据库或发布。
+
+> 历史工程快照（2026-10-14，TP01-F源码变更前）：冻结9b7bb8e5完整复验TP01-E_LOCAL必要28节点/88组本地检查PASS，104项专用测试与16项完整回执负向PASS；仅TP01-E限定DEVELOPMENT READY，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。22组Supabase/外部/性能义务移交测试及RELEASE，formalAccepted=false、syncApproved=false；历史失败与中断原件保留。见[本轮报告](./audit/TP01-E-local-admission-2026-10-14.md)。
 
 > TP01-E 最新执行状态（2026-10-14）：de6d39fc 已提交独立复验报告，12/12检查、187/187测试PASS；原9b7bb8e5的28节点/88组冻结闭包证据重新校验有效，本次未重跑或改绑完整闭包。开发实现完成待正式验收，限定DEVELOPMENT READY；RELEASE预期拒绝，22组目标/外部/性能义务仍NOT_RUN。未push或外部发布。见[执行复验](./audit/TP01-E-execution-recheck-2026-10-14.md)。
 
@@ -546,10 +548,21 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
     "CORE:TP01-E": {
       "profile": "TP01-E_LOCAL",
       "schema": "quantos-tp01-e-local-development/v1",
-      "manifest": "audit/evidence/tp01-e-local-20261014/manifest.json",
+      "manifest": "audit/evidence/tp01-e-readmission-20261014/manifest.json",
       "prerequisites": [
         "CORE:TP01-D",
         "CORE:F02",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP01-F": {
+      "profile": "TP01-F_LOCAL",
+      "schema": "quantos-tp01-f-local-development/v1",
+      "manifest": "audit/evidence/tp01-f-local-20261014/manifest.json",
+      "prerequisites": [
+        "CORE:TP01-E",
+        "CORE:F09",
         "CORE-GATE:R1-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -1303,7 +1316,7 @@ flowchart TD
 - task_id: `TP01-E`
 - task_type: `CORE`
 - iteration: `TP01-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4276342bace3edacf266336592e87d7a4ccf2c4d03a67f6a38e2fe730fec055c","evidence":["audit/evidence/tp01-e-local-20261014/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:TP01-D", "CORE:F02", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1333,13 +1346,13 @@ flowchart TD
 - depends_on: ["CORE:TP01-E", "CORE:F09", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:TP01-E", "CORE:F09", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `TP01-SERVICE`
 - 需求描述：canary、观测与回滚
 - 路线阶段：V2 受控同步
 - 开发范围：capability flag、影子任务、阈值告警、签名制品、一键禁用/回滚
-- 交付物：dashboards、alert rules、rollback runbook、drill report
+- 交付物：dashboards、alert rules、rollback runbook、drill report；TP01-F_LOCAL 本机HMAC验签/UDS请求分流与运行中禁用/回滚、严格功能回执及29节点本地准入，规程 `docs/operations/tp01-f-local-admission.md`
 - 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整
 - 阶段执行：本地开发验证flag、影子任务、告警阈值、签名拒绝、禁用/回滚与在途请求收尾；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。

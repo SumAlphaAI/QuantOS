@@ -72,3 +72,50 @@ test("one-click rollback restores the previous release", () => {
   assert.equal(next.capabilityFlag.state, "rolled_back");
   assert.equal(next.activeRelease.releaseId, "vibe-adapter-disabled-baseline");
 });
+
+test("synthetic success never grants target or formal acceptance", () => {
+  const r = evaluateRollout({policyDocument, scenario: loadScenario("healthy-7d")});
+  assert.equal(r.evidenceMode, "SYNTHETIC_POLICY_SIMULATION");
+  assert.equal(r.targetCanaryAccepted, false);
+  assert.equal(r.formalAccepted, false);
+});
+
+test("missing shadow evidence blocks a healthy-looking window", () => {
+  const scenario = loadScenario("healthy-7d");
+  scenario.observations.shadowTasksCompleted = 0;
+  const r = evaluateRollout({policyDocument, scenario});
+  assert.equal(r.blocked, true);
+  assert.equal(r.capabilityFlag.rolloutPercent, 0);
+});
+
+test("rollback without measured duration cannot pass", () => {
+  const scenario = loadScenario("rollback-drill");
+  scenario.observations.rollbackCompletedSecs = null;
+  const r = evaluateRollout({policyDocument, scenario});
+  assert.equal(r.outcome, "rollback_failed");
+  assert.equal(r.blocked, true);
+});
+
+for (const value of [undefined, NaN, Infinity, -1, "0", true]) {
+  test("malformed metric rejects " + String(value), () => {
+    const scenario = loadScenario("healthy-7d");
+    scenario.observations.unexplainedP1 = value;
+    assert.throws(() => evaluateRollout({policyDocument, scenario}), /INVALID_SIMULATION/);
+  });
+}
+
+test("disable retains critical incident evidence and blocking status", () => {
+  const r = evaluateRollout({policyDocument, scenario: loadScenario("alert-breach")});
+  const state = buildRolloutState(r);
+  const next = applyRollback({state, action:"disable", reason:"critical incident"});
+  assert.equal(next.blocked, true);
+  assert.deepEqual(next.latestEvaluation.alerts, state.latestEvaluation.alerts);
+  assert.equal(next.capabilityFlag.rolloutPercent, 0);
+});
+
+test("rollback without a previous release or reason is refused", () => {
+  const state = buildRolloutState(evaluateRollout({policyDocument, scenario:loadScenario("healthy-7d")}));
+  assert.throws(() => applyRollback({state, action:"disable", reason:""}), /INVALID_ROLLBACK/);
+  delete state.previousRelease;
+  assert.throws(() => applyRollback({state, action:"rollback", reason:"drill"}), /INVALID_ROLLBACK/);
+});

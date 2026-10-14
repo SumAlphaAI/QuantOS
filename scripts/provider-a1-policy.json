@@ -1812,6 +1812,42 @@
       "artifact": "docs/audit/evidence/tp11-20261011/receipt.json",
       "artifactKind": "tp11-local-development",
       "timeoutMs": 900000
+    },
+    "tp01-f-functional": {
+      "command": [
+        "node",
+        "scripts/tp01-f-functional.mjs",
+        "--record"
+      ],
+      "artifact": "docs/audit/evidence/tp01-f-local-20261014/functional/receipt.json",
+      "artifactKind": "tp01-f-functional",
+      "marker": "PASS"
+    },
+    "tp01-f-artifact-negative": {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tp01-f-functional.test.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "tp01-f-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tp01-f-local-gate.test.mjs",
+        "scripts/tp01-f-plan-contract.test.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "tp01-f-style": {
+      "command": [
+        "node",
+        "scripts/check-tp01-f-style.mjs"
+      ],
+      "marker": "TP01-F local style PASS"
     }
   },
   "nodes": {
@@ -2652,6 +2688,34 @@
         "tp01-e-artifact-negative",
         "tp01-e-local-policy"
       ]
+    },
+    "CORE:TP01-F": {
+      "scope": "Local signed synthetic research artifacts, host-owned canary routing and isolated shadow tasks, threshold alerts, live disable/rollback and deterministic in-flight completion. No target canary window, production authority or deployment acceptance.",
+      "inputs": [
+        "engines/vibe-adapter/",
+        "engines/tests/test_vibe_adapter_rollout.py",
+        "engines/tests/test_vibe_adapter_contract.py",
+        "engines/tests/test_vibe_adapter_skeleton.py",
+        "crates/quantos-engine-manager/tests/python_vibe_adapter.rs",
+        "scripts/tp01-f*",
+        "scripts/record-tp01-f-local.mjs",
+        "scripts/check-tp01-f-style.mjs",
+        "scripts/tp01-vibe*",
+        "scripts/tests/tp01-vibe-rollout.test.mjs",
+        "scripts/fixtures/tp01-vibe-canary/",
+        "third_party/vibe-trading/canary-policy.json",
+        "docs/operations/tp01-f-local-admission.md",
+        "docs/runbooks/tp01_vibe_adapter_rollback.md",
+        "docs/operations/tp01_vibe_canary_dashboards.json",
+        "docs/operations/tp01_vibe_canary_alert_rules.yaml",
+        ".github/workflows/tp01_vibe_canary_gate.yml"
+      ],
+      "checks": [
+        "tp01-f-functional",
+        "tp01-f-artifact-negative",
+        "tp01-f-local-policy",
+        "tp01-f-style"
+      ]
     }
   },
   "developmentProfile": {
@@ -2989,6 +3053,41 @@
     "profile": "TP01-E_LOCAL",
     "roots": [
       "CORE:TP01-E"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "tp01FLocal": {
+    "owner": "CORE:TP01-F",
+    "profile": "TP01-F_LOCAL",
+    "roots": [
+      "CORE:TP01-F"
     ],
     "deferredChecks": [
       "tp01-baseline",

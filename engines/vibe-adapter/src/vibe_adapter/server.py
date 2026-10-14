@@ -12,6 +12,11 @@ from vibe_adapter.service import VibeAdapterService
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run the QuantOS vibe adapter")
     parser.add_argument("--socket", required=True, help="Absolute Unix socket path")
+    parser.add_argument(
+        "--fixture-routing",
+        action="store_true",
+        help="Explicit unsigned local research fixture routing; no release acceptance",
+    )
     return parser.parse_args()
 
 
@@ -24,7 +29,7 @@ def main() -> None:
     if socket_path.exists() or socket_path.is_symlink():
         raise FileExistsError("ENGINE_SOCKET_ALREADY_EXISTS")
 
-    server = serve_engine(socket_path, VibeAdapterService())
+    server = serve_engine(socket_path, VibeAdapterService(fixture_mode=args.fixture_routing))
     socket_path.chmod(0o600)
     try:
         server.wait_for_termination()

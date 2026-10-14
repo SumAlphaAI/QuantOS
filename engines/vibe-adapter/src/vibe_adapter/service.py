@@ -12,6 +12,7 @@ from threading import Lock
 import grpc
 
 from quantos.engine.v1 import engine_pb2
+from quantos.common.v1 import common_pb2
 from quantos_engine_sdk import (
     EngineManifest,
     input_hash,
@@ -27,6 +28,7 @@ from vibe_adapter.manifest import build_manifest
 from vibe_adapter.protocols import ResearchContractError, ResearchContractProvider
 from vibe_adapter.streaming import build_stream_deltas
 from vibe_adapter.workflow import build_workflow_plan
+from vibe_adapter.rollout import RolloutController, RolloutError, RolloutLease
 
 
 @dataclass
@@ -37,10 +39,20 @@ class VibeAdapterService:
     artifact_api: VibeArtifactApi = field(default_factory=VibeArtifactApi)
     context_translator: VibeContextTranslator = field(default_factory=VibeContextTranslator)
     contract_provider: ResearchContractProvider = field(default_factory=default_contract_provider)
+    rollout: RolloutController | None = None
+    fixture_mode: bool = False
+    shadow_mode: bool = False
     _cancelled: set[tuple[str, str, str, str]] = field(default_factory=set)
     _owners: set[tuple[str, str, str, str]] = field(default_factory=set)
     _inputs: dict[tuple[str, str, str, str], str] = field(default_factory=dict)
     _lock: Lock = field(default_factory=Lock)
+
+    def __post_init__(self) -> None:
+        if self.fixture_mode and self.rollout is not None:
+            raise ValueError("ENGINE_ROLLOUT_FIXTURE_CONFLICT")
+        if self.shadow_mode:
+            # A host-owned shadow service never writes into the primary facade.
+            self.artifact_api = VibeArtifactApi(bucket_name="quantos-shadow-artifacts")
 
     def get_metadata(
         self,
@@ -68,11 +80,14 @@ class VibeAdapterService:
         request: engine_pb2.ExecuteRequest,
         context: grpc.ServicerContext,
     ) -> engine_pb2.ExecuteResponse:
-        translated, _contract, plan, output = self._prepare_execution(request, context)
+        translated, _contract, plan, output, lease = self._prepare_execution(request, context)
         execution_id = self._execution_id(request)
-        self._wait(request, translated.payload, context)
+        if lease is None:
+            self._wait(request, translated.payload, context)
+        else:
+            self._wait(request, translated.payload, context, lease)
 
-        bundle = self._record_artifact(request, output, "research-output", context)
+        bundle = self._record_artifact(request, output, "research-output", context, lease)
 
         return engine_pb2.ExecuteResponse(
             metadata=request.metadata,
@@ -90,14 +105,19 @@ class VibeAdapterService:
         request: engine_pb2.StreamExecuteRequest,
         context: grpc.ServicerContext,
     ):
-        translated, contract, plan, output = self._prepare_execution(request.request, context)
+        translated, contract, plan, output, lease = self._prepare_execution(
+            request.request, context
+        )
         execution_id = self._execution_id(request.request)
-        self._wait(request.request, translated.payload, context)
+        if lease is None:
+            self._wait(request.request, translated.payload, context)
+        else:
+            self._wait(request.request, translated.payload, context, lease)
 
-        bundle = self._record_artifact(request.request, output, "stream-output", context)
+        bundle = self._record_artifact(request.request, output, "stream-output", context, lease)
         deltas = build_stream_deltas(translated.context, contract, plan)
         for index, delta in enumerate(deltas, start=1):
-            self._check_active(request.request, context)
+            self._check_active(request.request, context, lease)
             is_last = index == len(deltas)
             yield engine_pb2.StreamExecuteResponse(
                 metadata=request.request.metadata,
@@ -136,7 +156,20 @@ class VibeAdapterService:
     ) -> tuple:
         try:
             translated = self.context_translator.translate(request)
-            contract = self.contract_provider.load_contract(translated.context.fixture_name)
+            if request.metadata.environment != common_pb2.ENVIRONMENT_TEST:
+                raise ContextTranslationError(
+                    grpc.StatusCode.PERMISSION_DENIED, "ENGINE_LOCAL_TEST_ONLY"
+                )
+            owner = self._owner(request.metadata, self._execution_id(request))
+            lease = None
+            provider = self.contract_provider
+            if self.rollout is not None:
+                identity = json.dumps([*owner, request.metadata.request_id])
+                lease = self.rollout.admit(identity, shadow=self.shadow_mode)
+                provider = lease.release.provider
+            elif not self.fixture_mode:
+                raise RolloutError("ENGINE_ROLLOUT_DISABLED")
+            contract = provider.load_contract(translated.context.fixture_name)
             plan = build_workflow_plan(translated.context, contract)
             output = plan.to_output(
                 engine_name=self.manifest.engine_name,
@@ -148,6 +181,12 @@ class VibeAdapterService:
                 contract,
                 policy_decision="allowed",
             )
+            if lease is not None:
+                output["rollout"] = {
+                    "release_id": lease.release.release_id,
+                    "artifact_sha256": lease.release.artifact_sha256,
+                    "shadow": lease.shadow,
+                }
             with self._lock:
                 owner = self._owner(request.metadata, self._execution_id(request))
                 request_digest = json.dumps(
@@ -160,6 +199,7 @@ class VibeAdapterService:
                         request.metadata.request_id,
                         request.metadata.correlation_id,
                         request.metadata.causation_id,
+                        lease.release.artifact_sha256 if lease else "fixture",
                     ]
                 )
                 previous = self._inputs.get(owner)
@@ -169,7 +209,9 @@ class VibeAdapterService:
                     )
                 self._inputs[owner] = request_digest
                 self._owners.add(owner)
-            return translated, contract, plan, output
+            return translated, contract, plan, output, lease
+        except RolloutError as error:
+            context.abort(grpc.StatusCode.UNAVAILABLE, str(error))
         except ResearchContractError:
             logging.getLogger(__name__).warning("vibe_adapter.contract decision=denied")
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, "ENGINE_CONTRACT_INVALID")
@@ -198,10 +240,17 @@ class VibeAdapterService:
             execution_id,
         )
 
-    def _check_active(self, request, context: grpc.ServicerContext) -> None:
+    def _check_active(
+        self, request, context: grpc.ServicerContext, lease: RolloutLease | None = None
+    ) -> None:
         owner = self._owner(request.metadata, self._execution_id(request))
         with self._lock:
             cancelled = owner in self._cancelled
+        if self.rollout is not None and lease is not None:
+            try:
+                self.rollout.check(lease)
+            except RolloutError as error:
+                context.abort(grpc.StatusCode.CANCELLED, str(error))
         self._assert_active(request, context, cancelled)
 
     @staticmethod
@@ -213,22 +262,39 @@ class VibeAdapterService:
         if not context.is_active():
             context.abort(grpc.StatusCode.CANCELLED, "ENGINE_TRANSPORT_CANCELLED")
 
-    def _record_artifact(self, request, output: dict, kind: str, context):
+    def _record_artifact(
+        self, request, output: dict, kind: str, context, lease: RolloutLease | None = None
+    ):
         # Commit and Cancel share a lock: an acknowledged cancellation cannot race a write.
         owner = self._owner(request.metadata, self._execution_id(request))
         with self._lock:
             self._assert_active(request, context, owner in self._cancelled)
-            return self.artifact_api.record_json_artifact(
-                workflow_run_id=request.workflow_run_id,
-                tenant_id=request.metadata.tenant_id,
-                artifact_kind=kind,
-                payload=output,
-            )
 
-    def _wait(self, request, payload: dict, context: grpc.ServicerContext) -> None:
+            def write():
+                return self.artifact_api.record_json_artifact(
+                    workflow_run_id=request.workflow_run_id,
+                    tenant_id=request.metadata.tenant_id,
+                    artifact_kind="shadow-" + kind if self.shadow_mode else kind,
+                    payload=output,
+                )
+
+            if self.rollout is not None and lease is not None:
+                try:
+                    return self.rollout.commit(lease, write)
+                except RolloutError as error:
+                    context.abort(grpc.StatusCode.CANCELLED, str(error))
+            return write()
+
+    def _wait(
+        self,
+        request,
+        payload: dict,
+        context: grpc.ServicerContext,
+        lease: RolloutLease | None = None,
+    ) -> None:
         until = time.monotonic() + payload.get("sleep_ms", 0) / 1000
         while True:
-            self._check_active(request, context)
+            self._check_active(request, context, lease)
             remaining = until - time.monotonic()
             if remaining <= 0:
                 return

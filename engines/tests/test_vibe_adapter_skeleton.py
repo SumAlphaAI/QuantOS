@@ -34,7 +34,7 @@ from vibe_adapter.server import main
 @pytest.fixture
 def adapter():
     path = Path("/tmp") / f"tp01-c-{uuid4().hex}.sock"
-    service = VibeAdapterService()
+    service = VibeAdapterService(fixture_mode=True)
     server = serve_engine(path, service)
     client = EngineClient(uds_target(path))
     try:

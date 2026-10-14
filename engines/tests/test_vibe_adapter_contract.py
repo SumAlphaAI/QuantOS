@@ -54,9 +54,7 @@ def build_request(index: int, payload: dict) -> engine_pb2.ExecuteRequest:
         data_snapshot_ref="snapshot-1",
         policy_context_ref="policy-1",
         input=json_document_from_mapping(payload),
-        deadline=timestamp_from_datetime(
-            datetime.now(tz=timezone.utc) + timedelta(seconds=5)
-        ),
+        deadline=timestamp_from_datetime(datetime.now(tz=timezone.utc) + timedelta(seconds=5)),
     )
 
 
@@ -64,7 +62,7 @@ def test_vibe_adapter_contract_all_rpcs() -> None:
     socket_path = Path("/tmp") / f"quantos-vibe-adapter-{uuid4().hex}.sock"
     if socket_path.exists():
         socket_path.unlink()
-    server = serve_engine(socket_path, VibeAdapterService())
+    server = serve_engine(socket_path, VibeAdapterService(fixture_mode=True))
     client = EngineClient(uds_target(socket_path))
 
     try:
@@ -115,21 +113,10 @@ def test_vibe_adapter_contract_all_rpcs() -> None:
         assert stream_response[0].done is False
         assert stream_response[1].done is False
         assert stream_response[2].done is True
-        assert (
-            json_document_to_mapping(stream_response[0].delta)["phase"]
-            == "context_translated"
-        )
-        assert (
-            json_document_to_mapping(stream_response[1].delta)["phase"]
-            == "workflow_planned"
-        )
-        assert (
-            json_document_to_mapping(stream_response[1].delta)["design_capabilities"]
-        )
-        assert (
-            json_document_to_mapping(stream_response[2].delta)["phase"]
-            == "artifact_recorded"
-        )
+        assert json_document_to_mapping(stream_response[0].delta)["phase"] == "context_translated"
+        assert json_document_to_mapping(stream_response[1].delta)["phase"] == "workflow_planned"
+        assert json_document_to_mapping(stream_response[1].delta)["design_capabilities"]
+        assert json_document_to_mapping(stream_response[2].delta)["phase"] == "artifact_recorded"
         assert stream_response[2].artifact_refs[0].artifact_id.endswith("stream-output")
         assert output["audit"]["audit_adapter"] == "quantos.observability.audit_record"
 
@@ -153,7 +140,7 @@ def test_vibe_adapter_rejects_forbidden_tool_requests() -> None:
     socket_path = Path("/tmp") / f"quantos-vibe-adapter-deny-{uuid4().hex}.sock"
     if socket_path.exists():
         socket_path.unlink()
-    server = serve_engine(socket_path, VibeAdapterService())
+    server = serve_engine(socket_path, VibeAdapterService(fixture_mode=True))
     client = EngineClient(uds_target(socket_path))
 
     try:
@@ -176,7 +163,7 @@ def test_vibe_adapter_rejects_forbidden_boundary_fields() -> None:
     socket_path = Path("/tmp") / f"quantos-vibe-adapter-boundary-{uuid4().hex}.sock"
     if socket_path.exists():
         socket_path.unlink()
-    server = serve_engine(socket_path, VibeAdapterService())
+    server = serve_engine(socket_path, VibeAdapterService(fixture_mode=True))
     client = EngineClient(uds_target(socket_path))
 
     try:
@@ -203,7 +190,7 @@ def test_vibe_adapter_replays_twenty_representative_fixtures() -> None:
     socket_path = Path("/tmp") / f"quantos-vibe-adapter-replay-{uuid4().hex}.sock"
     if socket_path.exists():
         socket_path.unlink()
-    server = serve_engine(socket_path, VibeAdapterService())
+    server = serve_engine(socket_path, VibeAdapterService(fixture_mode=True))
     client = EngineClient(uds_target(socket_path))
 
     try:
@@ -270,7 +257,7 @@ def test_vibe_adapter_provider_replacement_preserves_business_protocol() -> None
     )
     server = serve_engine(
         socket_path,
-        VibeAdapterService(contract_provider=replacement_provider),
+        VibeAdapterService(contract_provider=replacement_provider, fixture_mode=True),
     )
     client = EngineClient(uds_target(socket_path))
 
@@ -301,15 +288,18 @@ def test_vibe_adapter_provider_replacement_preserves_business_protocol() -> None
             timeout=5,
         )
         assert len(stream_response) == 3
-        assert json_document_to_mapping(stream_response[0].delta)[
-            "workflow_contract"
-        ] == "quantos.research.execution_contract"
-        assert json_document_to_mapping(stream_response[1].delta)[
-            "design_capabilities"
-        ] == ["replacement_projection", "replacement_audit"]
-        assert json_document_to_mapping(stream_response[2].delta)["audit"][
-            "protocol_version"
-        ] == "quantos.research.v1"
+        assert (
+            json_document_to_mapping(stream_response[0].delta)["workflow_contract"]
+            == "quantos.research.execution_contract"
+        )
+        assert json_document_to_mapping(stream_response[1].delta)["design_capabilities"] == [
+            "replacement_projection",
+            "replacement_audit",
+        ]
+        assert (
+            json_document_to_mapping(stream_response[2].delta)["audit"]["protocol_version"]
+            == "quantos.research.v1"
+        )
     finally:
         client.close()
         server.stop(grace=0)
@@ -321,7 +311,7 @@ def test_vibe_adapter_rejects_unsupported_capability() -> None:
     socket_path = Path("/tmp") / f"quantos-vibe-adapter-cap-{uuid4().hex}.sock"
     if socket_path.exists():
         socket_path.unlink()
-    server = serve_engine(socket_path, VibeAdapterService())
+    server = serve_engine(socket_path, VibeAdapterService(fixture_mode=True))
     client = EngineClient(uds_target(socket_path))
 
     try:
