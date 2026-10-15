@@ -18,3 +18,9 @@ test('S01 persistence guards pin audit, tenant, head CAS, snapshot and Artifact 
     "a.artifact_id::text = r->>'artifact_id'", "a.content_hash = r->>'content_hash'",
     'S01 versions are immutable', 'S01 draft identity and audit lineage are immutable']) assert(sql.includes(contract), contract);
 });
+
+test('S01 immutable audit guards retain the historical FK user-deletion action only for nested triggers', () => {
+  assert.equal((sql.match(/pg_trigger_depth\(\) > 1/g) || []).length, 2);
+  assert.equal((sql.match(/old.created_by_user is not null and new.created_by_user is null/g) || []).length, 2);
+  assert.equal((sql.match(/to_jsonb\(new\) - 'created_by_user'/g) || []).length, 2);
+});

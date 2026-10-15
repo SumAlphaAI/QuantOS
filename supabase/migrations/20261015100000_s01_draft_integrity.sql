@@ -4,6 +4,13 @@ begin;
 create function quantos.s01_guard_draft() returns trigger
 language plpgsql set search_path = pg_catalog, quantos as $$
 begin
+  -- Preserve the original auth.users FK ON DELETE SET NULL action, without allowing
+  -- callers to clear audit identity or modify any other field through that exception.
+  if tg_op = 'UPDATE' and pg_trigger_depth() > 1
+     and old.created_by_user is not null and new.created_by_user is null
+     and (to_jsonb(new) - 'created_by_user') = (to_jsonb(old) - 'created_by_user') then
+    return new;
+  end if;
   if tg_op = 'INSERT' then
     if new.head_version <> 0 then
       raise exception 'S01 draft must start at version zero' using errcode = '23514';
@@ -38,6 +45,13 @@ create function quantos.s01_guard_version() returns trigger
 language plpgsql set search_path = pg_catalog, quantos as $$
 declare d quantos.strategy_drafts; r jsonb;
 begin
+  -- Preserve the original auth.users FK ON DELETE SET NULL action, without allowing
+  -- callers to clear audit identity or modify any other field through that exception.
+  if tg_op = 'UPDATE' and pg_trigger_depth() > 1
+     and old.created_by_user is not null and new.created_by_user is null
+     and (to_jsonb(new) - 'created_by_user') = (to_jsonb(old) - 'created_by_user') then
+    return new;
+  end if;
   if tg_op = 'DELETE' then
     if exists (select 1 from quantos.strategy_drafts where draft_id = old.draft_id) then
       raise exception 'S01 version deletion requires parent draft removal' using errcode = '23514';

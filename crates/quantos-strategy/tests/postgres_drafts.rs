@@ -199,4 +199,61 @@ fn postgres_strategy_store_persists_versions_and_rejects_conflicts() {
     assert_eq!(versions[0].version, 1);
     assert_eq!(versions[1].version, 2);
     assert_ne!(versions[0].content_hash, versions[1].content_hash);
+    // Target-only negative assertions; never executed by the local DEVELOPMENT profile.
+    let mut foreign_workspace = auth.clone();
+    foreign_workspace.workspace_id = WorkspaceId::new();
+    assert!(
+        store
+            .get_draft(&foreign_workspace, draft.draft_id)
+            .unwrap()
+            .is_none()
+    );
+    assert!(
+        store
+            .list_versions(&foreign_workspace, draft.draft_id)
+            .is_err()
+    );
+    assert!(
+        store
+            .save_version(
+                &auth,
+                DraftVersionInput {
+                    draft_id: draft.draft_id,
+                    base_version: 2,
+                    parameters: strategy_fixture_parameters(3),
+                    data_snapshot_id: None,
+                    artifact_refs: vec![quantos_strategy::DraftArtifactRef {
+                        artifact_id: quantos_core::ArtifactId::new(),
+                        content_hash: quantos_core::ContentHash::sha256_bytes(b"unknown artifact"),
+                    }],
+                    save_kind: DraftSaveKind::Autosave,
+                    saved_at: now,
+                }
+            )
+            .is_err()
+    );
+    assert_eq!(
+        store
+            .get_draft(&auth, draft.draft_id)
+            .unwrap()
+            .unwrap()
+            .head_version,
+        2
+    );
+    let connector =
+        postgres_native_tls::MakeTlsConnector::new(native_tls::TlsConnector::new().unwrap());
+    let mut client = postgres::Client::connect(&database_url, connector).unwrap();
+    assert!(client.execute("update quantos.strategy_draft_versions set created_by_user = null where draft_id = $1", &[draft.draft_id.as_uuid()]).is_err());
+    client
+        .execute("delete from auth.users where id = $1", &[&user_id])
+        .expect("historical FK deletion semantics remain supported");
+    let row = client.query_one("select count(*) from quantos.strategy_draft_versions where draft_id = $1 and created_by_user is null", &[draft.draft_id.as_uuid()]).unwrap();
+    assert_eq!(row.get::<_, i64>(0), 2);
+    let row = client
+        .query_one(
+            "select created_by_user is null from quantos.strategy_drafts where draft_id = $1",
+            &[draft.draft_id.as_uuid()],
+        )
+        .unwrap();
+    assert!(row.get::<_, bool>(0));
 }
