@@ -1,0 +1,28 @@
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.88s
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-ef3f689f7bdec147)
+
+running 6 tests
+test release::tests::s03_targets_exclude_assisted_live_and_unknown_json ... ok
+test release::tests::s03_dedupe_and_content_conflict_are_deterministic ... ok
+test release::tests::s03_scope_capability_hash_expiry_and_tampering_fail_closed ... ok
+test release::tests::s03_concurrent_approval_and_deployment_are_atomic_and_idempotent ... ok
+test release::tests::s03_hundred_unverified_or_unapproved_deployments_are_rejected ... ok
+
+thread 'release::tests::s03_owned_process_backtest_release_reject_recover_and_consume' (3132547) panicked at crates/quantos-strategy/src/release.rs:947:9:
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy/../../scripts/tp06-produce.py", line 33, in <module>
+    raise RuntimeError("owned Engine exited before readiness")
+RuntimeError: owned Engine exited before readiness
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test release::tests::s03_owned_process_backtest_release_reject_recover_and_consume ... FAILED
+
+failures:
+
+failures:
+    release::tests::s03_owned_process_backtest_release_reject_recover_and_consume
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.30s
+
+error: test failed, to rerun pass `-p quantos-strategy --lib`

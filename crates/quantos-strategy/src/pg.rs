@@ -14,9 +14,7 @@ use uuid::Uuid;
 use crate::{
     DraftArtifactRef, DraftSaveKind, DraftVersionInput, StrategyDraft, StrategyDraftError,
     StrategyDraftVersion,
-    release::{
-        DeploymentPolicy, DeploymentTarget, DeploymentTicket, StrategyRelease, StrategyReleaseError,
-    },
+    release::{DeploymentTarget, DeploymentTicket, StrategyRelease, StrategyReleaseError},
 };
 
 #[derive(Debug, Error)]
@@ -307,150 +305,95 @@ impl PgReleaseStore {
         })
     }
 
+    /// Verified evidence is opaque and minted by DraftService, never request JSON.
     pub fn publish(
         &mut self,
-        release: &StrategyRelease,
-        created_by_user: Option<Uuid>,
+        auth: &AuthContext,
+        proof: crate::release::ValidatedBacktest,
+        targets: Vec<DeploymentTarget>,
+        at: chrono::DateTime<chrono::Utc>,
     ) -> Result<StrategyRelease, PgStrategyError> {
-        let allowed_targets: Vec<&str> = release
-            .allowed_targets
-            .iter()
-            .map(|target| target.as_str())
-            .collect();
-        let inserted = self.client.query_typed_opt(
-            "insert into quantos.strategy_releases (
-                release_id, tenant_id, draft_id, draft_version, name,
-                source_digest, image_digest, parameter_hash, backtest_report_hash,
-                data_snapshot_id, evidence_refs, allowed_targets,
-                content_hash, created_by_actor, created_by_user, created_at
-            ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
-            on conflict (tenant_id, draft_id, draft_version) do nothing
-            returning release_id",
-            &[
-                (release.release_id.as_uuid(), Type::UUID),
-                (release.tenant_id.as_uuid(), Type::UUID),
-                (release.draft_id.as_uuid(), Type::UUID),
-                (&(release.draft_version as i64), Type::INT8),
-                (&release.name, Type::TEXT),
-                (&release.source_digest, Type::TEXT),
-                (&release.image_digest, Type::TEXT),
-                (&release.parameter_hash.as_str(), Type::TEXT),
-                (
-                    &release
-                        .backtest_report_hash
-                        .as_ref()
-                        .map(|hash| hash.as_str().to_owned()),
-                    Type::TEXT,
-                ),
-                (release.data_snapshot_id.as_uuid(), Type::UUID),
-                (
-                    &postgres::types::Json(&serde_json::to_value(&release.evidence_refs)?),
-                    Type::JSONB,
-                ),
-                (&allowed_targets, Type::TEXT_ARRAY),
-                (&release.content_hash.as_str(), Type::TEXT),
-                (release.created_by.as_uuid(), Type::UUID),
-                (&created_by_user, Type::UUID),
-                (&release.created_at, Type::TIMESTAMPTZ),
-            ],
-        )?;
-        if inserted.is_some() {
-            return self
-                .get_release(release.tenant_id, release.release_id)?
-                .ok_or(StrategyReleaseError::ReleaseNotFound {
-                    release_id: release.release_id,
-                })
-                .map_err(PgStrategyError::from);
-        }
-
+        let at = pg_timestamp(at);
+        let release = crate::release::InMemoryStrategyReleaseStore::new()
+            .publish_verified(auth, proof, targets, at)?;
+        let targets: Vec<_> = release.allowed_targets.iter().map(|t| t.as_str()).collect();
+        self.client.execute("insert into quantos.strategy_releases (
+            release_id,tenant_id,workspace_id,draft_id,draft_version,name,source_digest,image_digest,
+            parameter_hash,backtest_report_hash,data_snapshot_id,evidence_refs,allowed_targets,
+            content_hash,created_by_actor,created_by_user,created_at,validation_evidence)
+            values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+            on conflict (tenant_id,draft_id,draft_version) do nothing", &[
+            &release.release_id.as_uuid(),&auth.tenant_id.as_uuid(),&auth.workspace_id.as_uuid(),
+            &release.draft_id.as_uuid(),&(release.draft_version as i64),&release.name,&release.source_digest,
+            &release.image_digest,&release.parameter_hash.as_str(),&release.backtest_report_hash.as_ref().map(|h|h.as_str()),
+            &release.data_snapshot_id.as_uuid(),&postgres::types::Json(&release.evidence_refs),&targets,
+            &release.content_hash.as_str(),&auth.actor_id.as_uuid(),&Some(auth.user_id),&at,
+            &postgres::types::Json(&release.validation),
+        ])?;
         let existing = self
-            .release_for_draft(release.tenant_id, release.draft_id, release.draft_version)?
+            .release_for_draft(auth.tenant_id, release.draft_id, release.draft_version)?
             .ok_or(StrategyReleaseError::ReleaseNotFound {
                 release_id: release.release_id,
             })?;
-        if existing.content_hash == release.content_hash {
-            return Ok(existing);
-        }
-        Err(StrategyReleaseError::ContentConflict {
-            draft_id: release.draft_id,
-            draft_version: release.draft_version,
-        }
-        .into())
-    }
-
-    pub fn approve(
-        &mut self,
-        tenant_id: TenantId,
-        release_id: quantos_core::ProposalId,
-        approved_by: ActorId,
-        approved_at: chrono::DateTime<chrono::Utc>,
-    ) -> Result<StrategyRelease, PgStrategyError> {
-        let updated = self.client.execute(
-            "update quantos.strategy_releases
-             set approved_at = $3, approved_by_actor = $4
-             where tenant_id = $1 and release_id = $2 and approved_at is null",
-            &[
-                &tenant_id.as_uuid(),
-                &release_id.as_uuid(),
-                &approved_at,
-                &approved_by.as_uuid(),
-            ],
-        )?;
-        if updated == 0 {
-            return Err(StrategyReleaseError::AlreadyApproved { release_id }.into());
-        }
-        self.get_release(tenant_id, release_id)?
-            .ok_or(StrategyReleaseError::ReleaseNotFound { release_id })
-            .map_err(PgStrategyError::from)
-    }
-
-    pub fn request_deployment(
-        &mut self,
-        tenant_id: TenantId,
-        release_id: quantos_core::ProposalId,
-        target: DeploymentTarget,
-        requested_by: ActorId,
-        requested_by_user: Option<Uuid>,
-        requested_at: chrono::DateTime<chrono::Utc>,
-    ) -> Result<DeploymentTicket, PgStrategyError> {
-        let release = self
-            .get_release(tenant_id, release_id)?
-            .ok_or(StrategyReleaseError::ReleaseNotFound { release_id })?;
-        let violations = DeploymentPolicy::evaluate(&release, target);
-        if !violations.is_empty() {
-            return Err(StrategyReleaseError::DeploymentRejected {
-                violations: violations
-                    .iter()
-                    .map(|violation| violation.as_str())
-                    .collect::<Vec<_>>()
-                    .join(","),
+        existing.ensure_scope(auth)?;
+        if existing.content_hash != release.content_hash {
+            return Err(StrategyReleaseError::ContentConflict {
+                draft_id: release.draft_id,
+                draft_version: release.draft_version,
             }
             .into());
         }
-        self.client.execute(
-            "insert into quantos.strategy_release_deployments (
-                deployment_id, tenant_id, release_id, target,
-                requested_by_actor, requested_by_user, requested_at
-            ) values ($1,$2,$3,$4,$5,$6,$7)",
-            &[
-                &Uuid::now_v7(),
-                &tenant_id.as_uuid(),
-                &release_id.as_uuid(),
-                &target.as_str(),
-                &requested_by.as_uuid(),
-                &requested_by_user,
-                &requested_at,
-            ],
-        )?;
+        Ok(existing)
+    }
+    pub fn approve(
+        &mut self,
+        auth: &AuthContext,
+        release_id: quantos_core::ProposalId,
+        expected: &ContentHash,
+        at: chrono::DateTime<chrono::Utc>,
+        expires: chrono::DateTime<chrono::Utc>,
+    ) -> Result<StrategyRelease, PgStrategyError> {
+        let at = pg_timestamp(at);
+        let expires = pg_timestamp(expires);
+        let mut release = self
+            .get_release(auth.tenant_id, release_id)?
+            .ok_or(StrategyReleaseError::ReleaseNotFound { release_id })?;
+        release.approve_bound(auth, expected, at, expires)?;
+        let changed=self.client.execute("update quantos.strategy_releases set approved_at=$3,approved_by_actor=$4,approval_evidence=$5
+            where tenant_id=$1 and release_id=$2 and approved_at is null and content_hash=$6",
+            &[&auth.tenant_id.as_uuid(),&release_id.as_uuid(),&at,&auth.actor_id.as_uuid(),
+                &postgres::types::Json(&release.approval),&expected.as_str()])?;
+        if changed != 1 {
+            return Err(StrategyReleaseError::AlreadyApproved { release_id }.into());
+        }
+        Ok(release)
+    }
+    pub fn request_deployment(
+        &mut self,
+        auth: &AuthContext,
+        release_id: quantos_core::ProposalId,
+        target: DeploymentTarget,
+        at: chrono::DateTime<chrono::Utc>,
+    ) -> Result<DeploymentTicket, PgStrategyError> {
+        let at = pg_timestamp(at);
+        let release = self
+            .get_release(auth.tenant_id, release_id)?
+            .ok_or(StrategyReleaseError::ReleaseNotFound { release_id })?;
+        release.authorize_deployment(auth, target, at)?;
+        let row=self.client.query_one("insert into quantos.strategy_release_deployments (
+            deployment_id,tenant_id,release_id,target,requested_by_actor,requested_by_user,requested_at)
+            values ($1,$2,$3,$4,$5,$6,$7)
+            on conflict (tenant_id,release_id,target) do update set release_id=excluded.release_id
+            returning requested_by_actor,requested_at",
+            &[&Uuid::now_v7(),&auth.tenant_id.as_uuid(),&release_id.as_uuid(),&target.as_str(),&auth.actor_id.as_uuid(),&Some(auth.user_id),&at])?;
         Ok(DeploymentTicket {
             release_id,
             target,
-            requested_by,
-            requested_at,
+            requested_by: ActorId::from_uuid(row.get(0)),
+            requested_at: row.get(1),
         })
     }
-
-    pub fn get_release(
+    fn get_release(
         &mut self,
         tenant_id: TenantId,
         release_id: quantos_core::ProposalId,
@@ -459,7 +402,8 @@ impl PgReleaseStore {
             "select release_id, tenant_id, draft_id, draft_version, name,
                     source_digest, image_digest, parameter_hash, backtest_report_hash,
                     data_snapshot_id, evidence_refs, allowed_targets,
-                    approved_at, approved_by_actor, content_hash, created_by, created_at
+                    approved_at, approved_by_actor, content_hash, created_by_actor, created_at,
+                    workspace_id, validation_evidence, approval_evidence
              from quantos.strategy_releases
              where tenant_id = $1 and release_id = $2",
             &[
@@ -470,7 +414,7 @@ impl PgReleaseStore {
         row.map(|row| row_to_release(&row)).transpose()
     }
 
-    pub fn release_for_draft(
+    fn release_for_draft(
         &mut self,
         tenant_id: TenantId,
         draft_id: StrategyDraftId,
@@ -480,7 +424,8 @@ impl PgReleaseStore {
             "select release_id, tenant_id, draft_id, draft_version, name,
                     source_digest, image_digest, parameter_hash, backtest_report_hash,
                     data_snapshot_id, evidence_refs, allowed_targets,
-                    approved_at, approved_by_actor, content_hash, created_by, created_at
+                    approved_at, approved_by_actor, content_hash, created_by_actor, created_at,
+                    workspace_id, validation_evidence, approval_evidence
              from quantos.strategy_releases
              where tenant_id = $1 and draft_id = $2 and draft_version = $3",
             &[
@@ -493,6 +438,11 @@ impl PgReleaseStore {
     }
 }
 
+// Match PostgreSQL timestamptz precision before sealing approval attestations.
+fn pg_timestamp(at: chrono::DateTime<chrono::Utc>) -> chrono::DateTime<chrono::Utc> {
+    chrono::DateTime::from_timestamp_micros(at.timestamp_micros())
+        .expect("representable database timestamp")
+}
 fn row_to_release(row: &Row) -> Result<StrategyRelease, PgStrategyError> {
     let backtest_report_hash: Option<String> = row.get(8);
     let evidence_refs: Vec<DraftArtifactRef> =
@@ -502,6 +452,15 @@ fn row_to_release(row: &Row) -> Result<StrategyRelease, PgStrategyError> {
     Ok(StrategyRelease {
         release_id: quantos_core::ProposalId::from_uuid(row.get(0)),
         tenant_id: TenantId::from_uuid(row.get(1)),
+        workspace_id: WorkspaceId::from_uuid(row.get(17)),
+        validation: row
+            .get::<_, Option<postgres::types::Json<Value>>>(18)
+            .map(|v| crate::release::ValidatedBacktest::from_storage(v.0))
+            .transpose()?,
+        approval: row
+            .get::<_, Option<postgres::types::Json<Value>>>(19)
+            .map(|v| serde_json::from_value(v.0))
+            .transpose()?,
         draft_id: StrategyDraftId::from_uuid(row.get(2)),
         draft_version: row.get::<_, i64>(3) as u64,
         name: row.get(4),

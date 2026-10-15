@@ -1,0 +1,49 @@
+    Blocking waiting for file lock on package cache
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+error[E0599]: no method named `valid_until` found for reference `&ValidatedBacktest` in the current scope
+   --> crates/quantos-strategy/tests/postgres_releases.rs:119:24
+    |
+119 |                 &proof.valid_until(),
+    |                        ^^^^^^^^^^^ private field, not a method
+
+error[E0599]: no method named `snapshot_hash` found for reference `&ValidatedBacktest` in the current scope
+   --> crates/quantos-strategy/tests/postgres_releases.rs:122:24
+    |
+122 |                 &proof.snapshot_hash().as_str(),
+    |                        ^^^^^^^^^^^^^ method not found in `&ValidatedBacktest`
+
+error[E0599]: no method named `evidence_refs` found for reference `&ValidatedBacktest` in the current scope
+   --> crates/quantos-strategy/tests/postgres_releases.rs:126:28
+    |
+126 |     for reference in proof.evidence_refs() {
+    |                            ^^^^^^^^^^^^^ private field, not a method
+
+error[E0599]: no method named `evidence_refs` found for reference `&ValidatedBacktest` in the current scope
+   --> crates/quantos-strategy/tests/postgres_releases.rs:135:66
+    |
+135 | ...   &snapshot_id.as_uuid(),&postgres::types::Json(&proof.evidence_refs()),&proof.report().draft.as_ref().unwrap().version_hash.as_str()...
+    |                                                            ^^^^^^^^^^^^^ private field, not a method
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `quantos-strategy` (test "postgres_releases") due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: cargo test --locked --offline -p quantos-strategy --all-targets -- --nocapture
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/[eval1]:1:326
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  status: 101,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 42162,
+  stdout: null,
+  stderr: null
+}
+
+Node.js v24.12.0

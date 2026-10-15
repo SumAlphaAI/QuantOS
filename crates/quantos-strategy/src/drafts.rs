@@ -24,6 +24,40 @@ pub struct DraftService {
 }
 
 impl DraftService {
+    /// Opaque evidence is minted only after this service executes S02 against its
+    /// trusted catalogs. A caller-supplied report/hash cannot create this value.
+    pub fn validated_backtest(
+        &self,
+        auth: &AuthContext,
+        id: StrategyDraftId,
+        request: crate::backtest::BacktestRequest,
+        payload: &serde_json::Value,
+    ) -> Result<crate::release::ValidatedBacktest, crate::backtest::BacktestError> {
+        let valid_until = request.snapshot.expires_at;
+        let snapshot_hash = request.snapshot.content_hash.clone();
+        let report = self.backtest(auth, id, request, payload)?;
+        let store = self.store.lock().map_err(|_| {
+            crate::backtest::BacktestError::InvalidInput("draft store unavailable".into())
+        })?;
+        let draft = store
+            .get_draft(auth.tenant_id, id)
+            .expect("validated draft");
+        // Read the pinned version rather than a possibly newer head.
+        let binding = report.draft.as_ref().expect("authenticated report");
+        let version = store
+            .list_versions(auth.tenant_id, id)
+            .into_iter()
+            .find(|v| v.version == binding.version)
+            .expect("immutable version");
+        Ok(crate::release::ValidatedBacktest {
+            report,
+            snapshot_hash,
+            artifact_payload: payload.clone(),
+            name: draft.name.clone(),
+            evidence_refs: version.artifact_refs.clone(),
+            valid_until,
+        })
+    }
     #[must_use]
     pub fn new(
         snapshots: InMemoryDataSnapshotCatalog,

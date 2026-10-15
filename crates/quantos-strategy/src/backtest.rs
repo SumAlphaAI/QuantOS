@@ -658,7 +658,7 @@ impl BacktestValidationReport {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use chrono::{Duration as ChronoDuration, TimeZone, Utc};
     use quantos_core::{ArtifactId, SchemaVersion, TenantId};
     use quantos_storage::{
@@ -723,7 +723,7 @@ mod tests {
         .expect("snapshot builds")
     }
 
-    fn honest_request() -> BacktestRequest {
+    pub(crate) fn honest_request() -> BacktestRequest {
         let snapshot = honest_snapshot(series_start() + ChronoDuration::hours(4));
         let series = BacktestBarSeries::fixture(
             "BTCUSDT",

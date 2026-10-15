@@ -4,14 +4,68 @@ use chrono::{DateTime, Utc};
 use quantos_auth::AuthContext;
 use quantos_core::{
     ActorId, ContentHash, CoreError, ProposalId, SnapshotId, StrategyDraftId, TenantId,
-    canonical_json_bytes,
+    WorkspaceId, canonical_json_bytes,
 };
 use quantos_policy::Capability;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use thiserror::Error;
 
-use crate::DraftArtifactRef;
+use crate::{DraftArtifactRef, backtest::BacktestValidationReport};
+
+/// No public constructor or Deserialize: only DraftService may mint this proof.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ValidatedBacktest {
+    pub(crate) report: BacktestValidationReport,
+    pub(crate) snapshot_hash: ContentHash,
+    pub(crate) artifact_payload: serde_json::Value,
+    pub(crate) name: String,
+    pub(crate) evidence_refs: Vec<DraftArtifactRef>,
+    pub(crate) valid_until: DateTime<Utc>,
+}
+impl ValidatedBacktest {
+    pub fn report(&self) -> &BacktestValidationReport {
+        &self.report
+    }
+    pub fn snapshot_hash(&self) -> &ContentHash {
+        &self.snapshot_hash
+    }
+    pub fn evidence_refs(&self) -> &[DraftArtifactRef] {
+        &self.evidence_refs
+    }
+    pub fn valid_until(&self) -> DateTime<Utc> {
+        self.valid_until
+    }
+    // Only trusted database rows may be rehydrated; never expose as request JSON.
+    pub(crate) fn from_storage(value: serde_json::Value) -> Result<Self, serde_json::Error> {
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Row {
+            report: BacktestValidationReport,
+            snapshot_hash: ContentHash,
+            artifact_payload: serde_json::Value,
+            name: String,
+            evidence_refs: Vec<DraftArtifactRef>,
+            valid_until: DateTime<Utc>,
+        }
+        let row: Row = serde_json::from_value(value)?;
+        Ok(Self {
+            report: row.report,
+            snapshot_hash: row.snapshot_hash,
+            artifact_payload: row.artifact_payload,
+            name: row.name,
+            evidence_refs: row.evidence_refs,
+            valid_until: row.valid_until,
+        })
+    }
+}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(crate) struct ReleaseApproval {
+    pub content_hash: ContentHash,
+    pub actor_id: ActorId,
+    pub approved_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
+}
 
 /// Deployment targets open during M3/M4. `Assisted Live` is intentionally absent
 /// until the M5 gate passes, so the enum itself cannot represent it.
@@ -47,10 +101,13 @@ impl DeploymentTarget {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct StrategyRelease {
     pub release_id: ProposalId,
     pub tenant_id: TenantId,
+    pub workspace_id: WorkspaceId,
+    pub(crate) validation: Option<ValidatedBacktest>,
+    pub(crate) approval: Option<ReleaseApproval>,
     pub draft_id: StrategyDraftId,
     pub draft_version: u64,
     pub name: String,
@@ -69,14 +126,130 @@ pub struct StrategyRelease {
 }
 
 impl StrategyRelease {
-    #[must_use]
-    pub fn is_verified(&self) -> bool {
-        self.backtest_report_hash.is_some()
+    pub fn parameters(&self) -> Option<&serde_json::Value> {
+        self.validation
+            .as_ref()
+            .map(|v| &v.artifact_payload["strategy"])
     }
-
-    #[must_use]
+    pub fn is_verified(&self) -> bool {
+        let Some(v) = &self.validation else {
+            return false;
+        };
+        let Some(d) = &v.report.draft else {
+            return false;
+        };
+        canonical_json_bytes(&v.artifact_payload["strategy"])
+            .is_ok_and(|b| ContentHash::sha256_bytes(&b) == self.parameter_hash)
+            && canonical_json_bytes(&v.artifact_payload).is_ok_and(|b| {
+                v.evidence_refs
+                    .iter()
+                    .any(|r| r.content_hash == ContentHash::sha256_bytes(&b))
+            })
+            && v.report.verify_integrity().is_ok()
+            && v.report.leak_check.violations == 0
+            && d.tenant_id == self.tenant_id
+            && d.workspace_id == self.workspace_id
+            && d.draft_id == self.draft_id
+            && d.version == self.draft_version
+            && d.parameter_hash == self.parameter_hash
+            && v.report.parameter_hash == self.parameter_hash
+            && v.report.snapshot_id == self.data_snapshot_id
+            && self.backtest_report_hash.as_ref() == Some(&v.report.report_hash)
+            && self.source_digest == v.report.candidate.source_commit
+            && self.image_digest == v.report.candidate.image_digest.as_str()
+            && self.name == v.name
+            && self.evidence_refs == v.evidence_refs
+            && self.created_at >= v.report.generated_at
+            && self.created_at <= v.valid_until
+            && self.recompute_hash().is_ok_and(|h| h == self.content_hash)
+    }
     pub fn is_approved(&self) -> bool {
-        self.approved_at.is_some()
+        self.is_verified()
+            && self.approved_by.is_some()
+            && self.approved_at.is_some_and(|at| at >= self.created_at)
+            && self.approval.as_ref().is_some_and(|a| {
+                a.content_hash == self.content_hash
+                    && Some(a.actor_id) == self.approved_by
+                    && Some(a.approved_at) == self.approved_at
+                    && self.approved_at.is_some_and(|at| at < a.expires_at)
+                    && self
+                        .validation
+                        .as_ref()
+                        .is_some_and(|v| a.expires_at <= v.valid_until)
+            })
+    }
+    pub(crate) fn recompute_hash(&self) -> Result<ContentHash, CoreError> {
+        Ok(ContentHash::sha256_bytes(&canonical_json_bytes(&json!({
+            "schema":"quantos-strategy-release/v2", "tenant_id":self.tenant_id,
+            "workspace_id":self.workspace_id,"draft_id":self.draft_id,"draft_version":self.draft_version,
+            "name":self.name,"source_digest":self.source_digest,"image_digest":self.image_digest,
+            "parameter_hash":self.parameter_hash,"backtest_report_hash":self.backtest_report_hash,
+            "data_snapshot_id":self.data_snapshot_id,"evidence_refs":self.evidence_refs,
+            "allowed_targets":self.allowed_targets,"validation":self.validation,
+        }))?))
+    }
+    pub(crate) fn ensure_scope(&self, auth: &AuthContext) -> Result<(), StrategyReleaseError> {
+        if self.tenant_id != auth.tenant_id || self.workspace_id != auth.workspace_id {
+            return Err(StrategyReleaseError::ReleaseNotFound {
+                release_id: self.release_id,
+            });
+        }
+        Ok(())
+    }
+    pub(crate) fn approve_bound(
+        &mut self,
+        auth: &AuthContext,
+        expected: &ContentHash,
+        at: DateTime<Utc>,
+        expires: DateTime<Utc>,
+    ) -> Result<(), StrategyReleaseError> {
+        ensure_capability(auth, Capability::STRATEGY_APPROVE)?;
+        self.ensure_scope(auth)?;
+        if self.approval.is_some() {
+            return Err(StrategyReleaseError::AlreadyApproved {
+                release_id: self.release_id,
+            });
+        }
+        if !self.is_verified()
+            || expected != &self.content_hash
+            || at < self.created_at
+            || at >= expires
+            || self
+                .validation
+                .as_ref()
+                .is_none_or(|v| expires > v.valid_until)
+        {
+            return Err(StrategyReleaseError::InvalidEvidence);
+        }
+        self.approval = Some(ReleaseApproval {
+            content_hash: expected.clone(),
+            actor_id: auth.actor_id,
+            approved_at: at,
+            expires_at: expires,
+        });
+        self.approved_at = Some(at);
+        self.approved_by = Some(auth.actor_id);
+        Ok(())
+    }
+    pub(crate) fn authorize_deployment(
+        &self,
+        auth: &AuthContext,
+        target: DeploymentTarget,
+        at: DateTime<Utc>,
+    ) -> Result<(), StrategyReleaseError> {
+        ensure_capability(auth, Capability::STRATEGY_WRITE)?;
+        self.ensure_scope(auth)?;
+        let violations = DeploymentPolicy::evaluate_at(self, target, at);
+        if !violations.is_empty() {
+            return Err(StrategyReleaseError::DeploymentRejected {
+                violations: violations
+                    .iter()
+                    .map(|v| v.as_str())
+                    .collect::<Vec<_>>()
+                    .join(","),
+            });
+        }
+        Ok(())
     }
 }
 
@@ -108,6 +281,7 @@ pub struct DeploymentTicket {
 pub enum DeploymentViolation {
     ReleaseUnverified,
     ReleaseUnapproved,
+    EvidenceExpired,
     TargetNotAllowed,
 }
 
@@ -117,6 +291,7 @@ impl DeploymentViolation {
         match self {
             Self::ReleaseUnverified => "release_unverified",
             Self::ReleaseUnapproved => "release_unapproved",
+            Self::EvidenceExpired => "evidence_expired",
             Self::TargetNotAllowed => "target_not_allowed",
         }
     }
@@ -124,6 +299,10 @@ impl DeploymentViolation {
 
 #[derive(Debug, Error)]
 pub enum StrategyReleaseError {
+    #[error(
+        "STRATEGY_RELEASE_INVALID_EVIDENCE: verified provenance, content, scope or time mismatch"
+    )]
+    InvalidEvidence,
     #[error(transparent)]
     Core(#[from] CoreError),
     #[error(transparent)]
@@ -156,7 +335,28 @@ impl DeploymentPolicy {
         release: &StrategyRelease,
         target: DeploymentTarget,
     ) -> Vec<DeploymentViolation> {
+        Self::evaluate_at(release, target, Utc::now())
+    }
+    #[must_use]
+    pub fn evaluate_at(
+        release: &StrategyRelease,
+        target: DeploymentTarget,
+        at: DateTime<Utc>,
+    ) -> Vec<DeploymentViolation> {
         let mut violations = Vec::new();
+        if at < release.created_at
+            || release.approved_at.is_some_and(|t| at < t)
+            || release
+                .approval
+                .as_ref()
+                .is_some_and(|a| at >= a.expires_at)
+            || release
+                .validation
+                .as_ref()
+                .is_some_and(|v| at > v.valid_until)
+        {
+            violations.push(DeploymentViolation::EvidenceExpired);
+        }
         if !release.is_verified() {
             violations.push(DeploymentViolation::ReleaseUnverified);
         }
@@ -184,29 +384,86 @@ impl InMemoryStrategyReleaseStore {
         Self::default()
     }
 
+    pub fn publish_verified(
+        &mut self,
+        auth: &AuthContext,
+        proof: ValidatedBacktest,
+        targets: Vec<DeploymentTarget>,
+        at: DateTime<Utc>,
+    ) -> Result<StrategyRelease, StrategyReleaseError> {
+        let d = proof
+            .report
+            .draft
+            .as_ref()
+            .ok_or(StrategyReleaseError::InvalidEvidence)?;
+        if d.tenant_id != auth.tenant_id || d.workspace_id != auth.workspace_id {
+            return Err(StrategyReleaseError::InvalidEvidence);
+        }
+        let input = ReleasePublishInput {
+            draft_id: d.draft_id,
+            draft_version: d.version,
+            name: proof.name.clone(),
+            source_digest: proof.report.candidate.source_commit.clone(),
+            image_digest: proof.report.candidate.image_digest.to_string(),
+            parameter_hash: proof.report.parameter_hash.clone(),
+            backtest_report_hash: Some(proof.report.report_hash.clone()),
+            data_snapshot_id: proof.report.snapshot_id,
+            evidence_refs: proof.evidence_refs.clone(),
+            allowed_targets: targets,
+            published_at: at,
+        };
+        self.publish_inner(auth, input, Some(proof))
+    }
+    /// Legacy candidates remain unverified even when a caller supplies a report hash.
     pub fn publish(
         &mut self,
         auth: &AuthContext,
         input: ReleasePublishInput,
     ) -> Result<StrategyRelease, StrategyReleaseError> {
+        self.publish_inner(auth, input, None)
+    }
+    fn publish_inner(
+        &mut self,
+        auth: &AuthContext,
+        input: ReleasePublishInput,
+        validation: Option<ValidatedBacktest>,
+    ) -> Result<StrategyRelease, StrategyReleaseError> {
         ensure_capability(auth, Capability::STRATEGY_WRITE)?;
         let mut allowed_targets = input.allowed_targets;
         allowed_targets.sort();
         allowed_targets.dedup();
-        let content_hash = ContentHash::sha256_bytes(&canonical_json_bytes(&json!({
-            "draft_id": input.draft_id.to_string(),
-            "draft_version": input.draft_version,
-            "name": input.name,
-            "source_digest": input.source_digest,
-            "image_digest": input.image_digest,
-            "parameter_hash": input.parameter_hash.as_str(),
-            "backtest_report_hash": input.backtest_report_hash.as_ref().map(|hash| hash.as_str()),
-            "data_snapshot_id": input.data_snapshot_id.to_string(),
-            "evidence_refs": input.evidence_refs,
-            "allowed_targets": allowed_targets.iter().map(|target| target.as_str()).collect::<Vec<_>>(),
-        }))?);
+        if allowed_targets.is_empty() || input.draft_version == 0 || input.name.trim().is_empty() {
+            return Err(StrategyReleaseError::InvalidEvidence);
+        }
+        let mut release = StrategyRelease {
+            release_id: ProposalId::new(),
+            tenant_id: auth.tenant_id,
+            workspace_id: auth.workspace_id,
+            validation,
+            approval: None,
+            draft_id: input.draft_id,
+            draft_version: input.draft_version,
+            name: input.name,
+            source_digest: input.source_digest,
+            image_digest: input.image_digest,
+            parameter_hash: input.parameter_hash,
+            backtest_report_hash: input.backtest_report_hash,
+            data_snapshot_id: input.data_snapshot_id,
+            evidence_refs: input.evidence_refs,
+            allowed_targets,
+            approved_at: None,
+            approved_by: None,
+            content_hash: ContentHash::sha256_bytes(b"pending"),
+            created_by: auth.actor_id,
+            created_at: input.published_at,
+        };
+        let content_hash = release.recompute_hash()?;
+        release.content_hash = content_hash.clone();
+        if release.validation.is_some() && !release.is_verified() {
+            return Err(StrategyReleaseError::InvalidEvidence);
+        }
 
-        let draft_key = (auth.tenant_id, input.draft_id, input.draft_version);
+        let draft_key = (auth.tenant_id, release.draft_id, release.draft_version);
         if let Some(existing_hash) = self.release_hash_by_draft.get(&draft_key) {
             if *existing_hash == content_hash {
                 let existing_id = self
@@ -220,30 +477,11 @@ impl InMemoryStrategyReleaseStore {
                     .clone());
             }
             return Err(StrategyReleaseError::ContentConflict {
-                draft_id: input.draft_id,
-                draft_version: input.draft_version,
+                draft_id: release.draft_id,
+                draft_version: release.draft_version,
             });
         }
 
-        let release = StrategyRelease {
-            release_id: ProposalId::new(),
-            tenant_id: auth.tenant_id,
-            draft_id: input.draft_id,
-            draft_version: input.draft_version,
-            name: input.name,
-            source_digest: input.source_digest,
-            image_digest: input.image_digest,
-            parameter_hash: input.parameter_hash,
-            backtest_report_hash: input.backtest_report_hash,
-            data_snapshot_id: input.data_snapshot_id,
-            evidence_refs: input.evidence_refs,
-            allowed_targets,
-            approved_at: None,
-            approved_by: None,
-            content_hash: content_hash.clone(),
-            created_by: auth.actor_id,
-            created_at: input.published_at,
-        };
         self.release_hash_by_draft
             .insert(draft_key, content_hash.clone());
         self.release_id_by_hash
@@ -257,21 +495,18 @@ impl InMemoryStrategyReleaseStore {
         &mut self,
         auth: &AuthContext,
         release_id: ProposalId,
-        approved_at: DateTime<Utc>,
+        expected: &ContentHash,
+        at: DateTime<Utc>,
+        expires: DateTime<Utc>,
     ) -> Result<StrategyRelease, StrategyReleaseError> {
         ensure_capability(auth, Capability::STRATEGY_APPROVE)?;
         let release = self
             .releases_by_id
             .get_mut(&(auth.tenant_id, release_id))
             .ok_or(StrategyReleaseError::ReleaseNotFound { release_id })?;
-        if release.approved_at.is_some() {
-            return Err(StrategyReleaseError::AlreadyApproved { release_id });
-        }
-        release.approved_at = Some(approved_at);
-        release.approved_by = Some(auth.actor_id);
+        release.approve_bound(auth, expected, at, expires)?;
         Ok(release.clone())
     }
-
     pub fn request_deployment(
         &mut self,
         auth: &AuthContext,
@@ -283,15 +518,13 @@ impl InMemoryStrategyReleaseStore {
             .releases_by_id
             .get(&(auth.tenant_id, release_id))
             .ok_or(StrategyReleaseError::ReleaseNotFound { release_id })?;
-        let violations = DeploymentPolicy::evaluate(release, target);
-        if !violations.is_empty() {
-            return Err(StrategyReleaseError::DeploymentRejected {
-                violations: violations
-                    .iter()
-                    .map(|violation| violation.as_str())
-                    .collect::<Vec<_>>()
-                    .join(","),
-            });
+        release.authorize_deployment(auth, target, requested_at)?;
+        if let Some(ticket) = self
+            .tickets
+            .iter()
+            .find(|t| t.release_id == release_id && t.target == target)
+        {
+            return Ok(ticket.clone());
         }
         let ticket = DeploymentTicket {
             release_id,
@@ -318,9 +551,17 @@ impl InMemoryStrategyReleaseStore {
     }
 }
 
-fn ensure_capability(auth: &AuthContext, capability: &str) -> Result<(), StrategyReleaseError> {
+pub(crate) fn ensure_capability(
+    auth: &AuthContext,
+    capability: &str,
+) -> Result<(), StrategyReleaseError> {
     let parsed = Capability::parse(capability).expect("capability constant parses");
-    if auth.capabilities.contains(&parsed) {
+    let requirement = quantos_policy::AuthorizationRequirement::new(parsed).allowing_modes([
+        quantos_policy::RunMode::Paper,
+        quantos_policy::RunMode::Shadow,
+    ]);
+    if quantos_policy::PolicyEngine::authorize_action(&auth.policy_context(), &requirement).is_ok()
+    {
         return Ok(());
     }
     Err(StrategyReleaseError::Unauthorized {
@@ -328,198 +569,488 @@ fn ensure_capability(auth: &AuthContext, capability: &str) -> Result<(), Strateg
     })
 }
 
+/// Shared process-local service. One lock makes approval CAS and ticket dedupe atomic.
+/// Tickets authorize only a local Paper/Shadow consumer; no venue/deployment client exists here.
+#[derive(Default)]
+pub struct ReleaseService(std::sync::Mutex<InMemoryStrategyReleaseStore>);
+impl ReleaseService {
+    pub fn publish(
+        &self,
+        auth: &AuthContext,
+        proof: ValidatedBacktest,
+        targets: Vec<DeploymentTarget>,
+        at: DateTime<Utc>,
+    ) -> Result<StrategyRelease, StrategyReleaseError> {
+        self.0
+            .lock()
+            .map_err(|_| StrategyReleaseError::InvalidEvidence)?
+            .publish_verified(auth, proof, targets, at)
+    }
+    pub fn approve(
+        &self,
+        auth: &AuthContext,
+        id: ProposalId,
+        hash: &ContentHash,
+        at: DateTime<Utc>,
+        expires: DateTime<Utc>,
+    ) -> Result<StrategyRelease, StrategyReleaseError> {
+        self.0
+            .lock()
+            .map_err(|_| StrategyReleaseError::InvalidEvidence)?
+            .approve(auth, id, hash, at, expires)
+    }
+    pub fn deploy(
+        &self,
+        auth: &AuthContext,
+        id: ProposalId,
+        target: DeploymentTarget,
+        at: DateTime<Utc>,
+    ) -> Result<DeploymentTicket, StrategyReleaseError> {
+        self.0
+            .lock()
+            .map_err(|_| StrategyReleaseError::InvalidEvidence)?
+            .request_deployment(auth, id, target, at)
+    }
+    /// Build the actual native strategy from the immutable validated Artifact, after
+    /// checking the stored ticket. It cannot substitute caller-supplied parameters.
+    pub fn consume_adapter(
+        &self,
+        auth: &AuthContext,
+        ticket: &DeploymentTicket,
+        at: DateTime<Utc>,
+    ) -> Result<crate::generated::GeneratedStrategyAdapter, StrategyReleaseError> {
+        let release = self.consume(auth, ticket, at)?;
+        crate::generated::GeneratedStrategyAdapter::from_draft_payload(
+            &release
+                .validation
+                .expect("verified consumer")
+                .artifact_payload,
+        )
+        .map_err(|_| StrategyReleaseError::InvalidEvidence)
+    }
+    pub fn consume(
+        &self,
+        auth: &AuthContext,
+        ticket: &DeploymentTicket,
+        at: DateTime<Utc>,
+    ) -> Result<StrategyRelease, StrategyReleaseError> {
+        let store = self
+            .0
+            .lock()
+            .map_err(|_| StrategyReleaseError::InvalidEvidence)?;
+        if !store.tickets.contains(ticket) {
+            return Err(StrategyReleaseError::InvalidEvidence);
+        }
+        let release = store.get_release(auth.tenant_id, ticket.release_id).ok_or(
+            StrategyReleaseError::ReleaseNotFound {
+                release_id: ticket.release_id,
+            },
+        )?;
+        release.authorize_deployment(auth, ticket.target, at)?;
+        Ok(release.clone())
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use std::collections::BTreeSet;
-
-    use chrono::{TimeZone, Utc};
-    use quantos_core::{AccountId, ArtifactId, SnapshotId, WorkspaceId};
-    use quantos_policy::{Role, RunMode};
-
     use super::*;
+    use crate::{DraftSaveKind, DraftVersionInput, drafts::DraftService};
+    use chrono::Duration;
+    use quantos_core::AccountId;
+    use quantos_policy::{Role, RunMode};
+    use quantos_storage::{
+        ArtifactManifest, InMemoryArtifactCatalog, InMemoryDataSnapshotCatalog,
+        SnapshotQualityRuleset, default_quality_rules,
+    };
+    use serde_json::Value;
 
-    fn auth_context(capabilities: &[&str]) -> AuthContext {
-        auth_context_for(TenantId::new(), capabilities)
+    fn payload() -> Value {
+        json!({"artifact_type":"StrategyDraftArtifact","release_eligible":true,"static_check":{"passed":true,"findings":[]},"strategy":{"rule":"momentum","rule_source":"momentum(close, lookback=6)","parameters":{"lookback":6,"entry_threshold_bps":20,"exit_threshold_bps":-10,"max_position_notional":"1000","universe":["BTCUSDT"]}}})
     }
-
-    fn auth_context_for(tenant_id: TenantId, capabilities: &[&str]) -> AuthContext {
-        AuthContext {
-            tenant_id,
+    fn fixture(
+        payload: &Value,
+    ) -> (
+        AuthContext,
+        ValidatedBacktest,
+        crate::backtest::BacktestRequest,
+    ) {
+        let mut request = crate::backtest::tests::honest_request();
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let git = std::process::Command::new("git")
+            .args(["rev-parse", "HEAD"])
+            .current_dir(&root)
+            .output()
+            .unwrap();
+        assert!(git.status.success());
+        request.candidate.source_commit = String::from_utf8(git.stdout).unwrap().trim().into();
+        request.candidate.image_digest =
+            ContentHash::sha256_bytes(&std::fs::read(std::env::current_exe().unwrap()).unwrap());
+        request.candidate.runtime_digest =
+            ContentHash::sha256_bytes(&std::fs::read(root.join("Cargo.lock")).unwrap());
+        let now = request.candidate.clock;
+        let auth = AuthContext {
+            tenant_id: request.snapshot.tenant_id,
             actor_id: ActorId::new(),
             user_id: uuid::Uuid::now_v7(),
             workspace_id: WorkspaceId::new(),
-            workspace_slug: "primary".to_owned(),
-            workspace_name: "Primary".to_owned(),
+            workspace_slug: "s03".into(),
+            workspace_name: "S03 owned fixture".into(),
             role: Role::Operator,
             mode: RunMode::Paper,
             account_id: Some(AccountId::new()),
-            capabilities: capabilities
-                .iter()
-                .map(|value| Capability::parse(value).expect("capability parses"))
-                .collect::<BTreeSet<_>>(),
-        }
+            capabilities: BTreeSet::from([
+                Capability::parse(Capability::STRATEGY_WRITE).unwrap(),
+                Capability::parse(Capability::STRATEGY_APPROVE).unwrap(),
+            ]),
+        };
+        let artifact = ArtifactManifest::new(
+            auth.tenant_id,
+            "application/json",
+            ContentHash::sha256_bytes(&canonical_json_bytes(payload).unwrap()),
+            "owned-fixture",
+            canonical_json_bytes(payload).unwrap().len() as u64,
+            now,
+        );
+        let reference = DraftArtifactRef {
+            artifact_id: artifact.artifact_id,
+            content_hash: artifact.content_hash.clone(),
+        };
+        let mut artifacts = InMemoryArtifactCatalog::new();
+        artifacts.upsert(artifact);
+        let mut snapshots = InMemoryDataSnapshotCatalog::new();
+        snapshots.upsert(request.snapshot.clone()).unwrap();
+        let drafts = DraftService::new(
+            snapshots,
+            artifacts,
+            SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, now)).unwrap(),
+        );
+        let draft = drafts.create(&auth, "S03 strategy", now).unwrap();
+        drafts
+            .save(
+                &auth,
+                DraftVersionInput {
+                    draft_id: draft.draft_id,
+                    parameters: payload["strategy"].clone(),
+                    data_snapshot_id: Some(request.snapshot.snapshot_id),
+                    artifact_refs: vec![reference],
+                    base_version: 0,
+                    save_kind: DraftSaveKind::Manual,
+                    saved_at: now,
+                },
+            )
+            .unwrap();
+        let proof = drafts
+            .validated_backtest(&auth, draft.draft_id, request.clone(), payload)
+            .unwrap();
+        (auth, proof, request)
     }
-
-    fn fixed_now() -> DateTime<Utc> {
-        Utc.with_ymd_and_hms(2026, 8, 1, 0, 0, 0)
-            .single()
-            .expect("valid timestamp")
-    }
-
-    fn publish_input(draft_id: StrategyDraftId, verified: bool) -> ReleasePublishInput {
-        ReleasePublishInput {
-            draft_id,
-            draft_version: 3,
-            name: "trend.alpha".to_owned(),
-            source_digest: "sha256:source".to_owned(),
-            image_digest: "sha256:image".to_owned(),
-            parameter_hash: ContentHash::sha256_bytes(br#"{"params":"v3"}"#),
-            backtest_report_hash: verified
-                .then(|| ContentHash::sha256_bytes(br#"{"backtest":"report"}"#)),
-            data_snapshot_id: SnapshotId::new(),
-            evidence_refs: vec![DraftArtifactRef {
-                artifact_id: ArtifactId::new(),
-                content_hash: ContentHash::sha256_bytes(br#"{"artifact":"evidence"}"#),
-            }],
-            allowed_targets: vec![DeploymentTarget::Paper, DeploymentTarget::Shadow],
-            published_at: fixed_now(),
-        }
+    fn targets() -> Vec<DeploymentTarget> {
+        vec![DeploymentTarget::Paper, DeploymentTarget::Shadow]
     }
 
     #[test]
-    fn assisted_live_is_not_representable_before_m5() {
-        let error =
-            DeploymentTarget::parse("assisted_live").expect_err("assisted live must not parse");
-        assert!(matches!(
-            error,
-            StrategyReleaseError::UnsupportedDeploymentTarget { .. }
-        ));
-        let error = DeploymentTarget::parse("ASSISTED_LIVE")
-            .expect_err("case variants must not parse either");
-        assert!(matches!(
-            error,
-            StrategyReleaseError::UnsupportedDeploymentTarget { .. }
-        ));
+    fn s03_targets_exclude_assisted_live_and_unknown_json() {
+        for value in ["assisted_live", "ASSISTED_LIVE", "live", "paper_live", ""] {
+            assert!(DeploymentTarget::parse(value).is_err());
+            assert!(serde_json::from_value::<DeploymentTarget>(json!(value)).is_err());
+        }
         assert_eq!(
             DeploymentTarget::m3_m4_allowed(),
             BTreeSet::from([DeploymentTarget::Paper, DeploymentTarget::Shadow])
         );
     }
-
     #[test]
-    fn hundred_unverified_or_unapproved_deployments_are_all_rejected() {
-        let publisher = auth_context(&[Capability::STRATEGY_WRITE]);
+    fn s03_hundred_unverified_or_unapproved_deployments_are_rejected() {
+        let (auth, proof, _) = fixture(&payload());
+        let at = proof.report.generated_at;
         let mut store = InMemoryStrategyReleaseStore::new();
-        let unverified = store
-            .publish(&publisher, publish_input(StrategyDraftId::new(), false))
-            .expect("unverified release publishes");
         let verified = store
-            .publish(&publisher, publish_input(StrategyDraftId::new(), true))
-            .expect("verified release publishes");
-
-        let mut rejected = 0_u32;
-        for index in 0..50_u32 {
-            let target = if index % 2 == 0 {
-                DeploymentTarget::Paper
-            } else {
-                DeploymentTarget::Shadow
-            };
-            let unverified_error = store
-                .request_deployment(&publisher, unverified.release_id, target, fixed_now())
-                .expect_err("unverified release must not deploy");
-            assert!(matches!(
-                unverified_error,
-                StrategyReleaseError::DeploymentRejected { .. }
-            ));
-            rejected += 1;
-
-            let unapproved_error = store
-                .request_deployment(&publisher, verified.release_id, target, fixed_now())
-                .expect_err("unapproved release must not deploy");
-            assert!(matches!(
-                unapproved_error,
-                StrategyReleaseError::DeploymentRejected { .. }
-            ));
-            rejected += 1;
+            .publish_verified(&auth, proof.clone(), targets(), at)
+            .unwrap();
+        let unverified = store
+            .publish(
+                &auth,
+                ReleasePublishInput {
+                    draft_id: StrategyDraftId::new(),
+                    draft_version: 1,
+                    name: "forged hash".into(),
+                    source_digest: verified.source_digest.clone(),
+                    image_digest: verified.image_digest.clone(),
+                    parameter_hash: verified.parameter_hash.clone(),
+                    backtest_report_hash: verified.backtest_report_hash.clone(),
+                    data_snapshot_id: verified.data_snapshot_id,
+                    evidence_refs: vec![],
+                    allowed_targets: targets(),
+                    published_at: at,
+                },
+            )
+            .unwrap();
+        assert!(!unverified.is_verified());
+        assert!(verified.is_verified());
+        for _ in 0..50 {
+            for release in [&unverified, &verified] {
+                assert!(matches!(
+                    store.request_deployment(
+                        &auth,
+                        release.release_id,
+                        DeploymentTarget::Paper,
+                        at
+                    ),
+                    Err(StrategyReleaseError::DeploymentRejected { .. })
+                ));
+            }
         }
-        assert_eq!(rejected, 100);
         assert!(store.tickets().is_empty());
+        assert!(
+            store
+                .approve(
+                    &auth,
+                    unverified.release_id,
+                    &unverified.content_hash,
+                    at,
+                    at + Duration::hours(1)
+                )
+                .is_err()
+        );
     }
-
     #[test]
-    fn duplicate_publish_returns_same_hash_and_modified_content_conflicts() {
-        let publisher = auth_context(&[Capability::STRATEGY_WRITE]);
-        let draft_id = StrategyDraftId::new();
+    fn s03_dedupe_and_content_conflict_are_deterministic() {
+        let (auth, proof, _) = fixture(&payload());
+        let at = proof.report.generated_at;
         let mut store = InMemoryStrategyReleaseStore::new();
-
-        let input = publish_input(draft_id, true);
         let first = store
-            .publish(&publisher, input.clone())
-            .expect("first publish succeeds");
+            .publish_verified(&auth, proof.clone(), targets(), at)
+            .unwrap();
         let second = store
-            .publish(&publisher, input.clone())
-            .expect("identical publish dedupes");
-        assert_eq!(first.release_id, second.release_id);
-        assert_eq!(first.content_hash, second.content_hash);
-
-        let mut modified = input;
-        modified.source_digest = "sha256:source-v2".to_owned();
-        let error = store
-            .publish(&publisher, modified)
-            .expect_err("modified content for same draft version conflicts");
+            .publish_verified(
+                &auth,
+                proof.clone(),
+                vec![
+                    DeploymentTarget::Shadow,
+                    DeploymentTarget::Paper,
+                    DeploymentTarget::Paper,
+                ],
+                at + Duration::seconds(1),
+            )
+            .unwrap();
+        assert_eq!(first, second);
         assert!(matches!(
-            error,
-            StrategyReleaseError::ContentConflict { .. }
+            store.publish_verified(&auth, proof, vec![DeploymentTarget::Paper], at),
+            Err(StrategyReleaseError::ContentConflict { .. })
         ));
     }
-
     #[test]
-    fn approved_release_deploys_to_paper_and_shadow_and_stays_immutable() {
-        let publisher = auth_context(&[Capability::STRATEGY_WRITE]);
-        let approver = auth_context_for(publisher.tenant_id, &[Capability::STRATEGY_APPROVE]);
-        let mut store = InMemoryStrategyReleaseStore::new();
-        let release = store
-            .publish(&publisher, publish_input(StrategyDraftId::new(), true))
-            .expect("release publishes");
-        let content_hash_before = release.content_hash.clone();
-
-        let unauthorized = auth_context_for(publisher.tenant_id, &[]);
-        let error = store
-            .approve(&unauthorized, release.release_id, fixed_now())
-            .expect_err("unauthorized approval rejected");
-        assert!(matches!(error, StrategyReleaseError::Unauthorized { .. }));
-
-        let approved = store
-            .approve(&approver, release.release_id, fixed_now())
-            .expect("approval succeeds");
-        assert!(approved.is_approved());
-        assert_eq!(approved.content_hash, content_hash_before);
-        assert_eq!(
-            store
-                .get_release(publisher.tenant_id, release.release_id)
-                .expect("release exists")
-                .content_hash,
-            content_hash_before
+    fn s03_scope_capability_hash_expiry_and_tampering_fail_closed() {
+        let (auth, proof, _) = fixture(&payload());
+        let at = proof.report.generated_at;
+        let service = ReleaseService::default();
+        let r = service
+            .publish(&auth, proof.clone(), targets(), at)
+            .unwrap();
+        let expires = at + Duration::hours(1);
+        for scope in 0..4 {
+            let mut foreign = auth.clone();
+            match scope {
+                0 => foreign.tenant_id = TenantId::new(),
+                1 => foreign.workspace_id = WorkspaceId::new(),
+                2 => foreign.capabilities.clear(),
+                _ => foreign.mode = RunMode::AssistedLive,
+            }
+            assert!(
+                service
+                    .publish(&foreign, proof.clone(), targets(), at)
+                    .is_err()
+            );
+            assert!(
+                service
+                    .approve(&foreign, r.release_id, &r.content_hash, at, expires)
+                    .is_err()
+            );
+            assert!(
+                service
+                    .deploy(&foreign, r.release_id, DeploymentTarget::Paper, at)
+                    .is_err()
+            );
+        }
+        assert!(
+            service
+                .approve(
+                    &auth,
+                    r.release_id,
+                    &ContentHash::sha256_bytes(b"wrong"),
+                    at,
+                    expires
+                )
+                .is_err()
         );
-
-        let paper = store
-            .request_deployment(
-                &publisher,
-                release.release_id,
-                DeploymentTarget::Paper,
-                fixed_now(),
+        for (time, end) in [
+            (at - Duration::seconds(1), expires),
+            (at, at),
+            (at, proof.valid_until + Duration::seconds(1)),
+        ] {
+            assert!(
+                service
+                    .approve(&auth, r.release_id, &r.content_hash, time, end)
+                    .is_err()
+            );
+        }
+        let approved = service
+            .approve(&auth, r.release_id, &r.content_hash, at, expires)
+            .unwrap();
+        assert_eq!(approved.content_hash, r.content_hash);
+        for field in 0..10 {
+            let mut forged = approved.clone();
+            match field {
+                0 => forged.source_digest = "b".repeat(40),
+                1 => forged.image_digest = ContentHash::sha256_bytes(b"bad").to_string(),
+                2 => forged.parameter_hash = ContentHash::sha256_bytes(b"bad"),
+                3 => forged.data_snapshot_id = SnapshotId::new(),
+                4 => forged.allowed_targets.clear(),
+                5 => forged.evidence_refs.clear(),
+                6 => {
+                    forged.approval.as_mut().unwrap().content_hash =
+                        ContentHash::sha256_bytes(b"wrong")
+                }
+                8 => forged.approved_by = Some(ActorId::new()),
+                9 => forged.approved_at = Some(at + chrono::Duration::seconds(1)),
+                _ => forged.validation.as_mut().unwrap().report.costs.fees_total += 1.0,
+            }
+            assert!(
+                !DeploymentPolicy::evaluate_at(&forged, DeploymentTarget::Paper, at).is_empty()
+            );
+        }
+        assert!(
+            service
+                .deploy(&auth, r.release_id, DeploymentTarget::Paper, expires)
+                .is_err()
+        );
+        assert!(
+            service
+                .deploy(
+                    &auth,
+                    r.release_id,
+                    DeploymentTarget::Paper,
+                    at - Duration::seconds(1)
+                )
+                .is_err()
+        );
+        assert!(
+            service
+                .publish(
+                    &auth,
+                    proof.clone(),
+                    targets(),
+                    proof.valid_until + Duration::seconds(1)
+                )
+                .is_err()
+        );
+        let ticket = service
+            .deploy(&auth, r.release_id, DeploymentTarget::Paper, at)
+            .unwrap();
+        assert!(service.consume(&auth, &ticket, expires).is_err());
+        let mut fake = ticket.clone();
+        fake.requested_by = ActorId::new();
+        assert!(service.consume(&auth, &fake, at).is_err());
+        assert_eq!(
+            service.consume(&auth, &ticket, at).unwrap().content_hash,
+            r.content_hash
+        );
+    }
+    #[test]
+    fn s03_concurrent_approval_and_deployment_are_atomic_and_idempotent() {
+        let (auth, proof, _) = fixture(&payload());
+        let at = proof.report.generated_at;
+        let service = std::sync::Arc::new(ReleaseService::default());
+        let r = service.publish(&auth, proof, targets(), at).unwrap();
+        let outcomes = std::thread::scope(|scope| {
+            let handles: Vec<_> = (0..20)
+                .map(|_| {
+                    scope.spawn(|| {
+                        service.approve(
+                            &auth,
+                            r.release_id,
+                            &r.content_hash,
+                            at,
+                            at + Duration::hours(1),
+                        )
+                    })
+                })
+                .collect();
+            handles
+                .into_iter()
+                .map(|h| h.join().unwrap().is_ok())
+                .collect::<Vec<_>>()
+        });
+        assert_eq!(outcomes.into_iter().filter(|v| *v).count(), 1);
+        let tickets = std::thread::scope(|scope| {
+            let handles: Vec<_> = (0..20)
+                .map(|_| {
+                    scope.spawn(|| {
+                        service
+                            .deploy(&auth, r.release_id, DeploymentTarget::Paper, at)
+                            .unwrap()
+                    })
+                })
+                .collect();
+            handles
+                .into_iter()
+                .map(|h| h.join().unwrap())
+                .collect::<Vec<_>>()
+        });
+        assert!(tickets.iter().all(|t| t == &tickets[0]));
+        assert_eq!(service.0.lock().unwrap().tickets().len(), 1);
+    }
+    #[test]
+    fn s03_owned_process_backtest_release_reject_recover_and_consume() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let output = std::process::Command::new(root.join("engines/.venv/bin/python"))
+            .arg(root.join("scripts/tp06-produce.py"))
+            .current_dir(&root)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let values: Vec<Value> = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(values.len(), 102);
+        let (auth, proof, mut request) = fixture(&values[0]);
+        request.draft = proof.report.draft.clone();
+        let baseline = proof.report.clone();
+        let at = proof.report.generated_at;
+        let service = ReleaseService::default();
+        let r = service.publish(&auth, proof, targets(), at).unwrap();
+        assert!(
+            service
+                .deploy(&auth, r.release_id, DeploymentTarget::Paper, at)
+                .is_err()
+        );
+        let approved = service
+            .approve(
+                &auth,
+                r.release_id,
+                &r.content_hash,
+                at,
+                at + Duration::hours(1),
             )
-            .expect("paper deployment tickets");
-        let shadow = store
-            .request_deployment(
-                &publisher,
-                release.release_id,
-                DeploymentTarget::Shadow,
-                fixed_now(),
-            )
-            .expect("shadow deployment tickets");
-        assert_eq!(paper.target, DeploymentTarget::Paper);
-        assert_eq!(shadow.target, DeploymentTarget::Shadow);
-        assert_eq!(store.tickets().len(), 2);
+            .unwrap();
+        let mut consumed = Vec::new();
+        let mut consumer_replay_hashes = Vec::new();
+        for target in targets() {
+            let ticket = service.deploy(&auth, r.release_id, target, at).unwrap();
+            let config = service.consume(&auth, &ticket, at).unwrap();
+            assert_eq!(config.content_hash, approved.content_hash);
+            assert_eq!(
+                config.parameter_hash,
+                config.validation.as_ref().unwrap().report.parameter_hash
+            );
+            let mut adapter = service.consume_adapter(&auth, &ticket, at).unwrap();
+            let replay = crate::backtest::run_backtest(&request, &mut adapter).unwrap();
+            assert_eq!(replay, baseline);
+            consumer_replay_hashes.push(replay.report_hash);
+            consumed.push(ticket.target);
+        }
+        println!("S03_RELEASE_EVIDENCE={}",serde_json::to_string(&json!({"release":approved,"consumed_targets":consumed,"consumer_replay_hashes":consumer_replay_hashes,"unapproved_rejected":true,"externalPublished":false})).unwrap());
     }
 }

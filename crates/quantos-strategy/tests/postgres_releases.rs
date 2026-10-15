@@ -1,13 +1,12 @@
-use std::env;
-
-use chrono::Utc;
-use quantos_core::{ActorId, ProposalId, SnapshotId, StrategyDraftId, TenantId, WorkspaceId};
+//! Separate target test: explicit opt-in and authorized non-production Supabase only.
+use chrono::{Duration, Utc};
+use quantos_core::TenantId;
 use quantos_strategy::{
     pg::PgReleaseStore,
-    release::{DeploymentTarget, StrategyRelease, StrategyReleaseError},
+    release::{DeploymentTarget, StrategyReleaseError},
 };
-use uuid::Uuid;
-
+#[path = "support/release_fixture.rs"]
+mod fixture;
 struct TenantCleanup {
     database_url: String,
     tenant_id: TenantId,
@@ -20,6 +19,10 @@ impl Drop for TenantCleanup {
                 postgres_native_tls::MakeTlsConnector::new(native_tls::TlsConnector::new()?);
             let mut client = postgres::Client::connect(&self.database_url, connector)?;
             client.execute(
+                "delete from quantos.strategy_releases where tenant_id=$1",
+                &[self.tenant_id.as_uuid()],
+            )?;
+            client.execute(
                 "delete from quantos.tenants where id = $1",
                 &[self.tenant_id.as_uuid()],
             )?;
@@ -31,16 +34,18 @@ impl Drop for TenantCleanup {
 
 fn seed_context(
     database_url: &str,
-    tenant_id: TenantId,
-) -> (TenantCleanup, StrategyDraftId, ActorId, SnapshotId) {
+    auth: &quantos_auth::AuthContext,
+    proof: &quantos_strategy::release::ValidatedBacktest,
+) -> TenantCleanup {
     let connector =
         postgres_native_tls::MakeTlsConnector::new(native_tls::TlsConnector::new().expect("tls"));
     let mut client = postgres::Client::connect(database_url, connector).expect("connects");
-    let workspace_id = WorkspaceId::new();
-    let actor_id = ActorId::new();
-    let draft_id = StrategyDraftId::new();
-    let snapshot_id = SnapshotId::new();
-    let now = Utc::now();
+    let tenant_id = auth.tenant_id;
+    let workspace_id = auth.workspace_id;
+    let actor_id = auth.actor_id;
+    let draft_id = proof.report().draft.as_ref().unwrap().draft_id;
+    let snapshot_id = proof.report().snapshot_id;
+    let now = proof.report().generated_at;
     client
         .execute(
             "insert into quantos.tenants (id, slug, name) values ($1, $2, $3)",
@@ -79,18 +84,19 @@ fn seed_context(
         .execute(
             "insert into quantos.strategy_drafts (
                 draft_id, tenant_id, workspace_id, owner_actor_id, name,
-                head_version, created_by_actor, created_at, updated_at
-            ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+                head_version, created_by_actor, created_at, updated_at,created_by_user
+            ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
             &[
                 &draft_id.as_uuid(),
                 &tenant_id.as_uuid(),
                 &workspace_id.as_uuid(),
                 &actor_id.as_uuid(),
                 &"trend.alpha".to_owned(),
-                &1_i64,
+                &0_i64,
                 &actor_id.as_uuid(),
                 &now,
                 &now,
+                &auth.user_id,
             ],
         )
         .expect("draft seeds");
@@ -109,133 +115,131 @@ fn seed_context(
                 &now,
                 &now,
                 &now,
-                &3_600_i64,
-                &now,
+                &86_400_i64,
+                &proof.valid_until(),
                 &"passed".to_owned(),
                 &"internal-approved".to_owned(),
-                &format!("sha256:{}", "a".repeat(64)),
+                &proof.snapshot_hash().as_str(),
             ],
         )
         .expect("snapshot seeds");
-    (
-        TenantCleanup {
-            database_url: database_url.to_owned(),
-            tenant_id,
-        },
-        draft_id,
-        actor_id,
-        snapshot_id,
+    for reference in proof.evidence_refs() {
+        client.execute("insert into quantos.object_artifacts (tenant_id,artifact_id,content_hash,storage_bucket,object_key,media_type,size_bytes)
+            values ($1,$2,$3,'owned-s03-target-fixture',$4,'application/json',0)",
+            &[&tenant_id.as_uuid(),&reference.artifact_id.as_uuid(),&reference.content_hash.as_str(),&format!("s03/{}/{}",tenant_id,reference.artifact_id)]).unwrap();
+    }
+    let mut tx = client.transaction().unwrap();
+    tx.execute("insert into quantos.strategy_draft_versions (version_id,tenant_id,draft_id,version,parameters,data_snapshot_id,artifact_refs,content_hash,save_kind,created_by_actor,created_by_user,created_at)
+        values ($1,$2,$3,1,$4,$5,$6,$7,'manual',$8,$9,$10)",
+        &[&uuid::Uuid::now_v7(),&tenant_id.as_uuid(),&draft_id.as_uuid(),&postgres::types::Json(&fixture::payload()["strategy"]),
+            &snapshot_id.as_uuid(),&postgres::types::Json(&proof.evidence_refs()),&proof.report().draft.as_ref().unwrap().version_hash.as_str(),&actor_id.as_uuid(),&auth.user_id,&now]).unwrap();
+    tx.execute(
+        "update quantos.strategy_drafts set head_version=1,updated_at=$2 where draft_id=$1",
+        &[&draft_id.as_uuid(), &now],
     )
-}
-
-fn release_fixture(
-    tenant_id: TenantId,
-    draft_id: StrategyDraftId,
-    actor_id: ActorId,
-    snapshot_id: SnapshotId,
-    verified: bool,
-) -> StrategyRelease {
-    StrategyRelease {
-        release_id: ProposalId::new(),
+    .unwrap();
+    tx.commit().unwrap();
+    TenantCleanup {
+        database_url: database_url.to_owned(),
         tenant_id,
-        draft_id,
-        draft_version: 1,
-        name: "trend.alpha".to_owned(),
-        source_digest: "sha256:source".to_owned(),
-        image_digest: "sha256:image".to_owned(),
-        parameter_hash: quantos_core::ContentHash::sha256_bytes(br#"{"params":"v1"}"#),
-        backtest_report_hash: verified
-            .then(|| quantos_core::ContentHash::sha256_bytes(br#"{"backtest":"report"}"#)),
-        data_snapshot_id: snapshot_id,
-        evidence_refs: vec![],
-        allowed_targets: vec![DeploymentTarget::Paper, DeploymentTarget::Shadow],
-        approved_at: None,
-        approved_by: None,
-        content_hash: quantos_core::ContentHash::sha256_bytes(
-            format!("release-content-{}", Uuid::now_v7()).as_bytes(),
-        ),
-        created_by: actor_id,
-        created_at: Utc::now(),
     }
 }
 
 #[test]
+#[ignore = "requires separately authorized Supabase migration and dedicated target scope"]
 fn postgres_release_store_enforces_dedupe_conflict_and_deployment_gate() {
-    let Some(database_url) = env::var("DATABASE_URL")
-        .ok()
-        .filter(|value| !value.trim().is_empty())
-    else {
-        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
-        return;
-    };
-
-    let tenant_id = TenantId::new();
-    let (_cleanup, draft_id, actor_id, snapshot_id) = seed_context(&database_url, tenant_id);
-    let mut store = PgReleaseStore::connect(&database_url).expect("connects to PostgreSQL");
-
-    let release = release_fixture(tenant_id, draft_id, actor_id, snapshot_id, true);
-    let published = store.publish(&release, None).expect("release publishes");
-    assert_eq!(published.release_id, release.release_id);
-
-    let republished = store
-        .publish(&release, None)
-        .expect("identical publish dedupes");
-    assert_eq!(republished.release_id, release.release_id);
-    assert_eq!(republished.content_hash, release.content_hash);
-
-    let mut conflicting = release_fixture(tenant_id, draft_id, actor_id, snapshot_id, true);
-    conflicting.source_digest = "sha256:source-v2".to_owned();
-    let conflict = store
-        .publish(&conflicting, None)
-        .expect_err("modified content must conflict");
+    assert_eq!(
+        std::env::var("QUANTOS_RUN_S03_POSTGRES_TESTS").as_deref(),
+        Ok("1")
+    );
+    let url = std::env::var("DATABASE_URL").expect("authorized target configuration required");
+    let (mut auth, proof) = fixture::fixture(&fixture::payload());
+    // No auth.users identity is seeded by a database test. Existing API requires a real
+    // authorized user for audit; target operators must provide that dedicated test user.
+    auth.user_id = std::env::var("QUANTOS_S03_TEST_USER_ID")
+        .expect("dedicated authorized test user")
+        .parse()
+        .unwrap();
+    let _cleanup = seed_context(&url, &auth, &proof);
+    let mut store = PgReleaseStore::connect(&url).unwrap();
+    let at = Utc::now();
+    let r = store
+        .publish(
+            &auth,
+            proof.clone(),
+            vec![DeploymentTarget::Paper, DeploymentTarget::Shadow],
+            at,
+        )
+        .unwrap();
+    assert!(r.is_verified());
+    assert_eq!(
+        store
+            .publish(
+                &auth,
+                proof.clone(),
+                vec![DeploymentTarget::Shadow, DeploymentTarget::Paper],
+                at
+            )
+            .unwrap()
+            .content_hash,
+        r.content_hash
+    );
     assert!(matches!(
-        conflict,
-        quantos_strategy::pg::PgStrategyError::Release(
+        store.publish(&auth, proof, vec![DeploymentTarget::Paper], at),
+        Err(quantos_strategy::pg::PgStrategyError::Release(
             StrategyReleaseError::ContentConflict { .. }
-        )
+        ))
     ));
-
-    let rejected = store
-        .request_deployment(
-            tenant_id,
-            release.release_id,
-            DeploymentTarget::Paper,
-            actor_id,
-            None,
-            Utc::now(),
-        )
-        .expect_err("unapproved release must not deploy");
-    assert!(matches!(
-        rejected,
-        quantos_strategy::pg::PgStrategyError::Release(
-            StrategyReleaseError::DeploymentRejected { .. }
-        )
-    ));
-
+    assert!(
+        store
+            .request_deployment(&auth, r.release_id, DeploymentTarget::Paper, at)
+            .is_err()
+    );
     let approved = store
-        .approve(tenant_id, release.release_id, actor_id, Utc::now())
-        .expect("approval persists");
+        .approve(
+            &auth,
+            r.release_id,
+            &r.content_hash,
+            at,
+            at + Duration::minutes(10),
+        )
+        .unwrap();
     assert!(approved.is_approved());
-
-    let second_approval = store
-        .approve(tenant_id, release.release_id, actor_id, Utc::now())
-        .expect_err("double approval rejected");
-    assert!(matches!(
-        second_approval,
-        quantos_strategy::pg::PgStrategyError::Release(
-            StrategyReleaseError::AlreadyApproved { .. }
-        )
-    ));
-
-    let ticket = store
-        .request_deployment(
-            tenant_id,
-            release.release_id,
-            DeploymentTarget::Paper,
-            actor_id,
-            None,
-            Utc::now(),
-        )
-        .expect("approved and verified release deploys");
-    assert_eq!(ticket.target, DeploymentTarget::Paper);
+    assert!(
+        store
+            .approve(
+                &auth,
+                r.release_id,
+                &r.content_hash,
+                at,
+                at + Duration::minutes(10)
+            )
+            .is_err()
+    );
+    let t = store
+        .request_deployment(&auth, r.release_id, DeploymentTarget::Paper, at)
+        .unwrap();
+    assert_eq!(
+        t,
+        store
+            .request_deployment(&auth, r.release_id, DeploymentTarget::Paper, at)
+            .unwrap()
+    );
+    assert!(
+        store
+            .request_deployment(
+                &auth,
+                r.release_id,
+                DeploymentTarget::Paper,
+                at + Duration::minutes(10)
+            )
+            .is_err()
+    );
+    let mut foreign = auth;
+    foreign.workspace_id = quantos_core::WorkspaceId::new();
+    assert!(
+        store
+            .request_deployment(&foreign, r.release_id, DeploymentTarget::Paper, at)
+            .is_err()
+    );
 }

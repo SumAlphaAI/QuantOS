@@ -700,3 +700,15 @@ s02-local-check:
 	node scripts/s02-local-gate.mjs --ready
 s02-release-check:
 	node scripts/s02-local-gate.mjs --release
+
+.PHONY: s03-check s03-assess-local s03-local-check s03-release-check
+s03-check:
+	env -u DATABASE_URL cargo test --locked --offline -p quantos-strategy --lib release::tests
+	cargo clippy --locked --offline -p quantos-strategy --all-targets -- -D warnings
+	node --test scripts/s03-migration.test.cjs scripts/s03-local-gate.test.mjs
+s03-assess-local:
+	node scripts/record-s03-local.mjs
+s03-local-check:
+	node scripts/s03-local-gate.mjs --ready
+s03-release-check:
+	node scripts/s03-local-gate.mjs --release
