@@ -1,0 +1,834 @@
+{
+  "schema": "quantos-tp01-e-functional/v1",
+  "nodeId": "CORE:TP01-E",
+  "engineeringStatus": "PASS",
+  "stageGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "externalExecution": false,
+  "performanceAccepted": false,
+  "syncApproved": false,
+  "observedSourceCommit": "0ade6441d9a6b7517b98991163b0be427b7929f2",
+  "outputDirectory": "docs/audit/evidence/tp01-e-local-20261014/functional",
+  "planInput": {
+    "acceptance_window": "TP01-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE:TP01-D",
+      "CORE:F02",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "dependencies": [
+      "CORE:TP01-D",
+      "CORE:F02",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "depends_on": [
+      "CORE:TP01-D",
+      "CORE:F02",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "iteration": "TP01-SERVICE",
+    "requirement": "同步自动化与分级阻断",
+    "requirements": [
+      "- 需求描述：同步自动化与分级阻断",
+      "- 交付物：`sync-vibe` 工具、CI workflow、decision records；TP01-E_LOCAL 专用功能回执、28节点本地准入与负向测试，规程 `docs/operations/tp01-e-local-admission.md`",
+      "- 验收标准：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果",
+      "- 阶段执行：本地开发验证API/许可证/CVE/patch 冲突分级、同步阻断和确定性故障注入；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：模拟 API 破坏、许可证变更、CVE 和 patch 冲突均生成正确分级与阻断结果；未执行保持NOT_RUN。",
+      "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+    ],
+    "task_id": "TP01-E",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
+  "inputs": [
+    {
+      "path": ".github/workflows/tp01_vibe_sync_gate.yml",
+      "role": "config",
+      "sha256": "sha256:b13b4c6a5f64d5f1e6e1e6ecdccde63497d172f0b773d4c198c0ed6f9b0caad7"
+    },
+    {
+      "path": "docs/operations/tp01-e-local-admission.md",
+      "role": "code",
+      "sha256": "sha256:6ae5686c7397f6f3f7699fdededf8d4a85b90c5560fac1cc729b6ca068909343"
+    },
+    {
+      "path": "forks/vibe-trading/patch-queue/queue.json",
+      "role": "config",
+      "sha256": "sha256:327fa7200e944d4aea9d8fe244b6f4908a8162d1ebb163b3c17d39cf8b1a552f"
+    },
+    {
+      "path": "scripts/fixtures/tp01-e-local/candidates.json",
+      "role": "test",
+      "sha256": "sha256:9a58f6cb2c953a8420a80c90801f95d8909aae238d57a9d2aac8f54f465e0f0e"
+    },
+    {
+      "path": "scripts/fixtures/tp01-vibe-sync/api-break.json",
+      "role": "test",
+      "sha256": "sha256:c68a90346966f507e7f19415374b9b22f2e6e14d9c3ff8cfaab1fa02b2864f09"
+    },
+    {
+      "path": "scripts/fixtures/tp01-vibe-sync/cve-high.json",
+      "role": "test",
+      "sha256": "sha256:e10d764216756a6479c9a84fea31e6d8b1701e1bd146ea01b0e3c0e6bb102371"
+    },
+    {
+      "path": "scripts/fixtures/tp01-vibe-sync/license-change.json",
+      "role": "test",
+      "sha256": "sha256:2f614168b6a647bc8283c3e959641e8f79d5aac2cfcc3c752da4641fbe3023f0"
+    },
+    {
+      "path": "scripts/fixtures/tp01-vibe-sync/patch-conflict.json",
+      "role": "test",
+      "sha256": "sha256:a3acaae98e425f53c61cb313fee2c978d8d7b776dc5b3c681fda80d24b2fb95c"
+    },
+    {
+      "path": "scripts/fixtures/tp01-vibe-sync/planned-sync.json",
+      "role": "test",
+      "sha256": "sha256:72aed78c8c0d6d9e6573ffae3e34ecbd3d561fc4bfcabf2d6adbec25a3d8d47d"
+    },
+    {
+      "path": "scripts/fixtures/tp01-vibe-sync/research-drift.json",
+      "role": "test",
+      "sha256": "sha256:197ebe7722cb8555e5be6083507aab0d3f0494f5983efa033b486701b11cd82a"
+    },
+    {
+      "path": "scripts/sync-vibe-lib.mjs",
+      "role": "code",
+      "sha256": "sha256:9ba11bf58cf53c2cfb1ed5f0ca570e469de3fcd7fe7a0894e33869c84196c29c"
+    },
+    {
+      "path": "scripts/sync-vibe.mjs",
+      "role": "code",
+      "sha256": "sha256:051068f7ba51ff3bff36f901a580c8a488c6997e37059c08cf102e51502684c6"
+    },
+    {
+      "path": "scripts/tests/sync-vibe-cli.test.mjs",
+      "role": "test",
+      "sha256": "sha256:f7bc9d008013e794a28930e7cd114a17403b646ef23d374cafbb6141346a2abe"
+    },
+    {
+      "path": "scripts/tests/sync-vibe.test.mjs",
+      "role": "test",
+      "sha256": "sha256:fe63b1ac7ccafa8cdfbcd580fe272f0fda1843255741528eb900edf982ae01bb"
+    },
+    {
+      "path": "scripts/tp01-e-functional.mjs",
+      "role": "code",
+      "sha256": "sha256:b1be042139f273fae80e6ad94e1c3c495a78df9101147be3e27c2da0bc752f4c"
+    },
+    {
+      "path": "third_party/vibe-trading/baseline.lock.json",
+      "role": "config",
+      "sha256": "sha256:fd4ec508ff39ad923bbac349c51323022f955e5fd824477e5d80f8892d100815"
+    }
+  ],
+  "checks": [
+    {
+      "id": "regressions",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tests/sync-vibe.test.mjs",
+        "scripts/tests/sync-vibe-cli.test.mjs"
+      ],
+      "executedAt": "2026-10-15T05:36:36.696Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "regressions.log",
+      "logSha256": "sha256:ba73c6793c4cd4fb17b8794bc26ebc453d6d7c86464f1152558d706e7dd65170",
+      "summary": null
+    },
+    {
+      "id": "api-break",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--scenario",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/api-break/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/api-break/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/api-break/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/api-break/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/api-break/issues",
+        "--fail-on-block",
+        "--verify-expected"
+      ],
+      "executedAt": "2026-10-15T05:36:37.202Z",
+      "exitCode": 2,
+      "status": "FAIL",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 2,
+      "expectationMet": true,
+      "log": "api-break.log",
+      "logSha256": "sha256:0885001a0a092ce964dfdbba4bb54ca4de45ddfe4a1e26cc46b1791cf2e3f5bb",
+      "summary": "api-break/summary.json"
+    },
+    {
+      "id": "license-change",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--scenario",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/license-change/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/license-change/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/license-change/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/license-change/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/license-change/issues",
+        "--fail-on-block",
+        "--verify-expected"
+      ],
+      "executedAt": "2026-10-15T05:36:37.229Z",
+      "exitCode": 2,
+      "status": "FAIL",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 2,
+      "expectationMet": true,
+      "log": "license-change.log",
+      "logSha256": "sha256:d0b98ee2a00f3c252b220e94217c836d36e5a9231c9419d312458556d8ab30e7",
+      "summary": "license-change/summary.json"
+    },
+    {
+      "id": "cve-high",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--scenario",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/cve-high/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/cve-high/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/cve-high/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/cve-high/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/cve-high/issues",
+        "--fail-on-block",
+        "--verify-expected"
+      ],
+      "executedAt": "2026-10-15T05:36:37.255Z",
+      "exitCode": 2,
+      "status": "FAIL",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 2,
+      "expectationMet": true,
+      "log": "cve-high.log",
+      "logSha256": "sha256:cb5cea1d77504003d119bdcfde122512762d1fb7cb2731f4b7c148403763b8eb",
+      "summary": "cve-high/summary.json"
+    },
+    {
+      "id": "patch-conflict",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--scenario",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/patch-conflict/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/patch-conflict/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/patch-conflict/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/patch-conflict/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/patch-conflict/issues",
+        "--fail-on-block",
+        "--verify-expected"
+      ],
+      "executedAt": "2026-10-15T05:36:37.278Z",
+      "exitCode": 2,
+      "status": "FAIL",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 2,
+      "expectationMet": true,
+      "log": "patch-conflict.log",
+      "logSha256": "sha256:c3b255c78c3edd32505dd8624e93ddd9381450052cd81fb81d1c72c7a6629e0b",
+      "summary": "patch-conflict/summary.json"
+    },
+    {
+      "id": "planned-sync",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--scenario",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/planned-sync/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/planned-sync/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/planned-sync/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/planned-sync/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/planned-sync/issues",
+        "--fail-on-block",
+        "--verify-expected"
+      ],
+      "executedAt": "2026-10-15T05:36:37.305Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "planned-sync.log",
+      "logSha256": "sha256:3f57f56084875657888235b46fdef19e114ab58d856e5a5d5e7e43c54f15d52c",
+      "summary": "planned-sync/summary.json"
+    },
+    {
+      "id": "research-drift",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--scenario",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/research-drift/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/research-drift/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/research-drift/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/research-drift/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/research-drift/issues",
+        "--fail-on-block",
+        "--verify-expected"
+      ],
+      "executedAt": "2026-10-15T05:36:37.332Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "research-drift.log",
+      "logSha256": "sha256:ec7514bad0b25277810c40e1b9caba1ff1ccd095c4e93b09d1b72cf898e936b0",
+      "summary": "research-drift/summary.json"
+    },
+    {
+      "id": "monitor-blocked",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--candidate-report",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/monitor-blocked/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/monitor-blocked/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/monitor-blocked/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/monitor-blocked/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/monitor-blocked/issues",
+        "--monitor-only"
+      ],
+      "executedAt": "2026-10-15T05:36:37.359Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "monitor-blocked.log",
+      "logSha256": "sha256:8b6f75bd5446273c6cf8605b32c73447ac3a181c2cc6c98bff78d78cc753cabe",
+      "summary": "monitor-blocked/summary.json"
+    },
+    {
+      "id": "gate-blocked",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--candidate-report",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/gate-blocked/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/gate-blocked/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/gate-blocked/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/gate-blocked/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/gate-blocked/issues",
+        "--fail-on-block"
+      ],
+      "executedAt": "2026-10-15T05:36:37.383Z",
+      "exitCode": 2,
+      "status": "FAIL",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 2,
+      "expectationMet": true,
+      "log": "gate-blocked.log",
+      "logSha256": "sha256:b15111b45662663e47392ba38fa8df44f91801f187dc03e341951550440e59aa",
+      "summary": "gate-blocked/summary.json"
+    },
+    {
+      "id": "s0-floor",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--candidate-report",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/s0-floor/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/s0-floor/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/s0-floor/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/s0-floor/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/s0-floor/issues",
+        "--fail-on-block"
+      ],
+      "executedAt": "2026-10-15T05:36:37.407Z",
+      "exitCode": 2,
+      "status": "FAIL",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 2,
+      "expectationMet": true,
+      "log": "s0-floor.log",
+      "logSha256": "sha256:58c5bf5136f992f8507f5435eab2c17dea47ffe620fc5638dbd6753b6b499152",
+      "summary": "s0-floor/summary.json"
+    },
+    {
+      "id": "clear-unapproved",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--candidate-report",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/clear-unapproved/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/clear-unapproved/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/clear-unapproved/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/clear-unapproved/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/clear-unapproved/issues",
+        "--monitor-only"
+      ],
+      "executedAt": "2026-10-15T05:36:37.430Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 0,
+      "expectationMet": true,
+      "log": "clear-unapproved.log",
+      "logSha256": "sha256:0d7972e8ca33da3f6bd3fbf7f0d6653a496fef2cfc764412803d78300f777e18",
+      "summary": "clear-unapproved/summary.json"
+    },
+    {
+      "id": "stale-baseline",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--candidate-report",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/stale-baseline/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/stale-baseline/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/stale-baseline/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/stale-baseline/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/stale-baseline/issues",
+        "--monitor-only"
+      ],
+      "executedAt": "2026-10-15T05:36:37.451Z",
+      "exitCode": 1,
+      "status": "FAIL",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "stale-baseline.log",
+      "logSha256": "sha256:e02b86533ad0ea74be36e09cd88b4e5f24878fe6bb0ee9de7ce5af71d4df4fa2",
+      "summary": null
+    },
+    {
+      "id": "malformed-report",
+      "command": [
+        "node",
+        "scripts/sync-vibe.mjs",
+        "--baseline",
+        "third_party/vibe-trading/baseline.lock.json",
+        "--patch-queue",
+        "forks/vibe-trading/patch-queue/queue.json",
+        "--candidate-report",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/malformed-report/input.json",
+        "--json-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/malformed-report/summary.json",
+        "--markdown-output",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/malformed-report/summary.md",
+        "--decision-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/malformed-report/decisions",
+        "--issue-dir",
+        "docs/audit/evidence/tp01-e-local-20261014/functional/malformed-report/issues",
+        "--monitor-only"
+      ],
+      "executedAt": "2026-10-15T05:36:37.472Z",
+      "exitCode": 1,
+      "status": "FAIL",
+      "timeoutMs": 30000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "expectedExitCode": 1,
+      "expectationMet": true,
+      "log": "malformed-report.log",
+      "logSha256": "sha256:4aabb19551be57c23176dc721bd5eba8591ea099d1edb0bf97fc7872e98e2d2c",
+      "summary": null
+    }
+  ],
+  "files": [
+    {
+      "path": "api-break.log",
+      "sha256": "sha256:0885001a0a092ce964dfdbba4bb54ca4de45ddfe4a1e26cc46b1791cf2e3f5bb"
+    },
+    {
+      "path": "api-break/decisions/api-break-s1.md",
+      "sha256": "sha256:7f4d893891b443259a39d1c82f82d1255c0db8a70e1634e5bb4b078e705b6120"
+    },
+    {
+      "path": "api-break/input.json",
+      "sha256": "sha256:c68a90346966f507e7f19415374b9b22f2e6e14d9c3ff8cfaab1fa02b2864f09"
+    },
+    {
+      "path": "api-break/issues/api-break-s1.md",
+      "sha256": "sha256:788a20567c951a1f96506619eeb4053a247e72ddc93d29e064f0e190b56786f3"
+    },
+    {
+      "path": "api-break/summary.json",
+      "sha256": "sha256:577a408d6ac2fcd24da7f384afae7cbc3d69bec21ded86a79965b48585933a27"
+    },
+    {
+      "path": "api-break/summary.md",
+      "sha256": "sha256:25c72d00d49a9807c53824dd948d28a75f1b4dc416197d79efb6a0e44fb2b7d9"
+    },
+    {
+      "path": "clear-unapproved.log",
+      "sha256": "sha256:0d7972e8ca33da3f6bd3fbf7f0d6653a496fef2cfc764412803d78300f777e18"
+    },
+    {
+      "path": "clear-unapproved/input.json",
+      "sha256": "sha256:7e34970ab64cd2fc7380080ccfe7b6b578f866e3ccf2d783173c556ff7fdbd42"
+    },
+    {
+      "path": "clear-unapproved/summary.json",
+      "sha256": "sha256:c6cab0130fe1d8b4e6dfea010727d43f794cf2bba497dfd101a2b8ab764982a3"
+    },
+    {
+      "path": "clear-unapproved/summary.md",
+      "sha256": "sha256:54fa83c056eee3d0b088d0b9423cd42f3600990de1ef4068e30982c3e9e88adb"
+    },
+    {
+      "path": "cve-high.log",
+      "sha256": "sha256:cb5cea1d77504003d119bdcfde122512762d1fb7cb2731f4b7c148403763b8eb"
+    },
+    {
+      "path": "cve-high/decisions/cve-high-s0.md",
+      "sha256": "sha256:44a7bec2c64ac3442f8c48b03fa9515d3f9ee4b7bfd7ef56b261e1726abc4efd"
+    },
+    {
+      "path": "cve-high/input.json",
+      "sha256": "sha256:e10d764216756a6479c9a84fea31e6d8b1701e1bd146ea01b0e3c0e6bb102371"
+    },
+    {
+      "path": "cve-high/issues/cve-high-s0.md",
+      "sha256": "sha256:ef0adfdf98c8e6ea00696818a3c3e5cdea0d17e806c0e5519eb583bca180cad4"
+    },
+    {
+      "path": "cve-high/summary.json",
+      "sha256": "sha256:c5fda7872c29aadd866a50c27190638ed8e0938df565cf91a9bb257dbc41f56f"
+    },
+    {
+      "path": "cve-high/summary.md",
+      "sha256": "sha256:7032b61cf0fde99e2d25a2585c2338518ad9ab74cf8eb243fcf3392d3fa85a09"
+    },
+    {
+      "path": "gate-blocked.log",
+      "sha256": "sha256:b15111b45662663e47392ba38fa8df44f91801f187dc03e341951550440e59aa"
+    },
+    {
+      "path": "gate-blocked/decisions/main-1111111111111111111111111111111111111111-s3.md",
+      "sha256": "sha256:c8d6c15742503ac92b061dd7714824493d2f5e4167878b0e178e69eb4af5b0f9"
+    },
+    {
+      "path": "gate-blocked/decisions/v-local-2222222222222222222222222222222222222222-s1.md",
+      "sha256": "sha256:dc85c1b7cf45d53be6f4b44292accd67d2de9167389a94fb67ec5e63a43dc635"
+    },
+    {
+      "path": "gate-blocked/input.json",
+      "sha256": "sha256:9a58f6cb2c953a8420a80c90801f95d8909aae238d57a9d2aac8f54f465e0f0e"
+    },
+    {
+      "path": "gate-blocked/issues/main-1111111111111111111111111111111111111111-s3.md",
+      "sha256": "sha256:b87fac3878a1adcde908b398ed38266bbed489b68752e02860a497a7c7ddfeea"
+    },
+    {
+      "path": "gate-blocked/issues/v-local-2222222222222222222222222222222222222222-s1.md",
+      "sha256": "sha256:a84b771226ce213f1700a50d65f0497f6905dc005a78f7960f3e3170fb58e4fe"
+    },
+    {
+      "path": "gate-blocked/summary.json",
+      "sha256": "sha256:fe444031445457f4970ba2a94d77dbfb74c897afa572379b457eddab13d7c33f"
+    },
+    {
+      "path": "gate-blocked/summary.md",
+      "sha256": "sha256:8fbbc2120b13c1e2430d87dfc3b423e9c8b5f4badf0532cc3ae881c5929a1423"
+    },
+    {
+      "path": "license-change.log",
+      "sha256": "sha256:d0b98ee2a00f3c252b220e94217c836d36e5a9231c9419d312458556d8ab30e7"
+    },
+    {
+      "path": "license-change/decisions/license-change-s1.md",
+      "sha256": "sha256:6956193ac63c567348b1e5bd4ab44ee2eb3e87f4fea4daa837ad67338df5ce8e"
+    },
+    {
+      "path": "license-change/input.json",
+      "sha256": "sha256:2f614168b6a647bc8283c3e959641e8f79d5aac2cfcc3c752da4641fbe3023f0"
+    },
+    {
+      "path": "license-change/issues/license-change-s1.md",
+      "sha256": "sha256:cbde0074e58057052d3d833be452515f420e09a0356a27d7c0459c86b1a5c960"
+    },
+    {
+      "path": "license-change/summary.json",
+      "sha256": "sha256:9fe5a332bd0ccd0dd9c4587c2714ca9eb44faa28fe6a38e96a6e3858281f8cb3"
+    },
+    {
+      "path": "license-change/summary.md",
+      "sha256": "sha256:555c89566e1cee988882c718c1313632267bd1354222a5cb5b895f2c67ae4399"
+    },
+    {
+      "path": "malformed-report.log",
+      "sha256": "sha256:4aabb19551be57c23176dc721bd5eba8591ea099d1edb0bf97fc7872e98e2d2c"
+    },
+    {
+      "path": "malformed-report/input.json",
+      "sha256": "sha256:021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    {
+      "path": "monitor-blocked.log",
+      "sha256": "sha256:8b6f75bd5446273c6cf8605b32c73447ac3a181c2cc6c98bff78d78cc753cabe"
+    },
+    {
+      "path": "monitor-blocked/decisions/main-1111111111111111111111111111111111111111-s3.md",
+      "sha256": "sha256:c8d6c15742503ac92b061dd7714824493d2f5e4167878b0e178e69eb4af5b0f9"
+    },
+    {
+      "path": "monitor-blocked/decisions/v-local-2222222222222222222222222222222222222222-s1.md",
+      "sha256": "sha256:dc85c1b7cf45d53be6f4b44292accd67d2de9167389a94fb67ec5e63a43dc635"
+    },
+    {
+      "path": "monitor-blocked/input.json",
+      "sha256": "sha256:9a58f6cb2c953a8420a80c90801f95d8909aae238d57a9d2aac8f54f465e0f0e"
+    },
+    {
+      "path": "monitor-blocked/issues/main-1111111111111111111111111111111111111111-s3.md",
+      "sha256": "sha256:b87fac3878a1adcde908b398ed38266bbed489b68752e02860a497a7c7ddfeea"
+    },
+    {
+      "path": "monitor-blocked/issues/v-local-2222222222222222222222222222222222222222-s1.md",
+      "sha256": "sha256:a84b771226ce213f1700a50d65f0497f6905dc005a78f7960f3e3170fb58e4fe"
+    },
+    {
+      "path": "monitor-blocked/summary.json",
+      "sha256": "sha256:4ed86cf51f0a6da00e147c90f49dde9320c88e06d9c5b9e80ce5858e6a8371bc"
+    },
+    {
+      "path": "monitor-blocked/summary.md",
+      "sha256": "sha256:188e28e47e09ed4f40f9ececeaf33b16caa1dcb6c19ca8c004b8c29e2dfced34"
+    },
+    {
+      "path": "patch-conflict.log",
+      "sha256": "sha256:c3b255c78c3edd32505dd8624e93ddd9381450052cd81fb81d1c72c7a6629e0b"
+    },
+    {
+      "path": "patch-conflict/decisions/patch-conflict-s1.md",
+      "sha256": "sha256:61df694ad8f33513ce84b4dd31862529657675d258f05f14ee8054946bab5368"
+    },
+    {
+      "path": "patch-conflict/input.json",
+      "sha256": "sha256:a3acaae98e425f53c61cb313fee2c978d8d7b776dc5b3c681fda80d24b2fb95c"
+    },
+    {
+      "path": "patch-conflict/issues/patch-conflict-s1.md",
+      "sha256": "sha256:2e5a7d32b1f7344ac35e323d76efa318044ed6bc2ccdd5b9a8441587505c7a19"
+    },
+    {
+      "path": "patch-conflict/summary.json",
+      "sha256": "sha256:9ad723c6f2724480cd3257aca1105c6e129b6c696eac6161d9b06127342dd40c"
+    },
+    {
+      "path": "patch-conflict/summary.md",
+      "sha256": "sha256:b5a6eb7f9da7120141f3f0df387221c94bd51ec6a7c10fee27051b1530643e94"
+    },
+    {
+      "path": "planned-sync.log",
+      "sha256": "sha256:3f57f56084875657888235b46fdef19e114ab58d856e5a5d5e7e43c54f15d52c"
+    },
+    {
+      "path": "planned-sync/decisions/planned-sync-s2.md",
+      "sha256": "sha256:4f45b5886b82444c9f284241df9071c6b50e22d81975e12201465fe9fe64d51c"
+    },
+    {
+      "path": "planned-sync/input.json",
+      "sha256": "sha256:72aed78c8c0d6d9e6573ffae3e34ecbd3d561fc4bfcabf2d6adbec25a3d8d47d"
+    },
+    {
+      "path": "planned-sync/issues/planned-sync-s2.md",
+      "sha256": "sha256:0745ea50ab2f4c8055acb410012cf8371dd03065ef9ddb7ac72be7e34e24f0e8"
+    },
+    {
+      "path": "planned-sync/summary.json",
+      "sha256": "sha256:48e0880f210bd0dbea87c650ab20f893be7ad064fad9c9c45e32c33c04146516"
+    },
+    {
+      "path": "planned-sync/summary.md",
+      "sha256": "sha256:79172727885e764b3e6b940976cc6f4c6a1b24e04be0a4adec68209bd3c49077"
+    },
+    {
+      "path": "regressions.log",
+      "sha256": "sha256:ba73c6793c4cd4fb17b8794bc26ebc453d6d7c86464f1152558d706e7dd65170"
+    },
+    {
+      "path": "research-drift.log",
+      "sha256": "sha256:ec7514bad0b25277810c40e1b9caba1ff1ccd095c4e93b09d1b72cf898e936b0"
+    },
+    {
+      "path": "research-drift/decisions/research-drift-s3.md",
+      "sha256": "sha256:dab5f9840f9997abd4b0b58c5ba9f36171fd8a8c6764c35886ce368d0caa2bf6"
+    },
+    {
+      "path": "research-drift/input.json",
+      "sha256": "sha256:197ebe7722cb8555e5be6083507aab0d3f0494f5983efa033b486701b11cd82a"
+    },
+    {
+      "path": "research-drift/issues/research-drift-s3.md",
+      "sha256": "sha256:a5556569a9c759dac354b2c8d1ba1822398d8dd6f960477f7b396006f69c3d10"
+    },
+    {
+      "path": "research-drift/summary.json",
+      "sha256": "sha256:c044d91f95a1000848a94731b811786866b7bef4c607bca020d00be1dde17f08"
+    },
+    {
+      "path": "research-drift/summary.md",
+      "sha256": "sha256:4c69ee96ca57d59e0f5f6ededf5a95a16e0c01102fe6182b54c940f4a8b73806"
+    },
+    {
+      "path": "s0-floor.log",
+      "sha256": "sha256:58c5bf5136f992f8507f5435eab2c17dea47ffe620fc5638dbd6753b6b499152"
+    },
+    {
+      "path": "s0-floor/decisions/main-1111111111111111111111111111111111111111-s0.md",
+      "sha256": "sha256:e3be6f47b03479116966de713c688caab2df5e6df473658a409489a073ff12cd"
+    },
+    {
+      "path": "s0-floor/input.json",
+      "sha256": "sha256:2264bc1e22f58d553b9d4b41b1aed87d33aace55b897ae72a854b7952a29ee88"
+    },
+    {
+      "path": "s0-floor/issues/main-1111111111111111111111111111111111111111-s0.md",
+      "sha256": "sha256:2aa79a1fe829f88637a7c06e6a3060cb3bc8b7971c84e8f3892ba0558f7618fc"
+    },
+    {
+      "path": "s0-floor/summary.json",
+      "sha256": "sha256:0acc1f831ca0a3bd171b10dffb3243e37ef810463a691687392790224633c8ef"
+    },
+    {
+      "path": "s0-floor/summary.md",
+      "sha256": "sha256:0a37a9d94837c21e5816e74c34e88cb8cdab2e39fb86d8a3f5f18dac9c4ecd5f"
+    },
+    {
+      "path": "stale-baseline.log",
+      "sha256": "sha256:e02b86533ad0ea74be36e09cd88b4e5f24878fe6bb0ee9de7ce5af71d4df4fa2"
+    },
+    {
+      "path": "stale-baseline/input.json",
+      "sha256": "sha256:6302f63a57079a3afa4405e34d0cbcd74d897d47a443f68372a46812a2105af3"
+    }
+  ]
+}

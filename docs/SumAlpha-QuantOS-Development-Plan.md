@@ -1,4 +1,4 @@
-> 当前执行（TP06，2026-10-15）：实现与本地验收准备中；旧S01准入因共享功能输入变化撤回，历史证据保留。本轮将完整重跑F08、SERVICE:TP01和R1-SERVICE必要32节点；目标/性能/正式确认仍NOT_RUN。
+> 当前执行（TP06，2026-10-15）：冻结0ade6441完整32节点/104组PASS，三次跨语言可复现构建与make lint/test PASS；Rust401 PASS/9 ignored、Python1845 PASS、Web233 PASS/3 skipped。TP06专用功能210 PASS、回执/准入33+62 PASS，真实Python→Rust回测消费/100静态失败及100伪造输入拒绝。637文件canonical恢复；TP06_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。22组共享目标与4类TP06发布义务NOT_RUN；formalAccepted=false、databaseExecution=false、externalPublished=false。S01旧独立准入撤回且历史保留；首轮中断后第二轮全部重跑，未拼接旧结果。见[本轮报告](./audit/TP06-local-admission-2026-10-15.md)。
 
 > 历史工程快照（S01，2026-10-15；TP06共享源码变更后独立准入撤回）：冻结d021ac20联合32节点/103组本地检查全部PASS，三次跨语言可复现构建PASS；S01_LOCAL限定DEVELOPMENT READY。50组各4线程竞争无静默覆盖，S01 Rust19 PASS/1性能ignored、门禁62 PASS、迁移静态3 PASS；make test：Rust399 PASS/9 ignored、Python1635 PASS、Web233 PASS/3 skipped。637文件canonical恢复。仅登记S01，上游内部LOCAL_READY不传播独立Gate；全图1 READY/158 NOT_ASSESSED/0 BLOCKED。22组共享目标及11项发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[本轮报告](./audit/S01-local-admission-2026-10-15.md)。
 
@@ -1504,7 +1504,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - task_id: `TP06`
 - task_type: `CORE`
 - iteration: `S2-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:728d49854d883ea8905f866502880ccd908772942872a3f213aa1c08d00b0dac","evidence":["audit/evidence/tp06-local-20261015/manifest.json"]}
 - depends_on: ["CORE:F08", "SERVICE:TP01", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:F08", "SERVICE:TP01", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1519,7 +1519,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 阶段执行：本地开发验证100个恶意提示拒绝、Artifact唯一输出、静态失败阻断Release及可替换性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 阶段/依赖：F08、SERVICE:TP01；S2 服务窗口；TP01 总项的 Web E2E 随 U01 后续验收
-- 当前工程复核：本轮代码/测试/文档已实现，准备清洁冻结候选后完整执行32节点闭包；未完成执行前不登记READY。目标Supabase/外部模型/OS隔离/性能/同SHA hosted CI与正式确认保持NOT_RUN，未采用或发布外部上游。见[本轮报告](./audit/TP06-local-admission-2026-10-15.md)。
+- 当前工程复核：冻结0ade6441完整32节点/104组PASS，TP06_LOCAL限定DEVELOPMENT READY，实现完成待正式验收。100攻击提示、100生成失败、100真实进程消费者失败及100伪造消费者输入全部拒绝；Artifact不可变/隔离/哈希/取消/冲突恢复与生成器替换通过。专用功能210、Rust5、回执/准入33+62 PASS；make lint/test与三次可复现构建PASS。首轮中断记录保留，第二轮不拼接旧候选；637 canonical文件恢复。22组共享及4类目标/性能/CI/正式确认NOT_RUN，不授予上游、生产、外部发布或正式ACCEPTED。见[验收报告](./audit/TP06-local-admission-2026-10-15.md)、[manifest](./audit/evidence/tp06-local-20261015/manifest.json)。历史[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp06)保留。
 
 <a id="task-s02"></a>
 ### S02：回测与成本/滑点验证

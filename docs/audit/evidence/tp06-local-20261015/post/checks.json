@@ -1,0 +1,66 @@
+{
+  "schema": "quantos-tp06-closeout-checks/v1",
+  "observedSourceCommit": "0ade6441d9a6b7517b98991163b0be427b7929f2",
+  "engineeringStatus": "PASS",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "externalPublished": false,
+  "production": false,
+  "checks": [
+    {
+      "id": "ready",
+      "command": [
+        "node",
+        "scripts/tp06-local-gate.mjs",
+        "--ready"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "ready.log",
+      "logSha256": "sha256:fb9999d4ae73635a2eaa4c37ff0c26069303af7a88f5d1ff51c81b7be76b5b4c"
+    },
+    {
+      "id": "release-denied",
+      "command": [
+        "node",
+        "scripts/tp06-local-gate.mjs",
+        "--release"
+      ],
+      "expectedExitCode": 2,
+      "exitCode": 2,
+      "status": "PASS",
+      "log": "release-denied.log",
+      "logSha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "plans.log",
+      "logSha256": "sha256:c6ce34052c658c1d9c99d58d5637e5e11cfff2e2e9f25963021e8414b52e0e91"
+    },
+    {
+      "id": "scoped-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "4370cc173920660f836a273ec1f2ed0ac4adb1ca",
+        "--",
+        ".",
+        ":(exclude)docs/audit/evidence/**"
+      ],
+      "expectedExitCode": 0,
+      "exitCode": 0,
+      "status": "PASS",
+      "log": "scoped-diff-check.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
