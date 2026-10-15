@@ -1,4 +1,5 @@
 pub mod backtest;
+pub mod drafts;
 pub mod generated;
 pub mod pg;
 pub mod release;
@@ -70,7 +71,8 @@ pub struct StrategyDraftVersion {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct DraftVersionInput {
     pub draft_id: StrategyDraftId,
     pub parameters: Value,
@@ -104,6 +106,12 @@ pub enum StrategyDraftError {
     DraftNotFound { draft_id: StrategyDraftId },
     #[error("STRATEGY_DRAFT_PARAMETERS_INVALID: parameters must be a JSON object")]
     ParametersInvalid,
+    #[error("STRATEGY_DRAFT_CLOCK_REGRESSION")]
+    ClockRegression,
+    #[error("STRATEGY_DRAFT_STORE_UNAVAILABLE")]
+    StoreUnavailable,
+    #[error("STRATEGY_DRAFT_VERSION_EXHAUSTED")]
+    VersionExhausted,
     #[error(
         "STRATEGY_DRAFT_VERSION_CONFLICT: draft `{draft_id}` head is version {head_version}, not base version {base_version}"
     )]
@@ -180,6 +188,10 @@ impl InMemoryStrategyDraftStore {
             .ok_or(StrategyDraftError::DraftNotFound {
                 draft_id: input.draft_id,
             })?;
+        ensure_draft_workspace(auth, draft)?;
+        if input.saved_at < draft.updated_at {
+            return Err(StrategyDraftError::ClockRegression);
+        }
         if draft.head_version != input.base_version {
             return Err(StrategyDraftError::VersionConflict {
                 draft_id: input.draft_id,
@@ -187,10 +199,24 @@ impl InMemoryStrategyDraftStore {
                 head_version: draft.head_version,
             });
         }
-        if let Some(snapshot_id) = input.data_snapshot_id
-            && snapshots.get(auth.tenant_id, snapshot_id).is_none()
-        {
-            return Err(StrategyDraftError::SnapshotRefUnresolved { snapshot_id });
+        if let Some(snapshot_id) = input.data_snapshot_id {
+            let snapshot = snapshots
+                .get(auth.tenant_id, snapshot_id)
+                .ok_or(StrategyDraftError::SnapshotRefUnresolved { snapshot_id })?;
+            if !SnapshotQualityGate::evaluate(
+                snapshot,
+                SnapshotUsage::Strategy,
+                input.saved_at,
+                &SnapshotQualityRuleset::from_rules(quantos_storage::default_quality_rules(
+                    auth.tenant_id,
+                    input.saved_at,
+                ))
+                .expect("default rules valid"),
+            )
+            .allowed
+            {
+                return Err(StrategyDraftError::SnapshotRefUnresolved { snapshot_id });
+            }
         }
         for artifact_ref in &input.artifact_refs {
             let approved = artifacts
@@ -203,7 +229,11 @@ impl InMemoryStrategyDraftStore {
             }
         }
 
-        let version = draft.head_version + 1;
+        let version = draft
+            .head_version
+            .checked_add(1)
+            .filter(|v| *v <= i64::MAX as u64)
+            .ok_or(StrategyDraftError::VersionExhausted)?;
         let content_hash = ContentHash::sha256_bytes(&canonical_json_bytes(&json!({
             "parameters": input.parameters,
             "data_snapshot_id": input.data_snapshot_id.map(|id| id.to_string()),
@@ -298,7 +328,23 @@ impl InMemoryStrategyDraftStore {
         catalog
             .upsert(snapshot)
             .map_err(|_| StrategyDraftError::SnapshotRefUnresolved { snapshot_id: id })?;
-        self.initiate_validation(auth, draft_id, &catalog, &rules, observed_at)
+        let mut artifacts = InMemoryArtifactCatalog::new();
+        for reference in &self
+            .head_version(auth.tenant_id, draft_id)
+            .ok_or(StrategyDraftError::DraftNotFound { draft_id })?
+            .artifact_refs
+        {
+            let manifest = storage
+                .find_artifact_by_hash(auth.tenant_id, &reference.content_hash)
+                .ok()
+                .flatten()
+                .filter(|m| m.artifact_id == reference.artifact_id)
+                .ok_or(StrategyDraftError::ArtifactRefUnresolved {
+                    artifact_id: reference.artifact_id,
+                })?;
+            artifacts.upsert(manifest);
+        }
+        self.initiate_validation(auth, draft_id, &catalog, &artifacts, &rules, observed_at)
     }
 
     pub fn initiate_validation(
@@ -306,10 +352,16 @@ impl InMemoryStrategyDraftStore {
         auth: &AuthContext,
         draft_id: StrategyDraftId,
         snapshots: &InMemoryDataSnapshotCatalog,
+        artifacts: &InMemoryArtifactCatalog,
         quality_rules: &SnapshotQualityRuleset,
         observed_at: DateTime<Utc>,
     ) -> Result<ValidationHandoff, StrategyDraftError> {
         ensure_strategy_write(auth)?;
+        ensure_draft_workspace(
+            auth,
+            self.get_draft(auth.tenant_id, draft_id)
+                .ok_or(StrategyDraftError::DraftNotFound { draft_id })?,
+        )?;
         let head = self
             .head_version(auth.tenant_id, draft_id)
             .ok_or(StrategyDraftError::DraftNotFound { draft_id })?;
@@ -318,6 +370,16 @@ impl InMemoryStrategyDraftStore {
             .ok_or(StrategyDraftError::ValidationMissingSnapshot { draft_id })?;
         if head.artifact_refs.is_empty() {
             return Err(StrategyDraftError::ValidationMissingArtifacts { draft_id });
+        }
+        for reference in &head.artifact_refs {
+            if artifacts
+                .find_by_hash(auth.tenant_id, &reference.content_hash)
+                .is_none_or(|m| m.artifact_id != reference.artifact_id)
+            {
+                return Err(StrategyDraftError::ArtifactRefUnresolved {
+                    artifact_id: reference.artifact_id,
+                });
+            }
         }
         let snapshot = snapshots
             .get(auth.tenant_id, snapshot_id)
@@ -348,6 +410,18 @@ impl InMemoryStrategyDraftStore {
             initiated_at: observed_at,
         })
     }
+}
+
+fn ensure_draft_workspace(
+    auth: &AuthContext,
+    draft: &StrategyDraft,
+) -> Result<(), StrategyDraftError> {
+    if draft.tenant_id != auth.tenant_id || draft.workspace_id != auth.workspace_id {
+        return Err(StrategyDraftError::DraftNotFound {
+            draft_id: draft.draft_id,
+        });
+    }
+    Ok(())
 }
 
 fn ensure_strategy_write(auth: &AuthContext) -> Result<(), StrategyDraftError> {
@@ -502,7 +576,7 @@ mod tests {
     }
 
     #[test]
-    fn fifty_concurrent_editors_never_silently_overwrite() {
+    fn fifty_stale_edits_and_retries_preserve_all_versions() {
         let auth = auth_context();
         let (snapshots, snapshot_id) = approved_snapshot(auth.tenant_id);
         let (artifacts, artifact_ref) = approved_artifact(auth.tenant_id);
@@ -608,7 +682,14 @@ mod tests {
             SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, fixed_now()))
                 .expect("valid snapshot rules");
         let validate_error = store
-            .initiate_validation(&intruder, draft.draft_id, &snapshots, &rules, fixed_now())
+            .initiate_validation(
+                &intruder,
+                draft.draft_id,
+                &snapshots,
+                &artifacts,
+                &rules,
+                fixed_now(),
+            )
             .expect_err("unauthorized validation fails");
         assert!(matches!(
             validate_error,
@@ -653,7 +734,14 @@ mod tests {
 
         save(&mut store, None, vec![]).expect("draft without refs saves as WIP");
         let missing_snapshot = store
-            .initiate_validation(&auth, draft.draft_id, &snapshots, &rules, fixed_now())
+            .initiate_validation(
+                &auth,
+                draft.draft_id,
+                &snapshots,
+                &artifacts,
+                &rules,
+                fixed_now(),
+            )
             .expect_err("no snapshot means no validation");
         assert!(matches!(
             missing_snapshot,
@@ -662,7 +750,14 @@ mod tests {
 
         save(&mut store, Some(snapshot_id), vec![]).expect("snapshot-only draft saves");
         let missing_artifacts = store
-            .initiate_validation(&auth, draft.draft_id, &snapshots, &rules, fixed_now())
+            .initiate_validation(
+                &auth,
+                draft.draft_id,
+                &snapshots,
+                &artifacts,
+                &rules,
+                fixed_now(),
+            )
             .expect_err("no artifacts means no validation");
         assert!(matches!(
             missing_artifacts,
@@ -671,7 +766,14 @@ mod tests {
 
         save(&mut store, Some(snapshot_id), vec![artifact_ref]).expect("complete draft saves");
         let handoff = store
-            .initiate_validation(&auth, draft.draft_id, &snapshots, &rules, fixed_now())
+            .initiate_validation(
+                &auth,
+                draft.draft_id,
+                &snapshots,
+                &artifacts,
+                &rules,
+                fixed_now(),
+            )
             .expect("complete draft initiates validation");
         assert_eq!(handoff.version, 3);
         assert_eq!(handoff.data_snapshot_id, snapshot_id);
@@ -732,6 +834,274 @@ mod tests {
             artifact_error,
             StrategyDraftError::ArtifactRefUnresolved { .. }
         ));
+    }
+
+    #[test]
+    fn s01_parameter_fixture_roundtrip_and_canonical_hash() {
+        let parameters: Value =
+            serde_json::from_str(include_str!("../tests/fixtures/draft-parameters.json")).unwrap();
+        assert_eq!(parameters, strategy_fixture_parameters(0));
+        let auth = auth_context();
+        let (snapshots, snapshot_id) = approved_snapshot(auth.tenant_id);
+        let (artifacts, artifact_ref) = approved_artifact(auth.tenant_id);
+        let mut store = InMemoryStrategyDraftStore::new();
+        let draft = store.create_draft(&auth, "fixture", fixed_now()).unwrap();
+        let input = DraftVersionInput {
+            draft_id: draft.draft_id,
+            base_version: 0,
+            parameters,
+            data_snapshot_id: Some(snapshot_id),
+            artifact_refs: vec![artifact_ref],
+            save_kind: DraftSaveKind::Autosave,
+            saved_at: fixed_now(),
+        };
+        let encoded = serde_json::to_value(&input).unwrap();
+        assert_eq!(
+            serde_json::from_value::<DraftVersionInput>(encoded.clone()).unwrap(),
+            input
+        );
+        let mut forged = encoded;
+        forged["created_by"] = json!(ActorId::new());
+        assert!(serde_json::from_value::<DraftVersionInput>(forged).is_err());
+        let first = store
+            .save_version(&auth, input.clone(), &snapshots, &artifacts)
+            .unwrap();
+        let reordered = serde_json::from_str(r#"{"seed":0,"universe":["BTCUSDT","ETHUSDT","SOLUSDT"],"max_position_notional":"25000","exit_threshold_bps":3,"entry_threshold_bps":5,"lookback_bars":20,"strategy_family":"trend_following"}"#).unwrap();
+        let second = store
+            .save_version(
+                &auth,
+                DraftVersionInput {
+                    base_version: 1,
+                    parameters: reordered,
+                    ..input
+                },
+                &snapshots,
+                &artifacts,
+            )
+            .unwrap();
+        assert_eq!(first.content_hash, second.content_hash);
+        assert_ne!(first.version_id, second.version_id);
+        assert_eq!(second.created_by, auth.actor_id);
+    }
+
+    #[test]
+    fn s01_fifty_parallel_edit_groups_use_atomic_compare_and_save() {
+        use crate::drafts::DraftService;
+        use std::sync::Barrier;
+        let auth = auth_context();
+        let (snapshots, snapshot_id) = approved_snapshot(auth.tenant_id);
+        let (artifacts, artifact_ref) = approved_artifact(auth.tenant_id);
+        let service = DraftService::new(
+            snapshots,
+            artifacts,
+            SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, fixed_now()))
+                .unwrap(),
+        );
+        // Fifty independent groups, each with four real threads racing on the same base.
+        for group in 0..50 {
+            let draft = service.create(&auth, "parallel", fixed_now()).unwrap();
+            let barrier = Barrier::new(4);
+            let results = std::thread::scope(|scope| {
+                let handles: Vec<_> = (0..4)
+                    .map(|editor| {
+                        let barrier = &barrier;
+                        let service = &service;
+                        let auth = &auth;
+                        let artifact_ref = &artifact_ref;
+                        scope.spawn(move || {
+                            barrier.wait();
+                            service.save(
+                                auth,
+                                DraftVersionInput {
+                                    draft_id: draft.draft_id,
+                                    base_version: 0,
+                                    parameters: strategy_fixture_parameters(group * 4 + editor),
+                                    data_snapshot_id: Some(snapshot_id),
+                                    artifact_refs: vec![artifact_ref.clone()],
+                                    save_kind: if editor % 2 == 0 {
+                                        DraftSaveKind::Autosave
+                                    } else {
+                                        DraftSaveKind::Manual
+                                    },
+                                    saved_at: fixed_now(),
+                                },
+                            )
+                        })
+                    })
+                    .collect();
+                handles
+                    .into_iter()
+                    .map(|h| h.join().unwrap())
+                    .collect::<Vec<_>>()
+            });
+            assert_eq!(results.iter().filter(|r| r.is_ok()).count(), 1);
+            assert_eq!(
+                results
+                    .iter()
+                    .filter(|r| matches!(
+                        r,
+                        Err(StrategyDraftError::VersionConflict {
+                            head_version: 1,
+                            base_version: 0,
+                            ..
+                        })
+                    ))
+                    .count(),
+                3
+            );
+            let versions = service.versions(&auth, draft.draft_id).unwrap();
+            assert_eq!(versions.len(), 1);
+            assert_eq!(
+                versions[0],
+                *results.iter().find_map(|r| r.as_ref().ok()).unwrap()
+            );
+            let handoff = service
+                .validate(&auth, draft.draft_id, fixed_now())
+                .unwrap();
+            assert_eq!(handoff.version_content_hash, versions[0].content_hash);
+        }
+    }
+
+    #[test]
+    fn s01_workspace_and_tenant_isolation_cover_read_save_and_validation() {
+        let auth = auth_context();
+        let (snapshots, snapshot_id) = approved_snapshot(auth.tenant_id);
+        let (artifacts, artifact_ref) = approved_artifact(auth.tenant_id);
+        let service = crate::drafts::DraftService::new(
+            snapshots,
+            artifacts,
+            SnapshotQualityRuleset::from_rules(default_quality_rules(auth.tenant_id, fixed_now()))
+                .unwrap(),
+        );
+        let draft = service.create(&auth, "private", fixed_now()).unwrap();
+        for scope in ["workspace", "tenant", "capability"] {
+            let mut foreign = auth.clone();
+            match scope {
+                "workspace" => foreign.workspace_id = WorkspaceId::new(),
+                "tenant" => foreign.tenant_id = TenantId::new(),
+                _ => foreign.capabilities.clear(),
+            }
+            assert!(service.versions(&foreign, draft.draft_id).is_err());
+            assert!(
+                service
+                    .validate(&foreign, draft.draft_id, fixed_now())
+                    .is_err()
+            );
+            assert!(
+                service
+                    .save(
+                        &foreign,
+                        DraftVersionInput {
+                            draft_id: draft.draft_id,
+                            base_version: 0,
+                            parameters: json!({}),
+                            data_snapshot_id: Some(snapshot_id),
+                            artifact_refs: vec![artifact_ref.clone()],
+                            save_kind: DraftSaveKind::Autosave,
+                            saved_at: fixed_now(),
+                        }
+                    )
+                    .is_err()
+            );
+        }
+        assert!(service.versions(&auth, draft.draft_id).unwrap().is_empty());
+    }
+
+    #[test]
+    fn s01_validation_rechecks_artifacts_and_expiry_and_rejected_saves_are_atomic() {
+        let auth = auth_context();
+        let (snapshots, snapshot_id) = approved_snapshot(auth.tenant_id);
+        let (artifacts, artifact_ref) = approved_artifact(auth.tenant_id);
+        let mut store = InMemoryStrategyDraftStore::new();
+        let draft = store.create_draft(&auth, "recheck", fixed_now()).unwrap();
+        let input = DraftVersionInput {
+            draft_id: draft.draft_id,
+            base_version: 0,
+            parameters: json!({"b": 2, "a": 1}),
+            data_snapshot_id: Some(snapshot_id),
+            artifact_refs: vec![artifact_ref],
+            save_kind: DraftSaveKind::Autosave,
+            saved_at: fixed_now(),
+        };
+        for parameters in [json!(null), json!([]), json!(1), json!("bad")] {
+            assert!(matches!(
+                store.save_version(
+                    &auth,
+                    DraftVersionInput {
+                        parameters,
+                        ..input.clone()
+                    },
+                    &snapshots,
+                    &artifacts
+                ),
+                Err(StrategyDraftError::ParametersInvalid)
+            ));
+        }
+        assert!(matches!(
+            store.save_version(
+                &auth,
+                DraftVersionInput {
+                    saved_at: fixed_now() - ChronoDuration::seconds(1),
+                    ..input.clone()
+                },
+                &snapshots,
+                &artifacts
+            ),
+            Err(StrategyDraftError::ClockRegression)
+        ));
+        assert!(matches!(
+            store.save_version(
+                &auth,
+                DraftVersionInput {
+                    saved_at: fixed_now() + ChronoDuration::days(1),
+                    ..input.clone()
+                },
+                &snapshots,
+                &artifacts
+            ),
+            Err(StrategyDraftError::SnapshotRefUnresolved { .. })
+        ));
+        assert_eq!(
+            store
+                .get_draft(auth.tenant_id, draft.draft_id)
+                .unwrap()
+                .head_version,
+            0
+        );
+        store
+            .save_version(&auth, input, &snapshots, &artifacts)
+            .unwrap();
+        assert!(matches!(
+            store.initiate_validation(
+                &auth,
+                draft.draft_id,
+                &snapshots,
+                &InMemoryArtifactCatalog::new(),
+                &SnapshotQualityRuleset::from_rules(default_quality_rules(
+                    auth.tenant_id,
+                    fixed_now()
+                ))
+                .unwrap(),
+                fixed_now()
+            ),
+            Err(StrategyDraftError::ArtifactRefUnresolved { .. })
+        ));
+        assert!(matches!(
+            store.initiate_validation(
+                &auth,
+                draft.draft_id,
+                &snapshots,
+                &artifacts,
+                &SnapshotQualityRuleset::from_rules(default_quality_rules(
+                    auth.tenant_id,
+                    fixed_now()
+                ))
+                .unwrap(),
+                fixed_now() + ChronoDuration::days(1)
+            ),
+            Err(StrategyDraftError::ValidationSnapshotGateRejected { .. })
+        ));
+        assert_eq!(store.list_versions(auth.tenant_id, draft.draft_id).len(), 1);
     }
 
     #[test]

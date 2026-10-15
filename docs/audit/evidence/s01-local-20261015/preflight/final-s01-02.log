@@ -1,0 +1,124 @@
+env -u DATABASE_URL cargo test --locked --offline -p quantos-strategy --lib
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.64s
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-a599484e2b8d415a)
+
+running 20 tests
+test tests::draft_saves_stay_under_three_hundred_millis_p95 ... ignored, release performance; run make research-release-performance-smokes
+test generated::tests::unsupported_rules_are_rejected ... ok
+test release::tests::assisted_live_is_not_representable_before_m5 ... ok
+test release::tests::approved_release_deploys_to_paper_and_shadow_and_stays_immutable ... ok
+test release::tests::duplicate_publish_returns_same_hash_and_modified_content_conflicts ... ok
+test release::tests::hundred_unverified_or_unapproved_deployments_are_all_rejected ... ok
+test tests::drafts_without_snapshot_or_artifacts_cannot_initiate_validation ... ok
+test generated::tests::clean_generated_draft_replays_through_backtest_pipeline ... ok
+test generated::tests::hundred_static_check_failures_all_block_release_path ... ok
+test backtest::tests::series_not_bound_to_snapshot_is_rejected ... ok
+test backtest::tests::ten_replays_produce_identical_metrics_and_hashes ... ok
+test backtest::tests::validation_report_contains_costs_environment_and_input_hash ... ok
+test tests::s01_workspace_and_tenant_isolation_cover_read_save_and_validation ... ok
+test tests::unauthorized_actor_cannot_save_or_initiate_validation ... ok
+test tests::unapproved_references_are_rejected_at_save_time ... ok
+test tests::s01_parameter_fixture_roundtrip_and_canonical_hash ... ok
+test tests::s01_validation_rechecks_artifacts_and_expiry_and_rejected_saves_are_atomic ... ok
+test tests::fifty_stale_edits_and_retries_preserve_all_versions ... ok
+test tests::s01_fifty_parallel_edit_groups_use_atomic_compare_and_save ... ok
+test backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail ... ok
+
+test result: ok. 19 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+env -u DATABASE_URL cargo clippy --locked --offline -p quantos-strategy --all-targets -- -D warnings
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 14.83s
+node --test scripts/s01-migration.test.cjs scripts/s01-local-gate.test.mjs
+✔ S01 local registration covers exactly thirty-two necessary nodes without granting upstream READY (1.248625ms)
+✔ local baseline skips remote governance and never invokes credential helpers (0.060334ms)
+✔ expanded roots cannot grant R1 admission (0.948083ms)
+✔ local environment strips database and opt-ins (0.131166ms)
+✔ valid scoped admission retains database NOT_RUN and formal false (22.586834ms)
+✔ S01 local admission rejects altered coverage (1.264041ms)
+✔ S01 local admission rejects missing coverage source (0.79775ms)
+✔ S01 local admission rejects external claim (0.271458ms)
+✔ S01 local admission rejects performance claim (0.268375ms)
+✔ S01 local admission rejects sync adoption (0.31575ms)
+✔ S01 local admission rejects formal claim (0.25275ms)
+✔ S01 local admission rejects database claim (0.246542ms)
+✔ S01 local admission rejects production claim (1.045875ms)
+✔ S01 local admission rejects external publication (0.308875ms)
+✔ S01 local admission rejects upstream acceptance (0.233125ms)
+✔ S01 local admission rejects target canary claim (0.213166ms)
+✔ S01 local admission rejects target rollback claim (0.202708ms)
+✔ S01 local admission rejects dropped target window (0.630792ms)
+✔ S01 local admission rejects promoted target rollback (0.5185ms)
+✔ S01 local admission rejects wrong node (0.210208ms)
+✔ S01 local admission rejects wrong profile (0.184791ms)
+✔ S01 local admission rejects wrong schema (0.207333ms)
+✔ S01 local admission rejects failed engineering (0.211333ms)
+✔ S01 local admission rejects scope drift (0.296167ms)
+✔ S01 local admission rejects mixed candidates (0.460959ms)
+✔ S01 local admission rejects index substitution (0.464417ms)
+✔ S01 local admission rejects failed closure (0.430209ms)
+✔ S01 local admission rejects wrong consumer (0.451625ms)
+✔ S01 local admission rejects missing node (0.48825ms)
+✔ S01 local admission rejects duplicate node (0.497ms)
+✔ S01 local admission rejects missing R1 service proof (0.4995ms)
+✔ S01 local admission rejects missing R02 proof (0.494833ms)
+✔ S01 local admission rejects historical C owner (0.4395ms)
+✔ S01 local admission rejects wrong local profile (0.444959ms)
+✔ S01 local admission rejects R02 target removed (0.61425ms)
+✔ S01 local admission rejects R01 target removed (0.6495ms)
+✔ S01 local admission rejects own manifest substitution (0.494375ms)
+✔ S01 local admission rejects own digest substitution (0.437042ms)
+✔ S01 local admission rejects missing dependency (1.42475ms)
+✔ S01 local admission rejects strict READY substitution (0.644667ms)
+✔ S01 local admission rejects foreign owner (0.514875ms)
+✔ S01 local admission rejects target passed (0.213458ms)
+✔ S01 local admission rejects waived handoff (0.238125ms)
+✔ S01 local admission rejects deferred governance removed (0.60975ms)
+✔ publication prepares evidence before writing and only publishes S01 (4.883833ms)
+✔ invalid index makes zero canonical writes (1.946041ms)
+✔ publication write failure restores all prior bytes (4.248791ms)
+✔ post-publication failure restores prior plans and receipt (4.182834ms)
+✔ formal release cannot consume a local receipt even with a forged checkpoint (0.625375ms)
+✔ first publication failure removes a new receipt and restores plans (4.748833ms)
+✔ missing R1 local service dependency cannot be waived in the plan (0.83ms)
+✔ publication leaves all other task and checkpoint gates unchanged (4.6435ms)
+✔ aggregate rejects stale build source (0.591417ms)
+✔ aggregate rejects stale probe source (0.542916ms)
+✔ aggregate rejects stale e source (0.515209ms)
+✔ aggregate rejects stale f source (0.521917ms)
+✔ aggregate rejects stale g source (0.528375ms)
+✔ S01 coverage rejects skipped s01_fifty_parallel_edit_groups_use_atomic_compare_and_save (0.537916ms)
+✔ S01 coverage rejects skipped drafts_without_snapshot_or_artifacts_cannot_initiate_validation (0.502583ms)
+✔ S01 coverage cannot claim database migration execution (0.593625ms)
+✔ S01 requested SERVICE dependency proof is mandatory (0.485125ms)
+✔ S01 coverage requires migration checks (0.511041ms)
+✔ S01 forward migration preserves original rows and applies forced RLS to both tables (0.370542ms)
+✔ S01 persistence guards pin audit, tenant, head CAS, snapshot and Artifact id/hash (0.074208ms)
+ℹ tests 64
+ℹ suites 0
+ℹ pass 64
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 224.879125
+node --test scripts/db-migration-sql.test.cjs
+✔ only the exact historical role declaration is adapted; all R02 SQL and raw checksum stay intact (0.454333ms)
+✔ modified historical SQL is rejected instead of silently normalized (0.198292ms)
+✔ unregistered migrations are not rewritten (1.083541ms)
+✔ rollback replay remaps both data and API schemas but preserves shared role identities (0.540084ms)
+✔ every migration replays without embedded transaction boundaries (1.215875ms)
+✔ replay schema injection, truncation and non-replay names are rejected (0.057208ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33.113917
+bash ./scripts/check-migration-filenames.sh
+Supabase migration filenames are valid.
+bash ./scripts/check-rls-baseline.sh
+RLS static preflight passed for 59 tables; database execution is separately mandatory.

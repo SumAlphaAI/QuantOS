@@ -1,0 +1,26 @@
+    Checking tonic v0.12.3
+    Checking quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+error: this boolean expression can be simplified
+   --> crates/quantos-strategy/src/lib.rs:374:16
+    |
+374 |               if !artifacts
+    |  ________________^
+375 | |                 .find_by_hash(auth.tenant_id, &reference.content_hash)
+376 | |                 .is_some_and(|m| m.artifact_id == reference.artifact_id)
+    | |________________________________________________________________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#nonminimal_bool
+    = note: `-D clippy::nonminimal-bool` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::nonminimal_bool)]`
+help: try
+    |
+374 ~             if artifacts
+375 +                 .find_by_hash(auth.tenant_id, &reference.content_hash).is_none_or(|m| m.artifact_id != reference.artifact_id)
+    |
+
+error: could not compile `quantos-strategy` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quantos-strategy` (lib test) due to 1 previous error

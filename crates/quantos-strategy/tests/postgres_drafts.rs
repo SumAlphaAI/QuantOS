@@ -1,15 +1,18 @@
-use std::env;
+use quantos_auth::AuthContext;
+use quantos_policy::{Capability, Role, RunMode};
+use std::{collections::BTreeSet, env};
 
 use chrono::Utc;
-use quantos_core::{ActorId, SnapshotId, StrategyDraftId, TenantId, WorkspaceId};
+use quantos_core::{ActorId, SnapshotId, TenantId, WorkspaceId};
 use quantos_strategy::{
-    DraftSaveKind, DraftVersionInput, StrategyDraft, StrategyDraftError, pg::PgStrategyStore,
+    DraftSaveKind, DraftVersionInput, StrategyDraftError, pg::PgStrategyStore,
     strategy_fixture_parameters,
 };
 
 struct TenantCleanup {
     database_url: String,
     tenant_id: TenantId,
+    user_id: uuid::Uuid,
 }
 
 impl Drop for TenantCleanup {
@@ -22,16 +25,24 @@ impl Drop for TenantCleanup {
                 "delete from quantos.tenants where id = $1",
                 &[self.tenant_id.as_uuid()],
             )?;
+            client.execute("delete from auth.users where id=$1", &[&self.user_id])?;
             Ok(())
         };
         let _ = cleanup();
     }
 }
 
-fn seed_context(database_url: &str, tenant_id: TenantId) -> (TenantCleanup, WorkspaceId, ActorId) {
+fn seed_context(
+    database_url: &str,
+    tenant_id: TenantId,
+) -> (TenantCleanup, WorkspaceId, ActorId, uuid::Uuid) {
     let connector =
         postgres_native_tls::MakeTlsConnector::new(native_tls::TlsConnector::new().expect("tls"));
     let mut client = postgres::Client::connect(database_url, connector).expect("connects");
+    let user_id = uuid::Uuid::now_v7();
+    client
+        .execute("insert into auth.users(id) values($1)", &[&user_id])
+        .expect("audit user seeds");
     let workspace_id = WorkspaceId::new();
     let actor_id = ActorId::new();
     client
@@ -72,46 +83,56 @@ fn seed_context(database_url: &str, tenant_id: TenantId) -> (TenantCleanup, Work
         TenantCleanup {
             database_url: database_url.to_owned(),
             tenant_id,
+            user_id,
         },
         workspace_id,
         actor_id,
+        user_id,
     )
 }
 
 #[test]
+#[ignore = "requires explicitly authorized non-production Supabase target and migrations"]
 fn postgres_strategy_store_persists_versions_and_rejects_conflicts() {
+    assert_eq!(
+        env::var("QUANTOS_RUN_S01_TARGET_TESTS").as_deref(),
+        Ok("1"),
+        "explicit target opt-in required"
+    );
     let Some(database_url) = env::var("DATABASE_URL")
         .ok()
         .filter(|value| !value.trim().is_empty())
     else {
-        eprintln!("skipping live PostgreSQL test: DATABASE_URL is not set");
-        return;
+        panic!("DATABASE_URL required for explicit target execution");
     };
 
     let tenant_id = TenantId::new();
-    let (_cleanup, workspace_id, actor_id) = seed_context(&database_url, tenant_id);
+    let (_cleanup, workspace_id, actor_id, user_id) = seed_context(&database_url, tenant_id);
     let mut store = PgStrategyStore::connect(&database_url).expect("connects to PostgreSQL");
 
     let now = Utc::now();
-    let draft = StrategyDraft {
-        draft_id: StrategyDraftId::new(),
+    let auth = AuthContext {
         tenant_id,
+        actor_id,
+        user_id,
         workspace_id,
-        owner_actor_id: actor_id,
-        name: "trend.alpha".to_owned(),
-        head_version: 0,
-        created_at: now,
-        updated_at: now,
+        workspace_slug: "primary".into(),
+        workspace_name: "Primary".into(),
+        role: Role::Operator,
+        mode: RunMode::Paper,
+        account_id: None,
+        capabilities: BTreeSet::from([Capability::parse(Capability::STRATEGY_WRITE).unwrap()]),
     };
-    let created = store.create_draft(&draft, None).expect("draft persists");
+    let draft = store
+        .create_draft(&auth, "trend.alpha", now)
+        .expect("draft persists");
+    let created = draft.clone();
     assert_eq!(created.draft_id, draft.draft_id);
     assert_eq!(created.head_version, 0);
 
     let first = store
         .save_version(
-            tenant_id,
-            actor_id,
-            None,
+            &auth,
             DraftVersionInput {
                 draft_id: draft.draft_id,
                 parameters: strategy_fixture_parameters(1),
@@ -127,9 +148,7 @@ fn postgres_strategy_store_persists_versions_and_rejects_conflicts() {
 
     let conflict = store
         .save_version(
-            tenant_id,
-            actor_id,
-            None,
+            &auth,
             DraftVersionInput {
                 draft_id: draft.draft_id,
                 parameters: strategy_fixture_parameters(2),
@@ -152,9 +171,7 @@ fn postgres_strategy_store_persists_versions_and_rejects_conflicts() {
 
     let second = store
         .save_version(
-            tenant_id,
-            actor_id,
-            None,
+            &auth,
             DraftVersionInput {
                 draft_id: draft.draft_id,
                 parameters: strategy_fixture_parameters(2),
@@ -170,13 +187,13 @@ fn postgres_strategy_store_persists_versions_and_rejects_conflicts() {
     assert_eq!(second.save_kind, DraftSaveKind::Autosave);
 
     let fetched = store
-        .get_draft(tenant_id, draft.draft_id)
+        .get_draft(&auth, draft.draft_id)
         .expect("draft query works")
         .expect("draft exists");
     assert_eq!(fetched.head_version, 2);
 
     let versions = store
-        .list_versions(tenant_id, draft.draft_id)
+        .list_versions(&auth, draft.draft_id)
         .expect("versions list works");
     assert_eq!(versions.len(), 2);
     assert_eq!(versions[0].version, 1);

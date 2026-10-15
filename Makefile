@@ -664,3 +664,15 @@ service-tp01-local-check:
 	node scripts/service-tp01-local-gate.mjs --ready
 service-tp01-release-check:
 	node scripts/service-tp01-local-gate.mjs --release
+
+.PHONY: s01-check s01-assess-local s01-local-check s01-release-check
+s01-check:
+	env -u DATABASE_URL cargo test --locked --offline -p quantos-strategy --lib
+	env -u DATABASE_URL cargo clippy --locked --offline -p quantos-strategy --all-targets -- -D warnings
+	node --test scripts/s01-migration.test.cjs scripts/s01-local-gate.test.mjs
+s01-assess-local:
+	node scripts/record-s01-local.mjs
+s01-local-check:
+	node scripts/s01-local-gate.mjs --ready
+s01-release-check:
+	node scripts/s01-local-gate.mjs --release

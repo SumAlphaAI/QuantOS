@@ -1,6 +1,7 @@
 use native_tls::TlsConnector;
 use postgres::{Client, NoTls, Row, types::Type};
 use postgres_native_tls::MakeTlsConnector;
+use quantos_auth::AuthContext;
 use quantos_core::{
     ActorId, ContentHash, CoreError, DraftVersionId, SnapshotId, StrategyDraftId, TenantId,
     WorkspaceId,
@@ -47,11 +48,15 @@ impl PgStrategyStore {
         })
     }
 
+    /// Requires a verified server-side AuthContext; identity is never taken from draft JSON.
     pub fn create_draft(
         &mut self,
-        draft: &StrategyDraft,
-        created_by_user: Option<Uuid>,
+        auth: &AuthContext,
+        name: &str,
+        now: chrono::DateTime<chrono::Utc>,
     ) -> Result<StrategyDraft, PgStrategyError> {
+        let draft = crate::InMemoryStrategyDraftStore::new().create_draft(auth, name, now)?;
+        let created_by_user = Some(auth.user_id);
         let row = self.client.query_typed_one(
             "insert into quantos.strategy_drafts (
                 draft_id, tenant_id, workspace_id, owner_actor_id, name,
@@ -77,11 +82,13 @@ impl PgStrategyStore {
 
     pub fn save_version(
         &mut self,
-        tenant_id: TenantId,
-        created_by: ActorId,
-        created_by_user: Option<Uuid>,
+        auth: &AuthContext,
         input: DraftVersionInput,
     ) -> Result<StrategyDraftVersion, PgStrategyError> {
+        crate::ensure_strategy_write(auth)?;
+        let tenant_id = auth.tenant_id;
+        let created_by = auth.actor_id;
+        let created_by_user = Some(auth.user_id);
         if !input.parameters.is_object() {
             return Err(StrategyDraftError::ParametersInvalid.into());
         }
@@ -97,7 +104,7 @@ impl PgStrategyStore {
 
         let mut transaction = self.client.transaction()?;
         let head_row = transaction.query_typed_opt(
-            "select head_version from quantos.strategy_drafts
+            "select head_version, workspace_id, updated_at from quantos.strategy_drafts
              where tenant_id = $1 and draft_id = $2
              for update",
             &[
@@ -111,6 +118,15 @@ impl PgStrategyStore {
             }
             .into());
         };
+        if head_row.get::<_, Uuid>(1) != *auth.workspace_id.as_uuid() {
+            return Err(StrategyDraftError::DraftNotFound {
+                draft_id: input.draft_id,
+            }
+            .into());
+        }
+        if input.saved_at < head_row.get::<_, chrono::DateTime<chrono::Utc>>(2) {
+            return Err(StrategyDraftError::ClockRegression.into());
+        }
         let head_version = head_row.get::<_, i64>(0) as u64;
         if head_version != input.base_version {
             return Err(StrategyDraftError::VersionConflict {
@@ -120,7 +136,10 @@ impl PgStrategyStore {
             }
             .into());
         }
-        let next_version = head_version + 1;
+        let next_version = head_version
+            .checked_add(1)
+            .filter(|v| *v <= i64::MAX as u64)
+            .ok_or(StrategyDraftError::VersionExhausted)?;
 
         let row = transaction.query_typed_one(
             "insert into quantos.strategy_draft_versions (
@@ -164,17 +183,20 @@ impl PgStrategyStore {
 
     pub fn get_draft(
         &mut self,
-        tenant_id: TenantId,
+        auth: &AuthContext,
         draft_id: StrategyDraftId,
     ) -> Result<Option<StrategyDraft>, PgStrategyError> {
+        crate::ensure_strategy_write(auth)?;
+        let tenant_id = auth.tenant_id;
         let row = self.client.query_typed_opt(
             "select draft_id, tenant_id, workspace_id, owner_actor_id, name,
                     head_version, created_at, updated_at
              from quantos.strategy_drafts
-             where tenant_id = $1 and draft_id = $2",
+             where tenant_id = $1 and draft_id = $2 and workspace_id = $3",
             &[
                 (tenant_id.as_uuid(), Type::UUID),
                 (draft_id.as_uuid(), Type::UUID),
+                (auth.workspace_id.as_uuid(), Type::UUID),
             ],
         )?;
         row.map(|row| row_to_draft(&row))
@@ -184,9 +206,13 @@ impl PgStrategyStore {
 
     pub fn list_versions(
         &mut self,
-        tenant_id: TenantId,
+        auth: &AuthContext,
         draft_id: StrategyDraftId,
     ) -> Result<Vec<StrategyDraftVersion>, PgStrategyError> {
+        if self.get_draft(auth, draft_id)?.is_none() {
+            return Err(StrategyDraftError::DraftNotFound { draft_id }.into());
+        }
+        let tenant_id = auth.tenant_id;
         let rows = self.client.query_typed(
             "select version_id, tenant_id, draft_id, version, parameters,
                     data_snapshot_id, artifact_refs, content_hash, save_kind,
@@ -203,6 +229,28 @@ impl PgStrategyStore {
             .map(row_to_version)
             .collect::<Result<Vec<_>, _>>()
             .map_err(PgStrategyError::from)
+    }
+    /// Hydrate a pinned head, then reauthorize persisted snapshot provenance/rules and Artifacts.
+    pub fn initiate_validation(
+        &mut self,
+        auth: &AuthContext,
+        draft_id: StrategyDraftId,
+        storage: &mut quantos_storage::pg::PgStorageStore,
+        policy: &quantos_storage::provenance::SnapshotSourcePolicy,
+        now: chrono::DateTime<chrono::Utc>,
+    ) -> Result<crate::ValidationHandoff, PgStrategyError> {
+        let draft = self
+            .get_draft(auth, draft_id)?
+            .ok_or(StrategyDraftError::DraftNotFound { draft_id })?;
+        let versions = self.list_versions(auth, draft_id)?;
+        let mut memory = crate::InMemoryStrategyDraftStore::new();
+        memory.drafts.insert((auth.tenant_id, draft_id), draft);
+        for version in versions {
+            memory
+                .versions
+                .insert((auth.tenant_id, draft_id, version.version), version);
+        }
+        Ok(memory.initiate_validation_persisted(auth, draft_id, storage, policy, now)?)
     }
 }
 
