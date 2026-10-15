@@ -1,0 +1,11 @@
+import subprocess,pathlib,json,datetime,time,hashlib,os,re
+b=pathlib.Path('docs/audit/evidence/service-tp01-local-20261015');(b/'post').mkdir(exist_ok=True)
+commands=[('service-ready',['make','service-tp01-local-check'],0),('release-refused',['make','service-tp01-release-check'],2),('old-e-refused',['node','scripts/tp01-e-local-gate.mjs','--ready'],2),('old-f-refused',['node','scripts/tp01-f-local-gate.mjs','--ready'],2),('old-g-refused',['node','scripts/tp01-g-local-gate.mjs','--ready'],2),('plans',['node','scripts/check-development-plans.mjs'],0),('plans-negative',['node','--test','--test-reporter=tap','scripts/development-plan-order-negative.mjs'],0),('development-handoff',['node','scripts/check-development-gate-handoff.mjs'],0),('frontend-handoff',['node','scripts/check-frontend-gate-handoff.mjs'],0),('service-policy',['node','--test','--test-reporter=tap','scripts/service-tp01-local-gate.test.mjs','scripts/service-tp01-plan-contract.test.mjs'],0),('real-closure-negatives',['node','--test','--test-reporter=tap',str(b/'closure-negatives.mjs')],0),('independent-verification',['node',str(b/'verify.mjs'),'--record'],0),('whitespace',['git','diff','--check','08d6c5e2727dfcfbfd1c4d746f6116b83166b181'],0)]
+env={k:v for k,v in os.environ.items() if not re.search(r'DATABASE_URL|SUPABASE|PASSWORD|TOKEN|SECRET|(?:^|_)KEY$|QUANTOS_RUN_.*TESTS',k)}
+results=[]
+for name,command,expected in commands:
+ started=datetime.datetime.now(datetime.timezone.utc).isoformat();stamp=time.monotonic();timed=False
+ try:r=subprocess.run(command,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=600);raw=r.stdout;code=r.returncode
+ except subprocess.TimeoutExpired as e:timed=True;raw=e.stdout or b'';code=None
+ p=b/'post'/(name+'.log');p.write_bytes(raw);result={'id':name,'command':command,'executedAt':started,'elapsedSeconds':round(time.monotonic()-stamp,3),'expectedExitCode':expected,'exitCode':code,'timedOut':timed,'signal':None if code is None or code>=0 else -code,'log':str(p),'logSha256':'sha256:'+hashlib.sha256(raw).hexdigest()};results.append(result);(b/'post-checks.json').write_text(json.dumps(results,indent=2)+'\n');print(name,code,'expected',expected,flush=True)
+ if code!=expected or timed:print(raw.decode(errors='replace')[-1600:],flush=True);raise SystemExit(1)

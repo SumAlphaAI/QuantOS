@@ -1,4 +1,4 @@
-> 当前执行（2026-10-15）：SERVICE:TP01本地汇总功能准入实现中；公共输入变化后旧G独立READY撤回，历史证据保留。当前0 READY / 159 NOT_ASSESSED；完整31节点必要闭包待冻结候选复验，目标/正式验收NOT_RUN。
+> 当前执行（2026-10-15）：SERVICE:TP01在冻结fedee914完整31节点/99组本地检查PASS，三次跨语言可复现构建PASS；SERVICE-TP01_LOCAL限定DEVELOPMENT READY。132项专用功能案例（100安全负向、20workflow、取消<2秒、Artifact去重和禁用/回滚）、33+64项专用回执/准入测试PASS；make test：Rust396 PASS/8 ignored、Python1635 PASS、Web233 PASS/3 skipped。仅SERVICE消费者内部A–G/R1-SERVICE LOCAL_READY，旧G独立READY撤回且历史原件保留；637文件canonical恢复。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED；22组共享目标和8项汇总发布义务NOT_RUN，formalAccepted=false、externalPublished=false、upstreamAccepted=false。见[本轮报告](./audit/SERVICE-TP01-local-admission-2026-10-15.md)。
 
 > 历史工程快照（2026-10-15，SERVICE汇总实现前）：冻结f21318b7完整30节点/96组本地检查PASS，三次跨语言可复现构建PASS；TP01-G_LOCAL限定DEVELOPMENT READY。198项真实UDS模块替换/协议检查、4项上游离线patch回归、40+57项G回执/准入测试PASS。上游DRAFT_NOT_SUBMITTED，externalPublished=false、upstreamAccepted=false、formalAccepted=false；22组共享目标与E/F/G发布义务NOT_RUN。E/F独立旧READY保持撤回，本轮仅作为G消费者内部依赖。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。见[本轮报告](./audit/TP01-G-local-admission-2026-10-15.md)。
 
@@ -1411,7 +1411,7 @@ flowchart TD
 - 阶段执行：本地开发验证内部类型隔离、模块替换与业务协议不变；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：不依赖 fork 内部类型；任一模块可替换且业务协议不变；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：TP01-F、R03
-- 当前工程复核：2026-10-15，SERVICE:TP01汇总入口新增公共功能输入后，旧独立G READY撤回为NOT_ASSESSED；f21318b7的30节点/96组历史PASS和验收证据保留。本轮将以SERVICE消费者重新实际验证完整依赖，不复用旧READY。见[历史报告](./audit/TP01-G-local-admission-2026-10-15.md)。
+- 当前工程复核：2026-10-15，SERVICE汇总新增公共输入后G旧独立READY撤回为NOT_ASSESSED，f21318b7历史证据保留；本轮冻结fedee914在SERVICE消费者完整31节点/99组中重新实际验证G及全部前置PASS，内部LOCAL_READY仅属SERVICE，不恢复G独立READY。198项模块替换、4项离线patch及40+57项回执/准入检查PASS；DRAFT_NOT_SUBMITTED、目标/正式验收NOT_RUN。见[本轮汇总报告](./audit/SERVICE-TP01-local-admission-2026-10-15.md)。
 
 <a id="acceptance-service-tp01"></a>
 ### SERVICE:TP01：验收检查点
@@ -1438,12 +1438,16 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:d6a3ee0f91ddefc10be00f2a0caee6ff40c863cd05a75a647887e5188cda228e",
+    "evidence": [
+      "audit/evidence/service-tp01-local-20261015/manifest.json"
+    ]
   }
 }
 ```
+
+> 当前工程复核：2026-10-15，候选fedee914完整31节点/99组PASS，DEVELOPMENT READY仅此本地服务功能子范围；A–G及R1全部同源实际证据，637文件canonical恢复。review_status仍NOT_STARTED、source_commit仍null，不自签正式验收。22组共享目标与8项汇总发布义务NOT_RUN，消费页面E2E留CORE:TP01/U01。见[验收报告](./audit/SERVICE-TP01-local-admission-2026-10-15.md)、[manifest](./audit/evidence/service-tp01-local-20261015/manifest.json)。
 
 <a id="execution-s2"></a>
 ## 7. S2：策略领域服务、验证与审批准入

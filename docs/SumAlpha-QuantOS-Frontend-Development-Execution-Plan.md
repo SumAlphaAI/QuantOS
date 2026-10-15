@@ -1,4 +1,4 @@
-> 当前执行（2026-10-15）：SERVICE:TP01本地汇总功能准入实现中；公共输入变化后旧G独立READY撤回，历史证据保留。当前0 READY / 159 NOT_ASSESSED；完整31节点必要闭包待冻结候选复验，目标/正式验收NOT_RUN。
+> 当前执行（2026-10-15）：SERVICE:TP01在冻结fedee914完整31节点/99组本地检查PASS，三次跨语言可复现构建PASS；SERVICE-TP01_LOCAL限定DEVELOPMENT READY。132项专用功能案例（100安全负向、20workflow、取消<2秒、Artifact去重和禁用/回滚）、33+64项专用回执/准入测试PASS；make test：Rust396 PASS/8 ignored、Python1635 PASS、Web233 PASS/3 skipped。仅SERVICE消费者内部A–G/R1-SERVICE LOCAL_READY，旧G独立READY撤回且历史原件保留；637文件canonical恢复。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED；22组共享目标和8项汇总发布义务NOT_RUN，formalAccepted=false、externalPublished=false、upstreamAccepted=false。见[本轮报告](./audit/SERVICE-TP01-local-admission-2026-10-15.md)。
 
 > 历史工程快照（2026-10-15，SERVICE汇总实现前）：冻结f21318b7完整30节点/96组本地检查PASS，三次跨语言可复现构建PASS；TP01-G_LOCAL限定DEVELOPMENT READY。198项真实UDS模块替换/协议检查、4项上游离线patch回归、40+57项G回执/准入测试PASS。上游DRAFT_NOT_SUBMITTED，externalPublished=false、upstreamAccepted=false、formalAccepted=false；22组共享目标与E/F/G发布义务NOT_RUN。E/F独立旧READY保持撤回，本轮仅作为G消费者内部依赖。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。见[本轮报告](./audit/TP01-G-local-admission-2026-10-15.md)。
 

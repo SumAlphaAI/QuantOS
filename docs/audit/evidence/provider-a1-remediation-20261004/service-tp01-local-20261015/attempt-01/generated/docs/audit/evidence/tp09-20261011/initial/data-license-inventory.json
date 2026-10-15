@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "component": "trendradar",
+  "recordedAt": "2026-07-31T00:00:00Z",
+  "upstreamCommit": "8ee26026ba6c11dec41a95fb3895a7162876caa1",
+  "rule": "any input class without a verifiable redistributable license or without per-item source attribution is trading_approved=false; trend signals derived from it may only flow into research workflows",
+  "inputClasses": [
+    {
+      "input_class": "hot_list_aggregation",
+      "upstream_surface": "trendradar.crawler.fetcher via newsnow API",
+      "example_platforms": ["weibo", "zhihu", "baidu", "douyin", "toutiao", "bilibili"],
+      "source_attribution": "per-item platform id + url",
+      "license_status": "no redistributable license; platform terms of service restrict scraping and redistribution",
+      "license_label": "unlicensed-hotlist-research-only",
+      "trading_approved": false,
+      "quantos_handling": "reference only; production trend inputs must come from licensed providers via data.query.v1"
+    },
+    {
+      "input_class": "rss_feed",
+      "upstream_surface": "trendradar.crawler.rss",
+      "example_platforms": ["per-publisher RSS feeds configured in config.yaml"],
+      "source_attribution": "per-item feed id + guid + url",
+      "license_status": "per-publisher copyright; RSS access does not grant redistribution or derived-signal trading rights",
+      "license_label": "publisher-copyright-research-only",
+      "trading_approved": false,
+      "quantos_handling": "reference only; requires per-feed license review before any trading-adjacent use"
+    },
+    {
+      "input_class": "ai_analysis_output",
+      "upstream_surface": "trendradar.ai via litellm providers",
+      "example_platforms": ["openai-compatible endpoints configured by the operator"],
+      "source_attribution": "none for underlying training data; prompt and model version recorded by operator",
+      "license_status": "provider terms govern output use; no provenance for embedded source claims",
+      "license_label": "ai-generated-unverified-research-only",
+      "trading_approved": false,
+      "quantos_handling": "rejected as a signal source; TP03 llmquant owns model provenance and diagnostics"
+    },
+    {
+      "input_class": "custom_api_self_hosted",
+      "upstream_surface": "newsnow self-hosted instance configured via api_url",
+      "example_platforms": ["operator-defined"],
+      "source_attribution": "depends on operator configuration",
+      "license_status": "indeterminate; inherits the upstream platform restrictions of whatever the self-hosted instance scrapes",
+      "license_label": "indeterminate-research-only",
+      "trading_approved": false,
+      "quantos_handling": "rejected unless the operator supplies a per-source license manifest"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+["node","engines/llmquant/check-development.mjs","--ready"]
+{"engineeringStatus":"PASS","stageGate":"READY","formalAccepted":false}
+
+["node","third_party/trendradar/check-development.mjs","--ready"]
+{"engineeringStatus":"PASS","stageGate":"READY","formalAccepted":false}
+
+["node","--input-type=module","-e","import {nodesFromPlans,closure,validateReceipt} from './scripts/provider-a1-receipts.mjs';const ids=closure(nodesFromPlans(),'CORE:TP09');for(const id of ids)validateReceipt(id);console.log('STRICT_READY',ids.length);"]
+STRICT_READY 14
+
+["node","--test","scripts/tp09-functional-artifacts.test.mjs"]
+✔ engineering evidence never self-admits (212.3435ms)
+✔ all logs, three Signal documents, six physical object files and experiment receipt travel together (97.188417ms)
+✔ receipt rejects missing check (161.665542ms)
+✔ receipt rejects failed execution (159.298375ms)
+✔ receipt rejects forged command (157.191791ms)
+✔ receipt rejects changed inventory (146.20475ms)
+✔ receipt rejects changed log (168.895292ms)
+✔ receipt rejects future execution (189.805375ms)
+✔ receipt rejects formal claim (94.712291ms)
+✔ receipt rejects omitted output (157.37225ms)
+✔ unified source is mandatory (93.699834ms)
+✔ copied evidence is independent of canonical logs (259.058834ms)
+✔ rehashing output cannot hide foreign data rights (164.109291ms)
+✔ rehashing output cannot hide record bytes (164.991542ms)
+✔ rehashing output cannot hide schema hash (166.067708ms)
+✔ rehashing output cannot hide production use (163.248625ms)
+✔ rehashing output cannot hide source attribution (162.763167ms)
+✔ rehashing output cannot hide quality broadening (169.297ms)
+✔ rehashing output cannot hide confidence forgery (165.770542ms)
+✔ missing physical Artifact bytes fail closed (158.128417ms)
+✔ output traversal fails closed (156.876041ms)
+✔ same-byte physical object symlink cannot escape evidence directory (158.380834ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3587.502041
+
+["node","scripts/check-development-plans.mjs"]
+{
+  "schema": "quantos-plan-review/v1",
+  "stage_schema": "quantos-plan-stages/v1",
+  "stage_contract": "PASS",
+  "dependency_basis": "stage_gate",
+  "stage_counts": {
+    "DEVELOPMENT": 81,
+    "INTEGRATION": 76,
+    "RELEASE": 2
+  },
+  "stage_status_counts": {
+    "NOT_ASSESSED": 145,
+    "READY": 14,
+    "BLOCKED": 0
+  },
+  "cross_plan_order": "PASS",
+  "checkpoint_count": 37,
+  "acceptance_node_count": 159,
+  "dependency_edge_count": 1462,
+  "order_schema": "quantos-plan-order/v2",
+  "structure": "PASS",
+  "core_task_schema": "quantos-core-task/v1",
+  "frontend_task_schema": "quantos-web-task/v1",
+  "desktop_scope_split": "PASS",
+  "platform_load": "NOT_RUN",
+  "model_review": "NOT_RUN",
+  "core_tasks": 47,
+  "frontend_tasks": 75,
+  "page_api_tasks": 12,
+  "page_tasks": 22
+}
+
+["git","diff","--check"]
+
+["artifacts/tools/gitleaks","dir","--config",".gitleaks.toml","--gitleaks-ignore-path",".gitleaksignore","--redact","--no-banner","docs/audit/evidence/tp09-20261011"]
+3:23PM INF scanned ~337947 bytes (337.95 KB) in 14.8ms
+3:23PM INF no leaks found
+
+["artifacts/tools/gitleaks","dir","--config",".gitleaks.toml","--gitleaks-ignore-path",".gitleaksignore","--redact","--no-banner","docs/audit/evidence/provider-a1-remediation-20261004/tp09-admission-20261011"]
+3:23PM INF scanned ~7660609 bytes (7.66 MB) in 83.3ms
+3:23PM INF no leaks found
+
