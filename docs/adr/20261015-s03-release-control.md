@@ -9,3 +9,5 @@ Release 的 v2 content_hash 覆盖 tenant/workspace、不可变草稿版本、�
 本地票据授权已验证配置及实际原生策略适配器的构造，不启动部署进程或对接 venue。完整生成Artifact参数字节进入Release内容hash，consumer从已固定Artifact构造GeneratedStrategyAdapter，Paper/Shadow两个目标各实际重放并与审批前报告完全一致。相同 release/target 返回原票据，消费必须匹配服务已记录票据并重做权限、目标及有效期检查。SERVICE:S04 继续实现公开授权 API、审计事件、拒绝/过期状态及页面联调；本任务不宣称已完成这些检查点。
 
 PostgreSQL 前向迁移保留历史数据，以 NULL validation_evidence 阻断旧 hash-only 候选部署。新增 workspace、验证和审批证明；不可变内容/重复审批/跨租户引用/部署时效由触发器防护，workspace RLS 收紧读取。受信任 service_role 是持久化写入边界；SQL 检查不会把 hash 变成身份签名。PostgreSQL API 在封存审批前把时间统一为数据库微秒精度，避免 JSON 与 timestamptz 读回精度不同。实际 Supabase 迁移、RLS、事务、并发、恢复与真实部署均尚未执行，不能由 SQL 字符串测试代替。
+
+迁移保留的历史异常行可能无法回填workspace；持久层必须用try_get传播NULL解码错误，不能让row.get触发panic。新增显式ignored的真实Postgres Row只读SELECT回归，待授权Supabase执行，本地不记为数据库通过。

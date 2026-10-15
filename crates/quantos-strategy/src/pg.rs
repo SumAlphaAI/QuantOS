@@ -452,7 +452,7 @@ fn row_to_release(row: &Row) -> Result<StrategyRelease, PgStrategyError> {
     Ok(StrategyRelease {
         release_id: quantos_core::ProposalId::from_uuid(row.get(0)),
         tenant_id: TenantId::from_uuid(row.get(1)),
-        workspace_id: WorkspaceId::from_uuid(row.get(17)),
+        workspace_id: WorkspaceId::from_uuid(row.try_get(17)?),
         validation: row
             .get::<_, Option<postgres::types::Json<Value>>>(18)
             .map(|v| crate::release::ValidatedBacktest::from_storage(v.0))
@@ -498,5 +498,40 @@ fn connect_client(database_url: &str) -> Result<Client, PgStrategyError> {
         Ok(Client::connect(database_url, connector)?)
     } else {
         Ok(Client::connect(database_url, NoTls)?)
+    }
+}
+
+#[cfg(test)]
+mod release_row_tests {
+    use super::*;
+    /// This exercises the real postgres Row decoder, using a read-only SELECT.
+    /// No table mutation or local database is required; target execution is separate.
+    #[test]
+    #[ignore = "requires separately authorized Supabase connection; never local database acceptance"]
+    fn s03_legacy_null_workspace_returns_error_instead_of_panicking() {
+        assert_eq!(
+            std::env::var("QUANTOS_RUN_S03_POSTGRES_TESTS").as_deref(),
+            Ok("1")
+        );
+        let url = std::env::var("DATABASE_URL").expect("authorized target configuration");
+        assert!(
+            Url::parse(&url)
+                .unwrap()
+                .host_str()
+                .is_some_and(|h| h.ends_with(".supabase.com"))
+        );
+        let mut client = connect_client(&url).unwrap();
+        let id = Uuid::now_v7();
+        let hash = ContentHash::sha256_bytes(b"owned legacy fixture");
+        let row = client
+            .query_one(
+                "select $1::uuid,$1::uuid,$1::uuid,1::bigint,'legacy'::text,
+            'legacy-source'::text,$2::text,$2::text,null::text,$1::uuid,'[]'::jsonb,
+            array['paper']::text[],null::timestamptz,null::uuid,$2::text,$1::uuid,
+            '2026-01-01T00:00:00Z'::timestamptz,null::uuid,null::jsonb,null::jsonb",
+                &[&id, &hash.as_str()],
+            )
+            .unwrap();
+        assert!(row_to_release(&row).is_err());
     }
 }
