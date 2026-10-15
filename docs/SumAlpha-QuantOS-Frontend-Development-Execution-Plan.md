@@ -1,4 +1,6 @@
-> 当前工程结果（2026-10-14）：冻结9b7bb8e5完整复验TP01-E_LOCAL必要28节点/88组本地检查PASS，104项专用测试与16项完整回执负向PASS；仅TP01-E限定DEVELOPMENT READY，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。22组Supabase/外部/性能义务移交测试及RELEASE，formalAccepted=false、syncApproved=false；历史失败与中断原件保留。见[本轮报告](./audit/TP01-E-local-admission-2026-10-14.md)。
+> 当前执行（2026-10-15）：冻结f21318b7完整30节点/96组本地检查PASS，三次跨语言可复现构建PASS；TP01-G_LOCAL限定DEVELOPMENT READY。198项真实UDS模块替换/协议检查、4项上游离线patch回归、40+57项G回执/准入测试PASS。上游DRAFT_NOT_SUBMITTED，externalPublished=false、upstreamAccepted=false、formalAccepted=false；22组共享目标与E/F/G发布义务NOT_RUN。E/F独立旧READY保持撤回，本轮仅作为G消费者内部依赖。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。见[本轮报告](./audit/TP01-G-local-admission-2026-10-15.md)。
+
+> 历史工程快照（2026-10-14，G源码变更前）：冻结9b7bb8e5完整复验TP01-E_LOCAL必要28节点/88组本地检查PASS，104项专用测试与16项完整回执负向PASS；仅TP01-E限定DEVELOPMENT READY，全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。22组Supabase/外部/性能义务移交测试及RELEASE，formalAccepted=false、syncApproved=false；历史失败与中断原件保留。见[本轮报告](./audit/TP01-E-local-admission-2026-10-14.md)。
 
 > 上轮工程快照（2026-10-14，TP01-E_LOCAL前）：冻结5e14e3a4完成X03缓存重放安全重验/请求人及意图绑定、TTL/P95拆分；27节点/85组已登记本地前置与12项收尾全部通过。完整X03闭包42节点仍缺15节点专用映射，未授予准入；公共输入变化后旧六项READY已撤回，全图0 READY / 159 NOT_ASSESSED / 0 BLOCKED。外部/性能留测试及RELEASE，formalAccepted=false。见[本轮报告](./audit/X03-replay-fix-2026-10-14.md)。
 

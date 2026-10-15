@@ -1,0 +1,165 @@
+[
+  {
+    "id": "closure-negatives",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "docs/audit/evidence/tp01-g-local-20261015/closure-negatives.mjs"
+    ],
+    "executedAt": "2026-10-15T00:39:07.516464+00:00",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-closure-negatives.log",
+    "logSha256": "sha256:9b0a07311e67c2c83bb30e8b3f576f290589364889d0c6dcd631878d6f0456be"
+  },
+  {
+    "id": "g-ready",
+    "command": [
+      "node",
+      "scripts/tp01-g-local-gate.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-15T00:39:16.738329+00:00",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-g-ready.log",
+    "logSha256": "sha256:fdc0b5ac303f1b98100a2e42ef6b8040ed8d50a3101029c9509d1b660df6f372"
+  },
+  {
+    "id": "g-release-refusal",
+    "command": [
+      "node",
+      "scripts/tp01-g-local-gate.mjs",
+      "--release"
+    ],
+    "executedAt": "2026-10-15T00:39:25.582968+00:00",
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-g-release-refusal.log",
+    "logSha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049"
+  },
+  {
+    "id": "e-stale-ready-refusal",
+    "command": [
+      "node",
+      "scripts/tp01-e-local-gate.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-15T00:39:25.718076+00:00",
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-e-stale-ready-refusal.log",
+    "logSha256": "sha256:6cebd54e368a1b20ed2be4cf7692b4bba21ec71c6c733cd2927a0e9ecadff6db"
+  },
+  {
+    "id": "f-stale-ready-refusal",
+    "command": [
+      "node",
+      "scripts/tp01-f-local-gate.mjs",
+      "--ready"
+    ],
+    "executedAt": "2026-10-15T00:39:25.852845+00:00",
+    "exitCode": 2,
+    "expectedExitCode": 2,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-f-stale-ready-refusal.log",
+    "logSha256": "sha256:a06e52404c92914b61f324fe8c355a70fd8f282be1bc682f7afd3cea7c00267a"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "executedAt": "2026-10-15T00:39:25.987488+00:00",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-plans.log",
+    "logSha256": "sha256:c6ce34052c658c1d9c99d58d5637e5e11cfff2e2e9f25963021e8414b52e0e91"
+  },
+  {
+    "id": "plans-negative",
+    "command": [
+      "node",
+      "--test",
+      "--test-reporter=tap",
+      "scripts/development-plan-order-negative.mjs"
+    ],
+    "executedAt": "2026-10-15T00:39:26.043453+00:00",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-plans-negative.log",
+    "logSha256": "sha256:c22e93fb892d6118bf2ec8e60a57826d4475907897831a568566f41a6b4c4bf3"
+  },
+  {
+    "id": "development-handoff",
+    "command": [
+      "make",
+      "development-handoff-check"
+    ],
+    "executedAt": "2026-10-15T00:39:26.506167+00:00",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-development-handoff.log",
+    "logSha256": "sha256:0128ce8dce82c48a52167ac18661aa433064bed9f68a116824ea00c89bae626a"
+  },
+  {
+    "id": "frontend-handoff",
+    "command": [
+      "node",
+      "scripts/check-frontend-gate-handoff.mjs"
+    ],
+    "executedAt": "2026-10-15T00:39:26.539005+00:00",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-frontend-handoff.log",
+    "logSha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+  },
+  {
+    "id": "final-verification",
+    "command": [
+      "node",
+      "docs/audit/evidence/tp01-g-local-20261015/verify.mjs"
+    ],
+    "executedAt": "2026-10-15T00:39:26.573877+00:00",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-final-verification.log",
+    "logSha256": "sha256:2a40c8bcd21ef50131170ba019ba6ab02aebd0c6e242cb89e7f39b37258f4ce3"
+  },
+  {
+    "id": "whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "executedAt": "2026-10-15T00:39:46.177951+00:00",
+    "exitCode": 0,
+    "expectedExitCode": 0,
+    "timedOut": false,
+    "signal": null,
+    "log": "docs/audit/evidence/tp01-g-local-20261015/post-whitespace.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

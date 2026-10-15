@@ -1,4 +1,4 @@
-> 当前执行（2026-10-15）：TP01-G开发与离线patch复验中；共享源码变化后E/F旧READY撤回，历史结果保留，当前全图0 READY / 159 NOT_ASSESSED。无外部发布，formalAccepted=false。
+> 当前执行（2026-10-15）：冻结f21318b7完整30节点/96组本地检查PASS，三次跨语言可复现构建PASS；TP01-G_LOCAL限定DEVELOPMENT READY。198项真实UDS模块替换/协议检查、4项上游离线patch回归、40+57项G回执/准入测试PASS。上游DRAFT_NOT_SUBMITTED，externalPublished=false、upstreamAccepted=false、formalAccepted=false；22组共享目标与E/F/G发布义务NOT_RUN。E/F独立旧READY保持撤回，本轮仅作为G消费者内部依赖。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。见[本轮报告](./audit/TP01-G-local-admission-2026-10-15.md)。
 
 > 历史工程快照（2026-10-14）：冻结5e555802完整29节点/92组本地检查PASS，三次跨语言可复现构建PASS；TP01-F_LOCAL限定DEVELOPMENT READY，E从同轮实际执行派生28节点新回执并恢复READY，全图2 READY / 157 NOT_ASSESSED / 0 BLOCKED。47项Python/19条实际UDS演练、94项F专用回执/准入负向及15项模拟回归PASS。22组共享目标检查和6项F发布义务NOT_RUN，formalAccepted=false；首轮79/13失败原件保留。见[本轮报告](./audit/TP01-F-local-admission-2026-10-14.md)。
 
@@ -1378,7 +1378,7 @@ flowchart TD
 - task_id: `TP01-G`
 - task_type: `CORE`
 - iteration: `TP01-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:353ec7264021219a26d6b8ec30f76b8ac4e862e1cb569d73fd70741ed32cebbb","evidence":["audit/evidence/tp01-g-local-20261015/manifest.json"]}
 - depends_on: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1393,7 +1393,7 @@ flowchart TD
 - 阶段执行：本地开发验证内部类型隔离、模块替换与业务协议不变；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：不依赖 fork 内部类型；任一模块可替换且业务协议不变；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：TP01-F、R03
-- 当前工程复核：2026-10-15，本地代码与上游离线patch已实现，等待冻结候选的必要闭包实际复验；formalAccepted=false、externalPublished=false、upstreamAccepted=false。E/F旧READY因共享源码输入变化撤回，原2026-10-14证据完整保留。见[本轮报告](./audit/TP01-G-local-admission-2026-10-15.md)。
+- 当前工程复核：2026-10-15，冻结f21318b7完整30节点/96组本地必要闭包PASS，三次构建PASS；TP01-G_LOCAL限定DEVELOPMENT READY，开发实现完成待正式验收。198项模块替换/协议测试、4项离线patch回归及40+57项功能回执/准入负向PASS；全量make test：Rust396 PASS/8 ignored、Python1635 PASS、Web233 PASS/3 skipped。上游固定基线原件预期2 FAIL、应用patch后4 PASS，DRAFT_NOT_SUBMITTED、无PR/外部发布。formalAccepted=false、externalPublished=false、upstreamAccepted=false；22组共享目标及E/F/G发布义务NOT_RUN。首轮5df1b36a中断/637文件恢复原件保留，新候选完整重跑；E/F旧独立READY保持撤回，本轮仅G内部LOCAL_READY。见[验收证据报告](./audit/TP01-G-local-admission-2026-10-15.md)、[当前manifest](./audit/evidence/tp01-g-local-20261015/manifest.json)及[独立核验](./audit/evidence/tp01-g-local-20261015/verification.json)。不授予SERVICE:TP01、R1-SERVICE、生产或正式ACCEPTED。
 
 <a id="acceptance-service-tp01"></a>
 ### SERVICE:TP01：验收检查点
