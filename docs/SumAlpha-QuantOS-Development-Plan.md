@@ -1,4 +1,6 @@
-> 当前执行（S01，2026-10-15）：冻结d021ac20联合32节点/103组本地检查全部PASS，三次跨语言可复现构建PASS；S01_LOCAL限定DEVELOPMENT READY。50组各4线程竞争无静默覆盖，S01 Rust19 PASS/1性能ignored、门禁62 PASS、迁移静态3 PASS；make test：Rust399 PASS/9 ignored、Python1635 PASS、Web233 PASS/3 skipped。637文件canonical恢复。仅登记S01，上游内部LOCAL_READY不传播独立Gate；全图1 READY/158 NOT_ASSESSED/0 BLOCKED。22组共享目标及11项发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[本轮报告](./audit/S01-local-admission-2026-10-15.md)。
+> 当前执行（TP06，2026-10-15）：实现与本地验收准备中；旧S01准入因共享功能输入变化撤回，历史证据保留。本轮将完整重跑F08、SERVICE:TP01和R1-SERVICE必要32节点；目标/性能/正式确认仍NOT_RUN。
+
+> 历史工程快照（S01，2026-10-15；TP06共享源码变更后独立准入撤回）：冻结d021ac20联合32节点/103组本地检查全部PASS，三次跨语言可复现构建PASS；S01_LOCAL限定DEVELOPMENT READY。50组各4线程竞争无静默覆盖，S01 Rust19 PASS/1性能ignored、门禁62 PASS、迁移静态3 PASS；make test：Rust399 PASS/9 ignored、Python1635 PASS、Web233 PASS/3 skipped。637文件canonical恢复。仅登记S01，上游内部LOCAL_READY不传播独立Gate；全图1 READY/158 NOT_ASSESSED/0 BLOCKED。22组共享目标及11项发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[本轮报告](./audit/S01-local-admission-2026-10-15.md)。
 
 > 历史工程快照（2026-10-15，S01前）：SERVICE:TP01在冻结fedee914完整31节点/99组本地检查PASS，三次跨语言可复现构建PASS；SERVICE-TP01_LOCAL限定DEVELOPMENT READY。132项专用功能案例（100安全负向、20workflow、取消<2秒、Artifact去重和禁用/回滚）、33+64项专用回执/准入测试PASS；make test：Rust396 PASS/8 ignored、Python1635 PASS、Web233 PASS/3 skipped。仅SERVICE消费者内部A–G/R1-SERVICE LOCAL_READY，旧G独立READY撤回且历史原件保留；637文件canonical恢复。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED；22组共享目标和8项汇总发布义务NOT_RUN，formalAccepted=false、externalPublished=false、upstreamAccepted=false。见[本轮报告](./audit/SERVICE-TP01-local-admission-2026-10-15.md)。
 
@@ -607,6 +609,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "CORE:R02",
         "CORE:R03",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP06": {
+      "profile": "TP06_LOCAL",
+      "schema": "quantos-tp06-local-development/v1",
+      "manifest": "audit/evidence/tp06-local-20261015/manifest.json",
+      "prerequisites": [
+        "CORE:F08",
+        "SERVICE:TP01",
         "CORE-GATE:R1-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -1469,7 +1482,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - task_id: `S01`
 - task_type: `CORE`
 - iteration: `S2-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4d7e64eecf37d414fdb800eccb0de66cf0494cfc41f29c9ce6458714331d13d5","evidence":["audit/evidence/s01-local-20261015/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:R02", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:R02", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1483,7 +1496,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 阶段执行：本地开发验证50组并发编辑无静默覆盖、授权/快照/Artifact约束和保存正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。 S01_LOCAL执行S01与SERVICE:TP01联合32节点完整本地闭包，只登记S01；规程 docs/operations/s01-local-admission.md。
 - 依赖：R02、R03
-- 当前工程复核：冻结d021ac20联合32节点/103组PASS；S01_LOCAL限定DEVELOPMENT READY，开发实现完成待正式验收。50组真实线程竞争、授权/工作区/快照/Artifact边界、参数模型、版本/自动保存与哈希、迁移静态契约均通过。目标Supabase、P95/长稳及正式确认独立NOT_RUN；SERVICE:TP01旧独立READY撤回，当前内部依赖证据仅属于S01消费者。首轮工具链失败、第二轮审计FK复核中断及恢复记录保留；第三轮完整重跑，不拼接旧候选通过结果。见[验收报告](./audit/S01-local-admission-2026-10-15.md)、[manifest](./audit/evidence/s01-local-20261015/manifest.json)。历史[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s01)保留；本次未自行批准正式ACCEPTED。
+- 当前工程复核：TP06共享功能输入变化后，S01当前独立准入撤回为NOT_ASSESSED；下述为历史验证，不代表当前源码READY。冻结d021ac20联合32节点/103组PASS；S01_LOCAL限定DEVELOPMENT READY，开发实现完成待正式验收。50组真实线程竞争、授权/工作区/快照/Artifact边界、参数模型、版本/自动保存与哈希、迁移静态契约均通过。目标Supabase、P95/长稳及正式确认独立NOT_RUN；SERVICE:TP01旧独立READY撤回，当前内部依赖证据仅属于S01消费者。首轮工具链失败、第二轮审计FK复核中断及恢复记录保留；第三轮完整重跑，不拼接旧候选通过结果。见[验收报告](./audit/S01-local-admission-2026-10-15.md)、[manifest](./audit/evidence/s01-local-20261015/manifest.json)。历史[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s01)保留；本次未自行批准正式ACCEPTED。
 
 <a id="task-tp06"></a>
 ### TP06：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选
@@ -1495,17 +1508,18 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - depends_on: ["CORE:F08", "SERVICE:TP01", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:F08", "SERVICE:TP01", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `S2-SERVICE`
 - 需求描述：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选
 - 接入范围与改造：单独评估策略生成、静态检查与回测编排；输出策略草稿和检查 Artifact，绝不部署或进入 OMS
+- 技术要求：TP06_LOCAL 原生data-only生成器替换接口、内存不可变Artifact对与读回、拒绝矩阵、Rust检查重验证与真实进程回测；仅消费者DEVELOPMENT准入，目标/性能/正式验收独立NOT_RUN。
 - 交付物：`engines/strategy-lab` 或 ADR、generator adapter、静态分析 fixtures
 - 集成验收标准：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现
 - 阶段执行：本地开发验证100个恶意提示拒绝、Artifact唯一输出、静态失败阻断Release及可替换性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：生成结果只写 Artifact；100 个恶意/越权提示无订单/secret/network 越权；静态检查失败时 100% 阻断 Release；可完全替换上游实现；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 阶段/依赖：F08、SERVICE:TP01；S2 服务窗口；TP01 总项的 Web E2E 随 U01 后续验收
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp06)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：本轮代码/测试/文档已实现，准备清洁冻结候选后完整执行32节点闭包；未完成执行前不登记READY。目标Supabase/外部模型/OS隔离/性能/同SHA hosted CI与正式确认保持NOT_RUN，未采用或发布外部上游。见[本轮报告](./audit/TP06-local-admission-2026-10-15.md)。
 
 <a id="task-s02"></a>
 ### S02：回测与成本/滑点验证
@@ -2353,6 +2367,8 @@ L01/L02及L03/L04服务功能准入就绪后放行I10：协议映射、秘密权
 以下发布门槛继续生效：未固定 commit/tag、未完成许可结论或缺 SBOM 的制品不得进入生产；M5 Gate 及单独批准前不得向生产开放 Assisted Live；任何阶段均不启用 Guarded Live。工程 testnet 的可见性/调用必须由受控 capability 和批准限定。
 
 ## 13. 独立发布前验收
+
+TP06_LOCAL 发布移交：继承SERVICE:TP01及R1-SERVICE全部Supabase、部署、真实canary/回滚、外部治理及性能义务；实际Storage/Artifact持久审计、RLS/事务/跨进程恢复、获准live模型与受信任身份、OS出网及凭据隔离、真实目标组合/安全/负载/性能/长稳和候选同SHA hosted CI由测试及RELEASE-GATE:BETA首次发布前实际验收，未执行NOT_RUN。原100恶意提示无订单/secret/network越权、静态失败100%阻断Release、仅Artifact输出和上游完全可替换要求保留；本地READY仅属于TP06，不授予上游、正式ACCEPTED、生产或外部发布授权。
 
 Paper + Shadow Beta 的统一检查点为前端计划的 [RELEASE-GATE:BETA](./SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md#acceptance-release-gate-beta)。它承接第 2.9 节性能、长稳、部署、同 SHA CI 和适用用途许可/签字；L04 负责的 Beta 服务移交也必须在首次 Beta 发布前完成，不能因责任任务排在后面而跳过。
 

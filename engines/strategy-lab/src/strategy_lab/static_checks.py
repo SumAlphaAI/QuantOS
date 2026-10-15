@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
+import re
 
 
 SUPPORTED_RULES: frozenset[str] = frozenset({"momentum"})
@@ -60,6 +62,23 @@ def run_static_checks(rule: str, parameters: dict, rule_source: str) -> StaticCh
         elif abs(value) > MAX_THRESHOLD_BPS:
             findings.append(f"{key}_out_of_range:{value}")
 
+    try:
+        notional = Decimal(parameters.get("max_position_notional", ""))
+        if not notional.is_finite() or not 0 < notional <= 1_000_000:
+            findings.append("invalid_max_position_notional")
+    except (InvalidOperation, TypeError, ValueError):
+        findings.append("invalid_max_position_notional")
+    universe = parameters.get("universe")
+    if (
+        not isinstance(universe, list)
+        or not 1 <= len(universe) <= 100
+        or any(not isinstance(s, str) or not re.fullmatch(r"[A-Z0-9]{2,24}", s) for s in universe)
+        or len(set(universe)) != len(universe)
+    ):
+        findings.append("invalid_universe")
+    # Only this declarative grammar is accepted. No Python/eval/plugin source executes.
+    if rule_source != f"momentum(close, lookback={lookback})":
+        findings.append("invalid_rule_source")
     normalized_source = rule_source.lower()
     for construct in FORBIDDEN_CONSTRUCTS:
         if construct in normalized_source:

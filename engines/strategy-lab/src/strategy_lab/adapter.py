@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 import grpc
 
+from quantos.common.v1 import common_pb2
 from quantos.engine.v1 import engine_pb2
 from quantos_engine_sdk import json_document_to_mapping
 
@@ -44,6 +45,7 @@ class StrategyLabExecutionContext:
     workflow_run_id: str
     tenant_id: str
     actor_id: str
+    workspace_id: str
     prompt: str
     fixture_name: str
     data_snapshot_ref: str
@@ -79,14 +81,45 @@ class StrategyLabRequestAdapter:
                 "actor is missing required strategy-lab capability",
             )
 
+        metadata = request.metadata
+        if metadata.mode != common_pb2.RUNTIME_MODE_RESEARCH or not all(
+            (
+                metadata.tenant_id,
+                metadata.workspace_id,
+                metadata.actor.actor_id,
+                request.workflow_run_id,
+                request.idempotency_key,
+                request.data_snapshot_ref,
+                request.policy_context_ref,
+            )
+        ):
+            raise RequestBoundaryError(
+                grpc.StatusCode.PERMISSION_DENIED,
+                "research identity, workflow and pinned references required",
+            )
         payload = json_document_to_mapping(request.input)
         self._reject_forbidden_fields(payload)
 
-        requested_tools = tuple(str(tool).strip() for tool in payload.get("tools", []))
+        allowed = {"prompt", "fixture", "tools", "sleep_ms", "stream_delay_ms"}
+        if set(payload) - allowed:
+            raise RequestBoundaryError(grpc.StatusCode.PERMISSION_DENIED, "unknown request field")
+        tools = payload.get("tools", [])
+        if not isinstance(tools, list) or any(not isinstance(tool, str) for tool in tools):
+            raise RequestBoundaryError(grpc.StatusCode.INVALID_ARGUMENT, "tools must be strings")
+        for key in ("sleep_ms", "stream_delay_ms"):
+            value = payload.get(key, 0)
+            if type(value) not in (int, float) or not 0 <= value <= 5000 or value != int(value):
+                raise RequestBoundaryError(grpc.StatusCode.INVALID_ARGUMENT, "invalid delay")
+            if key in payload:
+                payload[key] = int(value)
+        for key in ("prompt", "fixture"):
+            if key in payload and not isinstance(payload[key], str):
+                raise RequestBoundaryError(grpc.StatusCode.INVALID_ARGUMENT, "text required")
+        requested_tools = tuple(tools)
         self._reject_forbidden_tools(requested_tools)
 
         prompt = str(payload.get("prompt", "")).strip()
-        if not prompt:
+        if not prompt or len(prompt) > 8192:
             raise RequestBoundaryError(
                 grpc.StatusCode.INVALID_ARGUMENT,
                 "`prompt` is required for strategy-lab",
@@ -103,6 +136,7 @@ class StrategyLabRequestAdapter:
             workflow_run_id=request.workflow_run_id,
             tenant_id=request.metadata.tenant_id,
             actor_id=request.metadata.actor.actor_id,
+            workspace_id=request.metadata.workspace_id,
             prompt=prompt,
             fixture_name=fixture_name,
             data_snapshot_ref=request.data_snapshot_ref,

@@ -1955,6 +1955,63 @@
         "scripts/s01-local-gate.test.mjs"
       ],
       "marker": "fail 0"
+    },
+    "tp06-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-strategy",
+        "--lib",
+        "generated::tests"
+      ],
+      "marker": "test result: ok.",
+      "timeoutMs": 180000
+    },
+    "tp06-style": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-strategy",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "timeoutMs": 180000
+    },
+    "tp06-functional": {
+      "command": [
+        "node",
+        "scripts/tp06-functional.mjs",
+        "--record"
+      ],
+      "artifact": "docs/audit/evidence/tp06-local-20261015/functional/receipt.json",
+      "artifactKind": "tp06-functional",
+      "timeoutMs": 60000
+    },
+    "tp06-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp06-functional.test.mjs"
+      ],
+      "marker": "fail 0",
+      "timeoutMs": 60000
+    },
+    "tp06-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp06-local-gate.test.mjs"
+      ],
+      "marker": "fail 0",
+      "timeoutMs": 60000
     }
   },
   "nodes": {
@@ -2873,6 +2930,24 @@
         "s01-migration",
         "s01-local-policy"
       ]
+    },
+    "CORE:TP06": {
+      "scope": "Owned replaceable data-only strategy generator, immutable local Artifact pair, 100 adversarial prompts, static-failure consumer blocking and real-process backtest; target and formal release NOT_RUN",
+      "inputs": [
+        "engines/strategy-lab/",
+        "engines/tests/test_strategy_lab*",
+        "engines/tests/fixtures/tp06-attacks.json",
+        "crates/quantos-strategy/",
+        "docs/operations/tp06-local-admission.md",
+        "docs/adr/20261015-tp06-native-strategy-generator.md"
+      ],
+      "checks": [
+        "tp06-rust",
+        "tp06-style",
+        "tp06-functional",
+        "tp06-negatives",
+        "tp06-local-policy"
+      ]
     }
   },
   "developmentProfile": {
@@ -3351,6 +3426,41 @@
     "roots": [
       "CORE:S01",
       "SERVICE:TP01"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "tp06Local": {
+    "owner": "CORE:TP06",
+    "profile": "TP06_LOCAL",
+    "roots": [
+      "CORE:TP06"
     ],
     "deferredChecks": [
       "tp01-baseline",

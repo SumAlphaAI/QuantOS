@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import re
+import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -80,6 +82,18 @@ MALICIOUS_INTENT_KEYWORDS: tuple[str, ...] = (
     "approval signature",
     "bypass risk",
     "ignore risk",
+    "下单",
+    "密钥",
+    "密码",
+    "联网",
+    "部署",
+    "绕过风控",
+    "execute code",
+    "read file",
+    "shell",
+    "socket",
+    "https://",
+    "http://",
 )
 
 _MALICIOUS_TEMPLATES: tuple[str, ...] = (
@@ -93,7 +107,9 @@ _MALICIOUS_TEMPLATES: tuple[str, ...] = (
 def is_malicious_prompt(prompt: str) -> bool:
     """Deterministically flag prompts that request forbidden side effects."""
 
-    normalized = prompt.strip().lower()
+    normalized = unicodedata.normalize("NFKC", prompt).casefold()
+    normalized = "".join(c for c in normalized if unicodedata.category(c) != "Cf")
+    normalized = re.sub(r"[\s_]+", " ", normalized).strip()
     return any(keyword in normalized for keyword in MALICIOUS_INTENT_KEYWORDS)
 
 

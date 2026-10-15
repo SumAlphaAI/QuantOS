@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {test,after} from 'node:test';
+import {mkdtempSync,cpSync,rmSync,readFileSync,writeFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {tmpdir} from 'node:os';
+import {record,verifyFunctional,supportingPaths} from './tp06-functional.mjs';
+import {digest,supportingArtifactPaths} from './provider-a1-receipts.mjs';
+const root=mkdtempSync(resolve(tmpdir(),'quantos-tp06-negatives-')),seed=root+'/seed',receipt=record({outputDirectory:seed});after(()=>rmSync(root,{recursive:true,force:true}));
+function fixture(fn){const dir=mkdtempSync(root+'/case-');cpSync(seed,dir,{recursive:true});const r=structuredClone(receipt),verify=()=>verifyFunctional(r,{logDirectory:dir,expectedOutputDirectory:seed});try{fn(r,dir,verify);}finally{rmSync(dir,{recursive:true,force:true});}}
+test('actual 210 service fixtures never grant a stage',()=>fixture((r,d,verify)=>assert.deepEqual(verify(),{engineeringStatus:'PASS',stageGate:'NOT_ASSESSED',cases:210,securityNegativeFixtures:100,staticFailureFixtures:100,formalAccepted:false})));
+test('all supporting originals registered',()=>assert.deepEqual(supportingArtifactPaths('tp06-functional',receipt),supportingPaths(receipt)));
+for(const[label,mutate]of[
+ ['missing execution',r=>r.checks.pop()],['duplicate execution',r=>r.checks.push(r.checks[0])],['fake command',r=>r.checks[0].command=['true']],['failed exit',r=>r.checks[0].exitCode=1],['false status',r=>r.checks[0].status='FAIL'],['timeout',r=>r.checks[0].timedOut=true],['signal',r=>r.checks[0].signal='SIGTERM'],['process error',r=>r.checks[0].executionErrorCode='ENOENT'],['execution bound',r=>r.checks[0].timeoutMs=1],['future execution',r=>r.checks[0].executedAt='9999-01-01'],['wrong schema',r=>r.schema='fake'],['wrong consumer',r=>r.nodeId='CORE:TP01-F'],['ready artifact',r=>r.stageGate='READY'],['scope drift',r=>r.planInput={}],['code drift',r=>r.inputs[0].sha256=digest('different')],['duplicate file',r=>r.files.push(r.files[0])],['missing file',r=>r.files.pop()],['unsafe file',r=>r.files[0].path='../outside'],['log digest',r=>r.checks[0].logSha256=digest('fake')],['file digest',r=>r.files[0].sha256=digest('fake')],
+ ...['formalAccepted','databaseExecution','externalExecution','performanceAccepted','externalPublished','upstreamAccepted'].map(key=>[key,r=>r[key]=true]),
+])test('functional proof rejects '+label,()=>fixture((r,d,verify)=>{mutate(r);assert.throws(verify);}));
+for(const label of ['missing case','duplicate case','skipped case','substituted case','false total'])test('even rehashed log rejects '+label,()=>fixture((r,d,verify)=>{const path=d+'/probe.log',original=readFileSync(path,'utf8'),line=original.split('\n').find(l=>l.includes('::test_owned_attack')&&l.includes(' PASSED'));const changed=label==='missing case'?original.replace(line+'\n',''):label==='duplicate case'?original+line+'\n':label==='skipped case'?original.replace(line,line.replace('PASSED','SKIPPED')):label==='substituted case'?original.replace(line,line.replace('test_owned_attack','test_forged_boundary')):original.replace('210 passed','211 passed');writeFileSync(path,changed);r.checks[0].logSha256=digest(changed);r.files[0].sha256=digest(changed);assert.throws(verify);}));

@@ -676,3 +676,15 @@ s01-local-check:
 	node scripts/s01-local-gate.mjs --ready
 s01-release-check:
 	node scripts/s01-local-gate.mjs --release
+
+.PHONY: tp06-check tp06-assess-local tp06-local-check tp06-release-check
+tp06-check:
+	engines/.venv/bin/python -m pytest engines/tests/test_strategy_lab_contract.py engines/tests/test_strategy_lab_development.py -q
+	env -u DATABASE_URL cargo test --locked --offline -p quantos-strategy --lib generated::tests
+	node --test scripts/tp06-functional.test.mjs scripts/tp06-local-gate.test.mjs
+tp06-assess-local:
+	node scripts/record-tp06-local.mjs
+tp06-local-check:
+	node scripts/tp06-local-gate.mjs --ready
+tp06-release-check:
+	node scripts/tp06-local-gate.mjs --release

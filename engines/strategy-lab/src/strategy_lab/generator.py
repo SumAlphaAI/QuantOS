@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
+from typing import Protocol
 
 from quantos.common.v1 import common_pb2
 from quantos_engine_sdk import input_hash, json_document_from_mapping
@@ -11,6 +12,22 @@ from quantos_engine_sdk import input_hash, json_document_from_mapping
 from strategy_lab.adapter import StrategyLabExecutionContext
 from strategy_lab.fixtures import StrategyLabFixture
 from strategy_lab.static_checks import run_static_checks
+
+
+class StrategyGenerator(Protocol):
+    """Replaceable data-only provider. It receives no tools, credentials or clients."""
+
+    def generate(self, prompt: str, fixture_name: str) -> StrategyLabFixture: ...
+
+
+class FixtureStrategyGenerator:
+    """Owned deterministic reference; no upstream code or live model is imported."""
+
+    def generate(self, prompt: str, fixture_name: str) -> StrategyLabFixture:
+        from strategy_lab.fixtures import load_fixture
+
+        del prompt  # Reference selection is explicit; this is not a live LLM.
+        return load_fixture(fixture_name)
 
 
 @dataclass(frozen=True)
@@ -45,6 +62,8 @@ def map_prompt_to_strategy(
         "artifact_type": "StrategyDraftArtifact",
         "engine": "strategy-lab",
         "request_id": metadata.request_id,
+        "tenant_id": context.tenant_id,
+        "workspace_id": context.workspace_id,
         "workflow_run_id": context.workflow_run_id,
         "prompt_hash": f"sha256:{prompt_hash}",
         "data_snapshot_ref": context.data_snapshot_ref,
@@ -68,6 +87,8 @@ def map_prompt_to_strategy(
         "engine": "strategy-lab",
         "workflow_run_id": context.workflow_run_id,
         "strategy_name": fixture.strategy_name,
+        "tenant_id": context.tenant_id,
+        "workspace_id": context.workspace_id,
         "passed": report.passed,
         "findings": list(report.findings),
         "blocked_release": not report.passed,

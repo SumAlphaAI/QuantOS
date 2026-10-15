@@ -1,0 +1,81 @@
+{
+  "schema": "quantos-tp06-preflight/v1",
+  "status": "PREFLIGHT_ONLY",
+  "stageGate": "NOT_ASSESSED",
+  "baseCommit": "4370cc173920660f836a273ec1f2ed0ac4adb1ca",
+  "dirtySource": true,
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "failures": [
+    {
+      "command": "pyright without explicit venv interpreter",
+      "result": "16 import resolution errors; corrected command used --project engines --pythonpath engines/.venv/bin/python"
+    },
+    {
+      "command": "pyright with venv interpreter",
+      "result": "1 RuntimeMode enum typing error, fixed using generated enum constant"
+    },
+    {
+      "command": "cargo test -p quantos-strategy --lib generated::tests",
+      "result": "4 passed,1 failed: real Protobuf number was integral double, fixed exact integral conversion with safe range"
+    },
+    {
+      "command": "development plan registration synchronization",
+      "result": "temporary contract/engineering-review-link errors while preparing candidate, resolved before final plan-freeze PASS"
+    }
+  ],
+  "finalResults": {
+    "python": "217 passed",
+    "rust": "5 passed",
+    "gate": "95 passed",
+    "clippy": "PASS",
+    "pyright": "0 errors,0 warnings",
+    "plans": "PASS"
+  },
+  "files": [
+    {
+      "path": "clippy.log",
+      "sha256": "sha256:60e1adadbe013bf3259c675ee8898100bce305fbf1cbd6c6a0bcd3b4a642edef"
+    },
+    {
+      "path": "final-preflight-gates.log",
+      "sha256": "sha256:cf5f97d12d7e1fe43bdc2f6a5e362fb0397aa7fe09bf7f1c3b6c9e981e8caeed"
+    },
+    {
+      "path": "final-preflight-python.log",
+      "sha256": "sha256:081123b5ad7b6a395dcf13268e2ab2acc3fc6c865ec004eefefc687a6058d7f3"
+    },
+    {
+      "path": "plan-freeze.log",
+      "sha256": "sha256:3b347ae7a32d56f02d0b8c59c9ac4459b0ab082e8aa07895e5980bdeb803db6b"
+    },
+    {
+      "path": "preflight-python.log",
+      "sha256": "sha256:7a16642b733f35ce15125747898d33f03e6e10f7043e2e60d4b6b40d679ad976"
+    },
+    {
+      "path": "preflight-rust-retry.log",
+      "sha256": "sha256:9cd1c1c5b90cbfd3e0833d3904f72969616ffb52049342ca6469711dc0c38011"
+    },
+    {
+      "path": "preflight-rust.log",
+      "sha256": "sha256:f0406b9b4fb77f78e2cbd40ef861244dd9bb5ff2d487335c92a752da201dbe5a"
+    },
+    {
+      "path": "pyright-corrected.log",
+      "sha256": "sha256:5f00bf05653fa461d60613c8d1944ed5c32eedc6d024e57cda31b50259ede218"
+    },
+    {
+      "path": "pyright-final3.log",
+      "sha256": "sha256:1d044deee37a17d52f4dd31d7de6ebd21c68eb5d08e8b3b0822f58940a3392bb"
+    },
+    {
+      "path": "pyright-venv.log",
+      "sha256": "sha256:999c4181a631cad3cbc072b7564cb8b163564c6e2c11323b45f9b1cdec402462"
+    },
+    {
+      "path": "pyright.log",
+      "sha256": "sha256:5f00bf05653fa461d60613c8d1944ed5c32eedc6d024e57cda31b50259ede218"
+    }
+  ]
+}

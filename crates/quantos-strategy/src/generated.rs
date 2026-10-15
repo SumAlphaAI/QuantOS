@@ -47,6 +47,22 @@ impl GeneratedStrategyAdapter {
             return Err(GeneratedStrategyError::ReleaseBlocked { findings });
         }
 
+        let check = payload.get("static_check");
+        if check.and_then(|c| c.get("passed")).and_then(Value::as_bool) != Some(true)
+            || !check
+                .and_then(|c| c.get("findings"))
+                .and_then(Value::as_array)
+                .is_some_and(Vec::is_empty)
+        {
+            return Err(GeneratedStrategyError::ReleaseBlocked {
+                findings: vec!["static check missing, failed or inconsistent".to_owned()],
+            });
+        }
+        if payload.get("artifact_type").and_then(Value::as_str) != Some("StrategyDraftArtifact") {
+            return Err(GeneratedStrategyError::Unsupported {
+                detail: "StrategyDraftArtifact required".to_owned(),
+            });
+        }
         let strategy =
             payload
                 .get("strategy")
@@ -78,9 +94,20 @@ impl GeneratedStrategyAdapter {
         }
         let entry_threshold_bps = integer_field(parameters, "entry_threshold_bps")?;
         let exit_threshold_bps = integer_field(parameters, "exit_threshold_bps")?;
-        if entry_threshold_bps.abs() > 5_000 || exit_threshold_bps.abs() > 5_000 {
+        if !(-5_000..=5_000).contains(&entry_threshold_bps)
+            || !(-5_000..=5_000).contains(&exit_threshold_bps)
+        {
             return Err(GeneratedStrategyError::Unsupported {
                 detail: "thresholds exceed ±5000bps bounds".to_owned(),
+            });
+        }
+
+        // Revalidate the data-only DSL at the consumer; provider flags grant no authority.
+        if strategy.get("rule_source").and_then(Value::as_str)
+            != Some(format!("momentum(close, lookback={lookback})").as_str())
+        {
+            return Err(GeneratedStrategyError::ReleaseBlocked {
+                findings: vec!["invalid_rule_source".to_owned()],
             });
         }
 
@@ -103,7 +130,20 @@ impl StrategyAdapter for GeneratedStrategyAdapter {
 fn integer_field(parameters: &Value, field: &str) -> Result<i64, GeneratedStrategyError> {
     parameters
         .get(field)
-        .and_then(Value::as_i64)
+        .and_then(|value| {
+            value.as_i64().or_else(|| {
+                // Protobuf Struct transports JSON numbers as doubles. Accept exact
+                // integral values only, before applying the small DSL bounds above.
+                value
+                    .as_f64()
+                    .filter(|number| {
+                        number.is_finite()
+                            && number.fract() == 0.0
+                            && (-9_007_199_254_740_991.0..=9_007_199_254_740_991.0).contains(number)
+                    })
+                    .map(|number| number as i64)
+            })
+        })
         .ok_or_else(|| GeneratedStrategyError::Unsupported {
             detail: format!("parameter `{field}` must be an integer"),
         })
@@ -244,6 +284,61 @@ mod tests {
             .expect("clean draft adapts again");
         let replay = run_backtest(&backtest_request, &mut second).expect("replay succeeds");
         assert_eq!(replay.report_hash, report.report_hash);
+    }
+
+    #[test]
+    fn forged_static_flags_and_source_never_adapt_and_integer_min_does_not_panic() {
+        for index in 0..100 {
+            let mut payload = draft_payload(true, vec![]);
+            match index % 5 {
+                0 => payload["static_check"]["passed"] = json!(false),
+                1 => payload["static_check"]["findings"] = json!([format!("rejected:{index}")]),
+                2 => payload["static_check"] = Value::Null,
+                3 => payload["strategy"]["rule_source"] = json!("eval(arbitrary)"),
+                _ => payload["strategy"]["parameters"]["entry_threshold_bps"] = json!(i64::MIN),
+            }
+            assert!(GeneratedStrategyAdapter::from_draft_payload(&payload).is_err());
+        }
+        assert!(GeneratedStrategyAdapter::from_draft_payload(&draft_payload(true, vec![])).is_ok());
+    }
+
+    #[test]
+    fn tp06_owned_python_process_artifacts_feed_actual_backtest_and_block_release() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(2)
+            .expect("repo root");
+        let output = std::process::Command::new(root.join("engines/.venv/bin/python"))
+            .arg(root.join("scripts/tp06-produce.py"))
+            .current_dir(root)
+            .env_remove("DATABASE_URL")
+            .env("QUANTOS_SKIP_ENV", "1")
+            .output()
+            .expect("owned IPC producer starts");
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let drafts: Vec<Value> = serde_json::from_slice(&output.stdout).expect("Artifact JSON");
+        assert_eq!(drafts.len(), 102);
+        let backtest_request = request();
+        let mut hashes = Vec::new();
+        for draft in &drafts[..2] {
+            let mut adapter = GeneratedStrategyAdapter::from_draft_payload(draft)
+                .expect("actual producer draft passes consumer checks");
+            let report = run_backtest(&backtest_request, &mut adapter).expect("actual consumer");
+            assert!(report.metrics.trade_count > 0);
+            assert_eq!(report.leak_check.violations, 0);
+            hashes.push(report.report_hash);
+        }
+        assert_eq!(hashes[0], hashes[1]);
+        for draft in &drafts[2..] {
+            assert!(matches!(
+                GeneratedStrategyAdapter::from_draft_payload(draft),
+                Err(GeneratedStrategyError::ReleaseBlocked { .. })
+            ));
+        }
     }
 
     #[test]
