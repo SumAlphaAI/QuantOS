@@ -1,4 +1,4 @@
-> 当前执行（S02，2026-10-15）：实现与新冻结候选完整依赖复验进行中；S01/TP06/TP08/R1-SERVICE必须同候选完整复验，历史READY不替代。共享输入变化已撤回TP06旧独立READY，历史证据保留；正式验收、数据库与发布NOT_RUN。
+> 当前执行（S02，2026-10-15）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
 > 历史执行（TP06，2026-10-15）：冻结0ade6441完整32节点/104组PASS，三次跨语言可复现构建与make lint/test PASS；Rust401 PASS/9 ignored、Python1845 PASS、Web233 PASS/3 skipped。TP06专用功能210 PASS、回执/准入33+62 PASS，真实Python→Rust回测消费/100静态失败及100伪造输入拒绝。637文件canonical恢复；TP06_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED。22组共享目标与4类TP06发布义务NOT_RUN；formalAccepted=false、databaseExecution=false、externalPublished=false。S01旧独立准入撤回且历史保留；首轮中断后第二轮全部重跑，未拼接旧结果。见[本轮报告](./audit/TP06-local-admission-2026-10-15.md)。
 
@@ -1541,7 +1541,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - task_id: `S02`
 - task_type: `CORE`
 - iteration: `S2-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:3d962457bdb67f1a4783132ae258dc6286e724ca8e507a30c4aad5722901f2f6","evidence":["audit/evidence/s02-local-20261015/manifest.json"]}
 - depends_on: ["CORE:S01", "CORE:TP06", "CORE:TP08", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:S01", "CORE:TP06", "CORE:TP08", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1555,7 +1555,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 阶段执行：本地开发验证10次确定性回放、100个未来数据泄漏拒绝、成本/环境/输入hash；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：S01、TP06、TP08
-- 当前工程复核：S02实现与新候选完整依赖复验进行中；未完成冻结全量执行前stage_gate保持NOT_ASSESSED。证据与风险见[验收报告](./audit/S02-local-admission-2026-10-15.md)，正式确认与发布目标独立NOT_RUN；历史[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s02)保留。
+- 当前工程复核：冻结5efa0be0完整34节点/111组PASS，S02_LOCAL限定DEVELOPMENT READY；S01/TP06/TP08/R1-SERVICE必要检查全部新候选重跑，108依赖先于3自身。10次重放、100泄漏/100畸形/2溢出拒绝、实际Python→S01→Rust消费/恢复与成本对账通过；专项9、门禁79及全工程lint/test/三次可复现构建PASS。首轮中断后修复并完整重跑，637文件与4个目录原有存在性恢复。22组共享及4类发布目标NOT_RUN，正式确认PENDING，不授予上游、生产或外部发布。见[报告](./audit/S02-local-admission-2026-10-15.md)、[manifest](./audit/evidence/s02-local-20261015/manifest.json)；历史[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s02)保留。
 
 <a id="task-s03"></a>
 ### S03：StrategyRelease 与部署目标控制

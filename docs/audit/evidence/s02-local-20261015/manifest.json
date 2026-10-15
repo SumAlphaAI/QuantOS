@@ -1,0 +1,417 @@
+{
+  "schema": "quantos-s02-local-development/v1",
+  "nodeId": "CORE:S02",
+  "stage": "DEVELOPMENT",
+  "profile": "S02_LOCAL",
+  "status": "READY",
+  "engineeringStatus": "PASS",
+  "databaseExecution": false,
+  "production": false,
+  "formalAccepted": false,
+  "externalExecution": false,
+  "performanceAccepted": false,
+  "syncApproved": false,
+  "targetCanaryAccepted": false,
+  "targetRollbackAccepted": false,
+  "externalPublished": false,
+  "upstreamAccepted": false,
+  "observedSourceCommit": "5efa0be0e4340b38d814256da9560b7fe43ef691",
+  "coverage": {
+    "validationReportHash": "sha256:647a46b9d611212b4caa5779d3e32537e380a417d5f7a7c5a12c046845891170",
+    "dependencyCoverage": {
+      "maliciousPrompts": 100,
+      "providerStaticFailures": 100,
+      "consumerStaticFailures": 100,
+      "forgedConsumerCases": 100,
+      "artifactOnly": true,
+      "replaceableProvider": true,
+      "realProcessBacktest": true,
+      "reproducibleBuilds": 3,
+      "localOnly": true,
+      "proofs": [
+        {
+          "id": "f01-reproducibility",
+          "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/s02-local-20261015/attempt-02/f01-reproducibility.json",
+          "sha256": "sha256:0d53e5abe00e5dba3ef81948d2713e639a292afcbc254d0335c70b36d47e929e"
+        },
+        {
+          "id": "service-tp01-functional",
+          "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/s02-local-20261015/attempt-02/supporting/service-tp01-functional/receipt.json",
+          "sha256": "sha256:f08b63bea1ff785b2ab8a3226f3e26cf8ccda842d8ae806847d83e59861a17fc"
+        },
+        {
+          "id": "tp01-e-functional",
+          "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/s02-local-20261015/attempt-02/supporting/tp01-e-functional/receipt.json",
+          "sha256": "sha256:b0de17a2a4881136684e5029360a4bdf75a0c76b7d806930d8961eb4a9a7233f"
+        },
+        {
+          "id": "tp01-f-functional",
+          "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/s02-local-20261015/attempt-02/supporting/tp01-f-functional/receipt.json",
+          "sha256": "sha256:51a6c9ad81ae4457c0cb0f31dcc6ead9a13645b1c32b4776c726ff6dbbd2e2eb"
+        },
+        {
+          "id": "tp01-g-functional",
+          "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/s02-local-20261015/attempt-02/supporting/tp01-g-functional/receipt.json",
+          "sha256": "sha256:be74e212174a8255c350478bbbce5d82debe703f4d4ad54632f0426c3af38ccf"
+        },
+        {
+          "id": "tp06-functional",
+          "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/s02-local-20261015/attempt-02/supporting/tp06-functional/receipt.json",
+          "sha256": "sha256:0646d3074641374a7a53305cf87dc3ef6dc5d1347b1303c2b3d62a21a4ccc958"
+        }
+      ]
+    },
+    "deterministicReplays": 10,
+    "lookaheadLeakageRejected": 100,
+    "malformedInputsRejected": 100,
+    "overflowFixturesRejected": 2,
+    "nextOpenFills": true,
+    "analyticCosts": true,
+    "pinnedDraftAndCandidate": true,
+    "realProcessS01Consumer": true,
+    "localOnly": true
+  },
+  "planInput": {
+    "acceptance_window": "S2-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE:S01",
+      "CORE:TP06",
+      "CORE:TP08",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "dependencies": [
+      "CORE:S01",
+      "CORE:TP06",
+      "CORE:TP08",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "depends_on": [
+      "CORE:S01",
+      "CORE:TP06",
+      "CORE:TP08",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "iteration": "S2-SERVICE",
+    "requirement": "回测与成本/滑点验证",
+    "requirements": [
+      "- 需求描述：回测与成本/滑点验证",
+      "- 技术要求：固定 DataSnapshot、clock、成本/滑点模型、look-ahead/数据泄漏检测、环境 hash；S02_LOCAL完整新候选依赖复验、S01不可变版本与TP06生成Artifact消费、下一开盘成交、字节/参数/候选绑定及成本对账，仅本地DEVELOPMENT准入。",
+      "- 交付物：backtest adapter、validation report",
+      "- 量化验收标准：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash",
+      "- 阶段执行：本地开发验证10次确定性回放、100个未来数据泄漏拒绝、成本/环境/输入hash；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：同一 release candidate 重放 10 次产生一致指标；100 个 look-ahead/数据泄漏 fixture 100% 失败；回测结果必须含成本、环境和输入 hash；未执行保持NOT_RUN。",
+      "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+    ],
+    "task_id": "S02",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/s02-local-20261015/attempt-02/local-prerequisites.json",
+    "inputDigest": "sha256:76fc73542c22adc56acad262bd53963cfd5b9d491c8c0c6a76a9f3d8929c077a"
+  },
+  "functionalManifest": "docs/audit/evidence/provider-a1-remediation-20261004/s02-local-20261015/attempt-02/core-s02.json",
+  "functionalDigest": "sha256:37aa63dcdb02cefed4991847ac18de7b2f958490eec4eff5aa1ebc1aae39d79c",
+  "dependencies": [
+    {
+      "nodeId": "CORE:S01",
+      "status": "LOCAL_READY",
+      "owner": "CORE:S02",
+      "inputDigest": "sha256:140e8cfdcd68930eda97859ea62403eda314a0a3f88733a685dd03f793acecdc"
+    },
+    {
+      "nodeId": "CORE:TP06",
+      "status": "LOCAL_READY",
+      "owner": "CORE:S02",
+      "inputDigest": "sha256:944708f3bde5df617345217ce251d2b1f06ceae2a5f6ffc0ceb13c2c1621f92a"
+    },
+    {
+      "nodeId": "CORE:TP08",
+      "status": "LOCAL_READY",
+      "owner": "CORE:S02",
+      "inputDigest": "sha256:0725f9c1338bd3daaa614ed2e0a693e3a7300063f493ad55b68b5a3a8ae5c48c"
+    },
+    {
+      "nodeId": "CORE-GATE:R1-SERVICE",
+      "status": "LOCAL_READY",
+      "owner": "CORE:S02",
+      "inputDigest": "sha256:665df1cebad4f27da55cf005f938881d6b549c7a3d6950ac3fbae22dc746e152"
+    }
+  ],
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "S02_LOCAL 发布移交：继承S01、TP06、TP08及R1-SERVICE全部Supabase、外部来源/模型授权、部署、真实canary/回滚和性能义务；实际持久Snapshot/Artifact字节、RLS/事务/跨进程恢复、真实模块消费与成本校准、代表性负载/性能/长稳、安全和候选同SHA hosted CI由测试及RELEASE-GATE:BETA首次发布前实际验收，未执行NOT_RUN。保留同候选10次一致重放、100个look-ahead/泄漏全拒绝及成本/环境/输入hash要求。本地DEVELOPMENT READY仅属于S02，不授予上游、正式ACCEPTED、生产或外部发布授权。",
+    "prerequisiteChecks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-sca",
+        "command": [
+          "make",
+          "sca-check"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp01-baseline",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--repository"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r01-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R01"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r02-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R02"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r03-release-target",
+        "command": [
+          "node",
+          "scripts/r03-target-check.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp09-development",
+        "command": [
+          "node",
+          "third_party/trendradar/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp10-development",
+        "command": [
+          "node",
+          "third_party/valuecell/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp11-development",
+        "command": [
+          "node",
+          "third_party/openstock/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r04-release-target",
+        "command": [
+          "node",
+          "scripts/r04-stage-check.mjs",
+          "--release"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "research-release-performance-smokes",
+        "command": [
+          "make",
+          "research-release-performance-smokes"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "frontend-release-performance",
+        "command": [
+          "make",
+          "frontend-release-performance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ],
+    "functionalTargets": [
+      {
+        "id": "durable-target",
+        "target": "actual Supabase Snapshot/Artifact audit, RLS, transactions, cross-process replay recovery and all inherited S01/TP06/TP08/R1 target obligations",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "provider-target",
+        "target": "separately authorized live provider and immutable adopted candidate, trusted identity, OS egress and credential isolation",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "target-performance",
+        "target": "representative deployed composition, load, performance, security and sustained canary/rollback obligations inherited from SERVICE:TP01",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "same-sha-ci",
+        "target": "hosted CI at frozen release candidate and ProjectUser formal confirmation",
+        "status": "NOT_RUN"
+      }
+    ]
+  }
+}
