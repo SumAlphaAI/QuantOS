@@ -1,0 +1,47 @@
+test_first_connect_without_replay_delivers_live_event_once (test_event_bus_replay_handoff.ReplayHandoffTests.test_first_connect_without_replay_delivers_live_event_once) ... ok
+test_reconnect_has_no_duplicate_at_handoff (test_event_bus_replay_handoff.ReplayHandoffTests.test_reconnect_has_no_duplicate_at_handoff) ... FAIL
+test_replay_all_has_no_duplicate_at_handoff (test_event_bus_replay_handoff.ReplayHandoffTests.test_replay_all_has_no_duplicate_at_handoff) ... FAIL
+test_replay_cursor_semantics_unchanged (test_event_bus_replay_handoff.ReplayHandoffTests.test_replay_cursor_semantics_unchanged) ... ok
+
+======================================================================
+FAIL: test_reconnect_has_no_duplicate_at_handoff (test_event_bus_replay_handoff.ReplayHandoffTests.test_reconnect_has_no_duplicate_at_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/anray/.local/share/uv/python/cpython-3.12.10-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/.local/share/uv/python/cpython-3.12.10-macos-aarch64-none/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-tp01-g-patch-e7e92rmm/tests/test_event_bus_replay_handoff.py", line 46, in test_reconnect_has_no_duplicate_at_handoff
+    await self.check_handoff(last_event_id="old")
+  File "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-tp01-g-patch-e7e92rmm/tests/test_event_bus_replay_handoff.py", line 40, in check_handoff
+    self.assertEqual((await asyncio.wait_for(anext(stream), 1)).event_id, "next")
+AssertionError: 'handoff' != 'next'
+- handoff
++ next
+
+
+======================================================================
+FAIL: test_replay_all_has_no_duplicate_at_handoff (test_event_bus_replay_handoff.ReplayHandoffTests.test_replay_all_has_no_duplicate_at_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/anray/.local/share/uv/python/cpython-3.12.10-macos-aarch64-none/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/anray/.local/share/uv/python/cpython-3.12.10-macos-aarch64-none/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-tp01-g-patch-e7e92rmm/tests/test_event_bus_replay_handoff.py", line 49, in test_replay_all_has_no_duplicate_at_handoff
+    await self.check_handoff(replay_all=True)
+  File "/private/var/folders/k8/_4hymb6j59s0c8xntb11ktmc0000gn/T/quantos-tp01-g-patch-e7e92rmm/tests/test_event_bus_replay_handoff.py", line 40, in check_handoff
+    self.assertEqual((await asyncio.wait_for(anext(stream), 1)).event_id, "next")
+AssertionError: 'handoff' != 'next'
+- handoff
++ next
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.006s
+
+FAILED (failures=2)

@@ -1,4 +1,4 @@
-> 当前执行（S01，2026-10-15）：策略草稿实现和依赖联合闭包待本轮冻结执行；共享功能输入已变化，SERVICE:TP01旧独立READY撤回为NOT_ASSESSED，历史回执原件保留。目标/性能/正式验收未执行。
+> 当前执行（S01，2026-10-15）：冻结d021ac20联合32节点/103组本地检查全部PASS，三次跨语言可复现构建PASS；S01_LOCAL限定DEVELOPMENT READY。50组各4线程竞争无静默覆盖，S01 Rust19 PASS/1性能ignored、门禁62 PASS、迁移静态3 PASS；make test：Rust399 PASS/9 ignored、Python1635 PASS、Web233 PASS/3 skipped。637文件canonical恢复。仅登记S01，上游内部LOCAL_READY不传播独立Gate；全图1 READY/158 NOT_ASSESSED/0 BLOCKED。22组共享目标及11项发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[本轮报告](./audit/S01-local-admission-2026-10-15.md)。
 
 > 历史工程快照（2026-10-15，S01前）：SERVICE:TP01在冻结fedee914完整31节点/99组本地检查PASS，三次跨语言可复现构建PASS；SERVICE-TP01_LOCAL限定DEVELOPMENT READY。132项专用功能案例（100安全负向、20workflow、取消<2秒、Artifact去重和禁用/回滚）、33+64项专用回执/准入测试PASS；make test：Rust396 PASS/8 ignored、Python1635 PASS、Web233 PASS/3 skipped。仅SERVICE消费者内部A–G/R1-SERVICE LOCAL_READY，旧G独立READY撤回且历史原件保留；637文件canonical恢复。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED；22组共享目标和8项汇总发布义务NOT_RUN，formalAccepted=false、externalPublished=false、upstreamAccepted=false。见[本轮报告](./audit/SERVICE-TP01-local-admission-2026-10-15.md)。
 
@@ -1458,7 +1458,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 }
 ```
 
-> 当前工程复核：2026-10-15，候选fedee914完整31节点/99组PASS，DEVELOPMENT READY仅此本地服务功能子范围；A–G及R1全部同源实际证据，637文件canonical恢复。review_status仍NOT_STARTED、source_commit仍null，不自签正式验收。22组共享目标与8项汇总发布义务NOT_RUN，消费页面E2E留CORE:TP01/U01。见[验收报告](./audit/SERVICE-TP01-local-admission-2026-10-15.md)、[manifest](./audit/evidence/service-tp01-local-20261015/manifest.json)。
+> 历史工程复核（S01前）：2026-10-15，候选fedee914完整31节点/99组PASS；S01共享输入变更后该独立READY已撤回为NOT_ASSESSED，以下仅保留原本地服务功能快照；A–G及R1全部同源实际证据，637文件canonical恢复。review_status仍NOT_STARTED、source_commit仍null，不自签正式验收。22组共享目标与8项汇总发布义务NOT_RUN，消费页面E2E留CORE:TP01/U01。见[验收报告](./audit/SERVICE-TP01-local-admission-2026-10-15.md)、[manifest](./audit/evidence/service-tp01-local-20261015/manifest.json)。
 
 <a id="execution-s2"></a>
 ## 7. S2：策略领域服务、验证与审批准入
@@ -1469,7 +1469,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - task_id: `S01`
 - task_type: `CORE`
 - iteration: `S2-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:4d7e64eecf37d414fdb800eccb0de66cf0494cfc41f29c9ce6458714331d13d5","evidence":["audit/evidence/s01-local-20261015/manifest.json"]}
 - depends_on: ["CORE:R02", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:R02", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1483,7 +1483,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
 - 阶段执行：本地开发验证50组并发编辑无静默覆盖、授权/快照/Artifact约束和保存正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：50 组并发编辑测试无静默覆盖；未授权/无快照/无 Artifact 的草稿不能发起验证；草稿保存 P95 <300ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。 S01_LOCAL执行S01与SERVICE:TP01联合32节点完整本地闭包，只登记S01；规程 docs/operations/s01-local-admission.md。
 - 依赖：R02、R03
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：冻结d021ac20联合32节点/103组PASS；S01_LOCAL限定DEVELOPMENT READY，开发实现完成待正式验收。50组真实线程竞争、授权/工作区/快照/Artifact边界、参数模型、版本/自动保存与哈希、迁移静态契约均通过。目标Supabase、P95/长稳及正式确认独立NOT_RUN；SERVICE:TP01旧独立READY撤回，当前内部依赖证据仅属于S01消费者。首轮工具链失败、第二轮审计FK复核中断及恢复记录保留；第三轮完整重跑，不拼接旧候选通过结果。见[验收报告](./audit/S01-local-admission-2026-10-15.md)、[manifest](./audit/evidence/s01-local-20261015/manifest.json)。历史[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-s01)保留；本次未自行批准正式ACCEPTED。
 
 <a id="task-tp06"></a>
 ### TP06：VibeTradingLabs/vibetrading：自然语言策略开发参考/适配候选

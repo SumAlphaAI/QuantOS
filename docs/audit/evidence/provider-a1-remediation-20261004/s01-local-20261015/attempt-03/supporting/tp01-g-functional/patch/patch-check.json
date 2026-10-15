@@ -1,0 +1,82 @@
+{
+  "schema": "quantos-upstream-patch-check/v1",
+  "status": "PASS",
+  "baselineCommit": "c33133f4fd5e978d21d2a61fdd8787fb352b4687",
+  "sourceSha256": "47780e4e82fb3a8fb1293a49b0745b27258e97b54d371d99148bfab34922ae31",
+  "patchSha256": "d6f4ae40c87cd38af379df3dba08daeb4bf6b441ad9c89de5852229f5bb85eb8",
+  "regressionTests": 4,
+  "baselineExpectedFailures": 2,
+  "upstreamPrUrl": null,
+  "externalPublished": false,
+  "productionAuthorization": false,
+  "formalAccepted": false,
+  "records": [
+    {
+      "id": "apply-check",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "/Users/anray/Documents/project/SumAlpha/QuantOS/forks/vibe-trading/upstream-prs/20261015-atomic-replay-handoff/0001-atomic-replay-handoff.patch"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "apply-check.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "apply",
+      "command": [
+        "git",
+        "apply",
+        "/Users/anray/Documents/project/SumAlpha/QuantOS/forks/vibe-trading/upstream-prs/20261015-atomic-replay-handoff/0001-atomic-replay-handoff.patch"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "apply.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "baseline-regression",
+      "command": [
+        "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_event_bus_replay_handoff.py",
+        "-v"
+      ],
+      "exitCode": 1,
+      "expectedExitCode": 1,
+      "status": "PASS",
+      "log": "baseline-regression.log",
+      "logSha256": "8b007d5e939fb45b18950d27801805043bbbe9e181891c611f964a96a0164dda"
+    },
+    {
+      "id": "patched-regression",
+      "command": [
+        "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_event_bus_replay_handoff.py",
+        "-v"
+      ],
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "patched-regression.log",
+      "logSha256": "3a6fba190c0c7e8e4026e7f8637ccb9faea2155cac0a44a489bd3b78a8ca020d"
+    }
+  ]
+}
