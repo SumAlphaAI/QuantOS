@@ -1,4 +1,6 @@
-> 当前执行（2026-10-15）：冻结f21318b7完整30节点/96组本地检查PASS，三次跨语言可复现构建PASS；TP01-G_LOCAL限定DEVELOPMENT READY。198项真实UDS模块替换/协议检查、4项上游离线patch回归、40+57项G回执/准入测试PASS。上游DRAFT_NOT_SUBMITTED，externalPublished=false、upstreamAccepted=false、formalAccepted=false；22组共享目标与E/F/G发布义务NOT_RUN。E/F独立旧READY保持撤回，本轮仅作为G消费者内部依赖。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。见[本轮报告](./audit/TP01-G-local-admission-2026-10-15.md)。
+> 当前执行（2026-10-15）：SERVICE:TP01本地汇总功能准入实现中；公共输入变化后旧G独立READY撤回，历史证据保留。当前0 READY / 159 NOT_ASSESSED；完整31节点必要闭包待冻结候选复验，目标/正式验收NOT_RUN。
+
+> 历史工程快照（2026-10-15，SERVICE汇总实现前）：冻结f21318b7完整30节点/96组本地检查PASS，三次跨语言可复现构建PASS；TP01-G_LOCAL限定DEVELOPMENT READY。198项真实UDS模块替换/协议检查、4项上游离线patch回归、40+57项G回执/准入测试PASS。上游DRAFT_NOT_SUBMITTED，externalPublished=false、upstreamAccepted=false、formalAccepted=false；22组共享目标与E/F/G发布义务NOT_RUN。E/F独立旧READY保持撤回，本轮仅作为G消费者内部依赖。全图1 READY / 158 NOT_ASSESSED / 0 BLOCKED。见[本轮报告](./audit/TP01-G-local-admission-2026-10-15.md)。
 
 > 历史工程快照（2026-10-14）：冻结5e555802完整29节点/92组本地检查PASS，三次跨语言可复现构建PASS；TP01-F_LOCAL限定DEVELOPMENT READY，E从同轮实际执行派生28节点新回执并恢复READY，全图2 READY / 157 NOT_ASSESSED / 0 BLOCKED。47项Python/19条实际UDS演练、94项F专用回执/准入负向及15项模拟回归PASS。22组共享目标检查和6项F发布义务NOT_RUN，formalAccepted=false；首轮79/13失败原件保留。见[本轮报告](./audit/TP01-F-local-admission-2026-10-14.md)。
 
@@ -576,6 +578,22 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "CORE:TP01-F",
         "CORE:R03",
+        "CORE-GATE:R1-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "SERVICE:TP01": {
+      "profile": "SERVICE-TP01_LOCAL",
+      "schema": "quantos-service-tp01-local-development/v1",
+      "manifest": "audit/evidence/service-tp01-local-20261015/manifest.json",
+      "prerequisites": [
+        "CORE:TP01-A",
+        "CORE:TP01-B",
+        "CORE:TP01-C",
+        "CORE:TP01-D",
+        "CORE:TP01-E",
+        "CORE:TP01-F",
+        "CORE:TP01-G",
         "CORE-GATE:R1-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -1378,7 +1396,7 @@ flowchart TD
 - task_id: `TP01-G`
 - task_type: `CORE`
 - iteration: `TP01-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:353ec7264021219a26d6b8ec30f76b8ac4e862e1cb569d73fd70741ed32cebbb","evidence":["audit/evidence/tp01-g-local-20261015/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - core_prerequisites: ["CORE:TP01-F", "CORE:R03", "CORE-GATE:R1-SERVICE"]
 - closes_core: []
@@ -1393,12 +1411,12 @@ flowchart TD
 - 阶段执行：本地开发验证内部类型隔离、模块替换与业务协议不变；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：不依赖 fork 内部类型；任一模块可替换且业务协议不变；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：TP01-F、R03
-- 当前工程复核：2026-10-15，冻结f21318b7完整30节点/96组本地必要闭包PASS，三次构建PASS；TP01-G_LOCAL限定DEVELOPMENT READY，开发实现完成待正式验收。198项模块替换/协议测试、4项离线patch回归及40+57项功能回执/准入负向PASS；全量make test：Rust396 PASS/8 ignored、Python1635 PASS、Web233 PASS/3 skipped。上游固定基线原件预期2 FAIL、应用patch后4 PASS，DRAFT_NOT_SUBMITTED、无PR/外部发布。formalAccepted=false、externalPublished=false、upstreamAccepted=false；22组共享目标及E/F/G发布义务NOT_RUN。首轮5df1b36a中断/637文件恢复原件保留，新候选完整重跑；E/F旧独立READY保持撤回，本轮仅G内部LOCAL_READY。见[验收证据报告](./audit/TP01-G-local-admission-2026-10-15.md)、[当前manifest](./audit/evidence/tp01-g-local-20261015/manifest.json)及[独立核验](./audit/evidence/tp01-g-local-20261015/verification.json)。不授予SERVICE:TP01、R1-SERVICE、生产或正式ACCEPTED。
+- 当前工程复核：2026-10-15，SERVICE:TP01汇总入口新增公共功能输入后，旧独立G READY撤回为NOT_ASSESSED；f21318b7的30节点/96组历史PASS和验收证据保留。本轮将以SERVICE消费者重新实际验证完整依赖，不复用旧READY。见[历史报告](./audit/TP01-G-local-admission-2026-10-15.md)。
 
 <a id="acceptance-service-tp01"></a>
 ### SERVICE:TP01：验收检查点
 
-TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
+TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 SERVICE-TP01_LOCAL：31节点完整必要依赖以同一冻结候选实际执行，规程 docs/operations/service-tp01-local-admission.md；内部LOCAL_READY仅属于此消费者，不传播其他Gate。
 
 ```json
 {
@@ -1414,7 +1432,7 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
     "CORE:TP01-G",
     "CORE-GATE:R1-SERVICE"
   ],
-  "required_scope": "TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
+  "required_scope": "TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至少 100 个安全负向 fixture、受控取消≤2秒、Artifact 去重、S0–S3 阻断和回滚/禁用机制。7天 canary 与目标环境≤5分钟回滚由 RELEASE-GATE:BETA 验收；消费页面 Web Research E2E 在 CORE:TP01/U01 联调。此开发子范围就绪可放行 TP06，不等于 TP01 正式 ACCEPTED。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 SERVICE-TP01_LOCAL：31节点完整必要依赖以同一冻结候选实际执行，规程 docs/operations/service-tp01-local-admission.md；内部LOCAL_READY仅属于此消费者，不传播其他Gate。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

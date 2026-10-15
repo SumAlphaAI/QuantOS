@@ -656,3 +656,11 @@ tp01-g-local-check:
 	node scripts/tp01-g-local-gate.mjs --ready
 tp01-g-release-check:
 	node scripts/tp01-g-local-gate.mjs --release
+
+.PHONY: service-tp01-assess-local service-tp01-local-check service-tp01-release-check
+service-tp01-assess-local:
+	node scripts/record-service-tp01-local.mjs
+service-tp01-local-check:
+	node scripts/service-tp01-local-gate.mjs --ready
+service-tp01-release-check:
+	node scripts/service-tp01-local-gate.mjs --release

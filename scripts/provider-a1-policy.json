@@ -1884,6 +1884,35 @@
         "scripts/check-tp01-g-style.mjs"
       ],
       "marker": "TP01-G local style PASS"
+    },
+    "service-tp01-functional": {
+      "command": [
+        "node",
+        "scripts/service-tp01-functional.mjs",
+        "--record"
+      ],
+      "artifact": "docs/audit/evidence/service-tp01-local-20261015/functional/receipt.json",
+      "artifactKind": "service-tp01-functional",
+      "marker": "PASS"
+    },
+    "service-tp01-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/service-tp01-functional.test.mjs"
+      ],
+      "marker": "fail 0"
+    },
+    "service-tp01-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/service-tp01-local-gate.test.mjs",
+        "scripts/service-tp01-plan-contract.test.mjs"
+      ],
+      "marker": "fail 0"
     }
   },
   "nodes": {
@@ -2772,6 +2801,22 @@
         "tp01-g-local-policy",
         "tp01-g-style"
       ]
+    },
+    "SERVICE:TP01": {
+      "scope": "Same-candidate aggregate TP01 A-G native local service admission; 132 transport fixtures, cancellation, Artifact deduplication, S0-S3 and disable/rollback; no production or formal acceptance.",
+      "inputs": [
+        "engines/vibe-adapter/",
+        "engines/engine-sdk/",
+        "engines/tests/",
+        "scripts/service-tp01*",
+        "scripts/record-service-tp01-local.mjs",
+        "docs/operations/service-tp01-local-admission.md"
+      ],
+      "checks": [
+        "service-tp01-functional",
+        "service-tp01-negatives",
+        "service-tp01-local-policy"
+      ]
     }
   },
   "developmentProfile": {
@@ -3179,6 +3224,41 @@
     "profile": "TP01-G_LOCAL",
     "roots": [
       "CORE:TP01-G"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "serviceTp01Local": {
+    "owner": "SERVICE:TP01",
+    "profile": "SERVICE-TP01_LOCAL",
+    "roots": [
+      "SERVICE:TP01"
     ],
     "deferredChecks": [
       "tp01-baseline",
