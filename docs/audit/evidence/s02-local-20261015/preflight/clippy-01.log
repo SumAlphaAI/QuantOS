@@ -1,0 +1,42 @@
+    Blocking waiting for file lock on build directory
+    Checking serde_json v1.0.151
+    Checking postgres-types v0.2.14
+    Checking quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+    Checking reqwest v0.13.4
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking tokio-postgres v0.7.18
+    Checking quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+    Checking postgres v0.19.14
+    Checking postgres-openssl v0.5.3
+    Checking postgres-native-tls v0.5.3
+    Checking quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+error: this `if` statement can be collapsed
+   --> crates/quantos-strategy/src/backtest.rs:422:5
+    |
+422 | /     if let Some(draft) = &request.draft {
+423 | |         if draft.tenant_id != request.snapshot.tenant_id
+424 | |             || draft.version == 0
+425 | |             || draft.parameter_hash != parameter_hash
+...   |
+429 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+422 ~     if let Some(draft) = &request.draft
+423 ~         && (draft.tenant_id != request.snapshot.tenant_id
+424 |             || draft.version == 0
+425 ~             || draft.parameter_hash != parameter_hash)
+426 |         {
+427 |             return Err(invalid("draft parameter or tenant binding"));
+428 ~         }
+    |
+
+error: could not compile `quantos-strategy` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quantos-strategy` (lib test) due to 1 previous error

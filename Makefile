@@ -688,3 +688,15 @@ tp06-local-check:
 	node scripts/tp06-local-gate.mjs --ready
 tp06-release-check:
 	node scripts/tp06-local-gate.mjs --release
+
+.PHONY: s02-check s02-assess-local s02-local-check s02-release-check
+s02-check:
+	env -u DATABASE_URL cargo test --locked --offline -p quantos-strategy --lib backtest::tests
+	cargo clippy --locked --offline -p quantos-strategy --all-targets -- -D warnings
+	node --test scripts/s02-local-gate.test.mjs
+s02-assess-local:
+	node scripts/record-s02-local.mjs
+s02-local-check:
+	node scripts/s02-local-gate.mjs --ready
+s02-release-check:
+	node scripts/s02-local-gate.mjs --release

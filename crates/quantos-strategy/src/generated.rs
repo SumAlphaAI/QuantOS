@@ -22,6 +22,9 @@ pub enum GeneratedStrategyError {
 #[derive(Debug)]
 pub struct GeneratedStrategyAdapter {
     inner: MomentumAdapter,
+    configuration: Value,
+    universe: Vec<String>,
+    max_notional: f64,
 }
 
 impl GeneratedStrategyAdapter {
@@ -138,7 +141,21 @@ impl GeneratedStrategyAdapter {
             });
         }
 
+        let universe = parameters["universe"]
+            .as_array()
+            .expect("validated universe")
+            .iter()
+            .map(|v| v.as_str().unwrap().to_owned())
+            .collect();
+        let max_notional = parameters["max_position_notional"]
+            .as_str()
+            .unwrap()
+            .parse()
+            .unwrap();
         Ok(Self {
+            configuration: strategy.clone(),
+            universe,
+            max_notional,
             inner: MomentumAdapter::new(lookback as usize, entry_threshold_bps, exit_threshold_bps),
         })
     }
@@ -147,6 +164,20 @@ impl GeneratedStrategyAdapter {
 impl StrategyAdapter for GeneratedStrategyAdapter {
     fn adapter_name(&self) -> &'static str {
         GENERATED_ADAPTER_NAME
+    }
+
+    fn configuration(&self) -> Value {
+        self.configuration.clone()
+    }
+    fn permits_symbol(&self, symbol: &str) -> bool {
+        self.universe.iter().any(|s| s == symbol)
+    }
+    fn max_notional(&self) -> Option<f64> {
+        Some(self.max_notional)
+    }
+
+    fn reset(&mut self) {
+        self.inner.reset();
     }
 
     fn decide(&mut self, ctx: &mut DecisionContext<'_>) -> BacktestDecision {
@@ -203,8 +234,8 @@ mod tests {
                 schema_version: SchemaVersion::parse("v1").expect("schema version parses"),
                 schema_entry_id: None,
                 window: SnapshotWindow {
-                    start_at: captured_at - ChronoDuration::hours(4),
-                    end_at: captured_at,
+                    start_at: series_start(),
+                    end_at: series_start() + ChronoDuration::minutes(239),
                 },
                 sources: vec![SnapshotSourceRef {
                     source_id: "approved.binance.spot:BTCUSDT".to_owned(),
@@ -221,7 +252,14 @@ mod tests {
                 artifact_refs: vec![SnapshotArtifactRef {
                     artifact_id: ArtifactId::new(),
                     media_type: "application/json".to_owned(),
-                    content_hash: ContentHash::sha256_bytes(br#"{"bars":"fixture"}"#),
+                    content_hash: BacktestBarSeries::fixture(
+                        "BTCUSDT",
+                        ContentHash::sha256_bytes(b"unbound"),
+                        48,
+                        series_start(),
+                    )
+                    .data_hash()
+                    .unwrap(),
                     storage_bucket: "quantos-artifacts".to_owned(),
                     object_key: "tenant/example/snapshots/bars".to_owned(),
                 }],
@@ -261,7 +299,7 @@ mod tests {
     }
 
     fn request() -> BacktestRequest {
-        let snapshot = snapshot(series_start() - ChronoDuration::hours(1));
+        let snapshot = snapshot(series_start() + ChronoDuration::hours(4));
         let series = BacktestBarSeries::fixture(
             "BTCUSDT",
             snapshot.content_hash.clone(),
@@ -273,6 +311,13 @@ mod tests {
             series,
             cost_model: BacktestCostModel::new(8, 12),
             warmup_bars: 8,
+            candidate: crate::backtest::BacktestCandidate {
+                source_commit: "a".repeat(40),
+                image_digest: ContentHash::sha256_bytes(b"fixture-image"),
+                runtime_digest: ContentHash::sha256_bytes(b"fixture-runtime"),
+                clock: series_start() + ChronoDuration::hours(4),
+            },
+            draft: None,
         }
     }
 

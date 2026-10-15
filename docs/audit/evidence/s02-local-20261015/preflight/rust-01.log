@@ -1,0 +1,35 @@
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.28s
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-a599484e2b8d415a)
+
+running 9 tests
+test backtest::tests::series_not_bound_to_snapshot_is_rejected ... ok
+test backtest::tests::validation_report_contains_costs_environment_and_input_hash ... ok
+test backtest::tests::s02_generated_universe_and_notional_are_effective_constraints ... ok
+test backtest::tests::s02_analytic_roundtrip_costs_and_terminal_mark_reconcile ... ok
+
+thread 'backtest::tests::s02_candidate_parameters_clock_and_report_bytes_are_bound' (2405957) panicked at crates/quantos-strategy/src/backtest.rs:963:36:
+called `Result::unwrap()` on an `Err` value: InvalidInput("report digest")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test backtest::tests::s02_candidate_parameters_clock_and_report_bytes_are_bound ... FAILED
+test backtest::tests::ten_replays_produce_identical_metrics_and_hashes ... ok
+
+thread 'backtest::tests::s02_owned_process_s01_artifact_to_ten_replays_reject_and_recover' (2405960) panicked at crates/quantos-strategy/src/backtest.rs:1038:9:
+Traceback (most recent call last):
+  File "/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy/../../scripts/tp06-produce.py", line 33, in <module>
+    raise RuntimeError("owned Engine exited before readiness")
+RuntimeError: owned Engine exited before readiness
+
+test backtest::tests::s02_owned_process_s01_artifact_to_ten_replays_reject_and_recover ... FAILED
+test backtest::tests::s02_hundred_malformed_inputs_fail_and_valid_retry_recovers ... ok
+test backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail ... ok
+
+failures:
+
+failures:
+    backtest::tests::s02_candidate_parameters_clock_and_report_bytes_are_bound
+    backtest::tests::s02_owned_process_s01_artifact_to_ten_replays_reject_and_recover
+
+test result: FAILED. 7 passed; 2 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.39s
+
+error: test failed, to rerun pass `-p quantos-strategy --lib`
