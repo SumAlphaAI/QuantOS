@@ -76,7 +76,7 @@ fn honest_snapshot(captured_at: DateTime<Utc>) -> DataSnapshotRecord {
     .expect("snapshot builds")
 }
 
-fn honest_request() -> BacktestRequest {
+pub fn honest_request() -> BacktestRequest {
     let snapshot = honest_snapshot(series_start() + ChronoDuration::hours(4));
     let series =
         BacktestBarSeries::fixture("BTCUSDT", snapshot.content_hash.clone(), 48, series_start());

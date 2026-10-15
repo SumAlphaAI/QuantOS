@@ -1,0 +1,38 @@
+{
+  "schema": "quantos-service-s04-preflight/v1",
+  "candidateFrozen": false,
+  "status": "PASS_AFTER_FIX",
+  "completeDependencyRevalidation": false,
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "externalPublished": false,
+  "failedAttempts": [
+    {
+      "log": "service-s04-gate-preflight-01.log",
+      "reason": "checkpoint scope prose not yet synchronized with JSON",
+      "exitCode": 1,
+      "resolved": true
+    },
+    {
+      "log": "service-s04-clippy-preflight-01.log",
+      "reason": "audit function exceeds argument-count limit",
+      "exitCode": 101,
+      "resolved": true
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "evidence": "tool transcript; no separate raw log captured",
+      "reason": "formatting after adding writer-view assertion",
+      "exitCode": 1,
+      "resolved": true
+    }
+  ],
+  "passedAfterFix": [
+    "service-s04-rust-preflight-03.log",
+    "service-s04-gates-preflight-04.log",
+    "service-s04-clippy-preflight-02.log",
+    "service-s04-receipts-preflight-01.log",
+    "service-s04-plans-preflight-03.log"
+  ],
+  "scope": "pre-freeze dirty worktree only; reported base HEAD is not new candidate evidence"
+}

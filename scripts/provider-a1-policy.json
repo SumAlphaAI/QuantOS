@@ -2101,6 +2101,45 @@
       ],
       "marker": "fail 0",
       "timeoutMs": 60000
+    },
+    "service-s04-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-strategy",
+        "--test",
+        "service_s04",
+        "--",
+        "--nocapture"
+      ],
+      "timeoutMs": 180000
+    },
+    "service-s04-style": {
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-strategy",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "timeoutMs": 180000
+    },
+    "service-s04-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/service-s04-local-gate.test.mjs"
+      ],
+      "marker": "fail 0",
+      "timeoutMs": 60000
     }
   },
   "nodes": {
@@ -3065,6 +3104,24 @@
         "s03-migration",
         "s03-local-policy"
       ]
+    },
+    "SERVICE:S04": {
+      "scope": "Owned Strategy catalog/Lab/Backtest/Release API with F06 identity, capability/targets, distinct-actor approval CAS, expiry/refusal audit and actual local HTTP consumers; target and public BFF/UI deferred",
+      "inputs": [
+        "crates/quantos-strategy/Cargo.toml",
+        "crates/quantos-strategy/src/",
+        "crates/quantos-strategy/tests/",
+        "scripts/service-s04-local-gate.mjs",
+        "scripts/service-s04-local-gate.test.mjs",
+        "scripts/record-service-s04-local.mjs",
+        "docs/adr/service-s04-strategy-api.md",
+        "docs/operations/service-s04-local-admission.md"
+      ],
+      "checks": [
+        "service-s04-rust",
+        "service-s04-style",
+        "service-s04-local-policy"
+      ]
     }
   },
   "developmentProfile": {
@@ -3648,6 +3705,41 @@
     "profile": "S03_LOCAL",
     "roots": [
       "CORE:S03"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "serviceS04Local": {
+    "owner": "SERVICE:S04",
+    "profile": "SERVICE-S04_LOCAL",
+    "roots": [
+      "SERVICE:S04"
     ],
     "deferredChecks": [
       "tp01-baseline",

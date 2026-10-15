@@ -712,3 +712,15 @@ s03-local-check:
 	node scripts/s03-local-gate.mjs --ready
 s03-release-check:
 	node scripts/s03-local-gate.mjs --release
+
+.PHONY: service-s04-check service-s04-assess-local service-s04-local-check service-s04-release-check
+service-s04-check:
+	cargo test --locked --offline -p quantos-strategy --test service_s04 -- --nocapture
+	cargo clippy --locked --offline -p quantos-strategy --all-targets -- -D warnings
+	node --test scripts/service-s04-local-gate.test.mjs
+service-s04-assess-local:
+	node scripts/record-service-s04-local.mjs
+service-s04-local-check:
+	node scripts/service-s04-local-gate.mjs --ready
+service-s04-release-check:
+	node scripts/service-s04-local-gate.mjs --release

@@ -1,0 +1,45 @@
+    Checking quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+    Checking quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+error: this function has too many arguments (8/7)
+   --> crates/quantos-strategy/src/service.rs:700:5
+    |
+700 | /     fn record(
+701 | |         &mut self,
+702 | |         auth: Option<&AuthContext>,
+703 | |         correlation_id: Uuid,
+...   |
+708 | |         recorded_at: DateTime<Utc>,
+709 | |     ) {
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#too_many_arguments
+    = note: `-D clippy::too-many-arguments` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::too_many_arguments)]`
+
+error: could not compile `quantos-strategy` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quantos-strategy` (lib test) due to 1 previous error
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: cargo clippy --locked --offline -p quantos-strategy --all-targets -- -D warnings
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/[eval1]:1:112
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  status: 101,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 53623,
+  stdout: null,
+  stderr: null
+}
+
+Node.js v24.12.0

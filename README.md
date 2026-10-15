@@ -114,3 +114,5 @@ replace the phase-1 files in your active checkout. Update both locks explicitly
 when changing shared dependencies needed by both phases.
 
 F02 supply-chain and isolated database commands: [runbook](docs/runbooks/f02-supply-chain.md).
+
+策略服务本地准入：参见[操作说明](docs/operations/service-s04-local-admission.md)、[设计决定](docs/adr/service-s04-strategy-api.md)与[执行证据](docs/audit/SERVICE-S04-local-admission-2026-10-16.md)。SERVICE-S04_LOCAL只验证owner-service真实本地API，不构成公共BFF/UI、Supabase或发布验收。

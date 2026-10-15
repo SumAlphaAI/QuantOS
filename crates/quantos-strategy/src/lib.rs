@@ -1,8 +1,10 @@
 pub mod backtest;
 pub mod drafts;
 pub mod generated;
+pub mod http;
 pub mod pg;
 pub mod release;
+pub mod service;
 
 use std::collections::BTreeMap;
 
