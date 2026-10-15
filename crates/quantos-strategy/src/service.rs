@@ -270,10 +270,11 @@ impl StrategyService {
         page: Page,
         correlation: Uuid,
     ) -> Reply {
-        let now = self.now();
         let Ok(mut state) = self.state.lock() else {
             return reply(correlation, Err(Fault(503, "SERVICE_UNAVAILABLE")));
         };
+        // A queued request must evaluate expiry when it owns the transaction lock.
+        let now = self.now();
         // Exhaustion denies before any business mutation. No old audit is evicted.
         if state.audit.len() >= MAX_AUDIT {
             return reply(correlation, Err(Fault(503, "AUDIT_UNAVAILABLE")));
@@ -736,5 +737,74 @@ impl State {
         self.heads
             .insert(scope, (event.sequence, event.content_hash.clone()));
         self.audit.push(event);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quantos_policy::{Role, RunMode};
+    use quantos_storage::{
+        InMemoryArtifactCatalog, InMemoryDataSnapshotCatalog, SnapshotQualityRuleset,
+    };
+    use std::sync::Weak;
+
+    // Reading time outside the transaction deterministically fails, without a
+    // scheduler-dependent sleep. This protects expiry checks after lock queuing.
+    struct TransactionClock(Mutex<Weak<StrategyService>>);
+    impl Clock for TransactionClock {
+        fn now(&self) -> DateTime<Utc> {
+            let service = self.0.lock().unwrap().upgrade().unwrap();
+            assert!(
+                service.state.try_lock().is_err(),
+                "expiry clock read before transaction lock"
+            );
+            DateTime::from_timestamp(1_800_000_000, 0).unwrap()
+        }
+    }
+    #[test]
+    fn service_s04_clock_is_sampled_under_service_lock() {
+        let clock = Arc::new(TransactionClock(Mutex::new(Weak::new())));
+        let service = Arc::new(
+            StrategyService::new(
+                DraftService::new(
+                    InMemoryDataSnapshotCatalog::new(),
+                    InMemoryArtifactCatalog::new(),
+                    SnapshotQualityRuleset::from_rules(vec![]).unwrap(),
+                ),
+                vec![],
+                clock.clone(),
+            )
+            .unwrap(),
+        );
+        *clock.0.lock().unwrap() = Arc::downgrade(&service);
+        let auth = AuthContext {
+            tenant_id: TenantId::new(),
+            actor_id: ActorId::new(),
+            user_id: Uuid::now_v7(),
+            workspace_id: WorkspaceId::new(),
+            workspace_slug: "clock-regression".into(),
+            workspace_name: "Clock regression".into(),
+            role: Role::Owner,
+            mode: RunMode::Paper,
+            account_id: None,
+            capabilities: [Capability::parse(Capability::STRATEGY_WRITE).unwrap()]
+                .into_iter()
+                .collect(),
+        };
+        let result = service.execute(
+            &auth,
+            "GET",
+            "catalog",
+            b"",
+            Page::default(),
+            Uuid::now_v7(),
+        );
+        assert_eq!(result.status, 200);
+        let state = service.state.lock().unwrap();
+        assert_eq!(
+            state.audit[0].recorded_at,
+            DateTime::from_timestamp(1_800_000_000, 0).unwrap()
+        );
     }
 }

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "f01-reproducibility",
+    "command": [
+      "node",
+      "scripts/verify-reproducible-builds.mjs",
+      "--mode",
+      "reproducibility",
+      "--runs",
+      "3"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 5400000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "executedAt": "2026-10-15T23:32:22.613Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-01/logs/f01-reproducibility.log",
+    "logSha256": "sha256:4c8e66cf69e46661dd0cbceabac67637c0db195a8e26437562cf05f9980d1700",
+    "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-01/f01-reproducibility.json",
+    "artifactSha256": "sha256:29cd140199c3c78fd72022294cca472719100421e61713a5cd5a5bde325fa2cd",
+    "supportingArtifacts": []
+  },
+  {
+    "id": "f01",
+    "command": [
+      "node",
+      "scripts/check-f01.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "executedAt": "2026-10-15T23:36:30.288Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-01/logs/f01.log",
+    "logSha256": "sha256:b894d491dcec46871c47749c72c5a7634259216cb75152276ba2102a6156dcaa"
+  },
+  {
+    "id": "f01-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/f01-gate-negative.mjs"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "executedAt": "2026-10-15T23:36:35.988Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-01/logs/f01-negative.log",
+    "logSha256": "sha256:34b59cf5ee447a11912996e0252b31fc19feda21e9ad02242a7df49ffde582fa"
+  },
+  {
+    "id": "f01-lint",
+    "command": [
+      "make",
+      "lint"
+    ],
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 900000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "executedAt": "2026-10-15T23:36:55.244Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-01/logs/f01-lint.log",
+    "logSha256": "sha256:5675fe0fa7d154e8a0fd3cafccbb1c5acf603953dc1c40ae716191d2dfc6dc9a"
+  },
+  {
+    "id": "f01-test",
+    "command": [
+      "make",
+      "test"
+    ],
+    "exitCode": null,
+    "status": "FAIL",
+    "timeoutMs": 5400000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": "SIGTERM",
+    "executedAt": "2026-10-15T23:40:13.223Z",
+    "log": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-01/logs/f01-test.log",
+    "logSha256": "sha256:44fd875a3f9f3ebaecd8d420df560e1b4816e75d58772e820218c8be13991495"
+  }
+]

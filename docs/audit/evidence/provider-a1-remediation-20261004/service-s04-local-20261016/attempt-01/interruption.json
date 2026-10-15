@@ -1,0 +1,20 @@
+{
+  "schema": "quantos-service-s04-interruption/v1",
+  "sourceCommit": "9ba06be207358a2666b7267b134eaa067403f28a",
+  "status": "INTERRUPTED",
+  "reason": "Review identified that clock was read before waiting for the service lock, allowing stale expiry evaluation after queuing. Preserve the interrupted candidate, move clock read inside the lock, add a regression and refreeze; no check result reuse.",
+  "completedChecks": 5,
+  "passingChecks": 4,
+  "interruptedChecks": [
+    "f01-test"
+  ],
+  "ownedRecorderPid": 55687,
+  "signals": [
+    "SIGSTOP",
+    "SIGTERM descendants",
+    "SIGCONT to flush raw results",
+    "SIGTERM recorder"
+  ],
+  "formalAccepted": false,
+  "upstreamAccepted": false
+}

@@ -1,3 +1,3 @@
 # SERVICE:S04 本地准入执行记录
 
-当前：实现及预检完成前的候选准备，完整36节点/118组新候选复验尚未执行，DEVELOPMENT NOT_ASSESSED。预检不构成正式验收或目标/生产/发布授权。最终执行后在此保存冻结SHA、完整结果、验收确认文稿和证据索引。
+首次9ba06be2候选在公共make test期间因排队时钟问题主动中断，4组PASS/1组SIGTERM；原始结果及637文件/4目录恢复证据保留在attempt-01。修正后1项时钟回归、6项真实HTTP、109项门禁和Clippy预检PASS，即将新冻结后从零执行36节点/118组；旧通过组不复用。DEVELOPMENT NOT_ASSESSED，formalAccepted=false，目标/发布NOT_RUN。

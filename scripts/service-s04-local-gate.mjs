@@ -22,6 +22,7 @@ export function coverage(local,{read=p=>JSON.parse(readFileSync(resolve(root,p))
  assert(checks.get('service-s04-rust')?.log,'missing actual SERVICE:S04 log');const log=readLog(checks.get('service-s04-rust').log);
  for(const name of testNames)assert(log.includes('test '+name+' ... ok'),'missing HTTP case '+name);
  assert(/test result: ok\. 6 passed; 0 failed; 0 ignored/.test(log),'HTTP cases failed or skipped');
+ assert(log.includes('test service::tests::service_s04_clock_is_sampled_under_service_lock ... ok'),'expiry transaction clock regression missing or skipped');
  const rows=[...log.matchAll(/^SERVICE_S04_EVIDENCE=(.+)$/gm)];assert.equal(rows.length,1,'actual HTTP proof missing or duplicated');
  const e=JSON.parse(rows[0][1]),r=e.release.release,v=e.backtest.report;
  assert.equal(e.source_commit,local.observedSourceCommit);assert.equal(r.source_digest,local.observedSourceCommit);assert.equal(v.candidate.source_commit,local.observedSourceCommit);
@@ -37,7 +38,7 @@ export function coverage(local,{read=p=>JSON.parse(readFileSync(resolve(root,p))
  }
  for(const op of ['lab.preview','draft.create','draft.save','draft.static_check','backtest.create','release.publish','release.approve','deployment.create','deployment.consume'])assert(events.some(a=>a.operation===op&&a.status===200),'missing success audit '+op);
  assert(events.some(a=>a.code==='RELEASE_UNAPPROVED'&&a.status===409));assert(events.some(a=>a.operation==='release.approve'&&a.actor_id===r.approved_by&&a.resource_hash===r.content_hash));
- return {dependencyCoverage,releaseHash:r.content_hash,transport:e.transport,generatorArtifacts:102,deniedUnverifiedUnapproved:100,forgedRequests:100,concurrentApprovers:20,oneApproval:true,scopeSessionCapability:true,auditChainEvents:events.length,auditHead:prior,twoNativeConsumers:true,localOnly:true};
+ return {dependencyCoverage,releaseHash:r.content_hash,transport:e.transport,generatorArtifacts:102,deniedUnverifiedUnapproved:100,forgedRequests:100,concurrentApprovers:20,oneApproval:true,freshTransactionClock:true,scopeSessionCapability:true,auditChainEvents:events.length,auditHead:prior,twoNativeConsumers:true,localOnly:true};
 }
 function canonical(value){if(value===null||typeof value!=='object')return JSON.stringify(value);if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+canonical(value[k])).join(',')+'}';}
 export function verify(r,{nodes=nodesFromPlans(),validateLocal=validateLocalPrerequisites,readFunctional,readLog}={}){

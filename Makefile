@@ -715,7 +715,7 @@ s03-release-check:
 
 .PHONY: service-s04-check service-s04-assess-local service-s04-local-check service-s04-release-check
 service-s04-check:
-	cargo test --locked --offline -p quantos-strategy --test service_s04 -- --nocapture
+	cargo test --locked --offline -p quantos-strategy service_s04 -- --nocapture
 	cargo clippy --locked --offline -p quantos-strategy --all-targets -- -D warnings
 	node --test scripts/service-s04-local-gate.test.mjs
 service-s04-assess-local:

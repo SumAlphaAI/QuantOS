@@ -1,0 +1,61 @@
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+error[E0061]: this function takes 2 arguments but 0 arguments were supplied
+   --> crates/quantos-strategy/src/service.rs:773:21
+    |
+773 |                     default_quality_rules(),
+    |                     ^^^^^^^^^^^^^^^^^^^^^-- two arguments of type `quantos_core::TenantId` and `chrono::DateTime<chrono::Utc>` are missing
+    |
+note: function defined here
+   --> /Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage/src/snapshot.rs:178:8
+    |
+178 | pub fn default_quality_rules(
+    |        ^^^^^^^^^^^^^^^^^^^^^
+help: provide the arguments
+    |
+773 |                     default_quality_rules(/* quantos_core::TenantId */, /* chrono::DateTime<chrono::Utc> */),
+    |                                           +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+error[E0308]: mismatched types
+   --> crates/quantos-strategy/src/service.rs:773:21
+    |
+770 |                 DraftService::new(
+    |                 ----------------- arguments to this function are incorrect
+...
+773 |                     default_quality_rules(),
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^ expected `SnapshotQualityRuleset`, found `Vec<SnapshotQualityRule>`
+    |
+    = note: expected struct `quantos_storage::SnapshotQualityRuleset`
+               found struct `Vec<SnapshotQualityRule>`
+note: associated function defined here
+   --> crates/quantos-strategy/src/drafts.rs:62:12
+    |
+ 62 |     pub fn new(
+    |            ^^^
+...
+ 65 |         rules: SnapshotQualityRuleset,
+    |         -----------------------------
+
+Some errors have detailed explanations: E0061, E0308.
+For more information about an error, try `rustc --explain E0061`.
+error: could not compile `quantos-strategy` (lib test) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: cargo test --locked --offline -p quantos-strategy service_s04 -- --nocapture
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/[eval1]:1:316
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  status: 101,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 83883,
+  stdout: null,
+  stderr: null
+}
+
+Node.js v24.12.0
