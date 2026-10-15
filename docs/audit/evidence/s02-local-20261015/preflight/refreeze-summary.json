@@ -1,0 +1,45 @@
+{
+  "schema": "quantos-s02-refreeze-preflight/v1",
+  "sourceBase": "6db9a163000c20fb7230f51fef0d8fa5d8cd0263",
+  "workingTreeDirty": true,
+  "admissionEvidence": false,
+  "formalAccepted": false,
+  "probe": {
+    "log": "overflow-probe-01.log",
+    "exitCode": 0,
+    "limitation": "Momentum signals rejected a new position at the extreme price for insufficient cash; this passing probe did not exercise overflowing variance."
+  },
+  "regression": {
+    "log": "overflow-regression-fail.log",
+    "exitCode": 101,
+    "reason": "An already-held scripted position demonstrates finite-price return variance overflow was incorrectly accepted."
+  },
+  "fix": "Reject nonfinite return sequence, mean and variance before computing Sharpe; two extreme-price fixtures plus valid retry.",
+  "passes": {
+    "overflow-fixed.log": "9 PASS",
+    "overflow-clippy.log": "PASS",
+    "overflow-policy.log": "79 PASS"
+  },
+  "files": [
+    {
+      "path": "overflow-probe-01.log",
+      "sha256": "sha256:8babd0d5b68db570b54ce9eaba6dde7ecf1fddbf1417b6eb29e5387319c2bbf9"
+    },
+    {
+      "path": "overflow-regression-fail.log",
+      "sha256": "sha256:a137abcafb7aa5c6520044db6e4b00953bb3e1e35ae79e6e530553fefb611b6d"
+    },
+    {
+      "path": "overflow-fixed.log",
+      "sha256": "sha256:48fc80827f84a9218a1f39148b92667c631faacf71ec9e245c2a02a78ba6118f"
+    },
+    {
+      "path": "overflow-clippy.log",
+      "sha256": "sha256:e79ef82587427f7fee365d3d0efd9509faa680c9777d8f059bf58b220793eb31"
+    },
+    {
+      "path": "overflow-policy.log",
+      "sha256": "sha256:56878b8e00e3b789e96b506519bbaeaea5cba353e4d9d9775d87bb526c66880c"
+    }
+  ]
+}

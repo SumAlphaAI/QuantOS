@@ -12,4 +12,4 @@ Adapter 必须显式提供全部有效配置与 reset；每次回测重置原生
 
 `DraftService::backtest` 是进程内组合入口：从已验证 AuthContext 检查 capability/tenant/workspace；锁内获取 S01 validation handoff 与对应不可变 head；对比可信目录中的整个 Snapshot、生成 Artifact 的 canonical hash 引用、TP06 静态检查及全部有效策略参数；生成带版本 hash 的报告。后续编辑不会改写旧报告；参数不一致时拒绝，恢复新版本后可重新回测。该入口不是公开 HTTP API，也没有宣称 Supabase Storage 落库或跨进程恢复。S03 仍须实际实现发布制品、审批与 Paper/Shadow 消费，报告 hash 本身不是批准。
 
-本地验收覆盖同一候选 10 次报告/指标一致、50 次未来读取和 50 次 Snapshot 晚于 clock 拒绝、100 个数值/时序/字节/成本畸形输入拒绝、手算往返/终值成本、零费用、篡改/参数/环境变化，以及实际 Python UDS → Artifact → S01 → Rust 回测 → 参数拒绝 → 新版本恢复。真实进程用自有 fixture，不访问 live 模型、外部来源、数据库或生产凭据。TP08 等依赖通过新候选完整递归检查复验，本任务不声明将任意 TP08 因子映射为可交易策略。
+本地验收覆盖同一候选 10 次报告/指标一致、50 次未来读取和 50 次 Snapshot 晚于 clock 拒绝、100 个数值/时序/字节/成本畸形输入拒绝、2个有限极端价格的收益方差溢出拒绝、手算往返/终值成本、零费用、篡改/参数/环境变化，以及实际 Python UDS → Artifact → S01 → Rust 回测 → 参数拒绝 → 新版本恢复。真实进程用自有 fixture，不访问 live 模型、外部来源、数据库或生产凭据。TP08 等依赖通过新候选完整递归检查复验，本任务不声明将任意 TP08 因子映射为可交易策略。

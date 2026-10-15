@@ -30,7 +30,7 @@ export function coverage(local,{read=p=>JSON.parse(readFileSync(resolve(root,p))
  const reports=[...log.matchAll(/^S02_VALIDATION_REPORT=(.+)$/gm)];assert.equal(reports.length,1,'actual report bytes missing or duplicated');
  const report=JSON.parse(reports[0][1]);assert.equal(report.candidate.source_commit,local.observedSourceCommit,'backtest candidate differs');assert.equal(report.leak_check.violations,0);assert.equal(report.draft.version,1);assert(report.fills.length>0);assert.equal(report.metrics.trade_count,report.fills.length);assert(report.costs.fees_total>0&&report.costs.slippage_total>0);assert.equal(report.generated_at,report.candidate.clock);
  for(const key of ['input_hash','environment_hash','parameter_hash','report_hash'])assert.match(report[key],/^sha256:[a-f0-9]{64}$/);
- return {validationReportHash:report.report_hash,dependencyCoverage,deterministicReplays:10,lookaheadLeakageRejected:100,malformedInputsRejected:100,nextOpenFills:true,analyticCosts:true,pinnedDraftAndCandidate:true,realProcessS01Consumer:true,localOnly:true};
+ return {validationReportHash:report.report_hash,dependencyCoverage,deterministicReplays:10,lookaheadLeakageRejected:100,malformedInputsRejected:100,overflowFixturesRejected:2,nextOpenFills:true,analyticCosts:true,pinnedDraftAndCandidate:true,realProcessS01Consumer:true,localOnly:true};
 }
 export function verify(r,{nodes=nodesFromPlans(),validateLocal=validateLocalPrerequisites,readFunctional,readLog}={}){
  assert.deepEqual(selectedNodes(nodes),expectedNodes,'authorized thirty-four-node closure changed');

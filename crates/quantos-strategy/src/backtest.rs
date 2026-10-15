@@ -581,6 +581,9 @@ pub fn run_backtest(
         .map(|value| (value - mean_return).powi(2))
         .sum::<f64>()
         / returns.len().max(1) as f64;
+    if !mean_return.is_finite() || !variance.is_finite() || returns.iter().any(|r| !r.is_finite()) {
+        return Err(BacktestError::InvalidDecision);
+    }
     let sharpe = if variance > 0.0 {
         mean_return / variance.sqrt() * (returns.len() as f64).sqrt()
     } else {
@@ -1048,6 +1051,39 @@ mod tests {
                 ),
                 Err(BacktestError::InvalidDecision)
             ));
+        }
+        // Finite prices can still overflow the variance of returns. They must not
+        // silently produce a zero Sharpe or a seemingly valid report.
+        for price in [1e200, 1e300] {
+            let mut r = honest_request();
+            for i in [12, 13] {
+                let bar = &mut r.series.bars[i];
+                bar.open = price;
+                bar.high = price;
+                bar.low = price;
+                bar.close = price;
+            }
+            let mut input = r.snapshot.input();
+            input.artifact_refs[0].content_hash = r.series.data_hash().unwrap();
+            r.snapshot =
+                DataSnapshotRecord::new(r.snapshot.tenant_id, input, r.snapshot.created_at)
+                    .unwrap();
+            r.series =
+                BacktestBarSeries::new("BTCUSDT", r.snapshot.content_hash.clone(), r.series.bars);
+            assert!(
+                matches!(
+                    run_backtest(
+                        &r,
+                        &mut Scripted {
+                            step: 0,
+                            close: false,
+                            quantity: 1.0
+                        }
+                    ),
+                    Err(BacktestError::InvalidDecision)
+                ),
+                "finite-price statistics overflow must fail closed"
+            );
         }
         assert!(run_backtest(&honest_request(), &mut MomentumAdapter::new(6, 20, -10)).is_ok());
     }
