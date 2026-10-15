@@ -110,6 +110,33 @@ impl GeneratedStrategyAdapter {
                 findings: vec!["invalid_rule_source".to_owned()],
             });
         }
+        let valid_notional = parameters
+            .get("max_position_notional")
+            .and_then(Value::as_str)
+            .and_then(|text| text.parse::<f64>().ok())
+            .is_some_and(|number| number.is_finite() && number > 0.0 && number <= 1_000_000.0);
+        let valid_universe = parameters
+            .get("universe")
+            .and_then(Value::as_array)
+            .is_some_and(|symbols| {
+                let mut unique = std::collections::BTreeSet::new();
+                !symbols.is_empty()
+                    && symbols.len() <= 100
+                    && symbols.iter().all(|value| {
+                        value.as_str().is_some_and(|symbol| {
+                            (2..=24).contains(&symbol.len())
+                                && symbol
+                                    .bytes()
+                                    .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit())
+                                && unique.insert(symbol)
+                        })
+                    })
+            });
+        if !valid_notional || !valid_universe {
+            return Err(GeneratedStrategyError::ReleaseBlocked {
+                findings: vec!["invalid_notional_or_universe".to_owned()],
+            });
+        }
 
         Ok(Self {
             inner: MomentumAdapter::new(lookback as usize, entry_threshold_bps, exit_threshold_bps),
@@ -290,12 +317,17 @@ mod tests {
     fn forged_static_flags_and_source_never_adapt_and_integer_min_does_not_panic() {
         for index in 0..100 {
             let mut payload = draft_payload(true, vec![]);
-            match index % 5 {
+            match index % 10 {
                 0 => payload["static_check"]["passed"] = json!(false),
                 1 => payload["static_check"]["findings"] = json!([format!("rejected:{index}")]),
                 2 => payload["static_check"] = Value::Null,
                 3 => payload["strategy"]["rule_source"] = json!("eval(arbitrary)"),
-                _ => payload["strategy"]["parameters"]["entry_threshold_bps"] = json!(i64::MIN),
+                4 => payload["strategy"]["parameters"]["entry_threshold_bps"] = json!(i64::MIN),
+                5 => payload["strategy"]["parameters"]["max_position_notional"] = json!("NaN"),
+                6 => payload["strategy"]["parameters"]["universe"] = json!(["BTCUSDT", "BTCUSDT"]),
+                7 => payload["strategy"]["parameters"]["universe"] = json!(["../../oms"]),
+                8 => payload["strategy"]["parameters"]["max_position_notional"] = json!("-1"),
+                _ => payload["strategy"]["parameters"]["max_position_notional"] = json!(true),
             }
             assert!(GeneratedStrategyAdapter::from_draft_payload(&payload).is_err());
         }

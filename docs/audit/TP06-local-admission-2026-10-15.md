@@ -7,3 +7,5 @@
 冻结前预检：Python217通过；pyright初次未指定工程解释器产生16个导入错误，随后指定venv定位1个enum类型问题并修复，完整类型检查待重跑。初始计划注册同步失败记录保留，修复后重新校验。以上预检不是冻结候选正式证据。
 
 冻结前最终预检：Python217、Rust5、回执/准入95均PASS，clippy与显式venv pyright PASS，计划静态校验PASS。真实进程首轮4PASS/1FAIL暴露Protobuf整数被映射为double，修复后5PASS。原始失败和成功见[预检索引](./evidence/tp06-local-20261015/preflight/summary.json)；不将预检标为冻结候选准入。
+
+attempt-01因复核发现消费者还需独立重验notional/universe而受控中断，原始部分make test日志已flush；四组完成检查PASS，未完成的f01-test为FAIL/INTERRUPTED，不用于准入。637个canonical文件及4个原本不存在的目录逐字节/存在性恢复。修复完整参数重验并修正README旧测试路径后，将冻结新候选执行全新attempt-02；不复用首轮通过结果。见[中断记录](./evidence/provider-a1-remediation-20261004/tp06-local-20261015/attempt-01/interruption.json)。

@@ -12,7 +12,7 @@ TP06 controlled strategy generation engine.
 
 ## Validation
 
-- `uv run pytest ../tests/test_strategy_lab_contract.py` (from `engines/`)
+- `uv run --locked --all-packages pytest tests/test_strategy_lab_contract.py tests/test_strategy_lab_development.py` (from `engines/`)
 - `cargo test -p quantos-engine-manager --test python_strategy_lab` (from repo root)
 
 The replaceable `StrategyGenerator` protocol returns data-only `StrategyLabFixture` specifications;
