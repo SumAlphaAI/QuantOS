@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "evidenceMode": "SYNTHETIC_POLICY_SIMULATION",
+  "formalAccepted": false,
+  "targetCanaryAccepted": false,
+  "targetRollbackAccepted": false,
+  "generatedAt": "2026-10-16T01:08:38.149Z",
+  "scenarioId": "alert-breach",
+  "title": "critical breach requires immediate disable",
+  "capabilityFlag": {
+    "name": "research.vibe_adapter.canary",
+    "state": "disabled",
+    "rolloutPercent": 0,
+    "shadowMode": true
+  },
+  "candidateRelease": {
+    "releaseId": "vibe-adapter-canary-r2",
+    "artifactDigest": "sha256:vibe-adapter-r2",
+    "imageDigest": "sha256:image-r2",
+    "upstreamRef": "v0.1.13@deadbeef0001",
+    "adapterVersion": "0.1.1"
+  },
+  "previousRelease": {
+    "releaseId": "vibe-adapter-canary-r1",
+    "artifactDigest": "sha256:vibe-adapter-r1"
+  },
+  "buildManifest": null,
+  "syncSummaryRef": null,
+  "operation": "canary",
+  "alerts": [
+    {
+      "rule_id": "tp01_vibe_unexplained_p1",
+      "severity": "critical",
+      "observed_value": 1,
+      "threshold": 0,
+      "summary": "unexplained P1 detected during canary"
+    },
+    {
+      "rule_id": "tp01_vibe_execute_p95_ms",
+      "severity": "critical",
+      "observed_value": 1630,
+      "threshold": 1000,
+      "summary": "execute P95 exceeded canary threshold"
+    },
+    {
+      "rule_id": "tp01_vibe_cancel_confirmation_secs",
+      "severity": "critical",
+      "observed_value": 3.5,
+      "threshold": 2,
+      "summary": "cancel confirmation exceeded deterministic threshold"
+    },
+    {
+      "rule_id": "tp01_vibe_error_rate",
+      "severity": "critical",
+      "observed_value": 0.08,
+      "threshold": 0.01,
+      "summary": "canary error rate exceeded threshold"
+    },
+    {
+      "rule_id": "tp01_vibe_shadow_mismatch_rate",
+      "severity": "warning",
+      "observed_value": 0.06,
+      "threshold": 0.02,
+      "summary": "shadow mismatch rate exceeded threshold"
+    },
+    {
+      "rule_id": "tp01_vibe_unauthorized_egress_total",
+      "severity": "critical",
+      "observed_value": 1,
+      "threshold": 0,
+      "summary": "unauthorized egress detected"
+    },
+    {
+      "rule_id": "tp01_vibe_secret_or_venue_violation_total",
+      "severity": "critical",
+      "observed_value": 1,
+      "threshold": 0,
+      "summary": "secret or venue violation detected"
+    },
+    {
+      "rule_id": "tp01_vibe_unsigned_release_artifacts",
+      "severity": "critical",
+      "observed_value": false,
+      "threshold": true,
+      "summary": "required signed artifacts are missing"
+    },
+    {
+      "rule_id": "tp01_vibe_audit_incomplete",
+      "severity": "critical",
+      "observed_value": false,
+      "threshold": true,
+      "summary": "audit evidence is incomplete"
+    },
+    {
+      "rule_id": "tp01_vibe_rollback_duration_secs",
+      "severity": "critical",
+      "observed_value": 420,
+      "threshold": 300,
+      "summary": "rollback drill exceeded the five-minute SLA"
+    }
+  ],
+  "reasons": [
+    "unexplained P1 detected during canary",
+    "execute P95 exceeded canary threshold",
+    "cancel confirmation exceeded deterministic threshold",
+    "canary error rate exceeded threshold",
+    "shadow mismatch rate exceeded threshold",
+    "unauthorized egress detected",
+    "secret or venue violation detected",
+    "required signed artifacts are missing",
+    "audit evidence is incomplete",
+    "rollback drill exceeded the five-minute SLA",
+    "canary window is 2 day(s); 7 day(s) are required before default enablement"
+  ],
+  "blocked": true,
+  "outcome": "disabled",
+  "observations": {
+    "canaryDaysObserved": 2,
+    "shadowTasksCompleted": 36,
+    "unexplainedP1": 1,
+    "executeP95Ms": 1630,
+    "cancelConfirmSecs": 3.5,
+    "errorRate": 0.08,
+    "shadowMismatchRate": 0.06,
+    "unauthorizedEgress": 1,
+    "secretOrVenueViolations": 1,
+    "signedArtifactsPresent": false,
+    "auditComplete": false,
+    "runtimeIsolationVerified": true,
+    "rollbackCompletedSecs": 420
+  }
+}

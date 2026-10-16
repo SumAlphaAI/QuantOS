@@ -1,0 +1,433 @@
+{
+  "schema": "quantos-service-s04-local-development/v1",
+  "nodeId": "SERVICE:S04",
+  "stage": "DEVELOPMENT",
+  "profile": "SERVICE-S04_LOCAL",
+  "status": "READY",
+  "engineeringStatus": "PASS",
+  "databaseExecution": false,
+  "production": false,
+  "formalAccepted": false,
+  "externalExecution": false,
+  "performanceAccepted": false,
+  "syncApproved": false,
+  "targetCanaryAccepted": false,
+  "targetRollbackAccepted": false,
+  "externalPublished": false,
+  "upstreamAccepted": false,
+  "observedSourceCommit": "1ce8e8998a769e1bf0a04670e1422739c4992788",
+  "coverage": {
+    "dependencyCoverage": {
+      "dependencyCoverage": {
+        "validationReportHash": "sha256:cae268eda2cc7edf150b99a1059b8d51c9479fcb9fd1c04fe03e86399a821452",
+        "dependencyCoverage": {
+          "maliciousPrompts": 100,
+          "providerStaticFailures": 100,
+          "consumerStaticFailures": 100,
+          "forgedConsumerCases": 100,
+          "artifactOnly": true,
+          "replaceableProvider": true,
+          "realProcessBacktest": true,
+          "reproducibleBuilds": 3,
+          "localOnly": true,
+          "proofs": [
+            {
+              "id": "f01-reproducibility",
+              "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-02/f01-reproducibility.json",
+              "sha256": "sha256:70dde44710d0dbfc5577868572763bd5e9e45be7bd8939f90c2039665661cb0a"
+            },
+            {
+              "id": "service-tp01-functional",
+              "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-02/supporting/service-tp01-functional/receipt.json",
+              "sha256": "sha256:2253641cbda3cc0d2c198f6ab1ff87e143bf27c3273f19e9c6014f0f3ec41e0b"
+            },
+            {
+              "id": "tp01-e-functional",
+              "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-02/supporting/tp01-e-functional/receipt.json",
+              "sha256": "sha256:cbd3ed08162f8be965553f750f7a5eba4c22583027bece5d74d8826bccc21da8"
+            },
+            {
+              "id": "tp01-f-functional",
+              "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-02/supporting/tp01-f-functional/receipt.json",
+              "sha256": "sha256:b94961b2adc22185897bd8c66f8e1a099dc7c30dc313d6d87856a0ab4f8cd913"
+            },
+            {
+              "id": "tp01-g-functional",
+              "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-02/supporting/tp01-g-functional/receipt.json",
+              "sha256": "sha256:bbbf310caee018c732ad39c961b2e61204ce8c83f5d992cd56b0415b4a083714"
+            },
+            {
+              "id": "tp06-functional",
+              "artifact": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-02/supporting/tp06-functional/receipt.json",
+              "sha256": "sha256:ef747e8d675f67e750705bf84b6d97b2aafa8089d2e248fe6222d99684a59c10"
+            }
+          ]
+        },
+        "deterministicReplays": 10,
+        "lookaheadLeakageRejected": 100,
+        "malformedInputsRejected": 100,
+        "overflowFixturesRejected": 2,
+        "nextOpenFills": true,
+        "analyticCosts": true,
+        "pinnedDraftAndCandidate": true,
+        "realProcessS01Consumer": true,
+        "localOnly": true
+      },
+      "releaseHash": "sha256:3856d5e26e8c86e42302e251cef67e2b6cf1f90ef42774fc3ec45787894a01cf",
+      "unverifiedUnapprovedRejected": 100,
+      "concurrentApprovers": 20,
+      "oneApproval": true,
+      "idempotentDeployment": true,
+      "scopeAndExpiry": true,
+      "opaqueValidation": true,
+      "realProcessConsumer": true,
+      "localOnly": true
+    },
+    "releaseHash": "sha256:08268a2090f09c1ef77478ca4e20e70287e331aa695c378eecfcaf35fa61e85e",
+    "transport": "owned-loopback-tcp",
+    "generatorArtifacts": 102,
+    "deniedUnverifiedUnapproved": 100,
+    "forgedRequests": 100,
+    "concurrentApprovers": 20,
+    "oneApproval": true,
+    "freshTransactionClock": true,
+    "scopeSessionCapability": true,
+    "auditChainEvents": 16,
+    "auditHead": "sha256:2b34e6ecacbaa0b2f08988d78fae6fb61257f61987a15c2359d5b35919e7f293",
+    "twoNativeConsumers": true,
+    "localOnly": true
+  },
+  "planInput": {
+    "acceptance_window": "S2-SERVICE",
+    "checkpoint_id": "SERVICE:S04",
+    "dependencies": [
+      "CORE:S01",
+      "CORE:S02",
+      "CORE:S03",
+      "CORE:F06",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "depends_on": [
+      "CORE:S01",
+      "CORE:S02",
+      "CORE:S03",
+      "CORE:F06",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "required_scope": "策略目录/Lab/Backtest/Release 的授权 API、approval integration、capability/allowedTargets、未验证/未审批/过期/并发审批服务端拒绝与审计。P06/P07 与20个策略UI fixture在 CORE:S04/G3 功能联调，完整视觉/多浏览器发布矩阵在 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 SERVICE-S04_LOCAL仅在新冻结候选完整36节点及115组依赖后运行3组自身检查；真实TCP授权API、服务端来源绑定、独立审批者和审计，目标及正式验收另行执行。"
+  },
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-02/local-prerequisites.json",
+    "inputDigest": "sha256:9b9630bec0a5198b830bd486a1dbd9c2a92d7d5d79a87275f63ce3926b3c9895"
+  },
+  "functionalManifest": "docs/audit/evidence/provider-a1-remediation-20261004/service-s04-local-20261016/attempt-02/service-s04.json",
+  "functionalDigest": "sha256:72bd4b940937f0a90f4023d5d9437f11e6169a1d65b03dd7e57e1d0928b69a2a",
+  "dependencies": [
+    {
+      "nodeId": "CORE:S01",
+      "status": "LOCAL_READY",
+      "owner": "SERVICE:S04",
+      "inputDigest": "sha256:cd83553bb29e9fbb1ec14ca333a3b956c7d4ddd5676bb576cbfdb9deaa6d4793"
+    },
+    {
+      "nodeId": "CORE:S02",
+      "status": "LOCAL_READY",
+      "owner": "SERVICE:S04",
+      "inputDigest": "sha256:9082748a68f534bae9fffb0daa6644ad5f5a2cd0d60fe434d61041aae98f0198"
+    },
+    {
+      "nodeId": "CORE:S03",
+      "status": "LOCAL_READY",
+      "owner": "SERVICE:S04",
+      "inputDigest": "sha256:2a54f293ae4f848654285346e1e2695853b432d2e9a1a0fdde1f7219a3433c41"
+    },
+    {
+      "nodeId": "CORE:F06",
+      "status": "LOCAL_READY",
+      "owner": "SERVICE:S04",
+      "inputDigest": "sha256:ec265b1dbd71857894147a9756bc46a6d66078b07fa6509c1ee0b200e04bff0d"
+    },
+    {
+      "nodeId": "CORE-GATE:R1-SERVICE",
+      "status": "LOCAL_READY",
+      "owner": "SERVICE:S04",
+      "inputDigest": "sha256:a9877d6d2e9bd0c0da7e69749791e138ef7272fbcb1377e1d9c250901da51ad5"
+    }
+  ],
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "SERVICE-S04_LOCAL 发布移交：继承S01、S02、S03、F06及R1-SERVICE全部22组目标义务；实际Supabase身份/成员权限、持久草稿/回测/Release/审计事务、跨进程审批CAS与恢复、可信时钟及Artifact/源码/镜像绑定、真实部署Paper/Shadow消费与撤权、OS隔离、安全/负载/性能/长稳和候选同SHA hosted CI由测试及RELEASE-GATE:BETA首次发布前实际验收，未执行NOT_RUN。P06/P07和20个UI fixture归CORE:S04/G3，公共BFF映射归BFF-FE-004；本地真实TCP与UDS不构成页面、目标数据库或发布验收。本地DEVELOPMENT READY仅属于SERVICE:S04，不授予上游、正式ACCEPTED、生产或外部发布授权。",
+    "prerequisiteChecks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-sca",
+        "command": [
+          "make",
+          "sca-check"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp01-baseline",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--repository"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r01-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R01"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r02-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R02"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r03-release-target",
+        "command": [
+          "node",
+          "scripts/r03-target-check.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp09-development",
+        "command": [
+          "node",
+          "third_party/trendradar/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp10-development",
+        "command": [
+          "node",
+          "third_party/valuecell/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp11-development",
+        "command": [
+          "node",
+          "third_party/openstock/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r04-release-target",
+        "command": [
+          "node",
+          "scripts/r04-stage-check.mjs",
+          "--release"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "research-release-performance-smokes",
+        "command": [
+          "make",
+          "research-release-performance-smokes"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "frontend-release-performance",
+        "command": [
+          "make",
+          "frontend-release-performance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ],
+    "functionalTargets": [
+      {
+        "id": "durable-target",
+        "target": "actual Supabase active-session/member authorization, durable strategy/draft/backtest/Release/audit transactions, workspace RLS, approval CAS and cross-process recovery; all inherited S01/S02/S03/F06/R1 obligations",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "deployment-target",
+        "target": "authorized deployed strategy API and Paper/Shadow consumer, trusted host identity/clock/provenance, revocation, immutable source/image, OS credential isolation and rollback; public BFF/UI by their own integration gates",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "target-performance",
+        "target": "representative deployment security, load, performance and sustained canary/rollback obligations",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "same-sha-ci",
+        "target": "hosted CI at frozen release candidate and ProjectUser formal confirmation",
+        "status": "NOT_RUN"
+      }
+    ]
+  }
+}

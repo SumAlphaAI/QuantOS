@@ -1,4 +1,4 @@
-> 当前执行（SERVICE:S04，2026-10-16）：owner-service API、独立审批与审计已实现。首次9ba06be2尝试在make test期间因排队时钟复核主动中断，4组PASS/1组SIGTERM及637文件/4目录恢复证据保留；修正后新增时钟回归和6项HTTP、109项门禁预检PASS，正重新冻结并从零复验36节点/118组。DEVELOPMENT NOT_ASSESSED，formalAccepted=false；目标/外部发布NOT_RUN。见[当前报告](./audit/SERVICE-S04-local-admission-2026-10-16.md)。
+> 当前执行（SERVICE:S04，2026-10-16）：冻结1ce8e899完整36节点/118组PASS，115组依赖先于自身3组；三次独立构建及make lint/test PASS，Rust414/11 ignored、Python1845、Web233/3 skipped。SERVICE-S04_LOCAL仅本任务DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件原字节及4目录缺失状态恢复。真实TCP/UDS、100拒绝/100伪造、20路审批1成功、Paper/Shadow原生adapter回放一致。S03旧独立READY撤回并保留历史；22组共享目标及4类发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/SERVICE-S04-local-admission-2026-10-16.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1627,12 +1627,16 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:65b519bb5fdec7ac22055f3c4e55903e8d1438d0746d6ab20396e071951ff420",
+    "evidence": [
+      "audit/evidence/service-s04-local-20261016/manifest.json"
+    ]
   }
 }
 ```
+
+SERVICE:S04 当前执行：冻结1ce8e899完整36节点/118组PASS；115依赖后3自身，仅SERVICE-S04_LOCAL DEVELOPMENT READY；100拒绝/100伪造、20路审批、真实TCP与两个原生adapter回放一致。正式用户确认PENDING，目标/外部发布NOT_RUN。见[当前报告](./audit/SERVICE-S04-local-admission-2026-10-16.md)和[manifest](./audit/evidence/service-s04-local-20261016/manifest.json)。下一可执行EVALUATION:TP07。
 
 <a id="acceptance-evaluation-tp07"></a>
 ### EVALUATION:TP07：验收检查点

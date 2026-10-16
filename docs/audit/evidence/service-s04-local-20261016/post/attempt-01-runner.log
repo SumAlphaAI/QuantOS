@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/private/tmp/service-s04-post-checks.py", line 6, in <module>
+    executed=datetime.datetime.now(datetime.timezone.utc).isoformat();run=subprocess.run(args,capture_output=True);data=run.stdout+run.stderr;(post/(name+'.log')).write_bytes(data);checks.append({'id':name,'command':args,'executedAt':executed,'exitCode':run.returncode,'expectedExitCode':expected,'status':'PASS' if run.returncode==expected else 'FAIL','log':name+'.log','sha256':'sha256:'+hashlib.sha256(data).hexdigest()});assert run.returncode==expected,(name,run.returncode,data[-500:])
+                                                                                                                                                                                                                                                                                                                                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('admission', 2, b'S03: exactly one current engineering review summary required\n')
