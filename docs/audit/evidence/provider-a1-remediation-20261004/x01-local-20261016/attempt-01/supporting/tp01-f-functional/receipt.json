@@ -1,0 +1,608 @@
+{
+  "schema": "quantos-tp01-f-functional/v1",
+  "nodeId": "CORE:TP01-F",
+  "engineeringStatus": "PASS",
+  "stageGate": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "externalExecution": false,
+  "performanceAccepted": false,
+  "targetCanaryAccepted": false,
+  "targetRollbackAccepted": false,
+  "observedSourceCommit": "3c74238449f6a1b7b16a0250907bbebcdd1480a8",
+  "outputDirectory": "docs/audit/evidence/tp01-f-local-20261014/functional",
+  "planInput": {
+    "acceptance_window": "TP01-SERVICE",
+    "closes_core": [],
+    "core_prerequisites": [
+      "CORE:TP01-E",
+      "CORE:F09",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "dependencies": [
+      "CORE:TP01-E",
+      "CORE:F09",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "depends_on": [
+      "CORE:TP01-E",
+      "CORE:F09",
+      "CORE-GATE:R1-SERVICE"
+    ],
+    "iteration": "TP01-SERVICE",
+    "requirement": "canary、观测与回滚",
+    "requirements": [
+      "- 需求描述：canary、观测与回滚",
+      "- 交付物：dashboards、alert rules、rollback runbook、drill report；TP01-F_LOCAL 本机HMAC验签/UDS请求分流与运行中禁用/回滚、严格功能回执及29节点本地准入，规程 `docs/operations/tp01-f-local-admission.md`",
+      "- 验收标准：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整",
+      "- 阶段执行：本地开发验证flag、影子任务、告警阈值、签名拒绝、禁用/回滚与在途请求收尾；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：canary 连续运行 7 天无未解释 P1；回滚演练 ≤5 分钟，审计完整；未执行保持NOT_RUN。",
+      "- 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。"
+    ],
+    "task_id": "TP01-F",
+    "task_type": "CORE",
+    "workflow": "DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED"
+  },
+  "inputs": [
+    {
+      "path": ".github/workflows/tp01_vibe_canary_gate.yml",
+      "role": "config",
+      "sha256": "sha256:8725f1cca38fe66521c9f1eeb1b08313b6629553f8b9cce206b28269976ae807"
+    },
+    {
+      "path": "docs/operations/tp01-f-local-admission.md",
+      "role": "code",
+      "sha256": "sha256:e7ed91114aece86f2f2416bfe08df13f755ff0a6c9576a6ba9e296bc7836931d"
+    },
+    {
+      "path": "docs/operations/tp01_vibe_canary_alert_rules.yaml",
+      "role": "config",
+      "sha256": "sha256:6946f9cd0a7018857f37ad941b18514cd71dfd812db16a194bc23b68fa80167d"
+    },
+    {
+      "path": "docs/operations/tp01_vibe_canary_dashboards.json",
+      "role": "config",
+      "sha256": "sha256:eb789adcfbe03040b53b922239c022d0c4b2ca9cf390316d3b417cd7a40cf854"
+    },
+    {
+      "path": "docs/runbooks/tp01_vibe_adapter_rollback.md",
+      "role": "code",
+      "sha256": "sha256:937f6051e6af5b7d8331a4cf508cca87596ca3e6f0d31127f13553371157ce2b"
+    },
+    {
+      "path": "engines/engine-sdk/README.md",
+      "role": "code",
+      "sha256": "sha256:a995de5c242431ecdd4ebbffa3e82731035f63b702d5a253961c7fcdeeaa3932"
+    },
+    {
+      "path": "engines/engine-sdk/pyproject.toml",
+      "role": "config",
+      "sha256": "sha256:8244fa1ca437c0192175b1d9a86ebfdc1ce45d1cf40f3c0bd756a107ad094b4b"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/__init__.py",
+      "role": "code",
+      "sha256": "sha256:fddbc9e14091b6561491b88a02287bbc3f29663b1d1ec58016f335fac4eeaaf2"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py",
+      "role": "code",
+      "sha256": "sha256:3d5fd8af40d06b41d6f30c788702e2079d948a1cf8d4fe9a738db840dc8ff837"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/manifest.py",
+      "role": "code",
+      "sha256": "sha256:d321cd7e2ed83b69aa90b540396fec261570d0b1aaaa5b2c72aff998295d0ba0"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/observability.py",
+      "role": "code",
+      "sha256": "sha256:981e54835bbbe6926ecbd6e499ac01e62f5ea8ce8ec21186ede0a67eb1024736"
+    },
+    {
+      "path": "engines/engine-sdk/sdk_src/quantos_engine_sdk/validation.py",
+      "role": "code",
+      "sha256": "sha256:b2d902cd31e8c4b4ffdb7e7d031549f96412e1de5430eaac820d8b2fca0d0373"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/annotations_pb2.py",
+      "role": "code",
+      "sha256": "sha256:f74917ceff0effca2e7c5f4ccdd1353c32a56640d6d734a9e4b609c919284a5f"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/annotations_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:5d047ee8c12977eff404f662cfe004e5a873497ed78f58cb0b1d9565bcfd8695"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/field_behavior_pb2.py",
+      "role": "code",
+      "sha256": "sha256:341fad00d2c3662475935f8e781a7f486c5c4bed189d69af9cd0b5d27a46410b"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/field_behavior_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:88f35dc58ecdcd87546f1fe31488865c3972658ad78565626df0a035fac83428"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/http_pb2.py",
+      "role": "code",
+      "sha256": "sha256:62d48633d1b68165767061260b7c9c38aaf808a7fc736dc700f87a436b246647"
+    },
+    {
+      "path": "engines/engine-sdk/src/google/api/http_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:c993d359d52cf503e622cd05e43096ebe5956a17b9419134b1d922aad5170a52"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/common/v1/common_pb2.py",
+      "role": "code",
+      "sha256": "sha256:2677496ef3059ab052bce176fc2afb7b046898886fb08898c60711c1a8514330"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/common/v1/common_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:1d4a54ca5fe9fd90643c22c2a2bf6d9f0c675599c807d179a1e1a4181e188f74"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/engine/v1/engine_pb2.py",
+      "role": "code",
+      "sha256": "sha256:711ce4cf5b00c2ca7a2fb10fb1d98980a16e0bc48453614b44911a058edb20d3"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/engine/v1/engine_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:744b8631d636f7e0b2de2f2d9ee32233d2caae5b52979a2b5080439a6a50eeb0"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/events/v1/events_pb2.py",
+      "role": "code",
+      "sha256": "sha256:91865cb5c75fdf50bd45cfd04cbb1831bedc493ade5d1ae4fb10d412724b5c48"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/events/v1/events_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:a8ec31b5982ad2b5c32a9f13dc2c7af31e7830c20886b41f02bc2e47b0cd014d"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/research/v1/research_pb2.py",
+      "role": "code",
+      "sha256": "sha256:6ffcb7fcd899e5f747eca0cebfb8bfb107936ed03bb40e6b266e91bd34c5a1c5"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/research/v1/research_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:f13f2be7370adb4654b93aa592fd1e0b2910c642a4936acaa5216decf35a804a"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/strategy/v1/strategy_pb2.py",
+      "role": "code",
+      "sha256": "sha256:0fe4404b6f312313af8324226f28dd6f951f0291bdf312741ba1ee34b4891638"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/strategy/v1/strategy_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:53992296c27ecf40cfed1be1ed41ac1f49820f3f859d08f6f2716014c64b4b83"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/trading/v1/trading_pb2.py",
+      "role": "code",
+      "sha256": "sha256:4b2a75d071e165e6d47c4c8dc541605b1fa0ae2dfd75198e21c2d9dbeb756f23"
+    },
+    {
+      "path": "engines/engine-sdk/src/quantos/trading/v1/trading_pb2.pyi",
+      "role": "code",
+      "sha256": "sha256:5e15bc65ab2b4a3f82c02067a10d4ed5d363de87634865846a3d59826dee7785"
+    },
+    {
+      "path": "engines/tests/test_vibe_adapter_contract.py",
+      "role": "test",
+      "sha256": "sha256:d7f0a073dfd6c64cdeef01cc818d788d9417a9efd6f98d16c9e8927a2a85e67d"
+    },
+    {
+      "path": "engines/tests/test_vibe_adapter_rollout.py",
+      "role": "test",
+      "sha256": "sha256:5801586a21e5c445a22e6f0a1b015cfa6bb4eb1da39e7952f926a690aa72ad26"
+    },
+    {
+      "path": "engines/tests/test_vibe_adapter_skeleton.py",
+      "role": "test",
+      "sha256": "sha256:5385220f44657582d58f0d7d37f3415acb931a9e138cfea0c55e88f04591c3e0"
+    },
+    {
+      "path": "engines/vibe-adapter/README.md",
+      "role": "code",
+      "sha256": "sha256:5efd54f1ef1731bb328825be29584e8cb9c1b89d50248dd2b7e99a35957a542e"
+    },
+    {
+      "path": "engines/vibe-adapter/check-absorption.mjs",
+      "role": "code",
+      "sha256": "sha256:410a001bb2df69317370bab0f3f32667a10dc23e2bf1c16bedcdf018b69ea6a2"
+    },
+    {
+      "path": "engines/vibe-adapter/check-development.mjs",
+      "role": "code",
+      "sha256": "sha256:22fa8809c267dd208295b9c1e927238a4b0168af8dc632717f7c8469efab007a"
+    },
+    {
+      "path": "engines/vibe-adapter/pyproject.toml",
+      "role": "config",
+      "sha256": "sha256:ea67ebf9eec30266975f06a1cd56f0f4fc72c1264ecd5760c185653c1de4f7f1"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/__init__.py",
+      "role": "code",
+      "sha256": "sha256:daec6bc32bb4916856c5e3fbe8d7dac21d273416476ec927b8fb5219ad9b1422"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/allowlist.py",
+      "role": "code",
+      "sha256": "sha256:ead5245ab46248111649ae558b5e64d8c8c4c9c77239e8e57cbc3e0617bcf66c"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/artifact_api.py",
+      "role": "code",
+      "sha256": "sha256:573353f3fec34e1e22274911c5d7d8c497c84c48d42616cd87c37721ccb34c1c"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/audit.py",
+      "role": "code",
+      "sha256": "sha256:cffcaeb42fb5d8244f251b3441f3a3768881c211c86dda01e9e28eab005912a3"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/context.py",
+      "role": "code",
+      "sha256": "sha256:00ed67e17520c7bdc7e1184ca96ea24b1a8de7973d71c7092baddc21c2ff1744"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/fixtures.py",
+      "role": "test",
+      "sha256": "sha256:01e75ae74307451106a232dee5a9796b6bf77e168cffded2f92376a294a53623"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/fixtures/catalog.json",
+      "role": "test",
+      "sha256": "sha256:5b8cad6a58ff5d6b37b3ec5dcbbcce37e2582c2f8a61c94ab667922eb12a87f2"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/fixtures/research_workflow_fixture.json",
+      "role": "test",
+      "sha256": "sha256:f3e785864ee864eabf1132f8a85f650586292b0f5a2407504d8b563b266fbb8a"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/local_drill.py",
+      "role": "code",
+      "sha256": "sha256:900f9fe1a8d49c8d3227cf30a8a67d27fb6d81c69ce0897ecde4ac2292e52c97"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/manifest.py",
+      "role": "code",
+      "sha256": "sha256:308d412209565dee870fd1599cd0e0681e71f4078ebcd015f1cf7ed4e6a52f58"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/modules.py",
+      "role": "code",
+      "sha256": "sha256:0432262fc7f62ca505bffb6cfa9aa70300cd959e6da06dac6d620a6e84a4e0bc"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/protocols.py",
+      "role": "code",
+      "sha256": "sha256:fd06c35ec1baa6b6ae0590adfd53adc47694c0a4ff3df5a06a1edefb5c7314b8"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/providers.py",
+      "role": "code",
+      "sha256": "sha256:c957e33c9ee1ae3ef0c2d97cf900cfa9152ef3ab8f05520e3ab6b53f394f0a6f"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/rollout.py",
+      "role": "code",
+      "sha256": "sha256:06741976d85d7d3d124ec1ee1e7654fa7d903a512142f909f68b69f4570a0a04"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/server.py",
+      "role": "code",
+      "sha256": "sha256:0a0cc36d2b9bedbbb461928de43c01e042dbca2b6a9c52701a08cbce1bab3132"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/service.py",
+      "role": "code",
+      "sha256": "sha256:ef6068f0ca795c0610dbfda8214d9df30a8a578496eb9eb8d16dc7c3926816fd"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/streaming.py",
+      "role": "code",
+      "sha256": "sha256:ee8d77069d4154e33cf655caa317d2d6eabe6bd111d29aadac41ad17cc1123a7"
+    },
+    {
+      "path": "engines/vibe-adapter/src/vibe_adapter/workflow.py",
+      "role": "code",
+      "sha256": "sha256:34bb968e72e3f262e0f68304d4f53f89a5b259f46f0b8e4dccb2c636bbd8e3eb"
+    },
+    {
+      "path": "scripts/fixtures/tp01-vibe-canary/alert-breach.json",
+      "role": "test",
+      "sha256": "sha256:ba9c2a45087465828345404bf7a5af7b23ebd831dd16ce5a382a8c27dfe6c7fc"
+    },
+    {
+      "path": "scripts/fixtures/tp01-vibe-canary/healthy-7d.json",
+      "role": "test",
+      "sha256": "sha256:4e2f4218f2fdf1da75ceeacb6f9cdc0a83d5298a2fb9ae9920747dae91dcc652"
+    },
+    {
+      "path": "scripts/fixtures/tp01-vibe-canary/rollback-drill.json",
+      "role": "test",
+      "sha256": "sha256:1f76fb5509526b34137926ebc9923184a6d01eeeb8c857f5eea0d7ac0c94858b"
+    },
+    {
+      "path": "scripts/tests/tp01-vibe-rollout.test.mjs",
+      "role": "test",
+      "sha256": "sha256:313157f7e95cb31c9fe29c082af806aff26a2cfb816f8773d1b83567359e1977"
+    },
+    {
+      "path": "scripts/tp01-f-functional.mjs",
+      "role": "code",
+      "sha256": "sha256:db302e91c6c23e6d08dfff006737e0b4c8bd842a1736d9169d212cb4245f3a57"
+    },
+    {
+      "path": "scripts/tp01-vibe-canary.mjs",
+      "role": "code",
+      "sha256": "sha256:7539f3696096db1e80cb5d6e1b79795f7470256d9e23b07b94b8ba3d2b13a2fb"
+    },
+    {
+      "path": "scripts/tp01-vibe-rollback.mjs",
+      "role": "code",
+      "sha256": "sha256:edb2134d58c97bd89f36f28e68424b71e632601a8c4d2d6ce610f8ee4a44fa99"
+    },
+    {
+      "path": "scripts/tp01-vibe-rollout-lib.mjs",
+      "role": "code",
+      "sha256": "sha256:7503266480acc68969f86326182117a87d79ab73af1ae8d0ea05cf027cf246fd"
+    },
+    {
+      "path": "third_party/vibe-trading/canary-policy.json",
+      "role": "config",
+      "sha256": "sha256:a78995276c8ba658ea1997f721e39eb69149b33ba13828fc6ecd2a762cd24e50"
+    }
+  ],
+  "checks": [
+    {
+      "id": "python-rollout",
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "pytest",
+        "engines/tests/test_vibe_adapter_rollout.py",
+        "-q"
+      ],
+      "executedAt": "2026-10-16T20:17:23.300Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 60000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": "python-rollout.log",
+      "logSha256": "sha256:42fba896b63dc2299709f95d7160cb7d14abb485147a282b7c72f8bdb72b44c9"
+    },
+    {
+      "id": "local-drill",
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "vibe_adapter.local_drill",
+        "--output-dir",
+        "docs/audit/evidence/tp01-f-local-20261014/functional/drill",
+        "--policy",
+        "third_party/vibe-trading/canary-policy.json",
+        "--catalog",
+        "engines/vibe-adapter/src/vibe_adapter/fixtures/catalog.json"
+      ],
+      "executedAt": "2026-10-16T20:17:23.635Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 60000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": "local-drill.log",
+      "logSha256": "sha256:4b197e60f5a3eb6ef5a0890f3a620a72d62df5700a40ba5ffdd082e4efa0c1e1"
+    },
+    {
+      "id": "rollout-regressions",
+      "command": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "scripts/tests/tp01-vibe-rollout.test.mjs"
+      ],
+      "executedAt": "2026-10-16T20:17:23.773Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 60000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": "rollout-regressions.log",
+      "logSha256": "sha256:a8919b855e79e32c309e1de10a11b879c8b8400920cc7c4ccc51d90dd56bf9c8"
+    },
+    {
+      "id": "healthy-7d",
+      "command": [
+        "node",
+        "scripts/tp01-vibe-canary.mjs",
+        "--policy",
+        "third_party/vibe-trading/canary-policy.json",
+        "--scenario",
+        "scripts/fixtures/tp01-vibe-canary/healthy-7d.json",
+        "--output-dir",
+        "docs/audit/evidence/tp01-f-local-20261014/functional/healthy-7d",
+        "--verify-expected"
+      ],
+      "executedAt": "2026-10-16T20:17:23.830Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 60000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": "healthy-7d.log",
+      "logSha256": "sha256:fb00dbebe3f7f5a1d605ae4100303099c60b6b41864a6a4eabb377b15bb02f74"
+    },
+    {
+      "id": "alert-breach",
+      "command": [
+        "node",
+        "scripts/tp01-vibe-canary.mjs",
+        "--policy",
+        "third_party/vibe-trading/canary-policy.json",
+        "--scenario",
+        "scripts/fixtures/tp01-vibe-canary/alert-breach.json",
+        "--output-dir",
+        "docs/audit/evidence/tp01-f-local-20261014/functional/alert-breach",
+        "--verify-expected"
+      ],
+      "executedAt": "2026-10-16T20:17:23.852Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 60000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": "alert-breach.log",
+      "logSha256": "sha256:9393320eaecde1229d88ccd5656e034ef90db6ded074b242e794f047350ee736"
+    },
+    {
+      "id": "rollback-drill",
+      "command": [
+        "node",
+        "scripts/tp01-vibe-canary.mjs",
+        "--policy",
+        "third_party/vibe-trading/canary-policy.json",
+        "--scenario",
+        "scripts/fixtures/tp01-vibe-canary/rollback-drill.json",
+        "--output-dir",
+        "docs/audit/evidence/tp01-f-local-20261014/functional/rollback-drill",
+        "--verify-expected"
+      ],
+      "executedAt": "2026-10-16T20:17:23.874Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 60000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": "rollback-drill.log",
+      "logSha256": "sha256:3e335b5f08427d54ae1583d4ce9406e13c5e0dc0bb222814d69498ecac7bd4a7"
+    }
+  ],
+  "files": [
+    {
+      "path": "alert-breach.log",
+      "sha256": "sha256:9393320eaecde1229d88ccd5656e034ef90db6ded074b242e794f047350ee736"
+    },
+    {
+      "path": "alert-breach/canary-summary.json",
+      "sha256": "sha256:c672c97819c0b0a0117a4f6a06d7025bed00b411fa135b2a2b837234a78d48d1"
+    },
+    {
+      "path": "alert-breach/canary-summary.md",
+      "sha256": "sha256:1e03f41f2e5164ac911c0892cf9685801f72c65c16a33ee115a1d53d17b9827c"
+    },
+    {
+      "path": "alert-breach/drill-report.md",
+      "sha256": "sha256:f02e13f47d2b10d1d21c06e1676691408fea9f9387fb0ea294732d2423ca288d"
+    },
+    {
+      "path": "alert-breach/release-manifest.json",
+      "sha256": "sha256:2d64e245a3032342f4ee8ec8aa930a1aa0b56bc61b89435f712c85c7c79ec64a"
+    },
+    {
+      "path": "alert-breach/rollout-state.json",
+      "sha256": "sha256:5f81805cdfc958505c3c30058026b64b5d98c38a54dec526f08e52870979ea5b"
+    },
+    {
+      "path": "drill/candidate.artifact.json",
+      "sha256": "sha256:45f3b0819a94b8254fd1fdedcc31e9eb5b49ccb8119a7d96736847918ff8d218"
+    },
+    {
+      "path": "drill/candidate.signed-descriptor.json",
+      "sha256": "sha256:3876b68fd6d437eba5f690b59b1aadf16af05c50a7d23a356497b26f4204b16b"
+    },
+    {
+      "path": "drill/drill.json",
+      "sha256": "sha256:01cdecb96b49ebaced1f20db2cb1612a936c55bab1d1b19996b86bdd41362d64"
+    },
+    {
+      "path": "drill/previous.artifact.json",
+      "sha256": "sha256:5b8cad6a58ff5d6b37b3ec5dcbbcce37e2582c2f8a61c94ab667922eb12a87f2"
+    },
+    {
+      "path": "drill/previous.signed-descriptor.json",
+      "sha256": "sha256:6dffb37f25c96d9658164d4a9921ab09f7f5ee2c0eccc0ec9ab1ebf83fc573a7"
+    },
+    {
+      "path": "drill/runtime-events.json",
+      "sha256": "sha256:1e4f202204420bd49095ea91faff836f22f41116f15d102161ce72867e8a9b62"
+    },
+    {
+      "path": "healthy-7d.log",
+      "sha256": "sha256:fb00dbebe3f7f5a1d605ae4100303099c60b6b41864a6a4eabb377b15bb02f74"
+    },
+    {
+      "path": "healthy-7d/canary-summary.json",
+      "sha256": "sha256:ad71c32b92d523c1d5f025a4b208aa544ee274bcd4977a958c8f8da788f611a2"
+    },
+    {
+      "path": "healthy-7d/canary-summary.md",
+      "sha256": "sha256:dabd7ff02121e8188054f2b45fd173b8cd6b3df8cb8217e8d09104c70fe855d2"
+    },
+    {
+      "path": "healthy-7d/drill-report.md",
+      "sha256": "sha256:68e34127f9c9f61d14df28ed81edebcce86331b14497985a7e1a3d991253f03e"
+    },
+    {
+      "path": "healthy-7d/release-manifest.json",
+      "sha256": "sha256:2f222d673751356714028f2352b28ed4c8a7410630b7a011f12f8d7db8c7c8a7"
+    },
+    {
+      "path": "healthy-7d/rollout-state.json",
+      "sha256": "sha256:61a26d30cd03634a0535f37847eb099c64e7e99b18fa3db1e66f95397e8c5702"
+    },
+    {
+      "path": "local-drill.log",
+      "sha256": "sha256:4b197e60f5a3eb6ef5a0890f3a620a72d62df5700a40ba5ffdd082e4efa0c1e1"
+    },
+    {
+      "path": "python-rollout.log",
+      "sha256": "sha256:42fba896b63dc2299709f95d7160cb7d14abb485147a282b7c72f8bdb72b44c9"
+    },
+    {
+      "path": "rollback-drill.log",
+      "sha256": "sha256:3e335b5f08427d54ae1583d4ce9406e13c5e0dc0bb222814d69498ecac7bd4a7"
+    },
+    {
+      "path": "rollback-drill/canary-summary.json",
+      "sha256": "sha256:80a364063542fe6024b6943ab7e143b04ef8e617a0cf739c643e7d17b4f8c28f"
+    },
+    {
+      "path": "rollback-drill/canary-summary.md",
+      "sha256": "sha256:4301e72fc12c407828a32d6d3dde86a6d743a0dc86b9fe600f8f4af047ccc711"
+    },
+    {
+      "path": "rollback-drill/drill-report.md",
+      "sha256": "sha256:c90e8c4d003fa034479a4e5dd5aab28c7bc447c4e61900e9c4b204a2bd725747"
+    },
+    {
+      "path": "rollback-drill/release-manifest.json",
+      "sha256": "sha256:ad790d5c4193d4dcc748c8fb35781be25a75693199d3d766bf14ea348d1345ef"
+    },
+    {
+      "path": "rollback-drill/rollout-state.json",
+      "sha256": "sha256:523ea8d7bef593f313d384b4197fa4d205c5410626ea57e81f9eaa30faa4292e"
+    },
+    {
+      "path": "rollout-regressions.log",
+      "sha256": "sha256:a8919b855e79e32c309e1de10a11b879c8b8400920cc7c4ccc51d90dd56bf9c8"
+    }
+  ]
+}

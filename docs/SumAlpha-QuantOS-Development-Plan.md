@@ -1,4 +1,4 @@
-> 当前执行（CORE:X01，2026-10-16）：先完成F05/R01/S2-SERVICE新候选完整依赖复验；X01代码/测试/持久化与本地Gate准备中，尚未取得最终候选READY。共享输入变化使旧S2独立READY撤回；历史证据保留。目标Supabase、性能、正式用户确认和外部发布NOT_RUN/PENDING。
+> 当前执行（CORE:X01，2026-10-17）：代码候选3c742384预检通过；最终40节点131组为124 PASS/7 FAIL，5外层命令超时及TP01-C内部manager中断，S2正确拒绝。主机多次Deep Idle/Sleep与超时窗口重叠，暂为BLOCKED/未准入；保留原始证据和canonical恢复，需临时保活下新候选完整重跑。F05/R01/S2前置149ce0a4完整39/127 PASS保留，不拼接。目标/发布NOT_RUN，正式确认PENDING。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1794,7 +1794,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `X01`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage": "DEVELOPMENT", "status": "BLOCKED", "input_digest": "sha256:28a12a9807a806802b0af2e58461948500ed67189299a2a4a9f2df19949c8645", "evidence": ["audit/evidence/provider-a1-remediation-20261004/x01-local-20261016/attempt-01/failure.json"]}
 - depends_on: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
