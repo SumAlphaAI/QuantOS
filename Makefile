@@ -748,3 +748,13 @@ eval-tp12-local-check:
 	node scripts/eval-tp12-local-gate.mjs --ready
 eval-tp12-release-check:
 	node scripts/eval-tp12-local-gate.mjs --release
+
+.PHONY: s2-service-check s2-service-assess-local s2-service-local-check s2-service-release-check
+s2-service-check:
+	node --test scripts/s2-service-evidence.test.mjs scripts/s2-service-local-gate.test.mjs
+s2-service-assess-local:
+	node scripts/record-s2-service-local.mjs
+s2-service-local-check:
+	node scripts/s2-service-local-gate.mjs --ready
+s2-service-release-check:
+	node scripts/s2-service-local-gate.mjs --release

@@ -1,0 +1,9 @@
+# S2 local service aggregate decision
+
+2026-10-16. Aggregate engineering readiness is scoped to the frozen local service candidate, not formal user acceptance or release. Complete 39-node/127-group execution replaces the temptation to combine historical component READY manifests. The previous TP12 independent readiness is withdrawn when shared policy/code inputs change; historical 04dc1965/2f79964a evidence is preserved.
+
+Choose one fresh owner-scoped assessment, 124 dependencies before 3 aggregate checks, exact command/hash/SHA binding and recomputed behavioral coverage. The aggregation program issues no strategy command, venue access, database connection or new risk/approval authority. S04's actual owned HTTP→Artifact→draft→backtest→Release→approval→Paper/Shadow→audit evidence is reused only within the same new execution. Dependency receipts receive consumer-local proof, not independent global admission.
+
+The recorder preserves canonical historical outputs by byte/existence backup and finally restoration, including failed attempts. Own receipt and both plan updates form one rollback-capable transaction. After freeze only plan lifecycle/status and audit documentation/evidence may change. A functional change requires a new candidate and complete replay.
+
+Keep 22 inherited target groups and component handoffs. UI/business integration remains G3, actual Supabase/identity/durable transactions and cross-process recovery, OS isolation, live rights/legal and refreshed supply-chain/CVE review, performance/soak/canary/rollback and same-SHA hosted CI remain separate. CORE:TP07/TP12 complete review is X3; TP12 runs after TP07 and S2. Neither static design agreement nor local tests authorize Nautilus runtime adoption. Formal confirmation follows Codex draft → ProjectUser reply → retained raw record and gate; never self-approve.

@@ -2197,6 +2197,32 @@
         "scripts/eval-tp12-local-gate.test.mjs"
       ],
       "timeoutMs": 60000
+    },
+    "s2-service-functional": {
+      "command": [
+        "node",
+        "scripts/s2-service-evidence.mjs"
+      ],
+      "timeoutMs": 180000,
+      "artifact": "supporting/s2-service/receipt.json",
+      "output": "supporting/s2-service/receipt.json",
+      "artifactKind": "s2-service-functional"
+    },
+    "s2-service-negatives": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/s2-service-evidence.test.mjs"
+      ],
+      "timeoutMs": 180000
+    },
+    "s2-service-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/s2-service-local-gate.test.mjs"
+      ],
+      "timeoutMs": 180000
     }
   },
   "nodes": {
@@ -3222,6 +3248,24 @@
         "tp12-evaluation-tests",
         "tp12-evaluation-policy"
       ]
+    },
+    "CORE-GATE:S2-SERVICE": {
+      "scope": "Fresh 39-node S2 local functional aggregate; 124 dependencies then 3 own groups; no historical READY, upstream runtime, UI/G3, target, release or formal acceptance",
+      "inputs": [
+        "scripts/s2-service-coverage.mjs",
+        "scripts/s2-service-evidence.mjs",
+        "scripts/s2-service-evidence.test.mjs",
+        "scripts/s2-service-local-gate.mjs",
+        "scripts/s2-service-local-gate.test.mjs",
+        "scripts/record-s2-service-local.mjs",
+        "docs/operations/s2-service-local-admission.md",
+        "docs/adr/20261016-s2-service-local-aggregate.md"
+      ],
+      "checks": [
+        "s2-service-functional",
+        "s2-service-negatives",
+        "s2-service-local-policy"
+      ]
     }
   },
   "developmentProfile": {
@@ -3901,5 +3945,40 @@
     },
     "releaseCheckpoint": "RELEASE-GATE:BETA",
     "releaseChecks": []
+  },
+  "s2ServiceLocal": {
+    "owner": "CORE-GATE:S2-SERVICE",
+    "profile": "S2-SERVICE_LOCAL",
+    "roots": [
+      "CORE-GATE:S2-SERVICE"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
   }
 }

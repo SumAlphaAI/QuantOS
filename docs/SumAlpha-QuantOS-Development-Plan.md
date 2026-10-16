@@ -1,4 +1,4 @@
-> 当前执行（EVALUATION:TP12，2026-10-16）：冻结04dc1965完整9节点/31组PASS，28依赖先于3自身；三次构建、make lint/test PASS，Rust414/11 ignored、Python1856、Web233/3 skipped。7规则/6接口/8威胁与12固定源文件齐备；仅EVAL-TP12_LOCAL DEVELOPMENT READY，runtime DENIED。TP07旧独立READY撤回且历史保留；9目标组/3类移交NOT_RUN，formalAccepted=false、外部发布NOT_RUN。下一CORE-GATE:S2-SERVICE；见[验收报告](./audit/EVALUATION-TP12-local-admission-2026-10-16.md)。
+> 当前执行（CORE-GATE:S2-SERVICE，2026-10-16）：新候选完整39节点/127组本地聚合准备中，124依赖后3自身，不拼接历史READY。TP12旧独立READY撤回，历史04dc1965证据保留；TP07/TP12完整复审仍在X3。目标/生产/外部发布NOT_RUN、正式确认PENDING。见[执行记录](./audit/S2-SERVICE-local-admission-2026-10-16.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -682,6 +682,27 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "CORE:F07",
         "EVALUATION:TP07"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE-GATE:S2-SERVICE": {
+      "profile": "S2-SERVICE_LOCAL",
+      "schema": "quantos-s2-service-local-development/v1",
+      "manifest": "audit/evidence/s2-service-local-20261016/manifest.json",
+      "prerequisites": [
+        "CORE-GATE:R1-SERVICE",
+        "SERVICE:TP01",
+        "CORE:S01",
+        "CORE:TP06",
+        "CORE:S02",
+        "CORE:S03",
+        "SERVICE:S04",
+        "CORE:TP08",
+        "CORE:TP09",
+        "CORE:TP10",
+        "CORE:TP11",
+        "EVALUATION:TP07",
+        "EVALUATION:TP12"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }
@@ -1705,21 +1726,19 @@ EVALUATION:TP07 历史执行：冻结c12b69cc的8节点/28组PASS；TP12共享�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:bacf60068a632fffb17933aafe3b0caff43a63f1150a768a984b118512dba34d",
-    "evidence": [
-      "audit/evidence/eval-tp12-local-20261016/manifest.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
 
-EVALUATION:TP12 当前执行：冻结04dc1965完整9节点31组PASS，28依赖后3自身，仅本地参考评估READY、运行时DENIED。正式确认PENDING，完整TP12复审留在X3。见[报告](./audit/EVALUATION-TP12-local-admission-2026-10-16.md)。下一CORE-GATE:S2-SERVICE。
+EVALUATION:TP12 历史执行：冻结04dc1965完整9节点31组PASS；S2聚合共享输入变化后旧独立READY撤回，历史证据保留，运行时DENIED。正式确认PENDING，完整TP12复审留在X3。见[报告](./audit/EVALUATION-TP12-local-admission-2026-10-16.md)。下一CORE-GATE:S2-SERVICE。
 
 <a id="acceptance-core-gate-s2-service"></a>
 ### CORE-GATE:S2-SERVICE：验收检查点
 
-策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
+策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 S2-SERVICE_LOCAL仅在新冻结候选完整39节点/124组依赖后执行3组自身聚合验证；拒绝历史READY拼接，仅发布本聚合DEVELOPMENT准入。
 
 ```json
 {
@@ -1740,7 +1759,7 @@ EVALUATION:TP12 当前执行：冻结04dc1965完整9节点31组PASS，28依赖�
     "EVALUATION:TP07",
     "EVALUATION:TP12"
   ],
-  "required_scope": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
+  "required_scope": "策略草稿、回测成本/滑点、数据泄漏阻断、不可变Release、服务端审批和Paper/Shadow目标控制的开发功能通过；TP06–TP12评估/ADR归档。S04页面与S2业务联调在G3关闭；保存等性能目标、TP01 canary与正式部署回执移交 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 S2-SERVICE_LOCAL仅在新冻结候选完整39节点/124组依赖后执行3组自身聚合验证；拒绝历史READY拼接，仅发布本聚合DEVELOPMENT准入。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

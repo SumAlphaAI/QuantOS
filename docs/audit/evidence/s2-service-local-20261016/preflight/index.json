@@ -1,0 +1,79 @@
+{
+  "schema": "quantos-s2-service-preflight/v1",
+  "notFrozenCandidate": true,
+  "admission": "NOT_ASSESSED",
+  "formalAccepted": false,
+  "checks": [
+    {
+      "id": "s2-service-preflight-01.log",
+      "log": "s2-service-preflight-01.log",
+      "sha256": "sha256:c44e46dae35850d9026c0c33d3dad4d06cf90c594f6dcac1bba2ab2bc9b5c749",
+      "status": "FAIL"
+    },
+    {
+      "id": "s2-service-preflight-02.log",
+      "log": "s2-service-preflight-02.log",
+      "sha256": "sha256:f4b1dc6e91054fc406234dbcc004dd8ffef1541dfdc7072668a7d1218b166cb4",
+      "status": "PASS"
+    },
+    {
+      "id": "s2-service-preflight-03.log",
+      "log": "s2-service-preflight-03.log",
+      "sha256": "sha256:b8ff454483801867349676a6a64522a2e74d3880fc9951c2ceec0b66c2304397",
+      "status": "PASS"
+    },
+    {
+      "id": "s2-service-preflight-04.log",
+      "log": "s2-service-preflight-04.log",
+      "sha256": "sha256:ad26546de629c34913b9c47375627199ce6a31a717475cf402810154184435be",
+      "status": "PASS"
+    },
+    {
+      "id": "s2-service-shared-tests.log",
+      "log": "s2-service-shared-tests.log",
+      "sha256": "sha256:cc80e7182d283b43ed656d6664b0c7c76d76bae7136927da8a63de28b39c2c2e",
+      "status": "PASS"
+    },
+    {
+      "id": "s2-service-plan.log",
+      "log": "s2-service-plan.log",
+      "sha256": "sha256:3b347ae7a32d56f02d0b8c59c9ac4459b0ab082e8aa07895e5980bdeb803db6b",
+      "status": "PASS"
+    },
+    {
+      "id": "s2-service-handoff.log",
+      "log": "s2-service-handoff.log",
+      "sha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af",
+      "status": "PASS"
+    }
+  ],
+  "failureSummary": [
+    {
+      "step": "initial evidence test",
+      "actual": "113 passed / 1 failed: TP08 reference status BLOCKED differs from assumed READY",
+      "correction": "accept only existing READY/BLOCKED status with engineering PASS; preserve recordedAdmission and all target NOT_RUN; never promote independent prerequisite admission"
+    },
+    {
+      "step": "reconnaissance",
+      "actual": "unmatched zsh glob, nonexistent r1-local-gate filename and nonexistent S04 attempt-01 product path",
+      "correction": "rg --files found actual research-local-gate and successful attempt-02 for unit fixture derivation only; actual assessment consumes only fresh attempt"
+    }
+  ],
+  "finalTestCount": 120,
+  "sharedTestCount": 54,
+  "unitSamples": "fixed normalized UNIT_ONLY shapes/excerpts, not proof or published READY input",
+  "secretScan": {
+    "command": [
+      "artifacts/tools/gitleaks",
+      "git",
+      "--staged",
+      "--redact",
+      "--no-banner",
+      "--log-level",
+      "info"
+    ],
+    "exitCode": 0,
+    "log": "source-staged-gitleaks.log",
+    "sha256": "sha256:81451fb743d33895c80129bcb21b41810a60c764f9edaf66c3b1186c463b5e38"
+  }
+}
