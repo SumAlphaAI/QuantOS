@@ -8,13 +8,15 @@ rust-version.workspace = true
 publish = false
 
 [dependencies]
+quantos-event = { path = "../quantos-event", version = "0.1.0" }
+quantos-market = { path = "../quantos-market", version = "0.1.0" }
 chrono.workspace = true
 openssl.workspace = true
 postgres.workspace = true
 postgres-openssl.workspace = true
 quantos-core = { path = "../quantos-core", version = "0.1.0" }
 serde.workspace = true
-serde_json.workspace = true
+serde_json = { workspace = true, features = ["float_roundtrip"] }
 thiserror.workspace = true
 url.workspace = true
 uuid.workspace = true

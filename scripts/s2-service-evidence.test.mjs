@@ -23,3 +23,15 @@ for(const check of ['s01-rust','tp06-rust','s02-rust','s03-rust','service-s04-ru
 for(const check of ['tp08-development','tp09-local-development','tp10-local-development','tp11-local-development','r04-local-products','tp01-e-functional','tp01-f-functional','tp01-g-functional'])test('mixed component source fails '+check,()=>{const f=componentFixture(),path=f.rows.get(check).artifact,r=JSON.parse(f.raw.get(path));if(check==='r04-local-products')r.sourceCommit='b'.repeat(40);else r.observedSourceCommit='b'.repeat(40);f.raw.set(path,JSON.stringify(r));assert.throws(f.run);});
 for(const [key,value]of [['status','FAIL'],['engineeringStatus','FAIL'],['formalAccepted',true],['validationMode','UPSTREAM'],['upstreamVerification',{status:'PASS',checkpoint:'RELEASE-GATE:BETA',externalExecution:true,currentPublicBytesVerified:true}]])test('reference cannot promote or skip local boundary '+key,()=>{const f=componentFixture(),path=f.rows.get('tp09-local-development').artifact,r=JSON.parse(f.raw.get(path));r[key]=value;f.raw.set(path,JSON.stringify(r));assert.throws(f.run);});
 test('blocked reference admission is retained rather than promoted',()=>{const f=componentFixture();assert(f.run().references.every(r=>r.recordedAdmission==='BLOCKED'&&r.upstreamRuntime==='DENIED'));});
+
+test('nested X01 assessment retains the full S2 prefix before its four own groups',()=>{
+ const f=fixture(),old=f.path.slice(0,f.path.lastIndexOf('/')),base=old.replace('s2-service-local','x01-local'),path=base+'/execution-results.json';
+ const files=new Map([...f.files].map(([key,value])=>[key.replace(old,base),value]));
+ const rows=f.rows.map(row=>({...row,log:row.log.replace(old,base),...(row.artifact?{artifact:row.artifact.replace(old,base)}:{})}));
+ const options={...f.options,readBytes:p=>files.get(p)},flush=()=>files.set(path,Buffer.from(JSON.stringify(rows)));flush();
+ const before=buildEvidence(path,f.source,options);
+ const own=[...f.options.p.nodes['CORE-GATE:S2-SERVICE'].checks,...f.options.p.nodes['CORE:X01'].checks.filter(id=>!f.options.p.checks[id].database)];
+ rows.push(...own.map(id=>({id})));flush();assert.deepEqual(buildEvidence(path,f.source,options),before);
+ [rows[124],rows[127]]=[rows[127],rows[124]];flush();assert.throws(()=>buildEvidence(path,f.source,options));
+ [rows[124],rows[127]]=[rows[127],rows[124]];rows.push({id:'unregistered'});flush();assert.throws(()=>buildEvidence(path,f.source,options));
+});

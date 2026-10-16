@@ -1,4 +1,9 @@
+mod ledger;
 pub mod pg;
+mod risk_snapshot;
+pub use risk_snapshot::{
+    AccountStatus, AccountStatusEvent, MarketMarkEvent, RiskInputSnapshot, RiskMark,
+};
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -50,6 +55,8 @@ pub struct MarkPriceEvent {
 pub enum PortfolioEventKind {
     Fill(FillEvent),
     MarkPrice(MarkPriceEvent),
+    MarketMark(MarketMarkEvent),
+    AccountStatus(AccountStatusEvent),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -93,6 +100,12 @@ pub struct PortfolioSnapshot {
     pub last_event_sequence: u64,
     pub as_of: DateTime<Utc>,
     pub snapshot_hash: ContentHash,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub account_status: Option<AccountStatus>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub account_status_at: Option<DateTime<Utc>>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub valuation_marks: Vec<RiskMark>,
 }
 
 #[derive(Debug, Error)]
@@ -107,6 +120,10 @@ pub enum PortfolioError {
     DuplicateEvent { event_id: String },
     #[error("PORTFOLIO_SEQUENCE_GAP: expected sequence {expected} but received {received}")]
     SequenceGap { expected: u64, received: u64 },
+    #[error("PORTFOLIO_INVALID_INPUT: {0}")]
+    InvalidInput(&'static str),
+    #[error("PORTFOLIO_SNAPSHOT_CONFLICT: older sequence or conflicting content")]
+    SnapshotConflict,
 }
 
 #[derive(Debug, Clone)]
@@ -115,6 +132,8 @@ pub struct InMemoryPortfolioProjection {
     positions: BTreeMap<(AccountId, String), PositionState>,
     marks: BTreeMap<String, (f64, DateTime<Utc>)>,
     seen_event_ids: BTreeSet<String>,
+    mark_sources: BTreeMap<String, String>,
+    account_states: BTreeMap<AccountId, (AccountStatus, DateTime<Utc>)>,
     last_sequence: u64,
     last_event_at: DateTime<Utc>,
 }
@@ -127,6 +146,8 @@ impl InMemoryPortfolioProjection {
             positions: BTreeMap::new(),
             marks: BTreeMap::new(),
             seen_event_ids: BTreeSet::new(),
+            mark_sources: BTreeMap::new(),
+            account_states: BTreeMap::new(),
             last_sequence: 0,
             last_event_at: started_at,
         }
@@ -145,37 +166,156 @@ impl InMemoryPortfolioProjection {
     }
 
     pub fn apply(&mut self, event: &PortfolioEvent) -> Result<(), PortfolioError> {
-        if !self.seen_event_ids.insert(event.event_id.clone()) {
+        if self.seen_event_ids.contains(&event.event_id) {
             return Err(PortfolioError::DuplicateEvent {
                 event_id: event.event_id.clone(),
             });
         }
-        let expected = self.last_sequence + 1;
+        let expected = self
+            .last_sequence
+            .checked_add(1)
+            .ok_or(PortfolioError::InvalidInput("sequence overflow"))?;
         if event.sequence != expected {
             return Err(PortfolioError::SequenceGap {
                 expected,
                 received: event.sequence,
             });
         }
+        if event.event_id.trim().is_empty()
+            || event.event_id.len() > 512
+            || event.event_id.chars().any(char::is_control)
+            || event.occurred_at < self.last_event_at
+            || event.sequence > i64::MAX as u64
+        {
+            return Err(PortfolioError::InvalidInput("event identity or time"));
+        }
         match &event.kind {
             PortfolioEventKind::Fill(fill) => {
+                if fill.account_id.as_uuid().is_nil()
+                    || !valid_symbol(&fill.symbol)
+                    || !positive(fill.quantity)
+                    || !positive(fill.price)
+                    || !fill.fee.is_finite()
+                    || fill.fee < 0.0
+                    || !positive(fill.quantity * fill.price)
+                {
+                    return Err(PortfolioError::InvalidInput(
+                        "fill numeric or account/symbol contract",
+                    ));
+                }
                 let key = (fill.account_id, fill.symbol.clone());
-                let position = self.positions.entry(key).or_insert_with(|| PositionState {
-                    account_id: fill.account_id,
-                    symbol: fill.symbol.clone(),
-                    quantity: 0.0,
-                    average_entry_price: 0.0,
-                    realized_pnl: 0.0,
-                });
-                apply_fill(position, fill);
+                let mut position =
+                    self.positions
+                        .get(&key)
+                        .cloned()
+                        .unwrap_or_else(|| PositionState {
+                            account_id: fill.account_id,
+                            symbol: fill.symbol.clone(),
+                            quantity: 0.0,
+                            average_entry_price: 0.0,
+                            realized_pnl: 0.0,
+                        });
+                apply_fill(&mut position, fill);
+                if ![
+                    position.quantity,
+                    position.average_entry_price,
+                    position.realized_pnl,
+                ]
+                .iter()
+                .all(|v| v.is_finite())
+                {
+                    return Err(PortfolioError::InvalidInput("fill arithmetic overflow"));
+                }
+                if position.quantity != 0.0 && !positive(position.average_entry_price) {
+                    return Err(PortfolioError::InvalidInput("fill arithmetic underflow"));
+                }
+                self.validate_values(Some(&position), None)?;
+                self.positions.insert(key, position);
             }
             PortfolioEventKind::MarkPrice(mark) => {
-                self.marks
-                    .insert(mark.symbol.clone(), (mark.price, event.occurred_at));
+                self.apply_mark(&mark.symbol, mark.price, event.occurred_at, event)?;
+            }
+            PortfolioEventKind::MarketMark(mark) => {
+                self.apply_mark(&mark.symbol, mark.price, mark.source_at, event)?;
+            }
+            PortfolioEventKind::AccountStatus(state) => {
+                if state.account_id.as_uuid().is_nil() {
+                    return Err(PortfolioError::InvalidInput("nil account"));
+                }
+                self.account_states
+                    .insert(state.account_id, (state.status, event.occurred_at));
             }
         }
+        self.seen_event_ids.insert(event.event_id.clone());
         self.last_sequence = event.sequence;
         self.last_event_at = event.occurred_at;
+        Ok(())
+    }
+
+    fn apply_mark(
+        &mut self,
+        symbol: &str,
+        price: f64,
+        source_at: DateTime<Utc>,
+        event: &PortfolioEvent,
+    ) -> Result<(), PortfolioError> {
+        if !valid_symbol(symbol)
+            || !positive(price)
+            || source_at > event.occurred_at
+            || self
+                .marks
+                .get(symbol)
+                .is_some_and(|(_, previous)| source_at < *previous)
+        {
+            return Err(PortfolioError::InvalidInput(
+                "mark price, symbol or source time",
+            ));
+        }
+        self.validate_values(None, Some((symbol, price)))?;
+        self.marks.insert(symbol.to_owned(), (price, source_at));
+        self.mark_sources
+            .insert(symbol.to_owned(), event.event_id.clone());
+        Ok(())
+    }
+
+    fn validate_values(
+        &self,
+        replacement: Option<&PositionState>,
+        mark_override: Option<(&str, f64)>,
+    ) -> Result<(), PortfolioError> {
+        let mut totals = BTreeMap::<AccountId, [f64; 4]>::new();
+        let positions = self
+            .positions
+            .values()
+            .filter(|position| {
+                replacement.is_none_or(|new| {
+                    new.account_id != position.account_id || new.symbol != position.symbol
+                })
+            })
+            .chain(replacement);
+        for position in positions {
+            let price = mark_override
+                .filter(|(symbol, _)| *symbol == position.symbol)
+                .map(|(_, price)| price)
+                .or_else(|| self.marks.get(&position.symbol).map(|(price, _)| *price))
+                .unwrap_or(position.average_entry_price);
+            let market_value = position.quantity * price;
+            let values = [
+                position.realized_pnl,
+                position.quantity * (price - position.average_entry_price),
+                market_value.abs(),
+                market_value,
+            ];
+            let total = totals.entry(position.account_id).or_insert([0.0; 4]);
+            for (current, value) in total.iter_mut().zip(values) {
+                *current += value;
+                if !value.is_finite() || !current.is_finite() {
+                    return Err(PortfolioError::InvalidInput(
+                        "account valuation arithmetic overflow",
+                    ));
+                }
+            }
+        }
         Ok(())
     }
 
@@ -209,8 +349,10 @@ impl InMemoryPortfolioProjection {
                 .get(&position.symbol)
                 .copied()
                 .unwrap_or((position.average_entry_price, self.last_event_at));
-            let market_value = position.quantity * mark_price;
-            let unrealized = position.quantity * (mark_price - position.average_entry_price);
+            let normalize_zero = |v: f64| if v == 0.0 { 0.0 } else { v };
+            let market_value = normalize_zero(position.quantity * mark_price);
+            let unrealized =
+                normalize_zero(position.quantity * (mark_price - position.average_entry_price));
             realized_total += position.realized_pnl;
             unrealized_total += unrealized;
             exposure_gross += market_value.abs();
@@ -226,15 +368,50 @@ impl InMemoryPortfolioProjection {
             });
         }
         positions.sort_by(|left, right| left.symbol.cmp(&right.symbol));
-        let snapshot_hash = ContentHash::sha256_bytes(&canonical_json_bytes(&json!({
-            "positions": positions,
-            "realized_pnl": realized_total,
-            "unrealized_pnl": unrealized_total,
-            "exposure_gross": exposure_gross,
-            "exposure_net": exposure_net,
-            "last_event_sequence": self.last_sequence,
-            "as_of": self.last_event_at,
-        }))?);
+        if ![
+            realized_total,
+            unrealized_total,
+            exposure_gross,
+            exposure_net,
+        ]
+        .iter()
+        .all(|v| v.is_finite())
+            || positions.iter().any(|p| {
+                ![p.market_value, p.unrealized_pnl]
+                    .iter()
+                    .all(|v| v.is_finite())
+            })
+        {
+            return Err(PortfolioError::InvalidInput("valuation overflow"));
+        }
+        let valuation_marks = positions
+            .iter()
+            .filter_map(|position| {
+                self.marks.get(&position.symbol).and_then(|(price, at)| {
+                    self.mark_sources
+                        .get(&position.symbol)
+                        .map(|source| RiskMark {
+                            symbol: position.symbol.clone(),
+                            price: *price,
+                            source_at: *at,
+                            source_event_id: source.clone(),
+                        })
+                })
+            })
+            .collect();
+        let state = self.account_states.get(&account_id).copied();
+        let snapshot_hash = snapshot_hash(
+            &positions,
+            [
+                realized_total,
+                unrealized_total,
+                exposure_gross,
+                exposure_net,
+            ],
+            self.last_sequence,
+            self.last_event_at,
+            state,
+        )?;
         Ok(PortfolioSnapshot {
             tenant_id: self.tenant_id,
             account_id,
@@ -246,14 +423,168 @@ impl InMemoryPortfolioProjection {
             last_event_sequence: self.last_sequence,
             as_of: self.last_event_at,
             snapshot_hash,
+            account_status: state.map(|(status, _)| status),
+            account_status_at: state.map(|(_, at)| at),
+            valuation_marks,
         })
+    }
+}
+
+fn snapshot_hash(
+    positions: &[PositionSnapshot],
+    totals: [f64; 4],
+    sequence: u64,
+    as_of: DateTime<Utc>,
+    state: Option<(AccountStatus, DateTime<Utc>)>,
+) -> Result<ContentHash, PortfolioError> {
+    let mut payload = json!({"positions":positions,"realized_pnl":totals[0],"unrealized_pnl":totals[1],"exposure_gross":totals[2],"exposure_net":totals[3],"last_event_sequence":sequence,"as_of":as_of});
+    if let Some((status, at)) = state {
+        payload["account_status"] = serde_json::to_value(status)?;
+        payload["account_status_at"] = serde_json::to_value(at)?;
+    }
+    Ok(ContentHash::sha256_bytes(&canonical_json_bytes(&payload)?))
+}
+
+fn positive(value: f64) -> bool {
+    value.is_finite() && value > 0.0
+}
+fn valid_symbol(symbol: &str) -> bool {
+    !symbol.is_empty()
+        && symbol.len() <= 49
+        && symbol.split('/').count() <= 2
+        && symbol.split('/').all(|part| {
+            !part.is_empty()
+                && part
+                    .chars()
+                    .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit())
+        })
+}
+
+impl PortfolioSnapshot {
+    pub fn validate(&self) -> Result<(), PortfolioError> {
+        if self.tenant_id.as_uuid().is_nil()
+            || self.account_id.as_uuid().is_nil()
+            || self.last_event_sequence > i64::MAX as u64
+            || self
+                .positions
+                .windows(2)
+                .any(|p| p[0].symbol >= p[1].symbol)
+            || ![
+                self.realized_pnl,
+                self.unrealized_pnl,
+                self.exposure_gross,
+                self.exposure_net,
+            ]
+            .iter()
+            .all(|v| v.is_finite())
+        {
+            return Err(PortfolioError::InvalidInput(
+                "snapshot identity, ordering or numeric contract",
+            ));
+        }
+        for p in &self.positions {
+            if !valid_symbol(&p.symbol)
+                || ![
+                    p.quantity,
+                    p.average_entry_price,
+                    p.mark_price,
+                    p.market_value,
+                    p.unrealized_pnl,
+                    p.realized_pnl,
+                ]
+                .iter()
+                .all(|v| v.is_finite())
+                || p.average_entry_price < 0.0
+                || p.mark_price < 0.0
+                || (p.quantity != 0.0
+                    && (!positive(p.mark_price) || !positive(p.average_entry_price)))
+                || !approx_eq(p.market_value, p.quantity * p.mark_price)
+                || !approx_eq(
+                    p.unrealized_pnl,
+                    p.quantity * (p.mark_price - p.average_entry_price),
+                )
+            {
+                return Err(PortfolioError::InvalidInput("snapshot position contract"));
+            }
+        }
+        for (actual, expected) in [
+            (
+                self.realized_pnl,
+                self.positions.iter().map(|p| p.realized_pnl).sum::<f64>(),
+            ),
+            (
+                self.unrealized_pnl,
+                self.positions.iter().map(|p| p.unrealized_pnl).sum::<f64>(),
+            ),
+            (
+                self.exposure_net,
+                self.positions.iter().map(|p| p.market_value).sum::<f64>(),
+            ),
+            (
+                self.exposure_gross,
+                self.positions
+                    .iter()
+                    .map(|p| p.market_value.abs())
+                    .sum::<f64>(),
+            ),
+        ] {
+            if !expected.is_finite() || !approx_eq(actual, expected) {
+                return Err(PortfolioError::InvalidInput("snapshot totals"));
+            }
+        }
+        if self
+            .valuation_marks
+            .windows(2)
+            .any(|pair| pair[0].symbol >= pair[1].symbol)
+        {
+            return Err(PortfolioError::InvalidInput("mark metadata ordering"));
+        }
+        for mark in &self.valuation_marks {
+            if !positive(mark.price)
+                || mark.source_at > self.as_of
+                || mark.source_event_id.is_empty()
+                || !self
+                    .positions
+                    .iter()
+                    .any(|p| p.symbol == mark.symbol && approx_eq(p.mark_price, mark.price))
+            {
+                return Err(PortfolioError::InvalidInput("mark metadata binding"));
+            }
+        }
+        let state = match (self.account_status, self.account_status_at) {
+            (Some(status), Some(at)) if at <= self.as_of => Some((status, at)),
+            (None, None) => None,
+            _ => {
+                return Err(PortfolioError::InvalidInput(
+                    "account state time or binding",
+                ));
+            }
+        };
+        let expected_hash = snapshot_hash(
+            &self.positions,
+            [
+                self.realized_pnl,
+                self.unrealized_pnl,
+                self.exposure_gross,
+                self.exposure_net,
+            ],
+            self.last_event_sequence,
+            self.as_of,
+            state,
+        )?;
+        if expected_hash != self.snapshot_hash {
+            return Err(PortfolioError::InvalidInput("snapshot hash"));
+        }
+        Ok(())
     }
 }
 
 /// Approximate float equality for golden-snapshot comparisons that cross a JSON text roundtrip.
 #[must_use]
 pub fn approx_eq(left: f64, right: f64) -> bool {
-    (left - right).abs() <= 1e-9 * left.abs().max(right.abs()).max(1.0)
+    left.is_finite()
+        && right.is_finite()
+        && (left - right).abs() <= 1e-9 * left.abs().max(right.abs()).max(1.0)
 }
 
 #[must_use]

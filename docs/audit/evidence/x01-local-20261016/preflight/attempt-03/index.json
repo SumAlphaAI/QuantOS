@@ -1,0 +1,154 @@
+{
+  "scope": "PREFLIGHT_ONLY",
+  "databaseExecution": false,
+  "production": false,
+  "formalAccepted": false,
+  "checks": [
+    {
+      "name": "compile",
+      "command": [
+        "cargo",
+        "check",
+        "--offline",
+        "-p",
+        "quantos-portfolio",
+        "-p",
+        "portfolio-rebuild",
+        "--all-targets"
+      ],
+      "startedAt": "2026-10-16T15:53:33.853Z",
+      "elapsedMs": 146,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "compile.log"
+    },
+    {
+      "name": "own",
+      "command": [
+        "make",
+        "x01-check"
+      ],
+      "startedAt": "2026-10-16T15:53:34.000Z",
+      "elapsedMs": 1931,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "own.log"
+    },
+    {
+      "name": "compat",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "-p",
+        "quantos-reconcile",
+        "-p",
+        "quantos-evidence",
+        "--lib"
+      ],
+      "startedAt": "2026-10-16T15:53:35.931Z",
+      "elapsedMs": 1079,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "compat.log"
+    },
+    {
+      "name": "shared",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/s2-service-evidence.test.mjs",
+        "scripts/s2-service-local-gate.test.mjs",
+        "scripts/development-plan-order-negative.mjs",
+        "scripts/development-gate-handoff.test.mjs"
+      ],
+      "startedAt": "2026-10-16T15:53:37.010Z",
+      "elapsedMs": 1597,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "shared.log"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-16T15:53:38.607Z",
+      "elapsedMs": 60,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "plans.log"
+    },
+    {
+      "name": "handoff",
+      "command": [
+        "node",
+        "scripts/check-development-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-16T15:53:38.667Z",
+      "elapsedMs": 29,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "handoff.log"
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "-p",
+        "quantos-portfolio",
+        "-p",
+        "portfolio-rebuild",
+        "-p",
+        "quantos-reconcile",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "startedAt": "2026-10-16T15:53:38.696Z",
+      "elapsedMs": 78427,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "clippy.log"
+    },
+    {
+      "name": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "startedAt": "2026-10-16T15:54:57.123Z",
+      "elapsedMs": 513,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "format.log"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-> 当前执行（CORE:X01依赖复验，2026-10-16）：e2d5aa3d完整127组程序退出0，但E回执固定计数49与新增后实际50不符，组装FAIL、未发布READY；严格计数已修正为50，须新候选完整复验。此前5d2b90b7失败及fixture修复均保留；X01功能尚未修改，S2独立NOT_ASSESSED，目标/外部发布NOT_RUN。
+> 当前执行（CORE:X01，2026-10-16）：先完成F05/R01/S2-SERVICE新候选完整依赖复验；X01代码/测试/持久化与本地Gate准备中，尚未取得最终候选READY。共享输入变化使旧S2独立READY撤回；历史证据保留。目标Supabase、性能、正式用户确认和外部发布NOT_RUN/PENDING。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -703,6 +703,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE:TP11",
         "EVALUATION:TP07",
         "EVALUATION:TP12"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:X01": {
+      "profile": "X01_LOCAL",
+      "schema": "quantos-x01-local-development/v1",
+      "manifest": "audit/evidence/x01-local-20261016/manifest.json",
+      "prerequisites": [
+        "CORE:F05",
+        "CORE:R01",
+        "CORE-GATE:S2-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }
@@ -1772,7 +1783,7 @@ EVALUATION:TP12 历史执行：冻结04dc1965完整9节点31组PASS；S2聚合�
 }
 ```
 
-CORE-GATE:S2-SERVICE 历史执行：2d42eab4原127组PASS保留；X01前置5d2b90b7为122 PASS/5 FAIL，fixture修复28/28 PASS；e2d5aa3d全部127程序退出0但回执计数49/50不符组装FAIL。严格计数修正后须新冻结候选完整复验；旧独立READY已撤回，不拼接历史结果。X01尚未准入，目标NOT_RUN。
+CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节点127组完整复验PASS均保留；5d2b90b7失败记录与fixture修复保留；X01共享输入变化后独立READY撤回，当前NOT_ASSESSED。最终X01候选须重新完整复验，仅发布X01 consumer-local准入，不拼接历史READY。正式确认PENDING，目标义务NOT_RUN。
 
 <a id="execution-x3"></a>
 ## 8. X3：风险、Paper/Shadow、对账与治理服务
@@ -1787,11 +1798,11 @@ CORE-GATE:S2-SERVICE 历史执行：2d42eab4原127组PASS保留；X01前置5d2b9
 - depends_on: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `X3-SERVICE`
 - 需求描述：Portfolio 读模型与风险输入快照
-- 技术要求：Position、valuation、P&L、exposure、账户状态、数据时间；只读模型可从事件重建，并持久化到 Supabase PostgreSQL 受控 schema
+- 技术要求：Position、valuation、P&L、exposure、账户状态、数据时间；只读模型可从事件重建，并持久化到 Supabase PostgreSQL 受控 schema；X01_LOCAL 仅在新冻结候选完整40节点/131组重跑后放行本地功能，127依赖先于4组自身，不拼接历史READY。
 - 交付物：`quantos-portfolio`、rebuild CLI、portfolio projection migration
 - 量化验收标准：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms
 - 阶段执行：本地开发验证1万订单/成交黄金回放、Position/P&L一致和重建正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms；未执行保持NOT_RUN。

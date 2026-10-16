@@ -1,0 +1,98 @@
+{
+  "scope": "PREFLIGHT_ONLY",
+  "databaseExecution": false,
+  "production": false,
+  "formalAccepted": false,
+  "checks": [
+    {
+      "name": "compile",
+      "command": [
+        "cargo",
+        "check",
+        "--offline",
+        "-p",
+        "quantos-portfolio",
+        "-p",
+        "portfolio-rebuild",
+        "--all-targets"
+      ],
+      "startedAt": "2026-10-16T15:44:34.434Z",
+      "elapsedMs": 64440,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "compile.log"
+    },
+    {
+      "name": "own",
+      "command": [
+        "make",
+        "x01-check"
+      ],
+      "startedAt": "2026-10-16T15:45:38.876Z",
+      "elapsedMs": 224586,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "own.log"
+    },
+    {
+      "name": "compat",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "-p",
+        "quantos-reconcile",
+        "-p",
+        "quantos-evidence",
+        "--lib"
+      ],
+      "startedAt": "2026-10-16T15:49:23.462Z",
+      "elapsedMs": 135980,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "compat.log"
+    },
+    {
+      "name": "shared",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/s2-service-evidence.test.mjs",
+        "scripts/s2-service-local-gate.test.mjs",
+        "scripts/development-plan-order-negative.mjs",
+        "scripts/development-gate-handoff.test.mjs"
+      ],
+      "startedAt": "2026-10-16T15:51:39.442Z",
+      "elapsedMs": 1509,
+      "exitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "shared.log"
+    },
+    {
+      "name": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-16T15:51:40.952Z",
+      "elapsedMs": 37,
+      "exitCode": 1,
+      "status": "FAIL",
+      "signal": null,
+      "error": null,
+      "log": "plans.log"
+    }
+  ]
+}

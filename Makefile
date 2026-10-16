@@ -758,3 +758,18 @@ s2-service-local-check:
 	node scripts/s2-service-local-gate.mjs --ready
 s2-service-release-check:
 	node scripts/s2-service-local-gate.mjs --release
+
+.PHONY: x01-check x01-assess-local x01-local-check x01-release-check x01-target-check
+x01-check:
+	cargo test --locked --offline -p quantos-portfolio --lib --test x01_read_model
+	cargo test --locked --offline -p portfolio-rebuild --test local_cli
+	node --test scripts/x01-migration.test.mjs scripts/x01-local-gate.test.mjs
+x01-assess-local:
+	node scripts/record-x01-local.mjs
+x01-local-check:
+	node scripts/x01-local-gate.mjs --ready
+x01-release-check:
+	node scripts/x01-local-gate.mjs --release
+x01-target-check:
+	@test -n "$$DATABASE_URL" || (echo "configured Supabase DATABASE_URL required" >&2; exit 1)
+	QUANTOS_RUN_X01_POSTGRES_TESTS=1 cargo test --locked -p quantos-portfolio --test postgres_x01 -- --ignored --test-threads=1 --nocapture

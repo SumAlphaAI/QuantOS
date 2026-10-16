@@ -1,0 +1,144 @@
+cargo test --locked --offline -p quantos-portfolio --lib --test x01_read_model
+
+running 4 tests
+test tests::portfolio_queries_stay_under_three_hundred_millis_p95 ... ignored, release performance; run make research-release-performance-smokes
+test tests::out_of_order_and_duplicate_events_are_rejected ... ok
+test tests::ten_thousand_event_replay_matches_golden_snapshot ... ok
+test tests::rebuild_is_fully_repeatable ... ok
+
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+
+running 7 tests
+test x01_short_reversal_fee_and_account_isolation ... ok
+test x01_rejected_events_do_not_poison_retry ... ok
+test x01_snapshot_tampering_and_float_roundtrip ... ok
+test x01_invalid_numbers_symbols_and_time_are_atomic ... ok
+test x01_ledger_market_to_portfolio_and_cross_tenant_denials ... ok
+test x01_risk_snapshot_binds_identity_status_and_each_mark_time ... ok
+test x01_ten_thousand_fills_golden_and_cold_rebuild ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.52s
+
+cargo test --locked --offline -p portfolio-rebuild --test local_cli
+
+running 3 tests
+test x01_cli_emits_bound_risk_input_and_rejects_stale_data ... ok
+test x01_cli_rejects_mismatch_before_writing_outputs ... ok
+test x01_cli_golden_replay_and_restart ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.84s
+
+node --test scripts/x01-migration.test.mjs scripts/x01-local-gate.test.mjs
+✔ exact 40 nodes and 127 dependency groups before 4 own checks (1.271459ms)
+✔ valid evaluation admits no runtime or target (21.651625ms)
+✔ environment strips all credentials (0.150125ms)
+✔ rejects promoted databaseExecution (1.159042ms)
+✔ rejects promoted production (1.486875ms)
+✔ rejects promoted formalAccepted (0.83325ms)
+✔ rejects promoted externalExecution (0.77025ms)
+✔ rejects promoted performanceAccepted (0.654125ms)
+✔ rejects promoted syncApproved (0.62275ms)
+✔ rejects promoted targetCanaryAccepted (0.6545ms)
+✔ rejects promoted targetRollbackAccepted (0.63075ms)
+✔ rejects promoted externalPublished (0.656792ms)
+✔ rejects promoted upstreamAccepted (0.589458ms)
+✔ cannot omit CORE:F01 (1.214333ms)
+✔ cannot omit CORE:F03 (1.030917ms)
+✔ cannot omit CORE:F04 (1.113208ms)
+✔ cannot omit CORE:F05 (1.425917ms)
+✔ cannot omit CORE:F02 (1.105125ms)
+✔ cannot omit CORE:F06 (0.967083ms)
+✔ cannot omit CORE:F07 (0.940625ms)
+✔ cannot omit CORE:F08 (0.911625ms)
+✔ cannot omit CORE:F09 (0.926209ms)
+✔ cannot omit CORE:TP01-A (1.02375ms)
+✔ cannot omit CORE:TP01-B (0.903417ms)
+✔ cannot omit CORE-GATE:F0 (0.875958ms)
+✔ cannot omit CORE:R01 (0.865541ms)
+✔ cannot omit CORE:R02 (1.326334ms)
+✔ cannot omit CORE:TP01-C (0.926208ms)
+✔ cannot omit CORE:TP01-D (0.911459ms)
+✔ cannot omit CORE:TP02 (0.826542ms)
+✔ cannot omit CORE:TP03 (0.819417ms)
+✔ cannot omit CORE:TP04 (0.836375ms)
+✔ cannot omit CORE:TP05 (0.831167ms)
+✔ cannot omit CORE:TP08 (0.826333ms)
+✔ cannot omit CORE:TP09 (0.863666ms)
+✔ cannot omit CORE:TP10 (0.835041ms)
+✔ cannot omit CORE:TP11 (1.227292ms)
+✔ cannot omit CORE:R03 (1.1005ms)
+✔ cannot omit CORE:R04 (1.035459ms)
+✔ cannot omit CORE-GATE:R1-SERVICE (0.977292ms)
+✔ cannot omit CORE:TP01-E (0.895125ms)
+✔ cannot omit CORE:TP01-F (0.829291ms)
+✔ cannot omit CORE:TP01-G (0.757ms)
+✔ cannot omit SERVICE:TP01 (0.781625ms)
+✔ cannot omit CORE:S01 (0.793084ms)
+✔ cannot omit CORE:TP06 (0.757125ms)
+✔ cannot omit CORE:S02 (0.76475ms)
+✔ cannot omit CORE:S03 (1.308375ms)
+✔ cannot omit SERVICE:S04 (0.845375ms)
+✔ cannot omit EVALUATION:TP07 (0.760833ms)
+✔ cannot omit EVALUATION:TP12 (0.77325ms)
+✔ cannot omit CORE-GATE:S2-SERVICE (0.756709ms)
+✔ cannot omit CORE:X01 (0.760208ms)
+✔ rejects index substitution inputDigest (0.829958ms)
+✔ rejects index substitution observedSourceCommit (0.789084ms)
+✔ rejects index substitution owner (0.883791ms)
+✔ rejects index substitution profile (0.853709ms)
+✔ rejects index substitution status (0.771ms)
+✔ rejects receipt substitution schema (0.982291ms)
+✔ rejects receipt substitution profile (0.502542ms)
+✔ rejects receipt substitution nodeId (0.508625ms)
+✔ rejects receipt substitution functionalManifest (0.795958ms)
+✔ rejects receipt substitution functionalDigest (0.785959ms)
+✔ rejects receipt substitution engineeringStatus (0.515959ms)
+✔ failed evidence validation rejects admission (0.875ms)
+✔ component coverage cannot be rewritten (1.075416ms)
+✔ cannot remove deferred targets (1.053958ms)
+✔ cannot waive direct dependency (0.666625ms)
+✔ publication writes exactly receipt and two plans (6.086792ms)
+✔ invalid index cannot mutate canonical files (2.316666ms)
+✔ write failure rolls all files back (5.371083ms)
+✔ postverification failure rolls all files back (5.375167ms)
+✔ first publication failure removes new manifest (6.791292ms)
+✔ expanded roots cannot grant another admission (0.624541ms)
+✔ rejects skipped behavior x01_ten_thousand_fills_golden_and_cold_rebuild (1.0495ms)
+✔ rejects skipped behavior x01_rejected_events_do_not_poison_retry (0.973917ms)
+✔ rejects skipped behavior x01_invalid_numbers_symbols_and_time_are_atomic (0.903417ms)
+✔ rejects skipped behavior x01_risk_snapshot_binds_identity_status_and_each_mark_time (0.912584ms)
+✔ rejects skipped behavior x01_ledger_market_to_portfolio_and_cross_tenant_denials (0.931458ms)
+✔ rejects skipped behavior x01_snapshot_tampering_and_float_roundtrip (0.900542ms)
+✔ rejects skipped behavior x01_cli_golden_replay_and_restart (1.183375ms)
+✔ rejects skipped behavior x01_cli_rejects_mismatch_before_writing_outputs (1.012542ms)
+✔ rejects skipped behavior x01_cli_emits_bound_risk_input_and_rejects_stale_data (0.897083ms)
+✔ migration static execution cannot be promoted (1.209583ms)
+✔ expanded age and historical model evidence cannot replace checks (1.179375ms)
+✔ X01 own execution cannot precede fresh S2 closure (1.301583ms)
+✔ X01 cannot consume partial execution results (1.186167ms)
+✔ X01 migration static obligations preserve target NOT_RUN (0.63625ms)
+✔ rejects removed schema obligation portfolio_accounts_tenant_account_fk (0.573167ms)
+✔ rejects removed schema obligation portfolio_positions_tenant_account_fk (0.0825ms)
+✔ rejects removed schema obligation force row level security (0.07025ms)
+✔ rejects removed schema obligation add column snapshot_json jsonb (0.0695ms)
+✔ rejects removed schema obligation risk_input_json->'portfolio' = snapshot_json (0.072ms)
+✔ rejects removed schema obligation new.last_event_sequence < old.last_event_sequence (0.069ms)
+✔ rejects removed schema obligation new.snapshot_json is distinct from old.snapshot_json (0.055792ms)
+✔ rejects removed schema obligation new.as_of < old.as_of (0.070167ms)
+✔ rejects removed schema obligation revoke insert, update, delete (0.105167ms)
+✔ rejects removed schema obligation ) is true)) (0.071083ms)
+✔ rejects accidental authenticated projection writes (0.058292ms)
+ℹ tests 99
+ℹ suites 0
+ℹ pass 99
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 276.187916
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running unittests src/lib.rs (target/debug/deps/quantos_portfolio-07e4fc65e64f87f5)
+     Running tests/x01_read_model.rs (target/debug/deps/x01_read_model-4d21134d0f58ed14)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running tests/local_cli.rs (target/debug/deps/local_cli-cc75718bc08a2dd5)

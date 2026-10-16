@@ -1,10 +1,11 @@
 use std::{
     fs::File,
-    io::{BufReader, BufWriter},
+    io::{BufReader, BufWriter, Write},
     path::PathBuf,
 };
 
 use anyhow::{Context, Result, bail};
+use chrono::{DateTime, Utc};
 use clap::{Parser, Subcommand};
 use quantos_core::{AccountId, CorrelationId, TenantId};
 use quantos_observability::service::run_observed_write_command;
@@ -42,6 +43,12 @@ enum Command {
         golden: Option<PathBuf>,
         #[arg(long)]
         emit_golden: Option<PathBuf>,
+        #[arg(long, requires = "risk_at")]
+        risk_output: Option<PathBuf>,
+        #[arg(long, requires = "risk_output")]
+        risk_at: Option<DateTime<Utc>>,
+        #[arg(long, default_value_t = 30)]
+        max_age_seconds: i64,
         #[arg(long)]
         database_url: Option<String>,
         #[arg(long)]
@@ -54,6 +61,9 @@ enum Command {
 }
 
 struct RebuildTarget {
+    risk_output: Option<PathBuf>,
+    risk_at: Option<DateTime<Utc>>,
+    max_age_seconds: i64,
     database_url: Option<String>,
     use_database_env: bool,
     tenant_id: Option<uuid::Uuid>,
@@ -82,6 +92,9 @@ fn run(correlation_id: CorrelationId) -> Result<()> {
             input,
             golden,
             emit_golden,
+            risk_output,
+            risk_at,
+            max_age_seconds,
             database_url,
             use_database_env,
             tenant_id,
@@ -91,6 +104,9 @@ fn run(correlation_id: CorrelationId) -> Result<()> {
             golden,
             emit_golden,
             RebuildTarget {
+                risk_output,
+                risk_at,
+                max_age_seconds,
                 database_url,
                 use_database_env,
                 tenant_id,
@@ -119,6 +135,7 @@ fn generate_replay(
         File::create(&output).with_context(|| format!("failed to create {}", output.display()))?;
     let mut writer = BufWriter::new(output_file);
     write_events_jsonl(&mut writer, &events).context("failed to write replay dataset")?;
+    writer.flush().context("failed to flush replay dataset")?;
     println!(
         "generated {} portfolio events ({} fills + marks) into {} correlation_id={}",
         events.len(),
@@ -177,18 +194,6 @@ fn rebuild(
         correlation_id
     );
 
-    if let Some(emit_golden) = emit_golden {
-        let golden_file = File::create(&emit_golden)
-            .with_context(|| format!("failed to create {}", emit_golden.display()))?;
-        serde_json::to_writer_pretty(BufWriter::new(golden_file), &snapshot)
-            .context("failed to write golden snapshot")?;
-        println!(
-            "wrote golden snapshot to {} correlation_id={}",
-            emit_golden.display(),
-            correlation_id
-        );
-    }
-
     if let Some(golden) = golden {
         let golden_file =
             File::open(&golden).with_context(|| format!("failed to open {}", golden.display()))?;
@@ -204,12 +209,52 @@ fn rebuild(
         println!("golden snapshot matched (hash {})", snapshot.snapshot_hash);
     }
 
+    // Validate all requested products before emitting any projection/golden files.
+    let risk_input = target
+        .risk_at
+        .map(|at| projection.risk_snapshot(account_id, at, target.max_age_seconds))
+        .transpose()
+        .context("failed to build fresh account-bound risk input")?;
+    snapshot.validate().context("invalid rebuilt snapshot")?;
+    if let Some(emit_golden) = emit_golden {
+        let golden_file = File::create(&emit_golden)
+            .with_context(|| format!("failed to create {}", emit_golden.display()))?;
+        let mut writer = BufWriter::new(golden_file);
+        serde_json::to_writer_pretty(&mut writer, &snapshot)
+            .context("failed to write golden snapshot")?;
+        writer.flush().context("failed to flush golden snapshot")?;
+        println!(
+            "wrote golden snapshot to {} correlation_id={}",
+            emit_golden.display(),
+            correlation_id
+        );
+    }
+
+    if let (Some(output), Some(input)) = (&target.risk_output, &risk_input) {
+        let file = File::create(output)
+            .with_context(|| format!("failed to create {}", output.display()))?;
+        let mut writer = BufWriter::new(file);
+        serde_json::to_writer_pretty(&mut writer, input).context("failed to write risk input")?;
+        writer.flush().context("failed to flush risk input")?;
+        println!(
+            "wrote risk input {} hash={}",
+            output.display(),
+            input.input_hash
+        );
+    }
+
     if let Some(database_url) = database_url {
         let mut store = quantos_portfolio::pg::PgPortfolioStore::connect(&database_url)
             .context("failed to connect to PostgreSQL")?;
-        store
-            .save_snapshot(&snapshot)
-            .context("failed to persist portfolio snapshot")?;
+        if let Some(input) = &risk_input {
+            store
+                .save_risk_snapshot(input)
+                .context("failed to persist portfolio risk snapshot")?;
+        } else {
+            store
+                .save_snapshot(&snapshot)
+                .context("failed to persist portfolio snapshot")?;
+        }
         println!("persisted portfolio snapshot to PostgreSQL correlation_id={correlation_id}");
     }
     Ok(())

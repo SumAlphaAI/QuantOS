@@ -710,6 +710,9 @@ mod tests {
             last_event_sequence: 1,
             as_of,
             snapshot_hash: ContentHash::sha256_bytes(b"clean-bundle"),
+            account_status: None,
+            account_status_at: None,
+            valuation_marks: Vec::new(),
         };
         let shadow = ShadowDaySnapshot {
             day,

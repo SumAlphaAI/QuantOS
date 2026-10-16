@@ -1,0 +1,159 @@
+cargo test --locked --offline -p quantos-portfolio --lib --test x01_read_model
+
+running 4 tests
+test tests::portfolio_queries_stay_under_three_hundred_millis_p95 ... ignored, release performance; run make research-release-performance-smokes
+test tests::out_of_order_and_duplicate_events_are_rejected ... ok
+test tests::ten_thousand_event_replay_matches_golden_snapshot ... ok
+test tests::rebuild_is_fully_repeatable ... ok
+
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+
+running 7 tests
+test x01_short_reversal_fee_and_account_isolation ... ok
+test x01_rejected_events_do_not_poison_retry ... ok
+test x01_snapshot_tampering_and_float_roundtrip ... ok
+test x01_ledger_market_to_portfolio_and_cross_tenant_denials ... ok
+test x01_invalid_numbers_symbols_and_time_are_atomic ... ok
+test x01_risk_snapshot_binds_identity_status_and_each_mark_time ... ok
+test x01_ten_thousand_fills_golden_and_cold_rebuild ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.52s
+
+cargo test --locked --offline -p portfolio-rebuild --test local_cli
+
+running 3 tests
+test x01_cli_emits_bound_risk_input_and_rejects_stale_data ... ok
+test x01_cli_rejects_mismatch_before_writing_outputs ... ok
+test x01_cli_golden_replay_and_restart ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.94s
+
+node --test scripts/x01-migration.test.mjs scripts/x01-local-gate.test.mjs
+✔ exact 40 nodes and 127 dependency groups before 4 own checks (1.317125ms)
+✔ valid evaluation admits no runtime or target (21.719541ms)
+✔ environment strips all credentials (0.145791ms)
+✔ rejects promoted databaseExecution (1.646875ms)
+✔ rejects promoted production (0.808833ms)
+✔ rejects promoted formalAccepted (0.750333ms)
+✔ rejects promoted externalExecution (0.74975ms)
+✔ rejects promoted performanceAccepted (0.659167ms)
+✔ rejects promoted syncApproved (0.604583ms)
+✔ rejects promoted targetCanaryAccepted (0.652167ms)
+✔ rejects promoted targetRollbackAccepted (0.602834ms)
+✔ rejects promoted externalPublished (0.631167ms)
+✔ rejects promoted upstreamAccepted (0.589167ms)
+✔ cannot omit CORE:F01 (1.240625ms)
+✔ cannot omit CORE:F03 (1.019792ms)
+✔ cannot omit CORE:F04 (1.58975ms)
+✔ cannot omit CORE:F05 (1.214042ms)
+✔ cannot omit CORE:F02 (1.063541ms)
+✔ cannot omit CORE:F06 (0.974833ms)
+✔ cannot omit CORE:F07 (0.9315ms)
+✔ cannot omit CORE:F08 (0.976916ms)
+✔ cannot omit CORE:F09 (0.957292ms)
+✔ cannot omit CORE:TP01-A (0.991334ms)
+✔ cannot omit CORE:TP01-B (0.948917ms)
+✔ cannot omit CORE-GATE:F0 (1.002167ms)
+✔ cannot omit CORE:R01 (1.36725ms)
+✔ cannot omit CORE:R02 (1.032834ms)
+✔ cannot omit CORE:TP01-C (0.905792ms)
+✔ cannot omit CORE:TP01-D (0.869667ms)
+✔ cannot omit CORE:TP02 (0.854542ms)
+✔ cannot omit CORE:TP03 (0.858542ms)
+✔ cannot omit CORE:TP04 (0.83775ms)
+✔ cannot omit CORE:TP05 (0.8595ms)
+✔ cannot omit CORE:TP08 (0.867459ms)
+✔ cannot omit CORE:TP09 (0.867083ms)
+✔ cannot omit CORE:TP10 (1.176833ms)
+✔ cannot omit CORE:TP11 (0.986166ms)
+✔ cannot omit CORE:R03 (1.009334ms)
+✔ cannot omit CORE:R04 (0.928209ms)
+✔ cannot omit CORE-GATE:R1-SERVICE (0.947916ms)
+✔ cannot omit CORE:TP01-E (0.882667ms)
+✔ cannot omit CORE:TP01-F (0.882167ms)
+✔ cannot omit CORE:TP01-G (0.764958ms)
+✔ cannot omit SERVICE:TP01 (0.78775ms)
+✔ cannot omit CORE:S01 (0.811166ms)
+✔ cannot omit CORE:TP06 (1.08925ms)
+✔ cannot omit CORE:S02 (0.838ms)
+✔ cannot omit CORE:S03 (0.993958ms)
+✔ cannot omit SERVICE:S04 (0.909709ms)
+✔ cannot omit EVALUATION:TP07 (0.853667ms)
+✔ cannot omit EVALUATION:TP12 (0.81175ms)
+✔ cannot omit CORE-GATE:S2-SERVICE (0.797416ms)
+✔ cannot omit CORE:X01 (0.756541ms)
+✔ rejects index substitution inputDigest (0.811042ms)
+✔ rejects index substitution observedSourceCommit (0.760666ms)
+✔ rejects index substitution owner (0.891375ms)
+✔ rejects index substitution profile (0.800958ms)
+✔ rejects index substitution status (1.09925ms)
+✔ rejects receipt substitution schema (0.534375ms)
+✔ rejects receipt substitution profile (0.518208ms)
+✔ rejects receipt substitution nodeId (0.501875ms)
+✔ rejects receipt substitution functionalManifest (0.791ms)
+✔ rejects receipt substitution functionalDigest (0.80425ms)
+✔ rejects receipt substitution engineeringStatus (0.515792ms)
+✔ failed evidence validation rejects admission (0.88825ms)
+✔ component coverage cannot be rewritten (1.065083ms)
+✔ cannot remove deferred targets (1.046583ms)
+✔ cannot waive direct dependency (0.623709ms)
+✔ publication writes exactly receipt and two plans (5.797167ms)
+✔ invalid index cannot mutate canonical files (2.238875ms)
+✔ write failure rolls all files back (5.233917ms)
+✔ postverification failure rolls all files back (5.193792ms)
+✔ first publication failure removes new manifest (6.447166ms)
+✔ expanded roots cannot grant another admission (0.630542ms)
+✔ rejects skipped behavior x01_ten_thousand_fills_golden_and_cold_rebuild (1.049917ms)
+✔ rejects skipped behavior x01_rejected_events_do_not_poison_retry (0.998291ms)
+✔ rejects skipped behavior x01_invalid_numbers_symbols_and_time_are_atomic (0.931875ms)
+✔ rejects skipped behavior x01_risk_snapshot_binds_identity_status_and_each_mark_time (0.920333ms)
+✔ rejects skipped behavior x01_ledger_market_to_portfolio_and_cross_tenant_denials (0.926334ms)
+✔ rejects skipped behavior x01_snapshot_tampering_and_float_roundtrip (0.929041ms)
+✔ rejects skipped behavior x01_cli_golden_replay_and_restart (0.983334ms)
+✔ rejects skipped behavior x01_cli_rejects_mismatch_before_writing_outputs (0.990666ms)
+✔ rejects skipped behavior x01_cli_emits_bound_risk_input_and_rejects_stale_data (0.923958ms)
+✔ migration static execution cannot be promoted (1.23525ms)
+✔ expanded age and historical model evidence cannot replace checks (1.211666ms)
+✔ X01 own execution cannot precede fresh S2 closure (1.286917ms)
+✔ X01 cannot consume partial execution results (1.29825ms)
+✔ X01 migration static obligations preserve target NOT_RUN (0.674917ms)
+✔ rejects removed schema obligation portfolio_accounts_tenant_account_fk (0.56525ms)
+✔ rejects removed schema obligation portfolio_positions_tenant_account_fk (0.071583ms)
+✔ rejects removed schema obligation force row level security (0.060083ms)
+✔ rejects removed schema obligation add column snapshot_json jsonb (0.071833ms)
+✔ rejects removed schema obligation risk_input_json->'portfolio' = snapshot_json (0.066292ms)
+✔ rejects removed schema obligation new.last_event_sequence < old.last_event_sequence (0.0725ms)
+✔ rejects removed schema obligation new.snapshot_json is distinct from old.snapshot_json (0.064083ms)
+✔ rejects removed schema obligation new.as_of < old.as_of (0.066167ms)
+✔ rejects removed schema obligation revoke insert, update, delete (0.096917ms)
+✔ rejects removed schema obligation ) is true)) (0.075166ms)
+✔ rejects accidental authenticated projection writes (0.06125ms)
+ℹ tests 99
+ℹ suites 0
+ℹ pass 99
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 273.179541
+   Compiling tokio-postgres v0.7.18
+   Compiling postgres v0.19.14
+   Compiling postgres-openssl v0.5.3
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+   Compiling quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 19s
+     Running unittests src/lib.rs (target/debug/deps/quantos_portfolio-07e4fc65e64f87f5)
+     Running tests/x01_read_model.rs (target/debug/deps/x01_read_model-4d21134d0f58ed14)
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling portfolio-rebuild v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/portfolio-rebuild)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 37.64s
+     Running tests/local_cli.rs (target/debug/deps/local_cli-cc75718bc08a2dd5)

@@ -6,13 +6,13 @@ use std::{
 
 use chrono::{DateTime, Utc};
 use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
-use postgres::{Client, NoTls, Row, types::Type};
+use postgres::{Client, NoTls};
 use postgres_openssl::MakeTlsConnector;
 use quantos_core::{AccountId, CoreError, TenantId};
 use thiserror::Error;
 use url::Url;
 
-use crate::{PortfolioError, PortfolioSnapshot, PositionSnapshot};
+use crate::{PortfolioError, PortfolioSnapshot, PositionSnapshot, RiskInputSnapshot};
 
 #[derive(Debug, Error)]
 pub enum PgPortfolioError {
@@ -38,6 +38,8 @@ pub struct AccountRiskState {
     pub exposure_gross: f64,
     pub exposure_net: f64,
     pub last_event_sequence: u64,
+    pub account_status: Option<crate::AccountStatus>,
+    pub account_status_at: Option<DateTime<Utc>>,
 }
 
 pub struct PgPortfolioStore {
@@ -69,7 +71,65 @@ impl PgPortfolioStore {
     }
 
     pub fn save_snapshot(&mut self, snapshot: &PortfolioSnapshot) -> Result<(), PgPortfolioError> {
+        self.save(snapshot, None)
+    }
+
+    pub fn save_risk_snapshot(
+        &mut self,
+        input: &RiskInputSnapshot,
+    ) -> Result<(), PgPortfolioError> {
+        input.validate_for(
+            input.portfolio.tenant_id,
+            input.portfolio.account_id,
+            input.generated_at,
+            input.max_age_seconds,
+        )?;
+        self.save(&input.portfolio, Some(input))
+    }
+
+    fn save(
+        &mut self,
+        snapshot: &PortfolioSnapshot,
+        risk: Option<&RiskInputSnapshot>,
+    ) -> Result<(), PgPortfolioError> {
+        snapshot.validate()?;
+        let payload = serde_json::to_value(snapshot).map_err(PortfolioError::from)?;
+        let risk_payload = risk
+            .map(serde_json::to_value)
+            .transpose()
+            .map_err(PortfolioError::from)?;
         let mut transaction = self.client.transaction()?;
+        // Lock the existing parent even on the first projection write; every writer uses this lock.
+        if transaction
+            .query_opt(
+                "select id from quantos.accounts where tenant_id = $1 and id = $2 for update",
+                &[
+                    &snapshot.tenant_id.as_uuid(),
+                    &snapshot.account_id.as_uuid(),
+                ],
+            )?
+            .is_none()
+        {
+            return Err(PortfolioError::InvalidInput("account outside tenant").into());
+        }
+        if let Some(row) = transaction.query_opt(
+            "select last_event_sequence, as_of, snapshot_json, risk_input_json from quantos.portfolio_accounts where tenant_id = $1 and account_id = $2",
+            &[&snapshot.tenant_id.as_uuid(), &snapshot.account_id.as_uuid()],
+        )? {
+            let sequence: i64 = row.get(0);
+            let as_of: DateTime<Utc> = row.get(1);
+            let prior: Option<serde_json::Value> = row.get(2);
+            let prior: Option<PortfolioSnapshot> = prior.map(serde_json::from_value).transpose().map_err(PortfolioError::from)?;
+            if let Some(prior) = &prior { prior.validate()?; }
+            let prior_risk: Option<serde_json::Value> = row.get(3);
+            if sequence > snapshot.last_event_sequence as i64 || as_of > snapshot.as_of
+                || (sequence == snapshot.last_event_sequence as i64 && prior.is_some_and(|value| value != *snapshot))
+                || risk.is_some_and(|input| prior_risk.as_ref().and_then(|r| r.get("generated_at")).and_then(|v| v.as_str())
+                    .and_then(|v| DateTime::parse_from_rfc3339(v).ok()).is_some_and(|at| at > input.generated_at))
+            {
+                return Err(PortfolioError::SnapshotConflict.into());
+            }
+        }
         transaction.execute(
             "delete from quantos.portfolio_positions where tenant_id = $1 and account_id = $2",
             &[
@@ -96,26 +156,27 @@ impl PgPortfolioStore {
                 ],
             )?;
         }
-        for position in &snapshot.positions {
+        for mark in &snapshot.valuation_marks {
             transaction.execute(
                 "insert into quantos.portfolio_marks (tenant_id, symbol, price, as_of, updated_at)
                  values ($1,$2,$3,$4,$5)
                  on conflict (tenant_id, symbol) do update
-                 set price = excluded.price, as_of = excluded.as_of, updated_at = excluded.updated_at",
+                 set price = excluded.price, as_of = excluded.as_of, updated_at = excluded.updated_at
+                 where quantos.portfolio_marks.as_of <= excluded.as_of",
                 &[
                     &snapshot.tenant_id.as_uuid(),
-                    &position.symbol,
-                    &position.mark_price,
-                    &snapshot.as_of,
-                    &snapshot.as_of,
+                    &mark.symbol,
+                    &mark.price,
+                    &mark.source_at,
+                    &mark.source_at,
                 ],
             )?;
         }
         transaction.execute(
             "insert into quantos.portfolio_accounts (
                 tenant_id, account_id, realized_pnl, unrealized_pnl,
-                exposure_gross, exposure_net, last_event_sequence, as_of, updated_at
-            ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+                exposure_gross, exposure_net, last_event_sequence, as_of, updated_at, snapshot_json, risk_input_json
+            ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
             on conflict (tenant_id, account_id) do update
             set realized_pnl = excluded.realized_pnl,
                 unrealized_pnl = excluded.unrealized_pnl,
@@ -123,7 +184,9 @@ impl PgPortfolioStore {
                 exposure_net = excluded.exposure_net,
                 last_event_sequence = excluded.last_event_sequence,
                 as_of = excluded.as_of,
-                updated_at = excluded.updated_at",
+                updated_at = excluded.updated_at,
+                snapshot_json = excluded.snapshot_json,
+                risk_input_json = excluded.risk_input_json",
             &[
                 &snapshot.tenant_id.as_uuid(),
                 &snapshot.account_id.as_uuid(),
@@ -134,6 +197,8 @@ impl PgPortfolioStore {
                 &(snapshot.last_event_sequence as i64),
                 &snapshot.as_of,
                 &snapshot.as_of,
+                &payload,
+                &risk_payload,
             ],
         )?;
         transaction.commit()?;
@@ -146,21 +211,59 @@ impl PgPortfolioStore {
         account_id: AccountId,
     ) -> Result<Vec<PositionSnapshot>, PgPortfolioError> {
         let started = Instant::now();
-        let rows = self.client.query_typed(
-            "select p.symbol, p.quantity, p.average_entry_price, p.realized_pnl,
-                    coalesce(m.price, p.average_entry_price) as mark_price
-             from quantos.portfolio_positions p
-             left join quantos.portfolio_marks m
-               on m.tenant_id = p.tenant_id and m.symbol = p.symbol
-             where p.tenant_id = $1 and p.account_id = $2
-             order by p.symbol asc",
-            &[
-                (tenant_id.as_uuid(), Type::UUID),
-                (account_id.as_uuid(), Type::UUID),
-            ],
-        )?;
+        let snapshot = self.snapshot_for_account(tenant_id, account_id)?;
         self.record_query_latency(tenant_id, "portfolio_query_latency_ms", started);
-        Ok(rows.iter().map(row_to_position_snapshot).collect())
+        Ok(snapshot.map_or_else(Vec::new, |snapshot| snapshot.positions))
+    }
+
+    /// One row contains the complete saved valuation; newer global marks cannot tear this read.
+    pub fn snapshot_for_account(
+        &mut self,
+        tenant_id: TenantId,
+        account_id: AccountId,
+    ) -> Result<Option<PortfolioSnapshot>, PgPortfolioError> {
+        let row = self.client.query_opt(
+            "select snapshot_json from quantos.portfolio_accounts where tenant_id = $1 and account_id = $2",
+            &[&tenant_id.as_uuid(), &account_id.as_uuid()],
+        )?;
+        row.map(|row| {
+            let value: Option<serde_json::Value> = row.get(0);
+            let snapshot: PortfolioSnapshot = serde_json::from_value(value.ok_or(
+                PortfolioError::InvalidInput("legacy projection requires rebuild"),
+            )?)
+            .map_err(PortfolioError::from)?;
+            snapshot.validate()?;
+            if snapshot.tenant_id != tenant_id || snapshot.account_id != account_id {
+                return Err(PortfolioError::InvalidInput("saved snapshot identity").into());
+            }
+            Ok(snapshot)
+        })
+        .transpose()
+    }
+
+    pub fn risk_snapshot_for_account(
+        &mut self,
+        tenant_id: TenantId,
+        account_id: AccountId,
+        now: DateTime<Utc>,
+        allowed_age_seconds: i64,
+    ) -> Result<Option<RiskInputSnapshot>, PgPortfolioError> {
+        let started = Instant::now();
+        let row = self.client.query_opt(
+            "select risk_input_json from quantos.portfolio_accounts where tenant_id = $1 and account_id = $2",
+            &[&tenant_id.as_uuid(), &account_id.as_uuid()],
+        )?;
+        let result = row
+            .and_then(|row| row.get::<_, Option<serde_json::Value>>(0))
+            .map(|value| {
+                let input: RiskInputSnapshot =
+                    serde_json::from_value(value).map_err(PortfolioError::from)?;
+                input.validate_for(tenant_id, account_id, now, allowed_age_seconds)?;
+                Ok(input)
+            })
+            .transpose();
+        self.record_query_latency(tenant_id, "risk_query_latency_ms", started);
+        result
     }
 
     pub fn mark_for_symbol(
@@ -181,19 +284,16 @@ impl PgPortfolioStore {
         account_id: AccountId,
     ) -> Result<Option<AccountRiskState>, PgPortfolioError> {
         let started = Instant::now();
-        let row = self.client.query_opt(
-            "select realized_pnl, unrealized_pnl, exposure_gross, exposure_net, last_event_sequence
-             from quantos.portfolio_accounts
-             where tenant_id = $1 and account_id = $2",
-            &[&tenant_id.as_uuid(), &account_id.as_uuid()],
-        )?;
+        let snapshot = self.snapshot_for_account(tenant_id, account_id)?;
         self.record_query_latency(tenant_id, "risk_query_latency_ms", started);
-        Ok(row.map(|row| AccountRiskState {
-            realized_pnl: row.get(0),
-            unrealized_pnl: row.get(1),
-            exposure_gross: row.get(2),
-            exposure_net: row.get(3),
-            last_event_sequence: row.get::<_, i64>(4) as u64,
+        Ok(snapshot.map(|snapshot| AccountRiskState {
+            realized_pnl: snapshot.realized_pnl,
+            unrealized_pnl: snapshot.unrealized_pnl,
+            exposure_gross: snapshot.exposure_gross,
+            exposure_net: snapshot.exposure_net,
+            last_event_sequence: snapshot.last_event_sequence,
+            account_status: snapshot.account_status,
+            account_status_at: snapshot.account_status_at,
         }))
     }
 
@@ -267,21 +367,6 @@ fn flush_query_metrics(database_url: &str, receiver: Receiver<QueryMetric>) {
         ) {
             eprintln!("portfolio/risk query metric persist failed: {error}");
         }
-    }
-}
-
-fn row_to_position_snapshot(row: &Row) -> PositionSnapshot {
-    let quantity: f64 = row.get(1);
-    let average_entry_price: f64 = row.get(2);
-    let mark_price: f64 = row.get(4);
-    PositionSnapshot {
-        symbol: row.get(0),
-        quantity,
-        average_entry_price,
-        mark_price,
-        market_value: quantity * mark_price,
-        unrealized_pnl: quantity * (mark_price - average_entry_price),
-        realized_pnl: row.get(3),
     }
 }
 
