@@ -736,3 +736,15 @@ eval-tp07-local-check:
 	node scripts/eval-tp07-local-gate.mjs --ready
 eval-tp07-release-check:
 	node scripts/eval-tp07-local-gate.mjs --release
+
+.PHONY: eval-tp12-check eval-tp12-assess-local eval-tp12-local-check eval-tp12-release-check
+eval-tp12-check:
+	python3 scripts/tp12-evaluation.py
+	python3 -m unittest discover -s scripts/tests -p test_tp12_evaluation.py -v
+	node --test scripts/eval-tp12-local-gate.test.mjs
+eval-tp12-assess-local:
+	node scripts/record-eval-tp12-local.mjs
+eval-tp12-local-check:
+	node scripts/eval-tp12-local-gate.mjs --ready
+eval-tp12-release-check:
+	node scripts/eval-tp12-local-gate.mjs --release

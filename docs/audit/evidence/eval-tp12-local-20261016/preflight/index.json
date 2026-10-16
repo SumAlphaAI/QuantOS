@@ -1,0 +1,130 @@
+{
+  "schema": "quantos-tp12-preflight/v1",
+  "notFrozenCandidate": true,
+  "checks": [
+    {
+      "id": "evaluation",
+      "command": [
+        "python3",
+        "scripts/tp12-evaluation.py"
+      ],
+      "executedAt": "2026-10-16T07:36:32.654004+00:00",
+      "exitCode": 0,
+      "log": "evaluation.log"
+    },
+    {
+      "id": "evaluation-tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/tests",
+        "-p",
+        "test_tp12_evaluation.py",
+        "-v"
+      ],
+      "executedAt": "2026-10-16T07:36:33.117376+00:00",
+      "exitCode": 0,
+      "log": "evaluation-tests.log"
+    },
+    {
+      "id": "policy-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/eval-tp12-local-gate.test.mjs"
+      ],
+      "executedAt": "2026-10-16T07:36:34.197238+00:00",
+      "exitCode": 0,
+      "log": "policy-tests.log"
+    },
+    {
+      "id": "parent-policy-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/eval-tp07-local-gate.test.mjs"
+      ],
+      "executedAt": "2026-10-16T07:36:34.891416+00:00",
+      "exitCode": 0,
+      "log": "parent-policy-tests.log"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "executedAt": "2026-10-16T07:36:34.943954+00:00",
+      "exitCode": 0,
+      "log": "plans.log"
+    },
+    {
+      "id": "handoff",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "executedAt": "2026-10-16T07:36:34.977175+00:00",
+      "exitCode": 0,
+      "log": "handoff.log"
+    },
+    {
+      "id": "ruff",
+      "command": [
+        "engines/.venv/bin/ruff",
+        "check",
+        "scripts/tp12-evaluation.py",
+        "scripts/tests/test_tp12_evaluation.py",
+        "engines/tests/test_tp12_nautilus_agents_rules.py"
+      ],
+      "executedAt": "2026-10-16T07:36:34.988168+00:00",
+      "exitCode": 0,
+      "log": "ruff.log"
+    },
+    {
+      "id": "adapter-tests",
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "pytest",
+        "engines/tests/test_tp12_nautilus_agents_rules.py",
+        "-q"
+      ],
+      "executedAt": "2026-10-16T07:36:35.151221+00:00",
+      "exitCode": 0,
+      "log": "adapter-tests.log"
+    }
+  ],
+  "formalAccepted": false,
+  "additionalChecks": [
+    {
+      "id": "shared-receipts-plan-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/check-development-plan-order.test.mjs"
+      ],
+      "exitCode": 0,
+      "tests": 54,
+      "log": "shared-tests.log"
+    },
+    {
+      "id": "gitleaks-staged",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "git",
+        "--staged",
+        "--redact",
+        "--no-banner",
+        "--log-level",
+        "info"
+      ],
+      "exitCode": 0,
+      "log": "source-staged-gitleaks.log"
+    }
+  ]
+}

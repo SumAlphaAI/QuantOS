@@ -2168,6 +2168,35 @@
         "scripts/eval-tp07-local-gate.test.mjs"
       ],
       "timeoutMs": 60000
+    },
+    "tp12-evaluation": {
+      "command": [
+        "python3",
+        "scripts/tp12-evaluation.py"
+      ],
+      "timeoutMs": 60000
+    },
+    "tp12-evaluation-tests": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/tests",
+        "-p",
+        "test_tp12_evaluation.py",
+        "-v"
+      ],
+      "timeoutMs": 60000
+    },
+    "tp12-evaluation-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/eval-tp12-local-gate.test.mjs"
+      ],
+      "timeoutMs": 60000
     }
   },
   "nodes": {
@@ -3170,6 +3199,29 @@
         "tp07-evaluation-tests",
         "tp07-evaluation-policy"
       ]
+    },
+    "EVALUATION:TP12": {
+      "scope": "Reference-only pinned TP12 boundary assessment; seven no-coupling rules, threat model and interface differences; no runtime adoption or formal approval",
+      "inputs": [
+        "third_party/nautilus-agents/",
+        "third_party/nautilus-trader/",
+        "scripts/tp12-evaluation.py",
+        "scripts/tests/test_tp12_evaluation.py",
+        "scripts/eval-tp12-local-gate.mjs",
+        "scripts/eval-tp12-local-gate.test.mjs",
+        "scripts/record-eval-tp12-local.mjs",
+        "engines/tests/test_tp12_nautilus_agents_rules.py",
+        "docs/adr/20260731-tp12-nautilus-agents-evaluation.md",
+        "docs/adr/20261016-tp12-evaluation-boundary.md",
+        "docs/operations/tp12_nautilus_agents_threat_model.md",
+        "docs/operations/tp12_nautilus_agents_progress.md",
+        "docs/operations/eval-tp12-local-admission.md"
+      ],
+      "checks": [
+        "tp12-evaluation",
+        "tp12-evaluation-tests",
+        "tp12-evaluation-policy"
+      ]
     }
   },
   "developmentProfile": {
@@ -3823,6 +3875,22 @@
     "profile": "EVAL-TP07_LOCAL",
     "roots": [
       "EVALUATION:TP07"
+    ],
+    "deferredChecks": [],
+    "nodeChecks": {
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": []
+  },
+  "evalTp12Local": {
+    "owner": "EVALUATION:TP12",
+    "profile": "EVAL-TP12_LOCAL",
+    "roots": [
+      "EVALUATION:TP12"
     ],
     "deferredChecks": [],
     "nodeChecks": {

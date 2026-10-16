@@ -1,0 +1,201 @@
+{
+  "schema": "quantos-tp12-boundary-assessment/v1",
+  "upstreamCommit": "8d79877380f8617b45dff2b8c8b3790c2f9d963a",
+  "basedOn": {
+    "nodeId": "EVALUATION:TP07",
+    "commit": "fa86c6e39e8f064d5922c0ee4da5e2a9a2716408"
+  },
+  "decision": "reference_only",
+  "runtimeAdmission": "DENIED",
+  "upstreamExecuted": false,
+  "formalAccepted": false,
+  "securityAudit": "NOT_RUN",
+  "fullReview": "CORE:TP12/X3-SERVICE",
+  "interfaces": [
+    {
+      "id": "observations",
+      "upstream": {
+        "path": "src/protocol/observation.rs",
+        "symbol": "Observation"
+      },
+      "owned": {
+        "path": "crates/quantos-runtime/src/signal_proposal.rs",
+        "symbol": "data_snapshot_ref"
+      },
+      "decision": "DIFFERENT",
+      "reason": "Owned snapshot/signal and content hash; upstream observation is not a QuantOS snapshot.",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "id": "proposals",
+      "upstream": {
+        "path": "src/protocol/live.rs",
+        "symbol": "ReducePosition"
+      },
+      "owned": {
+        "path": "engines/trading-agents/src/trading_agents/proposal_mapper.py",
+        "symbol": "executable=False"
+      },
+      "decision": "DIFFERENT",
+      "reason": "No wire conversion/adoption; QuantOS non-executable proposals require owned risk gates.",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "id": "transport",
+      "upstream": {
+        "path": "src/client.rs",
+        "symbol": "AgentClient"
+      },
+      "owned": {
+        "path": "crates/quantos-execution/src/gateway.rs",
+        "symbol": "ExecutionKernel"
+      },
+      "decision": "DIFFERENT_LAYER",
+      "reason": "An AgentClient trait does not implement UDS isolation or an execution kernel.",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "id": "advisory",
+      "upstream": {
+        "path": "src/assurance/advisory.rs",
+        "symbol": "AdvisoryValidator"
+      },
+      "owned": {
+        "path": "crates/quantos-execution/src/lib.rs",
+        "symbol": "RiskVerdict::ApprovalRequired"
+      },
+      "decision": "DESIGN_REFERENCE",
+      "reason": "Local findings never replace RiskDecision/approval.",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "id": "retention",
+      "upstream": {
+        "path": "src/assurance/recording.rs",
+        "symbol": "ForbiddenRetention"
+      },
+      "owned": {
+        "path": "crates/quantos-runtime/src/signal_proposal.rs",
+        "symbol": "record_artifact"
+      },
+      "decision": "CANDIDATE_ONLY",
+      "reason": "ReferenceOnly/Redacted/Full and Restricted handling are unimplemented metadata candidates.",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "id": "field-governance",
+      "upstream": {
+        "path": "contract/v1/fields.toml",
+        "symbol": "digest_covered"
+      },
+      "owned": {
+        "path": "proto/quantos/trading/v1/trading.proto",
+        "symbol": "TradeProposal"
+      },
+      "decision": "CANDIDATE_ONLY",
+      "reason": "Field ownership/stability/retention/digest metadata requires separate design and review.",
+      "runtimeAdmission": "DENIED"
+    }
+  ],
+  "threats": [
+    {
+      "id": "T1",
+      "scenario": "Prompt/tool injection seeks venue authority",
+      "rules": [
+        "NC-01",
+        "NC-02"
+      ],
+      "prerequisites": "Untrusted prompt/proposal payload; no venue credentials or issuer authority",
+      "impact": "Order/venue bypass if effective host grants network/credentials",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN",
+      "residualRisk": "UNASSESSED"
+    },
+    {
+      "id": "T2",
+      "scenario": "Identity/session leaks to kernel",
+      "rules": [
+        "NC-04"
+      ],
+      "prerequisites": "New gateway serialization path or added fields",
+      "impact": "Identity/approval material leaks into untrusted kernel",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN",
+      "residualRisk": "UNASSESSED"
+    },
+    {
+      "id": "T3",
+      "scenario": "Advisory verdict substitutes authoritative risk",
+      "rules": [
+        "NC-03"
+      ],
+      "prerequisites": "Consumer trusts an Agent-local report",
+      "impact": "Unauthorized command issuance",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN",
+      "residualRisk": "UNASSESSED"
+    },
+    {
+      "id": "T4",
+      "scenario": "Retry/replay duplicates downstream order",
+      "rules": [
+        "NC-03",
+        "NC-04"
+      ],
+      "prerequisites": "Crash/restart with persistent submission window",
+      "impact": "Duplicate financial exposure",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN",
+      "residualRisk": "UNASSESSED"
+    },
+    {
+      "id": "T5",
+      "scenario": "Expired proposal survives evaluation",
+      "rules": [
+        "NC-06"
+      ],
+      "prerequisites": "Stale proposal/time comparison",
+      "impact": "Execution using obsolete decision context",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN",
+      "residualRisk": "UNASSESSED"
+    },
+    {
+      "id": "T6",
+      "scenario": "SDK dependency enters production",
+      "rules": [
+        "NC-07"
+      ],
+      "prerequisites": "Authorized maintainer introduces manifest/lock/source import",
+      "impact": "Supply-chain and LGPL distribution obligations",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN",
+      "residualRisk": "UNASSESSED"
+    },
+    {
+      "id": "T7",
+      "scenario": "Trace/retention leaks or forges evidence",
+      "rules": [
+        "NC-05"
+      ],
+      "prerequisites": "Consumer promotes agent trace or records restricted payload",
+      "impact": "Confidentiality/audit-integrity loss",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN",
+      "residualRisk": "UNASSESSED"
+    },
+    {
+      "id": "T8",
+      "scenario": "Protocol/digest mapping drifts",
+      "rules": [
+        "NC-02",
+        "NC-07"
+      ],
+      "prerequisites": "Upstream or owned contract changes without reevaluation",
+      "impact": "Incompatible or misleading proposals/evidence",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN",
+      "residualRisk": "UNASSESSED"
+    }
+  ]
+}

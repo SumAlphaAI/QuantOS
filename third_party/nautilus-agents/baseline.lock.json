@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "component": "nautilus-agents",
-  "recordedAt": "2026-07-31T00:00:00Z",
+  "recordedAt": "2026-10-16T00:00:00Z",
   "upstream": {
     "owner": "nautechsystems",
     "repo": "nautilus_agents",
@@ -32,7 +32,8 @@
     "cargoLock": {
       "path": "Cargo.lock",
       "present": true,
-      "note": "upstream ships a Cargo.lock; dependencies are crates.io-only per upstream supply-chain policy"
+      "note": "upstream ships a Cargo.lock; dependencies are crates.io-only per upstream supply-chain policy",
+      "sha256": "88163677645333b5535ccc5fbc6acd538c1c8f514406358487dfed5afd4017cf"
     }
   },
   "policy": {
@@ -47,10 +48,81 @@
       "agent processes holding venue authority or credentials",
       "agent-side advisory checks treated as production decisions",
       "agent traces treated as production evidence"
-    ]
+    ],
+    "runtimeAdmission": "DENIED",
+    "productionApproved": false,
+    "formalAccepted": false
   },
   "cveAudit": {
     "status": "not_run",
-    "reason": "evaluation is reference-only and the crate has a small crates.io-only dependency set (futures-timer, futures-util, schemars, serde, serde_json, serde_json_canonicalizer, sha2, thiserror, uuid); run cargo-audit against the pinned Cargo.lock only if a future re-evaluation proposes adoption"
+    "reason": "NOT_RUN: reference-only TP12 crate; no clean/reachability conclusion. Before any adoption refresh full lock inventory, advisories, licensing and deployed runtime review in CORE:TP12/X3/Beta."
+  },
+  "sourceFiles": [
+    {
+      "path": "LICENSE",
+      "sha256": "ee907919ec88c9c017b1f8b608db20960b6598aefcc4fe58820bde955d65ed3c",
+      "gitBlob": "5550e2db15f239ea8d3cf54bfa3b035eab8d3174"
+    },
+    {
+      "path": "Cargo.toml",
+      "sha256": "82800a4a27209e63e10ba3ce7b20d1eabe32e5ef38f786cba9c53b18e79cdd89",
+      "gitBlob": "31bfcf80e98750dc431d2a58cf6b86be86694fa3"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "88163677645333b5535ccc5fbc6acd538c1c8f514406358487dfed5afd4017cf",
+      "gitBlob": "384f475dc73f9def329771aef3c2f02d2394be40"
+    },
+    {
+      "path": "README.md",
+      "sha256": "0566d594fa8e2b06697b91856c7cd474046c55fc625eadbef6e99c6585580584",
+      "gitBlob": "b3ad2d4a625d558ed3e0ba77c383e9b4495a699d"
+    },
+    {
+      "path": "src/client.rs",
+      "sha256": "bd2f4d3ad6368cdac51dacf1e45bf1b71e872611e5ac75ce112cd441dbba5ea3",
+      "gitBlob": "f79716c886f518ae53361de19d1a1b4422bd4624"
+    },
+    {
+      "path": "src/protocol/live.rs",
+      "sha256": "4c920cb2aceab57fbfd85c27c3fb727144c9ad7e43ad745fc287488829c7b068",
+      "gitBlob": "7a93863868f00e071bfd6cd9083d96ed6ddfced3"
+    },
+    {
+      "path": "src/protocol/observation.rs",
+      "sha256": "8ea0f4d3e26dfc75e00eea2b1512c93972dfce99cef0fc29b7b133110cfa95d6",
+      "gitBlob": "07bb693159941921e85e987627a890e632f57cab"
+    },
+    {
+      "path": "src/assurance/advisory.rs",
+      "sha256": "ee3d2ef7b2cc158f9811829806bb53cd4bacb85b76bb1157e7578441904b4cca",
+      "gitBlob": "f4552c787459387bd9d69fe2136b81fba214a59e"
+    },
+    {
+      "path": "src/assurance/recording.rs",
+      "sha256": "4674d8e6e963861aa05362acece3b6f600696eccee15f37574cf089cefe26823",
+      "gitBlob": "e87a5aa25388b60633062259a9060fbd4b94be73"
+    },
+    {
+      "path": "src/assurance/trace.rs",
+      "sha256": "ed69a0415cde580a52a8b16b24eff6f22010510e0831eba912a52c18db3adbd5",
+      "gitBlob": "16858345f5613b397bbf61ee82ed48d2aec82d6d"
+    },
+    {
+      "path": "contract/v1/fields.toml",
+      "sha256": "da401302440caed93907b4d7c5953447c3fd94413879ba56e5bc9481e899dcea",
+      "gitBlob": "d182068583ce2221be7884dd1b8a3f07d2f0ca19"
+    },
+    {
+      "path": "contract/v1/manifest.json",
+      "sha256": "742117f432133a09a663aeae2bf336ce70bed73cb25861fffd07b75dd5a669f5",
+      "gitBlob": "61b5f383a3ede3a66f5d84020314d6956f94f40a"
+    }
+  ],
+  "provenance": {
+    "method": "public git fetch --depth=1 fixed commit; commit/tree/blob SHA1 plus source SHA256",
+    "authenticatedRemoteSignature": "NOT_RUN",
+    "upstreamExecuted": false,
+    "upstreamInstalled": false
   }
 }

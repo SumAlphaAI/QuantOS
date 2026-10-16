@@ -1,8 +1,8 @@
-# ADR: TP12 nautilus_agents Evaluation — Boundary Confirmed, Reference-Only
+# ADR: TP12 nautilus_agents Evaluation — Historical Design Evaluation, Reference-Only
 
 ## Status
 
-Accepted as evaluation conclusion.
+Historical evaluation conclusion; not a formal ProjectUser acceptance. Superseded for S2 evidence by 20261016-tp12-evaluation-boundary.md.
 
 ## Context
 
@@ -10,7 +10,7 @@ TP12 requires an evaluation of `nautechsystems/nautilus_agents` for the agent–
 
 Key findings:
 
-1. **The upstream authority boundary matches QuantOS.** nautilus_agents explicitly gives agent processes scoped observations and one narrow semantic proposal (`ReducePosition`), while NautilusTrader owns observation construction and every production decision and execution step. Agent processes hold no engine or venue authority. This independently confirms the QuantOS "Agent 不直连 venue" boundary; the evaluation verifies it does not change that boundary.
+1. **The upstream authority boundary matches QuantOS.** nautilus_agents explicitly gives agent processes scoped observations and one narrow semantic proposal (`ReducePosition`), while NautilusTrader owns observation construction and every production decision and execution step. Agent processes hold no engine or venue authority. This is static design context for the QuantOS "Agent 不直连 venue" boundary; the evaluation verifies it does not change that boundary.
 2. **Agent-side assurance is advisory by design.** Local checks produce findings, not decisions; the engine may reject even when all local checks clear. This matches the QuantOS X02 authoritative risk engine model.
 3. **Three patterns are stronger than current QuantOS practice**: retention classes on recorded evidence (`ReferenceOnly`/`Redacted`/`Full`, rejecting `Restricted`), per-field ownership/stability/retention/digest metadata (`fields.toml`), and explicit advisory-vs-authoritative naming.
 4. **The crate is early alpha with a shifting protocol**; any adoption must be re-evaluated per pinned commit.
@@ -18,7 +18,7 @@ Key findings:
 ## Decision
 
 1. nautilus_agents is classified as **reference only** (`reference_only`). No runtime dependency, no lockfile entry, no code absorption.
-2. The seven no-coupling rules in `no-coupling-rules.json` are adopted as standing QuantOS rules, each bound to executable evidence in the repository (validated by `test_tp12_nautilus_agents_rules.py`).
+2. The seven no-coupling rules in `no-coupling-rules.json` are adopted as standing QuantOS rules, each pointing to existing controls. The original file/symbol checks establish traceability only, not behavioral or deployed security acceptance. New local tests and fresh dependency evidence are required.
 3. The threat model supplement (`tp12_nautilus_agents_threat_model.md`) extends the TP01/F07 threat model with eight agent–kernel collaboration threats and their current mitigations.
 4. Three upstream patterns are recorded as **candidate adoptions** for future F07/R-series work, not as commitments: retention classes on agent evidence, per-field contract metadata, advisory-vs-authoritative naming.
 

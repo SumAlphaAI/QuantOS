@@ -10,6 +10,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+# Exercise the owned adapter, not a simulated TP12 authority/issuer.
+import pytest
+import grpc
+from trading_agents.adapter import TradingAgentsRequestAdapter, RequestBoundaryError
+from quantos_engine_sdk import json_document_from_mapping, json_document_to_mapping
+from test_trading_agents_development import build_request
+from trading_agents.manifest import PROPOSAL_CAPABILITY
+
+
 QUANTOS_ROOT = Path(__file__).resolve().parents[2]
 TP12_DIR = QUANTOS_ROOT / "third_party" / "nautilus-agents"
 
@@ -57,10 +66,7 @@ def test_baseline_lock_is_reference_only_and_pinned() -> None:
     assert baseline["upstream"]["commit"] == "8d79877380f8617b45dff2b8c8b3790c2f9d963a"
     assert baseline["license"]["spdx"] == "LGPL-3.0-or-later"
     assert baseline["policy"]["decision"] == "reference_only"
-    assert any(
-        "lockfile" in surface
-        for surface in baseline["policy"]["forbiddenSurfaces"]
-    )
+    assert any("lockfile" in surface for surface in baseline["policy"]["forbiddenSurfaces"])
 
 
 def test_no_upstream_dependency_in_quantos_lockfiles() -> None:
@@ -74,3 +80,27 @@ def test_interface_diff_lists_adoption_candidates_and_antipatterns() -> None:
     assert "adopt" in doc
     assert "Anti-patterns" in doc
     assert "confirms" in doc
+
+
+@pytest.mark.parametrize(
+    "field", ["venue", "order_tool", "approval_signature", "api_key", "executable"]
+)
+@pytest.mark.parametrize("nested", [False, True])
+def test_actual_adapter_rejects_authority_smuggling(field, nested):
+    request = build_request(12001, PROPOSAL_CAPABILITY, {})
+    payload = json_document_to_mapping(request.input)
+    attack = {field: "synthetic-value"}
+    payload.update({"research_context": {"nested": [attack]}} if nested else attack)
+    request.input.CopyFrom(json_document_from_mapping(payload))
+    with pytest.raises(RequestBoundaryError) as error:
+        TradingAgentsRequestAdapter().translate(request)
+    assert error.value.code == grpc.StatusCode.PERMISSION_DENIED
+
+
+def test_actual_adapter_accepts_owned_research_context():
+    request = build_request(
+        12002, PROPOSAL_CAPABILITY, {"research_context": {"summary": "synthetic observation"}}
+    )
+    translated = TradingAgentsRequestAdapter().translate(request)
+    assert translated.context.capability == PROPOSAL_CAPABILITY
+    assert translated.context.requested_tools == ()

@@ -1,4 +1,4 @@
-> 当前执行（EVALUATION:TP07，2026-10-16）：冻结c12b69cc完整8节点/28组PASS，25依赖先于3自身；三次构建、make lint/test PASS，Rust414/11 ignored、Python1845、Web233/3 skipped。固定commit/许可/1051 lock条目/1004包版本查询56advisory ID/7类能力与边界齐备；仅EVAL-TP07_LOCAL DEVELOPMENT READY，runtimeAdmission=DENIED。S04旧独立READY撤回且历史保留，9组目标及3类移交NOT_RUN、formalAccepted=false、externalPublished=false。下一EVALUATION:TP12；见[验收报告](./audit/EVALUATION-TP07-local-admission-2026-10-16.md)。
+> 当前执行（EVALUATION:TP12，2026-10-16）：固定参考源码/ADR/威胁模型/接口差异和7条规则准备中；新候选9节点31组待复验。TP07旧独立READY撤回，历史c12b69cc证据保留。上游运行时DENIED、目标与外部发布NOT_RUN、正式确认PENDING。见[执行记录](./audit/EVALUATION-TP12-local-admission-2026-10-16.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -672,6 +672,16 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE:F03",
         "CORE:F06",
         "CORE:F08"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "EVALUATION:TP12": {
+      "profile": "EVAL-TP12_LOCAL",
+      "schema": "quantos-eval-tp12-local-development/v1",
+      "manifest": "audit/evidence/eval-tp12-local-20261016/manifest.json",
+      "prerequisites": [
+        "CORE:F07",
+        "EVALUATION:TP07"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }
@@ -1667,21 +1677,19 @@ SERVICE:S04 历史执行：冻结1ce8e899完整36节点/118组PASS；EVALUATION:
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:83f6c4b6ca4cb9687859695ef4136ef7f6d00a5007d74b500fa65ff766f833d7",
-    "evidence": [
-      "audit/evidence/eval-tp07-local-20261016/manifest.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
 
-EVALUATION:TP07 当前执行：冻结c12b69cc的8节点/28组PASS，仅本地评估READY，运行时DENIED，正式确认PENDING。见[报告](./audit/EVALUATION-TP07-local-admission-2026-10-16.md)。下一EVALUATION:TP12。
+EVALUATION:TP07 历史执行：冻结c12b69cc的8节点/28组PASS；TP12共享回执输入变化后独立READY撤回，原证据保留，运行时DENIED，正式确认PENDING。见[报告](./audit/EVALUATION-TP07-local-admission-2026-10-16.md)。下一EVALUATION:TP12。
 
 <a id="acceptance-evaluation-tp12"></a>
 ### EVALUATION:TP12：验收检查点
 
-基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
+基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 EVAL-TP12_LOCAL仅在新冻结候选完整9节点/28组依赖后执行3组自身评估；7条规则、6组接口与8条威胁映射仅作参考，运行时拒绝，完整复审保留X3。
 
 ```json
 {
@@ -1691,7 +1699,7 @@ EVALUATION:TP07 当前执行：冻结c12b69cc的8节点/28组PASS，仅本地评
     "CORE:F07",
     "EVALUATION:TP07"
   ],
-  "required_scope": "基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
+  "required_scope": "基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 EVAL-TP12_LOCAL仅在新冻结候选完整9节点/28组依赖后执行3组自身评估；7条规则、6组接口与8条威胁映射仅作参考，运行时拒绝，完整复审保留X3。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

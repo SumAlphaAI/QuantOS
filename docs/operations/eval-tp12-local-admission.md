@@ -1,0 +1,11 @@
+# EVALUATION:TP12 local admission
+
+Only QuantOS-owned offline evaluation. `make eval-tp12-check` is a preflight; it cannot grant readiness. Freeze every functional input in Git, then run `make eval-tp12-assess-local` using the credential-stripping `staticEnvironment` wrapper. Recorder requires a clean source tree and a fresh attempt directory. No database credentials, local database service, production credentials, target opt-ins, upstream execution or external publishing.
+
+EVAL-TP12_LOCAL selects exactly F01/F03/F04/F05/F06/F07/F08/EVALUATION:TP07/EVALUATION:TP12. All 28 dependency check groups precede 3 own groups, including three independent builds, make lint/test and actual TP07 evaluator/unit/policy replay. Nine target groups are deferred, not waived. Consumer-scoped LOCAL_READY receipts do not republish F07 or TP07 readiness. Hashes, plan scope, candidate SHA, owner, logs, prerequisite order and complete check selection are verified. Publication of the own manifest and both plans is transactional; canonical component evidence is restored byte-for-byte, including original nonexistence, on failure or success.
+
+`make eval-tp12-local-check` verifies the published local receipt. `make eval-tp12-release-check` must reject until independent Beta/strict target receipts and formal acceptance exist; local receipts can never substitute. The reviewer draft remains PENDING until a direct ProjectUser reply is saved under the acceptance workflow.
+
+Reference integrity is 12 pinned files plus Git object paths. Upstream signature authenticity and TP12 CVE audit remain NOT_RUN. Seven rules/six interface differences/eight threat scenarios are a model and control mapping; no evaluation script authenticates a live risk decision or issues TradeCommand. Existing owned adapter behavior and F07 runtime tests are executed separately. Full TP12 review remains X3.
+
+The scoped threat model was revised using codex-security:threat-model source-review guidance. Per the user's only-QuantOS instruction, output remains in the requested repository documentation, without a plugin-managed shared cache or separate scan. The second focused architecture pass was sequential, not independent. No security scan or zero-vulnerability conclusion is claimed.

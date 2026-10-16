@@ -17,7 +17,7 @@ Scope: surface-by-surface diff between the upstream agent-kernel collaboration p
 | Aspect | nautilus_agents | QuantOS | Verdict |
 | --- | --- | --- | --- |
 | what agents may emit | at most one semantic live proposal; protocol 1.0 allows only `ReducePosition` | `TradeProposal` with buy/sell/hold/reduce, always `executable=false` (TP04/R04) | aligned in principle; diff: QuantOS actions are richer but equally non-executable |
-| execution authority | NautilusTrader decides handling of accepted proposals; agent has no venue authority | TP07 execution gateway + risk engine own every step; agents never reach the kernel | aligned — upstream model **confirms** the QuantOS "Agent never connects to a venue" boundary |
+| execution authority | NautilusTrader decides handling of accepted proposals; agent has no venue authority | TP07 execution gateway + risk engine own every step; agents never reach the kernel | design reference — static upstream documentation confirms the intended QuantOS "Agent never connects to a venue" boundary |
 | expiry | advisory checks include expiry validation | `TradeProposalEvaluationGate` + gateway `CommandExpired` rejection (authoritative) | aligned; diff: QuantOS enforcement is authoritative, upstream is advisory-at-agent + authoritative-at-engine |
 
 ## 3. Client / transport boundary
@@ -54,4 +54,8 @@ Scope: surface-by-surface diff between the upstream agent-kernel collaboration p
 
 ## 7. Summary
 
-The upstream design independently converges on the QuantOS boundary: agents propose narrow semantic actions over engine-owned observations, the engine owns every production decision, and no venue authority ever reaches the agent process. Three patterns are candidate adoptions (retention classes, per-field ownership/digest metadata, explicit advisory-vs-authoritative naming). Nothing requires a runtime dependency.
+The pinned upstream design is static reference material for the QuantOS boundary: agents propose narrow semantic actions over engine-owned observations, the engine owns every production decision, and no venue authority ever reaches the agent process. Three patterns are candidate adoptions (retention classes, per-field ownership/digest metadata, explicit advisory-vs-authoritative naming). Nothing requires a runtime dependency.
+
+## 2026-10-16 bounded reassessment
+
+The six surfaces are machine-readable in `boundary-assessment.json`, each bound to a pinned upstream source anchor and an owned QuantOS consumer. DESIGN_REFERENCE/DIFFERENT/DIFFERENT_LAYER/CANDIDATE_ONLY do not grant adoption. Reading a trait or matching a symbol is not actual transport, authorization, retention or deployed isolation proof. The owned adapter is exercised with top-level and nested authority smuggling; existing runtime/issuer/gateway controls are exercised in the fresh full closure. Full TP12 review remains X3; runtimeAdmission=DENIED. Retention and field governance remain unimplemented candidates. Upstream protocol has no direct compatibility or wire mapping with QuantOS TradeProposal.

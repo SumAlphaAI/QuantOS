@@ -1,59 +1,74 @@
-# TP12 Threat Model Supplement — Agent 与交易内核协作边界
+# TP12 scoped threat model — Agent / owned runtime / kernel
 
-补充自 TP01 inventory/threats 与 F07 agent runtime 边界。每条威胁给出当前缓解与可执行证据；引用规则见 `third_party/nautilus-agents/no-coupling-rules.json`。
+2026-10-16; S2 reference evaluation only. Replaces historical low-risk assertions, retains eight original scenarios as hypotheses. Scope is F07 Agent boundary, proposal/risk/issuer/gateway interactions relevant to TP12, and evaluation/supply-chain workflow. No repository-wide security audit, independent architecture reviewer or deployed exposure verification. Review was sequential. User context prohibits production credentials, external publishing and local databases. No applicable repository SECURITY.md was found for engines/trading-agents.
 
-## T1 提示注入诱导 Agent 调用订单/venue 工具
+## Overview
 
-- 场景：恶意或越权提示让 Agent 直接下单或访问交易所。
-- 缓解：Agent 引擎边界拒绝 `order/order_tool/trade_command/venue/secret/network` 字段；输出只有 `executable=false` 的 `TradeProposal`（规则 NC-01、NC-02）。
-- 证据：`signal_proposal_workflow_rejects_forbidden_order_tools`；TP04 adapter 边界测试。
-- 残余风险：低；F07 引入新工具时需同步扩充禁止字段清单。
+QuantOS accepts research inputs through owned engine RPC boundaries, maps them into non-executable TradeProposal, records owned artifacts and applies owned risk/approval/issuer controls before a sanitized kernel command. The upstream Agent SDK is source reference only, outside this flow. No upstream or Agent process is granted venue authority by this evaluation.
 
-## T2 Agent 会话/身份信息泄漏进执行内核
+| Component | Role and inspected source |
+|---|---|
+| Owned Agent adapter | Research-only request/tools/recursive field validation, `engines/trading-agents/src/trading_agents/adapter.py` |
+| Owned mapper/runtime | Non-executable proposal, expiry and runtime-owned artifact records, proposal_mapper.py / signal_proposal.rs |
+| Owned issuer | RiskDecision/approval binding, no self-approval, expiry/idempotency, quantos-execution/src/lib.rs |
+| Owned kernel gateway | BoundaryCommand fields, limits/expiry and submission dedup, quantos-execution/src/gateway.rs |
+| Reference evaluator | Pins/hash/tree/rule/interface/threat mapping and runtime-import exclusion; not a production authorization service |
 
-- 场景：tenant/actor/session/decision/approval 材料越过内核边界，内核获得越权上下文。
-- 缓解：TP07 gateway 只向内核传递 sanitized `BoundaryCommand`（规则 NC-04）。
-- 证据：`boundary_command_carries_no_session_or_identity_material`（key 白名单 + 禁止词扫描）。
-- 残余风险：低；新增边界字段时必须更新隔离测试白名单。
+```mermaid
+flowchart LR
+    A[Untrusted research input] --> B[Owned adapter and mapper]
+    B --> C[Non-executable proposal and runtime artifacts]
+    C --> D[Owned RiskDecision and approval / issuer]
+    D --> E[Sanitized BoundaryCommand / gateway]
+    E --> F[Kernel]
+    G[Pinned upstream source reference] -. design input only .-> H[Offline evaluation and ADR]
+```
 
-## T3 Agent 本地检查被当作生产决策
+| Deployment or workflow | Resource or capability | Configuration and precedence | Safe effective value/location | Readers/writers/recipients | Enforcing control | Evidence or unknowns |
+|---|---|---|---|---|---|---|
+| Local owned research adapter | Tool invocation / identity fields | Request metadata is owned context; payload cannot override authority | query_signal/query_snapshot/query_artifact allowlist; no credential/config files read by TP12 | Research caller → owned adapter | Research mode, actor capability, recursive forbidden/authority fields | Actual adapter source + 10 smuggling cases; OS process egress/credential isolation NOT_RUN |
+| Local command boundary | Kernel command and identity material | Issuer output → private BoundaryCommand conversion | Account/venue/order parameters and expiry; no tenant/actor/session/decision/approval/signature | Issuer/gateway → kernel | Typed construction and key isolation test | account_id/venue intentionally exist here; this is not an Agent interface or anonymization proof |
+| Evaluation recorder | Child test/build processes | staticEnvironment filters inherited environment; offline local profile | No DATABASE_URL, Supabase tokens, GH token or target opt-ins; evidence under docs/audit/evidence | Local operator → owned recorder/checks | Clean source requirement, fixed check set/hash/SHA validation | Tests may use local UDS/TCP; same-host filesystem/process privilege is not an OS sandbox |
+| Public reference acquisition | Read source bytes | Fixed public commit, no credential helper/global Git config | third_party/nautilus-agents/source-evidence; no checkout hooks/build | Public Git → local reference metadata | Commit/tree/blob and SHA256 proof | Remote signature identity NOT_RUN; LGPL files retained as reference, not legal approval |
+| Future deployed integration | Venue, database, trace storage | No target startup/deployment authorized or inspected in this task | NOT_RUN | Actual service/engine/venue recipients unknown here | Must be reviewed in CORE:TP07/TP12 X3 and Beta | Do not infer deployment locations, credentials or isolation from local fixtures |
 
-- 场景：Agent 侧的 advisory 结论绕过权威风控直接驱动下单（上游 nautilus_agents 明确把本地检查定位为 advisory，这印证了该威胁的真实性）。
-- 缓解：`TradeCommand` 签发必须持有权威 `RiskDecision`，审批状态机强制单用、禁自批（规则 NC-03）。
-- 证据：`seven_rejection_classes_are_all_enforced`；`ApprovalVerifier`。
-- 残余风险：中；命名层面应显式区分 advisory/authoritative（候选采纳项，见 interface-diff §4）。
+## Threat Model, Trust Boundaries, and Assumptions
 
-## T4 重放导致重复下游提交
+Assets: order issuance authority, account exposure, authoritative risk/approval identity, confidential observations/traces, owned evidence integrity, replay correctness and dependency/license integrity. Research callers can provide untrusted prompt-derived payloads/observations, nested JSON and tool requests; they do not thereby possess command issuer authority, approval keys, deployment credentials or a maintainer account. A future privileged maintainer changing dependencies is a separate supply-chain workflow, not a remote prompt-injection capability.
 
-- 场景：网络重试或故障重放同一 `TradeCommand`，venue 侧出现重复订单。
-- 缓解：签发层与 gateway 层双重幂等；同一 idempotency key 只产生一次内核提交（规则 NC-04 关联）。
-- 证据：`thousand_concurrent_issuances_with_same_key_emit_exactly_one_command`；`thousand_replays_with_same_key_produce_exactly_one_downstream_submission`；`nautilus_adapter_replay_also_produces_one_outbox_entry`。
-- 残余风险：低；持久化层落地后需补崩溃窗口测试。
+Boundaries: request payload → owned adapter (research authorization and field/tool constraints); Agent output → runtime (non-executable proposal / source validity); proposal → issuer (owned authoritative risk, approval and expiry); issuer → kernel (sanitized command, limits and replay); agent trace → authoritative evidence (no automatic promotion); public source → evaluation evidence (pinned bytes, no execution). Local symbol checks and a matching design principle do not prove actual host confinement, cryptographic authenticity or a live authorization chain.
 
-## T5 过期/失效提案被评估或提交
+Assumptions/open questions: no upstream adoption, runtime dependency or venue access is introduced. Generic kernel trait documentation requires separate process/pure simulator, but source traits do not enforce OS isolation. Existing in-memory replay tests do not prove crash-safe durable dedup. Retention classes/field metadata are candidates and are not implemented in QuantOS by this task. TP12 CVE audit, remote signature authenticity, deployed path/credential recipients, current vulnerability reachability, performance/soak, target identity/database and hosted same-SHA CI are NOT_RUN. TP07 known advisory IDs and unknown nonregistry packages remain open. Formal acceptance is PENDING, not a substitute for engineering evidence.
 
-- 场景：超过 `expires_at` 的提案仍进入评估、签发或内核。
-- 缓解：R04 评估门、X02 签发检查、TP07 gateway `CommandExpired` 三层拦截（规则 NC-06）。
-- 证据：R04 编排测试过期拒绝用例；`CommandExpired` 边界测试。
-- 残余风险：低。
+## Attack Surface, Mitigations, and Attacker Stories
 
-## T6 Agent SDK 供应链进入运行时
+All rows are design hypotheses/control mappings, not validated vulnerability findings. Impact priorities guide future review; residual risk is UNASSESSED rather than historical blanket “low”. Machine mapping is boundary-assessment.json with T1–T8, NC-01–NC-07 and exact source anchors.
 
-- 场景：`nautilus-agents`（LGPL-3.0-or-later）或其他上游 Agent 代码进入 QuantOS lockfile/依赖图。
-- 缓解：TP12 baseline `reference_only` + TP07 LGPL ADR 进程边界决策（规则 NC-07）。
-- 证据：`third_party/nautilus-agents/baseline.lock.json` policy；git diff 验证 lockfile 零改动。
-- 残余风险：低；CI 可加 lockfile 禁止项检查。
+| Priority | Scenario and capability gain | Prerequisites | Impact | Existing controls | Mitigation / remaining work | Evidence |
+|---|---|---|---|---|---|---|
+| High | T1 prompt/tool injection obtains venue/order authority | Malicious research input plus a host/consumer that supplies new authority | Unauthorized orders/credential access | NC01/02 research/tool/recursive-field gates, executable=false | Revalidate every new tool; actual network/secret isolation in X3 | Actual owned adapter smuggling tests, mapper and F07 runtime tests |
+| High | T2 identity/session data reaches kernel | New serializer/path bypasses sanitization | Secret/identity leakage or confused deputy | NC04 private BoundaryCommand conversion and key allowlist | Review every new field and actual transport | Gateway isolation test; account/venue are intentionally retained |
+| High | T3 advisory report becomes authoritative risk | Consumer treats Agent claim as RiskDecision | Unauthorized issuance | NC03 issuer decision binding/approval/self-approval gates | Review real auth chain and deployment receipt | seven_rejection_classes_are_all_enforced |
+| High | T4 retries/crash duplicate downstream orders | Durable crash/restart window and actual venue submission | Duplicate financial exposure | NC03/04 in-memory issuance/gateway dedup tests | Persist/restore idempotency atomically and test crash windows | 1000 concurrent issuance/replay tests are local, not durable venue proof |
+| High | T5 stale proposal survives evaluation | Expired input/clock boundary | Orders from stale context | NC06 expiry at runtime/issuer/gateway | Validate actual process clocks and restart path | TradeProposalEvaluationGate / CommandExpired |
+| Medium | T6 upstream dependency enters runtime | Maintainer/build change introduces source/import/lock entry | Supply-chain/licensing impact | NC07 source/lock scans, fixed evidence | Refresh full audit/legal/deployed graph before adoption | Offline exclusion tests; NOT_RUN advisories remain open |
+| Medium | T7 Agent trace promoted or restricted data retained | Consumer records sensitive payload or trusts Agent-only record | Confidentiality and audit-integrity loss | NC05 owned artifact record path | Explicit retention/authorization and actual storage review | record_artifact is traceability, not retention implementation |
+| Medium | T8 protocol/digest changes silently mapped | Upstream/owned contract drift without reevaluation | Misinterpreted proposals or invalid evidence | NC02/07 pinned tree and six interface differences | New pin requires complete mapping/review/frozen closure | Tamper and incompatible TP07 binding tests |
 
-## T7 证据/记录被篡改或不可定位
+## Severity Calibration (Critical, High, Medium, Low)
 
-- 场景：Agent 侧记录被当作生产证据，或证据无法回溯到确定内容。
-- 缓解：生产证据只走 runtime artifact 路径，content-hash 覆盖 + 去重（规则 NC-05）；上游 retention class 设计（ReferenceOnly/Redacted/Full，拒绝 Restricted）为候选采纳项。
-- 证据：R03/R04 artifact manifest 记录与回放去重测试。
-- 残余风险：中；Agent 侧 trace 的留存级别元数据尚未建模，列为候选采纳。
+Critical would require a demonstrated reachable path from unprivileged research input to uncontrolled live venue authority or broad cross-account compromise. No live venue deployment or such path is established here. High could apply to a proven approval bypass, duplicate actual orders or cross-principal secret leakage with concrete consumer/privilege evidence; a trait or fixture alone does not establish it. Medium could apply to a concrete retention/digest/supply-chain control gap with bounded exposure and an authorized affected workflow. An unimplemented candidate pattern is an open design question, not automatically a vulnerability. Low could apply to a bounded diagnostic/metadata error without authority gain. A correctly rejected forbidden field, authorized maintainer action alone, or static upstream design agreement is not a security finding at any severity. Confidence in local source/test facts is separate from unknown target likelihood and impact.
 
-## T8 上游协议演进导致映射漂移
+Verified source anchors (inspected exact current source; frozen candidate bound by the local receipt):
 
-- 场景：nautilus_agents protocol 1.0 演进（早期 alpha，明确可能变更）使评估结论过时。
-- 缓解：baseline 固定 commit `8d79877`；接口差异清单按 surface 组织，重评估时逐条复核。
-- 证据：`baseline.lock.json` pinned upstream block。
-- 残余风险：中；protocol 2.0 或 crate 1.0 发布时应重评估。
+- `engines/trading-agents/src/trading_agents/adapter.py:19` — `ALLOWED_TOOLS =`.
+- `engines/trading-agents/src/trading_agents/adapter.py:252` — `def _reject_forbidden_fields`.
+- `engines/trading-agents/src/trading_agents/proposal_mapper.py:57` — `executable=False`.
+- `crates/quantos-runtime/src/signal_proposal.rs:227` — `pub struct TradeProposalEvaluationGate`.
+- `crates/quantos-runtime/src/signal_proposal.rs:1019` — `.record_artifact(`.
+- `crates/quantos-execution/src/lib.rs:276` — `RiskVerdict::ApprovalRequired =>`.
+- `crates/quantos-execution/src/lib.rs:531` — `fn seven_rejection_classes_are_all_enforced`.
+- `crates/quantos-execution/src/gateway.rs:34` — `pub struct BoundaryCommand`.
+- `crates/quantos-execution/src/gateway.rs:720` — `fn boundary_command_carries_no_session_or_identity_material`.
+- `crates/quantos-execution/src/gateway.rs:564` — `fn thousand_replays_with_same_key`.
+- `scripts/provider-a1-receipts.mjs:88` — `export function staticEnvironment`.
