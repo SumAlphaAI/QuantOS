@@ -1,0 +1,92 @@
+{
+  "schema": "quantos-eval-tp12-closeout-checks/v1",
+  "formalAccepted": false,
+  "checks": [
+    {
+      "id": "admission",
+      "command": [
+        "node",
+        "scripts/eval-tp12-local-gate.mjs",
+        "--ready"
+      ],
+      "executedAt": "2026-10-16T08:36:01.940444+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "admission.log",
+      "sha256": "sha256:23414dd46947400e34ed61af4f2fe6d4d8a2945989d5c79ed7cba79e4d353f64"
+    },
+    {
+      "id": "release-denial",
+      "command": [
+        "node",
+        "scripts/eval-tp12-local-gate.mjs",
+        "--release"
+      ],
+      "executedAt": "2026-10-16T08:36:04.344285+00:00",
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "PASS",
+      "log": "release-denial.log",
+      "sha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049"
+    },
+    {
+      "id": "plan",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "executedAt": "2026-10-16T08:36:04.470271+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "plan.log",
+      "sha256": "sha256:c6ce34052c658c1d9c99d58d5637e5e11cfff2e2e9f25963021e8414b52e0e91"
+    },
+    {
+      "id": "frontend-handoff",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "executedAt": "2026-10-16T08:36:04.521707+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "frontend-handoff.log",
+      "sha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+    },
+    {
+      "id": "source-doc-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "e82e8c8883bf5af7772bf7b47af9f14368348833",
+        "--",
+        ".",
+        ":(exclude)docs/audit/evidence/**",
+        ":(exclude)third_party/nautilus-agents/source-evidence/**"
+      ],
+      "executedAt": "2026-10-16T08:36:04.553660+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "source-doc-diff.log",
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "gitleaks-version",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "version"
+      ],
+      "executedAt": "2026-10-16T08:36:04.586341+00:00",
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "log": "gitleaks-version.log",
+      "sha256": "sha256:bd11c03d36aeadd8f99801eb3b074d9a861bcd7352add61d23bb690296234c89"
+    }
+  ]
+}

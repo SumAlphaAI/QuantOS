@@ -1,4 +1,4 @@
-> 当前执行（EVALUATION:TP12，2026-10-16）：固定参考源码/ADR/威胁模型/接口差异和7条规则准备中；新候选9节点31组待复验。TP07旧独立READY撤回，历史c12b69cc证据保留。上游运行时DENIED、目标与外部发布NOT_RUN、正式确认PENDING。见[执行记录](./audit/EVALUATION-TP12-local-admission-2026-10-16.md)。
+> 当前执行（EVALUATION:TP12，2026-10-16）：冻结04dc1965完整9节点/31组PASS，28依赖先于3自身；三次构建、make lint/test PASS，Rust414/11 ignored、Python1856、Web233/3 skipped。7规则/6接口/8威胁与12固定源文件齐备；仅EVAL-TP12_LOCAL DEVELOPMENT READY，runtime DENIED。TP07旧独立READY撤回且历史保留；9目标组/3类移交NOT_RUN，formalAccepted=false、外部发布NOT_RUN。下一CORE-GATE:S2-SERVICE；见[验收报告](./audit/EVALUATION-TP12-local-admission-2026-10-16.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 

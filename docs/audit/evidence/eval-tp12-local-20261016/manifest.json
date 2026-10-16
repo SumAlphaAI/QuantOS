@@ -1,0 +1,248 @@
+{
+  "schema": "quantos-eval-tp12-local-development/v1",
+  "nodeId": "EVALUATION:TP12",
+  "stage": "DEVELOPMENT",
+  "profile": "EVAL-TP12_LOCAL",
+  "status": "READY",
+  "engineeringStatus": "PASS",
+  "databaseExecution": false,
+  "production": false,
+  "formalAccepted": false,
+  "externalExecution": false,
+  "performanceAccepted": false,
+  "syncApproved": false,
+  "targetCanaryAccepted": false,
+  "targetRollbackAccepted": false,
+  "externalPublished": false,
+  "upstreamAccepted": false,
+  "observedSourceCommit": "04dc196570c0808dc88f5f8d155209c1dcee9e6e",
+  "coverage": {
+    "evaluation": {
+      "baseline.lock.json": "a74597687fb526c1c083144a149c771bb00d68ae0b127e270bd225da1d8dafff",
+      "boundary-assessment.json": "c86f7398a609bbaa45009c1951ed33d85ba366546dbe2afbb94c21e6fd1c8fb3",
+      "cveAudit": "NOT_RUN",
+      "decision": "reference_only",
+      "formalAccepted": false,
+      "interfaces": 6,
+      "license": "LGPL-3.0-or-later",
+      "no-coupling-rules.json": "336b53a90fd9e1e2943e22c09efca2bbf66134b304f6847b27d29550ea6ccdee",
+      "observedSourceCommit": "04dc196570c0808dc88f5f8d155209c1dcee9e6e",
+      "rules": 7,
+      "runtimeAdmission": "DENIED",
+      "schema": "quantos-tp12-evaluation/v1",
+      "securityAudit": "NOT_RUN",
+      "sourceFiles": 12,
+      "status": "PASS",
+      "threats": 8,
+      "tp07BaselineSha256": "8c32587c178d553b57c5e1ed3db56e338f9ae7aaa4046dbf3d2294f7d9bf93f0",
+      "upstreamCommit": "8d79877380f8617b45dff2b8c8b3790c2f9d963a",
+      "upstreamExecuted": false
+    },
+    "parent": {
+      "evaluation": {
+        "advisoryIds": 56,
+        "baseline.lock.json": "8c32587c178d553b57c5e1ed3db56e338f9ae7aaa4046dbf3d2294f7d9bf93f0",
+        "capabilities": 7,
+        "cve-audit.json": "3eebabf55fbecc184142ef2cec189f5528a3884f45804e491d87ffa78fcd65c1",
+        "cveStatus": "RECORDED",
+        "formalAccepted": false,
+        "license": "LGPL-3.0-or-later",
+        "observedSourceCommit": "04dc196570c0808dc88f5f8d155209c1dcee9e6e",
+        "packages": 1051,
+        "productionApproved": false,
+        "runtimeAdmission": "DENIED",
+        "sbom.spdx.json": "6438796c0b6a940335d5b50170657dd37938b7db7b7dabd93f94f63bf3873509",
+        "schema": "quantos-tp07-evaluation/v1",
+        "sourceFiles": 17,
+        "status": "PASS",
+        "upstreamCommit": "fa86c6e39e8f064d5922c0ee4da5e2a9a2716408",
+        "upstreamExecuted": false
+      },
+      "ownTests": 12,
+      "localOnly": true,
+      "runtimeAdmission": "DENIED"
+    },
+    "ownTests": 14,
+    "localOnly": true,
+    "runtimeAdmission": "DENIED"
+  },
+  "planInput": {
+    "acceptance_window": "S2-SERVICE",
+    "checkpoint_id": "EVALUATION:TP12",
+    "dependencies": [
+      "CORE:F07",
+      "EVALUATION:TP07"
+    ],
+    "depends_on": [
+      "CORE:F07",
+      "EVALUATION:TP07"
+    ],
+    "required_scope": "基于 TP07 评估形成 TP12 ADR/threat model/接口差异，至少5条禁止耦合规则，Agent 不直连 venue；不引入运行时依赖；完整复审保留在 X3。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 EVAL-TP12_LOCAL仅在新冻结候选完整9节点/28组依赖后执行3组自身评估；7条规则、6组接口与8条威胁映射仅作参考，运行时拒绝，完整复审保留X3。"
+  },
+  "localPrerequisites": {
+    "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp12-local-20261016/attempt-01/local-prerequisites.json",
+    "inputDigest": "sha256:ab2a66f69eea353b189da877ac0d71a4a9effe1bc953e761ba01e28a862355bc"
+  },
+  "functionalManifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp12-local-20261016/attempt-01/evaluation-tp12.json",
+  "functionalDigest": "sha256:80961591043417442a9d569beff038b6541d664d894cb7a9f4d0671cfe0a3958",
+  "dependencies": [
+    {
+      "nodeId": "CORE:F07",
+      "status": "LOCAL_READY",
+      "owner": "EVALUATION:TP12",
+      "inputDigest": "sha256:4d997b32df6058eecf728131541c41830949d066e43fbf9bd9e017eab6003044"
+    },
+    {
+      "nodeId": "EVALUATION:TP07",
+      "status": "LOCAL_READY",
+      "owner": "EVALUATION:TP12",
+      "inputDigest": "sha256:09efc25498fc8f1ba47c619f429fb8cec2002aa1918f82ac0e6b20959b45725d"
+    }
+  ],
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "EVAL-TP12_LOCAL 发布移交：本检查点仅以固定TP07评估和TP12参考源码验证ADR、威胁模型、接口差异及7条禁止耦合规则；不授予Agent venue权限或引入上游运行时。继承F07及EVALUATION:TP07全部9组目标义务；真实进程/transport/部署隔离、目标身份和Supabase、持久幂等/崩溃恢复、trace敏感留存、协议演进、法律分发和完整供应链/最新漏洞/可达性复审、安全/性能/长稳与同SHA hosted CI，归CORE:TP12/CORE:TP07的X3及RELEASE-GATE:BETA首次发布前实际验收。完整复审、目标和外部发布NOT_RUN，正式用户确认PENDING。",
+    "prerequisiteChecks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ],
+    "functionalTargets": [
+      {
+        "id": "inherited-targets",
+        "target": "F07 and EVALUATION:TP07 inherited Supabase, identity, deployment and real engine obligations",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "full-tp12-review",
+        "target": "CORE:TP12/TP07 X3 actual transport/isolation, durable replay, trace retention and protocol review; legal/distribution and refreshed supply-chain/advisory approval",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "target-performance-ci",
+        "target": "authorized target security/performance/soak and frozen candidate same-SHA hosted CI",
+        "status": "NOT_RUN"
+      }
+    ]
+  }
+}
