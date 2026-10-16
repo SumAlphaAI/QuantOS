@@ -1,0 +1,230 @@
+node ./scripts/check-r02.mjs
+R02 component source check PASS; behavior tests follow. This is not dependency READY, target RLS/Storage acceptance, or release performance acceptance.
+node --test ./scripts/r02-gate-negative.mjs ./scripts/r02-coverage-negative.mjs ./scripts/r02-retained-source-policy.test.cjs ./scripts/r02-stage-check.test.mjs ./scripts/r02-chain-connection.test.cjs
+✔ retained chain preserves transient initial failures and closes preparation before separate cleanup (0.714916ms)
+✔ idle error after SQL is captured with phase and never reconnects or replays (0.585042ms)
+✔ 28P01 never retries during retained chain startup (0.112542ms)
+✔ 42501 never retries during retained chain startup (0.11075ms)
+✔ CERT_HAS_EXPIRED never retries during retained chain startup (0.070417ms)
+✔ persistent initial timeout fails after three; no SQL or actor creation (0.157709ms)
+✔ Node operator verifies an explicit trusted CA without rewriting the Rust URL (0.78825ms)
+✔ production thresholds accept exact boundaries (0.464666ms)
+✔ missing file (0.829167ms)
+✔ duplicate file (0.117042ms)
+✔ test inflation (0.082709ms)
+✔ line failure hidden by claimed percent (0.076208ms)
+✔ region failure (0.06275ms)
+✔ zero denominator (0.074042ms)
+✔ invalid covered count (0.0595ms)
+✔ current R02 repository Gate passes (0.634708ms)
+✔ tenant rule binding deletion is rejected (0.213042ms)
+✔ 300 fixture regression is rejected (0.150542ms)
+✔ lineage Gate deletion is rejected (0.161041ms)
+✔ immutable insert regression is rejected (0.161625ms)
+✔ update trigger deletion is rejected (0.142083ms)
+✔ forced RLS deletion is rejected (0.132375ms)
+✔ tenant query predicate deletion is rejected (0.137334ms)
+✔ P95 bound weakening is rejected (0.136542ms)
+✔ default Gate live-test regression is rejected (0.165833ms)
+✔ R02 status regression is rejected (0.225625ms)
+✔ uncached SQL measurement cannot become a cache hit (0.120583ms)
+✔ forward tenant schema check cannot disappear (0.112875ms)
+✔ behavior mutation wiring cannot disappear (0.116417ms)
+✔ retained facts grant internal research only, without a new ingestion window (1.604666ms)
+✔ confirmed retained-only purpose is separate from expired ingestion authorization (1.421625ms)
+✔ retained-use grant preserves immutable ingestion provenance and binds its own authority separately (0.643959ms)
+✔ retained-only authorization rejects scope revoked (1.11925ms)
+✔ retained-only authorization rejects scope pending (0.438875ms)
+✔ retained-only authorization rejects new expiry (0.402209ms)
+✔ retained-only authorization rejects new source ingestion (0.382167ms)
+✔ retained-only authorization rejects expanded permission (0.325875ms)
+✔ retained-only authorization rejects foreign tenant (0.34375ms)
+✔ retained-only authorization rejects third symbol (0.376709ms)
+✔ retained-only authorization rejects commercial purpose (0.535917ms)
+✔ retained-only authorization rejects unconfirmed record (0.306ms)
+✔ retained-only authorization rejects agent approval (0.242333ms)
+✔ retained-only authorization rejects ambiguous continue message (0.263583ms)
+✔ retained-only authorization rejects different question (0.235834ms)
+✔ retained-only authorization rejects engineering approval claim (0.231584ms)
+✔ retained-only authorization rejects third party license claim (0.214584ms)
+✔ retained-only authorization rejects altered draft (0.210417ms)
+✔ retained-only authorization rejects altered inventory bytes (0.294583ms)
+✔ retained-only authorization rejects duplicate event ID even if resealed (0.268834ms)
+✔ retained-only authorization rejects wrong sequence even if resealed (0.294584ms)
+✔ retained-only authorization rejects extra event even if resealed (0.268042ms)
+✔ retained-only authorization rejects unclosed inventory connection (0.265875ms)
+✔ new retained authorization expires independently and cannot start before confirmation (0.522ms)
+✔ expired ingestion authorization has no fallback when retained confirmation is missing (0.217125ms)
+✔ all 32 locked event IDs and actual payload digests must match (0.664042ms)
+✔ retained rows reject event substituted (0.437125ms)
+✔ retained rows reject lineage hash substituted (0.369917ms)
+✔ retained rows reject payload changed (0.349667ms)
+✔ retained rows reject range expanded (0.323708ms)
+✔ retained rows reject range incomplete (0.283917ms)
+✔ retained rows reject sequence changed (0.241459ms)
+✔ retained rows reject symbol changed (0.243458ms)
+✔ retained rows cannot outlive their authorization (0.261583ms)
+✔ revoked scope cannot authorize retained source consumption (0.140542ms)
+✔ expired scope cannot authorize retained source consumption (0.196875ms)
+✔ extended window cannot authorize retained source consumption (0.127459ms)
+✔ expanded symbol cannot authorize retained source consumption (0.113542ms)
+✔ commercial purpose cannot authorize retained source consumption (0.11125ms)
+✔ removed trading exclusion cannot authorize retained source consumption (0.120166ms)
+✔ license label substituted cannot authorize retained source consumption (0.13425ms)
+✔ different approval version cannot authorize retained source consumption (0.322875ms)
+✔ fixture receipt cannot authorize retained source consumption (0.205084ms)
+✔ early exit receipt cannot authorize retained source consumption (0.173708ms)
+✔ active historical actor cannot authorize retained source consumption (0.157083ms)
+✔ extend expiry under same scope ID rejects without replacing historical authorization (0.251417ms)
+✔ expand permissions under same scope ID rejects without replacing historical authorization (0.198459ms)
+✔ component passes while missing dependency/whole release admission rejects (46.078375ms)
+✔ static COMPLETED is never dependency admission (13.019ms)
+✔ READY declarations still execute strict receipt validation (13.143834ms)
+✔ release handoff and dependency changes fail closed n=>n.get('RELEASE-GATE:BETA').required_scope=n.get('RELEASE-GATE:BETA').required_scope.replace(handoff,'') (12.61075ms)
+✔ release handoff and dependency changes fail closed n=>n.get('RELEASE-GATE:BETA').stage_gate.stage='DEVELOPMENT' (12.460833ms)
+✔ release handoff and dependency changes fail closed n=>n.get('CORE:R02').dependencies.pop() (12.351459ms)
+ℹ tests 82
+ℹ suites 0
+ℹ pass 82
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 235.456208
+node ./scripts/r02-stage-check.mjs
+{
+  "schema": "quantos-r02-stage-disposition/v1",
+  "componentPolicy": "PASS",
+  "dependencies": [
+    {
+      "id": "CORE:R01",
+      "status": "NOT_ASSESSED"
+    },
+    {
+      "id": "CORE:F06",
+      "status": "NOT_ASSESSED"
+    },
+    {
+      "id": "CORE-GATE:F0",
+      "status": "NOT_ASSESSED"
+    }
+  ],
+  "admitted": false,
+  "release": {
+    "owner": "CORE:R02",
+    "checkpoint": "RELEASE-GATE:BETA",
+    "controls": [
+      "C25",
+      "C26_DEPLOYED"
+    ],
+    "status": "NOT_ASSESSED"
+  },
+  "formalAccepted": false
+}
+env -u DATABASE_URL cargo test -p quantos-storage --lib --locked
+
+running 22 tests
+test snapshot::tests::quality_and_usage_wire_values_round_trip_and_reject_unknown_values ... ok
+test snapshot::tests::data_snapshot_rejects_invalid_window_age_and_schema ... ok
+test snapshot::tests::regression_strict_floor_duplicate_and_mixed_tenant_rules_reject ... ok
+test snapshot::tests::regression_future_capture_window_and_overflow_are_errors ... ok
+test provenance::tests::revoked_expired_ambiguous_or_empty_approvals_never_authorize ... ok
+test provenance::tests::actual_identity_time_quality_and_purpose_are_required ... ok
+test snapshot::tests::optional_license_rule_is_research_only ... ok
+test supabase_storage::tests::payload_hash_validation_rejects_mismatch ... ok
+test tests::artifact_manifest_uses_hash_based_object_key ... ok
+test tests::artifact_catalog_deduplicates_by_tenant_and_hash ... ok
+test tests::object_keys_are_deterministic_for_same_hash ... ok
+test snapshot::tests::research_gate_allows_degraded_non_expired_snapshots ... ok
+test tests::schema_registry_deduplicates_equivalent_documents ... ok
+test wire::tests::incomplete_or_invalid_metadata_cannot_become_write_context ... ok
+test supabase_storage::tests::object_url_points_to_supabase_storage_endpoint ... ok
+test snapshot::tests::data_snapshot_hash_is_stable_for_equivalent_inputs ... ok
+test snapshot::tests::snapshot_gate_fails_closed_for_cross_tenant_rules_and_incomplete_lineage ... ok
+test snapshot::tests::regression_forged_wire_hash_quality_and_expiry_are_rejected ... ok
+test wire::tests::wire_projection_preserves_identity_and_all_quality_variants ... ok
+test pg::connection_tests::verify_full_loads_the_configured_ca_before_network_access ... ok
+test snapshot::tests::regression_metadata_source_age_and_input_budget_reject ... ok
+test snapshot::tests::strategy_and_trading_gates_reject_three_hundred_invalid_fixtures ... ok
+
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+env -u DATABASE_URL cargo test -p quantos-strategy -p quantos-runtime --lib --locked
+
+running 19 tests
+test pg::tests::runtime_role_membership_requires_only_the_runtime_role ... ok
+test pg::tests::broad_admin_login_cannot_impersonate_runtime_service ... ok
+test research::tests::invalid_research_inputs_are_rejected_before_scheduling ... ok
+test research::tests::engine_hash_encoding_preserves_unicode_and_struct_numbers ... ok
+test tests::persisted_status_and_retry_bounds_are_explicit ... ok
+test research::tests::semantic_hash_binds_snapshot_policy_schema_and_capability ... ok
+test pg::tests::remote_runtime_rejects_unverified_transport_before_connecting ... ok
+test tests::kernel_rejects_invalid_schedule_and_stale_worker_operations ... ok
+test tests::cancel_and_timeout_events_are_audited ... ok
+test tests::kernel_fences_cancelled_timed_out_and_exhausted_runs ... ok
+test signal_proposal::tp05_projection_tests::production_or_trading_claims_cannot_survive_projection ... ok
+test research::tests::repository_deduplicates_replayed_artifacts_after_restart ... ok
+test signal_proposal::tp05_projection_tests::foreign_or_missing_provenance_is_rejected_before_projection ... ok
+test signal_proposal::tp05_projection_tests::scoped_provenance_is_retained_without_forwarding_authority_fields ... ok
+test research::tests::idempotent_schedule_preserves_checkpoints_and_rejects_reference_conflicts ... ok
+test research::tests::scheduling_same_fixture_keeps_input_hash_stable ... ok
+test tests::scheduling_one_hundred_runs_stays_under_budget_in_memory ... ok
+test tests::kernel_recovers_one_hundred_runs_without_duplicate_artifacts ... ok
+test pg::tests::local_transport_and_query_options_are_handled_explicitly ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 31 tests
+test generated::tests::unsupported_rules_are_rejected ... ok
+test pg::release_row_tests::s03_legacy_null_workspace_returns_error_instead_of_panicking ... ignored, requires separately authorized Supabase connection; never local database acceptance
+test generated::tests::hundred_static_check_failures_all_block_release_path ... ok
+test generated::tests::forged_static_flags_and_source_never_adapt_and_integer_min_does_not_panic ... ok
+test backtest::tests::series_not_bound_to_snapshot_is_rejected ... ok
+test backtest::tests::validation_report_contains_costs_environment_and_input_hash ... ok
+test backtest::tests::s02_generated_universe_and_notional_are_effective_constraints ... ok
+test generated::tests::clean_generated_draft_replays_through_backtest_pipeline ... ok
+test release::tests::s03_targets_exclude_assisted_live_and_unknown_json ... ok
+test tests::draft_saves_stay_under_three_hundred_millis_p95 ... ignored, release performance; run make research-release-performance-smokes
+test service::tests::service_s04_clock_is_sampled_under_service_lock ... ok
+test backtest::tests::s02_analytic_roundtrip_costs_and_terminal_mark_reconcile ... ok
+test tests::drafts_without_snapshot_or_artifacts_cannot_initiate_validation ... ok
+test tests::s01_parameter_fixture_roundtrip_and_canonical_hash ... ok
+test tests::s01_validation_rechecks_artifacts_and_expiry_and_rejected_saves_are_atomic ... ok
+test tests::s01_workspace_and_tenant_isolation_cover_read_save_and_validation ... ok
+test tests::unapproved_references_are_rejected_at_save_time ... ok
+test tests::unauthorized_actor_cannot_save_or_initiate_validation ... ok
+test tests::fifty_stale_edits_and_retries_preserve_all_versions ... ok
+test backtest::tests::s02_candidate_parameters_clock_and_report_bytes_are_bound ... ok
+test tests::s01_fifty_parallel_edit_groups_use_atomic_compare_and_save ... ok
+test backtest::tests::ten_replays_produce_identical_metrics_and_hashes ... ok
+test backtest::tests::s02_hundred_malformed_inputs_fail_and_valid_retry_recovers ... ok
+test generated::tests::tp06_owned_python_process_artifacts_feed_actual_backtest_and_block_release ... ok
+test backtest::tests::hundred_lookahead_and_leakage_fixtures_all_fail ... ok
+test release::tests::s03_dedupe_and_content_conflict_are_deterministic ... ok
+test release::tests::s03_scope_capability_hash_expiry_and_tampering_fail_closed ... ok
+test release::tests::s03_concurrent_approval_and_deployment_are_atomic_and_idempotent ... ok
+test release::tests::s03_hundred_unverified_or_unapproved_deployments_are_rejected ... ok
+test release::tests::s03_owned_process_backtest_release_reject_recover_and_consume ... ok
+test backtest::tests::s02_owned_process_s01_artifact_to_ten_replays_reject_and_recover ... ok
+
+test result: ok. 29 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.79s
+
+node ./scripts/r02-behavior-negative.cjs
+MUTATION_DETECTED wire-integrity
+MUTATION_DETECTED strict-rule-floor
+MUTATION_DETECTED duplicate-rules
+MUTATION_DETECTED trusted-clock
+MUTATION_DETECTED source-purpose
+MUTATION_DETECTED approval-reference
+{"schema":"quantos-r02-behavior/v1","baseline":"PASS","mutations":[{"name":"wire-integrity","result":"MUTATION_DETECTED","test":"regression_forged_wire_hash_quality_and_expiry_are_rejected"},{"name":"strict-rule-floor","result":"MUTATION_DETECTED","test":"regression_strict_floor_duplicate_and_mixed_tenant_rules_reject"},{"name":"duplicate-rules","result":"MUTATION_DETECTED","test":"regression_strict_floor_duplicate_and_mixed_tenant_rules_reject"},{"name":"trusted-clock","result":"MUTATION_DETECTED","test":"regression_future_capture_window_and_overflow_are_errors"},{"name":"source-purpose","result":"MUTATION_DETECTED","test":"actual_identity_time_quality_and_purpose_are_required"},{"name":"approval-reference","result":"MUTATION_DETECTED","test":"actual_identity_time_quality_and_purpose_are_required"}],"sourceCopyOnly":true,"isolatedCargoTarget":true,"workspaceAfterMutations":"PASS","liveDatabase":false}
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (target/debug/deps/quantos_storage-582ad3a86e871714)
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 33.91s
+     Running unittests src/lib.rs (target/debug/deps/quantos_runtime-65b17559bcdb8d8f)
+     Running unittests src/lib.rs (target/debug/deps/quantos_strategy-a997c03685a09912)

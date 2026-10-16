@@ -1,4 +1,4 @@
-> 当前执行（CORE-GATE:S2-SERVICE，2026-10-16）：冻结2d42eab4完整39节点/127组PASS，124依赖后3自身；三次构建、make lint/test PASS，Rust414/11 ignored、Python1856、Web233/3 skipped。仅S2-SERVICE_LOCAL DEVELOPMENT READY，不拼接历史READY；TP12旧独立READY撤回，完整TP07/TP12复审仍在X3。22目标组/4类移交NOT_RUN，正式确认PENDING、上游运行时DENIED、外部发布NOT_RUN。下一CORE:X01；见[验收报告](./audit/S2-SERVICE-local-admission-2026-10-16.md)。
+> 当前执行（CORE:X01依赖复验，2026-10-16）：新候选5d2b90b7完整127组执行为122 PASS/5 FAIL；4组临时计划fixture遗漏S2阶段回执，聚合正确拒绝。fixture修复28/28 PASS，完整新候选复验待执行；共享输入变化后S2旧独立READY撤回，历史证据保留。X01功能尚未修改，目标/外部发布NOT_RUN，正式确认PENDING。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1765,16 +1765,14 @@ EVALUATION:TP12 历史执行：冻结04dc1965完整9节点31组PASS；S2聚合�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:edf8a33e3cb3d113e2fa55ad649fa3c5e2d86df94d0a798f14aa15a1f5fd7d6d",
-    "evidence": [
-      "audit/evidence/s2-service-local-20261016/manifest.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
 
-CORE-GATE:S2-SERVICE 当前执行：冻结2d42eab4完整39节点127组PASS，124依赖后3自身，仅S2本地服务聚合READY。正式确认PENDING，22目标组/4类移交NOT_RUN，完整TP07/TP12复审仍在X3，TP12在TP07和S2之后。见[报告](./audit/S2-SERVICE-local-admission-2026-10-16.md)。下一CORE:X01。
+CORE-GATE:S2-SERVICE 历史执行：2d42eab4完整39节点127组PASS保留；X01前置新候选5d2b90b7为122 PASS/5 FAIL，4组临时计划fixture遗漏阶段回执，聚合正确拒绝。共享测试输入修复后原独立READY撤回；须新冻结候选完整复验，不拼接历史READY。X01尚未准入，目标NOT_RUN，正式确认PENDING。
 
 <a id="execution-x3"></a>
 ## 8. X3：风险、Paper/Shadow、对账与治理服务

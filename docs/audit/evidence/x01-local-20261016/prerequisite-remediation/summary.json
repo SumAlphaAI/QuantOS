@@ -1,0 +1,57 @@
+{
+  "schema": "quantos-x01-prerequisite-remediation/v1",
+  "sourceCommit": "5d2b90b7ebd37a06f23368923dae9a98535c6dd9",
+  "attempt": "docs/audit/evidence/provider-a1-remediation-20261004/s2-service-local-20261016/attempt-04",
+  "status": "FAIL",
+  "passedGroups": 122,
+  "failedGroups": [
+    {
+      "id": "tp01-e-local-policy",
+      "exitCode": 1,
+      "status": "FAIL",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/s2-service-local-20261016/attempt-04/logs/tp01-e-local-policy.log",
+      "logSha256": "sha256:24deffc3f4f4ae98ce0a83c88d2485dc65585482b841204b89cbfa88c8b8b57c"
+    },
+    {
+      "id": "tp01-f-local-policy",
+      "exitCode": 1,
+      "status": "FAIL",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/s2-service-local-20261016/attempt-04/logs/tp01-f-local-policy.log",
+      "logSha256": "sha256:0ffe7f672ede4aa39bfc6b506db30fea22b59ca3acd968306e4435a4728ba078"
+    },
+    {
+      "id": "tp01-g-local-policy",
+      "exitCode": 1,
+      "status": "FAIL",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/s2-service-local-20261016/attempt-04/logs/tp01-g-local-policy.log",
+      "logSha256": "sha256:8c171e062cac76cd36828406d3caf4a0fe4b6b32acb6a0b589210a5f527f0713"
+    },
+    {
+      "id": "service-tp01-local-policy",
+      "exitCode": 1,
+      "status": "FAIL",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/s2-service-local-20261016/attempt-04/logs/service-tp01-local-policy.log",
+      "logSha256": "sha256:86d726de40eca1935712e279ffb0f87d0b3d5dd98f6e60d54ea9f2d14cd005d5"
+    },
+    {
+      "id": "s2-service-functional",
+      "exitCode": 2,
+      "status": "FAIL",
+      "log": "docs/audit/evidence/provider-a1-remediation-20261004/s2-service-local-20261016/attempt-04/logs/s2-service-functional.log",
+      "logSha256": "sha256:eb3485c0913652d0626b60729cfa97bf8a9bdbdc171fe5eed9b4c95e10b3e406"
+    }
+  ],
+  "cause": "Four temporary plan-contract fixtures copied only formal checkpoint evidence, omitting independently READY stage_gate receipts. S2 aggregate correctly rejects failed prerequisites.",
+  "repair": "Copy required stage receipts for all nodes, skip the fixture-owned manifest to prevent writes through a symlink, and verify published receipt bytes remain unchanged.",
+  "focusedTests": {
+    "passed": 28,
+    "failed": 0,
+    "log": "fixture-tests.log",
+    "scope": "UNIT_ONLY_WITH_CURRENT_S2_READY_PLAN"
+  },
+  "completeReassessment": "PENDING_NEW_FROZEN_CANDIDATE",
+  "canonicalRestored": true,
+  "databaseExecution": false,
+  "formalAccepted": false,
+  "production": false
+}
