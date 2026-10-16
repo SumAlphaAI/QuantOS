@@ -1,0 +1,109 @@
+{
+  "schema": "quantos-research-local-products/v1",
+  "sourceCommit": "e2d5aa3d830719c029cbe02df7c7a703cb4acd62",
+  "status": "PASS",
+  "databaseExecution": false,
+  "formalAccepted": false,
+  "checks": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "quantos-runtime",
+        "--locked",
+        "--offline",
+        "--test",
+        "signal_proposal_contracts"
+      ],
+      "executedAt": "2026-10-16T14:26:23.167Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 840000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": {
+        "file": "contracts.log",
+        "sha256": "sha256:35c1f5e8345cadaf39cde9844eff670779644201073bbfaf14da4b92d0bfa355"
+      }
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "quantos-runtime",
+        "--locked",
+        "--offline",
+        "--test",
+        "signal_proposal_orchestration"
+      ],
+      "executedAt": "2026-10-16T14:26:38.645Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 840000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": {
+        "file": "orchestration.log",
+        "sha256": "sha256:25dcce8c9643ae4d4e741b8efac7c1018c010f2522751f487ac1d88130dc0a27"
+      }
+    },
+    {
+      "command": [
+        "engines/.venv/bin/python",
+        "-m",
+        "pytest",
+        "engines/tests/test_r04_research_context.py",
+        "-q"
+      ],
+      "executedAt": "2026-10-16T14:26:40.697Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 840000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": {
+        "file": "context.log",
+        "sha256": "sha256:d7bdabb3e3edbfb67ad5bec5f31715a2491c085d687c3885395e58b8c2dc44be"
+      }
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "scripts/r04-stage-check.test.mjs",
+        "scripts/execution-outcome.test.mjs",
+        "scripts/r04-orchestration-receipt.test.mjs"
+      ],
+      "executedAt": "2026-10-16T14:26:40.853Z",
+      "exitCode": 0,
+      "status": "PASS",
+      "timeoutMs": 840000,
+      "timedOut": false,
+      "executionErrorCode": null,
+      "signal": null,
+      "log": {
+        "file": "negatives.log",
+        "sha256": "sha256:ed82c5086d5ad28b7ec2d8704ecc323f779cf6890670e25ae6474a51395630f5"
+      }
+    }
+  ],
+  "files": [
+    {
+      "file": "proposal-matrix.json",
+      "sha256": "sha256:cee5647d146f622b324c4bc5e90e256beb8b3f859f1075d8296bc05c631a5a32"
+    },
+    {
+      "file": "research-consumption.json",
+      "sha256": "sha256:6a3af8b9f78cd7508b404dbe677ce248ee98124fc56eacc3438e928fa15f72ff"
+    },
+    {
+      "file": "order-denial.json",
+      "sha256": "sha256:0b3abd9be0f2e824323fa28011301bc9b14e8b56c92c96f29dfa55af4c91b9d5"
+    }
+  ]
+}

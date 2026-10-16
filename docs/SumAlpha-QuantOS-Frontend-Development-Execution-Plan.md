@@ -1,4 +1,4 @@
-> 当前执行（CORE:X01依赖复验，2026-10-16）：新候选5d2b90b7完整127组执行为122 PASS/5 FAIL；4组临时计划fixture遗漏S2阶段回执，聚合正确拒绝。fixture修复28/28 PASS，完整新候选复验待执行；共享输入变化后S2旧独立READY撤回，历史证据保留。X01功能尚未修改，目标/外部发布NOT_RUN，正式确认PENDING。
+> 当前执行（CORE:X01依赖复验，2026-10-16）：e2d5aa3d完整127组程序退出0，但E回执固定计数49与新增后实际50不符，组装FAIL、未发布READY；严格计数已修正为50，须新候选完整复验。此前5d2b90b7失败及fixture修复均保留；X01功能尚未修改，S2独立NOT_ASSESSED，目标/外部发布NOT_RUN。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
