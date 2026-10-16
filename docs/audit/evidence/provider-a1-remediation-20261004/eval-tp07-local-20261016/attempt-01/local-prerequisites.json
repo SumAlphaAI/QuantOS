@@ -1,0 +1,175 @@
+{
+  "schema": "quantos-eval-tp07-local-prerequisites/v1",
+  "owner": "EVALUATION:TP07",
+  "profile": "EVAL-TP07_LOCAL",
+  "status": "PASS",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "observedSourceCommit": "c12b69ccaaf93e962268ac9c560f857ab40969f1",
+  "nodes": [
+    {
+      "nodeId": "CORE:F01",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp07-local-20261016/attempt-01/core-f01.json",
+      "inputDigest": "sha256:f0889ed25ca4c5054e1fe41bed8fbb3bf04c873f1556b96d180a6fdcdd24ff14"
+    },
+    {
+      "nodeId": "CORE:F03",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp07-local-20261016/attempt-01/core-f03.json",
+      "inputDigest": "sha256:ab3058fc212ae0e703789eab8f3bd407bfcc8c062b7ea93e5eeb8327d7f4edbd"
+    },
+    {
+      "nodeId": "CORE:F04",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp07-local-20261016/attempt-01/core-f04.json",
+      "inputDigest": "sha256:41cfa1921498a9de0938df099d37178c6ba2fae0ea25d9af4fe4d1303609f865"
+    },
+    {
+      "nodeId": "CORE:F05",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp07-local-20261016/attempt-01/core-f05.json",
+      "inputDigest": "sha256:0643e877755ea49bcc2bc4357f1a0d263567f0bf521fbfa6e7dd8695e0729515"
+    },
+    {
+      "nodeId": "CORE:F06",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp07-local-20261016/attempt-01/core-f06.json",
+      "inputDigest": "sha256:9f769b4c283cb8a375f47356ad0d3ebf763c98447aff889f505219e244774720"
+    },
+    {
+      "nodeId": "CORE:F07",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp07-local-20261016/attempt-01/core-f07.json",
+      "inputDigest": "sha256:ecd30ceec952d8ce8e13e20dc4f8fe384aefa7edd23291d8a2a7e5d2bd881359"
+    },
+    {
+      "nodeId": "CORE:F08",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp07-local-20261016/attempt-01/core-f08.json",
+      "inputDigest": "sha256:947ea1f20c3e570cc5e8b09d82154005f52baba914fb29110ae1f019bf91aac6"
+    },
+    {
+      "nodeId": "EVALUATION:TP07",
+      "manifest": "docs/audit/evidence/provider-a1-remediation-20261004/eval-tp07-local-20261016/attempt-01/evaluation-tp07.json",
+      "inputDigest": "sha256:59ac7ddfa8798a50a7e71ed9d1350c0b8096efad2a590fa8398357c5d62e494a"
+    }
+  ],
+  "deferred": [
+    {
+      "id": "f05-database",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "quantos-event",
+        "--test",
+        "postgres_persistence",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=1",
+        "--skip",
+        "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+        "--skip",
+        "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+        "--skip",
+        "postgres_tls_root_configuration_fails_closed"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f05-volume",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-event",
+        "--test",
+        "postgres_persistence",
+        "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "storage-database",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--test",
+        "postgres_persistence",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "storage-target",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-storage",
+        "--test",
+        "supabase_storage_integration",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "rls-target",
+      "command": [
+        "node",
+        "scripts/db-cli.cjs",
+        "live-rls"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f06-target",
+      "command": [
+        "node",
+        "scripts/run-p0-f06-target.mjs"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f07-recovery",
+      "command": [
+        "make",
+        "f07-recovery-diagnostic"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f07-coverage",
+      "command": [
+        "make",
+        "f07-coverage-diagnostic"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    },
+    {
+      "id": "f07-service",
+      "command": [
+        "make",
+        "f07-target-service-acceptance"
+      ],
+      "status": "NOT_RUN",
+      "checkpoint": "RELEASE-GATE:BETA"
+    }
+  ]
+}

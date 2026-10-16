@@ -1,4 +1,4 @@
-> 当前执行（EVALUATION:TP07，2026-10-16）：固定版本/许可/SBOM/CVE/能力与边界评估准备中，新候选8节点/28组待复验。共享回执输入变化使SERVICE:S04旧独立READY撤回，历史1ce8e899证据保留。目标/生产/外部发布NOT_RUN，formalAccepted=false。见[执行记录](./audit/EVALUATION-TP07-local-admission-2026-10-16.md)。
+> 当前执行（EVALUATION:TP07，2026-10-16）：冻结c12b69cc完整8节点/28组PASS，25依赖先于3自身；三次构建、make lint/test PASS，Rust414/11 ignored、Python1845、Web233/3 skipped。固定commit/许可/1051 lock条目/1004包版本查询56advisory ID/7类能力与边界齐备；仅EVAL-TP07_LOCAL DEVELOPMENT READY，runtimeAdmission=DENIED。S04旧独立READY撤回且历史保留，9组目标及3类移交NOT_RUN、formalAccepted=false、externalPublished=false。下一EVALUATION:TP12；见[验收报告](./audit/EVALUATION-TP07-local-admission-2026-10-16.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1667,12 +1667,16 @@ SERVICE:S04 历史执行：冻结1ce8e899完整36节点/118组PASS；EVALUATION:
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:83f6c4b6ca4cb9687859695ef4136ef7f6d00a5007d74b500fa65ff766f833d7",
+    "evidence": [
+      "audit/evidence/eval-tp07-local-20261016/manifest.json"
+    ]
   }
 }
 ```
+
+EVALUATION:TP07 当前执行：冻结c12b69cc的8节点/28组PASS，仅本地评估READY，运行时DENIED，正式确认PENDING。见[报告](./audit/EVALUATION-TP07-local-admission-2026-10-16.md)。下一EVALUATION:TP12。
 
 <a id="acceptance-evaluation-tp12"></a>
 ### EVALUATION:TP12：验收检查点
