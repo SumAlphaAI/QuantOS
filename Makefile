@@ -724,3 +724,15 @@ service-s04-local-check:
 	node scripts/service-s04-local-gate.mjs --ready
 service-s04-release-check:
 	node scripts/service-s04-local-gate.mjs --release
+
+.PHONY: eval-tp07-check eval-tp07-assess-local eval-tp07-local-check eval-tp07-release-check
+eval-tp07-check:
+	python3 scripts/tp07-evaluation.py
+	python3 -m unittest discover -s scripts/tests -p test_tp07_evaluation.py -v
+	node --test scripts/eval-tp07-local-gate.test.mjs
+eval-tp07-assess-local:
+	node scripts/record-eval-tp07-local.mjs
+eval-tp07-local-check:
+	node scripts/eval-tp07-local-gate.mjs --ready
+eval-tp07-release-check:
+	node scripts/eval-tp07-local-gate.mjs --release

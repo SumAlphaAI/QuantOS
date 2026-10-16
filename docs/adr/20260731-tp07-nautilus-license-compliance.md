@@ -2,11 +2,11 @@
 
 ## Status
 
-Accepted for repository-side implementation.
+Historical implementation note; no current CORE:TP07, runtime, legal or release acceptance. Licensing conclusions below are superseded by [the S2 evaluation ADR](20261016-tp07-evaluation-boundary.md).
 
 ## Context
 
-TP07 integrates NautilusTrader as a candidate execution kernel behind `services/execution-gateway`. NautilusTrader is LGPL-3.0-only (verified at the pinned local reference `nautilus_trader@fa86c6e39e8f064d5922c0ee4da5e2a9a2716408`, 2026-07-21). QuantOS core and services are UNLICENSED/proprietary, so the integration mode determines compliance obligations.
+TP07 integrates NautilusTrader as a candidate execution kernel behind `services/execution-gateway`. Historical text incorrectly recorded LGPL-3.0-only; both pinned manifests actually declare LGPL-3.0-or-later (rechecked at the pinned local reference `nautilus_trader@fa86c6e39e8f064d5922c0ee4da5e2a9a2716408`, 2026-07-21). QuantOS core and services are UNLICENSED/proprietary, so the integration mode determines compliance obligations.
 
 The plan also requires: QuantOS Trading Protocol mapped to the Nautilus API without importing its types into core, and a documented replacement plan.
 
@@ -17,11 +17,9 @@ The plan also requires: QuantOS Trading Protocol mapped to the Nautilus API with
 3. **Paper kernel is the default and the replacement path.** `PaperKernel` implements the same `ExecutionKernel` trait with zero external dependencies. All gateway guarantees (interception, idempotency, event mapping, isolation) are tested against both kernels.
 4. **Deployment gating.** Any production enablement of the Nautilus kernel requires: (a) a pinned upstream commit with SBOM and CVE record (same governance as TP01/TP08 baselines), (b) legal sign-off on the LGPL service-boundary posture, (c) a deployment manifest proving the kernel runs in a separate process with no shared state.
 
-## LGPL compliance analysis
+## LGPL compliance analysis (corrected 2026-10-16)
 
-- LGPL-3.0 obligations trigger on distribution of the library or derivative works based on it. QuantOS does not copy, modify, link, or statically bundle Nautilus code; an independent process communicating over a data-format boundary does not create a derivative work of the library.
-- The wire struct field names follow the public API documentation convention; this is interoperability, not incorporation.
-- If a future requirement needs in-process embedding (e.g., the Rust core crates of Nautilus), this ADR must be revisited: linking an LGPL library requires either dynamic linking with replaceability notices or relicensing, and the paper-kernel replacement path must be preserved regardless.
+The previous text treated an independent process as automatically avoiding derivative/combined-work obligations. That was an unsupported conclusion, withdrawn here. The engineering choice is a separate process and QuantOS-owned data contracts. Legal analysis, distribution/notices/source/replaceability duties and target evidence require their own approval; status NOT_RUN. Root declarations are LGPL-3.0-or-later; transitive dependency licenses are not thereby concluded.
 
 ## Replacement plan
 
@@ -39,7 +37,7 @@ Replacement cost is deliberately small: the kernel surface is one trait (`submit
 Positive:
 
 - Zero Nautilus code or types inside QuantOS; core remains license-clean.
-- All TP07 acceptance criteria are testable without any external process.
+- Local gateway invariants can be tested without upstream execution; external process, target and full TP07 acceptance still require separate evidence.
 - The replacement path is exercised by default (paper kernel is the default kernel), not just documented.
 
 Trade-offs:
@@ -49,5 +47,5 @@ Trade-offs:
 
 ## Follow-up
 
-- If the Nautilus kernel is enabled beyond local evaluation, create `third_party/nautilus_trader/` baseline (pinned commit, SBOM, CVE) before the first deployment manifest.
+- If the Nautilus kernel is enabled beyond local evaluation, use and revalidate `third_party/nautilus-trader/` evaluation baseline (pinned commit, SBOM, CVE) before the first deployment manifest.
 - X3 testnet work must reuse this gateway; no direct kernel access from any other service.

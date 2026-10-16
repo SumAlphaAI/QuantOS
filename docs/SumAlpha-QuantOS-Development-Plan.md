@@ -1,4 +1,4 @@
-> 当前执行（SERVICE:S04，2026-10-16）：冻结1ce8e899完整36节点/118组PASS，115组依赖先于自身3组；三次独立构建及make lint/test PASS，Rust414/11 ignored、Python1845、Web233/3 skipped。SERVICE-S04_LOCAL仅本任务DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件原字节及4目录缺失状态恢复。真实TCP/UDS、100拒绝/100伪造、20路审批1成功、Paper/Shadow原生adapter回放一致。S03旧独立READY撤回并保留历史；22组共享目标及4类发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/SERVICE-S04-local-admission-2026-10-16.md)。
+> 当前执行（EVALUATION:TP07，2026-10-16）：固定版本/许可/SBOM/CVE/能力与边界评估准备中，新候选8节点/28组待复验。共享回执输入变化使SERVICE:S04旧独立READY撤回，历史1ce8e899证据保留。目标/生产/外部发布NOT_RUN，formalAccepted=false。见[执行记录](./audit/EVALUATION-TP07-local-admission-2026-10-16.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -661,6 +661,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE:S03",
         "CORE:F06",
         "CORE-GATE:R1-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "EVALUATION:TP07": {
+      "profile": "EVAL-TP07_LOCAL",
+      "schema": "quantos-eval-tp07-local-development/v1",
+      "manifest": "audit/evidence/eval-tp07-local-20261016/manifest.json",
+      "prerequisites": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F08"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }
@@ -1627,21 +1638,19 @@ TP01 服务功能准入：三次可复现构建、20 个 workflow 回放、至�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:65b519bb5fdec7ac22055f3c4e55903e8d1438d0746d6ab20396e071951ff420",
-    "evidence": [
-      "audit/evidence/service-s04-local-20261016/manifest.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
 
-SERVICE:S04 当前执行：冻结1ce8e899完整36节点/118组PASS；115依赖后3自身，仅SERVICE-S04_LOCAL DEVELOPMENT READY；100拒绝/100伪造、20路审批、真实TCP与两个原生adapter回放一致。正式用户确认PENDING，目标/外部发布NOT_RUN。见[当前报告](./audit/SERVICE-S04-local-admission-2026-10-16.md)和[manifest](./audit/evidence/service-s04-local-20261016/manifest.json)。下一可执行EVALUATION:TP07。
+SERVICE:S04 历史执行：冻结1ce8e899完整36节点/118组PASS；EVALUATION:TP07改变共享回执输入，独立READY已撤回；历史100拒绝/100伪造、20路审批和真实消费证据保留，不代替新候选复验。见[当前报告](./audit/SERVICE-S04-local-admission-2026-10-16.md)和[manifest](./audit/evidence/service-s04-local-20261016/manifest.json)。下一可执行EVALUATION:TP07。
 
 <a id="acceptance-evaluation-tp07"></a>
 ### EVALUATION:TP07：验收检查点
 
-固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。
+固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 EVAL-TP07_LOCAL仅在新冻结候选完整8节点/25组依赖后执行3组自身评估，保留CVE命中及未知项，不授予上游运行时或法律/发布批准。
 
 ```json
 {
@@ -1652,7 +1661,7 @@ SERVICE:S04 当前执行：冻结1ce8e899完整36节点/118组PASS；115依赖�
     "CORE:F06",
     "CORE:F08"
   ],
-  "required_scope": "固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
+  "required_scope": "固定 TP07 commit/许可证/SBOM/CVE、capability inventory、执行边界/替换预案 ADR；不要求此时 adapter/Paper 内核完整验收，也不允许凭评估进入运行时。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。 EVAL-TP07_LOCAL仅在新冻结候选完整8节点/25组依赖后执行3组自身评估，保留CVE命中及未知项，不授予上游运行时或法律/发布批准。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

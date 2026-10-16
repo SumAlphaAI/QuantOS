@@ -2,7 +2,7 @@
 
 ## Status
 
-`implemented` — gateway、双内核、边界拦截、事件映射、LGPL ADR 全部落地，验收测试通过。
+历史网关模型已实现；不构成当前 CORE:TP07、真实 Nautilus 进程、目标或正式验收。本次 S2 只评估固定版本/许可/SBOM/CVE/能力与边界，参见 [S2 ADR](../adr/20261016-tp07-evaluation-boundary.md)。
 
 ## Deliverables
 
@@ -28,5 +28,5 @@
 ## Open follow-ups
 
 1. Nautilus 外部进程传输（UDS/HTTP）尚未实现；当前 adapter 在进程内建模 outbox/event intake，真实部署前需补传输层与加固。
-2. 若启用 Nautilus 内核超出本地评估，先建 `third_party/nautilus_trader/` baseline（固定 commit/SBOM/CVE），再补部署清单。
+2. 若启用 Nautilus 内核超出本地评估，先复验 `third_party/nautilus-trader/` 评估基线（固定 commit/SBOM/CVE），再补部署清单。
 3. 事件映射当前覆盖 `OrderAccepted/OrderRejected/OrderFilled`；部分成交与撤单事件随 X3 testnet 需求扩展。

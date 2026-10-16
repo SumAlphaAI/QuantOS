@@ -2139,6 +2139,35 @@
       ],
       "marker": "fail 0",
       "timeoutMs": 60000
+    },
+    "tp07-evaluation": {
+      "command": [
+        "python3",
+        "scripts/tp07-evaluation.py"
+      ],
+      "timeoutMs": 60000
+    },
+    "tp07-evaluation-tests": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/tests",
+        "-p",
+        "test_tp07_evaluation.py",
+        "-v"
+      ],
+      "timeoutMs": 60000
+    },
+    "tp07-evaluation-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/eval-tp07-local-gate.test.mjs"
+      ],
+      "timeoutMs": 60000
     }
   },
   "nodes": {
@@ -3121,6 +3150,26 @@
         "service-s04-style",
         "service-s04-local-policy"
       ]
+    },
+    "EVALUATION:TP07": {
+      "scope": "Fixed upstream commit/license/lock SBOM/CVE snapshot/capability/execution boundary evaluation; runtime and legal approval forbidden",
+      "inputs": [
+        "third_party/nautilus-trader/",
+        "scripts/tp07-evaluation.py",
+        "scripts/tests/test_tp07_evaluation.py",
+        "scripts/eval-tp07-local-gate.mjs",
+        "scripts/eval-tp07-local-gate.test.mjs",
+        "scripts/record-eval-tp07-local.mjs",
+        "docs/adr/20261016-tp07-evaluation-boundary.md",
+        "docs/adr/20260731-tp07-nautilus-license-compliance.md",
+        "docs/operations/tp07_nautilus_execution_gateway.md",
+        "docs/operations/eval-tp07-local-admission.md"
+      ],
+      "checks": [
+        "tp07-evaluation",
+        "tp07-evaluation-tests",
+        "tp07-evaluation-policy"
+      ]
     }
   },
   "developmentProfile": {
@@ -3768,5 +3817,21 @@
       "research-release-performance-smokes",
       "frontend-release-performance"
     ]
+  },
+  "evalTp07Local": {
+    "owner": "EVALUATION:TP07",
+    "profile": "EVAL-TP07_LOCAL",
+    "roots": [
+      "EVALUATION:TP07"
+    ],
+    "deferredChecks": [],
+    "nodeChecks": {
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": []
   }
 }

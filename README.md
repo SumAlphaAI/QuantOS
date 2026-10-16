@@ -116,3 +116,5 @@ when changing shared dependencies needed by both phases.
 F02 supply-chain and isolated database commands: [runbook](docs/runbooks/f02-supply-chain.md).
 
 策略服务本地准入：参见[操作说明](docs/operations/service-s04-local-admission.md)、[设计决定](docs/adr/service-s04-strategy-api.md)与[执行证据](docs/audit/SERVICE-S04-local-admission-2026-10-16.md)。SERVICE-S04_LOCAL只验证owner-service真实本地API，不构成公共BFF/UI、Supabase或发布验收。
+
+TP07 S2固定候选评估：[操作说明](docs/operations/eval-tp07-local-admission.md)、[执行边界ADR](docs/adr/20261016-tp07-evaluation-boundary.md)与[验收记录](docs/audit/EVALUATION-TP07-local-admission-2026-10-16.md)。仅评估固定源/许可/lock级SBOM/CVE，Nautilus运行时准入始终DENIED。

@@ -1,0 +1,83 @@
+{
+  "schema": "quantos-tp07-capabilities/v1",
+  "task": "EVALUATION:TP07",
+  "capabilities": [
+    {
+      "name": "backtest",
+      "input": "bounded historical bars and strategy configuration",
+      "output": "simulation reports and order/fill events",
+      "sideEffects": "simulated state only",
+      "permissions": "research-only snapshots, no venue authority",
+      "forbidden": "no second Quant Core or production data authority",
+      "replacement": "S02 native backtest + PaperKernel",
+      "evidence": "crates/backtest/Cargo.toml",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "name": "execution",
+      "input": "sanitized QuantOS BoundaryCommand",
+      "output": "owned order/fill events",
+      "sideEffects": "potential downstream submit in future external process",
+      "permissions": "only execution-gateway may forward approved TradeCommand",
+      "forbidden": "no raw agent intents, identity/session or credentials in payload",
+      "replacement": "ExecutionKernel + PaperKernel",
+      "evidence": "crates/execution/Cargo.toml",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "name": "risk",
+      "input": "candidate order and portfolio constraints",
+      "output": "advisory engine checks",
+      "sideEffects": "may reject engine requests",
+      "permissions": "QuantOS X01/X03 are authoritative before gateway",
+      "forbidden": "upstream risk checks cannot replace QuantOS policy, expiry or kill switch",
+      "replacement": "QuantOS risk/preflight gate",
+      "evidence": "crates/risk/Cargo.toml",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "name": "live",
+      "input": "external process configuration",
+      "output": "venue event stream",
+      "sideEffects": "network and venue side effects if enabled",
+      "permissions": "separate operator-authorized process only; currently forbidden",
+      "forbidden": "no venue connection during evaluation, no process launch",
+      "replacement": "Paper/Shadow owned kernel",
+      "evidence": "crates/live/Cargo.toml",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "name": "model",
+      "input": "instrument/order/event data types",
+      "output": "candidate wire vocabulary",
+      "sideEffects": "none for static reference",
+      "permissions": "map only through QuantOS-owned schema",
+      "forbidden": "no Nautilus types imported or linked in core",
+      "replacement": "owned proto/domain model",
+      "evidence": "crates/model/Cargo.toml",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "name": "portfolio",
+      "input": "fills and positions",
+      "output": "engine-local account projection",
+      "sideEffects": "internal projection mutation",
+      "permissions": "QuantOS ledger and reconciliation stay authoritative",
+      "forbidden": "no second truth for assets/limits/fees",
+      "replacement": "QuantOS portfolio rebuild",
+      "evidence": "crates/portfolio/Cargo.toml",
+      "runtimeAdmission": "DENIED"
+    },
+    {
+      "name": "persistence",
+      "input": "engine-local events",
+      "output": "candidate serialization/store interfaces",
+      "sideEffects": "database/filesystem in upstream runtime",
+      "permissions": "no QuantOS Auth/Storage/Vault access",
+      "forbidden": "no direct Supabase, user sessions or shared database",
+      "replacement": "owned ledger/artifacts behind service contracts",
+      "evidence": "crates/persistence/Cargo.toml",
+      "runtimeAdmission": "DENIED"
+    }
+  ]
+}
