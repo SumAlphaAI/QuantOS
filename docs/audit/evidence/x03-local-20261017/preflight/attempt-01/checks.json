@@ -1,0 +1,197 @@
+{
+  "schema": "quantos-x03-prefreeze-preflight/v1",
+  "scope": "PREFLIGHT_ONLY_UNCOMMITTED_WORKTREE_NOT_FROZEN_ADMISSION",
+  "databaseExecution": false,
+  "formalAccepted": false,
+  "production": false,
+  "checks": [
+    {
+      "id": "compile",
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-execution",
+        "--all-targets"
+      ],
+      "startedAt": "2026-10-17T07:59:56.312Z",
+      "elapsedMs": 9310,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "compile.log"
+    },
+    {
+      "id": "own",
+      "command": [
+        "make",
+        "x03-check"
+      ],
+      "startedAt": "2026-10-17T08:00:05.622Z",
+      "elapsedMs": 112795,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "own.log"
+    },
+    {
+      "id": "risk-regression",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "--test",
+        "x02_guard"
+      ],
+      "startedAt": "2026-10-17T08:01:58.417Z",
+      "elapsedMs": 42516,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "risk-regression.log"
+    },
+    {
+      "id": "shared",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/s2-service-evidence.test.mjs",
+        "scripts/s2-service-local-gate.test.mjs",
+        "scripts/x01-local-gate.test.mjs",
+        "scripts/x02-local-gate.test.mjs",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "startedAt": "2026-10-17T08:02:40.933Z",
+      "elapsedMs": 1482,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "shared.log"
+    },
+    {
+      "id": "coverage",
+      "command": [
+        "node",
+        "scripts/x02-coverage.mjs",
+        "docs/audit/evidence/x03-local-20261017/preflight/attempt-01/coverage/receipt.json"
+      ],
+      "startedAt": "2026-10-17T08:02:42.415Z",
+      "elapsedMs": 4609,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "coverage.log"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-17T08:02:47.024Z",
+      "elapsedMs": 50,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "plans.log"
+    },
+    {
+      "id": "core-handoff",
+      "command": [
+        "node",
+        "scripts/check-development-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T08:02:47.075Z",
+      "elapsedMs": 22,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "core-handoff.log"
+    },
+    {
+      "id": "frontend-handoff",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T08:02:47.097Z",
+      "elapsedMs": 32,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "frontend-handoff.log"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-execution",
+        "-p",
+        "quantos-risk",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "startedAt": "2026-10-17T08:02:47.129Z",
+      "elapsedMs": 62418,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "clippy.log"
+    },
+    {
+      "id": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "startedAt": "2026-10-17T08:03:49.547Z",
+      "elapsedMs": 501,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "format.log"
+    },
+    {
+      "id": "source-doc-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        ":!docs/audit/evidence/**"
+      ],
+      "startedAt": "2026-10-17T08:03:50.048Z",
+      "elapsedMs": 26,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "source-doc-diff.log"
+    }
+  ]
+}

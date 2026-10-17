@@ -1,0 +1,41 @@
+    Blocking waiting for file lock on build directory
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+error[E0308]: mismatched types
+   --> crates/quantos-execution/src/authority.rs:745:56
+    |
+744 | fn hash<T: Serialize>(value: &T) -> Result<ContentHash, quantos_core::CoreError> {
+    |         - found this type parameter
+745 |     Ok(ContentHash::sha256_bytes(&canonical_json_bytes(value)?))
+    |                                   -------------------- ^^^^^ expected `&Value`, found `&T`
+    |                                   |
+    |                                   arguments to this function are incorrect
+    |
+    = note: expected reference `&Value`
+               found reference `&T`
+note: function defined here
+   --> /Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core/src/fixture.rs:153:8
+    |
+153 | pub fn canonical_json_bytes(value: &Value) -> Result<Vec<u8>, CoreError> {
+    |        ^^^^^^^^^^^^^^^^^^^^
+
+error[E0382]: borrow of moved value: `r`
+   --> crates/quantos-execution/src/authority.rs:594:34
+    |
+592 |                 if let Some(r) = consumed {
+    |                             - move occurs because `r` has type `ApprovalReceipt`, which does not implement the `Copy` trait
+593 |                     s.approvals
+594 |                         .get_mut(&r.id)
+    |                                  ^^^^^ value borrowed here after move
+595 |                         .expect("checked under lock")
+596 |                         .receipt = r;
+    |                                    - value moved here
+    |
+help: consider cloning the value if the performance cost is acceptable
+    |
+596 |                         .receipt = r.clone();
+    |                                     ++++++++
+
+Some errors have detailed explanations: E0308, E0382.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `quantos-execution` (lib) due to 2 previous errors

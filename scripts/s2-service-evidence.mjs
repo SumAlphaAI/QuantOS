@@ -8,11 +8,11 @@ import {root,digest,policy,nodesFromPlans,localChecks} from './provider-a1-recei
 import {profile,nodeId,dependencyNodes,dependencyChecks,componentCoverage,resultsDigest} from './s2-service-coverage.mjs';
 function confined(path,base){assert.equal(typeof path,'string');const full=resolve(root,path);assert(full.startsWith(resolve(root,base)+'/'),'cross-attempt evidence forbidden');return full;}
 export function buildEvidence(executionResults,source,{nodes=nodesFromPlans(),p=policy(),readBytes=path=>readFileSync(resolve(root,path)),components=componentCoverage}={}){
- assert.match(source,/^[a-f0-9]{40}$/);assert(/^docs\/audit\/evidence\/provider-a1-remediation-20261004\/(?:s2-service|x01|x02)-local-[0-9]{8}\/attempt-[0-9]{2}\/execution-results\.json$/.test(executionResults),'fresh confined S2 attempt required');
+ assert.match(source,/^[a-f0-9]{40}$/);assert(/^docs\/audit\/evidence\/provider-a1-remediation-20261004\/(?:s2-service|x01|x02|x03)-local-[0-9]{8}\/attempt-[0-9]{2}\/execution-results\.json$/.test(executionResults),'fresh confined S2 attempt required');
  const ids=dependencyChecks(nodes,p),selected=dependencyNodes(nodes);assert.equal(ids.length,124);assert.equal(selected.length,38);
  const all=JSON.parse(readBytes(executionResults)),rows=all.slice(0,ids.length),base=dirname(executionResults);
  assert.deepEqual(rows.map(c=>c.id),ids,'complete fresh dependency order required');
- const own=p.nodes[nodeId].checks.concat(/\/x0[12]-local-/.test(executionResults)?localChecks('CORE:X01',p,'X01_LOCAL'):[],executionResults.includes('/x02-local-')?localChecks('CORE:X02',p,'X02_LOCAL'):[]);assert.deepEqual(all.slice(ids.length).map(c=>c.id),own.slice(0,all.length-ids.length),'unexpected or reordered own execution');assert(all.length<=ids.length+own.length);
+ const own=p.nodes[nodeId].checks.concat(/\/x0[123]-local-/.test(executionResults)?localChecks('CORE:X01',p,'X01_LOCAL'):[],/\/x0[23]-local-/.test(executionResults)?localChecks('CORE:X02',p,'X02_LOCAL'):[],executionResults.includes('/x03-local-')?localChecks('CORE:X03',p,'X03_LOCAL'):[]);assert.deepEqual(all.slice(ids.length).map(c=>c.id),own.slice(0,all.length-ids.length),'unexpected or reordered own execution');assert(all.length<=ids.length+own.length);
  for(const c of rows){
   assert.equal(c.status,'PASS');assert.equal(c.exitCode,0);assert.equal(c.timedOut,false);assert.equal(c.executionErrorCode,null);assert.equal(c.signal,null);assert.deepEqual(c.command,p.checks[c.id].command,'command substitution');assert(Number.isFinite(Date.parse(c.executedAt)),'missing execution clock');
   confined(c.log,base);assert.equal(digest(readBytes(c.log)),c.logSha256,'dependency log changed');

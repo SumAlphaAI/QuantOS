@@ -8,7 +8,7 @@ use chrono::{DateTime, Duration, NaiveDate, Utc};
 use hmac::{Hmac, Mac};
 use quantos_auth::AuthContext;
 use quantos_core::{
-    AccountId, ActorId, ContentHash, DecisionId, ProposalId, TenantId, WorkspaceId,
+    AccountId, ActorId, CommandId, ContentHash, DecisionId, ProposalId, TenantId, WorkspaceId,
     canonical_json_bytes,
 };
 use quantos_policy::{Capability, Role, RunMode};
@@ -181,6 +181,7 @@ struct State {
     at: Option<DateTime<Utc>>,
     receipts: Vec<KillReceipt>,
     decisions: BTreeMap<DecisionId, GuardDecision>,
+    consumers: BTreeMap<DecisionId, CommandId>,
 }
 struct Inner {
     tenant: TenantId,
@@ -352,13 +353,52 @@ impl RiskGuard {
         approval: Option<&ApprovalToken>,
         now: DateTime<Utc>,
     ) -> Result<GuardDecision, GuardError> {
+        self.authorize(auth, intent)?;
+        let mut state = self.lock()?;
+        let decision = self.compute(
+            &state, auth, phase, intent, snapshot, financials, venue, release, approval, now, false,
+        )?;
+        if decision.verdict == RiskVerdict::Allow {
+            if phase == Phase::Pre {
+                state
+                    .seen
+                    .insert((intent.account_id, intent.command_key.clone()));
+            } else {
+                state
+                    .posts
+                    .insert((intent.account_id, intent.command_key.clone()));
+            }
+        }
+        state.at = Some(now);
+        state
+            .decisions
+            .insert(decision.decision_id, decision.clone());
+        Ok(decision)
+    }
+    fn authorize(&self, auth: &AuthContext, intent: &TradeIntent) -> Result<(), GuardError> {
         if !self.scoped(auth, Some(intent.account_id))
             || !Self::capable(auth, Capability::EXECUTION_OPERATE)
             || !matches!(auth.role, Role::Owner | Role::Operator | Role::Service)
         {
             return Err(GuardError::Unauthorized);
         }
-        let mut state = self.lock()?;
+        Ok(())
+    }
+    #[allow(clippy::too_many_arguments)]
+    fn compute(
+        &self,
+        state: &State,
+        auth: &AuthContext,
+        phase: Phase,
+        intent: &TradeIntent,
+        snapshot: &RiskInputSnapshot,
+        financials: &AccountFinancials,
+        venue: &VenueState,
+        release: &StrategyRelease,
+        approval: Option<&ApprovalToken>,
+        now: DateTime<Utc>,
+        reserved: bool,
+    ) -> Result<GuardDecision, GuardError> {
         if state.at.is_some_and(|t| now < t) {
             return Err(GuardError::Invalid("backward clock"));
         }
@@ -456,15 +496,16 @@ impl RiskGuard {
                 && symbol_valid(&venue.venue)
                 && venue.symbol == intent.symbol
                 && venue.quote_unit == self.0.policy.quote_unit,
-            duplicate: if pre {
-                state
-                    .seen
-                    .contains(&(intent.account_id, intent.command_key.clone()))
-            } else {
-                state
-                    .posts
-                    .contains(&(intent.account_id, intent.command_key.clone()))
-            },
+            duplicate: !reserved
+                && if pre {
+                    state
+                        .seen
+                        .contains(&(intent.account_id, intent.command_key.clone()))
+                } else {
+                    state
+                        .posts
+                        .contains(&(intent.account_id, intent.command_key.clone()))
+                },
             notional,
             gross_after,
             symbol_after,
@@ -522,23 +563,56 @@ impl RiskGuard {
             signature: String::new(),
         };
         decision.signature = self.sign("decision", &decision)?;
-        // Only successful admissions reserve a pre-trade key. Approval-required may retry with a bound approval.
-        if verdict == RiskVerdict::Allow {
-            if pre {
-                state
-                    .seen
-                    .insert((intent.account_id, intent.command_key.clone()));
-            } else {
-                state
-                    .posts
-                    .insert((intent.account_id, intent.command_key.clone()));
-            }
-        }
-        state.at = Some(now);
-        state
-            .decisions
-            .insert(decision.decision_id, decision.clone());
         Ok(decision)
+    }
+    /// Hold the same lock used by kill CAS while rechecking a stored Pre Allow,
+    /// all current source facts and the bound approval, then committing the issuer.
+    /// Callers must not reenter this guard from `commit`. Acquire issuer locks first.
+    /// A rejected callback consumes neither risk decision nor approval/command state.
+    #[allow(clippy::too_many_arguments)]
+    pub fn with_current_allow<T, E: From<GuardError>>(
+        &self,
+        consumer: CommandId,
+        decision: &GuardDecision,
+        auth: &AuthContext,
+        intent: &TradeIntent,
+        snapshot: &RiskInputSnapshot,
+        financials: &AccountFinancials,
+        venue: &VenueState,
+        release: &StrategyRelease,
+        approval: Option<&ApprovalToken>,
+        now: DateTime<Utc>,
+        commit: impl FnOnce(&GuardDecision) -> Result<T, E>,
+    ) -> Result<T, E> {
+        let mut state = self.lock()?;
+        self.validate_locked(&state, decision, auth, intent, now)?;
+        if state
+            .consumers
+            .get(&decision.decision_id)
+            .is_some_and(|id| *id != consumer)
+        {
+            return Err(GuardError::Conflict.into());
+        }
+        let current = self.compute(
+            &state,
+            auth,
+            Phase::Pre,
+            intent,
+            snapshot,
+            financials,
+            venue,
+            release,
+            approval,
+            now,
+            true,
+        )?;
+        if current.verdict != RiskVerdict::Allow || current.expires_at <= now {
+            return Err(GuardError::DecisionInvalid.into());
+        }
+        let value = commit(&current)?;
+        state.consumers.insert(decision.decision_id, consumer);
+        state.at = Some(now);
+        Ok(value)
     }
     /// A current risk validation, not an executable order/command permission. X03
     /// must integrate this with its own atomic issuer and approval consumption.
@@ -550,6 +624,16 @@ impl RiskGuard {
         now: DateTime<Utc>,
     ) -> Result<(), GuardError> {
         let state = self.lock()?;
+        self.validate_locked(&state, decision, auth, intent, now)
+    }
+    fn validate_locked(
+        &self,
+        state: &State,
+        decision: &GuardDecision,
+        auth: &AuthContext,
+        intent: &TradeIntent,
+        now: DateTime<Utc>,
+    ) -> Result<(), GuardError> {
         if !self.scoped(auth, Some(intent.account_id))
             || !Self::capable(auth, Capability::EXECUTION_OPERATE)
             || !matches!(auth.role, Role::Owner | Role::Operator | Role::Service)

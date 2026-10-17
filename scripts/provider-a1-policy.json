@@ -2338,6 +2338,54 @@
       ],
       "target": true,
       "timeoutMs": 1800000
+    },
+    "x03-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-execution",
+        "--test",
+        "x03_authority"
+      ],
+      "marker": "test result: ok.",
+      "timeoutMs": 900000
+    },
+    "x03-compat": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-execution",
+        "-p",
+        "quantos-risk",
+        "-p",
+        "quantos-evidence",
+        "--lib"
+      ],
+      "marker": "test result: ok.",
+      "timeoutMs": 900000
+    },
+    "x03-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/x03-local-gate.test.mjs"
+      ],
+      "marker": "fail 0",
+      "timeoutMs": 180000
+    },
+    "x03-target": {
+      "command": [
+        "node",
+        "scripts/x03-target-check.mjs"
+      ],
+      "target": true,
+      "timeoutMs": 1800000
     }
   },
   "nodes": {
@@ -3161,7 +3209,7 @@
       ]
     },
     "CORE:TP01-E": {
-      "scope": "Local synthetic S0\u2013S3 candidate grading, API/license/CVE/patch conflict classification, strict blocking with preserved decisions/issues/raw failure evidence and monitor/strict-gate semantics. No upstream fetch, online CVE refresh, candidate adoption, remote workflow or target/performance acceptance.",
+      "scope": "Local synthetic S0–S3 candidate grading, API/license/CVE/patch conflict classification, strict blocking with preserved decisions/issues/raw failure evidence and monitor/strict-gate semantics. No upstream fetch, online CVE refresh, candidate adoption, remote workflow or target/performance acceptance.",
       "inputs": [
         "scripts/sync-vibe.mjs",
         "scripts/sync-vibe-lib.mjs",
@@ -3415,6 +3463,23 @@
         "x02-coverage",
         "x02-local-policy",
         "x02-target"
+      ]
+    },
+    "CORE:X03": {
+      "scope": "Atomic process-local current risk/approval consumption/idempotent HMAC command issuance and approval CAS, no production/target or downstream permission",
+      "inputs": [
+        "crates/quantos-execution/",
+        "crates/quantos-risk/src/guard.rs",
+        "scripts/x03-*",
+        "scripts/record-x03-local.mjs",
+        "docs/operations/x03-local-admission.md",
+        "docs/adr/20261017-x03-atomic-command-issuer.md"
+      ],
+      "checks": [
+        "x03-rust",
+        "x03-compat",
+        "x03-local-policy",
+        "x03-target"
       ]
     }
   },
@@ -4171,6 +4236,41 @@
     "profile": "X02_LOCAL",
     "roots": [
       "CORE:X02"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "x03Local": {
+    "owner": "CORE:X03",
+    "profile": "X03_LOCAL",
+    "roots": [
+      "CORE:X03"
     ],
     "deferredChecks": [
       "tp01-baseline",

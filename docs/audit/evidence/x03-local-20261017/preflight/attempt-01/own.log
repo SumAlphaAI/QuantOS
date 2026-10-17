@@ -1,0 +1,204 @@
+cargo test --locked --offline -p quantos-execution --test x03_authority
+
+running 8 tests
+test x03_proposal_bytes_quantity_scope_and_configuration_are_not_client_authority ... ok
+test x03_approval_cas_rejection_cancellation_expiry_and_originator_separation ... ok
+test x03_real_modules_issue_replay_signatures_and_audit ... ok
+test x03_risk_lock_kill_linearization_and_other_issuer_cannot_double_consume ... ok
+test x03_conflicting_requester_proposal_decision_and_source_changes_fail_closed ... ok
+test x03_seven_rejections_and_recovery_do_not_consume_approval ... ok
+test x03_failed_transaction_does_not_reserve_consumer_and_kill_waits_for_commit ... ok
+test x03_one_thousand_concurrent_requests_one_signed_command_one_consumption ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.79s
+
+cargo test --locked --offline -p quantos-execution -p quantos-risk -p quantos-evidence --lib
+
+running 1 test
+test tests::evidence_package_is_go_ready_and_tamper_evident ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.93s
+
+
+running 43 tests
+test gateway::tests::limit_intent_without_price_is_rejected_before_the_kernel ... ok
+test gateway::tests::all_six_boundary_rejection_classes_are_enforced_before_the_kernel ... ok
+test gateway::tests::boundary_command_carries_no_session_or_identity_material ... ok
+test dual::tests::m5_flag_off_makes_assisted_live_unreachable ... ok
+test paper::tests::duplicate_submit_only_calls_downstream_once ... ok
+test paper::tests::cancel_latency_and_rejections_are_auditable ... ok
+test gateway::tests::nautilus_adapter_maps_wire_shape_and_client_order_id_is_stable ... ok
+test gateway::tests::nautilus_adapter_replay_also_produces_one_outbox_entry ... ok
+test gateway::tests::order_and_fill_events_map_back_to_owned_schema ... ok
+test gateway::tests::nautilus_events_map_back_to_owned_schema_through_the_gateway ... ok
+test paper::tests::illegal_transitions_are_rejected_by_the_state_machine ... ok
+test tests::issuance_p95_stays_under_two_hundred_millis ... ignored, release performance; run cargo test -p quantos-execution --lib p95 -- --ignored
+test dual::tests::self_approval_cap_expiry_and_allowlist_are_all_rejected ... ok
+test gateway::tests::thousand_replays_with_same_key_produce_exactly_one_downstream_submission ... ok
+test tests::approved_command_carries_approval_signature ... ok
+test paper::tests::every_fill_is_traceable_to_a_command ... ok
+test tests::replay::nonpositive_ttl_never_issues_or_consumes_approval ... ok
+test tests::replay::cached_command_expiry_cannot_be_extended_by_fresh_inputs ... ok
+test tests::replay::renewed_data_does_not_extend_deadline_and_shortened_data_rejects ... ok
+test tests::replay::conflicting_approval_does_not_consume_a_new_authorization ... ok
+test tests::replay::same_key_different_requester_conflicts_instead_of_issuing_again ... ok
+test tests::replay::replay_rechecks_proposal_and_data_expiry_at_boundary ... ok
+test tests::replay::replay_rechecks_kill_switch_and_release_without_changing_cache ... ok
+test venue::tests::network_and_authentication_failures_are_classified ... ok
+test tests::replay::ttl_uses_the_shortest_bound_without_a_performance_threshold ... ok
+test gateway::tests::hundred_precision_and_limit_variants_are_fully_intercepted ... ok
+test venue::tests::precision_and_rate_limits_are_mapped ... ok
+test venue::tests::venue_config_rejects_production_endpoints_and_keys ... ok
+test tests::replay::valid_allow_replay_keeps_identity_signature_and_deadline ... ok
+test zone::tests::mtls_identity_enforces_expiry_and_revocation ... ok
+test zone::tests::only_execution_gateway_can_resolve_vault_references ... ok
+test zone::tests::rotation_recovers_within_five_minutes_then_stales ... ok
+test zone::tests::expired_sessions_and_commands_are_rejected ... ok
+test zone::tests::unlisted_egress_hosts_are_blocked ... ok
+test zone::tests::zone_fixtures_contain_no_secret_material ... ok
+test tests::seven_rejection_classes_are_all_enforced ... ok
+test tests::replay::approval_replay_revalidates_every_proof_without_consuming_twice ... ok
+test venue::tests::two_hundred_testnet_scenarios_map_fully_to_internal_schema ... ok
+test tests::replay::conflicting_concurrent_retries_never_obtain_or_create_a_command ... ok
+test dual::tests::fifty_dual_approvals_all_write_signed_audit_entries ... ok
+test tests::replay::business_intent_and_provenance_changes_cannot_reuse_a_key ... ok
+test tests::thousand_concurrent_issuances_with_same_key_emit_exactly_one_command ... ok
+test paper::tests::one_hundred_thousand_order_events_all_transition_legally ... ok
+
+test result: ok. 42 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.70s
+
+
+running 5 tests
+test tests::kill_switch_rejects_new_commands_under_one_second_p95 ... ignored, release performance; run make research-release-performance-smokes
+test tests::post_trade_rules_catch_daily_loss_and_leverage_breach ... ok
+test tests::fifty_allow_fixtures_all_pass ... ok
+test tests::fifty_deny_fixtures_cover_every_rule_and_include_limits_and_signature ... ok
+test tests::fifty_approval_required_fixtures_all_route_to_approval ... ok
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+node --test scripts/x03-local-gate.test.mjs
+✔ exact 42 nodes and 135 dependency groups before 3 own checks (1.223209ms)
+✔ valid evaluation admits no runtime or target (44.328958ms)
+✔ environment strips all credentials (0.148916ms)
+✔ rejects promoted databaseExecution (13.276791ms)
+✔ rejects promoted production (11.816708ms)
+✔ rejects promoted formalAccepted (11.84025ms)
+✔ rejects promoted externalExecution (12.670709ms)
+✔ rejects promoted performanceAccepted (12.022542ms)
+✔ rejects promoted syncApproved (12.476291ms)
+✔ rejects promoted targetCanaryAccepted (12.419292ms)
+✔ rejects promoted targetRollbackAccepted (12.038875ms)
+✔ rejects promoted externalPublished (12.478292ms)
+✔ rejects promoted upstreamAccepted (12.002708ms)
+✔ cannot omit CORE:F01 (12.177041ms)
+✔ cannot omit CORE:F03 (12.851791ms)
+✔ cannot omit CORE:F04 (12.152916ms)
+✔ cannot omit CORE:F05 (12.049959ms)
+✔ cannot omit CORE:F06 (12.204834ms)
+✔ cannot omit CORE:F07 (11.805125ms)
+✔ cannot omit CORE:F08 (11.953916ms)
+✔ cannot omit CORE:F02 (12.038083ms)
+✔ cannot omit CORE:F09 (11.737792ms)
+✔ cannot omit CORE:TP01-A (11.855541ms)
+✔ cannot omit CORE:TP01-B (11.954375ms)
+✔ cannot omit CORE-GATE:F0 (11.598791ms)
+✔ cannot omit CORE:R01 (12.238042ms)
+✔ cannot omit CORE:R02 (11.82275ms)
+✔ cannot omit CORE:TP02 (11.835083ms)
+✔ cannot omit CORE:R03 (12.101584ms)
+✔ cannot omit CORE:TP03 (11.447375ms)
+✔ cannot omit CORE:TP04 (11.70825ms)
+✔ cannot omit CORE:R04 (11.7825ms)
+✔ cannot omit CORE:TP01-C (11.669792ms)
+✔ cannot omit CORE:TP01-D (11.880583ms)
+✔ cannot omit CORE:TP05 (11.712459ms)
+✔ cannot omit CORE:TP08 (11.897625ms)
+✔ cannot omit CORE:TP09 (12.134041ms)
+✔ cannot omit CORE:TP10 (11.662542ms)
+✔ cannot omit CORE:TP11 (11.876875ms)
+✔ cannot omit CORE-GATE:R1-SERVICE (12.27675ms)
+✔ cannot omit CORE:TP01-E (11.841875ms)
+✔ cannot omit CORE:TP01-F (11.874208ms)
+✔ cannot omit CORE:TP01-G (11.897625ms)
+✔ cannot omit SERVICE:TP01 (11.547417ms)
+✔ cannot omit CORE:S01 (11.948208ms)
+✔ cannot omit CORE:TP06 (12.935709ms)
+✔ cannot omit CORE:S02 (12.118875ms)
+✔ cannot omit CORE:S03 (11.86375ms)
+✔ cannot omit SERVICE:S04 (11.463791ms)
+✔ cannot omit EVALUATION:TP07 (11.397417ms)
+✔ cannot omit EVALUATION:TP12 (11.666458ms)
+✔ cannot omit CORE-GATE:S2-SERVICE (12.065583ms)
+✔ cannot omit CORE:X01 (11.601042ms)
+✔ cannot omit CORE:X02 (12.180708ms)
+✔ cannot omit CORE:X03 (12.224958ms)
+✔ rejects index substitution inputDigest (12.266209ms)
+✔ rejects index substitution observedSourceCommit (12.401625ms)
+✔ rejects index substitution owner (11.716834ms)
+✔ rejects index substitution profile (11.788333ms)
+✔ rejects index substitution status (12.275292ms)
+✔ rejects receipt substitution schema (11.179625ms)
+✔ rejects receipt substitution profile (11.298542ms)
+✔ rejects receipt substitution nodeId (11.390209ms)
+✔ rejects receipt substitution functionalManifest (11.45725ms)
+✔ rejects receipt substitution functionalDigest (11.463708ms)
+✔ rejects receipt substitution engineeringStatus (11.221333ms)
+✔ failed evidence validation rejects admission (11.759792ms)
+✔ component coverage cannot be rewritten (11.9535ms)
+✔ cannot remove deferred targets (11.8765ms)
+✔ cannot waive direct dependency (11.124542ms)
+✔ publication writes exactly receipt and two plans (38.260834ms)
+✔ invalid index cannot mutate canonical files (13.645291ms)
+✔ write failure rolls all files back (37.81875ms)
+✔ postverification failure rolls all files back (40.273ms)
+✔ first publication failure removes new manifest (40.140084ms)
+✔ expanded roots cannot grant another admission (0.624833ms)
+✔ rejects skipped behavior x01_ten_thousand_fills_golden_and_cold_rebuild (13.003958ms)
+✔ rejects skipped behavior x01_rejected_events_do_not_poison_retry (12.920167ms)
+✔ rejects skipped behavior x01_invalid_numbers_symbols_and_time_are_atomic (12.849833ms)
+✔ rejects skipped behavior x01_risk_snapshot_binds_identity_status_and_each_mark_time (11.923ms)
+✔ rejects skipped behavior x01_ledger_market_to_portfolio_and_cross_tenant_denials (11.7615ms)
+✔ rejects skipped behavior x01_snapshot_tampering_and_float_roundtrip (12.311875ms)
+✔ rejects skipped behavior x01_cli_golden_replay_and_restart (12.445542ms)
+✔ rejects skipped behavior x01_cli_rejects_mismatch_before_writing_outputs (12.368583ms)
+✔ rejects skipped behavior x01_cli_emits_bound_risk_input_and_rejects_stale_data (12.70875ms)
+✔ rejects skipped behavior x02_fifty_allow_and_fifty_bound_approval_fixtures (11.763666ms)
+✔ rejects skipped behavior x02_fifty_denials_and_all_rule_outcomes (11.858833ms)
+✔ rejects skipped behavior x02_tamper_expiry_approval_binding_and_daily_boundary (11.829ms)
+✔ rejects skipped behavior x02_kill_shared_clones_cas_account_isolation_and_stale_allow (11.702292ms)
+✔ rejects skipped behavior x02_invalid_decimals_sources_and_limit_boundaries_fail_closed (11.874791ms)
+✔ rejects skipped behavior x02_decision_expires_at_source_deadline_and_rechecks_identity (12.302292ms)
+✔ rejects skipped behavior x02_concurrent_duplicate_admission_and_kill_revision_have_one_winner (11.557458ms)
+✔ rejects skipped behavior x02_release_deadline_and_auth_mode_are_part_of_risk_permission (11.708084ms)
+✔ rejects skipped behavior x02_release_universe_extreme_time_and_cross_authority_are_closed (11.77375ms)
+✔ rejects skipped behavior x03_real_modules_issue_replay_signatures_and_audit (11.749791ms)
+✔ rejects skipped behavior x03_seven_rejections_and_recovery_do_not_consume_approval (12.27875ms)
+✔ rejects skipped behavior x03_approval_cas_rejection_cancellation_expiry_and_originator_separation (12.057416ms)
+✔ rejects skipped behavior x03_one_thousand_concurrent_requests_one_signed_command_one_consumption (11.637125ms)
+✔ rejects skipped behavior x03_conflicting_requester_proposal_decision_and_source_changes_fail_closed (11.612292ms)
+✔ rejects skipped behavior x03_risk_lock_kill_linearization_and_other_issuer_cannot_double_consume (11.772083ms)
+✔ rejects skipped behavior x03_proposal_bytes_quantity_scope_and_configuration_are_not_client_authority (11.765ms)
+✔ rejects skipped behavior x03_failed_transaction_does_not_reserve_consumer_and_kill_waits_for_commit (12.290291ms)
+✔ migration static execution cannot be promoted (23.735417ms)
+✔ expanded age and historical model evidence cannot replace checks (23.707459ms)
+✔ X03 own execution cannot precede fresh S2 closure (23.5415ms)
+✔ X03 cannot consume partial execution results (24.326875ms)
+ℹ tests 106
+ℹ suites 0
+ℹ pass 106
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1584.993375
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.55s
+     Running tests/x03_authority.rs (target/debug/deps/x03_authority-632cf57cd5fbf1b3)
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-evidence v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-evidence)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.54s
+     Running unittests src/lib.rs (target/debug/deps/quantos_evidence-094c8f057a5829fc)
+     Running unittests src/lib.rs (target/debug/deps/quantos_execution-6f15f3e991e46c21)
+     Running unittests src/lib.rs (target/debug/deps/quantos_risk-c25934de99fffffb)

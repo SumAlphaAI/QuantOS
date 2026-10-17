@@ -785,3 +785,15 @@ x02-local-check:
 	node scripts/x02-local-gate.mjs --ready
 x02-release-check:
 	node scripts/x02-local-gate.mjs --release
+
+.PHONY: x03-check x03-assess-local x03-local-check x03-release-check
+x03-check:
+	cargo test --locked --offline -p quantos-execution --test x03_authority
+	cargo test --locked --offline -p quantos-execution -p quantos-risk -p quantos-evidence --lib
+	node --test scripts/x03-local-gate.test.mjs
+x03-assess-local:
+	node scripts/record-x03-local.mjs
+x03-local-check:
+	node scripts/x03-local-gate.mjs --ready
+x03-release-check:
+	node scripts/x03-local-gate.mjs --release

@@ -39,3 +39,19 @@ cross-process persistence, Supabase acceptance or production trading access.
 Callers must supply trusted observation time and authoritative safety state.
 Proposal snapshots and string-valued order amounts bind exactly after canonical
 JSON encoding; retries must use the original immutable snapshot and representation.
+
+## X03 local command authority
+
+`authority::AtomicCommandIssuer` pins actual R04 records, binds F06 identity,
+checks current X01/S03/X02 risk under the kill mutex, and atomically consumes a
+CAS-approved token with one HMAC-signed idempotent `SignedCommand` and audit.
+Clones share state. Legacy root issuer/approval/command checksums remain fixture
+compatibility APIs and convey no authority. No HTTP/venue route or implicit
+conversion is added. See [local workflow](../../docs/operations/x03-local-admission.md)
+and [design](../../docs/adr/20261017-x03-atomic-command-issuer.md).
+
+`make x03-check` is preflight; a clean frozen candidate's complete 42-node/138-group
+`make x03-assess-local` is required for bounded DEVELOPMENT readiness. Supabase,
+durable distributed consumption/recovery, key custody, downstream TP07 dispatch,
+representative P95 <200ms, target security/load/soak/CI and formal confirmation
+remain separate NOT_RUN obligations.

@@ -1,4 +1,4 @@
-> 当前执行（CORE:X02，2026-10-17）：冻结5717f7a2完整41节点135组全部PASS，131依赖先于自身4组；三次可复现构建及make lint/test通过，rules.rs实际LLVM分支覆盖16/16，仅X02_LOCAL限定DEVELOPMENT READY。X01旧独立准入撤回、历史与预检失败保留，不拼接历史READY。24组目标NOT_RUN，正式确认PENDING，未使用生产凭据/连接目标/外部发布。见[本轮报告](./audit/X02-local-admission-2026-10-17.md)。
+> 当前执行（CORE:X03，2026-10-17）：原子签发/审批实现与新候选完整依赖复验准备中，仅本地开发；历史回执保留，目标/性能与正式确认未放行。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -725,6 +725,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE:X01",
         "CORE:S03",
         "CORE:F06",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:X03": {
+      "profile": "X03_LOCAL",
+      "schema": "quantos-x03-local-development/v1",
+      "manifest": "audit/evidence/x03-local-20261017/manifest.json",
+      "prerequisites": [
+        "CORE:R04",
+        "CORE:X02",
         "CORE-GATE:S2-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -1828,7 +1839,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `X02`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c8b93616932d6b72a1d3a6861e32b794d69b80e1e00db61ba635ddd48c2d4c62","evidence":["audit/evidence/x02-local-20261017/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1842,7 +1853,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 阶段执行：本地开发验证三类各50规则fixture、95%分支覆盖、kill switch立即拒绝及命中规则证据；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01、S03、F06
-- 当前工程复核：2026-10-17冻结5717f7a2完整41节点135组PASS；9个集成/API用例覆盖三类各≥50fixture、签名/审批绑定、共享kill/CAS/并发重复与时效；rules.rs实际LLVM分支16/16。仅X02_LOCAL DEVELOPMENT READY，正式确认PENDING；24组目标及P95/持久/分布式/X03签发集成NOT_RUN。见[本轮报告](./audit/X02-local-admission-2026-10-17.md)。
+- 当前工程复核：2026-10-17冻结5717f7a2完整41节点135组PASS；9个集成/API用例覆盖三类各≥50fixture、签名/审批绑定、共享kill/CAS/并发重复与时效；rules.rs实际LLVM分支16/16。仅X02_LOCAL DEVELOPMENT READY，正式确认PENDING；24组目标及P95/持久/分布式/X03签发集成NOT_RUN。见[本轮报告](./audit/X02-local-admission-2026-10-17.md)。 X03共享输入变更后独立READY撤回，历史证据原样保留；依赖证据须在X03新候选重新执行。
 
 <a id="task-x03"></a>
 ### X03：TradeCommand 签发与审批状态机
@@ -1854,17 +1865,17 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - depends_on: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `X3-SERVICE`
 - 需求描述：TradeCommand 签发与审批状态机
-- 技术要求：将有效 Proposal + RiskDecision + Approval 转为短期、签名、幂等 Command；禁止自批
+- 技术要求：将有效 Proposal + RiskDecision + Approval 转为短期、签名、幂等 Command；禁止自批。`X03_LOCAL`仅放行42节点/138组新候选完整依赖闭包；41依赖节点135组先于自身3组，真实模块组合验证原子当前风险/审批消费/幂等签发、七类拒绝、1000并发单命令及审计。签发P95<200ms与全部25组目标保持NOT_RUN。旧公开checksum接口仅作兼容fixture，不授予执行权限。
 - 交付物：`quantos-execution` command issuer、approval verifier
 - 量化验收标准：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms
 - 阶段执行：本地开发验证七类拒绝、1000并发单命令、审计生成与幂等语义；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：R04、X02
-- 当前工程复核：2026-10-14冻结5e14e3a4完成缓存安全重验/请求人及意图冲突、审批消费互斥和TTL/P95拆分；专用12项、execution42/evidence1及27节点85组映射前置通过。完整42节点仍缺15映射，阶段NOT_ASSESSED；首次签发权威/持久化/目标/性能独立待验，见[本轮报告](./audit/X03-replay-fix-2026-10-14.md)。
+- 当前工程复核：2026-10-17实现原子当前风险校验、审批CAS/消费、幂等HMAC签发与审计，等待新候选完整42节点138组复验；不拼接历史READY，正式确认PENDING。历史[2026-10-14复核](./audit/X03-replay-fix-2026-10-14.md)保留。
 
 <a id="task-tp07"></a>
 ### TP07：NautilusTrader：研究、仿真、OMS、执行内核
