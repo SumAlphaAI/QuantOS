@@ -1,3 +1,6 @@
+pub mod guard;
+pub mod rules;
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use chrono::{DateTime, Utc};
@@ -91,7 +94,7 @@ pub struct RiskRuleHit {
     pub limit_id: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RiskLimits {
     pub max_notional_per_order: f64,
     pub max_leverage: f64,
@@ -143,7 +146,14 @@ pub struct PortfolioRiskInput {
 
 impl PortfolioRiskInput {
     #[must_use]
-    pub fn from_snapshot(snapshot: &PortfolioSnapshot, equity: f64, symbol: &str) -> Self {
+    /// `realized_pnl_today` must come from the caller's trusted daily ledger;
+    /// the portfolio snapshot contains lifetime P&L and cannot supply it.
+    pub fn from_snapshot(
+        snapshot: &PortfolioSnapshot,
+        equity: f64,
+        realized_pnl_today: f64,
+        symbol: &str,
+    ) -> Self {
         let symbol_notional = snapshot
             .positions
             .iter()
@@ -153,7 +163,7 @@ impl PortfolioRiskInput {
             equity,
             exposure_gross: snapshot.exposure_gross,
             symbol_notional,
-            realized_pnl_today: snapshot.realized_pnl,
+            realized_pnl_today,
         }
     }
 }

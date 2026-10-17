@@ -1,0 +1,201 @@
+{
+  "schema": "quantos-x02-prefreeze-summary/v1",
+  "scope": "PREFLIGHT_ONLY_NOT_ADMISSION",
+  "observedBaseCommit": "9ce98f60f9fffbeee09afe60e9fb16136120c966",
+  "uncommittedWorkingTree": true,
+  "checks": [
+    {
+      "id": "compile",
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "--all-targets"
+      ],
+      "startedAt": "2026-10-17T01:03:32.666Z",
+      "elapsedMs": 12329,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "compile.log"
+    },
+    {
+      "id": "own",
+      "command": [
+        "make",
+        "x02-check"
+      ],
+      "startedAt": "2026-10-17T01:03:44.995Z",
+      "elapsedMs": 180086,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "own.log"
+    },
+    {
+      "id": "shared",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/s2-service-evidence.test.mjs",
+        "scripts/s2-service-local-gate.test.mjs",
+        "scripts/x01-local-gate.test.mjs",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "startedAt": "2026-10-17T01:06:45.082Z",
+      "elapsedMs": 1449,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "shared.log"
+    },
+    {
+      "id": "coverage",
+      "command": [
+        "node",
+        "scripts/x02-coverage.mjs",
+        "docs/audit/evidence/x02-local-20261017/preflight/attempt-03/coverage/receipt.json"
+      ],
+      "startedAt": "2026-10-17T01:06:46.531Z",
+      "elapsedMs": 3600,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "coverage.log"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-17T01:06:50.131Z",
+      "elapsedMs": 51,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "plans.log"
+    },
+    {
+      "id": "core-handoff",
+      "command": [
+        "node",
+        "scripts/check-development-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T01:06:50.182Z",
+      "elapsedMs": 22,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "core-handoff.log"
+    },
+    {
+      "id": "frontend-handoff",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T01:06:50.205Z",
+      "elapsedMs": 31,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "frontend-handoff.log"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "-p",
+        "quantos-strategy",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "startedAt": "2026-10-17T01:06:50.236Z",
+      "elapsedMs": 21789,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "clippy.log"
+    },
+    {
+      "id": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "startedAt": "2026-10-17T01:07:12.026Z",
+      "elapsedMs": 517,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "format.log"
+    },
+    {
+      "id": "source-doc-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        ":!docs/audit/evidence/**"
+      ],
+      "startedAt": "2026-10-17T01:07:12.543Z",
+      "elapsedMs": 27,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "source-doc-diff.log"
+    }
+  ],
+  "ownRustIntegrationTests": 9,
+  "ownAndLegacyCompatibilityRustPassed": 56,
+  "ignoredPerformance": 2,
+  "ownAdmissionAndCoverageTests": [
+    109
+  ],
+  "ruleBranchCoverage": {
+    "count": 16,
+    "covered": 16,
+    "notcovered": 0,
+    "percent": 100
+  },
+  "actualRuleBranchPercent": 100,
+  "databaseExecution": false,
+  "formalAccepted": false,
+  "production": false,
+  "externalPublished": false,
+  "finalFrozenClosure": "NOT_RUN_BEFORE_FREEZE",
+  "preservedFailures": [
+    "attempt-01/rust.log",
+    "attempt-01/plans-01.log",
+    "attempt-01/policy-01.log"
+  ],
+  "previousCompletePreflight": "attempt-02",
+  "lastCompletePreflight": "attempt-03",
+  "stagedSecretsScan": "PASS_REDACTED_GITLEAKS_8.28.0"
+}

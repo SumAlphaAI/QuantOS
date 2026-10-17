@@ -35,3 +35,15 @@ test('nested X01 assessment retains the full S2 prefix before its four own group
  [rows[124],rows[127]]=[rows[127],rows[124]];flush();assert.throws(()=>buildEvidence(path,f.source,options));
  [rows[124],rows[127]]=[rows[127],rows[124]];rows.push({id:'unregistered'});flush();assert.throws(()=>buildEvidence(path,f.source,options));
 });
+
+test('nested X02 assessment retains the full S2 prefix before its four own groups',()=>{
+ const f=fixture(),old=f.path.slice(0,f.path.lastIndexOf('/')),base=old.replace('s2-service-local','x02-local'),path=base+'/execution-results.json';
+ const files=new Map([...f.files].map(([key,value])=>[key.replace(old,base),value]));
+ const rows=f.rows.map(row=>({...row,log:row.log.replace(old,base),...(row.artifact?{artifact:row.artifact.replace(old,base)}:{})}));
+ const options={...f.options,readBytes:p=>files.get(p)},flush=()=>files.set(path,Buffer.from(JSON.stringify(rows)));flush();
+ const before=buildEvidence(path,f.source,options);
+ const own=[...f.options.p.nodes['CORE-GATE:S2-SERVICE'].checks,...f.options.p.nodes['CORE:X01'].checks.filter(id=>!f.options.p.checks[id].database),...f.options.p.nodes['CORE:X02'].checks.filter(id=>!f.options.p.checks[id].target)];
+ rows.push(...own.map(id=>({id})));flush();assert.deepEqual(buildEvidence(path,f.source,options),before);
+ [rows[124],rows[127]]=[rows[127],rows[124]];flush();assert.throws(()=>buildEvidence(path,f.source,options));
+ [rows[124],rows[127]]=[rows[127],rows[124]];rows.push({id:'unregistered'});flush();assert.throws(()=>buildEvidence(path,f.source,options));
+});

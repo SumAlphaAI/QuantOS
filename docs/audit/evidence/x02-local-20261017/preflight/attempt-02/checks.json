@@ -1,0 +1,176 @@
+{
+  "schema": "quantos-x02-prefreeze-preflight/v1",
+  "scope": "PREFLIGHT_ONLY_UNCOMMITTED_WORKTREE_NOT_FROZEN_ADMISSION",
+  "databaseExecution": false,
+  "formalAccepted": false,
+  "production": false,
+  "checks": [
+    {
+      "id": "compile",
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "--all-targets"
+      ],
+      "startedAt": "2026-10-17T01:02:19.946Z",
+      "elapsedMs": 34849,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "compile.log"
+    },
+    {
+      "id": "own",
+      "command": [
+        "make",
+        "x02-check"
+      ],
+      "startedAt": "2026-10-17T01:02:54.796Z",
+      "elapsedMs": 3000,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "own.log"
+    },
+    {
+      "id": "shared",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/s2-service-evidence.test.mjs",
+        "scripts/s2-service-local-gate.test.mjs",
+        "scripts/x01-local-gate.test.mjs",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "startedAt": "2026-10-17T01:02:57.796Z",
+      "elapsedMs": 1512,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "shared.log"
+    },
+    {
+      "id": "coverage",
+      "command": [
+        "node",
+        "scripts/x02-coverage.mjs",
+        "docs/audit/evidence/x02-local-20261017/preflight/attempt-02/coverage/receipt.json"
+      ],
+      "startedAt": "2026-10-17T01:02:59.308Z",
+      "elapsedMs": 3024,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "coverage.log"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-17T01:03:02.332Z",
+      "elapsedMs": 51,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "plans.log"
+    },
+    {
+      "id": "core-handoff",
+      "command": [
+        "node",
+        "scripts/check-development-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T01:03:02.383Z",
+      "elapsedMs": 23,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "core-handoff.log"
+    },
+    {
+      "id": "frontend-handoff",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T01:03:02.407Z",
+      "elapsedMs": 33,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "frontend-handoff.log"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "-p",
+        "quantos-strategy",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "startedAt": "2026-10-17T01:03:02.440Z",
+      "elapsedMs": 225,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "clippy.log"
+    },
+    {
+      "id": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "startedAt": "2026-10-17T01:03:02.665Z",
+      "elapsedMs": 495,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "format.log"
+    },
+    {
+      "id": "source-doc-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        ":!docs/audit/evidence/**"
+      ],
+      "startedAt": "2026-10-17T01:03:03.160Z",
+      "elapsedMs": 28,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "source-doc-diff.log"
+    }
+  ]
+}

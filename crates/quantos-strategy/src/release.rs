@@ -126,6 +126,16 @@ pub struct StrategyRelease {
 }
 
 impl StrategyRelease {
+    /// Exact upper bound for downstream risk decisions. Evidence and approval
+    /// must both still be valid; this does not grant deployment authority.
+    pub fn authorization_expires_at(&self) -> Option<DateTime<Utc>> {
+        Some(
+            self.validation
+                .as_ref()?
+                .valid_until
+                .min(self.approval.as_ref()?.expires_at),
+        )
+    }
     pub fn parameters(&self) -> Option<&serde_json::Value> {
         self.validation
             .as_ref()

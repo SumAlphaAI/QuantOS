@@ -1,0 +1,23 @@
+    Blocking waiting for file lock on build directory
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling tonic v0.12.3
+   Compiling quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+error[E0616]: field `report` of struct `ValidatedBacktest` is private
+  --> crates/quantos-risk/tests/x02_guard.rs:27:25
+   |
+27 |         let now = proof.report.generated_at + Duration::seconds(10);
+   |                         ^^^^^^ private field
+   |
+help: a method `report` also exists, call it with parentheses
+   |
+27 |         let now = proof.report().generated_at + Duration::seconds(10);
+   |                               ++
+
+For more information about this error, try `rustc --explain E0616`.
+error: could not compile `quantos-risk` (test "x02_guard") due to 1 previous error

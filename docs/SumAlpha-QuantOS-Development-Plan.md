@@ -1,4 +1,4 @@
-> 当前执行（CORE:X01，2026-10-17）：冻结e2b85a80完整40节点131组全部PASS，127依赖先于自身4组；三次独立构建及make lint/test通过，仅X01_LOCAL限定DEVELOPMENT READY，上游独立READY不传播。先行149ce0a4新候选39/127前置复验及失败/中断历史均保留，不拼接。23组目标NOT_RUN，正式确认PENDING，未连接数据库或外部发布。见[本轮报告](./audit/X01-local-admission-2026-10-17.md)。
+> 当前执行（CORE:X02，2026-10-17）：实现与预检进行中，最终冻结候选须完整41节点/135组本地复验，131依赖先于自身4组，不拼接历史READY；X01旧独立READY因共享输入变化撤回，历史证据保留。目标/正式验收/发布未放行。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -713,6 +713,18 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "CORE:F05",
         "CORE:R01",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:X02": {
+      "profile": "X02_LOCAL",
+      "schema": "quantos-x02-local-development/v1",
+      "manifest": "audit/evidence/x02-local-20261017/manifest.json",
+      "prerequisites": [
+        "CORE:X01",
+        "CORE:S03",
+        "CORE:F06",
         "CORE-GATE:S2-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -1794,7 +1806,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `X01`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ed645cb4804419c94c163f2e46ffbb5e76a5515b2da947f0e2eaeb4f3e18d516","evidence":["audit/evidence/x01-local-20261016/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1808,7 +1820,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 阶段执行：本地开发验证1万订单/成交黄金回放、Position/P&L一致和重建正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：F05、R01
-- 当前工程复核：2026-10-17冻结e2b85a80完整40节点131组PASS；1万合成成交黄金回放、10次冷重建、原子拒绝/重试、逐symbol时效与账户绑定、F05/R01组合及CLI验证通过。仅X01_LOCAL DEVELOPMENT READY，开发实现完成待正式验收；Supabase/性能及23组目标NOT_RUN。见[本轮报告](./audit/X01-local-admission-2026-10-17.md)，首轮失败与中断保留。
+- 当前工程复核：历史2026-10-17冻结e2b85a80完整40节点131组PASS；1万合成成交黄金回放、10次冷重建、原子拒绝/重试、逐symbol时效与账户绑定、F05/R01组合及CLI验证通过。仅X01_LOCAL DEVELOPMENT READY，开发实现完成待正式验收；Supabase/性能及23组目标NOT_RUN。见[本轮报告](./audit/X01-local-admission-2026-10-17.md)，首轮失败与中断保留。X02共享输入变化后本X01独立READY撤回，当前NOT_ASSESSED；原验收记录保留，X02需完整重跑。
 
 <a id="task-x02"></a>
 ### X02：Pre/Post-trade Risk 与 kill switch
@@ -1820,11 +1832,11 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - depends_on: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `X3-SERVICE`
 - 需求描述：Pre/Post-trade Risk 与 kill switch
-- 技术要求：规则：策略发布、数据时效、账户、精度、名义、杠杆、集中度、venue 健康、重复、审批；global/account kill switch
+- 技术要求：X02_LOCAL仅在新冻结候选完整41节点/135组重跑后放行本地功能，131依赖先于4组自身；拒绝历史READY拼接。规则：策略发布、数据时效、账户、精度、名义、杠杆、集中度、venue 健康、重复、审批；global/account kill switch
 - 交付物：`quantos-risk`、rule fixtures、kill switch API
 - 量化验收标准：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名
 - 阶段执行：本地开发验证三类各50规则fixture、95%分支覆盖、kill switch立即拒绝及命中规则证据；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名；未执行保持NOT_RUN。
@@ -2501,3 +2513,5 @@ Paper + Shadow Beta 的统一检查点为前端计划的 [RELEASE-GATE:BETA](./S
   }
 }
 ```
+
+X02_LOCAL 发布移交：继承X01、S03、F06及S2全部目标义务；真实F06身份、账户财务/日界线/报价单位/venue来源、密钥托管和轮换、持久及跨进程global/account kill switch与幂等、X03原子签发和审批消费、实际BFF/Runtime、目标kill switch拒绝P95<1s、安全/负载/长稳及同SHA hosted CI由测试及RELEASE-GATE:BETA首次发布前实际验收，未执行NOT_RUN。本地DEVELOPMENT READY仅属于X02，不授予交易、上游运行时、正式ACCEPTED、生产或外部发布授权。

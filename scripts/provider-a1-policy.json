@@ -2278,6 +2278,66 @@
       ],
       "database": true,
       "timeoutMs": 1800000
+    },
+    "x02-rust": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "--test",
+        "x02_guard"
+      ],
+      "marker": "test result: ok.",
+      "timeoutMs": 900000
+    },
+    "x02-compat": {
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "-p",
+        "quantos-execution",
+        "-p",
+        "quantos-evidence",
+        "--lib"
+      ],
+      "marker": "test result: ok.",
+      "timeoutMs": 900000
+    },
+    "x02-coverage": {
+      "command": [
+        "node",
+        "scripts/x02-coverage.mjs"
+      ],
+      "output": "supporting/x02-coverage/receipt.json",
+      "artifact": "supporting/x02-coverage/receipt.json",
+      "artifactKind": "x02-coverage",
+      "marker": "X02_RULE_BRANCH_COVERAGE_PASS",
+      "timeoutMs": 1800000
+    },
+    "x02-local-policy": {
+      "command": [
+        "node",
+        "--test",
+        "scripts/x02-local-gate.test.mjs",
+        "scripts/x02-coverage.test.mjs"
+      ],
+      "marker": "fail 0",
+      "timeoutMs": 180000
+    },
+    "x02-target": {
+      "command": [
+        "node",
+        "scripts/x02-target-check.mjs"
+      ],
+      "target": true,
+      "timeoutMs": 1800000
     }
   },
   "nodes": {
@@ -3101,7 +3161,7 @@
       ]
     },
     "CORE:TP01-E": {
-      "scope": "Local synthetic S0–S3 candidate grading, API/license/CVE/patch conflict classification, strict blocking with preserved decisions/issues/raw failure evidence and monitor/strict-gate semantics. No upstream fetch, online CVE refresh, candidate adoption, remote workflow or target/performance acceptance.",
+      "scope": "Local synthetic S0\u2013S3 candidate grading, API/license/CVE/patch conflict classification, strict blocking with preserved decisions/issues/raw failure evidence and monitor/strict-gate semantics. No upstream fetch, online CVE refresh, candidate adoption, remote workflow or target/performance acceptance.",
       "inputs": [
         "scripts/sync-vibe.mjs",
         "scripts/sync-vibe-lib.mjs",
@@ -3337,6 +3397,24 @@
         "x01-schema",
         "x01-local-policy",
         "x01-target"
+      ]
+    },
+    "CORE:X02": {
+      "scope": "Scoped pre/post risk, bound HMAC decisions/approvals, process-local kill switch API; distributed persistence, actual authorization, issuer, target/performance separate",
+      "inputs": [
+        "crates/quantos-risk/",
+        "crates/quantos-strategy/src/release.rs",
+        "scripts/x02-*",
+        "scripts/record-x02-local.mjs",
+        "docs/operations/x02-local-admission.md",
+        "docs/adr/20261017-x02-risk-guard.md"
+      ],
+      "checks": [
+        "x02-rust",
+        "x02-compat",
+        "x02-coverage",
+        "x02-local-policy",
+        "x02-target"
       ]
     }
   },
@@ -4058,6 +4136,41 @@
     "profile": "X01_LOCAL",
     "roots": [
       "CORE:X01"
+    ],
+    "deferredChecks": [
+      "tp01-baseline",
+      "f02-sca"
+    ],
+    "nodeChecks": {
+      "CORE:TP01-A": [
+        "tp01-local-baseline"
+      ],
+      "CORE:F07": [
+        "r03-f07-runtime",
+        "r03-f07-gateway"
+      ],
+      "CORE:TP01-C": [
+        "tp01-c-local-policy",
+        "tp01-c-process-cleanup"
+      ],
+      "CORE:TP01-D": [
+        "tp01-d-local-policy"
+      ],
+      "CORE-GATE:F0": [
+        "local-gate-policy"
+      ]
+    },
+    "releaseCheckpoint": "RELEASE-GATE:BETA",
+    "releaseChecks": [
+      "research-release-performance-smokes",
+      "frontend-release-performance"
+    ]
+  },
+  "x02Local": {
+    "owner": "CORE:X02",
+    "profile": "X02_LOCAL",
+    "roots": [
+      "CORE:X02"
     ],
     "deferredChecks": [
       "tp01-baseline",

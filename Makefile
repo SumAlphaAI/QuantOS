@@ -773,3 +773,15 @@ x01-release-check:
 x01-target-check:
 	@test -n "$$DATABASE_URL" || (echo "configured Supabase DATABASE_URL required" >&2; exit 1)
 	QUANTOS_RUN_X01_POSTGRES_TESTS=1 cargo test --locked -p quantos-portfolio --test postgres_x01 -- --ignored --test-threads=1 --nocapture
+
+.PHONY: x02-check x02-assess-local x02-local-check x02-release-check
+x02-check:
+	cargo test --locked --offline -p quantos-risk --test x02_guard
+	cargo test --locked --offline -p quantos-risk -p quantos-execution -p quantos-evidence --lib
+	node --test scripts/x02-local-gate.test.mjs scripts/x02-coverage.test.mjs
+x02-assess-local:
+	node scripts/record-x02-local.mjs
+x02-local-check:
+	node scripts/x02-local-gate.mjs --ready
+x02-release-check:
+	node scripts/x02-local-gate.mjs --release
