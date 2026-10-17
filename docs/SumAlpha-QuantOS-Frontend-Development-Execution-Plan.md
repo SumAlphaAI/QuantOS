@@ -1,4 +1,4 @@
-> 当前执行（CORE:X05，2026-10-17）：正在实现Shadow、订单/成交/仓位/虚拟账本对账和20类异常闭环；按当前功能及直接影响范围测试，不递归全依赖。真实行情、10个实际交易日、完整联调与发布独立NOT_RUN。
+> 当前执行（CORE:X05，2026-10-17）：源码4f527da8的15组当前功能/直接影响检查全部PASS；四域对账、20类定位、无venue submit边界、CAS/复验关闭与journal恢复通过。仅X05_LOCAL功能DEVELOPMENT READY；真实10交易日/28组目标/完整联调与发布NOT_RUN、正式确认PENDING。未做无关全闭包，见[本轮报告](./audit/X05-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 

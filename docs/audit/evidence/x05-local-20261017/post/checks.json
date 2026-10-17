@@ -1,0 +1,132 @@
+[
+  {
+    "id": "x05-current-function-gate",
+    "command": [
+      "node",
+      "scripts/x05-local-gate.mjs",
+      "--ready"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "startedAt": "2026-10-17T12:49:05.420343+00:00",
+    "completedAt": "2026-10-17T12:49:05.932072+00:00",
+    "log": "docs/audit/evidence/x05-local-20261017/post/x05-current-function-gate.log",
+    "logSha256": "sha256:999724af7dc1cd64feeb8b0673453309abd25325432bf803edc7a308bafe6c10",
+    "scope": "METADATA_AND_REFUSAL_ONLY_NO_FUNCTION_RERUN"
+  },
+  {
+    "id": "plan-structure",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "startedAt": "2026-10-17T12:49:05.932113+00:00",
+    "completedAt": "2026-10-17T12:49:05.983728+00:00",
+    "log": "docs/audit/evidence/x05-local-20261017/post/plan-structure.log",
+    "logSha256": "sha256:d49c0da9185a8edae8c18a9c9d0b9ea2c955b582c460c73d181cbb328a487d43",
+    "scope": "METADATA_AND_REFUSAL_ONLY_NO_FUNCTION_RERUN"
+  },
+  {
+    "id": "core-handoff",
+    "command": [
+      "node",
+      "scripts/check-development-gate-handoff.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "startedAt": "2026-10-17T12:49:05.983761+00:00",
+    "completedAt": "2026-10-17T12:49:06.006643+00:00",
+    "log": "docs/audit/evidence/x05-local-20261017/post/core-handoff.log",
+    "logSha256": "sha256:1268842f49fe6416839b7200fa561c669a867b5217251861caf396f12312f100",
+    "scope": "METADATA_AND_REFUSAL_ONLY_NO_FUNCTION_RERUN"
+  },
+  {
+    "id": "frontend-handoff",
+    "command": [
+      "node",
+      "scripts/check-frontend-gate-handoff.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "startedAt": "2026-10-17T12:49:06.006668+00:00",
+    "completedAt": "2026-10-17T12:49:06.038523+00:00",
+    "log": "docs/audit/evidence/x05-local-20261017/post/frontend-handoff.log",
+    "logSha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af",
+    "scope": "METADATA_AND_REFUSAL_ONLY_NO_FUNCTION_RERUN"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/x05-local-gate.mjs",
+      "--release"
+    ],
+    "expectedExitCode": 2,
+    "exitCode": 2,
+    "status": "EXPECTED_REFUSAL",
+    "startedAt": "2026-10-17T12:49:06.038554+00:00",
+    "completedAt": "2026-10-17T12:49:06.162309+00:00",
+    "log": "docs/audit/evidence/x05-local-20261017/post/release-refusal.log",
+    "logSha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049",
+    "scope": "METADATA_AND_REFUSAL_ONLY_NO_FUNCTION_RERUN"
+  },
+  {
+    "id": "target-refusal",
+    "command": [
+      "node",
+      "scripts/x05-target-check.mjs"
+    ],
+    "expectedExitCode": 2,
+    "exitCode": 2,
+    "status": "EXPECTED_REFUSAL",
+    "startedAt": "2026-10-17T12:49:06.162333+00:00",
+    "completedAt": "2026-10-17T12:49:06.183172+00:00",
+    "log": "docs/audit/evidence/x05-local-20261017/post/target-refusal.log",
+    "logSha256": "sha256:8f31ff9a9b4e5fdd95ec715513b1829ca1fcc641f3636d7c2ff1b07d5b6c8a83",
+    "scope": "METADATA_AND_REFUSAL_ONLY_NO_FUNCTION_RERUN"
+  },
+  {
+    "id": "diff-whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "startedAt": "2026-10-17T12:49:06.183196+00:00",
+    "completedAt": "2026-10-17T12:49:06.250569+00:00",
+    "log": "docs/audit/evidence/x05-local-20261017/post/diff-whitespace.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "METADATA_AND_REFUSAL_ONLY_NO_FUNCTION_RERUN"
+  },
+  {
+    "id": "incremental-staged-gitleaks",
+    "command": [
+      "artifacts/tools/gitleaks",
+      "git",
+      "--staged",
+      "--config",
+      ".gitleaks.toml",
+      "--gitleaks-ignore-path",
+      ".gitleaksignore",
+      "--redact",
+      "--no-banner"
+    ],
+    "version": "8.28.0",
+    "status": "PASS",
+    "exitCode": 0,
+    "log": "docs/audit/evidence/x05-local-20261017/post/evidence-gitleaks.log",
+    "logSha256": "sha256:5a8a5b64e4047fd0b83e12edbaea866e0729740af8f5799d6188eac663ec9726",
+    "report": "docs/audit/evidence/x05-local-20261017/post/evidence-gitleaks.json",
+    "reportSha256": "sha256:37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "scope": "Staged evidence/docs delta before adding scan attestation and final file index; source delta separately scanned before source commit. No full-history scan."
+  }
+]

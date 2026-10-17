@@ -1,4 +1,4 @@
-> 当前执行（CORE:X05，2026-10-17）：正在实现Shadow、订单/成交/仓位/虚拟账本对账和20类异常闭环；按当前功能及直接影响范围测试，不递归全依赖。真实行情、10个实际交易日、完整联调与发布独立NOT_RUN。
+> 当前执行（CORE:X05，2026-10-17）：源码4f527da8的15组当前功能/直接影响检查全部PASS；四域对账、20类定位、无venue submit边界、CAS/复验关闭与journal恢复通过。仅X05_LOCAL功能DEVELOPMENT READY；真实10交易日/28组目标/完整联调与发布NOT_RUN、正式确认PENDING。未做无关全闭包，见[本轮报告](./audit/X05-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1999,7 +1999,7 @@ X05更新：X04运行时代码未改，因共享Cargo.lock/Makefile与门禁契�
 - task_id: `X05`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f51130a2afe4c33a343f7130bb61d154299a8fd34ecb65b39a1005bd3801a811","evidence":["audit/evidence/x05-local-20261017/manifest.json"]}
 - depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -2013,7 +2013,7 @@ X05更新：X04运行时代码未改，因共享Cargo.lock/Makefile与门禁契�
 - 阶段执行：本地开发验证受控时间下20类差异定位、对账/告警机制及禁止venue submit；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01–X04
-- 当前工程复核：正在完成当前X05功能及15组直接影响检查；Shadow无执行路径、Decimal虚拟账本、20类差异/来源定位及CAS/复验关闭和journal恢复均有本轮用例。完整联调、真实持续窗口与发布目标NOT_RUN，正式确认PENDING。见[X05本轮报告](./audit/X05-local-admission-2026-10-17.md)。[历史复审](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x05)保留原记录。
+- 当前工程复核：2026-10-17，源码4f527da8的15组当前功能/直接影响检查全部PASS；Rust24 PASS/Node125 PASS，20类受控差异和原生worker定位、无submit接口/源码边界、Decimal账本/四域对账、CAS及复验关闭/reopen/anchor恢复通过。X05_LOCAL功能DEVELOPMENT READY，完整联调/真实10交易日/28目标及发布NOT_RUN、正式确认PENDING；失败和历史保留，不复验无关全闭包。见[X05本轮报告](./audit/X05-local-admission-2026-10-17.md)。[历史复审](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x05)保留原记录。
 
 <a id="acceptance-service-x06"></a>
 ### SERVICE:X06：验收检查点
