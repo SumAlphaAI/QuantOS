@@ -1,4 +1,4 @@
-> 当前执行（CORE:X02，2026-10-17）：实现与预检进行中，最终冻结候选须完整41节点/135组本地复验，131依赖先于自身4组，不拼接历史READY；X01旧独立READY因共享输入变化撤回，历史证据保留。目标/正式验收/发布未放行。
+> 当前执行（CORE:X02，2026-10-17）：冻结c6b41301完整复验失败；F02全历史秘密扫描命中Codex生成的公开扫描状态枚举，已脱敏核实并登记单一历史指纹误报，不放宽扫描范围。全部失败与canonical恢复保留，X02仍BLOCKED；修正后须新候选完整41节点135组重跑，不拼接本轮通过组。目标/正式/发布未放行。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
