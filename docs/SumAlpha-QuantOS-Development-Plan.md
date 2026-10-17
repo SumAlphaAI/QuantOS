@@ -1,4 +1,4 @@
-> 当前执行（CORE:X02，2026-10-17）：冻结c6b41301完整复验失败；F02全历史秘密扫描命中Codex生成的公开扫描状态枚举，已脱敏核实并登记单一历史指纹误报，不放宽扫描范围。全部失败与canonical恢复保留，X02仍BLOCKED；修正后须新候选完整41节点135组重跑，不拼接本轮通过组。目标/正式/发布未放行。
+> 当前执行（CORE:X02，2026-10-17）：冻结5717f7a2完整41节点135组全部PASS，131依赖先于自身4组；三次可复现构建及make lint/test通过，rules.rs实际LLVM分支覆盖16/16，仅X02_LOCAL限定DEVELOPMENT READY。X01旧独立准入撤回、历史与预检失败保留，不拼接历史READY。24组目标NOT_RUN，正式确认PENDING，未使用生产凭据/连接目标/外部发布。见[本轮报告](./audit/X02-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1828,7 +1828,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `X02`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage": "DEVELOPMENT", "status": "BLOCKED", "input_digest": "sha256:e386bccabc156e2710729d97570594d748db9da5a1056ac3d2a142e160c20ce7", "evidence": ["audit/evidence/provider-a1-remediation-20261004/x02-local-20261017/attempt-01/failure.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c8b93616932d6b72a1d3a6861e32b794d69b80e1e00db61ba635ddd48c2d4c62","evidence":["audit/evidence/x02-local-20261017/manifest.json"]}
 - depends_on: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:X01", "CORE:S03", "CORE:F06", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1842,7 +1842,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 阶段执行：本地开发验证三类各50规则fixture、95%分支覆盖、kill switch立即拒绝及命中规则证据；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：allow/deny/approval-required 各 ≥50 个 fixture；规则分支覆盖 ≥95%；kill switch 到新命令拒绝 P95 <1s；拒绝结果含命中规则/限额/签名；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01、S03、F06
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x02)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：2026-10-17冻结5717f7a2完整41节点135组PASS；9个集成/API用例覆盖三类各≥50fixture、签名/审批绑定、共享kill/CAS/并发重复与时效；rules.rs实际LLVM分支16/16。仅X02_LOCAL DEVELOPMENT READY，正式确认PENDING；24组目标及P95/持久/分布式/X03签发集成NOT_RUN。见[本轮报告](./audit/X02-local-admission-2026-10-17.md)。
 
 <a id="task-x03"></a>
 ### X03：TradeCommand 签发与审批状态机

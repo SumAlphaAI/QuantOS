@@ -1,0 +1,408 @@
+{
+  "schema": "quantos-x02-local-admission-summary/v1",
+  "date": "2026-10-17",
+  "nodeId": "CORE:X02",
+  "profile": "X02_LOCAL",
+  "status": "DEVELOPMENT_READY",
+  "engineeringStatus": "PASS",
+  "baselineCommit": "9ce98f60f9fffbeee09afe60e9fb16136120c966",
+  "implementationCommit": "c6b41301ebb4efa3df2e41718db1230260b76f0a",
+  "sourceCommit": "5717f7a2b002ec65f9ebc0429364d565e86d1ec1",
+  "finalAttempt": "docs/audit/evidence/provider-a1-remediation-20261004/x02-local-20261017/attempt-02",
+  "nodes": 41,
+  "groups": 135,
+  "dependencyNodes": 40,
+  "dependencyGroups": 131,
+  "ownGroups": 4,
+  "workspaceTests": {
+    "rustPassed": 433,
+    "rustIgnored": 13,
+    "pythonPassed": 1856,
+    "webPassed": 233,
+    "webSkipped": 3
+  },
+  "ownRustIntegrationTests": 9,
+  "primaryFixtureMinimums": {
+    "allow": 50,
+    "deny": 60,
+    "approvalRequired": 50
+  },
+  "ruleOutcomes": {
+    "covered": 30,
+    "total": 30
+  },
+  "llvmRuleBranches": {
+    "count": 16,
+    "covered": 16,
+    "notcovered": 0,
+    "percent": 100
+  },
+  "llvmRuleBranchPercent": 100,
+  "llvmMetric": "LLVM_INSTRUMENTED_BRANCHES_RULES_RS",
+  "coverageArtifact": "docs/audit/evidence/provider-a1-remediation-20261004/x02-local-20261017/attempt-02/supporting/x02-coverage/receipt.json",
+  "compatibilityRustPassed": 47,
+  "ignoredCompatibilityPerformance": 2,
+  "ownAdmissionAndCoverageTests": [
+    109
+  ],
+  "canonicalFilesRestored": 637,
+  "canonicalDirectoriesRestored": 15,
+  "targetCheckGroups": 24,
+  "release": {
+    "checkpoint": "RELEASE-GATE:BETA",
+    "status": "NOT_RUN",
+    "handoff": "X02_LOCAL 发布移交：继承X01、S03、F06及S2全部目标义务；真实F06身份、账户财务/日界线/报价单位/venue来源、密钥托管和轮换、持久及跨进程global/account kill switch与幂等、X03原子签发和审批消费、实际BFF/Runtime、目标kill switch拒绝P95<1s、安全/负载/长稳及同SHA hosted CI由测试及RELEASE-GATE:BETA首次发布前实际验收，未执行NOT_RUN。本地DEVELOPMENT READY仅属于X02，不授予交易、上游运行时、正式ACCEPTED、生产或外部发布授权。",
+    "prerequisiteChecks": [
+      {
+        "id": "f05-database",
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "--locked",
+          "--offline",
+          "--",
+          "--test-threads=1",
+          "--skip",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--skip",
+          "postgres_connection_failures_are_closed_for_plain_and_tls_clients",
+          "--skip",
+          "postgres_tls_root_configuration_fails_closed"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f05-volume",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-event",
+          "--test",
+          "postgres_persistence",
+          "postgres_ten_thousand_event_chain_is_lossless_and_eventually_consistent",
+          "--",
+          "--exact",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-database",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "postgres_persistence",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "storage-target",
+        "command": [
+          "cargo",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "quantos-storage",
+          "--test",
+          "supabase_storage_integration",
+          "--",
+          "--test-threads=1"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "rls-target",
+        "command": [
+          "node",
+          "scripts/db-cli.cjs",
+          "live-rls"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-sca",
+        "command": [
+          "make",
+          "sca-check"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f02-database",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--database"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f06-target",
+        "command": [
+          "node",
+          "scripts/run-p0-f06-target.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-recovery",
+        "command": [
+          "make",
+          "f07-recovery-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-coverage",
+        "command": [
+          "make",
+          "f07-coverage-diagnostic"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f07-service",
+        "command": [
+          "make",
+          "f07-target-service-acceptance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "f09-target",
+        "command": [
+          "node",
+          "scripts/f09-target-gate.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp01-baseline",
+        "command": [
+          "node",
+          "scripts/f0-development-checks.mjs",
+          "--repository"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r01-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R01"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r02-target",
+        "command": [
+          "node",
+          "scripts/r1-target-assessment.mjs",
+          "CORE:R02"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp09-development",
+        "command": [
+          "node",
+          "third_party/trendradar/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp10-development",
+        "command": [
+          "node",
+          "third_party/valuecell/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "tp11-development",
+        "command": [
+          "node",
+          "third_party/openstock/check-development.mjs",
+          "--record"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r03-release-target",
+        "command": [
+          "node",
+          "scripts/r03-target-check.cjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "r04-release-target",
+        "command": [
+          "node",
+          "scripts/r04-stage-check.mjs",
+          "--release"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "x01-target",
+        "command": [
+          "make",
+          "x01-target-check"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "x02-target",
+        "command": [
+          "node",
+          "scripts/x02-target-check.mjs"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "research-release-performance-smokes",
+        "command": [
+          "make",
+          "research-release-performance-smokes"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      },
+      {
+        "id": "frontend-release-performance",
+        "command": [
+          "make",
+          "frontend-release-performance"
+        ],
+        "status": "NOT_RUN",
+        "checkpoint": "RELEASE-GATE:BETA"
+      }
+    ],
+    "functionalTargets": [
+      {
+        "id": "x02-durable-authority",
+        "target": "deployed F06 identity, trusted financial/day/quote and venue sources, key custody/rotation, durable tenant-wide kill state/duplicate reservations and distributed atomic issuer integration",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "x02-integration-performance",
+        "target": "actual BFF/Runtime/issuer/approval consumption, restart and cross-process kill propagation, representative P95 <1s, security/load/soak and same-SHA hosted CI",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "x02-inherited-release",
+        "target": "all X01/S03/F06/S2 target, Supabase/RLS, source/legal/supply-chain and formal ProjectUser obligations",
+        "status": "NOT_RUN"
+      }
+    ]
+  },
+  "confirmationDraft": "docs/audit/evidence/x02-local-20261017/confirmation-draft.md",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "production": false,
+  "externalExecution": false,
+  "externalPublished": false,
+  "pushed": false,
+  "preservedFailedAttempt": "docs/audit/evidence/provider-a1-remediation-20261004/x02-local-20261017/attempt-01",
+  "publicStatusReview": "docs/audit/evidence/x02-local-20261017/scan-status-review/review.json",
+  "nextExecutableTask": "CORE:X03",
+  "unresolved": [
+    "process-local kill/dedup/receipts and restart/distributed consistency",
+    "trusted deployed F06/financial UTC day/quote/venue/clock/source authority and key custody/rotation",
+    "X03 atomic current-risk/approval/issuer integration",
+    "f64 single quote and conservative gross projection",
+    "retention/capacity, target P95<1s/security/load/soak and same-SHA CI",
+    "inherited Supabase/legal/CVE/formal target obligations NOT_RUN"
+  ],
+  "postChecks": {
+    "local-ready": {
+      "status": "PASS",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    "release-refusal": {
+      "status": "PASS",
+      "exitCode": 2,
+      "expectedExitCode": 2
+    },
+    "plans": {
+      "status": "PASS",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    "core-handoff": {
+      "status": "PASS",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    "frontend-handoff": {
+      "status": "PASS",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    "source-doc-diff": {
+      "status": "PASS",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    "raw-diff-diagnostics": {
+      "status": "DIAGNOSTIC_ONLY",
+      "exitCode": 2,
+      "expectedExitCode": null
+    },
+    "gitleaks-version": {
+      "status": "PASS",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    },
+    "staged-secrets": {
+      "status": "PASS",
+      "exitCode": 0,
+      "expectedExitCode": 0
+    }
+  },
+  "rawWhitespaceDiagnostics": 152,
+  "rawDiagnosticsConfinedToAuditEvidence": true,
+  "temporaryAwakeAssertionReleased": true
+}

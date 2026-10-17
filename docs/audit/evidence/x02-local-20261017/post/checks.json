@@ -1,0 +1,162 @@
+{
+  "schema": "quantos-x02-post-checks/v1",
+  "scope": "LOCAL_ENGINEERING_ONLY",
+  "sourceCommit": "5717f7a2b002ec65f9ebc0429364d565e86d1ec1",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "externalPublished": false,
+  "checks": [
+    {
+      "id": "local-ready",
+      "command": [
+        "node",
+        "scripts/x02-local-gate.mjs",
+        "--ready"
+      ],
+      "startedAt": "2026-10-17T06:15:24.069Z",
+      "elapsedMs": 13846,
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "local-ready.log"
+    },
+    {
+      "id": "release-refusal",
+      "command": [
+        "node",
+        "scripts/x02-local-gate.mjs",
+        "--release"
+      ],
+      "startedAt": "2026-10-17T06:15:37.917Z",
+      "elapsedMs": 130,
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "release-refusal.log"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-17T06:15:38.047Z",
+      "elapsedMs": 51,
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "plans.log"
+    },
+    {
+      "id": "core-handoff",
+      "command": [
+        "node",
+        "scripts/check-development-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T06:15:38.098Z",
+      "elapsedMs": 23,
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "core-handoff.log"
+    },
+    {
+      "id": "frontend-handoff",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T06:15:38.121Z",
+      "elapsedMs": 34,
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "frontend-handoff.log"
+    },
+    {
+      "id": "source-doc-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "9ce98f60f9fffbeee09afe60e9fb16136120c966",
+        "--",
+        ":!docs/audit/evidence/**"
+      ],
+      "startedAt": "2026-10-17T06:15:38.155Z",
+      "elapsedMs": 36,
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "source-doc-diff.log"
+    },
+    {
+      "id": "raw-diff-diagnostics",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "9ce98f60f9fffbeee09afe60e9fb16136120c966"
+      ],
+      "startedAt": "2026-10-17T06:15:38.191Z",
+      "elapsedMs": 196,
+      "exitCode": 2,
+      "expectedExitCode": null,
+      "status": "DIAGNOSTIC_ONLY",
+      "signal": null,
+      "error": null,
+      "log": "raw-diff-diagnostics.log"
+    },
+    {
+      "id": "gitleaks-version",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "version"
+      ],
+      "startedAt": "2026-10-17T06:15:38.387Z",
+      "elapsedMs": 187,
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "gitleaks-version.log"
+    },
+    {
+      "id": "staged-secrets",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "git",
+        "--staged",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner"
+      ],
+      "startedAt": "2026-10-17T06:15:38.574Z",
+      "elapsedMs": 425,
+      "exitCode": 0,
+      "expectedExitCode": 0,
+      "status": "PASS",
+      "signal": null,
+      "error": null,
+      "log": "staged-secrets.log"
+    }
+  ],
+  "rawWhitespaceDiagnostics": 152,
+  "rawDiagnosticsConfinedToAuditEvidence": true
+}
