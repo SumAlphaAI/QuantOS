@@ -131,6 +131,17 @@ pub struct CurrentSources<'a> {
     pub release: &'a StrategyRelease,
 }
 impl AtomicCommandIssuer {
+    pub fn same_instance(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0)
+    }
+    pub fn uses_risk_guard(&self, guard: &RiskGuard) -> bool {
+        self.0.risk.same_instance(guard)
+    }
+    pub fn scope_matches(&self, tenant: TenantId, workspace: WorkspaceId) -> bool {
+        self.0.tenant == tenant
+            && self.0.workspace == workspace
+            && self.0.risk.scope_matches(tenant, workspace)
+    }
     pub fn new(
         tenant: TenantId,
         workspace: WorkspaceId,

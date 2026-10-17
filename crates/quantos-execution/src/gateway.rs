@@ -549,6 +549,14 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
             return Err(GatewayError::InvalidEvents);
         }
         self.orders.extend(orders);
+        for audit in cancels.values() {
+            if matches!(
+                audit.outcome,
+                CancelOutcome::Cancelled | CancelOutcome::Rejected
+            ) {
+                self.blocked_cancel_orders.remove(&audit.order_id);
+            }
+        }
         self.cancels.extend(cancels);
         self.seen_events.extend(seen);
         // Projection order follows append-only event order, independent of drain
@@ -1870,7 +1878,10 @@ fn apply_cancel(
         || venue_order_id != &audit.request.venue_order_id
         || order.venue_order_id.as_ref() != Some(venue_order_id)
         || cancel_id != &audit.request.cancel_id
-        || audit.outcome != CancelOutcome::Pending
+        || !matches!(
+            audit.outcome,
+            CancelOutcome::Pending | CancelOutcome::Uncertain
+        )
         || !(0..=1_000_000).contains(&latency)
         || at < order.updated_at
         || reason.is_some_and(|r| r.trim().is_empty() || r.len() > 1024)

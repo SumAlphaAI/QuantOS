@@ -1,0 +1,1 @@
+console.error('NOT_RUN: SERVICE:X06 requires separate actual identity/durability/observer/integration/release evidence; runtime admission DENIED');process.exitCode=2;

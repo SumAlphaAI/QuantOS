@@ -853,3 +853,13 @@ tp12-local-check:
 
 tp12-release-check:
 	node scripts/tp12-local-gate.mjs --release
+
+.PHONY: service-x06-check service-x06-assess-local service-x06-local-check service-x06-release-check
+service-x06-check:
+	cargo test --locked --offline -p quantos-operations
+service-x06-assess-local:
+	node scripts/record-service-x06-local.mjs
+service-x06-local-check:
+	node scripts/service-x06-local-gate.mjs --ready
+service-x06-release-check:
+	node scripts/service-x06-local-gate.mjs --release

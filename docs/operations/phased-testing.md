@@ -27,3 +27,5 @@ X05采用`make x05-assess-local`与`scripts/x05-test-scope.mjs`的15组当前功
 TP12为边界/参考评估任务，使用`make tp12-assess-local`的20组当前功能及直接影响检查：固定参考字节、7规则/6接口/8威胁、本机Agent进程与当前签发/审批/风险/净化命令/证据关闭边界；全生产图仅静态排除扫描，不调度全仓回归。TP12_LOCAL只授予本地功能READY；TP07完整联调后的TP12完整复审仍NOT_RUN，依赖为NOT_REVALIDATED/referenceOnly。受影响X05独立READY撤回，原SHA和证据保留；X05本模块不变，上游dispatch键边界按下段修复。见[TP12规程](tp12-local-admission.md)。
 
 TP12核对发现dispatch幂等键值包含tenant/workspace原文，当前修复为域分离规范元组摘要。因此直接影响范围增加为全部8项tp07_dispatch、2项X04取消/控制及1项实际自有Paper进程检查；仍不执行无关S2闭包或10万事件。
+
+SERVICE:X06 使用 `scripts/service-x06-test-scope.mjs` 明列20组当前功能及直接影响检查；覆盖固定作用域授权、证据链、职责分离、幂等/恢复、网关anchor CAS及实际Paper进程。F05/F06/F09与X01–X05仅参考，不递归重新准入；LLVM仅量测新服务模块，不运行全仓或旧10万事件/20类差异campaign。阶段和目标边界见 [SERVICE:X06规程](./service-x06.md)。

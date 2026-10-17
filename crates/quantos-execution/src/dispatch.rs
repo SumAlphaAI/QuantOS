@@ -36,6 +36,25 @@ pub struct DispatchReceipt {
     pub order: GatewayOrder,
     pub fills: Vec<GatewayFill>,
 }
+/// Authenticated, consistent read of one claimed order. Facts are a scoped
+/// subset of the global chain; the global anchor alone cannot replay that subset.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct OrderEvidence {
+    pub order: GatewayOrder,
+    pub fills: Vec<GatewayFill>,
+    pub facts: Vec<crate::oms::OrderFact>,
+    pub global_anchor: crate::oms::FactAnchor,
+}
+/// Opaque in-process lease identity, not a command/credential or a deserializable
+/// consumer id. A checkpoint cannot silently attach to a fresh execution lease.
+#[derive(Clone, PartialEq, Eq)]
+pub struct GatewayLease(CommandId);
+impl std::fmt::Debug for GatewayLease {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("GatewayLease(REDACTED)")
+    }
+}
 /// Clones share downstream dedupe and event projection. Local memory only.
 /// Lock order: downstream -> issuer -> risk -> bounded kernel I/O. Never reenter.
 pub struct SignedExecutionGateway<K: ExecutionKernel> {
@@ -53,6 +72,18 @@ impl<K: ExecutionKernel> Clone for SignedExecutionGateway<K> {
     }
 }
 impl<K: ExecutionKernel> SignedExecutionGateway<K> {
+    pub fn uses_issuer(&self, issuer: &AtomicCommandIssuer) -> bool {
+        self.issuer.same_instance(issuer)
+    }
+    pub fn checkpoint_lease(&self) -> GatewayLease {
+        GatewayLease(self.consumer)
+    }
+    pub fn fact_anchor(&self) -> Option<crate::oms::FactAnchor> {
+        self.gateway.lock().ok().map(|g| crate::oms::FactAnchor {
+            count: g.facts().len() as u64,
+            head: g.facts().last().map(|f| f.hash.clone()),
+        })
+    }
     pub fn new(
         issuer: AtomicCommandIssuer,
         limits: GatewayLimits,
@@ -77,10 +108,36 @@ impl<K: ExecutionKernel> SignedExecutionGateway<K> {
         sources: CurrentSources<'_>,
         now: DateTime<Utc>,
     ) -> Result<DispatchReceipt, DispatchError> {
+        self.submit_checked(auth, command, sources, None, now)
+    }
+    pub fn submit_at_anchor(
+        &self,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        sources: CurrentSources<'_>,
+        anchor: &crate::oms::FactAnchor,
+        now: DateTime<Utc>,
+    ) -> Result<DispatchReceipt, DispatchError> {
+        self.submit_checked(auth, command, sources, Some(anchor), now)
+    }
+    fn submit_checked(
+        &self,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        sources: CurrentSources<'_>,
+        anchor: Option<&crate::oms::FactAnchor>,
+        now: DateTime<Utc>,
+    ) -> Result<DispatchReceipt, DispatchError> {
         let mut gateway = self
             .gateway
             .lock()
             .map_err(|_| DispatchError::Unavailable)?;
+        if anchor.is_some_and(|a| {
+            a.count != gateway.facts().len() as u64
+                || a.head != gateway.facts().last().map(|f| f.hash.clone())
+        }) {
+            return Err(DispatchError::Unavailable);
+        }
         let payload = serde_json::to_value(command).map_err(|_| DispatchError::Unavailable)?;
         let bytes = canonical_json_bytes(&payload).map_err(|_| DispatchError::Unavailable)?;
         let internal = TradeCommand {
@@ -181,6 +238,89 @@ impl<K: ExecutionKernel> SignedExecutionGateway<K> {
             .lock()
             .ok()
             .map(|g| g.downstream_cancel_count())
+    }
+    pub fn inspect_order(
+        &self,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        now: DateTime<Utc>,
+    ) -> Result<OrderEvidence, DispatchError> {
+        let gateway = self
+            .gateway
+            .lock()
+            .map_err(|_| DispatchError::Unavailable)?;
+        self.issuer
+            .with_order_control(self.consumer, auth, command, now, || {
+                let id = command.command_id.to_string();
+                let order_id = gateway
+                    .facts()
+                    .iter()
+                    .find(|f| f.command_id == id)
+                    .map(|f| f.order_id.as_str())
+                    .ok_or(DispatchError::Unavailable)?;
+                let order = gateway.order(order_id);
+                let order = order.cloned().ok_or(DispatchError::Unavailable)?;
+                Ok(OrderEvidence {
+                    fills: gateway
+                        .fills()
+                        .iter()
+                        .filter(|f| f.command_id == id)
+                        .cloned()
+                        .collect(),
+                    facts: gateway
+                        .facts()
+                        .iter()
+                        .filter(|f| f.command_id == id)
+                        .cloned()
+                        .collect(),
+                    global_anchor: crate::oms::FactAnchor {
+                        count: gateway.facts().len() as u64,
+                        head: gateway.facts().last().map(|f| f.hash.clone()),
+                    },
+                    order,
+                })
+            })
+    }
+    /// Authenticated event collection only: never submits or cancels an order.
+    /// A late kernel receipt can resolve uncertainty without replaying I/O.
+    pub fn refresh_order(
+        &self,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        now: DateTime<Utc>,
+    ) -> Result<OrderEvidence, DispatchError> {
+        {
+            let mut gateway = self
+                .gateway
+                .lock()
+                .map_err(|_| DispatchError::Unavailable)?;
+            self.issuer
+                .with_order_control(self.consumer, auth, command, now, || {
+                    gateway.try_collect_events()?;
+                    Ok::<_, DispatchError>(())
+                })?;
+        }
+        self.inspect_order(auth, command, now)
+    }
+    pub fn validate_current_at_anchor(
+        &self,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        sources: CurrentSources<'_>,
+        anchor: &crate::oms::FactAnchor,
+        now: DateTime<Utc>,
+    ) -> Result<(), DispatchError> {
+        let gateway = self
+            .gateway
+            .lock()
+            .map_err(|_| DispatchError::Unavailable)?;
+        if anchor.count != gateway.facts().len() as u64
+            || anchor.head != gateway.facts().last().map(|f| f.hash.clone())
+        {
+            return Err(DispatchError::Unavailable);
+        }
+        self.issuer
+            .with_current_command(self.consumer, auth, command, sources, now, || Ok(()))
     }
     #[must_use]
     pub fn downstream_submission_count(&self) -> Option<usize> {

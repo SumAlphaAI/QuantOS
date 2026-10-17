@@ -196,6 +196,13 @@ struct Inner {
 #[derive(Clone)]
 pub struct RiskGuard(Arc<Inner>);
 impl RiskGuard {
+    /// Wiring identity only; exposes no key or mutation authority.
+    pub fn same_instance(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0)
+    }
+    pub fn scope_matches(&self, tenant: TenantId, workspace: WorkspaceId) -> bool {
+        self.0.tenant == tenant && self.0.workspace == workspace
+    }
     pub fn new(
         tenant: TenantId,
         workspace: WorkspaceId,
