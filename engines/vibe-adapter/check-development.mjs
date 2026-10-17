@@ -4,7 +4,7 @@ import {readFileSync, writeFileSync, mkdirSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {execFileSync, spawnSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
-import {digest, inventory, nodesFromPlans, planInput, validateReceipt, root} from '../../scripts/provider-a1-receipts.mjs';
+import {digest, inventory, nodesFromPlans, planInput, validateReceipt, root, executionOutcome} from '../../scripts/provider-a1-receipts.mjs';
 
 const directory = 'docs/audit/evidence/tp01-c-20261009';
 const receiptPath = directory + '/receipt.json';
@@ -31,7 +31,7 @@ export function dependencies() {
   });
 }
 export function verify(record, {checkDependencies = true, logDirectory} = {}) {
-  assert.equal(record.schema, 'quantos-tp01-c-skeleton-evidence/v1');
+  assert.equal(record.schema, 'quantos-tp01-c-skeleton-evidence/v2');
   assert.equal(record.nodeId, 'CORE:TP01-C');
   assert.equal(record.stage, 'DEVELOPMENT');
   assert.equal(record.formalAccepted, false);
@@ -51,8 +51,7 @@ export function verify(record, {checkDependencies = true, logDirectory} = {}) {
   for (const [index, result] of record.checks.entries()) {
     const spec = checks[index];
     assert.deepEqual(result.command, spec.command);
-    assert.equal(result.exitCode, 0);
-    assert.equal(result.status, 'PASS');
+    verifyExecution(result, spec.id);
     assert(Number.isFinite(Date.parse(result.executedAt)) && Date.parse(result.executedAt) <= Date.now());
     assert.equal(result.log, directory + '/' + spec.id + '.log');
     const log = readFileSync(logDirectory ? resolve(logDirectory, spec.id + '.log') : resolve(root, result.log));
@@ -78,30 +77,50 @@ function admit() {
   writeFileSync(resolve(root, receiptPath), JSON.stringify(evidence, null, 2) + '\n');
   return verify(evidence);
 }
+// Harness startup/compile limits are distinct from product performance acceptance.
+export function executionBudget(id) {
+  assert(checks.some(c => c.id === id), 'unknown check');
+  return id === 'manager' ? 600000 : 180000;
+}
+export function verifyExecution(result, id) {
+  assert.equal(result.timeoutMs, executionBudget(id), 'check budget changed');
+  assert.equal(result.exitCode, 0, 'abnormal or unsuccessful execution');
+  assert.equal(result.status, 'PASS');
+  assert.equal(result.timedOut, false, 'timeout cannot pass');
+  assert.equal(result.executionErrorCode, null, 'spawn error cannot pass');
+  assert.equal(result.signal, null, 'terminated execution cannot pass');
+  assert(Number.isFinite(result.elapsedMs) && result.elapsedMs >= 0, 'elapsed clock missing');
+}
+export function executeCheck(id, {execute = spawnSync, now = Date.now} = {}) {
+  const spec = checks.find(c => c.id === id);
+  assert(spec, 'unknown check');
+  const started = now(), timeoutMs = executionBudget(id);
+  const run = execute(spec.command[0], spec.command.slice(1), {
+    cwd: root, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 16 * 1024 * 1024,
+    // Mock suites use no database opt-in or production credentials.
+    env: Object.fromEntries(Object.entries(process.env).filter(([key]) =>
+      !/DATABASE_URL|SUPABASE|PASSWORD|TOKEN|KEY|SECRET|QUANTOS_RUN_.*TESTS|QUANTOS_TRACE_EXPORT_PATH|QUANTOS_ENGINE/.test(key))),
+  });
+  return {result: {id, command: spec.command, executedAt: new Date(started).toISOString(),
+    ...executionOutcome(run, timeoutMs), elapsedMs: now() - started},
+    output: (run.stdout ?? '') + (run.stderr ?? '')};
+}
 function record() {
   const inputs = inventory(selectors);
   const node = nodesFromPlans().get('CORE:TP01-C');
   mkdirSync(resolve(root, directory), {recursive: true});
   const results = checks.map(spec => {
-    const executedAt = new Date().toISOString();
-    const run = spawnSync(spec.command[0], spec.command.slice(1), {
-      cwd: root, encoding: 'utf8', timeout: 180000, maxBuffer: 16 * 1024 * 1024,
-      // No database opt-in or production credentials are needed by these mock suites.
-      env: Object.fromEntries(Object.entries(process.env).filter(([key]) =>
-        !/DATABASE_URL|SUPABASE|PASSWORD|TOKEN|KEY|SECRET|QUANTOS_RUN_.*TESTS|QUANTOS_TRACE_EXPORT_PATH|QUANTOS_ENGINE/.test(key))),
-    });
+    const {result, output} = executeCheck(spec.id);
     const log = directory + '/' + spec.id + '.log';
-    const output = (run.stdout ?? '') + (run.stderr ?? '');
     writeFileSync(resolve(root, log), output);
-    console.log(spec.id + ': exit ' + run.status);
-    return {id: spec.id, command: spec.command, executedAt, exitCode: run.status,
-      status: run.status === 0 ? 'PASS' : 'FAIL', log, logSha256: digest(output)};
+    console.log(spec.id + ': exit ' + result.exitCode);
+    return {...result, log, logSha256: digest(output)};
   });
   assert.deepEqual(inputs, inventory(selectors), 'source changed during checks');
   const deps = dependencies();
-  const evidence = {schema: 'quantos-tp01-c-skeleton-evidence/v1', nodeId: node.id,
+  const evidence = {schema: 'quantos-tp01-c-skeleton-evidence/v2', nodeId: node.id,
     stage: 'DEVELOPMENT', status: deps.every(d => d.status === 'READY') ? 'READY' : 'BLOCKED',
-    engineeringStatus: results.every(c => c.exitCode === 0) ? 'PASS' : 'FAIL', formalAccepted: false,
+    engineeringStatus: results.every(c => c.exitCode === 0 && c.status === 'PASS') ? 'PASS' : 'FAIL', formalAccepted: false,
     observedSourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], {cwd: root, encoding: 'utf8'}).trim(),
     environment: {node: process.version, platform: process.platform,
       python: execFileSync('engines/.venv/bin/python', ['--version'], {cwd: root, encoding: 'utf8'}).trim(),

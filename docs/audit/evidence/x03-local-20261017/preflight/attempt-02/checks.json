@@ -1,0 +1,40 @@
+{
+  "schema": "quantos-x03-prefreeze-preflight/v1",
+  "scope": "PREFLIGHT_ONLY_UNCOMMITTED_WORKTREE_NOT_FROZEN_ADMISSION",
+  "databaseExecution": false,
+  "formalAccepted": false,
+  "production": false,
+  "checks": [
+    {
+      "id": "artifact-policy",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp01-c-functional-artifacts.test.mjs",
+        "scripts/tp01-c-local-gate.test.mjs"
+      ],
+      "startedAt": "2026-10-17T09:37:00.274Z",
+      "elapsedMs": 9892,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "artifact-policy.log"
+    },
+    {
+      "id": "full-manager-proof",
+      "command": [
+        "node",
+        "/private/tmp/quantos-x03-draft/preflight-c.mjs",
+        "docs/audit/evidence/x03-local-20261017/preflight/attempt-02/tp01-c-execution"
+      ],
+      "startedAt": "2026-10-17T09:37:10.167Z",
+      "elapsedMs": 119917,
+      "exitCode": 1,
+      "signal": null,
+      "error": null,
+      "status": "FAIL",
+      "log": "full-manager-proof.log"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-> 当前执行（CORE:X03，2026-10-17）：原子签发/审批实现与新候选完整依赖复验准备中，仅本地开发；历史回执保留，目标/性能与正式确认未放行。
+> 当前执行（CORE:X03，2026-10-17）：首轮冻结e0b5a604完整复验保留FAIL，TP01-C内部manager在180秒限时处exit=null且v1遗漏退出原因；Gate BLOCKED，未拼接历史READY。补充v2诊断及有界预算后须新候选完整42/138重验，25目标NOT_RUN、正式确认PENDING。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1861,7 +1861,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `X03`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:12674d91cf089d2ca4b438f695a90cdf7f377ef937267ad639ccb844fc8ca9ec","evidence":["audit/evidence/provider-a1-remediation-20261004/x03-local-20261017/attempt-01/failure.json"]}
 - depends_on: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1875,7 +1875,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 阶段执行：本地开发验证七类拒绝、1000并发单命令、审计生成与幂等语义；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：R04、X02
-- 当前工程复核：2026-10-17实现原子当前风险校验、审批CAS/消费、幂等HMAC签发与审计，等待新候选完整42节点138组复验；不拼接历史READY，正式确认PENDING。历史[2026-10-14复核](./audit/X03-replay-fix-2026-10-14.md)保留。
+- 当前工程复核：2026-10-17首轮e0b5a604完整复验保留FAIL，TP01-C manager在180秒子预算处exit=null、原因字段缺失保持UNKNOWN；阶段BLOCKED。补齐v2完整退出诊断及600秒manager检查预算，保留全部用例和原P95目标，须新冻结候选完整42/138重验；正式确认PENDING、25目标NOT_RUN。历史[2026-10-14复核](./audit/X03-replay-fix-2026-10-14.md)保留。
 
 <a id="task-tp07"></a>
 ### TP07：NautilusTrader：研究、仿真、OMS、执行内核

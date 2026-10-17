@@ -1,0 +1,228 @@
+{
+  "schema": "quantos-x03-prefreeze-preflight/v1",
+  "scope": "PREFLIGHT_ONLY_UNCOMMITTED_WORKTREE_NOT_FROZEN_ADMISSION",
+  "databaseExecution": false,
+  "formalAccepted": false,
+  "production": false,
+  "checks": [
+    {
+      "id": "artifact-policy",
+      "command": [
+        "node",
+        "--test",
+        "scripts/tp01-c-functional-artifacts.test.mjs",
+        "scripts/tp01-c-local-gate.test.mjs"
+      ],
+      "startedAt": "2026-10-17T09:39:58.070Z",
+      "elapsedMs": 10108,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "artifact-policy.log"
+    },
+    {
+      "id": "full-manager-proof",
+      "command": [
+        "node",
+        "/private/tmp/quantos-x03-draft/preflight-c.mjs",
+        "docs/audit/evidence/x03-local-20261017/preflight/attempt-03/tp01-c-execution"
+      ],
+      "startedAt": "2026-10-17T09:40:08.179Z",
+      "elapsedMs": 164718,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "full-manager-proof.log"
+    },
+    {
+      "id": "compile",
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-execution",
+        "--all-targets"
+      ],
+      "startedAt": "2026-10-17T09:42:52.897Z",
+      "elapsedMs": 43822,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "compile.log"
+    },
+    {
+      "id": "own",
+      "command": [
+        "make",
+        "x03-check"
+      ],
+      "startedAt": "2026-10-17T09:43:36.719Z",
+      "elapsedMs": 6597,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "own.log"
+    },
+    {
+      "id": "risk-regression",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-risk",
+        "--test",
+        "x02_guard"
+      ],
+      "startedAt": "2026-10-17T09:43:43.317Z",
+      "elapsedMs": 857,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "risk-regression.log"
+    },
+    {
+      "id": "shared",
+      "command": [
+        "node",
+        "--test",
+        "scripts/provider-a1-receipts.test.mjs",
+        "scripts/s2-service-evidence.test.mjs",
+        "scripts/s2-service-local-gate.test.mjs",
+        "scripts/x01-local-gate.test.mjs",
+        "scripts/x02-local-gate.test.mjs",
+        "scripts/development-plan-order-negative.mjs"
+      ],
+      "startedAt": "2026-10-17T09:43:44.174Z",
+      "elapsedMs": 1656,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "shared.log"
+    },
+    {
+      "id": "coverage",
+      "command": [
+        "node",
+        "scripts/x02-coverage.mjs",
+        "docs/audit/evidence/x03-local-20261017/preflight/attempt-03/coverage/receipt.json"
+      ],
+      "startedAt": "2026-10-17T09:43:45.830Z",
+      "elapsedMs": 3509,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "coverage.log"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "startedAt": "2026-10-17T09:43:49.339Z",
+      "elapsedMs": 55,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "plans.log"
+    },
+    {
+      "id": "core-handoff",
+      "command": [
+        "node",
+        "scripts/check-development-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T09:43:49.394Z",
+      "elapsedMs": 23,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "core-handoff.log"
+    },
+    {
+      "id": "frontend-handoff",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "startedAt": "2026-10-17T09:43:49.417Z",
+      "elapsedMs": 34,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "frontend-handoff.log"
+    },
+    {
+      "id": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "-p",
+        "quantos-execution",
+        "-p",
+        "quantos-risk",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "startedAt": "2026-10-17T09:43:49.451Z",
+      "elapsedMs": 33248,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "clippy.log"
+    },
+    {
+      "id": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "startedAt": "2026-10-17T09:44:22.699Z",
+      "elapsedMs": 532,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "format.log"
+    },
+    {
+      "id": "source-doc-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        ":!docs/audit/evidence/**"
+      ],
+      "startedAt": "2026-10-17T09:44:23.231Z",
+      "elapsedMs": 24,
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "status": "PASS",
+      "log": "source-doc-diff.log"
+    }
+  ]
+}

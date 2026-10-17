@@ -3,7 +3,7 @@ import test from 'node:test';
 import {readFileSync, writeFileSync, mkdtempSync, cpSync, rmSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {tmpdir} from 'node:os';
-import {verify, selectors} from '../engines/vibe-adapter/check-development.mjs';
+import {verify, selectors, executionBudget, executeCheck, verifyExecution} from '../engines/vibe-adapter/check-development.mjs';
 import {digest, inventory, nodesFromPlans, planInput, validateArtifact, supportingArtifactPaths} from './provider-a1-receipts.mjs';
 
 function fixture(fn) {
@@ -12,6 +12,11 @@ function fixture(fn) {
   try {
     cpSync(archive, directory, {recursive: true});
     const record = JSON.parse(readFileSync(resolve(directory, 'receipt.json')));
+    // Unit-only migration of an ephemeral historical copy; archive bytes never change.
+    record.schema = 'quantos-tp01-c-skeleton-evidence/v2';
+    record.testFixture = 'UNIT_ONLY_HISTORICAL_COPY_NOT_EXECUTION_EVIDENCE';
+    for (const c of record.checks) Object.assign(c, {timeoutMs: executionBudget(c.id),
+      elapsedMs: 0, timedOut: false, executionErrorCode: null, signal: null});
     record.inputs = inventory(selectors);
     record.planInput = planInput(nodesFromPlans().get('CORE:TP01-C'));
     fn(record, directory);
@@ -55,3 +60,53 @@ test('Python regression count cannot fall below the established baseline', () =>
   writeFileSync(path,output);r.checks.find(c=>c.id==='python').logSha256=digest(output);
   assert.throws(()=>verify(r,{checkDependencies:false,logDirectory:directory}),/below the established/);
 }));
+
+for (const [name, mutate] of [
+  ['missing timeout budget', c => delete c.timeoutMs],
+  ['missing elapsed clock', c => delete c.elapsedMs],
+  ['missing timeout flag', c => delete c.timedOut],
+  ['missing spawn error', c => delete c.executionErrorCode],
+  ['missing signal', c => delete c.signal],
+  ['timeout despite zero exit', c => c.timedOut = true],
+  ['error despite zero exit', c => c.executionErrorCode = 'ETIMEDOUT'],
+  ['signal despite zero exit', c => c.signal = 'SIGTERM'],
+  ['null exit', c => c.exitCode = null],
+  ['altered manager budget', c => c.timeoutMs = 180000],
+  ['non-finite elapsed clock', c => c.elapsedMs = NaN],
+  ['negative elapsed clock', c => c.elapsedMs = -1],
+]) test('v2 rejects ' + name, () => fixture((r, logDirectory) => {
+  mutate(r.checks.find(c => c.id === 'manager'));
+  assert.throws(() => verify(r, {checkDependencies: false, logDirectory}));
+}));
+
+test('v1 remains historical and cannot impersonate current execution', () => fixture((r, logDirectory) => {
+  r.schema = 'quantos-tp01-c-skeleton-evidence/v1';
+  assert.throws(() => verify(r, {checkDependencies: false, logDirectory}));
+  assert.equal(JSON.parse(readFileSync('docs/audit/evidence/tp01-c-20261009/initial-blocked/receipt.json')).schema,
+    'quantos-tp01-c-skeleton-evidence/v1');
+}));
+
+test('manager receives bounded ten-minute harness budget, other checks retain three minutes', () => {
+  let captured;
+  const {result} = executeCheck('manager', {execute: (binary, args, options) => {
+    captured = {binary, args, options};return {status: 0, signal: null, stdout: 'UNIT_ONLY'};
+  }, now: () => 1000});
+  assert.equal(captured.options.timeout, 600000);
+  assert.equal(captured.binary, 'cargo');
+  assert.deepEqual(captured.args, ['test', '--locked', '--offline', '-p', 'quantos-engine-manager']);
+  assert.equal(executionBudget('python'), 180000);
+  assert.throws(() => executionBudget('unknown'));
+  verifyExecution(result, 'manager');
+});
+for (const [name, run] of [
+  ['ETIMEDOUT', {status: null, signal: 'SIGTERM', error: {code: 'ETIMEDOUT'}}],
+  ['timeout with zero exit', {status: 0, error: {code: 'ETIMEDOUT'}}],
+  ['signal with zero exit', {status: 0, signal: 'SIGTERM'}],
+  ['spawn error with zero exit', {status: 0, error: {code: 'ENOENT'}}],
+  ['unknown spawn error', {status: 0, error: {code: 'invalid code'}}],
+]) test('actual outcome derivation fails closed for ' + name, () => {
+  const {result} = executeCheck('manager', {execute: () => ({stdout: 'test suite passed', ...run}), now: () => 1000});
+  assert.equal(result.status, 'FAIL');
+  assert.throws(() => verifyExecution(result, 'manager'));
+  if (name === 'ETIMEDOUT') assert.equal(result.timedOut, true);
+});

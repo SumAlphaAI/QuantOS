@@ -1,0 +1,51 @@
+{
+  "schema": "quantos-x03-repair-prefreeze-summary/v1",
+  "scope": "UNCOMMITTED_PREFLIGHT_ONLY_NOT_ADMISSION",
+  "status": "PASS",
+  "checks": 13,
+  "finalPreflight": "attempt-03/checks.json",
+  "manager": {
+    "id": "manager",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-engine-manager"
+    ],
+    "executedAt": "2026-10-17T09:40:20.496Z",
+    "exitCode": 0,
+    "status": "PASS",
+    "timeoutMs": 600000,
+    "timedOut": false,
+    "executionErrorCode": null,
+    "signal": null,
+    "elapsedMs": 149404,
+    "log": "docs/audit/evidence/tp01-c-20261009/manager.log",
+    "logSha256": "sha256:0fc9f6acafab5025c421958f7e85ee876d6820da133834a403b67ebc7bcf5aef"
+  },
+  "canonicalRestored": true,
+  "artifactPolicyTests": 62,
+  "ownRustTests": 8,
+  "ownCompatibilityRustPassed": 47,
+  "ignoredPerformance": 2,
+  "ownAdmissionTests": 106,
+  "sharedPolicyTests": [
+    405
+  ],
+  "preservedFailures": [
+    "attempt-02/checks.json",
+    "../first-attempt-summary.json"
+  ],
+  "permissionFailureExplanation": "attempt02 used restricted sandbox; local port/UDS bind and uv cache access failed; all outcomes and canonical restoration retained; attempt03 reran all13 with authorized local test/cache access",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "externalPublished": false,
+  "stagedSecretsScan": {
+    "status": "PASS",
+    "tool": "gitleaks",
+    "version": "8.28.0",
+    "redacted": true
+  }
+}

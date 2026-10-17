@@ -1,4 +1,4 @@
-> 当前执行（CORE:X03，2026-10-17）：原子签发/审批实现与新候选完整依赖复验准备中，仅本地开发；历史回执保留，目标/性能与正式确认未放行。
+> 当前执行（CORE:X03，2026-10-17）：首轮冻结e0b5a604完整复验保留FAIL，TP01-C内部manager在180秒限时处exit=null且v1遗漏退出原因；Gate BLOCKED，未拼接历史READY。补充v2诊断及有界预算后须新候选完整42/138重验，25目标NOT_RUN、正式确认PENDING。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
