@@ -1,4 +1,4 @@
-> 当前执行（CORE:X01，2026-10-17）：代码候选3c742384预检通过；最终40节点131组为124 PASS/7 FAIL，5外层命令超时及TP01-C内部manager中断，S2正确拒绝。主机多次Deep Idle/Sleep与超时窗口重叠，暂为BLOCKED/未准入；保留原始证据和canonical恢复，需临时保活下新候选完整重跑。F05/R01/S2前置149ce0a4完整39/127 PASS保留，不拼接。目标/发布NOT_RUN，正式确认PENDING。
+> 当前执行（CORE:X01，2026-10-17）：冻结e2b85a80完整40节点131组全部PASS，127依赖先于自身4组；三次独立构建及make lint/test通过，仅X01_LOCAL限定DEVELOPMENT READY，上游独立READY不传播。先行149ce0a4新候选39/127前置复验及失败/中断历史均保留，不拼接。23组目标NOT_RUN，正式确认PENDING，未连接数据库或外部发布。见[本轮报告](./audit/X01-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1794,7 +1794,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `X01`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage": "DEVELOPMENT", "status": "BLOCKED", "input_digest": "sha256:28a12a9807a806802b0af2e58461948500ed67189299a2a4a9f2df19949c8645", "evidence": ["audit/evidence/provider-a1-remediation-20261004/x01-local-20261016/attempt-01/failure.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ed645cb4804419c94c163f2e46ffbb5e76a5515b2da947f0e2eaeb4f3e18d516","evidence":["audit/evidence/x01-local-20261016/manifest.json"]}
 - depends_on: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:F05", "CORE:R01", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1808,7 +1808,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 阶段执行：本地开发验证1万订单/成交黄金回放、Position/P&L一致和重建正确性；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：1万条订单/成交 replay 后 Position/P&L 与黄金快照一致；读模型重建 100% 成功；查询 P95 <300ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：F05、R01
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x01)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：2026-10-17冻结e2b85a80完整40节点131组PASS；1万合成成交黄金回放、10次冷重建、原子拒绝/重试、逐symbol时效与账户绑定、F05/R01组合及CLI验证通过。仅X01_LOCAL DEVELOPMENT READY，开发实现完成待正式验收；Supabase/性能及23组目标NOT_RUN。见[本轮报告](./audit/X01-local-admission-2026-10-17.md)，首轮失败与中断保留。
 
 <a id="task-x02"></a>
 ### X02：Pre/Post-trade Risk 与 kill switch
