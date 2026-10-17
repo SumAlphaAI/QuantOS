@@ -105,6 +105,7 @@ struct State {
     proposals: BTreeMap<ContentHash, Proposal>,
     approvals: BTreeMap<ProposalId, Approval>,
     issued: BTreeMap<(quantos_core::AccountId, String), Issued>,
+    downstream: BTreeMap<CommandId, CommandId>,
     audit: Vec<IssuerAudit>,
     at: Option<DateTime<Utc>>,
 }
@@ -633,7 +634,20 @@ impl AtomicCommandIssuer {
     ) -> Result<(), CommandError> {
         self.authorized(auth, &command.intent, false)?;
         let s = self.lock()?;
-        Self::clock(&s, now)?;
+        let issued = self.bound_command(&s, auth, command, now)?;
+        self.0
+            .risk
+            .validate_allow(&issued.decision, auth, &command.intent, now)?;
+        Ok(())
+    }
+    fn bound_command<'a>(
+        &self,
+        s: &'a State,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        now: DateTime<Utc>,
+    ) -> Result<&'a Issued, CommandError> {
+        Self::clock(s, now)?;
         if command.tenant_id != self.0.tenant
             || command.workspace_id != self.0.workspace
             || command.requester != auth.actor_id
@@ -654,10 +668,75 @@ impl AtomicCommandIssuer {
         if issued.command != *command {
             return Err(CommandError::Rejected("command binding"));
         }
-        self.0
-            .risk
-            .validate_allow(&issued.decision, auth, &command.intent, now)?;
-        Ok(())
+        Ok(issued)
+    }
+    /// TP07 dispatch transaction: authenticate the exact stored command, recheck all
+    /// current sources and the consumed approval, and hold issuer -> risk locks
+    /// across the bounded downstream callback. The callback must never reenter
+    /// issuer/risk; its consumer must quarantine uncertain transport outcomes.
+    pub fn with_current_command<T, E: From<CommandError> + From<GuardError>>(
+        &self,
+        consumer: CommandId,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        sources: CurrentSources<'_>,
+        now: DateTime<Utc>,
+        dispatch: impl FnOnce() -> Result<T, E>,
+    ) -> Result<T, E> {
+        self.authorized(auth, &command.intent, false)?;
+        let mut s = self.lock()?;
+        let decision = self.bound_command(&s, auth, command, now)?.decision.clone();
+        let approval = if let Some(receipt) = &command.approval {
+            let stored = s
+                .approvals
+                .get(&receipt.id)
+                .ok_or(CommandError::Rejected("unknown approval"))?;
+            if stored.receipt != *receipt
+                || receipt.state != ApprovalState::Consumed
+                || receipt.command_id != Some(command.command_id)
+                || now >= receipt.expires_at
+            {
+                return Err(CommandError::Rejected("dispatch approval binding").into());
+            }
+            Some(
+                stored
+                    .token
+                    .clone()
+                    .ok_or(CommandError::Rejected("approval missing"))?,
+            )
+        } else {
+            None
+        };
+        if sources.venue.venue != command.venue {
+            return Err(CommandError::Rejected("dispatch venue binding").into());
+        }
+        self.0.risk.with_current_allow(
+            self.0.consumer,
+            &decision,
+            auth,
+            &command.intent,
+            sources.snapshot,
+            sources.financials,
+            sources.venue,
+            sources.release,
+            approval.as_ref(),
+            now,
+            |current| {
+                if current.expires_at < command.expires_at {
+                    return Err(CommandError::Rejected("dispatch source deadline").into());
+                }
+                if s.downstream
+                    .get(&command.command_id)
+                    .is_some_and(|id| *id != consumer)
+                {
+                    return Err(CommandError::Rejected("downstream command already claimed").into());
+                }
+                // Retain the owner even on an uncertain callback error. A different
+                // gateway cannot automatically resubmit after transport ambiguity.
+                s.downstream.insert(command.command_id, consumer);
+                dispatch()
+            },
+        )
     }
     pub fn approval_status(
         &self,

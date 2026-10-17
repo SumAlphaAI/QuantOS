@@ -4,6 +4,8 @@
 
 Historical implementation note; no current CORE:TP07, runtime, legal or release acceptance. Licensing conclusions below are superseded by [the S2 evaluation ADR](20261016-tp07-evaluation-boundary.md).
 
+2026-10-17补充：自有Paper进程及X03下游消费由[TP07边界ADR](20261017-tp07-paper-dispatch-boundary.md)定义；不授予真实Nautilus runtime/legal/release准入。替换内核仅用于新命令，结果不确定时禁止自动fallback和重投。
+
 ## Context
 
 TP07 integrates NautilusTrader as a candidate execution kernel behind `services/execution-gateway`. Historical text incorrectly recorded LGPL-3.0-only; both pinned manifests actually declare LGPL-3.0-or-later (rechecked at the pinned local reference `nautilus_trader@fa86c6e39e8f064d5922c0ee4da5e2a9a2716408`, 2026-07-21). QuantOS core and services are UNLICENSED/proprietary, so the integration mode determines compliance obligations.

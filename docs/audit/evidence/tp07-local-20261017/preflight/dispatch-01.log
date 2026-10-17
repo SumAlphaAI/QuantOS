@@ -1,0 +1,28 @@
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 34.01s
+     Running tests/tp07_dispatch.rs (target/debug/deps/tp07_dispatch-001d0c68f566c650)
+
+running 7 tests
+test tp07_boundary_rejection_has_no_side_effect_and_allows_corrected_retry ... ok
+test tp07_kill_cas_cannot_interleave_current_validation_and_kernel_submission ... ok
+test tp07_x03_paper_consumption_replay_and_owned_events ... FAILED
+test tp07_replays_recheck_current_risk_identity_expiry_release_and_kill ... ok
+test tp07_consumed_approval_is_bound_to_the_same_command_and_never_reconsumed ... ok
+test tp07_uncertain_submission_and_invalid_events_are_quarantined_without_retry ... ok
+test tp07_one_thousand_concurrent_x03_consumers_submit_once ... ok
+
+failures:
+
+---- tp07_x03_paper_consumption_replay_and_owned_events stdout ----
+
+thread 'tp07_x03_paper_consumption_replay_and_owned_events' (2644356) panicked at crates/quantos-execution/tests/tp07_dispatch.rs:55:42:
+called `Result::unwrap()` on an `Err` value: Rejected("audit scope")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tp07_x03_paper_consumption_replay_and_owned_events
+
+test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.03s
+
+error: test failed, to rerun pass `-p quantos-execution --test tp07_dispatch`

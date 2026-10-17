@@ -1,4 +1,4 @@
-> 当前执行（CORE:X03，2026-10-17）：按最新AGENTS.md完成分阶段收尾；源码c720e719的12组功能/直接影响检查全部PASS，8项X03行为、1000逻辑并发单命令/单消费及覆盖率通过。仅X03功能DEVELOPMENT READY，完整业务联调/发布NOT_RUN、正式确认PENDING、25组目标NOT_RUN；首轮FAIL和第二轮INTERRUPTED保留，无生产凭据或外部发布。见[本轮报告](./audit/X03-local-admission-2026-10-17.md)。
+> 当前执行（CORE:TP07，2026-10-17）：按最新AGENTS.md完成Paper/内核适配与X03下游幂等消费，当前功能和影响范围验证中；不执行无关全闭包。真实Nautilus运行时、完整业务联调与发布仍NOT_RUN。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -738,6 +738,19 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "CORE:R04",
         "CORE:X02",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP07": {
+      "profile": "TP07_LOCAL",
+      "schema": "quantos-tp07-local-development/v1",
+      "manifest": "audit/evidence/tp07-local-20261017/manifest.json",
+      "prerequisites": [
+        "CORE:F03",
+        "CORE:F06",
+        "CORE:F08",
+        "CORE:X03",
         "CORE-GATE:S2-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -1863,7 +1876,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `X03`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ab571b86126a1d40db600637333df3a2b04bb9ca9fd096ab1bf71dfbb5191417","evidence":["audit/evidence/x03-local-20261017/manifest.json"]}
+- stage_gate: {"stage": "DEVELOPMENT", "status": "NOT_ASSESSED", "input_digest": null, "evidence": []}
 - depends_on: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1877,7 +1890,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 阶段执行：本地开发验证七类拒绝、1000并发单命令、审计生成与幂等语义；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：R04、X02
-- 当前工程复核：2026-10-17按最新AGENTS.md，源码c720e719的12组当前功能/直接影响检查全部PASS；8项X03行为、47兼容/2 ignored、9项X02回归、56门禁反例及98共享规则检查；1000逻辑任务仅一命令/一审批消费。X03_LOCAL v2功能DEVELOPMENT READY，联调/发布NOT_RUN、正式确认PENDING、25目标NOT_RUN。首轮FAIL/第二轮INTERRUPTED及637历史文件恢复保留；未复用历史READY。见[本轮报告](./audit/X03-local-admission-2026-10-17.md)。
+- 当前工程复核：2026-10-17按最新AGENTS.md，源码c720e719的12组当前功能/直接影响检查全部PASS；8项X03行为、47兼容/2 ignored、9项X02回归、56门禁反例及98共享规则检查；1000逻辑任务仅一命令/一审批消费。X03_LOCAL v2功能DEVELOPMENT READY，联调/发布NOT_RUN、正式确认PENDING、25目标NOT_RUN。首轮FAIL/第二轮INTERRUPTED及637历史文件恢复保留；未复用历史READY。见[本轮报告](./audit/X03-local-admission-2026-10-17.md)。 TP07修改签发消费与网关输入后独立READY撤回；原范围回执保留，本轮相关回归仅用于TP07功能，不改绑为X03新候选READY。
 
 <a id="task-tp07"></a>
 ### TP07：NautilusTrader：研究、仿真、OMS、执行内核
@@ -1886,21 +1899,21 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
 - stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
-- depends_on: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE-GATE:S2-SERVICE"]
-- core_prerequisites: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE-GATE:S2-SERVICE"]
+- depends_on: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE:X03", "CORE-GATE:S2-SERVICE"]
+- core_prerequisites: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE:X03", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `X3-SERVICE`
 - 需求描述：NautilusTrader：研究、仿真、OMS、执行内核
-- 接入范围与改造：独立服务/进程边界；将 QuantOS Trading Protocol 映射为其 API；不引入其类型到 core；LGPL 合规与替换预案
-- 交付物：`services/execution-gateway`、Nautilus boundary adapter、Paper kernel、LICENSE ADR
+- 技术要求：自有Paper/Shadow LIMIT内核与严格有界stdio进程协议；X03当前签名命令、已消费审批及当前风险在下游调用前复核，固定锁顺序，单次消费和不确定结果隔离；Nautilus使用自有wire词汇，不引入上游类型到core。真实Nautilus运行时、LGPL分发/完整供应链及OS隔离另验，不把Paper进程当上游运行证据。
+- 交付物：`services/execution-gateway`、X03 `SignedExecutionGateway`、Nautilus wire boundary adapter、有界Paper子进程、LICENSE/边界ADR及TP07_LOCAL功能门禁；按当前功能/直接影响范围测试，不递归验收上游。
 - 集成验收标准：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session
 - 阶段执行：本地开发验证内核隔离、边界精度/限额/过期/kill switch、幂等下游提交和事件映射；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：`TradeCommand` 以同一 idempotency key 重放只产生一个下游提交；Order/Fill 事件可映射回自有 schema；精度/限额/过期/kill switch 100% 在边界前拦截；内核不可访问 Agent/用户 session；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 执行定位：S2 Gate 前仅完成固定版本、许可证、capability inventory 和 ADR 评估；本节在 X03 后完成 adapter/Paper 内核与集成验收。S2 的评估完成不代表本项 ACCEPTED。
 - 阶段/依赖：F03、F06、F08；X3
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp07)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：Paper/内核与X03下游功能已实现，按影响范围验证中。原正式全量复审NOT_STARTED不改写，真实Nautilus/目标/完整业务联调和发布NOT_RUN。见[执行规程](./operations/tp07_nautilus_execution_gateway.md)。
 
 <a id="task-tp12"></a>
 ### TP12：nautilus_agents

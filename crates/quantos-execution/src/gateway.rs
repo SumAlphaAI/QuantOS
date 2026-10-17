@@ -102,11 +102,17 @@ pub enum GatewayError {
     BoundaryRejected { rejection: BoundaryRejection },
     #[error("KERNEL_ERROR: {detail}")]
     Kernel { detail: String },
+    #[error("IDEMPOTENCY_CONFLICT")]
+    IdempotencyConflict,
+    #[error("SUBMISSION_UNCERTAIN: reconcile before any retry")]
+    SubmissionUncertain,
+    #[error("INVALID_KERNEL_EVENTS: dispatch quarantined")]
+    InvalidEvents,
 }
 
 /// Kernel-side event in QuantOS-owned vocabulary.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case")]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum KernelEvent {
     OrderAccepted {
         command_id: String,
@@ -135,6 +141,9 @@ pub enum KernelEvent {
 pub trait ExecutionKernel {
     fn submit(&mut self, command: &BoundaryCommand) -> Result<(), String>;
     fn drain_events(&mut self) -> Vec<KernelEvent>;
+    fn submit_at(&mut self, command: &BoundaryCommand, _now: DateTime<Utc>) -> Result<(), String> {
+        self.submit(command)
+    }
 }
 
 /// QuantOS-owned Order record (mirrors `quantos.trading.v1.Order`).
@@ -153,6 +162,7 @@ pub struct GatewayOrder {
     pub status: String,
     pub submitted_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub rejection_reason: Option<String>,
 }
 
 /// QuantOS-owned Fill record (mirrors `quantos.trading.v1.Fill`).
@@ -170,15 +180,25 @@ pub struct GatewayFill {
 }
 
 /// Receipt for a submitted (or replayed) command.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SubmissionReceipt {
     pub order_id: String,
     pub command_id: String,
     pub replayed: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SubmissionState {
+    Submitted,
+    Uncertain,
+}
+
 #[derive(Debug, Clone)]
 struct SubmissionRecord {
+    binding: ContentHash,
+    state: SubmissionState,
+    expires_at: DateTime<Utc>,
     order_id: String,
     command_id: String,
 }
@@ -194,6 +214,7 @@ pub struct ExecutionGateway<K: ExecutionKernel> {
     orders: BTreeMap<String, GatewayOrder>,
     fills: Vec<GatewayFill>,
     downstream_submissions: usize,
+    event_quarantined: bool,
 }
 
 impl<K: ExecutionKernel> ExecutionGateway<K> {
@@ -207,6 +228,7 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
             orders: BTreeMap::new(),
             fills: Vec::new(),
             downstream_submissions: 0,
+            event_quarantined: false,
         }
     }
 
@@ -246,23 +268,54 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
         command: &TradeCommand,
         now: DateTime<Utc>,
     ) -> Result<SubmissionReceipt, GatewayError> {
+        // Current safety is checked even for a cached replay.
+        self.intercept_at_boundary(command, now)?;
+        if self.event_quarantined {
+            return Err(GatewayError::InvalidEvents);
+        }
         let key = command.idempotency_key.clone();
+        let binding = ContentHash::sha256_bytes(
+            &canonical_json_bytes(&json!({
+                "command_id":command.command_id,"decision_id":command.decision_id,
+                "account_id":command.account_id,"venue":command.venue,"venue_kind":command.venue_kind.as_str(),
+                "symbol":command.symbol,"intent":command.intent.as_str(),"side":command.side.as_str(),
+                "quantity":command.quantity,"limit_price":command.limit_price,"stop_price":command.stop_price,
+                "idempotency_key":command.idempotency_key,"approval_signature":command.approval_signature,
+                "issued_at":command.issued_at,"expires_at":command.expires_at,"signature":command.signature,
+            }))
+                .map_err(|_| GatewayError::IdempotencyConflict)?,
+        );
         if let Some(record) = self.submissions_by_key.get(&key) {
+            if record.binding != binding {
+                return Err(GatewayError::IdempotencyConflict);
+            }
+            if record.state == SubmissionState::Uncertain {
+                return Err(GatewayError::SubmissionUncertain);
+            }
             return Ok(SubmissionReceipt {
                 order_id: record.order_id.clone(),
                 command_id: record.command_id.clone(),
                 replayed: true,
             });
         }
-
-        self.intercept_at_boundary(command, now)?;
-
         let boundary = BoundaryCommand::from_command(command);
         let order_id = deterministic_id("order", &boundary.command_id);
-        self.kernel
-            .submit(&boundary)
-            .map_err(|detail| GatewayError::Kernel { detail })?;
+        // Reserve before any possible downstream side effect. An error may mean the
+        // kernel accepted but the reply was lost; never turn it into an automatic retry.
+        self.submissions_by_key.insert(
+            key.clone(),
+            SubmissionRecord {
+                binding: binding.clone(),
+                state: SubmissionState::Uncertain,
+                expires_at: command.expires_at,
+                order_id: order_id.clone(),
+                command_id: boundary.command_id.clone(),
+            },
+        );
         self.downstream_submissions += 1;
+        self.kernel
+            .submit_at(&boundary, now)
+            .map_err(|_| GatewayError::SubmissionUncertain)?;
 
         self.orders.insert(
             order_id.clone(),
@@ -280,11 +333,15 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
                 status: "submitted".to_owned(),
                 submitted_at: now,
                 updated_at: now,
+                rejection_reason: None,
             },
         );
         self.submissions_by_key.insert(
             key,
             SubmissionRecord {
+                binding,
+                state: SubmissionState::Submitted,
+                expires_at: command.expires_at,
                 order_id: order_id.clone(),
                 command_id: boundary.command_id,
             },
@@ -306,7 +363,10 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
         if self.kill_switch_engaged {
             return Err(reject(BoundaryRejection::KillSwitchEngaged));
         }
-        if command.expires_at <= now {
+        if command.expires_at <= now
+            || command.issued_at > now
+            || command.expires_at <= command.issued_at
+        {
             return Err(reject(BoundaryRejection::CommandExpired));
         }
         if !self.limits.allowed_venues.contains(&command.venue) {
@@ -331,94 +391,78 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
             _ => {}
         }
 
+        if quantity.value() <= Decimal::ZERO
+            || self.limits.max_quantity <= Decimal::ZERO
+            || self.limits.max_notional <= Decimal::ZERO
+        {
+            return Err(reject(BoundaryRejection::InvalidPrecision));
+        }
         if quantity.value() > self.limits.max_quantity {
             return Err(reject(BoundaryRejection::QuantityLimitExceeded));
         }
-        if let Some(limit_price) = &command.limit_price {
-            let price = Quantity::parse_str(limit_price)
-                .map_err(|_| reject(BoundaryRejection::InvalidPrecision))?;
-            if quantity.value() * price.value() > self.limits.max_notional {
-                return Err(reject(BoundaryRejection::NotionalLimitExceeded));
-            }
+        let price = command
+            .limit_price
+            .as_ref()
+            .or(command.stop_price.as_ref())
+            .ok_or_else(|| reject(BoundaryRejection::InvalidPrecision))?;
+        let price = Quantity::parse_str(price)
+            .map_err(|_| reject(BoundaryRejection::InvalidPrecision))?
+            .value();
+        if price <= Decimal::ZERO {
+            return Err(reject(BoundaryRejection::InvalidPrecision));
+        }
+        let notional = quantity
+            .value()
+            .checked_mul(price)
+            .ok_or_else(|| reject(BoundaryRejection::NotionalLimitExceeded))?;
+        if notional > self.limits.max_notional {
+            return Err(reject(BoundaryRejection::NotionalLimitExceeded));
         }
         Ok(())
     }
 
     /// Drain kernel events and map them back to QuantOS-owned Order/Fill
     /// records. Returns the fills produced by this drain.
+    /// Compatibility fixture API. Authority consumers use try_collect_events so
+    /// invalid events are visible as errors. A failure also blocks later submits.
     pub fn collect_events(&mut self) -> Vec<GatewayFill> {
-        let events = self.kernel.drain_events();
-        let mut new_fills = Vec::new();
-        for event in events {
-            match event {
-                KernelEvent::OrderAccepted {
-                    command_id,
-                    venue_order_id,
-                    at,
-                } => {
-                    if let Some(order) = self.order_for_command_mut(&command_id) {
-                        order.venue_order_id = Some(venue_order_id);
-                        order.status = "accepted".to_owned();
-                        order.updated_at = at;
-                    }
-                }
-                KernelEvent::OrderRejected {
-                    command_id,
-                    reason: _,
-                    at,
-                } => {
-                    if let Some(order) = self.order_for_command_mut(&command_id) {
-                        order.status = "rejected".to_owned();
-                        order.updated_at = at;
-                    }
-                }
-                KernelEvent::OrderFilled {
-                    command_id,
-                    venue_order_id: _,
-                    venue_fill_id,
-                    quantity,
-                    price,
-                    fee_currency,
-                    fee_amount,
-                    at,
-                } => {
-                    let Some(order_index) = self
-                        .orders
-                        .values()
-                        .find(|order| order.command_id == command_id)
-                        .map(|order| order.order_id.clone())
-                    else {
-                        continue;
-                    };
-                    let order = self
-                        .orders
-                        .get_mut(&order_index)
-                        .expect("order index resolved");
-                    order.filled_quantity = quantity.clone();
-                    order.average_fill_price = Some(price.clone());
-                    order.status = if quantity == order.quantity {
-                        "filled".to_owned()
-                    } else {
-                        "partially_filled".to_owned()
-                    };
-                    order.updated_at = at;
-                    let fill = GatewayFill {
-                        fill_id: deterministic_id("fill", &venue_fill_id),
-                        order_id: order_index,
-                        venue_fill_id: Some(venue_fill_id),
-                        symbol: order.symbol.clone(),
-                        quantity,
-                        price,
-                        fee_currency,
-                        fee_amount,
-                        filled_at: at,
-                    };
-                    self.fills.push(fill.clone());
-                    new_fills.push(fill);
-                }
-            }
+        self.try_collect_events().unwrap_or_default()
+    }
+    pub fn try_collect_events(&mut self) -> Result<Vec<GatewayFill>, GatewayError> {
+        if self.event_quarantined {
+            return Err(GatewayError::InvalidEvents);
         }
-        new_fills
+        let mut orders = self.orders.clone();
+        let mut fills = self.fills.clone();
+        let mut new_fills = Vec::new();
+        let result: Result<(), GatewayError> = (|| {
+            for event in self.kernel.drain_events() {
+                let id = match &event {
+                    KernelEvent::OrderAccepted { command_id, .. }
+                    | KernelEvent::OrderRejected { command_id, .. }
+                    | KernelEvent::OrderFilled { command_id, .. } => command_id,
+                };
+                let deadline = self
+                    .submissions_by_key
+                    .values()
+                    .find(|r| &r.command_id == id)
+                    .map(|r| r.expires_at)
+                    .ok_or(GatewayError::InvalidEvents)?;
+                apply_event(&mut orders, &mut fills, &mut new_fills, event, deadline)?;
+            }
+            Ok(())
+        })();
+        if result.is_err() {
+            self.event_quarantined = true;
+            return Err(GatewayError::InvalidEvents);
+        }
+        self.orders = orders;
+        self.fills = fills;
+        Ok(new_fills)
+    }
+    #[must_use]
+    pub fn submission_state(&self, key: &str) -> Option<SubmissionState> {
+        self.submissions_by_key.get(key).map(|record| record.state)
     }
 
     #[must_use]
@@ -430,12 +474,6 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
     pub fn fills(&self) -> &[GatewayFill] {
         &self.fills
     }
-
-    fn order_for_command_mut(&mut self, command_id: &str) -> Option<&mut GatewayOrder> {
-        self.orders
-            .values_mut()
-            .find(|order| order.command_id == command_id)
-    }
 }
 
 fn deterministic_id(prefix: &str, seed: &str) -> String {
@@ -443,13 +481,7 @@ fn deterministic_id(prefix: &str, seed: &str) -> String {
         &canonical_json_bytes(&json!({"prefix": prefix, "seed": seed}))
             .expect("id payload canonicalizes"),
     );
-    let short: String = hash
-        .as_str()
-        .trim_start_matches("sha256:")
-        .chars()
-        .take(16)
-        .collect();
-    format!("{prefix}:{short}")
+    format!("{prefix}:{}", hash.as_str().trim_start_matches("sha256:"))
 }
 
 fn reject(rejection: BoundaryRejection) -> GatewayError {
@@ -485,6 +517,12 @@ impl PaperKernel {
 
 impl ExecutionKernel for PaperKernel {
     fn submit(&mut self, command: &BoundaryCommand) -> Result<(), String> {
+        self.submit_at(
+            command,
+            command.expires_at - chrono::Duration::nanoseconds(1),
+        )
+    }
+    fn submit_at(&mut self, command: &BoundaryCommand, now: DateTime<Utc>) -> Result<(), String> {
         self.accepted += 1;
         let venue_order_id = deterministic_id("venue-order", &command.command_id);
         let venue_fill_id = deterministic_id("venue-fill", &command.command_id);
@@ -495,7 +533,7 @@ impl ExecutionKernel for PaperKernel {
         self.pending.push(KernelEvent::OrderAccepted {
             command_id: command.command_id.clone(),
             venue_order_id: venue_order_id.clone(),
-            at: command.expires_at,
+            at: now,
         });
         self.pending.push(KernelEvent::OrderFilled {
             command_id: command.command_id.clone(),
@@ -505,7 +543,7 @@ impl ExecutionKernel for PaperKernel {
             price,
             fee_currency: "USD".to_owned(),
             fee_amount: "0".to_owned(),
-            at: command.expires_at,
+            at: now,
         });
         Ok(())
     }
@@ -852,6 +890,170 @@ mod tests {
         assert_eq!(gateway.kernel().outbox().len(), 1);
         assert_eq!(gateway.downstream_submission_count(), 1);
     }
+    #[test]
+    fn tp07_cached_submission_checks_binding_expiry_and_kill_before_replay() {
+        let mut g = ExecutionGateway::new(limits(), PaperKernel::new("100"));
+        let c = command_fixture("tp07-binding");
+        g.submit(&c, now()).unwrap();
+        let mut changed = c.clone();
+        changed.account_id = "other".into();
+        assert!(matches!(
+            g.submit(&changed, now()),
+            Err(GatewayError::IdempotencyConflict)
+        ));
+        assert!(g.submit(&c, c.expires_at).is_err());
+        g.engage_kill_switch();
+        assert!(g.submit(&c, now()).is_err());
+        assert_eq!(g.downstream_submission_count(), 1);
+    }
+    #[test]
+    fn tp07_zero_future_and_arithmetic_overflow_are_rejected_without_kernel_call() {
+        for n in 0..4 {
+            let mut c = command_fixture("invalid");
+            let mut l = limits();
+            match n {
+                0 => c.quantity = "0".into(),
+                1 => c.limit_price = Some("0".into()),
+                2 => c.issued_at = now() + ChronoDuration::seconds(1),
+                _ => {
+                    c.quantity = Decimal::MAX.to_string();
+                    c.limit_price = Some(Decimal::MAX.to_string());
+                    l.max_quantity = Decimal::MAX;
+                    l.max_notional = Decimal::MAX;
+                }
+            }
+            let mut g = ExecutionGateway::new(l, PaperKernel::new("100"));
+            assert!(g.submit(&c, now()).is_err());
+            assert_eq!(g.downstream_submission_count(), 0);
+        }
+    }
+    fn projected_events() -> (
+        ExecutionGateway<NautilusBoundaryAdapter>,
+        TradeCommand,
+        SubmissionReceipt,
+    ) {
+        let mut g = ExecutionGateway::new(limits(), NautilusBoundaryAdapter::new());
+        let c = command_fixture("projection");
+        let r = g.submit(&c, now()).unwrap();
+        g.kernel_mut().push_event(KernelEvent::OrderAccepted {
+            command_id: c.command_id.to_string(),
+            venue_order_id: "v1".into(),
+            at: now(),
+        });
+        g.try_collect_events().unwrap();
+        (g, c, r)
+    }
+    fn partial(c: &TradeCommand, id: &str, qty: &str, price: &str) -> KernelEvent {
+        KernelEvent::OrderFilled {
+            command_id: c.command_id.to_string(),
+            venue_order_id: "v1".into(),
+            venue_fill_id: id.into(),
+            quantity: qty.into(),
+            price: price.into(),
+            fee_currency: "USD".into(),
+            fee_amount: "0.1".into(),
+            at: now() + ChronoDuration::seconds(1),
+        }
+    }
+    #[test]
+    fn tp07_partial_fills_accumulate_decimal_quantity_and_weighted_price_once() {
+        let (mut g, c, r) = projected_events();
+        let first = partial(&c, "f1", "0.5", "100");
+        g.kernel_mut().push_event(first.clone());
+        g.kernel_mut().push_event(first.clone());
+        assert_eq!(g.try_collect_events().unwrap().len(), 1);
+        assert_eq!(g.order(&r.order_id).unwrap().filled_quantity, "0.5");
+        g.kernel_mut().push_event(partial(&c, "f2", "1.0", "101.5"));
+        assert_eq!(g.try_collect_events().unwrap().len(), 1);
+        let order = g.order(&r.order_id).unwrap();
+        assert_eq!(order.status, "filled");
+        assert_eq!(order.filled_quantity, "1.5");
+        assert_eq!(order.average_fill_price.as_deref(), Some("101"));
+        g.kernel_mut().push_event(first);
+        assert!(g.try_collect_events().unwrap().is_empty());
+        assert_eq!(g.fills().len(), 2);
+    }
+    #[test]
+    fn tp07_invalid_event_batches_rollback_and_quarantine_instead_of_corrupting_orders() {
+        for variant in 0..8 {
+            let (mut g, c, r) = projected_events();
+            let before = g.order(&r.order_id).unwrap().clone();
+            g.kernel_mut()
+                .push_event(partial(&c, "valid", "0.5", "100"));
+            let mut bad = partial(&c, "bad", "1", "100");
+            if let KernelEvent::OrderFilled {
+                command_id,
+                venue_order_id,
+                venue_fill_id,
+                quantity,
+                price,
+                fee_amount,
+                at,
+                ..
+            } = &mut bad
+            {
+                match variant {
+                    0 => *command_id = "unknown".into(),
+                    1 => *venue_order_id = "foreign".into(),
+                    2 => *quantity = "2".into(),
+                    3 => *price = "0".into(),
+                    4 => *fee_amount = "-1".into(),
+                    5 => *at = now() - ChronoDuration::seconds(1),
+                    6 => *venue_fill_id = "".into(),
+                    _ => *quantity = "NaN".into(),
+                }
+            }
+            g.kernel_mut().push_event(bad);
+            assert!(g.try_collect_events().is_err());
+            assert_eq!(g.order(&r.order_id).unwrap(), &before);
+            assert!(g.fills().is_empty());
+            assert!(g.submit(&c, now()).is_err());
+        }
+    }
+    #[test]
+    fn tp07_conflicting_duplicate_fill_and_illegal_transition_are_rejected() {
+        let (mut g, c, _) = projected_events();
+        g.kernel_mut().push_event(partial(&c, "f1", "0.5", "100"));
+        g.try_collect_events().unwrap();
+        g.kernel_mut().push_event(partial(&c, "f1", "0.5", "102"));
+        assert!(g.try_collect_events().is_err());
+        assert_eq!(g.fills().len(), 1);
+        let (mut g, c, _) = projected_events();
+        g.kernel_mut().push_event(KernelEvent::OrderRejected {
+            command_id: c.command_id.to_string(),
+            reason: "rejection after acceptance".into(),
+            at: now(),
+        });
+        assert!(g.try_collect_events().is_err());
+    }
+    #[test]
+    fn tp07_rejection_reason_and_event_expiry_are_checked_projection_facts() {
+        let mut g = ExecutionGateway::new(limits(), NautilusBoundaryAdapter::new());
+        let c = command_fixture("rejected");
+        let r = g.submit(&c, now()).unwrap();
+        g.kernel_mut().push_event(KernelEvent::OrderRejected {
+            command_id: c.command_id.to_string(),
+            reason: "instrument unavailable".into(),
+            at: now(),
+        });
+        g.try_collect_events().unwrap();
+        let order = g.order(&r.order_id).unwrap();
+        assert_eq!(order.status, "rejected");
+        assert_eq!(
+            order.rejection_reason.as_deref(),
+            Some("instrument unavailable")
+        );
+        assert!(g.fills().is_empty());
+        let (mut g, c, r) = projected_events();
+        let before = g.order(&r.order_id).unwrap().clone();
+        let mut event = partial(&c, "late", "0.5", "100");
+        if let KernelEvent::OrderFilled { at, .. } = &mut event {
+            *at = c.expires_at;
+        }
+        g.kernel_mut().push_event(event);
+        assert!(g.try_collect_events().is_err());
+        assert_eq!(g.order(&r.order_id).unwrap(), &before);
+    }
 }
 
 /// NautilusTrader boundary adapter.
@@ -869,6 +1071,7 @@ pub struct NautilusBoundaryAdapter {
 
 /// QuantOS-owned mirror of the Nautilus order-submit wire shape.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct NautilusOrderWire {
     pub trader_id: String,
     pub strategy_id: String,
@@ -901,7 +1104,7 @@ impl NautilusBoundaryAdapter {
             trader_id: "QUANTOS-PAPER-001".to_owned(),
             strategy_id: "QUANTOS-EXECUTION-GATEWAY".to_owned(),
             instrument_id: format!("{}.{}", command.symbol, command.venue),
-            client_order_id: deterministic_id("client-order", &command.idempotency_key),
+            client_order_id: deterministic_id("client-order", &command.command_id),
             order_side: match command.side.as_str() {
                 "buy" => "BUY".to_owned(),
                 _ => "SELL".to_owned(),
@@ -1031,4 +1234,136 @@ impl ExecutionKernel for NautilusBoundaryAdapter {
     fn drain_events(&mut self) -> Vec<KernelEvent> {
         std::mem::take(&mut self.pending)
     }
+}
+
+fn apply_event(
+    orders: &mut BTreeMap<String, GatewayOrder>,
+    fills: &mut Vec<GatewayFill>,
+    new_fills: &mut Vec<GatewayFill>,
+    event: KernelEvent,
+    expires_at: DateTime<Utc>,
+) -> Result<(), GatewayError> {
+    let bad = || GatewayError::InvalidEvents;
+    let (command_id, at) = match &event {
+        KernelEvent::OrderAccepted { command_id, at, .. }
+        | KernelEvent::OrderRejected { command_id, at, .. }
+        | KernelEvent::OrderFilled { command_id, at, .. } => (command_id, *at),
+    };
+    let order = orders
+        .values_mut()
+        .find(|o| o.command_id == *command_id)
+        .ok_or_else(bad)?;
+    if at < order.submitted_at || at >= expires_at {
+        return Err(bad());
+    }
+    match event {
+        KernelEvent::OrderAccepted { venue_order_id, .. } => {
+            if venue_order_id.is_empty()
+                || order.status == "rejected"
+                || order
+                    .venue_order_id
+                    .as_ref()
+                    .is_some_and(|id| id != &venue_order_id)
+            {
+                return Err(bad());
+            }
+            order.venue_order_id = Some(venue_order_id);
+            if order.status == "submitted" {
+                order.status = "accepted".into();
+                order.updated_at = at;
+            }
+        }
+        KernelEvent::OrderRejected { reason, .. } => {
+            if !matches!(order.status.as_str(), "submitted" | "rejected") || at < order.updated_at {
+                return Err(bad());
+            }
+            if reason.trim().is_empty()
+                || reason.len() > 1024
+                || order
+                    .rejection_reason
+                    .as_ref()
+                    .is_some_and(|r| r != &reason)
+            {
+                return Err(bad());
+            }
+            order.rejection_reason = Some(reason);
+            order.status = "rejected".into();
+            order.updated_at = at;
+        }
+        KernelEvent::OrderFilled {
+            venue_order_id,
+            venue_fill_id,
+            quantity,
+            price,
+            fee_currency,
+            fee_amount,
+            ..
+        } => {
+            let fill = GatewayFill {
+                fill_id: deterministic_id("fill", &format!("{}:{venue_fill_id}", order.command_id)),
+                order_id: order.order_id.clone(),
+                venue_fill_id: Some(venue_fill_id.clone()),
+                symbol: order.symbol.clone(),
+                quantity: quantity.clone(),
+                price: price.clone(),
+                fee_currency: fee_currency.clone(),
+                fee_amount: fee_amount.clone(),
+                filled_at: at,
+            };
+            if let Some(prior) = fills.iter().find(|f| f.fill_id == fill.fill_id) {
+                if prior != &fill {
+                    return Err(bad());
+                }
+                return Ok(());
+            }
+            if venue_fill_id.is_empty()
+                || venue_order_id.is_empty()
+                || at < order.updated_at
+                || !matches!(order.status.as_str(), "accepted" | "partially_filled")
+                || order.venue_order_id.as_ref() != Some(&venue_order_id)
+                || fee_currency.is_empty()
+                || fee_currency.len() > 12
+                || !fee_currency.bytes().all(|b| b.is_ascii_uppercase())
+            {
+                return Err(bad());
+            }
+            let parse = |s: &str| Quantity::parse_str(s).map(|q| q.value()).map_err(|_| bad());
+            let q = parse(&quantity)?;
+            let p = parse(&price)?;
+            parse(&fee_amount)?;
+            let before = parse(&order.filled_quantity)?;
+            let total = before.checked_add(q).ok_or_else(bad)?;
+            let expected = parse(&order.quantity)?;
+            if q <= Decimal::ZERO || p <= Decimal::ZERO || total > expected {
+                return Err(bad());
+            }
+            let prior_price = order
+                .average_fill_price
+                .as_deref()
+                .map(parse)
+                .transpose()?
+                .unwrap_or_default();
+            let cost = prior_price
+                .checked_mul(before)
+                .and_then(|v| p.checked_mul(q).and_then(|n| v.checked_add(n)))
+                .ok_or_else(bad)?;
+            order.filled_quantity = total.normalize().to_string();
+            order.average_fill_price = Some(
+                cost.checked_div(total)
+                    .ok_or_else(bad)?
+                    .normalize()
+                    .to_string(),
+            );
+            order.status = if total == expected {
+                "filled"
+            } else {
+                "partially_filled"
+            }
+            .into();
+            order.updated_at = at;
+            fills.push(fill.clone());
+            new_fills.push(fill);
+        }
+    }
+    Ok(())
 }

@@ -1,5 +1,7 @@
-//! Trusted in-process TradeCommand boundary. A future authenticated command
-//! ingress can call this service; no public order endpoint is exposed here.
+//! Typed trusted-backend command services; no public order endpoint is exposed.
+//! X03CommandService is the keyed authority path. ExecutionCommandService below
+//! remains an explicitly synthetic F06/legacy compatibility probe only.
+pub use quantos_execution::dispatch::SignedExecutionGateway as X03CommandService;
 
 use anyhow::{Context, Result, bail};
 use chrono::{DateTime, Utc};

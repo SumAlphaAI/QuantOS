@@ -12,6 +12,12 @@ use rust_decimal::Decimal;
 use uuid::Uuid;
 
 fn main() -> Result<()> {
+    if std::env::args().nth(1).as_deref() == Some("--tp07-paper-kernel") {
+        return Ok(quantos_execution::process_kernel::serve_paper_kernel(
+            std::io::stdin().lock(),
+            std::io::stdout().lock(),
+        )?);
+    }
     if std::env::args().nth(1).as_deref() == Some("--f06-paper-probe") {
         return run_f06_paper_probe();
     }

@@ -799,3 +799,16 @@ x03-local-check:
 	node scripts/x03-local-gate.mjs --ready
 x03-release-check:
 	node scripts/x03-local-gate.mjs --release
+
+.PHONY: tp07-check tp07-assess-local tp07-local-check tp07-release-check
+# FUNCTION DEVELOPMENT: current feature and justified impact, no recursive closure.
+tp07-check:
+	cargo test --locked --offline -p quantos-execution --test tp07_dispatch --test x03_authority
+	cargo test --locked --offline -p execution-gateway --test tp07_process
+	node --test scripts/tp07-local-gate.test.mjs
+tp07-assess-local:
+	node scripts/record-tp07-local.mjs
+tp07-local-check:
+	node scripts/tp07-local-gate.mjs --ready
+tp07-release-check:
+	node scripts/tp07-local-gate.mjs --release

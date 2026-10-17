@@ -1,0 +1,47 @@
+{
+  "schema": "quantos-tp07-development-history/v1",
+  "sourceHeadBeforeCommit": "66e1ea4d2954a0db797865421aa0beadf8566feb",
+  "scope": "UNCOMMITTED_PREFLIGHT_ONLY_NOT_FUNCTION_ADMISSION",
+  "failuresPreserved": [
+    {
+      "check": "compile-01",
+      "result": "FAIL",
+      "diagnosis": "legacy TradeCommand is not Serialize; construct exact field fingerprint; BufRead take requires reborrow; both corrected"
+    },
+    {
+      "check": "dispatch-01",
+      "result": "FAIL",
+      "passed": 6,
+      "failed": 1,
+      "diagnosis": "audit fixture caller had account scope; use actual owner scope, no authorization relaxation"
+    },
+    {
+      "check": "plan-edit-01",
+      "result": "FAIL",
+      "diagnosis": "JS string index API typo text.index; no first-plan write occurred; corrected in Python"
+    },
+    {
+      "check": "plan-edit-02",
+      "result": "FAIL",
+      "diagnosis": "frontend handoff uses requiredScope, not handoff; preserve already-written plans and original withdrawal; finish only remaining fields"
+    },
+    {
+      "check": "coverage-01",
+      "result": "BELOW_THRESHOLD",
+      "processLines": 65.61264822134387,
+      "processRegions": 61.67076167076168,
+      "diagnosis": "production env_clear intentionally removes LLVM_PROFILE_FILE; added test-only reference-process probe, product clearing unchanged"
+    },
+    {
+      "check": "process-launch-auto-review",
+      "result": "NOT_STARTED",
+      "reason": "The automatic permission approval review did not finish before its deadline. Do not assume the action is unsafe based on the timeout alone. You may retry once, or ask the user for guidance or explicit approval.",
+      "retryCount": 1,
+      "retryResult": "PASS 3 native process tests; no production/external execution"
+    }
+  ],
+  "repairedCoverage": "coverage-02/coverage.raw.json",
+  "formalAccepted": false,
+  "databaseExecution": false,
+  "upstreamExecuted": false
+}

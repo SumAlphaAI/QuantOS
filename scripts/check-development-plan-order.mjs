@@ -85,13 +85,13 @@ function usesLocalDependencies(node,root) {
  assert.deepEqual(node.stage_gate.evidence,[scope.manifest],'R03 local gate must use its declared manifest');
  const bytes=readFileSync(resolve(root,'docs',scope.manifest));assert.equal('sha256:'+createHash('sha256').update(bytes).digest('hex'),node.stage_gate.input_digest,'R03 local manifest digest differs');
  const r=JSON.parse(bytes);assert.equal(r.schema,scope.schema);assert.equal(r.nodeId,node.id);assert.equal(r.profile,scope.profile);assert.equal(r.status,'READY');assert.equal(r.databaseExecution,false);assert.equal(r.formalAccepted,false);
- if(['X03_LOCAL','X02_LOCAL','X01_LOCAL','S2-SERVICE_LOCAL','EVAL-TP12_LOCAL','EVAL-TP07_LOCAL','SERVICE-S04_LOCAL','S03_LOCAL','S02_LOCAL','TP06_LOCAL','S01_LOCAL','SERVICE-TP01_LOCAL','TP01-G_LOCAL'].includes(scope.profile))for(const key of ['externalPublished','upstreamAccepted','production','externalExecution','performanceAccepted','syncApproved','targetCanaryAccepted','targetRollbackAccepted'])assert.equal(r[key],false,'G local shape cannot claim target acceptance');
+ if(['TP07_LOCAL','X03_LOCAL','X02_LOCAL','X01_LOCAL','S2-SERVICE_LOCAL','EVAL-TP12_LOCAL','EVAL-TP07_LOCAL','SERVICE-S04_LOCAL','S03_LOCAL','S02_LOCAL','TP06_LOCAL','S01_LOCAL','SERVICE-TP01_LOCAL','TP01-G_LOCAL'].includes(scope.profile))for(const key of ['externalPublished','upstreamAccepted','production','externalExecution','performanceAccepted','syncApproved','targetCanaryAccepted','targetRollbackAccepted'])assert.equal(r[key],false,'G local shape cannot claim target acceptance');
  if(scope.profile==='TP01-F_LOCAL')for(const key of ['targetCanaryAccepted','targetRollbackAccepted','externalExecution','performanceAccepted','syncApproved'])assert.equal(r[key],false,'F local shape cannot claim target acceptance');
  assert.deepEqual(r.dependencies.map(d=>d.nodeId),scope.prerequisites);
- if(scope.profile==='X03_LOCAL'){
+ if(['X03_LOCAL','TP07_LOCAL'].includes(scope.profile)){
   assert.equal(r.scope?.phase,'FUNCTION_DEVELOPMENT');assert.equal(r.scope.recursiveDependencyRevalidation,false);assert.equal(r.scope.dependencyAdmission,'NOT_CLAIMED');
   assert.deepEqual(r.phases,{functionImplementation:'PASS',businessIntegration:'NOT_RUN',releaseAcceptance:'NOT_RUN'});
-  assert(r.dependencies.every(d=>d.status==='NOT_REVALIDATED'&&d.referenceOnly===true&&d.owner===node.id),'X03 references cannot grant upstream READY');
+  assert(r.dependencies.every(d=>d.status==='NOT_REVALIDATED'&&d.referenceOnly===true&&d.owner===node.id),'function references cannot grant upstream READY');
  }else assert(r.dependencies.every(d=>d.status==='LOCAL_READY'&&d.owner===node.id&&/^sha256:[0-9a-f]{64}$/.test(d.inputDigest)),'R03 local dependency proof missing');
  assert.equal(r.release.checkpoint,scope.release_checkpoint);assert.equal(r.release.status,'NOT_RUN');assert(r.release.handoff.length>0);assert(r.release.prerequisiteChecks.length>0);
  return true;

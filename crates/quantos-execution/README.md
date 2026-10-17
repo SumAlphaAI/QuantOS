@@ -58,3 +58,12 @@ are tracked separately. See [phased testing](../../docs/operations/phased-testin
 durable distributed consumption/recovery, key custody, downstream TP07 dispatch,
 representative P95 <200ms, target security/load/soak/CI and formal confirmation
 remain separate NOT_RUN obligations.
+
+## TP07 downstream ownership
+
+`dispatch::SignedExecutionGateway` consumes keyed X03 commands with current-risk
+revalidation, scoped idempotency, issuer-owned consumer claims, uncertain-outcome
+quarantine and validated Order/Fill projection. `process_kernel::PaperProcessKernel`
+uses a real bounded owned child process; upstream Nautilus remains unexecuted.
+Legacy checksum gateways are compatibility fixtures. See the
+[TP07 procedure](../../docs/operations/tp07-local-admission.md).

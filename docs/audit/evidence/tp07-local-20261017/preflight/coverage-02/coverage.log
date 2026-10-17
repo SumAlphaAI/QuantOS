@@ -1,0 +1,114 @@
+
+running 2 tests
+test tests::expired_and_denied_commands_never_reach_kernel ... ok
+test tests::allowed_command_submits_once_and_replay_rechecks_session ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test tests::nautilus_gateway_builder_is_available_for_bootstrap ... ok
+test tests::paper_gateway_builder_is_available_for_bootstrap ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 4 tests
+test tp07_process_configuration_and_handshake_are_validated ... ok
+test tp07_reference_process_protocol_replays_exact_wire_without_identity_fields ... ok
+test tp07_real_paper_child_consumes_x03_once_and_maps_owned_order_fill ... ok
+test tp07_process_protocol_timeout_crash_malformed_and_unbound_reply_fail_closed ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.82s
+
+
+running 48 tests
+test gateway::tests::all_six_boundary_rejection_classes_are_enforced_before_the_kernel ... ok
+test dual::tests::m5_flag_off_makes_assisted_live_unreachable ... ok
+test gateway::tests::limit_intent_without_price_is_rejected_before_the_kernel ... ok
+test gateway::tests::nautilus_adapter_maps_wire_shape_and_client_order_id_is_stable ... ok
+test gateway::tests::boundary_command_carries_no_session_or_identity_material ... ok
+test gateway::tests::order_and_fill_events_map_back_to_owned_schema ... ok
+test gateway::tests::nautilus_events_map_back_to_owned_schema_through_the_gateway ... ok
+test gateway::tests::tp07_cached_submission_checks_binding_expiry_and_kill_before_replay ... ok
+test dual::tests::self_approval_cap_expiry_and_allowlist_are_all_rejected ... ok
+test paper::tests::cancel_latency_and_rejections_are_auditable ... ok
+test paper::tests::duplicate_submit_only_calls_downstream_once ... ok
+test paper::tests::illegal_transitions_are_rejected_by_the_state_machine ... ok
+test gateway::tests::tp07_conflicting_duplicate_fill_and_illegal_transition_are_rejected ... ok
+test tests::issuance_p95_stays_under_two_hundred_millis ... ignored, release performance; run cargo test -p quantos-execution --lib p95 -- --ignored
+test gateway::tests::tp07_zero_future_and_arithmetic_overflow_are_rejected_without_kernel_call ... ok
+test gateway::tests::tp07_partial_fills_accumulate_decimal_quantity_and_weighted_price_once ... ok
+test tests::replay::cached_command_expiry_cannot_be_extended_by_fresh_inputs ... ok
+test gateway::tests::hundred_precision_and_limit_variants_are_fully_intercepted ... ok
+test tests::approved_command_carries_approval_signature ... ok
+test gateway::tests::tp07_invalid_event_batches_rollback_and_quarantine_instead_of_corrupting_orders ... ok
+test tests::replay::nonpositive_ttl_never_issues_or_consumes_approval ... ok
+test paper::tests::every_fill_is_traceable_to_a_command ... ok
+test tests::replay::renewed_data_does_not_extend_deadline_and_shortened_data_rejects ... ok
+test tests::replay::replay_rechecks_proposal_and_data_expiry_at_boundary ... ok
+test tests::replay::valid_allow_replay_keeps_identity_signature_and_deadline ... ok
+test tests::replay::conflicting_approval_does_not_consume_a_new_authorization ... ok
+test venue::tests::network_and_authentication_failures_are_classified ... ok
+test tests::replay::same_key_different_requester_conflicts_instead_of_issuing_again ... ok
+test tests::seven_rejection_classes_are_all_enforced ... ok
+test venue::tests::venue_config_rejects_production_endpoints_and_keys ... ok
+test venue::tests::precision_and_rate_limits_are_mapped ... ok
+test zone::tests::mtls_identity_enforces_expiry_and_revocation ... ok
+test zone::tests::only_execution_gateway_can_resolve_vault_references ... ok
+test zone::tests::expired_sessions_and_commands_are_rejected ... ok
+test zone::tests::rotation_recovers_within_five_minutes_then_stales ... ok
+test zone::tests::unlisted_egress_hosts_are_blocked ... ok
+test tests::replay::ttl_uses_the_shortest_bound_without_a_performance_threshold ... ok
+test zone::tests::zone_fixtures_contain_no_secret_material ... ok
+test tests::replay::replay_rechecks_kill_switch_and_release_without_changing_cache ... ok
+test tests::replay::approval_replay_revalidates_every_proof_without_consuming_twice ... ok
+test gateway::tests::nautilus_adapter_replay_also_produces_one_outbox_entry ... ok
+test venue::tests::two_hundred_testnet_scenarios_map_fully_to_internal_schema ... ok
+test tests::replay::conflicting_concurrent_retries_never_obtain_or_create_a_command ... ok
+test dual::tests::fifty_dual_approvals_all_write_signed_audit_entries ... ok
+test tests::replay::business_intent_and_provenance_changes_cannot_reuse_a_key ... ok
+test gateway::tests::thousand_replays_with_same_key_produce_exactly_one_downstream_submission ... ok
+test tests::thousand_concurrent_issuances_with_same_key_emit_exactly_one_command ... ok
+test paper::tests::one_hundred_thousand_order_events_all_transition_legally ... ok
+
+test result: ok. 47 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.72s
+
+
+running 8 tests
+test tp07_kill_cas_cannot_interleave_current_validation_and_kernel_submission ... ok
+test tp07_boundary_rejection_has_no_side_effect_and_allows_corrected_retry ... ok
+test tp07_x03_paper_consumption_replay_and_owned_events ... ok
+test tp07_replays_recheck_current_risk_identity_expiry_release_and_kill ... ok
+test tp07_consumed_approval_is_bound_to_the_same_command_and_never_reconsumed ... ok
+test tp07_independent_gateway_cannot_reconsume_a_claimed_or_uncertain_x03_command ... ok
+test tp07_uncertain_submission_and_invalid_events_are_quarantined_without_retry ... ok
+test tp07_one_thousand_concurrent_x03_consumers_submit_once ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.25s
+
+
+running 8 tests
+test x03_proposal_bytes_quantity_scope_and_configuration_are_not_client_authority ... ok
+test x03_approval_cas_rejection_cancellation_expiry_and_originator_separation ... ok
+test x03_real_modules_issue_replay_signatures_and_audit ... ok
+test x03_risk_lock_kill_linearization_and_other_issuer_cannot_double_consume ... ok
+test x03_conflicting_requester_proposal_decision_and_source_changes_fail_closed ... ok
+test x03_seven_rejections_and_recovery_do_not_consume_approval ... ok
+test x03_failed_transaction_does_not_reserve_consumer_and_kill_waits_for_commit ... ok
+test x03_one_thousand_concurrent_requests_one_signed_command_one_consumption ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.99s
+
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling execution-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/execution-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.47s
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/execution_gateway-b71c7d8d7c6ef583)
+     Running unittests src/main.rs (target/llvm-cov-target/debug/deps/execution_gateway-5873e3efad6f6f2e)
+     Running tests/tp07_process.rs (target/llvm-cov-target/debug/deps/tp07_process-81a63fb2c3b4f376)
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_execution-773de1f9f7a9aa24)
+     Running tests/tp07_dispatch.rs (target/llvm-cov-target/debug/deps/tp07_dispatch-b5ae3528750beab9)
+     Running tests/x03_authority.rs (target/llvm-cov-target/debug/deps/x03_authority-f299c19a5d2ccc87)
+
+    Finished report saved to docs/audit/evidence/tp07-local-20261017/preflight/coverage-02/coverage.raw.json

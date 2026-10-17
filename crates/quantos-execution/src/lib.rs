@@ -2,9 +2,11 @@
 //! compatibility APIs using public checksums. They convey no execution authority.
 //! X03 keyed issuance is exclusively `authority::AtomicCommandIssuer`.
 pub mod authority;
+pub mod dispatch;
 pub mod dual;
 pub mod gateway;
 pub mod paper;
+pub mod process_kernel;
 pub mod venue;
 pub mod zone;
 

@@ -33,3 +33,23 @@ closed when that exporter is absent or unwritable.
 
 - `cargo test -p quantos-execution`
 - `cargo test -p execution-gateway`
+
+## X3 signed consumption and owned Paper process
+
+`X03CommandService` is the trusted typed backend ingress for X03 `SignedCommand`.
+It rechecks exact issuer binding, current identity/risk/sources, consumed approval,
+expiry and kill state, including on replay. Clones share downstream dedupe; issuer
+claims prevent a second gateway from consuming a submitted or uncertain command.
+Errors after entering the kernel require reconciliation, never automatic resubmit
+or fallback. Legacy `ExecutionCommandService` remains an F06 synthetic probe only.
+
+`PaperProcessKernel` launches this binary with `--tp07-paper-kernel` over strict
+64KiB JSON-line stdio, a PID/backend handshake, <=1s request budget, clean environment
+and private working directory. Only opaque command/order wire crosses the boundary.
+This is a real owned Paper process, not an executed Nautilus runtime or OS sandbox.
+No public order HTTP route or production credential is enabled.
+
+Run `make tp07-assess-local` for the 14 function/impact checks; `make tp07-local-check`
+verifies scoped evidence, and `make tp07-release-check` refuses pending targets.
+See [procedure](../../docs/operations/tp07-local-admission.md) and
+[ADR](../../docs/adr/20261017-tp07-paper-dispatch-boundary.md).
