@@ -21,3 +21,5 @@ X03 v2 Gate 仅 `functionImplementation=PASS`；`businessIntegration=NOT_RUN`、
 [项目用户确认规程](../gate-records/user-acceptance-confirmation-workflow.md)继续适用。修改流程的指令不等于确认某份验收文稿；Codex 完整拟稿并保存真实用户回复后才可登记正式确认。
 
 X04 使用`make x04-assess-local`及`scripts/x04-test-scope.mjs`的当前功能/直接影响范围：订单提交/取消、append-only事实及anchor重放、10万混合事件、Fill溯源、真实本机Paper进程及受影响X03/TP07回归；不通过旧全闭包入口。`X04_LOCAL`依赖行仅NOT_REVALIDATED/referenceOnly。源码变化撤回TP07当前独立READY，保留其原SHA历史回执；本轮直接回归只归属X04证据。完整联调与发布独立NOT_RUN，详见[X04操作规程](x04-local-admission.md)。
+
+X05采用`make x05-assess-local`与`scripts/x05-test-scope.mjs`的15组当前功能/直接影响检查；仅验证Shadow/虚拟账本、20类对账、异常闭环、只读X04/X01输入及无submit边界，不重新跑X03/X04/TP07全套或上游闭包。X01–X04运行时代码不变；共享锁文件/Makefile/门禁契约输入变化使X04独立READY撤回，旧回执保留原范围。完整联调、真实10交易日、目标时效和28组发布目标独立NOT_RUN，见[X05规程](x05-local-admission.md)。

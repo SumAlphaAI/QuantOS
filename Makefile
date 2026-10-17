@@ -825,3 +825,17 @@ x04-local-check:
 	node scripts/x04-local-gate.mjs --ready
 x04-release-check:
 	node scripts/x04-local-gate.mjs --release
+
+.PHONY: x05-check x05-assess-local x05-local-check x05-release-check
+# X05 function and direct read-only impact; no recursive upstream closure.
+x05-check:
+	cargo test --locked --offline -p quantos-reconcile --test x05_flow --test x05_sources --test x05_process
+	cargo test --locked --offline -p quantos-reconcile --doc
+	python3 scripts/check-x05-no-submit.py
+	node --test scripts/x05-local-gate.test.mjs
+x05-assess-local:
+	node scripts/record-x05-local.mjs
+x05-local-check:
+	node scripts/x05-local-gate.mjs --ready
+x05-release-check:
+	node scripts/x05-local-gate.mjs --release

@@ -1,4 +1,4 @@
-> 当前执行（CORE:X04，2026-10-17）：源码0e93b885的16组当前功能/直接影响检查全部PASS；提交/取消、100000混合事件合法转换、append-only事实/anchor重放及Fill溯源通过。仅X04_LOCAL功能DEVELOPMENT READY；完整联调、27组目标与发布NOT_RUN，Nautilus运行时DENIED、正式确认PENDING。未做无关全闭包，见[本轮报告](./audit/X04-local-admission-2026-10-17.md)。
+> 当前执行（CORE:X05，2026-10-17）：正在实现Shadow、订单/成交/仓位/虚拟账本对账和20类异常闭环；按当前功能及直接影响范围测试，不递归全依赖。真实行情、10个实际交易日、完整联调与发布独立NOT_RUN。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -762,6 +762,19 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "CORE:X03",
         "CORE:TP07",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:X05": {
+      "profile": "X05_LOCAL",
+      "schema": "quantos-x05-local-development/v1",
+      "manifest": "audit/evidence/x05-local-20261017/manifest.json",
+      "prerequisites": [
+        "CORE:X01",
+        "CORE:X02",
+        "CORE:X03",
+        "CORE:X04",
         "CORE-GATE:S2-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -1958,7 +1971,7 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 - task_id: `X04`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:cf1a2dfb0bcb7b610356382bf7955750d6def2d6d089104b625f94a848e7b878","evidence":["audit/evidence/x04-local-20261017/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1977,6 +1990,9 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 
 本轮X04采用X04_LOCAL分阶段功能门禁，依赖仅NOT_REVALIDATED/referenceOnly；真实Nautilus和目标Supabase未执行。成功、拒绝、原子回滚、权限与风险边界、10万混合事件和Fill溯源属于当前功能检查；联调和发布独立NOT_RUN。
 
+
+X05更新：X04运行时代码未改，因共享Cargo.lock/Makefile与门禁契约输入变化，当前独立READY撤回；原源码/原始证据不变。本轮仅验证X05只读消费，不重新跑X04的10万事件或上游全闭包。
+
 <a id="task-x05"></a>
 ### X05：Shadow 运行、对账与异常队列
 
@@ -1987,7 +2003,7 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 - depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `X3-SERVICE`
 - 需求描述：Shadow 运行、对账与异常队列
@@ -1997,7 +2013,7 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 - 阶段执行：本地开发验证受控时间下20类差异定位、对账/告警机制及禁止venue submit；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：连续 10 个交易日 Shadow；日终未解释差异=0；故意注入 20 类差异均在 ≤15 分钟发现并定位；无 venue submit 调用；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01–X04
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x05)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：正在完成当前X05功能及15组直接影响检查；Shadow无执行路径、Decimal虚拟账本、20类差异/来源定位及CAS/复验关闭和journal恢复均有本轮用例。完整联调、真实持续窗口与发布目标NOT_RUN，正式确认PENDING。见[X05本轮报告](./audit/X05-local-admission-2026-10-17.md)。[历史复审](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x05)保留原记录。
 
 <a id="acceptance-service-x06"></a>
 ### SERVICE:X06：验收检查点
