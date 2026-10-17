@@ -1,4 +1,4 @@
-> 当前执行（CORE:X03，2026-10-17）：首轮冻结e0b5a604完整复验保留FAIL，TP01-C内部manager在180秒限时处exit=null且v1遗漏退出原因；Gate BLOCKED，未拼接历史READY。补充v2诊断及有界预算后须新候选完整42/138重验，25目标NOT_RUN、正式确认PENDING。
+> 当前执行（CORE:X03，2026-10-17）：依据最新AGENTS.md改为功能开发优先与分阶段测试；停止无关全闭包复验，首轮FAIL及第二轮INTERRUPTED原样保留。按X03功能和实际影响范围收尾，功能联调/发布另记NOT_RUN，正式确认PENDING。见[分阶段测试规程](./operations/phased-testing.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -55,6 +55,8 @@
 > 迁移时历史快照：2026-10-07 执行文档目录整理：25 份 BFF/PRE/Desktop 准备产物保留并迁入 `docs/execution/`；读取脚本及输入策略已同步。原 26 READY 和 `52fee5f6e499` 确认为迁移前历史记录，当前受影响功能准入均为 NOT_ASSESSED，需独立内容复评。见[整理报告](./audit/Execution-document-organization-2026-10-07.md)。
 
 > 迁移前历史快照：2026-10-07 PROVIDER:A2 再复核完成：原四项问题全部关闭，当前活动问题0、24/24控制点PASS、26/26 API证据完整；26 READY、0 BLOCKED，G0范围52fee5f6e499已确认。64acc87的9项工程工作流及Dependency Graph共10/10成功；后续文档提交的hosted CI独立核验。见[当前复核报告](./audit/PROVIDER-A2-comprehensive-review-2026-10-07.md)。
+
+> 当前X03及后续功能开发遵循[分阶段测试规程](./operations/phased-testing.md)：当前功能和影响回归优先，完整业务链/全仓留联调、冻结候选完整矩阵留发布，历史失败和中断不得转PASS。
 
 # SumAlpha QuantOS 前端开发执行计划
 
@@ -654,7 +656,7 @@
     },
     "CORE:X03": {
       "profile": "X03_LOCAL",
-      "schema": "quantos-x03-local-development/v1",
+      "schema": "quantos-x03-local-development/v2",
       "manifest": "audit/evidence/x03-local-20261017/manifest.json",
       "prerequisites": [
         "CORE:R04",

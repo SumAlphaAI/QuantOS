@@ -1,0 +1,117 @@
+
+running 43 tests
+test gateway::tests::limit_intent_without_price_is_rejected_before_the_kernel ... ok
+test paper::tests::duplicate_submit_only_calls_downstream_once ... ok
+test paper::tests::cancel_latency_and_rejections_are_auditable ... ok
+test paper::tests::illegal_transitions_are_rejected_by_the_state_machine ... ok
+test gateway::tests::order_and_fill_events_map_back_to_owned_schema ... ok
+test gateway::tests::nautilus_events_map_back_to_owned_schema_through_the_gateway ... ok
+test gateway::tests::all_six_boundary_rejection_classes_are_enforced_before_the_kernel ... ok
+test gateway::tests::boundary_command_carries_no_session_or_identity_material ... ok
+test gateway::tests::nautilus_adapter_maps_wire_shape_and_client_order_id_is_stable ... ok
+test dual::tests::m5_flag_off_makes_assisted_live_unreachable ... ok
+test gateway::tests::nautilus_adapter_replay_also_produces_one_outbox_entry ... ok
+test tests::issuance_p95_stays_under_two_hundred_millis ... ignored, release performance; run cargo test -p quantos-execution --lib p95 -- --ignored
+test dual::tests::self_approval_cap_expiry_and_allowlist_are_all_rejected ... ok
+test paper::tests::every_fill_is_traceable_to_a_command ... ok
+test gateway::tests::thousand_replays_with_same_key_produce_exactly_one_downstream_submission ... ok
+test tests::approved_command_carries_approval_signature ... ok
+test tests::replay::cached_command_expiry_cannot_be_extended_by_fresh_inputs ... ok
+test tests::replay::nonpositive_ttl_never_issues_or_consumes_approval ... ok
+test tests::replay::renewed_data_does_not_extend_deadline_and_shortened_data_rejects ... ok
+test tests::replay::same_key_different_requester_conflicts_instead_of_issuing_again ... ok
+test gateway::tests::hundred_precision_and_limit_variants_are_fully_intercepted ... ok
+test tests::replay::replay_rechecks_proposal_and_data_expiry_at_boundary ... ok
+test tests::replay::conflicting_approval_does_not_consume_a_new_authorization ... ok
+test venue::tests::network_and_authentication_failures_are_classified ... ok
+test venue::tests::venue_config_rejects_production_endpoints_and_keys ... ok
+test venue::tests::precision_and_rate_limits_are_mapped ... ok
+test tests::replay::valid_allow_replay_keeps_identity_signature_and_deadline ... ok
+test zone::tests::only_execution_gateway_can_resolve_vault_references ... ok
+test zone::tests::expired_sessions_and_commands_are_rejected ... ok
+test tests::replay::replay_rechecks_kill_switch_and_release_without_changing_cache ... ok
+test zone::tests::unlisted_egress_hosts_are_blocked ... ok
+test zone::tests::mtls_identity_enforces_expiry_and_revocation ... ok
+test zone::tests::rotation_recovers_within_five_minutes_then_stales ... ok
+test tests::replay::ttl_uses_the_shortest_bound_without_a_performance_threshold ... ok
+test zone::tests::zone_fixtures_contain_no_secret_material ... ok
+test tests::seven_rejection_classes_are_all_enforced ... ok
+test tests::replay::approval_replay_revalidates_every_proof_without_consuming_twice ... ok
+test venue::tests::two_hundred_testnet_scenarios_map_fully_to_internal_schema ... ok
+test tests::replay::conflicting_concurrent_retries_never_obtain_or_create_a_command ... ok
+test dual::tests::fifty_dual_approvals_all_write_signed_audit_entries ... ok
+test tests::replay::business_intent_and_provenance_changes_cannot_reuse_a_key ... ok
+test tests::thousand_concurrent_issuances_with_same_key_emit_exactly_one_command ... ok
+test paper::tests::one_hundred_thousand_order_events_all_transition_legally ... ok
+
+test result: ok. 42 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.72s
+
+
+running 8 tests
+test x03_approval_cas_rejection_cancellation_expiry_and_originator_separation ... ok
+test x03_proposal_bytes_quantity_scope_and_configuration_are_not_client_authority ... ok
+test x03_real_modules_issue_replay_signatures_and_audit ... ok
+test x03_risk_lock_kill_linearization_and_other_issuer_cannot_double_consume ... ok
+test x03_conflicting_requester_proposal_decision_and_source_changes_fail_closed ... ok
+test x03_seven_rejections_and_recovery_do_not_consume_approval ... ok
+test x03_failed_transaction_does_not_reserve_consumer_and_kill_waits_for_commit ... ok
+test x03_one_thousand_concurrent_requests_one_signed_command_one_consumption ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.92s
+
+
+running 5 tests
+test tests::kill_switch_rejects_new_commands_under_one_second_p95 ... ignored, release performance; run make research-release-performance-smokes
+test tests::post_trade_rules_catch_daily_loss_and_leverage_breach ... ok
+test tests::fifty_allow_fixtures_all_pass ... ok
+test tests::fifty_deny_fixtures_cover_every_rule_and_include_limits_and_signature ... ok
+test tests::fifty_approval_required_fixtures_all_route_to_approval ... ok
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 9 tests
+test x02_decision_expires_at_source_deadline_and_rechecks_identity ... ok
+test x02_release_universe_extreme_time_and_cross_authority_are_closed ... ok
+test x02_tamper_expiry_approval_binding_and_daily_boundary ... ok
+test x02_invalid_decimals_sources_and_limit_boundaries_fail_closed ... ok
+test x02_concurrent_duplicate_admission_and_kill_revision_have_one_winner ... ok
+test x02_kill_shared_clones_cas_account_isolation_and_stale_allow ... ok
+test x02_fifty_denials_and_all_rule_outcomes ... ok
+test x02_release_deadline_and_auth_mode_are_part_of_risk_permission ... ok
+test x02_fifty_allow_and_fifty_bound_approval_fixtures ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.75s
+
+info: cargo-llvm-cov currently setting cfg(coverage); you can opt-out it by passing --no-cfg-coverage
+   Compiling serde_json v1.0.151
+   Compiling tower-http v0.6.11
+   Compiling pbjson-types v0.7.0
+   Compiling postgres-types v0.2.14
+   Compiling quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+   Compiling axum v0.7.9
+   Compiling reqwest v0.13.4
+   Compiling tokio-postgres v0.7.18
+   Compiling quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+   Compiling postgres v0.19.14
+   Compiling postgres-openssl v0.5.3
+   Compiling postgres-native-tls v0.5.3
+   Compiling quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+   Compiling quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+   Compiling quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+   Compiling tonic v0.12.3
+   Compiling quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+   Compiling quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+   Compiling quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+   Compiling quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+   Compiling quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+   Compiling quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+   Compiling quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.39s
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_execution-6f15f3e991e46c21)
+     Running tests/x03_authority.rs (target/llvm-cov-target/debug/deps/x03_authority-632cf57cd5fbf1b3)
+     Running unittests src/lib.rs (target/llvm-cov-target/debug/deps/quantos_risk-c25934de99fffffb)
+     Running tests/x02_guard.rs (target/llvm-cov-target/debug/deps/x02_guard-ed754527bd4f38fa)
+
+    Finished report saved to /Users/anray/Documents/project/SumAlpha/QuantOS/docs/audit/evidence/x03-local-20261017/phased-preflight/coverage/coverage.raw.json

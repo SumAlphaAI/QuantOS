@@ -1,0 +1,16 @@
+{
+  "schema": "quantos-phased-testing/v1",
+  "effectiveFrom": "2026-10-17",
+  "authority": "AGENTS.md#功能开发优先与分阶段测试",
+  "development": {
+    "defaultScope": "FUNCTION_AND_IMPACT",
+    "recursiveDependencyRevalidation": false,
+    "wholeWorkspaceByDefault": false,
+    "threeIndependentBuildsByDefault": false,
+    "requireImpactReasonForExpansion": true,
+    "mustVerify": ["correctness", "authorization", "data-integrity", "idempotency", "atomicity", "expiry", "recovery", "risk-refusal"]
+  },
+  "integration": {"scope": "BUSINESS_CHAIN_AND_WORKSPACE", "statusIndependentOfDevelopment": true},
+  "release": {"scope": "FROZEN_CANDIDATE_FULL_APPLICABLE_MATRIX", "sameCandidateEvidence": true, "actualTargetEvidence": true},
+  "evidence": {"preserveFailuresAndInterruptions": true, "stoppedChecksArePass": false, "rebindHistoricalResults": false}
+}

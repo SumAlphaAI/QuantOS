@@ -202,11 +202,11 @@ export function localChecks(id,p=policy(),profile='R03_LOCAL') {
  const spec=localPolicy(profile,p);
  return [...p.nodes[id].checks.map(c=>({'tp09-development':'tp09-local-development','tp10-development':'tp10-local-development','tp11-development':'tp11-local-development'}[c]??c)).filter(c=>!p.checks[c].external&&!p.checks[c].database&&!p.checks[c].target&&!p.checks[c].performance&&!(spec.deferredChecks??[]).includes(c)),...(spec.nodeChecks[id]??[])];
 }
-// X03 starts with the exact S2 execution prefix, then X01/X02 and its own checks.
-// Node manifests still follow the task graph's canonical topological order.
+// Legacy aggregate ordering is retained for explicitly scoped integration/release campaigns.
 export function orderedLocalChecks(nodes=nodesFromPlans(),p=policy(),profile='R03_LOCAL') {
+ assert.notEqual(profile,'X03_LOCAL','X03 development uses record-x03-local.mjs and impact scope, not recursive closure');
  const selected=[...new Set(localPolicy(profile,p).roots.flatMap(id=>closure(nodes,id)))];
- const order=profile==='X03_LOCAL'?[...new Set([...closure(nodes,'CORE-GATE:S2-SERVICE'),...selected])]:selected;
+ const order=selected;
  assert(order.every(id=>selected.includes(id)),'execution cannot expand authorized closure');
  const priority=id=>p.checks[id].reproducibility?3:(p.checks[id].target||p.checks[id].cleanSource)?2:0;
  return [...new Set(order.flatMap(id=>localChecks(id,p,profile)))].sort((a,b)=>priority(b)-priority(a));
@@ -216,6 +216,7 @@ export function localDeferred(nodes=nodesFromPlans(),p=policy(),profile='R03_LOC
  return [...new Set(selected.flatMap(id=>p.nodes[id].checks).concat(localPolicy(profile,p).releaseChecks??[]))].filter(c=>p.checks[c].external||p.checks[c].database||p.checks[c].target||p.checks[c].performance||(localPolicy(profile,p).deferredChecks??[]).includes(c)).map(id=>({id,command:p.checks[id].command,status:'NOT_RUN',checkpoint:'RELEASE-GATE:BETA'}));
 }
 export function validateLocalPrerequisites(path,{nodes=nodesFromPlans(),base=root,profile='R03_LOCAL'}={}) {
+ assert.notEqual(profile,'X03_LOCAL','X03 v1 prerequisite closures are historical; validate function v2 via x03-local-gate.mjs');
  const p=policy(base),bytes=readFileSync(confined(path,base)),index=JSON.parse(bytes);
  const spec=localPolicy(profile,p);assert.equal(index.schema,localIndexSchema(profile));assert.equal(index.owner,spec.owner);assert.equal(index.profile,profile);assert.equal(index.status,'PASS');assert.equal(index.formalAccepted,false);
  assert.equal(index.databaseExecution,false);assert.deepEqual(index.deferred,localDeferred(nodes,p,profile));
@@ -275,7 +276,14 @@ export function executionOutcome(run, timeoutMs) {
  return {exitCode:run.status,status:run.status===0&&!run.error&&!signal?'PASS':'FAIL',timeoutMs,timedOut:code==='ETIMEDOUT',executionErrorCode,signal};
 }
 
-export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1'],{profile}={}) {
+export function validateAggregateCampaign(campaign){
+ assert(campaign&&['INTEGRATION','RELEASE'].includes(campaign.phase),'recursive aggregate is not the DEVELOPMENT default; supply an explicit INTEGRATION/RELEASE campaign with affected business scope and reason');
+ assert(typeof campaign.reason==='string'&&campaign.reason.trim().length>=20,'aggregate campaign needs a concrete impact/business-chain reason');
+ return campaign;
+}
+export function assess(outputDirectory=directory,rootIds=['PROVIDER:A1'],{profile,campaign}={}) {
+ assert.notEqual(profile,'X03_LOCAL','X03 function development uses record-x03-local.mjs; recursive closure disabled');
+ validateAggregateCampaign(campaign);
  const approvedDirectory='docs/audit/evidence/provider-a1-remediation-20261004';
  assert(outputDirectory===approvedDirectory || (outputDirectory.startsWith(approvedDirectory+'/') && /^[a-z0-9/-]+$/.test(outputDirectory) && !outputDirectory.includes('..')), 'unsafe assessment evidence directory');
  if(profile)assert.deepEqual(rootIds,localPolicy(profile).roots,'local projection roots differ from authorized profile');
