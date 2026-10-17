@@ -1,0 +1,48 @@
+{
+  "schema": "quantos-service-x06-expected-refusals/v1",
+  "checks": [
+    {
+      "id": "release-refusal",
+      "command": [
+        "node",
+        "scripts/service-x06-local-gate.mjs",
+        "--release"
+      ],
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "PASS",
+      "elapsedMs": 119,
+      "log": "docs/audit/evidence/service-x06-local-20261017/post/release-refusal.log",
+      "logSha256": "sha256:cd6fd61ecd98e68cda107280419350159aea8729b0c18d9b24884e3ee57dbed6"
+    },
+    {
+      "id": "target-refusal",
+      "command": [
+        "node",
+        "scripts/service-x06-target-check.mjs"
+      ],
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "PASS",
+      "elapsedMs": 25,
+      "log": "docs/audit/evidence/service-x06-local-20261017/post/target-refusal.log",
+      "logSha256": "sha256:20ac383418e2a0d65bbefac67d32d8de49a338802454222aa76fd8b3be73b3ae"
+    },
+    {
+      "id": "upstream-runtime-refusal",
+      "command": [
+        "python3",
+        "scripts/tp12-boundary-review.py",
+        "--runtime"
+      ],
+      "exitCode": 2,
+      "expectedExitCode": 2,
+      "status": "PASS",
+      "elapsedMs": 43,
+      "log": "docs/audit/evidence/service-x06-local-20261017/post/upstream-runtime-refusal.log",
+      "logSha256": "sha256:2b8c6c8b691fc913f1b6d3b9aafae75da37e1b166238ca828a6a1b6ba3288dbd"
+    }
+  ],
+  "releaseAcceptance": "NOT_RUN",
+  "formalAccepted": false
+}

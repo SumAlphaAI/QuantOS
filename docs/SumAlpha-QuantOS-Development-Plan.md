@@ -2068,17 +2068,25 @@ TP12更新：dispatch幂等键边界修复及共享计划/门禁输入变化，X
     "CORE:F09"
   ],
   "required_scope": "执行/审计/运维的授权查询与受控命令、订单/成交/仓位证据链、告警/健康/incident、禁止改账与任意Runbook、职责分离和幂等/恢复服务功能。P08–P14/P20–P23页面及真实BFF消费者在CORE:X06及G4/G5/G6联调；性能/完整视觉/部署验收归 RELEASE-GATE:BETA。 阶段移交：本Gate只验证本地功能；Supabase及外部目标环境、性能与持续指标不阻塞开发，按任务卡移交测试/最终发布，目标NOT_RUN。",
-  "review_status": "NOT_STARTED",
-  "source_commit": null,
-  "evidence": [],
+  "review_status": "IN_REVIEW",
+  "source_commit": "bcadfef9f0501975fcbcdbd14dd25f45bd3943de",
+  "evidence": [
+    "audit/SERVICE-X06-local-admission-2026-10-17.md",
+    "audit/evidence/service-x06-local-20261017/manifest.json",
+    "audit/evidence/service-x06-local-20261017/confirmation-draft.md"
+  ],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "NOT_ASSESSED",
-    "input_digest": null,
-    "evidence": []
+    "status": "READY",
+    "input_digest": "sha256:f30e053adac3d4fa08b287e0138e325c2d68688ebbcdf7b1583f9a77ca3108c2",
+    "evidence": [
+      "audit/evidence/service-x06-local-20261017/manifest.json"
+    ]
   }
 }
 ```
+
+SERVICE:X06当前工程复核：2026-10-17，源码bcadfef9的20组功能/直接影响检查PASS，Rust41项（LLVM另执行23项）、Node87项；三模块行覆盖93.23%–95.74%、区域88.16%–90.63%。完成精确授权、真实X03/X04→X01证据链、受控取消/kill恢复、独立actor/user审核、健康/incident、禁止改账/任意Runbook及未知结果隔离/迟到回执恢复。SERVICE-X06_LOCAL为DEVELOPMENT READY；八个直接依赖NOT_REVALIDATED/referenceOnly，联调/发布NOT_RUN、正式确认PENDING、runtimeAdmission=DENIED，checkpoint仅同gateway租约的进程内实例恢复。见[本轮报告](./audit/SERVICE-X06-local-admission-2026-10-17.md)与[待确认文稿](./audit/evidence/service-x06-local-20261017/confirmation-draft.md)。下一任务CORE-GATE:X3-SERVICE另行评估，不自动执行递归闭包。
 
 <a id="acceptance-core-gate-x3-service"></a>
 ### CORE-GATE:X3-SERVICE：验收检查点

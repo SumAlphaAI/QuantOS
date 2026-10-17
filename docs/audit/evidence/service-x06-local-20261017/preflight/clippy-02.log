@@ -1,0 +1,17 @@
+    Blocking waiting for file lock on build directory
+    Checking quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Checking quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+error: using `clone` on type `ApprovalState` which implements the `Copy` trait
+   --> crates/quantos-operations/src/service.rs:368:24
+    |
+368 |                 state: r.state.clone(),
+    |                        ^^^^^^^^^^^^^^^ help: try removing the `clone` call: `r.state`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#clone_on_copy
+    = note: `-D clippy::clone-on-copy` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::clone_on_copy)]`
+
+error: could not compile `quantos-operations` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quantos-operations` (lib test) due to 1 previous error

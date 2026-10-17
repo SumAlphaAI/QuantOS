@@ -1,0 +1,15 @@
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+error[E0412]: cannot find type `BoundaryCancel` in this scope
+    --> crates/quantos-operations/tests/service_x06.rs:1000:30
+     |
+1000 |     fn cancel(&mut self, c: &BoundaryCancel) -> std::result::Result<(), String> {
+     |                              ^^^^^^^^^^^^^^ not found in this scope
+     |
+help: consider importing this struct
+     |
+   3 + use quantos_execution::oms::BoundaryCancel;
+     |
+
+For more information about this error, try `rustc --explain E0412`.
+error: could not compile `quantos-operations` (test "service_x06") due to 1 previous error

@@ -1,0 +1,33 @@
+    Checking quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Checking quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+warning: unused import: `Role`
+ --> crates/quantos-operations/src/model.rs:5:22
+  |
+5 | use quantos_policy::{Role, RunMode};
+  |                      ^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0277]: the size for values of type `str` cannot be known at compilation time
+   --> crates/quantos-operations/src/service.rs:144:107
+    |
+144 |         let mut s=self.lock()?;let mut staged=s.clone();let(id,new)=self.begin(&mut staged,a,key,"cancel",command_id,now)?;
+    |                                                                          -----                            ^^^^^^^^^^ doesn't have a size known at compile-time
+    |                                                                          |
+    |                                                                          required by a bound introduced by this call
+    |
+    = help: the trait `Sized` is not implemented for `str`
+note: required by an implicit `Sized` bound in `OperationsService::<K>::begin`
+   --> crates/quantos-operations/src/service.rs:53:25
+    |
+ 53 |     pub(crate) fn begin<T:Serialize>(&self,s:&mut State,a:&AuthContext,key:&str,kind:&str,payload:&T,now:DateTime<Utc>)->Result<(ContentH...
+    |                         ^ required by the implicit `Sized` requirement on this type parameter in `OperationsService::<K>::begin`
+help: consider relaxing the implicit `Sized` restriction
+    |
+ 53 |     pub(crate) fn begin<T:Serialize + ?Sized>(&self,s:&mut State,a:&AuthContext,key:&str,kind:&str,payload:&T,now:DateTime<Utc>)->Result<(ContentHash,bool)> {
+    |                                     ++++++++
+
+For more information about this error, try `rustc --explain E0277`.
+warning: `quantos-operations` (lib) generated 1 warning
+error: could not compile `quantos-operations` (lib) due to 1 previous error; 1 warning emitted

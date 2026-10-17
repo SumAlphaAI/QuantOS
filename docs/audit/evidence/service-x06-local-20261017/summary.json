@@ -1,0 +1,157 @@
+{
+  "schema": "quantos-service-x06-local-summary/v1",
+  "sourceCommit": "bcadfef9f0501975fcbcdbd14dd25f45bd3943de",
+  "baselineCommit": "ba9392a895d25188dd85602e0fe5a5f1b905d683",
+  "nodeId": "SERVICE:X06",
+  "profile": "SERVICE-X06_LOCAL",
+  "engineeringStatus": "PASS",
+  "stageGate": "READY",
+  "checks": 20,
+  "uniqueRustBehaviorAndCompileContracts": 41,
+  "serviceBusinessTests": 23,
+  "additionalInstrumentedExecutions": 23,
+  "nodeTests": 87,
+  "gateNegativeTests": 43,
+  "planPolicyTests": 44,
+  "coverage": [
+    {
+      "path": "crates/quantos-operations/src/model.rs",
+      "lines": {
+        "count": 47,
+        "covered": 45,
+        "percent": 95.74468085106383
+      },
+      "regions": {
+        "count": 64,
+        "covered": 58,
+        "notcovered": 6,
+        "percent": 90.625
+      }
+    },
+    {
+      "path": "crates/quantos-operations/src/service.rs",
+      "lines": {
+        "count": 1005,
+        "covered": 937,
+        "percent": 93.23383084577115
+      },
+      "regions": {
+        "count": 1613,
+        "covered": 1422,
+        "notcovered": 191,
+        "percent": 88.15871047737136
+      }
+    },
+    {
+      "path": "crates/quantos-operations/src/telemetry.rs",
+      "lines": {
+        "count": 315,
+        "covered": 300,
+        "percent": 95.23809523809523
+      },
+      "regions": {
+        "count": 465,
+        "covered": 420,
+        "notcovered": 45,
+        "percent": 90.32258064516128
+      }
+    }
+  ],
+  "phases": {
+    "functionImplementation": "PASS",
+    "businessIntegration": "NOT_RUN",
+    "releaseAcceptance": "NOT_RUN"
+  },
+  "formalAccepted": false,
+  "confirmation": "PENDING",
+  "runtimeAdmission": "DENIED",
+  "checkpointDurability": "PROCESS_LOCAL_ONLY",
+  "venueAuthority": "NOT_GRANTED",
+  "databaseExecution": false,
+  "externalPublished": false,
+  "dependencies": [
+    {
+      "nodeId": "CORE:X01",
+      "status": "NOT_REVALIDATED",
+      "owner": "SERVICE:X06",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:X02",
+      "status": "NOT_REVALIDATED",
+      "owner": "SERVICE:X06",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:X03",
+      "status": "NOT_REVALIDATED",
+      "owner": "SERVICE:X06",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:X04",
+      "status": "NOT_REVALIDATED",
+      "owner": "SERVICE:X06",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:X05",
+      "status": "NOT_REVALIDATED",
+      "owner": "SERVICE:X06",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:F05",
+      "status": "NOT_REVALIDATED",
+      "owner": "SERVICE:X06",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:F06",
+      "status": "NOT_REVALIDATED",
+      "owner": "SERVICE:X06",
+      "referenceOnly": true
+    },
+    {
+      "nodeId": "CORE:F09",
+      "status": "NOT_REVALIDATED",
+      "owner": "SERVICE:X06",
+      "referenceOnly": true
+    }
+  ],
+  "releaseTargets": [
+    {
+      "id": "identity",
+      "target": "Actual Supabase sessions/MFA, capability provisioning, account RLS and backend identity/clock resolvers",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "durability",
+      "target": "F05 durable events/outbox/audit and issuer/risk/OMS atomicity; trusted checkpoint storage/reattestation, cross-process and cross-instance crash recovery",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "observer",
+      "target": "Deployed F09/X05 observation source integrity, actual reconciliation and repaired incident evidence",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "integration",
+      "target": "CORE:X06 and G4/G5/G6 BFF/pages P08-P14/P20-P23 complete success/refusal/recovery business chain",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "isolation",
+      "target": "Restricted signed checkpoint retention, actual process isolation/credential receivers and authorized egress",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "release",
+      "target": "Actual target database/deployment/security/performance/soak, frozen same-SHA hosted CI and ProjectUser formal confirmation",
+      "status": "NOT_RUN"
+    }
+  ],
+  "manifestSha256": "sha256:f30e053adac3d4fa08b287e0138e325c2d68688ebbcdf7b1583f9a77ca3108c2",
+  "historicalFilesPreserved": 51928,
+  "nextExecutableTask": "CORE-GATE:X3-SERVICE"
+}

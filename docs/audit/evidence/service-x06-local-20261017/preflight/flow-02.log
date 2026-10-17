@@ -1,0 +1,50 @@
+   Compiling quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+   Compiling quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.50s
+     Running tests/service_x06.rs (target/debug/deps/service_x06-239db94bc74474fb)
+
+running 12 tests
+
+thread 'service_x06_no_arbitrary_runbook_ledger_write_and_copy_queries_are_safe' (3433295) panicked at crates/quantos-operations/tests/service_x06.rs:611:9:
+assertion failed: serde_json::from_str::<Runbook>(body).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test service_x06_no_arbitrary_runbook_ledger_write_and_copy_queries_are_safe ... FAILED
+test service_x06_observer_authority_staleness_empty_health_and_redaction ... ok
+test service_x06_capacity_refusal_has_no_partial_action ... ok
+
+thread 'service_x06_completed_checkpoint_rebuilds_ledger_and_dedupe_without_new_io' (3433290) panicked at crates/quantos-operations/tests/service_x06.rs:505:50:
+called `Result::unwrap()` on an `Err` value: Denied
+test service_x06_completed_checkpoint_rebuilds_ledger_and_dedupe_without_new_io ... FAILED
+test service_x06_forgery_conflicting_keys_and_current_risk_refuse_without_fills ... ok
+
+thread 'service_x06_prepared_restore_is_quarantined_not_automatically_resubmitted' (3433297) panicked at crates/quantos-operations/tests/service_x06.rs:544:50:
+called `Result::unwrap()` on an `Err` value: Denied
+test service_x06_prepared_restore_is_quarantined_not_automatically_resubmitted ... FAILED
+
+thread 'service_x06_kill_resume_requires_independent_user_new_health_cas_and_one_consumption' (3433294) panicked at crates/quantos-operations/tests/service_x06.rs:405:10:
+called `Result::unwrap()` on an `Err` value: Denied
+test service_x06_kill_resume_requires_independent_user_new_health_cas_and_one_consumption ... FAILED
+test service_x06_scope_roles_capabilities_and_fresh_stepup_are_current ... ok
+
+thread 'service_x06_checkpoint_tamper_truncation_scope_and_backwards_clock_refuse' (3433289) panicked at crates/quantos-operations/tests/service_x06.rs:573:50:
+called `Result::unwrap()` on an `Err` value: Denied
+test service_x06_checkpoint_tamper_truncation_scope_and_backwards_clock_refuse ... FAILED
+SERVICE_X06_INCIDENT=ACK_FRESH_REPAIR_INDEPENDENT_CLOSE_REOPEN
+test service_x06_incident_ack_repair_independent_close_and_recurrence ... ok
+SERVICE_X06_EVIDENCE=COMMAND_RISK_APPROVAL_ORDER_FILL_POSITION LEDGER_EVENTS=6 DOWNSTREAM_CALLS=1
+test service_x06_actual_signed_execution_fill_position_and_safe_evidence_chain ... ok
+test service_x06_concurrent_prepare_and_current_replays_are_unique ... ok
+
+failures:
+
+failures:
+    service_x06_checkpoint_tamper_truncation_scope_and_backwards_clock_refuse
+    service_x06_completed_checkpoint_rebuilds_ledger_and_dedupe_without_new_io
+    service_x06_kill_resume_requires_independent_user_new_health_cas_and_one_consumption
+    service_x06_no_arbitrary_runbook_ledger_write_and_copy_queries_are_safe
+    service_x06_prepared_restore_is_quarantined_not_automatically_resubmitted
+
+test result: FAILED. 7 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s
+
+error: test failed, to rerun pass `-p quantos-operations --test service_x06`

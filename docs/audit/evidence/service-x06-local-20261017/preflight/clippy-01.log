@@ -1,0 +1,55 @@
+    Checking quantos-core v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-core)
+    Checking quantos-proto v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-proto)
+    Checking quantos-policy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-policy)
+    Checking quantos-event v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-event)
+    Checking quantos-storage v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-storage)
+    Checking quantos-engine-manager v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-engine-manager)
+    Checking quantos-auth v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-auth)
+    Checking quantos-market v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-market)
+    Checking quantos-strategy v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-strategy)
+    Checking quantos-runtime v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-runtime)
+    Checking quantos-portfolio v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-portfolio)
+    Checking quantos-risk v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-risk)
+    Checking quantos-observability v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-observability)
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+    Checking quantos-operations v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-operations)
+error: this function has too many arguments (8/7)
+   --> crates/quantos-operations/src/service.rs:231:5
+    |
+231 | /     pub(crate) fn change<T: Serialize, F>(
+232 | |         &self,
+233 | |         a: &AuthContext,
+234 | |         step: &VerifiedStepUp,
+...   |
+241 | |     where
+242 | |         F: FnOnce(&mut State) -> Result<ContentHash>,
+    | |_____________________________________________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#too_many_arguments
+    = note: `-D clippy::too-many-arguments` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::too_many_arguments)]`
+
+error: this `if` statement can be collapsed
+   --> crates/quantos-operations/src/service.rs:346:9
+    |
+346 | /         if let Some(h) = head {
+347 | |             if s.audit.last().map(|r| &r.hash) != Some(h) {
+348 | |                 return Err(Error::Conflict);
+349 | |             }
+350 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+346 ~         if let Some(h) = head
+347 ~             && s.audit.last().map(|r| &r.hash) != Some(h) {
+348 |                 return Err(Error::Conflict);
+349 ~             }
+    |
+
+error: could not compile `quantos-operations` (lib test) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quantos-operations` (lib) due to 2 previous errors
