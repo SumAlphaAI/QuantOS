@@ -1,4 +1,4 @@
-> 当前执行（CORE:TP07，2026-10-17）：按最新AGENTS.md完成Paper/内核适配与X03下游幂等消费，当前功能和影响范围验证中；不执行无关全闭包。真实Nautilus运行时、完整业务联调与发布仍NOT_RUN。
+> 当前执行（CORE:TP07，2026-10-17）：源码37922e3d的14组当前功能/直接影响检查全部PASS；X03下游并发单提交、不确定结果隔离、自有Paper真实子进程和Order/Fill映射通过。仅TP07_LOCAL功能DEVELOPMENT READY，真实Nautilus运行时DENIED，完整联调/发布及26组目标NOT_RUN，正式确认PENDING；未执行无关全闭包、生产凭据或外部发布。见[本轮报告](./audit/TP07-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1898,7 +1898,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `TP07`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f02a51bd12e46711e9384384ca73408299129d0974e256e7b1c5ccc4709af592","evidence":["audit/evidence/tp07-local-20261017/manifest.json"]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE:X03", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE:X03", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1913,7 +1913,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 执行定位：S2 Gate 前仅完成固定版本、许可证、capability inventory 和 ADR 评估；本节在 X03 后完成 adapter/Paper 内核与集成验收。S2 的评估完成不代表本项 ACCEPTED。
 - 阶段/依赖：F03、F06、F08；X3
-- 当前工程复核：Paper/内核与X03下游功能已实现，按影响范围验证中。原正式全量复审NOT_STARTED不改写，真实Nautilus/目标/完整业务联调和发布NOT_RUN。见[执行规程](./operations/tp07_nautilus_execution_gateway.md)。
+- 当前工程复核：2026-10-17源码37922e3d的14组功能/影响检查全部PASS；8项TP07消费、4项真实Paper进程/协议、8项X03回归及兼容通过，1000逻辑并发单提交、65门禁反例和44计划检查通过。四文件覆盖率达标；仅TP07_LOCAL功能DEVELOPMENT READY，真实Nautilus运行时DENIED，完整联调/发布/26目标NOT_RUN，正式确认PENDING。见[本轮报告](./audit/TP07-local-admission-2026-10-17.md)。
 
 <a id="task-tp12"></a>
 ### TP12：nautilus_agents
