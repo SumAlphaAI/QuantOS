@@ -87,3 +87,7 @@ facts and block retries even with new keys. State remains process-local; durable
 Supabase transactions, cross-instance recovery/reconciliation and actual Nautilus
 remain separate targets. See [X04 procedure](../../docs/operations/x04-local-admission.md)
 and [ADR](../../docs/adr/20261017-x04-paper-oms-facts.md).
+
+### TP12 current boundary review
+
+SignedExecutionGateway derives its internal downstream idempotency key as a SHA256 of a domain-separated canonical tuple (tenant/workspace/account/caller key), rather than forwarding raw tenant/workspace or caller key bytes. Command/approval verification and current-risk rechecks remain before kernel I/O; account and venue remain intentionally present. The TP12 current signed-path probe checks exact kernel keys/values, refuses Agent trace/forged signature, and verifies stable replay and distinct command keys. This is an owned Paper boundary test, not OS isolation or actual Nautilus/venue acceptance. Process-local dedupe is unchanged; any future persistent key-version migration requires independent recovery design.

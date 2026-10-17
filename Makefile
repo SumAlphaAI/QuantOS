@@ -839,3 +839,17 @@ x05-local-check:
 	node scripts/x05-local-gate.mjs --ready
 x05-release-check:
 	node scripts/x05-local-gate.mjs --release
+
+# TP12 is a boundary/reference task. Function checks do not rerun the dependency closure.
+.PHONY: tp12-check tp12-assess-local tp12-local-check tp12-release-check
+tp12-check:
+	python3 scripts/tp12-boundary-review.py
+
+tp12-assess-local:
+	node scripts/record-tp12-local.mjs
+
+tp12-local-check:
+	node scripts/tp12-local-gate.mjs --ready
+
+tp12-release-check:
+	node scripts/tp12-local-gate.mjs --release

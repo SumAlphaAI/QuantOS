@@ -1,0 +1,1 @@
+console.error('NOT_RUN: TP12 target obligations require separate authorized integration/release evidence; upstream runtime DENIED');process.exitCode=2;

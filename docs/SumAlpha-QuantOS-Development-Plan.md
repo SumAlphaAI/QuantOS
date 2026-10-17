@@ -778,6 +778,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE-GATE:S2-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:TP12": {
+      "profile": "TP12_LOCAL",
+      "schema": "quantos-tp12-local-development/v1",
+      "manifest": "audit/evidence/tp12-local-20261017/manifest.json",
+      "prerequisites": [
+        "CORE:F07",
+        "CORE:TP07",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }
@@ -1952,7 +1963,7 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 - depends_on: ["CORE:F07", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:F07", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `X3-SERVICE`
 - 需求描述：nautilus_agents
@@ -1961,9 +1972,9 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 - 验收标准：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖
 - 阶段执行：本地开发验证ADR、威胁模型、至少5条禁止耦合规则与无运行时依赖；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：明确列出不少于 5 条禁止耦合规则；验证其方案不改变“Agent 不直连 venue”边界；无运行时依赖；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
-- 执行定位：S2 Gate 前基于 TP07 评估材料归档评估结论和 ADR；本项完整复审在 TP07 的 X3 集成验收之后执行。
+- 执行定位：S2 Gate 前基于 TP07 评估材料归档评估结论和 ADR；本项完整复审在 TP07 的 X3 集成验收之后执行；本轮TP12_LOCAL仅完成最新AGENTS.md允许的本地功能边界核对，不将该后置复审标作通过。
 - 阶段/依赖：F07、TP07
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp12)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：2026-10-17，当前X3边界评估已实现：7条禁止耦合规则、6面接口差异、8项威胁假设；独立TP12_LOCAL按功能及直接影响范围验证。完整业务联调、TP07集成后的完整复审、目标/发布NOT_RUN，正式确认PENDING；上游runtimeAdmission=DENIED。见[本轮报告](./audit/TP12-local-admission-2026-10-17.md)，历史S2评估及[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp12)保持原范围。
 
 <a id="task-x04"></a>
 ### X04：Nautilus 边界、Paper OMS 与订单状态机
@@ -1999,7 +2010,7 @@ X05更新：X04运行时代码未改，因共享Cargo.lock/Makefile与门禁契�
 - task_id: `X05`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f51130a2afe4c33a343f7130bb61d154299a8fd34ecb65b39a1005bd3801a811","evidence":["audit/evidence/x05-local-20261017/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:X01", "CORE:X02", "CORE:X03", "CORE:X04", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -2014,6 +2025,9 @@ X05更新：X04运行时代码未改，因共享Cargo.lock/Makefile与门禁契�
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X01–X04
 - 当前工程复核：2026-10-17，源码4f527da8的15组当前功能/直接影响检查全部PASS；Rust24 PASS/Node125 PASS，20类受控差异和原生worker定位、无submit接口/源码边界、Decimal账本/四域对账、CAS及复验关闭/reopen/anchor恢复通过。X05_LOCAL功能DEVELOPMENT READY，完整联调/真实10交易日/28目标及发布NOT_RUN、正式确认PENDING；失败和历史保留，不复验无关全闭包。见[X05本轮报告](./audit/X05-local-admission-2026-10-17.md)。[历史复审](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x05)保留原记录。
+
+
+TP12更新：dispatch幂等键边界修复及共享计划/门禁输入变化，X05当前独立READY撤回；原4f527da8源码及原始证据保留，X05本模块运行时代码未修改。本轮仅验证Agent trace不能伪造X05关闭的直接边界，不重跑20类差异/10万事件或依赖闭包。
 
 <a id="acceptance-service-x06"></a>
 ### SERVICE:X06：验收检查点

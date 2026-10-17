@@ -72,3 +72,13 @@ Verified source anchors (inspected exact current source; frozen candidate bound 
 - `crates/quantos-execution/src/gateway.rs:720` — `fn boundary_command_carries_no_session_or_identity_material`.
 - `crates/quantos-execution/src/gateway.rs:564` — `fn thousand_replays_with_same_key`.
 - `scripts/provider-a1-receipts.mjs:88` — `export function staticEnvironment`.
+
+## 2026-10-17 X3 当前功能补充
+
+本轮逐项核对 T1–T8 与 NC01–NC07，机器补充为 `third_party/nautilus-agents/x3-boundary-review.json`。命令权威为 `authority.rs::AtomicCommandIssuer` 的当前 RiskGuard/审批 CAS，执行权威为 `dispatch.rs::SignedExecutionGateway`；不能再把旧 `lib.rs::CommandIssuer` fixture 测试当作该当前入口证据。通用 ExecutionGateway 与原生 Paper worker 均须处于可信后端，不能从 Agent 暴露；内核净化保留 account/venue，不能宣称匿名化或 OS 隔离。
+
+T1/T3/T5：新增全权威字段别名/工具注入和真实本机 Agent UDS 拒绝/重放测试，以及当前 issuer/dispatch 直接回归。T2/T4：检查净化字段和独立消费者的 uncertain claim，实际崩溃持久幂等仍未验收。T7：Agent Artifact 仅fixture证据；runtime重新记录 provenance；X04事实/Fill与X05服务自有报告/CAS/journal不接受Agent trace自行关闭，可信anchor仍需后端保障。受限trace留存无新实现。T6/T8：固定参考字节不变，新增manifest重命名依赖和Python常量动态加载反例；六接口全部无wire兼容/无runtime采用。
+
+八项仍为设计威胁假设，未作仓库安全扫描/验证漏洞发现。真实部署身份、凭据路径/接收方、egress、实际Nautilus、Supabase/RLS、持久恢复、retention/字段治理、完整复审/最新CVE及法律等继续NOT_RUN。TP12本地功能完成不替代TP07完整业务联调后的复审。每个反例的拒绝只证明当前所测输入；静态扫描不排除任意混淆/外部环境攻击。
+
+T2功能修复：当前SignedExecutionGateway原idempotency_key虽无tenant字段名但值含tenant/workspace原文。本轮以规范元组的域分离SHA256替代，并在真实签发消费路径断言字段值无身份/原始command_key/签名、两键不同和重放无重复调用。该事实只证明本轮自有Paper路径；没有建立真实venue泄露/远程利用或部署安全结论。

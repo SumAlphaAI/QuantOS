@@ -23,3 +23,7 @@ X03 v2 Gate 仅 `functionImplementation=PASS`；`businessIntegration=NOT_RUN`、
 X04 使用`make x04-assess-local`及`scripts/x04-test-scope.mjs`的当前功能/直接影响范围：订单提交/取消、append-only事实及anchor重放、10万混合事件、Fill溯源、真实本机Paper进程及受影响X03/TP07回归；不通过旧全闭包入口。`X04_LOCAL`依赖行仅NOT_REVALIDATED/referenceOnly。源码变化撤回TP07当前独立READY，保留其原SHA历史回执；本轮直接回归只归属X04证据。完整联调与发布独立NOT_RUN，详见[X04操作规程](x04-local-admission.md)。
 
 X05采用`make x05-assess-local`与`scripts/x05-test-scope.mjs`的15组当前功能/直接影响检查；仅验证Shadow/虚拟账本、20类对账、异常闭环、只读X04/X01输入及无submit边界，不重新跑X03/X04/TP07全套或上游闭包。X01–X04运行时代码不变；共享锁文件/Makefile/门禁契约输入变化使X04独立READY撤回，旧回执保留原范围。完整联调、真实10交易日、目标时效和28组发布目标独立NOT_RUN，见[X05规程](x05-local-admission.md)。
+
+TP12为边界/参考评估任务，使用`make tp12-assess-local`的20组当前功能及直接影响检查：固定参考字节、7规则/6接口/8威胁、本机Agent进程与当前签发/审批/风险/净化命令/证据关闭边界；全生产图仅静态排除扫描，不调度全仓回归。TP12_LOCAL只授予本地功能READY；TP07完整联调后的TP12完整复审仍NOT_RUN，依赖为NOT_REVALIDATED/referenceOnly。受影响X05独立READY撤回，原SHA和证据保留；X05本模块不变，上游dispatch键边界按下段修复。见[TP12规程](tp12-local-admission.md)。
+
+TP12核对发现dispatch幂等键值包含tenant/workspace原文，当前修复为域分离规范元组摘要。因此直接影响范围增加为全部8项tp07_dispatch、2项X04取消/控制及1项实际自有Paper进程检查；仍不执行无关S2闭包或10万事件。

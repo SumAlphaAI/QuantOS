@@ -98,13 +98,19 @@ impl<K: ExecutionKernel> SignedExecutionGateway<K> {
             quantity: command.intent.quantity.clone(),
             limit_price: Some(command.intent.limit_price.clone()),
             stop_price: None,
-            idempotency_key: format!(
-                "{}:{}:{}:{}",
-                command.tenant_id,
-                command.workspace_id,
-                command.intent.account_id,
-                command.intent.command_key
-            ),
+            // Preserve scoped dedupe without forwarding tenant/workspace or caller key bytes.
+            // Canonical structured input prevents delimiter ambiguity; domain separates this key.
+            idempotency_key: ContentHash::sha256_bytes(
+                &canonical_json_bytes(&serde_json::json!([
+                    "quantos-signed-dispatch-idempotency/v1",
+                    command.tenant_id,
+                    command.workspace_id,
+                    command.intent.account_id,
+                    command.intent.command_key
+                ]))
+                .map_err(|_| DispatchError::Unavailable)?,
+            )
+            .to_string(),
             approval_signature: None,
             issued_at: command.issued_at,
             expires_at: command.expires_at,

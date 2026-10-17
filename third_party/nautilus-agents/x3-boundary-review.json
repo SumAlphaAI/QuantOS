@@ -1,0 +1,385 @@
+{
+  "schema": "quantos-tp12-x3-boundary-review/v1",
+  "upstreamCommit": "8d79877380f8617b45dff2b8c8b3790c2f9d963a",
+  "decision": "reference_only",
+  "runtimeAdmission": "DENIED",
+  "upstreamExecuted": false,
+  "formalAccepted": false,
+  "prerequisites": [
+    "CORE:F07",
+    "CORE:TP07",
+    "CORE-GATE:S2-SERVICE"
+  ],
+  "phases": {
+    "functionImplementation": "IMPLEMENTED",
+    "businessIntegration": "NOT_RUN",
+    "releaseAcceptance": "NOT_RUN",
+    "postTp07IntegrationFullReview": "NOT_RUN"
+  },
+  "rules": [
+    {
+      "id": "NC-01",
+      "prohibition": "Agent不得持有venue凭据或调用下单/网络/任意工具。",
+      "controls": [
+        {
+          "path": "engines/trading-agents/src/trading_agents/adapter.py",
+          "symbol": "ALLOWED_TOOLS ="
+        }
+      ],
+      "tests": [
+        {
+          "path": "engines/tests/test_tp12_x3_boundary.py",
+          "symbol": "test_all_forbidden_fields_and_authority_aliases_are_rejected"
+        }
+      ],
+      "residualRisk": "请求边界不等同OS进程隔离；真实部署secret/egress未验收。",
+      "evidenceKind": "CURRENT_SOURCE_AND_SCOPED_TEST",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "NC-02",
+      "prohibition": "Agent仅输出executable=false建议，不能把协议建议或advisory变成命令。",
+      "controls": [
+        {
+          "path": "engines/trading-agents/src/trading_agents/proposal_mapper.py",
+          "symbol": "executable=False"
+        },
+        {
+          "path": "crates/quantos-runtime/src/signal_proposal.rs",
+          "symbol": "proposal must keep executable=false"
+        }
+      ],
+      "tests": [
+        {
+          "path": "engines/tests/test_tp12_x3_boundary.py",
+          "symbol": "test_native_agent_process_proposals_replay_and_rejections"
+        }
+      ],
+      "residualRisk": "自有fixture Agent，无上游策略执行；真实行情未验收。",
+      "evidenceKind": "CURRENT_SOURCE_AND_SCOPED_TEST",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "NC-03",
+      "prohibition": "禁止Agent声明替代当前RiskDecision、独立审批或X03原子签发。",
+      "controls": [
+        {
+          "path": "crates/quantos-execution/src/authority.rs",
+          "symbol": "pub struct AtomicCommandIssuer"
+        },
+        {
+          "path": "crates/quantos-execution/src/authority.rs",
+          "symbol": "with_current_allow"
+        }
+      ],
+      "tests": [
+        {
+          "path": "crates/quantos-execution/tests/x03_authority.rs",
+          "symbol": "x03_seven_rejections_and_recovery_do_not_consume_approval"
+        },
+        {
+          "path": "crates/quantos-execution/tests/x03_authority.rs",
+          "symbol": "x03_approval_cas_rejection_cancellation_expiry_and_originator_separation"
+        }
+      ],
+      "residualRisk": "进程内审批/幂等；Supabase持久事务和跨实例恢复未验收。",
+      "evidenceKind": "CURRENT_SOURCE_AND_SCOPED_TEST",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "NC-04",
+      "prohibition": "Agent不得调用kernel；仅真实签发命令经SignedExecutionGateway核验消费，kernel只收净化BoundaryCommand。",
+      "controls": [
+        {
+          "path": "crates/quantos-execution/src/dispatch.rs",
+          "symbol": "command: &SignedCommand"
+        },
+        {
+          "path": "crates/quantos-execution/src/gateway.rs",
+          "symbol": "pub struct BoundaryCommand"
+        },
+        {
+          "path": "crates/quantos-execution/src/dispatch.rs",
+          "symbol": "quantos-signed-dispatch-idempotency/v1"
+        }
+      ],
+      "tests": [
+        {
+          "path": "crates/quantos-execution/tests/tp12_boundary.rs",
+          "symbol": "tp12_signed_dispatch_sanitizes_current_authority_and_agent_trace_cannot_submit"
+        },
+        {
+          "path": "crates/quantos-execution/tests/tp07_dispatch.rs",
+          "symbol": "tp07_independent_gateway_cannot_reconsume_a_claimed_or_uncertain_x03_command"
+        }
+      ],
+      "residualRisk": "通用ExecutionGateway为可信内部API；不应暴露为Agent服务，类型本身不是主机授权。",
+      "evidenceKind": "CURRENT_SOURCE_AND_SCOPED_TEST",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "NC-05",
+      "prohibition": "Agent trace仅为输入证据，禁止自行成为权威审计、Fill事实或差异关闭授权。",
+      "controls": [
+        {
+          "path": "crates/quantos-runtime/src/signal_proposal.rs",
+          "symbol": "record_artifact"
+        },
+        {
+          "path": "crates/quantos-reconcile/src/exceptions.rs",
+          "symbol": "pub struct ReconciliationService"
+        }
+      ],
+      "tests": [
+        {
+          "path": "engines/tests/test_tp12_x3_boundary.py",
+          "symbol": "test_native_agent_process_proposals_replay_and_rejections"
+        },
+        {
+          "path": "crates/quantos-reconcile/tests/x05_flow.rs",
+          "symbol": "x05_rehashed_journal_still_cannot_forge_close_without_acknowledgement"
+        }
+      ],
+      "residualRisk": "受限trace留存/字段治理仍为候选；mock artifact不是生产审计，journal anchor需可信后端。",
+      "evidenceKind": "CURRENT_SOURCE_AND_SCOPED_TEST",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "NC-06",
+      "prohibition": "过期/kill/stale输入禁止绕过当前风险复核；Shadow建议不能签发或提交订单。",
+      "controls": [
+        {
+          "path": "crates/quantos-execution/src/dispatch.rs",
+          "symbol": "pub fn submit("
+        },
+        {
+          "path": "crates/quantos-reconcile/src/shadow.rs",
+          "symbol": "pub struct ShadowRunner"
+        }
+      ],
+      "tests": [
+        {
+          "path": "crates/quantos-execution/tests/tp07_dispatch.rs",
+          "symbol": "tp07_replays_recheck_current_risk_identity_expiry_release_and_kill"
+        }
+      ],
+      "residualRisk": "本机受控时钟；部署时钟/真实feed/持续窗口未验收。",
+      "evidenceKind": "CURRENT_SOURCE_AND_SCOPED_TEST",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "NC-07",
+      "prohibition": "禁止nautilus_agents/Nautilus上游代码进入运行时依赖、锁文件或加载路径；不做自动wire映射。",
+      "controls": [
+        {
+          "path": "scripts/tp12-boundary-review.py",
+          "symbol": "def exclude_runtime"
+        },
+        {
+          "path": "third_party/nautilus-agents/baseline.lock.json",
+          "symbol": "reference_only"
+        }
+      ],
+      "tests": [
+        {
+          "path": "scripts/tests/test_tp12_boundary_review.py",
+          "symbol": "test_renamed_runtime_dependencies_and_dynamic_loads_are_rejected"
+        }
+      ],
+      "residualRisk": "静态扫描无法证明任意混淆代码/主机运行环境安全；LGPL法律与当前CVE/签名仍NOT_RUN。",
+      "evidenceKind": "CURRENT_SOURCE_AND_SCOPED_TEST",
+      "targetStatus": "NOT_RUN"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "observations",
+      "upstream": {
+        "path": "src/protocol/observation.rs",
+        "symbol": "Observation"
+      },
+      "owned": {
+        "path": "crates/quantos-runtime/src/signal_proposal.rs",
+        "symbol": "TradeProposalEvaluationGate"
+      },
+      "difference": "QuantOS snapshot/content hash不是Observation逐字段digest；需拥有方校验而非Agent声明。",
+      "authorityOwner": "owned runtime / snapshot catalog",
+      "openWork": "字段ownership/digest元数据仍待设计。",
+      "wireCompatible": false,
+      "runtimeAdoption": "DENIED"
+    },
+    {
+      "id": "proposals",
+      "upstream": {
+        "path": "src/protocol/live.rs",
+        "symbol": "ReducePosition"
+      },
+      "owned": {
+        "path": "engines/trading-agents/src/trading_agents/proposal_mapper.py",
+        "symbol": "executable=False"
+      },
+      "difference": "上游仅ReducePosition；QuantOS buy/sell/hold/reduce为非可执行建议，不能直接转换SignedCommand。",
+      "authorityOwner": "R04/X02/X03",
+      "openWork": "无wire兼容；新动作须新风险/审批设计。",
+      "wireCompatible": false,
+      "runtimeAdoption": "DENIED"
+    },
+    {
+      "id": "transport",
+      "upstream": {
+        "path": "src/client.rs",
+        "symbol": "AgentClient"
+      },
+      "owned": {
+        "path": "crates/quantos-execution/src/process_kernel.rs",
+        "symbol": "pub struct PaperProcessKernel"
+      },
+      "difference": "AgentClient为Agent协议；PaperProcessKernel是QuantOS自有stdio进程，SignedExecutionGateway为可信后端入口。",
+      "authorityOwner": "signed dispatcher / owned Paper kernel",
+      "openWork": "真实Nautilus及Agent transport、OS隔离/凭据审查未执行。",
+      "wireCompatible": false,
+      "runtimeAdoption": "DENIED"
+    },
+    {
+      "id": "advisory",
+      "upstream": {
+        "path": "src/assurance/advisory.rs",
+        "symbol": "AdvisoryValidator"
+      },
+      "owned": {
+        "path": "crates/quantos-execution/src/authority.rs",
+        "symbol": "pub struct AtomicCommandIssuer"
+      },
+      "difference": "AdvisoryValidator仅诊断，AtomicCommandIssuer以当前RiskGuard/CAS审批决定；审批不来自Agent。",
+      "authorityOwner": "X02 RiskGuard / X03 issuer",
+      "openWork": "持久原子性、跨进程崩溃窗口未验收。",
+      "wireCompatible": false,
+      "runtimeAdoption": "DENIED"
+    },
+    {
+      "id": "retention",
+      "upstream": {
+        "path": "src/assurance/recording.rs",
+        "symbol": "ForbiddenRetention"
+      },
+      "owned": {
+        "path": "crates/quantos-runtime/src/signal_proposal.rs",
+        "symbol": "record_artifact"
+      },
+      "difference": "AgentTrace/DecisionReceipt不能冒充runtime artifact、X04 Fill或X05修复报告。",
+      "authorityOwner": "runtime / OMS / reconciliation service",
+      "openWork": "ReferenceOnly/Redacted/Full和Restricted治理未实现。",
+      "wireCompatible": false,
+      "runtimeAdoption": "DENIED"
+    },
+    {
+      "id": "field-governance",
+      "upstream": {
+        "path": "contract/v1/fields.toml",
+        "symbol": "digest_covered"
+      },
+      "owned": {
+        "path": "proto/quantos/trading/v1/trading.proto",
+        "symbol": "TradeProposal"
+      },
+      "difference": "上游fields.toml是治理元数据，QuantOS protobuf无同等逐字段治理；schema一致不授予权限。",
+      "authorityOwner": "QuantOS contract owners",
+      "openWork": "字段retention/stability/digest迁移需要独立设计。",
+      "wireCompatible": false,
+      "runtimeAdoption": "DENIED"
+    }
+  ],
+  "threats": [
+    {
+      "id": "T1",
+      "rules": [
+        "NC-01",
+        "NC-02"
+      ],
+      "scenario": "Prompt/tool injection seeks venue authority",
+      "currentControl": "NC-01 / NC-02",
+      "residualRisk": "请求边界不等同OS进程隔离；真实部署secret/egress未验收。; 自有fixture Agent，无上游策略执行；真实行情未验收。",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "T2",
+      "rules": [
+        "NC-04"
+      ],
+      "scenario": "Identity/session leaks to kernel",
+      "currentControl": "NC-04",
+      "residualRisk": "通用ExecutionGateway为可信内部API；不应暴露为Agent服务，类型本身不是主机授权。",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "T3",
+      "rules": [
+        "NC-03"
+      ],
+      "scenario": "Advisory verdict substitutes authoritative risk",
+      "currentControl": "NC-03",
+      "residualRisk": "进程内审批/幂等；Supabase持久事务和跨实例恢复未验收。",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "T4",
+      "rules": [
+        "NC-03",
+        "NC-04"
+      ],
+      "scenario": "Retry/replay duplicates downstream order",
+      "currentControl": "NC-03 / NC-04",
+      "residualRisk": "进程内审批/幂等；Supabase持久事务和跨实例恢复未验收。; 通用ExecutionGateway为可信内部API；不应暴露为Agent服务，类型本身不是主机授权。",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "T5",
+      "rules": [
+        "NC-06"
+      ],
+      "scenario": "Expired proposal survives evaluation",
+      "currentControl": "NC-06",
+      "residualRisk": "本机受控时钟；部署时钟/真实feed/持续窗口未验收。",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "T6",
+      "rules": [
+        "NC-07"
+      ],
+      "scenario": "SDK dependency enters production",
+      "currentControl": "NC-07",
+      "residualRisk": "静态扫描无法证明任意混淆代码/主机运行环境安全；LGPL法律与当前CVE/签名仍NOT_RUN。",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "T7",
+      "rules": [
+        "NC-05"
+      ],
+      "scenario": "Trace/retention leaks or forges evidence",
+      "currentControl": "NC-05",
+      "residualRisk": "受限trace留存/字段治理仍为候选；mock artifact不是生产审计，journal anchor需可信后端。",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN"
+    },
+    {
+      "id": "T8",
+      "rules": [
+        "NC-02",
+        "NC-07"
+      ],
+      "scenario": "Protocol/digest mapping drifts",
+      "currentControl": "NC-02 / NC-07",
+      "residualRisk": "自有fixture Agent，无上游策略执行；真实行情未验收。; 静态扫描无法证明任意混淆代码/主机运行环境安全；LGPL法律与当前CVE/签名仍NOT_RUN。",
+      "disposition": "DESIGN_HYPOTHESIS",
+      "targetStatus": "NOT_RUN"
+    }
+  ]
+}

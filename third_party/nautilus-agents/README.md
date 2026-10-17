@@ -31,3 +31,5 @@ git -C nautilus-agents-readonly checkout --detach 8d79877380f8617b45dff2b8c8b379
 ## Offline reassessment
 
 `python3 scripts/tp12-evaluation.py` validates all 12 reference source files against the pinned Git commit/tree/blob chain and SHA-256, seven rules, six interfaces and eight threat hypotheses. `source-git-objects.json` supports offline integrity replay; it does not authenticate upstream signatures. Source files under `source-evidence` are retained LGPL reference evidence and excluded from build/runtime graphs. No upstream execution, installation, code absorption or runtime dependency is authorized. TP12 CVE audit remains NOT_RUN. TP07 advisory hits/unknowns remain open.
+
+2026-10-17 X3 current function review: `x3-boundary-review.json`, `scripts/tp12-boundary-review.py` and TP12_LOCAL. Upstream pin/source bytes unchanged; no upstream installation/import/runtime. Full post-TP07-integration review remains NOT_RUN. See `docs/adr/20261017-tp12-x3-boundary-review.md`.
