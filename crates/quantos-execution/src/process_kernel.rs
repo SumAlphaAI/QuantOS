@@ -1,8 +1,10 @@
 //! QuantOS-owned, bounded stdio process protocol. No upstream code is linked or
 //! launched. The reference backend is Paper; real Nautilus admission is separate.
 use crate::gateway::{
-    BoundaryCommand, ExecutionKernel, KernelEvent, NautilusBoundaryAdapter, NautilusOrderWire,
+    BoundaryCommand, ExecutionKernel, KernelEvent, NautilusBoundaryAdapter, NautilusCancelWire,
+    NautilusOrderWire,
 };
+use crate::oms::BoundaryCancel;
 use chrono::{DateTime, Utc};
 use quantos_core::{CommandId, ContentHash, Quantity};
 use rust_decimal::Decimal;
@@ -40,6 +42,19 @@ struct Reply {
     schema: String,
     request_id: String,
     events: Vec<KernelEvent>,
+}
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Cancel {
+    schema: String,
+    request_id: String,
+    cancel: NautilusCancelWire,
+}
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum Operation {
+    Submit(Submit),
+    Cancel(Cancel),
 }
 fn invalid() -> io::Error {
     io::Error::new(io::ErrorKind::InvalidData, "invalid kernel protocol frame")
@@ -100,6 +115,12 @@ impl PaperProcessKernel {
     /// Only an operator-selected absolute local executable; no shell, inherited
     /// environment, credentials, DB URLs, sessions or stderr are forwarded.
     pub fn spawn(executable: &Path, timeout: Duration) -> Result<Self, String> {
+        Self::spawn_mode(executable, timeout, false)
+    }
+    pub fn spawn_resting(executable: &Path, timeout: Duration) -> Result<Self, String> {
+        Self::spawn_mode(executable, timeout, true)
+    }
+    fn spawn_mode(executable: &Path, timeout: Duration, resting: bool) -> Result<Self, String> {
         if !executable.is_absolute()
             || !executable.is_file()
             || timeout.is_zero()
@@ -109,7 +130,11 @@ impl PaperProcessKernel {
         }
         let directory = PrivateDirectory::new()?;
         let mut child = Command::new(executable)
-            .arg("--tp07-paper-kernel")
+            .arg(if resting {
+                "--x04-paper-resting-kernel"
+            } else {
+                "--tp07-paper-kernel"
+            })
             .env_clear()
             .current_dir(&directory.0)
             .stdin(Stdio::piped())
@@ -212,15 +237,84 @@ impl PaperProcessKernel {
             || reply.request_id != command.command_id
             || reply.events.len() > 16
             || reply.events.is_empty()
-            || reply.events.iter().any(|event| match event {
-                KernelEvent::OrderAccepted { command_id, at, .. }
-                | KernelEvent::OrderRejected { command_id, at, .. }
-                | KernelEvent::OrderFilled { command_id, at, .. } => {
-                    command_id != &command.command_id || *at < now || *at >= command.expires_at
-                }
+            || reply.events.iter().any(|event| {
+                let (id, at) = event.binding();
+                id != command.command_id
+                    || at < now
+                    || at >= command.expires_at
+                    || !matches!(
+                        event,
+                        KernelEvent::OrderAccepted { .. }
+                            | KernelEvent::OrderRejected { .. }
+                            | KernelEvent::OrderFilled { .. }
+                    )
             })
         {
             return Err("kernel response binding invalid".into());
+        }
+        Ok(reply.events)
+    }
+    fn exchange_cancel(&mut self, r: &BoundaryCancel) -> Result<Vec<KernelEvent>, String> {
+        if self.failed {
+            return Err("kernel quarantined".into());
+        }
+        let request = Cancel {
+            schema: PROTOCOL.into(),
+            request_id: r.cancel_id.clone(),
+            cancel: NautilusBoundaryAdapter::wire_cancel(r),
+        };
+        let bytes = frame(&request).map_err(|_| "oversized cancel request")?;
+        self.sender
+            .as_ref()
+            .ok_or("kernel unavailable")?
+            .send(bytes)
+            .map_err(|_| "kernel unavailable")?;
+        let bytes = self
+            .replies
+            .recv_timeout(self.timeout)
+            .map_err(|_| "cancel outcome unknown")??;
+        let reply: Reply = serde_json::from_slice(&bytes).map_err(|_| "cancel response invalid")?;
+        if reply.schema != PROTOCOL
+            || reply.request_id != r.cancel_id
+            || !(1..=2).contains(&reply.events.len())
+            || reply
+                .events
+                .iter()
+                .filter(|e| {
+                    matches!(
+                        e,
+                        KernelEvent::OrderCancelled { .. } | KernelEvent::CancelRejected { .. }
+                    )
+                })
+                .count()
+                != 1
+            || reply.events.iter().any(|e| match e {
+                KernelEvent::OrderCancelled {
+                    command_id,
+                    venue_order_id,
+                    cancel_id,
+                    at,
+                }
+                | KernelEvent::CancelRejected {
+                    command_id,
+                    venue_order_id,
+                    cancel_id,
+                    at,
+                    ..
+                } => {
+                    command_id != &r.command_id
+                        || venue_order_id != &r.venue_order_id
+                        || cancel_id != &r.cancel_id
+                        || *at < r.requested_at
+                        || *at > r.requested_at + chrono::Duration::seconds(1)
+                }
+                KernelEvent::OrderExpired { command_id, at } => {
+                    command_id != &r.command_id || *at > r.requested_at
+                }
+                _ => true,
+            })
+        {
+            return Err("cancel response binding invalid".into());
         }
         Ok(reply.events)
     }
@@ -231,6 +325,18 @@ impl Drop for PaperProcessKernel {
     }
 }
 impl ExecutionKernel for PaperProcessKernel {
+    fn cancel(&mut self, r: &BoundaryCancel) -> Result<(), String> {
+        match self.exchange_cancel(r) {
+            Ok(events) => {
+                self.pending.extend(events);
+                Ok(())
+            }
+            Err(error) => {
+                self.close();
+                Err(error)
+            }
+        }
+    }
     fn submit(&mut self, _: &BoundaryCommand) -> Result<(), String> {
         Err("explicit submission time required".into())
     }
@@ -252,7 +358,13 @@ impl ExecutionKernel for PaperProcessKernel {
 }
 /// Standalone Paper backend. It accepts only owned LIMIT/GTD simulation wire data;
 /// there is no venue, Agent, model, auth, database, tool, or secret resolver here.
-pub fn serve_paper_kernel(input: impl BufRead, mut output: impl Write) -> io::Result<()> {
+pub fn serve_paper_kernel(input: impl BufRead, output: impl Write) -> io::Result<()> {
+    serve(input, output, false)
+}
+pub fn serve_resting_paper_kernel(input: impl BufRead, output: impl Write) -> io::Result<()> {
+    serve(input, output, true)
+}
+fn serve(input: impl BufRead, mut output: impl Write, resting: bool) -> io::Result<()> {
     write_frame(
         &mut output,
         &Ready {
@@ -263,9 +375,87 @@ pub fn serve_paper_kernel(input: impl BufRead, mut output: impl Write) -> io::Re
     )?;
     let mut input = input;
     let mut seen = BTreeMap::<String, (Submit, Reply)>::new();
+    let mut cancelled = std::collections::BTreeSet::new();
+    let mut cancellations = BTreeMap::<String, (Cancel, Reply)>::new();
     while !input.fill_buf()?.is_empty() {
-        let request: Submit =
+        let op: Operation =
             serde_json::from_slice(&read_frame(&mut input)?).map_err(|_| invalid())?;
+        let request = match op {
+            Operation::Submit(request) => request,
+            Operation::Cancel(request) => {
+                let r = &request.cancel;
+                if request.schema != PROTOCOL
+                    || request.request_id != r.cancel_id
+                    || r.cancel_id.is_empty()
+                    || r.cancel_id.len() > 160
+                    || r.venue_order_id.is_empty()
+                {
+                    return Err(invalid());
+                }
+                if let Some((prior, reply)) = cancellations.get(&r.cancel_id) {
+                    if prior != &request {
+                        return Err(invalid());
+                    }
+                    write_frame(&mut output, reply)?;
+                    continue;
+                }
+                if cancellations.len() >= 10_000 {
+                    return Err(invalid());
+                }
+                let (submit, _) = seen.get(&r.client_order_id).ok_or_else(invalid)?;
+                let id = ContentHash::sha256_bytes(r.client_order_id.as_bytes())
+                    .as_str()
+                    .to_owned();
+                if r.venue_order_id != format!("paper-order:{id}")
+                    || r.requested_at < submit.submitted_at
+                {
+                    return Err(invalid());
+                }
+                let mut events = Vec::new();
+                if resting
+                    && !cancelled.contains(&r.client_order_id)
+                    && submit
+                        .order
+                        .expire_time
+                        .is_some_and(|expiry| r.requested_at >= expiry)
+                {
+                    cancelled.insert(r.client_order_id.clone());
+                    events.push(KernelEvent::OrderExpired {
+                        command_id: submit.request_id.clone(),
+                        at: submit.order.expire_time.ok_or_else(invalid)?,
+                    });
+                }
+                let at = r.requested_at + chrono::Duration::milliseconds(10);
+                let event = if resting && !cancelled.contains(&r.client_order_id) {
+                    cancelled.insert(r.client_order_id.clone());
+                    KernelEvent::OrderCancelled {
+                        command_id: submit.request_id.clone(),
+                        venue_order_id: r.venue_order_id.clone(),
+                        cancel_id: r.cancel_id.clone(),
+                        at,
+                    }
+                } else {
+                    KernelEvent::CancelRejected {
+                        command_id: submit.request_id.clone(),
+                        venue_order_id: r.venue_order_id.clone(),
+                        cancel_id: r.cancel_id.clone(),
+                        reason: "order is terminal".into(),
+                        at,
+                    }
+                };
+                let reply = Reply {
+                    schema: PROTOCOL.into(),
+                    request_id: request.request_id.clone(),
+                    events: {
+                        events.push(event);
+                        events
+                    },
+                };
+                write_frame(&mut output, &reply)?;
+                cancellations.insert(r.cancel_id.clone(), (request, reply));
+                continue;
+            }
+        };
         let o = &request.order;
         if request.schema != PROTOCOL
             || request.request_id.is_empty()
@@ -321,6 +511,10 @@ pub fn serve_paper_kernel(input: impl BufRead, mut output: impl Write) -> io::Re
                 },
             ],
         };
+        let mut reply = reply;
+        if resting {
+            reply.events.truncate(1);
+        }
         write_frame(&mut output, &reply)?;
         seen.insert(o.client_order_id.clone(), (request, reply));
     }

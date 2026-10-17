@@ -670,6 +670,38 @@ impl AtomicCommandIssuer {
         }
         Ok(issued)
     }
+    /// X04 control of an already claimed order. Cancellation remains available
+    /// after issuance expiry or kill: it cannot create new exposure. Current
+    /// identity/capability/account scope, exact signed binding and consumer lease
+    /// are still required. The callback must not reenter this issuer.
+    pub fn with_order_control<T, E: From<CommandError>>(
+        &self,
+        consumer: CommandId,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        now: DateTime<Utc>,
+        control: impl FnOnce() -> Result<T, E>,
+    ) -> Result<T, E> {
+        self.authorized(auth, &command.intent, false)?;
+        let s = self.lock()?;
+        Self::clock(&s, now)?;
+        self.verify("command", command, &command.signature)?;
+        let issued = s
+            .issued
+            .get(&(
+                command.intent.account_id,
+                command.intent.command_key.clone(),
+            ))
+            .ok_or(CommandError::Rejected("unknown order command"))?;
+        if issued.command != *command
+            || command.requester != auth.actor_id
+            || command.issued_at > now
+            || s.downstream.get(&command.command_id) != Some(&consumer)
+        {
+            return Err(CommandError::Rejected("order control binding").into());
+        }
+        control()
+    }
     /// TP07 dispatch transaction: authenticate the exact stored command, recheck all
     /// current sources and the consumed approval, and hold issuer -> risk locks
     /// across the bounded downstream callback. The callback must never reenter

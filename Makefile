@@ -812,3 +812,16 @@ tp07-local-check:
 	node scripts/tp07-local-gate.mjs --ready
 tp07-release-check:
 	node scripts/tp07-local-gate.mjs --release
+
+.PHONY: x04-check x04-assess-local x04-local-check x04-release-check
+# X04 function and direct impact only; native Paper fixtures require local child processes.
+x04-check:
+	cargo test --locked --offline -p quantos-execution --test x04_oms --test tp07_dispatch --test x03_authority
+	cargo test --locked --offline -p execution-gateway --test x04_process --test tp07_process
+	node --test scripts/x04-local-gate.test.mjs
+x04-assess-local:
+	node scripts/record-x04-local.mjs
+x04-local-check:
+	node scripts/x04-local-gate.mjs --ready
+x04-release-check:
+	node scripts/x04-local-gate.mjs --release

@@ -50,7 +50,10 @@ impl OrderStatus {
                 Self::PartiallyFilled | Self::Filled | Self::Cancelled | Self::Expired
             ),
             Self::PartiallyFilled => {
-                matches!(next, Self::PartiallyFilled | Self::Filled | Self::Cancelled)
+                matches!(
+                    next,
+                    Self::PartiallyFilled | Self::Filled | Self::Cancelled | Self::Expired
+                )
             }
             _ => false,
         }
@@ -108,6 +111,18 @@ impl OrderState {
     }
 
     pub fn apply(&mut self, event: &OrderEvent) -> Result<(), OrderStateError> {
+        let mut staged = self.clone();
+        staged.apply_inner(event)?;
+        *self = staged;
+        Ok(())
+    }
+    fn apply_inner(&mut self, event: &OrderEvent) -> Result<(), OrderStateError> {
+        if event.venue_order_id != self.venue_order_id {
+            return Err(OrderStateError::IllegalTransition {
+                from: self.status.as_str().into(),
+                to: "foreign order".into(),
+            });
+        }
         let next = match &event.kind {
             OrderEventKind::Submitted => self.status,
             OrderEventKind::Accepted => OrderStatus::Accepted,
@@ -132,10 +147,23 @@ impl OrderState {
             OrderEventKind::CancelRejected { .. } => self.status,
             OrderEventKind::Expired => OrderStatus::Expired,
         };
-        if next != self.status && !self.status.can_transition_to(next) {
+        let neutral = matches!(event.kind, OrderEventKind::CancelRejected { .. })
+            || matches!(event.kind, OrderEventKind::Submitted)
+                && self.status == OrderStatus::Submitted;
+        if !neutral && !self.status.can_transition_to(next) {
             return Err(OrderStateError::IllegalTransition {
                 from: self.status.as_str().to_owned(),
                 to: next.as_str().to_owned(),
+            });
+        }
+        if !self.filled_quantity.is_finite()
+            || !self.gross_value.is_finite()
+            || !self.fees.is_finite()
+            || matches!(event.kind,OrderEventKind::Filled {quantity,price,fee}|OrderEventKind::PartialFill {quantity,price,fee} if quantity<=0. || price<=0. || fee<0.)
+        {
+            return Err(OrderStateError::IllegalTransition {
+                from: self.status.as_str().into(),
+                to: "invalid fill".into(),
             });
         }
         self.status = next;

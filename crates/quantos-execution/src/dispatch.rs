@@ -132,6 +132,50 @@ impl<K: ExecutionKernel> SignedExecutionGateway<K> {
                 })
             })
     }
+    /// Cancel only an authenticated, issuer-bound order owned by this consumer.
+    /// The caller supplies a stable request key for transport-safe replay.
+    pub fn cancel(
+        &self,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        key: &str,
+        now: DateTime<Utc>,
+    ) -> Result<crate::oms::CancelAudit, DispatchError> {
+        let mut gateway = self
+            .gateway
+            .lock()
+            .map_err(|_| DispatchError::Unavailable)?;
+        self.issuer
+            .with_order_control(self.consumer, auth, command, now, || {
+                Ok(gateway.cancel(&command.command_id.to_string(), key, now)?)
+            })
+    }
+    pub fn order_history(
+        &self,
+        auth: &AuthContext,
+        command: &SignedCommand,
+        now: DateTime<Utc>,
+    ) -> Result<Vec<crate::oms::OrderFact>, DispatchError> {
+        let gateway = self
+            .gateway
+            .lock()
+            .map_err(|_| DispatchError::Unavailable)?;
+        self.issuer
+            .with_order_control(self.consumer, auth, command, now, || {
+                Ok(gateway
+                    .facts()
+                    .iter()
+                    .filter(|f| f.command_id == command.command_id.to_string())
+                    .cloned()
+                    .collect())
+            })
+    }
+    pub fn downstream_cancel_count(&self) -> Option<usize> {
+        self.gateway
+            .lock()
+            .ok()
+            .map(|g| g.downstream_cancel_count())
+    }
     #[must_use]
     pub fn downstream_submission_count(&self) -> Option<usize> {
         self.gateway

@@ -1,0 +1,19 @@
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+error[E0433]: failed to resolve: could not find `RunMode` in `quantos_core`
+   --> crates/quantos-execution/tests/x04_oms.rs:237:41
+    |
+237 |             _ => a.mode = quantos_core::RunMode::Research,
+    |                                         ^^^^^^^ could not find `RunMode` in `quantos_core`
+    |
+help: consider importing this enum
+    |
+  4 + use quantos_policy::RunMode;
+    |
+help: if you import `RunMode`, refer to it directly
+    |
+237 -             _ => a.mode = quantos_core::RunMode::Research,
+237 +             _ => a.mode = RunMode::Research,
+    |
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `quantos-execution` (test "x04_oms") due to 1 previous error

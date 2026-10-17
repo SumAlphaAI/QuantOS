@@ -7,7 +7,8 @@
 //! sanitized [`BoundaryCommand`] values — never tenant, actor, session,
 //! decision, or approval context.
 
-use std::collections::BTreeMap;
+use crate::oms::{BoundaryCancel, CancelAudit, CancelOutcome, FactAnchor, FactKind, OrderFact};
+use std::collections::{BTreeMap, BTreeSet};
 
 use chrono::{DateTime, Utc};
 use quantos_core::{ContentHash, Quantity, canonical_json_bytes};
@@ -108,6 +109,10 @@ pub enum GatewayError {
     SubmissionUncertain,
     #[error("INVALID_KERNEL_EVENTS: dispatch quarantined")]
     InvalidEvents,
+    #[error("CANCEL_REJECTED: unknown order, invalid request, clock or correlation")]
+    InvalidCancel,
+    #[error("CANCEL_UNCERTAIN: reconcile before retry")]
+    CancelUncertain,
 }
 
 /// Kernel-side event in QuantOS-owned vocabulary.
@@ -134,11 +139,44 @@ pub enum KernelEvent {
         fee_amount: String,
         at: DateTime<Utc>,
     },
+    OrderCancelled {
+        command_id: String,
+        venue_order_id: String,
+        cancel_id: String,
+        at: DateTime<Utc>,
+    },
+    CancelRejected {
+        command_id: String,
+        venue_order_id: String,
+        cancel_id: String,
+        reason: String,
+        at: DateTime<Utc>,
+    },
+    OrderExpired {
+        command_id: String,
+        at: DateTime<Utc>,
+    },
+}
+
+impl KernelEvent {
+    pub fn binding(&self) -> (&str, DateTime<Utc>) {
+        match self {
+            Self::OrderAccepted { command_id, at, .. }
+            | Self::OrderRejected { command_id, at, .. }
+            | Self::OrderFilled { command_id, at, .. }
+            | Self::OrderCancelled { command_id, at, .. }
+            | Self::CancelRejected { command_id, at, .. }
+            | Self::OrderExpired { command_id, at } => (command_id, *at),
+        }
+    }
 }
 
 /// Execution kernel boundary. Implementations must be independent processes or
 /// pure in-memory simulators; they never receive session or identity context.
 pub trait ExecutionKernel {
+    fn cancel(&mut self, _request: &BoundaryCancel) -> Result<(), String> {
+        Err("cancel unsupported".into())
+    }
     fn submit(&mut self, command: &BoundaryCommand) -> Result<(), String>;
     fn drain_events(&mut self) -> Vec<KernelEvent>;
     fn submit_at(&mut self, command: &BoundaryCommand, _now: DateTime<Utc>) -> Result<(), String> {
@@ -161,6 +199,7 @@ pub struct GatewayOrder {
     pub average_fill_price: Option<String>,
     pub status: String,
     pub submitted_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub rejection_reason: Option<String>,
 }
@@ -168,6 +207,7 @@ pub struct GatewayOrder {
 /// QuantOS-owned Fill record (mirrors `quantos.trading.v1.Fill`).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GatewayFill {
+    pub command_id: String,
     pub fill_id: String,
     pub order_id: String,
     pub venue_fill_id: Option<String>,
@@ -198,7 +238,6 @@ pub enum SubmissionState {
 struct SubmissionRecord {
     binding: ContentHash,
     state: SubmissionState,
-    expires_at: DateTime<Utc>,
     order_id: String,
     command_id: String,
 }
@@ -215,6 +254,12 @@ pub struct ExecutionGateway<K: ExecutionKernel> {
     fills: Vec<GatewayFill>,
     downstream_submissions: usize,
     event_quarantined: bool,
+    fill_index: BTreeMap<String, GatewayFill>,
+    seen_events: BTreeSet<String>,
+    cancels: BTreeMap<String, CancelAudit>,
+    facts: Vec<OrderFact>,
+    downstream_cancels: usize,
+    blocked_cancel_orders: BTreeSet<String>,
 }
 
 impl<K: ExecutionKernel> ExecutionGateway<K> {
@@ -229,6 +274,12 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
             fills: Vec::new(),
             downstream_submissions: 0,
             event_quarantined: false,
+            fill_index: BTreeMap::new(),
+            seen_events: BTreeSet::new(),
+            cancels: BTreeMap::new(),
+            facts: Vec::new(),
+            downstream_cancels: 0,
+            blocked_cancel_orders: BTreeSet::new(),
         }
     }
 
@@ -307,16 +358,10 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
             SubmissionRecord {
                 binding: binding.clone(),
                 state: SubmissionState::Uncertain,
-                expires_at: command.expires_at,
                 order_id: order_id.clone(),
                 command_id: boundary.command_id.clone(),
             },
         );
-        self.downstream_submissions += 1;
-        self.kernel
-            .submit_at(&boundary, now)
-            .map_err(|_| GatewayError::SubmissionUncertain)?;
-
         self.orders.insert(
             order_id.clone(),
             GatewayOrder {
@@ -332,16 +377,29 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
                 average_fill_price: None,
                 status: "submitted".to_owned(),
                 submitted_at: now,
+                expires_at: command.expires_at,
                 updated_at: now,
                 rejection_reason: None,
             },
         );
+        self.append_fact(
+            &order_id,
+            &boundary.command_id,
+            FactKind::Submitted {
+                order: self.orders[&order_id].clone(),
+                expires_at: command.expires_at,
+            },
+        );
+        self.downstream_submissions += 1;
+        self.kernel
+            .submit_at(&boundary, now)
+            .map_err(|_| GatewayError::SubmissionUncertain)?;
+
         self.submissions_by_key.insert(
             key,
             SubmissionRecord {
                 binding,
                 state: SubmissionState::Submitted,
-                expires_at: command.expires_at,
                 order_id: order_id.clone(),
                 command_id: boundary.command_id,
             },
@@ -432,23 +490,57 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
         if self.event_quarantined {
             return Err(GatewayError::InvalidEvents);
         }
-        let mut orders = self.orders.clone();
-        let mut fills = self.fills.clone();
-        let mut new_fills = Vec::new();
+        // Copy only touched orders; no O(total history) clone for each drain.
+        let mut orders = BTreeMap::new();
+        let mut fills = BTreeMap::new();
+        let mut cancels = BTreeMap::new();
+        let mut seen = BTreeSet::new();
+        let mut accepted = Vec::new();
         let result: Result<(), GatewayError> = (|| {
             for event in self.kernel.drain_events() {
-                let id = match &event {
-                    KernelEvent::OrderAccepted { command_id, .. }
-                    | KernelEvent::OrderRejected { command_id, .. }
-                    | KernelEvent::OrderFilled { command_id, .. } => command_id,
-                };
-                let deadline = self
-                    .submissions_by_key
-                    .values()
-                    .find(|r| &r.command_id == id)
-                    .map(|r| r.expires_at)
+                let bytes = canonical_json_bytes(
+                    &serde_json::to_value(&event).map_err(|_| GatewayError::InvalidEvents)?,
+                )
+                .map_err(|_| GatewayError::InvalidEvents)?;
+                let hash = ContentHash::sha256_bytes(&bytes).as_str().to_owned();
+                if self.seen_events.contains(&hash) || !seen.insert(hash) {
+                    continue;
+                }
+                let (id, _) = event.binding();
+                let order_id = deterministic_id("order", id);
+                if !orders.contains_key(&order_id) {
+                    orders.insert(
+                        order_id.clone(),
+                        self.orders
+                            .get(&order_id)
+                            .cloned()
+                            .ok_or(GatewayError::InvalidEvents)?,
+                    );
+                }
+                let order = orders
+                    .get_mut(&order_id)
                     .ok_or(GatewayError::InvalidEvents)?;
-                apply_event(&mut orders, &mut fills, &mut new_fills, event, deadline)?;
+                let deadline = order.expires_at;
+                match &event {
+                    KernelEvent::OrderCancelled { cancel_id, .. }
+                    | KernelEvent::CancelRejected { cancel_id, .. } => {
+                        if !cancels.contains_key(cancel_id) {
+                            cancels.insert(
+                                cancel_id.clone(),
+                                self.cancels
+                                    .get(cancel_id)
+                                    .cloned()
+                                    .ok_or(GatewayError::InvalidEvents)?,
+                            );
+                        }
+                        let audit = cancels
+                            .get_mut(cancel_id)
+                            .ok_or(GatewayError::InvalidEvents)?;
+                        apply_cancel(order, audit, &event)?;
+                    }
+                    _ => apply_event(order, &self.fill_index, &mut fills, event.clone(), deadline)?,
+                }
+                accepted.push((order_id, id.to_owned(), event));
             }
             Ok(())
         })();
@@ -456,9 +548,252 @@ impl<K: ExecutionKernel> ExecutionGateway<K> {
             self.event_quarantined = true;
             return Err(GatewayError::InvalidEvents);
         }
-        self.orders = orders;
-        self.fills = fills;
+        self.orders.extend(orders);
+        self.cancels.extend(cancels);
+        self.seen_events.extend(seen);
+        // Projection order follows append-only event order, independent of drain
+        // batch boundaries or hashed fill IDs. Replay must reproduce the same list.
+        let new_fills: Vec<_> = accepted
+            .iter()
+            .filter_map(|(_, _, event)| match event {
+                KernelEvent::OrderFilled {
+                    command_id,
+                    venue_fill_id,
+                    ..
+                } => fills
+                    .get(&deterministic_id(
+                        "fill",
+                        &format!("{command_id}:{venue_fill_id}"),
+                    ))
+                    .cloned(),
+                _ => None,
+            })
+            .collect();
+        self.fills.extend(new_fills.clone());
+        self.fill_index.extend(fills);
+        for (order_id, id, event) in accepted {
+            self.append_fact(&order_id, &id, FactKind::Kernel { event });
+        }
         Ok(new_fills)
+    }
+    fn append_fact(&mut self, order_id: &str, command_id: &str, kind: FactKind) {
+        self.facts
+            .push(OrderFact::next(&self.facts, order_id, command_id, kind));
+    }
+    pub fn fact_anchor(&self) -> FactAnchor {
+        FactAnchor {
+            count: self.facts.len() as u64,
+            head: self.facts.last().map(|f| f.hash.clone()),
+        }
+    }
+    pub fn facts(&self) -> &[OrderFact] {
+        &self.facts
+    }
+    pub fn cancel_audits(&self) -> &BTreeMap<String, CancelAudit> {
+        &self.cancels
+    }
+    pub fn downstream_cancel_count(&self) -> usize {
+        self.downstream_cancels
+    }
+    pub fn cancel(
+        &mut self,
+        command_id: &str,
+        key: &str,
+        now: DateTime<Utc>,
+    ) -> Result<CancelAudit, GatewayError> {
+        if self.event_quarantined {
+            return Err(GatewayError::InvalidEvents);
+        }
+        if key.is_empty()
+            || key.len() > 128
+            || !key
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || b"-_:".contains(&b))
+        {
+            return Err(GatewayError::InvalidCancel);
+        }
+        let order_id = deterministic_id("order", command_id);
+        let order = self
+            .orders
+            .get(&order_id)
+            .ok_or(GatewayError::InvalidCancel)?;
+        let cancel_id = deterministic_id("cancel", &format!("{command_id}:{key}"));
+        if let Some(prior) = self.cancels.get(&cancel_id) {
+            return if matches!(
+                prior.outcome,
+                CancelOutcome::Pending | CancelOutcome::Uncertain
+            ) {
+                Err(GatewayError::CancelUncertain)
+            } else {
+                Ok(prior.clone())
+            };
+        }
+        if self.blocked_cancel_orders.contains(&order_id) {
+            return Err(GatewayError::CancelUncertain);
+        }
+        if now < order.updated_at {
+            return Err(GatewayError::InvalidCancel);
+        }
+        let request = BoundaryCancel {
+            command_id: command_id.into(),
+            venue_order_id: order
+                .venue_order_id
+                .clone()
+                .ok_or(GatewayError::InvalidCancel)?,
+            cancel_id: cancel_id.clone(),
+            requested_at: now,
+        };
+        let audit = CancelAudit {
+            request: request.clone(),
+            order_id: order_id.clone(),
+            completed_at: None,
+            latency_micros: None,
+            outcome: CancelOutcome::Pending,
+            reason: None,
+        };
+        self.cancels.insert(cancel_id.clone(), audit);
+        self.append_fact(
+            &order_id,
+            command_id,
+            FactKind::CancelRequested {
+                request: request.clone(),
+            },
+        );
+        self.blocked_cancel_orders.insert(order_id.clone());
+        self.downstream_cancels += 1;
+        let result = self.kernel.cancel(&request);
+        if result.is_ok()
+            && let Err(error) = self.try_collect_events()
+        {
+            self.cancels
+                .get_mut(&cancel_id)
+                .expect("reserved cancel")
+                .outcome = CancelOutcome::Uncertain;
+            self.append_fact(
+                &order_id,
+                command_id,
+                FactKind::CancelUncertain { cancel_id },
+            );
+            return Err(error);
+        }
+        if result.is_err() || self.cancels[&cancel_id].outcome == CancelOutcome::Pending {
+            self.cancels
+                .get_mut(&cancel_id)
+                .expect("reserved cancel")
+                .outcome = CancelOutcome::Uncertain;
+            self.append_fact(
+                &order_id,
+                command_id,
+                FactKind::CancelUncertain { cancel_id },
+            );
+            return Err(GatewayError::CancelUncertain);
+        }
+        self.blocked_cancel_orders.remove(&order_id);
+        Ok(self.cancels[&cancel_id].clone())
+    }
+    /// Verify hash, sequence and business transitions by rebuilding from facts.
+    /// Rebuilt state carries no issuance or submission authority.
+    pub fn replay_facts(
+        facts: &[OrderFact],
+        anchor: &FactAnchor,
+    ) -> Result<ExecutionGateway<NautilusBoundaryAdapter>, GatewayError> {
+        if anchor.count != facts.len() as u64 || anchor.head != facts.last().map(|f| f.hash.clone())
+        {
+            return Err(GatewayError::InvalidEvents);
+        }
+        let mut book = ExecutionGateway::new(
+            GatewayLimits {
+                max_quantity: Decimal::MAX,
+                max_notional: Decimal::MAX,
+                allowed_venues: vec![],
+            },
+            NautilusBoundaryAdapter::new(),
+        );
+        for fact in facts {
+            let expected = OrderFact::next(
+                &book.facts,
+                &fact.order_id,
+                &fact.command_id,
+                fact.content.clone(),
+            );
+            if fact != &expected {
+                return Err(GatewayError::InvalidEvents);
+            }
+            let order_id = deterministic_id("order", &fact.command_id);
+            if fact.order_id != order_id {
+                return Err(GatewayError::InvalidEvents);
+            }
+            match &fact.content {
+                FactKind::Submitted { order, expires_at } => {
+                    if book.orders.contains_key(&order_id)
+                        || order.order_id != order_id
+                        || order.command_id != fact.command_id
+                        || order.status != "submitted"
+                        || order.filled_quantity != "0"
+                        || order.average_fill_price.is_some()
+                        || order.venue_order_id.is_some()
+                        || order.rejection_reason.is_some()
+                        || order.updated_at != order.submitted_at
+                        || order.expires_at != *expires_at
+                        || *expires_at <= order.submitted_at
+                        || !Quantity::parse_str(&order.quantity)
+                            .is_ok_and(|q| q.value() > Decimal::ZERO)
+                    {
+                        return Err(GatewayError::InvalidEvents);
+                    }
+                    book.orders.insert(order_id.clone(), order.clone());
+                    book.append_fact(&order_id, &fact.command_id, fact.content.clone());
+                }
+                FactKind::Kernel { event } => {
+                    if event.binding().0 != fact.command_id {
+                        return Err(GatewayError::InvalidEvents);
+                    }
+                    book.kernel.push_event(event.clone());
+                    book.try_collect_events()?;
+                }
+                FactKind::CancelRequested { request } => {
+                    let order = book
+                        .orders
+                        .get(&order_id)
+                        .ok_or(GatewayError::InvalidEvents)?;
+                    if request.command_id != fact.command_id
+                        || request.cancel_id.is_empty()
+                        || book.cancels.contains_key(&request.cancel_id)
+                        || order.venue_order_id.as_ref() != Some(&request.venue_order_id)
+                        || request.requested_at < order.updated_at
+                    {
+                        return Err(GatewayError::InvalidEvents);
+                    }
+                    book.cancels.insert(
+                        request.cancel_id.clone(),
+                        CancelAudit {
+                            request: request.clone(),
+                            order_id: order_id.clone(),
+                            completed_at: None,
+                            latency_micros: None,
+                            outcome: CancelOutcome::Pending,
+                            reason: None,
+                        },
+                    );
+                    book.append_fact(&order_id, &fact.command_id, fact.content.clone());
+                }
+                FactKind::CancelUncertain { cancel_id } => {
+                    let audit = book
+                        .cancels
+                        .get_mut(cancel_id)
+                        .ok_or(GatewayError::InvalidEvents)?;
+                    if audit.outcome != CancelOutcome::Pending || audit.order_id != order_id {
+                        return Err(GatewayError::InvalidEvents);
+                    }
+                    audit.outcome = CancelOutcome::Uncertain;
+                    book.append_fact(&order_id, &fact.command_id, fact.content.clone());
+                }
+            }
+            if book.facts.last() != Some(fact) {
+                return Err(GatewayError::InvalidEvents);
+            }
+        }
+        Ok(book)
     }
     #[must_use]
     pub fn submission_state(&self, key: &str) -> Option<SubmissionState> {
@@ -497,6 +832,8 @@ pub struct PaperKernel {
     reference_price: String,
     accepted: usize,
     pending: Vec<KernelEvent>,
+    resting: bool,
+    orders: BTreeMap<String, (String, bool, DateTime<Utc>)>,
 }
 
 impl PaperKernel {
@@ -506,6 +843,14 @@ impl PaperKernel {
             reference_price: reference_price.into(),
             accepted: 0,
             pending: Vec::new(),
+            resting: false,
+            orders: BTreeMap::new(),
+        }
+    }
+    pub fn resting(reference_price: impl Into<String>) -> Self {
+        Self {
+            resting: true,
+            ..Self::new(reference_price)
         }
     }
 
@@ -516,6 +861,40 @@ impl PaperKernel {
 }
 
 impl ExecutionKernel for PaperKernel {
+    fn cancel(&mut self, r: &BoundaryCancel) -> Result<(), String> {
+        let at = r.requested_at + chrono::Duration::milliseconds(10);
+        if let Some((id, open, expiry)) = self.orders.get_mut(&r.command_id)
+            && id == &r.venue_order_id
+            && *open
+            && r.requested_at >= *expiry
+        {
+            *open = false;
+            self.pending.push(KernelEvent::OrderExpired {
+                command_id: r.command_id.clone(),
+                at: *expiry,
+            });
+        }
+        let event = match self.orders.get_mut(&r.command_id) {
+            Some((id, open, _)) if id == &r.venue_order_id && *open => {
+                *open = false;
+                KernelEvent::OrderCancelled {
+                    command_id: r.command_id.clone(),
+                    venue_order_id: r.venue_order_id.clone(),
+                    cancel_id: r.cancel_id.clone(),
+                    at,
+                }
+            }
+            _ => KernelEvent::CancelRejected {
+                command_id: r.command_id.clone(),
+                venue_order_id: r.venue_order_id.clone(),
+                cancel_id: r.cancel_id.clone(),
+                reason: "order is terminal or unknown".into(),
+                at,
+            },
+        };
+        self.pending.push(event);
+        Ok(())
+    }
     fn submit(&mut self, command: &BoundaryCommand) -> Result<(), String> {
         self.submit_at(
             command,
@@ -535,6 +914,13 @@ impl ExecutionKernel for PaperKernel {
             venue_order_id: venue_order_id.clone(),
             at: now,
         });
+        self.orders.insert(
+            command.command_id.clone(),
+            (venue_order_id.clone(), self.resting, command.expires_at),
+        );
+        if self.resting {
+            return Ok(());
+        }
         self.pending.push(KernelEvent::OrderFilled {
             command_id: command.command_id.clone(),
             venue_order_id,
@@ -1065,6 +1451,7 @@ mod tests {
 #[derive(Debug, Default)]
 pub struct NautilusBoundaryAdapter {
     outbox: Vec<NautilusOrderWire>,
+    cancel_outbox: Vec<NautilusCancelWire>,
     client_order_index: BTreeMap<String, String>,
     pending: Vec<KernelEvent>,
 }
@@ -1086,13 +1473,34 @@ pub struct NautilusOrderWire {
     pub expire_time: Option<DateTime<Utc>>,
 }
 
+/// Owned cancel wire vocabulary; no credentials or user request keys.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct NautilusCancelWire {
+    pub client_order_id: String,
+    pub venue_order_id: String,
+    pub cancel_id: String,
+    pub requested_at: DateTime<Utc>,
+}
 impl NautilusBoundaryAdapter {
+    pub fn wire_cancel(r: &BoundaryCancel) -> NautilusCancelWire {
+        NautilusCancelWire {
+            client_order_id: deterministic_id("client-order", &r.command_id),
+            venue_order_id: r.venue_order_id.clone(),
+            cancel_id: r.cancel_id.clone(),
+            requested_at: r.requested_at,
+        }
+    }
     #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
     #[must_use]
+    pub fn cancel_outbox(&self) -> &[NautilusCancelWire] {
+        &self.cancel_outbox
+    }
+
     pub fn outbox(&self) -> &[NautilusOrderWire] {
         &self.outbox
     }
@@ -1152,6 +1560,23 @@ impl NautilusBoundaryAdapter {
                 reason: text("reason")?,
                 at,
             }),
+            "OrderCanceled" => Ok(KernelEvent::OrderCancelled {
+                command_id: text("client_order_id")?,
+                venue_order_id: text("venue_order_id")?,
+                cancel_id: text("cancel_id")?,
+                at,
+            }),
+            "OrderCancelRejected" => Ok(KernelEvent::CancelRejected {
+                command_id: text("client_order_id")?,
+                venue_order_id: text("venue_order_id")?,
+                cancel_id: text("cancel_id")?,
+                reason: text("reason")?,
+                at,
+            }),
+            "OrderExpired" => Ok(KernelEvent::OrderExpired {
+                command_id: text("client_order_id")?,
+                at,
+            }),
             "OrderFilled" => Ok(KernelEvent::OrderFilled {
                 command_id: text("client_order_id")?,
                 venue_order_id: text("venue_order_id")?,
@@ -1176,17 +1601,38 @@ impl NautilusBoundaryAdapter {
     /// to the QuantOS command id tracked by this adapter.
     pub fn map_event_for(&self, payload: &serde_json::Value) -> Result<KernelEvent, String> {
         let event = Self::map_event(payload)?;
-        let client_order_id = match &event {
-            KernelEvent::OrderAccepted { command_id, .. }
-            | KernelEvent::OrderRejected { command_id, .. }
-            | KernelEvent::OrderFilled { command_id, .. } => command_id.clone(),
-        };
+        let client_order_id = event.binding().0.to_owned();
         let command_id = self
             .client_order_index
             .get(&client_order_id)
             .cloned()
             .ok_or_else(|| format!("unknown client_order_id {client_order_id}"))?;
         Ok(match event {
+            KernelEvent::OrderCancelled {
+                venue_order_id,
+                cancel_id,
+                at,
+                ..
+            } => KernelEvent::OrderCancelled {
+                command_id,
+                venue_order_id,
+                cancel_id,
+                at,
+            },
+            KernelEvent::CancelRejected {
+                venue_order_id,
+                cancel_id,
+                reason,
+                at,
+                ..
+            } => KernelEvent::CancelRejected {
+                command_id,
+                venue_order_id,
+                cancel_id,
+                reason,
+                at,
+            },
+            KernelEvent::OrderExpired { at, .. } => KernelEvent::OrderExpired { command_id, at },
             KernelEvent::OrderAccepted {
                 venue_order_id, at, ..
             } => KernelEvent::OrderAccepted {
@@ -1223,6 +1669,17 @@ impl NautilusBoundaryAdapter {
 }
 
 impl ExecutionKernel for NautilusBoundaryAdapter {
+    fn cancel(&mut self, r: &BoundaryCancel) -> Result<(), String> {
+        if !self
+            .client_order_index
+            .values()
+            .any(|id| id == &r.command_id)
+        {
+            return Err("unknown command".into());
+        }
+        self.cancel_outbox.push(Self::wire_cancel(r));
+        Ok(())
+    }
     fn submit(&mut self, command: &BoundaryCommand) -> Result<(), String> {
         let wire = Self::wire_command(command);
         self.client_order_index
@@ -1237,29 +1694,25 @@ impl ExecutionKernel for NautilusBoundaryAdapter {
 }
 
 fn apply_event(
-    orders: &mut BTreeMap<String, GatewayOrder>,
-    fills: &mut Vec<GatewayFill>,
-    new_fills: &mut Vec<GatewayFill>,
+    order: &mut GatewayOrder,
+    fills: &BTreeMap<String, GatewayFill>,
+    new_fills: &mut BTreeMap<String, GatewayFill>,
     event: KernelEvent,
     expires_at: DateTime<Utc>,
 ) -> Result<(), GatewayError> {
     let bad = || GatewayError::InvalidEvents;
-    let (command_id, at) = match &event {
-        KernelEvent::OrderAccepted { command_id, at, .. }
-        | KernelEvent::OrderRejected { command_id, at, .. }
-        | KernelEvent::OrderFilled { command_id, at, .. } => (command_id, *at),
-    };
-    let order = orders
-        .values_mut()
-        .find(|o| o.command_id == *command_id)
-        .ok_or_else(bad)?;
-    if at < order.submitted_at || at >= expires_at {
+    let (command_id, at) = event.binding();
+    if order.command_id != command_id
+        || at < order.submitted_at
+        || (!matches!(event, KernelEvent::OrderExpired { .. }) && at >= expires_at)
+    {
         return Err(bad());
     }
     match event {
         KernelEvent::OrderAccepted { venue_order_id, .. } => {
             if venue_order_id.is_empty()
-                || order.status == "rejected"
+                || order.status != "submitted"
+                || at < order.updated_at
                 || order
                     .venue_order_id
                     .as_ref()
@@ -1274,7 +1727,7 @@ fn apply_event(
             }
         }
         KernelEvent::OrderRejected { reason, .. } => {
-            if !matches!(order.status.as_str(), "submitted" | "rejected") || at < order.updated_at {
+            if order.status != "submitted" || at < order.updated_at {
                 return Err(bad());
             }
             if reason.trim().is_empty()
@@ -1300,6 +1753,7 @@ fn apply_event(
             ..
         } => {
             let fill = GatewayFill {
+                command_id: order.command_id.clone(),
                 fill_id: deterministic_id("fill", &format!("{}:{venue_fill_id}", order.command_id)),
                 order_id: order.order_id.clone(),
                 venue_fill_id: Some(venue_fill_id.clone()),
@@ -1310,7 +1764,10 @@ fn apply_event(
                 fee_amount: fee_amount.clone(),
                 filled_at: at,
             };
-            if let Some(prior) = fills.iter().find(|f| f.fill_id == fill.fill_id) {
+            if let Some(prior) = fills
+                .get(&fill.fill_id)
+                .or_else(|| new_fills.get(&fill.fill_id))
+            {
                 if prior != &fill {
                     return Err(bad());
                 }
@@ -1361,9 +1818,78 @@ fn apply_event(
             }
             .into();
             order.updated_at = at;
-            fills.push(fill.clone());
-            new_fills.push(fill);
+            new_fills.insert(fill.fill_id.clone(), fill);
+        }
+        KernelEvent::OrderExpired { .. } => {
+            if at < expires_at
+                || at < order.updated_at
+                || !matches!(
+                    order.status.as_str(),
+                    "submitted" | "accepted" | "partially_filled"
+                )
+            {
+                return Err(bad());
+            }
+            order.status = "expired".into();
+            order.updated_at = at;
+        }
+        KernelEvent::OrderCancelled { .. } | KernelEvent::CancelRejected { .. } => {
+            return Err(bad());
         }
     }
+    Ok(())
+}
+
+fn apply_cancel(
+    order: &mut GatewayOrder,
+    audit: &mut CancelAudit,
+    event: &KernelEvent,
+) -> Result<(), GatewayError> {
+    let (_, at) = event.binding();
+    let (command_id, venue_order_id, cancel_id, reason) = match event {
+        KernelEvent::OrderCancelled {
+            command_id,
+            venue_order_id,
+            cancel_id,
+            ..
+        } => (command_id, venue_order_id, cancel_id, None),
+        KernelEvent::CancelRejected {
+            command_id,
+            venue_order_id,
+            cancel_id,
+            reason,
+            ..
+        } => (command_id, venue_order_id, cancel_id, Some(reason)),
+        _ => return Err(GatewayError::InvalidEvents),
+    };
+    let latency = (at - audit.request.requested_at)
+        .num_microseconds()
+        .ok_or(GatewayError::InvalidEvents)?;
+    if command_id != &order.command_id
+        || command_id != &audit.request.command_id
+        || venue_order_id != &audit.request.venue_order_id
+        || order.venue_order_id.as_ref() != Some(venue_order_id)
+        || cancel_id != &audit.request.cancel_id
+        || audit.outcome != CancelOutcome::Pending
+        || !(0..=1_000_000).contains(&latency)
+        || at < order.updated_at
+        || reason.is_some_and(|r| r.trim().is_empty() || r.len() > 1024)
+    {
+        return Err(GatewayError::InvalidEvents);
+    }
+    if let Some(reason) = reason {
+        audit.outcome = CancelOutcome::Rejected;
+        audit.reason = Some(reason.clone());
+    } else {
+        if !matches!(order.status.as_str(), "accepted" | "partially_filled") {
+            return Err(GatewayError::InvalidEvents);
+        }
+        order.status = "cancelled".into();
+        order.updated_at = at;
+        audit.outcome = CancelOutcome::Cancelled;
+    }
+    order.updated_at = at;
+    audit.completed_at = Some(at);
+    audit.latency_micros = Some(latency);
     Ok(())
 }

@@ -19,3 +19,5 @@ Paper backend只接受QuantOS自有LIMIT/GTD模拟wire，不访问数据库、�
 任何结果不确定、协议/事件异常都隔离；不可自动重投、重新建网关或切换Paper兜底来绕过claim。边界前拒绝可以纠正后重试，因为没有产生下游调用。持久恢复、跨进程对账/消费移交与完整OMS取消审计仍需X04及实际部署证据。
 
 上游Nautilus仍是固定版本参考，未安装/执行；不能将自有Paper测试记成真实Nautilus验收。全部继承目标和新增TP07目标（26组）保持NOT_RUN，原性能数值、法律/供应链、Supabase/RLS持久分布式幂等/审计/恢复、身份与来源/时钟、部署OS隔离、安全/负载/长稳及同SHA CI保留。详见[边界ADR](../adr/20261017-tp07-paper-dispatch-boundary.md)。
+
+2026-10-17 X04后续：取消、append-only事实与Fill直接Command溯源已接入同一可信网关，见[X04规程](x04-local-admission.md)。TP07原始回执保留在原源码范围，因本轮源码变化撤回当前独立READY；受影响的TP07行为由X04新证据中的直接回归验证，不递归重跑TP07上游或拼接历史READY。持久恢复和实际目标义务仍未放行。

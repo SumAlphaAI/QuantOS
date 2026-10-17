@@ -1,0 +1,28 @@
+    Checking quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+error: this `if` statement can be collapsed
+   --> crates/quantos-execution/src/gateway.rs:665:9
+    |
+665 | /         if result.is_ok() {
+666 | |             if let Err(error) = self.try_collect_events() {
+667 | |                 self.cancels
+668 | |                     .get_mut(&cancel_id)
+...   |
+678 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.91.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+665 ~         if result.is_ok()
+666 ~             && let Err(error) = self.try_collect_events() {
+667 |                 self.cancels
+...
+676 |                 return Err(error);
+677 ~             }
+    |
+
+error: could not compile `quantos-execution` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `quantos-execution` (lib test) due to 1 previous error

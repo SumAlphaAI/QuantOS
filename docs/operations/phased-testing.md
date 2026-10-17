@@ -19,3 +19,5 @@ X03 的实际入口为 `make x03-assess-local`，清单为 `scripts/x03-test-sco
 X03 v2 Gate 仅 `functionImplementation=PASS`；`businessIntegration=NOT_RUN`、`releaseAcceptance=NOT_RUN`、`formalAccepted=false`。原任务图和直接依赖保留，依赖行是 `NOT_REVALIDATED/referenceOnly`，不宣称上游 READY。`make x03-local-check` 重核当前功能输入及证据，`make x03-release-check` 在真实发布矩阵和用户正式确认未完成时拒绝。
 
 [项目用户确认规程](../gate-records/user-acceptance-confirmation-workflow.md)继续适用。修改流程的指令不等于确认某份验收文稿；Codex 完整拟稿并保存真实用户回复后才可登记正式确认。
+
+X04 使用`make x04-assess-local`及`scripts/x04-test-scope.mjs`的当前功能/直接影响范围：订单提交/取消、append-only事实及anchor重放、10万混合事件、Fill溯源、真实本机Paper进程及受影响X03/TP07回归；不通过旧全闭包入口。`X04_LOCAL`依赖行仅NOT_REVALIDATED/referenceOnly。源码变化撤回TP07当前独立READY，保留其原SHA历史回执；本轮直接回归只归属X04证据。完整联调与发布独立NOT_RUN，详见[X04操作规程](x04-local-admission.md)。

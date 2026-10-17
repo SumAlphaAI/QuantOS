@@ -5,6 +5,7 @@ pub mod authority;
 pub mod dispatch;
 pub mod dual;
 pub mod gateway;
+pub mod oms;
 pub mod paper;
 pub mod process_kernel;
 pub mod venue;

@@ -1,4 +1,4 @@
-> 当前执行（CORE:TP07，2026-10-17）：源码37922e3d的14组当前功能/直接影响检查全部PASS；X03下游并发单提交、不确定结果隔离、自有Paper真实子进程和Order/Fill映射通过。仅TP07_LOCAL功能DEVELOPMENT READY，真实Nautilus运行时DENIED，完整联调/发布及26组目标NOT_RUN，正式确认PENDING；未执行无关全闭包、生产凭据或外部发布。见[本轮报告](./audit/TP07-local-admission-2026-10-17.md)。
+> 当前执行（CORE:X04，2026-10-17）：正在完成Nautilus自有边界、Paper OMS和订单状态机；按当前功能及直接影响范围验证，不递归全依赖。历史TP07回执保留原范围，当前独立READY因源码变化撤回；完整联调、发布与正式确认仍独立待验。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -751,6 +751,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
         "CORE:F06",
         "CORE:F08",
         "CORE:X03",
+        "CORE-GATE:S2-SERVICE"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "CORE:X04": {
+      "profile": "X04_LOCAL",
+      "schema": "quantos-x04-local-development/v1",
+      "manifest": "audit/evidence/x04-local-20261017/manifest.json",
+      "prerequisites": [
+        "CORE:X03",
+        "CORE:TP07",
         "CORE-GATE:S2-SERVICE"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
@@ -1898,7 +1909,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `TP07`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:f02a51bd12e46711e9384384ca73408299129d0974e256e7b1c5ccc4709af592","evidence":["audit/evidence/tp07-local-20261017/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE:X03", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:F03", "CORE:F06", "CORE:F08", "CORE:X03", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1914,6 +1925,9 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 执行定位：S2 Gate 前仅完成固定版本、许可证、capability inventory 和 ADR 评估；本节在 X03 后完成 adapter/Paper 内核与集成验收。S2 的评估完成不代表本项 ACCEPTED。
 - 阶段/依赖：F03、F06、F08；X3
 - 当前工程复核：2026-10-17源码37922e3d的14组功能/影响检查全部PASS；8项TP07消费、4项真实Paper进程/协议、8项X03回归及兼容通过，1000逻辑并发单提交、65门禁反例和44计划检查通过。四文件覆盖率达标；仅TP07_LOCAL功能DEVELOPMENT READY，真实Nautilus运行时DENIED，完整联调/发布/26目标NOT_RUN，正式确认PENDING。见[本轮报告](./audit/TP07-local-admission-2026-10-17.md)。
+
+
+X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范围中的TP07直接回归复核；TP07历史功能回执保留原SHA，不作为当前独立READY，完整联调/发布NOT_RUN。
 
 <a id="task-tp12"></a>
 ### TP12：nautilus_agents
@@ -1948,7 +1962,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - depends_on: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
-- development_status: `UNSPECIFIED`
+- development_status: `IMPLEMENTED_PENDING_ACCEPTANCE`
 - workflow: `DEVELOPMENT → REVIEW_READY → IN_REVIEW → CHANGES_REQUESTED → FIX_VALIDATION → RE_REVIEW → ACCEPTED`
 - acceptance_window: `X3-SERVICE`
 - 需求描述：Nautilus 边界、Paper OMS 与订单状态机
@@ -1958,7 +1972,10 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 阶段执行：本地开发验证10万订单事件合法状态转换、重复submit单次调用、cancel审计及Fill溯源；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：10万条订单事件 state transition 100% 合法；重复 submit 仅一次下游调用；cancel 延迟/拒绝可审计；所有 Fill 可追溯 Command；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X03、TP07
-- 当前工程复核：尚未登记正式全量复审结论（历史状态 `NOT_STARTED`）；开发状态与阶段准入按上方字段分别维护，空白复审记录不代表通过或零缺陷。[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x04)已保留，后续报告应记录检查范围、活动问题、修复验证、证据及验收边界。
+- 当前工程复核：本轮已实现提交/取消、订单事件与追加事实、Fill溯源和10万事件测试；正在冻结本轮16组功能/影响检查与证据。完整业务联调及发布NOT_RUN，正式用户确认PENDING。见[X04报告](./audit/X04-local-admission-2026-10-17.md)。[历史复审](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x04)保持原记录。
+
+
+本轮X04采用X04_LOCAL分阶段功能门禁，依赖仅NOT_REVALIDATED/referenceOnly；真实Nautilus和目标Supabase未执行。成功、拒绝、原子回滚、权限与风险边界、10万混合事件和Fill溯源属于当前功能检查；联调和发布独立NOT_RUN。
 
 <a id="task-x05"></a>
 ### X05：Shadow 运行、对账与异常队列
