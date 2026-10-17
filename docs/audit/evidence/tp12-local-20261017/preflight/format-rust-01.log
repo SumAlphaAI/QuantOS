@@ -1,0 +1,123 @@
+Diff in /Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution/tests/tp12_boundary.rs:7:
+ use quantos_risk::guard::Phase;
+ use rust_decimal::Decimal;
+ use serde_json::Value;
+-use std::{collections::BTreeSet, sync::{Arc, Mutex}};
++use std::{
++    collections::BTreeSet,
++    sync::{Arc, Mutex},
++};
+ 
+ struct ObservedPaper {
+     paper: PaperKernel,
+Diff in /Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution/tests/tp12_boundary.rs:18:
+         self.submit_at(c, c.expires_at - chrono::Duration::seconds(1))
+     }
+     fn submit_at(&mut self, c: &BoundaryCommand, now: DateTime<Utc>) -> Result<(), String> {
+-        self.wires.lock().unwrap().push(serde_json::to_value(c).unwrap());
++        self.wires
++            .lock()
++            .unwrap()
++            .push(serde_json::to_value(c).unwrap());
+         self.paper.submit_at(c, now)
+     }
+     fn drain_events(&mut self) -> Vec<KernelEvent> {
+Diff in /Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution/tests/tp12_boundary.rs:33:
+     let issuer = f.issuer(&guard);
+     let proposal = f.register(&issuer);
+     let decision = f.eval(&guard, Phase::Pre);
+-    let command = issuer.issue(&f.auth, &proposal, &decision, None, f.sources(), f.now).unwrap();
++    let command = issuer
++        .issue(&f.auth, &proposal, &decision, None, f.sources(), f.now)
++        .unwrap();
+     let wires = Arc::new(Mutex::new(vec![]));
+-    let gateway = SignedExecutionGateway::new(issuer, GatewayLimits {
+-        max_quantity: Decimal::new(100, 0),
+-        max_notional: Decimal::new(50_000, 0),
+-        allowed_venues: vec!["OWNED_PAPER".into()],
+-    }, ObservedPaper { paper: PaperKernel::new("100"), wires: wires.clone() }).unwrap();
++    let gateway = SignedExecutionGateway::new(
++        issuer,
++        GatewayLimits {
++            max_quantity: Decimal::new(100, 0),
++            max_notional: Decimal::new(50_000, 0),
++            allowed_venues: vec!["OWNED_PAPER".into()],
++        },
++        ObservedPaper {
++            paper: PaperKernel::new("100"),
++            wires: wires.clone(),
++        },
++    )
++    .unwrap();
+     let agent_trace = serde_json::json!({"executable": false, "advisory": "allow", "trace": "synthetic", "proposal_id": proposal});
+     assert!(serde_json::from_value::<SignedCommand>(agent_trace).is_err());
+     let mut forged = command.clone();
+Diff in /Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution/tests/tp12_boundary.rs:46:
+     forged.signature = "agent-trace-is-not-a-signature".into();
+-    assert!(gateway.submit(&f.auth, &forged, f.sources(), f.now).is_err());
++    assert!(
++        gateway
++            .submit(&f.auth, &forged, f.sources(), f.now)
++            .is_err()
++    );
+     assert!(wires.lock().unwrap().is_empty());
+-    let first = gateway.submit(&f.auth, &command, f.sources(), f.now).unwrap();
+-    let replay = gateway.submit(&f.auth, &command, f.sources(), f.now).unwrap();
++    let first = gateway
++        .submit(&f.auth, &command, f.sources(), f.now)
++        .unwrap();
++    let replay = gateway
++        .submit(&f.auth, &command, f.sources(), f.now)
++        .unwrap();
+     assert!(replay.submission.replayed);
+     assert_eq!(first.order, replay.order);
+     let observed = wires.lock().unwrap();
+Diff in /Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution/tests/tp12_boundary.rs:54:
+     assert_eq!(observed.len(), 1);
+     let wire = observed[0].as_object().unwrap();
+-    let expected: BTreeSet<_> = ["command_id", "account_id", "venue", "venue_kind", "symbol", "intent", "side", "quantity", "limit_price", "stop_price", "idempotency_key", "expires_at"].into_iter().collect();
+-    assert_eq!(wire.keys().map(String::as_str).collect::<BTreeSet<_>>(), expected);
++    let expected: BTreeSet<_> = [
++        "command_id",
++        "account_id",
++        "venue",
++        "venue_kind",
++        "symbol",
++        "intent",
++        "side",
++        "quantity",
++        "limit_price",
++        "stop_price",
++        "idempotency_key",
++        "expires_at",
++    ]
++    .into_iter()
++    .collect();
++    assert_eq!(
++        wire.keys().map(String::as_str).collect::<BTreeSet<_>>(),
++        expected
++    );
+     assert_eq!(wire["account_id"], command.intent.account_id.to_string());
+     assert_eq!(wire["venue"], "OWNED_PAPER");
+     let serialized = serde_json::to_string(wire).unwrap();
+Diff in /Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution/tests/tp12_boundary.rs:61:
+-    for private in [f.auth.tenant_id.to_string(), f.auth.workspace_id.to_string(), f.auth.actor_id.to_string(), command.source_decision_id.to_string(), command.signature.clone()] {
+-        assert!(!serialized.contains(&private), "authority leaked to owned kernel");
++    for private in [
++        f.auth.tenant_id.to_string(),
++        f.auth.workspace_id.to_string(),
++        f.auth.actor_id.to_string(),
++        command.source_decision_id.to_string(),
++        command.signature.clone(),
++    ] {
++        assert!(
++            !serialized.contains(&private),
++            "authority leaked to owned kernel"
++        );
+     }
+-    println!("TP12_SIGNED_KERNEL_FIELDS=12 AUTHORITY_MATERIAL=ABSENT AGENT_TRACE=REFUSED DOWNSTREAM_CALLS=1");
++    println!(
++        "TP12_SIGNED_KERNEL_FIELDS=12 AUTHORITY_MATERIAL=ABSENT AGENT_TRACE=REFUSED DOWNSTREAM_CALLS=1"
++    );
+ }
+ 

@@ -1,0 +1,41 @@
+
+running 1 test
+test tp12_signed_dispatch_sanitizes_current_authority_and_agent_trace_cannot_submit ... FAILED
+
+failures:
+
+failures:
+    tp12_signed_dispatch_sanitizes_current_authority_and_agent_trace_cannot_submit
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+
+    Blocking waiting for file lock on build directory
+   Compiling quantos-execution v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/crates/quantos-execution)
+warning: method `owner` is never used
+   --> crates/quantos-execution/tests/support/tp07_fixture.rs:176:19
+    |
+ 26 | impl Fixture {
+    | ------------ method in this implementation
+...
+176 |     pub(crate) fn owner(&self) -> AuthContext {
+    |                   ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `approved` is never used
+   --> crates/quantos-execution/tests/support/tp07_fixture.rs:248:19
+    |
+188 | impl Fixture {
+    | ------------ method in this implementation
+...
+248 |     pub(crate) fn approved(
+    |                   ^^^^^^^^
+
+warning: `quantos-execution` (test "tp12_boundary") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 18.25s
+     Running tests/tp12_boundary.rs (target/debug/deps/tp12_boundary-797dbda65e92d87f)
+
+thread 'tp12_signed_dispatch_sanitizes_current_authority_and_agent_trace_cannot_submit' (3292618) panicked at crates/quantos-execution/tests/tp12_boundary.rs:110:9:
+authority leaked to owned kernel
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p quantos-execution --test tp12_boundary`

@@ -1,0 +1,31 @@
+..................................................F
+=================================== FAILURES ===================================
+__________ test_native_agent_process_proposals_replay_and_rejections ___________
+
+    def test_native_agent_process_proposals_replay_and_rejections():
+        # Explicit local fixture service, no credential/config inheritance and no upstream SDK.
+        env = {k: v for k, v in os.environ.items() if k in {"PATH", "LANG", "LC_ALL", "TMPDIR"}}
+        env["PYTHONPATH"] = os.pathsep.join(str(ROOT / p) for p in (
+            "engines/engine-sdk/sdk_src", "engines/engine-sdk/src", "engines/trading-agents/src"
+        ))
+        with tempfile.TemporaryDirectory(prefix="tp12-", dir="/tmp") as directory:
+            socket = Path(directory) / "agent.sock"
+            process = subprocess.Popen(
+                [sys.executable, "-m", "trading_agents.server", "--socket", str(socket)],
+                cwd=ROOT / "engines", env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            )
+            client = None
+            try:
+                for _ in range(100):
+                    if socket.exists():
+                        break
+>                   assert process.poll() is None, "owned Agent exited before ready"
+E                   AssertionError: owned Agent exited before ready
+E                   assert 1 is None
+E                    +  where 1 = poll()
+E                    +    where poll = <Popen: returncode: 1 args: ['/Users/anray/Documents/project/SumAlpha/QuantO...>.poll
+
+engines/tests/test_tp12_x3_boundary.py:62: AssertionError
+=========================== short test summary info ============================
+FAILED engines/tests/test_tp12_x3_boundary.py::test_native_agent_process_proposals_replay_and_rejections
+1 failed, 50 passed in 0.23s

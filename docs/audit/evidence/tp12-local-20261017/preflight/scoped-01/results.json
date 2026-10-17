@@ -1,0 +1,167 @@
+[
+  {
+    "id": "review",
+    "command": [
+      "python3",
+      "scripts/tp12-boundary-review.py"
+    ],
+    "reason": "Current X3 rule/interface/threat mapping, pinned reference bytes and all production import/manifest/lock exclusion; no upstream execution",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 707
+  },
+  {
+    "id": "review-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/tests",
+      "-p",
+      "test_tp12_*.py",
+      "-v"
+    ],
+    "reason": "Current and reference evaluators: source/tree tamper, dependency alias/dynamic loads, protocol/authority and phase promotion refusal",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1188
+  },
+  {
+    "id": "agent",
+    "command": [
+      "engines/.venv/bin/python",
+      "-m",
+      "pytest",
+      "engines/tests/test_tp12_nautilus_agents_rules.py",
+      "engines/tests/test_tp12_x3_boundary.py",
+      "-q",
+      "-s"
+    ],
+    "reason": "Actual owned adapter all authority field aliases/tools plus real local Agent UDS subprocess, advisory proposals, replay and rejection recovery",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 233
+  },
+  {
+    "id": "issuer-refusal",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "x03_authority",
+      "x03_seven_rejections_and_recovery_do_not_consume_approval",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "NC03 current owned issuer rejects forged risk, expiry and failed approval paths without consuming approval",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 5987
+  },
+  {
+    "id": "approval",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "x03_authority",
+      "x03_approval_cas_rejection_cancellation_expiry_and_originator_separation",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "NC03 independent approval CAS, no self-approval, cancellation and expiry on the current issuer",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 454
+  },
+  {
+    "id": "current-risk",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "tp07_dispatch",
+      "tp07_replays_recheck_current_risk_identity_expiry_release_and_kill",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "NC06 signed dispatcher rechecks current sources, identity, expiry, release and kill even for replay",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 10977
+  },
+  {
+    "id": "consumer",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "tp07_dispatch",
+      "tp07_independent_gateway_cannot_reconsume_a_claimed_or_uncertain_x03_command",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "NC04 isolated consumers cannot reconsume genuine signed or uncertain commands; no Agent trace substitutes for command authority",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 808
+  },
+  {
+    "id": "sanitized",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--lib",
+      "gateway::tests::boundary_command_carries_no_session_or_identity_material",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "NC04 exact sanitized kernel key allowlist excludes decision/approval/signature/tenant/actor/session data",
+    "timeoutMs": 300000,
+    "exitCode": null,
+    "signal": "SIGTERM",
+    "errorCode": "ETIMEDOUT",
+    "elapsedMs": 300010
+  }
+]

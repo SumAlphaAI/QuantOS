@@ -1,0 +1,58 @@
+[
+  {
+    "id": "review",
+    "command": [
+      "python3",
+      "scripts/tp12-boundary-review.py"
+    ],
+    "reason": "Current X3 rule/interface/threat mapping, pinned reference bytes and all production import/manifest/lock exclusion; no upstream execution",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1432
+  },
+  {
+    "id": "review-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/tests",
+      "-p",
+      "test_tp12_*.py",
+      "-v"
+    ],
+    "reason": "Current and reference evaluators: source/tree tamper, dependency alias/dynamic loads, protocol/authority and phase promotion refusal",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1430
+  },
+  {
+    "id": "sanitized",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "tp12_boundary",
+      "tp12_signed_dispatch_sanitizes_current_authority_and_agent_trace_cannot_submit",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "NC04 exact sanitized kernel key allowlist excludes decision/approval/signature/tenant/actor/session data",
+    "timeoutMs": 900000,
+    "exitCode": 101,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 35608
+  }
+]

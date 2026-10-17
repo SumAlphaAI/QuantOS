@@ -1,0 +1,48 @@
+..................................................F
+=================================== FAILURES ===================================
+__________ test_native_agent_process_proposals_replay_and_rejections ___________
+
+    def test_native_agent_process_proposals_replay_and_rejections():
+        # Explicit local fixture service, no credential/config inheritance and no upstream SDK.
+        env = {k: v for k, v in os.environ.items() if k in {"PATH", "LANG", "LC_ALL", "TMPDIR"}}
+        env["PYTHONPATH"] = os.pathsep.join(str(ROOT / p) for p in (
+            "engines/engine-sdk/sdk_src", "engines/engine-sdk/src", "engines/trading-agents/src"
+        ))
+        with tempfile.TemporaryDirectory(prefix="tp12-", dir="/tmp") as directory:
+            socket = Path(directory) / "agent.sock"
+            process = subprocess.Popen(
+                [sys.executable, "-m", "trading_agents.server", "--socket", str(socket)],
+                cwd=ROOT / "engines", env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            )
+            client = None
+            try:
+                for _ in range(100):
+                    if socket.exists():
+                        break
+                    if process.poll() is not None:
+                        _, diagnostic = process.communicate(timeout=5)
+>                       pytest.fail("owned Agent exited before ready: " + diagnostic.decode())
+E                       Failed: owned Agent exited before ready: WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E                       E0000 00:00:1792242389.463807 3210641 add_port.cc:83] Failed to add port to server: No address added out of total 1 resolved for 'unix:/private/tmp/tp12-tcoyouhq/agent.sock'
+E                       Traceback (most recent call last):
+E                         File "<frozen runpy>", line 198, in _run_module_as_main
+E                         File "<frozen runpy>", line 88, in _run_code
+E                         File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/trading-agents/src/trading_agents/server.py", line 34, in <module>
+E                           main()
+E                         File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/trading-agents/src/trading_agents/server.py", line 26, in main
+E                           server = serve_engine(socket_path, TradingAgentsService())
+E                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                         File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/engine-sdk/sdk_src/quantos_engine_sdk/grpc.py", line 248, in serve_engine
+E                           bound = server.add_insecure_port(uds_target(socket_path))
+E                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                         File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/lib/python3.12/site-packages/grpc/_server.py", line 1473, in add_insecure_port
+E                           return _common.validate_port_binding_result(
+E                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                         File "/Users/anray/Documents/project/SumAlpha/QuantOS/engines/.venv/lib/python3.12/site-packages/grpc/_common.py", line 181, in validate_port_binding_result
+E                           raise RuntimeError(_ERROR_MESSAGE_PORT_BINDING_FAILED % address)
+E                       RuntimeError: Failed to bind to address unix:/private/tmp/tp12-tcoyouhq/agent.sock; set GRPC_VERBOSITY=debug environment variable to see detailed error message.
+
+engines/tests/test_tp12_x3_boundary.py:64: Failed
+=========================== short test summary info ============================
+FAILED engines/tests/test_tp12_x3_boundary.py::test_native_agent_process_proposals_replay_and_rejections
+1 failed, 50 passed in 0.18s

@@ -1,0 +1,59 @@
+{
+  "schema": "quantos-tp12-manual-source-inspection/v1",
+  "sourceCommit": "6af44a970b2c25d75b61bde956143f927e231981",
+  "upstreamCommit": "8d79877380f8617b45dff2b8c8b3790c2f9d963a",
+  "scope": "PINNED_SOURCE_ONLY; not actual upstream execution, security audit or post-TP07 integration full review",
+  "observations": [
+    {
+      "surface": "observations",
+      "path": "third_party/nautilus-agents/source-evidence/src/protocol/observation.rs",
+      "symbol": "ObservationError",
+      "sha256": "sha256:8ea0f4d3e26dfc75e00eea2b1512c93972dfce99cef0fc29b7b133110cfa95d6",
+      "conclusion": "Version/digest/expiry/disclosed capability checks belong to the observation envelope; it is not a QuantOS RiskInputSnapshot or market source admission."
+    },
+    {
+      "surface": "proposals",
+      "path": "third_party/nautilus-agents/source-evidence/src/protocol/live.rs",
+      "symbol": "pub enum LiveIntent",
+      "sha256": "sha256:4c920cb2aceab57fbfd85c27c3fb727144c9ad7e43ad745fc287488829c7b068",
+      "conclusion": "Protocol 1.0 permits one ReducePosition intent; request idempotency key is caller-created and scoped by the engine principal. No compatible QuantOS signed-command mapping."
+    },
+    {
+      "surface": "transport",
+      "path": "third_party/nautilus-agents/source-evidence/src/client.rs",
+      "symbol": "pub trait AgentClient",
+      "sha256": "sha256:bd2f4d3ad6368cdac51dacf1e45bf1b71e872611e5ac75ce112cd441dbba5ea3",
+      "conclusion": "Transport-neutral boxed future submit/receipt trait. No UDS/stdio implementation or venue authority is established by the trait."
+    },
+    {
+      "surface": "advisory",
+      "path": "third_party/nautilus-agents/source-evidence/src/assurance/advisory.rs",
+      "symbol": "pub struct AdvisoryValidator",
+      "sha256": "sha256:ee3d2ef7b2cc158f9811829806bb53cd4bacb85b76bb1157e7578441904b4cca",
+      "conclusion": "Clear local findings do not grant production authority; engine can revalidate and reject every input."
+    },
+    {
+      "surface": "retention",
+      "path": "third_party/nautilus-agents/source-evidence/src/assurance/recording.rs",
+      "symbol": "pub fn record_observation",
+      "sha256": "sha256:4674d8e6e963861aa05362acece3b6f600696eccee15f37574cf089cefe26823",
+      "conclusion": "Full rejects original Restricted. Redacted runs a caller-supplied redactor, validates its output, then rejects Restricted on the redacted output; it is not an unconditional original-Restricted deny. Any adoption requires explicit redactor trust/reclassification and storage review. None adopted."
+    },
+    {
+      "surface": "agent-trace",
+      "path": "third_party/nautilus-agents/source-evidence/src/assurance/trace.rs",
+      "symbol": "pub struct AgentTrace",
+      "sha256": "sha256:ed69a0415cde580a52a8b16b24eff6f22010510e0831eba912a52c18db3adbd5",
+      "conclusion": "Trace stores ObservationRef and caller policy metadata/outcome, not authoritative risk/approval/order/Fill or QuantOS exception closure."
+    },
+    {
+      "surface": "field-governance",
+      "path": "third_party/nautilus-agents/source-evidence/contract/v1/fields.toml",
+      "symbol": "digest_covered",
+      "sha256": "sha256:da401302440caed93907b4d7c5953447c3fd94413879ba56e5bc9481e899dcea",
+      "conclusion": "Generated owner/stability/required/retention/digest metadata is a design reference; metadata does not confer runtime authorization."
+    }
+  ],
+  "runtimeAdmission": "DENIED",
+  "formalAccepted": false
+}

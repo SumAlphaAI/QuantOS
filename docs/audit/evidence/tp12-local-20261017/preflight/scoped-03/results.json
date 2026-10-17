@@ -1,0 +1,316 @@
+[
+  {
+    "id": "review",
+    "command": [
+      "python3",
+      "scripts/tp12-boundary-review.py"
+    ],
+    "reason": "Current X3 rule/interface/threat mapping, pinned reference bytes and all production import/manifest/lock exclusion; no upstream execution",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1260
+  },
+  {
+    "id": "review-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/tests",
+      "-p",
+      "test_tp12_*.py",
+      "-v"
+    ],
+    "reason": "Current and reference evaluators: source/tree tamper, dependency alias/dynamic loads, protocol/authority and phase promotion refusal",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1162
+  },
+  {
+    "id": "dispatch",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "tp07_dispatch",
+      "--",
+      "--nocapture"
+    ],
+    "reason": "Actual dispatch source changed: all eight direct tests cover current-risk/kill, concurrent dedupe, approval binding, uncertain claims, rollback and isolated consumers",
+    "timeoutMs": 900000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 23272
+  },
+  {
+    "id": "sanitized",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "tp12_boundary",
+      "tp12_signed_dispatch_sanitizes_current_authority_and_agent_trace_cannot_submit",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "NC04 exact sanitized kernel key allowlist excludes decision/approval/signature/tenant/actor/session data",
+    "timeoutMs": 900000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 40953
+  },
+  {
+    "id": "trace-closure",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-reconcile",
+      "--test",
+      "x05_flow",
+      "x05_rehashed_journal_still_cannot_forge_close_without_acknowledgement",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "NC05 even rehashed caller journal cannot forge authoritative exception closure without service-owned CAS state",
+    "timeoutMs": 900000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 47636
+  },
+  {
+    "id": "artifact",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-runtime",
+      "--test",
+      "signal_proposal_orchestration",
+      "r04_consumes_r03_artifact_with_bound_provenance_and_rejects_invalid_references",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "NC02/05 current runtime consumes only bound owned artifacts and rejects invalid references; narrow direct boundary regression",
+    "timeoutMs": 900000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 56945
+  },
+  {
+    "id": "lint",
+    "command": [
+      "engines/.venv/bin/ruff",
+      "check",
+      "scripts/tp12-boundary-review.py",
+      "scripts/tests/test_tp12_boundary_review.py",
+      "engines/tests/test_tp12_x3_boundary.py"
+    ],
+    "reason": "Static Python checks on the new evaluator, mutation tests and native Agent probes; unchanged Rust packages compile in selected tests",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 46
+  },
+  {
+    "id": "gate-tests",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tp12-local-gate.test.mjs"
+    ],
+    "reason": "Fail-closed source/log/check-set/phase/dependency/target admission and publication rollback behavior",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 1021
+  },
+  {
+    "id": "plan-policy",
+    "command": [
+      "node",
+      "--test",
+      "scripts/development-plan-order-negative.mjs"
+    ],
+    "reason": "Shared plan validator changed only for TP12 scoped local receipt; retain all scheduling and refusal cases",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 463
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "reason": "Both plans and registered TP12 stage scope remain consistent; no upstream readiness promoted",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 52
+  },
+  {
+    "id": "core-handoff",
+    "command": [
+      "node",
+      "scripts/check-development-gate-handoff.mjs"
+    ],
+    "reason": "Keep original TP12 review, no-runtime and minimum five prohibitions plus integration/release obligations",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 24
+  },
+  {
+    "id": "frontend-handoff",
+    "command": [
+      "node",
+      "scripts/check-frontend-gate-handoff.mjs"
+    ],
+    "reason": "Keep cross-plan Beta handoff synchronized without claiming target or formal acceptance",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 32
+  },
+  {
+    "id": "cancel",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "x04_oms",
+      "x04_signed_cancel_remains_available_after_expiry_and_kill_and_replays_once",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "Changed internal submit key must preserve existing X04 order/cancel association, risk-reducing cancellation and one-call replay",
+    "timeoutMs": 900000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 55872
+  },
+  {
+    "id": "cancel-control",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "x04_oms",
+      "x04_cancel_control_rejects_forgery_scope_revocation_unknown_and_other_consumer",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "Changed signed dispatcher path must preserve cancel authority/scope/consumer refusal; no broad X04 event campaign",
+    "timeoutMs": 900000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 441
+  },
+  {
+    "id": "paper",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "execution-gateway",
+      "--test",
+      "x04_process",
+      "x04_real_process_submits_cancels_and_audits_terminal_rejection",
+      "--",
+      "--exact",
+      "--nocapture"
+    ],
+    "reason": "Submit key now opaque: verify the actual owned Paper stdio process still submits/cancels/replays and audits terminal rejection",
+    "timeoutMs": 900000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 143227
+  },
+  {
+    "id": "rust-format",
+    "command": [
+      "rustfmt",
+      "--edition",
+      "2024",
+      "--check",
+      "crates/quantos-execution/tests/tp12_boundary.rs",
+      "crates/quantos-execution/src/dispatch.rs"
+    ],
+    "reason": "Formatting of the changed signed dispatcher and new boundary test only; no whole-workspace formatting",
+    "timeoutMs": 300000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 39
+  },
+  {
+    "id": "rust-lint",
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--offline",
+      "-p",
+      "quantos-execution",
+      "--test",
+      "tp12_boundary",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "reason": "Compile/static analysis of the new signed-dispatch boundary test and its direct dependencies only",
+    "timeoutMs": 900000,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "elapsedMs": 72570
+  }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "admission",
+    "command": [
+      "node",
+      "scripts/tp12-local-gate.mjs",
+      "--ready"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/tp12-local-20261017/post/admission.log",
+    "logSha256": "sha256:dd84d00dab5daf061e57f6436da8dc655403a47edfb6fc3eec961932ed1f8478"
+  },
+  {
+    "id": "plans",
+    "command": [
+      "node",
+      "scripts/check-development-plans.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/tp12-local-20261017/post/plans.log",
+    "logSha256": "sha256:d49c0da9185a8edae8c18a9c9d0b9ea2c955b582c460c73d181cbb328a487d43"
+  },
+  {
+    "id": "core-handoff",
+    "command": [
+      "node",
+      "scripts/check-development-gate-handoff.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/tp12-local-20261017/post/core-handoff.log",
+    "logSha256": "sha256:1268842f49fe6416839b7200fa561c669a867b5217251861caf396f12312f100"
+  },
+  {
+    "id": "frontend-handoff",
+    "command": [
+      "node",
+      "scripts/check-frontend-gate-handoff.mjs"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/tp12-local-20261017/post/frontend-handoff.log",
+    "logSha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+  },
+  {
+    "id": "release-refusal",
+    "command": [
+      "node",
+      "scripts/tp12-local-gate.mjs",
+      "--release"
+    ],
+    "expectedExitCode": 2,
+    "exitCode": 2,
+    "status": "PASS",
+    "log": "docs/audit/evidence/tp12-local-20261017/post/release-refusal.log",
+    "logSha256": "sha256:1f4170b2f8b66ae94feddcdfa4ae217dbd6edbcbaa8b2ad709541ef57344a1b5"
+  },
+  {
+    "id": "target-refusal",
+    "command": [
+      "node",
+      "scripts/tp12-target-check.mjs"
+    ],
+    "expectedExitCode": 2,
+    "exitCode": 2,
+    "status": "PASS",
+    "log": "docs/audit/evidence/tp12-local-20261017/post/target-refusal.log",
+    "logSha256": "sha256:ffeb69244cf451b436b162404c26687a0a1dfa485dcc5b5b8958a0323322a1d8"
+  },
+  {
+    "id": "runtime-refusal",
+    "command": [
+      "python3",
+      "scripts/tp12-boundary-review.py",
+      "--runtime"
+    ],
+    "expectedExitCode": 2,
+    "exitCode": 2,
+    "status": "PASS",
+    "log": "docs/audit/evidence/tp12-local-20261017/post/runtime-refusal.log",
+    "logSha256": "sha256:2b8c6c8b691fc913f1b6d3b9aafae75da37e1b166238ca828a6a1b6ba3288dbd"
+  },
+  {
+    "id": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "expectedExitCode": 0,
+    "exitCode": 0,
+    "status": "PASS",
+    "log": "docs/audit/evidence/tp12-local-20261017/post/diff-check.log",
+    "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

@@ -1959,7 +1959,7 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 - task_id: `TP12`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:157100722802afa81fb58387cf8a7c8e8dd7002f0c9105f1e52b40effa53249f","evidence":["audit/evidence/tp12-local-20261017/manifest.json"]}
 - depends_on: ["CORE:F07", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:F07", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1974,7 +1974,7 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 执行定位：S2 Gate 前基于 TP07 评估材料归档评估结论和 ADR；本项完整复审在 TP07 的 X3 集成验收之后执行；本轮TP12_LOCAL仅完成最新AGENTS.md允许的本地功能边界核对，不将该后置复审标作通过。
 - 阶段/依赖：F07、TP07
-- 当前工程复核：2026-10-17，当前X3边界评估已实现：7条禁止耦合规则、6面接口差异、8项威胁假设；独立TP12_LOCAL按功能及直接影响范围验证。完整业务联调、TP07集成后的完整复审、目标/发布NOT_RUN，正式确认PENDING；上游runtimeAdmission=DENIED。见[本轮报告](./audit/TP12-local-admission-2026-10-17.md)，历史S2评估及[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp12)保持原范围。
+- 当前工程复核：2026-10-17，源码6af44a97的20组当前功能/直接影响检查全部PASS；Rust16、Python88、Node83 PASS。7条禁止耦合规则、6面接口差异、8项威胁假设与无上游运行时依赖通过本地核对；发现并修复dispatch幂等键原始tenant/workspace/调用键越界，真实签发路径及当前风险/审批/幂等/取消/Paper回归通过。TP12_LOCAL功能DEVELOPMENT READY，完整联调、TP07集成后的完整复审及目标/发布NOT_RUN，正式确认PENDING，上游runtimeAdmission=DENIED。见[本轮报告](./audit/TP12-local-admission-2026-10-17.md)，历史S2评估及[原复审记录](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-tp12)保持原范围。
 
 <a id="task-x04"></a>
 ### X04：Nautilus 边界、Paper OMS 与订单状态机

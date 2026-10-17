@@ -1,0 +1,48 @@
+{
+  "schema": "quantos-tp12-preflight-notes/v1",
+  "frozenCandidate": false,
+  "readinessGranted": false,
+  "attempts": [
+    {
+      "file": "agent-tests-01.log",
+      "status": "FAIL",
+      "reason": "New native Agent process could not bind local UDS inside sandbox; diagnostic not initially printed."
+    },
+    {
+      "file": "agent-tests-02.log",
+      "status": "FAIL",
+      "reason": "Diagnostic captured: gRPC UDS port binding denied by sandbox."
+    },
+    {
+      "file": "agent-tests-03.log",
+      "status": "PASS_PREFLIGHT_ONLY",
+      "reason": "Authorized same-host UDS execution, 51 tests passed; not immutable-source acceptance."
+    },
+    {
+      "file": "scoped-01/results.json",
+      "status": "FAIL",
+      "reason": "Legacy lib test compile finished at 4m50s; process start/test completion exceeded 300000ms. All six completed groups preserved; no READY. Known cargo/rustc/process exited. Replaced by stronger current signed-dispatch integration probe instead of legacy conversion fixture; bounded Rust compile timeout 900000ms is not performance acceptance."
+    },
+    {
+      "file": "format-rust-01.log",
+      "status": "FAIL",
+      "reason": "New current-dispatch test formatting differences; corrected using rustfmt before immutable candidate."
+    },
+    {
+      "file": "tool-diagnostics",
+      "status": "FAIL_DIAGNOSTIC_ONLY",
+      "reason": "Initial Ruff reported unused tomllib import, removed. Temporary plan helper initially expected Beta checkpoint in core plan, corrected to handle checkpoint in frontend. Failed apply_patch context changed no source."
+    },
+    {
+      "file": "scoped-02/sanitized.log",
+      "status": "FAIL",
+      "reason": "New genuine signed-dispatch test detected tenant/workspace values leaking through idempotency_key. Fixed dispatch to domain-separated canonical SHA256 key; direct dispatcher/OMS/Paper regressions expanded. No known live venue exploitation claimed."
+    }
+  ],
+  "finalPreflight": {
+    "scope": "17 affected remaining/changed checks; Agent and issuer/approval prior probes reference only, all 20 rerun on frozen candidate later",
+    "results": "scoped-03/results.json",
+    "status": "PASS_PREFLIGHT_ONLY",
+    "frozenReadinessGranted": false
+  }
+}
