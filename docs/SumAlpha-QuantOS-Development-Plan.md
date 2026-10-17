@@ -1,4 +1,4 @@
-> 当前执行（CORE:X04，2026-10-17）：正在完成Nautilus自有边界、Paper OMS和订单状态机；按当前功能及直接影响范围验证，不递归全依赖。历史TP07回执保留原范围，当前独立READY因源码变化撤回；完整联调、发布与正式确认仍独立待验。
+> 当前执行（CORE:X04，2026-10-17）：源码0e93b885的16组当前功能/直接影响检查全部PASS；提交/取消、100000混合事件合法转换、append-only事实/anchor重放及Fill溯源通过。仅X04_LOCAL功能DEVELOPMENT READY；完整联调、27组目标与发布NOT_RUN，Nautilus运行时DENIED、正式确认PENDING。未做无关全闭包，见[本轮报告](./audit/X04-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1958,7 +1958,7 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 - task_id: `X04`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:cf1a2dfb0bcb7b610356382bf7955750d6def2d6d089104b625f94a848e7b878","evidence":["audit/evidence/x04-local-20261017/manifest.json"]}
 - depends_on: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:X03", "CORE:TP07", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1972,7 +1972,7 @@ X04 更新：gateway/issuer/进程协议源码发生变化，本轮通过X04范�
 - 阶段执行：本地开发验证10万订单事件合法状态转换、重复submit单次调用、cancel审计及Fill溯源；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：10万条订单事件 state transition 100% 合法；重复 submit 仅一次下游调用；cancel 延迟/拒绝可审计；所有 Fill 可追溯 Command；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：X03、TP07
-- 当前工程复核：本轮已实现提交/取消、订单事件与追加事实、Fill溯源和10万事件测试；正在冻结本轮16组功能/影响检查与证据。完整业务联调及发布NOT_RUN，正式用户确认PENDING。见[X04报告](./audit/X04-local-admission-2026-10-17.md)。[历史复审](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x04)保持原记录。
+- 当前工程复核：2026-10-17，源码0e93b885的16组当前功能/直接影响检查全部PASS；Rust88 PASS/1 ignored、Node126 PASS；100000混合事件合法、146667事实重放一致、46667 Fill全溯源及提交/取消审计通过。X04_LOCAL功能DEVELOPMENT READY，联调/发布及27目标NOT_RUN、正式确认PENDING；失败历史保留，无历史READY拼接。见[X04报告](./audit/X04-local-admission-2026-10-17.md)。[历史复审](./audit/archive/core-development-plan-review-records-before-refactor-2026-10-07.md#review-x04)保持原记录。
 
 
 本轮X04采用X04_LOCAL分阶段功能门禁，依赖仅NOT_REVALIDATED/referenceOnly；真实Nautilus和目标Supabase未执行。成功、拒绝、原子回滚、权限与风险边界、10万混合事件和Fill溯源属于当前功能检查；联调和发布独立NOT_RUN。

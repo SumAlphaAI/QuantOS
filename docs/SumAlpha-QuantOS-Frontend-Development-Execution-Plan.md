@@ -1,4 +1,4 @@
-> 当前执行（CORE:X04，2026-10-17）：正在完成Nautilus自有边界、Paper OMS和订单状态机；按当前功能及直接影响范围验证，不递归全依赖。历史TP07回执保留原范围，当前独立READY因源码变化撤回；完整联调、发布与正式确认仍独立待验。
+> 当前执行（CORE:X04，2026-10-17）：源码0e93b885的16组当前功能/直接影响检查全部PASS；提交/取消、100000混合事件合法转换、append-only事实/anchor重放及Fill溯源通过。仅X04_LOCAL功能DEVELOPMENT READY；完整联调、27组目标与发布NOT_RUN，Nautilus运行时DENIED、正式确认PENDING。未做无关全闭包，见[本轮报告](./audit/X04-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 

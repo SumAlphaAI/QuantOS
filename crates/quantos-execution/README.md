@@ -14,7 +14,7 @@ TradeCommand issuance and approval state machine for QuantOS.
 - data validity may be refreshed only while covering the original signed deadline; a shorter window is rejected, and expired/nonpositive command TTL returns `command_expired`
 - valid approval replays verify the proof again without consuming it twice; failed/conflicting requests never consume a new approval
 - order state machine with a legality table (`OrderStatus::can_transition_to`), append-only order facts, and `FillFact` records traceable to the issuing Command
-- `paper::ExecutionGateway` over the `VenueAdapter` boundary (TP07 Nautilus attaches here): duplicate submits hit the downstream kernel exactly once, and cancel latency/rejections produce `CancelAudit` records
+- legacy `paper::ExecutionGateway` / `VenueAdapter` remain synthetic compatibility fixtures; trusted X03 consumption uses `dispatch::SignedExecutionGateway` and the Decimal `gateway` reducer
 - `venue::TestnetVenueAdapter`: L01 approved-venue testnet plugin over the `TestnetTransport` boundary with order-intent/precision/rate-limit mapping, classified network/authentication/rate-limit failures, production endpoint/key bans, and deterministic `CompatReport` coverage over 200 normal/reject/cancel/partial-fill scenarios
 - `zone` module (L02): restricted execution zone with static Vault secret references resolvable only by the Execution Gateway, service-session/command TTL enforcement, minimum-egress allowlists, mTLS identity checks, and credential rotation/revocation with a five-minute recovery window
 - `dual` module (L03): M5 feature gate plus dual-approval policy — separation of duties, notional caps, symbol allowlists, MFA proofs, and approval TTLs — producing one signed audit entry per approver only after every check passes
@@ -25,7 +25,7 @@ TradeCommand issuance and approval state machine for QuantOS.
 - pre-boundary interception: precision (quantity/price scale + intent/price consistency), quantity/notional limits, venue allowlist, command expiry, kill switch — 100% of violations rejected before the kernel is called
 - idempotent downstream submission: 1,000 replays with the same idempotency key produce exactly one kernel submission
 - kernel isolation: kernels receive only sanitized `BoundaryCommand` values (no tenant/actor/session/decision/approval material)
-- kernels: `PaperKernel` (default, replacement path) and `NautilusBoundaryAdapter` (out-of-process NautilusTrader over QuantOS-owned wire payloads; no Nautilus types in-process)
+- kernels: `PaperKernel` (default, replacement path) and `NautilusBoundaryAdapter` (owned wire outbox; actual Nautilus runtime remains unexecuted/unadmitted; no upstream types in-process)
 - Order/Fill kernel events map back to the QuantOS-owned schema
 
 ## Validation
@@ -33,7 +33,7 @@ TradeCommand issuance and approval state machine for QuantOS.
 - `cargo test -p quantos-execution`
 - TTL correctness is deterministic and runs by default; P95 is an ignored release-only test, invoked by `make research-release-performance-smokes` or `cargo test -p quantos-execution --lib p95 -- --ignored`
 
-The issuer is an in-memory domain boundary. This cache fix does not establish
+The legacy root issuer is an in-memory fixture boundary. Its checksum cache does not establish
 initial risk/Proposal/tenant authority, real MFA/signature authenticity,
 cross-process persistence, Supabase acceptance or production trading access.
 Callers must supply trusted observation time and authoritative safety state.
@@ -67,3 +67,23 @@ quarantine and validated Order/Fill projection. `process_kernel::PaperProcessKer
 uses a real bounded owned child process; upstream Nautilus remains unexecuted.
 Legacy checksum gateways are compatibility fixtures. See the
 [TP07 procedure](../../docs/operations/tp07-local-admission.md).
+
+
+## X04 Paper OMS
+
+The trusted gateway now exposes `cancel(auth, signed_command, stable_cancel_key, now)`
+and authenticated `order_history`. Existing order control checks current execution
+capability, exact stored command/requester/account and the issuer consumer claim;
+command expiry and kill still block submission while permitting risk-reducing
+cancellation. Paper resting mode emits ACK, cancellation or terminal rejection;
+GTD expiry is caught up at control time before cancel rejection.
+
+`oms` owns append-only typed facts, cancel outcome/latency audit and an external
+`FactAnchor`. `ExecutionGateway::replay_facts(facts, anchor)` validates the full
+chain and state transitions, rebuilding projections without issuance authority.
+Fills carry explicit Command and Order IDs; event batches commit atomically and
+preserve fact order across drain/replay boundaries. Unknown cancel outcomes retain
+facts and block retries even with new keys. State remains process-local; durable
+Supabase transactions, cross-instance recovery/reconciliation and actual Nautilus
+remain separate targets. See [X04 procedure](../../docs/operations/x04-local-admission.md)
+and [ADR](../../docs/adr/20261017-x04-paper-oms-facts.md).

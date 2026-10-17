@@ -10,7 +10,7 @@ TP07 execution boundary service for QuantOS.
 - kernel isolation: kernels receive only sanitized `BoundaryCommand` values (no tenant/actor/session/decision/approval material)
 - kernels:
   - `PaperKernel` (default; documented replacement path)
-  - `NautilusBoundaryAdapter` (out-of-process NautilusTrader over QuantOS-owned wire payloads; no Nautilus types in-process)
+  - `NautilusBoundaryAdapter` (owned wire outbox; actual Nautilus runtime remains unexecuted/unadmitted; no upstream types in-process)
 - Order/Fill kernel events map back to the QuantOS-owned schema
 
 Gateway logic lives in `crates/quantos-execution/src/gateway.rs`; this service is the deployable bootstrap.
@@ -53,3 +53,27 @@ Run `make tp07-assess-local` for the 14 function/impact checks; `make tp07-local
 verifies scoped evidence, and `make tp07-release-check` refuses pending targets.
 See [procedure](../../docs/operations/tp07-local-admission.md) and
 [ADR](../../docs/adr/20261017-tp07-paper-dispatch-boundary.md).
+
+
+## X04 cancellation and facts
+
+`X03CommandService::cancel(auth, signed_command, stable_cancel_key, now)` controls
+only this issuer-bound consumer's existing order. Permission revocation, foreign
+scope, forged commands and another consumer are rejected before kernel I/O.
+Cancellation remains authorized after command expiry/kill; GTD-terminal orders
+produce audited refusal rather than a new submission. `order_history` is also
+protected. Cancel replies carry correlation IDs, completion time, outcome/reason
+and measured logical latency; uncertain transport blocks all new cancel keys for
+that order until independent reconciliation.
+
+Choose `PaperProcessKernel::spawn_resting` to run this binary with
+`--x04-paper-resting-kernel`. The bounded protocol additionally supports owned
+cancel wire and GTD expiry catch-up. Default Paper still fills immediately.
+Append-only facts, hash/sequence/anchor replay, Decimal state and direct Fill to
+Command provenance live in `quantos-execution`. This is local in-memory OMS
+validation, not durable DB or deployed Nautilus acceptance.
+
+`make x04-assess-local` records 16 function/impact check groups including 100000
+mixed order events; `make x04-local-check` verifies current scoped evidence and
+`make x04-release-check` refuses missing real target/formal evidence. No recursive
+upstream revalidation is performed. See [X04 procedure](../../docs/operations/x04-local-admission.md).
