@@ -1,0 +1,118 @@
+{
+  "schema": "quantos-x03-post-evidence/v1",
+  "testedSourceCommit": "c720e7195b4b8da6dbcca152d84bc09658e3573f",
+  "scope": "metadata and gate boundary only; no new functional or upstream execution",
+  "canonicalHistoryFilesPreserved": 637,
+  "canonicalHistoryBytesPreserved": true,
+  "checks": [
+    {
+      "id": "function-ready",
+      "command": [
+        "node",
+        "scripts/x03-local-gate.mjs",
+        "--ready"
+      ],
+      "expectedExit": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "status": "PASS",
+      "log": "function-ready.log",
+      "logSha256": "sha256:e397235cba092bc7850ce6be8c0c0c2a987c7ea73718d8c91c5cf915d32a1244"
+    },
+    {
+      "id": "release-denied",
+      "command": [
+        "node",
+        "scripts/x03-local-gate.mjs",
+        "--release"
+      ],
+      "expectedExit": 2,
+      "exitCode": 2,
+      "signal": null,
+      "errorCode": null,
+      "status": "PASS",
+      "log": "release-denied.log",
+      "logSha256": "sha256:ac0d80cd3982abdfd11309f3bb8bba6a50645c9f656b16400dd0ff7060c56049"
+    },
+    {
+      "id": "plans",
+      "command": [
+        "node",
+        "scripts/check-development-plans.mjs"
+      ],
+      "expectedExit": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "status": "PASS",
+      "log": "plans.log",
+      "logSha256": "sha256:c6ce34052c658c1d9c99d58d5637e5e11cfff2e2e9f25963021e8414b52e0e91"
+    },
+    {
+      "id": "core-handoff",
+      "command": [
+        "node",
+        "scripts/check-development-gate-handoff.mjs"
+      ],
+      "expectedExit": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "status": "PASS",
+      "log": "core-handoff.log",
+      "logSha256": "sha256:1268842f49fe6416839b7200fa561c669a867b5217251861caf396f12312f100"
+    },
+    {
+      "id": "frontend-handoff",
+      "command": [
+        "node",
+        "scripts/check-frontend-gate-handoff.mjs"
+      ],
+      "expectedExit": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "status": "PASS",
+      "log": "frontend-handoff.log",
+      "logSha256": "sha256:5add00fc6731c28f54d0bf90d2f4a9cfba8689e203ab2245ced706671d4226af"
+    },
+    {
+      "id": "source-doc-diff",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        ":!docs/audit/evidence/**"
+      ],
+      "expectedExit": 0,
+      "exitCode": 0,
+      "signal": null,
+      "errorCode": null,
+      "status": "PASS",
+      "log": "source-doc-diff.log",
+      "logSha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "staged-secrets",
+      "command": [
+        "artifacts/tools/gitleaks",
+        "git",
+        "--staged",
+        "--config",
+        ".gitleaks.toml",
+        "--gitleaks-ignore-path",
+        ".gitleaksignore",
+        "--redact",
+        "--no-banner"
+      ],
+      "exitCode": 0,
+      "status": "PASS",
+      "scope": "staged X03 evidence and metadata only; not a new full-history campaign",
+      "log": "staged-secrets.log",
+      "logSha256": "sha256:3e4a111fb7a739d8b4f6b9116a4dbe290f66f57e6d77f45f8724a47e993abc98"
+    }
+  ],
+  "formalAccepted": false
+}

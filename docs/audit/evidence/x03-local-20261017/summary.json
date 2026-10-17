@@ -1,0 +1,117 @@
+{
+  "schema": "quantos-x03-phased-summary/v1",
+  "nodeId": "CORE:X03",
+  "profile": "X03_LOCAL",
+  "status": "DEVELOPMENT_READY_FUNCTION_ONLY",
+  "phases": {
+    "functionImplementation": "PASS",
+    "businessIntegration": "NOT_RUN",
+    "releaseAcceptance": "NOT_RUN"
+  },
+  "scope": {
+    "phase": "FUNCTION_DEVELOPMENT",
+    "testingPolicy": "quantos-phased-testing/v1",
+    "recursiveDependencyRevalidation": false,
+    "wholeWorkspace": false,
+    "threeIndependentBuilds": false,
+    "dependencyAdmission": "NOT_CLAIMED"
+  },
+  "sourceCommit": "c720e7195b4b8da6dbcca152d84bc09658e3573f",
+  "baselineCommit": "10b2e77ce1e64e006efdb7c1397427fdee91c280",
+  "implementationCommit": "e0b5a60460dba804ce1a68e8dd297c2fd03c2f75",
+  "diagnosticRepairCommit": "051f6af1f8adcda1065a97ed947a80632bb38a9f",
+  "inputFiles": 108,
+  "inputDigest": "sha256:fcf06c376e52cedbce7e33d3556eb7aaaca68ad491b2eac5939df3d7fd900ca5",
+  "groups": 12,
+  "tests": {
+    "x03-rust": {
+      "passed": 8,
+      "ignored": 0
+    },
+    "x03-compat": {
+      "passed": 47,
+      "ignored": 2
+    },
+    "x02-regression": {
+      "passed": 9,
+      "ignored": 0
+    },
+    "x03-local-policy": {
+      "passed": 56
+    },
+    "plan-policy": {
+      "passed": 98
+    }
+  },
+  "coverage": [
+    {
+      "path": "crates/quantos-execution/src/authority.rs",
+      "lines": {
+        "count": 605,
+        "covered": 585,
+        "percent": 96.69421487603306
+      },
+      "regions": {
+        "count": 865,
+        "covered": 793,
+        "notcovered": 72,
+        "percent": 91.67630057803468
+      }
+    },
+    {
+      "path": "crates/quantos-risk/src/guard.rs",
+      "lines": {
+        "count": 550,
+        "covered": 541,
+        "percent": 98.36363636363636
+      },
+      "regions": {
+        "count": 754,
+        "covered": 720,
+        "notcovered": 34,
+        "percent": 95.49071618037135
+      }
+    }
+  ],
+  "concurrency": {
+    "logicalTasks": 1000,
+    "nativeWorkers": 16,
+    "commands": 1,
+    "approvalConsumptions": 1,
+    "replays": 999,
+    "performanceAccepted": false
+  },
+  "historicalFullAttempts": [
+    {
+      "path": "docs/audit/evidence/provider-a1-remediation-20261004/x03-local-20261017/attempt-01",
+      "status": "FAIL",
+      "passed": 136,
+      "failed": 2,
+      "innerTermination": "UNKNOWN_NOT_RECORDED_BY_V1_HARNESS"
+    },
+    {
+      "path": "docs/audit/evidence/provider-a1-remediation-20261004/x03-local-20261017/attempt-02",
+      "status": "INTERRUPTED",
+      "completedPassed": 4,
+      "inProgress": "f01-test",
+      "uncompleted": 134,
+      "canonicalRestoredFiles": 637,
+      "canonicalRestoredDirectories": 15
+    }
+  ],
+  "targetGroups": 25,
+  "formalAccepted": false,
+  "confirmationStatus": "PENDING",
+  "databaseExecution": false,
+  "production": false,
+  "externalPublished": false,
+  "pushed": false,
+  "nextExecutableTask": "CORE:TP07",
+  "unresolved": [
+    "process-local only: durable distributed approval/idempotency/kill/audit/crash recovery NOT_RUN",
+    "actual R04/F06/source trust, session revocation and signing key custody/rotation NOT_RUN",
+    "TP07 downstream exactly-once consumption and current strategy/source revocation integration NOT_RUN",
+    "original P95<200ms, security/load/soak and same-SHA hosted CI NOT_RUN",
+    "complete business-chain integration and inherited target/legal obligations NOT_RUN"
+  ]
+}

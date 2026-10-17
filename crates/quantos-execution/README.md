@@ -50,8 +50,11 @@ compatibility APIs and convey no authority. No HTTP/venue route or implicit
 conversion is added. See [local workflow](../../docs/operations/x03-local-admission.md)
 and [design](../../docs/adr/20261017-x03-atomic-command-issuer.md).
 
-`make x03-check` is preflight; a clean frozen candidate's complete 42-node/138-group
-`make x03-assess-local` is required for bounded DEVELOPMENT readiness. Supabase,
+`make x03-check` is focused preflight. Under the 2026-10-17 phased testing rule,
+`make x03-assess-local` records 12 current-function/impact checks with exact input
+hashes and reasons; it does not recurse upstream gates or run full workspace/three
+builds. Function DEVELOPMENT readiness, business integration and release acceptance
+are tracked separately. See [phased testing](../../docs/operations/phased-testing.md). Supabase,
 durable distributed consumption/recovery, key custody, downstream TP07 dispatch,
 representative P95 <200ms, target security/load/soak/CI and formal confirmation
 remain separate NOT_RUN obligations.

@@ -1,4 +1,4 @@
-> 当前执行（CORE:X03，2026-10-17）：依据最新AGENTS.md改为功能开发优先与分阶段测试；停止无关全闭包复验，首轮FAIL及第二轮INTERRUPTED原样保留。按X03功能和实际影响范围收尾，功能联调/发布另记NOT_RUN，正式确认PENDING。见[分阶段测试规程](./operations/phased-testing.md)。
+> 当前执行（CORE:X03，2026-10-17）：按最新AGENTS.md完成分阶段收尾；源码c720e719的12组功能/直接影响检查全部PASS，8项X03行为、1000逻辑并发单命令/单消费及覆盖率通过。仅X03功能DEVELOPMENT READY，完整业务联调/发布NOT_RUN、正式确认PENDING、25组目标NOT_RUN；首轮FAIL和第二轮INTERRUPTED保留，无生产凭据或外部发布。见[本轮报告](./audit/X03-local-admission-2026-10-17.md)。
 
 > 历史执行（S02，2026-10-15；S03共享输入变化后独立READY撤回）：冻结5efa0be0完整34节点/111组PASS，108组必要依赖先于自身3组；三次可复现构建及make lint/test PASS，Rust406/9 ignored、Python1845、Web233/3 skipped。S02_LOCAL限定DEVELOPMENT READY，全图1 READY/158 NOT_ASSESSED/0 BLOCKED；637文件和4个目录原有存在性已恢复。首轮中断/溢出失败已保留，第二轮全部重跑。22组共享目标及4类继承发布义务NOT_RUN，formalAccepted=false、databaseExecution=false、externalPublished=false。见[验收报告](./audit/S02-local-admission-2026-10-15.md)。
 
@@ -1863,7 +1863,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - task_id: `X03`
 - task_type: `CORE`
 - iteration: `X3-SERVICE`
-- stage_gate: {"stage":"DEVELOPMENT","status":"BLOCKED","input_digest":"sha256:12674d91cf089d2ca4b438f695a90cdf7f377ef937267ad639ccb844fc8ca9ec","evidence":["audit/evidence/provider-a1-remediation-20261004/x03-local-20261017/attempt-01/failure.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:ab571b86126a1d40db600637333df3a2b04bb9ca9fd096ab1bf71dfbb5191417","evidence":["audit/evidence/x03-local-20261017/manifest.json"]}
 - depends_on: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - core_prerequisites: ["CORE:R04", "CORE:X02", "CORE-GATE:S2-SERVICE"]
 - closes_core: []
@@ -1877,7 +1877,7 @@ CORE-GATE:S2-SERVICE 历史执行：原2d42eab4及本次149ce0a4新候选39节�
 - 阶段执行：本地开发验证七类拒绝、1000并发单命令、审计生成与幂等语义；使用自有合成fixture/受控时钟和真实本机进程，不要求外部目标环境或性能达标。 测试阶段：INTEGRATION 是测试阶段，验证真实模块组合的成功、拒绝、恢复及消费闭环；外部测试环境需独立授权，Supabase目标不在此阶段放行。 发布阶段：RELEASE-GATE:BETA；实际Supabase/外部目标环境、部署安全、负载性能、持续窗口和同SHA CI独立验收；保留原目标：过期、重复、自批、数据陈旧、kill switch、策略失效七类测试 100% 拒绝；同一 key 1,000 次并发只签发一个命令；签发 P95 <200ms；未执行保持NOT_RUN。
 - 验收边界：外部环境与性能指标不阻塞本地开发；原量化目标保留，目标回执 NOT_RUN。
 - 依赖：R04、X02
-- 当前工程复核：2026-10-17首轮e0b5a604完整复验保留FAIL，TP01-C manager在180秒子预算处exit=null、原因字段缺失保持UNKNOWN；旧完整闭包BLOCKED历史保留。按用户最新分阶段指令停止第二轮后续全闭包并记INTERRUPTED，637历史文件已恢复；当前功能按影响范围验证，完整业务联调/发布NOT_RUN、正式确认PENDING、25目标NOT_RUN。历史[2026-10-14复核](./audit/X03-replay-fix-2026-10-14.md)保留。
+- 当前工程复核：2026-10-17按最新AGENTS.md，源码c720e719的12组当前功能/直接影响检查全部PASS；8项X03行为、47兼容/2 ignored、9项X02回归、56门禁反例及98共享规则检查；1000逻辑任务仅一命令/一审批消费。X03_LOCAL v2功能DEVELOPMENT READY，联调/发布NOT_RUN、正式确认PENDING、25目标NOT_RUN。首轮FAIL/第二轮INTERRUPTED及637历史文件恢复保留；未复用历史READY。见[本轮报告](./audit/X03-local-admission-2026-10-17.md)。
 
 <a id="task-tp07"></a>
 ### TP07：NautilusTrader：研究、仿真、OMS、执行内核
