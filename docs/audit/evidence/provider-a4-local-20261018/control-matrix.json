@@ -1,0 +1,227 @@
+{
+  "schema": "quantos-a4-control-matrix/v1",
+  "sourceCommit": "c9deac5b465c2146a1dfd0c316cbe47607f20451",
+  "inputDigest": "sha256:24e5b5eb6818cb16b9137df23282e5d5b757fdbf5dac0ba032a3219e63c9c9e6",
+  "controls": [
+    {
+      "control": "32 owned APIs",
+      "checkId": "contract",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/contract.log",
+      "assertion": "32 C05-C09/C13 operations",
+      "verifiedBehavior": "Current C05-C09/C13 all32 operations and exact owner/boundary",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "OpenAPI/generated",
+      "checkId": "generated",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/generated.log",
+      "assertion": "BFF generated artifacts match",
+      "verifiedBehavior": "OpenAPI1.9.0 six generated artifacts exact",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Mixed approval authority",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/aggregate.log",
+      "assertion": "mixed_approvals_have_distinct_authority_and_frozen_pagination ... ok",
+      "verifiedBehavior": "Strategy/Trade record types and paged snapshot remain distinct",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Quarantined host refusal",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/aggregate.log",
+      "assertion": "poisoned_strategy_host_cannot_publish_successful_mixed_approval_page ... ok",
+      "verifiedBehavior": "Authorized common strategy projection503 rather than stale/partial success; independent execution remains available",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Least privilege read",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/aggregate.log",
+      "assertion": "strategy_only_reader_lists_own_approval_without_execution_grant ... ok",
+      "verifiedBehavior": "Strategy-only reader does not need execution grant; execution-only reader obtains no Strategy facts",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Cursor revocation",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/aggregate.log",
+      "assertion": "mixed_cursor_rejects_strategy_capability_revocation_before_snapshot_replay ... ok",
+      "verifiedBehavior": "Same actor/scope with Strategy grant revoked cannot replay cached mixed rows; role/capability digest bound",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Cross-domain proof",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/aggregate.log",
+      "assertion": "execution_proof_cannot_be_reused_for_strategy_and_exact_retry_recovers ... ok",
+      "verifiedBehavior": "Shared MFA/proof is single use across domains; exact successful retry recovers",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Concurrent domain retries",
+      "checkId": "aggregate",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/aggregate.log",
+      "assertion": "simultaneous_domain_retries_preserve_two_unique_audit_roots ... ok",
+      "verifiedBehavior": "One accepted fact per domain, exact retries stable, two unique audit roots",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Draft/version conflict",
+      "checkId": "strategy",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/strategy.log",
+      "assertion": null,
+      "verifiedBehavior": "CAS conflict protects current draft/version and user edit intent",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Command concurrency",
+      "checkId": "execution",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/execution.log",
+      "assertion": "concurrent_http_reference_issuance_has_single_command_and_one_downstream ... ok",
+      "verifiedBehavior": "Single command and one downstream for competing issuance",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Approval retry recovery",
+      "checkId": "execution",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/execution.log",
+      "assertion": "retry_recovers_same_reserved_approval_without_consuming_another_proof ... ok",
+      "verifiedBehavior": "Reserved exact approval recovers without another proof",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Current risk denials",
+      "checkId": "execution",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/execution.log",
+      "assertion": "seven_current_risk_denial_families_are_enforced ... ok",
+      "verifiedBehavior": "Seven current risk refusal families remain enforced",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Kill switch",
+      "checkId": "execution",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/execution.log",
+      "assertion": "kill_between_issue_and_submit_prevents_downstream ... ok",
+      "verifiedBehavior": "Kill between issue and submit blocks downstream",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Stale/expired inputs",
+      "checkId": "execution",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/execution.log",
+      "assertion": "stale_inputs_and_expired_proposal_never_create_approval ... ok",
+      "verifiedBehavior": "Stale input/expired proposal cannot produce approval",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Shadow no submit",
+      "checkId": "execution",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/execution.log",
+      "assertion": "shadow_has_read_projection_and_no_dispatch_path ... ok",
+      "verifiedBehavior": "Shadow supports read projections with no dispatch",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "OMS and Fill lineage",
+      "checkId": "execution",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/execution.log",
+      "assertion": "filled_kernel_facts_and_fill_lineage_are_real ... ok",
+      "verifiedBehavior": "Actual kernel facts and Fill lineage preserved",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Expired control recovery",
+      "checkId": "execution",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/execution.log",
+      "assertion": "expired_order_control_ref_recovers_without_renewing_submit ... ok",
+      "verifiedBehavior": "Expired order-control ref recovers without renewing submit",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Backtest/Order authoritative facts",
+      "checkId": "consumers",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/consumers.log",
+      "assertion": "a4-aggregate-consumer.test.ts",
+      "verifiedBehavior": "202 never optimistic completion; streams update actual BacktestFacts/OrderFacts; A3 report resolves",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "F05 evidence chain",
+      "checkId": "consumers",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/consumers.log",
+      "assertion": "a4-aggregate-consumer.test.ts",
+      "verifiedBehavior": "Shared actual provider links operation auditRef to closed Audit root/causation",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "A2 auth/audit regression",
+      "checkId": "a2-boundary",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/a2-boundary.log",
+      "assertion": null,
+      "verifiedBehavior": "29 direct Auth/settings and audit/export tests preserve denial/redaction/recovery",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Consumer recovery and coverage",
+      "checkId": "consumers",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/consumers.log",
+      "assertion": null,
+      "verifiedBehavior": "53 current consumer/contract cases, both helper modules line42/42 branch69/69",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Candidate integrity",
+      "checkId": "gate-tests",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/gate-tests.log",
+      "assertion": null,
+      "verifiedBehavior": "55 candidate/hash/child-artifact/source/coverage/refusal/atomic rollback cases",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Three original confirmations",
+      "checkId": "confirmation",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/confirmation.log",
+      "assertion": null,
+      "verifiedBehavior": "54 tests; three actual confirmation entrypoints bind original source/draft/receipt only",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    },
+    {
+      "control": "Stage separation",
+      "checkId": "plan-policy",
+      "evidence": "docs/audit/evidence/provider-a4-local-20261018/function-attempt-02/logs/plan-policy.log",
+      "assertion": null,
+      "verifiedBehavior": "71 policy/disposition cases, mandatory CI entrypoint, no recursive upstream admission",
+      "status": "PASS",
+      "scope": "CURRENT_LOCAL_FUNCTION_ONLY"
+    }
+  ],
+  "targetExecution": "NOT_RUN",
+  "fullUiIntegration": "NOT_RUN",
+  "formalAccepted": false,
+  "runtimeAdmission": "DENIED"
+}
