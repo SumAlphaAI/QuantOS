@@ -1,0 +1,60 @@
+
+running 5 tests
+test a5_tests::governance_ack_and_reconciliation_never_rewrite_frozen_financial_facts ... FAILED
+test a5_tests::member_revocation_refuses_all_a5_replays_cursors_streams_and_downloads ... FAILED
+test a5_tests::poisoned_reconciliation_refuses_current_financial_reads_without_resolving_alerts ... FAILED
+test a5_tests::same_key_across_domains_has_distinct_receipts_and_single_audit_roots ... FAILED
+test a5_tests::stale_observer_and_expired_download_never_turn_into_successful_recovery ... FAILED
+
+failures:
+
+---- a5_tests::governance_ack_and_reconciliation_never_rewrite_frozen_financial_facts stdout ----
+
+thread 'a5_tests::governance_ack_and_reconciliation_never_rewrite_frozen_financial_facts' (3899125) panicked at services/bff-gateway/src/a5_tests.rs:41:5:
+assertion `left == right` failed: /v1/reconciliation/runs: {"code":"INVALID_REQUEST","correlationId":"01a14f09-113f-77a3-a38a-4e83108aaa6c","message":"缺少必需查询参数。"}
+  left: 422
+ right: 200
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- a5_tests::member_revocation_refuses_all_a5_replays_cursors_streams_and_downloads stdout ----
+
+thread 'a5_tests::member_revocation_refuses_all_a5_replays_cursors_streams_and_downloads' (3899211) panicked at services/bff-gateway/src/a5_tests.rs:41:5:
+assertion `left == right` failed: /v1/reconciliation/runs: {"code":"INVALID_REQUEST","correlationId":"01a14f09-17d1-77f2-80a8-a42c8254e875","message":"缺少必需查询参数。"}
+  left: 422
+ right: 200
+
+---- a5_tests::poisoned_reconciliation_refuses_current_financial_reads_without_resolving_alerts stdout ----
+
+thread 'a5_tests::poisoned_reconciliation_refuses_current_financial_reads_without_resolving_alerts' (3899327) panicked at services/bff-gateway/src/a5_tests.rs:41:5:
+assertion `left == right` failed: /v1/reconciliation/runs: {"code":"INVALID_REQUEST","correlationId":"01a14f09-1e62-7400-adee-7dc4683c47c8","message":"缺少必需查询参数。"}
+  left: 422
+ right: 200
+
+---- a5_tests::same_key_across_domains_has_distinct_receipts_and_single_audit_roots stdout ----
+
+thread 'a5_tests::same_key_across_domains_has_distinct_receipts_and_single_audit_roots' (3899367) panicked at services/bff-gateway/src/a5_tests.rs:41:5:
+assertion `left == right` failed: /v1/reconciliation/runs: {"code":"INVALID_REQUEST","correlationId":"01a14f09-24e3-7343-aa46-6b567c411add","message":"缺少必需查询参数。"}
+  left: 422
+ right: 200
+
+---- a5_tests::stale_observer_and_expired_download_never_turn_into_successful_recovery stdout ----
+
+thread 'a5_tests::stale_observer_and_expired_download_never_turn_into_successful_recovery' (3899384) panicked at services/bff-gateway/src/a5_tests.rs:41:5:
+assertion `left == right` failed: /v1/reconciliation/runs: {"code":"INVALID_REQUEST","correlationId":"01a14f09-2b69-7c13-b22d-019ffff553d4","message":"缺少必需查询参数。"}
+  left: 422
+ right: 200
+
+
+failures:
+    a5_tests::governance_ack_and_reconciliation_never_rewrite_frozen_financial_facts
+    a5_tests::member_revocation_refuses_all_a5_replays_cursors_streams_and_downloads
+    a5_tests::poisoned_reconciliation_refuses_current_financial_reads_without_resolving_alerts
+    a5_tests::same_key_across_domains_has_distinct_receipts_and_single_audit_roots
+    a5_tests::stale_observer_and_expired_download_never_turn_into_successful_recovery
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 139 filtered out; finished in 8.39s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 17.06s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-08bbeedf28a32d1a)
+error: test failed, to rerun pass `-p bff-gateway --lib`

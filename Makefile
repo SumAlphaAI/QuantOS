@@ -74,6 +74,8 @@ bff-contract-check:
 	pnpm check:bff-fe-004:ci
 	pnpm test:bff-fe-004
 	pnpm check:provider-a4:ci
+	pnpm check:provider-a5:ci
+	pnpm test:provider-a5
 	pnpm check:bff-fe-009:ci
 	pnpm test:bff-fe-009
 	pnpm check:bff-fe-008:ci
@@ -913,3 +915,9 @@ check-bff-fe-008:
 .PHONY: check-bff-fe-010
 check-bff-fe-010:
 	pnpm check:bff-fe-010
+
+.PHONY: provider-a5-local-check provider-a5-local-assess
+provider-a5-local-check:
+	pnpm check:provider-a5:development
+provider-a5-local-assess:
+	node scripts/record-provider-a5-functional.mjs $(ATTEMPT)

@@ -1,0 +1,90 @@
+fatal: git cat-file: could not get object info
+✔ synthetic receiver admits58 only with explicit source stub and real original-reference verification (17.12175ms)
+✔ source drift refused (14.787417ms)
+✔ missing check refused (14.674583ms)
+✔ duplicate check refused (14.768916ms)
+✔ command refused (13.079625ms)
+✔ timeout refused (12.821541ms)
+✔ exit refused (12.363041ms)
+✔ signal refused (12.511208ms)
+✔ spawn refused (12.4475ms)
+✔ elapsed refused (15.870959ms)
+✔ future time refused (12.95225ms)
+✔ backwards time refused (12.775209ms)
+✔ log hash refused (12.788625ms)
+✔ log path refused (13.083292ms)
+✔ attempt path refused (12.554666ms)
+✔ borrowed READY refused (13.101709ms)
+✔ original confirmation promoted refused (12.617792ms)
+✔ recursive refused (12.635708ms)
+✔ upstream refused (12.824041ms)
+✔ integration refused (12.572625ms)
+✔ release refused (12.987584ms)
+✔ production refused (12.885959ms)
+✔ database refused (12.605125ms)
+✔ external refused (12.426417ms)
+✔ self approval refused (12.754333ms)
+✔ runtime refused (12.454458ms)
+✔ artifact refused (12.608833ms)
+✔ coverage missing refused (14.32775ms)
+✔ coverage duplicate refused (14.631166ms)
+✔ handoff refused (13.558208ms)
+✔ nested source refused with both hashes updated (13.560791ms)
+✔ nested schema refused with both hashes updated (13.242875ms)
+✔ missing success refused with both hashes updated (13.284958ms)
+✔ missing refusal refused with both hashes updated (13.588375ms)
+✔ unrun browser refused with both hashes updated (13.929042ms)
+✔ unrun retries refused with both hashes updated (13.323167ms)
+✔ child command refused with parent rehashed (12.840541ms)
+✔ child exit refused with parent rehashed (13.075333ms)
+✔ child signal refused with parent rehashed (12.981ms)
+✔ child timeout refused with parent rehashed (13.059875ms)
+✔ child path refused with parent rehashed (13.463542ms)
+✔ records substitution refused with parent rehashed (65.295583ms)
+✔ parent source refused with parent rehashed (14.198083ms)
+✔ wrong operations refused with parent rehashed (13.763833ms)
+✔ missing helper refused with coverage rehashed (14.011458ms)
+✔ low lines refused with coverage rehashed (13.729125ms)
+✔ low branch refused with coverage rehashed (13.835084ms)
+✔ empty or ignored assertions refused gate-tests (12.880583ms)
+✔ empty or ignored assertions refused aggregate (13.481542ms)
+✔ empty or ignored assertions refused performance (13.316084ms)
+✔ empty or ignored assertions refused consumers (13.123334ms)
+✔ default source proof cannot be bypassed (18.587292ms)
+✖ mandatory CI wiring is enforced (0.4105ms)
+✔ public offline environment strips credentials (0.180958ms)
+✔ entrypoint failure atomically restores prior receipt and checkpoint (15.55375ms)
+ℹ tests 55
+ℹ suites 0
+ℹ pass 54
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4432.647125
+
+✖ failing tests:
+
+test at scripts/provider-a5-functional-gate.test.mjs:29:1
+✖ mandatory CI wiring is enforced (0.4105ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'node scripts/ci-stage-disposition.mjs PROVIDER:A5'
+  - 'node scripts/ci-stage-disposition.mjs PROVIDER:A4'
+  
+      at validateWiring (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a5-functional-gate.mjs:46:263)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a5-functional-gate.test.mjs:29:44)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'node scripts/ci-stage-disposition.mjs PROVIDER:A5',
+    expected: 'node scripts/ci-stage-disposition.mjs PROVIDER:A4',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
