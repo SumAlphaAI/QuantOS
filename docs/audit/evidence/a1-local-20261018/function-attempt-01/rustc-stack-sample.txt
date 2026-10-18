@@ -1,0 +1,199 @@
+Analysis of sampling rustc (pid 58857) every 1 millisecond
+Process:         rustc [58857]
+Path:            /Users/USER/*/rustc
+Load Address:    0x10463c000
+Identifier:      rustc
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  cargo [58853]
+Target Type:     live task
+
+Date/Time:       2026-10-18 09:25:24.351 +0800
+Launch Time:     2026-10-18 09:23:04.717 +0800
+OS Version:      macOS 27.0.1 (26A434)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+----
+
+Call graph:
+    867 Thread_364977   DispatchQueue_1: com.apple.main-thread  (serial)
+    + 867 start  (in dyld) + 6688  [0x191c5be80]
+    +   867 main  (in rustc) + 52  [0x10463deac]
+    +     867 std::rt::lang_start_internal::h7e788da8c79e20dc  (in librustc_driver-6baea8b00e20195f.dylib) + 1008  [0x112c54768]
+    +       867 _RNCINvNtCsiXCqdPBUb9o_3std2rt10lang_startuE0CshiT0ti1g3xi_10rustc_main  (in rustc) + 16  [0x10463de44]
+    +         867 _RINvNtNtCsiXCqdPBUb9o_3std3sys9backtrace28___rust_begin_short_backtraceFEuuECshiT0ti1g3xi_10rustc_main  (in rustc) + 12  [0x10463de2c]
+    +           867 _RNvCshiT0ti1g3xi_10rustc_main4main  (in rustc) + 12  [0x10463de78]
+    +             867 _RNvCscDDS79ZZf82_17rustc_driver_impl4main  (in librustc_driver-6baea8b00e20195f.dylib) + 576  [0x110c83cdc]
+    +               867 _RNvCscDDS79ZZf82_17rustc_driver_impl12run_compiler  (in librustc_driver-6baea8b00e20195f.dylib) + 6540  [0x110c78e40]
+    +                 867 _RINvNtCs5YfDoX3lIvK_15rustc_interface4util31run_in_thread_pool_with_globalsNCINvNtB4_9interface12run_compileruNCNvCscDDS79ZZf82_17rustc_driver_impl12run_compiler0Es_0uEB1O_  (in librustc_driver-6baea8b00e20195f.dylib) + 2828  [0x110c5baac]
+    +                   867 _pthread_join  (in libsystem_pthread.dylib) + 620  [0x19203403c]
+    +                     867 __ulock_wait  (in libsystem_kernel.dylib) + 8  [0x191feeaf4]
+    867 Thread_364982: ctrl-c
+    + 867 thread_start  (in libsystem_pthread.dylib) + 8  [0x19202ccec]
+    +   867 _pthread_start  (in libsystem_pthread.dylib) + 136  [0x192031d00]
+    +     867 std::sys::thread::unix::Thread::new::thread_start::h6ddd5a264790bcab  (in librustc_driver-6baea8b00e20195f.dylib) + 52  [0x112c5fcb8]
+    +       867 _RNSNvYNCINvMNtCsiXCqdPBUb9o_3std6threadNtBa_7Builder16spawn_unchecked_NCINvCshPYvL6hHF6O_5ctrlc17set_handler_innerNCNvCscDDS79ZZf82_17rustc_driver_impl21install_ctrlc_handler0E0uEs_0INtNtNtCs1FLWZe5rD62_4core3ops8function6FnOnceuE9call_once6vtableB1S_  (in librustc_driver-6baea8b00e20195f.dylib) + 400  [0x110c74da0]
+    +         867 _RINvNtNtCsiXCqdPBUb9o_3std3sys9backtrace28___rust_begin_short_backtraceNCINvCshPYvL6hHF6O_5ctrlc17set_handler_innerNCNvCscDDS79ZZf82_17rustc_driver_impl21install_ctrlc_handler0E0uEB1T_  (in librustc_driver-6baea8b00e20195f.dylib) + 68  [0x110c63280]
+    +           867 read  (in libsystem_kernel.dylib) + 8  [0x191fed910]
+    867 Thread_365029: rustc
+    + 867 thread_start  (in libsystem_pthread.dylib) + 8  [0x19202ccec]
+    +   867 _pthread_start  (in libsystem_pthread.dylib) + 136  [0x192031d00]
+    +     867 std::sys::thread::unix::Thread::new::thread_start::h6ddd5a264790bcab  (in librustc_driver-6baea8b00e20195f.dylib) + 52  [0x112c5fcb8]
+    +       867 _RNSNvYNCINvMNtCsiXCqdPBUb9o_3std6threadNtBa_7Builder16spawn_unchecked_NCNCINvNtCs5YfDoX3lIvK_15rustc_interface4util26run_in_thread_with_globalsNCINvB1d_31run_in_thread_pool_with_globalsNCINvNtB1f_9interface12run_compileruNCNvCscDDS79ZZf82_17rustc_driver_impl12run_compiler0Es_0uE0uE00uEs_0INtNtNtCs1FLWZe5rD62_4core3ops8function6FnOnceuE9call_once6vtableB3B_  (in librustc_driver-6baea8b00e20195f.dylib) + 552  [0x110c75200]
+    +         867 _RINvNtNtCsiXCqdPBUb9o_3std3sys9backtrace28___rust_begin_short_backtraceNCNCINvNtCs5YfDoX3lIvK_15rustc_interface4util26run_in_thread_with_globalsNCINvB1e_31run_in_thread_pool_with_globalsNCINvNtB1g_9interface12run_compileruNCNvCscDDS79ZZf82_17rustc_driver_impl12run_compiler0Es_0uE0uE00uEB3C_  (in librustc_driver-6baea8b00e20195f.dylib) + 304  [0x110c634e4]
+    +           867 _RNCINvNtCs5YfDoX3lIvK_15rustc_interface9interface12run_compileruNCNvCscDDS79ZZf82_17rustc_driver_impl12run_compiler0Es_0B14_  (in librustc_driver-6baea8b00e20195f.dylib) + 5404  [0x110c6ef14]
+    +             867 _RINvNtCs5YfDoX3lIvK_15rustc_interface6passes28create_and_enter_global_ctxtINtNtCs1FLWZe5rD62_4core6option6OptionNtNtB4_7queries6LinkerENCNCNvCscDDS79ZZf82_17rustc_driver_impl12run_compiler0s0_0EB2f_  (in librustc_driver-6baea8b00e20195f.dylib) + 5796  [0x110c5f710]
+    +               867 _RNvNtNtNtCsdPCEzmSd1PN_16rustc_query_impl10query_impl25resolver_for_lowering_raw14get_query_incr26___rust_end_short_backtrace  (in librustc_driver-6baea8b00e20195f.dylib) + 344  [0x1122cc038]
+    +                 867 _RINvNtNtCs1qqypTlnjLg_18rustc_query_system5query8plumbing17try_execute_queryINtCsdPCEzmSd1PN_16rustc_query_impl13DynamicConfigINtNtB4_6caches11SingleCacheINtNtNtCsgiv9FJNY40Z_12rustc_middle5query5erase6ErasedAhj10_EEKb0_KB3t_KB3t_ENtNtB1f_8plumbing9QueryCtxtKb1_EB1f_  (in librustc_driver-6baea8b00e20195f.dylib) + 2380  [0x112162720]
+    +                   867 _RINvNtCsdPCEzmSd1PN_16rustc_query_impl8plumbing28___rust_begin_short_backtraceNCNCNvNtNtB4_10query_impl25resolver_for_lowering_raw13dynamic_querys0_00INtNtNtCsgiv9FJNY40Z_12rustc_middle5query5erase6ErasedAhj10_EEB4_  (in librustc_driver-6baea8b00e20195f.dylib) + 32  [0x112143b18]
+    +                     867 _RNvNtCs5YfDoX3lIvK_15rustc_interface6passes25resolver_for_lowering_raw  (in librustc_driver-6baea8b00e20195f.dylib) + 488  [0x1115756c8]
+    +                       867 _RNvNtCs5YfDoX3lIvK_15rustc_interface6passes20configure_and_expand  (in librustc_driver-6baea8b00e20195f.dylib) + 4100  [0x11156ff10]
+    +                         867 _RNvMs1_NtCscxh8kLMO2MR_12rustc_expand6expandNtB5_13MacroExpander12expand_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 780  [0x110d7f9b8]
+    +                           867 _RNvMs1_NtCscxh8kLMO2MR_12rustc_expand6expandNtB5_13MacroExpander21fully_expand_fragment  (in librustc_driver-6baea8b00e20195f.dylib) + 300  [0x110d89368]
+    +                             867 _RNvXNtCs9PkG2wcXSrW_13rustc_resolve6macrosNtB4_8ResolverNtNtCscxh8kLMO2MR_12rustc_expand4base14ResolverExpand15resolve_imports  (in librustc_driver-6baea8b00e20195f.dylib) + 272  [0x11254db14]
+    +                               867 _RNvMs_NtCs9PkG2wcXSrW_13rustc_resolve5identNtB6_8Resolver22resolve_path_with_ribs  (in librustc_driver-6baea8b00e20195f.dylib) + 1120  [0x11252e24c]
+    +                                 867 _RNvMs_NtCs9PkG2wcXSrW_13rustc_resolve5identNtB6_8Resolver26resolve_ident_in_scope_set  (in librustc_driver-6baea8b00e20195f.dylib) + 5876  [0x112531f50]
+    +                                   867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore25maybe_process_path_extern  (in librustc_driver-6baea8b00e20195f.dylib) + 48  [0x1117be5ac]
+    +                                     867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 12844  [0x1117bc088]
+    +                                       867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 12844  [0x1117bc088]
+    +                                         867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 12844  [0x1117bc088]
+    +                                           867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 12844  [0x1117bc088]
+    +                                             867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 12844  [0x1117bc088]
+    +                                               867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 12844  [0x1117bc088]
+    +                                                 867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 12844  [0x1117bc088]
+    +                                                   867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 12844  [0x1117bc088]
+    +                                                     867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 13196  [0x1117bc1e8]
+    +                                                       867 _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore17dlsym_proc_macros  (in librustc_driver-6baea8b00e20195f.dylib) + 176  [0x1117b8730]
+    +                                                         867 _RNvNtCsg0yeFX5RKvd_14rustc_metadata7creader10load_dylib  (in librustc_driver-6baea8b00e20195f.dylib) + 108  [0x1117f3bc8]
+    +                                                           867 dyld4::APIs::dlopen(char const*, int)  (in dyld) + 120  [0x191c47fec]
+    +                                                             867 dyld4::APIs::dlopen_from(char const*, int, void*)  (in dyld) + 588  [0x191c482dc]
+    +                                                               867 dyld4::APIs::dlopen_from(char const*, int, void*)::$_0::operator()() const  (in dyld) + 264  [0x191c53b4c]
+    +                                                                 867 dyld4::RuntimeLocks::withLoadersWriteLockAndProtectedStack<dyld4::APIs::dlopen_from(char const*, int, void*)::$_0::operator()() const::'lambda'()>(dyld4::APIs::dlopen_from(char const*, int, void*)::$_0::operator()() const::'lambda'())::'lambda'()::operator()() const  (in dyld) + 184  [0x191c5474c]
+    +                                                                   867 dyld4::APIs::dlopen_from(char const*, int, void*)::$_0::operator()() const::'lambda'()::operator()() const  (in dyld) + 312  [0x191c548f0]
+    +                                                                     867 dyld4::Loader::getLoader(Diagnostics&, dyld4::RuntimeState&, char const*, dyld4::Loader::LoadOptions const&, bool)  (in dyld) + 1116  [0x191c83db0]
+    +                                                                       867 dyld4::Loader::forEachPath(Diagnostics&, dyld4::RuntimeState&, char const*, dyld4::Loader::LoadOptions const&, void (char const*, dyld4::ProcessConfig::PathOverrides::Type, bool&) block_pointer)  (in dyld) + 332  [0x191c8342c]
+    +                                                                         867 dyld4::ProcessConfig::PathOverrides::forEachPathVariant(CString, mach_o::Platform, bool, bool, bool&, void (char const*, dyld4::ProcessConfig::PathOverrides::Type, bool&) block_pointer) const  (in dyld) + 1700  [0x191c650bc]
+    +                                                                           867 dyld4::Loader::forEachResolvedAtPathVar(dyld4::RuntimeState&, char const*, dyld4::Loader::LoadOptions const&, dyld4::ProcessConfig::PathOverrides::Type, bool&, void (char const*, dyld4::ProcessConfig::PathOverrides::Type, bool&) block_pointer)  (in dyld) + 800  [0x191c83914]
+    +                                                                             867 invocation function for block in dyld4::Loader::getLoader(Diagnostics&, dyld4::RuntimeState&, char const*, dyld4::Loader::LoadOptions const&, bool)  (in dyld) + 3248  [0x191c84e7c]
+    +                                                                               867 dyld4::Loader::makeDiskLoader(Diagnostics&, dyld4::RuntimeState&, char const*, dyld4::Loader::LoadOptions const&, bool, unsigned int)  (in dyld) + 188  [0x191c83180]
+    +                                                                                 867 dyld4::JustInTimeLoader::makeJustInTimeLoaderDisk(Diagnostics&, dyld4::RuntimeState&, char const*, dyld4::Loader::LoadOptions const&, bool, unsigned int)  (in dyld) + 1532  [0x191c818dc]
+    +                                                                                   867 dyld4::JustInTimeLoader::withRegions(mach_o::UnsafeHeader const*, void (std::span<dyld4::Loader::Region const, 18446744073709551615ul>) block_pointer)  (in dyld) + 312  [0x191c80f90]
+    +                                                                                     867 invocation function for block in dyld4::JustInTimeLoader::makeJustInTimeLoaderDisk(Diagnostics&, dyld4::RuntimeState&, char const*, dyld4::Loader::LoadOptions const&, bool, unsigned int)  (in dyld) + 84  [0x191c81960]
+    +                                                                                       867 dyld4::Loader::mapSegments(Diagnostics&, dyld4::RuntimeState&, char const*, int, unsigned long long, dyld4::Loader::CodeSignatureInFile const&, bool, std::span<dyld4::Loader::Region const, 18446744073709551615ul>, bool, bool, dyld4::Loader::FileValidationInfo const&)  (in dyld) + 308  [0x191c859d8]
+    +                                                                                         867 dyld4::SyscallDelegate::fcntl(int, int, void*) const  (in dyld) + 32  [0x191c59698]
+    +                                                                                           867 fcntl  (in dyld) + 88  [0x191c2e3cc]
+    +                                                                                             867 __fcntl  (in dyld) + 8  [0x191c2e52c]
+    867 Thread_365030
+      867 thread_start  (in libsystem_pthread.dylib) + 8  [0x19202ccec]
+        867 _pthread_start  (in libsystem_pthread.dylib) + 136  [0x192031d00]
+          867 std::sys::thread::unix::Thread::new::thread_start::h6ddd5a264790bcab  (in librustc_driver-6baea8b00e20195f.dylib) + 52  [0x112c5fcb8]
+            867 _RNSNvYNCINvMNtCsiXCqdPBUb9o_3std6threadNtBa_7Builder16spawn_unchecked_NCNvNtCsguUBA4W3YIW_9jobserver3imp12spawn_helpers_0uEs_0INtNtNtCs1FLWZe5rD62_4core3ops8function6FnOnceuE9call_once6vtableB1c_  (in librustc_driver-6baea8b00e20195f.dylib) + 404  [0x1101a5890]
+              867 _RINvNtNtCsiXCqdPBUb9o_3std3sys9backtrace28___rust_begin_short_backtraceNCNvNtCsguUBA4W3YIW_9jobserver3imp12spawn_helpers_0uEB1d_  (in librustc_driver-6baea8b00e20195f.dylib) + 408  [0x1101a5120]
+                867 _pthread_cond_wait  (in libsystem_pthread.dylib) + 980  [0x1920321d0]
+                  867 __psynch_cvwait  (in libsystem_kernel.dylib) + 8  [0x191ff050c]
+
+Total number in stack (recursive counted multiple, when >=5):
+        8       _RNvMs2_NtCsg0yeFX5RKvd_14rustc_metadata7creaderNtB5_6CStore19maybe_resolve_crate  (in librustc_driver-6baea8b00e20195f.dylib) + 12844  [0x1117bc088]
+
+Sort by top of stack, same collapsed (when >= 5):
+        __fcntl  (in dyld)        867
+        __psynch_cvwait  (in libsystem_kernel.dylib)        867
+        __ulock_wait  (in libsystem_kernel.dylib)        867
+        read  (in libsystem_kernel.dylib)        867
+
+Binary Images:
+       0x10463c000 -        0x104677fff +rustc (0) <863CB213-6D2D-366B-A9CA-6C64FB5AED2F> /Users/*/rustc
+       0x110044000 -        0x11913ffaf +librustc_driver-6baea8b00e20195f.dylib (0) <9976BDAC-3D46-3B5B-8ACB-7E98AEBEB46D> /Users/*/librustc_driver-6baea8b00e20195f.dylib
+       0x149954000 -        0x149b16b7b +libtokio_macros-ac6f31ff67cf73ea.dylib (0) <9810C9D0-7E24-3DFB-B8E1-ABBB9B3D6A00> /Users/*/Documents/*/libtokio_macros-ac6f31ff67cf73ea.dylib
+       0x14a114000 -        0x14a2a9ff3 +libfutures_macro-da22c80e4ed5c428.dylib (0) <701CC99A-38DA-35D9-8E5B-785EBC38D7D4> /Users/*/Documents/*/libfutures_macro-da22c80e4ed5c428.dylib
+       0x14c62c000 -        0x14c837483 +libasync_trait-892e7cc80e4cf84f.dylib (0) <D3219B36-B265-34AC-80C7-5C68611725AB> /Users/*/Documents/*/libasync_trait-892e7cc80e4cf84f.dylib
+       0x14d058000 -        0x14d27e5b3 +libtracing_attributes-d54d407ad0fc43b9.dylib (0) <D3941EAA-7A10-3AFD-AE5D-CEB02462EA83> /Users/*/Documents/*/libtracing_attributes-d54d407ad0fc43b9.dylib
+       0x14d47c000 -        0x14d4ea457 +librustversion-371463a8d4b192fe.dylib (0) <FE2EEABC-A322-3C76-94BD-B621C4A65E17> /Users/*/Documents/*/librustversion-371463a8d4b192fe.dylib
+       0x14ded4000 -        0x14e157c73 +libserde_derive-6dd8459d5a22e6da.dylib (0) <CF136588-7346-39CF-BD12-A9DD52D2D0C2> /Users/*/Documents/*/libserde_derive-6dd8459d5a22e6da.dylib
+       0x159428000 -        0x159599253 +libopenssl_macros-34d45beae064431b.dylib (0) <BA8C8129-2D5D-32E8-ACB8-E8268E1D5AEC> /Users/*/Documents/*/libopenssl_macros-34d45beae064431b.dylib
+       0x15c0bc000 -        0x15c2c22bb +libthiserror_impl-ac80a2396c83b8f3.dylib (0) <E98E0E45-A874-3C07-A1CC-FCA1EC748A89> /Users/*/Documents/*/libthiserror_impl-ac80a2396c83b8f3.dylib
+       0x191ba8000 -        0x191bf75f7  libobjc.A.dylib (973.1) <C0680DF6-9900-3C29-A071-95A031686EF8> /usr/lib/libobjc.A.dylib
+       0x191bf8000 -        0x191c0223f  libsharedcache.dylib (0) <BBF95357-BEBF-3D89-8900-2BBB14A667C5> /usr/lib/libsharedcache.dylib
+       0x191c03000 -        0x191c29d3b  libdyld.dylib (27062) <62863BCA-DD60-3D32-A9DB-89099BA6F3D7> /usr/lib/system/libdyld.dylib
+       0x191c2a000 -        0x191ce96e3  dyld (1.0.0 - 27062) <D341DDCB-7969-3A9C-8E03-0CF4751398A9> /usr/lib/dyld
+       0x191cea000 -        0x191ced01f  libsystem_blocks.dylib (98.1) <6F304731-D95D-3501-B4AD-F2934F7F2446> /usr/lib/system/libsystem_blocks.dylib
+       0x191cee000 -        0x191d430df  libxpc.dylib (3298.1.1) <0791121F-B5FC-3F84-BF04-115E86D2D882> /usr/lib/system/libxpc.dylib
+       0x191d44000 -        0x191d63c13  libsystem_trace.dylib (1966.1.1) <B48A8E3E-A12A-3342-8321-428B555E965E> /usr/lib/system/libsystem_trace.dylib
+       0x191d64000 -        0x191e18f27  libcorecrypto.dylib (2109.0.22) <807AA6C9-5D8A-3CA5-B4CE-FACE5296EF6A> /usr/lib/system/libcorecrypto.dylib
+       0x191e19000 -        0x191e6ec5f  libsystem_malloc.dylib (886.0.8) <2339CB57-FE5A-3154-A206-A76059C749EB> /usr/lib/system/libsystem_malloc.dylib
+       0x191e6f000 -        0x191eb519f  libdispatch.dylib (1605.0.2) <022BF08F-0B3A-3225-9E65-16D1553CE90D> /usr/lib/system/libdispatch.dylib
+       0x191eb6000 -        0x191eb8d2b  libsystem_featureflags.dylib (108) <20C1CAB2-1F13-3426-8146-9CAE9FF2A33D> /usr/lib/system/libsystem_featureflags.dylib
+       0x191eb9000 -        0x191f3bca3  libsystem_c.dylib (1786.0.3) <FBA7B23E-AA60-3A90-9AA4-A7A2E0AD63EE> /usr/lib/system/libsystem_c.dylib
+       0x191f3c000 -        0x191fd1033  libc++.1.dylib (2200.27) <1E9BA4AA-B5DA-3CF3-80AC-4B880049573F> /usr/lib/libc++.1.dylib
+       0x191fd2000 -        0x191febeff  libc++abi.dylib (2200.27) <A21743EE-6E1C-3E74-97EA-7AF793DE4BDF> /usr/lib/libc++abi.dylib
+       0x191fec000 -        0x19202a9ab  libsystem_kernel.dylib (13432.1.9) <F63BF418-8F75-34A4-AAF1-8CAF2B9B6A05> /usr/lib/system/libsystem_kernel.dylib
+       0x19202b000 -        0x19203791b  libsystem_pthread.dylib (553.0.1) <5A1828C3-CBC2-3B85-BD07-C8ED10021A41> /usr/lib/system/libsystem_pthread.dylib
+       0x192038000 -        0x1920414f3  libsystem_platform.dylib (402.0.1.0.1) <080E4444-A0FB-3913-9756-4E470015F32F> /usr/lib/system/libsystem_platform.dylib
+       0x192042000 -        0x192070903  libsystem_info.dylib (603) <BC387AEB-1CEF-3513-92D7-D7F913596711> /usr/lib/system/libsystem_info.dylib
+       0x19619a000 -        0x1961a3b13  libsystem_darwin.dylib (1786.0.3) <4E66C888-993C-3E6A-A8DA-A949C01C5B67> /usr/lib/system/libsystem_darwin.dylib
+       0x1965f4000 -        0x196605b8b  libsystem_notify.dylib (368) <58FD36D8-37A7-311C-80F2-8E64DD8710CF> /usr/lib/system/libsystem_notify.dylib
+       0x198751000 -        0x19876bd93  libsystem_networkextension.dylib (2340.1.2) <22E1D190-486F-324F-ABA4-F36AB841BFE9> /usr/lib/system/libsystem_networkextension.dylib
+       0x1987f9000 -        0x198810247  libsystem_asl.dylib (409) <B4D449B7-A821-3A9A-8019-E917B291F10A> /usr/lib/system/libsystem_asl.dylib
+       0x1997a4000 -        0x1997a4f2f  libobjcMsgSend.dylib (973.1) <41179EDE-DC97-3BBE-8848-6400D12C1436> /usr/lib/objc/libobjcMsgSend.dylib
+       0x19a8f0000 -        0x19a8f7edf  libsystem_symptoms.dylib (2394.0.4) <60EE7884-9F4E-3184-A6AC-FA40A7A0297D> /usr/lib/system/libsystem_symptoms.dylib
+       0x19ec88000 -        0x19ecc2aeb  libsystem_containermanager.dylib (833.0.8.0.1) <08A57205-555D-3792-8931-9D5B585AF326> /usr/lib/system/libsystem_containermanager.dylib
+       0x1a02db000 -        0x1a02df317  libsystem_configuration.dylib (1446) <F3EB66A7-7A24-3AE5-B6E8-9A37BB00F119> /usr/lib/system/libsystem_configuration.dylib
+       0x1a02e0000 -        0x1a02e6e03  libsystem_sandbox.dylib (3051.0.52) <1E892B56-092E-3832-BDE3-DCE356D7A4FA> /usr/lib/system/libsystem_sandbox.dylib
+       0x1a17a4000 -        0x1a17a4f2f  libobjcMsgSend1.dylib (973.1) <B40D9B2A-E1EE-37ED-8004-711A1F263DE1> /usr/lib/objc/libobjcMsgSend1.dylib
+       0x1a1ec4000 -        0x1a1ec6f93  libquarantine.dylib (217.0.4) <7FD4AE22-86EF-382B-83F5-ADF9336C1160> /usr/lib/system/libquarantine.dylib
+       0x1a25d6000 -        0x1a25dc1e7  libsystem_coreservices.dylib (203) <57248E07-11A5-3857-918E-4A3A63B69FE8> /usr/lib/system/libsystem_coreservices.dylib
+       0x1a2b8f000 -        0x1a2b9db87  libz.1.dylib (105) <09881E57-159D-3E5F-B9EB-B708249AC31E> /usr/lib/libz.1.dylib
+       0x1a2b9e000 -        0x1a2bdbb27  libsystem_m.dylib (3326.0.1) <A3FB340F-3ED5-30F4-8B64-9D5860F64D35> /usr/lib/system/libsystem_m.dylib
+       0x1a2bdc000 -        0x1a2bdcb47  libcharset.1.dylib (121) <3C9B584E-740A-3664-A1B0-52E561EA4B0B> /usr/lib/libcharset.1.dylib
+       0x1a2bdd000 -        0x1a2be04f7  libmacho.dylib (27062) <50DEADEC-3E99-3519-AFC3-4A3FEB3F14C3> /usr/lib/system/libmacho.dylib
+       0x1a2bfa000 -        0x1a2c06707  libcommonCrypto.dylib (600041) <41C99F45-C5E6-39DB-B1F2-A1BEA9D242A4> /usr/lib/system/libcommonCrypto.dylib
+       0x1a2c07000 -        0x1a2c10c87  libunwind.dylib (2200.5) <3070AB81-B082-39E8-8A00-EF88DDE9AC47> /usr/lib/system/libunwind.dylib
+       0x1a2c18000 -        0x1a2c227eb  libcopyfile.dylib (260.0.3) <72D95AF9-BF5E-3A84-81A6-BCC5BDB99857> /usr/lib/system/libcopyfile.dylib
+       0x1a2c23000 -        0x1a2c268bf  libcompiler_rt.dylib (103.4) <DFB5CE7F-A36E-36AA-BECE-1392D3D43607> /usr/lib/system/libcompiler_rt.dylib
+       0x1a2c27000 -        0x1a2c2c077  libsystem_collections.dylib (1786.0.3) <1E8022D4-5A37-3A7A-8936-603E6FA88358> /usr/lib/system/libsystem_collections.dylib
+       0x1a2c2d000 -        0x1a2c2ff1f  libsystem_secinit.dylib (182) <DE037464-4C5D-3E96-A33F-2A4557CC6A20> /usr/lib/system/libsystem_secinit.dylib
+       0x1a2c30000 -        0x1a2c3297f  libremovefile.dylib (96) <E6E6DFCF-6B2C-3F30-A59D-816CAB1190CE> /usr/lib/system/libremovefile.dylib
+       0x1a2c33000 -        0x1a2c33e27  libkeymgr.dylib (31) <5EC997EF-3ADA-360B-9FCD-5F940C83FA4E> /usr/lib/system/libkeymgr.dylib
+       0x1a2c34000 -        0x1a2c3caf7  libsystem_dnssd.dylib (3111.0.5.0.1) <DE22096F-1E5B-3D6E-8164-771582DD6391> /usr/lib/system/libsystem_dnssd.dylib
+       0x1a2c3d000 -        0x1a2c41f1b  libcache.dylib (95) <80BAE197-E285-3F6E-A1EE-B77FE37D7E5D> /usr/lib/system/libcache.dylib
+       0x1a2c42000 -        0x1a2c438f3  libSystem.B.dylib (1359) <4FDC9AA6-B344-37FE-B8C6-A4C94A038F57> /usr/lib/libSystem.B.dylib
+       0x1a2c7c000 -        0x1a2c830a3  libiconv.2.dylib (121) <C343D6F7-6932-30E8-8E8F-F756946D8413> /usr/lib/libiconv.2.dylib
+       0x1a97a4000 -        0x1a97a4f2f  libobjcMsgSend2.dylib (973.1) <BD27A84B-C9AE-3282-BBEA-3B6119837B5A> /usr/lib/objc/libobjcMsgSend2.dylib
+       0x1b17a4000 -        0x1b17a4f2f  libobjcMsgSend3.dylib (973.1) <C0860D68-DDFC-3BD7-8B06-DB0645CBBED4> /usr/lib/objc/libobjcMsgSend3.dylib
+       0x1b97a4000 -        0x1b97a4f2f  libobjcMsgSend4.dylib (973.1) <A6153BF5-622B-3B01-81B6-F64A365EF613> /usr/lib/objc/libobjcMsgSend4.dylib
+       0x1c17a4000 -        0x1c17a4f2f  libobjcMsgSend5.dylib (973.1) <3913A71C-B29A-3AEA-820B-BEC40AC1861A> /usr/lib/objc/libobjcMsgSend5.dylib
+       0x1c97a4000 -        0x1c97a4f2f  libobjcMsgSend6.dylib (973.1) <9BC523A3-E167-3F6C-8CAE-0F3EBA671791> /usr/lib/objc/libobjcMsgSend6.dylib
+       0x1d17a4000 -        0x1d17a4f2f  libobjcMsgSend7.dylib (973.1) <248B7BCE-5B4C-34C7-A340-43D5228628C5> /usr/lib/objc/libobjcMsgSend7.dylib
+       0x1d97a4000 -        0x1d97a4f2f  libobjcMsgSend8.dylib (973.1) <3E041BAD-A8E8-3069-B741-78CD1A45B176> /usr/lib/objc/libobjcMsgSend8.dylib
+       0x1e17a4000 -        0x1e17a4f2f  libobjcMsgSend9.dylib (973.1) <34A67969-21A0-39D6-BB81-8FDA5A2409DB> /usr/lib/objc/libobjcMsgSend9.dylib
+       0x1e97a4000 -        0x1e97a4f2f  libobjcMsgSend10.dylib (973.1) <678186C0-8EAD-3B35-8CBB-00285B41E4A0> /usr/lib/objc/libobjcMsgSend10.dylib
+       0x1f17a4000 -        0x1f17a4f2f  libobjcMsgSend11.dylib (973.1) <E05CB08C-E956-36FA-8967-AE8E346A8D2C> /usr/lib/objc/libobjcMsgSend11.dylib
+       0x2197a4000 -        0x2197a4f2f  libobjcMsgSend12.dylib (973.1) <10AB03AA-FF1F-3FDC-9DFB-BFC40042C501> /usr/lib/objc/libobjcMsgSend12.dylib
+       0x2217a4000 -        0x2217a4f2f  libobjcMsgSend13.dylib (973.1) <ABF53427-FA6F-3D0D-8F9D-7AD795CA5C92> /usr/lib/objc/libobjcMsgSend13.dylib
+       0x2297a4000 -        0x2297a4f2f  libobjcMsgSend14.dylib (973.1) <9A844C46-A6DA-34D4-8EBF-2AD775C30684> /usr/lib/objc/libobjcMsgSend14.dylib
+       0x2317a4000 -        0x2317a4f2f  libobjcMsgSend15.dylib (973.1) <7C995666-2B2D-3284-AA0A-EBF7C922838E> /usr/lib/objc/libobjcMsgSend15.dylib
+       0x2397a4000 -        0x2397a4f2f  libobjcMsgSend16.dylib (973.1) <B6C0E14B-53AE-3E22-9ED5-1729C49F46F2> /usr/lib/objc/libobjcMsgSend16.dylib
+       0x2417a4000 -        0x2417a4f2f  libobjcMsgSend17.dylib (973.1) <07B4CF85-251B-301B-832B-20B315A59E19> /usr/lib/objc/libobjcMsgSend17.dylib
+       0x2497a4000 -        0x2497a4f2f  libobjcMsgSend18.dylib (973.1) <43E575B7-04DB-3999-A633-1A3B638BA6E3> /usr/lib/objc/libobjcMsgSend18.dylib
+       0x2517a4000 -        0x2517a4f2f  libobjcMsgSend19.dylib (973.1) <736F4D85-76F7-3B28-8D87-C07E8F7A0EF4> /usr/lib/objc/libobjcMsgSend19.dylib
+       0x2597a4000 -        0x2597a4f2f  libobjcMsgSend20.dylib (973.1) <74E67C8B-6BCA-3184-A18E-A97F370052C6> /usr/lib/objc/libobjcMsgSend20.dylib
+       0x2617a4000 -        0x2617a4f2f  libobjcMsgSend21.dylib (973.1) <CC0D732F-98E7-3888-9E15-70984DA2FB04> /usr/lib/objc/libobjcMsgSend21.dylib
+       0x2697a4000 -        0x2697a4f2f  libobjcMsgSend22.dylib (973.1) <85A60286-5DE3-32BA-B18C-2A498B065C88> /usr/lib/objc/libobjcMsgSend22.dylib
+       0x2717a4000 -        0x2717a4f2f  libobjcMsgSend23.dylib (973.1) <5452A0D2-6B19-39BE-ADDD-80B7BCDE3A98> /usr/lib/objc/libobjcMsgSend23.dylib
+       0x2797a4000 -        0x2797a4f2f  libobjcMsgSend24.dylib (973.1) <94BBF2D6-722B-350D-8557-4D25A8E8D53A> /usr/lib/objc/libobjcMsgSend24.dylib
+       0x2817a4000 -        0x2817a4f2f  libobjcMsgSend25.dylib (973.1) <35481387-5A8E-3AE4-86A6-94CEB3CC8726> /usr/lib/objc/libobjcMsgSend25.dylib
+       0x2997a4000 -        0x2997a4f2f  libobjcMsgSend26.dylib (973.1) <9E0C8664-E7F4-39D1-AAFC-BD92B255E4E8> /usr/lib/objc/libobjcMsgSend26.dylib
+       0x2a17a4000 -        0x2a17a4f2f  libobjcMsgSend27.dylib (973.1) <FD424935-55A9-3650-955A-EED3441A1D19> /usr/lib/objc/libobjcMsgSend27.dylib
+       0x2a97a4000 -        0x2a97a4f2f  libobjcMsgSend28.dylib (973.1) <09BA7B97-7DF7-3C7F-932A-B6847662FC49> /usr/lib/objc/libobjcMsgSend28.dylib
+       0x2b17a4000 -        0x2b17a4f2f  libobjcMsgSend29.dylib (973.1) <36D5BA3F-2139-30B0-8558-556764BE9813> /usr/lib/objc/libobjcMsgSend29.dylib
+       0x2b97a4000 -        0x2b97a4f2f  libobjcMsgSend30.dylib (973.1) <9F05564A-9D12-372C-98FC-E9F0E6BE4F04> /usr/lib/objc/libobjcMsgSend30.dylib
+       0x2be4be000 -        0x2be4c4fe5  libRosetta.dylib (385) <E359944B-D230-33F9-A04E-0C3B17C3326E> /usr/lib/libRosetta.dylib
+       0x2beead000 -        0x2beeb075b  libsystem_darwindirectory.dylib (129.0.1) <61264923-2AA5-3658-B8C4-550C71E9D4B3> /usr/lib/system/libsystem_darwindirectory.dylib
+       0x2beeb1000 -        0x2beebbd9b  libsystem_eligibility.dylib (446.1.3) <EDDE8E9C-A2CF-3931-BBB3-321CB852EB30> /usr/lib/system/libsystem_eligibility.dylib
+       0x2beebc000 -        0x2beec542b  libsystem_sanitizers.dylib (32) <7138ED99-7AA0-34EA-B35B-20EF6ADB1EED> /usr/lib/system/libsystem_sanitizers.dylib
+       0x2beec6000 -        0x2beec6a13  libsystem_trial.dylib (511) <6AE48824-EC44-3A8C-B501-BE57DBE892E7> /usr/lib/system/libsystem_trial.dylib
+       0x2c17a4000 -        0x2c17a4f2f  libobjcMsgSend31.dylib (973.1) <0985E20F-78C3-3466-A2B2-DBB95F7104A3> /usr/lib/objc/libobjcMsgSend31.dylib
+       0x2c97a4000 -        0x2c97a4f2f  libobjcMsgSend32.dylib (973.1) <0D309D58-D576-3E5D-AD4B-6D55AB491702> /usr/lib/objc/libobjcMsgSend32.dylib
+       0x2d17a4000 -        0x2d17a4f2f  libobjcMsgSend33.dylib (973.1) <346E0484-48FA-369B-8A64-93B5F5341CFE> /usr/lib/objc/libobjcMsgSend33.dylib
+       0x2d97a4000 -        0x2d97a4f2f  libobjcMsgSend34.dylib (973.1) <6A31F809-BCBE-3E01-A367-E91FDACCE324> /usr/lib/objc/libobjcMsgSend34.dylib

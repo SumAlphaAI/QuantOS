@@ -1,0 +1,18 @@
+{
+  "initiator": "Codex",
+  "userRequestedInterruption": false,
+  "reason": "Targeted cargo test compile made no progress: three rustc processes each ~4.5s CPU then sleeping >4min; no test assertion completed/failed. Recorder stopped safely before its 600s limit.",
+  "classification": "INTERRUPTED_ENVIRONMENT_DIAGNOSIS_NOT_BUSINESS_PASS",
+  "rawRecorderSignal": "SIGTERM",
+  "note": "Recorder inherited generic wording user interrupted; actual initiator is Codex as recorded here.",
+  "diagnostics": {
+    "rustcVersion": "1.91.0",
+    "standaloneMetadata": "PASS",
+    "standaloneObject": "PASS",
+    "parallelCause": "Exact root cause NOT_ESTABLISHED; jobserver was an initial hypothesis. Sample observes dylib loader wait, not proof of a jobserver failure.",
+    "processInspectionInitialSandbox": "EPERM; authorized read-only inspection succeeded",
+    "stackSample": "Completed later: resolver loads proc-macro dynamic library, waits in dyld mapSegments/fcntl; raw sample preserved"
+  },
+  "next": "Fresh committed source with explicit CARGO_BUILD_JOBS=1; new full current-scope attempt; no borrowing earlier PASS",
+  "workaroundObservation": "Fresh explicit single-job attempt completed provider tests in 26,997ms; no application assertion changes."
+}

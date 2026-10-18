@@ -1,0 +1,346 @@
+[
+  {
+    "id": "baseline",
+    "command": [
+      "node",
+      "scripts/check-bff-fe-000.mjs"
+    ],
+    "reason": "Current C01-C17/page/owner, request/response/error/paging/job/version/idempotency/session/SSE safety semantics",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:23.808Z",
+    "completedAt": "2026-10-18T01:22:23.904Z",
+    "elapsedMs": 96,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/baseline.log",
+    "logSha256": "sha256:f5c303ad38ed40bac691dbc13346716569a323529f6fa66b8b4dbf97e46c5173"
+  },
+  {
+    "id": "openapi",
+    "command": [
+      "node",
+      "scripts/check-bff-openapi.mjs"
+    ],
+    "reason": "Current versioned OpenAPI paths, refs, required parameters and every published operation",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:23.904Z",
+    "completedAt": "2026-10-18T01:22:23.994Z",
+    "elapsedMs": 90,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/openapi.log",
+    "logSha256": "sha256:bc937c0fe7961432432eb722024ecc17bab3952a4506247993f083281508e4c6"
+  },
+  {
+    "id": "generated",
+    "command": [
+      "node",
+      "scripts/check-bff-generated.mjs"
+    ],
+    "reason": "Fresh isolated regeneration compares all six client/Zod/JSONSchema/operation/MSW/Rust-input-policy outputs byte for byte",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:23.995Z",
+    "completedAt": "2026-10-18T01:22:24.379Z",
+    "elapsedMs": 384,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/generated.log",
+    "logSha256": "sha256:db29de4f9e9d39939fae20164cf07731b87b7d57674334a329ceeb3fe45b858f"
+  },
+  {
+    "id": "coverage",
+    "command": [
+      "node",
+      "scripts/check-bff-contract-coverage.mjs"
+    ],
+    "reason": "Every published operation maps to a page; planned identifiers remain traceability only",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:24.379Z",
+    "completedAt": "2026-10-18T01:22:24.467Z",
+    "elapsedMs": 88,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/coverage.log",
+    "logSha256": "sha256:c06b1dc8cbc754ce5a9aa439802a5a5883cc9fd5e09f593307c8f51c42183ad3"
+  },
+  {
+    "id": "compatibility",
+    "command": [
+      "node",
+      "scripts/check-bff-compatibility.mjs"
+    ],
+    "reason": "Current security correction versus explicit trusted ancestor, without owner/staging approval claim",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:24.467Z",
+    "completedAt": "2026-10-18T01:22:24.590Z",
+    "elapsedMs": 123,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/compatibility.log",
+    "logSha256": "sha256:b04949edd8138c919c7ee904c901ee3bcea65834f39e7ac739f96adc504cbc0c"
+  },
+  {
+    "id": "pre04",
+    "command": [
+      "node",
+      "scripts/pre04-inventory.mjs"
+    ],
+    "reason": "Direct PRE04 input: current Proto/schema/catalog/provider inventory and immutable reviewed artifacts",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:24.591Z",
+    "completedAt": "2026-10-18T01:22:24.693Z",
+    "elapsedMs": 102,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/pre04.log",
+    "logSha256": "sha256:cb1a60234119d44ca73bd3cfc3a6448e3ca7350ec60c9ee6a07687be5337365e"
+  },
+  {
+    "id": "pre06",
+    "command": [
+      "node",
+      "scripts/check-pre06.mjs"
+    ],
+    "reason": "Direct PRE06 input: fixtures, CI, actual test structures, visual baseline and budget configuration",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:24.693Z",
+    "completedAt": "2026-10-18T01:22:25.477Z",
+    "elapsedMs": 784,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/pre06.log",
+    "logSha256": "sha256:3ceb4ed35db2667888baf8cda633eb4c24187aaa79c0e4fe1762c54c638217ad"
+  },
+  {
+    "id": "trace",
+    "command": [
+      "node",
+      "scripts/check-pre01.mjs"
+    ],
+    "reason": "G0 page-to-task-to-contract-to-backend-to-test-to-Gate traceability and permission states",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:25.478Z",
+    "completedAt": "2026-10-18T01:22:25.568Z",
+    "elapsedMs": 90,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/trace.log",
+    "logSha256": "sha256:e0a171eeeb07232db1993ab4de85723514a09aa409a3228949370f5f874e6e77"
+  },
+  {
+    "id": "records",
+    "command": [
+      "node",
+      "scripts/check-g0-records.mjs"
+    ],
+    "reason": "Current unresolved scope items retain owner, effective deadline and compatibility strategy; historical acceptance remains historical",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:25.569Z",
+    "completedAt": "2026-10-18T01:22:25.594Z",
+    "elapsedMs": 25,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/records.log",
+    "logSha256": "sha256:95264bde9cead0824153d459b894cd2e224fbdb99735e5f2f2509459eb8b6b5c"
+  },
+  {
+    "id": "baseline-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/bff-fe-000-gate-negative.mjs",
+      "scripts/bff-remediation-negative.mjs"
+    ],
+    "reason": "Current A1 contract semantic mutations reject weakened auth, decimals, generated coverage and planned/implemented confusion",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:25.594Z",
+    "completedAt": "2026-10-18T01:22:25.799Z",
+    "elapsedMs": 205,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/baseline-negative.log",
+    "logSha256": "sha256:a5d12a6ba1d80a7648bed2a5d807e2b0acbf8cb560b736a56ada911be1b9a6fc"
+  },
+  {
+    "id": "boundary-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/frontend-import-boundary.test.mjs"
+    ],
+    "reason": "Production applications cannot import legacy InMemory, private server/storage/venue or unrestricted generated bypasses",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:25.799Z",
+    "completedAt": "2026-10-18T01:22:26.188Z",
+    "elapsedMs": 389,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/boundary-negative.log",
+    "logSha256": "sha256:9e2fe33357acf5ecc2ea016e9d821c49cf0eb26eb861c79bf2333c8267b06ff7"
+  },
+  {
+    "id": "freeze-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/g0-development.test.mjs",
+      "scripts/fep0-development.test.mjs",
+      "scripts/user-acceptance-confirmation.test.mjs"
+    ],
+    "reason": "Direct G0/FEP0 content, current-scope confirmation and historical receipt substitution refusal regressions",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:26.188Z",
+    "completedAt": "2026-10-18T01:22:35.930Z",
+    "elapsedMs": 9742,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/freeze-negative.log",
+    "logSha256": "sha256:b971f30f788497e345160ccbc4acf1949a4f55a2631a6d938e7488fc9b617d56"
+  },
+  {
+    "id": "proto",
+    "command": [
+      "node",
+      "scripts/a1-proto-boundary.mjs"
+    ],
+    "reason": "Direct F03 only: local Buf lint/descriptor/breaking against explicit ancestor plus current JSONSchema consistency; remote codegen/full F03 gate not run",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:22:35.930Z",
+    "completedAt": "2026-10-18T01:22:50.355Z",
+    "elapsedMs": 14425,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/proto.log",
+    "logSha256": "sha256:92f741f607141983efd7449d9be18ae8c03ab735e6d639a07456f6969f07c953"
+  },
+  {
+    "id": "proto-negative",
+    "command": [
+      "node",
+      "--test",
+      "scripts/tests/check-proto-config.test.mjs",
+      "scripts/tests/check-json-schemas.test.mjs"
+    ],
+    "reason": "Direct protocol config and schema integrity mutation cases without target runtime or dependency revalidation",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:50.355Z",
+    "completedAt": "2026-10-18T01:22:50.707Z",
+    "elapsedMs": 352,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/proto-negative.log",
+    "logSha256": "sha256:07a965f2d06fba2a2dd8e9139b36501b318f8e92782a8c360a240306d340eff4"
+  },
+  {
+    "id": "event-boundary",
+    "command": [
+      "node",
+      "scripts/check-f05.mjs"
+    ],
+    "reason": "Direct F05 static event/actor/tenant/correlation and append-only contract inspection; no database execution or F05 admission",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:50.707Z",
+    "completedAt": "2026-10-18T01:22:50.730Z",
+    "elapsedMs": 23,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/event-boundary.log",
+    "logSha256": "sha256:e3518c683a8dfa064e26f5bcbcc20261e75c6e3bd7dbceb2d55e222d5ce99ac9"
+  },
+  {
+    "id": "client-contract",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "apps/terminal/tests/auth-poc.test.ts",
+      "packages/api-client/tests",
+      "tests/contract"
+    ],
+    "reason": "Actual generated client/schema/MSW, server-owned metadata refusal, cookies/error/version/idempotency and seven real loopback SSE replay/revocation PoCs",
+    "timeoutMs": 300000,
+    "startedAt": "2026-10-18T01:22:50.730Z",
+    "completedAt": "2026-10-18T01:23:04.237Z",
+    "elapsedMs": 13507,
+    "exitCode": 0,
+    "signal": null,
+    "errorCode": null,
+    "timedOut": false,
+    "status": "PASS",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/client-contract.log",
+    "logSha256": "sha256:d0af56119f1249aa80a9da289831f53eaab858ea79d85e7d555dff77b480e325"
+  },
+  {
+    "id": "provider",
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--offline",
+      "-p",
+      "bff-gateway",
+      "--test",
+      "auth_settings_provider",
+      "--test",
+      "audit_export_provider"
+    ],
+    "reason": "Implemented A1 reference scope only: actual auth/settings/audit/export authorization, idempotent changed-intent refusal, redaction and evidence chain",
+    "timeoutMs": 600000,
+    "startedAt": "2026-10-18T01:23:04.237Z",
+    "completedAt": "2026-10-18T01:27:57.204Z",
+    "elapsedMs": 292967,
+    "exitCode": null,
+    "signal": "SIGTERM",
+    "errorCode": null,
+    "timedOut": false,
+    "status": "INTERRUPTED",
+    "log": "docs/audit/evidence/a1-local-20261018/function-attempt-01/logs/provider.log",
+    "logSha256": "sha256:403597f71caf29e4577f561b4eaf4afbb34cb22cb059d343ed8d5e7256704721"
+  }
+]
