@@ -38,7 +38,7 @@ export const checks=[
  c('plans',['node','scripts/check-development-plans.mjs'],'Cross-plan and stage-profile agreement only; no structural PASS promoted to runtime acceptance')
 ];
 export function commands(attempt){return checks.map(c=>({...c,command:c.command.map(s=>s.replace('{attempt}',attempt))}));}
-export function environment(base=process.env){return {...publicEnvironment(base),CARGO_NET_OFFLINE:'true',QUANTOS_SKIP_ENV:'1',QUANTOS_RUN_F09_POSTGRES_TESTS:'0'};}
+export function environment(base=process.env){return {...publicEnvironment(base),CARGO_NET_OFFLINE:'true',CARGO_BUILD_JOBS:'1',QUANTOS_SKIP_ENV:'1',QUANTOS_RUN_F09_POSTGRES_TESTS:'0'};}
 export {webEnvironment};
 export function validateScope(){assert.equal(policy.development.recursiveDependencyRevalidation,false);assert.equal(policy.development.defaultScope,'FUNCTION_AND_IMPACT');assert(checks.every(c=>c.reason.length>40));assert(!checks.some(c=>c.command.includes('--workspace')||c.command.includes('install')));}
 export function snapshot(){
