@@ -429,19 +429,24 @@
 
 ## 15. C14 Performance/Report
 
-| wire 字段 / 计划字段 | 类型与序列化 | required | 领域源锚 | 领域→wire 映射 / 决策 | wire / 计划源锚 |
-|---|---|---|---|---|---|
-| accountId / currency | uuid / string（ISO 4217） | 是 | planned-model:PerformanceView | PLANNED：BFF-FE-008 冻结后同步 wire 映射 | planned:C14.plannedFields.0 |
-| method | enum{twr, mwr, simple} | 是 | planned-model:PerformanceView（标注口径与适用条件） | PLANNED：BFF-FE-008 冻结后同步 wire 映射 | planned:C14.plannedFields.1 |
-| ledgerVersion / valuationSnapshotId | version / uuid | 是 | planned-model:PerformanceView（X01/X05） | PLANNED：BFF-FE-008 冻结后同步 wire 映射 | planned:C14.plannedFields.2 |
-| coverage | TimeWindow | 是 | proto:common.v1.TimeWindow | PLANNED：BFF-FE-008 冻结后同步 wire 映射 | planned:C14.plannedFields.3 |
-| asOf | rfc3339 | 是 | planned-model:PerformanceView | PLANNED：BFF-FE-008 冻结后同步 wire 映射 | planned:C14.plannedFields.4 |
-| pnl / return / drawdown / fees | money / decimal / decimal / money | 是 | planned-model:PerformanceView | PLANNED：BFF-FE-008 冻结后同步 wire 映射 | planned:C14.plannedFields.5 |
-| provisional | bool | 是 | planned-model:PerformanceView（未对账强制 true） | PLANNED：BFF-FE-008 冻结后同步 wire 映射 | planned:C14.plannedFields.6 |
-| period / reportVersion | enum{week, month, quarter, year} + 自然/滚动 / version | 是 | planned-model:ReportJob | PLANNED：BFF-FE-008 冻结后同步 wire 映射 | planned:C14.plannedFields.7 |
-| supersededBy | uuid | opt | planned-model:ReportJob | PLANNED：BFF-FE-008 冻结后同步 wire 映射 | planned:C14.plannedFields.8 |
+当前工程契约 OpenAPI1.11.0：PerformanceView / PerformanceReport / PerformanceReportDocument / PerformanceDownload。同源 X01 snapshot 与 C15 actual Book，目标联调/发布未验收。
 
-尚未发布 operation：getPerformanceSummary、getPerformanceSeries、getPerformanceAttribution、createPerformanceReport、getReportStatus、getReportDownload；责任任务 BFF-FE-008。以上已发布字段不能用于证明这些 operation 的请求、响应或实时载荷已冻结。
+| 字段 | Wire 类型 | 来源与语义 |
+|---|---|---|
+| accountId / currency / method | UUID / USD / simple | F06账户范围；不做FX，twr/mwr明确422 |
+| ledgerVersion / valuationSnapshotId | sha256内容hash / sha256内容hash | C15实际账本与X01真实快照，非自造UUID |
+| coverage | PerformanceCoverage | 请求/观测起止、points、complete、maxIntervalSeconds60；不足2点拒绝 |
+| asOf / provisional | RFC3339 / boolean | 最后观测时间；未对账、证明过期或缺区间强制true |
+| pnl / return / drawdown / fees | DecimalValue 字符串 | 初末权益变化、simple收益率、观测峰谷最大回撤、期间新增累计费用 |
+| series / attribution | PerformancePoint[] / PerformanceAttribution[] | 逐点版本/runId/provisional；符号P&L变化+LEDGER_RESIDUAL，不双算expected/actual或rerun |
+| period / periodMode | custom,week,month,quarter,year / rolling,calendar | UTC口径；custom显式start/end，其他周期按rolling/calendar计算 |
+| reportId / reportVersion / status | UUID / 1 / queued,succeeded | 创建冻结输入；同键返回原回执；status执行本进程待办一次 |
+| createdAt / expiresAt / supersededBy | RFC3339 / RFC3339 / UUID或null | 15分钟租约；保留旧报告，不自动替换 |
+| auditRef / correlationId | UUID / UUID | F05创建根，精确重试只追加一次 |
+| downloadPath / downloadExpiresAt | 同源相对路径 / RFC3339 | actor/session绑定ticket，60秒过期410，注销401 |
+| sha256 / sizeBytes / mediaType | 内容hash / integer / application/json | 实际下载字节校验，JSON保留decimal字符串，不转换CSV |
+
+发布操作：getPerformanceSummary、getPerformanceSeries、getPerformanceAttribution、createPerformanceReport、getReportStatus、getPerformanceReport、getReportDownload、downloadPerformanceReport。C16完成通知及完整P21 UI仍待相应任务，不以本接口冻结替代。
 
 ## 16. C15 Reconciliation
 

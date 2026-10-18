@@ -134,6 +134,38 @@ impl ReconciliationHost {
     pub fn service(&self) -> ReconciliationService {
         self.core.clone()
     }
+    /// C14 authenticated immutable actual-book read. No synthetic proof or edits.
+    pub(crate) fn performance_source(
+        &mut self,
+        a: &AuthContext,
+        id: Uuid,
+        now: DateTime<Utc>,
+    ) -> Result<(Input, Value)> {
+        self.scope.authorize(a).map_err(core_error)?;
+        if self.poisoned {
+            return Err(Fault::unavailable());
+        }
+        self.refresh_closure(a, now)?;
+        let r = self.runs.get(&id).ok_or_else(Fault::hidden)?;
+        Ok((r.report.input().clone(), self.run(id, now)?))
+    }
+    pub(crate) fn next_source_revision(&self) -> u64 {
+        self.runs
+            .values()
+            .map(|r| {
+                r.report
+                    .input()
+                    .actual
+                    .revision
+                    .max(r.report.input().expected.revision)
+            })
+            .max()
+            .unwrap_or(0)
+            + 1
+    }
+    pub(crate) fn latest_run(&self) -> Option<Uuid> {
+        self.runs.keys().next_back().copied()
+    }
     pub(crate) fn current_version(&self, a: &AuthContext, path: &str) -> Option<String> {
         self.scope.authorize(a).ok()?;
         if self.poisoned {
@@ -578,7 +610,7 @@ pub(crate) fn routes<S: Clone + Send + Sync + 'static>(
 pub(crate) fn reference_routes() -> Router<Arc<Mutex<crate::ProviderData>>> {
     routes(get(reference), post(reference))
 }
-fn reference_auth(session: &str) -> AuthContext {
+pub(crate) fn reference_auth(session: &str) -> AuthContext {
     let mut a = crate::strategy::reference_auth(session);
     a.mode = RunMode::Shadow;
     a.capabilities.clear();
@@ -702,7 +734,7 @@ async fn reference(
     }
 }
 // Explicit synthetic input provider. Never called by live startup or live routes.
-fn fixture(a: &AuthContext, now: DateTime<Utc>) -> Input {
+pub(crate) fn fixture(a: &AuthContext, now: DateTime<Utc>) -> Input {
     use quantos_reconcile::model::*;
     use rust_decimal::Decimal;
     let scope = Scope {

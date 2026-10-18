@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "operations": [
     {
       "operationId": "cancelExport",
@@ -44,6 +44,16 @@
       "sse": false
     },
     {
+      "operationId": "createPerformanceReport",
+      "method": "POST",
+      "path": "/v1/performance/reports",
+      "tags": [
+        "performance"
+      ],
+      "responseSchema": "PerformanceReport",
+      "sse": false
+    },
+    {
       "operationId": "createRelease",
       "method": "POST",
       "path": "/v1/releases",
@@ -71,6 +81,16 @@
         "approval"
       ],
       "responseSchema": "Approval",
+      "sse": false
+    },
+    {
+      "operationId": "downloadPerformanceReport",
+      "method": "GET",
+      "path": "/v1/performance/reports/{reportId}/content",
+      "tags": [
+        "performance"
+      ],
+      "responseSchema": "PerformanceReportDocument",
       "sse": false
     },
     {
@@ -224,6 +244,46 @@
       "sse": false
     },
     {
+      "operationId": "getPerformanceAttribution",
+      "method": "GET",
+      "path": "/v1/performance/attribution",
+      "tags": [
+        "performance"
+      ],
+      "responseSchema": "PerformanceView",
+      "sse": false
+    },
+    {
+      "operationId": "getPerformanceReport",
+      "method": "GET",
+      "path": "/v1/performance/reports/{reportId}",
+      "tags": [
+        "performance"
+      ],
+      "responseSchema": "PerformanceReportDocument",
+      "sse": false
+    },
+    {
+      "operationId": "getPerformanceSeries",
+      "method": "GET",
+      "path": "/v1/performance/series",
+      "tags": [
+        "performance"
+      ],
+      "responseSchema": "PerformanceView",
+      "sse": false
+    },
+    {
+      "operationId": "getPerformanceSummary",
+      "method": "GET",
+      "path": "/v1/performance/summary",
+      "tags": [
+        "performance"
+      ],
+      "responseSchema": "PerformanceView",
+      "sse": false
+    },
+    {
       "operationId": "getPlatformCapabilities",
       "method": "GET",
       "path": "/v1/platform/browser-capabilities",
@@ -291,6 +351,26 @@
         "strategy"
       ],
       "responseSchema": "StrategyRelease",
+      "sse": false
+    },
+    {
+      "operationId": "getReportDownload",
+      "method": "GET",
+      "path": "/v1/performance/reports/{reportId}/download",
+      "tags": [
+        "performance"
+      ],
+      "responseSchema": "PerformanceDownload",
+      "sse": false
+    },
+    {
+      "operationId": "getReportStatus",
+      "method": "GET",
+      "path": "/v1/performance/reports/{reportId}/status",
+      "tags": [
+        "performance"
+      ],
+      "responseSchema": "PerformanceReport",
       "sse": false
     },
     {

@@ -1,5 +1,5 @@
 {
-  "version": "1.10.0",
+  "version": "1.11.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -3157,6 +3157,544 @@
             "string",
             "null"
           ]
+        }
+      }
+    },
+    "PerformanceQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "currency",
+        "method",
+        "period",
+        "periodMode"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "simple",
+            "twr",
+            "mwr"
+          ]
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "custom",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ]
+        },
+        "periodMode": {
+          "type": "string",
+          "enum": [
+            "rolling",
+            "calendar"
+          ]
+        },
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "PerformanceCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestedStart",
+        "requestedEnd",
+        "start",
+        "end",
+        "complete",
+        "points",
+        "maxIntervalSeconds"
+      ],
+      "properties": {
+        "requestedStart": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedEnd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "points": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "maxIntervalSeconds": {
+          "type": "integer",
+          "enum": [
+            60
+          ]
+        }
+      }
+    },
+    "PerformancePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asOf",
+        "equity",
+        "cumulativeFees",
+        "drawdown",
+        "ledgerVersion",
+        "valuationSnapshotId",
+        "reconciliationRunId",
+        "provisional"
+      ],
+      "properties": {
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "equity": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "cumulativeFees": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "drawdown": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "valuationSnapshotId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reconciliationRunId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "provisional": {
+          "type": "boolean"
+        }
+      }
+    },
+    "PerformanceAttribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "pnl"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "pnl": {
+          "$ref": "#/components/schemas/DecimalValue"
+        }
+      }
+    },
+    "PerformanceView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "currency",
+        "method",
+        "period",
+        "periodMode",
+        "asOf",
+        "ledgerVersion",
+        "valuationSnapshotId",
+        "coverage",
+        "provisional",
+        "pnl",
+        "return",
+        "drawdown",
+        "fees",
+        "series",
+        "attribution",
+        "precision",
+        "venueSubmit"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "simple"
+          ]
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "custom",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ]
+        },
+        "periodMode": {
+          "type": "string",
+          "enum": [
+            "rolling",
+            "calendar"
+          ]
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "valuationSnapshotId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coverage": {
+          "$ref": "#/components/schemas/PerformanceCoverage"
+        },
+        "provisional": {
+          "type": "boolean"
+        },
+        "pnl": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "return": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "drawdown": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "fees": {
+          "$ref": "#/components/schemas/DecimalValue"
+        },
+        "series": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/components/schemas/PerformancePoint"
+          }
+        },
+        "attribution": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/PerformanceAttribution"
+          }
+        },
+        "precision": {
+          "type": "string"
+        },
+        "venueSubmit": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "PerformanceReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "currency",
+        "method",
+        "period",
+        "periodMode",
+        "asOf",
+        "ledgerVersion",
+        "valuationSnapshotId",
+        "coverage",
+        "provisional",
+        "reportId",
+        "status",
+        "reportVersion",
+        "createdAt",
+        "expiresAt",
+        "correlationId",
+        "auditRef",
+        "supersededBy"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "simple"
+          ]
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "custom",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ]
+        },
+        "periodMode": {
+          "type": "string",
+          "enum": [
+            "rolling",
+            "calendar"
+          ]
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "valuationSnapshotId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coverage": {
+          "$ref": "#/components/schemas/PerformanceCoverage"
+        },
+        "provisional": {
+          "type": "boolean"
+        },
+        "reportId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "succeeded"
+          ]
+        },
+        "reportVersion": {
+          "type": "string",
+          "enum": [
+            "1"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "supersededBy": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        }
+      }
+    },
+    "PerformanceReportDocument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metadata",
+        "performance"
+      ],
+      "properties": {
+        "metadata": {
+          "$ref": "#/components/schemas/PerformanceReport"
+        },
+        "performance": {
+          "$ref": "#/components/schemas/PerformanceView"
+        }
+      }
+    },
+    "PerformanceDownload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "currency",
+        "method",
+        "period",
+        "periodMode",
+        "asOf",
+        "ledgerVersion",
+        "valuationSnapshotId",
+        "coverage",
+        "provisional",
+        "reportId",
+        "status",
+        "reportVersion",
+        "createdAt",
+        "expiresAt",
+        "correlationId",
+        "auditRef",
+        "supersededBy",
+        "downloadPath",
+        "sha256",
+        "sizeBytes",
+        "mediaType",
+        "downloadExpiresAt"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "simple"
+          ]
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "custom",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ]
+        },
+        "periodMode": {
+          "type": "string",
+          "enum": [
+            "rolling",
+            "calendar"
+          ]
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "valuationSnapshotId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coverage": {
+          "$ref": "#/components/schemas/PerformanceCoverage"
+        },
+        "provisional": {
+          "type": "boolean"
+        },
+        "reportId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "succeeded"
+          ]
+        },
+        "reportVersion": {
+          "type": "string",
+          "enum": [
+            "1"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "auditRef": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "supersededBy": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "downloadPath": {
+          "type": "string",
+          "pattern": "^/v1/performance/reports/[a-f0-9-]+/content\\?ticket=[a-f0-9-]+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mediaType": {
+          "type": "string",
+          "enum": [
+            "application/json"
+          ]
+        },
+        "downloadExpiresAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     }
@@ -8588,6 +9126,565 @@
         },
         "realtime": "not applicable: response or job/detail polling",
         "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/performance/summary",
+      "method": "GET",
+      "operationId": "getPerformanceSummary",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "currency",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "USD"
+            ]
+          }
+        },
+        {
+          "name": "method",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "simple",
+              "twr",
+              "mwr"
+            ]
+          }
+        },
+        {
+          "name": "period",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "custom",
+              "week",
+              "month",
+              "quarter",
+              "year"
+            ]
+          }
+        },
+        {
+          "name": "periodMode",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "rolling",
+              "calendar"
+            ]
+          }
+        },
+        {
+          "name": "start",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "end",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-008",
+        "auth": "cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound",
+        "capability": "execution.operate; C15 owner scope unchanged; Viewer refused",
+        "pagination": "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503",
+        "idempotency": "POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job",
+        "version": "Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable",
+        "audit": "Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 1000,
+          "rate": "Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN"
+        },
+        "realtime": "Job polling advances queued to succeeded within same process lease; no C16 notification claim",
+        "sensitive": "Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/performance/series",
+      "method": "GET",
+      "operationId": "getPerformanceSeries",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "currency",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "USD"
+            ]
+          }
+        },
+        {
+          "name": "method",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "simple",
+              "twr",
+              "mwr"
+            ]
+          }
+        },
+        {
+          "name": "period",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "custom",
+              "week",
+              "month",
+              "quarter",
+              "year"
+            ]
+          }
+        },
+        {
+          "name": "periodMode",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "rolling",
+              "calendar"
+            ]
+          }
+        },
+        {
+          "name": "start",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "end",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-008",
+        "auth": "cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound",
+        "capability": "execution.operate; C15 owner scope unchanged; Viewer refused",
+        "pagination": "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503",
+        "idempotency": "POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job",
+        "version": "Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable",
+        "audit": "Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 1000,
+          "rate": "Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN"
+        },
+        "realtime": "Job polling advances queued to succeeded within same process lease; no C16 notification claim",
+        "sensitive": "Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/performance/attribution",
+      "method": "GET",
+      "operationId": "getPerformanceAttribution",
+      "parameters": [
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "currency",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "USD"
+            ]
+          }
+        },
+        {
+          "name": "method",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "simple",
+              "twr",
+              "mwr"
+            ]
+          }
+        },
+        {
+          "name": "period",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "custom",
+              "week",
+              "month",
+              "quarter",
+              "year"
+            ]
+          }
+        },
+        {
+          "name": "periodMode",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "rolling",
+              "calendar"
+            ]
+          }
+        },
+        {
+          "name": "start",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "name": "end",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-008",
+        "auth": "cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound",
+        "capability": "execution.operate; C15 owner scope unchanged; Viewer refused",
+        "pagination": "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503",
+        "idempotency": "POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job",
+        "version": "Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable",
+        "audit": "Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 1000,
+          "rate": "Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN"
+        },
+        "realtime": "Job polling advances queued to succeeded within same process lease; no C16 notification claim",
+        "sensitive": "Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/performance/reports",
+      "method": "POST",
+      "operationId": "createPerformanceReport",
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/PerformanceQuery"
+      },
+      "bodyExample": {
+        "accountId": "11111111-1111-4111-8111-111111111111",
+        "currency": "USD",
+        "method": "simple",
+        "period": "custom",
+        "periodMode": "rolling",
+        "start": "2026-10-18T07:58:00Z",
+        "end": "2026-10-18T08:00:00Z"
+      },
+      "policy": {
+        "owner": "BFF-FE-008",
+        "auth": "cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound",
+        "capability": "execution.operate; C15 owner scope unchanged; Viewer refused",
+        "pagination": "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503",
+        "idempotency": "POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job",
+        "version": "Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable",
+        "audit": "Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 1000,
+          "rate": "Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN"
+        },
+        "realtime": "Job polling advances queued to succeeded within same process lease; no C16 notification claim",
+        "sensitive": "Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/performance/reports/{reportId}/status",
+      "method": "GET",
+      "operationId": "getReportStatus",
+      "parameters": [
+        {
+          "name": "reportId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-008",
+        "auth": "cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound",
+        "capability": "execution.operate; C15 owner scope unchanged; Viewer refused",
+        "pagination": "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503",
+        "idempotency": "POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job",
+        "version": "Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable",
+        "audit": "Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 1000,
+          "rate": "Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN"
+        },
+        "realtime": "Job polling advances queued to succeeded within same process lease; no C16 notification claim",
+        "sensitive": "Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/performance/reports/{reportId}",
+      "method": "GET",
+      "operationId": "getPerformanceReport",
+      "parameters": [
+        {
+          "name": "reportId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-008",
+        "auth": "cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound",
+        "capability": "execution.operate; C15 owner scope unchanged; Viewer refused",
+        "pagination": "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503",
+        "idempotency": "POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job",
+        "version": "Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable",
+        "audit": "Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 1000,
+          "rate": "Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN"
+        },
+        "realtime": "Job polling advances queued to succeeded within same process lease; no C16 notification claim",
+        "sensitive": "Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/performance/reports/{reportId}/download",
+      "method": "GET",
+      "operationId": "getReportDownload",
+      "parameters": [
+        {
+          "name": "reportId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-008",
+        "auth": "cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound",
+        "capability": "execution.operate; C15 owner scope unchanged; Viewer refused",
+        "pagination": "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503",
+        "idempotency": "POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job",
+        "version": "Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable",
+        "audit": "Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 1000,
+          "rate": "Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN"
+        },
+        "realtime": "Job polling advances queued to succeeded within same process lease; no C16 notification claim",
+        "sensitive": "Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas"
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/performance/reports/{reportId}/content",
+      "method": "GET",
+      "operationId": "downloadPerformanceReport",
+      "parameters": [
+        {
+          "name": "reportId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "ticket",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-008",
+        "auth": "cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound",
+        "capability": "execution.operate; C15 owner scope unchanged; Viewer refused",
+        "pagination": "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503",
+        "idempotency": "POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job",
+        "version": "Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable",
+        "audit": "Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data",
+        "limits": {
+          "bodyBytes": 8192,
+          "pageSize": 1000,
+          "rate": "Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN"
+        },
+        "realtime": "Job polling advances queued to succeeded within same process lease; no C16 notification claim",
+        "sensitive": "Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas"
       },
       "authenticated": true
     }

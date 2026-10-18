@@ -1,0 +1,1 @@
+export const operations=["getPerformanceSummary","getPerformanceSeries","getPerformanceAttribution","createPerformanceReport","getReportStatus","getPerformanceReport","getReportDownload","downloadPerformanceReport"];

@@ -1,0 +1,111 @@
+fatal: git cat-file: could not get object info
+✖ synthetic coherent receipt accepted only with explicitly stubbed source and references (34.471292ms)
+✔ candidate/source inventory drift refused (17.934583ms)
+✔ command substitution refused (15.297916ms)
+✔ missing check refused (16.11825ms)
+✔ failed check refused (15.898583ms)
+✔ interrupted check refused (15.024041ms)
+✔ ignored timeout refused (15.059917ms)
+✔ future time refused (15.587792ms)
+✔ log modification refused (14.365916ms)
+✔ recursive closure promotion refused (14.203ms)
+✔ integration promotion refused (14.088792ms)
+✔ release promotion refused (15.024833ms)
+✔ self acceptance refused (14.087125ms)
+✔ runtime admission refused (14.347375ms)
+✔ borrowed historical references refused (14.001458ms)
+✔ upstream ready propagation refused (13.954458ms)
+✔ empty source test log rehash refused (14.958125ms)
+✔ wrong artifact path refused (14.18225ms)
+✔ databaseExecution cannot be promoted (14.033041ms)
+✔ formalAccepted cannot be promoted (14.527167ms)
+✔ production cannot be promoted (14.252958ms)
+✔ externalExecution cannot be promoted (14.029583ms)
+✔ externalPublished cannot be promoted (14.321667ms)
+✔ upstreamAccepted cannot be promoted (13.948791ms)
+✔ performanceAccepted cannot be promoted (13.67425ms)
+✔ syncApproved cannot be promoted (13.65425ms)
+✔ targetCanaryAccepted cannot be promoted (14.277958ms)
+✔ targetRollbackAccepted cannot be promoted (14.067375ms)
+✔ wrong HTTP source refused even when artifact rehashed (14.294ms)
+✔ old operation list refused even when artifact rehashed (14.655125ms)
+✔ missing401 refused even when artifact rehashed (13.974458ms)
+✔ missing403 refused even when artifact rehashed (13.929458ms)
+✔ missing success refused even when artifact rehashed (14.26975ms)
+✔ schema failure refused even when artifact rehashed (14.3875ms)
+✔ nonempty schema issues refused even when artifact rehashed (13.851583ms)
+✔ browser unrun refused even when artifact rehashed (14.359334ms)
+✔ venue submit refused even when artifact rehashed (13.882625ms)
+✔ retry campaign unrun refused even when artifact rehashed (13.807083ms)
+✔ empty retries refused even when artifact rehashed (14.341875ms)
+✔ low per-file branch coverage refused even when artifact rehashed (13.888792ms)
+✔ empty line coverage refused even when artifact rehashed (14.268458ms)
+✔ default immutable source verifier cannot be bypassed (19.989875ms)
+✖ mandatory current CI wiring (0.36275ms)
+✔ publication failure restores checkpoint and original manifest bytes (30.197041ms)
+✔ actual user reply confirms original JSON draft only (438.533916ms)
+✔ self approval rejected even with updated record hash (382.127083ms)
+✔ other source rejected even with updated record hash (372.4125ms)
+✔ wrong digest rejected even with updated record hash (369.796458ms)
+✔ other receipt rejected even with updated record hash (366.95825ms)
+✔ other commit rejected even with updated record hash (365.352292ms)
+✔ empty user message rejected even with updated record hash (369.44075ms)
+✔ release promotion rejected even with updated record hash (372.495833ms)
+✔ runtime promotion rejected even with updated record hash (377.791708ms)
+✔ future time rejected even with updated record hash (384.706666ms)
+✔ approved original draft bytes cannot be rewritten (409.537792ms)
+✔ original source verification cannot be bypassed by default (7.244125ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 54
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4431.696583
+
+✖ failing tests:
+
+test at scripts/bff-fe-008-functional-gate.test.mjs:8:1
+✖ synthetic coherent receipt accepted only with explicitly stubbed source and references (34.471292ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert(results.length>0&&results.every(m=>Number(m[1])>0&&Number(m[2])===0))
+  
+      at verify (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-008-functional-gate.mjs:16:162)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-008-functional-gate.test.mjs:8:131)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/bff-fe-008-functional-gate.test.mjs:14:1
+✖ mandatory current CI wiring (0.36275ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'node scripts/ci-stage-disposition.mjs FE:BFF-FE-008'
+  - 'node scripts/ci-stage-disposition.mjs FE:BFF-FE-009'
+  
+      at validateWiring (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-008-functional-gate.mjs:14:259)
+      at TestContext.<anonymous> (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/bff-fe-008-functional-gate.test.mjs:14:40)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'node scripts/ci-stage-disposition.mjs FE:BFF-FE-008',
+    expected: 'node scripts/ci-stage-disposition.mjs FE:BFF-FE-009',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

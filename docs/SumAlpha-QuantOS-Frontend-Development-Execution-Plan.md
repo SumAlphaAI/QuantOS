@@ -890,6 +890,19 @@
         "PROVIDER:A4"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-008": {
+      "profile": "BFF008_SCOPE_LOCAL",
+      "schema": "quantos-bff008-scoped-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-008-local-20261018/manifest.json",
+      "prerequisites": [
+        "FE:BFF-FE-009",
+        "CORE:X01",
+        "CORE:X05",
+        "CORE-GATE:X3-SERVICE",
+        "PROVIDER:A4"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
     }
   }
 }
@@ -1469,7 +1482,7 @@ A4 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 - task_id: `BFF-FE-009`
 - task_type: `PAGE_API`
 - iteration: `A5`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:b5dc7f0870fc48a7697248f3ab3ee4dc7619cfc18a590077c2c15faf44d525ea","evidence":["audit/evidence/bff-fe-009-local-20261018/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-006", "BFF-FE-007", "CORE:X05", "CORE-GATE:X3-SERVICE", "PROVIDER:A4"]
 - core_prerequisites: ["CORE:X05", "CORE-GATE:X3-SERVICE"]
 - closes_core: []

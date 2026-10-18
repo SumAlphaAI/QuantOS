@@ -1,0 +1,19 @@
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0308]: mismatched types
+    --> services/bff-gateway/src/performance/tests.rs:391:26
+     |
+ 391 |             .starts_with(&before)
+     |              ----------- ^^^^^^^ expected `&[u8]`, found `&Value`
+     |              |
+     |              arguments to this method are incorrect
+     |
+     = note: expected reference `&[u8]`
+                found reference `&serde_json::Value`
+note: method defined here
+    --> /Users/anray/.rustup/toolchains/1.91.0-aarch64-apple-darwin/lib/rustlib/src/rust/library/core/src/slice/mod.rs:2613:12
+     |
+2613 |     pub fn starts_with(&self, needle: &[T]) -> bool
+     |            ^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `bff-gateway` (lib test) due to 1 previous error

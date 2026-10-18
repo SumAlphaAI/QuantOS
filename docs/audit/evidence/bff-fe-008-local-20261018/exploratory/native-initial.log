@@ -1,0 +1,36 @@
+    Blocking waiting for file lock on build directory
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+error[E0599]: no method named `len` found for tuple `(Vec<u8>, JournalAnchor)` in the current scope
+   --> services/bff-gateway/src/performance/tests.rs:4:735
+    |
+  4 | ...sert_eq!(r.service().journal(&a).unwrap().len(),3);}
+    |                                              ^^^ method not found in `(Vec<u8>, JournalAnchor)`
+    |
+   ::: /Users/anray/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/typenum-1.20.1/src/type_operators.rs:324:8
+    |
+324 |     fn len(&self) -> Self::Output;
+    |        --- the method is available for `(Vec<u8>, JournalAnchor)` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: one of the expressions' fields has a method of the same name
+    |
+  4 | #[test]fn x01_x05_actual_books_golden_metrics_and_provisional(){let(a,p,mut r,n,q)=setup();let v=p.calculate(&a,&q,&mut r,n).unwrap();assert_eq!(v["pnl"],"10");assert_eq!(v["fees"],"0");assert_eq!(v["return"],"0.010020040080160321");assert_eq!(v["drawdown"],"0.009823182711198428");assert_eq!(v["coverage"]["complete"],true);assert_eq!(v["provisional"],true);assert_eq!(v["series"].as_array().unwrap().len(),3);assert_eq!(v["attribution"][0]["pnl"],"10");assert_eq!(v["attribution"][1]["pnl"],"0");for row in v["series"].as_array().unwrap(){assert!(row["ledgerVersion"].as_str().unwrap().starts_with("sha256:"));assert!(row["valuationSnapshotId"].as_str().unwrap().starts_with("sha256:"));}assert_eq!(r.service().journal(&a).unwrap().0.len(),3);}
+    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ++
+help: trait `Len` which provides `len` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sha2::digest::typenum::Len;
+    |
+
+error[E0599]: no method named `starts_with` found for tuple `(Vec<u8>, JournalAnchor)` in the current scope
+ --> services/bff-gateway/src/performance/tests.rs:9:250
+  |
+9 | ...pended.service().journal(&a).unwrap().starts_with(&before));appended.poisoned=true;assert_eq!(p.calculate(&a,&q,&mut appended,n).unwra...
+  |                                          ^^^^^^^^^^^ method not found in `(Vec<u8>, JournalAnchor)`
+  |
+help: one of the expressions' fields has a method of the same name
+  |
+9 | #[test]fn c15_history_preserved_and_lease_loss_fail_closed(){let(a,p,mut r,n,q)=setup();let before=r.service().journal(&a).unwrap();let(_,mut appended)=seed(&a,n+Duration::minutes(3),Some(r)).unwrap();assert!(appended.service().journal(&a).unwrap().0.starts_with(&before));appended.poisoned=true;assert_eq!(p.calculate(&a,&q,&mut appended,n).unwrap_err().0,StatusCode::SERVICE_UNAVAILABLE);let mut empty=PerformanceHost::new(a.clone());let mut fresh=ReconciliationHost::new(&a,crate::reconciliation::fixture(&a,n),n).unwrap();assert_eq!(empty.handle(&a,"s",&Method::GET,"/v1/performance/summary",&q,&HeaderMap::new(),&json!({}),&mut fresh,n).unwrap_err().1,"INSUFFICIENT_COVERAGE");}
+  |                                                                                                                                                                                                                                                          ++
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `bff-gateway` (lib test) due to 2 previous errors

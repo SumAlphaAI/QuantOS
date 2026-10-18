@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.10.0
+  version: 1.11.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -6192,6 +6192,873 @@ paths:
           rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
         realtime: "not applicable: response or job/detail polling"
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/performance/summary:
+    get:
+      operationId: getPerformanceSummary
+      tags:
+        - performance
+      summary: getPerformanceSummary
+      parameters:
+        - name: accountId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: currency
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - USD
+        - name: method
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - simple
+              - twr
+              - mwr
+        - name: period
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - custom
+              - week
+              - month
+              - quarter
+              - year
+        - name: periodMode
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - rolling
+              - calendar
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceView"
+              example:
+                accountId: 11111111-1111-4111-8111-111111111111
+                currency: USD
+                method: simple
+                period: custom
+                periodMode: rolling
+                asOf: 2026-10-18T08:00:00Z
+                ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                coverage:
+                  requestedStart: 2026-10-18T07:58:00Z
+                  requestedEnd: 2026-10-18T08:00:00Z
+                  start: 2026-10-18T07:58:00Z
+                  end: 2026-10-18T08:00:00Z
+                  complete: true
+                  points: 3
+                  maxIntervalSeconds: 60
+                provisional: true
+                pnl: "10"
+                return: "0.01"
+                drawdown: "0.01"
+                fees: "0"
+                series:
+                  - asOf: 2026-10-18T08:00:00Z
+                    equity: "1008"
+                    cumulativeFees: "1"
+                    drawdown: "0.01"
+                    ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                    provisional: true
+                  - asOf: 2026-10-18T08:00:00Z
+                    equity: "1008"
+                    cumulativeFees: "1"
+                    drawdown: "0.01"
+                    ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                    provisional: true
+                attribution:
+                  - symbol: BTCUSD
+                    pnl: "10"
+                precision: X01 f64 validated against X05 Decimal
+                venueSubmit: false
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-008
+        auth: cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound
+        capability: execution.operate; C15 owner scope unchanged; Viewer refused
+        pagination: "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503
+        idempotency: POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job
+        version: Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable
+        audit: Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data
+        limits:
+          bodyBytes: 8192
+          pageSize: 1000
+          rate: Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN
+        realtime: Job polling advances queued to succeeded within same process lease; no C16 notification claim
+        sensitive: Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas
+  /v1/performance/series:
+    get:
+      operationId: getPerformanceSeries
+      tags:
+        - performance
+      summary: getPerformanceSeries
+      parameters:
+        - name: accountId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: currency
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - USD
+        - name: method
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - simple
+              - twr
+              - mwr
+        - name: period
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - custom
+              - week
+              - month
+              - quarter
+              - year
+        - name: periodMode
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - rolling
+              - calendar
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceView"
+              example:
+                accountId: 11111111-1111-4111-8111-111111111111
+                currency: USD
+                method: simple
+                period: custom
+                periodMode: rolling
+                asOf: 2026-10-18T08:00:00Z
+                ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                coverage:
+                  requestedStart: 2026-10-18T07:58:00Z
+                  requestedEnd: 2026-10-18T08:00:00Z
+                  start: 2026-10-18T07:58:00Z
+                  end: 2026-10-18T08:00:00Z
+                  complete: true
+                  points: 3
+                  maxIntervalSeconds: 60
+                provisional: true
+                pnl: "10"
+                return: "0.01"
+                drawdown: "0.01"
+                fees: "0"
+                series:
+                  - asOf: 2026-10-18T08:00:00Z
+                    equity: "1008"
+                    cumulativeFees: "1"
+                    drawdown: "0.01"
+                    ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                    provisional: true
+                  - asOf: 2026-10-18T08:00:00Z
+                    equity: "1008"
+                    cumulativeFees: "1"
+                    drawdown: "0.01"
+                    ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                    provisional: true
+                attribution:
+                  - symbol: BTCUSD
+                    pnl: "10"
+                precision: X01 f64 validated against X05 Decimal
+                venueSubmit: false
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-008
+        auth: cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound
+        capability: execution.operate; C15 owner scope unchanged; Viewer refused
+        pagination: "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503
+        idempotency: POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job
+        version: Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable
+        audit: Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data
+        limits:
+          bodyBytes: 8192
+          pageSize: 1000
+          rate: Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN
+        realtime: Job polling advances queued to succeeded within same process lease; no C16 notification claim
+        sensitive: Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas
+  /v1/performance/attribution:
+    get:
+      operationId: getPerformanceAttribution
+      tags:
+        - performance
+      summary: getPerformanceAttribution
+      parameters:
+        - name: accountId
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: currency
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - USD
+        - name: method
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - simple
+              - twr
+              - mwr
+        - name: period
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - custom
+              - week
+              - month
+              - quarter
+              - year
+        - name: periodMode
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - rolling
+              - calendar
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceView"
+              example:
+                accountId: 11111111-1111-4111-8111-111111111111
+                currency: USD
+                method: simple
+                period: custom
+                periodMode: rolling
+                asOf: 2026-10-18T08:00:00Z
+                ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                coverage:
+                  requestedStart: 2026-10-18T07:58:00Z
+                  requestedEnd: 2026-10-18T08:00:00Z
+                  start: 2026-10-18T07:58:00Z
+                  end: 2026-10-18T08:00:00Z
+                  complete: true
+                  points: 3
+                  maxIntervalSeconds: 60
+                provisional: true
+                pnl: "10"
+                return: "0.01"
+                drawdown: "0.01"
+                fees: "0"
+                series:
+                  - asOf: 2026-10-18T08:00:00Z
+                    equity: "1008"
+                    cumulativeFees: "1"
+                    drawdown: "0.01"
+                    ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                    provisional: true
+                  - asOf: 2026-10-18T08:00:00Z
+                    equity: "1008"
+                    cumulativeFees: "1"
+                    drawdown: "0.01"
+                    ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                    provisional: true
+                attribution:
+                  - symbol: BTCUSD
+                    pnl: "10"
+                precision: X01 f64 validated against X05 Decimal
+                venueSubmit: false
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-008
+        auth: cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound
+        capability: execution.operate; C15 owner scope unchanged; Viewer refused
+        pagination: "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503
+        idempotency: POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job
+        version: Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable
+        audit: Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data
+        limits:
+          bodyBytes: 8192
+          pageSize: 1000
+          rate: Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN
+        realtime: Job polling advances queued to succeeded within same process lease; no C16 notification claim
+        sensitive: Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas
+  /v1/performance/reports:
+    post:
+      operationId: createPerformanceReport
+      tags:
+        - performance
+      summary: createPerformanceReport
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "202":
+          description: Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceReport"
+              example:
+                accountId: 11111111-1111-4111-8111-111111111111
+                currency: USD
+                method: simple
+                period: custom
+                periodMode: rolling
+                asOf: 2026-10-18T08:00:00Z
+                ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                coverage:
+                  requestedStart: 2026-10-18T07:58:00Z
+                  requestedEnd: 2026-10-18T08:00:00Z
+                  start: 2026-10-18T07:58:00Z
+                  end: 2026-10-18T08:00:00Z
+                  complete: true
+                  points: 3
+                  maxIntervalSeconds: 60
+                provisional: true
+                reportId: 11111111-1111-4111-8111-111111111111
+                status: succeeded
+                reportVersion: "1"
+                createdAt: 2026-10-18T08:00:00Z
+                expiresAt: 2026-10-18T08:15:00Z
+                correlationId: 11111111-1111-4111-8111-111111111111
+                auditRef: 11111111-1111-4111-8111-111111111111
+                supersededBy: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-008
+        auth: cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound
+        capability: execution.operate; C15 owner scope unchanged; Viewer refused
+        pagination: "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503
+        idempotency: POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job
+        version: Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable
+        audit: Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data
+        limits:
+          bodyBytes: 8192
+          pageSize: 1000
+          rate: Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN
+        realtime: Job polling advances queued to succeeded within same process lease; no C16 notification claim
+        sensitive: Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PerformanceQuery"
+            example:
+              accountId: 11111111-1111-4111-8111-111111111111
+              currency: USD
+              method: simple
+              period: custom
+              periodMode: rolling
+              start: 2026-10-18T07:58:00Z
+              end: 2026-10-18T08:00:00Z
+  /v1/performance/reports/{reportId}/status:
+    get:
+      operationId: getReportStatus
+      tags:
+        - performance
+      summary: getReportStatus
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceReport"
+              example:
+                accountId: 11111111-1111-4111-8111-111111111111
+                currency: USD
+                method: simple
+                period: custom
+                periodMode: rolling
+                asOf: 2026-10-18T08:00:00Z
+                ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                coverage:
+                  requestedStart: 2026-10-18T07:58:00Z
+                  requestedEnd: 2026-10-18T08:00:00Z
+                  start: 2026-10-18T07:58:00Z
+                  end: 2026-10-18T08:00:00Z
+                  complete: true
+                  points: 3
+                  maxIntervalSeconds: 60
+                provisional: true
+                reportId: 11111111-1111-4111-8111-111111111111
+                status: succeeded
+                reportVersion: "1"
+                createdAt: 2026-10-18T08:00:00Z
+                expiresAt: 2026-10-18T08:15:00Z
+                correlationId: 11111111-1111-4111-8111-111111111111
+                auditRef: 11111111-1111-4111-8111-111111111111
+                supersededBy: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-008
+        auth: cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound
+        capability: execution.operate; C15 owner scope unchanged; Viewer refused
+        pagination: "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503
+        idempotency: POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job
+        version: Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable
+        audit: Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data
+        limits:
+          bodyBytes: 8192
+          pageSize: 1000
+          rate: Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN
+        realtime: Job polling advances queued to succeeded within same process lease; no C16 notification claim
+        sensitive: Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas
+  /v1/performance/reports/{reportId}:
+    get:
+      operationId: getPerformanceReport
+      tags:
+        - performance
+      summary: getPerformanceReport
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceReportDocument"
+              example:
+                metadata:
+                  accountId: 11111111-1111-4111-8111-111111111111
+                  currency: USD
+                  method: simple
+                  period: custom
+                  periodMode: rolling
+                  asOf: 2026-10-18T08:00:00Z
+                  ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  coverage:
+                    requestedStart: 2026-10-18T07:58:00Z
+                    requestedEnd: 2026-10-18T08:00:00Z
+                    start: 2026-10-18T07:58:00Z
+                    end: 2026-10-18T08:00:00Z
+                    complete: true
+                    points: 3
+                    maxIntervalSeconds: 60
+                  provisional: true
+                  reportId: 11111111-1111-4111-8111-111111111111
+                  status: succeeded
+                  reportVersion: "1"
+                  createdAt: 2026-10-18T08:00:00Z
+                  expiresAt: 2026-10-18T08:15:00Z
+                  correlationId: 11111111-1111-4111-8111-111111111111
+                  auditRef: 11111111-1111-4111-8111-111111111111
+                  supersededBy: null
+                performance:
+                  accountId: 11111111-1111-4111-8111-111111111111
+                  currency: USD
+                  method: simple
+                  period: custom
+                  periodMode: rolling
+                  asOf: 2026-10-18T08:00:00Z
+                  ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  coverage:
+                    requestedStart: 2026-10-18T07:58:00Z
+                    requestedEnd: 2026-10-18T08:00:00Z
+                    start: 2026-10-18T07:58:00Z
+                    end: 2026-10-18T08:00:00Z
+                    complete: true
+                    points: 3
+                    maxIntervalSeconds: 60
+                  provisional: true
+                  pnl: "10"
+                  return: "0.01"
+                  drawdown: "0.01"
+                  fees: "0"
+                  series:
+                    - asOf: 2026-10-18T08:00:00Z
+                      equity: "1008"
+                      cumulativeFees: "1"
+                      drawdown: "0.01"
+                      ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                      provisional: true
+                    - asOf: 2026-10-18T08:00:00Z
+                      equity: "1008"
+                      cumulativeFees: "1"
+                      drawdown: "0.01"
+                      ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                      provisional: true
+                  attribution:
+                    - symbol: BTCUSD
+                      pnl: "10"
+                  precision: X01 f64 validated against X05 Decimal
+                  venueSubmit: false
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-008
+        auth: cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound
+        capability: execution.operate; C15 owner scope unchanged; Viewer refused
+        pagination: "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503
+        idempotency: POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job
+        version: Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable
+        audit: Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data
+        limits:
+          bodyBytes: 8192
+          pageSize: 1000
+          rate: Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN
+        realtime: Job polling advances queued to succeeded within same process lease; no C16 notification claim
+        sensitive: Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas
+  /v1/performance/reports/{reportId}/download:
+    get:
+      operationId: getReportDownload
+      tags:
+        - performance
+      summary: getReportDownload
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceDownload"
+              example:
+                accountId: 11111111-1111-4111-8111-111111111111
+                currency: USD
+                method: simple
+                period: custom
+                periodMode: rolling
+                asOf: 2026-10-18T08:00:00Z
+                ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                coverage:
+                  requestedStart: 2026-10-18T07:58:00Z
+                  requestedEnd: 2026-10-18T08:00:00Z
+                  start: 2026-10-18T07:58:00Z
+                  end: 2026-10-18T08:00:00Z
+                  complete: true
+                  points: 3
+                  maxIntervalSeconds: 60
+                provisional: true
+                reportId: 11111111-1111-4111-8111-111111111111
+                status: succeeded
+                reportVersion: "1"
+                createdAt: 2026-10-18T08:00:00Z
+                expiresAt: 2026-10-18T08:15:00Z
+                correlationId: 11111111-1111-4111-8111-111111111111
+                auditRef: 11111111-1111-4111-8111-111111111111
+                supersededBy: null
+                downloadPath: /v1/performance/reports/11111111-1111-4111-8111-111111111111/content?ticket=11111111-1111-4111-8111-111111111111
+                sha256: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                sizeBytes: 1000
+                mediaType: application/json
+                downloadExpiresAt: 2026-10-18T08:01:00Z
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-008
+        auth: cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound
+        capability: execution.operate; C15 owner scope unchanged; Viewer refused
+        pagination: "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503
+        idempotency: POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job
+        version: Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable
+        audit: Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data
+        limits:
+          bodyBytes: 8192
+          pageSize: 1000
+          rate: Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN
+        realtime: Job polling advances queued to succeeded within same process lease; no C16 notification claim
+        sensitive: Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas
+  /v1/performance/reports/{reportId}/content:
+    get:
+      operationId: downloadPerformanceReport
+      tags:
+        - performance
+      summary: downloadPerformanceReport
+      parameters:
+        - name: reportId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - name: ticket
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceReportDocument"
+              example:
+                metadata:
+                  accountId: 11111111-1111-4111-8111-111111111111
+                  currency: USD
+                  method: simple
+                  period: custom
+                  periodMode: rolling
+                  asOf: 2026-10-18T08:00:00Z
+                  ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  coverage:
+                    requestedStart: 2026-10-18T07:58:00Z
+                    requestedEnd: 2026-10-18T08:00:00Z
+                    start: 2026-10-18T07:58:00Z
+                    end: 2026-10-18T08:00:00Z
+                    complete: true
+                    points: 3
+                    maxIntervalSeconds: 60
+                  provisional: true
+                  reportId: 11111111-1111-4111-8111-111111111111
+                  status: succeeded
+                  reportVersion: "1"
+                  createdAt: 2026-10-18T08:00:00Z
+                  expiresAt: 2026-10-18T08:15:00Z
+                  correlationId: 11111111-1111-4111-8111-111111111111
+                  auditRef: 11111111-1111-4111-8111-111111111111
+                  supersededBy: null
+                performance:
+                  accountId: 11111111-1111-4111-8111-111111111111
+                  currency: USD
+                  method: simple
+                  period: custom
+                  periodMode: rolling
+                  asOf: 2026-10-18T08:00:00Z
+                  ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                  coverage:
+                    requestedStart: 2026-10-18T07:58:00Z
+                    requestedEnd: 2026-10-18T08:00:00Z
+                    start: 2026-10-18T07:58:00Z
+                    end: 2026-10-18T08:00:00Z
+                    complete: true
+                    points: 3
+                    maxIntervalSeconds: 60
+                  provisional: true
+                  pnl: "10"
+                  return: "0.01"
+                  drawdown: "0.01"
+                  fees: "0"
+                  series:
+                    - asOf: 2026-10-18T08:00:00Z
+                      equity: "1008"
+                      cumulativeFees: "1"
+                      drawdown: "0.01"
+                      ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                      provisional: true
+                    - asOf: 2026-10-18T08:00:00Z
+                      equity: "1008"
+                      cumulativeFees: "1"
+                      drawdown: "0.01"
+                      ledgerVersion: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      valuationSnapshotId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                      reconciliationRunId: 11111111-1111-4111-8111-111111111111
+                      provisional: true
+                  attribution:
+                    - symbol: BTCUSD
+                      pnl: "10"
+                  precision: X01 f64 validated against X05 Decimal
+                  venueSubmit: false
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-008
+        auth: cookie + unchanged trusted tenant/workspace/account/shadow role/capability; report actor/session-bound
+        capability: execution.operate; C15 owner scope unchanged; Viewer refused
+        pagination: "not applicable: at most1000 trusted valuation samples; explicit requested/observed coverage"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Only matched X01/C15 actual books; partial/unreconciled/expired proof always provisional; report frozen at creation; source lease loss503
+        idempotency: POST actor/session/key/intent frozen receipt; exactly one job; retry never creates second job
+        version: Content hashes of every X01 snapshot and C15 actual book; reportVersion1 immutable
+        audit: Successful create F05 root matches auditRef exactly once; no raw ledger edit or source data
+        limits:
+          bodyBytes: 8192
+          pageSize: 1000
+          rate: Process-local capacity1000 points/jobs/tickets; edge quotas target NOT_RUN
+        realtime: Job polling advances queued to succeeded within same process lease; no C16 notification claim
+        sensitive: Fixed financial report JSON only; no credentials, raw SQL/stack/paths/other accounts; no CSV formulas
 components:
   securitySchemes:
     cookieAuth:
@@ -8682,3 +9549,366 @@ components:
           type:
             - string
             - "null"
+    PerformanceQuery:
+      type: object
+      additionalProperties: false
+      required:
+        - accountId
+        - currency
+        - method
+        - period
+        - periodMode
+      properties:
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        currency:
+          type: string
+          enum:
+            - USD
+        method:
+          type: string
+          enum:
+            - simple
+            - twr
+            - mwr
+        period:
+          type: string
+          enum:
+            - custom
+            - week
+            - month
+            - quarter
+            - year
+        periodMode:
+          type: string
+          enum:
+            - rolling
+            - calendar
+        start: &a4
+          type: string
+          format: date-time
+        end: *a4
+    PerformanceCoverage:
+      type: object
+      additionalProperties: false
+      required:
+        - requestedStart
+        - requestedEnd
+        - start
+        - end
+        - complete
+        - points
+        - maxIntervalSeconds
+      properties:
+        requestedStart: &a4
+          type: string
+          format: date-time
+        requestedEnd: *a4
+        start: *a4
+        end: *a4
+        complete:
+          type: boolean
+        points:
+          type: integer
+          minimum: 2
+        maxIntervalSeconds:
+          type: integer
+          enum:
+            - 60
+    PerformancePoint:
+      type: object
+      additionalProperties: false
+      required:
+        - asOf
+        - equity
+        - cumulativeFees
+        - drawdown
+        - ledgerVersion
+        - valuationSnapshotId
+        - reconciliationRunId
+        - provisional
+      properties:
+        asOf:
+          type: string
+          format: date-time
+        equity: &a4
+          $ref: "#/components/schemas/DecimalValue"
+        cumulativeFees: *a4
+        drawdown: *a4
+        ledgerVersion: &a5
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        valuationSnapshotId: *a5
+        reconciliationRunId:
+          $ref: "#/components/schemas/UUID"
+        provisional:
+          type: boolean
+    PerformanceAttribution:
+      type: object
+      additionalProperties: false
+      required:
+        - symbol
+        - pnl
+      properties:
+        symbol:
+          type: string
+        pnl:
+          $ref: "#/components/schemas/DecimalValue"
+    PerformanceView:
+      type: object
+      additionalProperties: false
+      required:
+        - accountId
+        - currency
+        - method
+        - period
+        - periodMode
+        - asOf
+        - ledgerVersion
+        - valuationSnapshotId
+        - coverage
+        - provisional
+        - pnl
+        - return
+        - drawdown
+        - fees
+        - series
+        - attribution
+        - precision
+        - venueSubmit
+      properties:
+        accountId:
+          $ref: "#/components/schemas/UUID"
+        currency:
+          type: string
+          enum:
+            - USD
+        method:
+          type: string
+          enum:
+            - simple
+        period:
+          type: string
+          enum:
+            - custom
+            - week
+            - month
+            - quarter
+            - year
+        periodMode:
+          type: string
+          enum:
+            - rolling
+            - calendar
+        asOf:
+          type: string
+          format: date-time
+        ledgerVersion: &a4
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        valuationSnapshotId: *a4
+        coverage:
+          $ref: "#/components/schemas/PerformanceCoverage"
+        provisional:
+          type: boolean
+        pnl: &a5
+          $ref: "#/components/schemas/DecimalValue"
+        return: *a5
+        drawdown: *a5
+        fees: *a5
+        series:
+          type: array
+          minItems: 2
+          maxItems: 1000
+          items:
+            $ref: "#/components/schemas/PerformancePoint"
+        attribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/PerformanceAttribution"
+        precision:
+          type: string
+        venueSubmit:
+          type: boolean
+          enum:
+            - false
+    PerformanceReport:
+      type: object
+      additionalProperties: false
+      required:
+        - accountId
+        - currency
+        - method
+        - period
+        - periodMode
+        - asOf
+        - ledgerVersion
+        - valuationSnapshotId
+        - coverage
+        - provisional
+        - reportId
+        - status
+        - reportVersion
+        - createdAt
+        - expiresAt
+        - correlationId
+        - auditRef
+        - supersededBy
+      properties:
+        accountId: &a5
+          $ref: "#/components/schemas/UUID"
+        currency:
+          type: string
+          enum:
+            - USD
+        method:
+          type: string
+          enum:
+            - simple
+        period:
+          type: string
+          enum:
+            - custom
+            - week
+            - month
+            - quarter
+            - year
+        periodMode:
+          type: string
+          enum:
+            - rolling
+            - calendar
+        asOf: &a6
+          type: string
+          format: date-time
+        ledgerVersion: &a4
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        valuationSnapshotId: *a4
+        coverage:
+          $ref: "#/components/schemas/PerformanceCoverage"
+        provisional:
+          type: boolean
+        reportId: *a5
+        status:
+          type: string
+          enum:
+            - queued
+            - succeeded
+        reportVersion:
+          type: string
+          enum:
+            - "1"
+        createdAt: *a6
+        expiresAt: *a6
+        correlationId: *a5
+        auditRef: *a5
+        supersededBy:
+          type:
+            - string
+            - "null"
+          format: uuid
+    PerformanceReportDocument:
+      type: object
+      additionalProperties: false
+      required:
+        - metadata
+        - performance
+      properties:
+        metadata:
+          $ref: "#/components/schemas/PerformanceReport"
+        performance:
+          $ref: "#/components/schemas/PerformanceView"
+    PerformanceDownload:
+      type: object
+      additionalProperties: false
+      required:
+        - accountId
+        - currency
+        - method
+        - period
+        - periodMode
+        - asOf
+        - ledgerVersion
+        - valuationSnapshotId
+        - coverage
+        - provisional
+        - reportId
+        - status
+        - reportVersion
+        - createdAt
+        - expiresAt
+        - correlationId
+        - auditRef
+        - supersededBy
+        - downloadPath
+        - sha256
+        - sizeBytes
+        - mediaType
+        - downloadExpiresAt
+      properties:
+        accountId: &a5
+          $ref: "#/components/schemas/UUID"
+        currency:
+          type: string
+          enum:
+            - USD
+        method:
+          type: string
+          enum:
+            - simple
+        period:
+          type: string
+          enum:
+            - custom
+            - week
+            - month
+            - quarter
+            - year
+        periodMode:
+          type: string
+          enum:
+            - rolling
+            - calendar
+        asOf: &a6
+          type: string
+          format: date-time
+        ledgerVersion: &a4
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        valuationSnapshotId: *a4
+        coverage:
+          $ref: "#/components/schemas/PerformanceCoverage"
+        provisional:
+          type: boolean
+        reportId: *a5
+        status:
+          type: string
+          enum:
+            - queued
+            - succeeded
+        reportVersion:
+          type: string
+          enum:
+            - "1"
+        createdAt: *a6
+        expiresAt: *a6
+        correlationId: *a5
+        auditRef: *a5
+        supersededBy:
+          type:
+            - string
+            - "null"
+          format: uuid
+        downloadPath:
+          type: string
+          pattern: ^/v1/performance/reports/[a-f0-9-]+/content\?ticket=[a-f0-9-]+$
+        sha256: *a4
+        sizeBytes:
+          type: integer
+          minimum: 1
+        mediaType:
+          type: string
+          enum:
+            - application/json
+        downloadExpiresAt: *a6

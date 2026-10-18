@@ -76,6 +76,8 @@ bff-contract-check:
 	pnpm check:provider-a4:ci
 	pnpm check:bff-fe-009:ci
 	pnpm test:bff-fe-009
+	pnpm check:bff-fe-008:ci
+	pnpm test:bff-fe-008
 	pnpm test:provider-a4
 
 bff-provider-test:
@@ -901,3 +903,7 @@ provider-a4-local-assess:
 .PHONY: check-bff-fe-009
 check-bff-fe-009:
 	pnpm check:bff-fe-009
+
+.PHONY: check-bff-fe-008
+check-bff-fe-008:
+	pnpm check:bff-fe-008

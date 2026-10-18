@@ -1,5 +1,6 @@
 mod audit_core;
 pub mod reconciliation;
+pub mod performance;
 pub mod strategy;
 use std::{collections::BTreeMap, sync::Arc};
 
@@ -56,6 +57,7 @@ struct MfaWindow {
 struct ProviderData {
     reference_shadow: bool,
     reconciliation: Option<reconciliation::ReconciliationHost>,
+    performance: Option<performance::PerformanceHost>,
     strategy: Option<strategy::StrategyHost>,
     consumed_step_proofs: std::collections::BTreeSet<String>,
     execution: Option<execution::ExecutionService>,
@@ -94,6 +96,7 @@ impl Default for ProviderData {
             execution: None,
             strategy: None,
             reconciliation: None,
+            performance: None,
             consumed_step_proofs: Default::default(),
             research,
             market,
@@ -208,6 +211,7 @@ impl BffProvider {
             .merge(execution::reference_routes())
             .merge(strategy::reference_routes())
             .merge(reconciliation::reference_routes())
+            .merge(performance::reference_routes())
             .route("/v1/session", get(get_session))
             .route("/v1/context", get(get_session))
             .route("/v1/auth/mfa/challenges", post(mfa_challenge))

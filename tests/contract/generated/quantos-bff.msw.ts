@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.10.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.11.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -15,9 +15,11 @@ export type BffOperationId =
   | "cancelResearchRun"
   | "createBacktest"
   | "createExport"
+  | "createPerformanceReport"
   | "createRelease"
   | "createResearchRun"
   | "decideApproval"
+  | "downloadPerformanceReport"
   | "engageKillSwitch"
   | "getApproval"
   | "getArtifact"
@@ -33,6 +35,10 @@ export type BffOperationId =
   | "getNotificationPrefs"
   | "getOrder"
   | "getOrderCapabilities"
+  | "getPerformanceAttribution"
+  | "getPerformanceReport"
+  | "getPerformanceSeries"
+  | "getPerformanceSummary"
   | "getPlatformCapabilities"
   | "getPortfolio"
   | "getProfile"
@@ -40,6 +46,8 @@ export type BffOperationId =
   | "getReconciliationBreak"
   | "getReconciliationRun"
   | "getRelease"
+  | "getReportDownload"
+  | "getReportStatus"
   | "getResearchRun"
   | "getRiskView"
   | "getSecuritySettings"
@@ -125,6 +133,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("createExport");
   }),
+  http.post(`${baseUrl}/v1/performance/reports`, async ({ request, params }) => {
+    const resolver = resolvers.createPerformanceReport;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("createPerformanceReport");
+  }),
   http.post(`${baseUrl}/v1/releases`, async ({ request, params }) => {
     const resolver = resolvers.createRelease;
     if (resolver) return resolver({ request, params });
@@ -139,6 +152,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.decideApproval;
     if (resolver) return resolver({ request, params });
     return missingResolver("decideApproval");
+  }),
+  http.get(`${baseUrl}/v1/performance/reports/:reportId/content`, async ({ request, params }) => {
+    const resolver = resolvers.downloadPerformanceReport;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("downloadPerformanceReport");
   }),
   http.post(`${baseUrl}/v1/risk/kill-switch/engage`, async ({ request, params }) => {
     const resolver = resolvers.engageKillSwitch;
@@ -215,6 +233,26 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getOrderCapabilities");
   }),
+  http.get(`${baseUrl}/v1/performance/attribution`, async ({ request, params }) => {
+    const resolver = resolvers.getPerformanceAttribution;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getPerformanceAttribution");
+  }),
+  http.get(`${baseUrl}/v1/performance/reports/:reportId`, async ({ request, params }) => {
+    const resolver = resolvers.getPerformanceReport;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getPerformanceReport");
+  }),
+  http.get(`${baseUrl}/v1/performance/series`, async ({ request, params }) => {
+    const resolver = resolvers.getPerformanceSeries;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getPerformanceSeries");
+  }),
+  http.get(`${baseUrl}/v1/performance/summary`, async ({ request, params }) => {
+    const resolver = resolvers.getPerformanceSummary;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getPerformanceSummary");
+  }),
   http.get(`${baseUrl}/v1/platform/browser-capabilities`, async ({ request, params }) => {
     const resolver = resolvers.getPlatformCapabilities;
     if (resolver) return resolver({ request, params });
@@ -249,6 +287,16 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.getRelease;
     if (resolver) return resolver({ request, params });
     return missingResolver("getRelease");
+  }),
+  http.get(`${baseUrl}/v1/performance/reports/:reportId/download`, async ({ request, params }) => {
+    const resolver = resolvers.getReportDownload;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getReportDownload");
+  }),
+  http.get(`${baseUrl}/v1/performance/reports/:reportId/status`, async ({ request, params }) => {
+    const resolver = resolvers.getReportStatus;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getReportStatus");
   }),
   http.get(`${baseUrl}/v1/research-runs/:runId`, async ({ request, params }) => {
     const resolver = resolvers.getResearchRun;

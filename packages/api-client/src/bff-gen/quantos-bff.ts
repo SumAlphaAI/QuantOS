@@ -1265,6 +1265,142 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/performance/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getPerformanceSummary */
+        get: operations["getPerformanceSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/performance/series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getPerformanceSeries */
+        get: operations["getPerformanceSeries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/performance/attribution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getPerformanceAttribution */
+        get: operations["getPerformanceAttribution"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/performance/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** createPerformanceReport */
+        post: operations["createPerformanceReport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/performance/reports/{reportId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getReportStatus */
+        get: operations["getReportStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/performance/reports/{reportId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getPerformanceReport */
+        get: operations["getPerformanceReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/performance/reports/{reportId}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getReportDownload */
+        get: operations["getReportDownload"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/performance/reports/{reportId}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** downloadPerformanceReport */
+        get: operations["downloadPerformanceReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2073,6 +2209,147 @@ export interface components {
         LedgerEntryPage: {
             items: components["schemas"]["LedgerEntry"][];
             nextCursor: string | null;
+        };
+        PerformanceQuery: {
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            currency: "USD";
+            /** @enum {string} */
+            method: "simple" | "twr" | "mwr";
+            /** @enum {string} */
+            period: "custom" | "week" | "month" | "quarter" | "year";
+            /** @enum {string} */
+            periodMode: "rolling" | "calendar";
+            /** Format: date-time */
+            start?: string;
+            /** Format: date-time */
+            end?: string;
+        };
+        PerformanceCoverage: {
+            /** Format: date-time */
+            requestedStart: string;
+            /** Format: date-time */
+            requestedEnd: string;
+            /** Format: date-time */
+            start: string;
+            /** Format: date-time */
+            end: string;
+            complete: boolean;
+            points: number;
+            /** @enum {integer} */
+            maxIntervalSeconds: 60;
+        };
+        PerformancePoint: {
+            /** Format: date-time */
+            asOf: string;
+            equity: components["schemas"]["DecimalValue"];
+            cumulativeFees: components["schemas"]["DecimalValue"];
+            drawdown: components["schemas"]["DecimalValue"];
+            ledgerVersion: string;
+            valuationSnapshotId: string;
+            reconciliationRunId: components["schemas"]["UUID"];
+            provisional: boolean;
+        };
+        PerformanceAttribution: {
+            symbol: string;
+            pnl: components["schemas"]["DecimalValue"];
+        };
+        PerformanceView: {
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            currency: "USD";
+            /** @enum {string} */
+            method: "simple";
+            /** @enum {string} */
+            period: "custom" | "week" | "month" | "quarter" | "year";
+            /** @enum {string} */
+            periodMode: "rolling" | "calendar";
+            /** Format: date-time */
+            asOf: string;
+            ledgerVersion: string;
+            valuationSnapshotId: string;
+            coverage: components["schemas"]["PerformanceCoverage"];
+            provisional: boolean;
+            pnl: components["schemas"]["DecimalValue"];
+            return: components["schemas"]["DecimalValue"];
+            drawdown: components["schemas"]["DecimalValue"];
+            fees: components["schemas"]["DecimalValue"];
+            series: components["schemas"]["PerformancePoint"][];
+            attribution: components["schemas"]["PerformanceAttribution"][];
+            precision: string;
+            /** @enum {boolean} */
+            venueSubmit: false;
+        };
+        PerformanceReport: {
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            currency: "USD";
+            /** @enum {string} */
+            method: "simple";
+            /** @enum {string} */
+            period: "custom" | "week" | "month" | "quarter" | "year";
+            /** @enum {string} */
+            periodMode: "rolling" | "calendar";
+            /** Format: date-time */
+            asOf: string;
+            ledgerVersion: string;
+            valuationSnapshotId: string;
+            coverage: components["schemas"]["PerformanceCoverage"];
+            provisional: boolean;
+            reportId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            status: "queued" | "succeeded";
+            /** @enum {string} */
+            reportVersion: "1";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            correlationId: components["schemas"]["UUID"];
+            auditRef: components["schemas"]["UUID"];
+            /** Format: uuid */
+            supersededBy: string | null;
+        };
+        PerformanceReportDocument: {
+            metadata: components["schemas"]["PerformanceReport"];
+            performance: components["schemas"]["PerformanceView"];
+        };
+        PerformanceDownload: {
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            currency: "USD";
+            /** @enum {string} */
+            method: "simple";
+            /** @enum {string} */
+            period: "custom" | "week" | "month" | "quarter" | "year";
+            /** @enum {string} */
+            periodMode: "rolling" | "calendar";
+            /** Format: date-time */
+            asOf: string;
+            ledgerVersion: string;
+            valuationSnapshotId: string;
+            coverage: components["schemas"]["PerformanceCoverage"];
+            provisional: boolean;
+            reportId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            status: "queued" | "succeeded";
+            /** @enum {string} */
+            reportVersion: "1";
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            correlationId: components["schemas"]["UUID"];
+            auditRef: components["schemas"]["UUID"];
+            /** Format: uuid */
+            supersededBy: string | null;
+            downloadPath: string;
+            sha256: string;
+            sizeBytes: number;
+            /** @enum {string} */
+            mediaType: "application/json";
+            /** Format: date-time */
+            downloadExpiresAt: string;
         };
     };
     responses: {
@@ -6135,6 +6412,681 @@ export interface operations {
                 };
                 content: {
                     "text/event-stream": string;
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getPerformanceSummary: {
+        parameters: {
+            query: {
+                accountId: components["schemas"]["UUID"];
+                currency: "USD";
+                method: "simple" | "twr" | "mwr";
+                period: "custom" | "week" | "month" | "quarter" | "year";
+                periodMode: "rolling" | "calendar";
+                start?: string;
+                end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "currency": "USD",
+                     *       "method": "simple",
+                     *       "period": "custom",
+                     *       "periodMode": "rolling",
+                     *       "asOf": "2026-10-18T08:00:00Z",
+                     *       "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "coverage": {
+                     *         "requestedStart": "2026-10-18T07:58:00Z",
+                     *         "requestedEnd": "2026-10-18T08:00:00Z",
+                     *         "start": "2026-10-18T07:58:00Z",
+                     *         "end": "2026-10-18T08:00:00Z",
+                     *         "complete": true,
+                     *         "points": 3,
+                     *         "maxIntervalSeconds": 60
+                     *       },
+                     *       "provisional": true,
+                     *       "pnl": "10",
+                     *       "return": "0.01",
+                     *       "drawdown": "0.01",
+                     *       "fees": "0",
+                     *       "series": [
+                     *         {
+                     *           "asOf": "2026-10-18T08:00:00Z",
+                     *           "equity": "1008",
+                     *           "cumulativeFees": "1",
+                     *           "drawdown": "0.01",
+                     *           "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *           "provisional": true
+                     *         },
+                     *         {
+                     *           "asOf": "2026-10-18T08:00:00Z",
+                     *           "equity": "1008",
+                     *           "cumulativeFees": "1",
+                     *           "drawdown": "0.01",
+                     *           "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *           "provisional": true
+                     *         }
+                     *       ],
+                     *       "attribution": [
+                     *         {
+                     *           "symbol": "BTCUSD",
+                     *           "pnl": "10"
+                     *         }
+                     *       ],
+                     *       "precision": "X01 f64 validated against X05 Decimal",
+                     *       "venueSubmit": false
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PerformanceView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getPerformanceSeries: {
+        parameters: {
+            query: {
+                accountId: components["schemas"]["UUID"];
+                currency: "USD";
+                method: "simple" | "twr" | "mwr";
+                period: "custom" | "week" | "month" | "quarter" | "year";
+                periodMode: "rolling" | "calendar";
+                start?: string;
+                end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "currency": "USD",
+                     *       "method": "simple",
+                     *       "period": "custom",
+                     *       "periodMode": "rolling",
+                     *       "asOf": "2026-10-18T08:00:00Z",
+                     *       "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "coverage": {
+                     *         "requestedStart": "2026-10-18T07:58:00Z",
+                     *         "requestedEnd": "2026-10-18T08:00:00Z",
+                     *         "start": "2026-10-18T07:58:00Z",
+                     *         "end": "2026-10-18T08:00:00Z",
+                     *         "complete": true,
+                     *         "points": 3,
+                     *         "maxIntervalSeconds": 60
+                     *       },
+                     *       "provisional": true,
+                     *       "pnl": "10",
+                     *       "return": "0.01",
+                     *       "drawdown": "0.01",
+                     *       "fees": "0",
+                     *       "series": [
+                     *         {
+                     *           "asOf": "2026-10-18T08:00:00Z",
+                     *           "equity": "1008",
+                     *           "cumulativeFees": "1",
+                     *           "drawdown": "0.01",
+                     *           "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *           "provisional": true
+                     *         },
+                     *         {
+                     *           "asOf": "2026-10-18T08:00:00Z",
+                     *           "equity": "1008",
+                     *           "cumulativeFees": "1",
+                     *           "drawdown": "0.01",
+                     *           "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *           "provisional": true
+                     *         }
+                     *       ],
+                     *       "attribution": [
+                     *         {
+                     *           "symbol": "BTCUSD",
+                     *           "pnl": "10"
+                     *         }
+                     *       ],
+                     *       "precision": "X01 f64 validated against X05 Decimal",
+                     *       "venueSubmit": false
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PerformanceView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getPerformanceAttribution: {
+        parameters: {
+            query: {
+                accountId: components["schemas"]["UUID"];
+                currency: "USD";
+                method: "simple" | "twr" | "mwr";
+                period: "custom" | "week" | "month" | "quarter" | "year";
+                periodMode: "rolling" | "calendar";
+                start?: string;
+                end?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "currency": "USD",
+                     *       "method": "simple",
+                     *       "period": "custom",
+                     *       "periodMode": "rolling",
+                     *       "asOf": "2026-10-18T08:00:00Z",
+                     *       "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "coverage": {
+                     *         "requestedStart": "2026-10-18T07:58:00Z",
+                     *         "requestedEnd": "2026-10-18T08:00:00Z",
+                     *         "start": "2026-10-18T07:58:00Z",
+                     *         "end": "2026-10-18T08:00:00Z",
+                     *         "complete": true,
+                     *         "points": 3,
+                     *         "maxIntervalSeconds": 60
+                     *       },
+                     *       "provisional": true,
+                     *       "pnl": "10",
+                     *       "return": "0.01",
+                     *       "drawdown": "0.01",
+                     *       "fees": "0",
+                     *       "series": [
+                     *         {
+                     *           "asOf": "2026-10-18T08:00:00Z",
+                     *           "equity": "1008",
+                     *           "cumulativeFees": "1",
+                     *           "drawdown": "0.01",
+                     *           "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *           "provisional": true
+                     *         },
+                     *         {
+                     *           "asOf": "2026-10-18T08:00:00Z",
+                     *           "equity": "1008",
+                     *           "cumulativeFees": "1",
+                     *           "drawdown": "0.01",
+                     *           "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *           "provisional": true
+                     *         }
+                     *       ],
+                     *       "attribution": [
+                     *         {
+                     *           "symbol": "BTCUSD",
+                     *           "pnl": "10"
+                     *         }
+                     *       ],
+                     *       "precision": "X01 f64 validated against X05 Decimal",
+                     *       "venueSubmit": false
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PerformanceView"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    createPerformanceReport: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "accountId": "11111111-1111-4111-8111-111111111111",
+                 *       "currency": "USD",
+                 *       "method": "simple",
+                 *       "period": "custom",
+                 *       "periodMode": "rolling",
+                 *       "start": "2026-10-18T07:58:00Z",
+                 *       "end": "2026-10-18T08:00:00Z"
+                 *     }
+                 */
+                "application/json": components["schemas"]["PerformanceQuery"];
+            };
+        };
+        responses: {
+            /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "currency": "USD",
+                     *       "method": "simple",
+                     *       "period": "custom",
+                     *       "periodMode": "rolling",
+                     *       "asOf": "2026-10-18T08:00:00Z",
+                     *       "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "coverage": {
+                     *         "requestedStart": "2026-10-18T07:58:00Z",
+                     *         "requestedEnd": "2026-10-18T08:00:00Z",
+                     *         "start": "2026-10-18T07:58:00Z",
+                     *         "end": "2026-10-18T08:00:00Z",
+                     *         "complete": true,
+                     *         "points": 3,
+                     *         "maxIntervalSeconds": 60
+                     *       },
+                     *       "provisional": true,
+                     *       "reportId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "succeeded",
+                     *       "reportVersion": "1",
+                     *       "createdAt": "2026-10-18T08:00:00Z",
+                     *       "expiresAt": "2026-10-18T08:15:00Z",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "supersededBy": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PerformanceReport"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getReportStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reportId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "currency": "USD",
+                     *       "method": "simple",
+                     *       "period": "custom",
+                     *       "periodMode": "rolling",
+                     *       "asOf": "2026-10-18T08:00:00Z",
+                     *       "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "coverage": {
+                     *         "requestedStart": "2026-10-18T07:58:00Z",
+                     *         "requestedEnd": "2026-10-18T08:00:00Z",
+                     *         "start": "2026-10-18T07:58:00Z",
+                     *         "end": "2026-10-18T08:00:00Z",
+                     *         "complete": true,
+                     *         "points": 3,
+                     *         "maxIntervalSeconds": 60
+                     *       },
+                     *       "provisional": true,
+                     *       "reportId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "succeeded",
+                     *       "reportVersion": "1",
+                     *       "createdAt": "2026-10-18T08:00:00Z",
+                     *       "expiresAt": "2026-10-18T08:15:00Z",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "supersededBy": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PerformanceReport"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getPerformanceReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reportId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "metadata": {
+                     *         "accountId": "11111111-1111-4111-8111-111111111111",
+                     *         "currency": "USD",
+                     *         "method": "simple",
+                     *         "period": "custom",
+                     *         "periodMode": "rolling",
+                     *         "asOf": "2026-10-18T08:00:00Z",
+                     *         "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "coverage": {
+                     *           "requestedStart": "2026-10-18T07:58:00Z",
+                     *           "requestedEnd": "2026-10-18T08:00:00Z",
+                     *           "start": "2026-10-18T07:58:00Z",
+                     *           "end": "2026-10-18T08:00:00Z",
+                     *           "complete": true,
+                     *           "points": 3,
+                     *           "maxIntervalSeconds": 60
+                     *         },
+                     *         "provisional": true,
+                     *         "reportId": "11111111-1111-4111-8111-111111111111",
+                     *         "status": "succeeded",
+                     *         "reportVersion": "1",
+                     *         "createdAt": "2026-10-18T08:00:00Z",
+                     *         "expiresAt": "2026-10-18T08:15:00Z",
+                     *         "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *         "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *         "supersededBy": null
+                     *       },
+                     *       "performance": {
+                     *         "accountId": "11111111-1111-4111-8111-111111111111",
+                     *         "currency": "USD",
+                     *         "method": "simple",
+                     *         "period": "custom",
+                     *         "periodMode": "rolling",
+                     *         "asOf": "2026-10-18T08:00:00Z",
+                     *         "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "coverage": {
+                     *           "requestedStart": "2026-10-18T07:58:00Z",
+                     *           "requestedEnd": "2026-10-18T08:00:00Z",
+                     *           "start": "2026-10-18T07:58:00Z",
+                     *           "end": "2026-10-18T08:00:00Z",
+                     *           "complete": true,
+                     *           "points": 3,
+                     *           "maxIntervalSeconds": 60
+                     *         },
+                     *         "provisional": true,
+                     *         "pnl": "10",
+                     *         "return": "0.01",
+                     *         "drawdown": "0.01",
+                     *         "fees": "0",
+                     *         "series": [
+                     *           {
+                     *             "asOf": "2026-10-18T08:00:00Z",
+                     *             "equity": "1008",
+                     *             "cumulativeFees": "1",
+                     *             "drawdown": "0.01",
+                     *             "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *             "provisional": true
+                     *           },
+                     *           {
+                     *             "asOf": "2026-10-18T08:00:00Z",
+                     *             "equity": "1008",
+                     *             "cumulativeFees": "1",
+                     *             "drawdown": "0.01",
+                     *             "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *             "provisional": true
+                     *           }
+                     *         ],
+                     *         "attribution": [
+                     *           {
+                     *             "symbol": "BTCUSD",
+                     *             "pnl": "10"
+                     *           }
+                     *         ],
+                     *         "precision": "X01 f64 validated against X05 Decimal",
+                     *         "venueSubmit": false
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PerformanceReportDocument"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getReportDownload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reportId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "currency": "USD",
+                     *       "method": "simple",
+                     *       "period": "custom",
+                     *       "periodMode": "rolling",
+                     *       "asOf": "2026-10-18T08:00:00Z",
+                     *       "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "coverage": {
+                     *         "requestedStart": "2026-10-18T07:58:00Z",
+                     *         "requestedEnd": "2026-10-18T08:00:00Z",
+                     *         "start": "2026-10-18T07:58:00Z",
+                     *         "end": "2026-10-18T08:00:00Z",
+                     *         "complete": true,
+                     *         "points": 3,
+                     *         "maxIntervalSeconds": 60
+                     *       },
+                     *       "provisional": true,
+                     *       "reportId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "succeeded",
+                     *       "reportVersion": "1",
+                     *       "createdAt": "2026-10-18T08:00:00Z",
+                     *       "expiresAt": "2026-10-18T08:15:00Z",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *       "supersededBy": null,
+                     *       "downloadPath": "/v1/performance/reports/11111111-1111-4111-8111-111111111111/content?ticket=11111111-1111-4111-8111-111111111111",
+                     *       "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "sizeBytes": 1000,
+                     *       "mediaType": "application/json",
+                     *       "downloadExpiresAt": "2026-10-18T08:01:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PerformanceDownload"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    downloadPerformanceReport: {
+        parameters: {
+            query: {
+                ticket: components["schemas"]["UUID"];
+            };
+            header?: never;
+            path: {
+                reportId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Frozen financial projection with source versions; provisional is mandatory for unreconciled inputs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "metadata": {
+                     *         "accountId": "11111111-1111-4111-8111-111111111111",
+                     *         "currency": "USD",
+                     *         "method": "simple",
+                     *         "period": "custom",
+                     *         "periodMode": "rolling",
+                     *         "asOf": "2026-10-18T08:00:00Z",
+                     *         "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "coverage": {
+                     *           "requestedStart": "2026-10-18T07:58:00Z",
+                     *           "requestedEnd": "2026-10-18T08:00:00Z",
+                     *           "start": "2026-10-18T07:58:00Z",
+                     *           "end": "2026-10-18T08:00:00Z",
+                     *           "complete": true,
+                     *           "points": 3,
+                     *           "maxIntervalSeconds": 60
+                     *         },
+                     *         "provisional": true,
+                     *         "reportId": "11111111-1111-4111-8111-111111111111",
+                     *         "status": "succeeded",
+                     *         "reportVersion": "1",
+                     *         "createdAt": "2026-10-18T08:00:00Z",
+                     *         "expiresAt": "2026-10-18T08:15:00Z",
+                     *         "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *         "auditRef": "11111111-1111-4111-8111-111111111111",
+                     *         "supersededBy": null
+                     *       },
+                     *       "performance": {
+                     *         "accountId": "11111111-1111-4111-8111-111111111111",
+                     *         "currency": "USD",
+                     *         "method": "simple",
+                     *         "period": "custom",
+                     *         "periodMode": "rolling",
+                     *         "asOf": "2026-10-18T08:00:00Z",
+                     *         "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "coverage": {
+                     *           "requestedStart": "2026-10-18T07:58:00Z",
+                     *           "requestedEnd": "2026-10-18T08:00:00Z",
+                     *           "start": "2026-10-18T07:58:00Z",
+                     *           "end": "2026-10-18T08:00:00Z",
+                     *           "complete": true,
+                     *           "points": 3,
+                     *           "maxIntervalSeconds": 60
+                     *         },
+                     *         "provisional": true,
+                     *         "pnl": "10",
+                     *         "return": "0.01",
+                     *         "drawdown": "0.01",
+                     *         "fees": "0",
+                     *         "series": [
+                     *           {
+                     *             "asOf": "2026-10-18T08:00:00Z",
+                     *             "equity": "1008",
+                     *             "cumulativeFees": "1",
+                     *             "drawdown": "0.01",
+                     *             "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *             "provisional": true
+                     *           },
+                     *           {
+                     *             "asOf": "2026-10-18T08:00:00Z",
+                     *             "equity": "1008",
+                     *             "cumulativeFees": "1",
+                     *             "drawdown": "0.01",
+                     *             "ledgerVersion": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "valuationSnapshotId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *             "reconciliationRunId": "11111111-1111-4111-8111-111111111111",
+                     *             "provisional": true
+                     *           }
+                     *         ],
+                     *         "attribution": [
+                     *           {
+                     *             "symbol": "BTCUSD",
+                     *             "pnl": "10"
+                     *           }
+                     *         ],
+                     *         "precision": "X01 f64 validated against X05 Decimal",
+                     *         "venueSubmit": false
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["PerformanceReportDocument"];
                 };
             };
             401: components["responses"]["Unauthorized"];

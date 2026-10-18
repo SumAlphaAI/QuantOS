@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.10.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.11.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -3159,6 +3159,544 @@
             "string",
             "null"
           ]
+        }
+      }
+    },
+    "PerformanceQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "currency",
+        "method",
+        "period",
+        "periodMode"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "simple",
+            "twr",
+            "mwr"
+          ]
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "custom",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ]
+        },
+        "periodMode": {
+          "type": "string",
+          "enum": [
+            "rolling",
+            "calendar"
+          ]
+        },
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "PerformanceCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestedStart",
+        "requestedEnd",
+        "start",
+        "end",
+        "complete",
+        "points",
+        "maxIntervalSeconds"
+      ],
+      "properties": {
+        "requestedStart": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedEnd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "points": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "maxIntervalSeconds": {
+          "type": "integer",
+          "enum": [
+            60
+          ]
+        }
+      }
+    },
+    "PerformancePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asOf",
+        "equity",
+        "cumulativeFees",
+        "drawdown",
+        "ledgerVersion",
+        "valuationSnapshotId",
+        "reconciliationRunId",
+        "provisional"
+      ],
+      "properties": {
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "equity": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "cumulativeFees": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "drawdown": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "valuationSnapshotId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "reconciliationRunId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "provisional": {
+          "type": "boolean"
+        }
+      }
+    },
+    "PerformanceAttribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "symbol",
+        "pnl"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "pnl": {
+          "$ref": "#/$defs/DecimalValue"
+        }
+      }
+    },
+    "PerformanceView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "currency",
+        "method",
+        "period",
+        "periodMode",
+        "asOf",
+        "ledgerVersion",
+        "valuationSnapshotId",
+        "coverage",
+        "provisional",
+        "pnl",
+        "return",
+        "drawdown",
+        "fees",
+        "series",
+        "attribution",
+        "precision",
+        "venueSubmit"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "simple"
+          ]
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "custom",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ]
+        },
+        "periodMode": {
+          "type": "string",
+          "enum": [
+            "rolling",
+            "calendar"
+          ]
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "valuationSnapshotId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coverage": {
+          "$ref": "#/$defs/PerformanceCoverage"
+        },
+        "provisional": {
+          "type": "boolean"
+        },
+        "pnl": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "return": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "drawdown": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "fees": {
+          "$ref": "#/$defs/DecimalValue"
+        },
+        "series": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/PerformancePoint"
+          }
+        },
+        "attribution": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PerformanceAttribution"
+          }
+        },
+        "precision": {
+          "type": "string"
+        },
+        "venueSubmit": {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        }
+      }
+    },
+    "PerformanceReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "currency",
+        "method",
+        "period",
+        "periodMode",
+        "asOf",
+        "ledgerVersion",
+        "valuationSnapshotId",
+        "coverage",
+        "provisional",
+        "reportId",
+        "status",
+        "reportVersion",
+        "createdAt",
+        "expiresAt",
+        "correlationId",
+        "auditRef",
+        "supersededBy"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "simple"
+          ]
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "custom",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ]
+        },
+        "periodMode": {
+          "type": "string",
+          "enum": [
+            "rolling",
+            "calendar"
+          ]
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "valuationSnapshotId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coverage": {
+          "$ref": "#/$defs/PerformanceCoverage"
+        },
+        "provisional": {
+          "type": "boolean"
+        },
+        "reportId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "succeeded"
+          ]
+        },
+        "reportVersion": {
+          "type": "string",
+          "enum": [
+            "1"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "supersededBy": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        }
+      }
+    },
+    "PerformanceReportDocument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metadata",
+        "performance"
+      ],
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/PerformanceReport"
+        },
+        "performance": {
+          "$ref": "#/$defs/PerformanceView"
+        }
+      }
+    },
+    "PerformanceDownload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accountId",
+        "currency",
+        "method",
+        "period",
+        "periodMode",
+        "asOf",
+        "ledgerVersion",
+        "valuationSnapshotId",
+        "coverage",
+        "provisional",
+        "reportId",
+        "status",
+        "reportVersion",
+        "createdAt",
+        "expiresAt",
+        "correlationId",
+        "auditRef",
+        "supersededBy",
+        "downloadPath",
+        "sha256",
+        "sizeBytes",
+        "mediaType",
+        "downloadExpiresAt"
+      ],
+      "properties": {
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "simple"
+          ]
+        },
+        "period": {
+          "type": "string",
+          "enum": [
+            "custom",
+            "week",
+            "month",
+            "quarter",
+            "year"
+          ]
+        },
+        "periodMode": {
+          "type": "string",
+          "enum": [
+            "rolling",
+            "calendar"
+          ]
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "valuationSnapshotId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "coverage": {
+          "$ref": "#/$defs/PerformanceCoverage"
+        },
+        "provisional": {
+          "type": "boolean"
+        },
+        "reportId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "queued",
+            "succeeded"
+          ]
+        },
+        "reportVersion": {
+          "type": "string",
+          "enum": [
+            "1"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "auditRef": {
+          "$ref": "#/$defs/UUID"
+        },
+        "supersededBy": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "downloadPath": {
+          "type": "string",
+          "pattern": "^/v1/performance/reports/[a-f0-9-]+/content\\?ticket=[a-f0-9-]+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "mediaType": {
+          "type": "string",
+          "enum": [
+            "application/json"
+          ]
+        },
+        "downloadExpiresAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     }

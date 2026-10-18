@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.10.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.11.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -722,6 +722,115 @@ export const LedgerEntryPageSchema = z.object({
   "nextCursor": z.union([z.string(), z.null()]),
 }).strict();
 
+export const PerformanceQuerySchema = z.object({
+  "accountId": z.lazy(() => UUIDSchema),
+  "currency": z.literal("USD"),
+  "method": z.enum(["simple","twr","mwr"]),
+  "period": z.enum(["custom","week","month","quarter","year"]),
+  "periodMode": z.enum(["rolling","calendar"]),
+  "start": z.string().datetime({ offset: true }).optional(),
+  "end": z.string().datetime({ offset: true }).optional(),
+}).strict();
+
+export const PerformanceCoverageSchema = z.object({
+  "requestedStart": z.string().datetime({ offset: true }),
+  "requestedEnd": z.string().datetime({ offset: true }),
+  "start": z.string().datetime({ offset: true }),
+  "end": z.string().datetime({ offset: true }),
+  "complete": z.boolean(),
+  "points": z.number().int().min(2),
+  "maxIntervalSeconds": z.literal(60),
+}).strict();
+
+export const PerformancePointSchema = z.object({
+  "asOf": z.string().datetime({ offset: true }),
+  "equity": z.lazy(() => DecimalValueSchema),
+  "cumulativeFees": z.lazy(() => DecimalValueSchema),
+  "drawdown": z.lazy(() => DecimalValueSchema),
+  "ledgerVersion": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "valuationSnapshotId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "reconciliationRunId": z.lazy(() => UUIDSchema),
+  "provisional": z.boolean(),
+}).strict();
+
+export const PerformanceAttributionSchema = z.object({
+  "symbol": z.string(),
+  "pnl": z.lazy(() => DecimalValueSchema),
+}).strict();
+
+export const PerformanceViewSchema = z.object({
+  "accountId": z.lazy(() => UUIDSchema),
+  "currency": z.literal("USD"),
+  "method": z.literal("simple"),
+  "period": z.enum(["custom","week","month","quarter","year"]),
+  "periodMode": z.enum(["rolling","calendar"]),
+  "asOf": z.string().datetime({ offset: true }),
+  "ledgerVersion": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "valuationSnapshotId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "coverage": z.lazy(() => PerformanceCoverageSchema),
+  "provisional": z.boolean(),
+  "pnl": z.lazy(() => DecimalValueSchema),
+  "return": z.lazy(() => DecimalValueSchema),
+  "drawdown": z.lazy(() => DecimalValueSchema),
+  "fees": z.lazy(() => DecimalValueSchema),
+  "series": z.array(z.lazy(() => PerformancePointSchema)).min(2).max(1000),
+  "attribution": z.array(z.lazy(() => PerformanceAttributionSchema)),
+  "precision": z.string(),
+  "venueSubmit": z.literal(false),
+}).strict();
+
+export const PerformanceReportSchema = z.object({
+  "accountId": z.lazy(() => UUIDSchema),
+  "currency": z.literal("USD"),
+  "method": z.literal("simple"),
+  "period": z.enum(["custom","week","month","quarter","year"]),
+  "periodMode": z.enum(["rolling","calendar"]),
+  "asOf": z.string().datetime({ offset: true }),
+  "ledgerVersion": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "valuationSnapshotId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "coverage": z.lazy(() => PerformanceCoverageSchema),
+  "provisional": z.boolean(),
+  "reportId": z.lazy(() => UUIDSchema),
+  "status": z.enum(["queued","succeeded"]),
+  "reportVersion": z.literal("1"),
+  "createdAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "correlationId": z.lazy(() => UUIDSchema),
+  "auditRef": z.lazy(() => UUIDSchema),
+  "supersededBy": z.union([z.string().uuid(), z.null()]),
+}).strict();
+
+export const PerformanceReportDocumentSchema = z.object({
+  "metadata": z.lazy(() => PerformanceReportSchema),
+  "performance": z.lazy(() => PerformanceViewSchema),
+}).strict();
+
+export const PerformanceDownloadSchema = z.object({
+  "accountId": z.lazy(() => UUIDSchema),
+  "currency": z.literal("USD"),
+  "method": z.literal("simple"),
+  "period": z.enum(["custom","week","month","quarter","year"]),
+  "periodMode": z.enum(["rolling","calendar"]),
+  "asOf": z.string().datetime({ offset: true }),
+  "ledgerVersion": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "valuationSnapshotId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "coverage": z.lazy(() => PerformanceCoverageSchema),
+  "provisional": z.boolean(),
+  "reportId": z.lazy(() => UUIDSchema),
+  "status": z.enum(["queued","succeeded"]),
+  "reportVersion": z.literal("1"),
+  "createdAt": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "correlationId": z.lazy(() => UUIDSchema),
+  "auditRef": z.lazy(() => UUIDSchema),
+  "supersededBy": z.union([z.string().uuid(), z.null()]),
+  "downloadPath": z.string().regex(new RegExp("^/v1/performance/reports/[a-f0-9-]+/content\\?ticket=[a-f0-9-]+$")),
+  "sha256": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "sizeBytes": z.number().int().min(1),
+  "mediaType": z.literal("application/json"),
+  "downloadExpiresAt": z.string().datetime({ offset: true }),
+}).strict();
+
 export const bffZodSchemas = {
   UUID: UUIDSchema,
   DateTime: DateTimeSchema,
@@ -795,6 +904,14 @@ export const bffZodSchemas = {
   ReconciliationRunPage: ReconciliationRunPageSchema,
   ReconciliationBreakPage: ReconciliationBreakPageSchema,
   LedgerEntryPage: LedgerEntryPageSchema,
+  PerformanceQuery: PerformanceQuerySchema,
+  PerformanceCoverage: PerformanceCoverageSchema,
+  PerformancePoint: PerformancePointSchema,
+  PerformanceAttribution: PerformanceAttributionSchema,
+  PerformanceView: PerformanceViewSchema,
+  PerformanceReport: PerformanceReportSchema,
+  PerformanceReportDocument: PerformanceReportDocumentSchema,
+  PerformanceDownload: PerformanceDownloadSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -1397,6 +1514,54 @@ export const bffResponseSchemas = {
   },
   "subscribeReconciliationRun": {
     "200": z.undefined(),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getPerformanceSummary": {
+    "200": z.lazy(() => PerformanceViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getPerformanceSeries": {
+    "200": z.lazy(() => PerformanceViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getPerformanceAttribution": {
+    "200": z.lazy(() => PerformanceViewSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "createPerformanceReport": {
+    "202": z.lazy(() => PerformanceReportSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getReportStatus": {
+    "200": z.lazy(() => PerformanceReportSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getPerformanceReport": {
+    "200": z.lazy(() => PerformanceReportDocumentSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getReportDownload": {
+    "200": z.lazy(() => PerformanceDownloadSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "downloadPerformanceReport": {
+    "200": z.lazy(() => PerformanceReportDocumentSchema),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),
     "default": z.lazy(() => ErrorEnvelopeSchema),

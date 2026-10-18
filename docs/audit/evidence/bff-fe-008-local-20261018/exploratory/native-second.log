@@ -1,0 +1,38 @@
+
+running 8 tests
+test performance::tests::altered_valuation_and_out_of_order_versions_never_append ... ok
+test performance::tests::c15_history_preserved_and_lease_loss_fail_closed ... FAILED
+test performance::tests::concurrent_http_job_unique_audit_chain_and_revoked_download ... ok
+test performance::tests::download_hash_scope_token_expiry_and_report_retention ... ok
+test performance::tests::exact_retry_single_job_and_frozen_worker_recovery ... ok
+test performance::tests::periods_partial_coverage_method_currency_and_invalid_basis_refuse ... ok
+test performance::tests::scope_roles_mode_capability_poison_and_no_browser_source ... ok
+test performance::tests::x01_x05_actual_books_golden_metrics_and_provisional ... FAILED
+
+failures:
+
+---- performance::tests::c15_history_preserved_and_lease_loss_fail_closed stdout ----
+
+thread 'performance::tests::c15_history_preserved_and_lease_loss_fail_closed' (3373102) panicked at services/bff-gateway/src/performance/tests.rs:393:73:
+called `Result::unwrap()` on an `Err` value: Fault(422, "INVALID_REQUEST")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- performance::tests::x01_x05_actual_books_golden_metrics_and_provisional stdout ----
+
+thread 'performance::tests::x01_x05_actual_books_golden_metrics_and_provisional' (3373109) panicked at services/bff-gateway/src/performance/tests.rs:56:5:
+assertion `left == right` failed
+  left: 1
+ right: 3
+
+
+failures:
+    performance::tests::c15_history_preserved_and_lease_loss_fail_closed
+    performance::tests::x01_x05_actual_books_golden_metrics_and_provisional
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 115 filtered out; finished in 0.11s
+
+    Blocking waiting for file lock on build directory
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 24.55s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-f5639c9234426589)
+error: test failed, to rerun pass `-p bff-gateway --lib`
