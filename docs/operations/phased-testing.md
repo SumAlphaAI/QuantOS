@@ -31,3 +31,5 @@ TP12核对发现dispatch幂等键值包含tenant/workspace原文，当前修复�
 SERVICE:X06 使用 `scripts/service-x06-test-scope.mjs` 明列20组当前功能及直接影响检查；覆盖固定作用域授权、证据链、职责分离、幂等/恢复、网关anchor CAS及实际Paper进程。F05/F06/F09与X01–X05仅参考，不递归重新准入；LLVM仅量测新服务模块，不运行全仓或旧10万事件/20类差异campaign。阶段和目标边界见 [SERVICE:X06规程](./service-x06.md)。
 
 CORE-GATE:X3-SERVICE采用`make x3-service-assess-local`明列17组当前服务组合及影响回归。X03/Paper/X04/X01与独立Shadow比较、20类异常证明/ack/修复/复发、kill和陈旧拒绝及幂等恢复属于本检查点必要功能；不通过历史READY或旧聚合执行器拼接上游。修复零异币费用契约时，只扩展实际适配器和费用拒绝边界；完整INTEGRATION、实际10交易日、目标数据库/部署/性能及发布仍独立NOT_RUN。见[X3服务规程](x3-service-local-admission.md)。
+
+PROVIDER:A2使用16组当前功能汇总检查及5项激活入口，见[A2规程](provider-a2-functional-admission.md)。重新执行当前26操作HTTP、两类provider/consumer及身份注销对导出的拒绝边界；两原确认/回执以原SHA核对，不拼接历史READY。F05/A1只查直接消费边界，不执行旧全依赖闭包；旧变异仅参考原hash，未改Rust运行时不重复变异campaign。共享输入变化撤回007独立READY，汇总只归属PROVIDER:A2，完整联调与发布分别NOT_RUN。

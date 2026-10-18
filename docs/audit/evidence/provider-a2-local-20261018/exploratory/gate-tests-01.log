@@ -1,0 +1,47 @@
+✔ actual user reply confirms original JSON draft only (146.128334ms)
+✔ self approval rejected even with updated record hash (139.097792ms)
+✔ other source rejected even with updated record hash (130.454291ms)
+✔ wrong digest rejected even with updated record hash (127.514792ms)
+✔ other receipt rejected even with updated record hash (133.697958ms)
+✔ other commit rejected even with updated record hash (122.819084ms)
+✔ empty user message rejected even with updated record hash (126.612709ms)
+✔ release promotion rejected even with updated record hash (126.996625ms)
+✔ runtime promotion rejected even with updated record hash (136.049833ms)
+✔ future time rejected even with updated record hash (142.899916ms)
+✔ approved original draft bytes cannot be rewritten (162.738208ms)
+✔ original source verification cannot be bypassed by default (6.515875ms)
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert(successes.every(r=>r.requestValidation==='PASS'&&s.op.responses[String(r.status)]))
+
+    at coverage (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a2-functional-gate.mjs:41:247)
+    at buildReceipt (file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a2-functional-gate.mjs:60:567)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/provider-a2-functional-gate.test.mjs:16:43 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.12.0
+✖ scripts/provider-a2-functional-gate.test.mjs (2446.778084ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 12
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2452.767958
+
+✖ failing tests:
+
+test at scripts/provider-a2-functional-gate.test.mjs:1:1
+✖ scripts/provider-a2-functional-gate.test.mjs (2446.778084ms)
+  'test failed'

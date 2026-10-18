@@ -116,6 +116,7 @@ export function checkTarget() {
 }
 export function check() {
  const nodes=nodesFromPlans(),gate=nodes.get('PROVIDER:A2').stage_gate;
+ if(gate.status==='READY'&&gate.evidence[0]?.startsWith('audit/evidence/provider-a2-local-'))return JSON.parse(execFileSync(process.execPath,[resolve(root,'scripts/provider-a2-functional-gate.mjs'),'--ready'],{encoding:'utf8',maxBuffer:8*1024*1024}));
  if(gate.status==='READY'&&gate.evidence.length===1&&JSON.parse(read('docs/'+gate.evidence[0])).schema===localSchema)return verifyLocal('A2_LOCAL',{nodes});
  return checkTarget();
 }

@@ -415,9 +415,9 @@
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "PROVIDER:A2": {
-      "profile": "A2_LOCAL",
-      "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/provider-a3-local-20261013/a2-local.json",
+      "profile": "A2_SCOPE_LOCAL",
+      "schema": "quantos-a2-aggregate-functional-development/v1",
+      "manifest": "audit/evidence/provider-a2-local-20261018/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-001",
         "FE:BFF-FE-007",
@@ -1198,7 +1198,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 - task_id: `BFF-FE-007`
 - task_type: `PAGE_API`
 - iteration: `A2`
-- stage_gate: {"stage":"DEVELOPMENT","status":"READY","input_digest":"sha256:c54a9d52f47394d3fa21fd162d3fbcf99085a344d66b629ccc2c081dfb5c6f41","evidence":["audit/evidence/bff-fe-007-local-20261018/manifest.json"]}
+- stage_gate: {"stage":"DEVELOPMENT","status":"NOT_ASSESSED","input_digest":null,"evidence":[]}
 - depends_on: ["BFF-FE-001", "CORE:F05", "PROVIDER:A1"]
 - core_prerequisites: ["CORE:F05"]
 - closes_core: []
@@ -1216,7 +1216,7 @@ G0 DEVELOPMENT 完成上方契约/工程冻结、追踪关系、PoC 和功能范
 <a id="acceptance-provider-a2"></a>
 ##### PROVIDER:A2：验收检查点
 
-A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 2026-10-17后按AGENTS.md以当前功能和直接影响范围验证，记录真实源码/日志/产物；不默认递归全部依赖、不拼接历史READY。旧A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL闭包回执保留原范围参考；各API与PROVIDER:A2汇总独立评估，不自动放行上游。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。
+A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 2026-10-17后按AGENTS.md以当前功能和直接影响范围验证，记录真实源码/日志/产物；不默认递归全部依赖、不拼接历史READY。旧A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL闭包回执保留原范围参考；各API与PROVIDER:A2汇总独立评估，不自动放行上游。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。 当前A2_SCOPE_LOCAL独立验证26操作，核对两子任务原确认及回执；F05/A1为直接边界参考，不从历史READY拼接。
 
 ```json
 {
@@ -1227,7 +1227,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
     "FE:BFF-FE-007",
     "PROVIDER:A1"
   ],
-  "required_scope": "A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 2026-10-17后按AGENTS.md以当前功能和直接影响范围验证，记录真实源码/日志/产物；不默认递归全部依赖、不拼接历史READY。旧A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL闭包回执保留原范围参考；各API与PROVIDER:A2汇总独立评估，不自动放行上游。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。",
+  "required_scope": "A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权限/错误/幂等/恢复/审计及安全负向功能验证，按输入清单评估阶段 READY；consumer/UI 功能链在对应 I 迭代验证，staging、性能与正式签署在 RELEASE 完成。A1 基线只负责 catalog/生成与 harness，不代替本窗口 provider 实现。 2026-10-17后按AGENTS.md以当前功能和直接影响范围验证，记录真实源码/日志/产物；不默认递归全部依赖、不拼接历史READY。旧A2_LOCAL/R1_LOCAL/BFF003_LOCAL/BFF005_LOCAL闭包回执保留原范围参考；各API与PROVIDER:A2汇总独立评估，不自动放行上游。Supabase、外部环境及性能统一移交RELEASE-GATE:BETA，不作为开发阻塞；正式ACCEPTED须项目用户确认。 当前A2_SCOPE_LOCAL独立验证26操作，核对两子任务原确认及回执；F05/A1为直接边界参考，不从历史READY拼接。",
   "review_status": "NOT_STARTED",
   "source_commit": null,
   "evidence": [],

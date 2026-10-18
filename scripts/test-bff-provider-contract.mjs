@@ -9,11 +9,12 @@ import {operations,validateRequest,validateResponse} from '../tests/contract/htt
 import {validateFixture} from '../tests/contract/validate.mjs';
 const root=resolve(new URL('..',import.meta.url).pathname);
 const output=process.argv[2]??resolve(root,'artifacts/bff-provider-contract.json');
+const identityOnly=process.argv[3]==='--identity-only',auditOnly=process.argv[3]==='--audit-only',aggregate=process.argv[3]==='--aggregate';
+if(![undefined,'--identity-only','--audit-only','--aggregate'].includes(process.argv[3]))throw Error('unknown provider contract scope');
 const reserve=createServer();await new Promise(r=>reserve.listen(0,'127.0.0.1',r));
 const port=reserve.address().port;await new Promise(r=>reserve.close(r));
 execFileSync('cargo',['build','-p','bff-gateway','--bin','bff-gateway','--locked','--offline'],{cwd:root,stdio:'inherit'});
 const child=spawn(resolve(root,'target/debug/bff-gateway'),[],{cwd:root,env:{...process.env,QUANTOS_SKIP_ENV:'1',QUANTOS_BFF_MODE:'reference',QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:['ignore','pipe','pipe']});
-const identityOnly=process.argv[3]==='--identity-only',auditOnly=process.argv[3]==='--audit-only';
 const records=[];let reauth;let challenge;let exportId;let profileVersion='profile-v1';let notificationVersion='notifications-v1';
 const uuid='aaaaaaaa-1111-4111-8111-111111111111';
 const base=`http://127.0.0.1:${port}`;
@@ -79,11 +80,14 @@ try {
  }
  const invalid=await call(auditOnly?'createExport':'saveProfile',{...(auditOnly?exportBody:operations.get('saveProfile').requestBody.content['application/json'].example),actorId:uuid},true);
  if(invalid.response.status!==422)throw Error('Reference provider accepted forged actor');
- if(auditOnly){
-  for(const id of scope)for(const[cookie,status]of [['',401],['quantos_session=session-viewer; quantos_csrf=csrf-token-0000000000000001',403]])await call(id,id==='createExport'?exportBody:undefined,status===401,status,{cookie});
+ if(auditOnly||aggregate){
+  const protectedAudit=catalog.contracts.C10.publishedOperations;
+  for(const id of protectedAudit)for(const[cookie,status]of [['',401],['quantos_session=session-viewer; quantos_csrf=csrf-token-0000000000000001',403]])await call(id,id==='createExport'?exportBody:undefined,status===401,status,{cookie});
   exportId='eeeeeeee-1111-4111-8111-111111111111';await call('getExportDownload',undefined,false,410);
  }
  await call('logout');
+ if(aggregate)for(const id of ['getSession','getProfile','getExportStatus','getExportDownload'])await call(id,undefined,false,401);
+
  if(!scope.every(id=>records.some(r=>r.operationId===id)))throw Error('Reference operation inventory is incomplete');
 }catch(error){failure=error.message;}finally{child.kill('SIGTERM');await new Promise(r=>child.once('close',r));}
 mkdirSync(dirname(output),{recursive:true});
