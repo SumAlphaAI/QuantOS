@@ -1,0 +1,198 @@
+{
+  "schema": "quantos-bff006-controls/v1",
+  "sourceCommit": "590f1f8f4f3561e38e1900adc3764a515fbdef1d",
+  "functional": [
+    {
+      "id": "BFF006-01",
+      "control": "C06-C09/C13 ownership and schemas",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "contract/generated/consumers",
+      "detail": "20 operations; 73 published OpenAPI operations and 64 components; six regenerated outputs match"
+    },
+    {
+      "id": "BFF006-02",
+      "control": "Frozen source and all inputs",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "all groups + source verifier",
+      "detail": "899 inputs verified against current source; 16MiB batches retain every blob and normative check"
+    },
+    {
+      "id": "BFF006-03",
+      "control": "Portfolio and actual Fill projection",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/issuer-oms",
+      "detail": "real X04 Fill IDs consumed once by X01; portfolio and subsequent risk input updated; source_at not refreshed"
+    },
+    {
+      "id": "BFF006-04",
+      "control": "Seven risk families",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/risk",
+      "detail": "allow, deny, approval-required, expiry, duplicate, stale data and kill switch"
+    },
+    {
+      "id": "BFF006-05",
+      "control": "Server identity/account/mode and independent actor",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "http/consumers/a2-boundary",
+      "detail": "Context account/actor align with requester; cross-account/role/scope denied"
+    },
+    {
+      "id": "BFF006-06",
+      "control": "MFA/recent auth and one-use proof",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/http/a2-boundary",
+      "detail": "fixture verified challenge/grant are linked and scoped; consumed proof cannot authorize another mutation"
+    },
+    {
+      "id": "BFF006-07",
+      "control": "Context/version CAS",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/http",
+      "detail": "changed context and stale If-Match rejected; VERSION_CONFLICT returns currentVersion"
+    },
+    {
+      "id": "BFF006-08",
+      "control": "Atomic current risk and approval consumption",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/issuer-oms",
+      "detail": "real X03 rechecks current risk, single consumption, unique command and failure rollback"
+    },
+    {
+      "id": "BFF006-09",
+      "control": "Short server command references",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/http/consumers",
+      "detail": "no browser command body/signature; expired or forged references denied"
+    },
+    {
+      "id": "BFF006-10",
+      "control": "Thousand idempotent submissions",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/issuer-oms/http",
+      "detail": "1000 concurrent HTTP repeats and 1000 actual network retries; one Paper downstream submission"
+    },
+    {
+      "id": "BFF006-11",
+      "control": "Approved interruption recovery",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution",
+      "detail": "reserved approval resumes only original actor/session/key/intent/proof; no extra consumption"
+    },
+    {
+      "id": "BFF006-12",
+      "control": "Authoritative order state",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/http/consumers",
+      "detail": "limit type mapped to open/increase/reduce/close; 202 never becomes fill success"
+    },
+    {
+      "id": "BFF006-13",
+      "control": "Cancel/control reference and GTD",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/issuer-oms/http",
+      "detail": "reloadable control ref; successful pre-expiry cancel, expired/rejected late cancel and no TTL renewal"
+    },
+    {
+      "id": "BFF006-14",
+      "control": "Fill provenance",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/issuer-oms/http",
+      "detail": "proposal/risk/approval/command/release/snapshot/fact hashes retained"
+    },
+    {
+      "id": "BFF006-15",
+      "control": "Bounded immutable pagination",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/http",
+      "detail": "actor/path/query/deadline scoped cursor; no client offset authority"
+    },
+    {
+      "id": "BFF006-16",
+      "control": "SSE recovery and revocation",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/http/consumers",
+      "detail": "sequence replay, duplicate/gap/lease/account/correlation refusal; logout returns401 and cache revoke clears facts"
+    },
+    {
+      "id": "BFF006-17",
+      "control": "Reference audit evidence chain",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "http/consumers/a2-boundary",
+      "detail": "server actor/correlation/auditRef and redaction; replay appends once; real target SQL not executed"
+    },
+    {
+      "id": "BFF006-18",
+      "control": "Paper/Shadow no venue submit",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "execution/http",
+      "detail": "owned Paper kernel only; Shadow read/kill scope has no command submit path"
+    },
+    {
+      "id": "BFF006-19",
+      "control": "Direct F06/F05 boundary regressions",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "a2-boundary/consumers",
+      "detail": "15 Auth/settings and14 Audit/export provider tests pass; permissions/version/recovery preserved"
+    },
+    {
+      "id": "BFF006-20",
+      "control": "Gate/CI/stage refusal",
+      "status": "PASS",
+      "scope": "CURRENT_OWNED_LOCAL_FUNCTION_ONLY",
+      "checks": "confirmation/gate-tests/plan-policy/entrypoints",
+      "detail": "29 confirmation +48 own gate +69 plan/CI negative tests;5 actual entrypoints; no borrowed READY"
+    }
+  ],
+  "targets": [
+    {
+      "obligation": "historical X04 100000-event volume replay",
+      "status": "NOT_RUN"
+    },
+    {
+      "obligation": "target Supabase/Auth/RLS and audit SQL execution",
+      "status": "NOT_RUN"
+    },
+    {
+      "obligation": "durable cross-instance/process-restart recovery",
+      "status": "NOT_RUN"
+    },
+    {
+      "obligation": "trusted real feed/license/revocation and key provisioning",
+      "status": "NOT_RUN"
+    },
+    {
+      "obligation": "full UI/G5/FEP-5 business integration",
+      "status": "NOT_RUN"
+    },
+    {
+      "obligation": "deployment/performance/soak/hosted same-SHA CI/release",
+      "status": "NOT_RUN"
+    }
+  ],
+  "liveAdapter": {
+    "status": "COMPILED_AND_INSPECTED_ONLY",
+    "defaultHost": "ABSENT_503",
+    "targetExecution": "NOT_RUN"
+  },
+  "formalAccepted": false
+}
