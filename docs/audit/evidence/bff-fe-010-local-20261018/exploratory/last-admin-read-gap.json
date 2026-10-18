@@ -1,0 +1,152 @@
+{
+  "sourceCommit": "41f224fc8046ba663898d33be4e1e77ed9c1769f",
+  "schema": "quantos-bff010-additional-finding/v1",
+  "status": "REPRODUCED_DEFECT",
+  "expected": "LAST_ADMIN refusal leaves configuration accessible",
+  "rows": [
+    {
+      "path": "/v1/admin/capabilities",
+      "method": "GET",
+      "status": 200,
+      "value": {
+        "availableReviews": [
+          {
+            "description": "Owned reviewed local research capability",
+            "enabled": false,
+            "kind": "engine_capability",
+            "name": "research.hypothesis.v1",
+            "reviewId": "19d94f0a-fa2b-44a1-b5b5-e5c6d56cc737",
+            "version": "1.0.0"
+          }
+        ],
+        "configVersion": "0",
+        "items": [
+          {
+            "configVersion": "0",
+            "deleted": false,
+            "id": "06004f49-b154-475b-8242-e6fb7217c30e",
+            "kind": "capabilities",
+            "objectVersion": "0",
+            "protected": false,
+            "spec": {
+              "enabled": true,
+              "kind": "capability",
+              "name": "admin.read"
+            }
+          },
+          {
+            "configVersion": "0",
+            "deleted": false,
+            "id": "09a9d20c-0905-4312-a834-a237133ec08f",
+            "kind": "capabilities",
+            "objectVersion": "0",
+            "protected": false,
+            "spec": {
+              "enabled": true,
+              "kind": "capability",
+              "name": "ops.operate"
+            }
+          },
+          {
+            "configVersion": "0",
+            "deleted": false,
+            "id": "2eee995f-e2e8-468e-8a84-838a14d3b16a",
+            "kind": "capabilities",
+            "objectVersion": "0",
+            "protected": true,
+            "spec": {
+              "enabled": true,
+              "kind": "capability",
+              "name": "admin.write"
+            }
+          },
+          {
+            "configVersion": "0",
+            "deleted": false,
+            "id": "5850c352-0831-4a34-8863-0ca2734c271f",
+            "kind": "capabilities",
+            "objectVersion": "0",
+            "protected": false,
+            "spec": {
+              "enabled": true,
+              "kind": "capability",
+              "name": "ops.read"
+            }
+          },
+          {
+            "configVersion": "0",
+            "deleted": false,
+            "id": "d637ec8c-520e-4591-8a19-59581ed641c3",
+            "kind": "capabilities",
+            "objectVersion": "0",
+            "protected": false,
+            "spec": {
+              "enabled": true,
+              "kind": "capability",
+              "name": "alerts.read"
+            }
+          }
+        ],
+        "nextCursor": null
+      }
+    },
+    {
+      "path": "/v1/auth/mfa/challenges",
+      "method": "POST",
+      "status": 200,
+      "value": {
+        "challengeRef": "01a14ef3-7a1b-7e82-a988-174b24c3b90f",
+        "status": "verified"
+      }
+    },
+    {
+      "path": "/v1/auth/reauth",
+      "method": "POST",
+      "status": 200,
+      "value": {
+        "expiresAt": "2026-10-18T12:24:01.787091+00:00",
+        "reauthTokenRef": "[REDACTED_OWNED_EPHEMERAL_GRANT]"
+      }
+    },
+    {
+      "path": "/v1/admin/capabilities/06004f49-b154-475b-8242-e6fb7217c30e",
+      "method": "PUT",
+      "status": 200,
+      "value": {
+        "auditRef": "01a14ef3-7a1d-7931-8501-23d5728c0092",
+        "configVersion": "1",
+        "correlationId": "5d090331-205b-4968-94a6-fb06083e5abb",
+        "deleted": false,
+        "id": "06004f49-b154-475b-8242-e6fb7217c30e",
+        "kind": "capabilities",
+        "objectVersion": "1",
+        "protected": false,
+        "spec": {
+          "enabled": false,
+          "kind": "capability",
+          "name": "admin.read"
+        }
+      }
+    },
+    {
+      "path": "/v1/admin/members",
+      "method": "GET",
+      "status": 403,
+      "value": {
+        "code": "FORBIDDEN",
+        "correlationId": "01a14ef3-7a1e-7fc3-8944-774f6a1ca06d",
+        "message": "Research request could not be completed."
+      }
+    }
+  ],
+  "databaseExecution": false,
+  "externalExecution": false,
+  "formalAccepted": false,
+  "redactions": [
+    {
+      "pointer": "/rows/2/value/reauthTokenRef",
+      "sha256": "sha256:3d77db6b8c4c8caf9b867ee4c94e599cb1c4dda5c046e1cab69d04d7c017dc90",
+      "reason": "Owned ephemeral reference grant; process terminated. Redacted before candidate commit after staged scanner finding."
+    }
+  ]
+}

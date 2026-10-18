@@ -271,7 +271,11 @@ impl Governance {
     fn owner_users(&self) -> std::collections::BTreeSet<Uuid> {
         self.registry
             .values()
-            .filter(|a| a.role == Role::Owner && self.allows(a, "admin.write"))
+            .filter(|a| {
+                a.role == Role::Owner
+                    && self.allows(a, "admin.read")
+                    && self.allows(a, "admin.write")
+            })
             .map(|a| a.user_id)
             .collect()
     }

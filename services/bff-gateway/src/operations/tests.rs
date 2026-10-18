@@ -910,3 +910,52 @@ fn governance_checks_exact_step_up_caller_and_clock_before_commit() {
     .unwrap();
     assert_eq!(h.gov.version, 1);
 }
+
+#[test]
+fn last_admin_retains_both_read_and_write_access_after_capability_or_policy_change() {
+    let (mut h, owner, _, n) = setup();
+    let rid = governance::id("c11-capability:admin.read");
+    assert_eq!(
+        call(
+            &mut h,
+            &owner,
+            Method::PUT,
+            &format!("/v1/admin/capabilities/{rid}"),
+            "0",
+            json!({"spec":{"kind":"capability","name":"admin.read","enabled":false}}),
+            n
+        )
+        .unwrap_err()
+        .1,
+        "LAST_ADMIN"
+    );
+    assert_eq!(
+        call(
+            &mut h,
+            &owner,
+            Method::DELETE,
+            &format!("/v1/admin/capabilities/{rid}"),
+            "0",
+            json!({}),
+            n
+        )
+        .unwrap_err()
+        .1,
+        "LAST_ADMIN"
+    );
+    assert_eq!(call(&mut h,&owner,Method::POST,"/v1/admin/policies","0",json!({"spec":{"kind":"policy","name":"deny-admin-read","roleId":governance::id("c11-role:owner"),"deniedCapabilities":["admin.read"],"active":true}}),n).unwrap_err().1,"LAST_ADMIN");
+    assert_eq!(h.gov.version, 0);
+    assert!(h.gov.allows(&owner, "admin.read") && h.gov.allows(&owner, "admin.write"));
+    h.handle(
+        &owner,
+        "s",
+        &Method::GET,
+        "/v1/admin/members",
+        &BTreeMap::new(),
+        &HeaderMap::new(),
+        &json!({}),
+        None,
+        n,
+    )
+    .unwrap();
+}

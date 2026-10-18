@@ -1,0 +1,11 @@
+{
+  "schema": "quantos-bff010-additional-review/v1",
+  "sourceCommit": "41f224fc8046ba663898d33be4e1e77ed9c1769f",
+  "firstAttempt": "function-attempt-01",
+  "checks": "18 PASS and six entrypoints PASS on original input scope",
+  "additionalFinding": "LAST_ADMIN counted write authority without read authority; current read guard then prevents sole owner recovery",
+  "actualReproduction": "exploratory/last-admin-read-gap.json",
+  "initialProbe": "Missing mandatory X-Request-Id produced422 before governance; initial script retained, this invalid request is not defect proof",
+  "disposition": "WITHDRAW_CURRENT_READY; preserve attempt01 bytes; fix last-owner criterion to both admin.read/write, add native capability-disable/delete and policy-deny plus HTTP negative; freeze new candidate and run same current-feature18 checks only",
+  "formalAccepted": false
+}

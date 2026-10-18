@@ -6,7 +6,7 @@ C11提供health/metrics、incident list/get/timeline/open/ack/resolve、白名�
 
 OperationsHost显式注入真实X06服务与F06身份范围租约。F09仅配置的Service observer可提交结构化健康报告及数值latency/dlq，核心验证四组件、来源、clock和30秒有效期；页面丢弃所有raw detail/summary/labels及敏感metric value，仅发布固定安全字段与sourceHash。健康/stream/Runbook陈旧拒绝；历史alert/incident事实仍标示asOf。latency为受控source观测，不证明目标P95。live无host503，不能回退reference。仅参考进程可显式选择`QUANTOS_BFF_REFERENCE_OPS_FEED=clear-once`，启动2500ms后可信observer发一次合成修复观测；该feed与浏览器请求无关、没有观测HTTP路由、不在live分支执行；用于真实core incident修复/职责分离闭环，未连接真实目标。
 
-治理为单账户Paper/Shadow、owner注入的受控进程租约，**不是Supabase/F06表写回**。有效权限始终为当前F06身份/能力与租约role/capability/deny policy交集；不能通过租约创建未知身份、提升超出F06权限或Service/Owner自造role。成员角色/active变化使原身份在下一请求跨页面被拒绝，后续需owner从已验证F06来源刷新identity；目标持久化、身份写回及多实例传播另验。保护内置role和admin.write、最后独立管理员、引用中的role删除、本人及同user别名自治理；policy只支持typed deny，ops.approve与ops.operate角色分离；feature flags仅四个非安全功能名、显式rollout，不允许关闭kill/risk/RLS/审计等安全底线。
+治理为单账户Paper/Shadow、owner注入的受控进程租约，**不是Supabase/F06表写回**。有效权限始终为当前F06身份/能力与租约role/capability/deny policy交集；不能通过租约创建未知身份、提升超出F06权限或Service/Owner自造role。成员角色/active变化使原身份在下一请求跨页面被拒绝，后续需owner从已验证F06来源刷新identity；目标持久化、身份写回及多实例传播另验。保护内置role和admin.write、最后独立管理员必须同时保留admin.read与admin.write（能力禁用/删除及deny policy同样校验）、引用中的role删除、本人及同user别名自治理；policy只支持typed deny，ops.approve与ops.operate角色分离；feature flags仅四个非安全功能名、显式rollout，不允许关闭kill/risk/RLS/审计等安全底线。
 
 所有写入CSRF+Idempotency-Key+If-Match；创建校验configVersion，成员更新校验objectVersion。删除为带递增版本的tombstone，不重复使用ID/name造成ABA。当前权限在原键回放前重验；同actor/scope/session/path/method/key+intent精确恢复原结果，冲突409，验证拒绝不部分更新。成功产生一个F05 auditRef/correlation根，可由C10查证。高风险治理、incident、alert和Runbook还要求A2已验证MFA/reauth近期会话；5分钟有效断言可用于多次不同受控操作，不把它冒充X03单次签发proof。订阅为本人低风险版本化设置，无需额外MFA。live将F05写入接现有事务，commit/audit不确定后quarantine该租约并拒绝；并不证明持久回滚、崩溃恢复或跨实例一致。
 
