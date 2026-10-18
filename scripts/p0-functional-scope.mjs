@@ -37,6 +37,7 @@ export function environment(base=process.env){
  for(const line of readFileSync(root+'/env/local-mock.env.example','utf8').split('\n'))if(line.startsWith('NEXT_PUBLIC_')){const i=line.indexOf('=');env[line.slice(0,i)]=line.slice(i+1);}
  return {...env,NEXT_TELEMETRY_DISABLED:'1',STORYBOOK_DISABLE_TELEMETRY:'1',npm_config_offline:'true',QUANTOS_RELEASE_PERFORMANCE:'0'};
 }
+export function webEnvironment(){return {...environment(),NEXT_PUBLIC_SITE_ORIGIN:'http://localhost:3196',NEXT_PUBLIC_QUANTOS_TERMINAL_ORIGIN:'http://localhost:3190',NEXT_PUBLIC_QUANTOS_OIDC_REDIRECT_URI:'http://localhost:3190/auth/callback'};}
 export function validateScope(){assert.equal(policy.development.defaultScope,'FUNCTION_AND_IMPACT');assert.equal(policy.development.recursiveDependencyRevalidation,false);assert(checks.every(c=>c.reason.length>30));assert(!checks.some(c=>c.command.includes('--workspace')||c.command.includes('install')));}
 export function snapshot(){
  validateScope();const nodes=nodesFromPlans();
