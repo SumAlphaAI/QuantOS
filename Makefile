@@ -863,3 +863,13 @@ service-x06-local-check:
 	node scripts/service-x06-local-gate.mjs --ready
 service-x06-release-check:
 	node scripts/service-x06-local-gate.mjs --release
+
+.PHONY: x3-service-check x3-service-assess-local x3-service-local-check x3-service-release-check
+x3-service-check:
+	cargo test --locked --offline -p execution-gateway --test x3_service -- --nocapture
+x3-service-assess-local:
+	node scripts/record-x3-service-local.mjs
+x3-service-local-check:
+	node scripts/x3-service-local-gate.mjs --ready
+x3-service-release-check:
+	node scripts/x3-service-local-gate.mjs --release

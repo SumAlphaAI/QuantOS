@@ -606,7 +606,15 @@ pub fn from_x04_portfolio(
                 .iter()
                 .find(|o| o.order_id == f.order_id)
                 .ok_or(Error::Invalid("X04 fill order"))?;
-            if f.command_id != o.command_id || f.fee_currency != scope.quote_unit {
+            // A zero amount carries no currency conversion. Real nonzero fees
+            // must use the declared quote unit; this adapter never performs FX.
+            let fee = f
+                .fee_amount
+                .parse::<Decimal>()
+                .map_err(|_| Error::Invalid("fill fee"))?;
+            if f.command_id != o.command_id
+                || (fee != Decimal::ZERO && f.fee_currency != scope.quote_unit)
+            {
                 return Err(Error::Invalid("X04 fill quote or command binding"));
             }
             Ok(Fill {
@@ -620,10 +628,7 @@ pub fn from_x04_portfolio(
                     .parse()
                     .map_err(|_| Error::Invalid("fill quantity"))?,
                 price: f.price.parse().map_err(|_| Error::Invalid("fill price"))?,
-                fee: f
-                    .fee_amount
-                    .parse()
-                    .map_err(|_| Error::Invalid("fill fee"))?,
+                fee,
                 sequence: seed
                     .sequence
                     .checked_add(i as u64 + 1)
