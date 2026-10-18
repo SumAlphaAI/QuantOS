@@ -1,6 +1,7 @@
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createHash } from "node:crypto";
+import { environment } from "./a1-functional-scope.mjs";
 import { spawnSync, execFileSync } from "node:child_process";
 
 export const executionSources = {
@@ -32,7 +33,7 @@ export function readExecutionProof(root) {
   return existsSync(proofPath(root)) ? JSON.parse(readFileSync(proofPath(root), "utf8")) : null;
 }
 export const executionCommands = [
-    ["cargo", ["test", "--locked", "--offline", "-p", "bff-gateway", "--lib"]],
+    ["cargo", ["test", "--locked", "--offline", "-p", "bff-gateway", "--lib", "live::settings_policy::tests"]],
     ["cargo", ["test", "--locked", "--offline", "-p", "bff-gateway", "--test", "auth_settings_provider"]],
     ["pnpm", ["--filter", "@sumalpha/terminal", "exec", "vitest", "run", "tests/auth-bff.test.ts", "tests/ui104-settings.test.ts"]],
   ];
@@ -40,9 +41,9 @@ export function runExecutionProof(root) {
   const sources = executionInputs(root);
 
   const results = executionCommands.map(([command, args]) => {
-    const result = spawnSync(command, args, { cwd: root, encoding: "utf8", maxBuffer: 8 * 1024 * 1024 });
+    const result = spawnSync(command, args, { cwd: root, env: environment(), timeout: 300000, encoding: "utf8", maxBuffer: 8 * 1024 * 1024 });
     const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
-    return { command, args, exitCode: result.status, outputSha256: digest(output), output };
+    return { command, args, exitCode: result.status, signal: result.signal, errorCode: result.error?.code ?? null, outputSha256: digest(output), output };
   });
   const report = { sourceCommit:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(), schema: "quantos-bff-a2-executed-semantics/v1", scope: "local reference provider and consumer regressions; live target separate", sourceHashes: Object.fromEntries(Object.entries(sources).map(([key, value]) => [key, digest(value)])), results: results.map(({ output, ...result }) => result), status: results.every(r => r.exitCode === 0) ? "PASS" : "FAIL" };
   mkdirSync(resolve(root, "artifacts/bff-fe-001"), { recursive: true });

@@ -91,7 +91,8 @@ export async function* consumeSse(options: ConsumeSseOptions): AsyncGenerator<Re
     }
     const res = response;
     if (res.status === 401 || res.status === 403) {
-      yield { type: "closed", reason: "permission_revoked" };
+      await res.body?.cancel();
+      yield reducer.close();
       return;
     }
     if (res.status >= 500) {

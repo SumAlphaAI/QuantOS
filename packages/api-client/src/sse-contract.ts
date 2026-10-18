@@ -37,6 +37,11 @@ export class SseStreamReducer {
     return this.closed;
   }
 
+  close(): ReducerAction {
+    this.closed = true;
+    return { type: "closed", reason: "permission_revoked" };
+  }
+
   accept(event: SseEventEnvelope): ReducerAction {
     if (!StreamEventSchema.safeParse(event).success) {
       throw new SseContractError("Unsupported or invalid SSE event; state was not applied");
@@ -44,8 +49,7 @@ export class SseStreamReducer {
     if (this.closed || this.seenEventIds.has(event.eventId)) return { type: "duplicate", event };
     if (event.payload?.type === "permission_revoked") {
       this.seenEventIds.add(event.eventId);
-      this.closed = true;
-      return { type: "closed", reason: "permission_revoked" };
+      return this.close();
     }
     if (event.sequence <= this.lastSequence) return { type: "duplicate", event }; // 乱序迟到/重放
     if (event.sequence > this.lastSequence + 1) {

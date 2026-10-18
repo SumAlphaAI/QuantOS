@@ -14,6 +14,7 @@ const livePolicyPath="services/bff-gateway/src/live/settings_policy.rs";
 const originalPolicy=readFileSync(resolve(root,livePolicyPath),"utf8");
 const records = [];
 const mutations = [
+  ["replay-authorization", source => source.replace("if state.now() >= state.session_expires_at\n                    ||", "if false && state.now() >= state.session_expires_at\n                    || false &&").replace("|| (session == CURRENT_SESSION && !state.session_active)", "|| false && (session == CURRENT_SESSION && !state.session_active)"), "revoked_stream_discards_backlog_before_delivering_any_settings_event"],
   ["last-factor-protection", source => source.replace("if state.factors.len() <= 1 {", "if false {"), "current_session_and_last_mfa_factor_are_protected"],
   ["csrf-enforcement", source => source.replace("if cookie_csrf != Some(CSRF_TOKEN)", "if false && cookie_csrf != Some(CSRF_TOKEN)").replace("|| header_csrf != Some(CSRF_TOKEN)", "|| false && header_csrf != Some(CSRF_TOKEN)").replace("|| origin != Some(ALLOWED_ORIGIN)", "|| false && origin != Some(ALLOWED_ORIGIN)"), "authentication_csrf_and_resource_failures_fail_closed"],
   ["challenge-freshness", source => source.replace("expires_at: now + Duration::minutes(5)", "expires_at: now + Duration::days(365)").replace(".is_some_and(|at| at + Duration::minutes(5) > now)", ".is_some_and(|at| at + Duration::days(365) > now)"), "challenges_are_fresh_single_use_and_cooldown_precedes_verification"],
@@ -36,7 +37,7 @@ try {
     assert.notEqual(mutated, source, `mutation ${name} matched no source`);
     writeFileSync(resolve(scratch, "services/bff-gateway/src/lib.rs"), live?original:mutated);
     writeFileSync(resolve(scratch,livePolicyPath),live?mutated:originalPolicy);
-    const result = spawnSync("cargo", ["test", "--offline", "--manifest-path", join(scratch, "Cargo.toml"), "--target-dir", resolve(root, "target/bff-fe-001-mutants"), "-p", "bff-gateway", ...(live?["--lib"]:["--test", "auth_settings_provider"])], { cwd: root, encoding: "utf8", timeout: 240000, maxBuffer: 8 * 1024 * 1024 });
+    const result = spawnSync("cargo", ["test", "--offline", "--locked", "--manifest-path", join(scratch, "Cargo.toml"), "--target-dir", resolve(root, "target/bff-fe-001-mutants"), "-p", "bff-gateway", ...(live?["--lib"]:["--test", "auth_settings_provider"]), expectedTest], { cwd: root, encoding: "utf8", timeout: 240000, maxBuffer: 8 * 1024 * 1024 });
     const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
     writeFileSync(join(evidence, `mutation-${name}.log`), output);
     const rejected = result.status !== 0 && output.includes("test result: FAILED.") && output.includes(`${expectedTest} ... FAILED`);

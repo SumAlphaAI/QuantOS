@@ -1,0 +1,29 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+
+ [32m✓[39m packages/api-client/tests/sse-poc.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 529[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/a2-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 911[2mms[22m[39m
+[31m   [31m×[31m uses real Rust HTTP through generated/auth/settings consumers: version, replay, lost stream resume and revocation[39m[32m 33[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 09:52:49
+[2m   Duration [22m 1.14s[2m (transform 123ms, setup 0ms, import 247ms, tests 1.44s, environment 0ms)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/a2-provider-consumer.test.ts[2m > [22muses real Rust HTTP through generated/auth/settings consumers: version, replay, lost stream resume and revocation
+[31m[1mSettingsGatewayError[22m: 设置服务暂不可用，请稍后重试。[39m
+[36m [2m❯[22m required apps/terminal/src/settings/gateway.ts:[2m21:11[22m[39m
+    [90m 19|[39m       // Keep the transport status but discard all malformed provider …
+    [90m 20|[39m     }
+    [90m 21|[39m     [35mthrow[39m [35mnew[39m [33mSettingsGatewayError[39m([32m"设置服务暂不可用，请稍后重试。"[39m[33m,[39m operation[33m,[39m
+    [90m   |[39m           [31m^[39m
+    [90m 22|[39m       error?.correlationId, result.response.status, error?.code, error…
+    [90m 23|[39m   }
+[90m [2m❯[22m saveProfileSettings apps/terminal/src/settings/gateway.ts:[2m53:10[22m[39m
+[90m [2m❯[22m apps/terminal/tests/a2-provider-consumer.test.ts:[2m40:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+

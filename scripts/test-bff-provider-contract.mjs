@@ -13,6 +13,7 @@ const reserve=createServer();await new Promise(r=>reserve.listen(0,'127.0.0.1',r
 const port=reserve.address().port;await new Promise(r=>reserve.close(r));
 execFileSync('cargo',['build','-p','bff-gateway','--bin','bff-gateway','--locked','--offline'],{cwd:root,stdio:'inherit'});
 const child=spawn(resolve(root,'target/debug/bff-gateway'),[],{cwd:root,env:{...process.env,QUANTOS_SKIP_ENV:'1',QUANTOS_BFF_MODE:'reference',QUANTOS_BFF_BIND:`127.0.0.1:${port}`},stdio:['ignore','pipe','pipe']});
+const identityOnly=process.argv[3]==='--identity-only';
 const records=[];let reauth;let challenge;let exportId;let profileVersion='profile-v1';let notificationVersion='notifications-v1';
 const uuid='aaaaaaaa-1111-4111-8111-111111111111';
 const base=`http://127.0.0.1:${port}`;
@@ -50,7 +51,7 @@ try {
  challenge=(await call('mfaChallenge',{purpose:'security_change',code:'123456'})).payload.challengeRef;
  reauth=(await call('reauth',{challengeRef:challenge})).payload.reauthTokenRef;
  const catalog=YAML.parse(readFileSync(resolve(root,'bff/page-operation-catalog.yaml'),'utf8'));
- const scope=['C01','C17','C10'].flatMap(id=>catalog.contracts[id].publishedOperations);
+ const scope=(identityOnly?['C01','C17']:['C01','C17','C10']).flatMap(id=>catalog.contracts[id].publishedOperations);
  // Positive requests must reference the correlation seeded by this provider.
  const exportBody=structuredClone(operations.get('createExport').requestBody.content['application/json'].example);
  exportBody.scope.correlationIds=[uuid];
@@ -59,6 +60,7 @@ try {
   if(id==='submitAccessRequest')body={teamName:'Research',contactEmail:'synthetic@example.invalid',purpose:'Paper research',markets:['digital-assets'],expectedMode:'paper',privacyNoticeVersion:'2026-10-03'};
   const result=await call(id,body);if(id==='createExport')exportId=result.payload?.exportId;
  }
+ if(!identityOnly){
  const createKey=randomUUID();const created=(await call('createExport',exportBody,false,202,{'Idempotency-Key':createKey})).payload;
  const replay=(await call('createExport',exportBody,false,202,{'Idempotency-Key':createKey})).payload;
  if(JSON.stringify(created)!==JSON.stringify(replay))throw Error('export same intent must replay the original result');
@@ -74,6 +76,7 @@ try {
  const conflict=await call('cancelExport',undefined,false,409,{'Idempotency-Key':cancelKey});
  if(conflict.payload.code!=='IDEMPOTENCY_CONFLICT')throw Error('changed cancel resource must conflict');
  if((await call('getExportStatus')).payload.status==='cancelled')throw Error('conflicting cancel changed another export');
+ }
  const invalid=await call('saveProfile',{...operations.get('saveProfile').requestBody.content['application/json'].example,actorId:uuid},true);
  if(invalid.response.status!==422)throw Error('Reference provider accepted forged actor');
  await call('logout');

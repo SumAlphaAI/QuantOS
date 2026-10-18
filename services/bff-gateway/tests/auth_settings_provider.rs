@@ -742,3 +742,125 @@ async fn notification_save_is_idempotent_and_audited() {
     );
     assert_eq!(provider.audit_count().await, 1);
 }
+
+#[tokio::test]
+async fn revoked_stream_discards_backlog_before_delivering_any_settings_event() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let grant = recent_auth(&router).await;
+    let stream = router
+        .clone()
+        .oneshot(authenticated("GET", "/v1/settings/sessions/stream", None))
+        .await
+        .unwrap();
+    let revoked = router
+        .clone()
+        .oneshot(protected_mutation(
+            "DELETE",
+            "/v1/settings/sessions/session-remote",
+            "backlog",
+            &grant,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(revoked.status(), StatusCode::ACCEPTED);
+    // Leave the event queued, then invalidate this subscriber before polling it.
+    assert_eq!(
+        router
+            .clone()
+            .oneshot(mutation("POST", "/v1/auth/logout", None))
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::NO_CONTENT
+    );
+    let mut body = stream.into_body();
+    let event = frame_event(&mut body).await;
+    assert_eq!(event["payload"]["type"], "permission_revoked");
+    assert_eq!(event["payload"]["objectId"], "session-current");
+    assert!(body.frame().await.is_none());
+    assert_eq!(
+        router
+            .oneshot(authenticated("GET", "/v1/settings/profile", None))
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::UNAUTHORIZED
+    );
+}
+
+#[tokio::test]
+async fn concurrent_settings_writes_have_one_version_winner_and_same_key_replays_once() {
+    for same_key in [false, true] {
+        let provider = BffProvider::default();
+        let router = provider.router();
+        let make = |label: &str| {
+            let mut req = mutation("PUT", "/v1/settings/profile", Some(body_for("saveProfile")));
+            req.headers_mut()
+                .insert("if-match", "profile-v1".parse().unwrap());
+            req.headers_mut()
+                .insert("idempotency-key", uuid_key(label).parse().unwrap());
+            req
+        };
+        let (a, b) = tokio::join!(
+            router.clone().oneshot(make("first")),
+            router
+                .clone()
+                .oneshot(make(if same_key { "first" } else { "second" }))
+        );
+        let (a, b) = (a.unwrap(), b.unwrap());
+        if same_key {
+            assert_eq!(a.status(), StatusCode::OK);
+            assert_eq!(b.status(), StatusCode::OK);
+            assert_eq!(json_body(a).await, json_body(b).await);
+        } else {
+            assert_eq!(
+                [a.status(), b.status()]
+                    .iter()
+                    .filter(|s| **s == StatusCode::OK)
+                    .count(),
+                1
+            );
+            assert_eq!(
+                [a.status(), b.status()]
+                    .iter()
+                    .filter(|s| **s == StatusCode::CONFLICT)
+                    .count(),
+                1
+            );
+        }
+        assert_eq!(provider.audit_count().await, 1);
+        let current = json_body(
+            router
+                .oneshot(authenticated("GET", "/v1/settings/profile", None))
+                .await
+                .unwrap(),
+        )
+        .await;
+        assert_eq!(current["objectVersion"], "profile-v2");
+    }
+}
+
+#[tokio::test]
+async fn readonly_session_cannot_write_settings_or_reuse_another_sessions_reauth() {
+    let provider = BffProvider::default();
+    let router = provider.router();
+    let grant = recent_auth(&router).await;
+    let mut req = protected_mutation(
+        "DELETE",
+        "/v1/settings/trusted-devices/device-remote",
+        "readonly",
+        &grant,
+    );
+    req.headers_mut().insert(
+        "cookie",
+        format!("quantos_session=session-viewer; quantos_csrf={CSRF}")
+            .parse()
+            .unwrap(),
+    );
+    assert_eq!(
+        router.oneshot(req).await.unwrap().status(),
+        StatusCode::FORBIDDEN
+    );
+    assert_eq!(provider.audit_count().await, 0);
+}

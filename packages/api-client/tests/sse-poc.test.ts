@@ -175,3 +175,22 @@ describe("SSE 断线续传 PoC（G0 #5）", () => {
     });
   });
 });
+
+describe("A2 denied stream recovery", () => {
+  it.each([401, 403])("closes the caller's reducer and cancels HTTP %s without reconnecting", async status => {
+    const reducer = new SseStreamReducer();
+    let calls = 0;
+    let cancelled = false;
+    const fetchImpl = (async () => {
+      calls++;
+      return new Response(new ReadableStream({ cancel() { cancelled = true; } }), { status });
+    }) as typeof fetch;
+    const actions = [];
+    for await (const action of consumeSse({ url: "http://localhost/stream", reducer, fetchImpl, retryDelayMs: 0 })) actions.push(action);
+    expect(actions).toEqual([{ type: "closed", reason: "permission_revoked" }]);
+    expect(reducer.isClosed).toBe(true);
+    expect(cancelled).toBe(true);
+    for await (const action of consumeSse({ url: "http://localhost/stream", reducer, fetchImpl })) actions.push(action);
+    expect(calls).toBe(1);
+  });
+});

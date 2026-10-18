@@ -46,7 +46,9 @@ export function validateEvidence(m,{currentInputs,currentPlan,dependencies,read,
  return {status:'READY',nodeId:m.nodeId,formalAccepted:false};
 }
 export function validateA2({nodes=nodesFromPlans(),base=root,record}={}) {
- const n=nodes.get('FE:BFF-FE-001');const gate=record??n.stage_gate;assert.equal(gate.status,'READY','A2 is not READY');assert.equal(gate.stage,'DEVELOPMENT');assert.equal(gate.evidence.length,1);
+ const n=nodes.get('FE:BFF-FE-001');const gate=record??n.stage_gate;
+ if(gate.evidence?.[0]?.startsWith('audit/evidence/bff-fe-001-local-')){assert.equal(base,root);assert.equal(record,undefined,'custom scoped gate override forbidden');return JSON.parse(execFileSync(process.execPath,[resolve(root,'scripts/bff-fe-001-functional-gate.mjs'),'--ready'],{cwd:root,encoding:'utf8'}));}
+assert.equal(gate.status,'READY','A2 is not READY');assert.equal(gate.stage,'DEVELOPMENT');assert.equal(gate.evidence.length,1);
  const path='docs/'+gate.evidence[0];assert(path.startsWith('docs/audit/evidence/bff-fe-001-remediation-20261005/'),'A2 manifest outside evidence directory');const raw=readFileSync(confined(path,base));assert.equal(digest(raw),gate.input_digest,'A2 manifest digest changed');
  return validateEvidence(JSON.parse(raw),{currentInputs:inventory(selectors,base),currentPlan:planInput(n),dependencies:new Map(n.dependencies.map(id=>[id,nodes.get(id).stage_gate])),read:p=>readFileSync(confined(p,base)),validateDependency:id=>validateReceipt(id,{nodes,base})});
 }

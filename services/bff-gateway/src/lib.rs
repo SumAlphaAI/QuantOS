@@ -977,6 +977,18 @@ async fn session_stream(
             }
             loop {
                 let state = data.lock().await;
+                // Revalidate before every delivery, including queued replay events.
+                if state.now() >= state.session_expires_at
+                    || (session != VIEWER_SESSION && !state.sessions.contains_key(&session))
+                    || (session == CURRENT_SESSION && !state.session_active)
+                {
+                    let frame = format!(
+                        "data: {}\n\n",
+                        json!({"streamId":"55555555-5555-4555-8555-555555555555","sequence":after+1,"eventId":Uuid::now_v7(),"occurredAt":state.now().to_rfc3339(),"correlationId":Uuid::now_v7(),"payloadVersion":"v1","payload":{"type":"permission_revoked","objectId":session}})
+                    );
+                    drop(state);
+                    return Some((Ok(frame), (data, after + 1, session, true)));
+                }
                 if let Some(mut event) = state
                     .events
                     .iter()
@@ -1002,17 +1014,6 @@ async fn session_stream(
                         Ok::<_, std::convert::Infallible>(frame),
                         (data, after, session, terminal),
                     ));
-                }
-                if state.now() >= state.session_expires_at
-                    || (session != VIEWER_SESSION && !state.sessions.contains_key(&session))
-                    || (session == CURRENT_SESSION && !state.session_active)
-                {
-                    let frame = format!(
-                        "data: {}\n\n",
-                        json!({"streamId":"55555555-5555-4555-8555-555555555555","sequence":after+1,"eventId":Uuid::now_v7(),"occurredAt":state.now().to_rfc3339(),"correlationId":Uuid::now_v7(),"payloadVersion":"v1","payload":{"type":"permission_revoked","objectId":session}})
-                    );
-                    drop(state);
-                    return Some((Ok(frame), (data, after + 1, session, true)));
                 }
                 drop(state);
                 tokio::time::sleep(std::time::Duration::from_millis(50)).await;

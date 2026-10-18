@@ -1,3 +1,5 @@
+> 当前前端功能复核（2026-10-18）：FE:BFF-FE-001/A2仅消费CORE:F06身份/会话直接边界及A1契约输入，不递归重验F06及上游；功能/完整联调/发布独立。A1共享输入变化后独立READY撤回，变更前回执保留参考；见[规程](./operations/bff-fe-001-functional-admission.md)。
+
 > 当前工程结果（A1，2026-10-18）：冻结b80835df，1136个功能输入、27组当前功能/直接边界及7项激活入口收口通过；Node278、client/contract110（含7项真实loopback SSE）、Rust26、38条reference HTTP、Chromium11通过。API1.7.0的70published/38planned/62schemas、六类生成产物与G0/FEP-0工程冻结范围一致。仅FE:BFF-FE-000与PROVIDER:A1限定DEVELOPMENT READY；G0当前范围确认PENDING、G0/FEP-0独立准入NOT_GRANTED，完整联调/发布NOT_RUN、runtimeAdmission=DENIED。P0旧独立READY因共享输入变化撤回，原538afeef证据保留。首轮中断与第二轮CLI失败均保留，不拼接。见[当前报告](./audit/A1-functional-admission-2026-10-18.md)及[待确认文稿](./audit/evidence/a1-local-20261018/confirmation-draft.md)。下一可执行FE:BFF-FE-001/A2当前功能复核。
 
 > 本轮范围（2026-10-18）：FE:BFF-FE-000 / A1 当前功能复核；仅直接前置边界、契约/生成client-schema-MSW与G0/FEP-0工程冻结范围，完整联调/发布独立。共享功能输入变化后P0独立READY撤回，538afeef原范围及证据保留；本轮不递归重验或重授P0/F03/F05/F06/F0/六PRE。
@@ -866,6 +868,17 @@ TP08–TP12 为仅参考工程的独立评估任务，不作为 Day-1 生产依�
       "prerequisites": [
         "FE:BFF-FE-000",
         "PREPARATION:P0"
+      ],
+      "release_checkpoint": "RELEASE-GATE:BETA"
+    },
+    "FE:BFF-FE-001": {
+      "profile": "A2_IDENTITY_LOCAL",
+      "schema": "quantos-a2-identity-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-001-local-20261018/manifest.json",
+      "prerequisites": [
+        "FE:BFF-FE-000",
+        "CORE:F06",
+        "PROVIDER:A1"
       ],
       "release_checkpoint": "RELEASE-GATE:BETA"
     }
