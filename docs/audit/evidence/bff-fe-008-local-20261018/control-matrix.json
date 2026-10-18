@@ -1,0 +1,154 @@
+{
+  "schema": "quantos-bff008-local-controls/v1",
+  "sourceCommit": "d926c246d33ee766fe02d07aa8ef68c83a059f6c",
+  "scope": "bounded local function controls; production transaction/storage and complete UI NOT_RUN",
+  "controls": [
+    {
+      "id": "C01",
+      "control": "BFF009原用户答复/完整原稿/源码/回执确认",
+      "status": "PASS",
+      "evidence": "../bff-fe-009-confirmation-20261018/gate.json"
+    },
+    {
+      "id": "C02",
+      "control": "A4及五直接前置原版本/日志/产物核对；referenceOnly",
+      "status": "PASS",
+      "evidence": "review-results.json"
+    },
+    {
+      "id": "C03",
+      "control": "当前功能+直接影响；不递归/全仓/三轮构建",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/execution-results.json"
+    },
+    {
+      "id": "C04",
+      "control": "八C14契约/页面登记/权限声明",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/contract.log"
+    },
+    {
+      "id": "C05",
+      "control": "六类生成产物精确一致，89操作80schema",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/generated.log"
+    },
+    {
+      "id": "C06",
+      "control": "真实X01投影hash及C15 actual持仓金额匹配",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/performance.log"
+    },
+    {
+      "id": "C07",
+      "control": "黄金P&L/return/drawdown/期间fees及显式残差",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/performance.log"
+    },
+    {
+      "id": "C08",
+      "control": "UTC自选/自然/滚动周期；方法/币种拒绝",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/performance.log"
+    },
+    {
+      "id": "C09",
+      "control": "partial/未取得匹配日结证明/过期保持provisional",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/c15-direct.log"
+    },
+    {
+      "id": "C10",
+      "control": "可信seed现金流变化拒绝simple收益率",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/performance.log"
+    },
+    {
+      "id": "C11",
+      "control": "只读owner源/历史事实保留/无venue submit",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/reference-http.json"
+    },
+    {
+      "id": "C12",
+      "control": "queued→succeeded一次生成、冻结版本/历史/过期",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/performance.log"
+    },
+    {
+      "id": "C13",
+      "control": "40路并发唯一job与本机F05根",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/performance.log"
+    },
+    {
+      "id": "C14",
+      "control": "1000 native与100 HTTP原键精确恢复/意图冲突",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/reference-http.json"
+    },
+    {
+      "id": "C15",
+      "control": "八接口逐项401/403及错误schema",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/reference-http.json"
+    },
+    {
+      "id": "C16",
+      "control": "tenant/workspace/account/mode/role/capability/session隔离",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/performance.log"
+    },
+    {
+      "id": "C17",
+      "control": "CSRF负向与禁止浏览器ledger/source注入",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/reference-http.json"
+    },
+    {
+      "id": "C18",
+      "control": "冻结JSON原始字节hash/size及metadata/body交叉绑定",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/reference-http.json"
+    },
+    {
+      "id": "C19",
+      "control": "60秒ticket/15分钟report到期/错误授权拒绝",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/performance.log"
+    },
+    {
+      "id": "C20",
+      "control": "源租约丢失/poison拒绝；live事务失败quarantine接线",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/performance.log"
+    },
+    {
+      "id": "C21",
+      "control": "共享Auth/settings/audit/export直接回归",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/a2-boundary.log"
+    },
+    {
+      "id": "C22",
+      "control": "生成client丢回复恢复；helper行/分支100%",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/consumer-coverage/coverage-summary.json"
+    },
+    {
+      "id": "C23",
+      "control": "基本Chromium cookie/summary/report/content闭环",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/reference-http.json"
+    },
+    {
+      "id": "C24",
+      "control": "门禁fail-closed/CI处置/发布失败原子恢复",
+      "status": "PASS",
+      "evidence": "docs/audit/evidence/bff-fe-008-local-20261018/function-attempt-03/logs/gate-tests.log"
+    }
+  ],
+  "targetDatabase": "NOT_RUN",
+  "targetTransactionRollback": "NOT_RUN",
+  "formalAccepted": false
+}
