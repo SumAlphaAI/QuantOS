@@ -601,7 +601,9 @@ r1-local-check:
 a2-local-check:
 	node scripts/research-local-gate.mjs A2_LOCAL
 bff003-local-check:
-	node scripts/research-local-gate.mjs BFF003_LOCAL
+	pnpm check:bff-fe-003:development
+bff003-assess-local:
+	node scripts/record-bff-fe-003-functional.mjs $(ATTEMPT)
 bff005-local-check:
 	node scripts/research-local-gate.mjs BFF005_LOCAL
 research-local-assess:
@@ -873,3 +875,5 @@ x3-service-local-check:
 	node scripts/x3-service-local-gate.mjs --ready
 x3-service-release-check:
 	node scripts/x3-service-local-gate.mjs --release
+
+.PHONY: bff003-assess-local

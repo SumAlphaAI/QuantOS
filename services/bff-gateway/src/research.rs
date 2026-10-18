@@ -421,6 +421,7 @@ async fn reference(
     {
         return e.response();
     }
+    state.research.now = now;
     let mut pages = std::mem::take(&mut state.research.pages);
     let output = dispatch(
         &mut state.research,
@@ -435,13 +436,61 @@ async fn reference(
     );
     state.research.pages = pages;
     match output {
+        Ok(Output::Json(status, mut payload)) => {
+            // The shared state lock makes command replay and its audit fact atomic.
+            if method == Method::POST || uri.path().starts_with("/v1/artifacts/") {
+                let action = if method == Method::POST {
+                    if uri.path().ends_with("/cancel") {
+                        "research.cancel"
+                    } else {
+                        "research.create"
+                    }
+                } else {
+                    "research.artifact.read"
+                };
+                record_reference_audit(&mut state, &mut payload, action);
+            }
+            Output::Json(status, payload).response()
+        }
         Ok(o) => o.response(),
         Err(e) => e.response(),
     }
 }
+fn record_reference_audit(state: &mut crate::ProviderData, payload: &mut Value, action: &str) {
+    if payload.get("auditRef").is_none() {
+        payload["auditRef"] = json!(Uuid::new_v4());
+    }
+    if payload.get("correlationId").is_none() {
+        payload["correlationId"] = json!(Uuid::new_v4());
+    }
+    let id = payload["auditRef"].clone();
+    let correlation = payload["correlationId"].clone();
+    if state.audits.iter().any(|e| e["eventId"] == id) {
+        return;
+    }
+    let cause = state
+        .audits
+        .iter()
+        .find(|e| e["correlationId"] == correlation && e.get("eventId").is_some())
+        .map(|e| e["eventId"].clone())
+        .unwrap_or_else(|| id.clone());
+    let object = payload
+        .get("jobId")
+        .or_else(|| payload.get("artifactId"))
+        .cloned()
+        .unwrap_or(Value::Null);
+    let redacted =
+        crate::audit_core::redacted(&json!({"status":payload["status"],"outcome":"succeeded"}));
+    state.audits.push(json!({"auditRef":id,"eventId":id,"correlationId":correlation,"causationId":cause,
+        "sequence":state.audits.iter().filter(|e|e.get("eventId").is_some()).count()+1,"kind":action,
+        "actor":"reference-current","objectRef":object,"occurredAt":state.now(),"redactionApplied":true,
+        "redactedPayload":redacted,"payloadHash":crate::audit_core::payload_hash(&redacted),
+        "route":format!("/research/{}",object.as_str().unwrap_or_default()),"retentionUntil":state.now()+Duration::days(365)}));
+}
 
 #[derive(Debug)]
 pub(crate) struct Fixture {
+    now: DateTime<Utc>,
     pub pages: Pages,
     pub quota: Quota,
     pub snapshots: BTreeMap<Uuid, Value>,
@@ -458,12 +507,17 @@ impl Default for Fixture {
             let id = Uuid::parse_str(&format!("11111111-1111-4111-8111-{last:012}")).unwrap();
             snapshots.insert(id,json!({"snapshotId":id,"schemaVersion":"v1","window":snapshot_window(now-Duration::hours(1),now),"sources":["reference-fixture"],"quality":quality,"qualityBlocked":quality!="verified","contentHash":digest(&json!([id,quality])),"licenseLabel":"fixture-only","capturedAt":now,"maxAgeSeconds":3600}));
         }
+        // Explicit immutable example for local contract consumers; this is not
+        // the output of a completed R03 worker or private Storage execution.
+        let id = Uuid::parse_str("44444444-4444-4444-8444-444444444444").unwrap();
+        let artifact = json!({"artifactId":id,"hypothesis":"Synthetic reference hypothesis","summary":"Explicit synthetic fixture; no worker completion claimed","engineVersion":"fixture-v1","promptVersion":"fixture-v1","codeVersion":"fixture-v1","environmentHash":digest(&json!("fixture")),"dataSnapshotId":"11111111-1111-4111-8111-000000000001","createdAt":now});
         Self {
+            now,
             pages: Pages::default(),
             quota: Quota::default(),
             snapshots,
             runs: BTreeMap::new(),
-            artifacts: BTreeMap::new(),
+            artifacts: BTreeMap::from([(id, artifact)]),
             events: BTreeMap::new(),
             commands: BTreeMap::new(),
         }
@@ -490,10 +544,29 @@ impl Fixture {
 }
 impl Repository for Fixture {
     fn snapshots(&mut self, _: &ListQuery) -> Result<Vec<Value>> {
-        Ok(self.snapshots.values().cloned().collect())
+        let ids = self.snapshots.keys().copied().collect::<Vec<_>>();
+        ids.into_iter().map(|id| self.snapshot(id)).collect()
     }
     fn snapshot(&mut self, id: Uuid) -> Result<Value> {
-        self.snapshots.get(&id).cloned().ok_or_else(Fault::hidden)
+        let mut value = self.snapshots.get(&id).cloned().ok_or_else(Fault::hidden)?;
+        let fresh = value["capturedAt"]
+            .as_str()
+            .and_then(|v| DateTime::parse_from_rfc3339(v).ok())
+            .zip(value["maxAgeSeconds"].as_i64())
+            .is_some_and(|(captured, max_age)| {
+                max_age >= 0
+                    && captured <= self.now
+                    && self.now.signed_duration_since(captured).num_seconds() <= max_age
+            });
+        value["qualityBlocked"] = json!(
+            value["qualityBlocked"] != false
+                || value["quality"] != "verified"
+                || value["licenseLabel"]
+                    .as_str()
+                    .is_none_or(|v| v.trim().is_empty())
+                || !fresh
+        );
+        Ok(value)
     }
     fn runs(&mut self, _: &ListQuery) -> Result<Vec<Value>> {
         Ok(self.runs.values().cloned().collect())
@@ -507,7 +580,7 @@ impl Repository for Fixture {
         if let Some(v) = self.replay(&key, &intent)? {
             return Ok(v);
         }
-        input.validate(Utc::now())?;
+        input.validate(self.now)?;
         let snapshot = self.snapshot(input.data_snapshot_id)?;
         if snapshot["qualityBlocked"] == true {
             return Err(Fault(StatusCode::UNPROCESSABLE_ENTITY, "SNAPSHOT_BLOCKED"));
@@ -554,12 +627,19 @@ impl Repository for Fixture {
         Ok(response)
     }
     fn artifact(&mut self, id: Uuid, attachment: bool) -> Result<Value> {
-        let artifact = self.artifacts.get(&id).cloned().ok_or_else(Fault::hidden)?;
+        let mut artifact = self.artifacts.get(&id).cloned().ok_or_else(Fault::hidden)?;
+        // Metadata and attachment describe the same canonical content. Response
+        // audit fields and the hash itself are not part of the content document.
+        for field in ["contentHash", "auditRef", "correlationId"] {
+            artifact.as_object_mut().unwrap().remove(field);
+        }
+        let content_hash = digest(&artifact);
         if attachment {
             Ok(
-                json!({"artifactId":id,"mediaType":"application/json","contentHash":digest(&artifact),"content":artifact,"auditRef":Uuid::new_v4()}),
+                json!({"artifactId":id,"mediaType":"application/json","contentHash":content_hash,"content":artifact,"auditRef":Uuid::new_v4()}),
             )
         } else {
+            artifact["contentHash"] = json!(content_hash);
             Ok(artifact)
         }
     }

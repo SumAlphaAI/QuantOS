@@ -450,9 +450,9 @@
       "release_checkpoint": "RELEASE-GATE:BETA"
     },
     "FE:BFF-FE-003": {
-      "profile": "BFF003_LOCAL",
-      "schema": "quantos-research-local-admission/v1",
-      "manifest": "audit/evidence/provider-a3-local-20261013/bff003-local.json",
+      "profile": "BFF003_SCOPE_LOCAL",
+      "schema": "quantos-bff003-scoped-functional-development/v1",
+      "manifest": "audit/evidence/bff-fe-003-local-20261018/manifest.json",
       "prerequisites": [
         "FE:BFF-FE-001",
         "FE:BFF-FE-007",
@@ -1235,11 +1235,9 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
   "evidence": [],
   "stage_gate": {
     "stage": "DEVELOPMENT",
-    "status": "READY",
-    "input_digest": "sha256:70a9c32701426d38d29a972fa4d1796ec004df1189ac17bba606a747993a292e",
-    "evidence": [
-      "audit/evidence/provider-a2-local-20261018/manifest.json"
-    ]
+    "status": "NOT_ASSESSED",
+    "input_digest": null,
+    "evidence": []
   }
 }
 ```
@@ -1267,9 +1265,9 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 
 - 历史工程复核：2026-10-12 九项 C03/C04 页面 API、持久适配器、生成契约及本地正负验证已实现；工程结果见[交付报告](./audit/BFF-FE-003-implementation-2026-10-12.md)。2026-10-13 已按当前冻结源码完整重跑 BFF003_LOCAL 闭包，限定 DEVELOPMENT READY。数据库、hosted CI、UI/consumer 和正式验收保持发布/集成阶段范围。
 
-- 当前工程回执：2026-10-13 冻结 1ee328c7 的完整聚合闭包 140 组 PASS，BFF003_LOCAL 已同源复评 DEVELOPMENT READY。见[当前验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
+- 历史工程回执：2026-10-13 冻结 1ee328c7 的完整聚合闭包 140 组 PASS，BFF003_LOCAL 已同源复评 DEVELOPMENT READY。见[当前验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
 
-- 验收边界：BFF003_LOCAL完整40节点本地功能准入；A2_LOCAL与R1_LOCAL回执须同候选、覆盖全部必要检查与负向产物。外部环境、Supabase及性能由RELEASE-GATE:BETA实际验收，不阻塞开发。
+- 验收边界：依据最新AGENTS.md，BFF003_SCOPE_LOCAL按九操作当前功能与实际影响验证直接前置；不执行旧40节点闭包、不拼接历史READY。A2原确认和回执保持原SHA参考；只授予本任务功能准入。完整UI/API联调、目标Supabase/Auth/RLS/Storage/持久worker及部署/性能/长稳/同SHA CI在INTEGRATION/RELEASE独立验收，NOT_RUN不得转PASS。
 
 <a id="task-bff-fe-005"></a>
 ##### BFF-FE-005：市场目录、报价与 K 线 API
@@ -1292,7 +1290,7 @@ A2 全部 API 在 DEVELOPMENT 完成实现、OpenAPI/生成 client、schema/权�
 
 - 历史工程回执（基础设施修复前）：2026-10-13 七个 C12 API、R01 许可盘口、R02 来源授权、K 线/gap/恢复及持久适配器已实现；完整本地闭包 139 组 PASS，BFF005_LOCAL READY。数据库候选迁移未应用；consumer/UI、目标环境、性能和正式确认另验。见[交付与验收报告](./audit/BFF-FE-005-development-2026-10-13.md)。
 
-- 当前工程回执：2026-10-13 冻结 1ee328c7 的完整聚合闭包 140 组 PASS，BFF005_LOCAL 已同源复评 DEVELOPMENT READY。见[当前验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
+- 历史工程回执：2026-10-13 冻结 1ee328c7 的完整聚合闭包 140 组 PASS，BFF005_LOCAL 已同源复评 DEVELOPMENT READY。见[当前验收报告](./audit/PROVIDER-A3-development-2026-10-13.md)。
 
 <a id="acceptance-provider-a3"></a>
 ##### PROVIDER:A3：验收检查点

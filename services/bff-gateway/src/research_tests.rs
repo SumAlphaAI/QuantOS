@@ -466,3 +466,130 @@ fn completed_intent_replays_after_its_original_deadline() {
     assert_eq!(fixture.create(key, expired).unwrap(), response);
     assert!(fixture.runs.is_empty());
 }
+
+#[tokio::test]
+async fn current_function_research_audit_refs_resolve_and_retries_append_once() {
+    let p = BffProvider::default();
+    let body = input();
+    let key = Uuid::new_v4();
+    let (_, accepted) = call(&p, "POST", "/v1/research-runs", Some(body.clone()), key).await;
+    assert_eq!(
+        call(&p, "POST", "/v1/research-runs", Some(body), key)
+            .await
+            .1,
+        accepted
+    );
+    let correlation = accepted["correlationId"].as_str().unwrap();
+    let (status, chain) = call(
+        &p,
+        "GET",
+        &format!("/v1/audit/evidence-chains/{correlation}"),
+        None,
+        Uuid::new_v4(),
+    )
+    .await;
+    assert_eq!(
+        status, 200,
+        "accepted auditRef must resolve through C10: {chain}"
+    );
+    assert_eq!(chain["items"][0]["eventId"], accepted["auditRef"]);
+    let id = accepted["jobId"].as_str().unwrap();
+    let cancel_key = Uuid::new_v4();
+    let (_, cancelled) = call(
+        &p,
+        "POST",
+        &format!("/v1/research-runs/{id}/cancel"),
+        None,
+        cancel_key,
+    )
+    .await;
+    assert_eq!(
+        call(
+            &p,
+            "POST",
+            &format!("/v1/research-runs/{id}/cancel"),
+            None,
+            cancel_key
+        )
+        .await
+        .1,
+        cancelled
+    );
+    let state = p.data.lock().await;
+    for response in [&accepted, &cancelled] {
+        let events = state
+            .audits
+            .iter()
+            .filter(|e| e["eventId"] == response["auditRef"])
+            .collect::<Vec<_>>();
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0]["causationId"], accepted["auditRef"]);
+        assert_eq!(
+            events[0]["payloadHash"],
+            crate::audit_core::payload_hash(&events[0]["redactedPayload"])
+        );
+        assert!(
+            !events[0]
+                .to_string()
+                .contains("Explain this market observation")
+        );
+    }
+}
+#[tokio::test]
+async fn current_function_reference_clock_rejects_deadline_and_stale_snapshot() {
+    let p = BffProvider::default();
+    p.advance_reference_time(Duration::minutes(2)).await;
+    p.renew_reference_session().await;
+    let mut body = input();
+    body["deadlineAt"] = json!(Utc::now() + Duration::minutes(1));
+    assert_eq!(
+        call(&p, "POST", "/v1/research-runs", Some(body), Uuid::new_v4())
+            .await
+            .0,
+        422
+    );
+    p.advance_reference_time(Duration::hours(1)).await;
+    p.renew_reference_session().await;
+    let mut body = input();
+    body["deadlineAt"] = json!(Utc::now() + Duration::hours(3));
+    let (status, value) = call(&p, "POST", "/v1/research-runs", Some(body), Uuid::new_v4()).await;
+    assert_eq!(status, 422);
+    assert_eq!(value["code"], "SNAPSHOT_BLOCKED");
+    assert!(p.data.lock().await.research.runs.is_empty());
+}
+#[tokio::test]
+async fn current_function_artifact_metadata_and_attachment_bind_identical_content() {
+    let p = BffProvider::default();
+    seed_artifact(&p).await;
+    let (_, metadata) = call(
+        &p,
+        "GET",
+        &format!("/v1/artifacts/{ARTIFACT}"),
+        None,
+        Uuid::new_v4(),
+    )
+    .await;
+    let (_, attachment) = call(
+        &p,
+        "GET",
+        &format!("/v1/artifacts/{ARTIFACT}/attachment"),
+        None,
+        Uuid::new_v4(),
+    )
+    .await;
+    assert_eq!(metadata["contentHash"], attachment["contentHash"]);
+    assert_eq!(attachment["contentHash"], digest(&attachment["content"]));
+    let correlation = attachment["correlationId"]
+        .as_str()
+        .expect("attachment audit correlation");
+    let (status, chain) = call(
+        &p,
+        "GET",
+        &format!("/v1/audit/evidence-chains/{correlation}"),
+        None,
+        Uuid::new_v4(),
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(chain["items"][0]["eventId"], attachment["auditRef"]);
+}

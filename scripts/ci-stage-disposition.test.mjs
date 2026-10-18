@@ -62,7 +62,7 @@ test('unsupported nodes cannot become CI stage gates', () => {
 test('reading current plan dispositions does not alter lifecycle or evidence', () => {
   const original = nodesFromPlans(), before = JSON.stringify([...original]);
   const nodes = structuredClone(original);
-  for (const id of ['PROVIDER:A1', 'CORE-GATE:F0', 'FE:FEP-0', 'FRONTEND-GATE:G0', 'FE:BFF-FE-001', 'FE:BFF-FE-007', 'PROVIDER:A2']) {
+  for (const id of ['PROVIDER:A1', 'CORE-GATE:F0', 'FE:FEP-0', 'FRONTEND-GATE:G0', 'FE:BFF-FE-001', 'FE:BFF-FE-007', 'PROVIDER:A2', 'FE:BFF-FE-003']) {
     nodes.get(id).stage_gate = {stage: 'DEVELOPMENT', status: 'NOT_ASSESSED', input_digest: null, evidence: []};
     const result = checkDisposition(id, {nodes});
     assert.equal(result.status, 'NOT_ASSESSED'); assert.equal(result.admitted, false);
@@ -87,3 +87,5 @@ test('CI wiring rejects replacement of strict admission by the CI disposition co
   const pkg = JSON.parse(read('package.json')); pkg.scripts['check:provider-a1'] = pkg.scripts['check:provider-a1:ci'];
   assert.throws(() => validateCiWiring(path => path === 'package.json' ? JSON.stringify(pkg) : read(path)));
 });
+
+test('A3 current function CI invokes strict own receipt instead of historical READY',()=>{const f=fixture('FE:BFF-FE-003','READY');assert.throws(()=>checkDisposition(f.id,f.options),/strict receipt invalid/);let invoked=false;f.options.validate=()=>{invoked=true;return {status:'READY'};};assert.equal(checkDisposition(f.id,f.options).admitted,true);assert(invoked);});

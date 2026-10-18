@@ -33,3 +33,5 @@ SERVICE:X06 使用 `scripts/service-x06-test-scope.mjs` 明列20组当前功能�
 CORE-GATE:X3-SERVICE采用`make x3-service-assess-local`明列17组当前服务组合及影响回归。X03/Paper/X04/X01与独立Shadow比较、20类异常证明/ack/修复/复发、kill和陈旧拒绝及幂等恢复属于本检查点必要功能；不通过历史READY或旧聚合执行器拼接上游。修复零异币费用契约时，只扩展实际适配器和费用拒绝边界；完整INTEGRATION、实际10交易日、目标数据库/部署/性能及发布仍独立NOT_RUN。见[X3服务规程](x3-service-local-admission.md)。
 
 PROVIDER:A2使用16组当前功能汇总检查及5项激活入口，见[A2规程](provider-a2-functional-admission.md)。重新执行当前26操作HTTP、两类provider/consumer及身份注销对导出的拒绝边界；两原确认/回执以原SHA核对，不拼接历史READY。F05/A1只查直接消费边界，不执行旧全依赖闭包；旧变异仅参考原hash，未改Rust运行时不重复变异campaign。共享输入变化撤回007独立READY，汇总只归属PROVIDER:A2，完整联调与发布分别NOT_RUN。
+
+FE:BFF-FE-003采用[BFF003_SCOPE_LOCAL规程](bff-fe-003-functional-admission.md)的19组当前功能/直接影响检查与4个激活入口。新增Research审计事实、reference时钟拒绝及Artifact hash一致性修复，直接回归共享A2 provider和实际生成consumer；F07/F08/R02/R03/R04/R1-SERVICE只覆盖具体消费边界与本机UDS路径，不调度旧40节点闭包。A2独立READY撤回，原确认保留原SHA，完整UI联调、目标持久worker/数据库/Storage与发布分别NOT_RUN。

@@ -1,0 +1,42 @@
+
+running 3 tests
+test research::tests::current_function_artifact_metadata_and_attachment_bind_identical_content ... FAILED
+test research::tests::current_function_reference_clock_rejects_deadline_and_stale_snapshot ... FAILED
+test research::tests::current_function_research_audit_refs_resolve_and_retries_append_once ... FAILED
+
+failures:
+
+---- research::tests::current_function_artifact_metadata_and_attachment_bind_identical_content stdout ----
+
+thread 'research::tests::current_function_artifact_metadata_and_attachment_bind_identical_content' (1023067) panicked at services/bff-gateway/src/research_tests.rs:507:5:
+assertion `left == right` failed
+  left: String("sha256:3d3578a9569f30569dda07c4fca89e2df9e6524b34bbefbad56d623b22a9d5fa")
+ right: String("sha256:40b565df91739890feecd0d71590fc947fd5caf374e7853645a57654421407c1")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- research::tests::current_function_reference_clock_rejects_deadline_and_stale_snapshot stdout ----
+
+thread 'research::tests::current_function_reference_clock_rejects_deadline_and_stale_snapshot' (1023068) panicked at services/bff-gateway/src/research_tests.rs:496:5:
+assertion `left == right` failed
+  left: 202
+ right: 422
+
+---- research::tests::current_function_research_audit_refs_resolve_and_retries_append_once stdout ----
+
+thread 'research::tests::current_function_research_audit_refs_resolve_and_retries_append_once' (1023069) panicked at services/bff-gateway/src/research_tests.rs:479:5:
+assertion `left == right` failed: accepted auditRef must resolve through C10: {"code":"NOT_FOUND","correlationId":"01a14d02-f2b9-7203-b703-11ac2cc064b2","message":"资源不存在或无权访问。"}
+  left: 404
+ right: 200
+
+
+failures:
+    research::tests::current_function_artifact_metadata_and_attachment_bind_identical_content
+    research::tests::current_function_reference_clock_rejects_deadline_and_stale_snapshot
+    research::tests::current_function_research_audit_refs_resolve_and_retries_append_once
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 51 filtered out; finished in 0.01s
+
+   Compiling bff-gateway v0.1.0 (/Users/anray/Documents/project/SumAlpha/QuantOS/services/bff-gateway)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 40s
+     Running unittests src/lib.rs (target/debug/deps/bff_gateway-74a0b53826ca6b0c)
+error: test failed, to rerun pass `-p bff-gateway --lib`

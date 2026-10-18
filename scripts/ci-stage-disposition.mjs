@@ -10,6 +10,7 @@ import {check as checkG0} from './g0-development.mjs';
 import {validateA2} from './bff-fe-001-development.mjs';
 import {validateAudit} from './bff-fe-007-development.mjs';
 import {check as checkProviderA2} from './provider-a2-development.mjs';
+import {check as checkBff003} from './bff-fe-003-development.mjs';
 
 const validators = {
   'PROVIDER:A1': () => {if(nodesFromPlans().get('PROVIDER:A1').stage_gate.evidence[0]?.startsWith('audit/evidence/a1-local-')){const r=JSON.parse(execFileSync(process.execPath,[resolve(import.meta.dirname,'a1-functional-gate.mjs'),'--provider-ready'],{encoding:'utf8'}));assert.equal(r.stageGate,'READY');return {status:'READY',engineeringStatus:'PASS'};}validateReceipt('PROVIDER:A1'); return {status: 'READY'};},
@@ -19,12 +20,13 @@ const validators = {
   'FE:BFF-FE-001': () => validateA2(),
   'FE:BFF-FE-007': () => validateAudit(),
   'PROVIDER:A2': () => checkProviderA2(),
+  'FE:BFF-FE-003': () => checkBff003(),
 };
 
 const ciAliases = {
   'provider-a1': 'PROVIDER:A1', 'f0-development': 'CORE-GATE:F0',
   fep0: 'FE:FEP-0', g0: 'FRONTEND-GATE:G0',
-  'bff-fe-001': 'FE:BFF-FE-001', 'bff-fe-007': 'FE:BFF-FE-007', 'provider-a2': 'PROVIDER:A2',
+  'bff-fe-001': 'FE:BFF-FE-001', 'bff-fe-007': 'FE:BFF-FE-007', 'provider-a2': 'PROVIDER:A2', 'bff-fe-003': 'FE:BFF-FE-003',
 };
 export function validateCiWiring(read = path => readFileSync(resolve(import.meta.dirname, '..', path), 'utf8')) {
   const pkg = JSON.parse(read('package.json'));
@@ -47,6 +49,7 @@ export function validateCiWiring(read = path => readFileSync(resolve(import.meta
     'check:bff-fe-001:development': 'node scripts/bff-fe-001-development.mjs',
     'check:bff-fe-007:development': 'node scripts/bff-fe-007-development.mjs',
     'check:provider-a2': 'node scripts/provider-a2-development.mjs',
+    'check:bff-fe-003': 'node scripts/bff-fe-003-development.mjs',
   };
   for (const [key, value] of Object.entries(strict)) assert.equal(pkg.scripts[key], value, `${key}: strict admission command changed`);
   const target = read('Makefile').match(/^bff-contract-check:\n((?:\t.*\n)+)/m)?.[1];
