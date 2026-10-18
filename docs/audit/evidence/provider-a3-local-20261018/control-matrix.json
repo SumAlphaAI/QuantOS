@@ -1,0 +1,239 @@
+{
+  "schema": "quantos-a3-local-controls/v1",
+  "sourceCommit": "4580bac16eec756442308b062387820ebc3b072c",
+  "controls": [
+    {
+      "id": "A301",
+      "description": "C03/C04/C12 exact owner and sixteen current operations",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "contract",
+        "generated"
+      ]
+    },
+    {
+      "id": "A302",
+      "description": "Every owned operation current successful HTTP plus401/403",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "http"
+      ]
+    },
+    {
+      "id": "A303",
+      "description": "Market snapshot ID resolves through actual Snapshot API and accepted Research input",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "aggregate",
+        "consumers"
+      ]
+    },
+    {
+      "id": "A304",
+      "description": "Explicit synthetic source, hash binds instrument/trade/book and two-second expiry",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "aggregate",
+        "contract"
+      ]
+    },
+    {
+      "id": "A305",
+      "description": "Stale new Research rejected; completed original-key replay returns original response",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "aggregate"
+      ]
+    },
+    {
+      "id": "A306",
+      "description": "Failed/degraded/unlicensed/forged facts never registered as verified usable snapshot",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "aggregate"
+      ]
+    },
+    {
+      "id": "A307",
+      "description": "Current Research atomic audit/idempotency/reference-clock and artifact hash boundaries",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "research"
+      ]
+    },
+    {
+      "id": "A308",
+      "description": "Market decimal/positive values/identity/time/quality/authority and JS-safe sequences",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "market"
+      ]
+    },
+    {
+      "id": "A309",
+      "description": "R01/R02 current consumer source composition and non-executable real book/quote semantics",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "market"
+      ]
+    },
+    {
+      "id": "A310",
+      "description": "R02 actual identity/time/purpose/approval/license and revocation refusal",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "source-policy"
+      ]
+    },
+    {
+      "id": "A311",
+      "description": "Snapshot forged wire/hash/quality/expiry refusal",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "snapshot-expiry"
+      ]
+    },
+    {
+      "id": "A312",
+      "description": "Cross-domain same idempotency key concurrent retries remain separate single audit facts",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "aggregate",
+        "consumers"
+      ]
+    },
+    {
+      "id": "A313",
+      "description": "Actual generated consumer recovers both committed lost replies and concurrent retries",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "consumers"
+      ]
+    },
+    {
+      "id": "A314",
+      "description": "Research create/cancel causality and watchlist canonical evidence linkage",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "research",
+        "market",
+        "consumers",
+        "http"
+      ]
+    },
+    {
+      "id": "A315",
+      "description": "Audit pagination freezes preexisting research+market facts and excludes later cancellation",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "consumers"
+      ]
+    },
+    {
+      "id": "A316",
+      "description": "Combined Audit facts unique, redacted and exclude synthetic private question",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "aggregate",
+        "consumers"
+      ]
+    },
+    {
+      "id": "A317",
+      "description": "Research resource/status/hash binding and SSE duplicate/order/gap/replay/revocation",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "consumers"
+      ]
+    },
+    {
+      "id": "A318",
+      "description": "Market authority/venue/product/symbol/interval/timezone/provenance cache isolation",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "market",
+        "consumers"
+      ]
+    },
+    {
+      "id": "A319",
+      "description": "Actual combined session logout denies both domains and Audit access/recovery",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "consumers"
+      ]
+    },
+    {
+      "id": "A320",
+      "description": "Shared A2 providers protect auth/settings/audit/export semantics after ProviderData change",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "a2-boundary"
+      ]
+    },
+    {
+      "id": "A321",
+      "description": "Basic Chromium market venue switch with non-executable quotes only",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "http"
+      ]
+    },
+    {
+      "id": "A322",
+      "description": "Generated/types/lint/clippy validate current affected sources",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "generated",
+        "types",
+        "lint",
+        "clippy"
+      ]
+    },
+    {
+      "id": "A323",
+      "description": "Three original user confirmations/drafts/receipts/sources/logs/entrypoints immutable",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "confirmation",
+        "gate-tests"
+      ]
+    },
+    {
+      "id": "A324",
+      "description": "Gate nested hashes/source/attempt/API/time binding, rollback and mandatory checkpoint CI/plans",
+      "status": "PASS",
+      "scope": "LOCAL_CURRENT_A3_FUNCTION_ONLY",
+      "checks": [
+        "gate-tests",
+        "contract-negative",
+        "plan-policy",
+        "plans"
+      ]
+    }
+  ],
+  "limitations": "No target DB/Auth/RLS/Storage/worker/provider/venue, complete UI chain, persistent cross-process recovery, deployed safety/security/performance/soak or hosted CI acceptance"
+}
