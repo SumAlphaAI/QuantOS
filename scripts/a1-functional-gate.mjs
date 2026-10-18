@@ -3,11 +3,12 @@ import {readFileSync,writeFileSync,existsSync,rmSync,mkdirSync} from 'node:fs';
 import {dirname,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {stripVTControlCharacters} from 'node:util';
+import {spawnSync} from 'node:child_process';
 import YAML from 'yaml';
 import {root,digest,nodesFromPlans,planInput,publishStages,confined} from './provider-a1-receipts.mjs';
 import {verifySource} from './p0-functional-gate.mjs';
 import {sourceDigest} from './pre03-build-receipt.mjs';
-import {nodeId,profile,admitted,commands,snapshot,webEnvironment} from './a1-functional-scope.mjs';
+import {nodeId,profile,admitted,commands,snapshot,webEnvironment,environment} from './a1-functional-scope.mjs';
 import {loadBffFe000Inputs,validateBffFe000} from './check-bff-fe-000.mjs';
 export {verifySource,nodeId,profile,admitted};
 export const directory='docs/audit/evidence/a1-local-20261018';
@@ -42,7 +43,14 @@ export function buildReceipt(attempt,source,inputs,rows,id=nodeId,{read=p=>readF
 export function verifyPublished(id=nodeId){assert(admitted.includes(id));const nodes=nodesFromPlans(),g=nodes.get(id).stage_gate;assert.equal(g.status,'READY');assert.deepEqual(g.evidence,[manifestFor(id).slice(5)]);const bytes=readFileSync(confined(manifestFor(id)));assert.equal(digest(bytes),g.input_digest);const result=verify(JSON.parse(bytes),{nodes});assert.deepEqual(JSON.parse(readFileSync(confined(directory+'/freeze.json'))),freezeBaseline());return result;}
 export function freezeEngineering(){const r=verifyPublished();return {...r,admission:'A1_ENGINEERING_FREEZE_ONLY',stageGate:'NOT_ASSESSED',engineeringStatus:'PASS',scopeNodes:['FRONTEND-GATE:G0','FE:FEP-0'],g0Ready:false,fep0Ready:false,confirmation:'PENDING'};}
 export function requireFreezeReady(){freezeEngineering();throw Error('G0/FEP-0 current scope confirmation PENDING; independent checkpoint admission NOT_GRANTED; historical confirmation cannot substitute');}
-export function publish(receipts,{validate=verify,read=p=>existsSync(p)?readFileSync(p,'utf8'):null,write=(p,b)=>{if(b===null)rmSync(p,{force:true});else{mkdirSync(dirname(p),{recursive:true});writeFileSync(p,b);}},after=()=>admitted.map(id=>verifyPublished(id))}={}){
+// Actual public entrypoints must work after activation. A failure triggers publish rollback.
+export function verifyEntrypoints(receipts){
+ const results=admitted.map(id=>verifyPublished(id)),attempt=receipts[0].attempt,rows=[];mkdirSync(attempt+'/entrypoints',{recursive:true});
+ const specs=[['provider',['scripts/provider-a1-receipts.mjs'],0],['development',['scripts/check-bff-a1-acceptance.mjs','--stage','development'],0],['g0-engineering',['scripts/g0-development.mjs','--engineering'],0],['fep0-engineering',['scripts/fep0-development.mjs','--engineering'],0],['ci-provider',['scripts/ci-stage-disposition.mjs','PROVIDER:A1'],0],['g0-ready',['scripts/g0-development.mjs','--ready'],1],['fep0-ready',['scripts/fep0-development.mjs','--ready'],1]];
+ for(const[id,args,expected]of specs){const startedAt=new Date().toISOString(),start=Date.now(),run=spawnSync(process.execPath,args,{cwd:root,env:environment(),encoding:'utf8',timeout:120000,maxBuffer:4*1024*1024}),log=attempt+'/entrypoints/'+id+'.log',bytes=(run.stdout??'')+(run.stderr??'');writeFileSync(log,bytes);rows.push({id,command:['node',...args],expectedExitCode:expected,exitCode:run.status,signal:run.signal,errorCode:run.error?.code??null,startedAt,elapsedMs:Date.now()-start,status:run.status===expected?(expected===0?'PASS':'REFUSED_AS_EXPECTED'):'FAIL',log,logSha256:digest(bytes)});writeFileSync(attempt+'/entrypoints/results.json',JSON.stringify(rows,null,2)+'\n');assert.equal(run.status,expected,'activated entrypoint failed: '+id);assert.equal(run.signal,null);assert.equal(run.error,undefined);}
+ return {receipts:results,activatedEntrypoints:'PASS',entrypointChecks:rows.length};
+}
+export function publish(receipts,{validate=verify,read=p=>existsSync(p)?readFileSync(p,'utf8'):null,write=(p,b)=>{if(b===null)rmSync(p,{force:true});else{mkdirSync(dirname(p),{recursive:true});writeFileSync(p,b);}},after=()=>verifyEntrypoints(receipts)}={}){
  assert.deepEqual(receipts.map(r=>r.nodeId),admitted);receipts.forEach(r=>validate(r));const nodes=nodesFromPlans(),updates=new Map();for(const r of receipts){const bytes=JSON.stringify(r,null,2)+'\n';updates.set(manifestFor(r.nodeId),bytes);nodes.get(r.nodeId).stage_gate={stage:'DEVELOPMENT',status:'READY',input_digest:digest(bytes),evidence:[manifestFor(r.nodeId).slice(5)]};}updates.set(directory+'/freeze.json',JSON.stringify(receipts[0].freeze,null,2)+'\n');const path='docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md';updates.set(path,publishStages(read(path),new Map(admitted.map(id=>[id,nodes.get(id)])),'FE:'));const before=new Map([...updates.keys()].map(p=>[p,read(p)]));try{for(const[p,b]of updates)write(p,b);return after();}catch(error){for(const[p,b]of before)write(p,b);throw error;}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){try{assert.equal(process.argv.length,3);const mode=process.argv[2];assert(['--ready','--provider-ready','--freeze','--freeze-ready'].includes(mode),'actual release/target acceptance NOT_RUN');console.log(JSON.stringify(mode==='--freeze-ready'?requireFreezeReady():mode==='--freeze'?freezeEngineering():verifyPublished(mode==='--provider-ready'?'PROVIDER:A1':nodeId),null,2));}catch(error){console.error(error.message.split('\n')[0]);process.exitCode=2;}}

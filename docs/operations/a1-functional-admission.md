@@ -11,3 +11,5 @@
 `check:a1:freeze`、`check:g0-engineering`与`check:fep0:engineering`验证当前A1范围的G0/FEP-0工程冻结证明。freeze.json固定会话/错误/分页/job/SSE、Research/DataSnapshot/Strategy/Portfolio/Risk/Proposal/Approval/Order最低面、页面追踪、19项owner/期限/兼容安排及已发布/未实现边界。G0当前功能范围用户确认PENDING、G0/FEP-0独立阶段均NOT_GRANTED；strict ready入口继续拒绝。A1准备工程PASS不能自动完成G0确认、FEP-0独立准入、PROVIDER:ALL或新页面准入。
 
 Codex拟定当前源码/摘要与审阅维度的完整确认稿；用户实际答复前不生成批准。历史G0确认不能迁移。下一步可按计划复核A2已实现API，G0/FEP-0完成准入仍需当前确认与对应范围评估。真实Supabase/OIDC/RLS/持久事务、staging七类证据、完整业务联调、性能/长稳/部署/同SHA hosted CI及正式验收保持NOT_RUN。外部发布与生产凭据不在本轮授权内。
+
+激活后的canonical CLI（provider、development、G0/FEP0 engineering/strict ready与CI分派）在原子状态更新收口时实际执行；入口失败会回滚两份manifest、freeze和计划，原始失败日志独立保留。入口通过子进程调用只读验证器，避免公共回执模块回导形成ESM top-level-await等待环。

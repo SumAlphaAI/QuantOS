@@ -53,8 +53,8 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href) {
  const policy=context?.policy??JSON.parse(readFileSync('bff/a1-review-policy.json'));
  const inputsDigest=context?.inputsDigest??sha256(Buffer.concat([readFileSync('bff/openapi/quantos-bff.v1.yaml'),readFileSync('packages/api-client/src/bff-gen/quantos-bff.zod.ts')]));
  if(stage==='development') {
-  const {nodesFromPlans}=await import('./provider-a1-receipts.mjs');
-  if(nodesFromPlans().get('FE:BFF-FE-000').stage_gate.evidence[0]?.startsWith('audit/evidence/a1-local-')){const {verifyPublished}=await import('./a1-functional-gate.mjs');console.log(JSON.stringify(verifyPublished(),null,2));}else {
+  const gate=JSON.parse(readFileSync('docs/SumAlpha-QuantOS-Frontend-Development-Execution-Plan.md','utf8').match(/- task_id: `BFF-FE-000`[\s\S]*?- stage_gate: (\{.*\})/)[1]);
+  if(gate.evidence[0]?.startsWith('audit/evidence/a1-local-')){process.stdout.write(execFileSync(process.execPath,[resolve(root,'scripts/a1-functional-gate.mjs'),'--ready'],{encoding:'utf8'}));}else {
   const result=validateA1Stage(stage,{policy,development:validateBffFe000(loadBffFe000Inputs())});
   console.log(JSON.stringify({...result,...selection,sourceCommit:sha,inputsDigest},null,2));if(result.status!=='PASS')process.exitCode=1;
  }
