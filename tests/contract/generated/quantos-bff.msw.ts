@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.9.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.10.0). Do not edit.
 import { http, HttpResponse, type PathParams } from "msw";
 
 export interface BffMockResolverContext {
@@ -37,6 +37,8 @@ export type BffOperationId =
   | "getPortfolio"
   | "getProfile"
   | "getProposal"
+  | "getReconciliationBreak"
+  | "getReconciliationRun"
   | "getRelease"
   | "getResearchRun"
   | "getRiskView"
@@ -50,8 +52,11 @@ export type BffOperationId =
   | "listDataSnapshots"
   | "listDevices"
   | "listDownloads"
+  | "listLedgerEntries"
   | "listOrders"
   | "listProposals"
+  | "listReconciliationBreaks"
+  | "listReconciliationRuns"
   | "listReleases"
   | "listResearchRuns"
   | "listSessions"
@@ -61,6 +66,7 @@ export type BffOperationId =
   | "reauth"
   | "releaseKillSwitch"
   | "requestOrderCancel"
+  | "requestReconciliationRerun"
   | "requestReleaseRollback"
   | "requestRiskEvaluation"
   | "revokeDevice"
@@ -82,6 +88,7 @@ export type BffOperationId =
   | "subscribePortfolio"
   | "subscribeProposal"
   | "subscribeQuotes"
+  | "subscribeReconciliationRun"
   | "subscribeResearchRun"
   | "subscribeSessionRevocations"
   | "subscribeTradePreflight";
@@ -228,6 +235,16 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("getProposal");
   }),
+  http.get(`${baseUrl}/v1/reconciliation/breaks/:breakId`, async ({ request, params }) => {
+    const resolver = resolvers.getReconciliationBreak;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getReconciliationBreak");
+  }),
+  http.get(`${baseUrl}/v1/reconciliation/runs/:runId`, async ({ request, params }) => {
+    const resolver = resolvers.getReconciliationRun;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("getReconciliationRun");
+  }),
   http.get(`${baseUrl}/v1/releases/:releaseId`, async ({ request, params }) => {
     const resolver = resolvers.getRelease;
     if (resolver) return resolver({ request, params });
@@ -293,6 +310,11 @@ export function createGeneratedBffHandlers(
     if (resolver) return resolver({ request, params });
     return missingResolver("listDownloads");
   }),
+  http.get(`${baseUrl}/v1/ledger/entries`, async ({ request, params }) => {
+    const resolver = resolvers.listLedgerEntries;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listLedgerEntries");
+  }),
   http.get(`${baseUrl}/v1/orders`, async ({ request, params }) => {
     const resolver = resolvers.listOrders;
     if (resolver) return resolver({ request, params });
@@ -302,6 +324,16 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.listProposals;
     if (resolver) return resolver({ request, params });
     return missingResolver("listProposals");
+  }),
+  http.get(`${baseUrl}/v1/reconciliation/breaks`, async ({ request, params }) => {
+    const resolver = resolvers.listReconciliationBreaks;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listReconciliationBreaks");
+  }),
+  http.get(`${baseUrl}/v1/reconciliation/runs`, async ({ request, params }) => {
+    const resolver = resolvers.listReconciliationRuns;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("listReconciliationRuns");
   }),
   http.get(`${baseUrl}/v1/releases`, async ({ request, params }) => {
     const resolver = resolvers.listReleases;
@@ -347,6 +379,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.requestOrderCancel;
     if (resolver) return resolver({ request, params });
     return missingResolver("requestOrderCancel");
+  }),
+  http.post(`${baseUrl}/v1/reconciliation/runs/:runId/reruns`, async ({ request, params }) => {
+    const resolver = resolvers.requestReconciliationRerun;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("requestReconciliationRerun");
   }),
   http.post(`${baseUrl}/v1/releases/:releaseId/rollback-requests`, async ({ request, params }) => {
     const resolver = resolvers.requestReleaseRollback;
@@ -452,6 +489,11 @@ export function createGeneratedBffHandlers(
     const resolver = resolvers.subscribeQuotes;
     if (resolver) return resolver({ request, params });
     return missingResolver("subscribeQuotes");
+  }),
+  http.get(`${baseUrl}/v1/reconciliation/runs/:runId/stream`, async ({ request, params }) => {
+    const resolver = resolvers.subscribeReconciliationRun;
+    if (resolver) return resolver({ request, params });
+    return missingResolver("subscribeReconciliationRun");
   }),
   http.get(`${baseUrl}/v1/research-runs/:runId/stream`, async ({ request, params }) => {
     const resolver = resolvers.subscribeResearchRun;

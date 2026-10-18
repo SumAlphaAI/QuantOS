@@ -43,7 +43,12 @@ export function zodSchema(schema) {
   if (schema.$ref) return `z.lazy(() => ${schema.$ref.split("/").at(-1)}Schema)`;
 
   let expression;
-  if (schema.allOf?.length) {
+  if (Array.isArray(schema.type)) {
+    const alternatives = schema.type.map((type) => zodSchema({...schema, type, nullable: false, description: undefined}));
+    expression = alternatives.length === 1 ? alternatives[0] : `z.union([${alternatives.join(", ")}])`;
+  } else if (schema.type === "null") {
+    expression = "z.null()";
+  } else if (schema.allOf?.length) {
     expression = schema.allOf.map(zodSchema).reduce((left, right) => `z.intersection(${left}, ${right})`);
   } else if (schema.oneOf?.length || schema.anyOf?.length) {
     const alternatives = (schema.oneOf ?? schema.anyOf).map(zodSchema);

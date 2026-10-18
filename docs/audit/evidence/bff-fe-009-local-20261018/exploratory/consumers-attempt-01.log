@@ -1,0 +1,57 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/Users/anray/Documents/project/SumAlpha/QuantOS[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m packages/api-client/tests/bff-transport.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/bff-response.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/contract/bff-market.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [32m✓[39m tests/contract/contract.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [31m❯[39m tests/contract/bff-remediation.test.ts [2m([22m[2m9 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 185[2mms[22m[39m
+     [32m✓[39m preserves strategy maps and open extension data while rejecting forbidden fields[32m 21[2mms[22m[39m
+[31m     [31m×[31m all attached request/success examples validate against their operation schemas[39m[32m 135[2mms[22m[39m
+     [32m✓[39m request contracts reject forged context, missing headers and unsafe sort/filter[32m 0[2mms[22m[39m
+     [32m✓[39m valid cookie succeeds; bearer-only and malformed writes fail through real MSW handlers[32m 15[2mms[22m[39m
+     [32m✓[39m rejects provider response schema, header, status and sensitive-field drift[32m 0[2mms[22m[39m
+     [32m✓[39m requires conflict version, rate retry and matching error correlation without debug extensions[32m 5[2mms[22m[39m
+     [32m✓[39m mock enforces CSRF origin and preserves idempotent replay while rejecting changed payload[32m 6[2mms[22m[39m
+   [32m✓[39m checks successful accepted envelope correlation on every replay[32m 0[2mms[22m[39m
+     [32m✓[39m preserves unissued auditRef and end cursor null but refuses arbitrary object/number substitutes[32m 2[2mms[22m[39m
+ [32m✓[39m packages/api-client/tests/sse-poc.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 536[2mms[22m[39m
+ [31m❯[39m apps/terminal/tests/reconciliation-provider-consumer.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1297[2mms[22m[39m
+[31m   [31m×[31m generated C15 consumer recovers rerun loss, resolves real X05 facts and preserves a read-only ledger[39m[32m 53[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/contract/bff-remediation.test.ts[2m > [22mA1 OpenAPI semantic remediation[2m > [22mall attached request/success examples validate against their operation schemas
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'bodyBytes')[39m
+[36m [2m❯[22m validateRequest tests/contract/http-contract.mjs:[2m45:76[22m[39m
+    [90m 43|[39m   [35mif[39m(op[33m.[39mrequestBody) {
+    [90m 44|[39m     [35mconst[39m text[33m=[39m[35mawait[39m request[33m.[39m[34mclone[39m()[33m.[39m[34mtext[39m()[33m;[39m
+    [90m 45|[39m     if(new TextEncoder().encode(text).length>op['x-quantos-policy'].li…
+    [90m   |[39m                                                                            [31m^[39m
+    [90m 46|[39m     let body;try{body=JSON.parse(text);}catch{return issue(422,'invali…
+    [90m 47|[39m     const issues=validate(op.requestBody.content['application/json'].s…
+[90m [2m❯[22m tests/contract/bff-remediation.test.ts:[2m21:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m apps/terminal/tests/reconciliation-provider-consumer.test.ts[2m > [22mgenerated C15 consumer recovers rerun loss, resolves real X05 facts and preserves a read-only ledger
+[31m[1mAssertionError[22m: expected undefined to be 'open' // Object.is equality[39m
+
+[32m- Expected:[39m
+"open"
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m apps/terminal/tests/reconciliation-provider-consumer.test.ts:[2m16:303[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m42 passed[39m[22m[90m (44)[39m
+[2m   Start at [22m 18:12:43
+[2m   Duration [22m 1.61s[2m (transform 385ms, setup 0ms, import 1.27s, tests 2.23s, environment 0ms)[22m
+

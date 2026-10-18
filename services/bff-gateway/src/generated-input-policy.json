@@ -1,5 +1,5 @@
 {
-  "version": "1.9.0",
+  "version": "1.10.0",
   "schemas": {
     "UUID": {
       "type": "string",
@@ -2757,6 +2757,406 @@
         },
         "correlationId": {
           "$ref": "#/components/schemas/UUID"
+        }
+      }
+    },
+    "ReconciliationEvidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "ref",
+        "sourceRef",
+        "resolution"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "order",
+            "fill",
+            "audit",
+            "alert"
+          ]
+        },
+        "ref": {
+          "type": "string"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "resolution": {
+          "type": "string",
+          "enum": [
+            "source_record",
+            "bff_audit",
+            "x05_exception"
+          ]
+        }
+      }
+    },
+    "ReconciliationRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "accountId",
+        "mode",
+        "currency",
+        "status",
+        "result",
+        "objectVersion",
+        "reportHash",
+        "inputHash",
+        "asOf",
+        "expiresAt",
+        "provisional",
+        "breakCount",
+        "correlationId",
+        "auditRef",
+        "evidenceRefs",
+        "day"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "shadow"
+          ]
+        },
+        "currency": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "succeeded"
+          ]
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "clean",
+            "differences"
+          ]
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reportHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "inputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "provisional": {
+          "type": "boolean"
+        },
+        "breakCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "correlationId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "auditRef": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ReconciliationEvidenceRef"
+          }
+        },
+        "day": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      }
+    },
+    "ReconciliationBreak": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "breakId",
+        "runId",
+        "accountId",
+        "mode",
+        "kind",
+        "entity",
+        "status",
+        "objectVersion",
+        "expectedJson",
+        "actualJson",
+        "expectedSource",
+        "actualSource",
+        "detectedAt",
+        "lastDetectedAt",
+        "closureReportHash",
+        "evidenceRefs",
+        "day"
+      ],
+      "properties": {
+        "breakId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "runId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "shadow"
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "entity": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "acknowledged",
+            "closed"
+          ]
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "expectedJson": {
+          "type": "string"
+        },
+        "actualJson": {
+          "type": "string"
+        },
+        "expectedSource": {
+          "type": "string"
+        },
+        "actualSource": {
+          "type": "string"
+        },
+        "detectedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastDetectedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "closureReportHash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ReconciliationEvidenceRef"
+          }
+        },
+        "day": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      }
+    },
+    "LedgerEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entryId",
+        "runId",
+        "accountId",
+        "mode",
+        "currency",
+        "kind",
+        "side",
+        "ledgerVersion",
+        "sourceRef",
+        "sourceHash",
+        "asOf",
+        "amounts",
+        "evidenceRefs",
+        "day"
+      ],
+      "properties": {
+        "entryId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "runId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "accountId": {
+          "$ref": "#/components/schemas/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "shadow"
+          ]
+        },
+        "currency": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "snapshot",
+            "fill"
+          ]
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "expected",
+            "actual"
+          ]
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "amounts": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/components/schemas/DecimalValue"
+          }
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ReconciliationEvidenceRef"
+          }
+        },
+        "day": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      }
+    },
+    "ReconciliationRerun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "ReconciliationRunPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ReconciliationRun"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ReconciliationBreakPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ReconciliationBreak"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "LedgerEntryPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/LedgerEntry"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     }
@@ -7669,6 +8069,524 @@
           "rate": "Per actor/operation; provider config sets quota; excess 429/retryAfter; no unbounded request"
         },
         "realtime": "v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/reconciliation/runs",
+      "method": "GET",
+      "operationId": "listReconciliationRuns",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "in": "query",
+          "name": "accountId",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "in": "query",
+          "name": "status",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "succeeded"
+            ]
+          }
+        },
+        {
+          "in": "query",
+          "name": "sort",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "day",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-009",
+        "auth": "cookie + trusted X05 tenant/workspace/account/shadow and role",
+        "capability": "execution.operate; unchanged X05 authorization; no browser-controlled scope",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused",
+        "idempotency": "read-only",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Rerun F05 root matches receipt; owner initial observation auditRef=null",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/reconciliation/runs/{runId}",
+      "method": "GET",
+      "operationId": "getReconciliationRun",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "runId",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-009",
+        "auth": "cookie + trusted X05 tenant/workspace/account/shadow and role",
+        "capability": "execution.operate; unchanged X05 authorization; no browser-controlled scope",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused",
+        "idempotency": "read-only",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Rerun F05 root matches receipt; owner initial observation auditRef=null",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/reconciliation/breaks",
+      "method": "GET",
+      "operationId": "listReconciliationBreaks",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "in": "query",
+          "name": "accountId",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "in": "query",
+          "name": "status",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "open",
+              "acknowledged",
+              "closed"
+            ]
+          }
+        },
+        {
+          "in": "query",
+          "name": "runId",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "in": "query",
+          "name": "sort",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "day",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-009",
+        "auth": "cookie + trusted X05 tenant/workspace/account/shadow and role",
+        "capability": "execution.operate; unchanged X05 authorization; no browser-controlled scope",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused",
+        "idempotency": "read-only",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Rerun F05 root matches receipt; owner initial observation auditRef=null",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/reconciliation/breaks/{breakId}",
+      "method": "GET",
+      "operationId": "getReconciliationBreak",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "breakId",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-009",
+        "auth": "cookie + trusted X05 tenant/workspace/account/shadow and role",
+        "capability": "execution.operate; unchanged X05 authorization; no browser-controlled scope",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused",
+        "idempotency": "read-only",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Rerun F05 root matches receipt; owner initial observation auditRef=null",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/ledger/entries",
+      "method": "GET",
+      "operationId": "listLedgerEntries",
+      "parameters": [
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "description": "不透明分页游标"
+        },
+        {
+          "name": "pageSize",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          }
+        },
+        {
+          "in": "query",
+          "name": "accountId",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "in": "query",
+          "name": "runId",
+          "required": false,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "in": "query",
+          "name": "sort",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "id:asc",
+              "id:desc"
+            ]
+          }
+        },
+        {
+          "name": "side",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "expected",
+              "actual"
+            ]
+          }
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "snapshot",
+              "fill"
+            ]
+          }
+        },
+        {
+          "name": "day",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-009",
+        "auth": "cookie + trusted X05 tenant/workspace/account/shadow and role",
+        "capability": "execution.operate; unchanged X05 authorization; no browser-controlled scope",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [
+          "id"
+        ],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused",
+        "idempotency": "read-only",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Rerun F05 root matches receipt; owner initial observation auditRef=null",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/reconciliation/runs/{runId}/reruns",
+      "method": "POST",
+      "operationId": "requestReconciliationRerun",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "runId",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "同一业务意图重试必须复用同一键；服务端按（actor, key）去重"
+        },
+        {
+          "name": "If-Match",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "expectedVersion（objectVersion）；不匹配返回 409 + currentVersion"
+        },
+        {
+          "name": "X-CSRF-Token",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 16
+          },
+          "description": "与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist"
+        },
+        {
+          "name": "X-Request-Id",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": "Opaque client attempt ID; BFF injects tenant/workspace/actor from the session."
+        }
+      ],
+      "body": {
+        "$ref": "#/components/schemas/ReconciliationRerun"
+      },
+      "bodyExample": {
+        "reason": "request trusted source re-evaluation"
+      },
+      "policy": {
+        "owner": "BFF-FE-009",
+        "auth": "cookie + trusted X05 tenant/workspace/account/shadow and role",
+        "capability": "execution.operate; unchanged X05 authorization; no browser-controlled scope",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused",
+        "idempotency": "single actor/session/key/intent, exact retry recovers without new run",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Rerun F05 root matches receipt; owner initial observation auditRef=null",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        },
+        "realtime": "not applicable: response or job/detail polling",
+        "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
+      },
+      "authenticated": true
+    },
+    {
+      "path": "/v1/reconciliation/runs/{runId}/stream",
+      "method": "GET",
+      "operationId": "subscribeReconciliationRun",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "runId",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/UUID"
+          }
+        },
+        {
+          "name": "afterSequence",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0
+          },
+          "description": "只推送 sequence 严格大于该值的事件（断线回补）"
+        }
+      ],
+      "body": null,
+      "bodyExample": null,
+      "policy": {
+        "owner": "BFF-FE-009",
+        "auth": "cookie + trusted X05 tenant/workspace/account/shadow and role",
+        "capability": "execution.operate; unchanged X05 authorization; no browser-controlled scope",
+        "pagination": "not applicable: single resource or bounded member-owned collection",
+        "sort": [],
+        "filter": [],
+        "expression": "not applicable",
+        "cache": "no-store",
+        "freshness": "Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused",
+        "idempotency": "read-only",
+        "version": "If-Match; 409/currentVersion; never overwrite draft",
+        "audit": "Rerun F05 root matches receipt; owner initial observation auditRef=null",
+        "limits": {
+          "pageSize": 200,
+          "bodyBytes": 65536,
+          "rate": "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        },
+        "realtime": "not applicable: response or job/detail polling",
         "sensitive": "Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected."
       },
       "authenticated": true

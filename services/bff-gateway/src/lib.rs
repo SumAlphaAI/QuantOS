@@ -1,4 +1,5 @@
 mod audit_core;
+pub mod reconciliation;
 pub mod strategy;
 use std::{collections::BTreeMap, sync::Arc};
 
@@ -53,6 +54,8 @@ struct MfaWindow {
 
 #[derive(Debug)]
 struct ProviderData {
+    reference_shadow: bool,
+    reconciliation: Option<reconciliation::ReconciliationHost>,
     strategy: Option<strategy::StrategyHost>,
     consumed_step_proofs: std::collections::BTreeSet<String>,
     execution: Option<execution::ExecutionService>,
@@ -87,8 +90,10 @@ impl Default for ProviderData {
         let mut research = research::Fixture::default();
         research.snapshots.extend(market.snapshot_fixtures());
         Self {
+            reference_shadow: false,
             execution: None,
             strategy: None,
+            reconciliation: None,
             consumed_step_proofs: Default::default(),
             research,
             market,
@@ -176,6 +181,15 @@ impl Default for BffProvider {
 }
 
 impl BffProvider {
+    /// Explicit loopback-only Shadow context. Live identity never reads this flag.
+    pub fn shadow_reference() -> Self {
+        Self {
+            data: Arc::new(Mutex::new(ProviderData {
+                reference_shadow: true,
+                ..Default::default()
+            })),
+        }
+    }
     /// Deterministic time advancement for loopback reference-provider regressions.
     pub async fn advance_reference_time(&self, elapsed: Duration) {
         self.data.lock().await.clock_offset += elapsed;
@@ -193,6 +207,7 @@ impl BffProvider {
             .merge(market::reference_routes())
             .merge(execution::reference_routes())
             .merge(strategy::reference_routes())
+            .merge(reconciliation::reference_routes())
             .route("/v1/session", get(get_session))
             .route("/v1/context", get(get_session))
             .route("/v1/auth/mfa/challenges", post(mfa_challenge))
@@ -571,11 +586,12 @@ async fn get_session(State(data): State<Arc<Mutex<ProviderData>>>, headers: Head
         return response;
     }
     let correlation = correlation_id();
-    response(
-        StatusCode::OK,
-        session_payload(&headers, data.lock().await.session_expires_at),
-        &correlation,
-    )
+    let state = data.lock().await;
+    let mut payload = session_payload(&headers, state.session_expires_at);
+    if state.reference_shadow {
+        payload["mode"] = json!("shadow");
+    }
+    response(StatusCode::OK, payload, &correlation)
 }
 
 #[derive(Deserialize)]

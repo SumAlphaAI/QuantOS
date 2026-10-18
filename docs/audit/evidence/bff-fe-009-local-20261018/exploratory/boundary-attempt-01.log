@@ -1,0 +1,1639 @@
+ok    OpenAPI 版本 3.1.0
+ok    全部本地 $ref 可解析
+ok    operation 数 81，operationId 全局唯一
+
+BFF OpenAPI 基线结构校验通过
+BFF contract coverage passed: 81 operations, 72 schemas, 81 page references.
+{
+  "status": "FAIL",
+  "changes": 85,
+  "registeredCorrections": 0,
+  "failures": [
+    {
+      "path": "/paths/~1v1~1auth~1reauth/post/requestBody/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/ReauthRequest",
+      "after": null
+    },
+    {
+      "path": "/paths/~1v1~1auth~1reauth/post/requestBody/content/application~1json/schema/required",
+      "before": null,
+      "after": [
+        "challengeRef"
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1auth~1reauth/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1auth~1mfa~1challenges/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1access-requests/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1settings~1profile/put/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1settings~1profile/put/requestBody/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/ProfileSettingsInput",
+      "after": null
+    },
+    {
+      "path": "/paths/~1v1~1settings~1profile/put/requestBody/content/application~1json/schema/required",
+      "before": null,
+      "after": [
+        "displayName",
+        "locale",
+        "timezone",
+        "theme",
+        "numberFormat",
+        "timeDisplay",
+        "defaultRoute",
+        "density",
+        "highContrast",
+        "reducedMotion"
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1settings~1profile/put/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1settings~1notification-preferences/put/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1settings~1notification-preferences/put/requestBody/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/NotificationPreferencesInput",
+      "after": null
+    },
+    {
+      "path": "/paths/~1v1~1settings~1notification-preferences/put/requestBody/content/application~1json/schema/required",
+      "before": null,
+      "after": [
+        "rules",
+        "quietHoursEnabled",
+        "quietHoursStart",
+        "quietHoursEnd",
+        "criticalBypass",
+        "digestFrequency"
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1settings~1notification-preferences/put/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1settings~1sessions~1{sessionId}/delete/parameters",
+      "before": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "after": [
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1settings~1trusted-devices~1{deviceId}/delete/parameters",
+      "before": [
+        {
+          "name": "deviceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "after": [
+        {
+          "name": "deviceId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1settings~1mfa~1setup/post/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1settings~1mfa~1setup/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1settings~1mfa~1factors~1{factorId}/delete/parameters",
+      "before": [
+        {
+          "name": "factorId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "after": [
+        {
+          "name": "factorId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1settings~1downloads/get/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "$ref": "#/components/parameters/Sort"
+        },
+        {
+          "$ref": "#/components/parameters/Filter"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/get/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/TaskStatus"
+          }
+        },
+        {
+          "name": "dataSnapshotId",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/TaskStatus"
+          }
+        },
+        {
+          "name": "dataSnapshotId",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/Sort"
+        },
+        {
+          "$ref": "#/components/parameters/Filter"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/capability/enum",
+      "before": null,
+      "after": [
+        "research.hypothesis.v1",
+        "research.experiment.v1"
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/question/minLength",
+      "before": null,
+      "after": 1
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/question/maxLength",
+      "before": null,
+      "after": 8000
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/budget/$ref",
+      "before": "#/components/schemas/DecimalValue",
+      "after": null
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/budget/pattern",
+      "before": null,
+      "after": "^[1-9][0-9]{0,6}$"
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/properties/attachments/maxItems",
+      "before": null,
+      "after": 16
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1research-runs/post/responses/202/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/AsyncAccepted",
+      "after": "#/components/schemas/ResearchAccepted"
+    },
+    {
+      "path": "/paths/~1v1~1research-runs~1{runId}~1cancel/post/parameters",
+      "before": [
+        {
+          "name": "runId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "name": "runId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1research-runs~1{runId}~1cancel/post/responses/202/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/AsyncAccepted",
+      "after": "#/components/schemas/ResearchAccepted"
+    },
+    {
+      "path": "/paths/~1v1~1data-snapshots/get/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "quality",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/DataQuality"
+          }
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "quality",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/DataQuality"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/Sort"
+        },
+        {
+          "$ref": "#/components/parameters/Filter"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1strategies/get/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "$ref": "#/components/parameters/Sort"
+        },
+        {
+          "$ref": "#/components/parameters/Filter"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1strategies~1{strategyId}~1draft/get/responses/200/headers/ETag/schema",
+      "before": {
+        "type": "string"
+      },
+      "after": null
+    },
+    {
+      "path": "/paths/~1v1~1strategies~1{strategyId}~1draft/put/parameters",
+      "before": [
+        {
+          "name": "strategyId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "name": "strategyId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1strategies~1{strategyId}~1draft/put/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1strategies~1{strategyId}~1static-checks/post/parameters",
+      "before": [
+        {
+          "name": "strategyId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "name": "strategyId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1backtests/post/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1backtests/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1releases/get/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "$ref": "#/components/parameters/Sort"
+        },
+        {
+          "$ref": "#/components/parameters/Filter"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1releases/post/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1releases/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1releases~1{releaseId}~1approval-submissions/post/parameters",
+      "before": [
+        {
+          "name": "releaseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "name": "releaseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1releases~1{releaseId}~1rollback-requests/post/parameters",
+      "before": [
+        {
+          "name": "releaseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "name": "releaseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1releases~1{releaseId}~1rollback-requests/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1risk~1kill-switch~1engage/post/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1risk~1kill-switch~1engage/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1risk~1kill-switch~1engage/post/responses/200/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/RiskView",
+      "after": null
+    },
+    {
+      "path": "/paths/~1v1~1risk~1kill-switch~1engage/post/responses/200/content/application~1json/schema/allOf",
+      "before": null,
+      "after": [
+        {
+          "$ref": "#/components/schemas/RiskView"
+        },
+        {
+          "required": [
+            "correlationId"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1risk~1kill-switch~1release/post/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1risk~1kill-switch~1release/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1risk~1kill-switch~1release/post/responses/200/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/RiskView",
+      "after": null
+    },
+    {
+      "path": "/paths/~1v1~1risk~1kill-switch~1release/post/responses/200/content/application~1json/schema/allOf",
+      "before": null,
+      "after": [
+        {
+          "$ref": "#/components/schemas/RiskView"
+        },
+        {
+          "required": [
+            "correlationId"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1proposals/get/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "symbol",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "symbol",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/Sort"
+        },
+        {
+          "$ref": "#/components/parameters/Filter"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1proposals~1{proposalId}~1risk-evaluations/post/parameters",
+      "before": [
+        {
+          "name": "proposalId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "name": "proposalId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1proposals~1{proposalId}~1risk-evaluations/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1approvals/get/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "$ref": "#/components/parameters/Sort"
+        },
+        {
+          "$ref": "#/components/parameters/Filter"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1approvals~1{approvalId}~1decisions/post/parameters",
+      "before": [
+        {
+          "name": "approvalId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "name": "approvalId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IfMatch"
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1approvals~1{approvalId}~1decisions/post/requestBody/content/application~1json/schema/required",
+      "before": [
+        "decision",
+        "mfaChallengeRef"
+      ],
+      "after": [
+        "decision",
+        "mfaChallengeRef",
+        "reauthTokenRef"
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1approvals~1{approvalId}~1decisions/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1commands/post/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1commands/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1orders/get/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/OrderStatus"
+          }
+        },
+        {
+          "name": "symbol",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "accountId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/OrderStatus"
+          }
+        },
+        {
+          "name": "symbol",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/Sort"
+        },
+        {
+          "$ref": "#/components/parameters/Filter"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1orders~1{orderId}~1cancel-requests/post/parameters",
+      "before": [
+        {
+          "name": "orderId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        }
+      ],
+      "after": [
+        {
+          "name": "orderId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1orders~1{orderId}~1cancel-requests/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1audit~1events/get/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "correlationId",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "causationId",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "objectRef",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "startAt",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/DateTime"
+          }
+        },
+        {
+          "name": "endAt",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/DateTime"
+          }
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/Cursor"
+        },
+        {
+          "$ref": "#/components/parameters/PageSize"
+        },
+        {
+          "name": "correlationId",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "causationId",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "objectRef",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "startAt",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/DateTime"
+          }
+        },
+        {
+          "name": "endAt",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/DateTime"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/Sort"
+        },
+        {
+          "$ref": "#/components/parameters/Filter"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1exports/post/parameters",
+      "before": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "after": [
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1exports/post/requestBody/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/ExportRequest",
+      "after": null
+    },
+    {
+      "path": "/paths/~1v1~1exports/post/requestBody/content/application~1json/schema/required",
+      "before": null,
+      "after": [
+        "scope",
+        "format",
+        "reason",
+        "watermark",
+        "retentionDays"
+      ]
+    },
+    {
+      "path": "/paths/~1v1~1exports/post/requestBody/content/application~1json/schema/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/paths/~1v1~1exports~1{exportId}~1cancel/post/parameters",
+      "before": [
+        {
+          "name": "exportId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "after": [
+        {
+          "name": "exportId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/IdempotencyKey"
+        },
+        {
+          "$ref": "#/components/parameters/CsrfToken"
+        },
+        {
+          "name": "X-Reauth-Token-Ref",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "$ref": "#/components/parameters/ClientRequestId"
+        }
+      ]
+    },
+    {
+      "path": "/components/responses/Conflict/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/ErrorEnvelope",
+      "after": null
+    },
+    {
+      "path": "/components/responses/Conflict/content/application~1json/schema/allOf",
+      "before": null,
+      "after": [
+        {
+          "$ref": "#/components/schemas/ErrorEnvelope"
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "VERSION_CONFLICT"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "currentVersion"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "path": "/components/responses/RateLimited/content/application~1json/schema/$ref",
+      "before": "#/components/schemas/ErrorEnvelope",
+      "after": null
+    },
+    {
+      "path": "/components/responses/RateLimited/content/application~1json/schema/allOf",
+      "before": null,
+      "after": [
+        {
+          "$ref": "#/components/schemas/ErrorEnvelope"
+        },
+        {
+          "required": [
+            "retryAfter"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/components/schemas/ErrorEnvelope/additionalProperties",
+      "before": null,
+      "after": false
+    },
+    {
+      "path": "/components/schemas/StreamEvent/properties/payloadVersion/enum",
+      "before": null,
+      "after": [
+        "v1",
+        "1"
+      ]
+    },
+    {
+      "path": "/components/schemas/ResearchRun/properties/inputHash/pattern",
+      "before": null,
+      "after": "^sha256:[a-f0-9]{64}$"
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/required",
+      "before": [
+        "snapshotId",
+        "schemaVersion",
+        "window",
+        "quality",
+        "contentHash",
+        "licenseLabel",
+        "capturedAt",
+        "maxAgeSeconds"
+      ],
+      "after": [
+        "snapshotId",
+        "schemaVersion",
+        "window",
+        "quality",
+        "contentHash",
+        "licenseLabel",
+        "capturedAt",
+        "maxAgeSeconds",
+        "sources"
+      ]
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/properties/sources/minItems",
+      "before": null,
+      "after": 1
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/properties/contentHash/pattern",
+      "before": null,
+      "after": "^sha256:[a-f0-9]{64}$"
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/properties/licenseLabel/minLength",
+      "before": null,
+      "after": 1
+    },
+    {
+      "path": "/components/schemas/DataSnapshot/properties/maxAgeSeconds/minimum",
+      "before": null,
+      "after": 0
+    },
+    {
+      "path": "/components/schemas/Artifact/properties/environmentHash/pattern",
+      "before": null,
+      "after": "^sha256:[a-f0-9]{64}$"
+    },
+    {
+      "path": "/components/schemas/Artifact/properties/contentHash/pattern",
+      "before": null,
+      "after": "^sha256:[a-f0-9]{64}$"
+    }
+  ],
+  "baseline": "75a563c62d3d7883d5b178111becec07d4da0301",
+  "scope": "engineering compatibility; no owner/staging signature implied"
+}
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: /Users/anray/.nvm/versions/node/v24.12.0/bin/node scripts/check-bff-compatibility.mjs
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at file:///Users/anray/Documents/project/SumAlpha/QuantOS/scripts/check-bff-fe-009-boundary.mjs:2:1477
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  status: 1,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 68524,
+  stdout: null,
+  stderr: null
+}
+
+Node.js v24.12.0

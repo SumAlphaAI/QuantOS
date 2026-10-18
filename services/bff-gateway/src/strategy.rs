@@ -867,6 +867,9 @@ async fn reference(
         }
     };
     let mut state = data.lock().await;
+    if state.reference_shadow {
+        return Fault(StatusCode::FORBIDDEN, "CONTEXT_MODE_REQUIRED").response();
+    }
     let now = state.now();
     seed(&mut state);
     let result = state.strategy.as_mut().unwrap().handle(

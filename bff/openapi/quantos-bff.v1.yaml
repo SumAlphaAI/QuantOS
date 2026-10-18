@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: QuantOS Terminal BFF API
-  version: 1.9.0
+  version: 1.10.0
   description: |-
     BFF-FE-000 基线（2026-08-14 BFF TL 评审通过并冻结为 1.0.0）。
     变更策略：只加不破——新增 optional 字段/新端点走 minor；破坏性变更走 /v2。
@@ -54,6 +54,8 @@ tags:
     description: C17 资料、安全、通知与 Web 平台能力
   - name: market
     description: C12 authorized market data and watchlist
+  - name: reconciliation
+    description: C15 X05 controlled reconciliation and append-only ledger projections
 security:
   - cookieAuth: []
 paths:
@@ -5597,6 +5599,599 @@ paths:
         realtime: v1 envelope; afterSequence replay; duplicate/gap handling; 401/403 terminal; bounded network/5xx retry
         sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
       summary: Bounded resource-scoped immutable backtest journal; reconnect afterSequence, future sequence409
+  /v1/reconciliation/runs:
+    get:
+      operationId: listReconciliationRuns
+      tags:
+        - reconciliation
+      summary: listReconciliationRuns
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - in: query
+          name: accountId
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            enum:
+              - succeeded
+        - in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: day
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+            pattern: ^\d{4}-\d{2}-\d{2}$
+      responses:
+        "200":
+          description: Scoped trusted X05 result; no ledger mutation or venue submission
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReconciliationRunPage"
+              example:
+                items:
+                  - runId: 11111111-1111-4111-8111-111111111111
+                    accountId: 11111111-1111-4111-8111-111111111111
+                    mode: shadow
+                    currency: USD
+                    status: succeeded
+                    result: differences
+                    objectVersion: "0"
+                    reportHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    inputHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    asOf: 2026-10-18T08:00:00Z
+                    expiresAt: 2026-10-18T08:05:00Z
+                    provisional: true
+                    breakCount: 1
+                    correlationId: 11111111-1111-4111-8111-111111111111
+                    auditRef: null
+                    evidenceRefs:
+                      - kind: order
+                        ref: owned-order-1
+                        sourceRef: owned-observed
+                        resolution: source_record
+                    day: 2026-10-18
+                nextCursor: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-009
+        auth: cookie + trusted X05 tenant/workspace/account/shadow and role
+        capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
+        idempotency: read-only
+        version: If-Match; 409/currentVersion; never overwrite draft
+        audit: Rerun F05 root matches receipt; owner initial observation auditRef=null
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/reconciliation/runs/{runId}:
+    get:
+      operationId: getReconciliationRun
+      tags:
+        - reconciliation
+      summary: getReconciliationRun
+      parameters:
+        - in: path
+          name: runId
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+      responses:
+        "200":
+          description: Scoped trusted X05 result; no ledger mutation or venue submission
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReconciliationRun"
+              example:
+                runId: 11111111-1111-4111-8111-111111111111
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: shadow
+                currency: USD
+                status: succeeded
+                result: differences
+                objectVersion: "0"
+                reportHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                inputHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                asOf: 2026-10-18T08:00:00Z
+                expiresAt: 2026-10-18T08:05:00Z
+                provisional: true
+                breakCount: 1
+                correlationId: 11111111-1111-4111-8111-111111111111
+                auditRef: null
+                evidenceRefs:
+                  - kind: order
+                    ref: owned-order-1
+                    sourceRef: owned-observed
+                    resolution: source_record
+                day: 2026-10-18
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-009
+        auth: cookie + trusted X05 tenant/workspace/account/shadow and role
+        capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
+        idempotency: read-only
+        version: If-Match; 409/currentVersion; never overwrite draft
+        audit: Rerun F05 root matches receipt; owner initial observation auditRef=null
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/reconciliation/breaks:
+    get:
+      operationId: listReconciliationBreaks
+      tags:
+        - reconciliation
+      summary: listReconciliationBreaks
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - in: query
+          name: accountId
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            enum:
+              - open
+              - acknowledged
+              - closed
+        - in: query
+          name: runId
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: day
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+            pattern: ^\d{4}-\d{2}-\d{2}$
+      responses:
+        "200":
+          description: Scoped trusted X05 result; no ledger mutation or venue submission
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReconciliationBreakPage"
+              example:
+                items:
+                  - breakId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    runId: 11111111-1111-4111-8111-111111111111
+                    accountId: 11111111-1111-4111-8111-111111111111
+                    mode: shadow
+                    kind: LedgerCash
+                    entity: ledger/cash
+                    status: open
+                    objectVersion: "0"
+                    expectedJson: '"799"'
+                    actualJson: '"798"'
+                    expectedSource: owned-shadow
+                    actualSource: owned-observed
+                    detectedAt: 2026-10-18T08:00:00Z
+                    lastDetectedAt: 2026-10-18T08:00:00Z
+                    closureReportHash: null
+                    evidenceRefs:
+                      - kind: order
+                        ref: owned-order-1
+                        sourceRef: owned-observed
+                        resolution: source_record
+                    day: 2026-10-18
+                nextCursor: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-009
+        auth: cookie + trusted X05 tenant/workspace/account/shadow and role
+        capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
+        idempotency: read-only
+        version: If-Match; 409/currentVersion; never overwrite draft
+        audit: Rerun F05 root matches receipt; owner initial observation auditRef=null
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/reconciliation/breaks/{breakId}:
+    get:
+      operationId: getReconciliationBreak
+      tags:
+        - reconciliation
+      summary: getReconciliationBreak
+      parameters:
+        - in: path
+          name: breakId
+          required: true
+          schema:
+            type: string
+            pattern: ^sha256:[a-f0-9]{64}$
+      responses:
+        "200":
+          description: Scoped trusted X05 result; no ledger mutation or venue submission
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReconciliationBreak"
+              example:
+                breakId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                runId: 11111111-1111-4111-8111-111111111111
+                accountId: 11111111-1111-4111-8111-111111111111
+                mode: shadow
+                kind: LedgerCash
+                entity: ledger/cash
+                status: open
+                objectVersion: "0"
+                expectedJson: '"799"'
+                actualJson: '"798"'
+                expectedSource: owned-shadow
+                actualSource: owned-observed
+                detectedAt: 2026-10-18T08:00:00Z
+                lastDetectedAt: 2026-10-18T08:00:00Z
+                closureReportHash: null
+                evidenceRefs:
+                  - kind: order
+                    ref: owned-order-1
+                    sourceRef: owned-observed
+                    resolution: source_record
+                day: 2026-10-18
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-009
+        auth: cookie + trusted X05 tenant/workspace/account/shadow and role
+        capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
+        idempotency: read-only
+        version: If-Match; 409/currentVersion; never overwrite draft
+        audit: Rerun F05 root matches receipt; owner initial observation auditRef=null
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/ledger/entries:
+    get:
+      operationId: listLedgerEntries
+      tags:
+        - reconciliation
+      summary: listLedgerEntries
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/PageSize"
+        - in: query
+          name: accountId
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - in: query
+          name: runId
+          required: false
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+            enum:
+              - id:asc
+              - id:desc
+        - name: side
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - expected
+              - actual
+        - name: kind
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - snapshot
+              - fill
+        - name: day
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+            pattern: ^\d{4}-\d{2}-\d{2}$
+      responses:
+        "200":
+          description: Scoped trusted X05 result; no ledger mutation or venue submission
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LedgerEntryPage"
+              example:
+                items:
+                  - entryId: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    runId: 11111111-1111-4111-8111-111111111111
+                    accountId: 11111111-1111-4111-8111-111111111111
+                    mode: shadow
+                    currency: USD
+                    kind: snapshot
+                    side: actual
+                    ledgerVersion: "1"
+                    sourceRef: owned-observed
+                    sourceHash: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                    asOf: 2026-10-18T08:00:00Z
+                    amounts:
+                      cash: "798"
+                    evidenceRefs:
+                      - kind: order
+                        ref: owned-order-1
+                        sourceRef: owned-observed
+                        resolution: source_record
+                    day: 2026-10-18
+                nextCursor: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-009
+        auth: cookie + trusted X05 tenant/workspace/account/shadow and role
+        capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort:
+          - id
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
+        idempotency: read-only
+        version: If-Match; 409/currentVersion; never overwrite draft
+        audit: Rerun F05 root matches receipt; owner initial observation auditRef=null
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+  /v1/reconciliation/runs/{runId}/reruns:
+    post:
+      operationId: requestReconciliationRerun
+      tags:
+        - reconciliation
+      summary: requestReconciliationRerun
+      parameters:
+        - in: path
+          name: runId
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/IfMatch"
+        - $ref: "#/components/parameters/CsrfToken"
+        - $ref: "#/components/parameters/ClientRequestId"
+      responses:
+        "202":
+          description: Scoped trusted X05 result; no ledger mutation or venue submission
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditedAsyncAccepted"
+              example:
+                jobId: 11111111-1111-4111-8111-111111111111
+                status: accepted
+                correlationId: 11111111-1111-4111-8111-111111111111
+                auditRef: 11111111-1111-4111-8111-111111111111
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-009
+        auth: cookie + trusted X05 tenant/workspace/account/shadow and role
+        capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
+        idempotency: single actor/session/key/intent, exact retry recovers without new run
+        version: If-Match; 409/currentVersion; never overwrite draft
+        audit: Rerun F05 root matches receipt; owner initial observation auditRef=null
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReconciliationRerun"
+            example:
+              reason: request trusted source re-evaluation
+  /v1/reconciliation/runs/{runId}/stream:
+    get:
+      operationId: subscribeReconciliationRun
+      tags:
+        - reconciliation
+      summary: subscribeReconciliationRun
+      parameters:
+        - in: path
+          name: runId
+          required: true
+          schema:
+            $ref: "#/components/schemas/UUID"
+        - $ref: "#/components/parameters/AfterSequence"
+      responses:
+        "200":
+          description: Scoped trusted X05 result; no ledger mutation or venue submission
+          headers:
+            X-Correlation-Id:
+              $ref: "#/components/headers/X-Correlation-Id"
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                  - no-store
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        default:
+          $ref: "#/components/responses/ServerError"
+      x-quantos-policy:
+        owner: BFF-FE-009
+        auth: cookie + trusted X05 tenant/workspace/account/shadow and role
+        capability: execution.operate; unchanged X05 authorization; no browser-controlled scope
+        pagination: "not applicable: single resource or bounded member-owned collection"
+        sort: []
+        filter: []
+        expression: not applicable
+        cache: no-store
+        freshness: Source age/deadline enforced; provisional until matching verified X05 close_day proof; expired streams refused
+        idempotency: read-only
+        version: If-Match; 409/currentVersion; never overwrite draft
+        audit: Rerun F05 root matches receipt; owner initial observation auditRef=null
+        limits:
+          pageSize: 200
+          bodyBytes: 65536
+          rate: "Bounded process lease: at most1000 runs, replays and cursors; deployment edge quotas remain target configuration"
+        realtime: "not applicable: response or job/detail polling"
+        sensitive: Never return credentials, SQL, stack traces or internal paths; tenant/workspace/actor are server-injected.
 components:
   securitySchemes:
     cookieAuth:
@@ -7809,3 +8404,281 @@ components:
             - false
         correlationId:
           $ref: "#/components/schemas/UUID"
+    ReconciliationEvidenceRef:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - ref
+        - sourceRef
+        - resolution
+      properties:
+        kind:
+          type: string
+          enum:
+            - order
+            - fill
+            - audit
+            - alert
+        ref: &a1
+          type: string
+        sourceRef: *a1
+        resolution:
+          type: string
+          enum:
+            - source_record
+            - bff_audit
+            - x05_exception
+    ReconciliationRun:
+      type: object
+      additionalProperties: false
+      required:
+        - runId
+        - accountId
+        - mode
+        - currency
+        - status
+        - result
+        - objectVersion
+        - reportHash
+        - inputHash
+        - asOf
+        - expiresAt
+        - provisional
+        - breakCount
+        - correlationId
+        - auditRef
+        - evidenceRefs
+        - day
+      properties:
+        runId: &a1
+          $ref: "#/components/schemas/UUID"
+        accountId: *a1
+        mode:
+          type: string
+          enum:
+            - shadow
+        currency: &a2
+          type: string
+        status:
+          type: string
+          enum:
+            - succeeded
+        result:
+          type: string
+          enum:
+            - clean
+            - differences
+        objectVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        reportHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        inputHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        asOf: &a3
+          type: string
+          format: date-time
+        expiresAt: *a3
+        provisional:
+          type: boolean
+        breakCount:
+          type: integer
+          minimum: 0
+        correlationId: *a1
+        auditRef:
+          type:
+            - string
+            - "null"
+          format: uuid
+        evidenceRefs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReconciliationEvidenceRef"
+        day:
+          type: string
+          format: date
+          pattern: ^\d{4}-\d{2}-\d{2}$
+    ReconciliationBreak:
+      type: object
+      additionalProperties: false
+      required:
+        - breakId
+        - runId
+        - accountId
+        - mode
+        - kind
+        - entity
+        - status
+        - objectVersion
+        - expectedJson
+        - actualJson
+        - expectedSource
+        - actualSource
+        - detectedAt
+        - lastDetectedAt
+        - closureReportHash
+        - evidenceRefs
+        - day
+      properties:
+        breakId:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        runId: &a1
+          $ref: "#/components/schemas/UUID"
+        accountId: *a1
+        mode:
+          type: string
+          enum:
+            - shadow
+        kind: *a2
+        entity: *a2
+        status:
+          type: string
+          enum:
+            - open
+            - acknowledged
+            - closed
+        objectVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        expectedJson: *a2
+        actualJson: *a2
+        expectedSource: *a2
+        actualSource: *a2
+        detectedAt: &a3
+          type: string
+          format: date-time
+        lastDetectedAt: *a3
+        closureReportHash:
+          type:
+            - string
+            - "null"
+          pattern: ^sha256:[a-f0-9]{64}$
+        evidenceRefs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReconciliationEvidenceRef"
+        day:
+          type: string
+          format: date
+          pattern: ^\d{4}-\d{2}-\d{2}$
+    LedgerEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - entryId
+        - runId
+        - accountId
+        - mode
+        - currency
+        - kind
+        - side
+        - ledgerVersion
+        - sourceRef
+        - sourceHash
+        - asOf
+        - amounts
+        - evidenceRefs
+        - day
+      properties:
+        entryId:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        runId: &a1
+          $ref: "#/components/schemas/UUID"
+        accountId: *a1
+        mode:
+          type: string
+          enum:
+            - shadow
+        currency: *a2
+        kind:
+          type: string
+          enum:
+            - snapshot
+            - fill
+        side:
+          type: string
+          enum:
+            - expected
+            - actual
+        ledgerVersion:
+          type: string
+          pattern: ^(0|[1-9][0-9]*)$
+        sourceRef: *a2
+        sourceHash:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        asOf:
+          type: string
+          format: date-time
+        amounts:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/DecimalValue"
+        evidenceRefs:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReconciliationEvidenceRef"
+        day:
+          type: string
+          format: date
+          pattern: ^\d{4}-\d{2}-\d{2}$
+    ReconciliationRerun:
+      type: object
+      additionalProperties: false
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 256
+    ReconciliationRunPage:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReconciliationRun"
+        nextCursor:
+          type:
+            - string
+            - "null"
+    ReconciliationBreakPage:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReconciliationBreak"
+        nextCursor:
+          type:
+            - string
+            - "null"
+    LedgerEntryPage:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+        - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LedgerEntry"
+        nextCursor:
+          type:
+            - string
+            - "null"

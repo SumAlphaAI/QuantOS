@@ -4,7 +4,7 @@ import { bffZodSchemas, bffResponseSchemas } from "../src/bff-gen/quantos-bff.zo
 import { parseBffResponse, type BffOperationId } from "../src/bff-response.js";
 
 type Schema = {
-  $ref?: string; type?: string; format?: string; pattern?: string;
+  $ref?: string; type?: string | string[]; format?: string; pattern?: string;
   enum?: unknown[]; allOf?: Schema[]; oneOf?: Schema[]; anyOf?: Schema[]; properties?: Record<string, Schema>;
   additionalProperties?: Schema | boolean; items?: Schema; minimum?: number;
   minLength?: number; minItems?: number;
@@ -15,6 +15,7 @@ const uuid = "11111111-1111-4111-8111-111111111111";
 // Build specimens from the independently published JSON Schema, including
 // optional fields and populated lists, so nested response validation executes.
 function specimen(schema: Schema): unknown {
+  if (Array.isArray(schema.type)) return specimen({...schema, type: schema.type.find((t) => t !== "null") ?? "null"});
   if (schema.$ref) return specimen(components.$defs[schema.$ref.split("/").at(-1)!]);
   if (schema.oneOf || schema.anyOf) return specimen((schema.oneOf ?? schema.anyOf)![0]);
   if (schema.allOf) return Object.assign({}, ...schema.allOf.map(specimen));
@@ -29,6 +30,7 @@ function specimen(schema: Schema): unknown {
   if (schema.type === "boolean") return true;
   if (schema.type === "string") {
     if (schema.format === "uuid") return uuid;
+    if (schema.format === "date") return "2026-10-18";
     if (schema.format === "date-time") return "2026-10-03T00:00:00Z";
     if (schema.format === "email") return "fixture@example.invalid";
     if (schema.format === "uri") return "https://example.invalid/resource";
@@ -46,7 +48,7 @@ function specimen(schema: Schema): unknown {
 
 describe("published BFF runtime response coverage", () => {
   it("validates populated specimens for every component and rejects invalid types", () => {
-    expect(Object.keys(bffZodSchemas)).toHaveLength(64);
+    expect(Object.keys(bffZodSchemas)).toHaveLength(72);
     for (const [name, schema] of Object.entries(bffZodSchemas)) {
       const value = specimen(components.$defs[name]);
       expect(schema.safeParse(value).success, name).toBe(true);
@@ -55,7 +57,7 @@ describe("published BFF runtime response coverage", () => {
   });
 
   it("rejects malformed success/error payloads for all published operations", () => {
-    expect(Object.keys(bffResponseSchemas)).toHaveLength(74);
+    expect(Object.keys(bffResponseSchemas)).toHaveLength(81);
     for (const [operation, responses] of Object.entries(bffResponseSchemas)) {
       for (const [status, schema] of Object.entries(responses)) {
         if (status === "204") expect(schema.safeParse(undefined).success).toBe(true);

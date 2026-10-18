@@ -1,0 +1,19 @@
+# C15 working-tree diagnostics
+
+These are exploratory, unfrozen working-tree observations, not candidate READY. HTTP diagnostics report observed Git HEAD plus tracked dirty paths; this is not a claim that those binaries were built from the unchanged HEAD. Only the later frozen recorder checks the complete source inventory before/after all selected groups.
+
+Preserved failures and corrections:
+
+- generate-attempt-01: undefined DecimalString ref; corrected to existing DecimalValue. Subsequent generations retain real outputs; later updates add examples/policies and strict nullable handling.
+- reconciliation-attempt-01: compile failed because an existing F09 live test initializer lacked the new optional host. Added None; no F09/target campaign run. attempt-02 passed11 cases. attempt-03 passed11/failed1: new context test's POST lacked required X-Request-Id and saw422 before mode403. Corrected the fixture header; attempt-04 passed12, including encoded hash member lookup and real verified close_day proof/provisional journal behavior.
+- setup-order-failure.json: plan/policy writes followed by a cached old policy in the same Node process caused mismatch; fresh-process withdrawal completed. plans-attempt-01 was a static structural PASS before withdrawal, not a new source admission; plans-attempt-02 has0 READY and all159 NOT_ASSESSED.
+- gates-attempt-01: positive synthetic receiver fixture regex omitted digits in X05 case names. Corrected the fixture; gates-attempt-02 passed116 gate/policy/CI cases. Synthetic fixture logs cannot be used by admission.
+- boundary-attempt-01: new1.10.0 not yet registered in engineering-only compatible additive versions, so85 prior security corrections were unregistered. Appended only additive-version authorization; original correction digests retained. boundary-attempt-02 passed85 registered corrections.
+- lint-attempt-01: unused test import; fixed, later lint passed.
+- contracts-attempt-01: missing C15 examples caused JSON response construction failure; four SSE loopback cases also failed/timed out with EPERM listen127.0.0.1. Kept raw errors; fixed examples and repeated actual loopback with allowed execution permissions, without relaxing assertions/timeouts.
+- http-attempt-01: initial owner observation's auditRef=null was still UUID-only due YAML alias replacement not applying. Changed the actual schema node, made nullable unions strictly typed in the generator, and populated complete StreamEvent envelope fields identified during source review. No fake F05 root was minted for initial observation. http-attempt-02 passed7 owned APIs/140 records/100 exact retries/basic Chromium.
+- consumers-attempt-01: missing x-quantos-policy limits and percent-encoded hash breakId lookup failed. Added actual C15 policy/body bounds and decoded only the member ID; consumers-attempt-02 passed44/7 files,20/20 helper lines and23/23 critical branches. Fresh freeze must test final source including quota envelopes and Unicode reasons, not borrow these results.
+
+Builds and intermediate tests are retained as diagnostics. No previous Gate was revalidated or admitted; original direct receipts are inspected only as immutable references. No production credentials, database, external venue, publish, full workspace or unrelated closure tests are used.
+
+clippy-attempt-01 preserved the collapsible_if lint failure and was fixed without suppressing the lint. Final source additionally requires a matching verified day-close hash for non-provisional output, invalidates old day approval after a new observation, binds reruns to their original day, supports owner-only observation feeds, rejects cursor abuse with a retry envelope, and counts Unicode reasons in characters. These are current data-integrity/refusal paths; frozen execution must run them afresh.

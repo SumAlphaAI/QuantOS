@@ -1,7 +1,7 @@
 {
   "source": "bff/openapi/quantos-bff.v1.yaml",
   "openapi": "3.1.0",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "operations": [
     {
       "operationId": "cancelExport",
@@ -264,6 +264,26 @@
       "sse": false
     },
     {
+      "operationId": "getReconciliationBreak",
+      "method": "GET",
+      "path": "/v1/reconciliation/breaks/{breakId}",
+      "tags": [
+        "reconciliation"
+      ],
+      "responseSchema": "ReconciliationBreak",
+      "sse": false
+    },
+    {
+      "operationId": "getReconciliationRun",
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/{runId}",
+      "tags": [
+        "reconciliation"
+      ],
+      "responseSchema": "ReconciliationRun",
+      "sse": false
+    },
+    {
       "operationId": "getRelease",
       "method": "GET",
       "path": "/v1/releases/{releaseId}",
@@ -394,6 +414,16 @@
       "sse": false
     },
     {
+      "operationId": "listLedgerEntries",
+      "method": "GET",
+      "path": "/v1/ledger/entries",
+      "tags": [
+        "reconciliation"
+      ],
+      "responseSchema": "LedgerEntryPage",
+      "sse": false
+    },
+    {
       "operationId": "listOrders",
       "method": "GET",
       "path": "/v1/orders",
@@ -411,6 +441,26 @@
         "proposal"
       ],
       "responseSchema": null,
+      "sse": false
+    },
+    {
+      "operationId": "listReconciliationBreaks",
+      "method": "GET",
+      "path": "/v1/reconciliation/breaks",
+      "tags": [
+        "reconciliation"
+      ],
+      "responseSchema": "ReconciliationBreakPage",
+      "sse": false
+    },
+    {
+      "operationId": "listReconciliationRuns",
+      "method": "GET",
+      "path": "/v1/reconciliation/runs",
+      "tags": [
+        "reconciliation"
+      ],
+      "responseSchema": "ReconciliationRunPage",
       "sse": false
     },
     {
@@ -501,6 +551,16 @@
         "execution"
       ],
       "responseSchema": "AsyncAccepted",
+      "sse": false
+    },
+    {
+      "operationId": "requestReconciliationRerun",
+      "method": "POST",
+      "path": "/v1/reconciliation/runs/{runId}/reruns",
+      "tags": [
+        "reconciliation"
+      ],
+      "responseSchema": "AuditedAsyncAccepted",
       "sse": false
     },
     {
@@ -709,6 +769,16 @@
       "path": "/v1/markets/quotes/stream",
       "tags": [
         "market"
+      ],
+      "responseSchema": null,
+      "sse": true
+    },
+    {
+      "operationId": "subscribeReconciliationRun",
+      "method": "GET",
+      "path": "/v1/reconciliation/runs/{runId}/stream",
+      "tags": [
+        "reconciliation"
       ],
       "responseSchema": null,
       "sse": true

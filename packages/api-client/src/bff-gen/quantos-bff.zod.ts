@@ -1,5 +1,5 @@
 /* eslint-disable */
-// Generated from bff/openapi/quantos-bff.v1.yaml (1.9.0). Do not edit.
+// Generated from bff/openapi/quantos-bff.v1.yaml (1.10.0). Do not edit.
 import { z } from "zod";
 
 export const UUIDSchema = z.string().uuid();
@@ -639,6 +639,89 @@ export const TradePreflightSchema = z.object({
   "correlationId": z.lazy(() => UUIDSchema).optional(),
 }).strict();
 
+export const ReconciliationEvidenceRefSchema = z.object({
+  "kind": z.enum(["order","fill","audit","alert"]),
+  "ref": z.string(),
+  "sourceRef": z.string(),
+  "resolution": z.enum(["source_record","bff_audit","x05_exception"]),
+}).strict();
+
+export const ReconciliationRunSchema = z.object({
+  "runId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.literal("shadow"),
+  "currency": z.string(),
+  "status": z.literal("succeeded"),
+  "result": z.enum(["clean","differences"]),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "reportHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "inputHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "asOf": z.string().datetime({ offset: true }),
+  "expiresAt": z.string().datetime({ offset: true }),
+  "provisional": z.boolean(),
+  "breakCount": z.number().int().min(0),
+  "correlationId": z.lazy(() => UUIDSchema),
+  "auditRef": z.union([z.string().uuid(), z.null()]),
+  "evidenceRefs": z.array(z.lazy(() => ReconciliationEvidenceRefSchema)),
+  "day": z.string().regex(new RegExp("^\\d{4}-\\d{2}-\\d{2}$")),
+}).strict();
+
+export const ReconciliationBreakSchema = z.object({
+  "breakId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "runId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.literal("shadow"),
+  "kind": z.string(),
+  "entity": z.string(),
+  "status": z.enum(["open","acknowledged","closed"]),
+  "objectVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "expectedJson": z.string(),
+  "actualJson": z.string(),
+  "expectedSource": z.string(),
+  "actualSource": z.string(),
+  "detectedAt": z.string().datetime({ offset: true }),
+  "lastDetectedAt": z.string().datetime({ offset: true }),
+  "closureReportHash": z.union([z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")), z.null()]),
+  "evidenceRefs": z.array(z.lazy(() => ReconciliationEvidenceRefSchema)),
+  "day": z.string().regex(new RegExp("^\\d{4}-\\d{2}-\\d{2}$")),
+}).strict();
+
+export const LedgerEntrySchema = z.object({
+  "entryId": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "runId": z.lazy(() => UUIDSchema),
+  "accountId": z.lazy(() => UUIDSchema),
+  "mode": z.literal("shadow"),
+  "currency": z.string(),
+  "kind": z.enum(["snapshot","fill"]),
+  "side": z.enum(["expected","actual"]),
+  "ledgerVersion": z.string().regex(new RegExp("^(0|[1-9][0-9]*)$")),
+  "sourceRef": z.string(),
+  "sourceHash": z.string().regex(new RegExp("^sha256:[a-f0-9]{64}$")),
+  "asOf": z.string().datetime({ offset: true }),
+  "amounts": z.record(z.string(), z.lazy(() => DecimalValueSchema)),
+  "evidenceRefs": z.array(z.lazy(() => ReconciliationEvidenceRefSchema)),
+  "day": z.string().regex(new RegExp("^\\d{4}-\\d{2}-\\d{2}$")),
+}).strict();
+
+export const ReconciliationRerunSchema = z.object({
+  "reason": z.string().min(1).max(256),
+}).strict();
+
+export const ReconciliationRunPageSchema = z.object({
+  "items": z.array(z.lazy(() => ReconciliationRunSchema)),
+  "nextCursor": z.union([z.string(), z.null()]),
+}).strict();
+
+export const ReconciliationBreakPageSchema = z.object({
+  "items": z.array(z.lazy(() => ReconciliationBreakSchema)),
+  "nextCursor": z.union([z.string(), z.null()]),
+}).strict();
+
+export const LedgerEntryPageSchema = z.object({
+  "items": z.array(z.lazy(() => LedgerEntrySchema)),
+  "nextCursor": z.union([z.string(), z.null()]),
+}).strict();
+
 export const bffZodSchemas = {
   UUID: UUIDSchema,
   DateTime: DateTimeSchema,
@@ -704,6 +787,14 @@ export const bffZodSchemas = {
   CandleSeries: CandleSeriesSchema,
   OrderCapabilities: OrderCapabilitiesSchema,
   TradePreflight: TradePreflightSchema,
+  ReconciliationEvidenceRef: ReconciliationEvidenceRefSchema,
+  ReconciliationRun: ReconciliationRunSchema,
+  ReconciliationBreak: ReconciliationBreakSchema,
+  LedgerEntry: LedgerEntrySchema,
+  ReconciliationRerun: ReconciliationRerunSchema,
+  ReconciliationRunPage: ReconciliationRunPageSchema,
+  ReconciliationBreakPage: ReconciliationBreakPageSchema,
+  LedgerEntryPage: LedgerEntryPageSchema,
 } as const;
 
 export const bffResponseSchemas = {
@@ -1263,6 +1354,48 @@ export const bffResponseSchemas = {
     "default": z.lazy(() => ErrorEnvelopeSchema),
   },
   "subscribeBacktestRun": {
+    "200": z.undefined(),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listReconciliationRuns": {
+    "200": z.lazy(() => ReconciliationRunPageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getReconciliationRun": {
+    "200": z.lazy(() => ReconciliationRunSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listReconciliationBreaks": {
+    "200": z.lazy(() => ReconciliationBreakPageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "getReconciliationBreak": {
+    "200": z.lazy(() => ReconciliationBreakSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "listLedgerEntries": {
+    "200": z.lazy(() => LedgerEntryPageSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "requestReconciliationRerun": {
+    "202": z.lazy(() => AuditedAsyncAcceptedSchema),
+    "401": z.lazy(() => ErrorEnvelopeSchema),
+    "403": z.lazy(() => ErrorEnvelopeSchema),
+    "default": z.lazy(() => ErrorEnvelopeSchema),
+  },
+  "subscribeReconciliationRun": {
     "200": z.undefined(),
     "401": z.lazy(() => ErrorEnvelopeSchema),
     "403": z.lazy(() => ErrorEnvelopeSchema),

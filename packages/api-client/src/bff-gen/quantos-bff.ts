@@ -1146,6 +1146,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/reconciliation/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listReconciliationRuns */
+        get: operations["listReconciliationRuns"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/reconciliation/runs/{runId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getReconciliationRun */
+        get: operations["getReconciliationRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/reconciliation/breaks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listReconciliationBreaks */
+        get: operations["listReconciliationBreaks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/reconciliation/breaks/{breakId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getReconciliationBreak */
+        get: operations["getReconciliationBreak"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/ledger/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listLedgerEntries */
+        get: operations["listLedgerEntries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/reconciliation/runs/{runId}/reruns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** requestReconciliationRerun */
+        post: operations["requestReconciliationRerun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/reconciliation/runs/{runId}/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** subscribeReconciliationRun */
+        get: operations["subscribeReconciliationRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1858,6 +1977,102 @@ export interface components {
             /** @enum {boolean} */
             executable: false;
             correlationId?: components["schemas"]["UUID"];
+        };
+        ReconciliationEvidenceRef: {
+            /** @enum {string} */
+            kind: "order" | "fill" | "audit" | "alert";
+            ref: string;
+            sourceRef: string;
+            /** @enum {string} */
+            resolution: "source_record" | "bff_audit" | "x05_exception";
+        };
+        ReconciliationRun: {
+            runId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "shadow";
+            currency: string;
+            /** @enum {string} */
+            status: "succeeded";
+            /** @enum {string} */
+            result: "clean" | "differences";
+            objectVersion: string;
+            reportHash: string;
+            inputHash: string;
+            /** Format: date-time */
+            asOf: string;
+            /** Format: date-time */
+            expiresAt: string;
+            provisional: boolean;
+            breakCount: number;
+            correlationId: components["schemas"]["UUID"];
+            /** Format: uuid */
+            auditRef: string | null;
+            evidenceRefs: components["schemas"]["ReconciliationEvidenceRef"][];
+            /** Format: date */
+            day: string;
+        };
+        ReconciliationBreak: {
+            breakId: string;
+            runId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "shadow";
+            kind: string;
+            entity: string;
+            /** @enum {string} */
+            status: "open" | "acknowledged" | "closed";
+            objectVersion: string;
+            expectedJson: string;
+            actualJson: string;
+            expectedSource: string;
+            actualSource: string;
+            /** Format: date-time */
+            detectedAt: string;
+            /** Format: date-time */
+            lastDetectedAt: string;
+            closureReportHash: string | null;
+            evidenceRefs: components["schemas"]["ReconciliationEvidenceRef"][];
+            /** Format: date */
+            day: string;
+        };
+        LedgerEntry: {
+            entryId: string;
+            runId: components["schemas"]["UUID"];
+            accountId: components["schemas"]["UUID"];
+            /** @enum {string} */
+            mode: "shadow";
+            currency: string;
+            /** @enum {string} */
+            kind: "snapshot" | "fill";
+            /** @enum {string} */
+            side: "expected" | "actual";
+            ledgerVersion: string;
+            sourceRef: string;
+            sourceHash: string;
+            /** Format: date-time */
+            asOf: string;
+            amounts: {
+                [key: string]: components["schemas"]["DecimalValue"];
+            };
+            evidenceRefs: components["schemas"]["ReconciliationEvidenceRef"][];
+            /** Format: date */
+            day: string;
+        };
+        ReconciliationRerun: {
+            reason: string;
+        };
+        ReconciliationRunPage: {
+            items: components["schemas"]["ReconciliationRun"][];
+            nextCursor: string | null;
+        };
+        ReconciliationBreakPage: {
+            items: components["schemas"]["ReconciliationBreak"][];
+            nextCursor: string | null;
+        };
+        LedgerEntryPage: {
+            items: components["schemas"]["LedgerEntry"][];
+            nextCursor: string | null;
         };
     };
     responses: {
@@ -5527,6 +5742,399 @@ export interface operations {
                 };
                 content: {
                     "text/event-stream": components["schemas"]["StreamEvent"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listReconciliationRuns: {
+        parameters: {
+            query: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                accountId: components["schemas"]["UUID"];
+                status?: "succeeded";
+                sort?: "id:asc" | "id:desc";
+                day?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped trusted X05 result; no ledger mutation or venue submission */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "runId": "11111111-1111-4111-8111-111111111111",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111",
+                     *           "mode": "shadow",
+                     *           "currency": "USD",
+                     *           "status": "succeeded",
+                     *           "result": "differences",
+                     *           "objectVersion": "0",
+                     *           "reportHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "asOf": "2026-10-18T08:00:00Z",
+                     *           "expiresAt": "2026-10-18T08:05:00Z",
+                     *           "provisional": true,
+                     *           "breakCount": 1,
+                     *           "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *           "auditRef": null,
+                     *           "evidenceRefs": [
+                     *             {
+                     *               "kind": "order",
+                     *               "ref": "owned-order-1",
+                     *               "sourceRef": "owned-observed",
+                     *               "resolution": "source_record"
+                     *             }
+                     *           ],
+                     *           "day": "2026-10-18"
+                     *         }
+                     *       ],
+                     *       "nextCursor": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ReconciliationRunPage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getReconciliationRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped trusted X05 result; no ledger mutation or venue submission */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "runId": "11111111-1111-4111-8111-111111111111",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "shadow",
+                     *       "currency": "USD",
+                     *       "status": "succeeded",
+                     *       "result": "differences",
+                     *       "objectVersion": "0",
+                     *       "reportHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "inputHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "asOf": "2026-10-18T08:00:00Z",
+                     *       "expiresAt": "2026-10-18T08:05:00Z",
+                     *       "provisional": true,
+                     *       "breakCount": 1,
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": null,
+                     *       "evidenceRefs": [
+                     *         {
+                     *           "kind": "order",
+                     *           "ref": "owned-order-1",
+                     *           "sourceRef": "owned-observed",
+                     *           "resolution": "source_record"
+                     *         }
+                     *       ],
+                     *       "day": "2026-10-18"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ReconciliationRun"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listReconciliationBreaks: {
+        parameters: {
+            query: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                accountId: components["schemas"]["UUID"];
+                status?: "open" | "acknowledged" | "closed";
+                runId?: components["schemas"]["UUID"];
+                sort?: "id:asc" | "id:desc";
+                day?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped trusted X05 result; no ledger mutation or venue submission */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "breakId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "runId": "11111111-1111-4111-8111-111111111111",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111",
+                     *           "mode": "shadow",
+                     *           "kind": "LedgerCash",
+                     *           "entity": "ledger/cash",
+                     *           "status": "open",
+                     *           "objectVersion": "0",
+                     *           "expectedJson": "\"799\"",
+                     *           "actualJson": "\"798\"",
+                     *           "expectedSource": "owned-shadow",
+                     *           "actualSource": "owned-observed",
+                     *           "detectedAt": "2026-10-18T08:00:00Z",
+                     *           "lastDetectedAt": "2026-10-18T08:00:00Z",
+                     *           "closureReportHash": null,
+                     *           "evidenceRefs": [
+                     *             {
+                     *               "kind": "order",
+                     *               "ref": "owned-order-1",
+                     *               "sourceRef": "owned-observed",
+                     *               "resolution": "source_record"
+                     *             }
+                     *           ],
+                     *           "day": "2026-10-18"
+                     *         }
+                     *       ],
+                     *       "nextCursor": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ReconciliationBreakPage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    getReconciliationBreak: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                breakId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped trusted X05 result; no ledger mutation or venue submission */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "breakId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *       "runId": "11111111-1111-4111-8111-111111111111",
+                     *       "accountId": "11111111-1111-4111-8111-111111111111",
+                     *       "mode": "shadow",
+                     *       "kind": "LedgerCash",
+                     *       "entity": "ledger/cash",
+                     *       "status": "open",
+                     *       "objectVersion": "0",
+                     *       "expectedJson": "\"799\"",
+                     *       "actualJson": "\"798\"",
+                     *       "expectedSource": "owned-shadow",
+                     *       "actualSource": "owned-observed",
+                     *       "detectedAt": "2026-10-18T08:00:00Z",
+                     *       "lastDetectedAt": "2026-10-18T08:00:00Z",
+                     *       "closureReportHash": null,
+                     *       "evidenceRefs": [
+                     *         {
+                     *           "kind": "order",
+                     *           "ref": "owned-order-1",
+                     *           "sourceRef": "owned-observed",
+                     *           "resolution": "source_record"
+                     *         }
+                     *       ],
+                     *       "day": "2026-10-18"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ReconciliationBreak"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    listLedgerEntries: {
+        parameters: {
+            query: {
+                /** @description 不透明分页游标 */
+                cursor?: components["parameters"]["Cursor"];
+                pageSize?: components["parameters"]["PageSize"];
+                accountId: components["schemas"]["UUID"];
+                runId?: components["schemas"]["UUID"];
+                sort?: "id:asc" | "id:desc";
+                side?: "expected" | "actual";
+                kind?: "snapshot" | "fill";
+                day?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped trusted X05 result; no ledger mutation or venue submission */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "entryId": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "runId": "11111111-1111-4111-8111-111111111111",
+                     *           "accountId": "11111111-1111-4111-8111-111111111111",
+                     *           "mode": "shadow",
+                     *           "currency": "USD",
+                     *           "kind": "snapshot",
+                     *           "side": "actual",
+                     *           "ledgerVersion": "1",
+                     *           "sourceRef": "owned-observed",
+                     *           "sourceHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *           "asOf": "2026-10-18T08:00:00Z",
+                     *           "amounts": {
+                     *             "cash": "798"
+                     *           },
+                     *           "evidenceRefs": [
+                     *             {
+                     *               "kind": "order",
+                     *               "ref": "owned-order-1",
+                     *               "sourceRef": "owned-observed",
+                     *               "resolution": "source_record"
+                     *             }
+                     *           ],
+                     *           "day": "2026-10-18"
+                     *         }
+                     *       ],
+                     *       "nextCursor": null
+                     *     }
+                     */
+                    "application/json": components["schemas"]["LedgerEntryPage"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    requestReconciliationRerun: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 同一业务意图重试必须复用同一键；服务端按（actor, key）去重 */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                /** @description expectedVersion（objectVersion）；不匹配返回 409 + currentVersion */
+                "If-Match": components["parameters"]["IfMatch"];
+                /** @description 与 SameSite CSRF cookie 绑定的双提交 token；BFF 同时校验 Origin allowlist */
+                "X-CSRF-Token": components["parameters"]["CsrfToken"];
+                /** @description Opaque client attempt ID; BFF injects tenant/workspace/actor from the session. */
+                "X-Request-Id": components["parameters"]["ClientRequestId"];
+            };
+            path: {
+                runId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "reason": "request trusted source re-evaluation"
+                 *     }
+                 */
+                "application/json": components["schemas"]["ReconciliationRerun"];
+            };
+        };
+        responses: {
+            /** @description Scoped trusted X05 result; no ledger mutation or venue submission */
+            202: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "jobId": "11111111-1111-4111-8111-111111111111",
+                     *       "status": "accepted",
+                     *       "correlationId": "11111111-1111-4111-8111-111111111111",
+                     *       "auditRef": "11111111-1111-4111-8111-111111111111"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["AuditedAsyncAccepted"];
+                };
+            };
+            401: components["responses"]["Unauthorized"];
+            403: components["responses"]["Forbidden"];
+            default: components["responses"]["ServerError"];
+        };
+    };
+    subscribeReconciliationRun: {
+        parameters: {
+            query?: {
+                /** @description 只推送 sequence 严格大于该值的事件（断线回补） */
+                afterSequence?: components["parameters"]["AfterSequence"];
+            };
+            header?: never;
+            path: {
+                runId: components["schemas"]["UUID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped trusted X05 result; no ledger mutation or venue submission */
+            200: {
+                headers: {
+                    "X-Correlation-Id": components["headers"]["X-Correlation-Id"];
+                    "Cache-Control"?: "no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
                 };
             };
             401: components["responses"]["Unauthorized"];

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.9.0/components.json",
+  "$id": "https://quantos.sumalpha.ai/schemas/bff/1.10.0/components.json",
   "title": "QuantOS Terminal BFF API component schemas",
   "$defs": {
     "UUID": {
@@ -2759,6 +2759,406 @@
         },
         "correlationId": {
           "$ref": "#/$defs/UUID"
+        }
+      }
+    },
+    "ReconciliationEvidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "ref",
+        "sourceRef",
+        "resolution"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "order",
+            "fill",
+            "audit",
+            "alert"
+          ]
+        },
+        "ref": {
+          "type": "string"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "resolution": {
+          "type": "string",
+          "enum": [
+            "source_record",
+            "bff_audit",
+            "x05_exception"
+          ]
+        }
+      }
+    },
+    "ReconciliationRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runId",
+        "accountId",
+        "mode",
+        "currency",
+        "status",
+        "result",
+        "objectVersion",
+        "reportHash",
+        "inputHash",
+        "asOf",
+        "expiresAt",
+        "provisional",
+        "breakCount",
+        "correlationId",
+        "auditRef",
+        "evidenceRefs",
+        "day"
+      ],
+      "properties": {
+        "runId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "shadow"
+          ]
+        },
+        "currency": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "succeeded"
+          ]
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "clean",
+            "differences"
+          ]
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "reportHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "inputHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "provisional": {
+          "type": "boolean"
+        },
+        "breakCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "correlationId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "auditRef": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReconciliationEvidenceRef"
+          }
+        },
+        "day": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      }
+    },
+    "ReconciliationBreak": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "breakId",
+        "runId",
+        "accountId",
+        "mode",
+        "kind",
+        "entity",
+        "status",
+        "objectVersion",
+        "expectedJson",
+        "actualJson",
+        "expectedSource",
+        "actualSource",
+        "detectedAt",
+        "lastDetectedAt",
+        "closureReportHash",
+        "evidenceRefs",
+        "day"
+      ],
+      "properties": {
+        "breakId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "runId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "shadow"
+          ]
+        },
+        "kind": {
+          "type": "string"
+        },
+        "entity": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "acknowledged",
+            "closed"
+          ]
+        },
+        "objectVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "expectedJson": {
+          "type": "string"
+        },
+        "actualJson": {
+          "type": "string"
+        },
+        "expectedSource": {
+          "type": "string"
+        },
+        "actualSource": {
+          "type": "string"
+        },
+        "detectedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastDetectedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "closureReportHash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReconciliationEvidenceRef"
+          }
+        },
+        "day": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      }
+    },
+    "LedgerEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entryId",
+        "runId",
+        "accountId",
+        "mode",
+        "currency",
+        "kind",
+        "side",
+        "ledgerVersion",
+        "sourceRef",
+        "sourceHash",
+        "asOf",
+        "amounts",
+        "evidenceRefs",
+        "day"
+      ],
+      "properties": {
+        "entryId": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "runId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "accountId": {
+          "$ref": "#/$defs/UUID"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "shadow"
+          ]
+        },
+        "currency": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "snapshot",
+            "fill"
+          ]
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "expected",
+            "actual"
+          ]
+        },
+        "ledgerVersion": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "asOf": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "amounts": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/DecimalValue"
+          }
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReconciliationEvidenceRef"
+          }
+        },
+        "day": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      }
+    },
+    "ReconciliationRerun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "ReconciliationRunPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReconciliationRun"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ReconciliationBreakPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReconciliationBreak"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "LedgerEntryPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LedgerEntry"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     }

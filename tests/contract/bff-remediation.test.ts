@@ -46,7 +46,7 @@ describe("A1 OpenAPI semantic remediation",()=>{
   expect((await validateResponse('getSession',Response.json({}, {headers:{"X-Correlation-Id":uuid,"Cache-Control":"no-store"}}))).length).toBeGreaterThan(0);
   expect((await validateResponse('getSession',Response.json(loadFixture('session/default.json')))).some((i:string)=>i.includes('header'))).toBe(true);
   expect((await validateResponse('getSession',Response.json({...loadFixture('session/default.json'),venueApiKey:'synthetic'},{headers:{"X-Correlation-Id":uuid,"Cache-Control":"no-store"}}))).some((i:string)=>i.includes('敏感'))).toBe(true);
-  expect(openapi.info.version).toBe('1.9.0');
+  expect(openapi.info.version).toBe('1.10.0');
  });
  it("requires conflict version, rate retry and matching error correlation without debug extensions",async()=>{
   const envelope={code:'VERSION_CONFLICT',message:'stale',correlationId:uuid};
@@ -76,4 +76,15 @@ it("checks successful accepted envelope correlation on every replay", async () =
  const payload={jobId:id,status:"accepted",correlationId:id,auditRef:id};
  const response=Response.json(payload,{status:202,headers:{"X-Correlation-Id":"22222222-2222-4222-8222-222222222222","Cache-Control":"no-store"}});
  expect(await validateResponse("setupMfa",response)).toContain("correlation header/body mismatch");
+});
+
+describe('C15 nullable read projections stay strictly typed',()=>{
+ it('preserves unissued auditRef and end cursor null but refuses arbitrary object/number substitutes',()=>{
+  const run=openapi.paths['/v1/reconciliation/runs/{runId}'].get.responses['200'].content['application/json'].example;
+  expect(bffZodSchemas.ReconciliationRun.safeParse(run).success).toBe(true);
+  for(const auditRef of [123,{},'not-a-uuid'])expect(bffZodSchemas.ReconciliationRun.safeParse({...run,auditRef}).success).toBe(false);
+  for(const nextCursor of [0,{},false])expect(bffZodSchemas.LedgerEntryPage.safeParse({items:[],nextCursor}).success).toBe(false);
+  expect(bffZodSchemas.LedgerEntryPage.safeParse({items:[],nextCursor:null}).success).toBe(true);
+  expect(bffZodSchemas.ReconciliationRun.safeParse({...run,reportHash:'unverified'}).success).toBe(false);
+ });
 });

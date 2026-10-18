@@ -249,6 +249,22 @@ impl ReconciliationService {
             .cloned()
             .collect())
     }
+    /// Read-only closure proof for page/report consumers. The hash is issued
+    /// solely by the existing verified CloseDay transaction.
+    pub fn closed_day_report(
+        &self,
+        a: &AuthContext,
+        day: NaiveDate,
+    ) -> Result<Option<ContentHash>, Error> {
+        self.scope.authorize(a)?;
+        Ok(self
+            .state
+            .lock()
+            .map_err(|_| Error::Unavailable)?
+            .closed_days
+            .get(&day)
+            .cloned())
+    }
     pub fn day_is_closed(&self, a: &AuthContext, day: NaiveDate) -> Result<bool, Error> {
         self.scope.authorize(a)?;
         Ok(self

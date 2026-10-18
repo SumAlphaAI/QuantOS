@@ -52,7 +52,11 @@ async fn main() -> anyhow::Result<()> {
         .await
         .context("live BFF initialization failed")??
     } else {
-        BffProvider::default().router()
+        if env::var("QUANTOS_BFF_REFERENCE_CONTEXT").as_deref() == Ok("shadow") {
+            BffProvider::shadow_reference().router()
+        } else {
+            BffProvider::default().router()
+        }
     };
     println!(
         r#"{{"service":"bff-gateway","ready":true,"mode":"{}","address":"{address}"}}"#,
